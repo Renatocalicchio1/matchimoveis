@@ -1,29 +1,27 @@
-<%- include('partials/app-shell',{active:'imoveis',title:'Meus imóveis',subtitle:'Relação completa dos imóveis do corretor em formato de planilha.',perfil:'corretor'}) %>
+<%- include('partials/app-shell',{active:'imoveis',title:'Meus imóveis',subtitle:'Relação completa dos imóveis da carteira.',perfil:'corretor'}) %>
 
 <div class="card">
-  <button class="btn light" type="button" onclick="toggleFiltros()">🔎 Filtrar imóveis</button>
+  <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+    <span><strong><%= typeof imoveis !== 'undefined' ? imoveis.length : 0 %></strong> imóveis na carteira</span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="busca" placeholder="🔎 Buscar..." oninput="filtrar()" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;min-width:220px">
+      <button class="btn light" type="button" onclick="toggleFiltros()">⚙️ Filtros avançados</button>
+    </div>
+  </div>
 
-  <div id="box-filtros" style="display:none;margin-top:18px">
-    <h3>Filtro avançado</h3>
-    <div class="form">
-      <div><label>Estado<input id="f-estado" placeholder="SP"></label></div>
-      <div><label>Cidade<input id="f-cidade" placeholder="São Paulo"></label></div>
-      <div><label>Bairro<input id="f-bairro" placeholder="Vila Mariana"></label></div>
-      <div><label>CEP<input id="f-cep" placeholder="00000-000"></label></div>
-      <div><label>Código / ID<input id="f-id" placeholder="ID"></label></div>
-      <div><label>Tipo imóvel<input id="f-tipo" placeholder="Apartamento, casa, sala"></label></div>
-      <div><label>Negociação<input id="f-negociacao" placeholder="Venda, locação"></label></div>
-      <div><label>Valor mín.<input id="f-valor-min" placeholder="500000"></label></div>
-      <div><label>Valor máx.<input id="f-valor-max" placeholder="1000000"></label></div>
-      <div><label>M² mín.<input id="f-area-min" placeholder="50"></label></div>
-      <div><label>M² máx.<input id="f-area-max" placeholder="120"></label></div>
-      <div><label>Quartos<input id="f-quartos" placeholder="2"></label></div>
-      <div><label>Suítes<input id="f-suites" placeholder="1"></label></div>
-      <div><label>Banheiros<input id="f-banheiros" placeholder="2"></label></div>
-      <div><label>Vagas<input id="f-vagas" placeholder="1"></label></div>
-      <div style="display:flex;gap:10px;align-items:end">
-        <button class="btn red" type="button" onclick="filtrarTabela()">Aplicar filtro</button>
-        <button class="btn light" type="button" onclick="limparFiltro()">Limpar</button>
+  <div id="box-filtros" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #ebebeb">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+      <div style="flex:1;min-width:120px"><label>Tipo</label><input id="f-tipo" placeholder="Apartamento..."></div>
+      <div style="flex:1;min-width:120px"><label>Bairro</label><input id="f-bairro" placeholder="Vila Mariana"></div>
+      <div style="flex:1;min-width:120px"><label>Cidade</label><input id="f-cidade" placeholder="São Paulo"></div>
+      <div style="flex:1;min-width:100px"><label>Valor mín.</label><input id="f-valor-min" type="number" placeholder="500000"></div>
+      <div style="flex:1;min-width:100px"><label>Valor máx.</label><input id="f-valor-max" type="number" placeholder="2000000"></div>
+      <div style="flex:0 0 80px"><label>Área m²</label><input id="f-area-min" type="number" placeholder="50"></div>
+      <div style="flex:0 0 70px"><label>Quartos</label><input id="f-quartos" type="number" placeholder="2"></div>
+      <div style="flex:0 0 70px"><label>Vagas</label><input id="f-vagas" type="number" placeholder="1"></div>
+      <div style="display:flex;gap:6px;align-items:flex-end;padding-bottom:1px">
+        <button class="btn btn-primary" type="button" onclick="filtrar()" style="white-space:nowrap">Aplicar</button>
+        <button class="btn btn-outline" type="button" onclick="limpar()">Limpar</button>
       </div>
     </div>
   </div>
@@ -31,82 +29,60 @@
 
 <br>
 
-<div class="card">
-  <form method="POST" action="/app-xml-gerar">
-    <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap">
-      <h3 style="margin:0">Planilha de imóveis</h3>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <select name="portal">
-          <option value="canalpro">Canal Pro — OLX / Zap / Viva Real</option>
-          <option value="chaves-na-mao">Chaves na Mão</option>
-          <option value="imovelweb">Imovelweb</option>
-          <option value="123i">123i</option>
-          <option value="quintoandar">QuintoAndar</option>
-          <option value="remax">RE/MAX</option>
-        </select>
-        <button class="btn red" type="submit">Gerar XML selecionados</button>
+<div id="grid-imoveis" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+<% (typeof imoveis !== 'undefined' ? imoveis : []).forEach((item, idx) => { %>
+  <div class="card imovel-card"
+    data-tipo="<%= (item.tipo||'').toLowerCase() %>"
+    data-bairro="<%= (item.bairro||'').toLowerCase() %>"
+    data-cidade="<%= (item.cidade||'').toLowerCase() %>"
+    data-valor="<%= item.valor_imovel || 0 %>"
+    data-area="<%= item.area_m2 || 0 %>"
+    data-quartos="<%= item.quartos || 0 %>"
+    data-vagas="<%= item.vagas || 0 %>"
+    data-texto="<%= ((item.tipo||'')+(item.bairro||'')+(item.cidade||'')+(item.titulo||'')).toLowerCase() %>"
+    style="padding:0;overflow:hidden;border-radius:12px;border:1px solid #eee">
+
+    <% if(item.fotos && item.fotos.length > 0) { %>
+      <img src="<%= item.fotos[0] %>" alt="foto" style="width:100%;height:180px;object-fit:cover">
+    <% } else { %>
+      <div style="width:100%;height:180px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:32px">🏠</div>
+    <% } %>
+
+    <div style="padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
+        <span style="background:#fee2e2;color:#dc2626;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px"><%= item.tipo || 'Imóvel' %></span>
+        <span style="font-size:11px;color:#999"><%= item.idExterno || idx %></span>
+      </div>
+
+      <div style="font-weight:700;font-size:18px;color:#111;margin-bottom:4px">
+        R$ <%= item.valor_imovel ? Number(item.valor_imovel).toLocaleString('pt-BR') : '-' %>
+      </div>
+
+      <div style="color:#666;font-size:13px;margin-bottom:12px">
+        <%= item.bairro || '-' %>, <%= item.cidade || '-' %>
+      </div>
+
+      <div style="display:flex;gap:12px;font-size:13px;color:#444;margin-bottom:14px;flex-wrap:wrap">
+        <% if(item.area_m2) { %><span>📐 <%= item.area_m2 %>m²</span><% } %>
+        <% if(item.quartos) { %><span>🛏 <%= item.quartos %> qtos</span><% } %>
+        <% if(item.suites) { %><span>🛁 <%= item.suites %> suítes</span><% } %>
+        <% if(item.vagas) { %><span>🚗 <%= item.vagas %> vagas</span><% } %>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <a href="/imovel/<%= idx %>" target="_blank" class="btn light" style="flex:1;text-align:center;font-size:12px">Ver detalhes</a>
+        <% if(item.corretor && item.corretor.telefone) { %>
+          <a href="https://wa.me/55<%= item.corretor.telefone.replace(/\D/g,'') %>" target="_blank" class="btn red" style="flex:1;text-align:center;font-size:12px">WhatsApp</a>
+        <% } %>
       </div>
     </div>
+  </div>
+<% }) %>
+</div>
 
-    <br>
-
-    <div style="overflow:auto">
-      <table class="table" id="tabela-imoveis">
-        <tr>
-          <th><input type="checkbox" onclick="document.querySelectorAll('.chk').forEach(c=>c.checked=this.checked)"></th>
-          <th>Ver</th>
-          <th>ID</th>
-          <th>Categoria</th>
-          <th>Tipo</th>
-          <th>Negociação</th>
-          <th>CEP</th>
-          <th>Endereço</th>
-          <th>Bairro</th>
-          <th>Cidade</th>
-          <th>UF</th>
-          <th>Valor</th>
-          <th>Condomínio</th>
-          <th>IPTU</th>
-          <th>Área útil</th>
-          <th>Área total</th>
-          <th>Quartos</th>
-          <th>Suítes</th>
-          <th>Banheiros</th>
-          <th>Vagas</th>
-          <th>Status</th>
-        </tr>
-
-        <% (typeof imoveis !== 'undefined' ? imoveis : []).forEach((item,idx)=>{ 
-          const o = item.origin || item;
-          const id = o.listingId || o.id || o.id_anuncio || o.codigo || idx;
-        %>
-        <tr>
-          <td><input class="chk" type="checkbox" name="ids" value="<%= idx %>"></td>
-          <td><a class="btn light" href="/imovel/<%= idx %>" target="_blank">Abrir</a></td>
-          <td><%= id || '-' %></td>
-          <td><%= o.categoria || o.tipo_categoria || '-' %></td>
-          <td><%= o.tipo || o.tipo_residencial || o.tipo_comercial || '-' %></td>
-          <td><%= o.negociacao || o.tipo_negociacao || 'Venda' %></td>
-          <td><%= o.cep || '-' %></td>
-          <td><%= o.endereco || o.logradouro || '-' %></td>
-          <td><%= o.bairro || '-' %></td>
-          <td><%= o.cidade || 'São Paulo' %></td>
-          <td><%= o.estado || 'SP' %></td>
-          <td>R$ <%= o.valor_imovel || o.valor || '-' %></td>
-          <td>R$ <%= o.condominio || '-' %></td>
-          <td>R$ <%= o.iptu || '-' %></td>
-          <td><%= o.area_m2 || o.area_util || o.area || '-' %> m²</td>
-          <td><%= o.area_total || '-' %> m²</td>
-          <td><%= o.quartos || '-' %></td>
-          <td><%= o.suites || '-' %></td>
-          <td><%= o.banheiros || '-' %></td>
-          <td><%= o.vagas || '-' %></td>
-          <td><span class="status ok">Ativo</span></td>
-        </tr>
-        <% }) %>
-      </table>
-    </div>
-  </form>
+<div id="sem-resultados" style="display:none;text-align:center;padding:60px;color:#999">
+  <div style="font-size:48px">🔍</div>
+  <p>Nenhum imóvel encontrado com esses filtros.</p>
 </div>
 
 <script>
@@ -114,37 +90,51 @@ function toggleFiltros(){
   const box = document.getElementById('box-filtros');
   box.style.display = box.style.display === 'none' ? 'block' : 'none';
 }
-function normaliza(v){return (v||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
-function numero(v){return Number((v||'').toString().replace(/\D/g,''))||0}
-function filtrarTabela(){
-  const campos = ['estado','cidade','bairro','cep','id','tipo','negociacao','quartos','suites','banheiros','vagas'];
-  const valores = {};
-  campos.forEach(c=>valores[c]=normaliza(document.getElementById('f-'+c)?.value));
-  const valorMin = numero(document.getElementById('f-valor-min')?.value);
-  const valorMax = numero(document.getElementById('f-valor-max')?.value);
-  const areaMin = numero(document.getElementById('f-area-min')?.value);
-  const areaMax = numero(document.getElementById('f-area-max')?.value);
 
-  document.querySelectorAll('#tabela-imoveis tr').forEach((tr,i)=>{
-    if(i===0) return;
-    const text = normaliza(tr.innerText);
+function norm(v){ return (v||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'') }
+
+function filtrar(){
+  const busca = norm(document.getElementById('busca').value);
+  const tipo = norm(document.getElementById('f-tipo')?.value);
+  const bairro = norm(document.getElementById('f-bairro')?.value);
+  const cidade = norm(document.getElementById('f-cidade')?.value);
+  const valorMin = Number(document.getElementById('f-valor-min')?.value) || 0;
+  const valorMax = Number(document.getElementById('f-valor-max')?.value) || 0;
+  const areaMin = Number(document.getElementById('f-area-min')?.value) || 0;
+  const quartos = Number(document.getElementById('f-quartos')?.value) || 0;
+  const vagas = Number(document.getElementById('f-vagas')?.value) || 0;
+
+  let visiveis = 0;
+  document.querySelectorAll('.imovel-card').forEach(card => {
+    const texto = card.dataset.texto;
+    const valor = Number(card.dataset.valor);
+    const area = Number(card.dataset.area);
+
     let ok = true;
-    Object.values(valores).forEach(v=>{ if(v && !text.includes(v)) ok=false; });
+    if(busca && !norm(card.outerText).includes(busca)) ok = false;
+    if(tipo && !card.dataset.tipo.includes(tipo)) ok = false;
+    if(bairro && !card.dataset.bairro.includes(bairro)) ok = false;
+    if(cidade && !card.dataset.cidade.includes(cidade)) ok = false;
+    if(valorMin && valor < valorMin) ok = false;
+    if(valorMax && valor > valorMax) ok = false;
+    if(areaMin && area < areaMin) ok = false;
+    if(quartos && Number(card.dataset.quartos) < quartos) ok = false;
+    if(vagas && Number(card.dataset.vagas) < vagas) ok = false;
 
-    const valor = numero(text.match(/r\$\s*[\d\.]+/i)?.[0] || '');
-    const area = numero(text.match(/\d+\s*m²/i)?.[0] || '');
-
-    if(valorMin && valor < valorMin) ok=false;
-    if(valorMax && valor > valorMax) ok=false;
-    if(areaMin && area < areaMin) ok=false;
-    if(areaMax && area > areaMax) ok=false;
-
-    tr.style.display = ok ? '' : 'none';
+    card.style.display = ok ? '' : 'none';
+    if(ok) visiveis++;
   });
+
+  document.getElementById('sem-resultados').style.display = visiveis === 0 ? 'block' : 'none';
 }
-function limparFiltro(){
-  document.querySelectorAll('[id^="f-"]').forEach(el=>el.value='');
-  document.querySelectorAll('#tabela-imoveis tr').forEach(tr=>tr.style.display='');
+
+function limpar(){
+  ['f-tipo','f-bairro','f-cidade','f-valor-min','f-valor-max','f-area-min','f-quartos','f-vagas'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  document.getElementById('busca').value = '';
+  filtrar();
 }
 </script>
 

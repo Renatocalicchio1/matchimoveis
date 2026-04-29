@@ -1,29 +1,99 @@
-<%- include('partials/app-shell',{active:'perfil',title:'Meu perfil',subtitle:'Dados da sua conta no sistema.',perfil:(user && user.tipo) || 'corretor',user:user}) %>
+<%- include('partials/app-shell',{active:'perfil',title:'Meu perfil',subtitle:'Dados da sua conta.',perfil:(user && user.tipo)||'corretor',user:user}) %>
 
 <div class="card">
   <h3>Dados do usuário</h3>
-  <p class="small">Essas informações identificam sua conta no MatchImoveis.</p>
-
-  <br>
-
-  <form method="POST" action="/app/perfil">
-    <label>Nome</label><br>
-    <input name="nome" value="<%= user.nome || '' %>" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:8px 0 14px;">
-
-    <label>Celular</label><br>
-    <input name="celular" value="<%= user.celular || user.telefone || '' %>" readonly >
-
-    <label>Tipo de conta</label><br>
-    <input value="<%= user.tipo || 'corretor' %>" readonly >
-
-    <label>CRECI</label><br>
-    <input name="creci" value="<%= user.creci || '' %>" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:8px 0 14px;">
-
-    <label>CPF</label><br>
-    <input name="cpf" value="<%= user.cpf || '' %>" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:8px 0 14px;">
-
-    <button class="btn red" type="submit">Salvar perfil</button>
+  <form method="POST" action="/app/perfil" style="margin-top:14px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><label>Nome</label><input name="nome" value="<%= user.nome||'' %>"></div>
+      <div><label>Celular</label><input value="<%= user.celular||user.telefone||'' %>" readonly style="background:#f7f7f7;color:#aaa"></div>
+      <div><label>CRECI</label><input name="creci" value="<%= user.creci||'' %>"></div>
+      <div><label>CPF</label><input name="cpf" value="<%= user.cpf||'' %>"></div>
+      <div><label>Tipo de conta</label><input value="<%= user.tipo||'corretor' %>" readonly style="background:#f7f7f7;color:#aaa"></div>
+    </div>
+    <button class="btn btn-primary" type="submit" style="margin-top:16px">Salvar perfil</button>
   </form>
 </div>
+
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div>
+      <h3 style="margin-bottom:4px">📍 Minha localização</h3>
+      <p style="color:#717171;font-size:13px">Usada para calcular distâncias até os imóveis e leads.</p>
+    </div>
+    <button class="btn btn-primary" onclick="pegarLocalizacao()" id="btn-loc">
+      📡 Atualizar localização
+    </button>
+  </div>
+
+  <div id="loc-status" style="margin-top:14px;padding:12px;border-radius:10px;background:#f7f7f7;font-size:13px;display:flex;align-items:center;gap:10px">
+    <% if(user.lat && user.lng) { %>
+      <span style="color:#16a34a;font-size:16px">✅</span>
+      <span>Localização salva: <strong><%= user.endereco || (user.lat + ', ' + user.lng) %></strong></span>
+    <% } else { %>
+      <span style="color:#f59e0b;font-size:16px">⚠️</span>
+      <span>Localização não definida. Clique em <strong>Atualizar localização</strong> para habilitar o mapa de distâncias.</span>
+    <% } %>
+  </div>
+
+  <div id="mapa-perfil" style="margin-top:14px;border-radius:12px;overflow:hidden;display:<%= (user.lat && user.lng) ? 'block' : 'none' %>;height:200px"></div>
+
+  <form id="form-loc" method="POST" action="/app/perfil/localizacao" style="display:none">
+    <input type="hidden" name="lat" id="inp-lat">
+    <input type="hidden" name="lng" id="inp-lng">
+    <input type="hidden" name="endereco" id="inp-endereco">
+  </form>
+</div>
+
+<script>
+function pegarLocalizacao() {
+  const btn = document.getElementById('btn-loc');
+  const status = document.getElementById('loc-status');
+  btn.textContent = '⏳ Obtendo localização...';
+  btn.disabled = true;
+
+  if (!navigator.geolocation) {
+    status.innerHTML = '<span style="color:#FF385C">❌ Geolocalização não suportada neste navegador.</span>';
+    btn.disabled = false;
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+
+    // busca endereço via geocoding reverso
+    let endereco = lat + ', ' + lng;
+    try {
+      const r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng);
+      const d = await r.json();
+      endereco = d.display_name || endereco;
+    } catch(e) {}
+
+    // salva via POST
+    document.getElementById('inp-lat').value = lat;
+    document.getElementById('inp-lng').value = lng;
+    document.getElementById('inp-endereco').value = endereco;
+    document.getElementById('form-loc').submit();
+
+  }, (err) => {
+    status.innerHTML = '<span style="color:#FF385C">❌ Não foi possível obter localização. Verifique as permissões do navegador.</span>';
+    btn.textContent = '📡 Atualizar localização';
+    btn.disabled = false;
+  }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
+// mostra mapa se já tem localização
+<% if(user.lat && user.lng) { %>
+const mapDiv = document.getElementById('mapa-perfil');
+mapDiv.style.display = 'block';
+const iframe = document.createElement('iframe');
+iframe.width = '100%';
+iframe.height = '200';
+iframe.frameBorder = '0';
+iframe.style.border = '0';
+iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=<%= user.lng-0.01 %>,<%= user.lat-0.01 %>,<%= user.lng+0.01 %>,<%= user.lat+0.01 %>&layer=mapnik&marker=<%= user.lat %>,<%= user.lng %>';
+mapDiv.appendChild(iframe);
+<% } %>
+</script>
 
 <%- include('partials/app-end') %>

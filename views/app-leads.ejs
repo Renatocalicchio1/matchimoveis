@@ -1,182 +1,152 @@
-<%- include('partials/app-shell',{active:'leads',title:'Meus Leads',subtitle:'Leads importados e perfil do imóvel extraído da URL.',perfil:'corretor'}) %>
+<%- include('partials/app-shell',{active:'leads',title:'Leads',subtitle:'Leads importados e perfil do imóvel extraído da URL.',perfil:'corretor',user:user}) %>
 
-<div class="grid">
-  <div class="card"><h3>Total de leads</h3><p class="small">Leads da sua conta</p><div class="num"><%= leads.length %></div></div>
-  <div class="card"><h3>Extraídos</h3><p class="small">Perfil capturado</p><div class="num"><%= leads.filter(l => l.origin && (l.origin.extractionStatus === 'ok' || l.origin.extractionStatus === 'bairro_invalido')).length %></div></div>
-  <div class="card"><h3>Com match</h3><p class="small">Oportunidades</p><div class="num"><%= leads.filter(l => l.matches && l.matches.length).length %></div></div>
-  <div class="card"><h3>Pendentes</h3><p class="small">Aguardando extração</p><div class="num"><%= leads.filter(l => !l.origin).length %></div></div>
+<div class="grid-4">
+  <div class="card">
+    <p style="color:#717171;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Total</p>
+    <div class="stat-num"><%= leads.length %></div>
+    <p style="font-size:12px;color:#717171">Leads na conta</p>
+  </div>
+  <div class="card">
+    <p style="color:#717171;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Extraídos</p>
+    <div class="stat-num"><%= leads.filter(l => l.origin && (l.origin.extractionStatus === 'ok' || l.origin.extractionStatus === 'bairro_invalido')).length %></div>
+    <p style="font-size:12px;color:#717171">Perfil capturado</p>
+  </div>
+  <div class="card">
+    <p style="color:#717171;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Com match</p>
+    <div class="stat-num"><%= leads.filter(l => l.matches && l.matches.length).length %></div>
+    <p style="font-size:12px;color:#717171">Oportunidades</p>
+  </div>
+  <div class="card">
+    <p style="color:#717171;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Pendentes</p>
+    <div class="stat-num"><%= leads.filter(l => !l.origin).length %></div>
+    <p style="font-size:12px;color:#717171">Aguardando extração</p>
+  </div>
 </div>
 
-<br>
-
 <div class="card">
-  <h3>Importar lista de leads</h3>
-  <p class="small">Suba Excel ou CSV para importar, remover duplicados e extrair o perfil dos imóveis pela URL.</p>
-  <form method="POST" action="/process" enctype="multipart/form-data" style="margin-top:12px;">
-    <input type="file" name="file" accept=".xlsx,.xls,.csv" required>
-    <button class="btn red" type="submit">Importar</button>
+  <h3>Importar leads</h3>
+  <p style="margin:6px 0 16px">Suba Excel ou CSV para importar, remover duplicados e extrair o perfil dos imóveis pela URL.</p>
+  <form method="POST" action="/process" enctype="multipart/form-data" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <input type="file" name="file" accept=".xlsx,.xls,.csv" required style="max-width:300px">
+    <button class="btn btn-primary" type="submit">⬆️ Importar</button>
   </form>
 </div>
 
-<br>
-
 <div class="card">
-  <h3>Lista de leads</h3>
-  <p class="small">Tabela tipo Excel com dados do lead e perfil do imóvel buscado.</p>
-
-  <div class="lead-filters" style="display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;align-items:center">
-    <input id="filtro" placeholder="Buscar cliente, email, bairro ou ID..." style="max-width:320px">
-    <select id="statusFiltro" style="max-width:180px">
-      <option value="">Todos os status</option>
-      <option value="extraído">Extraído</option>
-      <option value="processando">Processando</option>
-      <option value="erro">Erro</option>
-      <option value="match">Com match</option>
-    </select>
-    <select id="scoreFiltro" style="max-width:150px">
-      <option value="">Score Lead</option>
-      <option value="50">50+</option>
-      <option value="70">70+</option>
-      <option value="90">90+</option>
-    </select>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+    <h3 style="margin:0">Lista de leads</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="filtro" placeholder="Buscar cliente, bairro, ID..." style="width:240px">
+      <select id="statusFiltro" style="width:160px">
+        <option value="">Todos os status</option>
+        <option value="extraído">Extraído</option>
+        <option value="processando">Processando</option>
+        <option value="erro">Erro</option>
+      </select>
+      <select id="scoreFiltro" style="width:130px">
+        <option value="">Score Lead</option>
+        <option value="50">50+</option>
+        <option value="70">70+</option>
+        <option value="90">90+</option>
+      </select>
+    </div>
   </div>
 
   <% if (!leads.length) { %>
-    <br><p class="small">Nenhum lead encontrado para esta conta.</p>
-  <% } %>
-
-  
-<style>
-table { font-size:11px; table-layout:fixed; }
-th, td { padding:6px; border-bottom:1px solid #eee; word-wrap:break-word; }
-th { background:#FFFFFF; }
-td { max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:normal; }
-a { font-size:10px; }
-</style>
-
-<div style="overflow:hidden;margin-top:12px;">
-    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+    <div style="text-align:center;padding:48px;color:#717171">
+      <div style="font-size:40px;margin-bottom:12px">👥</div>
+      <p>Nenhum lead encontrado. Importe uma planilha para começar.</p>
+    </div>
+  <% } else { %>
+  <div style="overflow-x:auto">
+    <table>
       <thead>
         <tr>
           <th>Cliente</th>
           <th>Contato</th>
-          <th>Email</th>
-          <th>Status</th><th>Score Lead</th>
-          <th>Fonte</th>
-          <th>ID</th>
+          <th>Status</th>
+          <th>Score</th>
           <th>Tipo</th>
           <th>Bairro</th>
-          <th>Cidade/UF</th>
+          <th>Cidade</th>
           <th>Valor</th>
           <th>Área</th>
-          <th>Quartos</th>
-          <th>Suítes</th>
-          <th>Banheiros</th>
-          <th>Vagas</th>
+          <th>Qtos</th>
+          <th>Matches</th>
           <th>URL</th>
         </tr>
       </thead>
       <tbody>
-        <% leads.forEach((item) => { 
+        <% leads.forEach((item) => {
           const origin = item.origin || {};
-          const status = origin.extractionStatus === 'ok'
-            ? 'Extraído'
-            : (origin.extractionStatus === 'bairro_invalido' ? 'Extraído sem bairro' : (origin.extractionStatus || 'Processando'));
-
+          const status = origin.extractionStatus === 'ok' ? 'Extraído'
+            : (origin.extractionStatus === 'bairro_invalido' ? 'Sem bairro'
+            : (origin.extractionStatus || 'Pendente'));
           let leadScore = 0;
           if (item.matches && item.matches.length) {
             leadScore += 50;
             leadScore += Math.min(item.matches.length * 5, 25);
             leadScore += Math.min(((item.matches[0] && item.matches[0].score) || 0) / 2, 25);
           }
+          const scoreVal = Math.round(leadScore);
+          const badgeClass = scoreVal >= 70 ? 'badge-green' : scoreVal >= 40 ? 'badge-blue' : 'badge-gray';
+          const statusClass = status === 'Extraído' ? 'badge-green' : status === 'Pendente' ? 'badge-gray' : 'badge-red';
         %>
-          <tr >
-            <td><%= item.nome || item.clientName || '-' %></td>
-            <td><%= item.contato || item.contact || item.telefone || '-' %></td>
-            <td><%= item.email || '-' %></td>
-            <td><%= status %></td><td><strong><%= Math.round(leadScore) %></strong></td>
-            <td>Origem</td>
-            <td><%= item.id || origin.listingId || '-' %></td>
-            <td><%= origin.tipo || '-' %></td>
-            <td><%= origin.bairro || item.bairro || '-' %></td>
-            <td><%= origin.cidade || item.cidade || '-' %> / <%= origin.estado || item.estado || '-' %></td>
-            <td><%= origin.valor_imovel || origin.valor || '-' %></td>
-            <td><%= origin.area_m2 || origin.area || '-' %></td>
-            <td><%= origin.quartos || '-' %></td>
-            <td><%= origin.suites || '-' %></td>
-            <td><%= origin.banheiros || '-' %></td>
-            <td><%= origin.vagas || '-' %></td>
-            <td>
-              <% if (item.url) { %>
-                <a target="_blank" href="<%= item.url %>">Abrir</a>
-              <% } else { %>
-                -
-              <% } %>
-            </td>
-          </tr>
-
-          <% if (item.matches && item.matches.length) { %>
-            <% item.matches.forEach((m, idx) => { %>
-              <tr >
-                <td>↳ MATCH <%= idx + 1 %></td>
-                <td colspan="2"><%= item.nome || '-' %></td>
-                <td>Score <%= m.score || '-' %></td>
-                <td><%= m.fonte || 'QuintoAndar' %></td>
-                <td><%= m.id_anuncio_quintoandar || m.id || m.listingId || '-' %></td>
-                <td><%= m.tipo || '-' %></td>
-                <td><%= m.bairro || '-' %></td>
-                <td><%= m.cidade || '-' %> / <%= m.estado || '-' %></td>
-                <td><%= m.valor_imovel || m.valor || '-' %></td>
-                <td><%= m.area_m2 || m.area || '-' %></td>
-                <td><%= m.quartos || '-' %></td>
-                <td><%= m.suites || '-' %></td>
-                <td><%= m.banheiros || '-' %></td>
-                <td><%= m.vagas || '-' %></td>
-                <td>
-                  <% if (m.url) { %>
-                    <a target="_blank" href="<%= m.url %>">Abrir</a>
-                  <% } else { %>
-                    -
-                  <% } %>
-                </td>
-              </tr>
-            <% }) %>
-          <% } %>
+        <tr>
+          <td style="font-weight:600"><%= item.nome || item.clientName || '-' %></td>
+          <td style="color:#717171"><%= item.contato || item.telefone || '-' %></td>
+          <td><span class="badge <%= statusClass %>"><%= status %></span></td>
+          <td><span class="badge <%= badgeClass %>"><%= scoreVal %></span></td>
+          <td><%= origin.tipo || '-' %></td>
+          <td><%= origin.bairro || item.bairro || '-' %></td>
+          <td><%= origin.cidade || item.cidade || '-' %></td>
+          <td><%= origin.valor_imovel ? 'R$ ' + Number(origin.valor_imovel).toLocaleString('pt-BR') : '-' %></td>
+          <td><%= origin.area_m2 ? origin.area_m2 + ' m²' : '-' %></td>
+          <td><%= origin.quartos || '-' %></td>
+          <td>
+            <% if(item.matches && item.matches.length) { %>
+              <span class="badge badge-green"><%= item.matches.length %> match<%= item.matches.length > 1 ? 'es' : '' %></span>
+            <% } else { %>
+              <span style="color:#aaa">—</span>
+            <% } %>
+          </td>
+          <td>
+            <% if(item.url) { %>
+              <a href="<%= item.url %>" target="_blank" class="btn btn-ghost" style="padding:4px 8px;font-size:11px">Abrir ↗</a>
+            <% } else { %>
+              <span style="color:#aaa">—</span>
+            <% } %>
+          </td>
+        </tr>
         <% }) %>
       </tbody>
     </table>
   </div>
+  <% } %>
 </div>
-
-<%- include('partials/app-end') %>
 
 <script>
 const filtro = document.getElementById('filtro');
 const statusFiltro = document.getElementById('statusFiltro');
 const scoreFiltro = document.getElementById('scoreFiltro');
-
 function filtrar(){
-  const texto = filtro.value.toLowerCase();
-  const status = statusFiltro.value;
-  const scoreMin = Number(scoreFiltro.value || 0);
-
+  const texto = (filtro.value||'').toLowerCase();
+  const status = (statusFiltro.value||'').toLowerCase();
+  const scoreMin = Number(scoreFiltro.value||0);
   document.querySelectorAll('tbody tr').forEach(tr=>{
     const t = tr.innerText.toLowerCase();
-    const scoreMatch = tr.innerText.match(/\\d+/);
-    const score = scoreMatch ? Number(scoreMatch[0]) : 0;
-
+    const nums = tr.innerText.match(/\d+/g)||[];
+    const score = Math.max(...nums.map(Number).filter(n=>n<=100));
     let show = true;
-
-    if (texto && !t.includes(texto)) show = false;
-    if (status && !t.includes(status.toLowerCase())) show = false;
-    if (scoreMin && score < scoreMin) show = false;
-
-    tr.style.display = show ? '' : 'none';
+    if(texto && !t.includes(texto)) show=false;
+    if(status && !t.includes(status)) show=false;
+    if(scoreMin && score < scoreMin) show=false;
+    tr.style.display = show?'':'none';
   });
 }
-
-filtro.oninput = filtrar;
-statusFiltro.onchange = filtrar;
-scoreFiltro.onchange = filtrar;
+if(filtro) filtro.oninput = filtrar;
+if(statusFiltro) statusFiltro.onchange = filtrar;
+if(scoreFiltro) scoreFiltro.onchange = filtrar;
 </script>
 
+<%- include('partials/app-end') %>

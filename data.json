@@ -6114,8 +6114,9 @@
     "vagas": 2,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:25:40.081Z",
-    "extractedAt": "2026-04-29T14:59:28.355Z"
+    "matchedAt": "2026-04-29T20:08:49.552Z",
+    "extractedAt": "2026-04-29T14:59:28.355Z",
+    "bestScore": 0
   },
   {
     "nome": "Agda",
@@ -6266,8 +6267,9 @@
     "vagas": 0,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:29:09.604Z",
-    "extractedAt": "2026-04-29T15:00:03.848Z"
+    "matchedAt": "2026-04-29T20:11:49.536Z",
+    "extractedAt": "2026-04-29T15:00:03.848Z",
+    "bestScore": 0
   },
   {
     "nome": "EDUARDO VERISSIMO INOCENTE",
@@ -6368,8 +6370,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:32:03.203Z",
-    "extractedAt": "2026-04-29T15:00:28.894Z"
+    "matchedAt": "2026-04-29T20:14:57.810Z",
+    "extractedAt": "2026-04-29T15:00:28.894Z",
+    "bestScore": 0
   },
   {
     "nome": "Ana Claudia",
@@ -6470,8 +6473,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:34:00.594Z",
-    "extractedAt": "2026-04-29T15:00:54.035Z"
+    "matchedAt": "2026-04-29T20:17:28.406Z",
+    "extractedAt": "2026-04-29T15:00:54.035Z",
+    "bestScore": 0
   },
   {
     "nome": "LUCIANA",
@@ -6522,8 +6526,9 @@
     "vagas": 0,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:37:38.615Z",
-    "extractedAt": "2026-04-29T15:01:05.836Z"
+    "matchedAt": "2026-04-29T20:20:46.920Z",
+    "extractedAt": "2026-04-29T15:01:05.836Z",
+    "bestScore": 0
   },
   {
     "nome": "luciana",
@@ -6574,8 +6579,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:40:20.253Z",
-    "extractedAt": "2026-04-29T15:01:17.413Z"
+    "matchedAt": "2026-04-29T20:23:50.124Z",
+    "extractedAt": "2026-04-29T15:01:17.413Z",
+    "bestScore": 0
   },
   {
     "nome": "ednir",
@@ -6626,8 +6632,9 @@
     "vagas": 0,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:43:54.913Z",
-    "extractedAt": "2026-04-29T15:01:29.417Z"
+    "matchedAt": "2026-04-29T20:27:18.359Z",
+    "extractedAt": "2026-04-29T15:01:29.417Z",
+    "bestScore": 0
   },
   {
     "nome": "inês José dos Santos",
@@ -6828,8 +6835,9 @@
     "vagas": 4,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:47:15.161Z",
-    "extractedAt": "2026-04-29T15:02:19.807Z"
+    "matchedAt": "2026-04-29T20:30:10.357Z",
+    "extractedAt": "2026-04-29T15:02:19.807Z",
+    "bestScore": 0
   },
   {
     "nome": "Letícia",
@@ -6845,8 +6853,43 @@
     "valor_imovel": 276000,
     "titulo": "Apartamento para Venda por R$276.000,00 com 47m², 1 vaga e 2 dormitórios - Jardim mitsutani, São pau",
     "url": "https://www.imovelweb.com.br/propiedades/-3026767445.html",
-    "matchCount": 0,
-    "matches": [],
+    "matchCount": 2,
+    "matches": [
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895392468",
+        "id_anuncio": "895392468",
+        "url": "https://www.quintoandar.com.br/imovel/895392468/comprar/apartamento-2-quartos-jardim-umuarama-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 230000,
+        "area": 52,
+        "quartos": 2,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Jardim Mitsutani",
+        "score": 113
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895394189",
+        "id_anuncio": "895394189",
+        "url": "https://www.quintoandar.com.br/imovel/895394189/comprar/apartamento-2-quartos-jardim-umuarama-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 230000,
+        "area": 52,
+        "quartos": 2,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Jardim Mitsutani",
+        "score": 113
+      }
+    ],
     "createdAt": "2026-04-29T05:39:31.288Z",
     "origin": {
       "0": "i",
@@ -6880,8 +6923,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:49:09.613Z",
-    "extractedAt": "2026-04-29T15:02:32.677Z"
+    "matchedAt": "2026-04-29T20:32:17.026Z",
+    "extractedAt": "2026-04-29T15:02:32.677Z",
+    "bestScore": 113
   },
   {
     "nome": "Letícia",
@@ -6897,8 +6941,43 @@
     "valor_imovel": 290000,
     "titulo": "Apartamento  2 dormitorios, com Varanda,1 Vaga, Jardim Mitsutani",
     "url": "https://www.imovelweb.com.br/propiedades/-3027428712.html",
-    "matchCount": 0,
-    "matches": [],
+    "matchCount": 2,
+    "matches": [
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895392468",
+        "id_anuncio": "895392468",
+        "url": "https://www.quintoandar.com.br/imovel/895392468/comprar/apartamento-2-quartos-jardim-umuarama-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 230000,
+        "area": 52,
+        "quartos": 2,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Jardim Mitsutani",
+        "score": 84
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895394189",
+        "id_anuncio": "895394189",
+        "url": "https://www.quintoandar.com.br/imovel/895394189/comprar/apartamento-2-quartos-jardim-umuarama-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 230000,
+        "area": 52,
+        "quartos": 2,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Jardim Mitsutani",
+        "score": 84
+      }
+    ],
     "createdAt": "2026-04-29T05:39:31.295Z",
     "origin": {
       "0": "i",
@@ -6932,8 +7011,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:50:59.714Z",
-    "extractedAt": "2026-04-29T15:02:44.823Z"
+    "matchedAt": "2026-04-29T20:34:15.041Z",
+    "extractedAt": "2026-04-29T15:02:44.823Z",
+    "bestScore": 84
   },
   {
     "nome": "Jéssica",
@@ -7134,8 +7214,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:54:16.798Z",
-    "extractedAt": "2026-04-29T15:03:33.671Z"
+    "matchedAt": "2026-04-29T20:36:56.526Z",
+    "extractedAt": "2026-04-29T15:03:33.671Z",
+    "bestScore": 0
   },
   {
     "nome": "YASMIN FLORIANO DA SILVA FERREIRA",
@@ -7236,8 +7317,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:56:16.615Z",
-    "extractedAt": "2026-04-29T15:03:58.540Z"
+    "matchedAt": "2026-04-29T20:38:55.896Z",
+    "extractedAt": "2026-04-29T15:03:58.540Z",
+    "bestScore": 0
   },
   {
     "nome": "Iasã Paiva",
@@ -7538,8 +7620,9 @@
     "vagas": 0,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:00:44.113Z",
-    "extractedAt": "2026-04-29T15:05:12.478Z"
+    "matchedAt": "2026-04-29T20:42:12.531Z",
+    "extractedAt": "2026-04-29T15:05:12.478Z",
+    "bestScore": 0
   },
   {
     "nome": "marina",
@@ -7590,8 +7673,9 @@
     "vagas": 2,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:03:30.580Z",
-    "extractedAt": "2026-04-29T15:05:24.516Z"
+    "matchedAt": "2026-04-29T20:45:23.572Z",
+    "extractedAt": "2026-04-29T15:05:24.516Z",
+    "bestScore": 0
   },
   {
     "nome": "Miled",
@@ -7642,8 +7726,9 @@
     "vagas": 2,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:07:12.796Z",
-    "extractedAt": "2026-04-29T15:05:35.138Z"
+    "matchedAt": "2026-04-29T20:48:51.368Z",
+    "extractedAt": "2026-04-29T15:05:35.138Z",
+    "bestScore": 0
   },
   {
     "nome": "Lu Silvio",
@@ -7761,8 +7846,26 @@
     "valor_imovel": 270000,
     "titulo": "Apartamento à venda com 54m² 2 quartos e 1 vaga no Condomínio Orquídea!",
     "url": "https://www.imovelweb.com.br/propiedades/-3012991741.html",
-    "matchCount": 0,
-    "matches": [],
+    "matchCount": 1,
+    "matches": [
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895274019",
+        "id_anuncio": "895274019",
+        "url": "https://www.quintoandar.com.br/imovel/895274019/comprar/apartamento-2-quartos-jardim-umarizal-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 270000,
+        "area": 44,
+        "quartos": 2,
+        "suites": 0,
+        "banheiros": 2,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Jardim Umarizal",
+        "score": 30
+      }
+    ],
     "createdAt": "2026-04-29T05:39:31.510Z",
     "origin": {
       "0": "i",
@@ -7796,8 +7899,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:13:15.857Z",
-    "extractedAt": "2026-04-29T15:06:11.846Z"
+    "matchedAt": "2026-04-29T20:51:52.859Z",
+    "extractedAt": "2026-04-29T15:06:11.846Z",
+    "bestScore": 30
   },
   {
     "nome": "Maria Victoria",
@@ -7948,8 +8052,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:15:25.848Z",
-    "extractedAt": "2026-04-29T15:06:49.888Z"
+    "matchedAt": "2026-04-29T20:54:28.430Z",
+    "extractedAt": "2026-04-29T15:06:49.888Z",
+    "bestScore": 0
   },
   {
     "nome": "Oswaldo",
@@ -8050,8 +8155,9 @@
     "vagas": 0,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:18:30.041Z",
-    "extractedAt": "2026-04-29T15:07:14.254Z"
+    "matchedAt": "2026-04-29T20:57:53.635Z",
+    "extractedAt": "2026-04-29T15:07:14.254Z",
+    "bestScore": 0
   },
   {
     "nome": "brito",
@@ -8102,8 +8208,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:21:24.674Z",
-    "extractedAt": "2026-04-29T15:07:26.186Z"
+    "matchedAt": "2026-04-29T21:00:52.808Z",
+    "extractedAt": "2026-04-29T15:07:26.186Z",
+    "bestScore": 0
   },
   {
     "nome": "Renata",
@@ -8253,7 +8360,9 @@
     "banheiros": 0,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:08:02.736Z"
+    "extractedAt": "2026-04-29T15:08:02.736Z",
+    "bestScore": 0,
+    "matchedAt": "2026-04-29T21:04:01.441Z"
   },
   {
     "nome": "Claudio de Almeida",
@@ -8356,8 +8465,9 @@
     "vagas": 0,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:26:27.640Z",
-    "extractedAt": "2026-04-29T15:08:26.935Z"
+    "matchedAt": "2026-04-29T21:06:42.107Z",
+    "extractedAt": "2026-04-29T15:08:26.935Z",
+    "bestScore": 0
   },
   {
     "nome": "Antônio Carlos Barbosa",
@@ -8408,8 +8518,9 @@
     "vagas": 0,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:29:08.888Z",
-    "extractedAt": "2026-04-29T15:08:38.997Z"
+    "matchedAt": "2026-04-29T21:09:23.290Z",
+    "extractedAt": "2026-04-29T15:08:38.997Z",
+    "bestScore": 0
   },
   {
     "nome": "Gislene",
@@ -8460,8 +8571,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:31:39.264Z",
-    "extractedAt": "2026-04-29T15:08:50.913Z"
+    "matchedAt": "2026-04-29T21:12:18.309Z",
+    "extractedAt": "2026-04-29T15:08:50.913Z",
+    "bestScore": 0
   },
   {
     "nome": "Marcelo",
@@ -8912,8 +9024,9 @@
     "vagas": 2,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:37:07.732Z",
-    "extractedAt": "2026-04-29T15:10:42.367Z"
+    "matchedAt": "2026-04-29T21:16:01.313Z",
+    "extractedAt": "2026-04-29T15:10:42.367Z",
+    "bestScore": 0
   },
   {
     "nome": "Érica",
@@ -9014,8 +9127,9 @@
     "vagas": 0,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:40:01.567Z",
-    "extractedAt": "2026-04-29T15:11:06.384Z"
+    "matchedAt": "2026-04-29T21:19:30.205Z",
+    "extractedAt": "2026-04-29T15:11:06.384Z",
+    "bestScore": 0
   },
   {
     "nome": "Andressa Nunes",
@@ -9066,8 +9180,9 @@
     "vagas": 0,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:42:42.808Z",
-    "extractedAt": "2026-04-29T15:11:18.206Z"
+    "matchedAt": "2026-04-29T21:22:50.807Z",
+    "extractedAt": "2026-04-29T15:11:18.206Z",
+    "bestScore": 0
   },
   {
     "nome": "Renata",
@@ -9118,8 +9233,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:45:22.396Z",
-    "extractedAt": "2026-04-29T15:11:30.556Z"
+    "matchedAt": "2026-04-29T21:26:28.321Z",
+    "extractedAt": "2026-04-29T15:11:30.556Z",
+    "bestScore": 0
   },
   {
     "nome": "Andressa Nunes",
@@ -9170,8 +9286,9 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:48:04.217Z",
-    "extractedAt": "2026-04-29T15:11:42.561Z"
+    "matchedAt": "2026-04-29T21:29:50.433Z",
+    "extractedAt": "2026-04-29T15:11:42.561Z",
+    "bestScore": 0
   },
   {
     "nome": "Lucas",
@@ -9474,8 +9591,9 @@
     "vagas": 2,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:53:06.637Z",
-    "extractedAt": "2026-04-29T15:12:58.656Z"
+    "matchedAt": "2026-04-29T21:32:06.246Z",
+    "extractedAt": "2026-04-29T15:12:58.656Z",
+    "bestScore": 0
   },
   {
     "nome": "Vanessa",
@@ -9876,8 +9994,9 @@
     "vagas": 3,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T10:56:47.690Z",
-    "extractedAt": "2026-04-29T15:14:42.519Z"
+    "matchedAt": "2026-04-29T21:34:13.070Z",
+    "extractedAt": "2026-04-29T15:14:42.519Z",
+    "bestScore": 0
   },
   {
     "nome": "Celso",
@@ -10202,7 +10321,8 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:01:32.204Z"
+    "matchedAt": "2026-04-29T21:36:20.992Z",
+    "bestScore": 0
   },
   {
     "nome": "Kawan",
@@ -10479,7 +10599,8 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:04:22.022Z"
+    "matchedAt": "2026-04-29T21:38:24.263Z",
+    "bestScore": 0
   },
   {
     "nome": "Rubineia",
@@ -10591,7 +10712,8 @@
     "vagas": 2,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:06:55.892Z"
+    "matchedAt": "2026-04-29T21:40:24.219Z",
+    "bestScore": 0
   },
   {
     "nome": "negli.lolo@gmail.com",
@@ -10758,7 +10880,8 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:09:52.727Z"
+    "matchedAt": "2026-04-29T21:42:39.325Z",
+    "bestScore": 0
   },
   {
     "nome": "Mariana",
@@ -10815,7 +10938,8 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:13:16.044Z"
+    "matchedAt": "2026-04-29T21:44:41.718Z",
+    "bestScore": 0
   },
   {
     "nome": "Letícia",
@@ -10831,8 +10955,43 @@
     "valor_imovel": 310000,
     "titulo": "Apartamento 2 dormitorios, com Varanda, 1 Vaga, Jardim Mitsutani",
     "url": "https://www.imovelweb.com.br/propiedades/-3027428726.html",
-    "matchCount": 0,
-    "matches": [],
+    "matchCount": 2,
+    "matches": [
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895392468",
+        "id_anuncio": "895392468",
+        "url": "https://www.quintoandar.com.br/imovel/895392468/comprar/apartamento-2-quartos-jardim-umuarama-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 230000,
+        "area": 52,
+        "quartos": 2,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Jardim Mitsutani",
+        "score": 115
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895394189",
+        "id_anuncio": "895394189",
+        "url": "https://www.quintoandar.com.br/imovel/895394189/comprar/apartamento-2-quartos-jardim-umuarama-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 230000,
+        "area": 52,
+        "quartos": 2,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Jardim Mitsutani",
+        "score": 115
+      }
+    ],
     "createdAt": "2026-04-29T05:39:31.998Z",
     "origin": {
       "nome": "Letícia",
@@ -10872,7 +11031,8 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:15:08.979Z"
+    "matchedAt": "2026-04-29T21:46:38.381Z",
+    "bestScore": 115
   },
   {
     "nome": "Leandro",
@@ -10984,7 +11144,8 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:17:10.456Z"
+    "matchedAt": "2026-04-29T21:48:40.886Z",
+    "bestScore": 0
   },
   {
     "nome": "Vanessa",
@@ -11041,7 +11202,8 @@
     "vagas": 2,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:19:00.638Z"
+    "matchedAt": "2026-04-29T21:50:54.496Z",
+    "bestScore": 0
   },
   {
     "nome": "Cyntia",
@@ -11487,7 +11649,8 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:30:40.706Z"
+    "matchedAt": "2026-04-29T21:53:09.589Z",
+    "bestScore": 0
   },
   {
     "nome": "Rafaella Ferrugem",
@@ -11929,7 +12092,8 @@
     "vagas": 3,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:35:25.234Z"
+    "matchedAt": "2026-04-29T21:54:58.934Z",
+    "bestScore": 0
   },
   {
     "nome": "Maura",

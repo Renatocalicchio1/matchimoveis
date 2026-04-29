@@ -6,6 +6,10 @@
     "telefone": "11975720750",
     "celular": "11975720750",
     "senha": "match7",
-    "ativo": true
+    "ativo": true,
+    "endereco": "",
+    "cep": "",
+    "lat": null,
+    "lng": null
   }
 ]

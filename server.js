@@ -673,20 +673,7 @@ app.get('/app', (req,res)=>{
   res.redirect('/app-home');
 });
 
-app.get('/app-home', auth, (req,res)=>{
-  const user = req.session.user;
-  const stats = {
-    imoveisAtivos: 0,
-    leadsNovos: 0,
-    visitasAgendadas: 0,
-    matchesGerados: 0,
-    totalLeads: 0,
-    comMatch: 0,
-    totalMatches: 0,
-    pendentes: 0
-  };
-  res.render('app-home', { user, stats });
-});
+// rota app-home removida (duplicada)
 
 // Meus imóveis = carteira do corretor, NÃO match
 app.get('/app-imoveis', (req,res)=>{
@@ -746,20 +733,34 @@ function filtrarPorUsuario(lista, user){
 app.get('/app', auth, (req,res)=> res.redirect('/app-home'));
 
 app.get('/app-home', auth, (req,res)=>{
+  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const leads = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
+  const visitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
+  const leadsArr = Array.isArray(leads) ? leads : (leads.results || []);
+  const comMatch = leadsArr.filter(l => l.matches && l.matches.length > 0);
+  const totalMatches = leadsArr.reduce((s,l) => s + ((l.matches && l.matches.length) || 0), 0);
+  const hoje = new Date().toDateString();
+  const visitasHoje = visitas.filter(v => new Date(v.data).toDateString() === hoje);
+  const recentes = leadsArr.slice(-5).reverse();
   res.render('app-home', {
     user: req.session.user,
     stats: {
-      imoveisAtivos: 0,
-      leadsNovos: 0,
-      visitasAgendadas: 0,
-      matchesGerados: 0
-    }
+      imoveisAtivos: imoveis.length,
+      leadsNovos: leadsArr.length,
+      visitasAgendadas: visitas.length,
+      matchesGerados: totalMatches,
+      comMatch: comMatch.length,
+      visitasHoje: visitasHoje.length,
+      taxaMatch: leadsArr.length > 0 ? Math.round((comMatch.length / leadsArr.length) * 100) : 0
+    },
+    recentes,
+    topMatches: comMatch.slice(0,3)
   });
 });
 
 app.get('/app/imoveis', auth, (req,res)=>{
   const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
-  res.render('app-imoveis', { user: req.session.user, imoveis: filtrarPorUsuario(imoveis, req.session.user) });
+  res.render('app-imoveis', { user: req.session.user, imoveis: imoveis });
 });
 
 app.get('/app/cadastro', auth, (req,res)=>{
@@ -811,6 +812,36 @@ app.get('/logout', (req,res)=>{
 });
 
 const PORT = process.env.PORT || port || 3000;
+
+app.post('/app/perfil/localizacao', auth, (req,res)=>{
+  const { lat, lng, endereco } = req.body;
+  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const idx = users.findIndex(u => u.id === req.session.user.id);
+  if(idx >= 0) {
+    users[idx].lat = parseFloat(lat);
+    users[idx].lng = parseFloat(lng);
+    users[idx].endereco = endereco || '';
+    req.session.user = users[idx];
+    fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
+  }
+  res.redirect('/app/perfil');
+});
+
+
+app.post('/app/perfil/localizacao', auth, (req,res)=>{
+  const { lat, lng, endereco } = req.body;
+  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const idx = users.findIndex(u => u.id === req.session.user.id);
+  if(idx >= 0) {
+    users[idx].lat = parseFloat(lat);
+    users[idx].lng = parseFloat(lng);
+    users[idx].endereco = endereco || '';
+    req.session.user = users[idx];
+    fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
+  }
+  res.redirect('/app/perfil');
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });

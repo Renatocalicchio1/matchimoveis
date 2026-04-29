@@ -141,7 +141,7 @@ function readRows(file) {
         lead.matches = matches;
         lead.matchCount = matches.length;
         if (matches.length) comMatch++;
-        console.log('CANDIDATOS:', candidatos.length);
+        console.log(`CANDIDATOS EXTERNOS: ${candidatos.length}`);
         console.log('MATCHES:', matches.length);
       } catch (e) {
         console.log('ERRO MATCH:', e.message);

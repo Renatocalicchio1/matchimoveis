@@ -1,44 +1,148 @@
-<%- include("partials/app-shell",{active:"home",user:user}) %>
+<%- include("partials/app-shell",{active:"home",title:"Dashboard",subtitle:"",user:user}) %>
 
-<div class="grid">
-  <div class="card">
-    <h3>Imóveis ativos</h3>
-    <p class="small">Carteira publicada</p>
-    <div class="num"><%= stats.imoveisAtivos %></div>
+<style>
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:#fff;border:1px solid #ebebeb;border-radius:14px;padding:18px;position:relative;overflow:hidden}
+.kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#717171;margin-bottom:10px}
+.kpi-num{font-size:38px;font-weight:800;letter-spacing:-2px;line-height:1;color:#111}
+.kpi-sub{font-size:12px;color:#aaa;margin-top:6px}
+.kpi-icon{position:absolute;right:16px;top:16px;font-size:22px;opacity:.15}
+.kpi.blue{border-top:3px solid #1a56db}.kpi.blue .kpi-num{color:#1a56db}
+.kpi.green{border-top:3px solid #16a34a}.kpi.green .kpi-num{color:#16a34a}
+.kpi.red{border-top:3px solid #FF385C}.kpi.red .kpi-num{color:#FF385C}
+.kpi.orange{border-top:3px solid #f59e0b}.kpi.orange .kpi-num{color:#f59e0b}
+.dash-row{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:20px}
+.section-title{font-size:13px;font-weight:700;color:#111;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.section-title a{font-size:12px;font-weight:500;color:#1a56db;text-decoration:none}
+.feed{display:flex;flex-direction:column;gap:0}
+.feed-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5}
+.feed-item:last-child{border-bottom:none}
+.feed-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.feed-dot.match{background:#eff6ff}.feed-dot.lead{background:#f0fdf4}
+.feed-content{flex:1;min-width:0}
+.feed-nome{font-size:13px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-desc{font-size:12px;color:#717171}
+.rate-wrap{display:flex;flex-direction:column;gap:14px}
+.rate-item{display:flex;flex-direction:column;gap:6px}
+.rate-label{display:flex;justify-content:space-between;font-size:12px}
+.rate-bar{height:6px;background:#f0f4ff;border-radius:3px;overflow:hidden}
+.rate-fill{height:6px;background:#1a56db;border-radius:3px}
+.rate-fill.green{background:#16a34a}.rate-fill.orange{background:#f59e0b}
+.acoes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acao{display:flex;align-items:center;gap:10px;padding:14px;border-radius:12px;border:1px solid #ebebeb;background:#fff;text-decoration:none;color:#111;transition:all .15s}
+.acao:hover{border-color:#1a56db;background:#eff6ff}
+.acao-icon{font-size:20px}
+.acao-text strong{display:block;font-size:13px;font-weight:600}
+.acao-text span{font-size:11px;color:#717171}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.live-dot{display:inline-block;width:7px;height:7px;background:#16a34a;border-radius:50%;animation:pulse 2s infinite;margin-right:6px}
+</style>
+
+<div class="dash-grid">
+  <div class="kpi blue">
+    <div class="kpi-icon">🏠</div>
+    <div class="kpi-label">Imóveis na carteira</div>
+    <div class="kpi-num"><%= stats.imoveisAtivos %></div>
+    <div class="kpi-sub">Base Rankim ativa</div>
   </div>
-
-  <div class="card">
-    <h3>Leads novos</h3>
-    <p class="small">Entradas recentes</p>
-    <div class="num"><%= stats.leadsNovos %></div>
+  <div class="kpi green">
+    <div class="kpi-icon">🎯</div>
+    <div class="kpi-label">Matches gerados</div>
+    <div class="kpi-num"><%= stats.matchesGerados %></div>
+    <div class="kpi-sub"><%= stats.comMatch %> leads com match</div>
   </div>
-
-  <div class="card">
-    <h3>Visitas agendadas</h3>
-    <p class="small">Próximos horários</p>
-    <div class="num"><%= stats.visitasAgendadas %></div>
+  <div class="kpi red">
+    <div class="kpi-icon">👥</div>
+    <div class="kpi-label">Total de leads</div>
+    <div class="kpi-num"><%= stats.leadsNovos %></div>
+    <div class="kpi-sub">Taxa de match: <%= stats.taxaMatch %>%</div>
   </div>
-
-  <div class="card">
-    <h3>Matches gerados</h3>
-    <p class="small">Oportunidades</p>
-    <div class="num"><%= stats.matchesGerados %></div>
+  <div class="kpi orange">
+    <div class="kpi-icon">📅</div>
+    <div class="kpi-label">Visitas agendadas</div>
+    <div class="kpi-num"><%= stats.visitasAgendadas %></div>
+    <div class="kpi-sub"><%= stats.visitasHoje %> hoje</div>
   </div>
 </div>
 
-<br>
-
-<div class="grid2">
-  <div class="card">
-    <h3>Próxima ação</h3>
-    <p class="small">Cadastre imóveis ou importe leads para começar a gerar oportunidades.</p>
-    <br><a class="btn red" href="/app/cadastro">Cadastrar imóvel</a>
+<div class="dash-row">
+  <div class="card" style="margin:0">
+    <div class="section-title">
+      <span><span class="live-dot"></span>Atividade recente</span>
+      <a href="/app/leads">Ver todos</a>
+    </div>
+    <div class="feed">
+      <% if(!recentes || !recentes.length) { %>
+        <p style="color:#aaa;font-size:13px;text-align:center;padding:24px 0">Nenhuma atividade ainda</p>
+      <% } else { %>
+        <% recentes.forEach(function(l) {
+          var temMatch = l.matches && l.matches.length > 0;
+          var origin = l.origin || {};
+          var bairro = origin.bairro || l.bairro || '-';
+          var tipo = origin.tipo || l.tipo || '';
+          var valor = origin.valor_imovel || l.valor_imovel || 0;
+        %>
+        <div class="feed-item">
+          <div class="feed-dot <%= temMatch ? 'match' : 'lead' %>"><%= temMatch ? '🎯' : '👤' %></div>
+          <div class="feed-content">
+            <div class="feed-nome"><%= l.nome || l.clientName || 'Lead' %></div>
+            <div class="feed-desc"><%= bairro %><% if(tipo){ %> · <%= tipo %><% } %><% if(valor){ %> · R$ <%= Number(valor).toLocaleString('pt-BR') %><% } %></div>
+          </div>
+          <div>
+            <% if(temMatch) { %>
+              <span style="background:#eff6ff;color:#1a56db;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700"><%= l.matches.length %> match</span>
+            <% } else { %>
+              <span style="background:#f7f7f7;color:#aaa;padding:3px 10px;border-radius:20px;font-size:11px">sem match</span>
+            <% } %>
+          </div>
+        </div>
+        <% }); %>
+      <% } %>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Fluxo do sistema</h3>
-    <p class="small">Lead importado → imóvel processado → match gerado → cliente recebe espelho → visita solicitada.</p>
-    <br><a class="btn" href="/app-leads">Ver leads</a>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="card" style="margin:0">
+      <div class="section-title"><span>📊 Métricas</span></div>
+      <div class="rate-wrap">
+        <div class="rate-item">
+          <div class="rate-label"><span>Taxa de match</span><span><%= stats.taxaMatch %>%</span></div>
+          <div class="rate-bar"><div class="rate-fill" style="width:<%= stats.taxaMatch %>%"></div></div>
+        </div>
+        <div class="rate-item">
+          <% var pctMatch = stats.leadsNovos > 0 ? Math.round(stats.comMatch/stats.leadsNovos*100) : 0; %>
+          <div class="rate-label"><span>Leads com match</span><span><%= stats.comMatch %> / <%= stats.leadsNovos %></span></div>
+          <div class="rate-bar"><div class="rate-fill green" style="width:<%= pctMatch %>%"></div></div>
+        </div>
+        <div class="rate-item">
+          <% var pctVisitas = stats.visitasAgendadas > 0 ? Math.round(stats.visitasHoje/stats.visitasAgendadas*100) : 0; %>
+          <div class="rate-label"><span>Visitas hoje</span><span><%= stats.visitasHoje %></span></div>
+          <div class="rate-bar"><div class="rate-fill orange" style="width:<%= pctVisitas %>%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin:0">
+      <div class="section-title"><span>⚡ Ações rápidas</span></div>
+      <div class="acoes">
+        <a href="/app/leads" class="acao">
+          <span class="acao-icon">👥</span>
+          <div class="acao-text"><strong>Leads</strong><span>Gerenciar</span></div>
+        </a>
+        <a href="/app/imoveis" class="acao">
+          <span class="acao-icon">🏠</span>
+          <div class="acao-text"><strong>Imóveis</strong><span>Carteira</span></div>
+        </a>
+        <a href="/app/cadastro" class="acao">
+          <span class="acao-icon">➕</span>
+          <div class="acao-text"><strong>Cadastrar</strong><span>Novo imóvel</span></div>
+        </a>
+        <a href="/app/visitas" class="acao">
+          <span class="acao-icon">📅</span>
+          <div class="acao-text"><strong>Visitas</strong><span>Agenda</span></div>
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 

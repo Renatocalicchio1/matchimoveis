@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastrar Imóvel</title>
+
+<style>
+body{margin:0;background:#FFFFFF;font-family:-apple-system}
+.container{max-width:900px;margin:0 auto;padding:20px}
+.card{background:#fff;border-radius:20px;padding:20px;margin-bottom:14px}
+h1{margin-top:0}
+label{font-weight:800;display:block;margin-top:12px}
+input,select,textarea{
+  width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;margin-top:6px
+}
+button{
+  width:100%;padding:16px;background:#111;color:#fff;border:0;border-radius:14px;margin-top:20px;font-weight:900
+}
+</style>
+<link rel="stylesheet" href="/airbnb.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Cadastrar Imóvel</h1>
+
+<form method="POST" action="/app/imovel/novo">
+
+<div class="card">
+
+<label>Categoria</label>
+<select name="tipoCategoria" required>
+  <option value="residencial">Residencial</option>
+  <option value="comercial">Comercial</option>
+</select>
+
+<label>Tipo de imóvel</label>
+<select name="tipo" required>
+  <option>Apartamento</option>
+  <option>Casa</option>
+  <option>Sobrado</option>
+  <option>Studio</option>
+  <option>Kitnet</option>
+  <option>Sala comercial</option>
+  <option>Conjunto comercial</option>
+  <option>Galpão</option>
+  <option>Loja</option>
+  <option>Prédio comercial</option>
+  <option>Terreno</option>
+</select>
+
+<label>Bairro</label>
+<input name="bairro" required>
+
+<label>Cidade</label>
+<input name="cidade" value="São Paulo">
+
+<label>Estado</label>
+<input name="estado" value="SP">
+
+<label>Preço</label>
+<input name="preco" type="number">
+
+<label>Área m²</label>
+<input name="area" type="number">
+
+<label>Quartos</label>
+<input name="quartos" type="number">
+
+<label>Suítes</label>
+<input name="suites" type="number">
+
+<label>Banheiros</label>
+<input name="banheiros" type="number">
+
+<label>Vagas</label>
+<input name="vagas" type="number">
+
+<label>Descrição</label>
+<textarea name="descricao"></textarea>
+
+</div>
+
+<div class="card">
+
+<h3>Dados do Proprietário (OBRIGATÓRIO)</h3>
+
+<label>Nome</label>
+<input name="propNome" required>
+
+<label>Telefone</label>
+<input name="propTelefone" required>
+
+<label>Email</label>
+<input name="propEmail">
+
+</div>
+
+<button>Cadastrar imóvel</button>
+
+</form>
+
+</div>
+
+</body>
+</html>

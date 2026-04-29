@@ -1,0 +1,153 @@
+<%- include('partials/app-shell',{active:'cadastro',title:'Captar / cadastrar imóvel',subtitle:'Cadastro organizado por etapas para gerar match e XML para portais.',perfil:'corretor'}) %>
+
+<div class="card">
+<form class="form">
+
+  <div style="grid-column:1/-1"><h3>1. Tipo e negociação</h3></div>
+
+  <div>
+    <label>Tipo de negociação
+      <select name="negociacao">
+        <option>Venda</option>
+        <option>Locação</option>
+        <option>Venda e Locação</option>
+      </select>
+    </label>
+  </div>
+
+  <div>
+    <label>Categoria
+      <select id="categoria" name="categoria" onchange="trocarFormulario()">
+        <option value="residencial">Residencial</option>
+        <option value="comercial">Comercial</option>
+      </select>
+    </label>
+  </div>
+
+  <div id="tipo-residencial" style="display:contents">
+    <div>
+      <label>Tipo residencial
+        <select name="tipo_residencial">
+          <option>Apartamento</option>
+          <option>Casa</option>
+          <option>Casa de condomínio</option>
+          <option>Casa de vila</option>
+          <option>Cobertura</option>
+          <option>Studio</option>
+          <option>Flat</option>
+          <option>Loft</option>
+          <option>Kitnet</option>
+          <option>Sobrado</option>
+          <option>Terreno residencial</option>
+          <option>Chácara</option>
+          <option>Sítio</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div id="tipo-comercial" style="display:none">
+    <div>
+      <label>Tipo comercial
+        <select name="tipo_comercial">
+          <option>Sala comercial</option>
+          <option>Conjunto comercial</option>
+          <option>Loja</option>
+          <option>Ponto comercial</option>
+          <option>Galpão</option>
+          <option>Barracão</option>
+          <option>Depósito</option>
+          <option>Prédio comercial</option>
+          <option>Casa comercial</option>
+          <option>Terreno comercial</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div style="grid-column:1/-1"><hr style="border:0;border-top:1px solid #ddd6fe"><h3>2. Localização</h3></div>
+
+  <div><label>CEP<input name="cep" placeholder="00000-000" required></label></div>
+  <div><label>Endereço<input name="endereco" placeholder="Rua / Avenida"></label></div>
+  <div><label>Número<input name="numero" placeholder="123"></label></div>
+  <div><label>Complemento<input name="complemento" placeholder="Apto, bloco, sala"></label></div>
+  <div><label>Bairro<input name="bairro" placeholder="Vila Mariana"></label></div>
+  <div><label>Cidade<input name="cidade" value="São Paulo"></label></div>
+  <div><label>Estado<input name="estado" value="SP"></label></div>
+
+  <div style="grid-column:1/-1"><hr style="border:0;border-top:1px solid #ddd6fe"><h3>3. Valores e medidas</h3></div>
+
+  <div><label>Valor do imóvel<input name="valor" placeholder="R$ 750.000"></label></div>
+  <div><label>Condomínio<input name="condominio" placeholder="R$ 800"></label></div>
+  <div><label>IPTU<input name="iptu" placeholder="R$ 250"></label></div>
+  <div><label>Área útil m²<input name="area_util" placeholder="80"></label></div>
+  <div><label>Área total m²<input name="area_total" placeholder="120"></label></div>
+
+  <div id="caracteristicas-residencial" style="display:contents">
+    <div style="grid-column:1/-1"><hr style="border:0;border-top:1px solid #ddd6fe"><h3>4. Características residenciais</h3></div>
+    <div><label>Quartos<input name="quartos" placeholder="2"></label></div>
+    <div><label>Suítes<input name="suites" placeholder="1"></label></div>
+    <div><label>Banheiros<input name="banheiros" placeholder="2"></label></div>
+    <div><label>Vagas<input name="vagas" placeholder="1"></label></div>
+  </div>
+
+  <div id="caracteristicas-comercial" style="display:none">
+    <div style="grid-column:1/-1"><hr style="border:0;border-top:1px solid #ddd6fe"><h3>4. Características comerciais</h3></div>
+    <div><label>Salas / ambientes<input name="salas" placeholder="3"></label></div>
+    <div><label>Banheiros<input name="banheiros_comercial" placeholder="2"></label></div>
+    <div><label>Vagas<input name="vagas_comercial" placeholder="1"></label></div>
+    <div><label>Pé direito<input name="pe_direito" placeholder="Ex: 6 metros"></label></div>
+    <div><label>Zoneamento<input name="zoneamento" placeholder="Opcional"></label></div>
+  </div>
+
+  <div style="grid-column:1/-1"><hr style="border:0;border-top:1px solid #ddd6fe"><h3>5. Características e comodidades</h3></div>
+
+  <div style="grid-column:1/-1" class="checkgrid">
+    <label class="checkcard"><input type="checkbox" name="caracteristicas" value="Mobiliado"> Mobiliado</label>
+    <label class="checkcard"><input type="checkbox" name="caracteristicas" value="Aceita pet"> Aceita pet</label>
+    <label class="checkcard"><input type="checkbox" name="caracteristicas" value="Varanda"> Varanda</label>
+    <label class="checkcard"><input type="checkbox" name="caracteristicas" value="Churrasqueira"> Churrasqueira</label>
+    <label class="checkcard"><input type="checkbox" name="caracteristicas" value="Piscina"> Piscina</label>
+    <label class="checkcard"><input type="checkbox" name="caracteristicas" value="Academia"> Academia</label>
+    <label class="checkcard"><input type="checkbox" name="caracteristicas" value="Elevador"> Elevador</label>
+    <label class="checkcard"><input type="checkbox" name="caracteristicas" value="Portaria 24h"> Portaria 24h</label>
+    <label class="checkcard"><input type="checkbox" name="caracteristicas" value="Ar-condicionado"> Ar-condicionado</label>
+    <label class="checkcard"><input type="checkbox" name="caracteristicas" value="Armários planejados"> Armários planejados</label>
+  </div>
+
+  <div style="grid-column:1/-1"><hr style="border:0;border-top:1px solid #ddd6fe"><h3>6. Proprietário <span class="status red">Privado</span></h3><p class="small">Esses dados ficam visíveis somente para o corretor que cadastrou o imóvel.</p></div>
+
+  <div><label>Nome do proprietário<input name="proprietario_nome" placeholder="Nome completo" required></label></div>
+  <div><label>WhatsApp proprietário<input name="proprietario_whatsapp" placeholder="11999999999" required></label></div>
+  <div><label>Email proprietário<input name="proprietario_email" placeholder="email@exemplo.com"></label></div>
+  <div><label>CPF/CNPJ proprietário<input name="proprietario_doc" placeholder="Opcional"></label></div>
+
+  <div style="grid-column:1/-1"><hr style="border:0;border-top:1px solid #ddd6fe"><h3>7. Descrição e mídia</h3></div>
+
+  <div style="grid-column:1/-1">
+    <label>Descrição completa
+      <textarea name="descricao" placeholder="Descreva o imóvel, diferenciais, localização, condomínio, lazer, pontos fortes e condições de visita."></textarea>
+    </label>
+  </div>
+
+  <div><label>Link de fotos<input name="fotos" placeholder="Google Drive, pasta, site ou URL"></label></div>
+  <div><label>Vídeo / tour virtual<input name="video" placeholder="YouTube, Instagram, tour 360"></label></div>
+
+  <div style="grid-column:1/-1">
+    <button class="btn red" type="button">Salvar imóvel</button>
+  </div>
+
+</form>
+</div>
+
+<script>
+function trocarFormulario(){
+  const cat = document.getElementById('categoria').value;
+  document.getElementById('tipo-residencial').style.display = cat === 'residencial' ? 'contents' : 'none';
+  document.getElementById('caracteristicas-residencial').style.display = cat === 'residencial' ? 'contents' : 'none';
+  document.getElementById('tipo-comercial').style.display = cat === 'comercial' ? 'contents' : 'none';
+  document.getElementById('caracteristicas-comercial').style.display = cat === 'comercial' ? 'contents' : 'none';
+}
+</script>
+
+<%- include('partials/app-end') %>

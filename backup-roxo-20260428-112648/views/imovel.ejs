@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Imóvel</title>
+
+<style>
+body {
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  background:#fff;
+  color:#111;
+}
+
+/* CARROSSEL */
+.gallery {
+  position:relative;
+}
+
+.photos {
+  display:flex;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+}
+
+.photos img {
+  width:100%;
+  height:420px;
+  object-fit:cover;
+  scroll-snap-align:center;
+}
+
+.badge {
+  position:absolute;
+  bottom:12px;
+  right:12px;
+  background:rgba(0,0,0,.7);
+  color:#fff;
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:700;
+}
+
+/* CONTAINER */
+.container {
+  padding:18px;
+}
+
+/* PREÇO */
+.price {
+  font-size:28px;
+  font-weight:900;
+}
+
+/* SUBINFO */
+.sub {
+  color:#666;
+  margin-top:4px;
+}
+
+/* FEATURES */
+.features {
+  display:flex;
+  gap:20px;
+  margin:16px 0;
+  font-weight:700;
+}
+
+/* CARD INFO */
+.card {
+  border-top:1px solid #eee;
+  padding-top:14px;
+}
+
+/* BOTÃO FIXO */
+.cta {
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#fff;
+  border-top:1px solid #eee;
+  padding:10px;
+}
+
+.cta a {
+  display:block;
+  background:#111;
+  color:#fff;
+  text-align:center;
+  padding:14px;
+  border-radius:12px;
+  text-decoration:none;
+  font-weight:900;
+}
+
+</style>
+</head>
+
+<body>
+
+<% const fotos = match.fotos || []; %>
+
+<!-- GALERIA -->
+<div class="gallery">
+
+  <div class="photos" id="gallery">
+    <% fotos.forEach((f, i) => { %>
+      <img src="<%= f %>">
+    <% }) %>
+  </div>
+
+  <div class="badge" id="count">
+    1 / <%= fotos.length %>
+  </div>
+
+</div>
+
+<!-- CONTEÚDO -->
+<div class="container">
+
+  <div class="price">
+    R$ <%= Number(match.valor_imovel || 0).toLocaleString('pt-BR') %>
+  </div>
+
+  <div class="sub">
+    <%= match.tipo %> · <%= match.bairro %>
+  </div>
+
+  <div class="features">
+    <div><%= match.quartos %> quartos</div>
+    <div><%= match.area_m2 %> m²</div>
+    <div><%= match.banheiros %> banheiros</div>
+    <div><%= match.vagas %> vagas</div>
+  </div>
+
+  <div class="card">
+    <strong>Sobre o imóvel</strong>
+    <p>
+      <%= match.descricao || 'Imóvel selecionado com base no seu perfil. Excelente oportunidade na região.' %>
+    </p>
+  </div>
+
+</div>
+
+<!-- BOTÃO FIXO -->
+<div class="cta">
+  <a id="btn-agendar" target="_blank"
+     href="/agendar/<%= item.offerToken %>/<%= matchIdx %>">
+     Agendar visita
+  </a>
+</div>
+
+<script>
+const g = document.getElementById('gallery');
+const c = document.getElementById('count');
+
+g.addEventListener('scroll', () => {
+  const i = Math.round(g.scrollLeft / g.clientWidth) + 1;
+  c.innerText = i + ' / ' + g.children.length;
+});
+</script>
+
+
+<script>
+fetch('/track', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    type: 'imovel_aberto',
+    offerToken: '<%= item.offerToken %>',
+    matchIdx: '<%= matchIdx %>',
+    url: '<%= match.url || "" %>'
+  })
+}).catch(() => {});
+
+const btnAgendar = document.getElementById('btn-agendar');
+if (btnAgendar) {
+  btnAgendar.addEventListener('click', () => {
+    fetch('/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'agendar_visita_click',
+        offerToken: '<%= item.offerToken %>',
+        matchIdx: '<%= matchIdx %>',
+        url: '<%= match.url || "" %>'
+      })
+    }).catch(() => {});
+  });
+}
+</script>
+
+</body>
+</html>

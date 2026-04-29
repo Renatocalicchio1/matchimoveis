@@ -1,0 +1,29 @@
+<%- include('partials/app-shell',{active:'perfil',title:'Meu perfil',subtitle:'Dados da sua conta no sistema.',perfil:(user && user.tipo) || 'corretor',user:user}) %>
+
+<div class="card">
+  <h3>Dados do usuário</h3>
+  <p class="small">Essas informações identificam sua conta no MatchImoveis.</p>
+
+  <br>
+
+  <form method="POST" action="/app/perfil">
+    <label>Nome</label><br>
+    <input name="nome" value="<%= user.nome || '' %>" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:8px 0 14px;">
+
+    <label>Celular</label><br>
+    <input name="celular" value="<%= user.celular || user.telefone || '' %>" readonly >
+
+    <label>Tipo de conta</label><br>
+    <input value="<%= user.tipo || 'corretor' %>" readonly >
+
+    <label>CRECI</label><br>
+    <input name="creci" value="<%= user.creci || '' %>" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:8px 0 14px;">
+
+    <label>CPF</label><br>
+    <input name="cpf" value="<%= user.cpf || '' %>" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:8px 0 14px;">
+
+    <button class="btn red" type="submit">Salvar perfil</button>
+  </form>
+</div>
+
+<%- include('partials/app-end') %>

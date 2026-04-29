@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opções para você</title>
+
+  <style>
+    body {
+      background:#f4f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      margin:0;
+    }
+
+    .container {
+      max-width:1000px;
+      margin:0 auto;
+      padding:20px;
+    }
+
+    h1 {
+      margin-bottom:10px;
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap:16px;
+      margin-top:20px;
+    }
+
+    .card {
+      background:#fff;
+      border-radius:18px;
+      padding:18px;
+      box-shadow:0 8px 24px rgba(0,0,0,.06);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+
+    .price {
+      font-size:22px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .info {
+      font-size:14px;
+      color:#555;
+      margin-bottom:10px;
+    }
+
+    .buttons {
+      display:flex;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .btn {
+      flex:1;
+      text-align:center;
+      padding:10px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:700;
+      font-size:13px;
+    }
+
+    .btn-primary {
+      background:#111;
+      color:#fff;
+    }
+
+    .btn-whats {
+      background:#25D366;
+      color:#fff;
+    }
+
+    .empty {
+      text-align:center;
+      margin-top:40px;
+      color:#888;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <h1>Olá, <%= item.clientName || 'tudo bem?' %></h1>
+    <p>Selecione abaixo os imóveis que mais gostou 👇</p>
+
+    <% if (item.matches && item.matches.length) { %>
+      <div class="grid">
+
+        <% item.matches.forEach((m) => { %>
+          <div class="card">
+
+            <div>
+              <div class="price">
+                R$ <%= m.valor_imovel ? Number(m.valor_imovel).toLocaleString('pt-BR') : '-' %>
+              </div>
+
+              <div class="info">
+                <strong><%= m.tipo || '-' %></strong><br>
+                <%= m.bairro || '-' %> - SP<br><br>
+
+                <%= m.area_m2 || '-' %> m² ·
+                <%= m.quartos || '-' %> quartos ·
+                <%= m.banheiros || '-' %> banheiros ·
+                <%= m.vagas ?? '-' %> vagas
+              </div>
+            </div>
+
+            <div class="buttons">
+
+              <a class="btn btn-primary"
+                 href="/imovel/<%= item.offerToken %>/<%= item.matches.indexOf(m) %>"
+                 target="_blank">
+                 Ver imóvel
+              </a>
+
+              <a class="btn btn-whats"
+                 href="https://wa.me/55<%= String(item.contact || '').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá, gostei deste imóvel e quero agendar uma visita: ' + (m.url || '')) %>"
+                 target="_blank">
+                 Quero visitar
+              </a>
+
+            </div>
+
+          </div>
+        <% }) %>
+
+      </div>
+    <% } else { %>
+
+      <div class="empty">
+        Ainda não encontramos opções para você 😕
+      </div>
+
+    <% } %>
+
+  </div>
+
+<script>
+fetch('/track', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    type: 'oferta_aberta',
+    offerToken: '<%= item.offerToken %>'
+  })
+}).catch(() => {});
+</script>
+
+</body>
+</html>

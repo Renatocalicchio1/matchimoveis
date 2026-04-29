@@ -1,0 +1,115 @@
+<%- include('partials/app-shell',{active:'leads',title:'Meus Leads',subtitle:'Acompanhe os leads processados, matches gerados e espelhos do cliente.',perfil:'corretor'}) %>
+
+<div class="grid">
+  <div class="card">
+    <h3>Total de leads</h3>
+    <p class="small">Leads da sua conta</p>
+    <div class="num"><%= leads.length %></div>
+  </div>
+
+  <div class="card">
+    <h3>Com match</h3>
+    <p class="small">Leads com oportunidades</p>
+    <div class="num"><%= leads.filter(l => l.matches && l.matches.length).length %></div>
+  </div>
+
+  <div class="card">
+    <h3>Total matches</h3>
+    <p class="small">Imóveis encontrados</p>
+    <div class="num"><%= leads.reduce((s,l)=>s+((l.matches&&l.matches.length)||0),0) %></div>
+  </div>
+
+  <div class="card">
+    <h3>Pendentes</h3>
+    <p class="small">Aguardando match</p>
+    <div class="num"><%= leads.filter(l => !(l.matches && l.matches.length)).length %></div>
+  </div>
+</div>
+
+<br>
+
+<div class="card">
+  <h3>Lista de leads</h3>
+  <p class="small">Quando o lead for seu, o processamento e os matches aparecem aqui.</p>
+
+  <% if (!leads.length) { %>
+    <br>
+    <p class="small">Nenhum lead encontrado para esta conta.</p>
+  <% } %>
+
+  <% leads.forEach((item, idx) => { 
+    const origin = item.origin || item;
+    const matches = item.matches || [];
+  %>
+    <div style="border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin-top:16px;background:#fff;">
+      <div class="grid2">
+        <div>
+          <h3><%= item.clientName || item.nome || 'Cliente sem nome' %></h3>
+          <p class="small">
+            Contato: <%= item.contact || item.phone || item.telefone || '-' %><br>
+            Email: <%= item.email || '-' %><br>
+            Origem: <%= origin.listingId || item.listingId || '-' %>
+          </p>
+        </div>
+
+        <div>
+          <p class="small">
+            <strong>Status:</strong> <%= matches.length ? 'Com match' : (origin.extractionStatus || 'Processado') %><br>
+            <strong>Bairro:</strong> <%= origin.bairro || '-' %><br>
+            <strong>Tipo:</strong> <%= origin.tipo || '-' %><br>
+            <strong>Quartos:</strong> <%= origin.quartos || '-' %>
+          </p>
+
+          <% if (!matches.length) { %>
+            <form method="POST" action="/app-leads/<%= idx %>/match">
+              <button class="btn red" type="submit">Fazer match</button>
+            </form>
+          <% } else { %>
+            <a class="btn red" target="_blank" href="/cliente/oferta/<%= item.leadId || idx %>">Ver espelho</a>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (matches.length) { %>
+        <br>
+        <h3>Matches encontrados: <%= matches.length %></h3>
+
+        <div style="overflow:auto;">
+          <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+            <tr>
+              <th style="text-align:left;padding:10px;border-bottom:1px solid #eee;">Fonte</th>
+              <th style="text-align:left;padding:10px;border-bottom:1px solid #eee;">Score</th>
+              <th style="text-align:left;padding:10px;border-bottom:1px solid #eee;">ID</th>
+              <th style="text-align:left;padding:10px;border-bottom:1px solid #eee;">Bairro</th>
+              <th style="text-align:left;padding:10px;border-bottom:1px solid #eee;">Valor</th>
+              <th style="text-align:left;padding:10px;border-bottom:1px solid #eee;">Área</th>
+              <th style="text-align:left;padding:10px;border-bottom:1px solid #eee;">Quartos</th>
+              <th style="text-align:left;padding:10px;border-bottom:1px solid #eee;">URL</th>
+            </tr>
+
+            <% matches.forEach(m => { %>
+              <tr>
+                <td style="padding:10px;border-bottom:1px solid #eee;"><%= m.fonte || m.source || 'Match' %></td>
+                <td style="padding:10px;border-bottom:1px solid #eee;"><%= m.score || '-' %></td>
+                <td style="padding:10px;border-bottom:1px solid #eee;"><%= m.id || m.id_anuncio_quintoandar || m.listingId || '-' %></td>
+                <td style="padding:10px;border-bottom:1px solid #eee;"><%= m.bairro || '-' %></td>
+                <td style="padding:10px;border-bottom:1px solid #eee;"><%= m.valor_imovel || m.valor || '-' %></td>
+                <td style="padding:10px;border-bottom:1px solid #eee;"><%= m.area_m2 || m.area || '-' %></td>
+                <td style="padding:10px;border-bottom:1px solid #eee;"><%= m.quartos || '-' %></td>
+                <td style="padding:10px;border-bottom:1px solid #eee;">
+                  <% if (m.url) { %>
+                    <a target="_blank" href="<%= m.url %>">Abrir</a>
+                  <% } else { %>
+                    -
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  <% }) %>
+</div>
+
+<%- include('partials/app-end') %>

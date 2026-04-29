@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin MatchImoveis</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial;background:#FFFFFF;color:#111}
+    .layout{display:flex;min-height:100vh}
+    aside{width:260px;background:#FFFFFF;color:white;padding:24px}
+    aside h2{margin:0 0 30px;font-size:22px}
+    aside a{display:block;color:white;text-decoration:none;padding:12px;border-radius:10px;margin-bottom:8px}
+    aside a:hover{background:#FFFFFF}
+    main{flex:1;padding:28px}
+    .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+    .card{background:white;padding:20px;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+    .card h3{margin:0 0 8px;font-size:14px;color:#6b7280}
+    .card strong{font-size:28px}
+    .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+    table{width:100%;border-collapse:collapse;background:white;border-radius:16px;overflow:hidden}
+    th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
+    th{background:#FFFFFF}
+    .btn{display:inline-block;background:#FFFFFF;color:white;padding:10px 14px;border-radius:10px;text-decoration:none}
+  </style>
+<link rel="stylesheet" href="/airbnb.css">
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <h2>MatchImoveis Admin</h2>
+    <a href="/admin">Dashboard BI</a>
+    <a href="/admin/match">Processar Leads / Match</a>
+    <a href="/admin/usuarios">Usuários</a>
+    <a href="/admin/leads">Leads</a>
+    <a href="/admin/imoveis">Imóveis</a>
+    <a href="/admin/visitas">Visitas</a>
+    <a href="/admin/portais">Portais / XML</a>
+    <a href="/app">Área do Corretor</a>
+  </aside>
+
+  <main>
+    <div class="top">
+      <h1>Dashboard Administrativo</h1>
+      <a class="btn" href="/admin/match">Abrir Match</a>
+    </div>
+
+    <div class="cards">
+      <div class="card"><h3>Total de leads</h3><strong><%= stats.totalLeads %></strong></div>
+      <div class="card"><h3>Com match</h3><strong><%= stats.comMatch %></strong></div>
+      <div class="card"><h3>Total de matches</h3><strong><%= stats.totalMatches %></strong></div>
+      <div class="card"><h3>Usuários</h3><strong><%= stats.totalUsuarios %></strong></div>
+    </div>
+
+    <div class="cards">
+      <div class="card"><h3>Visitas solicitadas</h3><strong><%= stats.visitas %></strong></div>
+      <div class="card"><h3>Clientes visualizaram</h3><strong><%= stats.visualizacoes %></strong></div>
+      <div class="card"><h3>Imóveis origem</h3><strong><%= stats.imoveisOrigem %></strong></div>
+      <div class="card"><h3>Melhor score médio</h3><strong><%= stats.scoreMedio %></strong></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Últimos leads</h2>
+        <table>
+          <tr>
+            <th>Cliente</th>
+            <th>Contato</th>
+            <th>Matches</th>
+            <th>Status</th>
+          </tr>
+          <% ultimosLeads.forEach(item => { %>
+            <tr>
+              <td><%= item.clientName || item.nome || '-' %></td>
+              <td><%= item.phone || item.telefone || item.contato || '-' %></td>
+              <td><%= item.matchCount || (item.matches ? item.matches.length : 0) %></td>
+              <td><%= item.etapaAtual || item.status || '-' %></td>
+            </tr>
+          <% }) %>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>Próximos passos</h2>
+        <p>1. Melhorar BI por corretor.</p>
+        <p>2. Criar ranking de leads quentes.</p>
+        <p>3. Medir cliques no espelho do cliente.</p>
+        <p>4. Controlar visitas e propostas.</p>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

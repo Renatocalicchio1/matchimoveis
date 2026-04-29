@@ -1,0 +1,57 @@
+<%- include('partials/app-shell',{active:'portais',title:'Portais e XML',subtitle:'Habilite os portais e gere XML separado para cada canal.',perfil:'corretor'}) %>
+
+<div class="card">
+  <h3>Portais habilitados</h3>
+  <p class="small">Escolha onde o corretor Mario Sergio quer publicar os imóveis.</p>
+  <br>
+
+  <div class="checkgrid">
+    <label class="checkcard"><input type="checkbox" checked> Canal Pro — OLX / Zap / Viva Real</label>
+    <label class="checkcard"><input type="checkbox"> Chaves na Mão</label>
+    <label class="checkcard"><input type="checkbox"> Imovelweb</label>
+    <label class="checkcard"><input type="checkbox"> 123i</label>
+    <label class="checkcard"><input type="checkbox"> QuintoAndar</label>
+    <label class="checkcard"><input type="checkbox"> RE/MAX</label>
+  </div>
+</div>
+
+<br>
+
+<div class="card">
+  <h3>Gerar XML</h3>
+  <p class="small">Selecione o portal para gerar o XML no padrão Viva Real/VRSync.</p>
+  <br>
+
+  <form method="POST" action="/app-xml-gerar">
+    <div class="form">
+      <div>
+        <label>Portal
+          <select name="portal">
+            <option value="canalpro">Canal Pro — OLX / Zap / Viva Real</option>
+            <option value="chaves-na-mao">Chaves na Mão</option>
+            <option value="imovelweb">Imovelweb</option>
+            <option value="123i">123i</option>
+            <option value="quintoandar">QuintoAndar</option>
+            <option value="remax">RE/MAX</option>
+          </select>
+        </label>
+      </div>
+
+      <div>
+        <label>Filtro de imóveis
+          <select name="filtro">
+            <option value="todos">Todos os imóveis do Mario</option>
+            <option value="ativos">Somente ativos</option>
+            <option value="selecionados">Somente selecionados em Meus imóveis</option>
+          </select>
+        </label>
+      </div>
+
+      <div style="grid-column:1/-1">
+        <button class="btn red" type="submit">Gerar XML do portal</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<%- include('partials/app-end') %>

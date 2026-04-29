@@ -1,0 +1,85 @@
+<%- include('partials/app-shell',{active:'cadastro',title:'Cadastrar ou importar imóveis',subtitle:'Traga imóveis via XML ou cadastre manualmente.',perfil:'corretor'}) %>
+
+<div class="card">
+  <h3>🚀 Importar imóveis via XML</h3>
+  <p class="small">
+    Cole a URL do XML do portal (VivaReal, OLX, CRM, etc).  
+    O sistema vai importar automaticamente todos os imóveis.
+  </p>
+
+  <form method="POST" action="/app/importar" enctype="multipart/form-data" style="margin-top:15px">
+    <label>URL do XML</label>
+    <input name="xmlUrl" placeholder="Ex: https://site.com/feed.xml">
+
+    <label style="margin-top:10px">Planilha (opcional)</label>
+    <input type="file" name="file">
+
+    <p class="small">
+      Se você enviar uma planilha, o sistema tenta cruzar os dados do proprietário.
+    </p>
+
+    <button class="btn">Importar XML</button>
+  </form>
+</div>
+
+<br>
+
+<div class="card">
+  <h3>✍️ Cadastro manual do imóvel</h3>
+  <p class="small">
+    Use esse cadastro quando não tiver XML.  
+    Ideal para imóveis exclusivos ou captação direta.
+  </p>
+
+  <form method="POST" action="/app/imoveis">
+
+    <label>Tipo de imóvel</label>
+    <select name="tipo">
+      <option>Apartamento</option>
+      <option>Casa</option>
+      <option>Kitnet</option>
+      <option>Studio</option>
+    </select>
+
+    <label>Bairro</label>
+    <input name="bairro" placeholder="Ex: Vila Mariana">
+
+    <label>Cidade</label>
+    <input name="cidade" value="São Paulo">
+
+    <label>Valor</label>
+    <input name="valor" placeholder="Ex: 500000">
+
+    <label>Área (m²)</label>
+    <input name="area">
+
+    <label>Quartos</label>
+    <input name="quartos">
+
+    <label>Suítes</label>
+    <input name="suites">
+
+    <label>Banheiros</label>
+    <input name="banheiros">
+
+    <label>Vagas</label>
+    <input name="vagas">
+
+    <button class="btn">Salvar imóvel</button>
+  </form>
+</div>
+
+<br>
+
+<div class="card">
+  <h3>📊 Como funciona o sistema</h3>
+
+  <ul style="line-height:1.8">
+    <li><strong>XML:</strong> importa automaticamente sua carteira de imóveis</li>
+    <li><strong>Cadastro manual:</strong> para imóveis exclusivos</li>
+    <li><strong>Match:</strong> o sistema encontra imóveis similares para leads</li>
+    <li><strong>Leads:</strong> você recebe oportunidades com potencial de venda</li>
+  </ul>
+</div>
+
+<%- include('partials/app-end') %>

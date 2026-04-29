@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opções de imóveis</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body { background:#f4f4f6; }
+    .offer { max-width:900px; margin:24px auto; padding:16px; }
+    .offer-card { background:#fff; border-radius:18px; padding:18px; margin-bottom:16px; box-shadow:0 8px 24px rgba(0,0,0,.06); }
+    .price { font-size:22px; font-weight:800; }
+    .btn { display:block; background:#6d28d9; color:white; text-align:center; padding:14px; border-radius:14px; text-decoration:none; font-weight:800; margin-top:12px; }
+    .muted { color:#667085; }
+  </style>
+</head>
+<body>
+  <main class="offer">
+    <section class="offer-card">
+      <h1>Olá, <%= item.clientName || 'tudo bem?' %></h1>
+      <p class="muted">Separei algumas opções parecidas com o perfil de imóvel que você demonstrou interesse.</p>
+
+      <strong>Perfil buscado:</strong>
+      <p>
+        <%= item.origin.tipo || '-' %> em <%= item.origin.bairro || '-' %><br>
+        R$ <%= item.origin.valor_imovel ? Number(item.origin.valor_imovel).toLocaleString('pt-BR') : '-' %> ·
+        <%= item.origin.area_m2 || '-' %> m² ·
+        <%= item.origin.quartos || '-' %> quartos
+      </p>
+    </section>
+
+    <% if (item.matches && item.matches.length) { %>
+      <% item.matches.forEach((m) => { %>
+        <section class="offer-card">
+          <div class="price">R$ <%= m.valor_imovel ? Number(m.valor_imovel).toLocaleString('pt-BR') : '-' %></div>
+          <p><strong><%= m.tipo || '-' %></strong> · <%= m.bairro || item.origin.bairro || '-' %></p>
+          <p><%= m.area_m2 || '-' %> m² · <%= m.quartos || '-' %> quartos · <%= m.vagas ?? '-' %> vagas</p>
+          <p class="muted">ID: <%= m.id_anuncio_quintoandar || '-' %></p>
+          <a class="btn" href="https://wa.me/55<%= String(item.contact || '').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá, tenho interesse em agendar uma visita para o imóvel ID: ' + (m.id_anuncio_quintoandar || '') + ' - ' + (m.url || '')) %>" target="_blank">Agendar visita</a>
+        </section>
+      <% }) %>
+    <% } %>
+  </main>
+</body>
+</html>

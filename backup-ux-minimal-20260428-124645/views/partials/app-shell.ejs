@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title><%= (typeof title !== 'undefined' && title) ? title : 'MatchImoveis' %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f3ff;color:#1f1633}
+    .app{display:flex;min-height:100vh}
+    .sidebar{width:280px;background:linear-gradient(180deg,#4c1d95,#6d28d9,#7c3aed);color:white;padding:24px;position:fixed;top:0;bottom:0;left:0}
+    .brand{font-size:24px;font-weight:900;margin-bottom:24px}
+    .user-card{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:14px;margin-bottom:22px}
+    .user-card strong{display:block}
+    .user-card span{font-size:12px;color:#ede9fe}
+    .menu{display:flex;flex-direction:column;gap:9px}
+    .menu a{color:white;text-decoration:none;padding:13px 14px;border-radius:14px;font-weight:700;background:rgba(255,255,255,.10)}
+    .menu a:hover,.menu a.active{background:white;color:#5b21b6}
+    .content{margin-left:280px;padding:34px;width:calc(100% - 280px)}
+    .page-head{margin-bottom:24px}
+    .page-head h1{margin:0;color:#3b0764;font-size:32px}
+    .page-head p{margin:7px 0 0;color:#6b5b7c}
+    .card{background:white;border:1px solid #e9d5ff;border-radius:22px;padding:24px;box-shadow:0 12px 30px rgba(76,29,149,.10);margin-bottom:18px}
+    .grid,.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .btn{background:linear-gradient(135deg,#6d28d9,#9333ea);color:white;border:0;border-radius:12px;padding:12px 16px;font-weight:800;text-decoration:none;display:inline-block;cursor:pointer}
+    .small{color:#6b5b7c}
+    input,select,textarea{border:1px solid #ddd6fe;border-radius:12px;padding:12px}
+    @media(max-width:900px){.sidebar{position:relative;width:100%}.content{margin-left:0;width:100%}.app{display:block}.grid,.grid-3{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">MatchImoveis</div>
+
+    <div class="user-card">
+      <strong><%= (typeof user !== 'undefined' && user && user.nome) ? user.nome : 'Antonio' %></strong>
+      <span><%= (typeof user !== 'undefined' && user && user.tipo) ? user.tipo : 'Corretor' %></span>
+    </div>
+
+    <nav class="menu">
+      <a class="<%= active==='home'?'active':'' %>" href="/app-home">Dashboard</a>
+      <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis">Meus imóveis</a>
+      <a class="<%= active==='cadastro'?'active':'' %>" href="/app/cadastro">Cadastrar imóvel</a>
+      <a class="<%= active==='importar'?'active':'' %>" href="/app-importar-leads">Importar leads</a>
+      <a class="<%= active==='leads'?'active':'' %>" href="/app/leads">Leads</a>
+      <a class="<%= active==='portais'?'active':'' %>" href="/app/portais">Portais / XML</a>
+      <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas">Visitas</a>
+      <a class="<%= active==='perfil'?'active':'' %>" href="/app/perfil">Perfil</a>
+      <a href="/login">Sair</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="page-head">
+      <h1><%= (typeof title !== 'undefined' && title) ? title : '' %></h1>
+      <p><%= (typeof subtitle !== 'undefined' && subtitle) ? subtitle : '' %></p>
+    </div>

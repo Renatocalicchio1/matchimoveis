@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corretor</title>
+
+<style>
+body{margin:0;background:#FFFFFF;font-family:-apple-system}
+.container{max-width:1000px;margin:0 auto;padding:20px}
+.card{background:#fff;border-radius:20px;padding:20px;margin-bottom:14px}
+h1{margin-top:0}
+input{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;margin-top:8px}
+button{width:100%;padding:14px;border:0;background:#111;color:#fff;border-radius:12px;margin-top:10px;font-weight:900}
+.lead{border:1px solid #eee;border-radius:16px;padding:14px;margin-top:10px}
+.badge{display:inline-block;background:#111;color:#fff;padding:5px 10px;border-radius:999px;font-size:12px}
+.link{display:block;margin-top:8px;font-size:13px}
+</style>
+<link rel="stylesheet" href="/airbnb.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>Painel do Corretor</h1>
+
+  <div class="card">
+    <h3>Gerar Match (Subir Lead)</h3>
+
+    <form action="/process" method="POST">
+      <label>Nome do cliente</label>
+      <input name="clientName" required>
+
+      <label>Telefone</label>
+      <input name="contact">
+
+      <label>Email</label>
+      <input name="email">
+
+      <label>URL do imóvel</label>
+      <input name="url">
+
+      <label>OU ID do anúncio</label>
+      <input name="listingId">
+
+      <button type="submit">Gerar Match</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Meus Leads</h3>
+
+    <% leads.forEach((l) => { %>
+      <div class="lead">
+
+        <strong><%= l.nome || 'Lead' %></strong><br>
+        <small><%= l.contato %></small><br><br>
+
+        <span class="badge"><%= l.matchCount %> matches</span>
+
+        <div class="link">
+          <a target="_blank" href="/oferta/<%= l.offerToken %>">Ver oferta</a>
+        </div>
+
+      </div>
+    <% }) %>
+
+  </div>
+
+</div>
+
+</body>
+</html>

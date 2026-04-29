@@ -1,0 +1,45 @@
+<%- include('partials/app-shell',{active:'home',title:'Painel do corretor',subtitle:'Resumo rápido para acompanhar imóveis, leads e visitas.',perfil:(user && user.tipo) || 'corretor',user:user}) %>
+
+<div class="grid">
+  <div class="card">
+    <h3>Imóveis ativos</h3>
+    <p class="small">Carteira publicada</p>
+    <div class="num"><%= stats.imoveisAtivos %></div>
+  </div>
+
+  <div class="card">
+    <h3>Leads novos</h3>
+    <p class="small">Entradas recentes</p>
+    <div class="num"><%= stats.leadsNovos %></div>
+  </div>
+
+  <div class="card">
+    <h3>Visitas agendadas</h3>
+    <p class="small">Próximos horários</p>
+    <div class="num"><%= stats.visitasAgendadas %></div>
+  </div>
+
+  <div class="card">
+    <h3>Matches gerados</h3>
+    <p class="small">Oportunidades</p>
+    <div class="num"><%= stats.matchesGerados %></div>
+  </div>
+</div>
+
+<br>
+
+<div class="grid2">
+  <div class="card">
+    <h3>Próxima ação</h3>
+    <p class="small">Cadastre imóveis ou importe leads para começar a gerar oportunidades.</p>
+    <br><a class="btn red" href="/app-cadastro">Cadastrar imóvel</a>
+  </div>
+
+  <div class="card">
+    <h3>Fluxo do sistema</h3>
+    <p class="small">Lead importado → imóvel processado → match gerado → cliente recebe espelho → visita solicitada.</p>
+    <br><a class="btn" href="/app-leads">Ver leads</a>
+  </div>
+</div>
+
+<%- include('partials/app-end') %>

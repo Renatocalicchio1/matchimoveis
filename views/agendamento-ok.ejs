@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visita solicitada</title>
+<style>
+body{margin:0;background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,sans-serif;color:#111}
+.container{max-width:680px;margin:0 auto;padding:24px}
+.card{background:#fff;border-radius:22px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+a{display:block;background:#111;color:#fff;text-align:center;padding:15px;border-radius:14px;text-decoration:none;font-weight:900;margin-top:18px}
+</style>
+<link rel="stylesheet" href="/airbnb.css">
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>Visita solicitada ✅</h1>
+    <p>Recebemos seu pedido de visita.</p>
+    <p>Agora o proprietário será notificado para confirmar a disponibilidade. Assim que ele confirmar, você será informado.</p>
+    <a href="/oferta/<%= item.offerToken %>">Voltar para opções</a>
+  </div>
+</div>
+</body>
+</html>

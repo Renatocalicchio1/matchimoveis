@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title><%= (typeof title !== 'undefined' && title) ? title : 'MatchImoveis' %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Arial,sans-serif;
+      background:#f7f4ff;
+      color:#21172f;
+    }
+
+    .app{
+      min-height:100vh;
+      display:flex;
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,.12), transparent 32%),
+        #f7f4ff;
+    }
+
+    .sidebar{
+      width:268px;
+      min-height:100vh;
+      padding:22px 16px;
+      background:#ffffffcc;
+      backdrop-filter:blur(18px);
+      border-right:1px solid #eadcff;
+      position:fixed;
+      left:0;
+      top:0;
+      bottom:0;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:19px;
+      font-weight:850;
+      color:#4c1d95;
+      padding:8px 10px 20px;
+      letter-spacing:-.4px;
+    }
+
+    .brand:before{
+      content:"";
+      width:30px;
+      height:30px;
+      border-radius:10px;
+      background:linear-gradient(135deg,#6d28d9,#a855f7);
+      box-shadow:0 8px 20px rgba(109,40,217,.25);
+      display:block;
+    }
+
+    .user-card{
+      background:#f4efff;
+      border:1px solid #e7d8ff;
+      border-radius:18px;
+      padding:14px;
+      margin:0 6px 18px;
+    }
+
+    .user-card strong{
+      display:block;
+      font-size:15px;
+      color:#2e1065;
+      margin-bottom:3px;
+    }
+
+    .user-card span{
+      font-size:12px;
+      color:#7e5ab7;
+    }
+
+    .menu{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding:0 6px;
+    }
+
+    .menu a{
+      display:flex;
+      align-items:center;
+      min-height:42px;
+      padding:11px 13px;
+      border-radius:14px;
+      color:#4b3b63;
+      text-decoration:none;
+      font-size:14px;
+      font-weight:650;
+      transition:.15s ease;
+    }
+
+    .menu a:hover{
+      background:#f1e8ff;
+      color:#5b21b6;
+    }
+
+    .menu a.active{
+      background:#6d28d9;
+      color:#fff;
+      box-shadow:0 8px 18px rgba(109,40,217,.22);
+    }
+
+    .content{
+      margin-left:268px;
+      width:calc(100% - 268px);
+      padding:28px;
+    }
+
+    .page-head{
+      max-width:1180px;
+      margin:0 auto 22px;
+      padding:18px 4px 4px;
+    }
+
+    .page-head h1{
+      margin:0;
+      color:#2e1065;
+      font-size:30px;
+      line-height:1.15;
+      letter-spacing:-.7px;
+    }
+
+    .page-head p{
+      margin:8px 0 0;
+      color:#7c6a94;
+      font-size:15px;
+    }
+
+    .content > .card,
+    .content > .grid,
+    .content > .grid-3,
+    .content > form,
+    .content > table{
+      max-width:1180px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    .card{
+      background:#fff;
+      border:1px solid #eadcff;
+      border-radius:22px;
+      padding:22px;
+      box-shadow:0 10px 28px rgba(46,16,101,.07);
+      margin-bottom:16px;
+    }
+
+    .card h2,.card h3{
+      margin-top:0;
+      color:#33115f;
+      letter-spacing:-.3px;
+    }
+
+    .small,.muted{
+      color:#7c6a94;
+      font-size:14px;
+    }
+
+    .grid,.grid-3{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:16px;
+    }
+
+    .btn,button,input[type="submit"]{
+      background:#6d28d9;
+      color:#fff;
+      border:0;
+      border-radius:13px;
+      padding:11px 15px;
+      font-weight:750;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:42px;
+      box-shadow:0 8px 18px rgba(109,40,217,.18);
+    }
+
+    .btn:hover,button:hover,input[type="submit"]:hover{
+      background:#5b21b6;
+    }
+
+    input,select,textarea{
+      width:100%;
+      border:1px solid #ded1f7;
+      border-radius:13px;
+      padding:12px 13px;
+      background:#fff;
+      color:#21172f;
+      outline:none;
+    }
+
+    input:focus,select:focus,textarea:focus{
+      border-color:#8b5cf6;
+      box-shadow:0 0 0 4px rgba(139,92,246,.12);
+    }
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      background:#fff;
+      border:1px solid #eadcff;
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 10px 28px rgba(46,16,101,.06);
+    }
+
+    th,td{
+      padding:13px 14px;
+      border-bottom:1px solid #f0e7ff;
+      text-align:left;
+      font-size:14px;
+    }
+
+    th{
+      color:#4c1d95;
+      background:#f4efff;
+      font-weight:800;
+    }
+
+    tr:last-child td{border-bottom:0}
+
+    .num{
+      font-size:34px;
+      font-weight:850;
+      color:#5b21b6;
+      letter-spacing:-1px;
+    }
+
+    @media(max-width:900px){
+      .app{display:block}
+      .sidebar{
+        position:relative;
+        width:100%;
+        min-height:auto;
+        border-right:0;
+        border-bottom:1px solid #eadcff;
+      }
+      .content{
+        margin-left:0;
+        width:100%;
+        padding:20px;
+      }
+      .grid,.grid-3{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">MatchImoveis</div>
+
+    <div class="user-card">
+      <strong><%= (typeof user !== 'undefined' && user && user.nome) ? user.nome : 'Antonio' %></strong>
+      <span><%= (typeof user !== 'undefined' && user && user.tipo) ? user.tipo : 'Corretor' %></span>
+    </div>
+
+    <nav class="menu">
+      <a class="<%= active==='home'?'active':'' %>" href="/app-home">Dashboard</a>
+      <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis">Meus imóveis</a>
+      <a class="<%= active==='cadastro'?'active':'' %>" href="/app/cadastro">Cadastrar imóvel</a>
+      <a class="<%= active==='importar'?'active':'' %>" href="/app-importar-leads">Importar leads</a>
+      <a class="<%= active==='leads'?'active':'' %>" href="/app/leads">Leads</a>
+      <a class="<%= active==='portais'?'active':'' %>" href="/app/portais">Portais / XML</a>
+      <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas">Visitas</a>
+      <a class="<%= active==='perfil'?'active':'' %>" href="/app/perfil">Perfil</a>
+      <a href="/login">Sair</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="page-head">
+      <h1><%= (typeof title !== 'undefined' && title) ? title : '' %></h1>
+      <p><%= (typeof subtitle !== 'undefined' && subtitle) ? subtitle : '' %></p>
+    </div>

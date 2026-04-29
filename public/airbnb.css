@@ -1,0 +1,182 @@
+:root{
+  --airbnb-red:#FF385C;
+  --airbnb-red-dark:#E31C5F;
+  --airbnb-bg:#F7F7F7;
+  --airbnb-card:#FFFFFF;
+  --airbnb-text:#222222;
+  --airbnb-muted:#717171;
+  --airbnb-border:#EBEBEB;
+  --airbnb-soft:#FFF1F3;
+  --airbnb-green:#008A05;
+  --radius-xl:28px;
+  --radius-lg:20px;
+  --radius-md:14px;
+  --shadow-card:0 10px 30px rgba(0,0,0,.06);
+  --shadow-hover:0 14px 36px rgba(0,0,0,.10);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--airbnb-bg)!important;
+  color:var(--airbnb-text)!important;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif!important;
+  -webkit-font-smoothing:antialiased;
+}
+
+a{
+  color:var(--airbnb-red)!important;
+  text-decoration:none!important;
+  font-weight:700;
+}
+
+h1,h2,h3{
+  color:var(--airbnb-text)!important;
+  letter-spacing:-.035em;
+}
+
+p,.small,.muted,.subtitle{
+  color:var(--airbnb-muted)!important;
+}
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+.sidebar,aside,nav,.menu{
+  background:#fff!important;
+  border-right:1px solid var(--airbnb-border)!important;
+  color:var(--airbnb-text)!important;
+}
+
+.sidebar a,aside a,nav a,.menu a{
+  color:var(--airbnb-text)!important;
+  border-radius:999px!important;
+  padding:12px 14px!important;
+  display:block;
+}
+
+.sidebar a:hover,
+aside a:hover,
+nav a:hover,
+.menu a:hover,
+.sidebar a.active,
+aside a.active,
+nav a.active,
+.menu a.active{
+  background:var(--airbnb-soft)!important;
+  color:var(--airbnb-red)!important;
+}
+
+.main,main,.content{
+  background:var(--airbnb-bg)!important;
+}
+
+.card,.box,.panel,.result-item,.lead-card,.imovel-card,.visit-card,.stat-card,section{
+  background:#fff!important;
+  border:1px solid var(--airbnb-border)!important;
+  border-radius:var(--radius-xl)!important;
+  box-shadow:var(--shadow-card)!important;
+  color:var(--airbnb-text)!important;
+}
+
+.card:hover,.result-item:hover,.lead-card:hover,.imovel-card:hover{
+  box-shadow:var(--shadow-hover)!important;
+}
+
+button,.btn,.button,input[type="submit"],input[type="button"]{
+  background:var(--airbnb-red)!important;
+  color:#fff!important;
+  border:0!important;
+  border-radius:999px!important;
+  padding:12px 20px!important;
+  font-weight:800!important;
+  cursor:pointer!important;
+  box-shadow:none!important;
+}
+
+button:hover,.btn:hover,.button:hover{
+  background:var(--airbnb-red-dark)!important;
+  transform:translateY(-1px);
+}
+
+input,select,textarea{
+  background:#fff!important;
+  border:1px solid var(--airbnb-border)!important;
+  border-radius:16px!important;
+  color:var(--airbnb-text)!important;
+  padding:13px 14px!important;
+  outline:none!important;
+}
+
+input:focus,select:focus,textarea:focus{
+  border-color:var(--airbnb-red)!important;
+  box-shadow:0 0 0 4px rgba(255,56,92,.12)!important;
+}
+
+table{
+  background:#fff!important;
+  border-collapse:separate!important;
+  border-spacing:0!important;
+  border-radius:20px!important;
+  overflow:hidden!important;
+  width:100%;
+}
+
+th{
+  background:#FAFAFA!important;
+  color:var(--airbnb-muted)!important;
+  font-size:11px!important;
+  text-transform:uppercase!important;
+  letter-spacing:.05em!important;
+  font-weight:800!important;
+}
+
+td,th{
+  border-bottom:1px solid var(--airbnb-border)!important;
+  color:var(--airbnb-text)!important;
+}
+
+.badge,.chip,.tag,.status{
+  background:var(--airbnb-soft)!important;
+  color:var(--airbnb-red)!important;
+  border:1px solid rgba(255,56,92,.16)!important;
+  border-radius:999px!important;
+  padding:6px 10px!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+
+.num{
+  color:var(--airbnb-red)!important;
+  font-weight:900!important;
+}
+
+[style*="#5b21b6"],
+[style*="#7c3aed"],
+[style*="#9333ea"],
+[style*="#6d28d9"],
+[style*="#4c1d95"],
+[style*="#3b0764"],
+[style*="#ede9fe"],
+[style*="#ddd6fe"],
+[style*="#f6f2ff"],
+[style*="#eadcff"]{
+  background:#fff!important;
+  color:var(--airbnb-text)!important;
+  border-color:var(--airbnb-border)!important;
+}
+
+[style*="background:#111"],
+[style*="background: #111"],
+[style*="#111827"]{
+  background:#fff!important;
+  color:var(--airbnb-text)!important;
+}
+
+[style*="color:white"],
+[style*="color: white"]{
+  color:var(--airbnb-text)!important;
+}

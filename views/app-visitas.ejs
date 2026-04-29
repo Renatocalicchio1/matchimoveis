@@ -1,0 +1,27 @@
+<%- include("partials/app-shell",{active:"visitas",user:user}) %>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Visitas</title>
+  <style>
+    body{font-family:Arial;background:#FFFFFF;margin:0;color:#111}
+    header{background:#111;color:white;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:white;margin-left:18px;text-decoration:none}
+    main{padding:30px}
+    .card{background:white;border-radius:16px;padding:24px;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+    .empty{padding:30px;text-align:center;color:#666}
+  </style>
+<link rel="stylesheet" href="/airbnb.css">
+</head>
+<body>
+
+
+<main>
+  <div class="card">
+    <h1>Visitas agendadas</h1>
+    <div class="empty">Nenhuma visita agendada ainda.</div>
+  </div>
+</main>
+</body>
+</html>
+<%- include('partials/app-end') %>

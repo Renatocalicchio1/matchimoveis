@@ -1,0 +1,8 @@
+nome do cliente,telefone / contato,ID do anúncio,URL do anúncio
+João,11999999999,3001522092,https://www.imovelweb.com.br/propiedades/-3001522092.html
+Maria,11988888888,3015570366,https://www.imovelweb.com.br/propiedades/-3015570366.html
+Carlos,11977777777,3029588019,https://www.imovelweb.com.br/propiedades/-3029588019.html
+Ana,11966666666,3026770158,https://www.imovelweb.com.br/propiedades/-3026770158.html
+Renata,11955555555,1vdj2fk,https://loft.com.br/imovel/apartamento-rua-do-lago-ipiranga-sao-paulo-3-quartos-44m2/1vdj2fk?tipoTransacao=venda
+Duplicado,11955555555,1vdj2fk,https://loft.com.br/imovel/apartamento-rua-do-lago-ipiranga-sao-paulo-3-quartos-44m2/1vdj2fk?tipoTransacao=venda
+Somente ID,11944444444,abc123,

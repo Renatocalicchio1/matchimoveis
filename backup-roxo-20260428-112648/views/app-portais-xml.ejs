@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Portais / XML</title>
+  <style>
+    body{margin:0;font-family:Arial;background:#f3f4f6;color:#111}
+    header{background:#111;color:#fff;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
+    .brand{font-weight:700}
+    nav a{color:#fff;text-decoration:none;margin-left:18px;font-size:14px}
+    main{padding:30px}
+    .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+    .user{display:flex;gap:10px;align-items:center}
+    .avatar{width:42px;height:42px;border-radius:50%;background:#ddd}
+    .card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.08);margin-bottom:18px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .btn{display:inline-block;background:#111;color:#fff;padding:12px 16px;border-radius:10px;text-decoration:none;border:0}
+    .muted{color:#666}
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">MatchImoveis</div>
+  <nav>
+    <a href="/app-imoveis">Meus imóveis</a>
+    <a href="/app-importar-leads">Importar leads</a>
+    <a href="/app-portais-xml">Portais / XML</a>
+    <a href="/app-visitas">Visitas</a>
+    <a href="/app-perfil">Perfil</a>
+    <a href="/login">Sair</a>
+  </nav>
+</header>
+
+<main>
+  <div class="top">
+    <div>
+      <h1>Portais / XML</h1>
+      <p class="muted">Escolha para onde seus imóveis serão enviados.</p>
+    </div>
+    <div class="user">
+      <div class="avatar"></div>
+      <div>
+        <strong><%= usuario.nome %></strong><br>
+        <small><%= usuario.tipoConta %> · <%= usuario.celular %></small>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Canal Pro</h2>
+      <p class="muted">Enviar XML para OLX, Zap Imóveis e Viva Real.</p>
+      <button class="btn">Ativar XML</button>
+    </div>
+
+    <div class="card">
+      <h2>Chaves na Mão</h2>
+      <p class="muted">Enviar XML para o portal Chaves na Mão.</p>
+      <button class="btn">Ativar XML</button>
+    </div>
+
+    <div class="card">
+      <h2>XML próprio</h2>
+      <p class="muted">Gerar link XML da carteira do corretor.</p>
+      <button class="btn">Gerar XML</button>
+    </div>
+  </div>
+</main>
+</body>
+</html>

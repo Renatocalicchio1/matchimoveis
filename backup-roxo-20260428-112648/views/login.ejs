@@ -1,0 +1,41 @@
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Login - MatchImoveis</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial;background:#f3f4f6;color:#111;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .box{width:100%;max-width:420px;background:white;border-radius:22px;padding:34px;box-shadow:0 10px 30px rgba(0,0,0,.10)}
+    .logo{width:56px;height:56px;border-radius:18px;background:#111827;color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:24px;margin-bottom:18px}
+    h1{margin:0;font-size:28px}
+    p{color:#6b7280;margin:8px 0 24px}
+    label{font-size:14px;font-weight:bold}
+    input{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;margin:8px 0 16px;font-size:16px}
+    button{width:100%;border:0;background:#dc2626;color:white;padding:14px;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer}
+    button:hover{background:#b91c1c}
+    .small{font-size:13px;color:#6b7280;text-align:center;margin-top:16px}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">M</div>
+    <h1>Entrar</h1>
+    <p>Acesse sua conta no MatchImoveis.</p>
+
+    <form method="POST" action="/login">
+      <label>Celular</label>
+      <input name="telefone" placeholder="11975720750" required>
+
+      <label>Senha</label>
+      <input name="senha" type="password" placeholder="Digite sua senha" required>
+
+      <button type="submit">Entrar</button>
+    </form>
+
+    <div class="small">Use seu celular para acessar o sistema.</div>
+  </div>
+</body>
+</html>

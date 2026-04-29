@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendar visita</title>
+<style>
+body{margin:0;background:#f6f6f6;font-family:-apple-system,BlinkMacSystemFont,sans-serif;color:#111}
+.container{max-width:720px;margin:0 auto;padding:22px}
+.card{background:#fff;border-radius:22px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+h1{margin-top:0}
+label{display:block;font-weight:800;margin-top:14px}
+input,textarea{width:100%;box-sizing:border-box;padding:14px;border:1px solid #ddd;border-radius:14px;font-size:16px;margin-top:6px}
+button{width:100%;border:0;background:#111;color:#fff;padding:16px;border-radius:14px;font-weight:900;font-size:16px;margin-top:18px}
+.info{background:#f3f4f6;border-radius:16px;padding:14px;margin-bottom:16px;color:#333}
+.back{display:inline-block;margin-bottom:14px;text-decoration:none;color:#111;font-weight:800}
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back" href="/imovel/<%= item.offerToken %>/<%= matchIdx %>">← Voltar</a>
+
+  <div class="card">
+    <h1>Agendar visita</h1>
+
+    <div class="info">
+      <strong><%= match.tipo || 'Imóvel' %></strong><br>
+      <%= match.bairro || '-' %> ·
+      R$ <%= match.valor_imovel ? Number(match.valor_imovel).toLocaleString('pt-BR') : '-' %><br>
+      <%= match.area_m2 || '-' %> m² · <%= match.quartos || '-' %> quartos
+    </div>
+
+    <form method="POST" action="/agendar">
+      <input type="hidden" name="offerToken" value="<%= item.offerToken %>">
+      <input type="hidden" name="matchIdx" value="<%= matchIdx %>">
+
+      <label>Nome</label>
+      <input name="nome" value="<%= item.clientName || '' %>" required>
+
+      <label>Telefone / WhatsApp</label>
+      <input name="telefone" value="<%= item.contact || '' %>" required>
+
+      <label>Email</label>
+      <input name="email" value="<%= item.email || '' %>">
+
+      <label>Data preferida</label>
+      <input type="date" name="dataPreferida" required>
+
+      <label>Horário preferido</label>
+      <input type="time" name="horarioPreferido" required>
+
+      <label>Observação</label>
+      <textarea name="observacao" rows="4" placeholder="Ex: prefiro visitar no fim da tarde"></textarea>
+
+      <button type="submit">Solicitar visita</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

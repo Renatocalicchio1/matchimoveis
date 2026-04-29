@@ -1,0 +1,30 @@
+[
+  {
+    "offerToken": "e71b26e05165259a",
+    "matchIdx": 0,
+    "cliente": {
+      "nome": "RENATO CALICCHIO",
+      "telefone": "11974079636",
+      "email": "renato@rankim.com.br"
+    },
+    "imovel": {
+      "fonte": "",
+      "url": "https://www.quintoandar.com.br/imovel/895204695/comprar/casa-2-quartos-parque-jabaquara-sao-paulo",
+      "tipo": "Casa",
+      "bairro": "Parque Jabaquara",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "valor_imovel": 520000,
+      "area_m2": 100,
+      "quartos": 2,
+      "suites": 1,
+      "banheiros": 2,
+      "vagas": 2
+    },
+    "dataPreferida": "2026-04-22",
+    "horarioPreferido": "20:41",
+    "observacao": "Teste.",
+    "status": "pendente_confirmacao_proprietario",
+    "createdAt": "2026-04-27T22:37:38.351Z"
+  }
+]

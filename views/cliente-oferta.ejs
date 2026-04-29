@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Ofertas para você</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/airbnb.css">
+</head>
+<body>
+  <div class="main" style="margin:0!important;width:100%!important;max-width:1100px!important;margin:auto!important">
+    <div class="topbar">
+      <div>
+        <span class="badge">MatchImoveis</span>
+        <h1>Olá, <%= lead.clienteNome || 'cliente' %></h1>
+        <p class="small">Selecionamos imóveis parecidos com o que você buscou. Escolha os que gostou e solicite uma visita.</p>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <% (lead.matches || []).forEach((m,idx)=>{ %>
+        <div class="card">
+          <span class="status red">Score <%= m.score %></span>
+          <h3 style="margin-top:10px"><%= m.tipo || 'Imóvel' %> em <%= m.bairro || '-' %></h3>
+          <p class="small"><%= m.cidade || '' %>/<%= m.estado || '' %> • <%= m.fonte || '' %></p>
+          <p><b>Valor:</b> <%= m.valor || '-' %></p>
+          <p><b>Área:</b> <%= m.area || '-' %> • <b>Quartos:</b> <%= m.quartos || '-' %> • <b>Vagas:</b> <%= m.vagas || '-' %></p>
+          <p class="small"><%= (m.descricao || '').toString().slice(0,180) %>...</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+            <a class="btn light" href="/cliente/oferta/<%= lead.leadId %>/escolher/<%= idx %>">Gostei deste</a>
+            <a class="btn red" href="/cliente/oferta/<%= lead.leadId %>/visita/<%= idx %>">Quero visitar</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <% if(!lead.matches || !lead.matches.length){ %>
+      <div class="card">
+        <h3>Nenhum match disponível ainda</h3>
+        <p class="small">O sistema ainda está buscando imóveis para o seu perfil.</p>
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>

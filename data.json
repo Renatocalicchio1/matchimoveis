@@ -6011,8 +6011,9 @@
     "vagas": 2,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T09:22:43.091Z",
-    "extractedAt": "2026-04-29T14:59:02.387Z"
+    "matchedAt": "2026-04-29T20:05:51.473Z",
+    "extractedAt": "2026-04-29T14:59:02.387Z",
+    "bestScore": 0
   },
   {
     "nome": "Maristela",

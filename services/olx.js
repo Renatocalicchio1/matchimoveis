@@ -1,4 +1,5 @@
 const { chromium } = require('playwright');
+const { getMemory, upsertMemory } = require('./olxMemory');
 
 const CHROME_PATH = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
@@ -109,7 +110,7 @@ function extractDetail(text, url, origin, telefoneCapturado = '') {
 
 async function searchOLX(property) {
   const browser = await chromium.launch({
-    headless: false,
+    headless: true,
     executablePath: CHROME_PATH
   });
 
@@ -132,20 +133,31 @@ async function searchOLX(property) {
       [...new Set(
         els
           .map(a => a.href)
-          .filter(h =>
-            h &&
-            h.includes('sp.olx.com.br') &&
-            h.includes('/imoveis/') &&
-            !h.includes('o=')
+          .filter(h => h && h.includes('olx.com.br') && h.includes('/imoveis/venda/')))
           )
       )].slice(0, 10)
     );
 
     console.log('OLX links capturados:', links.length);
 
+    const linksParaVisitar = links.filter(link => {
+      const mem = getMemory(link);
+      return !(mem && mem.status === 'extraido' && mem.temTelefone);
+    });
+
+    console.log('OLX links para visitar:', linksParaVisitar.length);
+
+    links.forEach(link => {
+      upsertMemory(link, {
+        fonte: 'OLX',
+        status: 'link_encontrado',
+        firstSeenAt: new Date().toISOString()
+      });
+    });
+
     const results = [];
 
-    for (const link of links) {
+    for (const link of linksParaVisitar) {
 
       let telefoneCapturado = '';
 
@@ -207,6 +219,26 @@ async function searchOLX(property) {
           areaOk
         ) {
           results.push(item);
+
+          const scoreIA =
+            (item.anuncianteTelefone ? 40 : 0) +
+            (item.anuncianteTipo === 'proprietario' ? 30 : 0) +
+            (item.anuncianteTipo === 'proprietario_provavel' ? 20 : 0) +
+            (item.anuncianteNome ? 10 : 0) +
+            (item.valor_imovel && item.valor_imovel <= property.valor_imovel ? 10 : 0) +
+            (item.bairro ? 10 : 0);
+
+          item.scoreIA = scoreIA;
+
+          upsertMemory(item.url, {
+            status: 'extraido',
+            dados: item,
+            scoreIA,
+            temTelefone: !!item.anuncianteTelefone,
+            anunciante: item.anuncianteNome,
+            telefone: item.anuncianteTelefone,
+            tipoAnunciante: item.anuncianteTipo
+          });
         }
       } catch (e) {
         console.log('Erro detalhe OLX:', e.message);
@@ -215,11 +247,7 @@ async function searchOLX(property) {
       }
     }
 
-    results.sort((a, b) => {
-      const pa = a.anuncianteTipo === 'proprietario_provavel' ? 0 : 1;
-      const pb = b.anuncianteTipo === 'proprietario_provavel' ? 0 : 1;
-      return pa - pb;
-    });
+    results.sort((a, b) => (b.scoreIA || 0) - (a.scoreIA || 0));
 
     console.log('OLX imóveis detalhados:', results.length);
 

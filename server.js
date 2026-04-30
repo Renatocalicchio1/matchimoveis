@@ -61,6 +61,34 @@ app.post('/app/importar', upload.any(), async (req, res) => {
   }
 });
 
+
+app.post('/app/importar-proprietarios', upload.any(), async (req, res) => {
+  try {
+    const file = (req.files && req.files[0]) || req.file;
+    const { execSync } = require('child_process');
+    const resultado = execSync('node importarProprietarios.js "' + file.path + '"', { encoding: 'utf8' });
+    const match = resultado.match(/CRUZADOS: (d+)/);
+    const total = match ? match[1] : '?';
+    res.send('<div style="font-family:sans-serif;padding:40px;text-align:center"><h2>✅ ' + total + ' imóveis atualizados com proprietário</h2><a href="/app/imoveis">Ver imóveis</a></div>');
+  } catch (err) {
+    res.send('Erro: ' + err.message);
+  }
+});
+
+
+app.post('/app/importar-proprietarios', upload.any(), async (req, res) => {
+  try {
+    const file = (req.files && req.files[0]) || req.file;
+    const { execSync } = require('child_process');
+    const resultado = execSync('node importarProprietarios.js "' + file.path + '"', { encoding: 'utf8' });
+    const match = resultado.match(/CRUZADOS: (d+)/);
+    const total = match ? match[1] : '?';
+    res.send('<div style="font-family:sans-serif;padding:40px;text-align:center"><h2>✅ ' + total + ' imóveis atualizados com proprietário</h2><a href="/app/imoveis">Ver imóveis</a></div>');
+  } catch (err) {
+    res.send('Erro: ' + err.message);
+  }
+});
+
 app.post('/app/leads', upload.any(), async (req, res) => {
   try {
     const file = (req.files && req.files[0]) || req.file;

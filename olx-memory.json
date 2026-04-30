@@ -1,0 +1,2730 @@
+{
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498159603": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:11:37.085Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498159603",
+    "updatedAt": "2026-04-30T14:11:37.086Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-jardins-edificio-ninety-hotel-1498157416": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:11:37.086Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-jardins-edificio-ninety-hotel-1498157416",
+    "updatedAt": "2026-04-30T14:11:37.088Z",
+    "dados": {
+      "fonte": "OLX",
+      "id": "1498157416",
+      "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-jardins-edificio-ninety-hotel-1498157416",
+      "tipo": "Apartamento",
+      "bairro": "Jardim Aeroporto",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "valor_imovel": 500000,
+      "area_m2": 33,
+      "quartos": 1,
+      "suites": null,
+      "banheiros": 1,
+      "vagas": 1,
+      "anuncianteNome": "",
+      "anuncianteTelefone": "12984643248",
+      "anuncianteTelefoneDisponivel": true,
+      "anuncianteTipo": "profissional",
+      "scoreIA": 60
+    },
+    "scoreIA": 60,
+    "temTelefone": true,
+    "anunciante": "",
+    "telefone": "12984643248",
+    "tipoAnunciante": "profissional"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498157214": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:11:37.088Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498157214",
+    "updatedAt": "2026-04-30T14:11:37.089Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-campo-belo-1-quarto-49-m2-1497535983": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:11:37.090Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-campo-belo-1-quarto-49-m2-1497535983",
+    "updatedAt": "2026-04-30T14:11:37.091Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-campo-belo-1498132393": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:11:37.092Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-campo-belo-1498132393",
+    "updatedAt": "2026-04-30T14:11:37.093Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498109215": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:11:37.094Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498109215",
+    "updatedAt": "2026-04-30T14:11:37.095Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-jardins-edificio-ninety-hotel-1498109097": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:11:37.096Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-jardins-edificio-ninety-hotel-1498109097",
+    "updatedAt": "2026-04-30T14:11:37.097Z",
+    "dados": {
+      "fonte": "OLX",
+      "id": "1498109097",
+      "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-jardins-edificio-ninety-hotel-1498109097",
+      "tipo": "Apartamento",
+      "bairro": "Jardim Aeroporto",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "valor_imovel": 500000,
+      "area_m2": 33,
+      "quartos": 1,
+      "suites": null,
+      "banheiros": 1,
+      "vagas": 1,
+      "anuncianteNome": "",
+      "anuncianteTelefone": "12984643248",
+      "anuncianteTelefoneDisponivel": true,
+      "anuncianteTipo": "profissional",
+      "scoreIA": 60
+    },
+    "scoreIA": 60,
+    "temTelefone": true,
+    "anunciante": "",
+    "telefone": "12984643248",
+    "tipoAnunciante": "profissional"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498108913": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:11:37.098Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498108913",
+    "updatedAt": "2026-04-30T14:11:37.099Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vendo-ou-troco-por-casa-1498024064": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:11:37.099Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vendo-ou-troco-por-casa-1498024064",
+    "updatedAt": "2026-04-30T14:11:37.114Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-quartos-a-venda-ou-para-locacao-em-jardim-aeroporto-sp-1497983196": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:43:07.275Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-quartos-a-venda-ou-para-locacao-em-jardim-aeroporto-sp-1497983196",
+    "updatedAt": "2026-04-30T12:43:07.275Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-39-m2-1497664855": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:46:37.012Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-39-m2-1497664855",
+    "updatedAt": "2026-04-30T12:46:37.012Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-36-m2-1497656821": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:46:37.012Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-36-m2-1497656821",
+    "updatedAt": "2026-04-30T12:46:37.013Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-59-m2-1497653238": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:46:37.013Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-59-m2-1497653238",
+    "updatedAt": "2026-04-30T12:46:37.013Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-45-m2-1497652673": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:46:37.013Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-45-m2-1497652673",
+    "updatedAt": "2026-04-30T12:46:37.013Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-2-quartos-70-m2-1497652620": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:46:37.013Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-2-quartos-70-m2-1497652620",
+    "updatedAt": "2026-04-30T12:46:37.014Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-2-quartos-75-m2-1497651343": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:46:37.014Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-2-quartos-75-m2-1497651343",
+    "updatedAt": "2026-04-30T12:46:37.014Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-45-m2-1497650241": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:46:37.014Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-45-m2-1497650241",
+    "updatedAt": "2026-04-30T12:46:37.014Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-2-quartos-75-m2-1497649528": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:46:37.015Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-2-quartos-75-m2-1497649528",
+    "updatedAt": "2026-04-30T12:46:37.015Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-30-m2-1497648390": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:46:37.015Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-30-m2-1497648390",
+    "updatedAt": "2026-04-30T12:46:37.015Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-74-m2-1497645520": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:46:37.016Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-74-m2-1497645520",
+    "updatedAt": "2026-04-30T12:46:37.016Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-33-m2-1497680170": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:52:38.488Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-33-m2-1497680170",
+    "updatedAt": "2026-04-30T12:52:38.488Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-25-m2-1497664524": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:52:38.491Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-25-m2-1497664524",
+    "updatedAt": "2026-04-30T12:52:38.491Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-35-m2-1497663962": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:52:38.492Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-35-m2-1497663962",
+    "updatedAt": "2026-04-30T12:52:38.492Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-33-m2-1497661159": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:52:38.492Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-33-m2-1497661159",
+    "updatedAt": "2026-04-30T12:52:38.492Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-25-m2-1497657684": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:52:38.492Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-25-m2-1497657684",
+    "updatedAt": "2026-04-30T12:52:38.493Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-50-m2-1497654170": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:52:38.493Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-50-m2-1497654170",
+    "updatedAt": "2026-04-30T12:52:38.493Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-28-m2-1497651362": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:52:38.493Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-28-m2-1497651362",
+    "updatedAt": "2026-04-30T12:52:38.493Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-24-m2-1497650717": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:52:38.494Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-24-m2-1497650717",
+    "updatedAt": "2026-04-30T12:52:38.494Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-37-m2-1497639095": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:52:38.494Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-37-m2-1497639095",
+    "updatedAt": "2026-04-30T12:52:38.494Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apto-3-quartos-para-venda-ou-locacao-jabaquara-conceicao-avalia-se-permuta-1497605698": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:52:38.495Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apto-3-quartos-para-venda-ou-locacao-jabaquara-conceicao-avalia-se-permuta-1497605698",
+    "updatedAt": "2026-04-30T12:52:38.495Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-42-m2-1497684370": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:55:39.435Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-42-m2-1497684370",
+    "updatedAt": "2026-04-30T12:55:39.435Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-santa-maria-2-quartos-49-m2-1497662946": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:55:39.436Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-santa-maria-2-quartos-49-m2-1497662946",
+    "updatedAt": "2026-04-30T12:55:39.436Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-42-m2-1497662603": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:55:39.436Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-42-m2-1497662603",
+    "updatedAt": "2026-04-30T12:55:39.437Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-45-m2-1497661796": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:55:39.437Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-45-m2-1497661796",
+    "updatedAt": "2026-04-30T12:55:39.438Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-45-m2-1497661713": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:55:39.439Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-45-m2-1497661713",
+    "updatedAt": "2026-04-30T12:55:39.439Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-45-m2-1497657735": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:55:39.439Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-45-m2-1497657735",
+    "updatedAt": "2026-04-30T12:55:39.440Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-55-m2-1497654786": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:55:39.442Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-55-m2-1497654786",
+    "updatedAt": "2026-04-30T12:55:39.442Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-1-quarto-31-m2-1497654388": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:55:39.443Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-1-quarto-31-m2-1497654388",
+    "updatedAt": "2026-04-30T12:55:39.443Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-47-m2-1497652653": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:55:39.443Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-47-m2-1497652653",
+    "updatedAt": "2026-04-30T12:55:39.443Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-santa-maria-1-quarto-54-m2-1497652230": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:55:39.444Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-santa-maria-1-quarto-54-m2-1497652230",
+    "updatedAt": "2026-04-30T12:55:39.444Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-de-30-m-no-zip-brooklin-1498187665": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:58:38.995Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-de-30-m-no-zip-brooklin-1498187665",
+    "updatedAt": "2026-04-30T12:58:38.996Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-vn-alvaro-rodrigues-1498110753": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:58:38.996Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-vn-alvaro-rodrigues-1498110753",
+    "updatedAt": "2026-04-30T12:58:38.996Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-70-m2-2-quartos-1-vaga-vila-cordeiro-1498109160": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:58:38.997Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-70-m2-2-quartos-1-vaga-vila-cordeiro-1498109160",
+    "updatedAt": "2026-04-30T12:58:38.997Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/condominio-vn-alvaro-rodrigues-o-refugio-perfeito-no-coracao-do-brooklin-1368848181": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:58:38.998Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/condominio-vn-alvaro-rodrigues-o-refugio-perfeito-no-coracao-do-brooklin-1368848181",
+    "updatedAt": "2026-04-30T12:58:38.999Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-aluguel-e-venda-com-24-metros-quadrados-com-1-quarto-em-vila-cordeiro-sao-pa-1446734136": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:58:38.999Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-aluguel-e-venda-com-24-metros-quadrados-com-1-quarto-em-vila-cordeiro-sao-pa-1446734136",
+    "updatedAt": "2026-04-30T12:58:38.999Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-cordeiro-sao-paulo-sp-1497996488": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:58:39.000Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-cordeiro-sao-paulo-sp-1497996488",
+    "updatedAt": "2026-04-30T12:58:39.000Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/zip-brooklin-residencial-1497892405": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:58:39.000Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/zip-brooklin-residencial-1497892405",
+    "updatedAt": "2026-04-30T12:58:39.001Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-jk-studio-a-venda-rua-ministro-luiz-gallotti-vila-cordeiro-sao-paulo-1497794658": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:58:39.001Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-jk-studio-a-venda-rua-ministro-luiz-gallotti-vila-cordeiro-sao-paulo-1497794658",
+    "updatedAt": "2026-04-30T12:58:39.001Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-brooklin-1-quarto-24-m2-1497694431": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:58:39.001Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-brooklin-1-quarto-24-m2-1497694431",
+    "updatedAt": "2026-04-30T12:58:39.002Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-brooklin-1-quarto-30-m2-1497683329": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T12:58:39.002Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-brooklin-1-quarto-30-m2-1497683329",
+    "updatedAt": "2026-04-30T12:58:39.003Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-na-vila-andrade-1498166398": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:01:39.649Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-na-vila-andrade-1498166398",
+    "updatedAt": "2026-04-30T13:01:39.649Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-em-sao-paulo-sp-vila-adalgisa-2-quartos-1-banheiro-1-vaga-40m-de-1498164165": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:01:39.650Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-em-sao-paulo-sp-vila-adalgisa-2-quartos-1-banheiro-1-vaga-40m-de-1498164165",
+    "updatedAt": "2026-04-30T13:01:39.650Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-na-vila-andrade-1498160602": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:01:39.650Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-na-vila-andrade-1498160602",
+    "updatedAt": "2026-04-30T13:01:39.651Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-2-dormitorios-a-venda-55-m-por-r-420-000-00-vila-andrade-sao-paulo-1498156642": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:01:39.651Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-2-dormitorios-a-venda-55-m-por-r-420-000-00-vila-andrade-sao-paulo-1498156642",
+    "updatedAt": "2026-04-30T13:01:39.651Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-aclimacao-sp-1498150674": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:01:39.652Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-aclimacao-sp-1498150674",
+    "updatedAt": "2026-04-30T13:01:39.652Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-pereira-barreto-com-2-quartos-63m-1498148830": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:01:39.653Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-pereira-barreto-com-2-quartos-63m-1498148830",
+    "updatedAt": "2026-04-30T13:01:39.653Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-andrade-com-3-quartos-78m-1498148483": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:01:39.654Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-andrade-com-3-quartos-78m-1498148483",
+    "updatedAt": "2026-04-30T13:01:39.654Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-para-venda-e-locacao-em-vila-andrade-com-1-quarto-25m-1498140529": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:01:39.654Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-para-venda-e-locacao-em-vila-andrade-com-1-quarto-25m-1498140529",
+    "updatedAt": "2026-04-30T13:01:39.655Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-vila-andrade-1498132491": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:01:39.655Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-vila-andrade-1498132491",
+    "updatedAt": "2026-04-30T13:01:39.656Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-vila-andrade-1498132151": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:01:39.657Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-vila-andrade-1498132151",
+    "updatedAt": "2026-04-30T13:01:39.657Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rr7528-apartamento-54m-condominio-residencial-gran-solar-oportunidade-2-dorms-1-vaga-1394783272": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:04:35.337Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rr7528-apartamento-54m-condominio-residencial-gran-solar-oportunidade-2-dorms-1-vaga-1394783272",
+    "updatedAt": "2026-04-30T13:04:35.338Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-apartamento-padrao-para-venda-1-dorm-s-1-vaga-s-52-m-1498181125": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:04:35.338Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-apartamento-padrao-para-venda-1-dorm-s-1-vaga-s-52-m-1498181125",
+    "updatedAt": "2026-04-30T13:04:35.339Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-santana-edificio-wyndham-garden-convention-nortel-1498157472": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:04:35.339Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-santana-edificio-wyndham-garden-convention-nortel-1498157472",
+    "updatedAt": "2026-04-30T13:04:35.345Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-santana-edificio-wyndham-garden-convention-nortel-1498157348": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:04:35.345Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-santana-edificio-wyndham-garden-convention-nortel-1498157348",
+    "updatedAt": "2026-04-30T13:04:35.348Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apto-venda-mandaqui-1498155265": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:04:35.349Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apto-venda-mandaqui-1498155265",
+    "updatedAt": "2026-04-30T13:04:35.349Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-santana-com-1-quarto-38m-1498149236": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:04:35.350Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-santana-com-1-quarto-38m-1498149236",
+    "updatedAt": "2026-04-30T13:04:35.351Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-25m-mobiliado-com-vaga-e-lazer-completo-proximo-ao-metro-santana-ideal-para-mora-1498142595": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:04:35.353Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-25m-mobiliado-com-vaga-e-lazer-completo-proximo-ao-metro-santana-ideal-para-mora-1498142595",
+    "updatedAt": "2026-04-30T13:04:35.354Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-santana-1498134516": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:04:35.354Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-santana-1498134516",
+    "updatedAt": "2026-04-30T13:04:35.355Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-santana-1498132670": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:04:35.363Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-santana-1498132670",
+    "updatedAt": "2026-04-30T13:04:35.365Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-santana-com-2-quartos-40m-1498122893": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:04:35.369Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-santana-com-2-quartos-40m-1498122893",
+    "updatedAt": "2026-04-30T13:04:35.370Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498174694": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:07:31.075Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498174694",
+    "updatedAt": "2026-04-30T13:07:31.075Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498172201": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:07:31.075Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498172201",
+    "updatedAt": "2026-04-30T13:07:31.076Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498172195": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:07:31.076Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498172195",
+    "updatedAt": "2026-04-30T13:07:31.076Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498171091": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:07:31.077Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498171091",
+    "updatedAt": "2026-04-30T13:07:31.077Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-morar-ou-investir-em-pinheiros-studios-praticos-em-uma-das-melhores-regi-1498168942": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:07:31.078Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-morar-ou-investir-em-pinheiros-studios-praticos-em-uma-das-melhores-regi-1498168942",
+    "updatedAt": "2026-04-30T13:07:31.078Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-otimo-preco-no-bairro-pinheiros-confira-1498165337": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:07:31.078Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-otimo-preco-no-bairro-pinheiros-confira-1498165337",
+    "updatedAt": "2026-04-30T13:07:31.079Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-27-m-por-r-480-000-00-pinheiros-sao-paulo-sp-1498162438": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:07:31.079Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-27-m-por-r-480-000-00-pinheiros-sao-paulo-sp-1498162438",
+    "updatedAt": "2026-04-30T13:07:31.079Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-30-m-por-r-442-000-00-pinheiros-sao-paulo-sp-1498160838": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:07:31.080Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-30-m-por-r-442-000-00-pinheiros-sao-paulo-sp-1498160838",
+    "updatedAt": "2026-04-30T13:07:31.080Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-com-1-dormitorio-30-m-venda-por-r-299-000-00-ou-aluguel-por-r-2-440-00-mes-1498160457": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:07:31.081Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-com-1-dormitorio-30-m-venda-por-r-299-000-00-ou-aluguel-por-r-2-440-00-mes-1498160457",
+    "updatedAt": "2026-04-30T13:07:31.081Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-pinheiros-edificio-the-excellence-1498159439": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:07:31.082Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-pinheiros-edificio-the-excellence-1498159439",
+    "updatedAt": "2026-04-30T13:07:31.082Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-63-m2-1497664694": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:10:22.364Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-63-m2-1497664694",
+    "updatedAt": "2026-04-30T13:10:22.365Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-40-m2-1497660483": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:10:22.365Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-40-m2-1497660483",
+    "updatedAt": "2026-04-30T13:10:22.366Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-52-m2-1497655509": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:10:22.367Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-52-m2-1497655509",
+    "updatedAt": "2026-04-30T13:10:22.367Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-44-m2-1497654527": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:10:22.368Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-44-m2-1497654527",
+    "updatedAt": "2026-04-30T13:10:22.368Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-40-m2-1497654231": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:10:22.369Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-40-m2-1497654231",
+    "updatedAt": "2026-04-30T13:10:22.369Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-58-m2-1497649417": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:10:22.370Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-58-m2-1497649417",
+    "updatedAt": "2026-04-30T13:10:22.370Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-sao-domingos-2-quartos-68-m2-1497636074": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:10:22.370Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-sao-domingos-2-quartos-68-m2-1497636074",
+    "updatedAt": "2026-04-30T13:10:22.376Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vendo-casa-de-vila-no-mangalot-1497110002": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:10:22.377Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vendo-casa-de-vila-no-mangalot-1497110002",
+    "updatedAt": "2026-04-30T13:10:22.384Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-30m2-na-vila-mangalot-1495078623": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:10:22.384Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-30m2-na-vila-mangalot-1495078623",
+    "updatedAt": "2026-04-30T13:10:22.385Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-em-condominio-vila-mangalot-sp-1494477243": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:10:22.385Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-em-condominio-vila-mangalot-sp-1494477243",
+    "updatedAt": "2026-04-30T13:10:22.385Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-no-alto-de-pinheiros-sao-paulo-18-09m-e-lazer-1497919985": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:34:43.081Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-no-alto-de-pinheiros-sao-paulo-18-09m-e-lazer-1497919985",
+    "updatedAt": "2026-04-30T13:34:43.083Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-lapa-sp-1497863682": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:34:43.083Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-lapa-sp-1497863682",
+    "updatedAt": "2026-04-30T13:34:43.084Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-18-m2-1497704902": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:34:43.085Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-18-m2-1497704902",
+    "updatedAt": "2026-04-30T13:34:43.086Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-24-m2-1497662797": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:34:43.086Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-24-m2-1497662797",
+    "updatedAt": "2026-04-30T13:34:43.087Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-25-m2-1497657671": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:34:43.088Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-25-m2-1497657671",
+    "updatedAt": "2026-04-30T13:34:43.088Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-2-quartos-36-m2-1497652670": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:34:43.089Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-2-quartos-36-m2-1497652670",
+    "updatedAt": "2026-04-30T13:34:43.090Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-17-m2-1497650659": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:34:43.090Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-17-m2-1497650659",
+    "updatedAt": "2026-04-30T13:34:43.091Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-2-quartos-36-m2-1497650343": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:34:43.092Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-2-quartos-36-m2-1497650343",
+    "updatedAt": "2026-04-30T13:34:43.092Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-20-m2-1497648703": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:34:43.093Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-20-m2-1497648703",
+    "updatedAt": "2026-04-30T13:34:43.094Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-18-m2-1497643656": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:34:43.094Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-18-m2-1497643656",
+    "updatedAt": "2026-04-30T13:34:43.095Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1497855538": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:16:57.064Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1497855538",
+    "updatedAt": "2026-04-30T13:16:57.064Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-200-m-por-r-375-000-00-jardim-saltense-salto-sp-1495732735": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:16:57.064Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-200-m-por-r-375-000-00-jardim-saltense-salto-sp-1495732735",
+    "updatedAt": "2026-04-30T13:16:57.065Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-3-dormitorios-2-vagas-145m2-no-jardim-sao-ricardo-1495071681": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:16:57.065Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-3-dormitorios-2-vagas-145m2-no-jardim-sao-ricardo-1495071681",
+    "updatedAt": "2026-04-30T13:16:57.066Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1494751329": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:16:57.067Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1494751329",
+    "updatedAt": "2026-04-30T13:16:57.067Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/descubra-o-seu-novo-lar-em-sao-paulo-casa-a-venda-no-jardim-matarazzo-com-2-quartos-e-95-1493575811": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:16:57.068Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/descubra-o-seu-novo-lar-em-sao-paulo-casa-a-venda-no-jardim-matarazzo-com-2-quartos-e-95-1493575811",
+    "updatedAt": "2026-04-30T13:16:57.069Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1493345708": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:16:57.069Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1493345708",
+    "updatedAt": "2026-04-30T13:16:57.070Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-em-jardim-sao-ricardo-com-3-quartos-145m-1492885573": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:16:57.071Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-em-jardim-sao-ricardo-com-3-quartos-145m-1492885573",
+    "updatedAt": "2026-04-30T13:16:57.071Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-em-jardim-sao-ricardo-com-3-quartos-145m-1491092792": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:16:57.072Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-em-jardim-sao-ricardo-com-3-quartos-145m-1491092792",
+    "updatedAt": "2026-04-30T13:16:57.073Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/terreno-150m-com-construcao-inicial-jardim-zaira-5-maua-1490445733": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:16:57.073Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/terreno-150m-com-construcao-inicial-jardim-zaira-5-maua-1490445733",
+    "updatedAt": "2026-04-30T13:16:57.074Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1490016206": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:16:57.074Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1490016206",
+    "updatedAt": "2026-04-30T13:16:57.075Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-aluguel-com-55-metros-quadrados-com-2-quartos-em-jardim-aeroporto-sao-paulo-1498194477": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:28:53.945Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-aluguel-com-55-metros-quadrados-com-2-quartos-em-jardim-aeroporto-sao-paulo-1498194477",
+    "updatedAt": "2026-04-30T14:28:53.946Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-1-dorm-s-1-vaga-s-43-m-ipiranga-1498180183": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:28:53.948Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-1-dorm-s-1-vaga-s-43-m-ipiranga-1498180183",
+    "updatedAt": "2026-04-30T14:28:53.949Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-ipiranga-sp-1498164494": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:28:53.950Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-ipiranga-sp-1498164494",
+    "updatedAt": "2026-04-30T14:28:53.951Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-2-quartos-a-venda-ipiranga-sao-paulo-1498157944": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:28:53.952Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-2-quartos-a-venda-ipiranga-sao-paulo-1498157944",
+    "updatedAt": "2026-04-30T14:28:53.953Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-3-quartos-a-venda-ipiranga-sao-paulo-1498157939": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:28:53.954Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-3-quartos-a-venda-ipiranga-sao-paulo-1498157939",
+    "updatedAt": "2026-04-30T14:28:53.955Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-2-quartos-a-venda-ipiranga-sao-paulo-1498157700": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:28:53.956Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-2-quartos-a-venda-ipiranga-sao-paulo-1498157700",
+    "updatedAt": "2026-04-30T14:28:53.957Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-ipiranga-sp-1498153031": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:28:53.958Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-ipiranga-sp-1498153031",
+    "updatedAt": "2026-04-30T14:28:53.959Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-ipiranga-com-1-quarto-36m-1498148681": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:28:53.960Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-ipiranga-com-1-quarto-36m-1498148681",
+    "updatedAt": "2026-04-30T14:28:53.961Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-alto-do-ipiranga-com-2-quartos-33m-1498148386": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:28:53.962Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-alto-do-ipiranga-com-2-quartos-33m-1498148386",
+    "updatedAt": "2026-04-30T14:28:53.964Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-republica-com-1-quarto-sendo-1-suite-29m-1498140551": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:28:53.965Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-republica-com-1-quarto-sendo-1-suite-29m-1498140551",
+    "updatedAt": "2026-04-30T14:28:53.973Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/garden-a-venda-2-quartos-1-vaga-53-1m-vila-carmosina-sao-paulo-sp-pulse-itaquera-re-1498196149": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:22:53.126Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/garden-a-venda-2-quartos-1-vaga-53-1m-vila-carmosina-sao-paulo-sp-pulse-itaquera-re-1498196149",
+    "updatedAt": "2026-04-30T13:22:53.127Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-sao-bernardo-do-campo-nova-petropolis-2-dormitorios-1-banheir-1498195610": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:22:53.128Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-sao-bernardo-do-campo-nova-petropolis-2-dormitorios-1-banheir-1498195610",
+    "updatedAt": "2026-04-30T13:22:53.129Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/cota-para-lance-torre-d-grupo-16-com-2-dormitorios-parque-firenze-embu-1498195582": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:22:53.130Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/cota-para-lance-torre-d-grupo-16-com-2-dormitorios-parque-firenze-embu-1498195582",
+    "updatedAt": "2026-04-30T13:22:53.131Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-de-33m-com-1-dormitorio-na-mooca-1498195095": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:22:53.132Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-de-33m-com-1-dormitorio-na-mooca-1498195095",
+    "updatedAt": "2026-04-30T13:22:53.132Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-2-quartos-jardim-boa-vista-zona-oeste-sao-paulo-1498195011": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:22:53.133Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-2-quartos-jardim-boa-vista-zona-oeste-sao-paulo-1498195011",
+    "updatedAt": "2026-04-30T13:22:53.134Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-venda-possui-50-metros-quadrados-com-2-quartos-em-jardim-cabore-sao-paulo-1498195019": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:22:53.134Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-venda-possui-50-metros-quadrados-com-2-quartos-em-jardim-cabore-sao-paulo-1498195019",
+    "updatedAt": "2026-04-30T13:22:53.135Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imperdivel-apartamento-a-venda-em-santo-andre-sp-vila-pires-2-quartos-2-salas-1-banhe-1498194492": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:22:53.135Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imperdivel-apartamento-a-venda-em-santo-andre-sp-vila-pires-2-quartos-2-salas-1-banhe-1498194492",
+    "updatedAt": "2026-04-30T13:22:53.136Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-de-1-quarto-para-venda-na-republica-condominio-vibe-1498194240": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:22:53.139Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-de-1-quarto-para-venda-na-republica-condominio-vibe-1498194240",
+    "updatedAt": "2026-04-30T13:22:53.139Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-tem-43-metros-quadrados-com-2-quartos-em-jardim-iris-sao-paulo-1498194257": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:22:53.140Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-tem-43-metros-quadrados-com-2-quartos-em-jardim-iris-sao-paulo-1498194257",
+    "updatedAt": "2026-04-30T13:22:53.140Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-para-venda-em-brooklin-paulista-com-1-quarto-24m-1498187624": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:25:54.732Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-para-venda-em-brooklin-paulista-com-1-quarto-24m-1498187624",
+    "updatedAt": "2026-04-30T13:25:54.733Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-mobiliado-para-venda-ou-locacao-no-campo-belo-1498185466": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:37:54.928Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-mobiliado-para-venda-ou-locacao-no-campo-belo-1498185466",
+    "updatedAt": "2026-04-30T13:37:54.929Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498185425": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:37:54.929Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498185425",
+    "updatedAt": "2026-04-30T13:37:54.930Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498184956": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:25:54.735Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498184956",
+    "updatedAt": "2026-04-30T13:25:54.736Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498184452": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:25:54.736Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498184452",
+    "updatedAt": "2026-04-30T13:25:54.737Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/lindo-studio-mobiliado-ao-lado-do-metro-brooklin-1498173581": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:25:54.738Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/lindo-studio-mobiliado-ao-lado-do-metro-brooklin-1498173581",
+    "updatedAt": "2026-04-30T13:25:54.738Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-para-venda-em-brooklin-paulista-com-1-quarto-24m-1498172399": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:25:54.739Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-para-venda-em-brooklin-paulista-com-1-quarto-24m-1498172399",
+    "updatedAt": "2026-04-30T13:25:54.740Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-recem-entregue-com-25m-1498162906": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:25:54.740Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-recem-entregue-com-25m-1498162906",
+    "updatedAt": "2026-04-30T13:25:54.741Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498150769": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:37:54.936Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498150769",
+    "updatedAt": "2026-04-30T13:37:54.937Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-brooklin-paulista-com-1-quarto-sendo-1-suite-40m-1498149240": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:25:54.743Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-brooklin-paulista-com-1-quarto-sendo-1-suite-40m-1498149240",
+    "updatedAt": "2026-04-30T13:25:54.744Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-moema-com-1-quarto-27m-1498176043": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:28:49.480Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-moema-com-1-quarto-27m-1498176043",
+    "updatedAt": "2026-04-30T13:28:49.480Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vila-olimpia-studio-de-25m-andar-alto-1498174212": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:28:49.481Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vila-olimpia-studio-de-25m-andar-alto-1498174212",
+    "updatedAt": "2026-04-30T13:28:49.481Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-otimo-preco-no-bairro-moema-confira-1498165816": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:28:49.482Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-otimo-preco-no-bairro-moema-confira-1498165816",
+    "updatedAt": "2026-04-30T13:28:49.483Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-the-privilege-1498157869": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:28:49.484Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-the-privilege-1498157869",
+    "updatedAt": "2026-04-30T13:28:49.484Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-moema-bourbon-ibirapuera-1498157373": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:28:49.485Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-moema-bourbon-ibirapuera-1498157373",
+    "updatedAt": "2026-04-30T13:28:49.486Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-moema-indios-sp-1498154013": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:28:49.486Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-moema-indios-sp-1498154013",
+    "updatedAt": "2026-04-30T13:28:49.487Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-moema-indios-sp-1498150565": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:28:49.488Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-moema-indios-sp-1498150565",
+    "updatedAt": "2026-04-30T13:28:49.488Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-moema-indios-sp-1498150562": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:28:49.488Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-moema-indios-sp-1498150562",
+    "updatedAt": "2026-04-30T13:28:49.489Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/terrare-moema-studio-1498148036": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:28:49.490Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/terrare-moema-studio-1498148036",
+    "updatedAt": "2026-04-30T13:28:49.490Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-moema-indios-sp-1498140045": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:28:49.491Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-moema-indios-sp-1498140045",
+    "updatedAt": "2026-04-30T13:28:49.491Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-panamby-sp-1498184816": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:31:45.714Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-panamby-sp-1498184816",
+    "updatedAt": "2026-04-30T13:31:45.714Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-paraiso-do-morumbi-com-3-quartos-sendo-1-suite-68m-1498148638": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:31:45.715Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-paraiso-do-morumbi-com-3-quartos-sendo-1-suite-68m-1498148638",
+    "updatedAt": "2026-04-30T13:31:45.716Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-paraiso-do-morumbi-1498132587": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:31:45.716Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-paraiso-do-morumbi-1498132587",
+    "updatedAt": "2026-04-30T13:31:45.717Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-3-dormitorios-a-venda-83-m-por-r-415-000-paraiso-do-morumbi-sao-pau-1498121961": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:31:45.718Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-3-dormitorios-a-venda-83-m-por-r-415-000-paraiso-do-morumbi-sao-pau-1498121961",
+    "updatedAt": "2026-04-30T13:31:45.718Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-panamby-1-quarto-30-m2-1497986308": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:31:45.719Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-panamby-1-quarto-30-m2-1497986308",
+    "updatedAt": "2026-04-30T13:31:45.720Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-quarto-para-venda-30m-morumbi-sao-paulo-sp-1497875596": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:31:45.720Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-quarto-para-venda-30m-morumbi-sao-paulo-sp-1497875596",
+    "updatedAt": "2026-04-30T13:31:45.721Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-quarto-a-venda-40m-morumbi-sao-paulo-sp-1497874911": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:31:45.721Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-quarto-a-venda-40m-morumbi-sao-paulo-sp-1497874911",
+    "updatedAt": "2026-04-30T13:31:45.722Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-quarto-a-venda-40m-morumbi-sao-paulo-sp-1497874855": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:31:45.722Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-quarto-a-venda-40m-morumbi-sao-paulo-sp-1497874855",
+    "updatedAt": "2026-04-30T13:31:45.723Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-morumbi-edificio-morumbi-business-1497874672": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:31:45.723Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-morumbi-edificio-morumbi-business-1497874672",
+    "updatedAt": "2026-04-30T13:31:45.724Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-apartamento-para-venda-edificio-morumbi-business-1497874271": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:31:45.725Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-apartamento-para-venda-edificio-morumbi-business-1497874271",
+    "updatedAt": "2026-04-30T13:31:45.725Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/campo-belo-1-dormitorio-49m-1498173737": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:37:54.931Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/campo-belo-1-dormitorio-49m-1498173737",
+    "updatedAt": "2026-04-30T13:37:54.931Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-studio-em-campo-belo-sao-paulo-sp-1498160279": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:37:54.932Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-studio-em-campo-belo-sao-paulo-sp-1498160279",
+    "updatedAt": "2026-04-30T13:37:54.933Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-campo-belo-sp-1498151310": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:37:54.935Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-campo-belo-sp-1498151310",
+    "updatedAt": "2026-04-30T13:37:54.936Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-campo-belo-com-3-quartos-sendo-1-suite-78m-1498148987": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:37:54.937Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-campo-belo-com-3-quartos-sendo-1-suite-78m-1498148987",
+    "updatedAt": "2026-04-30T13:37:54.938Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-para-venda-em-sao-paulo-bela-vista-1-dormitorio-1-banheiro-1498147685": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:37:54.939Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-para-venda-em-sao-paulo-bela-vista-1-dormitorio-1-banheiro-1498147685",
+    "updatedAt": "2026-04-30T13:37:54.939Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/venda-interlagos-1498097042": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:40:49.523Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/venda-interlagos-1498097042",
+    "updatedAt": "2026-04-30T13:40:49.523Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-3-comodos-casa-na-vila-nascente-zona-sul-de-sao-paulo-em-uma-travessa-super-tranquil-1498079099": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:40:49.525Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-3-comodos-casa-na-vila-nascente-zona-sul-de-sao-paulo-em-uma-travessa-super-tranquil-1498079099",
+    "updatedAt": "2026-04-30T13:40:49.526Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sg-interlagos-1446994768": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:40:49.528Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sg-interlagos-1446994768",
+    "updatedAt": "2026-04-30T13:40:49.529Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-condominio-interlagos-1497841875": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:40:49.530Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-condominio-interlagos-1497841875",
+    "updatedAt": "2026-04-30T13:40:49.530Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-condominio-interlagos-1497811432": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:40:49.531Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-condominio-interlagos-1497811432",
+    "updatedAt": "2026-04-30T13:40:49.531Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-cidade-dutra-2-quartos-62-m2-1497664465": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:40:49.532Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-cidade-dutra-2-quartos-62-m2-1497664465",
+    "updatedAt": "2026-04-30T13:40:49.532Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-interlagos-2-quartos-55-m2-1497663168": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:40:49.533Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-interlagos-2-quartos-55-m2-1497663168",
+    "updatedAt": "2026-04-30T13:40:49.534Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-maria-rita-2-quartos-54-m2-1497654302": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:40:49.534Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-maria-rita-2-quartos-54-m2-1497654302",
+    "updatedAt": "2026-04-30T13:40:49.536Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-interlagos-2-quartos-65-m2-1497649686": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:40:49.536Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-interlagos-2-quartos-65-m2-1497649686",
+    "updatedAt": "2026-04-30T13:40:49.537Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-interlagos-2-quartos-55-m2-1497649383": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:40:49.538Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-interlagos-2-quartos-55-m2-1497649383",
+    "updatedAt": "2026-04-30T13:40:49.539Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-sao-vicente-cotia-sp-38m-2-dormitorios-1498170747": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:43:46.655Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-sao-vicente-cotia-sp-38m-2-dormitorios-1498170747",
+    "updatedAt": "2026-04-30T13:43:46.656Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-helga-campo-limpo-sao-paulo-sp-47m-2-dormitorios-1498170771": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:43:46.657Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-helga-campo-limpo-sao-paulo-sp-47m-2-dormitorios-1498170771",
+    "updatedAt": "2026-04-30T13:43:46.657Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-helga-campo-limpo-sao-paulo-sp-47m-2-dormitorios-1498170701": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:43:46.658Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-helga-campo-limpo-sao-paulo-sp-47m-2-dormitorios-1498170701",
+    "updatedAt": "2026-04-30T13:43:46.659Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-jardim-santo-antonio-sao-paulo-sp-1498157959": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:43:46.659Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-jardim-santo-antonio-sao-paulo-sp-1498157959",
+    "updatedAt": "2026-04-30T13:43:46.660Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-conforto-praticidade-e-vista-incrivel--excelente-oportunidade-1497169871": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:43:46.661Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-conforto-praticidade-e-vista-incrivel--excelente-oportunidade-1497169871",
+    "updatedAt": "2026-04-30T13:43:46.667Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-getulio-luvison-itatiba-sp-1497895891": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:43:46.673Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-getulio-luvison-itatiba-sp-1497895891",
+    "updatedAt": "2026-04-30T13:43:46.673Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-a-venda-75-m-por-r-490-000-00-jardim-ocara-santo-andre-sp-1497886986": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:43:46.674Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-a-venda-75-m-por-r-490-000-00-jardim-ocara-santo-andre-sp-1497886986",
+    "updatedAt": "2026-04-30T13:43:46.684Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-2-dormitorios-a-venda-45-m-por-r-246-000-jardim-sao-vicente-sao-pau-1497801645": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:43:46.685Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-2-dormitorios-a-venda-45-m-por-r-246-000-jardim-sao-vicente-sao-pau-1497801645",
+    "updatedAt": "2026-04-30T13:43:46.689Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-aricanduva-2-quartos-49-m2-1497750749": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:43:46.692Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-aricanduva-2-quartos-49-m2-1497750749",
+    "updatedAt": "2026-04-30T13:43:46.706Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-1-quarto-46-m2-1497742564": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:43:46.707Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-1-quarto-46-m2-1497742564",
+    "updatedAt": "2026-04-30T13:43:46.708Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-25m-vizinho-de-muro-do-shopping-frei-caneca-1498188861": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:46:40.762Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-25m-vizinho-de-muro-do-shopping-frei-caneca-1498188861",
+    "updatedAt": "2026-04-30T13:46:40.762Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/taboao-da-serra-condominio-vida-bela-1498172720": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:46:40.763Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/taboao-da-serra-condominio-vida-bela-1498172720",
+    "updatedAt": "2026-04-30T13:46:40.764Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498157613": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:52:33.164Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498157613",
+    "updatedAt": "2026-04-30T13:52:33.164Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-bela-vista-sp-1498157131": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:46:40.766Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-bela-vista-sp-1498157131",
+    "updatedAt": "2026-04-30T13:46:40.767Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-na-bela-vista-edificio-plaza-concorde-1498157018": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:46:40.767Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-na-bela-vista-edificio-plaza-concorde-1498157018",
+    "updatedAt": "2026-04-30T13:46:40.768Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-centro-sp-1498156924": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:46:40.769Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-centro-sp-1498156924",
+    "updatedAt": "2026-04-30T13:46:40.770Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-na-bela-vista-edificio-plaza-concorde-c-d-krg03932-1498156909": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:46:40.770Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-na-bela-vista-edificio-plaza-concorde-c-d-krg03932-1498156909",
+    "updatedAt": "2026-04-30T13:46:40.771Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-plaza-concorde-1498156887": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:46:40.772Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-plaza-concorde-1498156887",
+    "updatedAt": "2026-04-30T13:46:40.781Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-bela-vista-sp-1498156654": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:46:40.782Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-bela-vista-sp-1498156654",
+    "updatedAt": "2026-04-30T13:46:40.783Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-bela-vista-sp-1498155272": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:46:40.783Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-bela-vista-sp-1498155272",
+    "updatedAt": "2026-04-30T13:46:40.784Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-de-condominio-para-venda-com-60-metros-quadrados-com-2-quartos-em-maranhao-cotia-1494186261": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:49:35.153Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-de-condominio-para-venda-com-60-metros-quadrados-com-2-quartos-em-maranhao-cotia-1494186261",
+    "updatedAt": "2026-04-30T13:49:35.154Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-para-venda-em-vila-do-castelo-com-2-quartos-60m-1497944179": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:49:35.155Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-para-venda-em-vila-do-castelo-com-2-quartos-60m-1497944179",
+    "updatedAt": "2026-04-30T13:49:35.156Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-quartos-a-venda-em-vila-brasileira-sp-1497672489": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:49:35.157Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-quartos-a-venda-em-vila-brasileira-sp-1497672489",
+    "updatedAt": "2026-04-30T13:49:35.158Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-pedroso-2-quartos-43-m2-1497658712": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:49:35.159Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-pedroso-2-quartos-43-m2-1497658712",
+    "updatedAt": "2026-04-30T13:49:35.160Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-para-venda-em-vila-do-castelo-com-2-quartos-60m-1496204140": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:49:35.161Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-para-venda-em-vila-do-castelo-com-2-quartos-60m-1496204140",
+    "updatedAt": "2026-04-30T13:49:35.162Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-sapopemba-vila-ema-vila-tolstoi-1496131622": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:49:35.163Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-sapopemba-vila-ema-vila-tolstoi-1496131622",
+    "updatedAt": "2026-04-30T13:49:35.164Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-60-m-por-r-435-000-vila-dos-eucaliptos-salto-sp-1495733556": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:49:35.165Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-60-m-por-r-435-000-vila-dos-eucaliptos-salto-sp-1495733556",
+    "updatedAt": "2026-04-30T13:49:35.168Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-novo-a-venda-na-vila-brasileira-conforto-estilo-em-otima-localizacao-por-500-1495093264": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:49:35.170Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-novo-a-venda-na-vila-brasileira-conforto-estilo-em-otima-localizacao-por-500-1495093264",
+    "updatedAt": "2026-04-30T13:49:35.171Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-com-02-dormitorios-a-venda-125m-no-jardim-santo-andre-santo-andre-sp-1494472132": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:49:35.172Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-com-02-dormitorios-a-venda-125m-no-jardim-santo-andre-santo-andre-sp-1494472132",
+    "updatedAt": "2026-04-30T13:49:35.174Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-03-dormitorios-a-venda-180m-na-vila-curuca-santo-andre-sp-1494182744": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:49:35.176Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-03-dormitorios-a-venda-180m-na-vila-curuca-santo-andre-sp-1494182744",
+    "updatedAt": "2026-04-30T13:49:35.177Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-apartamento-a-venda-na-consolacao-sao-paulo-sp-1-quarto-1-banheiro-1498187623": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:52:33.157Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-apartamento-a-venda-na-consolacao-sao-paulo-sp-1-quarto-1-banheiro-1498187623",
+    "updatedAt": "2026-04-30T13:52:33.157Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-grande-53-m-semi-mobiliado-para-venda-prox-falculdade-mackenzie-em-sao-paulo-s-1498177657": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:52:33.158Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-grande-53-m-semi-mobiliado-para-venda-prox-falculdade-mackenzie-em-sao-paulo-s-1498177657",
+    "updatedAt": "2026-04-30T13:52:33.162Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-higienopolis-1-quarto-57-m2-1498166297": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:52:33.162Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-higienopolis-1-quarto-57-m2-1498166297",
+    "updatedAt": "2026-04-30T13:52:33.163Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-na-consolacao-edificio-studio-home-bela-cintra-1498157148": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:52:33.165Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-na-consolacao-edificio-studio-home-bela-cintra-1498157148",
+    "updatedAt": "2026-04-30T13:52:33.166Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498156822": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:52:33.166Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498156822",
+    "updatedAt": "2026-04-30T13:52:33.168Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498154011": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:52:33.168Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498154011",
+    "updatedAt": "2026-04-30T13:52:33.175Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498153025": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:52:33.175Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498153025",
+    "updatedAt": "2026-04-30T13:52:33.177Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498150027": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:52:33.177Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498150027",
+    "updatedAt": "2026-04-30T13:52:33.178Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-consolacao-com-1-quarto-45m-1498149517": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:52:33.179Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-consolacao-com-1-quarto-45m-1498149517",
+    "updatedAt": "2026-04-30T13:52:33.180Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-c-1-quarto-40m-a-venda-no-bairro-penha-por-318-000-00-1498190025": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:55:21.678Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-c-1-quarto-40m-a-venda-no-bairro-penha-por-318-000-00-1498190025",
+    "updatedAt": "2026-04-30T13:55:21.679Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-3-dormitorios-a-venda-penha-sao-paulo-sp-1498141696": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:55:21.680Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-3-dormitorios-a-venda-penha-sao-paulo-sp-1498141696",
+    "updatedAt": "2026-04-30T13:55:21.683Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-54-m2-1498051484": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:55:21.684Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-54-m2-1498051484",
+    "updatedAt": "2026-04-30T13:55:21.684Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-66-m2-1497755839": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:55:21.685Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-66-m2-1497755839",
+    "updatedAt": "2026-04-30T13:55:21.686Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-esperanca-2-quartos-67-m2-1497753816": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:55:21.687Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-esperanca-2-quartos-67-m2-1497753816",
+    "updatedAt": "2026-04-30T13:55:21.687Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-43-m2-1497753848": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:55:21.688Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-43-m2-1497753848",
+    "updatedAt": "2026-04-30T13:55:21.689Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-penha-de-franca-2-quartos-100-m2-1497752701": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:55:21.690Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-penha-de-franca-2-quartos-100-m2-1497752701",
+    "updatedAt": "2026-04-30T13:55:21.696Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-43-m2-1497753531": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:55:21.696Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-43-m2-1497753531",
+    "updatedAt": "2026-04-30T13:55:21.697Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-esperanca-1-quarto-30-m2-1497752808": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:55:21.698Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-esperanca-1-quarto-30-m2-1497752808",
+    "updatedAt": "2026-04-30T13:55:21.699Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-1-quarto-38-m2-1497752590": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:55:21.700Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-1-quarto-38-m2-1497752590",
+    "updatedAt": "2026-04-30T13:55:21.701Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-50-m2-1497982195": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:58:15.356Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-50-m2-1497982195",
+    "updatedAt": "2026-04-30T13:58:15.357Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-venda-tem-52-metros-quadrados-com-2-quartos-em-jardim-das-vertentes-sao-paul-1497922777": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:58:15.358Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-venda-tem-52-metros-quadrados-com-2-quartos-em-jardim-das-vertentes-sao-paul-1497922777",
+    "updatedAt": "2026-04-30T13:58:15.359Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-50-m2-1497659563": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:58:15.359Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-50-m2-1497659563",
+    "updatedAt": "2026-04-30T13:58:15.360Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-50-m2-1497658190": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:58:15.361Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-50-m2-1497658190",
+    "updatedAt": "2026-04-30T13:58:15.362Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-68-m2-1497655683": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:58:15.366Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-68-m2-1497655683",
+    "updatedAt": "2026-04-30T13:58:15.367Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-54-m2-1497650890": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:58:15.367Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-54-m2-1497650890",
+    "updatedAt": "2026-04-30T13:58:15.368Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-60-m2-1497646083": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:58:15.369Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-60-m2-1497646083",
+    "updatedAt": "2026-04-30T13:58:15.369Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-60-m2-1497644852": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:58:15.370Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-60-m2-1497644852",
+    "updatedAt": "2026-04-30T13:58:15.371Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-53-m2-1497643311": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:58:15.372Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-53-m2-1497643311",
+    "updatedAt": "2026-04-30T13:58:15.373Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-70-m2-1497642421": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T13:58:15.374Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-70-m2-1497642421",
+    "updatedAt": "2026-04-30T13:58:15.375Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-rua-zacarias-alves-de-melo-jardim-ibitirama-sao-paulo-1490405932": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:01:07.575Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-rua-zacarias-alves-de-melo-jardim-ibitirama-sao-paulo-1490405932",
+    "updatedAt": "2026-04-30T14:01:07.575Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-40-m-por-r-321-000-00-jardim-los-angeles-sao-paulo-sp-1438768323": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:01:07.576Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-40-m-por-r-321-000-00-jardim-los-angeles-sao-paulo-sp-1438768323",
+    "updatedAt": "2026-04-30T14:01:07.577Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-rua-zacarias-alves-de-melo-jardim-ibitirama-sao-paulo-1378822930": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:01:07.578Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-rua-zacarias-alves-de-melo-jardim-ibitirama-sao-paulo-1378822930",
+    "updatedAt": "2026-04-30T14:01:07.579Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-rua-zacarias-alves-de-melo-jardim-ibitirama-sao-paulo-1378818602": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:01:07.580Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-rua-zacarias-alves-de-melo-jardim-ibitirama-sao-paulo-1378818602",
+    "updatedAt": "2026-04-30T14:01:07.581Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-60-m-por-r-348-900-00-jardim-ibitirama-sao-paulo-sp-1320339512": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:01:07.582Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-60-m-por-r-348-900-00-jardim-ibitirama-sao-paulo-sp-1320339512",
+    "updatedAt": "2026-04-30T14:01:07.582Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-56-m-por-r-378-900-00-jardim-ibitirama-sao-paulo-sp-1233291825": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:01:07.583Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-56-m-por-r-378-900-00-jardim-ibitirama-sao-paulo-sp-1233291825",
+    "updatedAt": "2026-04-30T14:01:07.584Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-clementino-sp-1498186034": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:02:57.470Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-clementino-sp-1498186034",
+    "updatedAt": "2026-04-30T14:02:57.471Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-mariana-sao-paulo-1498174447": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:02:57.472Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-mariana-sao-paulo-1498174447",
+    "updatedAt": "2026-04-30T14:02:57.474Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mariana-1-quarto-27-m2-1498170485": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:02:57.475Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mariana-1-quarto-27-m2-1498170485",
+    "updatedAt": "2026-04-30T14:02:57.476Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mariana-1-quarto-37-m2-1498166864": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:02:57.477Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mariana-1-quarto-37-m2-1498166864",
+    "updatedAt": "2026-04-30T14:02:57.478Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/mairinque-ibirapuera-o-m-mais-desejado-entre-a-vila-mariana-e-o-ibirapuera-1498162869": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:02:57.479Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/mairinque-ibirapuera-o-m-mais-desejado-entre-a-vila-mariana-e-o-ibirapuera-1498162869",
+    "updatedAt": "2026-04-30T14:02:57.480Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/mairinque-ibirapuera-o-m-mais-desejado-entre-a-vila-mariana-e-o-ibirapuera-1498160013": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:02:57.481Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/mairinque-ibirapuera-o-m-mais-desejado-entre-a-vila-mariana-e-o-ibirapuera-1498160013",
+    "updatedAt": "2026-04-30T14:02:57.482Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-waldorf-flat-service-1498157550": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:02:57.483Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-waldorf-flat-service-1498157550",
+    "updatedAt": "2026-04-30T14:02:57.484Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/essential-vila-mariana-one-innovation-studio-28m-proximo-a-estacao-pca-da-arvore-do-1498157136": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:02:57.485Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/essential-vila-mariana-one-innovation-studio-28m-proximo-a-estacao-pca-da-arvore-do-1498157136",
+    "updatedAt": "2026-04-30T14:02:57.486Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-mariana-sp-1498156928": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:02:57.487Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-mariana-sp-1498156928",
+    "updatedAt": "2026-04-30T14:02:57.488Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-clementino-sp-1498151342": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:02:57.489Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-clementino-sp-1498151342",
+    "updatedAt": "2026-04-30T14:02:57.490Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-42-m2-1497648991": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:05:47.114Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-42-m2-1497648991",
+    "updatedAt": "2026-04-30T14:05:47.115Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1496994902": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:05:47.115Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1496994902",
+    "updatedAt": "2026-04-30T14:05:47.117Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1496783939": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:05:47.118Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1496783939",
+    "updatedAt": "2026-04-30T14:05:47.119Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1496151957": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:05:47.120Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1496151957",
+    "updatedAt": "2026-04-30T14:05:47.121Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1491451492": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:05:47.122Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1491451492",
+    "updatedAt": "2026-04-30T14:05:47.122Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1491282890": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:05:47.123Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1491282890",
+    "updatedAt": "2026-04-30T14:05:47.124Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483136195": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:05:47.125Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483136195",
+    "updatedAt": "2026-04-30T14:05:47.126Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483105948": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:05:47.127Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483105948",
+    "updatedAt": "2026-04-30T14:05:47.128Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483042568": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:05:47.128Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483042568",
+    "updatedAt": "2026-04-30T14:05:47.129Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483014063": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:05:47.130Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483014063",
+    "updatedAt": "2026-04-30T14:05:47.131Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-44-m2-1497538101": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:08:42.888Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-44-m2-1497538101",
+    "updatedAt": "2026-04-30T14:08:42.889Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-44-m2-1497688578": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:08:42.889Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-44-m2-1497688578",
+    "updatedAt": "2026-04-30T14:08:42.891Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-43-m2-1497685760": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:08:42.892Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-43-m2-1497685760",
+    "updatedAt": "2026-04-30T14:08:42.893Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-44-m2-1497657030": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:08:42.894Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-44-m2-1497657030",
+    "updatedAt": "2026-04-30T14:08:42.895Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-43-m2-1497657059": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:08:42.896Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-43-m2-1497657059",
+    "updatedAt": "2026-04-30T14:08:42.897Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-30-m2-1497646568": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:08:42.897Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-30-m2-1497646568",
+    "updatedAt": "2026-04-30T14:08:42.898Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-30-m2-1497645535": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:08:42.899Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-30-m2-1497645535",
+    "updatedAt": "2026-04-30T14:08:42.900Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-28-m2-1497644230": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:08:42.901Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-28-m2-1497644230",
+    "updatedAt": "2026-04-30T14:08:42.902Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-29-m2-1497640018": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:08:42.902Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-29-m2-1497640018",
+    "updatedAt": "2026-04-30T14:08:42.903Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-43-m2-1497540706": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:08:42.904Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-43-m2-1497540706",
+    "updatedAt": "2026-04-30T14:08:42.905Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-cambuci-sp-1498168115": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:16:58.428Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-cambuci-sp-1498168115",
+    "updatedAt": "2026-04-30T14:16:58.429Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498158348": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:16:58.430Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498158348",
+    "updatedAt": "2026-04-30T14:16:58.431Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498157936": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:16:58.432Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498157936",
+    "updatedAt": "2026-04-30T14:16:58.433Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498157714": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:16:58.433Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498157714",
+    "updatedAt": "2026-04-30T14:16:58.434Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498157455": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:16:58.435Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498157455",
+    "updatedAt": "2026-04-30T14:16:58.437Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-cambuci-com-2-quartos-45m-1498148822": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:16:58.438Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-cambuci-com-2-quartos-45m-1498148822",
+    "updatedAt": "2026-04-30T14:16:58.438Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-cambuci-2-quartos-40-m2-1497743343": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:16:58.439Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-cambuci-2-quartos-40-m2-1497743343",
+    "updatedAt": "2026-04-30T14:16:58.440Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-cambuci-1498132036": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:16:58.441Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-cambuci-1498132036",
+    "updatedAt": "2026-04-30T14:16:58.443Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-cambuci-1498131779": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:16:58.443Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-cambuci-1498131779",
+    "updatedAt": "2026-04-30T14:16:58.448Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-dormitorio-no-cambuci-1498128825": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:16:58.448Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-dormitorio-no-cambuci-1498128825",
+    "updatedAt": "2026-04-30T14:16:58.449Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/edificio-mohamed-1498211957": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:22:56.205Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/edificio-mohamed-1498211957",
+    "updatedAt": "2026-04-30T14:22:56.208Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-reformado-67-m-2-dormitorios-proximo-barra-funda-centro-1488007898": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:22:56.209Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-reformado-67-m-2-dormitorios-proximo-barra-funda-centro-1488007898",
+    "updatedAt": "2026-04-30T14:22:56.210Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/funcionalidade-e-acesso-imediato-no-centro-de-sao-paulo-1498208362": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:22:56.211Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/funcionalidade-e-acesso-imediato-no-centro-de-sao-paulo-1498208362",
+    "updatedAt": "2026-04-30T14:22:56.212Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/inspire-brisas-apartamento-de-2-dormts-no-inspire-brisas-no-centro-em-barueri-sp-1498192187": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:22:56.212Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/inspire-brisas-apartamento-de-2-dormts-no-inspire-brisas-no-centro-em-barueri-sp-1498192187",
+    "updatedAt": "2026-04-30T14:22:56.213Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-1-quarto-38-m2-1498178196": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:22:56.214Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-1-quarto-38-m2-1498178196",
+    "updatedAt": "2026-04-30T14:22:56.216Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-59-m2-1498178200": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:22:56.216Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-59-m2-1498178200",
+    "updatedAt": "2026-04-30T14:22:56.218Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-56-m2-1498178205": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:22:56.219Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-56-m2-1498178205",
+    "updatedAt": "2026-04-30T14:22:56.220Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-35-m2-1498178163": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:22:56.221Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-35-m2-1498178163",
+    "updatedAt": "2026-04-30T14:22:56.223Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-1-quarto-38-m2-1498178186": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:22:56.223Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-1-quarto-38-m2-1498178186",
+    "updatedAt": "2026-04-30T14:22:56.225Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-3-quartos-65-m2-1498178193": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:22:56.227Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-3-quartos-65-m2-1498178193",
+    "updatedAt": "2026-04-30T14:22:56.228Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-com-3-quartos-no-condominio-edificio-guaratuba-guarulhos-sp-1498159924": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:25:57.608Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-com-3-quartos-no-condominio-edificio-guaratuba-guarulhos-sp-1498159924",
+    "updatedAt": "2026-04-30T14:25:57.609Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-centro-de-sao-bernardo-do-campo-3-dormitorios-1-suite-75-m-1498157432": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:25:57.610Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-centro-de-sao-bernardo-do-campo-3-dormitorios-1-suite-75-m-1498157432",
+    "updatedAt": "2026-04-30T14:25:57.611Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-cursino-1498132910": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:25:57.612Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-cursino-1498132910",
+    "updatedAt": "2026-04-30T14:25:57.613Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-3-dormitorios-a-venda-65-m-por-r-435-000-00-vila-dos-remedios-sao-p-1498105134": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:25:57.614Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-3-dormitorios-a-venda-65-m-por-r-435-000-00-vila-dos-remedios-sao-p-1498105134",
+    "updatedAt": "2026-04-30T14:25:57.615Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-vila-do-castelo-sao-paulo-sp-1497875750": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:25:57.616Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-vila-do-castelo-sao-paulo-sp-1497875750",
+    "updatedAt": "2026-04-30T14:25:57.617Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/aptos-na-planta-100-financiaveis-1497766199": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:25:57.617Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/aptos-na-planta-100-financiaveis-1497766199",
+    "updatedAt": "2026-04-30T14:25:57.619Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-lusitania-2-quartos-67-m2-1497746498": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:25:57.621Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-lusitania-2-quartos-67-m2-1497746498",
+    "updatedAt": "2026-04-30T14:25:57.621Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-lusitania-2-quartos-56-m2-1497741410": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:25:57.622Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-lusitania-2-quartos-56-m2-1497741410",
+    "updatedAt": "2026-04-30T14:25:57.624Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-lusitania-3-quartos-74-m2-1497738828": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:25:57.625Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-lusitania-3-quartos-74-m2-1497738828",
+    "updatedAt": "2026-04-30T14:25:57.626Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-belita-3-quartos-76-m2-1497735897": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:25:57.627Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-belita-3-quartos-76-m2-1497735897",
+    "updatedAt": "2026-04-30T14:25:57.630Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-jardim-umuarama-2-dormitorios-2-banheiros-1-vaga-1498136706": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:31:47.882Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-jardim-umuarama-2-dormitorios-2-banheiros-1-vaga-1498136706",
+    "updatedAt": "2026-04-30T14:31:47.883Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-3-quartos-75-m2-1497980482": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:31:47.885Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-3-quartos-75-m2-1497980482",
+    "updatedAt": "2026-04-30T14:31:47.886Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-iluminado-e-silencioso-350m-da-av-interlagos-1497759846": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:31:47.887Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-iluminado-e-silencioso-350m-da-av-interlagos-1497759846",
+    "updatedAt": "2026-04-30T14:31:47.888Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-umuarama-2-quartos-63-m2-1497682887": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:31:47.889Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-umuarama-2-quartos-63-m2-1497682887",
+    "updatedAt": "2026-04-30T14:31:47.890Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-3-quartos-58-m2-1497659024": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:31:47.891Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-3-quartos-58-m2-1497659024",
+    "updatedAt": "2026-04-30T14:31:47.892Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-60-m2-1497655190": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:31:47.893Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-60-m2-1497655190",
+    "updatedAt": "2026-04-30T14:31:47.894Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-60-m2-1497655032": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:31:47.895Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-60-m2-1497655032",
+    "updatedAt": "2026-04-30T14:31:47.896Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-3-quartos-68-m2-1497654778": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:31:47.897Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-3-quartos-68-m2-1497654778",
+    "updatedAt": "2026-04-30T14:31:47.898Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-70-m2-1497654158": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:31:47.899Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-70-m2-1497654158",
+    "updatedAt": "2026-04-30T14:31:47.901Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-umuarama-2-quartos-51-m2-1497653911": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:31:47.903Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-umuarama-2-quartos-51-m2-1497653911",
+    "updatedAt": "2026-04-30T14:31:47.905Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-2-dorms-capela-do-socorro-1493444644": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:34:38.713Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-2-dorms-capela-do-socorro-1493444644",
+    "updatedAt": "2026-04-30T14:34:38.714Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vende-se-casa-1493053305": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:34:38.715Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vende-se-casa-1493053305",
+    "updatedAt": "2026-04-30T14:34:38.716Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/para-venda-91-rua-joao-de-godoi-moreira-capela-do-socorro-capela-do-socorro-sao-paulo-1487684156": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:34:38.716Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/para-venda-91-rua-joao-de-godoi-moreira-capela-do-socorro-capela-do-socorro-sao-paulo-1487684156",
+    "updatedAt": "2026-04-30T14:34:38.717Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vende-se-casa-terrea-capela-do-socorro-1447506849": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:34:38.718Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vende-se-casa-terrea-capela-do-socorro-1447506849",
+    "updatedAt": "2026-04-30T14:34:38.719Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-a-venda-no-rio-bonito-1473021384": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:34:38.720Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-a-venda-no-rio-bonito-1473021384",
+    "updatedAt": "2026-04-30T14:34:38.721Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-quartos-a-venda-em-capela-do-socorro-sp-1453485377": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:34:38.741Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-quartos-a-venda-em-capela-do-socorro-sp-1453485377",
+    "updatedAt": "2026-04-30T14:34:38.753Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-a-venda-2-dormitorios-jardim-clipper-1428057689": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:34:38.754Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-a-venda-2-dormitorios-jardim-clipper-1428057689",
+    "updatedAt": "2026-04-30T14:34:38.759Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-rua-cassiano-dos-santos-rio-bonito-sao-paulo-1389751912": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:34:38.760Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-rua-cassiano-dos-santos-rio-bonito-sao-paulo-1389751912",
+    "updatedAt": "2026-04-30T14:34:38.764Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-assobradada-em-local-com-comercios-em-geral-1320713128": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:34:38.765Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-assobradada-em-local-com-comercios-em-geral-1320713128",
+    "updatedAt": "2026-04-30T14:34:38.767Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-a-venda-em-socorro-com-2-dormitorios-2-vagas-de-garagem-1300142453": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:34:38.768Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-a-venda-em-socorro-com-2-dormitorios-2-vagas-de-garagem-1300142453",
+    "updatedAt": "2026-04-30T14:34:38.770Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-you-collection-alves-guimaraes-em-sao-paulo-pinheiros-com-1-quar-1498131425": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:37:35.126Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-you-collection-alves-guimaraes-em-sao-paulo-pinheiros-com-1-quar-1498131425",
+    "updatedAt": "2026-04-30T14:37:35.127Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-rua-vicente-pinheiro-jardim-helga-sao-paulo-1497793754": {
+    "fonte": "OLX",
+    "status": "extraido",
+    "firstSeenAt": "2026-04-30T14:37:35.133Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-rua-vicente-pinheiro-jardim-helga-sao-paulo-1497793754",
+    "updatedAt": "2026-04-30T14:38:07.736Z",
+    "dados": {
+      "fonte": "OLX",
+      "id": "1497793754",
+      "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-rua-vicente-pinheiro-jardim-helga-sao-paulo-1497793754",
+      "tipo": "Casa",
+      "bairro": "Pinheiros",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "valor_imovel": 500000,
+      "area_m2": 125,
+      "quartos": 3,
+      "suites": null,
+      "banheiros": 1,
+      "vagas": 2,
+      "anuncianteNome": "",
+      "anuncianteTelefone": "12984643248",
+      "anuncianteTelefoneDisponivel": true,
+      "anuncianteTipo": "profissional",
+      "scoreIA": 60
+    },
+    "scoreIA": 60,
+    "temTelefone": true,
+    "anunciante": "",
+    "telefone": "12984643248",
+    "tipoAnunciante": "profissional"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/estudio-completo-no-hub-alto-da-boa-vista-1491408857": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:37:35.134Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/estudio-completo-no-hub-alto-da-boa-vista-1491408857",
+    "updatedAt": "2026-04-30T14:37:35.135Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-para-venda-em-vila-carmela-ii-com-3-quartos-140m-1497778576": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:37:35.136Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-para-venda-em-vila-carmela-ii-com-3-quartos-140m-1497778576",
+    "updatedAt": "2026-04-30T14:37:35.137Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-29-m2-1497705790": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:37:35.138Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-29-m2-1497705790",
+    "updatedAt": "2026-04-30T14:37:35.139Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-29-m2-1497681354": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:37:35.140Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-29-m2-1497681354",
+    "updatedAt": "2026-04-30T14:37:35.142Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-54-m2-1497662794": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:37:35.142Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-54-m2-1497662794",
+    "updatedAt": "2026-04-30T14:37:35.144Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-40-m2-1497661582": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:37:35.145Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-40-m2-1497661582",
+    "updatedAt": "2026-04-30T14:37:35.146Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-27-m2-1497657608": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:37:35.147Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-27-m2-1497657608",
+    "updatedAt": "2026-04-30T14:37:35.149Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-45-m2-1497656526": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:37:35.150Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-45-m2-1497656526",
+    "updatedAt": "2026-04-30T14:37:35.151Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-venda-possui-100-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-pa-1497999491": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:40:21.589Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-venda-possui-100-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-pa-1497999491",
+    "updatedAt": "2026-04-30T14:40:21.590Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-de-casa-propria-1496838305": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:40:21.591Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-de-casa-propria-1496838305",
+    "updatedAt": "2026-04-30T14:40:21.592Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-possui-90-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-pa-1493067121": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:40:21.593Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-possui-90-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-pa-1493067121",
+    "updatedAt": "2026-04-30T14:40:21.595Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-proximo-a-usp-reformado-com-armarios-butanta-1491108779": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:40:21.596Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-proximo-a-usp-reformado-com-armarios-butanta-1491108779",
+    "updatedAt": "2026-04-30T14:40:21.598Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-com-2-quartos-em-butanta-sao-paulo-sp-1490876085": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:40:21.599Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-com-2-quartos-em-butanta-sao-paulo-sp-1490876085",
+    "updatedAt": "2026-04-30T14:40:21.605Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-com-90-m-com-2-quartos-em-vila-universitaria-butanta-sao-paulo-sp-1490098892": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:40:21.607Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-com-90-m-com-2-quartos-em-vila-universitaria-butanta-sao-paulo-sp-1490098892",
+    "updatedAt": "2026-04-30T14:40:21.608Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/excelente-sobrado-proximo-a-usp-butanta-1490056353": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:40:21.609Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/excelente-sobrado-proximo-a-usp-butanta-1490056353",
+    "updatedAt": "2026-04-30T14:40:21.610Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-possui-90-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-pa-1490011518": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:40:21.611Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-possui-90-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-pa-1490011518",
+    "updatedAt": "2026-04-30T14:40:21.612Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-vila-universitaria-2-dorms-1-vaga-1489986126": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:40:21.613Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-vila-universitaria-2-dorms-1-vaga-1489986126",
+    "updatedAt": "2026-04-30T14:40:21.616Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-tem-80-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-paulo-1489985465": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:40:21.619Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-tem-80-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-paulo-1489985465",
+    "updatedAt": "2026-04-30T14:40:21.621Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-jd-julieta-zn-sp-1496945596": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:43:15.513Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-jd-julieta-zn-sp-1496945596",
+    "updatedAt": "2026-04-30T14:43:15.514Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-venda-condominio-golden-plaza-1496775339": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:43:15.515Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-venda-condominio-golden-plaza-1496775339",
+    "updatedAt": "2026-04-30T14:43:15.516Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-120-m-por-r-383-000-00-jardim-monte-carmelo-guarulho-1493549457": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:43:15.518Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-120-m-por-r-383-000-00-jardim-monte-carmelo-guarulho-1493549457",
+    "updatedAt": "2026-04-30T14:43:15.519Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-em-osasco-1485884381": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:43:15.520Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-em-osasco-1485884381",
+    "updatedAt": "2026-04-30T14:43:15.521Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-venda-golden-plaza-jd-novo-portugal-1482789626": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:43:15.522Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-venda-golden-plaza-jd-novo-portugal-1482789626",
+    "updatedAt": "2026-04-30T14:43:15.524Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-250-m-venda-por-r-380-000-00-ou-aluguel-por-r-2-231-00-mes-1482423591": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:43:15.525Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-250-m-venda-por-r-380-000-00-ou-aluguel-por-r-2-231-00-mes-1482423591",
+    "updatedAt": "2026-04-30T14:43:15.527Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-125-m-por-r-455-000-00-jardim-paineira-itaquaquecetu-1471904409": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:43:15.528Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-125-m-por-r-455-000-00-jardim-paineira-itaquaquecetu-1471904409",
+    "updatedAt": "2026-04-30T14:43:15.529Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-com-2-quartos-a-venda-em-jardim-sao-ricardo-sp-1469070610": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:43:15.530Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-com-2-quartos-a-venda-em-jardim-sao-ricardo-sp-1469070610",
+    "updatedAt": "2026-04-30T14:43:15.532Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-a-venda-125m-jardim-almeida-prado-guarulhos-sp-por-r-450-000-00-1467958919": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:43:15.537Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-a-venda-125m-jardim-almeida-prado-guarulhos-sp-por-r-450-000-00-1467958919",
+    "updatedAt": "2026-04-30T14:43:15.539Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-jardim-internacional-com-2-dormitorios-e-1-vaga-1467660215": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:43:15.540Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-jardim-internacional-com-2-dormitorios-e-1-vaga-1467660215",
+    "updatedAt": "2026-04-30T14:43:15.541Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-75-m-por-r-470-000-00-granja-viana-cotia-sp-1497816685": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:46:06.218Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-75-m-por-r-470-000-00-granja-viana-cotia-sp-1497816685",
+    "updatedAt": "2026-04-30T14:46:06.220Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-venda-jardim-dos-ipes-embu-das-artes-sp-1496546593": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:46:06.221Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-venda-jardim-dos-ipes-embu-das-artes-sp-1496546593",
+    "updatedAt": "2026-04-30T14:46:06.223Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imperdivel-casa-a-venda-em-sao-paulo-sp-jardim-dos-ipes-7-quartos-1-sala-2-banheiros-1496528146": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:46:06.225Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imperdivel-casa-a-venda-em-sao-paulo-sp-jardim-dos-ipes-7-quartos-1-sala-2-banheiros-1496528146",
+    "updatedAt": "2026-04-30T14:46:06.226Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-70-m-por-r-469-000-jardim-ipes-salto-sp-1495733489": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:46:06.228Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-70-m-por-r-469-000-jardim-ipes-salto-sp-1495733489",
+    "updatedAt": "2026-04-30T14:46:06.229Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-1-dormitorio-a-venda-70-m-por-r-310-000-00-jardim-celani-salto-sp-1495733245": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:46:06.230Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-1-dormitorio-a-venda-70-m-por-r-310-000-00-jardim-celani-salto-sp-1495733245",
+    "updatedAt": "2026-04-30T14:46:06.232Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-bairro-sacerdote-na-cidade-de-salto-1494213239": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:46:06.233Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-bairro-sacerdote-na-cidade-de-salto-1494213239",
+    "updatedAt": "2026-04-30T14:46:06.235Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-jardim-dos-ipes-salto-1493081043": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:46:06.236Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-jardim-dos-ipes-salto-1493081043",
+    "updatedAt": "2026-04-30T14:46:06.238Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-de-condominio-em-rua-miguel-de-almeida-barro-branco-cotia-sp-1492951460": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:46:06.239Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-de-condominio-em-rua-miguel-de-almeida-barro-branco-cotia-sp-1492951460",
+    "updatedAt": "2026-04-30T14:46:06.241Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-de-condominio-em-estrada-do-capuava-jardim-dos-ipes-cotia-sp-1492944031": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:46:06.242Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-de-condominio-em-estrada-do-capuava-jardim-dos-ipes-cotia-sp-1492944031",
+    "updatedAt": "2026-04-30T14:46:06.244Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-a-venda-68-m-por-r-450-000-jardim-dos-ipes-suzano-sp-1492528369": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:46:06.245Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-a-venda-68-m-por-r-450-000-jardim-dos-ipes-suzano-sp-1492528369",
+    "updatedAt": "2026-04-30T14:46:06.247Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-curuca-2-quartos-52-m2-1497752522": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:51:55.984Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-curuca-2-quartos-52-m2-1497752522",
+    "updatedAt": "2026-04-30T14:51:55.985Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-parque-joao-ramalho-2-quartos-186-m2-1497752067": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:51:55.987Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-parque-joao-ramalho-2-quartos-186-m2-1497752067",
+    "updatedAt": "2026-04-30T14:51:55.989Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-joao-ramalho-2-quartos-56-m2-1497749119": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:51:55.990Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-joao-ramalho-2-quartos-56-m2-1497749119",
+    "updatedAt": "2026-04-30T14:51:55.991Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-das-nacoes-3-quartos-61-m2-1497747505": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:51:55.992Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-das-nacoes-3-quartos-61-m2-1497747505",
+    "updatedAt": "2026-04-30T14:51:55.993Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-curuca-2-quartos-53-m2-1497747069": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:51:55.994Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-curuca-2-quartos-53-m2-1497747069",
+    "updatedAt": "2026-04-30T14:51:55.995Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-parque-das-nacoes-3-quartos-100-m2-1497746546": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:51:55.996Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-parque-das-nacoes-3-quartos-100-m2-1497746546",
+    "updatedAt": "2026-04-30T14:51:56.000Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-curuca-2-quartos-60-m2-1497746185": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:51:56.002Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-curuca-2-quartos-60-m2-1497746185",
+    "updatedAt": "2026-04-30T14:51:56.003Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-santa-teresinha-2-quartos-90-m2-1497746133": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:51:56.004Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-santa-teresinha-2-quartos-90-m2-1497746133",
+    "updatedAt": "2026-04-30T14:51:56.007Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-parque-joao-ramalho-2-quartos-146-m2-1497745931": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:51:56.008Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-parque-joao-ramalho-2-quartos-146-m2-1497745931",
+    "updatedAt": "2026-04-30T14:51:56.010Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-das-nacoes-2-quartos-58-m2-1497745540": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T14:51:56.011Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-das-nacoes-2-quartos-58-m2-1497745540",
+    "updatedAt": "2026-04-30T14:51:56.013Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-por-r-250-000-00-jardim-sao-carlos-sao-paulo-sp-1498085062": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T15:50:22.683Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-por-r-250-000-00-jardim-sao-carlos-sao-paulo-sp-1498085062",
+    "updatedAt": "2026-04-30T15:50:22.685Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-completa-na-zona-leste-2-dormitorios-quarto-extra-1491369161": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T15:50:22.687Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-completa-na-zona-leste-2-dormitorios-quarto-extra-1491369161",
+    "updatedAt": "2026-04-30T15:50:22.689Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-jacui-3-quartos-125-m2-1497751757": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T15:50:22.691Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-jacui-3-quartos-125-m2-1497751757",
+    "updatedAt": "2026-04-30T15:50:22.693Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-jacui-2-quartos-80-m2-1497749105": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T15:50:22.694Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-jacui-2-quartos-80-m2-1497749105",
+    "updatedAt": "2026-04-30T15:50:22.695Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-jacui-3-quartos-125-m2-1497747534": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T15:50:22.698Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-jacui-3-quartos-125-m2-1497747534",
+    "updatedAt": "2026-04-30T15:50:22.700Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-jacui-2-quartos-64-m2-1497740196": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T15:50:22.701Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-jacui-2-quartos-64-m2-1497740196",
+    "updatedAt": "2026-04-30T15:50:22.703Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-jacui-3-quartos-180-m2-1497736687": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T15:50:22.708Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-jacui-3-quartos-180-m2-1497736687",
+    "updatedAt": "2026-04-30T15:50:22.710Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vende-se-1496702811": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T15:50:22.713Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vende-se-1496702811",
+    "updatedAt": "2026-04-30T15:50:22.715Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vende-se-casa-sobrado-aceito-proposta-1494429835": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T15:50:22.716Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vende-se-casa-sobrado-aceito-proposta-1494429835",
+    "updatedAt": "2026-04-30T15:50:22.718Z"
+  },
+  "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/da-vendo-minha-casa-espacosa-1442910185": {
+    "fonte": "OLX",
+    "status": "link_encontrado",
+    "firstSeenAt": "2026-04-30T15:50:22.720Z",
+    "url": "https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/da-vendo-minha-casa-espacosa-1442910185",
+    "updatedAt": "2026-04-30T15:50:22.724Z"
+  }
+}

@@ -1,0 +1,103 @@
+PROCESSANDO LOTE: 50
+
+[1/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3004554976.html
+
+[2/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3016917555.html
+
+[3/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3004940848.html
+
+[4/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3008634852.html
+
+[5/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3009604049.html
+
+[6/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3017702240.html
+
+[7/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3015878364.html
+
+[8/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3009571198.html
+
+[9/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3015553263.html
+
+[10/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3009671561.html
+
+[11/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3011153143.html
+
+[12/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3004589037.html
+
+[13/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3019985989.html
+
+[14/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3031447266.html
+
+[15/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3004555187.html
+
+[16/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3015777306.html
+
+[17/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3029298601.html
+
+[18/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3006566372.html
+
+[19/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3011157135.html
+
+[20/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3021179223.html
+
+[21/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3005542187.html
+
+[22/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3005658072.html
+
+[23/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3029497231.html
+
+[24/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3026786263.html
+
+[25/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3016223351.html
+
+[26/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3029393504.html
+
+[27/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3026873743.html
+
+[28/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3009705900.html
+
+[29/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3001522609.html
+
+[30/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3016240354.html
+
+[31/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3015502291.html
+
+[32/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3014014131.html
+
+[33/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3023536737.html
+
+[34/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3004554843.html
+
+[35/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3026281105.html
+
+[36/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3001522136.html
+
+[37/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3001533456.html
+
+[38/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3023511194.html
+
+[39/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3012010148.html
+
+[40/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3001522536.html
+
+[41/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3004589200.html
+
+[42/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3027781338.html
+
+[43/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3011255005.html
+
+[44/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3004588770.html
+
+[45/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3015570366.html
+
+[46/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3008621377.html
+
+[47/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3009603941.html
+
+[48/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3001522292.html
+
+[49/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3012190769.html
+
+[50/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3004555321.html
+
+LOTE FINALIZADO

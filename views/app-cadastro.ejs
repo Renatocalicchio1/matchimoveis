@@ -53,6 +53,52 @@
       <div class="method-desc">Cadastre um imóvel por vez. Ideal para captações diretas ou exclusividades.</div>
       <span class="method-badge" style="background:#f0fdf4;color:#16a34a">Simples</span>
     </div>
+  
+    <div class='method-card' id='mc-prop' onclick="escolherMetodo('prop')">
+      <div class='method-icon'>👤</div>
+      <div class='method-title'>Importar Proprietários</div>
+      <div class='method-desc'>Envie CSV ou Excel com dados dos proprietários. O sistema cruza pelo ID do anúncio.</div>
+      <span class='method-badge' style='background:#fef9c3;color:#854d0e'>Cruzamento</span>
+    </div>
+  </div>
+</div>
+
+
+<%# ── SEÇÃO PROPRIETÁRIOS ── %>
+<div class='section' id='sec-prop'>
+  <div class='card'>
+    <div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:20px'>
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">👤 Importar Proprietários</h3>
+        <p style='font-size:13px;color:var(--gray);margin-top:4px'>Cruza CSV/Excel com os imóveis pelo ID do anúncio</p>
+      </div>
+      <button onclick='voltarMetodo()' class='btn btn-ghost btn-sm'>← Voltar</button>
+    </div>
+    <form method='POST' action='/app/importar-proprietarios' enctype='multipart/form-data'>
+      <div class='form-section'>
+        <h4>Planilha de proprietários</h4>
+        <div class='upload-zone' onclick="document.getElementById('propInput').click()" id='dropZoneProp'>
+          <div class='upload-icon'>📋</div>
+          <p style='font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px'>Arraste o arquivo aqui</p>
+          <p style='font-size:12px;color:var(--gray)'>CSV ou XLSX — colunas: ID do anúncio, Nome, Telefone, Email</p>
+          <input type='file' name='file' id='propInput' style='display:none' accept='.csv,.xlsx' onchange='onPropSelect(this)'>
+        </div>
+        <div id='prop-file-name' style='font-size:13px;color:var(--green);margin-top:8px;display:none'></div>
+      </div>
+      <div class='form-section'>
+        <h4>Colunas esperadas na planilha</h4>
+        <div style='background:var(--light);border-radius:8px;padding:14px;font-size:12px;color:var(--gray);line-height:2'>
+          <b>ID do anúncio</b> — obrigatório (ex: ListingID, id, codigo)<br>
+          <b>Nome</b> — nome do proprietário<br>
+          <b>Telefone</b> — WhatsApp ou celular<br>
+          <b>Email</b> — email de contato
+        </div>
+      </div>
+      <button type='submit' class='btn btn-primary' style='width:100%;padding:14px;font-size:15px;margin-top:8px'>
+        🔗 Cruzar e importar
+      </button>
+    </form>
+    <div id='prop-result' style='display:none;margin-top:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;text-align:center'></div>
   </div>
 </div>
 

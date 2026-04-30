@@ -1,0 +1,3 @@
+PROCESSANDO LOTE: 50
+
+[1/50] EXTRAINDO: https://www.imovelweb.com.br/propiedades/-3004554976.html

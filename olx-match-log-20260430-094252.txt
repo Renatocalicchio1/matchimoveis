@@ -1,0 +1,749 @@
+ORIGINS PRONTOS PARA OLX: 113
+
+[1/113] BUSCANDO OLX: Jardim Aeroporto Apartamento 1
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Jardim%20Aeroporto&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498159603
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-jardins-edificio-ninety-hotel-1498157416
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498157214
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-campo-belo-1-quarto-49-m2-1497535983
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-campo-belo-1498132393
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498109215
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-jardins-edificio-ninety-hotel-1498109097
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498108913
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vendo-ou-troco-por-casa-1498024064
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-quartos-a-venda-ou-para-locacao-em-jardim-aeroporto-sp-1497983196
+OLX imóveis detalhados: 2
+MATCHES OLX: 2
+
+[2/113] BUSCANDO OLX: Aclimação Casa 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Aclima%C3%A7%C3%A3o&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-39-m2-1497664855
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-36-m2-1497656821
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-59-m2-1497653238
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-45-m2-1497652673
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-2-quartos-70-m2-1497652620
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-2-quartos-75-m2-1497651343
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-45-m2-1497650241
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-2-quartos-75-m2-1497649528
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-30-m2-1497648390
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-aclimacao-1-quarto-74-m2-1497645520
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[3/113] BUSCANDO OLX: Vila Guarani(Zona Sul) Casa 2
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Vila%20Guarani(Zona%20Sul)&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-33-m2-1497680170
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-25-m2-1497664524
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-35-m2-1497663962
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-33-m2-1497661159
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-25-m2-1497657684
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-50-m2-1497654170
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-28-m2-1497651362
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-24-m2-1497650717
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-37-m2-1497639095
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apto-3-quartos-para-venda-ou-locacao-jabaquara-conceicao-avalia-se-permuta-1497605698
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[4/113] BUSCANDO OLX: Vila Guarani(Zona Sul) Casa 2
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Vila%20Guarani(Zona%20Sul)&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-33-m2-1497680170
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-25-m2-1497664524
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-35-m2-1497663962
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-2-quartos-33-m2-1497661159
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-25-m2-1497657684
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-50-m2-1497654170
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-28-m2-1497651362
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-24-m2-1497650717
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jabaquara-1-quarto-37-m2-1497639095
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apto-3-quartos-para-venda-ou-locacao-jabaquara-conceicao-avalia-se-permuta-1497605698
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[5/113] BUSCANDO OLX: Vila Maria Alta Casa 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Vila%20Maria%20Alta&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-42-m2-1497684370
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-santa-maria-2-quartos-49-m2-1497662946
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-42-m2-1497662603
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-45-m2-1497661796
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-45-m2-1497661713
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-45-m2-1497657735
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-55-m2-1497654786
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-1-quarto-31-m2-1497654388
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-maria-2-quartos-47-m2-1497652653
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-santa-maria-1-quarto-54-m2-1497652230
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[6/113] BUSCANDO OLX: Vila Cordeiro Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Vila%20Cordeiro&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-de-30-m-no-zip-brooklin-1498187665
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-vn-alvaro-rodrigues-1498110753
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-70-m2-2-quartos-1-vaga-vila-cordeiro-1498109160
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/condominio-vn-alvaro-rodrigues-o-refugio-perfeito-no-coracao-do-brooklin-1368848181
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-aluguel-e-venda-com-24-metros-quadrados-com-1-quarto-em-vila-cordeiro-sao-pa-1446734136
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-cordeiro-sao-paulo-sp-1497996488
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/zip-brooklin-residencial-1497892405
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-jk-studio-a-venda-rua-ministro-luiz-gallotti-vila-cordeiro-sao-paulo-1497794658
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-brooklin-1-quarto-24-m2-1497694431
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-brooklin-1-quarto-30-m2-1497683329
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[7/113] BUSCANDO OLX: Vila Andrade Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Vila%20Andrade&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-na-vila-andrade-1498166398
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-em-sao-paulo-sp-vila-adalgisa-2-quartos-1-banheiro-1-vaga-40m-de-1498164165
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-na-vila-andrade-1498160602
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-2-dormitorios-a-venda-55-m-por-r-420-000-00-vila-andrade-sao-paulo-1498156642
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-aclimacao-sp-1498150674
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-pereira-barreto-com-2-quartos-63m-1498148830
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-andrade-com-3-quartos-78m-1498148483
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-para-venda-e-locacao-em-vila-andrade-com-1-quarto-25m-1498140529
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-vila-andrade-1498132491
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-vila-andrade-1498132151
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[8/113] BUSCANDO OLX: Santana Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Santana&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rr7528-apartamento-54m-condominio-residencial-gran-solar-oportunidade-2-dorms-1-vaga-1394783272
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-apartamento-padrao-para-venda-1-dorm-s-1-vaga-s-52-m-1498181125
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-santana-edificio-wyndham-garden-convention-nortel-1498157472
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-santana-edificio-wyndham-garden-convention-nortel-1498157348
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apto-venda-mandaqui-1498155265
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-santana-com-1-quarto-38m-1498149236
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-25m-mobiliado-com-vaga-e-lazer-completo-proximo-ao-metro-santana-ideal-para-mora-1498142595
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-santana-1498134516
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-santana-1498132670
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-santana-com-2-quartos-40m-1498122893
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[9/113] BUSCANDO OLX: Pinheiros Apartamento 2
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Pinheiros&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498174694
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498172201
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498172195
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-pinheiros-sp-1498171091
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-morar-ou-investir-em-pinheiros-studios-praticos-em-uma-das-melhores-regi-1498168942
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-otimo-preco-no-bairro-pinheiros-confira-1498165337
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-27-m-por-r-480-000-00-pinheiros-sao-paulo-sp-1498162438
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-a-venda-30-m-por-r-442-000-00-pinheiros-sao-paulo-sp-1498160838
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-com-1-dormitorio-30-m-venda-por-r-299-000-00-ou-aluguel-por-r-2-440-00-mes-1498160457
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-pinheiros-edificio-the-excellence-1498159439
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[10/113] BUSCANDO OLX: Vila Mangalot Casa 4
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Vila%20Mangalot&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-63-m2-1497664694
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-40-m2-1497660483
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-52-m2-1497655509
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-44-m2-1497654527
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-40-m2-1497654231
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mangalot-2-quartos-58-m2-1497649417
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-sao-domingos-2-quartos-68-m2-1497636074
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vendo-casa-de-vila-no-mangalot-1497110002
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-30m2-na-vila-mangalot-1495078623
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-em-condominio-vila-mangalot-sp-1494477243
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[11/113] BUSCANDO OLX: Vila Ipojuca Apartamento 2
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Vila%20Ipojuca&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-no-alto-de-pinheiros-sao-paulo-18-09m-e-lazer-1497919985
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-lapa-sp-1497863682
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-18-m2-1497704902
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-24-m2-1497662797
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-25-m2-1497657671
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-2-quartos-36-m2-1497652670
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-17-m2-1497650659
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-2-quartos-36-m2-1497650343
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-20-m2-1497648703
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-18-m2-1497643656
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[12/113] BUSCANDO OLX: Jardim São Ricardo Casa 2
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Jardim%20S%C3%A3o%20Ricardo&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1497855538
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-200-m-por-r-375-000-00-jardim-saltense-salto-sp-1495732735
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-3-dormitorios-2-vagas-145m2-no-jardim-sao-ricardo-1495071681
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1494751329
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/descubra-o-seu-novo-lar-em-sao-paulo-casa-a-venda-no-jardim-matarazzo-com-2-quartos-e-95-1493575811
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1493345708
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-em-jardim-sao-ricardo-com-3-quartos-145m-1492885573
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-em-jardim-sao-ricardo-com-3-quartos-145m-1491092792
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/terreno-150m-com-construcao-inicial-jardim-zaira-5-maua-1490445733
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-em-francisco-morato-sp-tipo-casa-negociacao-venda-online-situ-1490016206
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[13/113] BUSCANDO OLX: Ipiranga Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Ipiranga&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-aluguel-com-55-metros-quadrados-com-2-quartos-em-jardim-aeroporto-sao-paulo-1498194477
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-1-dorm-s-1-vaga-s-43-m-ipiranga-1498180183
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-ipiranga-sp-1498164494
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-2-quartos-a-venda-ipiranga-sao-paulo-1498157944
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-3-quartos-a-venda-ipiranga-sao-paulo-1498157939
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-2-quartos-a-venda-ipiranga-sao-paulo-1498157700
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-ipiranga-sp-1498153031
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-ipiranga-com-1-quarto-36m-1498148681
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-alto-do-ipiranga-com-2-quartos-33m-1498148386
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-republica-com-1-quarto-sendo-1-suite-29m-1498140551
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[14/113] BUSCANDO OLX: São Paulo Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20S%C3%A3o%20Paulo&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/garden-a-venda-2-quartos-1-vaga-53-1m-vila-carmosina-sao-paulo-sp-pulse-itaquera-re-1498196149
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-sao-bernardo-do-campo-nova-petropolis-2-dormitorios-1-banheir-1498195610
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/cota-para-lance-torre-d-grupo-16-com-2-dormitorios-parque-firenze-embu-1498195582
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-de-33m-com-1-dormitorio-na-mooca-1498195095
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-2-quartos-jardim-boa-vista-zona-oeste-sao-paulo-1498195011
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-venda-possui-50-metros-quadrados-com-2-quartos-em-jardim-cabore-sao-paulo-1498195019
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imperdivel-apartamento-a-venda-em-santo-andre-sp-vila-pires-2-quartos-2-salas-1-banhe-1498194492
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-aluguel-com-55-metros-quadrados-com-2-quartos-em-jardim-aeroporto-sao-paulo-1498194477
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-de-1-quarto-para-venda-na-republica-condominio-vibe-1498194240
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-tem-43-metros-quadrados-com-2-quartos-em-jardim-iris-sao-paulo-1498194257
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[15/113] BUSCANDO OLX: Brooklin Paulista Apartamento 1
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Brooklin%20Paulista&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-para-venda-em-brooklin-paulista-com-1-quarto-24m-1498187624
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-mobiliado-para-venda-ou-locacao-no-campo-belo-1498185466
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498185425
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498184956
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498184452
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/lindo-studio-mobiliado-ao-lado-do-metro-brooklin-1498173581
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-para-venda-em-brooklin-paulista-com-1-quarto-24m-1498172399
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-recem-entregue-com-25m-1498162906
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498150769
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-brooklin-paulista-com-1-quarto-sendo-1-suite-40m-1498149240
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[16/113] BUSCANDO OLX: Moema Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Moema&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-moema-com-1-quarto-27m-1498176043
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vila-olimpia-studio-de-25m-andar-alto-1498174212
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-otimo-preco-no-bairro-moema-confira-1498165816
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-the-privilege-1498157869
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-em-moema-bourbon-ibirapuera-1498157373
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-moema-indios-sp-1498154013
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-moema-indios-sp-1498150565
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-moema-indios-sp-1498150562
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/terrare-moema-studio-1498148036
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-moema-indios-sp-1498140045
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[17/113] BUSCANDO OLX: Paraíso do Morumbi Apartamento 4
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Para%C3%ADso%20do%20Morumbi&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-panamby-sp-1498184816
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-paraiso-do-morumbi-com-3-quartos-sendo-1-suite-68m-1498148638
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-paraiso-do-morumbi-1498132587
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-3-dormitorios-a-venda-83-m-por-r-415-000-paraiso-do-morumbi-sao-pau-1498121961
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-panamby-1-quarto-30-m2-1497986308
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-quarto-para-venda-30m-morumbi-sao-paulo-sp-1497875596
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-quarto-a-venda-40m-morumbi-sao-paulo-sp-1497874911
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-quarto-a-venda-40m-morumbi-sao-paulo-sp-1497874855
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-no-morumbi-edificio-morumbi-business-1497874672
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-apartamento-para-venda-edificio-morumbi-business-1497874271
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[18/113] BUSCANDO OLX: Vila Ipojuca Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Vila%20Ipojuca&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-no-alto-de-pinheiros-sao-paulo-18-09m-e-lazer-1497919985
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-lapa-sp-1497863682
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-18-m2-1497704902
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-24-m2-1497662797
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-25-m2-1497657671
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-2-quartos-36-m2-1497652670
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-17-m2-1497650659
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-2-quartos-36-m2-1497650343
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-20-m2-1497648703
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-romana-1-quarto-18-m2-1497643656
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[19/113] BUSCANDO OLX: Campo Belo Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Campo%20Belo&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-mobiliado-para-venda-ou-locacao-no-campo-belo-1498185466
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498185425
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/campo-belo-1-dormitorio-49m-1498173737
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-studio-em-campo-belo-sao-paulo-sp-1498160279
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498159603
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498157214
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-campo-belo-sp-1498151310
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-brooklin-sp-1498150769
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-campo-belo-com-3-quartos-sendo-1-suite-78m-1498148987
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-para-venda-em-sao-paulo-bela-vista-1-dormitorio-1-banheiro-1498147685
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[20/113] BUSCANDO OLX: Interlagos Casa 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Interlagos&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/venda-interlagos-1498097042
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-3-comodos-casa-na-vila-nascente-zona-sul-de-sao-paulo-em-uma-travessa-super-tranquil-1498079099
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sg-interlagos-1446994768
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-condominio-interlagos-1497841875
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-condominio-interlagos-1497811432
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-cidade-dutra-2-quartos-62-m2-1497664465
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-interlagos-2-quartos-55-m2-1497663168
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-maria-rita-2-quartos-54-m2-1497654302
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-interlagos-2-quartos-65-m2-1497649686
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-interlagos-2-quartos-55-m2-1497649383
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[21/113] BUSCANDO OLX: Jardim São Vicente Apartamento 1
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Jardim%20S%C3%A3o%20Vicente&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-sao-vicente-cotia-sp-38m-2-dormitorios-1498170747
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-helga-campo-limpo-sao-paulo-sp-47m-2-dormitorios-1498170771
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-helga-campo-limpo-sao-paulo-sp-47m-2-dormitorios-1498170701
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-jardim-santo-antonio-sao-paulo-sp-1498157959
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-conforto-praticidade-e-vista-incrivel--excelente-oportunidade-1497169871
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-getulio-luvison-itatiba-sp-1497895891
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-a-venda-75-m-por-r-490-000-00-jardim-ocara-santo-andre-sp-1497886986
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-2-dormitorios-a-venda-45-m-por-r-246-000-jardim-sao-vicente-sao-pau-1497801645
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-aricanduva-2-quartos-49-m2-1497750749
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-1-quarto-46-m2-1497742564
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[22/113] BUSCANDO OLX: Bela Vista Apartamento 2
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Bela%20Vista&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/studio-25m-vizinho-de-muro-do-shopping-frei-caneca-1498188861
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/taboao-da-serra-condominio-vida-bela-1498172720
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498157613
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-bela-vista-sp-1498157131
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-na-bela-vista-edificio-plaza-concorde-1498157018
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-centro-sp-1498156924
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-na-bela-vista-edificio-plaza-concorde-c-d-krg03932-1498156909
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-plaza-concorde-1498156887
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-bela-vista-sp-1498156654
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-bela-vista-sp-1498155272
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[23/113] BUSCANDO OLX: Vila Pedroso Casa 5
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Vila%20Pedroso&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-de-condominio-para-venda-com-60-metros-quadrados-com-2-quartos-em-maranhao-cotia-1494186261
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-para-venda-em-vila-do-castelo-com-2-quartos-60m-1497944179
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-quartos-a-venda-em-vila-brasileira-sp-1497672489
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-pedroso-2-quartos-43-m2-1497658712
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-para-venda-em-vila-do-castelo-com-2-quartos-60m-1496204140
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-sapopemba-vila-ema-vila-tolstoi-1496131622
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-60-m-por-r-435-000-vila-dos-eucaliptos-salto-sp-1495733556
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-novo-a-venda-na-vila-brasileira-conforto-estilo-em-otima-localizacao-por-500-1495093264
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-com-02-dormitorios-a-venda-125m-no-jardim-santo-andre-santo-andre-sp-1494472132
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-03-dormitorios-a-venda-180m-na-vila-curuca-santo-andre-sp-1494182744
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[24/113] BUSCANDO OLX: Consolação Apartamento 2
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Consola%C3%A7%C3%A3o&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-unica-apartamento-a-venda-na-consolacao-sao-paulo-sp-1-quarto-1-banheiro-1498187623
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/kitnet-grande-53-m-semi-mobiliado-para-venda-prox-falculdade-mackenzie-em-sao-paulo-s-1498177657
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-higienopolis-1-quarto-57-m2-1498166297
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498157613
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-para-venda-na-consolacao-edificio-studio-home-bela-cintra-1498157148
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498156822
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498154011
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498153025
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-consolacao-sp-1498150027
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-consolacao-com-1-quarto-45m-1498149517
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[25/113] BUSCANDO OLX: Penha de França Casa 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Penha%20de%20Fran%C3%A7a&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-c-1-quarto-40m-a-venda-no-bairro-penha-por-318-000-00-1498190025
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-3-dormitorios-a-venda-penha-sao-paulo-sp-1498141696
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-54-m2-1498051484
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-66-m2-1497755839
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-vila-esperanca-2-quartos-67-m2-1497753816
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-43-m2-1497753848
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-penha-de-franca-2-quartos-100-m2-1497752701
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-2-quartos-43-m2-1497753531
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-esperanca-1-quarto-30-m2-1497752808
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-penha-de-franca-1-quarto-38-m2-1497752590
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[26/113] BUSCANDO OLX: Jardim das Vertentes Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Jardim%20das%20Vertentes&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-50-m2-1497982195
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-venda-tem-52-metros-quadrados-com-2-quartos-em-jardim-das-vertentes-sao-paul-1497922777
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-50-m2-1497659563
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-50-m2-1497658190
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-68-m2-1497655683
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-54-m2-1497650890
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-60-m2-1497646083
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-60-m2-1497644852
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-2-quartos-53-m2-1497643311
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-butanta-3-quartos-70-m2-1497642421
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[27/113] BUSCANDO OLX: Jardim Los Angeles Apartamento 2
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Jardim%20Los%20Angeles&pe=500000&sf=1&o=1
+OLX links capturados: 6
+OLX links para visitar: 6
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-rua-zacarias-alves-de-melo-jardim-ibitirama-sao-paulo-1490405932
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-40-m-por-r-321-000-00-jardim-los-angeles-sao-paulo-sp-1438768323
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-rua-zacarias-alves-de-melo-jardim-ibitirama-sao-paulo-1378822930
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-rua-zacarias-alves-de-melo-jardim-ibitirama-sao-paulo-1378818602
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-60-m-por-r-348-900-00-jardim-ibitirama-sao-paulo-sp-1320339512
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-56-m-por-r-378-900-00-jardim-ibitirama-sao-paulo-sp-1233291825
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[28/113] BUSCANDO OLX: Vila Mariana Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Vila%20Mariana&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-clementino-sp-1498186034
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-mariana-sao-paulo-1498174447
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mariana-1-quarto-27-m2-1498170485
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-mariana-1-quarto-37-m2-1498166864
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/mairinque-ibirapuera-o-m-mais-desejado-entre-a-vila-mariana-e-o-ibirapuera-1498162869
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/mairinque-ibirapuera-o-m-mais-desejado-entre-a-vila-mariana-e-o-ibirapuera-1498160013
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/rarus-flats-flat-para-venda-edificio-waldorf-flat-service-1498157550
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/essential-vila-mariana-one-innovation-studio-28m-proximo-a-estacao-pca-da-arvore-do-1498157136
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-mariana-sp-1498156928
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-vila-clementino-sp-1498151342
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[29/113] BUSCANDO OLX: Vila Isa Casa 4
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Vila%20Isa&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-42-m2-1497648991
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1496994902
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1496783939
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1496151957
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1491451492
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1491282890
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483136195
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483105948
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483042568
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-vila-das-belezas-com-2-quartos-35m-1483014063
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[30/113] BUSCANDO OLX: Sumaré Casa 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Sumar%C3%A9&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-44-m2-1497538101
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-44-m2-1497688578
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-43-m2-1497685760
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-44-m2-1497657030
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-43-m2-1497657059
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-30-m2-1497646568
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-30-m2-1497645535
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-28-m2-1497644230
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-madalena-1-quarto-29-m2-1497640018
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-sumare-1-quarto-43-m2-1497540706
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[31/113] BUSCANDO OLX: Jardim Aeroporto Apartamento 1
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Jardim%20Aeroporto&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 8
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-aluguel-com-55-metros-quadrados-com-2-quartos-em-jardim-aeroporto-sao-paulo-1498194477
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498159603
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498157214
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-campo-belo-1-quarto-49-m2-1497535983
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-campo-belo-1498132393
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/flat-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498109215
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-1-dormitorio-no-campo-belo-para-venda-edificio-viaza-400-1498108913
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vendo-ou-troco-por-casa-1498024064
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[32/113] BUSCANDO OLX: Ipiranga Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Ipiranga&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-aluguel-com-55-metros-quadrados-com-2-quartos-em-jardim-aeroporto-sao-paulo-1498194477
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-1-dorm-s-1-vaga-s-43-m-ipiranga-1498180183
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-ipiranga-sp-1498164494
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-2-quartos-a-venda-ipiranga-sao-paulo-1498157944
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-3-quartos-a-venda-ipiranga-sao-paulo-1498157939
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-2-quartos-a-venda-ipiranga-sao-paulo-1498157700
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-ipiranga-sp-1498153031
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-ipiranga-com-1-quarto-36m-1498148681
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-alto-do-ipiranga-com-2-quartos-33m-1498148386
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-republica-com-1-quarto-sendo-1-suite-29m-1498140551
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[33/113] BUSCANDO OLX: Cambuci Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Cambuci&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-cambuci-sp-1498168115
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498158348
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498157936
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498157714
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-quarto-a-venda-cambuci-sao-paulo-1498157455
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-cambuci-com-2-quartos-45m-1498148822
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-cambuci-2-quartos-40-m2-1497743343
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-cambuci-1498132036
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-cambuci-1498131779
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-1-dormitorio-no-cambuci-1498128825
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[34/113] BUSCANDO OLX: Centro Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Centro&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/edificio-mohamed-1498211957
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-reformado-67-m-2-dormitorios-proximo-barra-funda-centro-1488007898
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/funcionalidade-e-acesso-imediato-no-centro-de-sao-paulo-1498208362
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/inspire-brisas-apartamento-de-2-dormts-no-inspire-brisas-no-centro-em-barueri-sp-1498192187
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-1-quarto-38-m2-1498178196
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-59-m2-1498178200
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-56-m2-1498178205
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-35-m2-1498178163
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-1-quarto-38-m2-1498178186
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-3-quartos-65-m2-1498178193
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[35/113] BUSCANDO OLX: Centro Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Centro&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/edificio-mohamed-1498211957
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-reformado-67-m-2-dormitorios-proximo-barra-funda-centro-1488007898
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/funcionalidade-e-acesso-imediato-no-centro-de-sao-paulo-1498208362
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/inspire-brisas-apartamento-de-2-dormts-no-inspire-brisas-no-centro-em-barueri-sp-1498192187
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-1-quarto-38-m2-1498178196
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-59-m2-1498178200
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-56-m2-1498178205
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-2-quartos-35-m2-1498178163
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-1-quarto-38-m2-1498178186
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-centro-3-quartos-65-m2-1498178193
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[36/113] BUSCANDO OLX: Vila do Castelo Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Vila%20do%20Castelo&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-com-3-quartos-no-condominio-edificio-guaratuba-guarulhos-sp-1498159924
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-centro-de-sao-bernardo-do-campo-3-dormitorios-1-suite-75-m-1498157432
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-cursino-1498132910
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-com-3-dormitorios-a-venda-65-m-por-r-435-000-00-vila-dos-remedios-sao-p-1498105134
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-em-vila-do-castelo-sao-paulo-sp-1497875750
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/aptos-na-planta-100-financiaveis-1497766199
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-lusitania-2-quartos-67-m2-1497746498
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-lusitania-2-quartos-56-m2-1497741410
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-lusitania-3-quartos-74-m2-1497738828
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-belita-3-quartos-76-m2-1497735897
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[37/113] BUSCANDO OLX: Ipiranga Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Ipiranga&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-aluguel-com-55-metros-quadrados-com-2-quartos-em-jardim-aeroporto-sao-paulo-1498194477
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-1-dorm-s-1-vaga-s-43-m-ipiranga-1498180183
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-ipiranga-sp-1498164494
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-2-quartos-a-venda-ipiranga-sao-paulo-1498157944
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-3-quartos-a-venda-ipiranga-sao-paulo-1498157939
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-2-quartos-a-venda-ipiranga-sao-paulo-1498157700
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-ipiranga-sp-1498153031
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-ipiranga-com-1-quarto-36m-1498148681
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-alto-do-ipiranga-com-2-quartos-33m-1498148386
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-em-republica-com-1-quarto-sendo-1-suite-29m-1498140551
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[38/113] BUSCANDO OLX: Jardim Umuarama Apartamento 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=apartamento%20Jardim%20Umuarama&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-para-venda-jardim-umuarama-2-dormitorios-2-banheiros-1-vaga-1498136706
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-3-quartos-75-m2-1497980482
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-iluminado-e-silencioso-350m-da-av-interlagos-1497759846
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-umuarama-2-quartos-63-m2-1497682887
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-3-quartos-58-m2-1497659024
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-60-m2-1497655190
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-60-m2-1497655032
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-3-quartos-68-m2-1497654778
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-marajoara-2-quartos-70-m2-1497654158
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-jardim-umuarama-2-quartos-51-m2-1497653911
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[39/113] BUSCANDO OLX: Capela do Socorro Casa 2
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Capela%20do%20Socorro&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-2-dorms-capela-do-socorro-1493444644
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vende-se-casa-1493053305
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/para-venda-91-rua-joao-de-godoi-moreira-capela-do-socorro-capela-do-socorro-sao-paulo-1487684156
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/vende-se-casa-terrea-capela-do-socorro-1447506849
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-a-venda-no-rio-bonito-1473021384
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-quartos-a-venda-em-capela-do-socorro-sp-1453485377
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-a-venda-2-dormitorios-jardim-clipper-1428057689
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-rua-cassiano-dos-santos-rio-bonito-sao-paulo-1389751912
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-assobradada-em-local-com-comercios-em-geral-1320713128
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-a-venda-em-socorro-com-2-dormitorios-2-vagas-de-garagem-1300142453
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[40/113] BUSCANDO OLX: Pinheiros Casa 1
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Pinheiros&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-no-you-collection-alves-guimaraes-em-sao-paulo-pinheiros-com-1-quar-1498131425
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-rua-vicente-pinheiro-jardim-helga-sao-paulo-1497793754
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/estudio-completo-no-hub-alto-da-boa-vista-1491408857
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-para-venda-em-vila-carmela-ii-com-3-quartos-140m-1497778576
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-29-m2-1497705790
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-29-m2-1497681354
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-54-m2-1497662794
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-40-m2-1497661582
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-27-m2-1497657608
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-pinheiros-1-quarto-45-m2-1497656526
+OLX imóveis detalhados: 1
+MATCHES OLX: 1
+
+[41/113] BUSCANDO OLX: Vila Universitária Casa 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Vila%20Universit%C3%A1ria&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imovel-para-venda-possui-100-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-pa-1497999491
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/oportunidade-de-casa-propria-1496838305
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-possui-90-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-pa-1493067121
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-proximo-a-usp-reformado-com-armarios-butanta-1491108779
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-com-2-quartos-em-butanta-sao-paulo-sp-1490876085
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-com-90-m-com-2-quartos-em-vila-universitaria-butanta-sao-paulo-sp-1490098892
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/excelente-sobrado-proximo-a-usp-butanta-1490056353
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-possui-90-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-pa-1490011518
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-vila-universitaria-2-dorms-1-vaga-1489986126
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-para-venda-tem-80-metros-quadrados-com-2-quartos-em-vila-universitaria-sao-paulo-1489985465
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[42/113] BUSCANDO OLX: Jardim Internacional Casa 4
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Jardim%20Internacional&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-jd-julieta-zn-sp-1496945596
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-venda-condominio-golden-plaza-1496775339
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-120-m-por-r-383-000-00-jardim-monte-carmelo-guarulho-1493549457
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-em-osasco-1485884381
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-venda-golden-plaza-jd-novo-portugal-1482789626
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-250-m-venda-por-r-380-000-00-ou-aluguel-por-r-2-231-00-mes-1482423591
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-125-m-por-r-455-000-00-jardim-paineira-itaquaquecetu-1471904409
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-com-2-quartos-a-venda-em-jardim-sao-ricardo-sp-1469070610
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-terrea-a-venda-125m-jardim-almeida-prado-guarulhos-sp-por-r-450-000-00-1467958919
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-jardim-internacional-com-2-dormitorios-e-1-vaga-1467660215
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[43/113] BUSCANDO OLX: Jardim dos Ipês Casa 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Jardim%20dos%20Ip%C3%AAs&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-75-m-por-r-470-000-00-granja-viana-cotia-sp-1497816685
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-venda-jardim-dos-ipes-embu-das-artes-sp-1496546593
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/imperdivel-casa-a-venda-em-sao-paulo-sp-jardim-dos-ipes-7-quartos-1-sala-2-banheiros-1496528146
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-2-dormitorios-a-venda-70-m-por-r-469-000-jardim-ipes-salto-sp-1495733489
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-com-1-dormitorio-a-venda-70-m-por-r-310-000-00-jardim-celani-salto-sp-1495733245
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-bairro-sacerdote-na-cidade-de-salto-1494213239
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-no-jardim-dos-ipes-salto-1493081043
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-de-condominio-em-rua-miguel-de-almeida-barro-branco-cotia-sp-1492951460
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-de-condominio-em-estrada-do-capuava-jardim-dos-ipes-cotia-sp-1492944031
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/sobrado-com-2-dormitorios-a-venda-68-m-por-r-450-000-jardim-dos-ipes-suzano-sp-1492528369
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[44/113] BUSCANDO OLX: Vila Curuçá Casa 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Vila%20Curu%C3%A7%C3%A1&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-curuca-2-quartos-52-m2-1497752522
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-parque-joao-ramalho-2-quartos-186-m2-1497752067
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-joao-ramalho-2-quartos-56-m2-1497749119
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-das-nacoes-3-quartos-61-m2-1497747505
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-curuca-2-quartos-53-m2-1497747069
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-parque-das-nacoes-3-quartos-100-m2-1497746546
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-curuca-2-quartos-60-m2-1497746185
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-santa-teresinha-2-quartos-90-m2-1497746133
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/casa-a-venda-parque-joao-ramalho-2-quartos-146-m2-1497745931
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-parque-das-nacoes-2-quartos-58-m2-1497745540
+OLX imóveis detalhados: 0
+MATCHES OLX: 0
+
+[45/113] BUSCANDO OLX: Vila Curuçá Casa 3
+OLX URL: https://www.olx.com.br/imoveis/venda/estado-sp/sao-paulo-e-regiao/sao-paulo?q=casa%20Vila%20Curu%C3%A7%C3%A1&pe=500000&sf=1&o=1
+OLX links capturados: 10
+OLX links para visitar: 10
+OLX detalhe: https://sp.olx.com.br/sao-paulo-e-regiao/imoveis/apartamento-a-venda-vila-curuca-2-quartos-52-m2-1497752522

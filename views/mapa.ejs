@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MatchImóveis — Mapa</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:#f5f5f5}
+.app{display:flex;height:100vh}
+.sidebar{width:320px;min-width:320px;background:#fff;border-right:1px solid #e8e8e8;display:flex;flex-direction:column}
+.logo{padding:14px 16px;font-size:18px;font-weight:600;border-bottom:1px solid #e8e8e8}
+.logo span{color:#1D9E75}
+.filtros{padding:10px 16px;display:flex;gap:6px;border-bottom:1px solid #e8e8e8}
+.chip{padding:5px 12px;font-size:12px;border-radius:20px;border:1px solid #ddd;background:#fafafa;color:#555;cursor:pointer}
+.chip.ativo{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.contador{padding:8px 16px;font-size:12px;color:#888;border-bottom:1px solid #f0f0f0}
+.contador strong{color:#1D9E75}
+.feed{flex:1;overflow-y:auto}
+.card{padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;border-left:3px solid transparent}
+.card:hover{background:#f9fffe}
+.card.sel{background:#f0fdf8;border-left-color:#1D9E75}
+.card-img{width:100%;height:80px;border-radius:8px;background:#e8f5f0;margin-bottom:8px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card-img img{width:100%;height:100%;object-fit:cover;border-radius:8px}
+.badge{position:absolute;top:6px;right:6px;background:#1D9E75;color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px}
+.tbadge{position:absolute;top:6px;left:6px;font-size:10px;font-weight:500;padding:2px 8px;border-radius:12px}
+.al{background:#e8f5f0;color:#0F6E56}
+.ve{background:#e8f0fb;color:#185FA5}
+.preco{font-size:15px;font-weight:600;color:#111}
+.info{font-size:12px;color:#666;margin-top:2px}
+.det{font-size:12px;color:#888;margin-top:4px}
+.corr{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid #f0f0f0}
+.av{width:24px;height:24px;border-radius:50%;background:#e8f5f0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#0F6E56}
+.cn{font-size:12px;color:#555;flex:1}
+.mo{font-size:11px;color:#BA7517;font-weight:600}
+.tabs{display:flex;border-top:1px solid #e8e8e8}
+.tab{flex:1;padding:10px 4px;font-size:11px;text-align:center;color:#aaa;cursor:pointer}
+.tab.ativo{color:#1D9E75;font-weight:600;border-top:2px solid #1D9E75}
+#mapa{flex:1}
+.legenda{position:absolute;bottom:30px;left:330px;z-index:1000;background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:10px 14px;font-size:12px;color:#555;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.lr{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.lc{width:12px;height:12px;border-radius:50%}
+.leaflet-popup-content-wrapper{border-radius:12px;padding:0;overflow:hidden}
+.leaflet-popup-content{margin:0;width:220px!important}
+.pc{padding:14px}
+.pp{font-size:15px;font-weight:600;color:#111}
+.pa{font-size:12px;color:#666;margin-top:2px}
+.ps{display:flex;gap:12px;margin-top:10px}
+.pst{text-align:center}
+.psv{font-size:14px;font-weight:600;color:#111}
+.psl{font-size:10px;color:#aaa}
+.pm{display:inline-block;background:#e8f5f0;color:#0F6E56;font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;margin-top:8px}
+.pb{display:block;width:100%;margin-top:10px;padding:9px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none}
+.pb:hover{background:#0F6E56}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sidebar">
+  <div class="logo">Match<span>Imóveis</span></div>
+  <div class="filtros">
+    <div class="chip ativo" onclick="ft(this,'')">Todos</div>
+    <div class="chip" onclick="ft(this,'Aluguel')">Alugar</div>
+    <div class="chip" onclick="ft(this,'Venda')">Comprar</div>
+  </div>
+  <div class="contador">Mostrando <strong id="qtd"><%=total%></strong> imóveis</div>
+  <div class="feed" id="feed"></div>
+  <div class="tabs">
+    <div class="tab" onclick="location='/'">🏠 Home</div>
+    <div class="tab ativo">🗺️ Mapa</div>
+    <div class="tab" onclick="location='/app/matches'">❤️ Matches</div>
+    <div class="tab" onclick="location='/app/perfil'">👤 Perfil</div>
+  </div>
+</div>
+<div style="flex:1;position:relative">
+  <div id="mapa"></div>
+  <div class="legenda">
+    <div class="lr"><div class="lc" style="background:#1D9E75"></div>Aluguel</div>
+    <div class="lr"><div class="lc" style="background:#185FA5"></div>Venda</div>
+    <div class="lr"><div class="lc" style="background:#D85A30"></div>Você</div>
+  </div>
+</div>
+</div>
+<script>
+const DATA=<%- imoveisJSON %>;
+const map=L.map('mapa').setView([-26.9078,-48.6658],14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+if(navigator.geolocation)navigator.geolocation.getCurrentPosition(p=>{
+  map.setView([p.coords.latitude,p.coords.longitude],15);
+  L.circleMarker([p.coords.latitude,p.coords.longitude],{radius:10,fillColor:'#D85A30',color:'#fff',weight:3,fillOpacity:1}).addTo(map).bindPopup('<b>Você está aqui</b>');
+});
+const ini=n=>n.split(' ').slice(0,2).map(x=>x[0]).join('').toUpperCase();
+const fp=(v,t)=>t==='Aluguel'?'R$ '+Number(v).toLocaleString('pt-BR')+'/mês':'R$ '+Number(v).toLocaleString('pt-BR');
+const mc=()=>Math.floor(70+Math.random()*25);
+const pins={};
+let tipo='';
+function render(lista){
+  Object.values(pins).forEach(m=>map.removeLayer(m));
+  const feed=document.getElementById('feed');
+  feed.innerHTML='';
+  document.getElementById('qtd').textContent=lista.length;
+  lista.forEach(im=>{
+    const match=mc();
+    const preco=fp(im.preco||im.valor||im.ListPrice||0,im.transacao||im.tipo||'Aluguel');
+    const isV=(im.tipo||im.TransactionType||'')===('Venda');
+    const cor=isV?'#185FA5':'#1D9E75';
+    const bairro=im.bairro||im.Bairro||im.City||'';
+    const end=im.endereco||im.Address||'';
+    const area=im.area||im.areaUtil||im.LivingArea||0;
+    const qtos=im.quartos||im.dormitorios||im.Bedrooms||0;
+    const vagas=im.vagas||im.Garage||0;
+    const corretor=String(im.corretor||im.nomeCorretor||im.ContactName||'Corretor');
+    const tel=(im.telefone||im.Phone||'').replace(/\D/g,'');
+    const lat=parseFloat(im.lat||im.latitude||im.Latitude||-26.9078+(Math.random()-.5)*.05);
+    const lng=parseFloat(im.lng||im.longitude||im.Longitude||-48.6658+(Math.random()-.5)*.05);
+    const html=`<div style="position:relative;display:inline-block"><div style="background:${cor};color:white;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2)">${preco}</div><div style="position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid ${cor}"></div></div>`;
+    const pin=L.marker([lat,lng],{icon:L.divIcon({html,className:'',iconAnchor:[38,28]})}).addTo(map);
+    const wa=tel?`https://wa.me/55${tel}?text=Olá ${corretor}, vi seu imóvel no MatchImóveis`:'#';
+    pin.bindPopup(`<div class="pc"><div class="pp">${preco}</div><div class="pa">${end}${bairro?' — '+bairro:''}</div><div class="ps"><div class="pst"><div class="psv">${area}</div><div class="psl">m²</div></div><div class="pst"><div class="psv">${qtos}</div><div class="psl">quartos</div></div><div class="pst"><div class="psv">${vagas}</div><div class="psl">vagas</div></div></div><span class="pm">${match}% match</span><a class="pb" href="${wa}" target="_blank">WhatsApp ${corretor}</a></div>`,{maxWidth:240});
+    pin.on('click',()=>sel(im.id||im._id||lat));
+    pins[im.id||im._id||lat]=pin;
+    const foto=im.fotos&&im.fotos[0]?`<img src="${im.fotos[0]}" alt="foto"/>`:'<span style="font-size:11px;color:#999">Sem foto</span>';
+    const card=document.createElement('div');
+    card.className='card';card.id='c-'+(im.id||lat);
+    card.innerHTML=`<div class="card-img">${foto}<span class="badge">${match}%</span><span class="tbadge ${isV?'ve':'al'}">${isV?'Venda':'Aluguel'}</span></div><div class="preco">${preco}</div><div class="info">${end}${bairro?' — '+bairro:''}</div><div class="det">📐${area}m² 🛏${qtos}qtos 🚗${vagas}vg</div><div class="corr"><div class="av">${ini(corretor)}</div><div class="cn">${corretor}</div><div class="mo">🪙+${Math.floor(Math.random()*400+100)}</div></div>`;
+    card.onclick=()=>sel(im.id||im._id||lat,lat,lng,pin);
+    feed.appendChild(card);
+  });
+}
+function sel(id,lat,lng,pin){
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('sel'));
+  const c=document.getElementById('c-'+id);
+  if(c){c.classList.add('sel');c.scrollIntoView({behavior:'smooth',block:'nearest'})}
+  if(pin){map.setView([lat,lng],16,{animate:true});pin.openPopup()}
+}
+function ft(el,t){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('ativo'));
+  el.classList.add('ativo');tipo=t;
+  render(t?DATA.filter(i=>(i.tipo||i.TransactionType||'')=== t):DATA);
+}
+render(DATA);
+</script>
+</body>
+</html>

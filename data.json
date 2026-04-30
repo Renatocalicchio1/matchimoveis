@@ -151,7 +151,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:20:35.918Z"
+    "extractedAt": "2026-04-29T23:36:26.556Z"
   },
   {
     "nome": "erika",
@@ -461,7 +461,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:20:47.380Z"
+    "extractedAt": "2026-04-29T23:36:38.965Z"
   },
   {
     "nome": "tamiris",
@@ -750,9 +750,20 @@
       "6": "w",
       "7": "e",
       "8": "b",
-      "extractionStatus": "erro",
-      "error": "page.waitForTimeout: Target page, context or browser has been closed",
-      "url": "https://www.imovelweb.com.br/propiedades/-3004940848.html"
+      "logradouro": "Rua Doutor Albuquerque Lins - lado ímpar",
+      "bairro": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "tipo": "Apartamento",
+      "area_m2": 38,
+      "quartos": 1,
+      "suites": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor_imovel": 345000,
+      "url": "https://www.imovelweb.com.br/propiedades/-3004940848.html",
+      "fonte": "ImovelWeb",
+      "extractionStatus": "bairro_invalido"
     },
     "area_m2": 38,
     "quartos": 1,
@@ -760,7 +771,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:20:53.781Z"
+    "extractedAt": "2026-04-29T23:36:52.311Z"
   },
   {
     "nome": "Conceição",
@@ -780,8 +791,29 @@
     "matches": [],
     "createdAt": "2026-04-29T03:20:55.897Z",
     "origin": {
-      "extractionStatus": "erro_extracao",
-      "error": "browser.newPage: Target page, context or browser has been closed"
+      "0": "i",
+      "1": "m",
+      "2": "o",
+      "3": "v",
+      "4": "e",
+      "5": "l",
+      "6": "w",
+      "7": "e",
+      "8": "b",
+      "logradouro": "Rua Iru",
+      "bairro": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "tipo": "Apartamento",
+      "area_m2": 61,
+      "quartos": 3,
+      "suites": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor_imovel": 435000,
+      "url": "https://www.imovelweb.com.br/propiedades/-3008634852.html",
+      "fonte": "ImovelWeb",
+      "extractionStatus": "bairro_invalido"
     },
     "area_m2": 61,
     "quartos": 3,
@@ -789,7 +821,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:20:53.796Z"
+    "extractedAt": "2026-04-29T23:37:05.543Z"
   },
   {
     "nome": "giullianno",
@@ -961,7 +993,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:17:05.939Z"
+    "extractedAt": "2026-04-29T23:37:18.558Z"
   },
   {
     "nome": "Ritasiva Sousa",
@@ -1063,7 +1095,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:17:19.202Z"
+    "extractedAt": "2026-04-29T23:37:31.349Z"
   },
   {
     "nome": "FABIO SANTOS FEITOSA",
@@ -1125,7 +1157,7 @@
     "id": "3015878364",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Americanópolis",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 292000,
@@ -1144,9 +1176,20 @@
       "6": "w",
       "7": "e",
       "8": "b",
-      "extractionStatus": "erro",
-      "error": "page.waitForTimeout: Target page, context or browser has been closed",
-      "url": "https://www.imovelweb.com.br/propiedades/-3015878364.html"
+      "logradouro": "Rua Pastor Rubens Lopes",
+      "bairro": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "tipo": "Apartamento",
+      "area_m2": 52,
+      "quartos": 2,
+      "suites": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor_imovel": 292000,
+      "url": "https://www.imovelweb.com.br/propiedades/-3015878364.html",
+      "fonte": "ImovelWeb",
+      "extractionStatus": "bairro_invalido"
     },
     "area_m2": 52,
     "quartos": 2,
@@ -1154,7 +1197,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:17:31.177Z"
+    "extractedAt": "2026-04-29T23:37:43.995Z"
   },
   {
     "nome": "Iná",
@@ -1183,9 +1226,20 @@
       "6": "w",
       "7": "e",
       "8": "b",
-      "extractionStatus": "erro",
-      "error": "page.waitForTimeout: Target page, context or browser has been closed",
-      "url": "https://www.imovelweb.com.br/propiedades/-3009571198.html"
+      "logradouro": "Rua Senador César Lacerda Vergueiro - lado par",
+      "bairro": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "tipo": "Apartamento",
+      "area_m2": 851,
+      "quartos": 0,
+      "suites": 0,
+      "banheiros": 2,
+      "vagas": 0,
+      "valor_imovel": 17509855,
+      "url": "https://www.imovelweb.com.br/propiedades/-3009571198.html",
+      "fonte": "ImovelWeb",
+      "extractionStatus": "bairro_invalido"
     },
     "area_m2": 851,
     "quartos": 0,
@@ -1193,7 +1247,7 @@
     "banheiros": 2,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:17:35.868Z"
+    "extractedAt": "2026-04-29T23:37:55.568Z"
   },
   {
     "nome": "Maycon",
@@ -1213,8 +1267,29 @@
     "matches": [],
     "createdAt": "2026-04-29T03:30:40.485Z",
     "origin": {
-      "extractionStatus": "erro_extracao",
-      "error": "browser.newPage: Target page, context or browser has been closed"
+      "0": "i",
+      "1": "m",
+      "2": "o",
+      "3": "v",
+      "4": "e",
+      "5": "l",
+      "6": "w",
+      "7": "e",
+      "8": "b",
+      "logradouro": "Rua Ilha da Juventude (Cj Hab Brasilândia B)",
+      "bairro": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "tipo": "Apartamento",
+      "area_m2": 43,
+      "quartos": 2,
+      "suites": 0,
+      "banheiros": 1,
+      "vagas": 3,
+      "valor_imovel": 180000,
+      "url": "https://www.imovelweb.com.br/propiedades/-3015553263.html",
+      "fonte": "ImovelWeb",
+      "extractionStatus": "bairro_invalido"
     },
     "area_m2": 43,
     "quartos": 2,
@@ -1222,7 +1297,7 @@
     "banheiros": 1,
     "vagas": 3,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:17:35.886Z"
+    "extractedAt": "2026-04-29T23:38:08.920Z"
   },
   {
     "nome": "Paula Corti",
@@ -1272,7 +1347,7 @@
     "banheiros": 5,
     "vagas": 4,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:39:47.512Z"
+    "extractedAt": "2026-04-29T23:38:22.693Z"
   },
   {
     "nome": "Leticia Salú",
@@ -1511,11 +1586,11 @@
       "8": "b",
       "logradouro": "",
       "bairro": "",
-      "cidade": "",
-      "estado": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
       "tipo": "Casa",
       "area_m2": 0,
-      "quartos": 1,
+      "quartos": 0,
       "suites": 0,
       "banheiros": 0,
       "vagas": 0,
@@ -1530,7 +1605,7 @@
     "banheiros": 0,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:40:48.919Z"
+    "extractedAt": "2026-04-29T23:38:34.612Z"
   },
   {
     "nome": "Maristella",
@@ -1684,7 +1759,7 @@
     "banheiros": 3,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:41:26.066Z"
+    "extractedAt": "2026-04-29T23:38:48.254Z"
   },
   {
     "nome": "ELENICE ROSA PACCI",
@@ -1850,7 +1925,7 @@
     "id": "3019985989",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Ipiranga",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 310000,
@@ -1890,7 +1965,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:42:15.005Z"
+    "extractedAt": "2026-04-29T23:39:01.783Z"
   },
   {
     "nome": "Maristella Mendonça",
@@ -2025,8 +2100,8 @@
       "8": "b",
       "logradouro": "",
       "bairro": "",
-      "cidade": "",
-      "estado": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
       "tipo": "Apartamento",
       "area_m2": 0,
       "quartos": 2,
@@ -2044,7 +2119,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:42:49.305Z"
+    "extractedAt": "2026-04-29T23:39:13.427Z"
   },
   {
     "nome": "isabella",
@@ -2094,7 +2169,7 @@
     "banheiros": 2,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:43:01.671Z"
+    "extractedAt": "2026-04-29T23:39:26.181Z"
   },
   {
     "nome": "claudia",
@@ -2208,7 +2283,7 @@
     "id": "3015777306",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Santa Lucrecia",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 190000,
@@ -2248,7 +2323,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:43:40.110Z"
+    "extractedAt": "2026-04-29T23:39:38.863Z"
   },
   {
     "nome": "Moises Cavalcante gomes",
@@ -2258,7 +2333,7 @@
     "id": "3029298601",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "São Paulo",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 333000,
@@ -2298,7 +2373,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:43:53.052Z"
+    "extractedAt": "2026-04-29T23:39:51.806Z"
   },
   {
     "nome": "marcelo mendes pereira",
@@ -2452,7 +2527,7 @@
     "banheiros": 2,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:44:28.573Z"
+    "extractedAt": "2026-04-29T23:40:05.030Z"
   },
   {
     "nome": "Claudio de Almeida",
@@ -2483,11 +2558,11 @@
       "8": "b",
       "logradouro": "",
       "bairro": "",
-      "cidade": "",
-      "estado": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
       "tipo": "Casa",
       "area_m2": 0,
-      "quartos": 1,
+      "quartos": 0,
       "suites": 0,
       "banheiros": 0,
       "vagas": 0,
@@ -2502,7 +2577,7 @@
     "banheiros": 0,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:44:40.904Z"
+    "extractedAt": "2026-04-29T23:40:18.092Z"
   },
   {
     "nome": "Isio",
@@ -2512,7 +2587,7 @@
     "id": "3021179223",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Paraíso",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 620000,
@@ -2552,7 +2627,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:44:53.031Z"
+    "extractedAt": "2026-04-29T23:40:31.910Z"
   },
   {
     "nome": "Jacira",
@@ -2654,7 +2729,7 @@
     "banheiros": 1,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:45:18.564Z"
+    "extractedAt": "2026-04-29T23:40:45.022Z"
   },
   {
     "nome": "MARCOS SALLES DA SILVA",
@@ -2756,7 +2831,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:45:43.838Z"
+    "extractedAt": "2026-04-29T23:40:58.249Z"
   },
   {
     "nome": "ANDRE",
@@ -2806,7 +2881,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:45:56.134Z"
+    "extractedAt": "2026-04-29T23:41:11.013Z"
   },
   {
     "nome": "adriana",
@@ -2941,11 +3016,11 @@
       "8": "b",
       "logradouro": "",
       "bairro": "",
-      "cidade": "",
-      "estado": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
       "tipo": "Casa",
       "area_m2": 0,
-      "quartos": 3,
+      "quartos": 0,
       "suites": 0,
       "banheiros": 0,
       "vagas": 0,
@@ -2960,7 +3035,7 @@
     "banheiros": 0,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:46:31.531Z"
+    "extractedAt": "2026-04-29T23:41:23.917Z"
   },
   {
     "nome": "Lucas Silva Ribeiro",
@@ -3062,7 +3137,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:46:56.637Z"
+    "extractedAt": "2026-04-29T23:41:37.177Z"
   },
   {
     "nome": "Chrystian Andrade de Araújo",
@@ -3093,11 +3168,11 @@
       "8": "b",
       "logradouro": "",
       "bairro": "",
-      "cidade": "",
-      "estado": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
       "tipo": "Casa",
       "area_m2": 0,
-      "quartos": 2,
+      "quartos": 0,
       "suites": 0,
       "banheiros": 0,
       "vagas": 0,
@@ -3112,7 +3187,7 @@
     "banheiros": 0,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:47:08.714Z"
+    "extractedAt": "2026-04-29T23:41:49.786Z"
   },
   {
     "nome": "GISELLE",
@@ -3247,8 +3322,8 @@
       "8": "b",
       "logradouro": "",
       "bairro": "",
-      "cidade": "",
-      "estado": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
       "tipo": "Casa",
       "area_m2": 60,
       "quartos": 2,
@@ -3266,7 +3341,7 @@
     "banheiros": 0,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:47:44.204Z"
+    "extractedAt": "2026-04-29T23:42:02.840Z"
   },
   {
     "nome": "thamirez coutinho",
@@ -3316,7 +3391,7 @@
     "banheiros": 3,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:47:56.958Z"
+    "extractedAt": "2026-04-29T23:42:15.675Z"
   },
   {
     "nome": "MARIA ELOISA DA SILVA",
@@ -3366,7 +3441,7 @@
     "banheiros": 3,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:48:09.692Z"
+    "extractedAt": "2026-04-29T23:42:28.998Z"
   },
   {
     "nome": "Isabell",
@@ -3468,7 +3543,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:48:35.786Z"
+    "extractedAt": "2026-04-29T23:42:42.051Z"
   },
   {
     "nome": "Gilmar",
@@ -3530,7 +3605,7 @@
     "id": "3015502291",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Aparecida",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 205000,
@@ -3570,7 +3645,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:49:02.601Z"
+    "extractedAt": "2026-04-29T23:42:55.348Z"
   },
   {
     "nome": "Gilmar",
@@ -3672,7 +3747,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:49:27.229Z"
+    "extractedAt": "2026-04-29T23:43:08.202Z"
   },
   {
     "nome": "Enderson",
@@ -3734,7 +3809,7 @@
     "id": "3023536737",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jurubatuba",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 288000,
@@ -3774,7 +3849,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:49:51.777Z"
+    "extractedAt": "2026-04-29T23:43:21.709Z"
   },
   {
     "nome": "Fabiana",
@@ -3824,7 +3899,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:50:04.064Z"
+    "extractedAt": "2026-04-29T23:43:35.086Z"
   },
   {
     "nome": "Debora Zioli",
@@ -3874,7 +3949,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:50:17.293Z"
+    "extractedAt": "2026-04-29T23:43:48.275Z"
   },
   {
     "nome": "Yuri",
@@ -3976,7 +4051,7 @@
     "banheiros": 2,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:50:42.164Z"
+    "extractedAt": "2026-04-29T23:44:01.801Z"
   },
   {
     "nome": "Thays",
@@ -4026,7 +4101,7 @@
     "banheiros": 4,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:50:54.799Z"
+    "extractedAt": "2026-04-29T23:44:14.640Z"
   },
   {
     "nome": "Henrique",
@@ -4036,7 +4111,7 @@
     "id": "3023511194",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Regina",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 320000,
@@ -4076,7 +4151,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:51:07.523Z"
+    "extractedAt": "2026-04-29T23:44:28.070Z"
   },
   {
     "nome": "Fernanda",
@@ -4126,7 +4201,7 @@
     "banheiros": 4,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:51:20.031Z"
+    "extractedAt": "2026-04-29T23:44:40.475Z"
   },
   {
     "nome": "Julio",
@@ -4176,7 +4251,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:51:33.092Z"
+    "extractedAt": "2026-04-29T23:44:52.634Z"
   },
   {
     "nome": "Juliana Gallo",
@@ -4330,7 +4405,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:52:09.788Z"
+    "extractedAt": "2026-04-29T23:45:05.925Z"
   },
   {
     "nome": "Adrian Ferraz Cardoso Lopes",
@@ -4432,7 +4507,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:52:35.029Z"
+    "extractedAt": "2026-04-29T23:45:19.541Z"
   },
   {
     "nome": "Yuri",
@@ -4482,7 +4557,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:52:48.095Z"
+    "extractedAt": "2026-04-29T23:45:33.139Z"
   },
   {
     "nome": "Gustavo",
@@ -4584,7 +4659,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:53:13.670Z"
+    "extractedAt": "2026-04-29T23:45:46.005Z"
   },
   {
     "nome": "Daniel",
@@ -4634,7 +4709,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:53:26.378Z"
+    "extractedAt": "2026-04-29T23:45:59.126Z"
   },
   {
     "nome": "Gerson",
@@ -4736,7 +4811,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:53:50.944Z"
+    "extractedAt": "2026-04-29T23:46:12.258Z"
   },
   {
     "nome": "Everson",
@@ -4786,7 +4861,7 @@
     "banheiros": 3,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:54:03.568Z"
+    "extractedAt": "2026-04-29T23:46:25.204Z"
   },
   {
     "nome": "Adri",
@@ -4888,7 +4963,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:54:29.444Z"
+    "extractedAt": "2026-04-29T23:46:36.675Z"
   },
   {
     "nome": "lucia",
@@ -4938,7 +5013,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:54:42.583Z"
+    "extractedAt": "2026-04-29T23:46:49.671Z"
   },
   {
     "nome": "michael",
@@ -5040,7 +5115,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:55:06.957Z"
+    "extractedAt": "2026-04-29T23:47:02.312Z"
   },
   {
     "nome": "Andre Neres",
@@ -5090,7 +5165,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:55:19.552Z"
+    "extractedAt": "2026-04-29T23:47:15.392Z"
   },
   {
     "nome": "Mayara",
@@ -5192,7 +5267,7 @@
     "banheiros": 3,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:55:44.339Z"
+    "extractedAt": "2026-04-29T23:47:28.173Z"
   },
   {
     "nome": "Juliana Mir Tonello",
@@ -5242,7 +5317,7 @@
     "banheiros": 3,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:55:57.613Z"
+    "extractedAt": "2026-04-29T23:47:41.448Z"
   },
   {
     "nome": "Sandra Helena",
@@ -5252,7 +5327,7 @@
     "id": "3015551433",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Umuarama",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 215000,
@@ -5292,7 +5367,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:56:10.156Z"
+    "extractedAt": "2026-04-29T23:47:55.012Z"
   },
   {
     "nome": "Claudemir Benassi",
@@ -5448,7 +5523,7 @@
     "banheiros": 5,
     "vagas": 3,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:56:47.441Z"
+    "extractedAt": "2026-04-29T23:48:07.805Z"
   },
   {
     "nome": "Marcelo da Silva Santana",
@@ -5498,7 +5573,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:57:00.627Z"
+    "extractedAt": "2026-04-29T23:48:20.400Z"
   },
   {
     "nome": "Gabriela",
@@ -5601,7 +5676,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:57:24.472Z"
+    "extractedAt": "2026-04-29T23:48:33.328Z"
   },
   {
     "nome": "RITA de Cássia Pires de Sousa",
@@ -5704,7 +5779,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:57:49.111Z"
+    "extractedAt": "2026-04-29T23:48:46.136Z"
   },
   {
     "nome": "Sidnei",
@@ -5807,7 +5882,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:58:13.911Z"
+    "extractedAt": "2026-04-29T23:48:58.885Z"
   },
   {
     "nome": "Rafael Bolonha",
@@ -5857,7 +5932,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:58:26.476Z"
+    "extractedAt": "2026-04-29T23:49:12.046Z"
   },
   {
     "nome": "MICHELLY AIRES",
@@ -5920,7 +5995,7 @@
     "id": "3016784667",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Cidade Tiradentes",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 200000,
@@ -5960,7 +6035,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:58:50.473Z"
+    "extractedAt": "2026-04-29T23:49:25.835Z"
   },
   {
     "nome": "Maria Christina de Amorim",
@@ -6063,7 +6138,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:59:15.415Z"
+    "extractedAt": "2026-04-29T23:49:39.433Z"
   },
   {
     "nome": "Rafaela",
@@ -6126,7 +6201,7 @@
     "id": "3023417864",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Madalena",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 300000,
@@ -6166,7 +6241,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:59:39.802Z"
+    "extractedAt": "2026-04-29T23:49:51.400Z"
   },
   {
     "nome": "fabio",
@@ -6216,7 +6291,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T14:59:51.960Z"
+    "extractedAt": "2026-04-29T23:50:04.726Z"
   },
   {
     "nome": "Luan Alves",
@@ -6279,7 +6354,7 @@
     "id": "3015859804",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Centro Histórico de São Paulo",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 245000,
@@ -6319,7 +6394,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:00:15.989Z"
+    "extractedAt": "2026-04-29T23:50:18.016Z"
   },
   {
     "nome": "Gustavo",
@@ -6422,7 +6497,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:00:42.125Z"
+    "extractedAt": "2026-04-29T23:50:31.931Z"
   },
   {
     "nome": "Fabiana Silva",
@@ -6684,7 +6759,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:01:42.270Z"
+    "extractedAt": "2026-04-29T23:50:44.514Z"
   },
   {
     "nome": "inês José dos Santos",
@@ -6734,7 +6809,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:01:54.778Z"
+    "extractedAt": "2026-04-29T23:50:57.883Z"
   },
   {
     "nome": "Cadu Previero",
@@ -6784,7 +6859,7 @@
     "banheiros": 3,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:02:07.294Z"
+    "extractedAt": "2026-04-29T23:51:10.695Z"
   },
   {
     "nome": "Cintia",
@@ -7063,7 +7138,7 @@
     "banheiros": 3,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:02:57.126Z"
+    "extractedAt": "2026-04-29T23:51:23.690Z"
   },
   {
     "nome": "Ivison",
@@ -7113,7 +7188,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:03:09.638Z"
+    "extractedAt": "2026-04-29T23:51:37.526Z"
   },
   {
     "nome": "Claudineia",
@@ -7123,7 +7198,7 @@
     "id": "3021805900",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Santa Monica",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 220000,
@@ -7163,7 +7238,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:03:22.080Z"
+    "extractedAt": "2026-04-29T23:51:50.956Z"
   },
   {
     "nome": "Andre Neres",
@@ -7226,7 +7301,7 @@
     "id": "3015777393",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Itaim Paulista",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 287000,
@@ -7266,7 +7341,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:03:45.881Z"
+    "extractedAt": "2026-04-29T23:52:03.930Z"
   },
   {
     "nome": "Guilherme Souza Andrade",
@@ -7329,7 +7404,7 @@
     "id": "3015527247",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Parque Dom Joao Neri",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 290000,
@@ -7369,7 +7444,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:04:10.909Z"
+    "extractedAt": "2026-04-29T23:52:17.823Z"
   },
   {
     "nome": "CAIQUE",
@@ -7379,7 +7454,7 @@
     "id": "3023823922",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Aparecida",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 205000,
@@ -7419,7 +7494,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:04:23.846Z"
+    "extractedAt": "2026-04-29T23:52:31.211Z"
   },
   {
     "nome": "Andre Neres",
@@ -7469,7 +7544,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:04:36.384Z"
+    "extractedAt": "2026-04-29T23:52:44.001Z"
   },
   {
     "nome": "Daniel",
@@ -7479,7 +7554,7 @@
     "id": "3015850844",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Rodolfo Pirani",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 100000,
@@ -7519,7 +7594,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:04:48.629Z"
+    "extractedAt": "2026-04-29T23:52:56.433Z"
   },
   {
     "nome": "Alberto francisco",
@@ -7529,7 +7604,7 @@
     "id": "3015524426",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Marilu",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 130000,
@@ -7569,7 +7644,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:05:01.198Z"
+    "extractedAt": "2026-04-29T23:53:09.395Z"
   },
   {
     "nome": "Victor",
@@ -7759,8 +7834,8 @@
       "8": "b",
       "logradouro": "",
       "bairro": "",
-      "cidade": "",
-      "estado": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
       "tipo": "Casa",
       "area_m2": 0,
       "quartos": 2,
@@ -7780,7 +7855,7 @@
     "extractionStatus": "bairro_invalido",
     "matchProcessed": true,
     "matchedAt": "2026-04-29T10:10:35.730Z",
-    "extractedAt": "2026-04-29T15:05:46.994Z"
+    "extractedAt": "2026-04-29T23:53:22.047Z"
   },
   {
     "nome": "Marcelo Melo",
@@ -7830,7 +7905,7 @@
     "banheiros": 4,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:05:59.808Z"
+    "extractedAt": "2026-04-29T23:53:35.907Z"
   },
   {
     "nome": "Rene Queiroz",
@@ -7951,7 +8026,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:06:24.288Z"
+    "extractedAt": "2026-04-29T23:53:48.932Z"
   },
   {
     "nome": "Lygia",
@@ -7961,7 +8036,7 @@
     "id": "3021179295",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Centro",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 235000,
@@ -8001,7 +8076,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:06:37.571Z"
+    "extractedAt": "2026-04-29T23:54:02.067Z"
   },
   {
     "nome": "Mônica oni",
@@ -8104,7 +8179,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:07:02.212Z"
+    "extractedAt": "2026-04-29T23:54:15.255Z"
   },
   {
     "nome": "José Neto",
@@ -8220,7 +8295,7 @@
     "id": "3016190553",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Água Fria",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 615000,
@@ -8260,7 +8335,7 @@
     "banheiros": 1,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:07:38.172Z"
+    "extractedAt": "2026-04-29T23:54:28.061Z"
   },
   {
     "nome": "Carolina",
@@ -8270,7 +8345,7 @@
     "id": "3015501597",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila da Saúde",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 650000,
@@ -8310,7 +8385,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:07:50.748Z"
+    "extractedAt": "2026-04-29T23:54:42.262Z"
   },
   {
     "nome": "Joao carlos Giannoni",
@@ -8393,8 +8468,8 @@
       "8": "b",
       "logradouro": "",
       "bairro": "",
-      "cidade": "",
-      "estado": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
       "tipo": "Casa",
       "area_m2": 0,
       "quartos": 0,
@@ -8414,7 +8489,7 @@
     "extractionStatus": "bairro_invalido",
     "matchProcessed": true,
     "matchedAt": "2026-04-29T10:23:45.970Z",
-    "extractedAt": "2026-04-29T15:08:15.217Z"
+    "extractedAt": "2026-04-29T23:54:54.903Z"
   },
   {
     "nome": "Antônio Carlos Barbosa",
@@ -8583,7 +8658,7 @@
     "id": "3023424592",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Pinheiros",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 518000,
@@ -8623,7 +8698,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:09:03.526Z"
+    "extractedAt": "2026-04-29T23:55:11.795Z"
   },
   {
     "nome": "Gislene",
@@ -8673,7 +8748,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:09:15.977Z"
+    "extractedAt": "2026-04-29T23:55:24.840Z"
   },
   {
     "nome": "Jose",
@@ -8723,7 +8798,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:09:28.846Z"
+    "extractedAt": "2026-04-29T23:55:38.026Z"
   },
   {
     "nome": "Vania Carvalho",
@@ -8773,7 +8848,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:09:41.555Z"
+    "extractedAt": "2026-04-29T23:55:51.378Z"
   },
   {
     "nome": "Felipe",
@@ -8823,7 +8898,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:09:53.690Z"
+    "extractedAt": "2026-04-29T23:56:03.954Z"
   },
   {
     "nome": "Ilona",
@@ -8833,7 +8908,7 @@
     "id": "3021869980",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Perdizes",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 1026000,
@@ -8873,7 +8948,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:10:06.424Z"
+    "extractedAt": "2026-04-29T23:56:16.580Z"
   },
   {
     "nome": "Ilona",
@@ -8923,7 +8998,7 @@
     "banheiros": 3,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:10:18.637Z"
+    "extractedAt": "2026-04-29T23:56:29.532Z"
   },
   {
     "nome": "jessica",
@@ -8973,7 +9048,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:10:30.531Z"
+    "extractedAt": "2026-04-29T23:56:44.292Z"
   },
   {
     "nome": "Aparecida Simoncello",
@@ -9076,7 +9151,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:10:54.685Z"
+    "extractedAt": "2026-04-29T23:56:57.350Z"
   },
   {
     "nome": "Andressa Nunes",
@@ -9298,7 +9373,7 @@
     "id": "3015500886",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Nove de Julho",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 224000,
@@ -9338,7 +9413,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:11:55.074Z"
+    "extractedAt": "2026-04-29T23:57:10.286Z"
   },
   {
     "nome": "Andre",
@@ -9388,7 +9463,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:12:07.295Z"
+    "extractedAt": "2026-04-29T23:57:23.162Z"
   },
   {
     "nome": "THIAGO JOSE VICHINESKI",
@@ -9438,7 +9513,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:12:19.890Z"
+    "extractedAt": "2026-04-29T23:57:36.170Z"
   },
   {
     "nome": "Eduardo",
@@ -9540,7 +9615,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:12:44.252Z"
+    "extractedAt": "2026-04-29T23:57:49.277Z"
   },
   {
     "nome": "ALICE RODRIGUES FREITAS",
@@ -9603,7 +9678,7 @@
     "id": "3023538211",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim dos Lagos",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 880000,
@@ -9643,7 +9718,7 @@
     "banheiros": 3,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:13:10.829Z"
+    "extractedAt": "2026-04-29T23:58:01.554Z"
   },
   {
     "nome": "Marcos Antonio",
@@ -9693,7 +9768,7 @@
     "banheiros": 3,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:13:23.283Z"
+    "extractedAt": "2026-04-29T23:58:15.017Z"
   },
   {
     "nome": "Rodrigo Kras",
@@ -9703,7 +9778,7 @@
     "id": "3031432312",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Anastácio",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 535000,
@@ -9743,7 +9818,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:13:37.445Z"
+    "extractedAt": "2026-04-29T23:58:27.725Z"
   },
   {
     "nome": "Raquel",
@@ -9753,7 +9828,7 @@
     "id": "3026981236",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Parque da Mooca",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 1400000,
@@ -9793,7 +9868,7 @@
     "banheiros": 4,
     "vagas": 3,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:13:50.555Z"
+    "extractedAt": "2026-04-29T23:58:43.007Z"
   },
   {
     "nome": "Gaia",
@@ -9843,7 +9918,7 @@
     "banheiros": 2,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:14:02.843Z"
+    "extractedAt": "2026-04-29T23:58:56.127Z"
   },
   {
     "nome": "Ladyane",
@@ -9893,7 +9968,7 @@
     "banheiros": 4,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:14:15.964Z"
+    "extractedAt": "2026-04-29T23:59:09.144Z"
   },
   {
     "nome": "Ladyane",
@@ -9943,7 +10018,7 @@
     "banheiros": 4,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:14:30.009Z"
+    "extractedAt": "2026-04-29T23:59:22.928Z"
   },
   {
     "nome": "Rafael",
@@ -10006,7 +10081,7 @@
     "id": "3023536338",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Trussardi",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 410000,
@@ -10046,7 +10121,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:14:55.423Z"
+    "extractedAt": "2026-04-29T23:59:36.053Z"
   },
   {
     "nome": "cassia",
@@ -10096,7 +10171,7 @@
     "banheiros": 1,
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:15:08.519Z"
+    "extractedAt": "2026-04-29T23:59:49.570Z"
   },
   {
     "nome": "Matheus Cesar do Amaral",
@@ -10146,7 +10221,7 @@
     "banheiros": 1,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:15:23.629Z"
+    "extractedAt": "2026-04-30T00:00:02.413Z"
   },
   {
     "nome": "joel",
@@ -10196,7 +10271,7 @@
     "banheiros": 3,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:15:36.365Z"
+    "extractedAt": "2026-04-30T00:00:15.722Z"
   },
   {
     "nome": "Tania",
@@ -10225,9 +10300,20 @@
       "6": "w",
       "7": "e",
       "8": "b",
-      "extractionStatus": "erro",
-      "error": "page.waitForTimeout: Target page, context or browser has been closed",
-      "url": "https://www.imovelweb.com.br/propiedades/-3011256098.html"
+      "logradouro": "Avenida Giovanni Gronchi - de 6633 ao fim - lado ímpar",
+      "bairro": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "tipo": "Apartamento",
+      "area_m2": 63,
+      "quartos": 3,
+      "suites": 0,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor_imovel": 399000,
+      "url": "https://www.imovelweb.com.br/propiedades/-3011256098.html",
+      "fonte": "ImovelWeb",
+      "extractionStatus": "bairro_invalido"
     },
     "area_m2": 63,
     "quartos": 3,
@@ -10235,7 +10321,7 @@
     "banheiros": 2,
     "vagas": 2,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:15:43.465Z"
+    "extractedAt": "2026-04-30T00:00:28.677Z"
   },
   {
     "nome": "ELIANE",
@@ -10255,8 +10341,29 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:31.894Z",
     "origin": {
-      "extractionStatus": "erro_extracao",
-      "error": "browser.newPage: Target page, context or browser has been closed"
+      "0": "i",
+      "1": "m",
+      "2": "o",
+      "3": "v",
+      "4": "e",
+      "5": "l",
+      "6": "w",
+      "7": "e",
+      "8": "b",
+      "logradouro": "Rua Vladimir Jorge",
+      "bairro": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "tipo": "Casa",
+      "area_m2": 233,
+      "quartos": 10,
+      "suites": 0,
+      "banheiros": 5,
+      "vagas": 1,
+      "valor_imovel": 849000,
+      "url": "https://www.imovelweb.com.br/propiedades/-3008633670.html",
+      "fonte": "ImovelWeb",
+      "extractionStatus": "bairro_invalido"
     },
     "area_m2": 233,
     "quartos": 10,
@@ -10264,7 +10371,7 @@
     "banheiros": 5,
     "vagas": 1,
     "extractionStatus": "bairro_invalido",
-    "extractedAt": "2026-04-29T15:15:43.504Z"
+    "extractedAt": "2026-04-30T00:00:40.822Z"
   },
   {
     "nome": "Antonio Eduardo",
@@ -10342,42 +10449,37 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:31.911Z",
     "origin": {
-      "nome": "Kawan",
-      "email": "kawan.kr25@gmail.com",
-      "contato": "11954706902",
-      "telefone2": "11954706902",
-      "id": "3031429764",
-      "estado": "SP",
-      "cidade": "São Paulo",
+      "0": "i",
+      "1": "m",
+      "2": "o",
+      "3": "v",
+      "4": "e",
+      "5": "l",
+      "6": "w",
+      "7": "e",
+      "8": "b",
+      "logradouro": "Avenida Diógenes Ribeiro de Lima - de 671/672 a 2619/2620",
       "bairro": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
       "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 450000,
-      "titulo": "ADPDRDL 1830 Apto 602101011-261",
-      "url": "https://www.imovelweb.com.br/propiedades/-3031429764.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:31.911Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3031429764.html"
-      },
       "area_m2": 71,
       "quartos": 3,
       "suites": 0,
       "banheiros": 1,
       "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Avenida Diógenes Ribeiro de Lima - de 671/672 a 2619/2620",
-      "fonte": "ImovelWeb"
+      "valor_imovel": 450000,
+      "url": "https://www.imovelweb.com.br/propiedades/-3031429764.html",
+      "fonte": "ImovelWeb",
+      "extractionStatus": "bairro_invalido"
     },
     "area_m2": 71,
     "quartos": 3,
     "suites": 0,
     "banheiros": 1,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:00:54.211Z"
   },
   {
     "nome": "Paula",
@@ -10387,7 +10489,7 @@
     "id": "3019985611",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Bela",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 450000,
@@ -10397,42 +10499,37 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:31.917Z",
     "origin": {
-      "nome": "Paula",
-      "email": "paula_souzamp@hotmail.com",
-      "contato": "11963618617",
-      "telefone2": "",
-      "id": "3019985611",
-      "estado": "SP",
-      "cidade": "São Paulo",
+      "0": "i",
+      "1": "m",
+      "2": "o",
+      "3": "v",
+      "4": "e",
+      "5": "l",
+      "6": "w",
+      "7": "e",
+      "8": "b",
+      "logradouro": "Rua Doutor Vicente Giacaglini",
       "bairro": "",
+      "cidade": "São Paulo",
+      "estado": "SP",
       "tipo": "Casa",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 450000,
-      "titulo": "Casa em Condomínio de 92 m², 2 quartos em Vila Bela, São Paulo",
-      "url": "https://www.imovelweb.com.br/propiedades/-3019985611.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:31.917Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3019985611.html"
-      },
       "area_m2": 92,
       "quartos": 2,
       "suites": 2,
       "banheiros": 3,
       "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Doutor Vicente Giacaglini",
-      "fonte": "ImovelWeb"
+      "valor_imovel": 450000,
+      "url": "https://www.imovelweb.com.br/propiedades/-3019985611.html",
+      "fonte": "ImovelWeb",
+      "extractionStatus": "bairro_invalido"
     },
     "area_m2": 92,
     "quartos": 2,
     "suites": 2,
     "banheiros": 3,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:07.520Z"
   },
   {
     "nome": "Priscilla",
@@ -10452,42 +10549,26 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:31.926Z",
     "origin": {
-      "nome": "Priscilla",
-      "email": "prissanttos876@gmail.com",
-      "contato": "11916070807",
-      "telefone2": "11916070807",
-      "id": "3024219262",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 130000,
-      "titulo": "Apartamento com 2 quartos, Jardim Eledy - São Paulo",
-      "url": "https://www.imovelweb.com.br/propiedades/-3024219262.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:31.926Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3024219262.html"
-      },
-      "area_m2": 56,
-      "quartos": 2,
-      "suites": 0,
-      "banheiros": 1,
-      "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Emílio Conesa",
-      "fonte": "ImovelWeb"
+      "0": "i",
+      "1": "m",
+      "2": "o",
+      "3": "v",
+      "4": "e",
+      "5": "l",
+      "6": "w",
+      "7": "e",
+      "8": "b",
+      "extractionStatus": "erro",
+      "error": "page.waitForTimeout: Target page, context or browser has been closed",
+      "url": "https://www.imovelweb.com.br/propiedades/-3024219262.html"
     },
     "area_m2": 56,
     "quartos": 2,
     "suites": 0,
     "banheiros": 1,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:13.972Z"
   },
   {
     "nome": "Ademilson Moura",
@@ -10507,42 +10588,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:31.933Z",
     "origin": {
-      "nome": "Ademilson Moura",
-      "email": "mouralight@hotmail.com",
-      "contato": "11947956804",
-      "telefone2": "11947956804",
-      "id": "3005658179",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 214999,
-      "titulo": "Apartamento tipo para venda com 2 quartos, 46m²",
-      "url": "https://www.imovelweb.com.br/propiedades/-3005658179.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:31.933Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3005658179.html"
-      },
-      "area_m2": 46,
-      "quartos": 2,
-      "suites": 0,
-      "banheiros": 1,
-      "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Estrada Turística do Jaraguá",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed\nBrowser logs:\n\n[pid=35012][err] [35018:775:0429/210109.630172:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.664211:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.691672:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.731853:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.752680:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.799517:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.814900:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.845998:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.881983:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.907244:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.948734:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.968091:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210109.998724:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.030030:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.065306:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.090907:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.132181:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.152534:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.198914:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.214594:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.245517:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.282240:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.305829:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.348926:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.366988:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.398503:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.429889:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.468568:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.489710:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.499256:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.522869:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.574109:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.590692:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.624125:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.657581:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.691437:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.697125:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.705134:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.717814:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.757216:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.781723:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.821386:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.841558:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.860091:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.907683:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.924362:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.945073:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.974614:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210110.983229:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.011569:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.057865:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.092194:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.125349:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.141953:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.163556:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.208575:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.224480:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.276364:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.307884:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.324861:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.346680:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.391580:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.408379:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.458898:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.475273:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.524692:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.532833:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.559868:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.608480:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.625015:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.658927:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.691629:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.712612:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.759398:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.774874:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.825406:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.841805:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.858392:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.875153:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.893733:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.942253:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.959900:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210111.976548:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.008394:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.025225:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.044801:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.091971:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.108541:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.158931:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.174835:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.209092:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.242494:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.275238:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.292211:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.325652:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.341985:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.370943:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.398636:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.441681:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.458612:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.503127:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.526652:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.558952:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.581041:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.626129:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.642123:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.692492:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.709303:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.742390:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.764201:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.810003:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.825652:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.876762:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.894266:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.925970:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.947656:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210112.992254:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.008890:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.044003:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.092242:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.110286:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.139892:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.176052:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.193104:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.243342:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.255366:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.293079:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.325508:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.344772:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.394087:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.410330:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.459075:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.475856:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.495273:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.510493:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.543470:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.559996:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.610358:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.619694:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.632903:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.648589:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.692329:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.711339:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.759055:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.775838:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.782685:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.826277:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.843345:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012][err] [35018:775:0429/210113.861286:ERROR:gl_display.cc(497)] EGL Driver message (Error) eglQueryDeviceAttribEXT: Bad attribute.\n[pid=35012] <gracefully close start>"
     },
     "area_m2": 46,
     "quartos": 2,
     "suites": 0,
     "banheiros": 1,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.032Z"
   },
   {
     "nome": "JOAO",
@@ -10620,42 +10675,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:31.956Z",
     "origin": {
-      "nome": "Rubineia",
-      "email": "rubineia.santos24@gmail.com",
-      "contato": "11960877966",
-      "telefone2": "11960877966",
-      "id": "3008638878",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 580000,
-      "titulo": "TNC 1 Apto 602291018-118",
-      "url": "https://www.imovelweb.com.br/propiedades/-3008638878.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:31.956Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3008638878.html"
-      },
-      "area_m2": 82,
-      "quartos": 3,
-      "suites": 0,
-      "banheiros": 2,
-      "vagas": 2,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Avenida Nova Cantareira - de 0646 a 1502 - lado par",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 82,
     "quartos": 3,
     "suites": 0,
     "banheiros": 2,
     "vagas": 2,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.077Z"
   },
   {
     "nome": "Jacqueline",
@@ -10733,42 +10762,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:31.972Z",
     "origin": {
-      "nome": "negli.lolo@gmail.com",
-      "email": "negli.lolo@gmail.com",
-      "contato": "11991141444",
-      "telefone2": "991141444",
-      "id": "3005616424",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 370000,
-      "titulo": "Apartamento tipo para venda com 3 quartos, 79m²",
-      "url": "https://www.imovelweb.com.br/propiedades/-3005616424.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:31.972Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3005616424.html"
-      },
-      "area_m2": 79,
-      "quartos": 3,
-      "suites": 0,
-      "banheiros": 2,
-      "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Coronel Francisco Inácio",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 79,
     "quartos": 3,
     "suites": 0,
     "banheiros": 2,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.093Z"
   },
   {
     "nome": "nathalia",
@@ -10778,7 +10781,7 @@
     "id": "3027786161",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Paulista",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 4500000,
@@ -10788,42 +10791,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:31.979Z",
     "origin": {
-      "nome": "nathalia",
-      "email": "nat_trindade@hotmail.com",
-      "contato": "+55 (11) 97599-4441",
-      "telefone2": "+55 (11) 97599-4441",
-      "id": "3027786161",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Casa",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 4500000,
-      "titulo": "Cobertura para venda em Jardim Paulista com 4 quartos, sendo 1 suíte , 280m²",
-      "url": "https://www.imovelweb.com.br/propiedades/-3027786161.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:31.979Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3027786161.html"
-      },
-      "area_m2": 280,
-      "quartos": 4,
-      "suites": 1,
-      "banheiros": 5,
-      "vagas": 4,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Alameda Casa Branca - lado ímpar",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 280,
     "quartos": 4,
     "suites": 1,
     "banheiros": 5,
     "vagas": 4,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.115Z"
   },
   {
     "nome": "neguinho",
@@ -11042,7 +11019,7 @@
     "id": "3031416527",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Vila Mariana",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 2300000,
@@ -11052,42 +11029,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.003Z",
     "origin": {
-      "nome": "Leandro",
-      "email": "burstmiotto@gmail.com",
-      "contato": "11973657484",
-      "telefone2": "11973657484",
-      "id": "3031416527",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 2300000,
-      "titulo": "Apartamento para venda em Jardim Vila Mariana com 4 quartos, sendo 4 suítes , 163m²",
-      "url": "https://www.imovelweb.com.br/propiedades/-3031416527.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.003Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3031416527.html"
-      },
-      "area_m2": 163,
-      "quartos": 4,
-      "suites": 4,
-      "banheiros": 6,
-      "vagas": 3,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Voltaire",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 163,
     "quartos": 4,
     "suites": 4,
     "banheiros": 6,
     "vagas": 3,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.144Z"
   },
   {
     "nome": "Victoria evelly Vieira Ramiro do nascimento",
@@ -11223,35 +11174,8 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.018Z",
     "origin": {
-      "nome": "Cyntia",
-      "email": "cyntiastelmach@hotmail.com",
-      "contato": "11992741983",
-      "telefone2": "992741983",
-      "id": "3027917051",
-      "estado": "",
-      "cidade": "",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 0,
-      "titulo": "Apartamento para venda em Campo Belo com 4 quartos, sendo 1 suíte , 172m²",
-      "url": "https://www.imovelweb.com.br/propiedades/-3027917051.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.018Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3027917051.html"
-      },
-      "area_m2": 172,
-      "quartos": 4,
-      "suites": 1,
-      "banheiros": 0,
-      "vagas": 0,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 172,
     "quartos": 4,
@@ -11260,7 +11184,8 @@
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:22:36.886Z"
+    "matchedAt": "2026-04-29T11:22:36.886Z",
+    "extractedAt": "2026-04-30T00:01:14.166Z"
   },
   {
     "nome": "Mariana Ribeiro Ferreira",
@@ -11280,42 +11205,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.030Z",
     "origin": {
-      "nome": "Mariana Ribeiro Ferreira",
-      "email": "mariribeiroferreira1698@gmail.com",
-      "contato": "31992212286",
-      "telefone2": "31992212286",
-      "id": "3019536456",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Casa",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 155000,
-      "titulo": "Casa com 4 quartos, Jardim Aurélio - São Paulo",
-      "url": "https://www.imovelweb.com.br/propiedades/-3019536456.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.030Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3019536456.html"
-      },
-      "area_m2": 0,
-      "quartos": 4,
-      "suites": 0,
-      "banheiros": 2,
-      "vagas": 0,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua do Valboeiro",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 0,
     "quartos": 4,
     "suites": 0,
     "banheiros": 2,
     "vagas": 0,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.181Z"
   },
   {
     "nome": "Bianca",
@@ -11335,42 +11234,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.035Z",
     "origin": {
-      "nome": "Bianca",
-      "email": "biancacardosopires@outlook.com",
-      "contato": "18997764507",
-      "telefone2": "18997764507",
-      "id": "3019790243",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 90000,
-      "titulo": "Apartamento com 2 quartos, Jardim Horizonte Azul - São Paulo",
-      "url": "https://www.imovelweb.com.br/propiedades/-3019790243.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.035Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3019790243.html"
-      },
-      "area_m2": 53,
-      "quartos": 2,
-      "suites": 0,
-      "banheiros": 1,
-      "vagas": 0,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Boa Vista",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 53,
     "quartos": 2,
     "suites": 0,
     "banheiros": 1,
     "vagas": 0,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.195Z"
   },
   {
     "nome": "Márcia",
@@ -11390,42 +11263,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.042Z",
     "origin": {
-      "nome": "Márcia",
-      "email": "marciabirnb@gmail.com",
-      "contato": "11994300051",
-      "telefone2": "994300051",
-      "id": "3009603540",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 270000,
-      "titulo": "Apartamento à venda no bairro Vila Buarque - São Paulo/SP",
-      "url": "https://www.imovelweb.com.br/propiedades/-3009603540.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.042Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3009603540.html"
-      },
-      "area_m2": 47,
-      "quartos": 1,
-      "suites": 0,
-      "banheiros": 1,
-      "vagas": 0,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Barão de Tatuí - até 428/429",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 47,
     "quartos": 1,
     "suites": 0,
     "banheiros": 1,
     "vagas": 0,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.216Z"
   },
   {
     "nome": "JulioCMattoso",
@@ -11445,42 +11292,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.047Z",
     "origin": {
-      "nome": "JulioCMattoso",
-      "email": "juliocmattoso@gmail.com",
-      "contato": "11999014395",
-      "telefone2": "",
-      "id": "3012010134",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 1790000,
-      "titulo": "AJ 265 Apto theremaxcollection-YIU3A",
-      "url": "https://www.imovelweb.com.br/propiedades/-3012010134.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.047Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3012010134.html"
-      },
-      "area_m2": 190,
-      "quartos": 3,
-      "suites": 3,
-      "banheiros": 3,
-      "vagas": 3,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Júpiter",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 190,
     "quartos": 3,
     "suites": 3,
     "banheiros": 3,
     "vagas": 3,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.237Z"
   },
   {
     "nome": "Flavio Ribeiro",
@@ -11500,35 +11321,8 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.056Z",
     "origin": {
-      "nome": "Flavio Ribeiro",
-      "email": "flavioribeiro188@gmail.com",
-      "contato": "11959904352",
-      "telefone2": "11959904352",
-      "id": "3029394367",
-      "estado": "",
-      "cidade": "",
-      "bairro": "",
-      "tipo": "Casa",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 0,
-      "titulo": "Arte Santa Marina",
-      "url": "https://www.imovelweb.com.br/propiedades/-3029394367.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.056Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3029394367.html"
-      },
-      "area_m2": 0,
-      "quartos": 1,
-      "suites": 0,
-      "banheiros": 0,
-      "vagas": 0,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 0,
     "quartos": 1,
@@ -11537,7 +11331,8 @@
     "vagas": 0,
     "extractionStatus": "bairro_invalido",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:26:47.377Z"
+    "matchedAt": "2026-04-29T11:26:47.377Z",
+    "extractedAt": "2026-04-30T00:01:14.257Z"
   },
   {
     "nome": "Bruno",
@@ -11557,42 +11352,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.061Z",
     "origin": {
-      "nome": "Bruno",
-      "email": "bruno.mcordeiro89@gmail.com",
-      "contato": "11987654244",
-      "telefone2": "11 987654244",
-      "id": "3008633518",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 280000,
-      "titulo": "JCGJNT 122 Apto 601081013-1",
-      "url": "https://www.imovelweb.com.br/propiedades/-3008633518.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.061Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3008633518.html"
-      },
-      "area_m2": 69,
-      "quartos": 2,
-      "suites": 0,
-      "banheiros": 2,
-      "vagas": 0,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Joaquim Neves Monteiro",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 69,
     "quartos": 2,
     "suites": 0,
     "banheiros": 2,
     "vagas": 0,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.272Z"
   },
   {
     "nome": "Gabriella",
@@ -11670,42 +11439,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.074Z",
     "origin": {
-      "nome": "Rafaella Ferrugem",
-      "email": "rafaellaferrugem@gmail.com",
-      "contato": "6183264516",
-      "telefone2": "6183264516",
-      "id": "3008641467",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 350000,
-      "titulo": "Apartamento Padrão - Impecável - Aceita permuta",
-      "url": "https://www.imovelweb.com.br/propiedades/-3008641467.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.074Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3008641467.html"
-      },
-      "area_m2": 40,
-      "quartos": 1,
-      "suites": 0,
-      "banheiros": 1,
-      "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Miguel Teles Júnior",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 40,
     "quartos": 1,
     "suites": 0,
     "banheiros": 1,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.285Z"
   },
   {
     "nome": "Vania manoel",
@@ -11725,42 +11468,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.081Z",
     "origin": {
-      "nome": "Vania manoel",
-      "email": "vania.jma@gmail.com",
-      "contato": "11985811519",
-      "telefone2": "985811519",
-      "id": "3008634663",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 315000,
-      "titulo": "JVFRB 1155 Apto 601811001-33",
-      "url": "https://www.imovelweb.com.br/propiedades/-3008634663.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.081Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3008634663.html"
-      },
-      "area_m2": 60,
-      "quartos": 3,
-      "suites": 0,
-      "banheiros": 2,
-      "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Rego Barros",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 60,
     "quartos": 3,
     "suites": 0,
     "banheiros": 2,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.297Z"
   },
   {
     "nome": "Sun Mengyun",
@@ -11780,42 +11497,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.088Z",
     "origin": {
-      "nome": "Sun Mengyun",
-      "email": "sunmengyun@gmail.com",
-      "contato": "11989019391",
-      "telefone2": "11989019391",
-      "id": "3012790896",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 1980000,
-      "titulo": "Apartamento tipo para venda com 3 quartos, sendo 3 suítes, 154m²",
-      "url": "https://www.imovelweb.com.br/propiedades/-3012790896.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.088Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3012790896.html"
-      },
-      "area_m2": 154,
-      "quartos": 3,
-      "suites": 3,
-      "banheiros": 5,
-      "vagas": 2,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Miragaia",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 154,
     "quartos": 3,
     "suites": 3,
     "banheiros": 5,
     "vagas": 2,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.314Z"
   },
   {
     "nome": "Lucas Venancio",
@@ -11835,42 +11526,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.095Z",
     "origin": {
-      "nome": "Lucas Venancio",
-      "email": "lucas@europarealestate.com.br",
-      "contato": "11954569591",
-      "telefone2": "11954569591",
-      "id": "3031599274",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 548000,
-      "titulo": "Apartamento à Venda - Aclimação, 3 Quartos,  67 m2",
-      "url": "https://www.imovelweb.com.br/propiedades/-3031599274.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.095Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3031599274.html"
-      },
-      "area_m2": 67,
-      "quartos": 3,
-      "suites": 1,
-      "banheiros": 2,
-      "vagas": 2,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Francisco Justino de Azevedo",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 67,
     "quartos": 3,
     "suites": 1,
     "banheiros": 2,
     "vagas": 2,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.325Z"
   },
   {
     "nome": "Janete",
@@ -11890,42 +11555,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.100Z",
     "origin": {
-      "nome": "Janete",
-      "email": "Janete.bianco@icloud.com",
-      "contato": "11989608929",
-      "telefone2": "11989608929",
-      "id": "3008620774",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 650000,
-      "titulo": "Conjunto comercial  para venda, 65m²",
-      "url": "https://www.imovelweb.com.br/propiedades/-3008620774.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.100Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3008620774.html"
-      },
-      "area_m2": 65,
-      "quartos": 0,
-      "suites": 0,
-      "banheiros": 2,
-      "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Padre João Manuel - lado ímpar",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 65,
     "quartos": 0,
     "suites": 0,
     "banheiros": 2,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.334Z"
   },
   {
     "nome": "Guilherme",
@@ -11945,42 +11584,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.106Z",
     "origin": {
-      "nome": "Guilherme",
-      "email": "guilhermepenteadoserra@gmail.com",
-      "contato": "11996903609",
-      "telefone2": "",
-      "id": "3015081208",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 900000,
-      "titulo": "GJLCDM 250 Apto theremaxcollection-CQT5N",
-      "url": "https://www.imovelweb.com.br/propiedades/-3015081208.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.106Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3015081208.html"
-      },
-      "area_m2": 59,
-      "quartos": 2,
-      "suites": 1,
-      "banheiros": 2,
-      "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Luís Correia de Melo",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 59,
     "quartos": 2,
     "suites": 1,
     "banheiros": 2,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.347Z"
   },
   {
     "nome": "Guilherme",
@@ -12000,42 +11613,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.111Z",
     "origin": {
-      "nome": "Guilherme",
-      "email": "guilhermepenteadoserra@gmail.com",
-      "contato": "11996903609",
-      "telefone2": "",
-      "id": "3019615840",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 875000,
-      "titulo": "GJLCDM 250 Apto theremaxcollection-CQT5N",
-      "url": "https://www.imovelweb.com.br/propiedades/-3019615840.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.111Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3019615840.html"
-      },
-      "area_m2": 59,
-      "quartos": 2,
-      "suites": 1,
-      "banheiros": 2,
-      "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Luís Correia de Melo",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 59,
     "quartos": 2,
     "suites": 1,
     "banheiros": 2,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.356Z"
   },
   {
     "nome": "Emir",
@@ -12150,7 +11737,8 @@
     "vagas": 0,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:38:54.961Z"
+    "matchedAt": "2026-04-29T21:56:59.455Z",
+    "bestScore": 0
   },
   {
     "nome": "Humberto",
@@ -12170,42 +11758,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.129Z",
     "origin": {
-      "nome": "Humberto",
-      "email": "zecahumfaria@yahoo.com.br",
-      "contato": "61996860705",
-      "telefone2": "99686-0705",
-      "id": "3004588423",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 1900000,
-      "titulo": "Apartamento tipo  para venda com 4 quartos, 200.1m²",
-      "url": "https://www.imovelweb.com.br/propiedades/-3004588423.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.129Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3004588423.html"
-      },
-      "area_m2": 200,
-      "quartos": 4,
-      "suites": 3,
-      "banheiros": 5,
-      "vagas": 4,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Visconde de Nacar",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 200,
     "quartos": 4,
     "suites": 3,
     "banheiros": 5,
     "vagas": 4,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.366Z"
   },
   {
     "nome": "otavio",
@@ -12262,7 +11824,8 @@
     "vagas": 4,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:42:09.242Z"
+    "matchedAt": "2026-04-29T21:58:55.949Z",
+    "bestScore": 0
   },
   {
     "nome": "Rejane",
@@ -12319,7 +11882,8 @@
     "vagas": 1,
     "extractionStatus": "ok",
     "matchProcessed": true,
-    "matchedAt": "2026-04-29T11:45:23.498Z"
+    "matchedAt": "2026-04-29T22:00:39.095Z",
+    "bestScore": 0
   },
   {
     "nome": "PEDRO LUIS SOUZA FAUSTO",
@@ -12339,42 +11903,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.155Z",
     "origin": {
-      "nome": "PEDRO LUIS SOUZA FAUSTO",
-      "email": "pedro.luis94@outlook.com",
-      "contato": "11986489888",
-      "telefone2": "11986489888",
-      "id": "3008633779",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Casa",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 390000,
-      "titulo": "FI 99 Casa 601461011-14",
-      "url": "https://www.imovelweb.com.br/propiedades/-3008633779.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.155Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3008633779.html"
-      },
-      "area_m2": 90,
-      "quartos": 2,
-      "suites": 0,
-      "banheiros": 1,
-      "vagas": 1,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Carteiro Maria Carolina Carteiro",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 90,
     "quartos": 2,
     "suites": 0,
     "banheiros": 1,
     "vagas": 1,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.376Z"
   },
   {
     "nome": "Gustavo",
@@ -12508,42 +12046,16 @@
     "matches": [],
     "createdAt": "2026-04-29T05:39:32.190Z",
     "origin": {
-      "nome": "Anna Vitória",
-      "email": "annavitoriasilveirasantos@gmail.com",
-      "contato": "11916644801",
-      "telefone2": "",
-      "id": "3008598736",
-      "estado": "SP",
-      "cidade": "São Paulo",
-      "bairro": "",
-      "tipo": "Apartamento",
-      "tipo_operacao": "Venda",
-      "valor_imovel": 598445,
-      "titulo": "Virginia",
-      "url": "https://www.imovelweb.com.br/propiedades/-3008598736.html",
-      "matchCount": 0,
-      "matches": [],
-      "createdAt": "2026-04-29T05:39:32.190Z",
-      "origin": {
-        "extractionStatus": "erro",
-        "error": "browser.newPage: Target page, context or browser has been closed",
-        "url": "https://www.imovelweb.com.br/propiedades/-3008598736.html"
-      },
-      "area_m2": 44,
-      "quartos": 1,
-      "suites": 0,
-      "banheiros": 1,
-      "vagas": 0,
-      "extractionStatus": "bairro_invalido",
-      "logradouro": "Rua Martins Fontes",
-      "fonte": "ImovelWeb"
+      "extractionStatus": "erro_extracao",
+      "error": "browser.newPage: Target page, context or browser has been closed"
     },
     "area_m2": 44,
     "quartos": 1,
     "suites": 0,
     "banheiros": 1,
     "vagas": 0,
-    "extractionStatus": "bairro_invalido"
+    "extractionStatus": "bairro_invalido",
+    "extractedAt": "2026-04-30T00:01:14.386Z"
   },
   {
     "nome": "Dione",
@@ -12840,7 +12352,7 @@
     "id": "3015851073",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Cambuci",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 355000,
@@ -12985,7 +12497,7 @@
     "id": "3031431175",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Mariana",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 510000,
@@ -13362,7 +12874,7 @@
     "id": "3021178507",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Santo Amaro",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 270000,
@@ -13449,7 +12961,7 @@
     "id": "3021846344",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Itaim Paulista",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 275000,
@@ -13681,7 +13193,7 @@
     "id": "3015823960",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "São João Climaco",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 690000,
@@ -13710,7 +13222,7 @@
     "id": "3015501635",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Cohab Padre Manoel da Nobrega",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 230000,
@@ -13826,7 +13338,7 @@
     "id": "3020022467",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Eldorado",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 330000,
@@ -14203,7 +13715,7 @@
     "id": "3023506575",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Moema",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 1290000,
@@ -14580,7 +14092,7 @@
     "id": "3015501953",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Bela Vista",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 170000,
@@ -14725,7 +14237,7 @@
     "id": "3020009719",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Santa Cecília",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 550000,
@@ -14783,7 +14295,7 @@
     "id": "3015527263",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Germania",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 229999,
@@ -14812,7 +14324,7 @@
     "id": "3015575869",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Lourdes",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 210000,
@@ -15160,7 +14672,7 @@
     "id": "3015575882",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jaguaré",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 120000,
@@ -15769,7 +15281,7 @@
     "id": "3015824629",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Campos Elíseos",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 399000,
@@ -16030,7 +15542,7 @@
     "id": "3031416524",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Itaim Bibi",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 2999000,
@@ -16204,7 +15716,7 @@
     "id": "3015570041",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Três Marias",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 332000,
@@ -16523,7 +16035,7 @@
     "id": "3031416674",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Itaim Bibi",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 1249000,
@@ -16784,7 +16296,7 @@
     "id": "3021806014",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Iris",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 270000,
@@ -16871,7 +16383,7 @@
     "id": "3020013060",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Santa Catarina",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 280000,
@@ -16929,7 +16441,7 @@
     "id": "3015501366",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jurubatuba",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 369000,
@@ -17045,7 +16557,7 @@
     "id": "3011255941",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "condomínio para venda",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 350000,
@@ -17422,7 +16934,7 @@
     "id": "3015575983",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Santo Amaro",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 620000,
@@ -17567,7 +17079,7 @@
     "id": "3015576024",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Ampliacao",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 369000,
@@ -17654,7 +17166,7 @@
     "id": "3015570059",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Liberdade",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 130000,
@@ -17915,7 +17427,7 @@
     "id": "3023511431",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Alto do Ipiranga",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 1150000,
@@ -18234,7 +17746,7 @@
     "id": "3023129143",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Butantã",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 435000,
@@ -18466,7 +17978,7 @@
     "id": "3011255800",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "condomínio para venda",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 650000,
@@ -18640,7 +18152,7 @@
     "id": "3021869714",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Andrade",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 450000,
@@ -18959,7 +18471,7 @@
     "id": "3016785119",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Monjolo",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 370000,
@@ -19597,7 +19109,7 @@
     "id": "3026981864",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Iguatemi",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 215000,
@@ -20554,7 +20066,7 @@
     "id": "3023510363",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Parque São Lourenço",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 275000,
@@ -20728,7 +20240,7 @@
     "id": "3023511338",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Barra Funda",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 1070000,
@@ -20757,7 +20269,7 @@
     "id": "3015527231",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Capelinha",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 130000,
@@ -20960,7 +20472,7 @@
     "id": "3023416303",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Fonte do Morumbi",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 2050000,
@@ -21337,7 +20849,7 @@
     "id": "3015501984",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Nazareth",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 195000,
@@ -21453,7 +20965,7 @@
     "id": "3016785378",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Dom Pedro II",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 275000,
@@ -21482,7 +20994,7 @@
     "id": "3021875738",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Fazenda Caguaçu",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 210000,
@@ -21656,7 +21168,7 @@
     "id": "3023509785",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Bela Vista",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 600000,
@@ -21888,7 +21400,7 @@
     "id": "3021804557",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Primavera",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 568000,
@@ -21917,7 +21429,7 @@
     "id": "3031416427",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Bela Vista",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 530000,
@@ -21946,7 +21458,7 @@
     "id": "3023506851",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Bela Vista",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 480000,
@@ -22004,7 +21516,7 @@
     "id": "3015877724",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Santa Emilia",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 290000,
@@ -22236,7 +21748,7 @@
     "id": "3023822654",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "São Paulo",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 1990000,
@@ -22294,7 +21806,7 @@
     "id": "3029495510",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim das Imbuias",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 490000,
@@ -22323,7 +21835,7 @@
     "id": "3031452980",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Cleonice",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 480000,
@@ -22439,7 +21951,7 @@
     "id": "3023538312",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Primavera",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 680000,
@@ -22729,7 +22241,7 @@
     "id": "3015575857",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Colonial",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 800000,
@@ -22990,7 +22502,7 @@
     "id": "3015549307",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Marilu",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 120000,
@@ -23164,7 +22676,7 @@
     "id": "3019986619",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Lourdes",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 280000,
@@ -23628,7 +23140,7 @@
     "id": "3026981253",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Bandeirantes",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 180000,
@@ -24034,7 +23546,7 @@
     "id": "3023417800",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Pirituba",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 405000,
@@ -24121,7 +23633,7 @@
     "id": "3023539452",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jd Prudência",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 1080000,
@@ -24324,7 +23836,7 @@
     "id": "3023152544",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "condomínio para venda",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 410000,
@@ -24382,7 +23894,7 @@
     "id": "3016189470",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Cidade Mãe do Céu",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 2790000,
@@ -24411,7 +23923,7 @@
     "id": "3015553511",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Cidade Ademar",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 850000,
@@ -24440,7 +23952,7 @@
     "id": "3031601137",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Nova Caledônia",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 650000,
@@ -24585,7 +24097,7 @@
     "id": "3023840039",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Castro Alves",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 300000,
@@ -24759,7 +24271,7 @@
     "id": "3023058037",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Bela Vista",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 999000,
@@ -25107,7 +24619,7 @@
     "id": "3023055746",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Aurora",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 229900,
@@ -25136,7 +24648,7 @@
     "id": "3015524556",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Lajeado",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 255000,
@@ -25426,7 +24938,7 @@
     "id": "3015553222",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Bela Vista",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 400000,
@@ -25455,7 +24967,7 @@
     "id": "3023536380",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Guapira",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 790000,
@@ -25484,7 +24996,7 @@
     "id": "3026981157",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Santa Cecilia",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 335000,
@@ -25629,7 +25141,7 @@
     "id": "3010650052",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Moinho Velho",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 280000,
@@ -25716,7 +25228,7 @@
     "id": "3021804382",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Parque Santo Eduardo",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 180000,
@@ -25948,7 +25460,7 @@
     "id": "3023152367",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Marari",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 520000,
@@ -26267,7 +25779,7 @@
     "id": "3015860010",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Celia",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 230000,
@@ -26325,7 +25837,7 @@
     "id": "3019789547",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Matilde",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 290000,
@@ -26412,7 +25924,7 @@
     "id": "3005531067",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Campo Limpo",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 340000,
@@ -26528,7 +26040,7 @@
     "id": "3023539035",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Nova Parada",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 380000,
@@ -26586,7 +26098,7 @@
     "id": "3015777229",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Iguatemi",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 215000,
@@ -26876,7 +26388,7 @@
     "id": "3023055766",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Santa Cecília",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 495000,
@@ -26934,7 +26446,7 @@
     "id": "3015531960",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Marilena",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 320000,
@@ -27253,7 +26765,7 @@
     "id": "3021760402",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Santo Onofre",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 235000,
@@ -27369,7 +26881,7 @@
     "id": "3016553296",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Liberdade",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 160000,
@@ -27427,7 +26939,7 @@
     "id": "3017334057",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Cidade Ademar",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 360000,
@@ -27485,7 +26997,7 @@
     "id": "3023536534",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Andrade",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 420000,
@@ -27514,7 +27026,7 @@
     "id": "3016786487",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Celeste",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 300000,
@@ -27543,7 +27055,7 @@
     "id": "3015531965",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Buarque",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 220000,
@@ -27630,7 +27142,7 @@
     "id": "3015500912",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Socorro",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 310000,
@@ -28007,7 +27519,7 @@
     "id": "3015850879",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Ema",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 240000,
@@ -28326,7 +27838,7 @@
     "id": "3015570325",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Catanduva",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 281000,
@@ -28732,7 +28244,7 @@
     "id": "3015502158",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Esperança",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 360000,
@@ -28819,7 +28331,7 @@
     "id": "3015850809",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Umarizal",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 233000,
@@ -28906,7 +28418,7 @@
     "id": "3015527227",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Regina",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 289000,
@@ -29138,7 +28650,7 @@
     "id": "3015576012",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Ana Maria",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 330000,
@@ -30182,7 +29694,7 @@
     "id": "3026975540",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Americanópolis",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 315000,
@@ -30791,7 +30303,7 @@
     "id": "3031601146",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Mariana",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 1490000,
@@ -30849,7 +30361,7 @@
     "id": "3016786039",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Perus",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 185000,
@@ -31139,7 +30651,7 @@
     "id": "3023768133",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Liberdade",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 160000,
@@ -31197,7 +30709,7 @@
     "id": "3023511188",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Regina",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 240000,
@@ -31342,7 +30854,7 @@
     "id": "3021869352",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Rosaria",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 290000,
@@ -32154,7 +31666,7 @@
     "id": "3021810754",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Nove de Julho",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 385000,
@@ -32328,7 +31840,7 @@
     "id": "3023538399",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Chácara Seis de Outubro",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 660000,
@@ -32502,7 +32014,7 @@
     "id": "3031429355",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Olímpia",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 595000,
@@ -32676,7 +32188,7 @@
     "id": "3029288681",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "São Paulo",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 1100000,
@@ -32763,7 +32275,7 @@
     "id": "3016784728",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Cidade São Francisco",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 400000,
@@ -32792,7 +32304,7 @@
     "id": "3019992235",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Liberdade",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 426000,
@@ -33111,7 +32623,7 @@
     "id": "3023511436",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Pereira Cerca",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 272000,
@@ -33343,7 +32855,7 @@
     "id": "3023511106",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Interlagos",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 3500000,
@@ -33372,7 +32884,7 @@
     "id": "3008620351",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Campo Grande",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 639000,
@@ -33575,7 +33087,7 @@
     "id": "3015809238",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Gianetti",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 180000,
@@ -34619,7 +34131,7 @@
     "id": "3008635642",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Pinheiros",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 660000,
@@ -35344,7 +34856,7 @@
     "id": "3016188719",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Cambuci",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 290000,
@@ -35489,7 +35001,7 @@
     "id": "3015553268",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Curuçá Velha",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 200000,
@@ -35779,7 +35291,7 @@
     "id": "3023510350",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Vila Formosa",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 235000,
@@ -36069,7 +35581,7 @@
     "id": "3015570052",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Umuarama",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 225000,
@@ -36127,7 +35639,7 @@
     "id": "3021178388",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Mazzei",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 480000,
@@ -36156,7 +35668,7 @@
     "id": "3023511411",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Prudente",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 198000,
@@ -36272,7 +35784,7 @@
     "id": "3031430061",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Brooklin Paulista",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 1699000,
@@ -36446,7 +35958,7 @@
     "id": "3023538269",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jaraguá",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 265000,
@@ -36707,7 +36219,7 @@
     "id": "3021850865",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Paranagua",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 210000,
@@ -37664,7 +37176,7 @@
     "id": "3031601135",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Mariana",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 1245000,
@@ -37838,7 +37350,7 @@
     "id": "3020236604",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Condomínio à Venda",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 4900000,
@@ -37867,7 +37379,7 @@
     "id": "3019990681",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardim Fonte do Morumbi",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 4650000,
@@ -38012,7 +37524,7 @@
     "id": "3031601148",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Imirim",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 599000,
@@ -38041,7 +37553,7 @@
     "id": "3031601149",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Alto de Pinheiros",
     "tipo": "Casa",
     "tipo_operacao": "Venda",
     "valor_imovel": 1390000,
@@ -38882,7 +38394,7 @@
     "id": "3021178402",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Souza",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 310000000,
@@ -39520,7 +39032,7 @@
     "id": "3015809055",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Prudente",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 520000,
@@ -39578,7 +39090,7 @@
     "id": "3023511043",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jardins",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 1950000,
@@ -39665,7 +39177,7 @@
     "id": "3016785744",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Vila Jaraguá",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 247000,
@@ -39781,7 +39293,7 @@
     "id": "3031430368",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Pinheiros",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 3950000,
@@ -39926,7 +39438,7 @@
     "id": "3023506440",
     "estado": "São Paulo",
     "cidade": "São Paulo",
-    "bairro": "",
+    "bairro": "Jurubatuba",
     "tipo": "Apartamento",
     "tipo_operacao": "Venda",
     "valor_imovel": 699000,

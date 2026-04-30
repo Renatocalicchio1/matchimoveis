@@ -1,57 +1,204 @@
-<%- include('partials/app-shell',{active:'portais',title:'Portais e XML',subtitle:'Habilite os portais e gere XML separado para cada canal.',perfil:'corretor'}) %>
+<%- include("partials/app-shell",{active:"portais",title:"Portais & XML",subtitle:"Publique seus imóveis nos principais portais",user:user}) %>
 
-<div class="card">
-  <h3>Portais habilitados</h3>
-  <p class="small">Escolha onde o corretor Mario Sergio quer publicar os imóveis.</p>
-  <br>
+<style>
+.steps{display:flex;align-items:center;gap:0;margin-bottom:32px}
+.step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--gray)}
+.step.done{color:var(--green)}
+.step.active{color:var(--dark);font-weight:700}
+.step-num{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--white);flex-shrink:0}
+.step.done .step-num{background:var(--green);border-color:var(--green);color:#fff}
+.step.active .step-num{background:var(--dark);border-color:var(--dark);color:#fff}
+.step-line{flex:1;height:2px;background:var(--border);margin:0 8px}
+.step.done + .step-line{background:var(--green)}
+.portal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.portal-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .2s;position:relative;text-align:center}
+.portal-card:hover{border-color:#ccc;box-shadow:var(--shadow)}
+.portal-card.on{border-color:var(--brand);background:var(--brand-light)}
+.portal-card.on .portal-check{display:flex}
+.portal-check{display:none;position:absolute;top:10px;right:10px;width:22px;height:22px;background:var(--brand);border-radius:50%;align-items:center;justify-content:center;color:#fff;font-size:12px}
+.portal-logo{font-size:32px;margin-bottom:8px}
+.portal-name{font-size:14px;font-weight:700;color:var(--dark);margin-bottom:4px}
+.portal-desc{font-size:11px;color:var(--gray)}
+.portal-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:6px}
+.portal-badge.free{background:#f0fdf4;color:#16a34a}
+.portal-badge.paid{background:#fffbeb;color:#d97706}
+.xml-result{background:var(--light);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:16px}
+.xml-url{font-family:monospace;font-size:13px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 14px;word-break:break-all;color:var(--dark);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.xml-url span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stat-row{display:flex;gap:20px;margin-top:12px}
+.stat-item{text-align:center}
+.stat-item strong{display:block;font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--dark)}
+.stat-item span{font-size:11px;color:var(--gray)}
+.guide-step{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)}
+.guide-step:last-child{border-bottom:none}
+.guide-num{width:30px;height:30px;border-radius:50%;background:var(--brand-light);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.guide-body h4{font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px}
+.guide-body p{font-size:13px;color:var(--gray);line-height:1.5}
+</style>
 
-  <div class="checkgrid">
-    <label class="checkcard"><input type="checkbox" checked> Canal Pro — OLX / Zap / Viva Real</label>
-    <label class="checkcard"><input type="checkbox"> Chaves na Mão</label>
-    <label class="checkcard"><input type="checkbox"> Imovelweb</label>
-    <label class="checkcard"><input type="checkbox"> 123i</label>
-    <label class="checkcard"><input type="checkbox"> QuintoAndar</label>
-    <label class="checkcard"><input type="checkbox"> RE/MAX</label>
+<%
+const portais = [
+  {id:'vivareal', nome:'VivaReal / ZAP', logo:'🏢', desc:'Maior portal do Brasil', badge:'paid', popular:true},
+  {id:'imovelweb', nome:'ImovelWeb', logo:'🔍', desc:'Portal OLX Imóveis', badge:'free'},
+  {id:'olx', nome:'OLX', logo:'🟡', desc:'Maior classificados', badge:'free'},
+  {id:'chavesnamao', nome:'Chaves na Mão', logo:'🔑', desc:'Portal especializado', badge:'free'},
+  {id:'123i', nome:'123i', logo:'🏠', desc:'Portal de imóveis', badge:'free'},
+  {id:'remax', nome:'RE/MAX', logo:'🔴', desc:'Rede internacional', badge:'paid'},
+];
+%>
+
+<div class="grid-2">
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">1. Escolha os portais</h3>
+        <span style="font-size:12px;color:var(--gray)" id="countPortais">0 selecionados</span>
+      </div>
+      <div class="portal-grid">
+        <% portais.forEach(p=>{ %>
+        <div class="portal-card" id="pc-<%= p.id %>" onclick="togglePortal('<%= p.id %>')">
+          <div class="portal-check">✓</div>
+          <div class="portal-logo"><%= p.logo %></div>
+          <div class="portal-name"><%= p.nome %></div>
+          <div class="portal-desc"><%= p.desc %></div>
+          <span class="portal-badge <%= p.badge %>"><%= p.badge==='free'?'Gratuito':'Pago' %></span>
+          <% if(p.popular){ %><span class="portal-badge paid" style="margin-left:4px">Popular</span><% } %>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px">2. Filtrar imóveis</h3>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <label class="filter-chip" style="display:flex;align-items:center;gap:8px;border-radius:10px;padding:12px 14px;cursor:pointer">
+          <input type="radio" name="filtro" value="todos" checked style="width:auto;accent-color:var(--brand)">
+          <div><strong style="font-size:13px">Todos os imóveis</strong><br><span style="font-size:11px;color:var(--gray)">849 imóveis da base completa</span></div>
+        </label>
+        <label class="filter-chip" style="display:flex;align-items:center;gap:8px;border-radius:10px;padding:12px 14px;cursor:pointer">
+          <input type="radio" name="filtro" value="venda" style="width:auto;accent-color:var(--brand)">
+          <div><strong style="font-size:13px">Somente venda</strong><br><span style="font-size:11px;color:var(--gray)">Imóveis à venda</span></div>
+        </label>
+        <label class="filter-chip" style="display:flex;align-items:center;gap:8px;border-radius:10px;padding:12px 14px;cursor:pointer">
+          <input type="radio" name="filtro" value="aluguel" style="width:auto;accent-color:var(--brand)">
+          <div><strong style="font-size:13px">Somente aluguel</strong><br><span style="font-size:11px;color:var(--gray)">Imóveis para alugar</span></div>
+        </label>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px" onclick="gerarXML()">
+      🚀 Gerar XML agora
+    </button>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px">📥 XML gerado</h3>
+      <div id="xml-output">
+        <div class="empty" style="padding:40px 20px">
+          <div class="empty-icon">📄</div>
+          <h3>Nenhum XML gerado</h3>
+          <p>Selecione os portais e clique em gerar</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px">📖 Como usar</h3>
+      <div class="guide-step">
+        <div class="guide-num">1</div>
+        <div class="guide-body">
+          <h4>Selecione os portais</h4>
+          <p>Escolha onde quer publicar seus imóveis. Cada portal tem seu padrão de XML.</p>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-num">2</div>
+        <div class="guide-body">
+          <h4>Gere o XML</h4>
+          <p>Clique em "Gerar XML". O arquivo será criado no padrão VRSync/VivaReal.</p>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-num">3</div>
+        <div class="guide-body">
+          <h4>Copie a URL</h4>
+          <p>Cole a URL no painel do portal. Ele vai importar automaticamente.</p>
+        </div>
+      </div>
+      <div class="guide-step">
+        <div class="guide-num">4</div>
+        <div class="guide-body">
+          <h4>Atualizações automáticas</h4>
+          <p>O XML é atualizado em tempo real. Os portais sincronizam automaticamente.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
-<br>
+<script>
+const selecionados = new Set();
 
-<div class="card">
-  <h3>Gerar XML</h3>
-  <p class="small">Selecione o portal para gerar o XML no padrão Viva Real/VRSync.</p>
-  <br>
+function togglePortal(id) {
+  const card = document.getElementById('pc-'+id);
+  if (selecionados.has(id)) {
+    selecionados.delete(id);
+    card.classList.remove('on');
+  } else {
+    selecionados.add(id);
+    card.classList.add('on');
+  }
+  document.getElementById('countPortais').textContent = selecionados.size + ' selecionado' + (selecionados.size!==1?'s':'');
+}
 
-  <form method="POST" action="/app-xml-gerar">
-    <div class="form">
-      <div>
-        <label>Portal
-          <select name="portal">
-            <option value="canalpro">Canal Pro — OLX / Zap / Viva Real</option>
-            <option value="chaves-na-mao">Chaves na Mão</option>
-            <option value="imovelweb">Imovelweb</option>
-            <option value="123i">123i</option>
-            <option value="quintoandar">QuintoAndar</option>
-            <option value="remax">RE/MAX</option>
-          </select>
-        </label>
-      </div>
+function gerarXML() {
+  if (selecionados.size === 0) {
+    alert('Selecione pelo menos um portal!');
+    return;
+  }
+  const filtro = document.querySelector('input[name=filtro]:checked').value;
+  const btn = event.target;
+  btn.textContent = '⏳ Gerando...';
+  btn.disabled = true;
 
-      <div>
-        <label>Filtro de imóveis
-          <select name="filtro">
-            <option value="todos">Todos os imóveis do Mario</option>
-            <option value="ativos">Somente ativos</option>
-            <option value="selecionados">Somente selecionados em Meus imóveis</option>
-          </select>
-        </label>
-      </div>
+  fetch('/api/gerar-xml?filtro='+filtro)
+    .then(r => r.json())
+    .then(d => {
+      btn.textContent = '🚀 Gerar XML novamente';
+      btn.disabled = false;
+      const base = window.location.origin;
+      let html = '';
+      selecionados.forEach(portal => {
+        const url = base + '/feed/xml?portal='+portal+'&filtro='+filtro;
+        html += '<div class="xml-result" style="margin-bottom:12px">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+          '<strong style="font-size:14px">'+portal.charAt(0).toUpperCase()+portal.slice(1)+'</strong>' +
+          '<span class="badge badge-green">✓ Pronto</span>' +
+          '</div>' +
+          '<div class="xml-url"><span>'+url+'</span>' +
+          '<button onclick="copiar(\''+url+'\')" class="btn btn-outline btn-sm" style="flex-shrink:0">📋 Copiar</button></div>' +
+          '<div class="stat-row">' +
+          '<div class="stat-item"><strong>'+(d.total||849)+'</strong><span>imóveis</span></div>' +
+          '<div class="stat-item"><strong>'+(d.tamanho||'—')+'</strong><span>tamanho</span></div>' +
+          '<div class="stat-item"><strong>Agora</strong><span>atualizado</span></div>' +
+          '</div>' +
+          '<a href="'+url+'" target="_blank" class="btn btn-outline btn-sm" style="margin-top:12px;width:100%;justify-content:center">🔗 Abrir XML</a>' +
+          '</div>';
+      });
+      document.getElementById('xml-output').innerHTML = html;
+    })
+    .catch(() => {
+      btn.textContent = '🚀 Gerar XML agora';
+      btn.disabled = false;
+      alert('Erro ao gerar XML. Verifique se o servidor está rodando.');
+    });
+}
 
-      <div style="grid-column:1/-1">
-        <button class="btn red" type="submit">Gerar XML do portal</button>
-      </div>
-    </div>
-  </form>
-</div>
+function copiar(url) {
+  navigator.clipboard.writeText(url);
+  alert('URL copiada!');
+}
+</script>
 
-<%- include('partials/app-end') %>
+</main></div></body></html>

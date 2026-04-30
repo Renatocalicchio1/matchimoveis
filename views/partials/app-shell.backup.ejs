@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title><%= (typeof title !== 'undefined' && title) ? title + ' · MatchImóveis' : 'MatchImóveis' %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+      --red:#FF385C;
+      --red-light:#fff1f3;
+      --dark:#111;
+      --gray:#717171;
+      --gray-light:#f7f7f7;
+      --border:#ebebeb;
+      --white:#fff;
+      --sidebar:240px;
+      --radius:12px;
+      --shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);
+    }
+
+    body{
+      font-family:'DM Sans',sans-serif;
+      background:#f7f7f7;
+      color:var(--dark);
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    .app{ display:flex; min-height:100vh; }
+
+    /* SIDEBAR */
+    .sidebar{
+      width:var(--sidebar);
+      background:var(--white);
+      border-right:1px solid var(--border);
+      position:fixed;
+      top:0; left:0; bottom:0;
+      display:flex;
+      flex-direction:column;
+      padding:24px 16px;
+      z-index:100;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:0 8px 24px;
+      border-bottom:1px solid var(--border);
+      margin-bottom:20px;
+    }
+
+    .brand-icon{
+      width:32px; height:32px;
+      background:var(--red);
+      border-radius:8px;
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; font-size:16px;
+    }
+
+    .brand-name{
+      font-family:'DM Serif Display',serif;
+      font-size:17px;
+      color:var(--dark);
+      letter-spacing:-.3px;
+    }
+
+    .user-card{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px;
+      background:var(--gray-light);
+      border-radius:var(--radius);
+      margin-bottom:24px;
+    }
+
+    .user-avatar{
+      width:36px; height:36px;
+      background:var(--red);
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; font-weight:700; font-size:14px;
+      flex-shrink:0;
+    }
+
+    .user-info strong{
+      display:block;
+      font-size:13px;
+      font-weight:600;
+      color:var(--dark);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:140px;
+    }
+
+    .user-info span{
+      font-size:11px;
+      color:var(--gray);
+      text-transform:capitalize;
+    }
+
+    .menu{ display:flex; flex-direction:column; gap:2px; flex:1; }
+
+    .menu-section{
+      font-size:10px;
+      font-weight:700;
+      color:#aaa;
+      text-transform:uppercase;
+      letter-spacing:.8px;
+      padding:12px 10px 6px;
+    }
+
+    .menu a{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:10px;
+      color:var(--gray);
+      text-decoration:none;
+      font-size:13px;
+      font-weight:500;
+      transition:all .15s;
+    }
+
+    .menu a:hover{ background:var(--gray-light); color:var(--dark); }
+
+    .menu a.active{
+      background:var(--red-light);
+      color:var(--red);
+      font-weight:600;
+    }
+
+    .menu-icon{ font-size:16px; width:20px; text-align:center; }
+
+    .menu-divider{
+      height:1px;
+      background:var(--border);
+      margin:12px 0;
+    }
+
+    .menu a.sair{ color:#aaa; margin-top:auto; }
+    .menu a.sair:hover{ color:var(--red); background:var(--red-light); }
+
+    /* CONTENT */
+    .content{
+      margin-left:var(--sidebar);
+      width:calc(100% - var(--sidebar));
+      min-height:100vh;
+      padding:32px;
+    }
+
+    .page-head{
+      max-width:1200px;
+      margin:0 auto 24px;
+    }
+
+    .page-head h1{
+      font-family:'DM Serif Display',serif;
+      font-size:28px;
+      color:var(--dark);
+      letter-spacing:-.5px;
+      margin-bottom:4px;
+    }
+
+    .page-head p{
+      color:var(--gray);
+      font-size:14px;
+    }
+
+    .content > *{ max-width:1200px; margin-left:auto; margin-right:auto; }
+
+    /* CARDS */
+    .card{
+      background:var(--white);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:20px;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+
+    .card h3{
+      font-size:14px;
+      font-weight:600;
+      color:var(--dark);
+      margin-bottom:4px;
+    }
+
+    .card p{ color:var(--gray); font-size:13px; }
+
+    /* STAT CARDS */
+    .stat-num{
+      font-size:32px;
+      font-weight:700;
+      color:var(--dark);
+      letter-spacing:-1px;
+      line-height:1;
+      margin:8px 0 4px;
+    }
+
+    /* GRID */
+    .grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:16px; }
+    .grid-2{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:16px; }
+
+    /* BUTTONS */
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:10px 16px;
+      border-radius:8px;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      text-decoration:none;
+      border:none;
+      transition:all .15s;
+      font-family:'DM Sans',sans-serif;
+    }
+
+    .btn-primary{ background:var(--red); color:#fff; }
+    .btn-primary:hover{ background:#e0314f; }
+
+    .btn-outline{
+      background:transparent;
+      color:var(--dark);
+      border:1px solid var(--border);
+    }
+    .btn-outline:hover{ background:var(--gray-light); }
+
+    .btn-ghost{ background:transparent; color:var(--gray); }
+    .btn-ghost:hover{ color:var(--dark); background:var(--gray-light); }
+
+    /* INPUTS */
+    input, select, textarea{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:10px 12px;
+      font-size:13px;
+      font-family:'DM Sans',sans-serif;
+      color:var(--dark);
+      background:var(--white);
+      outline:none;
+      transition:border .15s;
+    }
+
+    input:focus, select:focus, textarea:focus{
+      border-color:var(--dark);
+      box-shadow:none;
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      font-weight:600;
+      color:var(--dark);
+      margin-bottom:6px;
+    }
+
+    /* TABLE */
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+
+    th{
+      text-align:left;
+      padding:10px 12px;
+      font-size:11px;
+      font-weight:700;
+      color:var(--gray);
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      border-bottom:1px solid var(--border);
+      background:transparent;
+    }
+
+    td{
+      padding:12px;
+      border-bottom:1px solid var(--border);
+      color:var(--dark);
+      vertical-align:middle;
+    }
+
+    tr:last-child td{ border-bottom:none; }
+    tr:hover td{ background:#fafafa; }
+
+    /* BADGE */
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      padding:3px 10px;
+      border-radius:20px;
+      font-size:11px;
+      font-weight:600;
+    }
+
+    .badge-red{ background:var(--red-light); color:var(--red); }
+    .badge-green{ background:#f0fdf4; color:#16a34a; }
+    .badge-gray{ background:var(--gray-light); color:var(--gray); }
+    .badge-blue{ background:#eff6ff; color:#2563eb; }
+
+    /* FORM */
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:12px;
+    }
+
+    /* STATUS */
+    .status{ display:inline-flex; align-items:center; gap:4px; font-size:12px; }
+    .status:before{ content:""; width:6px; height:6px; border-radius:50%; }
+    .status.ok:before{ background:#22c55e; }
+    .status.pending:before{ background:#f59e0b; }
+    .status.error:before{ background:var(--red); }
+
+    @media(max-width:900px){
+      .sidebar{ transform:translateX(-100%); }
+      .content{ margin-left:0; width:100%; padding:20px; }
+      .grid-4{ grid-template-columns:repeat(2,1fr); }
+      .grid-2{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🏠</div>
+      <span class="brand-name">MatchImóveis</span>
+    </div>
+
+    <div class="user-card">
+      <div class="user-avatar"><%= ((typeof user !== 'undefined' && user && user.nome) ? user.nome : 'A').charAt(0).toUpperCase() %></div>
+      <div class="user-info">
+        <strong><%= (typeof user !== 'undefined' && user && user.nome) ? user.nome : 'Antonio' %></strong>
+        <span><%= (typeof user !== 'undefined' && user && user.tipo) ? user.tipo : 'corretor' %></span>
+      </div>
+    </div>
+
+    <nav class="menu">
+      <div class="menu-section">Principal</div>
+      <a class="<%= active==='home'?'active':'' %>" href="/app-home"><span class="menu-icon">📊</span>Dashboard</a>
+      <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis"><span class="menu-icon">🏠</span>Meus imóveis</a>
+      <a class="<%= active==='leads'?'active':'' %>" href="/app/leads"><span class="menu-icon">👥</span>Leads</a>
+
+      <div class="menu-divider"></div>
+      <div class="menu-section">Configurações</div>
+      <a class="<%= active==='cadastro'?'active':'' %>" href="/app/cadastro"><span class="menu-icon">➕</span>Cadastrar imóvel</a>
+      <a class="<%= active==='portais'?'active':'' %>" href="/app/portais"><span class="menu-icon">🔗</span>Portais / XML</a>
+      <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas"><span class="menu-icon">📅</span>Visitas</a>
+      <a class="<%= active==='perfil'?'active':'' %>" href="/app/perfil"><span class="menu-icon">👤</span>Perfil</a>
+
+      <div class="menu-divider"></div>
+      <a href="/login" class="sair"><span class="menu-icon">🚪</span>Sair</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <div class="page-head">
+      <h1><%= (typeof title !== 'undefined' && title) ? title : '' %></h1>
+      <% if(typeof subtitle !== 'undefined' && subtitle) { %>
+        <p><%= subtitle %></p>
+      <% } %>
+    </div>

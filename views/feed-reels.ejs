@@ -1,0 +1,186 @@
+<%- include("partials/app-shell",{active:"feed",title:"Feed",subtitle:"",user:user}) %>
+
+<style>
+.reels-container{position:fixed;top:60px;left:240px;right:0;bottom:0;overflow-y:scroll;scroll-snap-type:y mandatory;background:#000}
+.reel{width:100%;height:calc(100vh - 60px);scroll-snap-align:start;position:relative;display:flex;align-items:flex-end;overflow:hidden;flex-shrink:0}
+.reel-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);display:flex;align-items:center;justify-content:center;font-size:80px;opacity:.3}
+.reel-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.reel-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.2) 50%,transparent 100%)}
+.reel-info{position:relative;z-index:2;padding:24px;width:calc(100% - 80px);color:#fff}
+.reel-tipo{display:inline-block;background:rgba(255,255,255,.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.reel-preco{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:6px}
+.reel-addr{font-size:14px;opacity:.85;margin-bottom:12px}
+.reel-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.reel-tag{background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:12px;padding:4px 10px;border-radius:20px}
+.reel-match{display:inline-flex;align-items:center;gap:6px;background:#1D9E75;color:#fff;font-size:13px;font-weight:700;padding:6px 14px;border-radius:20px;margin-bottom:10px}
+.reel-match-bar{width:100%;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin-bottom:16px}
+.reel-match-fill{height:4px;background:#1D9E75;border-radius:2px}
+.reel-corretor{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.reel-av{width:36px;height:36px;border-radius:50%;background:#1D9E75;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.reel-cn{font-size:13px;font-weight:600;color:#fff}
+.reel-cs{font-size:11px;color:rgba(255,255,255,.6)}
+.reel-cta{display:flex;gap:10px}
+.btn-wpp{display:flex;align-items:center;gap:8px;background:#25D366;color:#fff;border:none;padding:10px 18px;border-radius:25px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn-ver{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.3);color:#fff;padding:10px 18px;border-radius:25px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none}
+.reel-actions{position:absolute;right:16px;bottom:120px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:20px}
+.reel-btn{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;color:#fff}
+.reel-btn-icon{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;transition:all .15s}
+.reel-btn-icon:hover{background:rgba(255,255,255,.3);transform:scale(1.1)}
+.reel-btn-icon.liked{background:#FF385C;border-color:#FF385C}
+.reel-btn-label{font-size:11px;opacity:.8}
+.reel-counter{position:fixed;top:70px;right:20px;z-index:100;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);color:#fff;font-size:12px;padding:6px 12px;border-radius:20px}
+.reel-moedas-hud{position:fixed;top:70px;left:250px;z-index:100;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);color:#fff;font-size:12px;padding:6px 12px;border-radius:20px;display:flex;align-items:center;gap:6px;transition:color .3s}
+.reel-progress{position:fixed;left:240px;right:0;top:60px;height:3px;z-index:100;background:rgba(255,255,255,.1)}
+.reel-progress-fill{height:3px;background:#1D9E75;transition:width .3s}
+.loading{display:flex;align-items:center;justify-content:center;height:100%;color:#fff;font-size:16px}
+</style>
+
+<div class="reel-progress"><div class="reel-progress-fill" id="prog" style="width:0%"></div></div>
+<div class="reel-moedas-hud" id="moedas-hud">🪙 <span id="moedas-count">0</span> moedas</div>
+<div class="reel-counter" id="counter">...</div>
+<div class="reels-container" id="reels"><div class="loading">Carregando imóveis...</div></div>
+
+<script>
+let moedas = 0;
+const likes = new Set();
+const salvos = new Set();
+
+function addMoedas(n) {
+  moedas += n;
+  document.getElementById('moedas-count').textContent = moedas;
+  const hud = document.getElementById('moedas-hud');
+  hud.style.color = '#FFD700';
+  setTimeout(() => hud.style.color = '#fff', 600);
+}
+
+function ini(n) {
+  const s = String(n || 'C');
+  return s.split(' ').slice(0,2).map(x => x[0] || '').join('').toUpperCase() || 'C';
+}
+
+function fp(v, t) {
+  const n = Number(v) || 0;
+  const isVenda = (t || '').toLowerCase() === 'venda';
+  return isVenda ? 'R$ ' + n.toLocaleString('pt-BR') : 'R$ ' + n.toLocaleString('pt-BR') + '/mês';
+}
+
+fetch('/api/imoveis')
+  .then(r => r.json())
+  .then(data => {
+    const container = document.getElementById('reels');
+    container.innerHTML = '';
+    document.getElementById('counter').textContent = '1 / ' + data.length;
+
+    data.forEach((im, i) => {
+      const match = Math.floor(70 + Math.random() * 25);
+      const transacao = im.transacao || im.tipo || 'aluguel';
+      const isVenda = transacao.toLowerCase() === 'venda';
+      const preco = fp(im.valor || im.preco || 0, transacao);
+      const bairro = String(im.bairro || '');
+      const cidade = String(im.cidade || '');
+      const end = String(im.endereco || '');
+      const area = Number(im.area || im.areaUtil || 0);
+      const qtos = Number(im.quartos || im.dormitorios || 0);
+      const vagas = Number(im.vagas || 0);
+      const corretor = String(im.corretor || im.nomeCorretor || 'Corretor');
+      const tel = String(im.telefone || im.telefoneCorretor || '').replace(/\D/g, '');
+      const foto = im.fotos && im.fotos[0] ? im.fotos[0] : null;
+      const idImovel = im.id || im.idExterno || i;
+      const wa = tel
+        ? 'https://wa.me/55' + tel + '?text=' + encodeURIComponent('Olá ' + corretor + ', vi seu imóvel no MatchImóveis: ' + end + ' ' + bairro)
+        : '#';
+
+      const div = document.createElement('div');
+      div.className = 'reel';
+      div.id = 'reel-' + i;
+      div.innerHTML =
+        (foto ? '<img class="reel-img" src="' + foto + '" alt="foto" onerror="this.style.display=\'none\'"/>' : '') +
+        '<div class="reel-bg">🏠</div>' +
+        '<div class="reel-overlay"></div>' +
+        '<div class="reel-info">' +
+          '<div class="reel-tipo">' + (isVenda ? 'Venda' : 'Aluguel') + '</div>' +
+          '<div class="reel-preco">' + preco + '</div>' +
+          '<div class="reel-addr">📍 ' + end + (bairro ? ' — ' + bairro : '') + (cidade ? ', ' + cidade : '') + '</div>' +
+          '<div class="reel-tags">' +
+            (area ? '<span class="reel-tag">📐 ' + area + 'm²</span>' : '') +
+            (qtos ? '<span class="reel-tag">🛏 ' + qtos + ' quartos</span>' : '') +
+            (vagas ? '<span class="reel-tag">🚗 ' + vagas + ' vagas</span>' : '') +
+          '</div>' +
+          '<div class="reel-match">🎯 ' + match + '% match</div>' +
+          '<div class="reel-match-bar"><div class="reel-match-fill" style="width:' + match + '%"></div></div>' +
+          '<div class="reel-corretor">' +
+            '<div class="reel-av">' + ini(corretor) + '</div>' +
+            '<div><div class="reel-cn">' + corretor + '</div><div class="reel-cs">Corretor responsável</div></div>' +
+          '</div>' +
+          '<div class="reel-cta">' +
+            '<a class="btn-wpp" href="' + wa + '" target="_blank">💬 WhatsApp</a>' +
+            '<a class="btn-ver" href="/app/imovel/' + idImovel + '">Ver detalhes</a>' +
+          '</div>' +
+        '</div>' +
+        '<div class="reel-actions">' +
+          '<div class="reel-btn" onclick="toggleLike(' + i + ')">' +
+            '<div class="reel-btn-icon" id="like-' + i + '">❤️</div>' +
+            '<span class="reel-btn-label" id="lc-' + i + '">0</span>' +
+          '</div>' +
+          '<div class="reel-btn" onclick="salvar(' + i + ')">' +
+            '<div class="reel-btn-icon" id="save-' + i + '">🔖</div>' +
+            '<span class="reel-btn-label">Salvar</span>' +
+          '</div>' +
+          '<div class="reel-btn" onclick="compartilhar(' + i + ')">' +
+            '<div class="reel-btn-icon">📤</div>' +
+            '<span class="reel-btn-label">Enviar</span>' +
+          '</div>' +
+        '</div>';
+
+      container.appendChild(div);
+    });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const idx = parseInt(e.target.id.replace('reel-', ''));
+          document.getElementById('counter').textContent = (idx + 1) + ' / ' + data.length;
+          document.getElementById('prog').style.width = ((idx + 1) / data.length * 100) + '%';
+          addMoedas(2);
+        }
+      });
+    }, { threshold: 0.6 });
+
+    document.querySelectorAll('.reel').forEach(r => observer.observe(r));
+  })
+  .catch(() => {
+    document.getElementById('reels').innerHTML = '<div class="loading">Erro ao carregar imóveis. Tente novamente.</div>';
+  });
+
+function toggleLike(i) {
+  const btn = document.getElementById('like-' + i);
+  const cnt = document.getElementById('lc-' + i);
+  if (likes.has(i)) {
+    likes.delete(i);
+    btn.style.background = 'rgba(255,255,255,.15)';
+    cnt.textContent = Math.max(0, parseInt(cnt.textContent) - 1);
+  } else {
+    likes.add(i);
+    btn.style.background = '#FF385C';
+    cnt.textContent = parseInt(cnt.textContent) + 1;
+    addMoedas(5);
+  }
+}
+
+function salvar(i) {
+  const btn = document.getElementById('save-' + i);
+  if (!salvos.has(i)) {
+    salvos.add(i);
+    btn.textContent = '⭐';
+    addMoedas(3);
+  }
+}
+
+function compartilhar(i) {
+  addMoedas(10);
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(window.location.origin + '/feed#reel-' + i);
+  }
+  alert('Link copiado! +10 moedas 🪙');
+}
+</script>

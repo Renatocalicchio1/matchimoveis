@@ -41,28 +41,26 @@ async function extractProperty(row = {}, origin = {}) {
         return n ? Number(n) : 0;
       };
 
-      function extractAddress(text) {
-        let bairro = '';
-        let cidade = '';
-        let estado = '';
-        let logradouro = '';
-
-        const match = text.match(/([^\n]+?),\s*([^,\n]+),\s*(São Paulo|Sao Paulo)/i);
-
-        if (match) {
-          logradouro = clean(match[1]);
-          bairro = clean(match[2]);
-          cidade = 'São Paulo';
-          estado = 'SP';
+        function extractAddress(text) {
+          let bairro = "", cidade = "", estado = "", logradouro = "";
+          const m1 = text.match(/([^\n]+?),\s*([^,\n]+),\s*(São Paulo|Sao Paulo)/i);
+          if (m1) { logradouro = clean(m1[1]); bairro = clean(m1[2]); cidade = "São Paulo"; estado = "SP"; }
+          if (!bairro) { const m2 = text.match(/Bairro[:\s]+([^\n]{2,40})/i); if (m2) bairro = clean(m2[1]); }
+          if (!bairro) { const t = document.title||""; const m3 = t.match(/em\s+([^,-]{3,35})/i); if (m3) bairro = clean(m3[1]); }
+          if (bairro && (bairro.length > 50 || /^\d+$/.test(bairro))) bairro = "";
+          if (!cidade) { cidade = "São Paulo"; estado = "SP"; }
+          return { logradouro, bairro, cidade, estado };
         }
-
-        if (!bairro || bairro.length > 50 || /^\d+$/.test(bairro)) {
-          bairro = '';
+        function extractAddress(text) {
+          let bairro = "", cidade = "", estado = "", logradouro = "";
+          const m1 = text.match(/([^\n]+?),\s*([^,\n]+),\s*(São Paulo|Sao Paulo)/i);
+          if (m1) { logradouro = clean(m1[1]); bairro = clean(m1[2]); cidade = "São Paulo"; estado = "SP"; }
+          if (!bairro) { const m2 = text.match(/Bairro[:\s]+([^\n]{2,40})/i); if (m2) bairro = clean(m2[1]); }
+          if (!bairro) { const t = document.title||""; const m3 = t.match(/em\s+([^,-]{3,35})/i); if (m3) bairro = clean(m3[1]); }
+          if (bairro && (bairro.length > 50 || /^\d+$/.test(bairro))) bairro = "";
+          if (!cidade) { cidade = "São Paulo"; estado = "SP"; }
+          return { logradouro, bairro, cidade, estado };
         }
-
-        return { logradouro, bairro, cidade, estado };
-      }
-
       const text = document.body.innerText;
       const titulo = document.title || '';
 

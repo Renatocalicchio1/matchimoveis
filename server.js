@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -859,4 +860,27 @@ app.post('/process', upload.any(), async (req, res) => {
   } catch (err) {
     return res.send('Erro ao importar leads: ' + err.message);
   }
+});
+
+// ====== ROTA MAPA ======
+app.get('/mapa', (req, res) => {
+  const imoveis = loadImoveis();
+  const { tipo } = req.query;
+  let filtrados = imoveis;
+  if (tipo) filtrados = filtrados.filter(i => i.tipo === tipo);
+  res.render('mapa', {
+    user: req.session.user,
+    imoveisJSON: JSON.stringify(filtrados),
+    total: filtrados.length
+  });
+});
+
+// ====== FEED REELS ======
+app.get('/feed', (req, res) => {
+  res.render('feed-reels', { user: req.session.user });
+});
+
+app.get('/api/imoveis', (req, res) => {
+  const imoveis = loadImoveis();
+  res.json(imoveis.slice(0, 50));
 });

@@ -1,1 +1,8 @@
 .env
+node_modules/
+*.log
+uploads/
+olx-memory.json
+mineracao.json
+mineracao-log.txt
+feed-*.xml

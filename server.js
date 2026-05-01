@@ -228,41 +228,31 @@ function marcarEtapaLead(lead, etapa){
 }
 
 app.get('/cliente/oferta/:leadId', (req,res)=>{
-  const leads = carregarLeads();
-  const lead = leads.find(l => l.leadId === req.params.leadId);
+  const leads = JSON.parse(fs.readFileSync('data.json','utf8'));
+  const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
   if(!lead) return res.status(404).send('Lead não encontrado');
-
-  marcarEtapaLead(lead, 'Cliente visualizou');
-  salvarLeads(leads);
-
-  res.render('cliente-oferta', { user: req.session.user,  lead });
+  res.render('cliente-oferta', { user: null, lead });
 });
 
 app.get('/cliente/oferta/:leadId/escolher/:idx', (req,res)=>{
-  const leads = carregarLeads();
-  const lead = leads.find(l => l.leadId === req.params.leadId);
+  const leads = JSON.parse(fs.readFileSync('data.json','utf8'));
+  const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
   if(!lead) return res.status(404).send('Lead não encontrado');
-
   const idx = Number(req.params.idx);
   lead.imovelEscolhido = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
-  marcarEtapaLead(lead, 'Cliente escolheu imóvel');
-  salvarLeads(leads);
-
-  res.send('<h2>Imóvel escolhido com sucesso.</h2><p>Agora você pode solicitar uma visita.</p><a href="/cliente/oferta/'+lead.leadId+'">Voltar</a>');
+  fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
+  res.redirect('/cliente/oferta/'+req.params.leadId);
 });
 
 app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
-  const leads = carregarLeads();
-  const lead = leads.find(l => l.leadId === req.params.leadId);
+  const leads = JSON.parse(fs.readFileSync('data.json','utf8'));
+  const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
   if(!lead) return res.status(404).send('Lead não encontrado');
-
   const idx = Number(req.params.idx);
   lead.imovelVisita = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
-  marcarEtapaLead(lead, 'Cliente escolheu imóvel');
-  marcarEtapaLead(lead, 'Visita solicitada');
-  salvarLeads(leads);
-
-  res.send('<h2>Visita solicitada.</h2><p>O corretor vai acompanhar o agendamento.</p><a href="/cliente/oferta/'+lead.leadId+'">Voltar</a>');
+  lead.visitaSolicitadaEm = new Date().toISOString();
+  fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
+  res.redirect('/cliente/oferta/'+req.params.leadId+'?visita=ok');
 });
 
 
@@ -817,9 +807,17 @@ app.get('/app/leads', auth, (req,res)=>{
   const raw = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
   const data = Array.isArray(raw) ? raw : (raw.results || []);
   const leads = data;
+  // usa matchesBase (base interna) ou matches (externos)
+  leads.forEach(l => {
+    if (!l.matches || l.matches.length === 0) {
+      l.matches = l.matchesBase || [];
+      l.matchCount = l.matchCountBase || 0;
+    }
+  });
   const totalMatches = leads.reduce((sum,item)=> sum + ((item.matches && item.matches.length) || 0), 0);
   res.render('app-leads', {
     user: req.session.user,
+    active: 'leads',
     leads,
     stats: {
       totalLeads: leads.length,

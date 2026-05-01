@@ -1,45 +1,110 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>Ofertas para você</title>
+  <title>Ofertas para você • MatchImóveis</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="/app.css">
-<link rel="stylesheet" href="/airbnb.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #222; }
+    .topbar { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+    .topbar .logo { font-weight: 800; font-size: 20px; color: #e11d48; }
+    .topbar .sub { font-size: 13px; color: #666; }
+    .hero { background: linear-gradient(135deg, #e11d48 0%, #9f1239 100%); color: #fff; padding: 36px 24px; text-align: center; }
+    .hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .hero p { font-size: 15px; opacity: 0.9; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+    .card { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+    .card-img { width: 100%; height: 200px; object-fit: cover; background: #f3f4f6; display: block; }
+    .card-img-placeholder { width: 100%; height: 200px; background: linear-gradient(135deg, #f3f4f6, #e5e7eb); display: flex; align-items: center; justify-content: center; font-size: 48px; }
+    .card-body { padding: 18px; }
+    .score-badge { display: inline-block; background: #e11d48; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
+    .card-title { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 4px; }
+    .card-sub { font-size: 13px; color: #666; margin-bottom: 12px; }
+    .card-price { font-size: 22px; font-weight: 800; color: #e11d48; margin-bottom: 12px; }
+    .card-specs { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .spec { display: flex; flex-direction: column; align-items: center; background: #f9fafb; border-radius: 8px; padding: 6px 12px; min-width: 56px; }
+    .spec-val { font-size: 16px; font-weight: 700; color: #111; }
+    .spec-label { font-size: 10px; color: #888; margin-top: 2px; }
+    .card-desc { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 16px; }
+    .card-actions { display: flex; gap: 10px; }
+    .btn-like { flex: 1; padding: 12px; background: #f3f4f6; color: #111; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-like:hover { background: #e5e7eb; }
+    .btn-visit { flex: 1; padding: 12px; background: #e11d48; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn-visit:hover { background: #be123c; }
+    .empty { text-align: center; padding: 64px 24px; }
+    .empty .icon { font-size: 56px; margin-bottom: 16px; }
+    .visitado { border: 2px solid #10b981; }
+    .visitado .score-badge { background: #10b981; }
+    .tag-escolhido { display: inline-block; background: #d1fae5; color: #065f46; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-left: 8px; }
+  </style>
 </head>
 <body>
-  <div class="main" style="margin:0!important;width:100%!important;max-width:1100px!important;margin:auto!important">
-    <div class="topbar">
-      <div>
-        <span class="badge">MatchImoveis</span>
-        <h1>Olá, <%= lead.clienteNome || 'cliente' %></h1>
-        <p class="small">Selecionamos imóveis parecidos com o que você buscou. Escolha os que gostou e solicite uma visita.</p>
-      </div>
-    </div>
 
-    <div class="grid2">
-      <% (lead.matches || []).forEach((m,idx)=>{ %>
-        <div class="card">
-          <span class="status red">Score <%= m.score %></span>
-          <h3 style="margin-top:10px"><%= m.tipo || 'Imóvel' %> em <%= m.bairro || '-' %></h3>
-          <p class="small"><%= m.cidade || '' %>/<%= m.estado || '' %> • <%= m.fonte || '' %></p>
-          <p><b>Valor:</b> <%= m.valor || '-' %></p>
-          <p><b>Área:</b> <%= m.area || '-' %> • <b>Quartos:</b> <%= m.quartos || '-' %> • <b>Vagas:</b> <%= m.vagas || '-' %></p>
-          <p class="small"><%= (m.descricao || '').toString().slice(0,180) %>...</p>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-            <a class="btn light" href="/cliente/oferta/<%= lead.leadId %>/escolher/<%= idx %>">Gostei deste</a>
-            <a class="btn red" href="/cliente/oferta/<%= lead.leadId %>/visita/<%= idx %>">Quero visitar</a>
-          </div>
+<div class="topbar">
+  <div class="logo">MatchImóveis</div>
+  <div class="sub">Imóveis selecionados para você</div>
+</div>
+
+<div class="hero">
+  <h1>Olá, <%= lead.nome || lead.clientName || 'cliente' %>! 👋</h1>
+  <p>Selecionamos <%= (lead.matches||[]).length %> imóvel<%= (lead.matches||[]).length !== 1 ? 'is' : '' %> parecido<%= (lead.matches||[]).length !== 1 ? 's' : '' %> com o que você busca.<br>Escolha os que gostou e solicite uma visita.</p>
+</div>
+
+<div class="container">
+  <% if(!lead.matches || !lead.matches.length) { %>
+    <div class="empty">
+      <div class="icon">🏠</div>
+      <h2>Nenhum match disponível ainda</h2>
+      <p style="color:#666;margin-top:8px">O sistema ainda está buscando imóveis para o seu perfil. Tente novamente em breve.</p>
+    </div>
+  <% } else { %>
+  <div class="grid">
+    <% (lead.matches||[]).forEach((m, idx) => {
+      const foto = (m.fotos && m.fotos[0]) ? m.fotos[0] : null;
+      const valor = m.valor_imovel || m.valor || 0;
+      const valorFmt = valor ? 'R$ ' + Number(valor).toLocaleString('pt-BR') : '-';
+      const isEscolhido = lead.imovelEscolhido && lead.imovelEscolhido.idExterno === m.idExterno;
+      const isVisita = lead.imovelVisita && lead.imovelVisita.idExterno === m.idExterno;
+    %>
+    <div class="card <%= isVisita ? 'visitado' : '' %>">
+      <% if(foto) { %>
+        <img class="card-img" src="<%= foto %>" alt="Foto do imóvel" loading="lazy" onerror="this.parentNode.innerHTML='<div class=\'card-img-placeholder\'>🏠</div>'">
+      <% } else { %>
+        <div class="card-img-placeholder">🏠</div>
+      <% } %>
+      <div class="card-body">
+        <div>
+          <span class="score-badge">Score <%= m.score || '-' %></span>
+          <% if(isEscolhido) { %><span class="tag-escolhido">✓ Gostei</span><% } %>
+          <% if(isVisita) { %><span class="tag-escolhido" style="background:#dbeafe;color:#1e40af">📅 Visita solicitada</span><% } %>
         </div>
-      <% }) %>
-    </div>
-
-    <% if(!lead.matches || !lead.matches.length){ %>
-      <div class="card">
-        <h3>Nenhum match disponível ainda</h3>
-        <p class="small">O sistema ainda está buscando imóveis para o seu perfil.</p>
+        <div class="card-title"><%= m.tipo || 'Imóvel' %> em <%= m.bairro || '-' %></div>
+        <div class="card-sub"><%= m.cidade || 'São Paulo' %>/<%= m.estado || 'SP' %> · <%= (m.proprietario && m.proprietario.corretor) ? m.proprietario.corretor : (m.fonte || 'Rankim') %></div>
+        <div class="card-price"><%= valorFmt %></div>
+        <div class="card-specs">
+          <div class="spec"><span class="spec-val"><%= m.area_m2 || m.area || '-' %></span><span class="spec-label">m²</span></div>
+          <div class="spec"><span class="spec-val"><%= m.quartos || '-' %></span><span class="spec-label">Quartos</span></div>
+          <% if(m.suites) { %><div class="spec"><span class="spec-val"><%= m.suites %></span><span class="spec-label">Suítes</span></div><% } %>
+          <div class="spec"><span class="spec-val"><%= m.banheiros || '-' %></span><span class="spec-label">Banheiros</span></div>
+          <div class="spec"><span class="spec-val"><%= m.vagas || '-' %></span><span class="spec-label">Vagas</span></div>
+          <% if(m.condominio) { %><div class="spec"><span class="spec-val">R$ <%= Number(m.condominio).toLocaleString('pt-BR') %></span><span class="spec-label">Cond.</span></div><% } %>
+        </div>
+        <% if(m.descricao) { %>
+          <div class="card-desc"><%= m.descricao.toString().slice(0, 200) %>...</div>
+        <% } %>
+        <div class="card-actions">
+          <a href="/cliente/oferta/<%= lead.id || lead.leadId %>/escolher/<%= idx %>" class="btn-like">❤️ Gostei</a>
+          <a href="/cliente/oferta/<%= lead.id || lead.leadId %>/visita/<%= idx %>" class="btn-visit">📅 Quero visitar</a>
+        </div>
       </div>
-    <% } %>
+    </div>
+    <% }) %>
   </div>
+  <% } %>
+</div>
+
 </body>
 </html>

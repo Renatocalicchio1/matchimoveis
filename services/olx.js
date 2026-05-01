@@ -133,8 +133,7 @@ async function searchOLX(property) {
       [...new Set(
         els
           .map(a => a.href)
-          .filter(h => h && h.includes('olx.com.br') && h.includes('/imoveis/venda/')))
-          )
+          .filter(h => h && h.includes('olx.com.br') && h.includes('/imoveis/venda/'))
       )].slice(0, 10)
     );
 

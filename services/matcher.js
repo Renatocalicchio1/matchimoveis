@@ -70,8 +70,8 @@ function passaFiltros(origin, c) {
   const valor = c.valor_imovel || c.valor || 0;
   const baseValor = origin.valor_imovel || origin.valor || 0;
   if (baseValor > 0) {
-    if (valor < baseValor * 0.65) return false;
-    if (valor > baseValor * 1.20) return false;
+    if (valor < baseValor * 0.50) return false;
+    if (valor > baseValor * 1.25) return false;
   }
 
   // área: mínimo -20%

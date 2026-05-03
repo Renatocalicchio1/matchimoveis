@@ -72,7 +72,7 @@ function parseListing(l) {
     }
 
     return {
-      idExterno: normalizeId(idRaw),
+      idExterno: idRaw,
       idOriginal: idRaw,
       titulo: l.Title || '',
       transacao: l.TransactionType === 'For Sale' ? 'venda' : 'aluguel',

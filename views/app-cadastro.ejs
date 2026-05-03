@@ -122,20 +122,12 @@
         </div>
         <p style="font-size:12px;color:var(--gray);margin-top:8px">Formatos aceitos: VivaReal VRSync, ZAP, OLX, Rankim, CRM padrão</p>
         <div id="xml-test-result" style="margin-top:10px;display:none"></div>
-      </div>
+<div id="import-status" style="margin-top:12px;padding:12px;border:1px solid #eee;border-radius:12px;background:#fafafa;font-size:13px;color:#666">
+  Status da importação: <strong id="import-status-text">Idle</strong>
+</div>
+</div>
 
-      <div style="text-align:center;color:var(--gray);font-size:12px;margin:16px 0">— ou envie o arquivo —</div>
-
-      <div class="form-section">
-        <h4>Arquivo XML / Planilha</h4>
-        <div class="upload-zone" onclick="document.getElementById('fileInput').click()" id="dropZone">
-          <div class="upload-icon">📂</div>
-          <p style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px">Arraste o arquivo aqui</p>
-          <p style="font-size:12px;color:var(--gray)">XML, CSV ou XLSX — máx. 50MB</p>
-          <input type="file" name="file" id="fileInput" style="display:none" accept=".xml,.csv,.xlsx" onchange="onFileSelect(this)">
-        </div>
-        <div id="file-name" style="font-size:13px;color:var(--green);margin-top:8px;display:none"></div>
-      </div>
+      <div id="upload-xml-arquivo" style="display:none"></div>
 
       <div class="progress-wrap" id="progress-wrap">
         <p style="font-size:13px;color:var(--gray);margin-bottom:8px" id="progress-msg">Importando imóveis...</p>
@@ -392,7 +384,7 @@ if(dz) {
 }
 </script>
 
-</main></div></body></html>
+</main></div><script>document.addEventListener("DOMContentLoaded",function(){var el=document.getElementById("mc-prop");if(el)el.style.display="none";var sec=document.getElementById("sec-prop");if(sec)sec.style.display="none";});</script></body></html>
 
 <script>
 async function gerarDescricaoIA(){
@@ -416,4 +408,98 @@ async function gerarDescricaoIA(){
   const campo = document.querySelector('[name="descricao"]');
   if (campo) campo.value = data.descricao || '';
 }
+</script>
+
+<script>
+async function atualizarStatusImport(){
+  try{
+    const r = await fetch('/import-status');
+    const j = await r.json();
+    const el = document.getElementById('import-status-text');
+    if(!el) return;
+
+    if(j.status === 'rodando'){
+      el.innerText = 'Importando...';
+      el.style.color = '#f59e0b';
+    } else if(j.status === 'finalizado'){
+      el.innerText = 'Finalizado ✅';
+      el.style.color = '#16a34a';
+    } else {
+      el.innerText = 'Idle';
+      el.style.color = '#666';
+    }
+  }catch(e){}
+}
+
+setInterval(atualizarStatusImport, 2000);
+atualizarStatusImport();
+</script>
+
+<script>
+function setupImportacaoXMLAjax(){
+  const form = document.querySelector('form[action="/app/importar"]');
+  if(!form) return;
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+
+    const statusBox = document.getElementById('import-status');
+    const statusText = document.getElementById('import-status-text');
+
+    if(statusBox) statusBox.style.display = 'block';
+    if(statusText){
+      statusText.innerHTML = 'Importando XML... aguarde';
+      statusText.style.color = '#f59e0b';
+    }
+
+    const fd = new FormData(form);
+
+    try{
+      const r = await fetch('/app/importar', { method:'POST', body:fd });
+      const j = await r.json();
+
+      if(!j.ok){
+        statusText.innerHTML = 'Erro: ' + (j.erro || 'falha ao iniciar importação');
+        statusText.style.color = '#dc2626';
+        return;
+      }
+
+      acompanharImportacaoXML();
+    }catch(err){
+      statusText.innerHTML = 'Erro: ' + err.message;
+      statusText.style.color = '#dc2626';
+    }
+  });
+}
+
+async function acompanharImportacaoXML(){
+  const el = document.getElementById('import-status-text');
+  if(!el) return;
+
+  const timer = setInterval(async ()=>{
+    try{
+      const r = await fetch('/import-status');
+      const j = await r.json();
+
+      if(j.status === 'rodando'){
+        el.innerHTML = 'Importando XML...';
+        el.style.color = '#f59e0b';
+      }
+
+      if(j.status === 'finalizado'){
+        clearInterval(timer);
+        el.style.color = '#16a34a';
+        el.innerHTML = 'Importação concluída: ' + (j.total || 0) + ' imóveis importados. <a href="/app/imoveis" style="font-weight:700;color:#111;text-decoration:underline">Ver meus imóveis →</a>';
+      }
+
+      if(j.status === 'erro'){
+        clearInterval(timer);
+        el.style.color = '#dc2626';
+        el.innerHTML = 'Erro na importação: ' + (j.mensagem || '');
+      }
+    }catch(e){}
+  }, 1500);
+}
+
+document.addEventListener('DOMContentLoaded', setupImportacaoXMLAjax);
 </script>

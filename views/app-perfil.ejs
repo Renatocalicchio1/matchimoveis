@@ -9,6 +9,7 @@
       <div><label>CRECI</label><input name="creci" value="<%= user.creci||'' %>"></div>
       <div><label>CPF</label><input name="cpf" value="<%= user.cpf||'' %>"></div>
       <div><label>Tipo de conta</label><input value="<%= user.tipo||'corretor' %>" readonly style="background:#f7f7f7;color:#aaa"></div>
+      <div><label>Código do usuário</label><input value="<%= user.codigoUsuario || user.codigo || '-' %>" readonly style="background:#f7f7f7;color:#111;font-weight:700"></div>
     </div>
     <button class="btn btn-primary" type="submit" style="margin-top:16px">Salvar perfil</button>
   </form>

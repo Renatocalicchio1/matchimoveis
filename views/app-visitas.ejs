@@ -32,8 +32,9 @@
             const imovelCidade = v.imovelCidade || v.cidade || v.imovel?.cidade || '-';
             const imovelEstado = v.imovelEstado || v.estado || v.imovel?.estado || '-';
 
-            const dataVisita = v.dataVisita || v.dataPreferida || v.data_agendada || '-';
-            const horaVisita = v.horaVisita || v.horarioPreferido || v.hora_agendada || '-';
+            const dataBr = v.data_br || (v.data ? new Date(v.data).toLocaleString('pt-BR') : '');
+            const dataVisita = v.dataVisita || v.dataPreferida || v.data_agendada || (dataBr ? dataBr.split(',')[0] : '-');
+            const horaVisita = v.horaVisita || v.horarioPreferido || v.hora_agendada || (dataBr && dataBr.includes(',') ? dataBr.split(',')[1].trim() : '-');
 
             const linkImovel = v.imovelUrl || v.url || v.imovel?.url || (imovelId ? '/imovel/' + imovelId : '');
           %>

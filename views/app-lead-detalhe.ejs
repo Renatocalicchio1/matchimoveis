@@ -36,6 +36,17 @@
 @media(max-width:900px){.ld-layout{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.match-card{grid-template-columns:64px 1fr}.match-card>div:last-child{grid-column:1/-1;text-align:left!important}}
 </style>
 
+<style id="organiza-blocos-lead-css">
+  .ld-layout{align-items:start}
+  .ld-card{margin-bottom:14px}
+  .grid2{grid-template-columns:1fr!important}
+  aside .ld-card{padding:18px}
+  @media(min-width:901px){
+    aside{position:relative}
+  }
+</style>
+
+
 <div class="ld-wrap">
 
   <div class="ld-top">
@@ -66,8 +77,8 @@
       </div>
 
       <div class="grid2">
-        <div class="ld-card">
-          <div class="ld-title">👤 Dados da Lead</div>
+        <div class="ld-card" style="padding:14px;align-self:start">
+          <div class="ld-title" style="margin-bottom:10px">👤 Dados da Lead</div>
           <% if(lead.contato||lead.telefone) { %><div class="info-row"><span class="info-lbl">Celular</span><span class="info-val"><%= lead.contato||lead.telefone %></span></div><% } %>
           <% if(lead.email) { %><div class="info-row"><span class="info-lbl">Email</span><span class="info-val"><%= lead.email %></span></div><% } %>
           <% if(lead.data_cadastro_br) { %><div class="info-row"><span class="info-lbl">Cadastro</span><span class="info-val"><%= lead.data_cadastro_br %></span></div><% } %>
@@ -77,59 +88,95 @@
       <div class="ld-card">
         <div class="ld-title">📊 Comportamento da Lead</div>
 
-        <% if(lead.imovel_interesse) { %>
-          <div class="tl-item">
-            <div class="tl-dot"></div>
-            <div>
-              <div class="tl-action">Cadastrou interesse no imóvel #<%= lead.imovel_interesse %></div>
-              <div style="margin-top:4px">
-                <a href="/imovel/<%= lead.imovel_interesse %>" target="_blank" style="font-size:12px;color:var(--brand);font-weight:800;text-decoration:none">
-                  Ver imóvel →
-                </a>
-              </div>
-              <div class="tl-date"><%= lead.data_cadastro_br || (lead.createdAt ? new Date(lead.createdAt).toLocaleString('pt-BR') : 'Data não informada') %></div>
-              <% if(lead.titulo_interesse) { %>
-                <div style="font-size:12px;color:var(--gray);margin-top:4px"><%= lead.titulo_interesse %></div>
-              <% } %>
-            </div>
-          </div>
-        <% } %>
+        <%
+          const eventosLead = [];
 
-        <% if((typeof visitasDaLead !== 'undefined' && (typeof visitasDaLead !== 'undefined' && visitasDaLead && visitasDaLead.length))) { %>
-          <% (visitasDaLead || []).slice().reverse().forEach(v => { %>
+          if (lead.imovel_interesse) {
+            eventosLead.push({
+              tipo: 'interesse',
+              acao: 'Cadastrou interesse no imóvel #' + lead.imovel_interesse,
+              data: lead.createdAt || lead.data_cadastro || new Date().toISOString(),
+              extra: lead.titulo_interesse || '',
+              link: '/imovel/' + lead.imovel_interesse
+            });
+          }
+
+          if (typeof visitasDaLead !== 'undefined' && visitasDaLead && visitasDaLead.length) {
+            (visitasDaLead || []).forEach(v => {
+              eventosLead.push({
+                tipo: 'visita',
+                acao: 'Solicitou/agendou visita no imóvel #' + (v.imovelId || v.imovel_id || v.idImovel || v.imovel_interesse || '-'),
+                data: v.createdAt || v.data || v.dataVisita || '',
+                extra: (v.status ? 'Status: ' + v.status : ''),
+                link: ''
+              });
+            });
+          }
+
+          if (lead.historico && lead.historico.length) {
+            lead.historico
+              .filter(h => h.acao !== 'visualizou_detalhes_lead')
+              .forEach(h => {
+                eventosLead.push({
+                  tipo: 'historico',
+                  acao: String(h.acao || 'ação').replace(/_/g,' '),
+                  data: h.data || '',
+                  extra: '',
+                  link: ''
+                });
+              });
+          }
+
+          eventosLead.sort((a,b) => new Date(b.data || 0) - new Date(a.data || 0));
+          const eventosRecentes = eventosLead.slice(0,3);
+        %>
+
+        <% if(eventosRecentes.length) { %>
+          <% eventosRecentes.forEach(ev => { %>
             <div class="tl-item">
               <div class="tl-dot"></div>
               <div>
-                <div class="tl-action">Solicitou/agendou visita no imóvel #<%= v.imovelId || v.imovel_id || v.idImovel || v.imovel_interesse || '-' %></div>
-                <div class="tl-date">
-                  <%= v.data || v.dataVisita || v.dia || '' %>
-                  <% if(v.hora || v.horario) { %> às <%= v.hora || v.horario %><% } %>
-                  <% if(v.createdAt) { %> · pedido em <%= new Date(v.createdAt).toLocaleString('pt-BR') %><% } %>
-                </div>
-                <% if(v.status) { %>
-                  <div style="font-size:12px;color:var(--gray);margin-top:4px">Status: <%= v.status %></div>
+                <div class="tl-action"><%= ev.acao %></div>
+                <% if(ev.link) { %>
+                  <div style="margin-top:4px">
+                    <a href="<%= ev.link %>" target="_blank" style="font-size:12px;color:var(--brand);font-weight:800;text-decoration:none">Ver imóvel →</a>
+                  </div>
                 <% } %>
+                <div class="tl-date"><%= ev.data ? new Date(ev.data).toLocaleString('pt-BR') : 'Data não informada' %></div>
+                <% if(ev.extra) { %><div style="font-size:12px;color:var(--gray);margin-top:4px"><%= ev.extra %></div><% } %>
               </div>
             </div>
           <% }) %>
-        <% } %>
 
-        <% if(lead.historico && lead.historico.length) { %>
-          <% lead.historico.filter(h => h.acao !== 'visualizou_detalhes_lead').slice().reverse().forEach(h => { %>
-            <div class="tl-item">
-              <div class="tl-dot"></div>
-              <div>
-                <div class="tl-action"><%= String(h.acao||'ação').replace(/_/g,' ') %></div>
-                <div class="tl-date"><%= h.data ? new Date(h.data).toLocaleString('pt-BR') : '' %></div>
-              </div>
-            </div>
-          <% }) %>
-        <% } %>
-
-        <% if(!lead.imovel_interesse && !((typeof visitasDaLead !== 'undefined' && (typeof visitasDaLead !== 'undefined' && visitasDaLead && visitasDaLead.length))) && !(lead.historico||[]).filter(h => h.acao !== 'visualizou_detalhes_lead').length) { %>
+          <% if(eventosLead.length > 5) { %>
+            <button type="button" onclick="document.getElementById('modal-comportamento-lead').style.display='flex'" class="btn-acao" style="margin-top:12px;background:#111827;color:white;border:0">
+              Ver todos os comportamentos (<%= eventosLead.length %>)
+            </button>
+          <% } %>
+        <% } else { %>
           <div style="color:var(--gray);font-size:13px">Nenhum comportamento real registrado ainda.</div>
         <% } %>
       </div></div>
+
+      <div id="modal-comportamento-lead" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999999;align-items:center;justify-content:center;padding:20px">
+        <div style="background:white;border-radius:18px;max-width:620px;width:100%;max-height:80vh;overflow:auto;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div class="ld-title">📊 Todos os comportamentos</div>
+            <button type="button" onclick="document.getElementById('modal-comportamento-lead').style.display='none'" style="border:0;background:#f3f4f6;border-radius:999px;width:34px;height:34px;cursor:pointer">×</button>
+          </div>
+
+          <% eventosLead.forEach(ev => { %>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div>
+                <div class="tl-action"><%= ev.acao %></div>
+                <div class="tl-date"><%= ev.data ? new Date(ev.data).toLocaleString('pt-BR') : 'Data não informada' %></div>
+                <% if(ev.extra) { %><div style="font-size:12px;color:var(--gray);margin-top:4px"><%= ev.extra %></div><% } %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
 
       <% if(lead.imovel_interesse) { %>
       <div class="ld-card">
@@ -265,5 +312,38 @@
 
   </div>
 </div>
+
+
+<script id="organiza-blocos-lead-detalhe">
+document.addEventListener('DOMContentLoaded', function(){
+  const cards = Array.from(document.querySelectorAll('.ld-card'));
+
+  function cardComTitulo(txt){
+    return cards.find(card => {
+      const title = card.querySelector('.ld-title');
+      return title && title.textContent.includes(txt);
+    });
+  }
+
+  const cardDados = cardComTitulo('Dados da Lead');
+  const cardComportamento = cardComTitulo('Comportamento da Lead');
+  const cardQuinto = cardComTitulo('Imóveis Compatíveis do QuintoAndar');
+
+  if(cardDados){
+    cardDados.style.padding = '14px';
+    cardDados.style.marginBottom = '14px';
+  }
+
+  if(cardComportamento){
+    cardComportamento.style.marginTop = '14px';
+  }
+
+  // coloca comportamento abaixo do bloco QuintoAndar, se existir
+  if(cardComportamento && cardQuinto){
+    cardQuinto.insertAdjacentElement('afterend', cardComportamento);
+  }
+});
+</script>
+
 
 <%- include('partials/app-end') %>

@@ -1,5 +1,11 @@
 <%- include('partials/app-shell',{active:'imoveis',title:'Meus imóveis',subtitle:'Relação completa dos imóveis da carteira.',perfil:'corretor'}) %>
 
+<div style="display:flex;justify-content:flex-end;margin:0 0 16px 0">
+  <a href="/app/imoveis/exportar-excel" class="btn btn-primary" style="text-decoration:none">
+    📥 Baixar planilha dos imóveis
+  </a>
+</div>
+
 <div class="card">
   <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">
     <span><strong><%= typeof imoveis !== 'undefined' ? imoveis.length : 0 %></strong> imóveis na carteira</span>
@@ -66,7 +72,10 @@
     <div style="padding:12px;display:flex;flex-direction:column;flex:1">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
         <span style="background:#fee2e2;color:#dc2626;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px"><%= item.tipo || 'Imóvel' %></span>
-        <span style="font-size:11px;color:#999"><%= item.idExterno || idx %></span>
+        <span style="font-size:11px;color:#999">
+          Ext: <%= item.idExterno || '-' %><br>
+          Int: <%= item.idInterno || item.codigoImovel || '-' %>
+        </span>
       </div>
 
       <div style="font-weight:700;font-size:16px;color:#111;margin-bottom:4px">
@@ -76,6 +85,14 @@
       <div style="color:#666;font-size:11px;padding:6px;margin-bottom:8px">
         <%= item.bairro || '-' %>, <%= item.cidade || '-' %>
       </div>
+
+      <% if(item.proprietario && (item.proprietario.nome || item.proprietario.telefone || item.proprietario.celular || item.proprietario.email)) { %>
+        <div style="font-size:11px;color:#374151;background:#f9fafb;border:1px solid #eee;border-radius:8px;padding:7px;margin-bottom:8px;line-height:1.45">
+          👤 <strong><%= item.proprietario.nome || "-" %></strong><br>
+          📞 <%= item.proprietario.telefone || item.proprietario.celular || "-" %>
+          <% if(item.proprietario.email) { %><br>📧 <%= item.proprietario.email %><% } %>
+        </div>
+      <% } %>
 
       <div style="display:flex;gap:8px;font-size:11px;padding:6px;color:#444;margin-bottom:10px;flex-wrap:wrap">
         <% if(item.area_m2) { %><span>📐 <%= item.area_m2 %>m²</span><% } %>

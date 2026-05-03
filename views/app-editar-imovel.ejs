@@ -45,7 +45,7 @@
 
     <div class="form-grid">
       <div><label>Nome</label><input name="proprietario_nome" value="<%= imovel.proprietario?.nome || '' %>"></div>
-      <div><label>Telefone</label><input name="proprietario_telefone" value="<%= imovel.proprietario?.telefone || '' %>"></div>
+      <div><label>Telefone</label><input name="proprietario_telefone" value="<%= imovel.proprietario?.telefone || imovel.proprietario?.celular || '' %>"></div>
       <div><label>Email</label><input name="proprietario_email" value="<%= imovel.proprietario?.email || '' %>"></div>
 
       <div>

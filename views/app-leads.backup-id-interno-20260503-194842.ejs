@@ -1,0 +1,412 @@
+<%- include('partials/app-shell', {active:'leads'}) %>
+<style>
+.excel-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.excel-client strong {
+  font-size: 14px;
+  color: #111;
+}
+.excel-client span {
+  font-size: 12px;
+  color: #555;
+  margin-top: 2px;
+}
+.excel-status {
+  margin: 4px 0;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chip {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #374151;
+}
+.chip.success { background: #d1fae5; color: #065f46; }
+.chip.dark    { background: #111; color: #fff; }
+.chip.warning { background: #fef3c7; color: #92400e; }
+.excel-table-wrap {
+  overflow-x: auto;
+  margin-top: 6px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+.excel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.excel-table th {
+  background: #f9fafb;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 4px 8px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+.excel-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+  white-space: nowrap;
+}
+.origin-row td {
+  background: #eff6ff;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+.match-row td {
+  background: #f0fdf4;
+  color: #166534;
+}
+.match-row:hover td {
+  background: #dcfce7;
+}
+.empty-match-row td {
+  color: #9ca3af;
+  font-style: italic;
+  text-align: center;
+  padding: 16px;
+}
+.excel-results { margin-top: 16px; }
+.filter-card .filters-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.filter-card label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #555; }
+.filter-card select, .filter-card input {
+  padding: 7px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  min-width: 140px;
+}
+#filter-counter {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+</style>
+
+<div id="match-live-total">
+  Total matches: <span id="match-total-num">0</span>
+</div>
+<script>
+function atualizarTotalMatches(){
+  let total = 0;
+  document.querySelectorAll('.chip').forEach(function(c){
+    const txt = c.innerText || '';
+    const m = txt.match(/(\d+)\s*matches/i);
+    if (m) total += Number(m[1]);
+  });
+  const el = document.getElementById('match-total-num');
+  if (el) el.innerText = total;
+}
+setInterval(atualizarTotalMatches, 1000);
+document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
+</script>
+
+<div class="container" style="padding:24px">
+
+  <!-- Stats -->
+  <section style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center"><strong style="font-size:28px;display:block"><%= stats.totalLeads %></strong><span style="font-size:13px;color:#717171">Total Leads</span></div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #FF385C"><strong style="font-size:28px;display:block;color:#FF385C"><%= stats.comMatch %></strong><span style="font-size:13px;color:#717171">Com match</span></div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center"><strong style="font-size:28px;display:block"><%= stats.pendentes %></strong><span style="font-size:13px;color:#717171">Sem match</span></div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #008A05"><strong style="font-size:28px;display:block;color:#008A05"><%= stats.totalMatches %></strong><span style="font-size:13px;color:#717171">Total matches</span></div>
+  </section>
+
+  <!-- Filtros -->
+  <section class="card filter-card" style="margin-bottom:24px">
+    <div class="filters-row">
+      <label><span>Status</span>
+        <select id="filter-status">
+          <option value="all">Todos</option>
+          <option value="with_matches">✅ Com match</option>
+          <option value="without_matches">❌ Sem match</option>
+        </select>
+      </label>
+      <label><span>Score mínimo</span>
+        <select id="filter-score">
+          <option value="0">Todos</option>
+          <option value="30">30+</option>
+          <option value="50">50+</option>
+          <option value="70">70+</option>
+          <option value="90">90+</option>
+        </select>
+      </label>
+      <label><span>Tipo</span>
+        <select id="filter-tipo">
+          <option value="">Todos</option>
+          <option value="apartamento">Apartamento</option>
+          <option value="casa">Casa</option>
+        </select>
+      </label>
+      <label><span>Bairro</span>
+        <input id="filter-bairro" type="text" placeholder="Ex: Pinheiros">
+      </label>
+      <label><span>Valor mín.</span>
+        <input id="filter-valor-min" type="number" placeholder="Ex: 300000">
+      </label>
+      <label><span>Valor máx.</span>
+        <input id="filter-valor-max" type="number" placeholder="Ex: 1000000">
+      </label>
+      <label><span>Área mín. m²</span>
+        <input id="filter-area" type="number" placeholder="Ex: 50">
+      </label>
+      <label><span>Quartos</span>
+        <input id="filter-quartos" type="number" placeholder="Ex: 2">
+      </label>
+      <label><span>Busca</span>
+        <input id="filter-search" type="text" placeholder="Cliente, bairro, email..." />
+      </label>
+    </div>
+  </section>
+
+  <!-- Cards -->
+  <section class="card results-card">
+    <div class="section-head">
+      <h2>Resultados</h2>
+      <p class="muted">Cada card representa um cliente + imóvel de origem + matches.</p>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      
+      <h2 style="margin:0">Leads</h2>
+
+      <a href="#" onclick="abrirModalImportarLeads();return false;" 
+         id="btn-importar-leads"
+         style="
+           background:#ff385c;
+           color:white;
+           padding:10px 14px;
+           border-radius:10px;
+           text-decoration:none;
+           font-weight:700;
+         ">
+        ⬆️ Importar leads
+      </a>
+
+    </div>
+
+    <div id="results-list" class="excel-results">
+      <% leads.forEach((item, idx) => {
+        const origin = item.origin || {};
+        const status = item.ignored ? 'ignored' : (item.matches || []).length ? 'with_matches' : origin.extractionStatus !== 'ok' ? 'pending' : 'without_matches';
+        const bestScore = item.bestScore || (item.matches && item.matches[0] ? item.matches[0].score : 0) || 0;
+        const matchCount = (item.matches || []).length;
+      %>
+      <div class="excel-card"
+        data-status="<%= status %>"
+        data-score="<%= bestScore %>"
+        data-search="<%= [item.nome, item.clientName, item.contato, item.telefone, item.email, origin.bairro, origin.cidade].filter(Boolean).join(' ').toLowerCase() %>">
+
+        <div class="excel-client">
+          <div style="font-size:13px;line-height:1.45">
+            <strong><a href="/app/lead/<%= item.id %>" style="text-decoration:none;color:#111"><%= item.nome || item.cliente || item.clientName || '-' %></a></strong>
+            · <span style="color:#16a34a;font-weight:600"><%= origin.extractionStatus === 'ok' ? 'Extraído' : 'Pendente' %></span>
+            · <span class="chip"><%= matchCount %> matches</span>
+            <% if(bestScore) { %> · <span class="chip dark">Score <%= bestScore %></span><% } %>
+            <br>
+            <span style="color:#666"><%= item.contato || item.telefone || '-' %> · <%= item.email || '-' %></span>
+            · <a target="_blank" href="https://wa.me/<%= String(item.contato || item.telefone || '').replace(/\\D/g,'') %>">WhatsApp</a>
+            <% if(matchCount) { %>
+              · <a href="/cliente/oferta/<%= item.leadId || item.id %>" style="color:#ff385c;font-weight:700">Ver vitrine</a>
+              · <a target="_blank" href="https://wa.me/55<%= String(item.contato || item.telefone || '').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (item.nome || item.cliente || item.clientName || '') + '! Separamos algumas oportunidades semelhantes ao que você buscou. Veja sua vitrine: http://localhost:3000/cliente/oferta/' + (item.leadId || item.id) + ' e agende sua visita!') %>" style="color:#25D366;font-weight:800">Enviar vitrine</a>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="excel-table-wrap">
+          <table class="excel-table">
+            <thead>
+              <tr>
+                <th>Fonte</th><th>Rank</th><th>Score</th><th>ID</th><th>Tipo</th>
+                <th>Bairro</th><th>Cidade/UF</th><th>Valor</th>
+                <th>Área</th><th>Quartos</th><th>Suítes</th>
+                <th>Banheiros</th><th>Vagas</th><th>URL</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="origin-row">
+                <td>ImovelWeb</td>
+                <td>Origem</td>
+                <td>-</td>
+                <td><%= item.id || '-' %></td>
+                <td><%= item.tipo || '-' %></td>
+                <td><%= item.bairro || '-' %></td>
+                <td><%= item.cidade || '-' %> / SP</td>
+                <td><%= item.valor_imovel ? 'R$ ' + Number(item.valor_imovel).toLocaleString('pt-BR') : '-' %></td>
+                <td><%= item.area_m2 || '-' %> m²</td>
+                <td><%= item.quartos || '-' %></td>
+                <td><%= item.suites ?? '-' %></td>
+                <td><%= item.banheiros ?? '-' %></td>
+                <td><%= item.vagas ?? '-' %></td>
+                <td class="url-cell"><% if(item.url){ %><a href="<%= item.url %>" target="_blank">Ver ↗</a><% } else { %>-<% } %></td>
+              </tr>
+              <% if(matchCount) { %>
+                <% (item.matches||[]).forEach(m => { %>
+                <tr class="match-row">
+                  <td><%= m.fonte || 'rankim' %></td>
+                  <td>#<%= m.rank || '-' %></td>
+                  <td><% if(m.score){ %><span style="background:#111;color:#fff;border-radius:12px;padding:2px 7px;font-size:11px;font-weight:700"><%= m.score %></span><% } else { %>-<% } %></td>
+                  <td><%= m.idExterno || m.id_anuncio || '-' %></td>
+                  <td><%= m.tipo || '-' %></td>
+                  <td><%= m.bairro || '-' %></td>
+                  <td><%= m.cidade || '-' %> / <%= m.estado || '-' %></td>
+                  <td><%= (m.valor_imovel||m.valor) ? 'R$ ' + Number(m.valor_imovel||m.valor).toLocaleString('pt-BR') : '-' %></td>
+                  <td><%= m.area_m2 || m.area || '-' %> m²</td>
+                  <td><%= m.quartos ?? '-' %></td>
+                  <td><%= m.suites ?? '-' %></td>
+                  <td><%= m.banheiros ?? '-' %></td>
+                  <td><%= m.vagas ?? '-' %></td>
+                  <% const matchUrl = m.url || m.urlPublica || m.link || m.href || m.url_imovel || m.URL || ''; %>
+                  <td class="url-cell"><% if(matchUrl){ %><a href="<%= matchUrl %>" target="_blank">Ver imóvel ↗</a><% } else { %>-<% } %></td>
+                </tr>
+                <% }) %>
+              <% } else { %>
+                <tr class="empty-match-row">
+                  <td colspan="13">Nenhum match encontrado ainda.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const status = document.getElementById('filter-status');
+  const score = document.getElementById('filter-score');
+  const search = document.getElementById('filter-search');
+  const filterTipo = document.getElementById('filter-tipo');
+  const filterBairro = document.getElementById('filter-bairro');
+  const filterValorMin = document.getElementById('filter-valor-min');
+  const filterValorMax = document.getElementById('filter-valor-max');
+  const filterArea = document.getElementById('filter-area');
+  const filterQuartos = document.getElementById('filter-quartos');
+  const cards = Array.from(document.querySelectorAll('.excel-card'));
+
+  let counter = document.getElementById('filter-counter');
+  if (!counter) {
+    counter = document.createElement('div');
+    counter.id = 'filter-counter';
+    counter.style.cssText = 'margin:12px 0;font-weight:700';
+    const results = document.querySelector('.results-card');
+    if (results) results.prepend(counter);
+  }
+
+  function applyFilters() {
+    let visible = 0;
+    cards.forEach(card => {
+      const statusOk = !status || status.value === 'all' || card.dataset.status === status.value;
+      const minScore = parseInt(score?.value || '0');
+      const scoreOk = parseInt(card.dataset.score || '0') >= minScore;
+      const query = (search?.value || '').toLowerCase().trim();
+      const searchOk = !query || card.dataset.search.includes(query);
+      const ok = statusOk && scoreOk && searchOk;
+      card.style.display = ok ? '' : 'none';
+      if (ok) visible++;
+    });
+    counter.textContent = visible + ' de ' + cards.length + ' cards aparecendo';
+  }
+
+  [status, score, search, filterTipo, filterBairro, filterValorMin, filterValorMax, filterArea, filterQuartos].forEach(el => {
+    if (!el) return;
+    el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', applyFilters);
+  });
+
+  applyFilters();
+})();
+</script>
+
+
+<!-- MODAL IMPORTAR LEADS -->
+<div id="modal-importar-leads" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:white;border-radius:22px;max-width:780px;width:100%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.25)">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px">
+      <div>
+        <div style="font-size:22px;font-weight:900;color:#111">📥 Importar leads</div>
+        <div style="font-size:13px;color:#717171;margin-top:4px">A planilha deve estar na horizontal, com os cabeçalhos na primeira linha.</div>
+      </div>
+      <button type="button" onclick="fecharModalImportarLeads()" style="border:0;background:#f3f4f6;border-radius:999px;width:36px;height:36px;font-size:20px;cursor:pointer">×</button>
+    </div>
+
+    <div style="background:#f9fafb;border:1px solid #eee;border-radius:16px;padding:14px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:900;margin-bottom:8px">Cabeçalhos combinados</div>
+      <div style="overflow:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:680px">
+          <thead>
+            <tr style="background:white">
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Nome</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Telefone</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Telefone 2</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">E-mail usuário</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Id anúncio</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Url anúncio</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Estado</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Cidade</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Bairro</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="border:1px solid #e5e7eb;padding:8px">Maria Silva</td>
+              <td style="border:1px solid #e5e7eb;padding:8px">11999999999</td>
+              <td style="border:1px solid #e5e7eb;padding:8px">11988888888</td>
+              <td style="border:1px solid #e5e7eb;padding:8px">maria@email.com</td>
+              <td style="border:1px solid #e5e7eb;padding:8px">3023058037</td>
+              <td style="border:1px solid #e5e7eb;padding:8px">https://...</td>
+              <td style="border:1px solid #e5e7eb;padding:8px">SP</td>
+              <td style="border:1px solid #e5e7eb;padding:8px">São Paulo</td>
+              <td style="border:1px solid #e5e7eb;padding:8px">Moema</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="font-size:13px;color:#444;line-height:1.55;margin-bottom:16px">
+      <b>Obrigatório:</b> Nome e Telefone/Contato do cliente.<br>
+      <b>Para gerar match:</b> informe preferencialmente a <b>Url anúncio</b>. Se tiver apenas o ID, informe também o portal/origem quando possível.<br>
+      <b>Importante:</b> o sistema considera imóveis de qualquer região do Brasil.
+    </div>
+
+    <form method="POST" action="/process" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".xlsx,.xls,.csv,.numbers" required style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px">
+      <button type="submit" style="width:100%;border:0;background:#ff385c;color:white;border-radius:14px;padding:14px;font-weight:900;cursor:pointer">
+        Enviar planilha e importar leads
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+function abrirModalImportarLeads(){
+  const m = document.getElementById('modal-importar-leads');
+  if(m) m.style.display = 'flex';
+}
+function fecharModalImportarLeads(){
+  const m = document.getElementById('modal-importar-leads');
+  if(m) m.style.display = 'none';
+}
+</script>
+
+
+<%- include('partials/app-end') %>

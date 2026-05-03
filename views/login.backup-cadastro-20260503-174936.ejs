@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>MatchImóveis — IA para o Mercado Imobiliário</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/airbnb.css">
+  <style>
+    body{display:flex;min-height:100vh;background:#F7F7F7}
+    .left{flex:1;padding:60px;display:flex;flex-direction:column;justify-content:center;background:#fff;border-right:1px solid #EBEBEB}
+    .logo{font-size:22px;font-weight:800;color:#FF385C;margin-bottom:48px;letter-spacing:-0.5px}
+    .tagline{font-size:38px;font-weight:800;line-height:1.15;margin-bottom:16px;letter-spacing:-1px;color:#222}
+    .tagline span{color:#FF385C}
+    .sub{font-size:16px;color:#717171;margin-bottom:40px;line-height:1.7;max-width:460px}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:#FFF1F3;border:1px solid #FF385C;color:#FF385C;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:24px}
+    .steps{display:flex;flex-direction:column;gap:18px;max-width:460px}
+    .step{display:flex;gap:14px;align-items:flex-start}
+    .step-icon{width:38px;height:38px;border-radius:10px;background:#FFF1F3;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+    .step-text strong{font-size:14px;color:#222;display:block;margin-bottom:2px}
+    .step-text span{font-size:13px;color:#717171;line-height:1.5}
+
+    .right{width:420px;display:flex;align-items:center;justify-content:center;padding:40px;background:#F7F7F7}
+    .box{width:100%;background:#fff;border-radius:20px;padding:36px;border:1px solid #EBEBEB;box-shadow:0 10px 30px rgba(0,0,0,.06)}
+    .box h2{font-size:22px;font-weight:800;margin-bottom:4px;color:#222}
+    .box p{color:#717171;font-size:14px;margin-bottom:24px}
+    label{font-size:13px;font-weight:600;color:#222;display:block;margin-bottom:6px}
+    input{width:100%;padding:13px 16px;border:1px solid #EBEBEB;border-radius:12px;background:#fff;color:#222;font-size:15px;margin-bottom:14px;outline:none;transition:border .2s;font-family:inherit}
+    input:focus{border-color:#FF385C}
+    button{width:100%;border:0;background:#FF385C;color:#fff;padding:14px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;transition:background .2s;font-family:inherit}
+    button:hover{background:#E31C5F}
+    .small{font-size:12px;color:#717171;text-align:center;margin-top:18px;line-height:1.6}
+    .error-msg{background:#FFF1F3;border:1px solid #FF385C;color:#E31C5F;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:14px}
+
+    @media(max-width:768px){
+      body{flex-direction:column}
+      .left{padding:32px 20px 20px}
+      .tagline{font-size:26px}
+      .steps{display:none}
+      .right{width:100%;padding:20px}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="left">
+    <div class="logo">Match<span style="color:#222">Imóveis</span></div>
+
+    <div class="badge">⚡ IA ATIVA 24/7</div>
+
+    <h1 class="tagline">A IA que faz o <span>match perfeito</span> no mercado imobiliário</h1>
+    <p class="sub">Mineramos dados, cruzamos leads com imóveis e agendamos visitas automaticamente — tudo sem você precisar fazer nada.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-icon">🏠</div>
+        <div class="step-text">
+          <strong>Corretor sobe os imóveis</strong>
+          <span>Cadastre sua carteira via XML ou manualmente. A IA indexa tudo em segundos.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon">🎯</div>
+        <div class="step-text">
+          <strong>Lead chega — IA entra em ação</strong>
+          <span>Assim que um comprador se cadastra, nossa inteligência varre toda a base e encontra os imóveis mais compatíveis por bairro, valor, área e perfil.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon">⚡</div>
+        <div class="step-text">
+          <strong>Match instantâneo + agendamento automático</strong>
+          <span>A IA envia as opções ao comprador e agenda a visita com o proprietário — sem expor contatos até o dia do encontro.</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon">✅</div>
+        <div class="step-text">
+          <strong>Você só aparece para fechar</strong>
+          <span>Todo o trabalho operacional é feito pela IA. Você entra na negociação com o cliente aquecido e o imóvel confirmado.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="box">
+      <h2>Acessar plataforma</h2>
+      <p>Entre com suas credenciais de corretor</p>
+
+      <% if(typeof error !== 'undefined' && error) { %>
+      <div class="error-msg"><%= error %></div>
+      <% } %>
+
+      <form method="POST" action="/login">
+        <label>Celular</label>
+        <input name="telefone" placeholder="11975720750" required autocomplete="username">
+        <label>Senha</label>
+        <input name="senha" type="password" placeholder="••••••••" required autocomplete="current-password">
+        <button type="submit">Entrar →</button>
+      </form>
+
+      <div class="small">MatchImóveis · IA para o mercado imobiliário<br>Seus dados são protegidos e nunca compartilhados.</div>
+    </div>
+  </div>
+
+</body>
+</html>

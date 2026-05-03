@@ -50,11 +50,16 @@ function scoreMatch(origin, c) {
 }
 
 function passaFiltros(origin, c) {
-  // cidade e estado obrigatórios
-  const cidade = (c.cidade || '').toLowerCase();
-  const estado = (c.estado || '').toLowerCase();
-  if (!cidade.includes('são paulo') && !cidade.includes('sao paulo')) return false;
-  if (estado !== 'sp') return false;
+  // cidade e estado obrigatórios: agora aceita qualquer região do Brasil,
+  // mas candidato precisa bater com a cidade/estado do imóvel de origem quando esses dados existirem.
+  const cidade = (c.cidade || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const estado = (typeof c.estado === 'object' ? (c.estado['#text'] || c.estado.uf || '') : (c.estado || '')).toLowerCase().trim();
+
+  const cidadeOrigem = (o.cidade || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const estadoOrigem = (typeof o.estado === 'object' ? (o.estado['#text'] || o.estado.uf || '') : (o.estado || '')).toLowerCase().trim();
+
+  if (cidadeOrigem && cidade && cidade !== cidadeOrigem) return false;
+  if (estadoOrigem && estado && estado !== estadoOrigem) return false;
 
   // tipo igual
   if (normalizeTipo(c.tipo) !== normalizeTipo(origin.tipo)) return false;
@@ -112,7 +117,14 @@ function findTopMatches(origin, candidatosExternos = []) {
   const todos = [...internos, ...todosExternos];
 
   // 5. scoring e ordenação
-  const scored = todos.map(c => ({ ...c, score: scoreMatch(origin, c) }));
+  const scored = todos.map(c => {
+  const score = scoreMatch(origin, c);
+  return {
+    ...c,
+    score,
+    bestScore: score
+  };
+});
   scored.sort((a, b) => b.score - a.score);
 
   // 6. top 8, priorizando internos

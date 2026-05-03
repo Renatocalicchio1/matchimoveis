@@ -138,6 +138,17 @@ body {
     <div><%= match.vagas %> vagas</div>
   </div>
 
+  <% if(match.proprietario && (match.proprietario.nome || match.proprietario.telefone || match.proprietario.celular || match.proprietario.email)) { %>
+  <div class="card" style="margin-top:16px">
+    <strong>Proprietário</strong>
+    <p>
+      👤 <%= match.proprietario.nome || '-' %><br>
+      📞 <%= match.proprietario.telefone || match.proprietario.celular || '-' %>
+      <% if(match.proprietario.email) { %><br>📧 <%= match.proprietario.email %><% } %>
+    </p>
+  </div>
+  <% } %>
+
   <div class="card">
     <strong>Sobre o imóvel</strong>
     <p>

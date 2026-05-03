@@ -1260,3 +1260,11 @@ a[style*="#111"] {
   color: #FF385C !important;
 }
 
+
+/* ocultar card importar proprietario */
+.method-card#mc-proprietario{display:none!important;}
+
+
+/* ocultar card importar proprietarios */
+#mc-prop{display:none!important;}
+

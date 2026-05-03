@@ -1,0 +1,73 @@
+<%- include("partials/app-shell",{active:"visitas",user:user}) %>
+
+<main style="padding:30px">
+  <div class="card" style="background:white;border-radius:16px;padding:24px;box-shadow:0 6px 20px rgba(0,0,0,.08)">
+    <h1>Visitas solicitadas</h1>
+
+    <% if (!visitas || visitas.length === 0) { %>
+      <div style="padding:30px;text-align:center;color:#666">Nenhuma visita solicitada ainda.</div>
+    <% } else { %>
+
+      <table style="width:100%;border-collapse:collapse;margin-top:20px">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Cliente</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Telefone</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Imóvel</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Data</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Horário</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Status</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Ação</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% visitas.forEach((v, idx) => {
+            const clienteNome = v.nome || v.cliente?.nome || v.leadNome || '-';
+            const clienteTelefone = v.telefone || v.contato || v.cliente?.telefone || v.cliente?.celular || '-';
+
+            const imovelId = v.imovelId || v.imovel_id || v.idImovel || v.imovel?.idExterno || v.imovel?.id || '';
+            const imovelTitulo = v.imovelTitulo || v.titulo_interesse || v.imovel?.titulo || v.imovel?.tipo || 'Imóvel';
+            const imovelBairro = v.imovelBairro || v.bairro || v.imovel?.bairro || '-';
+            const imovelCidade = v.imovelCidade || v.cidade || v.imovel?.cidade || '-';
+            const imovelEstado = v.imovelEstado || v.estado || v.imovel?.estado || '-';
+
+            const dataVisita = v.dataVisita || v.dataPreferida || v.data_agendada || '-';
+            const horaVisita = v.horaVisita || v.horarioPreferido || v.hora_agendada || '-';
+
+            const linkImovel = v.imovelUrl || v.url || v.imovel?.url || (imovelId ? '/imovel/' + imovelId : '');
+          %>
+            <tr>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= clienteNome %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= clienteTelefone %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee">
+                <strong><%= imovelTitulo %></strong><br>
+                <%= imovelBairro %> - <%= imovelCidade %>/<%= imovelEstado %><br>
+                <% if (linkImovel) { %>
+                  <a href="<%= linkImovel %>" target="_blank">Ver imóvel</a>
+                <% } %>
+              </td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= dataVisita %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= horaVisita %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= v.status || 'solicitada' %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee">
+                <% if (v.status !== 'confirmada') { %>
+                  <form method="POST" action="/app/visitas/confirmar/<%= idx %>">
+                    <button style="background:#ff385c;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer">
+                      Confirmar visita
+                    </button>
+                  </form>
+                <% } else { %>
+                  <strong style="color:green">Confirmada</strong>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+    <% } %>
+  </div>
+</main>
+
+<%- include('partials/app-end') %>

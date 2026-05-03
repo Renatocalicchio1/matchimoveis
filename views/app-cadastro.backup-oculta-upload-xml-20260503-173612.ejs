@@ -1,0 +1,419 @@
+<%- include("partials/app-shell",{active:"cadastro",title:"Cadastrar Imóvel",subtitle:"Importe via XML ou cadastre manualmente",user:user}) %>
+
+<style>
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.method-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius);padding:28px;cursor:pointer;transition:all .2s;text-align:center}
+.method-card:hover{border-color:#ccc;box-shadow:var(--shadow)}
+.method-card.on{border-color:var(--brand);background:var(--brand-light)}
+.method-icon{font-size:40px;margin-bottom:12px}
+.method-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--dark);margin-bottom:6px}
+.method-desc{font-size:12px;color:var(--gray);line-height:1.5}
+.method-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;margin-top:8px}
+.section{display:none}
+.section.show{display:block}
+.wizard-steps{display:flex;gap:0;margin-bottom:28px}
+.wstep{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
+.wstep:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0}
+.wstep.done::after{background:var(--green)}
+.wstep-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;z-index:1;transition:all .2s}
+.wstep.active .wstep-dot{background:var(--dark);border-color:var(--dark);color:#fff}
+.wstep.done .wstep-dot{background:var(--green);border-color:var(--green);color:#fff}
+.wstep-label{font-size:11px;color:var(--gray);font-weight:500;text-align:center}
+.wstep.active .wstep-label{color:var(--dark);font-weight:700}
+.form-section{margin-bottom:20px}
+.form-section h4{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.form-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:var(--light)}
+.upload-zone:hover{border-color:var(--brand);background:var(--brand-light)}
+.upload-zone.over{border-color:var(--brand);background:var(--brand-light)}
+.upload-icon{font-size:36px;margin-bottom:10px;opacity:.5}
+.progress-wrap{margin-top:16px;display:none}
+.progress-bar{height:6px;background:var(--light);border-radius:3px;overflow:hidden}
+.progress-fill{height:6px;background:var(--brand);border-radius:3px;transition:width .3s}
+.result-card{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;text-align:center;margin-top:16px;display:none}
+.foto-preview{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.foto-thumb{aspect-ratio:1;border-radius:8px;object-fit:cover;background:var(--light);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden}
+.foto-thumb img{width:100%;height:100%;object-fit:cover}
+</style>
+
+<%# ── ESCOLHA DO MÉTODO ── %>
+<div id="sec-metodo">
+  <div class="method-grid">
+    <div class="method-card" id="mc-xml" onclick="escolherMetodo('xml')">
+      <div class="method-icon">📡</div>
+      <div class="method-title">Importar via XML</div>
+      <div class="method-desc">Cole a URL do seu feed XML ou do CRM. O sistema importa todos os imóveis automaticamente.</div>
+      <span class="method-badge" style="background:#eff6ff;color:#2563eb">Recomendado</span>
+    </div>
+    <div class="method-card" id="mc-manual" onclick="escolherMetodo('manual')">
+      <div class="method-icon">✍️</div>
+      <div class="method-title">Cadastro manual</div>
+      <div class="method-desc">Cadastre um imóvel por vez. Ideal para captações diretas ou exclusividades.</div>
+      <span class="method-badge" style="background:#f0fdf4;color:#16a34a">Simples</span>
+    </div>
+  
+    <div class='method-card' id='mc-prop' onclick="escolherMetodo('prop')">
+      <div class='method-icon'>👤</div>
+      <div class='method-title'>Importar Proprietários</div>
+      <div class='method-desc'>Envie CSV ou Excel com dados dos proprietários. O sistema cruza pelo ID do anúncio.</div>
+      <span class='method-badge' style='background:#fef9c3;color:#854d0e'>Cruzamento</span>
+    </div>
+  </div>
+</div>
+
+
+<%# ── SEÇÃO PROPRIETÁRIOS ── %>
+<div class='section' id='sec-prop'>
+  <div class='card'>
+    <div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:20px'>
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">👤 Importar Proprietários</h3>
+        <p style='font-size:13px;color:var(--gray);margin-top:4px'>Cruza CSV/Excel com os imóveis pelo ID do anúncio</p>
+      </div>
+      <button onclick='voltarMetodo()' class='btn btn-ghost btn-sm'>← Voltar</button>
+    </div>
+    <form method='POST' action='/app/importar-proprietarios' enctype='multipart/form-data'>
+      <div class='form-section'>
+        <h4>Planilha de proprietários</h4>
+        <div class='upload-zone' onclick="document.getElementById('propInput').click()" id='dropZoneProp'>
+          <div class='upload-icon'>📋</div>
+          <p style='font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px'>Arraste o arquivo aqui</p>
+          <p style='font-size:12px;color:var(--gray)'>CSV ou XLSX — colunas: ID do anúncio, Nome, Telefone, Email</p>
+          <input type='file' name='file' id='propInput' style='display:none' accept='.csv,.xlsx' onchange='onPropSelect(this)'>
+        </div>
+        <div id='prop-file-name' style='font-size:13px;color:var(--green);margin-top:8px;display:none'></div>
+      </div>
+      <div class='form-section'>
+        <h4>Colunas esperadas na planilha</h4>
+        <div style='background:var(--light);border-radius:8px;padding:14px;font-size:12px;color:var(--gray);line-height:2'>
+          <b>ID do anúncio</b> — obrigatório (ex: ListingID, id, codigo)<br>
+          <b>Nome</b> — nome do proprietário<br>
+          <b>Telefone</b> — WhatsApp ou celular<br>
+          <b>Email</b> — email de contato
+        </div>
+      </div>
+      <button type='submit' class='btn btn-primary' style='width:100%;padding:14px;font-size:15px;margin-top:8px'>
+        🔗 Cruzar e importar
+      </button>
+    </form>
+    <div id='prop-result' style='display:none;margin-top:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;text-align:center'></div>
+  </div>
+</div>
+
+<%# ── SEÇÃO XML ── %>
+<div class="section" id="sec-xml">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">📡 Importar via XML</h3>
+        <p style="font-size:13px;color:var(--gray);margin-top:4px">Cole a URL do feed ou envie o arquivo XML</p>
+      </div>
+      <button onclick="voltarMetodo()" class="btn btn-ghost btn-sm">← Voltar</button>
+    </div>
+
+    <form method="POST" action="/app/importar" enctype="multipart/form-data">
+      <div class="form-section">
+        <h4>URL do XML</h4>
+        <div style="display:flex;gap:10px">
+          <input name="xmlUrl" placeholder="https://sistema.rankim.com.br/feed.xml" style="flex:1">
+          <button type="button" onclick="testarXML()" class="btn btn-outline">🔍 Testar</button>
+        </div>
+        <p style="font-size:12px;color:var(--gray);margin-top:8px">Formatos aceitos: VivaReal VRSync, ZAP, OLX, Rankim, CRM padrão</p>
+        <div id="xml-test-result" style="margin-top:10px;display:none"></div>
+      </div>
+
+      <div style="text-align:center;color:var(--gray);font-size:12px;margin:16px 0">— ou envie o arquivo —</div>
+
+      <div class="form-section">
+        <h4>Arquivo XML / Planilha</h4>
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()" id="dropZone">
+          <div class="upload-icon">📂</div>
+          <p style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px">Arraste o arquivo aqui</p>
+          <p style="font-size:12px;color:var(--gray)">XML, CSV ou XLSX — máx. 50MB</p>
+          <input type="file" name="file" id="fileInput" style="display:none" accept=".xml,.csv,.xlsx" onchange="onFileSelect(this)">
+        </div>
+        <div id="file-name" style="font-size:13px;color:var(--green);margin-top:8px;display:none"></div>
+      </div>
+
+      <div class="progress-wrap" id="progress-wrap">
+        <p style="font-size:13px;color:var(--gray);margin-bottom:8px" id="progress-msg">Importando imóveis...</p>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      </div>
+
+      <div class="result-card" id="result-card">
+        <div style="font-size:32px;margin-bottom:8px">✅</div>
+        <h3 style="font-size:16px;font-weight:700;color:#16a34a;margin-bottom:4px" id="result-msg">Importação concluída!</h3>
+        <p style="font-size:13px;color:var(--gray)" id="result-sub"></p>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;margin-top:16px">
+        🚀 Importar agora
+      </button>
+    </form>
+  </div>
+</div>
+
+<%# ── SEÇÃO MANUAL ── %>
+<div class="section" id="sec-manual">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">✍️ Cadastro manual</h3>
+        <p style="font-size:13px;color:var(--gray);margin-top:4px">Preencha os dados do imóvel</p>
+      </div>
+      <button onclick="voltarMetodo()" class="btn btn-ghost btn-sm">← Voltar</button>
+    </div>
+
+    <form method="POST" action="/app/imoveis">
+
+      <div class="form-section">
+        <h4>Publicação em portais</h4>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <label><input type="checkbox" name="portal_olx"> OLX</label>
+          <label><input type="checkbox" name="portal_zap"> ZAP Imóveis</label>
+          <label><input type="checkbox" name="portal_vivareal"> VivaReal</label>
+          <label><input type="checkbox" name="portal_chaves"> Chaves na Mão</label>
+          <label><input type="checkbox" name="portal_imovelweb"> ImovelWeb</label>
+          <label><input type="checkbox" name="portal_123i"> 123i</label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4>Tipo e transação</h4>
+        <div class="form-grid-2">
+          <div class="field">
+            <label>Tipo de imóvel</label>
+            <select name="tipo">
+              <option value="Apartamento">🏢 Apartamento</option>
+              <option value="Casa">🏠 Casa</option>
+              <option value="Cobertura">🏙️ Cobertura</option>
+              <option value="Loft">🏗️ Loft</option>
+              <option value="Studio">🛋️ Studio / Flat</option>
+              <option value="Kitnet">🏡 Kitnet / Conjugado</option>
+              <option value="Terreno">🟩 Terreno / Lote</option>
+              <option value="Comercial">🏪 Comercial</option>
+              <option value="Sala Comercial">🖥️ Sala Comercial</option>
+              <option value="Loja">🛍️ Loja</option>
+              <option value="Galpão">🏭 Galpão / Depósito</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Transação</label>
+            <select name="transacao">
+              <option value="venda">💰 Venda</option>
+              <option value="aluguel">🔑 Aluguel</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4>Localização</h4>
+        <div class="field">
+          <label>Endereço</label>
+          <input name="endereco" placeholder="Rua, número">
+        </div>
+        <div class="form-grid-3">
+          <div class="field">
+            <label>Bairro</label>
+            <input name="bairro" placeholder="Vila Mariana">
+          </div>
+          <div class="field">
+            <label>Cidade</label>
+            <input name="cidade" value="São Paulo">
+          </div>
+          <div class="field">
+            <label>CEP</label>
+            <input name="cep" placeholder="00000-000">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4>Valores</h4>
+        <div class="form-grid-2">
+          <div class="field">
+            <label>Valor do imóvel (R$)</label>
+            <input name="valor_imovel" type="number" placeholder="500000">
+          </div>
+          <div class="field">
+            <label>Condomínio (R$)</label>
+            <input name="condominio" type="number" placeholder="1200">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4>Características</h4>
+        <div class="form-grid-4">
+          <div class="field">
+            <label>Área Útil Privativa (m²)</label>
+            <input name="area_m2" type="number" placeholder="80">
+          </div>
+          <div class="field">
+            <label>Área Total (m²)</label>
+            <input name="area_total" type="number" placeholder="100">
+          </div>
+          <div class="field">
+            <label>Quartos</label>
+            <input name="quartos" type="number" placeholder="2">
+          </div>
+          <div class="field">
+            <label>Suítes</label>
+            <input name="suites" type="number" placeholder="1">
+          </div>
+          <div class="field">
+            <label>Vagas</label>
+            <input name="vagas" type="number" placeholder="1">
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="field">
+            <label>Banheiros</label>
+            <input name="banheiros" type="number" placeholder="2">
+          </div>
+          <div class="field">
+            <label>Andar</label>
+            <input name="andar" type="number" placeholder="5">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4>👤 Proprietário</h4>
+        <div class="form-grid-2">
+          <div class="field">
+            <label>Nome</label>
+            <input name="proprietario" placeholder="Nome completo do proprietário">
+          </div>
+          <div class="field">
+            <label>Celular / WhatsApp</label>
+            <input name="proprietario_celular" placeholder="(11) 99999-9999">
+          </div>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label>Email</label>
+          <input name="proprietario_email" type="email" placeholder="proprietario@email.com">
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4>Descrição</h4>
+        <div class="field">
+          <textarea name="descricao" rows="4" placeholder="Descreva o imóvel, diferenciais, localização..."></textarea>
+    <button type="button" onclick="gerarDescricaoIA()" style="margin-top:8px;background:#ff385c;color:white;border:none;padding:9px 14px;border-radius:10px;font-weight:700;cursor:pointer">
+      ✨ Criar descrição com IA
+    </button>
+    <small style="display:block;margin-top:6px;color:#717171">
+      Use a IA para criar uma descrição mais atrativa para o imóvel.
+    </small>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h4>Fotos</h4>
+        <div class="upload-zone" onclick="document.getElementById('fotosInput').click()">
+          <div class="upload-icon">📷</div>
+          <p style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px">Adicionar fotos</p>
+          <p style="font-size:12px;color:var(--gray)">JPG, PNG — até 20 fotos</p>
+          <input type="file" id="fotosInput" name="fotos" multiple accept="image/*" style="display:none" onchange="previewFotos(this)">
+        </div>
+        <div class="foto-preview" id="foto-preview"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button type="reset" class="btn btn-outline" style="flex:1">Limpar</button>
+        <button type="submit" class="btn btn-primary" style="flex:2;padding:14px">💾 Salvar imóvel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function escolherMetodo(m) {
+  document.getElementById('sec-metodo').style.display = 'none';
+  document.getElementById('sec-xml').classList.toggle('show', m==='xml');
+  document.getElementById('sec-manual').classList.toggle('show', m==='manual');
+}
+function voltarMetodo() {
+  document.getElementById('sec-metodo').style.display = 'block';
+  document.getElementById('sec-xml').classList.remove('show');
+  document.getElementById('sec-manual').classList.remove('show');
+}
+function onFileSelect(input) {
+  const f = input.files[0];
+  if(f) {
+    document.getElementById('file-name').style.display = 'block';
+    document.getElementById('file-name').textContent = '✅ ' + f.name + ' (' + (f.size/1024).toFixed(0) + 'KB)';
+  }
+}
+function testarXML() {
+  const url = document.querySelector('input[name=xmlUrl]').value;
+  if(!url) { alert('Cole uma URL primeiro!'); return; }
+  const el = document.getElementById('xml-test-result');
+  el.style.display = 'block';
+  el.innerHTML = '<span style="color:var(--gray);font-size:13px">🔍 Testando conexão...</span>';
+  fetch('/api/testar-xml?url='+encodeURIComponent(url))
+    .then(r=>r.json())
+    .then(d=>{
+      el.innerHTML = d.ok
+        ? '<span style="color:#16a34a;font-size:13px">✅ XML válido — '+d.total+' imóveis encontrados</span>'
+        : '<span style="color:var(--brand);font-size:13px">❌ Erro: '+d.erro+'</span>';
+    })
+    .catch(()=>{ el.innerHTML = '<span style="color:var(--brand);font-size:13px">❌ Não foi possível conectar</span>'; });
+}
+function previewFotos(input) {
+  const preview = document.getElementById('foto-preview');
+  preview.innerHTML = '';
+  [...input.files].slice(0,12).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.className = 'foto-thumb';
+      div.innerHTML = '<img src="'+e.target.result+'">';
+      preview.appendChild(div);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+// Drag and drop
+const dz = document.getElementById('dropZone');
+if(dz) {
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('over');
+    document.getElementById('fileInput').files = e.dataTransfer.files;
+    onFileSelect(document.getElementById('fileInput'));
+  });
+}
+</script>
+
+</main></div><script>document.addEventListener("DOMContentLoaded",function(){var el=document.getElementById("mc-prop");if(el)el.style.display="none";var sec=document.getElementById("sec-prop");if(sec)sec.style.display="none";});</script></body></html>
+
+<script>
+async function gerarDescricaoIA(){
+  const tipo = document.querySelector('[name="tipo"]')?.value || 'imóvel';
+  const bairro = document.querySelector('[name="bairro"]')?.value || '';
+  const cidade = document.querySelector('[name="cidade"]')?.value || 'São Paulo';
+  const quartos = document.querySelector('[name="quartos"]')?.value || '';
+  const suites = document.querySelector('[name="suites"]')?.value || '';
+  const banheiros = document.querySelector('[name="banheiros"]')?.value || '';
+  const vagas = document.querySelector('[name="vagas"]')?.value || '';
+  const area = document.querySelector('[name="area_m2"]')?.value || '';
+  const valor = document.querySelector('[name="valor_imovel"]')?.value || '';
+
+  const res = await fetch('/api/gerar-descricao-imovel', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ tipo, bairro, cidade, quartos, suites, banheiros, vagas, area, valor })
+  });
+
+  const data = await res.json();
+  const campo = document.querySelector('[name="descricao"]');
+  if (campo) campo.value = data.descricao || '';
+}
+</script>

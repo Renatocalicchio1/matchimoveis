@@ -67,7 +67,11 @@ async function extractProperty(row = {}, origin = {}) {
       const address = extractAddress(text);
 
       const valorMatch = text.match(/R\$\s?[\d\.]+/);
-      const areaMatch = text.match(/(\d+)\s?m²/i);
+      // Prioriza área útil/privativa
+      const areaUtil = text.match(/área\s*(útil|privativa|total\s*útil)[^\d]*(\d+)\s?m²/i) ||
+                       text.match(/(\d+)\s?m²\s*(úteis|útil|privativos?|privativos?)/i);
+      const areaMatch = areaUtil || text.match(/(\d+)\s?m²/i);
+      const areaIdx = areaUtil ? (areaUtil[2] ? 2 : 1) : 1;
       const quartosMatch = text.match(/(\d+)\s?(quartos?|dormitórios?)/i);
       const suitesMatch = text.match(/(\d+)\s?suítes?/i);
       const banheirosMatch = text.match(/(\d+)\s?banheiros?/i);
@@ -79,7 +83,7 @@ async function extractProperty(row = {}, origin = {}) {
       }
 
       const valor_imovel = valorMatch ? onlyNumber(valorMatch[0]) : 0;
-      const area_m2 = areaMatch ? Number(areaMatch[1]) : 0;
+      const area_m2 = areaMatch ? Number(areaMatch[areaIdx || 1]) : 0;
 
       return {
         ...address,

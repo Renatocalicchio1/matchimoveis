@@ -121,11 +121,11 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
 <div class="container" style="padding:24px">
 
   <!-- Stats -->
-  <section class="stats seven" style="margin-bottom:24px">
-    <div class="stat card"><strong><%= stats.totalLeads %></strong><span>Total Leads</span></div>
-    <div class="stat card"><strong><%= stats.comMatch %></strong><span>Com match</span></div>
-    <div class="stat card"><strong><%= stats.pendentes %></strong><span>Sem match</span></div>
-    <div class="stat card"><strong><%= stats.totalMatches %></strong><span>Total matches</span></div>
+  <section style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center"><strong style="font-size:28px;display:block"><%= stats.totalLeads %></strong><span style="font-size:13px;color:#717171">Total Leads</span></div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #FF385C"><strong style="font-size:28px;display:block;color:#FF385C"><%= stats.comMatch %></strong><span style="font-size:13px;color:#717171">Com match</span></div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center"><strong style="font-size:28px;display:block"><%= stats.pendentes %></strong><span style="font-size:13px;color:#717171">Sem match</span></div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #008A05"><strong style="font-size:28px;display:block;color:#008A05"><%= stats.totalMatches %></strong><span style="font-size:13px;color:#717171">Total matches</span></div>
   </section>
 
   <!-- Filtros -->
@@ -146,6 +146,28 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
           <option value="70">70+</option>
           <option value="90">90+</option>
         </select>
+      </label>
+      <label><span>Tipo</span>
+        <select id="filter-tipo">
+          <option value="">Todos</option>
+          <option value="apartamento">Apartamento</option>
+          <option value="casa">Casa</option>
+        </select>
+      </label>
+      <label><span>Bairro</span>
+        <input id="filter-bairro" type="text" placeholder="Ex: Pinheiros">
+      </label>
+      <label><span>Valor mín.</span>
+        <input id="filter-valor-min" type="number" placeholder="Ex: 300000">
+      </label>
+      <label><span>Valor máx.</span>
+        <input id="filter-valor-max" type="number" placeholder="Ex: 1000000">
+      </label>
+      <label><span>Área mín. m²</span>
+        <input id="filter-area" type="number" placeholder="Ex: 50">
+      </label>
+      <label><span>Quartos</span>
+        <input id="filter-quartos" type="number" placeholder="Ex: 2">
       </label>
       <label><span>Busca</span>
         <input id="filter-search" type="text" placeholder="Cliente, bairro, email..." />
@@ -260,6 +282,12 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
   const status = document.getElementById('filter-status');
   const score = document.getElementById('filter-score');
   const search = document.getElementById('filter-search');
+  const filterTipo = document.getElementById('filter-tipo');
+  const filterBairro = document.getElementById('filter-bairro');
+  const filterValorMin = document.getElementById('filter-valor-min');
+  const filterValorMax = document.getElementById('filter-valor-max');
+  const filterArea = document.getElementById('filter-area');
+  const filterQuartos = document.getElementById('filter-quartos');
   const cards = Array.from(document.querySelectorAll('.excel-card'));
 
   let counter = document.getElementById('filter-counter');
@@ -286,7 +314,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
     counter.textContent = visible + ' de ' + cards.length + ' cards aparecendo';
   }
 
-  [status, score, search].forEach(el => {
+  [status, score, search, filterTipo, filterBairro, filterValorMin, filterValorMax, filterArea, filterQuartos].forEach(el => {
     if (!el) return;
     el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', applyFilters);
   });

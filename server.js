@@ -42,18 +42,54 @@ app.get('/', (req,res)=>{
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
+
+app.get('/api/testar-xml', async (req, res) => {
+  try {
+    const url = req.query.url;
+    if (!url) return res.json({ ok: false, erro: 'URL não informada' });
+    const https = require('https');
+    const http = require('http');
+    const client = url.startsWith('https') ? https : http;
+    let total = 0, data = '', respondido = false;
+    const request = client.get(url, (response) => {
+      response.on('data', chunk => {
+        data += chunk.toString();
+        total = (data.match(/<Listing>/g) || []).length;
+        if (total >= 5 && !respondido) {
+          respondido = true;
+          request.destroy();
+          return res.json({ ok: true, total: total + '+' });
+        }
+      });
+      response.on('end', () => {
+        if (!respondido) {
+          if (total > 0) res.json({ ok: true, total });
+          else res.json({ ok: false, erro: 'XML sem imóveis ou formato inválido' });
+        }
+      });
+    });
+    request.on('error', err => { if (!respondido) res.json({ ok: false, erro: err.message }); });
+    request.setTimeout(15000, () => { request.destroy(); if (!respondido) res.json({ ok: false, erro: 'Timeout' }); });
+  } catch (err) {
+    res.json({ ok: false, erro: err.message });
+  }
+});
+
+
+
+
 app.post('/app/importar', upload.any(), async (req, res) => {
   try {
     const xmlUrl = req.body.xmlUrl;
     const file = (req.files && req.files[0]) || req.file;
 
-    if (!xmlUrl || !file) {
-      return res.send('Informe XML e planilha');
+    if (!xmlUrl) {
+      return res.send('Informe a URL do XML');
     }
 
     const { execSync } = require('child_process');
-
-    execSync(`node importXMLCompleto.js "${xmlUrl}" "${file.path}"`, { stdio: 'inherit' });
+    const fileArg = file ? `"${file.path}"` : '';
+    execSync(`node importXMLCompleto.js "${xmlUrl}" ${fileArg}`, { stdio: 'inherit' });
 
     res.send('Importação concluída <a href="/app/imoveis">Ver imóveis</a>');
   } catch (err) {
@@ -76,18 +112,7 @@ app.post('/app/importar-proprietarios', upload.any(), async (req, res) => {
 });
 
 
-app.post('/app/importar-proprietarios', upload.any(), async (req, res) => {
-  try {
-    const file = (req.files && req.files[0]) || req.file;
-    const { execSync } = require('child_process');
-    const resultado = execSync('node importarProprietarios.js "' + file.path + '"', { encoding: 'utf8' });
-    const match = resultado.match(/CRUZADOS: (d+)/);
-    const total = match ? match[1] : '?';
-    res.send('<div style="font-family:sans-serif;padding:40px;text-align:center"><h2>✅ ' + total + ' imóveis atualizados com proprietário</h2><a href="/app/imoveis">Ver imóveis</a></div>');
-  } catch (err) {
-    res.send('Erro: ' + err.message);
-  }
-});
+
 
 app.post('/app/leads', upload.any(), async (req, res) => {
   try {
@@ -909,4 +934,58 @@ app.get('/feed', (req, res) => {
 app.get('/api/imoveis', (req, res) => {
   const imoveis = loadImoveis();
   res.json(imoveis.slice(0, 50));
+});
+
+
+// Cadastro manual de imóvel
+app.post('/app/imovel/cadastrar', auth, (req, res) => {
+  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const b = req.body;
+  const novo = {
+    idExterno: b.idExterno || 'MAN-' + Date.now(),
+    titulo: b.titulo || '',
+    tipo: b.tipo || 'Apartamento',
+    area_total: parseFloat(b.area_total) || 0,
+    proprietario: b.proprietario || '',
+    proprietario_celular: b.proprietario_celular || '',
+    proprietario_email: b.proprietario_email || '',
+    transacao: b.transacao || 'venda',
+    bairro: b.bairro || '',
+    cidade: b.cidade || 'São Paulo',
+    estado: b.estado || 'SP',
+    endereco: b.endereco || '',
+    valor_imovel: parseFloat(b.preco) || 0,
+    area_m2: parseFloat(b.area) || 0,
+    quartos: parseInt(b.quartos) || 0,
+    suites: parseInt(b.suites) || 0,
+    banheiros: parseInt(b.banheiros) || 0,
+    vagas: parseInt(b.vagas) || 0,
+    descricao: b.descricao || '',
+    fotos: [],
+    proprietario: b.propNome ? { nome: b.propNome, celular: b.propTelefone, email: b.propEmail } : null,
+    source: 'manual',
+    lastUpdate: new Date().toISOString()
+  };
+  imoveis.push(novo);
+  fs.writeFileSync('imoveis.json', JSON.stringify(imoveis, null, 2));
+  res.redirect('/app/imoveis');
+});
+
+// Detalhe do imóvel
+app.get('/app/imovel/:id', auth, (req, res) => {
+  const imoveis = JSON.parse(fs.readFileSync('imoveis.json', 'utf8'));
+  const user = req.session.user;
+  const imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id));
+  if (!imovel) return res.status(404).send('Imóvel não encontrado');
+  
+  // Oculta proprietário se não for admin nem corretor do imóvel
+  const isAdmin = user.tipo === 'admin';
+  const isCorretor = imovel.corretor && (
+    imovel.corretor.email === user.email ||
+    imovel.corretor.telefone === user.telefone ||
+    imovel.corretorId === user.id
+  );
+  const verProprietario = isAdmin || isCorretor;
+
+  res.render('app-imovel-detalhe', { user, imovel, verProprietario });
 });

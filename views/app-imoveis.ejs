@@ -11,7 +11,22 @@
 
   <div id="box-filtros" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #ebebeb">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-      <div style="flex:1;min-width:120px"><label>Tipo</label><input id="f-tipo" placeholder="Apartamento..."></div>
+      <div style="flex:1;min-width:120px"><label>Tipo</label>
+      <select id="f-tipo">
+        <option value="">Todos</option>
+        <option value="apartamento">🏢 Apartamento</option>
+        <option value="casa">🏠 Casa</option>
+        <option value="cobertura">🏙️ Cobertura</option>
+        <option value="loft">🏗️ Loft</option>
+        <option value="studio">🛋️ Studio / Flat</option>
+        <option value="kitnet">🏡 Kitnet / Conjugado</option>
+        <option value="terreno">🟩 Terreno / Lote</option>
+        <option value="comercial">🏪 Comercial</option>
+        <option value="sala comercial">🖥️ Sala Comercial</option>
+        <option value="loja">🛍️ Loja</option>
+        <option value="galpão">🏭 Galpão</option>
+      </select>
+    </div>
       <div style="flex:1;min-width:120px"><label>Bairro</label><input id="f-bairro" placeholder="Vila Mariana"></div>
       <div style="flex:1;min-width:120px"><label>Cidade</label><input id="f-cidade" placeholder="São Paulo"></div>
       <div style="flex:1;min-width:100px"><label>Valor mín.</label><input id="f-valor-min" type="number" placeholder="500000"></div>
@@ -70,7 +85,7 @@
       </div>
 
       <div style="display:flex;gap:8px">
-        <a href="/imovel/<%= idx %>" target="_blank" class="btn light" style="flex:1;text-align:center;font-size:12px">Ver detalhes</a>
+        <a href="/app/imovel/<%= item.idExterno %>" target="_blank" class="btn light" style="flex:1;text-align:center;font-size:12px">Ver detalhes</a>
         <% if(item.corretor && item.corretor.telefone) { %>
           <a href="https://wa.me/55<%= item.corretor.telefone.replace(/\D/g,'') %>" target="_blank" class="btn red" style="flex:1;text-align:center;font-size:12px">WhatsApp</a>
         <% } %>

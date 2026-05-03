@@ -101,6 +101,7 @@ function parseListing(l) {
         email: extractText(ownerInfo.Email),
         telefone: extractText(ownerInfo.Telephone),
       },
+      fonte: extractText(l.ContactInfo?.Name || l.ContactInfo?.name) || 'XML',
       source: 'xml',
       lastUpdate: new Date().toISOString(),
       proprietario: {

@@ -1,0 +1,20 @@
+[
+  {
+    "valor_imovel": 0,
+    "area_m2": 0,
+    "quartos": 0,
+    "vagas": 0,
+    "fotos": [],
+    "proprietario": null,
+    "source": "vista"
+  },
+  {
+    "valor_imovel": 0,
+    "area_m2": 0,
+    "quartos": 0,
+    "vagas": 0,
+    "fotos": [],
+    "proprietario": null,
+    "source": "vista"
+  }
+]

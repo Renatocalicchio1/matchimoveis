@@ -176,10 +176,15 @@
             <select name="tipo">
               <option value="Apartamento">🏢 Apartamento</option>
               <option value="Casa">🏠 Casa</option>
-              <option value="Kitnet">🏡 Kitnet / Studio</option>
-              <option value="Comercial">🏪 Comercial</option>
-              <option value="Terreno">🟩 Terreno</option>
               <option value="Cobertura">🏙️ Cobertura</option>
+              <option value="Loft">🏗️ Loft</option>
+              <option value="Studio">🛋️ Studio / Flat</option>
+              <option value="Kitnet">🏡 Kitnet / Conjugado</option>
+              <option value="Terreno">🟩 Terreno / Lote</option>
+              <option value="Comercial">🏪 Comercial</option>
+              <option value="Sala Comercial">🖥️ Sala Comercial</option>
+              <option value="Loja">🛍️ Loja</option>
+              <option value="Galpão">🏭 Galpão / Depósito</option>
             </select>
           </div>
           <div class="field">
@@ -232,8 +237,12 @@
         <h4>Características</h4>
         <div class="form-grid-4">
           <div class="field">
-            <label>Área (m²)</label>
+            <label>Área Útil Privativa (m²)</label>
             <input name="area_m2" type="number" placeholder="80">
+          </div>
+          <div class="field">
+            <label>Área Total (m²)</label>
+            <input name="area_total" type="number" placeholder="100">
           </div>
           <div class="field">
             <label>Quartos</label>
@@ -261,20 +270,20 @@
       </div>
 
       <div class="form-section">
-        <h4>Corretor responsável</h4>
-        <div class="form-grid-3">
+        <h4>👤 Proprietário</h4>
+        <div class="form-grid-2">
           <div class="field">
             <label>Nome</label>
-            <input name="corretor_nome" placeholder="Nome completo">
+            <input name="proprietario" placeholder="Nome completo do proprietário">
           </div>
           <div class="field">
-            <label>Email</label>
-            <input name="corretor_email" type="email" placeholder="corretor@email.com">
+            <label>Celular / WhatsApp</label>
+            <input name="proprietario_celular" placeholder="(11) 99999-9999">
           </div>
-          <div class="field">
-            <label>WhatsApp</label>
-            <input name="corretor_telefone" placeholder="11999999999">
-          </div>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label>Email</label>
+          <input name="proprietario_email" type="email" placeholder="proprietario@email.com">
         </div>
       </div>
 

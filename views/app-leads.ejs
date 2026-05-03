@@ -205,6 +205,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
             · <a target="_blank" href="https://wa.me/<%= String(item.contato || item.telefone || '').replace(/\\D/g,'') %>">WhatsApp</a>
             <% if(matchCount) { %>
               · <a href="/cliente/oferta/<%= item.leadId || item.id %>" style="color:#ff385c;font-weight:700">Ver vitrine</a>
+              · <a target="_blank" href="https://wa.me/55<%= String(item.contato || item.telefone || '').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (item.nome || item.cliente || item.clientName || '') + '! Separamos algumas oportunidades semelhantes ao que você buscou. Veja sua vitrine: http://localhost:3000/cliente/oferta/' + (item.leadId || item.id) + ' e agende sua visita!') %>" style="color:#25D366;font-weight:800">Enviar vitrine</a>
             <% } %>
           </div>
         </div>

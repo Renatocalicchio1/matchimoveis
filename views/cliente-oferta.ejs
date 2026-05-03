@@ -99,7 +99,7 @@
           <a href="/imovel/<%= m.idExterno %>" target="_blank" style="display:block;text-align:center;padding:11px;background:#f3f4f6;color:#111;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none">🔍 Ver detalhes do imóvel</a>
           <div style="display:flex;gap:8px">
             <a href="/cliente/oferta/<%= lead.id || lead.leadId %>/escolher/<%= idx %>" class="btn-like">❤️ Gostei</a>
-            <a href="/cliente/oferta/<%= lead.id || lead.leadId %>/visita/<%= idx %>" class="btn-visit">📅 Quero visitar</a>
+            <a href="#" onclick="abrirModalOferta(this)" class="btn-visit">📅 Quero visitar</a>
           </div>
         </div>
       </div>
@@ -109,5 +109,105 @@
   <% } %>
 </div>
 
+
+
+<!-- MODAL CONTATO (REUTILIZADO) -->
+<div id="modal-contato" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;align-items:center;justify-content:center">
+  <div style="background:#fff;padding:24px;border-radius:12px;width:100%;max-width:400px">
+    
+    <div id="modal-step-contato">
+      <h3 style="font-size:18px;margin-bottom:12px">Seus dados</h3>
+      <input id="modal-nome" type="text" placeholder="Nome completo" style="width:100%;padding:10px;margin-bottom:10px">
+      <input id="modal-celular" type="tel" placeholder="Celular" style="width:100%;padding:10px;margin-bottom:10px">
+      <button onclick="continuarHorario()" style="width:100%;padding:12px;background:#e11d48;color:#fff;border:none;border-radius:8px">Continuar</button>
+    </div>
+
+    <div id="modal-step-horario" style="display:none">
+      <h3 style="font-size:18px;margin-bottom:12px">Agendar visita</h3>
+      <input id="modal-data" type="date" style="width:100%;padding:10px;margin-bottom:10px">
+      <input id="modal-hora" type="time" style="width:100%;padding:10px;margin-bottom:10px">
+      <button onclick="confirmarVisita()" style="width:100%;padding:12px;background:#e11d48;color:#fff;border:none;border-radius:8px">Confirmar visita</button>
+      <button onclick="voltarContato()" style="width:100%;padding:10px;margin-top:8px">Voltar</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let modalTipo = 'visita';
+
+function abrirModal(link, tipo = 'visita') {
+  modalTipo = tipo;
+  document.getElementById('modal-contato').style.display = 'flex';
+  document.getElementById('modal-step-contato').style.display = 'block';
+  document.getElementById('modal-step-horario').style.display = 'none';
+}
+
+function fecharModal() {
+  document.getElementById('modal-contato').style.display = 'none';
+}
+
+function continuarHorario(){
+  document.getElementById('modal-step-contato').style.display = 'none';
+  document.getElementById('modal-step-horario').style.display = 'block';
+}
+
+function voltarContato(){
+  document.getElementById('modal-step-contato').style.display = 'block';
+  document.getElementById('modal-step-horario').style.display = 'none';
+}
+
+function confirmarVisita() {
+  const nome = document.getElementById('modal-nome').value.trim();
+  const celular = document.getElementById('modal-celular').value.trim();
+  const data = document.getElementById('modal-data').value;
+  const hora = document.getElementById('modal-hora').value;
+
+  if (!nome || !celular || !data || !hora) {
+    alert('Preencha todos os campos');
+    return;
+  }
+
+  fetch('/api/lead-interesse', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      nome,
+      celular,
+      imovelId: window.imovelId,
+      imovelTitulo: window.imovelTitulo,
+      dataVisita: data,
+      horaVisita: hora,
+      acao: 'solicitar_visita',
+      visita: 'true'
+    })
+  }).then(() => {
+    alert('Visita solicitada com sucesso!');
+    fecharModal();
+  });
+}
+</script>
+
 </body>
 </html>
+
+
+<script>
+function abrirModalOferta(el){
+  const card = el.closest('.card');
+  if(!card) return;
+
+  const idx = Array.from(document.querySelectorAll('.card')).indexOf(card);
+  const imovel = (<%- JSON.stringify(lead.matches || []) %>)[idx] || {};
+
+  window.imovelId = imovel.id || imovel.idExterno;
+  window.imovelTitulo = imovel.titulo || imovel.tipo || '';
+
+  // reutiliza modal original
+  if(typeof abrirModal === 'function'){
+    abrirModal('', 'visita');
+  } else {
+    alert('Modal não encontrado');
+  }
+}
+</script>

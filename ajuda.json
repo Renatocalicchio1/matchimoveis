@@ -1,0 +1,47 @@
+[
+  {
+    "titulo": "Dashboard",
+    "palavras": ["dashboard", "painel", "inicio", "resumo"],
+    "resposta": "O Dashboard mostra um resumo da sua operação: imóveis ativos, leads, matches gerados, visitas agendadas e atividades recentes. Use essa tela para acompanhar rapidamente o desempenho da sua conta."
+  },
+  {
+    "titulo": "Meus Imóveis",
+    "palavras": ["imoveis", "carteira", "cadastro", "xml", "meus imoveis"],
+    "resposta": "Em Meus Imóveis você acompanha os imóveis cadastrados ou importados via XML. Todo imóvel cadastrado ou importado pertence ao usuário logado. Esses imóveis formam a base interna usada para gerar matches."
+  },
+  {
+    "titulo": "Leads",
+    "palavras": ["leads", "lead", "importar leads", "planilha", "cliente"],
+    "resposta": "Na tela de Leads você acompanha os clientes interessados. Para importar uma planilha, ela precisa ter obrigatoriamente nome e telefone do cliente, além de URL do anúncio ou ID do anúncio + portal. A planilha também pode trazer bairro, cidade, valor, quartos, área e tipo para ajudar o extrator."
+  },
+  {
+    "titulo": "Extrator",
+    "palavras": ["extrator", "url", "imovelweb", "perfil do imóvel", "perfil"],
+    "resposta": "O extrator usa a URL do anúncio, principalmente do ImovelWeb, para buscar o perfil real do imóvel que originou a lead. Se a planilha já trouxe dados parciais, o sistema usa esses dados como apoio e completa o que faltar."
+  },
+  {
+    "titulo": "Match",
+    "palavras": ["match", "matching", "base interna", "imoveis semelhantes", "semelhantes"],
+    "resposta": "O match compara o imóvel de interesse da lead com a base interna de imóveis. Ele usa regras como cidade, estado, bairro, tipo, quartos, valor, área, suítes, banheiros e vagas para encontrar imóveis semelhantes."
+  },
+  {
+    "titulo": "Vitrine do Cliente",
+    "palavras": ["vitrine", "cliente", "enviar vitrine", "whatsapp", "oferta"],
+    "resposta": "A vitrine do cliente é uma página com os imóveis semelhantes encontrados pelo match. O corretor pode enviar essa vitrine por WhatsApp diretamente pelo card da lead ou pela tela de detalhes da lead."
+  },
+  {
+    "titulo": "Visitas",
+    "palavras": ["visita", "visitas", "agendar", "confirmar visita", "solicitação"],
+    "resposta": "Quando o cliente solicita visita, o sistema cria uma lead e também uma solicitação de visita para o dono do imóvel. Na tela de Visitas o usuário pode acompanhar, confirmar e acessar o link do imóvel."
+  },
+  {
+    "titulo": "Notificações",
+    "palavras": ["notificação", "notificações", "sino", "alerta", "rotina"],
+    "resposta": "A Central de Notificações mostra avisos importantes como novas solicitações de visita. O sino no topo mostra pendências e pulsa quando existem notificações não lidas."
+  },
+  {
+    "titulo": "Portais XML",
+    "palavras": ["portal", "portais", "xml", "feed", "viva real", "olx", "zap"],
+    "resposta": "Na área de Portais/XML o usuário pode configurar a distribuição dos imóveis para portais. O sistema gera feeds XML para publicação e organização da carteira."
+  }
+]

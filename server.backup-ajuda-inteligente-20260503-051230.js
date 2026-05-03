@@ -776,6 +776,49 @@ function filtrarPorUsuario(lista, user){
 }
 
 
+app.post('/api/ajuda', auth, (req,res)=>{
+  try {
+    const pergunta = String(req.body.pergunta || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const base = fs.existsSync('ajuda.json') ? JSON.parse(fs.readFileSync('ajuda.json','utf8')) : [];
+
+    let melhor = null;
+    let scoreMelhor = 0;
+
+    base.forEach(item => {
+      let score = 0;
+      const texto = [
+        item.titulo || '',
+        ...(item.palavras || []),
+        item.resposta || ''
+      ].join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+
+      pergunta.split(/\s+/).filter(Boolean).forEach(p => {
+        if (texto.includes(p)) score++;
+      });
+
+      if (score > scoreMelhor) {
+        scoreMelhor = score;
+        melhor = item;
+      }
+    });
+
+    if (!melhor) {
+      return res.json({
+        ok: true,
+        titulo: 'Não encontrei uma resposta exata',
+        resposta: 'Tente perguntar usando termos como leads, visitas, match, imóveis, vitrine, notificações ou XML.'
+      });
+    }
+
+    res.json({
+      ok: true,
+      titulo: melhor.titulo,
+      resposta: melhor.resposta
+    });
+  } catch(e) {
+    res.json({ ok:false, resposta:'Erro ao buscar ajuda: ' + e.message });
+  }
+});
 
 app.get('/app', auth, (req,res)=> res.redirect('/app-home'));
 
@@ -1064,313 +1107,6 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
     } catch (e) {
       console.error('Erro buscar QuintoAndar background:', e.message);
     }
-  });
-});
-
-
-
-
-
-
-// AJUDA GLOBAL INTELIGENTE COMPLETA
-app.post('/api/ajuda', (req, res) => {
-  const perguntaOriginal = (req.body && req.body.pergunta ? req.body.pergunta : '').toString();
-
-  function normalizar(txt){
-    return txt.toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/[^a-z0-9\s]/g,' ')
-      .replace(/\s+/g,' ')
-      .trim();
-  }
-
-  const pergunta = normalizar(perguntaOriginal);
-
-  const baseAjuda = [
-    {
-      tema:'Dashboard',
-      palavras:['dashboard','inicio','home','painel inicial','app home','tela inicial','resumo'],
-      resposta:`O Dashboard é a tela inicial da conta.
-
-Ele mostra o resumo do usuário logado, como imóveis cadastrados, leads, visitas e matches. Cada usuário deve ver somente os próprios dados.`
-    },
-    {
-      tema:'Cadastrar imóvel',
-      palavras:['cadastrar imovel','cadastro imovel','novo imovel','adicionar imovel','subir imovel','criar imovel','colocar imovel','cadstro iovel','cadastra iovel'],
-      resposta:`Para cadastrar um imóvel, clique em "Cadastrar Imóvel" no menu lateral.
-
-Você pode cadastrar manualmente preenchendo os dados do imóvel, proprietário, fotos e informações principais.
-
-Todo imóvel cadastrado pertence automaticamente ao usuário logado.`
-    },
-    {
-      tema:'Meus imóveis',
-      palavras:['meus imoveis','carteira','carteira publicada','imoveis ativos','listar imoveis','ver imoveis','imoveis cadastrados'],
-      resposta:`A tela "Meus imóveis" mostra os imóveis cadastrados ou importados pelo usuário.
-
-Ali você pode acompanhar a carteira, abrir detalhes, editar dados e acessar a página pública do imóvel.`
-    },
-    {
-      tema:'Editar imóvel',
-      palavras:['editar imovel','alterar imovel','mudar foto','atualizar imovel','dados do imovel','corrigir imovel'],
-      resposta:`Para editar um imóvel, entre em "Meus imóveis" e clique para abrir ou editar o imóvel.
-
-Você pode atualizar dados, fotos, proprietário, publicação e informações usadas nos portais e na página pública.`
-    },
-    {
-      tema:'Fotos do imóvel',
-      palavras:['foto','fotos','imagem','imagens','upload foto','adicionar fotos','fotos do imovel'],
-      resposta:`As fotos do imóvel são usadas na página pública, na vitrine e na apresentação para o cliente.
-
-Quando cadastrar ou editar um imóvel, adicione fotos boas para melhorar a conversão de leads e visitas.`
-    },
-    {
-      tema:'Página pública do imóvel',
-      palavras:['pagina publica','link do imovel','imovel externo','cliente ver imovel','pagina externa','/imovel','ver imovel'],
-      resposta:`A página pública do imóvel é o link externo que o cliente pode acessar.
-
-Nessa página, o cliente pode ver os dados do imóvel e demonstrar interesse. Quando ele se cadastra pela página pública, a fonte correta do lead deve ser MatchImoveis.`
-    },
-    {
-      tema:'Falar no WhatsApp',
-      palavras:['whatsapp','falar whatsapp','botao whatsapp','chamar whatsapp','contato whatsapp'],
-      resposta:`O botão de WhatsApp deve abrir o contato direto depois de pegar os dados básicos do cliente.
-
-Esse botão não precisa pedir data e horário. Data e horário são usados apenas no fluxo de agendamento de visita.`
-    },
-    {
-      tema:'Importar leads',
-      palavras:['importar leads','subir leads','planilha leads','excel leads','csv leads','upload leads','lista leads','importar planilha'],
-      resposta:`Para importar leads, vá em "Importar Leads".
-
-A planilha deve ter principalmente:
-- Nome do cliente
-- Telefone ou contato
-- Email, se tiver
-- URL do anúncio de interesse ou ID do anúncio + portal
-
-A URL é a fonte principal para o sistema extrair o perfil do imóvel de interesse.`
-    },
-    {
-      tema:'Campos da planilha de leads',
-      palavras:['campos planilha','colunas planilha','nome telefone email id url','id anuncio','url anuncio','telefone 2'],
-      resposta:`Na importação de leads, o sistema considera apenas os campos importantes:
-- Nome
-- Telefone / contato
-- Telefone 2, se existir
-- Email
-- ID do anúncio
-- URL do anúncio
-- Cidade, estado, bairro, se vierem na planilha
-
-Campos extras devem ser ignorados.`
-    },
-    {
-      tema:'Extração do imóvel de interesse',
-      palavras:['extrair','extrator','imovelweb','extracao','buscar dados url','url do anuncio','perfil do imovel'],
-      resposta:`A extração usa a URL do anúncio para montar o perfil do imóvel que o cliente procurou.
-
-O sistema tenta identificar bairro, cidade, estado, tipo, valor, área, quartos, suítes, banheiros e vagas.
-
-A extração deve considerar somente imóveis de São Paulo/SP.`
-    },
-    {
-      tema:'Match',
-      palavras:['match','matches','fazer match','buscar match','imoveis parecidos','oportunidades','compatibilidade'],
-      resposta:`O match compara o imóvel de interesse do lead com outros imóveis disponíveis.
-
-A lógica usa regras como:
-- Cidade e estado iguais
-- Bairro compatível
-- Tipo normalizado igual
-- Quartos compatíveis
-- Valor dentro da faixa
-- Área dentro da faixa
-- Suítes, banheiros e vagas conforme regra
-
-Depois mostra os melhores imóveis encontrados para aquele lead.`
-    },
-    {
-      tema:'Regras de match',
-      palavras:['regras match','como calcula match','score','pontuacao','criterio match','criterios'],
-      resposta:`As regras principais do match são:
-
-- Somente São Paulo/SP
-- Não comparar o imóvel com ele mesmo
-- Tipo precisa ser compatível
-- Bairro deve bater com a origem ou lead
-- Quartos podem ser iguais ou próximos conforme regra
-- Valor e área têm limite de variação
-- Suítes, banheiros e vagas ajudam na pontuação
-
-O score indica a qualidade do match.`
-    },
-    {
-      tema:'QuintoAndar',
-      palavras:['quintoandar','quinto andar','matches quintoandar','buscar quintoandar'],
-      resposta:`O QuintoAndar é uma das fontes usadas para buscar imóveis candidatos ao match.
-
-O sistema procura imóveis no mesmo bairro e depois filtra conforme as regras de compatibilidade.`
-    },
-    {
-      tema:'REMAX',
-      palavras:['remax','re max','matches remax','buscar remax'],
-      resposta:`A RE/MAX é uma fonte adicional de imóveis para aumentar o volume de matches.
-
-A busca RE/MAX deve preservar a lógica principal do sistema e funcionar como módulo separado.`
-    },
-    {
-      tema:'OLX',
-      palavras:['olx','matches olx','proprietario olx','telefone olx','anunciante'],
-      resposta:`A OLX foi criada como fonte estratégica para encontrar imóveis e, quando possível, dados do anunciante.
-
-A prioridade é encontrar imóveis em São Paulo/SP, preferindo anúncios diretos de proprietários, depois corretores parceiros e depois imobiliárias.`
-    },
-    {
-      tema:'Oferta do cliente',
-      palavras:['oferta cliente','espelho cliente','pagina de oferta','cliente oferta','matches para cliente','enviar matches'],
-      resposta:`A página de oferta do cliente mostra somente os imóveis que deram match.
-
-Ela não precisa mostrar o imóvel de origem. O cliente pode avaliar os imóveis, clicar para ver detalhes e solicitar visita.`
-    },
-    {
-      tema:'Solicitar visita',
-      palavras:['solicitar visita','quero visitar','agendar visita','cliente quer visitar','pedir visita'],
-      resposta:`Quando o cliente clica em "Quero visitar", o sistema deve criar uma solicitação de visita.
-
-A visita deve ir para o usuário dono do imóvel cadastrado ou importado.`
-    },
-    {
-      tema:'Visitas',
-      palavras:['visitas','minhas visitas','confirmar visita','recusar visita','solicitacoes de visita','agenda'],
-      resposta:`A tela "Visitas" mostra as solicitações recebidas.
-
-O usuário pode acompanhar os pedidos de visita e confirmar ou recusar conforme disponibilidade.`
-    },
-    {
-      tema:'Dono do imóvel',
-      palavras:['dono imovel','usuario dono','quem recebe visita','quem cadastrou','proprietario usuario','imovel pertence'],
-      resposta:`Todo imóvel pertence ao usuário que cadastrou ou importou.
-
-Se o usuário cadastrou manualmente, o imóvel é dele.
-Se importou via XML, todos os imóveis daquele XML pertencem a ele.
-
-As visitas e leads desse imóvel devem ir para esse usuário.`
-    },
-    {
-      tema:'Portais e XML',
-      palavras:['xml','portais','portal','vivareal','zap','olx xml','chaves na mao','feed xml','publicar portal'],
-      resposta:`Na tela "Portais / XML", o usuário pode gerar links XML para enviar imóveis aos portais.
-
-A ideia é ter XML por canal, como VivaReal, ZAP, OLX, Chaves na Mão ou outros parceiros.`
-    },
-    {
-      tema:'Importar XML',
-      palavras:['importar xml','subir xml','xml imoveis','carteira xml','feed de imoveis'],
-      resposta:`A importação XML serve para trazer uma carteira de imóveis para dentro do sistema.
-
-Os imóveis importados ficam vinculados ao usuário logado e podem ser usados em páginas públicas, visitas, portais e match.`
-    },
-    {
-      tema:'Notificações',
-      palavras:['notificacao','notificacoes','sino','alerta','central notificacoes','avisos'],
-      resposta:`A Central de Notificações mostra avisos importantes da conta.
-
-A rotina ideal é o usuário entrar no sistema, olhar primeiro as notificações e resolver pendências como visitas, novos leads e novos matches.`
-    },
-    {
-      tema:'Perfil',
-      palavras:['perfil','minha conta','tipo de conta','corretor','imobiliaria','construtora','proprietario','foto usuario','dados usuario'],
-      resposta:`A tela de Perfil mostra os dados da conta do usuário.
-
-O usuário pode ser corretor, imobiliária, construtora ou proprietário. As contas funcionam de forma parecida; o tipo serve para identificação e contexto.`
-    },
-    {
-      tema:'Login',
-      palavras:['login','entrar','celular','acesso','senha','usuario'],
-      resposta:`O login do MatchImoveis usa principalmente o celular do usuário.
-
-Depois de entrar, cada usuário deve ver somente os próprios imóveis, leads, visitas e dados.`
-    },
-    {
-      tema:'Fonte do lead',
-      palavras:['fonte lead','fonte matchimoveis','lead matchimoveis','fonte imovelweb','origem lead'],
-      resposta:`Quando o lead vem de uma página externa do próprio MatchImoveis, a fonte correta deve ser MatchImoveis.
-
-Quando o lead vem de uma planilha ou portal externo, a fonte pode ser o portal de origem, como ImovelWeb, OLX, QuintoAndar ou outro.`
-    },
-    {
-      tema:'Ajuda global',
-      palavras:['ajuda','duvida','como funciona','icone ajuda','suporte','pergunta'],
-      resposta:`A Ajuda Global serve para responder dúvidas sobre qualquer funcionalidade da app.
-
-Clique no ícone de ajuda, digite a dúvida e o sistema busca a melhor resposta na memória de funcionalidades.`
-    }
-  ];
-
-  function scoreItem(item){
-    let score = 0;
-    const perguntaTokens = pergunta.split(' ').filter(t => t.length >= 3);
-
-    for(const palavra of item.palavras){
-      const p = normalizar(palavra);
-
-      if(pergunta === p) score += 200;
-      if(pergunta.includes(p)) score += 120;
-
-      const termos = p.split(' ').filter(t => t.length >= 3);
-      for(const termo of termos){
-        if(pergunta.includes(termo)) score += 18;
-      }
-    }
-
-    for(const token of perguntaTokens){
-      const tema = normalizar(item.tema);
-      if(tema.includes(token)) score += 15;
-    }
-
-    if(pergunta.includes('cad') && (pergunta.includes('imov') || pergunta.includes('iovel'))) {
-      if(item.tema === 'Cadastrar imóvel') score += 120;
-    }
-    if(pergunta.includes('lead') && item.tema.includes('lead')) score += 70;
-    if(pergunta.includes('visit') && item.tema.includes('Visita')) score += 70;
-    if(pergunta.includes('xml') && item.tema.includes('XML')) score += 70;
-    if(pergunta.includes('match') && item.tema.includes('Match')) score += 70;
-    if(pergunta.includes('whats') && item.tema.includes('WhatsApp')) score += 70;
-    if(pergunta.includes('portal') && item.tema.includes('Portais')) score += 70;
-    if(pergunta.includes('foto') && item.tema.includes('Fotos')) score += 70;
-
-    return score;
-  }
-
-  if(!pergunta){
-    return res.json({resposta:'Digite sua dúvida sobre a app MatchImoveis.'});
-  }
-
-  const ranking = baseAjuda
-    .map(item => ({...item, score: scoreItem(item)}))
-    .sort((a,b) => b.score - a.score);
-
-  const melhor = ranking[0];
-
-  if(!melhor || melhor.score <= 0){
-    return res.json({
-      resposta:`Ainda não encontrei uma resposta exata para essa dúvida.
-
-Tente perguntar de outra forma, por exemplo:
-- Como cadastrar um imóvel?
-- Como importar leads?
-- Como gerar XML?
-- Como funciona o match?
-- Como confirmar uma visita?
-- Como editar meu perfil?`
-    });
-  }
-
-  res.json({
-    tema: melhor.tema,
-    score: melhor.score,
-    resposta: melhor.resposta
   });
 });
 

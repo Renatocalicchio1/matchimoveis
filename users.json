@@ -1,15 +1,17 @@
 [
   {
-    "id": "antonio-11975720750",
-    "nome": "Antonio Eduardo",
+    "id": "alexandre-11947962442",
+    "nome": "Alexandre - Complexo imoveis ",
     "tipo": "corretor",
-    "telefone": "11975720750",
-    "celular": "11975720750",
+    "telefone": "11947962442",
+    "celular": "11947962442",
     "senha": "match7",
     "ativo": true,
     "endereco": "Condomínio Haras Rio do Ouro, Ariribá, Balneário Camboriú, Região Geográfica Intermediária de Blumenau, Santa Catarina, Região Sul, 88338-635, Brasil, Região Geográfica Imediata de Itajaí",
     "cep": "",
     "lat": -26.9615104,
-    "lng": -48.6473728
+    "lng": -48.6473728,
+    "creci": "",
+    "cpf": ""
   }
 ]

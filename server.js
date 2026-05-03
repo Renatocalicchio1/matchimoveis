@@ -839,6 +839,12 @@ app.get('/app/leads', auth, (req,res)=>{
       l.matchCount = l.matchCountBase || 0;
     }
   });
+  // Ordena por data de cadastro — mais recentes primeiro
+  leads.sort((a, b) => {
+    const da = new Date(a.data_cadastro || 0);
+    const db = new Date(b.data_cadastro || 0);
+    return db - da;
+  });
   const totalMatches = leads.reduce((sum,item)=> sum + ((item.matches && item.matches.length) || 0), 0);
   res.render('app-leads', {
     user: req.session.user,
@@ -972,6 +978,88 @@ app.post('/app/imovel/cadastrar', auth, (req, res) => {
 });
 
 // Detalhe do imóvel
+
+
+// Salva lead vindo da página pública do imóvel
+app.post('/api/lead-interesse', (req, res) => {
+  try {
+    const { nome, celular, imovelId, imovelTitulo } = req.body;
+    if (!nome || !celular) return res.json({ ok: false });
+    const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
+    // Verifica se já existe pelo celular
+    const idxExiste = leads.findIndex(l => (l.contato || l.telefone || '').replace(/\D/g,'') === celular.replace(/\D/g,''));
+    if (idxExiste === -1) {
+      const agora = new Date();
+      // Busca dados do imóvel de interesse
+      const imoveis = JSON.parse(fs.readFileSync('./imoveis.json', 'utf8'));
+      const imovelRef = imoveis.find(i => String(i.idExterno) === String(imovelId)) || {};
+      leads.push({
+        id: Date.now().toString(),
+        nome,
+        contato: celular,
+        telefone: celular,
+        fonte: 'MatchImóveis',
+        origem: 'pagina_publica',
+        canal: 'WhatsApp',
+        imovel_interesse: imovelId,
+        titulo_interesse: imovelTitulo,
+        tipo: imovelRef.tipo || '',
+        bairro: imovelRef.bairro || '',
+        cidade: imovelRef.cidade || 'São Paulo',
+        estado: imovelRef.estado || 'SP',
+        valor_imovel: imovelRef.valor_imovel || 0,
+        area_m2: imovelRef.area_m2 || 0,
+        quartos: imovelRef.quartos || 0,
+        suites: imovelRef.suites || 0,
+        banheiros: imovelRef.banheiros || 0,
+        vagas: imovelRef.vagas || 0,
+        url: 'http://localhost:3000/imovel/' + imovelId,
+        data_cadastro: agora.toISOString(),
+        data_cadastro_br: agora.toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}),
+        matches: [],
+        matchCount: 0
+      });
+      fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+      console.log('✅ Novo lead salvo:', nome, celular);
+    } else {
+      // Atualiza fonte e canal se veio da página pública
+      leads[idxExiste].fonte = 'MatchImóveis';
+      leads[idxExiste].origem = 'pagina_publica';
+      leads[idxExiste].canal = 'WhatsApp';
+      leads[idxExiste].imovel_interesse = imovelId;
+      leads[idxExiste].titulo_interesse = imovelTitulo;
+      fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+      console.log('✅ Lead existente atualizada:', nome, celular);
+    }
+    res.json({ ok: true });
+  } catch(e) {
+    res.json({ ok: false });
+  }
+});
+
+// Página pública do imóvel — sem login
+app.get('/imovel/:id', (req, res) => {
+  const imoveis = JSON.parse(fs.readFileSync('./imoveis.json', 'utf8'));
+  const users = JSON.parse(fs.readFileSync('./users.json', 'utf8'));
+  const imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.id) === String(req.params.id));
+  if (!imovel) return res.status(404).send('Imóvel não encontrado');
+  const pub = Object.assign({}, imovel);
+  delete pub.proprietario;
+  delete pub.proprietario_celular;
+  delete pub.proprietario_email;
+  // Pega o primeiro usuário ativo como contato
+  const corretor = users.find(u => u.ativo) || {};
+  res.render('imovel-publico', { imovel: pub, corretor });
+});
+
+
+// Detalhe da lead
+app.get('/app/lead/:id', auth, (req, res) => {
+  const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
+  const lead = leads.find(l => String(l.id) === String(req.params.id));
+  if (!lead) return res.status(404).send('Lead não encontrada');
+  res.render('app-lead-detalhe', { user: req.session.user, lead });
+});
 app.get('/app/imovel/:id', auth, (req, res) => {
   const imoveis = JSON.parse(fs.readFileSync('imoveis.json', 'utf8'));
   const user = req.session.user;

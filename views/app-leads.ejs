@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
             Processado: <%= item.processedAt ? new Date(item.processedAt).toLocaleString('pt-BR') : '-' %><br>
             Match: <%= item.matchedAt ? new Date(item.matchedAt).toLocaleString('pt-BR') : '-' %>
           </div>
-          <strong><%= item.nome || item.clientName || 'Cliente sem nome' %></strong>
+          <a href="/app/lead/<%= item.id %>" style="font-weight:700;color:var(--dark);text-decoration:none;font-size:15px"><%= item.nome || item.clientName || 'Cliente sem nome' %></a>
           <span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <%= item.contato || item.telefone || 'Sem contato' %>
             <% if(item.email) { %> · <%= item.email %><% } %>
@@ -212,7 +212,9 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
         <div class="excel-status">
           <% if(origin.extractionStatus === 'ok') { %><span class="chip success">Extraído</span><% } %>
           <% if(origin.extractionStatus !== 'ok') { %><span class="chip warning">Pendente</span><% } %>
-          <% if(matchCount) { %><span class="chip dark"><%= matchCount %> matches</span><% } %>
+          <a href="/app/lead/<%= item.id %>" style="font-weight:700;color:var(--dark);text-decoration:none;font-size:14px"><%= item.nome || item.clientName || 'Lead' %></a>
+          <% if(matchCount) { %><span class="chip dark"><%= matchCount %> matches</span>
+            <a href="/cliente/oferta/<%= item.id %>" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#FF385C;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-decoration:none;margin-left:4px" title="Abrir página de oferta para enviar ao cliente">🔗 Ver oferta</a><% } %>
           <% if(!matchCount && origin.extractionStatus === 'ok') { %><span class="chip">Sem match</span><% } %>
           <% if(bestScore) { %><span class="chip dark">Score <%= bestScore %></span><% } %>
         </div>

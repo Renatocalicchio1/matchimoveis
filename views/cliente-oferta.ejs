@@ -95,9 +95,12 @@
         <% if(m.descricao) { %>
           <div class="card-desc"><%= m.descricao.toString().slice(0, 200) %>...</div>
         <% } %>
-        <div class="card-actions">
-          <a href="/cliente/oferta/<%= lead.id || lead.leadId %>/escolher/<%= idx %>" class="btn-like">❤️ Gostei</a>
-          <a href="/cliente/oferta/<%= lead.id || lead.leadId %>/visita/<%= idx %>" class="btn-visit">📅 Quero visitar</a>
+        <div class="card-actions" style="flex-direction:column;gap:8px">
+          <a href="/imovel/<%= m.idExterno %>" target="_blank" style="display:block;text-align:center;padding:11px;background:#f3f4f6;color:#111;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none">🔍 Ver detalhes do imóvel</a>
+          <div style="display:flex;gap:8px">
+            <a href="/cliente/oferta/<%= lead.id || lead.leadId %>/escolher/<%= idx %>" class="btn-like">❤️ Gostei</a>
+            <a href="/cliente/oferta/<%= lead.id || lead.leadId %>/visita/<%= idx %>" class="btn-visit">📅 Quero visitar</a>
+          </div>
         </div>
       </div>
     </div>

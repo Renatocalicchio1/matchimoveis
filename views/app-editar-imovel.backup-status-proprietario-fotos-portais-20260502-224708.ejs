@@ -1,0 +1,94 @@
+<%- include('partials/app-shell',{active:'imoveis',title:'Editar imóvel',subtitle:'Atualize os dados do imóvel.',perfil:'corretor'}) %>
+
+<div class="card">
+
+  <form method="POST" action="/app/imovel/<%= imovel.idExterno || imovel.id %>/editar">
+
+    <div class="form-grid">
+
+      <div>
+        <label>Tipo</label>
+        <input name="tipo" value="<%= imovel.tipo || '' %>">
+      </div>
+
+      <div>
+        <label>Bairro</label>
+        <input name="bairro" value="<%= imovel.bairro || '' %>">
+      </div>
+
+      <div>
+        <label>Cidade</label>
+        <input name="cidade" value="<%= imovel.cidade || '' %>">
+      </div>
+
+      <div>
+        <label>Estado</label>
+        <input name="estado" value="<%= imovel.estado && imovel.estado['#text'] ? imovel.estado['#text'] : (imovel.estado || '') %>">
+      </div>
+
+      <div>
+        <label>Valor do imóvel</label>
+        <input name="valor_imovel" type="number" value="<%= imovel.valor_imovel || '' %>">
+      </div>
+
+      <div>
+        <label>Área (m²)</label>
+        <input name="area_m2" type="number" value="<%= imovel.area_m2 || '' %>">
+      </div>
+
+      <div>
+        <label>Quartos</label>
+        <input name="quartos" type="number" value="<%= imovel.quartos || '' %>">
+      </div>
+
+      <div>
+        <label>Suítes</label>
+        <input name="suites" type="number" value="<%= imovel.suites || '' %>">
+      </div>
+
+      <div>
+        <label>Banheiros</label>
+        <input name="banheiros" type="number" value="<%= imovel.banheiros || '' %>">
+      </div>
+
+      <div>
+        <label>Vagas</label>
+        <input name="vagas" type="number" value="<%= imovel.vagas || '' %>">
+      </div>
+
+      <div style="grid-column:1/-1">
+        <label>Descrição</label>
+        <textarea name="descricao" rows="4"><%= imovel.descricao || '' %></textarea>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <a href="/app/imoveis" class="btn light">Cancelar</a>
+      <button class="btn btn-primary" type="submit">Salvar alterações</button>
+    </div>
+
+  </form>
+
+</div>
+
+<style>
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+}
+.form-grid input,
+.form-grid textarea{
+  width:100%;
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+.form-actions{
+  margin-top:20px;
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}
+</style>

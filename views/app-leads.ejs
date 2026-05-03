@@ -195,28 +195,18 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
         data-search="<%= [item.nome, item.clientName, item.contato, item.telefone, item.email, origin.bairro, origin.cidade].filter(Boolean).join(' ').toLowerCase() %>">
 
         <div class="excel-client">
-          <div style="font-size:12px;color:#667085;margin-bottom:6px">
-            Processado: <%= item.processedAt ? new Date(item.processedAt).toLocaleString('pt-BR') : '-' %><br>
-            Match: <%= item.matchedAt ? new Date(item.matchedAt).toLocaleString('pt-BR') : '-' %>
-          </div>
-          <a href="/app/lead/<%= item.id %>" style="font-weight:700;color:var(--dark);text-decoration:none;font-size:15px"><%= item.nome || item.clientName || 'Cliente sem nome' %></a>
-          <span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <%= item.contato || item.telefone || 'Sem contato' %>
-            <% if(item.email) { %> · <%= item.email %><% } %>
+          <div style="font-size:13px;line-height:1.45">
+            <strong><a href="/app/lead/<%= item.id %>" style="text-decoration:none;color:#111"><%= item.nome || item.cliente || item.clientName || '-' %></a></strong>
+            · <span style="color:#16a34a;font-weight:600"><%= origin.extractionStatus === 'ok' ? 'Extraído' : 'Pendente' %></span>
+            · <span class="chip"><%= matchCount %> matches</span>
+            <% if(bestScore) { %> · <span class="chip dark">Score <%= bestScore %></span><% } %>
+            <br>
+            <span style="color:#666"><%= item.contato || item.telefone || '-' %> · <%= item.email || '-' %></span>
+            · <a target="_blank" href="https://wa.me/<%= String(item.contato || item.telefone || '').replace(/\\D/g,'') %>">WhatsApp</a>
             <% if(matchCount) { %>
-              <a target="_blank" href="https://wa.me/55<%= (item.contato||item.telefone||'').replace(/\D/g,'') %>?text=Ol%C3%A1!%20Encontramos%20im%C3%B3veis%20para%20voc%C3%AA!">WhatsApp</a>
+              · <a href="/cliente/oferta/<%= item.leadId || item.id %>" style="color:#ff385c;font-weight:700">Ver vitrine</a>
             <% } %>
-          </span>
-        </div>
-
-        <div class="excel-status">
-          <% if(origin.extractionStatus === 'ok') { %><span class="chip success">Extraído</span><% } %>
-          <% if(origin.extractionStatus !== 'ok') { %><span class="chip warning">Pendente</span><% } %>
-          <a href="/app/lead/<%= item.id %>" style="font-weight:700;color:var(--dark);text-decoration:none;font-size:14px"><%= item.nome || item.clientName || 'Lead' %></a>
-          <% if(matchCount) { %><span class="chip dark"><%= matchCount %> matches</span>
-            <a href="/cliente/oferta/<%= item.id %>" target="_blank" style="display:inline-flex;align-items:center;gap:4px;background:#FF385C;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;text-decoration:none;margin-left:4px" title="Abrir página de oferta para enviar ao cliente">🔗 Ver oferta</a><% } %>
-          <% if(!matchCount && origin.extractionStatus === 'ok') { %><span class="chip">Sem match</span><% } %>
-          <% if(bestScore) { %><span class="chip dark">Score <%= bestScore %></span><% } %>
+          </div>
         </div>
 
         <div class="excel-table-wrap">

@@ -1,0 +1,175 @@
+<%- include('partials/app-shell',{active:'imoveis',title:'Editar imóvel',subtitle:'Dados, proprietário, fotos e publicação nos portais.',perfil:'corretor'}) %>
+
+<div class="card">
+  <form method="POST" action="/app/imovel/<%= imovel.idExterno || imovel.id %>/editar">
+
+    <h3>Dados do imóvel</h3>
+
+    <div class="form-grid">
+      <div>
+        <label>Status</label>
+        <select name="status">
+          <option value="publicado" <%= imovel.status === 'publicado' ? 'selected' : '' %>>Publicar</option>
+          <option value="nao_publicado" <%= !imovel.status || imovel.status === 'nao_publicado' ? 'selected' : '' %>>Não publicar</option>
+          <option value="arquivado" <%= imovel.status === 'arquivado' ? 'selected' : '' %>>Arquivar</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Tipo</label>
+        <input name="tipo" value="<%= imovel.tipo || '' %>">
+      </div>
+
+      <div>
+        <label>Bairro</label>
+        <input name="bairro" value="<%= imovel.bairro || '' %>">
+      </div>
+
+      <div>
+        <label>Cidade</label>
+        <input name="cidade" value="<%= imovel.cidade || '' %>">
+      </div>
+
+      <div>
+        <label>Estado</label>
+        <input name="estado" value="<%= imovel.estado && imovel.estado['#text'] ? imovel.estado['#text'] : (imovel.estado || '') %>">
+      </div>
+
+      <div>
+        <label>Valor do imóvel</label>
+        <input name="valor_imovel" type="number" value="<%= imovel.valor_imovel || '' %>">
+      </div>
+
+      <div>
+        <label>Área (m²)</label>
+        <input name="area_m2" type="number" value="<%= imovel.area_m2 || '' %>">
+      </div>
+
+      <div>
+        <label>Quartos</label>
+        <input name="quartos" type="number" value="<%= imovel.quartos || '' %>">
+      </div>
+
+      <div>
+        <label>Suítes</label>
+        <input name="suites" type="number" value="<%= imovel.suites || '' %>">
+      </div>
+
+      <div>
+        <label>Banheiros</label>
+        <input name="banheiros" type="number" value="<%= imovel.banheiros || '' %>">
+      </div>
+
+      <div>
+        <label>Vagas</label>
+        <input name="vagas" type="number" value="<%= imovel.vagas || '' %>">
+      </div>
+
+      <div style="grid-column:1/-1">
+        <label>Descrição</label>
+        <textarea name="descricao" rows="4"><%= imovel.descricao || '' %></textarea>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>Proprietário</h3>
+
+    <div class="form-grid">
+      <div>
+        <label>Nome do proprietário</label>
+        <input name="proprietario_nome" value="<%= imovel.proprietario?.nome || '' %>">
+      </div>
+
+      <div>
+        <label>Telefone do proprietário</label>
+        <input name="proprietario_telefone" value="<%= imovel.proprietario?.telefone || '' %>">
+      </div>
+
+      <div>
+        <label>Email do proprietário</label>
+        <input name="proprietario_email" value="<%= imovel.proprietario?.email || '' %>">
+      </div>
+
+      <div>
+        <label>Status do vínculo</label>
+        <select name="proprietario_status">
+          <option value="vinculado" <%= imovel.proprietario?.status === 'vinculado' ? 'selected' : '' %>>Vinculado</option>
+          <option value="pendente" <%= imovel.proprietario?.status === 'pendente' ? 'selected' : '' %>>Pendente</option>
+          <option value="sem_contato" <%= imovel.proprietario?.status === 'sem_contato' ? 'selected' : '' %>>Sem contato</option>
+        </select>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>Fotos</h3>
+    <p style="color:#777;font-size:13px;margin-top:-6px">Cole uma URL de foto por linha.</p>
+
+    <textarea name="fotos_texto" rows="6"><%= Array.isArray(imovel.fotos) ? imovel.fotos.join('\n') : '' %></textarea>
+
+    <hr>
+
+    <h3>Publicação em portais</h3>
+
+    <div class="portal-box">
+      <% const portais = imovel.portais || {}; %>
+
+      <label><input type="checkbox" name="portal_olx" <%= portais.olx ? 'checked' : '' %>> OLX</label>
+      <label><input type="checkbox" name="portal_zap" <%= portais.zap ? 'checked' : '' %>> ZAP Imóveis</label>
+      <label><input type="checkbox" name="portal_vivareal" <%= portais.vivareal ? 'checked' : '' %>> VivaReal</label>
+      <label><input type="checkbox" name="portal_chaves" <%= portais.chaves ? 'checked' : '' %>> Chaves na Mão</label>
+      <label><input type="checkbox" name="portal_site" <%= portais.site ? 'checked' : '' %>> Site próprio</label>
+    </div>
+
+    <div class="form-actions">
+      <a href="/app/imoveis" class="btn light">Cancelar</a>
+      <button class="btn btn-primary" type="submit">Salvar alterações</button>
+    </div>
+
+  </form>
+</div>
+
+<style>
+.card h3{
+  margin:0 0 14px;
+  color:#111;
+}
+hr{
+  border:none;
+  border-top:1px solid #eee;
+  margin:26px 0;
+}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+}
+.form-grid input,
+.form-grid select,
+.form-grid textarea,
+textarea{
+  width:100%;
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  background:#fff;
+}
+.portal-box{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.portal-box label{
+  background:#f7f7f7;
+  border:1px solid #eee;
+  border-radius:999px;
+  padding:8px 12px;
+}
+.form-actions{
+  margin-top:24px;
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}
+</style>

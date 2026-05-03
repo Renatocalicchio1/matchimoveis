@@ -1,0 +1,185 @@
+<%- include('partials/app-shell',{active:'leads',title:'Detalhe da Lead',subtitle:'Acompanhe dados, comportamento e oportunidades',user:user}) %>
+
+<style>
+.ld-wrap{max-width:1120px;margin:0 auto}
+.ld-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px}
+.ld-back{color:var(--gray);font-size:13px;text-decoration:none}
+.ld-layout{display:grid;grid-template-columns:1fr 340px;gap:22px}
+.ld-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px;box-shadow:0 8px 22px rgba(15,23,42,.04)}
+.ld-title{font-size:12px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.ld-hero{display:flex;align-items:center;gap:16px}
+.ld-avatar{width:58px;height:58px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:900;flex-shrink:0}
+.ld-name{font-size:22px;font-weight:900;color:var(--dark)}
+.ld-sub{font-size:13px;color:var(--gray);margin-top:4px}
+.info-row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border:none}
+.info-lbl{color:var(--gray)}
+.info-val{font-weight:700;color:var(--dark);text-align:right}
+.tag{display:inline-block;background:#f3f4f6;color:#374151;font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;margin:4px 4px 0 0}
+.tag-blue{background:#eff6ff;color:#2563eb}
+.tag-green{background:#f0fdf4;color:#16a34a}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--light);border-radius:14px;padding:14px}
+.stat strong{display:block;font-size:22px;color:var(--dark)}
+.stat span{font-size:12px;color:var(--gray);font-weight:700}
+.timeline{position:relative}
+.tl-item{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.tl-dot{width:12px;height:12px;background:var(--brand);border-radius:50%;margin:4px auto 0}
+.tl-action{font-size:13px;font-weight:800;color:var(--dark)}
+.tl-date{font-size:12px;color:var(--gray);margin-top:2px}
+.match-card{background:var(--light);border-radius:14px;padding:14px;margin-bottom:12px;display:grid;grid-template-columns:76px 1fr auto;gap:12px;align-items:center}
+.match-foto{width:76px;height:58px;object-fit:cover;border-radius:10px}
+.match-placeholder{width:76px;height:58px;border-radius:10px;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:22px}
+.chip-spec{display:inline-block;background:var(--white);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;margin:3px}
+.btn-acao{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 14px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none;margin-bottom:10px;transition:opacity .2s}
+.btn-acao:hover{opacity:.85}
+@media(max-width:900px){.ld-layout{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.match-card{grid-template-columns:64px 1fr}.match-card>div:last-child{grid-column:1/-1;text-align:left!important}}
+</style>
+
+<div class="ld-wrap">
+
+  <div class="ld-top">
+    <a class="ld-back" href="/app/leads">← Voltar para Leads</a>
+    <span class="tag tag-blue">Lead <%= lead.leadId || lead.id %></span>
+  </div>
+
+  <div class="ld-layout">
+
+    <main>
+
+      <div class="ld-card">
+        <div class="ld-hero">
+          <div class="ld-avatar"><%= (lead.nome||'?')[0].toUpperCase() %></div>
+          <div>
+            <div class="ld-name"><%= lead.nome || 'Lead sem nome' %></div>
+            <div class="ld-sub">
+              <%= lead.email || 'Sem email' %> 
+              <% if(lead.contato||lead.telefone) { %> · <%= lead.contato||lead.telefone %><% } %>
+            </div>
+            <div>
+              <% if(lead.fonte) { %><span class="tag tag-blue"><%= lead.fonte %></span><% } %>
+              <% if(lead.canal) { %><span class="tag tag-green"><%= lead.canal %></span><% } %>
+              <% if(lead.origem) { %><span class="tag"><%= String(lead.origem).replace(/_/g,' ') %></span><% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="ld-card">
+          <div class="ld-title">👤 Dados da Lead</div>
+          <% if(lead.contato||lead.telefone) { %><div class="info-row"><span class="info-lbl">Celular</span><span class="info-val"><%= lead.contato||lead.telefone %></span></div><% } %>
+          <% if(lead.email) { %><div class="info-row"><span class="info-lbl">Email</span><span class="info-val"><%= lead.email %></span></div><% } %>
+          <% if(lead.data_cadastro_br) { %><div class="info-row"><span class="info-lbl">Cadastro</span><span class="info-val"><%= lead.data_cadastro_br %></span></div><% } %>
+          <% if(lead.fonte||lead.source) { %><div class="info-row"><span class="info-lbl">Fonte</span><span class="info-val"><%= lead.fonte||lead.source %></span></div><% } %>
+        </div>
+
+        <div class="ld-card">
+          <div class="ld-title">📋 Resumo</div>
+          <div class="grid2">
+            <div class="stat"><strong><%= (lead.matches||[]).length %></strong><span>Matches</span></div>
+            <div class="stat"><strong><%= (lead.historico||[]).length %></strong><span>Ações</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ld-card">
+        <div class="ld-title">📊 Comportamento da Lead</div>
+        <% if (lead.historico && lead.historico.length) { %>
+          <div class="timeline">
+            <% lead.historico.slice().reverse().forEach(h => { %>
+              <div class="tl-item">
+                <div class="tl-dot"></div>
+                <div>
+                  <div class="tl-action"><%= String(h.acao||'ação').replace(/_/g,' ') %></div>
+                  <div class="tl-date"><%= new Date(h.data).toLocaleString('pt-BR') %></div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div style="color:var(--gray);font-size:13px">Nenhuma ação registrada ainda.</div>
+        <% } %>
+      </div>
+
+      <% if(lead.imovel_interesse) { %>
+      <div class="ld-card">
+        <div class="ld-title">🏠 Imóvel que Gerou a Lead</div>
+        <div class="info-row"><span class="info-lbl">Referência</span><span class="info-val">#<%= lead.imovel_interesse %></span></div>
+        <% if(lead.titulo_interesse) { %><div class="info-row"><span class="info-lbl">Título</span><span class="info-val"><%= lead.titulo_interesse %></span></div><% } %>
+        <% if(lead.tipo) { %><div class="info-row"><span class="info-lbl">Tipo</span><span class="info-val"><%= lead.tipo %></span></div><% } %>
+        <% if(lead.bairro) { %><div class="info-row"><span class="info-lbl">Bairro</span><span class="info-val"><%= lead.bairro %></span></div><% } %>
+        <% if(lead.valor_imovel) { %><div class="info-row"><span class="info-lbl">Valor</span><span class="info-val">R$ <%= Number(lead.valor_imovel).toLocaleString('pt-BR') %></span></div><% } %>
+        <div style="margin-top:14px">
+          <a href="/imovel/<%= lead.imovel_interesse %>" target="_blank" class="btn-acao" style="display:inline-flex;background:var(--brand);color:#fff;margin:0">🔗 Ver imóvel completo</a>
+        </div>
+      </div>
+      <% } %>
+
+      <div class="ld-card">
+        <div class="ld-title">🔍 Perfil de Busca</div>
+        <% if(lead.tipo) { %><div class="info-row"><span class="info-lbl">Tipo</span><span class="info-val"><%= lead.tipo %></span></div><% } %>
+        <% if(lead.bairro) { %><div class="info-row"><span class="info-lbl">Bairro</span><span class="info-val"><%= lead.bairro %></span></div><% } %>
+        <% if(lead.cidade) { %><div class="info-row"><span class="info-lbl">Cidade</span><span class="info-val"><%= lead.cidade %></span></div><% } %>
+        <% if(lead.valor_imovel) { %><div class="info-row"><span class="info-lbl">Valor</span><span class="info-val">R$ <%= Number(lead.valor_imovel).toLocaleString('pt-BR') %></span></div><% } %>
+        <% if(lead.area_m2) { %><div class="info-row"><span class="info-lbl">Área</span><span class="info-val"><%= lead.area_m2 %>m²</span></div><% } %>
+        <div style="margin-top:12px">
+          <% if(lead.quartos) { %><span class="chip-spec">🛏 <%= lead.quartos %> quartos</span><% } %>
+          <% if(lead.suites) { %><span class="chip-spec">⭐ <%= lead.suites %> suítes</span><% } %>
+          <% if(lead.vagas) { %><span class="chip-spec">🚗 <%= lead.vagas %> vagas</span><% } %>
+          <% if(lead.banheiros) { %><span class="chip-spec">🚿 <%= lead.banheiros %> banheiros</span><% } %>
+        </div>
+      </div>
+
+      <div class="ld-card">
+        <div class="ld-title">✅ Imóveis Compatíveis (<%= (lead.matches||[]).length %>)</div>
+        <% if(!(lead.matches||[]).length) { %>
+          <div style="text-align:center;padding:20px;color:var(--gray);font-size:14px">Nenhum match encontrado ainda.</div>
+        <% } else { %>
+          <% (lead.matches||[]).forEach(m => { %>
+          <div class="match-card">
+            <% if(m.fotos && m.fotos[0]) { %>
+              <img class="match-foto" src="<%= m.fotos[0] %>">
+            <% } else { %>
+              <div class="match-placeholder">🏠</div>
+            <% } %>
+            <div>
+              <div style="font-size:14px;font-weight:900;color:var(--dark);margin-bottom:3px"><%= m.tipo || '-' %> · <%= m.bairro || '-' %></div>
+              <div style="font-size:12px;color:var(--gray)"><%= m.area_m2 || '-' %>m² · <%= m.quartos || '-' %> qtos<% if(m.suites) { %> · <%= m.suites %> suítes<% } %><% if(m.vagas) { %> · <%= m.vagas %> vaga(s)<% } %></div>
+              <% if(m.idExterno) { %><a href="/imovel/<%= m.idExterno %>" target="_blank" style="font-size:12px;color:var(--brand);font-weight:800;text-decoration:none">Ver imóvel →</a><% } %>
+            </div>
+            <div style="font-size:15px;font-weight:900;color:var(--brand);text-align:right;white-space:nowrap">R$ <%= Number(m.valor_imovel||0).toLocaleString('pt-BR') %></div>
+          </div>
+          <% }) %>
+        <% } %>
+      </div>
+
+    </main>
+
+    <aside>
+      <div class="ld-card">
+        <div class="ld-title">⚡ Ações rápidas</div>
+
+        <% if(lead.contato||lead.telefone) { %>
+        <a href="https://wa.me/55<%= (lead.contato||lead.telefone||'').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (lead.nome||'') + '! Temos imóveis compatíveis com seu perfil no MatchImóveis.') %>" target="_blank" class="btn-acao" style="background:#25D366;color:#fff">💬 WhatsApp</a>
+
+        <a href="tel:<%= (lead.contato||lead.telefone||'').replace(/\D/g,'') %>" class="btn-acao" style="background:#f0f0f0;color:var(--dark)">📞 Ligar</a>
+        <% } %>
+
+        <% if((lead.matches||[]).length) { %>
+        <a href="https://wa.me/55<%= (lead.contato||lead.telefone||'').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (lead.nome||'') + '! Separamos algumas oportunidades semelhantes ao que você buscou. Veja sua vitrine: http://localhost:3000/cliente/oferta/' + lead.id + ' e agende sua visita!') %>" target="_blank" class="btn-acao" style="background:var(--brand);color:#fff">🔗 Enviar vitrine</a>
+        <% } %>
+      </div>
+
+      <div class="ld-card">
+        <div class="ld-title">🧠 Status comercial</div>
+        <div class="info-row"><span class="info-lbl">Interesse</span><span class="info-val"><%= (lead.historico||[]).length >= 3 ? 'Quente' : ((lead.historico||[]).length >= 1 ? 'Morno' : 'Novo') %></span></div>
+        <div class="info-row"><span class="info-lbl">Matches</span><span class="info-val"><%= (lead.matches||[]).length %></span></div>
+        <div class="info-row"><span class="info-lbl">Ações</span><span class="info-val"><%= (lead.historico||[]).length %></span></div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<%- include('partials/app-end') %>

@@ -256,6 +256,9 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
   const leads = JSON.parse(fs.readFileSync('data.json','utf8'));
   const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
   if(!lead) return res.status(404).send('Lead não encontrado');
+
+  registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
+  fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
   res.render('cliente-oferta', { user: null, lead });
 });
 
@@ -276,6 +279,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   const idx = Number(req.params.idx);
   lead.imovelVisita = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
   lead.visitaSolicitadaEm = new Date().toISOString();
+registrarHistoricoImovelLead(lead, 'visita_solicitada', lead.imovelVisita);
   fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
   res.redirect('/cliente/oferta/'+req.params.leadId+'?visita=ok');
 });
@@ -743,9 +747,6 @@ app.get('/app/portais', auth, (req,res)=>{
 app.get('/app-xml', (req,res)=> res.redirect('/app-portais-xml'));
 app.get('/app-portais', (req,res)=> res.redirect('/app-portais-xml'));
 
-app.get('/app/visitas', auth, (req,res)=>{
-  res.render('app-visitas', { user: req.session.user });
-});
 
 app.get('/app-perfil', (req,res)=>{
   renderAppPage(res, 'app-perfil', { title: 'Perfil' });
@@ -900,6 +901,132 @@ app.post('/app/perfil/localizacao', auth, (req,res)=>{
   res.redirect('/app/perfil');
 });
 
+
+// Servir XML dos portais
+app.get('/feed-:portal.xml', (req,res)=>{
+  const fs = require('fs');
+  const portal = req.params.portal;
+  const file = `feed-${portal}.xml`;
+
+  if(fs.existsSync(file)){
+    res.set('Content-Type','application/xml');
+    return res.send(fs.readFileSync(file,'utf8'));
+  }
+
+  res.status(404).send('XML não encontrado');
+});
+
+
+// Buscar match no QuintoAndar a partir da tela de detalhes da lead
+app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
+  try {
+    const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
+    const imoveis = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8')) : [];
+
+    const lead = leads.find(l =>
+      String(l.leadId) === String(req.params.id) ||
+      String(l.id) === String(req.params.id) ||
+      String(l.idAnuncio) === String(req.params.id) ||
+      String(l.imovel_interesse) === String(req.params.id)
+    );
+
+    if (!lead) return res.status(404).send('Lead não encontrada');
+
+    const idOrigem = lead.imovel_interesse || lead.idAnuncio || lead.id_anuncio || lead.id;
+    const imovelOrigem = imoveis.find(im =>
+      String(im.idExterno || im.id || im.codigo || im.idOriginal) === String(idOrigem)
+    );
+
+    const origem = imovelOrigem || lead;
+
+    const { searchQuintoAndar } = require('./services/quintoandar');
+
+    const candidatos = await searchQuintoAndar(origem);
+
+    function norm(v = '') {
+      return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    }
+
+    function normalizeTipo(tipo = '') {
+      const t = String(tipo || '').toLowerCase();
+      if (t.includes('apart')) return 'apartamento';
+      if (t.includes('condo')) return 'apartamento';
+      if (t.includes('cobertura') || t.includes('penthouse')) return 'cobertura';
+      if (t.includes('loft')) return 'loft';
+      if (t.includes('studio') || t.includes('flat')) return 'studio';
+      if (t.includes('kitnet') || t.includes('kitinete') || t.includes('conjugado')) return 'kitnet';
+      if (t.includes('sobrado')) return 'casa';
+      if (t.includes('casa')) return 'casa';
+      return t.trim();
+    }
+
+    const filtrados = (candidatos || []).filter(i => {
+      if (norm(i.cidade || origem.cidade) !== norm(origem.cidade)) return false;
+      if (norm(i.estado || origem.estado) !== norm(origem.estado)) return false;
+
+      const bairroCandidato = norm(i.bairro);
+      const bairroOrigem = norm(origem.bairro);
+      const bairroLead = norm(lead.bairro || '');
+
+      if (!bairroCandidato) return false;
+      if (bairroCandidato !== bairroOrigem && bairroCandidato !== bairroLead) return false;
+
+      if (normalizeTipo(i.tipo) !== normalizeTipo(origem.tipo)) return false;
+
+      const quartosOrigem = Number(origem.quartos || 0);
+      const quartosCand = Number(i.quartos || 0);
+      if (quartosOrigem > 0) {
+        if (quartosCand < quartosOrigem) return false;
+        if (quartosCand > quartosOrigem + 1) return false;
+      }
+
+      const valorOrigem = Number(origem.valor_imovel || origem.valor || 0);
+      const valorCand = Number(i.valor_imovel || i.valor || 0);
+      if (valorOrigem > 0) {
+        if (valorCand < valorOrigem * 0.70) return false;
+        if (valorCand > valorOrigem * 1.20) return false;
+      }
+
+      const areaOrigem = Number(origem.area_m2 || origem.area || 0);
+      const areaCand = Number(i.area_m2 || i.area || 0);
+      if (areaOrigem > 0) {
+        if (areaCand < areaOrigem * 0.90) return false;
+        if (areaCand > areaOrigem * 1.20) return false;
+      }
+
+      const suitesOrigem = Number(origem.suites || 0);
+      const suitesCand = Number(i.suites || 0);
+      if (suitesOrigem > 0) {
+        if (suitesCand < suitesOrigem) return false;
+        if (suitesCand > suitesOrigem + 1) return false;
+      }
+
+      const vagasOrigem = Number(origem.vagas || 0);
+      const vagasCand = Number(i.vagas || 0);
+      if (vagasOrigem > 0 && vagasCand < vagasOrigem) return false;
+
+      const banheirosOrigem = Number(origem.banheiros || 0);
+      const banheirosCand = Number(i.banheiros || 0);
+      if (banheirosOrigem > 0 && banheirosCand < banheirosOrigem) return false;
+
+      i.fonte = i.fonte || 'QuintoAndar';
+      return true;
+    });
+
+    lead.matchesQuintoAndar = filtrados;
+    lead.matchQuintoAndarCount = filtrados.length;
+    lead.matchQuintoAndarAt = new Date().toISOString();
+
+    fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+
+    res.redirect('/app/lead/' + (lead.id || lead.leadId));
+  } catch (e) {
+    console.error('Erro buscar QuintoAndar lead:', e);
+    res.status(500).send('Erro ao buscar match no QuintoAndar: ' + e.message);
+  }
+});
+
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
@@ -939,6 +1066,36 @@ app.get('/feed', (req, res) => {
 
 app.get('/api/imoveis', (req, res) => {
   const imoveis = loadImoveis();
+
+app.post('/imovel/:id/status', (req,res)=>{
+  const fs=require('fs');
+  const imoveis=JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const { status } = req.body;
+
+  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id));
+  if(idx>=0){
+    imoveis[idx].status = status;
+    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+  gerarXMLPortais();
+  gerarXMLPortais();
+  }
+
+  res.json({ok:true});
+});
+
+app.post('/imovel/:id/status', (req,res)=>{
+  const fs=require('fs');
+  const imoveis=JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const { status } = req.body;
+
+  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id));
+  if(idx>=0){
+    imoveis[idx].status = status;
+    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+  }
+
+  res.json({ok:true});
+});
   res.json(imoveis.slice(0, 50));
 });
 
@@ -999,7 +1156,7 @@ app.post('/api/lead-interesse', (req, res) => {
         contato: celular,
         telefone: celular,
         fonte: 'MatchImóveis',
-        origem: 'pagina_publica',
+        origem: 'pagina_externa_imovel',
         canal: 'WhatsApp',
         imovel_interesse: imovelId,
         titulo_interesse: imovelTitulo,
@@ -1058,7 +1215,40 @@ app.get('/app/lead/:id', auth, (req, res) => {
   const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
   const lead = leads.find(l => String(l.id) === String(req.params.id));
   if (!lead) return res.status(404).send('Lead não encontrada');
-  res.render('app-lead-detalhe', { user: req.session.user, lead });
+
+  if (!Array.isArray(lead.historico)) lead.historico = [];
+  lead.historico.push({
+    acao: 'visualizou_detalhes_lead',
+    data: new Date().toISOString()
+  });
+
+  fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+
+  const visitas = fs.existsSync('./visitas.json') ? JSON.parse(fs.readFileSync('./visitas.json', 'utf8')) : [];
+
+  const visitasDaLead = visitas.filter(v =>
+    String(v.leadId || v.lead_id || '') === String(lead.leadId || '') ||
+    String(v.leadId || v.lead_id || '') === String(lead.id || '') ||
+    String(v.telefone || v.contato || '').replace(/\D/g,'') === String(lead.telefone || lead.contato || '').replace(/\D/g,'') ||
+    String(v.email || '').toLowerCase() === String(lead.email || '').toLowerCase()
+  );
+
+  const imoveisInternos = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8')) : [];
+
+  let matchesInternos = [];
+  try {
+    const { buscarMatchesBaseInterna } = require('./matchBaseInterna');
+    matchesInternos = buscarMatchesBaseInterna(lead, imoveisInternos);
+
+    lead.matches = matchesInternos;
+    lead.matchCount = matchesInternos.length;
+    fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+  } catch(e) {
+    console.error('Erro match base interna lead:', e.message);
+    matchesInternos = [];
+  }
+
+  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos });
 });
 app.get('/app/imovel/:id', auth, (req, res) => {
   const imoveis = JSON.parse(fs.readFileSync('imoveis.json', 'utf8'));
@@ -1077,3 +1267,375 @@ app.get('/app/imovel/:id', auth, (req, res) => {
 
   res.render('app-imovel-detalhe', { user, imovel, verProprietario });
 });
+
+// Editar imóvel - tela
+app.get('/app/imovel/:id/editar', auth, (req,res)=>{
+  const fs = require('fs');
+  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.id) === String(req.params.id));
+
+  if(!imovel){
+    return res.send('Imóvel não encontrado. <a href="/app/imoveis">Voltar</a>');
+  }
+
+  res.render('app-editar-imovel', { user: req.session.user, imovel, salvo: req.query.salvo === '1' });
+});
+
+// Editar imóvel - salvar
+app.post('/app/imovel/:id/editar', auth, (req,res)=>{
+  const fs = require('fs');
+  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.id) === String(req.params.id));
+
+  if(idx < 0){
+    return res.send('Imóvel não encontrado. <a href="/app/imoveis">Voltar</a>');
+  }
+
+  imoveis[idx] = {
+    ...imoveis[idx],
+    status: req.body.status || 'nao_publicado',
+    tipo: req.body.tipo || '',
+    bairro: req.body.bairro || '',
+    cidade: req.body.cidade || '',
+    estado: req.body.estado || '',
+    valor_imovel: Number(req.body.valor_imovel || 0),
+    area_m2: Number(req.body.area_m2 || 0),
+    quartos: Number(req.body.quartos || 0),
+    suites: Number(req.body.suites || 0),
+    banheiros: Number(req.body.banheiros || 0),
+    vagas: Number(req.body.vagas || 0),
+    descricao: req.body.descricao || '',
+    proprietario: {
+      nome: req.body.proprietario_nome || '',
+      telefone: req.body.proprietario_telefone || '',
+      email: req.body.proprietario_email || '',
+      status: req.body.proprietario_status || 'pendente'
+    },
+    portais: {
+      olx: !!req.body.portal_olx,
+      zap: !!req.body.portal_zap,
+      vivareal: !!req.body.portal_vivareal,
+      chaves: !!req.body.portal_chaves,
+      imovelweb: !!req.body.portal_imovelweb,
+      '123i': !!req.body.portal_123i
+    },
+    updatedAt: new Date().toISOString()
+  };
+
+  fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+
+  if(typeof gerarXMLPortais === 'function'){
+    gerarXMLPortais();
+  }
+
+  res.redirect('/app/imovel/' + (imoveis[idx].idExterno || imoveis[idx].id) + '/editar?salvo=1');
+});
+
+// Upload de fotos do imóvel
+const storageImoveis = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/uploads/imoveis');
+  },
+  filename: function (req, file, cb) {
+    const ext = file.originalname.split('.').pop();
+    cb(null, Date.now() + '-' + Math.floor(Math.random()*1000) + '.' + ext);
+  }
+});
+
+const uploadImoveis = multer({ storage: storageImoveis });
+
+// Upload de foto
+app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), (req,res)=>{
+  const fs = require('fs');
+  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+
+  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id));
+  if(idx >= 0){
+    const url = '/uploads/imoveis/' + req.file.filename;
+    imoveis[idx].fotos = imoveis[idx].fotos || [];
+    imoveis[idx].fotos.push(url);
+    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+  }
+
+  res.redirect('/app/imovel/' + req.params.id + '/editar');
+});
+
+// Excluir foto
+app.post('/app/imovel/:id/excluir-foto', auth, (req,res)=>{
+  const fs = require('fs');
+  const { foto } = req.body;
+
+  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id));
+
+  if(idx >= 0){
+    imoveis[idx].fotos = (imoveis[idx].fotos || []).filter(f => f !== foto);
+    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+  }
+
+  res.redirect('/app/imovel/' + req.params.id + '/editar');
+});
+
+// Definir foto de capa
+app.post('/app/imovel/:id/capa-foto', auth, (req,res)=>{
+  const fs = require('fs');
+  const { foto } = req.body;
+
+  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id));
+
+  if(idx >= 0){
+    let fotos = imoveis[idx].fotos || [];
+    fotos = fotos.filter(f => f !== foto);
+    fotos.unshift(foto);
+    imoveis[idx].fotos = fotos;
+    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+  }
+
+  res.redirect('/app/imovel/' + req.params.id + '/editar');
+});
+
+// =========================
+// GERAR XML PORTAIS (VivaReal padrão)
+// =========================
+function gerarXMLPortais(){
+  const fs = require('fs');
+  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+
+  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i'];
+
+  portais.forEach(portal => {
+
+    const filtrados = imoveis.filter(i =>
+      i.status === 'publicado' &&
+      i.portais &&
+      i.portais[portal]
+    );
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<listingDataFeed>
+  <header>
+    <provider>MatchImoveis</provider>
+    <email>contato@matchimoveis.com</email>
+  </header>
+  <listings>
+`;
+
+    filtrados.forEach(i => {
+      xml += `
+    <listing>
+      <listingID>${i.idExterno || i.id}</listingID>
+      <title>${i.tipo || ''} em ${i.bairro || ''}</title>
+      <description>${(i.descricao || '').replace(/&/g,'')}</description>
+
+      <price>${i.valor_imovel || 0}</price>
+      <livingArea>${i.area_m2 || 0}</livingArea>
+
+      <bedrooms>${i.quartos || 0}</bedrooms>
+      <bathrooms>${i.banheiros || 0}</bathrooms>
+      <suites>${i.suites || 0}</suites>
+      <garageSpaces>${i.vagas || 0}</garageSpaces>
+
+      <address>
+        <city>São Paulo</city>
+        <neighborhood>${i.bairro || ''}</neighborhood>
+        <state>SP</state>
+      </address>
+
+      <images>
+        ${(i.fotos || []).map(f => `<image>${f}</image>`).join('')}
+      </images>
+
+      <contact>
+        <name>${i.proprietario?.nome || ''}</name>
+        <email>${i.proprietario?.email || ''}</email>
+        <phone>${i.proprietario?.telefone || ''}</phone>
+      </contact>
+
+    </listing>
+`;
+    });
+
+    xml += `
+  </listings>
+</listingDataFeed>`;
+
+    fs.writeFileSync(`feed-${portal}.xml`, xml);
+    console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
+  });
+}
+
+// =========================
+// GERAR XML PORTAIS (VivaReal padrão)
+// =========================
+function gerarXMLPortais(){
+  const fs = require('fs');
+  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+
+  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i'];
+
+  portais.forEach(portal => {
+
+    const filtrados = imoveis.filter(i =>
+      i.status === 'publicado' &&
+      i.portais &&
+      i.portais[portal]
+    );
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<listingDataFeed>
+  <header>
+    <provider>MatchImoveis</provider>
+    <email>contato@matchimoveis.com</email>
+  </header>
+  <listings>
+`;
+
+    filtrados.forEach(i => {
+      xml += `
+    <listing>
+      <listingID>${i.idExterno || i.id}</listingID>
+      <title>${i.tipo || ''} em ${i.bairro || ''}</title>
+      <description>${(i.descricao || '').replace(/&/g,'')}</description>
+
+      <price>${i.valor_imovel || 0}</price>
+      <livingArea>${i.area_m2 || 0}</livingArea>
+
+      <bedrooms>${i.quartos || 0}</bedrooms>
+      <bathrooms>${i.banheiros || 0}</bathrooms>
+      <suites>${i.suites || 0}</suites>
+      <garageSpaces>${i.vagas || 0}</garageSpaces>
+
+      <address>
+        <city>São Paulo</city>
+        <neighborhood>${i.bairro || ''}</neighborhood>
+        <state>SP</state>
+      </address>
+
+      <images>
+        ${(i.fotos || []).map(f => `<image>${f}</image>`).join('')}
+      </images>
+
+      <contact>
+        <name>${i.proprietario?.nome || ''}</name>
+        <email>${i.proprietario?.email || ''}</email>
+        <phone>${i.proprietario?.telefone || ''}</phone>
+      </contact>
+
+    </listing>
+`;
+    });
+
+    xml += `
+  </listings>
+</listingDataFeed>`;
+
+    fs.writeFileSync(`feed-${portal}.xml`, xml);
+    console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
+  });
+}
+
+
+app.post('/app/visitas/confirmar/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync('visitas.json')
+    ? JSON.parse(fs.readFileSync('visitas.json','utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+    if(v.id === req.params.id){
+      v.status = 'confirmada';
+      v.confirmedAt = new Date().toISOString();
+    }
+    return v;
+  });
+
+  fs.writeFileSync('visitas.json', JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+
+
+app.post('/app/visitas/recusar/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync('visitas.json')
+    ? JSON.parse(fs.readFileSync('visitas.json','utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+    if(v.id === req.params.id){
+      v.status = 'recusada';
+      v.refusedAt = new Date().toISOString();
+    }
+    return v;
+  });
+
+  fs.writeFileSync('visitas.json', JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+
+
+app.post('/api/gerar-descricao-imovel', (req,res)=>{
+  const { tipo, bairro, cidade, quartos, suites, banheiros, vagas, area, valor } = req.body || {};
+
+  const partes = [];
+  if (quartos) partes.push(quartos + ' dormitório(s)');
+  if (suites) partes.push(suites + ' suíte(s)');
+  if (banheiros) partes.push(banheiros + ' banheiro(s)');
+  if (vagas) partes.push(vagas + ' vaga(s)');
+  if (area) partes.push(area + 'm²');
+
+  const local = bairro ? bairro + ', ' + (cidade || 'São Paulo') : (cidade || 'São Paulo');
+
+  const descricao = `Excelente ${tipo || 'imóvel'} localizado em ${local}, ideal para quem busca conforto, praticidade e uma ótima oportunidade de moradia ou investimento.
+
+O imóvel conta com ${partes.length ? partes.join(', ') : 'ambientes bem distribuídos'}, oferecendo uma planta funcional e agradável para o dia a dia.
+
+A região possui fácil acesso a comércios, serviços, transporte e tudo o que você precisa para viver com mais comodidade.
+
+${valor ? 'Valor de oportunidade: R$ ' + Number(valor).toLocaleString('pt-BR') + '.' : ''}
+
+Agende sua visita e conheça de perto essa oportunidade.`;
+
+  res.json({ descricao });
+});
+
+
+
+function registrarHistoricoImovelLead(lead, tipoEvento, imovel){
+  if (!lead || !imovel) return;
+
+  lead.historicoImoveis = Array.isArray(lead.historicoImoveis)
+    ? lead.historicoImoveis
+    : [];
+
+  const idImovel =
+    imovel.id ||
+    imovel.idExterno ||
+    imovel.listingId ||
+    imovel.id_anuncio_quintoandar ||
+    imovel.imovel_interesse ||
+    imovel.url ||
+    '';
+
+  lead.historicoImoveis.push({
+    tipoEvento,
+    data: new Date().toISOString(),
+    idImovel,
+    imovel: {
+      id: idImovel,
+      tipo: imovel.tipo || '',
+      bairro: imovel.bairro || '',
+      cidade: imovel.cidade || '',
+      valor: imovel.valor_imovel || imovel.valor || '',
+      url: imovel.url || ''
+    }
+  });
+}

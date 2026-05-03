@@ -1,27 +1,61 @@
 <%- include("partials/app-shell",{active:"visitas",user:user}) %>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <title>Visitas</title>
-  <style>
-    body{font-family:Arial;background:#FFFFFF;margin:0;color:#111}
-    header{background:#111;color:white;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
-    nav a{color:white;margin-left:18px;text-decoration:none}
-    main{padding:30px}
-    .card{background:white;border-radius:16px;padding:24px;box-shadow:0 6px 20px rgba(0,0,0,.08)}
-    .empty{padding:30px;text-align:center;color:#666}
-  </style>
-<link rel="stylesheet" href="/airbnb.css">
-</head>
-<body>
 
+<main style="padding:30px">
+  <div class="card" style="background:white;border-radius:16px;padding:24px;box-shadow:0 6px 20px rgba(0,0,0,.08)">
+    <h1>Visitas solicitadas</h1>
 
-<main>
-  <div class="card">
-    <h1>Visitas agendadas</h1>
-    <div class="empty">Nenhuma visita agendada ainda.</div>
+    <% if (!visitas || visitas.length === 0) { %>
+      <div style="padding:30px;text-align:center;color:#666">
+        Nenhuma visita solicitada ainda.
+      </div>
+    <% } else { %>
+
+      <table style="width:100%;border-collapse:collapse;margin-top:20px">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Cliente</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Telefone</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Imóvel</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Data</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Horário</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Status</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Ação</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% visitas.forEach((v, idx) => { %>
+            <tr>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= v.cliente?.nome || '-' %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= v.cliente?.telefone || '-' %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee">
+                <strong><%= v.imovel?.tipo || 'Imóvel' %></strong><br>
+                <%= v.imovel?.bairro || '-' %> - <%= v.imovel?.cidade || '-' %>/<%= v.imovel?.estado || '-' %><br>
+                <% if (v.imovel?.url) { %>
+                  <a href="<%= v.imovel.url %>" target="_blank">Ver imóvel</a>
+                <% } %>
+              </td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= v.dataPreferida || '-' %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= v.horarioPreferido || '-' %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= v.status || 'solicitada' %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee">
+                <% if (v.status !== 'confirmada') { %>
+                  <form method="POST" action="/app/visitas/confirmar/<%= idx %>">
+                    <button style="background:#ff385c;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer">
+                      Confirmar visita
+                    </button>
+                  </form>
+                <% } else { %>
+                  <strong style="color:green">Confirmada</strong>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+    <% } %>
   </div>
 </main>
-</body>
-</html>
+
 <%- include('partials/app-end') %>

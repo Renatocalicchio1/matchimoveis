@@ -169,6 +169,18 @@
     <form method="POST" action="/app/imoveis">
 
       <div class="form-section">
+        <h4>Publicação em portais</h4>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <label><input type="checkbox" name="portal_olx"> OLX</label>
+          <label><input type="checkbox" name="portal_zap"> ZAP Imóveis</label>
+          <label><input type="checkbox" name="portal_vivareal"> VivaReal</label>
+          <label><input type="checkbox" name="portal_chaves"> Chaves na Mão</label>
+          <label><input type="checkbox" name="portal_imovelweb"> ImovelWeb</label>
+          <label><input type="checkbox" name="portal_123i"> 123i</label>
+        </div>
+      </div>
+
+      <div class="form-section">
         <h4>Tipo e transação</h4>
         <div class="form-grid-2">
           <div class="field">
@@ -291,6 +303,12 @@
         <h4>Descrição</h4>
         <div class="field">
           <textarea name="descricao" rows="4" placeholder="Descreva o imóvel, diferenciais, localização..."></textarea>
+    <button type="button" onclick="gerarDescricaoIA()" style="margin-top:8px;background:#ff385c;color:white;border:none;padding:9px 14px;border-radius:10px;font-weight:700;cursor:pointer">
+      ✨ Criar descrição com IA
+    </button>
+    <small style="display:block;margin-top:6px;color:#717171">
+      Use a IA para criar uma descrição mais atrativa para o imóvel.
+    </small>
         </div>
       </div>
 
@@ -375,3 +393,27 @@ if(dz) {
 </script>
 
 </main></div></body></html>
+
+<script>
+async function gerarDescricaoIA(){
+  const tipo = document.querySelector('[name="tipo"]')?.value || 'imóvel';
+  const bairro = document.querySelector('[name="bairro"]')?.value || '';
+  const cidade = document.querySelector('[name="cidade"]')?.value || 'São Paulo';
+  const quartos = document.querySelector('[name="quartos"]')?.value || '';
+  const suites = document.querySelector('[name="suites"]')?.value || '';
+  const banheiros = document.querySelector('[name="banheiros"]')?.value || '';
+  const vagas = document.querySelector('[name="vagas"]')?.value || '';
+  const area = document.querySelector('[name="area_m2"]')?.value || '';
+  const valor = document.querySelector('[name="valor_imovel"]')?.value || '';
+
+  const res = await fetch('/api/gerar-descricao-imovel', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ tipo, bairro, cidade, quartos, suites, banheiros, vagas, area, valor })
+  });
+
+  const data = await res.json();
+  const campo = document.querySelector('[name="descricao"]');
+  if (campo) campo.value = data.descricao || '';
+}
+</script>

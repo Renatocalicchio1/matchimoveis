@@ -182,6 +182,25 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
       <p class="muted">Cada card representa um cliente + imóvel de origem + matches.</p>
     </div>
 
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      
+      <h2 style="margin:0">Leads</h2>
+
+      <a href="/app-importar-leads" 
+         id="btn-importar-leads"
+         style="
+           background:#ff385c;
+           color:white;
+           padding:10px 14px;
+           border-radius:10px;
+           text-decoration:none;
+           font-weight:700;
+         ">
+        ⬆️ Importar leads
+      </a>
+
+    </div>
+
     <div id="results-list" class="excel-results">
       <% leads.forEach((item, idx) => {
         const origin = item.origin || {};

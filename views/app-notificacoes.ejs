@@ -1,0 +1,42 @@
+<%- include("partials/app-shell",{active:"notificacoes",user:user}) %>
+
+<main style="padding:30px">
+  <div style="background:white;border-radius:18px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.08)">
+    <h1 style="margin-bottom:8px">🔔 Central de Notificações</h1>
+    <p style="color:#666;margin-bottom:22px">Acompanhe solicitações de visita, novos matches e avisos importantes.</p>
+
+    <% if (!notificacoes || notificacoes.length === 0) { %>
+      <div style="padding:30px;text-align:center;color:#666;background:#f9fafb;border-radius:14px">
+        Nenhuma notificação ainda.
+      </div>
+    <% } else { %>
+      <% notificacoes.forEach(n => { %>
+        <div style="padding:16px;border:1px solid #eee;border-radius:14px;margin-bottom:12px;background:<%= n.lida ? '#fff' : '#fff7f8' %>">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+            <div>
+              <strong style="font-size:16px"><%= n.titulo || 'Notificação' %></strong>
+              <% if (!n.lida) { %>
+                <span style="background:#ff385c;color:white;font-size:11px;padding:3px 7px;border-radius:999px;margin-left:8px">nova</span>
+              <% } %>
+              <div style="color:#555;margin-top:6px"><%= n.mensagem || '' %></div>
+              <div style="font-size:12px;color:#999;margin-top:8px">
+                <%= n.criadaEm ? new Date(n.criadaEm).toLocaleString('pt-BR') : '' %>
+              </div>
+            </div>
+
+            <div style="white-space:nowrap">
+              <% if (n.imovelId) { %>
+                <a href="/imovel/<%= n.imovelId %>" target="_blank" style="display:inline-block;background:#f3f4f6;color:#111;padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:700">Ver imóvel</a>
+              <% } %>
+              <% if (n.leadId) { %>
+                <a href="/app/lead/<%= n.leadId %>" style="display:inline-block;background:#ff385c;color:white;padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:700;margin-left:6px">Ver lead</a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</main>
+
+<%- include("partials/app-end") %>

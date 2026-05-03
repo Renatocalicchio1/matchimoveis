@@ -84,6 +84,16 @@
     .live{display:inline-block;width:7px;height:7px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;margin-right:5px}
     @media(max-width:900px){.sidebar{transform:translateX(-100%)}.content{margin-left:0;width:100%;padding:20px}.kpi-grid{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}}
   </style>
+<style>
+    @keyframes sinoPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .sino-alerta {
+      animation: sinoPulse 1s infinite;
+    }
+    </style>
 </head>
 <body>
 <div class="app">
@@ -105,6 +115,7 @@
     <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis"><span class="menu-ic">🏠</span>Meus Imóveis</a>
     <a class="<%= active==='leads'?'active':'' %>" href="/app/leads"><span class="menu-ic">👥</span>Leads</a>
     <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas"><span class="menu-ic">📅</span>Visitas</a>
+    <a class="<%= active==='notificacoes'?'active':'' %>" href="/app/notificacoes"><span class="menu-ic">🔔</span>Notificações</a>
     <div class="menu-div"></div>
     <div class="menu-sec">Configurar</div>
     <a class="<%= active==='cadastro'?'active':'' %>" href="/app/cadastro"><span class="menu-ic">➕</span>Cadastrar Imóvel</a>
@@ -114,6 +125,16 @@
   <div class="sidebar-footer"><a href="/login">🚪 Sair</a></div>
 </aside>
 <main class="content">
+  <div id="sino-notificacao-topo-content" style="display:flex;justify-content:flex-end;margin-bottom:12px">
+    <a href="/app/notificacoes" title="Central de notificações" style="position:relative;text-decoration:none;background:white;border:1px solid #eee;border-radius:999px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.06)">
+      <span class="<%= (typeof notificacoesNaoLidas !== 'undefined' && notificacoesNaoLidas > 0) ? 'sino-alerta' : '' %>" style="font-size:22px">🔔</span>
+      <% if (typeof notificacoesNaoLidas !== 'undefined' && notificacoesNaoLidas > 0) { %>
+        <span style="position:absolute;top:-5px;right:-5px;background:#ff385c;color:white;font-size:11px;font-weight:800;padding:2px 6px;border-radius:999px">
+          <%= notificacoesNaoLidas %>
+        </span>
+      <% } %>
+    </a>
+  </div>
   <% if(typeof title!=='undefined'&&title){ %>
   <div class="page-head">
     <h1><%= title %></h1>

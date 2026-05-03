@@ -777,10 +777,28 @@ function filtrarPorUsuario(lista, user){
 
 app.get('/app', auth, (req,res)=> res.redirect('/app-home'));
 
+app.get('/app/notificacoes', auth, (req,res)=>{
+  const notificacoesAll = fs.existsSync('notificacoes.json') ? JSON.parse(fs.readFileSync('notificacoes.json','utf8')) : [];
+  const userId = String(req.session.user.id || '');
+  const notificacoes = notificacoesAll
+    .filter(n => String(n.usuarioId || '') === userId)
+    .slice()
+    .reverse();
+
+  res.render('app-notificacoes', {
+    user: req.session.user,
+    notificacoes
+  });
+});
+
+
 app.get('/app-home', auth, (req,res)=>{
   const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
   const leads = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
   const visitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
+  const notificacoes = fs.existsSync('notificacoes.json') ? JSON.parse(fs.readFileSync('notificacoes.json','utf8')) : [];
+  const minhasNotificacoes = notificacoes.filter(n => String(n.usuarioId) === String(req.session.user.id));
+  const naoLidas = minhasNotificacoes.filter(n => !n.lida);
   const leadsArr = Array.isArray(leads) ? leads : (leads.results || []);
   const comMatch = leadsArr.filter(l => l.matches && l.matches.length > 0);
   const totalMatches = leadsArr.reduce((s,l) => s + ((l.matches && l.matches.length) || 0), 0);
@@ -799,7 +817,9 @@ app.get('/app-home', auth, (req,res)=>{
       taxaMatch: leadsArr.length > 0 ? Math.round((comMatch.length / leadsArr.length) * 100) : 0
     },
     recentes,
-    topMatches: comMatch.slice(0,3)
+    topMatches: comMatch.slice(0,3),
+    notificacoes: minhasNotificacoes.slice(-5).reverse(),
+    notificacoesNaoLidas: naoLidas.length
   });
 });
 
@@ -1302,6 +1322,31 @@ app.post('/api/lead-interesse', (req, res) => {
       });
 
       fs.writeFileSync('./visitas.json', JSON.stringify(visitas, null, 2));
+
+      try {
+        const notificacoes = fs.existsSync('./notificacoes.json')
+          ? JSON.parse(fs.readFileSync('./notificacoes.json', 'utf8'))
+          : [];
+
+        notificacoes.push({
+          id: Date.now().toString(),
+          tipo: 'nova_visita',
+          titulo: 'Nova solicitação de visita',
+          mensagem: nome + ' solicitou visita para ' + (imovelTitulo || imovelRef.titulo || 'um imóvel'),
+          usuarioId: usuarioDestinoId,
+          usuarioNome: usuarioDestinoNome,
+          leadId,
+          imovelId,
+          lida: false,
+          criadaEm: new Date().toISOString()
+        });
+
+        fs.writeFileSync('./notificacoes.json', JSON.stringify(notificacoes, null, 2));
+        console.log('🔔 Notificação criada: nova visita');
+      } catch(e) {
+        console.log('Erro ao criar notificação:', e.message);
+      }
+
       console.log('📅 Visita criada para o dono do imóvel:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
     }
 

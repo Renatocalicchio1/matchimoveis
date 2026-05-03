@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title><%= (typeof title !== 'undefined' && title) ? title + ' · MatchImóveis' : 'MatchImóveis' %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--brand:#FF385C;--brand-dark:#e0314f;--brand-light:#fff1f3;--dark:#111;--gray:#717171;--light:#f7f7f7;--border:#ebebeb;--white:#fff;--green:#00a699;--sidebar:256px;--radius:16px;--shadow:0 2px 16px rgba(0,0,0,.06);--shadow-lg:0 8px 40px rgba(0,0,0,.12)}
+    body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--dark);font-size:14px;line-height:1.6}
+    .app{display:flex;min-height:100vh}
+    .sidebar{width:var(--sidebar);background:var(--white);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+    .brand{display:flex;align-items:center;gap:10px;padding:24px 20px 20px;border-bottom:1px solid var(--border)}
+    .brand-mark{width:34px;height:34px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .brand-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--dark);letter-spacing:-.3px}
+    .brand-name span{color:var(--brand)}
+    .user-pill{margin:16px 14px;padding:12px 14px;background:var(--light);border-radius:14px;display:flex;align-items:center;gap:10px}
+    .user-av{width:38px;height:38px;background:var(--brand);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0}
+    .user-nm{font-size:13px;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+    .user-tp{font-size:11px;color:var(--gray);text-transform:capitalize}
+    nav.menu{padding:8px 12px;flex:1}
+    .menu-sec{font-size:10px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.8px;padding:14px 8px 6px}
+    .menu a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:var(--gray);text-decoration:none;font-size:13px;font-weight:500;transition:all .15s;margin-bottom:1px}
+    .menu a:hover{background:var(--light);color:var(--dark)}
+    .menu a.active{background:var(--brand-light);color:var(--brand);font-weight:600}
+    .menu-ic{font-size:16px;width:22px;text-align:center}
+    .menu-div{height:1px;background:var(--border);margin:10px 0}
+    .sidebar-footer{padding:16px 14px;border-top:1px solid var(--border)}
+    .sidebar-footer a{display:flex;align-items:center;gap:8px;color:var(--gray);text-decoration:none;font-size:13px;padding:8px 12px;border-radius:10px;transition:all .15s}
+    .sidebar-footer a:hover{color:var(--brand);background:var(--brand-light)}
+    .content{margin-left:var(--sidebar);width:calc(100% - var(--sidebar));min-height:100vh;padding:32px 36px}
+    .page-head{margin-bottom:28px}
+    .page-head h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--dark);letter-spacing:-.5px;margin-bottom:4px}
+    .page-head p{color:var(--gray);font-size:14px}
+    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+    .kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;transition:box-shadow .2s}
+    .kpi:hover{box-shadow:var(--shadow-lg)}
+    .kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray);margin-bottom:8px}
+    .kpi-val{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-2px;line-height:1;color:var(--dark)}
+    .kpi-sub{font-size:12px;color:var(--gray);margin-top:6px}
+    .kpi-accent{position:absolute;right:0;top:0;bottom:0;width:4px;border-radius:0 var(--radius) var(--radius) 0}
+    .kpi.red .kpi-accent{background:var(--brand)}.kpi.red .kpi-val{color:var(--brand)}
+    .kpi.green .kpi-accent{background:var(--green)}.kpi.green .kpi-val{color:var(--green)}
+    .kpi.blue .kpi-accent{background:#3b82f6}.kpi.blue .kpi-val{color:#3b82f6}
+    .kpi.amber .kpi-accent{background:#f59e0b}.kpi.amber .kpi-val{color:#f59e0b}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;border:none;transition:all .15s;font-family:'DM Sans',sans-serif}
+    .btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand-dark);transform:translateY(-1px)}
+    .btn-outline{background:transparent;color:var(--dark);border:1.5px solid var(--border)}.btn-outline:hover{background:var(--light)}
+    .btn-ghost{background:transparent;color:var(--gray)}.btn-ghost:hover{color:var(--dark);background:var(--light)}
+    .btn-sm{padding:7px 12px;font-size:12px;border-radius:8px}
+    input,select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--dark);background:var(--white);outline:none;transition:border .15s}
+    input:focus,select:focus{border-color:var(--dark)}
+    label{display:block;font-size:12px;font-weight:600;color:var(--dark);margin-bottom:6px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;border-bottom:1.5px solid var(--border)}
+    td{padding:13px 14px;border-bottom:1px solid var(--border);color:var(--dark);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#fafafa}
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+    .badge-red{background:var(--brand-light);color:var(--brand)}
+    .badge-green{background:#f0fdf4;color:#16a34a}
+    .badge-gray{background:var(--light);color:var(--gray)}
+    .badge-blue{background:#eff6ff;color:#2563eb}
+    .badge-amber{background:#fffbeb;color:#d97706}
+    .prop-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s;cursor:pointer}
+    .prop-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+    .prop-price{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--dark);margin-bottom:4px}
+    .prop-addr{font-size:12px;color:var(--gray);margin-bottom:10px}
+    .prop-tags{display:flex;gap:6px;flex-wrap:wrap}
+    .prop-tag{background:var(--light);color:#444;font-size:11px;padding:3px 8px;border-radius:6px}
+    .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+    .filter-chip{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);font-size:12px;font-weight:500;color:#444;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+    .filter-chip:hover,.filter-chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+    .empty{text-align:center;padding:60px 20px;color:var(--gray)}
+    .empty-icon{font-size:48px;margin-bottom:12px;opacity:.3}
+    .empty h3{font-size:16px;font-weight:600;color:#444;margin-bottom:6px}
+    .search-wrap{position:relative;margin-bottom:20px}
+    .search-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.4}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .live{display:inline-block;width:7px;height:7px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;margin-right:5px}
+    @media(max-width:900px){.sidebar{transform:translateX(-100%)}.content{margin-left:0;width:100%;padding:20px}.kpi-grid{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark">🏠</div>
+    <span class="brand-name">Match<span>Imóveis</span></span>
+  </div>
+  <div class="user-pill">
+    <div class="user-av"><%= ((typeof user!=='undefined'&&user&&user.nome)?user.nome:'A').charAt(0).toUpperCase() %></div>
+    <div>
+      <div class="user-nm"><%= (typeof user!=='undefined'&&user&&user.nome)?user.nome:'Usuário' %></div>
+      <div class="user-tp"><%= (typeof user!=='undefined'&&user&&user.tipo)?user.tipo:'corretor' %></div>
+    </div>
+  </div>
+  <nav class="menu">
+    <div class="menu-sec">Principal</div>
+    <a class="<%= active==='home'?'active':'' %>" href="/app-home"><span class="menu-ic">📊</span>Dashboard</a>
+    <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis"><span class="menu-ic">🏠</span>Meus Imóveis</a>
+    <a class="<%= active==='leads'?'active':'' %>" href="/app/leads"><span class="menu-ic">👥</span>Leads</a>
+    <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas"><span class="menu-ic">📅</span>Visitas</a>
+    <div class="menu-div"></div>
+    <div class="menu-sec">Configurar</div>
+    <a class="<%= active==='cadastro'?'active':'' %>" href="/app/cadastro"><span class="menu-ic">➕</span>Cadastrar Imóvel</a>
+    <a class="<%= active==='portais'?'active':'' %>" href="/app/portais"><span class="menu-ic">🔗</span>Portais / XML</a>
+    <a class="<%= active==='perfil'?'active':'' %>" href="/app/perfil"><span class="menu-ic">👤</span>Perfil</a>
+  </nav>
+  <div class="sidebar-footer"><a href="/login">🚪 Sair</a></div>
+</aside>
+<main class="content">
+  <% if(typeof title!=='undefined'&&title){ %>
+  <div class="page-head">
+    <h1><%= title %></h1>
+    <% if(typeof subtitle!=='undefined'&&subtitle){ %><p><%= subtitle %></p><% } %>
+  </div>
+  <% } %>

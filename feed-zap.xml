@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<listingDataFeed>
+  <header>
+    <provider>MatchImoveis</provider>
+    <email>contato@matchimoveis.com</email>
+  </header>
+  <listings>
+
+    <listing>
+      <listingID>75</listingID>
+      <title>Apartamento em Vila Andrade</title>
+      <description>ATENÇÃO... IMPERDÍVEL!!!
+
+MORE NO Condomínio Mais Ares Morumbi, ao lado do Hortifrutti Morumbi, shopping Jardim Sul e Morumbi Town.
+
+Imóvel aconchegante à venda com varanda, 2 quartos e 1 banheiro no total e vaga de garagem.
+
+Itens disponíveis:
+Box
+Piscina privativa
+Armários no quarto
+Armários nos banheiros
+Armários na cozinha
+Chuveiro a gás
+Closet
+Cozinha americana
+Quintal
+Área de serviço
+
+Contando com portaria 24 horas, elevador, academia, piscina, salão de festas, gás encanado, churrasqueira, playground e brinquedoteca, o Condomínio Mais Ares Morumbi é preparado para atender às necessidades dos moradores que buscam lazer e conforto em um só lugar.
+
+A proximidade com Colégio Pentágono - Unidade Morumbi, Praça Adriano do Nascimento Cabral, DeRose Method Morumbi, Shopping Jardim Sul, Kinder Kampus School e Estação Vila Das Belezas acrescenta praticidade e comodidade na rotina dos que residem no local.
+
+Não perca essa oportunidade! Agende já a sua visita conosco.</description>
+
+      <price>387000</price>
+      <livingArea>51</livingArea>
+
+      <bedrooms>2</bedrooms>
+      <bathrooms>1</bathrooms>
+      <suites>0</suites>
+      <garageSpaces>1</garageSpaces>
+
+      <address>
+        <city>São Paulo</city>
+        <neighborhood>Vila Andrade</neighborhood>
+        <state>SP</state>
+      </address>
+
+      <images>
+        <image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f2db5053f.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f2d8632dd.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f2da1b07d.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f2dd5f2c0.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f3023390d.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f2ff8f881.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f303776e7.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f301029f8.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f3590452e.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f304d26f9.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f34f29fd0.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f35312cf2.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f354597c4.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f34c4fa12.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f351c667a.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f34dc27e5.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f3506c8f8.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f355b9042.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f3578e49b.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f38bc019f.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f38d3c902.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f395b4c01.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f392885c1.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f38a4a744.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f39104cdd.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f388e10ff.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f3944d090.jpg</image><image>https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212946/i5uu57G8t61i3_21294669b2f38ee502d.jpg</image>
+      </images>
+
+      <contact>
+        <name></name>
+        <email></email>
+        <phone></phone>
+      </contact>
+
+    </listing>
+
+  </listings>
+</listingDataFeed>

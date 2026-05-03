@@ -1,8 +1,21 @@
-.env
-node_modules/
+# backups
+*.backup*
+backups/
+
+# dados locais (não versionar)
+data.json
+imoveis.json
+leads.json
+visitas.json
+notificacoes.json
+
+# logs
 *.log
-uploads/
-olx-memory.json
-mineracao.json
-mineracao-log.txt
-feed-*.xml
+logs/
+
+# sistema
+node_modules/
+.env
+
+# mac
+.DS_Store

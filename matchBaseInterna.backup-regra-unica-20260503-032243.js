@@ -86,67 +86,6 @@ function buscarMatchesBaseInterna(lead, imoveis) {
   });
 }
 
-function filtrarCandidatosPelaRegraInterna(lead, candidatos, imoveisBase = []) {
-  const idOrigem = lead.imovel_interesse || lead.idAnuncio || lead.id_anuncio || lead.id;
-  const imovelOrigem = imoveisBase.find(im => getIdImovel(im) === String(idOrigem));
-  const origem = imovelOrigem || lead;
-
-  return (candidatos || []).filter(i => {
-    const idCandidato = getIdImovel(i);
-    if (idCandidato && idCandidato === String(idOrigem)) return false;
-
-    if (norm(i.cidade) !== norm(origem.cidade)) return false;
-    if (norm(i.estado && i.estado['#text'] ? i.estado['#text'] : i.estado) !== norm(origem.estado && origem.estado['#text'] ? origem.estado['#text'] : origem.estado)) return false;
-
-    const bairroCandidato = norm(i.bairro);
-    const bairroOrigem = norm(origem.bairro);
-    const bairroLead = norm(lead.bairro || '');
-
-    if (!bairroCandidato) return false;
-    if (bairroCandidato !== bairroOrigem && bairroCandidato !== bairroLead) return false;
-
-    if (normalizeTipo(i.tipo) !== normalizeTipo(origem.tipo)) return false;
-
-    const quartosOrigem = Number(origem.quartos || 0);
-    const quartosCand = Number(i.quartos || 0);
-    if (quartosOrigem > 0) {
-      if (quartosCand < quartosOrigem) return false;
-      if (quartosCand > quartosOrigem + 1) return false;
-    }
-
-    const valorOrigem = Number(origem.valor_imovel || origem.valor || 0);
-    const valorCand = Number(i.valor_imovel || i.valor || 0);
-    if (valorOrigem > 0) {
-      if (valorCand < valorOrigem * 0.70) return false;
-      if (valorCand > valorOrigem * 1.20) return false;
-    }
-
-    const areaOrigem = Number(origem.area_m2 || origem.area || 0);
-    const areaCand = Number(i.area_m2 || i.area || 0);
-    if (areaOrigem > 0) {
-      if (areaCand < areaOrigem * 0.90) return false;
-      if (areaCand > areaOrigem * 1.20) return false;
-    }
-
-    const suitesOrigem = Number(origem.suites || 0);
-    const suitesCand = Number(i.suites || 0);
-    if (suitesOrigem > 0) {
-      if (suitesCand < suitesOrigem) return false;
-      if (suitesCand > suitesOrigem + 1) return false;
-    }
-
-    const vagasOrigem = Number(origem.vagas || 0);
-    const vagasCand = Number(i.vagas || 0);
-    if (vagasOrigem > 0 && vagasCand < vagasOrigem) return false;
-
-    const banheirosOrigem = Number(origem.banheiros || 0);
-    const banheirosCand = Number(i.banheiros || 0);
-    if (banheirosOrigem > 0 && banheirosCand < banheirosOrigem) return false;
-
-    return true;
-  });
-}
-
 function rodarMatchBaseInterna() {
   const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
   const imoveis = JSON.parse(fs.readFileSync('./imoveis.json', 'utf8'));
@@ -177,7 +116,6 @@ if (require.main === module) {
 
 module.exports = {
   buscarMatchesBaseInterna,
-  filtrarCandidatosPelaRegraInterna,
   rodarMatchBaseInterna,
   normalizeTipo,
   norm

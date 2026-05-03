@@ -973,14 +973,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
         return t.trim();
       }
 
-      const { filtrarCandidatosPelaRegraInterna } = require('./matchBaseInterna');
-      const filtrados = filtrarCandidatosPelaRegraInterna(lead, candidatos, imoveis).map(i => {
-        i.fonte = i.fonte || 'QuintoAndar';
-        return i;
-      });
-
-      /* REGRA ANTIGA DESATIVADA
-      const filtradosAntigos = (candidatos || []).filter(i => {
+      const filtrados = (candidatos || []).filter(i => {
         if (norm(i.cidade || origem.cidade) !== norm(origem.cidade)) return false;
         if (norm(i.estado || origem.estado) !== norm(origem.estado)) return false;
 
@@ -1020,7 +1013,6 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
         i.fonte = i.fonte || 'QuintoAndar';
         return true;
       });
-      */
 
       const leadsAtualizados = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
       const idx = leadsAtualizados.findIndex(l =>

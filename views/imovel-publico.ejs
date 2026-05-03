@@ -255,7 +255,7 @@ function confirmarVisita() {
   fetch('/api/lead-interesse', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, dataVisita: data, horaVisita: hora })
+    body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, dataVisita: data, horaVisita: hora, acao: 'solicitar_visita', visita: 'true' })
   }).catch(() => {});
 
   alert('Visita solicitada com sucesso!');

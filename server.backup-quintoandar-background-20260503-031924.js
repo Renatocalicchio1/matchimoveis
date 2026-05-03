@@ -919,130 +919,111 @@ app.get('/feed-:portal.xml', (req,res)=>{
 
 // Buscar match no QuintoAndar a partir da tela de detalhes da lead
 app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
-  const leadIdParam = req.params.id;
+  try {
+    const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
+    const imoveis = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8')) : [];
 
-  // responde rápido para o usuário poder navegar
-  res.redirect('/app/lead/' + leadIdParam);
+    const lead = leads.find(l =>
+      String(l.leadId) === String(req.params.id) ||
+      String(l.id) === String(req.params.id) ||
+      String(l.idAnuncio) === String(req.params.id) ||
+      String(l.imovel_interesse) === String(req.params.id)
+    );
 
-  setImmediate(async () => {
-    try {
-      console.log('🔎 Match QuintoAndar em background iniciado:', leadIdParam);
+    if (!lead) return res.status(404).send('Lead não encontrada');
 
-      const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
-      const imoveis = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8')) : [];
+    const idOrigem = lead.imovel_interesse || lead.idAnuncio || lead.id_anuncio || lead.id;
+    const imovelOrigem = imoveis.find(im =>
+      String(im.idExterno || im.id || im.codigo || im.idOriginal) === String(idOrigem)
+    );
 
-      const lead = leads.find(l =>
-        String(l.leadId) === String(leadIdParam) ||
-        String(l.id) === String(leadIdParam) ||
-        String(l.idAnuncio) === String(leadIdParam) ||
-        String(l.imovel_interesse) === String(leadIdParam)
-      );
+    const origem = imovelOrigem || lead;
 
-      if (!lead) {
-        console.log('Lead não encontrada no background:', leadIdParam);
-        return;
-      }
+    const { searchQuintoAndar } = require('./services/quintoandar');
 
-      lead.matchQuintoAndarStatus = 'processando';
-      fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+    const candidatos = await searchQuintoAndar(origem);
 
-      const idOrigem = lead.imovel_interesse || lead.idAnuncio || lead.id_anuncio || lead.id;
-      const imovelOrigem = imoveis.find(im =>
-        String(im.idExterno || im.id || im.codigo || im.idOriginal) === String(idOrigem)
-      );
-
-      const origem = imovelOrigem || lead;
-
-      const { searchQuintoAndar } = require('./services/quintoandar');
-      const candidatos = await searchQuintoAndar(origem);
-
-      function norm(v = '') {
-        return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-      }
-
-      function normalizeTipo(tipo = '') {
-        const t = String(tipo || '').toLowerCase();
-        if (t.includes('apart')) return 'apartamento';
-        if (t.includes('condo')) return 'apartamento';
-        if (t.includes('cobertura') || t.includes('penthouse')) return 'cobertura';
-        if (t.includes('loft')) return 'loft';
-        if (t.includes('studio') || t.includes('flat')) return 'studio';
-        if (t.includes('kitnet') || t.includes('kitinete') || t.includes('conjugado')) return 'kitnet';
-        if (t.includes('sobrado')) return 'casa';
-        if (t.includes('casa')) return 'casa';
-        return t.trim();
-      }
-
-      const { filtrarCandidatosPelaRegraInterna } = require('./matchBaseInterna');
-      const filtrados = filtrarCandidatosPelaRegraInterna(lead, candidatos, imoveis).map(i => {
-        i.fonte = i.fonte || 'QuintoAndar';
-        return i;
-      });
-
-      /* REGRA ANTIGA DESATIVADA
-      const filtradosAntigos = (candidatos || []).filter(i => {
-        if (norm(i.cidade || origem.cidade) !== norm(origem.cidade)) return false;
-        if (norm(i.estado || origem.estado) !== norm(origem.estado)) return false;
-
-        const bairroCandidato = norm(i.bairro);
-        const bairroOrigem = norm(origem.bairro);
-        const bairroLead = norm(lead.bairro || '');
-
-        if (!bairroCandidato) return false;
-        if (bairroCandidato !== bairroOrigem && bairroCandidato !== bairroLead) return false;
-
-        if (normalizeTipo(i.tipo) !== normalizeTipo(origem.tipo)) return false;
-
-        const quartosOrigem = Number(origem.quartos || 0);
-        const quartosCand = Number(i.quartos || 0);
-        if (quartosOrigem > 0 && (quartosCand < quartosOrigem || quartosCand > quartosOrigem + 1)) return false;
-
-        const valorOrigem = Number(origem.valor_imovel || origem.valor || 0);
-        const valorCand = Number(i.valor_imovel || i.valor || 0);
-        if (valorOrigem > 0 && (valorCand < valorOrigem * 0.70 || valorCand > valorOrigem * 1.20)) return false;
-
-        const areaOrigem = Number(origem.area_m2 || origem.area || 0);
-        const areaCand = Number(i.area_m2 || i.area || 0);
-        if (areaOrigem > 0 && (areaCand < areaOrigem * 0.90 || areaCand > areaOrigem * 1.20)) return false;
-
-        const suitesOrigem = Number(origem.suites || 0);
-        const suitesCand = Number(i.suites || 0);
-        if (suitesOrigem > 0 && (suitesCand < suitesOrigem || suitesCand > suitesOrigem + 1)) return false;
-
-        const vagasOrigem = Number(origem.vagas || 0);
-        const vagasCand = Number(i.vagas || 0);
-        if (vagasOrigem > 0 && vagasCand < vagasOrigem) return false;
-
-        const banheirosOrigem = Number(origem.banheiros || 0);
-        const banheirosCand = Number(i.banheiros || 0);
-        if (banheirosOrigem > 0 && banheirosCand < banheirosOrigem) return false;
-
-        i.fonte = i.fonte || 'QuintoAndar';
-        return true;
-      });
-      */
-
-      const leadsAtualizados = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
-      const idx = leadsAtualizados.findIndex(l =>
-        String(l.leadId) === String(leadIdParam) ||
-        String(l.id) === String(leadIdParam) ||
-        String(l.idAnuncio) === String(leadIdParam) ||
-        String(l.imovel_interesse) === String(leadIdParam)
-      );
-
-      if (idx >= 0) {
-        leadsAtualizados[idx].matchesQuintoAndar = filtrados;
-        leadsAtualizados[idx].matchQuintoAndarCount = filtrados.length;
-        leadsAtualizados[idx].matchQuintoAndarAt = new Date().toISOString();
-        leadsAtualizados[idx].matchQuintoAndarStatus = 'finalizado';
-        fs.writeFileSync('./data.json', JSON.stringify(leadsAtualizados, null, 2));
-      }
-
-      console.log('✅ Match QuintoAndar finalizado em background:', leadIdParam, filtrados.length);
-    } catch (e) {
-      console.error('Erro buscar QuintoAndar background:', e.message);
+    function norm(v = '') {
+      return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
     }
-  });
+
+    function normalizeTipo(tipo = '') {
+      const t = String(tipo || '').toLowerCase();
+      if (t.includes('apart')) return 'apartamento';
+      if (t.includes('condo')) return 'apartamento';
+      if (t.includes('cobertura') || t.includes('penthouse')) return 'cobertura';
+      if (t.includes('loft')) return 'loft';
+      if (t.includes('studio') || t.includes('flat')) return 'studio';
+      if (t.includes('kitnet') || t.includes('kitinete') || t.includes('conjugado')) return 'kitnet';
+      if (t.includes('sobrado')) return 'casa';
+      if (t.includes('casa')) return 'casa';
+      return t.trim();
+    }
+
+    const filtrados = (candidatos || []).filter(i => {
+      if (norm(i.cidade || origem.cidade) !== norm(origem.cidade)) return false;
+      if (norm(i.estado || origem.estado) !== norm(origem.estado)) return false;
+
+      const bairroCandidato = norm(i.bairro);
+      const bairroOrigem = norm(origem.bairro);
+      const bairroLead = norm(lead.bairro || '');
+
+      if (!bairroCandidato) return false;
+      if (bairroCandidato !== bairroOrigem && bairroCandidato !== bairroLead) return false;
+
+      if (normalizeTipo(i.tipo) !== normalizeTipo(origem.tipo)) return false;
+
+      const quartosOrigem = Number(origem.quartos || 0);
+      const quartosCand = Number(i.quartos || 0);
+      if (quartosOrigem > 0) {
+        if (quartosCand < quartosOrigem) return false;
+        if (quartosCand > quartosOrigem + 1) return false;
+      }
+
+      const valorOrigem = Number(origem.valor_imovel || origem.valor || 0);
+      const valorCand = Number(i.valor_imovel || i.valor || 0);
+      if (valorOrigem > 0) {
+        if (valorCand < valorOrigem * 0.70) return false;
+        if (valorCand > valorOrigem * 1.20) return false;
+      }
+
+      const areaOrigem = Number(origem.area_m2 || origem.area || 0);
+      const areaCand = Number(i.area_m2 || i.area || 0);
+      if (areaOrigem > 0) {
+        if (areaCand < areaOrigem * 0.90) return false;
+        if (areaCand > areaOrigem * 1.20) return false;
+      }
+
+      const suitesOrigem = Number(origem.suites || 0);
+      const suitesCand = Number(i.suites || 0);
+      if (suitesOrigem > 0) {
+        if (suitesCand < suitesOrigem) return false;
+        if (suitesCand > suitesOrigem + 1) return false;
+      }
+
+      const vagasOrigem = Number(origem.vagas || 0);
+      const vagasCand = Number(i.vagas || 0);
+      if (vagasOrigem > 0 && vagasCand < vagasOrigem) return false;
+
+      const banheirosOrigem = Number(origem.banheiros || 0);
+      const banheirosCand = Number(i.banheiros || 0);
+      if (banheirosOrigem > 0 && banheirosCand < banheirosOrigem) return false;
+
+      i.fonte = i.fonte || 'QuintoAndar';
+      return true;
+    });
+
+    lead.matchesQuintoAndar = filtrados;
+    lead.matchQuintoAndarCount = filtrados.length;
+    lead.matchQuintoAndarAt = new Date().toISOString();
+
+    fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+
+    res.redirect('/app/lead/' + (lead.id || lead.leadId));
+  } catch (e) {
+    console.error('Erro buscar QuintoAndar lead:', e);
+    res.status(500).send('Erro ao buscar match no QuintoAndar: ' + e.message);
+  }
 });
 
 

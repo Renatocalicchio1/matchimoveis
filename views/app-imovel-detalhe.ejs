@@ -141,7 +141,7 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') fecharLightbox(
   <div>
 
     <%# PROPRIETÁRIO — só admin ou corretor dono %>
-    <% if(imovel.proprietario && (user.tipo === 'admin' || user.tipo === 'corretor')) { %>
+    <% if(imovel.proprietario && (user.tipo === 'admin' || user.tipo === 'corretor' || user.tipo === 'imobiliaria' || user.tipo === 'construtora')) { %>
     <div class="prop-card">
       <div style="font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">👤 Proprietário</div>
       <div class="prop-nome"><%= imovel.proprietario?.nome || '-' %></div>

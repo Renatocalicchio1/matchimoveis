@@ -214,15 +214,19 @@ const inativos = antigosDoUsuario
     updatedAt: new Date().toISOString()
   }));
 
-// Novos ativos
-const novosFormatadosComStatus = novos.map(n => ({
-  ...n,
-  userId: USER_ID,
-  status: 'ativo',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  lastCheckedAt: new Date().toISOString()
-}));
+// Novos ativos (reativa se estava inativo)
+const novosFormatadosComStatus = novos.map(n => {
+  const antigo = antigosDoUsuario.find(a => String(a.idExterno) === String(n.idExterno));
+  return {
+    ...antigo,
+    ...n,
+    userId: USER_ID,
+    status: 'ativo',
+    createdAt: antigo ? antigo.createdAt : new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    lastCheckedAt: new Date().toISOString()
+  };
+});
 
 const final = [...restantes, ...novosFormatadosComStatus, ...inativos];
   saveData(final);

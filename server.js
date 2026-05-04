@@ -91,6 +91,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
     mensagem: 'Importando XML...'
   };
   global.importUserId = req.session.user ? req.session.user.id : '';
+  global.importXmlUrl = xmlUrl;
 
   res.json({ ok:true, status:'rodando' });
 
@@ -110,6 +111,16 @@ app.post('/app/importar', upload.any(), async (req, res) => {
         total: imoveis.length,
         mensagem: 'Importação concluída'
       };
+      try {
+        const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+        const idx = users.findIndex(u => u.id === global.importUserId);
+        if (idx >= 0) {
+          users[idx].xmlUrl = global.importXmlUrl || users[idx].xmlUrl || '';
+          users[idx].xmlAtualizadoEm = new Date().toISOString();
+          users[idx].xmlTotal = imoveis.length;
+          fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
+        }
+      } catch(e) { console.log('Erro ao salvar xmlUrl:', e.message); }
 
       console.log('Importação concluída:', imoveis.length, 'imóveis');
     } catch (err) {
@@ -928,7 +939,10 @@ app.get('/app/imoveis', auth, (req,res)=>{
 });
 
 app.get('/app/cadastro', auth, (req,res)=>{
-  res.render('app-cadastro', { user: req.session.user });
+  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const u = users.find(u => u.id === req.session.user.id) || {};
+  const xmlFeeds = u.xmlUrl ? [{ url: u.xmlUrl, lastSyncAt: u.xmlAtualizadoEm, total: u.xmlTotal }] : [];
+  res.render('app-cadastro', { user: req.session.user, xmlFeeds });
 });
 
 app.get('/app/portais', auth, (req,res)=>{
@@ -1515,6 +1529,13 @@ Tente perguntar de outra forma, por exemplo:
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
+  // Inicia atualizacao automatica do XML a cada 12h
+  try {
+    require('./autoUpdateXML.js');
+    console.log('[server] autoUpdateXML iniciado');
+  } catch(e) {
+    console.error('[server] Erro ao iniciar autoUpdateXML:', e.message);
+  }
 });
 
 // ROTA DA TELA IMPORTAR LEADS

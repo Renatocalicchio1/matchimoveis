@@ -94,6 +94,11 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') fecharLightbox(
         <div style="text-align:right;flex-shrink:0">
           <div style="font-size:26px;font-weight:800;color:var(--brand)">R$ <%= Number(imovel.valor_imovel||0).toLocaleString('pt-BR') %></div>
 
+          <div style="font-size:13px;color:#667085;margin-top:8px;line-height:1.6">
+            <div>📅 Cadastrado em: <%= imovel.createdAt || imovel.dataCadastro || imovel.data_cadastro || imovel.importedAt || imovel.lastUpdate ? new Date(imovel.createdAt || imovel.dataCadastro || imovel.data_cadastro || imovel.importedAt || imovel.lastUpdate).toLocaleDateString('pt-BR') : '-' %></div>
+            <div>🔄 Última atualização: <%= imovel.updatedAt || imovel.lastUpdate || imovel.lastCheckedAt || imovel.createdAt || imovel.importedAt ? new Date(imovel.updatedAt || imovel.lastUpdate || imovel.lastCheckedAt || imovel.createdAt || imovel.importedAt).toLocaleDateString('pt-BR') : '-' %></div>
+          </div>
+
         </div>
       </div>
     </div>

@@ -4,7 +4,8 @@ const XLSX = require('xlsx');
 const { XMLParser } = require('fast-xml-parser');
 
 const XML_URL = process.argv[2];
-const EXCEL_FILE = process.argv[3];
+const USER_ID = process.argv[3] || '';
+const EXCEL_FILE = process.argv[4];
 
 if (!XML_URL) {
   console.log('Uso: node importXMLCompleto.js URL_XML [arquivo.xlsx]');
@@ -103,7 +104,11 @@ function parseListing(l) {
       },
       fonte: extractText(l.ContactInfo?.Name || l.ContactInfo?.name) || 'XML',
       source: 'xml',
-      lastUpdate: new Date().toISOString(),
+      userId: USER_ID,
+      usuarioId: USER_ID,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastCheckedAt: new Date().toISOString(),
       proprietario: {
         nome: '',
         telefone: '',
@@ -175,7 +180,52 @@ async function run() {
     console.log('🔗 Proprietários vinculados:', vinculados);
   }
 
-  saveData(novos);
+  const atuais = fs.existsSync(FILE) ? JSON.parse(fs.readFileSync(FILE,"utf8")) : [];
+  // REMOVE todos os imóveis antigos desse usuário
+const restantes = atuais.filter(i => {
+  const dono = String(i.userId || i.usuarioId || i.corretorId || '');
+  return dono !== String(USER_ID);
+});
+
+// ADICIONA os novos já limpos
+const novosFormatados = novos.map(n => ({
+  ...n,
+  userId: USER_ID,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  lastCheckedAt: new Date().toISOString()
+}));
+
+// IDS que vieram no XML
+const idsNovos = new Set(novos.map(n => String(n.idExterno)));
+
+// Imóveis antigos desse usuário
+const antigosDoUsuario = atuais.filter(i => {
+  const dono = String(i.userId || i.usuarioId || i.corretorId || '');
+  return dono === String(USER_ID);
+});
+
+// Marca como inativo quem não veio no XML
+const inativos = antigosDoUsuario
+  .filter(i => !idsNovos.has(String(i.idExterno)))
+  .map(i => ({
+    ...i,
+    status: 'inativo',
+    updatedAt: new Date().toISOString()
+  }));
+
+// Novos ativos
+const novosFormatadosComStatus = novos.map(n => ({
+  ...n,
+  userId: USER_ID,
+  status: 'ativo',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  lastCheckedAt: new Date().toISOString()
+}));
+
+const final = [...restantes, ...novosFormatadosComStatus, ...inativos];
+  saveData(final);
 
   const comValor = novos.filter(n => n.valor_imovel > 0).length;
   const comArea = novos.filter(n => n.area_m2 > 0).length;

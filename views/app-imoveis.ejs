@@ -50,7 +50,7 @@
 
 <br>
 
-<div id="grid-imoveis" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px">
+<div id="grid-imoveis" style="display:grid;grid-template-columns: repeat(3, minmax(0, 1fr));gap:14px">
 <% (typeof imoveis !== 'undefined' ? imoveis : []).forEach((item, idx) => { %>
   <div class="card imovel-card"
     data-tipo="<%= (item.tipo||'').toLowerCase() %>"
@@ -84,6 +84,11 @@
 
       <div style="color:#666;font-size:11px;padding:6px;margin-bottom:8px">
         <%= item.bairro || '-' %>, <%= item.cidade || '-' %>
+      </div>
+
+      <div style="font-size:11px;color:#667085;background:#f9fafb;border:1px solid #eee;border-radius:8px;padding:7px;margin-bottom:8px;line-height:1.45">
+        📅 Cadastrado em: <%= item.createdAt || item.dataCadastro || item.data_cadastro || item.importedAt || item.lastUpdate ? new Date(item.createdAt || item.dataCadastro || item.data_cadastro || item.importedAt || item.lastUpdate).toLocaleDateString('pt-BR') : '-' %><br>
+        🔄 Última atualização: <%= item.updatedAt || item.lastUpdate || item.lastCheckedAt || item.createdAt || item.importedAt ? new Date(item.updatedAt || item.lastUpdate || item.lastCheckedAt || item.createdAt || item.importedAt).toLocaleDateString('pt-BR') : '-' %>
       </div>
 
       <% if(item.proprietario && (item.proprietario.nome || item.proprietario.telefone || item.proprietario.celular || item.proprietario.email)) { %>
@@ -210,7 +215,7 @@ async function mudarStatus(id, status){
   box-shadow:0 6px 14px rgba(0,0,0,.10);
 }
 @media(max-width:1200px){
-  #grid-imoveis{grid-template-columns:repeat(4,minmax(0,1fr)) !important;}
+  #grid-imoveis{grid-template-columns: repeat(3, minmax(0, 1fr)) !important;}
 }
 @media(max-width:900px){
   #grid-imoveis{grid-template-columns:repeat(3,minmax(0,1fr)) !important;}

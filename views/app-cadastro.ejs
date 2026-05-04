@@ -122,6 +122,26 @@
         </div>
         <p style="font-size:12px;color:var(--gray);margin-top:8px">Formatos aceitos: VivaReal VRSync, ZAP, OLX, Rankim, CRM padrão</p>
         <div id="xml-test-result" style="margin-top:10px;display:none"></div>
+
+        <div style="margin-top:14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:14px;padding:14px">
+          <div style="font-weight:800;color:#111827;margin-bottom:8px">XML cadastrado</div>
+
+          <% if (typeof xmlFeeds !== 'undefined' && xmlFeeds && xmlFeeds.length) { %>
+            <% xmlFeeds.forEach(function(feed){ %>
+              <div style="font-size:13px;color:#374151;line-height:1.6;margin-bottom:10px">
+                <div><strong>Link do XML:</strong> <span style="word-break:break-all"><%= feed.url %></span></div>
+                <div><strong>Última atualização:</strong>
+                  <%= feed.lastSyncAt ? new Date(feed.lastSyncAt).toLocaleString('pt-BR') : '-' %>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div style="font-size:13px;color:#667085;line-height:1.6">
+              <div><strong>Link do XML:</strong> nenhum XML importado ainda</div>
+              <div><strong>Última atualização:</strong> -</div>
+            </div>
+          <% } %>
+        </div>
 <div id="import-status" style="margin-top:12px;padding:12px;border:1px solid #eee;border-radius:12px;background:#fafafa;font-size:13px;color:#666">
   Status da importação: <strong id="import-status-text">Idle</strong>
 </div>

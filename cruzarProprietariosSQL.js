@@ -1,98 +1,174 @@
 const fs = require('fs');
-const https = require('https');
 
-function getXML() {
-  return new Promise((resolve, reject) => {
-    https.get('https://sistema.rankim.com.br/integration/39c160cc462c6d690e3433feaf038a23966c241b/vivareal.xml', res => {
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => resolve(data));
-    }).on('error', reject);
-  });
+const CADIMO_FILE = process.argv[2] || 'CADIMO.sql';
+const CADCLI_FILE = process.argv[3] || 'CADCLI.sql';
+
+if (!fs.existsSync(CADIMO_FILE) || !fs.existsSync(CADCLI_FILE)) {
+  console.log('Uso: node cruzarProprietariosSQL.js CADIMO.sql CADCLI.sql');
+  process.exit(1);
 }
 
-function parseValores(linha) {
-  // Remove ( do inicio e ) do fim
-  const inner = linha.replace(/^\(/, '').replace(/\)[^)]*$/, '');
+function norm(s) {
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+}
+
+function parseLine(line) {
+  const stripped = line.trim();
+  if (!stripped.startsWith('(')) return [];
   const vals = [];
-  let cur = '';
+  let current = '';
   let inStr = false;
-  let quote = '';
-  for (let i = 0; i < inner.length; i++) {
-    const c = inner[i];
-    if (!inStr && (c === '"' || c === "'")) { inStr = true; quote = c; }
-    else if (inStr && c === quote) { inStr = false; }
-    else if (!inStr && c === ',') { vals.push(cur); cur = ''; continue; }
-    else { cur += c; }
+  let j = 1;
+  while (j < stripped.length) {
+    const c = stripped[j];
+    if (c === '\\' && inStr) { j++; if (j < stripped.length) current += stripped[j]; j++; continue; }
+    if (c === '"' && !inStr) { inStr = true; j++; continue; }
+    if (c === '"' && inStr && stripped[j+1] === '"') { current += '"'; j+=2; continue; }
+    if (c === '"' && inStr) { inStr = false; j++; continue; }
+    if (c === ',' && !inStr) { vals.push(current); current = ''; j++; continue; }
+    if (c === ')' && !inStr) { vals.push(current); break; }
+    current += c;
+    j++;
   }
-  vals.push(cur);
-  return vals.map(v => v.replace(/^["']|["']$/g,'').trim());
+  return vals;
 }
 
-async function main() {
-  console.log('Baixando XML...');
-  const xml = await getXML();
-  const listingIds = new Set([...xml.matchAll(/<ListingID>(\d+)<\/ListingID>/g)].map(m => m[1]));
-  console.log(`XML: ${listingIds.size} imóveis`);
-
-  console.log('Lendo CADIMO...');
-  const cadimoSQL = fs.readFileSync('/tmp/crm_sql/CADIMO.sql', 'latin1');
-  const colMatch = cadimoSQL.match(/INSERT INTO `CADIMO` \(([^)]+)\)/);
-  const colunas = colMatch[1].split(',').map(c => c.replace(/`/g,'').trim());
-  const iCodigoWeb = colunas.indexOf('CODIGO_WEB');
-  const iCodigoC = colunas.indexOf('CODIGO_C');
-  console.log(`CODIGO_WEB[${iCodigoWeb}] CODIGO_C[${iCodigoC}]`);
-
-  // Exemplo do primeiro registro
-  const primeiraLinha = cadimoSQL.split('\n').find(l => l.startsWith('('));
-  const exemploVals = parseValores(primeiraLinha);
-  console.log('CODIGO_WEB exemplo:', exemploVals[iCodigoWeb]);
-  console.log('CODIGO_C exemplo:', exemploVals[iCodigoC]);
-
-  const mapaImovel = {};
-  for (const linha of cadimoSQL.split('\n')) {
-    if (!linha.startsWith('(')) continue;
-    try {
-      const vals = parseValores(linha);
-      const codigoWeb = vals[iCodigoWeb]?.trim();
-      const codigoC = vals[iCodigoC]?.trim();
-      if (codigoWeb && codigoWeb !== '0' && codigoWeb !== 'NULL' && codigoWeb !== '') {
-        mapaImovel[codigoWeb] = codigoC;
+function parseSQL(sql, tableName, campos) {
+  const rows = [];
+  const lines = sql.split('\n');
+  let curIdx = {};
+  for (const line of lines) {
+    const stripped = line.trim();
+    if (stripped.startsWith(`INSERT INTO \`${tableName}\``)) {
+      const m = stripped.match(/\(([^)]+)\) VALUES/);
+      if (m) {
+        const cols = m[1].split(',').map(c => c.trim().replace(/`/g,''));
+        curIdx = {};
+        campos.forEach(f => { curIdx[f] = cols.indexOf(f); });
       }
-    } catch(e) {}
+      continue;
+    }
+    if (!stripped.startsWith('(')) continue;
+    const vals = parseLine(stripped);
+    if (!vals.length) continue;
+    const obj = {};
+    campos.forEach(f => {
+      obj[f] = curIdx[f] >= 0 && vals[curIdx[f]] !== undefined ? vals[curIdx[f]].trim() : '';
+    });
+    rows.push(obj);
   }
-  console.log(`Imóveis mapeados: ${Object.keys(mapaImovel).length}`);
-  console.log('Exemplo mapa:', Object.entries(mapaImovel).slice(0,3));
-
-  console.log('Lendo CADCLI...');
-  const cadcliSQL = fs.readFileSync('/tmp/crm_sql/CADCLI.sql', 'latin1');
-  const colCli = cadcliSQL.match(/INSERT INTO `CADCLI` \(([^)]+)\)/)[1].split(',').map(c => c.replace(/`/g,'').trim());
-  const iCodCli = colCli.indexOf('CODIGO_C');
-  const iNome = colCli.indexOf('NOME');
-  const iCelular = colCli.indexOf('CELULAR');
-  const iEmail = colCli.indexOf('EMAIL_R');
-
-  const mapaCliente = {};
-  for (const linha of cadcliSQL.split('\n')) {
-    if (!linha.startsWith('(')) continue;
-    try {
-      const vals = parseValores(linha);
-      const cod = vals[iCodCli]?.trim();
-      if (cod) mapaCliente[cod] = { nome: vals[iNome]||'', celular: vals[iCelular]||'', email: vals[iEmail]||'' };
-    } catch(e) {}
-  }
-  console.log(`Clientes: ${Object.keys(mapaCliente).length}`);
-
-  const resultado = [];
-  for (const lid of listingIds) {
-    const codigoC = mapaImovel[lid];
-    const cliente = codigoC ? mapaCliente[codigoC] : null;
-    if (cliente && cliente.nome) resultado.push({ listingId: lid, codigoC, proprietario: cliente });
-  }
-
-  console.log(`\n✅ Com proprietário: ${resultado.length} / ${listingIds.size}`);
-  resultado.slice(0,5).forEach(r => console.log(`  ${r.listingId}: ${r.proprietario.nome} | ${r.proprietario.celular}`));
-  fs.writeFileSync('./cruzamento_proprietarios.json', JSON.stringify(resultado, null, 2));
+  return rows;
 }
 
-main().catch(console.error);
+console.log('Lendo CADIMO.sql...');
+const cadimoBruto = fs.readFileSync(CADIMO_FILE, 'latin1');
+const cadimoRows = parseSQL(cadimoBruto, 'CADIMO', [
+  'CODIGO_C', 'BAIRRO', 'ENDERECO', 'VLR_VENDA', 'AREA_PRIVATIVA',
+  'DORMITORIO', 'SUITE', 'ESTACIONA_VAGAS', 'BANHEIRO_SOCIAL', 'CODIGO'
+]);
+console.log('Registros CADIMO:', cadimoRows.length);
+
+console.log('Lendo CADCLI.sql...');
+const cadcliBruto = fs.readFileSync(CADCLI_FILE, 'latin1');
+const cadcliRows = parseSQL(cadcliBruto, 'CADCLI', [
+  'CODIGO_C', 'NOME', 'CELULAR', 'FONE_R', 'FONE_PRINCIPAL',
+  'FONES_OCULTOS', 'CELULAR_E', 'FONE_C', 'EMAIL_R', 'EMAIL_C'
+]);
+console.log('Registros CADCLI:', cadcliRows.length);
+
+const cadcliMap = {};
+cadcliRows.forEach(r => {
+  if (!r.CODIGO_C || r.CODIGO_C === '0') return;
+  // Pegar melhor contato disponível
+  const celular = r.CELULAR || r.FONE_PRINCIPAL || r.FONES_OCULTOS || r.CELULAR_E || r.FONE_R || r.FONE_C || '';
+  const email = r.EMAIL_R || r.EMAIL_C || '';
+  cadcliMap[r.CODIGO_C] = { nome: r.NOME, celular, email };
+});
+console.log('CADCLI indexados:', Object.keys(cadcliMap).length);
+
+const cadimoComProp = cadimoRows.filter(r => r.CODIGO_C && r.CODIGO_C !== '0' && cadcliMap[r.CODIGO_C]);
+console.log('CADIMO com proprietario:', cadimoComProp.length);
+
+const imoveis = JSON.parse(fs.readFileSync('imoveis.json', 'utf8'));
+console.log('\nCruzando', imoveis.length, 'imoveis...');
+
+let vinculados = 0;
+let semMatch = 0;
+
+imoveis.forEach(imovel => {
+  const bairroIm = norm(imovel.bairro || '');
+  const ruaIm = norm(imovel.endereco || '');
+  const valorIm = Number(imovel.valor_imovel || 0);
+  const areaIm = Number(imovel.area_m2 || 0);
+  const quartosIm = Number(imovel.quartos || 0);
+  const suitesIm = Number(imovel.suites || 0);
+  const vagasIm = Number(imovel.vagas || 0);
+  const banheirosIm = Number(imovel.banheiros || 0);
+
+  if (!bairroIm || !valorIm) { semMatch++; return; }
+
+  let melhor = null;
+  let melhorScore = 0;
+
+  for (const cad of cadimoComProp) {
+    const bairroCad = norm(cad.BAIRRO || '');
+    const ruaCad = norm(cad.ENDERECO || '');
+    const valorCad = Number(cad.VLR_VENDA || 0);
+    const areaCad = Number(cad.AREA_PRIVATIVA || 0);
+    const quartosCad = Number(cad.DORMITORIO || 0);
+    const suitesCad = Number(cad.SUITE || 0);
+    const vagasCad = Number(cad.ESTACIONA_VAGAS || 0);
+    const banheirosCad = Number(cad.BANHEIRO_SOCIAL || 0);
+
+    if (!valorCad) continue;
+    if (bairroCad !== bairroIm) continue;
+
+    const diffValor = Math.abs(valorCad - valorIm) / valorIm;
+    if (diffValor > 0.02) continue;
+
+    let score = Math.round((1 - diffValor) * 40);
+
+    if (ruaCad && ruaIm && ruaCad === ruaIm) score += 30;
+    else if (ruaCad && ruaIm) continue;
+
+    if (areaCad && areaIm) {
+      const diffArea = Math.abs(areaCad - areaIm) / areaIm;
+      if (diffArea > 0.03) continue;
+      score += Math.round((1 - diffArea) * 15);
+    }
+
+    if (quartosIm && quartosCad) {
+      if (quartosCad !== quartosIm) continue;
+      score += 8;
+    }
+    if (suitesIm && suitesCad && suitesCad === suitesIm) score += 4;
+    if (vagasIm && vagasCad && vagasCad === vagasIm) score += 2;
+    if (banheirosIm && banheirosCad && banheirosCad === banheirosIm) score += 1;
+
+    if (score > melhorScore) { melhorScore = score; melhor = cad; }
+  }
+
+  if (melhor && melhorScore >= 60) {
+    const cli = cadcliMap[melhor.CODIGO_C];
+    imovel.proprietario = {
+      nome: cli.nome || '',
+      celular: cli.celular || '',
+      email: cli.email || '',
+      status: 'vinculado_crm',
+      score: melhorScore,
+      vinculadoEm: new Date().toISOString()
+    };
+    vinculados++;
+  } else {
+    semMatch++;
+  }
+});
+
+fs.writeFileSync('imoveis.json', JSON.stringify(imoveis, null, 2));
+
+const comCelular = imoveis.filter(i => i.proprietario && i.proprietario.celular).length;
+console.log('\nResultado:');
+console.log('Total imoveis:', imoveis.length);
+console.log('Vinculados:', vinculados);
+console.log('Com celular:', comCelular);
+console.log('Sem match:', semMatch);

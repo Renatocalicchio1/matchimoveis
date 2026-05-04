@@ -938,6 +938,27 @@ app.get('/app/imoveis', auth, (req,res)=>{
   res.render('app-imoveis', { user: req.session.user, imoveis });
 });
 
+app.post('/app/excluir-xml', auth, (req,res)=>{
+  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const idx = users.findIndex(u => u.id === req.session.user.id);
+  if (idx >= 0) {
+    delete users[idx].xmlUrl;
+    delete users[idx].xmlAtualizadoEm;
+    delete users[idx].xmlTotal;
+    fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
+    // Marca imoveis do usuario como inativo
+    const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+    const atualizados = imoveis.map(i => {
+      if (String(i.userId || i.usuarioId || '') === String(req.session.user.id)) {
+        return { ...i, status: 'inativo', updatedAt: new Date().toISOString() };
+      }
+      return i;
+    });
+    fs.writeFileSync('imoveis.json', JSON.stringify(atualizados, null, 2));
+  }
+  res.redirect('/app/cadastro');
+});
+
 app.get('/app/cadastro', auth, (req,res)=>{
   const users = JSON.parse(fs.readFileSync('users.json','utf8'));
   const u = users.find(u => u.id === req.session.user.id) || {};

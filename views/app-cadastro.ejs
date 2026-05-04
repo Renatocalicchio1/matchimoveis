@@ -133,6 +133,13 @@
                 <div><strong>Última atualização:</strong>
                   <%= feed.lastSyncAt ? new Date(feed.lastSyncAt).toLocaleString('pt-BR') : '-' %>
                 </div>
+                <div><strong>Imóveis ativos:</strong> <%= feed.total || 0 %></div>
+                <form method="POST" action="/app/excluir-xml" style="margin-top:10px">
+                  <button type="submit" onclick="return confirm('Excluir XML? Os imóveis serão marcados como inativos.')" 
+                    style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">
+                    🗑️ Excluir XML
+                  </button>
+                </form>
               </div>
             <% }) %>
           <% } else { %>

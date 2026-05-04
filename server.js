@@ -778,13 +778,15 @@ function filtrarPorUsuario(lista, user){
   if (!Array.isArray(lista)) return [];
   if (user && user.tipo === 'admin') return lista;
   const uid = String(user && user.id || '');
-  const tel = String(user && (user.celular || user.telefone) || '');
+  const tel = String(user && (user.celular || user.telefone) || '').replace(/D/g,'');
+  const cod = String(user && user.codigoUsuario || '');
   return lista.filter(item =>
     String(item.corretorId || '') === uid ||
     String(item.userId || '') === uid ||
     String(item.usuarioId || '') === uid ||
-    String(item.corretorCelular || '') === tel ||
-    String(item.telefone || '') === tel
+    String(item.corretorCelular || '').replace(/D/g,'') === tel ||
+    String(item.usuarioTelefone || '').replace(/D/g,'') === tel ||
+    (cod && String(item.codigoUsuario || '') === cod)
   );
 }
 
@@ -808,13 +810,19 @@ app.get('/app/notificacoes', auth, (req,res)=>{
 
 
 app.get('/app-home', auth, (req,res)=>{
-  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
-  const leads = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
-  const visitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
+  const user = req.session.user;
+  const todosImoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const todosLeads = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
+  const todasVisitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
   const notificacoes = fs.existsSync('notificacoes.json') ? JSON.parse(fs.readFileSync('notificacoes.json','utf8')) : [];
-  const minhasNotificacoes = notificacoes.filter(n => String(n.usuarioId) === String(req.session.user.id));
+  const imoveis = filtrarPorUsuario(todosImoveis, user);
+  const leadsArr = filtrarPorUsuario(Array.isArray(todosLeads) ? todosLeads : (todosLeads.results || []), user);
+  const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
+    String(v.corretorId || v.usuarioDestinoId || '') === String(user.id || '') ||
+    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/D/g,'') === String(user.celular || user.telefone || '').replace(/D/g,'')
+  );
+  const minhasNotificacoes = notificacoes.filter(n => String(n.usuarioId) === String(user.id));
   const naoLidas = minhasNotificacoes.filter(n => !n.lida);
-  const leadsArr = Array.isArray(leads) ? leads : (leads.results || []);
   const comMatch = leadsArr.filter(l => l.matches && l.matches.length > 0);
   const totalMatches = leadsArr.reduce((s,l) => s + ((l.matches && l.matches.length) || 0), 0);
   const hoje = new Date().toDateString();
@@ -912,8 +920,9 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
 });
 
 app.get('/app/imoveis', auth, (req,res)=>{
-  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
-  res.render('app-imoveis', { user: req.session.user, imoveis: imoveis });
+  const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const imoveis = filtrarPorUsuario(todos, req.session.user);
+  res.render('app-imoveis', { user: req.session.user, imoveis });
 });
 
 app.get('/app/cadastro', auth, (req,res)=>{
@@ -940,7 +949,7 @@ app.get('/app/importar-leads', auth, (req,res)=>{
 app.get('/app/leads', auth, (req,res)=>{
   const raw = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
   const data = Array.isArray(raw) ? raw : (raw.results || []);
-  const leads = data;
+  const leads = filtrarPorUsuario(data, req.session.user);
   // usa matchesBase (base interna) ou matches (externos)
   leads.forEach(l => {
     if (!l.matches || l.matches.length === 0) {
@@ -969,7 +978,12 @@ app.get('/app/leads', auth, (req,res)=>{
 });
 
 app.get('/app/visitas', auth, (req,res)=>{
-  const visitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
+  const todasVisitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
+  const user = req.session.user;
+  const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
+    String(v.corretorId || v.usuarioDestinoId || '') === String(user.id || '') ||
+    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/D/g,'') === String(user.celular || user.telefone || '').replace(/D/g,'')
+  );
   res.render('app-visitas', { user: req.session.user, visitas });
 });
 

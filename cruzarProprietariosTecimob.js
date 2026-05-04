@@ -79,15 +79,18 @@ alvo.forEach(imovel => {
     if (transacaoIm && transacaoCad && transacaoIm !== transacaoCad) continue;
 
     const diffValor = Math.abs(valorCad - valorIm) / valorIm;
-    if (diffValor > 0.02) continue;
+    if (diffValor > 0.05) continue;
 
-    let score = Math.round((1 - diffValor) * 40);
+    let score = Math.round((1 - diffValor) * 35);
 
     // Transação bate: +5pts
     if (transacaoIm && transacaoCad && transacaoIm === transacaoCad) score += 5;
 
-    if (ruaCad && ruaIm && ruaCad === ruaIm) score += 30;
-    else if (ruaCad && ruaIm) continue;
+    if (ruaCad && ruaIm) {
+      if (ruaCad === ruaIm) score += 30;
+      else if (ruaIm.includes(ruaCad) || ruaCad.includes(ruaIm)) score += 25;
+      else continue;
+    }
 
     if (quartosIm && quartosCad) {
       if (quartosCad !== quartosIm) continue;
@@ -99,7 +102,7 @@ alvo.forEach(imovel => {
     if (score > melhorScore) { melhorScore = score; melhor = cad; }
   }
 
-  if (melhor && melhorScore >= 60) {
+  if (melhor && melhorScore >= 70) {
     imovel.proprietario = {
       nome: String(melhor['Proprietário'] || '').trim(),
       celular: String(melhor['Celular do Proprietário'] || '').trim(),

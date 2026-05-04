@@ -7,5 +7,14 @@
     "codigoUsuario": "ALE-2442",
     "xmlUrl": "https://cli21379-portais.vistahost.com.br/9bc249c7e7e72ef840e2c556025a214b",
     "xmlAtualizadoEm": "2026-05-04T02:24:09.236Z"
+  },
+  {
+    "id": "imobiliaria-47991919191",
+    "nome": "Rankim",
+    "telefone": "47991919191",
+    "celular": "47991919191",
+    "tipo": "imobiliaria",
+    "ativo": true,
+    "codigoUsuario": "RAN-9191"
   }
 ]

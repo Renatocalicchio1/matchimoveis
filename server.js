@@ -85,31 +85,6 @@ app.post('/app/importar', upload.any(), async (req, res) => {
     return res.json({ ok:false, erro:'Informe a URL do XML' });
   }
 
-  // Salva a URL do XML no usuário logado
-  try {
-    const fs = require('fs');
-    const usersPath = 'users.json';
-    const users = fs.existsSync(usersPath)
-      ? JSON.parse(fs.readFileSync(usersPath, 'utf8'))
-      : [];
-
-    const userId = req.session.user.id || req.session.user.codigoUsuario || req.session.user.celular;
-
-    const idx = users.findIndex(u =>
-      String(u.id || u.codigoUsuario || u.celular) === String(userId)
-    );
-
-    if (idx >= 0) {
-      users[idx].xmlUrl = xmlUrl;
-      users[idx].xmlAtualizadoEm = new Date().toISOString();
-      fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
-      req.session.user.xmlUrl = xmlUrl;
-      req.session.user.xmlAtualizadoEm = users[idx].xmlAtualizadoEm;
-    }
-  } catch (e) {
-    console.log('Erro ao salvar xmlUrl no users.json:', e.message);
-  }
-
   global.importStatus = {
     status: 'rodando',
     total: 0,
@@ -121,8 +96,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
   setTimeout(() => {
     try {
       const { execSync } = require('child_process');
-      console.log("USER ID:", req.session.user);
-      execSync(`node importXMLCompleto.js "${xmlUrl}" "${req.session.user.codigoUsuario}"`, { stdio: 'inherit' });
+      execSync(`node importXMLCompleto.js "" ""`, { stdio: 'inherit' });
 
       const fs = require('fs');
       const imoveis = fs.existsSync('imoveis.json')
@@ -775,18 +749,7 @@ app.get('/app', (req,res)=>{
 
 // Meus imóveis = carteira do corretor, NÃO match
 app.get('/app-imoveis', (req,res)=>{
-  if(!req.session.user) return res.redirect('/login');
-  const todosImoveis = loadImoveis();
-  const telUser = String(req.session.user.celular || req.session.user.telefone || '');
-  const imoveis = todosImoveis.filter(i =>
-    String(i.corretorCelular || i.celularCorretor || '') === telUser ||
-    String(i.corretorId || '') === String(req.session.user.codigoUsuario || '')
-  );
-  res.render('app-imoveis', { user: req.session.user, 
-    imoveis,
-    perfil: req.session.user.tipo || 'corretor',
-    nome: req.session.user.nome || 'Usuário'
-  });
+  return res.redirect('/app/imoveis');
 });
 
 app.get('/app/portais', auth, (req,res)=>{
@@ -831,7 +794,7 @@ app.get('/app', auth, (req,res)=> res.redirect('/app-home'));
 
 app.get('/app/notificacoes', auth, (req,res)=>{
   const notificacoesAll = fs.existsSync('notificacoes.json') ? JSON.parse(fs.readFileSync('notificacoes.json','utf8')) : [];
-  const userId = String(req.session.user.codigoUsuario || '');
+  const userId = String(req.session.user.id || '');
   const notificacoes = notificacoesAll
     .filter(n => String(n.usuarioId || '') === userId)
     .slice()
@@ -849,7 +812,7 @@ app.get('/app-home', auth, (req,res)=>{
   const leads = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
   const visitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
   const notificacoes = fs.existsSync('notificacoes.json') ? JSON.parse(fs.readFileSync('notificacoes.json','utf8')) : [];
-  const minhasNotificacoes = notificacoes.filter(n => String(n.usuarioId) === String(req.session.user.codigoUsuario));
+  const minhasNotificacoes = notificacoes.filter(n => String(n.usuarioId) === String(req.session.user.id));
   const naoLidas = minhasNotificacoes.filter(n => !n.lida);
   const leadsArr = Array.isArray(leads) ? leads : (leads.results || []);
   const comMatch = leadsArr.filter(l => l.matches && l.matches.length > 0);
@@ -1020,7 +983,7 @@ const PORT = process.env.PORT || port || 3000;
 app.post('/app/perfil/localizacao', auth, (req,res)=>{
   const { lat, lng, endereco } = req.body;
   const users = JSON.parse(fs.readFileSync('users.json','utf8'));
-  const idx = users.findIndex(u => u.id === req.session.user.codigoUsuario);
+  const idx = users.findIndex(u => u.id === req.session.user.id);
   if(idx >= 0) {
     users[idx].lat = parseFloat(lat);
     users[idx].lng = parseFloat(lng);
@@ -1035,7 +998,7 @@ app.post('/app/perfil/localizacao', auth, (req,res)=>{
 app.post('/app/perfil/localizacao', auth, (req,res)=>{
   const { lat, lng, endereco } = req.body;
   const users = JSON.parse(fs.readFileSync('users.json','utf8'));
-  const idx = users.findIndex(u => u.id === req.session.user.codigoUsuario);
+  const idx = users.findIndex(u => u.id === req.session.user.id);
   if(idx >= 0) {
     users[idx].lat = parseFloat(lat);
     users[idx].lng = parseFloat(lng);
@@ -1635,11 +1598,11 @@ app.post('/app/imovel/cadastrar', auth, (req, res) => {
     descricao: b.descricao || '',
     fotos: [],
     proprietario: b.propNome ? { nome: b.propNome, celular: b.propTelefone, email: b.propEmail } : null,
-    usuarioId: req.session.user.codigoUsuario,
+    usuarioId: req.session.user.id,
     usuarioNome: req.session.user.nome,
     usuarioPerfil: req.session.user.perfil,
     usuarioTelefone: req.session.user.celular || req.session.user.telefone,
-    usuarioId: req.session.user.codigoUsuario,
+    usuarioId: req.session.user.id,
     usuarioNome: req.session.user.nome || req.session.user.nomeCompleto || '',
     usuarioPerfil: req.session.user.perfil || req.session.user.tipoConta || '',
     usuarioTelefone: req.session.user.celular || req.session.user.telefone || '',

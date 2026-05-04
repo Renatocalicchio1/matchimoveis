@@ -214,12 +214,17 @@ const inativos = antigosDoUsuario
     updatedAt: new Date().toISOString()
   }));
 
-// Novos ativos (reativa se estava inativo)
+// Novos ativos (reativa se estava inativo, preserva proprietario vinculado)
 const novosFormatadosComStatus = novos.map(n => {
   const antigo = antigosDoUsuario.find(a => String(a.idExterno) === String(n.idExterno));
+  // Preservar proprietario se foi vinculado via CRM
+  const proprietarioPreservado = antigo && antigo.proprietario && antigo.proprietario.status === 'vinculado_crm'
+    ? antigo.proprietario
+    : n.proprietario;
   return {
     ...antigo,
     ...n,
+    proprietario: proprietarioPreservado,
     userId: USER_ID,
     status: 'ativo',
     createdAt: antigo ? antigo.createdAt : new Date().toISOString(),

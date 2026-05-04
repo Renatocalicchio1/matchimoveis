@@ -8,7 +8,19 @@
     "ativo": true,
     "codigoUsuario": "RAN-9191",
     "xmlUrl": "https://cli21379-portais.vistahost.com.br/9bc249c7e7e72ef840e2c556025a214b",
-    "xmlAtualizadoEm": "2026-05-04T19:19:01.342Z",
+    "xmlAtualizadoEm": "2026-05-04T19:35:04.632Z",
     "xmlTotal": 946
+  },
+  {
+    "id": "imobiliaria-47992010888",
+    "nome": "rankim 2 ",
+    "telefone": "47992010888",
+    "celular": "47992010888",
+    "tipo": "imobiliaria",
+    "ativo": true,
+    "codigoUsuario": "RAN-0888",
+    "xmlUrl": "https://sistema.rankim.com.br/integration/fe3821a6531973b1433c4abfead1805d6f6e0378/vivareal.xml",
+    "xmlAtualizadoEm": "2026-05-04T19:35:09.321Z",
+    "xmlTotal": 849
   }
 ]

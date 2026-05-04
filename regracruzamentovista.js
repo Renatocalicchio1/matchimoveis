@@ -8,6 +8,13 @@ if (!fs.existsSync(CADIMO_FILE) || !fs.existsSync(CADCLI_FILE)) {
   process.exit(1);
 }
 
+function normTransacao(v) {
+  const t = norm(v);
+  if (t.includes('alug') || t.includes('locat')) return 'aluguel';
+  if (t.includes('vend')) return 'venda';
+  return '';
+}
+
 function norm(s) {
   return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 }
@@ -105,6 +112,7 @@ imoveis.forEach(imovel => {
   const vagasIm = Number(imovel.vagas || 0);
   const banheirosIm = Number(imovel.banheiros || 0);
 
+  const transacaoIm = normTransacao(imovel.transacao || '');
   if (!bairroIm || !valorIm) { semMatch++; return; }
 
   let melhor = null;
@@ -120,8 +128,10 @@ imoveis.forEach(imovel => {
     const vagasCad = Number(cad.ESTACIONA_VAGAS || 0);
     const banheirosCad = Number(cad.BANHEIRO_SOCIAL || 0);
 
+    const transacaoCad = normTransacao(cad.VENDA === 'Sim' ? 'venda' : cad.LOCACAO_ANUAL === 'Sim' ? 'aluguel' : '');
     if (!valorCad) continue;
     if (bairroCad !== bairroIm) continue;
+    if (transacaoIm && transacaoCad && transacaoIm !== transacaoCad) continue;
 
     const diffValor = Math.abs(valorCad - valorIm) / valorIm;
     if (diffValor > 0.02) continue;

@@ -90,13 +90,15 @@ app.post('/app/importar', upload.any(), async (req, res) => {
     total: 0,
     mensagem: 'Importando XML...'
   };
+  global.importUserId = req.session.user ? req.session.user.id : '';
 
   res.json({ ok:true, status:'rodando' });
 
   setTimeout(() => {
     try {
       const { execSync } = require('child_process');
-      execSync(`node importXMLCompleto.js "" ""`, { stdio: 'inherit' });
+      const userId = global.importUserId || '';
+      execSync(`node importXMLCompleto.js "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
 
       const fs = require('fs');
       const imoveis = fs.existsSync('imoveis.json')

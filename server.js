@@ -1552,7 +1552,7 @@ app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   // Inicia atualizacao automatica do XML a cada 12h
   try {
-    require('./autoUpdateXML.js');
+//require("./autoUpdateXML.js");
     console.log('[server] autoUpdateXML iniciado');
   } catch(e) {
     console.error('[server] Erro ao iniciar autoUpdateXML:', e.message);

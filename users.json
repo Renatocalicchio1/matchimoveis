@@ -8,8 +8,8 @@
     "ativo": true,
     "codigoUsuario": "RAN-9191",
     "xmlUrl": "https://cli21379-portais.vistahost.com.br/9bc249c7e7e72ef840e2c556025a214b",
-    "xmlAtualizadoEm": "2026-05-04T19:35:04.632Z",
-    "xmlTotal": 946
+    "xmlAtualizadoEm": "2026-05-04T23:32:25.751Z",
+    "xmlTotal": 934
   },
   {
     "id": "imobiliaria-47992010888",
@@ -20,7 +20,7 @@
     "ativo": true,
     "codigoUsuario": "RAN-0888",
     "xmlUrl": "https://sistema.rankim.com.br/integration/fe3821a6531973b1433c4abfead1805d6f6e0378/vivareal.xml",
-    "xmlAtualizadoEm": "2026-05-04T19:35:09.321Z",
-    "xmlTotal": 849
+    "xmlAtualizadoEm": "2026-05-04T23:35:52.780Z",
+    "xmlTotal": 2741
   }
 ]

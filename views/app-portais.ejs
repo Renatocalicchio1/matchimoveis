@@ -1,84 +1,56 @@
-<%- include("partials/app-shell",{active:"portais",title:"Portais & XML",subtitle:"Copie o link XML de cada portal e envie para integração.",user:user}) %>
+<%- include("partials/app-shell",{active:"portais",title:"Portais & XML",subtitle:"Gerencie os feeds XML por portal.",user:user}) %>
+
+<div style="margin-bottom:16px">
+  <a href="/app/imoveis" class="btn btn-primary" style="text-decoration:none">⬅️ Selecionar imóveis e gerar XML</a>
+</div>
 
 <div class="card">
-  <h3 style="margin-bottom:8px">📡 Links XML dos portais</h3>
-  <p style="color:#666;margin-bottom:20px">
-    Escolha os portais dentro do imóvel. Ao salvar, o sistema gera automaticamente o XML no padrão VivaReal/VRSync.
-  </p>
-
-  <% const base = 'http://localhost:3000'; %>
+  <h3 style="margin-bottom:4px">📡 Feeds XML gerados</h3>
+  <p style="color:#666;margin-bottom:20px;font-size:13px">Vá em <strong>Meus Imóveis</strong>, selecione os imóveis desejados e clique no portal para gerar o XML.</p>
 
   <div class="xml-list">
-    <% [
-      ['OLX', 'olx'],
-      ['ZAP Imóveis', 'zap'],
-      ['VivaReal', 'vivareal'],
-      ['Chaves na Mão', 'chaves'],
-      ['ImovelWeb', 'imovelweb'],
-      ['123i', '123i']
-    ].forEach(([nome, slug]) => { %>
-
+    <% const nomes = {olx:'OLX', zap:'ZAP Imóveis', vivareal:'VivaReal', chaves:'Chaves na Mão', imovelweb:'ImovelWeb', '123i':'123i'}; %>
+    <% const cores = {olx:'#0284c7', zap:'#ea580c', vivareal:'#7c3aed', chaves:'#059669', imovelweb:'#d97706', '123i':'#be185d'}; %>
+    <% xmlFeeds.forEach(feed => { %>
       <div class="xml-item">
-        <div>
-          <strong><%= nome %></strong>
-          <p>Copie este link e envie para o portal <%= nome %>:</p>
-          <a href="<%= base %>/feed-<%= slug %>.xml" target="_blank"><%= base %>/feed-<%= slug %>.xml</a>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:44px;height:44px;border-radius:10px;background:<%= cores[feed.portal]||'#666' %>;display:flex;align-items:center;justify-content:center;font-size:20px">📡</div>
+          <div>
+            <strong style="font-size:15px"><%= nomes[feed.portal]||feed.portal %></strong>
+            <% if(feed.existe) { %>
+              <div style="font-size:12px;color:#059669;font-weight:600;margin:2px 0">✅ <%= feed.total %> imóveis no XML</div>
+              <div style="font-size:11px;color:#999">Gerado em: <%= new Date(feed.geradoEm).toLocaleString('pt-BR') %></div>
+              <a href="<%= feed.url %>" target="_blank" style="font-size:12px;color:#2563eb;word-break:break-all"><%= feed.url %></a>
+            <% } else { %>
+              <div style="font-size:12px;color:#999;margin-top:2px">Nenhum XML gerado ainda</div>
+            <% } %>
+          </div>
         </div>
-
-        <button class="btn btn-primary" type="button" onclick="copiarXML('<%= base %>/feed-<%= slug %>.xml')">
-          Copiar link
-        </button>
+        <div style="display:flex;gap:8px;align-items:center">
+          <% if(feed.existe) { %>
+            <button class="btn btn-primary" onclick="copiar('<%= feed.url %>',this)">📋 Copiar URL</button>
+            <a href="<%= feed.url %>" target="_blank" class="btn" style="background:#f3f4f6;border:1px solid #eee;text-decoration:none;padding:8px 14px;border-radius:8px;font-size:13px">👁 Ver XML</a>
+          <% } else { %>
+            <a href="/app/imoveis" class="btn" style="background:#f3f4f6;border:1px solid #eee;text-decoration:none;padding:8px 14px;border-radius:8px;font-size:13px">Gerar →</a>
+          <% } %>
+        </div>
       </div>
-
     <% }) %>
   </div>
 </div>
 
 <script>
-function copiarXML(link){
-  navigator.clipboard.writeText(link).then(()=>{
-    alert('Link XML copiado: ' + link);
+function copiar(url, btn){
+  navigator.clipboard.writeText(window.location.origin + url).then(()=>{
+    btn.textContent = '✅ Copiado!';
+    setTimeout(()=>btn.textContent='📋 Copiar URL', 2000);
   });
 }
 </script>
 
 <style>
-.xml-list{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-.xml-item{
-  display:flex;
-  justify-content:space-between;
-  gap:16px;
-  align-items:center;
-  padding:16px;
-  border:1px solid #eee;
-  border-radius:14px;
-  background:#fafafa;
-}
-.xml-item strong{
-  font-size:16px;
-}
-.xml-item p{
-  margin:6px 0;
-  font-size:13px;
-  color:#666;
-}
-.xml-item a{
-  font-size:13px;
-  color:#2563eb;
-  text-decoration:none;
-  word-break:break-all;
-}
-.xml-item a:hover{
-  text-decoration:underline;
-}
-@media(max-width:700px){
-  .xml-item{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-}
+.xml-list{display:flex;flex-direction:column;gap:12px}
+.xml-item{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px;border:1px solid #eee;border-radius:14px;background:#fafafa}
+@media(max-width:700px){.xml-item{flex-direction:column;align-items:flex-start}}
 </style>
+<%- include('partials/app-end') %>

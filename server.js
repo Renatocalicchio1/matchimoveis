@@ -1,5 +1,20 @@
 require("dotenv").config();
 const express = require('express');
+// Inicializa arquivos de dados se nao existirem
+const arquivos = {
+  'users.json': [],
+  'imoveis.json': [],
+  'data.json': [],
+  'visitas.json': [],
+  'notificacoes.json': []
+};
+Object.entries(arquivos).forEach(([nome, vazio]) => {
+    fs.writeFileSync(nome, JSON.stringify(vazio, null, 2));
+    console.log('Criado:', nome);
+  }
+});
+
+
 const fs = require('fs');
 const path = require('path');
 
@@ -167,11 +182,11 @@ app.post('/app/leads', upload.any(), async (req, res) => {
   }
 });
 
-
-app.get('/app/portais', (req,res)=>{
-  const portais = JSON.parse(require('fs').readFileSync('portais.json','utf8'));
-  res.render('app-portais', { user: req.session.user,  portais });
-});
+//
+////app.get('/app/portais', (req,res)=>{
+//  const portais = JSON.parse(require('fs').readFileSync('portais.json','utf8'));
+//  res.render('app-portais', { user: req.session.user,  portais });
+//});
 
 app.post('/app/portais', (req,res)=>{
   const ativos = [].concat(req.body.portais || []);
@@ -765,10 +780,10 @@ app.get('/app-imoveis', (req,res)=>{
   return res.redirect('/app/imoveis');
 });
 
-app.get('/app/portais', auth, (req,res)=>{
-  const portais = JSON.parse(require('fs').readFileSync('portais.json','utf8'));
-  res.render('app-portais', { user: req.session.user, portais });
-});
+////app.get('/app/portais', auth, (req,res)=>{
+//  const portais = JSON.parse(require('fs').readFileSync('portais.json','utf8'));
+//  res.render('app-portais', { user: req.session.user, portais });
+//});
 
 app.get('/app-xml', (req,res)=> res.redirect('/app-portais-xml'));
 app.get('/app-portais', (req,res)=> res.redirect('/app-portais-xml'));
@@ -941,20 +956,12 @@ app.get('/app/imoveis', auth, (req,res)=>{
 app.post('/app/excluir-xml', auth, (req,res)=>{
   const users = JSON.parse(fs.readFileSync('users.json','utf8'));
   const idx = users.findIndex(u => u.id === req.session.user.id);
+  console.log('idx:', idx, 'session id:', req.session.user && req.session.user.id);
   if (idx >= 0) {
     delete users[idx].xmlUrl;
     delete users[idx].xmlAtualizadoEm;
     delete users[idx].xmlTotal;
     fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
-    // Marca imoveis do usuario como inativo
-    const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
-    const atualizados = imoveis.map(i => {
-      if (String(i.userId || i.usuarioId || '') === String(req.session.user.id)) {
-        return { ...i, status: 'inativo', updatedAt: new Date().toISOString() };
-      }
-      return i;
-    });
-    fs.writeFileSync('imoveis.json', JSON.stringify(atualizados, null, 2));
   }
   res.redirect('/app/cadastro');
 });
@@ -966,10 +973,10 @@ app.get('/app/cadastro', auth, (req,res)=>{
   res.render('app-cadastro', { user: req.session.user, xmlFeeds });
 });
 
-app.get('/app/portais', auth, (req,res)=>{
-  const portais = fs.existsSync('portais.json') ? JSON.parse(fs.readFileSync('portais.json','utf8')) : [];
-  res.render('app-portais', { user: req.session.user, portais });
-});
+////app.get('/app/portais', auth, (req,res)=>{
+//  const portais = fs.existsSync('portais.json') ? JSON.parse(fs.readFileSync('portais.json','utf8')) : [];
+//  res.render('app-portais', { user: req.session.user, portais });
+//});
 
 app.get('/app/perfil', auth, (req,res)=>{
   res.render('app-perfil', { user: req.session.user });
@@ -2302,3 +2309,168 @@ function registrarHistoricoImovelLead(lead, tipoEvento, imovel){
     }
   });
 }
+
+app.post('/app/gerar-xml', auth, (req,res)=>{
+  const { portal, ids } = req.body;
+  const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const imoveis = filtrarPorUsuario(todos, req.session.user);
+  const selecionados = imoveis.filter(i => ids.includes(String(i.idExterno||i.id)) && (i.status||'ativo').toLowerCase() === 'ativo');
+  const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
+  const filename = 'feed-'+portal+'-'+token+'.xml';
+  const xml = gerarXMLPortal(selecionados, portal);
+  fs.writeFileSync(filename, xml, 'utf8');
+  res.json({ url: '/'+filename, total: selecionados.length });
+});
+
+function gerarXMLPortal(imoveis, portal){
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<listingDataFeed>
+  <header>
+    <provider>MatchImoveis</provider>
+    <email>contato@matchimoveis.com</email>
+  </header>
+  <listings>
+`;
+  imoveis.forEach(i => {
+    xml += `
+    <listing>
+      <listingID>${i.idExterno || i.id}</listingID>
+      <title>${i.tipo || ''} em ${i.bairro || ''}</title>
+      <description>${(i.descricao || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</description>
+      <price>${i.valor_imovel || 0}</price>
+      <livingArea>${i.area_m2 || 0}</livingArea>
+      <bedrooms>${i.quartos || 0}</bedrooms>
+      <bathrooms>${i.banheiros || 0}</bathrooms>
+      <suites>${i.suites || 0}</suites>
+      <garageSpaces>${i.vagas || 0}</garageSpaces>
+      <propertyType>${i.tipo || ''}</propertyType>
+      <transactionType>${i.transacao || 'venda'}</transactionType>
+      <address>
+        <street>${i.endereco || ''}</street>
+        <neighborhood>${i.bairro || ''}</neighborhood>
+        <city>${i.cidade || ''}</city>
+        <state>${i.estado || 'SP'}</state>
+        <zipCode>${i.cep || ''}</zipCode>
+      </address>
+      <media>
+        ${(i.fotos||[]).map(f=>`<image><url>${f}</url></image>`).join('\n        ')}
+      </media>
+    </listing>`;
+  });
+  xml += `\n  </listings>\n</listingDataFeed>`;
+  return xml;
+}
+
+function gerarXMLPortal(imoveis, portal){
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<listingDataFeed>
+  <header>
+    <provider>MatchImoveis</provider>
+    <email>contato@matchimoveis.com</email>
+  </header>
+  <listings>
+`;
+  imoveis.forEach(i => {
+    const prop = i.proprietario || {};
+    xml += `
+    <listing>
+      <listingID>${i.idExterno || i.id}</listingID>
+      <title>${i.tipo || ''} em ${i.bairro || ''}</title>
+      <description>${(i.descricao || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</description>
+      <price>${i.valor_imovel || 0}</price>
+      <livingArea>${i.area_m2 || 0}</livingArea>
+      <bedrooms>${i.quartos || 0}</bedrooms>
+      <bathrooms>${i.banheiros || 0}</bathrooms>
+      <suites>${i.suites || 0}</suites>
+      <garageSpaces>${i.vagas || 0}</garageSpaces>
+      <propertyType>${i.tipo || ''}</propertyType>
+      <transactionType>${i.transacao || 'venda'}</transactionType>
+      <address>
+        <street>${i.endereco || ''}</street>
+        <neighborhood>${i.bairro || ''}</neighborhood>
+        <city>${i.cidade || ''}</city>
+        <state>${i.estado || 'SP'}</state>
+        <zipCode>${i.cep || ''}</zipCode>
+      </address>
+      ${prop.nome ? `<owner>
+        <name>${prop.nome}</name>
+        <phone>${prop.telefone || prop.celular || ''}</phone>
+        <email>${prop.email || ''}</email>
+        <reference>${prop.referenciaTecimob || ''}</reference>
+      </owner>` : ''}
+      <media>
+        ${(i.fotos||[]).map(f=>`<image><url>${f}</url></image>`).join('\n        ')}
+      </media>
+    </listing>`;
+  });
+  xml += `\n  </listings>\n</listingDataFeed>`;
+  return xml;
+}
+
+function gerarXMLPortal(imoveis, portal){
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<listingDataFeed>
+  <header>
+    <provider>MatchImoveis</provider>
+    <email>contato@matchimoveis.com</email>
+  </header>
+  <listings>
+`;
+  imoveis.forEach(i => {
+    const prop = i.proprietario || {};
+    xml += `
+    <listing>
+      <listingID>${i.idExterno || i.id}</listingID>
+      <title>${i.tipo || ''} em ${i.bairro || ''}</title>
+      <description>${(i.descricao || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</description>
+      <price>${i.valor_imovel || 0}</price>
+      <livingArea>${i.area_m2 || 0}</livingArea>
+      <bedrooms>${i.quartos || 0}</bedrooms>
+      <bathrooms>${i.banheiros || 0}</bathrooms>
+      <suites>${i.suites || 0}</suites>
+      <garageSpaces>${i.vagas || 0}</garageSpaces>
+      <propertyType>${i.tipo || ''}</propertyType>
+      <transactionType>${i.transacao || 'venda'}</transactionType>
+      <address>
+        <street>${i.endereco || ''}</street>
+        <neighborhood>${i.bairro || ''}</neighborhood>
+        <city>${i.cidade || ''}</city>
+        <state>${i.estado || 'SP'}</state>
+        <zipCode>${i.cep || ''}</zipCode>
+      </address>
+      ${prop.nome ? `<owner>
+        <name>${prop.nome}</name>
+        <phone>${prop.telefone || prop.celular || ''}</phone>
+        <email>${prop.email || ''}</email>
+        <reference>${prop.referenciaTecimob || ''}</reference>
+      </owner>` : ''}
+      <media>
+        ${(i.fotos||[]).map(f=>`<image><url>${f}</url></image>`).join('\n        ')}
+      </media>
+    </listing>`;
+  });
+  xml += `\n  </listings>\n</listingDataFeed>`;
+  return xml;
+}
+
+app.get('/app/portais', auth, (req,res)=>{
+  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i'];
+  const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const imoveis = filtrarPorUsuario(todos, req.session.user);
+  const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
+  const xmlFeeds = portais.map(portal => {
+    const filename = 'feed-'+portal+'-'+token+'.xml';
+    let total = 0;
+    let existe = false;
+    let geradoEm = null;
+    if(fs.existsSync(filename)){
+      existe = true;
+      const stat = fs.statSync(filename);
+      geradoEm = stat.mtime;
+      const conteudo = fs.readFileSync(filename,'utf8');
+      total = (conteudo.match(/<listing>/g)||[]).length;
+    }
+    return { portal, filename, url: '/'+filename, existe, total, geradoEm };
+  });
+  res.render('app-portais', { user: req.session.user, xmlFeeds });
+});

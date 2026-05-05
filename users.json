@@ -18,9 +18,6 @@
     "celular": "47992010888",
     "tipo": "imobiliaria",
     "ativo": true,
-    "codigoUsuario": "RAN-0888",
-    "xmlUrl": "https://sistema.rankim.com.br/integration/fe3821a6531973b1433c4abfead1805d6f6e0378/vivareal.xml",
-    "xmlAtualizadoEm": "2026-05-04T23:35:52.780Z",
-    "xmlTotal": 2741
+    "codigoUsuario": "RAN-0888"
   }
 ]

@@ -1009,6 +1009,42 @@ app.get('/app/leads', auth, (req,res)=>{
   });
 });
 
+
+app.get('/admin/leads', (req,res)=>{
+  const raw = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
+  const data = Array.isArray(raw) ? raw : (raw.results || []);
+
+  // Admin vê todas as leads do data.json
+  const leads = data;
+
+  leads.forEach(l => {
+    if (!l.matches || l.matches.length === 0) {
+      l.matches = l.matchesBase || [];
+      l.matchCount = l.matchCountBase || 0;
+    }
+  });
+
+  leads.sort((a, b) => {
+    const da = new Date(a.data_cadastro || a.createdAt || 0);
+    const db = new Date(b.data_cadastro || b.createdAt || 0);
+    return db - da;
+  });
+
+  const totalMatches = leads.reduce((sum,item)=> sum + ((item.matches && item.matches.length) || 0), 0);
+
+  res.render('app-leads', {
+    user: { ...req.session.user, tipo: 'admin', nome: 'Admin' },
+    active: 'leads',
+    leads,
+    stats: {
+      totalLeads: leads.length,
+      comMatch: leads.filter(i => i.matches && i.matches.length).length,
+      totalMatches,
+      pendentes: leads.filter(i => !i.matches || !i.matches.length).length
+    }
+  });
+});
+
 app.get('/app/visitas', auth, (req,res)=>{
   const todasVisitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
   const user = req.session.user;
@@ -1022,6 +1058,75 @@ app.get('/app/visitas', auth, (req,res)=>{
 app.get('/logout', (req,res)=>{
   if (req.session) req.session.destroy(()=>res.redirect('/login'));
   else res.redirect('/login');
+});
+
+
+// WEBHOOK IMOVELWEB / GRUPO QUINTOANDAR - RECEBE LEADS
+app.post('/webhook/imovelweb', (req, res) => {
+  try {
+    const body = req.body || {};
+    const fs = require('fs');
+
+    console.log('📩 LEAD IMOVELWEB RECEBIDO:', body);
+
+    const file = 'data.json';
+    let data = [];
+
+    if (fs.existsSync(file)) {
+      const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
+      data = Array.isArray(raw) ? raw : (raw.results || []);
+    }
+
+    const eventId = body.idEvento || body.eventId || body.eventoId || body.id || '';
+    const tipoEvento = body.tipoEvento || body.eventType || '';
+
+    const lead = {
+      id: Date.now(),
+      eventId,
+      tipoEvento,
+
+      nome: body.nome || body.name || body.txtNome || '',
+      email: body.email || body.txtEmail || '',
+      contato: body.telefone || body.phoneNumber || body.phone || body.txtTelefone || '',
+      telefone: body.telefone || body.phoneNumber || body.phone || body.txtTelefone || '',
+      mensagem: body.mensagem || body.message || body.txtMensagem || '',
+
+      idAnuncio: body.referencia || body.reference || body.clientListingId || body.codigoAnuncio || body.codigoAviso || body.originListingId || '',
+      referencia: body.referencia || body.reference || body.clientListingId || '',
+      codigoDoAnunciante: body.codigoDoAnunciante || body.internalReference || body.claveInterna || '',
+
+      fonte: 'ImovelWeb',
+      origem: 'ImovelWeb',
+      origemEntrada: 'webhook_imovelweb',
+      leadOrigin: body.leadOrigin || 'ImovelWeb',
+
+      userId: 'admin',
+      usuarioId: 'admin',
+      corretorId: 'admin',
+
+      status: 'novo',
+      processado: false,
+      matchCount: 0,
+      matches: [],
+
+      data_cadastro: body.dataRegistro || body.registerDate || body.timestamp || new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+
+      rawWebhook: body
+    };
+
+    const duplicated = eventId && data.some(l => String(l.eventId || '') === String(eventId));
+
+    if (!duplicated) {
+      data.push(lead);
+      fs.writeFileSync(file, JSON.stringify(data, null, 2));
+    }
+
+    res.status(200).send('OK');
+  } catch (err) {
+    console.error('Erro no webhook ImovelWeb:', err);
+    res.status(200).send('OK');
+  }
 });
 
 const PORT = process.env.PORT || port || 3000;
@@ -1561,7 +1666,7 @@ app.post('/process', upload.any(), async (req, res) => {
     if (!file) return res.send('Envie o arquivo');
 
     const { execSync } = require('child_process');
-    execSync(`node processAndMatch.js "${file.path}"`, { stdio: 'inherit' });
+    execSync(`node processLeads.js "${file.path}"`, { stdio: 'inherit' });
 
     return res.send('Importação iniciada. Você pode navegar normalmente.');
   } catch (err) {
@@ -2462,3 +2567,16 @@ app.get('/app/portais', auth, (req,res)=>{
   });
   res.render('app-portais', { user: req.session.user, xmlFeeds });
 });
+
+// AUTO LOGIN ADMIN (somente para admin/leads)
+app.use('/admin', (req, res, next) => {
+  if (!req.session.user) {
+    req.session.user = {
+      id: 'admin',
+      nome: 'Admin',
+      tipo: 'admin'
+    };
+  }
+  next();
+});
+

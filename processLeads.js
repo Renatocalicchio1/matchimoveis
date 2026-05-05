@@ -1,6 +1,5 @@
 const fs = require('fs');
 const XLSX = require('xlsx');
-const { extractProperty } = require('./services/extractor');
 
 const file = process.argv[2];
 if (!file) {
@@ -115,26 +114,7 @@ function readRows(file) {
       continue;
     }
 
-    console.log('EXTRAINDO:', lead.id, lead.url);
-
-    let origin = {};
-    try {
-      origin = await extractProperty({ listingUrl: lead.url, listingId: lead.id }, lead);
-    } catch (e) {
-      origin = { extractionStatus: 'erro', error: e.message, url: lead.url };
-    }
-
-    lead.origin = origin;
-    lead.bairro = origin.bairro || lead.bairro;
-    lead.tipo = origin.tipo || lead.tipo;
-    lead.valor_imovel = origin.valor_imovel || lead.valor_imovel;
-    lead.area_m2 = origin.area_m2 || 0;
-    lead.quartos = origin.quartos || 0;
-    lead.suites = origin.suites || 0;
-    lead.banheiros = origin.banheiros || 0;
-    lead.vagas = origin.vagas || 0;
-    lead.extractionStatus = origin.extractionStatus || 'ok';
-
+    
     existing.push(lead);
     adicionados++;
 

@@ -1,18 +1,6 @@
 require("dotenv").config();
 const express = require('express');
-// Inicializa arquivos de dados se nao existirem
-const arquivos = {
-  'users.json': [],
-  'imoveis.json': [],
-  'data.json': [],
-  'visitas.json': [],
-  'notificacoes.json': []
-};
-Object.entries(arquivos).forEach(([nome, vazio]) => {
-    fs.writeFileSync(nome, JSON.stringify(vazio, null, 2));
-    console.log('Criado:', nome);
-  }
-});
+
 
 
 const fs = require('fs');
@@ -2085,8 +2073,8 @@ function gerarXMLPortais(){
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
-    <provider>MatchImoveis</provider>
-    <email>contato@matchimoveis.com</email>
+    <provider>Rankim</provider>
+    <email>renato@rankim.com.br</email>
   </header>
   <listings>
 `;
@@ -2155,8 +2143,8 @@ function gerarXMLPortais(){
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
-    <provider>MatchImoveis</provider>
-    <email>contato@matchimoveis.com</email>
+    <provider>Rankim</provider>
+    <email>renato@rankim.com.br</email>
   </header>
   <listings>
 `;
@@ -2326,8 +2314,8 @@ function gerarXMLPortal(imoveis, portal){
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
-    <provider>MatchImoveis</provider>
-    <email>contato@matchimoveis.com</email>
+    <provider>Rankim</provider>
+    <email>renato@rankim.com.br</email>
   </header>
   <listings>
 `;
@@ -2365,8 +2353,8 @@ function gerarXMLPortal(imoveis, portal){
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
-    <provider>MatchImoveis</provider>
-    <email>contato@matchimoveis.com</email>
+    <provider>Rankim</provider>
+    <email>renato@rankim.com.br</email>
   </header>
   <listings>
 `;
@@ -2411,8 +2399,8 @@ function gerarXMLPortal(imoveis, portal){
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
-    <provider>MatchImoveis</provider>
-    <email>contato@matchimoveis.com</email>
+    <provider>Rankim</provider>
+    <email>renato@rankim.com.br</email>
   </header>
   <listings>
 `;

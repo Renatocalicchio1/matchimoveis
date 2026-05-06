@@ -34,5 +34,53 @@
     "imovelId": "CAPJUJU024",
     "lida": false,
     "criadaEm": "2026-05-06T20:35:15.452Z"
+  },
+  {
+    "id": "1778108627798",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "rere solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778108627781",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "2026-05-06T23:03:47.798Z"
+  },
+  {
+    "id": "1778108647679",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "rere solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778108627781",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "2026-05-06T23:04:07.679Z"
+  },
+  {
+    "id": "1778108658045",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "bbbb solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778108627781",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "2026-05-06T23:04:18.045Z"
+  },
+  {
+    "id": "1778108677230",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "werewrwerer solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778108627781",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "2026-05-06T23:04:37.230Z"
   }
 ]

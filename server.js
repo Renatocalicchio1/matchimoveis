@@ -60,7 +60,7 @@ function loadImoveis() {
 // ====== ROTAS ======
 
 app.get('/', (req,res)=>{
-  res.render('index', { user: req.session.user,  flash: null, result: { stats: {}, filters: { cities: [], neighborhoods: [], bairros: [], status: [], scores: [], matchStatuses: [{ value: 'all', label: 'Todos' }, { value: 'with-match', label: 'Com match' }, { value: 'without-match', label: 'Sem match' }] }, results: [], duplicates: [] } });
+  res.redirect('/login');
 });
 
 

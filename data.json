@@ -472,6 +472,19 @@
           "valor": 418000,
           "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
         }
+      },
+      {
+        "tipoEvento": "visualizou_vitrine",
+        "data": "2026-05-06T23:03:35.078Z",
+        "idImovel": "3034436969",
+        "imovel": {
+          "id": "3034436969",
+          "tipo": "Apartamento",
+          "bairro": "Vila Olímpia",
+          "cidade": "São Paulo",
+          "valor": 418000,
+          "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
+        }
       }
     ],
     "matchQuintoAndarStatus": "ok",
@@ -43746,6 +43759,39 @@
     "corretorTelefone": "",
     "data_cadastro": "2026-05-06T02:50:10.791Z",
     "data_cadastro_br": "05/05/2026, 23:50:10",
+    "matches": [],
+    "matchCount": 0
+  },
+  {
+    "id": "1778108627781",
+    "nome": "werewrwerer",
+    "contato": "ewrewrewr",
+    "telefone": "ewrewrewr",
+    "fonte": "MatchImóveis",
+    "origem": "pagina_externa_imovel",
+    "canal": "WhatsApp",
+    "imovel_interesse": "CAPRAFA121",
+    "titulo_interesse": "Lindo Studio em Vila Olímpia com 26m²!",
+    "tipo": "Apartamento",
+    "bairro": "Vila Olímpia",
+    "cidade": "São Paulo",
+    "estado": "São Paulo",
+    "valor_imovel": 455000,
+    "area_m2": 26,
+    "quartos": 1,
+    "suites": 0,
+    "banheiros": 1,
+    "vagas": 0,
+    "url": "http://localhost:3000/imovel/CAPRAFA121",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "usuarioPerfil": "",
+    "usuarioTelefone": "",
+    "corretorId": "imobiliaria-47991919191",
+    "corretorNome": "",
+    "corretorTelefone": "",
+    "data_cadastro": "2026-05-06T23:04:37.097Z",
+    "data_cadastro_br": "06/05/2026, 20:04:37",
     "matches": [],
     "matchCount": 0
   }

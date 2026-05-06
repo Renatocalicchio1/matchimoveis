@@ -6,7 +6,8 @@
     "celular": "47991919191",
     "tipo": "imobiliaria",
     "ativo": true,
-    "codigoUsuario": "RAN-9191"
+    "codigoUsuario": "RAN-9191",
+    "senha": "kkk"
   },
   {
     "id": "imobiliaria-47992010888",
@@ -15,6 +16,7 @@
     "celular": "47992010888",
     "tipo": "imobiliaria",
     "ativo": true,
-    "codigoUsuario": "RAN-0888"
+    "codigoUsuario": "RAN-0888",
+    "senha": "kkk"
   }
 ]

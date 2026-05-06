@@ -1,0 +1,98 @@
+[
+  {
+    "id": "1777942898270",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "teste 2 solicitou visita para Sobrado Tríplex -  Vila Curuçá / Pq. das Nações",
+    "usuarioId": "imobiliaria-47992010888",
+    "usuarioNome": "",
+    "leadId": "1777942882995",
+    "imovelId": "734754",
+    "lida": false,
+    "criadaEm": "2026-05-05T01:01:38.270Z"
+  },
+  {
+    "id": "1778029246470",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "reanto solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "",
+    "usuarioNome": "",
+    "leadId": "1778029235473",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "2026-05-06T01:00:46.470Z"
+  },
+  {
+    "id": "1778029423120",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "renato solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "",
+    "usuarioNome": "",
+    "leadId": "1778029423100",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "2026-05-06T01:03:43.120Z"
+  },
+  {
+    "id": "1778029445062",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "12442 solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "",
+    "usuarioNome": "",
+    "leadId": "1778029432960",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "2026-05-06T01:04:05.062Z"
+  },
+  {
+    "id": "1778031701439",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "renato solicitou visita para Lindo Studio no Condomínio Today Vila Olímpia com 27m²!",
+    "usuarioId": "",
+    "usuarioNome": "",
+    "leadId": "1778031701414",
+    "imovelId": "CAPRAFA122",
+    "lida": false,
+    "criadaEm": "2026-05-06T01:41:41.439Z"
+  },
+  {
+    "id": "1778031717029",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "e32e2 solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "",
+    "usuarioNome": "",
+    "leadId": "1778031717014",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "2026-05-06T01:41:57.029Z"
+  },
+  {
+    "id": "1778035794564",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "renato solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778035794538",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "2026-05-06T02:49:54.564Z"
+  },
+  {
+    "id": "1778035810944",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "3ee32 solicitou visita para Lindo Studio no Condomínio Today Vila Olímpia com 27m²!",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778035810926",
+    "imovelId": "CAPRAFA122",
+    "lida": false,
+    "criadaEm": "2026-05-06T02:50:10.944Z"
+  }
+]

@@ -3,11 +3,6 @@
 backups/
 
 # dados locais (não versionar)
-data.json
-imoveis.json
-leads.json
-visitas.json
-notificacoes.json
 
 # logs
 *.log

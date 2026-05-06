@@ -78,7 +78,7 @@ async function getPropertyDetails(url) {
         .map(img => img.src || img.dataset.src || '')
         .filter(src => src && src.startsWith('http') && (src.includes('quintoandar') || src.includes('cdn')) && !src.includes('logo') && !src.includes('icon') && src.match(/.(jpg|jpeg|png|webp)/i))
         .filter((v, i, a) => a.indexOf(v) === i)
-        .slice(0, 20);
+        .slice(0, 30);
 
       // Descrição
       const descSelectors = ['[data-testid="description"]', '.description', '#description', '[class*="descri"]', '[class*="detail"]'];

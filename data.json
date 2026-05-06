@@ -5159,7 +5159,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:25:38.182Z"
   },
   {
     "nome": "Mariana Ribeiro",
@@ -5189,7 +5191,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:28:16.014Z"
   },
   {
     "nome": "Debora",
@@ -5239,7 +5243,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:30:45.390Z"
   },
   {
     "nome": "Gustavo",
@@ -5309,7 +5315,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:33:34.508Z"
   },
   {
     "nome": "Kassio Eduardo Burgadon",
@@ -5339,7 +5347,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:36:21.451Z"
   },
   {
     "nome": "Fabio Reali",

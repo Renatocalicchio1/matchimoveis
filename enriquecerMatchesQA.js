@@ -21,13 +21,17 @@ async function main() {
       try {
         const details = await Promise.race([
           getPropertyDetails(m.url),
-          new Promise(resolve => setTimeout(() => resolve({}), 15000))
+          new Promise(resolve => setTimeout(() => resolve({}), 30000))
         ]);
 
-        if (details.fotos && details.fotos.length > 0) {
-          m.fotos = details.fotos;
+        const fotosLimpas = (details.fotos || []).filter(f => 
+          f.includes('quintoandar.com.br/img/') && !f.includes('cozy-assets')
+        );
+        const todasFotos = fotosLimpas.length > 0 ? fotosLimpas : (details.fotos || []).filter(f => !f.includes('cozy-assets'));
+        if (todasFotos.length > 0) {
+          m.fotos = todasFotos;
           atualizados++;
-          console.log(`  ✓ ${details.fotos.length} fotos`);
+          console.log(`  ✓ ${todasFotos.length} fotos`);
         } else {
           console.log(`  ✗ sem fotos`);
         }

@@ -25,10 +25,30 @@ async function getPropertyDetails(url) {
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForTimeout(5000);
+
     // Scroll para carregar imagens lazy
-    for(let i=0;i<6;i++){
+    for(let i=0;i<4;i++){
       await page.mouse.wheel(0, 3000);
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(800);
+    }
+
+    // Volta ao topo e clica no carrossel de fotos
+    await page.mouse.wheel(0, -99999);
+    await page.waitForTimeout(1000);
+
+    // Tenta clicar na foto principal para abrir galeria
+    try {
+      const fotoMain = await page.$('img[src*="quintoandar.com.br/img/"]');
+      if(fotoMain) { await fotoMain.click(); await page.waitForTimeout(1500); }
+    } catch(e) {}
+
+    // Clica na seta do carrossel 20 vezes para carregar fotos
+    for(let i=0;i<20;i++){
+      try {
+        const seta = await page.$('[aria-label="Next"], [aria-label="Próximo"], button[class*="next"], button[class*="Next"], button[class*="arrow"], [data-testid*="next"]');
+        if(seta){ await seta.click(); await page.waitForTimeout(600); }
+        else break;
+      } catch(e) { break; }
     }
 
     const data = await page.evaluate(() => {

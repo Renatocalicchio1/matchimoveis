@@ -617,3 +617,29 @@ Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-andrade
 Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-andrade-sao-paulo-sp-brasil
 Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-andrade-sao-paulo-sp-brasil/apartamento
 TOTAL CANDIDATOS: 35
+TOTAL CANDIDATOS ENRIQUECIDOS: 35
+sem match
+[48/380] Márcio (Centro) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 28
+TOTAL CANDIDATOS ENRIQUECIDOS: 28
+sem match
+[49/380] RODRIGO (Paraíso) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/paraiso-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/paraiso
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/paraiso
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/paraiso
+Buscando: https://www.quintoandar.com.br/comprar/imovel/paraiso-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/paraiso-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/paraiso-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/paraiso-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/paraiso-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/paraiso-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 32

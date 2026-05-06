@@ -2028,7 +2028,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:35:43.335Z"
   },
   {
     "nome": "Maria Aliene porto Porto",
@@ -2123,7 +2125,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1
+    "matchCountBase": 1,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:38:01.836Z"
   },
   {
     "nome": "Rafael",
@@ -2372,7 +2376,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 2
+    "matchCountBase": 2,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:41:26.763Z"
   },
   {
     "nome": "olusegun cid symed",
@@ -2442,7 +2448,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:44:24.018Z"
   },
   {
     "nome": "Adrian Ferraz Cardoso Lopes",
@@ -2472,7 +2480,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:47:51.915Z"
   },
   {
     "nome": "Marcelo",

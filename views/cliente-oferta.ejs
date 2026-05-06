@@ -50,7 +50,7 @@
 
 <div class="hero">
   <h1>Olá, <%= lead.nome || lead.clientName || 'cliente' %>! 👋</h1>
-  <p>Selecionamos <%= (lead.matches||[]).length %> imóvel<%= (lead.matches||[]).length !== 1 ? 'is' : '' %> parecido<%= (lead.matches||[]).length !== 1 ? 's' : '' %> com o que você busca.<br>Escolha os que gostou e solicite uma visita.</p>
+  <p>Selecionamos <%= (lead.matches||[]).length %> imóve<%= (lead.matches||[]).length !== 1 ? 'is' : 'l' %> parecido<%= (lead.matches||[]).length !== 1 ? 's' : '' %> com o que você busca.<br>Escolha os que gostou e solicite uma visita.</p>
 </div>
 
 <div class="container">

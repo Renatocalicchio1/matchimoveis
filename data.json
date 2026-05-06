@@ -8835,7 +8835,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:20:14.617Z"
   },
   {
     "nome": "Roberto",
@@ -8865,7 +8867,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:23:12.556Z"
   },
   {
     "nome": "Mauricio Luiz Cosenza",
@@ -8895,7 +8899,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:26:03.561Z"
   },
   {
     "nome": "Regiane",
@@ -8945,7 +8951,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:28:36.809Z"
   },
   {
     "nome": "Isabelle",
@@ -8995,7 +9003,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:31:37.651Z"
   },
   {
     "nome": "Lucas",

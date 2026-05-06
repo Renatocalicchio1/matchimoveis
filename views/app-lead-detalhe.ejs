@@ -258,7 +258,7 @@
         <% } %>
 
         <% if((lead.matches||[]).length) { %>
-          <a href="https://wa.me/55<%= (lead.contato||lead.telefone||'').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (lead.nome||'') + '! Separamos algumas oportunidades semelhantes ao que você buscou. Veja sua vitrine: http://localhost:3000/cliente/oferta/' + (lead.leadId || lead.id) + ' e agende sua visita!') %>" target="_blank" class="btn-acao" style="background:var(--brand);color:#fff">🔗 Enviar vitrine</a>
+          <a href="https://wa.me/55<%= (lead.contato||lead.telefone||'').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (lead.nome||'') + '! Separamos algumas oportunidades semelhantes ao que você buscou. Veja sua vitrine: https://matchimoveis.onrender.com/cliente/oferta/' + (lead.leadId || lead.id) + ' e agende sua visita!') %>" target="_blank" class="btn-acao" style="background:var(--brand);color:#fff">🔗 Enviar vitrine</a>
         <% } %>
       </div>
 

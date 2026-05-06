@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
 
         
         <div id="results-list" class="excel-results">
-          <% result.processed.forEach((item, idx) => { 
+          <% result.results.forEach((item, idx) => { 
             const status = item.ignored ? 'ignored' : item.origin.extractionStatus !== 'ok' ? 'pending' : (item.matches || []).length ? 'with_matches' : 'without_matches';
           %>
             <div class="excel-card" data-matched="<%= item.matchedAt || '' %>" data-city="<%= item.origin.cidade || '' %>" data-bairro="<%= item.origin.bairro || '' %>" data-status="<%= status %>" data-score="<%= item.bestScore || 0 %>" data-search="<%= [item.clientName, item.contact, item.email, item.origin.listingId, item.origin.bairro, item.origin.cidade].filter(Boolean).join(' ').toLowerCase() %>">

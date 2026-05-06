@@ -51,3 +51,54 @@ Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-bras
 TOTAL CANDIDATOS: 24
 TOTAL CANDIDATOS ENRIQUECIDOS: 24
 sem match
+[5/380] Mônica (Centro) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 24
+TOTAL CANDIDATOS ENRIQUECIDOS: 24
+sem match
+--- Salvo ---
+[6/380] Rebeca da silva moraes (Vila Curuçá) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-curuca-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-curuca
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/vila-curuca
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/vila-curuca
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-curuca-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-curuca-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-curuca-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-curuca-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-curuca-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-curuca-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 27
+TOTAL CANDIDATOS ENRIQUECIDOS: 27
+sem match
+[7/380] Flavia (Centro) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 24
+TOTAL CANDIDATOS ENRIQUECIDOS: 24
+sem match
+[8/380] Nayara (Rio Pequeno) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/rio-pequeno
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/rio-pequeno
+Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/rio-pequeno-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/rio-pequeno-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 34

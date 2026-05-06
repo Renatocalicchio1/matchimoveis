@@ -26,9 +26,9 @@ async function getPropertyDetails(url) {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForTimeout(5000);
     // Scroll para carregar imagens lazy
-    for(let i=0;i<3;i++){
+    for(let i=0;i<6;i++){
       await page.mouse.wheel(0, 3000);
-      await page.waitForTimeout(800);
+      await page.waitForTimeout(1000);
     }
 
     const data = await page.evaluate(() => {

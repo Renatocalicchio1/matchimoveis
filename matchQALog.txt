@@ -643,3 +643,56 @@ Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/paraiso-sao-
 Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/paraiso-sao-paulo-sp-brasil
 Buscando: https://www.quintoandar.com.br/comprar/imovel/paraiso-sao-paulo-sp-brasil/apartamento
 TOTAL CANDIDATOS: 32
+TOTAL CANDIDATOS ENRIQUECIDOS: 32
+sem match
+[50/380] Camila (Vila Prudente) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-prudente-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-prudente
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/vila-prudente
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/vila-prudente
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-prudente-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-prudente-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-prudente-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-prudente-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-prudente-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-prudente-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 43
+TOTAL CANDIDATOS ENRIQUECIDOS: 43
+sem match
+--- Salvo ---
+[51/380] Rafael (Centro) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 28
+TOTAL CANDIDATOS ENRIQUECIDOS: 28
+sem match
+[52/380] Rafael (Centro) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 28
+TOTAL CANDIDATOS ENRIQUECIDOS: 28
+sem match
+[53/380] Rafael (Centro) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 28

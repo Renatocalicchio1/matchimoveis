@@ -696,3 +696,43 @@ Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/centro-sao-p
 Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/centro-sao-paulo-sp-brasil
 Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil/apartamento
 TOTAL CANDIDATOS: 28
+TOTAL CANDIDATOS ENRIQUECIDOS: 28
+sem match
+[54/380] IVONETH (Bela Vista) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/bela-vista
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/bela-vista
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/bela-vista-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/bela-vista-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 34
+TOTAL CANDIDATOS ENRIQUECIDOS: 34
+sem match
+[55/380] Sergio (Vila Liviero) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-liviero-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-liviero
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/vila-liviero
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/vila-liviero
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-liviero-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-liviero-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-liviero-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-liviero-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-liviero-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-liviero-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 29
+TOTAL CANDIDATOS ENRIQUECIDOS: 29
+sem match
+--- Salvo ---
+[56/380] Izadora de Oliveira Sanches (Vila Anastácio) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-anastacio-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-anastacio
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/vila-anastacio
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/vila-anastacio
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-anastacio-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-anastacio-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-anastacio-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-anastacio-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-anastacio-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-anastacio-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 24

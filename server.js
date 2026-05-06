@@ -6,6 +6,28 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
+
+
+// Inicializa diretório de dados persistentes
+if (process.env.RENDER) {
+  if (!fs.existsSync('/opt/render/project/src/data')) {
+    fs.mkdirSync('/opt/render/project/src/data', { recursive: true });
+  }
+  // Copia JSONs do repo para o disco persistente se não existirem
+  ['data.json','visitas.json','notificacoes.json','users.json','imoveis.json'].forEach(file => {
+    const dest = '/opt/render/project/src/data/' + file;
+    const src = '/opt/render/project/src/' + file;
+    if (!fs.existsSync(dest) && fs.existsSync(src)) {
+      fs.copyFileSync(src, dest);
+      console.log('Copiado para disco persistente:', file);
+    }
+  });
+}
+
+// Caminho persistente no Render
+const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : '.';
+function dataPath(file) { return DATA_DIR + '/' + file; }
+
 const app = express();
 
 const session = require('express-session');
@@ -287,35 +309,35 @@ function marcarEtapaLead(lead, etapa){
 }
 
 app.get('/cliente/oferta/:leadId', (req,res)=>{
-  const leads = JSON.parse(fs.readFileSync('data.json','utf8'));
+  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
   const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
   if(!lead) return res.status(404).send('Lead não encontrado');
 
   lead.matches = lead.matchesBase || lead.matches || [];
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
-  fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
+  fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
   res.render('cliente-oferta', { user: null, lead });
 });
 
 app.get('/cliente/oferta/:leadId/escolher/:idx', (req,res)=>{
-  const leads = JSON.parse(fs.readFileSync('data.json','utf8'));
+  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
   const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
   if(!lead) return res.status(404).send('Lead não encontrado');
   const idx = Number(req.params.idx);
   lead.imovelEscolhido = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
-  fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
+  fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
   res.redirect('/cliente/oferta/'+req.params.leadId);
 });
 
 app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
-  const leads = JSON.parse(fs.readFileSync('data.json','utf8'));
+  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
   const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
   if(!lead) return res.status(404).send('Lead não encontrado');
   const idx = Number(req.params.idx);
   lead.imovelVisita = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
   lead.visitaSolicitadaEm = new Date().toISOString();
   registrarHistoricoImovelLead(lead, 'visita_solicitada', lead.imovelVisita);
-  fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
+  fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
 
   // Gravar em visitas.json vinculado ao dono da lead
   const imovel = lead.imovelVisita || {};
@@ -343,9 +365,9 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     data: new Date().toISOString(),
     data_br: new Date().toLocaleString('pt-BR')
   };
-  const visitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
+  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
   visitas.push(novaVisita);
-  fs.writeFileSync('visitas.json', JSON.stringify(visitas, null, 2));
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
 
   res.redirect('/cliente/oferta/'+req.params.leadId+'?visita=ok');
 });
@@ -454,7 +476,7 @@ function salvarHistoricoUpload(payload){
 app.post('/app-leads/:idx/match', async (req,res)=>{
   const usuario = req.session.user || { id:'antonio-11975720750', nome:'Antonio Eduardo', celular:'11975720750', telefone:'11975720750' };
 
-  const dataRaw = safeReadJsonAdmin('data.json', []);
+  const dataRaw = safeReadJsonAdmin(dataPath('data.json'), []);
   const data = Array.isArray(dataRaw) ? dataRaw : (dataRaw.results || []);
 
   const meusIndices = [];
@@ -511,7 +533,7 @@ app.post('/app-leads/:idx/match', async (req,res)=>{
       item.leadId = 'lead-' + realIndex + '-' + Date.now();
     }
 
-    fs.writeFileSync('data.json', JSON.stringify(data,null,2));
+    fs.writeFileSync(dataPath('data.json'), JSON.stringify(data,null,2));
 
     res.redirect('/app-leads');
   } catch(err) {
@@ -617,7 +639,7 @@ function filtrarPorUsuario(lista, user){
 app.get('/app', auth, (req,res)=> res.redirect('/app-home'));
 
 app.get('/app/notificacoes', auth, (req,res)=>{
-  const notificacoesAll = fs.existsSync('notificacoes.json') ? JSON.parse(fs.readFileSync('notificacoes.json','utf8')) : [];
+  const notificacoesAll = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
   const userId = String(req.session.user.id || '');
   const notificacoes = notificacoesAll
     .filter(n => String(n.usuarioId || '') === userId)
@@ -634,9 +656,9 @@ app.get('/app/notificacoes', auth, (req,res)=>{
 app.get('/app-home', auth, (req,res)=>{
   const user = req.session.user;
   const todosImoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
-  const todosLeads = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
-  const todasVisitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
-  const notificacoes = fs.existsSync('notificacoes.json') ? JSON.parse(fs.readFileSync('notificacoes.json','utf8')) : [];
+  const todosLeads = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
+  const todasVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const notificacoes = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
   const imoveis = filtrarPorUsuario(todosImoveis, user);
   const leadsArr = filtrarPorUsuario(Array.isArray(todosLeads) ? todosLeads : (todosLeads.results || []), user);
   const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
@@ -785,7 +807,7 @@ app.get('/app/importar-leads', auth, (req,res)=>{
 });
 
 app.get('/app/leads', auth, (req,res)=>{
-  const raw = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
+  const raw = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
   const data = Array.isArray(raw) ? raw : (raw.results || []);
   const leads = filtrarPorUsuario(data, req.session.user);
   // usa matchesBase (base interna) ou matches (externos)
@@ -821,7 +843,7 @@ app.get('/app/leads', auth, (req,res)=>{
 
 
 app.get('/app/visitas', auth, (req,res)=>{
-  const todasVisitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
+  const todasVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
   const user = req.session.user;
   const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
     String(v.corretorId || v.usuarioDestinoId || '') === String(user.id || '') ||
@@ -844,7 +866,7 @@ app.post('/webhook/imovelweb', (req, res) => {
 
     console.log('📩 LEAD IMOVELWEB RECEBIDO:', body);
 
-    const file = 'data.json';
+    const file = dataPath('data.json');
     let data = [];
 
     if (fs.existsSync(file)) {
@@ -962,7 +984,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
     try {
       console.log('🔎 Match QuintoAndar em background iniciado:', leadIdParam);
 
-      const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
+      const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
       const imoveis = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8')) : [];
 
       const lead = leads.find(l =>
@@ -978,7 +1000,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
       }
 
       lead.matchQuintoAndarStatus = 'processando';
-      fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+      fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
 
       const idOrigem = lead.imovel_interesse || lead.idAnuncio || lead.id_anuncio || lead.id;
       const imovelOrigem = imoveis.find(im =>
@@ -1093,7 +1115,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
       });
       */
 
-      const leadsAtualizados = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
+      const leadsAtualizados = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
       const idx = leadsAtualizados.findIndex(l =>
         String(l.leadId) === String(leadIdParam) ||
         String(l.id) === String(leadIdParam) ||
@@ -1106,7 +1128,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
         leadsAtualizados[idx].matchQuintoAndarCount = filtrados.length;
         leadsAtualizados[idx].matchQuintoAndarAt = new Date().toISOString();
         leadsAtualizados[idx].matchQuintoAndarStatus = 'finalizado';
-        fs.writeFileSync('./data.json', JSON.stringify(leadsAtualizados, null, 2));
+        fs.writeFileSync(dataPath('data.json'), JSON.stringify(leadsAtualizados, null, 2));
       }
 
       console.log('✅ Match QuintoAndar finalizado em background:', leadIdParam, filtrados.length);
@@ -1562,8 +1584,8 @@ app.post('/api/lead-interesse', (req, res) => {
 
     const agora = new Date();
 
-    const leads = fs.existsSync('./data.json')
-      ? JSON.parse(fs.readFileSync('./data.json', 'utf8'))
+    const leads = fs.existsSync(dataPath('data.json'))
+      ? JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'))
       : [];
 
     const imoveis = fs.existsSync('./imoveis.json')
@@ -1644,7 +1666,7 @@ app.post('/api/lead-interesse', (req, res) => {
       console.log('✅ Lead existente atualizado para o dono do imóvel:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
     }
 
-    fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
 
     // Só cria visita quando a ação for solicitação de visita
     const querVisita =
@@ -1656,8 +1678,8 @@ app.post('/api/lead-interesse', (req, res) => {
       req.body.acao === 'solicitar_visita';
 
     if (querVisita) {
-      const visitas = fs.existsSync('./visitas.json')
-        ? JSON.parse(fs.readFileSync('./visitas.json', 'utf8'))
+      const visitas = fs.existsSync(dataPath('visitas.json'))
+        ? JSON.parse(fs.readFileSync(dataPath('visitas.json'), 'utf8'))
         : [];
 
       visitas.push({
@@ -1688,11 +1710,11 @@ app.post('/api/lead-interesse', (req, res) => {
         data_br: agora.toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo' })
       });
 
-      fs.writeFileSync('./visitas.json', JSON.stringify(visitas, null, 2));
+      fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
 
       try {
-        const notificacoes = fs.existsSync('./notificacoes.json')
-          ? JSON.parse(fs.readFileSync('./notificacoes.json', 'utf8'))
+        const notificacoes = fs.existsSync(dataPath('notificacoes.json'))
+          ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'), 'utf8'))
           : [];
 
         notificacoes.push({
@@ -1708,7 +1730,7 @@ app.post('/api/lead-interesse', (req, res) => {
           criadaEm: new Date().toISOString()
         });
 
-        fs.writeFileSync('./notificacoes.json', JSON.stringify(notificacoes, null, 2));
+        fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(notificacoes, null, 2));
         console.log('🔔 Notificação criada: nova visita');
       } catch(e) {
         console.log('Erro ao criar notificação:', e.message);
@@ -1742,7 +1764,7 @@ app.get('/imovel/:id', (req, res) => {
   }
 
   // Busca nos matches do QuintoAndar
-  const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
+  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
   let qaImovel = null;
   for (const lead of leads) {
     const matches = lead.matchesBase || [];
@@ -1778,7 +1800,7 @@ app.get('/imovel/:id', (req, res) => {
 
 // Detalhe da lead
 app.get('/app/lead/:id', auth, (req, res) => {
-  const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
+  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
   const lead = leads.find(l => String(l.id) === String(req.params.id));
   if (!lead) return res.status(404).send('Lead não encontrada');
 
@@ -1788,9 +1810,9 @@ app.get('/app/lead/:id', auth, (req, res) => {
     data: new Date().toISOString()
   });
 
-  fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+  fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
 
-  const visitas = fs.existsSync('./visitas.json') ? JSON.parse(fs.readFileSync('./visitas.json', 'utf8')) : [];
+  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'), 'utf8')) : [];
 
   const visitasDaLead = visitas.filter(v =>
     String(v.leadId || v.lead_id || '') === String(lead.leadId || '') ||
@@ -1817,7 +1839,7 @@ app.get('/app/lead/:id', auth, (req, res) => {
     });
     lead.matchCount = lead.matches.length;
     lead.bestScore = lead.matches[0] ? lead.matches[0].score : 0;
-    fs.writeFileSync('./data.json', JSON.stringify(leads, null, 2));
+    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
   } catch(e) {
     console.error('Erro match base interna lead:', e.message);
     matchesInternos = [];
@@ -2114,8 +2136,8 @@ function gerarXMLPortais(){
 app.post('/app/visitas/confirmar/:id', auth, (req,res)=>{
   const fs = require('fs');
 
-  let visitas = fs.existsSync('visitas.json')
-    ? JSON.parse(fs.readFileSync('visitas.json','utf8'))
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
     : [];
 
   visitas = visitas.map(v => {
@@ -2126,7 +2148,7 @@ app.post('/app/visitas/confirmar/:id', auth, (req,res)=>{
     return v;
   });
 
-  fs.writeFileSync('visitas.json', JSON.stringify(visitas,null,2));
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
 
   res.redirect('/app/visitas');
 });
@@ -2137,8 +2159,8 @@ app.post('/app/visitas/confirmar/:id', auth, (req,res)=>{
 app.post('/app/visitas/recusar/:id', auth, (req,res)=>{
   const fs = require('fs');
 
-  let visitas = fs.existsSync('visitas.json')
-    ? JSON.parse(fs.readFileSync('visitas.json','utf8'))
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
     : [];
 
   visitas = visitas.map(v => {
@@ -2149,7 +2171,7 @@ app.post('/app/visitas/recusar/:id', auth, (req,res)=>{
     return v;
   });
 
-  fs.writeFileSync('visitas.json', JSON.stringify(visitas,null,2));
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
 
   res.redirect('/app/visitas');
 });

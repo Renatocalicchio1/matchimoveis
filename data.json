@@ -1318,45 +1318,9 @@
         },
         "status": "ativo",
         "codigoUsuario": "RAN-9191"
-      },
-      {
-        "fonte": "QuintoAndar",
-        "id_anuncio_quintoandar": "895413386",
-        "id_anuncio": "895413386",
-        "url": "https://www.quintoandar.com.br/imovel/895413386/comprar/apartamento-2-quartos-jardim-umarizal-sao-paulo",
-        "tipo": "Apartamento",
-        "valor": 320000,
-        "area": 60,
-        "quartos": 2,
-        "suites": 0,
-        "banheiros": 2,
-        "vagas": 1,
-        "cidade": "São Paulo",
-        "estado": "SP",
-        "bairro": "Jardim Umarizal",
-        "score": 60,
-        "bestScore": 60
-      },
-      {
-        "fonte": "QuintoAndar",
-        "id_anuncio_quintoandar": "894694701",
-        "id_anuncio": "894694701",
-        "url": "https://www.quintoandar.com.br/imovel/894694701/comprar/apartamento-2-quartos-jardim-umarizal-sao-paulo",
-        "tipo": "Apartamento",
-        "valor": 320000,
-        "area": 60,
-        "quartos": 2,
-        "suites": 0,
-        "banheiros": 2,
-        "vagas": 1,
-        "cidade": "São Paulo",
-        "estado": "SP",
-        "bairro": "Jardim Umarizal",
-        "score": 60,
-        "bestScore": 60
       }
     ],
-    "matchCountBase": 3,
+    "matchCountBase": 1,
     "matchQuintoAndarStatus": "ok",
     "matchQuintoAndarAt": "2026-05-06T13:53:05.576Z"
   },
@@ -33166,7 +33130,9 @@
     "vagas": 0,
     "logradouro": "Rua Padre João Manuel - lado ímpar 319",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Patricia",
@@ -33314,7 +33280,9 @@
     "vagas": 0,
     "logradouro": "Rua Sílvio de Moura 149",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Patricia",
@@ -33502,7 +33470,9 @@
     "vagas": 1,
     "logradouro": "Rua Juréia 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Bianca",
@@ -33710,7 +33680,9 @@
     "vagas": 1,
     "logradouro": "Rua Nestor Pestana 187",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Bia",
@@ -34158,7 +34130,9 @@
     "vagas": 2,
     "logradouro": "Hotel London - Rua dos Timbiras",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Claudilene Miranda",
@@ -34206,7 +34180,9 @@
     "vagas": 0,
     "logradouro": "Rua Aristódemo Gazzotti 128",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Fabiana",
@@ -34254,7 +34230,77 @@
     "vagas": 1,
     "logradouro": "Alameda Santos - de 1041 a 1437 - lado ímpar 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [
+      {
+        "idExterno": "CAPLHP145",
+        "idOriginal": "CAPLHP145",
+        "titulo": "Apartamento com 3 Quartos e 3 banheiros à Venda, 120 m² em Cerqueira César!",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Cerqueira César",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Alameda Santos",
+        "cep": "01419-002",
+        "latitude": -23.5645561,
+        "longitude": -46.6554097,
+        "valor_imovel": 1390000,
+        "condominio": 1115,
+        "iptu": 0,
+        "area_m2": 120,
+        "area_total": 120,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 3,
+        "vagas": 1,
+        "descricao": "Apartamento arejado e iluminado - muito bem localizado, atrás do prédio da Fiesp, a 50 metros da Avenida Paulista, Estação Trianon Masp. Rodeado de restaurantes e shoppings. \n\n\nAmplo apartamento localizado no Jardim Paulista.\nEste imóvel está localizado na Alameda Santos, uma das principais vias da região, repleta de comércio. Aqui você está próximo de mercados, farmácias, escolas, academias, hospitais e todo o comércio que a região oferece. Apenas a uma quadra da Avenida Paulista e da Estação Trianon Masp do metrô.\nEm uma torre única recentemente reformada com portaria física 24 horas. \ne uma vaga de garagem, este amplo apartamento de 117m² de área privativa, conta com 3 dormitórios (sendo 1 suíte), sala de estar/jantar, cozinha, banheiro social, uma excelente área de serviço, e dependência para empregada.\nTodos os dormitórios, banheiros e cozinha estão repletos de armários.\nEste lindo e amplo apartamento está em andar alto, e todos os ambientes contam com amplas janelas e uma vista totalmente aberta, trazendo muita ventilação, luminosidade e privacidade.\n\nCondomínio: R$ 1.115 IPTU: R$ 205 mensal.\n\nVisitas somente acompanhadas do corretor responsável e previamente agendadas",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ef7d25cc.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ef5c1eb0.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ef15c3ab.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ef377591.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ee9cd012.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ee7bde87.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403eec70aaf.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403eb00ac25.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403eef20dec.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ed566db8.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ed79528d.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403eda48cce.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403edc9c576.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403eded8e80.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ee152a85.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ee53e1b0.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ee355641.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403eb234677.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403eb4f26ee.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212453/ij321NUC_21245368403ed1d0e28.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.568Z",
+        "updatedAt": "2026-05-05T16:03:39.568Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.568Z",
+        "proprietario": {
+          "nome": "Mônica M",
+          "telefone": "11 96316.1810",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191"
+      }
+    ],
+    "matchCountBase": 1
   },
   {
     "nome": "Anderson",
@@ -34362,7 +34408,9 @@
     "vagas": 0,
     "logradouro": "Rua Martins Fontes 197",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Alex",
@@ -34390,7 +34438,9 @@
     "vagas": 0,
     "logradouro": "Rua Oscar Cintra Gordinho 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Alex",
@@ -34418,7 +34468,105 @@
     "vagas": 1,
     "logradouro": "Rua João Adolfo 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [
+      {
+        "idExterno": "DMYCAP591",
+        "idOriginal": "DMYCAP591",
+        "titulo": "Apartamento no Centro de SP com 50m², 1 quarto, 1 suíte, 1 vaga.",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Centro",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Major Quedinho",
+        "cep": "01050-030",
+        "latitude": -23.5487563,
+        "longitude": -46.6453498,
+        "valor_imovel": 575000,
+        "condominio": 850,
+        "iptu": 0,
+        "area_m2": 50,
+        "area_total": 50,
+        "quartos": 1,
+        "suites": 1,
+        "banheiros": 2,
+        "vagas": 1,
+        "descricao": "ÓTIMA OPORTUNIDADE!!\n\nDados do imóvel:\n- inclusa varanda (já envidraçada).\n- Cozinha com móveis planejados\n- Suíte repleta de móveis planejados (Armários em três das 4 paredes). - \n- Banheiro com gabinete planejado, box de vidro (deslizante) e espelho.\n- Sala ampla com móveis planejados (estantes / bar).\n- Lavabo com espelho e gabinete planejado.\n- Água quente aquecida por gás, no banheiro e na cozinha (Aquecedor de passagem instalado e operando).\n- Piso em porcelanato na sala e quarto\n- Piso em cerâmica na cozinha, lavabo, varanda e banheiro\n\n\nCondomínio com controle de acesso (reconhecimento facial)\n- portaria 24h\n - serviço de concierge / arrumação básica (incluso)\n - piscina climatizada coberta\n - piscina descoberta\n - academia completa\n - salão de jogos\n - brinquedoteca\n - sala de internet / reuniões\n - salão de festas completo, com churrasqueira e forno de pizza\n - mini farmácia\n - mini mercado\n - coleta seletiva / reciclagem de lixo particular\n\n\nProximidades:\nLocalizado próximo ao Metrô (República e Anhangabaú a 600m de distância), Parque Augusta (600m de distãncia).",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb2028d91_mI0OWZhNzQ3OWI1_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/c5c6a0bd?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/7e21ec05?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb268584a_TY3OWIwM2Y4ZDQ0_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/b2dfe101?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/f60a55dd?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb237865c_TQxNWFmYzliZmE4_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/95c75f0a?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/6dc2dabc?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb2ad32eb_DhkMjVkYjUyY2I5_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/5f4f55b3?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb2e301aa_zNmODg2ZDE0MDNk_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/438180dd?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb1d15125_Dg1MTZmZDFmMjRl_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/ad7114ee?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb31c751e_jcxM2I0Yjg4Y2Iz_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/af693c44?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb35c57f2_jg2NGM5MjEyODAx_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/55530854?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb3b52037_zk5ZWM2MTQ3NThk_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/ef642dd3?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb3e9bbf2_GQxYTE0ZDRlMDhh_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/0d49fde9?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb4567565_jY0NTI1MjZjNjQ0_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/4eefbd32?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb486640b_DhhYzk1NjhlMjEz_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/d5b80a27?preset=original",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/88626/iSn995uZqLQld68OD539d_8862665f9eb4c01bf8_2VjMmZmMzFjY2M2_o.jpg",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/b6556249?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/e6ed34ca?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/d53c0083?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/c205d210?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/f039a51c?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/4b97b329?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/da655054?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/9103ad0c?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/2ee63a5b?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/cc154062?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/e7e14c13?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/7a81f008?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/34d8ff3b?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/894cd869?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/1f02860f?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/e73a4996?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/d281ef0e?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/25b4cfb0?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/8e41a041?preset=original",
+          "https://pui.loft.com.br/listings/d9e4986b-ecec-4942-b3fc-6e1ec5973d48/photos/73e39a0a?preset=original"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.571Z",
+        "updatedAt": "2026-05-05T16:03:39.571Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.571Z",
+        "proprietario": {
+          "nome": "Luis Carlos",
+          "telefone": "11 96085.9779",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191"
+      }
+    ],
+    "matchCountBase": 1
   },
   {
     "nome": "Ademar",
@@ -34466,7 +34614,9 @@
     "vagas": 1,
     "logradouro": "Avenida Eliseu de Almeida 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Helena",
@@ -34494,7 +34644,9 @@
     "vagas": 1,
     "logradouro": "",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Monique",
@@ -34542,7 +34694,76 @@
     "vagas": 1,
     "logradouro": "Rua Luciano Silva 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [
+      {
+        "idExterno": "CAPRAFA368",
+        "idOriginal": "CAPRAFA368",
+        "titulo": "Apartamento em Vila das Belezas com 60 m²!",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Vila das Belezas",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Rua Luciano Silva",
+        "cep": "05841-000",
+        "latitude": -23.6455371,
+        "longitude": -46.7430525,
+        "valor_imovel": 350000,
+        "condominio": 486,
+        "iptu": 0,
+        "area_m2": 60,
+        "area_total": 60,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 2,
+        "vagas": 1,
+        "descricao": "Oportunidade imperdível! Lindo apartamento à venda com 3 quartos, sendo 1 suíte, 1 sala ampla e arejada, 1 vaga de garagem e 60 m² de área.\n\nLocalizado em um bairro tranquilo e seguro, este apartamento é perfeito para quem busca conforto e praticidade. Com acabamento de alta qualidade, o imóvel conta com móveis planejados e uma decoração moderna e elegante.\n\nAlém disso, o condomínio oferece uma infraestrutura completa, com área de lazer, piscina, salão de festas e portaria 24 horas. Tudo para garantir o máximo de comodidade e segurança para os moradores.\n\nCom portaria 24 horas, academia, gás encanado, churrasqueira e espaço gourmet na área comum, o Residencial Spazio San Gabriel é ideal para quem busca conforto e entretenimento.\n\nA proximidade com CEI Indir Monte Azul, Estação Vila Das Belezas, Hospital Campo Limpo, Estação Giovanni Gronchi, Terminal João Dias e Escola Estadual Professor Luiz Gonzaga Pinto e Silva adiciona praticidade a essa experiência.\n\nCondomínio:.R$486,00 IPTU:.R$400,00 mensal.\n\nNão perca a oportunidade de adquirir este maravilhoso apartamento e viver em um dos melhores lugares da cidade. Agende já sua visita e apaixone-se por este imóvel dos sonhos! Estamos à disposição para mais informações. Venha conferir!",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c07a5d7bd.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c092e79d6.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c09c29607.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c08fba384.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c0a0000d9.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c095a3435.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c0841ab5d.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c08a57a22.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c080bbbbf.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c08d1e4c5.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c07837322.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c0985be4f.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c0a924b43.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c0ac9f985.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c08723ce7.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c07d2b7f4.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c0a40d412.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c07340a3d.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212472/id9gF3_2124726841c07614135.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.568Z",
+        "updatedAt": "2026-05-05T16:03:39.568Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.568Z",
+        "proprietario": {
+          "nome": "Igor Nardeli",
+          "telefone": "11 97580.3949",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191"
+      }
+    ],
+    "matchCountBase": 1
   },
   {
     "nome": "Romario Teixeira",
@@ -34570,7 +34791,9 @@
     "vagas": 0,
     "logradouro": "CSE da Barra Funda Alexandre Vranjac - Avenida Doutor Abraão Ribeiro",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "evellyn",
@@ -34758,7 +34981,9 @@
     "vagas": 0,
     "logradouro": "Rua Doutor Afonso Baccari 100",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Argentina de Fátima da Rocha",
@@ -35006,7 +35231,9 @@
     "vagas": 2,
     "logradouro": "Rua Doutor Dolzani 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Edmilson",
@@ -35054,7 +35281,77 @@
     "vagas": 2,
     "logradouro": "Rua Manoel Antônio Pinto 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [
+      {
+        "idExterno": "CAPLHP099",
+        "idOriginal": "CAPLHP099",
+        "titulo": "Lindo Apartamento próximo a Avenida Giovani com 89 m²!",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Paraisópolis",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Rua Manoel Antônio Pinto",
+        "cep": "05663-020",
+        "latitude": null,
+        "longitude": null,
+        "valor_imovel": 240000,
+        "condominio": 1200,
+        "iptu": 0,
+        "area_m2": 89,
+        "area_total": 0,
+        "quartos": 2,
+        "suites": 0,
+        "banheiros": 2,
+        "vagas": 2,
+        "descricao": "Oportunidade com preço imperdível, este apartamento recentemente reformado de 89 metros possui 2 dormitórios, armários nos quartos inclusive no de serviço (que seria um terceiro dormitório), nos banheiros, na cozinha e na sala, e 2 vagas de garagem espaçosas.\n\nCondomínio com lazer variado, incluindo academia, piscina, churrasqueira, forno de pizza, salão de festas, espaço gourmet, playground, jardim e aquecimento central.\n\nLocalizado a poucos metros da Avenida Giovanni Gronchi, com comércio local variado. -\n\nCondomínio: R$ 1.200 IPTU: R$ 250 mensal.",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80b91bd40.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80b56930a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80b7412d4.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80a1d38e5.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80a56fcac.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80a96c56f.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80a399c33.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80a779613.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80aba9be0.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80b37b70f.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80b16ae46.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80ad9fb0e.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80af7e430.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a809ba073c.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80bae5247.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80bd1bf8f.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80bf919e5.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a809d167aa.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a809e740fc.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212209/ivd59I6986bmm12i5_212209681a80a00791f.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.570Z",
+        "updatedAt": "2026-05-05T16:03:39.570Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.570Z",
+        "proprietario": {
+          "nome": "Felipe Bertaginon",
+          "telefone": "11 97989.1701",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191"
+      }
+    ],
+    "matchCountBase": 1
   },
   {
     "nome": "Jacira Alves Oliveira",
@@ -35182,7 +35479,9 @@
     "vagas": 0,
     "logradouro": "FMU - Avenida Brigadeiro Luís Antônio",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Cremilda Guimarães dos Santos",
@@ -35290,7 +35589,9 @@
     "vagas": 1,
     "logradouro": "Rua Bartolomeu Silva 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "lia",
@@ -35398,7 +35699,9 @@
     "vagas": 2,
     "logradouro": "Rua Marcus Pereira 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Sandra Helena Pinto Da Silva",
@@ -35526,7 +35829,98 @@
     "vagas": 2,
     "logradouro": "Rua Conde de Porto Alegre - de 1091/1092 a 1529/1530 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [
+      {
+        "idExterno": "CAPJUJU032",
+        "idOriginal": "CAPJUJU032",
+        "titulo": "Apartamento Alto Padrão de 115m² com 3 Quartos e 2 Vagas à Venda no Campo Belo",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Campo Belo",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Conde de Porto Alegre",
+        "cep": "04608-002",
+        "latitude": -23.6218157,
+        "longitude": -46.6730478,
+        "valor_imovel": 1049000,
+        "condominio": 2000,
+        "iptu": 0,
+        "area_m2": 115,
+        "area_total": 115,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 4,
+        "vagas": 2,
+        "descricao": "OPORTUNIDADE IMPERDÍVEL! MORE NO CONDOMÍNIO MAISON DARDENNES\n\nLindo Apartamento Alto Padrão de 115m², contendo ampla sala de jantar e estar, varanda fechada com vidro e uma vista panorâmica, cozinha grande planejada, área de serviço, 4 banheiros, 3 quartos sendo 1 suíte e 2 vagas de garagem.\n\nCondomínio com:\nPiscina, Quadra Poliesportiva, Salão de Festas, Brinquedoteca, Jardim, Elevador, Portaria 24 horas.\n\nÓtima localização! Perto do metro Campo Belo, escola, farmácia, academia, mercado, padaria, entre outros pontos de interesse.\n\nAGENDE JÁ SUA VISITA E NÃO PERCA ESSA OPORTUNIDADE!",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879535575227.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_21264768795358643d7.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879535c1dfb4.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953614b41c.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_21264768795366e501c.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879536416850.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879535e86ff9.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879537019ae7.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879536b62ece.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953bdbba4d.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953c1b3414.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953ba756f8.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953adc667d.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953b1e49e9.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953b72f96e.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953c57da4a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879537920bd4.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879537e435e8.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879538cc5878.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879538fc2f67.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879537b96311.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879539ca27aa.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953a141ce1.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953a798c92.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953a45996b.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_21264768795386838d5.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_21264768795388e3749.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_21264768795375c0a8e.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879537341377.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953807a8f2.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953833ade9.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953926f151.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_21264768795395b5c01.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_2126476879539860b95.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953d959016.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953ca3440a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953e516ac4.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953ddecf92.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953d3d16fa.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953ce56c95.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212647/iX1c73tzF47k8t4m9d54_212647687953e21637f.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.568Z",
+        "updatedAt": "2026-05-05T16:03:39.568Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.568Z",
+        "proprietario": {
+          "nome": "Luiz Carlos",
+          "telefone": "11 97864.7000",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191"
+      }
+    ],
+    "matchCountBase": 1
   },
   {
     "nome": "vitor hugo",
@@ -35654,7 +36048,72 @@
     "vagas": 0,
     "logradouro": "Rua José Bento 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [
+      {
+        "idExterno": "CAPRAFA508",
+        "idOriginal": "CAPRAFA508",
+        "titulo": "Apartamento em Cambuci com 60 m²!",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Cambuci",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Rua Jose Bento",
+        "cep": "01523-030",
+        "latitude": -23.5654042,
+        "longitude": -46.61741,
+        "valor_imovel": 340000,
+        "condominio": 0.1,
+        "iptu": 0,
+        "area_m2": 60,
+        "area_total": 60,
+        "quartos": 2,
+        "suites": 0,
+        "banheiros": 1,
+        "vagas": 0,
+        "descricao": "Apartamento à Venda Rua José Bento, Cambuci 60 m²!\nExcelente oportunidade no coração do Cambuci! Este apartamento de 60 m² está localizado a apenas duas quadras do Largo do Cambuci, com fácil acesso a comércio, serviços, transporte público e tudo o que você precisa no dia a dia.\n\nSituado em um prédio de apenas dois andares e com apenas quatro unidades no total, o imóvel oferece tranquilidade e privacidade. \nConta com:\n\n1 quarto amplo (com possibilidade de divisão para criar um segundo dormitório)\n\nAmpla área externa, que pode ser revertida em mais um quarto, escritório ou espaço gourmet\n\nCozinha, sala e banheiro bem distribuídos\n\nIsento de IPTU\n\nSem taxa de condomínio\n\nIdeal para quem busca praticidade, localização privilegiada e potencial de personalização!",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d69164f64.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d67e0748a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d68395c7b.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d6800f63b.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d67697072.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d67c474dc.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d67a82321.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d686a4397.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d694397fa.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d681bb5c2.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d6749b78c.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d68ba9d7a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d678765ec.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d68e42e98.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212719/i2sT7rw8217N2j7jf7_2127196877d689443aa.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.567Z",
+        "updatedAt": "2026-05-05T16:03:39.567Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.567Z",
+        "proprietario": {
+          "nome": "Douglas",
+          "telefone": "11 99512.8148",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191"
+      }
+    ],
+    "matchCountBase": 1
   },
   {
     "nome": "fernanda",
@@ -35822,7 +36281,9 @@
     "vagas": 1,
     "logradouro": "Avenida dos Imarés - até 579/580 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Magali",
@@ -35870,7 +36331,9 @@
     "vagas": 1,
     "logradouro": "Rua Piratininga - lado par 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "tatiane",
@@ -35938,7 +36401,9 @@
     "vagas": 1,
     "logradouro": "Rua Cotoxó - até 707/708 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Misaque",
@@ -36286,7 +36751,9 @@
     "vagas": 0,
     "logradouro": "Rua Santa Isabel 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "ADRIANA RAMALHO TERRONI",
@@ -36314,7 +36781,9 @@
     "vagas": 0,
     "logradouro": "Rua Carnaubeiras 92",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Estavam",
@@ -36442,7 +36911,9 @@
     "vagas": 2,
     "logradouro": "Rua Padre Machado - de 475/476 ao fim 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Simone",
@@ -36490,7 +36961,9 @@
     "vagas": 1,
     "logradouro": "Alameda dos Jurupis - de 1203/1204 a 1441/1442",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Yuri",
@@ -36578,7 +37051,9 @@
     "vagas": 3,
     "logradouro": "Rua Doutor Diogo de Faria - até 315/316 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Laíse",
@@ -36606,7 +37081,9 @@
     "vagas": 1,
     "logradouro": "Rua das Grumixamas",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Junia da Silva Gouvea",
@@ -36634,7 +37111,9 @@
     "vagas": 0,
     "logradouro": "Rua Mauro - até 339/340 190",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Deise",
@@ -36802,7 +37281,9 @@
     "vagas": 0,
     "logradouro": "Rua Marquês de Itu - lado ímpar 0",
     "indisponivel": false,
-    "extractionStatus": "ok"
+    "extractionStatus": "ok",
+    "matchesBase": [],
+    "matchCountBase": 0
   },
   {
     "nome": "Fabricio",

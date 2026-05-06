@@ -27,7 +27,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:30:15.839Z"
   },
   {
     "nome": "Bruno",
@@ -471,7 +473,9 @@
           "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
         }
       }
-    ]
+    ],
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:32:55.165Z"
   },
   {
     "nome": "Adriana",
@@ -541,7 +545,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:35:40.593Z"
   },
   {
     "nome": "Mônica",
@@ -571,7 +577,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:38:01.003Z"
   },
   {
     "nome": "Mônica",
@@ -601,7 +609,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:40:17.227Z"
   },
   {
     "nome": "Valeria",
@@ -711,7 +721,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:42:45.717Z"
   },
   {
     "nome": "ADALICIO BARBOSA DE SANTANA",
@@ -761,7 +773,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:45:01.571Z"
   },
   {
     "nome": "Tatiane",
@@ -911,7 +925,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1
+    "matchCountBase": 1,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:47:54.102Z"
   },
   {
     "nome": "Day suprema",
@@ -1205,7 +1221,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 4
+    "matchCountBase": 4,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:50:39.788Z"
   },
   {
     "nome": "Joice",
@@ -1338,7 +1356,9 @@
         "bestScore": 60
       }
     ],
-    "matchCountBase": 3
+    "matchCountBase": 3,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:53:05.576Z"
   },
   {
     "nome": "Joice",
@@ -1368,7 +1388,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:56:10.395Z"
   },
   {
     "nome": "Joice",
@@ -1398,7 +1420,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T13:58:44.678Z"
   },
   {
     "nome": "Joice",
@@ -1428,7 +1452,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:01:14.852Z"
   },
   {
     "nome": "yasminn",
@@ -1498,7 +1524,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:04:03.745Z"
   },
   {
     "nome": "Claudio Della Maggiora",
@@ -1528,7 +1556,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:07:22.825Z"
   },
   {
     "nome": "Phelipe Navarro",
@@ -1558,7 +1588,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:09:44.971Z"
   },
   {
     "nome": "manuel vitor",
@@ -1588,7 +1620,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:12:27.537Z"
   },
   {
     "nome": "Israel Ferreira",
@@ -1678,7 +1712,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:15:18.692Z"
   },
   {
     "nome": "Marivalda",
@@ -1708,7 +1744,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:17:39.823Z"
   },
   {
     "nome": "Clauce",
@@ -1738,7 +1776,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:20:06.932Z"
   },
   {
     "nome": "Diane",
@@ -1788,7 +1828,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:22:50.957Z"
   },
   {
     "nome": "ELISANGELA",
@@ -1858,7 +1900,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:25:16.914Z"
   },
   {
     "nome": "Giovane Queiroz Salmeron",
@@ -1888,7 +1932,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:28:03.240Z"
   },
   {
     "nome": "LU JUN",
@@ -1918,7 +1964,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:30:35.084Z"
   },
   {
     "nome": "Fabiano Rodrigues Bueno",
@@ -1948,7 +1996,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:33:11.913Z"
   },
   {
     "nome": "Marina",
@@ -1978,7 +2028,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:35:43.335Z"
   },
   {
     "nome": "Maria Aliene porto Porto",
@@ -2073,7 +2125,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1
+    "matchCountBase": 1,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:38:01.836Z"
   },
   {
     "nome": "Rafael",
@@ -2322,7 +2376,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 2
+    "matchCountBase": 2,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:41:26.763Z"
   },
   {
     "nome": "olusegun cid symed",
@@ -2392,7 +2448,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:44:24.018Z"
   },
   {
     "nome": "Adrian Ferraz Cardoso Lopes",
@@ -2422,7 +2480,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:47:51.915Z"
   },
   {
     "nome": "Marcelo",
@@ -2472,7 +2532,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:50:44.194Z"
   },
   {
     "nome": "Eunice",
@@ -2502,7 +2564,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:53:21.128Z"
   },
   {
     "nome": "Tatiana",
@@ -2532,7 +2596,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:55:55.971Z"
   },
   {
     "nome": "Larissa",
@@ -2562,7 +2628,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:58:44.488Z"
   },
   {
     "nome": "Graziela",
@@ -2612,7 +2680,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:01:08.888Z"
   },
   {
     "nome": "kelly",
@@ -2642,7 +2712,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:03:36.523Z"
   },
   {
     "nome": "Marcia",
@@ -2692,7 +2764,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:07:12.600Z"
   },
   {
     "nome": "Deise Elem da Silva Oliveira",
@@ -2722,7 +2796,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:09:43.438Z"
   },
   {
     "nome": "Deise Elem da Silva Oliveira",
@@ -2752,7 +2828,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:12:12.411Z"
   },
   {
     "nome": "Tatiana",
@@ -2782,7 +2860,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:14:39.629Z"
   },
   {
     "nome": "Flavio",
@@ -2852,7 +2932,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:17:25.421Z"
   },
   {
     "nome": "Gerson",
@@ -2882,7 +2964,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:21:05.205Z"
   },
   {
     "nome": "Renata",
@@ -2932,7 +3016,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:23:57.269Z"
   },
   {
     "nome": "Kettima",
@@ -3022,7 +3108,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:26:22.279Z"
   },
   {
     "nome": "tchiagodelvalle@gmail.com",
@@ -3052,7 +3140,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:29:22.787Z"
   },
   {
     "nome": "Evellyn",
@@ -3142,7 +3232,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:32:38.446Z"
   },
   {
     "nome": "Rita de Cassia",
@@ -4376,7 +4468,9 @@
           "url": "https://www.imovelweb.com.br/propiedades/-3026767609.html"
         }
       }
-    ]
+    ],
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:35:30.764Z"
   },
   {
     "nome": "Larissa",
@@ -4426,7 +4520,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:38:01.182Z"
   },
   {
     "nome": "RODRIGO",
@@ -4456,7 +4552,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:40:47.887Z"
   },
   {
     "nome": "Vanessa",
@@ -4526,7 +4624,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:44:04.322Z"
   },
   {
     "nome": "lucia",
@@ -4596,7 +4696,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:46:36.905Z"
   },
   {
     "nome": "Rafael",
@@ -4626,7 +4728,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:49:07.029Z"
   },
   {
     "nome": "Rafael",
@@ -4656,7 +4760,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:51:34.272Z"
   },
   {
     "nome": "IVONETH",
@@ -4686,7 +4792,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:54:22.501Z"
   },
   {
     "nome": "Aline",
@@ -4756,7 +4864,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:57:02.390Z"
   },
   {
     "nome": "Izadora de Oliveira Sanches",
@@ -4786,7 +4896,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:59:18.652Z"
   },
   {
     "nome": "Clarice",
@@ -4816,7 +4928,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:02:00.437Z"
   },
   {
     "nome": "Edson",
@@ -4913,7 +5027,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1
+    "matchCountBase": 1,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:04:19.945Z"
   },
   {
     "nome": "Jane",
@@ -4943,7 +5059,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:07:15.078Z"
   },
   {
     "nome": "JULIO ANTONIO VEIGA SERRASQUEIRO",
@@ -4973,7 +5091,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:10:44.141Z"
   },
   {
     "nome": "wanderlei soares dos santos",
@@ -5023,7 +5143,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:25:38.182Z"
   },
   {
     "nome": "Mariana Ribeiro",
@@ -5053,7 +5175,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:28:16.014Z"
   },
   {
     "nome": "Debora",
@@ -5103,7 +5227,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:30:45.390Z"
   },
   {
     "nome": "Gustavo",
@@ -5173,7 +5299,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:33:34.508Z"
   },
   {
     "nome": "Kassio Eduardo Burgadon",
@@ -5203,7 +5331,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:36:21.451Z"
   },
   {
     "nome": "Fabio Reali",
@@ -5233,7 +5363,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:38:53.610Z"
   },
   {
     "nome": "Fabio Reali",
@@ -5263,7 +5395,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:41:15.719Z"
   },
   {
     "nome": "Valter abade dos santos",
@@ -5393,7 +5527,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:43:54.733Z"
   },
   {
     "nome": "Nelson",
@@ -5540,7 +5676,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1
+    "matchCountBase": 1,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:46:52.989Z"
   },
   {
     "nome": "Regiane",
@@ -5610,7 +5748,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:49:39.844Z"
   },
   {
     "nome": "JULIO",
@@ -5660,7 +5800,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:52:43.529Z"
   },
   {
     "nome": "Felipe",
@@ -5690,7 +5832,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:55:44.723Z"
   },
   {
     "nome": "Jane",
@@ -5720,7 +5864,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:58:39.376Z"
   },
   {
     "nome": "tamiris",
@@ -5750,7 +5896,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:01:14.123Z"
   },
   {
     "nome": "Patricia",
@@ -5800,7 +5948,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:03:36.041Z"
   },
   {
     "nome": "Leticia Salú",
@@ -5930,7 +6080,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:06:31.787Z"
   },
   {
     "nome": "Luciana lima",
@@ -5980,7 +6132,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:09:28.990Z"
   },
   {
     "nome": "claudia",
@@ -6010,7 +6164,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:11:53.352Z"
   },
   {
     "nome": "Simone",
@@ -6080,7 +6236,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:14:37.957Z"
   },
   {
     "nome": "Claudio de Almeida",
@@ -6130,7 +6288,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:16:36.126Z"
   },
   {
     "nome": "MARCOS SALLES DA SILVA",
@@ -6180,7 +6340,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:19:03.945Z"
   },
   {
     "nome": "Giovanna",
@@ -6210,7 +6372,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:22:32.343Z"
   },
   {
     "nome": "ERLAINE",
@@ -6407,7 +6571,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 2
+    "matchCountBase": 2,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:25:33.152Z"
   },
   {
     "nome": "GISELLE",
@@ -6437,7 +6603,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:28:19.598Z"
   },
   {
     "nome": "sabrina andrade dos santos lima",
@@ -6467,7 +6635,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:31:30.648Z"
   },
   {
     "nome": "LUIZ ALBERTO BRITO DE MATOS",
@@ -6517,7 +6687,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:34:40.848Z"
   },
   {
     "nome": "Gilmar",
@@ -6547,7 +6719,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:37:50.896Z"
   },
   {
     "nome": "Enderson",
@@ -6577,7 +6751,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:40:57.912Z"
   },
   {
     "nome": "Juliana Gallo",
@@ -6607,7 +6783,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:43:43.491Z"
   },
   {
     "nome": "Juan Pablo",
@@ -6637,7 +6815,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:46:41.079Z"
   },
   {
     "nome": "Gerson",
@@ -6727,7 +6907,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:49:49.305Z"
   },
   {
     "nome": "Maritania",
@@ -6797,7 +6979,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:52:41.073Z"
   },
   {
     "nome": "MICHELLY AIRES",
@@ -6827,7 +7011,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:55:37.914Z"
   },
   {
     "nome": "Maria Christina de Amorim",
@@ -6877,7 +7063,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T17:58:15.102Z"
   },
   {
     "nome": "Luan Alves",
@@ -6947,7 +7135,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:01:11.935Z"
   },
   {
     "nome": "Cintia",
@@ -6977,7 +7167,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:03:50.076Z"
   },
   {
     "nome": "Letícia",
@@ -7087,7 +7279,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:06:29.728Z"
   },
   {
     "nome": "marina",
@@ -7117,7 +7311,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:09:09.478Z"
   },
   {
     "nome": "Miled",
@@ -7147,7 +7343,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:11:51.964Z"
   },
   {
     "nome": "brito",
@@ -7246,7 +7444,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1
+    "matchCountBase": 1,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:14:37.065Z"
   },
   {
     "nome": "Joao carlos Giannoni",
@@ -7316,7 +7516,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:17:11.934Z"
   },
   {
     "nome": "Antônio Carlos Barbosa",
@@ -7346,7 +7548,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:19:43.866Z"
   },
   {
     "nome": "Gislene",
@@ -7396,7 +7600,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:22:39.190Z"
   },
   {
     "nome": "Andressa Nunes",
@@ -7426,7 +7632,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:25:11.067Z"
   },
   {
     "nome": "Renata",
@@ -7456,7 +7664,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:27:43.915Z"
   },
   {
     "nome": "Andressa Nunes",
@@ -7486,7 +7696,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:30:16.298Z"
   },
   {
     "nome": "ALICE RODRIGUES FREITAS",
@@ -7584,7 +7796,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1
+    "matchCountBase": 1,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:32:37.343Z"
   },
   {
     "nome": "Antonio Eduardo",
@@ -7692,7 +7906,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1
+    "matchCountBase": 1,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:35:33.207Z"
   },
   {
     "nome": "Ricardo",
@@ -7742,7 +7958,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:38:33.231Z"
   },
   {
     "nome": "Letícia",
@@ -7812,7 +8030,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T18:41:10.696Z"
   },
   {
     "nome": "Emir",
@@ -34513,66 +34733,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Michelle Marcato Siqueira",
-    "email": "michelle.siqueira@pier.digital",
-    "contato": "11958294569",
-    "telefone2": "11958294569",
-    "id": "3023687690",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Paraisópolis",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023687690.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.824Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "André",
-    "email": "arq.ateixeira@gmail.com",
-    "contato": "11982096672",
-    "telefone2": "",
-    "id": "3021876147",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Alto de Pinheiros",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021876147.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.826Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "André",
-    "email": "arq.ateixeira@gmail.com",
-    "contato": "11982096672",
-    "telefone2": "",
-    "id": "3026779835",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Alto de Pinheiros",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026779835.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.827Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Tatiane",
     "email": "tscipola@gmail.com",
     "contato": "11959861666",
@@ -34581,16 +34741,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Vila Clementino",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 501305,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026780083.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.828Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 36,
+    "quartos": 2,
+    "suites": 0,
+    "banheiros": 1,
+    "vagas": 0,
+    "logradouro": "Rua Doutor Afonso Baccari 100",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Argentina de Fátima da Rocha",
@@ -34693,26 +34861,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Mayara Pereira",
-    "email": "mayarapereira8133@gmail.com",
-    "contato": "11981803024",
-    "telefone2": "",
-    "id": "3017351837",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Jardim Celeste",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017351837.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.836Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Debora",
     "email": "deborahahne@gmail.com",
     "contato": "949434047",
@@ -34793,66 +34941,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "ELISANGELA",
-    "email": "Ezukcon@gmail.com",
-    "contato": "11945377567",
-    "telefone2": "11945377567",
-    "id": "3023327288",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Regente Feijó",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023327288.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.841Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Enzo Bressiani Peres",
-    "email": "enzobressiani@gmail.com",
-    "contato": "65996505280",
-    "telefone2": "65996505280",
-    "id": "3017347388",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Nova Conceição",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017347388.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.842Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "REGIANE MARIA LINS",
-    "email": "regianelins2017@gmail.com",
-    "contato": "11920090334",
-    "telefone2": "",
-    "id": "3017340338",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Jabaquara",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017340338.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.843Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Daniela Alves",
     "email": "dan.rosealves@gmail.com",
     "contato": "937789478",
@@ -34868,66 +34956,6 @@
     "url": "https://www.imovelweb.com.br/propiedades/-3026787772.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.845Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "TATIANA SOUZA GONCALVES FERNANDES",
-    "email": "tati.cxb@gmail.com",
-    "contato": "21969238778",
-    "telefone2": "",
-    "id": "3017340067",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Pompéia",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017340067.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.847Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Jane",
-    "email": "jane.nakasone@gmail.com",
-    "contato": "11960191002",
-    "telefone2": "11960191002",
-    "id": "3017349821",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Lauzane Paulista",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017349821.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.848Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Marly",
-    "email": "Marlysfreitas@gmail.com",
-    "contato": "11996187424",
-    "telefone2": "11996187424",
-    "id": "3017349252",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Morumbi",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017349252.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.850Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
     "corretorId": "imobiliaria-47991919191"
@@ -34953,146 +34981,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Paulo",
-    "email": "phestudio@yahoo.com.br",
-    "contato": "11999023819",
-    "telefone2": "11999023819",
-    "id": "3017351684",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Água Branca",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017351684.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.852Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "André",
-    "email": "seuapemsp@gmail.com",
-    "contato": "11983541396",
-    "telefone2": "(11) 2064-9331",
-    "id": "3017352832",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Bela Vista",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017352832.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.853Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Monique",
-    "email": "Sousamonique2025@gmail.com",
-    "contato": "11998895847",
-    "telefone2": "11998895847",
-    "id": "3017348106",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Clarice",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017348106.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.857Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Antonio Rodrigues do Nascimento",
-    "email": "antoniorodrigues131@gmail.com",
-    "contato": "11997280951",
-    "telefone2": "11997280951",
-    "id": "3023687397",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Suzana",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023687397.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.857Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Carolina",
-    "email": "ca_chufalo@hotmail.com",
-    "contato": "11988609363",
-    "telefone2": "",
-    "id": "3017347883",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Andrade",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017347883.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.858Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Carolina",
-    "email": "ca_chufalo@hotmail.com",
-    "contato": "11988609363",
-    "telefone2": "",
-    "id": "3017350604",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Andrade",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017350604.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.860Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Daniel",
-    "email": "Daniel.castro7@hotmail.com",
-    "contato": "11954625156",
-    "telefone2": "11954625156",
-    "id": "3027730799",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Água Branca",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3027730799.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.863Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Maria",
     "email": "mpbarbieri@mail.com",
     "contato": "11996929180",
@@ -35101,16 +34989,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Jardim da Glória",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 1696000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026756672.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.864Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 129,
+    "quartos": 2,
+    "suites": 2,
+    "banheiros": 4,
+    "vagas": 2,
+    "logradouro": "Rua Doutor Dolzani 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Edmilson",
@@ -35133,26 +35029,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Carla",
-    "email": "milsignsvisual@gmail.com",
-    "contato": "11979705531",
-    "telefone2": "11979705531",
-    "id": "3023272153",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila das Mercês",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023272153.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.869Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Michelle",
     "email": "mimaedapetra@gmail.com",
     "contato": "11958294569",
@@ -35161,36 +35037,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Paraisópolis",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 240000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026770160.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.870Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Michelle",
-    "email": "mimaedapetra@gmail.com",
-    "contato": "11958294569",
-    "telefone2": "11958294569",
-    "id": "3027529243",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Paraisópolis",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3027529243.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.871Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 89,
+    "quartos": 2,
+    "suites": 0,
+    "banheiros": 2,
+    "vagas": 2,
+    "logradouro": "Rua Manoel Antônio Pinto 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Jacira Alves Oliveira",
@@ -35228,26 +35092,6 @@
     "url": "https://www.imovelweb.com.br/propiedades/-3023172594.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.874Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Vanessa santos",
-    "email": "vanessa46216@gmail.com",
-    "contato": "11982133385",
-    "telefone2": "11982133385",
-    "id": "3019530371",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Parque Maria Helena",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3019530371.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.875Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
     "corretorId": "imobiliaria-47991919191"
@@ -35321,96 +35165,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Bela Vista",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 350000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026755828.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.882Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Luciene",
-    "email": "lucienegomez2911@gmail.com",
-    "contato": "973945513",
-    "telefone2": "",
-    "id": "3017350885",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Jardim Caboré",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017350885.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.883Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Gabriela",
-    "email": "gabriela.araujoo@outlook.com.br",
-    "contato": "11965485005",
-    "telefone2": "",
-    "id": "3026771458",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Interlagos",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026771458.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.886Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "VITORIA OLIVEIRA GELO SILVA",
-    "email": "vitoriagelo2017@gmail.com",
-    "contato": "11960192159",
-    "telefone2": "11960192159",
-    "id": "3026760962",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Andrade",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026760962.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.886Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "VITORIA OLIVEIRA GELO SILVA",
-    "email": "vitoriagelo2017@gmail.com",
-    "contato": "11960192159",
-    "telefone2": "11960192159",
-    "id": "3023172236",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Andrade",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023172236.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.889Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 71,
+    "quartos": 10,
+    "suites": 0,
+    "banheiros": 1,
+    "vagas": 0,
+    "logradouro": "FMU - Avenida Brigadeiro Luís Antônio",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Cremilda Guimarães dos Santos",
@@ -35473,26 +35245,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "IARA",
-    "email": "luiamour@yahoo.com.br",
-    "contato": "11991009381",
-    "telefone2": "991009381",
-    "id": "3023031105",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Bela Vista",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023031105.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.896Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Felipe Felix",
     "email": "felipefelixcopinofelipao@gmail.com",
     "contato": "11988589312",
@@ -35513,66 +35265,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Helvio",
-    "email": "hvono@yahoo.com.br",
-    "contato": "11995455061",
-    "telefone2": "11995455061",
-    "id": "3021203175",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Paraíso",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021203175.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.899Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Helvio",
-    "email": "hvono@yahoo.com.br",
-    "contato": "11995455061",
-    "telefone2": "11995455061",
-    "id": "3021200204",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Paraíso",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021200204.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.899Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Henry",
-    "email": "hagehenry@gmail.com",
-    "contato": "91981195125",
-    "telefone2": "",
-    "id": "3021200485",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Cerqueira César",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021200485.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.900Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Tatiane",
     "email": "recorte.tropa-4o@icloud.com",
     "contato": "11983042779",
@@ -35581,36 +35273,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Jardim das Vertentes",
-    "tipo": "",
+    "tipo": "Casa",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 474000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026760761.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.903Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Daniela",
-    "email": "daniela.benini@hotmail.com",
-    "contato": "11987569909",
-    "telefone2": "11987569909",
-    "id": "3026975285",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Santo Amaro",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026975285.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.904Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 102,
+    "quartos": 3,
+    "suites": 0,
+    "banheiros": 2,
+    "vagas": 1,
+    "logradouro": "Rua Bartolomeu Silva 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "lia",
@@ -35653,126 +35333,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "null",
-    "email": "adriel13031999@gmail.com",
-    "contato": "null",
-    "telefone2": "",
-    "id": "3017352992",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Aclimação",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017352992.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.910Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "julia",
-    "email": "julia.nassif.souza@gmail.com",
-    "contato": "11986871148",
-    "telefone2": "11986871148",
-    "id": "3023302601",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Centro",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023302601.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.910Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "jonathan janes",
-    "email": "jonathan.janes@gmail.com",
-    "contato": "11954965416",
-    "telefone2": "954965416",
-    "id": "3026780534",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Congonhas",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026780534.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.915Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "pedro valli",
-    "email": "pedro_valli@hotmail.com",
-    "contato": "11971724959",
-    "telefone2": "971724959",
-    "id": "3021849511",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Olímpia",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021849511.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.915Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Debora Alexandre de Jesus",
-    "email": "deboraale.j@gmail.com",
-    "contato": "11999459796",
-    "telefone2": "99945979",
-    "id": "3027780340",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Perdizes",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3027780340.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.916Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Anne",
-    "email": "anne.pradeilles@gmail.com",
-    "contato": "11993327443",
-    "telefone2": "",
-    "id": "3021808847",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Sônia",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021808847.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.917Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Mariana",
     "email": "marienfermeira18@gmail.com",
     "contato": "11973840013",
@@ -35788,26 +35348,6 @@
     "url": "https://www.imovelweb.com.br/propiedades/-3017350130.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.917Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "José",
-    "email": "jfteixeira100@gmail.com",
-    "contato": "11985031032",
-    "telefone2": "11985031032",
-    "id": "3023302534",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Centro",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023302534.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.919Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
     "corretorId": "imobiliaria-47991919191"
@@ -35841,36 +35381,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Vila Suzana",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 620000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026772272.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.923Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Maria",
-    "email": "mcrisfreire27@gmail.com",
-    "contato": "11985272753",
-    "telefone2": "11985272753",
-    "id": "3023537763",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Bela Vista",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023537763.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.924Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 93,
+    "quartos": 3,
+    "suites": 1,
+    "banheiros": 3,
+    "vagas": 2,
+    "logradouro": "Rua Marcus Pereira 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Sandra Helena Pinto Da Silva",
@@ -35913,26 +35441,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Carollina Carneiro Teixeira",
-    "email": "carollinact@gmail.com",
-    "contato": "11983657279",
-    "telefone2": "11983657279",
-    "id": "3023154156",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Gumercindo",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023154156.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.928Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Michela moura",
     "email": "Elainemachadoramos@gmail.com",
     "contato": "11962100156",
@@ -35948,26 +35456,6 @@
     "url": "https://www.imovelweb.com.br/propiedades/-3019530083.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.930Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Tiago",
-    "email": "t_s.santos@hotmail.com",
-    "contato": "11989053723",
-    "telefone2": "11989053723",
-    "id": "3021808676",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Paraisópolis",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021808676.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.932Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
     "corretorId": "imobiliaria-47991919191"
@@ -35993,46 +35481,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Lays",
-    "email": "l.lays@hotmail.com",
-    "contato": "11983893860",
-    "telefone2": "11983893860",
-    "id": "3026776723",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Butantã",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026776723.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.935Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Antonia Cristina",
-    "email": "gadelhaconsultoracury@gmail.com",
-    "contato": "11940642728",
-    "telefone2": "",
-    "id": "3020163356",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Jurubatuba",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3020163356.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.935Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Geovanna",
     "email": "gamaral2304@gmail.com",
     "contato": "11949999772",
@@ -36053,26 +35501,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "renato",
-    "email": "pixrenatomarin@gmail.com",
-    "contato": "11938003725",
-    "telefone2": "11938003725",
-    "id": "3026802702",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Hamburguesa",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026802702.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.937Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "André",
     "email": "mazzucao@hotmail.com",
     "contato": "11992429377",
@@ -36081,16 +35509,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Campo Belo",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 1049000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026781565.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.941Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 115,
+    "quartos": 3,
+    "suites": 1,
+    "banheiros": 4,
+    "vagas": 2,
+    "logradouro": "Rua Conde de Porto Alegre - de 1091/1092 a 1529/1530 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "vitor hugo",
@@ -36177,26 +35613,6 @@
     "email": "jorgenevesbr@gmail.com",
     "contato": "11945559102",
     "telefone2": "11945559102",
-    "id": "3026975295",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Moema",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026975295.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.945Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Jorge Raimundo",
-    "email": "jorgenevesbr@gmail.com",
-    "contato": "11945559102",
-    "telefone2": "11945559102",
     "id": "3026975515",
     "estado": "São Paulo",
     "cidade": "São Paulo",
@@ -36217,60 +35633,28 @@
     "email": "josefrancisco75.jfr@gmail.com",
     "contato": "11999727090",
     "telefone2": "11999727090",
-    "id": "3027531398",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Cambuci",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3027531398.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.949Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Jose Francisco Rodrigues dos Santos",
-    "email": "josefrancisco75.jfr@gmail.com",
-    "contato": "11999727090",
-    "telefone2": "11999727090",
-    "id": "3021766204",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Cambuci",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021766204.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.950Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Jose Francisco Rodrigues dos Santos",
-    "email": "josefrancisco75.jfr@gmail.com",
-    "contato": "11999727090",
-    "telefone2": "11999727090",
     "id": "3026779600",
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Cambuci",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 340000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026779600.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.950Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 60,
+    "quartos": 2,
+    "suites": 0,
+    "banheiros": 1,
+    "vagas": 0,
+    "logradouro": "Rua José Bento 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "fernanda",
@@ -36417,60 +35801,28 @@
     "email": "amaurideocleciio@gmail.com",
     "contato": "21987732573",
     "telefone2": "",
-    "id": "3027482487",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Andrade",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3027482487.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.962Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Amauri",
-    "email": "amaurideocleciio@gmail.com",
-    "contato": "21987732573",
-    "telefone2": "",
     "id": "3026783574",
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Indianópolis",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 4900,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026783574.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.963Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Amauri",
-    "email": "amaurideocleciio@gmail.com",
-    "contato": "21987732573",
-    "telefone2": "",
-    "id": "3025847604",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Brooklin Paulista",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3025847604.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.964Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 55,
+    "quartos": 2,
+    "suites": 1,
+    "banheiros": 2,
+    "vagas": 1,
+    "logradouro": "Avenida dos Imarés - até 579/580 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Magali",
@@ -36501,16 +35853,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Brás",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 541000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026772104.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.965Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 56,
+    "quartos": 2,
+    "suites": 0,
+    "banheiros": 2,
+    "vagas": 1,
+    "logradouro": "Rua Piratininga - lado par 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "tatiane",
@@ -36561,56 +35921,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Perdizes",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 400000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026768322.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.971Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "vera",
-    "email": "veramatiel@hotmail.com",
-    "contato": "11988473305",
-    "telefone2": "11988473305",
-    "id": "3023272003",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Brás",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023272003.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.973Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Guilherme Pisani",
-    "email": "pisani.guilherme@yahoo.com.br",
-    "contato": "11982004995",
-    "telefone2": "11982004995",
-    "id": "3023687444",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Jardim Bonfiglioli",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023687444.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.974Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 42,
+    "quartos": 1,
+    "suites": 0,
+    "banheiros": 1,
+    "vagas": 1,
+    "logradouro": "Rua Cotoxó - até 707/708 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Misaque",
@@ -36628,26 +35956,6 @@
     "url": "https://www.imovelweb.com.br/propiedades/-3023747996.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.975Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Rafaella",
-    "email": "rafalhb2007@hotmail.com",
-    "contato": "13981694414",
-    "telefone2": "13981694414",
-    "id": "3027495395",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Paraíso do Morumbi",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3027495395.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.976Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
     "corretorId": "imobiliaria-47991919191"
@@ -36688,66 +35996,6 @@
     "url": "https://www.imovelweb.com.br/propiedades/-3017352094.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:15.979Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Carlos",
-    "email": "enderecoparaimovel@gmail.com",
-    "contato": "11985461647",
-    "telefone2": "11985461647",
-    "id": "3021203487",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Buarque",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021203487.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.982Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Angela",
-    "email": "angela.miyagi@shprime.com.br",
-    "contato": "11991120964",
-    "telefone2": "11991120964",
-    "id": "3017347291",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Sumarezinho",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017347291.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.983Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "ELENICE ROSA PACCI",
-    "email": "elenicepacci@bol.com.br",
-    "contato": "11985593669",
-    "telefone2": "11985593669",
-    "id": "3027163604",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Bela Vista",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3027163604.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.984Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
     "corretorId": "imobiliaria-47991919191"
@@ -36893,26 +36141,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Roberto",
-    "email": "roberto.heise@yahoo.com.br",
-    "contato": "11994843154",
-    "telefone2": "",
-    "id": "3017349620",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Campo Belo",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017349620.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.996Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "lia",
     "email": "adm@griffo-medeiro.com.br",
     "contato": "1139048568",
@@ -36953,26 +36181,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "yasmim da silva santos",
-    "email": "yasminsantos2387@gmail.com",
-    "contato": "11984933194",
-    "telefone2": "11984933194",
-    "id": "3017347863",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Zat",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017347863.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:15.999Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Rodrigo",
     "email": "rosanchess8@gmail.com",
     "contato": "11988062903",
@@ -36993,46 +36201,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Sidilene",
-    "email": "Stoccosidilene@gmail.com",
-    "contato": "11982115177",
-    "telefone2": "11982115177",
-    "id": "3017349098",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Jaraguá",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017349098.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.001Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "andreysilvaoliveira334@gmail.com",
-    "email": "andreysilvaoliveira334@gmail.com",
-    "contato": "",
-    "telefone2": "",
-    "id": "3024290864",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Formosa",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3024290864.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.003Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Kaua",
     "email": "Kauasantosolivera@icloud.com",
     "contato": "11932125603",
@@ -37048,86 +36216,6 @@
     "url": "https://www.imovelweb.com.br/propiedades/-3012700875.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.005Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Iago",
-    "email": "yago_vinicius16@hotmail.com",
-    "contato": "82981026058",
-    "telefone2": "",
-    "id": "3017347817",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Barra Funda",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017347817.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.008Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Janaina",
-    "email": "janylmorais@gmail.com",
-    "contato": "11989005421",
-    "telefone2": "989005421",
-    "id": "3023748043",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Jardim Jaqueline",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023748043.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.010Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Ana Paula Generato dos Santos",
-    "email": "apgenerato@gmail.com",
-    "contato": "11984371898",
-    "telefone2": "984572362",
-    "id": "3023031796",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Barra Funda",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023031796.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.011Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Gustavo",
-    "email": "maskotys33@gmail.com",
-    "contato": "11996476630",
-    "telefone2": "11996476630",
-    "id": "3017347889",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Mascote",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017347889.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.013Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
     "corretorId": "imobiliaria-47991919191"
@@ -37173,66 +36261,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Giovanna porcelli",
-    "email": "Giovannaporcelli42@gmail.com",
-    "contato": "11960348185",
-    "telefone2": "11960348185",
-    "id": "3020203734",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Gustavo",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3020203734.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.018Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Michele",
-    "email": "jmimy@hotmail.com",
-    "contato": "11992913921",
-    "telefone2": "11992913921",
-    "id": "3021813130",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Aclimação",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021813130.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.018Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Michele",
-    "email": "jmimy@hotmail.com",
-    "contato": "11992913921",
-    "telefone2": "11992913921",
-    "id": "3027524995",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Aclimação",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3027524995.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.019Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "claudio",
     "email": "claudiosmonteiro@hotmail.com",
     "contato": "11993222008",
@@ -37241,16 +36269,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Vila Buarque",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 270000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3012991178.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.021Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 40,
+    "quartos": 1,
+    "suites": 0,
+    "banheiros": 1,
+    "vagas": 0,
+    "logradouro": "Rua Santa Isabel 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "ADRIANA RAMALHO TERRONI",
@@ -37261,36 +36297,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Jabaquara",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 220421,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026761054.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.024Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Lorena",
-    "email": "lolobernardes89@gmail.com",
-    "contato": "11994839828",
-    "telefone2": "11994839828",
-    "id": "3026975238",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Mariana",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026975238.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.025Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 18,
+    "quartos": 1,
+    "suites": 0,
+    "banheiros": 1,
+    "vagas": 0,
+    "logradouro": "Rua Carnaubeiras 92",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Estavam",
@@ -37328,26 +36352,6 @@
     "url": "https://www.imovelweb.com.br/propiedades/-3017352827.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.027Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Adriano Ap. S. Siqueira",
-    "email": "adrianoapssiqueira74@gmail.com",
-    "contato": "11968093584",
-    "telefone2": "11968093584",
-    "id": "3021203800",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Cidade Patriarca",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021203800.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.029Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
     "corretorId": "imobiliaria-47991919191"
@@ -37421,96 +36425,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Bosque da Saúde",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 1490000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3021847917.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.037Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "CARLOS ALBERTO ISSA",
-    "email": "alberto_issa@yahoo.com.br",
-    "contato": "11940161771",
-    "telefone2": "940161771",
-    "id": "3026758447",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Socorro",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026758447.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.038Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Carina",
-    "email": "carinamc83@gmail.com",
-    "contato": "11971125821",
-    "telefone2": "11971125821",
-    "id": "3017350735",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Amélia",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017350735.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.038Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Fatima Lima",
-    "email": "fafalima.76@gmail.com",
-    "contato": "11965842217",
-    "telefone2": "11965842217",
-    "id": "3027482359",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Paraisópolis",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3027482359.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.042Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "bizico27@gmail.com",
-    "email": "bizico27@gmail.com",
-    "contato": "35991139728",
-    "telefone2": "",
-    "id": "3021876198",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Cerqueira César",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021876198.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.045Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 92,
+    "quartos": 2,
+    "suites": 2,
+    "banheiros": 2,
+    "vagas": 2,
+    "logradouro": "Rua Padre Machado - de 475/476 ao fim 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Simone",
@@ -37541,56 +36473,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Indianópolis",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 1300000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026499945.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.049Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "ROSANGELA ANDRADE GIMENES DE PAULA",
-    "email": "123rogimenes@gmail.com",
-    "contato": "1126362112",
-    "telefone2": "1126362112",
-    "id": "3026963698",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Bertioga",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026963698.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.051Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Yuri",
-    "email": "yurihenri061209@gmail.com",
-    "contato": "11958178309",
-    "telefone2": "11958178309",
-    "id": "3023369560",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Centro",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3023369560.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.052Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 79,
+    "quartos": 0,
+    "suites": 1,
+    "banheiros": 2,
+    "vagas": 1,
+    "logradouro": "Alameda dos Jurupis - de 1203/1204 a 1441/1442",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Yuri",
@@ -37657,60 +36557,28 @@
     "email": "jcvergili@gmail.com",
     "contato": "11999133472",
     "telefone2": "999133472",
-    "id": "3021849366",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Clementino",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021849366.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.057Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "José Carlos Vergili",
-    "email": "jcvergili@gmail.com",
-    "contato": "11999133472",
-    "telefone2": "999133472",
-    "id": "3026758803",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Clementino",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026758803.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.058Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "José Carlos Vergili",
-    "email": "jcvergili@gmail.com",
-    "contato": "11999133472",
-    "telefone2": "999133472",
     "id": "3026139878",
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Vila Clementino",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 2500000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026139878.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.059Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 190,
+    "quartos": 4,
+    "suites": 3,
+    "banheiros": 5,
+    "vagas": 3,
+    "logradouro": "Rua Doutor Diogo de Faria - até 315/316 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Laíse",
@@ -37721,16 +36589,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Vila Parque Jabaquara",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 288500,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3015505800.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.060Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 50,
+    "quartos": 2,
+    "suites": 0,
+    "banheiros": 1,
+    "vagas": 1,
+    "logradouro": "Rua das Grumixamas",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Junia da Silva Gouvea",
@@ -37741,16 +36617,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Saúde",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 272131,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026777124.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.061Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 22,
+    "quartos": 1,
+    "suites": 0,
+    "banheiros": 1,
+    "vagas": 0,
+    "logradouro": "Rua Mauro - até 339/340 190",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Deise",
@@ -37768,26 +36652,6 @@
     "url": "https://www.imovelweb.com.br/propiedades/-3015078136.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.063Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "fernanda de oliveira alves lima",
-    "email": "fernandaoalima@gmail.com",
-    "contato": "11992350795",
-    "telefone2": "11992350795",
-    "id": "3017335524",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Santo Amaro",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017335524.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.065Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
     "corretorId": "imobiliaria-47991919191"
@@ -37873,86 +36737,6 @@
     "corretorId": "imobiliaria-47991919191"
   },
   {
-    "nome": "Natalia Teixeira",
-    "email": "nateixei@gmail.com",
-    "contato": "65999556388",
-    "telefone2": "1197955680",
-    "id": "3021833781",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Brooklin Paulista",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3021833781.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.069Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Natalia Teixeira",
-    "email": "nateixei@gmail.com",
-    "contato": "65999556388",
-    "telefone2": "1197955680",
-    "id": "3026975302",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Brooklin Paulista",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3026975302.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.070Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Elias",
-    "email": "jnascimento45@yahoo.com.br",
-    "contato": "11972972125",
-    "telefone2": "11972972125",
-    "id": "3017341004",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Aclimação",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017341004.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.075Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Caio",
-    "email": "Damottapacheco@gmail.com",
-    "contato": "11975069851",
-    "telefone2": "11975069851",
-    "id": "3017351924",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Pereira Barreto",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017351924.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.075Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
     "nome": "Ellen",
     "email": "ellen.gomes.santos.9@gmail.com",
     "contato": "11962137264",
@@ -38001,56 +36785,24 @@
     "estado": "São Paulo",
     "cidade": "São Paulo",
     "bairro": "Vila Buarque",
-    "tipo": "",
+    "tipo": "Apartamento",
     "tipo_operacao": "",
-    "valor_imovel": 0,
+    "valor_imovel": 650000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3026758493.html",
     "matchCount": 0,
     "createdAt": "2026-05-06T02:27:16.077Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "Tatiana Caires",
-    "email": "tatianacaires21@hotmail.com",
-    "contato": "11996500186",
-    "telefone2": "",
-    "id": "3017338318",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Sônia",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017338318.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.079Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
-  },
-  {
-    "nome": "KARINA POLITO MARTINS",
-    "email": "karinapolitomartins@gmail.com",
-    "contato": "11962109420",
-    "telefone2": "11962109420",
-    "id": "3017348102",
-    "estado": "São Paulo",
-    "cidade": "São Paulo",
-    "bairro": "Vila Mangalot",
-    "tipo": "",
-    "tipo_operacao": "",
-    "valor_imovel": 0,
-    "titulo": "",
-    "url": "https://www.imovelweb.com.br/propiedades/-3017348102.html",
-    "matchCount": 0,
-    "createdAt": "2026-05-06T02:27:16.080Z",
-    "userId": "imobiliaria-47991919191",
-    "usuarioId": "imobiliaria-47991919191",
-    "corretorId": "imobiliaria-47991919191"
+    "corretorId": "imobiliaria-47991919191",
+    "area_m2": 105,
+    "quartos": 2,
+    "suites": 0,
+    "banheiros": 2,
+    "vagas": 0,
+    "logradouro": "Rua Marquês de Itu - lado ímpar 0",
+    "indisponivel": false,
+    "extractionStatus": "ok"
   },
   {
     "nome": "Fabricio",

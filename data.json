@@ -3232,7 +3232,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:32:38.446Z"
   },
   {
     "nome": "Rita de Cassia",
@@ -4466,7 +4468,9 @@
           "url": "https://www.imovelweb.com.br/propiedades/-3026767609.html"
         }
       }
-    ]
+    ],
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:35:30.764Z"
   },
   {
     "nome": "Larissa",
@@ -4516,7 +4520,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:38:01.182Z"
   },
   {
     "nome": "RODRIGO",
@@ -4546,7 +4552,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:40:47.887Z"
   },
   {
     "nome": "Vanessa",
@@ -4616,7 +4624,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:44:04.322Z"
   },
   {
     "nome": "lucia",

@@ -2470,3 +2470,10 @@ app.use('/admin', (req, res, next) => {
   next();
 });
 
+
+// ROTA TEMPORÁRIA — zerar visitas e notificações
+app.get('/admin/zerar-visitas-notificacoes-temp', (req, res) => {
+  fs.writeFileSync(dataPath('visitas.json'), '[]');
+  fs.writeFileSync(dataPath('notificacoes.json'), '[]');
+  res.send('✅ Visitas e notificações zeradas no disco persistente!');
+});

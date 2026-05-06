@@ -5379,7 +5379,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:38:53.610Z"
   },
   {
     "nome": "Fabio Reali",
@@ -5409,7 +5411,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:41:15.719Z"
   },
   {
     "nome": "Valter abade dos santos",
@@ -5539,7 +5543,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:43:54.733Z"
   },
   {
     "nome": "Nelson",
@@ -5686,7 +5692,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1
+    "matchCountBase": 1,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:46:52.989Z"
   },
   {
     "nome": "Regiane",
@@ -5756,7 +5764,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T16:49:39.844Z"
   },
   {
     "nome": "JULIO",

@@ -341,6 +341,10 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
 
   // Gravar em visitas.json vinculado ao dono da lead
   const imovel = lead.imovelVisita || {};
+  // Busca proprietario no imoveis.json
+  const imoveisBase = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json','utf8')) : [];
+  const imovelBase = imoveisBase.find(i => String(i.idExterno||i.id) === String(imovel.idExterno||imovel.id||imovel.id_anuncio||''));
+  const proprietario = imovelBase ? (imovelBase.proprietario || {}) : (imovel.proprietario || {});
   const novaVisita = {
     id: Date.now().toString(),
     leadId: lead.id || lead.leadId,
@@ -359,8 +363,8 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     corretorId: lead.userId || lead.codigoUsuario || '',
     corretorNome: '',
     corretorTelefone: '',
-    proprietarioNome: imovel.proprietario ? imovel.proprietario.nome || '' : '',
-    proprietarioTelefone: imovel.proprietario ? (imovel.proprietario.telefone || imovel.proprietario.celular || '').replace(/\D/g,'') : '',
+    proprietarioNome: proprietario.nome || '',
+    proprietarioTelefone: (proprietario.telefone || proprietario.celular || '').replace(/\D/g,''),
     dataVisita: lead.dataVisita || lead.dataPreferida || '',
     horaVisita: lead.horaVisita || lead.horarioPreferido || '',
     imovelUrl: imovel.url || '',

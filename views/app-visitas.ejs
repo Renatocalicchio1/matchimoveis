@@ -53,29 +53,51 @@
               <td style="padding:10px;border-bottom:1px solid #eee"><%= v.status || 'solicitada' %></td>
               <td style="padding:10px;border-bottom:1px solid #eee">
                 <div style="display:flex;flex-direction:column;gap:8px">
+
+                <%
+                  const propTel = (v.proprietarioTelefone || v.proprietario_telefone || '').replace(/D/g,'');
+                  const propNome = v.proprietarioNome || v.proprietario_nome || '';
+                  const corretorNome = user.nome || user.name || 'Corretor';
+                  const imovelDonoId = v.imovelUsuarioId || '';
+                  const ehImovelParceiro = imovelDonoId && imovelDonoId !== (user.id || user.userId || '');
+                  const parceirTel = (v.imovelUsuarioTelefone || '').replace(/D/g,'');
+                  const parceiroNome = v.imovelUsuarioNome || 'Corretor parceiro';
+                  const msgProp = 'Olá ' + propNome + '! Sou ' + corretorNome + ', corretor parceiro. Tenho um cliente interessado no seu imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' e gostaria de agendar uma visita para o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + '. Confirme sua disponibilidade aqui: https://matchimoveis.onrender.com/proprietario/visita/' + v.id;
+                  const msgParceiro = 'Olá ' + parceiroNome + '! Sou ' + corretorNome + ' da MatchImóveis. Tenho um cliente interessado no seu imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' e gostaria de agendar uma visita para o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + '. Confirme sua disponibilidade aqui: https://matchimoveis.onrender.com/proprietario/visita/' + v.id;
+                  const telCliente = (v.telefone || v.contato || '').replace(/D/g,'');
+                  const msgCliente = 'Olá ' + (v.nome || 'cliente') + '! Sua visita ao imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' foi confirmada para ' + (v.dataVisita || dataVisita) + (v.horaVisita ? ' às ' + v.horaVisita : '') + '. Qualquer dúvida estamos à disposição!';
+                %>
+
                 <% if (v.status === 'confirmada') { %>
                   <strong style="color:green">✅ Confirmada</strong>
+                  <% if (telCliente) { %>
+                    <a href="https://wa.me/55<%= telCliente %>?text=<%= encodeURIComponent(msgCliente) %>" target="_blank" style="background:#25D366;color:white;padding:8px 12px;border-radius:8px;text-decoration:none;text-align:center;font-size:13px">
+                      📲 Notificar Cliente
+                    </a>
+                  <% } %>
                 <% } else if (v.status === 'cancelada') { %>
                   <strong style="color:red">❌ Cancelada</strong>
                 <% } else if (v.status === 'pendente_remarcar') { %>
                   <strong style="color:orange">📅 Remarcar</strong>
                 <% } else { %>
                   <strong style="color:#888">⏳ Aguardando</strong>
+                  <% if (ehImovelParceiro && parceirTel) { %>
+                    <a href="https://wa.me/55<%= parceirTel %>?text=<%= encodeURIComponent(msgParceiro) %>" target="_blank" style="background:#FF385C;color:white;padding:8px 12px;border-radius:8px;text-decoration:none;text-align:center;font-size:13px">
+                      📲 Falar com Corretor Parceiro
+                    </a>
+                  <% } else if (propTel) { %>
+                    <a href="https://wa.me/55<%= propTel %>?text=<%= encodeURIComponent(msgProp) %>" target="_blank" style="background:#25D366;color:white;padding:8px 12px;border-radius:8px;text-decoration:none;text-align:center;font-size:13px">
+                      📲 Notificar Proprietário
+                    </a>
+                  <% } else { %>
+                    <form method="POST" action="/app/visitas/confirmar/<%= v.id %>" style="margin:0">
+                      <button type="submit" style="background:#f59e0b;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;width:100%">
+                        ✅ Confirmar Visita
+                      </button>
+                    </form>
+                  <% } %>
                 <% } %>
 
-                <% 
-                  const propTel = (v.proprietarioTelefone || v.proprietario_telefone || '').replace(/D/g,'');
-                  const propNome = v.proprietarioNome || v.proprietario_nome || 'Proprietário';
-                  const corretorNome = user.nome || user.name || 'Corretor';
-                  const msgProp = 'Olá ' + propNome + '! Sou ' + corretorNome + ', corretor parceiro. Tenho um cliente interessado no seu imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' e gostaria de agendar uma visita para o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + '. Confirme sua disponibilidade aqui: https://matchimoveis.onrender.com/proprietario/visita/' + v.id;
-                %>
-                <% if (propTel) { %>
-                  <a href="https://wa.me/55<%= propTel %>?text=<%= encodeURIComponent(msgProp) %>" target="_blank" style="background:#25D366;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;text-decoration:none;text-align:center;font-size:13px">
-                    📲 Notificar Proprietário
-                  </a>
-                <% } else { %>
-                  <span style="color:#aaa;font-size:12px">Sem telefone do proprietário</span>
-                <% } %>
                 </div>
               </td>
             </tr>

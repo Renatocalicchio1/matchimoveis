@@ -2,7 +2,7 @@ const fs = require('fs');
 const { extractProperty } = require('./services/extratorcorreto-ajustado.js');
 const DATA_FILE = './data.json';
 const LOTE = 10;
-const LIMITE = 300;
+const LIMITE = 100;
 
 async function main() {
   const raw = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));

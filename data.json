@@ -9075,7 +9075,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:34:22.593Z"
   },
   {
     "nome": "Fernanda",
@@ -9125,7 +9127,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:36:55.167Z"
   },
   {
     "nome": "Fabiane de Paula Silva Finzsch",
@@ -9155,7 +9159,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:39:54.824Z"
   },
   {
     "nome": "Nelson",
@@ -9185,7 +9191,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:42:37.796Z"
   },
   {
     "nome": "Juliete",
@@ -9215,7 +9223,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:45:12.551Z"
   },
   {
     "nome": "Juliete",

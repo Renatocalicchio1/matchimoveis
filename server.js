@@ -359,6 +359,11 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     corretorId: lead.userId || lead.codigoUsuario || '',
     corretorNome: '',
     corretorTelefone: '',
+    proprietarioNome: imovel.proprietario ? imovel.proprietario.nome || '' : '',
+    proprietarioTelefone: imovel.proprietario ? (imovel.proprietario.telefone || imovel.proprietario.celular || '').replace(/\D/g,'') : '',
+    dataVisita: lead.dataVisita || lead.dataPreferida || '',
+    horaVisita: lead.horaVisita || lead.horarioPreferido || '',
+    imovelUrl: imovel.url || '',
     status: 'solicitada',
     origem: 'vitrine_cliente',
     fonte: 'MatchImóveis',
@@ -405,6 +410,45 @@ function registrarVisita(lead){
 
 
 
+
+
+// Página de confirmação do proprietário
+app.get('/proprietario/visita/:visitaId', (req, res) => {
+  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visita = visitas.find(v => v.id === req.params.visitaId);
+  if (!visita) return res.status(404).send('Visita não encontrada');
+  res.render('proprietario-visita', { visita });
+});
+
+app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
+  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const idx = visitas.findIndex(v => v.id === req.params.visitaId);
+  if (idx === -1) return res.status(404).send('Visita não encontrada');
+  
+  const { resposta } = req.body;
+  visitas[idx].respostaProprietario = resposta;
+  visitas[idx].respostaEm = new Date().toISOString();
+
+  if (resposta === 'confirmar') {
+    visitas[idx].status = 'confirmada';
+    // Notifica cliente via WhatsApp (link)
+    visitas[idx].clienteNotificado = false;
+  } else if (resposta === 'indisponivel') {
+    visitas[idx].status = 'cancelada';
+    // Marca imóvel como inativo
+    const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json') || './imoveis.json','utf8'));
+    const imovelIdx = imoveis.findIndex(i => String(i.idExterno || i.id) === String(visitas[idx].imovelId));
+    if (imovelIdx !== -1) {
+      imoveis[imovelIdx].status = 'inativo';
+      fs.writeFileSync('./imoveis.json', JSON.stringify(imoveis, null, 2));
+    }
+  } else if (resposta === 'remarcar') {
+    visitas[idx].status = 'pendente_remarcar';
+  }
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
+  res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
+});
 
 // ===== APP ROUTES =====
 

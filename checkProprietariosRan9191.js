@@ -1,0 +1,11 @@
+const fs = require('fs');
+const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+const arr = Array.isArray(imoveis) ? imoveis : (imoveis.imoveis || []);
+const ran9191 = arr.filter(i => i.userId === 'imobiliaria-47991919191');
+const comProprietario = ran9191.filter(i => i.proprietario && i.proprietario.nome);
+const semProprietario = ran9191.filter(i => !i.proprietario || !i.proprietario.nome);
+console.log('Total RAN-9191:', ran9191.length);
+console.log('Com proprietario:', comProprietario.length);
+console.log('Sem proprietario:', semProprietario.length);
+console.log('\nExemplo com proprietario:');
+if (comProprietario.length > 0) console.log(JSON.stringify({idExterno: comProprietario[0].idExterno, proprietario: comProprietario[0].proprietario}, null, 2));

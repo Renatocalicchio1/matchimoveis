@@ -1,0 +1,10 @@
+const fs = require('fs');
+const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+const arr = Array.isArray(imoveis) ? imoveis : (imoveis.imoveis || []);
+const comUserId = arr.filter(i => i.userId && i.userId.trim());
+const semUserId = arr.filter(i => !i.userId || !i.userId.trim());
+console.log('Total imoveis:', arr.length);
+console.log('Com userId:', comUserId.length);
+console.log('Sem userId:', semUserId.length);
+const userIds = [...new Set(comUserId.map(i => i.userId))];
+console.log('UserIds:', userIds);

@@ -1,0 +1,10 @@
+const fs = require('fs');
+const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+const arr = Array.isArray(imoveis) ? imoveis : (imoveis.imoveis || []);
+const ran9191 = arr.filter(i => i.userId === 'imobiliaria-47991919191');
+const ran0888 = arr.filter(i => i.userId === 'imobiliaria-47992010888');
+const outros = arr.filter(i => i.userId !== 'imobiliaria-47991919191' && i.userId !== 'imobiliaria-47992010888');
+console.log('RAN-9191:', ran9191.length);
+console.log('RAN-0888:', ran0888.length);
+console.log('Outros:', outros.length);
+if (outros.length > 0) console.log('userId outros:', [...new Set(outros.map(i => i.userId))]);

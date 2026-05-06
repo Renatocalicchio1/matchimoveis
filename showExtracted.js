@@ -1,0 +1,10 @@
+const fs = require('fs');
+const raw = JSON.parse(fs.readFileSync('data.json','utf8'));
+const arr = Array.isArray(raw) ? raw : (raw.results || []);
+const admin = arr.filter(l => l.userId === 'admin');
+const comTipo = admin.filter(l => l.tipo && l.tipo.trim());
+const comStatus = admin.filter(l => l.extractionStatus === 'ok');
+console.log('Total admin:', admin.length);
+console.log('Com tipo:', comTipo.length);
+console.log('Com extractionStatus ok:', comStatus.length);
+console.log('Exemplo com tipo:', JSON.stringify({nome: comTipo[0] && comTipo[0].nome, tipo: comTipo[0] && comTipo[0].tipo, quartos: comTipo[0] && comTipo[0].quartos, valor: comTipo[0] && comTipo[0].valor_imovel}));

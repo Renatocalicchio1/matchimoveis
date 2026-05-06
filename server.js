@@ -291,6 +291,7 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
   const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
   if(!lead) return res.status(404).send('Lead não encontrado');
 
+  if (!lead.matches || !lead.matches.length) lead.matches = lead.matchesBase || [];
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
   fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
   res.render('cliente-oferta', { user: null, lead });
@@ -370,73 +371,7 @@ function readJsonSafe(file, fallback){
   }
 }
 
-app.get('/admin', (req,res)=>{
-  const dataRaw = readJsonSafe('data.json', []);
-  const data = Array.isArray(dataRaw) ? dataRaw : (dataRaw.results || []);
 
-  const users = readJsonSafe('users.json', []);
-  const leads = readJsonSafe('leads.json', []);
-
-  const totalMatches = data.reduce((sum,item)=>sum + ((item.matches && item.matches.length) || 0), 0);
-  const comMatch = data.filter(item => item.matches && item.matches.length).length;
-
-  const scores = data
-    .map(item => Number(item.bestScore || 0))
-    .filter(n => n > 0);
-
-  const scoreMedio = scores.length
-    ? Math.round(scores.reduce((a,b)=>a+b,0) / scores.length)
-    : 0;
-
-  const visualizacoes = leads.filter(l =>
-    (l.jornada || []).some(j => j.etapa === 'Cliente visualizou')
-  ).length;
-
-  const visitas = leads.filter(l =>
-    l.visita || l.imovelVisita || (l.jornada || []).some(j => j.etapa === 'Visita solicitada')
-  ).length;
-
-  res.render('admin-dashboard', { user: req.session.user, 
-    stats: {
-      totalLeads: data.length,
-      comMatch,
-      totalMatches,
-      totalUsuarios: users.length,
-      visitas,
-      visualizacoes,
-      imoveisOrigem: data.length,
-      scoreMedio
-    },
-    ultimosLeads: data.slice(-10).reverse()
-  });
-});
-
-app.get('/admin/match', (req,res)=>{
-  const dataRaw = readJsonSafe('data.json', []);
-  const arr = Array.isArray(dataRaw) ? dataRaw : (dataRaw.results || []);
-
-  res.render('index', { user: req.session.user, 
-    flash: null,
-    result: {
-      stats: {},
-      filters: {
-        cities: [],
-        neighborhoods: [],
-        bairros: [],
-        status: [],
-        scores: [],
-        matchStatuses: [
-          { value: 'all', label: 'Todos' },
-          { value: 'with-match', label: 'Com match' },
-          { value: 'without-match', label: 'Sem match' }
-        ]
-      },
-      results: arr,
-      processed: arr,
-      duplicates: []
-    }
-  });
-});
 
 // ===== ADMIN: ACOMPANHAR LISTAS POR CORRETOR =====
 function safeReadJsonAdmin(file, fallback){
@@ -459,73 +394,6 @@ function salvarHistoricoUpload(payload){
   fs.writeFileSync(file, JSON.stringify(historico,null,2));
 }
 
-app.get('/admin/processamentos', (req,res)=>{
-  const historico = safeReadJsonAdmin('uploads-admin.json', []);
-  const dataRaw = safeReadJsonAdmin('data.json', []);
-  const data = Array.isArray(dataRaw) ? dataRaw : (dataRaw.results || []);
-
-  const linhas = historico.slice().reverse().map(h=>{
-    const relacionados = data.filter(item =>
-      (item.corretorId && item.corretorId === h.corretorId) ||
-      (item.corretorCelular && item.corretorCelular === h.corretorCelular) ||
-      (item.uploadId && item.uploadId === h.id)
-    );
-
-    return {
-      ...h,
-      totalLeads: relacionados.length,
-      comMatch: relacionados.filter(i => i.matches && i.matches.length).length,
-      totalMatches: relacionados.reduce((s,i)=>s+((i.matches&&i.matches.length)||0),0)
-    };
-  });
-
-  res.send(`
-    <html>
-    <head>
-      <title>Processamentos - Admin</title>
-      <style>
-        body{font-family:Arial;background:#f3f4f6;margin:0;padding:30px;color:#111}
-        a{color:#111}
-        .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-        table{width:100%;border-collapse:collapse;background:white;border-radius:14px;overflow:hidden}
-        th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
-        th{background:#111827;color:white}
-        .btn{background:#111827;color:white;padding:10px 14px;border-radius:10px;text-decoration:none}
-      </style>
-    </head>
-    <body>
-      <div class="top">
-        <h1>Listas processadas por corretor</h1>
-        <a class="btn" href="/admin">Voltar Admin</a>
-      </div>
-      <table>
-        <tr>
-          <th>Data</th>
-          <th>Corretor</th>
-          <th>Celular</th>
-          <th>Arquivo</th>
-          <th>Status</th>
-          <th>Leads</th>
-          <th>Com match</th>
-          <th>Total matches</th>
-        </tr>
-        ${linhas.map(l=>`
-          <tr>
-            <td>${new Date(l.data).toLocaleString('pt-BR')}</td>
-            <td>${l.corretorNome || '-'}</td>
-            <td>${l.corretorCelular || '-'}</td>
-            <td>${l.arquivo || '-'}</td>
-            <td>${l.status || '-'}</td>
-            <td>${l.totalLeads || 0}</td>
-            <td>${l.comMatch || 0}</td>
-            <td>${l.totalMatches || 0}</td>
-          </tr>
-        `).join('')}
-      </table>
-    </body>
-    </html>
-  `);
-});
 
 // ===== ADMIN: ACOMPANHAR LISTAS POR CORRETOR =====
 function safeReadJsonAdmin(file, fallback){
@@ -548,73 +416,6 @@ function salvarHistoricoUpload(payload){
   fs.writeFileSync(file, JSON.stringify(historico,null,2));
 }
 
-app.get('/admin/processamentos', (req,res)=>{
-  const historico = safeReadJsonAdmin('uploads-admin.json', []);
-  const dataRaw = safeReadJsonAdmin('data.json', []);
-  const data = Array.isArray(dataRaw) ? dataRaw : (dataRaw.results || []);
-
-  const linhas = historico.slice().reverse().map(h=>{
-    const relacionados = data.filter(item =>
-      (item.corretorId && item.corretorId === h.corretorId) ||
-      (item.corretorCelular && item.corretorCelular === h.corretorCelular) ||
-      (item.uploadId && item.uploadId === h.id)
-    );
-
-    return {
-      ...h,
-      totalLeads: relacionados.length,
-      comMatch: relacionados.filter(i => i.matches && i.matches.length).length,
-      totalMatches: relacionados.reduce((s,i)=>s+((i.matches&&i.matches.length)||0),0)
-    };
-  });
-
-  res.send(`
-    <html>
-    <head>
-      <title>Processamentos - Admin</title>
-      <style>
-        body{font-family:Arial;background:#f3f4f6;margin:0;padding:30px;color:#111}
-        a{color:#111}
-        .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-        table{width:100%;border-collapse:collapse;background:white;border-radius:14px;overflow:hidden}
-        th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
-        th{background:#111827;color:white}
-        .btn{background:#111827;color:white;padding:10px 14px;border-radius:10px;text-decoration:none}
-      </style>
-    </head>
-    <body>
-      <div class="top">
-        <h1>Listas processadas por corretor</h1>
-        <a class="btn" href="/admin">Voltar Admin</a>
-      </div>
-      <table>
-        <tr>
-          <th>Data</th>
-          <th>Corretor</th>
-          <th>Celular</th>
-          <th>Arquivo</th>
-          <th>Status</th>
-          <th>Leads</th>
-          <th>Com match</th>
-          <th>Total matches</th>
-        </tr>
-        ${linhas.map(l=>`
-          <tr>
-            <td>${new Date(l.data).toLocaleString('pt-BR')}</td>
-            <td>${l.corretorNome || '-'}</td>
-            <td>${l.corretorCelular || '-'}</td>
-            <td>${l.arquivo || '-'}</td>
-            <td>${l.status || '-'}</td>
-            <td>${l.totalLeads || 0}</td>
-            <td>${l.comMatch || 0}</td>
-            <td>${l.totalMatches || 0}</td>
-          </tr>
-        `).join('')}
-      </table>
-    </body>
-    </html>
-  `);
-});
 
 // ===== CORRETOR: MEUS LEADS + FAZER MATCH =====
 
@@ -719,32 +520,6 @@ function usuarioLogado(req){
 
 
 // Admin match = somente painel de match
-app.get('/admin/match', (req,res)=>{
-  const dataRaw = safeReadJsonAdmin ? safeReadJsonAdmin('data.json', []) : [];
-  const arr = Array.isArray(dataRaw) ? dataRaw : (dataRaw.results || []);
-
-  res.render('index', { user: req.session.user, 
-    flash: null,
-    result: {
-      stats: {},
-      filters: {
-        cities: [],
-        neighborhoods: [],
-        bairros: [],
-        status: [],
-        scores: [],
-        matchStatuses: [
-          { value: 'all', label: 'Todos' },
-          { value: 'with-match', label: 'Com match' },
-          { value: 'without-match', label: 'Sem match' }
-        ]
-      },
-      results: arr,
-      processed: arr,
-      duplicates: []
-    }
-  });
-});
 
 
 // ===== ROTAS CORRETAS CORRETOR / ADMIN =====
@@ -1010,40 +785,6 @@ app.get('/app/leads', auth, (req,res)=>{
 });
 
 
-app.get('/admin/leads', (req,res)=>{
-  const raw = fs.existsSync('data.json') ? JSON.parse(fs.readFileSync('data.json','utf8')) : [];
-  const data = Array.isArray(raw) ? raw : (raw.results || []);
-
-  // Admin vê todas as leads do data.json
-  const leads = data;
-
-  leads.forEach(l => {
-    if (!l.matches || l.matches.length === 0) {
-      l.matches = l.matchesBase || [];
-      l.matchCount = l.matchCountBase || 0;
-    }
-  });
-
-  leads.sort((a, b) => {
-    const da = new Date(a.data_cadastro || a.createdAt || 0);
-    const db = new Date(b.data_cadastro || b.createdAt || 0);
-    return db - da;
-  });
-
-  const totalMatches = leads.reduce((sum,item)=> sum + ((item.matches && item.matches.length) || 0), 0);
-
-  res.render('app-leads', {
-    user: { ...req.session.user, tipo: 'admin', nome: 'Admin' },
-    active: 'leads',
-    leads,
-    stats: {
-      totalLeads: leads.length,
-      comMatch: leads.filter(i => i.matches && i.matches.length).length,
-      totalMatches,
-      pendentes: leads.filter(i => !i.matches || !i.matches.length).length
-    }
-  });
-});
 
 app.get('/app/visitas', auth, (req,res)=>{
   const todasVisitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
@@ -1233,6 +974,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
       }
 
       const { filtrarCandidatosPelaRegraInterna } = require('./matchBaseInterna');
+      const usersData = fs.existsSync('./users.json') ? JSON.parse(fs.readFileSync('./users.json','utf8')) : [];
 
       function calcularScoreInterno(origem, cand) {
         let score = 0;
@@ -1268,7 +1010,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
         const score = calcularScoreInterno(origem || lead, i);
         return {
           ...i,
-          fonte: i.fonte || i.source || 'Carteira',
+          fonte: (usersData.find(u => u.id === i.userId) || {}).nome || i.fonte || i.source || 'Carteira',
           score,
           bestScore: score
         };

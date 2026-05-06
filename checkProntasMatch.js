@@ -1,0 +1,10 @@
+const fs = require('fs');
+const raw = JSON.parse(fs.readFileSync('data.json','utf8'));
+const arr = Array.isArray(raw) ? raw : (raw.results || []);
+const admin = arr.filter(l => l.userId === 'admin');
+const comTipo = admin.filter(l => l.tipo && l.tipo.trim());
+const comStatus = admin.filter(l => l.extractionStatus === 'ok');
+console.log('Total admin:', admin.length);
+console.log('Com tipo:', comTipo.length);
+console.log('Com extractionStatus ok:', comStatus.length);
+comTipo.slice(0,5).forEach(l => console.log(' -', l.nome, '|', l.bairro, '|', l.tipo, '| q:', l.quartos, '| v:', l.valor_imovel, '| status:', l.extractionStatus));

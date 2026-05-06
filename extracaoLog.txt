@@ -1,0 +1,8 @@
+Total para extrair: 5
+[1/5] Regina Aparecida Caetano ... OK - Campos Elíseos | Apartamento | q:2 | v:447000
+[2/5] Bruno ... OK - Vila Olímpia | Apartamento | q:1 | v:418000
+[3/5] Adriana ... OK - Jardim Amaralina | Apartamento | q:2 | v:260000
+[4/5] Claudia ... OK - Jardim Robru | Casa | q:3 | v:580000
+[5/5] Melquiades Choquepuma ... OK - Ipiranga | Casa | q:1 | v:330000
+
+ok:5 indisp:0 semBairro:0 erro:0

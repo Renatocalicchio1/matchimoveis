@@ -24,7 +24,12 @@ async function getPropertyDetails(url) {
 
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForTimeout(4000);
+    await page.waitForTimeout(5000);
+    // Scroll para carregar imagens lazy
+    for(let i=0;i<3;i++){
+      await page.mouse.wheel(0, 3000);
+      await page.waitForTimeout(800);
+    }
 
     const data = await page.evaluate(() => {
       const text = document.body.innerText;
@@ -68,6 +73,25 @@ async function getPropertyDetails(url) {
       const valor_imovel = valorMatch ? Number(valorMatch[0].replace(/\D/g, '')) : 0;
       const area_m2 = areaMatch ? Number(areaMatch[1]) : 0;
 
+      // Fotos
+      const fotos = Array.from(document.querySelectorAll('img'))
+        .map(img => img.src || img.dataset.src || '')
+        .filter(src => src && src.startsWith('http') && (src.includes('quintoandar') || src.includes('cdn')) && !src.includes('logo') && !src.includes('icon') && src.match(/.(jpg|jpeg|png|webp)/i))
+        .filter((v, i, a) => a.indexOf(v) === i)
+        .slice(0, 20);
+
+      // Descrição
+      const descSelectors = ['[data-testid="description"]', '.description', '#description', '[class*="descri"]', '[class*="detail"]'];
+      let descricao = '';
+      for(const sel of descSelectors){
+        const el = document.querySelector(sel);
+        if(el && el.innerText && el.innerText.length > 50){ descricao = el.innerText.trim(); break; }
+      }
+      if(!descricao){
+        const paras = Array.from(document.querySelectorAll('p')).filter(p => p.innerText.length > 80);
+        if(paras.length) descricao = paras.map(p => p.innerText).join('\n').slice(0, 1000);
+      }
+
       return {
         bairro,
         cidade,
@@ -78,7 +102,9 @@ async function getPropertyDetails(url) {
         quartos: quartosMatch ? Number(quartosMatch[1]) : 0,
         suites: suitesMatch ? Number(suitesMatch[1]) : 0,
         banheiros: banheirosMatch ? Number(banheirosMatch[1]) : 0,
-        vagas: vagasMatch ? Number(vagasMatch[1]) : 0
+        vagas: vagasMatch ? Number(vagasMatch[1]) : 0,
+        fotos,
+        descricao
       };
     });
 

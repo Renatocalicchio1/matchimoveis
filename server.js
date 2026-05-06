@@ -795,8 +795,11 @@ app.get('/app/leads', auth, (req,res)=>{
       l.matchCount = l.matchCountBase || 0;
     }
   });
-  // Ordena por data de cadastro — mais recentes primeiro
+  // Leads com match primeiro, depois por data
   leads.sort((a, b) => {
+    const aMatch = (a.matches && a.matches.length) ? 1 : 0;
+    const bMatch = (b.matches && b.matches.length) ? 1 : 0;
+    if (bMatch !== aMatch) return bMatch - aMatch;
     const da = new Date(a.data_cadastro || 0);
     const db = new Date(b.data_cadastro || 0);
     return db - da;

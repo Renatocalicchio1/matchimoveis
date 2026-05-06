@@ -1335,7 +1335,15 @@
         "estado": "SP",
         "bairro": "Jardim Umarizal",
         "score": 60,
-        "bestScore": 60
+        "bestScore": 60,
+        "fotos": [
+          "https://www.quintoandar.com.br/img/med/original895413386-688.3641677116913WhatsAppImage20260429at17.11.37.jpeg",
+          "https://www.quintoandar.com.br/img/med/original895413386-809.8515155609323WhatsAppImage20260429at17.09.213.jpeg",
+          "https://www.quintoandar.com.br/img/med/original895413386-23.13214089208737WhatsAppImage20260429at17.09.202.jpeg",
+          "https://cozy-assets.quintoandar.com.br/cozy-static/v4/latest/default/illustrations/spots/finance-property-value.pt-BR.webp",
+          "https://cozy-assets.quintoandar.com.br/cozy-static/v4/latest/default/illustrations/spots/city-city-type-2.pt-BR.webp"
+        ],
+        "descricao": "Este encantador apartamento está localizado na vibrante cidade de São Paulo. Com dois quartos espaçosos e um banheiro bem equipado, esta propriedade é ideal para quem busca conforto e praticidades urbanas. O apartamento permite animais de estimação, tornando-o perfeito para famílias que possuem pets. Além disso, a localização é um dos grandes destaques, com várias comodidades nas proximidades. Para famílias com crianças, o renomado Colégio Anglo Morumbi está a uma curta distância, oferecendo educação de qualidade. Para os amantes da natureza e atividades ao ar livre, há duas praças próximas: a Praça Venezuela e a Praça Adriano do Nascimento Cabral, que proporcionam espaços verdes para relaxar e se exercitar. Este apartamento é uma excelente escolha para quem deseja viver em um ambiente urbano sem abrir mão do contato com a natureza e das facilidades do dia a dia."
       },
       {
         "fonte": "QuintoAndar",
@@ -1353,7 +1361,15 @@
         "estado": "SP",
         "bairro": "Jardim Umarizal",
         "score": 60,
-        "bestScore": 60
+        "bestScore": 60,
+        "fotos": [
+          "https://www.quintoandar.com.br/img/med/894694701-714.8449479955926IMG20241206101241.jpg",
+          "https://www.quintoandar.com.br/img/med/894694701-295.5349222465968IMG20241206101247.jpg",
+          "https://www.quintoandar.com.br/img/med/894694701-914.392308617215IMG20241206101237.jpg",
+          "https://cozy-assets.quintoandar.com.br/cozy-static/v4/latest/default/illustrations/spots/finance-property-value.pt-BR.webp",
+          "https://cozy-assets.quintoandar.com.br/cozy-static/v4/latest/default/illustrations/spots/city-city-type-2.pt-BR.webp"
+        ],
+        "descricao": "Imóvel aconchegante à venda com 2 quartos e 1 banheiro no total. O condomínio é bem equipado com diversas instalações e fica localizado em Rua Jaracatia no bairro Jardim Umarizal em São Paulo. Está bem localizado, próximo a pontos de interesse de Jardim Umarizal, tais como Colégio Anglo Morumbi, EMEI Antônio Carlos Pacheco, Lar Jesus Maria e José (CCA), Vargas Colégio de Educação Infantil, Fisioterapia Ortoclimed e Predict Medicina Diagnóstica."
       }
     ],
     "matchCountBase": 3,
@@ -2532,7 +2548,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:50:44.194Z"
   },
   {
     "nome": "Eunice",
@@ -2562,7 +2580,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:53:21.128Z"
   },
   {
     "nome": "Tatiana",
@@ -2592,7 +2612,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:55:55.971Z"
   },
   {
     "nome": "Larissa",
@@ -2622,7 +2644,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T14:58:44.488Z"
   },
   {
     "nome": "Graziela",
@@ -2672,7 +2696,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:01:08.888Z"
   },
   {
     "nome": "kelly",
@@ -2702,7 +2728,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:03:36.523Z"
   },
   {
     "nome": "Marcia",
@@ -2752,7 +2780,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:07:12.600Z"
   },
   {
     "nome": "Deise Elem da Silva Oliveira",
@@ -2782,7 +2812,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:09:43.438Z"
   },
   {
     "nome": "Deise Elem da Silva Oliveira",
@@ -2812,7 +2844,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:12:12.411Z"
   },
   {
     "nome": "Tatiana",
@@ -2842,7 +2876,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T15:14:39.629Z"
   },
   {
     "nome": "Flavio",

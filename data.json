@@ -472,19 +472,6 @@
           "valor": 418000,
           "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
         }
-      },
-      {
-        "tipoEvento": "visualizou_vitrine",
-        "data": "2026-05-06T20:34:19.947Z",
-        "idImovel": "3034436969",
-        "imovel": {
-          "id": "3034436969",
-          "tipo": "Apartamento",
-          "bairro": "Vila Olímpia",
-          "cidade": "São Paulo",
-          "valor": 418000,
-          "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
-        }
       }
     ],
     "matchQuintoAndarStatus": "ok",
@@ -8039,7 +8026,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T20:37:00.407Z"
   },
   {
     "nome": "otavio",
@@ -8069,7 +8058,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T20:40:06.107Z"
   },
   {
     "nome": "Rejane",
@@ -8099,7 +8090,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T20:43:07.932Z"
   },
   {
     "nome": "Gustavo",
@@ -8149,7 +8142,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T20:45:50.692Z"
   },
   {
     "nome": "Thiago Araújo",
@@ -8251,7 +8246,9 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1
+    "matchCountBase": 1,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T20:48:56.043Z"
   },
   {
     "nome": "Ivani",
@@ -8320,8 +8317,47 @@
     "logradouro": "Rua João Rafael Jafet 0",
     "indisponivel": false,
     "extractionStatus": "ok",
-    "matchesBase": [],
-    "matchCountBase": 0
+    "matchesBase": [
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895128093",
+        "id_anuncio": "895128093",
+        "url": "https://www.quintoandar.com.br/imovel/895128093/comprar/casa-6-quartos-interlagos-sao-paulo",
+        "tipo": "Casa",
+        "valor": 650000,
+        "area": 125,
+        "quartos": 3,
+        "suites": 2,
+        "banheiros": 5,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Interlagos",
+        "score": 66,
+        "bestScore": 66
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895282873",
+        "id_anuncio": "895282873",
+        "url": "https://www.quintoandar.com.br/imovel/895282873/comprar/casa-3-quartos-interlagos-sao-paulo",
+        "tipo": "Casa",
+        "valor": 650000,
+        "area": 125,
+        "quartos": 3,
+        "suites": 2,
+        "banheiros": 5,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Interlagos",
+        "score": 66,
+        "bestScore": 66
+      }
+    ],
+    "matchCountBase": 2,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T20:51:53.604Z"
   },
   {
     "nome": "Stella",
@@ -8371,7 +8407,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T20:54:36.328Z"
   },
   {
     "nome": "Andressa Aragão",
@@ -8421,7 +8459,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T20:57:09.450Z"
   },
   {
     "nome": "Suzy",
@@ -8471,7 +8511,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:00:00.121Z"
   },
   {
     "nome": "Stephany cruz",
@@ -8541,7 +8583,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:02:53.434Z"
   },
   {
     "nome": "Victoria",
@@ -8571,7 +8615,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:06:10.190Z"
   },
   {
     "nome": "Joao",
@@ -8601,7 +8647,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:08:54.329Z"
   },
   {
     "nome": "Elenice",
@@ -8651,7 +8699,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:11:41.999Z"
   },
   {
     "nome": "Danilo",
@@ -8681,7 +8731,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:15:09.924Z"
   },
   {
     "nome": "RENATA ROSA",
@@ -8731,7 +8783,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:17:34.844Z"
   },
   {
     "nome": "Regiane",
@@ -43561,72 +43615,6 @@
     "corretorTelefone": "",
     "data_cadastro": "2026-05-06T02:50:10.791Z",
     "data_cadastro_br": "05/05/2026, 23:50:10",
-    "matches": [],
-    "matchCount": 0
-  },
-  {
-    "id": "1778099682965",
-    "nome": "Renato",
-    "contato": "47992010888",
-    "telefone": "47992010888",
-    "fonte": "MatchImóveis",
-    "origem": "pagina_externa_imovel",
-    "canal": "WhatsApp",
-    "imovel_interesse": "CAPJUJU024",
-    "titulo_interesse": "Apartamento de 26m² à Venda na Vila Olímpia",
-    "tipo": "Apartamento",
-    "bairro": "Vila Olímpia",
-    "cidade": "São Paulo",
-    "estado": "São Paulo",
-    "valor_imovel": 490000,
-    "area_m2": 26,
-    "quartos": 1,
-    "suites": 1,
-    "banheiros": 1,
-    "vagas": 0,
-    "url": "http://localhost:3000/imovel/CAPJUJU024",
-    "usuarioId": "imobiliaria-47991919191",
-    "usuarioNome": "",
-    "usuarioPerfil": "",
-    "usuarioTelefone": "",
-    "corretorId": "imobiliaria-47991919191",
-    "corretorNome": "",
-    "corretorTelefone": "",
-    "data_cadastro": "2026-05-06T20:34:48.792Z",
-    "data_cadastro_br": "06/05/2026, 17:34:48",
-    "matches": [],
-    "matchCount": 0
-  },
-  {
-    "id": "1778099715024",
-    "nome": "renato 2",
-    "contato": "47 991919191",
-    "telefone": "47 991919191",
-    "fonte": "MatchImóveis",
-    "origem": "pagina_externa_imovel",
-    "canal": "WhatsApp",
-    "imovel_interesse": "CAPJUJU024",
-    "titulo_interesse": "Apartamento de 26m² à Venda na Vila Olímpia",
-    "tipo": "Apartamento",
-    "bairro": "Vila Olímpia",
-    "cidade": "São Paulo",
-    "estado": "São Paulo",
-    "valor_imovel": 490000,
-    "area_m2": 26,
-    "quartos": 1,
-    "suites": 1,
-    "banheiros": 1,
-    "vagas": 0,
-    "url": "http://localhost:3000/imovel/CAPJUJU024",
-    "usuarioId": "imobiliaria-47991919191",
-    "usuarioNome": "",
-    "usuarioPerfil": "",
-    "usuarioTelefone": "",
-    "corretorId": "imobiliaria-47991919191",
-    "corretorNome": "",
-    "corretorTelefone": "",
-    "data_cadastro": "2026-05-06T20:35:15.043Z",
-    "data_cadastro_br": "06/05/2026, 17:35:15",
     "matches": [],
     "matchCount": 0
   }

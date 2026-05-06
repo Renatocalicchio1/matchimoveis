@@ -1,0 +1,10 @@
+const fs = require('fs');
+const raw = JSON.parse(fs.readFileSync('data.json','utf8'));
+const arr = Array.isArray(raw) ? raw : (raw.results || []);
+console.log('Total leads:', arr.length);
+const comUser = arr.filter(l => l.userId && l.userId.trim());
+const semUser = arr.filter(l => !l.userId || !l.userId.trim());
+console.log('Com userId:', comUser.length);
+console.log('Sem userId:', semUser.length);
+if(comUser.length > 0) console.log('Exemplo:', comUser[0].nome, '|', comUser[0].userId);
+if(semUser.length > 0) console.log('Sem userId exemplo:', semUser[0].nome);

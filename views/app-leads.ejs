@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
     <div id="results-list" class="excel-results">
       <% leads.forEach((item, idx) => {
         const origin = item.origin || {};
-        const status = item.ignored ? 'ignored' : (item.matches || []).length ? 'with_matches' : (origin.extractionStatus === 'ok' || item.fonte) ? 'extracted' : 'without_matches';
+        const status = item.ignored ? 'ignored' : (item.matches || []).length ? 'with_matches' : (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? 'extracted' : 'without_matches';
         const bestScore = item.bestScore || (item.matches && item.matches[0] ? item.matches[0].score : 0) || 0;
         const matchCount = (item.matches || []).length;
       %>
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
         <div class="excel-client">
           <div style="font-size:13px;line-height:1.45">
             <strong><a href="/app/lead/<%= item.id %>" style="text-decoration:none;color:#111"><%= item.nome || item.cliente || item.clientName || '-' %></a></strong>
-            · <span style="color:#16a34a;font-weight:600"><%= (origin.extractionStatus === 'ok' || item.fonte) ? 'Extraído' : 'Pendente' %></span>
+            · <span style="color:#16a34a;font-weight:600"><%= (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? 'Extraído' : 'Pendente' %></span>
             · <span class="chip"><%= matchCount %> matches</span>
             <% if(bestScore) { %> · <span class="chip dark">Score <%= bestScore %></span><% } %>
             <br>

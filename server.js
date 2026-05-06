@@ -161,7 +161,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 
     const { execSync } = require("child_process");
 
-    execSync(`node processLeads.js "${file.path}"`, { stdio: "inherit" });
+    const userId = req.session.user ? req.session.user.id : ""; execSync(`node processLeads.js "${file.path}" "${userId}"`, { stdio: "inherit" });
 
     return res.redirect("/app/leads");
 
@@ -1408,7 +1408,7 @@ app.post('/process', upload.any(), async (req, res) => {
     if (!file) return res.send('Envie o arquivo');
 
     const { execSync } = require('child_process');
-    execSync(`node processLeads.js "${file.path}"`, { stdio: 'inherit' });
+    const uid = req.session.user ? req.session.user.id : ""; execSync(`node processLeads.js "${file.path}" "${uid}"`, { stdio: 'inherit' });
 
     return res.send('Importação iniciada. Você pode navegar normalmente.');
   } catch (err) {

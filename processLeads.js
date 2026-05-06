@@ -2,6 +2,7 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 
 const file = process.argv[2];
+const importUserId = process.argv[3] || "";
 if (!file) {
   console.log('ERRO: informe o arquivo');
   process.exit(1);
@@ -115,7 +116,7 @@ function readRows(file) {
     }
 
     
-    existing.push(lead);
+    lead.userId = importUserId; lead.usuarioId = importUserId; lead.corretorId = importUserId; existing.push(lead);
     adicionados++;
 
     console.log('ADICIONADO:', lead.id, lead.nome, lead.bairro, lead.valor_imovel, lead.area_m2);

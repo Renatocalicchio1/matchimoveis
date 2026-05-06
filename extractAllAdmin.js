@@ -2,7 +2,7 @@ const fs = require('fs');
 const { extractProperty } = require('./services/extratorcorreto-ajustado.js');
 const DATA_FILE = './data.json';
 const LOTE = 10;
-const LIMITE = 10;
+const LIMITE = 300;
 
 async function main() {
   const raw = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
@@ -14,7 +14,7 @@ async function main() {
   const bairrosBase = new Set(imoveisArr.map(i => norm(i.bairro)).filter(Boolean));
 
   const pendentes = leads.filter(l =>
-    l.userId === 'admin' && l.url && l.url.includes('imovelweb') &&
+    l.userId === 'imobiliaria-47991919191' && l.url && l.url.includes('imovelweb') &&
     l.extractionStatus !== 'ok' && l.bairro && bairrosBase.has(norm(l.bairro))
   ).slice(0, LIMITE);
 

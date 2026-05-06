@@ -27,9 +27,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:30:15.839Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Bruno",
@@ -473,9 +471,7 @@
           "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
         }
       }
-    ],
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:32:55.165Z"
+    ]
   },
   {
     "nome": "Adriana",
@@ -545,9 +541,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:35:40.593Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Mônica",
@@ -577,9 +571,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:38:01.003Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Mônica",
@@ -609,9 +601,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:40:17.227Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Valeria",
@@ -721,9 +711,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:42:45.717Z"
+    "matchCountBase": 0
   },
   {
     "nome": "ADALICIO BARBOSA DE SANTANA",
@@ -773,9 +761,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:45:01.571Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Tatiane",
@@ -925,9 +911,7 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:47:54.102Z"
+    "matchCountBase": 1
   },
   {
     "nome": "Day suprema",
@@ -1221,9 +1205,7 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 4,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:50:39.788Z"
+    "matchCountBase": 4
   },
   {
     "nome": "Joice",
@@ -1335,13 +1317,7 @@
         "estado": "SP",
         "bairro": "Jardim Umarizal",
         "score": 60,
-        "bestScore": 60,
-        "fotos": [
-          "https://www.quintoandar.com.br/img/med/original895413386-688.3641677116913WhatsAppImage20260429at17.11.37.jpeg",
-          "https://www.quintoandar.com.br/img/med/original895413386-809.8515155609323WhatsAppImage20260429at17.09.213.jpeg",
-          "https://www.quintoandar.com.br/img/med/original895413386-23.13214089208737WhatsAppImage20260429at17.09.202.jpeg"
-        ],
-        "descricao": "Este encantador apartamento está localizado na vibrante cidade de São Paulo. Com dois quartos espaçosos e um banheiro bem equipado, esta propriedade é ideal para quem busca conforto e praticidades urbanas. O apartamento permite animais de estimação, tornando-o perfeito para famílias que possuem pets. Além disso, a localização é um dos grandes destaques, com várias comodidades nas proximidades. Para famílias com crianças, o renomado Colégio Anglo Morumbi está a uma curta distância, oferecendo educação de qualidade. Para os amantes da natureza e atividades ao ar livre, há duas praças próximas: a Praça Venezuela e a Praça Adriano do Nascimento Cabral, que proporcionam espaços verdes para relaxar e se exercitar. Este apartamento é uma excelente escolha para quem deseja viver em um ambiente urbano sem abrir mão do contato com a natureza e das facilidades do dia a dia."
+        "bestScore": 60
       },
       {
         "fonte": "QuintoAndar",
@@ -1359,18 +1335,10 @@
         "estado": "SP",
         "bairro": "Jardim Umarizal",
         "score": 60,
-        "bestScore": 60,
-        "fotos": [
-          "https://www.quintoandar.com.br/img/med/894694701-714.8449479955926IMG20241206101241.jpg",
-          "https://www.quintoandar.com.br/img/med/894694701-295.5349222465968IMG20241206101247.jpg",
-          "https://www.quintoandar.com.br/img/med/894694701-914.392308617215IMG20241206101237.jpg"
-        ],
-        "descricao": "Imóvel aconchegante à venda com 2 quartos e 1 banheiro no total. O condomínio é bem equipado com diversas instalações e fica localizado em Rua Jaracatia no bairro Jardim Umarizal em São Paulo. Está bem localizado, próximo a pontos de interesse de Jardim Umarizal, tais como Colégio Anglo Morumbi, EMEI Antônio Carlos Pacheco, Lar Jesus Maria e José (CCA), Vargas Colégio de Educação Infantil, Fisioterapia Ortoclimed e Predict Medicina Diagnóstica."
+        "bestScore": 60
       }
     ],
-    "matchCountBase": 3,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:53:05.576Z"
+    "matchCountBase": 3
   },
   {
     "nome": "Joice",
@@ -1400,9 +1368,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:56:10.395Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Joice",
@@ -1432,9 +1398,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T13:58:44.678Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Joice",
@@ -1464,9 +1428,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:01:14.852Z"
+    "matchCountBase": 0
   },
   {
     "nome": "yasminn",
@@ -1536,9 +1498,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:04:03.745Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Claudio Della Maggiora",
@@ -1568,9 +1528,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:07:22.825Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Phelipe Navarro",
@@ -1600,9 +1558,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:09:44.971Z"
+    "matchCountBase": 0
   },
   {
     "nome": "manuel vitor",
@@ -1632,9 +1588,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:12:27.537Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Israel Ferreira",
@@ -1724,9 +1678,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:15:18.692Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Marivalda",
@@ -1756,9 +1708,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:17:39.823Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Clauce",
@@ -1788,9 +1738,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:20:06.932Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Diane",
@@ -1840,9 +1788,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:22:50.957Z"
+    "matchCountBase": 0
   },
   {
     "nome": "ELISANGELA",
@@ -1912,9 +1858,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:25:16.914Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Giovane Queiroz Salmeron",
@@ -1944,9 +1888,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:28:03.240Z"
+    "matchCountBase": 0
   },
   {
     "nome": "LU JUN",
@@ -1976,9 +1918,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:30:35.084Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Fabiano Rodrigues Bueno",
@@ -2008,9 +1948,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:33:11.913Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Marina",
@@ -2040,9 +1978,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:35:43.335Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Maria Aliene porto Porto",
@@ -2137,9 +2073,7 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:38:01.836Z"
+    "matchCountBase": 1
   },
   {
     "nome": "Rafael",
@@ -2388,9 +2322,7 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 2,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:41:26.763Z"
+    "matchCountBase": 2
   },
   {
     "nome": "olusegun cid symed",
@@ -2460,9 +2392,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:44:24.018Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Adrian Ferraz Cardoso Lopes",
@@ -2492,9 +2422,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:47:51.915Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Marcelo",
@@ -2544,9 +2472,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:50:44.194Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Eunice",
@@ -2576,9 +2502,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:53:21.128Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Tatiana",
@@ -2608,9 +2532,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:55:55.971Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Larissa",
@@ -2640,9 +2562,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T14:58:44.488Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Graziela",
@@ -2692,9 +2612,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:01:08.888Z"
+    "matchCountBase": 0
   },
   {
     "nome": "kelly",
@@ -2724,9 +2642,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:03:36.523Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Marcia",
@@ -2776,9 +2692,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:07:12.600Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Deise Elem da Silva Oliveira",
@@ -2808,9 +2722,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:09:43.438Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Deise Elem da Silva Oliveira",
@@ -2840,9 +2752,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:12:12.411Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Tatiana",
@@ -2872,9 +2782,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:14:39.629Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Flavio",
@@ -2944,9 +2852,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:17:25.421Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Gerson",
@@ -2976,9 +2882,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:21:05.205Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Renata",
@@ -3028,9 +2932,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:23:57.269Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Kettima",
@@ -3120,9 +3022,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:26:22.279Z"
+    "matchCountBase": 0
   },
   {
     "nome": "tchiagodelvalle@gmail.com",
@@ -3152,9 +3052,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:29:22.787Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Evellyn",
@@ -3244,9 +3142,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:32:38.446Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Rita de Cassia",
@@ -4480,9 +4376,7 @@
           "url": "https://www.imovelweb.com.br/propiedades/-3026767609.html"
         }
       }
-    ],
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:35:30.764Z"
+    ]
   },
   {
     "nome": "Larissa",
@@ -4532,9 +4426,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:38:01.182Z"
+    "matchCountBase": 0
   },
   {
     "nome": "RODRIGO",
@@ -4564,9 +4456,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:40:47.887Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Vanessa",
@@ -4636,9 +4526,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:44:04.322Z"
+    "matchCountBase": 0
   },
   {
     "nome": "lucia",
@@ -4708,9 +4596,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:46:36.905Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Rafael",
@@ -4740,9 +4626,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:49:07.029Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Rafael",
@@ -4772,9 +4656,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:51:34.272Z"
+    "matchCountBase": 0
   },
   {
     "nome": "IVONETH",
@@ -4804,9 +4686,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:54:22.501Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Aline",
@@ -4876,9 +4756,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:57:02.390Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Izadora de Oliveira Sanches",
@@ -4908,9 +4786,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T15:59:18.652Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Clarice",
@@ -4940,9 +4816,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:02:00.437Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Edson",
@@ -5039,9 +4913,7 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:04:19.945Z"
+    "matchCountBase": 1
   },
   {
     "nome": "Jane",
@@ -5071,9 +4943,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:07:15.078Z"
+    "matchCountBase": 0
   },
   {
     "nome": "JULIO ANTONIO VEIGA SERRASQUEIRO",
@@ -5103,9 +4973,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:10:44.141Z"
+    "matchCountBase": 0
   },
   {
     "nome": "wanderlei soares dos santos",
@@ -5155,9 +5023,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:25:38.182Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Mariana Ribeiro",
@@ -5187,9 +5053,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:28:16.014Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Debora",
@@ -5239,9 +5103,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:30:45.390Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Gustavo",
@@ -5311,9 +5173,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:33:34.508Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Kassio Eduardo Burgadon",
@@ -5343,9 +5203,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:36:21.451Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Fabio Reali",
@@ -5375,9 +5233,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:38:53.610Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Fabio Reali",
@@ -5407,9 +5263,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:41:15.719Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Valter abade dos santos",
@@ -5539,9 +5393,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:43:54.733Z"
+    "matchCountBase": 0
   },
   {
     "nome": "Nelson",
@@ -5688,9 +5540,7 @@
         "codigoUsuario": "RAN-9191"
       }
     ],
-    "matchCountBase": 1,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:46:52.989Z"
+    "matchCountBase": 1
   },
   {
     "nome": "Regiane",
@@ -5760,9 +5610,7 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0,
-    "matchQuintoAndarStatus": "ok",
-    "matchQuintoAndarAt": "2026-05-06T16:49:39.844Z"
+    "matchCountBase": 0
   },
   {
     "nome": "JULIO",

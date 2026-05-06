@@ -50,7 +50,7 @@ function passaFiltros(origin, c) {
   const valor = c.valor_imovel || c.valor || 0;
   const baseValor = origin.valor_imovel || origin.valor || 0;
   if (baseValor > 0) {
-    if (valor < baseValor * 0.70) return false;
+    if (valor < baseValor * 0.65) return false;
     if (valor > baseValor * 1.25) return false;
   }
 
@@ -61,8 +61,8 @@ function passaFiltros(origin, c) {
     if (area > baseArea * 1.35) return false;
   }
 
-  if ((c.suites || 0) < (origin.suites || 0)) return false;
-  if ((c.vagas || 0) < (origin.vagas || 0)) return false;
+  if ((c.suites || 0) < (origin.suites || 0) - 1) return false;
+  if ((c.vagas || 0) < (origin.vagas || 0) - 1) return false;
 
   return true;
 }

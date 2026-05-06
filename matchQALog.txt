@@ -102,3 +102,34 @@ Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/rio-pequeno-
 Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/rio-pequeno-sao-paulo-sp-brasil
 Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sao-paulo-sp-brasil/apartamento
 TOTAL CANDIDATOS: 34
+TOTAL CANDIDATOS ENRIQUECIDOS: 34
+sem match
+[9/380] Day suprema (Rio Pequeno) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/rio-pequeno
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/rio-pequeno
+Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/rio-pequeno-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/rio-pequeno-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/rio-pequeno-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 34
+TOTAL CANDIDATOS ENRIQUECIDOS: 34
+sem match
+[10/380] Joice (Jardim Umarizal) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-umarizal-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-umarizal
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/jardim-umarizal
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/jardim-umarizal
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-umarizal-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-umarizal-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-umarizal-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/jardim-umarizal-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/jardim-umarizal-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-umarizal-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 26
+TOTAL CANDIDATOS ENRIQUECIDOS: 26
+2 matches QA
+--- Salvo ---
+[11/380] Joice (Vila do Castelo) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-do-castelo-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-do-castelo

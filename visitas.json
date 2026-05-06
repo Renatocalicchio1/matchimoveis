@@ -21,7 +21,9 @@
     "origem": "pagina_externa_imovel",
     "fonte": "MatchImóveis",
     "data": "2026-05-06T20:34:42.670Z",
-    "data_br": "06/05/2026, 17:34:42"
+    "data_br": "06/05/2026, 17:34:42",
+    "proprietarioNome": "Alessandra",
+    "proprietarioTelefone": "11999721335"
   },
   {
     "id": "1778099715036",
@@ -45,7 +47,9 @@
     "origem": "pagina_externa_imovel",
     "fonte": "MatchImóveis",
     "data": "2026-05-06T20:35:14.596Z",
-    "data_br": "06/05/2026, 17:35:14"
+    "data_br": "06/05/2026, 17:35:14",
+    "proprietarioNome": "Alessandra",
+    "proprietarioTelefone": "11999721335"
   },
   {
     "id": "1778099715451",
@@ -69,7 +73,9 @@
     "origem": "pagina_externa_imovel",
     "fonte": "MatchImóveis",
     "data": "2026-05-06T20:35:15.043Z",
-    "data_br": "06/05/2026, 17:35:15"
+    "data_br": "06/05/2026, 17:35:15",
+    "proprietarioNome": "Alessandra",
+    "proprietarioTelefone": "11999721335"
   },
   {
     "id": "1778108627797",
@@ -93,7 +99,9 @@
     "origem": "pagina_externa_imovel",
     "fonte": "MatchImóveis",
     "data": "2026-05-06T23:03:47.709Z",
-    "data_br": "06/05/2026, 20:03:47"
+    "data_br": "06/05/2026, 20:03:47",
+    "proprietarioNome": "Roseli Bianchi",
+    "proprietarioTelefone": "11974711880"
   },
   {
     "id": "1778108647678",
@@ -117,7 +125,9 @@
     "origem": "pagina_externa_imovel",
     "fonte": "MatchImóveis",
     "data": "2026-05-06T23:04:07.595Z",
-    "data_br": "06/05/2026, 20:04:07"
+    "data_br": "06/05/2026, 20:04:07",
+    "proprietarioNome": "Roseli Bianchi",
+    "proprietarioTelefone": "11974711880"
   },
   {
     "id": "1778108658044",
@@ -141,7 +151,9 @@
     "origem": "pagina_externa_imovel",
     "fonte": "MatchImóveis",
     "data": "2026-05-06T23:04:17.963Z",
-    "data_br": "06/05/2026, 20:04:17"
+    "data_br": "06/05/2026, 20:04:17",
+    "proprietarioNome": "Roseli Bianchi",
+    "proprietarioTelefone": "11974711880"
   },
   {
     "id": "1778108677230",
@@ -165,6 +177,8 @@
     "origem": "pagina_externa_imovel",
     "fonte": "MatchImóveis",
     "data": "2026-05-06T23:04:37.097Z",
-    "data_br": "06/05/2026, 20:04:37"
+    "data_br": "06/05/2026, 20:04:37",
+    "proprietarioNome": "Roseli Bianchi",
+    "proprietarioTelefone": "11974711880"
   }
 ]

@@ -611,3 +611,9 @@ Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-andrade
 Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/vila-andrade
 Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/vila-andrade
 Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-andrade-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-andrade-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-andrade-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-andrade-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-andrade-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-andrade-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 35

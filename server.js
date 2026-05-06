@@ -436,7 +436,12 @@ app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
 
   if (resposta === 'confirmar') {
     visitas[idx].status = 'confirmada';
-    // Notifica cliente via WhatsApp (link)
+    const telCliente = String(visitas[idx].telefone || visitas[idx].contato || '').replace(/D/g,'');
+    const dataVisita = visitas[idx].dataVisita || 'em breve';
+    const horaVisita = visitas[idx].horaVisita || '';
+    const imovelTitulo = visitas[idx].imovelTitulo || visitas[idx].imovelBairro || 'o imóvel';
+    const msgCliente = 'Olá ' + (visitas[idx].nome || '') + '! Sua visita ao imóvel *' + imovelTitulo + '* foi confirmada para ' + dataVisita + (horaVisita ? ' às ' + horaVisita : '') + '. Qualquer dúvida, entre em contato!';
+    visitas[idx].whatsappClienteLink = telCliente ? 'https://wa.me/55' + telCliente + '?text=' + encodeURIComponent(msgCliente) : '';
     visitas[idx].clienteNotificado = false;
   } else if (resposta === 'indisponivel') {
     visitas[idx].status = 'cancelada';
@@ -1742,6 +1747,8 @@ app.post('/api/lead-interesse', (req, res) => {
         imovelBairro: imovelRef.bairro || '',
         imovelCidade: imovelRef.cidade || 'São Paulo',
         imovelEstado: imovelRef.estado || 'SP',
+        proprietarioNome: (imovelRef.proprietario && imovelRef.proprietario.nome) || '',
+        proprietarioTelefone: ((imovelRef.proprietario && (imovelRef.proprietario.telefone || imovelRef.proprietario.celular)) || '').replace(/D/g,''),
 
         // Visita vai para o dono do imóvel
         usuarioDestinoId,

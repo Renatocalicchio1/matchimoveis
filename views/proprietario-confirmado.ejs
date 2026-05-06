@@ -21,7 +21,12 @@
     <% if (resposta === 'confirmar') { %>
       <div class="icon">✅</div>
       <h1>Visita confirmada!</h1>
-      <p>O corretor será notificado. Obrigado pela confirmação!</p>
+      <p>Agora notifique o cliente pelo WhatsApp:</p>
+      <% if (visita.whatsappClienteLink) { %>
+        <a href="<%= visita.whatsappClienteLink %>" target="_blank" style="display:inline-block;margin-top:24px;background:#25D366;color:#fff;padding:16px 32px;border-radius:12px;font-size:16px;font-weight:700;text-decoration:none;">📲 Notificar cliente no WhatsApp</a>
+      <% } else { %>
+        <p style="margin-top:16px;color:#aaa;">Telefone do cliente não disponível.</p>
+      <% } %>
     <% } else if (resposta === 'indisponivel') { %>
       <div class="icon">❌</div>
       <h1>Imóvel marcado como indisponível</h1>

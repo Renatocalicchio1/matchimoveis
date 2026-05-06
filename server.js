@@ -291,7 +291,7 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
   const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
   if(!lead) return res.status(404).send('Lead não encontrado');
 
-  lead.matches = (lead.matchesBase || lead.matches || []).filter(m => m.fonte !== "QuintoAndar");
+  lead.matches = lead.matchesBase || lead.matches || [];
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
   fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
   res.render('cliente-oferta', { user: null, lead });

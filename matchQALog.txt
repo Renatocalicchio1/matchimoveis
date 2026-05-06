@@ -736,3 +736,59 @@ Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-anastac
 Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-anastacio-sao-paulo-sp-brasil
 Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-anastacio-sao-paulo-sp-brasil/apartamento
 TOTAL CANDIDATOS: 24
+TOTAL CANDIDATOS ENRIQUECIDOS: 24
+sem match
+[57/380] Clarice (Vila Monumento) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-monumento-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-monumento
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/vila-monumento
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/vila-monumento
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-monumento-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-monumento-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-monumento-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-monumento-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-monumento-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-monumento-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 31
+TOTAL CANDIDATOS ENRIQUECIDOS: 31
+sem match
+[58/380] Edson (Vila das Belezas) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-das-belezas-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-das-belezas
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/vila-das-belezas
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/vila-das-belezas
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-das-belezas-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-das-belezas-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-das-belezas-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-das-belezas-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-das-belezas-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-das-belezas-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 25
+TOTAL CANDIDATOS ENRIQUECIDOS: 25
+sem match
+[59/380] Jane (Santo Amaro) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/santo-amaro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/santo-amaro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/santo-amaro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/santo-amaro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/santo-amaro-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/santo-amaro-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/santo-amaro-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/santo-amaro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/santo-amaro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/santo-amaro-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 37
+TOTAL CANDIDATOS ENRIQUECIDOS: 37
+sem match
+[60/380] JULIO ANTONIO VEIGA SERRASQUEIRO (Vila Mariana) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-mariana-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-mariana
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/vila-mariana
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/vila-mariana
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-mariana-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-mariana-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-mariana-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-mariana-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-mariana-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-mariana-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 49
+TOTAL CANDIDATOS ENRIQUECIDOS: 49
+sem match
+--- Salvo ---
+[61/380] Fabio (Vila Pompéia) ... 

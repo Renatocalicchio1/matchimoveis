@@ -260,3 +260,128 @@ Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/centro-sao-p
 Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/centro-sao-paulo-sp-brasil
 Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil/apartamento
 TOTAL CANDIDATOS: 28
+TOTAL CANDIDATOS ENRIQUECIDOS: 28
+sem match
+--- Salvo ---
+[21/380] Alexandre Abreu (Jardim Bonfiglioli) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-bonfiglioli-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-bonfiglioli
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/jardim-bonfiglioli
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/jardim-bonfiglioli
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-bonfiglioli-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-bonfiglioli-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-bonfiglioli-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/jardim-bonfiglioli-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/jardim-bonfiglioli-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-bonfiglioli-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 32
+TOTAL CANDIDATOS ENRIQUECIDOS: 32
+sem match
+[22/380] Italo (Centro) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 28
+TOTAL CANDIDATOS ENRIQUECIDOS: 28
+sem match
+[23/380] Giovane Queiroz Salmeron (Bela Vista) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/bela-vista
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/bela-vista
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/bela-vista-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/bela-vista-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bela-vista-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 34
+TOTAL CANDIDATOS ENRIQUECIDOS: 34
+sem match
+[24/380] LU JUN (Brás) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/bras-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bras
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/bras
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/bras
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bras-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bras-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bras-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/bras-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/bras-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/bras-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 27
+TOTAL CANDIDATOS ENRIQUECIDOS: 27
+sem match
+[25/380] Fabiano Rodrigues Bueno (Ipiranga) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/ipiranga-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/ipiranga
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/ipiranga
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/ipiranga
+Buscando: https://www.quintoandar.com.br/comprar/imovel/ipiranga-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/ipiranga-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/ipiranga-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/ipiranga-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/ipiranga-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/ipiranga-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 32
+TOTAL CANDIDATOS ENRIQUECIDOS: 32
+sem match
+--- Salvo ---
+[26/380] Marina (Centro) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/centro
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/centro-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/centro-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 30
+TOTAL CANDIDATOS ENRIQUECIDOS: 30
+sem match
+[27/380] Maria Aliene porto Porto (Jardim das Palmas) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-das-palmas-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-das-palmas
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/jardim-das-palmas
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/jardim-das-palmas
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-das-palmas-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-das-palmas-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-das-palmas-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/jardim-das-palmas-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/jardim-das-palmas-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/jardim-das-palmas-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 24
+TOTAL CANDIDATOS ENRIQUECIDOS: 24
+sem match
+[28/380] maria cecilia dos reis (Pinheiros) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/pinheiros-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/pinheiros
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/pinheiros
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/pinheiros
+Buscando: https://www.quintoandar.com.br/comprar/imovel/pinheiros-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/pinheiros-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/pinheiros-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/pinheiros-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/pinheiros-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/pinheiros-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 46
+TOTAL CANDIDATOS ENRIQUECIDOS: 46
+sem match
+[29/380] Eliezer (Vila Parque Jabaquara) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-parque-jabaquara-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-parque-jabaquara
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/vila-parque-jabaquara
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/vila-parque-jabaquara
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-parque-jabaquara-sao-paulo
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-parque-jabaquara-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-parque-jabaquara-sao-paulo-sp
+Buscando: https://www.quintoandar.com.br/comprar/imovel/apartamento/vila-parque-jabaquara-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/casa/vila-parque-jabaquara-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-parque-jabaquara-sao-paulo-sp-brasil/apartamento
+TOTAL CANDIDATOS: 36
+TOTAL CANDIDATOS ENRIQUECIDOS: 36
+sem match
+[30/380] Adrian Ferraz Cardoso Lopes (Vila Andrade) ... Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-andrade-sao-paulo-sp-brasil
+Buscando: https://www.quintoandar.com.br/comprar/imovel/vila-andrade
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp/vila-andrade
+Buscando: https://www.quintoandar.com.br/comprar/imovel/sao-paulo-sp-brasil/vila-andrade

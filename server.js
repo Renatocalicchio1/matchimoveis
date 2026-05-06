@@ -314,8 +314,39 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   const idx = Number(req.params.idx);
   lead.imovelVisita = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
   lead.visitaSolicitadaEm = new Date().toISOString();
-registrarHistoricoImovelLead(lead, 'visita_solicitada', lead.imovelVisita);
+  registrarHistoricoImovelLead(lead, 'visita_solicitada', lead.imovelVisita);
   fs.writeFileSync('data.json', JSON.stringify(leads, null, 2));
+
+  // Gravar em visitas.json vinculado ao dono da lead
+  const imovel = lead.imovelVisita || {};
+  const novaVisita = {
+    id: Date.now().toString(),
+    leadId: lead.id || lead.leadId,
+    nome: lead.nome || lead.name || '',
+    telefone: lead.telefone || lead.phone || '',
+    contato: lead.telefone || lead.phone || '',
+    imovelId: imovel.id || imovel.codigo || '',
+    imovelTitulo: imovel.titulo || imovel.title || '',
+    imovelBairro: imovel.bairro || '',
+    imovelCidade: imovel.cidade || '',
+    imovelEstado: imovel.estado || '',
+    usuarioDestinoId: lead.userId || lead.codigoUsuario || '',
+    usuarioDestinoNome: '',
+    usuarioDestinoPerfil: '',
+    usuarioDestinoTelefone: '',
+    corretorId: lead.userId || lead.codigoUsuario || '',
+    corretorNome: '',
+    corretorTelefone: '',
+    status: 'solicitada',
+    origem: 'vitrine_cliente',
+    fonte: 'MatchImóveis',
+    data: new Date().toISOString(),
+    data_br: new Date().toLocaleString('pt-BR')
+  };
+  const visitas = fs.existsSync('visitas.json') ? JSON.parse(fs.readFileSync('visitas.json','utf8')) : [];
+  visitas.push(novaVisita);
+  fs.writeFileSync('visitas.json', JSON.stringify(visitas, null, 2));
+
   res.redirect('/cliente/oferta/'+req.params.leadId+'?visita=ok');
 });
 

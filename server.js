@@ -334,7 +334,8 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
   if(!lead) return res.status(404).send('Lead não encontrado');
   const idx = Number(req.params.idx);
-  lead.imovelVisita = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
+  const matchesDisp = lead.matchesBase || lead.matches || [];
+  lead.imovelVisita = matchesDisp[idx] || null;
   lead.visitaSolicitadaEm = new Date().toISOString();
   registrarHistoricoImovelLead(lead, 'visita_solicitada', lead.imovelVisita);
   fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));

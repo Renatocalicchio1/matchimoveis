@@ -9255,7 +9255,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:47:59.164Z"
   },
   {
     "nome": "Tatiana lossurdo",
@@ -9305,7 +9307,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:50:43.079Z"
   },
   {
     "nome": "jonathan cezarano ferreira da silva",
@@ -9375,7 +9379,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:53:19.304Z"
   },
   {
     "nome": "Fabiane",
@@ -9405,7 +9411,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:55:50.613Z"
   },
   {
     "nome": "Fabiane",
@@ -9435,7 +9443,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T21:58:57.146Z"
   },
   {
     "nome": "Cleidison",
@@ -9505,7 +9515,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T22:01:41.625Z"
   },
   {
     "nome": "Maria Angelica Patêz Brocco",
@@ -9535,7 +9547,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T22:05:01.346Z"
   },
   {
     "nome": "Maria Angelica Patêz Brocco",
@@ -9565,7 +9579,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T22:08:18.650Z"
   },
   {
     "nome": "simoneregianehotmailcom",
@@ -9615,7 +9631,9 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T22:11:21.756Z"
   },
   {
     "nome": "Serena",
@@ -9744,8 +9762,101 @@
     "logradouro": "Travessa Benedito Bandeira 0",
     "indisponivel": false,
     "extractionStatus": "ok",
-    "matchesBase": [],
-    "matchCountBase": 0
+    "matchesBase": [
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "894902817",
+        "id_anuncio": "894902817",
+        "url": "https://www.quintoandar.com.br/imovel/894902817/comprar/casa-3-quartos-vila-progresso-zona-leste-sao-paulo",
+        "tipo": "Casa",
+        "valor": 575000,
+        "area": 121,
+        "quartos": 3,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Curuçá",
+        "score": 112,
+        "bestScore": 112
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "894207274",
+        "id_anuncio": "894207274",
+        "url": "https://www.quintoandar.com.br/imovel/894207274/comprar/casa-2-quartos-parada-xv-de-novembro-sao-paulo",
+        "tipo": "Casa",
+        "valor": 575000,
+        "area": 121,
+        "quartos": 3,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Curuçá",
+        "score": 112,
+        "bestScore": 112
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "893809324",
+        "id_anuncio": "893809324",
+        "url": "https://www.quintoandar.com.br/imovel/893809324/comprar/casa-2-quartos-vila-progresso-zona-leste-sao-paulo",
+        "tipo": "Casa",
+        "valor": 575000,
+        "area": 121,
+        "quartos": 3,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Curuçá",
+        "score": 112,
+        "bestScore": 112
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "894059301",
+        "id_anuncio": "894059301",
+        "url": "https://www.quintoandar.com.br/imovel/894059301/comprar/casa-3-quartos-parada-xv-de-novembro-sao-paulo",
+        "tipo": "Casa",
+        "valor": 575000,
+        "area": 121,
+        "quartos": 3,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Curuçá",
+        "score": 112,
+        "bestScore": 112
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "894876604",
+        "id_anuncio": "894876604",
+        "url": "https://www.quintoandar.com.br/imovel/894876604/comprar/casa-1-quarto-jardim-lajeado-sao-paulo",
+        "tipo": "Casa",
+        "valor": 575000,
+        "area": 121,
+        "quartos": 3,
+        "suites": 0,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Curuçá",
+        "score": 112,
+        "bestScore": 112
+      }
+    ],
+    "matchCountBase": 5,
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-06T22:14:08.529Z"
   },
   {
     "nome": "Ingrid",

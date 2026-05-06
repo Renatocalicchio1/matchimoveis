@@ -66,5 +66,14 @@ function scoreMatch(origin, c) {
 
   fs.writeFileSync(DATA_FILE, JSON.stringify(leads, null, 2));
   console.log('\nConcluido! ok:' + ok + ' semMatch:' + semMatch + ' erro:' + erro);
+  
+  // Enriquece automaticamente com fotos e descrição
+  console.log('\nIniciando enriquecimento de fotos QuintoAndar...');
+  const { execSync } = require('child_process');
+  try {
+    execSync('node enriquecerMatchesQA.js', { stdio: 'inherit' });
+  } catch(e) {
+    console.log('Erro no enriquecimento:', e.message);
+  }
   process.exit(0);
 })();

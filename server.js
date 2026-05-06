@@ -1728,14 +1728,50 @@ app.post('/api/lead-interesse', (req, res) => {
 app.get('/imovel/:id', (req, res) => {
   const imoveis = JSON.parse(fs.readFileSync('./imoveis.json', 'utf8'));
   const users = JSON.parse(fs.readFileSync('./users.json', 'utf8'));
-  const imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
-  if (!imovel) return res.status(404).send('Imóvel não encontrado');
-  const pub = Object.assign({}, imovel);
-  delete pub.proprietario;
-  delete pub.proprietario_celular;
-  delete pub.proprietario_email;
-  // Pega o primeiro usuário ativo como contato
   const corretor = users.find(u => u.ativo) || {};
+
+  // Busca na base interna primeiro
+  let imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
+
+  if (imovel) {
+    const pub = Object.assign({}, imovel);
+    delete pub.proprietario;
+    delete pub.proprietario_celular;
+    delete pub.proprietario_email;
+    return res.render('imovel-publico', { imovel: pub, corretor });
+  }
+
+  // Busca nos matches do QuintoAndar
+  const leads = JSON.parse(fs.readFileSync('./data.json', 'utf8'));
+  let qaImovel = null;
+  for (const lead of leads) {
+    const matches = lead.matchesBase || [];
+    const m = matches.find(m => m && (String(m.id_anuncio) === String(req.params.id) || String(m.id_anuncio_quintoandar) === String(req.params.id)));
+    if (m) { qaImovel = m; break; }
+  }
+
+  if (!qaImovel) return res.status(404).send('Imóvel não encontrado');
+
+  // Monta objeto compatível com imovel-publico
+  const pub = {
+    idExterno: qaImovel.id_anuncio || qaImovel.id_anuncio_quintoandar,
+    titulo: qaImovel.titulo || (qaImovel.tipo + ' em ' + qaImovel.bairro),
+    tipo: qaImovel.tipo || 'Apartamento',
+    bairro: qaImovel.bairro || '',
+    cidade: qaImovel.cidade || '',
+    estado: qaImovel.estado || '',
+    valor_imovel: qaImovel.valor_imovel || qaImovel.valor || 0,
+    area_m2: qaImovel.area_m2 || qaImovel.area || 0,
+    quartos: qaImovel.quartos || 0,
+    suites: qaImovel.suites || 0,
+    banheiros: qaImovel.banheiros || 0,
+    vagas: qaImovel.vagas || 0,
+    descricao: qaImovel.descricao || '',
+    fotos: qaImovel.fotos || [],
+    fonte: 'QuintoAndar',
+    url: qaImovel.url || ''
+  };
+
   res.render('imovel-publico', { imovel: pub, corretor });
 });
 

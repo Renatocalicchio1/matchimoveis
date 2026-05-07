@@ -7,7 +7,10 @@
     "tipo": "imobiliaria",
     "ativo": true,
     "codigoUsuario": "RAN-9191",
-    "senha": "kkk"
+    "senha": "kkk",
+    "matchCoins": 0,
+    "matchCoinsTotal": 0,
+    "matchCoinsTransacoes": []
   },
   {
     "id": "imobiliaria-47992010888",
@@ -17,6 +20,9 @@
     "tipo": "imobiliaria",
     "ativo": true,
     "codigoUsuario": "RAN-0888",
-    "senha": "kkk"
+    "senha": "kkk",
+    "matchCoins": 0,
+    "matchCoinsTotal": 0,
+    "matchCoinsTransacoes": []
   }
 ]

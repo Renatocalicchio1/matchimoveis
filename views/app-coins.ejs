@@ -1,0 +1,56 @@
+<%- include("partials/app-shell",{active:"coins",user:user,title:"Match Coins"}) %>
+
+<div class="kpi-grid" style="margin-bottom:24px">
+  <div class="kpi amber">
+    <div class="kpi-accent"></div>
+    <div class="kpi-label">Saldo Atual</div>
+    <div class="kpi-val">🪙 <%= user.matchCoins || 0 %></div>
+    <div class="kpi-sub">Match Coins disponíveis</div>
+  </div>
+  <div class="kpi blue">
+    <div class="kpi-accent"></div>
+    <div class="kpi-label">Total Recebido</div>
+    <div class="kpi-val"><%= user.matchCoinsTotal || 0 %></div>
+    <div class="kpi-sub">Coins acumulados</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="font-size:16px;font-weight:700;margin-bottom:4px">Histórico de transações</h2>
+  <p style="color:#888;font-size:13px;margin-bottom:20px">Todas as movimentações de Match Coins da sua conta</p>
+
+  <% if(!user.matchCoinsTransacoes || user.matchCoinsTransacoes.length===0) { %>
+    <div class="empty">
+      <div class="empty-icon">🪙</div>
+      <h3>Nenhuma transação ainda</h3>
+      <p>Suas movimentações de Match Coins aparecerão aqui.</p>
+    </div>
+  <% } else { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Quantidade</th>
+          <th>Saldo após</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% user.matchCoinsTransacoes.slice().reverse().forEach(t=>{ %>
+        <tr>
+          <td><%= t.data ? new Date(t.data).toLocaleString('pt-BR') : '-' %></td>
+          <td><%= t.motivo || '-' %></td>
+          <td>
+            <span style="font-weight:700;color:<%= t.quantidade>0?'#16a34a':'#ef4444' %>">
+              <%= t.quantidade>0?'+':'' %><%= t.quantidade %> 🪙
+            </span>
+          </td>
+          <td><%= t.saldoApos !== undefined ? t.saldoApos : '-' %> 🪙</td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('partials/app-end') %>

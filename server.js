@@ -2501,3 +2501,10 @@ app.post('/cliente/visita/:visitaId/responder', (req, res) => {
   fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
   res.render('cliente-visita-confirmar', { visita: visitas[idx] });
 });
+
+// Match Coins
+app.get('/app/coins', auth, (req, res) => {
+  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const user = users.find(u => u.id === req.session.user.id);
+  res.render('app-coins', { user: user || req.session.user });
+});

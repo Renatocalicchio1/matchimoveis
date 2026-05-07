@@ -2477,3 +2477,27 @@ app.get('/admin/zerar-visitas-notificacoes-temp', (req, res) => {
   fs.writeFileSync(dataPath('notificacoes.json'), '[]');
   res.send('✅ Visitas e notificações zeradas no disco persistente!');
 });
+
+// Página confirmação de presença do lead
+app.get('/cliente/visita/:visitaId/confirmar', (req, res) => {
+  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visita = visitas.find(v => v.id === req.params.visitaId);
+  if (!visita) return res.status(404).send('Visita não encontrada');
+  res.render('cliente-visita-confirmar', { visita });
+});
+
+app.post('/cliente/visita/:visitaId/responder', (req, res) => {
+  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const idx = visitas.findIndex(v => v.id === req.params.visitaId);
+  if (idx === -1) return res.status(404).send('Visita não encontrada');
+  const { resposta } = req.body;
+  if (resposta === 'confirmar') {
+    visitas[idx].status = 'lead_confirmou';
+    visitas[idx].leadConfirmouEm = new Date().toISOString();
+  } else {
+    visitas[idx].status = 'lead_recusou';
+    visitas[idx].leadRecusouEm = new Date().toISOString();
+  }
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
+  res.render('cliente-visita-confirmar', { visita: visitas[idx] });
+});

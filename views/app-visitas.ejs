@@ -65,10 +65,14 @@
                   const msgProp = 'Olá ' + propNome + '! Sou ' + corretorNome + ', corretor parceiro. Tenho um cliente interessado no seu imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' e gostaria de agendar uma visita para o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + '. Confirme sua disponibilidade aqui: https://matchimoveis.onrender.com/proprietario/visita/' + v.id;
                   const msgParceiro = 'Olá ' + parceiroNome + '! Sou ' + corretorNome + ' da MatchImóveis. Tenho um cliente interessado no seu imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' e gostaria de agendar uma visita para o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + '. Confirme sua disponibilidade aqui: https://matchimoveis.onrender.com/proprietario/visita/' + v.id;
                   const telCliente = (v.telefone || v.contato || '').replace(/\D/g,'');
-                  const msgCliente = 'Olá ' + (v.nome || 'cliente') + '! Sua visita ao imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' foi confirmada para ' + (v.dataVisita || dataVisita) + (v.horaVisita ? ' às ' + v.horaVisita : '') + '. Qualquer dúvida estamos à disposição!';
+                  const msgCliente = 'Olá ' + (v.nome || 'cliente') + '! Sua visita ao imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' foi confirmada para ' + (v.dataVisita || dataVisita) + (v.horaVisita ? ' às ' + v.horaVisita : '') + '. Confirme sua presença aqui: https://matchimoveis.onrender.com/cliente/visita/' + v.id + '/confirmar';
                 %>
 
-                <% if (v.status === 'confirmada') { %>
+                <% if (v.status === 'lead_confirmou') { %>
+                  <strong style='color:green'>✅ Lead confirmou presença</strong>
+                <% } else if (v.status === 'lead_recusou') { %>
+                  <strong style='color:red'>❌ Lead não comparecerá</strong>
+                <% } else if (v.status === 'confirmada') { %>
                   <strong style="color:green">✅ Confirmada</strong>
                   <% if (telCliente) { %>
                     <a href="https://wa.me/55<%= telCliente %>?text=<%= encodeURIComponent(msgCliente) %>" target="_blank" style="background:#25D366;color:white;padding:8px 12px;border-radius:8px;text-decoration:none;text-align:center;font-size:13px">

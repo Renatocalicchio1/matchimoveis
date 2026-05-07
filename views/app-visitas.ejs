@@ -64,7 +64,7 @@
                   const parceiroNome = v.imovelUsuarioNome || 'Corretor parceiro';
                   const msgProp = 'Olá ' + propNome + '! Sou ' + corretorNome + ', corretor parceiro. Tenho um cliente interessado no seu imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' e gostaria de agendar uma visita para o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + '. Confirme sua disponibilidade aqui: https://matchimoveis.onrender.com/proprietario/visita/' + v.id;
                   const msgParceiro = 'Olá ' + parceiroNome + '! Sou ' + corretorNome + ' da MatchImóveis. Tenho um cliente interessado no seu imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' e gostaria de agendar uma visita para o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + '. Confirme sua disponibilidade aqui: https://matchimoveis.onrender.com/proprietario/visita/' + v.id;
-                  const telCliente = (v.telefone || v.contato || '').replace(/D/g,'');
+                  const telCliente = (v.telefone || v.contato || '').replace(/\D/g,'');
                   const msgCliente = 'Olá ' + (v.nome || 'cliente') + '! Sua visita ao imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' foi confirmada para ' + (v.dataVisita || dataVisita) + (v.horaVisita ? ' às ' + v.horaVisita : '') + '. Qualquer dúvida estamos à disposição!';
                 %>
 

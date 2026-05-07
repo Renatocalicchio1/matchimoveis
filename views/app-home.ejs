@@ -146,4 +146,79 @@
   </div>
 </div>
 
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+  <div class="card" style="margin:0">
+    <div class="section-title"><span>📅 Visitas por status</span></div>
+    <canvas id="chartVisitas" height="200"></canvas>
+  </div>
+  <div class="card" style="margin:0">
+    <div class="section-title"><span>👥 Leads por status</span></div>
+    <canvas id="chartLeads" height="200"></canvas>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+  <div class="card" style="margin:0">
+    <div class="section-title"><span>🏠 Imóveis por tipo</span></div>
+    <canvas id="chartImoveisTipo" height="200"></canvas>
+  </div>
+  <div class="card" style="margin:0">
+    <div class="section-title"><span>📍 Imóveis por bairro (Top 8)</span></div>
+    <canvas id="chartImoveisBairro" height="200"></canvas>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:20px">
+  <div class="card" style="margin:0">
+    <div class="section-title"><span>📍 Leads por bairro (Top 8)</span></div>
+    <canvas id="chartLeadsBairro" height="120"></canvas>
+  </div>
+</div>
+
+<script>
+const COLORS=['#FF385C','#1a56db','#16a34a','#f59e0b','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
+
+function makeDonut(id, data){
+  const labels=Object.keys(data);
+  const vals=Object.values(data);
+  new Chart(document.getElementById(id),{
+    type:'doughnut',
+    data:{labels,datasets:[{data:vals,backgroundColor:COLORS,borderWidth:2,borderColor:'#fff'}]},
+    options:{plugins:{legend:{position:'right'}},cutout:'65%'}
+  });
+}
+
+function makeBar(id, data, horizontal=false){
+  const labels=Object.keys(data);
+  const vals=Object.values(data);
+  new Chart(document.getElementById(id),{
+    type: horizontal ? 'bar' : 'bar',
+    data:{labels,datasets:[{data:vals,backgroundColor:COLORS,borderRadius:6,borderSkipped:false}]},
+    options:{
+      indexAxis: horizontal ? 'y' : 'x',
+      plugins:{legend:{display:false}},
+      scales:{x:{grid:{display:false}},y:{grid:{color:'#f5f5f5'}}}
+    }
+  });
+}
+
+const visitasStatus=<%- graficoVisitasStatus %>;
+const leadsStatus=<%- graficoLeadsStatus %>;
+const imoveisTipo=<%- graficoImoveisTipo %>;
+const imoveisBairro=<%- graficoImoveisBairro %>;
+const leadsBairro=<%- graficoLeadsBairro %>;
+
+makeDonut('chartVisitas', visitasStatus);
+makeDonut('chartLeads', {
+  'Extraído OK': leadsStatus.ok||0,
+  'Incompleto': leadsStatus.incompleto||0,
+  'Sem status': leadsStatus.semStatus||0
+});
+makeDonut('chartImoveisTipo', imoveisTipo);
+makeBar('chartImoveisBairro', imoveisBairro, true);
+makeBar('chartLeadsBairro', leadsBairro, true);
+</script>
 <%- include('partials/app-end') %>

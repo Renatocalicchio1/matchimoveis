@@ -747,7 +747,41 @@ app.get('/app-home', auth, (req,res)=>{
     recentes,
     topMatches: comMatch.slice(0,3),
     notificacoes: minhasNotificacoes.slice(-5).reverse(),
-    notificacoesNaoLidas: naoLidas.length
+    notificacoesNaoLidas: naoLidas.length,
+
+    // Gráficos
+    graficoVisitasStatus: (() => {
+      const map = {};
+      visitas.forEach(v => { const s=v.status||'solicitada'; map[s]=(map[s]||0)+1; });
+      return JSON.stringify(map);
+    })(),
+    graficoLeadsStatus: (() => {
+      const map = {ok:0,incompleto:0,semStatus:0};
+      leadsArr.forEach(l => {
+        if(l.status==='ok') map.ok++;
+        else if(l.status==='incompleto') map.incompleto++;
+        else map.semStatus++;
+      });
+      return JSON.stringify(map);
+    })(),
+    graficoImoveisTipo: (() => {
+      const map = {};
+      imoveis.forEach(i => { const t=i.tipo||'Outro'; map[t]=(map[t]||0)+1; });
+      const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,6);
+      return JSON.stringify(Object.fromEntries(sorted));
+    })(),
+    graficoImoveisBairro: (() => {
+      const map = {};
+      imoveis.forEach(i => { const b=i.bairro||'Outro'; map[b]=(map[b]||0)+1; });
+      const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,8);
+      return JSON.stringify(Object.fromEntries(sorted));
+    })(),
+    graficoLeadsBairro: (() => {
+      const map = {};
+      leadsArr.forEach(l => { const b=l.bairro||'Outro'; map[b]=(map[b]||0)+1; });
+      const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,8);
+      return JSON.stringify(Object.fromEntries(sorted));
+    })()
   });
 });
 

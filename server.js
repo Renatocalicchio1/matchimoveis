@@ -465,6 +465,25 @@ app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
   }
 
   fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
+  try {
+    const _notifs = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
+    const _v = visitas[idx];
+    const _uid = _v.userId || _v.corretorId || '';
+    const _imovel = _v.imovelTitulo || _v.imovelBairro || 'imovel';
+    const _cliente = _v.nome || 'cliente';
+    const _data = _v.dataVisita || '';
+    const _hora = _v.horaVisita || '';
+    const _msgs = {
+      confirmar: { titulo: 'Visita confirmada pelo proprietario', msg: 'O proprietario confirmou a visita de ' + _cliente + ' ao imovel ' + _imovel + ' para ' + _data + ' as ' + _hora + '.' },
+      indisponivel: { titulo: 'Imovel indisponivel', msg: 'O proprietario informou que o imovel ' + _imovel + ' nao esta disponivel. Imovel inativado.' },
+      remarcar: { titulo: 'Proprietario pediu remarcacao', msg: 'O proprietario do imovel ' + _imovel + ' nao pode receber ' + _cliente + ' no dia ' + _data + '. Peca ao cliente uma nova data.' }
+    };
+    const _info = _msgs[resposta];
+    if (_info && _uid) {
+      _notifs.push({ id: Date.now().toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _info.msg, usuarioId: _uid, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
+      fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(_notifs, null, 2));
+    }
+  } catch(e) { console.log('Erro notif proprietario:', e.message); }
   res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
 });
 

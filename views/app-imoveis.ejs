@@ -43,6 +43,20 @@
       <div style="flex:0 0 80px"><label>Área m²</label><input id="f-area-min" type="number"></div>
       <div style="flex:0 0 70px"><label>Quartos</label><input id="f-quartos" type="number"></div>
       <div style="flex:0 0 70px"><label>Vagas</label><input id="f-vagas" type="number"></div>
+      <div style="flex:1;min-width:120px"><label>Operação</label>
+        <select id="f-operacao"><option value="">Todas</option><option value="venda">Venda</option><option value="aluguel">Aluguel</option></select>
+      </div>
+      <div style="flex:1;min-width:120px"><label>Status</label>
+        <select id="f-status"><option value="">Todos</option><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select>
+      </div>
+      <div style="flex:0 0 70px"><label>Suítes</label><input id="f-suites" type="number" min="0"></div>
+      <div style="flex:0 0 70px"><label>Banheiros</label><input id="f-banheiros" type="number" min="0"></div>
+      <div style="flex:1;min-width:120px"><label>Proprietário</label>
+        <select id="f-proprietario"><option value="">Todos</option><option value="sim">Com proprietário</option><option value="nao">Sem proprietário</option></select>
+      </div>
+      <div style="flex:1;min-width:120px"><label>Fotos</label>
+        <select id="f-fotos"><option value="">Todos</option><option value="sim">Com fotos</option><option value="nao">Sem fotos</option></select>
+      </div>
       <div style="display:flex;gap:6px;align-items:flex-end">
         <button class="btn btn-primary" onclick="filtrar()">Aplicar</button>
         <button class="btn btn-outline" onclick="limpar()">Limpar</button>
@@ -65,6 +79,11 @@
     data-quartos="<%= item.quartos || 0 %>"
     data-vagas="<%= item.vagas || 0 %>"
     data-status="<%= (item.status||'ativo').toLowerCase() %>"
+    data-suites="<%= item.suites || 0 %>"
+    data-banheiros="<%= item.banheiros || 0 %>"
+    data-operacao="<%= (item.transacao||item.operacao||'').toLowerCase() %>"
+    data-proprietario="<%= (item.proprietario && item.proprietario.nome) ? item.proprietario.nome.toLowerCase() : '' %>"
+    data-fotos="<%= (item.fotos && item.fotos.length>0) ? item.fotos.length : '0' %>"
     data-texto="<%= ((item.tipo||'')+(item.bairro||'')+(item.cidade||'')+(item.titulo||'')).toLowerCase() %>"
     style="padding:0;overflow:hidden;border-radius:12px;border:2px solid #eee;display:flex;flex-direction:column;height:100%;transition:border-color .2s,box-shadow .2s;cursor:pointer"
     onclick="toggleCard(this)">
@@ -197,6 +216,12 @@ function filtrar(){
   const areaMin=Number(document.getElementById('f-area-min')?.value)||0;
   const quartos=Number(document.getElementById('f-quartos')?.value)||0;
   const vagas=Number(document.getElementById('f-vagas')?.value)||0;
+  const suites=Number(document.getElementById('f-suites')?.value)||0;
+  const banheiros=Number(document.getElementById('f-banheiros')?.value)||0;
+  const operacao=norm(document.getElementById('f-operacao')?.value);
+  const status=norm(document.getElementById('f-status')?.value);
+  const proprietario=document.getElementById('f-proprietario')?.value;
+  const fotos=document.getElementById('f-fotos')?.value;
   let vis=0;
   document.querySelectorAll('.imovel-card').forEach(card=>{
     let ok=true;
@@ -209,13 +234,21 @@ function filtrar(){
     if(areaMin&&Number(card.dataset.area)<areaMin)ok=false;
     if(quartos&&Number(card.dataset.quartos)<quartos)ok=false;
     if(vagas&&Number(card.dataset.vagas)<vagas)ok=false;
+    if(suites&&Number(card.dataset.suites)<suites)ok=false;
+    if(banheiros&&Number(card.dataset.banheiros)<banheiros)ok=false;
+    if(operacao&&!norm(card.dataset.operacao||'').includes(operacao))ok=false;
+    if(status&&norm(card.dataset.status||'')!==status)ok=false;
+    if(proprietario==='sim'&&!card.dataset.proprietario)ok=false;
+    if(proprietario==='nao'&&card.dataset.proprietario)ok=false;
+    if(fotos==='sim'&&card.dataset.fotos==='0')ok=false;
+    if(fotos==='nao'&&card.dataset.fotos!=='0')ok=false;
     card.style.display=ok?'':'none';
     if(ok)vis++;
   });
   document.getElementById('sem-resultados').style.display=vis===0?'block':'none';
 }
 function limpar(){
-  ['f-tipo','f-bairro','f-cidade','f-valor-min','f-valor-max','f-area-min','f-quartos','f-vagas'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-tipo','f-bairro','f-cidade','f-valor-min','f-valor-max','f-area-min','f-quartos','f-vagas','f-suites','f-banheiros','f-operacao','f-status','f-proprietario','f-fotos'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('busca').value='';filtrar();
 }
 </script>

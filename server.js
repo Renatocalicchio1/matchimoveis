@@ -907,7 +907,8 @@ app.get('/app/visitas', auth, (req,res)=>{
     String(v.corretorId || v.usuarioDestinoId || '') === String(user.id || '') ||
     String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/D/g,'') === String(user.celular || user.telefone || '').replace(/D/g,'')
   );
-  res.render('app-visitas', { user: req.session.user, visitas });
+  const visitasOrdenadas = visitas.sort((a,b)=>new Date(b.data||0)-new Date(a.data||0));
+  res.render('app-visitas', { user: req.session.user, visitas: visitasOrdenadas });
 });
 
 app.get('/logout', (req,res)=>{

@@ -1798,6 +1798,7 @@ app.post('/api/lead-interesse', (req, res) => {
         usuarioDestinoNome,
         usuarioDestinoPerfil,
         usuarioDestinoTelefone,
+        userId: usuarioDestinoId,
         corretorId: usuarioDestinoId,
         corretorNome: usuarioDestinoNome,
         corretorTelefone: usuarioDestinoTelefone,

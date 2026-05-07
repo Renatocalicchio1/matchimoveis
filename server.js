@@ -480,7 +480,18 @@ app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
     };
     const _info = _msgs[resposta];
     if (_info && _uid) {
+      // Notifica corretor dono da lead
       _notifs.push({ id: Date.now().toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _info.msg, usuarioId: _uid, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
+      // Notifica parceiro dono do imóvel (se diferente do corretor)
+      const _parcId = _v.imovelUsuarioId || '';
+      if (_parcId && _parcId !== _uid) {
+        const _msgParc = {
+          confirmar: 'Você confirmou a visita de ' + _cliente + ' ao imóvel ' + _imovel + ' para ' + _data + ' às ' + _hora + '.',
+          indisponivel: 'Você informou indisponibilidade do imóvel ' + _imovel + '. O imóvel foi inativado.',
+          remarcar: 'Você pediu remarcação da visita de ' + _cliente + ' ao imóvel ' + _imovel + '.'
+        }[resposta];
+        if (_msgParc) _notifs.push({ id: (Date.now()+1).toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _msgParc, usuarioId: _parcId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
+      }
       fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(_notifs, null, 2));
     }
   } catch(e) { console.log('Erro notif proprietario:', e.message); }

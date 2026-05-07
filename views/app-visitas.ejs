@@ -83,7 +83,7 @@
                   <strong style="color:red">❌ Cancelada</strong>
                 <% } else if (v.status === 'pendente_remarcar') { %>
                   <strong style="color:orange">📅 Proprietário pediu nova data</strong>
-                  <% const telClienteRem = (v.telefone || v.contato || '').replace(/D/g,'');
+                  <% const telClienteRem = (v.telefone || v.contato || '').replace(/\D/g,'');
                      const msgRemarcar = 'Olá ' + (v.nome || 'cliente') + '! Infelizmente o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + ' não está disponível para visitar o imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + '. Por favor, escolha uma nova data e horário pelo link: https://matchimoveis.onrender.com/cliente/visita/' + v.id + '/remarcar';
                   %>
                   <% if (telClienteRem) { %>

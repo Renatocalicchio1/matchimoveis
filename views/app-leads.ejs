@@ -123,9 +123,9 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
   <!-- Stats -->
   <section style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
     <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center"><strong style="font-size:28px;display:block"><%= stats.totalLeads %></strong><span style="font-size:13px;color:#717171">Total Leads</span></div>
-    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #FF385C"><strong style="font-size:28px;display:block;color:#FF385C"><%= stats.comMatch %></strong><span style="font-size:13px;color:#717171">Com match</span></div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #FF385C"><strong style="font-size:28px;display:block;color:#FF385C"><%= stats.comMatch %></strong><span style="font-size:13px;color:#717171">🤖 IA encontrou imóvel</span></div>
     <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center"><strong style="font-size:28px;display:block"><%= stats.pendentes %></strong><span style="font-size:13px;color:#717171">Sem match</span></div>
-    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #008A05"><strong style="font-size:28px;display:block;color:#008A05"><%= stats.totalMatches %></strong><span style="font-size:13px;color:#717171">Total matches</span></div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #008A05"><strong style="font-size:28px;display:block;color:#008A05"><%= stats.totalMatches %></strong><span style="font-size:13px;color:#717171">🎯 Total de matches IA</span></div>
   </section>
 
   <!-- Filtros -->
@@ -134,8 +134,8 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
       <label><span>Status</span>
         <select id="filter-status">
           <option value="all">Todos</option>
-          <option value="with_matches">✅ Com match</option>
-          <option value="without_matches">❌ Sem match</option>
+          <option value="with_matches">🤖 IA encontrou imóvel</option>
+          <option value="without_matches">⏳ Aguardando IA</option>
         </select>
       </label>
       <label><span>Score mínimo</span>
@@ -156,8 +156,8 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
   <!-- Cards -->
   <section class="card results-card">
     <div class="section-head">
-      <h2>Resultados</h2>
-      <p class="muted">Cada card representa um cliente + imóvel de origem + matches.</p>
+      <h2>Resultados da IA</h2>
+      <p class="muted">Cada card representa um cliente analisado pela IA — com imóvel de origem e sugestões de match.</p>
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -195,8 +195,8 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
           <div style="font-size:13px;line-height:1.45">
             <strong><a href="/app/lead/<%= item.id %>" style="text-decoration:none;color:#111"><%= item.nome || item.cliente || item.clientName || '-' %></a></strong>
             · <span style="color:#16a34a;font-weight:600"><%= (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? 'Extraído' : 'Pendente' %></span>
-            · <span class="chip"><%= matchCount %> matches</span>
-            <% if(bestScore) { %> · <span class="chip dark">Score <%= bestScore %></span><% } %>
+            · <span class="chip">🤖 <%= matchCount %> sugestões IA</span>
+            <% if(bestScore) { %> · <span class="chip dark">⚡ Compatibilidade <%= bestScore %>%</span><% } %>
             <br>
             <span style="color:#666"><%= item.contato || item.telefone || '-' %> · <%= item.email || '-' %></span>
             · <a target="_blank" href="https://wa.me/<%= String(item.contato || item.telefone || '').replace(/\\D/g,'') %>">WhatsApp</a>
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
           <table class="excel-table">
             <thead>
               <tr>
-                <th>Fonte</th><th>Rank</th><th>Score</th><th>ID Externo</th><th>ID Interno</th><th>Tipo</th>
+                <th>Fonte</th><th>Rank IA</th><th>Compatibilidade</th><th>ID Externo</th><th>ID Interno</th><th>Tipo</th>
                 <th>Bairro</th><th>Cidade/UF</th><th>Valor</th>
                 <th>Área</th><th>Quartos</th><th>Suítes</th>
                 <th>Banheiros</th><th>Vagas</th><th>URL</th>

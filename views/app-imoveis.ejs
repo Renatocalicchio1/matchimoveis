@@ -1,4 +1,4 @@
-<%- include('partials/app-shell',{active:'imoveis',title:'Meus imóveis',subtitle:'Relação completa dos imóveis da carteira.',perfil:'corretor'}) %>
+<%- include('partials/app-shell',{active:'imoveis',title:'Meus imóveis',subtitle:'🤖 Base indexada pela IA — pronta para match com leads.',perfil:'corretor'}) %>
 
 <div id="barra-selecao" style="display:none;position:sticky;top:0;z-index:100;background:#1a1a2e;color:#fff;padding:14px 20px;border-radius:12px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.2)">
   <div style="display:flex;align-items:center;gap:12px">
@@ -25,7 +25,7 @@
 
 <div class="card">
   <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">
-    <span><strong><%= typeof imoveis !== 'undefined' ? imoveis.length : 0 %></strong> imóveis na carteira</span>
+    <span><strong><%= typeof imoveis !== 'undefined' ? imoveis.length : 0 %></strong> imóveis indexados pela IA</span>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <input id="busca" placeholder="🔎 Buscar..." oninput="filtrar()" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;min-width:220px">
       <button class="btn light" type="button" onclick="toggleFiltros()">⚙️ Filtros avançados</button>

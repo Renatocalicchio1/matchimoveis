@@ -150,6 +150,17 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
       <label style="flex:2"><span>🔍 Busca inteligente</span>
         <input id="filter-search" type="text" placeholder="Nome, email, celular, bairro..." style="width:100%">
       </label>
+      <label>
+        <span>Fonte do match</span>
+        <select id="filter-fonte">
+          <option value="all">Todas</option>
+          <option value="Rankim">Rankim</option>
+          <option value="ImovelWeb">ImovelWeb</option>
+          <option value="QuintoAndar">QuintoAndar</option>
+          <option value="ZAP">ZAP</option>
+          <option value="VivaReal">VivaReal</option>
+        </select>
+      </label>
     </div>
   </section>
 
@@ -351,6 +362,12 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
               <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Estado</th>
               <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Cidade</th>
               <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Bairro</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Quartos</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Suítes</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Banheiros</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Vagas</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Área m²</th>
+              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Valor</th>
             </tr>
           </thead>
           <tbody>
@@ -364,6 +381,12 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
               <td style="border:1px solid #e5e7eb;padding:8px">SP</td>
               <td style="border:1px solid #e5e7eb;padding:8px">São Paulo</td>
               <td style="border:1px solid #e5e7eb;padding:8px">Moema</td>
+              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">2</td>
+              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">1</td>
+              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">2</td>
+              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">1</td>
+              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">65</td>
+              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">500000</td>
             </tr>
           </tbody>
         </table>
@@ -373,6 +396,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
     <div style="font-size:13px;color:#444;line-height:1.55;margin-bottom:16px">
       <b>Obrigatório:</b> Nome e Telefone/Contato do cliente.<br>
       <b>Para gerar match:</b> informe preferencialmente a <b>Url anúncio</b>. Se tiver apenas o ID, informe também o portal/origem quando possível.<br>
+      <b>Campos opcionais (melhoram o match):</b> Área m², Quartos, Suítes, Banheiros, Vagas, Valor.<br>
       <b>Importante:</b> o sistema considera imóveis de qualquer região do Brasil.
     </div>
 

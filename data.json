@@ -11988,7 +11988,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T05:47:40.328Z"
   },
   {
     "nome": "Alessandra Perez",
@@ -12019,7 +12021,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T05:50:59.559Z"
   },
   {
     "nome": "Valéria Val",
@@ -12150,7 +12154,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T05:53:33.444Z"
   },
   {
     "nome": "MARILIA DUARTE",
@@ -12179,9 +12185,156 @@
     "logradouro": "Rua Nicolau Zarvos 0",
     "indisponivel": false,
     "extractionStatus": "ok",
-    "matchesBase": [],
-    "matchCountBase": 0,
-    "status": "ok"
+    "matchesBase": [
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "894997298",
+        "id_anuncio": "894997298",
+        "url": "https://www.quintoandar.com.br/imovel/894997298/comprar/casa-3-quartos-parque-jabaquara-sao-paulo",
+        "tipo": "Casa",
+        "valor": 650000,
+        "area": 110,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Parque Jabaquara",
+        "score": 80,
+        "bestScore": 80
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895204695",
+        "id_anuncio": "895204695",
+        "url": "https://www.quintoandar.com.br/imovel/895204695/comprar/casa-2-quartos-parque-jabaquara-sao-paulo",
+        "tipo": "Casa",
+        "valor": 650000,
+        "area": 110,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Parque Jabaquara",
+        "score": 80,
+        "bestScore": 80
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "893514340",
+        "id_anuncio": "893514340",
+        "url": "https://www.quintoandar.com.br/imovel/893514340/comprar/casa-5-quartos-parque-jabaquara-sao-paulo",
+        "tipo": "Casa",
+        "valor": 650000,
+        "area": 110,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Parque Jabaquara",
+        "score": 80,
+        "bestScore": 80
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "893547668",
+        "id_anuncio": "893547668",
+        "url": "https://www.quintoandar.com.br/imovel/893547668/comprar/casa-3-quartos-parque-jabaquara-sao-paulo",
+        "tipo": "Casa",
+        "valor": 650000,
+        "area": 110,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Parque Jabaquara",
+        "score": 80,
+        "bestScore": 80
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "893957768",
+        "id_anuncio": "893957768",
+        "url": "https://www.quintoandar.com.br/imovel/893957768/comprar/casa-3-quartos-parque-jabaquara-sao-paulo",
+        "tipo": "Casa",
+        "valor": 650000,
+        "area": 110,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Parque Jabaquara",
+        "score": 80,
+        "bestScore": 80
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895145294",
+        "id_anuncio": "895145294",
+        "url": "https://www.quintoandar.com.br/imovel/895145294/comprar/casa-4-quartos-parque-jabaquara-sao-paulo",
+        "tipo": "Casa",
+        "valor": 650000,
+        "area": 110,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Parque Jabaquara",
+        "score": 80,
+        "bestScore": 80
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895200071",
+        "id_anuncio": "895200071",
+        "url": "https://www.quintoandar.com.br/imovel/895200071/comprar/casa-3-quartos-parque-jabaquara-sao-paulo",
+        "tipo": "Casa",
+        "valor": 650000,
+        "area": 110,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Parque Jabaquara",
+        "score": 80,
+        "bestScore": 80
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "893439762",
+        "id_anuncio": "893439762",
+        "url": "https://www.quintoandar.com.br/imovel/893439762/comprar/casa-3-quartos-parque-jabaquara-sao-paulo",
+        "tipo": "Casa",
+        "valor": 650000,
+        "area": 110,
+        "quartos": 3,
+        "suites": 1,
+        "banheiros": 0,
+        "vagas": 2,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Parque Jabaquara",
+        "score": 80,
+        "bestScore": 80
+      }
+    ],
+    "matchCountBase": 8,
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T05:56:48.196Z"
   },
   {
     "nome": "Natallia",
@@ -12237,7 +12390,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T05:59:40.846Z"
   },
   {
     "nome": "Leidiane Lima",
@@ -12293,7 +12448,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:02:15.588Z"
   },
   {
     "nome": "André Lopes",
@@ -12386,7 +12543,9 @@
       }
     ],
     "matchCountBase": 1,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:05:02.936Z"
   },
   {
     "nome": "Cláudia Natividade Bertolucci",
@@ -12442,7 +12601,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:07:38.458Z"
   },
   {
     "nome": "Mariana Morena",
@@ -12473,7 +12634,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:10:26.996Z"
   },
   {
     "nome": "FRANCISCO JOSE DE OLIVEIRA",
@@ -12504,7 +12667,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:13:05.664Z"
   },
   {
     "nome": "Bruno",
@@ -12560,7 +12725,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:16:08.893Z"
   },
   {
     "nome": "Rickson Paixão",
@@ -12641,7 +12808,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:18:51.583Z"
   },
   {
     "nome": "Suziane Sanches",
@@ -12722,7 +12891,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:21:17.570Z"
   },
   {
     "nome": "Roberto",
@@ -12753,7 +12924,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:23:47.351Z"
   },
   {
     "nome": "Roberto",
@@ -12784,7 +12957,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:26:09.617Z"
   },
   {
     "nome": "Ricardo",
@@ -12840,7 +13015,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:28:43.751Z"
   },
   {
     "nome": "Dalmy",
@@ -12871,7 +13048,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:31:48.968Z"
   },
   {
     "nome": "Joao",
@@ -12902,7 +13081,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:34:19.700Z"
   },
   {
     "nome": "Rafaela",
@@ -12933,7 +13114,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:37:05.721Z"
   },
   {
     "nome": "Cleuza Martins Silva",
@@ -12964,7 +13147,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:39:58.773Z"
   },
   {
     "nome": "Daniel",
@@ -12995,7 +13180,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:42:45.364Z"
   },
   {
     "nome": "Shirley",
@@ -13026,7 +13213,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:45:51.865Z"
   },
   {
     "nome": "Lays",
@@ -13132,7 +13321,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:48:43.110Z"
   },
   {
     "nome": "Alessandra",
@@ -13163,7 +13354,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:51:39.462Z"
   },
   {
     "nome": "Paulo Alves",
@@ -13194,7 +13387,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:54:32.754Z"
   },
   {
     "nome": "Liss",
@@ -13225,7 +13420,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:57:03.885Z"
   },
   {
     "nome": "Graciola",
@@ -13258,7 +13455,8 @@
     "matchCountBase": 0,
     "status": "incompleto",
     "matches": [],
-    "matchQuintoAndarStatus": null
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T06:59:42.686Z"
   },
   {
     "nome": "Marilda Yamaguchi",
@@ -13289,7 +13487,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:02:16.435Z"
   },
   {
     "nome": "Luis Antonio Resende de Lima",
@@ -13413,7 +13613,9 @@
       }
     ],
     "matchCountBase": 1,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:04:55.719Z"
   },
   {
     "nome": "Nicoly",
@@ -13469,7 +13671,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:07:55.200Z"
   },
   {
     "nome": "Amanda",
@@ -13500,7 +13704,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:10:54.755Z"
   },
   {
     "nome": "Luciana",
@@ -13558,7 +13764,8 @@
     "matchCountBase": 0,
     "status": "incompleto",
     "matches": [],
-    "matchQuintoAndarStatus": null
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:14:03.652Z"
   },
   {
     "nome": "Guilhen",
@@ -13589,7 +13796,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:16:59.683Z"
   },
   {
     "nome": "elvania",
@@ -13754,7 +13963,9 @@
       }
     ],
     "matchCountBase": 1,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:19:58.019Z"
   },
   {
     "nome": "Leandro Marche",
@@ -13785,7 +13996,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:23:21.190Z"
   },
   {
     "nome": "ELISANGELA",
@@ -13816,7 +14029,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:26:58.794Z"
   },
   {
     "nome": "Paulo",
@@ -13847,7 +14062,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:30:11.037Z"
   },
   {
     "nome": "Jurema Rodrigues Sá da Silva",
@@ -13878,7 +14095,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:33:30.504Z"
   },
   {
     "nome": "Sandra Pereira de Lima",
@@ -13934,7 +14153,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:36:35.018Z"
   },
   {
     "nome": "Julia",
@@ -13965,7 +14186,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T07:39:39.289Z"
   },
   {
     "nome": "Ariane Azevedo",

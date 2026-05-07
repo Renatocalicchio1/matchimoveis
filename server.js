@@ -2591,3 +2591,10 @@ app.post('/cliente/visita/:id/remarcar', (req, res) => {
   } catch(e) { console.log('Erro notif remarcação:', e.message); }
   res.render('cliente-visita-remarcar', { visita: visitas[idx], sucesso: true });
 });
+
+// DEBUG TEMP
+app.get('/admin/debug-visitas', (req, res) => {
+  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const resumo = visitas.slice(-5).map(v => ({ id: v.id, userId: v.userId, status: v.status, nome: v.nome }));
+  res.json(resumo);
+});

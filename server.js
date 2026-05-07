@@ -1743,7 +1743,7 @@ app.post('/api/lead-interesse', (req, res) => {
       contato: celular,
       telefone: celular,
       fonte: 'MatchImóveis',
-      origem: 'pagina_externa_imovel',
+      origem: 'pagina_externa_imovel', extractionStatus: 'ok',
       canal: 'WhatsApp',
       imovel_interesse: imovelId,
       titulo_interesse: imovelTitulo || imovelRef.titulo || '',
@@ -1834,7 +1834,7 @@ app.post('/api/lead-interesse', (req, res) => {
         corretorTelefone: usuarioDestinoTelefone,
 
         status: 'solicitada',
-        origem: 'pagina_externa_imovel',
+        origem: 'pagina_externa_imovel', extractionStatus: 'ok',
         fonte: 'MatchImóveis',
         data: agora.toISOString(),
         data_br: agora.toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo' })

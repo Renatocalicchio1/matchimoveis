@@ -8,9 +8,22 @@
     "ativo": true,
     "codigoUsuario": "RAN-9191",
     "senha": "kkk",
-    "matchCoins": 0,
-    "matchCoinsTotal": 0,
-    "matchCoinsTransacoes": []
+    "matchCoins": 17,
+    "matchCoinsTotal": 100,
+    "matchCoinsTransacoes": [
+      {
+        "data": "2026-05-07T01:59:56.763Z",
+        "motivo": "Crédito inicial — 100 Match Coins",
+        "quantidade": 100,
+        "saldoApos": 100
+      },
+      {
+        "data": "2026-05-07T02:00:19.504Z",
+        "motivo": "Desconto matches gerados (83 matches)",
+        "quantidade": -83,
+        "saldoApos": 17
+      }
+    ]
   },
   {
     "id": "imobiliaria-47992010888",

@@ -137,9 +137,7 @@
         <a href="#" onclick="abrirModal(this.dataset.href);return false;" data-href="https://wa.me/55<%= corretor.celular %>?text=<%= encodeURIComponent('Olá! Gostaria de solicitar uma visita para o imóvel: ' + (imovel.titulo || imovel.tipo + ' em ' + imovel.bairro) + ' - R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR')) %>" class="btn-cta btn-visita">
           📅 Solicitar visita
         </a>
-        <a href="tel:+55<%= corretor.celular %>" class="btn-cta btn-tel">
-          📞 Ligar agora
-        </a>
+        
         <div style="font-size:11px;color:#999;text-align:center;margin-top:8px">MatchImóveis · Consultoria Imobiliária</div>
       </div>
     </div>

@@ -2550,3 +2550,24 @@ app.get('/app/coins', auth, (req, res) => {
   const user = users.find(u => u.id === req.session.user.id);
   res.render('app-coins', { user: user || req.session.user });
 });
+
+// ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====
+app.get('/cliente/visita/:id/remarcar', (req, res) => {
+  const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'), 'utf8'));
+  const visita = visitas.find(v => v.id === req.params.id);
+  if (!visita) return res.status(404).send('Visita não encontrada');
+  res.render('cliente-visita-remarcar', { visita, sucesso: false });
+});
+
+app.post('/cliente/visita/:id/remarcar', (req, res) => {
+  const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'), 'utf8'));
+  const idx = visitas.findIndex(v => v.id === req.params.id);
+  if (idx === -1) return res.status(404).send('Visita não encontrada');
+  const { novaData, novoHorario } = req.body;
+  visitas[idx].dataVisita = novaData;
+  visitas[idx].horaVisita = novoHorario;
+  visitas[idx].status = 'solicitada';
+  visitas[idx].remarcadaEm = new Date().toISOString();
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
+  res.render('cliente-visita-remarcar', { visita: visitas[idx], sucesso: true });
+});

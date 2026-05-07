@@ -10531,7 +10531,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T03:57:51.191Z"
   },
   {
     "nome": "Maria",
@@ -11077,10 +11079,156 @@
         },
         "status": "ativo",
         "codigoUsuario": "RAN-9191"
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "892795263",
+        "id_anuncio": "892795263",
+        "url": "https://www.quintoandar.com.br/imovel/892795263/comprar/apartamento-2-quartos-vila-andrade-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 495000,
+        "area": 80,
+        "quartos": 2,
+        "suites": 1,
+        "banheiros": 1,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Andrade",
+        "score": 115,
+        "bestScore": 115
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "894293533",
+        "id_anuncio": "894293533",
+        "url": "https://www.quintoandar.com.br/imovel/894293533/comprar/apartamento-2-quartos-vila-andrade-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 495000,
+        "area": 80,
+        "quartos": 2,
+        "suites": 1,
+        "banheiros": 1,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Andrade",
+        "score": 115,
+        "bestScore": 115
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "894011207",
+        "id_anuncio": "894011207",
+        "url": "https://www.quintoandar.com.br/imovel/894011207/comprar/apartamento-1-quarto-vila-andrade-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 495000,
+        "area": 80,
+        "quartos": 2,
+        "suites": 1,
+        "banheiros": 1,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Andrade",
+        "score": 115,
+        "bestScore": 115
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "894728302",
+        "id_anuncio": "894728302",
+        "url": "https://www.quintoandar.com.br/imovel/894728302/comprar/apartamento-4-quartos-vila-andrade-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 495000,
+        "area": 80,
+        "quartos": 2,
+        "suites": 1,
+        "banheiros": 1,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Andrade",
+        "score": 115,
+        "bestScore": 115
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "894798690",
+        "id_anuncio": "894798690",
+        "url": "https://www.quintoandar.com.br/imovel/894798690/comprar/apartamento-4-quartos-vila-andrade-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 495000,
+        "area": 80,
+        "quartos": 2,
+        "suites": 1,
+        "banheiros": 1,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Andrade",
+        "score": 115,
+        "bestScore": 115
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "893083964",
+        "id_anuncio": "893083964",
+        "url": "https://www.quintoandar.com.br/imovel/893083964/comprar/apartamento-4-quartos-vila-andrade-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 495000,
+        "area": 80,
+        "quartos": 2,
+        "suites": 1,
+        "banheiros": 1,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Andrade",
+        "score": 115,
+        "bestScore": 115
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "894543199",
+        "id_anuncio": "894543199",
+        "url": "https://www.quintoandar.com.br/imovel/894543199/comprar/apartamento-3-quartos-vila-andrade-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 495000,
+        "area": 80,
+        "quartos": 2,
+        "suites": 1,
+        "banheiros": 1,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Andrade",
+        "score": 115,
+        "bestScore": 115
+      },
+      {
+        "fonte": "QuintoAndar",
+        "id_anuncio_quintoandar": "895125443",
+        "id_anuncio": "895125443",
+        "url": "https://www.quintoandar.com.br/imovel/895125443/comprar/apartamento-4-quartos-vila-andrade-sao-paulo",
+        "tipo": "Apartamento",
+        "valor": 495000,
+        "area": 80,
+        "quartos": 2,
+        "suites": 1,
+        "banheiros": 1,
+        "vagas": 1,
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "bairro": "Vila Andrade",
+        "score": 115,
+        "bestScore": 115
       }
     ],
-    "matchCountBase": 6,
-    "status": "ok"
+    "matchCountBase": 14,
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:00:42.089Z"
   },
   {
     "nome": "Danilo Bertasi",
@@ -11111,7 +11259,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:03:44.709Z"
   },
   {
     "nome": "thays",
@@ -11192,7 +11342,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:06:46.300Z"
   },
   {
     "nome": "Dayane",
@@ -11223,7 +11375,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:09:21.413Z"
   },
   {
     "nome": "Milena",
@@ -11279,7 +11433,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:12:07.282Z"
   },
   {
     "nome": "CRISTINA GIACHETTA",
@@ -11310,7 +11466,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:15:01.290Z"
   },
   {
     "nome": "Paulo Eduardo Martins",
@@ -11341,7 +11499,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:17:33.602Z"
   },
   {
     "nome": "Aline Dias Oliveira",
@@ -11497,7 +11657,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:20:12.420Z"
   },
   {
     "nome": "roger",
@@ -11528,7 +11690,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:23:15.242Z"
   },
   {
     "nome": "Pris",

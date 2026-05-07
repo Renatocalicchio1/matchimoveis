@@ -11723,7 +11723,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:26:10.489Z"
   },
   {
     "nome": "Daniela",
@@ -11754,7 +11756,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:28:49.557Z"
   },
   {
     "nome": "Sueny lacerda",
@@ -11835,7 +11839,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:31:33.257Z"
   },
   {
     "nome": "Suellen Silvestre",
@@ -11891,7 +11897,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:34:24.046Z"
   },
   {
     "nome": "AGNALDO",
@@ -11922,7 +11930,9 @@
     "extractionStatus": "ok",
     "matchesBase": [],
     "matchCountBase": 0,
-    "status": "ok"
+    "status": "ok",
+    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarAt": "2026-05-07T04:37:32.942Z"
   },
   {
     "nome": "Vitor",

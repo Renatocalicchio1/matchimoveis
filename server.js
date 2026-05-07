@@ -680,14 +680,14 @@ function filtrarPorUsuario(lista, user){
   if (!Array.isArray(lista)) return [];
   if (user && user.tipo === 'admin') return lista;
   const uid = String(user && user.id || '');
-  const tel = String(user && (user.celular || user.telefone) || '').replace(/D/g,'');
+  const tel = String(user && (user.celular || user.telefone) || '').replace(/\D/g,'');
   const cod = String(user && user.codigoUsuario || '');
   return lista.filter(item =>
     String(item.corretorId || '') === uid ||
     String(item.userId || '') === uid ||
     String(item.usuarioId || '') === uid ||
-    String(item.corretorCelular || '').replace(/D/g,'') === tel ||
-    String(item.usuarioTelefone || '').replace(/D/g,'') === tel ||
+    String(item.corretorCelular || '').replace(/\D/g,'') === tel ||
+    String(item.usuarioTelefone || '').replace(/\D/g,'') === tel ||
     (cod && String(item.codigoUsuario || '') === cod)
   );
 }
@@ -822,7 +822,7 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
 });
 
 app.get('/app/imoveis', auth, (req,res)=>{
-  const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const todos = fs.existsSync(dataPath('imoveis.json')) ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
   res.render('app-imoveis', { user: req.session.user, imoveis });
 });

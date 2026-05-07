@@ -2638,3 +2638,13 @@ app.get('/admin/debug-leads', (req, res) => {
   const semId = leads.filter(l => !l.userId && !l.corretorId).length;
   res.json({ total: leads.length, comUserId: comId, semUserId: semId });
 });
+
+// TEMP - Substituir data.json pelo do repositório
+app.get('/admin/reset-leads-repo', (req, res) => {
+  const repoPath = path.join(__dirname, 'data.json');
+  const diskPath = dataPath('data.json');
+  const data = fs.readFileSync(repoPath, 'utf8');
+  fs.writeFileSync(diskPath, data);
+  const leads = JSON.parse(data);
+  res.send('✅ data.json substituído! Total: ' + leads.length + ' leads');
+});

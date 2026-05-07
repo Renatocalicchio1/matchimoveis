@@ -446,11 +446,15 @@ app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
   } else if (resposta === 'indisponivel') {
     visitas[idx].status = 'cancelada';
     // Marca imóvel como inativo
-    const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json') || './imoveis.json','utf8'));
+    const imoveisPath = dataPath('imoveis.json');
+    const imoveis = JSON.parse(fs.readFileSync(imoveisPath,'utf8'));
     const imovelIdx = imoveis.findIndex(i => String(i.idExterno || i.id) === String(visitas[idx].imovelId));
     if (imovelIdx !== -1) {
       imoveis[imovelIdx].status = 'inativo';
-      fs.writeFileSync('./imoveis.json', JSON.stringify(imoveis, null, 2));
+      imoveis[imovelIdx].inativadoEm = new Date().toISOString();
+      imoveis[imovelIdx].inativadoPor = 'proprietario';
+      fs.writeFileSync(imoveisPath, JSON.stringify(imoveis, null, 2));
+      console.log('Imóvel inativado:', visitas[idx].imovelId);
     }
   } else if (resposta === 'remarcar') {
     visitas[idx].status = 'pendente_remarcar';

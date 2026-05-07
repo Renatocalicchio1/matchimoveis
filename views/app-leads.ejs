@@ -147,31 +147,6 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
           <option value="90">90+</option>
         </select>
       </label>
-      <label><span>Tipo</span>
-        <select id="filter-tipo">
-          <option value="">Todos</option>
-          <option value="apartamento">Apartamento</option>
-          <option value="casa">Casa</option>
-        </select>
-      </label>
-      <label><span>Bairro</span>
-        <input id="filter-bairro" type="text" placeholder="Ex: Pinheiros">
-      </label>
-      <label><span>Valor mín.</span>
-        <input id="filter-valor-min" type="number" placeholder="Ex: 300000">
-      </label>
-      <label><span>Valor máx.</span>
-        <input id="filter-valor-max" type="number" placeholder="Ex: 1000000">
-      </label>
-      <label><span>Área mín. m²</span>
-        <input id="filter-area" type="number" placeholder="Ex: 50">
-      </label>
-      <label><span>Quartos</span>
-        <input id="filter-quartos" type="number" placeholder="Ex: 2">
-      </label>
-      <label><span>Busca</span>
-        <input id="filter-search" type="text" placeholder="Cliente, bairro, email..." />
-      </label>
     </div>
   </section>
 
@@ -337,7 +312,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
     counter.textContent = visible + ' de ' + cards.length + ' cards aparecendo';
   }
 
-  [status, score, search, filterTipo, filterBairro, filterValorMin, filterValorMax, filterArea, filterQuartos].forEach(el => {
+  [status, score, search].forEach(el => {
     if (!el) return;
     el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', applyFilters);
   });

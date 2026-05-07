@@ -125,7 +125,7 @@
     <div id="modal-step-horario" style="display:none">
       <h3 style="font-size:18px;margin-bottom:12px">Agendar visita</h3>
       <input id="modal-data" type="date" style="width:100%;padding:10px;margin-bottom:10px">
-      <input id="modal-hora" type="time" style="width:100%;padding:10px;margin-bottom:10px">
+      <input id="modal-hora" type="time" min="07:00" max="20:00" style="width:100%;padding:10px;margin-bottom:10px">
       <button onclick="confirmarVisita()" style="width:100%;padding:12px;background:#e11d48;color:#fff;border:none;border-radius:8px">Confirmar visita</button>
       <button onclick="voltarContato()" style="width:100%;padding:10px;margin-top:8px">Voltar</button>
     </div>

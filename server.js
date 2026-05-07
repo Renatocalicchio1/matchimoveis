@@ -137,13 +137,13 @@ app.post('/app/importar', upload.any(), async (req, res) => {
         mensagem: 'Importação concluída'
       };
       try {
-        const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+        const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
         const idx = users.findIndex(u => u.id === global.importUserId);
         if (idx >= 0) {
           users[idx].xmlUrl = global.importXmlUrl || users[idx].xmlUrl || '';
           users[idx].xmlAtualizadoEm = new Date().toISOString();
           users[idx].xmlTotal = imoveis.length;
-          fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
+          fs.writeFileSync(dataPath('users.json'), JSON.stringify(users, null, 2));
         }
       } catch(e) { console.log('Erro ao salvar xmlUrl:', e.message); }
 
@@ -228,7 +228,7 @@ app.get('/login', (req,res)=>{
 
 app.post('/login', (req,res)=>{
   const fs = require('fs');
-  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
 
   const telefone = String(req.body.telefone || '').replace(/\D/g,'');
 
@@ -248,7 +248,7 @@ app.post('/login', (req,res)=>{
     };
 
     users.push(novo);
-    fs.writeFileSync('users.json', JSON.stringify(users,null,2));
+    fs.writeFileSync(dataPath('users.json'), JSON.stringify(users,null,2));
 
     req.session.user = novo;
     return res.redirect('/app-home');
@@ -828,20 +828,20 @@ app.get('/app/imoveis', auth, (req,res)=>{
 });
 
 app.post('/app/excluir-xml', auth, (req,res)=>{
-  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
   const idx = users.findIndex(u => u.id === req.session.user.id);
   console.log('idx:', idx, 'session id:', req.session.user && req.session.user.id);
   if (idx >= 0) {
     delete users[idx].xmlUrl;
     delete users[idx].xmlAtualizadoEm;
     delete users[idx].xmlTotal;
-    fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
+    fs.writeFileSync(dataPath('users.json'), JSON.stringify(users, null, 2));
   }
   res.redirect('/app/cadastro');
 });
 
 app.get('/app/cadastro', auth, (req,res)=>{
-  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
   const u = users.find(u => u.id === req.session.user.id) || {};
   const xmlFeeds = u.xmlUrl ? [{ url: u.xmlUrl, lastSyncAt: u.xmlAtualizadoEm, total: u.xmlTotal }] : [];
   res.render('app-cadastro', { user: req.session.user, xmlFeeds });
@@ -989,14 +989,14 @@ const PORT = process.env.PORT || port || 3000;
 
 app.post('/app/perfil/localizacao', auth, (req,res)=>{
   const { lat, lng, endereco } = req.body;
-  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
   const idx = users.findIndex(u => u.id === req.session.user.id);
   if(idx >= 0) {
     users[idx].lat = parseFloat(lat);
     users[idx].lng = parseFloat(lng);
     users[idx].endereco = endereco || '';
     req.session.user = users[idx];
-    fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
+    fs.writeFileSync(dataPath('users.json'), JSON.stringify(users, null, 2));
   }
   res.redirect('/app/perfil');
 });
@@ -1004,14 +1004,14 @@ app.post('/app/perfil/localizacao', auth, (req,res)=>{
 
 app.post('/app/perfil/localizacao', auth, (req,res)=>{
   const { lat, lng, endereco } = req.body;
-  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
   const idx = users.findIndex(u => u.id === req.session.user.id);
   if(idx >= 0) {
     users[idx].lat = parseFloat(lat);
     users[idx].lng = parseFloat(lng);
     users[idx].endereco = endereco || '';
     req.session.user = users[idx];
-    fs.writeFileSync('users.json', JSON.stringify(users, null, 2));
+    fs.writeFileSync(dataPath('users.json'), JSON.stringify(users, null, 2));
   }
   res.redirect('/app/perfil');
 });
@@ -1089,7 +1089,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
       }
 
       const { filtrarCandidatosPelaRegraInterna } = require('./matchBaseInterna');
-      const usersData = fs.existsSync('./users.json') ? JSON.parse(fs.readFileSync('./users.json','utf8')) : [];
+      const usersData = fs.existsSync(dataPath('users.json')) ? JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8')) : [];
 
       function calcularScoreInterno(origem, cand) {
         let score = 0;
@@ -1810,7 +1810,7 @@ app.post('/api/lead-interesse', (req, res) => {
 // Página pública do imóvel — sem login
 app.get('/imovel/:id', (req, res) => {
   const imoveis = JSON.parse(fs.readFileSync('./imoveis.json', 'utf8'));
-  const users = JSON.parse(fs.readFileSync('./users.json', 'utf8'));
+  const users = JSON.parse(fs.readFileSync(dataPath('users.json'), 'utf8'));
   const corretor = users.find(u => u.ativo) || {};
 
   // Busca na base interna primeiro
@@ -2509,7 +2509,7 @@ app.post('/cliente/visita/:visitaId/responder', (req, res) => {
 
 // Match Coins
 app.get('/app/coins', auth, (req, res) => {
-  const users = JSON.parse(fs.readFileSync('users.json','utf8'));
+  const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
   const user = users.find(u => u.id === req.session.user.id);
   res.render('app-coins', { user: user || req.session.user });
 });

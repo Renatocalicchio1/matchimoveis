@@ -15,7 +15,6 @@
   </div>
 </div>
 
-
 <div class="card" style="margin-bottom:24px">
   <h2 style="font-size:16px;font-weight:700;margin-bottom:4px">🪙 Comprar Match Coins</h2>
   <p style="color:#888;font-size:13px;margin-bottom:20px">Cada Match Coin custa <strong>R$0,50</strong>. Escolha a quantidade desejada.</p>
@@ -43,12 +42,12 @@
     </div>
   </div>
 
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
     <div style="flex:1">
       <label>Ou digite a quantidade</label>
-      <input type="number" id="coinsCustom" min="10" step="10" placeholder="Ex: 200" oninput="atualizarValor(this.value)" style="margin-top:6px">
+      <input type="number" id="coinsCustom" min="10" step="10" placeholder="Ex: 200" style="margin-top:6px">
     </div>
-    <div style="text-align:center;padding:0 12px">
+    <div style="text-align:center;padding:0 12px;min-width:120px">
       <div style="font-size:12px;color:#888">Total</div>
       <div id="totalValor" style="font-size:24px;font-weight:800;color:#111">R$0,00</div>
     </div>
@@ -57,6 +56,43 @@
   <button onclick="iniciarCompra()" style="width:100%;background:#FF385C;color:white;border:none;padding:16px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer">
     🪙 Comprar Match Coins
   </button>
+</div>
+
+<div class="card">
+  <h2 style="font-size:16px;font-weight:700;margin-bottom:4px">Histórico de transações</h2>
+  <p style="color:#888;font-size:13px;margin-bottom:20px">Todas as movimentações de Match Coins da sua conta</p>
+  <% if(!user.matchCoinsTransacoes || user.matchCoinsTransacoes.length===0) { %>
+    <div class="empty">
+      <div class="empty-icon">🪙</div>
+      <h3>Nenhuma transação ainda</h3>
+      <p>Suas movimentações de Match Coins aparecerão aqui.</p>
+    </div>
+  <% } else { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Quantidade</th>
+          <th>Saldo após</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% user.matchCoinsTransacoes.slice().reverse().forEach(t=>{ %>
+        <tr>
+          <td><%= t.data ? new Date(t.data).toLocaleString('pt-BR') : '-' %></td>
+          <td><%= t.motivo || '-' %></td>
+          <td>
+            <span style="font-weight:700;color:<%= t.quantidade>0?'#16a34a':'#ef4444' %>">
+              <%= t.quantidade>0?'+':'' %><%= t.quantidade %> 🪙
+            </span>
+          </td>
+          <td><%= t.saldoApos !== undefined ? t.saldoApos : '-' %> 🪙</td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
 </div>
 
 <script>
@@ -69,170 +105,26 @@ function selecionarPacote(coins){
     el.style.background=el.dataset.coins==coins?'#fff1f3':'#fff';
   });
   document.getElementById('coinsCustom').value=coins;
-  document.getElementById('totalValor').innerText='R
-  <h2 style="font-size:16px;font-weight:700;margin-bottom:4px">Histórico de transações</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Todas as movimentações de Match Coins da sua conta</p>
-
-  <% if(!user.matchCoinsTransacoes || user.matchCoinsTransacoes.length===0) { %>
-    <div class="empty">
-      <div class="empty-icon">🪙</div>
-      <h3>Nenhuma transação ainda</h3>
-      <p>Suas movimentações de Match Coins aparecerão aqui.</p>
-    </div>
-  <% } else { %>
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Quantidade</th>
-          <th>Saldo após</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% user.matchCoinsTransacoes.slice().reverse().forEach(t=>{ %>
-        <tr>
-          <td><%= t.data ? new Date(t.data).toLocaleString('pt-BR') : '-' %></td>
-          <td><%= t.motivo || '-' %></td>
-          <td>
-            <span style="font-weight:700;color:<%= t.quantidade>0?'#16a34a':'#ef4444' %>">
-              <%= t.quantidade>0?'+':'' %><%= t.quantidade %> 🪙
-            </span>
-          </td>
-          <td><%= t.saldoApos !== undefined ? t.saldoApos : '-' %> 🪙</td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  <% } %>
-</div>
-
-<%- include('partials/app-end') %>+(coins*0.5).toFixed(2).replace('.',',');
+  document.getElementById('totalValor').innerText='R$'+(coins*0.5).toFixed(2).replace('.',',');
 }
 
 function atualizarValor(val){
   coinsSelecionados=parseInt(val)||0;
-  document.querySelectorAll('.pacote-coin').forEach(el=>{ el.style.border='2px solid #e5e7eb'; el.style.background='#fff'; });
-  document.getElementById('totalValor').innerText='R
-  <h2 style="font-size:16px;font-weight:700;margin-bottom:4px">Histórico de transações</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Todas as movimentações de Match Coins da sua conta</p>
-
-  <% if(!user.matchCoinsTransacoes || user.matchCoinsTransacoes.length===0) { %>
-    <div class="empty">
-      <div class="empty-icon">🪙</div>
-      <h3>Nenhuma transação ainda</h3>
-      <p>Suas movimentações de Match Coins aparecerão aqui.</p>
-    </div>
-  <% } else { %>
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Quantidade</th>
-          <th>Saldo após</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% user.matchCoinsTransacoes.slice().reverse().forEach(t=>{ %>
-        <tr>
-          <td><%= t.data ? new Date(t.data).toLocaleString('pt-BR') : '-' %></td>
-          <td><%= t.motivo || '-' %></td>
-          <td>
-            <span style="font-weight:700;color:<%= t.quantidade>0?'#16a34a':'#ef4444' %>">
-              <%= t.quantidade>0?'+':'' %><%= t.quantidade %> 🪙
-            </span>
-          </td>
-          <td><%= t.saldoApos !== undefined ? t.saldoApos : '-' %> 🪙</td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  <% } %>
-</div>
-
-<%- include('partials/app-end') %>+(coinsSelecionados*0.5).toFixed(2).replace('.',',');
+  document.querySelectorAll('.pacote-coin').forEach(el=>{
+    el.style.border='2px solid #e5e7eb';
+    el.style.background='#fff';
+  });
+  document.getElementById('totalValor').innerText='R$'+(coinsSelecionados*0.5).toFixed(2).replace('.',',');
 }
+
+document.getElementById('coinsCustom').addEventListener('input',function(){
+  atualizarValor(this.value);
+});
 
 function iniciarCompra(){
   if(!coinsSelecionados||coinsSelecionados<10){ alert('Selecione pelo menos 10 coins.'); return; }
-  alert('Em breve! Integração com Mercado Pago chegando. Você selecionou '+coinsSelecionados+' coins por R
-  <h2 style="font-size:16px;font-weight:700;margin-bottom:4px">Histórico de transações</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Todas as movimentações de Match Coins da sua conta</p>
-
-  <% if(!user.matchCoinsTransacoes || user.matchCoinsTransacoes.length===0) { %>
-    <div class="empty">
-      <div class="empty-icon">🪙</div>
-      <h3>Nenhuma transação ainda</h3>
-      <p>Suas movimentações de Match Coins aparecerão aqui.</p>
-    </div>
-  <% } else { %>
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Quantidade</th>
-          <th>Saldo após</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% user.matchCoinsTransacoes.slice().reverse().forEach(t=>{ %>
-        <tr>
-          <td><%= t.data ? new Date(t.data).toLocaleString('pt-BR') : '-' %></td>
-          <td><%= t.motivo || '-' %></td>
-          <td>
-            <span style="font-weight:700;color:<%= t.quantidade>0?'#16a34a':'#ef4444' %>">
-              <%= t.quantidade>0?'+':'' %><%= t.quantidade %> 🪙
-            </span>
-          </td>
-          <td><%= t.saldoApos !== undefined ? t.saldoApos : '-' %> 🪙</td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  <% } %>
-</div>
-
-<%- include('partials/app-end') %>+(coinsSelecionados*0.5).toFixed(2).replace('.',','));
+  alert('Em breve! Integração com Mercado Pago chegando. Você selecionou '+coinsSelecionados+' coins por R$'+(coinsSelecionados*0.5).toFixed(2).replace('.',','));
 }
 </script>
-<div class="card">
-  <h2 style="font-size:16px;font-weight:700;margin-bottom:4px">Histórico de transações</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Todas as movimentações de Match Coins da sua conta</p>
-
-  <% if(!user.matchCoinsTransacoes || user.matchCoinsTransacoes.length===0) { %>
-    <div class="empty">
-      <div class="empty-icon">🪙</div>
-      <h3>Nenhuma transação ainda</h3>
-      <p>Suas movimentações de Match Coins aparecerão aqui.</p>
-    </div>
-  <% } else { %>
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Quantidade</th>
-          <th>Saldo após</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% user.matchCoinsTransacoes.slice().reverse().forEach(t=>{ %>
-        <tr>
-          <td><%= t.data ? new Date(t.data).toLocaleString('pt-BR') : '-' %></td>
-          <td><%= t.motivo || '-' %></td>
-          <td>
-            <span style="font-weight:700;color:<%= t.quantidade>0?'#16a34a':'#ef4444' %>">
-              <%= t.quantidade>0?'+':'' %><%= t.quantidade %> 🪙
-            </span>
-          </td>
-          <td><%= t.saldoApos !== undefined ? t.saldoApos : '-' %> 🪙</td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  <% } %>
-</div>
 
 <%- include('partials/app-end') %>

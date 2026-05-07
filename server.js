@@ -1827,7 +1827,7 @@ app.post('/api/lead-interesse', (req, res) => {
           leadId,
           imovelId,
           lida: false,
-          criadaEm: new Date().toISOString()
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
         });
 
         fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(notificacoes, null, 2));
@@ -2551,7 +2551,7 @@ app.post('/cliente/visita/:visitaId/responder', (req, res) => {
       ? (_v2.nome||'Cliente') + ' confirmou presença na visita ao imóvel ' + (_v2.imovelTitulo||_v2.imovelBairro||'') + ' no dia ' + (_v2.dataVisita||'') + '.'
       : (_v2.nome||'Cliente') + ' informou que não poderá comparecer à visita ao imóvel ' + (_v2.imovelTitulo||_v2.imovelBairro||'') + '.';
     if (_v2.userId) {
-      _notifs2.push({ id: Date.now().toString(), tipo: 'visita_cliente', titulo: _titulo2, mensagem: _msg2, usuarioId: _v2.userId, lida: false, criadaEm: new Date().toISOString() });
+      _notifs2.push({ id: Date.now().toString(), tipo: 'visita_cliente', titulo: _titulo2, mensagem: _msg2, usuarioId: _v2.userId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
       fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(_notifs2, null, 2));
     }
   } catch(e) { console.log('Erro notif cliente:', e.message); }
@@ -2587,7 +2587,7 @@ app.post('/cliente/visita/:id/remarcar', (req, res) => {
     const _notifs3 = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
     const _v3 = visitas[idx];
     if (_v3.userId) {
-      _notifs3.push({ id: Date.now().toString(), tipo: 'visita_remarcada', titulo: '📅 Cliente remarcou a visita', mensagem: (_v3.nome||'Cliente') + ' escolheu nova data para visitar o imóvel ' + (_v3.imovelTitulo||_v3.imovelBairro||'') + ': ' + novaData + ' às ' + novoHorario + '. Notifique o proprietário.', usuarioId: _v3.userId, lida: false, criadaEm: new Date().toISOString() });
+      _notifs3.push({ id: Date.now().toString(), tipo: 'visita_remarcada', titulo: '📅 Cliente remarcou a visita', mensagem: (_v3.nome||'Cliente') + ' escolheu nova data para visitar o imóvel ' + (_v3.imovelTitulo||_v3.imovelBairro||'') + ': ' + novaData + ' às ' + novoHorario + '. Notifique o proprietário.', usuarioId: _v3.userId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
       fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(_notifs3, null, 2));
     }
   } catch(e) { console.log('Erro notif remarcação:', e.message); }

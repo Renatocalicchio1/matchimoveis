@@ -116,7 +116,7 @@ function readRows(file) {
     }
 
     
-    lead.userId = importUserId; lead.usuarioId = importUserId; lead.corretorId = importUserId; existing.push(lead);
+    lead.userId = importUserId; lead.usuarioId = importUserId; lead.corretorId = importUserId; lead.origem = lead.origem || "importada"; existing.push(lead);
     adicionados++;
 
     console.log('ADICIONADO:', lead.id, lead.nome, lead.bairro, lead.valor_imovel, lead.area_m2);

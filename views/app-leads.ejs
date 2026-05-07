@@ -137,6 +137,8 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
           <option value="with_matches">🤖 IA encontrou imóvel</option>
           <option value="extracted">✅ Dados extraídos</option>
           <option value="without_matches">⏳ Pendente extração</option>
+          <option value="organica">🌐 Orgânica</option>
+          <option value="importada">📋 Importada</option>
         </select>
       </label>
       <label><span>Score mínimo</span>
@@ -201,11 +203,13 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
       <div class="excel-card"
         data-status="<%= status %>"
         data-score="<%= bestScore %>"
+        data-origem="<%= item.origem || 'importada' %>"
         data-search="<%= [item.nome, item.clientName, item.contato, item.telefone, item.email, origin.bairro, origin.cidade].filter(Boolean).join(' ').toLowerCase() %>">
 
         <div class="excel-client">
           <div style="font-size:13px;line-height:1.45">
             <strong><a href="/app/lead/<%= item.id %>" style="text-decoration:none;color:#111"><%= item.nome || item.cliente || item.clientName || '-' %></a></strong>
+            <% if(item.origem === 'pagina_externa_imovel') { %><span style="background:#e0f2fe;color:#0369a1;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px">🌐 Orgânica</span><% } else { %><span style="background:#f0fdf4;color:#15803d;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px">📋 Importada</span><% } %>
             · <span style="color:#16a34a;font-weight:600"><%= (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? 'Extraído' : 'Pendente' %></span>
             · <span class="chip">🤖 <%= matchCount %> sugestões IA</span>
             <% if(bestScore) { %> · <span class="chip dark">⚡ Compatibilidade <%= bestScore %>%</span><% } %>
@@ -315,7 +319,11 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
   function applyFilters() {
     let visible = 0;
     cards.forEach(card => {
-      const statusOk = !status || status.value === 'all' || card.dataset.status === status.value;
+      const sv = status ? status.value : 'all';
+      const origem = card.dataset.origem || 'importada';
+      const statusOk = sv === 'all' || card.dataset.status === sv || 
+        (sv === 'organica' && origem === 'pagina_externa_imovel') ||
+        (sv === 'importada' && origem !== 'pagina_externa_imovel');
       const minScore = parseInt(score?.value || '0');
       const scoreOk = parseInt(card.dataset.score || '0') >= minScore;
       const query = (search?.value || '').toLowerCase().trim();

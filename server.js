@@ -728,8 +728,8 @@ app.get('/app-home', auth, (req,res)=>{
   );
   const minhasNotificacoes = notificacoes.filter(n => String(n.usuarioId) === String(user.id));
   const naoLidas = minhasNotificacoes.filter(n => !n.lida);
-  const comMatch = leadsArr.filter(l => l.matches && l.matches.length > 0);
-  const totalMatches = leadsArr.reduce((s,l) => s + ((l.matches && l.matches.length) || 0), 0);
+  const comMatch = leadsArr.filter(l => (l.matches && l.matches.length > 0) || (l.matchesBase && l.matchesBase.length > 0));
+  const totalMatches = leadsArr.reduce((s,l) => s + ((l.matches&&l.matches.length)||0) + ((l.matchesBase&&l.matchesBase.length)||0), 0);
   const hoje = new Date().toDateString();
   const visitasHoje = visitas.filter(v => new Date(v.data).toDateString() === hoje);
   const recentes = leadsArr.slice(-5).reverse();

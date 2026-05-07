@@ -361,6 +361,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     usuarioDestinoNome: '',
     usuarioDestinoPerfil: '',
     usuarioDestinoTelefone: '',
+    userId: lead.userId || lead.codigoUsuario || '',
     corretorId: lead.userId || lead.codigoUsuario || '',
     corretorNome: '',
     corretorTelefone: '',

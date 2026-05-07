@@ -1748,7 +1748,7 @@ app.post('/api/lead-interesse', (req, res) => {
         imovelCidade: imovelRef.cidade || 'São Paulo',
         imovelEstado: imovelRef.estado || 'SP',
         proprietarioNome: (imovelRef.proprietario && imovelRef.proprietario.nome) || '',
-        proprietarioTelefone: ((imovelRef.proprietario && (imovelRef.proprietario.telefone || imovelRef.proprietario.celular)) || '').replace(/D/g,''),
+        proprietarioTelefone: ((imovelRef.proprietario && (imovelRef.proprietario.telefone || imovelRef.proprietario.celular)) || '').replace(/\D/g,''),
 
         // Visita vai para o dono do imóvel
         usuarioDestinoId,

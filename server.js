@@ -2630,3 +2630,11 @@ app.get('/admin/debug-visitas', (req, res) => {
   const resumo = visitas.slice(-5).map(v => ({ id: v.id, userId: v.userId, status: v.status, nome: v.nome }));
   res.json(resumo);
 });
+
+// DEBUG LEADS
+app.get('/admin/debug-leads', (req, res) => {
+  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
+  const comId = leads.filter(l => l.userId || l.corretorId).length;
+  const semId = leads.filter(l => !l.userId && !l.corretorId).length;
+  res.json({ total: leads.length, comUserId: comId, semUserId: semId });
+});

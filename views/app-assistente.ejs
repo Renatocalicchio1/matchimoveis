@@ -1,251 +1,70 @@
 <%- include("partials/app-shell",{active:"assistente",user:user}) %>
 
-<main style="height:calc(100vh - 80px);display:flex;flex-direction:column;padding:24px;gap:0">
+<main style="height:calc(100vh - 80px);display:flex;flex-direction:column;padding:24px">
   <div style="background:white;border-radius:20px;box-shadow:0 6px 20px rgba(0,0,0,.08);display:flex;flex-direction:column;height:100%;overflow:hidden">
-    
-    <!-- Header -->
     <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:12px">
       <div style="width:42px;height:42px;background:linear-gradient(135deg,#ff385c,#ff6b35);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div>
-      <div>
-        <div style="font-weight:800;font-size:16px">Assistente MatchImóveis</div>
-        <div style="font-size:12px;color:#22c55e;font-weight:600">● Online</div>
-      </div>
+      <div><div style="font-weight:800;font-size:16px">Assistente MatchImóveis</div><div style="font-size:12px;color:#22c55e;font-weight:600">● Online</div></div>
     </div>
-
-    <!-- Mensagens -->
     <div id="chat-messages" style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px">
-      <div class="msg bot">
-        <div class="bubble bot-bubble">
-          Olá, <strong><%= user.nome || user.name || 'corretor' %></strong>! 👋<br>
-          Sou o assistente do MatchImóveis. Posso te ajudar com:<br><br>
-          📋 <strong>Importar leads</strong> — envie sua planilha<br>
-          🏠 <strong>Importar XML</strong> — cole a URL do XML<br>
-          🎯 <strong>Ver leads com match</strong><br>
-          📊 <strong>Estatísticas</strong> da sua conta<br>
-          📅 <strong>Ver visitas</strong> da semana<br><br>
-          O que você precisa?
-        </div>
-      </div>
+      <div class="msg bot"><div class="bubble bot-bubble">Olá, <strong><%= user.nome || user.name || 'corretor' %></strong>! 👋<br>Sou o assistente do MatchImóveis. O que você precisa?</div></div>
     </div>
-
-    <!-- Sugestões rápidas -->
-    <div id="sugestoes" style="padding:0 24px 12px;display:flex;gap:8px;flex-wrap:wrap">
-      <button onclick="enviarMsg('Quantas leads tenho?')" class="sug-btn">📊 Minhas stats</button>
-      <button onclick="enviarMsg('Quero importar leads')" class="sug-btn">📋 Importar leads</button>
-      <button onclick="enviarMsg('Ver leads com match')" class="sug-btn">🎯 Leads com match</button>
-      <button onclick="enviarMsg('Ver visitas da semana')" class="sug-btn">📅 Visitas</button>
-      <button onclick="enviarMsg('Quero importar XML')" class="sug-btn">🏠 Importar XML</button>
+    <div style="padding:0 24px 12px;display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="enviarMsg('quantas leads tenho')" class="sug-btn">📊 Stats</button>
+      <button onclick="enviarMsg('importar leads')" class="sug-btn">📋 Leads</button>
+      <button onclick="enviarMsg('leads com match')" class="sug-btn">🎯 Match</button>
+      <button onclick="enviarMsg('visitas hoje')" class="sug-btn">📅 Visitas</button>
+      <button onclick="enviarMsg('ajuda')" class="sug-btn">❓ Ajuda</button>
     </div>
-
-    
-    <!-- Input com upload -->
     <div style="padding:16px 24px;border-top:1px solid #f3f4f6;display:flex;gap:12px;align-items:center">
       <input type="file" id="file-input" accept=".xml,.xlsx,.xls,.csv" style="display:none" onchange="uploadArquivo(this)">
-      <button onclick="document.getElementById('file-input').click()" 
-        style="background:#f3f4f6;border:none;border-radius:12px;padding:12px;cursor:pointer;font-size:18px" title="Enviar arquivo XML">📎</button>
-      <input id="chat-input" type="text" placeholder="Digite sua mensagem..." 
-        style="flex:1;padding:12px 16px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;outline:none"
-        onkeydown="if(event.key==='Enter') enviarMsg()">
+      <button onclick="document.getElementById('file-input').click()" style="background:#f3f4f6;border:none;border-radius:12px;padding:12px;cursor:pointer;font-size:18px">📎</button>
+      <input id="chat-input" type="text" placeholder="Digite sua mensagem..." style="flex:1;padding:12px 16px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;outline:none" onkeydown="if(event.key==='Enter') enviarMsg()">
       <button onclick="enviarMsg()" style="background:#ff385c;color:white;border:none;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer;font-size:16px">➤</button>
     </div>
   </div>
 </main>
-
 <style>
-.msg { display:flex; }
-.bubble { max-width:75%; padding:12px 16px; border-radius:16px; font-size:14px; line-height:1.6; }
-.bot-bubble { background:#f3f4f6; color:#111; border-bottom-left-radius:4px; }
-.user-bubble { background:#ff385c; color:white; border-bottom-right-radius:4px; margin-left:auto; }
-.msg.user { justify-content:flex-end; }
-.sug-btn { background:#f3f4f6; border:none; border-radius:20px; padding:8px 14px; font-size:12px; cursor:pointer; font-weight:600; color:#333; white-space:nowrap; }
-.sug-btn:hover { background:#e5e7eb; }
+.msg{display:flex}.bubble{max-width:80%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.7}
+.bot-bubble{background:#f3f4f6;color:#111;border-bottom-left-radius:4px}
+.user-bubble{background:#ff385c;color:white;border-bottom-right-radius:4px;margin-left:auto}
+.msg.user{justify-content:flex-end}
+.sug-btn{background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;font-size:12px;cursor:pointer;font-weight:600;color:#333}
 </style>
-
-
 <script>
 const stats = <%- JSON.stringify(stats) %>;
-let dadosReais = null;
-
-// Busca dados reais ao abrir
-async function carregarDados() {
-  try {
-    const res = await fetch('/api/assistente/dados');
-    dadosReais = await res.json();
-  } catch(e) { dadosReais = null; }
-}
-carregarDados();
-
-function addMsg(texto, tipo, fonte) {
-  const div = document.createElement('div');
-  div.className = 'msg ' + tipo;
-  const badge = fonte==='memoria' ? '<span style="font-size:10px;background:#e0f2fe;color:#0284c7;padding:2px 6px;border-radius:99px;margin-left:6px">💾</span>' : '';
-  div.innerHTML = '<div class="bubble '+tipo+'-bubble">'+texto+badge+'</div>';
-  document.getElementById('chat-messages').appendChild(div);
-  document.getElementById('chat-messages').scrollTop = 99999;
-}
-
-function typing() {
-  const div = document.createElement('div');
-  div.className = 'msg bot'; div.id = 'typing';
-  div.innerHTML = '<div class="bubble bot-bubble" style="color:#999">⏳ buscando dados...</div>';
-  document.getElementById('chat-messages').appendChild(div);
-  document.getElementById('chat-messages').scrollTop = 99999;
-}
-function removeTyping() { const t=document.getElementById('typing'); if(t)t.remove(); }
-
-function respostaLocal(msg) {
-  if (!dadosReais) return null;
-  const m = msg.toLowerCase();
-  const d = dadosReais;
-
-  if (m.match(/oi|olá|ola|bom dia|boa tarde|boa noite|tudo bem/)) {
-    const h = new Date().getHours();
-    const s = h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
-    return s+' 👋 Sua conta agora:<br><br>'+
-      '🏠 <strong>'+d.imoveis.ativos+'</strong> imóveis ativos<br>'+
-      '👥 <strong>'+d.leads.total+'</strong> leads (🌐'+d.leads.organicas+' orgânicas / 📋'+d.leads.importadas+' importadas)<br>'+
-      '🎯 <strong>'+d.leads.comMatch+'</strong> com match<br>'+
-      '📅 <strong>'+d.visitas.hoje+'</strong> visitas hoje<br><br>O que precisa?';
-  }
-
-  if (m.match(/quantas lead|total lead|minhas lead|leads/)) {
-    return '👥 Suas leads:<br><br>'+
-      '📊 Total: <strong>'+d.leads.total+'</strong><br>'+
-      '🌐 Orgânicas: <strong>'+d.leads.organicas+'</strong><br>'+
-      '📋 Importadas: <strong>'+d.leads.importadas+'</strong><br>'+
-      '🎯 Com match: <strong>'+d.leads.comMatch+'</strong><br>'+
-      '❌ Sem match: <strong>'+d.leads.semMatch+'</strong><br><br>'+
-      '<a href="/app/leads" style="background:#ff385c;color:white;padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700">Ver leads →</a>';
-  }
-
-  if (m.match(/imovel|imóvel|carteira|quantos imovel/)) {
-    return '🏠 Sua carteira:<br><br>'+
-      '✅ Ativos: <strong>'+d.imoveis.ativos+'</strong><br>'+
-      '❌ Inativos: <strong>'+d.imoveis.inativos+'</strong><br>'+
-      '📍 Bairros: '+d.imoveis.bairros.slice(0,5).join(', ')+'<br>'+
-      '🏷️ Tipos: '+d.imoveis.tipos.slice(0,5).join(', ')+'<br><br>'+
-      '<a href="/app/imoveis" style="background:#ff385c;color:white;padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700">Ver imóveis →</a>';
-  }
-
-  if (m.match(/visita/)) {
-    return '📅 Visitas:<br><br>'+
-      '📌 Total: <strong>'+d.visitas.total+'</strong><br>'+
-      '⏳ Pendentes: <strong>'+d.visitas.pendentes+'</strong><br>'+
-      '✅ Confirmadas: <strong>'+d.visitas.confirmadas+'</strong><br>'+
-      '📆 Hoje: <strong>'+d.visitas.hoje+'</strong><br><br>'+
-      '<a href="/app/visitas" style="background:#ff385c;color:white;padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700">Ver visitas →</a>';
-  }
-
-  if (m.match(/match|combinar|compativel/)) {
-    return '🎯 Match de leads:<br><br>'+
-      '✅ Com match: <strong>'+d.leads.comMatch+'</strong><br>'+
-      '❌ Sem match: <strong>'+d.leads.semMatch+'</strong><br><br>'+
-      '<a href="/app/leads" style="background:#ff385c;color:white;padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700">Ver leads com match →</a>';
-  }
-
-  return null;
-}
-
-
-async function uploadArquivo(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const nome = file.name.toLowerCase();
-  const kb = (file.size/1024).toFixed(1);
-  addMsg('📎 ' + file.name + ' (' + kb + ' KB)', 'user');
-
-  // Detectar tipo pelo nome/extensão
-  let rota, label, accept;
-
-  if (nome.endsWith('.xml')) {
-    rota = '/app/importar';
-    label = 'XML de imóveis (Tecimob/Rankim)';
-    accept = 'xml';
-  } else if (nome.includes('proprietar') || nome.includes('proprietár')) {
-    rota = '/app/importar-proprietarios';
-    label = 'Excel de proprietários';
-    accept = 'xlsx';
-  } else if (nome.endsWith('.csv') || nome.endsWith('.xlsx') || nome.endsWith('.xls')) {
-    // Perguntar o que é
-    addMsg('📋 Arquivo Excel/CSV detectado. O que é esse arquivo?<br><br>'+
-      '<button onclick="confirmarUpload(window._pendingFile,\'/app/leads\',\'leads\')" '+
-      'style="background:#ff385c;color:white;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;margin:4px;font-weight:700">👥 Leads</button>'+
-      '<button onclick="confirmarUpload(window._pendingFile,\'/app/importar-proprietarios\',\'proprietários\')" '+
-      'style="background:#333;color:white;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;margin:4px;font-weight:700">🏠 Proprietários</button>',
-      'bot');
-    window._pendingFile = file;
-    input.value = '';
-    return;
-  } else {
-    addMsg('⚠️ Formato não reconhecido.<br>Aceito: <strong>.xml</strong> (imóveis), <strong>.xlsx/.csv</strong> (leads ou proprietários)', 'bot');
-    input.value = '';
-    return;
-  }
-
-  window._pendingFile = file;
-  confirmarUpload(file, rota, label);
-  input.value = '';
-}
-
-async function confirmarUpload(file, rota, label) {
-  addMsg('⏳ Enviando <strong>' + label + '</strong>...', 'bot');
-
-  const formData = new FormData();
-  // Cada rota espera um campo diferente
-  if (rota === '/app/importar') formData.append('xml', file);
-  else if (rota === '/app/importar-proprietarios') formData.append('arquivo', file);
-  else if (rota === '/app/leads') formData.append('leads', file);
-
-  try {
-    const res = await fetch(rota, { method: 'POST', body: formData });
-    const txt = await res.text();
-
-    // Extrair número de registros da resposta
-    const nums = txt.match(/\d+/g);
-    const total = nums ? nums[0] : '?';
-
-    let linkRota = '/app/imoveis';
-    let linkLabel = 'Ver imóveis';
-    if (rota.includes('leads')) { linkRota = '/app/leads'; linkLabel = 'Ver leads'; }
-    if (rota.includes('proprietar')) { linkRota = '/app/imoveis'; linkLabel = 'Ver imóveis'; }
-
-    addMsg('✅ <strong>' + label + ' importado!</strong><br><br>'+
-      '📊 Registros processados: <strong>' + total + '</strong><br><br>'+
-      '<a href="' + linkRota + '" style="background:#ff385c;color:white;padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700">' + linkLabel + ' →</a>', 'bot');
-  } catch(e) {
-    addMsg('⚠️ Erro ao importar <strong>' + label + '</strong>. Tente novamente.', 'bot');
-  }
-}
-
-async function enviarMsg(texto) {
-  const input = document.getElementById('chat-input');
-  const msg = texto || input.value.trim();
-  if (!msg) return;
-  input.value = '';
-  addMsg(msg, 'user');
-
-  // Tenta resposta local primeiro (instantânea)
-  const local = respostaLocal(msg);
-  if (local) {
-    setTimeout(() => addMsg(local, 'bot'), 200);
-    return;
-  }
-
-  // Se não, chama API do servidor
+function addMsg(t,tipo){const d=document.createElement('div');d.className='msg '+tipo;d.innerHTML='<div class="bubble '+tipo+'-bubble">'+t+'</div>';document.getElementById('chat-messages').appendChild(d);document.getElementById('chat-messages').scrollTop=99999;}
+function typing(){const d=document.createElement('div');d.className='msg bot';d.id='typing';d.innerHTML='<div class="bubble bot-bubble" style="color:#999">⏳ pensando...</div>';document.getElementById('chat-messages').appendChild(d);document.getElementById('chat-messages').scrollTop=99999;}
+function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+async function enviarMsg(texto){
+  const input=document.getElementById('chat-input');
+  const msg=texto||input.value.trim();
+  input.value='';
+  addMsg(msg,'user');
   typing();
-  try {
-    const res = await fetch('/app/assistente/chat', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({mensagem: msg})
-    });
-    const data = await res.json();
+  try{
+    const res=await fetch('/app/assistente/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mensagem:msg})});
+    const data=await res.json();
     removeTyping();
-    addMsg(data.resposta, 'bot', data.fonte);
-  } catch(e) {
-    removeTyping();
-    addMsg('⚠️ Erro ao conectar. Tente novamente.', 'bot');
-  }
+    addMsg(data.resposta,'bot');
+  }catch(e){removeTyping();addMsg('Erro ao conectar.','bot');}
 }
+async function uploadArquivo(input){
+  addMsg('📎 '+file.name,'user');
+  const nome=file.name.toLowerCase();
+  const rota=nome.endsWith('.xml')?'/app/importar':'/app/leads';
+  const label=nome.endsWith('.xml')?'XML de imóveis':'Planilha de leads';
+  addMsg('⏳ Enviando '+label+'...','bot');
+  const form=new FormData();
+  form.append(nome.endsWith('.xml')?'xml':'leads',file);
+  try{const res=await fetch(rota,{method:'POST',body:form});const txt=await res.text();const num=(txt.match(/d+/)||['?'])[0];addMsg('✅ '+label+' importado! '+num+' registros.','bot');}
+  catch(e){addMsg('⚠️ Erro ao importar.','bot');}
+  input.value='';
+}
+window.onload=async function(){
+  try{const res=await fetch('/app/assistente/historico');const data=await res.json();
+  if(data.historico&&data.historico.length>0){document.getElementById('chat-messages').innerHTML='';data.historico.forEach(function(h){addMsg(h.pergunta,'user');addMsg(h.resposta,'bot');});}}
+  catch(e){}
+};
 </script>
 <%- include('partials/app-end') %>

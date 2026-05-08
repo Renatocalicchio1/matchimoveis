@@ -76,3 +76,10 @@ Sempre que criar nova rota, view, upload ou ação no sistema:
 1. Atualizar cerebro.js com a nova informação
 2. Rodar `npm run cerebro` para regenerar assistente-mapa.json
 3. O cérebro é a fonte de verdade do assistente — sem ele o assistente não aprende
+
+## Fonte de conhecimento do cérebro
+Tudo que Renato e o assistente descobrem durante o desenvolvimento
+deve ser adicionado ao cerebro.js como conhecimento novo.
+Isso inclui: bugs encontrados, correções, perguntas dos usuários,
+comportamentos do sistema, campos dos JSONs, etc.
+Após qualquer descoberta importante → npm run cerebro

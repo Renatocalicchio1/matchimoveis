@@ -1,8 +1,8 @@
 {
-  "versao": "6.0",
-  "geradoEm": "2026-05-08T00:48:16.216Z",
+  "versao": "11.0",
+  "geradoEm": "2026-05-08T02:10:51.200Z",
   "stats": {
-    "totalRotas": 79,
+    "totalRotas": 80,
     "totalViews": 32,
     "totalUploads": 4,
     "totalIntencoes": 17,
@@ -10,7 +10,11 @@
     "totalGatilhos": 7,
     "totalFluxos": 4,
     "totalComandosDiretos": 6,
-    "totalSinonimos": 56
+    "totalSinonimos": 51,
+    "totalExplicacoes": 7,
+    "totalPassosOnboarding": 4,
+    "totalRegrasPersonalidade": 7,
+    "totalAnalisesMercado": 5
   },
   "rotas": [
     {
@@ -24,8 +28,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": []
     },
     {
@@ -39,8 +41,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "api",
         "testar-xml"
@@ -61,8 +61,6 @@
       "formatosUpload": [
         ".xml"
       ],
-      "executaScript": "importXMLCompleto.js ",
-      "enviaEmail": false,
       "keywords": [
         "app",
         "importar"
@@ -79,8 +77,6 @@
       "salvaDados": false,
       "aceitaUpload": true,
       "formatosUpload": [],
-      "executaScript": "importarProprietarios.js ",
-      "enviaEmail": false,
       "keywords": [
         "app",
         "importar-proprietarios"
@@ -97,8 +93,6 @@
       "salvaDados": false,
       "aceitaUpload": true,
       "formatosUpload": [],
-      "executaScript": "processLeads.js ",
-      "enviaEmail": false,
       "keywords": [
         "app",
         "leads"
@@ -117,8 +111,6 @@
       "formatosUpload": [
         ".xml"
       ],
-      "executaScript": "exportXML.js ${portal}",
-      "enviaEmail": false,
       "keywords": [
         "app",
         "portais"
@@ -139,8 +131,6 @@
       "formatosUpload": [
         ".xml"
       ],
-      "executaScript": "exportXML.js ${portal}",
-      "enviaEmail": false,
       "keywords": [
         "feed",
         "portal"
@@ -159,8 +149,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "login"
       ]
@@ -178,8 +166,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "login"
       ]
@@ -197,8 +183,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "cliente",
         "oferta",
@@ -220,8 +204,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "cliente",
         "oferta",
@@ -245,8 +227,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "cliente",
         "oferta",
@@ -268,8 +248,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "proprietario",
         "visita",
@@ -290,8 +268,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "proprietario",
         "visita",
@@ -312,8 +288,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app-leads",
         "idx",
@@ -331,8 +305,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "import-status"
       ]
@@ -348,8 +320,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "import-status"
       ]
@@ -365,8 +335,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "logout"
       ]
@@ -382,8 +350,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "logout"
       ]
@@ -399,8 +365,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "logout"
       ]
@@ -416,8 +380,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app"
       ]
@@ -433,8 +395,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app-imoveis"
       ]
@@ -450,8 +410,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app-xml"
       ]
@@ -467,8 +425,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app-portais"
       ]
@@ -484,8 +440,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app-perfil"
       ]
@@ -501,8 +455,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "logout"
       ]
@@ -523,8 +475,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app"
       ]
@@ -545,8 +495,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "notificacoes"
@@ -568,8 +516,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app-home"
       ]
@@ -589,8 +535,6 @@
       "formatosUpload": [
         ".xlsx"
       ],
-      "executaScript": null,
-      "enviaEmail": true,
       "keywords": [
         "app",
         "imoveis",
@@ -613,8 +557,6 @@
       "formatosUpload": [
         ".xml"
       ],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "imoveis"
@@ -635,8 +577,6 @@
       "formatosUpload": [
         ".xml"
       ],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "excluir-xml"
@@ -657,8 +597,6 @@
       "formatosUpload": [
         ".xml"
       ],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "cadastro"
@@ -677,8 +615,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "perfil"
@@ -697,8 +633,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app-importar-leads"
       ]
@@ -716,8 +650,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "importar-leads"
@@ -736,8 +668,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "leads"
@@ -756,8 +686,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "visitas"
@@ -776,8 +704,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "logout"
       ]
@@ -795,8 +721,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": true,
       "keywords": [
         "webhook",
         "imovelweb"
@@ -815,8 +739,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "perfil",
@@ -838,8 +760,6 @@
       "formatosUpload": [
         ".xml"
       ],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "perfil",
@@ -859,8 +779,6 @@
       "formatosUpload": [
         ".xml"
       ],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "feed-",
         "portal.xml"
@@ -880,8 +798,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "lead",
@@ -899,8 +815,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "api",
         "ajuda"
@@ -917,8 +831,6 @@
       "salvaDados": false,
       "aceitaUpload": true,
       "formatosUpload": [],
-      "executaScript": "processLeads.js ",
-      "enviaEmail": false,
       "keywords": [
         "process"
       ]
@@ -936,8 +848,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "mapa"
       ]
@@ -955,8 +865,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "feed"
       ]
@@ -974,8 +882,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "api",
         "imoveis"
@@ -994,8 +900,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "imovel",
         "status"
@@ -1014,8 +918,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "imovel",
         "status"
@@ -1034,8 +936,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": true,
       "keywords": [
         "app",
         "imovel",
@@ -1056,8 +956,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "api",
         "lead-interesse"
@@ -1078,8 +976,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": true,
       "keywords": [
         "imovel"
       ]
@@ -1099,8 +995,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": true,
       "keywords": [
         "app",
         "lead"
@@ -1119,8 +1013,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": true,
       "keywords": [
         "app",
         "imovel"
@@ -1139,8 +1031,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "imovel",
@@ -1160,8 +1050,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "imovel",
@@ -1181,8 +1069,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "imovel",
@@ -1202,8 +1088,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "imovel",
@@ -1223,8 +1107,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "imovel",
@@ -1244,8 +1126,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "visitas",
@@ -1265,8 +1145,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "visitas",
@@ -1284,8 +1162,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "api",
         "gerar-descricao-imovel"
@@ -1306,8 +1182,6 @@
       "formatosUpload": [
         ".xml"
       ],
-      "executaScript": null,
-      "enviaEmail": true,
       "keywords": [
         "app",
         "gerar-xml"
@@ -1328,8 +1202,6 @@
       "formatosUpload": [
         ".xml"
       ],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "portais"
@@ -1349,8 +1221,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "admin",
         "zerar-visitas-notificacoes-temp"
@@ -1370,8 +1240,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "cliente",
         "visita",
@@ -1393,8 +1261,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "cliente",
         "visita",
@@ -1416,8 +1282,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "coins"
@@ -1437,8 +1301,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "cliente",
         "visita",
@@ -1459,8 +1321,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "cliente",
         "visita",
@@ -1481,8 +1341,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "admin",
         "debug-visitas"
@@ -1502,8 +1360,6 @@
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "admin",
         "debug-leads"
@@ -1518,13 +1374,12 @@
       "redireciona": null,
       "leDados": [
         "imoveis.json",
-        "data.json"
+        "data.json",
+        "visitas.json"
       ],
       "salvaDados": true,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "admin",
         "reset-leads-repo"
@@ -1545,8 +1400,47 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
+      "keywords": [
+        "app",
+        "assistente"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/api/assistente/dados",
+      "linha": 2663,
+      "requerLogin": true,
+      "renderiza": null,
+      "redireciona": null,
+      "leDados": [
+        "imoveis.json",
+        "data.json",
+        "visitas.json"
+      ],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "api",
+        "assistente",
+        "dados"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/app/assistente",
+      "linha": 2704,
+      "requerLogin": true,
+      "renderiza": "app-assistente",
+      "redireciona": null,
+      "leDados": [
+        "imoveis.json",
+        "data.json",
+        "visitas.json"
+      ],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
       "keywords": [
         "app",
         "assistente"
@@ -1555,7 +1449,7 @@
     {
       "metodo": "POST",
       "rota": "/app/assistente/chat",
-      "linha": 2661,
+      "linha": 2711,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1567,27 +1461,6 @@
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
-      "keywords": [
-        "app",
-        "assistente",
-        "chat"
-      ]
-    },
-    {
-      "metodo": "POST",
-      "rota": "/app/assistente/chat",
-      "linha": 2833,
-      "requerLogin": true,
-      "renderiza": null,
-      "redireciona": null,
-      "leDados": [],
-      "salvaDados": false,
-      "aceitaUpload": false,
-      "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
         "app",
         "assistente",
@@ -1596,25 +1469,19 @@
     },
     {
       "metodo": "GET",
-      "rota": "/api/assistente/dados",
-      "linha": 2963,
+      "rota": "/app/assistente/historico",
+      "linha": 2810,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
-      "leDados": [
-        "imoveis.json",
-        "data.json",
-        "visitas.json"
-      ],
+      "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
-      "executaScript": null,
-      "enviaEmail": false,
       "keywords": [
-        "api",
+        "app",
         "assistente",
-        "dados"
+        "historico"
       ]
     }
   ],
@@ -1627,14 +1494,12 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Visita solicitada",
         "Visita solicitada ✅"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "agendar.ejs": {
@@ -1647,17 +1512,12 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [
-        "date",
-        "time"
-      ],
       "uploads": false,
       "titulos": [
         "Agendar visita",
         "Agendar visita"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-assistente.ejs": {
@@ -1670,6 +1530,7 @@
       ],
       "fetches": [
         "/api/assistente/dados",
+        "/app/assistente/historico",
         "/app/assistente/chat"
       ],
       "botoes": [
@@ -1683,10 +1544,6 @@
         "confirmarUpload(window._pendingFile,\\",
         "confirmarUpload(window._pendingFile,\\"
       ],
-      "inputs": [
-        "file",
-        "text"
-      ],
       "uploads": true,
       "titulos": [
         "Importar leads",
@@ -1699,7 +1556,6 @@
         "'+d.leads.comMatch+'"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-cadastro.ejs": {
@@ -1733,26 +1589,6 @@
         "gerarDescricaoIA()",
         "document.getElementById("
       ],
-      "inputs": [
-        "file",
-        "checkbox",
-        "checkbox",
-        "checkbox",
-        "checkbox",
-        "checkbox",
-        "checkbox",
-        "number",
-        "number",
-        "number",
-        "number",
-        "number",
-        "number",
-        "number",
-        "number",
-        "number",
-        "email",
-        "file"
-      ],
       "uploads": true,
       "titulos": [
         "👤 Importar Proprietários",
@@ -1765,7 +1601,6 @@
         "Imóveis ativos:"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-coins.ejs": {
@@ -1779,9 +1614,6 @@
         "selecionarPacote(500)",
         "iniciarCompra()"
       ],
-      "inputs": [
-        "number"
-      ],
       "uploads": false,
       "titulos": [
         "🪙 Comprar Match Coins",
@@ -1790,7 +1622,6 @@
         "Nenhuma transação ainda"
       ],
       "temModal": false,
-      "temTabela": true,
       "temGrafico": false
     },
     "app-corretor.ejs": {
@@ -1803,7 +1634,6 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Corretor",
@@ -1812,7 +1642,6 @@
         "Meus Leads"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-editar-imovel.ejs": {
@@ -1827,21 +1656,6 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [
-        "number",
-        "number",
-        "number",
-        "number",
-        "number",
-        "number",
-        "checkbox",
-        "checkbox",
-        "checkbox",
-        "checkbox",
-        "checkbox",
-        "checkbox",
-        "file"
-      ],
       "uploads": true,
       "titulos": [
         "Dados do imóvel",
@@ -1850,7 +1664,6 @@
         "Fotos"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-exportar.ejs": {
@@ -1861,14 +1674,12 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Excel de matches",
         "XML dos imóveis"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-home.ejs": {
@@ -1882,7 +1693,6 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Leads",
@@ -1891,7 +1701,6 @@
         "Visitas"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": true
     },
     "app-imoveis.ejs": {
@@ -1921,22 +1730,11 @@
         "event.stopPropagation()",
         "copiarURL()"
       ],
-      "inputs": [
-        "checkbox",
-        "number",
-        "number",
-        "number",
-        "number",
-        "number",
-        "number",
-        "number"
-      ],
       "uploads": false,
       "titulos": [
         "Gerando XML..."
       ],
       "temModal": true,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-imovel-detalhe.ejs": {
@@ -1955,14 +1753,12 @@
         "navFoto(-1)",
         "navFoto(1)"
       ],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Características",
         "Descrição"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-importar-leads.ejs": {
@@ -1974,9 +1770,6 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [
-        "file"
-      ],
       "uploads": true,
       "titulos": [
         "Importar Leads",
@@ -1988,7 +1781,6 @@
         "ID do anúncio"
       ],
       "temModal": false,
-      "temTabela": true,
       "temGrafico": false
     },
     "app-lead-detalhe.ejs": {
@@ -2005,11 +1797,9 @@
         "document.getElementById(",
         "document.getElementById("
       ],
-      "inputs": [],
       "uploads": false,
       "titulos": [],
       "temModal": true,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-leads.ejs": {
@@ -2025,17 +1815,12 @@
         "abrirModalImportarLeads();return false;",
         "fecharModalImportarLeads()"
       ],
-      "inputs": [
-        "text",
-        "file"
-      ],
       "uploads": true,
       "titulos": [
         "Resultados da IA",
         "Leads"
       ],
       "temModal": true,
-      "temTabela": true,
       "temGrafico": false
     },
     "app-notificacoes.ejs": {
@@ -2046,13 +1831,11 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "🔔 Central de Notificações"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-perfil.ejs": {
@@ -2067,7 +1850,6 @@
       "botoes": [
         "pegarLocalizacao()"
       ],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Dados do usuário",
@@ -2075,7 +1857,6 @@
         "Atualizar localização"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-portais-xml.ejs": {
@@ -2083,13 +1864,11 @@
       "links": [],
       "fetches": [],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Portais / XML"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-portais.ejs": {
@@ -2102,14 +1881,12 @@
       "botoes": [
         "copiar("
       ],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "📡 Feeds XML gerados",
         "Meus Imóveis"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "app-visitas.ejs": {
@@ -2119,7 +1896,6 @@
       "links": [],
       "fetches": [],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Visitas solicitadas",
@@ -2131,7 +1907,6 @@
         "⏳ Aguardando"
       ],
       "temModal": false,
-      "temTabela": true,
       "temGrafico": false
     },
     "cliente-oferta.ejs": {
@@ -2152,10 +1927,6 @@
         "confirmarVisita()",
         "voltarContato()"
       ],
-      "inputs": [
-        "text",
-        "date"
-      ],
       "uploads": false,
       "titulos": [
         "Ofertas para você • MatchImóveis",
@@ -2165,7 +1936,6 @@
         "Agendar visita"
       ],
       "temModal": true,
-      "temTabela": false,
       "temGrafico": false
     },
     "cliente-visita-confirmar.ejs": {
@@ -2176,14 +1946,12 @@
       "links": [],
       "fetches": [],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Confirmar Presença • MatchImóveis",
         "Sua visita foi confirmada!"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "cliente-visita-remarcar.ejs": {
@@ -2193,17 +1961,12 @@
       "links": [],
       "fetches": [],
       "botoes": [],
-      "inputs": [
-        "date",
-        "time"
-      ],
       "uploads": false,
       "titulos": [
         "Remarcar Visita • MatchImóveis",
         "Remarcar visita"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "feed-reels.ejs": {
@@ -2219,11 +1982,9 @@
         "salvar(",
         "compartilhar("
       ],
-      "inputs": [],
       "uploads": false,
       "titulos": [],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "imovel-form.ejs": {
@@ -2235,14 +1996,6 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [
-        "number",
-        "number",
-        "number",
-        "number",
-        "number",
-        "number"
-      ],
       "uploads": false,
       "titulos": [
         "Cadastrar Imóvel",
@@ -2250,7 +2003,6 @@
         "Dados do Proprietário (OBRIGATÓRIO)"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "imovel-publico.ejs": {
@@ -2276,10 +2028,6 @@
         "confirmarVisita()",
         "voltarContato()"
       ],
-      "inputs": [
-        "text",
-        "date"
-      ],
       "uploads": false,
       "titulos": [
         "Características",
@@ -2288,7 +2036,6 @@
         "Escolha sua visita 📅"
       ],
       "temModal": true,
-      "temTabela": false,
       "temGrafico": false
     },
     "imovel.ejs": {
@@ -2302,7 +2049,6 @@
         "/track"
       ],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Imóvel",
@@ -2310,7 +2056,6 @@
         "Sobre o imóvel"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "index.ejs": {
@@ -2326,10 +2071,6 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [
-        "file",
-        "text"
-      ],
       "uploads": true,
       "titulos": [
         "MatchImoveis",
@@ -2340,7 +2081,6 @@
         "Resultados"
       ],
       "temModal": false,
-      "temTabela": true,
       "temGrafico": false
     },
     "login.ejs": {
@@ -2352,9 +2092,6 @@
       ],
       "fetches": [],
       "botoes": [],
-      "inputs": [
-        "password"
-      ],
       "uploads": false,
       "titulos": [
         "MatchImóveis — IA para o Mercado Imobiliário",
@@ -2366,7 +2103,6 @@
         "Acessar plataforma"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "mapa.ejs": {
@@ -2381,13 +2117,11 @@
         "location=",
         "location="
       ],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "MatchImóveis — Mapa"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "oferta.ejs": {
@@ -2400,14 +2134,12 @@
         "/track"
       ],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Opções para você",
         "Olá,"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "proprietario-confirmado.ejs": {
@@ -2415,7 +2147,6 @@
       "links": [],
       "fetches": [],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Resposta Registrada • MatchImóveis",
@@ -2424,7 +2155,6 @@
         "Remarcação solicitada"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     },
     "proprietario-visita.ejs": {
@@ -2434,14 +2164,12 @@
       "links": [],
       "fetches": [],
       "botoes": [],
-      "inputs": [],
       "uploads": false,
       "titulos": [
         "Confirmação de Visita • MatchImóveis",
         "Solicitação de Visita"
       ],
       "temModal": false,
-      "temTabela": false,
       "temGrafico": false
     }
   },
@@ -2449,35 +2177,27 @@
     {
       "rota": "/app/importar",
       "metodo": "POST",
-      "linha": 106,
       "formatos": [
         ".xml"
       ],
-      "executaScript": "importXMLCompleto.js ",
       "descricao": "Importar imóveis via XML"
     },
     {
       "rota": "/app/importar-proprietarios",
       "metodo": "POST",
-      "linha": 163,
       "formatos": [],
-      "executaScript": "importarProprietarios.js ",
       "descricao": "Importar proprietários via Excel"
     },
     {
       "rota": "/app/leads",
       "metodo": "POST",
-      "linha": 179,
       "formatos": [],
-      "executaScript": "processLeads.js ",
       "descricao": "Importar leads via CSV/Excel"
     },
     {
       "rota": "/process",
       "metodo": "POST",
-      "linha": 1588,
       "formatos": [],
-      "executaScript": "processLeads.js ",
       "descricao": "Upload de arquivo"
     }
   ],
@@ -2488,19 +2208,14 @@
     "leed": "lead",
     "imovei": "imovel",
     "imovéis": "imoveis",
-    "imoveis": "imoveis",
     "vizita": "visita",
     "vizitas": "visitas",
-    "vsita": "visita",
     "notificaçao": "notificacao",
-    "notificaçoes": "notificacoes",
     "proprietaro": "proprietario",
-    "proietario": "proprietario",
     "conis": "coins",
     "moedas": "coins",
     "pontos": "coins",
     "dashbord": "dashboard",
-    "dasboard": "dashboard",
     "matsh": "match",
     "mach": "match",
     "subir": "importar",
@@ -2517,7 +2232,6 @@
     "cadastrar": "cadastro",
     "adicionar": "cadastro",
     "apagar": "excluir",
-    "deletar": "excluir",
     "inativar": "inativar",
     "desativar": "inativar",
     "confirmar": "confirmar",
@@ -2537,7 +2251,8 @@
     "boa tarde": "saudacao",
     "boa noite": "saudacao",
     "tudo bem": "saudacao",
-    "hello": "saudacao"
+    "hello": "saudacao",
+    "e ai": "saudacao"
   },
   "intencoes": [
     {
@@ -2550,7 +2265,8 @@
         "boa tarde",
         "boa noite",
         "tudo",
-        "hello"
+        "hello",
+        "eai"
       ],
       "acao": "mostrar_resumo_conta"
     },
@@ -2561,8 +2277,7 @@
         "leads",
         "clientes",
         "interessados",
-        "quantas lead",
-        "minhas lead"
+        "quantas lead"
       ],
       "acao": "buscar_dados_leads",
       "rota": "/app/leads"
@@ -2573,7 +2288,7 @@
         "importar lead",
         "subir lead",
         "planilha",
-        "csv lead",
+        "csv",
         "upload lead"
       ],
       "acao": "wizard",
@@ -2599,8 +2314,7 @@
         "subir xml",
         "importar xml",
         "tecimob",
-        "rankim",
-        "importar imoveis"
+        "rankim"
       ],
       "acao": "wizard",
       "fluxo": "wizard_importar_xml"
@@ -2610,8 +2324,8 @@
       "keywords": [
         "visita",
         "visitas",
-        "vizita",
         "agendamento",
+        "agendar",
         "hoje"
       ],
       "acao": "buscar_dados_visitas",
@@ -2621,7 +2335,6 @@
       "id": "ver_match",
       "keywords": [
         "match",
-        "matsh",
         "combinar",
         "compativel",
         "leads match"
@@ -2671,7 +2384,6 @@
       "id": "ver_coins",
       "keywords": [
         "coins",
-        "conis",
         "moeda",
         "saldo",
         "pontos"
@@ -2757,7 +2469,6 @@
         "lead",
         "sem match"
       ],
-      "acao": "buscar_leads_sem_match",
       "rota": "/app/leads",
       "filtro": "sem_match"
     },
@@ -2767,7 +2478,6 @@
         "lead",
         "com match"
       ],
-      "acao": "buscar_leads_com_match",
       "rota": "/app/leads",
       "filtro": "com_match"
     },
@@ -2777,7 +2487,6 @@
         "visita",
         "hoje"
       ],
-      "acao": "buscar_visitas_hoje",
       "rota": "/app/visitas",
       "filtro": "hoje"
     },
@@ -2787,7 +2496,6 @@
         "visita",
         "pendente"
       ],
-      "acao": "buscar_visitas_pendentes",
       "rota": "/app/visitas",
       "filtro": "pendentes"
     },
@@ -2797,7 +2505,6 @@
         "imovel",
         "inativo"
       ],
-      "acao": "buscar_imoveis_inativos",
       "rota": "/app/imoveis",
       "filtro": "inativos"
     },
@@ -2807,7 +2514,6 @@
         "imovel",
         "proprietario"
       ],
-      "acao": "buscar_sem_proprietario",
       "rota": "/app/imoveis",
       "filtro": "sem_proprietario"
     },
@@ -2817,7 +2523,6 @@
         "lead",
         "organica"
       ],
-      "acao": "buscar_leads_organicas",
       "rota": "/app/leads",
       "filtro": "organicas"
     },
@@ -2827,28 +2532,27 @@
         "lead",
         "importada"
       ],
-      "acao": "buscar_leads_importadas",
       "rota": "/app/leads",
       "filtro": "importadas"
     }
   ],
   "gatilhos": [
     {
-      "id": "leads_sem_match_antigos",
-      "condicao": "leads_sem_match_7dias > 0",
-      "mensagem": "⚠️ {n} leads sem match há mais de 7 dias. Quer tentar o match agora?",
+      "id": "visitas_hoje",
+      "condicao": "visitas_hoje > 0",
+      "mensagem": "📅 Atenção! Você tem {n} visita(s) hoje!",
       "prioridade": "alta"
     },
     {
       "id": "visitas_pendentes_antigas",
-      "condicao": "visitas_pendentes_2dias > 0",
-      "mensagem": "⚠️ {n} visita(s) sem resposta há mais de 2 dias. Proprietário precisa responder!",
+      "condicao": "visitas_pendentes_2d > 0",
+      "mensagem": "⚠️ {n} visita(s) sem resposta há mais de 2 dias!",
       "prioridade": "alta"
     },
     {
-      "id": "visitas_hoje",
-      "condicao": "visitas_hoje > 0",
-      "mensagem": "📅 Você tem {n} visita(s) hoje!",
+      "id": "leads_sem_match_antigos",
+      "condicao": "leads_sem_match_7d > 0",
+      "mensagem": "❌ {n} leads sem match há mais de 7 dias. Quer tentar o match agora?",
       "prioridade": "alta"
     },
     {
@@ -2870,8 +2574,8 @@
       "prioridade": "media"
     },
     {
-      "id": "imoveis_sem_proprietario",
-      "condicao": "sem_proprietario > 50",
+      "id": "sem_proprietario",
+      "condicao": "sem_prop > 50",
       "mensagem": "🏠 {n} imóveis sem proprietário. Quer importar o Excel?",
       "prioridade": "baixa"
     }
@@ -2879,12 +2583,6 @@
   "fluxos": [
     {
       "id": "wizard_importar_leads",
-      "gatilho": [
-        "importar lead",
-        "subir lead",
-        "planilha",
-        "upload lead"
-      ],
       "passos": [
         {
           "id": 1,
@@ -2927,12 +2625,6 @@
     },
     {
       "id": "wizard_importar_xml",
-      "gatilho": [
-        "importar xml",
-        "subir xml",
-        "xml",
-        "importar imoveis"
-      ],
       "passos": [
         {
           "id": 1,
@@ -2973,12 +2665,6 @@
     },
     {
       "id": "wizard_gerar_xml_portal",
-      "gatilho": [
-        "gerar xml",
-        "xml portal",
-        "publicar",
-        "portal"
-      ],
       "passos": [
         {
           "id": 1,
@@ -2995,10 +2681,10 @@
         },
         {
           "id": 2,
-          "mensagem": "Todos os ativos ou selecionar?",
+          "mensagem": "Todos os ativos ou selecionar manualmente?",
           "opcoes": [
             "Todos os ativos",
-            "Ir para /app/imoveis selecionar"
+            "Selecionar em /app/imoveis"
           ],
           "aguarda": "escolha"
         },
@@ -3016,11 +2702,6 @@
     },
     {
       "id": "wizard_proprietarios",
-      "gatilho": [
-        "proprietario",
-        "vincular proprietario",
-        "importar proprietario"
-      ],
       "passos": [
         {
           "id": 1,
@@ -3032,7 +2713,7 @@
         },
         {
           "id": 2,
-          "mensagem": "Vinculando proprietários... ⏳",
+          "mensagem": "Vinculando... ⏳",
           "acao": "upload",
           "rota": "/app/importar-proprietarios"
         },
@@ -3047,8 +2728,7 @@
     {
       "id": "inativar_imovel",
       "padroes": [
-        "inativar imovel {id}",
-        "desativar imovel {id}"
+        "inativar imovel {id}"
       ],
       "extrai": [
         "id"
@@ -3060,8 +2740,7 @@
     {
       "id": "confirmar_visita",
       "padroes": [
-        "confirmar visita {id}",
-        "aceitar visita {id}"
+        "confirmar visita {id}"
       ],
       "extrai": [
         "id"
@@ -3073,8 +2752,7 @@
     {
       "id": "recusar_visita",
       "padroes": [
-        "recusar visita {id}",
-        "cancelar visita {id}"
+        "recusar visita {id}"
       ],
       "extrai": [
         "id"
@@ -3086,8 +2764,7 @@
     {
       "id": "gerar_xml_portal",
       "padroes": [
-        "gerar xml {portal}",
-        "xml para {portal}"
+        "gerar xml {portal}"
       ],
       "extrai": [
         "portal"
@@ -3099,8 +2776,7 @@
     {
       "id": "buscar_imovel",
       "padroes": [
-        "tem {tipo} em {bairro}",
-        "buscar {tipo} em {bairro}"
+        "tem {tipo} em {bairro}"
       ],
       "extrai": [
         "tipo",
@@ -3112,82 +2788,264 @@
     {
       "id": "buscar_lead",
       "padroes": [
-        "lead em {bairro}",
-        "cliente buscando {tipo}"
+        "lead em {bairro}"
       ],
       "extrai": [
-        "bairro",
-        "tipo"
+        "bairro"
       ],
       "acao": "busca_local",
       "arquivo": "data.json"
     }
   ],
-  "respostas_estado": {
-    "saudacao": [
+  "onboarding": {
+    "detectar": "user.onboardingConcluido === false ou ausente",
+    "passos": [
       {
-        "condicao": "leads===0&&imoveis===0",
-        "resposta": "{s} {nome}! 👋 Conta vazia. Começar importando XML de imóveis ou planilha de leads?"
+        "id": 1,
+        "titulo": "Importar imóveis",
+        "acao": "wizard_importar_xml",
+        "concluido_quando": "imoveis.length > 0"
       },
       {
-        "condicao": "leads===0",
-        "resposta": "{s} {nome}! 👋 {imoveis} imóveis mas nenhuma lead. Quer importar uma planilha?"
+        "id": 2,
+        "titulo": "Importar leads",
+        "acao": "wizard_importar_leads",
+        "concluido_quando": "leads.length > 0"
       },
       {
-        "condicao": "imoveis===0",
-        "resposta": "{s} {nome}! 👋 {leads} leads mas nenhum imóvel. Quer importar um XML?"
+        "id": 3,
+        "titulo": "Fazer match",
+        "acao": "match",
+        "concluido_quando": "leads.comMatch > 0"
       },
       {
-        "condicao": "visitas_hoje>0",
-        "resposta": "{s} {nome}! 👋 ⚠️ {visitas_hoje} visita(s) hoje! | 🏠 {imoveis} imóveis | 👥 {leads} leads | 🎯 {com_match} match"
-      },
-      {
-        "condicao": "pendentes>0",
-        "resposta": "{s} {nome}! 👋 ⏳ {pendentes} visita(s) pendentes! | 🏠 {imoveis} imóveis | 👥 {leads} leads"
-      },
-      {
-        "condicao": "default",
-        "resposta": "{s} {nome}! 👋 | 🏠 {imoveis} imóveis | 👥 {leads} leads | 🎯 {com_match} match | 📅 {visitas_hoje} hoje"
+        "id": 4,
+        "titulo": "Enviar vitrine",
+        "acao": "vitrine",
+        "concluido_quando": "visitas.length > 0"
       }
     ],
-    "leads": [
-      {
-        "condicao": "total===0",
-        "resposta": "Nenhuma lead ainda. Quer importar agora? Clique em 📎"
-      },
-      {
-        "condicao": "com_match===0",
-        "resposta": "{total} leads mas nenhuma com match. Verifique se seus imóveis têm bairro, tipo e quartos preenchidos."
-      },
-      {
-        "condicao": "default",
-        "resposta": "👥 {total} leads | 🌐 {organicas} orgânicas | 📋 {importadas} importadas | 🎯 {com_match} match | ❌ {sem_match} sem match"
-      }
+    "mensagem_boas_vindas": "Olá {nome}! 👋 Seja bem-vindo ao MatchImóveis! Sou o Match, seu assistente pessoal. Vamos configurar sua conta juntos? É rapidinho! 🚀",
+    "mensagem_completo": "🎉 Parabéns {nome}! Conta configurada com sucesso. Agora você pode usar todo o poder do MatchImóveis!"
+  },
+  "aprendizado": {
+    "arquivo_nao_entendidos": "assistente-nao-entendidos.json",
+    "threshold_virar_oficial": 3,
+    "fluxo": [
+      "Pergunta não entendida → salvar com userId+data",
+      "Agrupar por similaridade >= 60%",
+      "3+ perguntas similares → sugerir nova intenção",
+      "Admin aprova → vira intenção oficial"
+    ]
+  },
+  "memoria_usuario": {
+    "arquivo": "assistente-memoria.json",
+    "campos": [
+      "preferencias",
+      "historico",
+      "onboarding_concluido",
+      "ultima_atividade"
     ],
-    "visitas": [
+    "preferencias": [
+      "tipo_favorito",
+      "bairros_favoritos",
+      "portal_mais_usado",
+      "ultima_importacao"
+    ]
+  },
+  "explicacoes_sistema": [
+    {
+      "id": "match",
+      "keywords": [
+        "o que e match",
+        "como funciona match",
+        "explicar match"
+      ],
+      "texto": "Match é quando um imóvel da sua carteira combina com o que um lead procura. O sistema cruza bairro+tipo+quartos automaticamente."
+    },
+    {
+      "id": "vitrine",
+      "keywords": [
+        "o que e vitrine",
+        "como funciona vitrine",
+        "explicar vitrine"
+      ],
+      "texto": "Vitrine é uma página exclusiva enviada ao lead com os imóveis em match. O lead escolhe e solicita visita — tudo automático!"
+    },
+    {
+      "id": "score",
+      "keywords": [
+        "score",
+        "pontuacao",
+        "como calcula",
+        "nota do match"
+      ],
+      "texto": "Score define a ordem na vitrine: valor abaixo do max +50pts, área maior +30pts, quartos extras +20pts, suítes +15pts, vagas +15pts."
+    },
+    {
+      "id": "lead",
+      "keywords": [
+        "o que e lead",
+        "explicar lead",
+        "o que significa lead"
+      ],
+      "texto": "Lead é um cliente interessado em comprar/alugar. Você importa planilhas dos portais e o sistema faz o match automático."
+    },
+    {
+      "id": "xml",
+      "keywords": [
+        "o que e xml",
+        "para que serve xml",
+        "explicar xml"
+      ],
+      "texto": "XML é o arquivo que envia seus imóveis para portais (VivaReal, ZAP, OLX). Gere aqui e cadastre o link no portal."
+    },
+    {
+      "id": "coins",
+      "keywords": [
+        "o que sao coins",
+        "para que servem coins",
+        "explicar coins"
+      ],
+      "texto": "Match Coins são pontos ganhos a cada match realizado. Futuramente usados para recursos premium."
+    },
+    {
+      "id": "visita",
+      "keywords": [
+        "como funciona visita",
+        "fluxo visita",
+        "como agendar visita"
+      ],
+      "texto": "Fluxo: Lead recebe vitrine → escolhe imóvel → solicita visita → proprietário confirma/recusa → lead notificado. Tudo automático!"
+    }
+  ],
+  "personalidade": {
+    "nome": "Match",
+    "tom": "amigável, educado, calmo, prestativo e inteligente",
+    "regras": [
+      "Sempre cumprimentar pelo nome",
+      "Nunca responder de forma seca ou robótica",
+      "Quando não entender, pedir para reformular com gentileza",
+      "Sempre oferecer próximo passo após responder",
+      "Ser proativo: sugerir o que o usuário pode não ter pensado",
+      "Elogiar quando usuário faz algo certo",
+      "Confirmar antes de executar ações importantes"
+    ],
+    "frases_nao_entendeu": [
+      "Hmm, não entendi muito bem 🤔 Pode reformular?",
+      "Desculpe, não captei essa. Pode tentar de outro jeito?",
+      "Ainda estou aprendendo! Tente: leads, imóveis, visitas ou match."
+    ],
+    "proximo_passo": {
+      "apos_importar_xml": "Agora que tem imóveis, que tal importar leads para fazer o match?",
+      "apos_importar_leads": "Ótimo! Quer fazer o match agora?",
+      "apos_match": "Match feito! Quer enviar a vitrine para algum lead?",
+      "apos_ver_leads": "Quer ver quais leads têm match com seus imóveis?",
+      "apos_ver_imoveis": "Quer importar leads para cruzar com essa carteira?"
+    }
+  },
+  "metricas_assistente": {
+    "arquivo": "assistente-metricas.json",
+    "coleta": [
+      "total_perguntas_hoje",
+      "total_respondidas",
+      "total_nao_entendidas",
+      "taxa_satisfacao",
+      "perguntas_frequentes"
+    ]
+  },
+  "pos_visita": {
+    "keywords": [
+      "como foi",
+      "visita foi",
+      "cliente gostou",
+      "retorno da visita"
+    ],
+    "gatilhos": [
       {
-        "condicao": "total===0",
-        "resposta": "Nenhuma visita agendada ainda."
+        "id": "perguntar_como_foi",
+        "condicao": "visita.dataVisita === ontem && status === confirmada",
+        "mensagem": "📅 Como foi a visita de ontem no {imovel}? O cliente {lead} demonstrou interesse?",
+        "opcoes": [
+          "Sim, gostou!",
+          "Não se interessou",
+          "Vai pensar",
+          "Quer mais opções"
+        ]
       },
       {
-        "condicao": "visitas_hoje>0",
-        "resposta": "📅 {visitas_hoje} visita(s) hoje! | Total: {total} | ⏳ {pendentes} pendentes | ✅ {confirmadas} confirmadas"
-      },
-      {
-        "condicao": "default",
-        "resposta": "📅 {total} visitas | ⏳ {pendentes} pendentes | ✅ {confirmadas} confirmadas | 📆 {visitas_hoje} hoje"
+        "id": "follow_up",
+        "condicao": "lead sem visita há 15+ dias",
+        "mensagem": "👥 A lead {nome} está há {dias} dias sem visita. Quer entrar em contato?",
+        "opcoes": [
+          "Enviar vitrine",
+          "Já contatei",
+          "Desqualificar"
+        ]
       }
     ]
   },
-  "feedback": {
-    "arquivo_feedback": "assistente-feedback.json",
-    "arquivo_nao_entendidos": "assistente-nao-entendidos.json",
-    "threshold_aprendizado": 3,
-    "regras": [
-      "3+ 👎 numa resposta → marcar como ruim → revisar intenção",
-      "Pergunta não entendida → salvar em nao-entendidos.json",
-      "3+ perguntas similares não entendidas → criar nova intenção",
-      "5+ 👍 → marcar como top → priorizar nas buscas"
+  "estrategias_venda": {
+    "keywords": [
+      "vender",
+      "fechar",
+      "negocio",
+      "proposta",
+      "ajudar vender",
+      "leads quentes"
+    ],
+    "sugestoes": [
+      {
+        "id": "lead_quente",
+        "condicao": "visita confirmada + score alto",
+        "mensagem": "🔥 A lead {nome} está QUENTE! Visitou e tem alto score. Hora de fechar!"
+      },
+      {
+        "id": "imovel_parado",
+        "condicao": "imovel ativo há 30+ dias sem visita",
+        "mensagem": "📉 {imovel} há {dias} dias sem visita. Considere revisar o valor ou as fotos."
+      },
+      {
+        "id": "reducao_valor",
+        "condicao": "imovel sem visita há 45+ dias",
+        "mensagem": "💰 Uma redução de 5-10% no {imovel} pode gerar mais interesse."
+      },
+      {
+        "id": "alta_intencao",
+        "condicao": "score > 100 e visita agendada",
+        "mensagem": "🎯 {nome} tem altíssima intenção de compra (score {score}). Priorize!"
+      }
+    ]
+  },
+  "inteligencia_mercado": {
+    "keywords": [
+      "mercado",
+      "demanda",
+      "tendencia",
+      "mais buscado",
+      "faixa mais pedida"
+    ],
+    "analises": [
+      {
+        "id": "tipo_mais_demandado",
+        "descricao": "Tipo de imóvel com mais leads"
+      },
+      {
+        "id": "faixa_valor_buscada",
+        "descricao": "Faixa de valor mais procurada pelas leads"
+      },
+      {
+        "id": "bairros_mais_demandados",
+        "descricao": "Ranking de bairros por demanda"
+      },
+      {
+        "id": "oferta_vs_demanda",
+        "descricao": "Leads por bairro vs imóveis disponíveis"
+      },
+      {
+        "id": "quartos_mais_pedidos",
+        "descricao": "Quantidade de quartos mais buscada"
+      }
     ]
   }
 }

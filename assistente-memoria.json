@@ -147,6 +147,72 @@
       "pergunta": "como importo lesda",
       "resposta": "Não entendi ainda 🤔<br><br>Posso te ajudar com:<br>👥 leads • 🏠 imóveis • 📅 visitas • 🔗 portais • 🪙 coins • 🔔 notificações • 🎯 match",
       "data": "2026-05-07T23:44:23.995Z"
+    },
+    {
+      "pergunta": "quero conhecr o sitema",
+      "resposta": "Não entendi 🤔 Tente: leads, imóveis, visitas, match, portais, coins",
+      "data": "2026-05-08T01:20:31.893Z"
+    },
+    {
+      "pergunta": "quero importar um xml",
+      "resposta": "🔗 Portais disponíveis: VivaReal, ZAP, OLX, Chaves, ImovelWeb, 123i<br><br><a href=\"/app/portais\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver portais →</a>",
+      "data": "2026-05-08T01:21:18.067Z"
+    },
+    {
+      "pergunta": "oi",
+      "resposta": "Boa noite Rankim! 👋<br>🏠 0 imóveis | 👥 3 leads | 🎯 0 match | 📅 0 visitas hoje",
+      "data": "2026-05-08T02:21:58.256Z"
+    },
+    {
+      "pergunta": "boa npite , consehue me passar etlahes da monha conta",
+      "resposta": "Não entendi 🤔 Tente: leads, imóveis, visitas, match, portais, coins",
+      "data": "2026-05-08T02:22:12.115Z"
+    },
+    {
+      "pergunta": "oi",
+      "resposta": "Boa noite Rankim! 👋<br>🏠 0 imóveis | 👥 3 leads | 🎯 0 match | 📅 0 visitas hoje",
+      "data": "2026-05-08T02:23:30.456Z"
+    },
+    {
+      "pergunta": "quanta leads tenho",
+      "resposta": "👥 <strong>Leads:</strong><br>Total: 3<br>🌐 Orgânicas: 0<br>📋 Importadas: 3<br>🎯 Com match: 0<br>❌ Sem match: 3<br><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a><a href=\"/app-importar-leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Importar →</a>",
+      "data": "2026-05-08T02:23:55.533Z"
+    },
+    {
+      "pergunta": "imovei?",
+      "resposta": "Nenhum imóvel ainda. Clique em 📎 para importar XML.",
+      "data": "2026-05-08T02:24:04.013Z"
+    },
+    {
+      "pergunta": "si eu tenh confere na minha conta",
+      "resposta": "Não entendi 🤔 Tente: leads, imóveis, visitas, match, portais, coins",
+      "data": "2026-05-08T02:24:16.244Z"
+    },
+    {
+      "pergunta": "i eu tenh confere na minha conta",
+      "resposta": "Ainda estou aprendendo! Pode tentar de outro jeito?<br><br><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px\">👥 Leads</button><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px\">🏠 Imóveis</button><button onclick=\"enviarMsg('minhas visitas')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px\">📅 Visitas</button><button onclick=\"enviarMsg('ajuda')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px\">❓ Ajuda</button>",
+      "data": "2026-05-08T02:25:26.382Z"
+    },
+    {
+      "pergunta": "tenho mais imoveis na minha conta",
+      "resposta": "Nenhum imóvel ainda. Clique em 📎 para importar XML.",
+      "data": "2026-05-08T02:25:38.114Z"
+    },
+    {
+      "pergunta": "a voce nao enncotoru meus imoveis ?",
+      "resposta": "Nenhum imóvel ainda. Clique em 📎 para importar XML.",
+      "data": "2026-05-08T02:25:48.967Z"
+    },
+    {
+      "pergunta": "como cadsatro meus imoveis",
+      "resposta": "Nenhum imóvel ainda. Clique em 📎 para importar XML.",
+      "data": "2026-05-08T02:26:04.721Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "meu simoveis",
+      "resposta": "🏠 <strong>Imóveis:</strong><br>✅ Ativos: 846<br>❌ Inativos: 0<br>📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia, Cidade São Francisco<br>🏷️ Tipos: Casa, Apartamento, Residential / Home, Residential / Condo, Comercial, Sobrado<br><br><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver imóveis →</a>",
+      "data": "2026-05-08T02:29:21.616Z"
     }
   ]
 }

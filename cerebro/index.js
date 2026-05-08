@@ -20,6 +20,7 @@ const scoring        = require('./scoring');
 const suporte        = require('./suporte');
 const { criarArvore } = require('./arvore');
 const raciocinio = require('./raciocinio');
+const intencao  = require('./intencao');
 const navegacao = require('./navegacao');
 
 const btn  = (label, href) => `<a href="${href}" style="display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px">${label} →</a>`;

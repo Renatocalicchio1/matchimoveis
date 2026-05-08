@@ -39,6 +39,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+const navegacao = require("./cerebro/navegacao");
 app.use(navegacao.rastrear); // rastreia navegação para o cérebro
 
 const port = 3000;

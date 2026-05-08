@@ -69,18 +69,18 @@
                 %>
 
                 <% if (v.status === 'lead_confirmou') { %>
-                  <strong style='color:green'>✅ Lead confirmou presença</strong>
+                  <strong style='color:#1A1A1A;font-weight:600'>✅ Lead confirmou presença</strong>
                 <% } else if (v.status === 'lead_recusou') { %>
-                  <strong style='color:red'>❌ Lead não comparecerá</strong>
+                  <strong style='color:#FF385C;font-weight:600'>❌ Lead não comparecerá</strong>
                 <% } else if (v.status === 'confirmada') { %>
-                  <strong style="color:green">✅ Confirmada</strong>
+                  <strong style="color:#1A1A1A;font-weight:600">✅ Confirmada</strong>
                   <% if (telCliente) { %>
                     <a href="https://wa.me/55<%= telCliente %>?text=<%= encodeURIComponent(msgCliente) %>" target="_blank" style="background:#25D366;color:white;padding:8px 12px;border-radius:8px;text-decoration:none;text-align:center;font-size:13px">
                       📲 Notificar Cliente
                     </a>
                   <% } %>
                 <% } else if (v.status === 'cancelada') { %>
-                  <strong style="color:red">❌ Cancelada</strong>
+                  <strong style="color:#FF385C;font-weight:600">❌ Cancelada</strong>
                 <% } else if (v.status === 'pendente_remarcar') { %>
                   <strong style="color:orange">📅 Proprietário pediu nova data</strong>
                   <% const telClienteRem = (v.telefone || v.contato || '').replace(/\D/g,'');

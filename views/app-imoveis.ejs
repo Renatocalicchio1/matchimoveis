@@ -1,17 +1,17 @@
 <%- include('partials/app-shell',{active:'imoveis',title:'Meus imóveis',subtitle:'🤖 Base indexada pela IA — pronta para match com leads.',perfil:'corretor'}) %>
 
-<div id="barra-selecao" style="display:none;position:sticky;top:0;z-index:100;background:#1a1a2e;color:#fff;padding:14px 20px;border-radius:12px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.2)">
+<div id="barra-selecao" style="display:none;position:sticky;top:0;z-index:100;background:#1A1A1A;color:#fff;padding:14px 20px;border-radius:12px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.2)">
   <div style="display:flex;align-items:center;gap:12px">
     <span id="contador-sel" style="font-weight:700;font-size:15px">0 selecionados</span>
     <button onclick="deselectAll()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;padding:5px 12px;border-radius:8px;cursor:pointer;font-size:12px">✕ Limpar</button>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button onclick="gerarXML('vivareal')" style="background:#7c3aed;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 VivaReal</button>
-    <button onclick="gerarXML('zap')" style="background:#ea580c;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 ZAP</button>
-    <button onclick="gerarXML('olx')" style="background:#0284c7;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 OLX</button>
-    <button onclick="gerarXML('chaves')" style="background:#059669;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 Chaves</button>
-    <button onclick="gerarXML('imovelweb')" style="background:#d97706;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 ImovelWeb</button>
-    <button onclick="gerarXML('123i')" style="background:#be185d;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 123i</button>
+    <button onclick="gerarXML('vivareal')" style="background:#1A1A1A;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 VivaReal</button>
+    <button onclick="gerarXML('zap')" style="background:#555;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 ZAP</button>
+    <button onclick="gerarXML('olx')" style="background:#333;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 OLX</button>
+    <button onclick="gerarXML('chaves')" style="background:#444;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 Chaves</button>
+    <button onclick="gerarXML('imovelweb')" style="background:#666;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 ImovelWeb</button>
+    <button onclick="gerarXML('123i')" style="background:#777;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 123i</button>
   </div>
 </div>
 
@@ -141,7 +141,7 @@
     <div id="modal-link" style="display:none">
       <input id="modal-url" readonly style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:12px;margin-bottom:12px">
       <div style="display:flex;gap:8px;justify-content:center">
-        <button onclick="copiarURL()" style="background:#1a1a2e;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600">📋 Copiar URL</button>
+        <button onclick="copiarURL()" style="background:#1A1A1A;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600">📋 Copiar URL</button>
         <button onclick="document.getElementById('modal-xml').style.display='none'" style="background:#f3f4f6;border:none;padding:10px 20px;border-radius:8px;cursor:pointer">Fechar</button>
       </div>
     </div>

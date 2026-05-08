@@ -28,10 +28,10 @@
 
   <div id="loc-status" style="margin-top:14px;padding:12px;border-radius:10px;background:#f7f7f7;font-size:13px;display:flex;align-items:center;gap:10px">
     <% if(user.lat && user.lng) { %>
-      <span style="color:#16a34a;font-size:16px">✅</span>
+      <span style="color:#1A1A1A;font-size:16px">✅</span>
       <span>Localização salva: <strong><%= user.endereco || (user.lat + ', ' + user.lng) %></strong></span>
     <% } else { %>
-      <span style="color:#f59e0b;font-size:16px">⚠️</span>
+      <span style="color:#6B6B6B;font-size:16px">⚠️</span>
       <span>Localização não definida. Clique em <strong>Atualizar localização</strong> para habilitar o mapa de distâncias.</span>
     <% } %>
   </div>

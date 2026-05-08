@@ -1,0 +1,104 @@
+{
+  "sessoes": {
+    "imobiliaria-47991919191": {
+      "paginaAtual": "assistente",
+      "labelAtual": "Assistente",
+      "dominioAtual": "sistema",
+      "rotaAtual": "/app/assistente",
+      "atualizadoEm": "2026-05-08T16:46:05.313Z",
+      "paginaAnterior": "assistente"
+    }
+  },
+  "fluxos": [
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:36:02.290Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:37:03.949Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:37:27.588Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:37:31.385Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:37:34.009Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:43:34.793Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:43:36.914Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:43:39.426Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:43:40.701Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:43:44.137Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:45:40.335Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:45:44.099Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:45:46.340Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:45:47.663Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T16:45:51.115Z"
+    }
+  ]
+}

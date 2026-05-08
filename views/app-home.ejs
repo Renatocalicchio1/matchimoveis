@@ -1,63 +1,59 @@
 <%- include("partials/app-shell",{active:"home",title:"Dashboard",subtitle:"",user:user}) %>
 
 <style>
-.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.kpi{background:#fff;border:1px solid #ebebeb;border-radius:14px;padding:18px;position:relative;overflow:hidden}
-.kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#717171;margin-bottom:10px}
-.kpi-num{font-size:38px;font-weight:800;letter-spacing:-2px;line-height:1;color:#111}
-.kpi-sub{font-size:12px;color:#aaa;margin-top:6px}
-.kpi-icon{position:absolute;right:16px;top:16px;font-size:22px;opacity:.15}
-.kpi.blue{border-top:3px solid #1a56db}.kpi.blue .kpi-num{color:#1a56db}
-.kpi.green{border-top:3px solid #16a34a}.kpi.green .kpi-num{color:#16a34a}
-.kpi.red{border-top:3px solid #FF385C}.kpi.red .kpi-num{color:#FF385C}
-.kpi.orange{border-top:3px solid #f59e0b}.kpi.orange .kpi-num{color:#f59e0b}
-.dash-row{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:20px}
-.section-title{font-size:13px;font-weight:700;color:#111;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
-.section-title a{font-size:12px;font-weight:500;color:#1a56db;text-decoration:none}
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid #E5E5E5;border-radius:14px;padding:18px;position:relative;overflow:hidden}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6B6B6B;margin-bottom:8px}
+.kpi-num{font-size:34px;font-weight:700;letter-spacing:-1.5px;line-height:1;color:#1A1A1A}
+.kpi-sub{font-size:12px;color:#9B9B9B;margin-top:5px}
+.kpi-icon{position:absolute;right:16px;top:16px;font-size:20px;opacity:.12}
+.dash-row{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:16px}
+.section-title{font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.section-title a{font-size:12px;font-weight:500;color:#FF385C;text-decoration:none}
 .feed{display:flex;flex-direction:column;gap:0}
-.feed-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5}
+.feed-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #F5F5F5}
 .feed-item:last-child{border-bottom:none}
-.feed-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.feed-dot.match{background:#eff6ff}.feed-dot.lead{background:#f0fdf4}
+.feed-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:#F5F5F5}
 .feed-content{flex:1;min-width:0}
-.feed-nome{font-size:13px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.feed-desc{font-size:12px;color:#717171}
+.feed-nome{font-size:13px;font-weight:600;color:#1A1A1A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-desc{font-size:12px;color:#6B6B6B}
 .rate-wrap{display:flex;flex-direction:column;gap:14px}
-.rate-item{display:flex;flex-direction:column;gap:6px}
-.rate-label{display:flex;justify-content:space-between;font-size:12px}
-.rate-bar{height:6px;background:#f0f4ff;border-radius:3px;overflow:hidden}
-.rate-fill{height:6px;background:#1a56db;border-radius:3px}
-.rate-fill.green{background:#16a34a}.rate-fill.orange{background:#f59e0b}
-.acoes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.acao{display:flex;align-items:center;gap:10px;padding:14px;border-radius:12px;border:1px solid #ebebeb;background:#fff;text-decoration:none;color:#111;transition:all .15s}
-.acao:hover{border-color:#1a56db;background:#eff6ff}
-.acao-icon{font-size:20px}
+.rate-item{display:flex;flex-direction:column;gap:5px}
+.rate-label{display:flex;justify-content:space-between;font-size:12px;color:#6B6B6B}
+.rate-bar{height:5px;background:#F0F0F0;border-radius:3px;overflow:hidden}
+.rate-fill{height:5px;background:#1A1A1A;border-radius:3px}
+.acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acao{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:1px solid #E5E5E5;background:#fff;text-decoration:none;color:#1A1A1A;transition:all .15s}
+.acao:hover{border-color:#FF385C;background:#FFF5F6}
+.acao-icon{font-size:18px}
 .acao-text strong{display:block;font-size:13px;font-weight:600}
-.acao-text span{font-size:11px;color:#717171}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.live-dot{display:inline-block;width:7px;height:7px;background:#16a34a;border-radius:50%;animation:pulse 2s infinite;margin-right:6px}
+.acao-text span{font-size:11px;color:#6B6B6B}
+.tag-match{background:#F5F5F5;color:#6B6B6B;padding:3px 10px;border-radius:20px;font-size:11px}
+.tag-com-match{background:#FFF1F2;color:#FF385C;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.live-dot{display:inline-block;width:6px;height:6px;background:#1A1A1A;border-radius:50%;animation:pulse 2s infinite;margin-right:6px}
 </style>
 
 <div class="dash-grid">
-  <div class="kpi blue">
+  <div class="kpi">
     <div class="kpi-icon">🏠</div>
     <div class="kpi-label">Imóveis na carteira</div>
     <div class="kpi-num"><%= stats.imoveisAtivos %></div>
-    <div class="kpi-sub">Base Rankim ativa</div>
+    <div class="kpi-sub">Base ativa</div>
   </div>
-  <div class="kpi green">
+  <div class="kpi">
     <div class="kpi-icon">🎯</div>
     <div class="kpi-label">Matches gerados</div>
     <div class="kpi-num"><%= stats.matchesGerados %></div>
     <div class="kpi-sub"><%= stats.comMatch %> leads com match</div>
   </div>
-  <div class="kpi red">
+  <div class="kpi">
     <div class="kpi-icon">👥</div>
     <div class="kpi-label">Total de leads</div>
     <div class="kpi-num"><%= stats.leadsNovos %></div>
     <div class="kpi-sub">Taxa de match: <%= stats.taxaMatch %>%</div>
   </div>
-  <div class="kpi orange">
+  <div class="kpi">
     <div class="kpi-icon">📅</div>
     <div class="kpi-label">Visitas agendadas</div>
     <div class="kpi-num"><%= stats.visitasAgendadas %></div>
@@ -73,7 +69,7 @@
     </div>
     <div class="feed">
       <% if(!recentes || !recentes.length) { %>
-        <p style="color:#aaa;font-size:13px;text-align:center;padding:24px 0">Nenhuma atividade ainda</p>
+        <p style="color:#9B9B9B;font-size:13px;text-align:center;padding:24px 0">Nenhuma atividade ainda</p>
       <% } else { %>
         <% recentes.forEach(function(l) {
           var temMatch = l.matches && l.matches.length > 0;
@@ -83,16 +79,16 @@
           var valor = origin.valor_imovel || l.valor_imovel || 0;
         %>
         <div class="feed-item">
-          <div class="feed-dot <%= temMatch ? 'match' : 'lead' %>"><%= temMatch ? '🎯' : '👤' %></div>
+          <div class="feed-dot"><%= temMatch ? '🎯' : '👤' %></div>
           <div class="feed-content">
             <div class="feed-nome"><%= l.nome || l.clientName || 'Lead' %></div>
             <div class="feed-desc"><%= bairro %><% if(tipo){ %> · <%= tipo %><% } %><% if(valor){ %> · R$ <%= Number(valor).toLocaleString('pt-BR') %><% } %></div>
           </div>
           <div>
             <% if(temMatch) { %>
-              <span style="background:#eff6ff;color:#1a56db;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700"><%= l.matches.length %> match</span>
+              <span class="tag-com-match"><%= l.matches.length %> match</span>
             <% } else { %>
-              <span style="background:#f7f7f7;color:#aaa;padding:3px 10px;border-radius:20px;font-size:11px">sem match</span>
+              <span class="tag-match">sem match</span>
             <% } %>
           </div>
         </div>
@@ -101,9 +97,9 @@
     </div>
   </div>
 
-  <div style="display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;flex-direction:column;gap:12px">
     <div class="card" style="margin:0">
-      <div class="section-title"><span>📊 Métricas</span></div>
+      <div class="section-title"><span>Métricas</span></div>
       <div class="rate-wrap">
         <div class="rate-item">
           <div class="rate-label"><span>Taxa de match</span><span><%= stats.taxaMatch %>%</span></div>
@@ -112,18 +108,18 @@
         <div class="rate-item">
           <% var pctMatch = stats.leadsNovos > 0 ? Math.round(stats.comMatch/stats.leadsNovos*100) : 0; %>
           <div class="rate-label"><span>Leads com match</span><span><%= stats.comMatch %> / <%= stats.leadsNovos %></span></div>
-          <div class="rate-bar"><div class="rate-fill green" style="width:<%= pctMatch %>%"></div></div>
+          <div class="rate-bar"><div class="rate-fill" style="width:<%= pctMatch %>%"></div></div>
         </div>
         <div class="rate-item">
           <% var pctVisitas = stats.visitasAgendadas > 0 ? Math.round(stats.visitasHoje/stats.visitasAgendadas*100) : 0; %>
           <div class="rate-label"><span>Visitas hoje</span><span><%= stats.visitasHoje %></span></div>
-          <div class="rate-bar"><div class="rate-fill orange" style="width:<%= pctVisitas %>%"></div></div>
+          <div class="rate-bar"><div class="rate-fill" style="width:<%= pctVisitas %>%"></div></div>
         </div>
       </div>
     </div>
 
     <div class="card" style="margin:0">
-      <div class="section-title"><span>⚡ Ações rápidas</span></div>
+      <div class="section-title"><span>Ações rápidas</span></div>
       <div class="acoes">
         <a href="/app/leads" class="acao">
           <span class="acao-icon">👥</span>
@@ -146,79 +142,65 @@
   </div>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
   <div class="card" style="margin:0">
-    <div class="section-title"><span>📅 Visitas por status</span></div>
+    <div class="section-title"><span>Visitas por status</span></div>
     <canvas id="chartVisitas" height="200"></canvas>
   </div>
   <div class="card" style="margin:0">
-    <div class="section-title"><span>👥 Leads por status</span></div>
+    <div class="section-title"><span>Leads por status</span></div>
     <canvas id="chartLeads" height="200"></canvas>
   </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
   <div class="card" style="margin:0">
-    <div class="section-title"><span>🏠 Imóveis por tipo</span></div>
+    <div class="section-title"><span>Imóveis por tipo</span></div>
     <canvas id="chartImoveisTipo" height="200"></canvas>
   </div>
   <div class="card" style="margin:0">
-    <div class="section-title"><span>📍 Imóveis por bairro (Top 8)</span></div>
+    <div class="section-title"><span>Imóveis por bairro</span></div>
     <canvas id="chartImoveisBairro" height="200"></canvas>
   </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:20px">
+<div style="margin-bottom:16px">
   <div class="card" style="margin:0">
-    <div class="section-title"><span>📍 Leads por bairro (Top 8)</span></div>
+    <div class="section-title"><span>Leads por bairro</span></div>
     <canvas id="chartLeadsBairro" height="120"></canvas>
   </div>
 </div>
 
 <script>
-const COLORS=['#FF385C','#1a56db','#16a34a','#f59e0b','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
+const COLORS=['#1A1A1A','#6B6B6B','#9B9B9B','#C5C5C5','#E5E5E5','#FF385C','#555','#333'];
 
-function makeDonut(id, data){
-  const labels=Object.keys(data);
-  const vals=Object.values(data);
+function makeDonut(id,data){
+  const labels=Object.keys(data),vals=Object.values(data);
   new Chart(document.getElementById(id),{
     type:'doughnut',
     data:{labels,datasets:[{data:vals,backgroundColor:COLORS,borderWidth:2,borderColor:'#fff'}]},
-    options:{plugins:{legend:{position:'right'}},cutout:'65%'}
+    options:{plugins:{legend:{position:'right',labels:{font:{size:11},color:'#6B6B6B'}}},cutout:'65%'}
   });
 }
-
-function makeBar(id, data, horizontal=false){
-  const labels=Object.keys(data);
-  const vals=Object.values(data);
+function makeBar(id,data,horizontal){
+  const labels=Object.keys(data),vals=Object.values(data);
   new Chart(document.getElementById(id),{
-    type: horizontal ? 'bar' : 'bar',
-    data:{labels,datasets:[{data:vals,backgroundColor:COLORS,borderRadius:6,borderSkipped:false}]},
-    options:{
-      indexAxis: horizontal ? 'y' : 'x',
-      plugins:{legend:{display:false}},
-      scales:{x:{grid:{display:false}},y:{grid:{color:'#f5f5f5'}}}
-    }
+    type:'bar',
+    data:{labels,datasets:[{data:vals,backgroundColor:'#1A1A1A',borderRadius:4,borderSkipped:false}]},
+    options:{indexAxis:horizontal?'y':'x',plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#6B6B6B',font:{size:10}}},y:{grid:{color:'#F5F5F5'},ticks:{color:'#6B6B6B',font:{size:10}}}}}
   });
 }
-
 const visitasStatus=<%- graficoVisitasStatus %>;
 const leadsStatus=<%- graficoLeadsStatus %>;
 const imoveisTipo=<%- graficoImoveisTipo %>;
 const imoveisBairro=<%- graficoImoveisBairro %>;
 const leadsBairro=<%- graficoLeadsBairro %>;
-
-makeDonut('chartVisitas', visitasStatus);
-makeDonut('chartLeads', {
-  'Extraído OK': leadsStatus.ok||0,
-  'Incompleto': leadsStatus.incompleto||0,
-  'Sem status': leadsStatus.semStatus||0
-});
-makeDonut('chartImoveisTipo', imoveisTipo);
-makeBar('chartImoveisBairro', imoveisBairro, true);
-makeBar('chartLeadsBairro', leadsBairro, true);
+makeDonut('chartVisitas',visitasStatus);
+makeDonut('chartLeads',{'Extraído OK':leadsStatus.ok||0,'Incompleto':leadsStatus.incompleto||0,'Sem status':leadsStatus.semStatus||0});
+makeDonut('chartImoveisTipo',imoveisTipo);
+makeBar('chartImoveisBairro',imoveisBairro,true);
+makeBar('chartLeadsBairro',leadsBairro,true);
 </script>
 <%- include('partials/app-end') %>

@@ -209,8 +209,8 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
         <div class="excel-client">
           <div style="font-size:13px;line-height:1.45">
             <strong><a href="/app/lead/<%= item.id %>" style="text-decoration:none;color:#111"><%= item.nome || item.cliente || item.clientName || '-' %></a></strong>
-            <% if(item.origem === 'pagina_externa_imovel') { %><span style="background:#e0f2fe;color:#0369a1;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px">🌐 Orgânica</span><% } else { %><span style="background:#f0fdf4;color:#15803d;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px">📋 Importada</span><% } %>
-            · <span style="color:#16a34a;font-weight:600"><%= (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? 'Extraído' : 'Pendente' %></span>
+            <% if(item.origem === 'pagina_externa_imovel') { %><span style="background:#e0f2fe;color:#0369a1;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px">🌐 Orgânica</span><% } else { %><span style="background:#F5F5F5;color:#15803d;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px">📋 Importada</span><% } %>
+            · <span style="color:#1A1A1A;font-weight:600"><%= (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? 'Extraído' : 'Pendente' %></span>
             · <span class="chip">🤖 <%= matchCount %> sugestões IA</span>
             <% if(bestScore) { %> · <span class="chip dark">⚡ Compatibilidade <%= bestScore %>%</span><% } %>
             <br>
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
                   <td><%= m.fonte || 'rankim' %></td>
                   <td>#<%= m.rank || '-' %></td>
                   <% const scoreMatch = m.score || m.bestScore || m.matchScore || m.scoreIA || m.pontuacao || 0; %>
-                  <td><% if(scoreMatch){ %><span style="background:#111;color:#fff;border-radius:12px;padding:2px 7px;font-size:11px;font-weight:700"><%= scoreMatch %></span><% } else { %>-<% } %></td>
+                  <td><% if(scoreMatch){ %><span style="background:#1A1A1A;color:#fff;border-radius:12px;padding:2px 7px;font-size:11px;font-weight:700"><%= scoreMatch %></span><% } else { %>-<% } %></td>
                   <td><%= m.idExterno || m.idOriginal || m.id_anuncio || m.id || '-' %></td>
                   <td><%= m.idInterno || m.codigoImovel || '-' %></td>
                   <td><%= m.tipo || '-' %></td>

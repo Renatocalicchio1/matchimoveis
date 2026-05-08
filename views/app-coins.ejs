@@ -1,13 +1,13 @@
 <%- include("partials/app-shell",{active:"coins",user:user,title:"Match Coins"}) %>
 
 <div class="kpi-grid" style="margin-bottom:24px">
-  <div class="kpi amber">
+  <div class="kpi">
     <div class="kpi-accent"></div>
     <div class="kpi-label">Saldo Atual</div>
     <div class="kpi-val">🪙 <%= user.matchCoins || 0 %></div>
     <div class="kpi-sub">Match Coins disponíveis</div>
   </div>
-  <div class="kpi blue">
+  <div class="kpi">
     <div class="kpi-accent"></div>
     <div class="kpi-label">Total Recebido</div>
     <div class="kpi-val"><%= user.matchCoinsTotal || 0 %></div>
@@ -21,22 +21,22 @@
 
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
     <div onclick="selecionarPacote(50)" class="pacote-coin" data-coins="50" style="border:2px solid #e5e7eb;border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s">
-      <div style="font-size:28px;font-weight:800;color:#f59e0b">50</div>
+      <div style="font-size:28px;font-weight:800;color:#6B6B6B">50</div>
       <div style="font-size:12px;color:#888;margin:4px 0">Match Coins</div>
       <div style="font-size:16px;font-weight:700;color:#111">R$25,00</div>
     </div>
     <div onclick="selecionarPacote(100)" class="pacote-coin" data-coins="100" style="border:2px solid #e5e7eb;border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s">
-      <div style="font-size:28px;font-weight:800;color:#f59e0b">100</div>
+      <div style="font-size:28px;font-weight:800;color:#6B6B6B">100</div>
       <div style="font-size:12px;color:#888;margin:4px 0">Match Coins</div>
       <div style="font-size:16px;font-weight:700;color:#111">R$50,00</div>
     </div>
     <div onclick="selecionarPacote(300)" class="pacote-coin" data-coins="300" style="border:2px solid #e5e7eb;border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s">
-      <div style="font-size:28px;font-weight:800;color:#f59e0b">300</div>
+      <div style="font-size:28px;font-weight:800;color:#6B6B6B">300</div>
       <div style="font-size:12px;color:#888;margin:4px 0">Match Coins</div>
       <div style="font-size:16px;font-weight:700;color:#111">R$150,00</div>
     </div>
     <div onclick="selecionarPacote(500)" class="pacote-coin" data-coins="500" style="border:2px solid #e5e7eb;border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s">
-      <div style="font-size:28px;font-weight:800;color:#f59e0b">500</div>
+      <div style="font-size:28px;font-weight:800;color:#6B6B6B">500</div>
       <div style="font-size:12px;color:#888;margin:4px 0">Match Coins</div>
       <div style="font-size:16px;font-weight:700;color:#111">R$250,00</div>
     </div>

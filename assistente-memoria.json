@@ -213,6 +213,78 @@
       "pergunta": "meu simoveis",
       "resposta": "🏠 <strong>Imóveis:</strong><br>✅ Ativos: 846<br>❌ Inativos: 0<br>📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia, Cidade São Francisco<br>🏷️ Tipos: Casa, Apartamento, Residential / Home, Residential / Condo, Comercial, Sobrado<br><br><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver imóveis →</a>",
       "data": "2026-05-08T02:29:21.616Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "oi tud bem",
+      "resposta": "Bom dia, Rankim! 👋<br>🏠 846 imóveis · 👥 1393 leads · 🎯 43 matchs · ⏳ 0 pendentes<br><br><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🏠 Imóveis</button><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">👥 Leads</button><button onclick=\"enviarMsg('minhas visitas')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📅 Visitas</button><button onclick=\"enviarMsg('resumo geral')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Resumo</button>",
+      "data": "2026-05-08T03:07:57.919Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "voce tem alguam ajuda hoje",
+      "resposta": "🤖 <strong>Sou o Match, seu assistente.</strong> Posso te ajudar com:<br><br><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">👥 Leads</button><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🏠 Imóveis</button><button onclick=\"enviarMsg('minhas visitas')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📅 Visitas</button><button onclick=\"enviarMsg('ver match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🎯 Match</button><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 Portais</button><button onclick=\"enviarMsg('meus coins')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🪙 Coins</button><button onclick=\"enviarMsg('notificacoes')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔔 Notificações</button><button onclick=\"enviarMsg('resumo geral')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Resumo</button>",
+      "data": "2026-05-08T03:08:17.462Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "resumo",
+      "resposta": "📊 <strong>Resumo da sua conta:</strong><br><br>🏠 Imóveis: <strong>846</strong> ativos · 0 inativos<br>👥 Leads: <strong>1393</strong> · 442 orgânicas · 951 importadas<br>🎯 Match: <strong>43</strong> (3%) · 1350 sem match<br>📅 Visitas: <strong>0</strong> · 0 hoje · 0 pendentes<br><br><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Imóveis →</a><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Leads →</a><a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Visitas →</a>",
+      "data": "2026-05-08T03:08:26.156Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "muto bom",
+      "resposta": "Hmm, não entendi 🤔 Pode reformular?<br><br><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">👥 Leads</button><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🏠 Imóveis</button><button onclick=\"enviarMsg('minhas visitas')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📅 Visitas</button><button onclick=\"enviarMsg('ajuda')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ Ajuda</button>",
+      "data": "2026-05-08T03:08:31.756Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "ajuda",
+      "resposta": "🤖 <strong>Sou o Match, seu assistente.</strong> Posso te ajudar com:<br><br><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">👥 Leads</button><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🏠 Imóveis</button><button onclick=\"enviarMsg('minhas visitas')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📅 Visitas</button><button onclick=\"enviarMsg('ver match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🎯 Match</button><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 Portais</button><button onclick=\"enviarMsg('meus coins')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🪙 Coins</button><button onclick=\"enviarMsg('notificacoes')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔔 Notificações</button><button onclick=\"enviarMsg('resumo geral')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Resumo</button>",
+      "data": "2026-05-08T03:08:40.447Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "match",
+      "resposta": "🎯 <strong>Match:</strong><br>✅ Com match: 43 · ❌ Sem match: 1350<br>📊 Taxa: <strong>3%</strong><br><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a><button onclick=\"enviarMsg('como funciona o match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ Como funciona?</button>",
+      "data": "2026-05-08T03:08:45.856Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "como funciona o match",
+      "resposta": "🎯 <strong>Como funciona o Match:</strong><br>Cruza <strong>bairro + tipo + quartos</strong> automaticamente.<br>Score: valor abaixo do máx +50pts · área maior +30pts · quartos extras +20pts<br><br><a href=\"/app/leads?filtro=com_match\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads com match →</a>",
+      "data": "2026-05-08T03:08:49.844Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "quer ver um lead co match",
+      "resposta": "👥 <strong>Leads:</strong><br>Total: 1393 · Orgânicas: 442 · Importadas: 951<br>🎯 Com match: 43 (3%) · Sem match: 1350<br><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a><a href=\"/app-importar-leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Importar →</a>",
+      "data": "2026-05-08T03:09:05.931Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "consegue em ajudar imprtas leads ?",
+      "resposta": "👥 <strong>Leads:</strong><br>Total: 1393 · Orgânicas: 442 · Importadas: 951<br>🎯 Com match: 43 (3%) · Sem match: 1350<br><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a><a href=\"/app-importar-leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Importar →</a>",
+      "data": "2026-05-08T03:09:20.428Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "eu tenho alguma visita genda",
+      "resposta": "Nenhuma visita agendada ainda. 📅<br><br><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">👥 Ver leads</button>",
+      "data": "2026-05-08T03:10:37.581Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "o que sao vitirnes ?",
+      "resposta": "🤖 <strong>Sou o Match, seu assistente.</strong> Posso te ajudar com:<br><br><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">👥 Leads</button><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🏠 Imóveis</button><button onclick=\"enviarMsg('minhas visitas')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📅 Visitas</button><button onclick=\"enviarMsg('ver match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🎯 Match</button><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 Portais</button><button onclick=\"enviarMsg('meus coins')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🪙 Coins</button><button onclick=\"enviarMsg('notificacoes')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔔 Notificações</button><button onclick=\"enviarMsg('resumo geral')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Resumo</button>",
+      "data": "2026-05-08T03:11:08.431Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "eu posso enviar a vitiren pelo meu nruero ?",
+      "resposta": "Desculpe, não captei. Pode tentar de outro jeito?<br><br><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">👥 Leads</button><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🏠 Imóveis</button><button onclick=\"enviarMsg('minhas visitas')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📅 Visitas</button><button onclick=\"enviarMsg('ajuda')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ Ajuda</button>",
+      "data": "2026-05-08T03:11:33.707Z"
     }
   ]
 }

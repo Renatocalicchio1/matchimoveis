@@ -1,0 +1,216 @@
+#!/bin/bash
+TARGET="$HOME/Downloads/matchimoveis /cerebro"
+
+# ── acoes.js ──────────────────────────────────────────────────────────────────
+cat > "$TARGET/acoes.js" << 'EOF'
+'use strict';
+
+function detectarAcao(mNorm) {
+  if (/confirmar visita|aceitar visita|aprovar visita/.test(mNorm))    return 'confirmar_visita';
+  if (/recusar visita|cancelar visita|negar visita/.test(mNorm))       return 'recusar_visita';
+  if (/inativar imovel|desativar imovel|ocultar imovel/.test(mNorm))  return 'inativar_imovel';
+  if (/fazer match|rodar match|executar match|match agora/.test(mNorm)) return 'fazer_match';
+  if (/gerar xml|criar xml|publicar/.test(mNorm))                      return 'gerar_xml';
+  if (/importar lead|subir lead|upload lead|importar planilha/.test(mNorm)) return 'wizard_leads';
+  if (/importar xml|importar imovel|subir xml/.test(mNorm))            return 'wizard_xml';
+  if (/importar proprietario|vincular proprietario/.test(mNorm))       return 'wizard_proprietarios';
+  if (/pode me ajudar|o que voce faz|o que pode|me ajuda|pode ajudar/.test(mNorm)) return 'mostrar_capacidades';
+  return null;
+}
+
+function extrairId(mensagem) {
+  const m = mensagem.match(/\b([a-zA-Z0-9-]{4,})\b/g);
+  return m ? m[m.length-1] : null;
+}
+
+function extrairPortal(mNorm) {
+  return ['vivareal','zap','olx','chaves','imovelweb','123i'].find(p => mNorm.includes(p)) || null;
+}
+
+function gerarWizard(wizard, btn) {
+  const passos = wizard.passos.map((p,i) =>
+    `<div style="display:flex;gap:10px;margin:8px 0;align-items:flex-start">` +
+    `<span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${i+1}</span>` +
+    `<span>${p}</span></div>`
+  ).join('');
+  return `${wizard.titulo}<br><br>${passos}<br>${btn(wizard.btn_direto.label, wizard.btn_direto.href)}`;
+}
+
+function mostrarCapacidades(btn, chip) {
+  return `🤖 <strong>Posso te ajudar a:</strong><br><br>` +
+    `<strong>📊 Consultar:</strong><br>` +
+    chip('👥 Leads','minhas leads')+chip('🏠 Imóveis','meus imoveis')+chip('📅 Visitas','minhas visitas')+
+    chip('🎯 Match','ver match')+chip('📊 Resumo','resumo geral')+chip('📍 Demanda','demanda por bairro')+
+    `<br><br><strong>⚡ Executar:</strong><br>`+
+    chip('📋 Importar leads','importar leads')+chip('🏠 Importar XML','importar xml')+
+    chip('🔗 Gerar XML','gerar xml')+chip('👤 Proprietários','importar proprietarios')+chip('🎯 Fazer match','fazer match agora')+
+    `<br><br><strong>💡 Explicar:</strong><br>`+
+    chip('❓ Match','o que e match')+chip('❓ Vitrine','o que e vitrine')+chip('❓ Score','como funciona o score');
+}
+
+function executarAcao(acao, mensagem, mNorm, d, btn, chip) {
+  const WIZARDS = {
+    wizard_leads: {
+      titulo:'📋 <strong>Importar Leads — passo a passo:</strong>',
+      passos:[
+        'Vá até <a href="/app/leads" style="color:#ff385c;font-weight:700">Leads →</a> e clique em <strong>Importar</strong>.',
+        'Selecione o arquivo <strong>CSV ou Excel</strong> exportado do portal (ImovelWeb, ZAP, VivaReal, OLX).',
+        'Clique em <strong>Enviar</strong> — o sistema extrai bairro, tipo, quartos e valor automaticamente.',
+        'Após importar, clique em <strong>Fazer Match</strong> para cruzar com seus imóveis.'
+      ],
+      btn_direto:{ label:'Ir para Leads', href:'/app/leads' }
+    },
+    wizard_xml: {
+      titulo:'🏠 <strong>Importar Imóveis via XML — passo a passo:</strong>',
+      passos:[
+        'Exporte o XML do seu CRM (Tecimob, Rankim ou outro).',
+        'Vá até <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Imóveis →</a> e clique em <strong>Importar XML</strong>.',
+        'Selecione o arquivo <strong>.xml</strong> e clique em Enviar.',
+        'Os imóveis são importados e vinculados à sua conta automaticamente.'
+      ],
+      btn_direto:{ label:'Ir para Imóveis', href:'/app/imoveis' }
+    },
+    wizard_proprietarios: {
+      titulo:'👤 <strong>Vincular Proprietários — passo a passo:</strong>',
+      passos:[
+        'Prepare o Excel no padrão Tecimob.',
+        'Campos necessários: <strong>Referencia, Proprietário, Celular, E-mail, Descrição</strong>.',
+        'Vá até <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Imóveis →</a> e use <strong>Importar Proprietários</strong>.',
+        'O sistema cruza automaticamente pelo código de referência.'
+      ],
+      btn_direto:{ label:'Ir para Imóveis', href:'/app/imoveis' }
+    }
+  };
+
+  switch(acao) {
+    case 'mostrar_capacidades': return mostrarCapacidades(btn, chip);
+    case 'wizard_leads':        return gerarWizard(WIZARDS.wizard_leads, btn);
+    case 'wizard_xml':          return gerarWizard(WIZARDS.wizard_xml, btn);
+    case 'wizard_proprietarios':return gerarWizard(WIZARDS.wizard_proprietarios, btn);
+
+    case 'fazer_match':
+      return `🎯 Para fazer o match:<br><br>`+
+        `<div style="display:flex;gap:10px;margin:8px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">1</span><span>Vá para <a href="/app/leads" style="color:#ff385c;font-weight:700">Leads →</a></span></div>`+
+        `<div style="display:flex;gap:10px;margin:8px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">2</span><span>Clique em <strong>Fazer Match</strong> no topo.</span></div>`+
+        `<div style="display:flex;gap:10px;margin:8px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">3</span><span>O sistema cruza todas as leads com seus <strong>${d.ativos} imóveis ativos</strong>.</span></div>`+
+        `<br>${btn('Ir para Leads','/app/leads')}`;
+
+    case 'gerar_xml': {
+      const portal = extrairPortal(mNorm);
+      if (portal)
+        return `🔗 Para gerar XML do <strong>${portal.toUpperCase()}</strong>:<br><br>`+
+          `<div style="display:flex;gap:10px;margin:8px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">1</span><span>Vá para <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Imóveis →</a></span></div>`+
+          `<div style="display:flex;gap:10px;margin:8px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">2</span><span>Selecione os imóveis com os checkboxes.</span></div>`+
+          `<div style="display:flex;gap:10px;margin:8px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">3</span><span>Clique em <strong>${portal.toUpperCase()}</strong> na barra inferior.</span></div>`+
+          `<br>${btn('Ir para Imóveis','/app/imoveis')}`;
+      return `🔗 Para qual portal?<br><br>`+
+        ['VivaReal','ZAP','OLX','Chaves','ImovelWeb','123i'].map(p=>chip(`🔗 ${p}`,`gerar xml ${p.toLowerCase()}`)).join('');
+    }
+
+    case 'confirmar_visita': {
+      const id = extrairId(mensagem);
+      if (!id) return `Para confirmar uma visita, me informe o ID.<br>Ex: <em>"confirmar visita abc123"</em><br><br>${btn('Ver visitas','/app/visitas')}`;
+      return `✅ Clique em Confirmar na visita <strong>${id}</strong>:<br><br>${btn('Ver visitas','/app/visitas')}`;
+    }
+
+    case 'recusar_visita': {
+      const id = extrairId(mensagem);
+      if (!id) return `Para recusar uma visita, me informe o ID.<br><br>${btn('Ver visitas','/app/visitas')}`;
+      return `❌ Clique em Recusar na visita <strong>${id}</strong>:<br><br>${btn('Ver visitas','/app/visitas')}`;
+    }
+
+    case 'inativar_imovel': {
+      const id = extrairId(mensagem);
+      if (!id) return `Para inativar, me informe o código do imóvel.<br>Ex: <em>"inativar imóvel GABI0997"</em><br><br>${btn('Ver imóveis','/app/imoveis')}`;
+      return `⚠️ Acesse o imóvel <strong>${id}</strong> e clique em <strong>Inativar</strong>:<br><br>${btn('Ver imóveis','/app/imoveis')}`;
+    }
+
+    default: return null;
+  }
+}
+
+module.exports = { detectarAcao, executarAcao, extrairPortal, extrairId };
+EOF
+
+# ── index.js atualizado ───────────────────────────────────────────────────────
+cat > "$TARGET/index.js" << 'EOF'
+'use strict';
+const nlp        = require('./nlp');
+const modLeads   = require('./leads');
+const modImoveis = require('./imoveis');
+const modVisitas = require('./visitas');
+const modMatch   = require('./match');
+const modPortais = require('./portais');
+const modSistema = require('./sistema');
+const modMercado = require('./mercado');
+const acoes      = require('./acoes');
+
+const btn  = (label, href) => `<a href="${href}" style="display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px">${label} →</a>`;
+const chip = (label, msg)  => `<button onclick="enviarMsg('${msg}')" style="background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px">${label}</button>`;
+
+function saudacao(d, nome) {
+  const hora = new Date().getHours();
+  const s = hora<12?'Bom dia':hora<18?'Boa tarde':'Boa noite';
+  if (d.hoje>0)
+    return `${s}, ${nome}! 👋 ⚠️ <strong>${d.hoje} visita(s) hoje!</strong><br>🏠 ${d.ativos} imóveis · 👥 ${d.leads} leads · 🎯 ${d.comMatch} matchs<br><br>${btn('Ver visitas de hoje','/app/visitas')}`;
+  if (d.leads===0&&d.ativos===0)
+    return `${s}, ${nome}! 👋 Sua conta está vazia.<br><br>${btn('Importar imóveis','/app/imoveis')}${btn('Importar leads','/app-importar-leads')}`;
+  return `${s}, ${nome}! 👋<br>🏠 ${d.ativos} imóveis · 👥 ${d.leads} leads · 🎯 ${d.comMatch} matchs · ⏳ ${d.pendentes} pendentes<br><br>${chip('🏠 Imóveis','meus imoveis')}${chip('👥 Leads','minhas leads')}${chip('📅 Visitas','minhas visitas')}${chip('📊 Resumo','resumo geral')}${chip('⚡ O que você faz?','o que voce faz')}`;
+}
+
+function dashboard(d) {
+  const taxa = d.leads>0 ? Math.round(d.comMatch/d.leads*100) : 0;
+  return `📊 <strong>Resumo da sua conta:</strong><br><br>`+
+    `🏠 Imóveis: <strong>${d.ativos}</strong> ativos · ${d.inativos} inativos<br>`+
+    `👥 Leads: <strong>${d.leads}</strong> · ${d.organicas} orgânicas · ${d.importadas} importadas<br>`+
+    `🎯 Match: <strong>${d.comMatch}</strong> (${taxa}%) · ${d.semMatch} sem match<br>`+
+    `📅 Visitas: <strong>${d.visitas}</strong> · ${d.hoje} hoje · ${d.pendentes} pendentes<br><br>`+
+    `${btn('Imóveis','/app/imoveis')}${btn('Leads','/app/leads')}${btn('Visitas','/app/visitas')}`;
+}
+
+function naoEntendeu(contexto) {
+  const frases = ['Hmm, não entendi 🤔 Pode reformular?','Desculpe, não captei. Tente de outro jeito.','Tente: leads, imóveis, visitas, match ou "o que você faz".'];
+  const chips = contexto?.ultimoTema==='leads'
+    ? [chip('👥 Leads','minhas leads'),chip('🎯 Match','leads com match'),chip('📋 Importar','importar leads')]
+    : [chip('👥 Leads','minhas leads'),chip('🏠 Imóveis','meus imoveis'),chip('📅 Visitas','minhas visitas'),chip('⚡ O que você faz?','o que voce faz')];
+  return frases[Math.floor(Math.random()*frases.length)]+'<br><br>'+chips.join('');
+}
+
+function responder(mensagem, d, user, imoveis, leads, contexto) {
+  const nome    = user.nome||user.name||'corretor';
+  const mNorm   = nlp.normalizar(mensagem);
+  const dominio = nlp.detectarDominio(mNorm);
+
+  // 1. AÇÕES TÊM PRIORIDADE
+  const acao = acoes.detectarAcao(mNorm);
+  if (acao) {
+    const resultado = acoes.executarAcao(acao, mensagem, mNorm, d, btn, chip);
+    if (resultado) return resultado;
+  }
+
+  // 2. ROTEAMENTO POR DOMÍNIO
+  switch(dominio) {
+    case 'saudacao':     return saudacao(d, nome);
+    case 'dashboard':    return dashboard(d);
+    case 'leads':        return modLeads.responder(mNorm, d, btn, chip);
+    case 'imoveis':      return modImoveis.responder(mNorm, d, imoveis, btn, chip);
+    case 'visitas':      return modVisitas.responder(mNorm, d, btn, chip);
+    case 'match':        return modMatch.responder(mNorm, d, btn, chip);
+    case 'portais':      return modPortais.responder(mNorm, d, btn, chip);
+    case 'sistema':      return modSistema.responder(mNorm, d, btn, chip);
+    case 'mercado':      return modMercado.responder(mNorm, leads, imoveis, btn, chip);
+    case 'coins':        return `🪙 Match Coins — seu sistema de recompensas.<br><br>${btn('Ver coins','/app/coins')}`;
+    case 'notificacoes': return `🔔 Central de notificações.<br><br>${btn('Ver notificações','/app/notificacoes')}`;
+    default:             return naoEntendeu(contexto);
+  }
+}
+
+function detectarTema(mensagem) {
+  return nlp.detectarDominio(nlp.normalizar(mensagem));
+}
+
+module.exports = { responder, detectarTema, nlp };
+EOF
+
+echo "✅ acoes.js e index.js instalados!"
+ls "$TARGET"

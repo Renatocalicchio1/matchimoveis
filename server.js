@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require('express');
-const cerebroNLP = require('./services/cerebro-nlp');
+const cerebroApp = require("./cerebro/index");
+const cerebroNLP = require("./services/cerebro-nlp");
 
 
 
@@ -2711,25 +2712,23 @@ app.get('/app/assistente', auth, (req, res) => {
 
 app.post('/app/assistente/chat', auth, (req, res) => {
   const { mensagem } = req.body;
-  const uid = req.session.user.id || req.session.user.userId;
-  const user = req.session.user;
   if (!mensagem) return res.json({ resposta: 'Digite uma mensagem.' });
 
-  const cerebro = JSON.parse(fs.readFileSync(path.join(__dirname,'assistente-mapa.json'),'utf8'));
+  const uid  = req.session.user.id || req.session.user.userId;
+  const user = req.session.user;
+
   const imoveis = JSON.parse(fs.readFileSync(path.join(__dirname,'imoveis.json'),'utf8')).filter(i=>i.userId===uid);
   const leads   = JSON.parse(fs.readFileSync(path.join(__dirname,'data.json'),'utf8')).filter(l=>l.userId===uid);
-  const visitas = fs.existsSync(path.join(__dirname,'visitas.json')) ? JSON.parse(fs.readFileSync(path.join(__dirname,'visitas.json'),'utf8')).filter(v=>v.userId===uid) : [];
+  const visitas = fs.existsSync(path.join(__dirname,'visitas.json'))
+    ? JSON.parse(fs.readFileSync(path.join(__dirname,'visitas.json'),'utf8')).filter(v=>v.userId===uid)
+    : [];
 
   const hoje = new Date().toLocaleDateString('pt-BR');
-  const hora  = new Date().getHours();
-  const saud  = hora<12?'Bom dia':hora<18?'Boa tarde':'Boa noite';
-  const nome  = user.nome||user.name||'corretor';
-
   const d = {
     ativos:      imoveis.filter(i=>i.status!=='inativo').length,
     inativos:    imoveis.filter(i=>i.status==='inativo').length,
-    bairros:     [...new Set(imoveis.map(i=>i.bairro).filter(Boolean))].slice(0,6),
-    tipos:       [...new Set(imoveis.map(i=>i.tipo).filter(Boolean))].slice(0,6),
+    bairros:     [...new Set(imoveis.map(i=>i.bairro).filter(Boolean))],
+    tipos:       [...new Set(imoveis.map(i=>i.tipo).filter(Boolean))],
     leads:       leads.length,
     organicas:   leads.filter(l=>l.extractionStatus==='ok').length,
     importadas:  leads.filter(l=>l.extractionStatus!=='ok').length,
@@ -2741,135 +2740,24 @@ app.post('/app/assistente/chat', auth, (req, res) => {
     confirmadas: visitas.filter(v=>v.status==='confirmada').length
   };
 
-  const btn = (label, href) => '<a href="'+href+'" style="display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px">'+label+' →</a>';
-
-  // Carregar memória primeiro
   const memoriaPath = path.join(__dirname,'assistente-memoria.json');
-  let memoria = fs.existsSync(memoriaPath) ? JSON.parse(fs.readFileSync(memoriaPath,'utf8')) : { historico:[] };
+  let memoria = fs.existsSync(memoriaPath)
+    ? JSON.parse(fs.readFileSync(memoriaPath,'utf8'))
+    : { historico:[] };
   memoria.historico = memoria.historico || [];
-
-  // NLP — normalizar e detectar intenção
-  let m = cerebroNLP.normalizar(mensagem);
-  const mNorm = m;
-  const tokens = cerebroNLP.tokenizar(m);
-  const historico_uid = memoria.historico.filter(h=>h.userId===uid).slice(-5);
-  const contexto = cerebroNLP.analisarContexto(historico_uid);
-  const intencaoNLP = cerebroNLP.detectarIntencao(mensagem, cerebro);
-
-  // Aplicar sinônimos do cérebro
-  Object.entries(cerebro.sinonimos||{}).forEach(([e,c]) => {
-    try { m = m.replace(new RegExp(e,'gi'), c); } catch(ex) {}
-  });
-
-  // Correções extras de digitação
-  const correcoes = {
-    'imovei':'imovel','imoveis':'imoveis','imovéis':'imoveis',
-    'vizita':'visita','lids':'leads','matsh':'match',
-    'tenho sim':'confirmacao_sim','sim eu tenho':'confirmacao_sim',
-    'confere':'verificar','minha conta':'meus dados',
-    'meus dados':'ver_resumo','ver resumo':'ver_resumo',
-    'tudo':'ver_resumo','mostre':'ver','mostra':'ver',
-    'quero ver':'ver','me mostra':'ver','me diz':'informar',
-    'qual':'informar','quanto':'total','quantos':'total','quantas':'total'
+  const historicoUsuario = memoria.historico.filter(h=>h.userId===uid).slice(-5);
+  const contexto = {
+    ultimoTema: historicoUsuario.length>0
+      ? cerebroApp.detectarTema(historicoUsuario[historicoUsuario.length-1].pergunta)
+      : null
   };
-  Object.entries(correcoes).forEach(([e,c]) => {
-    m = m.replace(new RegExp('\\b'+e+'\\b','gi'), c);
-  });
 
-  const palavras = m.split(/\s+/).filter(p=>p.length>2);
+  const resposta = cerebroApp.responder(mensagem, d, user, imoveis, leads, contexto);
 
-  let resposta = '';
+  memoria.historico.push({ userId:uid, pergunta:mensagem, resposta, data:new Date().toISOString() });
+  if (memoria.historico.length>500) memoria.historico = memoria.historico.slice(-500);
+  fs.writeFileSync(memoriaPath, JSON.stringify(memoria,null,2));
 
-  if (/^(oi|ola|saudacao|bom dia|boa tarde|boa noite|tudo|hello|e ai)/.test(m)) {
-    if (d.leads===0&&d.ativos===0) resposta = saud+' '+nome+'! 👋 Conta vazia. Importar XML de imóveis ou planilha de leads?';
-    else if (d.hoje>0) resposta = saud+' '+nome+'! 👋 ⚠️ '+d.hoje+' visita(s) hoje!<br>🏠 '+d.ativos+' imóveis | 👥 '+d.leads+' leads | 🎯 '+d.comMatch+' match';
-    else resposta = saud+' '+nome+'! 👋<br>🏠 '+d.ativos+' imóveis | 👥 '+d.leads+' leads | 🎯 '+d.comMatch+' match | 📅 '+d.hoje+' visitas hoje';
-  }
-  else if (/lead/.test(m)) {
-    if (d.leads===0) resposta = 'Nenhuma lead ainda. Clique em 📎 para importar planilha.';
-    else resposta = '👥 <strong>Leads:</strong><br>Total: '+d.leads+'<br>🌐 Orgânicas: '+d.organicas+'<br>📋 Importadas: '+d.importadas+'<br>🎯 Com match: '+d.comMatch+'<br>❌ Sem match: '+d.semMatch+'<br><br>'+btn('Ver leads','/app/leads')+btn('Importar','/app-importar-leads');
-  }
-  else if (/im.vel|carteira/.test(m)) {
-    if (d.ativos===0) resposta = 'Nenhum imóvel ainda. Clique em 📎 para importar XML.';
-    else resposta = '🏠 <strong>Imóveis:</strong><br>✅ Ativos: '+d.ativos+'<br>❌ Inativos: '+d.inativos+'<br>📍 Bairros: '+d.bairros.join(', ')+'<br>🏷️ Tipos: '+d.tipos.join(', ')+'<br><br>'+btn('Ver imóveis','/app/imoveis');
-  }
-  else if (/visita/.test(m)) {
-    if (d.visitas===0) resposta = 'Nenhuma visita agendada ainda.';
-    else resposta = '📅 <strong>Visitas:</strong><br>Total: '+d.visitas+'<br>⏳ Pendentes: '+d.pendentes+'<br>✅ Confirmadas: '+d.confirmadas+'<br>📆 Hoje: '+d.hoje+'<br><br>'+btn('Ver visitas','/app/visitas');
-  }
-  else if (/match|combinar/.test(m)) {
-    resposta = '🎯 <strong>Match:</strong><br>✅ Com match: '+d.comMatch+'<br>❌ Sem match: '+d.semMatch+'<br>📊 Taxa: '+(d.leads>0?Math.round(d.comMatch/d.leads*100):0)+'%<br><br>'+btn('Ver leads','/app/leads');
-  }
-  else if (/portal|xml|vivareal|zap|olx/.test(m)) {
-    resposta = '🔗 Portais disponíveis: VivaReal, ZAP, OLX, Chaves, ImovelWeb, 123i<br><br>'+btn('Ver portais','/app/portais');
-  }
-  else if (/notifica/.test(m)) {
-    resposta = '🔔 Central de notificações<br><br>'+btn('Ver notificações','/app/notificacoes');
-  }
-  else if (/coin|moeda|saldo/.test(m)) {
-    resposta = '🪙 Match Coins — seu sistema de recompensas<br><br>'+btn('Ver coins','/app/coins');
-  }
-  else if (/ajuda|help|o que|como/.test(m)) {
-    resposta = '🤖 Posso te ajudar com:<br>👥 leads • 🏠 imóveis • 📅 visitas • 🔗 portais • 🎯 match • 🪙 coins • 🔔 notificações<br><br>Me pergunte qualquer coisa!';
-  }
-  else {
-    if (!resposta) {
-    // Detectar confirmações e resumo geral
-    if (/\b(sim|ok|pode|isso|correto|confirmo|tenho sim|claro)\b/.test(m)) {
-      resposta = 'Entendido! 😊 O que você gostaria de ver?<br><br>' +
-        '<button onclick="enviarMsg(\'meus imoveis\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer">🏠 Imóveis</button>' +
-        '<button onclick="enviarMsg(\'minhas leads\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer">👥 Leads</button>' +
-        '<button onclick="enviarMsg(\'minhas visitas\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer">📅 Visitas</button>';
-    }
-  }
-
-  if (!resposta) {
-    // Detectar "ver resumo" / "minha conta" / "tudo"
-    if (/ver.resumo|minha.conta|meus.dados|ver.tudo|resumo/.test(mNorm)) {
-      resposta = '📊 <strong>Resumo da sua conta:</strong><br><br>' +
-        '🏠 Imóveis ativos: <strong>' + d.ativos + '</strong><br>' +
-        '❌ Imóveis inativos: <strong>' + d.inativos + '</strong><br>' +
-        '👥 Leads: <strong>' + d.leads + '</strong><br>' +
-        '🌐 Orgânicas: <strong>' + d.organicas + '</strong><br>' +
-        '📋 Importadas: <strong>' + d.importadas + '</strong><br>' +
-        '🎯 Com match: <strong>' + d.comMatch + '</strong><br>' +
-        '📅 Visitas hoje: <strong>' + d.hoje + '</strong><br>' +
-        '⏳ Pendentes: <strong>' + d.pendentes + '</strong>';
-    }
-  }
-
-  // Busca no bairro
-    const temBairro = d.bairros.find(b=>m.includes(b.toLowerCase()));
-    const temTipo = ['apartamento','casa','cobertura','sala','terreno'].find(t=>m.includes(t));
-    if (temBairro||temTipo) {
-      let r = imoveis.filter(i=>i.status!=='inativo');
-      if (temBairro) r = r.filter(i=>i.bairro&&i.bairro.toLowerCase().includes(temBairro.toLowerCase()));
-      if (temTipo)   r = r.filter(i=>i.tipo&&i.tipo.toLowerCase().includes(temTipo));
-      if (r.length===0) resposta = 'Não encontrei imóveis'+(temTipo?' do tipo '+temTipo:'')+(temBairro?' em '+temBairro:'')+'. '+btn('Ver todos','/app/imoveis');
-      else resposta = '🔍 '+r.length+' imóvel(is)'+(temBairro?' em '+temBairro:'')+':<br>'+r.slice(0,5).map(i=>'• '+(i.tipo||'Imóvel')+' '+(i.quartos?i.quartos+'q ':'')+' '+(i.bairro||'')).join('<br>')+'<br><br>'+btn('Ver todos','/app/imoveis');
-    } else {
-      const frases = [
-      'Hmm, não entendi muito bem 🤔 Pode reformular?',
-      'Desculpe, não captei essa. Tente: leads, imóveis, visitas ou match.',
-      'Ainda estou aprendendo! Pode tentar de outro jeito?'
-    ];
-    resposta = frases[Math.floor(Math.random()*frases.length)] + '<br><br>' +
-      '<button onclick="enviarMsg(\'minhas leads\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px">👥 Leads</button>' +
-      '<button onclick="enviarMsg(\'meus imoveis\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px">🏠 Imóveis</button>' +
-      '<button onclick="enviarMsg(\'minhas visitas\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px">📅 Visitas</button>' +
-      '<button onclick="enviarMsg(\'ajuda\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px">❓ Ajuda</button>';
-    }
-  }
-
-  // Salvar histórico
-  const memPath = path.join(__dirname,'assistente-memoria.json');
-  const mem = fs.existsSync(memPath) ? JSON.parse(fs.readFileSync(memPath,'utf8')) : { historico:[] };
-  mem.historico = mem.historico||[];
-  mem.historico.push({ userId:uid, pergunta:mensagem, resposta, data:new Date().toISOString() });
-  if (mem.historico.length>500) mem.historico = mem.historico.slice(-500);
-  fs.writeFileSync(memPath, JSON.stringify(mem,null,2));
-
-  console.log("RESPOSTA:", resposta && resposta.substring(0,50));
   res.json({ resposta, fonte:'cerebro' });
 });
 

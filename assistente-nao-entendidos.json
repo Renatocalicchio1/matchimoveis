@@ -82,113 +82,113 @@
     },
     {
       "exemplo": "ver portais",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-experiente-002"
       ],
       "primeira": "2026-05-08T07:32:40.018Z",
-      "ultima": "2026-05-08T07:33:54.196Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:28.331Z",
+      "sugerido": true
     },
     {
       "exemplo": "quais campos a planilha precisa?",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-08T07:32:40.108Z",
-      "ultima": "2026-05-08T07:33:54.289Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:28.425Z",
+      "sugerido": true
     },
     {
       "exemplo": "xml não saiu no vivareal",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-08T07:32:40.197Z",
-      "ultima": "2026-05-08T07:33:54.393Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:28.518Z",
+      "sugerido": true
     },
     {
       "exemplo": "tipo mais buscado",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-analista-004"
       ],
       "primeira": "2026-05-08T07:32:40.249Z",
-      "ultima": "2026-05-08T07:33:54.438Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:28.561Z",
+      "sugerido": true
     },
     {
       "exemplo": "quartos mais pedidos",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-analista-004"
       ],
       "primeira": "2026-05-08T07:32:40.291Z",
-      "ultima": "2026-05-08T07:33:54.462Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:28.582Z",
+      "sugerido": true
     },
     {
       "exemplo": "subir xml",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-08T07:32:40.469Z",
-      "ultima": "2026-05-08T07:33:54.646Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:28.738Z",
+      "sugerido": true
     },
     {
       "exemplo": "ver portias",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-08T07:32:40.509Z",
-      "ultima": "2026-05-08T07:33:54.690Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:28.775Z",
+      "sugerido": true
     },
     {
       "exemplo": "meu relatorrio",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-08T07:32:40.555Z",
-      "ultima": "2026-05-08T07:33:54.739Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:28.824Z",
+      "sugerido": true
     },
     {
       "exemplo": "enviar vitrine para cliente",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-08T07:32:40.783Z",
-      "ultima": "2026-05-08T07:33:54.975Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:29.085Z",
+      "sugerido": true
     },
     {
       "exemplo": "link do cliente",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-08T07:32:40.795Z",
-      "ultima": "2026-05-08T07:33:54.988Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:29.099Z",
+      "sugerido": true
     },
     {
       "exemplo": "manda follow-up",
-      "count": 2,
+      "count": 4,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-08T07:32:40.861Z",
-      "ultima": "2026-05-08T07:33:55.055Z",
-      "sugerido": false
+      "ultima": "2026-05-08T07:40:29.160Z",
+      "sugerido": true
     }
   ],
   "sugestoes": [
@@ -209,6 +209,72 @@
       "count": 3,
       "sugestao_intencao": "nova_intencao_1778224845417",
       "status": "pendente"
+    },
+    {
+      "pergunta": "ver portais",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:44.302Z"
+    },
+    {
+      "pergunta": "quais campos a planilha precisa?",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:44.399Z"
+    },
+    {
+      "pergunta": "xml não saiu no vivareal",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:44.484Z"
+    },
+    {
+      "pergunta": "tipo mais buscado",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:44.530Z"
+    },
+    {
+      "pergunta": "quartos mais pedidos",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:44.553Z"
+    },
+    {
+      "pergunta": "subir xml",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:44.709Z"
+    },
+    {
+      "pergunta": "ver portias",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:44.743Z"
+    },
+    {
+      "pergunta": "meu relatorrio",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:44.790Z"
+    },
+    {
+      "pergunta": "enviar vitrine para cliente",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:45.012Z"
+    },
+    {
+      "pergunta": "link do cliente",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:45.024Z"
+    },
+    {
+      "pergunta": "manda follow-up",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:39:45.084Z"
     }
   ],
   "inconsistencias": []

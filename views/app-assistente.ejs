@@ -101,8 +101,28 @@ async function uploadArquivo(input){
   input.value='';
 }
 window.onload=async function(){
-  try{const res=await fetch('/app/assistente/historico');const data=await res.json();
-  if(data.historico&&data.historico.length>0){document.getElementById('chat-messages').innerHTML='';data.historico.forEach(function(h){addMsg(h.pergunta,'user');addMsg(h.resposta,'bot');});}}
+  try{
+    const res=await fetch('/app/assistente/historico');
+    const data=await res.json();
+    if(data.historico&&data.historico.length>0){
+      document.getElementById('chat-messages').innerHTML='';
+      // mostrar separador de historico
+      const sep=document.createElement('div');
+      sep.style.cssText='text-align:center;font-size:11px;color:#aaa;padding:8px 0;border-top:1px solid #f0f0f0';
+      sep.textContent='— histórico anterior —';
+      document.getElementById('chat-messages').appendChild(sep);
+      data.historico.forEach(function(h){
+        addMsg(h.pergunta,'user');
+        addMsg(h.resposta,'bot');
+      });
+      // scroll para o final
+      setTimeout(function(){
+        const chat=document.getElementById('chat-messages');
+        chat.scrollTop=chat.scrollHeight;
+      },100);
+    }
+  }catch(e){console.log('historico erro',e);}
+}
   catch(e){}
 };
 </script>

@@ -3,6 +3,41 @@
 const PORTAIS = ['VivaReal','ZAP','OLX','Chaves','ImovelWeb','123i'];
 
 function responder(mNorm, d, btn, chip) {
+  // PÁGINA DE PORTAIS
+  if (/pagina portais|app portais|menu portais|portais xml|gerencia feeds|o que tem em portais/.test(mNorm))
+    return '🔗 <strong>Portais XML (/app/portais):</strong><br><br>' +
+      '"Gerencie os feeds XML por portal."<br><br>' +
+      'Aqui ficam salvos os links XML gerados para cada portal:<br>' +
+      '• OLX<br>• ZAP Imóveis<br>• VivaReal<br>• Chaves na Mão<br>• ImovelWeb<br>• 123i<br><br>' +
+      'Copie o link e cadastre nas configurações do portal.<br><br>' +
+      btn('Ver portais','/app/portais');
+
+  // COMO FUNCIONA O FLUXO DE PORTAIS
+  if (/como funciona portal|fluxo portal|como publicar portal|como enviar imovel portal/.test(mNorm))
+    return '🔗 <strong>Como publicar nos portais:</strong><br><br>' +
+      '<strong>Opção 1 — pelo cadastro do imóvel:</strong><br>' +
+      'Ao cadastrar ou editar um imóvel, escolha os portais desejados e salve.<br><br>' +
+      '<strong>Opção 2 — pela página de imóveis:</strong><br>' +
+      '<div style="display:flex;gap:8px;margin:4px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span><span>Acesse <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Imóveis →</a></span></div>' +
+      '<div style="display:flex;gap:8px;margin:4px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span><span>Selecione todos ou escolha os imóveis desejados</span></div>' +
+      '<div style="display:flex;gap:8px;margin:4px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</span><span>Clique no portal desejado (OLX, ZAP, VivaReal...)</span></div>' +
+      '<div style="display:flex;gap:8px;margin:4px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</span><span>XML gerado — copie o link em <a href="/app/portais" style="color:#ff385c;font-weight:700">Portais →</a></span></div>' +
+      '<div style="display:flex;gap:8px;margin:4px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">5</span><span>Cadastre o link nas configurações do portal</span></div>' +
+      '<br>' + btn('Ver portais','/app/portais') + btn('Ver imóveis','/app/imoveis');
+
+  // LINK DO XML
+  if (/link xml|link do feed|onde fica o link|copiar link portal/.test(mNorm))
+    return '🔗 O link do XML fica salvo em <strong>Portais (/app/portais)</strong> após a geração.<br><br>' +
+      'Copie o link e cadastre nas configurações do portal correspondente.<br><br>' +
+      btn('Ver portais','/app/portais');
+
+  // QUAIS PORTAIS TEM
+  if (/quais portais|portais disponiveis|portais suportados/.test(mNorm))
+    return '🔗 <strong>Portais suportados:</strong><br><br>' +
+      '• OLX<br>• ZAP Imóveis<br>• VivaReal (padrão VRSync)<br>• Chaves na Mão<br>• ImovelWeb<br>• 123i<br><br>' +
+      'Todos geram XML compatível com o padrão de cada portal.<br><br>' +
+      btn('Ver portais','/app/portais');
+
   // Ver portais
   if (/ver portais|meus portais|status portal|ver portal/.test(mNorm))
     return '🔗 <strong>Seus portais:</strong><br><br>' + PORTAIS.join(' · ') + '<br><br>Veja o status dos feeds gerados:<br><br>' + btn('Ver portais','/app/portais');

@@ -777,6 +777,84 @@
       "pergunta": "comoe ta",
       "resposta": "🔧 <strong>Suporte técnico:</strong><br><br>Pode me detalhar mais o problema? Por exemplo:<br>• Qual funcionalidade não está funcionando?<br>• O que aparece na tela?<br>• Imóvel, lead ou visita específica?<br><br><button onclick=\"enviarMsg('meu xml nao atualizou')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ XML não atualizou</button><button onclick=\"enviarMsg('por que nao deu match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ Lead sem match</button><button onclick=\"enviarMsg('portal rejeitou imovel')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ Portal rejeitou</button>",
       "data": "2026-05-08T07:26:38.576Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "o que tem na pagina de imoveis",
+      "resposta": "🏠 <strong>Imóveis:</strong><br>✅ Ativos: <strong>846</strong> · ❌ Inativos: 0<br>📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia<br>🏷️ Tipos: Apartamento (689), Residential / Home (106), Residential / Condo (20)<br><br><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver imóveis →</a><button onclick=\"enviarMsg('importar xml')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📥 Importar XML</button><button onclick=\"enviarMsg('valor medio da carteira')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">💰 Valor médio</button><button onclick=\"enviarMsg('imoveis sem proprietario')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">👤 Proprietários</button>",
+      "data": "2026-05-08T16:02:50.045Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "e na pagina de visitas",
+      "resposta": "📅 <strong>Visitas:</strong><br>Total: <strong>2</strong> · ✅ Confirmadas: 0 · ⏳ Pendentes: 2<br>📆 Hoje: <strong>0</strong><br><br><a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver visitas →</a><br><button onclick=\"enviarMsg('visitas hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📆 Hoje</button><button onclick=\"enviarMsg('visitas pendentes')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">⏳ Pendentes</button><button onclick=\"enviarMsg('como funciona a visita')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ Como funciona</button>",
+      "data": "2026-05-08T16:03:05.598Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "o que voce sabe do sistema o que tem no menu",
+      "resposta": "📅 <strong>Visitas:</strong><br>Total: <strong>2</strong> · ✅ Confirmadas: 0 · ⏳ Pendentes: 2<br>📆 Hoje: <strong>0</strong><br><br><a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver visitas →</a><br><button onclick=\"enviarMsg('visitas hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📆 Hoje</button><button onclick=\"enviarMsg('visitas pendentes')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">⏳ Pendentes</button><button onclick=\"enviarMsg('como funciona a visita')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ Como funciona</button>",
+      "data": "2026-05-08T16:05:22.296Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "oi",
+      "resposta": "Boa tarde, Rankim! 👋<br><br>🔔 <strong>1 notificação(ões):</strong><br><br><strong>⚠️ Urgente:</strong><br>🟡 <strong>2 visita(s) pendentes</strong> — Aguardando sua confirmação. <a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver →</a><br><br><br><button onclick=\"enviarMsg('resumo geral')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Resumo</button><button onclick=\"enviarMsg('o que devo fazer hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🧠 Plano do dia</button>",
+      "data": "2026-05-08T16:05:53.966Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "que agendou visita",
+      "resposta": "📅 <strong>Visitas:</strong><br>Total: <strong>2</strong> · ✅ Confirmadas: 0 · ⏳ Pendentes: 2<br>📆 Hoje: <strong>0</strong><br><br><a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver visitas →</a><br><button onclick=\"enviarMsg('visitas hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📆 Hoje</button><button onclick=\"enviarMsg('visitas pendentes')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">⏳ Pendentes</button><button onclick=\"enviarMsg('como funciona a visita')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ Como funciona</button>",
+      "data": "2026-05-08T16:06:03.432Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "quando eu te perguntar o que tem na pagina de imoveis precisa me explicar o que tem na paigna app/imoveis e assim por diate e, cada outro menu e peagina",
+      "resposta": "📋 <strong>Menu da plataforma:</strong><br><br>• 📊 Dashboard<br>• 🏠 Meus Imóveis<br>• 👥 Leads<br>• 📅 Visitas<br>• 🔔 Notificações<br>• ➕ Cadastrar Imóveis<br>• 🔗 Portais<br>• 👤 Perfil<br>• 🪙 MatchCoins<br>• 🤖 Assistente<br><br>Cada usuário tem ID único (ex: R-088) e vê apenas seus próprios dados.",
+      "data": "2026-05-08T16:09:41.996Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "o que tem dentro da pagina de leads ?",
+      "resposta": "👥 <strong>Leads:</strong><br>Total: 1393 · 🌐 Orgânicas: 442 · 📋 Importadas: 951<br>🎯 Com match: <strong>43</strong> (3%) · ❌ Sem match: 1350<br>📍 Bairros mais buscados: Centro (48), Jardim Mitsutani (48), Jardim Macedônia (29)<br><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a><a href=\"/app-importar-leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Importar →</a><br><button onclick=\"enviarMsg('leads com match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🎯 Com match</button><button onclick=\"enviarMsg('leads sem match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❌ Sem match</button><button onclick=\"enviarMsg('demanda por bairro')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Demanda</button>",
+      "data": "2026-05-08T16:09:57.951Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "o que tem em visitas ?",
+      "resposta": "📅 <strong>Página Visitas:</strong><br><br>• Nome do cliente<br>• Telefone<br>• Imóvel solicitado<br>• Data e horário da visita<br>• Status: Solicitada · Aguardando · Confirmada · Cancelada<br>• Ações: Notificar proprietário · Remarcar · Confirmar presença<br><br><a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver visitas →</a>",
+      "data": "2026-05-08T16:10:08.165Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "e na pagina de leads ?",
+      "resposta": "👥 <strong>Leads:</strong><br>Total: 1393 · 🌐 Orgânicas: 442 · 📋 Importadas: 951<br>🎯 Com match: <strong>43</strong> (3%) · ❌ Sem match: 1350<br>📍 Bairros mais buscados: Centro (48), Jardim Mitsutani (48), Jardim Macedônia (29)<br><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a><a href=\"/app-importar-leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Importar →</a><br><button onclick=\"enviarMsg('leads com match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🎯 Com match</button><button onclick=\"enviarMsg('leads sem match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❌ Sem match</button><button onclick=\"enviarMsg('demanda por bairro')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Demanda</button>",
+      "data": "2026-05-08T16:10:23.254Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "como acesso a pagian cadastrar imovel ? clico no menu casatrar imovel ? vai para qual pagina",
+      "resposta": "🔍 <strong>13 imóvel(is)</strong> encontrado(s) para: <em>casa</em><br><br>• <strong>Casa</strong> · 3q · 3vg — Vila Andrade<br>• <strong>Casa</strong> · 3q · 2vg — Jardim Parque Morumbi<br>• <strong>Casa</strong> · 3q · 2vg — Cidade Monções<br>• <strong>Casa</strong> · 3q · 3vg — Cidade Monções<br>• <strong>Casa</strong> · 3q · 3vg — Vila Progredior<br><em>...e mais 8</em><br><br><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver todos →</a>",
+      "data": "2026-05-08T16:10:47.491Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "como importo um xml ?",
+      "resposta": "🔗 <strong>Portais disponíveis:</strong><br>VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123i<br><br>Gere o XML de cada portal e cadastre o link nas configurações do portal.<br><br><a href=\"/app/portais\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver portais →</a><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ir para imóveis →</a><br><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 VivaReal</button><button onclick=\"enviarMsg('gerar xml zap')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 ZAP</button><button onclick=\"enviarMsg('gerar xml olx')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 OLX</button><button onclick=\"enviarMsg('gerar xml chaves')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 Chaves</button><button onclick=\"enviarMsg('gerar xml imovelweb')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 ImovelWeb</button><button onclick=\"enviarMsg('gerar xml 123i')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 123i</button>",
+      "data": "2026-05-08T16:13:50.336Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "quando digo importar é subir um xml com meus imoveis para testar e importar agora meus imoveis para a amtchimoveis '",
+      "resposta": "🔗 Veja o status de todos os seus feeds em <strong>Portais</strong>:<br><br><a href=\"/app/portais\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver portais →</a>",
+      "data": "2026-05-08T16:14:26.810Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "importar leads",
+      "resposta": "📋 <strong>Importar Leads — passo a passo:</strong><br><br><div style=\"display:flex;gap:10px;margin:8px 0;align-items:flex-start\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">1</span><span>Vá até <a href=\"/app/leads\" style=\"color:#ff385c;font-weight:700\">Leads →</a> e clique em <strong>Importar</strong>.</span></div><div style=\"display:flex;gap:10px;margin:8px 0;align-items:flex-start\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">2</span><span>Selecione o arquivo <strong>CSV ou Excel</strong> exportado do portal (ImovelWeb, ZAP, VivaReal, OLX).</span></div><div style=\"display:flex;gap:10px;margin:8px 0;align-items:flex-start\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">3</span><span>Clique em <strong>Enviar</strong> — o sistema extrai bairro, tipo, quartos e valor automaticamente.</span></div><div style=\"display:flex;gap:10px;margin:8px 0;align-items:flex-start\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">4</span><span>Após importar, clique em <strong>Fazer Match</strong> para cruzar com seus imóveis.</span></div><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ir para Leads →</a>",
+      "data": "2026-05-08T16:15:47.838Z"
     }
   ],
   "perfis": {
@@ -817,7 +895,7 @@
     },
     "corretor-iniciante-001": {
       "nome": "Carlos",
-      "ultimaAtividade": "2026-05-08T15:24:33.493Z",
+      "ultimaAtividade": "2026-05-08T16:06:52.379Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -830,11 +908,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 592
+      "acessos": 864
     },
     "corretor-experiente-002": {
       "nome": "Ana",
-      "ultimaAtividade": "2026-05-08T15:24:33.728Z",
+      "ultimaAtividade": "2026-05-08T16:06:52.820Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -847,11 +925,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 703
+      "acessos": 1026
     },
     "corretor-tecnico-003": {
       "nome": "Roberto",
-      "ultimaAtividade": "2026-05-08T15:24:33.884Z",
+      "ultimaAtividade": "2026-05-08T16:06:52.987Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -864,11 +942,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 481
+      "acessos": 702
     },
     "corretor-analista-004": {
       "nome": "Fernanda",
-      "ultimaAtividade": "2026-05-08T15:24:34.033Z",
+      "ultimaAtividade": "2026-05-08T16:06:53.137Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -881,11 +959,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 481
+      "acessos": 702
     },
     "corretor-digitacao-005": {
       "nome": "Marcos",
-      "ultimaAtividade": "2026-05-08T15:24:34.245Z",
+      "ultimaAtividade": "2026-05-08T16:06:53.358Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -898,11 +976,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 666
+      "acessos": 972
     },
     "corretor-busca-006": {
       "nome": "Paulo",
-      "ultimaAtividade": "2026-05-08T15:24:34.363Z",
+      "ultimaAtividade": "2026-05-08T16:06:53.467Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -915,11 +993,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 407
+      "acessos": 594
     },
     "corretor-suporte-007": {
       "nome": "Juliana",
-      "ultimaAtividade": "2026-05-08T15:24:34.474Z",
+      "ultimaAtividade": "2026-05-08T16:06:53.588Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -932,7 +1010,7 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 370
+      "acessos": 540
     }
   }
 }

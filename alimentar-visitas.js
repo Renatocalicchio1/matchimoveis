@@ -1,6 +1,10 @@
-'use strict';
+const fs   = require('fs');
+const path = require('path');
+const BASE = __dirname;
 
-function responder(mNorm, d, visitas, btn, chip) {
+let vis = fs.readFileSync(path.join(BASE,'cerebro','visitas.js'),'utf8');
+
+const conhecimento = `
   // PÁGINA DE VISITAS — o que tem
   if (/pagina visitas|o que tem em visitas|menu visitas|app visitas/.test(mNorm))
     return '📅 <strong>Página Visitas:</strong><br><br>' +
@@ -58,48 +62,56 @@ function responder(mNorm, d, visitas, btn, chip) {
     return '🔗 O proprietário recebe um link exclusivo para confirmar ou recusar a visita sem precisar de cadastro.<br><br>' +
       'Link: <strong>/proprietario/visita/:visitaId/responder</strong><br><br>' +
       btn('Ver visitas','/app/visitas');
+`;
 
-
-  // HOJE
-  if (/hoje|do dia/.test(mNorm)) {
-    if (d.hoje===0) return `📅 Nenhuma visita hoje. Aproveite para enviar vitrines para leads com match!<br><br>${chip('🎯 Ver leads com match','leads com match')}`;
-    return `📅 <strong>${d.hoje} visita(s) hoje!</strong> ⚠️ Não esqueça!<br><br>${btn('Ver visitas de hoje','/app/visitas?filtro=hoje')}`;
-  }
-
-  // PENDENTES
-  if (/pendente|sem resposta|aguardando|confirmar/.test(mNorm)) {
-    if (d.pendentes===0) return `✅ Nenhuma visita pendente. Tudo confirmado!`;
-    return `⏳ <strong>${d.pendentes} visita(s) pendente(s)</strong> aguardando confirmação.<br>`+
-      `Confirme logo — leads não gostam de esperar!<br><br>`+
-      `${btn('Confirmar visitas','/app/visitas?filtro=pendentes')}`;
-  }
-
-  // CONFIRMADAS
-  if (/confirmada|aprovada/.test(mNorm))
-    return `✅ <strong>${d.confirmadas} visita(s) confirmada(s)</strong><br><br>${btn('Ver visitas','/app/visitas')}`;
-
-  // COMO FUNCIONA
-  if (/como funciona|fluxo|como agendar|como remarcar/.test(mNorm))
-    return `📅 <strong>Fluxo de visitas:</strong><br><br>`+
-      `<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">1</span><span>Lead recebe a vitrine com imóveis em match.</span></div>`+
-      `<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">2</span><span>Lead escolhe imóvel e solicita visita.</span></div>`+
-      `<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">3</span><span>Proprietário confirma ou recusa.</span></div>`+
-      `<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">4</span><span>Lead é notificado automaticamente.</span></div>`+
-      `<br>${btn('Ver visitas','/app/visitas')}`;
-
-  // REMARCAR
-  if (/remarcar|reagendar|mudar data/.test(mNorm))
-    return `🔄 Para remarcar uma visita, acesse a página de visitas e use o botão <strong>Remarcar</strong>.<br><br>${btn('Ver visitas','/app/visitas')}`;
-
-  // GERAL
-  if (d.visitas===0)
-    return `Nenhuma visita agendada ainda. 📅<br><br>Envie vitrines para leads com match para receber solicitações!<br><br>${chip('🎯 Leads com match','leads com match')}`;
-
-  return `📅 <strong>Visitas:</strong><br>`+
-    `Total: <strong>${d.visitas}</strong> · ✅ Confirmadas: ${d.confirmadas} · ⏳ Pendentes: ${d.pendentes}<br>`+
-    `📆 Hoje: <strong>${d.hoje}</strong><br><br>`+
-    `${btn('Ver visitas','/app/visitas')}<br>`+
-    `${chip('📆 Hoje','visitas hoje')}${chip('⏳ Pendentes','visitas pendentes')}${chip('❓ Como funciona','como funciona a visita')}`;
+if (!vis.includes('pagina visitas')) {
+  vis = vis.replace(
+    'function responder(mNorm, d, visitas, btn, chip) {',
+    'function responder(mNorm, d, visitas, btn, chip) {' + conhecimento
+  );
+  fs.writeFileSync(path.join(BASE,'cerebro','visitas.js'), vis);
+  console.log('✅ visitas.js expandido');
 }
 
-module.exports = { responder };
+// Sinônimos
+const sPath = path.join(BASE,'cerebro','sinonimos-aprendidos.json');
+const s = fs.existsSync(sPath) ? JSON.parse(fs.readFileSync(sPath,'utf8')) : {};
+s['notificar proprietario'] = 'avisar proprietario';
+s['solicitada']             = 'visita solicitada';
+s['aguardando']             = 'visita aguardando';
+s['confirmou presenca']     = 'presenca confirmada';
+s['cancelada']              = 'visita cancelada';
+s['corretor parceiro']      = 'corretor';
+s['link do proprietario']   = 'link proprietario';
+s['confirme disponibilidade'] = 'confirmar visita';
+fs.writeFileSync(sPath, JSON.stringify(s,null,2));
+console.log('✅ sinônimos de visitas adicionados');
+
+// Base conhecimento
+const baseP = path.join(BASE,'cerebro','base-conhecimento-expandida.json');
+const base  = fs.existsSync(baseP) ? JSON.parse(fs.readFileSync(baseP,'utf8')) : {items:[]};
+const novos = [
+  {p:'o que tem na pagina de visitas', r:'pagina_visitas'},
+  {p:'como notificar o proprietario', r:'notificar_proprietario'},
+  {p:'qual mensagem e enviada ao proprietario', r:'notificar_proprietario'},
+  {p:'como remarcar uma visita', r:'remarcar_visita'},
+  {p:'quais os status das visitas', r:'status_visita'},
+  {p:'o que significa solicitada', r:'status_visita'},
+  {p:'o que significa aguardando', r:'status_visita'},
+  {p:'fluxo completo de visita', r:'fluxo_visita'},
+  {p:'como confirmar presenca do cliente', r:'presenca'},
+  {p:'como o proprietario confirma a visita', r:'link_proprietario'},
+  {p:'o proprietario precisa de cadastro', r:'link_proprietario'},
+];
+const exist = new Set(base.items.map(i=>i.p));
+let add = 0;
+novos.forEach(n => { if (!exist.has(n.p)) { base.items.push(n); add++; } });
+base.total = base.items.length;
+fs.writeFileSync(baseP, JSON.stringify(base,null,2));
+console.log(`✅ base conhecimento — ${add} novos (total: ${base.total})`);
+
+const {execSync} = require('child_process');
+execSync('node treino-cerebro.js --silent', {cwd:BASE});
+const rel = JSON.parse(fs.readFileSync(path.join(BASE,'cerebro','treino-relatorio.json'),'utf8'));
+console.log(`\n🧪 Treino: ${rel.cobertura}% | Não entendeu: ${rel.naoEntendeu}`);
+if (rel.naoEntendidas.length) rel.naoEntendidas.forEach(n=>console.log(' -',n.pergunta));

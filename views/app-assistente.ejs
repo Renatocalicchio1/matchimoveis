@@ -36,6 +36,20 @@ const stats = <%- JSON.stringify(stats) %>;
 function addMsg(t,tipo){const d=document.createElement('div');d.className='msg '+tipo;d.innerHTML='<div class="bubble '+tipo+'-bubble">'+t+'</div>';document.getElementById('chat-messages').appendChild(d);document.getElementById('chat-messages').scrollTop=99999;}
 function typing(){const d=document.createElement('div');d.className='msg bot';d.id='typing';d.innerHTML='<div class="bubble bot-bubble" style="color:#999">⏳ pensando...</div>';document.getElementById('chat-messages').appendChild(d);document.getElementById('chat-messages').scrollTop=99999;}
 function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+async function enviarFeedback(util, btn){
+  const container = btn.closest('[data-pergunta]');
+  const pergunta  = container?.dataset.pergunta || '';
+  const resposta  = container?.dataset.resposta || '';
+  try{
+    await fetch('/app/assistente/feedback',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({util, pergunta, resposta})
+    });
+    container.innerHTML = '<span style="font-size:12px;color:'+( util ? '#4caf50' : '#e91e63')+'">'+(util ? '✅ Ótimo! Obrigado pelo feedback.' : '📝 Entendido! Vou melhorar.')+' </span>';
+  } catch(e){ console.error(e); }
+}
+
 async function enviarMsg(texto){
   const input=document.getElementById('chat-input');
   const msg=texto||input.value.trim();
@@ -47,6 +61,31 @@ async function enviarMsg(texto){
     const data=await res.json();
     removeTyping();
     addMsg(data.resposta,'bot');
+    // Sempre mostrar botão de feedback
+    const feedDiv=document.createElement('div');
+    feedDiv.className='msg bot';
+    feedDiv.dataset.pergunta=msg;
+    feedDiv.dataset.resposta=data.resposta;
+    feedDiv.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap">'+
+      '<span style="font-size:11px;color:#aaa">Era isso que esperava?</span>'+
+      '<button onclick="enviarFeedback(true,this)" style="background:#f0fdf4;border:1px solid #86efac;border-radius:20px;padding:2px 12px;font-size:11px;cursor:pointer;color:#166534">👍 Sim</button>'+
+      '<button onclick="enviarFeedback(false,this)" style="background:#fff1f2;border:1px solid #fda4af;border-radius:20px;padding:2px 12px;font-size:11px;cursor:pointer;color:#9f1239">👎 Não</button>'+
+      '</div>';
+    document.getElementById('chat-messages').appendChild(feedDiv);
+    document.getElementById('chat-messages').scrollTop=99999;
+    if(data.precisaConfirmar){
+      const feedDiv=document.createElement('div');
+      feedDiv.className='msg bot';
+      feedDiv.style.cssText='padding:4px 12px';
+      feedDiv.innerHTML='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0">' +
+        '<span style="font-size:12px;color:#999">Era isso que você queria?</span>' +
+        '<button onclick="enviarFeedback(true,this)" style="background:#e8f5e9;border:1px solid #4caf50;border-radius:20px;padding:3px 12px;font-size:12px;cursor:pointer;color:#2e7d32">👍 Sim</button>' +
+        '<button onclick="enviarFeedback(false,this)" style="background:#fce4ec;border:1px solid #e91e63;border-radius:20px;padding:3px 12px;font-size:12px;cursor:pointer;color:#880e4f">👎 Não</button>' +
+        '</div>';
+      feedDiv.dataset.pergunta = msg;
+      feedDiv.dataset.resposta = data.resposta;
+      document.getElementById('chat-messages').appendChild(feedDiv);
+    }
   }catch(e){removeTyping();addMsg('Erro ao conectar.','bot');}
 }
 async function uploadArquivo(input){

@@ -83,115 +83,115 @@
     },
     {
       "exemplo": "ver portais",
-      "count": 31,
+      "count": 34,
       "usuarios": [
         "corretor-experiente-002",
         "test"
       ],
       "primeira": "2026-05-08T07:32:40.018Z",
-      "ultima": "2026-05-08T14:40:37.386Z",
+      "ultima": "2026-05-08T15:40:38.764Z",
       "sugerido": true
     },
     {
       "exemplo": "quais campos a planilha precisa?",
-      "count": 36,
+      "count": 40,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-08T07:32:40.108Z",
-      "ultima": "2026-05-08T15:22:58.781Z",
+      "ultima": "2026-05-08T16:06:52.895Z",
       "sugerido": true
     },
     {
       "exemplo": "xml não saiu no vivareal",
-      "count": 25,
+      "count": 28,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-08T07:32:40.197Z",
-      "ultima": "2026-05-08T14:40:37.575Z",
+      "ultima": "2026-05-08T15:40:39.049Z",
       "sugerido": true
     },
     {
       "exemplo": "tipo mais buscado",
-      "count": 27,
+      "count": 30,
       "usuarios": [
         "corretor-analista-004",
         "test"
       ],
       "primeira": "2026-05-08T07:32:40.249Z",
-      "ultima": "2026-05-08T14:40:37.623Z",
+      "ultima": "2026-05-08T15:40:39.092Z",
       "sugerido": true
     },
     {
       "exemplo": "quartos mais pedidos",
-      "count": 27,
+      "count": 30,
       "usuarios": [
         "corretor-analista-004",
         "test"
       ],
       "primeira": "2026-05-08T07:32:40.291Z",
-      "ultima": "2026-05-08T14:40:37.652Z",
+      "ultima": "2026-05-08T15:40:39.122Z",
       "sugerido": true
     },
     {
       "exemplo": "subir xml",
-      "count": 25,
+      "count": 28,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-08T07:32:40.469Z",
-      "ultima": "2026-05-08T14:40:37.813Z",
+      "ultima": "2026-05-08T15:40:39.294Z",
       "sugerido": true
     },
     {
       "exemplo": "ver portias",
-      "count": 33,
+      "count": 37,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-08T07:32:40.509Z",
-      "ultima": "2026-05-08T15:06:51.660Z",
+      "ultima": "2026-05-08T16:06:53.248Z",
       "sugerido": true
     },
     {
       "exemplo": "meu relatorrio",
-      "count": 33,
+      "count": 37,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-08T07:32:40.555Z",
-      "ultima": "2026-05-08T15:06:51.711Z",
+      "ultima": "2026-05-08T16:06:53.299Z",
       "sugerido": true
     },
     {
       "exemplo": "enviar vitrine para cliente",
-      "count": 25,
+      "count": 28,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-08T07:32:40.783Z",
-      "ultima": "2026-05-08T14:40:38.141Z",
+      "ultima": "2026-05-08T15:40:39.609Z",
       "sugerido": true
     },
     {
       "exemplo": "link do cliente",
-      "count": 34,
+      "count": 38,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-08T07:32:40.795Z",
-      "ultima": "2026-05-08T15:21:37.048Z",
+      "ultima": "2026-05-08T16:06:53.519Z",
       "sugerido": true
     },
     {
       "exemplo": "manda follow-up",
-      "count": 36,
+      "count": 40,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-08T07:32:40.861Z",
-      "ultima": "2026-05-08T15:22:59.475Z",
+      "ultima": "2026-05-08T16:06:53.593Z",
       "sugerido": true
     },
     {
@@ -266,13 +266,13 @@
     },
     {
       "exemplo": "como adicionar fotos",
-      "count": 18,
+      "count": 19,
       "usuarios": [
         "test",
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-08T07:58:44.982Z",
-      "ultima": "2026-05-08T15:22:58.826Z",
+      "ultima": "2026-05-08T16:06:52.943Z",
       "sugerido": true
     },
     {
@@ -287,22 +287,22 @@
     },
     {
       "exemplo": "como começo?",
-      "count": 8,
+      "count": 9,
       "usuarios": [
         "corretor-iniciante-001"
       ],
       "primeira": "2026-05-08T08:06:41.765Z",
-      "ultima": "2026-05-08T15:06:51.003Z",
+      "ultima": "2026-05-08T16:06:52.336Z",
       "sugerido": true
     },
     {
       "exemplo": "a extração falhou",
-      "count": 11,
+      "count": 12,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-08T08:06:42.053Z",
-      "ultima": "2026-05-08T15:22:58.771Z",
+      "ultima": "2026-05-08T16:06:52.880Z",
       "sugerido": true
     }
   ],

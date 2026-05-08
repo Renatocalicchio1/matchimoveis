@@ -19,6 +19,7 @@ const leadsTemp      = require('./leads-temporal');
 const scoring        = require('./scoring');
 const suporte        = require('./suporte');
 const { criarArvore } = require('./arvore');
+const navegacao = require('./navegacao');
 
 const btn  = (label, href) => `<a href="${href}" style="display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px">${label} →</a>`;
 const chip = (label, msg)  => `<button onclick="enviarMsg('${msg}')" style="background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px">${label}</button>`;
@@ -33,6 +34,14 @@ const arvore = criarArvore({
 function responder(mensagem, d, user, imoveis, leads, visitas, contexto) {
   const uid    = user.id || user.userId || 'anon';
   const mNorm  = nlp.normalizar(mensagem);
+
+  // Contexto de navegação — onde o usuário está agora
+  const ctxNav = navegacao.contextoParaAssistente(uid);
+  // Se o usuário está em uma página específica e pergunta algo vago
+  // usar o domínio da página como contexto adicional
+  if (ctxNav && !nlp.detectarDominio(mNorm) && ctxNav.dominioAtual) {
+    contexto = { ...contexto, dominioNav: ctxNav.dominioAtual, paginaNav: ctxNav.labelAtual };
+  }
   const perfil = memoria.atualizarPerfil(uid, { d, user, imoveis, leads });
   const hist   = memoria.historicoPorUsuario(uid, 5);
 

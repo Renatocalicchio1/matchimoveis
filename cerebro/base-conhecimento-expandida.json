@@ -1,6 +1,6 @@
 {
   "geradoEm": "2026-05-08T06:59:46.576Z",
-  "total": 72,
+  "total": 200,
   "items": [
     {
       "p": "oi",
@@ -361,7 +361,520 @@
       "p": "quantos imoveis com proprietrio eu tenho ?",
       "r": "historico",
       "real": true
+    },
+    {
+      "p": "o que tem no dashboard",
+      "r": "dashboard"
+    },
+    {
+      "p": "o que aparece no painel",
+      "r": "dashboard"
+    },
+    {
+      "p": "o que sao matchcoins",
+      "r": "matchcoins"
+    },
+    {
+      "p": "como funciona matchcoins",
+      "r": "matchcoins"
+    },
+    {
+      "p": "quais tipos de imovel existem",
+      "r": "tipos_imovel"
+    },
+    {
+      "p": "quais tipos de conta existem",
+      "r": "tipos_conta"
+    },
+    {
+      "p": "o que e taxa de match",
+      "r": "taxa_match"
+    },
+    {
+      "p": "como calcula taxa de match",
+      "r": "taxa_match"
+    },
+    {
+      "p": "o que tem no menu",
+      "r": "menu"
+    },
+    {
+      "p": "onde encontro leads",
+      "r": "menu"
+    },
+    {
+      "p": "onde cadastro imovel",
+      "r": "menu"
+    },
+    {
+      "p": "o que e md",
+      "r": "match"
+    },
+    {
+      "p": "o que significa md",
+      "r": "match"
+    },
+    {
+      "p": "md e match",
+      "r": "match"
+    },
+    {
+      "p": "quantos md gerei",
+      "r": "ver_match"
+    },
+    {
+      "p": "atividades recentes",
+      "r": "dashboard"
+    },
+    {
+      "p": "acoes rapidas",
+      "r": "dashboard"
+    },
+    {
+      "p": "metricas do painel",
+      "r": "dashboard"
+    },
+    {
+      "p": "grafico de imoveis",
+      "r": "dashboard"
+    },
+    {
+      "p": "grafico de leads",
+      "r": "dashboard"
+    },
+    {
+      "p": "bairros disponiveis",
+      "r": "mercado"
+    },
+    {
+      "p": "estados disponiveis",
+      "r": "mercado"
+    },
+    {
+      "p": "o que tem na pagina de imoveis",
+      "r": "pagina_imoveis"
+    },
+    {
+      "p": "como filtrar imoveis",
+      "r": "filtros_imoveis"
+    },
+    {
+      "p": "como selecionar todos imoveis",
+      "r": "selecionar_imoveis"
+    },
+    {
+      "p": "como editar um imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "quais campos tem no cadastro do imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "o que significa publicado",
+      "r": "status_imovel"
+    },
+    {
+      "p": "o que significa arquivado",
+      "r": "status_imovel"
+    },
+    {
+      "p": "como subir fotos do imovel",
+      "r": "fotos_imovel"
+    },
+    {
+      "p": "como definir capa do imovel",
+      "r": "fotos_imovel"
+    },
+    {
+      "p": "o que aparece no card do imovel",
+      "r": "card_imovel"
+    },
+    {
+      "p": "o que e vr5",
+      "r": "padrao_xml"
+    },
+    {
+      "p": "quais portais posso publicar",
+      "r": "portais"
+    },
+    {
+      "p": "posso publicar no zap e vivareal ao mesmo tempo",
+      "r": "portais"
+    },
+    {
+      "p": "como escolher o portal para publicar",
+      "r": "portais"
+    },
+    {
+      "p": "o imovel pode ser venda e aluguel",
+      "r": "operacao"
+    },
+    {
+      "p": "como filtrar por proprietario",
+      "r": "filtros_imoveis"
+    },
+    {
+      "p": "como ver imoveis sem foto",
+      "r": "filtros_imoveis"
+    },
+    {
+      "p": "o que tem na pagina de leads",
+      "r": "pagina_leads"
+    },
+    {
+      "p": "quais os status das leads",
+      "r": "status_lead"
+    },
+    {
+      "p": "o que significa ia encontrou imovel",
+      "r": "status_lead"
+    },
+    {
+      "p": "o que significa pendente de extracao",
+      "r": "status_lead"
+    },
+    {
+      "p": "o que e score de lead",
+      "r": "score_lead"
+    },
+    {
+      "p": "como filtrar leads por score",
+      "r": "score_lead"
+    },
+    {
+      "p": "de onde vem as leads",
+      "r": "fonte_lead"
+    },
+    {
+      "p": "quais portais geram leads",
+      "r": "fonte_lead"
+    },
+    {
+      "p": "como fazer busca inteligente",
+      "r": "busca_lead"
+    },
+    {
+      "p": "quais campos precisa na planilha",
+      "r": "campos_planilha"
+    },
+    {
+      "p": "precisa ter id do anuncio",
+      "r": "campos_planilha"
+    },
+    {
+      "p": "como enviar a planilha",
+      "r": "importar_leads"
+    },
+    {
+      "p": "qual formato aceita para importar",
+      "r": "importar_leads"
+    },
+    {
+      "p": "csv ou excel para importar leads",
+      "r": "importar_leads"
+    },
+    {
+      "p": "o que e lead organica",
+      "r": "status_lead"
+    },
+    {
+      "p": "o que e lead importada",
+      "r": "status_lead"
+    },
+    {
+      "p": "quinto andar tem leads",
+      "r": "fonte_lead"
+    },
+    {
+      "p": "leads do ranking",
+      "r": "fonte_lead"
+    },
+    {
+      "p": "o que aparece no card da lead",
+      "r": "card_lead"
+    },
+    {
+      "p": "como ver a vitrine da lead",
+      "r": "vitrine"
+    },
+    {
+      "p": "como enviar a vitrine para o cliente",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "qual mensagem e enviada na vitrine",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "como falar com a lead pelo whatsapp",
+      "r": "whatsapp_lead"
+    },
+    {
+      "p": "qual a diferenca entre organica e importada",
+      "r": "organica_importada"
+    },
+    {
+      "p": "o que significa extraido",
+      "r": "extracao"
+    },
+    {
+      "p": "o que a ia extrai da lead",
+      "r": "extracao"
+    },
+    {
+      "p": "sem extracao o match funciona",
+      "r": "extracao"
+    },
+    {
+      "p": "o que tem na pagina de visitas",
+      "r": "pagina_visitas"
+    },
+    {
+      "p": "como notificar o proprietario",
+      "r": "notificar_proprietario"
+    },
+    {
+      "p": "qual mensagem e enviada ao proprietario",
+      "r": "notificar_proprietario"
+    },
+    {
+      "p": "como remarcar uma visita",
+      "r": "remarcar_visita"
+    },
+    {
+      "p": "quais os status das visitas",
+      "r": "status_visita"
+    },
+    {
+      "p": "o que significa solicitada",
+      "r": "status_visita"
+    },
+    {
+      "p": "o que significa aguardando",
+      "r": "status_visita"
+    },
+    {
+      "p": "fluxo completo de visita",
+      "r": "fluxo_visita"
+    },
+    {
+      "p": "como confirmar presenca do cliente",
+      "r": "presenca"
+    },
+    {
+      "p": "como o proprietario confirma a visita",
+      "r": "link_proprietario"
+    },
+    {
+      "p": "o proprietario precisa de cadastro",
+      "r": "link_proprietario"
+    },
+    {
+      "p": "o que tem na central de notificacoes",
+      "r": "pagina_notificacoes"
+    },
+    {
+      "p": "quais tipos de notificacao existem",
+      "r": "tipos_notificacao"
+    },
+    {
+      "p": "o que fazer quando cliente remarcou",
+      "r": "cliente_remarcou"
+    },
+    {
+      "p": "o que fazer quando proprietario pediu remarcacao",
+      "r": "proprietario_remarcou"
+    },
+    {
+      "p": "o que aparece numa nova solicitacao de visita",
+      "r": "nova_solicitacao"
+    },
+    {
+      "p": "como ver a lead pela notificacao",
+      "r": "nova_solicitacao"
+    },
+    {
+      "p": "como ver o imovel pela notificacao",
+      "r": "nova_solicitacao"
+    },
+    {
+      "p": "quando aparece notificacao de match",
+      "r": "tipos_notificacao"
+    },
+    {
+      "p": "o que tem na pagina de cadastro de imovel",
+      "r": "pagina_cadastro"
+    },
+    {
+      "p": "como importar via xml",
+      "r": "importar_xml"
+    },
+    {
+      "p": "como colocar a url do feed",
+      "r": "importar_xml"
+    },
+    {
+      "p": "como testar a url do xml",
+      "r": "testar_xml"
+    },
+    {
+      "p": "quantos imoveis vao ser importados",
+      "r": "testar_xml"
+    },
+    {
+      "p": "como fazer cadastro manual",
+      "r": "cadastro_manual"
+    },
+    {
+      "p": "quais campos tem no cadastro manual",
+      "r": "cadastro_manual"
+    },
+    {
+      "p": "quando usar xml e quando usar manual",
+      "r": "xml_vs_manual"
+    },
+    {
+      "p": "o que e captacao direta",
+      "r": "cadastro_manual"
+    },
+    {
+      "p": "posso cadastrar imovel de exclusividade",
+      "r": "cadastro_manual"
+    },
+    {
+      "p": "tem campo de condominio no cadastro",
+      "r": "cadastro_manual"
+    },
+    {
+      "p": "tem campo de iptu no cadastro",
+      "r": "cadastro_manual"
+    },
+    {
+      "p": "tem campo de area util",
+      "r": "cadastro_manual"
+    },
+    {
+      "p": "como escolher o portal no cadastro",
+      "r": "cadastro_manual"
+    },
+    {
+      "p": "o que tem na pagina de portais",
+      "r": "pagina_portais"
+    },
+    {
+      "p": "como funciona o fluxo de portais",
+      "r": "fluxo_portais"
+    },
+    {
+      "p": "onde fica o link do xml gerado",
+      "r": "link_xml"
+    },
+    {
+      "p": "como cadastrar o link no portal",
+      "r": "fluxo_portais"
+    },
+    {
+      "p": "quais portais o matchimoveis suporta",
+      "r": "quais_portais"
+    },
+    {
+      "p": "posso publicar em varios portais ao mesmo tempo",
+      "r": "fluxo_portais"
+    },
+    {
+      "p": "como escolher o portal pelo cadastro do imovel",
+      "r": "fluxo_portais"
+    },
+    {
+      "p": "como selecionar imoveis e gerar xml",
+      "r": "fluxo_portais"
+    },
+    {
+      "p": "o que e vrsync",
+      "r": "padrao_xml"
+    },
+    {
+      "p": "o que tem na pagina de perfil",
+      "r": "pagina_perfil"
+    },
+    {
+      "p": "como atualizar meus dados",
+      "r": "salvar_perfil"
+    },
+    {
+      "p": "onde coloco meu creci",
+      "r": "creci"
+    },
+    {
+      "p": "o que e o codigo do usuario",
+      "r": "codigo_usuario"
+    },
+    {
+      "p": "como atualizar minha localizacao",
+      "r": "localizacao"
+    },
+    {
+      "p": "para que serve a localizacao",
+      "r": "localizacao"
+    },
+    {
+      "p": "como mudar o tipo de conta",
+      "r": "pagina_perfil"
+    },
+    {
+      "p": "onde fica meu cpf",
+      "r": "pagina_perfil"
+    },
+    {
+      "p": "como salvar o perfil",
+      "r": "salvar_perfil"
+    },
+    {
+      "p": "como o match funciona passo a passo",
+      "r": "como_match"
+    },
+    {
+      "p": "o match busca em outros usuarios",
+      "r": "base_parceiros"
+    },
+    {
+      "p": "o que e a base interna",
+      "r": "base_interna"
+    },
+    {
+      "p": "imoveis de parceiros entram no match",
+      "r": "base_parceiros"
+    },
+    {
+      "p": "como e calculado o score do match",
+      "r": "score_match"
+    },
+    {
+      "p": "por que o imovel nao apareceu no match",
+      "r": "sem_match"
+    },
+    {
+      "p": "imóvel inativo entra no match",
+      "r": "sem_match"
+    },
+    {
+      "p": "perfil pendente afeta o match",
+      "r": "sem_match"
+    },
+    {
+      "p": "qual imovel aparece primeiro na vitrine",
+      "r": "vitrine_match"
+    },
+    {
+      "p": "o score define a ordem da vitrine",
+      "r": "vitrine_match"
+    },
+    {
+      "p": "imovel proprio tem prioridade no match",
+      "r": "score_match"
     }
   ],
-  "limpezaEm": "2026-05-08T07:38:42.996Z"
+  "limpezaEm": "2026-05-08T07:38:42.996Z",
+  "atualizadoEm": "2026-05-08T15:36:44.058Z"
 }

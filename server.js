@@ -39,6 +39,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+app.use(navegacao.rastrear); // rastreia navegação para o cérebro
 
 const port = 3000;
 

@@ -30,6 +30,99 @@ const AJUDA = [
 ];
 
 function responder(mNorm, d, btn, chip) {
+  // PÁGINA DE PERFIL
+  if (/pagina perfil|app perfil|meu perfil|dados da conta|o que tem no perfil/.test(mNorm))
+    return '👤 <strong>Meu Perfil (/app/perfil):</strong><br><br>' +
+      '<strong>Dados da conta:</strong><br>' +
+      '• Nome da conta<br>' +
+      '• Celular<br>' +
+      '• CRECI<br>' +
+      '• CPF<br>' +
+      '• Tipo de conta (Corretor · Imobiliária · Construtora)<br>' +
+      '• Código do usuário (ex: R-088)<br><br>' +
+      '<strong>Minha localização:</strong><br>' +
+      '• Clique em <strong>Atualizar Localização</strong><br>' +
+      '• O sistema detecta automaticamente onde você está<br><br>' +
+      btn('Ver perfil','/app/perfil');
+
+  // CRECI
+  if (/creci|registro creci|numero creci/.test(mNorm))
+    return '📋 O <strong>CRECI</strong> é o registro profissional do corretor.<br>' +
+      'Fica salvo no seu perfil em <a href="/app/perfil" style="color:#ff385c;font-weight:700">Perfil →</a>';
+
+  // CÓDIGO DO USUÁRIO
+  if (/codigo usuario|id usuario|meu codigo|codigo da conta/.test(mNorm))
+    return '🔑 O <strong>código do usuário</strong> é seu ID único na plataforma (ex: R-088).<br>' +
+      'Aparece no menu e no perfil. Cada conta tem o seu próprio código.<br><br>' +
+      btn('Ver perfil','/app/perfil');
+
+  // LOCALIZAÇÃO
+  if (/localizacao|atualizar localizacao|minha localizacao|onde estou/.test(mNorm))
+    return '📍 <strong>Atualizar localização:</strong><br><br>' +
+      '1. Acesse <a href="/app/perfil" style="color:#ff385c;font-weight:700">Perfil →</a><br>' +
+      '2. Clique em <strong>Atualizar Localização</strong><br>' +
+      '3. O sistema detecta automaticamente onde você está<br><br>' +
+      'A localização é usada para personalizar resultados e demanda por região.<br><br>' +
+      btn('Ver perfil','/app/perfil');
+
+  // SALVAR PERFIL
+  if (/salvar perfil|alterar dados|atualizar dados|editar perfil/.test(mNorm))
+    return '💾 Para atualizar seus dados, acesse <a href="/app/perfil" style="color:#ff385c;font-weight:700">Perfil →</a>, edite as informações e clique em <strong>Salvar</strong>.';
+
+  // DASHBOARD
+  if (/dashboard|painel|painel de controle/.test(mNorm))
+    return '📊 <strong>Dashboard — o que tem:</strong><br><br>' +
+      '🏠 <strong>Imóveis na carteira</strong> — total cadastrado<br>' +
+      '🎯 <strong>Matches gerados</strong> — total e por lead<br>' +
+      '👥 <strong>Total de leads</strong><br>' +
+      '📊 <strong>Taxa de match</strong> — % de leads com match<br>' +
+      '📅 <strong>Visitas agendadas</strong><br>' +
+      '📋 <strong>Atividades recentes</strong><br>' +
+      '📈 Gráficos: imóveis por tipo, por bairro, leads por bairro, visitas por estado<br><br>' +
+      btn('Ir para dashboard','/app-home');
+
+  // MENU
+  if (/menu|navegacao|onde encontro|onde fica|onde acho/.test(mNorm))
+    return '📋 <strong>Menu da plataforma:</strong><br><br>' +
+      '• 📊 Dashboard<br>' +
+      '• 🏠 Meus Imóveis<br>' +
+      '• 👥 Leads<br>' +
+      '• 📅 Visitas<br>' +
+      '• 🔔 Notificações<br>' +
+      '• ➕ Cadastrar Imóveis<br>' +
+      '• 🔗 Portais<br>' +
+      '• 👤 Perfil<br>' +
+      '• 🪙 MatchCoins<br>' +
+      '• 🤖 Assistente<br><br>' +
+      'Cada usuário tem ID único (ex: R-088) e vê apenas seus próprios dados.';
+
+  // TIPOS DE IMÓVEL
+  if (/tipos de imovel|tipos imovel|quais tipos|tipo de imovel/.test(mNorm))
+    return '🏠 <strong>Tipos de imóvel disponíveis:</strong><br><br>' +
+      'Apartamento · Sobrado · Estúdio · Casa · Comercial · Residencial · Outros<br><br>' +
+      btn('Ver imóveis','/app/imoveis');
+
+  // TIPOS DE CONTA
+  if (/tipo de conta|tipo conta|corretor|construtor|proprietario conta/.test(mNorm))
+    return '👤 <strong>Tipos de conta:</strong><br><br>' +
+      '• Corretor imobiliário<br>' +
+      '• Construtor<br>' +
+      '• Proprietário<br><br>' +
+      'Cada conta tem ID único e armazena apenas seus próprios imóveis, leads e visitas.';
+
+  // MATCHCOINS
+  if (/matchcoin|match coin|coin/.test(mNorm))
+    return '🪙 <strong>MatchCoins</strong> — sistema de recompensas.<br><br>' +
+      'Ganhe coins a cada match realizado. Futuramente usados para recursos premium.<br><br>' +
+      btn('Ver MatchCoins','/app/coins');
+
+  // TAXA DE MATCH
+  if (/taxa de match|taxa match|percentual match/.test(mNorm)) {
+    return '📊 <strong>Taxa de match</strong> = quantidade de leads que receberam match ÷ total de leads × 100%<br><br>' +
+      'Exemplo: 41 matches em 87 leads = 47% de taxa.<br><br>' +
+      chip('Ver meu match','ver match');
+  }
+
   // Respostas diretas para comandos de suporte
   if (/como cadastro imovel|cadastrar imovel|novo imovel|cadastro imovel/.test(mNorm))
     return '🏠 Acesse <a href="/app/imovel/cadastrar" style="color:#ff385c;font-weight:700">Cadastrar Imóvel →</a> e preencha: tipo, bairro, quartos, valor e pelo menos 1 foto.';

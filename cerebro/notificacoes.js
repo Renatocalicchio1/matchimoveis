@@ -80,3 +80,58 @@ function renderAlertas(alertas, btn) {
 }
 
 module.exports = { gerarAlertas, renderAlertas };
+
+
+// Responder perguntas sobre a página de notificações
+function responderPagina(mNorm, btn, chip) {
+
+  // PÁGINA DE NOTIFICAÇÕES
+  if (/central notificacoes|pagina notificacoes|o que tem em notificacoes|menu notificacoes/.test(mNorm))
+    return '🔔 <strong>Central de Notificações:</strong><br><br>' +
+      '"Acompanhe solicitações de visitas, novos matches e avisos importantes."<br><br>' +
+      '<strong>Tipos de notificação:</strong><br>' +
+      '• 📅 Nova solicitação de visita — lead quer visitar um imóvel<br>' +
+      '• 🔄 Cliente remarcou a visita — lead escolheu nova data<br>' +
+      '• 🔄 Proprietário pediu remarcação — proprietário não pode no dia<br>' +
+      '• ✅ Visita confirmada pelo proprietário<br>' +
+      '• ✅ Cliente confirmou presença<br>' +
+      '• 🎯 Novo match — lead compatível com imóvel<br><br>' +
+      btn('Ver notificações','/app/notificacoes');
+
+  // TIPOS DE NOTIFICAÇÃO
+  if (/tipos notificacao|quais notificacoes|o que aparece nas notificacoes/.test(mNorm))
+    return '🔔 <strong>Tipos de notificação:</strong><br><br>' +
+      '• <strong>Nova solicitação de visita</strong> — mostra: lead, imóvel, data. Ações: ver lead, ver imóvel<br>' +
+      '• <strong>Cliente remarcou</strong> — lead escolheu nova data. Ação: notificar proprietário<br>' +
+      '• <strong>Proprietário pediu remarcação</strong> — não pode receber no dia. Ação: pedir nova data ao cliente<br>' +
+      '• <strong>Visita confirmada pelo proprietário</strong> — tudo certo<br>' +
+      '• <strong>Cliente confirmou presença</strong> — cliente vai comparecer<br>' +
+      '• <strong>Novo match</strong> — IA encontrou imóvel compatível com lead<br><br>' +
+      btn('Ver notificações','/app/notificacoes');
+
+  // CLIENTE REMARCOU
+  if (/cliente remarcou|lead remarcou|nova data cliente/.test(mNorm))
+    return '🔄 <strong>Cliente remarcou a visita:</strong><br><br>' +
+      'A lead escolheu uma nova data para visitar o imóvel.<br>' +
+      'Você precisa <strong>notificar o proprietário</strong> sobre a nova data.<br><br>' +
+      btn('Ver notificações','/app/notificacoes');
+
+  // PROPRIETÁRIO PEDIU REMARCAÇÃO
+  if (/proprietario remarcou|proprietario pediu|proprietario nao pode/.test(mNorm))
+    return '🔄 <strong>Proprietário pediu remarcação:</strong><br><br>' +
+      'O proprietário não pode receber o cliente na data combinada.<br>' +
+      'Você precisa <strong>pedir uma nova data ao cliente</strong>.<br><br>' +
+      btn('Ver notificações','/app/notificacoes');
+
+  // NOVA SOLICITAÇÃO
+  if (/nova solicitacao|nova visita solicitada|lead solicitou/.test(mNorm))
+    return '📅 <strong>Nova solicitação de visita:</strong><br><br>' +
+      'Uma lead quer visitar um imóvel. A notificação mostra:<br>' +
+      '• Nome da lead<br>• Imóvel desejado<br>• Data e horário<br><br>' +
+      'Ações disponíveis: Ver lead · Ver imóvel · Notificar proprietário<br><br>' +
+      btn('Ver notificações','/app/notificacoes');
+
+  return null;
+}
+
+module.exports.responderPagina = responderPagina;

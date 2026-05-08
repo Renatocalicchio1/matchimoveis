@@ -54,7 +54,8 @@ function tokenizar(texto) {
 }
 
 function normalizar(texto) {
-  let t = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  let t = corrigirOrtografia(texto);
+  t = t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const entradas = Object.entries(SINONIMOS).sort((a,b) => b[0].length - a[0].length);
   for (const [e, c] of entradas) {
     try { t = t.replace(new RegExp('\\b' + e.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b','gi'), c); } catch(_) {}

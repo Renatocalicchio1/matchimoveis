@@ -57,6 +57,7 @@ async function enviarMsg(texto){
   addMsg(msg,'user');
   typing();
   try{
+    await new Promise(function(r){setTimeout(r, 600+Math.random()*900)});
     const res=await fetch('/app/assistente/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mensagem:msg})});
     const data=await res.json();
     removeTyping();

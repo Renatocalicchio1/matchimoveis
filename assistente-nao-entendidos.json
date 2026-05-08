@@ -83,125 +83,125 @@
     },
     {
       "exemplo": "ver portais",
-      "count": 40,
+      "count": 48,
       "usuarios": [
         "corretor-experiente-002",
         "test"
       ],
       "primeira": "2026-05-08T07:32:40.018Z",
-      "ultima": "2026-05-08T17:40:41.947Z",
+      "ultima": "2026-05-08T20:32:58.163Z",
       "sugerido": true
     },
     {
       "exemplo": "quais campos a planilha precisa?",
-      "count": 48,
+      "count": 51,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-08T07:32:40.108Z",
-      "ultima": "2026-05-08T18:06:55.938Z",
+      "ultima": "2026-05-08T20:32:58.274Z",
       "sugerido": true
     },
     {
       "exemplo": "xml não saiu no vivareal",
-      "count": 34,
+      "count": 37,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-08T07:32:40.197Z",
-      "ultima": "2026-05-08T17:40:42.168Z",
+      "ultima": "2026-05-08T20:32:58.414Z",
       "sugerido": true
     },
     {
       "exemplo": "tipo mais buscado",
-      "count": 36,
+      "count": 44,
       "usuarios": [
         "corretor-analista-004",
         "test"
       ],
       "primeira": "2026-05-08T07:32:40.249Z",
-      "ultima": "2026-05-08T17:40:42.214Z",
+      "ultima": "2026-05-08T20:32:58.458Z",
       "sugerido": true
     },
     {
       "exemplo": "quartos mais pedidos",
-      "count": 36,
+      "count": 44,
       "usuarios": [
         "corretor-analista-004",
         "test"
       ],
       "primeira": "2026-05-08T07:32:40.291Z",
-      "ultima": "2026-05-08T17:40:42.240Z",
+      "ultima": "2026-05-08T20:32:58.493Z",
       "sugerido": true
     },
     {
       "exemplo": "subir xml",
-      "count": 34,
+      "count": 37,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-08T07:32:40.469Z",
-      "ultima": "2026-05-08T17:40:42.396Z",
+      "ultima": "2026-05-08T20:32:58.693Z",
       "sugerido": true
     },
     {
       "exemplo": "ver portias",
-      "count": 45,
+      "count": 48,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-08T07:32:40.509Z",
-      "ultima": "2026-05-08T18:06:56.306Z",
+      "ultima": "2026-05-08T20:32:58.739Z",
       "sugerido": true
     },
     {
       "exemplo": "meu relatorrio",
-      "count": 45,
+      "count": 48,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-08T07:32:40.555Z",
-      "ultima": "2026-05-08T18:06:56.356Z",
+      "ultima": "2026-05-08T20:32:58.797Z",
       "sugerido": true
     },
     {
       "exemplo": "enviar vitrine para cliente",
-      "count": 34,
+      "count": 37,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-08T07:32:40.783Z",
-      "ultima": "2026-05-08T17:40:42.774Z",
+      "ultima": "2026-05-08T20:32:59.094Z",
       "sugerido": true
     },
     {
       "exemplo": "link do cliente",
-      "count": 46,
+      "count": 49,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-08T07:32:40.795Z",
-      "ultima": "2026-05-08T18:06:56.624Z",
+      "ultima": "2026-05-08T20:32:59.107Z",
       "sugerido": true
     },
     {
       "exemplo": "manda follow-up",
-      "count": 48,
+      "count": 51,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-08T07:32:40.861Z",
-      "ultima": "2026-05-08T18:06:56.785Z",
+      "ultima": "2026-05-08T20:32:59.205Z",
       "sugerido": true
     },
     {
       "exemplo": "blablabla xpto nada",
-      "count": 16,
+      "count": 21,
       "usuarios": [
         "test"
       ],
       "primeira": "2026-05-08T07:45:23.017Z",
-      "ultima": "2026-05-08T15:19:01.011Z",
+      "ultima": "2026-05-08T20:22:06.982Z",
       "sugerido": true
     },
     {
@@ -216,13 +216,13 @@
     },
     {
       "exemplo": "bairros mais buscados",
-      "count": 2,
+      "count": 7,
       "usuarios": [
         "test"
       ],
       "primeira": "2026-05-08T07:46:44.709Z",
-      "ultima": "2026-05-08T07:47:08.955Z",
-      "sugerido": false
+      "ultima": "2026-05-08T20:22:06.765Z",
+      "sugerido": true
     },
     {
       "exemplo": "ticket medio",
@@ -246,12 +246,12 @@
     },
     {
       "exemplo": "qwerty asdfgh",
-      "count": 13,
+      "count": 18,
       "usuarios": [
         "test"
       ],
       "primeira": "2026-05-08T07:49:37.881Z",
-      "ultima": "2026-05-08T15:19:01.017Z",
+      "ultima": "2026-05-08T20:22:06.989Z",
       "sugerido": true
     },
     {
@@ -277,12 +277,12 @@
     },
     {
       "exemplo": "minha conta",
-      "count": 6,
+      "count": 11,
       "usuarios": [
         "test"
       ],
       "primeira": "2026-05-08T07:58:45.024Z",
-      "ultima": "2026-05-08T15:19:00.950Z",
+      "ultima": "2026-05-08T20:22:06.905Z",
       "sugerido": true
     },
     {
@@ -304,6 +304,86 @@
       "primeira": "2026-05-08T08:06:42.053Z",
       "ultima": "2026-05-08T18:06:55.924Z",
       "sugerido": true
+    },
+    {
+      "exemplo": "casas disponíveis",
+      "count": 5,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T20:18:15.302Z",
+      "ultima": "2026-05-08T20:22:06.660Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "minhas visitas",
+      "count": 5,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T20:18:15.322Z",
+      "ultima": "2026-05-08T20:22:06.670Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "visitas pendentes",
+      "count": 5,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T20:18:15.335Z",
+      "ultima": "2026-05-08T20:22:06.685Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "quem confirmou visita",
+      "count": 5,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T20:18:15.342Z",
+      "ultima": "2026-05-08T20:22:06.692Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "resumo do dia",
+      "count": 5,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T20:18:15.769Z",
+      "ultima": "2026-05-08T20:22:06.898Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "casas com 3 quartos",
+      "count": 5,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T20:18:16.047Z",
+      "ultima": "2026-05-08T20:22:06.973Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "quando e a proxima visita",
+      "count": 1,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T20:25:26.043Z",
+      "ultima": "2026-05-08T20:25:26.043Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "ja enviei a vitrine para o joao",
+      "count": 1,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T20:25:26.072Z",
+      "ultima": "2026-05-08T20:25:26.072Z",
+      "sugerido": false
     }
   ],
   "sugestoes": [
@@ -438,6 +518,48 @@
       "count": 3,
       "status": "pendente",
       "geradaEm": "2026-05-08T10:06:44.719Z"
+    },
+    {
+      "pergunta": "bairros mais buscados",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T20:18:15.406Z"
+    },
+    {
+      "pergunta": "casas disponíveis",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T20:19:11.454Z"
+    },
+    {
+      "pergunta": "minhas visitas",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T20:19:11.461Z"
+    },
+    {
+      "pergunta": "visitas pendentes",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T20:19:11.474Z"
+    },
+    {
+      "pergunta": "quem confirmou visita",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T20:19:11.489Z"
+    },
+    {
+      "pergunta": "resumo do dia",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T20:19:11.768Z"
+    },
+    {
+      "pergunta": "casas com 3 quartos",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T20:19:11.861Z"
     }
   ],
   "inconsistencias": []

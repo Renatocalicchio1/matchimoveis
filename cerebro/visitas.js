@@ -1,6 +1,11 @@
 'use strict';
 
 function responder(mNorm, d, visitas, btn, chip) {
+  if (/quem confirmou|confirmou visita/.test(mNorm))
+    return '✅ <strong>' + d.confirmadas + ' visita(s) confirmada(s)</strong><br><br>' + btn('Ver visitas','/app/visitas');
+  if (/como funciona visita|fluxo visita|passo a passo visita/.test(mNorm))
+    return '📅 <strong>Fluxo de visitas:</strong><br><br>1. Lead acessa vitrine e escolhe imóvel<br>2. Lead solicita visita<br>3. Corretor notifica proprietário<br>4. Proprietário confirma ou recusa<br>5. Lead é notificada<br><br>' + btn('Ver visitas','/app/visitas');
+
   // PÁGINA DE VISITAS — o que tem
   if (/pagina visitas|o que tem em visitas|menu visitas|app visitas/.test(mNorm))
     return '📅 <strong>Página Visitas:</strong><br><br>' +

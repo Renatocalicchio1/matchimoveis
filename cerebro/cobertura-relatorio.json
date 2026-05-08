@@ -1,40 +1,40 @@
 {
-  "geradoEm": "2026-05-08T15:19:01.019Z",
-  "cobertura": 94,
-  "totalOk": 65,
-  "totalFalhou": 4,
+  "geradoEm": "2026-05-08T20:22:06.992Z",
+  "cobertura": 80,
+  "totalOk": 55,
+  "totalFalhou": 14,
   "porGrupo": {
     "Saudação": {
       "ok": 4,
       "falhou": 1
     },
     "Leads": {
-      "ok": 10,
-      "falhou": 0
+      "ok": 9,
+      "falhou": 1
     },
     "Imóveis": {
-      "ok": 8,
-      "falhou": 0
+      "ok": 7,
+      "falhou": 1
     },
     "Visitas": {
-      "ok": 5,
-      "falhou": 0
+      "ok": 2,
+      "falhou": 3
     },
     "Match": {
       "ok": 5,
       "falhou": 0
     },
     "Mercado": {
-      "ok": 7,
-      "falhou": 0
+      "ok": 5,
+      "falhou": 2
     },
     "Portais": {
-      "ok": 4,
-      "falhou": 0
+      "ok": 3,
+      "falhou": 1
     },
     "Suporte": {
-      "ok": 3,
-      "falhou": 3
+      "ok": 2,
+      "falhou": 4
     },
     "Estratégia": {
       "ok": 4,
@@ -53,8 +53,8 @@
       "falhou": 0
     },
     "RAG": {
-      "ok": 3,
-      "falhou": 0
+      "ok": 2,
+      "falhou": 1
     },
     "Fallback": {
       "ok": 2,
@@ -69,6 +69,83 @@
         "Bom dia"
       ],
       "got": "Boa tarde, Renato! 👋🔔 2 notificação(ões):⚠️ Urgente:🔴 2 visita(s) hoje — Não "
+    },
+    {
+      "grupo": "Leads",
+      "p": "leads com match",
+      "espera": [
+        "match",
+        "Match"
+      ],
+      "got": "Não encontrei lead com nome \"com\". Verifique na lista completa.Ver leads →"
+    },
+    {
+      "grupo": "Imóveis",
+      "p": "casas disponíveis",
+      "espera": [
+        "Casa",
+        "casa",
+        "imóvel"
+      ],
+      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
+    },
+    {
+      "grupo": "Visitas",
+      "p": "visitas pendentes",
+      "espera": [
+        "pendente",
+        "Pendente"
+      ],
+      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
+    },
+    {
+      "grupo": "Visitas",
+      "p": "quem confirmou visita",
+      "espera": [
+        "confirm",
+        "Confirm"
+      ],
+      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
+    },
+    {
+      "grupo": "Visitas",
+      "p": "como funciona a visita",
+      "espera": [
+        "Fluxo",
+        "fluxo",
+        "visita"
+      ],
+      "got": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóve"
+    },
+    {
+      "grupo": "Mercado",
+      "p": "tipo mais buscado",
+      "espera": [
+        "tipo",
+        "Tipo",
+        "lead"
+      ],
+      "got": "Desculpe, não captei. Tente de outro jeito.👥 Leads🏠 Imóveis📅 Visitas🧠 Plano\ud83c"
+    },
+    {
+      "grupo": "Mercado",
+      "p": "quartos mais pedidos",
+      "espera": [
+        "quarto",
+        "Quarto",
+        "lead"
+      ],
+      "got": "Desculpe, não captei. Tente de outro jeito.👥 Leads🏠 Imóveis📅 Visitas🧠 Plano\ud83c"
+    },
+    {
+      "grupo": "Portais",
+      "p": "ver portais",
+      "espera": [
+        "Portal",
+        "portal",
+        "VivaReal"
+      ],
+      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
     },
     {
       "grupo": "Suporte",
@@ -87,7 +164,17 @@
         "foto",
         "Foto"
       ],
-      "got": "Hmm, não entendi 🤔 Pode reformular?👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itaja"
+      "got": "🔧 Suporte técnico:Pode me detalhar mais o problema? Por exemplo:• Qual funciona"
+    },
+    {
+      "grupo": "Suporte",
+      "p": "como trocar senha",
+      "espera": [
+        "senha",
+        "Senha",
+        "Perfil"
+      ],
+      "got": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóve"
     },
     {
       "grupo": "Suporte",
@@ -97,7 +184,17 @@
         "whatsapp",
         "Twilio"
       ],
-      "got": "🔗 Como publicar nos portais:1Acesse Imóveis → e selecione os imóveis2Clique no "
+      "got": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóve"
+    },
+    {
+      "grupo": "RAG",
+      "p": "casas com 3 quartos",
+      "espera": [
+        "Casa",
+        "casa",
+        "imóvel"
+      ],
+      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
     }
   ]
 }

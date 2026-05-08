@@ -109,8 +109,10 @@ function detectarDominio(mNorm) {
   if (/dashboard|resumo|relatorio|geral|panorama/.test(mNorm))                         return 'dashboard';
   if (/como funciona|o que e|o que sao|explicar|o que voce faz/.test(mNorm))           return 'sistema';
   if (/faixa|valor medio|ticket|orcamento|tipo mais|quarto mais|bairro mais|mais buscado|demanda|mercado|oferta|quartos mais/.test(mNorm)) return 'mercado';
-  if (/ver portal|portais|vivareal|\bzap\b|\bolx\b|chaves|imovelweb|feed|rejeitou|nao publicou/.test(mNorm)) return 'portais';
+  if (/ver portal|ver portais|portais|vivareal|\bzap\b|\bolx\b|chaves|imovelweb|feed|rejeitou|nao publicou/.test(mNorm)) return 'portais';
   if (/importar xml|subir xml|gerar xml|\bxml\b/.test(mNorm))                        return 'portais';
+  // Frases naturais de busca de imóvel para cliente
+  if (/(?:cliente|comprador|interessado).*(?:querendo|quer|procura|busca|precisa|interesse)|(?:querendo|quer|procura|busca).*(?:apto|apartamento|casa|imovel|cobertura)/.test(mNorm)) return 'imoveis';
   if (/lead|cliente|interessado|comprador/.test(mNorm))                                 return 'leads';
   if (/imovel|carteira|apartamento|\bcasa\b|cobertura|terreno|sobrado/.test(mNorm))  return 'imoveis';
   if (/visita|agenda|agendar/.test(mNorm))                                              return 'visitas';

@@ -1,12 +1,12 @@
 {
-  "geradoEm": "2026-05-08T08:04:21.038Z",
-  "cobertura": 96,
-  "totalOk": 66,
-  "totalFalhou": 3,
+  "geradoEm": "2026-05-08T15:19:01.019Z",
+  "cobertura": 94,
+  "totalOk": 65,
+  "totalFalhou": 4,
   "porGrupo": {
     "Saudação": {
-      "ok": 5,
-      "falhou": 0
+      "ok": 4,
+      "falhou": 1
     },
     "Leads": {
       "ok": 10,
@@ -63,6 +63,14 @@
   },
   "falhas": [
     {
+      "grupo": "Saudação",
+      "p": "bom dia",
+      "espera": [
+        "Bom dia"
+      ],
+      "got": "Boa tarde, Renato! 👋🔔 2 notificação(ões):⚠️ Urgente:🔴 2 visita(s) hoje — Não "
+    },
+    {
       "grupo": "Suporte",
       "p": "como cadastrar imóvel",
       "espera": [
@@ -79,7 +87,7 @@
         "foto",
         "Foto"
       ],
-      "got": "Desculpe, não captei. Tente de outro jeito.👥 Leads🏠 Imóveis📅 Visitas🧠 Plano\ud83c"
+      "got": "Hmm, não entendi 🤔 Pode reformular?👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itaja"
     },
     {
       "grupo": "Suporte",

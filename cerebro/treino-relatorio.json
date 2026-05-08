@@ -1,11 +1,11 @@
 {
   "rodada": 1,
-  "geradoEm": "2026-05-08T07:40:29.167Z",
-  "cobertura": 89,
+  "geradoEm": "2026-05-08T15:24:34.482Z",
+  "cobertura": 100,
   "tempoMedio": 6,
   "total": 100,
-  "ok": 89,
-  "naoEntendeu": 11,
+  "ok": 100,
+  "naoEntendeu": 0,
   "falhou": 0,
   "porPerfil": {
     "iniciante": {
@@ -14,23 +14,23 @@
       "falhou": 0
     },
     "experiente": {
-      "ok": 18,
-      "naoEntendeu": 1,
+      "ok": 19,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "tecnico": {
-      "ok": 11,
-      "naoEntendeu": 2,
+      "ok": 13,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "analista": {
-      "ok": 11,
-      "naoEntendeu": 2,
+      "ok": 13,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "digitacao_ruim": {
-      "ok": 15,
-      "naoEntendeu": 3,
+      "ok": 18,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "busca_ativa": {
@@ -39,62 +39,17 @@
       "falhou": 0
     },
     "suporte": {
-      "ok": 7,
-      "naoEntendeu": 3,
+      "ok": 10,
+      "naoEntendeu": 0,
       "falhou": 0
     }
   },
   "falhas": [],
-  "naoEntendidas": [
-    {
-      "perfil": "experiente",
-      "pergunta": "ver portais"
-    },
-    {
-      "perfil": "tecnico",
-      "pergunta": "quais campos a planilha precisa?"
-    },
-    {
-      "perfil": "tecnico",
-      "pergunta": "xml não saiu no vivareal"
-    },
-    {
-      "perfil": "analista",
-      "pergunta": "tipo mais buscado"
-    },
-    {
-      "perfil": "analista",
-      "pergunta": "quartos mais pedidos"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "subir xml"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "ver portias"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "meu relatorrio"
-    },
-    {
-      "perfil": "suporte",
-      "pergunta": "enviar vitrine para cliente"
-    },
-    {
-      "perfil": "suporte",
-      "pergunta": "link do cliente"
-    },
-    {
-      "perfil": "suporte",
-      "pergunta": "manda follow-up"
-    }
-  ],
+  "naoEntendidas": [],
   "pesos": {
-    "raiz": 6.999999999999991,
+    "raiz": 7.39999999999999,
     "urgencia": 4,
-    "onboarding": 1,
+    "onboarding": 3,
     "rag": 0.7999999999999999,
     "busca_imoveis": 8,
     "busca_leads": 0,
@@ -102,19 +57,19 @@
     "relatorio": 0,
     "acoes": 0,
     "precisa_match": 0,
-    "dominios": 4.6,
+    "dominios": 5.899999999999995,
     "leads": 10,
-    "imoveis": 9,
-    "visitas": 6,
-    "match": 5,
-    "portais": 1,
-    "mercado": 3,
-    "sistema": 4,
+    "imoveis": 8,
+    "visitas": 7,
+    "match": 6,
+    "portais": 6,
+    "mercado": 7,
+    "sistema": 6,
     "coins": 2,
     "notificacoes": 1,
-    "dashboard": 5,
+    "dashboard": 6,
     "contexto_conversa": 0,
     "saudacao": 0,
-    "nao_entendeu": 11
+    "nao_entendeu": 0
   }
 }

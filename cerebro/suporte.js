@@ -30,6 +30,7 @@ const FAQ = [
 function responder(mNorm, btn, chip) {
   // Verificar se é dúvida técnica
   const isDuvida = (
+    /extracao falhou|campos planilha|como cadastro foto|follow up|link do cliente|vitrine do cliente/.test(mNorm) ||
     /nao funciona|nao atualizou|nao apareceu|nao saiu|nao consigo/.test(mNorm) ||
     /como cadastrar imovel|como adicionar foto|como subir foto/.test(mNorm) ||
     /como inativar|como trocar senha|como importar lead/.test(mNorm) ||
@@ -52,4 +53,8 @@ function responder(mNorm, btn, chip) {
   return `🔧 <strong>Suporte técnico:</strong><br><br>Pode me detalhar mais o problema? Por exemplo:<br>• Qual funcionalidade não está funcionando?<br>• O que aparece na tela?<br>• Imóvel, lead ou visita específica?<br><br>${chip('❓ XML não atualizou','meu xml nao atualizou')}${chip('❓ Lead sem match','por que nao deu match')}${chip('❓ Portal rejeitou','portal rejeitou imovel')}`;
 }
 
+FAQ.push({chave:/quais campos planilha|campos obrigatorios|o que precisa na planilha/, resposta:'📋 <strong>Campos obrigatórios na planilha:</strong><br>• Nome · Telefone ou e-mail · Bairro · Tipo · Quartos · Valor máximo<br><br>Sem bairro + tipo + quartos o match não funciona.'});
+FAQ.push({chave:/link do cliente|vitrine do cliente|link da vitrine|enviar link/, resposta:'✨ A <strong>vitrine</strong> é a página enviada ao lead com imóveis em match. Acesse <a href="/app/leads" style="color:#ff385c;font-weight:700">Leads →</a> e clique em <strong>Enviar Vitrine</strong>.'});
+FAQ.push({chave:/follow.?up|lembrar cliente|mandar lembrete/, resposta:'📱 Follow-up ainda é manual. Em breve teremos automação direto pelo MatchImóveis.<br><br>Dica: filtre leads sem visita há 7+ dias e entre em contato.'});
+FAQ.push({chave:/como comeco|por onde comecar|primeiro passo|nao sei comecar/, resposta:'🚀 <strong>Por onde começar:</strong><br>1. Importe XML dos imóveis<br>2. Importe planilha de leads<br>3. Faça o match<br>4. Envie vitrine<br>5. Aguarde visitas'});
 module.exports = { responder, FAQ };

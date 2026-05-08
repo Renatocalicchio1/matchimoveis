@@ -1,16 +1,16 @@
 {
-  "rodada": 9,
-  "geradoEm": "2026-05-08T16:06:53.600Z",
-  "cobertura": 92,
+  "rodada": 2,
+  "geradoEm": "2026-05-08T16:25:02.604Z",
+  "cobertura": 100,
   "tempoMedio": 8,
   "total": 100,
-  "ok": 92,
-  "naoEntendeu": 8,
+  "ok": 100,
+  "naoEntendeu": 0,
   "falhou": 0,
   "porPerfil": {
     "iniciante": {
-      "ok": 15,
-      "naoEntendeu": 1,
+      "ok": 16,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "experiente": {
@@ -19,8 +19,8 @@
       "falhou": 0
     },
     "tecnico": {
-      "ok": 10,
-      "naoEntendeu": 3,
+      "ok": 13,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "analista": {
@@ -29,8 +29,8 @@
       "falhou": 0
     },
     "digitacao_ruim": {
-      "ok": 16,
-      "naoEntendeu": 2,
+      "ok": 18,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "busca_ativa": {
@@ -39,70 +39,37 @@
       "falhou": 0
     },
     "suporte": {
-      "ok": 8,
-      "naoEntendeu": 2,
+      "ok": 10,
+      "naoEntendeu": 0,
       "falhou": 0
     }
   },
   "falhas": [],
-  "naoEntendidas": [
-    {
-      "perfil": "iniciante",
-      "pergunta": "como começo?"
-    },
-    {
-      "perfil": "tecnico",
-      "pergunta": "a extração falhou"
-    },
-    {
-      "perfil": "tecnico",
-      "pergunta": "quais campos a planilha precisa?"
-    },
-    {
-      "perfil": "tecnico",
-      "pergunta": "como adicionar fotos?"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "ver portias"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "meu relatorrio"
-    },
-    {
-      "perfil": "suporte",
-      "pergunta": "link do cliente"
-    },
-    {
-      "perfil": "suporte",
-      "pergunta": "manda follow-up"
-    }
-  ],
+  "naoEntendidas": [],
   "pesos": {
-    "raiz": 71.10000000000024,
-    "urgencia": 36,
-    "onboarding": 18,
-    "rag": 7.19999999999999,
-    "busca_imoveis": 72,
+    "raiz": 14.799999999999963,
+    "urgencia": 8,
+    "onboarding": 6,
+    "rag": 1.6000000000000003,
+    "busca_imoveis": 16,
     "busca_leads": 0,
     "estrategia": 0,
     "relatorio": 0,
     "acoes": 0,
     "precisa_match": 0,
-    "dominios": 51.30000000000046,
-    "leads": 90,
-    "imoveis": 72,
-    "visitas": 63,
-    "match": 54,
-    "portais": 45,
-    "mercado": 63,
-    "sistema": 54,
-    "coins": 18,
-    "notificacoes": 9,
-    "dashboard": 45,
+    "dominios": 11.799999999999974,
+    "leads": 20,
+    "imoveis": 16,
+    "visitas": 14,
+    "match": 12,
+    "portais": 12,
+    "mercado": 14,
+    "sistema": 12,
+    "coins": 4,
+    "notificacoes": 2,
+    "dashboard": 12,
     "contexto_conversa": 0,
     "saudacao": 0,
-    "nao_entendeu": 72
+    "nao_entendeu": 0
   }
 }

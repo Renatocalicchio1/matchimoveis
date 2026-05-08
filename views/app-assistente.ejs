@@ -37,8 +37,12 @@
       <button onclick="enviarMsg('Quero importar XML')" class="sug-btn">🏠 Importar XML</button>
     </div>
 
-    <!-- Input -->
-    <div style="padding:16px 24px;border-top:1px solid #f3f4f6;display:flex;gap:12px">
+    
+    <!-- Input com upload -->
+    <div style="padding:16px 24px;border-top:1px solid #f3f4f6;display:flex;gap:12px;align-items:center">
+      <input type="file" id="file-input" accept=".xml,.xlsx,.xls,.csv" style="display:none" onchange="uploadArquivo(this)">
+      <button onclick="document.getElementById('file-input').click()" 
+        style="background:#f3f4f6;border:none;border-radius:12px;padding:12px;cursor:pointer;font-size:18px" title="Enviar arquivo XML">📎</button>
       <input id="chat-input" type="text" placeholder="Digite sua mensagem..." 
         style="flex:1;padding:12px 16px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;outline:none"
         onkeydown="if(event.key==='Enter') enviarMsg()">
@@ -140,6 +144,77 @@ function respostaLocal(msg) {
   }
 
   return null;
+}
+
+
+async function uploadArquivo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const nome = file.name.toLowerCase();
+  const kb = (file.size/1024).toFixed(1);
+  addMsg('📎 ' + file.name + ' (' + kb + ' KB)', 'user');
+
+  // Detectar tipo pelo nome/extensão
+  let rota, label, accept;
+
+  if (nome.endsWith('.xml')) {
+    rota = '/app/importar';
+    label = 'XML de imóveis (Tecimob/Rankim)';
+    accept = 'xml';
+  } else if (nome.includes('proprietar') || nome.includes('proprietár')) {
+    rota = '/app/importar-proprietarios';
+    label = 'Excel de proprietários';
+    accept = 'xlsx';
+  } else if (nome.endsWith('.csv') || nome.endsWith('.xlsx') || nome.endsWith('.xls')) {
+    // Perguntar o que é
+    addMsg('📋 Arquivo Excel/CSV detectado. O que é esse arquivo?<br><br>'+
+      '<button onclick="confirmarUpload(window._pendingFile,\'/app/leads\',\'leads\')" '+
+      'style="background:#ff385c;color:white;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;margin:4px;font-weight:700">👥 Leads</button>'+
+      '<button onclick="confirmarUpload(window._pendingFile,\'/app/importar-proprietarios\',\'proprietários\')" '+
+      'style="background:#333;color:white;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;margin:4px;font-weight:700">🏠 Proprietários</button>',
+      'bot');
+    window._pendingFile = file;
+    input.value = '';
+    return;
+  } else {
+    addMsg('⚠️ Formato não reconhecido.<br>Aceito: <strong>.xml</strong> (imóveis), <strong>.xlsx/.csv</strong> (leads ou proprietários)', 'bot');
+    input.value = '';
+    return;
+  }
+
+  window._pendingFile = file;
+  confirmarUpload(file, rota, label);
+  input.value = '';
+}
+
+async function confirmarUpload(file, rota, label) {
+  addMsg('⏳ Enviando <strong>' + label + '</strong>...', 'bot');
+
+  const formData = new FormData();
+  // Cada rota espera um campo diferente
+  if (rota === '/app/importar') formData.append('xml', file);
+  else if (rota === '/app/importar-proprietarios') formData.append('arquivo', file);
+  else if (rota === '/app/leads') formData.append('leads', file);
+
+  try {
+    const res = await fetch(rota, { method: 'POST', body: formData });
+    const txt = await res.text();
+
+    // Extrair número de registros da resposta
+    const nums = txt.match(/\d+/g);
+    const total = nums ? nums[0] : '?';
+
+    let linkRota = '/app/imoveis';
+    let linkLabel = 'Ver imóveis';
+    if (rota.includes('leads')) { linkRota = '/app/leads'; linkLabel = 'Ver leads'; }
+    if (rota.includes('proprietar')) { linkRota = '/app/imoveis'; linkLabel = 'Ver imóveis'; }
+
+    addMsg('✅ <strong>' + label + ' importado!</strong><br><br>'+
+      '📊 Registros processados: <strong>' + total + '</strong><br><br>'+
+      '<a href="' + linkRota + '" style="background:#ff385c;color:white;padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700">' + linkLabel + ' →</a>', 'bot');
+  } catch(e) {
+    addMsg('⚠️ Erro ao importar <strong>' + label + '</strong>. Tente novamente.', 'bot');
+  }
 }
 
 async function enviarMsg(texto) {

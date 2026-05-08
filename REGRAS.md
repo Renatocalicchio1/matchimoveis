@@ -70,3 +70,9 @@
 Sempre fornecer o comando completo para criar o arquivo no terminal via:
   cat << 'EOF' > caminho/arquivo.txt ... EOF
 Nunca depender de download — o usuário cola o comando e o arquivo é criado direto no projeto.
+
+## Cérebro do Assistente
+Sempre que criar nova rota, view, upload ou ação no sistema:
+1. Atualizar cerebro.js com a nova informação
+2. Rodar `npm run cerebro` para regenerar assistente-mapa.json
+3. O cérebro é a fonte de verdade do assistente — sem ele o assistente não aprende

@@ -2788,6 +2788,7 @@ app.get('/app/assistente/historico', auth, (req, res) => {
     }
   } catch(e){}
   // Fallback para assistente-memoria.json
+  if (!historico.length) {
     const memPath = require('path').join(__dirname,'assistente-memoria.json');
     const mem = fs.existsSync(memPath) ? JSON.parse(fs.readFileSync(memPath,'utf8')) : { historico:[] };
     historico = (mem.historico||[]).filter(h=>h.userId===uid).slice(-20).map(h=>({pergunta:h.pergunta,resposta:h.resposta,data:h.data}));

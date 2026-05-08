@@ -44,3 +44,29 @@
 ## Git
 - Sempre commitar antes de ir para o Render
 - Push separa do commit quando travar
+
+## Terminal
+- Sempre adicionar '2>&1 | pbcopy; echo "Copiado!"' no final dos comandos para copiar resultado automaticamente
+
+## Assistente IA Interno
+- Tela dedicada /app/assistente com chat flutuante
+- O assistente conhece tudo do sistema: leads, imóveis, visitas, notificações
+- Cada ação do sistema deve ser registrada para o assistente poder consultar
+- Ações disponíveis: importar leads, importar XML, ver leads, gerar XML, ver visitas, notificações, stats
+- O assistente executa ações reais no sistema via chat
+- Não depende de API externa (Claude, OpenAI, etc)
+- Baseado em intenções + palavras-chave + dados reais dos JSONs
+
+## Assistente Chat (/app/assistente)
+- View: views/app-assistente.ejs
+- Rota: GET /app/assistente (auth)
+- Recebe stats do server.js igual ao app-home
+- Respostas baseadas em palavras-chave (sem API externa)
+- Ações: stats, importar leads, importar XML, leads com match, visitas, imóveis, notificações
+- Sugestões rápidas na tela
+- Expandir com novas intenções conforme o sistema cresce
+
+## Geração de arquivos
+Sempre fornecer o comando completo para criar o arquivo no terminal via:
+  cat << 'EOF' > caminho/arquivo.txt ... EOF
+Nunca depender de download — o usuário cola o comando e o arquivo é criado direto no projeto.

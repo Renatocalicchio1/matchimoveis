@@ -1,0 +1,152 @@
+{
+  "versao": "1.0",
+  "atualizado": "2026-05-07T23:32:38.667Z",
+  "conhecimento": [
+    {
+      "tags": [
+        "oi",
+        "ola",
+        "olá",
+        "bom dia",
+        "boa tarde",
+        "boa noite",
+        "tudo bem",
+        "tudo",
+        "boa"
+      ],
+      "pergunta": "saudacao",
+      "resposta": "saudacao_especial"
+    },
+    {
+      "tags": [
+        "leads",
+        "importar",
+        "planilha",
+        "csv",
+        "excel"
+      ],
+      "pergunta": "Como importar leads?",
+      "resposta": "Acesse /app/leads e use o botão Importar. Formatos aceitos: Excel (.xlsx) ou CSV. O sistema extrai automaticamente: bairro, tipo, quartos, área, valor, vagas, banheiros, suítes."
+    },
+    {
+      "tags": [
+        "xml",
+        "portal",
+        "feed",
+        "vivareal",
+        "zap",
+        "olx"
+      ],
+      "pergunta": "Como importar imóveis via XML?",
+      "resposta": "Acesse /app/portais e cole a URL do seu XML (Tecimob/Rankim). O sistema importa e vincula ao seu userId automaticamente."
+    },
+    {
+      "tags": [
+        "match",
+        "ia",
+        "inteligencia",
+        "combinar"
+      ],
+      "pergunta": "Como funciona o match de leads?",
+      "resposta": "O match usa 2 motores: Base Interna (bairro+tipo+quartos exatos, score+25) e QuintoAndar (tipo/bairro exatos, quartos>=, valor -30%/+25%, área -20%/+35%). Retorna top 8 imóveis com maior score."
+    },
+    {
+      "tags": [
+        "visita",
+        "agendar",
+        "agendamento"
+      ],
+      "pergunta": "Como funciona o agendamento de visitas?",
+      "resposta": "O lead solicita visita na vitrine (/cliente/oferta/:id). O proprietário recebe notificação e pode confirmar, recusar ou sugerir nova data. Horários disponíveis: 06:00 às 21:00."
+    },
+    {
+      "tags": [
+        "coins",
+        "moedas",
+        "saldo"
+      ],
+      "pergunta": "O que são Match Coins?",
+      "resposta": "Sistema de gamificação em /app/coins. Cada match gera coins. Futuramente integrado ao MercadoPago para compra de pacotes."
+    },
+    {
+      "tags": [
+        "proprietario",
+        "dono",
+        "telefone"
+      ],
+      "pergunta": "Como vincular proprietários aos imóveis?",
+      "resposta": "RAN-0888: script cruzarProprietariosTecimobDescricao.js (Excel Tecimob, 781 vinculados). RAN-9191: cruzamento via foto URL com CADIMO/CADCLI (537/946 vinculados)."
+    },
+    {
+      "tags": [
+        "notificacao",
+        "aviso",
+        "alerta"
+      ],
+      "pergunta": "Quais eventos geram notificação?",
+      "resposta": "Visita confirmada pelo proprietário, visita recusada, proprietário sugeriu nova data, cliente confirmou presença, cliente remarcou. Fuso: America/Sao_Paulo."
+    },
+    {
+      "tags": [
+        "conta",
+        "usuario",
+        "isolamento",
+        "seguranca"
+      ],
+      "pergunta": "Como funciona o isolamento entre contas?",
+      "resposta": "Cada usuário vê apenas seus dados via filtro userId/codigoUsuario. Bug pendente: RAN-9191 vendo imóveis de ALE-2442 — fix em andamento com getUserKey()+filtrarPorUsuario()."
+    },
+    {
+      "tags": [
+        "dashboard",
+        "stats",
+        "estatisticas",
+        "grafico"
+      ],
+      "pergunta": "O que aparece no dashboard?",
+      "resposta": "Total de imóveis ativos, leads, visitas agendadas e gráficos de distribuição. Tudo filtrado por userId do usuário logado. Acesse /app-home."
+    },
+    {
+      "tags": [
+        "foxter",
+        "origem",
+        "organica",
+        "badge"
+      ],
+      "pergunta": "O que são leads orgânicas?",
+      "resposta": "Leads com extractionStatus='ok' e fonte='MatchImóveis' — vindas diretamente do site ou scraper Foxter (services/foxter.js). Exibem badge 🌐 Orgânica na listagem."
+    }
+  ],
+  "historico": [
+    {
+      "pergunta": "oi",
+      "resposta": "Sistema de gamificação em /app/coins. Cada match gera coins. Futuramente integrado ao MercadoPago para compra de pacotes.",
+      "data": "2026-05-07T23:33:26.933Z"
+    },
+    {
+      "pergunta": "oi",
+      "resposta": "Boa noite, <strong>Rankim</strong>! 👋<br><br>Estou aqui para te ajudar com o MatchImóveis. Sua conta agora:<br><br>🏠 <strong>0</strong> imóveis ativos<br>👥 <strong>3</strong> leads<br>🎯 <strong>0</strong> com match<br>📅 <strong>0</strong> visitas hoje<br><br>O que você precisa?",
+      "data": "2026-05-07T23:34:57.988Z"
+    },
+    {
+      "pergunta": "eu tenho mais leads na minha conta consegue ver tem organicas e imprtadsa",
+      "resposta": "Leads com extractionStatus='ok' e fonte='MatchImóveis' — vindas diretamente do site ou scraper Foxter (services/foxter.js). Exibem badge 🌐 Orgânica na listagem.",
+      "data": "2026-05-07T23:35:40.548Z"
+    },
+    {
+      "pergunta": "Quero importar XML",
+      "resposta": "⚠️ Não consegui conectar ao assistente IA. Tente: importar leads, ver visitas, estatísticas.",
+      "data": "2026-05-07T23:38:08.323Z"
+    },
+    {
+      "pergunta": "tufod bem",
+      "resposta": "⚠️ Não consegui conectar ao assistente IA. Tente: importar leads, ver visitas, estatísticas.",
+      "data": "2026-05-07T23:38:18.582Z"
+    },
+    {
+      "pergunta": "como importo lesda",
+      "resposta": "Não entendi ainda 🤔<br><br>Posso te ajudar com:<br>👥 leads • 🏠 imóveis • 📅 visitas • 🔗 portais • 🪙 coins • 🔔 notificações • 🎯 match",
+      "data": "2026-05-07T23:44:23.995Z"
+    }
+  ]
+}

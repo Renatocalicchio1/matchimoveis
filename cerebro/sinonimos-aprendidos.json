@@ -46,5 +46,16 @@
   "tudo bem": "saudacao",
   "hello": "saudacao",
   "e ai": "saudacao",
-  "prietario": "proprietario"
+  "prietario": "proprietario",
+  "faixa de valor": "faixa valor buscada",
+  "ticket medio": "valor medio",
+  "orcamento dos clientes": "faixa valor buscada",
+  "quanto os clientes pagam": "faixa valor buscada",
+  "qual o preco medio": "valor medio",
+  "leads de ontem": "leads antigas",
+  "leads da semana": "leads temporais",
+  "clientes novos": "leads hoje",
+  "novos clientes": "leads hoje",
+  "pipeline": "funil",
+  "funil de vendas": "funil"
 }

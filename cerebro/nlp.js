@@ -90,17 +90,19 @@ function similaridade(a, b) {
 }
 
 function detectarDominio(mNorm) {
-  if (/saudacao|oi\b|ola\b|hello|bom dia|boa tarde|boa noite/.test(mNorm)) return 'saudacao';
-  if (/dashboard|resumo|relatorio|geral|panorama/.test(mNorm))             return 'dashboard';
-  if (/lead/.test(mNorm))            return 'leads';
-  if (/imovel|carteira/.test(mNorm)) return 'imoveis';
-  if (/visita/.test(mNorm))          return 'visitas';
-  if (/match|combinar/.test(mNorm))  return 'match';
-  if (/portal|xml|vivareal|zap|olx/.test(mNorm)) return 'portais';
-  if (/coin|moeda|saldo/.test(mNorm)) return 'coins';
-  if (/notifica/.test(mNorm))        return 'notificacoes';
-  if (/help|ajuda|como|o que/.test(mNorm)) return 'sistema';
-  if (/mercado|demanda|tendencia/.test(mNorm)) return 'mercado';
+  if (/saudacao|\boi\b|\bola\b|hello|bom dia|boa tarde|boa noite|eai/.test(mNorm)) return 'saudacao';
+  if (/dashboard|resumo|relatorio|geral|panorama/.test(mNorm))                         return 'dashboard';
+  if (/como funciona|o que e|o que sao|explicar|o que voce faz/.test(mNorm))           return 'sistema';
+  if (/faixa|valor medio|ticket|orcamento|tipo mais|quarto mais|bairro mais|mais buscado|demanda|mercado|oferta|quartos mais/.test(mNorm)) return 'mercado';
+  if (/ver portal|portais|vivareal|\bzap\b|\bolx\b|chaves|imovelweb|feed|rejeitou|nao publicou/.test(mNorm)) return 'portais';
+  if (/importar xml|subir xml|gerar xml|\bxml\b/.test(mNorm))                        return 'portais';
+  if (/lead|cliente|interessado|comprador/.test(mNorm))                                 return 'leads';
+  if (/imovel|carteira|apartamento|\bcasa\b|cobertura|terreno|sobrado/.test(mNorm))  return 'imoveis';
+  if (/visita|agenda|agendar/.test(mNorm))                                              return 'visitas';
+  if (/match|combinar|compativel/.test(mNorm))                                          return 'match';
+  if (/coin|moeda|saldo/.test(mNorm))                                                   return 'coins';
+  if (/notifica|alerta|aviso/.test(mNorm))                                              return 'notificacoes';
+  if (/ajuda|help|suporte|duvida|como cadastrar|como adicionar|como inativar|como trocar|como conectar|como importar|como confirmar|como agendar/.test(mNorm)) return 'sistema';
   return null;
 }
 

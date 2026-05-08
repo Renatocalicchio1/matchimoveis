@@ -11,7 +11,8 @@
     "atualizar": "node cerebro.js && node auto-expansor.js && echo done",
     "treino": "node treino-cerebro.js",
     "treino:loop": "node treino-cerebro.js --loop",
-    "treino:silent": "node treino-cerebro.js --silent"
+    "treino:silent": "node treino-cerebro.js --silent",
+    "teste": "node teste-automatico.js"
   },
   "keywords": [],
   "author": "",

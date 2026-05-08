@@ -2,12 +2,13 @@
   "nao_entendidos": [
     {
       "exemplo": "importar xml",
-      "count": 5,
+      "count": 11,
       "usuarios": [
-        "imobiliaria-47991919191"
+        "imobiliaria-47991919191",
+        "test"
       ],
       "primeira": "2026-05-08T06:28:12.777Z",
-      "ultima": "2026-05-08T06:53:33.806Z",
+      "ultima": "2026-05-08T07:53:29.347Z",
       "sugerido": true
     },
     {
@@ -82,12 +83,13 @@
     },
     {
       "exemplo": "ver portais",
-      "count": 4,
+      "count": 10,
       "usuarios": [
-        "corretor-experiente-002"
+        "corretor-experiente-002",
+        "test"
       ],
       "primeira": "2026-05-08T07:32:40.018Z",
-      "ultima": "2026-05-08T07:40:28.331Z",
+      "ultima": "2026-05-08T07:53:29.574Z",
       "sugerido": true
     },
     {
@@ -112,22 +114,24 @@
     },
     {
       "exemplo": "tipo mais buscado",
-      "count": 4,
+      "count": 6,
       "usuarios": [
-        "corretor-analista-004"
+        "corretor-analista-004",
+        "test"
       ],
       "primeira": "2026-05-08T07:32:40.249Z",
-      "ultima": "2026-05-08T07:40:28.561Z",
+      "ultima": "2026-05-08T07:47:08.948Z",
       "sugerido": true
     },
     {
       "exemplo": "quartos mais pedidos",
-      "count": 4,
+      "count": 6,
       "usuarios": [
-        "corretor-analista-004"
+        "corretor-analista-004",
+        "test"
       ],
       "primeira": "2026-05-08T07:32:40.291Z",
-      "ultima": "2026-05-08T07:40:28.582Z",
+      "ultima": "2026-05-08T07:49:57.422Z",
       "sugerido": true
     },
     {
@@ -188,6 +192,96 @@
       ],
       "primeira": "2026-05-08T07:32:40.861Z",
       "ultima": "2026-05-08T07:40:29.160Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "blablabla xpto nada",
+      "count": 14,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T07:45:23.017Z",
+      "ultima": "2026-05-08T08:04:21.030Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "faixa de valor",
+      "count": 3,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T07:45:23.027Z",
+      "ultima": "2026-05-08T07:47:08.941Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "bairros mais buscados",
+      "count": 2,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T07:46:44.709Z",
+      "ultima": "2026-05-08T07:47:08.955Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "ticket medio",
+      "count": 2,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T07:46:44.727Z",
+      "ultima": "2026-05-08T07:47:08.961Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "orcamento dos clientes",
+      "count": 2,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T07:46:44.741Z",
+      "ultima": "2026-05-08T07:47:08.976Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "qwerty asdfgh",
+      "count": 11,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T07:49:37.881Z",
+      "ultima": "2026-05-08T08:04:21.035Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "meu portal rejeitou",
+      "count": 4,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T07:51:44.030Z",
+      "ultima": "2026-05-08T07:53:29.612Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "como adicionar fotos",
+      "count": 5,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T07:58:44.982Z",
+      "ultima": "2026-05-08T08:04:20.926Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "minha conta",
+      "count": 4,
+      "usuarios": [
+        "test"
+      ],
+      "primeira": "2026-05-08T07:58:45.024Z",
+      "ultima": "2026-05-08T08:04:20.974Z",
       "sugerido": true
     }
   ],
@@ -275,6 +369,42 @@
       "count": 3,
       "status": "pendente",
       "geradaEm": "2026-05-08T07:39:45.084Z"
+    },
+    {
+      "pergunta": "blablabla xpto nada",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:47:08.917Z"
+    },
+    {
+      "pergunta": "faixa de valor",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:47:08.941Z"
+    },
+    {
+      "pergunta": "qwerty asdfgh",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:51:44.164Z"
+    },
+    {
+      "pergunta": "meu portal rejeitou",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T07:53:15.400Z"
+    },
+    {
+      "pergunta": "como adicionar fotos",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T08:01:31.392Z"
+    },
+    {
+      "pergunta": "minha conta",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-08T08:03:16.745Z"
     }
   ],
   "inconsistencias": []

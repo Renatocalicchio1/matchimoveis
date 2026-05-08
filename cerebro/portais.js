@@ -3,6 +3,16 @@
 const PORTAIS = ['VivaReal','ZAP','OLX','Chaves','ImovelWeb','123i'];
 
 function responder(mNorm, d, btn, chip) {
+  // Ver portais
+  if (/ver portais|meus portais|status portal|ver portal/.test(mNorm))
+    return '🔗 <strong>Seus portais:</strong><br><br>' + PORTAIS.join(' · ') + '<br><br>Veja o status dos feeds gerados:<br><br>' + btn('Ver portais','/app/portais');
+  // Portal rejeitou
+  if (/rejeitou|nao publicou|nao saiu|recusou|nao apareceu portal/.test(mNorm))
+    return '🔧 <strong>Portal rejeitou?</strong><br><br>Verifique:<br>• Mínimo 3 fotos obrigatórias<br>• Descrição com 100+ caracteres<br>• Preço preenchido<br>• Endereço completo (bairro + cidade)<br>• Tipo do imóvel preenchido<br><br>Corrija e gere o XML novamente.<br><br>' + btn('Ver imóveis','/app/imoveis');
+
+  // Portal rejeitou
+  if (/rejeitou|nao publicou|nao saiu|recusou/.test(mNorm))
+    return '🔧 <strong>Portal rejeitou?</strong><br><br>Verifique:<br>• Mínimo 3 fotos obrigatórias<br>• Descrição com 100+ caracteres<br>• Preço preenchido<br>• Endereço completo (bairro + cidade)<br>• Tipo do imóvel preenchido<br><br>Corrija o imóvel e gere o XML novamente.' + btn('Ver imóveis','/app/imoveis');
 
   // GERAR XML ESPECÍFICO
   const portal = PORTAIS.find(p => mNorm.includes(p.toLowerCase().replace(' ','')));

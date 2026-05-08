@@ -800,13 +800,20 @@
     },
     "test": {
       "nome": "Renato",
-      "ultimaAtividade": "2026-05-08T07:13:19.892Z",
-      "taxaMatch": 40,
-      "totalLeads": 20,
-      "totalImoveis": 10,
-      "bairrosMaisUsados": [],
-      "tiposFavoritos": [],
-      "acessos": 1
+      "ultimaAtividade": "2026-05-08T08:04:21.032Z",
+      "taxaMatch": 47,
+      "totalLeads": 87,
+      "totalImoveis": 45,
+      "bairrosMaisUsados": [
+        "Itajaí",
+        "Balneário Camboriú",
+        "Florianópolis"
+      ],
+      "tiposFavoritos": [
+        "Apartamento",
+        "Casa"
+      ],
+      "acessos": 805
     },
     "corretor-iniciante-001": {
       "nome": "Carlos",

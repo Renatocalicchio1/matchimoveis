@@ -29,7 +29,14 @@ const FAQ = [
 
 function responder(mNorm, btn, chip) {
   // Verificar se é dúvida técnica
-  const isDuvida = /como|por que|porque|nao funciona|nao atualizou|nao apareceu|erro|falhou|problema|nao consigo|nao sei|me explica|como faz|como faço/.test(mNorm);
+  const isDuvida = (
+    /nao funciona|nao atualizou|nao apareceu|nao saiu|nao consigo/.test(mNorm) ||
+    /como cadastrar imovel|como adicionar foto|como subir foto/.test(mNorm) ||
+    /como inativar|como trocar senha|como importar lead/.test(mNorm) ||
+    /como conectar whatsapp|como acessar celular/.test(mNorm) ||
+    /como confirmar visita|como publicar portal|como gerar xml/.test(mNorm) ||
+    /xml nao|portal rejeit/.test(mNorm)
+  ) && !/como funciona|como e o/.test(mNorm);
   if (!isDuvida) return null;
 
   // Buscar na FAQ

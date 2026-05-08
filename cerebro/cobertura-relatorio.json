@@ -1,0 +1,95 @@
+{
+  "geradoEm": "2026-05-08T08:04:21.038Z",
+  "cobertura": 96,
+  "totalOk": 66,
+  "totalFalhou": 3,
+  "porGrupo": {
+    "Saudação": {
+      "ok": 5,
+      "falhou": 0
+    },
+    "Leads": {
+      "ok": 10,
+      "falhou": 0
+    },
+    "Imóveis": {
+      "ok": 8,
+      "falhou": 0
+    },
+    "Visitas": {
+      "ok": 5,
+      "falhou": 0
+    },
+    "Match": {
+      "ok": 5,
+      "falhou": 0
+    },
+    "Mercado": {
+      "ok": 7,
+      "falhou": 0
+    },
+    "Portais": {
+      "ok": 4,
+      "falhou": 0
+    },
+    "Suporte": {
+      "ok": 3,
+      "falhou": 3
+    },
+    "Estratégia": {
+      "ok": 4,
+      "falhou": 0
+    },
+    "Resumo": {
+      "ok": 3,
+      "falhou": 0
+    },
+    "Sistema": {
+      "ok": 4,
+      "falhou": 0
+    },
+    "Outros": {
+      "ok": 3,
+      "falhou": 0
+    },
+    "RAG": {
+      "ok": 3,
+      "falhou": 0
+    },
+    "Fallback": {
+      "ok": 2,
+      "falhou": 0
+    }
+  },
+  "falhas": [
+    {
+      "grupo": "Suporte",
+      "p": "como cadastrar imóvel",
+      "espera": [
+        "Cadastrar",
+        "cadastrar",
+        "imóvel"
+      ],
+      "got": "🏠 Imóveis:✅ Ativos: 45 · ❌ Inativos: 8📍 Bairros: Itajaí, Balneário Camboriú, I"
+    },
+    {
+      "grupo": "Suporte",
+      "p": "como adicionar fotos",
+      "espera": [
+        "foto",
+        "Foto"
+      ],
+      "got": "Desculpe, não captei. Tente de outro jeito.👥 Leads🏠 Imóveis📅 Visitas🧠 Plano\ud83c"
+    },
+    {
+      "grupo": "Suporte",
+      "p": "como conectar whatsapp",
+      "espera": [
+        "WhatsApp",
+        "whatsapp",
+        "Twilio"
+      ],
+      "got": "🔗 Como publicar nos portais:1Acesse Imóveis → e selecione os imóveis2Clique no "
+    }
+  ]
+}

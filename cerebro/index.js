@@ -39,6 +39,8 @@ function responder(mensagem, d, user, imoveis, leads, visitas, contexto) {
   // 1. SUPORTE TÉCNICO (dúvidas como/por que/erro)
   const resSuporte = suporte.responder(mNorm, btn, chip);
   if (resSuporte) return resSuporte;
+  const isSistema = /como cadastrar|como adicionar foto|como conectar whatsapp|como inativar|como importar lead|como trocar senha|como acessar celular/.test(mNorm);
+  if (isSistema) { const r = modSistema.responder(mNorm, d, btn, chip); if (r) return r; }
 
   // 2. LEADS TEMPORAIS (hoje/quentes/frias/reativar/por nome)
   const resTemp = leadsTemp.responder(mNorm, leads, btn, chip);

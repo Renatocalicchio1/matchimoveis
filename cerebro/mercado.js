@@ -1,36 +1,80 @@
 'use strict';
 
 function responder(mNorm, leads, imoveis, btn, chip) {
-  if (/bairro|demanda/.test(mNorm)) {
+
+  // BAIRROS MAIS DEMANDADOS
+  if (/bairro|demanda|mais buscado|onde|regiao/.test(mNorm)) {
     const bairrosLeads = {};
     leads.forEach(l => { if (l.bairro) bairrosLeads[l.bairro]=(bairrosLeads[l.bairro]||0)+1; });
-    const ranking = Object.entries(bairrosLeads).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const ranking = Object.entries(bairrosLeads).sort((a,b)=>b[1]-a[1]).slice(0,8);
     if (!ranking.length) return `Sem dados de bairro nas leads ainda.<br><br>${btn('Importar leads','/app-importar-leads')}`;
-    return `📍 <strong>Bairros mais buscados:</strong><br>`+ranking.map(([b,n],i)=>`${i+1}. ${b} — ${n} lead${n>1?'s':''}`).join('<br>')+`<br><br>${chip('🏠 Imóveis por bairro','imoveis por bairro')}`;
+    const bairrosIm = {};
+    imoveis.filter(i=>i.status!=='inativo').forEach(i=>{ if(i.bairro) bairrosIm[i.bairro]=(bairrosIm[i.bairro]||0)+1; });
+    const lista = ranking.map(([b,n],i)=>{
+      const of = bairrosIm[b]||0;
+      const st = of===0?'🔴':of<n?'🟡':'🟢';
+      return `${i+1}. <strong>${b}</strong> — ${n} lead${n>1?'s':''} · ${of} imóvel(is) ${st}`;
+    }).join('<br>');
+    return `📍 <strong>Bairros mais buscados pelas leads:</strong><br><br>${lista}<br><br>`+
+      `🔴 sem imóvel · 🟡 pouca oferta · 🟢 ok<br><br>`+
+      `${chip('🏠 Ver imóveis','meus imoveis')}${chip('📥 Importar XML','importar xml')}`;
   }
-  if (/tipo/.test(mNorm)) {
+
+  // TIPO MAIS BUSCADO
+  if (/tipo|apartamento|casa|mais pedido/.test(mNorm)) {
     const tipos = {};
     leads.forEach(l => { if (l.tipo) tipos[l.tipo]=(tipos[l.tipo]||0)+1; });
     const ranking = Object.entries(tipos).sort((a,b)=>b[1]-a[1]).slice(0,5);
     if (!ranking.length) return `Sem dados de tipo nas leads ainda.`;
-    return `🏷️ <strong>Tipos mais buscados:</strong><br>`+ranking.map(([t,n])=>`• ${t}: ${n} lead${n>1?'s':''}`).join('<br>');
+    return `🏷️ <strong>Tipos mais buscados pelas leads:</strong><br><br>`+
+      ranking.map(([t,n],i)=>`${i+1}. <strong>${t}</strong> — ${n} lead${n>1?'s':''}`).join('<br>')+
+      `<br><br>${chip('🏠 Ver imóveis','meus imoveis')}`;
   }
-  if (/valor|preco|faixa/.test(mNorm)) {
-    const vals = leads.filter(l=>l.valorMax&&l.valorMax>0).map(l=>l.valorMax);
+
+  // FAIXA DE VALOR
+  if (/valor|preco|faixa|orcamento|quanto pagam/.test(mNorm)) {
+    const vals = leads.filter(l=>l.valorMax&&l.valorMax>0).map(l=>Number(l.valorMax));
     if (!vals.length) return `Sem dados de valor nas leads ainda.`;
     const med = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
-    return `💰 <strong>Faixa de valor:</strong><br>Mínimo: R$ ${Math.min(...vals).toLocaleString('pt-BR')}<br>Médio: R$ ${med.toLocaleString('pt-BR')}<br>Máximo: R$ ${Math.max(...vals).toLocaleString('pt-BR')}`;
+    const faixas = { 'até 300k':0, '300k-500k':0, '500k-800k':0, 'acima 800k':0 };
+    vals.forEach(v => {
+      if (v<=300000) faixas['até 300k']++;
+      else if (v<=500000) faixas['300k-500k']++;
+      else if (v<=800000) faixas['500k-800k']++;
+      else faixas['acima 800k']++;
+    });
+    const faixaLista = Object.entries(faixas).filter(([,n])=>n>0).map(([f,n])=>`• ${f}: ${n} lead${n>1?'s':''}`).join('<br>');
+    return `💰 <strong>Faixa de valor das leads:</strong><br><br>`+
+      `Médio: <strong>R$ ${med.toLocaleString('pt-BR')}</strong><br><br>`+
+      faixaLista+`<br><br>${chip('🏠 Meus imóveis','meus imoveis')}`;
   }
-  // oferta vs demanda
+
+  // QUARTOS
+  if (/quarto|dormitorio/.test(mNorm)) {
+    const qts = {};
+    leads.forEach(l => { if (l.quartos) qts[l.quartos]=(qts[l.quartos]||0)+1; });
+    const ranking = Object.entries(qts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if (!ranking.length) return `Sem dados de quartos nas leads ainda.`;
+    return `🛏️ <strong>Quartos mais pedidos:</strong><br><br>`+
+      ranking.map(([q,n],i)=>`${i+1}. <strong>${q} quarto${q>1?'s':''}</strong> — ${n} lead${n>1?'s':''}`).join('<br>')+
+      `<br><br>${chip('🏠 Ver imóveis','meus imoveis')}`;
+  }
+
+  // OFERTA VS DEMANDA (padrão)
   const bairrosLeads = {};
   leads.forEach(l => { if (l.bairro) bairrosLeads[l.bairro]=(bairrosLeads[l.bairro]||0)+1; });
   const bairrosIm = {};
-  imoveis.filter(i=>i.status!=='inativo').forEach(i => { if (i.bairro) bairrosIm[i.bairro]=(bairrosIm[i.bairro]||0)+1; });
+  imoveis.filter(i=>i.status!=='inativo').forEach(i=>{ if(i.bairro) bairrosIm[i.bairro]=(bairrosIm[i.bairro]||0)+1; });
   const top = Object.entries(bairrosLeads).sort((a,b)=>b[1]-a[1]).slice(0,5);
   if (!top.length) return `Sem dados de mercado ainda.<br><br>${btn('Importar leads','/app-importar-leads')}`;
-  return `📊 <strong>Oferta vs Demanda:</strong><br>`+
-    top.map(([b,dem])=>{const of=bairrosIm[b]||0;const st=of===0?'🔴 sem imóvel':of<dem?'🟡 pouca oferta':'🟢 ok';return `• ${b}: ${dem} leads · ${of} imóveis ${st}`;}).join('<br>')+
-    `<br><br>${chip('🏠 Imóveis','meus imoveis')}`;
+
+  return `📊 <strong>Inteligência de mercado:</strong><br><br>`+
+    top.map(([b,dem])=>{
+      const of=bairrosIm[b]||0;
+      const st=of===0?'🔴 sem imóvel':of<dem?'🟡 pouca oferta':'🟢 equilibrado';
+      return `• <strong>${b}</strong>: ${dem} leads · ${of} imóveis — ${st}`;
+    }).join('<br>')+
+    `<br><br>${chip('💰 Faixa de valor','faixa de valor das leads')}${chip('🏷️ Tipos','tipo mais buscado')}${chip('🛏️ Quartos','quartos mais pedidos')}`;
 }
 
 module.exports = { responder };

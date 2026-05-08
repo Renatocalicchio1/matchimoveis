@@ -1,0 +1,124 @@
+/* ============================================================
+   MatchImóveis · app.css — Design System aplicado
+   Limpo, baixa saturação, vermelho Airbnb pontual
+   ============================================================ */
+
+:root{
+  --brand:#FF385C;
+  --brand-dark:#E31C5F;
+  --brand-soft:#FFF1F3;
+  --bg:#F7F7F7;
+  --surface:#FFFFFF;
+  --border:#EBEBEB;
+  --divider:#f5f5f5;
+  --ink:#111111;
+  --text:#222222;
+  --muted:#717171;
+  --faint:#aaaaaa;
+  --tile:#F2F2F2;
+  --radius-lg:18px;
+  --radius-md:14px;
+  --font-display:'Syne',-apple-system,sans-serif;
+  --font-body:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-serif:'Source Serif 4',Georgia,serif;
+}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:14px;line-height:1.55}
+
+/* layout */
+.app{display:flex;min-height:100vh}
+.sidebar{width:250px;background:#fff;border-right:1px solid var(--border);padding:18px;position:fixed;left:0;top:0;bottom:0;transition:.25s;z-index:10}
+.sidebar.closed{width:76px}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.logo{width:36px;height:36px;border-radius:11px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px}
+.brand h2{font-size:16px;margin:0;font-family:var(--font-display);color:var(--ink)}
+.brand p{font-size:11px;color:var(--muted);margin:2px 0 0}
+.sidebar.closed .hide{display:none}
+.toggle{border:0;background:var(--tile);color:var(--ink);border-radius:12px;padding:8px 10px;cursor:pointer;margin-bottom:12px;font-weight:700}
+
+/* nav */
+.nav a{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--muted);padding:11px 12px;border-radius:12px;margin:4px 0;font-weight:500;font-size:13px;min-height:42px}
+.nav a:hover{background:var(--bg);color:var(--ink)}
+.nav a.active{background:var(--brand-soft);color:var(--brand);font-weight:600}
+
+/* main */
+.main{margin-left:250px;width:calc(100% - 250px);padding:18px;transition:margin-left .25s ease,width .25s ease;max-width:100%;overflow-x:hidden}
+.sidebar.closed + .main{margin-left:76px;width:calc(100% - 76px)}
+
+/* topbar */
+.topbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:16px}
+.badge{display:inline-flex;background:var(--tile);color:var(--ink);border-radius:999px;padding:5px 9px;font-size:10px;font-weight:700;text-transform:uppercase}
+
+h1{margin:6px 0 3px;font-size:24px;font-family:var(--font-display);color:var(--ink);letter-spacing:-.5px}
+h2{font-size:16px;color:var(--ink)}
+h3{font-size:15px;margin:0 0 8px;color:var(--ink)}
+.small{color:var(--muted);margin:0;font-size:12px;line-height:1.45}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:15px}
+.card h3{margin:0 0 8px}
+
+.num{font-family:var(--font-serif);font-size:28px;font-weight:600;letter-spacing:-1px;color:var(--text);margin-top:4px}
+
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+
+/* botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;background:var(--ink);color:#fff;border-radius:999px;padding:10px 16px;font-weight:600;cursor:pointer;text-decoration:none;font-size:13px;font-family:var(--font-body)}
+.btn:hover{background:#000}
+.btn.red{background:var(--brand)}
+.btn.red:hover{background:var(--brand-dark)}
+.btn.light{background:var(--tile);color:var(--ink)}
+.btn.light:hover{background:#e8e8e8}
+
+/* form */
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+label{font-size:12px;font-weight:600;color:var(--ink);margin-top:6px;display:block}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:13px;margin-top:6px;font-family:var(--font-body);color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--ink)}
+textarea{min-height:110px}
+
+/* table */
+.table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:14px;overflow:hidden}
+.table th,.table td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:12px}
+.table th{color:var(--muted);font-size:11px;text-transform:uppercase;background:#FAFAFA;letter-spacing:.04em}
+
+/* status */
+.status{border-radius:999px;padding:5px 9px;font-size:11px;font-weight:600;background:var(--tile);color:var(--ink)}
+.status.red{background:var(--brand-soft);color:var(--brand)}
+.status.ok{background:var(--tile);color:var(--ink)}
+
+/* checkgrid */
+.checkgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.checkcard{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);background:#fff;color:var(--ink);border-radius:13px;font-weight:500;font-size:12px;cursor:pointer}
+.checkcard:hover{border-color:var(--ink)}
+.checkcard input{width:auto;margin:0;accent-color:var(--brand)}
+
+/* lead/timeline */
+.lead-card{border:1px solid var(--border);background:#fff;border-radius:18px;padding:14px;margin-bottom:14px}
+.timeline{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.step{padding:7px 9px;border-radius:999px;background:var(--tile);color:var(--muted);font-size:11px;font-weight:600}
+.step.done{background:var(--tile);color:var(--ink)}
+.step.active{background:var(--ink);color:#fff}
+
+.mobile-menu{display:none}
+
+/* responsivo */
+@media(max-width:1100px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid2{grid-template-columns:1fr}
+  .form{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:760px){
+  .sidebar{transform:translateX(-100%);width:250px}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar.closed{transform:translateX(-100%)}
+  .sidebar + .main,.sidebar.closed + .main,.sidebar:not(.closed) + .main{margin-left:0;width:100%;padding:12px}
+  .mobile-menu{display:inline-flex}
+  .grid,.grid2,.form{grid-template-columns:1fr}
+  .topbar{flex-direction:column;align-items:flex-start;padding:14px}
+  h1{font-size:21px}
+  .table{min-width:1000px}
+}

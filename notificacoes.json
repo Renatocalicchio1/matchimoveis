@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "1778210899177",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "renato solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778210899163",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "08/05/2026, 00:28:19"
+  },
+  {
+    "id": "1778210913783",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "renato solicitou visita para Apartamento de 26m² à Venda na Vila Olímpia",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778210913759",
+    "imovelId": "CAPJUJU024",
+    "lida": false,
+    "criadaEm": "08/05/2026, 00:28:33"
+  }
+]

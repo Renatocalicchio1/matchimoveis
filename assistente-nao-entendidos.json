@@ -1,0 +1,215 @@
+{
+  "nao_entendidos": [
+    {
+      "exemplo": "importar xml",
+      "count": 5,
+      "usuarios": [
+        "imobiliaria-47991919191"
+      ],
+      "primeira": "2026-05-08T06:28:12.777Z",
+      "ultima": "2026-05-08T06:53:33.806Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "voce eta inedo bem , voce precisa acessar a pagina /app/cadastro la voce conegur encntar o botao para importar meu xml",
+      "count": 1,
+      "usuarios": [
+        "imobiliaria-47991919191"
+      ],
+      "primeira": "2026-05-08T06:29:20.903Z",
+      "ultima": "2026-05-08T06:29:20.903Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "/app/portais nesa pagina tem o link de cada portal , deppis que voce gera o link ele fica nesa pagia nesse caso temo do vivo rela pronto conegue pegar ele",
+      "count": 1,
+      "usuarios": [
+        "imobiliaria-47991919191"
+      ],
+      "primeira": "2026-05-08T06:33:52.456Z",
+      "ultima": "2026-05-08T06:33:52.456Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "boa notei ne eseucei",
+      "count": 1,
+      "usuarios": [
+        "imobiliaria-47991919191"
+      ],
+      "primeira": "2026-05-08T06:37:55.231Z",
+      "ultima": "2026-05-08T06:37:55.231Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "me fale mais da app",
+      "count": 1,
+      "usuarios": [
+        "imobiliaria-47991919191"
+      ],
+      "primeira": "2026-05-08T06:39:32.141Z",
+      "ultima": "2026-05-08T06:39:32.141Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "e os filtros",
+      "count": 3,
+      "usuarios": [
+        "imobiliaria-47991919191"
+      ],
+      "primeira": "2026-05-08T06:44:45.372Z",
+      "ultima": "2026-05-08T06:45:11.162Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "porque nao esta salvando nossa msg do ultimo chat se,pre que eu votlar para a gania quer enonctar ond eparamos nesse chat",
+      "count": 4,
+      "usuarios": [
+        "imobiliaria-47991919191"
+      ],
+      "primeira": "2026-05-08T07:20:38.884Z",
+      "ultima": "2026-05-08T07:20:46.874Z",
+      "sugerido": true
+    },
+    {
+      "exemplo": "ok",
+      "count": 1,
+      "usuarios": [
+        "imobiliaria-47991919191"
+      ],
+      "primeira": "2026-05-08T07:26:30.830Z",
+      "ultima": "2026-05-08T07:26:30.830Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "ver portais",
+      "count": 2,
+      "usuarios": [
+        "corretor-experiente-002"
+      ],
+      "primeira": "2026-05-08T07:32:40.018Z",
+      "ultima": "2026-05-08T07:33:54.196Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "quais campos a planilha precisa?",
+      "count": 2,
+      "usuarios": [
+        "corretor-tecnico-003"
+      ],
+      "primeira": "2026-05-08T07:32:40.108Z",
+      "ultima": "2026-05-08T07:33:54.289Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "xml não saiu no vivareal",
+      "count": 2,
+      "usuarios": [
+        "corretor-tecnico-003"
+      ],
+      "primeira": "2026-05-08T07:32:40.197Z",
+      "ultima": "2026-05-08T07:33:54.393Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "tipo mais buscado",
+      "count": 2,
+      "usuarios": [
+        "corretor-analista-004"
+      ],
+      "primeira": "2026-05-08T07:32:40.249Z",
+      "ultima": "2026-05-08T07:33:54.438Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "quartos mais pedidos",
+      "count": 2,
+      "usuarios": [
+        "corretor-analista-004"
+      ],
+      "primeira": "2026-05-08T07:32:40.291Z",
+      "ultima": "2026-05-08T07:33:54.462Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "subir xml",
+      "count": 2,
+      "usuarios": [
+        "corretor-digitacao-005"
+      ],
+      "primeira": "2026-05-08T07:32:40.469Z",
+      "ultima": "2026-05-08T07:33:54.646Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "ver portias",
+      "count": 2,
+      "usuarios": [
+        "corretor-digitacao-005"
+      ],
+      "primeira": "2026-05-08T07:32:40.509Z",
+      "ultima": "2026-05-08T07:33:54.690Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "meu relatorrio",
+      "count": 2,
+      "usuarios": [
+        "corretor-digitacao-005"
+      ],
+      "primeira": "2026-05-08T07:32:40.555Z",
+      "ultima": "2026-05-08T07:33:54.739Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "enviar vitrine para cliente",
+      "count": 2,
+      "usuarios": [
+        "corretor-suporte-007"
+      ],
+      "primeira": "2026-05-08T07:32:40.783Z",
+      "ultima": "2026-05-08T07:33:54.975Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "link do cliente",
+      "count": 2,
+      "usuarios": [
+        "corretor-suporte-007"
+      ],
+      "primeira": "2026-05-08T07:32:40.795Z",
+      "ultima": "2026-05-08T07:33:54.988Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "manda follow-up",
+      "count": 2,
+      "usuarios": [
+        "corretor-suporte-007"
+      ],
+      "primeira": "2026-05-08T07:32:40.861Z",
+      "ultima": "2026-05-08T07:33:55.055Z",
+      "sugerido": false
+    }
+  ],
+  "sugestoes": [
+    {
+      "pergunta": "importar xml",
+      "count": 3,
+      "sugestao_intencao": "nova_intencao_1778222626218",
+      "status": "pendente"
+    },
+    {
+      "pergunta": "e os filtros",
+      "count": 3,
+      "sugestao_intencao": "nova_intencao_1778222711162",
+      "status": "pendente"
+    },
+    {
+      "pergunta": "porque nao esta salvando nossa msg do ultimo chat se,pre que eu votlar para a gania quer enonctar ond eparamos nesse chat",
+      "count": 3,
+      "sugestao_intencao": "nova_intencao_1778224845417",
+      "status": "pendente"
+    }
+  ],
+  "inconsistencias": []
+}

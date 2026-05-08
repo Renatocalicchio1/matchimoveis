@@ -2752,7 +2752,7 @@ app.post('/app/assistente/chat', auth, (req, res) => {
       : null
   };
 
-  const resposta = cerebroApp.responder(mensagem, d, user, imoveis, leads, contexto);
+  const resposta = cerebroApp.responder(mensagem, d, user, imoveis, leads, visitas, contexto);
 
   memoria.historico.push({ userId:uid, pergunta:mensagem, resposta, data:new Date().toISOString() });
   if (memoria.historico.length>500) memoria.historico = memoria.historico.slice(-500);

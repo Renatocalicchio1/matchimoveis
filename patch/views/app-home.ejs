@@ -1,0 +1,154 @@
+<%- include("partials/app-shell",{active:"home",title:"Dashboard",subtitle:"",user:user}) %>
+
+<style>
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 18px;transition:border-color .2s}
+.kpi:hover{border-color:#d8d8d8}
+.kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+.kpi-num{font-family:var(--font-serif);font-size:32px;font-weight:600;letter-spacing:-1px;line-height:1;color:var(--text)}
+.kpi-sub{font-size:11px;color:var(--faint);margin-top:6px}
+.dash-row{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:20px}
+.section-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.section-title a{font-size:12px;font-weight:500;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--border)}
+.feed-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--divider)}
+.feed-item:last-child{border:0}
+.feed-dot{width:36px;height:36px;border-radius:50%;background:var(--tile);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.feed-content{flex:1;min-width:0}
+.feed-nome{font-size:13px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-desc{font-size:12px;color:var(--muted)}
+.b-match{background:var(--tile);color:var(--ink);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-no{background:var(--bg);color:var(--faint);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.rate-wrap{display:flex;flex-direction:column;gap:14px}
+.rate-item{display:flex;flex-direction:column;gap:6px}
+.rate-label{display:flex;justify-content:space-between;font-size:12px;gap:8px;white-space:nowrap}
+.rate-bar{height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden}
+.rate-fill{height:6px;background:var(--ink);border-radius:3px}
+.acoes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acao{display:flex;align-items:center;gap:10px;padding:14px;border-radius:12px;border:1px solid var(--border);background:#fff;text-decoration:none;color:var(--ink);transition:all .15s}
+.acao:hover{border-color:var(--ink);background:var(--bg)}
+.acao-icon{width:32px;height:32px;border-radius:8px;background:var(--tile);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.acao-text strong{display:block;font-size:13px;font-weight:600}
+.acao-text span{font-size:11px;color:var(--muted)}
+</style>
+
+<div class="dash-grid">
+  <div class="kpi"><div class="kpi-label">Imóveis na carteira</div><div class="kpi-num"><%= stats.imoveisAtivos %></div><div class="kpi-sub">Base Rankim ativa</div></div>
+  <div class="kpi"><div class="kpi-label">Matches gerados</div><div class="kpi-num"><%= stats.matchesGerados %></div><div class="kpi-sub"><%= stats.comMatch %> leads com match</div></div>
+  <div class="kpi"><div class="kpi-label">Total de leads</div><div class="kpi-num"><%= stats.leadsNovos %></div><div class="kpi-sub">Taxa de match: <%= stats.taxaMatch %>%</div></div>
+  <div class="kpi"><div class="kpi-label">Visitas agendadas</div><div class="kpi-num"><%= stats.visitasAgendadas %></div><div class="kpi-sub"><%= stats.visitasHoje %> hoje</div></div>
+</div>
+
+<div class="dash-row">
+  <div class="card" style="margin:0">
+    <div class="section-title"><span><span class="live"></span>Atividade recente</span><a href="/app/leads">Ver todos</a></div>
+    <div class="feed">
+      <% if(!recentes || !recentes.length) { %>
+        <p style="color:var(--faint);font-size:13px;text-align:center;padding:24px 0">Nenhuma atividade ainda</p>
+      <% } else { %>
+        <% recentes.forEach(function(l) {
+          var temMatch = l.matches && l.matches.length > 0;
+          var origin = l.origin || {};
+          var bairro = origin.bairro || l.bairro || '-';
+          var tipo = origin.tipo || l.tipo || '';
+          var valor = origin.valor_imovel || l.valor_imovel || 0;
+        %>
+        <div class="feed-item">
+          <div class="feed-dot"><%= temMatch ? '🎯' : '👤' %></div>
+          <div class="feed-content">
+            <div class="feed-nome"><%= l.nome || l.clientName || 'Lead' %></div>
+            <div class="feed-desc"><%= bairro %><% if(tipo){ %> · <%= tipo %><% } %><% if(valor){ %> · R$ <%= Number(valor).toLocaleString('pt-BR') %><% } %></div>
+          </div>
+          <div>
+            <% if(temMatch) { %><span class="b-match"><%= l.matches.length %> match</span>
+            <% } else { %><span class="b-no">sem match</span><% } %>
+          </div>
+        </div>
+        <% }); %>
+      <% } %>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="card" style="margin:0">
+      <div class="section-title"><span>Métricas</span></div>
+      <div class="rate-wrap">
+        <div class="rate-item">
+          <div class="rate-label"><span>Taxa de match</span><span><%= stats.taxaMatch %>%</span></div>
+          <div class="rate-bar"><div class="rate-fill" style="width:<%= stats.taxaMatch %>%"></div></div>
+        </div>
+        <div class="rate-item">
+          <% var pctMatch = stats.leadsNovos > 0 ? Math.round(stats.comMatch/stats.leadsNovos*100) : 0; %>
+          <div class="rate-label"><span>Leads com match</span><span><%= stats.comMatch %> / <%= stats.leadsNovos %></span></div>
+          <div class="rate-bar"><div class="rate-fill" style="width:<%= pctMatch %>%"></div></div>
+        </div>
+        <div class="rate-item">
+          <% var pctVisitas = stats.visitasAgendadas > 0 ? Math.round(stats.visitasHoje/stats.visitasAgendadas*100) : 0; %>
+          <div class="rate-label"><span>Visitas hoje</span><span><%= stats.visitasHoje %></span></div>
+          <div class="rate-bar"><div class="rate-fill" style="width:<%= pctVisitas %>%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin:0">
+      <div class="section-title"><span>Ações rápidas</span></div>
+      <div class="acoes">
+        <a href="/app/leads" class="acao"><span class="acao-icon">👥</span><div class="acao-text"><strong>Leads</strong><span>Gerenciar</span></div></a>
+        <a href="/app/imoveis" class="acao"><span class="acao-icon">🏠</span><div class="acao-text"><strong>Imóveis</strong><span>Carteira</span></div></a>
+        <a href="/app/cadastro" class="acao"><span class="acao-icon">➕</span><div class="acao-text"><strong>Cadastrar</strong><span>Novo imóvel</span></div></a>
+        <a href="/app/visitas" class="acao"><span class="acao-icon">📅</span><div class="acao-text"><strong>Visitas</strong><span>Agenda</span></div></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+  <div class="card" style="margin:0"><div class="section-title"><span>Visitas por status</span></div><canvas id="chartVisitas" height="200"></canvas></div>
+  <div class="card" style="margin:0"><div class="section-title"><span>Leads por status</span></div><canvas id="chartLeads" height="200"></canvas></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+  <div class="card" style="margin:0"><div class="section-title"><span>Imóveis por tipo</span></div><canvas id="chartImoveisTipo" height="200"></canvas></div>
+  <div class="card" style="margin:0"><div class="section-title"><span>Imóveis por bairro (Top 8)</span></div><canvas id="chartImoveisBairro" height="200"></canvas></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:20px">
+  <div class="card" style="margin:0"><div class="section-title"><span>Leads por bairro (Top 8)</span></div><canvas id="chartLeadsBairro" height="120"></canvas></div>
+</div>
+
+<script>
+const COLORS=['#222222','#717171','#aaaaaa','#cccccc','#FF385C','#E31C5F','#444444','#666666'];
+
+function makeDonut(id, data){
+  const labels=Object.keys(data);
+  const vals=Object.values(data);
+  new Chart(document.getElementById(id),{
+    type:'doughnut',
+    data:{labels,datasets:[{data:vals,backgroundColor:COLORS,borderWidth:2,borderColor:'#fff'}]},
+    options:{plugins:{legend:{position:'right'}},cutout:'65%'}
+  });
+}
+function makeBar(id, data, horizontal=false){
+  const labels=Object.keys(data);
+  const vals=Object.values(data);
+  new Chart(document.getElementById(id),{
+    type:'bar',
+    data:{labels,datasets:[{data:vals,backgroundColor:'#222222',borderRadius:6,borderSkipped:false}]},
+    options:{indexAxis: horizontal ? 'y' : 'x',plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f5f5f5'}}}}
+  });
+}
+
+const visitasStatus=<%- graficoVisitasStatus %>;
+const leadsStatus=<%- graficoLeadsStatus %>;
+const imoveisTipo=<%- graficoImoveisTipo %>;
+const imoveisBairro=<%- graficoImoveisBairro %>;
+const leadsBairro=<%- graficoLeadsBairro %>;
+
+makeDonut('chartVisitas', visitasStatus);
+makeDonut('chartLeads', {'Extraído OK': leadsStatus.ok||0, 'Incompleto': leadsStatus.incompleto||0, 'Sem status': leadsStatus.semStatus||0});
+makeDonut('chartImoveisTipo', imoveisTipo);
+makeBar('chartImoveisBairro', imoveisBairro, true);
+makeBar('chartLeadsBairro', leadsBairro, true);
+</script>
+<%- include('partials/app-end') %>

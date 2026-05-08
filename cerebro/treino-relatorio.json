@@ -1,0 +1,120 @@
+{
+  "rodada": 1,
+  "geradoEm": "2026-05-08T07:33:55.062Z",
+  "cobertura": 89,
+  "tempoMedio": 7,
+  "total": 100,
+  "ok": 89,
+  "naoEntendeu": 11,
+  "falhou": 0,
+  "porPerfil": {
+    "iniciante": {
+      "ok": 16,
+      "naoEntendeu": 0,
+      "falhou": 0
+    },
+    "experiente": {
+      "ok": 18,
+      "naoEntendeu": 1,
+      "falhou": 0
+    },
+    "tecnico": {
+      "ok": 11,
+      "naoEntendeu": 2,
+      "falhou": 0
+    },
+    "analista": {
+      "ok": 11,
+      "naoEntendeu": 2,
+      "falhou": 0
+    },
+    "digitacao_ruim": {
+      "ok": 15,
+      "naoEntendeu": 3,
+      "falhou": 0
+    },
+    "busca_ativa": {
+      "ok": 11,
+      "naoEntendeu": 0,
+      "falhou": 0
+    },
+    "suporte": {
+      "ok": 7,
+      "naoEntendeu": 3,
+      "falhou": 0
+    }
+  },
+  "falhas": [],
+  "naoEntendidas": [
+    {
+      "perfil": "experiente",
+      "pergunta": "ver portais"
+    },
+    {
+      "perfil": "tecnico",
+      "pergunta": "quais campos a planilha precisa?"
+    },
+    {
+      "perfil": "tecnico",
+      "pergunta": "xml não saiu no vivareal"
+    },
+    {
+      "perfil": "analista",
+      "pergunta": "tipo mais buscado"
+    },
+    {
+      "perfil": "analista",
+      "pergunta": "quartos mais pedidos"
+    },
+    {
+      "perfil": "digitacao_ruim",
+      "pergunta": "subir xml"
+    },
+    {
+      "perfil": "digitacao_ruim",
+      "pergunta": "ver portias"
+    },
+    {
+      "perfil": "digitacao_ruim",
+      "pergunta": "meu relatorrio"
+    },
+    {
+      "perfil": "suporte",
+      "pergunta": "enviar vitrine para cliente"
+    },
+    {
+      "perfil": "suporte",
+      "pergunta": "link do cliente"
+    },
+    {
+      "perfil": "suporte",
+      "pergunta": "manda follow-up"
+    }
+  ],
+  "pesos": {
+    "raiz": 6.999999999999991,
+    "urgencia": 4,
+    "onboarding": 1,
+    "rag": 0.7999999999999999,
+    "busca_imoveis": 8,
+    "busca_leads": 0,
+    "estrategia": 0,
+    "relatorio": 0,
+    "acoes": 0,
+    "precisa_match": 0,
+    "dominios": 4.6,
+    "leads": 10,
+    "imoveis": 9,
+    "visitas": 6,
+    "match": 5,
+    "portais": 1,
+    "mercado": 3,
+    "sistema": 4,
+    "coins": 2,
+    "notificacoes": 1,
+    "dashboard": 5,
+    "contexto_conversa": 0,
+    "saudacao": 0,
+    "nao_entendeu": 11
+  }
+}

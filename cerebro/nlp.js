@@ -36,6 +36,14 @@ const SINONIMOS = {
   'tudo':'dashboard','panorama':'dashboard'
 };
 
+// ── SINÔNIMOS APRENDIDOS (auto-gerado pelo expansor) ─────────────────────────
+try {
+  const fs = require('fs'), path = require('path');
+  const aprendidos = JSON.parse(fs.readFileSync(path.join(__dirname,'sinonimos-aprendidos.json'),'utf8'));
+  Object.assign(SINONIMOS, aprendidos);
+} catch(_) {}
+
+
 function tokenizar(texto) {
   return texto
     .toLowerCase()

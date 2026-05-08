@@ -2759,6 +2759,18 @@ app.post('/app/assistente/chat', auth, (req, res) => {
   memoria.historico.push({ userId:uid, pergunta:mensagem, resposta, data:new Date().toISOString() });
   if (memoria.historico.length>500) memoria.historico = memoria.historico.slice(-500);
   fs.writeFileSync(memoriaPath, JSON.stringify(memoria,null,2));
+  // Salvar tambem no users.json para persistir no Render
+  try {
+    const usersPath = require('path').join(__dirname,'users.json');
+    const users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
+    const uIdx = users.findIndex(u=>u.id===uid||u.userId===uid);
+    if (uIdx>=0) {
+      users[uIdx].historicoAssistente = users[uIdx].historicoAssistente || [];
+      users[uIdx].historicoAssistente.push({pergunta:mensagem,resposta,data:new Date().toISOString()});
+      if (users[uIdx].historicoAssistente.length>50) users[uIdx].historicoAssistente=users[uIdx].historicoAssistente.slice(-50);
+      fs.writeFileSync(usersPath,JSON.stringify(users,null,2));
+    }
+  } catch(e){}
 
   res.json({ resposta, fonte:'cerebro' });
 });
@@ -2766,11 +2778,19 @@ app.post('/app/assistente/chat', auth, (req, res) => {
 // ─── Histórico do assistente por usuário ─────────────────────────────────────
 app.get('/app/assistente/historico', auth, (req, res) => {
   const uid = req.session.user.userId;
-  const memPath = require('path').join(__dirname,'assistente-memoria.json');
-  const mem = fs.existsSync(memPath) ? JSON.parse(fs.readFileSync(memPath,'utf8')) : { historico:[] };
-  const historico = (mem.historico||[])
-    .filter(h => h.userId === uid)
-    .slice(-20)
-    .map(h => ({ pergunta: h.pergunta, resposta: h.resposta, data: h.data }));
+  let historico = [];
+  // Tentar users.json primeiro (persiste no Render)
+  try {
+    const users = JSON.parse(fs.readFileSync(require('path').join(__dirname,'users.json'),'utf8'));
+    const u = users.find(u=>u.id===uid||u.userId===uid);
+    if (u && u.historicoAssistente && u.historicoAssistente.length>0) {
+      historico = u.historicoAssistente.slice(-20);
+    }
+  } catch(e){}
+  // Fallback para assistente-memoria.json
+    const memPath = require('path').join(__dirname,'assistente-memoria.json');
+    const mem = fs.existsSync(memPath) ? JSON.parse(fs.readFileSync(memPath,'utf8')) : { historico:[] };
+    historico = (mem.historico||[]).filter(h=>h.userId===uid).slice(-20).map(h=>({pergunta:h.pergunta,resposta:h.resposta,data:h.data}));
+  }
   res.json({ historico });
 });

@@ -885,6 +885,36 @@
       "pergunta": "quando eu digo importar um meus imoveis eu digo pegar um xml externo e colcoar no match imoveis",
       "resposta": "🔗 Veja o status de todos os seus feeds em <strong>Portais</strong>:<br><br><a href=\"/app/portais\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver portais →</a>",
       "data": "2026-05-08T16:27:59.448Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "oi",
+      "resposta": "Boa tarde, Rankim! 👋<br><br>🔔 <strong>1 notificação(ões):</strong><br><br><strong>⚠️ Urgente:</strong><br>🟡 <strong>2 visita(s) pendentes</strong> — Aguardando sua confirmação. <a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver →</a><br><br><br><button onclick=\"enviarMsg('resumo geral')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Resumo</button><button onclick=\"enviarMsg('o que devo fazer hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🧠 Plano do dia</button>",
+      "data": "2026-05-08T17:10:55.109Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "eu esperava , oi tudo bem (nome) como posso te ajudar",
+      "resposta": "Boa tarde, Rankim! 👋<br><br>🔔 <strong>1 notificação(ões):</strong><br><br><strong>⚠️ Urgente:</strong><br>🟡 <strong>2 visita(s) pendentes</strong> — Aguardando sua confirmação. <a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver →</a><br><br><br><button onclick=\"enviarMsg('resumo geral')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Resumo</button><button onclick=\"enviarMsg('o que devo fazer hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🧠 Plano do dia</button>",
+      "data": "2026-05-08T17:11:30.476Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "o que devo fazer hoje",
+      "resposta": "Nenhuma lead chegou hoje ainda. 📋<br><br><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">👥 Todas as leads</button>",
+      "data": "2026-05-08T17:11:38.839Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "digo qual a rotina de hoje para termos bons resultados",
+      "resposta": "Nenhuma lead chegou hoje ainda. 📋<br><br><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">👥 Todas as leads</button>",
+      "data": "2026-05-08T17:11:59.950Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "Estou falando sobre rotina, como vai me ajudar a gerenciar todos os dados e fechar vendas",
+      "resposta": "Boa tarde, Rankim! 👋<br><br>🔔 <strong>1 notificação(ões):</strong><br><br><strong>⚠️ Urgente:</strong><br>🟡 <strong>2 visita(s) pendentes</strong> — Aguardando sua confirmação. <a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver →</a><br><br><br><button onclick=\"enviarMsg('resumo geral')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Resumo</button><button onclick=\"enviarMsg('o que devo fazer hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🧠 Plano do dia</button>",
+      "data": "2026-05-08T17:12:26.590Z"
     }
   ],
   "perfis": {
@@ -925,7 +955,7 @@
     },
     "corretor-iniciante-001": {
       "nome": "Carlos",
-      "ultimaAtividade": "2026-05-08T16:40:39.999Z",
+      "ultimaAtividade": "2026-05-08T17:06:53.942Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -938,11 +968,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 928
+      "acessos": 944
     },
     "corretor-experiente-002": {
       "nome": "Ana",
-      "ultimaAtividade": "2026-05-08T16:40:40.228Z",
+      "ultimaAtividade": "2026-05-08T17:06:54.271Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -955,11 +985,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1102
+      "acessos": 1121
     },
     "corretor-tecnico-003": {
       "nome": "Roberto",
-      "ultimaAtividade": "2026-05-08T16:40:40.407Z",
+      "ultimaAtividade": "2026-05-08T17:06:54.554Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -972,11 +1002,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 754
+      "acessos": 767
     },
     "corretor-analista-004": {
       "nome": "Fernanda",
-      "ultimaAtividade": "2026-05-08T16:40:40.564Z",
+      "ultimaAtividade": "2026-05-08T17:06:54.753Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -989,11 +1019,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 754
+      "acessos": 767
     },
     "corretor-digitacao-005": {
       "nome": "Marcos",
-      "ultimaAtividade": "2026-05-08T16:40:40.835Z",
+      "ultimaAtividade": "2026-05-08T17:06:54.999Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1006,11 +1036,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1044
+      "acessos": 1062
     },
     "corretor-busca-006": {
       "nome": "Paulo",
-      "ultimaAtividade": "2026-05-08T16:40:41.063Z",
+      "ultimaAtividade": "2026-05-08T17:06:55.149Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1023,11 +1053,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 638
+      "acessos": 649
     },
     "corretor-suporte-007": {
       "nome": "Juliana",
-      "ultimaAtividade": "2026-05-08T16:40:41.250Z",
+      "ultimaAtividade": "2026-05-08T17:06:55.281Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1040,7 +1070,7 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 580
+      "acessos": 590
     }
   }
 }

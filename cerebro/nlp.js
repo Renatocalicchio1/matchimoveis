@@ -1,3 +1,17 @@
+
+function corrigirOrtografia(texto) {
+  const ERROS = {
+    'imovei':'imovel','imovéis':'imovel','vizita':'visita','vizitas':'visita',
+    'lids':'lead','lid':'lead','leades':'lead','matsh':'match','mach':'match',
+    'portias':'portais','relatorrio':'relatorio','dashbord':'dashboard',
+    'assitenete':'assistente','assitente':'assistente','conis':'coins',
+    'notificaçao':'notificacao','proprietaro':'proprietario','cadstro':'cadastro',
+    'imobliaria':'imobiliaria','watsapp':'whatsapp','whatssapp':'whatsapp'
+  };
+  let t = texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const palavras = t.split(/s+/);
+  return palavras.map(p => ERROS[p] || p).join(' ');
+}
 'use strict';
 
 const STOP = new Set([

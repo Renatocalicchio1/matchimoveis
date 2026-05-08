@@ -228,5 +228,10 @@
   "me diz": "informar",
   "me fala": "informar",
   "pode me dizer": "informar",
-  "pode me mostrar": "mostrar"
+  "pode me mostrar": "mostrar",
+  "xml nao saiu": "xml nao saiu no vivareal",
+  "subir xml": "gerar xml",
+  "campos planilha precisa": "campos planilha",
+  "tipo mais buscado": "tipo mais buscado",
+  "quartos mais pedidos": "quartos mais pedido"
 }

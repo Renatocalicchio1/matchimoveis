@@ -1,12 +1,12 @@
 {
   "sessoes": {
     "imobiliaria-47991919191": {
-      "paginaAtual": "dashboard",
-      "labelAtual": "Dashboard",
-      "dominioAtual": "dashboard",
-      "rotaAtual": "/app-home",
-      "atualizadoEm": "2026-05-08T20:49:10.582Z",
-      "paginaAnterior": "assistente"
+      "paginaAtual": "assistente",
+      "labelAtual": "Assistente",
+      "dominioAtual": "sistema",
+      "rotaAtual": "/app/assistente",
+      "atualizadoEm": "2026-05-08T20:49:40.700Z",
+      "paginaAnterior": "dashboard"
     }
   },
   "fluxos": [
@@ -207,6 +207,12 @@
       "para": "dashboard",
       "userId": "imobiliaria-47991919191",
       "data": "2026-05-08T20:49:10.582Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-08T20:49:40.700Z"
     }
   ]
 }

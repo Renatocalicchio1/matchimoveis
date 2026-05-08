@@ -1,6 +1,6 @@
 {
   "geradoEm": "2026-05-08T06:59:46.576Z",
-  "total": 200,
+  "total": 575,
   "items": [
     {
       "p": "oi",
@@ -873,8 +873,1883 @@
     {
       "p": "imovel proprio tem prioridade no match",
       "r": "score_match"
+    },
+    {
+      "p": "minhas leads",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "ver leads",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "listar leads",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "mostrar leads",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "quero ver leads",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "me mostra as leads",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "me diz quantas leads",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "quantas leads tenho",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "total de leads",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "meus clientes",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "ver clientes",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "listar clientes",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "meus contatos",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "ver contatos",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "leads cadastradas",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "todas as leads",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "leads da conta",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "meu funil",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "quero ver meus clientes",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "me mostra meus contatos",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "quero saber minhas leads",
+      "r": "leads",
+      "grupo": "leads_ver"
+    },
+    {
+      "p": "leads quentes",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "leads mais quentes",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "quem tem match",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "melhores leads",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "leads prioritarias",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "leads interessantes",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "leads com imovel",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "quem deu match",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "leads com resultado",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "leads prontas",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "leads ativas",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "clientes com match",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "quais clientes tem imovel",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "leads boas",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "quem tem imovel compativel",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "leads que deram match",
+      "r": "leads",
+      "grupo": "leads_quentes"
+    },
+    {
+      "p": "leads frias",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads paradas",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads sem atividade",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads esquecidas",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads antigas",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "clientes sem contato",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads abandonadas",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads sem resposta",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "clientes sumidos",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads esfriaram",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads inativas",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads que nao responderam",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "clientes que pararam",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads velhas",
+      "r": "leads",
+      "grupo": "leads_frias"
+    },
+    {
+      "p": "leads de hoje",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "novas leads hoje",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "leads que chegaram hoje",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "leads novas",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "clientes novos",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "novos clientes",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "chegou lead hoje",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "lead nova hoje",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "leads do dia",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "leads recentes",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "leads de agora",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "entrou lead hoje",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "quantas leads hoje",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "leads que entraram",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "novas hoje",
+      "r": "leads",
+      "grupo": "leads_hoje"
+    },
+    {
+      "p": "importar planilha",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "subir planilha",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "enviar planilha",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "como importo leads",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "como subo planilha",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "importar clientes",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "subir clientes",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "carregar leads",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "upload planilha",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "adicionar leads",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "incluir leads",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "como adiciono leads",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "como coloco leads",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "planilha de leads",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "importar do portal",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "subir do zap",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "importar do vivareal",
+      "r": "leads",
+      "grupo": "leads_importar"
+    },
+    {
+      "p": "meus imoveis",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "ver imoveis",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "listar imoveis",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "mostrar imoveis",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "carteira de imoveis",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "imoveis cadastrados",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "todos os imoveis",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "imoveis da conta",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "minha carteira",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "quero ver imoveis",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "me mostra imoveis",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "imoveis disponiveis",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "base de imoveis",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "imoveis ativos",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "meus ativos",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "ver carteira",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "imoveis publicados",
+      "r": "imoveis",
+      "grupo": "imoveis_ver"
+    },
+    {
+      "p": "imoveis inativos",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "imoveis arquivados",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "imoveis desativados",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "imoveis ocultos",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "imoveis nao publicados",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "imoveis fora do ar",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "imoveis pausados",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "imoveis sem publicacao",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "ver inativos",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "quais imoveis estao inativos",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "imoveis off",
+      "r": "imoveis",
+      "grupo": "imoveis_inativos"
+    },
+    {
+      "p": "imoveis sem foto",
+      "r": "imoveis",
+      "grupo": "imoveis_sem_foto"
+    },
+    {
+      "p": "imoveis sem imagem",
+      "r": "imoveis",
+      "grupo": "imoveis_sem_foto"
+    },
+    {
+      "p": "imoveis sem fotos",
+      "r": "imoveis",
+      "grupo": "imoveis_sem_foto"
+    },
+    {
+      "p": "imoveis sem imagens",
+      "r": "imoveis",
+      "grupo": "imoveis_sem_foto"
+    },
+    {
+      "p": "quais imoveis nao tem foto",
+      "r": "imoveis",
+      "grupo": "imoveis_sem_foto"
+    },
+    {
+      "p": "imoveis precisando de foto",
+      "r": "imoveis",
+      "grupo": "imoveis_sem_foto"
+    },
+    {
+      "p": "sem fotos",
+      "r": "imoveis",
+      "grupo": "imoveis_sem_foto"
+    },
+    {
+      "p": "imoveis parados",
+      "r": "imoveis",
+      "grupo": "imoveis_parados"
+    },
+    {
+      "p": "imoveis sem match",
+      "r": "imoveis",
+      "grupo": "imoveis_parados"
+    },
+    {
+      "p": "imoveis sem lead",
+      "r": "imoveis",
+      "grupo": "imoveis_parados"
+    },
+    {
+      "p": "imoveis encalhados",
+      "r": "imoveis",
+      "grupo": "imoveis_parados"
+    },
+    {
+      "p": "imoveis que nao vendem",
+      "r": "imoveis",
+      "grupo": "imoveis_parados"
+    },
+    {
+      "p": "imoveis sem interessado",
+      "r": "imoveis",
+      "grupo": "imoveis_parados"
+    },
+    {
+      "p": "imoveis parados na carteira",
+      "r": "imoveis",
+      "grupo": "imoveis_parados"
+    },
+    {
+      "p": "quais imoveis nao tem match",
+      "r": "imoveis",
+      "grupo": "imoveis_parados"
+    },
+    {
+      "p": "imoveis sem procura",
+      "r": "imoveis",
+      "grupo": "imoveis_parados"
+    },
+    {
+      "p": "imoveis sem demanda",
+      "r": "imoveis",
+      "grupo": "imoveis_parados"
+    },
+    {
+      "p": "minhas visitas",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "ver visitas",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "listar visitas",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "visitas agendadas",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "agenda de visitas",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "quero ver visitas",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "visitas da semana",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "visitas do mes",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "todas as visitas",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "visitas cadastradas",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "historico de visitas",
+      "r": "visitas",
+      "grupo": "visitas_ver"
+    },
+    {
+      "p": "visitas hoje",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "visita hoje",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "tenho visita hoje",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "visitas do dia",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "agenda de hoje",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "o que tem hoje",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "compromissos hoje",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "visitas para hoje",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "quantas visitas hoje",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "visita marcada hoje",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "tenho agenda hoje",
+      "r": "visitas",
+      "grupo": "visitas_hoje"
+    },
+    {
+      "p": "visitas pendentes",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "visitas aguardando",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "visitas nao confirmadas",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "visitas esperando",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "pendentes de confirmacao",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "visitas em aberto",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "quem nao confirmou",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "proprietario nao respondeu",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "aguardando confirmacao",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "visitas sem resposta",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "visitas em espera",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "confirmacoes pendentes",
+      "r": "visitas",
+      "grupo": "visitas_pendentes"
+    },
+    {
+      "p": "ver match",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "meu match",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "resultado do match",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "matches",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "resultados",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "quero ver match",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "me mostra match",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "match da conta",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "resultados do match",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "imoveis em match",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "ver resultados",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "compatibilidades",
+      "r": "match",
+      "grupo": "match_ver"
+    },
+    {
+      "p": "o que e match",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "explicar match",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "me explica o match",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "como funciona",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "o que e o match",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "como o match funciona",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "me fala do match",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "o que significa match",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "o que sao os mds",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "entender match",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "como funciona a compatibilidade",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "como cruza as informacoes",
+      "r": "match",
+      "grupo": "match_como"
+    },
+    {
+      "p": "taxa de match",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "percentual de match",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "quantos deram match",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "porcentagem de match",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "quantas leads tem match",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "minha taxa",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "eficiencia do match",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "taxa de compatibilidade",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "quantos por cento deu match",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "resultado da taxa",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "taxa de sucesso",
+      "r": "match",
+      "grupo": "match_taxa"
+    },
+    {
+      "p": "por que nao deu match",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "sem match porque",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "nao encontrou imovel",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "por que nao tem match",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "match nao funcionou",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "nao deu match",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "por que nao casou",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "nao encontrou nada",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "sem resultado no match",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "match nao achou",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "nao bateu",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "por que nao bateu",
+      "r": "match",
+      "grupo": "match_por_que_nao"
+    },
+    {
+      "p": "ver portais",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "meus portais",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "portais gerados",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "links dos portais",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "feeds xml",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "links xml",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "urls dos portais",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "portais ativos",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "ver feeds",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "links gerados",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "onde ficam os links",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "portais configurados",
+      "r": "portais",
+      "grupo": "portais_ver"
+    },
+    {
+      "p": "gerar xml",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "criar xml",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "gerar feed",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "gerar link portal",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "gerar xml zap",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "gerar xml olx",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "publicar no portal",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "subir para portal",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "enviar para portal",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "gerar link vivareal",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "gerar link zap",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "como gero xml",
+      "r": "portais",
+      "grupo": "portais_gerar"
+    },
+    {
+      "p": "xml nao atualizou",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "xml nao foi",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "portal rejeitou",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "portal nao atualizou",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "imovel nao apareceu no portal",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "nao publicou",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "nao saiu no portal",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "xml com erro",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "link nao funciona",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "portal recusou",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "imovel rejeitado",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "feed com problema",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "xml quebrado",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "portal nao aceita",
+      "r": "portais",
+      "grupo": "portais_problema"
+    },
+    {
+      "p": "bairros mais buscados",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "bairros com mais leads",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "quais bairros tem mais procura",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "bairros mais pedidos",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "demanda dos bairros",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "onde tem mais cliente",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "qual bairro mais buscado",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "top bairros",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "bairros com mais demanda",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "mapa de demanda",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "onde tem mais procura",
+      "r": "mercado",
+      "grupo": "mercado_bairro"
+    },
+    {
+      "p": "tipo mais buscado",
+      "r": "mercado",
+      "grupo": "mercado_tipo"
+    },
+    {
+      "p": "tipo mais pedido",
+      "r": "mercado",
+      "grupo": "mercado_tipo"
+    },
+    {
+      "p": "que tipo mais vendem",
+      "r": "mercado",
+      "grupo": "mercado_tipo"
+    },
+    {
+      "p": "tipos mais procurados",
+      "r": "mercado",
+      "grupo": "mercado_tipo"
+    },
+    {
+      "p": "apartamento ou casa mais buscado",
+      "r": "mercado",
+      "grupo": "mercado_tipo"
+    },
+    {
+      "p": "qual tipo tem mais demanda",
+      "r": "mercado",
+      "grupo": "mercado_tipo"
+    },
+    {
+      "p": "o que os clientes querem",
+      "r": "mercado",
+      "grupo": "mercado_tipo"
+    },
+    {
+      "p": "tipos populares",
+      "r": "mercado",
+      "grupo": "mercado_tipo"
+    },
+    {
+      "p": "tipo favorito",
+      "r": "mercado",
+      "grupo": "mercado_tipo"
+    },
+    {
+      "p": "faixa de valor",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "valor medio",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "preco medio",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "ticket medio",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "quanto os clientes pagam",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "faixa de preco",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "orcamento dos clientes",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "valores mais buscados",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "faixa de orcamento",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "qual valor mais comum",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "media de valor",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "quanto querem gastar",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "faixa de investimento",
+      "r": "mercado",
+      "grupo": "mercado_valor"
+    },
+    {
+      "p": "o que fazer hoje",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "plano do dia",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "me orienta",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "por onde comecar",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "o que e mais urgente",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "me diz o que fazer",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "qual minha prioridade",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "o que tem para hoje",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "resumo do dia",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "me ajuda a organizar",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "tarefas do dia",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "agenda do dia",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "prioridades hoje",
+      "r": "estrategia",
+      "grupo": "estrategia_hoje"
+    },
+    {
+      "p": "quem devo atender primeiro",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "qual lead atender",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "ordem de atendimento",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "qual e a mais urgente",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "quem tem mais prioridade",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "atender quem primeiro",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "qual lead e mais importante",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "ranking de prioridade",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "qual e a mais quente",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "por onde comecar a atender",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "primeiro contato",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "qual ligar primeiro",
+      "r": "estrategia",
+      "grupo": "estrategia_atender"
+    },
+    {
+      "p": "como adicionar fotos",
+      "r": "sistema",
+      "grupo": "suporte_fotos"
+    },
+    {
+      "p": "como subir fotos",
+      "r": "sistema",
+      "grupo": "suporte_fotos"
+    },
+    {
+      "p": "como colocar fotos",
+      "r": "sistema",
+      "grupo": "suporte_fotos"
+    },
+    {
+      "p": "como adiciono fotos",
+      "r": "sistema",
+      "grupo": "suporte_fotos"
+    },
+    {
+      "p": "fotos do imovel",
+      "r": "sistema",
+      "grupo": "suporte_fotos"
+    },
+    {
+      "p": "subir imagens",
+      "r": "sistema",
+      "grupo": "suporte_fotos"
+    },
+    {
+      "p": "adicionar imagens",
+      "r": "sistema",
+      "grupo": "suporte_fotos"
+    },
+    {
+      "p": "como coloco fotos",
+      "r": "sistema",
+      "grupo": "suporte_fotos"
+    },
+    {
+      "p": "como faço upload de fotos",
+      "r": "sistema",
+      "grupo": "suporte_fotos"
+    },
+    {
+      "p": "inserir fotos",
+      "r": "sistema",
+      "grupo": "suporte_fotos"
+    },
+    {
+      "p": "como trocar senha",
+      "r": "sistema",
+      "grupo": "suporte_senha"
+    },
+    {
+      "p": "alterar senha",
+      "r": "sistema",
+      "grupo": "suporte_senha"
+    },
+    {
+      "p": "mudar senha",
+      "r": "sistema",
+      "grupo": "suporte_senha"
+    },
+    {
+      "p": "esqueci minha senha",
+      "r": "sistema",
+      "grupo": "suporte_senha"
+    },
+    {
+      "p": "como mudo senha",
+      "r": "sistema",
+      "grupo": "suporte_senha"
+    },
+    {
+      "p": "resetar senha",
+      "r": "sistema",
+      "grupo": "suporte_senha"
+    },
+    {
+      "p": "nova senha",
+      "r": "sistema",
+      "grupo": "suporte_senha"
+    },
+    {
+      "p": "como troco a senha",
+      "r": "sistema",
+      "grupo": "suporte_senha"
+    },
+    {
+      "p": "como conectar whatsapp",
+      "r": "sistema",
+      "grupo": "suporte_whatsapp"
+    },
+    {
+      "p": "integrar whatsapp",
+      "r": "sistema",
+      "grupo": "suporte_whatsapp"
+    },
+    {
+      "p": "whatsapp no sistema",
+      "r": "sistema",
+      "grupo": "suporte_whatsapp"
+    },
+    {
+      "p": "configurar whatsapp",
+      "r": "sistema",
+      "grupo": "suporte_whatsapp"
+    },
+    {
+      "p": "ligar whatsapp",
+      "r": "sistema",
+      "grupo": "suporte_whatsapp"
+    },
+    {
+      "p": "ativar whatsapp",
+      "r": "sistema",
+      "grupo": "suporte_whatsapp"
+    },
+    {
+      "p": "como uso whatsapp",
+      "r": "sistema",
+      "grupo": "suporte_whatsapp"
+    },
+    {
+      "p": "whatsapp integrado",
+      "r": "sistema",
+      "grupo": "suporte_whatsapp"
+    },
+    {
+      "p": "conectar wpp",
+      "r": "sistema",
+      "grupo": "suporte_whatsapp"
+    },
+    {
+      "p": "quais campos a planilha precisa",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "campos da planilha",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "o que precisa na planilha",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "formato da planilha",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "como montar planilha",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "campos obrigatorios",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "o que colocar na planilha",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "campos necessarios",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "template planilha",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "como preparar planilha",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "estrutura da planilha",
+      "r": "sistema",
+      "grupo": "suporte_planilha"
+    },
+    {
+      "p": "tenho um cliente querendo apto em itajai",
+      "r": "imoveis",
+      "grupo": "cliente_busca"
+    },
+    {
+      "p": "meu cliente quer casa de 3 quartos",
+      "r": "imoveis",
+      "grupo": "cliente_busca"
+    },
+    {
+      "p": "tenho cliente interessado em apartamento",
+      "r": "imoveis",
+      "grupo": "cliente_busca"
+    },
+    {
+      "p": "cliente procurando imovel",
+      "r": "imoveis",
+      "grupo": "cliente_busca"
+    },
+    {
+      "p": "tenho um comprador para apartamento",
+      "r": "imoveis",
+      "grupo": "cliente_busca"
+    },
+    {
+      "p": "meu cliente busca casa ate 500 mil",
+      "r": "imoveis",
+      "grupo": "cliente_busca"
+    },
+    {
+      "p": "cliente quer cobertura no centro",
+      "r": "imoveis",
+      "grupo": "cliente_busca"
+    },
+    {
+      "p": "tenho interesse em apartamento 2 quartos",
+      "r": "imoveis",
+      "grupo": "cliente_busca"
+    },
+    {
+      "p": "cliente procura imovel em balneario",
+      "r": "imoveis",
+      "grupo": "cliente_busca"
+    },
+    {
+      "p": "meu cliente precisa de casa com quintal",
+      "r": "imoveis",
+      "grupo": "cliente_busca"
+    },
+    {
+      "p": "cliente nao gostou",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "cliente recusou",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "cliente nao quis",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "cliente gostou",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "cliente aprovou",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "cliente topou",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "cliente adorou",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "ja enviei a vitrine",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "mandei a vitrine para o cliente",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "cliente viu a vitrine",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "cliente acessou a vitrine",
+      "r": "leads",
+      "grupo": "cliente_feedback"
+    },
+    {
+      "p": "ola",
+      "r": "saudacao",
+      "grupo": "saudacao"
+    },
+    {
+      "p": "hey",
+      "r": "saudacao",
+      "grupo": "saudacao"
+    },
+    {
+      "p": "eai",
+      "r": "saudacao",
+      "grupo": "saudacao"
+    },
+    {
+      "p": "bom dia",
+      "r": "saudacao",
+      "grupo": "saudacao"
+    },
+    {
+      "p": "tudo bom",
+      "r": "saudacao",
+      "grupo": "saudacao"
+    },
+    {
+      "p": "como vai",
+      "r": "saudacao",
+      "grupo": "saudacao"
+    },
+    {
+      "p": "oi tudo bem",
+      "r": "saudacao",
+      "grupo": "saudacao"
+    },
+    {
+      "p": "ola tudo bem",
+      "r": "saudacao",
+      "grupo": "saudacao"
+    },
+    {
+      "p": "oi assistente",
+      "r": "saudacao",
+      "grupo": "saudacao"
+    },
+    {
+      "p": "ola assistente",
+      "r": "saudacao",
+      "grupo": "saudacao"
+    },
+    {
+      "p": "hey assistente",
+      "r": "saudacao",
+      "grupo": "saudacao"
     }
   ],
   "limpezaEm": "2026-05-08T07:38:42.996Z",
-  "atualizadoEm": "2026-05-08T15:36:44.058Z"
+  "atualizadoEm": "2026-05-08T21:06:21.024Z"
 }

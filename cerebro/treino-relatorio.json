@@ -1,66 +1,109 @@
 {
-  "rodada": 12,
-  "geradoEm": "2026-05-08T20:32:59.217Z",
-  "cobertura": 89,
-  "tempoMedio": 8,
+  "rodada": 1,
+  "geradoEm": "2026-05-08T21:06:23.462Z",
+  "cobertura": 83,
+  "tempoMedio": 13,
   "total": 100,
-  "ok": 89,
-  "naoEntendeu": 11,
-  "falhou": 0,
+  "ok": 83,
+  "naoEntendeu": 7,
+  "falhou": 10,
   "porPerfil": {
     "iniciante": {
-      "ok": 16,
+      "ok": 15,
       "naoEntendeu": 0,
-      "falhou": 0
+      "falhou": 1
     },
     "experiente": {
-      "ok": 18,
-      "naoEntendeu": 1,
-      "falhou": 0
+      "ok": 15,
+      "naoEntendeu": 2,
+      "falhou": 2
     },
     "tecnico": {
-      "ok": 11,
-      "naoEntendeu": 2,
-      "falhou": 0
+      "ok": 12,
+      "naoEntendeu": 0,
+      "falhou": 1
     },
     "analista": {
       "ok": 11,
-      "naoEntendeu": 2,
-      "falhou": 0
+      "naoEntendeu": 1,
+      "falhou": 1
     },
     "digitacao_ruim": {
-      "ok": 15,
+      "ok": 13,
       "naoEntendeu": 3,
-      "falhou": 0
+      "falhou": 2
     },
     "busca_ativa": {
-      "ok": 11,
+      "ok": 9,
       "naoEntendeu": 0,
-      "falhou": 0
+      "falhou": 2
     },
     "suporte": {
-      "ok": 7,
-      "naoEntendeu": 3,
-      "falhou": 0
+      "ok": 8,
+      "naoEntendeu": 1,
+      "falhou": 1
     }
   },
-  "falhas": [],
+  "falhas": [
+    {
+      "usuario": "Carlos",
+      "pergunta": "primeiros passos",
+      "erro": "raciocinio.analisarConversa is not a function"
+    },
+    {
+      "usuario": "Ana",
+      "pergunta": "quem pediu visita?",
+      "erro": "raciocinio.analisarConversa is not a function"
+    },
+    {
+      "usuario": "Ana",
+      "pergunta": "quem confirmou visita?",
+      "erro": "raciocinio.analisarConversa is not a function"
+    },
+    {
+      "usuario": "Roberto",
+      "pergunta": "quais campos a planilha precisa?",
+      "erro": "raciocinio.analisarConversa is not a function"
+    },
+    {
+      "usuario": "Fernanda",
+      "pergunta": "tipo mais buscado",
+      "erro": "raciocinio.analisarConversa is not a function"
+    },
+    {
+      "usuario": "Marcos",
+      "pergunta": "meus conis",
+      "erro": "raciocinio.analisarConversa is not a function"
+    },
+    {
+      "usuario": "Marcos",
+      "pergunta": "taxa de matsh",
+      "erro": "raciocinio.analisarConversa is not a function"
+    },
+    {
+      "usuario": "Paulo",
+      "pergunta": "casa até 500mil",
+      "erro": "raciocinio.analisarConversa is not a function"
+    },
+    {
+      "usuario": "Paulo",
+      "pergunta": "tem casa com 2 vagas?",
+      "erro": "raciocinio.analisarConversa is not a function"
+    },
+    {
+      "usuario": "Juliana",
+      "pergunta": "avisar proprietário da visita",
+      "erro": "raciocinio.analisarConversa is not a function"
+    }
+  ],
   "naoEntendidas": [
     {
       "perfil": "experiente",
+      "pergunta": "visitas pendentes"
+    },
+    {
+      "perfil": "experiente",
       "pergunta": "ver portais"
-    },
-    {
-      "perfil": "tecnico",
-      "pergunta": "quais campos a planilha precisa?"
-    },
-    {
-      "perfil": "tecnico",
-      "pergunta": "xml não saiu no vivareal"
-    },
-    {
-      "perfil": "analista",
-      "pergunta": "tipo mais buscado"
     },
     {
       "perfil": "analista",
@@ -68,7 +111,7 @@
     },
     {
       "perfil": "digitacao_ruim",
-      "pergunta": "subir xml"
+      "pergunta": "matsh"
     },
     {
       "perfil": "digitacao_ruim",
@@ -76,45 +119,37 @@
     },
     {
       "perfil": "digitacao_ruim",
-      "pergunta": "meu relatorrio"
+      "pergunta": "dashbord"
     },
     {
       "perfil": "suporte",
-      "pergunta": "enviar vitrine para cliente"
-    },
-    {
-      "perfil": "suporte",
-      "pergunta": "link do cliente"
-    },
-    {
-      "perfil": "suporte",
-      "pergunta": "manda follow-up"
+      "pergunta": "quem não respondeu?"
     }
   ],
   "pesos": {
-    "raiz": 83.9999999999995,
-    "urgencia": 48,
-    "onboarding": 12,
-    "rag": 9.599999999999982,
-    "busca_imoveis": 96,
+    "raiz": 7.19999999999999,
+    "urgencia": 4,
+    "onboarding": 1,
+    "rag": 0.5,
+    "busca_imoveis": 5,
     "busca_leads": 0,
     "estrategia": 0,
     "relatorio": 0,
     "acoes": 0,
     "precisa_match": 0,
-    "dominios": 55.200000000000514,
-    "leads": 120,
-    "imoveis": 108,
-    "visitas": 72,
-    "match": 60,
-    "portais": 12,
-    "mercado": 36,
-    "sistema": 48,
-    "coins": 24,
-    "notificacoes": 12,
-    "dashboard": 60,
+    "dominios": 4.5,
+    "leads": 7,
+    "imoveis": 8,
+    "visitas": 3,
+    "match": 4,
+    "portais": 5,
+    "mercado": 5,
+    "sistema": 6,
+    "coins": 1,
+    "notificacoes": 1,
+    "dashboard": 5,
     "contexto_conversa": 0,
     "saudacao": 0,
-    "nao_entendeu": 132
+    "nao_entendeu": 17
   }
 }

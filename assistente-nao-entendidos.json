@@ -1,57 +1,6 @@
 {
   "nao_entendidos": [
     {
-      "exemplo": "importar xml",
-      "count": 11,
-      "usuarios": [
-        "imobiliaria-47991919191",
-        "test"
-      ],
-      "primeira": "2026-05-08T06:28:12.777Z",
-      "ultima": "2026-05-08T07:53:29.347Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "voce eta inedo bem , voce precisa acessar a pagina /app/cadastro la voce conegur encntar o botao para importar meu xml",
-      "count": 1,
-      "usuarios": [
-        "imobiliaria-47991919191"
-      ],
-      "primeira": "2026-05-08T06:29:20.903Z",
-      "ultima": "2026-05-08T06:29:20.903Z",
-      "sugerido": false
-    },
-    {
-      "exemplo": "/app/portais nesa pagina tem o link de cada portal , deppis que voce gera o link ele fica nesa pagia nesse caso temo do vivo rela pronto conegue pegar ele",
-      "count": 1,
-      "usuarios": [
-        "imobiliaria-47991919191"
-      ],
-      "primeira": "2026-05-08T06:33:52.456Z",
-      "ultima": "2026-05-08T06:33:52.456Z",
-      "sugerido": false
-    },
-    {
-      "exemplo": "boa notei ne eseucei",
-      "count": 1,
-      "usuarios": [
-        "imobiliaria-47991919191"
-      ],
-      "primeira": "2026-05-08T06:37:55.231Z",
-      "ultima": "2026-05-08T06:37:55.231Z",
-      "sugerido": false
-    },
-    {
-      "exemplo": "me fale mais da app",
-      "count": 1,
-      "usuarios": [
-        "imobiliaria-47991919191"
-      ],
-      "primeira": "2026-05-08T06:39:32.141Z",
-      "ultima": "2026-05-08T06:39:32.141Z",
-      "sugerido": false
-    },
-    {
       "exemplo": "e os filtros",
       "count": 3,
       "usuarios": [
@@ -59,16 +8,6 @@
       ],
       "primeira": "2026-05-08T06:44:45.372Z",
       "ultima": "2026-05-08T06:45:11.162Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "porque nao esta salvando nossa msg do ultimo chat se,pre que eu votlar para a gania quer enonctar ond eparamos nesse chat",
-      "count": 4,
-      "usuarios": [
-        "imobiliaria-47991919191"
-      ],
-      "primeira": "2026-05-08T07:20:38.884Z",
-      "ultima": "2026-05-08T07:20:46.874Z",
       "sugerido": true
     },
     {
@@ -82,149 +21,6 @@
       "sugerido": false
     },
     {
-      "exemplo": "ver portais",
-      "count": 49,
-      "usuarios": [
-        "corretor-experiente-002",
-        "test"
-      ],
-      "primeira": "2026-05-08T07:32:40.018Z",
-      "ultima": "2026-05-08T21:06:22.163Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "quais campos a planilha precisa?",
-      "count": 53,
-      "usuarios": [
-        "corretor-tecnico-003"
-      ],
-      "primeira": "2026-05-08T07:32:40.108Z",
-      "ultima": "2026-05-08T21:06:22.291Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "xml não saiu no vivareal",
-      "count": 37,
-      "usuarios": [
-        "corretor-tecnico-003"
-      ],
-      "primeira": "2026-05-08T07:32:40.197Z",
-      "ultima": "2026-05-08T20:32:58.414Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "tipo mais buscado",
-      "count": 45,
-      "usuarios": [
-        "corretor-analista-004",
-        "test"
-      ],
-      "primeira": "2026-05-08T07:32:40.249Z",
-      "ultima": "2026-05-08T21:06:22.474Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "quartos mais pedidos",
-      "count": 45,
-      "usuarios": [
-        "corretor-analista-004",
-        "test"
-      ],
-      "primeira": "2026-05-08T07:32:40.291Z",
-      "ultima": "2026-05-08T21:06:22.508Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "subir xml",
-      "count": 37,
-      "usuarios": [
-        "corretor-digitacao-005"
-      ],
-      "primeira": "2026-05-08T07:32:40.469Z",
-      "ultima": "2026-05-08T20:32:58.693Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "ver portias",
-      "count": 50,
-      "usuarios": [
-        "corretor-digitacao-005"
-      ],
-      "primeira": "2026-05-08T07:32:40.509Z",
-      "ultima": "2026-05-08T21:06:22.958Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "meu relatorrio",
-      "count": 49,
-      "usuarios": [
-        "corretor-digitacao-005"
-      ],
-      "primeira": "2026-05-08T07:32:40.555Z",
-      "ultima": "2026-05-08T20:59:12.634Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "enviar vitrine para cliente",
-      "count": 37,
-      "usuarios": [
-        "corretor-suporte-007"
-      ],
-      "primeira": "2026-05-08T07:32:40.783Z",
-      "ultima": "2026-05-08T20:32:59.094Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "link do cliente",
-      "count": 50,
-      "usuarios": [
-        "corretor-suporte-007"
-      ],
-      "primeira": "2026-05-08T07:32:40.795Z",
-      "ultima": "2026-05-08T20:59:12.895Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "manda follow-up",
-      "count": 52,
-      "usuarios": [
-        "corretor-suporte-007"
-      ],
-      "primeira": "2026-05-08T07:32:40.861Z",
-      "ultima": "2026-05-08T20:59:12.968Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "blablabla xpto nada",
-      "count": 21,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T07:45:23.017Z",
-      "ultima": "2026-05-08T20:22:06.982Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "faixa de valor",
-      "count": 3,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T07:45:23.027Z",
-      "ultima": "2026-05-08T07:47:08.941Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "bairros mais buscados",
-      "count": 7,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T07:46:44.709Z",
-      "ultima": "2026-05-08T20:22:06.765Z",
-      "sugerido": true
-    },
-    {
       "exemplo": "ticket medio",
       "count": 2,
       "usuarios": [
@@ -232,159 +28,6 @@
       ],
       "primeira": "2026-05-08T07:46:44.727Z",
       "ultima": "2026-05-08T07:47:08.961Z",
-      "sugerido": false
-    },
-    {
-      "exemplo": "orcamento dos clientes",
-      "count": 2,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T07:46:44.741Z",
-      "ultima": "2026-05-08T07:47:08.976Z",
-      "sugerido": false
-    },
-    {
-      "exemplo": "qwerty asdfgh",
-      "count": 18,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T07:49:37.881Z",
-      "ultima": "2026-05-08T20:22:06.989Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "meu portal rejeitou",
-      "count": 4,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T07:51:44.030Z",
-      "ultima": "2026-05-08T07:53:29.612Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "como adicionar fotos",
-      "count": 22,
-      "usuarios": [
-        "test",
-        "corretor-tecnico-003"
-      ],
-      "primeira": "2026-05-08T07:58:44.982Z",
-      "ultima": "2026-05-08T20:59:12.245Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "minha conta",
-      "count": 11,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T07:58:45.024Z",
-      "ultima": "2026-05-08T20:22:06.905Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "como começo?",
-      "count": 12,
-      "usuarios": [
-        "corretor-iniciante-001"
-      ],
-      "primeira": "2026-05-08T08:06:41.765Z",
-      "ultima": "2026-05-08T20:59:11.864Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "a extração falhou",
-      "count": 15,
-      "usuarios": [
-        "corretor-tecnico-003"
-      ],
-      "primeira": "2026-05-08T08:06:42.053Z",
-      "ultima": "2026-05-08T20:59:12.176Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "casas disponíveis",
-      "count": 5,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T20:18:15.302Z",
-      "ultima": "2026-05-08T20:22:06.660Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "minhas visitas",
-      "count": 5,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T20:18:15.322Z",
-      "ultima": "2026-05-08T20:22:06.670Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "visitas pendentes",
-      "count": 6,
-      "usuarios": [
-        "test",
-        "corretor-experiente-002"
-      ],
-      "primeira": "2026-05-08T20:18:15.335Z",
-      "ultima": "2026-05-08T21:06:21.960Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "quem confirmou visita",
-      "count": 6,
-      "usuarios": [
-        "test",
-        "corretor-experiente-002"
-      ],
-      "primeira": "2026-05-08T20:18:15.342Z",
-      "ultima": "2026-05-08T21:06:21.994Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "resumo do dia",
-      "count": 5,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T20:18:15.769Z",
-      "ultima": "2026-05-08T20:22:06.898Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "casas com 3 quartos",
-      "count": 5,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T20:18:16.047Z",
-      "ultima": "2026-05-08T20:22:06.973Z",
-      "sugerido": true
-    },
-    {
-      "exemplo": "quando e a proxima visita",
-      "count": 1,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T20:25:26.043Z",
-      "ultima": "2026-05-08T20:25:26.043Z",
-      "sugerido": false
-    },
-    {
-      "exemplo": "ja enviei a vitrine para o joao",
-      "count": 1,
-      "usuarios": [
-        "test"
-      ],
-      "primeira": "2026-05-08T20:25:26.072Z",
-      "ultima": "2026-05-08T20:25:26.072Z",
       "sugerido": false
     },
     {
@@ -398,13 +41,13 @@
       "sugerido": false
     },
     {
-      "exemplo": "quais link",
-      "count": 1,
+      "exemplo": "quem não respondeu?",
+      "count": 2,
       "usuarios": [
-        "imobiliaria-47991919191"
+        "corretor-suporte-007"
       ],
-      "primeira": "2026-05-08T20:51:10.209Z",
-      "ultima": "2026-05-08T20:51:10.209Z",
+      "primeira": "2026-05-08T21:06:23.441Z",
+      "ultima": "2026-05-09T01:31:10.831Z",
       "sugerido": false
     },
     {
@@ -413,18 +56,68 @@
       "usuarios": [
         "corretor-iniciante-001"
       ],
-      "primeira": "2026-05-08T21:06:21.786Z",
-      "ultima": "2026-05-08T21:06:21.786Z",
+      "primeira": "2026-05-09T01:31:09.357Z",
+      "ultima": "2026-05-09T01:31:09.357Z",
       "sugerido": false
     },
     {
       "exemplo": "quem pediu visita?",
+      "count": 2,
+      "usuarios": [
+        "corretor-experiente-002"
+      ],
+      "primeira": "2026-05-09T01:31:09.471Z",
+      "ultima": "2026-05-09T01:31:09.518Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "visitas pendentes",
       "count": 1,
       "usuarios": [
         "corretor-experiente-002"
       ],
-      "primeira": "2026-05-08T21:06:21.943Z",
-      "ultima": "2026-05-08T21:06:21.943Z",
+      "primeira": "2026-05-09T01:31:09.489Z",
+      "ultima": "2026-05-09T01:31:09.489Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "ver portais",
+      "count": 1,
+      "usuarios": [
+        "corretor-experiente-002"
+      ],
+      "primeira": "2026-05-09T01:31:09.717Z",
+      "ultima": "2026-05-09T01:31:09.717Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "quais campos a planilha precisa?",
+      "count": 1,
+      "usuarios": [
+        "corretor-tecnico-003"
+      ],
+      "primeira": "2026-05-09T01:31:09.850Z",
+      "ultima": "2026-05-09T01:31:09.850Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "tipo mais buscado",
+      "count": 1,
+      "usuarios": [
+        "corretor-analista-004"
+      ],
+      "primeira": "2026-05-09T01:31:10.051Z",
+      "ultima": "2026-05-09T01:31:10.051Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "quartos mais pedidos",
+      "count": 1,
+      "usuarios": [
+        "corretor-analista-004"
+      ],
+      "primeira": "2026-05-09T01:31:10.084Z",
+      "ultima": "2026-05-09T01:31:10.084Z",
       "sugerido": false
     },
     {
@@ -433,8 +126,8 @@
       "usuarios": [
         "corretor-digitacao-005"
       ],
-      "primeira": "2026-05-08T21:06:22.880Z",
-      "ultima": "2026-05-08T21:06:23.092Z",
+      "primeira": "2026-05-09T01:31:10.266Z",
+      "ultima": "2026-05-09T01:31:10.496Z",
       "sugerido": false
     },
     {
@@ -443,8 +136,18 @@
       "usuarios": [
         "corretor-digitacao-005"
       ],
-      "primeira": "2026-05-08T21:06:22.894Z",
-      "ultima": "2026-05-08T21:06:22.894Z",
+      "primeira": "2026-05-09T01:31:10.282Z",
+      "ultima": "2026-05-09T01:31:10.282Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "ver portias",
+      "count": 1,
+      "usuarios": [
+        "corretor-digitacao-005"
+      ],
+      "primeira": "2026-05-09T01:31:10.349Z",
+      "ultima": "2026-05-09T01:31:10.349Z",
       "sugerido": false
     },
     {
@@ -453,8 +156,8 @@
       "usuarios": [
         "corretor-digitacao-005"
       ],
-      "primeira": "2026-05-08T21:06:23.042Z",
-      "ultima": "2026-05-08T21:06:23.042Z",
+      "primeira": "2026-05-09T01:31:10.442Z",
+      "ultima": "2026-05-09T01:31:10.442Z",
       "sugerido": false
     },
     {
@@ -463,8 +166,8 @@
       "usuarios": [
         "corretor-busca-006"
       ],
-      "primeira": "2026-05-08T21:06:23.144Z",
-      "ultima": "2026-05-08T21:06:23.144Z",
+      "primeira": "2026-05-09T01:31:10.541Z",
+      "ultima": "2026-05-09T01:31:10.541Z",
       "sugerido": false
     },
     {
@@ -473,8 +176,18 @@
       "usuarios": [
         "corretor-busca-006"
       ],
-      "primeira": "2026-05-08T21:06:23.299Z",
-      "ultima": "2026-05-08T21:06:23.299Z",
+      "primeira": "2026-05-09T01:31:10.688Z",
+      "ultima": "2026-05-09T01:31:10.688Z",
+      "sugerido": false
+    },
+    {
+      "exemplo": "enviar vitrine para cliente",
+      "count": 1,
+      "usuarios": [
+        "corretor-suporte-007"
+      ],
+      "primeira": "2026-05-09T01:31:10.734Z",
+      "ultima": "2026-05-09T01:31:10.734Z",
       "sugerido": false
     },
     {
@@ -483,18 +196,8 @@
       "usuarios": [
         "corretor-suporte-007"
       ],
-      "primeira": "2026-05-08T21:06:23.396Z",
-      "ultima": "2026-05-08T21:06:23.396Z",
-      "sugerido": false
-    },
-    {
-      "exemplo": "quem não respondeu?",
-      "count": 1,
-      "usuarios": [
-        "corretor-suporte-007"
-      ],
-      "primeira": "2026-05-08T21:06:23.441Z",
-      "ultima": "2026-05-08T21:06:23.441Z",
+      "primeira": "2026-05-09T01:31:10.781Z",
+      "ultima": "2026-05-09T01:31:10.781Z",
       "sugerido": false
     }
   ],
@@ -690,7 +393,7 @@
     },
     {
       "pergunta": "visitas hoje",
-      "count": 2,
+      "count": 3,
       "respostas": [
         {
           "texto": "Nenhuma lead chegou hoje ainda. 📋👥 Todas as leadsLeads quentesImportar leadsLeads sem match",
@@ -704,11 +407,11 @@
         }
       ],
       "primeira": "2026-05-08T20:49:48.315Z",
-      "ultima": "2026-05-08T21:06:21.974Z"
+      "ultima": "2026-05-09T01:31:09.503Z"
     },
     {
       "pergunta": "leads sem match",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "👥 Leads:Total: 1393 · 🌐 Orgânicas: 442 · 📋 Importadas: 951🎯 Com match: 43 (3%) · ❌ Sem match: 1350📍 Bairros mais buscados: Centro (48), Jardim Mi",
@@ -724,14 +427,19 @@
           "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
           "dominio": "leads",
           "data": "2026-05-08T21:06:22.108Z"
+        },
+        {
+          "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
+          "dominio": "leads",
+          "data": "2026-05-09T01:31:09.650Z"
         }
       ],
       "primeira": "2026-05-08T20:49:54.846Z",
-      "ultima": "2026-05-08T21:06:22.108Z"
+      "ultima": "2026-05-09T01:31:09.650Z"
     },
     {
       "pergunta": "leads quentes",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "🔥 Leads mais quentes:1. Renata Graber de Aquino — Moema Apartamento · 15 match(es)2. Barbara krysttal — Moema Apartamento · 15 match(es)3. Amanda — V",
@@ -747,14 +455,19 @@
           "texto": "🔥 Leads mais quentes:1. João Silva — Itajaí Apartamento · 1 match(es)2. Maria Santos — Balneário Camboriú Casa · 1 match(es)3. Carlos Mendes — Itapem",
           "dominio": "leads",
           "data": "2026-05-08T21:06:21.925Z"
+        },
+        {
+          "texto": "🔥 Leads mais quentes:1. João Silva — Itajaí Apartamento · 1 match(es)2. Maria Santos — Balneário Camboriú Casa · 1 match(es)3. Carlos Mendes — Itapem",
+          "dominio": "leads",
+          "data": "2026-05-09T01:31:09.456Z"
         }
       ],
       "primeira": "2026-05-08T20:50:02.243Z",
-      "ultima": "2026-05-08T21:06:21.925Z"
+      "ultima": "2026-05-09T01:31:09.456Z"
     },
     {
       "pergunta": "leads com match",
-      "count": 2,
+      "count": 3,
       "respostas": [
         {
           "texto": "🔍 21 lead(s) encontrada(s):• tugnoli@hotmail.com — Perdizes Apartamento • Gilmara.mbc@gmail.com — Vila Cordeiro Casa • tchiagodelvalle@gmail.com — Re",
@@ -768,7 +481,7 @@
         }
       ],
       "primeira": "2026-05-08T20:50:09.281Z",
-      "ultima": "2026-05-08T21:06:22.194Z"
+      "ultima": "2026-05-09T01:31:09.749Z"
     },
     {
       "pergunta": "importar leads",
@@ -798,7 +511,7 @@
     },
     {
       "pergunta": "ajuda",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóveis📅 Visitas🎯 Match🔗 Portais🪙 Coins🔔 Notificações📊 Resumo🧠 Plano",
@@ -807,11 +520,11 @@
         }
       ],
       "primeira": "2026-05-08T20:50:36.699Z",
-      "ultima": "2026-05-08T21:06:21.675Z"
+      "ultima": "2026-05-09T01:31:09.257Z"
     },
     {
       "pergunta": "o que devo fazer hoje",
-      "count": 2,
+      "count": 3,
       "respostas": [
         {
           "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando confirmação. Confirmar →🟡 1350 leads sem match — pode estar faltand",
@@ -822,14 +535,19 @@
           "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário. Ver visitas →🟡 3 visita(s) pendente(s) aguardando confirmação. ",
           "dominio": null,
           "data": "2026-05-08T21:06:22.134Z"
+        },
+        {
+          "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário. Ver visitas →🟡 3 visita(s) pendente(s) aguardando confirmação. ",
+          "dominio": null,
+          "data": "2026-05-09T01:31:09.682Z"
         }
       ],
       "primeira": "2026-05-08T20:50:39.465Z",
-      "ultima": "2026-05-08T21:06:22.134Z"
+      "ultima": "2026-05-09T01:31:09.682Z"
     },
     {
       "pergunta": "resumo geral",
-      "count": 2,
+      "count": 3,
       "respostas": [
         {
           "texto": "📊 Resumo:🏠 846 ativos · 👥 1393 leads · 🎯 43 (3%) · 📅 2 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando c",
@@ -840,10 +558,15 @@
           "texto": "📊 Resumo:🏠 45 ativos · 👥 87 leads · 🎯 41 (47%) · 📅 12 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário",
           "dominio": "dashboard",
           "data": "2026-05-08T21:06:22.122Z"
+        },
+        {
+          "texto": "📊 Resumo:🏠 45 ativos · 👥 87 leads · 🎯 41 (47%) · 📅 12 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário",
+          "dominio": "dashboard",
+          "data": "2026-05-09T01:31:09.667Z"
         }
       ],
       "primeira": "2026-05-08T20:50:47.673Z",
-      "ultima": "2026-05-08T21:06:22.122Z"
+      "ultima": "2026-05-09T01:31:09.667Z"
     },
     {
       "pergunta": "oi",
@@ -860,7 +583,7 @@
     },
     {
       "pergunta": "olá",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Boa noite, Carlos! 👋🔔 2 notificação(ões):⚠️ Urgente:🔴 2 visita(s) hoje — Não perca o horário! Ver →🟡 3 visita(s) pendentes — Aguardando sua confir",
@@ -869,11 +592,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:21.598Z",
-      "ultima": "2026-05-08T21:06:21.598Z"
+      "ultima": "2026-05-09T01:31:09.171Z"
     },
     {
       "pergunta": "bom dia",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Boa noite, Carlos! 👋🔔 2 notificação(ões):⚠️ Urgente:🔴 2 visita(s) hoje — Não perca o horário! Ver →🟡 3 visita(s) pendentes — Aguardando sua confir",
@@ -882,11 +605,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:21.615Z",
-      "ultima": "2026-05-08T21:06:21.615Z"
+      "ultima": "2026-05-09T01:31:09.189Z"
     },
     {
       "pergunta": "boa tarde",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Boa noite, Carlos! 👋🔔 2 notificação(ões):⚠️ Urgente:🔴 2 visita(s) hoje — Não perca o horário! Ver →🟡 3 visita(s) pendentes — Aguardando sua confir",
@@ -895,11 +618,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:21.631Z",
-      "ultima": "2026-05-08T21:06:21.631Z"
+      "ultima": "2026-05-09T01:31:09.206Z"
     },
     {
       "pergunta": "o que você faz?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóveis📅 Visitas🎯 Match🔗 Portais🪙 Coins🔔 Notificações📊 Resumo🧠 Plano",
@@ -908,37 +631,47 @@
         }
       ],
       "primeira": "2026-05-08T21:06:21.658Z",
-      "ultima": "2026-05-08T21:06:21.658Z"
+      "ultima": "2026-05-09T01:31:09.236Z"
     },
     {
       "pergunta": "como cadastro um imóvel?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🏠 Imóveis:✅ Ativos: 45 · ❌ Inativos: 8📍 Bairros: Itajaí, Balneário Camboriú, Itapema, Navegantes, Camboriú🏷️ Tipos: Apartamento (2), Casa (1)Ver im",
           "dominio": "imoveis",
           "data": "2026-05-08T21:06:21.695Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 45 · ❌ Inativos: 8📍 Bairros: Itajaí, Balneário Camboriú, Itapema, Navegantes, Camboriú🏷️ Tipos: Apartamento (2), Casa (1)Ver im",
+          "dominio": "imoveis",
+          "data": "2026-05-09T01:31:09.276Z"
         }
       ],
       "primeira": "2026-05-08T21:06:21.695Z",
-      "ultima": "2026-05-08T21:06:21.695Z"
+      "ultima": "2026-05-09T01:31:09.276Z"
     },
     {
       "pergunta": "como importo leads?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
           "dominio": "leads",
           "data": "2026-05-08T21:06:21.712Z"
+        },
+        {
+          "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
+          "dominio": "leads",
+          "data": "2026-05-09T01:31:09.294Z"
         }
       ],
       "primeira": "2026-05-08T21:06:21.712Z",
-      "ultima": "2026-05-08T21:06:21.712Z"
+      "ultima": "2026-05-09T01:31:09.294Z"
     },
     {
       "pergunta": "o que é match?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "💡 MatchMatch é quando um imóvel da sua carteira combina com o que um lead procura. O sistema cruza bairro + tipo + quartos automaticamente.❓ Mais aju",
@@ -947,11 +680,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:21.736Z",
-      "ultima": "2026-05-08T21:06:21.736Z"
+      "ultima": "2026-05-09T01:31:09.307Z"
     },
     {
       "pergunta": "o que é vitrine?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "💡 VitrineVitrine é uma página exclusiva enviada ao lead com os imóveis em match. O lead escolhe e solicita visita — tudo automático!❓ Mais ajuda",
@@ -960,24 +693,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:21.753Z",
-      "ultima": "2026-05-08T21:06:21.753Z"
+      "ultima": "2026-05-09T01:31:09.324Z"
     },
     {
       "pergunta": "como publico no portal?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
           "dominio": "portais",
           "data": "2026-05-08T21:06:21.772Z"
+        },
+        {
+          "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
+          "dominio": "portais",
+          "data": "2026-05-09T01:31:09.343Z"
         }
       ],
       "primeira": "2026-05-08T21:06:21.772Z",
-      "ultima": "2026-05-08T21:06:21.772Z"
+      "ultima": "2026-05-09T01:31:09.343Z"
     },
     {
       "pergunta": "o que é lead?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "💡 LeadLead é um cliente interessado em comprar ou alugar. Você importa planilhas dos portais e o sistema faz o match automático.❓ Mais ajudaLeadsImóv",
@@ -986,11 +724,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:21.806Z",
-      "ultima": "2026-05-08T21:06:21.806Z"
+      "ultima": "2026-05-09T01:31:09.376Z"
     },
     {
       "pergunta": "o que é score?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóveis📅 Visitas🎯 Match🔗 Portais🪙 Coins🔔 Notificações📊 Resumo🧠 Plano",
@@ -999,11 +737,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:21.828Z",
-      "ultima": "2026-05-08T21:06:21.828Z"
+      "ultima": "2026-05-09T01:31:09.391Z"
     },
     {
       "pergunta": "como começo?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🎉 Conta 100% configurada!Você já tem imóveis, leads, match e visitas. Parabéns!📊 Ver resumo🧠 Plano do diaLeadsImóveisVisitasMatch",
@@ -1012,24 +750,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:21.852Z",
-      "ultima": "2026-05-08T21:06:21.852Z"
+      "ultima": "2026-05-09T01:31:09.407Z"
     },
     {
       "pergunta": "não sei por onde começar",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário. Ver visitas →🟡 3 visita(s) pendente(s) aguardando confirmação. ",
           "dominio": "saudacao",
           "data": "2026-05-08T21:06:21.871Z"
+        },
+        {
+          "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário. Ver visitas →🟡 3 visita(s) pendente(s) aguardando confirmação. ",
+          "dominio": "saudacao",
+          "data": "2026-05-09T01:31:09.425Z"
         }
       ],
       "primeira": "2026-05-08T21:06:21.871Z",
-      "ultima": "2026-05-08T21:06:21.871Z"
+      "ultima": "2026-05-09T01:31:09.425Z"
     },
     {
       "pergunta": "minhas leads de hoje",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📋 1 lead(s) hoje:• João Silva — Itajaí ApartamentoVer todas →Leads quentesImportar leadsLeads sem match",
@@ -1038,7 +781,7 @@
         }
       ],
       "primeira": "2026-05-08T21:06:21.906Z",
-      "ultima": "2026-05-08T21:06:21.906Z"
+      "ultima": "2026-05-09T01:31:09.439Z"
     },
     {
       "pergunta": "visitas pendentes",
@@ -1055,20 +798,25 @@
     },
     {
       "pergunta": "meus imóveis",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🏠 Imóveis:✅ Ativos: 45 · ❌ Inativos: 8📍 Bairros: Itajaí, Balneário Camboriú, Itapema, Navegantes, Camboriú🏷️ Tipos: Apartamento (2), Casa (1)Ver im",
           "dominio": "imoveis",
           "data": "2026-05-08T21:06:22.010Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 45 · ❌ Inativos: 8📍 Bairros: Itajaí, Balneário Camboriú, Itapema, Navegantes, Camboriú🏷️ Tipos: Apartamento (2), Casa (1)Ver im",
+          "dominio": "imoveis",
+          "data": "2026-05-09T01:31:09.553Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.010Z",
-      "ultima": "2026-05-08T21:06:22.010Z"
+      "ultima": "2026-05-09T01:31:09.553Z"
     },
     {
       "pergunta": "imóveis inativos",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "❌ 8 imóveis inativosImóveis inativos não aparecem no match nem nos portais.Ver inativos →🔄 ReativarMeus imóveisImóveis inativosGerar XML",
@@ -1077,11 +825,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.032Z",
-      "ultima": "2026-05-08T21:06:22.032Z"
+      "ultima": "2026-05-09T01:31:09.572Z"
     },
     {
       "pergunta": "imóveis sem proprietário",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "👤 4 imóveis sem proprietárioSem proprietário, não é possível notificá-lo sobre visitas.Vincular proprietários →📥 Importar ExcelMeus imóveisImóveis i",
@@ -1090,24 +838,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.061Z",
-      "ultima": "2026-05-08T21:06:22.061Z"
+      "ultima": "2026-05-09T01:31:09.599Z"
     },
     {
       "pergunta": "demanda por bairro",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📍 Bairros mais buscados pelas leads:1. Itajaí — 2 leads · 2 imóvel(is) 🟢2. Balneário Camboriú — 1 lead · 1 imóvel(is) 🟢3. Florianópolis — 1 lead · ",
           "dominio": "mercado",
           "data": "2026-05-08T21:06:22.078Z"
+        },
+        {
+          "texto": "📍 Bairros mais buscados pelas leads:1. Itajaí — 2 leads · 2 imóvel(is) 🟢2. Balneário Camboriú — 1 lead · 1 imóvel(is) 🟢3. Florianópolis — 1 lead · ",
+          "dominio": "mercado",
+          "data": "2026-05-09T01:31:09.617Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.078Z",
-      "ultima": "2026-05-08T21:06:22.078Z"
+      "ultima": "2026-05-09T01:31:09.617Z"
     },
     {
       "pergunta": "taxa de match",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📊 Taxa de match: 47% 🟡 Razoável — pode melhorar41 com match · 46 sem match · 87 total❓ Como melhorarVer leads →Ver matchTaxa de matchPor que sem mat",
@@ -1116,11 +869,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.094Z",
-      "ultima": "2026-05-08T21:06:22.094Z"
+      "ultima": "2026-05-09T01:31:09.634Z"
     },
     {
       "pergunta": "gerar xml vivareal",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔗 Para qual portal gerar o XML?🔗 VivaReal🔗 ZAP🔗 OLX🔗 Chaves🔗 ImovelWeb🔗 123iVer portaisGerar XML",
@@ -1129,7 +882,7 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.149Z",
-      "ultima": "2026-05-08T21:06:22.149Z"
+      "ultima": "2026-05-09T01:31:09.700Z"
     },
     {
       "pergunta": "ver portais",
@@ -1146,20 +899,25 @@
     },
     {
       "pergunta": "meu relatório",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📊 Resumo:🏠 45 ativos · 👥 87 leads · 🎯 41 (47%) · 📅 12 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário",
           "dominio": "dashboard",
           "data": "2026-05-08T21:06:22.179Z"
+        },
+        {
+          "texto": "📊 Resumo:🏠 45 ativos · 👥 87 leads · 🎯 41 (47%) · 📅 12 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário",
+          "dominio": "dashboard",
+          "data": "2026-05-09T01:31:09.733Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.179Z",
-      "ultima": "2026-05-08T21:06:22.179Z"
+      "ultima": "2026-05-09T01:31:09.733Z"
     },
     {
       "pergunta": "meus coins",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🪙 Match Coins — seu sistema de recompensas.Ver coins →LeadsImóveisVisitasMatch",
@@ -1168,89 +926,119 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.210Z",
-      "ultima": "2026-05-08T21:06:22.210Z"
+      "ultima": "2026-05-09T01:31:09.767Z"
     },
     {
       "pergunta": "meu xml não atualizou",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔧 XML não atualizou?Causas mais comuns:• URL do feed incorreta no portal — copie novamente em Portais →• Imóveis sem foto ou descrição (portais rejei",
           "dominio": "portais",
           "data": "2026-05-08T21:06:22.224Z"
+        },
+        {
+          "texto": "🔧 XML não atualizou?Causas mais comuns:• URL do feed incorreta no portal — copie novamente em Portais →• Imóveis sem foto ou descrição (portais rejei",
+          "dominio": "portais",
+          "data": "2026-05-09T01:31:09.782Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.224Z",
-      "ultima": "2026-05-08T21:06:22.224Z"
+      "ultima": "2026-05-09T01:31:09.782Z"
     },
     {
       "pergunta": "portal rejeitou meu imóvel",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔧 Portal rejeitou?Verifique:• Mínimo 3 fotos obrigatórias• Descrição com 100+ caracteres• Preço preenchido• Endereço completo (bairro + cidade)• Tipo",
           "dominio": "portais",
           "data": "2026-05-08T21:06:22.242Z"
+        },
+        {
+          "texto": "🔧 Portal rejeitou?Verifique:• Mínimo 3 fotos obrigatórias• Descrição com 100+ caracteres• Preço preenchido• Endereço completo (bairro + cidade)• Tipo",
+          "dominio": "portais",
+          "data": "2026-05-09T01:31:09.798Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.242Z",
-      "ultima": "2026-05-08T21:06:22.242Z"
+      "ultima": "2026-05-09T01:31:09.798Z"
     },
     {
       "pergunta": "por que não deu match?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "❌ Por que não deu match?Para dar match, o imóvel precisa ter:• Bairro igual ao buscado pela lead• Tipo igual (apartamento, casa...)• Quartos ≥ quartos",
           "dominio": "match",
           "data": "2026-05-08T21:06:22.257Z"
+        },
+        {
+          "texto": "❌ Por que não deu match?Para dar match, o imóvel precisa ter:• Bairro igual ao buscado pela lead• Tipo igual (apartamento, casa...)• Quartos ≥ quartos",
+          "dominio": "match",
+          "data": "2026-05-09T01:31:09.815Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.257Z",
-      "ultima": "2026-05-08T21:06:22.257Z"
+      "ultima": "2026-05-09T01:31:09.815Z"
     },
     {
       "pergunta": "a extração falhou",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📋 Campos obrigatórios na planilha de leads:• Nome do cliente• Telefone ou e-mail• Bairro de interesse• Tipo de imóvel (apartamento, casa...)• Quartos",
           "dominio": null,
           "data": "2026-05-08T21:06:22.274Z"
+        },
+        {
+          "texto": "📋 Campos obrigatórios na planilha de leads:• Nome do cliente• Telefone ou e-mail• Bairro de interesse• Tipo de imóvel (apartamento, casa...)• Quartos",
+          "dominio": null,
+          "data": "2026-05-09T01:31:09.832Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.274Z",
-      "ultima": "2026-05-08T21:06:22.274Z"
+      "ultima": "2026-05-09T01:31:09.832Z"
     },
     {
       "pergunta": "como importar leads?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📋 Importar leads:Acesse Importar Leads → e envie o CSV ou Excel exportado do portal.Portais suportados: ImovelWeb, ZAP, VivaReal, OLX, Chaves, 123i.",
           "dominio": "leads",
           "data": "2026-05-08T21:06:22.305Z"
+        },
+        {
+          "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
+          "dominio": "leads",
+          "data": "2026-05-09T01:31:09.864Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.305Z",
-      "ultima": "2026-05-08T21:06:22.305Z"
+      "ultima": "2026-05-09T01:31:09.864Z"
     },
     {
       "pergunta": "como melhorar o match?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🎯 Como funciona o Match:O sistema cruza automaticamente cada lead com seus imóveis usando:• Bairro — deve ser igual• Tipo — deve ser igual (apto, cas",
           "dominio": "match",
           "data": "2026-05-08T21:06:22.321Z"
+        },
+        {
+          "texto": "🎯 Como funciona o Match:O sistema cruza automaticamente cada lead com seus imóveis usando:• Bairro — deve ser igual• Tipo — deve ser igual (apto, cas",
+          "dominio": "match",
+          "data": "2026-05-09T01:31:09.884Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.321Z",
-      "ultima": "2026-05-08T21:06:22.321Z"
+      "ultima": "2026-05-09T01:31:09.884Z"
     },
     {
       "pergunta": "imóvel não apareceu no portal",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Entendi que algo nao esta funcionando.XML nao atualizouPortal rejeitouSem matchVer portaisGerar XML",
@@ -1259,24 +1047,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.335Z",
-      "ultima": "2026-05-08T21:06:22.335Z"
+      "ultima": "2026-05-09T01:31:09.899Z"
     },
     {
       "pergunta": "como adicionar fotos?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔧 Suporte técnico:Pode me detalhar mais o problema? Por exemplo:• Qual funcionalidade não está funcionando?• O que aparece na tela?• Imóvel, lead ou ",
           "dominio": null,
           "data": "2026-05-08T21:06:22.350Z"
+        },
+        {
+          "texto": "🔧 Suporte técnico:Pode me detalhar mais o problema? Por exemplo:• Qual funcionalidade não está funcionando?• O que aparece na tela?• Imóvel, lead ou ",
+          "dominio": null,
+          "data": "2026-05-09T01:31:09.916Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.350Z",
-      "ultima": "2026-05-08T21:06:22.350Z"
+      "ultima": "2026-05-09T01:31:09.916Z"
     },
     {
       "pergunta": "como inativar imóvel?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔴 Para inativar um imóvel, acesse Imóveis →, abra o imóvel e clique em Inativar. Ele sai do match e dos portais automaticamente.",
@@ -1285,11 +1078,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.364Z",
-      "ultima": "2026-05-08T21:06:22.364Z"
+      "ultima": "2026-05-09T01:31:09.932Z"
     },
     {
       "pergunta": "como trocar senha?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóveis📅 Visitas🎯 Match🔗 Portais🪙 Coins🔔 Notificações📊 Resumo🧠 Plano",
@@ -1298,11 +1091,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.378Z",
-      "ultima": "2026-05-08T21:06:22.378Z"
+      "ultima": "2026-05-09T01:31:09.950Z"
     },
     {
       "pergunta": "leads duplicadas",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Não encontrei lead com nome \"duplicada\". Verifique na lista completa.Ver leads →Leads quentesImportar leadsLeads sem match",
@@ -1311,24 +1104,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.390Z",
-      "ultima": "2026-05-08T21:06:22.390Z"
+      "ultima": "2026-05-09T01:31:09.963Z"
     },
     {
       "pergunta": "xml não saiu no vivareal",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
           "dominio": "portais",
           "data": "2026-05-08T21:06:22.406Z"
+        },
+        {
+          "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
+          "dominio": "portais",
+          "data": "2026-05-09T01:31:09.980Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.406Z",
-      "ultima": "2026-05-08T21:06:22.406Z"
+      "ultima": "2026-05-09T01:31:09.980Z"
     },
     {
       "pergunta": "qual minha taxa de match?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📊 Taxa de match: 47% 🟡 Razoável — pode melhorar41 com match · 46 sem match · 87 total❓ Como melhorarVer leads →Ver matchTaxa de matchPor que sem mat",
@@ -1337,11 +1135,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.420Z",
-      "ultima": "2026-05-08T21:06:22.420Z"
+      "ultima": "2026-05-09T01:31:09.997Z"
     },
     {
       "pergunta": "quantas leads tenho?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Não encontrei lead com nome \"tenho\". Verifique na lista completa.Ver leads →Leads quentesImportar leadsLeads sem match",
@@ -1350,11 +1148,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.434Z",
-      "ultima": "2026-05-08T21:06:22.434Z"
+      "ultima": "2026-05-09T01:31:10.013Z"
     },
     {
       "pergunta": "faixa de valor das leads",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "💰 Faixa de valor das leads:Médio: R$ 760.000• 300k-500k: 2 leads• 500k-800k: 2 leads• acima 800k: 1 lead🏠 Meus imóveisBairros demandaTipo mais busca",
@@ -1363,24 +1161,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.456Z",
-      "ultima": "2026-05-08T21:06:22.456Z"
+      "ultima": "2026-05-09T01:31:10.033Z"
     },
     {
       "pergunta": "bairros mais demandados",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📍 Bairros mais buscados pelas leads:1. Itajaí — 2 leads · 2 imóvel(is) 🟢2. Balneário Camboriú — 1 lead · 1 imóvel(is) 🟢3. Florianópolis — 1 lead · ",
           "dominio": "mercado",
           "data": "2026-05-08T21:06:22.492Z"
+        },
+        {
+          "texto": "📍 Bairros mais buscados pelas leads:1. Itajaí — 2 leads · 2 imóvel(is) 🟢2. Balneário Camboriú — 1 lead · 1 imóvel(is) 🟢3. Florianópolis — 1 lead · ",
+          "dominio": "mercado",
+          "data": "2026-05-09T01:31:10.069Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.492Z",
-      "ultima": "2026-05-08T21:06:22.492Z"
+      "ultima": "2026-05-09T01:31:10.069Z"
     },
     {
       "pergunta": "quartos mais pedidos",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
@@ -1389,11 +1192,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.509Z",
-      "ultima": "2026-05-08T21:06:22.509Z"
+      "ultima": "2026-05-09T01:31:10.086Z"
     },
     {
       "pergunta": "qual lead tem mais chance de fechar?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📊 Leads com mais chance de fechar:1. João Silva — 110pts2. Maria Santos — 80pts3. Carlos Mendes — 50pts4. Ana Lima — 10ptsChance do #1: 🔥 AltíssimaV",
@@ -1402,24 +1205,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.526Z",
-      "ultima": "2026-05-08T21:06:22.526Z"
+      "ultima": "2026-05-09T01:31:10.103Z"
     },
     {
       "pergunta": "quem devo atender primeiro?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🎯 Atenda nessa ordem:🔴 1. João Silva — Itajaí Apartamento · score 110pts🟠 2. Maria Santos — Balneário Camboriú Casa · score 80pts🟡 3. Carlos Mende",
           "dominio": null,
           "data": "2026-05-08T21:06:22.542Z"
+        },
+        {
+          "texto": "🎯 Atenda nessa ordem:🔴 1. João Silva — Itajaí Apartamento · score 110pts🟠 2. Maria Santos — Balneário Camboriú Casa · score 80pts🟡 3. Carlos Mende",
+          "dominio": null,
+          "data": "2026-05-09T01:31:10.119Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.542Z",
-      "ultima": "2026-05-08T21:06:22.542Z"
+      "ultima": "2026-05-09T01:31:10.119Z"
     },
     {
       "pergunta": "leads frias",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🥶 1 leads frias (sem match há 15+ dias):• Ana Lima — Itajaí Apartamento🎯 Fazer matchVer leads →Leads quentesImportar leadsLeads sem match",
@@ -1428,50 +1236,65 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.747Z",
-      "ultima": "2026-05-08T21:06:22.747Z"
+      "ultima": "2026-05-09T01:31:10.134Z"
     },
     {
       "pergunta": "relatório semanal",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📊 Resumo:🏠 45 ativos · 👥 87 leads · 🎯 41 (47%) · 📅 12 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário",
           "dominio": "dashboard",
           "data": "2026-05-08T21:06:22.762Z"
+        },
+        {
+          "texto": "📊 Resumo:🏠 45 ativos · 👥 87 leads · 🎯 41 (47%) · 📅 12 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário",
+          "dominio": "dashboard",
+          "data": "2026-05-09T01:31:10.151Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.762Z",
-      "ultima": "2026-05-08T21:06:22.762Z"
+      "ultima": "2026-05-09T01:31:10.151Z"
     },
     {
       "pergunta": "oferta vs demanda",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📍 Bairros mais buscados pelas leads:1. Itajaí — 2 leads · 2 imóvel(is) 🟢2. Balneário Camboriú — 1 lead · 1 imóvel(is) 🟢3. Florianópolis — 1 lead · ",
           "dominio": "mercado",
           "data": "2026-05-08T21:06:22.778Z"
+        },
+        {
+          "texto": "📍 Bairros mais buscados pelas leads:1. Itajaí — 2 leads · 2 imóvel(is) 🟢2. Balneário Camboriú — 1 lead · 1 imóvel(is) 🟢3. Florianópolis — 1 lead · ",
+          "dominio": "mercado",
+          "data": "2026-05-09T01:31:10.167Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.778Z",
-      "ultima": "2026-05-08T21:06:22.778Z"
+      "ultima": "2026-05-09T01:31:10.167Z"
     },
     {
       "pergunta": "imóveis parados",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📉 Imóveis parados = ativos mas sem nenhuma lead compatível.Você tem 3 imóveis ativos.Dicas para melhorar:• Verifique se os bairros batem com o que as",
           "dominio": "imoveis",
           "data": "2026-05-08T21:06:22.792Z"
+        },
+        {
+          "texto": "📉 Imóveis parados = ativos mas sem nenhuma lead compatível.Você tem 3 imóveis ativos.Dicas para melhorar:• Verifique se os bairros batem com o que as",
+          "dominio": "imoveis",
+          "data": "2026-05-09T01:31:10.181Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.792Z",
-      "ultima": "2026-05-08T21:06:22.792Z"
+      "ultima": "2026-05-09T01:31:10.182Z"
     },
     {
       "pergunta": "valor médio da carteira",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "💰 Faixa de valor das leads:Médio: R$ 760.000• 300k-500k: 2 leads• 500k-800k: 2 leads• acima 800k: 1 lead🏠 Meus imóveisBairros demandaTipo mais busca",
@@ -1480,37 +1303,47 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.819Z",
-      "ultima": "2026-05-08T21:06:22.819Z"
+      "ultima": "2026-05-09T01:31:10.199Z"
     },
     {
       "pergunta": "meus imovei",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🏠 Imóveis:✅ Ativos: 45 · ❌ Inativos: 8📍 Bairros: Itajaí, Balneário Camboriú, Itapema, Navegantes, Camboriú🏷️ Tipos: Apartamento (2), Casa (1)Ver im",
           "dominio": "imoveis",
           "data": "2026-05-08T21:06:22.832Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 45 · ❌ Inativos: 8📍 Bairros: Itajaí, Balneário Camboriú, Itapema, Navegantes, Camboriú🏷️ Tipos: Apartamento (2), Casa (1)Ver im",
+          "dominio": "imoveis",
+          "data": "2026-05-09T01:31:10.214Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.832Z",
-      "ultima": "2026-05-08T21:06:22.832Z"
+      "ultima": "2026-05-09T01:31:10.215Z"
     },
     {
       "pergunta": "ver lids",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
           "dominio": "leads",
           "data": "2026-05-08T21:06:22.849Z"
+        },
+        {
+          "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
+          "dominio": "leads",
+          "data": "2026-05-09T01:31:10.231Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.849Z",
-      "ultima": "2026-05-08T21:06:22.849Z"
+      "ultima": "2026-05-09T01:31:10.231Z"
     },
     {
       "pergunta": "quantas vizitas tenho?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📅 Visitas:Total: 12 · ✅ Confirmadas: 7 · ⏳ Pendentes: 3📆 Hoje: 2Ver visitas →📆 Hoje⏳ Pendentes❓ Como funcionaVisitas hojePendentesNotificar proprie",
@@ -1519,7 +1352,7 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.865Z",
-      "ultima": "2026-05-08T21:06:22.865Z"
+      "ultima": "2026-05-09T01:31:10.249Z"
     },
     {
       "pergunta": "matsh",
@@ -1536,20 +1369,25 @@
     },
     {
       "pergunta": "subir xml",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
           "dominio": "portais",
           "data": "2026-05-08T21:06:22.911Z"
+        },
+        {
+          "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
+          "dominio": "portais",
+          "data": "2026-05-09T01:31:10.299Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.911Z",
-      "ultima": "2026-05-08T21:06:22.911Z"
+      "ultima": "2026-05-09T01:31:10.299Z"
     },
     {
       "pergunta": "imovéis inativos",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "❌ 8 imóveis inativosImóveis inativos não aparecem no match nem nos portais.Ver inativos →🔄 ReativarMeus imóveisImóveis inativosGerar XML",
@@ -1558,24 +1396,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.927Z",
-      "ultima": "2026-05-08T21:06:22.927Z"
+      "ultima": "2026-05-09T01:31:10.314Z"
     },
     {
       "pergunta": "lids sem matsh",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
           "dominio": "leads",
           "data": "2026-05-08T21:06:22.944Z"
+        },
+        {
+          "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
+          "dominio": "leads",
+          "data": "2026-05-09T01:31:10.332Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.944Z",
-      "ultima": "2026-05-08T21:06:22.944Z"
+      "ultima": "2026-05-09T01:31:10.332Z"
     },
     {
       "pergunta": "ver portias",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
@@ -1584,24 +1427,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.960Z",
-      "ultima": "2026-05-08T21:06:22.960Z"
+      "ultima": "2026-05-09T01:31:10.351Z"
     },
     {
       "pergunta": "commo importo lead?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
           "dominio": "leads",
           "data": "2026-05-08T21:06:22.976Z"
+        },
+        {
+          "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
+          "dominio": "leads",
+          "data": "2026-05-09T01:31:10.366Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.976Z",
-      "ultima": "2026-05-08T21:06:22.976Z"
+      "ultima": "2026-05-09T01:31:10.366Z"
     },
     {
       "pergunta": "quando tem vizita hj",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📅 Visitas:Total: 12 · ✅ Confirmadas: 7 · ⏳ Pendentes: 3📆 Hoje: 2Ver visitas →📆 Hoje⏳ Pendentes❓ Como funcionaVisitas hojePendentesNotificar proprie",
@@ -1610,37 +1458,47 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.992Z",
-      "ultima": "2026-05-08T21:06:22.992Z"
+      "ultima": "2026-05-09T01:31:10.390Z"
     },
     {
       "pergunta": "imovel paardos",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🏠 Imóveis:✅ Ativos: 45 · ❌ Inativos: 8📍 Bairros: Itajaí, Balneário Camboriú, Itapema, Navegantes, Camboriú🏷️ Tipos: Apartamento (2), Casa (1)Ver im",
           "dominio": "imoveis",
           "data": "2026-05-08T21:06:23.009Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 45 · ❌ Inativos: 8📍 Bairros: Itajaí, Balneário Camboriú, Itapema, Navegantes, Camboriú🏷️ Tipos: Apartamento (2), Casa (1)Ver im",
+          "dominio": "imoveis",
+          "data": "2026-05-09T01:31:10.407Z"
         }
       ],
       "primeira": "2026-05-08T21:06:23.009Z",
-      "ultima": "2026-05-08T21:06:23.009Z"
+      "ultima": "2026-05-09T01:31:10.407Z"
     },
     {
       "pergunta": "meu relatorrio",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📊 Resumo:🏠 45 ativos · 👥 87 leads · 🎯 41 (47%) · 📅 12 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário",
           "dominio": "dashboard",
           "data": "2026-05-08T21:06:23.026Z"
+        },
+        {
+          "texto": "📊 Resumo:🏠 45 ativos · 👥 87 leads · 🎯 41 (47%) · 📅 12 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário",
+          "dominio": "dashboard",
+          "data": "2026-05-09T01:31:10.425Z"
         }
       ],
       "primeira": "2026-05-08T21:06:23.026Z",
-      "ultima": "2026-05-08T21:06:23.026Z"
+      "ultima": "2026-05-09T01:31:10.425Z"
     },
     {
       "pergunta": "dashbord",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
@@ -1649,37 +1507,47 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.044Z",
-      "ultima": "2026-05-08T21:06:23.044Z"
+      "ultima": "2026-05-09T01:31:10.446Z"
     },
     {
       "pergunta": "resomo geral",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📊 Resumo:🏠 45 ativos · 👥 87 leads · 🎯 41 (47%) · 📅 12 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário",
           "dominio": "dashboard",
           "data": "2026-05-08T21:06:23.059Z"
+        },
+        {
+          "texto": "📊 Resumo:🏠 45 ativos · 👥 87 leads · 🎯 41 (47%) · 📅 12 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário",
+          "dominio": "dashboard",
+          "data": "2026-05-09T01:31:10.464Z"
         }
       ],
       "primeira": "2026-05-08T21:06:23.059Z",
-      "ultima": "2026-05-08T21:06:23.059Z"
+      "ultima": "2026-05-09T01:31:10.464Z"
     },
     {
       "pergunta": "lids quentes",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔥 Leads mais quentes:1. João Silva — Itajaí Apartamento · 1 match(es)2. Maria Santos — Balneário Camboriú Casa · 1 match(es)3. Carlos Mendes — Itapem",
           "dominio": "leads",
           "data": "2026-05-08T21:06:23.076Z"
+        },
+        {
+          "texto": "🔥 Leads mais quentes:1. João Silva — Itajaí Apartamento · 1 match(es)2. Maria Santos — Balneário Camboriú Casa · 1 match(es)3. Carlos Mendes — Itapem",
+          "dominio": "leads",
+          "data": "2026-05-09T01:31:10.479Z"
         }
       ],
       "primeira": "2026-05-08T21:06:23.077Z",
-      "ultima": "2026-05-08T21:06:23.077Z"
+      "ultima": "2026-05-09T01:31:10.479Z"
     },
     {
       "pergunta": "notificaçoes",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔔 2 notificação(ões):⚠️ Urgente:🔴 2 visita(s) hoje — Não perca o horário! Ver →🟡 3 visita(s) pendentes — Aguardando sua confirmação. Ver →LeadsImóv",
@@ -1688,11 +1556,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.112Z",
-      "ultima": "2026-05-08T21:06:23.112Z"
+      "ultima": "2026-05-09T01:31:10.513Z"
     },
     {
       "pergunta": "tem apartamento em Itajaí?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Encontrei 2 imovel(is) em Itajaí:- Apartamento 2q em Itajaí R$350.000- Apartamento 1q em Itajaí R$280.000Ver todos →Enviar vitrineMeus imóveisImóveis ",
@@ -1701,11 +1569,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.126Z",
-      "ultima": "2026-05-08T21:06:23.126Z"
+      "ultima": "2026-05-09T01:31:10.528Z"
     },
     {
       "pergunta": "apartamento 3 quartos",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔍 Nenhum imóvel encontrado para: apartamento, 3+ quartosVer todos os imóveis →Meus imóveisImóveis inativosGerar XML",
@@ -1714,11 +1582,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.161Z",
-      "ultima": "2026-05-08T21:06:23.161Z"
+      "ultima": "2026-05-09T01:31:10.560Z"
     },
     {
       "pergunta": "imóvel em Balneário Camboriú",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔍 1 imóvel(is) encontrado(s) para: em Balneário Camboriú• Casa · 3q — Balneário Camboriú · R$750.000Ver todos →Meus imóveisImóveis inativosGerar XML",
@@ -1727,11 +1595,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.186Z",
-      "ultima": "2026-05-08T21:06:23.186Z"
+      "ultima": "2026-05-09T01:31:10.575Z"
     },
     {
       "pergunta": "apto até 300mil 2 quartos",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔍 Nenhum imóvel encontrado para: 2+ quartos, até R$300kVer todos os imóveis →Meus imóveisImóveis inativosGerar XML",
@@ -1740,11 +1608,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.202Z",
-      "ultima": "2026-05-08T21:06:23.202Z"
+      "ultima": "2026-05-09T01:31:10.592Z"
     },
     {
       "pergunta": "cobertura em Itapema",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔍 Nenhum imóvel encontrado para: em ItapemaVer todos os imóveis →Meus imóveisImóveis inativosGerar XML",
@@ -1753,24 +1621,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.218Z",
-      "ultima": "2026-05-08T21:06:23.218Z"
+      "ultima": "2026-05-09T01:31:10.608Z"
     },
     {
       "pergunta": "imóvel até 800 mil",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔍 3 imóvel(is) encontrado(s) para: até R$800k• Apartamento · 2q — Itajaí · R$350.000• Casa · 3q — Balneário Camboriú · R$750.000• Apartamento · 1q — ",
           "dominio": "imoveis",
           "data": "2026-05-08T21:06:23.235Z"
+        },
+        {
+          "texto": "🔍 3 imóvel(is) encontrado(s) para: até R$800k• Apartamento · 2q — Itajaí · R$350.000• Casa · 3q — Balneário Camboriú · R$750.000• Apartamento · 1q — ",
+          "dominio": "imoveis",
+          "data": "2026-05-09T01:31:10.623Z"
         }
       ],
       "primeira": "2026-05-08T21:06:23.235Z",
-      "ultima": "2026-05-08T21:06:23.235Z"
+      "ultima": "2026-05-09T01:31:10.623Z"
     },
     {
       "pergunta": "buscar lead João",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Não encontrei lead com nome \"joao\". Verifique na lista completa.Ver leads →Leads quentesImportar leadsLeads sem match",
@@ -1779,11 +1652,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.252Z",
-      "ultima": "2026-05-08T21:06:23.252Z"
+      "ultima": "2026-05-09T01:31:10.640Z"
     },
     {
       "pergunta": "cliente Maria",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔍 1 lead(s) encontrada(s):• Maria Santos — Balneário Camboriú Casa Ver leads →Leads quentesImportar leadsLeads sem match",
@@ -1792,11 +1665,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.267Z",
-      "ultima": "2026-05-08T21:06:23.267Z"
+      "ultima": "2026-05-09T01:31:10.657Z"
     },
     {
       "pergunta": "quais clientes querem 3 quartos?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "Encontrei 1 imovel(is):- Casa 3q em Balneário Camboriú R$750.000Ver todos →Enviar vitrineMeus imóveisImóveis inativosGerar XML",
@@ -1805,11 +1678,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.283Z",
-      "ultima": "2026-05-08T21:06:23.283Z"
+      "ultima": "2026-05-09T01:31:10.674Z"
     },
     {
       "pergunta": "como conectar whatsapp?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóveis📅 Visitas🎯 Match🔗 Portais🪙 Coins🔔 Notificações📊 Resumo🧠 Plano",
@@ -1818,37 +1691,47 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.318Z",
-      "ultima": "2026-05-08T21:06:23.318Z"
+      "ultima": "2026-05-09T01:31:10.704Z"
     },
     {
       "pergunta": "mandar mensagem para lead",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
           "dominio": "leads",
           "data": "2026-05-08T21:06:23.335Z"
+        },
+        {
+          "texto": "👥 Leads:Total: 87 · 🌐 Orgânicas: 52 · 📋 Importadas: 35🎯 Com match: 41 (47%) · ❌ Sem match: 46📍 Bairros mais buscados: Itajaí (2), Balneário Cambo",
+          "dominio": "leads",
+          "data": "2026-05-09T01:31:10.719Z"
         }
       ],
       "primeira": "2026-05-08T21:06:23.335Z",
-      "ultima": "2026-05-08T21:06:23.335Z"
+      "ultima": "2026-05-09T01:31:10.719Z"
     },
     {
       "pergunta": "enviar vitrine para cliente",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "✨ Vitrine da lead:A vitrine é uma página exclusiva gerada para cada lead com os imóveis em match.Link: /cliente/oferta/:leadIdEnviar vitrine: abre o W",
           "dominio": "leads",
           "data": "2026-05-08T21:06:23.352Z"
+        },
+        {
+          "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
+          "dominio": null,
+          "data": "2026-05-09T01:31:10.735Z"
         }
       ],
       "primeira": "2026-05-08T21:06:23.352Z",
-      "ultima": "2026-05-08T21:06:23.352Z"
+      "ultima": "2026-05-09T01:31:10.735Z"
     },
     {
       "pergunta": "link do cliente",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "✨ A vitrine é a página enviada ao lead com imóveis em match. Acesse Leads → e clique em Enviar Vitrine.",
@@ -1857,24 +1740,29 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.366Z",
-      "ultima": "2026-05-08T21:06:23.366Z"
+      "ultima": "2026-05-09T01:31:10.751Z"
     },
     {
       "pergunta": "como agendar visita?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📅 Fluxo de visitas:1Lead recebe a vitrine com imóveis em match.2Lead escolhe imóvel e solicita visita.3Proprietário confirma ou recusa.4Lead é notifi",
           "dominio": "visitas",
           "data": "2026-05-08T21:06:23.382Z"
+        },
+        {
+          "texto": "📅 Fluxo de visitas:1Lead recebe a vitrine com imóveis em match.2Lead escolhe imóvel e solicita visita.3Proprietário confirma ou recusa.4Lead é notifi",
+          "dominio": "visitas",
+          "data": "2026-05-09T01:31:10.766Z"
         }
       ],
       "primeira": "2026-05-08T21:06:23.382Z",
-      "ultima": "2026-05-08T21:06:23.382Z"
+      "ultima": "2026-05-09T01:31:10.766Z"
     },
     {
       "pergunta": "como reativar leads frias?",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🥶 1 leads frias (sem match há 15+ dias):• Ana Lima — Itajaí Apartamento🎯 Fazer matchVer leads →Leads quentesImportar leadsLeads sem match",
@@ -1883,11 +1771,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.410Z",
-      "ultima": "2026-05-08T21:06:23.410Z"
+      "ultima": "2026-05-09T01:31:10.796Z"
     },
     {
       "pergunta": "leads para reativar",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "♻️ 2 leads para reativar:• Pedro Costa — Florianópolis Apartamento• Ana Lima — Itajaí ApartamentoEnvie a vitrine ou faça o match agora!Ver leads →🎯 F",
@@ -1896,7 +1784,7 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.426Z",
-      "ultima": "2026-05-08T21:06:23.426Z"
+      "ultima": "2026-05-09T01:31:10.813Z"
     },
     {
       "pergunta": "quem não respondeu?",
@@ -1913,7 +1801,7 @@
     },
     {
       "pergunta": "manda follow-up",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "📱 Follow-up ainda é manual. Em breve teremos automação direto pelo MatchImóveis.Dica: filtre leads sem visita há 7+ dias e entre em contato.",
@@ -1922,7 +1810,98 @@
         }
       ],
       "primeira": "2026-05-08T21:06:23.456Z",
-      "ultima": "2026-05-08T21:06:23.456Z"
+      "ultima": "2026-05-09T01:31:10.846Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "Boa noite, Carlos! 👋🔔 2 notificação(ões):⚠️ Urgente:🔴 2 visita(s) hoje — Não perca o horário! Ver →🟡 3 visita(s) pendentes — Aguardando sua confir",
+          "dominio": "saudacao",
+          "data": "2026-05-09T01:31:09.150Z"
+        }
+      ],
+      "primeira": "2026-05-09T01:31:09.150Z",
+      "ultima": "2026-05-09T01:31:09.150Z"
+    },
+    {
+      "pergunta": "primeiros passos",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
+          "dominio": null,
+          "data": "2026-05-09T01:31:09.359Z"
+        }
+      ],
+      "primeira": "2026-05-09T01:31:09.359Z",
+      "ultima": "2026-05-09T01:31:09.359Z"
+    },
+    {
+      "pergunta": "quem pediu visita?",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
+          "dominio": null,
+          "data": "2026-05-09T01:31:09.473Z"
+        }
+      ],
+      "primeira": "2026-05-09T01:31:09.473Z",
+      "ultima": "2026-05-09T01:31:09.473Z"
+    },
+    {
+      "pergunta": "tipo mais buscado",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
+          "dominio": null,
+          "data": "2026-05-09T01:31:10.053Z"
+        }
+      ],
+      "primeira": "2026-05-09T01:31:10.053Z",
+      "ultima": "2026-05-09T01:31:10.053Z"
+    },
+    {
+      "pergunta": "meus conis",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
+          "dominio": null,
+          "data": "2026-05-09T01:31:10.284Z"
+        }
+      ],
+      "primeira": "2026-05-09T01:31:10.284Z",
+      "ultima": "2026-05-09T01:31:10.284Z"
+    },
+    {
+      "pergunta": "casa até 500mil",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
+          "dominio": null,
+          "data": "2026-05-09T01:31:10.543Z"
+        }
+      ],
+      "primeira": "2026-05-09T01:31:10.543Z",
+      "ultima": "2026-05-09T01:31:10.543Z"
+    },
+    {
+      "pergunta": "tem casa com 2 vagas?",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
+          "dominio": null,
+          "data": "2026-05-09T01:31:10.689Z"
+        }
+      ],
+      "primeira": "2026-05-09T01:31:10.689Z",
+      "ultima": "2026-05-09T01:31:10.689Z"
     }
   ]
 }

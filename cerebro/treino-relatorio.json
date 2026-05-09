@@ -1,22 +1,22 @@
 {
   "rodada": 1,
-  "geradoEm": "2026-05-08T21:06:23.462Z",
-  "cobertura": 83,
-  "tempoMedio": 13,
+  "geradoEm": "2026-05-09T01:31:10.853Z",
+  "cobertura": 82,
+  "tempoMedio": 11,
   "total": 100,
-  "ok": 83,
-  "naoEntendeu": 7,
-  "falhou": 10,
+  "ok": 82,
+  "naoEntendeu": 10,
+  "falhou": 8,
   "porPerfil": {
     "iniciante": {
       "ok": 15,
-      "naoEntendeu": 0,
-      "falhou": 1
+      "naoEntendeu": 1,
+      "falhou": 0
     },
     "experiente": {
       "ok": 15,
-      "naoEntendeu": 2,
-      "falhou": 2
+      "naoEntendeu": 1,
+      "falhou": 3
     },
     "tecnico": {
       "ok": 12,
@@ -25,8 +25,8 @@
     },
     "analista": {
       "ok": 11,
-      "naoEntendeu": 1,
-      "falhou": 1
+      "naoEntendeu": 2,
+      "falhou": 0
     },
     "digitacao_ruim": {
       "ok": 13,
@@ -35,24 +35,19 @@
     },
     "busca_ativa": {
       "ok": 9,
-      "naoEntendeu": 0,
-      "falhou": 2
+      "naoEntendeu": 2,
+      "falhou": 0
     },
     "suporte": {
-      "ok": 8,
+      "ok": 7,
       "naoEntendeu": 1,
-      "falhou": 1
+      "falhou": 2
     }
   },
   "falhas": [
     {
-      "usuario": "Carlos",
-      "pergunta": "primeiros passos",
-      "erro": "raciocinio.analisarConversa is not a function"
-    },
-    {
       "usuario": "Ana",
-      "pergunta": "quem pediu visita?",
+      "pergunta": "visitas pendentes",
       "erro": "raciocinio.analisarConversa is not a function"
     },
     {
@@ -61,18 +56,18 @@
       "erro": "raciocinio.analisarConversa is not a function"
     },
     {
+      "usuario": "Ana",
+      "pergunta": "ver portais",
+      "erro": "raciocinio.analisarConversa is not a function"
+    },
+    {
       "usuario": "Roberto",
       "pergunta": "quais campos a planilha precisa?",
       "erro": "raciocinio.analisarConversa is not a function"
     },
     {
-      "usuario": "Fernanda",
-      "pergunta": "tipo mais buscado",
-      "erro": "raciocinio.analisarConversa is not a function"
-    },
-    {
       "usuario": "Marcos",
-      "pergunta": "meus conis",
+      "pergunta": "matsh",
       "erro": "raciocinio.analisarConversa is not a function"
     },
     {
@@ -81,29 +76,28 @@
       "erro": "raciocinio.analisarConversa is not a function"
     },
     {
-      "usuario": "Paulo",
-      "pergunta": "casa até 500mil",
-      "erro": "raciocinio.analisarConversa is not a function"
-    },
-    {
-      "usuario": "Paulo",
-      "pergunta": "tem casa com 2 vagas?",
+      "usuario": "Juliana",
+      "pergunta": "avisar proprietário da visita",
       "erro": "raciocinio.analisarConversa is not a function"
     },
     {
       "usuario": "Juliana",
-      "pergunta": "avisar proprietário da visita",
+      "pergunta": "quem não respondeu?",
       "erro": "raciocinio.analisarConversa is not a function"
     }
   ],
   "naoEntendidas": [
     {
-      "perfil": "experiente",
-      "pergunta": "visitas pendentes"
+      "perfil": "iniciante",
+      "pergunta": "primeiros passos"
     },
     {
       "perfil": "experiente",
-      "pergunta": "ver portais"
+      "pergunta": "quem pediu visita?"
+    },
+    {
+      "perfil": "analista",
+      "pergunta": "tipo mais buscado"
     },
     {
       "perfil": "analista",
@@ -111,7 +105,7 @@
     },
     {
       "perfil": "digitacao_ruim",
-      "pergunta": "matsh"
+      "pergunta": "meus conis"
     },
     {
       "perfil": "digitacao_ruim",
@@ -122,12 +116,20 @@
       "pergunta": "dashbord"
     },
     {
+      "perfil": "busca_ativa",
+      "pergunta": "casa até 500mil"
+    },
+    {
+      "perfil": "busca_ativa",
+      "pergunta": "tem casa com 2 vagas?"
+    },
+    {
       "perfil": "suporte",
-      "pergunta": "quem não respondeu?"
+      "pergunta": "enviar vitrine para cliente"
     }
   ],
   "pesos": {
-    "raiz": 7.19999999999999,
+    "raiz": 7.29999999999999,
     "urgencia": 4,
     "onboarding": 1,
     "rag": 0.5,
@@ -150,6 +152,6 @@
     "dashboard": 5,
     "contexto_conversa": 0,
     "saudacao": 0,
-    "nao_entendeu": 17
+    "nao_entendeu": 18
   }
 }

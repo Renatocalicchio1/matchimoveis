@@ -975,12 +975,16 @@ app.get('/app/leads', auth, (req,res)=>{
 app.get('/app/visitas', auth, (req,res)=>{
   const todasVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
   const user = req.session.user;
-  const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
+  let visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
     String(v.corretorId || v.usuarioDestinoId || '') === String(user.id || '') ||
-    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/D/g,'') === String(user.celular || user.telefone || '').replace(/D/g,'')
+    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
   );
+  const { status, busca, data } = req.query;
+  if (status && status !== 'todos') visitas = visitas.filter(v => v.status === status);
+  if (busca) { const b = busca.toLowerCase(); visitas = visitas.filter(v => (v.nome||v.leadNome||'').toLowerCase().includes(b)||(v.imovelBairro||v.bairro||'').toLowerCase().includes(b)); }
+  if (data) visitas = visitas.filter(v => (v.dataVisita||v.dataPreferida||'').startsWith(data));
   const visitasOrdenadas = visitas.sort((a,b)=>new Date(b.data||0)-new Date(a.data||0));
-  res.render('app-visitas', { user: req.session.user, visitas: visitasOrdenadas });
+  res.render('app-visitas', { user: req.session.user, visitas: visitasOrdenadas, filtros: { status: status||'todos', busca: busca||'', data: data||'' } });
 });
 
 app.get('/logout', (req,res)=>{

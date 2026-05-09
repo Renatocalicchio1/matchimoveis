@@ -8,6 +8,36 @@
       <div style="padding:30px;text-align:center;color:#666">Nenhuma visita solicitada ainda.</div>
     <% } else { %>
 
+      
+  <form method="GET" action="/app/visitas" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:flex-end">
+    <div>
+      <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;font-weight:600">Status</label>
+      <select name="status" onchange="this.form.submit()" style="border:1px solid #ddd;border-radius:8px;padding:8px 12px;font-size:14px;background:white">
+        <option value="todos" <%- (filtros&&filtros.status==='todos')?'selected':'' %>>Todos</option>
+        <option value="solicitada" <%- (filtros&&filtros.status==='solicitada')?'selected':'' %>>Pendente</option>
+        <option value="confirmada" <%- (filtros&&filtros.status==='confirmada')?'selected':'' %>>Confirmada</option>
+        <option value="recusada" <%- (filtros&&filtros.status==='recusada')?'selected':'' %>>Recusada</option>
+        <option value="realizada" <%- (filtros&&filtros.status==='realizada')?'selected':'' %>>Realizada</option>
+      </select>
+    </div>
+    <div>
+      <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;font-weight:600">Data</label>
+      <input type="date" name="data" value="<%- filtros&&filtros.data||'' %>" onchange="this.form.submit()" style="border:1px solid #ddd;border-radius:8px;padding:8px 12px;font-size:14px">
+    </div>
+    <div style="flex:1;min-width:180px">
+      <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;font-weight:600">Buscar</label>
+      <input type="text" name="busca" value="<%- filtros&&filtros.busca||'' %>" placeholder="Cliente, bairro..." style="border:1px solid #ddd;border-radius:8px;padding:8px 12px;font-size:14px;width:100%;box-sizing:border-box">
+    </div>
+    <button type="submit" style="background:#ff385c;color:white;border:none;border-radius:8px;padding:8px 18px;font-weight:700;cursor:pointer">Buscar</button>
+    <% if(filtros&&(filtros.status!=='todos'||filtros.busca||filtros.data)){ %>
+      <a href="/app/visitas" style="color:#666;font-size:13px;padding:8px;text-decoration:none">✕ Limpar</a>
+    <% } %>
+  </form>
+  <div style="font-size:13px;color:#888;margin-bottom:12px">
+    <strong style="color:#333"><%= visitas.length %></strong> visita(s)
+    <% if(filtros&&(filtros.status!=='todos'||filtros.busca||filtros.data)){ %> com filtros aplicados<% } %>
+  </div>
+
       <table style="width:100%;border-collapse:collapse;margin-top:20px">
         <thead>
           <tr>

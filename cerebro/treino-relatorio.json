@@ -1,27 +1,27 @@
 {
-  "rodada": 1,
-  "geradoEm": "2026-05-09T01:31:10.853Z",
-  "cobertura": 82,
+  "rodada": 17,
+  "geradoEm": "2026-05-09T01:33:06.864Z",
+  "cobertura": 89,
   "tempoMedio": 11,
   "total": 100,
-  "ok": 82,
-  "naoEntendeu": 10,
-  "falhou": 8,
+  "ok": 89,
+  "naoEntendeu": 11,
+  "falhou": 0,
   "porPerfil": {
     "iniciante": {
-      "ok": 15,
-      "naoEntendeu": 1,
+      "ok": 16,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "experiente": {
-      "ok": 15,
+      "ok": 18,
       "naoEntendeu": 1,
-      "falhou": 3
+      "falhou": 0
     },
     "tecnico": {
-      "ok": 12,
-      "naoEntendeu": 0,
-      "falhou": 1
+      "ok": 11,
+      "naoEntendeu": 2,
+      "falhou": 0
     },
     "analista": {
       "ok": 11,
@@ -29,71 +29,34 @@
       "falhou": 0
     },
     "digitacao_ruim": {
-      "ok": 13,
+      "ok": 15,
       "naoEntendeu": 3,
-      "falhou": 2
+      "falhou": 0
     },
     "busca_ativa": {
-      "ok": 9,
-      "naoEntendeu": 2,
+      "ok": 11,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "suporte": {
       "ok": 7,
-      "naoEntendeu": 1,
-      "falhou": 2
+      "naoEntendeu": 3,
+      "falhou": 0
     }
   },
-  "falhas": [
-    {
-      "usuario": "Ana",
-      "pergunta": "visitas pendentes",
-      "erro": "raciocinio.analisarConversa is not a function"
-    },
-    {
-      "usuario": "Ana",
-      "pergunta": "quem confirmou visita?",
-      "erro": "raciocinio.analisarConversa is not a function"
-    },
-    {
-      "usuario": "Ana",
-      "pergunta": "ver portais",
-      "erro": "raciocinio.analisarConversa is not a function"
-    },
-    {
-      "usuario": "Roberto",
-      "pergunta": "quais campos a planilha precisa?",
-      "erro": "raciocinio.analisarConversa is not a function"
-    },
-    {
-      "usuario": "Marcos",
-      "pergunta": "matsh",
-      "erro": "raciocinio.analisarConversa is not a function"
-    },
-    {
-      "usuario": "Marcos",
-      "pergunta": "taxa de matsh",
-      "erro": "raciocinio.analisarConversa is not a function"
-    },
-    {
-      "usuario": "Juliana",
-      "pergunta": "avisar proprietário da visita",
-      "erro": "raciocinio.analisarConversa is not a function"
-    },
-    {
-      "usuario": "Juliana",
-      "pergunta": "quem não respondeu?",
-      "erro": "raciocinio.analisarConversa is not a function"
-    }
-  ],
+  "falhas": [],
   "naoEntendidas": [
     {
-      "perfil": "iniciante",
-      "pergunta": "primeiros passos"
+      "perfil": "experiente",
+      "pergunta": "ver portais"
     },
     {
-      "perfil": "experiente",
-      "pergunta": "quem pediu visita?"
+      "perfil": "tecnico",
+      "pergunta": "quais campos a planilha precisa?"
+    },
+    {
+      "perfil": "tecnico",
+      "pergunta": "xml não saiu no vivareal"
     },
     {
       "perfil": "analista",
@@ -105,7 +68,7 @@
     },
     {
       "perfil": "digitacao_ruim",
-      "pergunta": "meus conis"
+      "pergunta": "subir xml"
     },
     {
       "perfil": "digitacao_ruim",
@@ -113,45 +76,45 @@
     },
     {
       "perfil": "digitacao_ruim",
-      "pergunta": "dashbord"
-    },
-    {
-      "perfil": "busca_ativa",
-      "pergunta": "casa até 500mil"
-    },
-    {
-      "perfil": "busca_ativa",
-      "pergunta": "tem casa com 2 vagas?"
+      "pergunta": "meu relatorrio"
     },
     {
       "perfil": "suporte",
       "pergunta": "enviar vitrine para cliente"
+    },
+    {
+      "perfil": "suporte",
+      "pergunta": "link do cliente"
+    },
+    {
+      "perfil": "suporte",
+      "pergunta": "manda follow-up"
     }
   ],
   "pesos": {
-    "raiz": 7.29999999999999,
-    "urgencia": 4,
-    "onboarding": 1,
-    "rag": 0.5,
-    "busca_imoveis": 5,
+    "raiz": 118.99999999999751,
+    "urgencia": 68,
+    "onboarding": 17,
+    "rag": 13.599999999999968,
+    "busca_imoveis": 136,
     "busca_leads": 0,
     "estrategia": 0,
     "relatorio": 0,
     "acoes": 0,
     "precisa_match": 0,
-    "dominios": 4.5,
-    "leads": 7,
-    "imoveis": 8,
-    "visitas": 3,
-    "match": 4,
-    "portais": 5,
-    "mercado": 5,
-    "sistema": 6,
-    "coins": 1,
-    "notificacoes": 1,
-    "dashboard": 5,
+    "dominios": 78.19999999999983,
+    "leads": 170,
+    "imoveis": 153,
+    "visitas": 102,
+    "match": 85,
+    "portais": 17,
+    "mercado": 51,
+    "sistema": 68,
+    "coins": 34,
+    "notificacoes": 17,
+    "dashboard": 85,
     "contexto_conversa": 0,
     "saudacao": 0,
-    "nao_entendeu": 18
+    "nao_entendeu": 187
   }
 }

@@ -2972,7 +2972,7 @@
     },
     {
       "pergunta": "meus imoveis",
-      "count": 9,
+      "count": 10,
       "respostas": [
         {
           "texto": "🎯 Você tem 1393 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaMeus imóveisImóveis inativosGerar XML",
@@ -3003,14 +3003,19 @@
           "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (265), Residen",
           "dominio": "imoveis",
           "data": "2026-05-09T03:03:20.422Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (265), Residen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:06:05.170Z"
         }
       ],
       "primeira": "2026-05-09T02:13:36.894Z",
-      "ultima": "2026-05-09T03:03:20.422Z"
+      "ultima": "2026-05-09T03:06:05.170Z"
     },
     {
       "pergunta": "quantos imoveis tenho",
-      "count": 4,
+      "count": 5,
       "respostas": [
         {
           "texto": "🎯 Você tem 1393 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaMeus imóveisImóveis inativosGerar XML",
@@ -3021,10 +3026,15 @@
           "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Itajai, Balneario🏷️ Tipos: Apartamento (93), Residential / Home (5), Casa (1)Ver imóveis →📥 Impo",
           "dominio": "imoveis",
           "data": "2026-05-09T02:40:12.835Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (265), Residen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:06:05.258Z"
         }
       ],
       "primeira": "2026-05-09T02:13:36.954Z",
-      "ultima": "2026-05-09T02:40:12.835Z"
+      "ultima": "2026-05-09T03:06:05.258Z"
     },
     {
       "pergunta": "imoveis ativos",
@@ -3064,7 +3074,7 @@
     },
     {
       "pergunta": "tem apartamento em Vila Olimpia",
-      "count": 5,
+      "count": 7,
       "respostas": [
         {
           "texto": "Encontrei 18 imovel(is) em Vila Olímpia:- Apartamento 3q em Vila Olímpia- Apartamento 2q em Vila Olímpia- Apartamento 3q em Vila Olímpia- Apartamento ",
@@ -3093,11 +3103,11 @@
         }
       ],
       "primeira": "2026-05-09T02:49:48.980Z",
-      "ultima": "2026-05-09T03:03:20.437Z"
+      "ultima": "2026-05-09T03:06:49.499Z"
     },
     {
       "pergunta": "casa em Santo Amaro",
-      "count": 5,
+      "count": 7,
       "respostas": [
         {
           "texto": "🎯 Você tem 100 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaLeadsImóveisVisitasMatch",
@@ -3111,7 +3121,7 @@
         }
       ],
       "primeira": "2026-05-09T02:49:49.094Z",
-      "ultima": "2026-05-09T03:03:20.358Z"
+      "ultima": "2026-05-09T03:06:49.469Z"
     },
     {
       "pergunta": "apto em Brooklin",
@@ -3133,7 +3143,7 @@
     },
     {
       "pergunta": "apartamento em Brooklin",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "🔍 4 imóvel(is) encontrado(s) para: apartamento, em Brooklin• Apartamento · 3q · 3vg — Brooklin• Apartamento · 1q · 1vg — Brooklin Paulista• Apartamen",
@@ -3149,14 +3159,19 @@
           "texto": "🔍 4 imóvel(is) encontrado(s) para: apartamento, em Brooklin• Apartamento · 3q · 3vg — Brooklin• Apartamento · 1q · 1vg — Brooklin Paulista• Apartamen",
           "dominio": "imoveis",
           "data": "2026-05-09T03:03:20.401Z"
+        },
+        {
+          "texto": "🔍 4 imóvel(is) encontrado(s) para: apartamento, em Brooklin• Apartamento · 3q · 3vg — Brooklin• Apartamento · 1q · 1vg — Brooklin Paulista• Apartamen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:06:05.118Z"
         }
       ],
       "primeira": "2026-05-09T02:50:50.715Z",
-      "ultima": "2026-05-09T03:03:20.401Z"
+      "ultima": "2026-05-09T03:06:05.118Z"
     },
     {
       "pergunta": "sobrado disponivel",
-      "count": 3,
+      "count": 5,
       "respostas": [
         {
           "texto": "🎯 Você tem 100 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaLeadsImóveisVisitasMatch",
@@ -3167,10 +3182,15 @@
           "texto": "Não encontrei imóveis ativos do tipo sobrado.Ver todos →Meus imóveisImóveis inativosGerar XML",
           "dominio": "imoveis",
           "data": "2026-05-09T03:03:20.385Z"
+        },
+        {
+          "texto": "🔍 8 imóvel(is) · sobrado:• Sobrado 6q — Morumbi • Sobrado 3q — Vila Mascote • Sobrado 3q — Campo Belo • Sobrado 2q — Socorro • Sobrado 3q — Mirandópo",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:06:49.515Z"
         }
       ],
       "primeira": "2026-05-09T02:50:50.734Z",
-      "ultima": "2026-05-09T03:03:20.385Z"
+      "ultima": "2026-05-09T03:06:49.515Z"
     }
   ]
 }

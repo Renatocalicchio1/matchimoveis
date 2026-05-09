@@ -26,8 +26,8 @@ function extrairEntidades(mNorm, bairros) {
 function gerarResposta(handler, e, d, imoveis, leads, visitas, btn, chip) {
   if(handler==='buscar_imovel'){
     let r=imoveis.filter(i=>i.status!=='inativo');
-    if(e.tipo)r=r.filter(i=>i.tipo&&i.tipo.toLowerCase().includes(e.tipo));
-    if(e.bairro)r=r.filter(i=>i.bairro&&i.bairro.toLowerCase().includes(e.bairro.toLowerCase()));
+    if(e.tipo)r=r.filter(i=>i.tipo&&i.tipo.toLowerCase().includes(e.tipo=="apto"?"apartamento":e.tipo));
+    if(e.bairro)r=r.filter(i=>i.bairro&&i.bairro.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").includes(e.bairro.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")));
     if(e.quartos)r=r.filter(i=>i.quartos&&parseInt(i.quartos)>=e.quartos);
     if(e.valorMax)r=r.filter(i=>i.valor&&parseFloat(i.valor)<=e.valorMax);
     if(!r.length)return 'Nao encontrei imoveis'+(e.tipo?' do tipo '+e.tipo:'')+(e.bairro?' em '+e.bairro:'')+' na carteira.<br><br>'+chip('Ver demanda','demanda por bairro')+btn('Ver imoveis','/app/imoveis');

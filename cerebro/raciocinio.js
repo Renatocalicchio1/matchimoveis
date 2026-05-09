@@ -73,7 +73,7 @@ function raciocinar(pergunta) {
   };
 }
 
-module.exports = {
-  buscar,
-  raciocinar
-};
+function analisarConversa(hist){ return {temaDominante:null,ultimoTema:null,entidades:{bairros:new Set(),tipos:[],valores:[]}}; }
+function buscarMelhorResposta(msg,ctx,mods,d,user,imoveis,leads,visitas,btn,chip){ return null; }
+function enriquecerResposta(resp,ctx,chip){ return resp; }
+module.exports = { buscar, raciocinar, analisarConversa, buscarMelhorResposta, enriquecerResposta };

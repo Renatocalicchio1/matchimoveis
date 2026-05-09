@@ -1,6 +1,16 @@
 'use strict';
 
 function responder(mNorm, d, visitas, btn, chip) {
+  if (/quem pediu visita|quem solicitou|nova solicitacao/.test(mNorm)) {
+    const pend = visitas.filter(v=>v.status==='solicitada'||v.status==='pendente');
+    if (!pend.length) return 'Nenhuma visita solicitada no momento.' + btn('Ver visitas','/app/visitas');
+    return '📋 <strong>'+pend.length+' visita(s) solicitada(s):</strong><br>'+pend.slice(0,5).map(v=>'• '+(v.nome||v.leadNome||'Lead')+' — '+(v.dataVisita||'-')).join('<br>')+'<br><br>'+btn('Ver visitas','/app/visitas');
+  }
+  if (/avisar proprietario|notificar proprietario|avisar dono/.test(mNorm))
+    return '📱 Na página de visitas, clique em <strong>Notificar Proprietário</strong>.<br><br>O WhatsApp abre com a mensagem:<br><em>"Olá [nome]! Tenho um cliente interessado no seu imóvel. Gostaria de agendar visita em [data]. Confirme: [link]"</em><br><br>'+btn('Ver visitas','/app/visitas');
+  if (/quem nao respondeu|sem resposta|nao respondeu/.test(mNorm))
+    return '📋 Leads sem resposta ficam com status <strong>pendente</strong> na página de leads.<br><br>'+btn('Ver leads','/app/leads');
+
   if (/quem confirmou|confirmou visita/.test(mNorm))
     return '✅ <strong>' + d.confirmadas + ' visita(s) confirmada(s)</strong><br><br>' + btn('Ver visitas','/app/visitas');
   if (/como funciona visita|fluxo visita|passo a passo visita/.test(mNorm))

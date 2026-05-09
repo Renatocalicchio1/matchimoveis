@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-05-09T22:36:50.997Z",
+  "geradoEm": "2026-05-09T22:41:47.158Z",
   "versaoMapa": "11.0",
   "totalHistorico": 156,
   "totalNaoEntendidos": 28,
@@ -17,11 +17,23 @@
   "topNaoEntendidas": [
     {
       "pergunta": "ver portias",
-      "count": 47
+      "count": 48
     },
     {
       "pergunta": "quais campos a planilha precisa?",
-      "count": 46
+      "count": 47
+    },
+    {
+      "pergunta": "meu relatorrio",
+      "count": 39
+    },
+    {
+      "pergunta": "link do cliente",
+      "count": 39
+    },
+    {
+      "pergunta": "manda follow-up",
+      "count": 39
     },
     {
       "pergunta": "ver portais",
@@ -29,18 +41,6 @@
     },
     {
       "pergunta": "enviar vitrine para cliente",
-      "count": 38
-    },
-    {
-      "pergunta": "meu relatorrio",
-      "count": 38
-    },
-    {
-      "pergunta": "link do cliente",
-      "count": 38
-    },
-    {
-      "pergunta": "manda follow-up",
       "count": 38
     },
     {

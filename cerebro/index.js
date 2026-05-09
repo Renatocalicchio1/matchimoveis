@@ -22,6 +22,7 @@ const raciocinio   = require('./raciocinio');
 const intencao     = require('./intencao');
 const portugues    = require('./portugues');
 const navegacao    = require('./navegacao');
+const navegador    = require('./navegador');
 const contexto     = require('./contexto');
 const { criarArvore } = require('./arvore');
 
@@ -144,6 +145,9 @@ function responder(mensagem, d, user, imoveis, leads, visitas, contexto) {
     r += sugestoes('dashboard', d);
     return r;
   }
+
+  // -- 1.4. NAVEGADOR
+  try { const resNav = navegador.responder(mNorm, btn, chip); if (resNav) return finalizar(resNav + sugestoes(dominio, d)); } catch(e) {}
 
   // -- 1.5. CONTEXTO (safe)
   try {

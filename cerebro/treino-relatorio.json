@@ -1,36 +1,36 @@
 {
   "rodada": 26,
-  "geradoEm": "2026-05-09T22:15:28.748Z",
-  "cobertura": 89,
-  "tempoMedio": 8,
+  "geradoEm": "2026-05-09T22:41:42.511Z",
+  "cobertura": 92,
+  "tempoMedio": 10,
   "total": 100,
-  "ok": 89,
-  "naoEntendeu": 11,
+  "ok": 92,
+  "naoEntendeu": 8,
   "falhou": 0,
   "porPerfil": {
     "iniciante": {
-      "ok": 16,
-      "naoEntendeu": 0,
-      "falhou": 0
-    },
-    "experiente": {
-      "ok": 18,
+      "ok": 15,
       "naoEntendeu": 1,
       "falhou": 0
     },
+    "experiente": {
+      "ok": 19,
+      "naoEntendeu": 0,
+      "falhou": 0
+    },
     "tecnico": {
-      "ok": 11,
-      "naoEntendeu": 2,
+      "ok": 10,
+      "naoEntendeu": 3,
       "falhou": 0
     },
     "analista": {
-      "ok": 11,
-      "naoEntendeu": 2,
+      "ok": 13,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "digitacao_ruim": {
-      "ok": 15,
-      "naoEntendeu": 3,
+      "ok": 16,
+      "naoEntendeu": 2,
       "falhou": 0
     },
     "busca_ativa": {
@@ -39,16 +39,20 @@
       "falhou": 0
     },
     "suporte": {
-      "ok": 7,
-      "naoEntendeu": 3,
+      "ok": 8,
+      "naoEntendeu": 2,
       "falhou": 0
     }
   },
   "falhas": [],
   "naoEntendidas": [
     {
-      "perfil": "experiente",
-      "pergunta": "ver portais"
+      "perfil": "iniciante",
+      "pergunta": "como começo?"
+    },
+    {
+      "perfil": "tecnico",
+      "pergunta": "a extração falhou"
     },
     {
       "perfil": "tecnico",
@@ -56,19 +60,7 @@
     },
     {
       "perfil": "tecnico",
-      "pergunta": "xml não saiu no vivareal"
-    },
-    {
-      "perfil": "analista",
-      "pergunta": "tipo mais buscado"
-    },
-    {
-      "perfil": "analista",
-      "pergunta": "quartos mais pedidos"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "subir xml"
+      "pergunta": "como adicionar fotos?"
     },
     {
       "perfil": "digitacao_ruim",
@@ -80,10 +72,6 @@
     },
     {
       "perfil": "suporte",
-      "pergunta": "enviar vitrine para cliente"
-    },
-    {
-      "perfil": "suporte",
       "pergunta": "link do cliente"
     },
     {
@@ -92,9 +80,9 @@
     }
   ],
   "pesos": {
-    "raiz": 181.99999999999395,
+    "raiz": 205.39999999999262,
     "urgencia": 104,
-    "onboarding": 26,
+    "onboarding": 52,
     "rag": 20.800000000000026,
     "busca_imoveis": 208,
     "busca_leads": 0,
@@ -102,19 +90,19 @@
     "relatorio": 0,
     "acoes": 0,
     "precisa_match": 0,
-    "dominios": 119.59999999999748,
+    "dominios": 148.19999999999587,
     "leads": 260,
-    "imoveis": 234,
-    "visitas": 156,
-    "match": 130,
-    "portais": 26,
-    "mercado": 78,
-    "sistema": 104,
+    "imoveis": 208,
+    "visitas": 182,
+    "match": 156,
+    "portais": 130,
+    "mercado": 182,
+    "sistema": 156,
     "coins": 52,
     "notificacoes": 26,
     "dashboard": 130,
     "contexto_conversa": 0,
     "saudacao": 0,
-    "nao_entendeu": 286
+    "nao_entendeu": 208
   }
 }

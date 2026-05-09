@@ -93,12 +93,12 @@
     },
     {
       "exemplo": "quais campos a planilha precisa?",
-      "count": 46,
+      "count": 47,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:31:09.850Z",
-      "ultima": "2026-05-09T22:15:27.928Z",
+      "ultima": "2026-05-09T22:41:41.439Z",
       "sugerido": true
     },
     {
@@ -143,12 +143,12 @@
     },
     {
       "exemplo": "ver portias",
-      "count": 47,
+      "count": 48,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:31:10.349Z",
-      "ultima": "2026-05-09T22:15:28.345Z",
+      "ultima": "2026-05-09T22:41:41.946Z",
       "sugerido": true
     },
     {
@@ -223,62 +223,62 @@
     },
     {
       "exemplo": "meu relatorrio",
-      "count": 38,
+      "count": 39,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:32:21.674Z",
-      "ultima": "2026-05-09T22:15:28.396Z",
+      "ultima": "2026-05-09T22:41:42.021Z",
       "sugerido": true
     },
     {
       "exemplo": "link do cliente",
-      "count": 38,
+      "count": 39,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:21.977Z",
-      "ultima": "2026-05-09T22:15:28.671Z",
+      "ultima": "2026-05-09T22:41:42.365Z",
       "sugerido": true
     },
     {
       "exemplo": "manda follow-up",
-      "count": 38,
+      "count": 39,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:22.066Z",
-      "ultima": "2026-05-09T22:15:28.740Z",
+      "ultima": "2026-05-09T22:41:42.500Z",
       "sugerido": true
     },
     {
       "exemplo": "como começo?",
-      "count": 9,
+      "count": 10,
       "usuarios": [
         "corretor-iniciante-001"
       ],
       "primeira": "2026-05-09T01:59:19.177Z",
-      "ultima": "2026-05-09T21:41:39.650Z",
+      "ultima": "2026-05-09T22:41:41.075Z",
       "sugerido": true
     },
     {
       "exemplo": "a extração falhou",
-      "count": 9,
+      "count": 10,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.486Z",
-      "ultima": "2026-05-09T21:41:39.960Z",
+      "ultima": "2026-05-09T22:41:41.415Z",
       "sugerido": true
     },
     {
       "exemplo": "como adicionar fotos?",
-      "count": 9,
+      "count": 10,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.556Z",
-      "ultima": "2026-05-09T21:41:40.033Z",
+      "ultima": "2026-05-09T22:41:41.509Z",
       "sugerido": true
     }
   ],

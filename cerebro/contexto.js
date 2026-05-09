@@ -97,3 +97,4 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
 }
 module.exports = { analisar, responder, detectarIntencao, extrairNome };
 
+

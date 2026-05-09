@@ -3,6 +3,24 @@
 function responder(mNorm, d, visitas, btn, chip) {
   if (/quem pediu visita|quem solicitou|nova solicitacao/.test(mNorm)) {
     const pend = visitas.filter(v=>v.status==='solicitada'||v.status==='pendente');
+    if (!pend.length) return 'Nenhuma visita solicitada.' + btn('Ver visitas','/app/visitas');
+    return '📋 <strong>'+pend.length+' solicitada(s):</strong><br>'+pend.slice(0,5).map(v=>'• '+(v.nome||v.leadNome||'Lead')+' — '+(v.dataVisita||'-')).join('<br>')+'<br><br>'+btn('Ver visitas','/app/visitas');
+  }
+  if (/visitas pendentes|pendentes de confirmacao|aguardando confirmacao/.test(mNorm)) {
+    if (!d.pendentes) return 'Nenhuma visita pendente.' + btn('Ver visitas','/app/visitas');
+    return '⏳ <strong>'+d.pendentes+' visita(s) pendente(s)</strong> aguardando confirmação do proprietário.<br><br>'+btn('Ver visitas','/app/visitas');
+  }
+  if (/quem confirmou|visitas confirmadas|confirmadas/.test(mNorm)) {
+    if (!d.confirmadas) return 'Nenhuma visita confirmada ainda.' + btn('Ver visitas','/app/visitas');
+    return '✅ <strong>'+d.confirmadas+' visita(s) confirmada(s)</strong>.<br><br>'+btn('Ver visitas','/app/visitas');
+  }
+  if (/avisar proprietario|notificar proprietario|avisar dono da visita/.test(mNorm))
+    return '📱 Na página de visitas, clique em <strong>Notificar Proprietário</strong>.<br><br>O WhatsApp abre com a mensagem pronta para o proprietário confirmar a data.<br><br>'+btn('Ver visitas','/app/visitas');
+  if (/quem nao respondeu|sem resposta|nao respondeu/.test(mNorm))
+    return '📋 Leads sem resposta ficam com status <strong>pendente</strong>.<br><br>'+btn('Ver leads','/app/leads');
+
+  if (/quem pediu visita|quem solicitou|nova solicitacao/.test(mNorm)) {
+    const pend = visitas.filter(v=>v.status==='solicitada'||v.status==='pendente');
     if (!pend.length) return 'Nenhuma visita solicitada no momento.' + btn('Ver visitas','/app/visitas');
     return '📋 <strong>'+pend.length+' visita(s) solicitada(s):</strong><br>'+pend.slice(0,5).map(v=>'• '+(v.nome||v.leadNome||'Lead')+' — '+(v.dataVisita||'-')).join('<br>')+'<br><br>'+btn('Ver visitas','/app/visitas');
   }

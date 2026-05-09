@@ -30,6 +30,9 @@ const AJUDA = [
 ];
 
 function responder(mNorm, d, btn, chip) {
+  if (/primeiros passos|como comecar|por onde comecar|primeiro passo|nao sei comecar/.test(mNorm))
+    return '🚀 <strong>Primeiros passos:</strong><br><br>1. Importe imóveis via XML<br>2. Importe leads da planilha<br>3. Faça o match<br>4. Envie a vitrine<br>5. Aguarde a visita<br><br>'+btn('Cadastrar imóvel','/app/cadastro')+btn('Importar leads','/app-importar-leads');
+
   // PÁGINA DE PERFIL
   if (/pagina perfil|app perfil|meu perfil|dados da conta|o que tem no perfil/.test(mNorm))
     return '👤 <strong>Meu Perfil (/app/perfil):</strong><br><br>' +

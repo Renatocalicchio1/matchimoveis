@@ -64,4 +64,7 @@ FAQ.push({
   chave:/como portal acessa imoveis|como portal le imoveis|como integrar portal|basta ler xml|xml e suficiente|xml da conta|portal le xml/,
   resposta:'📡 <strong>Como o portal acessa seus imóveis:</strong><br><br>O portal só precisa ler o link do XML da sua conta.<br><br>O XML contém <strong>todos os imóveis selecionados</strong> — é a fonte de verdade.<br><br>Fluxo:<br>1. Gere o XML em <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Meus Imóveis →</a><br>2. Copie o link em <a href="/app/portais" style="color:#ff385c;font-weight:700">Portais →</a><br>3. Cole nas configurações do portal<br>4. O portal lê e publica automaticamente todos os imóveis<br><br>Ao atualizar e gerar novo XML, o portal se atualiza.'
 });
+FAQ.push({chave:/enviar vitrine para cliente|mandar vitrine para cliente|como envio vitrine/, resposta:'📱 Acesse <a href="/app/leads" style="color:#ff385c;font-weight:700">Leads →</a>, encontre a lead com match e clique em <strong>Enviar Vitrine</strong>. O WhatsApp abre com o link pronto.'});
+FAQ.push({chave:/quem nao respondeu|sem resposta|nao me respondeu/, resposta:'📋 Leads sem resposta ficam com status <strong>pendente</strong> na página de leads. Filtre por status para ver quem não respondeu.'});
+FAQ.push({chave:/avisar proprietario da visita|notificar dono|avisar dono imovel/, resposta:'📱 Em <a href="/app/visitas" style="color:#ff385c;font-weight:700">Visitas →</a> clique em <strong>Notificar Proprietário</strong>. Abre o WhatsApp com mensagem automática para confirmação.'});
 module.exports = { responder, FAQ };

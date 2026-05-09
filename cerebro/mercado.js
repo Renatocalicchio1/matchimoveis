@@ -21,7 +21,7 @@ function responder(mNorm, leads, imoveis, btn, chip) {
   }
 
   // TIPO MAIS BUSCADO
-  if (/tipo mais buscado|tipo mais pedido|qual tipo|tipos? (mais )?(buscado|pedido|procurado|demandado)/.test(mNorm)) {
+  if (/tipo mais buscado|tipo mais pedido|qual tipo.*busca|tipos.*mais.*busca|tipos.*leads|leads.*tipo/.test(mNorm)) {
     const tipos = {};
     leads.forEach(l => { if (l.tipo) tipos[l.tipo]=(tipos[l.tipo]||0)+1; });
     const ranking = Object.entries(tipos).sort((a,b)=>b[1]-a[1]).slice(0,5);

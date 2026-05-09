@@ -1040,21 +1040,20 @@
   "perfis": {
     "imobiliaria-47991919191": {
       "nome": "Rankim",
-      "ultimaAtividade": "2026-05-09T04:27:43.529Z",
-      "taxaMatch": 3,
-      "totalLeads": 1393,
-      "totalImoveis": 846,
+      "ultimaAtividade": "2026-05-09T21:51:41.612Z",
+      "taxaMatch": 12,
+      "totalLeads": 50,
+      "totalImoveis": 50,
       "bairrosMaisUsados": [
         "Centro",
-        "Jardim Mitsutani",
-        "Jardim Macedônia"
+        "Ipiranga",
+        "Vila do Castelo"
       ],
       "tiposFavoritos": [
         "Apartamento",
-        "Residential / Home",
-        "Residential / Condo"
+        "Casa"
       ],
-      "acessos": 81
+      "acessos": 162
     },
     "test": {
       "nome": "Renato",
@@ -1074,7 +1073,7 @@
     },
     "corretor-iniciante-001": {
       "nome": "Carlos",
-      "ultimaAtividade": "2026-05-09T21:15:25.937Z",
+      "ultimaAtividade": "2026-05-09T21:41:39.659Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1087,11 +1086,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2224
+      "acessos": 2240
     },
     "corretor-experiente-002": {
       "nome": "Ana",
-      "ultimaAtividade": "2026-05-09T21:15:26.218Z",
+      "ultimaAtividade": "2026-05-09T21:41:39.901Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1104,11 +1103,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2641
+      "acessos": 2660
     },
     "corretor-tecnico-003": {
       "nome": "Roberto",
-      "ultimaAtividade": "2026-05-09T21:15:26.409Z",
+      "ultimaAtividade": "2026-05-09T21:41:40.082Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1121,11 +1120,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1807
+      "acessos": 1820
     },
     "corretor-analista-004": {
       "nome": "Fernanda",
-      "ultimaAtividade": "2026-05-09T21:15:26.602Z",
+      "ultimaAtividade": "2026-05-09T21:41:40.244Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1138,11 +1137,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1807
+      "acessos": 1820
     },
     "corretor-digitacao-005": {
       "nome": "Marcos",
-      "ultimaAtividade": "2026-05-09T21:15:26.871Z",
+      "ultimaAtividade": "2026-05-09T21:41:40.484Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1155,11 +1154,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2502
+      "acessos": 2520
     },
     "corretor-busca-006": {
       "nome": "Paulo",
-      "ultimaAtividade": "2026-05-09T21:15:27.031Z",
+      "ultimaAtividade": "2026-05-09T21:41:40.623Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1172,11 +1171,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1529
+      "acessos": 1540
     },
     "corretor-suporte-007": {
       "nome": "Juliana",
-      "ultimaAtividade": "2026-05-09T21:15:27.180Z",
+      "ultimaAtividade": "2026-05-09T21:41:40.752Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1189,7 +1188,7 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1390
+      "acessos": 1400
     }
   }
 }

@@ -96,5 +96,3 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
   return null;
 }
 module.exports = { analisar, responder, detectarIntencao, extrairNome };
-
-

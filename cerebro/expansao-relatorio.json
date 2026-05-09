@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-05-09T21:41:10.734Z",
+  "geradoEm": "2026-05-09T21:51:40.844Z",
   "versaoMapa": "11.0",
   "totalHistorico": 156,
   "totalNaoEntendidos": 28,
@@ -17,11 +17,11 @@
   "topNaoEntendidas": [
     {
       "pergunta": "ver portias",
-      "count": 43
+      "count": 44
     },
     {
       "pergunta": "quais campos a planilha precisa?",
-      "count": 42
+      "count": 43
     },
     {
       "pergunta": "ver portais",
@@ -33,15 +33,15 @@
     },
     {
       "pergunta": "meu relatorrio",
-      "count": 34
+      "count": 35
     },
     {
       "pergunta": "link do cliente",
-      "count": 34
+      "count": 35
     },
     {
       "pergunta": "manda follow-up",
-      "count": 34
+      "count": 35
     },
     {
       "pergunta": "tipo mais buscado",

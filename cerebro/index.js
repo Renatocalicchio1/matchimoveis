@@ -123,6 +123,15 @@ function responder(mensagem, d, user, imoveis, leads, visitas, contexto) {
     return resposta + passo;
   }
 
+  // ── 0. FILTRO DE LIXO — palavras sem sentido
+  const ehLixo = mNorm.split(' ').every(w => w.length < 3 || /^[a-z]{1,2}$/.test(w)) && mNorm.length < 20;
+  const semPalavrasReais = !/imovel|lead|visita|match|portal|xml|bairro|casa|apto|valor|corretor|cliente|quartos|foto|proprietario|relatorio|dashboard|coins/.test(mNorm);
+  if (ehLixo && semPalavrasReais && mNorm.length > 3) {
+    return 'Hmm, não entendi. 🤔 Pode reformular?<br><br>' +
+      chip('Leads', 'minhas leads') + chip('Imóveis', 'meus imoveis') +
+      chip('Visitas', 'visitas hoje') + chip('O que fazer hoje', 'o que devo fazer hoje');
+  }
+
   // ── 1. SAUDAÇÃO ──────────────────────────────────────────────────────────────
   const saudacoes = ['oi','ola','hey','eai','bom dia','boa tarde','boa noite','hello','hi','tudo bem','tudo bom','como vai'];
   if (saudacoes.some(s => mNorm.trim()===s || mNorm.startsWith(s+' '))) {

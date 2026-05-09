@@ -103,12 +103,14 @@ function responder(mensagem, d, user, imoveis, leads, visitas, contexto) {
     return r;
   }
 
-  // -- 1.5. CONTEXTO
-  const ctx = contexto.analisar(mensagem, imoveis, leads, visitas);
-  if (ctx.intencao || ctx.temDados) {
-    const resCtx = contexto.responder(ctx, d, user, imoveis, leads, visitas, btn, chip);
-    if (resCtx) return finalizar(resCtx + sugestoes(ctx.intencao === 'BUSCAR_IMOVEL' ? 'imoveis' : dominio, d));
-  }
+  // -- 1.5. CONTEXTO (safe)
+  try {
+    const ctx = contexto.analisar(mensagem, imoveis, leads, visitas);
+    if (ctx && (ctx.intencao || ctx.temDados)) {
+      const resCtx = contexto.responder(ctx, d, user, imoveis, leads, visitas, btn, chip);
+      if (resCtx) return finalizar(resCtx + sugestoes(ctx.intencao === 'BUSCAR_IMOVEL' ? 'imoveis' : dominio, d));
+    }
+  } catch(e) { console.error('contexto err:', e.message); }
 
   // ── 2. INTERPRETADOR DE PORTUGUÊS ────────────────────────────────────────────
   // IMOVEIS tem prioridade sobre leads

@@ -1,0 +1,1755 @@
+{
+  "geradoEm": "2026-05-09T22:46:43.037Z",
+  "server": {
+    "totalRotas": 83,
+    "rotas": [
+      {
+        "metodo": "GET",
+        "rota": "/"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/api/testar-xml"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/importar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/importar-proprietarios"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/leads"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/portais"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/portais"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/feed/:portal"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/login"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/login"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/cliente/oferta/:leadId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/cliente/oferta/:leadId/escolher/:idx"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/cliente/oferta/:leadId/visita/:idx"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/proprietario/visita/:visitaId"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/proprietario/visita/:visitaId/responder"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app-leads/:idx/match"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/import-status"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/import-status"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/logout"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/logout"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/logout"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app-imoveis"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/portais"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app-xml"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app-portais"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app-perfil"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/logout"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/notificacoes"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app-home"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/imoveis/exportar-excel"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/imoveis"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/excluir-xml"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/cadastro"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/portais"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/perfil"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app-importar-leads"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/importar-leads"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/leads"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/visitas"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/logout"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/webhook/imovelweb"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/perfil/localizacao"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/perfil/localizacao"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/feed-:portal.xml"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/lead/:id/buscar-quintoandar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/api/ajuda"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/process"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/mapa"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/feed"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/api/imoveis"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/imovel/:id/status"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/imovel/:id/status"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/imovel/cadastrar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/api/lead-interesse"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/imovel/:id"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/lead/:id"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/imovel/:id"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/imovel/:id/editar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/imovel/:id/editar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/imovel/:id/upload-foto"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/imovel/:id/excluir-foto"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/imovel/:id/capa-foto"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/confirmar/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/recusar/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/api/gerar-descricao-imovel"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/gerar-xml"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/portais"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/zerar-visitas-notificacoes-temp"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/cliente/visita/:visitaId/confirmar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/cliente/visita/:visitaId/responder"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/coins"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/cliente/visita/:id/remarcar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/cliente/visita/:id/remarcar"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/debug-visitas"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/debug-leads"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/reset-leads-repo"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/assistente"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/api/assistente/dados"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/assistente"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/assistente/chat"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/assistente/historico"
+      }
+    ],
+    "jsonsUsados": [
+      "imoveis.json",
+      "users.json",
+      "portais.json",
+      "leads.json",
+      "data.json",
+      "./imoveis.json",
+      "visitas.json",
+      "notificacoes.json"
+    ],
+    "viewsRenderizadas": [
+      "app-portais",
+      "login",
+      "cliente-oferta",
+      "proprietario-visita",
+      "proprietario-confirmado",
+      "app-notificacoes",
+      "app-home",
+      "app-imoveis",
+      "app-cadastro",
+      "app-perfil",
+      "app-importar-leads",
+      "app-leads",
+      "app-visitas",
+      "mapa",
+      "feed-reels",
+      "imovel-publico",
+      "app-lead-detalhe",
+      "app-imovel-detalhe",
+      "app-editar-imovel",
+      "cliente-visita-confirmar",
+      "app-coins",
+      "cliente-visita-remarcar",
+      "app-assistente"
+    ]
+  },
+  "views": {
+    "agendamento-ok": {
+      "textos": [
+        "Visita solicitada ✅"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/airbnb.css",
+        "/oferta/<%= item.offerToken %>"
+      ]
+    },
+    "agendar": {
+      "textos": [
+        "Agendar visita",
+        "Ex: prefiro visitar no fim da tarde",
+        "Nome",
+        "Telefone / WhatsApp",
+        "Email",
+        "Data preferida",
+        "Horário preferido",
+        "Observação",
+        "Solicitar visita"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [
+        "offerToken",
+        "matchIdx",
+        "nome",
+        "telefone",
+        "email",
+        "dataPreferida",
+        "horarioPreferido"
+      ],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/airbnb.css",
+        "/imovel/<%= item.offerToken %>/<%= matchIdx %>"
+      ]
+    },
+    "app-assistente": {
+      "textos": [
+        "Olá,",
+        "Pergunte sobre seus imóveis, leads, visitas...",
+        "📋 Plano do dia",
+        "📊 Resumo",
+        "🎯 Match",
+        "📋 O que fazer hoje",
+        "🎯 Leads com match",
+        "📅 Visitas hoje",
+        "📍 Demanda",
+        "🏠 Imóveis",
+        "📎"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [
+        "/app/assistente/feedback",
+        "/app/assistente/chat",
+        "/app/assistente/upload"
+      ],
+      "onclicks": [
+        "enviarMsg(",
+        "enviarMsg(",
+        "enviarMsg(",
+        "enviarMsg(",
+        "enviarMsg(",
+        "enviarMsg(",
+        "enviarMsg(",
+        "enviarMsg(",
+        "document.getElementById(",
+        "enviarMsg()",
+        "enviarFeedback(true,this)",
+        "enviarFeedback(false,this)"
+      ],
+      "links": []
+    },
+    "app-cadastro": {
+      "textos": [
+        "👤 Importar Proprietários",
+        "Planilha de proprietários",
+        "Colunas esperadas na planilha",
+        "📡 Importar via XML",
+        "URL do XML",
+        "Importação concluída!",
+        "✍️ Cadastro manual",
+        "Publicação em portais",
+        "Tipo e transação",
+        "Localização",
+        "Valores",
+        "Características",
+        "👤 Proprietário",
+        "Descrição",
+        "Fotos",
+        "Status do imóvel",
+        "https://sistema.rankim.com.br/feed.xml",
+        "Rua, número",
+        "Vila Mariana",
+        "00000-000"
+      ],
+      "selects": [
+        "tipo",
+        "transacao",
+        "status"
+      ],
+      "options": [
+        "🏢 Apartamento",
+        "🏠 Casa",
+        "🏙️ Cobertura",
+        "🏗️ Loft",
+        "🛋️ Studio / Flat",
+        "🏡 Kitnet / Conjugado",
+        "🟩 Terreno / Lote",
+        "🏪 Comercial",
+        "🖥️ Sala Comercial",
+        "🛍️ Loja",
+        "🏭 Galpão / Depósito",
+        "💰 Venda",
+        "🔑 Aluguel",
+        "✅ Publicado",
+        "📦 Arquivado"
+      ],
+      "inputs": [
+        "file",
+        "xmlUrl",
+        "portal_olx",
+        "portal_zap",
+        "portal_vivareal",
+        "portal_chaves",
+        "portal_imovelweb",
+        "portal_123i",
+        "endereco",
+        "bairro",
+        "cidade",
+        "cep",
+        "valor_imovel",
+        "condominio",
+        "area_m2",
+        "area_total",
+        "quartos",
+        "suites",
+        "vagas",
+        "banheiros",
+        "andar",
+        "proprietario",
+        "proprietario_celular",
+        "proprietario_email",
+        "fotos"
+      ],
+      "fetches": [
+        "/api/testar-xml?url=",
+        "/api/gerar-descricao-imovel",
+        "/import-status",
+        "/app/importar",
+        "/import-status"
+      ],
+      "onclicks": [
+        "escolherMetodo(",
+        "escolherMetodo(",
+        "escolherMetodo(",
+        "voltarMetodo()",
+        "document.getElementById(",
+        "voltarMetodo()",
+        "testarXML()",
+        "if(confirm(",
+        "voltarMetodo()",
+        "gerarDescricaoIA()",
+        "document.getElementById("
+      ],
+      "links": [
+        "/app/imoveis"
+      ]
+    },
+    "app-coins": {
+      "textos": [
+        "🪙 Comprar Match Coins",
+        "Histórico de transações",
+        "Nenhuma transação ainda",
+        "Ex: 200",
+        "Ou digite a quantidade",
+        "Data",
+        "Descrição",
+        "Quantidade",
+        "Saldo após"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [
+        "selecionarPacote(50)",
+        "selecionarPacote(100)",
+        "selecionarPacote(300)",
+        "selecionarPacote(500)",
+        "iniciarCompra()"
+      ],
+      "links": []
+    },
+    "app-corretor": {
+      "textos": [
+        "Painel do Corretor",
+        "Gerar Match (Subir Lead)",
+        "Meus Leads",
+        "Nome do cliente",
+        "Telefone",
+        "Email",
+        "URL do imóvel",
+        "OU ID do anúncio",
+        "Gerar Match"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [
+        "clientName",
+        "contact",
+        "email",
+        "url",
+        "listingId"
+      ],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/airbnb.css",
+        "/oferta/<%= l.offerToken %>"
+      ]
+    },
+    "app-editar-imovel": {
+      "textos": [
+        "Dados do imóvel",
+        "Proprietário",
+        "Publicação em portais",
+        "Fotos",
+        "Status",
+        "Tipo",
+        "Bairro",
+        "Cidade",
+        "Estado",
+        "Valor do imóvel",
+        "Área (m²)",
+        "Quartos",
+        "Suítes",
+        "Banheiros",
+        "Vagas",
+        "Descrição",
+        "Nome",
+        "Telefone",
+        "Email",
+        "Status do vínculo"
+      ],
+      "selects": [
+        "status",
+        "proprietario_status"
+      ],
+      "options": [
+        ">Publicar",
+        ">Não publicar",
+        ">Arquivar",
+        ">Vinculado",
+        ">Pendente",
+        ">Sem contato"
+      ],
+      "inputs": [
+        "tipo",
+        "bairro",
+        "cidade",
+        "estado",
+        "valor_imovel",
+        "area_m2",
+        "quartos",
+        "suites",
+        "banheiros",
+        "vagas",
+        "proprietario_nome",
+        "proprietario_telefone",
+        "proprietario_email",
+        "portal_olx",
+        "portal_zap",
+        "portal_vivareal",
+        "portal_chaves",
+        "portal_imovelweb",
+        "portal_123i",
+        "foto"
+      ],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/app/imoveis"
+      ]
+    },
+    "app-exportar": {
+      "textos": [
+        "Excel de matches",
+        "XML dos imóveis"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/export-cards",
+        "/export-xml"
+      ]
+    },
+    "app-home": {
+      "textos": [],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/app/leads",
+        "/app/imoveis",
+        "/app/cadastro",
+        "/app/visitas"
+      ]
+    },
+    "app-imoveis": {
+      "textos": [
+        "Gerando XML...",
+        "🔎 Buscar...",
+        "Vila Mariana",
+        "São Paulo",
+        "Tipo",
+        "Bairro",
+        "Cidade",
+        "Valor mín.",
+        "Valor máx.",
+        "Área m²",
+        "Quartos",
+        "Vagas",
+        "Operação",
+        "Status",
+        "Suítes",
+        "Banheiros",
+        "Proprietário",
+        "Fotos",
+        "✕ Limpar",
+        "📡 VivaReal"
+      ],
+      "selects": [],
+      "options": [
+        "Todos",
+        "🏢 Apartamento",
+        "🏠 Casa",
+        "🏙️ Cobertura",
+        "🏗️ Loft",
+        "🛋️ Studio",
+        "🏡 Kitnet",
+        "🟩 Terreno",
+        "🏪 Comercial",
+        "Todas",
+        "Venda",
+        "Aluguel",
+        "Ativo",
+        "Inativo",
+        "Com proprietário"
+      ],
+      "inputs": [],
+      "fetches": [
+        "/app/gerar-xml"
+      ],
+      "onclicks": [
+        "deselectAll()",
+        "gerarXML(",
+        "gerarXML(",
+        "gerarXML(",
+        "gerarXML(",
+        "gerarXML(",
+        "gerarXML(",
+        "toggleFiltros()",
+        "filtrar()",
+        "limpar()",
+        "toggleCard(this)",
+        "event.stopPropagation()",
+        "event.stopPropagation()",
+        "event.stopPropagation()",
+        "copiarURL()"
+      ],
+      "links": [
+        "/app/imoveis/exportar-excel",
+        "/app/imovel/<%= item.idExterno %>",
+        "/app/imovel/<%= item.idExterno %>/editar"
+      ]
+    },
+    "app-imovel-detalhe": {
+      "textos": [
+        "Características",
+        "Descrição"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [
+        "abrirGaleria(0)",
+        "abrirGaleria(1)",
+        "abrirGaleria(2)",
+        "abrirGaleria(3)",
+        "abrirGaleria(4)",
+        "fecharLightbox()",
+        "navFoto(-1)",
+        "navFoto(1)"
+      ],
+      "links": [
+        "/app/imoveis"
+      ]
+    },
+    "app-importar-leads": {
+      "textos": [
+        "Importar leads",
+        "📥 Modelo da planilha de leads",
+        "Arquivo CSV, Excel ou Numbers",
+        "Importar e processar",
+        "Campo",
+        "Obrigatório",
+        "Descrição"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [
+        "file"
+      ],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/airbnb.css"
+      ]
+    },
+    "app-lead-detalhe": {
+      "textos": [],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [
+        "document.getElementById(",
+        "document.getElementById("
+      ],
+      "links": [
+        "/app/leads",
+        "/imovel/<%= lead.imovel_interesse %>",
+        "/imovel/<%= m.idExterno || m.id %>"
+      ]
+    },
+    "app-leads": {
+      "textos": [
+        "Resultados da IA",
+        "Leads",
+        "Nome, email, celular, bairro...",
+        "Fonte",
+        "Rank IA",
+        "Compatibilidade",
+        "ID Externo",
+        "ID Interno",
+        "Tipo",
+        "Bairro",
+        "Cidade/UF",
+        "Valor",
+        "Área",
+        "Quartos",
+        "Suítes",
+        "Banheiros",
+        "Vagas",
+        "URL",
+        "Nome",
+        "Telefone"
+      ],
+      "selects": [],
+      "options": [
+        "Todos",
+        "🤖 IA encontrou imóvel",
+        "✅ Dados extraídos",
+        "⏳ Pendente extração",
+        "🌐 Orgânica",
+        "📋 Importada",
+        "30+",
+        "50+",
+        "70+",
+        "90+",
+        "Todas",
+        "Rankim",
+        "ImovelWeb",
+        "QuintoAndar",
+        "ZAP"
+      ],
+      "inputs": [
+        "file"
+      ],
+      "fetches": [],
+      "onclicks": [
+        "abrirModalImportarLeads();return false;",
+        "fecharModalImportarLeads()"
+      ],
+      "links": [
+        "/app/lead/<%= item.id %>",
+        "/cliente/oferta/<%= item.leadId || item.id %>"
+      ]
+    },
+    "app-notificacoes": {
+      "textos": [],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/imovel/<%= n.imovelId %>",
+        "/app/lead/<%= n.leadId %>"
+      ]
+    },
+    "app-perfil": {
+      "textos": [
+        "Dados do usuário",
+        "📍 Minha localização",
+        "Nome",
+        "Celular",
+        "CRECI",
+        "CPF",
+        "Tipo de conta",
+        "Código do usuário",
+        "Salvar perfil",
+        "📡 Atualizar localização"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [
+        "nome",
+        "creci",
+        "cpf",
+        "lat",
+        "lng",
+        "endereco"
+      ],
+      "fetches": [
+        "https://nominatim.openstreetmap.org/reverse?format=json&lat="
+      ],
+      "onclicks": [
+        "pegarLocalizacao()"
+      ],
+      "links": []
+    },
+    "app-portais-xml": {
+      "textos": [
+        "Portais / XML"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [],
+      "links": []
+    },
+    "app-portais": {
+      "textos": [
+        "📡 Feeds XML gerados",
+        "',this)\">📋 Copiar URL"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [
+        "copiar("
+      ],
+      "links": [
+        "/app/imoveis"
+      ]
+    },
+    "app-visitas": {
+      "textos": [
+        "Cliente, bairro...",
+        "Status",
+        "Data",
+        "Buscar",
+        "Cliente",
+        "Telefone",
+        "Imóvel",
+        "Horário",
+        "Ação"
+      ],
+      "selects": [
+        "status"
+      ],
+      "options": [
+        ">Todos",
+        ">Pendente",
+        ">Confirmada",
+        ">Recusada",
+        ">Realizada"
+      ],
+      "inputs": [
+        "data",
+        "busca"
+      ],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/app/visitas"
+      ]
+    },
+    "cliente-oferta": {
+      "textos": [
+        "Olá,",
+        "Nenhum match disponível ainda",
+        "Seus dados",
+        "Agendar visita",
+        "Nome completo",
+        "Celular",
+        "Continuar",
+        "Cancelar",
+        "Confirmar visita",
+        "Voltar"
+      ],
+      "selects": [],
+      "options": [
+        "06:00",
+        "06:30",
+        "07:00",
+        "07:30",
+        "08:00",
+        "08:30",
+        "09:00",
+        "09:30",
+        "10:00",
+        "10:30",
+        "11:00",
+        "11:30",
+        "12:00",
+        "12:30",
+        "13:00"
+      ],
+      "inputs": [],
+      "fetches": [
+        "/api/lead-interesse"
+      ],
+      "onclicks": [
+        "abrirModalOferta(this)",
+        "fecharModal()",
+        "continuarHorario()",
+        "fecharModal()",
+        "fecharModal()",
+        "confirmarVisita()",
+        "voltarContato()"
+      ],
+      "links": [
+        "/imovel/<%= m.idExterno || m.id_anuncio || m.id_anuncio_quintoandar || m.id %>",
+        "/cliente/oferta/<%= lead.id || lead.leadId %>/escolher/<%= idx %>"
+      ]
+    },
+    "cliente-visita-confirmar": {
+      "textos": [
+        "Sua visita foi confirmada!",
+        "✅ Confirmo minha presença",
+        "❌ Não poderei comparecer"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [],
+      "links": []
+    },
+    "cliente-visita-remarcar": {
+      "textos": [
+        "Remarcar visita",
+        "Nova data",
+        "Novo horário",
+        "📅 Confirmar nova data"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [
+        "novaData",
+        "novoHorario"
+      ],
+      "fetches": [],
+      "onclicks": [],
+      "links": []
+    },
+    "feed-reels": {
+      "textos": [],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [
+        "/api/imoveis"
+      ],
+      "onclicks": [
+        "toggleLike(",
+        "salvar(",
+        "compartilhar("
+      ],
+      "links": [
+        "/app/imovel/"
+      ]
+    },
+    "imovel-form": {
+      "textos": [
+        "Cadastrar Imóvel",
+        "Dados do Proprietário (OBRIGATÓRIO)",
+        "Ex: AP001, CASA123",
+        "Categoria",
+        "Tipo de imóvel",
+        "Bairro",
+        "Bairron",
+        "Cidade",
+        "Estado",
+        "Preço",
+        "Área m²",
+        "Quartos",
+        "Suítes",
+        "Banheiros",
+        "Vagas",
+        "Descrição",
+        "Nome",
+        "Telefone",
+        "Email",
+        "Cadastrar imóvel"
+      ],
+      "selects": [
+        "tipoCategoria",
+        "tipo"
+      ],
+      "options": [
+        "Residencial",
+        "Comercial",
+        "Apartamento",
+        "Casa",
+        "Sobrado",
+        "Studio",
+        "Kitnet",
+        "Sala comercial",
+        "Conjunto comercial",
+        "Galpão",
+        "Loja",
+        "Prédio comercial",
+        "Terreno"
+      ],
+      "inputs": [
+        "idExterno",
+        "bairro",
+        "cidade",
+        "estado",
+        "preco",
+        "area",
+        "quartos",
+        "suites",
+        "banheiros",
+        "vagas",
+        "propNome",
+        "propTelefone",
+        "propEmail"
+      ],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/airbnb.css"
+      ]
+    },
+    "imovel-publico": {
+      "textos": [
+        "Características",
+        "Descrição",
+        "Quase lá! 👋",
+        "Escolha sua visita 📅",
+        "Nome completo",
+        "(11) 99999-9999",
+        "Seu nome",
+        "Seu celular",
+        "Data da visita",
+        "Horário",
+        "Continuar →",
+        "Cancelar",
+        "Confirmar visita",
+        "Voltar"
+      ],
+      "selects": [],
+      "options": [
+        "06:00",
+        "06:30",
+        "07:00",
+        "07:30",
+        "08:00",
+        "08:30",
+        "09:00",
+        "09:30",
+        "10:00",
+        "10:30",
+        "11:00",
+        "11:30",
+        "12:00",
+        "12:30",
+        "13:00"
+      ],
+      "inputs": [],
+      "fetches": [
+        "/api/lead-interesse",
+        "/api/lead-interesse"
+      ],
+      "onclicks": [
+        "abrirGaleria(0)",
+        "abrirGaleria(1)",
+        "abrirGaleria(2)",
+        "abrirGaleria(3)",
+        "abrirGaleria(4)",
+        "fecharLightbox()",
+        "navFoto(-1)",
+        "navFoto(1)",
+        "abrirModal(this.dataset.href,",
+        "abrirModal(this.dataset.href);return false;",
+        "confirmarContato()",
+        "fecharModal()",
+        "confirmarVisita()",
+        "voltarContato()"
+      ],
+      "links": []
+    },
+    "imovel": {
+      "textos": [],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [
+        "/track",
+        "/track"
+      ],
+      "onclicks": [],
+      "links": [
+        "/airbnb.css",
+        "/agendar/<%= item.offerToken %>/<%= matchIdx %>"
+      ]
+    },
+    "index": {
+      "textos": [
+        "Entrada aceita",
+        "Filtros do match",
+        "Melhorias do MVP",
+        "Filtros rápidos",
+        "Resultados",
+        "Cliente, email, ID...",
+        "Zerar base local",
+        "Processar planilha",
+        "Fazer match com QuintoAndar",
+        "Fonte",
+        "Rank",
+        "Score",
+        "Tipo",
+        "Bairro",
+        "Cidade/UF",
+        "Valor",
+        "Área",
+        "Quartos",
+        "Suítes",
+        "Banheiros"
+      ],
+      "selects": [],
+      "options": [
+        "Todas",
+        "\">",
+        "Todos",
+        "30+",
+        "50+",
+        "70+",
+        "90+",
+        "Hoje",
+        "Últimos 7 dias",
+        "Últimos 30 dias"
+      ],
+      "inputs": [
+        "spreadsheet"
+      ],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/styles.css",
+        "/airbnb.css",
+        "/oferta/<%= idx %>"
+      ]
+    },
+    "login": {
+      "textos": [
+        "A IA que faz o",
+        "Acessar plataforma",
+        "11975720750",
+        "••••",
+        "Celular",
+        "Senha",
+        "Entrar →"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [
+        "telefone",
+        "senha"
+      ],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/airbnb.css"
+      ]
+    },
+    "mapa": {
+      "textos": [],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [
+        "ft(this,",
+        "ft(this,",
+        "ft(this,",
+        "location=",
+        "location=",
+        "location="
+      ],
+      "links": []
+    },
+    "oferta": {
+      "textos": [
+        "Olá,"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [
+        "/track"
+      ],
+      "onclicks": [],
+      "links": [
+        "/airbnb.css",
+        "/imovel/<%= item.offerToken %>/<%= item.matches.indexOf(m) %>"
+      ]
+    },
+    "proprietario-confirmado": {
+      "textos": [
+        "Visita confirmada!",
+        "Imóvel indisponível",
+        "Remarcação solicitada"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [],
+      "links": []
+    },
+    "proprietario-visita": {
+      "textos": [
+        "Solicitação de Visita",
+        "✅ Imóvel disponível e aceito a visita",
+        "📅 Quero remarcar a data",
+        "❌ Imóvel não está mais disponível"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [],
+      "links": []
+    }
+  },
+  "cerebro": {
+    "acoes.js": {
+      "linhas": 148,
+      "padroes": [
+        "confirmar visita|aceitar visita|aprovar visita",
+        "recusar visita|cancelar visita|negar visita",
+        "inativar imovel|desativar imovel|ocultar imovel",
+        "fazer match|rodar match|executar match|match agora",
+        "gerar xml|criar xml|publicar",
+        "importar lead|subir lead|upload lead|importar planilha",
+        "importar xml|importar imovel|subir xml",
+        "importar proprietario|vincular proprietario",
+        "pode me ajudar|o que voce faz|o que pode|me ajuda|pode ajudar",
+        "avisar proprietario|notificar proprietario",
+        "enviar vitrine|mandar vitrine|link para|link do cliente",
+        "follow.?up|retornar para|ligar para",
+        "\\b([a-zA-Z0-9-]{4,})\\b",
+        "leads\" style=\"color:#ff385c;font-weight:700\">Leads →<",
+        "imoveis\" style=\"color:#ff385c;font-weight:700\">Imóveis →<",
+        "imoveis\" style=\"color:#ff385c;font-weight:700\">Imóveis →<",
+        "span><span>Vá para <a href=\"",
+        "leads\" style=\"color:#ff385c;font-weight:700\">Leads →<",
+        "span><span>Clique em <strong>Fazer Match<",
+        "span><span>Vá para <a href=\""
+      ]
+    },
+    "aprendizado.js": {
+      "linhas": 133,
+      "padroes": []
+    },
+    "arvore.js": {
+      "linhas": 336,
+      "padroes": [
+        "importar|gerar|confirmar|recusar|inativar|fazer match|exportar|vincular",
+        "o que devo|plano|hoje|me orienta|por onde|resumo do dia",
+        "saudacao|oi\\b|ola\\b|bom dia|boa tarde|boa noite|hello",
+        "o que e|como funciona|explicar|me explica|o que significa",
+        "relatorio|desempenho|performance|resultado",
+        "[\\u0300-\\u036f]",
+        " ── GALHO 1: URGÊNCIA (visitas hoje ",
+        "onboarding|comecar|primeiros passos|configurar conta",
+        "o que devo fazer|plano do dia|o que fazer hoje"
+      ]
+    },
+    "contexto.js": {
+      "linhas": 99,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para",
+        "comprar|vender|financiar|compra",
+        "alugar|aluguel|locar|locacao|mes|mensal",
+        "(?:cliente|lead|para o|para a)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)",
+        "(?:no|na|em|do|da)\\s+([a-z][a-z ]{2,20})(?:\\s|$|,|\\.)",
+        "span><span style=\"color:#555;font-size:12px\"> '+det+prop+'<",
+        "strong>'+nome+'<br><span style=\"font-size:12px;color:#888\">'+filtros+'<",
+        "span>':'')+'<br><br>'+btn('Cadastrar lead','"
+      ]
+    },
+    "estrategista.js": {
+      "linhas": 119,
+      "padroes": [
+        "strong> Não perca o horário. ${btn('Ver visitas','",
+        "strong> aguardando confirmação. ${btn('Confirmar','",
+        "strong> que ainda não visitaram. ${btn('Ver leads','",
+        "strong><br><br>' + lista + '<br>' + btn('Dashboard', '"
+      ]
+    },
+    "imoveis.js": {
+      "linhas": 215,
+      "padroes": [
+        "pagina cadastro|app cadastro|cadastrar imovel pagina|o que tem no cadastro",
+        "cadastro):<",
+        "importar via xml|url do feed|url xml|testar xml|testar url",
+        "span><span>Cole a URL do feed XML ou envie o arquivo<",
+        "span><span>Clique em <strong>Testar<",
+        "span><span>Sistema mostra quantos imóveis serão importados<",
+        "span><span>Clique em <strong>Importar Agora<",
+        "span><span>URL salva com data da última atualização<",
+        "cadastro manual|cadastrar um imovel|captacao direta|exclusividade cadastro",
+        "testar url|testar feed|como testar xml|botao testar",
+        "diferenca xml manual|quando usar xml|quando usar manual|xml ou manual",
+        "o que tem na pagina imoveis|pagina imoveis|meus imoveis pagina|app imoveis",
+        "imoveis):<",
+        "filtros imoveis|filtrar imoveis|como filtrar",
+        "máx · Área · Quartos · Vagas · Suítes · Banheiros · Operação (venda",
+        " GERAR XML ",
+        "selecionar todos|checkboxes|selecionar imoveis",
+        "tipos de imovel|quais tipos|tipo imovel",
+        "operacao|tipo operacao|venda|aluguel",
+        "editar imovel|como editar|campos do imovel|o que tem no cadastro"
+      ]
+    },
+    "index.js": {
+      "linhas": 236,
+      "padroes": [
+        ".test(mNorm) && !",
+        "buscar?|procurar?|tem (imovel|algo)|quero ver",
+        "apto|apartamento|casa|terreno|cobertura|sobrado|comercial",
+        "^(ver |fazer |rodar |quero |me mostra )?match$",
+        "agendar|marcar|criar",
+        ".test(mNorm) && !",
+        "gerar|criar|exportar",
+        ".test(mNorm) && !",
+        "follow.?up|retornar|ligar|contatar",
+        "nome|quem|lead|cliente|joao|maria|ana|carlos",
+        "relatorio|relat[oó]rio",
+        "semana|mes|hoje|ontem|periodo|semanal|mensal",
+        "proprietario|dono",
+        "avisar|notificar|quem|imovel|sem|com|cadastrar",
+        "^[a-z]{1,2}$",
+        "(casa|apto|apartamento|sobrado|cobertura|terreno|loft|studio)",
+        "ems+[a-z]|disponivel|cadastrado|ativo|inativo|parado",
+        "^tems+(casa|apto|apartamento|sobrado|cobertura|terreno)",
+        "lead|visita|match|portal|mercado|cliente",
+        " ── 5. ESTRATÉGIA "
+      ]
+    },
+    "intencao.js": {
+      "linhas": 181,
+      "padroes": []
+    },
+    "leads-temporal.js": {
+      "linhas": 75,
+      "padroes": [
+        "hoje|entraram hoje|chegaram hoje|novas hoje",
+        "quente|mais chance|interessado|prioridade|atender primeiro",
+        "fria|frio|esfriou|esquecida|parada|sem contato|abandonada",
+        "reativar|reengajar|recuperar|voltar a contatar",
+        "(?:lead|cliente|contato|buscar|procurar|encontrar|onde esta)\\s+([a-z]{3,})",
+        "sem resposta|nao respondeu|sem retorno|visualizou"
+      ]
+    },
+    "leads.js": {
+      "linhas": 199,
+      "padroes": [
+        "card lead|o que aparece na lead|informacoes da lead",
+        "vitrine|o que e vitrine|como funciona vitrine|ver vitrine",
+        "enviar vitrine|mandar vitrine|como enviar vitrine",
+        "whatsapp lead|falar com lead|contato lead|botao whatsapp",
+        "organica|importada|diferenca organica|o que e organica",
+        "extracao|extraido|pendente extracao|perfil extraido",
+        "pagina leads|o que tem em leads|menu leads|app leads",
+        "score lead|score das leads|o que e score|filtrar por score",
+        "fonte lead|de onde vem|origem lead|portal lead",
+        "busca inteligente|buscar lead|pesquisar lead",
+        "strong> ou <strong>Excel (.xlsx)<",
+        "como importar lead|importar planilha lead|enviar planilha",
+        "span><span>Prepare a planilha CSV ou Excel com os campos obrigatórios<",
+        "span><span>Clique em <strong>Importar Leads<",
+        "span><span>Clique em <strong>Escolher Arquivo<",
+        "span><span>Clique em <strong>Enviar Planilha<",
+        "span><span>A IA lê a planilha e extrai automaticamente os dados<",
+        "importar|planilha|csv|upload|subir",
+        "span><span>Exporte a planilha do portal (ImovelWeb, ZAP, VivaReal, OLX).<",
+        "span><span>Acesse <a href=\""
+      ]
+    },
+    "limpeza.js": {
+      "linhas": 183,
+      "padroes": []
+    },
+    "match.js": {
+      "linhas": 128,
+      "padroes": [
+        "como funciona o match|explicar match|o que e match|algoritmo match",
+        "base interna|usuarios parceiros|parceiros match|imoveis parceiros",
+        "strong> — imóveis cadastrados pelo próprio corretor",
+        "score match|como calcula score|pontuacao match|score imovel",
+        "por que nao deu match|sem match porque|nao encontrou imovel|match falhou",
+        "vitrine match|imoveis na vitrine|ordem vitrine|como aparece na vitrine",
+        "como|explicar|o que|funciona|entender",
+        "sem match|por que|melhorar|aumentar|nao tem",
+        "strong><br><br><strong>Diagnóstico:<",
+        "taxa|percentual|porcentagem"
+      ]
+    },
+    "memoria.js": {
+      "linhas": 96,
+      "padroes": []
+    },
+    "mercado.js": {
+      "linhas": 102,
+      "padroes": [
+        "bairro|demanda|mais buscado|onde|regiao",
+        "10))+'░'.repeat(10-Math.round(pct",
+        "quartos? mais (pedido|buscado|procurado|demandado)|quantos quartos|quartos mais",
+        "10))+'░'.repeat(10-Math.round(pct",
+        "valor|preco|faixa|orcamento|quanto pagam",
+        "quarto|dormitorio"
+      ]
+    },
+    "navegacao.js": {
+      "linhas": 38,
+      "padroes": []
+    },
+    "navegador.js": {
+      "linhas": 68,
+      "padroes": [
+        "ativar imovel'], filtros:['Tipo','Bairro','Cidade','Valor min",
+        "sem match)','Tipo desejado','Bairro desejado','Origem (organica",
+        "confirmada",
+        "portais',   titulo:'Portais ",
+        "Excel', rota:'",
+        "notificacoes e ",
+        "visitas','Confirme ou recuse a visita em ",
+        "[\\u0300-\\u036f]",
+        "filtro|filtrar|como busco|como encontro",
+        "bot[aã]o|o que posso fazer|acoes",
+        "span><span>'+p+'<",
+        "ir para|abrir|acessar|navegar|levar|vai em|me leva"
+      ]
+    },
+    "nlp.js": {
+      "linhas": 153,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "[^a-z0-9\\s]",
+        "[\\u0300-\\u036f]",
+        "saudacao|\\boi\\b|\\bola\\b|hello|bom dia|boa tarde|boa noite|eai",
+        "dashboard|resumo|relatorio|geral|panorama",
+        "como funciona|o que e|o que sao|explicar|o que voce faz",
+        ".test(mNorm)||",
+        "importar xml|subir xml|gerar xml|\\bxml\\b",
+        "lead|cliente|interessado|comprador",
+        "imovel|carteira|apartamento|\\bcasa\\b|cobertura|terreno|sobrado",
+        "visita|agenda|agendar",
+        "match|combinar|compativel",
+        "coin|moeda|saldo",
+        "notifica|alerta|aviso"
+      ]
+    },
+    "notificacoes.js": {
+      "linhas": 138,
+      "padroes": [
+        "tipos notificacao|quais notificacoes|o que aparece nas notificacoes",
+        "cliente remarcou|lead remarcou|nova data cliente",
+        "proprietario remarcou|proprietario pediu|proprietario nao pode",
+        "nova solicitacao|nova visita solicitada|lead solicitou"
+      ]
+    },
+    "onboarding.js": {
+      "linhas": 42,
+      "padroes": [
+        "strong>${feito?'<"
+      ]
+    },
+    "portais.js": {
+      "linhas": 109,
+      "padroes": [
+        "imoveis') + btn('Ver portais','",
+        "para que serve xml|o que faz xml|o que e xml|o que significa xml",
+        "portais):<",
+        "span><span>Acesse <a href=\"",
+        "imoveis\" style=\"color:#ff385c;font-weight:700\">Imóveis →<",
+        "span><span>Selecione todos ou escolha os imóveis desejados<",
+        "span><span>Clique no portal desejado (OLX, ZAP, VivaReal...)<",
+        "span><span>XML gerado — copie o link em <a href=\"",
+        "portais\" style=\"color:#ff385c;font-weight:700\">Portais →<",
+        "span><span>Cadastre o link nas configurações do portal<",
+        "portais') + btn('Ver imóveis','",
+        "link xml|link do feed|onde fica o link|copiar link portal",
+        "quais portais|portais disponiveis|portais suportados",
+        "ver portais|meus portais|status portal|ver portal",
+        "rejeitou|nao publicou|nao saiu|recusou|nao apareceu portal",
+        "rejeitou|nao publicou|nao saiu|recusou",
+        "gerar|criar|publicar|subir|feed",
+        "span><span>Acesse <a href=\"",
+        "imoveis\" style=\"color:#ff385c;font-weight:700\">Imóveis →<",
+        "span><span>Selecione os imóveis com os checkboxes.<"
+      ]
+    },
+    "portugues.js": {
+      "linhas": 257,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "\bems+([a-z]+(?:s+[a-z]+)?)",
+        "g,\"\").includes(e.bairro.toLowerCase().normalize(\"NFD\").replace(",
+        "strong>.<br><br>'+btn('Ver visitas','",
+        "strong>.<br><br>'+btn('Ver visitas','",
+        "^filtros?$",
+        "imoveis') + btn('Ver leads','",
+        " \"me fale mais da app\" ",
+        " \"porque nao esta salvando\" ",
+        " \"dicas pra hoje\" ",
+        "strong><br><br>'+dicas.join('<br><br>')+'<br><br>'+btn('Dashboard','",
+        " \"ate 300k\" ",
+        "buscar por valor|filtrar por valor|imoveis? (ate|abaixo|menos de)|^ate d",
+        "ates+(d[d.,]+)",
+        "'+l.id+'\" style=\"font-size:12px;color:#ff385c\" target=\"_blank\">🔗 ",
+        "'+l.id+'\" style=\"font-size:12px;color:#ff385c\">🔗 Enviar vitrine<",
+        "visitas? confirmadas?|quais (visitas?|agendamentos?) (foram|estao) confirmad",
+        "imoveis? (sem|sem nenhuma|sem) foto|sem imagem|nao tem foto|falta foto",
+        "'+l.id+'\" style=\"font-size:12px;color:#ff385c\">🔗 Vitrine<"
+      ]
+    },
+    "raciocinio.js": {
+      "linhas": 127,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "lead|cliente",
+        "imovel|casa|apto"
+      ]
+    },
+    "rag.js": {
+      "linhas": 128,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "[\\u0300-\\u036f]",
+        "strong><br><br>${btn('Ver todos os imóveis','",
+        "strong> encontrado(s) para: <em>${filtrosAplicados}<"
+      ]
+    },
+    "relatorio.js": {
+      "linhas": 39,
+      "padroes": [
+        "leads')}${btn('Ver imóveis','"
+      ]
+    },
+    "scoring.js": {
+      "linhas": 81,
+      "padroes": [
+        "atender primeiro|mais urgente|prioridade|mais importante",
+        "strong><br>${btn('Ver leads','",
+        " \"pronto para fechar\" ",
+        "pronto para fechar|quase fechando|proximo de fechar|proposta|quer fechar"
+      ]
+    },
+    "sistema.js": {
+      "linhas": 226,
+      "padroes": [
+        "primeiros passos|como comecar|por onde comecar|primeiro passo|nao sei comecar",
+        "cadastro')+btn('Importar leads','",
+        "pagina perfil|app perfil|meu perfil|dados da conta|o que tem no perfil",
+        "creci|registro creci|numero creci",
+        "perfil\" style=\"color:#ff385c;font-weight:700\">Perfil →<",
+        "codigo usuario|id usuario|meu codigo|codigo da conta",
+        "localizacao|atualizar localizacao|minha localizacao|onde estou",
+        "perfil\" style=\"color:#ff385c;font-weight:700\">Perfil →<",
+        "salvar perfil|alterar dados|atualizar dados|editar perfil",
+        "perfil\" style=\"color:#ff385c;font-weight:700\">Perfil →<",
+        "dashboard|painel|painel de controle",
+        "menu|navegacao|onde encontro|onde fica|onde acho",
+        "tipos de imovel|tipos imovel|quais tipos|tipo de imovel",
+        "tipo de conta|tipo conta|corretor|construtor|proprietario conta",
+        "matchcoin|match coin|coin",
+        "taxa de match|taxa match|percentual match",
+        "como cadastro imovel|cadastrar imovel|novo imovel|cadastro imovel",
+        "cadastrar\" style=\"color:#ff385c;font-weight:700\">Cadastrar Imóvel →<",
+        "como cadastro foto|adicionar foto|subir foto|como adiciono foto",
+        "imoveis\" style=\"color:#ff385c;font-weight:700\">Imóveis →<"
+      ]
+    },
+    "suporte.js": {
+      "linhas": 71,
+      "padroes": [
+        "xml nao atualizou|xml erro|nao atualizou|url erro|403|404",
+        "portais\" style=\"color:#ff385c;font-weight:700\">Portais →<",
+        "portal rejeitou|imóvel nao apareceu|nao publicou|nao saiu no portal",
+        "como integrar|como conectar|como publicar portal|como subir xml|como gerar xml",
+        "span><span>Acesse <a href=\"",
+        "imoveis\" style=\"color:#ff385c;font-weight:700\">Imóveis →<",
+        "span><span>Clique no portal desejado (VivaReal, ZAP, OLX...)<",
+        "span><span>Copie o link gerado em <a href=\"",
+        "portais\" style=\"color:#ff385c;font-weight:700\">Portais →<",
+        "span><span>Cole esse link nas configurações do portal<",
+        ", resposta:`📋 <strong>Campos obrigatórios na planilha de leads:<",
+        "strong> do cliente<br>• <strong>Telefone<",
+        "strong> de interesse<br>• <strong>Tipo<",
+        "strong><br>• <strong>Valor máximo<",
+        "como importar lead|importar planilha|subir planilha",
+        "strong><br><br>Acesse <a href=\"",
+        "remover duplicado|lead duplicado|duplicatas",
+        "leads\" style=\"color:#ff385c;font-weight:700\">Ver leads →<",
+        "por que nao deu match|nao encontrou imovel|match falhou|match nao funcionou",
+        "strong><br><br>O match exige:<br>• <strong>Bairro<"
+      ]
+    },
+    "visitas.js": {
+      "linhas": 139,
+      "padroes": [
+        "quem pediu visita|quem solicitou|nova solicitacao",
+        "visitas pendentes|pendentes de confirmacao|aguardando confirmacao",
+        "strong> aguardando confirmação do proprietário.<br><br>'+btn('Ver visitas','",
+        "quem confirmou|visitas confirmadas|confirmadas",
+        "strong>.<br><br>'+btn('Ver visitas','",
+        "avisar proprietario|notificar proprietario|avisar dono da visita",
+        "quem nao respondeu|sem resposta|nao respondeu",
+        "strong>.<br><br>'+btn('Ver leads','",
+        "quem pediu visita|quem solicitou|nova solicitacao",
+        "avisar proprietario|notificar proprietario|avisar dono",
+        "em><br><br>'+btn('Ver visitas','",
+        "quem nao respondeu|sem resposta|nao respondeu",
+        "strong> na página de leads.<br><br>'+btn('Ver leads','",
+        "quem confirmou|confirmou visita",
+        "strong><br><br>' + btn('Ver visitas','",
+        "como funciona visita|fluxo visita|passo a passo visita",
+        "pagina visitas|o que tem em visitas|menu visitas|app visitas",
+        "notificar proprietario|avisar proprietario|mensagem proprietario",
+        "remarcar|reagendar|mudar data visita|remarcar visita",
+        "fluxo visita|como funciona visita|passo a passo visita"
+      ]
+    }
+  },
+  "resumo": {
+    "totalViews": 32,
+    "totalCampos": 85,
+    "totalBotoes": 87,
+    "totalLinks": 40,
+    "totalModulosCerebro": 28,
+    "totalLinhasCerebro": 3866
+  }
+}

@@ -1,4 +1,6 @@
 'use strict';
+const fs = require('fs');
+
 
 const EXPLICACOES = {
   match:        'Match é quando um imóvel da sua carteira combina com o que um lead procura. O sistema cruza bairro + tipo + quartos automaticamente.',
@@ -154,4 +156,70 @@ function responder(mNorm, d, btn, chip) {
     AJUDA.map(i=>`<button onclick="enviarMsg('${i.msg}')" style="background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px">${i.emoji} ${i.label}</button>`).join('');
 }
 
-module.exports = { EXPLICACOES, responder };
+
+// ── MAPA COMPLETO DO SISTEMA ──────────────────────────────────────────────────
+function responderComMapa(mNorm, btn, chip) {
+  let mapa;
+  try { mapa = JSON.parse(fs.readFileSync('./cerebro/mapa-completo.json','utf8')); } catch(e) { return null; }
+
+  const views = mapa.views || {};
+  const rotas = mapa.server?.rotas || [];
+
+  // Detectar qual view o usuario quer saber
+  const mapaViews = {
+    'leads':        'app-leads',
+    'imoveis':      'app-imoveis',
+    'visitas':      'app-visitas',
+    'dashboard':    'app-home',
+    'home':         'app-home',
+    'cadastro':     'app-cadastro',
+    'portais':      'app-portais',
+    'notificacoes': 'app-notificacoes',
+    'perfil':       'app-perfil',
+    'coins':        'app-coins',
+    'assistente':   'app-assistente',
+    'editar imovel':'app-editar-imovel',
+    'lead detalhe': 'app-lead-detalhe',
+    'importar leads':'app-importar-leads',
+  };
+
+  const viewKey = Object.entries(mapaViews).find(([k]) => mNorm.includes(k));
+  if (!viewKey) return null;
+
+  const view = views[viewKey[1]];
+  if (!view) return null;
+
+  const nome = viewKey[1].replace('app-','').replace('-',' ');
+
+  // "o que tem" / "me explica" / "o que fica"
+  if (/o que tem|o que ha|me explica|me fala|o que fica|conteudo|pagina de/.test(mNorm)) {
+    let resp = '📋 <strong>Página ' + nome + ':</strong><br><br>';
+    if (view.textos && view.textos.length) resp += '<strong>Textos e títulos:</strong><br>' + view.textos.slice(0,8).map(t=>'• '+t).join('<br>') + '<br><br>';
+    if (view.inputs && view.inputs.length) resp += '<strong>Campos disponíveis:</strong><br>' + view.inputs.slice(0,8).map(i=>'• '+i).join('<br>') + '<br><br>';
+    if (view.selects && view.selects.length) resp += '<strong>Filtros/Selects:</strong><br>' + view.selects.map(s=>'• '+s).join('<br>') + '<br><br>';
+    if (view.onclicks && view.onclicks.length) resp += '<strong>Ações/Botões:</strong><br>' + view.onclicks.slice(0,6).map(o=>'• '+o.slice(0,60)).join('<br>');
+    return resp;
+  }
+
+  // "quais campos tem"
+  if (/campos?|inputs?|formulario|preencher/.test(mNorm)) {
+    if (!view.inputs || !view.inputs.length) return 'Não encontrei campos de formulário nessa página.';
+    return '📝 <strong>Campos em ' + nome + ':</strong><br><br>' + view.inputs.map(i=>'• '+i).join('<br>');
+  }
+
+  // "quais botoes tem"
+  if (/bot[aã]o|bot[oõ]es|acoes|cliques|o que posso clicar/.test(mNorm)) {
+    if (!view.onclicks || !view.onclicks.length) return 'Não encontrei botões nessa página.';
+    return '⚡ <strong>Botões em ' + nome + ':</strong><br><br>' + view.onclicks.slice(0,8).map(o=>'• '+o.slice(0,60)).join('<br>');
+  }
+
+  // "quais links tem" / "para onde vai"
+  if (/links?|navega|para onde|rotas?/.test(mNorm)) {
+    if (!view.links || !view.links.length) return 'Não encontrei links internos nessa página.';
+    return '🔗 <strong>Links em ' + nome + ':</strong><br><br>' + [...new Set(view.links)].slice(0,8).map(l=>'• '+l).join('<br>');
+  }
+
+  return null;
+}
+
+module.exports = { responderComMapa, EXPLICACOES, responder };

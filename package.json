@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "cerebro": "node cerebro.js && node auto-expansor.js",
+    "cerebro": "node fix-cerebro-scanner.js && node cerebro.js && node auto-expansor.js",
     "expandir": "node auto-expansor.js",
     "atualizar": "node cerebro.js && node auto-expansor.js && echo done",
     "treino": "node treino-cerebro.js",

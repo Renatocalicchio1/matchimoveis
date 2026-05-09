@@ -172,6 +172,12 @@ function responder(mensagem, d, user, imoveis, leads, visitas, contexto) {
   const resSup = suporte.responder(mNorm, btn, chip);
   if (resSup) return finalizar(resSup);
 
+  // ── 3.5. MAPA COMPLETO
+  try {
+    const resMapa = modSistema.responderComMapa && modSistema.responderComMapa(mNorm, btn, chip);
+    if (resMapa) return finalizar(resMapa + sugestoes(dominio, d));
+  } catch(e) {}
+
   // ── 4. SISTEMA (como acesso, o que é, etc) ───────────────────────────────────
   const isSistema = /como cadastrar|como adicionar foto|como conectar whatsapp|como inativar|como importar lead|como trocar senha|como acessar|como acesso|onde fica|como funciona o match|o que e match|o que e vitrine/.test(mNorm);
   if (isSistema) {

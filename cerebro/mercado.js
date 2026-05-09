@@ -21,14 +21,35 @@ function responder(mNorm, leads, imoveis, btn, chip) {
   }
 
   // TIPO MAIS BUSCADO
-  if (/tipo|apartamento|casa|mais pedido/.test(mNorm)) {
+  if (/tipo mais buscado|tipo mais pedido|qual tipo|tipos? (mais )?(buscado|pedido|procurado|demandado)/.test(mNorm)) {
     const tipos = {};
     leads.forEach(l => { if (l.tipo) tipos[l.tipo]=(tipos[l.tipo]||0)+1; });
     const ranking = Object.entries(tipos).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    if (!ranking.length) return `Sem dados de tipo nas leads ainda.`;
-    return `🏷️ <strong>Tipos mais buscados pelas leads:</strong><br><br>`+
-      ranking.map(([t,n],i)=>`${i+1}. <strong>${t}</strong> — ${n} lead${n>1?'s':''}`).join('<br>')+
-      `<br><br>${chip('🏠 Ver imóveis','meus imoveis')}`;
+    if (!ranking.length) return 'Sem dados de tipo nas leads ainda.';
+    const total = ranking.reduce((a,[,n])=>a+n,0);
+    return '<strong>Tipos mais buscados pelas leads:</strong><br><br>'+
+      ranking.map(([t,n],i)=>{
+        const pct = Math.round(n/total*100);
+        const bar = '█'.repeat(Math.round(pct/10))+'░'.repeat(10-Math.round(pct/10));
+        return (i+1)+'. <strong>'+t+'</strong> — '+n+' lead'+(n>1?'s':'')+' ('+pct+'%)<br><span style="color:#ff385c;font-size:11px">'+bar+'</span>';
+      }).join('<br><br>')+
+      '<br><br>'+chip('Ver imóveis','meus imoveis')+chip('Demanda por bairro','demanda por bairro');
+  }
+
+  // QUARTOS MAIS PEDIDOS
+  if (/quartos? mais (pedido|buscado|procurado|demandado)|quantos quartos|quartos mais/.test(mNorm)) {
+    const qtds = {};
+    leads.forEach(l => { if (l.quartos) qtds[l.quartos]=(qtds[l.quartos]||0)+1; });
+    const ranking = Object.entries(qtds).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    if (!ranking.length) return 'Sem dados de quartos nas leads ainda.';
+    const total = ranking.reduce((a,[,n])=>a+n,0);
+    return '<strong>Quartos mais pedidos pelas leads:</strong><br><br>'+
+      ranking.map(([q,n],i)=>{
+        const pct = Math.round(n/total*100);
+        const bar = '█'.repeat(Math.round(pct/10))+'░'.repeat(10-Math.round(pct/10));
+        return (i+1)+'. <strong>'+q+' quartos</strong> — '+n+' lead'+(n>1?'s':'')+' ('+pct+'%)<br><span style="color:#ff385c;font-size:11px">'+bar+'</span>';
+      }).join('<br><br>')+
+      '<br><br>'+chip('Ver imóveis','meus imoveis')+chip('Tipo mais buscado','tipo mais buscado');
   }
 
   // FAIXA DE VALOR

@@ -47,14 +47,47 @@ function sugestoes(dominio, d) {
 
 // ── PERGUNTA DE VOLTA ─────────────────────────────────────────────────────────
 function perguntarDeVolta(mNorm, intencaoObj) {
-  if (/cliente|comprador|interessado/.test(mNorm) && !/bairro|tipo|valor|apto|casa|quartos/.test(mNorm))
-    return '📋 Para buscar o imóvel certo, me diga:<br><br>' +
+  // Cliente sem detalhes
+  if (/tenho (um )?cliente|cliente (novo|chegou|interessado|quer|precisa)|novo (cliente|interessado)/.test(mNorm) && !/bairro|tipo|valor|apto|casa|quartos|rua|cidade/.test(mNorm))
+    return '📋 Ótimo! Me conta mais sobre esse cliente:<br><br>' +
       chip('Apartamento','tipo apartamento') + chip('Casa','tipo casa') + chip('Cobertura','tipo cobertura') +
-      '<br>Qual bairro e faixa de valor?';
+      '<br><br>Qual bairro ele quer e qual o valor máximo?';
 
-  if (/imovel|imóvel/.test(mNorm) && !mNorm.match(/bairro|tipo|valor|apto|casa/))
-    return '🏠 Qual tipo de imóvel você está buscando?<br><br>' +
+  // Busca sem tipo
+  if (/buscar?|procurar?|tem (imovel|algo)|quero ver/.test(mNorm) && !/apto|apartamento|casa|terreno|cobertura|sobrado|comercial/.test(mNorm))
+    return '🏠 Que tipo de imóvel você está buscando?<br><br>' +
       chip('Apartamento','apartamento') + chip('Casa','casa') + chip('Terreno','terreno') + chip('Comercial','comercial');
+
+  // Match sem contexto
+  if (/^(ver |fazer |rodar |quero |me mostra )?match$/.test(mNorm.trim()))
+    return '🎯 Match de qual lead? Me diz o nome ou o bairro que ela procura que eu busco aqui.';
+
+  // Visita sem contexto
+  if (/agendar|marcar|criar/.test(mNorm) && /visita/.test(mNorm) && !/bairro|imovel|cliente|lead|quem|para/.test(mNorm))
+    return '📅 Para agendar a visita preciso saber:<br><br>' +
+      '• Qual cliente?<br>• Qual imóvel?<br>• Qual data e horário?<br><br>' +
+      chip('Ver leads com match','leads com match') + chip('Ver visitas','visitas hoje');
+
+  // XML sem portal
+  if (/gerar|criar|exportar/.test(mNorm) && /xml/.test(mNorm) && !/vivareal|zap|olx|chaves|imovelweb|123i/.test(mNorm))
+    return '🔗 Para qual portal você quer gerar o XML?<br><br>' +
+      chip('VivaReal','gerar xml vivareal') + chip('ZAP','gerar xml zap') +
+      chip('OLX','gerar xml olx') + chip('ImovelWeb','gerar xml imovelweb');
+
+  // Follow-up sem lead
+  if (/follow.?up|retornar|ligar|contatar/.test(mNorm) && !/nome|quem|lead|cliente|joao|maria|ana|carlos/.test(mNorm))
+    return '📞 Follow-up com qual cliente? Me diz o nome ou eu posso listar as leads que não responderam.<br><br>' +
+      chip('Leads sem resposta','quem nao respondeu') + chip('Leads quentes','leads quentes');
+
+  // Relatório sem período
+  if (/relatorio|relat[oó]rio/.test(mNorm) && !/semana|mes|hoje|ontem|periodo|semanal|mensal/.test(mNorm))
+    return '📊 Relatório de qual período?<br><br>' +
+      chip('Essa semana','relatorio semanal') + chip('Esse mês','relatorio mensal') + chip('Hoje','resumo do dia');
+
+  // Proprietário sem contexto
+  if (/proprietario|dono/.test(mNorm) && !/avisar|notificar|quem|imovel|sem|com|cadastrar/.test(mNorm))
+    return '👤 O que você quer fazer com o proprietário?<br><br>' +
+      chip('Ver sem proprietário','imoveis sem proprietario') + chip('Avisar sobre visita','avisar proprietario da visita');
 
   return null;
 }

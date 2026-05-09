@@ -5,8 +5,8 @@
       "labelAtual": "Assistente",
       "dominioAtual": "sistema",
       "rotaAtual": "/app/assistente",
-      "atualizadoEm": "2026-05-09T04:12:47.326Z",
-      "paginaAnterior": "dashboard"
+      "atualizadoEm": "2026-05-09T04:26:51.921Z",
+      "paginaAnterior": "assistente"
     }
   },
   "fluxos": [
@@ -345,6 +345,18 @@
       "para": "assistente",
       "userId": "imobiliaria-47991919191",
       "data": "2026-05-09T04:12:47.326Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T04:17:43.553Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T04:17:46.093Z"
     }
   ]
 }

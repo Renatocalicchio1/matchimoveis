@@ -29,10 +29,10 @@
     .sidebar-footer{padding:16px 14px;border-top:1px solid var(--border)}
     .sidebar-footer a{display:flex;align-items:center;gap:8px;color:var(--gray);text-decoration:none;font-size:11px;padding:8px 12px;border-radius:10px;transition:all .15s}
     .sidebar-footer a:hover{color:var(--brand);background:var(--brand-light)}
-    .content{margin-left:var(--sidebar);width:calc(100% - var(--sidebar));min-height:100vh;padding:32px 36px}
-    .page-head{margin-bottom:28px}
-    .page-head h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--dark);letter-spacing:-.5px;margin-bottom:4px}
-    .page-head p{color:var(--gray);font-size:14px}
+    .content{margin-left:var(--sidebar);width:calc(100% - var(--sidebar));min-height:100vh;padding:28px 32px}
+    .page-head{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+    .page-head h1{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:var(--dark);letter-spacing:-.5px;margin-bottom:2px}
+    .page-head p{color:var(--gray);font-size:13px}
     .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
     .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
     .kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden; display:flex; flex-direction:column;transition:box-shadow .2s}
@@ -88,16 +88,7 @@
   }
 
 </style>
-<style>
-    @keyframes sinoPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.15); }
-      100% { transform: scale(1); }
-    }
-    .sino-alerta {
-      animation: sinoPulse 1s infinite;
-    }
-    </style>
+
 </head>
 <body>
 
@@ -123,7 +114,12 @@
     <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis"><span class="menu-ic">🏠</span>Meus Imóveis</a>
     <a class="<%= active==='leads'?'active':'' %>" href="/app/leads"><span class="menu-ic">👥</span>Leads</a>
     <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas"><span class="menu-ic">📅</span>Visitas</a>
-    <a class="<%= active==='notificacoes'?'active':'' %>" href="/app/notificacoes"><span class="menu-ic">🔔</span>Notificações</a>
+    <a class="<%= active==='notificacoes'?'active':'' %>" href="/app/notificacoes" style="justify-content:space-between">
+      <span style="display:flex;align-items:center;gap:10px"><span class="menu-ic">🔔</span>Notificações</span>
+      <% if (typeof notificacoesNaoLidas !== 'undefined' && notificacoesNaoLidas > 0) { %>
+        <span style="background:#ff385c;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;min-width:18px;text-align:center"><%= notificacoesNaoLidas %></span>
+      <% } %>
+    </a>
     <div class="menu-div"></div>
     <div class="menu-sec">Configurar</div>
     <a class="<%= active==='cadastro'?'active':'' %>" href="/app/cadastro"><span class="menu-ic">➕</span>Cadastrar Imóvel</a>
@@ -135,16 +131,7 @@
   <div class="sidebar-footer"><a href="/login">🚪 Sair</a></div>
 </aside>
 <main class="content">
-  <div id="sino-notificacao-topo-content" style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px">
-<a href="/app/notificacoes" title="Central de notificações" style="position:relative;text-decoration:none;background:white;border:1px solid #eee;border-radius:999px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.06)">
-      <span class="<%= (typeof notificacoesNaoLidas !== 'undefined' && notificacoesNaoLidas > 0) ? 'sino-alerta' : '' %>" style="font-size:22px">🔔</span>
-      <% if (typeof notificacoesNaoLidas !== 'undefined' && notificacoesNaoLidas > 0) { %>
-        <span style="position:absolute;top:-5px;right:-5px;background:#ff385c;color:white;font-size:11px;font-weight:800;padding:2px 6px;border-radius:999px">
-          <%= notificacoesNaoLidas %>
-        </span>
-      <% } %>
-    </a>
-  </div>
+
   <% if(typeof title!=='undefined'&&title){ %>
   <div class="page-head">
     <h1><%= title %></h1>

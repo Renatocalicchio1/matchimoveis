@@ -5,7 +5,7 @@
       "labelAtual": "Assistente",
       "dominioAtual": "sistema",
       "rotaAtual": "/app/assistente",
-      "atualizadoEm": "2026-05-09T03:33:39.534Z",
+      "atualizadoEm": "2026-05-09T04:12:47.326Z",
       "paginaAnterior": "dashboard"
     }
   },
@@ -243,6 +243,108 @@
       "para": "assistente",
       "userId": "imobiliaria-47991919191",
       "data": "2026-05-09T03:33:39.534Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:45:19.328Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:45:37.101Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:46:19.804Z"
+    },
+    {
+      "de": "assistente",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:46:32.383Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:46:35.361Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:49:16.093Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:49:18.752Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:53:11.782Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:53:14.351Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:57:32.235Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:57:34.398Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T04:09:16.001Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T04:09:20.958Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T04:11:25.965Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T04:11:27.815Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T04:12:44.685Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T04:12:47.326Z"
     }
   ]
 }

@@ -93,12 +93,12 @@
     },
     {
       "exemplo": "quais campos a planilha precisa?",
-      "count": 18,
+      "count": 19,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:31:09.850Z",
-      "ultima": "2026-05-09T03:33:09.042Z",
+      "ultima": "2026-05-09T03:59:22.556Z",
       "sugerido": true
     },
     {
@@ -143,12 +143,12 @@
     },
     {
       "exemplo": "ver portias",
-      "count": 19,
+      "count": 20,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:31:10.349Z",
-      "ultima": "2026-05-09T03:33:09.455Z",
+      "ultima": "2026-05-09T03:59:22.957Z",
       "sugerido": true
     },
     {
@@ -223,63 +223,63 @@
     },
     {
       "exemplo": "meu relatorrio",
-      "count": 10,
+      "count": 11,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:32:21.674Z",
-      "ultima": "2026-05-09T03:33:09.510Z",
+      "ultima": "2026-05-09T03:59:23.012Z",
       "sugerido": true
     },
     {
       "exemplo": "link do cliente",
-      "count": 10,
+      "count": 11,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:21.977Z",
-      "ultima": "2026-05-09T03:33:09.779Z",
+      "ultima": "2026-05-09T03:59:23.343Z",
       "sugerido": true
     },
     {
       "exemplo": "manda follow-up",
-      "count": 10,
+      "count": 11,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:22.066Z",
-      "ultima": "2026-05-09T03:33:09.853Z",
+      "ultima": "2026-05-09T03:59:23.449Z",
       "sugerido": true
     },
     {
       "exemplo": "como começo?",
-      "count": 2,
+      "count": 3,
       "usuarios": [
         "corretor-iniciante-001"
       ],
       "primeira": "2026-05-09T01:59:19.177Z",
-      "ultima": "2026-05-09T02:59:20.624Z",
-      "sugerido": false
+      "ultima": "2026-05-09T03:59:22.102Z",
+      "sugerido": true
     },
     {
       "exemplo": "a extração falhou",
-      "count": 2,
+      "count": 3,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.486Z",
-      "ultima": "2026-05-09T02:59:20.951Z",
-      "sugerido": false
+      "ultima": "2026-05-09T03:59:22.543Z",
+      "sugerido": true
     },
     {
       "exemplo": "como adicionar fotos?",
-      "count": 2,
+      "count": 3,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.556Z",
-      "ultima": "2026-05-09T02:59:21.025Z",
-      "sugerido": false
+      "ultima": "2026-05-09T03:59:22.602Z",
+      "sugerido": true
     }
   ],
   "sugestoes": [
@@ -582,6 +582,24 @@
       "count": 3,
       "sugestao_intencao": "nova_intencao_1778293593402",
       "status": "pendente"
+    },
+    {
+      "pergunta": "como começo?",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-09T03:59:22.102Z"
+    },
+    {
+      "pergunta": "a extração falhou",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-09T03:59:22.543Z"
+    },
+    {
+      "pergunta": "como adicionar fotos?",
+      "count": 3,
+      "status": "pendente",
+      "geradaEm": "2026-05-09T03:59:22.602Z"
     }
   ],
   "inconsistencias": [

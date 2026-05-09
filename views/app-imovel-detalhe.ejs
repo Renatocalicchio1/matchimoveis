@@ -175,7 +175,7 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') fecharLightbox(
     <%# INFORMAÇÕES %>
     <div class="detalhe-card">
       <div style="font-size:11px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">Informações</div>
-      <div class="info-row"><span class="info-lbl">ID</span><span class="info-val"><%= imovel.idExterno || imovel.id %></span></div>
+      <div class="info-row"><span class="info-lbl">ID MatchImóveis</span><span class="info-val" style="font-weight:700;color:#ff385c;font-family:monospace"><%= imovel.id || '-' %></span></div>
       <% if(imovel.fonte) { %><div class="info-row"><span class="info-lbl">Fonte</span><span class="info-val"><%= imovel.fonte %></span></div><% } %>
       <% if(imovel.transacao) { %><div class="info-row"><span class="info-lbl">Operação</span><span class="info-val"><%= imovel.transacao %></span></div><% } %>
       <% if(imovel.cep) { %><div class="info-row"><span class="info-lbl">CEP</span><span class="info-val"><%= imovel.cep %></span></div><% } %>

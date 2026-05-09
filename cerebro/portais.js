@@ -3,6 +3,24 @@
 const PORTAIS = ['VivaReal','ZAP','OLX','Chaves','ImovelWeb','123i'];
 
 function responder(mNorm, d, btn, chip) {
+  // Como funciona o XML com os portais
+  if (/como funciona xml|como portal le|como zap le|como vivareal le|como olx le|como portal parceiro|como portal importa|como portal busca imoveis/.test(mNorm))
+    return '📡 <strong>Como funciona o XML com os portais:</strong><br><br>' +
+      'O MatchImóveis gera um XML no padrão <strong>VRSync</strong> para cada portal.<br><br>' +
+      'O portal parceiro faz a leitura automática desse XML e publica seus imóveis.<br><br>' +
+      '<strong>Portais que leem o XML:</strong><br>' +
+      '• ZAP Imóveis<br>• VivaReal<br>• OLX<br>• Chaves na Mão<br>• ImovelWeb<br>• 123i<br><br>' +
+      'Basta gerar o XML, copiar o link e cadastrar nas configurações do portal. O portal faz o resto automaticamente.<br><br>' +
+      btn('Gerar XML','/app/imoveis') + btn('Ver portais','/app/portais');
+
+  // Para que serve o XML
+  if (/para que serve xml|o que faz xml|o que e xml|o que significa xml/.test(mNorm))
+    return '📡 <strong>Para que serve o XML:</strong><br><br>' +
+      'O XML é o arquivo que os portais parceiros usam para ler e publicar seus imóveis automaticamente.<br><br>' +
+      'Você gera o XML no MatchImóveis → o portal lê → publica seus imóveis.<br><br>' +
+      'Sem o XML, você teria que cadastrar cada imóvel manualmente em cada portal.<br><br>' +
+      btn('Gerar XML','/app/imoveis');
+
   // PÁGINA DE PORTAIS
   if (/pagina portais|app portais|menu portais|portais xml|gerencia feeds|o que tem em portais/.test(mNorm))
     return '🔗 <strong>Portais XML (/app/portais):</strong><br><br>' +

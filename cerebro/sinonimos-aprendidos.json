@@ -312,5 +312,15 @@
   "portal le xml": "como portal acessa imoveis",
   "como portal ve imoveis": "como portal acessa imoveis",
   "todos imoveis no xml": "xml contem todos imoveis",
-  "xml tem todos os imoveis": "xml contem todos imoveis"
+  "xml tem todos os imoveis": "xml contem todos imoveis",
+  "como zap le xml": "como portal le xml",
+  "como vivareal le xml": "como portal le xml",
+  "como olx le xml": "como portal le xml",
+  "portal parceiro": "portal parceiro match",
+  "leitura dos imoveis": "como portal le xml",
+  "portal importa imoveis": "como portal le xml",
+  "portal busca imoveis": "como portal le xml",
+  "para que serve xml": "o que e xml",
+  "o xml e o feed": "xml feed portal",
+  "feed dos portais": "xml feed portal"
 }

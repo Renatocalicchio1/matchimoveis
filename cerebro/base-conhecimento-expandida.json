@@ -1,6 +1,6 @@
 {
   "geradoEm": "2026-05-08T06:59:46.576Z",
-  "total": 8622,
+  "total": 8632,
   "items": [
     {
       "p": "oi",
@@ -34936,6 +34936,46 @@
     {
       "p": "mostrar numeros da conta",
       "r": "geral"
+    },
+    {
+      "p": "como o zap le meus imoveis",
+      "r": "portais"
+    },
+    {
+      "p": "como o vivareal acessa meus imoveis",
+      "r": "portais"
+    },
+    {
+      "p": "como o olx publica meus imoveis",
+      "r": "portais"
+    },
+    {
+      "p": "o portal le o xml automaticamente",
+      "r": "portais"
+    },
+    {
+      "p": "o xml e lido pelo portal parceiro",
+      "r": "portais"
+    },
+    {
+      "p": "como funciona a integracao com os portais",
+      "r": "portais"
+    },
+    {
+      "p": "como o portal importa meus imoveis",
+      "r": "portais"
+    },
+    {
+      "p": "para que serve o xml gerado",
+      "r": "portais"
+    },
+    {
+      "p": "o xml substitui o cadastro manual no portal",
+      "r": "portais"
+    },
+    {
+      "p": "o portal faz leitura automatica do xml",
+      "r": "portais"
     }
   ],
   "limpezaEm": "2026-05-08T07:38:42.996Z",

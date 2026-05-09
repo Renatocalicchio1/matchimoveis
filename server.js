@@ -1989,7 +1989,7 @@ app.get('/app/lead/:id', auth, (req, res) => {
 app.get('/app/imovel/:id', auth, (req, res) => {
   const imoveis = JSON.parse(fs.readFileSync('imoveis.json', 'utf8'));
   const user = req.session.user;
-  const imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
+  const imovel = imoveis.find(i => String(i.id) === String(req.params.id) || String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if (!imovel) return res.status(404).send('Imóvel não encontrado');
   
   // Oculta proprietário se não for admin nem corretor do imóvel

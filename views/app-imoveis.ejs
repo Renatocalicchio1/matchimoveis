@@ -70,7 +70,7 @@
 <div id="grid-imoveis" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
 <% (typeof imoveis !== 'undefined' ? imoveis : []).forEach((item, idx) => { %>
   <div class="card imovel-card"
-    data-id="<%= item.idExterno || item.id || idx %>"
+    data-id="<%= item.id || item.idExterno || idx %>"
     data-tipo="<%= (item.tipo||'').toLowerCase() %>"
     data-bairro="<%= (item.bairro||'').toLowerCase() %>"
     data-cidade="<%= (item.cidade||'').toLowerCase() %>"
@@ -120,8 +120,8 @@
         <% if(item.vagas) { %><span>🚗 <%= item.vagas %> vagas</span><% } %>
       </div>
       <div style="display:flex;gap:8px;margin-top:auto">
-        <a href="/app/imovel/<%= item.idExterno %>" target="_blank" class="card-action-btn details" onclick="event.stopPropagation()">👁 Ver</a>
-        <a href="/app/imovel/<%= item.idExterno %>/editar" class="card-action-btn edit" onclick="event.stopPropagation()">✏️ Editar</a>
+        <a href="/app/imovel/<%= item.id || item.idExterno %>" target="_blank" class="card-action-btn details" onclick="event.stopPropagation()">👁 Ver</a>
+        <a href="/app/imovel/<%= item.id || item.idExterno %>/editar" class="card-action-btn edit" onclick="event.stopPropagation()">✏️ Editar</a>
       </div>
     </div>
   </div>

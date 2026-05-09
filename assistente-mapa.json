@@ -1,6 +1,6 @@
 {
   "versao": "11.0",
-  "geradoEm": "2026-05-09T23:21:19.025Z",
+  "geradoEm": "2026-05-09T23:28:34.853Z",
   "stats": {
     "totalRotas": 80,
     "totalViews": 32,
@@ -1640,7 +1640,7 @@
     },
     "app-editar-imovel.ejs": {
       "forms": [
-        "/app/imovel/<%= idImovel %>/editar",
+        "/app/imovel/<%= idImovel %>\n    <div style=",
         "/app/imovel/<%= idImovel %>/capa-foto",
         "/app/imovel/<%= idImovel %>/excluir-foto",
         "/app/imovel/<%= idImovel %>/upload-foto"
@@ -1701,8 +1701,8 @@
       "forms": [],
       "links": [
         "/app/imoveis/exportar-excel",
-        "/app/imovel/<%= item.idExterno %>",
-        "/app/imovel/<%= item.idExterno %>/editar"
+        "/app/imovel/<%= item.id || item.idExterno %>",
+        "/app/imovel/<%= item.id || item.idExterno %>/editar"
       ],
       "fetches": [
         "/app/gerar-xml"

@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-05-09T23:21:18.900Z",
+  "geradoEm": "2026-05-09T23:28:34.680Z",
   "server": {
     "totalRotas": 83,
     "rotas": [
@@ -761,8 +761,8 @@
       ],
       "links": [
         "/app/imoveis/exportar-excel",
-        "/app/imovel/<%= item.idExterno %>",
-        "/app/imovel/<%= item.idExterno %>/editar"
+        "/app/imovel/<%= item.id || item.idExterno %>",
+        "/app/imovel/<%= item.id || item.idExterno %>/editar"
       ]
     },
     "app-imovel-detalhe": {

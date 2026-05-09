@@ -1,6 +1,6 @@
 {
   "versao": "11.0",
-  "geradoEm": "2026-05-09T23:05:24.769Z",
+  "geradoEm": "2026-05-09T23:21:19.025Z",
   "stats": {
     "totalRotas": 80,
     "totalViews": 32,
@@ -945,7 +945,7 @@
     {
       "metodo": "POST",
       "rota": "/api/lead-interesse",
-      "linha": 1712,
+      "linha": 1713,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -964,7 +964,7 @@
     {
       "metodo": "GET",
       "rota": "/imovel/:id",
-      "linha": 1888,
+      "linha": 1889,
       "requerLogin": false,
       "renderiza": "imovel-publico",
       "redireciona": null,
@@ -983,7 +983,7 @@
     {
       "metodo": "GET",
       "rota": "/app/lead/:id",
-      "linha": 1940,
+      "linha": 1941,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1003,7 +1003,7 @@
     {
       "metodo": "GET",
       "rota": "/app/imovel/:id",
-      "linha": 1988,
+      "linha": 1989,
       "requerLogin": true,
       "renderiza": "app-imovel-detalhe",
       "redireciona": null,
@@ -1021,7 +1021,7 @@
     {
       "metodo": "GET",
       "rota": "/app/imovel/:id/editar",
-      "linha": 2007,
+      "linha": 2008,
       "requerLogin": true,
       "renderiza": "app-editar-imovel",
       "redireciona": null,
@@ -1040,7 +1040,7 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/editar",
-      "linha": 2020,
+      "linha": 2021,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1059,7 +1059,7 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/upload-foto",
-      "linha": 2083,
+      "linha": 2084,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/imovel/",
@@ -1078,7 +1078,7 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/excluir-foto",
-      "linha": 2099,
+      "linha": 2100,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/imovel/",
@@ -1097,7 +1097,7 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/capa-foto",
-      "linha": 2115,
+      "linha": 2116,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/imovel/",
@@ -1116,7 +1116,7 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/confirmar/:id",
-      "linha": 2274,
+      "linha": 2276,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/visitas",
@@ -1135,7 +1135,7 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/recusar/:id",
-      "linha": 2297,
+      "linha": 2299,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/visitas",
@@ -1154,7 +1154,7 @@
     {
       "metodo": "POST",
       "rota": "/api/gerar-descricao-imovel",
-      "linha": 2320,
+      "linha": 2322,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -1170,7 +1170,7 @@
     {
       "metodo": "POST",
       "rota": "/app/gerar-xml",
-      "linha": 2378,
+      "linha": 2380,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1190,7 +1190,7 @@
     {
       "metodo": "GET",
       "rota": "/app/portais",
-      "linha": 2521,
+      "linha": 2523,
       "requerLogin": true,
       "renderiza": "app-portais",
       "redireciona": null,
@@ -1210,7 +1210,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/zerar-visitas-notificacoes-temp",
-      "linha": 2557,
+      "linha": 2559,
       "requerLogin": false,
       "renderiza": "cliente-visita-confirmar",
       "redireciona": null,
@@ -1229,7 +1229,7 @@
     {
       "metodo": "GET",
       "rota": "/cliente/visita/:visitaId/confirmar",
-      "linha": 2564,
+      "linha": 2566,
       "requerLogin": false,
       "renderiza": "cliente-visita-confirmar",
       "redireciona": null,
@@ -1250,7 +1250,7 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:visitaId/responder",
-      "linha": 2571,
+      "linha": 2573,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -1271,7 +1271,7 @@
     {
       "metodo": "GET",
       "rota": "/app/coins",
-      "linha": 2600,
+      "linha": 2602,
       "requerLogin": true,
       "renderiza": "app-coins",
       "redireciona": null,
@@ -1290,7 +1290,7 @@
     {
       "metodo": "GET",
       "rota": "/cliente/visita/:id/remarcar",
-      "linha": 2607,
+      "linha": 2609,
       "requerLogin": false,
       "renderiza": "cliente-visita-remarcar",
       "redireciona": null,
@@ -1310,7 +1310,7 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:id/remarcar",
-      "linha": 2614,
+      "linha": 2616,
       "requerLogin": false,
       "renderiza": "cliente-visita-remarcar",
       "redireciona": null,
@@ -1330,7 +1330,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/debug-visitas",
-      "linha": 2636,
+      "linha": 2638,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1349,7 +1349,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/debug-leads",
-      "linha": 2643,
+      "linha": 2645,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1368,7 +1368,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/reset-leads-repo",
-      "linha": 2651,
+      "linha": 2653,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1388,7 +1388,7 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente",
-      "linha": 2660,
+      "linha": 2662,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1408,7 +1408,7 @@
     {
       "metodo": "GET",
       "rota": "/api/assistente/dados",
-      "linha": 2671,
+      "linha": 2673,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1429,7 +1429,7 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente",
-      "linha": 2712,
+      "linha": 2714,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1449,7 +1449,7 @@
     {
       "metodo": "POST",
       "rota": "/app/assistente/chat",
-      "linha": 2719,
+      "linha": 2721,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1470,7 +1470,7 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente/historico",
-      "linha": 2783,
+      "linha": 2785,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,

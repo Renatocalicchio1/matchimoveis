@@ -851,7 +851,7 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
       const prop = i.proprietario || {};
       const estado = typeof i.estado === 'object' ? (i.estado['#text'] || i.estado.abbreviation || i.estado.uf || '') : (i.estado || '');
 
-      const id = i.idExterno || i.idOriginal || i.id || i.codigo || '';
+      const id = i.id || i.idExterno || i.idOriginal || i.codigo || '';
       const urlPublica = i.urlPublica || i.url || i.link || (id ? `http://localhost:3000/imovel/${id}` : '');
 
       return {
@@ -1663,6 +1663,7 @@ app.post('/imovel/:id/status', (req,res)=>{
 
 // Cadastro manual de imóvel
 app.post('/app/imovel/cadastrar', auth, (req, res) => {
+  const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
   const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
   const b = req.body;
   const novo = {
@@ -2159,7 +2160,8 @@ function gerarXMLPortais(){
     filtrados.forEach(i => {
       xml += `
     <listing>
-      <listingID>${i.idExterno || i.id}</listingID>
+      <listingID>${i.id || i.idExterno}</listingID>
+      <externalID>${i.idExterno || i.idOriginal || ''}</externalID>
       <title>${i.tipo || ''} em ${i.bairro || ''}</title>
       <description>${(i.descricao || '').replace(/&/g,'')}</description>
 

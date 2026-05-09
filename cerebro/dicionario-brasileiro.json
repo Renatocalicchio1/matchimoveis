@@ -1,0 +1,2108 @@
+{
+  "total": 522,
+  "categorias": 11,
+  "geradoEm": "2026-05-09T03:05:26.643Z",
+  "palavras": [
+    {
+      "palavra": "apartamento",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "apartamentos",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "apto",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "aptos",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "ap",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "apt",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "casa",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "casas",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "casinha",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "casinhas",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "casa terrea",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "casa sobrado",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "sobrado",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "sobrados",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "sobradinho",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "casa duplex",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "cobertura",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "coberturas",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "coberturinha",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "penthouse",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "terreno",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "terrenos",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "lote",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "lotes",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "area",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "areas",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "gleba",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "studio",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "studios",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "estudio",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "estudios",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "flat",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "flats",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "loft",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "lofts",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "kitnet",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "kitnets",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "kitinete",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "conjugado",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "comercial",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "comerciais",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "sala",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "salas",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "sala comercial",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "galpao",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "galpoes",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "deposito",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "depositos",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "armazem",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "predio",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "predios",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "edificio",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "edificios",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "chacara",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "chacaras",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "sitio",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "sitios",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "fazenda",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "fazendas",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "condominio",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "condominios",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "village",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "villages",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "duplex",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "triplex",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "garden",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "gardens",
+      "categoria": "tipos_imovel"
+    },
+    {
+      "palavra": "venda",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "vender",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "vende",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "vendo",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "compra",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "comprar",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "compro",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "aluguel",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "alugar",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "aluga",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "alugo",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "locacao",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "locar",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "loca",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "permuta",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "trocar",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "troca",
+      "categoria": "operacoes"
+    },
+    {
+      "palavra": "ativo",
+      "categoria": "status"
+    },
+    {
+      "palavra": "ativos",
+      "categoria": "status"
+    },
+    {
+      "palavra": "ativa",
+      "categoria": "status"
+    },
+    {
+      "palavra": "ativas",
+      "categoria": "status"
+    },
+    {
+      "palavra": "disponivel",
+      "categoria": "status"
+    },
+    {
+      "palavra": "disponiveis",
+      "categoria": "status"
+    },
+    {
+      "palavra": "inativo",
+      "categoria": "status"
+    },
+    {
+      "palavra": "inativos",
+      "categoria": "status"
+    },
+    {
+      "palavra": "inativa",
+      "categoria": "status"
+    },
+    {
+      "palavra": "inativas",
+      "categoria": "status"
+    },
+    {
+      "palavra": "arquivado",
+      "categoria": "status"
+    },
+    {
+      "palavra": "arquivados",
+      "categoria": "status"
+    },
+    {
+      "palavra": "publicado",
+      "categoria": "status"
+    },
+    {
+      "palavra": "publicados",
+      "categoria": "status"
+    },
+    {
+      "palavra": "vendido",
+      "categoria": "status"
+    },
+    {
+      "palavra": "vendidos",
+      "categoria": "status"
+    },
+    {
+      "palavra": "alugado",
+      "categoria": "status"
+    },
+    {
+      "palavra": "alugados",
+      "categoria": "status"
+    },
+    {
+      "palavra": "reservado",
+      "categoria": "status"
+    },
+    {
+      "palavra": "reservados",
+      "categoria": "status"
+    },
+    {
+      "palavra": "pendente",
+      "categoria": "status"
+    },
+    {
+      "palavra": "pendentes",
+      "categoria": "status"
+    },
+    {
+      "palavra": "quarto",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "quartos",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "dormitorio",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "dormitorios",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "suite",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "suites",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "banheiro",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "banheiros",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "lavabo",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "lavabos",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "toilete",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "vaga",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "vagas",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "garagem",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "garagens",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "estacionamento",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "area",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "metros",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "metragem",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "metro quadrado",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "metros quadrados",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "area util",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "area privativa",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "area total",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "area comum",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "sacada",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "sacadas",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "varanda",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "varandas",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "terraço",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "terracos",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "piscina",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "piscinas",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "churrasqueira",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "churrasqueiras",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "academia",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "playground",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "salao de festas",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "salao de jogos",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "portaria",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "porteiro",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "seguranca",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "condominio fechado",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "mobiliado",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "semi mobiliado",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "nao mobiliado",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "decorado",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "reformado",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "novo",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "novinho",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "recém reformado",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "recem reformado",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "alto padrao",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "padrao alto",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "luxo",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "luxuoso",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "simples",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "vista mar",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "vista para o mar",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "vista cidade",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "frente mar",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "andar alto",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "andar baixo",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "cobertura duplex",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "garden duplex",
+      "categoria": "caracteristicas"
+    },
+    {
+      "palavra": "bairro",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "bairros",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "regiao",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "regioes",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "zona",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "zonas",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "centro",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "centro da cidade",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "cidade",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "cidades",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "estado",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "estados",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "uf",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "pais",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "rua",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "avenida",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "alameda",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "travessa",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "estrada",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "rodovia",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "proximo",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "perto",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "ao lado",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "frente",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "vizinho",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "zona sul",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "zona norte",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "zona leste",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "zona oeste",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "zona central",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "litoral",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "praia",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "campo",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "interior",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "capital",
+      "categoria": "localizacao"
+    },
+    {
+      "palavra": "valor",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "valores",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "preco",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "precos",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "custo",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "custos",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "real",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "reais",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "mil",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "milhao",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "milhoes",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "bilhao",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "condo",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "condominio",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "iptu",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "taxa",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "taxas",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "financiamento",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "financiar",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "credito",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "banco",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "minha casa minha vida",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "casa verde amarela",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "fgts",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "entrada",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "sinal",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "parcela",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "parcelas",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "prestacao",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "avaliacao",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "laudo",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "vistoria",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "documentacao",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "minimo",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "maximo",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "ate",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "abaixo",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "acima",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "entre",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "barato",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "caro",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "economico",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "acessivel",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "justo",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "desconto",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "negociar",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "negociavel",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "flexivel",
+      "categoria": "financeiro"
+    },
+    {
+      "palavra": "buscar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "busco",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "busca",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "procurar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "procuro",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "procura",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "quero",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "quer",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "queria",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "gostaria",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "preciso",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "precisa",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "preciso de",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "encontrar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "encontro",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "encontra",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "achar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "acho",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "acha",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "ver",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "vejo",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "veja",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "mostrar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "mostra",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "mostra me",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "listar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "lista",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "exibir",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "exibe",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "apresentar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "apresenta",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "tem",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "ter",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "tem algum",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "existe",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "existem",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "ha",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "haver",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "disponivel",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "disponivel algum",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "tem disponivel",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "cadastrar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "cadastro",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "cadastra",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "adicionar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "adiciona",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "importar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "importo",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "importa",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "subir",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "sobe",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "inativar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "inativo",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "inativa",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "desativar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "desativa",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "ativar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "ativo",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "ativa",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "publicar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "publica",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "editar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "edito",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "edita",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "alterar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "altera",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "mudar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "muda",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "excluir",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "excluo",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "exclui",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "deletar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "deleto",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "deleta",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "vincular",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "vinculo",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "vincula",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "associar",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "associo",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "associa",
+      "categoria": "verbos_busca"
+    },
+    {
+      "palavra": "lead",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "leads",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "cliente",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "clientes",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "comprador",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "compradores",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "vendedor",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "vendedores",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "interessado",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "interessados",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "contato",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "contatos",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "prospecto",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "prospectos",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "solicitante",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "solicitantes",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "requerente",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "requerentes",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "inquilino",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "inquilinos",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "locatario",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "locatarios",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "proprietario",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "proprietarios",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "dono",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "donos",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "titular",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "titulares",
+      "categoria": "leads"
+    },
+    {
+      "palavra": "vivareal",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "viva real",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "vr",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "zapimoveis",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "zap imoveis",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "zap",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "olx",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "chaves",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "chaves na mao",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "imovelweb",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "imovel web",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "123i",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "quintoandar",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "quinto andar",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "qa",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "rankim",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "ranking",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "tecimob",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "vista",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "vista soft",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "crm",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "sistema",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "plataforma",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "portal",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "portais",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "xml",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "feed",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "url",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "link",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "integracao",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "vrsync",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "vr sync",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "padrao vivareal",
+      "categoria": "portais"
+    },
+    {
+      "palavra": "match",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "matches",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "md",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "mds",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "compativel",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "compativeis",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "vitrine",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "vitrines",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "oferta",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "ofertas",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "visita",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "visitas",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "agendamento",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "agendamentos",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "notificacao",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "notificacoes",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "alerta",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "alertas",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "relatorio",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "relatorios",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "dashboard",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "painel",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "perfil",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "conta",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "usuario",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "usuarios",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "coins",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "matchcoins",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "saldo",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "pontos",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "importar",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "exportar",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "sincronizar",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "atualizar",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "onboarding",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "configurar",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "configuracao",
+      "categoria": "acoes_sistema"
+    },
+    {
+      "palavra": "agora",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "depois",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "antes",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "hoje",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "amanha",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "ontem",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "sempre",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "nunca",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "as vezes",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "geralmente",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "normalmente",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "muito",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "pouco",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "mais",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "menos",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "bastante",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "suficiente",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "bom",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "boa",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "ruim",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "otimo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "pessimo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "excelente",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "regular",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "rapido",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "devagar",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "urgente",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "urgentemente",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "importante",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "certo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "errado",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "correto",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "incorreto",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "valido",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "invalido",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "facil",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "dificil",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "simples",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "complexo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "pratico",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "novo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "velho",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "antigo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "moderno",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "atual",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "recente",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "grande",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "pequeno",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "medio",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "enorme",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "minusculo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "primeiro",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "segundo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "terceiro",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "ultimo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "proximo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "tudo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "nada",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "algo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "alguma coisa",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "qualquer coisa",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "porque",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "pois",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "portanto",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "entao",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "assim",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "logo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "mas",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "porem",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "contudo",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "todavia",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "entretanto",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "como",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "quando",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "onde",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "quem",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "qual",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "quais",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "quanto",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "obrigado",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "obrigada",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "por favor",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "desculpa",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "desculpe",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "sim",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "nao",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "talvez",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "claro",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "certeza",
+      "categoria": "palavras_comuns"
+    },
+    {
+      "palavra": "duvida",
+      "categoria": "palavras_comuns"
+    }
+  ],
+  "porCategoria": {
+    "tipos_imovel": 67,
+    "operacoes": 17,
+    "status": 22,
+    "caracteristicas": 65,
+    "localizacao": 35,
+    "financeiro": 48,
+    "verbos_busca": 80,
+    "leads": 28,
+    "portais": 33,
+    "acoes_sistema": 37,
+    "palavras_comuns": 90
+  }
+}

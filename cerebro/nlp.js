@@ -14,6 +14,32 @@ function corrigirOrtografia(texto) {
 }
 'use strict';
 
+// Dicionário brasileiro — carregado uma vez
+let _dicionario = null;
+function getDicionario() {
+  if (_dicionario) return _dicionario;
+  try {
+    const d = require('./dicionario-brasileiro.json');
+    _dicionario = new Set(d.palavras.map(p=>p.palavra));
+  } catch(e) { _dicionario = new Set(); }
+  return _dicionario;
+}
+
+// Verificar se palavra é válida no dicionário
+function isPalavraValida(palavra) {
+  return getDicionario().has(palavra.toLowerCase());
+}
+
+// Corrigir palavra usando Levenshtein contra dicionário
+function corrigirPalavra(palavra) {
+  const dic = getDicionario();
+  if (dic.has(palavra)) return palavra;
+  // Só corrigir palavras curtas com erro óbvio
+  if (palavra.length < 3) return palavra;
+  return palavra; // por ora retorna igual — evitar falsos positivos
+}
+
+
 const STOP = new Set([
   'de','da','do','em','um','uma','que','para','com','por','se','eu','me',
   'meu','minha','meus','minhas','nao','sim','ok','tem','ter','isso','esse',

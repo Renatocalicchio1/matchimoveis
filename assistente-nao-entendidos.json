@@ -618,7 +618,7 @@
     },
     {
       "pergunta": "visitas hoje",
-      "count": 10,
+      "count": 11,
       "respostas": [
         {
           "texto": "Nenhuma lead chegou hoje ainda. 📋👥 Todas as leadsLeads quentesImportar leadsLeads sem match",
@@ -632,7 +632,7 @@
         }
       ],
       "primeira": "2026-05-08T20:49:48.315Z",
-      "ultima": "2026-05-09T21:51:41.315Z"
+      "ultima": "2026-05-09T23:29:32.748Z"
     },
     {
       "pergunta": "leads sem match",
@@ -747,7 +747,7 @@
     },
     {
       "pergunta": "leads com match",
-      "count": 11,
+      "count": 12,
       "respostas": [
         {
           "texto": "🔍 21 lead(s) encontrada(s):• tugnoli@hotmail.com — Perdizes Apartamento • Gilmara.mbc@gmail.com — Vila Cordeiro Casa • tchiagodelvalle@gmail.com — Re",
@@ -766,7 +766,7 @@
         }
       ],
       "primeira": "2026-05-08T20:50:09.281Z",
-      "ultima": "2026-05-09T21:51:41.294Z"
+      "ultima": "2026-05-09T23:29:32.721Z"
     },
     {
       "pergunta": "importar leads",
@@ -814,7 +814,7 @@
     },
     {
       "pergunta": "o que devo fazer hoje",
-      "count": 11,
+      "count": 12,
       "respostas": [
         {
           "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando confirmação. Confirmar →🟡 1350 leads sem match — pode estar faltand",
@@ -870,10 +870,15 @@
           "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando confirmação. Confirmar →🟡 44 leads sem match — pode estar faltando ",
           "dominio": null,
           "data": "2026-05-09T21:51:41.561Z"
+        },
+        {
+          "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando confirmação. Confirmar →🟡 44 leads sem match — pode estar faltando ",
+          "dominio": null,
+          "data": "2026-05-09T23:29:33.052Z"
         }
       ],
       "primeira": "2026-05-08T20:50:39.465Z",
-      "ultima": "2026-05-09T21:51:41.561Z"
+      "ultima": "2026-05-09T23:29:33.052Z"
     },
     {
       "pergunta": "resumo geral",
@@ -1363,7 +1368,7 @@
     },
     {
       "pergunta": "gerar xml vivareal",
-      "count": 9,
+      "count": 10,
       "respostas": [
         {
           "texto": "🔗 Para qual portal gerar o XML?🔗 VivaReal🔗 ZAP🔗 OLX🔗 Chaves🔗 ImovelWeb🔗 123iVer portaisGerar XML",
@@ -1372,11 +1377,11 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.149Z",
-      "ultima": "2026-05-09T21:51:41.527Z"
+      "ultima": "2026-05-09T23:29:33.006Z"
     },
     {
       "pergunta": "ver portais",
-      "count": 5,
+      "count": 6,
       "respostas": [
         {
           "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
@@ -1397,10 +1402,15 @@
           "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
           "dominio": "portais",
           "data": "2026-05-09T21:51:41.547Z"
+        },
+        {
+          "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
+          "dominio": "portais",
+          "data": "2026-05-09T23:29:33.024Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.164Z",
-      "ultima": "2026-05-09T21:51:41.547Z"
+      "ultima": "2026-05-09T23:29:33.024Z"
     },
     {
       "pergunta": "meu relatório",
@@ -1893,7 +1903,7 @@
     },
     {
       "pergunta": "quartos mais pedidos",
-      "count": 7,
+      "count": 8,
       "respostas": [
         {
           "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
@@ -1914,10 +1924,15 @@
           "texto": "Quartos mais pedidos pelas leads:1. 2 quartos — 12 leads (46%)█████░░░░░2. 1 quartos — 10 leads (38%)████░░░░░░3. 3 quartos — 3 leads (12%)█░░░░░░░░░4",
           "dominio": "mercado",
           "data": "2026-05-09T21:51:41.355Z"
+        },
+        {
+          "texto": "Quartos mais pedidos pelas leads:1. 2 quartos — 12 leads (46%)█████░░░░░2. 1 quartos — 10 leads (38%)████░░░░░░3. 3 quartos — 3 leads (12%)█░░░░░░░░░4",
+          "dominio": "mercado",
+          "data": "2026-05-09T23:29:32.792Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.509Z",
-      "ultima": "2026-05-09T21:51:41.355Z"
+      "ultima": "2026-05-09T23:29:32.792Z"
     },
     {
       "pergunta": "qual lead tem mais chance de fechar?",
@@ -2738,7 +2753,7 @@
     },
     {
       "pergunta": "enviar vitrine para cliente",
-      "count": 5,
+      "count": 6,
       "respostas": [
         {
           "texto": "✨ Vitrine da lead:A vitrine é uma página exclusiva gerada para cada lead com os imóveis em match.Link: /cliente/oferta/:leadIdEnviar vitrine: abre o W",
@@ -2764,10 +2779,15 @@
           "texto": "🏠 Imóveis:✅ Ativos: 50 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (49), Casa (1)V",
           "dominio": null,
           "data": "2026-05-09T21:51:41.505Z"
+        },
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-09T23:29:32.988Z"
         }
       ],
       "primeira": "2026-05-08T21:06:23.352Z",
-      "ultima": "2026-05-09T21:51:41.505Z"
+      "ultima": "2026-05-09T23:29:32.988Z"
     },
     {
       "pergunta": "link do cliente",
@@ -2892,7 +2912,7 @@
     },
     {
       "pergunta": "primeiros passos",
-      "count": 4,
+      "count": 5,
       "respostas": [
         {
           "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
@@ -2906,7 +2926,7 @@
         }
       ],
       "primeira": "2026-05-09T01:31:09.359Z",
-      "ultima": "2026-05-09T21:51:41.486Z"
+      "ultima": "2026-05-09T23:29:32.976Z"
     },
     {
       "pergunta": "quem pediu visita?",
@@ -2923,7 +2943,7 @@
     },
     {
       "pergunta": "tipo mais buscado",
-      "count": 6,
+      "count": 7,
       "respostas": [
         {
           "texto": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóveis📅 Visitas🧠 Plano🏠 Itajaí🏠 Balneário CamboriúLeadsImóveisVisitas",
@@ -2944,10 +2964,15 @@
           "texto": "📍 Bairros mais buscados pelas leads:1. Centro — 6 leads · 0 imóvel(is) 🔴2. Ipiranga — 3 leads · 1 imóvel(is) 🟡3. Vila do Castelo — 3 leads · 0 imóv",
           "dominio": "mercado",
           "data": "2026-05-09T21:51:41.335Z"
+        },
+        {
+          "texto": "📍 Bairros mais buscados pelas leads:1. Centro — 6 leads · 0 imóvel(is) 🔴2. Ipiranga — 3 leads · 1 imóvel(is) 🟡3. Vila do Castelo — 3 leads · 0 imóv",
+          "dominio": "mercado",
+          "data": "2026-05-09T23:29:32.771Z"
         }
       ],
       "primeira": "2026-05-09T01:31:10.053Z",
-      "ultima": "2026-05-09T21:51:41.335Z"
+      "ultima": "2026-05-09T23:29:32.771Z"
     },
     {
       "pergunta": "meus conis",
@@ -3135,7 +3160,7 @@
     },
     {
       "pergunta": "meus imoveis",
-      "count": 13,
+      "count": 14,
       "respostas": [
         {
           "texto": "🎯 Você tem 1393 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaMeus imóveisImóveis inativosGerar XML",
@@ -3186,10 +3211,15 @@
           "texto": "🏠 Imóveis:✅ Ativos: 50 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (49), Casa (1)V",
           "dominio": "imoveis",
           "data": "2026-05-09T21:51:41.276Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 50 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (49), Casa (1)V",
+          "dominio": "imoveis",
+          "data": "2026-05-09T23:29:32.696Z"
         }
       ],
       "primeira": "2026-05-09T02:13:36.894Z",
-      "ultima": "2026-05-09T21:51:41.276Z"
+      "ultima": "2026-05-09T23:29:32.696Z"
     },
     {
       "pergunta": "quantos imoveis tenho",
@@ -3450,7 +3480,7 @@
     },
     {
       "pergunta": "faixa de valor",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "Sem dados de valor nas leads ainda.Bairros demandaTipo mais buscado",
@@ -3459,7 +3489,7 @@
         }
       ],
       "primeira": "2026-05-09T21:42:26.104Z",
-      "ultima": "2026-05-09T21:51:41.413Z"
+      "ultima": "2026-05-09T23:29:32.823Z"
     },
     {
       "pergunta": "valor medio da carteira",
@@ -3502,7 +3532,7 @@
     },
     {
       "pergunta": "casas disponiveis",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "🏠 Imóveis:✅ Ativos: 50 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (49), Casa (1)V",
@@ -3518,10 +3548,15 @@
           "texto": "🏠 Imóveis:✅ Ativos: 50 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (49), Casa (1)V",
           "dominio": null,
           "data": "2026-05-09T21:51:41.446Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 50 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (49), Casa (1)V",
+          "dominio": null,
+          "data": "2026-05-09T23:29:32.920Z"
         }
       ],
       "primeira": "2026-05-09T21:42:26.178Z",
-      "ultima": "2026-05-09T21:51:41.446Z"
+      "ultima": "2026-05-09T23:29:32.920Z"
     },
     {
       "pergunta": "tem apartamento em balneario",
@@ -3538,7 +3573,7 @@
     },
     {
       "pergunta": "cliente quer casa com 3 quartos",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "Encontrei 1 imovel(is):- Casa 3q em Vila AndradeVer todos →Enviar vitrineMeus imóveisImóveis inativosGerar XML",
@@ -3547,7 +3582,7 @@
         }
       ],
       "primeira": "2026-05-09T21:42:26.209Z",
-      "ultima": "2026-05-09T21:51:41.461Z"
+      "ultima": "2026-05-09T23:29:32.942Z"
     },
     {
       "pergunta": "tenho cliente querendo apto ate 600 mil",
@@ -3616,7 +3651,7 @@
     },
     {
       "pergunta": "quem nao respondeu",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "📋 Leads sem resposta aparecem na lista com status pendente.Ver leads →⏳ Visitas pendentesLeads quentesImportar leadsLeads sem match",
@@ -3625,7 +3660,7 @@
         }
       ],
       "primeira": "2026-05-09T21:42:26.485Z",
-      "ultima": "2026-05-09T21:51:41.574Z"
+      "ultima": "2026-05-09T23:29:33.074Z"
     },
     {
       "pergunta": "follow up",
@@ -3642,7 +3677,7 @@
     },
     {
       "pergunta": "avisar proprietario",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "✅ Todos os imóveis têm proprietário vinculado! Perfeito.LeadsImóveisVisitasMatch",
@@ -3651,7 +3686,7 @@
         }
       ],
       "primeira": "2026-05-09T21:42:26.516Z",
-      "ultima": "2026-05-09T21:51:41.590Z"
+      "ultima": "2026-05-09T23:29:33.099Z"
     },
     {
       "pergunta": "minha conta",
@@ -3681,7 +3716,7 @@
     },
     {
       "pergunta": "como funciona o match",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "🎯 Como funciona o Match:O sistema cruza automaticamente bairro + tipo + quartos da lead com seus imóveis.Score na vitrine: valor abaixo do máx +50pts",
@@ -3697,10 +3732,15 @@
           "texto": "🎯 Como funciona o Match:O sistema cruza automaticamente bairro + tipo + quartos da lead com seus imóveis.Score na vitrine: valor abaixo do máx +50pts",
           "dominio": "sistema",
           "data": "2026-05-09T21:51:41.608Z"
+        },
+        {
+          "texto": "🎯 Como funciona o Match:O sistema cruza automaticamente bairro + tipo + quartos da lead com seus imóveis.Score na vitrine: valor abaixo do máx +50pts",
+          "dominio": "sistema",
+          "data": "2026-05-09T23:29:33.121Z"
         }
       ],
       "primeira": "2026-05-09T21:42:26.581Z",
-      "ultima": "2026-05-09T21:51:41.608Z"
+      "ultima": "2026-05-09T23:29:33.121Z"
     },
     {
       "pergunta": "o que e vitrine",
@@ -3756,7 +3796,7 @@
     },
     {
       "pergunta": "blablabla xpto nada",
-      "count": 3,
+      "count": 4,
       "respostas": [
         {
           "texto": "🏠 Imóveis:✅ Ativos: 50 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (49), Casa (1)V",
@@ -3772,10 +3812,15 @@
           "texto": "🏠 Imóveis:✅ Ativos: 50 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (49), Casa (1)V",
           "dominio": null,
           "data": "2026-05-09T21:51:41.621Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 50 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (49), Casa (1)V",
+          "dominio": null,
+          "data": "2026-05-09T23:29:33.138Z"
         }
       ],
       "primeira": "2026-05-09T21:42:26.667Z",
-      "ultima": "2026-05-09T21:51:41.621Z"
+      "ultima": "2026-05-09T23:29:33.138Z"
     },
     {
       "pergunta": "oi",
@@ -3802,6 +3847,19 @@
       ],
       "primeira": "2026-05-09T21:51:41.246Z",
       "ultima": "2026-05-09T21:51:41.246Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "Boa noite, Renato! 👋🔔 1 notificação(ões):⚠️ Urgente:🟡 2 visita(s) pendentes — Aguardando sua confirmação. Ver →📊 Resumo🧠 Plano do diaLeadsImóveis",
+          "dominio": "saudacao",
+          "data": "2026-05-09T23:29:32.671Z"
+        }
+      ],
+      "primeira": "2026-05-09T23:29:32.671Z",
+      "ultima": "2026-05-09T23:29:32.671Z"
     }
   ]
 }

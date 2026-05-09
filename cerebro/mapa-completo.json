@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-05-09T23:28:34.680Z",
+  "geradoEm": "2026-05-09T23:34:34.067Z",
   "server": {
     "totalRotas": 83,
     "rotas": [
@@ -1387,7 +1387,7 @@
       ]
     },
     "contexto.js": {
-      "linhas": 162,
+      "linhas": 181,
       "padroes": [
         "[\\u0300-\\u036f]",
         "agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para",
@@ -1398,8 +1398,17 @@
         "span><span style=\"color:#555;font-size:12px\"> '+det+prop+'<",
         "strong>'+nome+'<br><span style=\"font-size:12px;color:#888\">'+filtros+'<",
         "seucrm.com.br",
-        "apto|apartamento|casa|sobrado|cobertura|terreno|comercial|loft",
-        "span>':'')+'<br><br>'+btn('Cadastrar lead','"
+        "vivareal|zap|olx|chaves|imovelweb|123i",
+        "span><span>Vá em Imóveis e selecione os imóveis<",
+        "span><span>Clique em <strong>'+portal.toUpperCase()+'<",
+        "span><span>Copie a URL do feed em <strong>Portais<",
+        "imoveis') + btn('Ver Portais', '",
+        "span><span>Selecione os imóveis em <a href=\"",
+        "imoveis\" style=\"color:#ff385c\">",
+        "span><span>Escolha o portal na barra inferior e clique em Gerar XML<",
+        "span><span>A URL do feed fica em <a href=\"",
+        "portais\" style=\"color:#ff385c\">",
+        "imoveis') + btn('Portais', '"
       ]
     },
     "estrategista.js": {
@@ -1754,6 +1763,6 @@
     "totalBotoes": 87,
     "totalLinks": 40,
     "totalModulosCerebro": 28,
-    "totalLinhasCerebro": 3929
+    "totalLinhasCerebro": 3948
   }
 }

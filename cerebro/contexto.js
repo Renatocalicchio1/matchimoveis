@@ -7,7 +7,8 @@ const INTENCOES = {
   CRIAR_VISITA:   /agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para/,
   INFORMAR:       /acabei de|acabou de|ja (vendeu|vendemos|fechou|fechamos|foi vendido)|nao esta mais|imovel vendido|ja tem proposta/,
   FOLLOW_UP:      /follow.?up|retornar para|ligar para|mandar (mensagem|whatsapp|zap)|entrar em contato|cliente nao (respondeu|retornou)/,
-  IMPORTAR_XML:    /importa(r)? (o |um )?xml|importa(r)? (os )?imoveis|trazer imoveis|subir xml|url do feed|trazer do crm|importar do (tecimob|rankim|vista|crm)|cole a url/,
+  IMPORTAR_XML:    /importa(r)? (o |um )?xml|importa(r)? (os )?imoveis?|trazer imoveis?|subir xml|url do feed|trazer do (crm|tecimob|rankim|vista|jetimob|kenlo)|puxar imoveis?|trazer para (o |a )?match|cole a url/,
+  EXPORTAR_XML:    /exporta(r)? xml|gerar xml para|xml (do |para o )?(vivareal|zap|olx|chaves|imovelweb|123i)|publicar (no |no portal|para o portal)|enviar xml para portal|subir (no|para o) (vivareal|zap|olx)/,
   CADASTRAR_IMOVEL:/cadastra(r)? (um |o )?imovel|novo imovel|adicionar imovel|criar imovel|registrar imovel/,
   AVISAR_PROP:    /avisar (o |a )?proprietario|notificar (o |a )?proprietario|falar com (o |a )?proprietario/,
 };
@@ -109,6 +110,24 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
       '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin:8px 0">' +
       '📋 Exemplo de URL válida:<br><code>https://seucrm.com.br/feed-vivareal.xml</code></div>' +
       '<br>' + btn('Importar XML', '/app/cadastro') + chip('Como importo', 'como importar xml');
+  }
+
+  // ── EXPORTAR XML PARA PORTAL ────────────────────────────────────────────────
+  if (intencao === 'EXPORTAR_XML') {
+    const portal = ctx.mNorm.match(/vivareal|zap|olx|chaves|imovelweb|123i/)?.[0] || null;
+    if (portal) {
+      return '🖗 Para exportar o XML para o <strong>'+portal.toUpperCase()+'</strong>:<br><br>' +
+        '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">1</span><span>Vá em Imóveis e selecione os imóveis</span></div>' +
+        '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span><span>Clique em <strong>'+portal.toUpperCase()+'</strong> na barra inferior</span></div>' +
+        '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">3</span><span>Copie a URL do feed em <strong>Portais</strong> e envie ao portal</span></div>' +
+        '<br>' + btn('Ir para Imóveis', '/app/imoveis') + btn('Ver Portais', '/app/portais');
+    }
+    return '🖗 Para <strong>exportar XML para portais parceiros</strong> (VivaReal, ZAP, OLX...):<br><br>' +
+      '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">1</span><span>Selecione os imóveis em <a href="/app/imoveis" style="color:#ff385c">/app/imoveis</a></span></div>' +
+      '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span><span>Escolha o portal na barra inferior e clique em Gerar XML</span></div>' +
+      '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">3</span><span>A URL do feed fica em <a href="/app/portais" style="color:#ff385c">/app/portais</a></span></div>' +
+      '<br>' + chip('VivaReal', 'gerar xml vivareal') + chip('ZAP', 'gerar xml zap') + chip('OLX', 'gerar xml olx') +
+      '<br>' + btn('Imóveis', '/app/imoveis') + btn('Portais', '/app/portais');
   }
 
   // ── CADASTRAR IMÓVEL MANUAL ─────────────────────────────────────────────────

@@ -102,11 +102,13 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
     }
 
     return '📥 <strong>Importar imóveis via XML:</strong><br><br>' +
-      'Para importar, preciso da URL do feed XML do seu CRM.<br>' +
-      'Exemplos: Tecimob, Rankim, Vista, Jetimob...<br><br>' +
-      '💡 Cole a URL aqui no chat ou acesse a página de cadastro:<br><br>' +
-      btn('Importar XML', '/app/cadastro') +
-      chip('Como importo', 'como importar xml');
+      '⚠️ <strong>Padrão obrigatório: VRSync (VivaReal)</strong><br>' +
+      'O sistema aceita apenas feeds no padrão VRSync do VivaReal.<br>' +
+      'A maioria dos CRMs já exporta nesse formato: Tecimob, Rankim, Vista, Jetimob, Kenlo.<br><br>' +
+      '💡 Cole a URL do feed aqui no chat ou acesse a página de cadastro:<br><br>' +
+      '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin:8px 0">' +
+      '📋 Exemplo de URL válida:<br><code>https://seucrm.com.br/feed-vivareal.xml</code></div>' +
+      '<br>' + btn('Importar XML', '/app/cadastro') + chip('Como importo', 'como importar xml');
   }
 
   // ── CADASTRAR IMÓVEL MANUAL ─────────────────────────────────────────────────

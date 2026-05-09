@@ -111,7 +111,7 @@ function interpretarExtra(mensagem, d, imoveis, leads, visitas, btn, chip) {
     if (!r.length) return '😔 Nenhum imóvel ativo até R$ '+valorMax.toLocaleString('pt-BR')+'.'+btn('Ver todos','/app/imoveis');
     const fmtVal = v => 'R$ '+Number(v).toLocaleString('pt-BR');
     return '🔍 <strong>'+r.length+' imóvel(is) até '+fmtVal(valorMax)+':</strong><br><br>'+
-      r.slice(0,5).map(i=>'- <strong>'+(i.tipo||'Imóvel')+'</strong> '+(i.quartos?i.quartos+'q':'')+' — '+(i.bairro||'')+' · <strong>'+fmtVal(i.valor)+'</strong>').join('<br>')+
+      r.slice(0,5).map(i=>'<div style="margin:4px 0">- <strong>'+(i.tipo||'Imóvel')+'</strong> '+(i.quartos?i.quartos+'q ':'')+'— '+(i.bairro||'')+' · <strong>'+fmtVal(i.valor)+'</strong>'+(i.idExterno?'<br><a href="/imovel/'+i.idExterno+'" target="_blank" style="font-size:12px;color:#ff385c">🔗 Ver imóvel</a>':'')+'</div>').join('')+
       (r.length>5?'<br><em>...e mais '+(r.length-5)+'</em>':'')+
       '<br><br>'+btn('Ver todos','/app/imoveis');
   }

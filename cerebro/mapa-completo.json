@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-05-09T22:57:19.150Z",
+  "geradoEm": "2026-05-09T23:03:48.747Z",
   "server": {
     "totalRotas": 83,
     "rotas": [
@@ -1387,7 +1387,7 @@
       ]
     },
     "contexto.js": {
-      "linhas": 160,
+      "linhas": 162,
       "padroes": [
         "[\\u0300-\\u036f]",
         "agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para",
@@ -1397,6 +1397,7 @@
         "(?:no|na|em|do|da)\\s+([a-z][a-z ]{2,20})(?:\\s|$|,|\\.)",
         "span><span style=\"color:#555;font-size:12px\"> '+det+prop+'<",
         "strong>'+nome+'<br><span style=\"font-size:12px;color:#888\">'+filtros+'<",
+        "seucrm.com.br",
         "apto|apartamento|casa|sobrado|cobertura|terreno|comercial|loft",
         "span>':'')+'<br><br>'+btn('Cadastrar lead','"
       ]
@@ -1631,11 +1632,12 @@
         " \"ate 300k\" ",
         "buscar por valor|filtrar por valor|imoveis? (ate|abaixo|menos de)|^ate d",
         "ates+(d[d.,]+)",
+        "strong>'+(i.idExterno?'<br><a href=\"",
+        "a>':'')+'<",
         "'+l.id+'\" style=\"font-size:12px;color:#ff385c\" target=\"_blank\">🔗 ",
         "'+l.id+'\" style=\"font-size:12px;color:#ff385c\">🔗 Enviar vitrine<",
         "visitas? confirmadas?|quais (visitas?|agendamentos?) (foram|estao) confirmad",
-        "imoveis? (sem|sem nenhuma|sem) foto|sem imagem|nao tem foto|falta foto",
-        "'+l.id+'\" style=\"font-size:12px;color:#ff385c\">🔗 Vitrine<"
+        "imoveis? (sem|sem nenhuma|sem) foto|sem imagem|nao tem foto|falta foto"
       ]
     },
     "raciocinio.js": {
@@ -1752,6 +1754,6 @@
     "totalBotoes": 87,
     "totalLinks": 40,
     "totalModulosCerebro": 28,
-    "totalLinhasCerebro": 3927
+    "totalLinhasCerebro": 3929
   }
 }

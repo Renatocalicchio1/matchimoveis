@@ -109,10 +109,10 @@
   "loft": "imovel",
   "cobertura": "imovel",
   "operacao": "tipo operacao",
-  "vrsync": "xml vivareal",
-  "vr sync": "xml vivareal",
+  "vrsync": "padrao xml vivareal",
+  "vr sync": "padrao xml vivareal",
   "padrao vivareal": "xml vivareal",
-  "padrao xml": "xml vivareal",
+  "padrao xml": "padrao vrsync vivareal",
   "lx": "olx",
   "o lx": "olx",
   "portal lx": "olx",
@@ -411,5 +411,6 @@
   "inativar": "inativar",
   "confirmar": "confirmar",
   "recusar": "recusar",
-  "remarcar": "remarcar"
+  "remarcar": "remarcar",
+  "formato xml": "padrao vrsync vivareal"
 }

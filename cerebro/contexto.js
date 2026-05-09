@@ -103,7 +103,7 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
     }
 
     return '📥 <strong>Importar imóveis via XML:</strong><br><br>' +
-      '⚠️ <strong>Padrão obrigatório: VRSync (VivaReal)</strong><br>' +
+      '⚠️ <strong>Padrão obrigatório: VRSync do VivaReal</strong><br>' +
       'O sistema aceita apenas feeds no padrão VRSync do VivaReal.<br>' +
       'A maioria dos CRMs já exporta nesse formato: Tecimob, Rankim, Vista, Jetimob, Kenlo.<br><br>' +
       '💡 Cole a URL do feed aqui no chat ou acesse a página de cadastro:<br><br>' +

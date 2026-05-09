@@ -1,128 +1,304 @@
 <%- include("partials/app-shell",{active:"assistente",user:user}) %>
 
-<main style="height:calc(100vh - 80px);display:flex;flex-direction:column;padding:24px">
-  <div style="background:white;border-radius:20px;box-shadow:0 6px 20px rgba(0,0,0,.08);display:flex;flex-direction:column;height:100%;overflow:hidden">
-    <div style="padding:20px 24px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:12px">
-      <div style="width:42px;height:42px;background:#FF385C;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div>
-      <div><div style="font-weight:800;font-size:16px">Assistente MatchImóveis</div><div style="font-size:12px;color:#22c55e;font-weight:600">● Online</div></div>
-    </div>
-    <div id="chat-messages" style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px">
-      <div class="msg bot"><div class="bubble bot-bubble">Olá, <strong><%= user.nome || user.name || 'corretor' %></strong>! 👋<br>Sou o assistente do MatchImóveis. O que você precisa?</div></div>
-    </div>
-    <div style="padding:0 24px 12px;display:flex;gap:8px;flex-wrap:wrap">
-      <button onclick="enviarMsg('quantas leads tenho')" class="sug-btn">📊 Stats</button>
-      <button onclick="enviarMsg('importar leads')" class="sug-btn">📋 Leads</button>
-      <button onclick="enviarMsg('leads com match')" class="sug-btn">🎯 Match</button>
-      <button onclick="enviarMsg('visitas hoje')" class="sug-btn">📅 Visitas</button>
-      <button onclick="enviarMsg('ajuda')" class="sug-btn">❓ Ajuda</button>
-    </div>
-    <div style="padding:16px 24px;border-top:1px solid #f3f4f6;display:flex;gap:12px;align-items:center">
-      <input type="file" id="file-input" accept=".xml,.xlsx,.xls,.csv" style="display:none" onchange="uploadArquivo(this)">
-      <button onclick="document.getElementById('file-input').click()" style="background:#f3f4f6;border:none;border-radius:12px;padding:12px;cursor:pointer;font-size:18px">📎</button>
-      <input id="chat-input" type="text" placeholder="Digite sua mensagem..." style="flex:1;padding:12px 16px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;outline:none" onkeydown="if(event.key==='Enter') enviarMsg()">
-      <button onclick="enviarMsg()" style="background:#ff385c;color:white;border:none;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer;font-size:16px">➤</button>
-    </div>
-  </div>
-</main>
 <style>
-.msg{display:flex}.bubble{max-width:80%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.7}
-.bot-bubble{background:#f3f4f6;color:#111;border-bottom-left-radius:4px}
-.user-bubble{background:#ff385c;color:white;border-bottom-right-radius:4px;margin-left:auto}
-.msg.user{justify-content:flex-end}
-.sug-btn{background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;font-size:12px;cursor:pointer;font-weight:600;color:#333}
+  /* ── RESET DA MAIN ─────────────────────────────────────────────────────────── */
+  main { padding: 0 !important; height: calc(100vh - 60px); display: flex; flex-direction: column; background: #f8f7f4; }
+
+  /* ── LAYOUT GERAL ──────────────────────────────────────────────────────────── */
+  .chat-wrapper { display: flex; flex-direction: column; height: 100%; max-width: 860px; margin: 0 auto; width: 100%; padding: 0 16px; box-sizing: border-box; }
+
+  /* ── HEADER ────────────────────────────────────────────────────────────────── */
+  .chat-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 0 12px; border-bottom: 1px solid #ece9e3; }
+  .chat-header-left { display: flex; align-items: center; gap: 10px; }
+  .chat-avatar { width: 36px; height: 36px; background: #ff385c; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .chat-title { font-weight: 700; font-size: 15px; color: #1a1a1a; font-family: 'Georgia', serif; }
+  .chat-status { font-size: 11px; color: #22c55e; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+  .chat-status::before { content: ''; width: 6px; height: 6px; background: #22c55e; border-radius: 50%; display: inline-block; }
+  .chat-header-actions { display: flex; gap: 8px; }
+  .chip-pill { background: white; border: 1px solid #e5e0d8; border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; color: #555; transition: all .15s; white-space: nowrap; }
+  .chip-pill:hover { background: #ff385c; color: white; border-color: #ff385c; }
+
+  /* ── ÁREA DE MENSAGENS ─────────────────────────────────────────────────────── */
+  #chat-messages { flex: 1; overflow-y: auto; padding: 24px 0; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
+  #chat-messages::-webkit-scrollbar { width: 4px; }
+  #chat-messages::-webkit-scrollbar-track { background: transparent; }
+  #chat-messages::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+
+  /* ── MENSAGENS ─────────────────────────────────────────────────────────────── */
+  .msg { display: flex; align-items: flex-end; gap: 10px; animation: fadeUp .25s ease; }
+  .msg.user { flex-direction: row-reverse; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .msg-avatar { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; margin-bottom: 2px; }
+  .msg-avatar.bot { background: #ff385c; }
+  .msg-avatar.user { background: #1a1a1a; }
+
+  .bubble { max-width: 72%; padding: 13px 17px; border-radius: 18px; font-size: 14px; line-height: 1.75; word-break: break-word; }
+  .bot-bubble { background: white; color: #1a1a1a; border-bottom-left-radius: 5px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .user-bubble { background: #1a1a1a; color: white; border-bottom-right-radius: 5px; }
+
+  /* ── TYPING ────────────────────────────────────────────────────────────────── */
+  .typing-dots { display: flex; gap: 4px; padding: 4px 2px; }
+  .typing-dots span { width: 7px; height: 7px; background: #aaa; border-radius: 50%; animation: bounce .9s infinite; }
+  .typing-dots span:nth-child(2) { animation-delay: .15s; }
+  .typing-dots span:nth-child(3) { animation-delay: .3s; }
+  @keyframes bounce { 0%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
+
+  /* ── FEEDBACK ──────────────────────────────────────────────────────────────── */
+  .feedback-row { display: flex; align-items: center; gap: 6px; margin-top: -8px; padding-left: 38px; }
+  .feedback-row span { font-size: 11px; color: #bbb; }
+  .fb-btn { background: none; border: 1px solid #e5e0d8; border-radius: 12px; padding: 2px 10px; font-size: 11px; cursor: pointer; color: #888; transition: all .15s; }
+  .fb-btn:hover { background: #f3f4f6; }
+
+  /* ── CHIPS RÁPIDOS ─────────────────────────────────────────────────────────── */
+  .quick-chips { display: flex; gap: 8px; flex-wrap: wrap; padding: 8px 0 12px; }
+  .quick-chip { background: white; border: 1px solid #e5e0d8; border-radius: 20px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; color: #444; transition: all .15s; }
+  .quick-chip:hover { background: #ff385c; color: white; border-color: #ff385c; transform: translateY(-1px); }
+
+  /* ── INPUT AREA ────────────────────────────────────────────────────────────── */
+  .input-area { padding: 12px 0 16px; border-top: 1px solid #ece9e3; }
+  .input-row { display: flex; gap: 10px; align-items: flex-end; background: white; border: 1.5px solid #e5e0d8; border-radius: 16px; padding: 10px 12px; transition: border-color .2s; }
+  .input-row:focus-within { border-color: #ff385c; box-shadow: 0 0 0 3px rgba(255,56,92,.08); }
+  #chat-input { flex: 1; border: none; outline: none; font-size: 14px; background: transparent; color: #1a1a1a; resize: none; max-height: 120px; line-height: 1.5; font-family: inherit; }
+  #chat-input::placeholder { color: #bbb; }
+  .attach-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: #aaa; padding: 2px; transition: color .15s; flex-shrink: 0; }
+  .attach-btn:hover { color: #ff385c; }
+  .send-btn { background: #ff385c; border: none; border-radius: 10px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0; }
+  .send-btn:hover { background: #e0334f; transform: scale(1.05); }
+  .send-btn svg { width: 16px; height: 16px; fill: white; }
+  .send-btn:disabled { background: #e5e0d8; cursor: not-allowed; transform: none; }
+
+  /* ── BOAS-VINDAS ───────────────────────────────────────────────────────────── */
+  .welcome-msg { text-align: center; padding: 32px 16px 8px; }
+  .welcome-msg h2 { font-size: 22px; font-weight: 700; color: #1a1a1a; font-family: 'Georgia', serif; margin: 0 0 6px; }
+  .welcome-msg p { font-size: 14px; color: #888; margin: 0; }
+
+  @media (max-width: 600px) {
+    .bubble { max-width: 88%; font-size: 13px; }
+    .chat-header-actions { display: none; }
+  }
 </style>
+
+<div style="height:calc(100vh - 60px);display:flex;flex-direction:column;background:#f8f7f4">
+  <div class="chat-wrapper">
+
+    <!-- HEADER -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">🤖</div>
+        <div>
+          <div class="chat-title">Assistente MatchImóveis</div>
+          <div class="chat-status">Online</div>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chip-pill" onclick="enviarMsg('o que devo fazer hoje')">📋 Plano do dia</button>
+        <button class="chip-pill" onclick="enviarMsg('resumo geral')">📊 Resumo</button>
+        <button class="chip-pill" onclick="enviarMsg('leads com match')">🎯 Match</button>
+      </div>
+    </div>
+
+    <!-- MENSAGENS -->
+    <div id="chat-messages">
+      <!-- Boas-vindas -->
+      <div class="welcome-msg">
+        <h2>Olá, <%= user.nome || user.name || 'corretor' %>! 👋</h2>
+        <p>Pergunte qualquer coisa sobre seus imóveis, leads e visitas.</p>
+      </div>
+
+      <!-- Chips rápidos iniciais -->
+      <div class="quick-chips" style="justify-content:center">
+        <button class="quick-chip" onclick="enviarMsg('o que devo fazer hoje')">📋 O que fazer hoje</button>
+        <button class="quick-chip" onclick="enviarMsg('leads com match')">🎯 Leads com match</button>
+        <button class="quick-chip" onclick="enviarMsg('visitas hoje')">📅 Visitas hoje</button>
+        <button class="quick-chip" onclick="enviarMsg('demanda por bairro')">📍 Demanda</button>
+        <button class="quick-chip" onclick="enviarMsg('meus imoveis')">🏠 Imóveis</button>
+      </div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-area">
+      <div class="input-row">
+        <input type="file" id="file-input" accept=".xml,.xlsx,.xls,.csv" style="display:none" onchange="uploadArquivo(this)">
+        <button class="attach-btn" onclick="document.getElementById('file-input').click()" title="Anexar arquivo">
+          📎
+        </button>
+        <textarea id="chat-input" placeholder="Pergunte sobre seus imóveis, leads, visitas..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMsg();}"
+          oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="send-btn" onclick="enviarMsg()">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
 const stats = <%- JSON.stringify(stats) %>;
-function addMsg(t,tipo){const d=document.createElement('div');d.className='msg '+tipo;d.innerHTML='<div class="bubble '+tipo+'-bubble">'+t+'</div>';document.getElementById('chat-messages').appendChild(d);document.getElementById('chat-messages').scrollTop=99999;}
-function typing(){const d=document.createElement('div');d.className='msg bot';d.id='typing';d.innerHTML='<div class="bubble bot-bubble" style="color:#999">⏳ pensando...</div>';document.getElementById('chat-messages').appendChild(d);document.getElementById('chat-messages').scrollTop=99999;}
-function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
-async function enviarFeedback(util, btn){
-  const container = btn.closest('[data-pergunta]');
-  const pergunta  = container?.dataset.pergunta || '';
-  const resposta  = container?.dataset.resposta || '';
-  try{
-    await fetch('/app/assistente/feedback',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({util, pergunta, resposta})
-    });
-    container.innerHTML = '<span style="font-size:12px;color:'+( util ? '#4caf50' : '#e91e63')+'">'+(util ? '✅ Ótimo! Obrigado pelo feedback.' : '📝 Entendido! Vou melhorar.')+' </span>';
-  } catch(e){ console.error(e); }
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-async function enviarMsg(texto){
-  const input=document.getElementById('chat-input');
-  const msg=texto||input.value.trim();
-  input.value='';
-  addMsg(msg,'user');
-  typing();
-  try{
-    await new Promise(function(r){setTimeout(r, 600+Math.random()*900)});
-    const res=await fetch('/app/assistente/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mensagem:msg})});
-    const data=await res.json();
+function scrollBottom() {
+  const c = document.getElementById('chat-messages');
+  c.scrollTop = c.scrollHeight;
+}
+
+function addMsg(html, tipo) {
+  const c = document.getElementById('chat-messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + tipo;
+
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar ' + tipo;
+  avatar.textContent = tipo === 'bot' ? '🤖' : '👤';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble ' + tipo + '-bubble';
+  bubble.innerHTML = html;
+
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  c.appendChild(wrap);
+  scrollBottom();
+  return wrap;
+}
+
+function showTyping() {
+  const c = document.getElementById('chat-messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg bot';
+  wrap.id = 'typing-indicator';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar bot';
+  avatar.textContent = '🤖';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble bot-bubble';
+  bubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  c.appendChild(wrap);
+  scrollBottom();
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+function addFeedback(pergunta, resposta) {
+  const c = document.getElementById('chat-messages');
+  const row = document.createElement('div');
+  row.className = 'feedback-row';
+  row.dataset.pergunta = pergunta;
+  row.dataset.resposta = resposta;
+  row.innerHTML = '<span>Isso ajudou?</span>' +
+    '<button class="fb-btn" onclick="enviarFeedback(true,this)">👍</button>' +
+    '<button class="fb-btn" onclick="enviarFeedback(false,this)">👎</button>';
+  c.appendChild(row);
+  scrollBottom();
+}
+
+async function enviarFeedback(util, btn) {
+  const row = btn.closest('[data-pergunta]');
+  const pergunta = row?.dataset.pergunta || '';
+  const resposta = row?.dataset.resposta || '';
+  try {
+    await fetch('/app/assistente/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ util, pergunta, resposta })
+    });
+    row.innerHTML = '<span style="color:' + (util ? '#22c55e' : '#ff385c') + ';font-size:12px">' +
+      (util ? '✅ Ótimo!' : '📝 Vou melhorar!') + '</span>';
+  } catch(e) {}
+}
+
+async function enviarMsg(texto) {
+  const input = document.getElementById('chat-input');
+  const msg = texto || input.value.trim();
+  if (!msg) return;
+
+  // Remove chips iniciais se existirem
+  const chips = document.querySelector('.quick-chips');
+  const welcome = document.querySelector('.welcome-msg');
+  if (chips) chips.remove();
+  if (welcome) welcome.remove();
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  const sendBtn = document.getElementById('send-btn');
+  sendBtn.disabled = true;
+
+  addMsg(msg, 'user');
+  showTyping();
+
+  try {
+    await new Promise(r => setTimeout(r, 400 + Math.random() * 600));
+    const res = await fetch('/app/assistente/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mensagem: msg })
+    });
+    const data = await res.json();
     removeTyping();
-    addMsg(data.resposta,'bot');
-    // Sempre mostrar botão de feedback
-    const feedDiv=document.createElement('div');
-    feedDiv.className='msg bot';
-    feedDiv.dataset.pergunta=msg;
-    feedDiv.dataset.resposta=data.resposta;
-    feedDiv.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap">'+
-      '<span style="font-size:11px;color:#aaa">Era isso que esperava?</span>'+
-      '<button onclick="enviarFeedback(true,this)" style="background:#F5F5F5;border:1px solid #86efac;border-radius:20px;padding:2px 12px;font-size:11px;cursor:pointer;color:#166534">👍 Sim</button>'+
-      '<button onclick="enviarFeedback(false,this)" style="background:#fff1f2;border:1px solid #fda4af;border-radius:20px;padding:2px 12px;font-size:11px;cursor:pointer;color:#9f1239">👎 Não</button>'+
-      '</div>';
-    document.getElementById('chat-messages').appendChild(feedDiv);
-    document.getElementById('chat-messages').scrollTop=99999;
-    if(data.precisaConfirmar){
-      const feedDiv=document.createElement('div');
-      feedDiv.className='msg bot';
-      feedDiv.style.cssText='padding:4px 12px';
-      feedDiv.innerHTML='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0">' +
-        '<span style="font-size:12px;color:#999">Era isso que você queria?</span>' +
-        '<button onclick="enviarFeedback(true,this)" style="background:#e8f5e9;border:1px solid #4caf50;border-radius:20px;padding:3px 12px;font-size:12px;cursor:pointer;color:#2e7d32">👍 Sim</button>' +
-        '<button onclick="enviarFeedback(false,this)" style="background:#fce4ec;border:1px solid #e91e63;border-radius:20px;padding:3px 12px;font-size:12px;cursor:pointer;color:#880e4f">👎 Não</button>' +
-        '</div>';
-      feedDiv.dataset.pergunta = msg;
-      feedDiv.dataset.resposta = data.resposta;
-      document.getElementById('chat-messages').appendChild(feedDiv);
-    }
-  }catch(e){removeTyping();addMsg('Erro ao conectar.','bot');}
-}
-async function uploadArquivo(input){
-  addMsg('📎 '+file.name,'user');
-  const nome=file.name.toLowerCase();
-  const rota=nome.endsWith('.xml')?'/app/importar':'/app/leads';
-  const label=nome.endsWith('.xml')?'XML de imóveis':'Planilha de leads';
-  addMsg('⏳ Enviando '+label+'...','bot');
-  const form=new FormData();
-  form.append(nome.endsWith('.xml')?'xml':'leads',file);
-  try{const res=await fetch(rota,{method:'POST',body:form});const txt=await res.text();const num=(txt.match(/d+/)||['?'])[0];addMsg('✅ '+label+' importado! '+num+' registros.','bot');}
-  catch(e){addMsg('⚠️ Erro ao importar.','bot');}
-  input.value='';
-}
-window.onload=async function(){
-  try{
-    const res=await fetch('/app/assistente/historico');
-    const data=await res.json();
-    if(data.historico&&data.historico.length>0){
-      document.getElementById('chat-messages').innerHTML='';
-      // mostrar separador de historico
-      const sep=document.createElement('div');
-      sep.style.cssText='text-align:center;font-size:11px;color:#aaa;padding:8px 0;border-top:1px solid #f0f0f0';
-      sep.textContent='— histórico anterior —';
-      document.getElementById('chat-messages').appendChild(sep);
-      data.historico.forEach(function(h){
-        addMsg(h.pergunta,'user');
-        addMsg(h.resposta,'bot');
+    addMsg(data.resposta, 'bot');
+    addFeedback(msg, data.resposta);
+
+    // Chips de sugestão vindos da resposta
+    if (data.chips && data.chips.length) {
+      const c = document.getElementById('chat-messages');
+      const row = document.createElement('div');
+      row.className = 'quick-chips';
+      row.style.paddingLeft = '38px';
+      data.chips.forEach(ch => {
+        const b = document.createElement('button');
+        b.className = 'quick-chip';
+        b.textContent = ch.label;
+        b.onclick = () => enviarMsg(ch.msg);
+        row.appendChild(b);
       });
-      // scroll para o final
-      setTimeout(function(){
-        const chat=document.getElementById('chat-messages');
-        chat.scrollTop=chat.scrollHeight;
-      },100);
+      c.appendChild(row);
+      scrollBottom();
     }
-  }catch(e){console.log('historico erro',e);}
+  } catch(e) {
+    removeTyping();
+    addMsg('Erro ao conectar. Tente novamente.', 'bot');
+  }
+
+  sendBtn.disabled = false;
+  input.focus();
 }
+
+async function uploadArquivo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  addMsg('📎 ' + file.name, 'user');
+  showTyping();
+  const form = new FormData();
+  form.append('arquivo', file);
+  try {
+    const res = await fetch('/app/assistente/upload', { method: 'POST', body: form });
+    const data = await res.json();
+    removeTyping();
+    addMsg(data.resposta || 'Arquivo recebido!', 'bot');
+  } catch(e) {
+    removeTyping();
+    addMsg('Erro ao enviar arquivo.', 'bot');
+  }
+  input.value = '';
+}
+
+// Focus no input ao carregar
+window.addEventListener('load', () => {
+  document.getElementById('chat-input').focus();
+});
 </script>
-<%- include('partials/app-end') %>

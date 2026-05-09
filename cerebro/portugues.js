@@ -49,7 +49,78 @@ function gerarResposta(handler, e, d, imoveis, leads, visitas, btn, chip) {
   if(handler==='problema')return 'Entendi que algo nao esta funcionando.<br><br>'+chip('XML nao atualizou','meu xml nao atualizou')+chip('Portal rejeitou','portal rejeitou imovel')+chip('Sem match','por que nao deu match');
   return null;
 }
+
+// ── PADRÕES EXTRAS BASEADOS NO HISTÓRICO REAL ─────────────────────────────────
+function interpretarExtra(mensagem, d, imoveis, leads, visitas, btn, chip) {
+  const nlp = require('./nlp');
+  const m = nlp.normalizar(mensagem);
+
+  // "filtros" sozinho
+  if (/^filtros?$/.test(m.trim()))
+    return '🔍 Filtros disponíveis em cada página:<br><br>' +
+      '<strong>Imóveis:</strong> tipo, bairro, valor, quartos, vagas, status, proprietário<br>' +
+      '<strong>Leads:</strong> status, bairro, tipo, match, data<br>' +
+      '<strong>Visitas:</strong> status, data, cliente<br><br>' +
+      btn('Ver imóveis','/app/imoveis') + btn('Ver leads','/app/leads');
+
+  // "me fale mais da app" / "o que ela faz"
+  if (/me fale mais|o que ela faz|o que o sistema|me conta mais|como funciona o sistema|o que voce sabe fazer/.test(m))
+    return '🏠 <strong>MatchImóveis</strong> é um CRM inteligente para corretores:<br><br>' +
+      '🏠 <strong>Imóveis</strong> — importe via XML, gerencie sua carteira, gere feed para portais<br>' +
+      '👥 <strong>Leads</strong> — importe clientes, extraia perfil, faça match<br>' +
+      '🎯 <strong>Match</strong> — cruza bairro+tipo+quartos automaticamente<br>' +
+      '🔗 <strong>Vitrine</strong> — página personalizada para o cliente agendar visita<br>' +
+      '📅 <strong>Visitas</strong> — agende, confirme e acompanhe<br>' +
+      '🦖 <strong>Portais</strong> — gere XML para VivaReal, ZAP, OLX e mais<br>' +
+      '🤖 <strong>Assistente</strong> — sou eu! Seu CRM por conversa<br><br>' +
+      btn('Dashboard','/app-home') + chip('O que fazer hoje','o que devo fazer hoje');
+
+  // "porque nao esta salvando" / memoria
+  if (/porque nao esta salvando|nao salva|perdeu o historico|sumir as mensagens|onde paramos|continuar de onde/.test(m))
+    return '💾 <strong>Sobre a memória do chat:</strong><br><br>' +
+      'Salvo o histórico em <code>assistente-memoria.json</code>. Porém cada sessão começa visualmente do zero — as mensagens anteriores não aparecem na tela.<br><br>' +
+      '💡 Para continuar de onde parou, me conte o contexto e eu retomo!<br><br>' +
+      chip('O que fazer hoje','o que devo fazer hoje') + chip('Resumo geral','resumo geral');
+
+  // "dicas pra hoje" / "onde posso melhorar"
+  if (/dicas (pra|para) hoje|onde (posso |eu )?melhorar|como melhorar|minha performance|meu desempenho/.test(m)) {
+    const dicas = [];
+    const semMatch = leads.filter(l => !(l.matchesBase && l.matchesBase.length > 0));
+    const semProp  = imoveis.filter(i => i.status!=='inativo' && (!i.proprietario||!i.proprietario.nome));
+    const semFoto  = imoveis.filter(i => i.status!=='inativo' && (!i.fotos||i.fotos.length===0));
+    if (semMatch.length) dicas.push('📋 <strong>'+semMatch.length+' leads sem match</strong> — verifique bairros certos '+chip('Demanda por bairro','demanda por bairro'));
+    if (semProp.length)  dicas.push('👤 <strong>'+semProp.length+' imóveis sem proprietário</strong> '+chip('Ver','imoveis sem proprietario'));
+    if (semFoto.length)  dicas.push('📸 <strong>'+semFoto.length+' imóveis sem foto</strong> — portais rejeitam');
+    if (!dicas.length) return '🎉 Tudo em ordem! Nenhuma melhoria urgente agora.'+chip('Resumo','resumo geral');
+    return '💡 <strong>Onde melhorar agora:</strong><br><br>'+dicas.join('<br><br>')+'<br><br>'+btn('Dashboard','/app-home');
+  }
+
+  // "ate 300k" / "imoveis ate X" / "buscar por valor"
+  if (/buscar por valor|filtrar por valor|imoveis? (ate|abaixo|menos de)|^ate d/.test(m)) {
+    const vM   = m.match(/ates+(d+[,.]?d*)s*milh/);
+    const vMil = m.match(/ates+(d+[,.]?d*)s*mil/);
+    const vK   = m.match(/ates+(d+[,.]?d*)s*k/);
+    const vNum = m.match(/ates+(d[d.,]+)/);
+    let valorMax = null;
+    if (vM)        valorMax = parseFloat(vM[1].replace(',','.')) * 1000000;
+    else if (vMil) valorMax = parseFloat(vMil[1].replace(',','.')) * 1000;
+    else if (vK)   valorMax = parseFloat(vK[1].replace(',','.')) * 1000;
+    else if (vNum) valorMax = parseFloat(vNum[1].replace(/./g,'').replace(',','.'));
+    if (!valorMax) return 'Qual valor máximo?<br><br>'+chip('Até 300k','imoveis ate 300 mil')+chip('Até 500k','imoveis ate 500 mil')+chip('Até 800k','imoveis ate 800 mil');
+    const r = imoveis.filter(i=>i.status!=='inativo'&&i.valor&&Number(i.valor)<=valorMax).sort((a,b)=>Number(a.valor)-Number(b.valor));
+    if (!r.length) return '😔 Nenhum imóvel ativo até R$ '+valorMax.toLocaleString('pt-BR')+'.'+btn('Ver todos','/app/imoveis');
+    const fmtVal = v => 'R$ '+Number(v).toLocaleString('pt-BR');
+    return '🔍 <strong>'+r.length+' imóvel(is) até '+fmtVal(valorMax)+':</strong><br><br>'+
+      r.slice(0,5).map(i=>'- <strong>'+(i.tipo||'Imóvel')+'</strong> '+(i.quartos?i.quartos+'q':'')+' — '+(i.bairro||'')+' · <strong>'+fmtVal(i.valor)+'</strong>').join('<br>')+
+      (r.length>5?'<br><em>...e mais '+(r.length-5)+'</em>':'')+
+      '<br><br>'+btn('Ver todos','/app/imoveis');
+  }
+
+  return null;
+}
 function interpretar(mensagem, d, imoveis, leads, visitas, btn, chip) {
+  const extra = interpretarExtra(mensagem, d, imoveis, leads, visitas, btn, chip);
+  if (extra) return extra;
   const mNorm=nlp.normalizar(mensagem);
   const padrao=PADROES.find(p=>p.regex.test(mNorm));
   if(!padrao)return null;

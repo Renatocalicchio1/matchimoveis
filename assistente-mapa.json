@@ -1,6 +1,6 @@
 {
   "versao": "11.0",
-  "geradoEm": "2026-05-09T21:51:40.760Z",
+  "geradoEm": "2026-05-09T22:03:02.952Z",
   "stats": {
     "totalRotas": 80,
     "totalViews": 32,
@@ -1528,9 +1528,12 @@
       "fetches": [
         "/app/assistente/feedback",
         "/app/assistente/chat",
-        "/app/assistente/historico"
+        "/app/assistente/upload"
       ],
       "botoes": [
+        "enviarMsg(",
+        "enviarMsg(",
+        "enviarMsg(",
         "enviarMsg(",
         "enviarMsg(",
         "enviarMsg(",
@@ -1539,12 +1542,12 @@
         "document.getElementById(",
         "enviarMsg()",
         "enviarFeedback(true,this)",
-        "enviarFeedback(false,this)",
-        "enviarFeedback(true,this)",
         "enviarFeedback(false,this)"
       ],
       "uploads": true,
-      "titulos": [],
+      "titulos": [
+        "Olá,"
+      ],
       "temModal": false,
       "temGrafico": false
     },

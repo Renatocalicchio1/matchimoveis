@@ -1073,7 +1073,7 @@
     },
     "corretor-iniciante-001": {
       "nome": "Carlos",
-      "ultimaAtividade": "2026-05-09T21:41:39.659Z",
+      "ultimaAtividade": "2026-05-09T21:59:47.722Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1086,11 +1086,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2240
+      "acessos": 2256
     },
     "corretor-experiente-002": {
       "nome": "Ana",
-      "ultimaAtividade": "2026-05-09T21:41:39.901Z",
+      "ultimaAtividade": "2026-05-09T21:59:47.961Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1103,11 +1103,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2660
+      "acessos": 2679
     },
     "corretor-tecnico-003": {
       "nome": "Roberto",
-      "ultimaAtividade": "2026-05-09T21:41:40.082Z",
+      "ultimaAtividade": "2026-05-09T21:59:48.124Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1120,11 +1120,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1820
+      "acessos": 1833
     },
     "corretor-analista-004": {
       "nome": "Fernanda",
-      "ultimaAtividade": "2026-05-09T21:41:40.244Z",
+      "ultimaAtividade": "2026-05-09T21:59:48.270Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1137,11 +1137,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1820
+      "acessos": 1833
     },
     "corretor-digitacao-005": {
       "nome": "Marcos",
-      "ultimaAtividade": "2026-05-09T21:41:40.484Z",
+      "ultimaAtividade": "2026-05-09T21:59:48.487Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1154,11 +1154,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2520
+      "acessos": 2538
     },
     "corretor-busca-006": {
       "nome": "Paulo",
-      "ultimaAtividade": "2026-05-09T21:41:40.623Z",
+      "ultimaAtividade": "2026-05-09T21:59:48.639Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1171,11 +1171,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1540
+      "acessos": 1551
     },
     "corretor-suporte-007": {
       "nome": "Juliana",
-      "ultimaAtividade": "2026-05-09T21:41:40.752Z",
+      "ultimaAtividade": "2026-05-09T21:59:48.765Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1188,7 +1188,7 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1400
+      "acessos": 1410
     }
   }
 }

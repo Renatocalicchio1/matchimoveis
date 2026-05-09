@@ -12,8 +12,8 @@ const PADROES = [
 ];
 function extrairEntidades(mNorm, bairros) {
   const e={};
-  const b=(bairros||[]).find(b=>mNorm.includes(b.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')));
-  if(b)e.bairro=b;
+  const bNorm=mNorm.replace(/[̀-ͯ]/g,"");const b=(bairros||[]).find(b=>bNorm.includes(b.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')));
+  if(b)e.bairro=b; else { const bairroMatch=mNorm.match(/ems+([a-z]+(?:s+[a-z]+)?)/); if(bairroMatch)e.bairroTexto=bairroMatch[1]; }
   const tipos=['apartamento','apto','casa','cobertura','terreno','sobrado','studio'];
   const t=tipos.find(t=>mNorm.includes(t));
   if(t)e.tipo=t==='apto'?'apartamento':t;

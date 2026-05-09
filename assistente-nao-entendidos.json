@@ -93,12 +93,12 @@
     },
     {
       "exemplo": "quais campos a planilha precisa?",
-      "count": 14,
+      "count": 15,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:31:09.850Z",
-      "ultima": "2026-05-09T02:33:07.596Z",
+      "ultima": "2026-05-09T02:59:20.966Z",
       "sugerido": true
     },
     {
@@ -143,12 +143,12 @@
     },
     {
       "exemplo": "ver portias",
-      "count": 15,
+      "count": 16,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:31:10.349Z",
-      "ultima": "2026-05-09T02:33:08.051Z",
+      "ultima": "2026-05-09T02:59:21.367Z",
       "sugerido": true
     },
     {
@@ -223,62 +223,62 @@
     },
     {
       "exemplo": "meu relatorrio",
-      "count": 6,
+      "count": 7,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:32:21.674Z",
-      "ultima": "2026-05-09T02:33:08.099Z",
+      "ultima": "2026-05-09T02:59:21.418Z",
       "sugerido": true
     },
     {
       "exemplo": "link do cliente",
-      "count": 6,
+      "count": 7,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:21.977Z",
-      "ultima": "2026-05-09T02:33:08.336Z",
+      "ultima": "2026-05-09T02:59:21.684Z",
       "sugerido": true
     },
     {
       "exemplo": "manda follow-up",
-      "count": 6,
+      "count": 7,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:22.066Z",
-      "ultima": "2026-05-09T02:33:08.415Z",
+      "ultima": "2026-05-09T02:59:21.765Z",
       "sugerido": true
     },
     {
       "exemplo": "como começo?",
-      "count": 1,
+      "count": 2,
       "usuarios": [
         "corretor-iniciante-001"
       ],
       "primeira": "2026-05-09T01:59:19.177Z",
-      "ultima": "2026-05-09T01:59:19.177Z",
+      "ultima": "2026-05-09T02:59:20.624Z",
       "sugerido": false
     },
     {
       "exemplo": "a extração falhou",
-      "count": 1,
+      "count": 2,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.486Z",
-      "ultima": "2026-05-09T01:59:19.486Z",
+      "ultima": "2026-05-09T02:59:20.951Z",
       "sugerido": false
     },
     {
       "exemplo": "como adicionar fotos?",
-      "count": 1,
+      "count": 2,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.556Z",
-      "ultima": "2026-05-09T01:59:19.556Z",
+      "ultima": "2026-05-09T02:59:21.025Z",
       "sugerido": false
     }
   ],
@@ -2936,7 +2936,7 @@
     },
     {
       "pergunta": "tem apartamento em Itajai",
-      "count": 2,
+      "count": 3,
       "respostas": [
         {
           "texto": "Encontrei 689 imovel(is):- Apartamento 2q em Vila Andrade- Apartamento 2q em Vila Andrade- Apartamento 2q em Vila Andrade- Apartamento 2q em Vila Andr",
@@ -2947,10 +2947,15 @@
           "texto": "Encontrei 689 imovel(is):- Apartamento 2q em Vila Andrade- Apartamento 2q em Vila Andrade- Apartamento 2q em Vila Andrade- Apartamento 2q em Vila Andr",
           "dominio": "imoveis",
           "data": "2026-05-09T02:18:54.281Z"
+        },
+        {
+          "texto": "Nao encontrei imoveis do tipo apartamento em Itajai na carteira.Ver demandaVer imoveis →Meus imóveisImóveis inativosGerar XML",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:40:12.881Z"
         }
       ],
       "primeira": "2026-05-09T02:13:36.767Z",
-      "ultima": "2026-05-09T02:18:54.281Z"
+      "ultima": "2026-05-09T02:40:12.881Z"
     },
     {
       "pergunta": "tenho cliente querendo casa",
@@ -2967,29 +2972,205 @@
     },
     {
       "pergunta": "meus imoveis",
-      "count": 3,
+      "count": 9,
       "respostas": [
         {
           "texto": "🎯 Você tem 1393 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaMeus imóveisImóveis inativosGerar XML",
           "dominio": "imoveis",
           "data": "2026-05-09T02:13:36.894Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Itajai, Balneario🏷️ Tipos: Apartamento (93), Residential / Home (5), Casa (1)Ver imóveis →📥 Impo",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:40:12.802Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (183), Residen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:49:49.127Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (183), Residen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:50:10.800Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (265), Residen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:51:37.398Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (265), Residen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:03:20.422Z"
         }
       ],
       "primeira": "2026-05-09T02:13:36.894Z",
-      "ultima": "2026-05-09T02:18:54.349Z"
+      "ultima": "2026-05-09T03:03:20.422Z"
     },
     {
       "pergunta": "quantos imoveis tenho",
-      "count": 2,
+      "count": 4,
       "respostas": [
         {
           "texto": "🎯 Você tem 1393 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaMeus imóveisImóveis inativosGerar XML",
           "dominio": "imoveis",
           "data": "2026-05-09T02:13:36.954Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Itajai, Balneario🏷️ Tipos: Apartamento (93), Residential / Home (5), Casa (1)Ver imóveis →📥 Impo",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:40:12.835Z"
         }
       ],
       "primeira": "2026-05-09T02:13:36.954Z",
-      "ultima": "2026-05-09T02:18:54.233Z"
+      "ultima": "2026-05-09T02:40:12.835Z"
+    },
+    {
+      "pergunta": "imoveis ativos",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "🎯 Você tem 1393 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaMeus imóveisImóveis inativosGerar XML",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:35:21.493Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Itajai, Balneario🏷️ Tipos: Apartamento (93), Residential / Home (5), Casa (1)Ver imóveis →📥 Impo",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:40:12.868Z"
+        }
+      ],
+      "primeira": "2026-05-09T02:35:21.493Z",
+      "ultima": "2026-05-09T02:40:12.868Z"
+    },
+    {
+      "pergunta": "minha carteira",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "🎯 Você tem 1393 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaMeus imóveisImóveis inativosGerar XML",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:35:21.550Z"
+        },
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Itajai, Balneario🏷️ Tipos: Apartamento (93), Residential / Home (5), Casa (1)Ver imóveis →📥 Impo",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:40:12.858Z"
+        }
+      ],
+      "primeira": "2026-05-09T02:35:21.550Z",
+      "ultima": "2026-05-09T02:40:12.858Z"
+    },
+    {
+      "pergunta": "tem apartamento em Vila Olimpia",
+      "count": 5,
+      "respostas": [
+        {
+          "texto": "Encontrei 18 imovel(is) em Vila Olímpia:- Apartamento 3q em Vila Olímpia- Apartamento 2q em Vila Olímpia- Apartamento 3q em Vila Olímpia- Apartamento ",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:49:48.980Z"
+        },
+        {
+          "texto": "Encontrei 18 imovel(is) em Vila Olímpia:- Apartamento 3q em Vila Olímpia- Apartamento 2q em Vila Olímpia- Apartamento 3q em Vila Olímpia- Apartamento ",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:50:10.703Z"
+        },
+        {
+          "texto": "🔍 23 imóvel(is) encontrado(s) para: em Vila Olímpia• Apartamento · 3q · 2vg — Vila Olímpia• Apartamento · 2q · 1vg — Vila Olímpia• Apartamento · 3q ·",
+          "dominio": null,
+          "data": "2026-05-09T02:50:50.688Z"
+        },
+        {
+          "texto": "🔍 23 imóvel(is) encontrado(s) para: em Vila Olímpia• Apartamento · 3q · 2vg — Vila Olímpia• Apartamento · 2q · 1vg — Vila Olímpia• Apartamento · 3q ·",
+          "dominio": null,
+          "data": "2026-05-09T02:51:37.339Z"
+        },
+        {
+          "texto": "Nao encontrei imoveis do tipo casa em Vila Olímpia na carteira.Ver demandaVer imoveis →Meus imóveisImóveis inativosGerar XML",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:03:20.437Z"
+        }
+      ],
+      "primeira": "2026-05-09T02:49:48.980Z",
+      "ultima": "2026-05-09T03:03:20.437Z"
+    },
+    {
+      "pergunta": "casa em Santo Amaro",
+      "count": 5,
+      "respostas": [
+        {
+          "texto": "🎯 Você tem 100 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaLeadsImóveisVisitasMatch",
+          "dominio": null,
+          "data": "2026-05-09T02:49:49.094Z"
+        },
+        {
+          "texto": "🔍 Nenhum imóvel encontrado para: casa, em Santo AmaroVer todos os imóveis →Meus imóveisImóveis inativosGerar XML",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:03:20.358Z"
+        }
+      ],
+      "primeira": "2026-05-09T02:49:49.094Z",
+      "ultima": "2026-05-09T03:03:20.358Z"
+    },
+    {
+      "pergunta": "apto em Brooklin",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "🔍 5 imóvel(is) em Brooklin:• Apartamento 3q — Brooklin • Apartamento 1q — Brooklin Paulista • Residential / Home 3q — Brooklin • Apartamento 3q — Bro",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:49:49.114Z"
+        },
+        {
+          "texto": "🔍 5 imóvel(is) em Brooklin:• Apartamento 3q — Brooklin • Apartamento 1q — Brooklin Paulista • Residential / Home 3q — Brooklin • Apartamento 3q — Bro",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:50:10.788Z"
+        }
+      ],
+      "primeira": "2026-05-09T02:49:49.114Z",
+      "ultima": "2026-05-09T02:50:10.788Z"
+    },
+    {
+      "pergunta": "apartamento em Brooklin",
+      "count": 3,
+      "respostas": [
+        {
+          "texto": "🔍 4 imóvel(is) encontrado(s) para: apartamento, em Brooklin• Apartamento · 3q · 3vg — Brooklin• Apartamento · 1q · 1vg — Brooklin Paulista• Apartamen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:50:50.715Z"
+        },
+        {
+          "texto": "🔍 4 imóvel(is) encontrado(s) para: apartamento, em Brooklin• Apartamento · 3q · 3vg — Brooklin• Apartamento · 1q · 1vg — Brooklin Paulista• Apartamen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T02:51:37.368Z"
+        },
+        {
+          "texto": "🔍 4 imóvel(is) encontrado(s) para: apartamento, em Brooklin• Apartamento · 3q · 3vg — Brooklin• Apartamento · 1q · 1vg — Brooklin Paulista• Apartamen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:03:20.401Z"
+        }
+      ],
+      "primeira": "2026-05-09T02:50:50.715Z",
+      "ultima": "2026-05-09T03:03:20.401Z"
+    },
+    {
+      "pergunta": "sobrado disponivel",
+      "count": 3,
+      "respostas": [
+        {
+          "texto": "🎯 Você tem 100 leads mas nenhuma tem match ainda!Fazer match agora →❓ Como funcionaLeadsImóveisVisitasMatch",
+          "dominio": null,
+          "data": "2026-05-09T02:50:50.734Z"
+        },
+        {
+          "texto": "Não encontrei imóveis ativos do tipo sobrado.Ver todos →Meus imóveisImóveis inativosGerar XML",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:03:20.385Z"
+        }
+      ],
+      "primeira": "2026-05-09T02:50:50.734Z",
+      "ultima": "2026-05-09T03:03:20.385Z"
     }
   ]
 }

@@ -346,5 +346,11 @@
   "adicionar fotos imovel": "como adicionar foto",
   "vincular proprietario": "imoveis sem proprietario",
   "faixa de preco": "valor medio da carteira",
-  "menor valor": "imoveis mais baratos"
+  "menor valor": "imoveis mais baratos",
+  "residential home": "casa",
+  "residential condo": "apartamento",
+  "residential": "residencial",
+  "condo": "apartamento",
+  "home": "casa",
+  "commercial": "comercial"
 }

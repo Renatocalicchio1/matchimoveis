@@ -9,7 +9,7 @@ function corrigirOrtografia(texto) {
     'imobliaria':'imobiliaria','watsapp':'whatsapp','whatssapp':'whatsapp'
   };
   let t = texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-  const palavras = t.split(/s+/);
+  const palavras = t.split(/\s+/);
   return palavras.map(p => ERROS[p] || p).join(' ');
 }
 'use strict';
@@ -23,16 +23,16 @@ const STOP = new Set([
 
 const SINONIMOS = {
   'imovei':'imovel','imovéis':'imovel','imoveis':'imovel','imóvel':'imovel',
-  'imóveis':'imovel','apto':'imovel','apartamentos':'imovel','casas':'imovel',
+  'imóveis':'imovel','apto':'imovel','apartamentos':'imovel','casas':'imoveis',
   'vizita':'visita','vizitas':'visita',
   'lids':'lead','lid':'lead','leades':'lead','clientes':'lead',
   'interessados':'lead','compradores':'lead',
   'matsh':'match','mach':'match','compativel':'match',
   'conis':'coins','moedas':'coins','pontos':'coins',
-  'subir':'importar','enviar':'importar','upload':'importar','carregar':'importar',
+  
   'carteira':'imovel',
-  'quantos':'total','quantas':'total','quanto':'total',
-  'mostre':'ver','mostra':'ver','exibir':'ver','listar':'ver','mostrar':'ver',
+  
+  
   'cadastrar':'cadastro','adicionar':'cadastro',
   'apagar':'excluir','deletar':'excluir','remover':'excluir',
   'desativar':'inativar','ocultar':'inativar',

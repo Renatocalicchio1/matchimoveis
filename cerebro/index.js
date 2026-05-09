@@ -103,6 +103,12 @@ function responder(mensagem, d, user, imoveis, leads, visitas, contexto) {
   }
 
   // ── 2. INTERPRETADOR DE PORTUGUÊS ────────────────────────────────────────────
+  // IMOVEIS tem prioridade sobre leads
+  if ((/imovel|carteira|meu.*imovel|total.*imovel/.test(mNorm)||(/(casa|apto|apartamento|sobrado|cobertura|terreno|loft|studio)/.test(mNorm)&&/ems+[a-z]|disponivel|cadastrado|ativo|inativo|parado/.test(mNorm))||/^tems+(casa|apto|apartamento|sobrado|cobertura|terreno)/.test(mNorm)) && !/lead|visita|match|portal|mercado|cliente/.test(mNorm)) {
+    const ri=modImoveis.responder(mNorm,d,imoveis,btn,chip);
+    if(ri) return finalizar(ri+sugestoes("imoveis",d));
+  }
+
   const resPort = portugues.interpretar(mensagem, d, imoveis, leads, visitas, btn, chip);
   if (resPort) return finalizar(resPort + sugestoes(dominio, d));
 

@@ -82,43 +82,43 @@
     },
     {
       "exemplo": "ver portais",
-      "count": 14,
+      "count": 17,
       "usuarios": [
         "corretor-experiente-002",
         "test"
       ],
       "primeira": "2026-05-09T01:31:09.717Z",
-      "ultima": "2026-05-09T02:33:07.458Z",
+      "ultima": "2026-05-09T03:33:08.941Z",
       "sugerido": true
     },
     {
       "exemplo": "quais campos a planilha precisa?",
-      "count": 15,
+      "count": 18,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:31:09.850Z",
-      "ultima": "2026-05-09T02:59:20.966Z",
+      "ultima": "2026-05-09T03:33:09.042Z",
       "sugerido": true
     },
     {
       "exemplo": "tipo mais buscado",
-      "count": 12,
+      "count": 15,
       "usuarios": [
         "corretor-analista-004"
       ],
       "primeira": "2026-05-09T01:31:10.051Z",
-      "ultima": "2026-05-09T02:33:07.770Z",
+      "ultima": "2026-05-09T03:33:09.205Z",
       "sugerido": true
     },
     {
       "exemplo": "quartos mais pedidos",
-      "count": 12,
+      "count": 15,
       "usuarios": [
         "corretor-analista-004"
       ],
       "primeira": "2026-05-09T01:31:10.084Z",
-      "ultima": "2026-05-09T02:33:07.806Z",
+      "ultima": "2026-05-09T03:33:09.236Z",
       "sugerido": true
     },
     {
@@ -143,12 +143,12 @@
     },
     {
       "exemplo": "ver portias",
-      "count": 16,
+      "count": 19,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:31:10.349Z",
-      "ultima": "2026-05-09T02:59:21.367Z",
+      "ultima": "2026-05-09T03:33:09.455Z",
       "sugerido": true
     },
     {
@@ -183,12 +183,12 @@
     },
     {
       "exemplo": "enviar vitrine para cliente",
-      "count": 14,
+      "count": 17,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:31:10.734Z",
-      "ultima": "2026-05-09T02:33:08.322Z",
+      "ultima": "2026-05-09T03:33:09.759Z",
       "sugerido": true
     },
     {
@@ -203,52 +203,52 @@
     },
     {
       "exemplo": "xml não saiu no vivareal",
-      "count": 5,
+      "count": 8,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:32:21.228Z",
-      "ultima": "2026-05-09T02:33:07.714Z",
+      "ultima": "2026-05-09T03:33:09.144Z",
       "sugerido": true
     },
     {
       "exemplo": "subir xml",
-      "count": 5,
+      "count": 8,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:32:21.482Z",
-      "ultima": "2026-05-09T02:33:08.007Z",
+      "ultima": "2026-05-09T03:33:09.413Z",
       "sugerido": true
     },
     {
       "exemplo": "meu relatorrio",
-      "count": 7,
+      "count": 10,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:32:21.674Z",
-      "ultima": "2026-05-09T02:59:21.418Z",
+      "ultima": "2026-05-09T03:33:09.510Z",
       "sugerido": true
     },
     {
       "exemplo": "link do cliente",
-      "count": 7,
+      "count": 10,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:21.977Z",
-      "ultima": "2026-05-09T02:59:21.684Z",
+      "ultima": "2026-05-09T03:33:09.779Z",
       "sugerido": true
     },
     {
       "exemplo": "manda follow-up",
-      "count": 7,
+      "count": 10,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:22.066Z",
-      "ultima": "2026-05-09T02:59:21.765Z",
+      "ultima": "2026-05-09T03:33:09.853Z",
       "sugerido": true
     },
     {
@@ -3219,6 +3219,45 @@
       ],
       "primeira": "2026-05-09T03:19:52.313Z",
       "ultima": "2026-05-09T03:19:52.313Z"
+    },
+    {
+      "pergunta": "apto na vila andrade ate 400 k",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🔍 78 imóvel(is) em Vila Andrade:• Casa 3q — Vila Andrade • Apartamento 2q — Vila Andrade • Apartamento 2q — Vila Andrade • Apartamento 2q — Vila Andr",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:34:09.392Z"
+        }
+      ],
+      "primeira": "2026-05-09T03:34:09.392Z",
+      "ultima": "2026-05-09T03:34:09.392Z"
+    },
+    {
+      "pergunta": "ate 300 k",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (689), Residen",
+          "dominio": null,
+          "data": "2026-05-09T03:34:25.758Z"
+        }
+      ],
+      "primeira": "2026-05-09T03:34:25.758Z",
+      "ultima": "2026-05-09T03:34:25.758Z"
+    },
+    {
+      "pergunta": "buscar por valor do imovel",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (689), Residen",
+          "dominio": "imoveis",
+          "data": "2026-05-09T03:34:39.175Z"
+        }
+      ],
+      "primeira": "2026-05-09T03:34:39.175Z",
+      "ultima": "2026-05-09T03:34:39.175Z"
     }
   ]
 }

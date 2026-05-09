@@ -1,20 +1,36 @@
 {
-  "geradoEm": "2026-05-09T03:19:04.974Z",
+  "geradoEm": "2026-05-09T03:44:20.854Z",
   "versaoMapa": "11.0",
-  "totalHistorico": 149,
+  "totalHistorico": 156,
   "totalNaoEntendidos": 28,
   "totalPerfis": 9,
   "perguntasPorDominio": {
-    "leads": 28,
-    "imoveis": 22,
+    "leads": 30,
+    "imoveis": 23,
     "visitas": 8,
-    "match": 13,
+    "match": 14,
     "portais": 21,
-    "mercado": 5,
-    "sistema": 43,
+    "mercado": 6,
+    "sistema": 44,
     "acoes": 23
   },
   "topNaoEntendidas": [
+    {
+      "pergunta": "ver portias",
+      "count": 19
+    },
+    {
+      "pergunta": "quais campos a planilha precisa?",
+      "count": 18
+    },
+    {
+      "pergunta": "ver portais",
+      "count": 17
+    },
+    {
+      "pergunta": "enviar vitrine para cliente",
+      "count": 17
+    },
     {
       "pergunta": "quem pediu visita?",
       "count": 16
@@ -24,36 +40,20 @@
       "count": 16
     },
     {
-      "pergunta": "ver portias",
-      "count": 16
-    },
-    {
-      "pergunta": "quais campos a planilha precisa?",
+      "pergunta": "tipo mais buscado",
       "count": 15
     },
     {
-      "pergunta": "ver portais",
-      "count": 14
-    },
-    {
-      "pergunta": "enviar vitrine para cliente",
-      "count": 14
-    },
-    {
-      "pergunta": "tipo mais buscado",
-      "count": 12
-    },
-    {
       "pergunta": "quartos mais pedidos",
-      "count": 12
+      "count": 15
     },
     {
-      "pergunta": "quem não respondeu?",
-      "count": 9
+      "pergunta": "meu relatorrio",
+      "count": 10
     },
     {
-      "pergunta": "primeiros passos",
-      "count": 9
+      "pergunta": "link do cliente",
+      "count": 10
     }
   ],
   "keywordsNovas": {

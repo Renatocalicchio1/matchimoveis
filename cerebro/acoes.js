@@ -10,6 +10,9 @@ function detectarAcao(mNorm) {
   if (/importar xml|importar imovel|subir xml/.test(mNorm))            return 'wizard_xml';
   if (/importar proprietario|vincular proprietario/.test(mNorm))       return 'wizard_proprietarios';
   if (/pode me ajudar|o que voce faz|o que pode|me ajuda|pode ajudar/.test(mNorm)) return 'mostrar_capacidades';
+  if (/avisar proprietario|notificar proprietario/.test(mNorm)) return 'avisar_proprietario';
+  if (/enviar vitrine|mandar vitrine|link para|link do cliente/.test(mNorm)) return 'enviar_vitrine';
+  if (/follow.?up|retornar para|ligar para/.test(mNorm)) return 'follow_up';
   return null;
 }
 
@@ -119,6 +122,23 @@ function executarAcao(acao, mensagem, mNorm, d, btn, chip) {
       if (!id) return `Para inativar, me informe o código do imóvel.<br>Ex: <em>"inativar imóvel GABI0997"</em><br><br>${btn('Ver imóveis','/app/imoveis')}`;
       return `⚠️ Acesse o imóvel <strong>${id}</strong> e clique em <strong>Inativar</strong>:<br><br>${btn('Ver imóveis','/app/imoveis')}`;
     }
+
+    case 'avisar_proprietario':
+      return '👤 Para avisar o proprietário sobre uma visita, acesse o imóvel específico e clique em <strong>Notificar Proprietário</strong>.<br><br>' + btn('Ver imóveis', '/app/imoveis') + chip('Visitas pendentes', 'visitas pendentes');
+
+    case 'enviar_vitrine':
+      return '🔗 Para enviar a vitrine ao cliente:<br><br>' +
+        '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">1</span><span>Vá para <a href="/app/leads" style="color:#ff385c;font-weight:700">Leads</a></span></div>' +
+        '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">2</span><span>Clique na lead com match</span></div>' +
+        '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">3</span><span>Copie o link da vitrine e envie pelo WhatsApp</span></div>' +
+        '<br>' + btn('Ver leads com match', '/app/leads') + chip('Leads com match', 'leads com match');
+
+    case 'follow_up':
+      return '📱 Para fazer follow-up:<br><br>' +
+        '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">1</span><span>Identifique leads sem resposta há 3+ dias</span></div>' +
+        '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">2</span><span>Envie mensagem personalizada com os imóveis que combinam</span></div>' +
+        '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">3</span><span>Se não responder, ligue direto</span></div>' +
+        '<br>' + btn('Ver leads', '/app/leads') + chip('Quem não respondeu', 'quem nao respondeu');
 
     default: return null;
   }

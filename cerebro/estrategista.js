@@ -76,4 +76,43 @@ function analisar(d, leads, imoveis, visitas, btn, chip) {
   return html;
 }
 
+
+// ── ROTINA DO DIA ─────────────────────────────────────────────────────────────
+function rotinaDoDia(d, leads, imoveis, visitas, btn, chip) {
+  const acoes = [];
+  const hoje = new Date().toLocaleDateString('pt-BR');
+
+  // Visitas do dia
+  const visitasHoje = visitas.filter(v => v.dataVisita === hoje || (v.data && new Date(v.data).toLocaleDateString('pt-BR') === hoje));
+  if (visitasHoje.length > 0)
+    acoes.push({ prioridade: 1, texto: '📅 <strong>' + visitasHoje.length + ' visita(s) hoje</strong> — confirme com o proprietário', acao: chip('Ver visitas de hoje', 'visitas hoje') });
+
+  // Visitas pendentes
+  if (d.pendentes > 0)
+    acoes.push({ prioridade: 2, texto: '⏳ <strong>' + d.pendentes + ' visita(s) pendente(s)</strong> aguardando confirmação', acao: chip('Ver pendentes', 'visitas pendentes') });
+
+  // Leads sem match
+  if (d.semMatch > 0)
+    acoes.push({ prioridade: 3, texto: '📋 <strong>' + d.semMatch + ' lead(s) sem match</strong> — verifique se tem imóveis nos bairros certos', acao: chip('Demanda por bairro', 'demanda por bairro') });
+
+  // Leads com match mas sem visita
+  const comMatchSemVisita = leads.filter(l => l.matchesBase && l.matchesBase.length > 0 && (!visitas || !visitas.some(v => String(v.leadId||'') === String(l.id||''))));
+  if (comMatchSemVisita.length > 0)
+    acoes.push({ prioridade: 4, texto: '🎯 <strong>' + comMatchSemVisita.length + ' lead(s) com match sem visita</strong> — envie a vitrine!', acao: chip('Leads com match', 'leads com match') });
+
+  // Imóveis sem proprietário
+  const semProp = imoveis.filter(i => i.status !== 'inativo' && (!i.proprietario || !i.proprietario.nome));
+  if (semProp.length > 0)
+    acoes.push({ prioridade: 5, texto: '👤 <strong>' + semProp.length + ' imóvel(is) sem proprietário</strong> cadastrado', acao: chip('Ver sem proprietário', 'imoveis sem proprietario') });
+
+  if (!acoes.length)
+    return '🎉 Tudo em dia! Nenhuma pendência urgente agora.<br><br>' + chip('Ver leads', 'minhas leads') + chip('Ver imóveis', 'meus imoveis');
+
+  const lista = acoes.sort((a,b) => a.prioridade - b.prioridade)
+    .map((a, i) => '<div style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin:4px 0;border-left:3px solid #ff385c">' + (i+1) + '. ' + a.texto + '<br>' + a.acao + '</div>')
+    .join('');
+
+  return '📋 <strong>Sua rotina de hoje:</strong><br><br>' + lista + '<br>' + btn('Dashboard', '/app-home');
+}
+
 module.exports = { analisar };

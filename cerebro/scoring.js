@@ -60,4 +60,21 @@ function responder(mNorm, leads, visitas, btn, chip) {
     `<br><br>${btn('Ver leads','/app/leads')}`;
 }
 
+
+// ── PADRÕES EXTRAS DE SCORING ─────────────────────────────────────────────────
+function responderExtra(mNorm, leads, visitas, btn, chip) {
+  // "pronto para fechar" / "quase fechando"
+  if (/pronto para fechar|quase fechando|proximo de fechar|proposta|quer fechar/.test(mNorm)) {
+    const comVisita = leads.filter(l => visitas && visitas.some(v =>
+      String(v.leadId||v.lead_id||'') === String(l.id||'') && v.status === 'confirmada'
+    ));
+    if (!comVisita.length) return 'Nenhuma lead com visita confirmada ainda. Isso geralmente indica interesse real.' +
+      btn('Ver visitas', '/app/visitas');
+    return '🏆 <strong>' + comVisita.length + ' lead(s) com visita confirmada — potencial de fechamento:</strong><br><br>' +
+      comVisita.slice(0,5).map(l => '• <strong>' + (l.nome||l.email||'Lead') + '</strong> — ' + (l.bairro||'') + ' ' + (l.tipo||'')).join('<br>') +
+      '<br><br>' + btn('Ver leads', '/app/leads');
+  }
+  return null;
+}
+
 module.exports = { responder, rankingLeads, calcularScore };

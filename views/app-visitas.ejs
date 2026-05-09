@@ -1,8 +1,6 @@
-<%- include("partials/app-shell",{active:"visitas",user:user}) %>
+<%- include("partials/app-shell",{active:"visitas",title:"Visitas",subtitle:"Gerencie visitas solicitadas pelos seus clientes.",user:user}) %>
 
-<main style="padding:30px">
-  <div class="card" style="background:white;border-radius:16px;padding:24px;box-shadow:0 6px 20px rgba(0,0,0,.08)">
-    <h1>Visitas solicitadas</h1>
+<div class="card">
 
     <% if (!visitas || visitas.length === 0) { %>
       <div style="padding:30px;text-align:center;color:#666">Nenhuma visita solicitada ainda.</div>
@@ -148,7 +146,6 @@
       </table>
 
     <% } %>
-  </div>
-</main>
+</div>
 
 <%- include('partials/app-end') %>

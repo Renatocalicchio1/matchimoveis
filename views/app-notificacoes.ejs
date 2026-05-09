@@ -1,9 +1,6 @@
-<%- include("partials/app-shell",{active:"notificacoes",user:user}) %>
+<%- include("partials/app-shell",{active:"notificacoes",title:"Notificações",subtitle:"Acompanhe visitas, matches e avisos importantes.",user:user}) %>
 
-<main style="padding:30px">
-  <div style="background:white;border-radius:18px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.08)">
-    <h1 style="margin-bottom:8px">🔔 Central de Notificações</h1>
-    <p style="color:#666;margin-bottom:22px">Acompanhe solicitações de visita, novos matches e avisos importantes.</p>
+<div class="card">
 
     <% if (!notificacoes || notificacoes.length === 0) { %>
       <div style="padding:30px;text-align:center;color:#666;background:#f9fafb;border-radius:14px">
@@ -36,7 +33,6 @@
         </div>
       <% }) %>
     <% } %>
-  </div>
-</main>
+</div>
 
 <%- include("partials/app-end") %>

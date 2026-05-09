@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-05-09T22:46:43.037Z",
+  "geradoEm": "2026-05-09T22:56:43.746Z",
   "server": {
     "totalRotas": 83,
     "rotas": [
@@ -437,6 +437,7 @@
       "fetches": [
         "/app/assistente/feedback",
         "/app/assistente/chat",
+        "/app/importar",
         "/app/assistente/upload"
       ],
       "onclicks": [
@@ -1386,7 +1387,7 @@
       ]
     },
     "contexto.js": {
-      "linhas": 99,
+      "linhas": 160,
       "padroes": [
         "[\\u0300-\\u036f]",
         "agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para",
@@ -1396,6 +1397,7 @@
         "(?:no|na|em|do|da)\\s+([a-z][a-z ]{2,20})(?:\\s|$|,|\\.)",
         "span><span style=\"color:#555;font-size:12px\"> '+det+prop+'<",
         "strong>'+nome+'<br><span style=\"font-size:12px;color:#888\">'+filtros+'<",
+        "apto|apartamento|casa|sobrado|cobertura|terreno|comercial|loft",
         "span>':'')+'<br><br>'+btn('Cadastrar lead','"
       ]
     },
@@ -1750,6 +1752,6 @@
     "totalBotoes": 87,
     "totalLinks": 40,
     "totalModulosCerebro": 28,
-    "totalLinhasCerebro": 3866
+    "totalLinhasCerebro": 3927
   }
 }

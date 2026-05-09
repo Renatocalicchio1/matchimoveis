@@ -396,6 +396,26 @@ async function enviarMsg(texto) {
   input.focus();
 }
 
+async function importarXMLPeloChat(url) {
+  addMsg('Importando XML: ' + url, 'user');
+  showTyping();
+  try {
+    const form = new FormData();
+    form.append('xmlUrl', url);
+    const res = await fetch('/app/importar', { method:'POST', body: form });
+    const data = await res.json();
+    removeTyping();
+    if (data.ok || data.importados) {
+      streamMsg('✅ <strong>' + (data.importados||0) + ' imóvel(is) importado(s) com sucesso!</strong><br><br>Acesse sua carteira para ver os novos imóveis.');
+    } else {
+      streamMsg('❌ Erro ao importar: ' + (data.erro||data.error||'Verifique a URL e tente novamente.'));
+    }
+  } catch(e) {
+    removeTyping();
+    streamMsg('❌ Erro ao conectar. Tente novamente.');
+  }
+}
+
 async function uploadArquivo(input) {
   const file = input.files[0];
   if (!file) return;

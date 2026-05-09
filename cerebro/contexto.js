@@ -7,6 +7,8 @@ const INTENCOES = {
   CRIAR_VISITA:   /agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para/,
   INFORMAR:       /acabei de|acabou de|ja (vendeu|vendemos|fechou|fechamos|foi vendido)|nao esta mais|imovel vendido|ja tem proposta/,
   FOLLOW_UP:      /follow.?up|retornar para|ligar para|mandar (mensagem|whatsapp|zap)|entrar em contato|cliente nao (respondeu|retornou)/,
+  IMPORTAR_XML:    /importa(r)? (o |um )?xml|importa(r)? (os )?imoveis|trazer imoveis|subir xml|url do feed|trazer do crm|importar do (tecimob|rankim|vista|crm)|cole a url/,
+  CADASTRAR_IMOVEL:/cadastra(r)? (um |o )?imovel|novo imovel|adicionar imovel|criar imovel|registrar imovel/,
   AVISAR_PROP:    /avisar (o |a )?proprietario|notificar (o |a )?proprietario|falar com (o |a )?proprietario/,
 };
 const OPERACAO = {
@@ -84,6 +86,65 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
       : '<br><br>\uD83D\uDCA1 Cadastrar esse cliente como lead?'+btn('Cadastrar lead','/app/leads');
     return '\uD83D\uDD0D <strong>'+imoveisEncontrados.length+' imovel(is)</strong>'+nome+'<br><span style="font-size:12px;color:#888">'+filtros+'</span><br><br>'+cards+rodape+avisoLead+'<br>'+btn('Ver todos','/app/imoveis');
   }
+
+  // ── IMPORTAR XML ────────────────────────────────────────────────────────────
+  if (intencao === 'IMPORTAR_XML') {
+    // Extrair URL da mensagem se tiver
+    const urlMatch = ctx.fraseOriginal.match(/https?:\/\/\S+/);
+    const url = urlMatch ? urlMatch[0] : null;
+
+    if (url) {
+      return '📥 Encontrei a URL do feed:<br><br>' +
+        '<code style="background:#f3f4f6;padding:4px 8px;border-radius:6px;font-size:12px">' + url + '</code><br><br>' +
+        'Quer que eu importe agora? Os imóveis serão adicionados à sua carteira.<br><br>' +
+        '<button onclick="importarXMLPeloChat(\'' + url + '\')" style="background:#ff385c;color:white;border:none;border-radius:10px;padding:10px 20px;font-weight:700;cursor:pointer;font-size:14px">📥 Importar agora</button>' +
+        '  ' + btn('Ir para cadastro', '/app/cadastro');
+    }
+
+    return '📥 <strong>Importar imóveis via XML:</strong><br><br>' +
+      'Para importar, preciso da URL do feed XML do seu CRM.<br>' +
+      'Exemplos: Tecimob, Rankim, Vista, Jetimob...<br><br>' +
+      '💡 Cole a URL aqui no chat ou acesse a página de cadastro:<br><br>' +
+      btn('Importar XML', '/app/cadastro') +
+      chip('Como importo', 'como importar xml');
+  }
+
+  // ── CADASTRAR IMÓVEL MANUAL ─────────────────────────────────────────────────
+  if (intencao === 'CADASTRAR_IMOVEL') {
+    // Tenta extrair dados da frase
+    const tipoMatch = ctx.mNorm.match(/apto|apartamento|casa|sobrado|cobertura|terreno|comercial|loft/);
+    const quartosMatch = ctx.mNorm.match(/(d+)s*(quartos?|q|dorm)/);
+    const valorMatch = ctx.mNorm.match(/(d+[,.]?d*)s*(mil|k|milh)/);
+    const bairroMatch = ctx.slots?.bairro;
+
+    const tipo = tipoMatch ? tipoMatch[0] : null;
+    const quartos = quartosMatch ? quartosMatch[1] : null;
+    const bairro = bairroMatch || null;
+
+    let temDados = tipo || quartos || bairro;
+
+    if (temDados) {
+      const detalhes = [
+        tipo && 'Tipo: <strong>' + tipo + '</strong>',
+        quartos && 'Quartos: <strong>' + quartos + '</strong>',
+        bairro && 'Bairro: <strong>' + bairro + '</strong>',
+      ].filter(Boolean).join('<br>');
+
+      return '🏠 Entendi! Vou cadastrar o imóvel com esses dados:<br><br>' +
+        detalhes + '<br><br>' +
+        'Para completar o cadastro (valor, área, fotos, endereço) acesse:<br><br>' +
+        btn('Cadastrar imóvel', '/app/cadastro') +
+        chip('Importar via XML', 'importar xml');
+    }
+
+    return '🏠 Quer cadastrar um imóvel. Tem duas opções:<br><br>' +
+      '<strong>1. Importar via XML</strong> — traz vários imóveis do seu CRM de uma vez<br>' +
+      '<strong>2. Cadastro manual</strong> — preenche um por um<br><br>' +
+      btn('Cadastrar imóvel', '/app/cadastro') +
+      chip('Importar XML', 'importar xml');
+  }
+
+
   if (intencao === 'CADASTRAR_LEAD') return '\uD83D\uDC64 Cadastrar lead'+(slots.nomeCliente?' - '+slots.nomeCliente:'')+(filtros?'<br><span style="font-size:12px;color:#888">'+filtros+'</span>':'')+'<br><br>'+btn('Cadastrar lead','/app/leads');
   if (intencao === 'CRIAR_VISITA')   return '\uD83D\uDCC5 Agendar visita'+(slots.nomeCliente?' para '+slots.nomeCliente:'')+'<br><br>'+btn('Ver visitas','/app/visitas')+chip('Visitas pendentes','visitas pendentes');
   if (intencao === 'FOLLOW_UP') {

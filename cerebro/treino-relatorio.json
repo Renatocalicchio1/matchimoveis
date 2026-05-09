@@ -1,26 +1,26 @@
 {
-  "rodada": 1,
-  "geradoEm": "2026-05-09T01:47:40.770Z",
-  "cobertura": 82,
-  "tempoMedio": 13,
+  "rodada": 18,
+  "geradoEm": "2026-05-09T02:33:08.423Z",
+  "cobertura": 89,
+  "tempoMedio": 8,
   "total": 100,
-  "ok": 82,
-  "naoEntendeu": 18,
+  "ok": 89,
+  "naoEntendeu": 11,
   "falhou": 0,
   "porPerfil": {
     "iniciante": {
-      "ok": 15,
-      "naoEntendeu": 1,
+      "ok": 16,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "experiente": {
-      "ok": 15,
-      "naoEntendeu": 4,
+      "ok": 18,
+      "naoEntendeu": 1,
       "falhou": 0
     },
     "tecnico": {
-      "ok": 12,
-      "naoEntendeu": 1,
+      "ok": 11,
+      "naoEntendeu": 2,
       "falhou": 0
     },
     "analista": {
@@ -29,13 +29,13 @@
       "falhou": 0
     },
     "digitacao_ruim": {
-      "ok": 13,
-      "naoEntendeu": 5,
+      "ok": 15,
+      "naoEntendeu": 3,
       "falhou": 0
     },
     "busca_ativa": {
-      "ok": 9,
-      "naoEntendeu": 2,
+      "ok": 11,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "suporte": {
@@ -47,28 +47,16 @@
   "falhas": [],
   "naoEntendidas": [
     {
-      "perfil": "iniciante",
-      "pergunta": "primeiros passos"
-    },
-    {
-      "perfil": "experiente",
-      "pergunta": "quem pediu visita?"
-    },
-    {
-      "perfil": "experiente",
-      "pergunta": "visitas pendentes"
-    },
-    {
-      "perfil": "experiente",
-      "pergunta": "quem confirmou visita?"
-    },
-    {
       "perfil": "experiente",
       "pergunta": "ver portais"
     },
     {
       "perfil": "tecnico",
       "pergunta": "quais campos a planilha precisa?"
+    },
+    {
+      "perfil": "tecnico",
+      "pergunta": "xml não saiu no vivareal"
     },
     {
       "perfil": "analista",
@@ -80,11 +68,7 @@
     },
     {
       "perfil": "digitacao_ruim",
-      "pergunta": "matsh"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "meus conis"
+      "pergunta": "subir xml"
     },
     {
       "perfil": "digitacao_ruim",
@@ -92,19 +76,7 @@
     },
     {
       "perfil": "digitacao_ruim",
-      "pergunta": "dashbord"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "taxa de matsh"
-    },
-    {
-      "perfil": "busca_ativa",
-      "pergunta": "casa até 500mil"
-    },
-    {
-      "perfil": "busca_ativa",
-      "pergunta": "tem casa com 2 vagas?"
+      "pergunta": "meu relatorrio"
     },
     {
       "perfil": "suporte",
@@ -112,37 +84,37 @@
     },
     {
       "perfil": "suporte",
-      "pergunta": "avisar proprietário da visita"
+      "pergunta": "link do cliente"
     },
     {
       "perfil": "suporte",
-      "pergunta": "quem não respondeu?"
+      "pergunta": "manda follow-up"
     }
   ],
   "pesos": {
-    "raiz": 7.29999999999999,
-    "urgencia": 4,
-    "onboarding": 1,
-    "rag": 0.5,
-    "busca_imoveis": 5,
+    "raiz": 125.99999999999712,
+    "urgencia": 72,
+    "onboarding": 18,
+    "rag": 14.399999999999965,
+    "busca_imoveis": 144,
     "busca_leads": 0,
     "estrategia": 0,
     "relatorio": 0,
     "acoes": 0,
     "precisa_match": 0,
-    "dominios": 4.5,
-    "leads": 7,
-    "imoveis": 8,
-    "visitas": 3,
-    "match": 4,
-    "portais": 5,
-    "mercado": 5,
-    "sistema": 6,
-    "coins": 1,
-    "notificacoes": 1,
-    "dashboard": 5,
+    "dominios": 82.79999999999957,
+    "leads": 180,
+    "imoveis": 162,
+    "visitas": 108,
+    "match": 90,
+    "portais": 18,
+    "mercado": 54,
+    "sistema": 72,
+    "coins": 36,
+    "notificacoes": 18,
+    "dashboard": 90,
     "contexto_conversa": 0,
     "saudacao": 0,
-    "nao_entendeu": 18
+    "nao_entendeu": 198
   }
 }

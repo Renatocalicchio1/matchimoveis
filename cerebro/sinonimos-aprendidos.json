@@ -330,5 +330,21 @@
   "quem nao respondeu": "sem resposta",
   "casa ate 500mil": "casa ate 500 mil",
   "casa com 2 vagas": "casa 2 vagas",
-  "primeiros passos": "primeiros passos"
+  "primeiros passos": "primeiros passos",
+  "meus ativos": "imoveis ativos",
+  "carteira completa": "meus imoveis",
+  "imoveis cadastrados": "meus imoveis",
+  "quero ver imoveis": "meus imoveis",
+  "me mostra imoveis": "meus imoveis",
+  "quantos ativos tenho": "meus imoveis",
+  "total de imoveis": "quantos imoveis tenho",
+  "imoveis da conta": "meus imoveis",
+  "imoveis sem demanda": "imoveis parados",
+  "imoveis sem resultado": "imoveis parados",
+  "ver inativos": "imoveis inativos",
+  "completar fotos": "imoveis sem foto",
+  "adicionar fotos imovel": "como adicionar foto",
+  "vincular proprietario": "imoveis sem proprietario",
+  "faixa de preco": "valor medio da carteira",
+  "menor valor": "imoveis mais baratos"
 }

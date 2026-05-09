@@ -1,6 +1,6 @@
 {
   "versao": "11.0",
-  "geradoEm": "2026-05-09T22:03:02.952Z",
+  "geradoEm": "2026-05-09T22:36:50.880Z",
   "stats": {
     "totalRotas": 80,
     "totalViews": 32,
@@ -1825,9 +1825,7 @@
       "fetches": [],
       "botoes": [],
       "uploads": false,
-      "titulos": [
-        "🔔 Central de Notificações"
-      ],
+      "titulos": [],
       "temModal": false,
       "temGrafico": false
     },
@@ -1894,7 +1892,6 @@
       "botoes": [],
       "uploads": false,
       "titulos": [
-        "Visitas solicitadas",
         "✅ Lead confirmou presença",
         "❌ Lead não comparecerá",
         "✅ Confirmada",

@@ -116,6 +116,132 @@ function interpretarExtra(mensagem, d, imoveis, leads, visitas, btn, chip) {
       '<br><br>'+btn('Ver todos','/app/imoveis');
   }
 
+
+  // ── LEADS COM VITRINE ────────────────────────────────────────────────────────
+  if (/leads? (com|que tem|que gerou|que tem|com) vitrine|vitrine gerada|quais (leads?|clientes?) (tem|gerou|com) vitrine|leads? (que|com) link/.test(m)) {
+    const comVitrine = leads.filter(l => l.matchesBase && l.matchesBase.length > 0);
+    if (!comVitrine.length) return 'Nenhuma lead tem vitrine ainda. Faça o match primeiro.<br><br>'+btn('Ver leads','/app/leads');
+    return '🔗 <strong>'+comVitrine.length+' lead(s) com vitrine disponível:</strong><br><br>'+
+      comVitrine.slice(0,8).map(l=>'<div style="background:#f9f9f9;border-radius:8px;padding:8px 12px;margin:3px 0">'+
+        '<strong>'+(l.nome||l.email||'Lead')+'</strong>'+(l.bairro?' — '+l.bairro:'')+' · '+l.matchesBase.length+' imóvel(is)<br>'+
+        '<a href="/cliente/oferta/'+l.id+'" style="font-size:12px;color:#ff385c" target="_blank">🔗 /cliente/oferta/'+l.id+'</a>'+
+      '</div>').join('')+
+      (comVitrine.length>8?'<br><em>...e mais '+(comVitrine.length-8)+'</em>':'')+
+      '<br>'+btn('Ver todas as leads','/app/leads');
+  }
+
+  // ── LEADS SEM VITRINE (com match mas sem visita) ──────────────────────────
+  if (/leads? (sem|que nao|ainda nao) (viram|receberam|acessaram|tem) vitrine|nao enviou vitrine|faltam enviar vitrine/.test(m)) {
+    const semVisita = leads.filter(l => l.matchesBase && l.matchesBase.length > 0 &&
+      (!visitas || !visitas.some(v => String(v.leadId||'') === String(l.id||''))));
+    if (!semVisita.length) return '🎉 Todas as leads com match já têm visita agendada!';
+    return '📤 <strong>'+semVisita.length+' lead(s) com vitrine mas sem visita ainda:</strong><br><br>'+
+      semVisita.slice(0,6).map(l=>'<div style="background:#f9f9f9;border-radius:8px;padding:8px 12px;margin:3px 0">'+
+        '<strong>'+(l.nome||l.email||'Lead')+'</strong>'+(l.bairro?' — '+l.bairro:'')+
+        '<br><a href="/cliente/oferta/'+l.id+'" style="font-size:12px;color:#ff385c">🔗 Enviar vitrine</a>'+
+      '</div>').join('')+
+      '<br>'+btn('Ver leads','/app/leads');
+  }
+
+  // ── VISITAS AGUARDANDO PROPRIETÁRIO ──────────────────────────────────────
+  if (/visitas? (falta|aguarda|espera|pendente|proprietario ainda|que o proprietario|sem resposta do proprietario|nao aceitou|nao confirmou)|proprietario (nao|ainda nao) (aceitou|confirmou|respondeu)/.test(m)) {
+    const pendentes = visitas.filter(v => v.status === 'solicitada' || v.status === 'pendente');
+    if (!pendentes.length) return '🎉 Nenhuma visita aguardando proprietário! Tudo em dia.'+btn('Ver visitas','/app/visitas');
+    return '⏳ <strong>'+pendentes.length+' visita(s) aguardando proprietário:</strong><br><br>'+
+      pendentes.slice(0,6).map(v=>'<div style="background:#fff8f0;border-radius:8px;padding:8px 12px;margin:3px 0;border-left:3px solid #f59e0b">'+
+        '👤 <strong>'+(v.nome||v.cliente?.nome||v.leadNome||'Cliente')+'</strong><br>'+
+        '🏠 '+(v.imovelTitulo||v.imovel?.tipo||'Imóvel')+(v.imovelBairro?' em '+v.imovelBairro:'')+
+        (v.dataVisita?'<br>📅 '+v.dataVisita+(v.horaVisita?' às '+v.horaVisita:''):'')+
+      '</div>').join('')+
+      '<br>'+btn('Ver visitas','/app/visitas')+chip('Confirmar visitas','visitas pendentes');
+  }
+
+  // ── VISITAS CONFIRMADAS ───────────────────────────────────────────────────
+  if (/visitas? confirmadas?|quais (visitas?|agendamentos?) (foram|estao) confirmad/.test(m)) {
+    const conf = visitas.filter(v => v.status === 'confirmada');
+    if (!conf.length) return 'Nenhuma visita confirmada ainda.'+btn('Ver visitas','/app/visitas');
+    return '✅ <strong>'+conf.length+' visita(s) confirmada(s):</strong><br><br>'+
+      conf.slice(0,6).map(v=>'<div style="background:#f0fdf4;border-radius:8px;padding:8px 12px;margin:3px 0;border-left:3px solid #22c55e">'+
+        '👤 <strong>'+(v.nome||v.leadNome||'Cliente')+'</strong><br>'+
+        '🏠 '+(v.imovelTitulo||'Imóvel')+(v.imovelBairro?' em '+v.imovelBairro:'')+
+        (v.dataVisita?'<br>📅 '+v.dataVisita+(v.horaVisita?' às '+v.horaVisita:''):'')+
+      '</div>').join('')+
+      '<br>'+btn('Ver visitas','/app/visitas');
+  }
+
+  // ── IMÓVEIS PARADOS (sem visita há 30+ dias) ──────────────────────────────
+  if (/imoveis? parados?|sem visita ha|imoveis? sem movimento|imoveis? encalhados?|parado sem visita/.test(m)) {
+    const visitadosIds = new Set((visitas||[]).map(v=>String(v.imovelId||'')).filter(Boolean));
+    const parados = imoveis.filter(i => i.status !== 'inativo' && !visitadosIds.has(String(i.id||i.idExterno||'')));
+    if (!parados.length) return '🎉 Todos os imóveis ativos já tiveram visita!';
+    return '📉 <strong>'+parados.length+' imóvel(is) ativo(s) sem visita:</strong><br><br>'+
+      parados.slice(0,6).map(i=>'<div style="background:#f9f9f9;border-radius:8px;padding:8px 12px;margin:3px 0">'+
+        '<strong>'+(i.tipo||'Imóvel')+'</strong> '+(i.quartos?i.quartos+'q ':'')+'— '+(i.bairro||'-')+
+        (i.valor?' · R$ '+Number(i.valor).toLocaleString('pt-BR'):'')+
+      '</div>').join('')+
+      '<br>'+btn('Ver imóveis','/app/imoveis')+chip('Reduzir valor','valor medio da carteira');
+  }
+
+  // ── IMÓVEIS SEM FOTO ──────────────────────────────────────────────────────
+  if (/imoveis? (sem|sem nenhuma|sem) foto|sem imagem|nao tem foto|falta foto/.test(m)) {
+    const semFoto = imoveis.filter(i => i.status !== 'inativo' && (!i.fotos || i.fotos.length === 0));
+    if (!semFoto.length) return '📸 Todos os imóveis ativos têm foto! 👏';
+    return '📸 <strong>'+semFoto.length+' imóvel(is) sem foto:</strong><br><br>'+
+      semFoto.slice(0,6).map(i=>'• <strong>'+(i.tipo||'Imóvel')+'</strong> — '+(i.bairro||'-')+(i.valor?' · R$ '+Number(i.valor).toLocaleString('pt-BR'):'')).join('<br>')+
+      '<br><br>💡 Portais como VivaReal e ZAP rejeitam imóveis sem foto.<br>'+btn('Ver imóveis','/app/imoveis');
+  }
+
+  // ── BAIRROS COM LEAD MAS SEM IMÓVEL ──────────────────────────────────────
+  if (/bairros? (sem imovel|que nao tem imovel|com lead mas sem|nao cobertos?|falta imovel)|oportunidade de captacao|onde falta imovel/.test(m)) {
+    const bairrosLeads = {};
+    leads.forEach(l => { if(l.bairro) bairrosLeads[l.bairro]=(bairrosLeads[l.bairro]||0)+1; });
+    const bairrosIm = new Set(imoveis.filter(i=>i.status!=='inativo').map(i=>i.bairro).filter(Boolean));
+    const oportunidades = Object.entries(bairrosLeads)
+      .filter(([b]) => !bairrosIm.has(b))
+      .sort((a,b)=>b[1]-a[1]).slice(0,8);
+    if (!oportunidades.length) return '🎉 Você tem imóveis em todos os bairros demandados!';
+    return '🚨 <strong>Oportunidades de captação — bairros com demanda mas sem imóvel:</strong><br><br>'+
+      oportunidades.map(([b,n],i)=>(i+1)+'. <strong>'+b+'</strong> — '+n+' lead'+(n>1?'s':'')+' sem opção').join('<br>')+
+      '<br><br>💡 Capte imóveis nesses bairros para fechar mais negócios!<br>'+btn('Ver leads','/app/leads')+chip('Demanda por bairro','demanda por bairro');
+  }
+
+  // ── QUAL LEAD TEM MAIS MATCH ──────────────────────────────────────────────
+  if (/lead (com mais|que tem mais) (match|opcoes|imoveis?)|mais (match|opcoes) para qual lead|ranking de match/.test(m)) {
+    const ranking = leads
+      .filter(l => l.matchesBase && l.matchesBase.length > 0)
+      .sort((a,b)=>(b.matchesBase?.length||0)-(a.matchesBase?.length||0))
+      .slice(0,6);
+    if (!ranking.length) return 'Nenhuma lead com match ainda.'+btn('Ver leads','/app/leads');
+    return '🏆 <strong>Leads com mais opções de imóvel:</strong><br><br>'+
+      ranking.map((l,i)=>(i+1)+'. <strong>'+(l.nome||l.email||'Lead')+'</strong>'+(l.bairro?' — '+l.bairro:'')+' · <strong>'+l.matchesBase.length+' imóvel(is)</strong>').join('<br>')+
+      '<br><br>'+btn('Ver leads','/app/leads')+chip('Enviar vitrine','enviar vitrine para cliente');
+  }
+
+  // ── LEADS QUENTES (com match + visita solicitada) ─────────────────────────
+  if (/leads? quentes?|leads? mais (interessadas?|avancadas?|proximas?)|prontas? para fechar|mais chances?/.test(m)) {
+    const quentes = leads.filter(l => {
+      const temMatch = l.matchesBase && l.matchesBase.length > 0;
+      const temVisita = visitas && visitas.some(v => String(v.leadId||'') === String(l.id||''));
+      return temMatch && temVisita;
+    });
+    const mornos = leads.filter(l => l.matchesBase && l.matchesBase.length > 0 &&
+      (!visitas || !visitas.some(v => String(v.leadId||'') === String(l.id||''))));
+    let resp = '';
+    if (quentes.length) {
+      resp += '🔥 <strong>'+quentes.length+' lead(s) QUENTE(S) — match + visita:</strong><br><br>'+
+        quentes.slice(0,4).map(l=>'<div style="background:#fff8f0;border-radius:8px;padding:8px 12px;margin:3px 0;border-left:3px solid #ff385c">'+
+          '👤 <strong>'+(l.nome||l.email||'Lead')+'</strong>'+(l.bairro?' — '+l.bairro:'')+
+          '<br><a href="/cliente/oferta/'+l.id+'" style="font-size:12px;color:#ff385c">🔗 Vitrine</a>'+
+        '</div>').join('');
+    }
+    if (mornos.length) {
+      resp += '<br>🟡 <strong>'+mornos.length+' lead(s) MORNA(S) — match mas sem visita:</strong><br><br>'+
+        mornos.slice(0,3).map(l=>'• '+(l.nome||l.email||'Lead')+(l.bairro?' — '+l.bairro:'')).join('<br>');
+    }
+    if (!resp) return 'Nenhuma lead com match ainda.'+btn('Ver leads','/app/leads');
+    return resp+'<br><br>'+btn('Ver leads','/app/leads');
+  }
+
   return null;
 }
 function interpretar(mensagem, d, imoveis, leads, visitas, btn, chip) {

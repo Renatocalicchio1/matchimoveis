@@ -35,7 +35,7 @@
   "reagendar": "remarcar",
   "gerar xml": "gerar_xml",
   "criar xml": "gerar_xml",
-  "link do cliente": "vitrine do cliente",
+  "link do cliente": "vitrine",
   "enviar pro cliente": "vitrine",
   "oi": "saudacao",
   "olá": "saudacao",
@@ -407,5 +407,9 @@
   "desativa": "inativar",
   "exclui": "excluir",
   "deleta": "excluir",
-  "viva real": "vivareal"
+  "viva real": "vivareal",
+  "inativar": "inativar",
+  "confirmar": "confirmar",
+  "recusar": "recusar",
+  "remarcar": "remarcar"
 }

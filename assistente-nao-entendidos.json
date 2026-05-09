@@ -666,7 +666,7 @@
     },
     {
       "pergunta": "leads quentes",
-      "count": 8,
+      "count": 9,
       "respostas": [
         {
           "texto": "🔥 Leads mais quentes:1. Renata Graber de Aquino — Moema Apartamento · 15 match(es)2. Barbara krysttal — Moema Apartamento · 15 match(es)3. Amanda — V",
@@ -707,14 +707,19 @@
           "texto": "🔥 Leads mais quentes:1. João Silva — Itajaí Apartamento · 1 match(es)2. Maria Santos — Balneário Camboriú Casa · 1 match(es)3. Carlos Mendes — Itapem",
           "dominio": "leads",
           "data": "2026-05-09T01:48:29.940Z"
+        },
+        {
+          "texto": "🔥 Leads mais quentes:1. Renata Graber de Aquino — Moema Apartamento · 15 match(es)2. Barbara krysttal — Moema Apartamento · 15 match(es)3. Amanda — V",
+          "dominio": "leads",
+          "data": "2026-05-09T03:23:18.539Z"
         }
       ],
       "primeira": "2026-05-08T20:50:02.243Z",
-      "ultima": "2026-05-09T01:48:29.940Z"
+      "ultima": "2026-05-09T03:23:18.539Z"
     },
     {
       "pergunta": "leads com match",
-      "count": 7,
+      "count": 8,
       "respostas": [
         {
           "texto": "🔍 21 lead(s) encontrada(s):• tugnoli@hotmail.com — Perdizes Apartamento • Gilmara.mbc@gmail.com — Vila Cordeiro Casa • tchiagodelvalle@gmail.com — Re",
@@ -725,10 +730,15 @@
           "texto": "Não encontrei lead com nome \"com\". Verifique na lista completa.Ver leads →Leads quentesImportar leadsLeads sem match",
           "dominio": "leads",
           "data": "2026-05-08T21:06:22.194Z"
+        },
+        {
+          "texto": "🎯 43 leads com match (3% da base)Essas leads já receberam a vitrine? Envie agora e converta em visitas!Ver leads com match →Leads quentesImportar lea",
+          "dominio": "leads",
+          "data": "2026-05-09T03:19:56.705Z"
         }
       ],
       "primeira": "2026-05-08T20:50:09.281Z",
-      "ultima": "2026-05-09T01:48:30.212Z"
+      "ultima": "2026-05-09T03:19:56.705Z"
     },
     {
       "pergunta": "importar leads",
@@ -771,7 +781,7 @@
     },
     {
       "pergunta": "o que devo fazer hoje",
-      "count": 7,
+      "count": 8,
       "respostas": [
         {
           "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando confirmação. Confirmar →🟡 1350 leads sem match — pode estar faltand",
@@ -807,10 +817,15 @@
           "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🔴 2 visita(s) hoje! Não perca o horário. Ver visitas →🟡 3 visita(s) pendente(s) aguardando confirmação. ",
           "dominio": null,
           "data": "2026-05-09T01:48:30.138Z"
+        },
+        {
+          "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando confirmação. Confirmar →🟡 1350 leads sem match — pode estar faltand",
+          "dominio": null,
+          "data": "2026-05-09T03:19:22.168Z"
         }
       ],
       "primeira": "2026-05-08T20:50:39.465Z",
-      "ultima": "2026-05-09T01:48:30.138Z"
+      "ultima": "2026-05-09T03:19:22.168Z"
     },
     {
       "pergunta": "resumo geral",
@@ -3191,6 +3206,19 @@
       ],
       "primeira": "2026-05-09T02:50:50.734Z",
       "ultima": "2026-05-09T03:06:49.515Z"
+    },
+    {
+      "pergunta": "quais as dicas pra hoje ? ondo posso melhorar ?",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "Nenhuma lead chegou hoje ainda. 📋👥 Todas as leadsLeads quentesImportar leadsLeads sem match",
+          "dominio": null,
+          "data": "2026-05-09T03:19:52.313Z"
+        }
+      ],
+      "primeira": "2026-05-09T03:19:52.313Z",
+      "ultima": "2026-05-09T03:19:52.313Z"
     }
   ]
 }

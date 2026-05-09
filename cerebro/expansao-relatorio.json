@@ -1,43 +1,59 @@
 {
-  "geradoEm": "2026-05-08T06:59:46.562Z",
+  "geradoEm": "2026-05-09T03:19:04.974Z",
   "versaoMapa": "11.0",
-  "totalHistorico": 106,
-  "totalNaoEntendidos": 6,
-  "totalPerfis": 1,
+  "totalHistorico": 149,
+  "totalNaoEntendidos": 28,
+  "totalPerfis": 9,
   "perguntasPorDominio": {
-    "leads": 17,
-    "imoveis": 15,
-    "visitas": 4,
-    "match": 9,
-    "portais": 17,
+    "leads": 28,
+    "imoveis": 22,
+    "visitas": 8,
+    "match": 13,
+    "portais": 21,
     "mercado": 5,
-    "sistema": 28,
-    "acoes": 17
+    "sistema": 43,
+    "acoes": 23
   },
   "topNaoEntendidas": [
     {
-      "pergunta": "importar xml",
-      "count": 5
+      "pergunta": "quem pediu visita?",
+      "count": 16
     },
     {
-      "pergunta": "e os filtros",
-      "count": 3
+      "pergunta": "matsh",
+      "count": 16
     },
     {
-      "pergunta": "voce eta inedo bem , voce precisa acessar a pagina /app/cadastro la voce conegur encntar o botao para importar meu xml",
-      "count": 1
+      "pergunta": "ver portias",
+      "count": 16
     },
     {
-      "pergunta": "/app/portais nesa pagina tem o link de cada portal , deppis que voce gera o link ele fica nesa pagia nesse caso temo do vivo rela pronto conegue pegar ele",
-      "count": 1
+      "pergunta": "quais campos a planilha precisa?",
+      "count": 15
     },
     {
-      "pergunta": "boa notei ne eseucei",
-      "count": 1
+      "pergunta": "ver portais",
+      "count": 14
     },
     {
-      "pergunta": "me fale mais da app",
-      "count": 1
+      "pergunta": "enviar vitrine para cliente",
+      "count": 14
+    },
+    {
+      "pergunta": "tipo mais buscado",
+      "count": 12
+    },
+    {
+      "pergunta": "quartos mais pedidos",
+      "count": 12
+    },
+    {
+      "pergunta": "quem não respondeu?",
+      "count": 9
+    },
+    {
+      "pergunta": "primeiros passos",
+      "count": 9
     }
   ],
   "keywordsNovas": {
@@ -105,6 +121,198 @@
     },
     {
       "pergunta": "e os filtros",
+      "count": 3
+    },
+    {
+      "pergunta": "porque nao esta salvando nossa msg do ultimo chat se,pre que eu votlar para a gania quer enonctar ond eparamos nesse chat",
+      "count": 3
+    },
+    {
+      "pergunta": "ver portais",
+      "count": 3
+    },
+    {
+      "pergunta": "quais campos a planilha precisa?",
+      "count": 3
+    },
+    {
+      "pergunta": "xml não saiu no vivareal",
+      "count": 3
+    },
+    {
+      "pergunta": "tipo mais buscado",
+      "count": 3
+    },
+    {
+      "pergunta": "quartos mais pedidos",
+      "count": 3
+    },
+    {
+      "pergunta": "subir xml",
+      "count": 3
+    },
+    {
+      "pergunta": "ver portias",
+      "count": 3
+    },
+    {
+      "pergunta": "meu relatorrio",
+      "count": 3
+    },
+    {
+      "pergunta": "enviar vitrine para cliente",
+      "count": 3
+    },
+    {
+      "pergunta": "link do cliente",
+      "count": 3
+    },
+    {
+      "pergunta": "manda follow-up",
+      "count": 3
+    },
+    {
+      "pergunta": "blablabla xpto nada",
+      "count": 3
+    },
+    {
+      "pergunta": "faixa de valor",
+      "count": 3
+    },
+    {
+      "pergunta": "qwerty asdfgh",
+      "count": 3
+    },
+    {
+      "pergunta": "meu portal rejeitou",
+      "count": 3
+    },
+    {
+      "pergunta": "como adicionar fotos",
+      "count": 3
+    },
+    {
+      "pergunta": "minha conta",
+      "count": 3
+    },
+    {
+      "pergunta": "como começo?",
+      "count": 3
+    },
+    {
+      "pergunta": "a extração falhou",
+      "count": 3
+    },
+    {
+      "pergunta": "bairros mais buscados",
+      "count": 3
+    },
+    {
+      "pergunta": "casas disponíveis",
+      "count": 3
+    },
+    {
+      "pergunta": "minhas visitas",
+      "count": 3
+    },
+    {
+      "pergunta": "visitas pendentes",
+      "count": 3
+    },
+    {
+      "pergunta": "quem confirmou visita",
+      "count": 3
+    },
+    {
+      "pergunta": "resumo do dia",
+      "count": 3
+    },
+    {
+      "pergunta": "casas com 3 quartos",
+      "count": 3
+    },
+    {
+      "pergunta": "ver portais",
+      "count": 3
+    },
+    {
+      "pergunta": "quais campos a planilha precisa?",
+      "count": 3
+    },
+    {
+      "pergunta": "tipo mais buscado",
+      "count": 3
+    },
+    {
+      "pergunta": "quartos mais pedidos",
+      "count": 3
+    },
+    {
+      "pergunta": "ver portias",
+      "count": 3
+    },
+    {
+      "pergunta": "enviar vitrine para cliente",
+      "count": 3
+    },
+    {
+      "pergunta": "primeiros passos",
+      "count": 3
+    },
+    {
+      "pergunta": "quem pediu visita?",
+      "count": 3
+    },
+    {
+      "pergunta": "visitas pendentes",
+      "count": 3
+    },
+    {
+      "pergunta": "matsh",
+      "count": 3
+    },
+    {
+      "pergunta": "meus conis",
+      "count": 3
+    },
+    {
+      "pergunta": "dashbord",
+      "count": 3
+    },
+    {
+      "pergunta": "casa até 500mil",
+      "count": 3
+    },
+    {
+      "pergunta": "quem não respondeu?",
+      "count": 3
+    },
+    {
+      "pergunta": "tem casa com 2 vagas?",
+      "count": 3
+    },
+    {
+      "pergunta": "avisar proprietário da visita",
+      "count": 3
+    },
+    {
+      "pergunta": "meu relatorrio",
+      "count": 3
+    },
+    {
+      "pergunta": "link do cliente",
+      "count": 3
+    },
+    {
+      "pergunta": "manda follow-up",
+      "count": 3
+    },
+    {
+      "pergunta": "xml não saiu no vivareal",
+      "count": 3
+    },
+    {
+      "pergunta": "subir xml",
       "count": 3
     }
   ]

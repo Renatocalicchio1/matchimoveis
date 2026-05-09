@@ -1,12 +1,12 @@
 {
   "sessoes": {
     "imobiliaria-47991919191": {
-      "paginaAtual": "assistente",
-      "labelAtual": "Assistente",
-      "dominioAtual": "sistema",
-      "rotaAtual": "/app/assistente",
-      "atualizadoEm": "2026-05-08T20:49:40.700Z",
-      "paginaAnterior": "dashboard"
+      "paginaAtual": "leads",
+      "labelAtual": "Leads",
+      "dominioAtual": "leads",
+      "rotaAtual": "/app/leads",
+      "atualizadoEm": "2026-05-09T03:20:09.039Z",
+      "paginaAnterior": "assistente"
     }
   },
   "fluxos": [
@@ -213,6 +213,24 @@
       "para": "assistente",
       "userId": "imobiliaria-47991919191",
       "data": "2026-05-08T20:49:40.700Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:19:15.898Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:19:19.026Z"
+    },
+    {
+      "de": "assistente",
+      "para": "leads",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-09T03:20:09.039Z"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "versao": "11.0",
-  "geradoEm": "2026-05-08T06:55:17.390Z",
+  "geradoEm": "2026-05-09T03:19:04.837Z",
   "stats": {
     "totalRotas": 80,
     "totalViews": 32,
@@ -20,7 +20,7 @@
     {
       "metodo": "GET",
       "rota": "/",
-      "linha": 64,
+      "linha": 66,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": "/login",
@@ -33,7 +33,7 @@
     {
       "metodo": "GET",
       "rota": "/api/testar-xml",
-      "linha": 73,
+      "linha": 75,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -49,7 +49,7 @@
     {
       "metodo": "POST",
       "rota": "/app/importar",
-      "linha": 108,
+      "linha": 110,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -69,7 +69,7 @@
     {
       "metodo": "POST",
       "rota": "/app/importar-proprietarios",
-      "linha": 165,
+      "linha": 167,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -85,7 +85,7 @@
     {
       "metodo": "POST",
       "rota": "/app/leads",
-      "linha": 181,
+      "linha": 183,
       "requerLogin": false,
       "renderiza": "app-portais",
       "redireciona": "/app/leads",
@@ -101,7 +101,7 @@
     {
       "metodo": "POST",
       "rota": "/app/portais",
-      "linha": 203,
+      "linha": 205,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": "/app/portais",
@@ -119,7 +119,7 @@
     {
       "metodo": "GET",
       "rota": "/feed/:portal",
-      "linha": 217,
+      "linha": 219,
       "requerLogin": false,
       "renderiza": "login",
       "redireciona": null,
@@ -139,7 +139,7 @@
     {
       "metodo": "GET",
       "rota": "/login",
-      "linha": 227,
+      "linha": 229,
       "requerLogin": false,
       "renderiza": "login",
       "redireciona": null,
@@ -156,7 +156,7 @@
     {
       "metodo": "POST",
       "rota": "/login",
-      "linha": 231,
+      "linha": 233,
       "requerLogin": false,
       "renderiza": "login",
       "redireciona": null,
@@ -173,7 +173,7 @@
     {
       "metodo": "GET",
       "rota": "/cliente/oferta/:leadId",
-      "linha": 313,
+      "linha": 315,
       "requerLogin": false,
       "renderiza": "cliente-oferta",
       "redireciona": "/cliente/oferta/",
@@ -192,7 +192,7 @@
     {
       "metodo": "GET",
       "rota": "/cliente/oferta/:leadId/escolher/:idx",
-      "linha": 324,
+      "linha": 326,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": "/cliente/oferta/",
@@ -215,7 +215,7 @@
     {
       "metodo": "GET",
       "rota": "/cliente/oferta/:leadId/visita/:idx",
-      "linha": 334,
+      "linha": 336,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -238,7 +238,7 @@
     {
       "metodo": "GET",
       "rota": "/proprietario/visita/:visitaId",
-      "linha": 427,
+      "linha": 429,
       "requerLogin": false,
       "renderiza": "proprietario-visita",
       "redireciona": null,
@@ -257,7 +257,7 @@
     {
       "metodo": "POST",
       "rota": "/proprietario/visita/:visitaId/responder",
-      "linha": 434,
+      "linha": 436,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -278,7 +278,7 @@
     {
       "metodo": "POST",
       "rota": "/app-leads/:idx/match",
-      "linha": 570,
+      "linha": 572,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -297,7 +297,7 @@
     {
       "metodo": "GET",
       "rota": "/import-status",
-      "linha": 639,
+      "linha": 641,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": "/login",
@@ -312,7 +312,7 @@
     {
       "metodo": "GET",
       "rota": "/import-status",
-      "linha": 643,
+      "linha": 645,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": "/login",
@@ -327,7 +327,7 @@
     {
       "metodo": "GET",
       "rota": "/logout",
-      "linha": 645,
+      "linha": 647,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": "/login",
@@ -342,7 +342,7 @@
     {
       "metodo": "GET",
       "rota": "/logout",
-      "linha": 651,
+      "linha": 653,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": "/login",
@@ -357,7 +357,7 @@
     {
       "metodo": "GET",
       "rota": "/logout",
-      "linha": 673,
+      "linha": 675,
       "requerLogin": true,
       "renderiza": "app-portais",
       "redireciona": "/login",
@@ -372,7 +372,7 @@
     {
       "metodo": "GET",
       "rota": "/app",
-      "linha": 681,
+      "linha": 683,
       "requerLogin": true,
       "renderiza": "app-portais",
       "redireciona": "/login",
@@ -387,7 +387,7 @@
     {
       "metodo": "GET",
       "rota": "/app-imoveis",
-      "linha": 689,
+      "linha": 691,
       "requerLogin": true,
       "renderiza": "app-portais",
       "redireciona": "/app/imoveis",
@@ -402,7 +402,7 @@
     {
       "metodo": "GET",
       "rota": "/app-xml",
-      "linha": 698,
+      "linha": 700,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app-portais-xml",
@@ -417,7 +417,7 @@
     {
       "metodo": "GET",
       "rota": "/app-portais",
-      "linha": 699,
+      "linha": 701,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app-portais-xml",
@@ -432,7 +432,7 @@
     {
       "metodo": "GET",
       "rota": "/app-perfil",
-      "linha": 702,
+      "linha": 704,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/login",
@@ -447,7 +447,7 @@
     {
       "metodo": "GET",
       "rota": "/logout",
-      "linha": 706,
+      "linha": 708,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/login",
@@ -462,7 +462,7 @@
     {
       "metodo": "GET",
       "rota": "/app",
-      "linha": 733,
+      "linha": 735,
       "requerLogin": true,
       "renderiza": "app-notificacoes",
       "redireciona": "/app-home",
@@ -482,7 +482,7 @@
     {
       "metodo": "GET",
       "rota": "/app/notificacoes",
-      "linha": 735,
+      "linha": 737,
       "requerLogin": true,
       "renderiza": "app-notificacoes",
       "redireciona": null,
@@ -503,7 +503,7 @@
     {
       "metodo": "GET",
       "rota": "/app-home",
-      "linha": 750,
+      "linha": 752,
       "requerLogin": true,
       "renderiza": "app-home",
       "redireciona": null,
@@ -523,7 +523,7 @@
     {
       "metodo": "GET",
       "rota": "/app/imoveis/exportar-excel",
-      "linha": 823,
+      "linha": 825,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -544,7 +544,7 @@
     {
       "metodo": "GET",
       "rota": "/app/imoveis",
-      "linha": 894,
+      "linha": 896,
       "requerLogin": true,
       "renderiza": "app-imoveis",
       "redireciona": "/app/cadastro",
@@ -565,7 +565,7 @@
     {
       "metodo": "POST",
       "rota": "/app/excluir-xml",
-      "linha": 900,
+      "linha": 902,
       "requerLogin": true,
       "renderiza": "app-cadastro",
       "redireciona": "/app/cadastro",
@@ -585,7 +585,7 @@
     {
       "metodo": "GET",
       "rota": "/app/cadastro",
-      "linha": 913,
+      "linha": 915,
       "requerLogin": true,
       "renderiza": "app-cadastro",
       "redireciona": "/app-importar-leads",
@@ -605,7 +605,7 @@
     {
       "metodo": "GET",
       "rota": "/app/perfil",
-      "linha": 925,
+      "linha": 927,
       "requerLogin": true,
       "renderiza": "app-perfil",
       "redireciona": "/app-importar-leads",
@@ -623,7 +623,7 @@
     {
       "metodo": "GET",
       "rota": "/app-importar-leads",
-      "linha": 929,
+      "linha": 931,
       "requerLogin": true,
       "renderiza": "app-importar-leads",
       "redireciona": "/app-importar-leads",
@@ -640,7 +640,7 @@
     {
       "metodo": "GET",
       "rota": "/app/importar-leads",
-      "linha": 933,
+      "linha": 935,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app-importar-leads",
@@ -658,7 +658,7 @@
     {
       "metodo": "GET",
       "rota": "/app/leads",
-      "linha": 937,
+      "linha": 939,
       "requerLogin": true,
       "renderiza": "app-leads",
       "redireciona": null,
@@ -676,7 +676,7 @@
     {
       "metodo": "GET",
       "rota": "/app/visitas",
-      "linha": 973,
+      "linha": 975,
       "requerLogin": true,
       "renderiza": "app-visitas",
       "redireciona": "/login",
@@ -694,7 +694,7 @@
     {
       "metodo": "GET",
       "rota": "/logout",
-      "linha": 984,
+      "linha": 986,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": "/login",
@@ -711,7 +711,7 @@
     {
       "metodo": "POST",
       "rota": "/webhook/imovelweb",
-      "linha": 991,
+      "linha": 993,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -729,7 +729,7 @@
     {
       "metodo": "POST",
       "rota": "/app/perfil/localizacao",
-      "linha": 1060,
+      "linha": 1062,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/perfil",
@@ -748,7 +748,7 @@
     {
       "metodo": "POST",
       "rota": "/app/perfil/localizacao",
-      "linha": 1075,
+      "linha": 1077,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/perfil",
@@ -769,7 +769,7 @@
     {
       "metodo": "GET",
       "rota": "/feed-:portal.xml",
-      "linha": 1091,
+      "linha": 1093,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/lead/",
@@ -787,7 +787,7 @@
     {
       "metodo": "POST",
       "rota": "/app/lead/:id/buscar-quintoandar",
-      "linha": 1106,
+      "linha": 1108,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/lead/",
@@ -807,7 +807,7 @@
     {
       "metodo": "POST",
       "rota": "/api/ajuda",
-      "linha": 1276,
+      "linha": 1278,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -823,7 +823,7 @@
     {
       "metodo": "POST",
       "rota": "/process",
-      "linha": 1590,
+      "linha": 1592,
       "requerLogin": false,
       "renderiza": "mapa",
       "redireciona": null,
@@ -838,7 +838,7 @@
     {
       "metodo": "GET",
       "rota": "/mapa",
-      "linha": 1605,
+      "linha": 1607,
       "requerLogin": false,
       "renderiza": "mapa",
       "redireciona": null,
@@ -855,7 +855,7 @@
     {
       "metodo": "GET",
       "rota": "/feed",
-      "linha": 1618,
+      "linha": 1620,
       "requerLogin": false,
       "renderiza": "feed-reels",
       "redireciona": null,
@@ -872,7 +872,7 @@
     {
       "metodo": "GET",
       "rota": "/api/imoveis",
-      "linha": 1622,
+      "linha": 1624,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -890,7 +890,7 @@
     {
       "metodo": "POST",
       "rota": "/imovel/:id/status",
-      "linha": 1625,
+      "linha": 1627,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -908,7 +908,7 @@
     {
       "metodo": "POST",
       "rota": "/imovel/:id/status",
-      "linha": 1641,
+      "linha": 1643,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -926,7 +926,7 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/cadastrar",
-      "linha": 1659,
+      "linha": 1661,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -945,7 +945,7 @@
     {
       "metodo": "POST",
       "rota": "/api/lead-interesse",
-      "linha": 1706,
+      "linha": 1708,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -964,7 +964,7 @@
     {
       "metodo": "GET",
       "rota": "/imovel/:id",
-      "linha": 1882,
+      "linha": 1884,
       "requerLogin": false,
       "renderiza": "imovel-publico",
       "redireciona": null,
@@ -983,7 +983,7 @@
     {
       "metodo": "GET",
       "rota": "/app/lead/:id",
-      "linha": 1934,
+      "linha": 1936,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1003,7 +1003,7 @@
     {
       "metodo": "GET",
       "rota": "/app/imovel/:id",
-      "linha": 1982,
+      "linha": 1984,
       "requerLogin": true,
       "renderiza": "app-imovel-detalhe",
       "redireciona": null,
@@ -1021,7 +1021,7 @@
     {
       "metodo": "GET",
       "rota": "/app/imovel/:id/editar",
-      "linha": 2001,
+      "linha": 2003,
       "requerLogin": true,
       "renderiza": "app-editar-imovel",
       "redireciona": null,
@@ -1040,7 +1040,7 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/editar",
-      "linha": 2014,
+      "linha": 2016,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1059,7 +1059,7 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/upload-foto",
-      "linha": 2077,
+      "linha": 2079,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/imovel/",
@@ -1078,7 +1078,7 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/excluir-foto",
-      "linha": 2093,
+      "linha": 2095,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/imovel/",
@@ -1097,7 +1097,7 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/capa-foto",
-      "linha": 2109,
+      "linha": 2111,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/imovel/",
@@ -1116,7 +1116,7 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/confirmar/:id",
-      "linha": 2268,
+      "linha": 2270,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/visitas",
@@ -1135,7 +1135,7 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/recusar/:id",
-      "linha": 2291,
+      "linha": 2293,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": "/app/visitas",
@@ -1154,7 +1154,7 @@
     {
       "metodo": "POST",
       "rota": "/api/gerar-descricao-imovel",
-      "linha": 2314,
+      "linha": 2316,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -1170,7 +1170,7 @@
     {
       "metodo": "POST",
       "rota": "/app/gerar-xml",
-      "linha": 2372,
+      "linha": 2374,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1190,7 +1190,7 @@
     {
       "metodo": "GET",
       "rota": "/app/portais",
-      "linha": 2515,
+      "linha": 2517,
       "requerLogin": true,
       "renderiza": "app-portais",
       "redireciona": null,
@@ -1210,7 +1210,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/zerar-visitas-notificacoes-temp",
-      "linha": 2551,
+      "linha": 2553,
       "requerLogin": false,
       "renderiza": "cliente-visita-confirmar",
       "redireciona": null,
@@ -1229,7 +1229,7 @@
     {
       "metodo": "GET",
       "rota": "/cliente/visita/:visitaId/confirmar",
-      "linha": 2558,
+      "linha": 2560,
       "requerLogin": false,
       "renderiza": "cliente-visita-confirmar",
       "redireciona": null,
@@ -1250,7 +1250,7 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:visitaId/responder",
-      "linha": 2565,
+      "linha": 2567,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -1271,7 +1271,7 @@
     {
       "metodo": "GET",
       "rota": "/app/coins",
-      "linha": 2594,
+      "linha": 2596,
       "requerLogin": true,
       "renderiza": "app-coins",
       "redireciona": null,
@@ -1290,7 +1290,7 @@
     {
       "metodo": "GET",
       "rota": "/cliente/visita/:id/remarcar",
-      "linha": 2601,
+      "linha": 2603,
       "requerLogin": false,
       "renderiza": "cliente-visita-remarcar",
       "redireciona": null,
@@ -1310,7 +1310,7 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:id/remarcar",
-      "linha": 2608,
+      "linha": 2610,
       "requerLogin": false,
       "renderiza": "cliente-visita-remarcar",
       "redireciona": null,
@@ -1330,7 +1330,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/debug-visitas",
-      "linha": 2630,
+      "linha": 2632,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1349,7 +1349,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/debug-leads",
-      "linha": 2637,
+      "linha": 2639,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1368,7 +1368,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/reset-leads-repo",
-      "linha": 2645,
+      "linha": 2647,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1388,7 +1388,7 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente",
-      "linha": 2654,
+      "linha": 2656,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1408,7 +1408,7 @@
     {
       "metodo": "GET",
       "rota": "/api/assistente/dados",
-      "linha": 2665,
+      "linha": 2667,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1429,7 +1429,7 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente",
-      "linha": 2706,
+      "linha": 2708,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1449,7 +1449,7 @@
     {
       "metodo": "POST",
       "rota": "/app/assistente/chat",
-      "linha": 2713,
+      "linha": 2715,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1470,11 +1470,13 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente/historico",
-      "linha": 2765,
+      "linha": 2779,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
-      "leDados": [],
+      "leDados": [
+        "users.json"
+      ],
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
@@ -1524,6 +1526,7 @@
       "forms": [],
       "links": [],
       "fetches": [
+        "/app/assistente/feedback",
         "/app/assistente/chat",
         "/app/assistente/historico"
       ],
@@ -1534,7 +1537,11 @@
         "enviarMsg(",
         "enviarMsg(",
         "document.getElementById(",
-        "enviarMsg()"
+        "enviarMsg()",
+        "enviarFeedback(true,this)",
+        "enviarFeedback(false,this)",
+        "enviarFeedback(true,this)",
+        "enviarFeedback(false,this)"
       ],
       "uploads": true,
       "titulos": [],

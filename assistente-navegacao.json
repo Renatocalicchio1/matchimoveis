@@ -5,7 +5,7 @@
       "labelAtual": "Assistente",
       "dominioAtual": "sistema",
       "rotaAtual": "/app/assistente",
-      "atualizadoEm": "2026-05-10T04:16:30.934Z",
+      "atualizadoEm": "2026-05-10T04:18:48.424Z",
       "paginaAnterior": "dashboard"
     }
   },
@@ -963,6 +963,18 @@
       "para": "assistente",
       "userId": "imobiliaria-47991919191",
       "data": "2026-05-10T04:16:30.934Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-10T04:18:46.372Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-10T04:18:48.424Z"
     }
   ]
 }

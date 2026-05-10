@@ -18,6 +18,19 @@ function extrairSlots(mNorm) {
   const q = mNorm.match(/(\d+)\s*(?:quarto|dorm|suite)/);
   if (q) slots.quartos = parseInt(q[1]);
 
+  // Valor entre X e Y
+  const ventreMatch = mNorm.match(/entre\s*r?\$?\s*([\d.,]+)\s*(mil|k|m)?\s*(?:e|a)\s*r?\$?\s*([\d.,]+)\s*(mil|k|m)?/i);
+  if (ventreMatch) {
+    let vmin = parseFloat(ventreMatch[1].replace(/\./g,'').replace(',','.'));
+    let vmax2 = parseFloat(ventreMatch[3].replace(/\./g,'').replace(',','.'));
+    if ((ventreMatch[2]||'').match(/mil|k/i)) vmin *= 1000;
+    if ((ventreMatch[4]||'').match(/mil|k/i)) vmax2 *= 1000;
+    if ((ventreMatch[2]||'').match(/^m$/i)) vmin *= 1000000;
+    if ((ventreMatch[4]||'').match(/^m$/i)) vmax2 *= 1000000;
+    slots.valorMin = vmin;
+    slots.valorMax = vmax2;
+  }
+
   // Valor máximo
   const v = mNorm.match(/(?:ate|max|maximo|menos de|abaixo de)\s*(?:r\$)?\s*(\d+(?:[.,]\d+)?)\s*(mil|k|m)?/);
   if (v) {

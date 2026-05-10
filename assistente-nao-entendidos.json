@@ -4646,6 +4646,37 @@
       ],
       "primeira": "2026-05-10T04:16:33.445Z",
       "ultima": "2026-05-10T04:16:33.445Z"
+    },
+    {
+      "pergunta": "imovel entre 300 e 400 mil",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "🏠 Imoveis:Ativos: 846 · Inativos: 0Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila OlímpiaTipos: Apartamento (689), Residential / Home",
+          "dominio": "imoveis",
+          "data": "2026-05-10T04:17:36.347Z"
+        },
+        {
+          "texto": "🏠 Imoveis:Ativos: 846 · Inativos: 0Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila OlímpiaTipos: Apartamento (689), Residential / Home",
+          "dominio": "imoveis",
+          "data": "2026-05-10T04:18:58.139Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:17:36.347Z",
+      "ultima": "2026-05-10T04:18:58.139Z"
+    },
+    {
+      "pergunta": "ok , mas nao so valor outros campos tabem podem ocorrer pense ai",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "😔 Nenhum imovel encontrado.📍 podem ocorrer pense💡 Quer cadastrar esse cliente como lead?Cadastrar lead →Demanda por bairroLeadsImóveisVisitasMatch",
+          "dominio": null,
+          "data": "2026-05-10T04:20:28.095Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:20:28.096Z",
+      "ultima": "2026-05-10T04:20:28.096Z"
     }
   ]
 }

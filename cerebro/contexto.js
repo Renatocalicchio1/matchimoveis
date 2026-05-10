@@ -41,7 +41,7 @@ function analisar(fraseOriginal, imoveis, leads, visitas) {
     return { intencao: 'VER_NOTIFICACOES', slots: {}, imoveisEncontrados: [], leadsEncontrados: [], temDados: false, fraseOriginal: _f, mNorm: _f.toLowerCase() };
   if (/quantos?\s+(leads?|clientes?)|^ver\s+leads?$|^meus?\s+leads?$|leads?\s+sem\s+match/i.test(_f))
     return { intencao: 'VER_LEADS', slots: {}, imoveisEncontrados: [], leadsEncontrados: [], temDados: false, fraseOriginal: _f, mNorm: _f.toLowerCase() };
-  if (/^meus?\s+im[oó]veis?$|quantos?\s+im[oó]veis?|^ver\s+carteira$|im[oó]veis?\s+sem\s+propriet/i.test(_f))
+  if (/^meus?\s+im[oó]veis?$|^quantos?\s+im[oó]veis?|^ver\s+carteira$|im[oó]veis?\s+sem\s+propriet/i.test(_f.trim()))
     return { intencao: 'VER_IMOVEIS', slots: {}, imoveisEncontrados: [], leadsEncontrados: [], temDados: false, fraseOriginal: _f, mNorm: _f.toLowerCase() };
   const mNorm    = semAcento(fraseOriginal);
   const intencao = detectarIntencao(mNorm);

@@ -1,7 +1,7 @@
 {
-  "geradoEm": "2026-05-09T23:35:36.705Z",
+  "geradoEm": "2026-05-10T00:21:14.480Z",
   "server": {
-    "totalRotas": 83,
+    "totalRotas": 87,
     "rotas": [
       {
         "metodo": "GET",
@@ -22,6 +22,10 @@
       {
         "metodo": "POST",
         "rota": "/app/leads"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/leads/manual"
       },
       {
         "metodo": "GET",
@@ -285,6 +289,18 @@
       },
       {
         "metodo": "GET",
+        "rota": "/admin/zerar-visitas/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/zerar-notificacoes/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/zerar-tudo/:userId"
+      },
+      {
+        "metodo": "GET",
         "rota": "/cliente/visita/:visitaId/confirmar"
       },
       {
@@ -339,9 +355,9 @@
     "jsonsUsados": [
       "imoveis.json",
       "users.json",
+      "data.json",
       "portais.json",
       "leads.json",
-      "data.json",
       "./imoveis.json",
       "visitas.json",
       "notificacoes.json"
@@ -437,6 +453,7 @@
       "fetches": [
         "/app/assistente/feedback",
         "/app/assistente/chat",
+        "/app/leads/manual",
         "/app/importar",
         "/app/assistente/upload"
       ],
@@ -454,7 +471,9 @@
         "enviarFeedback(true,this)",
         "enviarFeedback(false,this)"
       ],
-      "links": []
+      "links": [
+        "/app/leads"
+      ]
     },
     "app-cadastro": {
       "textos": [
@@ -1761,7 +1780,7 @@
     "totalViews": 32,
     "totalCampos": 85,
     "totalBotoes": 87,
-    "totalLinks": 40,
+    "totalLinks": 41,
     "totalModulosCerebro": 28,
     "totalLinhasCerebro": 3948
   }

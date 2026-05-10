@@ -196,6 +196,46 @@ app.post('/app/leads', upload.any(), async (req, res) => {
   }
 });
 
+// CADASTRAR LEAD MANUAL (pelo chat ou formulário)
+app.post("/app/leads/manual", auth, (req, res) => {
+try {
+const fs = require("fs");
+const { nome, contato, tipo, bairro, cidade, estado, valor_imovel, quartos, suites, vagas, area_m2, tipo_operacao } = req.body;
+if (!nome || !contato) return res.json({ ok: false, erro: "Nome e contato são obrigatórios" });
+const data = fs.existsSync(dataPath("data.json")) ? JSON.parse(fs.readFileSync(dataPath("data.json"), "utf8")) : [];
+const userId = req.session.user.id;
+const novoLead = {
+nome: nome.trim(),
+contato: String(contato).replace(/\D/g,""),
+tipo: tipo || "",
+tipo_operacao: tipo_operacao || "",
+bairro: bairro || "",
+cidade: cidade || "",
+estado: estado || "",
+valor_imovel: Number(valor_imovel) || 0,
+quartos: Number(quartos) || 0,
+suites: Number(suites) || 0,
+vagas: Number(vagas) || 0,
+area_m2: Number(area_m2) || 0,
+id: Date.now().toString(),
+createdAt: new Date().toISOString(),
+userId,
+usuarioId: userId,
+corretorId: userId,
+matchCount: 0,
+matchesBase: [],
+matchCountBase: 0,
+indisponivel: false,
+status: "ok"
+};
+data.push(novoLead);
+fs.writeFileSync(dataPath("data.json"), JSON.stringify(data, null, 2));
+res.json({ ok: true, lead: novoLead });
+} catch(e) {
+res.json({ ok: false, erro: e.message });
+}
+});
+
 //
 ////app.get('/app/portais', (req,res)=>{
 //  const portais = JSON.parse(require('fs').readFileSync('portais.json','utf8'));
@@ -2560,6 +2600,38 @@ app.get('/admin/zerar-visitas-notificacoes-temp', (req, res) => {
   fs.writeFileSync(dataPath('visitas.json'), '[]');
   fs.writeFileSync(dataPath('notificacoes.json'), '[]');
   res.send('✅ Visitas e notificações zeradas no disco persistente!');
+});
+
+// ADMIN — Zerar visitas por userId
+app.get("/admin/zerar-visitas/:userId", (req, res) => {
+const { userId } = req.params;
+const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"), "utf8")) : [];
+const restantes = visitas.filter(v => v.userId !== userId);
+const removidas = visitas.length - restantes.length;
+fs.writeFileSync(dataPath("visitas.json"), JSON.stringify(restantes, null, 2));
+res.send("✅ " + removidas + " visita(s) removidas para userId: " + userId);
+});
+
+// ADMIN — Zerar notificações por userId
+app.get("/admin/zerar-notificacoes/:userId", (req, res) => {
+const { userId } = req.params;
+const notifs = fs.existsSync(dataPath("notificacoes.json")) ? JSON.parse(fs.readFileSync(dataPath("notificacoes.json"), "utf8")) : [];
+const restantes = notifs.filter(n => n.usuarioId !== userId);
+const removidas = notifs.length - restantes.length;
+fs.writeFileSync(dataPath("notificacoes.json"), JSON.stringify(restantes, null, 2));
+res.send("✅ " + removidas + " notificacao(oes) removidas para userId: " + userId);
+});
+
+// ADMIN — Zerar tudo por userId
+app.get("/admin/zerar-tudo/:userId", (req, res) => {
+const { userId } = req.params;
+const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"), "utf8")) : [];
+const notifs = fs.existsSync(dataPath("notificacoes.json")) ? JSON.parse(fs.readFileSync(dataPath("notificacoes.json"), "utf8")) : [];
+const visitasRest = visitas.filter(v => v.userId !== userId);
+const notifsRest = notifs.filter(n => n.usuarioId !== userId);
+fs.writeFileSync(dataPath("visitas.json"), JSON.stringify(visitasRest, null, 2));
+fs.writeFileSync(dataPath("notificacoes.json"), JSON.stringify(notifsRest, null, 2));
+res.send("✅ Zerado para " + userId + ": " + (visitas.length - visitasRest.length) + " visita(s), " + (notifs.length - notifsRest.length) + " notificacao(oes)");
 });
 
 // Página confirmação de presença do lead

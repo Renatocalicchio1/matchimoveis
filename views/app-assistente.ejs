@@ -396,6 +396,34 @@ async function enviarMsg(texto) {
   input.focus();
 }
 
+
+async function cadastrarLeadPeloChat(dados) {
+  showTyping();
+  try {
+    const res = await fetch('/app/leads/manual', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    });
+    const data = await res.json();
+    removeTyping();
+    if (data.ok) {
+      streamMsg('✅ <strong>Lead cadastrado com sucesso!</strong><br><br>' +
+        '👤 <strong>' + data.lead.nome + '</strong><br>' +
+        '📱 ' + data.lead.contato + '<br>' +
+        (data.lead.tipo ? '🏠 ' + data.lead.tipo + '<br>' : '') +
+        (data.lead.bairro ? '📍 ' + data.lead.bairro + '<br>' : '') +
+        (data.lead.valor_imovel ? '💰 R$ ' + data.lead.valor_imovel.toLocaleString('pt-BR') + '<br>' : '') +
+        '<br><a href="/app/leads" style="background:#ff385c;color:white;padding:8px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px">Ver leads →</a>');
+    } else {
+      streamMsg('❌ Erro ao cadastrar: ' + (data.erro || 'Tente novamente.'));
+    }
+  } catch(e) {
+    removeTyping();
+    streamMsg('❌ Erro ao conectar. Tente novamente.');
+  }
+}
+
 async function importarXMLPeloChat(url) {
   addMsg('Importando XML: ' + url, 'user');
   showTyping();

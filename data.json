@@ -46,7 +46,7 @@
     "valor_imovel": 418000,
     "titulo": "",
     "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html",
-    "matchCount": 0,
+    "matchCount": 3,
     "createdAt": "2026-05-06T02:27:14.171Z",
     "userId": "imobiliaria-47991919191",
     "usuarioId": "imobiliaria-47991919191",
@@ -326,7 +326,11 @@
           "status": "vinculado"
         },
         "status": "ativo",
-        "codigoUsuario": "RAN-9191"
+        "codigoUsuario": "RAN-9191",
+        "id": "MI-1778368153959-ZIGW85",
+        "rank": 1,
+        "score": 0,
+        "bestScore": 0
       },
       {
         "idExterno": "CAPRAFA122",
@@ -391,7 +395,11 @@
           "status": "vinculado"
         },
         "status": "ativo",
-        "codigoUsuario": "RAN-9191"
+        "codigoUsuario": "RAN-9191",
+        "id": "MI-1778368153959-KAPZQC",
+        "rank": 2,
+        "score": 0,
+        "bestScore": 0
       },
       {
         "idExterno": "CAPRAFA121",
@@ -457,7 +465,11 @@
           "status": "vinculado"
         },
         "status": "ativo",
-        "codigoUsuario": "RAN-9191"
+        "codigoUsuario": "RAN-9191",
+        "id": "MI-1778368153959-VVDHJC",
+        "rank": 3,
+        "score": 0,
+        "bestScore": 0
       }
     ],
     "historicoImoveis": [
@@ -516,7 +528,18 @@
     ],
     "matchQuintoAndarStatus": "ok",
     "matchQuintoAndarAt": "2026-05-06T13:32:55.165Z",
-    "status": "ok"
+    "status": "ok",
+    "historico": [
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-10T01:01:14.196Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-10T01:02:47.612Z"
+      }
+    ],
+    "bestScore": 0
   },
   {
     "nome": "Adriana",
@@ -47013,5 +47036,109 @@
     "data_cadastro_br": "08/05/2026, 00:28:33",
     "matches": [],
     "matchCount": 0
+  },
+  {
+    "nome": "João Silva",
+    "contato": "47999991234",
+    "tipo": "Apartamento",
+    "tipo_operacao": "",
+    "bairro": "Itajaí",
+    "cidade": "",
+    "estado": "",
+    "valor_imovel": 0,
+    "quartos": 3,
+    "suites": 0,
+    "vagas": 0,
+    "area_m2": 0,
+    "id": "1778374812460",
+    "createdAt": "2026-05-10T01:00:12.460Z",
+    "userId": "imobiliaria-47991919191",
+    "usuarioId": "imobiliaria-47991919191",
+    "corretorId": "imobiliaria-47991919191",
+    "matchCount": 0,
+    "matchesBase": [],
+    "matchCountBase": 0,
+    "indisponivel": false,
+    "status": "ok"
+  },
+  {
+    "nome": "João Silva",
+    "contato": "47999991234",
+    "tipo": "Apartamento",
+    "tipo_operacao": "",
+    "bairro": "Itajaí",
+    "cidade": "",
+    "estado": "",
+    "valor_imovel": 0,
+    "quartos": 3,
+    "suites": 0,
+    "vagas": 0,
+    "area_m2": 0,
+    "id": "1778374837821",
+    "createdAt": "2026-05-10T01:00:37.821Z",
+    "userId": "imobiliaria-47991919191",
+    "usuarioId": "imobiliaria-47991919191",
+    "corretorId": "imobiliaria-47991919191",
+    "matchCount": 0,
+    "matchesBase": [],
+    "matchCountBase": 0,
+    "indisponivel": false,
+    "status": "ok"
+  },
+  {
+    "nome": "João Silva",
+    "contato": "47999991234",
+    "tipo": "Apartamento",
+    "tipo_operacao": "",
+    "bairro": "Itajaí",
+    "cidade": "",
+    "estado": "",
+    "valor_imovel": 0,
+    "quartos": 3,
+    "suites": 0,
+    "vagas": 0,
+    "area_m2": 0,
+    "id": "1778374952110",
+    "createdAt": "2026-05-10T01:02:32.110Z",
+    "userId": "imobiliaria-47991919191",
+    "usuarioId": "imobiliaria-47991919191",
+    "corretorId": "imobiliaria-47991919191",
+    "matchCount": 0,
+    "matchesBase": [],
+    "matchCountBase": 0,
+    "indisponivel": false,
+    "status": "ok"
+  },
+  {
+    "nome": "João Silva",
+    "contato": "47999991234",
+    "tipo": "Apartamento",
+    "tipo_operacao": "",
+    "bairro": "Itajaí",
+    "cidade": "",
+    "estado": "",
+    "valor_imovel": 0,
+    "quartos": 3,
+    "suites": 0,
+    "vagas": 0,
+    "area_m2": 0,
+    "id": "1778375111009",
+    "createdAt": "2026-05-10T01:05:11.009Z",
+    "userId": "imobiliaria-47991919191",
+    "usuarioId": "imobiliaria-47991919191",
+    "corretorId": "imobiliaria-47991919191",
+    "matchCount": 0,
+    "matchesBase": [],
+    "matchCountBase": 0,
+    "indisponivel": false,
+    "status": "ok",
+    "historico": [
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-10T01:05:13.734Z"
+      }
+    ],
+    "matches": [],
+    "bestScore": 0
   }
 ]

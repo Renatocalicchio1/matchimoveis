@@ -368,6 +368,24 @@ async function enviarMsg(texto) {
     });
     const data = await res.json();
     removeTyping();
+
+    // Interceptar ações do cérebro
+    console.log('DEBUG resposta raw:', JSON.stringify(data.resposta));
+    if (data.resposta && data.resposta.trim().includes('ACAO_CADASTRAR_LEAD:')) {
+      try {
+        let jsonStr = data.resposta.trim().split('ACAO_CADASTRAR_LEAD:')[1].trim();
+        // Corta tudo após o fechamento do JSON }
+        const fimJson = jsonStr.indexOf('}');
+        if (fimJson !== -1) jsonStr = jsonStr.substring(0, fimJson + 1);
+        const dados = JSON.parse(jsonStr);
+        streamMsg('📋 Cadastrando lead <strong>' + dados.nome + '</strong>...');
+        await cadastrarLeadPeloChat(dados);
+      } catch(e) {
+        streamMsg('❌ Erro ao processar cadastro: ' + e.message);
+      }
+      return;
+    }
+
     streamMsg(data.resposta);
     setTimeout(() => addFeedback(msg, data.resposta), 200);
 
@@ -414,7 +432,7 @@ async function cadastrarLeadPeloChat(dados) {
         (data.lead.tipo ? '🏠 ' + data.lead.tipo + '<br>' : '') +
         (data.lead.bairro ? '📍 ' + data.lead.bairro + '<br>' : '') +
         (data.lead.valor_imovel ? '💰 R$ ' + data.lead.valor_imovel.toLocaleString('pt-BR') + '<br>' : '') +
-        '<br><a href="/app/leads" style="background:#ff385c;color:white;padding:8px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px">Ver leads →</a>');
+        '<br><a href="/app/lead/' + data.lead.id + '" style="background:#ff385c;color:white;padding:8px 18px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px">Ver lead →</a>');
     } else {
       streamMsg('❌ Erro ao cadastrar: ' + (data.erro || 'Tente novamente.'));
     }

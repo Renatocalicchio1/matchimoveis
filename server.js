@@ -200,7 +200,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 app.post("/app/leads/manual", auth, (req, res) => {
 try {
 const fs = require("fs");
-const { nome, contato, tipo, bairro, cidade, estado, valor_imovel, quartos, suites, vagas, area_m2, tipo_operacao } = req.body;
+const { nome, tipo, bairro, cidade, estado, valor_imovel, quartos, suites, vagas, area_m2, tipo_operacao } = req.body; const contato = req.body.contato || req.body.celular;
 if (!nome || !contato) return res.json({ ok: false, erro: "Nome e contato são obrigatórios" });
 const data = fs.existsSync(dataPath("data.json")) ? JSON.parse(fs.readFileSync(dataPath("data.json"), "utf8")) : [];
 const userId = req.session.user.id;
@@ -226,7 +226,7 @@ matchCount: 0,
 matchesBase: [],
 matchCountBase: 0,
 indisponivel: false,
-status: "ok"
+status: "novo"
 };
 data.push(novoLead);
 fs.writeFileSync(dataPath("data.json"), JSON.stringify(data, null, 2));

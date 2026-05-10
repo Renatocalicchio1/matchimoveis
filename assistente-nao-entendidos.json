@@ -93,12 +93,12 @@
     },
     {
       "exemplo": "quais campos a planilha precisa?",
-      "count": 54,
+      "count": 55,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:31:09.850Z",
-      "ultima": "2026-05-10T00:15:31.141Z",
+      "ultima": "2026-05-10T00:41:44.539Z",
       "sugerido": true
     },
     {
@@ -143,12 +143,12 @@
     },
     {
       "exemplo": "ver portias",
-      "count": 55,
+      "count": 56,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:31:10.349Z",
-      "ultima": "2026-05-10T00:15:31.540Z",
+      "ultima": "2026-05-10T00:41:44.929Z",
       "sugerido": true
     },
     {
@@ -223,62 +223,62 @@
     },
     {
       "exemplo": "meu relatorrio",
-      "count": 46,
+      "count": 47,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:32:21.674Z",
-      "ultima": "2026-05-10T00:15:31.594Z",
+      "ultima": "2026-05-10T00:41:44.981Z",
       "sugerido": true
     },
     {
       "exemplo": "link do cliente",
-      "count": 46,
+      "count": 47,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:21.977Z",
-      "ultima": "2026-05-10T00:15:31.859Z",
+      "ultima": "2026-05-10T00:41:45.248Z",
       "sugerido": true
     },
     {
       "exemplo": "manda follow-up",
-      "count": 46,
+      "count": 47,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:22.066Z",
-      "ultima": "2026-05-10T00:15:31.929Z",
+      "ultima": "2026-05-10T00:41:45.329Z",
       "sugerido": true
     },
     {
       "exemplo": "como começo?",
-      "count": 11,
+      "count": 12,
       "usuarios": [
         "corretor-iniciante-001"
       ],
       "primeira": "2026-05-09T01:59:19.177Z",
-      "ultima": "2026-05-09T23:41:42.813Z",
+      "ultima": "2026-05-10T00:41:44.219Z",
       "sugerido": true
     },
     {
       "exemplo": "a extração falhou",
-      "count": 11,
+      "count": 12,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.486Z",
-      "ultima": "2026-05-09T23:41:43.128Z",
+      "ultima": "2026-05-10T00:41:44.520Z",
       "sugerido": true
     },
     {
       "exemplo": "como adicionar fotos?",
-      "count": 11,
+      "count": 12,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.556Z",
-      "ultima": "2026-05-09T23:41:43.196Z",
+      "ultima": "2026-05-10T00:41:44.592Z",
       "sugerido": true
     }
   ],
@@ -3860,6 +3860,52 @@
       ],
       "primeira": "2026-05-09T23:29:32.671Z",
       "ultima": "2026-05-09T23:29:32.671Z"
+    },
+    {
+      "pergunta": "\"cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí até 600k\"",
+      "count": 11,
+      "respostas": [
+        {
+          "texto": "🔍 5 lead(s) encontrada(s):• Joao carlos Giannoni — Jardim São Ricardo  • Joao — Cerqueira César Apartamento • Joao — Vila Mariana Casa • joao vitor o",
+          "dominio": "imoveis",
+          "data": "2026-05-10T00:30:07.619Z"
+        },
+        {
+          "texto": "🔍 5 lead(s) encontrada(s):• Joao carlos Giannoni — Jardim São Ricardo  • Joao — Cerqueira César Apartamento • Joao — Vila Mariana Casa • joao vitor o",
+          "dominio": "imoveis",
+          "data": "2026-05-10T00:32:09.153Z"
+        },
+        {
+          "texto": "ACAO_CADASTRAR_LEAD:{\"nome\":\"João Silva\",\"celular\":\"47999991234\",\"tipo\":\"Apartamento\",\"quartos\":3,\"valor_imovel\":null,\"bairro\":\"Itajaí\"}Meus imóveisIm",
+          "dominio": "imoveis",
+          "data": "2026-05-10T00:46:47.174Z"
+        },
+        {
+          "texto": "ACAO_CADASTRAR_LEAD:{\"nome\":\"João Silva\",\"celular\":\"47999991234\",\"tipo\":\"Apartamento\",\"quartos\":3,\"valor_imovel\":null,\"bairro\":\"Itajaí\"}Meus imóveisIm",
+          "dominio": "imoveis",
+          "data": "2026-05-10T00:52:00.740Z"
+        },
+        {
+          "texto": "ACAO_CADASTRAR_LEAD:{\"nome\":\"João Silva\",\"celular\":\"47999991234\",\"tipo\":\"Apartamento\",\"quartos\":3,\"valor_imovel\":null,\"bairro\":\"Itajaí\"}",
+          "dominio": "imoveis",
+          "data": "2026-05-10T00:54:43.187Z"
+        }
+      ],
+      "primeira": "2026-05-10T00:30:07.619Z",
+      "ultima": "2026-05-10T01:05:10.977Z"
+    },
+    {
+      "pergunta": "cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí\"",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🔍 5 lead(s) encontrada(s):• Joao carlos Giannoni — Jardim São Ricardo  • Joao — Cerqueira César Apartamento • Joao — Vila Mariana Casa • joao vitor o",
+          "dominio": "imoveis",
+          "data": "2026-05-10T00:40:21.125Z"
+        }
+      ],
+      "primeira": "2026-05-10T00:40:21.125Z",
+      "ultima": "2026-05-10T00:40:21.125Z"
     }
   ]
 }

@@ -3,7 +3,7 @@ const rag = require('./rag');
 const semAcento = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const INTENCOES = {
   BUSCAR_IMOVEL:  /tenho (um )?cliente|cliente (quer|procura|busca|precisa|esta procurando)|alguem (quer|procura)|procurando (um |uma )?(apto|apartamento|casa|imovel)|tem (apto|apartamento|casa)|quero ver|mostrar imoveis|buscar imoveis|imoveis (no|na|em|do|da)/,
-  CADASTRAR_LEAD: /cadastrar (lead|cliente)|novo (lead|cliente)|criar (lead|cliente)|adicionar (lead|cliente)|novo atendimento/,
+  CADASTRAR_LEAD: /cadastra(r)? (lead|cliente|o lead|o cliente)|novo (lead|cliente|interessado)|adiciona(r)? (lead|cliente)|criar (lead|cliente)|anota(r)? (lead|cliente)|salva(r)? (lead|cliente)|novo atendimento/,
   CRIAR_VISITA:   /agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para/,
   INFORMAR:       /acabei de|acabou de|ja (vendeu|vendemos|fechou|fechamos|foi vendido)|nao esta mais|imovel vendido|ja tem proposta/,
   FOLLOW_UP:      /follow.?up|retornar para|ligar para|mandar (mensagem|whatsapp|zap)|entrar em contato|cliente nao (respondeu|retornou)/,
@@ -89,6 +89,45 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
   }
 
   // ── IMPORTAR XML ────────────────────────────────────────────────────────────
+  // ── CADASTRAR LEAD ──────────────────────────────────────────────────────────
+  if (intencao === 'CADASTRAR_LEAD') {
+    const frase = ctx.fraseOriginal;
+    // Extrai nome
+    const nomeMatch = frase.match(/(?:lead|cliente)[:\s]+([A-ZÀ-Úa-zà-ú][a-zà-ú]+(?:\s+[A-ZÀ-Úa-zà-ú][a-zà-ú]+)*)/i)
+      || frase.match(/cadastra\s+([A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)*)/i);
+    const nome = nomeMatch ? nomeMatch[1].trim() : null;
+    // Extrai celular
+    const celularMatch = frase.match(/(\(?\d{2}\)?\s?\d{4,5}[-\s]?\d{4})/);
+    const celular = celularMatch ? celularMatch[1].replace(/\D/g,'') : null;
+    // Extrai tipo
+    const tipoMatch = frase.match(/\b(apto|apartamento|casa|terreno|comercial|cobertura|studio|kitnet)\b/i);
+    const tipo = tipoMatch ? (tipoMatch[1].toLowerCase()==='apto'?'Apartamento': tipoMatch[1].charAt(0).toUpperCase()+tipoMatch[1].slice(1)) : '';
+    // Extrai quartos
+    const quartosMatch = frase.match(/(\d+)\s*(?:q(?:uartos?)?|dorm)/i);
+    const quartos = quartosMatch ? Number(quartosMatch[1]) : 0;
+    // Extrai valor
+    const valorMatch = frase.match(/(?:ate|até|por|valor)?\s*R?\$?\s*([\d.,]+)\s*(mil|k|m)?/i);
+    let valor = 0;
+    if (valorMatch) {
+      let v = parseFloat(valorMatch[1].replace(/\./g,'').replace(',','.'));
+      const suf = (valorMatch[2]||'').toLowerCase();
+      if (suf==='mil'||suf==='k') v*=1000;
+      if (suf==='m') v*=1000000;
+      valor = v;
+    }
+    // Extrai bairro
+    const bairroMatch = frase.match(/\b(?:em|no|na|bairro)\s+([A-ZÀ-Úa-zà-ú][a-zà-ú]+(?:\s+[A-ZÀ-Úa-zà-ú][a-zà-ú]+){0,2})/i);
+    const bairro = bairroMatch ? bairroMatch[1].trim() : '';
+
+    if (nome && celular) {
+      return 'ACAO_CADASTRAR_LEAD:' + JSON.stringify({ nome, celular, tipo, quartos, valor_imovel: valor, bairro });
+    }
+    if (nome && !celular) {
+      return '📋 Entendido! Quer cadastrar <strong>' + nome + '</strong>.<br><br>Qual o celular do cliente?';
+    }
+    return '📋 <strong>Cadastrar novo lead:</strong><br><br>Me passa nome e celular do cliente.<br><br>💡 Exemplo: <em>"cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí até 600k"</em>';
+  }
+
   if (intencao === 'IMPORTAR_XML') {
     // Extrair URL da mensagem se tiver
     const urlMatch = ctx.fraseOriginal.match(/https?:\/\/\S+/);
@@ -166,7 +205,7 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
   }
 
 
-  if (intencao === 'CADASTRAR_LEAD') return '\uD83D\uDC64 Cadastrar lead'+(slots.nomeCliente?' - '+slots.nomeCliente:'')+(filtros?'<br><span style="font-size:12px;color:#888">'+filtros+'</span>':'')+'<br><br>'+btn('Cadastrar lead','/app/leads');
+  // CADASTRAR_LEAD tratado no bloco principal acima
   if (intencao === 'CRIAR_VISITA')   return '\uD83D\uDCC5 Agendar visita'+(slots.nomeCliente?' para '+slots.nomeCliente:'')+'<br><br>'+btn('Ver visitas','/app/visitas')+chip('Visitas pendentes','visitas pendentes');
   if (intencao === 'FOLLOW_UP') {
     const frios = leads.filter(l => { const dias=(Date.now()-new Date(l.dataCriacao||l.createdAt||Date.now()))/86400000; return dias>3&&(!l.visitas||!l.visitas.length); });

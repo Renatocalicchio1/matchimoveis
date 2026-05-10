@@ -1,11 +1,11 @@
 {
-  "rodada": 28,
-  "geradoEm": "2026-05-10T00:15:31.936Z",
-  "cobertura": 89,
-  "tempoMedio": 7,
+  "rodada": 21,
+  "geradoEm": "2026-05-10T00:59:54.469Z",
+  "cobertura": 100,
+  "tempoMedio": 9,
   "total": 100,
-  "ok": 89,
-  "naoEntendeu": 11,
+  "ok": 100,
+  "naoEntendeu": 0,
   "falhou": 0,
   "porPerfil": {
     "iniciante": {
@@ -14,23 +14,23 @@
       "falhou": 0
     },
     "experiente": {
-      "ok": 18,
-      "naoEntendeu": 1,
+      "ok": 19,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "tecnico": {
-      "ok": 11,
-      "naoEntendeu": 2,
+      "ok": 13,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "analista": {
-      "ok": 11,
-      "naoEntendeu": 2,
+      "ok": 13,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "digitacao_ruim": {
-      "ok": 15,
-      "naoEntendeu": 3,
+      "ok": 18,
+      "naoEntendeu": 0,
       "falhou": 0
     },
     "busca_ativa": {
@@ -39,82 +39,37 @@
       "falhou": 0
     },
     "suporte": {
-      "ok": 7,
-      "naoEntendeu": 3,
+      "ok": 10,
+      "naoEntendeu": 0,
       "falhou": 0
     }
   },
   "falhas": [],
-  "naoEntendidas": [
-    {
-      "perfil": "experiente",
-      "pergunta": "ver portais"
-    },
-    {
-      "perfil": "tecnico",
-      "pergunta": "quais campos a planilha precisa?"
-    },
-    {
-      "perfil": "tecnico",
-      "pergunta": "xml não saiu no vivareal"
-    },
-    {
-      "perfil": "analista",
-      "pergunta": "tipo mais buscado"
-    },
-    {
-      "perfil": "analista",
-      "pergunta": "quartos mais pedidos"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "subir xml"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "ver portias"
-    },
-    {
-      "perfil": "digitacao_ruim",
-      "pergunta": "meu relatorrio"
-    },
-    {
-      "perfil": "suporte",
-      "pergunta": "enviar vitrine para cliente"
-    },
-    {
-      "perfil": "suporte",
-      "pergunta": "link do cliente"
-    },
-    {
-      "perfil": "suporte",
-      "pergunta": "manda follow-up"
-    }
-  ],
+  "naoEntendidas": [],
   "pesos": {
-    "raiz": 195.99999999999315,
-    "urgencia": 112,
-    "onboarding": 28,
-    "rag": 22.40000000000005,
-    "busca_imoveis": 224,
+    "raiz": 155.39999999999546,
+    "urgencia": 84,
+    "onboarding": 63,
+    "rag": 16.79999999999997,
+    "busca_imoveis": 168,
     "busca_leads": 0,
     "estrategia": 0,
     "relatorio": 0,
     "acoes": 0,
     "precisa_match": 0,
-    "dominios": 128.79999999999697,
-    "leads": 280,
-    "imoveis": 252,
-    "visitas": 168,
-    "match": 140,
-    "portais": 28,
-    "mercado": 84,
-    "sistema": 112,
-    "coins": 56,
-    "notificacoes": 28,
-    "dashboard": 140,
+    "dominios": 123.89999999999723,
+    "leads": 210,
+    "imoveis": 168,
+    "visitas": 147,
+    "match": 126,
+    "portais": 126,
+    "mercado": 147,
+    "sistema": 126,
+    "coins": 42,
+    "notificacoes": 21,
+    "dashboard": 126,
     "contexto_conversa": 0,
     "saudacao": 0,
-    "nao_entendeu": 308
+    "nao_entendeu": 0
   }
 }

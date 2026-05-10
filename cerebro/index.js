@@ -108,12 +108,23 @@ function proximoPasso(dominio, d, leads, imoveis, visitas) {
 }
 
 // ── RESPONDER ─────────────────────────────────────────────────────────────────
-function responder(mensagem, d, user, imoveis, leads, visitas, contexto) {
+function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
   const uid    = user.id || user.userId || 'anon';
   const mNorm  = nlp.normalizar(mensagem);
   const perfil = memoria.atualizarPerfil(uid, {d,user,imoveis,leads});
   const hist   = memoria.historicoPorUsuario(uid, 8);
   const dominio = nlp.detectarDominio(mNorm);
+  // Prioridade: cadastrar lead antes do intencao.detectar
+  if (/^cadastra(r)?\s/i.test(mensagem.trim())) {
+    try {
+      const ctx = contexto.analisar(mensagem, imoveis, leads, visitas);
+      if (ctx && ctx.intencao === 'CADASTRAR_LEAD') {
+        const resCtx = contexto.responder(ctx, d, user, imoveis, leads, visitas, btn, chip);
+        if (resCtx) return finalizar(resCtx);
+      }
+    } catch(e) { console.error('cadastrar lead err:', e.message); }
+  }
+
   const intencaoObj = intencao.detectar(mNorm);
 
   // Registrar resposta para aprendizado

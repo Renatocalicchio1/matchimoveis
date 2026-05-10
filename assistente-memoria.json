@@ -1107,6 +1107,114 @@
       "pergunta": "cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí",
       "resposta": "ACAO_CADASTRAR_LEAD:{\"nome\":\"João Silva\",\"celular\":\"47999991234\",\"tipo\":\"Apartamento\",\"quartos\":3,\"valor_imovel\":null,\"bairro\":\"Itajaí\"}<br><br>💡 <strong>Próximo passo:</strong> 1353 lead(s) ainda sem match. Verifique se tem imóveis nos bairros certos.<button onclick=\"enviarMsg('demanda por bairro')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Demanda por bairro</button>",
       "data": "2026-05-10T01:05:10.979Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "quero imprtar um xml",
+      "resposta": "🔗 <strong>Portais disponíveis:</strong><br>VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123i<br><br>Gere o XML de cada portal e cadastre o link nas configurações do portal.<br><br><a href=\"/app/portais\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver portais →</a><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ir para imóveis →</a><br><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 VivaReal</button><button onclick=\"enviarMsg('gerar xml zap')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 ZAP</button><button onclick=\"enviarMsg('gerar xml olx')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 OLX</button><button onclick=\"enviarMsg('gerar xml chaves')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 Chaves</button><button onclick=\"enviarMsg('gerar xml imovelweb')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 ImovelWeb</button><button onclick=\"enviarMsg('gerar xml 123i')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 123i</button><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T01:10:33.577Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "quero importar xml",
+      "resposta": "📥 <strong>Importar imóveis via XML:</strong><br><br>⚠️ <strong>Padrão obrigatório: VRSync do VivaReal</strong><br>O sistema aceita apenas feeds no padrão VRSync do VivaReal.<br>A maioria dos CRMs já exporta nesse formato: Tecimob, Rankim, Vista, Jetimob, Kenlo.<br><br>💡 Cole a URL do feed aqui no chat ou acesse a página de cadastro:<br><br><div style=\"background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin:8px 0\">📋 Exemplo de URL válida:<br><code>https://seucrm.com.br/feed-vivareal.xml</code></div><br><a href=\"/app/cadastro\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Importar XML →</a><button onclick=\"enviarMsg('como importar xml')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Como importo</button>",
+      "data": "2026-05-10T01:13:24.866Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gera xml vivareal",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:16:23.036Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gerar xml imovel web",
+      "resposta": "📥 <strong>Importar imóveis via XML:</strong><br><br><div style=\"display:flex;gap:10px;margin:6px 0\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">1</span><span>Exporte o XML do seu CRM (Tecimob, Rankim ou outro).</span></div><div style=\"display:flex;gap:10px;margin:6px 0\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">2</span><span>Acesse <a href=\"/app/imoveis\" style=\"color:#ff385c;font-weight:700\">Imóveis →</a> e clique em <strong>Importar XML</strong>.</span></div><div style=\"display:flex;gap:10px;margin:6px 0\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">3</span><span>Selecione o arquivo <strong>.xml</strong> e clique em Enviar.</span></div><br><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ir para imóveis →</a><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Meus imóveis</button><button onclick=\"enviarMsg('imoveis inativos')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Imóveis inativos</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:16:35.961Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "quando gerar xml tem que mandar ele para a pagina onde fica os xml app/portais",
+      "resposta": "😔 Nenhum imovel encontrado.<br><span style=\"font-size:12px;color:#888\">📍 gerar xml tem que</span><br><br>💡 Quer cadastrar esse cliente como lead?<br><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Cadastrar lead →</a><button onclick=\"enviarMsg('demanda por bairro')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Demanda por bairro</button><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:19:26.403Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gera xml vivareal",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:20:17.375Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gera xml zap",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"zap\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:21:01.539Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gera xml zap",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"zap\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:24:38.040Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gerar xml 123i",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"123i\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Leads</button><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Imóveis</button><button onclick=\"enviarMsg('visitas hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Visitas</button><button onclick=\"enviarMsg('ver match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Match</button></div>",
+      "data": "2026-05-10T02:26:31.079Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gera xml 123i",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"123i\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:28:04.171Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gera xml vivareal",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:30:16.549Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gera xml vivareal",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:31:42.096Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gerar xml todos vivareal",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:31:45.433Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gerar xml todos vivareal",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:31:48.695Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gera xml vivareal",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:33:06.863Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gerar xml todos vivareal",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}",
+      "data": "2026-05-10T02:33:09.883Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gera xml vivareal",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+      "data": "2026-05-10T02:35:40.124Z"
+    },
+    {
+      "userId": "imobiliaria-47991919191",
+      "pergunta": "gerar xml todos vivareal",
+      "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}",
+      "data": "2026-05-10T02:35:43.132Z"
     }
   ],
   "perfis": {
@@ -1145,7 +1253,7 @@
     },
     "corretor-iniciante-001": {
       "nome": "Carlos",
-      "ultimaAtividade": "2026-05-10T00:59:53.193Z",
+      "ultimaAtividade": "2026-05-10T02:15:33.837Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1158,11 +1266,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2496
+      "acessos": 2624
     },
     "corretor-experiente-002": {
       "nome": "Ana",
-      "ultimaAtividade": "2026-05-10T00:59:53.456Z",
+      "ultimaAtividade": "2026-05-10T02:15:34.154Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1175,11 +1283,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2964
+      "acessos": 3116
     },
     "corretor-tecnico-003": {
       "nome": "Roberto",
-      "ultimaAtividade": "2026-05-10T00:59:53.617Z",
+      "ultimaAtividade": "2026-05-10T02:15:34.343Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1192,11 +1300,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2028
+      "acessos": 2132
     },
     "corretor-analista-004": {
       "nome": "Fernanda",
-      "ultimaAtividade": "2026-05-10T00:59:53.836Z",
+      "ultimaAtividade": "2026-05-10T02:15:34.544Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1209,11 +1317,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2028
+      "acessos": 2132
     },
     "corretor-digitacao-005": {
       "nome": "Marcos",
-      "ultimaAtividade": "2026-05-10T00:59:54.103Z",
+      "ultimaAtividade": "2026-05-10T02:15:34.776Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1226,11 +1334,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 2808
+      "acessos": 2952
     },
     "corretor-busca-006": {
       "nome": "Paulo",
-      "ultimaAtividade": "2026-05-10T00:59:54.261Z",
+      "ultimaAtividade": "2026-05-10T02:15:34.942Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1243,11 +1351,11 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1716
+      "acessos": 1804
     },
     "corretor-suporte-007": {
       "nome": "Juliana",
-      "ultimaAtividade": "2026-05-10T00:59:54.408Z",
+      "ultimaAtividade": "2026-05-10T02:15:35.121Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -1260,7 +1368,7 @@
         "Apartamento",
         "Casa"
       ],
-      "acessos": 1560
+      "acessos": 1640
     }
   }
 }

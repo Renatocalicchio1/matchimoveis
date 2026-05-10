@@ -2417,6 +2417,16 @@ function registrarHistoricoImovelLead(lead, tipoEvento, imovel){
   });
 }
 
+
+// Retorna IDs de todos os imóveis ativos do usuário (para gerar XML pelo chat)
+app.get('/app/imoveis-ids', auth, (req, res) => {
+  const todos = fs.existsSync(dataPath('imoveis.json')) ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'), 'utf8')) : [];
+  const filtrados = filtrarPorUsuario(todos, req.session.user);
+  const ativos = filtrados.filter(i => (i.status||'ativo').toLowerCase() === 'ativo');
+  const ids = ativos.map(i => String(i.idExterno || i.id));
+  res.json({ ids, total: ids.length });
+});
+
 app.post('/app/gerar-xml', auth, (req,res)=>{
   const { portal, ids } = req.body;
   const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];

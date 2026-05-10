@@ -82,43 +82,43 @@
     },
     {
       "exemplo": "ver portais",
-      "count": 44,
+      "count": 50,
       "usuarios": [
         "corretor-experiente-002",
         "test"
       ],
       "primeira": "2026-05-09T01:31:09.717Z",
-      "ultima": "2026-05-10T00:15:31.040Z",
+      "ultima": "2026-05-10T02:15:34.115Z",
       "sugerido": true
     },
     {
       "exemplo": "quais campos a planilha precisa?",
-      "count": 55,
+      "count": 62,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:31:09.850Z",
-      "ultima": "2026-05-10T00:41:44.539Z",
+      "ultima": "2026-05-10T02:15:34.225Z",
       "sugerido": true
     },
     {
       "exemplo": "tipo mais buscado",
-      "count": 42,
+      "count": 48,
       "usuarios": [
         "corretor-analista-004"
       ],
       "primeira": "2026-05-09T01:31:10.051Z",
-      "ultima": "2026-05-10T00:15:31.294Z",
+      "ultima": "2026-05-10T02:15:34.433Z",
       "sugerido": true
     },
     {
       "exemplo": "quartos mais pedidos",
-      "count": 42,
+      "count": 48,
       "usuarios": [
         "corretor-analista-004"
       ],
       "primeira": "2026-05-09T01:31:10.084Z",
-      "ultima": "2026-05-10T00:15:31.327Z",
+      "ultima": "2026-05-10T02:15:34.464Z",
       "sugerido": true
     },
     {
@@ -143,12 +143,12 @@
     },
     {
       "exemplo": "ver portias",
-      "count": 56,
+      "count": 63,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:31:10.349Z",
-      "ultima": "2026-05-10T00:41:44.929Z",
+      "ultima": "2026-05-10T02:15:34.664Z",
       "sugerido": true
     },
     {
@@ -183,12 +183,12 @@
     },
     {
       "exemplo": "enviar vitrine para cliente",
-      "count": 44,
+      "count": 50,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:31:10.734Z",
-      "ultima": "2026-05-10T00:15:31.843Z",
+      "ultima": "2026-05-10T02:15:35.008Z",
       "sugerido": true
     },
     {
@@ -203,82 +203,82 @@
     },
     {
       "exemplo": "xml não saiu no vivareal",
-      "count": 35,
+      "count": 41,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:32:21.228Z",
-      "ultima": "2026-05-10T00:15:31.241Z",
+      "ultima": "2026-05-10T02:15:34.350Z",
       "sugerido": true
     },
     {
       "exemplo": "subir xml",
-      "count": 35,
+      "count": 41,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:32:21.482Z",
-      "ultima": "2026-05-10T00:15:31.501Z",
+      "ultima": "2026-05-10T02:15:34.621Z",
       "sugerido": true
     },
     {
       "exemplo": "meu relatorrio",
-      "count": 47,
+      "count": 54,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:32:21.674Z",
-      "ultima": "2026-05-10T00:41:44.981Z",
+      "ultima": "2026-05-10T02:15:34.715Z",
       "sugerido": true
     },
     {
       "exemplo": "link do cliente",
-      "count": 47,
+      "count": 54,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:21.977Z",
-      "ultima": "2026-05-10T00:41:45.248Z",
+      "ultima": "2026-05-10T02:15:35.034Z",
       "sugerido": true
     },
     {
       "exemplo": "manda follow-up",
-      "count": 47,
+      "count": 54,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:22.066Z",
-      "ultima": "2026-05-10T00:41:45.329Z",
+      "ultima": "2026-05-10T02:15:35.126Z",
       "sugerido": true
     },
     {
       "exemplo": "como começo?",
-      "count": 12,
+      "count": 13,
       "usuarios": [
         "corretor-iniciante-001"
       ],
       "primeira": "2026-05-09T01:59:19.177Z",
-      "ultima": "2026-05-10T00:41:44.219Z",
+      "ultima": "2026-05-10T01:41:45.648Z",
       "sugerido": true
     },
     {
       "exemplo": "a extração falhou",
-      "count": 12,
+      "count": 13,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.486Z",
-      "ultima": "2026-05-10T00:41:44.520Z",
+      "ultima": "2026-05-10T01:41:45.977Z",
       "sugerido": true
     },
     {
       "exemplo": "como adicionar fotos?",
-      "count": 12,
+      "count": 13,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.556Z",
-      "ultima": "2026-05-10T00:41:44.592Z",
+      "ultima": "2026-05-10T01:41:46.048Z",
       "sugerido": true
     }
   ],
@@ -1368,16 +1368,26 @@
     },
     {
       "pergunta": "gerar xml vivareal",
-      "count": 10,
+      "count": 14,
       "respostas": [
         {
           "texto": "🔗 Para qual portal gerar o XML?🔗 VivaReal🔗 ZAP🔗 OLX🔗 Chaves🔗 ImovelWeb🔗 123iVer portaisGerar XML",
           "dominio": "portais",
           "data": "2026-05-08T21:06:22.149Z"
+        },
+        {
+          "texto": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}Ver portaisGerar XML",
+          "dominio": "portais",
+          "data": "2026-05-10T02:31:45.431Z"
+        },
+        {
+          "texto": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}",
+          "dominio": "portais",
+          "data": "2026-05-10T02:33:09.882Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.149Z",
-      "ultima": "2026-05-09T23:29:33.006Z"
+      "ultima": "2026-05-10T02:35:43.130Z"
     },
     {
       "pergunta": "ver portais",
@@ -3612,16 +3622,21 @@
     },
     {
       "pergunta": "importar xml",
-      "count": 1,
+      "count": 2,
       "respostas": [
         {
           "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
           "dominio": "portais",
           "data": "2026-05-09T21:42:26.394Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "portais",
+          "data": "2026-05-10T01:13:24.864Z"
         }
       ],
       "primeira": "2026-05-09T21:42:26.394Z",
-      "ultima": "2026-05-09T21:42:26.394Z"
+      "ultima": "2026-05-10T01:13:24.864Z"
     },
     {
       "pergunta": "fazer match",
@@ -3906,6 +3921,97 @@
       ],
       "primeira": "2026-05-10T00:40:21.125Z",
       "ultima": "2026-05-10T00:40:21.125Z"
+    },
+    {
+      "pergunta": "quero imprtar um xml",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
+          "dominio": "portais",
+          "data": "2026-05-10T01:10:33.575Z"
+        }
+      ],
+      "primeira": "2026-05-10T01:10:33.575Z",
+      "ultima": "2026-05-10T01:10:33.575Z"
+    },
+    {
+      "pergunta": "gera xml vivareal",
+      "count": 6,
+      "respostas": [
+        {
+          "texto": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}Ver portaisGerar XML",
+          "dominio": "portais",
+          "data": "2026-05-10T02:16:23.034Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:16:23.035Z",
+      "ultima": "2026-05-10T02:35:40.122Z"
+    },
+    {
+      "pergunta": "gerar xml imovel web",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "📥 Importar imóveis via XML:1Exporte o XML do seu CRM (Tecimob, Rankim ou outro).2Acesse Imóveis → e clique em Importar XML.3Selecione o arquivo .xml ",
+          "dominio": "portais",
+          "data": "2026-05-10T02:16:35.959Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:16:35.959Z",
+      "ultima": "2026-05-10T02:16:35.959Z"
+    },
+    {
+      "pergunta": "quando gerar xml tem que mandar ele para a pagina onde fica os xml app/portais",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "😔 Nenhum imovel encontrado.📍 gerar xml tem que💡 Quer cadastrar esse cliente como lead?Cadastrar lead →Demanda por bairroVer portaisGerar XML",
+          "dominio": "portais",
+          "data": "2026-05-10T02:19:26.400Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:19:26.400Z",
+      "ultima": "2026-05-10T02:19:26.400Z"
+    },
+    {
+      "pergunta": "gera xml zap",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "ACAO_GERAR_XML:{\"portal\":\"zap\"}Ver portaisGerar XML",
+          "dominio": "portais",
+          "data": "2026-05-10T02:21:01.538Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:21:01.538Z",
+      "ultima": "2026-05-10T02:24:38.039Z"
+    },
+    {
+      "pergunta": "gerar xml 123i",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "ACAO_GERAR_XML:{\"portal\":\"123i\"}LeadsImóveisVisitasMatch",
+          "dominio": null,
+          "data": "2026-05-10T02:26:31.077Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:26:31.077Z",
+      "ultima": "2026-05-10T02:26:31.077Z"
+    },
+    {
+      "pergunta": "gera xml 123i",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "ACAO_GERAR_XML:{\"portal\":\"123i\"}Ver portaisGerar XML",
+          "dominio": "portais",
+          "data": "2026-05-10T02:28:04.169Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:28:04.169Z",
+      "ultima": "2026-05-10T02:28:04.169Z"
     }
   ]
 }

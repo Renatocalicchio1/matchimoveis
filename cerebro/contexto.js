@@ -8,6 +8,7 @@ const INTENCOES = {
   INFORMAR:       /acabei de|acabou de|ja (vendeu|vendemos|fechou|fechamos|foi vendido)|nao esta mais|imovel vendido|ja tem proposta/,
   FOLLOW_UP:      /follow.?up|retornar para|ligar para|mandar (mensagem|whatsapp|zap)|entrar em contato|cliente nao (respondeu|retornou)/,
   IMPORTAR_XML:    /importa(r)? (o |um )?xml|importa(r)? (os )?imoveis?|trazer imoveis?|subir xml|url do feed|trazer do (crm|tecimob|rankim|vista|jetimob|kenlo)|puxar imoveis?|trazer para (o |a )?match|cole a url/,
+  GERAR_XML_TODOS: /gerar xml todos|xml todos|todos os imoveis.*xml|xml.*todos/,
   EXPORTAR_XML:    /exporta(r)? xml|gerar xml para|xml (do |para o )?(vivareal|zap|olx|chaves|imovelweb|123i)|publicar (no |no portal|para o portal)|enviar xml para portal|subir (no|para o) (vivareal|zap|olx)/,
   CADASTRAR_IMOVEL:/cadastra(r)? (um |o )?imovel|novo imovel|adicionar imovel|criar imovel|registrar imovel/,
   AVISAR_PROP:    /avisar (o |a )?proprietario|notificar (o |a )?proprietario|falar com (o |a )?proprietario/,
@@ -126,6 +127,36 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
       return '📋 Entendido! Quer cadastrar <strong>' + nome + '</strong>.<br><br>Qual o celular do cliente?';
     }
     return '📋 <strong>Cadastrar novo lead:</strong><br><br>Me passa nome e celular do cliente.<br><br>💡 Exemplo: <em>"cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí até 600k"</em>';
+  }
+
+
+  // ── GERAR XML ───────────────────────────────────────────────────────────────
+
+  if (intencao === 'GERAR_XML_TODOS') {
+    const frase = ctx.fraseOriginal.toLowerCase();
+    const portaisMap = { vivareal: 'vivareal', zap: 'zap', olx: 'olx', imovelweb: 'imovelweb', chaves: 'chaves', '123i': '123i' };
+    const portalEncontrado = Object.keys(portaisMap).find(p => frase.includes(p)) || window?._portalPendente;
+    const portal = portalEncontrado ? portaisMap[portalEncontrado] || portalEncontrado : null;
+    if (portal) return 'ACAO_GERAR_XML:' + JSON.stringify({ portal });
+    return '🔗 Para qual portal? ' + Object.keys(portaisMap).map(p => chip(p, 'gerar xml ' + p)).join(' ');
+  }
+
+  if (intencao === 'EXPORTAR_XML') {
+    const frase = ctx.fraseOriginal.toLowerCase();
+    const portaisMap = { vivareal: 'vivareal', zap: 'zap', olx: 'olx', imovelweb: 'imovelweb', 'imovel web': 'imovelweb', chaves: 'chaves', '123i': '123i' };
+    const portalEncontrado = Object.keys(portaisMap).find(p => frase.includes(p));
+
+    if (!portalEncontrado) {
+      return '🔗 <strong>Gerar XML — para qual portal?</strong><br><br>' +
+        chip('VivaReal','gerar xml vivareal') +
+        chip('ZAP','gerar xml zap') +
+        chip('OLX','gerar xml olx') +
+        chip('ImovelWeb','gerar xml imovelweb') +
+        chip('Chaves na Mão','gerar xml chaves') +
+        chip('123i','gerar xml 123i');
+    }
+
+    return 'ACAO_GERAR_XML:' + JSON.stringify({ portal: portaisMap[portalEncontrado] });
   }
 
   if (intencao === 'IMPORTAR_XML') {

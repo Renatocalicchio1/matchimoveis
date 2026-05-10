@@ -66,8 +66,8 @@ function buscarImoveis(mNorm, imoveis, bairrosDisponiveis) {
   if (slots.tipo)     resultado = resultado.filter(i => i.tipo && i.tipo.toLowerCase().includes(slots.tipo));
   if (slots.bairro)   resultado = resultado.filter(i => i.bairro && i.bairro.toLowerCase().includes(slots.bairro.toLowerCase()));
   if (slots.quartos)  resultado = resultado.filter(i => i.quartos && parseInt(i.quartos) >= slots.quartos);
-  if (slots.valorMax) resultado = resultado.filter(i => i.valor && parseFloat(i.valor) <= slots.valorMax);
-  if (slots.valorMin) resultado = resultado.filter(i => i.valor && parseFloat(i.valor) >= slots.valorMin);
+  if (slots.valorMax) resultado = resultado.filter(i => i.valor_imovel && parseFloat(i.valor_imovel) <= slots.valorMax);
+  if (slots.valorMin) resultado = resultado.filter(i => i.valor_imovel && parseFloat(i.valor_imovel) >= slots.valorMin);
   if (slots.vagas)    resultado = resultado.filter(i => i.vagas && parseInt(i.vagas) >= slots.vagas);
   if (slots.suites)   resultado = resultado.filter(i => i.suites && parseInt(i.suites) >= slots.suites);
 
@@ -113,10 +113,11 @@ function formatarBuscaImoveis(busca, btn) {
     return `🔍 Nenhum imóvel encontrado para: <strong>${filtrosAplicados}</strong><br><br>${btn('Ver todos os imóveis','/app/imoveis')}`;
 
   const lista = resultado.slice(0,5).map(i => {
-    const val = i.valor ? ` · R$${Number(i.valor).toLocaleString('pt-BR')}` : '';
+    const val = i.valor_imovel ? ` · R$${Number(i.valor_imovel).toLocaleString('pt-BR')}` : '';
     const qts = i.quartos ? ` · ${i.quartos}q` : '';
     const vg  = i.vagas ? ` · ${i.vagas}vg` : '';
-    return `• <strong>${i.tipo||'Imóvel'}</strong>${qts}${vg} — ${i.bairro||''}${val}`;
+    const linkId = i.id || ('MI-' + i.idExterno);
+    return `• <a href="/app/imovel/${linkId}" target="_blank" style="color:#ff385c;font-weight:700">${i.tipo||'Imóvel'} ${i.bairro||''}</a>${qts}${vg}${val}`;
   }).join('<br>');
 
   return `🔍 <strong>${resultado.length} imóvel(is)</strong> encontrado(s) para: <em>${filtrosAplicados}</em><br><br>${lista}`+

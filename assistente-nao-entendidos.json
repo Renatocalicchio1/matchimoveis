@@ -82,43 +82,43 @@
     },
     {
       "exemplo": "ver portais",
-      "count": 50,
+      "count": 53,
       "usuarios": [
         "corretor-experiente-002",
         "test"
       ],
       "primeira": "2026-05-09T01:31:09.717Z",
-      "ultima": "2026-05-10T02:15:34.115Z",
+      "ultima": "2026-05-10T03:15:35.675Z",
       "sugerido": true
     },
     {
       "exemplo": "quais campos a planilha precisa?",
-      "count": 62,
+      "count": 66,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:31:09.850Z",
-      "ultima": "2026-05-10T02:15:34.225Z",
+      "ultima": "2026-05-10T03:15:35.791Z",
       "sugerido": true
     },
     {
       "exemplo": "tipo mais buscado",
-      "count": 48,
+      "count": 51,
       "usuarios": [
         "corretor-analista-004"
       ],
       "primeira": "2026-05-09T01:31:10.051Z",
-      "ultima": "2026-05-10T02:15:34.433Z",
+      "ultima": "2026-05-10T03:15:35.966Z",
       "sugerido": true
     },
     {
       "exemplo": "quartos mais pedidos",
-      "count": 48,
+      "count": 51,
       "usuarios": [
         "corretor-analista-004"
       ],
       "primeira": "2026-05-09T01:31:10.084Z",
-      "ultima": "2026-05-10T02:15:34.464Z",
+      "ultima": "2026-05-10T03:15:36.000Z",
       "sugerido": true
     },
     {
@@ -143,12 +143,12 @@
     },
     {
       "exemplo": "ver portias",
-      "count": 63,
+      "count": 67,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:31:10.349Z",
-      "ultima": "2026-05-10T02:15:34.664Z",
+      "ultima": "2026-05-10T03:15:36.239Z",
       "sugerido": true
     },
     {
@@ -183,12 +183,12 @@
     },
     {
       "exemplo": "enviar vitrine para cliente",
-      "count": 50,
+      "count": 53,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:31:10.734Z",
-      "ultima": "2026-05-10T02:15:35.008Z",
+      "ultima": "2026-05-10T03:15:36.573Z",
       "sugerido": true
     },
     {
@@ -203,82 +203,82 @@
     },
     {
       "exemplo": "xml não saiu no vivareal",
-      "count": 41,
+      "count": 44,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:32:21.228Z",
-      "ultima": "2026-05-10T02:15:34.350Z",
+      "ultima": "2026-05-10T03:15:35.907Z",
       "sugerido": true
     },
     {
       "exemplo": "subir xml",
-      "count": 41,
+      "count": 44,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:32:21.482Z",
-      "ultima": "2026-05-10T02:15:34.621Z",
+      "ultima": "2026-05-10T03:15:36.189Z",
       "sugerido": true
     },
     {
       "exemplo": "meu relatorrio",
-      "count": 54,
+      "count": 58,
       "usuarios": [
         "corretor-digitacao-005"
       ],
       "primeira": "2026-05-09T01:32:21.674Z",
-      "ultima": "2026-05-10T02:15:34.715Z",
+      "ultima": "2026-05-10T03:15:36.300Z",
       "sugerido": true
     },
     {
       "exemplo": "link do cliente",
-      "count": 54,
+      "count": 58,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:21.977Z",
-      "ultima": "2026-05-10T02:15:35.034Z",
+      "ultima": "2026-05-10T03:15:36.588Z",
       "sugerido": true
     },
     {
       "exemplo": "manda follow-up",
-      "count": 54,
+      "count": 58,
       "usuarios": [
         "corretor-suporte-007"
       ],
       "primeira": "2026-05-09T01:32:22.066Z",
-      "ultima": "2026-05-10T02:15:35.126Z",
+      "ultima": "2026-05-10T03:15:36.679Z",
       "sugerido": true
     },
     {
       "exemplo": "como começo?",
-      "count": 13,
+      "count": 14,
       "usuarios": [
         "corretor-iniciante-001"
       ],
       "primeira": "2026-05-09T01:59:19.177Z",
-      "ultima": "2026-05-10T01:41:45.648Z",
+      "ultima": "2026-05-10T02:41:47.156Z",
       "sugerido": true
     },
     {
       "exemplo": "a extração falhou",
-      "count": 13,
+      "count": 14,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.486Z",
-      "ultima": "2026-05-10T01:41:45.977Z",
+      "ultima": "2026-05-10T02:41:47.624Z",
       "sugerido": true
     },
     {
       "exemplo": "como adicionar fotos?",
-      "count": 13,
+      "count": 14,
       "usuarios": [
         "corretor-tecnico-003"
       ],
       "primeira": "2026-05-09T01:59:19.556Z",
-      "ultima": "2026-05-10T01:41:46.048Z",
+      "ultima": "2026-05-10T02:41:47.690Z",
       "sugerido": true
     }
   ],
@@ -1368,7 +1368,7 @@
     },
     {
       "pergunta": "gerar xml vivareal",
-      "count": 14,
+      "count": 15,
       "respostas": [
         {
           "texto": "🔗 Para qual portal gerar o XML?🔗 VivaReal🔗 ZAP🔗 OLX🔗 Chaves🔗 ImovelWeb🔗 123iVer portaisGerar XML",
@@ -1384,10 +1384,15 @@
           "texto": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}",
           "dominio": "portais",
           "data": "2026-05-10T02:33:09.882Z"
+        },
+        {
+          "texto": "🔗 Gerar XML — para qual portal?VivaRealZAPOLXImovelWebChaves na Mão123i",
+          "dominio": null,
+          "data": "2026-05-10T04:16:38.781Z"
         }
       ],
       "primeira": "2026-05-08T21:06:22.149Z",
-      "ultima": "2026-05-10T02:35:43.130Z"
+      "ultima": "2026-05-10T04:16:38.781Z"
     },
     {
       "pergunta": "ver portais",
@@ -3622,7 +3627,7 @@
     },
     {
       "pergunta": "importar xml",
-      "count": 2,
+      "count": 4,
       "respostas": [
         {
           "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
@@ -3633,10 +3638,20 @@
           "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
           "dominio": "portais",
           "data": "2026-05-10T01:13:24.864Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "portais",
+          "data": "2026-05-10T02:47:51.654Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "portais",
+          "data": "2026-05-10T04:16:58.633Z"
         }
       ],
       "primeira": "2026-05-09T21:42:26.394Z",
-      "ultima": "2026-05-10T01:13:24.864Z"
+      "ultima": "2026-05-10T04:16:58.633Z"
     },
     {
       "pergunta": "fazer match",
@@ -4012,6 +4027,625 @@
       ],
       "primeira": "2026-05-10T02:28:04.169Z",
       "ultima": "2026-05-10T02:28:04.169Z"
+    },
+    {
+      "pergunta": "oi tudo bem",
+      "count": 6,
+      "respostas": [
+        {
+          "texto": "😔 Nenhum imovel encontrado.📍 bem💡 Quer cadastrar esse cliente como lead?Cadastrar lead →Demanda por bairroLeadsImóveisVisitasMatch",
+          "dominio": "saudacao",
+          "data": "2026-05-10T02:41:27.420Z"
+        },
+        {
+          "texto": "👋 Olá! Como posso ajudar?Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T02:46:03.438Z"
+        },
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T02:50:07.205Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:41:27.420Z",
+      "ultima": "2026-05-10T02:50:07.205Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T02:47:04.514Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:47:04.514Z",
+      "ultima": "2026-05-10T02:47:04.514Z"
+    },
+    {
+      "pergunta": "quero cadastrar um lead",
+      "count": 5,
+      "respostas": [
+        {
+          "texto": "👥 Leads:Total: 1397 · 🌐 Orgânicas: 442 · 📋 Importadas: 955🎯 Com match: 43 (3%) · ❌ Sem match: 1354📍 Bairros mais buscados: Centro (48), Jardim Mi",
+          "dominio": "leads",
+          "data": "2026-05-10T02:47:17.428Z"
+        },
+        {
+          "texto": "📋 Cadastrar novo lead:Me passa nome e celular do cliente.💡 Exemplo: \"cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí até 600k\"Leads qu",
+          "dominio": "leads",
+          "data": "2026-05-10T02:50:20.258Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:47:17.428Z",
+      "ultima": "2026-05-10T04:01:37.080Z"
+    },
+    {
+      "pergunta": "quero cadastrar um cliente",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👥 Leads:Total: 1397 · 🌐 Orgânicas: 442 · 📋 Importadas: 955🎯 Com match: 43 (3%) · ❌ Sem match: 1354📍 Bairros mais buscados: Centro (48), Jardim Mi",
+          "dominio": "leads",
+          "data": "2026-05-10T02:47:39.960Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:47:39.960Z",
+      "ultima": "2026-05-10T02:47:39.960Z"
+    },
+    {
+      "pergunta": "voce pode cadastrar um lead por favor ?",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🔍 2 lead(s) encontrada(s):• Maria Aliene porto Porto — Jardim das Palmas Apartamento • mayara portela — Jardim São Luís  Ver leads →Leads quentesImpo",
+          "dominio": "leads",
+          "data": "2026-05-10T02:48:27.451Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:48:27.451Z",
+      "ultima": "2026-05-10T02:48:27.451Z"
+    },
+    {
+      "pergunta": "renato 47 991919191",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👥 Leads:Total: 1397 · 🌐 Orgânicas: 442 · 📋 Importadas: 955🎯 Com match: 43 (3%) · ❌ Sem match: 1354📍 Bairros mais buscados: Centro (48), Jardim Mi",
+          "dominio": null,
+          "data": "2026-05-10T02:48:42.670Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:48:42.670Z",
+      "ultima": "2026-05-10T02:48:42.670Z"
+    },
+    {
+      "pergunta": "gera um xml no padrao olx",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "😔 Nenhum imovel encontrado.📍 padrao olx💡 Quer cadastrar esse cliente como lead?Cadastrar lead →Demanda por bairroVer portaisGerar XML",
+          "dominio": "portais",
+          "data": "2026-05-10T02:49:02.481Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:49:02.481Z",
+      "ultima": "2026-05-10T02:49:02.481Z"
+    },
+    {
+      "pergunta": "renato , 47991919192",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👥 Leads:Total: 1397 · 🌐 Orgânicas: 442 · 📋 Importadas: 955🎯 Com match: 43 (3%) · ❌ Sem match: 1354📍 Bairros mais buscados: Centro (48), Jardim Mi",
+          "dominio": null,
+          "data": "2026-05-10T02:50:34.329Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:50:34.329Z",
+      "ultima": "2026-05-10T02:50:34.329Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T02:51:44.595Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:51:44.595Z",
+      "ultima": "2026-05-10T02:51:44.595Z"
+    },
+    {
+      "pergunta": "renato, 479999999",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👥 Leads:Total: 1397 · 🌐 Orgânicas: 442 · 📋 Importadas: 955🎯 Com match: 43 (3%) · ❌ Sem match: 1354📍 Bairros mais buscados: Centro (48), Jardim Mi",
+          "dominio": null,
+          "data": "2026-05-10T02:52:03.944Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:52:03.944Z",
+      "ultima": "2026-05-10T02:52:03.944Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T02:54:16.577Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:54:16.577Z",
+      "ultima": "2026-05-10T02:54:16.577Z"
+    },
+    {
+      "pergunta": "cadastra lead renato, 47991919191",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "ACAO_CADASTRAR_LEAD:{\"nome\":\"cadastra lead renato\",\"celular\":\"47991919191\"}",
+          "dominio": "leads",
+          "data": "2026-05-10T02:54:44.914Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:54:44.914Z",
+      "ultima": "2026-05-10T02:54:44.914Z"
+    },
+    {
+      "pergunta": "obrigado, consegue gerar um xml olx",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "ACAO_GERAR_XML:{\"portal\":\"olx\"}Ver portaisGerar XML",
+          "dominio": "portais",
+          "data": "2026-05-10T02:55:18.186Z"
+        },
+        {
+          "texto": "ACAO_GERAR_XML:{\"portal\":\"olx\"}",
+          "dominio": "portais",
+          "data": "2026-05-10T04:16:42.185Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:55:18.186Z",
+      "ultima": "2026-05-10T04:16:42.185Z"
+    },
+    {
+      "pergunta": "gerar xml todos olx",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "ACAO_GERAR_XML:{\"portal\":\"olx\"}",
+          "dominio": "portais",
+          "data": "2026-05-10T02:55:21.483Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:55:21.483Z",
+      "ultima": "2026-05-10T04:16:45.164Z"
+    },
+    {
+      "pergunta": "e agora consegue me ajudar importar um xml ?",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "portais",
+          "data": "2026-05-10T02:55:40.045Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:55:40.045Z",
+      "ultima": "2026-05-10T02:55:40.045Z"
+    },
+    {
+      "pergunta": "legal. sabe me dizer quantas leads tem vitrine ja montada ?",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": "leads",
+          "data": "2026-05-10T02:56:10.027Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:56:10.027Z",
+      "ultima": "2026-05-10T02:56:10.027Z"
+    },
+    {
+      "pergunta": "tenho alguma notificacao nova ?",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "⚡ Ações em Notificacoes:• Marcar como lida• Marcar todas como lidasIr para Notificacoes →LeadsImóveisVisitasMatch",
+          "dominio": "notificacoes",
+          "data": "2026-05-10T02:56:31.072Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:56:31.072Z",
+      "ultima": "2026-05-10T02:56:31.072Z"
+    },
+    {
+      "pergunta": "tenho quantas visitas ?",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "📅 Visitas:Total: 2 · ✅ Confirmadas: 0 · ⏳ Pendentes: 2📆 Hoje: 0Ver visitas →📆 Hoje⏳ Pendentes❓ Como funcionaVisitas hojePendentesNotificar propriet",
+          "dominio": "visitas",
+          "data": "2026-05-10T02:56:41.207Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:56:41.207Z",
+      "ultima": "2026-05-10T02:56:41.207Z"
+    },
+    {
+      "pergunta": "encontrar um apartamento ate 600 mil",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "😔 Nenhum imovel encontrado.Apartamento · ate R$ 600.000💡 Quer cadastrar esse cliente como lead?Cadastrar lead →Demanda por bairroMeus imóveisImóveis",
+          "dominio": "imoveis",
+          "data": "2026-05-10T02:57:02.817Z"
+        }
+      ],
+      "primeira": "2026-05-10T02:57:02.817Z",
+      "ultima": "2026-05-10T02:57:02.817Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T03:15:09.825Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:15:09.825Z",
+      "ultima": "2026-05-10T03:15:09.825Z"
+    },
+    {
+      "pergunta": "preciso de apartamento 2 quartos até 700 mil na Vila Andrade",
+      "count": 7,
+      "respostas": [
+        {
+          "texto": "🔍 44 imovel(is)Apartamento · 📍 Vila Andrade · 2+ quartos · ate R$ 700.000Apartamento - Vila Andrade- 2q · 2vg · JoanesApartamento - Vila Andrade- 2q",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:15:22.507Z"
+        },
+        {
+          "texto": "🔍 44 imovel(is)Apartamento · 📍 Vila Andrade · 2+ quartos · ate R$ 700.000Apartamento - Vila Andrade- 2q · 2vg · JoanesApartamento - Vila Andrade- 2q",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:17:27.085Z"
+        },
+        {
+          "texto": "🔍 30 imovel(is)Apartamento · 📍 Vila Andrade · 3+ quartosApartamento - Vila Andrade- 3q · 4vg · Lucas ChiApartamento - Vila Andrade- 4q · 4vg · EdnaA",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:22:50.550Z"
+        },
+        {
+          "texto": "🔍 30 imovel(is)Apartamento · 📍 Vila Andrade · 3+ quartosApartamento - Vila Andrade- 3q · 4vg · Lucas ChiApartamento - Vila Andrade- 4q · 4vg · EdnaA",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:47:55.076Z"
+        },
+        {
+          "texto": "🔍 30 imovel(is)Apartamento · 📍 Vila Andrade · 3+ quartosApartamento - Vila AndradeR$ 400.000 3q · 2vgApartamento - Vila AndradeR$ 438.000 3q · 1vg ·",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:50:43.235Z"
+        },
+        {
+          "texto": "🔍 30 imovel(is)Apartamento · 📍 Vila Andrade · 3+ quartosApartamento - Vila AndradeR$ 400.000 3q · 2vg Clique aqui para ver o imóvelApartamento - Vil",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:55:44.014Z"
+        },
+        {
+          "texto": "🔍 30 imovel(is)Apartamento · 📍 Vila Andrade · 3+ quartosApartamento - Vila AndradeR$ 400.000 3q · 2vg Clique aqui para ver o imóvelApartamento - Vil",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:56:34.953Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:15:22.507Z",
+      "ultima": "2026-05-10T03:56:34.953Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T03:17:14.460Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:17:14.460Z",
+      "ultima": "2026-05-10T03:17:14.460Z"
+    },
+    {
+      "pergunta": "preciso de apartamento 2 quartos  entre 500 mil a 600 mil  na Vila Andrade",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🔍 67 imovel(is)Apartamento · 📍 Vila Andrade · 2+ quartosApartamento - Vila Andrade- 2q · 2vg · JoanesApartamento - Vila Andrade- 2q · 1vg · RodrigoA",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:17:53.780Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:17:53.780Z",
+      "ultima": "2026-05-10T03:17:53.780Z"
+    },
+    {
+      "pergunta": "oiii",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (689), Residen",
+          "dominio": null,
+          "data": "2026-05-10T03:19:18.146Z"
+        },
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": null,
+          "data": "2026-05-10T03:22:33.026Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:19:18.146Z",
+      "ultima": "2026-05-10T03:22:33.026Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T03:19:22.709Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:19:22.709Z",
+      "ultima": "2026-05-10T03:19:22.709Z"
+    },
+    {
+      "pergunta": "preciso de um apartamento de 3 dorm na vila andrade",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "🔍 30 imovel(is)Apartamento · 📍 Vila Andrade · 3+ quartosApartamento - Vila Andrade- 3q · 4vg · Lucas ChiApartamento - Vila Andrade- 4q · 4vg · EdnaA",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:19:41.657Z"
+        },
+        {
+          "texto": "🔍 30 imovel(is)Apartamento · 📍 Vila Andrade · 3+ quartosApartamento - Vila Andrade- 3q · 4vg · Lucas ChiApartamento - Vila Andrade- 4q · 4vg · EdnaA",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:25:32.921Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:19:41.658Z",
+      "ultima": "2026-05-10T03:25:32.921Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T03:25:19.983Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:25:19.983Z",
+      "ultima": "2026-05-10T03:25:19.983Z"
+    },
+    {
+      "pergunta": "nao aparece o link do imovel",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🏠 Imóveis:✅ Ativos: 846 · ❌ Inativos: 0📍 Bairros: Vila Andrade, Jaguaré, Brooklin, Cidade Monções, Vila Olímpia🏷️ Tipos: Apartamento (689), Residen",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:25:50.086Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:25:50.086Z",
+      "ultima": "2026-05-10T03:25:50.086Z"
+    },
+    {
+      "pergunta": "nao quero o nome do lea e sim dados do imovel",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "😔 Nenhum imovel encontrado.📍 lea e sim dados do💡 Quer cadastrar esse cliente como lead?Cadastrar lead →Demanda por bairroMeus imóveisImóveis inativ",
+          "dominio": "imoveis",
+          "data": "2026-05-10T03:26:01.486Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:26:01.486Z",
+      "ultima": "2026-05-10T03:26:01.486Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T03:47:45.946Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:47:45.946Z",
+      "ultima": "2026-05-10T03:47:45.946Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T03:55:34.414Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:55:34.414Z",
+      "ultima": "2026-05-10T03:55:34.414Z"
+    },
+    {
+      "pergunta": "pode cadastrar um cliente pra mim?\"",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "📋 Entendido! Quer cadastrar pra mim.Qual o celular do cliente?Leads quentesImportar leadsLeads sem match",
+          "dominio": "leads",
+          "data": "2026-05-10T03:56:55.638Z"
+        }
+      ],
+      "primeira": "2026-05-10T03:56:55.638Z",
+      "ultima": "2026-05-10T03:56:55.638Z"
+    },
+    {
+      "pergunta": "oii",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": null,
+          "data": "2026-05-10T04:01:28.275Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:01:28.275Z",
+      "ultima": "2026-05-10T04:01:28.275Z"
+    },
+    {
+      "pergunta": "antonio, 11 992010889",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "ACAO_CADASTRAR_LEAD:{\"nome\":\"antonio\",\"celular\":\"11992010889\"}",
+          "dominio": null,
+          "data": "2026-05-10T04:01:55.594Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:01:55.594Z",
+      "ultima": "2026-05-10T04:01:55.594Z"
+    },
+    {
+      "pergunta": "tenho visitas agendasd ?",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "📅 Visitas:Total: 2 · ✅ Confirmadas: 0 · ⏳ Pendentes: 2📆 Hoje: 0Ver visitas →📆 Hoje⏳ Pendentes❓ Como funcionaVisitas hojePendentesNotificar propriet",
+          "dominio": "visitas",
+          "data": "2026-05-10T04:02:06.063Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:02:06.063Z",
+      "ultima": "2026-05-10T04:02:06.063Z"
+    },
+    {
+      "pergunta": "novidades",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "📅 Visitas:Total: 2 · ✅ Confirmadas: 0 · ⏳ Pendentes: 2📆 Hoje: 0Ver visitas →📆 Hoje⏳ Pendentes❓ Como funcionaLeadsImóveisVisitasMatch",
+          "dominio": null,
+          "data": "2026-05-10T04:02:32.161Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:02:32.161Z",
+      "ultima": "2026-05-10T04:02:32.161Z"
+    },
+    {
+      "pergunta": "novo cliente: Maria, 11988881234",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "ACAO_CADASTRAR_LEAD:{\"nome\":\"Maria\",\"celular\":\"11988881234\",\"tipo\":\"\",\"quartos\":0,\"valor_imovel\":null,\"bairro\":\"\"}Leads quentesImportar leadsLeads sem",
+          "dominio": "leads",
+          "data": "2026-05-10T04:03:02.970Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:03:02.970Z",
+      "ultima": "2026-05-10T04:03:02.970Z"
+    },
+    {
+      "pergunta": "anota esse cliente: Pedro, 47977771234",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "ACAO_CADASTRAR_LEAD:{\"nome\":\"Pedro\",\"celular\":\"47977771234\",\"tipo\":\"\",\"quartos\":0,\"valor_imovel\":null,\"bairro\":\"\"}Leads quentesImportar leadsLeads sem",
+          "dominio": "leads",
+          "data": "2026-05-10T04:03:13.478Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:03:13.478Z",
+      "ultima": "2026-05-10T04:03:13.478Z"
+    },
+    {
+      "pergunta": "apartamento entre 500 e 700 mil",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🔍 689 imovel(is)ApartamentoApartamento - Vila MatildeR$ 210.000 1q · 43m2 Clique aqui para ver o imóvelApartamento - ParaisópolisR$ 240.000 2q · 2vg ",
+          "dominio": "imoveis",
+          "data": "2026-05-10T04:03:25.765Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:03:25.765Z",
+      "ultima": "2026-05-10T04:03:25.765Z"
+    },
+    {
+      "pergunta": "imóvel 3 quartos 2 vagas até 900 mil",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🔍 79 imovel(is)3+ quartos · ate R$ 900.000 · 2+ vagasApartamento - Vila AndradeR$ 400.000 3q · 2vg Clique aqui para ver o imóvelResidential / Home - ",
+          "dominio": "imoveis",
+          "data": "2026-05-10T04:03:43.566Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:03:43.566Z",
+      "ultima": "2026-05-10T04:03:43.566Z"
+    },
+    {
+      "pergunta": "trazer imóveis do Rankim",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "😔 Nenhum imovel encontrado.📍 rankim💡 Quer cadastrar esse cliente como lead?Cadastrar lead →Demanda por bairroMeus imóveisImóveis inativosGerar XML",
+          "dominio": "imoveis",
+          "data": "2026-05-10T04:03:56.611Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:03:56.611Z",
+      "ultima": "2026-05-10T04:03:56.611Z"
+    },
+    {
+      "pergunta": "enho um feed xml",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
+          "dominio": "portais",
+          "data": "2026-05-10T04:04:06.515Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:04:06.515Z",
+      "ultima": "2026-05-10T04:04:06.515Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-10T04:16:33.445Z"
+        }
+      ],
+      "primeira": "2026-05-10T04:16:33.445Z",
+      "ultima": "2026-05-10T04:16:33.445Z"
     }
   ]
 }

@@ -114,11 +114,40 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
   const perfil = memoria.atualizarPerfil(uid, {d,user,imoveis,leads});
   const hist   = memoria.historicoPorUsuario(uid, 8);
   const dominio = nlp.detectarDominio(mNorm);
+  // Prioridade: saudação — responde direto sem processar
+  if (/^(o+i+|ola+|olá|hey|hello|opa|salve|e ai|e aí)(\s+(tudo\s+)?(bem|bom|certo|ok|ótimo|otimo))?[\s!?.,]*$/i.test(mensagem.trim()) || /^(bom dia|boa tarde|boa noite)[\s!?.,]*$/i.test(mensagem.trim())) {
+    return finalizar('👋 Olá! Como posso ajudar?<br><br>Digite o que precisa ou escolha uma opção abaixo:<br><br>' +
+      btn('Ver imóveis', '/app/imoveis') + ' ' +
+      btn('Ver leads', '/app/leads') + ' ' +
+      btn('Ver visitas', '/app/visitas'));
+  }
+
+  // Prioridade: contexto de conversa anterior (memória de turno)
+  const ultimoHist = hist[hist.length - 1];
+  if (ultimoHist && ultimoHist.resposta && ultimoHist.resposta.includes('Me passa nome e celular')) {
+    const numerosNaMensagem = mensagem.replace(/\D/g,'');
+    const nomeMatch = mensagem.match(/^([A-ZÀ-Úa-zà-ú]+(?:\s+[A-ZÀ-Úa-zà-ú]+)*)/i);
+    const nome = nomeMatch ? nomeMatch[1].trim() : null;
+    // Tem número mas incompleto
+    if (numerosNaMensagem.length > 0 && numerosNaMensagem.length < 10) {
+      return finalizar('⚠️ O número <strong>' + numerosNaMensagem + '</strong> parece incompleto. Celular precisa ter DDD + 9 dígitos.<br><br>💡 Exemplo: <em>47 99999-1234</em>');
+    }
+    // Nome e celular completo — cadastra
+    if (nome && numerosNaMensagem.length >= 10) {
+      const dados = { nome, celular: numerosNaMensagem };
+      return finalizar('ACAO_CADASTRAR_LEAD:' + JSON.stringify(dados));
+    }
+    // Só nome, sem número
+    if (nome && numerosNaMensagem.length === 0) {
+      return finalizar('📋 Entendido! Quer cadastrar <strong>' + nome + '</strong>.<br><br>Qual o celular do cliente?');
+    }
+  }
+
   // Prioridade: contexto antes do intencao.detectar
-  if (/^cadastra(r)?\s/i.test(mensagem.trim()) || /importar?\s+(xml|imoveis?)|quero importar|subir xml|trazer imoveis?/i.test(mensagem.trim()) || /gerar? xml todos|xml todos/i.test(mensagem.trim())) {
+  if (/^cadastra(r)?\s/i.test(mensagem.trim()) || /importar?\s+(xml|imoveis?)|quero importar|subir xml|trazer imoveis?|puxar imoveis?|trazer do|puxar do|tenho um (xml|feed)|meu (xml|feed)/i.test(mensagem.trim()) || /gerar? xml todos|xml todos/i.test(mensagem.trim()) || /exportar para|publicar (imoveis? )?(no|em|para)|gerar? xml|gera xml|xml (para|pro|no)/i.test(mensagem.trim())) {
     try {
       const ctx = contexto.analisar(mensagem, imoveis, leads, visitas);
-      if (ctx && (ctx.intencao === 'CADASTRAR_LEAD' || ctx.intencao === 'IMPORTAR_XML' || ctx.intencao === 'GERAR_XML_TODOS' || ctx.intencao === 'EXPORTAR_XML')) {
+      if (ctx && (ctx.intencao === 'CADASTRAR_LEAD' || ctx.intencao === 'IMPORTAR_XML' || ctx.intencao === 'GERAR_XML_TODOS' || ctx.intencao === 'EXPORTAR_XML' || ctx.intencao === 'GERAR_XML')) {
         const resCtx = contexto.responder(ctx, d, user, imoveis, leads, visitas, btn, chip);
         if (resCtx) return finalizar(resCtx);
       }

@@ -16,6 +16,35 @@
  */
 
 const INTENCOES = {
+
+  VER_VISITAS: {
+    peso: 10,
+    padroes: [
+      /visitas?(\s+hoje|\s+pendentes?|\s+da\s+semana|\s+marcadas?|\s+confirmadas?|\s+agendadas?)?|quantas\s+visitas|minhas\s+visitas|tem\s+visita|quem\s+confirmou\s+visita|visitas?\s+da\s+semana/
+    ],
+    exemplos: ['visitas hoje', 'quantas visitas tenho', 'visitas pendentes']
+  },
+  VER_NOTIFICACOES: {
+    peso: 10,
+    padroes: [
+      /notifica(c|ç)(oes?|ão)|tem\s+algo\s+novo|o\s+que\s+aconteceu|novidades|tem\s+novidade|alguma\s+notifica|minhas\s+notifica|alertas?|avisos?/
+    ],
+    exemplos: ['tenho alguma notificação?', 'novidades', 'tem algo novo?']
+  },
+  VER_LEADS: {
+    peso: 10,
+    padroes: [
+      /quantos?\s+(leads?|clientes?)|ver\s+leads?|meus?\s+leads?|minhas?\s+leads?|leads?\s+(com\s+match|sem\s+match|quentes?|novos?|ativos?|pendentes?)|lista\s+(de\s+)?leads?|clientes?\s+(ativos?|novos?|pendentes?)|quantos\s+clientes/
+    ],
+    exemplos: ['ver leads', 'meus leads', 'leads com match', 'quantos leads tenho?']
+  },
+  VER_IMOVEIS: {
+    peso: 10,
+    padroes: [
+      /meus?\s+im[oó]veis?|quantos?\s+im[oó]veis?|ver\s+(carteira|im[oó]veis?)|im[oó]veis?\s+(ativos?|inativos?|sem\s+propriet|da\s+carteira)|carteira|valor\s+m[eé]dio|quais\s+bairros|bairros\s+(que\s+)?(tenho|tem)/
+    ],
+    exemplos: ['meus imóveis', 'ver carteira', 'imóveis ativos']
+  },
   VER: {
     peso: 1,
     padroes: [
@@ -117,6 +146,10 @@ function resolverAcao(intencao, dominio) {
     'FAZER_portais':    'gerar_xml',
     'IMPORTAR_leads':   'importar_leads',
     'IMPORTAR_imoveis': 'wizard_xml',
+    'VER_VISITAS':      'ver_visitas',
+    'VER_NOTIFICACOES': 'ver_notificacoes',
+    'VER_LEADS':        'ver_leads',
+    'VER_IMOVEIS':      'ver_imoveis',
     'VER_leads':        'ver_leads',
     'VER_imoveis':      'ver_imoveis',
     'VER_visitas':      'ver_visitas',

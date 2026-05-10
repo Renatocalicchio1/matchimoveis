@@ -1,8 +1,8 @@
 {
   "versao": "11.0",
-  "geradoEm": "2026-05-10T00:29:22.461Z",
+  "geradoEm": "2026-05-10T04:00:59.141Z",
   "stats": {
-    "totalRotas": 84,
+    "totalRotas": 85,
     "totalViews": 32,
     "totalUploads": 4,
     "totalIntencoes": 17,
@@ -1189,9 +1189,29 @@
       ]
     },
     {
+      "metodo": "GET",
+      "rota": "/app/imoveis-ids",
+      "linha": 2422,
+      "requerLogin": true,
+      "renderiza": null,
+      "redireciona": null,
+      "leDados": [
+        "imoveis.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [
+        ".xml"
+      ],
+      "keywords": [
+        "app",
+        "imoveis-ids"
+      ]
+    },
+    {
       "metodo": "POST",
       "rota": "/app/gerar-xml",
-      "linha": 2420,
+      "linha": 2430,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1211,7 +1231,7 @@
     {
       "metodo": "GET",
       "rota": "/app/portais",
-      "linha": 2563,
+      "linha": 2573,
       "requerLogin": true,
       "renderiza": "app-portais",
       "redireciona": null,
@@ -1231,7 +1251,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/zerar-visitas-notificacoes-temp",
-      "linha": 2599,
+      "linha": 2609,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -1250,7 +1270,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/zerar-visitas/:userId",
-      "linha": 2606,
+      "linha": 2616,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -1270,7 +1290,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/zerar-notificacoes/:userId",
-      "linha": 2616,
+      "linha": 2626,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -1290,7 +1310,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/zerar-tudo/:userId",
-      "linha": 2626,
+      "linha": 2636,
       "requerLogin": false,
       "renderiza": "cliente-visita-confirmar",
       "redireciona": null,
@@ -1310,7 +1330,7 @@
     {
       "metodo": "GET",
       "rota": "/cliente/visita/:visitaId/confirmar",
-      "linha": 2638,
+      "linha": 2648,
       "requerLogin": false,
       "renderiza": "cliente-visita-confirmar",
       "redireciona": null,
@@ -1331,7 +1351,7 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:visitaId/responder",
-      "linha": 2645,
+      "linha": 2655,
       "requerLogin": false,
       "renderiza": null,
       "redireciona": null,
@@ -1352,7 +1372,7 @@
     {
       "metodo": "GET",
       "rota": "/app/coins",
-      "linha": 2674,
+      "linha": 2684,
       "requerLogin": true,
       "renderiza": "app-coins",
       "redireciona": null,
@@ -1371,7 +1391,7 @@
     {
       "metodo": "GET",
       "rota": "/cliente/visita/:id/remarcar",
-      "linha": 2681,
+      "linha": 2691,
       "requerLogin": false,
       "renderiza": "cliente-visita-remarcar",
       "redireciona": null,
@@ -1391,7 +1411,7 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:id/remarcar",
-      "linha": 2688,
+      "linha": 2698,
       "requerLogin": false,
       "renderiza": "cliente-visita-remarcar",
       "redireciona": null,
@@ -1411,7 +1431,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/debug-visitas",
-      "linha": 2710,
+      "linha": 2720,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1430,7 +1450,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/debug-leads",
-      "linha": 2717,
+      "linha": 2727,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1449,7 +1469,7 @@
     {
       "metodo": "GET",
       "rota": "/admin/reset-leads-repo",
-      "linha": 2725,
+      "linha": 2735,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1469,7 +1489,7 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente",
-      "linha": 2734,
+      "linha": 2744,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1489,7 +1509,7 @@
     {
       "metodo": "GET",
       "rota": "/api/assistente/dados",
-      "linha": 2745,
+      "linha": 2755,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1510,7 +1530,7 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente",
-      "linha": 2786,
+      "linha": 2796,
       "requerLogin": true,
       "renderiza": "app-assistente",
       "redireciona": null,
@@ -1530,7 +1550,7 @@
     {
       "metodo": "POST",
       "rota": "/app/assistente/chat",
-      "linha": 2793,
+      "linha": 2803,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1551,7 +1571,7 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente/historico",
-      "linha": 2857,
+      "linha": 2867,
       "requerLogin": true,
       "renderiza": null,
       "redireciona": null,
@@ -1606,12 +1626,16 @@
     "app-assistente.ejs": {
       "forms": [],
       "links": [
-        "/app/leads"
+        "/app/imoveis",
+        "/app/lead/",
+        "/app/portais"
       ],
       "fetches": [
         "/app/assistente/feedback",
         "/app/assistente/chat",
         "/app/leads/manual",
+        "/app/imoveis-ids",
+        "/app/gerar-xml",
         "/app/importar",
         "/app/assistente/upload"
       ],
@@ -1627,13 +1651,19 @@
         "document.getElementById(",
         "enviarMsg()",
         "enviarFeedback(true,this)",
-        "enviarFeedback(false,this)"
+        "enviarFeedback(false,this)",
+        "enviarMsg(\\"
       ],
       "uploads": true,
       "titulos": [
         "Olá,",
+        "' + dados.portal.toUpperCase() + '",
+        "' + dados.portal.toUpperCase() + '",
+        "' + dados.nome + '",
         "Lead cadastrado com sucesso!",
-        "' + data.lead.nome + '"
+        "' + data.lead.nome + '",
+        "XML gerado!",
+        "' + portal.toUpperCase() + '"
       ],
       "temModal": false,
       "temGrafico": false

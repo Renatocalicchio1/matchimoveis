@@ -1,7 +1,7 @@
 {
-  "geradoEm": "2026-05-10T00:29:22.362Z",
+  "geradoEm": "2026-05-10T04:00:59.035Z",
   "server": {
-    "totalRotas": 87,
+    "totalRotas": 88,
     "rotas": [
       {
         "metodo": "GET",
@@ -276,6 +276,10 @@
         "rota": "/api/gerar-descricao-imovel"
       },
       {
+        "metodo": "GET",
+        "rota": "/app/imoveis-ids"
+      },
+      {
         "metodo": "POST",
         "rota": "/app/gerar-xml"
       },
@@ -454,6 +458,8 @@
         "/app/assistente/feedback",
         "/app/assistente/chat",
         "/app/leads/manual",
+        "/app/imoveis-ids",
+        "/app/gerar-xml",
         "/app/importar",
         "/app/assistente/upload"
       ],
@@ -469,10 +475,13 @@
         "document.getElementById(",
         "enviarMsg()",
         "enviarFeedback(true,this)",
-        "enviarFeedback(false,this)"
+        "enviarFeedback(false,this)",
+        "enviarMsg(\\"
       ],
       "links": [
-        "/app/leads"
+        "/app/imoveis",
+        "/app/lead/",
+        "/app/portais"
       ]
     },
     "app-cadastro": {
@@ -1406,7 +1415,7 @@
       ]
     },
     "contexto.js": {
-      "linhas": 181,
+      "linhas": 264,
       "padroes": [
         "[\\u0300-\\u036f]",
         "agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para",
@@ -1414,8 +1423,11 @@
         "alugar|aluguel|locar|locacao|mes|mensal",
         "(?:cliente|lead|para o|para a)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)",
         "(?:no|na|em|do|da)\\s+([a-z][a-z ]{2,20})(?:\\s|$|,|\\.)",
-        "span><span style=\"color:#555;font-size:12px\"> '+det+prop+'<",
+        "span><span style=\"color:#555;font-size:12px\"> '+det+'<",
         "strong>'+nome+'<br><span style=\"font-size:12px;color:#888\">'+filtros+'<",
+        "^(cadastra?\\s+)?(lead|cliente)\\s+",
+        "(\\(?\\d{2}\\)?\\s?\\d{4,5}[-\\s]?\\d{4})",
+        "\\b(apto|apartamento|casa|terreno|comercial|cobertura|studio|kitnet)\\b",
         "seucrm.com.br",
         "vivareal|zap|olx|chaves|imovelweb|123i",
         "span><span>Vá em Imóveis e selecione os imóveis<",
@@ -1424,10 +1436,7 @@
         "imoveis') + btn('Ver Portais', '",
         "span><span>Selecione os imóveis em <a href=\"",
         "imoveis\" style=\"color:#ff385c\">",
-        "span><span>Escolha o portal na barra inferior e clique em Gerar XML<",
-        "span><span>A URL do feed fica em <a href=\"",
-        "portais\" style=\"color:#ff385c\">",
-        "imoveis') + btn('Portais', '"
+        "span><span>Escolha o portal na barra inferior e clique em Gerar XML<"
       ]
     },
     "estrategista.js": {
@@ -1440,32 +1449,17 @@
       ]
     },
     "imoveis.js": {
-      "linhas": 215,
+      "linhas": 65,
       "padroes": [
         "pagina cadastro|app cadastro|cadastrar imovel pagina|o que tem no cadastro",
         "cadastro):<",
         "importar via xml|url do feed|url xml|testar xml|testar url",
-        "span><span>Cole a URL do feed XML ou envie o arquivo<",
-        "span><span>Clique em <strong>Testar<",
-        "span><span>Sistema mostra quantos imóveis serão importados<",
-        "span><span>Clique em <strong>Importar Agora<",
-        "span><span>URL salva com data da última atualização<",
-        "cadastro manual|cadastrar um imovel|captacao direta|exclusividade cadastro",
-        "testar url|testar feed|como testar xml|botao testar",
-        "diferenca xml manual|quando usar xml|quando usar manual|xml ou manual",
-        "o que tem na pagina imoveis|pagina imoveis|meus imoveis pagina|app imoveis",
-        "imoveis):<",
-        "filtros imoveis|filtrar imoveis|como filtrar",
-        "máx · Área · Quartos · Vagas · Suítes · Banheiros · Operação (venda",
-        " GERAR XML ",
-        "selecionar todos|checkboxes|selecionar imoveis",
-        "tipos de imovel|quais tipos|tipo imovel",
-        "operacao|tipo operacao|venda|aluguel",
-        "editar imovel|como editar|campos do imovel|o que tem no cadastro"
+        " BUSCA POR TIPO",
+        "[\\u0300-\\u036f]"
       ]
     },
     "index.js": {
-      "linhas": 236,
+      "linhas": 276,
       "padroes": [
         ".test(mNorm) && !",
         "buscar?|procurar?|tem (imovel|algo)|quero ver",
@@ -1481,12 +1475,12 @@
         "semana|mes|hoje|ontem|periodo|semanal|mensal",
         "proprietario|dono",
         "avisar|notificar|quem|imovel|sem|com|cadastrar",
+        "i.test(mensagem.trim()) || ",
+        "^cadastra(r)?\\s",
+        "importar?\\s+(xml|imoveis?)|quero importar|subir xml|trazer imoveis?",
+        "gerar? xml todos|xml todos",
         "^[a-z]{1,2}$",
-        "(casa|apto|apartamento|sobrado|cobertura|terreno|loft|studio)",
-        "ems+[a-z]|disponivel|cadastrado|ativo|inativo|parado",
-        "^tems+(casa|apto|apartamento|sobrado|cobertura|terreno)",
-        "lead|visita|match|portal|mercado|cliente",
-        " ── 5. ESTRATÉGIA "
+        "(casa|apto|apartamento|sobrado|cobertura|terreno|loft|studio)"
       ]
     },
     "intencao.js": {
@@ -1677,7 +1671,7 @@
       ]
     },
     "rag.js": {
-      "linhas": 128,
+      "linhas": 129,
       "padroes": [
         "[\\u0300-\\u036f]",
         "[\\u0300-\\u036f]",
@@ -1779,9 +1773,9 @@
   "resumo": {
     "totalViews": 32,
     "totalCampos": 85,
-    "totalBotoes": 87,
-    "totalLinks": 41,
+    "totalBotoes": 88,
+    "totalLinks": 43,
     "totalModulosCerebro": 28,
-    "totalLinhasCerebro": 3948
+    "totalLinhasCerebro": 3922
   }
 }

@@ -1,59 +1,59 @@
 {
-  "geradoEm": "2026-05-10T00:29:22.553Z",
+  "geradoEm": "2026-05-10T04:00:59.251Z",
   "versaoMapa": "11.0",
-  "totalHistorico": 156,
+  "totalHistorico": 235,
   "totalNaoEntendidos": 28,
   "totalPerfis": 9,
   "perguntasPorDominio": {
-    "leads": 30,
-    "imoveis": 23,
-    "visitas": 8,
+    "leads": 51,
+    "imoveis": 37,
+    "visitas": 9,
     "match": 14,
-    "portais": 21,
+    "portais": 44,
     "mercado": 6,
-    "sistema": 44,
-    "acoes": 23
+    "sistema": 46,
+    "acoes": 35
   },
   "topNaoEntendidas": [
     {
       "pergunta": "ver portias",
-      "count": 55
+      "count": 67
     },
     {
       "pergunta": "quais campos a planilha precisa?",
-      "count": 54
+      "count": 66
     },
     {
       "pergunta": "meu relatorrio",
-      "count": 46
+      "count": 58
     },
     {
       "pergunta": "link do cliente",
-      "count": 46
+      "count": 58
     },
     {
       "pergunta": "manda follow-up",
-      "count": 46
+      "count": 58
     },
     {
       "pergunta": "ver portais",
-      "count": 44
+      "count": 53
     },
     {
       "pergunta": "enviar vitrine para cliente",
-      "count": 44
+      "count": 53
     },
     {
       "pergunta": "tipo mais buscado",
-      "count": 42
+      "count": 51
     },
     {
       "pergunta": "quartos mais pedidos",
-      "count": 42
+      "count": 51
     },
     {
       "pergunta": "xml não saiu no vivareal",
-      "count": 35
+      "count": 44
     }
   ],
   "keywordsNovas": {

@@ -2,14 +2,15 @@
 const rag = require('./rag');
 const semAcento = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const INTENCOES = {
+  SAUDACAO: /^(o+i+|ol[aá]+|hey+|opa+|salve|e a[ií]+|eae|eai|oi+|hello|hi+|bom dia|boa tarde|boa noite|good morning|boa|tudo bem|tudo bom|tudo certo|tudo ok|como vai|como voce ta|como vc ta|oi sumido|ola sumido|voltei|estou aqui|to aqui|to de volta|vim aqui|preciso de ajuda|me ajuda|me ajude|pode me ajudar|ola tudo|oi tudo)[\s!?.,]*$/i,
   BUSCAR_IMOVEL:  /tenho (um )?cliente|cliente (quer|procura|busca|precisa|esta procurando)|alguem (quer|procura)|procurando (um |uma )?(apto|apartamento|casa|imovel)|tem (apto|apartamento|casa)|quero ver|mostrar imoveis|buscar imoveis|imoveis (no|na|em|do|da)/,
-  CADASTRAR_LEAD: /cadastra(r)? (lead|cliente|o lead|o cliente)|novo (lead|cliente|interessado)|adiciona(r)? (lead|cliente)|criar (lead|cliente)|anota(r)? (lead|cliente)|salva(r)? (lead|cliente)|novo atendimento/,
+  CADASTRAR_LEAD: /cadastra(r)?(\s+um?)?\s+(lead|cliente|contato|interessado)|novo\s+(lead|cliente|contato|interessado|atendimento)|adiciona(r)?(\s+um?)?\s+(lead|cliente|contato)|criar\s+(lead|cliente|contato)|anota(r)?\s+(lead|cliente|contato|esse|o)|salva(r)?\s+(lead|cliente|contato|esse|o)|novo atendimento|pode(\s+me)?\s+cadastrar|quer(o)?\s+cadastrar|preciso\s+cadastrar|registra(r)?\s+(lead|cliente|contato)|inclui(r)?\s+(lead|cliente)|lanca(r)?\s+(lead|cliente)|bota(r)?\s+(lead|cliente)|coloca(r)?\s+(lead|cliente)|tenho\s+(um\s+)?(novo\s+)?(lead|cliente|interessado|contato)|captei\s+(um\s+)?(cliente|lead)|peguei\s+(um\s+)?(cliente|lead)|tem\s+(um\s+)?(cliente|lead)\s+(novo|aqui|interessado)/i,
   CRIAR_VISITA:   /agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para/,
   INFORMAR:       /acabei de|acabou de|ja (vendeu|vendemos|fechou|fechamos|foi vendido)|nao esta mais|imovel vendido|ja tem proposta/,
   FOLLOW_UP:      /follow.?up|retornar para|ligar para|mandar (mensagem|whatsapp|zap)|entrar em contato|cliente nao (respondeu|retornou)/,
-  IMPORTAR_XML:    /importa(r)? (o |um )?xml|importa(r)? (os )?imoveis?|trazer imoveis?|subir xml|url do feed|trazer do (crm|tecimob|rankim|vista|jetimob|kenlo)|puxar imoveis?|trazer para (o |a )?match|cole a url/,
+  IMPORTAR_XML: /importa(r)?(\s+o|\s+um|\s+os|\s+meus)?\s*(xml|imoveis?|feed|carteira)|trazer\s+(imoveis?|carteira|feed|do\s+)|subir\s+(xml|imoveis?|feed)|url\s+(do\s+)?(feed|xml)|puxar\s+(imoveis?|feed|xml)|sincronizar\s+imoveis?|atualizar\s+(imoveis?|xml|feed)|trazer\s+do\s+(crm|tecimob|rankim|vista|jetimob|kenlo)|puxar\s+do\s+(crm|tecimob|rankim|vista|jetimob|kenlo)|do\s+(tecimob|rankim|vista|jetimob|kenlo)|como\s+(importo|importar|faco\s+para\s+importar)|quero\s+importar|preciso\s+importar|tenho\s+(um\s+)?(xml|feed)|meu\s+(xml|feed|crm)|cole\s+a\s+url|conectar\s+(crm|sistema)|integrar\s+(com\s+)?(crm|tecimob|rankim|vista)/i,
   GERAR_XML_TODOS: /gerar xml todos|xml todos|todos os imoveis.*xml|xml.*todos/,
-  EXPORTAR_XML:    /exporta(r)? xml|gerar xml para|xml (do |para o )?(vivareal|zap|olx|chaves|imovelweb|123i)|publicar (no |no portal|para o portal)|enviar xml para portal|subir (no|para o) (vivareal|zap|olx)/,
+  EXPORTAR_XML: /exporta(r)?(\s+para|\s+o|\s+xml)?\s*(xml|imoveis?|feed)?\s*(para|pro|no)?\s*(vivareal|zap|olx|imovelweb|chaves|123i)?|gera(r)?(\s+um|\s+o)?\s+xml|xml\s+(do|para|no|em|pro)\s+|(vivareal|viva\s*real|zap|zap\s*imoveis|olx|imovelweb|imovel\s*web|chaves|chaves\s*na\s*mao|123i).*xml|xml.*(vivareal|zap|olx|imovelweb|chaves|123i)|publicar(\s+imoveis?)?\s*(no|em|para|pro|no)\s*(portal|vivareal|zap|olx|imovelweb|chaves|123i)|enviar\s+(xml|imoveis?)\s*(para|pro)\s+portal|subir\s*(no|em|para|pro)\s*(vivareal|zap|olx|imovelweb|chaves|123i|portal)|quero\s+publicar|preciso\s+publicar|feed\s+(para|pro|do)\s*(vivareal|zap|olx|imovelweb|chaves|123i)/i,
   CADASTRAR_IMOVEL:/cadastra(r)? (um |o )?imovel|novo imovel|adicionar imovel|criar imovel|registrar imovel/,
   AVISAR_PROP:    /avisar (o |a )?proprietario|notificar (o |a )?proprietario|falar com (o |a )?proprietario/,
 };
@@ -28,6 +29,20 @@ function detectarIntencao(mNorm) {
   return null;
 }
 function analisar(fraseOriginal, imoveis, leads, visitas) {
+  // Early returns para evitar conflito com BUSCAR_IMOVEL
+  const _f = fraseOriginal;
+  if (/trazer\s+im[oó]veis?\s+do|puxar\s+im[oó]veis?\s+do|trazer\s+do\s+(tecimob|rankim|vista|jetimob|kenlo)|puxar\s+do\s+(tecimob|rankim|vista|jetimob|kenlo)/i.test(_f))
+    return { intencao: 'IMPORTAR_XML', slots: {}, imoveisEncontrados: [], leadsEncontrados: [], temDados: false, fraseOriginal: _f, mNorm: _f.toLowerCase() };
+  if (/publicar\s+im[oó]veis?\s+(no|em|para|pro)\s+(vivareal|zap|olx|imovelweb|chaves|123i)|exportar\s+(para|pro)\s+(vivareal|zap|olx|imovelweb|chaves|123i)/i.test(_f))
+    return { intencao: 'EXPORTAR_XML', slots: {}, imoveisEncontrados: [], leadsEncontrados: [], temDados: false, fraseOriginal: _f, mNorm: _f.toLowerCase() };
+  if (/tem\s+visita\s+marcada|quem\s+confirmou\s+visita|visitas?\s+da\s+semana/i.test(_f))
+    return { intencao: 'VER_VISITAS', slots: {}, imoveisEncontrados: [], leadsEncontrados: [], temDados: false, fraseOriginal: _f, mNorm: _f.toLowerCase() };
+  if (/tem\s+algo\s+novo|novidades|o\s+que\s+aconteceu/i.test(_f))
+    return { intencao: 'VER_NOTIFICACOES', slots: {}, imoveisEncontrados: [], leadsEncontrados: [], temDados: false, fraseOriginal: _f, mNorm: _f.toLowerCase() };
+  if (/quantos?\s+(leads?|clientes?)|^ver\s+leads?$|^meus?\s+leads?$|leads?\s+sem\s+match/i.test(_f))
+    return { intencao: 'VER_LEADS', slots: {}, imoveisEncontrados: [], leadsEncontrados: [], temDados: false, fraseOriginal: _f, mNorm: _f.toLowerCase() };
+  if (/^meus?\s+im[oó]veis?$|quantos?\s+im[oó]veis?|^ver\s+carteira$|im[oó]veis?\s+sem\s+propriet/i.test(_f))
+    return { intencao: 'VER_IMOVEIS', slots: {}, imoveisEncontrados: [], leadsEncontrados: [], temDados: false, fraseOriginal: _f, mNorm: _f.toLowerCase() };
   const mNorm    = semAcento(fraseOriginal);
   const intencao = detectarIntencao(mNorm);
   const operacao = Object.entries(OPERACAO).find(([,r]) => r.test(mNorm))?.[0] || null;
@@ -74,12 +89,12 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
     if (imoveisEncontrados.length === 0) {
       return '\uD83D\uDE14 Nenhum imovel encontrado'+nome+'.<br><span style="font-size:12px;color:#888">'+filtros+'</span><br><br>\uD83D\uDCA1 Quer cadastrar esse cliente como lead?<br><br>'+btn('Cadastrar lead','/app/leads')+chip('Demanda por bairro','demanda por bairro');
     }
-    const top = [...imoveisEncontrados].sort((a,b)=>(Number(a.valor)||0)-(Number(b.valor)||0));
+    const top = [...imoveisEncontrados].sort((a,b)=>(Number(a.valor_imovel)||0)-(Number(b.valor_imovel)||0));
     const cards = top.slice(0,4).map(i => {
-      const val  = i.valor   ? fmtVal(Number(i.valor)) : '-';
-      const det  = [i.quartos?i.quartos+'q':'', i.vagas?i.vagas+'vg':'', i.area?i.area+'m2':''].filter(Boolean).join(' · ');
-      const prop = i.proprietario&&i.proprietario.nome ? ' · '+i.proprietario.nome : '';
-      return '<div style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin:4px 0;border-left:3px solid #ff385c"><strong>'+(i.tipo||'Imovel')+'</strong> - '+(i.bairro||'-')+'<br><span style="color:#ff385c;font-weight:700">'+val+'</span><span style="color:#555;font-size:12px"> '+det+prop+'</span></div>';
+      const val  = i.valor_imovel ? fmtVal(Number(i.valor_imovel)) : '-';
+      const det  = [i.quartos?i.quartos+'q':'', i.vagas?i.vagas+'vg':'', i.area_m2?i.area_m2+'m2':''].filter(Boolean).join(' · ');
+      const lid  = i.id || (i.idExterno ? 'MI-'+i.idExterno : '');
+      return '<div style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin:4px 0;border-left:3px solid #ff385c"><strong>'+(i.tipo||'Imovel')+'</strong> - '+(i.bairro||'-')+'<br><span style="color:#ff385c;font-weight:700">'+val+'</span><span style="color:#555;font-size:12px"> '+det+'</span> <a href="/imovel/'+lid+'" target="_blank" style="color:#ff385c;font-size:11px;font-weight:600">Clique aqui para ver o imóvel</a></div>';
     }).join('');
     const rodape = imoveisEncontrados.length > 4 ? '<br><em style="color:#888;font-size:12px">...e mais '+(imoveisEncontrados.length-4)+' imoveis.</em>' : '';
     const leadExistente = leads.find(l => slots.bairro && l.bairro && semAcento(l.bairro).includes(semAcento(slots.bairro)));
@@ -91,12 +106,24 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
 
   // ── IMPORTAR XML ────────────────────────────────────────────────────────────
   // ── CADASTRAR LEAD ──────────────────────────────────────────────────────────
+
+  // ── SAUDAÇÃO ─────────────────────────────────────────────────────────────────
+  if (intencao === 'SAUDACAO') {
+    return '👋 Olá! Como posso ajudar?<br><br>' +
+      chip('Meus imóveis', 'meus imoveis') +
+      chip('Leads', 'ver leads') +
+      chip('Visitas', 'visitas hoje') +
+      chip('Gerar XML', 'gerar xml');
+  }
+
   if (intencao === 'CADASTRAR_LEAD') {
     const frase = ctx.fraseOriginal;
     // Extrai nome
-    const nomeMatch = frase.match(/(?:lead|cliente)[:\s]+([A-ZÀ-Úa-zà-ú][a-zà-ú]+(?:\s+[A-ZÀ-Úa-zà-ú][a-zà-ú]+)*)/i)
-      || frase.match(/cadastra\s+([A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)*)/i);
-    const nome = nomeMatch ? nomeMatch[1].trim() : null;
+    const PALAVRAS_IGNORAR = ['um','uma','pra','para','mim','me','por','favor','por favor','novo','nova','agora','aqui','esse','esta','este'];
+    const nomeMatch = frase.match(/(?:lead|cliente)[:\s,]+([A-ZÀ-Úa-zà-ú][a-zà-ú]+(?:\s+[A-ZÀ-Úa-zà-ú][a-zà-ú]+)*)/i)
+      || frase.match(/cadastra(?:r)?\s+(?:lead|cliente)?\s+([A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)*)/i);
+    const nomeRaw = nomeMatch ? nomeMatch[1].trim() : null;
+    const nome = nomeRaw && !PALAVRAS_IGNORAR.includes(nomeRaw.toLowerCase()) ? nomeRaw.replace(/^(cadastra?\s+)?(lead|cliente)\s+/i,'').trim() : null;
     // Extrai celular
     const celularMatch = frase.match(/(\(?\d{2}\)?\s?\d{4,5}[-\s]?\d{4})/);
     const celular = celularMatch ? celularMatch[1].replace(/\D/g,'') : null;

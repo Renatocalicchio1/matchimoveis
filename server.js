@@ -968,6 +968,31 @@ app.get('/app/perfil', auth, (req,res)=>{
   res.render('app-perfil', { user: req.session.user });
 });
 
+app.post('/app/perfil', auth, (req,res)=>{
+  const usersFile = 'users.json';
+  const users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile,'utf8')) : [];
+  const uid = String(req.session.user.id || '');
+
+  const idx = users.findIndex(u => String(u.id || '') === uid);
+
+  const dados = {
+    nome: req.body.nome || '',
+    creci: req.body.creci || '',
+    cpf: req.body.cpf || '',
+    celular: req.body.celular || '',
+    telefone: req.body.celular || ''
+  };
+
+  if(idx >= 0){
+    users[idx] = { ...users[idx], ...dados };
+    fs.writeFileSync(usersFile, JSON.stringify(users,null,2));
+  }
+
+  req.session.user = { ...req.session.user, ...dados };
+
+  res.redirect('/app/perfil');
+});
+
 app.get('/app-importar-leads', auth, (req,res)=>{
   res.render('app-importar-leads', { user: req.session.user, usuario: req.session.user });
 });
@@ -2093,7 +2118,8 @@ app.post('/app/imovel/:id/editar', auth, (req,res)=>{
       vivareal: !!req.body.portal_vivareal,
       chaves: !!req.body.portal_chaves,
       imovelweb: !!req.body.portal_imovelweb,
-      '123i': !!req.body.portal_123i
+      '123i': !!req.body.portal_123i,
+      quintoandar: !!req.body.portal_quintoandar
     },
     updatedAt: new Date().toISOString()
   };
@@ -2178,7 +2204,7 @@ function gerarXMLPortais(){
   const fs = require('fs');
   const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
 
-  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i'];
+  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
 
   portais.forEach(portal => {
 
@@ -2237,8 +2263,13 @@ function gerarXMLPortais(){
   </listings>
 </listingDataFeed>`;
 
-    fs.writeFileSync(`feed-${portal}.xml`, xml);
-    console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
+    if(portal === 'quintoandar'){
+      require('child_process').execSync('node exportXML.js quintoandar', { stdio:'inherit' });
+      console.log('XML QuintoAndar gerado no padrão novo');
+    } else {
+      fs.writeFileSync(`feed-${portal}.xml`, xml);
+      console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
+    }
   });
 }
 
@@ -2249,7 +2280,7 @@ function gerarXMLPortais(){
   const fs = require('fs');
   const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
 
-  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i'];
+  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
 
   portais.forEach(portal => {
 
@@ -2431,15 +2462,103 @@ app.post('/app/gerar-xml', auth, (req,res)=>{
   const { portal, ids } = req.body;
   const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
-  const selecionados = imoveis.filter(i => ids.includes(String(i.idExterno||i.id)) && (i.status||'ativo').toLowerCase() === 'ativo');
+  const selecionados = imoveis.filter(i => ids.includes(String(i.id)));
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
   const filename = 'feed-'+portal+'-'+token+'.xml';
-  const xml = gerarXMLPortal(selecionados, portal);
+  const selecionadosComCorretor = selecionados.map(i => ({
+    ...i,
+    corretorNome: req.session.user.nome || req.session.user.name || '',
+    corretorEmail: req.session.user.email || '',
+    corretorTelefone: req.session.user.celular || req.session.user.telefone || ''
+  }));
+
+  const xml = gerarXMLPortal(selecionadosComCorretor, portal);
   fs.writeFileSync(filename, xml, 'utf8');
   res.json({ url: '/'+filename, total: selecionados.length });
 });
 
 function gerarXMLPortal(imoveis, portal){
+
+  if(portal === 'quintoandar'){
+    const esc = v => String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    let xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<ListingDataFeed>\n  <Header>\n    <Provider>Rankim</Provider>\n    <Email>renato@rankim.com.br</Email>\n    <BatchId>matchimoveis-'+Date.now()+'</BatchId>\n    <BatchName>MatchImoveis QuintoAndar '+new Date().toISOString()+'</BatchName>\n  </Header>\n  <Listings>\n';
+
+    imoveis.forEach(i => {
+      const prop = i.proprietario || {};
+      const fotos = Array.isArray(i.fotos) ? i.fotos : [];
+      xml += '\n    <Listing>\n';
+      xml += '      <ListingID>'+esc(i.idExterno || i.idOriginal || i.id)+'</ListingID>\n';
+      xml += '      <Title>'+esc(i.titulo || ((i.tipo || 'Imóvel')+' em '+(i.bairro || '')))+'</Title>\n';
+      xml += '      <TransactionType>For Sale</TransactionType>\n';
+      xml += '      <PublicationType>STANDARD</PublicationType>\n';
+      xml += '      <Created_at>'+esc(i.createdAt || i.dataCadastro || '')+'</Created_at>\n';
+      xml += '      <Updated_at>'+esc(i.lastUpdate || i.updatedAt || i.ultimaAtualizacao || '')+'</Updated_at>\n';
+      xml += '      <DetailViewUrl>'+esc(i.url || i.link || '')+'</DetailViewUrl>\n';
+      xml += '      <VirtualTourLink>'+esc(i.tourVirtual || '')+'</VirtualTourLink>\n';
+      xml += '      <Details>\n';
+      xml += '        <UsageType>Residential</UsageType>\n';
+      xml += '        <PropertyType>'+esc(i.tipo || 'Apartamento')+'</PropertyType>\n';
+      xml += '        <Description>'+esc(i.descricao || '')+'</Description>\n';
+      xml += '        <ListPrice currency="BRL">'+(i.valor_imovel || i.valor || 0)+'</ListPrice>\n';
+      xml += '        <LotArea unit="square metres">'+(i.area_total || i.area_m2 || 0)+'</LotArea>\n';
+      xml += '        <UnitFloor>'+esc(i.andar || '')+'</UnitFloor>\n';
+      xml += '        <LivingArea unit="square metres">'+(i.area_m2 || i.area || 0)+'</LivingArea>\n';
+      xml += '        <PropertyAdministrationFee currency="BRL">'+(i.condominio || 0)+'</PropertyAdministrationFee>\n';
+      xml += '        <YearlyTax currency="BRL">'+(i.iptu || 0)+'</YearlyTax>\n';
+      xml += '        <Bedrooms>'+(i.quartos || 0)+'</Bedrooms>\n';
+      xml += '        <Bathrooms>'+(i.banheiros || 0)+'</Bathrooms>\n';
+      xml += '        <Room>'+(i.salas || i.rooms || 1)+'</Room>\n';
+      xml += '        <Suites>'+(i.suites || 0)+'</Suites>\n';
+      xml += '        <Garage>'+(i.vagas || 0)+'</Garage>\n';
+      xml += '      </Details>\n';
+      xml += '      <Media>\n';
+      fotos.forEach((f, idx) => {
+        const url = typeof f === 'string' ? f : f.url;
+        xml += '        <Item primary="'+(idx===0?'true':'false')+'" type="IMAGE">'+esc(url)+'</Item>\n';
+      });
+      xml += '      </Media>\n';
+      xml += '      <Location>\n';
+      xml += '        <Country abbreviation="BR">Brasil</Country>\n';
+      xml += '        <State abbreviation="SP">São Paulo</State>\n';
+      xml += '        <City>'+esc(i.cidade || 'São Paulo')+'</City>\n';
+      xml += '        <Neighborhood>'+esc(i.bairro || '')+'</Neighborhood>\n';
+      xml += '        <Address>'+esc(i.endereco || i.logradouro || '')+'</Address>\n';
+      xml += '        <StreetNumber>'+esc(i.numero || '')+'</StreetNumber>\n';
+      xml += '        <Complement>'+esc(i.complemento || '')+'</Complement>\n';
+      xml += '        <PostalCode>'+esc(String(i.cep || '').replace(/\\D/g,''))+'</PostalCode>\n';
+      xml += '        <Latitude>'+esc(i.latitude || '')+'</Latitude>\n';
+      xml += '        <Longitude>'+esc(i.longitude || '')+'</Longitude>\n';
+      xml += '        <AddresType>Rua</AddresType>\n';
+      xml += '        <Floor>'+esc(i.andar || '')+'</Floor>\n';
+      xml += '        <Tower>'+esc(i.torre || '')+'</Tower>\n';
+      xml += '        <Unity>'+esc(i.unidade || '')+'</Unity>\n';
+      xml += '        <CondominiumName>'+esc(i.condominioNome || i.condominio_name || '')+'</CondominiumName>\n';
+      xml += '      </Location>\n';
+      xml += '      <ContactInfo>\n';
+      xml += '        <Name>Rankim</Name>\n';
+      xml += '        <Email>renato@rankim.com.br</Email>\n';
+      xml += '        <Website></Website>\n';
+      xml += '        <Logo></Logo>\n';
+      xml += '        <OfficeName>Rankim</OfficeName>\n';
+      xml += '        <Telephone></Telephone>\n';
+      xml += '      </ContactInfo>\n';
+      xml += '      <OwnerInfo>\n';
+      xml += '        <Name>'+esc(prop.nome || i.proprietarioNome || '')+'</Name>\n';
+      xml += '        <Email>'+esc(prop.email || i.proprietarioEmail || '')+'</Email>\n';
+      xml += '        <Telephone>'+esc(prop.telefone || prop.celular || i.proprietarioTelefone || '')+'</Telephone>\n';
+      xml += '      </OwnerInfo>\n';
+      xml += '      <Broker>\n';
+      xml += '        <BrokerName>'+esc(i.corretorNome || '')+'</BrokerName>\n';
+      xml += '        <BrokerEmail>'+esc(i.corretorEmail || '')+'</BrokerEmail>\n';
+      xml += '        <BrokerTelephone>'+esc(i.corretorTelefone || '')+'</BrokerTelephone>\n';
+      xml += '      </Broker>\n';
+      xml += '    </Listing>\n';
+    });
+
+    xml += '  </Listings>\n</ListingDataFeed>\n';
+    return xml;
+  }
+
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
@@ -2525,6 +2644,61 @@ function gerarXMLPortal(imoveis, portal){
 }
 
 function gerarXMLPortal(imoveis, portal){
+
+  if(portal === 'quintoandar'){
+    const esc = v => String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    let xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<ListingDataFeed>\n  <Header>\n    <Provider>Rankim</Provider>\n    <Email>renato@rankim.com.br</Email>\n    <BatchId>matchimoveis-'+Date.now()+'</BatchId>\n    <BatchName>MatchImoveis QuintoAndar '+new Date().toISOString()+'</BatchName>\n  </Header>\n  <Listings>\n';
+
+    imoveis.forEach(i => {
+      const prop = i.proprietario || {};
+      const fotos = Array.isArray(i.fotos) ? i.fotos : [];
+      xml += '\n    <Listing>\n';
+      xml += '      <ListingID>'+esc(i.idExterno || i.idOriginal || i.id)+'</ListingID>\n';
+      xml += '      <Title>'+esc(i.titulo || ((i.tipo || 'Imóvel')+' em '+(i.bairro || '')))+'</Title>\n';
+      xml += '      <TransactionType>For Sale</TransactionType>\n';
+      xml += '      <PublicationType>STANDARD</PublicationType>\n';
+      xml += '      <Details>\n';
+      xml += '        <UsageType>Residential</UsageType>\n';
+      xml += '        <PropertyType>'+esc(i.tipo || 'Apartamento')+'</PropertyType>\n';
+      xml += '        <Description>'+esc(i.descricao || '')+'</Description>\n';
+      xml += '        <ListPrice currency="BRL">'+(i.valor_imovel || i.valor || 0)+'</ListPrice>\n';
+      xml += '        <LivingArea unit="square metres">'+(i.area_m2 || i.area || 0)+'</LivingArea>\n';
+      xml += '        <Bedrooms>'+(i.quartos || 0)+'</Bedrooms>\n';
+      xml += '        <Bathrooms>'+(i.banheiros || 0)+'</Bathrooms>\n';
+      xml += '        <Suites>'+(i.suites || 0)+'</Suites>\n';
+      xml += '        <Garage>'+(i.vagas || 0)+'</Garage>\n';
+      xml += '      </Details>\n';
+      xml += '      <Media>\n';
+      fotos.forEach((f, idx) => {
+        const url = typeof f === 'string' ? f : f.url;
+        xml += '        <Item primary="'+(idx===0?'true':'false')+'" type="IMAGE">'+esc(url)+'</Item>\n';
+      });
+      xml += '      </Media>\n';
+      xml += '      <Location>\n';
+      xml += '        <Country abbreviation="BR">Brasil</Country>\n';
+      xml += '        <State abbreviation="SP">São Paulo</State>\n';
+      xml += '        <City>'+esc(i.cidade || 'São Paulo')+'</City>\n';
+      xml += '        <Neighborhood>'+esc(i.bairro || '')+'</Neighborhood>\n';
+      xml += '        <Address>'+esc(i.endereco || i.logradouro || '')+'</Address>\n';
+      xml += '        <PostalCode>'+esc(i.cep || '')+'</PostalCode>\n';
+      xml += '      </Location>\n';
+      xml += '      <OwnerInfo>\n';
+      xml += '        <Name>'+esc(prop.nome || '')+'</Name>\n';
+      xml += '        <Email>'+esc(prop.email || '')+'</Email>\n';
+      xml += '        <Telephone>'+esc(prop.telefone || prop.celular || '')+'</Telephone>\n';
+      xml += '      </OwnerInfo>\n';
+      xml += '      <Broker>\n';
+      xml += '        <BrokerName>'+esc(i.corretorNome || '')+'</BrokerName>\n';
+      xml += '        <BrokerEmail>'+esc(i.corretorEmail || '')+'</BrokerEmail>\n';
+      xml += '        <BrokerTelephone>'+esc(i.corretorTelefone || '')+'</BrokerTelephone>\n';
+      xml += '      </Broker>\n';
+      xml += '    </Listing>\n';
+    });
+
+    xml += '  </Listings>\n</ListingDataFeed>\n';
+    return xml;
+  }
+
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
@@ -2571,7 +2745,7 @@ function gerarXMLPortal(imoveis, portal){
 }
 
 app.get('/app/portais', auth, (req,res)=>{
-  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i'];
+  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
   const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');

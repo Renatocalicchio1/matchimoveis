@@ -5,7 +5,7 @@
   <form method="POST" action="/app/perfil" style="margin-top:14px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div><label>Nome</label><input name="nome" value="<%= user.nome||'' %>"></div>
-      <div><label>Celular</label><input value="<%= user.celular||user.telefone||'' %>" readonly style="background:#f7f7f7;color:#aaa"></div>
+      <div><label>Celular</label><input name="celular" value="<%= user.celular||user.telefone||'' %>"></div>
       <div><label>CRECI</label><input name="creci" value="<%= user.creci||'' %>"></div>
       <div><label>CPF</label><input name="cpf" value="<%= user.cpf||'' %>"></div>
       <div><label>Tipo de conta</label><input value="<%= user.tipo||'corretor' %>" readonly style="background:#f7f7f7;color:#aaa"></div>

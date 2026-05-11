@@ -526,7 +526,7 @@
         }
       }
     ],
-    "matchQuintoAndarStatus": "ok",
+    "matchQuintoAndarStatus": "processando",
     "matchQuintoAndarAt": "2026-05-06T13:32:55.165Z",
     "status": "ok",
     "historico": [
@@ -537,6 +537,14 @@
       {
         "acao": "visualizou_detalhes_lead",
         "data": "2026-05-10T01:02:47.612Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-11T21:42:10.183Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-11T21:42:13.965Z"
       }
     ],
     "bestScore": 0

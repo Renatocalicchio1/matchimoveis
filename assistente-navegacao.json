@@ -1,12 +1,12 @@
 {
   "sessoes": {
     "imobiliaria-47991919191": {
-      "paginaAtual": "assistente",
-      "labelAtual": "Assistente",
-      "dominioAtual": "sistema",
-      "rotaAtual": "/app/assistente",
-      "atualizadoEm": "2026-05-10T04:18:48.424Z",
-      "paginaAnterior": "dashboard"
+      "paginaAtual": "leads",
+      "labelAtual": "Leads",
+      "dominioAtual": "leads",
+      "rotaAtual": "/app/leads",
+      "atualizadoEm": "2026-05-11T21:42:05.927Z",
+      "paginaAnterior": "imoveis"
     }
   },
   "fluxos": [
@@ -975,6 +975,222 @@
       "para": "assistente",
       "userId": "imobiliaria-47991919191",
       "data": "2026-05-10T04:18:48.424Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:16:18.464Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "portais",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:16:28.474Z"
+    },
+    {
+      "de": "portais",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:16:34.558Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:18:16.943Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:18:19.079Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "portais",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:18:33.316Z"
+    },
+    {
+      "de": "portais",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:18:56.216Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:44:00.126Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:47:24.165Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:47:42.123Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:47:44.292Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:49:49.096Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:49:51.721Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "portais",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:50:05.370Z"
+    },
+    {
+      "de": "portais",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:50:22.214Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:53:56.432Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T20:53:58.770Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:02:17.808Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:02:20.572Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:09:13.621Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:09:15.990Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "portais",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:10:16.268Z"
+    },
+    {
+      "de": "portais",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:10:21.825Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:26:22.285Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:26:24.865Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "perfil",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:27:52.470Z"
+    },
+    {
+      "de": "perfil",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:31:06.114Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:31:08.067Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:37:15.506Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "perfil",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:37:18.352Z"
+    },
+    {
+      "de": "perfil",
+      "para": "notificacoes",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:38:02.304Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "perfil",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:38:05.381Z"
+    },
+    {
+      "de": "perfil",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:38:24.797Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "coins",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:38:36.302Z"
+    },
+    {
+      "de": "coins",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:38:44.282Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-11T21:42:05.927Z"
     }
   ]
 }

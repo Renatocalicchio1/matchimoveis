@@ -11,6 +11,7 @@
     <button onclick="gerarXML('olx')" style="background:#333;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 OLX</button>
     <button onclick="gerarXML('chaves')" style="background:#444;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 Chaves</button>
     <button onclick="gerarXML('imovelweb')" style="background:#666;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 ImovelWeb</button>
+<button class="portal-btn" data-portal="quintoandar">🤍 QuintoAndar</button>
     <button onclick="gerarXML('123i')" style="background:#777;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 123i</button>
   </div>
 </div>
@@ -251,6 +252,14 @@ function limpar(){
   ['f-tipo','f-bairro','f-cidade','f-valor-min','f-valor-max','f-area-min','f-quartos','f-vagas','f-suites','f-banheiros','f-operacao','f-status','f-proprietario','f-fotos'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('busca').value='';filtrar();
 }
+
+document.querySelectorAll('.portal-btn').forEach(btn=>{
+  if(btn.dataset.portal==='quintoandar'){
+    btn.addEventListener('click', ()=>{
+      gerarXML('quintoandar');
+    });
+  }
+});
 </script>
 <%- include('partials/app-end') %>
 <style>

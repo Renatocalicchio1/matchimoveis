@@ -62,7 +62,7 @@ app.use(express.json());
 
 function loadImoveis() {
   try {
-    return JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+    return JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   } catch {
     return [];
   }
@@ -138,8 +138,8 @@ app.post('/app/importar', upload.any(), async (req, res) => {
       execSync(`node importXMLCompleto.js "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
 
       const fs = require('fs');
-      const imoveis = fs.existsSync('imoveis.json')
-        ? JSON.parse(fs.readFileSync('imoveis.json','utf8'))
+      const imoveis = fs.existsSync(dataFile('imoveis.json'))
+        ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'))
         : [];
 
       global.importStatus = {
@@ -258,7 +258,7 @@ app.post('/app/portais', (req,res)=>{
     config[p] = ativos.includes(p);
   });
 
-  require('fs').writeFileSync('portais.json', JSON.stringify(config,null,2));
+  require('fs').writeFileSync(dataFile('portais.json'), JSON.stringify(config,null,2));
 
   res.redirect('/app/portais');
 });
@@ -343,12 +343,12 @@ app.post('/login', (req,res)=>{
 // ===== LEADS + MATCH + OFERTA CLIENTE =====
 function carregarLeads(){
   const fs = require('fs');
-  return fs.existsSync('leads.json') ? JSON.parse(fs.readFileSync('leads.json','utf8')) : [];
+  return fs.existsSync(dataFile('leads.json')) ? JSON.parse(fs.readFileSync(dataFile('leads.json'),'utf8')) : [];
 }
 
 function salvarLeads(leads){
   const fs = require('fs');
-  fs.writeFileSync('leads.json', JSON.stringify(leads,null,2));
+  fs.writeFileSync(dataFile('leads.json'), JSON.stringify(leads,null,2));
 }
 
 function marcarEtapaLead(lead, etapa){
@@ -394,7 +394,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   // Gravar em visitas.json vinculado ao dono da lead
   const imovel = lead.imovelVisita || {};
   // Busca proprietario no imoveis.json
-  const imoveisBase = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json','utf8')) : [];
+  const imoveisBase = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const imovelBase = imoveisBase.find(i => String(i.idExterno||i.id) === String(imovel.idExterno||imovel.id||imovel.id_anuncio||''));
   const proprietario = imovelBase ? (imovelBase.proprietario || {}) : (imovel.proprietario || {});
   const novaVisita = {
@@ -798,7 +798,7 @@ app.get('/app/notificacoes', auth, (req,res)=>{
 
 app.get('/app-home', auth, (req,res)=>{
   const user = req.session.user;
-  const todosImoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const todosImoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const todosLeads = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
   const todasVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
   const notificacoes = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
@@ -877,8 +877,8 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
     const user = req.session.user || {};
     const userId = user.id || user.celular || user.telefone || user.email || '';
 
-    const imoveis = fs.existsSync('imoveis.json')
-      ? JSON.parse(fs.readFileSync('imoveis.json', 'utf8'))
+    const imoveis = fs.existsSync(dataFile('imoveis.json'))
+      ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'))
       : [];
 
     const meusImoveis = imoveis.filter(i => {
@@ -967,7 +967,7 @@ app.get('/app/cadastro', auth, (req,res)=>{
 });
 
 ////app.get('/app/portais', auth, (req,res)=>{
-//  const portais = fs.existsSync('portais.json') ? JSON.parse(fs.readFileSync('portais.json','utf8')) : [];
+//  const portais = fs.existsSync(dataFile('portais.json')) ? JSON.parse(fs.readFileSync(dataFile('portais.json'),'utf8')) : [];
 //  res.render('app-portais', { user: req.session.user, portais });
 //});
 
@@ -1192,7 +1192,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
       console.log('🔎 Match QuintoAndar em background iniciado:', leadIdParam);
 
       const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
-      const imoveis = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8')) : [];
+      const imoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8')) : [];
 
       const lead = leads.find(l =>
         String(l.leadId) === String(leadIdParam) ||
@@ -1702,13 +1702,13 @@ app.get('/api/imoveis', (req, res) => {
 
 app.post('/imovel/:id/status', (req,res)=>{
   const fs=require('fs');
-  const imoveis=JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis=JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   const { status } = req.body;
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if(idx>=0){
     imoveis[idx].status = status;
-    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
   gerarXMLPortais();
   gerarXMLPortais();
   }
@@ -1718,13 +1718,13 @@ app.post('/imovel/:id/status', (req,res)=>{
 
 app.post('/imovel/:id/status', (req,res)=>{
   const fs=require('fs');
-  const imoveis=JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis=JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   const { status } = req.body;
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if(idx>=0){
     imoveis[idx].status = status;
-    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
   }
 
   res.json({ok:true});
@@ -1736,7 +1736,7 @@ app.post('/imovel/:id/status', (req,res)=>{
 // Cadastro manual de imóvel
 app.post('/app/imovel/cadastrar', auth, (req, res) => {
   const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
-  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const b = req.body;
   const novo = {
     idInterno: 'APP-' + Date.now(),
@@ -1774,7 +1774,7 @@ app.post('/app/imovel/cadastrar', auth, (req, res) => {
     lastUpdate: new Date().toISOString()
   };
   imoveis.push(novo);
-  fs.writeFileSync('imoveis.json', JSON.stringify(imoveis, null, 2));
+  fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis, null, 2));
   res.redirect('/app/imoveis');
 });
 
@@ -1796,8 +1796,8 @@ app.post('/api/lead-interesse', (req, res) => {
       ? JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'))
       : [];
 
-    const imoveis = fs.existsSync('./imoveis.json')
-      ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8'))
+    const imoveis = fs.existsSync(dataFile('imoveis.json'))
+      ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'))
       : [];
 
     const imovelRef = imoveis.find(i =>
@@ -1959,7 +1959,7 @@ app.post('/api/lead-interesse', (req, res) => {
 
 // Página pública do imóvel — sem login
 app.get('/imovel/:id', (req, res) => {
-  const imoveis = JSON.parse(fs.readFileSync('./imoveis.json', 'utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'));
   const users = JSON.parse(fs.readFileSync(dataPath('users.json'), 'utf8'));
   const corretor = users.find(u => u.ativo) || {};
 
@@ -2032,7 +2032,7 @@ app.get('/app/lead/:id', auth, (req, res) => {
     String(v.email || '').toLowerCase() === String(lead.email || '').toLowerCase()
   );
 
-  const imoveisInternos = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8')) : [];
+  const imoveisInternos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8')) : [];
 
   let matchesInternos = [];
   try {
@@ -2059,7 +2059,7 @@ app.get('/app/lead/:id', auth, (req, res) => {
   res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos });
 });
 app.get('/app/imovel/:id', auth, (req, res) => {
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json', 'utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'));
   const user = req.session.user;
   const imovel = imoveis.find(i => String(i.id) === String(req.params.id) || String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if (!imovel) return res.status(404).send('Imóvel não encontrado');
@@ -2079,7 +2079,7 @@ app.get('/app/imovel/:id', auth, (req, res) => {
 // Editar imóvel - tela
 app.get('/app/imovel/:id/editar', auth, (req,res)=>{
   const fs = require('fs');
-  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
 
   if(!imovel){
@@ -2092,7 +2092,7 @@ app.get('/app/imovel/:id/editar', auth, (req,res)=>{
 // Editar imóvel - salvar
 app.post('/app/imovel/:id/editar', auth, (req,res)=>{
   const fs = require('fs');
-  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
 
   if(idx < 0){
@@ -2131,7 +2131,7 @@ app.post('/app/imovel/:id/editar', auth, (req,res)=>{
     updatedAt: new Date().toISOString()
   };
 
-  fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+  fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
 
   if(typeof gerarXMLPortais === 'function'){
     gerarXMLPortais();
@@ -2156,14 +2156,14 @@ const uploadImoveis = multer({ storage: storageImoveis });
 // Upload de foto
 app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), (req,res)=>{
   const fs = require('fs');
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if(idx >= 0){
     const url = '/uploads/imoveis/' + req.file.filename;
     imoveis[idx].fotos = imoveis[idx].fotos || [];
     imoveis[idx].fotos.push(url);
-    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -2174,12 +2174,12 @@ app.post('/app/imovel/:id/excluir-foto', auth, (req,res)=>{
   const fs = require('fs');
   const { foto } = req.body;
 
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
 
   if(idx >= 0){
     imoveis[idx].fotos = (imoveis[idx].fotos || []).filter(f => f !== foto);
-    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -2190,7 +2190,7 @@ app.post('/app/imovel/:id/capa-foto', auth, (req,res)=>{
   const fs = require('fs');
   const { foto } = req.body;
 
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
 
   if(idx >= 0){
@@ -2198,7 +2198,7 @@ app.post('/app/imovel/:id/capa-foto', auth, (req,res)=>{
     fotos = fotos.filter(f => f !== foto);
     fotos.unshift(foto);
     imoveis[idx].fotos = fotos;
-    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -2209,7 +2209,7 @@ app.post('/app/imovel/:id/capa-foto', auth, (req,res)=>{
 // =========================
 function gerarXMLPortais(){
   const fs = require('fs');
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
 
   const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
 
@@ -2285,7 +2285,7 @@ function gerarXMLPortais(){
 // =========================
 function gerarXMLPortais(){
   const fs = require('fs');
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
 
   const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
 
@@ -2467,7 +2467,7 @@ app.get('/app/imoveis-ids', auth, (req, res) => {
 
 app.post('/app/gerar-xml', auth, (req,res)=>{
   const { portal, ids } = req.body;
-  const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const todos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
   const selecionados = imoveis.filter(i => ids.includes(String(i.id)));
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
@@ -2753,7 +2753,7 @@ function gerarXMLPortal(imoveis, portal){
 
 app.get('/app/portais', auth, (req,res)=>{
   const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
-  const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const todos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
   const xmlFeeds = portais.map(portal => {

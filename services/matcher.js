@@ -1,4 +1,10 @@
 const fs = require('fs');
+const path = require('path');
+
+const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : path.join(__dirname, '..');
+function dataFile(name){
+  return path.join(DATA_DIR, name);
+}
 
 function normalizeTipo(tipo = '') {
   const t = (tipo || '').toLowerCase();
@@ -69,8 +75,8 @@ function passaFiltros(origin, c) {
 
 function searchRankim(origin) {
   try {
-    if (!fs.existsSync('imoveis.json')) return [];
-    const base = JSON.parse(fs.readFileSync('imoveis.json', 'utf8'));
+    if (!fs.existsSync(dataFile('imoveis.json'))) return [];
+    const base = JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'));
     return base.filter(i => passaFiltros(origin, i)).map(i => ({ ...i, fonte: i.fonte || 'rankim' }));
   } catch (e) {
     console.log('ERRO ao ler base Rankim:', e.message);

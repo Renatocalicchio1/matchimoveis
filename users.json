@@ -291,5 +291,55 @@
     "matchCoins": 0,
     "matchCoinsTotal": 0,
     "matchCoinsTransacoes": []
+  },
+  {
+    "id": "corretor-11975720750",
+    "nome": "Antonio",
+    "telefone": "11975720750",
+    "celular": "11975720750",
+    "tipo": "corretor",
+    "ativo": true,
+    "codigoUsuario": "ANT-0750"
+  },
+  {
+    "id": "corretor-11992010889",
+    "nome": "Renato",
+    "telefone": "11992010889",
+    "celular": "11992010889",
+    "tipo": "corretor",
+    "ativo": true,
+    "codigoUsuario": "REN-0889",
+    "historicoAssistente": [
+      {
+        "pergunta": "oi",
+        "resposta": "👋 Olá! Como posso ajudar?<br><br>Digite o que precisa ou escolha uma opção abaixo:<br><br><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver imóveis →</a> <a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a> <a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver visitas →</a>",
+        "data": "2026-05-11T23:01:39.858Z"
+      },
+      {
+        "pergunta": "importar xml",
+        "resposta": "📥 <strong>Importar imóveis via XML:</strong><br><br>⚠️ <strong>Padrão obrigatório: VRSync do VivaReal</strong><br>O sistema aceita apenas feeds no padrão VRSync do VivaReal.<br>A maioria dos CRMs já exporta nesse formato: Tecimob, Rankim, Vista, Jetimob, Kenlo.<br><br>💡 Cole a URL do feed aqui no chat ou acesse a página de cadastro:<br><br><div style=\"background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin:8px 0\">📋 Exemplo de URL válida:<br><code>https://seucrm.com.br/feed-vivareal.xml</code></div><br><a href=\"/app/cadastro\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Importar XML →</a><button onclick=\"enviarMsg('como importar xml')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Como importo</button>",
+        "data": "2026-05-11T23:01:47.883Z"
+      },
+      {
+        "pergunta": "https://sistema.rankim.com.br/integration/83c1b24c6399b8284b114fb23fa4a965446d27fc/vivareal.xml",
+        "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+        "data": "2026-05-11T23:03:44.818Z"
+      },
+      {
+        "pergunta": "esse xml é para voce importar os dados da rankim para a matchimoveis",
+        "resposta": "😔 Nenhum imovel encontrado.<br><span style=\"font-size:12px;color:#888\">📍 rankim para a</span><br><br>💡 Quer cadastrar esse cliente como lead?<br><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Cadastrar lead →</a><button onclick=\"enviarMsg('demanda por bairro')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Demanda por bairro</button><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+        "data": "2026-05-11T23:04:10.039Z"
+      },
+      {
+        "pergunta": "https://sistema.rankim.com.br/integration/83c1b24c6399b8284b114fb23fa4a965446d27fc/vivareal.xml",
+        "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}<br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
+        "data": "2026-05-11T23:04:18.660Z"
+      },
+      {
+        "pergunta": "gerar xml todos vivareal",
+        "resposta": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}",
+        "data": "2026-05-11T23:04:25.709Z"
+      }
+    ]
   }
 ]

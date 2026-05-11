@@ -1368,7 +1368,7 @@
     },
     {
       "pergunta": "gerar xml vivareal",
-      "count": 15,
+      "count": 16,
       "respostas": [
         {
           "texto": "🔗 Para qual portal gerar o XML?🔗 VivaReal🔗 ZAP🔗 OLX🔗 Chaves🔗 ImovelWeb🔗 123iVer portaisGerar XML",
@@ -1392,7 +1392,7 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.149Z",
-      "ultima": "2026-05-10T04:16:38.781Z"
+      "ultima": "2026-05-11T23:04:25.704Z"
     },
     {
       "pergunta": "ver portais",
@@ -3627,7 +3627,7 @@
     },
     {
       "pergunta": "importar xml",
-      "count": 4,
+      "count": 5,
       "respostas": [
         {
           "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
@@ -3648,10 +3648,15 @@
           "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
           "dominio": "portais",
           "data": "2026-05-10T04:16:58.633Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "portais",
+          "data": "2026-05-11T23:01:47.878Z"
         }
       ],
       "primeira": "2026-05-09T21:42:26.394Z",
-      "ultima": "2026-05-10T04:16:58.633Z"
+      "ultima": "2026-05-11T23:01:47.878Z"
     },
     {
       "pergunta": "fazer match",
@@ -4677,6 +4682,45 @@
       ],
       "primeira": "2026-05-10T04:20:28.096Z",
       "ultima": "2026-05-10T04:20:28.096Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-11T23:01:39.853Z"
+        }
+      ],
+      "primeira": "2026-05-11T23:01:39.853Z",
+      "ultima": "2026-05-11T23:01:39.853Z"
+    },
+    {
+      "pergunta": "https://sistema.rankim.com.br/integration/83c1b24c6399b8284b114fb23fa4a965446d27fc/vivareal.xml",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}Ver portaisGerar XML",
+          "dominio": "portais",
+          "data": "2026-05-11T23:03:44.811Z"
+        }
+      ],
+      "primeira": "2026-05-11T23:03:44.811Z",
+      "ultima": "2026-05-11T23:04:18.655Z"
+    },
+    {
+      "pergunta": "esse xml é para voce importar os dados da rankim para a matchimoveis",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "😔 Nenhum imovel encontrado.📍 rankim para a💡 Quer cadastrar esse cliente como lead?Cadastrar lead →Demanda por bairroVer portaisGerar XML",
+          "dominio": "portais",
+          "data": "2026-05-11T23:04:10.034Z"
+        }
+      ],
+      "primeira": "2026-05-11T23:04:10.034Z",
+      "ultima": "2026-05-11T23:04:10.034Z"
     }
   ]
 }

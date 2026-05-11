@@ -101,6 +101,30 @@
 
 
 
+      <hr style="margin:20px 0">
+
+      <h3>Criar conta</h3>
+
+      <form method="POST" action="/login">
+        <label>Nome</label>
+        <input name="nome" placeholder="Seu nome">
+
+        <label>Celular</label>
+        <input name="telefone" placeholder="11999999999" required>
+
+        <label>Senha</label>
+        <input name="senha" type="password" placeholder="Crie uma senha" required>
+
+        <label>Tipo de conta</label>
+        <select name="tipoConta" required>
+          <option value="corretor">Corretor</option>
+          <option value="imobiliaria">Imobiliária</option>
+          <option value="construtora">Construtora</option>
+        </select>
+
+        <button type="submit">Criar conta →</button>
+      </form>
+
       <div class="small">MatchImóveis · IA para o mercado imobiliário<br>Seus dados são protegidos e nunca compartilhados.</div>
     </div>
   </div>

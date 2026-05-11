@@ -23,6 +23,14 @@
       "rotaAtual": "/app/assistente",
       "atualizadoEm": "2026-05-11T23:01:36.704Z",
       "paginaAnterior": "cadastro"
+    },
+    "imobiliaria-47992010888": {
+      "paginaAtual": "imoveis",
+      "labelAtual": "Meus Imoveis",
+      "dominioAtual": "imoveis",
+      "rotaAtual": "/app/imoveis",
+      "atualizadoEm": "2026-05-11T23:17:16.210Z",
+      "paginaAnterior": "portais"
     }
   },
   "fluxos": [
@@ -1285,6 +1293,18 @@
       "para": "portais",
       "userId": "imobiliaria-47991919191",
       "data": "2026-05-11T23:05:58.097Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "portais",
+      "userId": "imobiliaria-47992010888",
+      "data": "2026-05-11T23:17:11.824Z"
+    },
+    {
+      "de": "portais",
+      "para": "imoveis",
+      "userId": "imobiliaria-47992010888",
+      "data": "2026-05-11T23:17:16.210Z"
     }
   ]
 }

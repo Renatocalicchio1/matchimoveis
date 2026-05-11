@@ -8,6 +8,15 @@ const cerebroNLP = require("./services/cerebro-nlp");
 const fs = require('fs');
 const path = require('path');
 
+const DATA_DIR = process.env.RENDER
+  ? '/opt/render/project/src/data'
+  : __dirname;
+
+function dataFile(name){
+  return path.join(DATA_DIR, name);
+}
+
+
 
 
 // Inicializa diretório de dados persistentes
@@ -27,8 +36,6 @@ if (process.env.RENDER) {
 }
 
 // Caminho persistente no Render
-const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : '.';
-function dataPath(file) { return DATA_DIR + '/' + file; }
 
 const app = express();
 

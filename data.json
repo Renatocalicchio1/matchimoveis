@@ -526,8 +526,8 @@
         }
       }
     ],
-    "matchQuintoAndarStatus": "processando",
-    "matchQuintoAndarAt": "2026-05-06T13:32:55.165Z",
+    "matchQuintoAndarStatus": "finalizado",
+    "matchQuintoAndarAt": "2026-05-11T21:45:10.275Z",
     "status": "ok",
     "historico": [
       {
@@ -547,7 +547,9 @@
         "data": "2026-05-11T21:42:13.965Z"
       }
     ],
-    "bestScore": 0
+    "bestScore": 0,
+    "matchesQuintoAndar": [],
+    "matchQuintoAndarCount": 0
   },
   {
     "nome": "Adriana",

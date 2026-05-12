@@ -2511,7 +2511,7 @@ app.post('/app/gerar-xml', auth, (req,res)=>{
   const { portal, ids } = req.body;
   const todos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
-  const selecionados = imoveis.filter(i => ids.includes(String(i.id)));
+  const selecionados = imoveis.filter(i => ids.includes(String(i.id)) || ids.includes(String(i.idExterno)) || ids.includes(String(i.idOriginal)));
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
   const filename = 'feed-'+portal+'-'+token+'.xml';
   const selecionadosComCorretor = selecionados.map(i => ({

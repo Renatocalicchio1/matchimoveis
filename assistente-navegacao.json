@@ -1,12 +1,12 @@
 {
   "sessoes": {
     "imobiliaria-47991919191": {
-      "paginaAtual": "dashboard",
-      "labelAtual": "Dashboard",
-      "dominioAtual": "dashboard",
-      "rotaAtual": "/app-home",
-      "atualizadoEm": "2026-05-12T00:04:29.850Z",
-      "paginaAnterior": "notificacoes"
+      "paginaAtual": "imoveis",
+      "labelAtual": "Meus Imoveis",
+      "dominioAtual": "imoveis",
+      "rotaAtual": "/app/imoveis",
+      "atualizadoEm": "2026-05-12T00:09:53.317Z",
+      "paginaAnterior": "dashboard"
     },
     "corretor-11975720750": {
       "paginaAtual": "visitas",
@@ -1359,6 +1359,12 @@
       "para": "visitas",
       "userId": "corretor-11975720750",
       "data": "2026-05-12T00:05:01.249Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-12T00:09:53.317Z"
     }
   ]
 }

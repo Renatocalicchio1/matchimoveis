@@ -3106,3 +3106,67 @@ app.get('/app/assistente/historico', auth, (req, res) => {
   }
   res.json({ historico });
 });
+
+
+// =========================
+// IMPORT SYNC RAN 0888/9191
+// =========================
+app.post('/admin/import-sync-ran', express.json({limit:'200mb'}), (req,res)=>{
+
+  const token = req.headers['x-sync-token'];
+
+  if(token !== 'MATCHIMOVEIS_SYNC_2026'){
+    return res.status(401).json({ok:false,error:'token invalido'});
+  }
+
+  try{
+
+    const body = req.body || {};
+
+    const arquivos = {
+      users: 'users.json',
+      imoveis: 'imoveis.json',
+      leads: 'leads.json',
+      data: 'data.json',
+      visitas: 'visitas.json',
+      notificacoes: 'notificacoes.json'
+    };
+
+    Object.entries(arquivos).forEach(([key,file])=>{
+
+      const atuais = fs.existsSync(dataPath(file))
+        ? JSON.parse(fs.readFileSync(dataPath(file),'utf8'))
+        : [];
+
+      const novos = Array.isArray(body[key]) ? body[key] : [];
+
+      const idsNovos = new Set(
+        novos.map(i => String(i.id || i._id || i.codigoUsuario || Math.random()))
+      );
+
+      const limpos = atuais.filter(i => {
+        const id = String(i.id || i._id || i.codigoUsuario || '');
+        return !idsNovos.has(id);
+      });
+
+      const final = [...limpos, ...novos];
+
+      fs.writeFileSync(
+        dataPath(file),
+        JSON.stringify(final,null,2)
+      );
+
+    });
+
+    res.json({
+      ok:true,
+      users:(body.users||[]).length,
+      imoveis:(body.imoveis||[]).length,
+      data:(body.data||[]).length
+    });
+
+  }catch(e){
+    res.status(500).json({ok:false,error:e.message});
+  }
+
+});

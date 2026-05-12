@@ -104,6 +104,9 @@ app.use(express.json());
 
 function loadImoveis() {
   try {
+
+    console.log('BODY LEAD INTERESSE =>');
+    console.log(JSON.stringify(req.body,null,2));
     return JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   } catch {
     return [];
@@ -465,7 +468,11 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
   lead.matches = lead.matchesBase || lead.matches || [];
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
   fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
-  res.render('cliente-oferta', { user: null, lead, queryUserId: userIdOferta });
+  res.render('cliente-oferta', {
+    user: null,
+    lead,
+    queryUserId: userIdOferta || lead.userId || lead.usuarioId || lead.corretorId || ''
+  });
 });
 
 app.get('/cliente/oferta/:leadId/escolher/:idx', (req,res)=>{

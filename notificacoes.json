@@ -226,5 +226,53 @@
     "imovelId": "CAPRAFA121",
     "lida": false,
     "criadaEm": "12/05/2026, 14:30:29"
+  },
+  {
+    "id": "1778607856841",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "1111 solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778607856822",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "12/05/2026, 14:44:16"
+  },
+  {
+    "id": "1778607880785",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "8888 solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778607880766",
+    "imovelId": "CAPRAFA121",
+    "lida": false,
+    "criadaEm": "12/05/2026, 14:44:40"
+  },
+  {
+    "id": "1778608090320",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "1111111 solicitou visita para Lindo Studio no Condomínio Today Vila Olímpia com 27m²!",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778608090303",
+    "imovelId": "CAPRAFA122",
+    "lida": false,
+    "criadaEm": "12/05/2026, 14:48:10"
+  },
+  {
+    "id": "1778608111391",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "13231321312222222 solicitou visita para Apartamento de 26m² à Venda na Vila Olímpia",
+    "usuarioId": "imobiliaria-47991919191",
+    "usuarioNome": "",
+    "leadId": "1778608111370",
+    "imovelId": "CAPJUJU024",
+    "lida": false,
+    "criadaEm": "12/05/2026, 14:48:31"
   }
 ]

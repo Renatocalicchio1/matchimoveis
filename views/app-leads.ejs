@@ -217,8 +217,8 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
             <span style="color:#666"><%= item.contato || item.telefone || '-' %> · <%= item.email || '-' %></span>
             · <a target="_blank" href="https://wa.me/<%= String(item.contato || item.telefone || '').replace(/\\D/g,'') %>">WhatsApp</a>
             <% if(matchCount) { %>
-              · <a href="/cliente/oferta/<%= item.leadId || item.id %>" style="color:#ff385c;font-weight:700">Ver vitrine</a>
-              · <a target="_blank" href="https://wa.me/55<%= String(item.contato || item.telefone || '').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (item.nome || item.cliente || item.clientName || '') + '! Separamos algumas oportunidades semelhantes ao que você buscou. Veja sua vitrine: https://matchimoveis.onrender.com/cliente/oferta/' + (item.leadId || item.id) + ' e agende sua visita!') %>" style="color:#25D366;font-weight:800">Enviar vitrine</a>
+              · <a href="/cliente/oferta/<%= item.leadId || item.id %>?userId=<%= encodeURIComponent(item.userId || item.usuarioId || item.corretorId || '') %>" style="color:#ff385c;font-weight:700">Ver vitrine</a>
+              · <a target="_blank" href="https://wa.me/55<%= String(item.contato || item.telefone || '').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (item.nome || item.cliente || item.clientName || '') + '! Separamos algumas oportunidades semelhantes ao que você buscou. Veja sua vitrine: https://matchimoveis.onrender.com/cliente/oferta/' + (item.leadId || item.id) + '?userId=' + encodeURIComponent(item.userId || item.usuarioId || item.corretorId || '') + ' e agende sua visita!') %>" style="color:#25D366;font-weight:800">Enviar vitrine</a>
             <% } %>
           </div>
         </div>
@@ -260,7 +260,23 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
                   <td><% if(scoreMatch){ %><span style="background:#1A1A1A;color:#fff;border-radius:12px;padding:2px 7px;font-size:11px;font-weight:700"><%= scoreMatch %></span><% } else { %>-<% } %></td>
                   <td><%= m.idExterno || m.idOriginal || m.id_anuncio || m.id || '-' %></td>
                   <td><%= m.idInterno || m.codigoImovel || '-' %></td>
-                  <td><%= m.tipo || '-' %></td>
+                  <td>
+  <%
+    const leadOwnerInline = String(item.userId || item.usuarioId || item.corretorId || '');
+    const matchOwnerInline = String(m.userId || m.usuarioId || m.corretorId || '');
+    const isProprioInline = leadOwnerInline && matchOwnerInline && leadOwnerInline === matchOwnerInline;
+    const ownerBadgeInline = isProprioInline ? '🏠 Próprio' : '🤝 Parceiro';
+    const ownerColorInline = isProprioInline ? '#008A05' : '#ff385c';
+  %>
+
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <span><%= m.tipo || '-' %></span>
+
+    <span style="display:inline-block;background:<%= ownerColorInline %>;color:#fff;border-radius:999px;padding:2px 8px;font-size:10px;font-weight:700;width:max-content">
+      <%= ownerBadgeInline %>
+    </span>
+  </div>
+</td>
                   <td><%= m.bairro || '-' %></td>
                   <td><%= m.cidade || '-' %> / <%= m.estado || '-' %></td>
                   <td><%= (m.valor_imovel||m.valor) ? 'R$ ' + Number(m.valor_imovel||m.valor).toLocaleString('pt-BR') : '-' %></td>
@@ -269,7 +285,14 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
                   <td><%= m.suites ?? '-' %></td>
                   <td><%= m.banheiros ?? '-' %></td>
                   <td><%= m.vagas ?? '-' %></td>
-                  <% const matchId = m.idExterno || m.idOriginal || m.id_anuncio || m.id || m.idInterno || m.codigoImovel || ''; %>
+                  <%
+const leadOwner = String(item.userId || item.usuarioId || item.corretorId || '');
+const matchOwner = String(m.userId || m.usuarioId || m.corretorId || '');
+const isProprio = leadOwner && matchOwner && leadOwner === matchOwner;
+const ownerBadge = isProprio ? '🏠 Próprio' : '🤝 Parceiro';
+const ownerColor = isProprio ? '#008A05' : '#ff385c';
+const matchId = m.idExterno || m.idOriginal || m.id_anuncio || m.id || m.idInterno || m.codigoImovel || '';
+%>
 <% const matchUrl = m.url || m.urlPublica || m.link || m.href || m.url_imovel || m.URL || (matchId ? '/app/imovel/' + matchId : ''); %>
 <td class="url-cell">
   <% if(matchUrl){ %>

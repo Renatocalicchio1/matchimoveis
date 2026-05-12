@@ -195,10 +195,19 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
 
   // -- 1.35. PRIORIDADE: VITRINES PRONTAS
   if (/minhas vitrines|minha vitrine|vitrines prontas|vitrine pronta|vitrines para enviar|links das vitrines|leads com vitrine|clientes com vitrine/.test(mNorm)) {
-    const comVitrine = (leads || []).filter(l =>
-      (l.matchesBase && l.matchesBase.length > 0) ||
-      (l.matches && l.matches.length > 0)
+    const USER_ID = String(
+      (user && (user.id || user.userId || user.codigoUsuario)) || ''
     );
+
+    const comVitrine = (leads || []).filter(l => {
+      const owner = String(l.userId || l.usuarioId || l.corretorId || '');
+
+      const temMatch =
+        (l.matchesBase && l.matchesBase.length > 0) ||
+        (l.matches && l.matches.length > 0);
+
+      return owner === USER_ID && temMatch;
+    });
 
     if (!comVitrine.length) {
       return finalizar('Nenhuma vitrine pronta ainda. Faça o match primeiro.<br><br>' +

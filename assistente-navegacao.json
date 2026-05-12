@@ -37,7 +37,7 @@
       "labelAtual": "Leads",
       "dominioAtual": "leads",
       "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-12T17:35:26.988Z",
+      "atualizadoEm": "2026-05-12T17:56:17.015Z",
       "paginaAnterior": "visitas"
     }
   },
@@ -2027,6 +2027,186 @@
       "para": "leads",
       "userId": "corretor-47992010889",
       "data": "2026-05-12T17:35:26.988Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:42:16.813Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:42:20.356Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:42:23.064Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:42:24.007Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:43:42.987Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:43:44.224Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:44:48.027Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:44:49.925Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:44:50.999Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:44:51.857Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:44:54.705Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:44:55.328Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:47:24.186Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:47:25.975Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:48:37.879Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:48:39.415Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:49:20.688Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:49:22.924Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:51:47.932Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:51:49.990Z"
+    },
+    {
+      "de": "leads",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:52:04.316Z"
+    },
+    {
+      "de": "assistente",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:53:35.886Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:53:38.060Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:53:39.664Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:53:41.541Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:55:21.048Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:55:23.221Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:56:13.746Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:56:15.287Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T17:56:17.015Z"
     }
   ]
 }

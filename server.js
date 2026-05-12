@@ -2637,6 +2637,12 @@ function gerarXMLPortal(imoveis, portal){
         <state>${i.estado || 'SP'}</state>
         <zipCode>${i.cep || ''}</zipCode>
       </address>
+      <broker>
+        <name>${i.corretorNome || ''}</name>
+        <email>${i.corretorEmail || ''}</email>
+        <phone>${i.corretorTelefone || ''}</phone>
+      </broker>
+
       <media>
         ${(i.fotos||[]).map(f=>`<image><url>${f}</url></image>`).join('\n        ')}
       </media>
@@ -2683,6 +2689,12 @@ function gerarXMLPortal(imoveis, portal){
         <email>${prop.email || ''}</email>
         <reference>${prop.referenciaTecimob || ''}</reference>
       </owner>` : ''}
+      <broker>
+        <name>${i.corretorNome || ''}</name>
+        <email>${i.corretorEmail || ''}</email>
+        <phone>${i.corretorTelefone || ''}</phone>
+      </broker>
+
       <media>
         ${(i.fotos||[]).map(f=>`<image><url>${f}</url></image>`).join('\n        ')}
       </media>
@@ -2784,6 +2796,12 @@ function gerarXMLPortal(imoveis, portal){
         <email>${prop.email || ''}</email>
         <reference>${prop.referenciaTecimob || ''}</reference>
       </owner>` : ''}
+      <broker>
+        <name>${i.corretorNome || ''}</name>
+        <email>${i.corretorEmail || ''}</email>
+        <phone>${i.corretorTelefone || ''}</phone>
+      </broker>
+
       <media>
         ${(i.fotos||[]).map(f=>`<image><url>${f}</url></image>`).join('\n        ')}
       </media>

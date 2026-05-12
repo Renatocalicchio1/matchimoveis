@@ -29,7 +29,7 @@
       "labelAtual": "Meus Imoveis",
       "dominioAtual": "imoveis",
       "rotaAtual": "/app/imoveis",
-      "atualizadoEm": "2026-05-12T00:52:21.872Z",
+      "atualizadoEm": "2026-05-12T01:24:35.150Z",
       "paginaAnterior": "dashboard"
     }
   },
@@ -1383,6 +1383,18 @@
       "para": "imoveis",
       "userId": "imobiliaria-47992010888",
       "data": "2026-05-12T00:52:21.872Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47992010888",
+      "data": "2026-05-12T01:24:32.493Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imobiliaria-47992010888",
+      "data": "2026-05-12T01:24:35.150Z"
     }
   ]
 }

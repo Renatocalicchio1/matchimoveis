@@ -16,6 +16,48 @@ function dataFile(name){
   return path.join(DATA_DIR, name);
 }
 
+function dataPath(file){
+  return dataFile(file);
+}
+
+function ensureDataFiles(){
+  try{
+    if(!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive:true });
+
+    const arquivos = [
+      'users.json',
+      'imoveis.json',
+      'leads.json',
+      'visitas.json',
+      'notificacoes.json',
+      'data.json',
+      'portais.json',
+      'xml-feeds.json',
+      'assistente-memoria.json',
+      'assistente-navegacao.json',
+      'assistente-nao-entendidos.json',
+      'chat-history.json'
+    ];
+
+    arquivos.forEach(file=>{
+      const destino = dataFile(file);
+      const origem = path.join(__dirname, file);
+
+      if(!fs.existsSync(destino)){
+        if(fs.existsSync(origem)){
+          fs.copyFileSync(origem, destino);
+        } else {
+          fs.writeFileSync(destino, file.includes('navegacao') ? '{"sessoes":{},"fluxos":[]}' : '[]');
+        }
+      }
+    });
+  }catch(e){
+    console.error('Erro ensureDataFiles:', e.message);
+  }
+}
+
+ensureDataFiles();
+
 
 
 

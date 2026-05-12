@@ -373,6 +373,36 @@ async function enviarMsg(texto) {
     // Interceptar ações do cérebro
     console.log('DEBUG resposta raw:', JSON.stringify(data.resposta));
 
+    if (data.resposta && data.resposta.trim().includes('ACAO_IMPORTAR_XML:')) {
+      try {
+        let jsonStr = data.resposta.trim().split('ACAO_IMPORTAR_XML:')[1].trim();
+        const fimJson = jsonStr.indexOf('}');
+        if (fimJson !== -1) jsonStr = jsonStr.substring(0, fimJson + 1);
+        const dados = JSON.parse(jsonStr);
+
+        streamMsg('📥 Importando XML para sua conta...');
+
+        const r = await fetch('/app/importar', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ xmlUrl: dados.url })
+        });
+
+        const out = await r.json();
+
+        if(out.ok){
+          streamMsg('✅ XML importado com sucesso. Os imóveis foram adicionados à sua carteira.');
+        } else {
+          streamMsg('❌ Erro ao importar XML: ' + (out.erro || 'tente novamente.'));
+        }
+
+        return;
+      } catch(e) {
+        streamMsg('❌ Erro ao processar importação XML.');
+        return;
+      }
+    }
+
     if (data.resposta && data.resposta.trim().includes('ACAO_GERAR_XML:')) {
       try {
         let jsonStr = data.resposta.trim().split('ACAO_GERAR_XML:')[1].trim();

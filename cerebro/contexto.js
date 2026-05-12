@@ -157,6 +157,12 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
   }
 
 
+  // FORCA IMPORTAR XML URL ANTES DE GERAR
+  const urlXmlDireta = ctx.fraseOriginal.match(/https?:\/\/\S+/i);
+  if(urlXmlDireta && urlXmlDireta[0]){
+    return 'ACAO_IMPORTAR_XML:' + JSON.stringify({ url: urlXmlDireta[0] });
+  }
+
   // ── GERAR XML ───────────────────────────────────────────────────────────────
 
   if (intencao === 'GERAR_XML_TODOS') {

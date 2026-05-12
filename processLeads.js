@@ -104,10 +104,15 @@ function readRows(file) {
 
     if (!lead.id && !lead.url) continue;
 
-    const dup = existing.find(x =>
-      (x.url && lead.url && x.url === lead.url) ||
-      (x.id && lead.id && x.id === lead.id && x.email === lead.email && x.contato === lead.contato)
-    );
+    const dup = existing.find(x => {
+      const xUser = String(x.userId || x.usuarioId || x.corretorId || '');
+      const sameUser = xUser === String(importUserId || '');
+
+      return sameUser && (
+        (x.url && lead.url && x.url === lead.url) ||
+        (x.id && lead.id && x.id === lead.id && x.email === lead.email && x.contato === lead.contato)
+      );
+    });
 
     if (dup) {
       duplicados++;

@@ -229,6 +229,48 @@ app.post('/app/importar-proprietarios', upload.any(), async (req, res) => {
 
 
 
+app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
+  try{
+    const file = (req.files || [])[0];
+
+    if(!file){
+      return res.json({ ok:false, resposta:'❌ Nenhum arquivo enviado.' });
+    }
+
+    const nome = (file.originalname || '').toLowerCase();
+
+    if(nome.endsWith('.csv') || nome.endsWith('.xlsx') || nome.endsWith('.xls')){
+      const { execSync } = require('child_process');
+      const userId = req.session.user ? req.session.user.id : '';
+
+      execSync(`node processLeads.js "${file.path}" "${userId}"`, { stdio:'inherit' });
+
+      return res.json({
+        ok:true,
+        resposta:'✅ Planilha de leads importada com sucesso. Acesse Leads para conferir.'
+      });
+    }
+
+    if(nome.endsWith('.xml')){
+      return res.json({
+        ok:false,
+        resposta:'📥 Para importar XML de imóveis, envie a URL do feed XML no chat.'
+      });
+    }
+
+    return res.json({
+      ok:false,
+      resposta:'❌ Formato não suportado. Envie CSV, XLS ou XLSX para leads.'
+    });
+
+  }catch(e){
+    return res.json({
+      ok:false,
+      resposta:'❌ Erro ao importar arquivo: '+e.message
+    });
+  }
+});
+
 app.post('/app/leads', upload.any(), async (req, res) => {
   try {
     const file = (req.files && req.files[0]) || req.file;

@@ -747,7 +747,7 @@
     },
     {
       "pergunta": "leads com match",
-      "count": 12,
+      "count": 13,
       "respostas": [
         {
           "texto": "🔍 21 lead(s) encontrada(s):• tugnoli@hotmail.com — Perdizes Apartamento • Gilmara.mbc@gmail.com — Vila Cordeiro Casa • tchiagodelvalle@gmail.com — Re",
@@ -766,11 +766,11 @@
         }
       ],
       "primeira": "2026-05-08T20:50:09.281Z",
-      "ultima": "2026-05-09T23:29:32.721Z"
+      "ultima": "2026-05-12T02:09:46.873Z"
     },
     {
       "pergunta": "importar leads",
-      "count": 2,
+      "count": 8,
       "respostas": [
         {
           "texto": "📋 Importar Leads — passo a passo:1Vá até Leads → e clique em Importar.2Selecione o arquivo CSV ou Excel exportado do portal (ImovelWeb, ZAP, VivaReal",
@@ -781,10 +781,40 @@
           "texto": "📋 Importar Leads — passo a passo:1Vá até Leads → e clique em Importar.2Selecione o arquivo CSV ou Excel exportado do portal (ImovelWeb, ZAP, VivaReal",
           "dominio": "leads",
           "data": "2026-05-09T21:42:26.408Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "leads",
+          "data": "2026-05-12T02:01:51.716Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "leads",
+          "data": "2026-05-12T02:06:34.289Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "leads",
+          "data": "2026-05-12T02:06:49.529Z"
+        },
+        {
+          "texto": "🚀 Importar leads via CSV/Excel:1Va em Leads /app/leads2Clique em Importar Leads3Selecione o arquivo CSV ou Excel do portal4O sistema extrai bairro, t",
+          "dominio": "leads",
+          "data": "2026-05-12T02:09:52.404Z"
+        },
+        {
+          "texto": "🚀 Importar leads via CSV/Excel:1Va em Leads /app/leads2Clique em Importar Leads3Selecione o arquivo CSV ou Excel do portal4O sistema extrai bairro, t",
+          "dominio": "leads",
+          "data": "2026-05-12T02:20:02.828Z"
+        },
+        {
+          "texto": "🚀 Importar leads via CSV/Excel:1Va em Leads /app/leads2Clique em Importar Leads3Selecione o arquivo CSV ou Excel do portal4O sistema extrai bairro, t",
+          "dominio": "leads",
+          "data": "2026-05-12T02:20:58.137Z"
         }
       ],
       "primeira": "2026-05-08T20:50:22.671Z",
-      "ultima": "2026-05-09T21:42:26.408Z"
+      "ultima": "2026-05-12T02:20:58.137Z"
     },
     {
       "pergunta": "quantas leads tenho",
@@ -3627,7 +3657,7 @@
     },
     {
       "pergunta": "importar xml",
-      "count": 5,
+      "count": 9,
       "respostas": [
         {
           "texto": "🔗 Portais disponíveis:VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123iGere o XML de cada portal e cadastre o link nas configurações do portal.Ver por",
@@ -3653,10 +3683,30 @@
           "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
           "dominio": "portais",
           "data": "2026-05-11T23:01:47.878Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "portais",
+          "data": "2026-05-12T01:32:12.688Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "portais",
+          "data": "2026-05-12T01:35:57.700Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "portais",
+          "data": "2026-05-12T01:44:12.103Z"
+        },
+        {
+          "texto": "📥 Importar imóveis via XML:⚠️ Padrão obrigatório: VRSync do VivaRealO sistema aceita apenas feeds no padrão VRSync do VivaReal.A maioria dos CRMs já ",
+          "dominio": "portais",
+          "data": "2026-05-12T01:57:58.879Z"
         }
       ],
       "primeira": "2026-05-09T21:42:26.394Z",
-      "ultima": "2026-05-11T23:01:47.878Z"
+      "ultima": "2026-05-12T01:57:58.879Z"
     },
     {
       "pergunta": "fazer match",
@@ -4035,7 +4085,7 @@
     },
     {
       "pergunta": "oi tudo bem",
-      "count": 6,
+      "count": 7,
       "respostas": [
         {
           "texto": "😔 Nenhum imovel encontrado.📍 bem💡 Quer cadastrar esse cliente como lead?Cadastrar lead →Demanda por bairroLeadsImóveisVisitasMatch",
@@ -4054,7 +4104,7 @@
         }
       ],
       "primeira": "2026-05-10T02:41:27.420Z",
-      "ultima": "2026-05-10T02:50:07.205Z"
+      "ultima": "2026-05-12T01:32:04.010Z"
     },
     {
       "pergunta": "oi",
@@ -4698,16 +4748,21 @@
     },
     {
       "pergunta": "https://sistema.rankim.com.br/integration/83c1b24c6399b8284b114fb23fa4a965446d27fc/vivareal.xml",
-      "count": 2,
+      "count": 6,
       "respostas": [
         {
           "texto": "ACAO_GERAR_XML:{\"portal\":\"vivareal\"}Ver portaisGerar XML",
           "dominio": "portais",
           "data": "2026-05-11T23:03:44.811Z"
+        },
+        {
+          "texto": "ACAO_IMPORTAR_XML:{\"url\":\"https://sistema.rankim.com.br/integration/83c1b24c6399b8284b114fb23fa4a965446d27fc/vivareal.xml\"}Ver portaisGerar XML",
+          "dominio": "portais",
+          "data": "2026-05-12T01:49:30.955Z"
         }
       ],
       "primeira": "2026-05-11T23:03:44.811Z",
-      "ultima": "2026-05-11T23:04:18.655Z"
+      "ultima": "2026-05-12T01:49:30.955Z"
     },
     {
       "pergunta": "esse xml é para voce importar os dados da rankim para a matchimoveis",
@@ -4721,6 +4776,63 @@
       ],
       "primeira": "2026-05-11T23:04:10.034Z",
       "ultima": "2026-05-11T23:04:10.034Z"
+    },
+    {
+      "pergunta": "ola",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-12T01:35:47.813Z"
+        }
+      ],
+      "primeira": "2026-05-12T01:35:47.813Z",
+      "ultima": "2026-05-12T01:35:47.813Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-12T01:44:02.279Z"
+        }
+      ],
+      "primeira": "2026-05-12T01:44:02.279Z",
+      "ultima": "2026-05-12T01:44:02.279Z"
+    },
+    {
+      "pergunta": "https://rbfirmino.com.br/exportar/rankim?purpose=sale",
+      "count": 6,
+      "respostas": [
+        {
+          "texto": "🔗 Gerar XML — para qual portal?VivaRealZAPOLXImovelWebChaves na Mão123iLeadsImóveisVisitasMatch",
+          "dominio": null,
+          "data": "2026-05-12T01:50:49.423Z"
+        },
+        {
+          "texto": "ACAO_IMPORTAR_XML:{\"url\":\"https://rbfirmino.com.br/exportar/rankim?purpose=sale\"}LeadsImóveisVisitasMatch",
+          "dominio": null,
+          "data": "2026-05-12T01:53:12.222Z"
+        }
+      ],
+      "primeira": "2026-05-12T01:50:49.423Z",
+      "ultima": "2026-05-12T02:01:07.040Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-12T01:57:51.675Z"
+        }
+      ],
+      "primeira": "2026-05-12T01:57:51.675Z",
+      "ultima": "2026-05-12T01:57:51.675Z"
     }
   ]
 }

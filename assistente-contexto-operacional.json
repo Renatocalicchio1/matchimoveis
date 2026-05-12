@@ -1,0 +1,1022 @@
+{
+  "teste": {
+    "userKey": "teste",
+    "ultimoLead": {
+      "idx": 81,
+      "nome": "Rita de Cassia",
+      "telefone": "11992634048",
+      "email": "ritadecassiacosta14@gmail.com",
+      "bairro": "Vila Andrade",
+      "status": "com_match",
+      "matches": 8,
+      "bestScore": 0,
+      "id": "3026767609"
+    },
+    "ultimaVisita": null,
+    "ultimaIntencao": {
+      "tipo": "visitas",
+      "entidade": null,
+      "acao": null,
+      "filtro": {
+        "busca": "visit s"
+      },
+      "textoOriginal": "mostrar visitas"
+    },
+    "ultimaAcao": null,
+    "historico": [
+      {
+        "at": "2026-05-12T19:29:04.925Z",
+        "tipo": "consulta_leads_quentes",
+        "texto": "mostrar leads quentes",
+        "total": 3,
+        "ultimoLead": {
+          "idx": 81,
+          "nome": "Rita de Cassia",
+          "telefone": "11992634048",
+          "email": "ritadecassiacosta14@gmail.com",
+          "bairro": "Vila Andrade",
+          "status": "com_match",
+          "matches": 8,
+          "bestScore": 0,
+          "id": "3026767609"
+        }
+      },
+      {
+        "at": "2026-05-12T20:09:16.769Z",
+        "tipo": "consulta_visitas",
+        "texto": "mostrar visitas",
+        "total": 0,
+        "ultimaVisita": null
+      },
+      {
+        "at": "2026-05-12T20:09:29.907Z",
+        "tipo": "consulta_visitas",
+        "texto": "mostrar visitas",
+        "total": 0,
+        "ultimaVisita": null
+      }
+    ],
+    "updatedAt": "2026-05-12T20:09:29.910Z"
+  },
+  "corretor-47992010889": {
+    "userKey": "corretor-47992010889",
+    "ultimoLead": {
+      "idx": 3,
+      "nome": "Bruno",
+      "telefone": "61998609484",
+      "email": "Brunogonsouza@gmail.com",
+      "bairro": "Vila Olímpia",
+      "status": "com_match",
+      "matches": 3,
+      "bestScore": 0,
+      "id": "3034436969"
+    },
+    "ultimaVisita": {
+      "id": "1778611320506",
+      "leadId": "1778611320492",
+      "nome": "324343",
+      "telefone": "234324324",
+      "contato": "234324324",
+      "imovelId": "MI-1778368153959-VVDHJC",
+      "imovelTitulo": "Lindo Studio em Vila Olímpia com 26m²!",
+      "imovelBairro": "Vila Olímpia",
+      "imovelCidade": "São Paulo",
+      "imovelEstado": "São Paulo",
+      "proprietarioNome": "Roseli Bianchi",
+      "proprietarioTelefone": "11974711880",
+      "leadOwnerId": "corretor-47992010889",
+      "imovelOwnerId": "imobiliaria-47991919191",
+      "usuarioDestinoId": "corretor-47992010889",
+      "usuarioDestinoNome": "",
+      "usuarioDestinoPerfil": "",
+      "usuarioDestinoTelefone": "",
+      "userId": "corretor-47992010889",
+      "corretorId": "corretor-47992010889",
+      "corretorNome": "",
+      "corretorTelefone": "",
+      "status": "solicitada",
+      "origem": "pagina_externa_imovel",
+      "extractionStatus": "ok",
+      "fonte": "MatchImóveis",
+      "data": "2026-05-12T18:42:00.342Z",
+      "data_br": "12/05/2026, 15:42:00"
+    },
+    "ultimaIntencao": {
+      "tipo": "leads",
+      "entidade": null,
+      "acao": null,
+      "filtro": {},
+      "textoOriginal": "lead"
+    },
+    "ultimaAcao": "whatsapp",
+    "historico": [
+      {
+        "at": "2026-05-12T19:29:23.687Z",
+        "tipo": "consulta_lead",
+        "texto": "quantas leads ontem ",
+        "termo": "qu nt s s ntem",
+        "total": 0,
+        "ultimoLead": null
+      },
+      {
+        "at": "2026-05-12T19:29:28.212Z",
+        "tipo": "consulta_lead",
+        "texto": "quantas leads ontem ",
+        "termo": "qu nt s s ntem",
+        "total": 0,
+        "ultimoLead": null
+      },
+      {
+        "at": "2026-05-12T19:29:33.580Z",
+        "tipo": "consulta_lead",
+        "texto": "quantas leads hoje",
+        "termo": "qu nt s s h je",
+        "total": 0,
+        "ultimoLead": null
+      },
+      {
+        "at": "2026-05-12T19:29:44.117Z",
+        "tipo": "consulta_lead",
+        "texto": "ache a lead bruno ",
+        "termo": "brun",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:30:12.891Z",
+        "tipo": "whatsapp_sugerido",
+        "texto": "manda WhatsApp pra ele",
+        "lead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        },
+        "mensagem": "Olá Bruno, tudo bem? Vi seu interesse sobre imóvel em Vila Olímpia. Encontrei 3 opção(ões) parecida(s). Posso te enviar algumas opções e verificar um melhor horário para conversar?"
+      },
+      {
+        "at": "2026-05-12T19:30:13.981Z",
+        "tipo": "whatsapp_sugerido",
+        "texto": "manda WhatsApp pra ele",
+        "lead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        },
+        "mensagem": "Olá Bruno, tudo bem? Vi seu interesse sobre imóvel em Vila Olímpia. Encontrei 3 opção(ões) parecida(s). Posso te enviar algumas opções e verificar um melhor horário para conversar?"
+      },
+      {
+        "at": "2026-05-12T19:30:14.637Z",
+        "tipo": "whatsapp_sugerido",
+        "texto": "manda WhatsApp pra ele",
+        "lead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        },
+        "mensagem": "Olá Bruno, tudo bem? Vi seu interesse sobre imóvel em Vila Olímpia. Encontrei 3 opção(ões) parecida(s). Posso te enviar algumas opções e verificar um melhor horário para conversar?"
+      },
+      {
+        "at": "2026-05-12T19:39:13.180Z",
+        "tipo": "consulta_lead",
+        "texto": "lead bruno",
+        "termo": "brun",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:39:26.387Z",
+        "tipo": "whatsapp_sugerido",
+        "texto": "manda WhatsApp pra ele",
+        "lead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        },
+        "mensagem": "Olá Bruno, tudo bem? Vi seu interesse sobre imóvel em Vila Olímpia. Encontrei 3 opção(ões) parecida(s). Posso te enviar algumas opções e verificar um melhor horário para conversar?"
+      },
+      {
+        "at": "2026-05-12T19:42:25.099Z",
+        "tipo": "consulta_lead",
+        "texto": "importar leads",
+        "termo": "imp rt r s",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:43:10.912Z",
+        "tipo": "consulta_lead",
+        "texto": "lead bruno",
+        "termo": "brun",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:43:18.735Z",
+        "tipo": "consulta_lead",
+        "texto": "enviar whatsapp",
+        "termo": "envi r",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:43:31.650Z",
+        "tipo": "consulta_lead",
+        "texto": "enviar link whats app para bruno",
+        "termo": "envi r link wh ts pp brun",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:44:19.522Z",
+        "tipo": "consulta_lead",
+        "texto": "lead bruno",
+        "termo": "brun",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:44:26.410Z",
+        "tipo": "whatsapp_sugerido",
+        "texto": "manda WhatsApp pra ele",
+        "lead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        },
+        "mensagem": "Olá Bruno, tudo bem? Vi seu interesse sobre imóvel em Vila Olímpia. Encontrei 3 opção(ões) parecida(s). Posso te enviar algumas opções e verificar um melhor horário para conversar?"
+      },
+      {
+        "at": "2026-05-12T19:44:41.302Z",
+        "tipo": "consulta_lead",
+        "texto": "qual o bairro dele",
+        "termo": "Bruno",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:44:52.169Z",
+        "tipo": "consulta_leads_quentes",
+        "texto": "mostrar leads quentes",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:44:59.410Z",
+        "tipo": "consulta_matches",
+        "texto": "mostrar leads sem match",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:45:09.496Z",
+        "tipo": "consulta_leads_quentes",
+        "texto": "quais clientes estão quentes",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:45:15.502Z",
+        "tipo": "consulta_lead",
+        "texto": "qual lead devo priorizar hoje",
+        "termo": "qu l dev pri riz r h je",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:45:32.375Z",
+        "tipo": "consulta_visitas",
+        "texto": "mostrar visitas pendentes",
+        "total": 2
+      },
+      {
+        "at": "2026-05-12T19:45:39.778Z",
+        "tipo": "consulta_visitas",
+        "texto": "quais visitas tenho hoje",
+        "total": 2
+      },
+      {
+        "at": "2026-05-12T19:45:47.617Z",
+        "tipo": "consulta_visitas",
+        "texto": "qual visita aguarda proprietário",
+        "total": 2
+      },
+      {
+        "at": "2026-05-12T19:45:55.105Z",
+        "tipo": "consulta_visitas",
+        "texto": "quais visitas estão confirmadas",
+        "total": 2
+      },
+      {
+        "at": "2026-05-12T19:46:05.223Z",
+        "tipo": "consulta_matches",
+        "texto": "mostrar matches",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:46:12.675Z",
+        "tipo": "consulta_matches",
+        "texto": "qual lead tem mais match",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:46:21.089Z",
+        "tipo": "consulta_lead",
+        "texto": "qual cliente tem score maior",
+        "termo": "qu l tem sc re m i r",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:46:27.587Z",
+        "tipo": "consulta_matches",
+        "texto": "quais bairros mais deram match",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:46:35.866Z",
+        "tipo": "consulta_lead",
+        "texto": "manda mensagem pro Bruno",
+        "termo": "Brun",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:46:44.469Z",
+        "tipo": "consulta_lead",
+        "texto": "falar com cliente da Vila Olímpia",
+        "termo": "f l r c m d Vil límpi",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:46:52.422Z",
+        "tipo": "whatsapp_sugerido",
+        "texto": "manda follow-up pra ele",
+        "lead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        },
+        "mensagem": "Olá Bruno, tudo bem? Vi seu interesse sobre imóvel em Vila Olímpia. Encontrei 3 opção(ões) parecida(s). Posso te enviar algumas opções e verificar um melhor horário para conversar?"
+      },
+      {
+        "at": "2026-05-12T19:47:09.715Z",
+        "tipo": "consulta_lead",
+        "texto": "quais leads estão parados",
+        "termo": "qu is s estã d s",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:47:16.779Z",
+        "tipo": "consulta_lead",
+        "texto": "quais leads estão parados",
+        "termo": "qu is s estã d s",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:47:33.724Z",
+        "tipo": "consulta_lead",
+        "texto": "qual cliente sumiu",
+        "termo": "qu l sumiu",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:47:41.717Z",
+        "tipo": "consulta_lead",
+        "texto": "ele respondeu?",
+        "termo": "Bruno",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T19:47:58.347Z",
+        "tipo": "consulta_visitas",
+        "texto": "essa visita ainda está pendente?",
+        "total": 2
+      },
+      {
+        "at": "2026-05-12T19:48:06.242Z",
+        "tipo": "whatsapp_sugerido",
+        "texto": "manda outra opção pra ele",
+        "lead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        },
+        "mensagem": "Olá Bruno, tudo bem? Vi seu interesse sobre imóvel em Vila Olímpia. Encontrei 3 opção(ões) parecida(s). Posso te enviar algumas opções e verificar um melhor horário para conversar?"
+      },
+      {
+        "at": "2026-05-12T21:49:31.654Z",
+        "tipo": "consulta_lead",
+        "texto": "tem alguma lead bruno ?",
+        "termo": "tem lgum brun ?",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T21:49:43.923Z",
+        "tipo": "consulta_lead",
+        "texto": "lead",
+        "termo": "lead",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      }
+    ],
+    "updatedAt": "2026-05-12T21:49:43.924Z"
+  },
+  "imobiliaria-47991919191": {
+    "userKey": "imobiliaria-47991919191",
+    "ultimoLead": null,
+    "ultimaVisita": {
+      "id": "1778604650152",
+      "leadId": "1778210899163",
+      "nome": "renato",
+      "telefone": "47992010888",
+      "contato": "47992010888",
+      "imovelId": "CAPRAFA121",
+      "imovelTitulo": "Lindo Studio em Vila Olímpia com 26m²!",
+      "imovelBairro": "Vila Olímpia",
+      "imovelCidade": "São Paulo",
+      "imovelEstado": "São Paulo",
+      "proprietarioNome": "Roseli Bianchi",
+      "proprietarioTelefone": "11974711880",
+      "usuarioDestinoId": "imobiliaria-47991919191",
+      "usuarioDestinoNome": "",
+      "usuarioDestinoPerfil": "",
+      "usuarioDestinoTelefone": "",
+      "userId": "imobiliaria-47991919191",
+      "corretorId": "imobiliaria-47991919191",
+      "corretorNome": "",
+      "corretorTelefone": "",
+      "status": "remarcar",
+      "origem": "pagina_externa_imovel",
+      "extractionStatus": "ok",
+      "fonte": "MatchImóveis",
+      "data": "2026-05-12T16:50:50.043Z",
+      "data_br": "12/05/2026, 13:50:50",
+      "workflowStatus": "REMARCAR",
+      "workflowResponsavel": "corretor",
+      "workflowProximaAcao": "Pedir nova data ao cliente",
+      "workflowLabel": "📅 Precisa remarcar",
+      "workflowWhatsappDestino": "11974711880",
+      "workflowWhatsappTexto": "Olá! O cliente renato solicitou visita ao imóvel Lindo Studio em Vila Olímpia com 26m²!. O imóvel está disponível para visita?",
+      "workflowAtualizadoEm": "2026-05-12T20:20:30.445Z",
+      "remarcarEm": "2026-05-12T20:20:30.445Z"
+    },
+    "ultimaIntencao": {
+      "tipo": "geral",
+      "entidade": null,
+      "acao": "confirmar_visita",
+      "filtro": {
+        "busca": "c nfirm primeir"
+      },
+      "textoOriginal": "confirma a primeira"
+    },
+    "ultimaAcao": "remarcar_visita",
+    "historico": [
+      {
+        "at": "2026-05-12T20:10:26.184Z",
+        "tipo": "consulta_visitas",
+        "texto": "mostrar visitas",
+        "total": 10,
+        "ultimaVisita": {
+          "id": "1778210899176",
+          "leadId": "1778210899163",
+          "nome": "renato",
+          "telefone": "47992010888",
+          "contato": "47992010888",
+          "imovelId": "CAPRAFA121",
+          "imovelTitulo": "Lindo Studio em Vila Olímpia com 26m²!",
+          "imovelBairro": "Vila Olímpia",
+          "imovelCidade": "São Paulo",
+          "imovelEstado": "São Paulo",
+          "proprietarioNome": "Roseli Bianchi",
+          "proprietarioTelefone": "11974711880",
+          "usuarioDestinoId": "imobiliaria-47991919191",
+          "usuarioDestinoNome": "",
+          "usuarioDestinoPerfil": "",
+          "usuarioDestinoTelefone": "",
+          "userId": "imobiliaria-47991919191",
+          "corretorId": "imobiliaria-47991919191",
+          "corretorNome": "",
+          "corretorTelefone": "",
+          "status": "solicitada",
+          "origem": "pagina_externa_imovel",
+          "extractionStatus": "ok",
+          "fonte": "MatchImóveis",
+          "data": "2026-05-08T03:28:19.056Z",
+          "data_br": "08/05/2026, 00:28:19",
+          "workflowStatus": "AGUARDANDO_PROPRIETARIO",
+          "workflowResponsavel": "proprietario",
+          "workflowProximaAcao": "Notificar proprietário para confirmar disponibilidade",
+          "workflowLabel": "🏠 Aguardando proprietário",
+          "workflowWhatsappDestino": "11974711880",
+          "workflowWhatsappTexto": "Olá! O cliente renato solicitou visita ao imóvel Lindo Studio em Vila Olímpia com 26m²!. O imóvel está disponível para visita?",
+          "workflowAtualizadoEm": "2026-05-12T20:10:26.182Z"
+        }
+      },
+      {
+        "at": "2026-05-12T20:10:36.376Z",
+        "tipo": "consulta_visitas",
+        "texto": "mostrar visitas",
+        "total": 10,
+        "ultimaVisita": {
+          "id": "1778210899176",
+          "leadId": "1778210899163",
+          "nome": "renato",
+          "telefone": "47992010888",
+          "contato": "47992010888",
+          "imovelId": "CAPRAFA121",
+          "imovelTitulo": "Lindo Studio em Vila Olímpia com 26m²!",
+          "imovelBairro": "Vila Olímpia",
+          "imovelCidade": "São Paulo",
+          "imovelEstado": "São Paulo",
+          "proprietarioNome": "Roseli Bianchi",
+          "proprietarioTelefone": "11974711880",
+          "usuarioDestinoId": "imobiliaria-47991919191",
+          "usuarioDestinoNome": "",
+          "usuarioDestinoPerfil": "",
+          "usuarioDestinoTelefone": "",
+          "userId": "imobiliaria-47991919191",
+          "corretorId": "imobiliaria-47991919191",
+          "corretorNome": "",
+          "corretorTelefone": "",
+          "status": "solicitada",
+          "origem": "pagina_externa_imovel",
+          "extractionStatus": "ok",
+          "fonte": "MatchImóveis",
+          "data": "2026-05-08T03:28:19.056Z",
+          "data_br": "08/05/2026, 00:28:19",
+          "workflowStatus": "AGUARDANDO_PROPRIETARIO",
+          "workflowResponsavel": "proprietario",
+          "workflowProximaAcao": "Notificar proprietário para confirmar disponibilidade",
+          "workflowLabel": "🏠 Aguardando proprietário",
+          "workflowWhatsappDestino": "11974711880",
+          "workflowWhatsappTexto": "Olá! O cliente renato solicitou visita ao imóvel Lindo Studio em Vila Olímpia com 26m²!. O imóvel está disponível para visita?",
+          "workflowAtualizadoEm": "2026-05-12T20:10:36.374Z"
+        }
+      },
+      {
+        "at": "2026-05-12T20:11:30.303Z",
+        "tipo": "consulta_visitas",
+        "texto": "mostrar visitas",
+        "total": 10,
+        "ultimaVisita": {
+          "id": "1778210899176",
+          "leadId": "1778210899163",
+          "nome": "renato",
+          "telefone": "47992010888",
+          "contato": "47992010888",
+          "imovelId": "CAPRAFA121",
+          "imovelTitulo": "Lindo Studio em Vila Olímpia com 26m²!",
+          "imovelBairro": "Vila Olímpia",
+          "imovelCidade": "São Paulo",
+          "imovelEstado": "São Paulo",
+          "proprietarioNome": "Roseli Bianchi",
+          "proprietarioTelefone": "11974711880",
+          "usuarioDestinoId": "imobiliaria-47991919191",
+          "usuarioDestinoNome": "",
+          "usuarioDestinoPerfil": "",
+          "usuarioDestinoTelefone": "",
+          "userId": "imobiliaria-47991919191",
+          "corretorId": "imobiliaria-47991919191",
+          "corretorNome": "",
+          "corretorTelefone": "",
+          "status": "solicitada",
+          "origem": "pagina_externa_imovel",
+          "extractionStatus": "ok",
+          "fonte": "MatchImóveis",
+          "data": "2026-05-08T03:28:19.056Z",
+          "data_br": "08/05/2026, 00:28:19",
+          "workflowStatus": "AGUARDANDO_PROPRIETARIO",
+          "workflowResponsavel": "proprietario",
+          "workflowProximaAcao": "Notificar proprietário para confirmar disponibilidade",
+          "workflowLabel": "🏠 Aguardando proprietário",
+          "workflowWhatsappDestino": "11974711880",
+          "workflowWhatsappTexto": "Olá! O cliente renato solicitou visita ao imóvel Lindo Studio em Vila Olímpia com 26m²!. O imóvel está disponível para visita?",
+          "workflowAtualizadoEm": "2026-05-12T20:11:30.302Z"
+        }
+      },
+      {
+        "at": "2026-05-12T20:12:37.354Z",
+        "tipo": "consulta_visitas",
+        "texto": "me mostra visitas aguardando proprietário",
+        "total": 10,
+        "ultimaVisita": {
+          "id": "1778210899176",
+          "leadId": "1778210899163",
+          "nome": "renato",
+          "telefone": "47992010888",
+          "contato": "47992010888",
+          "imovelId": "CAPRAFA121",
+          "imovelTitulo": "Lindo Studio em Vila Olímpia com 26m²!",
+          "imovelBairro": "Vila Olímpia",
+          "imovelCidade": "São Paulo",
+          "imovelEstado": "São Paulo",
+          "proprietarioNome": "Roseli Bianchi",
+          "proprietarioTelefone": "11974711880",
+          "usuarioDestinoId": "imobiliaria-47991919191",
+          "usuarioDestinoNome": "",
+          "usuarioDestinoPerfil": "",
+          "usuarioDestinoTelefone": "",
+          "userId": "imobiliaria-47991919191",
+          "corretorId": "imobiliaria-47991919191",
+          "corretorNome": "",
+          "corretorTelefone": "",
+          "status": "solicitada",
+          "origem": "pagina_externa_imovel",
+          "extractionStatus": "ok",
+          "fonte": "MatchImóveis",
+          "data": "2026-05-08T03:28:19.056Z",
+          "data_br": "08/05/2026, 00:28:19",
+          "workflowStatus": "AGUARDANDO_PROPRIETARIO",
+          "workflowResponsavel": "proprietario",
+          "workflowProximaAcao": "Notificar proprietário para confirmar disponibilidade",
+          "workflowLabel": "🏠 Aguardando proprietário",
+          "workflowWhatsappDestino": "11974711880",
+          "workflowWhatsappTexto": "Olá! O cliente renato solicitou visita ao imóvel Lindo Studio em Vila Olímpia com 26m²!. O imóvel está disponível para visita?",
+          "workflowAtualizadoEm": "2026-05-12T20:12:37.352Z"
+        }
+      },
+      {
+        "at": "2026-05-12T20:12:37.385Z",
+        "tipo": "consulta_visitas",
+        "texto": "quem estou esperando",
+        "total": 10,
+        "ultimaVisita": {
+          "id": "1778210899176",
+          "leadId": "1778210899163",
+          "nome": "renato",
+          "telefone": "47992010888",
+          "contato": "47992010888",
+          "imovelId": "CAPRAFA121",
+          "imovelTitulo": "Lindo Studio em Vila Olímpia com 26m²!",
+          "imovelBairro": "Vila Olímpia",
+          "imovelCidade": "São Paulo",
+          "imovelEstado": "São Paulo",
+          "proprietarioNome": "Roseli Bianchi",
+          "proprietarioTelefone": "11974711880",
+          "usuarioDestinoId": "imobiliaria-47991919191",
+          "usuarioDestinoNome": "",
+          "usuarioDestinoPerfil": "",
+          "usuarioDestinoTelefone": "",
+          "userId": "imobiliaria-47991919191",
+          "corretorId": "imobiliaria-47991919191",
+          "corretorNome": "",
+          "corretorTelefone": "",
+          "status": "solicitada",
+          "origem": "pagina_externa_imovel",
+          "extractionStatus": "ok",
+          "fonte": "MatchImóveis",
+          "data": "2026-05-08T03:28:19.056Z",
+          "data_br": "08/05/2026, 00:28:19",
+          "workflowStatus": "AGUARDANDO_PROPRIETARIO",
+          "workflowResponsavel": "proprietario",
+          "workflowProximaAcao": "Notificar proprietário para confirmar disponibilidade",
+          "workflowLabel": "🏠 Aguardando proprietário",
+          "workflowWhatsappDestino": "11974711880",
+          "workflowWhatsappTexto": "Olá! O cliente renato solicitou visita ao imóvel Lindo Studio em Vila Olímpia com 26m²!. O imóvel está disponível para visita?",
+          "workflowAtualizadoEm": "2026-05-12T20:12:37.385Z"
+        }
+      },
+      {
+        "at": "2026-05-12T20:13:34.478Z",
+        "tipo": "consulta_prioridades",
+        "texto": "o que preciso fazer agora",
+        "total": 23
+      },
+      {
+        "at": "2026-05-12T20:14:24.474Z",
+        "tipo": "acao_whatsapp_visita",
+        "texto": "manda whatsapp pro primeiro",
+        "visitaId": "1778210899176"
+      },
+      {
+        "at": "2026-05-12T20:16:43.173Z",
+        "tipo": "consulta_lead",
+        "texto": "confirma a primeira",
+        "termo": "c nfirm primeir",
+        "total": 0,
+        "ultimoLead": null
+      },
+      {
+        "at": "2026-05-12T20:17:13.320Z",
+        "tipo": "confirmacao_visita",
+        "texto": "confirma a primeira",
+        "visitaId": "1778210899176"
+      },
+      {
+        "at": "2026-05-12T20:19:38.204Z",
+        "tipo": "cancelamento_visita",
+        "texto": "cancela a primeira",
+        "visitaId": "1778210913782"
+      },
+      {
+        "at": "2026-05-12T20:20:30.447Z",
+        "tipo": "remarcar_visita",
+        "texto": "remarca a primeira",
+        "visitaId": "1778604650152"
+      },
+      {
+        "at": "2026-05-12T20:21:29.059Z",
+        "tipo": "followup_visita",
+        "texto": "manda followup da primeira",
+        "visitaId": "1778604806165"
+      },
+      {
+        "at": "2026-05-12T20:22:36.743Z",
+        "tipo": "painel_operacional",
+        "texto": "como está minha operação hoje"
+      }
+    ],
+    "updatedAt": "2026-05-12T20:22:36.744Z"
+  }
+}

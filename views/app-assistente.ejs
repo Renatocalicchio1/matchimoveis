@@ -148,6 +148,104 @@ function scrollBottom() {
   c.scrollTop = c.scrollHeight;
 }
 
+function renderOperacional(data){
+
+  let html = '';
+
+  if(data.painel){
+    html += `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px">
+        <div style="background:white;padding:14px;border-radius:14px;border:1px solid #eee">
+          <div style="font-size:11px;color:#888">Visitas</div>
+          <div style="font-size:22px;font-weight:700">${data.painel.total||0}</div>
+        </div>
+
+        <div style="background:#fff7ed;padding:14px;border-radius:14px;border:1px solid #fed7aa">
+          <div style="font-size:11px;color:#9a3412">Proprietário</div>
+          <div style="font-size:22px;font-weight:700">${data.painel.aguardandoProprietario||0}</div>
+        </div>
+
+        <div style="background:#ecfeff;padding:14px;border-radius:14px;border:1px solid #a5f3fc">
+          <div style="font-size:11px;color:#155e75">Confirmadas</div>
+          <div style="font-size:22px;font-weight:700">${data.painel.confirmadas||0}</div>
+        </div>
+
+        <div style="background:#fef2f2;padding:14px;border-radius:14px;border:1px solid #fecaca">
+          <div style="font-size:11px;color:#991b1b">Canceladas</div>
+          <div style="font-size:22px;font-weight:700">${data.painel.canceladas||0}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  if(data.itens && data.itens.length){
+
+    html += '<div style="display:flex;flex-direction:column;gap:12px">';
+
+    data.itens.forEach((item,idx)=>{
+
+      html += `
+        <div style="background:white;border:1px solid #ece9e3;border-radius:16px;padding:14px">
+
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+
+            <div>
+              <div style="font-weight:700;font-size:14px">${item.nome||item.cliente||'-'}</div>
+              <div style="font-size:12px;color:#666;margin-top:2px">
+                ${item.imovelTitulo||item.imovel||''}
+              </div>
+
+              <div style="margin-top:10px;font-size:12px">
+                <span style="background:#f3f4f6;padding:4px 10px;border-radius:999px">
+                  ${item.workflowLabel||item.label||''}
+                </span>
+              </div>
+
+              <div style="margin-top:10px;font-size:12px;color:#666">
+                ${item.workflowProximaAcao||item.proximaAcao||''}
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px">
+
+              ${item.workflowWhatsappDestino || (item.whatsapp && item.whatsapp.url) ? `
+                <a href="${item.workflowWhatsappDestino
+                  ? 'https://wa.me/'+String(item.workflowWhatsappDestino).replace(/\\D/g,'')+'?text='+encodeURIComponent(item.workflowWhatsappTexto||'')
+                  : item.whatsapp.url
+                }"
+                  target="_blank"
+                  style="background:#22c55e;color:white;padding:8px 12px;border-radius:10px;text-decoration:none;font-size:12px;font-weight:700;text-align:center">
+                  WhatsApp
+                </a>
+              ` : ''}
+
+              <button onclick="enviarMsg('confirma a ${idx+1}')" style="background:#0f766e;color:white;border:none;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer">
+                Confirmar
+              </button>
+
+              <button onclick="enviarMsg('remarca a ${idx+1}')" style="background:#f59e0b;color:white;border:none;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer">
+                Remarcar
+              </button>
+
+              <button onclick="enviarMsg('cancela a ${idx+1}')" style="background:#dc2626;color:white;border:none;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer">
+                Cancelar
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      `;
+
+    });
+
+    html += '</div>';
+  }
+
+  return html;
+}
+
 function addMsg(html, tipo) {
   const c = document.getElementById('chat-messages');
   const wrap = document.createElement('div');
@@ -441,7 +539,15 @@ async function enviarMsg(texto) {
       return;
     }
 
-    streamMsg(data.resposta);
+    let respostaFinal = data.resposta || '';
+
+    const operacional = renderOperacional(data);
+
+    if(operacional){
+      respostaFinal += operacional;
+    }
+
+    streamMsg(respostaFinal);
     setTimeout(() => addFeedback(msg, data.resposta), 200);
 
     // Chips de sugestão vindos da resposta

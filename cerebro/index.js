@@ -26,6 +26,8 @@ const navegador    = require('./navegador');
 const contexto     = require('./contexto');
 const datas        = require('./datas');
 const { criarArvore } = require('./arvore');
+const entidades = require('./entidades');
+const notificacoes = require('./notificacoes');
 
 const btn  = (l,h) => `<a href="${h}" style="display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px">${l} →</a>`;
 const chip = (l,m) => `<button onclick="enviarMsg('${m}')" style="background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px">${l}</button>`;
@@ -112,6 +114,7 @@ function proximoPasso(dominio, d, leads, imoveis, visitas) {
 function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
   const uid    = user.id || user.userId || 'anon';
   const mNorm  = nlp.normalizar(mensagem);
+  const entidadeInfo = entidades.analisar(mensagem);
   const perfil = memoria.atualizarPerfil(uid, {d,user,imoveis,leads});
   const hist   = memoria.historicoPorUsuario(uid, 8);
   const dominio = nlp.detectarDominio(mNorm);
@@ -174,6 +177,134 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
       chip('Visitas', 'visitas hoje') + chip('O que fazer hoje', 'o que devo fazer hoje');
   }
 
+
+  // ── 0.9. MOTOR CENTRAL DE ENTIDADES ──────────────────────────────────────────
+
+  if (entidadeInfo.entidade === 'LEAD') {
+
+    const nomeBusca = String(entidadeInfo.nome || '').trim().toLowerCase();
+
+    const leadEncontrada = (leads || []).find(l =>
+      String(l.nome || l.cliente || l.email || '')
+        .toLowerCase()
+        .includes(nomeBusca)
+    );
+
+    // LINK / DETALHES
+    if (
+      leadEncontrada &&
+      entidadeInfo.acao === 'LINK'
+    ) {
+
+      return finalizar(
+        '🔗 <strong>Link da lead:</strong><br><br>' +
+        '👤 ' + (leadEncontrada.nome || 'Lead') + '<br><br>' +
+        '<a href="/app/lead/' + (leadEncontrada.id || leadEncontrada.leadId) + '" style="color:#ff385c;font-weight:800">Abrir página da lead →</a>'
+      );
+    }
+
+    // DATA
+    if (
+      leadEncontrada &&
+      entidadeInfo.acao === 'DATA'
+    ) {
+
+      const dt =
+        leadEncontrada.createdAt ||
+        leadEncontrada.dataCriacao ||
+        leadEncontrada.processedAt ||
+        leadEncontrada.data_cadastro ||
+        leadEncontrada.data ||
+        '';
+
+      const br = dt
+        ? new Date(dt).toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo' })
+        : 'data não encontrada';
+
+      return finalizar(
+        '📅 <strong>Entrada da lead no sistema:</strong><br><br>' +
+        '👤 ' + (leadEncontrada.nome || 'Lead') + '<br>' +
+        '🕒 ' + br
+      );
+    }
+
+    // VITRINE
+    if (
+      leadEncontrada &&
+      entidadeInfo.acao === 'VITRINE'
+    ) {
+
+      const total =
+        (leadEncontrada.matchesBase && leadEncontrada.matchesBase.length) ||
+        (leadEncontrada.matches && leadEncontrada.matches.length) ||
+        0;
+
+      if (!total) {
+        return finalizar(
+          '❌ Essa lead ainda não possui vitrine pronta.'
+        );
+      }
+
+      const uid = encodeURIComponent(
+        String(
+          leadEncontrada.userId ||
+          leadEncontrada.usuarioId ||
+          leadEncontrada.corretorId ||
+          ''
+        )
+      );
+
+      const url =
+        '/cliente/oferta/' +
+        (leadEncontrada.id || leadEncontrada.leadId) +
+        (uid ? '?userId=' + uid : '');
+
+      return finalizar(
+        '✨ <strong>Vitrine encontrada:</strong><br><br>' +
+        '👤 ' + (leadEncontrada.nome || 'Lead') + '<br>' +
+        '🏠 ' + total + ' imóvel(is) em match<br><br>' +
+        '<a href="' + url + '" target="_blank" style="color:#ff385c;font-weight:800">Abrir vitrine →</a>'
+      );
+    }
+
+    // BUSCA
+    if (
+      leadEncontrada &&
+      entidadeInfo.acao === 'BUSCAR'
+    ) {
+
+      return finalizar(
+        '🔍 <strong>Lead encontrada:</strong><br><br>' +
+        '👤 ' + (leadEncontrada.nome || 'Lead') + '<br>' +
+        '📍 ' + (leadEncontrada.bairro || '-') + ' · ' + (leadEncontrada.tipo || '-') + '<br>' +
+        '📱 ' + (leadEncontrada.contato || leadEncontrada.telefone || '-') + '<br><br>' +
+        btn('Abrir lead','/app/lead/' + (leadEncontrada.id || leadEncontrada.leadId))
+      );
+    }
+  }
+
+
+
+  // ── 0.95. CENTRAL DE NOTIFICAÇÕES ────────────────────────────────────────────
+
+  try {
+
+    const respostaNotif = notificacoes.responder(
+      mensagem,
+      req.session && req.session.user
+        ? req.session.user
+        : {}
+    );
+
+    if (respostaNotif) {
+      return finalizar(respostaNotif);
+    }
+
+  } catch(e) {
+    console.error('erro notificacoes:', e.message);
+  }
+
+
   // ── 1. SAUDAÇÃO ──────────────────────────────────────────────────────────────
   const saudacoes = ['oi','ola','hey','eai','bom dia','boa tarde','boa noite','hello','hi','tudo bem','tudo bom','como vai'];
   if (saudacoes.some(s => mNorm.trim()===s || mNorm.startsWith(s+' '))) {
@@ -185,6 +316,24 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     r += '<br><br>Como posso te ajudar hoje?';
     r += sugestoes('dashboard', d);
     return r;
+  }
+
+
+  // -- 1.25. PRIORIDADE TEMPORAL / CONSULTAS POR DATA
+  if (
+    /(hoje|ontem|amanhã|amanha|anteontem|semana passada|esta semana|últimos|ultimos|mês passado|mes passado|este mês|este mes|data)/.test(mNorm)
+    &&
+    /(lead|leads|imovel|imóveis|imoveis|visita|visitas|match|cadastro|cadastros|notificacao|notificações|notificacoes)/.test(mNorm)
+  ) {
+    try {
+      const resDataPrioridade = datas.responder(mNorm, d, imoveis, leads, visitas, btn, chip);
+
+      if (resDataPrioridade) {
+        return finalizar(resDataPrioridade + sugestoes(dominio, d));
+      }
+    } catch(e) {
+      console.error('datas prioridade err:', e.message);
+    }
   }
 
   // -- 1.3. PRIORIDADE: BUSCAS POR DATA
@@ -253,6 +402,117 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
       if (resCtx) return finalizar(resCtx + sugestoes(ctx.intencao === 'BUSCAR_IMOVEL' ? 'imoveis' : dominio, d));
     }
   } catch(e) { console.error('contexto err:', e.message); }
+
+
+  // -- 1.8. PRIORIDADE: DETALHES / VITRINE / BUSCA DE LEAD / PROPRIETÁRIOS
+
+  function limparNomeBuscaLead(txt) {
+    return String(txt || '')
+      .replace(/ache|achar|buscar|busca|encontrar|localizar|procure|procurar/gi,'')
+      .replace(/lead|cliente|pagina|página|detalhes|detlhe|dtlhes|link|da|do|de|o|a/gi,'')
+      .trim();
+  }
+
+  function encontrarLeadPorTexto(txt) {
+    const nome = limparNomeBuscaLead(txt).toLowerCase();
+    if (!nome) return null;
+
+    return (leads || []).find(l =>
+      String(l.nome || l.cliente || l.email || '').toLowerCase().includes(nome)
+    );
+  }
+
+  if (/buscar lead|ache lead|achar lead|encontrar lead|localizar lead|procure lead/.test(mNorm)) {
+    const leadBusca = encontrarLeadPorTexto(mNorm);
+
+    if (!leadBusca) {
+      return finalizar('Me diga o nome da lead que você quer buscar.<br><br>' + btn('Ver leads','/app/leads'));
+    }
+
+    return finalizar(
+      '🔍 <strong>Lead encontrada:</strong><br><br>' +
+      '👤 ' + (leadBusca.nome || leadBusca.email || 'Lead') + '<br>' +
+      '📍 ' + (leadBusca.bairro || '-') + ' · ' + (leadBusca.tipo || '-') + '<br>' +
+      '📱 ' + (leadBusca.contato || leadBusca.telefone || '-') + '<br><br>' +
+      btn('Abrir lead','/app/lead/' + (leadBusca.id || leadBusca.leadId)) +
+      btn('Ver leads','/app/leads')
+    );
+  }
+
+  if (/link.*lead|pagina.*lead|página.*lead|detalhe.*lead|detalhes.*lead|dtlhe.*lead|dtlhes.*lead/.test(mNorm)) {
+    const leadBusca = encontrarLeadPorTexto(mNorm);
+
+    if (!leadBusca) {
+      return finalizar('Qual lead você quer abrir? Me diga o nome.<br><br>' + btn('Ver leads','/app/leads'));
+    }
+
+    return finalizar(
+      '🔗 <strong>Link da lead:</strong><br><br>' +
+      '👤 ' + (leadBusca.nome || leadBusca.email || 'Lead') + '<br>' +
+      '<a href="/app/lead/' + (leadBusca.id || leadBusca.leadId) + '" style="color:#ff385c;font-weight:800">Abrir página de detalhes da lead →</a>'
+    );
+  }
+
+  if (/quando.*lead|lead.*entrou|lead.*cadastrad|data.*lead/.test(mNorm)) {
+    const leadBusca = encontrarLeadPorTexto(mNorm);
+
+    if (!leadBusca) {
+      return finalizar('Qual lead você quer consultar? Me diga o nome.<br><br>' + btn('Ver leads','/app/leads'));
+    }
+
+    const dt = leadBusca.createdAt || leadBusca.dataCriacao || leadBusca.processedAt || leadBusca.data_cadastro || leadBusca.data || '';
+    const br = dt ? new Date(dt).toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo' }) : 'data não encontrada';
+
+    return finalizar(
+      '📅 <strong>Entrada da lead no sistema:</strong><br><br>' +
+      '👤 ' + (leadBusca.nome || leadBusca.email || 'Lead') + '<br>' +
+      '🕒 ' + br + '<br><br>' +
+      btn('Abrir lead','/app/lead/' + (leadBusca.id || leadBusca.leadId))
+    );
+  }
+
+  if (/vitrine.*lead|lead.*vitrine|vitrine.*cliente|tem.*vitrine/.test(mNorm)) {
+    const leadBusca = encontrarLeadPorTexto(mNorm);
+
+    if (!leadBusca) {
+      return finalizar('Qual lead você quer consultar? Me diga o nome.<br><br>' + chip('Minhas vitrines','minhas vitrines'));
+    }
+
+    const total = (leadBusca.matchesBase && leadBusca.matchesBase.length) || (leadBusca.matches && leadBusca.matches.length) || 0;
+
+    if (!total) {
+      return finalizar('Essa lead ainda não tem vitrine pronta, pois não tem match salvo.<br><br>' + btn('Abrir lead','/app/lead/' + (leadBusca.id || leadBusca.leadId)));
+    }
+
+    const uid = encodeURIComponent(String(leadBusca.userId || leadBusca.usuarioId || leadBusca.corretorId || ''));
+    const url = '/cliente/oferta/' + (leadBusca.id || leadBusca.leadId) + (uid ? '?userId=' + uid : '');
+
+    return finalizar(
+      '✨ <strong>Vitrine encontrada:</strong><br><br>' +
+      '👤 ' + (leadBusca.nome || leadBusca.email || 'Lead') + '<br>' +
+      '🏠 ' + total + ' imóvel(is) em match<br><br>' +
+      '<a href="' + url + '" target="_blank" style="color:#ff385c;font-weight:800">Abrir vitrine →</a>'
+    );
+  }
+
+  if (/proprietario|proprietário|proprie|propiet|dono/.test(mNorm) && /imovel|imóveis|imoveis|cadastrad|com|sem|quantos|qual/.test(mNorm)) {
+    const ativos = (imoveis || []).filter(i => i.status !== 'inativo');
+
+    const comProp = ativos.filter(i =>
+      (i.proprietario && (i.proprietario.nome || i.proprietario.telefone || i.proprietario.email)) ||
+      i.nomeProprietario || i.proprietario_nome || i.proprietarioTelefone || i.proprietario_telefone
+    );
+
+    const semProp = ativos.filter(i => !comProp.includes(i));
+
+    return finalizar(
+      '👤 <strong>Proprietários dos imóveis:</strong><br><br>' +
+      '🏠 Com proprietário: <strong>' + comProp.length + '</strong><br>' +
+      '❌ Sem proprietário: <strong>' + semProp.length + '</strong><br><br>' +
+      btn('Ver imóveis','/app/imoveis')
+    );
+  }
+
 
   // ── 2. INTERPRETADOR DE PORTUGUÊS ────────────────────────────────────────────
   // IMOVEIS tem prioridade sobre leads

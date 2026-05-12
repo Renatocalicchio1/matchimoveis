@@ -33,12 +33,12 @@
       "paginaAnterior": "dashboard"
     },
     "corretor-47992010889": {
-      "paginaAtual": "leads",
-      "labelAtual": "Leads",
-      "dominioAtual": "leads",
-      "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-12T18:03:13.087Z",
-      "paginaAnterior": "dashboard"
+      "paginaAtual": "assistente",
+      "labelAtual": "Assistente",
+      "dominioAtual": "sistema",
+      "rotaAtual": "/app/assistente",
+      "atualizadoEm": "2026-05-12T21:49:20.656Z",
+      "paginaAnterior": "visitas"
     }
   },
   "fluxos": [
@@ -2231,6 +2231,546 @@
       "para": "leads",
       "userId": "corretor-47992010889",
       "data": "2026-05-12T18:03:13.087Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:12:48.012Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:12:50.450Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:12:51.444Z"
+    },
+    {
+      "de": "leads",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:12:52.122Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:12:58.799Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:26:52.265Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:26:55.766Z"
+    },
+    {
+      "de": "assistente",
+      "para": "imoveis",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:28:06.965Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:29:45.445Z"
+    },
+    {
+      "de": "assistente",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:29:47.681Z"
+    },
+    {
+      "de": "leads",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:29:53.853Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:34:49.238Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:34:52.241Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:40:07.435Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:40:09.394Z"
+    },
+    {
+      "de": "assistente",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:41:48.258Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:42:25.810Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:42:27.385Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:42:29.255Z"
+    },
+    {
+      "de": "visitas",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:42:51.767Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:45:34.018Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:45:36.058Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:59:41.967Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:59:45.250Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T19:24:23.281Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T19:24:30.132Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T19:25:30.736Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T19:33:06.713Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T19:36:38.581Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T19:39:08.061Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T20:25:11.415Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T20:25:14.010Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T20:25:15.665Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T20:25:19.522Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T20:25:23.675Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T20:25:56.740Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T20:25:58.313Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T20:26:02.830Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T20:26:06.272Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T20:51:00.708Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:01:17.046Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:01:18.732Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:11:01.607Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:11:03.568Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:12:26.808Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:12:29.253Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:13:46.618Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:13:47.932Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:13:49.311Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:15:16.768Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:15:18.766Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:16:55.034Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:16:56.504Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:20:42.407Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:20:43.515Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:20:44.231Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:22:41.328Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:22:42.504Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:25:47.391Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:25:48.583Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:25:58.134Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:26:34.535Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:33:19.169Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:33:22.864Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:35:24.078Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:35:25.234Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:36:12.244Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:36:13.349Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:37:21.355Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:37:22.405Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:38:14.344Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:38:15.346Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:39:17.265Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:39:18.428Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:40:29.145Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:40:30.268Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:41:23.356Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:41:24.503Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:43:31.410Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:43:32.653Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:44:26.881Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:44:27.901Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:44:29.825Z"
+    },
+    {
+      "de": "leads",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:44:31.378Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:44:32.227Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:45:33.549Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:45:34.815Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:47:57.124Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:47:58.220Z"
+    },
+    {
+      "de": "visitas",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T21:49:20.656Z"
     }
   ]
 }

@@ -6,6 +6,8 @@ const cerebroNLP = require("./services/cerebro-nlp");
 
 
 const fs = require('fs');
+const centralOperacional = require('./services/centralOperacional');
+const { aplicarWorkflowVisita } = require('./services/visitaWorkflow');
 const path = require('path');
 
 const DATA_DIR = process.env.RENDER
@@ -294,6 +296,8 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 app.post("/app/leads/manual", auth, (req, res) => {
 try {
 const fs = require("fs");
+const { resolverUsuario } = require("./services/usuarios/resolverUsuario");
+const { resolverDestinoVisita } = require("./services/visita/resolverDestinoVisita");
 const { nome, tipo, bairro, cidade, estado, valor_imovel, quartos, suites, vagas, area_m2, tipo_operacao } = req.body; const contato = req.body.contato || req.body.celular;
 if (!nome || !contato) return res.json({ ok: false, erro: "Nome e contato são obrigatórios" });
 const data = fs.existsSync(dataPath("data.json")) ? JSON.parse(fs.readFileSync(dataPath("data.json"), "utf8")) : [];
@@ -513,7 +517,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     imovelBairro: imovel.bairro || '',
     imovelCidade: imovel.cidade || '',
     imovelEstado: imovel.estado || '',
-    usuarioDestinoId: lead.userId || lead.codigoUsuario || '',
+    usuarioDestinoId: lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '',
     usuarioDestinoNome: '',
     usuarioDestinoPerfil: '',
     usuarioDestinoTelefone: '',
@@ -535,8 +539,9 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     data: new Date().toISOString(),
     data_br: new Date().toLocaleString('pt-BR')
   };
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
-  visitas.push(novaVisita);
+  const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
+  const visitaComWorkflow = aplicarWorkflowVisita(novaVisita);
+  visitas.push(visitaComWorkflow);
   fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
 
   res.redirect('/cliente/oferta/'+req.params.leadId+'?visita=ok');
@@ -579,14 +584,14 @@ function registrarVisita(lead){
 
 // Página de confirmação do proprietário
 app.get('/proprietario/visita/:visitaId', (req, res) => {
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
   const visita = visitas.find(v => v.id === req.params.visitaId);
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('proprietario-visita', { visita });
 });
 
 app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.visitaId);
   if (idx === -1) return res.status(404).send('Visita não encontrada');
   
@@ -2158,12 +2163,12 @@ app.get('/app/lead/:id', auth, (req, res) => {
 
   fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
 
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'), 'utf8')) : [];
+  const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
 
   const visitasDaLead = visitas.filter(v =>
     String(v.leadId || v.lead_id || '') === String(lead.leadId || '') ||
     String(v.leadId || v.lead_id || '') === String(lead.id || '') ||
-    String(v.telefone || v.contato || '').replace(/\D/g,'') === String(lead.telefone || lead.contato || '').replace(/\D/g,'') ||
+    String(v.proprietarioTelefone || v.contato || '').replace(/\D/g,'') === String(lead.telefone || lead.contato || '').replace(/\D/g,'') ||
     String(v.email || '').toLowerCase() === String(lead.email || '').toLowerCase()
   );
 
@@ -2949,7 +2954,7 @@ app.get('/admin/zerar-visitas-notificacoes-temp', (req, res) => {
 // ADMIN — Zerar visitas por userId
 app.get("/admin/zerar-visitas/:userId", (req, res) => {
 const { userId } = req.params;
-const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"), "utf8")) : [];
+const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
 const restantes = visitas.filter(v => v.userId !== userId);
 const removidas = visitas.length - restantes.length;
 fs.writeFileSync(dataPath("visitas.json"), JSON.stringify(restantes, null, 2));
@@ -2969,7 +2974,7 @@ res.send("✅ " + removidas + " notificacao(oes) removidas para userId: " + user
 // ADMIN — Zerar tudo por userId
 app.get("/admin/zerar-tudo/:userId", (req, res) => {
 const { userId } = req.params;
-const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"), "utf8")) : [];
+const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
 const notifs = fs.existsSync(dataPath("notificacoes.json")) ? JSON.parse(fs.readFileSync(dataPath("notificacoes.json"), "utf8")) : [];
 const visitasRest = visitas.filter(v => v.userId !== userId);
 const notifsRest = notifs.filter(n => n.usuarioId !== userId);
@@ -2980,14 +2985,14 @@ res.send("✅ Zerado para " + userId + ": " + (visitas.length - visitasRest.leng
 
 // Página confirmação de presença do lead
 app.get('/cliente/visita/:visitaId/confirmar', (req, res) => {
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
   const visita = visitas.find(v => v.id === req.params.visitaId);
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('cliente-visita-confirmar', { visita });
 });
 
 app.post('/cliente/visita/:visitaId/responder', (req, res) => {
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.visitaId);
   if (idx === -1) return res.status(404).send('Visita não encontrada');
   const { resposta } = req.body;
@@ -3023,14 +3028,14 @@ app.get('/app/coins', auth, (req, res) => {
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====
 app.get('/cliente/visita/:id/remarcar', (req, res) => {
-  const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'), 'utf8'));
+  const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
   const visita = visitas.find(v => v.id === req.params.id);
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('cliente-visita-remarcar', { visita, sucesso: false });
 });
 
 app.post('/cliente/visita/:id/remarcar', (req, res) => {
-  const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'), 'utf8'));
+  const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.id);
   if (idx === -1) return res.status(404).send('Visita não encontrada');
   const { novaData, novoHorario } = req.body;
@@ -3052,7 +3057,7 @@ app.post('/cliente/visita/:id/remarcar', (req, res) => {
 
 // DEBUG TEMP
 app.get('/admin/debug-visitas', (req, res) => {
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
   const resumo = visitas.slice(-5).map(v => ({ id: v.id, userId: v.userId, status: v.status, nome: v.nome }));
   res.json(resumo);
 });
@@ -3176,7 +3181,42 @@ app.post('/app/assistente/chat', auth, (req, res) => {
       : null
   };
 
-  const resposta = cerebroApp.responder(mensagem, d, user, imoveis, leads, visitas, contexto);
+  let resposta = null;
+
+  const msgNorm = String(mensagem || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const usarCentral = /(whatsapp|zap|mensagem|manda|enviar|falar|ele|ela|lead|leads|cliente|clientes|quente|quentes|match|matches|visita|visitas|notificacao|notificacoes|pendente|pendentes)/.test(msgNorm);
+
+  if (usarCentral) {
+    try {
+      const central = centralOperacional.responderCentral(user, mensagem);
+
+      if (central && central.resposta) {
+        resposta = central.resposta;
+
+        if (central.itens && central.itens.length) {
+          resposta += "\n\n" + central.itens.map((i)=>{
+            return "• " + (i.nome || i.titulo || i.title || i.cliente || "Item")
+              + (i.bairro ? " — " + i.bairro : "")
+              + (i.label ? " | " + i.label : "")
+              + (i.prioridade !== undefined ? " | Prioridade: " + i.prioridade : "")
+              + (i.matches !== undefined ? " | Matches: " + i.matches : "")
+              + (i.bestScore !== undefined ? " | Score: " + i.bestScore : "");
+          }).join("\n");
+        }
+
+        if (central.acao && central.acao.tipo === "whatsapp") {
+          resposta += "\n\n📲 WhatsApp preparado.";
+          if (central.acao.url) resposta += "\n" + central.acao.url;
+        }
+      }
+    } catch(e) {
+      console.error("Erro central operacional:", e.message);
+    }
+  }
+
+  if (!resposta) {
+    resposta = cerebroApp.responder(mensagem, d, user, imoveis, leads, visitas, contexto);
+  }
 
   memoria.historico.push({ userId:uid, pergunta:mensagem, resposta, data:new Date().toISOString() });
   if (memoria.historico.length>500) memoria.historico = memoria.historico.slice(-500);
@@ -3281,3 +3321,319 @@ app.post('/admin/import-sync-ran', express.json({limit:'200mb'}), (req,res)=>{
   }
 
 });
+
+// ===============================
+// CENTRAL OPERACIONAL CONVERSACIONAL
+// ===============================
+app.post('/api/central-operacional', auth, express.json(), (req, res) => {
+  try {
+    const texto = req.body.texto || req.body.mensagem || req.body.message || '';
+    if (!texto.trim()) {
+      return res.json({
+        ok: false,
+        resposta: 'Digite uma pergunta ou comando para a central operacional.'
+      });
+    }
+
+    const resultado = centralOperacional.responderCentral(req.session.user, texto);
+    res.json({
+      ok: true,
+      ...resultado
+    });
+  } catch (err) {
+    console.error('Erro central operacional:', err);
+    res.status(500).json({
+      ok: false,
+      resposta: 'Erro ao consultar a central operacional.',
+      erro: err.message
+    });
+  }
+});
+
+// ===============================
+// TELA CENTRAL OPERACIONAL
+// ===============================
+app.get('/app/central', auth, (req, res) => {
+  res.render('app-central', { user: req.session.user, active: 'central' });
+});
+
+// =====================================================
+// WORKFLOW VISITAS OPERACIONAL
+// =====================================================
+
+app.post('/api/visita/:id/workflow', auth, (req,res)=>{
+  try{
+    const id = req.params.id;
+
+    const {
+      workflowStatus,
+      workflowResponsavel,
+      workflowLabel,
+      workflowProximaAcao
+    } = req.body;
+
+    const visita = atualizarWorkflowVisita(id, workflowStatus, {
+      workflowResponsavel,
+      workflowLabel,
+      workflowProximaAcao
+    });
+
+    return res.json({
+      ok: true,
+      visita
+    });
+
+  }catch(err){
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+// =====================================================
+// MEMORIA OPERACIONAL
+// =====================================================
+
+app.get('/api/memoria-operacional', auth, (req,res)=>{
+  try{
+
+    const DATA_DIR =
+      process.env.RENDER
+        ? '/opt/render/project/src/data'
+        : '.';
+
+    const memoriaFile = path.join(DATA_DIR, 'memoria-operacional.json');
+
+    if(!fs.existsSync(memoriaFile)){
+      return res.json([]);
+    }
+
+    const memoria = JSON.parse(fs.readFileSync(memoriaFile,'utf8'));
+
+    return res.json(memoria);
+
+  }catch(err){
+
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+
+// =====================================================
+// WORKFLOW VISITAS OPERACIONAL
+// =====================================================
+
+app.post('/api/visita/:id/workflow', auth, (req,res)=>{
+  try{
+    const id = req.params.id;
+
+    const {
+      workflowStatus,
+      workflowResponsavel,
+      workflowLabel,
+      workflowProximaAcao
+    } = req.body;
+
+    const visita = atualizarWorkflowVisita(id, workflowStatus, {
+      workflowResponsavel,
+      workflowLabel,
+      workflowProximaAcao
+    });
+
+    return res.json({
+      ok: true,
+      visita
+    });
+
+  }catch(err){
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+// =====================================================
+// MEMORIA OPERACIONAL
+// =====================================================
+
+app.get('/api/memoria-operacional', auth, (req,res)=>{
+  try{
+
+    const DATA_DIR =
+      process.env.RENDER
+        ? '/opt/render/project/src/data'
+        : '.';
+
+    const memoriaFile = path.join(DATA_DIR, 'memoria-operacional.json');
+
+    if(!fs.existsSync(memoriaFile)){
+      return res.json([]);
+    }
+
+    const memoria = JSON.parse(fs.readFileSync(memoriaFile,'utf8'));
+
+    return res.json(memoria);
+
+  }catch(err){
+
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+
+// =====================================================
+// ACAO RAPIDA VISITA
+// =====================================================
+
+app.post('/api/visita/:id/confirmar', auth, (req,res)=>{
+  try{
+
+    const visita = atualizarWorkflowVisita(
+      req.params.id,
+      'CONFIRMADA',
+      {
+        workflowResponsavel: req.session.user.nome || '',
+        workflowLabel: 'Visita confirmada',
+        workflowProximaAcao: 'Definir corretor acompanhante'
+      }
+    );
+
+    registrarEvento({
+      tipo: 'VISITA_CONFIRMADA',
+      visitaId: visita.id,
+      leadId: visita.leadId || '',
+      imovelId: visita.imovelId || '',
+      userId: req.session.user.id || '',
+      descricao: 'Visita confirmada pelo usuário'
+    });
+
+    return res.json({
+      ok:true,
+      visita
+    });
+
+  }catch(err){
+
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+app.post('/api/visita/:id/remarcar', auth, (req,res)=>{
+  try{
+
+    const visita = atualizarWorkflowVisita(
+      req.params.id,
+      'REMARCAR',
+      {
+        workflowResponsavel: req.session.user.nome || '',
+        workflowLabel: 'Remarcação solicitada',
+        workflowProximaAcao: 'Definir nova data'
+      }
+    );
+
+    registrarEvento({
+      tipo: 'VISITA_REMARCAR',
+      visitaId: visita.id,
+      leadId: visita.leadId || '',
+      imovelId: visita.imovelId || '',
+      userId: req.session.user.id || '',
+      descricao: 'Usuário solicitou remarcação'
+    });
+
+    return res.json({
+      ok:true,
+      visita
+    });
+
+  }catch(err){
+
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+
+app.get('/api/visita/:id/whatsapp', auth, (req,res)=>{
+
+  try {
+
+    const visitas = fs.existsSync("visitas.json") ? JSON.parse(fs.readFileSync("visitas.json","utf8")) : [];
+    const v = visitas.find(x => String(x.id) === String(req.params.id));
+
+    if(!v) return res.json({ ok:false, erro:'Visita não encontrada' });
+
+    const destino = resolverDestinoVisita(v, req.session.user);
+
+    if(!destino.telefone){
+      return res.json({ ok:false, erro:'Sem telefone destino' });
+    }
+
+    const msg =
+`Olá ${destino.nome}! 
+Temos uma visita agendada para:
+${v.imovelTitulo}
+Data: ${v.dataVisita} às ${v.horaVisita}
+Confirme aqui: https://matchimoveis.onrender.com/visita/${v.id}`;
+
+    const link = `https://wa.me/55${destino.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`;
+
+    return res.json({
+      ok:true,
+      destino,
+      link
+    });
+
+  } catch(err){
+    console.log(err);
+    return res.json({ ok:false, erro: err.message });
+  }
+
+});
+
+
+function resolverUsuarioPorId(id){
+
+  try {
+    const users = JSON.parse(fs.readFileSync('users.json','utf8') || '[]');
+    return users.find(u => String(u.id) === String(id)) || null;
+  } catch(e){
+    return null;
+  }
+
+}
+
+function resolverUsuarioPorId(id){
+
+  try {
+    const users = JSON.parse(fs.readFileSync('users.json','utf8') || '[]');
+    return users.find(u => String(u.id) === String(id)) || null;
+  } catch(e){
+    return null;
+  }
+
+}

@@ -1,0 +1,42 @@
+<%
+const wf = visita.workflowStatus || 'AGUARDANDO_PROPRIETARIO';
+
+const cores = {
+  AGUARDANDO_PROPRIETARIO: '#f59e0b',
+  AGUARDANDO_PARCEIRO: '#8b5cf6',
+  AGUARDANDO_CORRETOR: '#3b82f6',
+  CONFIRMADA: '#10b981',
+  REMARCAR: '#ef4444',
+  CANCELADA: '#6b7280',
+  FINALIZADA: '#111827'
+};
+
+const cor = cores[wf] || '#374151';
+%>
+
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+
+  <span style="
+    background:<%= cor %>;
+    color:#fff;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+  ">
+    <%= wf %>
+  </span>
+
+  <% if(visita.workflowProximaAcao){ %>
+    <span style="
+      background:#f3f4f6;
+      color:#111827;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+    ">
+      <%= visita.workflowProximaAcao %>
+    </span>
+  <% } %>
+
+</div>

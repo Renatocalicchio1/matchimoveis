@@ -1,0 +1,119 @@
+<%- include('partials/app-shell', { user, titulo: 'Central Operacional' }) %>
+
+<div style="max-width:1100px;margin:0 auto;padding:24px">
+  <div style="background:#fff;border-radius:22px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,.06);border:1px solid #eee">
+    <h1 style="margin:0 0 8px;font-size:28px">🤖 Central Operacional</h1>
+    <p style="margin:0 0 22px;color:#666">
+      Peça para a IA operar leads, visitas, notificações, matches e follow-ups.
+    </p>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
+      <button class="acao-central" data-msg="mostrar notificações pendentes">🔔 Notificações</button>
+      <button class="acao-central" data-msg="mostrar leads quentes">🔥 Leads quentes</button>
+      <button class="acao-central" data-msg="mostrar visitas pendentes">📅 Visitas</button>
+      <button class="acao-central" data-msg="mostrar matches">🏠 Matches</button>
+      <button class="acao-central" data-msg="quem precisa de follow-up hoje">⏰ Follow-up</button>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <input id="central-input" placeholder="Ex: ache o lead Bruno, mostrar leads quentes, visitas pendentes..."
+        style="flex:1;padding:15px 16px;border-radius:14px;border:1px solid #ddd;font-size:15px;outline:none">
+      <button id="central-send"
+        style="border:0;background:#111;color:#fff;border-radius:14px;padding:0 22px;font-weight:700;cursor:pointer">
+        Enviar
+      </button>
+    </div>
+
+    <div id="central-resposta" style="margin-top:22px;background:#f8f8f8;border-radius:18px;padding:18px;min-height:90px;color:#333">
+      Digite um comando acima para começar.
+    </div>
+  </div>
+</div>
+
+<style>
+  .acao-central{
+    border:1px solid #eee;
+    background:#fafafa;
+    padding:10px 14px;
+    border-radius:999px;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .acao-central:hover{background:#111;color:#fff}
+  .central-item{
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:14px;
+    padding:12px;
+    margin-top:10px;
+  }
+</style>
+
+<script>
+async function consultarCentral(msg){
+  const box = document.getElementById('central-resposta');
+  box.innerHTML = 'Consultando central...';
+
+  try{
+    const r = await fetch('/api/central-operacional', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ texto: msg })
+    });
+
+    const data = await r.json();
+
+    let html = '<div style="font-weight:800;margin-bottom:10px;white-space:pre-line">' + (data.resposta || 'Sem resposta') + '</div>';
+
+    if(data.resumo){
+      html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+      html += '<span>Leads: <b>'+ (data.resumo.totalLeads || 0) +'</b></span>';
+      html += '<span>Com match: <b>'+ (data.resumo.leadsComMatch || 0) +'</b></span>';
+      html += '<span>Visitas pendentes: <b>'+ (data.resumo.visitasPendentes || 0) +'</b></span>';
+      html += '<span>Notificações: <b>'+ (data.resumo.notificacoesPendentes || 0) +'</b></span>';
+      html += '</div>';
+    }
+
+    if(data.itens && data.itens.length){
+      data.itens.forEach(function(item){
+        html += '<div class="central-item">';
+        html += '<b>' + (item.nome || item.titulo || item.title || item.cliente || 'Item') + '</b><br>';
+
+        if(item.bairro) html += 'Bairro: ' + item.bairro + '<br>';
+        if(item.telefone) html += 'Telefone: ' + item.telefone + '<br>';
+        if(item.email) html += 'Email: ' + item.email + '<br>';
+        if(item.status) html += 'Status: ' + item.status + '<br>';
+        if(item.matches !== undefined) html += 'Matches: ' + item.matches + '<br>';
+        if(item.bestScore !== undefined) html += 'Score: ' + item.bestScore + '<br>';
+
+        html += '</div>';
+      });
+    }
+
+    box.innerHTML = html;
+
+  }catch(e){
+    box.innerHTML = 'Erro ao consultar a central: ' + e.message;
+  }
+}
+
+document.getElementById('central-send').addEventListener('click', function(){
+  const msg = document.getElementById('central-input').value;
+  if(msg.trim()) consultarCentral(msg);
+});
+
+document.getElementById('central-input').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){
+    const msg = this.value;
+    if(msg.trim()) consultarCentral(msg);
+  }
+});
+
+document.querySelectorAll('.acao-central').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    const msg = this.dataset.msg;
+    document.getElementById('central-input').value = msg;
+    consultarCentral(msg);
+  });
+});
+</script>

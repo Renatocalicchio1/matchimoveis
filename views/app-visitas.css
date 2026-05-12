@@ -1,0 +1,67 @@
+.app-content table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+  background:#fff;
+}
+
+.app-content th,
+.app-content td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  vertical-align:top;
+  font-size:13px;
+  word-break:break-word;
+}
+
+.app-content td:nth-child(3){
+  max-width:220px;
+  font-weight:600;
+}
+
+.app-content td:nth-child(5),
+.app-content td:nth-child(6){
+  white-space:nowrap;
+}
+
+.status-box{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.badge{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.badge.aguardando{ background:#f59e0b; color:#fff; }
+.badge.confirmada{ background:#10b981; color:#fff; }
+.badge.cancelada{ background:#ef4444; color:#fff; }
+
+.actions{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.actions a,
+.actions button{
+  width:100%;
+  text-align:center;
+  padding:8px 10px;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:700;
+  text-decoration:none;
+  border:none;
+  cursor:pointer;
+}
+
+.btn-whatsapp{ background:#25D366; color:#fff; }
+.btn-parceiro{ background:#FF385C; color:#fff; }
+.btn-confirmar{ background:#10b981; color:#fff; }
+.btn-remarcar{ background:#f59e0b; color:#fff; }

@@ -412,5 +412,16 @@
   "confirmar": "confirmar",
   "recusar": "recusar",
   "remarcar": "remarcar",
-  "formato xml": "padrao vrsync vivareal"
+  "formato xml": "padrao vrsync vivareal",
+  "proprietorio": "proprietario",
+  "proprietairo": "proprietario",
+  "propietario": "proprietario",
+  "proprietarios": "proprietario",
+  "proprietario cadastrados": "imoveis com proprietario",
+  "imoveis sem proprietario": "imoveis sem proprietario",
+  "imoveis com proprietario": "imoveis com proprietario",
+  "encontrar lead": "buscar lead",
+  "achar lead": "buscar lead",
+  "localizar lead": "buscar lead",
+  "pesquisar lead": "buscar lead"
 }

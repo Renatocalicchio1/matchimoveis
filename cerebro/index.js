@@ -24,6 +24,7 @@ const portugues    = require('./portugues');
 const navegacao    = require('./navegacao');
 const navegador    = require('./navegador');
 const contexto     = require('./contexto');
+const datas        = require('./datas');
 const { criarArvore } = require('./arvore');
 
 const btn  = (l,h) => `<a href="${h}" style="display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px">${l} →</a>`;
@@ -184,6 +185,52 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     r += '<br><br>Como posso te ajudar hoje?';
     r += sugestoes('dashboard', d);
     return r;
+  }
+
+  // -- 1.3. PRIORIDADE: BUSCAS POR DATA
+  try {
+    const resData = datas.responder(mNorm, d, imoveis, leads, visitas, btn, chip);
+    if (resData) return finalizar(resData + sugestoes(dominio, d));
+  } catch(e) { console.error('datas err:', e.message); }
+
+  // -- 1.35. PRIORIDADE: VITRINES PRONTAS
+  if (/minhas vitrines|minha vitrine|vitrines prontas|vitrine pronta|vitrines para enviar|links das vitrines|leads com vitrine|clientes com vitrine/.test(mNorm)) {
+    const comVitrine = (leads || []).filter(l =>
+      (l.matchesBase && l.matchesBase.length > 0) ||
+      (l.matches && l.matches.length > 0)
+    );
+
+    if (!comVitrine.length) {
+      return finalizar('Nenhuma vitrine pronta ainda. Faça o match primeiro.<br><br>' +
+        btn('Ver leads','/app/leads') + chip('Fazer match','fazer match agora'));
+    }
+
+    const cards = comVitrine.slice(0,10).map(l => {
+      const total = (l.matchesBase && l.matchesBase.length) || (l.matches && l.matches.length) || 0;
+      const idLead = l.id || l.leadId || l._id;
+      const BASE_URL = String(process.env.APP_URL || process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000').replace(/\/$/, '');
+      const uidLead = encodeURIComponent(String(l.userId || l.usuarioId || l.corretorId || ''));
+      const url = BASE_URL + '/cliente/oferta/' + idLead + (uidLead ? '?userId=' + uidLead : '');
+      const tel = String(l.contato || l.telefone || l.celular || '').replace(/\D/g,'');
+      const msg = 'Olá ' + (l.nome || '') + '! Separei algumas opções de imóveis para você. Veja sua vitrine: ' + url;
+      const zap = tel ? 'https://wa.me/55' + tel + '?text=' + encodeURIComponent(msg) : '';
+      return '<div style="border:1px solid #eee;border-radius:14px;padding:14px;margin:10px 0;background:white">' +
+        '<div style="font-size:16px;font-weight:700">👤 ' + (l.nome || l.email || 'Lead') + '</div>' +
+        '<div style="font-size:13px;color:#666;margin-top:4px">📍 ' + (l.bairro || '-') + ' · 🏠 ' + (l.tipo || '-') + '</div>' +
+        '<div style="margin-top:8px;font-size:13px">✨ <strong>' + total + '</strong> imóvel(is) em match · 📤 pronta para envio</div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
+          '<a href="' + url + '" target="_blank" style="background:#ff385c;color:white;padding:8px 12px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700">🔗 Abrir vitrine</a>' +
+          (zap ? '<a href="' + zap + '" target="_blank" style="background:#25d366;color:white;padding:8px 12px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700">📱 Enviar WhatsApp</a>' : '') +
+        '</div>' +
+        '<div style="margin-top:10px;font-size:11px;color:#777">' + url + '</div>' +
+      '</div>';
+    }).join('');
+
+    return finalizar('✨ <strong>' + comVitrine.length + ' vitrine(s) pronta(s) para enviar:</strong><br>' +
+      '<span style="font-size:12px;color:#666">Essas leads já têm imóveis em match.</span><br><br>' +
+      cards +
+      (comVitrine.length > 10 ? '<br><em>...e mais ' + (comVitrine.length - 10) + ' vitrine(s).</em>' : '') +
+      '<br>' + btn('Ver todas as leads','/app/leads?filtro=com_match'));
   }
 
   // -- 1.4. NAVEGADOR

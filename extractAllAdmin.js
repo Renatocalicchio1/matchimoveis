@@ -13,10 +13,27 @@ async function main() {
   const imoveisArr = Array.isArray(imoveis) ? imoveis : (imoveis.imoveis || []);
   const bairrosBase = new Set(imoveisArr.map(i => norm(i.bairro)).filter(Boolean));
 
-  const pendentes = leads.filter(l =>
-    l.userId === 'imobiliaria-47991919191' && l.url && l.url.includes('imovelweb') &&
-    l.extractionStatus !== 'ok' && l.bairro && bairrosBase.has(norm(l.bairro))
-  ).slice(0, LIMITE);
+  const IDS_TESTE = new Set([
+    '3012991542',
+    '3034436969',
+    '3012187664',
+    '3023417424',
+    '3026777889',
+    '3026786167',
+    '3026759178'
+  ]);
+
+  const USER_TESTE = 'corretor-47992010889';
+
+  const pendentes = leads.filter(l => {
+    const leadUser = String(l.userId || l.usuarioId || l.corretorId || '');
+    const leadId = String(l.id || l.idAnuncio || l.idAnuncioOrigem || '');
+    return leadUser === USER_TESTE &&
+      IDS_TESTE.has(leadId) &&
+      l.url &&
+      l.url.includes('imovelweb') &&
+      l.extractionStatus !== 'ok';
+  }).slice(0, LIMITE);
 
   console.log('Total para extrair: ' + pendentes.length);
   let ok = 0, removidosIndisponiveis = 0, removidosSemBairro = 0, erro = 0;

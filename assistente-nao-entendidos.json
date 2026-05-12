@@ -280,6 +280,16 @@
       "primeira": "2026-05-09T01:59:19.556Z",
       "ultima": "2026-05-10T02:41:47.690Z",
       "sugerido": true
+    },
+    {
+      "exemplo": "minhas vistas amanha",
+      "count": 1,
+      "usuarios": [
+        "corretor-47992010889"
+      ],
+      "primeira": "2026-05-12T16:50:59.647Z",
+      "ultima": "2026-05-12T16:50:59.647Z",
+      "sugerido": false
     }
   ],
   "sugestoes": [
@@ -636,7 +646,7 @@
     },
     {
       "pergunta": "leads sem match",
-      "count": 9,
+      "count": 10,
       "respostas": [
         {
           "texto": "👥 Leads:Total: 1393 · 🌐 Orgânicas: 442 · 📋 Importadas: 951🎯 Com match: 43 (3%) · ❌ Sem match: 1350📍 Bairros mais buscados: Centro (48), Jardim Mi",
@@ -682,14 +692,19 @@
           "texto": "❌ undefined leads sem matchPossíveis causas:• Bairros mais buscados: Centro (6), Ipiranga (3), Vila do Castelo (3) — você tem imóveis nesses bairros?•",
           "dominio": "leads",
           "data": "2026-05-09T21:42:26.239Z"
+        },
+        {
+          "texto": "❌ 5 leads sem matchPossíveis causas:• Bairros mais buscados: Vila Mariana (1), Campos Elíseos (1), Vila Olímpia (1) — você tem imóveis nesses bairros?",
+          "dominio": "leads",
+          "data": "2026-05-12T16:30:44.248Z"
         }
       ],
       "primeira": "2026-05-08T20:49:54.846Z",
-      "ultima": "2026-05-09T21:42:26.239Z"
+      "ultima": "2026-05-12T16:30:44.248Z"
     },
     {
       "pergunta": "leads quentes",
-      "count": 10,
+      "count": 11,
       "respostas": [
         {
           "texto": "🔥 Leads mais quentes:1. Renata Graber de Aquino — Moema Apartamento · 15 match(es)2. Barbara krysttal — Moema Apartamento · 15 match(es)3. Amanda — V",
@@ -740,10 +755,15 @@
           "texto": "🔥 Leads mais quentes:1. Day suprema — Rio Pequeno Apartamento · 4 match(es)2. Bruno — Vila Olímpia Apartamento · 3 match(es)3. maria cecilia dos reis",
           "dominio": "leads",
           "data": "2026-05-09T21:42:26.252Z"
+        },
+        {
+          "texto": "🟡 1 lead(s) MORNA(S) — match mas sem visita:• Bruno — Vila OlímpiaVer leads →Leads quentesImportar leadsLeads sem match",
+          "dominio": "leads",
+          "data": "2026-05-12T16:30:30.960Z"
         }
       ],
       "primeira": "2026-05-08T20:50:02.243Z",
-      "ultima": "2026-05-09T21:42:26.253Z"
+      "ultima": "2026-05-12T16:30:30.960Z"
     },
     {
       "pergunta": "leads com match",
@@ -986,16 +1006,21 @@
     },
     {
       "pergunta": "bom dia",
-      "count": 6,
+      "count": 7,
       "respostas": [
         {
           "texto": "Boa noite, Carlos! 👋🔔 2 notificação(ões):⚠️ Urgente:🔴 2 visita(s) hoje — Não perca o horário! Ver →🟡 3 visita(s) pendentes — Aguardando sua confir",
           "dominio": "saudacao",
           "data": "2026-05-08T21:06:21.615Z"
+        },
+        {
+          "texto": "Boa tarde, Teste! 👋📍 Foco: Vila Mariana, Campos Elíseos🏠 291 imóveis · 👥 6 leads · 🎯 1 matchs🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 5 lea",
+          "dominio": "saudacao",
+          "data": "2026-05-12T16:09:28.537Z"
         }
       ],
       "primeira": "2026-05-08T21:06:21.615Z",
-      "ultima": "2026-05-09T01:48:29.628Z"
+      "ultima": "2026-05-12T16:09:28.537Z"
     },
     {
       "pergunta": "boa tarde",
@@ -4833,6 +4858,233 @@
       ],
       "primeira": "2026-05-12T01:57:51.675Z",
       "ultima": "2026-05-12T01:57:51.675Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-12T16:18:55.965Z"
+        }
+      ],
+      "primeira": "2026-05-12T16:18:55.965Z",
+      "ultima": "2026-05-12T16:18:55.965Z"
+    },
+    {
+      "pergunta": "vitrine",
+      "count": 4,
+      "respostas": [
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T16:19:16.136Z"
+        },
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T16:22:20.056Z"
+        },
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T16:25:45.878Z"
+        },
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T16:30:11.394Z"
+        }
+      ],
+      "primeira": "2026-05-12T16:19:16.136Z",
+      "ultima": "2026-05-12T16:30:11.394Z"
+    },
+    {
+      "pergunta": "minhas vitrine",
+      "count": 5,
+      "respostas": [
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T16:19:27.230Z"
+        },
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T16:22:30.250Z"
+        },
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T16:26:14.557Z"
+        },
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T16:52:54.150Z"
+        },
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T17:29:48.237Z"
+        }
+      ],
+      "primeira": "2026-05-12T16:19:27.230Z",
+      "ultima": "2026-05-12T17:29:48.237Z"
+    },
+    {
+      "pergunta": "minhas vitrines",
+      "count": 13,
+      "respostas": [
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T16:19:41.657Z"
+        },
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T16:22:38.098Z"
+        },
+        {
+          "texto": "✨ 1 vitrine(s) pronta(s) para enviar:Essas leads já têm imóveis em match.👤 Bruno📍 Vila Olímpia · 🏠 Apartamento✨ 3 imóvel(is) em match · 📤 pronta p",
+          "dominio": null,
+          "data": "2026-05-12T16:26:21.586Z"
+        }
+      ],
+      "primeira": "2026-05-12T16:19:41.657Z",
+      "ultima": "2026-05-12T17:34:22.276Z"
+    },
+    {
+      "pergunta": "leads",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👥 Leads:Total: 6 · 🌐 Orgânicas: 6 · 📋 Importadas: 0🎯 Com match: 1 (17%) · ❌ Sem match: 5📍 Bairros mais buscados: Vila Mariana (1), Campos Elíseos",
+          "dominio": "leads",
+          "data": "2026-05-12T16:30:19.460Z"
+        }
+      ],
+      "primeira": "2026-05-12T16:30:19.460Z",
+      "ultima": "2026-05-12T16:30:19.460Z"
+    },
+    {
+      "pergunta": "minhas visitas para amanha",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "📅 Nenhuma visita encontrada para amanhã.Ver visitas →Visitas hojePendentesNotificar proprietário",
+          "dominio": "visitas",
+          "data": "2026-05-12T16:49:40.544Z"
+        }
+      ],
+      "primeira": "2026-05-12T16:49:40.544Z",
+      "ultima": "2026-05-12T16:49:40.544Z"
+    },
+    {
+      "pergunta": "minhas vistas amanha",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👥 Leads:Total: 6 · 🌐 Orgânicas: 6 · 📋 Importadas: 0🎯 Com match: 1 (17%) · ❌ Sem match: 5📍 Bairros mais buscados: Vila Mariana (1), Campos Elíseos",
+          "dominio": null,
+          "data": "2026-05-12T16:50:59.654Z"
+        }
+      ],
+      "primeira": "2026-05-12T16:50:59.654Z",
+      "ultima": "2026-05-12T16:50:59.654Z"
+    },
+    {
+      "pergunta": "visitas amanha",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "📅 Nenhuma visita encontrada para amanhã.Ver visitas →Visitas hojePendentesNotificar proprietário",
+          "dominio": "visitas",
+          "data": "2026-05-12T16:51:12.070Z"
+        }
+      ],
+      "primeira": "2026-05-12T16:51:12.070Z",
+      "ultima": "2026-05-12T16:51:12.070Z"
+    },
+    {
+      "pergunta": "minhas visitas",
+      "count": 2,
+      "respostas": [
+        {
+          "texto": "Nenhuma visita agendada ainda. 📅Envie vitrines para leads com match para receber solicitações!🎯 Leads com matchVisitas hojePendentesNotificar propri",
+          "dominio": "visitas",
+          "data": "2026-05-12T16:52:38.034Z"
+        }
+      ],
+      "primeira": "2026-05-12T16:52:38.034Z",
+      "ultima": "2026-05-12T17:07:59.432Z"
+    },
+    {
+      "pergunta": "minhas vitirne",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "Nenhuma visita agendada ainda. 📅Envie vitrines para leads com match para receber solicitações!🎯 Leads com matchLeadsImóveisVisitasMatch",
+          "dominio": null,
+          "data": "2026-05-12T16:52:45.923Z"
+        }
+      ],
+      "primeira": "2026-05-12T16:52:45.923Z",
+      "ultima": "2026-05-12T16:52:45.923Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-12T17:07:51.979Z"
+        }
+      ],
+      "primeira": "2026-05-12T17:07:51.979Z",
+      "ultima": "2026-05-12T17:07:51.979Z"
+    },
+    {
+      "pergunta": "minhsa vitrines",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T17:09:18.720Z"
+        }
+      ],
+      "primeira": "2026-05-12T17:09:18.720Z",
+      "ultima": "2026-05-12T17:09:18.720Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-12T17:26:26.526Z"
+        }
+      ],
+      "primeira": "2026-05-12T17:26:26.526Z",
+      "ultima": "2026-05-12T17:26:26.526Z"
+    },
+    {
+      "pergunta": "minhs vitrines",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "🚀 Enviar vitrine para o cliente:1Va em Leads /app/leads2Clique na lead com match (icone match)3Copie o Link da Vitrine na pagina da lead4Envie pelo W",
+          "dominio": null,
+          "data": "2026-05-12T17:34:15.717Z"
+        }
+      ],
+      "primeira": "2026-05-12T17:34:15.717Z",
+      "ultima": "2026-05-12T17:34:15.717Z"
     }
   ]
 }

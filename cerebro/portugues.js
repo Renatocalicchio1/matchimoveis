@@ -254,3 +254,82 @@ function interpretar(mensagem, d, imoveis, leads, visitas, btn, chip) {
   return gerarResposta(padrao.handler,e,d,imoveis,leads,visitas,btn,chip);
 }
 module.exports={interpretar,PADROES};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VITRINES INTELIGENTES CHAT CRM
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderVitrineCard(lead, visitas = []) {
+  const total =
+    (lead.matchesBase && lead.matchesBase.length) ||
+    (lead.matches && lead.matches.length) || 0;
+
+  const visitasLead = visitas.filter(v =>
+    String(v.leadId || '') === String(lead.id || '')
+  );
+
+  const teveVisita = visitasLead.length > 0;
+
+  const url = '/cliente/oferta/' + (lead.id || lead.leadId);
+
+  const whatsapp = lead.contato
+    ? 'https://wa.me/55' + String(lead.contato).replace(/\D/g,'')
+    : '';
+
+  return `
+  <div style="border:1px solid #eee;border-radius:14px;padding:14px;margin:10px 0;background:white">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:16px;font-weight:700">
+          👤 ${lead.nome || lead.email || 'Lead'}
+        </div>
+
+        <div style="font-size:13px;color:#666;margin-top:3px">
+          📍 ${lead.bairro || '-'} · 🏠 ${lead.tipo || '-'}
+        </div>
+      </div>
+
+      <div style="background:#ff385c;color:white;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700">
+        ${total} match(es)
+      </div>
+    </div>
+
+    <div style="margin-top:10px;font-size:13px;line-height:1.5">
+      ${teveVisita
+        ? '🔥 Cliente já solicitou visita'
+        : '📤 Pronta para envio'}
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+
+      <a href="${url}"
+         style="background:#ff385c;color:white;padding:8px 12px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700">
+         🔗 Abrir vitrine
+      </a>
+
+      ${
+        whatsapp
+        ? `
+        <a href="${whatsapp}"
+           target="_blank"
+           style="background:#25d366;color:white;padding:8px 12px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700">
+           📱 WhatsApp
+        </a>
+        `
+        : ''
+      }
+
+      <a href="/app/leads"
+         style="background:#f3f4f6;color:#111;padding:8px 12px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:700">
+         👥 Ver leads
+      </a>
+
+    </div>
+
+    <div style="margin-top:10px;font-size:11px;color:#777">
+      ${url}
+    </div>
+  </div>
+  `;
+}
+

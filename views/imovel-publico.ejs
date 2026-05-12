@@ -218,11 +218,15 @@ function confirmarContato() {
     return;
   }
 
+  const params = new URLSearchParams(window.location.search);
+  const leadIdOrigem = params.get('leadId') || params.get('lid') || '';
+  const userIdOrigem = params.get('userId') || params.get('uid') || '';
+
   if (modalTipo === 'whatsapp') {
     fetch('/api/lead-interesse', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, canal: 'WhatsApp' })
+      body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem, canal: 'WhatsApp' })
     }).catch(() => {});
 
     window.open(linkDestino, '_blank');
@@ -250,10 +254,14 @@ function confirmarVisita() {
     return;
   }
 
+  const params = new URLSearchParams(window.location.search);
+  const leadIdOrigem = params.get('leadId') || params.get('lid') || '';
+  const userIdOrigem = params.get('userId') || params.get('uid') || '';
+
   fetch('/api/lead-interesse', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, dataVisita: data, horaVisita: hora, acao: 'solicitar_visita', visita: 'true' })
+    body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem, dataVisita: data, horaVisita: hora, acao: 'solicitar_visita', visita: 'true' })
   }).catch(() => {});
 
   alert('Visita solicitada com sucesso!');

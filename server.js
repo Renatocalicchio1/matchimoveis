@@ -445,13 +445,27 @@ function marcarEtapaLead(lead, etapa){
 
 app.get('/cliente/oferta/:leadId', (req,res)=>{
   const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
-  const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
+  const userIdOferta = req.query.userId || req.query.uid || '';
+
+  let lead = null;
+
+  if (userIdOferta) {
+    lead = leads.find(l =>
+      String(l.id || l.leadId || '') === String(req.params.leadId) &&
+      String(l.userId || l.usuarioId || l.corretorId || '') === String(userIdOferta)
+    );
+  }
+
+  if (!lead) {
+    lead = leads.find(l => String(l.id || l.leadId || '') === String(req.params.leadId));
+  }
+
   if(!lead) return res.status(404).send('Lead não encontrado');
 
   lead.matches = lead.matchesBase || lead.matches || [];
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
   fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
-  res.render('cliente-oferta', { user: null, lead });
+  res.render('cliente-oferta', { user: null, lead, queryUserId: userIdOferta });
 });
 
 app.get('/cliente/oferta/:leadId/escolher/:idx', (req,res)=>{
@@ -1868,7 +1882,7 @@ app.post('/app/imovel/cadastrar', auth, (req, res) => {
 // Salva lead vindo da página pública do imóvel
 app.post('/api/lead-interesse', (req, res) => {
   try {
-    const { nome, celular, imovelId, imovelTitulo } = req.body;
+    const { nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem } = req.body;
 
     if (!nome || !celular || !imovelId) {
       return res.json({ ok: false, error: 'Dados obrigatórios ausentes' });
@@ -1890,11 +1904,39 @@ app.post('/api/lead-interesse', (req, res) => {
       String(i.idOriginal) === String(imovelId)
     ) || {};
 
-    // Dono/responsável do imóvel: quem cadastrou manualmente ou importou XML
-    const usuarioDestinoId = imovelRef.usuarioId || imovelRef.corretorId || '';
-    const usuarioDestinoNome = imovelRef.usuarioNome || imovelRef.corretorNome || '';
-    const usuarioDestinoPerfil = imovelRef.usuarioPerfil || imovelRef.perfil || '';
-    const usuarioDestinoTelefone = imovelRef.usuarioTelefone || imovelRef.corretorTelefone || '';
+    // Dono da lead/vitrine: quem gerou/importou a lead
+    let leadOrigem = {};
+
+    if (leadIdOrigem && userIdOrigem) {
+      leadOrigem = leads.find(l =>
+        String(l.id || l.leadId || '') === String(leadIdOrigem || '') &&
+        String(l.userId || l.usuarioId || l.corretorId || '') === String(userIdOrigem || '')
+      ) || {};
+    }
+
+    if (!leadOrigem.id && leadIdOrigem) {
+      leadOrigem = leads.find(l =>
+        String(l.id || l.leadId || '') === String(leadIdOrigem || '')
+      ) || {};
+    }
+
+    const usuarioDestinoId =
+      userIdOrigem || leadOrigem.userId || leadOrigem.usuarioId || leadOrigem.corretorId ||
+      imovelRef.usuarioId || imovelRef.corretorId || '';
+
+    const usuarioDestinoNome =
+      leadOrigem.usuarioNome || leadOrigem.corretorNome ||
+      imovelRef.usuarioNome || imovelRef.corretorNome || '';
+
+    const usuarioDestinoPerfil =
+      leadOrigem.usuarioPerfil || leadOrigem.perfil ||
+      imovelRef.usuarioPerfil || imovelRef.perfil || '';
+
+    const usuarioDestinoTelefone =
+      leadOrigem.usuarioTelefone || leadOrigem.corretorTelefone ||
+      imovelRef.usuarioTelefone || imovelRef.corretorTelefone || '';
+
+    const imovelOwnerId = imovelRef.usuarioId || imovelRef.corretorId || '';
 
     const celularLimpo = String(celular || '').replace(/\D/g,'');
 
@@ -1947,7 +1989,7 @@ app.post('/api/lead-interesse', (req, res) => {
         id: leadId,
         ...leadPayload
       });
-      console.log('✅ Novo lead salvo para o dono do imóvel:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
+      console.log('✅ Novo lead salvo para o dono da lead/vitrine:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
     } else {
       leadId = leads[idxExiste].id || Date.now().toString();
       leads[idxExiste] = {
@@ -1955,7 +1997,7 @@ app.post('/api/lead-interesse', (req, res) => {
         ...leadPayload,
         id: leadId
       };
-      console.log('✅ Lead existente atualizado para o dono do imóvel:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
+      console.log('✅ Lead existente atualizado para o dono da lead/vitrine:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
     }
 
     fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
@@ -1988,7 +2030,9 @@ app.post('/api/lead-interesse', (req, res) => {
         proprietarioNome: (imovelRef.proprietario && imovelRef.proprietario.nome) || '',
         proprietarioTelefone: ((imovelRef.proprietario && (imovelRef.proprietario.telefone || imovelRef.proprietario.celular)) || '').replace(/\D/g,''),
 
-        // Visita vai para o dono do imóvel
+        // Visita vai somente para o dono da lead/vitrine
+        leadOwnerId: usuarioDestinoId,
+        imovelOwnerId,
         usuarioDestinoId,
         usuarioDestinoNome,
         usuarioDestinoPerfil,
@@ -2031,7 +2075,7 @@ app.post('/api/lead-interesse', (req, res) => {
         console.log('Erro ao criar notificação:', e.message);
       }
 
-      console.log('📅 Visita criada para o dono do imóvel:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
+      console.log('📅 Visita criada para o dono da lead/vitrine:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
     }
 
     return res.json({ ok: true, leadId, visitaCriada: querVisita });

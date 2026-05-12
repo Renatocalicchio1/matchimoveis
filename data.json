@@ -47169,9 +47169,9 @@
   },
   {
     "id": "1778108627781",
-    "nome": "werewrwerer",
-    "contato": "ewrewrewr",
-    "telefone": "ewrewrewr",
+    "nome": "erer",
+    "contato": "reeer",
+    "telefone": "reeer",
     "fonte": "MatchImóveis",
     "origem": "pagina_externa_imovel",
     "canal": "WhatsApp",
@@ -47188,18 +47188,19 @@
     "banheiros": 1,
     "vagas": 0,
     "url": "http://localhost:3000/imovel/CAPRAFA121",
-    "usuarioId": "imobiliaria-47991919191",
+    "usuarioId": "corretor-47992010889",
     "usuarioNome": "",
     "usuarioPerfil": "",
     "usuarioTelefone": "",
-    "corretorId": "imobiliaria-47991919191",
+    "corretorId": "corretor-47992010889",
     "corretorNome": "",
     "corretorTelefone": "",
-    "data_cadastro": "2026-05-06T23:04:37.097Z",
-    "data_cadastro_br": "06/05/2026, 20:04:37",
+    "data_cadastro": "2026-05-12T18:02:09.192Z",
+    "data_cadastro_br": "12/05/2026, 15:02:09",
     "matches": [],
     "matchCount": 0,
-    "status": "ok"
+    "status": "ok",
+    "extractionStatus": "ok"
   },
   {
     "id": "1778210899163",
@@ -48069,6 +48070,71 @@
       {
         "tipoEvento": "visualizou_vitrine",
         "data": "2026-05-12T17:56:07.457Z",
+        "idImovel": "3034436969",
+        "imovel": {
+          "id": "3034436969",
+          "tipo": "Apartamento",
+          "bairro": "Vila Olímpia",
+          "cidade": "São Paulo",
+          "valor": 418000,
+          "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
+        }
+      },
+      {
+        "tipoEvento": "visualizou_vitrine",
+        "data": "2026-05-12T18:01:31.695Z",
+        "idImovel": "3034436969",
+        "imovel": {
+          "id": "3034436969",
+          "tipo": "Apartamento",
+          "bairro": "Vila Olímpia",
+          "cidade": "São Paulo",
+          "valor": 418000,
+          "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
+        }
+      },
+      {
+        "tipoEvento": "visualizou_vitrine",
+        "data": "2026-05-12T18:03:05.779Z",
+        "idImovel": "3034436969",
+        "imovel": {
+          "id": "3034436969",
+          "tipo": "Apartamento",
+          "bairro": "Vila Olímpia",
+          "cidade": "São Paulo",
+          "valor": 418000,
+          "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
+        }
+      },
+      {
+        "tipoEvento": "visualizou_vitrine",
+        "data": "2026-05-12T18:03:16.050Z",
+        "idImovel": "3034436969",
+        "imovel": {
+          "id": "3034436969",
+          "tipo": "Apartamento",
+          "bairro": "Vila Olímpia",
+          "cidade": "São Paulo",
+          "valor": 418000,
+          "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
+        }
+      },
+      {
+        "tipoEvento": "visualizou_vitrine",
+        "data": "2026-05-12T18:08:16.693Z",
+        "idImovel": "3034436969",
+        "imovel": {
+          "id": "3034436969",
+          "tipo": "Apartamento",
+          "bairro": "Vila Olímpia",
+          "cidade": "São Paulo",
+          "valor": 418000,
+          "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
+        }
+      },
+      {
+        "tipoEvento": "visualizou_vitrine",
+        "data": "2026-05-12T18:08:36.459Z",
         "idImovel": "3034436969",
         "imovel": {
           "id": "3034436969",
@@ -49191,6 +49257,40 @@
     "corretorTelefone": "",
     "data_cadastro": "2026-05-12T17:55:58.456Z",
     "data_cadastro_br": "12/05/2026, 14:55:58",
+    "matches": [],
+    "matchCount": 0
+  },
+  {
+    "id": "1778608911573",
+    "nome": "renato",
+    "contato": "47991919191",
+    "telefone": "47991919191",
+    "fonte": "MatchImóveis",
+    "origem": "pagina_externa_imovel",
+    "extractionStatus": "ok",
+    "canal": "WhatsApp",
+    "imovel_interesse": "MI-1778368153959-VVDHJC",
+    "titulo_interesse": "Lindo Studio em Vila Olímpia com 26m²!",
+    "tipo": "Apartamento",
+    "bairro": "Vila Olímpia",
+    "cidade": "São Paulo",
+    "estado": "São Paulo",
+    "valor_imovel": 455000,
+    "area_m2": 26,
+    "quartos": 1,
+    "suites": 0,
+    "banheiros": 1,
+    "vagas": 0,
+    "url": "http://localhost:3000/imovel/MI-1778368153959-VVDHJC",
+    "usuarioId": "corretor-47992010889",
+    "usuarioNome": "",
+    "usuarioPerfil": "",
+    "usuarioTelefone": "",
+    "corretorId": "corretor-47992010889",
+    "corretorNome": "",
+    "corretorTelefone": "",
+    "data_cadastro": "2026-05-12T18:01:51.463Z",
+    "data_cadastro_br": "12/05/2026, 15:01:51",
     "matches": [],
     "matchCount": 0
   }

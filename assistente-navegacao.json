@@ -37,8 +37,8 @@
       "labelAtual": "Leads",
       "dominioAtual": "leads",
       "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-12T17:56:17.015Z",
-      "paginaAnterior": "visitas"
+      "atualizadoEm": "2026-05-12T18:03:13.087Z",
+      "paginaAnterior": "dashboard"
     }
   },
   "fluxos": [
@@ -2207,6 +2207,30 @@
       "para": "leads",
       "userId": "corretor-47992010889",
       "data": "2026-05-12T17:56:17.015Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:01:23.747Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:01:29.991Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:03:10.112Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-12T18:03:13.087Z"
     }
   ]
 }

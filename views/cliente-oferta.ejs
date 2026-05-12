@@ -196,6 +196,86 @@ function confirmarVisita() {
     fecharModal();
   });
 }
+
+
+// Bloqueia datas passadas
+document.addEventListener('DOMContentLoaded', () => {
+  const campoData = document.getElementById('modal-data');
+
+  if (campoData) {
+    const hoje = new Date();
+    const yyyy = hoje.getFullYear();
+    const mm = String(hoje.getMonth()+1).padStart(2,'0');
+    const dd = String(hoje.getDate()).padStart(2,'0');
+
+    campoData.setAttribute('min', `${yyyy}-${mm}-${dd}`);
+
+    const campoHora = document.getElementById('modal-hora');
+
+    function validarHorario(){
+      if(!campoHora || !campoData) return;
+
+      const hojeStr = `${yyyy}-${mm}-${dd}`;
+
+      if(campoData.value === hojeStr){
+        const agora = new Date();
+        const hh = String(agora.getHours()).padStart(2,'0');
+        const mi = String(agora.getMinutes()).padStart(2,'0');
+
+        campoHora.setAttribute('min', `${hh}:${mi}`);
+      } else {
+        campoHora.removeAttribute('min');
+      }
+    }
+
+    function popularHorariosDisponiveis(){
+      if(!campoHora || !campoData) return;
+
+      const hoje = new Date();
+      const hojeStr = `${yyyy}-${mm}-${dd}`;
+
+      const horaAtual = hoje.getHours();
+      const minutoAtual = hoje.getMinutes();
+
+      const horarios = [];
+
+      for(let h=8; h<=20; h++){
+        for(let m of [0,30]){
+
+          if(
+            campoData.value === hojeStr &&
+            (
+              h < horaAtual ||
+              (h === horaAtual && m <= minutoAtual)
+            )
+          ){
+            continue;
+          }
+
+          const hh = String(h).padStart(2,'0');
+          const mm2 = String(m).padStart(2,'0');
+
+          horarios.push(`${hh}:${mm2}`);
+        }
+      }
+
+      if(horarios.length){
+        campoHora.innerHTML = horarios.map(h =>
+          `<option value="${h}">${h}</option>`
+        ).join('');
+      }
+    }
+
+    campoData.addEventListener('change', () => {
+      validarHorario();
+      popularHorariosDisponiveis();
+    });
+
+    popularHorariosDisponiveis();
+    validarHorario();
+  }
+});
+
 </script>
 
 </body>

@@ -229,9 +229,14 @@ const novosFormatadosComStatus = novos.map(n => {
   const proprietarioPreservado = temProprietarioVinculado
     ? antigo.proprietario
     : n.proprietario;
+  // Preservar descrição editada manualmente
+  const descricaoPreservada = antigo && antigo.descricaoEditada
+    ? antigo.descricao
+    : n.descricao;
   return {
     ...antigo,
     ...n,
+    descricao: descricaoPreservada,
     proprietario: proprietarioPreservado,
     userId: USER_ID,
     status: 'ativo',

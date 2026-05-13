@@ -2940,6 +2940,21 @@ app.get('/app/portais', auth, (req,res)=>{
   res.render('app-portais', { user: req.session.user, xmlFeeds });
 });
 
+// Backup de imóveis por conta
+app.get('/admin/backup-imoveis/:userId', (req,res)=>{
+  const userId = req.params.userId;
+  const todos = fs.existsSync(dataPath('imoveis.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  const filtrados = todos.filter(i =>
+    String(i.userId||i.usuarioId||i.corretorId||'') === userId
+  );
+  const filename = 'backup-imoveis-'+userId+'-'+Date.now()+'.json';
+  fs.writeFileSync(dataPath(filename), JSON.stringify(filtrados, null, 2));
+  res.setHeader('Content-Disposition', 'attachment; filename="'+filename+'"');
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify(filtrados, null, 2));
+});
+
 // AUTO LOGIN ADMIN (somente para admin/leads)
 app.use('/admin', (req, res, next) => {
   if (!req.session.user) {

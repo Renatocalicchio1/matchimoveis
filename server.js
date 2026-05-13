@@ -3540,6 +3540,35 @@ app.post('/admin/sync-leads-extraidas', express.json({limit:'50mb'}), (req,res)=
     res.status(500).json({ok:false,error:e.message});
   }
 });
+
+// Rodar match interno por userId direto no Render
+app.get('/admin/rodar-match/:userId', (req,res)=>{
+  const userId = req.params.userId;
+  try{
+    const { buscarMatchesBaseInterna } = require('./matchBaseInterna.js');
+    const df = dataPath('data.json');
+    const imf = dataPath('imoveis.json');
+    const raw = JSON.parse(fs.readFileSync(df,'utf8'));
+    const leads = Array.isArray(raw) ? raw : (raw.results||[]);
+    const imoveis = JSON.parse(fs.readFileSync(imf,'utf8'));
+    const imoveisArr = Array.isArray(imoveis) ? imoveis : (imoveis.imoveis||[]);
+    const paraMatch = leads.filter(l => {
+      const uid = String(l.userId||l.usuarioId||l.corretorId||'');
+      return uid === userId && l.extractionStatus === 'ok';
+    });
+    let comMatch = 0, semMatch = 0;
+    paraMatch.forEach(lead => {
+      const matches = buscarMatchesBaseInterna(lead, imoveisArr);
+      lead.matchesBase = matches;
+      lead.matchCountBase = matches.length;
+      if(matches.length > 0) comMatch++; else semMatch++;
+    });
+    fs.writeFileSync(df, JSON.stringify(leads, null, 2));
+    res.json({ ok:true, userId, total: paraMatch.length, comMatch, semMatch });
+  }catch(e){
+    res.status(500).json({ ok:false, error: e.message });
+  }
+});
 // CENTRAL OPERACIONAL CONVERSACIONAL
 // ===============================
 app.post('/api/central-operacional', auth, express.json(), (req, res) => {

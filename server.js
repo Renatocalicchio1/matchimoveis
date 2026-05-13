@@ -2977,6 +2977,17 @@ app.get('/admin/limpar-descricoes/:userId', (req,res)=>{
   res.json({ ok: true, limpos: count, total: atualizados.filter(i=>String(i.userId||'')===userId).length });
 });
 
+// Diagnostico descricoes
+app.get("/admin/diagnostico-descricoes/:userId",(req,res)=>{
+  const userId=req.params.userId;
+  const todos=fs.existsSync(dataPath("imoveis.json"))?JSON.parse(fs.readFileSync(dataPath("imoveis.json"),"utf8")):[]; 
+  const meus=todos.filter(i=>String(i.userId||i.usuarioId||i.corretorId||"")=== userId);
+  const comMario=meus.filter(i=>i.descricao&&i.descricao.toLowerCase().includes("mario"));
+  const comAgende=meus.filter(i=>i.descricao&&i.descricao.toLowerCase().includes("agende"));
+  const exemplo=comMario[0]?comMario[0].descricao.slice(-400):"nenhum";
+  res.json({total:meus.length,comMario:comMario.length,comAgende:comAgende.length,exemplo});
+});
+
 // Reativar todos imóveis de uma conta
 app.get('/admin/reativar-imoveis/:userId', (req,res)=>{
   const userId = req.params.userId;

@@ -142,9 +142,15 @@ function findOwner(imovelId, rows) {
 }
 
 async function run() {
-  console.log('⬇️  Baixando XML...');
-  const res = await axios.get(XML_URL);
-  const xml = res.data;
+  let xml;
+  if(XML_URL.startsWith('http://') || XML_URL.startsWith('https://')){
+    console.log('⬇️  Baixando XML da URL...');
+    const res = await axios.get(XML_URL);
+    xml = res.data;
+  } else {
+    console.log('📂 Lendo XML do arquivo local...');
+    xml = fs.readFileSync(XML_URL, 'utf8');
+  }
 
   const parser = new XMLParser({
     ignoreAttributes: false,

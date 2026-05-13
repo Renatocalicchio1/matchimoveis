@@ -3048,8 +3048,10 @@ app.get('/admin/reativar-imoveis/:userId', (req,res)=>{
 app.get('/admin/backup-leads/:userId', (req,res)=>{
   const userId = req.params.userId;
   const todos = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
-  const filtrados = todos.filter(l => String(l.userId||l.corretorId||'') === userId);
-  res.json({ total: filtrados.length, exemplo: filtrados[0]||null });
+  const filtrados = todos.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
+  res.setHeader('Content-Disposition', 'attachment; filename="backup-leads-'+userId+'.json"');
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify(filtrados, null, 2));
 });
 
 // Backup de imóveis por conta

@@ -1,0 +1,499 @@
+<%- include('partials/app-shell', { user, active: 'visitas' }) %>
+
+<div style="padding:20px">
+
+<h1 style="font-size:28px;font-weight:700;margin-bottom:20px">
+Kanban de Visitas
+</h1>
+
+<div style="
+display:flex;
+gap:16px;
+overflow-x:auto;
+align-items:flex-start;
+padding-bottom:20px;
+">
+
+<%
+const labels = {
+  AGUARDANDO: '⏳ Aguardando',
+  CONFIRMADA: '✅ Confirmadas',
+  CONCLUIDA: '🏁 Concluídas',
+  CLIENTE_GOSTOU: '🔥 Cliente gostou',
+  POS_VISITA: '📞 Pós-visita',
+  PROPOSTA: '💰 Proposta',
+  NEGOCIACAO: '🤝 Negociação',
+  FECHADO: '🏆 Fechado',
+  PERDIDO: '❌ Perdido'
+};
+%>
+
+<% Object.keys(colunas).forEach(status => { %>
+
+<div style="
+min-width:320px;
+background:#f9fafb;
+border:1px solid #eee;
+border-radius:16px;
+padding:14px;
+flex-shrink:0;
+">
+
+<div style="
+font-size:16px;
+font-weight:700;
+margin-bottom:14px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+">
+
+<span><%= labels[status] %></span>
+
+<span style="
+background:white;
+border:1px solid #ddd;
+border-radius:999px;
+padding:2px 10px;
+font-size:12px;
+">
+<%= colunas[status].length %>
+</span>
+
+</div>
+
+<div style="
+display:flex;
+flex-direction:column;
+gap:12px;
+">
+
+<% colunas[status].forEach(v => { %>
+
+<div style="
+background:white;
+border-radius:14px;
+padding:14px;
+border:1px solid #e5e7eb;
+box-shadow:0 1px 2px rgba(0,0,0,.04);
+">
+
+<div style="
+font-size:15px;
+font-weight:700;
+color:#111827;
+margin-bottom:6px;
+">
+<%= v.nome || 'Cliente' %>
+</div>
+
+<div style="
+font-size:13px;
+color:#666;
+margin-bottom:8px;
+">
+<%= v.imovelTitulo || v.imovelBairro || 'Imóvel' %>
+</div>
+
+<%
+let score = 0;
+
+if (v.confirmacaoClienteStatus === 'CONFIRMADO') score += 20;
+if (v.status === 'CONFIRMADA') score += 20;
+if (v.status === 'CLIENTE_CHEGOU') score += 30;
+if (v.pipelineStatus === 'PROPOSTA') score += 20;
+if (v.pipelineStatus === 'NEGOCIACAO') score += 30;
+if (v.pipelineStatus === 'FECHADO') score += 100;
+
+let temp = 'FRIO';
+
+if (score >= 80) temp = 'QUENTE';
+else if (score >= 40) temp = 'MORNO';
+%>
+
+<div style="
+margin-bottom:8px;
+padding:8px;
+border-radius:8px;
+background:
+<%=
+temp === 'QUENTE'
+? '#fef2f2'
+: temp === 'MORNO'
+? '#fefce8'
+: '#f9fafb'
+%>;
+border:1px solid
+<%=
+temp === 'QUENTE'
+? '#fecaca'
+: temp === 'MORNO'
+? '#fde68a'
+: '#eee'
+%>;
+">
+
+<div style="
+font-size:11px;
+font-weight:700;
+color:#666;
+margin-bottom:2px;
+">
+TEMPERATURA
+</div>
+
+<div style="
+font-size:13px;
+font-weight:700;
+color:
+<%=
+temp === 'QUENTE'
+? '#dc2626'
+: temp === 'MORNO'
+? '#ca8a04'
+: '#6b7280'
+%>;
+">
+<%= temp %>
+</div>
+
+</div>
+
+<% if (v.prioridade) { %>
+<div style="
+margin-bottom:8px;
+font-size:12px;
+font-weight:700;
+color:
+<%=
+v.prioridade === 'URGENTE'
+? '#dc2626'
+: v.prioridade === 'QUENTE'
+? '#ea580c'
+: v.prioridade === 'MORNA'
+? '#ca8a04'
+: '#6b7280'
+%>;
+">
+Prioridade: <%= v.prioridade %>
+</div>
+<% } %>
+
+<% if (v.responsavelOperacional) { %>
+<div style="
+font-size:12px;
+margin-bottom:8px;
+color:#374151;
+">
+👤 <%= v.responsavelOperacional %>
+</div>
+<% } %>
+
+<%
+const ultimaMov =
+  v.concluidaAt ||
+  v.canceladaAt ||
+  v.remarcarAt ||
+  v.confirmedAt ||
+  v.createdAt;
+
+let horas = 0;
+
+if (ultimaMov) {
+  horas = Math.floor(
+    (Date.now() - new Date(ultimaMov).getTime()) / (1000*60*60)
+  );
+}
+%>
+
+<div style="
+font-size:12px;
+margin-bottom:8px;
+padding:8px;
+border-radius:8px;
+background:<%= horas >= 48 ? '#fef2f2' : '#f9fafb' %>;
+border:1px solid <%= horas >= 48 ? '#fecaca' : '#eee' %>;
+color:<%= horas >= 48 ? '#991b1b' : '#374151' %>;
+">
+⏳ <%= horas %>h sem movimentação
+</div>
+
+<% if (
+(v.prioridade === 'URGENTE' && horas >= 24) ||
+(v.status === 'CONFIRMADA' && horas >= 48)
+) { %>
+
+<div style="
+background:#dc2626;
+color:white;
+padding:8px;
+border-radius:8px;
+font-size:12px;
+font-weight:700;
+margin-bottom:8px;
+text-align:center;
+">
+🚨 Atenção operacional
+</div>
+
+<% } %>
+
+<% if (v.pipelineStatus) { %>
+
+<div style="
+margin-bottom:8px;
+padding:8px;
+border-radius:8px;
+background:#eef2ff;
+border:1px solid #c7d2fe;
+font-size:12px;
+font-weight:700;
+color:#4338ca;
+">
+<%= v.pipelineStatus %>
+</div>
+
+<% } %>
+
+<% if (v.observacoes && v.observacoes.length) { %>
+
+<div style="
+font-size:12px;
+background:#f9fafb;
+border-radius:8px;
+padding:8px;
+border:1px solid #eee;
+margin-bottom:8px;
+color:#111827;
+">
+📝 <%= v.observacoes[0].texto %>
+</div>
+
+<% } %>
+
+<%
+let score = 0;
+
+if (v.confirmacaoClienteStatus === 'CONFIRMADO') score += 20;
+if (v.status === 'CONFIRMADA') score += 20;
+if (v.status === 'CLIENTE_CHEGOU') score += 30;
+if (v.pipelineStatus === 'PROPOSTA') score += 20;
+if (v.pipelineStatus === 'NEGOCIACAO') score += 30;
+if (v.pipelineStatus === 'FECHADO') score += 100;
+
+let temp = 'FRIO';
+
+if (score >= 80) temp = 'QUENTE';
+else if (score >= 40) temp = 'MORNO';
+%>
+
+<div style="
+margin-bottom:8px;
+padding:8px;
+border-radius:8px;
+background:
+<%=
+temp === 'QUENTE'
+? '#fef2f2'
+: temp === 'MORNO'
+? '#fefce8'
+: '#f9fafb'
+%>;
+border:1px solid
+<%=
+temp === 'QUENTE'
+? '#fecaca'
+: temp === 'MORNO'
+? '#fde68a'
+: '#eee'
+%>;
+">
+
+<div style="
+font-size:11px;
+font-weight:700;
+color:#666;
+margin-bottom:2px;
+">
+TEMPERATURA
+</div>
+
+<div style="
+font-size:13px;
+font-weight:700;
+color:
+<%=
+temp === 'QUENTE'
+? '#dc2626'
+: temp === 'MORNO'
+? '#ca8a04'
+: '#6b7280'
+%>;
+">
+<%= temp %>
+</div>
+
+</div>
+
+<% if (v.prioridade) { %>
+<div style="
+font-size:12px;
+font-weight:700;
+margin-bottom:8px;
+">
+Prioridade: <%= v.prioridade %>
+</div>
+<% } %>
+
+<% if (v.responsavelOperacional) { %>
+<div style="
+font-size:12px;
+color:#444;
+margin-bottom:8px;
+">
+👤 <%= v.responsavelOperacional %>
+</div>
+<% } %>
+
+<% if (v.proximaAcao) { %>
+<div style="
+font-size:12px;
+background:#f3f4f6;
+padding:8px;
+border-radius:8px;
+margin-bottom:8px;
+">
+<%= v.proximaAcao %>
+</div>
+<% } %>
+
+<div style="
+display:flex;
+flex-direction:column;
+gap:6px;
+margin-top:10px;
+">
+
+<form method="POST" action="/app/visitas/cliente-gostou/<%= v.id %>">
+<button
+type="submit"
+style="
+width:100%;
+background:#16a34a;
+color:white;
+border:none;
+padding:8px;
+border-radius:8px;
+font-size:12px;
+font-weight:700;
+cursor:pointer;
+">
+🔥 Cliente gostou
+</button>
+</form>
+
+<form method="POST" action="/app/visitas/proposta/<%= v.id %>">
+<button
+type="submit"
+style="
+width:100%;
+background:#2563eb;
+color:white;
+border:none;
+padding:8px;
+border-radius:8px;
+font-size:12px;
+font-weight:700;
+cursor:pointer;
+">
+💰 Proposta
+</button>
+</form>
+
+<form method="POST" action="/app/visitas/negociacao/<%= v.id %>">
+<button
+type="submit"
+style="
+width:100%;
+background:#ea580c;
+color:white;
+border:none;
+padding:8px;
+border-radius:8px;
+font-size:12px;
+font-weight:700;
+cursor:pointer;
+">
+🤝 Negociação
+</button>
+</form>
+
+<form method="POST" action="/app/visitas/perdido/<%= v.id %>">
+<button
+type="submit"
+style="
+width:100%;
+background:#dc2626;
+color:white;
+border:none;
+padding:8px;
+border-radius:8px;
+font-size:12px;
+font-weight:700;
+cursor:pointer;
+">
+❌ Perdido
+</button>
+</form>
+
+<form method="POST" action="/app/visitas/fechado/<%= v.id %>">
+<button
+type="submit"
+style="
+width:100%;
+background:#7c3aed;
+color:white;
+border:none;
+padding:8px;
+border-radius:8px;
+font-size:12px;
+font-weight:700;
+cursor:pointer;
+">
+🏆 Fechado
+</button>
+</form>
+
+<a
+href="/app/visitas"
+style="
+display:block;
+text-align:center;
+background:#111827;
+color:white;
+padding:10px;
+border-radius:10px;
+text-decoration:none;
+font-size:13px;
+font-weight:600;
+">
+Abrir visita
+</a>
+
+</div>
+
+</div>
+
+<% }) %>
+
+</div>
+
+</div>
+
+<% }) %>
+
+</div>
+
+</div>
+
+

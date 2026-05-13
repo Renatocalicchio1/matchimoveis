@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<title>Visita MatchImoveis</title>
+
+<style>
+
+body{
+  margin:0;
+  padding:0;
+  background:#f5f5f5;
+  font-family:Arial,sans-serif;
+  color:#111;
+}
+
+.wrap{
+  max-width:600px;
+  margin:40px auto;
+  padding:20px;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  padding:24px;
+  box-shadow:0 4px 20px rgba(0,0,0,.06);
+}
+
+h1{
+  margin:0 0 20px;
+  font-size:28px;
+}
+
+.info{
+  margin-bottom:14px;
+  font-size:15px;
+  line-height:1.6;
+}
+
+.status{
+  margin-top:20px;
+  padding:14px;
+  border-radius:12px;
+  font-weight:700;
+  font-size:14px;
+}
+
+.btn{
+  display:block;
+  width:100%;
+  border:none;
+  border-radius:12px;
+  padding:14px;
+  margin-top:12px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.btn-confirmar{
+  background:#16a34a;
+  color:white;
+}
+
+.btn-recusar{
+  background:#dc2626;
+  color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<div class="card">
+
+<h1>Visita ao imóvel</h1>
+
+<div class="info">
+<strong>Cliente:</strong>
+<%= visita.nome || 'Cliente' %>
+</div>
+
+<div class="info">
+<strong>Imóvel:</strong>
+<%= visita.imovelTitulo || visita.imovelBairro || 'Imóvel' %>
+</div>
+
+<div class="info">
+<strong>Data:</strong>
+<%= visita.dataVisita || '--' %>
+</div>
+
+<div class="info">
+<strong>Hora:</strong>
+<%= visita.horaVisita || '--' %>
+</div>
+
+<%
+const tel =
+String(
+visita.telefone ||
+visita.contato ||
+''
+).replace(/\D/g,'');
+%>
+
+<% if (tel) { %>
+
+<a
+href="https://wa.me/55<%= tel %>"
+target="_blank"
+style="
+display:block;
+text-align:center;
+background:#25D366;
+color:white;
+padding:14px;
+border-radius:12px;
+font-weight:700;
+text-decoration:none;
+margin-top:14px;
+margin-bottom:14px;
+">
+Falar no WhatsApp
+</a>
+
+<% } %>
+
+<%
+const tel =
+String(
+visita.telefone ||
+visita.contato ||
+''
+).replace(/\D/g,'');
+%>
+
+<% if (tel) { %>
+
+<a
+href="https://wa.me/55<%= tel %>"
+target="_blank"
+style="
+display:block;
+text-align:center;
+background:#25D366;
+color:white;
+padding:14px;
+border-radius:12px;
+font-weight:700;
+text-decoration:none;
+margin-top:14px;
+margin-bottom:14px;
+">
+Falar no WhatsApp
+</a>
+
+<% } %>
+
+<% if (visita.confirmacaoClienteStatus === 'CONFIRMADO') { %>
+
+<div class="status" style="background:#ecfdf5;color:#166534;border:1px solid #bbf7d0">
+✅ Presença confirmada
+</div>
+
+<% } else if (visita.confirmacaoClienteStatus === 'RECUSADO') { %>
+
+<div class="status" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca">
+❌ Presença recusada
+</div>
+
+<% } else { %>
+
+<div class="status" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">
+⏳ Aguardando sua confirmação
+</div>
+
+<form method="POST" action="/cliente/visita/<%= visita.id %>/confirmar">
+<button class="btn btn-confirmar">
+Confirmar presença
+</button>
+</form>
+
+<form method="POST" action="/cliente/visita/<%= visita.id %>/recusar">
+<button class="btn btn-recusar">
+Não poderei comparecer
+</button>
+</form>
+
+<a
+href="/cliente/visita/<%= visita.id %>/remarcar"
+style="
+display:block;
+text-align:center;
+background:#f59e0b;
+color:white;
+padding:14px;
+border-radius:12px;
+margin-top:12px;
+font-weight:700;
+text-decoration:none;
+">
+Solicitar nova data
+</a>
+
+<% } %>
+
+</div>
+
+</div>
+
+</body>
+</html>

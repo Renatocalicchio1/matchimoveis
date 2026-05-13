@@ -2811,6 +2811,30 @@
       "pergunta": "gerar xml todos imovelweb",
       "resposta": "ACAO_GERAR_XML:{\"portal\":\"imovelweb\"}",
       "data": "2026-05-12T21:50:08.493Z"
+    },
+    {
+      "userId": "corretor-47992010889",
+      "pergunta": "importat leads",
+      "resposta": "Não encontrei lead com esse termo.",
+      "data": "2026-05-12T21:55:10.986Z"
+    },
+    {
+      "userId": "corretor-47992010889",
+      "pergunta": "importar leads",
+      "resposta": "Não encontrei lead com esse termo.",
+      "data": "2026-05-12T21:55:16.510Z"
+    },
+    {
+      "userId": "corretor-47992010889",
+      "pergunta": "importar lead",
+      "resposta": "Não encontrei lead com esse termo.",
+      "data": "2026-05-12T21:55:22.485Z"
+    },
+    {
+      "userId": "corretor-47992010889",
+      "pergunta": "palnilha de lead",
+      "resposta": "Não encontrei lead com esse termo.",
+      "data": "2026-05-12T21:55:27.416Z"
     }
   ],
   "perfis": {

@@ -302,26 +302,6 @@
     "codigoUsuario": "TES-0889",
     "historicoAssistente": [
       {
-        "pergunta": "mostrar matches",
-        "resposta": "🎯 <strong>Match:</strong><br>✅ Com match: <strong>1</strong> · ❌ Sem match: 5<br>📊 Taxa: <strong>17%</strong> 🔴 Baixa<br><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a><br><button onclick=\"enviarMsg('como funciona o match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ Como funciona</button><button onclick=\"enviarMsg('por que nao tem match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❌ Por que sem match</button><button onclick=\"enviarMsg('taxa de match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📊 Taxa detalhada</button><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver match</button><button onclick=\"enviarMsg('taxa de match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Taxa de match</button><button onclick=\"enviarMsg('por que nao deu match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Por que sem match</button></div>",
-        "data": "2026-05-12T19:33:30.357Z"
-      },
-      {
-        "pergunta": "mostrar visitas pendentes",
-        "resposta": "⏳ <strong>2 visita(s) aguardando proprietário:</strong><br><br><div style=\"background:#fff8f0;border-radius:8px;padding:8px 12px;margin:3px 0;border-left:3px solid #f59e0b\">👤 <strong>324343</strong><br>🏠 Lindo Studio em Vila Olímpia com 26m²! em Vila Olímpia</div><div style=\"background:#fff8f0;border-radius:8px;padding:8px 12px;margin:3px 0;border-left:3px solid #f59e0b\">👤 <strong>34324324432432</strong><br>🏠 Lindo Studio em Vila Olímpia com 26m²! em Vila Olímpia</div><br><a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver visitas →</a><button onclick=\"enviarMsg('visitas pendentes')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Confirmar visitas</button><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('visitas hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Visitas hoje</button><button onclick=\"enviarMsg('visitas pendentes')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Pendentes</button><button onclick=\"enviarMsg('notificar proprietario')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Notificar proprietário</button></div><br><br>💡 <strong>Próximo passo:</strong> 2 visita(s) aguardando confirmação do proprietário.<button onclick=\"enviarMsg('visitas pendentes')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver visitas pendentes</button>",
-        "data": "2026-05-12T19:33:39.851Z"
-      },
-      {
-        "pergunta": "manda WhatsApp pra ele",
-        "resposta": "😔 Nenhum imovel encontrado.<br><span style=\"font-size:12px;color:#888\">📍 whatsapp pra ele</span><br><br>💡 Quer cadastrar esse cliente como lead?<br><br><a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Cadastrar lead →</a><button onclick=\"enviarMsg('demanda por bairro')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Demanda por bairro</button><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Leads</button><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Imóveis</button><button onclick=\"enviarMsg('visitas hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Visitas</button><button onclick=\"enviarMsg('ver match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Match</button></div>",
-        "data": "2026-05-12T19:33:52.911Z"
-      },
-      {
-        "pergunta": "lead bruno",
-        "resposta": "🔍 Encontrei 1 lead(s). Vou lembrar do primeiro contexto: Bruno.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0",
-        "data": "2026-05-12T19:39:13.190Z"
-      },
-      {
         "pergunta": "manda WhatsApp pra ele",
         "resposta": "📲 Preparei a mensagem para Bruno.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0\n\n📲 WhatsApp preparado.\nhttps://wa.me/61998609484?text=Ol%C3%A1%20Bruno%2C%20tudo%20bem%3F%20Vi%20seu%20interesse%20sobre%20im%C3%B3vel%20em%20Vila%20Ol%C3%ADmpia.%20Encontrei%203%20op%C3%A7%C3%A3o(%C3%B5es)%20parecida(s).%20Posso%20te%20enviar%20algumas%20op%C3%A7%C3%B5es%20e%20verificar%20um%20melhor%20hor%C3%A1rio%20para%20conversar%3F",
         "data": "2026-05-12T19:39:26.393Z"
@@ -550,6 +530,26 @@
         "pergunta": "gerar xml todos imovelweb",
         "resposta": "ACAO_GERAR_XML:{\"portal\":\"imovelweb\"}",
         "data": "2026-05-12T21:50:08.498Z"
+      },
+      {
+        "pergunta": "importat leads",
+        "resposta": "Não encontrei lead com esse termo.",
+        "data": "2026-05-12T21:55:10.992Z"
+      },
+      {
+        "pergunta": "importar leads",
+        "resposta": "Não encontrei lead com esse termo.",
+        "data": "2026-05-12T21:55:16.515Z"
+      },
+      {
+        "pergunta": "importar lead",
+        "resposta": "Não encontrei lead com esse termo.",
+        "data": "2026-05-12T21:55:22.489Z"
+      },
+      {
+        "pergunta": "palnilha de lead",
+        "resposta": "Não encontrei lead com esse termo.",
+        "data": "2026-05-12T21:55:27.422Z"
       }
     ],
     "xmlUrl": "https://rbfirmino.com.br/exportar/rankim?purpose=sale",

@@ -267,10 +267,10 @@ function confirmarVisita() {
   const leadIdOrigem = params.get('leadId') || params.get('lid') || '';
   const userIdOrigem = params.get('userId') || params.get('uid') || '';
 
-  fetch('/api/lead-interesse', {
+  fetch('/api/visita/nova-v2', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem, dataVisita: data, horaVisita: hora, acao: 'solicitar_visita', visita: 'true' })
+    body: JSON.stringify({ imovelId, nome, telefone: celular, imovelTitulo, dataVisita: data, horaVisita: hora })
   }).catch(() => {});
 
   alert('Visita solicitada com sucesso!');

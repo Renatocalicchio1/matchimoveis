@@ -106,30 +106,6 @@
 
 <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
 
-<form method="POST" action="/app/visitas/parceiro-confirmou/<%= v.id %>">
-<button type="submit" style="background:#7c3aed;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;width:100%;margin-bottom:6px">
-Parceiro confirmou
-</button>
-</form>
-
-<form method="POST" action="/app/visitas/proprietario-confirmou/<%= v.id %>">
-<button type="submit" style="background:#2563eb;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;width:100%;margin-bottom:6px">
-Proprietário confirmou
-</button>
-</form>
-
-<form method="POST" action="/app/visitas/cliente-chegou/<%= v.id %>">
-<button type="submit" style="background:#16a34a;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;width:100%;margin-bottom:6px">
-Cliente chegou
-</button>
-</form>
-
-<form method="POST" action="/app/visitas/no-show/<%= v.id %>">
-<button type="submit" style="background:#dc2626;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;width:100%;margin-bottom:6px">
-No-show
-</button>
-</form>
-
 <form method="POST" action="/app/visitas/checkin/<%= v.id %>">
 <button type="submit" style="background:#2563eb;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;width:100%">
 Cheguei no imóvel
@@ -376,100 +352,6 @@ color:<%= horasParadas >= 48 ? '#991b1b' : '#374151' %>;
 
 </div>
 
-<%
-let scoreOperacional = 0;
-
-if (v.confirmacaoClienteStatus === 'CONFIRMADO') {
-  scoreOperacional += 20;
-}
-
-if (v.status === 'CONFIRMADA') {
-  scoreOperacional += 20;
-}
-
-if (v.status === 'CLIENTE_CHEGOU') {
-  scoreOperacional += 30;
-}
-
-if (v.pipelineStatus === 'PROPOSTA') {
-  scoreOperacional += 20;
-}
-
-if (v.pipelineStatus === 'NEGOCIACAO') {
-  scoreOperacional += 30;
-}
-
-if (v.pipelineStatus === 'FECHADO') {
-  scoreOperacional += 100;
-}
-
-let temperaturaLead = 'FRIO';
-
-if (scoreOperacional >= 80) {
-  temperaturaLead = 'QUENTE';
-}
-else if (scoreOperacional >= 40) {
-  temperaturaLead = 'MORNO';
-}
-%>
-
-<div style="
-margin-top:8px;
-margin-bottom:8px;
-padding:10px;
-border-radius:10px;
-background:
-<%=
-temperaturaLead === 'QUENTE'
-? '#fef2f2'
-: temperaturaLead === 'MORNO'
-? '#fefce8'
-: '#f9fafb'
-%>;
-border:1px solid
-<%=
-temperaturaLead === 'QUENTE'
-? '#fecaca'
-: temperaturaLead === 'MORNO'
-? '#fde68a'
-: '#eee'
-%>;
-">
-
-<div style="
-font-size:11px;
-font-weight:700;
-margin-bottom:4px;
-color:#666;
-">
-TEMPERATURA DO LEAD
-</div>
-
-<div style="
-font-size:14px;
-font-weight:700;
-color:
-<%=
-temperaturaLead === 'QUENTE'
-? '#dc2626'
-: temperaturaLead === 'MORNO'
-? '#ca8a04'
-: '#6b7280'
-%>;
-">
-<%= temperaturaLead %>
-</div>
-
-<div style="
-margin-top:4px;
-font-size:12px;
-color:#444;
-">
-Score operacional: <%= scoreOperacional %>
-</div>
-
-</div>
-
 <div style="margin-top:8px;padding:8px;border-radius:8px;background:#f9fafb;border:1px solid #eee">
 
 <strong style="display:block;margin-bottom:4px;color:#111827">
@@ -516,8 +398,6 @@ v.contato ||
 ).replace(/\D/g,'');
 %>
 
-
-
 <% if (telVisita) { %>
 
 <a
@@ -558,7 +438,14 @@ margin-bottom:10px;
 Abrir página do cliente
 </a>
 
-
+<%
+const telVisita =
+String(
+v.telefone ||
+v.contato ||
+''
+).replace(/\D/g,'');
+%>
 
 <% if (telVisita) { %>
 
@@ -825,143 +712,6 @@ Salvar Prioridade
 </button>
 
 </form>
-
-<div style="
-margin-top:12px;
-padding:12px;
-border:1px solid #eee;
-border-radius:12px;
-background:#fafafa;
-">
-
-<div style="
-font-size:13px;
-font-weight:700;
-margin-bottom:10px;
-color:#111827;
-">
-Proposta comercial
-</div>
-
-<form method="POST" action="/app/visitas/proposta-valor/<%= v.id %>">
-
-<input
-type="text"
-name="valorProposta"
-placeholder="Valor da proposta"
-value="<%= v.valorProposta || '' %>"
-style="
-width:100%;
-padding:10px;
-border:1px solid #ddd;
-border-radius:10px;
-margin-bottom:8px;
-box-sizing:border-box;
-"
-/>
-
-<button
-type="submit"
-style="
-background:#2563eb;
-color:white;
-border:none;
-padding:10px;
-border-radius:10px;
-cursor:pointer;
-font-size:13px;
-width:100%;
-">
-Salvar proposta
-</button>
-
-</form>
-
-<% if (v.valorProposta) { %>
-
-<div style="
-margin-top:10px;
-padding:10px;
-border-radius:10px;
-background:#eff6ff;
-border:1px solid #bfdbfe;
-font-size:13px;
-font-weight:700;
-color:#1d4ed8;
-">
-💰 Proposta: <%= v.valorProposta %>
-</div>
-
-<% } %>
-
-</div>
-
-<div style="
-margin-top:12px;
-padding:12px;
-border:1px solid #eee;
-border-radius:12px;
-background:#fafafa;
-">
-
-<div style="
-font-size:13px;
-font-weight:700;
-margin-bottom:10px;
-color:#111827;
-">
-Motivo da perda
-</div>
-
-<form method="POST" action="/app/visitas/perda-motivo/<%= v.id %>">
-
-<textarea
-name="motivoPerda"
-placeholder="Motivo da perda..."
-style="
-width:100%;
-min-height:80px;
-padding:10px;
-border:1px solid #ddd;
-border-radius:10px;
-margin-bottom:8px;
-box-sizing:border-box;
-"></textarea>
-
-<button
-type="submit"
-style="
-background:#dc2626;
-color:white;
-border:none;
-padding:10px;
-border-radius:10px;
-cursor:pointer;
-font-size:13px;
-width:100%;
-">
-Salvar motivo perda
-</button>
-
-</form>
-
-<% if (v.motivoPerda) { %>
-
-<div style="
-margin-top:10px;
-padding:10px;
-border-radius:10px;
-background:#fef2f2;
-border:1px solid #fecaca;
-font-size:13px;
-color:#991b1b;
-">
-❌ <%= v.motivoPerda %>
-</div>
-
-<% } %>
-
-</div>
 
 <form method="POST" action="/app/visitas/observacao/<%= v.id %>">
 

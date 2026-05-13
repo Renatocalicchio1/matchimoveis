@@ -105,8 +105,10 @@
       "tipo": "leads",
       "entidade": null,
       "acao": null,
-      "filtro": {},
-      "textoOriginal": "lead"
+      "filtro": {
+        "busca": "p lnilh de"
+      },
+      "textoOriginal": "palnilha de lead"
     },
     "ultimaAcao": "whatsapp",
     "historico": [
@@ -708,9 +710,81 @@
           "bestScore": 0,
           "id": "3034436969"
         }
+      },
+      {
+        "at": "2026-05-12T21:55:10.985Z",
+        "tipo": "consulta_lead",
+        "texto": "importat leads",
+        "termo": "imp rt t s",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T21:55:16.509Z",
+        "tipo": "consulta_lead",
+        "texto": "importar leads",
+        "termo": "imp rt r s",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T21:55:22.484Z",
+        "tipo": "consulta_lead",
+        "texto": "importar lead",
+        "termo": "imp rt r",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-12T21:55:27.415Z",
+        "tipo": "consulta_lead",
+        "texto": "palnilha de lead",
+        "termo": "p lnilh de",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 3,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
       }
     ],
-    "updatedAt": "2026-05-12T21:49:43.924Z"
+    "updatedAt": "2026-05-12T21:55:27.415Z"
   },
   "imobiliaria-47991919191": {
     "userKey": "imobiliaria-47991919191",

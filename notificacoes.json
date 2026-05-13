@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "1778631649009",
+    "tipo": "nova_visita",
+    "titulo": "Nova solicitação de visita",
+    "mensagem": "Renato-testevitrine solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "usuarioId": "corretor-47992010889",
+    "usuarioNome": "",
+    "leadId": "1778627152897",
+    "imovelId": "MI-1778368153959-VVDHJC",
+    "lida": false,
+    "criadaEm": "12/05/2026, 21:20:49"
+  }
+]

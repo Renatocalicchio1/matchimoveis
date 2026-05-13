@@ -1,0 +1,158 @@
+<%- include("partials/app-shell",{active:"visitas",title:"Visitas",subtitle:"Gerencie visitas solicitadas pelos seus clientes.",user:user}) %>
+
+<div class="card">
+
+    <% if (!visitas || visitas.length === 0) { %>
+      <div style="padding:30px;text-align:center;color:#666">Nenhuma visita solicitada ainda.</div>
+    <% } else { %>
+
+      
+  <form method="GET" action="/app/visitas" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:flex-end">
+    <div>
+      <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;font-weight:600">Status</label>
+      <select name="status" onchange="this.form.submit()" style="border:1px solid #ddd;border-radius:8px;padding:8px 12px;font-size:14px;background:white">
+        <option value="todos" <%- (filtros&&filtros.status==='todos')?'selected':'' %>>Todos</option>
+        <option value="solicitada" <%- (filtros&&filtros.status==='solicitada')?'selected':'' %>>Pendente</option>
+        <option value="confirmada" <%- (filtros&&filtros.status==='confirmada')?'selected':'' %>>Confirmada</option>
+        <option value="recusada" <%- (filtros&&filtros.status==='recusada')?'selected':'' %>>Recusada</option>
+        <option value="realizada" <%- (filtros&&filtros.status==='realizada')?'selected':'' %>>Realizada</option>
+      </select>
+    </div>
+    <div>
+      <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;font-weight:600">Data</label>
+      <input type="date" name="data" value="<%- filtros&&filtros.data||'' %>" onchange="this.form.submit()" style="border:1px solid #ddd;border-radius:8px;padding:8px 12px;font-size:14px">
+    </div>
+    <div style="flex:1;min-width:180px">
+      <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;font-weight:600">Buscar</label>
+      <input type="text" name="busca" value="<%- filtros&&filtros.busca||'' %>" placeholder="Cliente, bairro..." style="border:1px solid #ddd;border-radius:8px;padding:8px 12px;font-size:14px;width:100%;box-sizing:border-box">
+    </div>
+    <button type="submit" style="background:#ff385c;color:white;border:none;border-radius:8px;padding:8px 18px;font-weight:700;cursor:pointer">Buscar</button>
+    <% if(filtros&&(filtros.status!=='todos'||filtros.busca||filtros.data)){ %>
+      <a href="/app/visitas" style="color:#666;font-size:13px;padding:8px;text-decoration:none">✕ Limpar</a>
+    <% } %>
+  </form>
+  <div style="font-size:13px;color:#888;margin-bottom:12px">
+    <strong style="color:#333"><%= visitas.length %></strong> visita(s)
+    <% if(filtros&&(filtros.status!=='todos'||filtros.busca||filtros.data)){ %> com filtros aplicados<% } %>
+  </div>
+
+      <table style="width:100%;border-collapse:collapse;margin-top:20px">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Cliente</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Telefone</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Imóvel</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Data</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Horário</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Status</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #eee">Ação</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% visitas.forEach((v, idx) => {
+            const clienteNome = v.clienteNome || v.nome || v.cliente?.nome || v.leadNome || "-";
+            const clienteTelefone = v.clienteTelefone || v.telefone || v.contato || v.cliente?.telefone || v.cliente?.celular || "-";
+
+            const imovelId = v.imovelId || v.imovel_id || v.idImovel || v.imovel?.idExterno || v.imovel?.id || '';
+            const imovelTitulo = v.imovelTitulo || v.titulo_interesse || v.imovel?.titulo || v.imovel?.tipo || 'Imóvel';
+            const imovelBairro = v.imovelBairro || v.bairro || v.imovel?.bairro || '-';
+            const imovelCidade = v.imovelCidade || v.cidade || v.imovel?.cidade || '-';
+            const imovelEstado = v.imovelEstado || v.estado || v.imovel?.estado || '-';
+
+            const dataBr = v.data_br || (v.data ? new Date(v.data).toLocaleString('pt-BR') : '');
+            const dataVisita = v.dataVisita || v.dataPreferida || v.data_agendada || (dataBr ? dataBr.split(',')[0] : '-');
+            const horaVisita = v.horaVisita || v.horarioPreferido || v.hora_agendada || (dataBr && dataBr.includes(',') ? dataBr.split(',')[1].trim() : '-');
+
+            const linkImovel = v.imovelUrl || v.url || v.imovel?.url || (imovelId ? '/imovel/' + imovelId : '');
+          %>
+            <tr>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= clienteNome %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= clienteTelefone %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee">
+                <strong><%= imovelTitulo %></strong><br>
+                <%= imovelBairro %> - <%= imovelCidade %>/<%= imovelEstado %><br>
+                <% if (linkImovel) { %>
+                  <a href="<%= linkImovel %>" target="_blank">Ver imóvel</a>
+                <% } %>
+              </td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= dataVisita %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= horaVisita %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee"><%= v.status || 'solicitada' %></td>
+              <td style="padding:10px;border-bottom:1px solid #eee">
+                <div style="display:flex;flex-direction:column;gap:8px">
+
+                <%
+                  const propTel = (v.proprietarioTelefone || v.proprietario_telefone || '').replace(/D/g,'');
+                  const propNome = v.proprietarioNome || v.proprietario_nome || '';
+                  const corretorNome = user.nome || user.name || 'Corretor';
+                  const imovelDonoId = v.imovelUsuarioId || '';
+                  const ehImovelParceiro = imovelDonoId && imovelDonoId !== (user.id || user.userId || '');
+                  const parceirTel = (v.imovelUsuarioTelefone || '').replace(/D/g,'');
+                  const parceiroNome = v.imovelUsuarioNome || 'Corretor parceiro';
+                  const msgProp = 'Olá ' + propNome + '! Sou ' + corretorNome + ', corretor parceiro. Tenho um cliente interessado no seu imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' e gostaria de agendar uma visita para o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + '. Confirme sua disponibilidade aqui: https://matchimoveis.onrender.com/proprietario/visita/' + v.id;
+                  const msgParceiro = 'Olá ' + parceiroNome + '! Sou ' + corretorNome + ' da MatchImóveis. Tenho um cliente interessado no seu imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' e gostaria de agendar uma visita para o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + '. Confirme sua disponibilidade aqui: https://matchimoveis.onrender.com/proprietario/visita/' + v.id;
+                  const telCliente = (v.telefone || v.contato || '').replace(/\D/g,'');
+                  const msgCliente = 'Olá ' + (v.nome || 'cliente') + '! Sua visita ao imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + ' foi confirmada para ' + (v.dataVisita || dataVisita) + (v.horaVisita ? ' às ' + v.horaVisita : '') + '. Confirme sua presença aqui: https://matchimoveis.onrender.com/cliente/visita/' + v.id + '/confirmar';
+                %>
+
+                <% if (v.status === 'lead_confirmou') { %>
+                  <strong style='color:#1A1A1A;font-weight:600'>✅ Lead confirmou presença</strong>
+                <% } else if (v.status === 'lead_recusou') { %>
+                  <strong style='color:#FF385C;font-weight:600'>❌ Lead não comparecerá</strong>
+                <% } else if (v.status === 'confirmada') { %>
+                  <strong style="color:#1A1A1A;font-weight:600">✅ Confirmada</strong>
+                  <% if (telCliente) { %>
+                    <a href="https://wa.me/55<%= telCliente %>?text=<%= encodeURIComponent(msgCliente) %>" target="_blank" style="background:#25D366;color:white;padding:8px 12px;border-radius:8px;text-decoration:none;text-align:center;font-size:13px">
+                      📲 Notificar Cliente
+                    </a>
+                  <% } %>
+                <% } else if (v.status === 'cancelada') { %>
+                  <strong style="color:#FF385C;font-weight:600">❌ Cancelada</strong>
+                <% } else if (v.status === 'pendente_remarcar') { %>
+                  <strong style="color:orange">📅 Proprietário pediu nova data</strong>
+                  <% const telClienteRem = (v.telefone || v.contato || '').replace(/\D/g,'');
+                     const msgRemarcar = 'Olá ' + (v.nome || 'cliente') + '! Infelizmente o dia ' + (v.dataVisita || dataVisita) + ' às ' + (v.horaVisita || horaVisita) + ' não está disponível para visitar o imóvel ' + (v.imovelTitulo || v.imovelBairro || '') + '. Por favor, escolha uma nova data e horário pelo link: https://matchimoveis.onrender.com/cliente/visita/' + v.id + '/remarcar';
+                  %>
+                  <% if (telClienteRem) { %>
+                    <a href="https://wa.me/55<%= telClienteRem %>?text=<%= encodeURIComponent(msgRemarcar) %>" target="_blank" style="background:#f59e0b;color:white;padding:8px 12px;border-radius:8px;text-decoration:none;text-align:center;font-size:13px;display:block;margin-top:6px">
+                      📲 Pedir Remarcação
+                    </a>
+                  <% } %>
+                <% } else if (v.status === 'AGUARDANDO') { %>
+                  <strong style="color:#f59e0b;font-weight:700">⏳ Aguardando confirmação</strong>
+                  <form method="POST" action="/app/visitas/confirmar/<%= v.id %>" style="margin-top:8px">
+                    <button type="submit" style="background:#10b981;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;width:100%">
+                      ✅ Confirmar Visita
+                    </button>
+                  </form>
+                <% } else { %>
+                  <strong style="color:#888">⏳ Aguardando</strong>
+                  <% if (ehImovelParceiro && parceirTel) { %>
+                    <a href="https://wa.me/55<%= parceirTel %>?text=<%= encodeURIComponent(msgParceiro) %>" target="_blank" style="background:#FF385C;color:white;padding:8px 12px;border-radius:8px;text-decoration:none;text-align:center;font-size:13px">
+                      📲 Falar com Corretor Parceiro
+                    </a>
+                  <% } else if (propTel) { %>
+                    <a href="https://wa.me/55<%= propTel %>?text=<%= encodeURIComponent(msgProp) %>" target="_blank" style="background:#25D366;color:white;padding:8px 12px;border-radius:8px;text-decoration:none;text-align:center;font-size:13px">
+                      📲 Notificar Proprietário
+                    </a>
+                  <% } else { %>
+                    <form method="POST" action="/app/visitas/confirmar/<%= v.id %>" style="margin:0">
+                      <button type="submit" style="background:#f59e0b;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;width:100%">
+                        ✅ Confirmar Visita
+                      </button>
+                    </form>
+                  <% } %>
+                <% } %>
+
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+    <% } %>
+</div>
+
+<%- include('partials/app-end') %>

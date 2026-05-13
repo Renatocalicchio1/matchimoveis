@@ -2955,6 +2955,35 @@ app.get('/admin/backup-imoveis/:userId', (req,res)=>{
   res.send(JSON.stringify(filtrados, null, 2));
 });
 
+// Página de upload XML
+app.get('/app/importar-xml-upload', (req, res) => {
+  const userId = req.query.userId || '';
+  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Importar XML</title>
+  <style>body{font-family:Arial;max-width:500px;margin:60px auto;padding:20px}
+  h2{color:#ff385c}input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #ddd;font-size:15px}
+  button{background:#ff385c;color:white;border:none;cursor:pointer;font-weight:700}
+  .msg{padding:12px;border-radius:8px;margin-top:12px}</style></head>
+  <body><h2>📥 Importar XML</h2>
+  <p>Conta: <strong>${userId}</strong></p>
+  <form id="f" enctype="multipart/form-data">
+    <input type="file" name="arquivo" accept=".xml" required>
+    <button type="submit">Importar XML</button>
+  </form>
+  <div id="msg"></div>
+  <script>
+    document.getElementById('f').onsubmit = async function(e){
+      e.preventDefault();
+      document.getElementById('msg').innerHTML = '<div class="msg" style="background:#fff3cd">⏳ Importando, aguarde...</div>';
+      const fd = new FormData(this);
+      const r = await fetch('/app/importar-xml-upload?userId=${userId}', {method:'POST',body:fd});
+      const d = await r.json();
+      document.getElementById('msg').innerHTML = d.ok
+        ? '<div class="msg" style="background:#d4edda">✅ '+d.mensagem+'</div>'
+        : '<div class="msg" style="background:#f8d7da">❌ '+d.erro+'</div>';
+    };
+  </script></body></html>`);
+});
+
 // Upload de XML local
 app.post('/app/importar-xml-upload', (req, res) => {
   const upload2 = require('multer')({ dest: dataPath('uploads/') });

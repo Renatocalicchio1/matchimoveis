@@ -220,8 +220,13 @@ const inativos = antigosDoUsuario
 // Novos ativos (reativa se estava inativo, preserva proprietario vinculado)
 const novosFormatadosComStatus = novos.map(n => {
   const antigo = antigosDoUsuario.find(a => String(a.idExterno) === String(n.idExterno));
-  // Preservar proprietario se foi vinculado via CRM
-  const proprietarioPreservado = antigo && antigo.proprietario && antigo.proprietario.status === 'vinculado_crm'
+  // Preservar proprietario se foi vinculado via CRM ou tem telefone cadastrado
+  const temProprietarioVinculado = antigo && antigo.proprietario && (
+    antigo.proprietario.status === 'vinculado_crm' ||
+    antigo.proprietario.telefone ||
+    antigo.proprietario.fonteVinculo
+  );
+  const proprietarioPreservado = temProprietarioVinculado
     ? antigo.proprietario
     : n.proprietario;
   return {

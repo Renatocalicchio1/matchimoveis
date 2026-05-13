@@ -186,7 +186,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
     try {
       const { execSync } = require('child_process');
       const userId = global.importUserId || '';
-      execSync(`node importXMLCompleto.js "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
+      execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
 
       const fs = require('fs');
       const imoveis = fs.existsSync(dataFile('imoveis.json'))

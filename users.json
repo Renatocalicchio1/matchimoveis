@@ -302,31 +302,6 @@
     "codigoUsuario": "TES-0889",
     "historicoAssistente": [
       {
-        "pergunta": "manda WhatsApp pra ele",
-        "resposta": "📲 Preparei a mensagem para Bruno.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0\n\n📲 WhatsApp preparado.\nhttps://wa.me/61998609484?text=Ol%C3%A1%20Bruno%2C%20tudo%20bem%3F%20Vi%20seu%20interesse%20sobre%20im%C3%B3vel%20em%20Vila%20Ol%C3%ADmpia.%20Encontrei%203%20op%C3%A7%C3%A3o(%C3%B5es)%20parecida(s).%20Posso%20te%20enviar%20algumas%20op%C3%A7%C3%B5es%20e%20verificar%20um%20melhor%20hor%C3%A1rio%20para%20conversar%3F",
-        "data": "2026-05-12T19:39:26.393Z"
-      },
-      {
-        "pergunta": "importat xml",
-        "resposta": "🔗 <strong>Portais disponíveis:</strong><br>VivaReal · ZAP · OLX · Chaves · ImovelWeb · 123i<br><br>Gere o XML de cada portal e cadastre o link nas configurações do portal.<br><br><a href=\"/app/portais\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver portais →</a><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ir para imóveis →</a><br><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 VivaReal</button><button onclick=\"enviarMsg('gerar xml zap')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 ZAP</button><button onclick=\"enviarMsg('gerar xml olx')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 OLX</button><button onclick=\"enviarMsg('gerar xml chaves')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 Chaves</button><button onclick=\"enviarMsg('gerar xml imovelweb')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 ImovelWeb</button><button onclick=\"enviarMsg('gerar xml 123i')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">🔗 123i</button><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('ver portais')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver portais</button><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Gerar XML</button></div>",
-        "data": "2026-05-12T19:41:20.754Z"
-      },
-      {
-        "pergunta": "gerar xml",
-        "resposta": "🔗 <strong>Gerar XML — para qual portal?</strong><br><br><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">VivaReal</button><button onclick=\"enviarMsg('gerar xml zap')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">ZAP</button><button onclick=\"enviarMsg('gerar xml olx')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">OLX</button><button onclick=\"enviarMsg('gerar xml imovelweb')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">ImovelWeb</button><button onclick=\"enviarMsg('gerar xml chaves')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Chaves na Mão</button><button onclick=\"enviarMsg('gerar xml 123i')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">123i</button>",
-        "data": "2026-05-12T19:41:32.763Z"
-      },
-      {
-        "pergunta": "gerar xml olx",
-        "resposta": "ACAO_GERAR_XML:{\"portal\":\"olx\"}",
-        "data": "2026-05-12T19:41:36.659Z"
-      },
-      {
-        "pergunta": "gerar xml todos olx",
-        "resposta": "ACAO_GERAR_XML:{\"portal\":\"olx\"}",
-        "data": "2026-05-12T19:41:39.697Z"
-      },
-      {
         "pergunta": "importar leads",
         "resposta": "Não encontrei lead com esse termo.",
         "data": "2026-05-12T19:42:25.106Z"
@@ -550,10 +525,44 @@
         "pergunta": "palnilha de lead",
         "resposta": "Não encontrei lead com esse termo.",
         "data": "2026-05-12T21:55:27.422Z"
+      },
+      {
+        "pergunta": "oi",
+        "resposta": "👋 Olá! Como posso ajudar?<br><br>Digite o que precisa ou escolha uma opção abaixo:<br><br><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver imóveis →</a> <a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a> <a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver visitas →</a>",
+        "data": "2026-05-13T04:19:06.795Z"
+      },
+      {
+        "pergunta": "importar leads",
+        "resposta": "Não encontrei lead com esse termo.",
+        "data": "2026-05-13T04:19:14.286Z"
+      },
+      {
+        "pergunta": "gerar xml",
+        "resposta": "🔗 <strong>Gerar XML — para qual portal?</strong><br><br><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">VivaReal</button><button onclick=\"enviarMsg('gerar xml zap')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">ZAP</button><button onclick=\"enviarMsg('gerar xml olx')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">OLX</button><button onclick=\"enviarMsg('gerar xml imovelweb')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">ImovelWeb</button><button onclick=\"enviarMsg('gerar xml chaves')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Chaves na Mão</button><button onclick=\"enviarMsg('gerar xml 123i')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">123i</button>",
+        "data": "2026-05-13T04:19:21.669Z"
+      },
+      {
+        "pergunta": "minhas visitas",
+        "resposta": "📅 Encontrei 3 visita(s). Proprietário: 0, parceiro: 0, corretor: 0, confirmadas: 3.\n\n• renato\n• renato\n• renato",
+        "data": "2026-05-13T04:19:28.960Z"
+      },
+      {
+        "pergunta": "notificacoes",
+        "resposta": "🔔 Encontrei 3 notificação(ões) pendente(s).\n\n• Visita confirmada pelo proprietario\n• Visita confirmada pelo proprietario\n• Visita confirmada pelo proprietario",
+        "data": "2026-05-13T04:19:40.271Z"
       }
     ],
     "xmlUrl": "https://rbfirmino.com.br/exportar/rankim?purpose=sale",
     "xmlAtualizadoEm": "2026-05-12T02:01:09.278Z",
     "xmlTotal": 1918
+  },
+  {
+    "id": "cor_ruj7md4cy2",
+    "nome": "Eduardo",
+    "telefone": "479929123932",
+    "celular": "479929123932",
+    "tipo": "corretor",
+    "ativo": true,
+    "codigoUsuario": "EDU-3932"
   }
 ]

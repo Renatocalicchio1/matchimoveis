@@ -1528,7 +1528,7 @@
     },
     {
       "pergunta": "gerar xml vivareal",
-      "count": 18,
+      "count": 19,
       "respostas": [
         {
           "texto": "🔗 Para qual portal gerar o XML?🔗 VivaReal🔗 ZAP🔗 OLX🔗 Chaves🔗 ImovelWeb🔗 123iVer portaisGerar XML",
@@ -1552,7 +1552,7 @@
         }
       ],
       "primeira": "2026-05-08T21:06:22.149Z",
-      "ultima": "2026-05-12T21:50:01.254Z"
+      "ultima": "2026-05-13T04:19:21.661Z"
     },
     {
       "pergunta": "ver portais",
@@ -6121,6 +6121,19 @@
       ],
       "primeira": "2026-05-12T21:50:05.647Z",
       "ultima": "2026-05-12T21:50:05.647Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-13T04:19:06.785Z"
+        }
+      ],
+      "primeira": "2026-05-13T04:19:06.785Z",
+      "ultima": "2026-05-13T04:19:06.785Z"
     }
   ]
 }

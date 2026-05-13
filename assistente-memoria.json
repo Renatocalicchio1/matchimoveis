@@ -2835,6 +2835,36 @@
       "pergunta": "palnilha de lead",
       "resposta": "Não encontrei lead com esse termo.",
       "data": "2026-05-12T21:55:27.416Z"
+    },
+    {
+      "userId": "corretor-47992010889",
+      "pergunta": "oi",
+      "resposta": "👋 Olá! Como posso ajudar?<br><br>Digite o que precisa ou escolha uma opção abaixo:<br><br><a href=\"/app/imoveis\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver imóveis →</a> <a href=\"/app/leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a> <a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver visitas →</a>",
+      "data": "2026-05-13T04:19:06.788Z"
+    },
+    {
+      "userId": "corretor-47992010889",
+      "pergunta": "importar leads",
+      "resposta": "Não encontrei lead com esse termo.",
+      "data": "2026-05-13T04:19:14.281Z"
+    },
+    {
+      "userId": "corretor-47992010889",
+      "pergunta": "gerar xml",
+      "resposta": "🔗 <strong>Gerar XML — para qual portal?</strong><br><br><button onclick=\"enviarMsg('gerar xml vivareal')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">VivaReal</button><button onclick=\"enviarMsg('gerar xml zap')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">ZAP</button><button onclick=\"enviarMsg('gerar xml olx')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">OLX</button><button onclick=\"enviarMsg('gerar xml imovelweb')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">ImovelWeb</button><button onclick=\"enviarMsg('gerar xml chaves')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Chaves na Mão</button><button onclick=\"enviarMsg('gerar xml 123i')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">123i</button>",
+      "data": "2026-05-13T04:19:21.663Z"
+    },
+    {
+      "userId": "corretor-47992010889",
+      "pergunta": "minhas visitas",
+      "resposta": "📅 Encontrei 3 visita(s). Proprietário: 0, parceiro: 0, corretor: 0, confirmadas: 3.\n\n• renato\n• renato\n• renato",
+      "data": "2026-05-13T04:19:28.953Z"
+    },
+    {
+      "userId": "corretor-47992010889",
+      "pergunta": "notificacoes",
+      "resposta": "🔔 Encontrei 3 notificação(ões) pendente(s).\n\n• Visita confirmada pelo proprietario\n• Visita confirmada pelo proprietario\n• Visita confirmada pelo proprietario",
+      "data": "2026-05-13T04:19:40.267Z"
     }
   ],
   "perfis": {

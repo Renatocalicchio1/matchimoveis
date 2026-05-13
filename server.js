@@ -383,8 +383,10 @@ app.post('/login', (req,res)=>{
     const existe = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);
     if(existe) return res.render('login', { error: 'Este celular já está cadastrado. Entre usando apenas o celular.' });
 
+    const prefixo = req.body.tipoConta === 'imobiliaria' ? 'imob' : req.body.tipoConta === 'corretor' ? 'cor' : 'usr';
+    const uid = prefixo + '_' + Math.random().toString(36).substring(2,8) + Date.now().toString(36).slice(-4);
     const novo = {
-      id: (req.body.tipoConta || 'user') + '-' + telefone,
+      id: uid,
       nome: req.body.nome,
       telefone,
       celular: telefone,

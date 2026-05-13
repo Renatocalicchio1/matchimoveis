@@ -37,8 +37,16 @@
       "labelAtual": "Visitas",
       "dominioAtual": "visitas",
       "rotaAtual": "/app/visitas",
-      "atualizadoEm": "2026-05-13T03:58:35.947Z",
-      "paginaAnterior": "visitas"
+      "atualizadoEm": "2026-05-13T15:11:30.157Z",
+      "paginaAnterior": "notificacoes"
+    },
+    "cor_ruj7md4cy2": {
+      "paginaAtual": "dashboard",
+      "labelAtual": "Dashboard",
+      "dominioAtual": "dashboard",
+      "rotaAtual": "/app-home",
+      "atualizadoEm": "2026-05-13T15:37:53.561Z",
+      "paginaAnterior": null
     }
   },
   "fluxos": [
@@ -3743,6 +3751,30 @@
       "para": "visitas",
       "userId": "corretor-47992010889",
       "data": "2026-05-13T03:57:46.305Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T04:19:01.430Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T04:19:04.042Z"
+    },
+    {
+      "de": "assistente",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T04:19:44.320Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T15:11:30.166Z"
     }
   ]
 }

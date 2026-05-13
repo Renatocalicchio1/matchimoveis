@@ -150,6 +150,8 @@ async function run() {
     attributeNamePrefix: '@_',
     textNodeName: '#text',
     parseAttributeValue: true,
+    removeNSPrefix: true,
+    allowBooleanAttributes: true,
   });
 
   const json = parser.parse(xml);

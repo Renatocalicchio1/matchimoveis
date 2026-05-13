@@ -103,8 +103,8 @@ function parseListing(l) {
       descricao: (() => {
         let d = l.Description || extractText(details.Description) || '';
         // remover chamadas para visita com nome do corretor
-        d = d.replace(/Agendes+(já|ja)s+as+suas+visitas+(coms+os+corretors+[ws]+[-–]?s*)?((?d[ds()-.]+d)?)?.?/gi, '').trim();
-        d = d.replace(/Agendes+suas+visitas+(coms+os+corretors+[ws]+[-–]?s*)?((?d[ds()-.]+d)?)?.?/gi, '').trim();
+        d = d.replace(/Agende\s+j[aá]\s+as\s+suas\s+visitas[^.]*\./gi, '').trim();
+        d = d.replace(/Agende\s+suas\s+visitas[^.]*\./gi, '').trim();
         d = d.replace(/s{2,}/g, ' ').trim();
         return d;
       })(),

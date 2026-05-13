@@ -2996,7 +2996,7 @@ app.get("/admin/limpar-descricoes/:userId",(req,res)=>{
   const cortar=["aproveite e a oportunidade agende","aproveite essa oportunidade agende","agende agora mesmo sua visita","agende ja a sua visita","agende sua visita","agende agora","as informações estão sujeitas","as informacoes estao sujeitas","chave do anúncio","chave do anuncio"];
   const remover=["mario sergio","mário sérgio","11999965998","11 9.9996.5998","adv.mssouza"];
   const atualiz=todos.map(i=>{
-    if(String(i.userId||i.usuarioId||i.corretorId||""!==userId))return i;
+    if(String(i.userId||i.usuarioId||i.corretorId||"")!==userId)return i;
     let d=i.descricao||"";
     const orig=d;
     const dl=d.toLowerCase();

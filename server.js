@@ -287,7 +287,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 
     const { execSync } = require("child_process");
 
-    const userId = req.session.user ? req.session.user.id : ""; execSync(`node processLeads.js "${file.path}" "${userId}"`, { stdio: "inherit" });
+    const userId = req.session.user ? req.session.user.id : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio: "inherit", cwd: __dirname });
 
     return res.redirect("/app/leads");
 

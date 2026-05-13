@@ -3044,6 +3044,14 @@ app.get('/admin/reativar-imoveis/:userId', (req,res)=>{
   res.json({ ok: true, reativados: count });
 });
 
+// Backup leads por conta
+app.get('/admin/backup-leads/:userId', (req,res)=>{
+  const userId = req.params.userId;
+  const todos = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
+  const filtrados = todos.filter(l => String(l.userId||l.corretorId||'') === userId);
+  res.json({ total: filtrados.length, exemplo: filtrados[0]||null });
+});
+
 // Backup de imóveis por conta
 app.get('/admin/backup-imoveis/:userId', (req,res)=>{
   const userId = req.params.userId;

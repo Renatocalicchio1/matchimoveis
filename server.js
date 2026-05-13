@@ -2988,6 +2988,28 @@ app.get("/admin/diagnostico-descricoes/:userId",(req,res)=>{
   res.json({total:meus.length,comMario:comMario.length,comAgende:comAgende.length,exemplo});
 });
 
+// Limpar descricoes
+app.get("/admin/limpar-descricoes/:userId",(req,res)=>{
+  const userId=req.params.userId;
+  const todos=fs.existsSync(dataPath("imoveis.json"))?JSON.parse(fs.readFileSync(dataPath("imoveis.json"),"utf8")):[]; 
+  let count=0;
+  const cortar=["aproveite e a oportunidade agende","aproveite essa oportunidade agende","agende agora mesmo sua visita","agende ja a sua visita","agende sua visita","agende agora","as informações estão sujeitas","as informacoes estao sujeitas","chave do anúncio","chave do anuncio"];
+  const remover=["mario sergio","mário sérgio","11999965998","11 9.9996.5998","adv.mssouza"];
+  const atualiz=todos.map(i=>{
+    if(String(i.userId||i.usuarioId||i.corretorId||""!==userId))return i;
+    let d=i.descricao||"";
+    const orig=d;
+    const dl=d.toLowerCase();
+    cortar.forEach(f=>{const x=dl.indexOf(f);if(x>-1)d=d.substring(0,x).trim();});
+    remover.forEach(t=>{d=d.replace(new RegExp(t,"gi"),"");});
+    d=d.replace(/ {2,}/g," ").trim();
+    if(d!==orig)count++;
+    return{...i,descricao:d};
+  });
+  fs.writeFileSync(dataPath("imoveis.json"),JSON.stringify(atualiz,null,2));
+  res.json({ok:true,limpos:count,total:todos.filter(i=>String(i.userId||i.corretorId||"")=== userId).length});
+});
+
 // Reativar todos imóveis de uma conta
 app.get('/admin/reativar-imoveis/:userId', (req,res)=>{
   const userId = req.params.userId;

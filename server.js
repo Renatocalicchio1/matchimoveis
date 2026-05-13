@@ -2951,6 +2951,34 @@ app.get('/app/portais', auth, (req,res)=>{
   res.render('app-portais', { user: req.session.user, xmlFeeds });
 });
 
+// Limpar descrições de imóveis de uma conta
+app.get('/admin/limpar-descricoes/:userId', (req,res)=>{
+  const userId = req.params.userId;
+  const todos = fs.existsSync(dataPath('imoveis.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  let count = 0;
+  const atualizados = todos.map(i => {
+    if(String(i.userId||i.usuarioId||i.corretorId||'') !== userId) return i;
+    if(i.descricaoEditada) return i; // preservar descrições editadas manualmente
+    let d = i.descricao || '';
+    // remover "Agende já/ja a sua visita com o corretor..."
+    d = d.replace(/Agendes+(já|ja)s+as+suas+visitas+(coms+os+corretors+[ws]+[-–]?s*)?((?d[ds()-.]+d)?)?.?/gi, '');
+    d = d.replace(/Agendes+suas+visitas+(coms+os+corretors+[ws]+[-–]?s*)?((?d[ds()-.]+d)?)?.?/gi, '');
+    // remover "As informações estão sujeitas a alterações"
+    d = d.replace(/Ass+informa[çc][õo]ess+(est[ãa]os+)?sujeitas?s+as+altera[çc][õo]es[^.]*./gi, '');
+    // remover "Chave do anúncio: XXXXX"
+    d = d.replace(/Chaves+dos+an[úu]ncios*:s*S+/gi, '');
+    // remover dados de contato (telefones e emails no texto)
+    d = d.replace(/Cel.?s*[(d][ds()-.]+d/gi, '');
+    // remover espaços duplos
+    d = d.replace(/s{2,}/g, ' ').trim();
+    if(d !== i.descricao){ count++; }
+    return { ...i, descricao: d };
+  });
+  fs.writeFileSync(dataPath('imoveis.json'), JSON.stringify(atualizados,null,2));
+  res.json({ ok: true, limpos: count, total: atualizados.filter(i=>String(i.userId||'')===userId).length });
+});
+
 // Reativar todos imóveis de uma conta
 app.get('/admin/reativar-imoveis/:userId', (req,res)=>{
   const userId = req.params.userId;

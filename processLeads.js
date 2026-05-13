@@ -1,7 +1,10 @@
+const path = require('path');
 const fs = require('fs');
 const XLSX = require('xlsx');
 
 const file = process.argv[2];
+const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
+const DATA_FILE = path.join(DATA_DIR, 'data.json');
 const importUserId = process.argv[3] || "";
 if (!file) {
   console.log('ERRO: informe o arquivo');
@@ -71,8 +74,8 @@ function readRows(file) {
 (async () => {
   const rows = readRows(file);
 
-  let existing = fs.existsSync('data.json')
-    ? JSON.parse(fs.readFileSync('data.json','utf8'))
+  let existing = fs.existsSync(DATA_FILE)
+    ? JSON.parse(fs.readFileSync(DATA_FILE,'utf8'))
     : [];
 
   if (!Array.isArray(existing)) existing = existing.results || [];
@@ -127,7 +130,7 @@ function readRows(file) {
     console.log('ADICIONADO:', lead.id, lead.nome, lead.bairro, lead.valor_imovel, lead.area_m2);
   }
 
-  fs.writeFileSync('data.json', JSON.stringify(existing, null, 2));
+  fs.writeFileSync(DATA_FILE, JSON.stringify(existing, null, 2));
 
   console.log('TOTAL NA BASE:', existing.length);
   console.log('ADICIONADOS:', adicionados);

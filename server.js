@@ -141,7 +141,7 @@ app.get('/api/testar-xml', async (req, res) => {
     const request = client.get(url, (response) => {
       response.on('data', chunk => {
         data += chunk.toString();
-        total = (data.match(/<Listing>/g) || []).length;
+        total = (data.match(/<[Ll]isting>/g) || []).length;
         if (total >= 5 && !respondido) {
           respondido = true;
           request.destroy();

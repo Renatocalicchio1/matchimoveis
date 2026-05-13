@@ -2955,6 +2955,25 @@ app.get('/admin/backup-imoveis/:userId', (req,res)=>{
   res.send(JSON.stringify(filtrados, null, 2));
 });
 
+// Upload de XML local
+app.post('/app/importar-xml-upload', (req, res) => {
+  const upload2 = require('multer')({ dest: dataPath('uploads/') });
+  upload2.single('arquivo')(req, res, async (err) => {
+    if(err) return res.json({ ok: false, erro: err.message });
+    if(!req.file) return res.json({ ok: false, erro: 'Nenhum arquivo enviado' });
+    const userId = req.query.userId || '';
+    const { execSync } = require('child_process');
+    try {
+      const xmlPath = req.file.path;
+      execSync('node '+path.join(__dirname,'importXMLCompleto.js')+' "'+xmlPath+'" "'+userId+'"', { stdio: 'inherit' });
+      fs.unlinkSync(xmlPath);
+      res.json({ ok: true, mensagem: 'XML importado com sucesso!' });
+    } catch(e) {
+      res.json({ ok: false, erro: e.message });
+    }
+  });
+});
+
 // AUTO LOGIN ADMIN (somente para admin/leads)
 app.use('/admin', (req, res, next) => {
   if (!req.session.user) {

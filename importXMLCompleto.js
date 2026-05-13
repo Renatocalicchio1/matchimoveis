@@ -12,6 +12,7 @@ if (!XML_URL) {
   process.exit();
 }
 
+const path = require('path');
 const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
 const FILE = path.join(DATA_DIR, 'imoveis.json');
 

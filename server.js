@@ -3507,6 +3507,38 @@ app.post('/admin/import-sync-ran', express.json({limit:'200mb'}), (req,res)=>{
 });
 
 // ===============================
+
+// Sync leads extraídas localmente para o Render
+app.post('/admin/sync-leads-extraidas', express.json({limit:'50mb'}), (req,res)=>{
+  const token = req.headers['x-sync-token'];
+  if(token !== 'MATCHIMOVEIS_SYNC_2026'){
+    return res.status(401).json({ok:false,error:'token invalido'});
+  }
+  try{
+    const { userId, leads: leadsAtualizadas } = req.body || {};
+      return res.status(400).json({ok:false,error:'userId e leads obrigatorios'});
+    }
+    const dataFile = dataPath('data.json');
+    const todas = fs.existsSync(dataFile)
+      ? JSON.parse(fs.readFileSync(dataFile,'utf8'))
+      : [];
+    const outrasContas = todas.filter(l => {
+      const dono = String(l.userId || l.usuarioId || l.corretorId || '');
+      return dono !== String(userId);
+    });
+    const idsAtualizadas = new Set(leadsAtualizadas.map(l => String(l.id || l.url)));
+    const mesmaContaSemAtualizar = todas.filter(l => {
+      const dono = String(l.userId || l.usuarioId || l.corretorId || '');
+      const id = String(l.id || l.url);
+    });
+    const final = [...outrasContas, ...mesmaContaSemAtualizar, ...leadsAtualizadas];
+    fs.writeFileSync(dataFile, JSON.stringify(final, null, 2));
+    res.json({ok:true, salvas: leadsAtualizadas.length, total: final.length});
+  }catch(e){
+    res.status(500).json({ok:false,error:e.message});
+  }
+});
+
 // CENTRAL OPERACIONAL CONVERSACIONAL
 // ===============================
 app.post('/api/central-operacional', auth, express.json(), (req, res) => {

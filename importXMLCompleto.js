@@ -148,8 +148,13 @@ async function run() {
     const res = await axios.get(XML_URL);
     xml = res.data;
   } else {
-    console.log('📂 Lendo XML do arquivo local...');
+    console.log('📂 Lendo XML do arquivo local:', XML_URL);
+    if(!fs.existsSync(XML_URL)){
+      console.error('❌ Arquivo não encontrado:', XML_URL);
+      process.exit(1);
+    }
     xml = fs.readFileSync(XML_URL, 'utf8');
+    console.log('✅ Arquivo lido, tamanho:', xml.length, 'bytes');
   }
 
   const parser = new XMLParser({

@@ -12,7 +12,8 @@ if (!XML_URL) {
   process.exit();
 }
 
-const FILE = 'imoveis.json';
+const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
+const FILE = path.join(DATA_DIR, 'imoveis.json');
 
 function normalizeId(id) {
   return String(id || '').replace(/\D/g, '').trim();

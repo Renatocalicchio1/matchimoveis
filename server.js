@@ -2962,8 +2962,6 @@ app.get('/admin/limpar-descricoes/:userId', (req,res)=>{
     if(i.descricaoEditada) return i; // preservar descrições editadas manualmente
     let d = i.descricao || '';
     // remover "Agende já/ja a sua visita com o corretor..."
-    d = d.replace(/Agendes+(já|ja)s+as+suas+visitas+(coms+os+corretors+[ws]+[-–]?s*)?((?d[ds()-.]+d)?)?.?/gi, '');
-    d = d.replace(/Agendes+suas+visitas+(coms+os+corretors+[ws]+[-–]?s*)?((?d[ds()-.]+d)?)?.?/gi, '');
     // remover "As informações estão sujeitas a alterações"
     d = d.replace(/Ass+informa[çc][õo]ess+(est[ãa]os+)?sujeitas?s+as+altera[çc][õo]es[^.]*./gi, '');
     // remover "Chave do anúncio: XXXXX"

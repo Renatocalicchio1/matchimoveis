@@ -5,6 +5,8 @@ const XLSX = require('xlsx');
 const file = process.argv[2];
 const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
 const DATA_FILE = path.join(DATA_DIR, 'data.json');
+const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
+const DATA_FILE = path.join(DATA_DIR, 'data.json');
 const importUserId = process.argv[3] || "";
 if (!file) {
   console.log('ERRO: informe o arquivo');

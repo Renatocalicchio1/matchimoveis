@@ -177,7 +177,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
     total: 0,
     mensagem: 'Importando XML...'
   };
-  global.importUserId = req.session.user ? req.session.user.id : '';
+  global.importUserId = req.body.userId || req.query.userId || (req.session.user ? req.session.user.id : '');
   global.importXmlUrl = xmlUrl;
 
   res.json({ ok:true, status:'rodando' });

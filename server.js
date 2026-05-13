@@ -364,7 +364,7 @@ app.get('/feed/:portal', (req,res)=>{
 
   execSync(`node exportXML.js ${portal}`);
 
-  res.sendFile(require('path').resolve(`feed-${portal}.xml`));
+  res.sendFile(dataPath(`feed-${portal}.xml`));
 });
 
 
@@ -1285,7 +1285,7 @@ app.post('/app/perfil/localizacao', auth, (req,res)=>{
 app.get('/feed-:portal.xml', (req,res)=>{
   const fs = require('fs');
   const portal = req.params.portal;
-  const file = `feed-${portal}.xml`;
+  const file = dataPath(`feed-${portal}.xml`);
 
   if(fs.existsSync(file)){
     res.set('Content-Type','application/xml');
@@ -2420,7 +2420,7 @@ function gerarXMLPortais(){
       require('child_process').execSync('node exportXML.js quintoandar', { stdio:'inherit' });
       console.log('XML QuintoAndar gerado no padrão novo');
     } else {
-      fs.writeFileSync(`feed-${portal}.xml`, xml);
+      fs.writeFileSync(dataPath(`feed-${portal}.xml`), xml);
       console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
     }
   });
@@ -2491,7 +2491,7 @@ function gerarXMLPortais(){
   </listings>
 </listingDataFeed>`;
 
-    fs.writeFileSync(`feed-${portal}.xml`, xml);
+    fs.writeFileSync(dataPath(`feed-${portal}.xml`), xml);
     console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
   });
 }
@@ -2626,7 +2626,7 @@ app.post('/app/gerar-xml', auth, (req,res)=>{
   }));
 
   const xml = gerarXMLPortal(selecionadosComCorretor, portal);
-  fs.writeFileSync(filename, xml, 'utf8');
+  fs.writeFileSync(dataPath(filename), xml, 'utf8');
   res.json({ url: '/'+filename, total: selecionados.length });
 });
 

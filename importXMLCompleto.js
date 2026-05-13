@@ -223,14 +223,14 @@ const antigosDoUsuario = atuais.filter(i => {
   return dono === String(USER_ID);
 });
 
-// Marca como inativo quem não veio no XML
-const inativos = antigosDoUsuario
+// Marca como inativo quem não veio no XML (só se USER_ID válido)
+const inativos = USER_ID ? antigosDoUsuario
   .filter(i => !idsNovos.has(String(i.idExterno)))
   .map(i => ({
     ...i,
     status: 'inativo',
     updatedAt: new Date().toISOString()
-  }));
+  })) : [];
 
 // Novos ativos (reativa se estava inativo, preserva proprietario vinculado)
 const novosFormatadosComStatus = novos.map(n => {

@@ -2951,6 +2951,23 @@ app.get('/app/portais', auth, (req,res)=>{
   res.render('app-portais', { user: req.session.user, xmlFeeds });
 });
 
+// Reativar todos imóveis de uma conta
+app.get('/admin/reativar-imoveis/:userId', (req,res)=>{
+  const userId = req.params.userId;
+  const todos = fs.existsSync(dataPath('imoveis.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  let count = 0;
+  const atualizados = todos.map(i => {
+    if(String(i.userId||i.usuarioId||i.corretorId||'') === userId && i.status === 'inativo'){
+      count++;
+      return { ...i, status: 'ativo' };
+    }
+    return i;
+  });
+  fs.writeFileSync(dataPath('imoveis.json'), JSON.stringify(atualizados,null,2));
+  res.json({ ok: true, reativados: count });
+});
+
 // Backup de imóveis por conta
 app.get('/admin/backup-imoveis/:userId', (req,res)=>{
   const userId = req.params.userId;

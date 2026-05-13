@@ -1,14 +1,29 @@
 [
   {
-    "id": "1778631649009",
-    "tipo": "nova_visita",
-    "titulo": "Nova solicitação de visita",
-    "mensagem": "Renato-testevitrine solicitou visita para Lindo Studio em Vila Olímpia com 26m²!",
+    "id": "1778644107830",
+    "tipo": "visita_proprietario",
+    "titulo": "Visita confirmada pelo proprietario",
+    "mensagem": "O proprietario confirmou a visita de renato ao imovel Casa a venda - Parque Sonia para 2026-05-13 as 10:00.",
     "usuarioId": "corretor-47992010889",
-    "usuarioNome": "",
-    "leadId": "1778627152897",
-    "imovelId": "MI-1778368153959-VVDHJC",
     "lida": false,
-    "criadaEm": "12/05/2026, 21:20:49"
+    "criadaEm": "13/05/2026, 00:48:27"
+  },
+  {
+    "id": "1778644570333",
+    "tipo": "visita_proprietario",
+    "titulo": "Visita confirmada pelo proprietario",
+    "mensagem": "O proprietario confirmou a visita de renato ao imovel Casa a venda - Parque Sonia para 2026-05-13 as 10:00.",
+    "usuarioId": "corretor-47992010889",
+    "lida": false,
+    "criadaEm": "13/05/2026, 00:56:10"
+  },
+  {
+    "id": "1778644693456",
+    "tipo": "visita_proprietario",
+    "titulo": "Visita confirmada pelo proprietario",
+    "mensagem": "O proprietario confirmou a visita de renato ao imovel Casa a venda - Parque Sonia para 2026-05-13 as 10:00.",
+    "usuarioId": "corretor-47992010889",
+    "lida": false,
+    "criadaEm": "13/05/2026, 00:58:13"
   }
 ]

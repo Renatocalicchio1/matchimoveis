@@ -37,8 +37,8 @@
       "labelAtual": "Visitas",
       "dominioAtual": "visitas",
       "rotaAtual": "/app/visitas",
-      "atualizadoEm": "2026-05-13T02:07:22.729Z",
-      "paginaAnterior": "dashboard"
+      "atualizadoEm": "2026-05-13T03:58:35.947Z",
+      "paginaAnterior": "visitas"
     }
   },
   "fluxos": [
@@ -3407,6 +3407,342 @@
       "para": "visitas",
       "userId": "corretor-47992010889",
       "data": "2026-05-13T02:07:22.729Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:42:37.004Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:42:39.378Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:48:02.097Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:48:47.435Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:50:03.938Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:50:05.308Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:50:48.600Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:50:49.913Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:54:31.456Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:54:33.027Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:56:01.543Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T02:56:02.957Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:03:06.961Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:03:08.540Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:04:32.305Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:04:33.914Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:06:01.744Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:06:03.504Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:08:51.576Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:08:53.097Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:10:07.228Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:10:08.335Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:12:11.152Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:12:12.333Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:13:29.457Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:13:30.159Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:16:06.775Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:16:08.401Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:20:52.420Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:20:53.718Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:22:57.989Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:22:59.684Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:25:16.574Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:25:17.848Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:28:37.475Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:28:39.126Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:29:26.417Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:29:27.682Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:32:28.753Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:32:30.246Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:36:40.049Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:36:42.027Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:40:38.241Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:40:39.553Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:45:56.060Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:45:58.724Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:47:34.505Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:47:35.755Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:50:12.463Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:50:13.759Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:52:20.824Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:52:21.962Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:55:37.786Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:55:38.960Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:57:44.829Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-13T03:57:46.305Z"
     }
   ]
 }

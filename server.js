@@ -14,6 +14,10 @@ const DATA_DIR = process.env.RENDER
   ? '/opt/render/project/src/data'
   : __dirname;
 
+const BASE_URL = process.env.RENDER
+  ? 'https://matchimoveis.onrender.com'
+  : 'http://localhost:3000';
+
 function dataFile(name){
   return path.join(DATA_DIR, name);
 }
@@ -1168,7 +1172,7 @@ app.get('/app/visitas', auth, (req,res)=>{
   if (busca) { const b = busca.toLowerCase(); visitas = visitas.filter(v => (v.nome||v.leadNome||'').toLowerCase().includes(b)||(v.imovelBairro||v.bairro||'').toLowerCase().includes(b)); }
   if (data) visitas = visitas.filter(v => (v.dataVisita||v.dataPreferida||'').startsWith(data));
   const visitasOrdenadas = visitas.sort((a,b)=>new Date(b.data||0)-new Date(a.data||0));
-  res.render('app-visitas', { user: req.session.user, visitas: visitasOrdenadas, filtros: { status: status||'todos', busca: busca||'', data: data||'' } });
+  res.render('app-visitas', { user: req.session.user, visitas: visitasOrdenadas, filtros: { status: status||'todos', busca: busca||'', data: data||'' }, baseUrl: BASE_URL });
 });
 
 app.get('/logout', (req,res)=>{
@@ -3645,41 +3649,44 @@ function resolverUsuarioPorId(id){
 // ===============================
 
 app.post('/api/visita/nova-v2', (req,res)=>{
+  const { imovelId, nome, telefone, dataVisita, horaVisita, imovelTitulo } = req.body;
 
-  const user = req.session.user;
-  const { imovelId, nome, telefone } = req.body;
+  const imoveisAll = fs.existsSync(dataPath('imoveis.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  const imovel = imoveisAll.find(i => String(i.idExterno||i.id) === String(imovelId)) || {};
 
-  const fs = require('fs');
+  const users = fs.existsSync(dataPath('users.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8')) : [];
+  const donoImovel = users.find(u => u.id === (imovel.userId||imovel.usuarioId)) || {};
 
-  const visitas = fs.existsSync('visitas.json')
-    ? JSON.parse(fs.readFileSync('visitas.json','utf8'))
-    : [];
-
-  const userFinal = user || { id: "TESTE-LOCAL", nome: "Usuário Teste", celular: "11999999999", telefone: "11999999999" };
+  const visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
 
   const novaVisita = {
-    id: Date.now(),
-
-    clienteNome: nome,
-    clienteTelefone: telefone,
-
-    imovelId: imovelId,
-
-    ownerUserId: userFinal.id,
-    ownerNome: userFinal.nome,
-    ownerTelefone: userFinal.celular || userFinal.telefone,
-
-    status: "AGUARDANDO"
+    id: String(Date.now()),
+    nome,
+    telefone: (telefone||'').replace(/D/g,''),
+    contato:  (telefone||'').replace(/D/g,''),
+    imovelId,
+    imovelTitulo:    imovelTitulo || imovel.titulo || imovel.tipo || 'Imóvel',
+    imovelBairro:    imovel.bairro || '',
+    imovelDescricao: imovel.descricao || '',
+    dataVisita,
+    horaVisita,
+    userId:      donoImovel.id || imovel.userId || '',
+    corretorId:  donoImovel.id || imovel.userId || '',
+    ownerUserId: donoImovel.id || imovel.userId || '',
+    proprietarioNome:     (imovel.proprietario && imovel.proprietario.nome) || '',
+    proprietarioTelefone: ((imovel.proprietario && (imovel.proprietario.celular||imovel.proprietario.telefone))||'').replace(/D/g,''),
+    status:  'solicitada',
+    origem:  'pagina_publica',
+    data:    new Date().toISOString(),
+    data_br: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
   };
 
   visitas.push(novaVisita);
-
-  fs.writeFileSync('visitas.json', JSON.stringify(visitas,null,2));
-
-  return res.json({
-    ok: true,
-    visita: novaVisita
-  });
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  return res.json({ ok: true, visita: novaVisita });
 });
 
 // ===============================
@@ -4124,11 +4131,9 @@ app.post('/cliente/visita/:id/confirmar', (req,res)=>{
   visitas = visitas.map(v => {
 
     if(String(v.id) === String(req.params.id)){
-
       v.confirmacaoClienteStatus = 'CONFIRMADO';
-
       v.confirmacaoClienteAt = new Date().toISOString();
-
+      v.clienteConfirmou = true;
     }
 
     return v;
@@ -4401,6 +4406,8 @@ app.post('/app/visitas/proprietario-confirmou/:id', auth, (req,res)=>{
     if(String(v.id) === String(req.params.id)){
 
       v.proprietarioConfirmouAt = new Date().toISOString();
+      v.proprietarioConfirmou = true;
+      v.confirmacaoProprietarioStatus = 'CONFIRMADO';
 
       if(!v.observacoes){
         v.observacoes = [];

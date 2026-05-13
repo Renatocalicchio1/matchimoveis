@@ -1,219 +1,90 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-
-<title>Visita MatchImoveis</title>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Confirmar Visita — MatchImóveis</title>
 <style>
-
-body{
-  margin:0;
-  padding:0;
-  background:#f5f5f5;
-  font-family:Arial,sans-serif;
-  color:#111;
-}
-
-.wrap{
-  max-width:600px;
-  margin:40px auto;
-  padding:20px;
-}
-
-.card{
-  background:white;
-  border-radius:20px;
-  padding:24px;
-  box-shadow:0 4px 20px rgba(0,0,0,.06);
-}
-
-h1{
-  margin:0 0 20px;
-  font-size:28px;
-}
-
-.info{
-  margin-bottom:14px;
-  font-size:15px;
-  line-height:1.6;
-}
-
-.status{
-  margin-top:20px;
-  padding:14px;
-  border-radius:12px;
-  font-weight:700;
-  font-size:14px;
-}
-
-.btn{
-  display:block;
-  width:100%;
-  border:none;
-  border-radius:12px;
-  padding:14px;
-  margin-top:12px;
-  font-size:14px;
-  font-weight:700;
-  cursor:pointer;
-}
-
-.btn-confirmar{
-  background:#16a34a;
-  color:white;
-}
-
-.btn-recusar{
-  background:#dc2626;
-  color:white;
-}
-
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f5f5;font-family:Arial,sans-serif;color:#111;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:white;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,.08);width:100%;max-width:480px}
+.logo{font-size:13px;font-weight:700;color:#ff385c;margin-bottom:20px;letter-spacing:1px}
+h1{font-size:22px;font-weight:800;margin-bottom:20px;color:#111}
+.secao{background:#f9fafb;border-radius:12px;padding:16px;margin-bottom:16px}
+.label{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:4px}
+.valor{font-size:15px;font-weight:600;color:#111}
+.desc{font-size:13px;color:#666;margin-top:4px;line-height:1.5}
+.status-box{padding:14px;border-radius:12px;font-weight:700;font-size:14px;text-align:center;margin-bottom:16px}
+.btn{display:block;width:100%;border:none;border-radius:12px;padding:15px;margin-top:10px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none}
+.btn-confirmar{background:#16a34a;color:white}
+.btn-recusar{background:#dc2626;color:white}
+.btn-remarcar{background:#f59e0b;color:white}
 </style>
 </head>
-
 <body>
-
-<div class="wrap">
-
 <div class="card">
 
-<h1>Visita ao imóvel</h1>
+  <div class="logo">MATCHIMOVEIS</div>
+  <h1>Confirmar visita</h1>
 
-<div class="info">
-<strong>Cliente:</strong>
-<%= visita.nome || 'Cliente' %>
-</div>
+  <%
+  var imovelTit = visita.imovelTitulo || visita.titulo_interesse || 'Imóvel';
+  var imovelBairro = visita.imovelBairro || visita.bairro || '';
+  var imovelDesc = visita.imovelDescricao || '';
+  var dataRaw = visita.dataVisita || visita.dataPreferida || '';
+  var dataFmt = '-';
+  if(dataRaw && dataRaw.indexOf('-') > -1 && dataRaw.length === 10){
+    var p = dataRaw.split('-');
+    dataFmt = p[2]+'/'+p[1]+'/'+p[0];
+  } else if(dataRaw){ dataFmt = dataRaw; }
+  var hora = visita.horaVisita || visita.horarioPreferido || '-';
+  var nome = visita.nome || visita.clienteNome || 'Cliente';
+  var stc = visita.confirmacaoClienteStatus || '';
+  %>
 
-<div class="info">
-<strong>Imóvel:</strong>
-<%= visita.imovelTitulo || visita.imovelBairro || 'Imóvel' %>
-</div>
+  <!-- dados do cliente -->
+  <div class="secao">
+    <div class="label">Cliente</div>
+    <div class="valor"><%= nome %></div>
+  </div>
 
-<div class="info">
-<strong>Data:</strong>
-<%= visita.dataVisita || '--' %>
-</div>
+  <!-- dados do imóvel -->
+  <div class="secao">
+    <div class="label">Imóvel</div>
+    <div class="valor"><%= imovelTit %><%= imovelBairro ? ' — '+imovelBairro : '' %></div>
+    <% if(imovelDesc){ %>
+      <div class="desc"><%= imovelDesc.substring(0,120) %>...</div>
+    <% } %>
+  </div>
 
-<div class="info">
-<strong>Hora:</strong>
-<%= visita.horaVisita || '--' %>
-</div>
+  <!-- data e hora -->
+  <div class="secao" style="display:flex;gap:20px">
+    <div style="flex:1">
+      <div class="label">Data</div>
+      <div class="valor"><%= dataFmt %></div>
+    </div>
+    <div style="flex:1">
+      <div class="label">Horário</div>
+      <div class="valor"><%= hora %></div>
+    </div>
+  </div>
 
-<%
-const tel =
-String(
-visita.telefone ||
-visita.contato ||
-''
-).replace(/\D/g,'');
-%>
-
-<% if (tel) { %>
-
-<a
-href="https://wa.me/55<%= tel %>"
-target="_blank"
-style="
-display:block;
-text-align:center;
-background:#25D366;
-color:white;
-padding:14px;
-border-radius:12px;
-font-weight:700;
-text-decoration:none;
-margin-top:14px;
-margin-bottom:14px;
-">
-Falar no WhatsApp
-</a>
-
-<% } %>
-
-<%
-const tel =
-String(
-visita.telefone ||
-visita.contato ||
-''
-).replace(/\D/g,'');
-%>
-
-<% if (tel) { %>
-
-<a
-href="https://wa.me/55<%= tel %>"
-target="_blank"
-style="
-display:block;
-text-align:center;
-background:#25D366;
-color:white;
-padding:14px;
-border-radius:12px;
-font-weight:700;
-text-decoration:none;
-margin-top:14px;
-margin-bottom:14px;
-">
-Falar no WhatsApp
-</a>
-
-<% } %>
-
-<% if (visita.confirmacaoClienteStatus === 'CONFIRMADO') { %>
-
-<div class="status" style="background:#ecfdf5;color:#166534;border:1px solid #bbf7d0">
-✅ Presença confirmada
-</div>
-
-<% } else if (visita.confirmacaoClienteStatus === 'RECUSADO') { %>
-
-<div class="status" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca">
-❌ Presença recusada
-</div>
-
-<% } else { %>
-
-<div class="status" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">
-⏳ Aguardando sua confirmação
-</div>
-
-<form method="POST" action="/cliente/visita/<%= visita.id %>/confirmar">
-<button class="btn btn-confirmar">
-Confirmar presença
-</button>
-</form>
-
-<form method="POST" action="/cliente/visita/<%= visita.id %>/recusar">
-<button class="btn btn-recusar">
-Não poderei comparecer
-</button>
-</form>
-
-<a
-href="/cliente/visita/<%= visita.id %>/remarcar"
-style="
-display:block;
-text-align:center;
-background:#f59e0b;
-color:white;
-padding:14px;
-border-radius:12px;
-margin-top:12px;
-font-weight:700;
-text-decoration:none;
-">
-Solicitar nova data
-</a>
-
-<% } %>
+  <!-- status e ações -->
+  <% if(stc === 'CONFIRMADO'){ %>
+    <div class="status-box" style="background:#ecfdf5;color:#166534;border:1px solid #bbf7d0">✅ Presença confirmada!</div>
+  <% } else if(stc === 'RECUSADO'){ %>
+    <div class="status-box" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca">❌ Presença recusada</div>
+  <% } else { %>
+    <div class="status-box" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">⏳ Aguardando sua confirmação</div>
+    <form method="POST" action="/cliente/visita/<%= visita.id %>/confirmar">
+      <button class="btn btn-confirmar">✅ Confirmar presença</button>
+    </form>
+    <form method="POST" action="/cliente/visita/<%= visita.id %>/recusar">
+      <button class="btn btn-recusar">❌ Não poderei comparecer</button>
+    </form>
+    <a href="/cliente/visita/<%= visita.id %>/remarcar" class="btn btn-remarcar" style="margin-top:10px;display:block;text-align:center">📅 Solicitar nova data</a>
+  <% } %>
 
 </div>
-
-</div>
-
 </body>
 </html>

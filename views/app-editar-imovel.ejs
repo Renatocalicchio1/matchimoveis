@@ -31,6 +31,10 @@
       <div><label>Bairro</label><input name="bairro" value="<%= imovel.bairro || '' %>"></div>
       <div><label>Cidade</label><input name="cidade" value="<%= imovel.cidade || '' %>"></div>
       <div><label>Estado</label><input name="estado" value="<%= imovel.estado && imovel.estado['#text'] ? imovel.estado['#text'] : (imovel.estado || '') %>"></div>
+      <div><label>Endereço</label><input name="endereco" value="<%= imovel.endereco || '' %>"></div>
+      <div><label>Número</label><input name="numero" value="<%= imovel.numero || '' %>"></div>
+      <div><label>Complemento</label><input name="complemento" value="<%= imovel.complemento || '' %>"></div>
+      <div><label>CEP</label><input name="cep" value="<%= imovel.cep || '' %>"></div>
       <div><label>Valor do imóvel</label><input name="valor_imovel" type="number" value="<%= imovel.valor_imovel || '' %>"></div>
       <div><label>Área (m²)</label><input name="area_m2" type="number" value="<%= imovel.area_m2 || '' %>"></div>
       <div><label>Quartos</label><input name="quartos" type="number" value="<%= imovel.quartos || '' %>"></div>

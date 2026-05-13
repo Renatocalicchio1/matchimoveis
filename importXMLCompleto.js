@@ -84,6 +84,8 @@ function parseListing(l) {
       cidade: extractText(location.City),
       estado: extractText(location.State),
       endereco: extractText(location.Address),
+      numero: extractText(location.StreetNumber),
+      complemento: extractText(location.Complement),
       cep: extractText(location.PostalCode),
       latitude: Number(location.Latitude) || null,
       longitude: Number(location.Longitude) || null,

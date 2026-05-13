@@ -2925,12 +2925,13 @@ app.get('/app/portais', auth, (req,res)=>{
     let total = 0;
     let existe = false;
     let geradoEm = null;
-    if(fs.existsSync(filename)){
+    const filepath = dataPath(filename);
+    if(fs.existsSync(filepath)){
       existe = true;
-      const stat = fs.statSync(filename);
-      geradoEm = stat.mtime;
-      const conteudo = fs.readFileSync(filename,'utf8');
-      total = (conteudo.match(/<listing>/g)||[]).length;
+      const stat = fs.statSync(filepath);
+      geradoEm = new Date(stat.mtime).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'});
+      const conteudo = fs.readFileSync(filepath,'utf8');
+      total = (conteudo.match(/<[Ll]isting>/g)||[]).length;
     }
     return { portal, filename, url: '/'+filename, existe, total, geradoEm };
   });

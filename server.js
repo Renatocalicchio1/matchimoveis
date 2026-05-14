@@ -2120,11 +2120,16 @@ app.post('/webhook/whatsapp', async (req, res) => {
             // Aguarda 2 segundos antes de responder (mais natural)
             await new Promise(r => setTimeout(r, 2000));
 
-            await fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
+            // Formata número corretamente
+            const numLimpo = telefone.replace(/\D/g,'');
+            const numFormatado = numLimpo.startsWith('55') ? numLimpo : '55' + numLimpo;
+            const respEnvio = await fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
-              body: JSON.stringify({ number: '55' + telefone, text: resposta })
+              body: JSON.stringify({ number: numFormatado, text: resposta })
             });
+            const respData = await respEnvio.json();
+            console.log('[RESPOSTA AUTO] status:', respEnvio.status, '| resposta:', JSON.stringify(respData).substring(0,200));
 
             console.log('[RESPOSTA AUTO] enviada para:', telefone);
 

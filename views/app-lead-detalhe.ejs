@@ -470,4 +470,52 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 <% } %>
 
+
+<!-- CAMPO ENVIO WHATSAPP -->
+<% if (lead.mensagens && lead.mensagens.length) { %>
+<div style="max-width:700px;margin:24px auto;background:var(--card);border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <span style="font-size:20px">📲</span>
+    <h3 style="margin:0;font-size:15px;font-weight:700">Responder via WhatsApp</h3>
+  </div>
+  <div style="display:flex;gap:10px">
+    <textarea id="wa-texto" placeholder="Digite sua mensagem..." style="flex:1;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:14px;resize:none;height:80px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#25D366'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+    <button onclick="enviarWA('<%= lead.id %>')" style="padding:0 20px;background:#25D366;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap">📤 Enviar</button>
+  </div>
+  <div id="wa-status" style="margin-top:8px;font-size:12px;color:#6b7280"></div>
+</div>
+<% } %>
+
+<script>
+async function enviarWA(leadId) {
+  const texto = document.getElementById('wa-texto').value.trim();
+  const status = document.getElementById('wa-status');
+  if (!texto) { status.textContent = '⚠️ Digite uma mensagem'; status.style.color='#ef4444'; return; }
+  
+  status.textContent = '⏳ Enviando...';
+  status.style.color = '#6b7280';
+  
+  try {
+    const r = await fetch(`/app/lead/${leadId}/whatsapp/enviar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      status.textContent = '✅ Mensagem enviada!';
+      status.style.color = '#16a34a';
+      document.getElementById('wa-texto').value = '';
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      status.textContent = '❌ Erro: ' + (d.erro || 'falha');
+      status.style.color = '#ef4444';
+    }
+  } catch(e) {
+    status.textContent = '❌ Erro de conexão';
+    status.style.color = '#ef4444';
+  }
+}
+</script>
+
 <%- include('partials/app-end') %>

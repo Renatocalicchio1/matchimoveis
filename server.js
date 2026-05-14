@@ -1801,6 +1801,62 @@ app.get('/app/whatsapp', auth, (req, res) => {
   res.render('app-whatsapp-inbox', { user, leads: leadsFiltrados, active: 'whatsapp', baseUrl: process.env.BASE_URL || 'http://localhost:3000' });
 });
 
+
+// ENVIAR MENSAGEM WHATSAPP pelo corretor
+app.post('/app/lead/:id/whatsapp/enviar', auth, async (req, res) => {
+  try {
+    const { texto } = req.body;
+    if (!texto) return res.status(400).json({ erro: 'texto obrigatorio' });
+
+    const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
+    const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrado' });
+
+    const lead = leads[idx];
+    const telefone = (lead.contato || lead.telefone || '').replace(/\D/g, '');
+    if (!telefone) return res.status(400).json({ erro: 'lead sem telefone' });
+
+    // Enviar via Evolution API
+    const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+    const INSTANCE = process.env.EVOLUTION_INSTANCE || 'match-corretor';
+
+    const resp = await fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
+      body: JSON.stringify({ number: '55' + telefone, text: texto })
+    });
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      console.error('[ENVIAR WA] erro:', data);
+      return res.status(500).json({ erro: 'falha ao enviar', detalhe: data });
+    }
+
+    // Salvar mensagem enviada no lead
+    if (!leads[idx].mensagens) leads[idx].mensagens = [];
+    leads[idx].mensagens.push({
+      id: Date.now().toString(),
+      origem: 'whatsapp',
+      de: 'corretor',
+      telefone,
+      texto,
+      timestamp: new Date().toISOString(),
+      lida: true
+    });
+    leads[idx].ultimaMensagem = texto;
+    leads[idx].ultimaMensagemEm = new Date().toISOString();
+    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+
+    console.log('[ENVIAR WA] mensagem enviada para:', telefone);
+    return res.json({ ok: true, telefone, texto });
+
+  } catch(e) {
+    console.error('[ENVIAR WA] erro:', e.message);
+    return res.status(500).json({ erro: e.message });
+  }
+});
+
 // ============================================================
 // WEBHOOK WHATSAPP — Evolution API
 // ============================================================

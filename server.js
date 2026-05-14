@@ -2096,6 +2096,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
     // Resposta automática IA — background
     if (leadEncontrado) {
+      setImmediate(async () => {
       console.log('[RESPOSTA AUTO] iniciando para:', telefone);
       try {
         const { gerarResposta } = require('./cerebro/resposta-auto');
@@ -2163,6 +2164,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       } catch(e) {
         console.error('[RESPOSTA AUTO] erro COMPLETO:', e.message, e.stack);
       }
+      }); // fim setImmediate
     }
 
     // Match automático se perfil suficiente

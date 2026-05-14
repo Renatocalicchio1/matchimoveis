@@ -2452,6 +2452,14 @@ app.get('/app/lead/:id', auth, (req, res) => {
     data: new Date().toISOString()
   });
 
+  // Marcar mensagens WhatsApp como lidas
+  if (lead.mensagens && lead.mensagens.length) {
+    lead.mensagens = lead.mensagens.map(m => ({
+      ...m,
+      lida: m.de === 'cliente' ? true : m.lida
+    }));
+  }
+
   fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
 
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];

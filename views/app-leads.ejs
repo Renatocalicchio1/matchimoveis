@@ -190,6 +190,7 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
          ">
         ⬆️ Importar leads
       </a>
+      <button id="btn-match-base" onclick="rodarMatchBase()" style="background:#111;color:#fff;border:none;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">🎯 Match Base Interna</button>
 
     </div>
 
@@ -449,6 +450,24 @@ function abrirModalImportarLeads(){
 function fecharModalImportarLeads(){
   const m = document.getElementById('modal-importar-leads');
   if(m) m.style.display = 'none';
+}
+
+function rodarMatchBase(){
+  const btn = document.getElementById('btn-match-base');
+  btn.disabled = true;
+  btn.textContent = '⏳ Rodando match...';
+  fetch('/admin/rodar-match/<%= userId %>')
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.ok){
+        btn.textContent = '✅ '+d.comMatch+' matches';
+        setTimeout(()=>location.reload(),1500);
+      } else {
+        btn.textContent = '❌ '+d.error;
+        btn.disabled = false;
+      }
+    })
+    .catch(()=>{ btn.textContent='❌ Erro'; btn.disabled=false; });
 }
 </script>
 

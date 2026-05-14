@@ -1851,6 +1851,61 @@ app.get('/admin/limpar-conta/:userId', (req, res) => {
   res.json({ ok: true, userId, resultado });
 });
 
+
+// ZERAR LEADS + MENSAGENS WA + NOTIFICACOES DE UMA CONTA
+app.get('/admin/zerar-conta-completo/:userId', (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const userId = req.params.userId;
+  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
+  const resultado = {};
+
+  for (const base2 of bases) {
+    resultado[base2] = {};
+
+    // Zerar leads da conta
+    const leadsPath = path2.join(base2, 'data.json');
+    if (fs2.existsSync(leadsPath)) {
+      try {
+        let leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
+        const antes = leads.length;
+        leads = leads.filter(l => (l.codigoUsuario || l.userId || '') !== userId);
+        // Limpar mensagens WhatsApp de todos os leads
+        leads = leads.map(l => { delete l.mensagens; delete l.perfilIA; delete l.matchesAuto; delete l.ultimaMensagem; delete l.ultimaMensagemEm; return l; });
+        fs2.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+        resultado[base2].leads_deletados = antes - leads.length;
+        resultado[base2].leads_restantes = leads.length;
+      } catch(e) { resultado[base2].leads_erro = e.message; }
+    }
+
+    // Zerar notificacoes da conta
+    const notifPath = path2.join(base2, 'notificacoes.json');
+    if (fs2.existsSync(notifPath)) {
+      try {
+        let notif = JSON.parse(fs2.readFileSync(notifPath, 'utf8'));
+        const antes = notif.length;
+        notif = notif.filter(n => (n.codigoUsuario || n.userId || '') !== userId);
+        fs2.writeFileSync(notifPath, JSON.stringify(notif, null, 2));
+        resultado[base2].notificacoes_deletadas = antes - notif.length;
+      } catch(e) { resultado[base2].notif_erro = e.message; }
+    }
+
+    // Zerar visitas da conta
+    const visitasPath = path2.join(base2, 'visitas.json');
+    if (fs2.existsSync(visitasPath)) {
+      try {
+        let visitas = JSON.parse(fs2.readFileSync(visitasPath, 'utf8'));
+        const antes = visitas.length;
+        visitas = visitas.filter(v => (v.codigoUsuario || v.userId || '') !== userId);
+        fs2.writeFileSync(visitasPath, JSON.stringify(visitas, null, 2));
+        resultado[base2].visitas_deletadas = antes - visitas.length;
+      } catch(e) { resultado[base2].visitas_erro = e.message; }
+    }
+  }
+
+  res.json({ ok: true, userId, resultado });
+});
+
 // INBOX WHATSAPP
 app.get('/app/whatsapp', auth, (req, res) => {
   const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));

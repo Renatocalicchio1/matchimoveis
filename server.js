@@ -2132,6 +2132,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
             // Formata número corretamente
             const numLimpo = _telefone.replace(/\D/g,'');
             const numFormatado = numLimpo.startsWith('55') ? numLimpo : '55' + numLimpo;
+            console.log('[RESPOSTA AUTO] chamando Evolution API:', EVOLUTION_URL, '| numero:', numFormatado);
             const respEnvio = await fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
@@ -2139,6 +2140,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
             });
             const respData = await respEnvio.json();
             console.log('[RESPOSTA AUTO] status:', respEnvio.status, '| resposta:', JSON.stringify(respData).substring(0,200));
+            console.log('[RESPOSTA AUTO] numero enviado:', numFormatado);
 
             console.log('[RESPOSTA AUTO] enviada para:', _telefone);
 

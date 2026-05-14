@@ -1978,6 +1978,7 @@ app.post('/app/lead/:id/whatsapp/enviar', auth, async (req, res) => {
 app.post('/webhook/whatsapp', async (req, res) => {
   try {
     const body = req.body;
+    console.log('[WEBHOOK WA] body completo:', JSON.stringify(body).substring(0, 500));
     const event = body.event;
     const instance = body.instance;
     const data = body.data;

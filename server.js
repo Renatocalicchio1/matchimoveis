@@ -3643,6 +3643,18 @@ app.post('/app/assistente/acao-direta', auth, express.json(), (req, res) => {
   }
 });
 
+
+// Métricas do assistente por conta
+app.get('/admin/metricas-assistente/:userId', (req, res) => {
+  try {
+    const metricas = require('./cerebro/metricas');
+    const naoEntendidos = require('./cerebro/aprendizado');
+    const resumo = metricas.resumo(req.params.userId);
+    const top = naoEntendidos.topNaoEntendidos(10);
+    res.json({ ok: true, resumo, topNaoEntendidos: top });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
 // CENTRAL OPERACIONAL CONVERSACIONAL
 // ===============================
 app.post('/api/central-operacional', auth, express.json(), (req, res) => {

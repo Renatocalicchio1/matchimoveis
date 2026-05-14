@@ -44,9 +44,33 @@
       {
         "acao": "visualizou_detalhes_lead",
         "data": "2026-05-14T19:43:27.984Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-14T19:48:48.127Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-14T19:49:09.943Z"
       }
     ],
-    "bestScore": 0
+    "bestScore": 0,
+    "perfilIA": {
+      "intencao": "comprar",
+      "tipo": "apartamento",
+      "quartos": 3,
+      "suites": 1,
+      "vagas": 2,
+      "area": 90,
+      "valorMin": 400000,
+      "valorMax": 600000,
+      "urgencia": "alta",
+      "familia": "criancas",
+      "motivacao": "primeiro_imovel",
+      "sentimento": "empolgado",
+      "faseFunil": "interessado"
+    },
+    "temperatura": "quente"
   },
   {
     "nome": "Bruno",
@@ -696,6 +720,10 @@
       {
         "acao": "visualizou_detalhes_lead",
         "data": "2026-05-14T19:40:11.587Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-14T19:47:45.511Z"
       }
     ],
     "bestScore": 0

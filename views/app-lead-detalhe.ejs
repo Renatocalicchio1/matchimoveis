@@ -380,4 +380,35 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 <% } %>
 
+
+<!-- CARD PERFIL IA -->
+<% if (lead.perfilIA && Object.keys(lead.perfilIA).length) { %>
+<div style="max-width:700px;margin:24px auto;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:16px;padding:24px;border:1.5px solid #86efac;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+    <span style="font-size:22px">🧠</span>
+    <h3 style="margin:0;font-size:16px;font-weight:700;color:#166534">Perfil IA — extraído automaticamente</h3>
+    <% if(lead.temperatura) { %>
+    <span style="margin-left:auto;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:<%= lead.temperatura==='quente'?'#ef4444':lead.temperatura==='morno'?'#f97316':'#94a3b8' %>;color:#fff">
+      <%= lead.temperatura==='quente'?'🔥 Quente':lead.temperatura==='morno'?'🌡️ Morno':'❄️ Frio' %>
+    </span>
+    <% } %>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">
+    <% const p = lead.perfilIA; %>
+    <% if(p.intencao) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Intenção</div><div style="font-weight:700;font-size:14px">🎯 <%= p.intencao %></div></div><% } %>
+    <% if(p.tipo) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Tipo</div><div style="font-weight:700;font-size:14px">🏠 <%= p.tipo %></div></div><% } %>
+    <% if(p.quartos) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Quartos</div><div style="font-weight:700;font-size:14px">🛏️ <%= p.quartos %></div></div><% } %>
+    <% if(p.suites) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Suítes</div><div style="font-weight:700;font-size:14px">🛁 <%= p.suites %></div></div><% } %>
+    <% if(p.vagas) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Vagas</div><div style="font-weight:700;font-size:14px">🚗 <%= p.vagas %></div></div><% } %>
+    <% if(p.area) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Área</div><div style="font-weight:700;font-size:14px">📐 <%= p.area %>m²</div></div><% } %>
+    <% if(p.valorMin||p.valorMax) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Valor</div><div style="font-weight:700;font-size:13px">💰 <%= p.valorMin ? 'R$'+p.valorMin.toLocaleString('pt-BR')+' – ' : 'até ' %><%= p.valorMax ? 'R$'+p.valorMax.toLocaleString('pt-BR') : '' %></div></div><% } %>
+    <% if(p.urgencia) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Urgência</div><div style="font-weight:700;font-size:14px"><%= p.urgencia==='alta'?'⚡ Alta':'🕐 Baixa' %></div></div><% } %>
+    <% if(p.familia) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Família</div><div style="font-weight:700;font-size:14px">👨‍👩‍👧 <%= p.familia %></div></div><% } %>
+    <% if(p.motivacao) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Motivação</div><div style="font-weight:700;font-size:14px">💡 <%= p.motivacao %></div></div><% } %>
+    <% if(p.sentimento) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Sentimento</div><div style="font-weight:700;font-size:14px">😊 <%= p.sentimento %></div></div><% } %>
+    <% if(p.faseFunil) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Funil</div><div style="font-weight:700;font-size:14px">📊 <%= p.faseFunil %></div></div><% } %>
+  </div>
+</div>
+<% } %>
+
 <%- include('partials/app-end') %>

@@ -1822,20 +1822,42 @@ app.post('/webhook/whatsapp', async (req, res) => {
 
     console.log('[WEBHOOK WA] de:', telefone, '| texto:', texto);
 
-    // Registrar mensagem no lead correspondente
-    const dataPath = process.env.DATA_FILE 
-      ? require('path').dirname(process.env.DATA_FILE) 
-      : require('path').join(__dirname, 'data');
+    // Extrair perfil IA da mensagem
+    let perfilExtraido = {};
+    try {
+      const { extrairPerfil } = require('./cerebro/extrator-perfil');
+      const msgsFake = [{ de: 'cliente', texto }];
+      perfilExtraido = extrairPerfil(msgsFake);
+      if (Object.keys(perfilExtraido).length) {
+        console.log('[WEBHOOK WA] perfil extraido:', JSON.stringify(perfilExtraido));
+      }
+    } catch(e) {
+      console.error('[WEBHOOK WA] erro extrator:', e.message);
+    }
 
-    const leadsPath = require('path').join(dataPath, 'data.json');
-    let leads = [];
-    try { leads = JSON.parse(require('fs').readFileSync(leadsPath, 'utf8')); } catch(e) {}
+    // Registrar mensagem no lead — busca em TODOS os data.json de todas as contas
+    const fs2 = require('fs');
+    const path2 = require('path');
+    const baseDir = process.env.DATA_FILE 
+      ? path2.dirname(process.env.DATA_FILE) 
+      : path2.join(__dirname);
 
-    // Encontrar lead pelo telefone
-    const leadIdx = leads.findIndex(l => {
-      const fone = (l.telefone || l.whatsapp || l.phone || '').replace(/\D/g, '');
-      return fone && fone.slice(-8) === telefone.slice(-8);
-    });
+    // Encontrar todos os data.json no projeto
+    const possiveisCaminhos = [];
+    try {
+      // data.json raiz
+      const raiz = path2.join(__dirname, 'data.json');
+      if (fs2.existsSync(raiz)) possiveisCaminhos.push(raiz);
+      // data/ subpasta
+      const sub = path2.join(__dirname, 'data', 'data.json');
+      if (fs2.existsSync(sub)) possiveisCaminhos.push(sub);
+      // /opt/render (Render Disk)
+      const renderBase = '/opt/render/project/src';
+      if (fs2.existsSync(renderBase)) {
+        const renderRaiz = path2.join(renderBase, 'data.json');
+        if (fs2.existsSync(renderRaiz)) possiveisCaminhos.push(renderRaiz);
+      }
+    } catch(e) {}
 
     const novaMsg = {
       id: Date.now().toString(),
@@ -1847,19 +1869,42 @@ app.post('/webhook/whatsapp', async (req, res) => {
       lida: false
     };
 
-    if (leadIdx >= 0) {
-      if (!leads[leadIdx].mensagens) leads[leadIdx].mensagens = [];
-      leads[leadIdx].mensagens.push(novaMsg);
-      leads[leadIdx].ultimaMensagem = texto;
-      leads[leadIdx].ultimaMensagemEm = timestamp;
-      require('fs').writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
-      console.log('[WEBHOOK WA] mensagem salva no lead:', leads[leadIdx].nome || telefone);
-    } else {
-      // Lead não encontrado — logar para análise
+    let leadEncontrado = false;
+    let leadNome = '';
+
+    for (const leadsPath of possiveisCaminhos) {
+      try {
+        let leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
+        const leadIdx = leads.findIndex(l => {
+          const fone = (l.telefone || l.whatsapp || l.contato || l.phone || '').replace(/\D/g, '');
+          return fone && fone.slice(-8) === telefone.slice(-8);
+        });
+        if (leadIdx >= 0) {
+          if (!leads[leadIdx].mensagens) leads[leadIdx].mensagens = [];
+          leads[leadIdx].mensagens.push(novaMsg);
+          leads[leadIdx].ultimaMensagem = texto;
+          leads[leadIdx].ultimaMensagemEm = timestamp;
+          if (Object.keys(perfilExtraido).length) {
+            if (!leads[leadIdx].perfilIA) leads[leadIdx].perfilIA = {};
+            Object.assign(leads[leadIdx].perfilIA, perfilExtraido);
+            leads[leadIdx].temperatura = perfilExtraido.temperatura || leads[leadIdx].temperatura;
+            leads[leadIdx].faseFunil = perfilExtraido.faseFunil || leads[leadIdx].faseFunil;
+          }
+          fs2.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+          leadNome = leads[leadIdx].nome || telefone;
+          leadEncontrado = true;
+          console.log('[WEBHOOK WA] mensagem salva no lead:', leadNome, '| arquivo:', leadsPath);
+        }
+      } catch(e) {
+        console.error('[WEBHOOK WA] erro ao processar', leadsPath, e.message);
+      }
+    }
+
+    if (!leadEncontrado) {
       console.log('[WEBHOOK WA] lead nao encontrado para telefone:', telefone);
     }
 
-    return res.status(200).json({ ok: true, telefone, texto, leadEncontrado: leadIdx >= 0 });
+    return res.status(200).json({ ok: true, telefone, texto, leadEncontrado });
 
   } catch (err) {
     console.error('[WEBHOOK WA] erro:', err.message);

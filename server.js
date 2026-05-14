@@ -2096,8 +2096,11 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
     // Resposta automática IA — background
     if (leadEncontrado) {
+      const _caminhos = [...possiveisCaminhos];
+      const _telefone = telefone;
+      const _texto = texto;
       setImmediate(async () => {
-      console.log('[RESPOSTA AUTO] iniciando para:', telefone);
+      console.log('[RESPOSTA AUTO] iniciando para:', _telefone);
       try {
         const { gerarResposta } = require('./cerebro/resposta-auto');
         const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
@@ -2106,12 +2109,12 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
         // Busca lead atualizado com mensagens e matches
         let leadAtual = null;
-        for (const leadsPath of possiveisCaminhos) {
+        for (const leadsPath of _caminhos) {
           try {
             const leads = JSON.parse(require('fs').readFileSync(leadsPath, 'utf8'));
             const idx = leads.findIndex(l => {
               const fone = (l.telefone || l.whatsapp || l.contato || '').replace(/\D/g,'');
-              return fone && fone.slice(-8) === telefone.slice(-8);
+              return fone && fone.slice(-8) === _telefone.slice(-8);
             });
             if (idx >= 0) { leadAtual = leads[idx]; break; }
           } catch(e) {}
@@ -2119,12 +2122,12 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
         if (leadAtual) {
           const matches = leadAtual.matchesAuto || leadAtual.matches || [];
-          const resposta = gerarResposta(leadAtual, texto, matches);
+          const resposta = gerarResposta(leadAtual, _texto, matches);
 
           if (resposta) {
 
             // Formata número corretamente
-            const numLimpo = telefone.replace(/\D/g,'');
+            const numLimpo = _telefone.replace(/\D/g,'');
             const numFormatado = numLimpo.startsWith('55') ? numLimpo : '55' + numLimpo;
             const respEnvio = await fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
               method: 'POST',
@@ -2134,7 +2137,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
             const respData = await respEnvio.json();
             console.log('[RESPOSTA AUTO] status:', respEnvio.status, '| resposta:', JSON.stringify(respData).substring(0,200));
 
-            console.log('[RESPOSTA AUTO] enviada para:', telefone);
+            console.log('[RESPOSTA AUTO] enviada para:', _telefone);
 
             // Salva resposta automática no lead
             for (const leadsPath of possiveisCaminhos) {

@@ -1791,6 +1791,34 @@ Tente perguntar de outra forma, por exemplo:
 
 
 
+// MIDDLEWARE — injeta mensagensNaoLidas em todas as rotas auth
+app.use((req, res, next) => {
+  if (!req.session || !req.session.user) return next();
+  try {
+    const fs2 = require('fs');
+    const path2 = require('path');
+    const leadsPath = path2.join(__dirname, 'data.json');
+    if (fs2.existsSync(leadsPath)) {
+      const leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
+      const user = req.session.user;
+      let total = 0;
+      leads
+        .filter(l => !l.codigoUsuario || l.codigoUsuario === user.id)
+        .forEach(l => {
+          if (l.mensagens) {
+            total += l.mensagens.filter(m => !m.lida && m.de === 'cliente').length;
+          }
+        });
+      res.locals.mensagensNaoLidas = total;
+    } else {
+      res.locals.mensagensNaoLidas = 0;
+    }
+  } catch(e) {
+    res.locals.mensagensNaoLidas = 0;
+  }
+  next();
+});
+
 // INBOX WHATSAPP
 app.get('/app/whatsapp', auth, (req, res) => {
   const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));

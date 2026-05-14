@@ -114,7 +114,12 @@
     <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis"><span class="menu-ic">🏠</span>Meus Imóveis</a>
     <a class="<%= active==='leads'?'active':'' %>" href="/app/leads"><span class="menu-ic">👥</span>Leads</a>
     <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas"><span class="menu-ic">📅</span>Visitas</a>
-    <a class="<%= active==='whatsapp'?'active':'' %>" href="/app/whatsapp"><span class="menu-ic">💬</span>WhatsApp</a>
+    <a class="<%= active==='whatsapp'?'active':'' %>" href="/app/whatsapp" style="justify-content:space-between">
+      <span><span class="menu-ic">💬</span>WhatsApp</span>
+      <% if (typeof mensagensNaoLidas !== 'undefined' && mensagensNaoLidas > 0) { %>
+        <span style="background:#25D366;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;min-width:18px;text-align:center"><%= mensagensNaoLidas %></span>
+      <% } %>
+    </a>
     <a class="<%= active==='notificacoes'?'active':'' %>" href="/app/notificacoes" style="justify-content:space-between">
       <span style="display:flex;align-items:center;gap:10px"><span class="menu-ic">🔔</span>Notificações</span>
       <% if (typeof notificacoesNaoLidas !== 'undefined' && notificacoesNaoLidas > 0) { %>

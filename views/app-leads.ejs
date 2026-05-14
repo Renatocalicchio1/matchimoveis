@@ -460,14 +460,17 @@ function rodarMatchBase(){
     .then(r=>r.json())
     .then(d=>{
       if(d.ok){
-        btn.textContent = '✅ '+d.comMatch+' matches';
-        setTimeout(()=>location.reload(),1500);
-      } else {
-        btn.textContent = '❌ '+d.error;
+        btn.textContent = '🎯 Match Base Interna';
         btn.disabled = false;
+        alert('✅ Match concluído!\n\n🎯 Com match: '+d.comMatch+'\n😶 Sem match: '+d.semMatch+'\n📋 Total processadas: '+d.total);
+        location.reload();
+      } else {
+        btn.textContent = '❌ Erro';
+        btn.disabled = false;
+        alert('Erro: '+d.error);
       }
     })
-    .catch(()=>{ btn.textContent='❌ Erro'; btn.disabled=false; });
+    .catch(()=>{ btn.textContent='🎯 Match Base Interna'; btn.disabled=false; alert('Erro de conexão'); });
 }
 </script>
 

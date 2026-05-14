@@ -3655,6 +3655,34 @@ app.get('/admin/metricas-assistente/:userId', (req, res) => {
   } catch(e) { res.json({ ok: false, error: e.message }); }
 });
 
+
+// Feedback do assistente — positivo ou negativo
+app.post('/app/assistente/feedback', auth, express.json(), (req, res) => {
+  try {
+    const feedbackLoop = require('./cerebro/feedback-loop');
+    const { mensagem, resposta, tipo, detalhe } = req.body || {};
+    const userId = req.session.user.id;
+    feedbackLoop.registrarFeedback(userId, mensagem, resposta, tipo, detalhe);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
+// Análise de feedback — admin
+app.get('/admin/feedback-assistente', (req, res) => {
+  try {
+    const feedbackLoop = require('./cerebro/feedback-loop');
+    res.json({ ok: true, analise: feedbackLoop.analisarFeedback() });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
+// Notas do usuário — preferências aprendidas
+app.get('/admin/notas-usuario/:userId', auth, (req, res) => {
+  try {
+    const notasUsuario = require('./cerebro/notas-usuario');
+    res.json({ ok: true, notas: notasUsuario.carregarNotas(req.params.userId) });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
 // CENTRAL OPERACIONAL CONVERSACIONAL
 // ===============================
 app.post('/api/central-operacional', auth, express.json(), (req, res) => {

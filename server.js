@@ -1949,8 +1949,12 @@ app.post('/webhook/whatsapp', async (req, res) => {
       // /opt/render (Render Disk)
       const renderBase = '/opt/render/project/src';
       if (fs2.existsSync(renderBase)) {
+        // data.json na raiz
         const renderRaiz = path2.join(renderBase, 'data.json');
         if (fs2.existsSync(renderRaiz)) possiveisCaminhos.push(renderRaiz);
+        // data.json na pasta data/
+        const renderData = path2.join(renderBase, 'data', 'data.json');
+        if (fs2.existsSync(renderData)) possiveisCaminhos.push(renderData);
       }
     } catch(e) {}
 

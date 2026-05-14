@@ -1975,7 +1975,7 @@ app.post('/app/lead/:id/whatsapp/enviar', auth, async (req, res) => {
 // ============================================================
 // WEBHOOK WHATSAPP — Evolution API
 // ============================================================
-app.post('/webhook/whatsapp', async (req, res) => {
+app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
   try {
     const body = req.body;
     console.log('[WEBHOOK WA] body completo:', JSON.stringify(body).substring(0, 500));

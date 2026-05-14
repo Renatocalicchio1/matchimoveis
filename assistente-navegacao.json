@@ -33,11 +33,11 @@
       "paginaAnterior": "dashboard"
     },
     "corretor-47992010889": {
-      "paginaAtual": "leads",
-      "labelAtual": "Leads",
-      "dominioAtual": "leads",
-      "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-14T19:52:34.960Z",
+      "paginaAtual": "dashboard",
+      "labelAtual": "Dashboard",
+      "dominioAtual": "dashboard",
+      "rotaAtual": "/app-home",
+      "atualizadoEm": "2026-05-14T19:59:20.659Z",
       "paginaAnterior": "dashboard"
     },
     "cor_ruj7md4cy2": {
@@ -3907,6 +3907,12 @@
       "para": "leads",
       "userId": "corretor-47992010889",
       "data": "2026-05-14T19:52:34.960Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T19:57:43.750Z"
     }
   ]
 }

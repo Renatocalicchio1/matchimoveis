@@ -1798,7 +1798,7 @@ app.get('/app/whatsapp', auth, (req, res) => {
   const leadsFiltrados = leads.filter(l => 
     !l.codigoUsuario || l.codigoUsuario === user.id
   );
-  res.render('app-whatsapp-inbox', { user, leads: leadsFiltrados });
+  res.render('app-whatsapp-inbox', { user, leads: leadsFiltrados, active: 'whatsapp', baseUrl: process.env.BASE_URL || 'http://localhost:3000' });
 });
 
 // ============================================================

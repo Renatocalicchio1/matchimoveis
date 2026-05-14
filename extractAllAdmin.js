@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { extractProperty } = require('./services/extratorcorreto-ajustado.js');
-const DATA_FILE = './data.json';
+const DATA_FILE = process.argv[3] || './data.json';
 const LOTE = 10;
 const LIMITE = 400;
 
@@ -23,13 +23,12 @@ async function main() {
     '3026759178'
   ]);
 
-  const USER_TESTE = 'corretor-47992010889';
+  const USER_TESTE = process.argv[2] || 'corretor-47992010889';
 
   const pendentes = leads.filter(l => {
     const leadUser = String(l.userId || l.usuarioId || l.corretorId || '');
     const leadId = String(l.id || l.idAnuncio || l.idAnuncioOrigem || '');
     return leadUser === USER_TESTE &&
-      IDS_TESTE.has(leadId) &&
       l.url &&
       l.url.includes('imovelweb') &&
       l.extractionStatus !== 'ok';

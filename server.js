@@ -3326,6 +3326,28 @@ app.get('/app/assistente', auth, (req, res) => {
   res.render('app-assistente', { user: req.session.user, stats });
 });
 
+// Rota admin — top perguntas não entendidas
+app.get('/admin/nao-entendidos', (req, res) => {
+  try {
+    const aprendizado = require('./cerebro/aprendizado');
+    const top = aprendizado.topNaoEntendidos(20);
+    res.json({ ok: true, top });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
+// Rota admin — funil de leads por conta
+app.get('/admin/funil/:userId', (req, res) => {
+  try {
+    const funil = require('./cerebro/funil');
+    const userId = req.params.userId;
+    const data = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
+    const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+    const leads = data.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
+    const resumo = funil.resumoFunil(leads, visitas);
+    res.json({ ok: true, userId, total: leads.length, funil: resumo });
+  } catch(e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
 app.post('/app/assistente/chat', auth, (req, res) => {
   const { mensagem } = req.body;
   if (!mensagem) return res.json({ resposta: 'Digite uma mensagem.' });

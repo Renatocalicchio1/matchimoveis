@@ -130,3 +130,28 @@ function inconsistenciasDetectadas(n=10) {
 }
 
 module.exports = { registrar, registrarResposta, precisaConfirmacao, confirmar, rejeitar, topNaoEntendidas, sugestoesPendentes, inconsistenciasDetectadas };
+
+// ── REGISTRAR PERGUNTAS NÃO ENTENDIDAS ───────────────────────────────────────
+var path2 = require('path');
+var DATA_DIR2 = process.env.RENDER ? '/opt/render/project/src/data' : path2.join(__dirname, '..');
+
+function registrarNaoEntendido(userId, texto) {
+  var arq = path2.join(DATA_DIR2, 'assistente-nao-entendidos.json');
+  var dados = [];
+  try { dados = JSON.parse(fs.readFileSync(arq, 'utf8')); } catch(e) {}
+  dados.push({ userId: userId, texto: texto, at: new Date().toISOString() });
+  if (dados.length > 500) dados = dados.slice(-500);
+  try { fs.writeFileSync(arq, JSON.stringify(dados, null, 2)); } catch(e) {}
+}
+
+function topNaoEntendidos(n) {
+  var arq = path2.join(DATA_DIR2, 'assistente-nao-entendidos.json');
+  var dados = [];
+  try { dados = JSON.parse(fs.readFileSync(arq, 'utf8')); } catch(e) {}
+  var contagem = {};
+  dados.forEach(function(d){ var t = d.texto.toLowerCase().slice(0,50); contagem[t] = (contagem[t]||0)+1; });
+  return Object.entries(contagem).sort(function(a,b){return b[1]-a[1];}).slice(0,n||10);
+}
+
+module.exports.registrarNaoEntendido = registrarNaoEntendido;
+module.exports.topNaoEntendidos = topNaoEntendidos;

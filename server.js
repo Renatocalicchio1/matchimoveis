@@ -2101,6 +2101,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       const _texto = texto;
       setImmediate(async () => {
       console.log('[RESPOSTA AUTO] iniciando para:', _telefone);
+      console.log('[RESPOSTA AUTO] caminhos:', _caminhos);
       try {
         const { gerarResposta } = require('./cerebro/resposta-auto');
         const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';

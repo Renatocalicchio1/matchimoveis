@@ -3611,6 +3611,38 @@ app.get('/app/assistente/abertura', auth, (req, res) => {
   }
 });
 
+
+// Executa ações diretas pelo assistente
+app.post('/app/assistente/acao-direta', auth, express.json(), (req, res) => {
+  try {
+    const { acao, dados } = req.body || {};
+    const userId = req.session.user.id;
+
+    if (acao === 'fazer_match') {
+      const { buscarMatchesBaseInterna } = require('./matchBaseInterna.js');
+      const dataArq = dataPath('data.json');
+      const imovArq = dataPath('imoveis.json');
+      const todasLeads = fs.existsSync(dataArq) ? JSON.parse(fs.readFileSync(dataArq,'utf8')) : [];
+      const todosIm = fs.existsSync(imovArq) ? JSON.parse(fs.readFileSync(imovArq,'utf8')) : [];
+      const minhasLeads = todasLeads.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId && l.extractionStatus === 'ok');
+      let comMatch = 0, semMatch = 0;
+      minhasLeads.forEach(lead => {
+        const matches = buscarMatchesBaseInterna(lead, todosIm);
+        lead.matchesBase = matches; lead.matchCountBase = matches.length;
+        if (matches.length > 0) comMatch++; else semMatch++;
+      });
+      const outras = todasLeads.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') !== userId);
+      const restantes = todasLeads.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId && !minhasLeads.find(x => x.id === l.id));
+      fs.writeFileSync(dataArq, JSON.stringify([...outras,...restantes,...minhasLeads],null,2));
+      return res.json({ ok: true, comMatch, semMatch, total: minhasLeads.length });
+    }
+
+    res.json({ ok: false, erro: 'Ação não reconhecida: ' + acao });
+  } catch(e) {
+    res.status(500).json({ ok: false, erro: e.message });
+  }
+});
+
 // CENTRAL OPERACIONAL CONVERSACIONAL
 // ===============================
 app.post('/api/central-operacional', auth, express.json(), (req, res) => {

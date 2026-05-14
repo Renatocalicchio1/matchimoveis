@@ -333,3 +333,84 @@ function renderVitrineCard(lead, visitas = []) {
   `;
 }
 
+
+// ── VARIAÇÕES EXTRAS DE LINGUAGEM NATURAL DO CORRETOR ────────────────────────
+var VARIACOES_EXTRAS = {
+  // Situações do dia a dia
+  'to travado': 'o que devo fazer hoje',
+  'nao sei por onde comecar': 'o que devo fazer hoje',
+  'me orienta': 'o que devo fazer hoje',
+  'me ajuda a organizar': 'o que devo fazer hoje',
+  'qual minha prioridade': 'o que devo fazer hoje',
+  'o que e mais importante': 'o que devo fazer hoje',
+
+  // Leads
+  'o cara sumiu': 'lead sem contato',
+  'a menina sumiu': 'lead sem contato',
+  'nao da retorno': 'lead sem contato',
+  'nao atende': 'lead sem contato',
+  'some': 'lead sem contato',
+  'ta frio': 'lead fria',
+  'esfriou': 'lead fria',
+  'perdeu o interesse': 'lead fria',
+  'ta quente': 'leads quentes',
+  'ta muito interessado': 'leads quentes',
+  'quer muito': 'leads quentes',
+  'animado': 'leads quentes',
+  'bem animada': 'leads quentes',
+
+  // Imóveis
+  'ta caro': 'buscar imoveis mais baratos',
+  'muito caro': 'buscar imoveis mais baratos',
+  'acima do budget': 'buscar imoveis mais baratos',
+  'fora do orcamento': 'buscar imoveis mais baratos',
+  'nao cabe no bolso': 'buscar imoveis mais baratos',
+  'pequeno demais': 'buscar imoveis maiores',
+  'muito pequeno': 'buscar imoveis maiores',
+  'encalhado': 'imovel sem visita',
+  'nao sai': 'imovel sem visita',
+  'ninguem visita': 'imovel sem visita',
+
+  // Ações
+  'bate o martelo': 'fechar negocio',
+  'vai fechar': 'fechar negocio',
+  'fechando': 'fechar negocio',
+  'assinar': 'fechar negocio',
+  'proposta': 'fazer proposta',
+  'contra proposta': 'fazer proposta',
+  'negocia': 'negociacao',
+  'pechincha': 'negociacao',
+  'desconto': 'negociacao',
+
+  // Resultados
+  'nao gostou': 'cliente nao gostou',
+  'nao curtiu': 'cliente nao gostou',
+  'dispensou': 'cliente nao gostou',
+  'nao rolou': 'cliente nao gostou',
+  'gostou': 'cliente gostou',
+  'curtiu': 'cliente gostou',
+  'adorou': 'cliente gostou',
+  'topou': 'cliente gostou',
+  'quer ver': 'agendar visita',
+  'quer visitar': 'agendar visita',
+  'marcar': 'agendar visita',
+  'agendar': 'agendar visita',
+
+  // Mercado
+  'ta em alta': 'mercado aquecido',
+  'muito procurado': 'bairro mais demandado',
+  'todo mundo quer': 'bairro mais demandado',
+  'ninguem quer': 'bairro sem demanda',
+};
+
+// Aplicar variações extras na normalização
+if (typeof module !== 'undefined' && module.exports && module.exports.normalizarExtra) {
+  var normOrig = module.exports.normalizarExtra;
+  module.exports.normalizarExtra = function(txt) {
+    var t = normOrig(txt);
+    for (var chave in VARIACOES_EXTRAS) {
+      if (t.includes(chave)) return t + ' ' + VARIACOES_EXTRAS[chave];
+    }
+    return t;
+  };
+}

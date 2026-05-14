@@ -1985,6 +1985,13 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
     console.log('[WEBHOOK WA] evento:', event, '| instancia:', instance);
 
+    // Pré-aquece Evolution API em background
+    const _EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const _EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+    fetch(`${_EVOLUTION_URL}/instance/fetchInstances`, {
+      headers: { 'apikey': _EVOLUTION_KEY }
+    }).catch(() => {});
+
     // Só processa mensagens recebidas
     if (event !== 'messages.upsert') {
       return res.status(200).json({ ok: true, ignorado: event });

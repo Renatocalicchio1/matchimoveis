@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: match-evolution-api
+    env: node
+    repo: https://github.com/EvolutionAPI/evolution-api
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: SERVER_URL
+        value: https://match-evolution-api.onrender.com
+      - key: AUTHENTICATION_TYPE
+        value: apikey
+      - key: AUTHENTICATION_API_KEY
+        value: match2025-evolution-key
+      - key: DATABASE_ENABLED
+        value: false
+      - key: STORE_MESSAGES
+        value: true
+      - key: STORE_MESSAGE_UP
+        value: true
+      - key: STORE_CONTACTS
+        value: true
+      - key: STORE_CHATS
+        value: true
+      - key: QRCODE_LIMIT
+        value: 10
+      - key: WEBHOOK_GLOBAL_ENABLED
+        value: true
+      - key: WEBHOOK_GLOBAL_URL
+        value: https://matchimoveis.onrender.com/webhook/whatsapp
+      - key: WEBHOOK_GLOBAL_WEBHOOK_BY_EVENTS
+        value: false

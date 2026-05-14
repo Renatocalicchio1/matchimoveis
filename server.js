@@ -1789,6 +1789,84 @@ Tente perguntar de outra forma, por exemplo:
 });
 
 
+
+// ============================================================
+// WEBHOOK WHATSAPP — Evolution API
+// ============================================================
+app.post('/webhook/whatsapp', async (req, res) => {
+  try {
+    const body = req.body;
+    const event = body.event;
+    const instance = body.instance;
+    const data = body.data;
+
+    console.log('[WEBHOOK WA] evento:', event, '| instancia:', instance);
+
+    // Só processa mensagens recebidas
+    if (event !== 'messages.upsert') {
+      return res.status(200).json({ ok: true, ignorado: event });
+    }
+
+    const msg = data?.message;
+    if (!msg) return res.status(200).json({ ok: true, sem_mensagem: true });
+
+    const fromJid = data.key?.remoteJid || '';
+    const fromMe = data.key?.fromMe || false;
+    const telefone = fromJid.replace('@s.whatsapp.net', '').replace(/\D/g, '');
+    const texto = msg.conversation || msg.extendedTextMessage?.text || msg.buttonsResponseMessage?.selectedDisplayText || '';
+    const timestamp = data.messageTimestamp ? new Date(data.messageTimestamp * 1000).toISOString() : new Date().toISOString();
+
+    // Ignorar mensagens enviadas pelo próprio número
+    if (fromMe) return res.status(200).json({ ok: true, ignorado: 'fromMe' });
+    if (!telefone || !texto) return res.status(200).json({ ok: true, ignorado: 'sem_telefone_ou_texto' });
+
+    console.log('[WEBHOOK WA] de:', telefone, '| texto:', texto);
+
+    // Registrar mensagem no lead correspondente
+    const dataPath = process.env.DATA_FILE 
+      ? require('path').dirname(process.env.DATA_FILE) 
+      : require('path').join(__dirname, 'data');
+
+    const leadsPath = require('path').join(dataPath, 'data.json');
+    let leads = [];
+    try { leads = JSON.parse(require('fs').readFileSync(leadsPath, 'utf8')); } catch(e) {}
+
+    // Encontrar lead pelo telefone
+    const leadIdx = leads.findIndex(l => {
+      const fone = (l.telefone || l.whatsapp || l.phone || '').replace(/\D/g, '');
+      return fone && fone.slice(-8) === telefone.slice(-8);
+    });
+
+    const novaMsg = {
+      id: Date.now().toString(),
+      origem: 'whatsapp',
+      de: 'cliente',
+      telefone,
+      texto,
+      timestamp,
+      lida: false
+    };
+
+    if (leadIdx >= 0) {
+      if (!leads[leadIdx].mensagens) leads[leadIdx].mensagens = [];
+      leads[leadIdx].mensagens.push(novaMsg);
+      leads[leadIdx].ultimaMensagem = texto;
+      leads[leadIdx].ultimaMensagemEm = timestamp;
+      require('fs').writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+      console.log('[WEBHOOK WA] mensagem salva no lead:', leads[leadIdx].nome || telefone);
+    } else {
+      // Lead não encontrado — logar para análise
+      console.log('[WEBHOOK WA] lead nao encontrado para telefone:', telefone);
+    }
+
+    return res.status(200).json({ ok: true, telefone, texto, leadEncontrado: leadIdx >= 0 });
+
+  } catch (err) {
+    console.error('[WEBHOOK WA] erro:', err.message);
+    return res.status(500).json({ erro: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   // Inicia atualizacao automatica do XML a cada 12h

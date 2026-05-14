@@ -33,12 +33,12 @@
       "paginaAnterior": "dashboard"
     },
     "corretor-47992010889": {
-      "paginaAtual": "assistente",
-      "labelAtual": "Assistente",
-      "dominioAtual": "sistema",
-      "rotaAtual": "/app/assistente",
-      "atualizadoEm": "2026-05-14T02:11:31.516Z",
-      "paginaAnterior": "assistente"
+      "paginaAtual": "dashboard",
+      "labelAtual": "Dashboard",
+      "dominioAtual": "dashboard",
+      "rotaAtual": "/app-home",
+      "atualizadoEm": "2026-05-14T17:28:46.602Z",
+      "paginaAnterior": "imoveis"
     },
     "cor_ruj7md4cy2": {
       "paginaAtual": "dashboard",
@@ -3799,6 +3799,30 @@
       "para": "assistente",
       "userId": "corretor-47992010889",
       "data": "2026-05-14T01:51:34.527Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T17:18:33.436Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "cadastro",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T17:19:49.460Z"
+    },
+    {
+      "de": "cadastro",
+      "para": "imoveis",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T17:23:09.494Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T17:28:46.602Z"
     }
   ]
 }

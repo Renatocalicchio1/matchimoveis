@@ -2096,6 +2096,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
     // Resposta automática IA — background
     if (leadEncontrado) {
+      console.log('[RESPOSTA AUTO] iniciando para:', telefone);
       try {
         const { gerarResposta } = require('./cerebro/resposta-auto');
         const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';

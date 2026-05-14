@@ -29,7 +29,24 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "mensagens": [
+      {
+        "id": "1",
+        "de": "cliente",
+        "telefone": "1164080060",
+        "texto": "Olá, quero saber mais sobre os imóveis!",
+        "timestamp": "2026-05-14T19:00:00.000Z",
+        "lida": false
+      }
+    ],
+    "historico": [
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-14T19:43:27.984Z"
+      }
+    ],
+    "bestScore": 0
   },
   {
     "nome": "Bruno",
@@ -674,7 +691,14 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "historico": [
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-14T19:40:11.587Z"
+      }
+    ],
+    "bestScore": 0
   },
   {
     "nome": "Claudia",

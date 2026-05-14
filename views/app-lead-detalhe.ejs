@@ -357,4 +357,27 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 
 
+
+<!-- SEÇÃO WHATSAPP -->
+<% if (lead.mensagens && lead.mensagens.length) { %>
+<div style="max-width:700px;margin:24px auto;background:var(--card);border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+    <span style="font-size:22px">💬</span>
+    <h3 style="margin:0;font-size:16px;font-weight:700">Mensagens WhatsApp (<%= lead.mensagens.length %>)</h3>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto;padding-right:4px">
+    <% lead.mensagens.slice().reverse().forEach(m => { %>
+    <div style="display:flex;flex-direction:column;align-items:<%= m.de==='corretor'?'flex-end':'flex-start' %>">
+      <div style="max-width:80%;background:<%= m.de==='corretor'?'#25D366':'#f0f0f0' %>;color:<%= m.de==='corretor'?'#fff':'#222' %>;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4">
+        <%= m.texto %>
+      </div>
+      <div style="font-size:11px;color:#999;margin-top:3px">
+        <%= m.timestamp ? new Date(m.timestamp).toLocaleString('pt-BR') : '' %>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+</div>
+<% } %>
+
 <%- include('partials/app-end') %>

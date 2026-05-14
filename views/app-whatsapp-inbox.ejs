@@ -1,0 +1,90 @@
+<%- include('partials/app-start') %>
+<style>
+.inbox-header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.inbox-badge{background:#25D366;color:#fff;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700}
+.conv-card{background:var(--card);border-radius:14px;padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;cursor:pointer;border:1.5px solid transparent;transition:all 0.2s;text-decoration:none;color:inherit}
+.conv-card:hover{border-color:var(--brand);box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.conv-card.nao-lida{border-left:4px solid #25D366}
+.conv-avatar{width:46px;height:46px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;flex-shrink:0}
+.conv-nome{font-weight:700;font-size:15px}
+.conv-preview{font-size:13px;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px}
+.conv-meta{margin-left:auto;text-align:right;flex-shrink:0}
+.conv-hora{font-size:11px;color:#9ca3af}
+.conv-temp{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700;margin-top:4px;display:inline-block}
+.temp-quente{background:#fee2e2;color:#ef4444}
+.temp-morno{background:#ffedd5;color:#f97316}
+.temp-frio{background:#f1f5f9;color:#94a3b8}
+.empty-state{text-align:center;padding:60px 20px;color:#9ca3af}
+.filtro-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filtro-btn{padding:6px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s}
+.filtro-btn.ativo{background:var(--brand);color:#fff;border-color:var(--brand)}
+</style>
+
+<div class="inbox-header">
+  <span style="font-size:26px">💬</span>
+  <h2 style="margin:0;font-size:20px;font-weight:800">Inbox WhatsApp</h2>
+  <span class="inbox-badge" id="badge-total">0</span>
+  <button onclick="location.reload()" style="margin-left:auto;padding:8px 16px;background:var(--brand);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700">↻ Atualizar</button>
+</div>
+
+<div class="filtro-bar">
+  <button class="filtro-btn ativo" onclick="filtrar('todos',this)">Todos</button>
+  <button class="filtro-btn" onclick="filtrar('nao_lida',this)">Não lidas</button>
+  <button class="filtro-btn" onclick="filtrar('quente',this)">🔥 Quentes</button>
+  <button class="filtro-btn" onclick="filtrar('morno',this)">🌡️ Mornos</button>
+</div>
+
+<div id="lista-convs">
+  <% 
+    const leadsComMsg = leads.filter(l => l.mensagens && l.mensagens.length > 0)
+      .sort((a,b) => new Date(b.ultimaMensagemEm||0) - new Date(a.ultimaMensagemEm||0));
+  %>
+  <% if (!leadsComMsg.length) { %>
+    <div class="empty-state">
+      <div style="font-size:48px;margin-bottom:12px">📭</div>
+      <div style="font-size:16px;font-weight:700">Nenhuma mensagem ainda</div>
+      <div style="font-size:13px;margin-top:6px">As mensagens WhatsApp dos seus leads aparecerão aqui</div>
+    </div>
+  <% } else { %>
+    <% leadsComMsg.forEach(lead => { 
+      const naoLidas = (lead.mensagens||[]).filter(m => !m.lida && m.de==='cliente').length;
+      const ultimaMsg = lead.mensagens[lead.mensagens.length-1];
+      const temp = lead.temperatura || 'frio';
+      const inicial = (lead.nome||lead.contato||'?')[0].toUpperCase();
+    %>
+    <a href="/app/lead/<%= lead.id %>" class="conv-card <%= naoLidas > 0 ? 'nao-lida' : '' %>" data-temp="<%= temp %>" data-lida="<%= naoLidas > 0 ? 'nao_lida' : 'lida' %>">
+      <div class="conv-avatar"><%= inicial %></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="conv-nome"><%= lead.nome || lead.contato || 'Sem nome' %></div>
+          <% if(naoLidas > 0) { %><span style="background:#25D366;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800"><%= naoLidas %></span><% } %>
+        </div>
+        <div class="conv-preview"><%= ultimaMsg ? ultimaMsg.texto : '' %></div>
+      </div>
+      <div class="conv-meta">
+        <div class="conv-hora"><%= ultimaMsg && ultimaMsg.timestamp ? new Date(ultimaMsg.timestamp).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '' %></div>
+        <span class="conv-temp temp-<%= temp %>"><%= temp==='quente'?'🔥 Quente':temp==='morno'?'🌡️ Morno':'❄️ Frio' %></span>
+      </div>
+    </a>
+    <% }) %>
+  <% } %>
+</div>
+
+<script>
+document.getElementById('badge-total').textContent = document.querySelectorAll('.conv-card').length;
+
+function filtrar(tipo, btn) {
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  document.querySelectorAll('.conv-card').forEach(card => {
+    if (tipo === 'todos') { card.style.display = ''; return; }
+    if (tipo === 'nao_lida') { card.style.display = card.dataset.lida === 'nao_lida' ? '' : 'none'; return; }
+    card.style.display = card.dataset.temp === tipo ? '' : 'none';
+  });
+}
+
+// Auto-refresh a cada 30s
+setTimeout(() => location.reload(), 30000);
+</script>
+
+<%- include('partials/app-end') %>

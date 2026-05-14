@@ -1790,6 +1790,17 @@ Tente perguntar de outra forma, por exemplo:
 
 
 
+
+// INBOX WHATSAPP
+app.get('/app/whatsapp', auth, (req, res) => {
+  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
+  const user = req.session.user;
+  const leadsFiltrados = leads.filter(l => 
+    !l.codigoUsuario || l.codigoUsuario === user.id
+  );
+  res.render('app-whatsapp-inbox', { user, leads: leadsFiltrados });
+});
+
 // ============================================================
 // WEBHOOK WHATSAPP — Evolution API
 // ============================================================

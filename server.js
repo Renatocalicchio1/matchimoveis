@@ -2214,7 +2214,6 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       }
     }
 
-    return res.status(200).json({ ok: true, telefone, texto, leadEncontrado, perfil: perfilExtraido });
 
   } catch (err) {
     console.error('[WEBHOOK WA] erro:', err.message);

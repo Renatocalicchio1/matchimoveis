@@ -2161,7 +2161,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           }
         }
       } catch(e) {
-        console.error('[RESPOSTA AUTO] erro:', e.message);
+        console.error('[RESPOSTA AUTO] erro COMPLETO:', e.message, e.stack);
       }
     }
 

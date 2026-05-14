@@ -1166,6 +1166,7 @@ app.get('/app/leads', auth, (req,res)=>{
   const totalMatches = leads.reduce((sum,item)=> sum + ((item.matches && item.matches.length) || 0), 0);
   res.render('app-leads', {
     user: req.session.user,
+    userId: req.session.user ? req.session.user.id : '',
     active: 'leads',
     leads,
     stats: {

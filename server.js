@@ -1820,6 +1820,37 @@ app.use((req, res, next) => {
 });
 
 
+
+// LIMPAR DADOS DE UMA CONTA — ADMIN
+app.get('/admin/limpar-conta/:userId', (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const userId = req.params.userId;
+  const base = '/opt/render/project/src/data';
+  const baseLocal = __dirname;
+
+  function limparArquivo(filePath, campo) {
+    if (!fs2.existsSync(filePath)) return 0;
+    try {
+      let dados = JSON.parse(fs2.readFileSync(filePath, 'utf8'));
+      const antes = dados.length;
+      dados = dados.filter(d => (d.codigoUsuario || d.userId || d.corretor_id || '') !== userId);
+      fs2.writeFileSync(filePath, JSON.stringify(dados, null, 2));
+      return antes - dados.length;
+    } catch(e) { return -1; }
+  }
+
+  const resultado = {};
+  for (const base2 of [base, baseLocal]) {
+    resultado[base2] = {
+      leads: limparArquivo(path2.join(base2, 'data.json'), 'codigoUsuario'),
+      visitas: limparArquivo(path2.join(base2, 'visitas.json'), 'codigoUsuario'),
+      notificacoes: limparArquivo(path2.join(base2, 'notificacoes.json'), 'codigoUsuario'),
+    };
+  }
+  res.json({ ok: true, userId, resultado });
+});
+
 // INBOX WHATSAPP
 app.get('/app/whatsapp', auth, (req, res) => {
   const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));

@@ -318,8 +318,7 @@ function resumoContexto(userId) {
   const hist = carregarHistorico(userId);
   if (!hist.length) return null;
   const ultimas = hist.slice(-6);
-  return ultimas.map(h => (h.role === 'user' ? 'Corretor: ' : 'Assistente: ') + h.texto.slice(0, 100)).join('
-');
+  return ultimas.map(h => (h.role === 'user' ? 'Corretor: ' : 'Assistente: ') + h.texto.slice(0, 100)).join('\n');
 }
 
 module.exports.historicoConversa = { salvarMensagem, carregarHistorico, ultimaMencao, resumoContexto };

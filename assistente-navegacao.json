@@ -33,12 +33,12 @@
       "paginaAnterior": "dashboard"
     },
     "corretor-47992010889": {
-      "paginaAtual": "imoveis",
-      "labelAtual": "Meus Imoveis",
-      "dominioAtual": "imoveis",
-      "rotaAtual": "/app/imoveis",
-      "atualizadoEm": "2026-05-14T19:48:24.336Z",
-      "paginaAnterior": "leads"
+      "paginaAtual": "leads",
+      "labelAtual": "Leads",
+      "dominioAtual": "leads",
+      "rotaAtual": "/app/leads",
+      "atualizadoEm": "2026-05-14T19:52:34.960Z",
+      "paginaAnterior": "dashboard"
     },
     "cor_ruj7md4cy2": {
       "paginaAtual": "dashboard",
@@ -3871,6 +3871,42 @@
       "para": "imoveis",
       "userId": "corretor-47992010889",
       "data": "2026-05-14T19:48:24.336Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T19:50:53.452Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T19:50:58.665Z"
+    },
+    {
+      "de": "leads",
+      "para": "imoveis",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T19:51:25.638Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T19:51:28.096Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T19:52:32.381Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T19:52:34.960Z"
     }
   ]
 }

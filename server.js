@@ -1904,7 +1904,54 @@ app.post('/webhook/whatsapp', async (req, res) => {
       console.log('[WEBHOOK WA] lead nao encontrado para telefone:', telefone);
     }
 
-    return res.status(200).json({ ok: true, telefone, texto, leadEncontrado });
+    // Match automático se perfil suficiente
+    if (leadEncontrado && Object.keys(perfilExtraido).length >= 2) {
+      try {
+        const fs3 = require('fs');
+        const path3 = require('path');
+        const imoveisPath = path3.join(__dirname, 'imoveis.json');
+        if (fs3.existsSync(imoveisPath)) {
+          const imoveis = JSON.parse(fs3.readFileSync(imoveisPath, 'utf8'));
+          const { buscarMatchesBaseInterna } = require('./matchBaseInterna');
+          // Monta lead fake com perfil extraído para o match
+          const leadFake = {
+            bairro: perfilExtraido.bairro || '',
+            tipo: perfilExtraido.tipo || '',
+            quartos: perfilExtraido.quartos || 0,
+            valorMax: perfilExtraido.valorMax || 0,
+            valorMin: perfilExtraido.valorMin || 0,
+            area: perfilExtraido.area || 0,
+            suites: perfilExtraido.suites || 0,
+            vagas: perfilExtraido.vagas || 0
+          };
+          const matches = buscarMatchesBaseInterna(leadFake, imoveis);
+          if (matches && matches.length) {
+            // Salva matches em todos os data.json onde o lead foi encontrado
+            for (const leadsPath of possiveisCaminhos) {
+              try {
+                let leads = JSON.parse(fs3.readFileSync(leadsPath, 'utf8'));
+                const idx = leads.findIndex(l => {
+                  const fone = (l.telefone || l.whatsapp || l.contato || '').replace(/\D/g,'');
+                  return fone && fone.slice(-8) === telefone.slice(-8);
+                });
+                if (idx >= 0) {
+                  leads[idx].matchesAuto = matches.slice(0,8).map((m,i) => ({
+                    ...m, rank: i+1, score: Number(m.score||m.bestScore||0)
+                  }));
+                  leads[idx].matchAutoEm = new Date().toISOString();
+                  fs3.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+                  console.log('[WEBHOOK WA] match auto:', matches.length, 'imoveis para', telefone);
+                }
+              } catch(e) {}
+            }
+          }
+        }
+      } catch(e) {
+        console.error('[WEBHOOK WA] erro match auto:', e.message);
+      }
+    }
+
+    return res.status(200).json({ ok: true, telefone, texto, leadEncontrado, perfil: perfilExtraido });
 
   } catch (err) {
     console.error('[WEBHOOK WA] erro:', err.message);

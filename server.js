@@ -2121,9 +2121,11 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           } catch(e) {}
         }
 
+        console.log('[RESPOSTA AUTO] leadAtual:', leadAtual ? leadAtual.nome : 'NAO ENCONTRADO');
         if (leadAtual) {
           const matches = leadAtual.matchesAuto || leadAtual.matches || [];
           const resposta = gerarResposta(leadAtual, _texto, matches);
+          console.log('[RESPOSTA AUTO] resposta gerada:', resposta ? resposta.substring(0,50) : 'NULA');
 
           if (resposta) {
 

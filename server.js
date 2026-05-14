@@ -2121,8 +2121,6 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           const resposta = gerarResposta(leadAtual, texto, matches);
 
           if (resposta) {
-            // Aguarda 2 segundos antes de responder (mais natural)
-            await new Promise(r => setTimeout(r, 2000));
 
             // Formata número corretamente
             const numLimpo = telefone.replace(/\D/g,'');

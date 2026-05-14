@@ -2133,20 +2133,16 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
             const numLimpo = _telefone.replace(/\D/g,'');
             const numFormatado = numLimpo.startsWith('55') ? numLimpo : '55' + numLimpo;
             console.log('[RESPOSTA AUTO] chamando Evolution API:', EVOLUTION_URL, '| numero:', numFormatado);
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
-            const respEnvio = await fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
+            fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
-              body: JSON.stringify({ number: numFormatado, text: resposta }),
-              signal: controller.signal
+              body: JSON.stringify({ number: numFormatado, text: resposta })
+            }).then(r => r.json()).then(d => {
+              console.log('[RESPOSTA AUTO] enviada! resultado:', JSON.stringify(d).substring(0,100));
+            }).catch(e => {
+              console.error('[RESPOSTA AUTO] erro envio:', e.message);
             });
-            clearTimeout(timeoutId);
-            const respData = await respEnvio.json();
-            console.log('[RESPOSTA AUTO] status:', respEnvio.status, '| resposta:', JSON.stringify(respData).substring(0,200));
-            console.log('[RESPOSTA AUTO] numero enviado:', numFormatado);
-
-            console.log('[RESPOSTA AUTO] enviada para:', _telefone);
+            console.log('[RESPOSTA AUTO] envio disparado para:', numFormatado);
 
             // Salva resposta automática no lead
             for (const leadsPath of possiveisCaminhos) {

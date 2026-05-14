@@ -2403,7 +2403,12 @@ app.get('/app/lead/:id', auth, (req, res) => {
     matchesInternos = [];
   }
 
-  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos });
+  let sugestoesCopiloto = [];
+  try {
+    const { gerarSugestoes } = require('./cerebro/copiloto');
+    sugestoesCopiloto = gerarSugestoes(lead);
+  } catch(e) { console.error('copiloto erro:', e.message); }
+  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto });
 });
 app.get('/app/imovel/:id', auth, (req, res) => {
   const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'));

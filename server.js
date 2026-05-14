@@ -1820,35 +1820,6 @@ app.use((req, res, next) => {
 });
 
 
-// DIAGNÓSTICO WEBHOOK — TEMPORÁRIO
-app.get('/admin/diag-webhook/:tel', (req, res) => {
-  const fs2 = require('fs');
-  const path2 = require('path');
-  const tel = req.params.tel;
-  const caminhos = [
-    path2.join(__dirname, 'data.json'),
-    path2.join(__dirname, 'data', 'data.json'),
-    '/opt/render/project/src/data.json',
-    '/opt/render/project/src/data/data.json'
-  ];
-  const resultado = {};
-  for (const c of caminhos) {
-    if (fs2.existsSync(c)) {
-      try {
-        const leads = JSON.parse(fs2.readFileSync(c, 'utf8'));
-        const idx = leads.findIndex(l => {
-          const fone = (l.telefone || l.whatsapp || l.contato || '').replace(/\D/g,'');
-          return fone && fone.slice(-8) === tel.slice(-8);
-        });
-        resultado[c] = { total: leads.length, leadIdx: idx, leadId: idx >= 0 ? leads[idx].id : null, temPerfilIA: idx >= 0 ? !!leads[idx].perfilIA : false, temMensagens: idx >= 0 ? (leads[idx].mensagens||[]).length : 0 };
-      } catch(e) { resultado[c] = { erro: e.message }; }
-    } else {
-      resultado[c] = 'NAO EXISTE';
-    }
-  }
-  res.json(resultado);
-});
-
 // INBOX WHATSAPP
 app.get('/app/whatsapp', auth, (req, res) => {
   const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));

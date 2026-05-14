@@ -949,7 +949,7 @@
     },
     {
       "pergunta": "o que devo fazer hoje",
-      "count": 12,
+      "count": 14,
       "respostas": [
         {
           "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando confirmação. Confirmar →🟡 1350 leads sem match — pode estar faltand",
@@ -1010,14 +1010,24 @@
           "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando confirmação. Confirmar →🟡 44 leads sem match — pode estar faltando ",
           "dominio": null,
           "data": "2026-05-09T23:29:33.052Z"
+        },
+        {
+          "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 5 leads sem match — pode estar faltando imóvel no bairro certo. Ver demanda✅ O que fazer:1Envie a vitri",
+          "dominio": null,
+          "data": "2026-05-14T01:52:05.374Z"
+        },
+        {
+          "texto": "🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 5 leads sem match — pode estar faltando imóvel no bairro certo. Ver demanda✅ O que fazer:1Envie a vitri",
+          "dominio": null,
+          "data": "2026-05-14T01:52:23.511Z"
         }
       ],
       "primeira": "2026-05-08T20:50:39.465Z",
-      "ultima": "2026-05-09T23:29:33.052Z"
+      "ultima": "2026-05-14T01:52:23.511Z"
     },
     {
       "pergunta": "resumo geral",
-      "count": 8,
+      "count": 9,
       "respostas": [
         {
           "texto": "📊 Resumo:🏠 846 ativos · 👥 1393 leads · 🎯 43 (3%) · 📅 2 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando c",
@@ -1058,10 +1068,15 @@
           "texto": "📊 Resumo:🏠 50 ativos · 👥 50 leads · 🎯 6 (12%) · 📅 2 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando conf",
           "dominio": "dashboard",
           "data": "2026-05-09T21:42:26.457Z"
+        },
+        {
+          "texto": "📊 Resumo:🏠 291 ativos · 👥 6 leads · 🎯 1 (17%) · 📅 3 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 5 leads sem match — pode estar faltando",
+          "dominio": "dashboard",
+          "data": "2026-05-14T01:52:34.660Z"
         }
       ],
       "primeira": "2026-05-08T20:50:47.673Z",
-      "ultima": "2026-05-09T21:42:26.457Z"
+      "ultima": "2026-05-14T01:52:34.660Z"
     },
     {
       "pergunta": "oi",
@@ -6134,6 +6149,32 @@
       ],
       "primeira": "2026-05-13T04:19:06.785Z",
       "ultima": "2026-05-13T04:19:06.785Z"
+    },
+    {
+      "pergunta": "importar",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "📋 Importar leads — passo a passo:1Exporte a planilha do portal (ImovelWeb, ZAP, VivaReal, OLX).2Acesse Leads → e clique em Importar.3Selecione o arqu",
+          "dominio": null,
+          "data": "2026-05-14T01:53:14.132Z"
+        }
+      ],
+      "primeira": "2026-05-14T01:53:14.132Z",
+      "ultima": "2026-05-14T01:53:14.132Z"
+    },
+    {
+      "pergunta": "que dia ?",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "📅 Visitas:Total: 3 · ✅ Confirmadas: 3 · ⏳ Pendentes: 0📆 Hoje: 0Ver visitas →📆 Hoje⏳ Pendentes❓ Como funcionaLeadsImóveisVisitasMatch",
+          "dominio": null,
+          "data": "2026-05-14T01:53:38.698Z"
+        }
+      ],
+      "primeira": "2026-05-14T01:53:38.698Z",
+      "ultima": "2026-05-14T01:53:38.698Z"
     }
   ]
 }

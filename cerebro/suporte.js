@@ -68,3 +68,26 @@ FAQ.push({chave:/enviar vitrine para cliente|mandar vitrine para cliente|como en
 FAQ.push({chave:/quem nao respondeu|sem resposta|nao me respondeu/, resposta:'📋 Leads sem resposta ficam com status <strong>pendente</strong> na página de leads. Filtre por status para ver quem não respondeu.'});
 FAQ.push({chave:/avisar proprietario da visita|notificar dono|avisar dono imovel/, resposta:'📱 Em <a href="/app/visitas" style="color:#ff385c;font-weight:700">Visitas →</a> clique em <strong>Notificar Proprietário</strong>. Abre o WhatsApp com mensagem automática para confirmação.'});
 module.exports = { responder, FAQ };
+
+// ── FAQ TÉCNICO EXTRA ─────────────────────────────────────────────────────────
+const FAQ_EXTRA = {
+  'portal nao atualiza': 'O portal atualiza o XML automaticamente a cada 24-48h. Se não atualizou, verifique se o link do feed está correto nas configurações do portal.',
+  'xml invalido': 'XML inválido geralmente ocorre por imóveis sem preço, sem foto ou sem tipo preenchido. Corrija os campos obrigatórios e gere novamente.',
+  'lead nao importou': 'Verifique se o CSV tem as colunas obrigatórias: nome, celular, email, url, bairro. Evite linhas em branco no início do arquivo.',
+  'match nao funcionou': 'Para dar match é preciso: bairro igual, tipo igual e quartos compatíveis. Verifique se seus imóveis têm esses campos preenchidos.',
+  'vitrine nao abre': 'Verifique se a lead tem match com pelo menos 1 imóvel ativo. Imóveis inativos não aparecem na vitrine.',
+  'proprietario nao recebe': 'Confirme se o telefone do proprietário está no formato correto (com DDD). O link de confirmação vai por WhatsApp.',
+  'foto nao sobe': 'Formatos aceitos: JPG e PNG. Tamanho máximo recomendado: 5MB por foto. Mínimo recomendado: 3 fotos por imóvel.',
+  'nao consigo entrar': 'Tente limpar o cache do navegador. Se persistir, use a opção Esqueci a senha na tela de login.',
+  'coins nao aparece': 'Os Match Coins são creditados após o match ser processado. Acesse /app/coins para ver o saldo atualizado.',
+};
+
+function responderFAQ(mNorm, btn, chip) {
+  for (const [chave, resposta] of Object.entries(FAQ_EXTRA)) {
+    if (mNorm.includes(chave.replace(/ /g,'').substring(0,10)) || chave.split(' ').every(p => mNorm.includes(p))) {
+      return '🔧 <strong>Suporte técnico:</strong><br><br>' + resposta + '<br><br>' + chip('Mais ajuda','ajuda') + btn('Dashboard','/app-home');
+    }
+  }
+  return null;
+}
+module.exports.responderFAQ = responderFAQ;

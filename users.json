@@ -302,56 +302,6 @@
     "codigoUsuario": "TES-0889",
     "historicoAssistente": [
       {
-        "pergunta": "importar leads",
-        "resposta": "Não encontrei lead com esse termo.",
-        "data": "2026-05-12T19:42:25.106Z"
-      },
-      {
-        "pergunta": "importar xml",
-        "resposta": "📥 <strong>Importar imóveis via XML:</strong><br><br>⚠️ <strong>Padrão obrigatório: VRSync do VivaReal</strong><br>O sistema aceita apenas feeds no padrão VRSync do VivaReal.<br>A maioria dos CRMs já exporta nesse formato: Tecimob, Rankim, Vista, Jetimob, Kenlo.<br><br>💡 Cole a URL do feed aqui no chat ou acesse a página de cadastro:<br><br><div style=\"background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin:8px 0\">📋 Exemplo de URL válida:<br><code>https://seucrm.com.br/feed-vivareal.xml</code></div><br><a href=\"/app/cadastro\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Importar XML →</a><button onclick=\"enviarMsg('como importar xml')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Como importo</button>",
-        "data": "2026-05-12T19:42:30.578Z"
-      },
-      {
-        "pergunta": "lead bruno",
-        "resposta": "🔍 Encontrei 1 lead(s). Vou lembrar do primeiro contexto: Bruno.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0",
-        "data": "2026-05-12T19:43:10.919Z"
-      },
-      {
-        "pergunta": "enviar whatsapp",
-        "resposta": "Não encontrei lead com esse termo.",
-        "data": "2026-05-12T19:43:18.741Z"
-      },
-      {
-        "pergunta": "enviar link whats app para bruno",
-        "resposta": "Não encontrei lead com esse termo.",
-        "data": "2026-05-12T19:43:31.696Z"
-      },
-      {
-        "pergunta": "lead bruno",
-        "resposta": "🔍 Encontrei 1 lead(s). Vou lembrar do primeiro contexto: Bruno.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0",
-        "data": "2026-05-12T19:44:19.529Z"
-      },
-      {
-        "pergunta": "manda WhatsApp pra ele",
-        "resposta": "📲 Preparei a mensagem para Bruno.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0\n\n📲 WhatsApp preparado.\nhttps://wa.me/61998609484?text=Ol%C3%A1%20Bruno%2C%20tudo%20bem%3F%20Vi%20seu%20interesse%20sobre%20im%C3%B3vel%20em%20Vila%20Ol%C3%ADmpia.%20Encontrei%203%20op%C3%A7%C3%A3o(%C3%B5es)%20parecida(s).%20Posso%20te%20enviar%20algumas%20op%C3%A7%C3%B5es%20e%20verificar%20um%20melhor%20hor%C3%A1rio%20para%20conversar%3F",
-        "data": "2026-05-12T19:44:26.418Z"
-      },
-      {
-        "pergunta": "qual o bairro dele",
-        "resposta": "🔍 Encontrei 1 lead(s). Vou lembrar do primeiro contexto: Bruno.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0",
-        "data": "2026-05-12T19:44:41.309Z"
-      },
-      {
-        "pergunta": "mostrar leads quentes",
-        "resposta": "🔥 Encontrei 1 lead(s) quente(s) para priorizar.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0",
-        "data": "2026-05-12T19:44:52.176Z"
-      },
-      {
-        "pergunta": "mostrar leads sem match",
-        "resposta": "🏠 Encontrei leads com matches disponíveis.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0",
-        "data": "2026-05-12T19:44:59.418Z"
-      },
-      {
         "pergunta": "quais clientes estão quentes",
         "resposta": "🔥 Encontrei 1 lead(s) quente(s) para priorizar.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0",
         "data": "2026-05-12T19:45:09.514Z"
@@ -550,6 +500,56 @@
         "pergunta": "notificacoes",
         "resposta": "🔔 Encontrei 3 notificação(ões) pendente(s).\n\n• Visita confirmada pelo proprietario\n• Visita confirmada pelo proprietario\n• Visita confirmada pelo proprietario",
         "data": "2026-05-13T04:19:40.271Z"
+      },
+      {
+        "pergunta": "o que devo fazer hoje",
+        "resposta": "🧠 <strong>Plano de ação para hoje:</strong><br><br><strong>⚠️ Atenção agora:</strong><br>🟡 <strong>5 leads sem match</strong> — pode estar faltando imóvel no bairro certo. <button onclick=\"enviarMsg('demanda por bairro')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver demanda</button><br><br><strong>✅ O que fazer:</strong><br><div style=\"display:flex;gap:10px;margin:6px 0;align-items:flex-start\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">1</span><span>Envie a vitrine para as <strong>1 leads com match</strong> que ainda não visitaram. <a href=\"/app/leads?filtro=com_match\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a></span></div><br><strong>💡 Oportunidades:</strong><br>📉 Taxa de match em <strong>17%</strong> — importe mais imóveis ou revise os bairros. <button onclick=\"enviarMsg('importar xml')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Importar XML</button><br>",
+        "data": "2026-05-14T01:52:05.384Z"
+      },
+      {
+        "pergunta": "o que devo fazer hoje",
+        "resposta": "🧠 <strong>Plano de ação para hoje:</strong><br><br><strong>⚠️ Atenção agora:</strong><br>🟡 <strong>5 leads sem match</strong> — pode estar faltando imóvel no bairro certo. <button onclick=\"enviarMsg('demanda por bairro')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver demanda</button><br><br><strong>✅ O que fazer:</strong><br><div style=\"display:flex;gap:10px;margin:6px 0;align-items:flex-start\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">1</span><span>Envie a vitrine para as <strong>1 leads com match</strong> que ainda não visitaram. <a href=\"/app/leads?filtro=com_match\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a></span></div><br><strong>💡 Oportunidades:</strong><br>📉 Taxa de match em <strong>17%</strong> — importe mais imóveis ou revise os bairros. <button onclick=\"enviarMsg('importar xml')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Importar XML</button><br>",
+        "data": "2026-05-14T01:52:23.519Z"
+      },
+      {
+        "pergunta": "resumo geral",
+        "resposta": "📊 <strong>Resumo:</strong><br>🏠 291 ativos · 👥 6 leads · 🎯 1 (17%) · 📅 3 visitas<br><br>🧠 <strong>Plano de ação para hoje:</strong><br><br><strong>⚠️ Atenção agora:</strong><br>🟡 <strong>5 leads sem match</strong> — pode estar faltando imóvel no bairro certo. <button onclick=\"enviarMsg('demanda por bairro')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Ver demanda</button><br><br><strong>✅ O que fazer:</strong><br><div style=\"display:flex;gap:10px;margin:6px 0;align-items:flex-start\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">1</span><span>Envie a vitrine para as <strong>1 leads com match</strong> que ainda não visitaram. <a href=\"/app/leads?filtro=com_match\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver leads →</a></span></div><br><strong>💡 Oportunidades:</strong><br>📉 Taxa de match em <strong>17%</strong> — importe mais imóveis ou revise os bairros. <button onclick=\"enviarMsg('importar xml')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Importar XML</button><br><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('resumo geral')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Resumo</button><button onclick=\"enviarMsg('o que devo fazer hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">O que fazer hoje</button></div>",
+        "data": "2026-05-14T01:52:34.669Z"
+      },
+      {
+        "pergunta": "leads com match",
+        "resposta": "🏠 Encontrei leads com matches disponíveis.\n\n• Bruno — Vila Olímpia | Matches: 3 | Score: 0",
+        "data": "2026-05-14T01:52:47.885Z"
+      },
+      {
+        "pergunta": "importar leads",
+        "resposta": "Não encontrei lead com esse termo.",
+        "data": "2026-05-14T01:53:09.263Z"
+      },
+      {
+        "pergunta": "importar",
+        "resposta": "📋 <strong>Importar leads — passo a passo:</strong><br><br><div style=\"display:flex;gap:10px;margin:6px 0\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">1</span><span>Exporte a planilha do portal (ImovelWeb, ZAP, VivaReal, OLX).</span></div><div style=\"display:flex;gap:10px;margin:6px 0\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">2</span><span>Acesse <a href=\"/app/leads\" style=\"color:#ff385c;font-weight:700\">Leads →</a> e clique em <strong>Importar</strong>.</span></div><div style=\"display:flex;gap:10px;margin:6px 0\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">3</span><span>Selecione o arquivo <strong>CSV ou Excel</strong>.</span></div><div style=\"display:flex;gap:10px;margin:6px 0\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">4</span><span>O sistema extrai bairro, tipo, quartos e valor automaticamente.</span></div><br><a href=\"/app-importar-leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Importar leads →</a><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Leads</button><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Imóveis</button><button onclick=\"enviarMsg('visitas hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Visitas</button><button onclick=\"enviarMsg('ver match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Match</button></div>",
+        "data": "2026-05-14T01:53:14.140Z"
+      },
+      {
+        "pergunta": "que importr minha lead",
+        "resposta": "Não encontrei lead com esse termo.",
+        "data": "2026-05-14T01:53:28.639Z"
+      },
+      {
+        "pergunta": "visitas hoje",
+        "resposta": "📅 Encontrei 3 visita(s)/agendamento(s).\n\n• renato\n• renato\n• renato",
+        "data": "2026-05-14T01:53:32.215Z"
+      },
+      {
+        "pergunta": "que dia ?",
+        "resposta": "📅 <strong>Visitas:</strong><br>Total: <strong>3</strong> · ✅ Confirmadas: 3 · ⏳ Pendentes: 0<br>📆 Hoje: <strong>0</strong><br><br><a href=\"/app/visitas\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Ver visitas →</a><br><button onclick=\"enviarMsg('visitas hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">📆 Hoje</button><button onclick=\"enviarMsg('visitas pendentes')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">⏳ Pendentes</button><button onclick=\"enviarMsg('como funciona a visita')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">❓ Como funciona</button><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('minhas leads')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Leads</button><button onclick=\"enviarMsg('meus imoveis')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Imóveis</button><button onclick=\"enviarMsg('visitas hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Visitas</button><button onclick=\"enviarMsg('ver match')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Match</button></div>",
+        "data": "2026-05-14T01:53:38.705Z"
+      },
+      {
+        "pergunta": "tem alguma visita pendente ?",
+        "resposta": "📅 Encontrei 3 visita(s)/agendamento(s).\n\n• renato\n• renato\n• renato",
+        "data": "2026-05-14T01:53:50.751Z"
       }
     ],
     "xmlUrl": "https://rbfirmino.com.br/exportar/rankim?purpose=sale",

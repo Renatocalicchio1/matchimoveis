@@ -150,3 +150,25 @@ function detectarDominio(mNorm) {
 }
 
 module.exports = { tokenizar, normalizar, levenshtein, similaridade, detectarDominio, SINONIMOS };
+
+// ── SINÔNIMOS EXTRAS — linguagem natural do corretor ─────────────────────────
+const SINONIMOS_EXTRA = {
+  'meu xml nao atualizou':'problema xml','xml parado':'problema xml','feed parado':'problema xml',
+  'nao ta saindo no portal':'problema xml','nao aparece no zap':'problema xml','nao aparece no vivareal':'problema xml',
+  'cliente sumiu':'lead sem contato','sumiu':'lead sem contato','nao responde':'lead sem contato',
+  'nao retornou':'lead sem contato','cadê':'buscar','cadê o cliente':'buscar lead',
+  'ta quente':'lead quente','muito interessado':'lead quente','quer muito':'lead quente',
+  'nao gostou':'cliente nao gostou','nao curtiu':'cliente nao gostou','nao aprovou':'cliente nao gostou',
+  'topou':'cliente gostou','adorou':'cliente gostou','quer fechar':'cliente gostou',
+  'mandei a vitrine':'enviei vitrine','enviei o link':'enviei vitrine','mandei o link':'enviei vitrine',
+  'quando e a visita':'proxima visita','qual visita tenho':'proxima visita',
+  'quanto custa':'faixa de valor','qual o preco':'faixa de valor','qual valor':'faixa de valor',
+  'encalhado':'imovel parado','parado demais':'imovel parado','sem saida':'imovel parado',
+  'to travado':'estrategia de venda','nao sei o que fazer':'o que devo fazer hoje',
+  'me orienta':'o que devo fazer hoje','me ajuda':'ajuda','nao sei':'ajuda',
+  'como funciona isso':'ajuda','nao entendo':'ajuda',
+  'boa':'saudacao','eai':'saudacao','oi tudo':'saudacao','olá':'saudacao',
+  'me fala':'ver','me diz':'ver','me mostra':'ver','quero saber':'ver',
+  'quanto tenho':'ver','quantos':'ver','quantas':'ver'
+};
+Object.assign(SINONIMOS, SINONIMOS_EXTRA);

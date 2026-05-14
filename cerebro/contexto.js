@@ -281,3 +281,45 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
   return null;
 }
 module.exports = { analisar, responder, detectarIntencao, extrairNome };
+
+
+// ── HISTÓRICO DE CONVERSA POR USUÁRIO ────────────────────────────────────────
+function salvarMensagem(userId, role, texto) {
+  const arquivo = require('path').join(__dirname, '..', 'assistente-historico-' + userId + '.json');
+  let hist = [];
+  try { hist = JSON.parse(fs.readFileSync(arquivo, 'utf8')); } catch(e) {}
+  hist.push({ role, texto, at: new Date().toISOString() });
+  if (hist.length > 20) hist = hist.slice(-20);
+  try { fs.writeFileSync(arquivo, JSON.stringify(hist, null, 2)); } catch(e) {}
+  return hist;
+}
+
+function carregarHistorico(userId) {
+  const arquivo = require('path').join(__dirname, '..', 'assistente-historico-' + userId + '.json');
+  try { return JSON.parse(fs.readFileSync(arquivo, 'utf8')); } catch(e) { return []; }
+}
+
+function ultimaMencao(userId, tipo) {
+  const hist = carregarHistorico(userId);
+  // Busca nos últimos 10 turnos menção de bairro, lead, imóvel, etc
+  const padroes = {
+    bairro: /([A-Z][a-záéíóúâêôãõç]+(?:s+[A-Z][a-záéíóúâêôãõç]+)*)/,
+    nome: /(?:lead|cliente)s+([A-Z][a-z]+)/i,
+    imovel: /imóvels+([A-Z0-9-]+)/i
+  };
+  for (let i = hist.length - 1; i >= 0; i--) {
+    const m = padroes[tipo] && hist[i].texto && hist[i].texto.match(padroes[tipo]);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function resumoContexto(userId) {
+  const hist = carregarHistorico(userId);
+  if (!hist.length) return null;
+  const ultimas = hist.slice(-6);
+  return ultimas.map(h => (h.role === 'user' ? 'Corretor: ' : 'Assistente: ') + h.texto.slice(0, 100)).join('
+');
+}
+
+module.exports.historicoConversa = { salvarMensagem, carregarHistorico, ultimaMencao, resumoContexto };

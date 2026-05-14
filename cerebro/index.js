@@ -1,4 +1,5 @@
 'use strict';
+const proatividade = require('./proatividade');
 const nlp          = require('./nlp');
 const modLeads     = require('./leads');
 const modImoveis   = require('./imoveis');

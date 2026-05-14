@@ -1,28 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { getLeadStage, rankLeads } = require('./leadPipeline');
-const {
-  aplicarWorkflowVisita,
-  montarMensagemProprietario,
-  montarMensagemParceiro
-} = require('./visitaWorkflow');
-
-function montarMensagemFollowup(visita = {}) {
-
-  if (visita.workflowStatus === 'REMARCAR') {
-    return `Olá ${visita.nome || ''}! Precisamos reagendar sua visita ao imóvel ${visita.imovelTitulo || visita.imovelBairro || 'selecionado'}. Qual melhor data e horário para você?`;
-  }
-
-  if (visita.workflowStatus === 'AGUARDANDO_PROPRIETARIO') {
-    return montarMensagemProprietario(visita);
-  }
-
-  if (visita.workflowStatus === 'AGUARDANDO_PARCEIRO') {
-    return montarMensagemParceiro(visita);
-  }
-
-  return `Olá ${visita.nome || ''}! Estamos acompanhando sua solicitação de visita.`;
-}
 
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..');
 
@@ -120,10 +97,6 @@ function registrarHistorico(user, memoria, entrada) {
   salvarMemoriaOperacional(user, memoria);
 }
 
-function salvarVisitas(visitas = []) {
-  writeJson('visitas.json', visitas);
-}
-
 function carregarContexto(user) {
   const userId = String(user?.id || user?.codigoUsuario || user?.celular || '');
 
@@ -167,29 +140,14 @@ function interpretarComando(texto) {
     textoOriginal: texto
   };
 
-  if (/(resumo operacional|operacao|operaçao|meu dia|meu resumo|como esta minha operacao|o que tenho hoje|painel operacional)/.test(t)) {
-    intent.tipo = 'painel_operacional';
-  }
-
   if (/(notificacao|notificacoes|aviso|avisos|pendencia|pendencias)/.test(t)) intent.tipo = 'notificacoes';
   if (/(lead|leads|cliente|clientes)/.test(t)) intent.tipo = 'leads';
-  if (/(quente|quentes|prioridade|prioritarios|melhores|urgente|urgentes|prioridades|minhas prioridades|o que preciso fazer|pendencias|pendencias operacionais|parado|parados)/.test(t)) {
-    intent.tipo = 'prioridades';
+  if (/(quente|quentes|prioridade|prioritarios|melhores)/.test(t)) {
+    intent.tipo = 'leads_quentes';
     intent.filtro.quente = true;
   }
-  if (/(visita|visitas|agendamento|agendamentos|agenda|esperando|aguardando|pendente|pendentes)/.test(t)) intent.tipo = 'visitas';
-
-  if (/(proprietario|dono)/.test(t)) intent.filtro.workflow = 'AGUARDANDO_PROPRIETARIO';
-  if (/(parceiro|corretor parceiro)/.test(t)) intent.filtro.workflow = 'AGUARDANDO_PARCEIRO';
-  if (/(corretor|manual|responsavel)/.test(t) && !/(parceiro|corretor parceiro)/.test(t)) intent.filtro.workflow = 'AGUARDANDO_CORRETOR';
-  if (/(confirmada|confirmadas|confirmado|confirmados)/.test(t)) intent.filtro.workflow = 'CONFIRMADA';
-  if (/(remarcar|reagendar)/.test(t)) intent.filtro.workflow = 'REMARCAR';
-  if (/(cancelada|canceladas|cancelado|cancelados)/.test(t)) intent.filtro.workflow = 'CANCELADA';
+  if (/(visita|visitas|agendamento|agendamentos|agenda)/.test(t)) intent.tipo = 'visitas';
   if (/(whatsapp|zap|mensagem|manda|enviar|falar)/.test(t)) intent.acao = 'whatsapp';
-
-  if (/(primeir|primeiro|primeira|1|um)/.test(t)) intent.filtro.indice = 0;
-  if (/(segund|segundo|segunda|2|dois)/.test(t)) intent.filtro.indice = 1;
-  if (/(terceir|terceiro|terceira|3|tres)/.test(t)) intent.filtro.indice = 2;
   if (/(proprietario|dono)/.test(t)) intent.entidade = 'proprietario';
   if (/(corretor|parceiro)/.test(t)) intent.entidade = 'corretor';
   if (/(remarcar|reagendar)/.test(t)) {
@@ -197,21 +155,24 @@ function interpretarComando(texto) {
     intent.tipo = 'visitas';
   }
   if (/(confirmar|confirma)/.test(t)) intent.acao = 'confirmar';
-
-  if (/(cancelar|cancela|cancelada|cancelado)/.test(t)) {
-    intent.acao = 'cancelar_visita';
-  }
-
-  if (/(remarcar|remarca|reagendar|reagenda)/.test(t)) {
-    intent.acao = 'remarcar_visita';
-  }
-
-  if (/(follow|followup|cobrar|lembrete|acompanhar)/.test(t)) {
-    intent.acao = 'followup_visita';
-  }
   if (/(match|matches|parecido|parecidos|similar|similares)/.test(t)) intent.tipo = 'matches';
 
   if (/(ele|ela|esse|essa|mesmo|mesma)/.test(t)) intent.filtro.usarMemoria = true;
+  if (/(fazer match|faz match|rodar match|match agora|match base|match interno|cruzar leads|cruza leads|buscar match|achar match|tentar match|roda o match|faz o match|fazer o match|encontrar imovel|achar imovel para lead|combinar leads|combinar imoveis)/.test(t)) intent.tipo = 'fazer_match';
+  if (/(resumo do dia|o que fazer hoje|meu dia hoje|o que tenho hoje|como esta minha operacao|resumo operacional|minhas acoes|acoes do dia|o que preciso fazer|me mostra o dia|como estou hoje|situacao atual|visao geral|overview|overview do dia)/.test(t)) intent.tipo = 'resumo_diario';
+  if (/(mercado|demanda|mais buscado|tendencia|bairro mais|tipo mais|o que as leads querem|o que buscam|o que mais pedem|faixa de preco|preco mais pedido|valor mais buscado|quartos mais pedidos|tipo mais pedido|analise de mercado|inteligencia|insights|dados do mercado|o que ta em alta|o que vende mais)/.test(t)) intent.tipo = 'inteligencia_mercado';
+  if (/(por que nao tem match|sem match algum|diagnosticar|nao encontrou|nao achou match|nenhum match|match zerado|leads sem resultado|por que nao casa|por que nao combina|o que ta errado no match|match nao funcionou|match vazio)/.test(t)) intent.tipo = 'diagnosticar_match';
+  if (/(me ajuda a vender|estrategia de venda|como fechar|quero vender|preciso vender|como fechar negocio|lead mais quente|qual lead priorizar|qual imovel ta parado|imovel sem visita|lead sem fechar|como converter|dicas de venda|quero fechar|vou fechar|negocio parado|lead parada|ajuda a converter)/.test(t)) intent.tipo = 'estrategia_venda';
+  if (/(vitrine|link do cliente|oferta do cliente|link pra lead|link para cliente|mandar link|enviar link|link da oferta|pagina do cliente|pagina da lead|ver oferta|oferta de imoveis|imoveis para lead|mostrar para lead|mostrar para cliente|compartilhar|compartilha)/.test(t)) intent.tipo = 'vitrine';
+  if (/(minha carteira|imoveis inativos|imoveis sem prop|valor medio carteira|quantos imoveis|meus imoveis|imoveis ativos|total imoveis|carteira de imoveis|imovel mais caro|imovel mais barato|imovel por bairro|imovel por tipo|sem dono|sem proprietario|imovel parado|imovel sem foto|imovel sem descricao)/.test(t)) intent.tipo = 'imoveis_carteira';
+  if (/(ajuda|socorro|help|o que voce faz|o que pode fazer|o que sabe fazer|como funciona|me ensina|nao sei usar|como uso|comandos|o que posso perguntar|o que posso pedir|lista de comandos|tutorial|me explica|como te uso|quais sao os comandos)/.test(t)) intent.tipo = 'ajuda';
+  if (/(kanban|funil de visitas|pipeline|funil de vendas|etapas da visita|etapas de venda|fluxo de visita|board|quadro de visitas)/.test(t)) intent.tipo = 'kanban';
+  if (/(exportar|baixar excel|relatorio imoveis|gerar relatorio|exportar imoveis|planilha de imoveis|download imoveis|excel de imoveis)/.test(t)) intent.tipo = 'exportar';
+  if (/(cadastrar imovel|novo imovel|adicionar imovel|registrar imovel|incluir imovel|quero cadastrar|preciso cadastrar|add imovel|criar imovel)/.test(t)) intent.tipo = 'cadastrar_imovel';
+  if (/(meu perfil|minha conta|alterar senha|mudar senha|meus dados|atualizar dados|editar perfil|configuracoes|config da conta|dados da conta|trocar senha)/.test(t)) intent.tipo = 'perfil';
+  if (/(coins|moedas|saldo|pontos|meus pontos|meus coins|quantos coins|saldo de coins|match coins|ganhar coins|como ganho coins)/.test(t)) intent.tipo = 'coins';
+  if (/(o que e match|explica match|como funciona match|o que e vitrine|explica vitrine|como funciona vitrine|o que e lead|explica lead|o que e xml|explica xml|o que sao coins|como funciona score|o que e score|como calcula|explica o sistema|como funciona o sistema)/.test(t)) intent.tipo = 'explicacao';
+  if (/(gerar xml|criar xml|xml para|xml do vivareal|xml do zap|xml do olx|publicar no portal|portal|portais|ver portais|status dos portais|feed|link do feed|atualizar portal)/.test(t)) intent.tipo = 'xml_portal';
 
   const limpo = texto
     .replace(/ache|buscar|busca|procure|mostrar|mostra|lead|cliente|manda|mensagem|whatsapp|zap|para|pra|pro|pelo|a|o/gi, ' ')
@@ -250,9 +211,8 @@ function montarResumoCentral(ctx) {
 }
 
 function formatarLead(l, idx) {
-  const matches = l.matches || l.matchesBase || [];
+  const matches = l.matches || [];
   const bestScore = Number(l.bestScore || l.score || matches[0]?.score || 0);
-  const pipeline = l.pipeline || getLeadStage(l, []);
   return {
     idx,
     nome: getLeadName(l) || 'Sem nome',
@@ -262,27 +222,16 @@ function formatarLead(l, idx) {
     status: getStatusLead(l),
     matches: matches.length,
     bestScore,
-    pipeline,
-    label: pipeline.label,
-    prioridade: pipeline.prioridade,
     id: l.id || l.idAnuncio || l.codigo || ''
   };
 }
 
 function listarLeadsQuentes(ctx, limite = 10) {
   const leads = ctx.leadsMatch || [];
-  const visitas = ctx.visitas || [];
-
-  return rankLeads(leads, visitas)
-    .map((l, idx) => {
-      const item = formatarLead(l, idx);
-      item.pipeline = l.pipeline;
-      item.label = l.pipeline?.label || '';
-      item.prioridade = l.pipeline?.prioridade || 0;
-      return item;
-    })
-    .filter(l => ['quente','quente_score','morno','visita_pendente','visita_confirmada'].includes(l.pipeline?.stage))
-    .sort((a, b) => (b.prioridade - a.prioridade) || (b.matches - a.matches))
+  return leads
+    .map((l, idx) => formatarLead(l, idx))
+    .filter(l => l.matches > 0 || l.bestScore >= 70)
+    .sort((a, b) => (b.bestScore - a.bestScore) || (b.matches - a.matches))
     .slice(0, limite);
 }
 
@@ -318,378 +267,6 @@ function responderCentral(user, texto) {
   const resumo = montarResumoCentral(ctx);
   const memoria = ctx.memoriaOperacional || carregarMemoriaOperacional(user);
 
-  if (/(confirmar|confirma)/.test(normalizeText(texto))) intent.acao = 'confirmar_visita';
-
-  if (
-    intent.acao === 'followup_visita' &&
-    typeof intent.filtro.indice !== 'undefined'
-  ) {
-
-    const visitas = (ctx.visitas || [])
-      .map(v => aplicarWorkflowVisita(v));
-
-    const prioridades = [];
-
-    visitas.forEach(v => {
-
-      let prioridade = 0;
-
-      if (v.workflowStatus === 'AGUARDANDO_PROPRIETARIO') prioridade += 100;
-      if (v.workflowStatus === 'AGUARDANDO_PARCEIRO') prioridade += 90;
-      if (v.workflowStatus === 'REMARCAR') prioridade += 80;
-      if (v.workflowStatus === 'AGUARDANDO_CORRETOR') prioridade += 70;
-
-      prioridades.push({
-        visita: v,
-        prioridade
-      });
-
-    });
-
-    prioridades.sort((a,b)=> b.prioridade - a.prioridade);
-
-    const alvo = prioridades[intent.filtro.indice];
-
-    if (alvo && alvo.visita) {
-
-      const v = alvo.visita;
-
-      const mensagem = montarMensagemFollowup(v);
-
-      registrarHistorico(user, memoria, {
-        tipo: 'followup_visita',
-        texto,
-        visitaId: v.id
-      });
-
-      return {
-        intent,
-        resumo,
-        resposta: `📲 Follow-up preparado para ${v.nome}.`,
-        acao: {
-          tipo: 'whatsapp',
-          telefone: v.workflowWhatsappDestino || v.telefone || v.contato,
-          mensagem,
-          url: `https://wa.me/${String(v.workflowWhatsappDestino || v.telefone || v.contato || '').replace(/\D/g,'')}?text=${encodeURIComponent(mensagem)}`
-        },
-        itens: [v]
-      };
-
-    }
-
-  }
-
-  if (
-    intent.acao === 'remarcar_visita' &&
-    typeof intent.filtro.indice !== 'undefined'
-  ) {
-
-    const visitasOriginais = ctx.visitas || [];
-
-    const visitas = visitasOriginais
-      .map(v => aplicarWorkflowVisita(v));
-
-    const prioridades = [];
-
-    visitas.forEach((v, idx) => {
-
-      let prioridade = 0;
-
-      if (v.workflowStatus === 'AGUARDANDO_PROPRIETARIO') prioridade += 100;
-      if (v.workflowStatus === 'AGUARDANDO_PARCEIRO') prioridade += 90;
-      if (v.workflowStatus === 'REMARCAR') prioridade += 80;
-      if (v.workflowStatus === 'AGUARDANDO_CORRETOR') prioridade += 70;
-
-      prioridades.push({
-        idxOriginal: idx,
-        visita: v,
-        prioridade
-      });
-
-    });
-
-    prioridades.sort((a,b)=> b.prioridade - a.prioridade);
-
-    const alvo = prioridades[intent.filtro.indice];
-
-    if (alvo && alvo.visita) {
-
-      visitasOriginais[alvo.idxOriginal].status = 'remarcar';
-      visitasOriginais[alvo.idxOriginal].remarcarEm = new Date().toISOString();
-
-      visitasOriginais[alvo.idxOriginal] =
-        aplicarWorkflowVisita(visitasOriginais[alvo.idxOriginal]);
-
-      salvarVisitas(visitasOriginais);
-
-      memoria.ultimaVisita = visitasOriginais[alvo.idxOriginal];
-      memoria.ultimaAcao = 'remarcar_visita';
-
-      registrarHistorico(user, memoria, {
-        tipo: 'remarcar_visita',
-        texto,
-        visitaId: alvo.visita.id
-      });
-
-      return {
-        intent,
-        resumo,
-        resposta: `📅 Visita marcada para reagendamento de ${alvo.visita.nome}.`,
-        itens: [visitasOriginais[alvo.idxOriginal]]
-      };
-
-    }
-
-  }
-
-  if (
-    intent.acao === 'cancelar_visita' &&
-    typeof intent.filtro.indice !== 'undefined'
-  ) {
-
-    const visitasOriginais = ctx.visitas || [];
-
-    const visitas = visitasOriginais
-      .map(v => aplicarWorkflowVisita(v));
-
-    const prioridades = [];
-
-    visitas.forEach((v, idx) => {
-
-      let prioridade = 0;
-
-      if (v.workflowStatus === 'AGUARDANDO_PROPRIETARIO') prioridade += 100;
-      if (v.workflowStatus === 'AGUARDANDO_PARCEIRO') prioridade += 90;
-      if (v.workflowStatus === 'REMARCAR') prioridade += 80;
-      if (v.workflowStatus === 'AGUARDANDO_CORRETOR') prioridade += 70;
-
-      prioridades.push({
-        idxOriginal: idx,
-        visita: v,
-        prioridade
-      });
-
-    });
-
-    prioridades.sort((a,b)=> b.prioridade - a.prioridade);
-
-    const alvo = prioridades[intent.filtro.indice];
-
-    if (alvo && alvo.visita) {
-
-      visitasOriginais[alvo.idxOriginal].status = 'cancelada';
-      visitasOriginais[alvo.idxOriginal].canceladaEm = new Date().toISOString();
-
-      visitasOriginais[alvo.idxOriginal] =
-        aplicarWorkflowVisita(visitasOriginais[alvo.idxOriginal]);
-
-      salvarVisitas(visitasOriginais);
-
-      memoria.ultimaVisita = visitasOriginais[alvo.idxOriginal];
-      memoria.ultimaAcao = 'cancelar_visita';
-
-      registrarHistorico(user, memoria, {
-        tipo: 'cancelamento_visita',
-        texto,
-        visitaId: alvo.visita.id
-      });
-
-      return {
-        intent,
-        resumo,
-        resposta: `❌ Visita cancelada para ${alvo.visita.nome}.`,
-        itens: [visitasOriginais[alvo.idxOriginal]]
-      };
-
-    }
-
-  }
-
-  if (
-    intent.acao === 'confirmar_visita' &&
-    typeof intent.filtro.indice !== 'undefined'
-  ) {
-
-    const visitasOriginais = ctx.visitas || [];
-
-    const visitas = visitasOriginais
-      .map(v => aplicarWorkflowVisita(v));
-
-    const prioridades = [];
-
-    visitas.forEach((v, idx) => {
-
-      let prioridade = 0;
-
-      if (v.workflowStatus === 'AGUARDANDO_PROPRIETARIO') prioridade += 100;
-      if (v.workflowStatus === 'AGUARDANDO_PARCEIRO') prioridade += 90;
-      if (v.workflowStatus === 'REMARCAR') prioridade += 80;
-      if (v.workflowStatus === 'AGUARDANDO_CORRETOR') prioridade += 70;
-
-      prioridades.push({
-        idxOriginal: idx,
-        visita: v,
-        prioridade
-      });
-
-    });
-
-    prioridades.sort((a,b)=> b.prioridade - a.prioridade);
-
-    const alvo = prioridades[intent.filtro.indice];
-
-    if (alvo && alvo.visita) {
-
-      visitasOriginais[alvo.idxOriginal].status = 'confirmada';
-      visitasOriginais[alvo.idxOriginal].confirmadaEm = new Date().toISOString();
-
-      visitasOriginais[alvo.idxOriginal] =
-        aplicarWorkflowVisita(visitasOriginais[alvo.idxOriginal]);
-
-      salvarVisitas(visitasOriginais);
-
-      memoria.ultimaVisita = visitasOriginais[alvo.idxOriginal];
-      memoria.ultimaAcao = 'confirmar_visita';
-
-      registrarHistorico(user, memoria, {
-        tipo: 'confirmacao_visita',
-        texto,
-        visitaId: alvo.visita.id
-      });
-
-      return {
-        intent,
-        resumo,
-        resposta: `✅ Visita confirmada para ${alvo.visita.nome}.`,
-        itens: [visitasOriginais[alvo.idxOriginal]]
-      };
-
-    }
-
-  }
-
-  if (/(confirmar|confirma)/.test(normalizeText(texto))) intent.acao = 'confirmar_visita';
-
-  if (
-    intent.acao === 'confirmar_visita' &&
-    typeof intent.filtro.indice !== 'undefined'
-  ) {
-
-    const visitasOriginais = ctx.visitas || [];
-
-    const visitas = visitasOriginais
-      .map(v => aplicarWorkflowVisita(v));
-
-    const prioridades = [];
-
-    visitas.forEach((v, idx) => {
-
-      let prioridade = 0;
-
-      if (v.workflowStatus === 'AGUARDANDO_PROPRIETARIO') prioridade += 100;
-      if (v.workflowStatus === 'AGUARDANDO_PARCEIRO') prioridade += 90;
-      if (v.workflowStatus === 'REMARCAR') prioridade += 80;
-      if (v.workflowStatus === 'AGUARDANDO_CORRETOR') prioridade += 70;
-
-      prioridades.push({
-        idxOriginal: idx,
-        visita: v,
-        prioridade
-      });
-
-    });
-
-    prioridades.sort((a,b)=> b.prioridade - a.prioridade);
-
-    const alvo = prioridades[intent.filtro.indice];
-
-    if (alvo && alvo.visita) {
-
-      visitasOriginais[alvo.idxOriginal].status = 'confirmada';
-      visitasOriginais[alvo.idxOriginal].confirmadaEm = new Date().toISOString();
-
-      salvarVisitas(visitasOriginais);
-
-      memoria.ultimaVisita = visitasOriginais[alvo.idxOriginal];
-      memoria.ultimaAcao = 'confirmar_visita';
-
-      registrarHistorico(user, memoria, {
-        tipo: 'confirmacao_visita',
-        texto,
-        visitaId: alvo.visita.id
-      });
-
-      return {
-        intent,
-        resumo,
-        resposta: `✅ Visita confirmada para ${alvo.visita.nome}.`,
-        itens: [visitasOriginais[alvo.idxOriginal]]
-      };
-
-    }
-
-  }
-
-  if (
-    intent.acao === 'whatsapp' &&
-    typeof intent.filtro.indice !== 'undefined'
-  ) {
-
-    const visitas = (ctx.visitas || [])
-      .map(v => aplicarWorkflowVisita(v));
-
-    const prioridades = [];
-
-    visitas.forEach(v => {
-
-      let prioridade = 0;
-
-      if (v.workflowStatus === 'AGUARDANDO_PROPRIETARIO') prioridade += 100;
-      if (v.workflowStatus === 'AGUARDANDO_PARCEIRO') prioridade += 90;
-      if (v.workflowStatus === 'REMARCAR') prioridade += 80;
-      if (v.workflowStatus === 'AGUARDANDO_CORRETOR') prioridade += 70;
-
-      prioridades.push({
-        visita: v,
-        prioridade
-      });
-
-    });
-
-    prioridades.sort((a,b)=> b.prioridade - a.prioridade);
-
-    const alvo = prioridades[intent.filtro.indice];
-
-    if (alvo && alvo.visita) {
-
-      const v = alvo.visita;
-
-      memoria.ultimaVisita = v;
-      memoria.ultimaAcao = 'whatsapp_visita';
-
-      registrarHistorico(user, memoria, {
-        tipo: 'acao_whatsapp_visita',
-        texto,
-        visitaId: v.id
-      });
-
-      return {
-        intent,
-        resumo,
-        resposta: `📲 Mensagem pronta para ${v.proprietarioNome || v.nome}.`,
-        acao: {
-          tipo: 'whatsapp',
-          telefone: v.workflowWhatsappDestino,
-          mensagem: v.workflowWhatsappTexto,
-          url: `https://wa.me/${String(v.workflowWhatsappDestino || '').replace(/\D/g,'')}?text=${encodeURIComponent(v.workflowWhatsappTexto || '')}`
-        },
-        itens: [v]
-      };
-
-    }
-
-  }
-
   if (intent.acao === 'whatsapp' && intent.filtro.usarMemoria && memoria.ultimoLead) {
     const lead = memoria.ultimoLead;
     const mensagem = montarMensagemWhatsappLead(lead);
@@ -724,156 +301,139 @@ function responderCentral(user, texto) {
     };
   }
 
-  if (intent.tipo === 'painel_operacional') {
 
-    const visitas = (ctx.visitas || [])
-      .map(v => aplicarWorkflowVisita(v));
-
-    const resumoOperacional = {
-      total: visitas.length,
-      aguardandoProprietario: visitas.filter(v => v.workflowStatus === 'AGUARDANDO_PROPRIETARIO').length,
-      aguardandoParceiro: visitas.filter(v => v.workflowStatus === 'AGUARDANDO_PARCEIRO').length,
-      aguardandoCorretor: visitas.filter(v => v.workflowStatus === 'AGUARDANDO_CORRETOR').length,
-      confirmadas: visitas.filter(v => v.workflowStatus === 'CONFIRMADA').length,
-      remarcar: visitas.filter(v => v.workflowStatus === 'REMARCAR').length,
-      canceladas: visitas.filter(v => v.workflowStatus === 'CANCELADA').length
-    };
-
-    const prioridades = visitas
-      .filter(v =>
-        ['AGUARDANDO_PROPRIETARIO','AGUARDANDO_PARCEIRO','REMARCAR']
-        .includes(v.workflowStatus)
-      )
-      .slice(0,10);
-
-    registrarHistorico(user, memoria, {
-      tipo: 'painel_operacional',
-      texto
-    });
-
-    return {
-      intent,
-      resumo,
-      resposta:
-        `📊 Operação do dia:
-• Total visitas: ${resumoOperacional.total}
-• Aguardando proprietário: ${resumoOperacional.aguardandoProprietario}
-• Aguardando parceiro: ${resumoOperacional.aguardandoParceiro}
-• Aguardando corretor: ${resumoOperacional.aguardandoCorretor}
-• Confirmadas: ${resumoOperacional.confirmadas}
-• Reagendar: ${resumoOperacional.remarcar}
-• Canceladas: ${resumoOperacional.canceladas}`,
-      painel: resumoOperacional,
-      itens: prioridades
-    };
-  }
-
-  if (intent.tipo === 'prioridades') {
-
-    const visitas = (ctx.visitas || [])
-      .map(v => aplicarWorkflowVisita(v));
-
-    const prioridades = [];
-
-    visitas.forEach(v => {
-
-      let prioridade = 0;
-
-      if (v.workflowStatus === 'AGUARDANDO_PROPRIETARIO') prioridade += 100;
-      if (v.workflowStatus === 'AGUARDANDO_PARCEIRO') prioridade += 90;
-      if (v.workflowStatus === 'REMARCAR') prioridade += 80;
-      if (v.workflowStatus === 'AGUARDANDO_CORRETOR') prioridade += 70;
-
-      prioridades.push({
-        tipo: 'visita',
-        prioridade,
-        cliente: v.nome,
-        imovel: v.imovelTitulo,
-        workflow: v.workflowStatus,
-        label: v.workflowLabel,
-        proximaAcao: v.workflowProximaAcao,
-        whatsapp: v.workflowWhatsappDestino ? {
-          telefone: v.workflowWhatsappDestino,
-          mensagem: v.workflowWhatsappTexto,
-          url: `https://wa.me/${String(v.workflowWhatsappDestino).replace(/\D/g,'')}?text=${encodeURIComponent(v.workflowWhatsappTexto || '')}`
-        } : null
+  if (intent.tipo === 'fazer_match') {
+    try {
+      const bmi = require('../matchBaseInterna.js');
+      const userId = getUserKey(user);
+      const leadsOk = (ctx.leadsMatch||[]).filter(function(l){ return l.extractionStatus === 'ok'; });
+      const imoveis = readJson('imoveis.json', []);
+      let comMatch = 0, semMatch = 0;
+      leadsOk.forEach(function(lead) {
+        const matches = bmi.buscarMatchesBaseInterna(lead, imoveis);
+        lead.matchesBase = matches;
+        lead.matchCountBase = matches.length;
+        if (matches.length > 0) comMatch++; else semMatch++;
       });
-
-    });
-
-    prioridades.sort((a,b)=> b.prioridade - a.prioridade);
-
-    memoria.ultimaIntencao = intent;
-
-    registrarHistorico(user, memoria, {
-      tipo: 'consulta_prioridades',
-      texto,
-      total: prioridades.length
-    });
-
-    return {
-      intent,
-      resumo,
-      resposta: prioridades.length
-        ? `🚨 Você possui ${prioridades.length} prioridade(s) operacional(is).`
-        : '✅ Nenhuma prioridade operacional pendente.',
-      itens: prioridades.slice(0,10)
-    };
+      const data = readJson('data.json', []);
+      const outras = data.filter(function(l){ return String(l.userId||l.usuarioId||l.corretorId||'') !== userId; });
+      const restantes = data.filter(function(l){ return String(l.userId||l.usuarioId||l.corretorId||'') === userId && !leadsOk.find(function(x){ return x.id === l.id; }); });
+      writeJson('data.json', outras.concat(restantes).concat(leadsOk));
+      registrarHistorico(user, memoria, { tipo: 'fazer_match', texto: texto, comMatch: comMatch, semMatch: semMatch });
+      return { intent: intent, resumo: resumo, resposta: 'Match concluido! ' + comMatch + ' lead(s) com match, ' + semMatch + ' sem match. Total: ' + leadsOk.length, itens: [] };
+    } catch(e) {
+      return { intent: intent, resumo: resumo, resposta: 'Erro ao rodar match: ' + e.message, itens: [] };
+    }
   }
 
-  if (intent.tipo === 'prioridades') {
-
-    const visitas = (ctx.visitas || [])
-      .map(v => aplicarWorkflowVisita(v));
-
-    const prioridades = [];
-
-    visitas.forEach(v => {
-
-      let prioridade = 0;
-
-      if (v.workflowStatus === 'AGUARDANDO_PROPRIETARIO') prioridade += 100;
-      if (v.workflowStatus === 'AGUARDANDO_PARCEIRO') prioridade += 90;
-      if (v.workflowStatus === 'REMARCAR') prioridade += 80;
-      if (v.workflowStatus === 'AGUARDANDO_CORRETOR') prioridade += 70;
-
-      prioridades.push({
-        tipo: 'visita',
-        prioridade,
-        cliente: v.nome,
-        imovel: v.imovelTitulo,
-        workflow: v.workflowStatus,
-        label: v.workflowLabel,
-        proximaAcao: v.workflowProximaAcao,
-        whatsapp: v.workflowWhatsappDestino ? {
-          telefone: v.workflowWhatsappDestino,
-          mensagem: v.workflowWhatsappTexto,
-          url: `https://wa.me/${String(v.workflowWhatsappDestino).replace(/\D/g,'')}?text=${encodeURIComponent(v.workflowWhatsappTexto || '')}`
-        } : null
-      });
-
-    });
-
-    prioridades.sort((a,b)=> b.prioridade - a.prioridade);
-
-    memoria.ultimaIntencao = intent;
-
-    registrarHistorico(user, memoria, {
-      tipo: 'consulta_prioridades',
-      texto,
-      total: prioridades.length
-    });
-
-    return {
-      intent,
-      resumo,
-      resposta: prioridades.length
-        ? `🚨 Você possui ${prioridades.length} prioridade(s) operacional(is).`
-        : '✅ Nenhuma prioridade operacional pendente.',
-      itens: prioridades.slice(0,10)
-    };
+  if (intent.tipo === 'resumo_diario') {
+    var hoje = new Date().toISOString().slice(0,10);
+    var visitasHoje = (ctx.visitas||[]).filter(function(v){ return (v.dataVisita||'').slice(0,10) === hoje; });
+    var leadsHoje = (ctx.leadsMatch||[]).filter(function(l){ return (l.createdAt||'').slice(0,10) === hoje; });
+    var semMatchCount = (ctx.leadsMatch||[]).filter(function(l){ return !l.matchesBase || l.matchesBase.length === 0; }).length;
+    var uidRes = getUserKey(user);
+    var semPropCount = readJson('imoveis.json',[]).filter(function(i){ return String(i.userId||i.usuarioId||i.corretorId||'') === uidRes && (!i.proprietario || !i.proprietario.telefone); }).length;
+    var rr = 'Resumo do dia:\n';
+    rr += 'Visitas hoje: ' + visitasHoje.length + '\n';
+    rr += 'Leads novas hoje: ' + leadsHoje.length + '\n';
+    rr += 'Leads com match: ' + resumo.leadsComMatch + '\n';
+    rr += 'Leads sem match: ' + semMatchCount + '\n';
+    rr += 'Imoveis sem proprietario: ' + semPropCount;
+    if (visitasHoje.length > 0) rr += '\nAtencao: voce tem visitas hoje!';
+    if (semMatchCount > 5) rr += '\nDica: rode o match base interna!';
+    registrarHistorico(user, memoria, { tipo: 'resumo_diario', texto: texto });
+    return { intent: intent, resumo: resumo, resposta: rr, itens: visitasHoje };
   }
 
+  if (intent.tipo === 'inteligencia_mercado') {
+    var leads2 = ctx.leadsMatch || [];
+    var bairrosMap = {}, tiposMap = {};
+    var valores2 = leads2.filter(function(l){ return l.valor_imovel > 0; }).map(function(l){ return l.valor_imovel; });
+    leads2.forEach(function(l) {
+      if (l.bairro) bairrosMap[l.bairro] = (bairrosMap[l.bairro]||0)+1;
+      if (l.tipo) tiposMap[l.tipo] = (tiposMap[l.tipo]||0)+1;
+    });
+    var topB = Object.entries(bairrosMap).sort(function(a,b){ return b[1]-a[1]; }).slice(0,5);
+    var topT = Object.entries(tiposMap).sort(function(a,b){ return b[1]-a[1]; }).slice(0,3);
+    var vMed = valores2.length ? Math.round(valores2.reduce(function(a,b){ return a+b; },0)/valores2.length) : 0;
+    var vMin = valores2.length ? Math.min.apply(null, valores2) : 0;
+    var vMax = valores2.length ? Math.max.apply(null, valores2) : 0;
+    var cifrao = String.fromCharCode(36);
+    var r2 = 'Inteligencia de Mercado:\n\n';
+    r2 += 'Bairros mais demandados:\n' + topB.map(function(x){ return x[0] + ': ' + x[1] + ' leads'; }).join('\n') + '\n\n';
+    r2 += 'Tipos mais buscados:\n' + topT.map(function(x){ return x[0] + ': ' + x[1] + ' leads'; }).join('\n') + '\n\n';
+    r2 += 'Faixa de valor: R' + cifrao + vMin.toLocaleString('pt-BR') + ' a R' + cifrao + vMax.toLocaleString('pt-BR') + '\n';
+    r2 += 'Valor medio: R' + cifrao + vMed.toLocaleString('pt-BR');
+    registrarHistorico(user, memoria, { tipo: 'inteligencia_mercado', texto: texto });
+    return { intent: intent, resumo: resumo, resposta: r2, itens: [] };
+  }
+
+  if (intent.tipo === 'diagnosticar_match') {
+    var leadsS = (ctx.leadsMatch||[]).filter(function(l){ return !l.matchesBase || l.matchesBase.length === 0; });
+    var semBairro2 = leadsS.filter(function(l){ return !l.bairro; }).length;
+    var semTipo2 = leadsS.filter(function(l){ return !l.tipo; }).length;
+    var semExtr = leadsS.filter(function(l){ return l.extractionStatus !== 'ok'; }).length;
+    var r3 = 'Diagnostico sem match:\n';
+    r3 += 'Leads sem match: ' + leadsS.length + '\n';
+    r3 += 'Sem bairro: ' + semBairro2 + '\n';
+    r3 += 'Sem tipo: ' + semTipo2 + '\n';
+    r3 += 'Sem extracao: ' + semExtr + '\n';
+    if (semExtr > 0) r3 += 'Dica: rode a extracao de dados primeiro.\n';
+    if (semBairro2 > 0) r3 += 'Dica: leads sem bairro nao fazem match.\n';
+    r3 += 'O match exige cidade+bairro+tipo+quartos compativeis.';
+    registrarHistorico(user, memoria, { tipo: 'diagnosticar_match', texto: texto });
+    return { intent: intent, resumo: resumo, resposta: r3, itens: leadsS.slice(0,5) };
+  }
+
+  if (intent.tipo === 'estrategia_venda') {
+    var leadsQ = (ctx.leadsMatch||[]).filter(function(l){ return l.matchesBase && l.matchesBase.length >= 3; });
+    var uid3 = getUserKey(user);
+    var imovP = readJson('imoveis.json',[]).filter(function(i){ return String(i.userId||i.usuarioId||i.corretorId||'') === uid3 && i.status === 'ativo' && i.updatedAt && (Date.now() - new Date(i.updatedAt).getTime()) > 30*24*60*60*1000; });
+    var r4 = 'Estrategia de Vendas:\n';
+    if (leadsQ.length > 0) r4 += leadsQ.length + ' lead(s) quente(s) com 3+ matches — priorize!\n';
+    if (imovP.length > 0) r4 += imovP.length + ' imovel(is) parado(s) ha 30+ dias.\n';
+    r4 += 'Recomendacoes: envie vitrine para leads com match, revise valores de imoveis parados, faca follow-up em leads sem contato ha 15+ dias.';
+    registrarHistorico(user, memoria, { tipo: 'estrategia_venda', texto: texto });
+    return { intent: intent, resumo: resumo, resposta: r4, itens: leadsQ.slice(0,5) };
+  }
+
+  if (intent.tipo === 'vitrine') {
+    var uid4 = getUserKey(user);
+    var leadsV = (ctx.leadsMatch||[]).filter(function(l){ return l.matchesBase && l.matchesBase.length > 0; }).slice(0,5);
+    registrarHistorico(user, memoria, { tipo: 'vitrine', texto: texto });
+    return { intent: intent, resumo: resumo, resposta: leadsV.length ? leadsV.length + ' lead(s) com vitrine disponivel!' : 'Nenhuma lead com match ainda. Rode o match primeiro.', itens: leadsV };
+  }
+
+  if (intent.tipo === 'imoveis_carteira') {
+    var uid5 = getUserKey(user);
+    var todosIm = readJson('imoveis.json',[]).filter(function(i){ return String(i.userId||i.usuarioId||i.corretorId||'') === uid5; });
+    var ativosIm = todosIm.filter(function(i){ return i.status !== 'inativo'; });
+    var inativosIm = todosIm.filter(function(i){ return i.status === 'inativo'; });
+    var semPropIm = todosIm.filter(function(i){ return !i.proprietario || !i.proprietario.telefone; });
+    registrarHistorico(user, memoria, { tipo: 'imoveis_carteira', texto: texto });
+    return { intent: intent, resumo: resumo, resposta: 'Carteira: ' + todosIm.length + ' imovel(is) | Ativos: ' + ativosIm.length + ' | Inativos: ' + inativosIm.length + ' | Sem proprietario: ' + semPropIm.length, itens: todosIm.slice(0,8) };
+  }
+
+  if (intent.tipo === 'ajuda') {
+    registrarHistorico(user, memoria, { tipo: 'ajuda', texto: texto });
+    return { intent: intent, resumo: resumo, resposta: 'Sou o Match! Posso ajudar com: leads, imoveis, visitas, match, mercado, vitrine, xml, coins, resumo do dia, estrategia de venda. Basta digitar!', itens: [] };
+  }
+
+  if (intent.tipo === 'kanban') {
+    return { intent: intent, resumo: resumo, resposta: 'Acesse o kanban de visitas.', acao: { tipo: 'navegar', rota: '/app/visitas-kanban' }, itens: [] };
+  }
+
+  if (intent.tipo === 'exportar') {
+    return { intent: intent, resumo: resumo, resposta: 'Baixando Excel de imoveis.', acao: { tipo: 'navegar', rota: '/app/imoveis/exportar-excel' }, itens: [] };
+  }
+
+  if (intent.tipo === 'cadastrar_imovel') {
+    return { intent: intent, resumo: resumo, resposta: 'Indo para cadastro de imovel!', acao: { tipo: 'navegar', rota: '/app/cadastro' }, itens: [] };
+  }
+
+  if (intent.tipo === 'perfil') {
+    return { intent: intent, resumo: resumo, resposta: 'Acessando seu perfil.', acao: { tipo: 'navegar', rota: '/app/perfil' }, itens: [] };
+  }
   if (intent.tipo === 'leads_quentes') {
     const itens = listarLeadsQuentes(ctx);
     if (itens[0]) memoria.ultimoLead = itens[0];
@@ -889,44 +449,16 @@ function responderCentral(user, texto) {
   }
 
   if (intent.tipo === 'visitas') {
-    let visitas = (ctx.visitas || [])
-      .map(v => aplicarWorkflowVisita(v));
-
-    if (intent.filtro.workflow) {
-      visitas = visitas.filter(v => v.workflowStatus === intent.filtro.workflow);
-    }
-
-    visitas = visitas.slice(0, 10);
-
+    const visitas = (ctx.visitas || []).slice(0, 10);
     if (visitas[0]) memoria.ultimaVisita = visitas[0];
     memoria.ultimaIntencao = intent;
-    registrarHistorico(user, memoria, { tipo: 'consulta_visitas', texto, total: visitas.length, ultimaVisita: memoria.ultimaVisita });
-
-    const pendentesProprietario = visitas.filter(v => v.workflowStatus === 'AGUARDANDO_PROPRIETARIO').length;
-    const pendentesParceiro = visitas.filter(v => v.workflowStatus === 'AGUARDANDO_PARCEIRO').length;
-    const pendentesCorretor = visitas.filter(v => v.workflowStatus === 'AGUARDANDO_CORRETOR').length;
-    const confirmadas = visitas.filter(v => v.workflowStatus === 'CONFIRMADA').length;
+    registrarHistorico(user, memoria, { tipo: 'consulta_visitas', texto, total: visitas.length });
 
     return {
       intent,
       resumo,
-      resposta: visitas.length
-        ? `📅 Encontrei ${visitas.length} visita(s). Proprietário: ${pendentesProprietario}, parceiro: ${pendentesParceiro}, corretor: ${pendentesCorretor}, confirmadas: ${confirmadas}.`
-        : 'Não encontrei visitas cadastradas agora.',
-      itens: visitas,
-      acoes: visitas.map((v, idx) => ({
-        tipo: 'visita_workflow',
-        indice: idx,
-        status: v.workflowStatus,
-        responsavel: v.workflowResponsavel,
-        proximaAcao: v.workflowProximaAcao,
-        label: v.workflowLabel,
-        whatsapp: v.workflowWhatsappDestino ? {
-          telefone: v.workflowWhatsappDestino,
-          mensagem: v.workflowWhatsappTexto,
-          url: `https://wa.me/${String(v.workflowWhatsappDestino).replace(/\D/g, '')}?text=${encodeURIComponent(v.workflowWhatsappTexto || '')}`
-        } : null
-      }))
+      resposta: visitas.length ? `📅 Encontrei ${visitas.length} visita(s)/agendamento(s).` : 'Não encontrei visitas cadastradas agora.',
+      itens: visitas
     };
   }
 

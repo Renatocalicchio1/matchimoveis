@@ -61,7 +61,7 @@
   "corretor-47992010889": {
     "userKey": "corretor-47992010889",
     "ultimoLead": {
-      "idx": 3,
+      "idx": 1,
       "nome": "Bruno",
       "telefone": "61998609484",
       "email": "Brunogonsouza@gmail.com",
@@ -97,32 +97,19 @@
       "clienteNotificado": false,
       "confirmacaoClienteStatus": "CONFIRMADO",
       "confirmacaoClienteAt": "2026-05-13T03:50:29.827Z",
-      "clienteConfirmou": true,
-      "workflowStatus": "CONFIRMADA",
-      "workflowResponsavel": "cliente_corretor",
-      "workflowProximaAcao": "Notificar cliente e acompanhar visita",
-      "workflowLabel": "✅ Visita confirmada",
-      "workflowAtualizadoEm": "2026-05-13T04:19:28.952Z"
+      "clienteConfirmou": true
     },
     "ultimaIntencao": {
-      "tipo": "notificacoes",
+      "tipo": "visitas",
       "entidade": null,
       "acao": null,
       "filtro": {
-        "busca": "n tific c es"
+        "busca": "tem lgum visit pendente ?"
       },
-      "textoOriginal": "notificacoes"
+      "textoOriginal": "tem alguma visita pendente ?"
     },
     "ultimaAcao": "whatsapp",
     "historico": [
-      {
-        "at": "2026-05-12T19:29:23.687Z",
-        "tipo": "consulta_lead",
-        "texto": "quantas leads ontem ",
-        "termo": "qu nt s s ntem",
-        "total": 0,
-        "ultimoLead": null
-      },
       {
         "at": "2026-05-12T19:29:28.212Z",
         "tipo": "consulta_lead",
@@ -848,9 +835,74 @@
         "tipo": "consulta_notificacoes",
         "texto": "notificacoes",
         "total": 3
+      },
+      {
+        "at": "2026-05-14T01:52:47.879Z",
+        "tipo": "consulta_matches",
+        "texto": "leads com match",
+        "total": 1,
+        "ultimoLead": {
+          "idx": 1,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-14T01:53:09.256Z",
+        "tipo": "consulta_lead",
+        "texto": "importar leads",
+        "termo": "imp rt r s",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 1,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-14T01:53:28.632Z",
+        "tipo": "consulta_lead",
+        "texto": "que importr minha lead",
+        "termo": "que imp rtr minh",
+        "total": 0,
+        "ultimoLead": {
+          "idx": 1,
+          "nome": "Bruno",
+          "telefone": "61998609484",
+          "email": "Brunogonsouza@gmail.com",
+          "bairro": "Vila Olímpia",
+          "status": "com_match",
+          "matches": 3,
+          "bestScore": 0,
+          "id": "3034436969"
+        }
+      },
+      {
+        "at": "2026-05-14T01:53:32.206Z",
+        "tipo": "consulta_visitas",
+        "texto": "visitas hoje",
+        "total": 3
+      },
+      {
+        "at": "2026-05-14T01:53:50.744Z",
+        "tipo": "consulta_visitas",
+        "texto": "tem alguma visita pendente ?",
+        "total": 3
       }
     ],
-    "updatedAt": "2026-05-13T04:19:40.266Z"
+    "updatedAt": "2026-05-14T01:53:50.745Z"
   },
   "imobiliaria-47991919191": {
     "userKey": "imobiliaria-47991919191",

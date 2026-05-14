@@ -33,12 +33,12 @@
       "paginaAnterior": "dashboard"
     },
     "corretor-47992010889": {
-      "paginaAtual": "visitas",
-      "labelAtual": "Visitas",
-      "dominioAtual": "visitas",
-      "rotaAtual": "/app/visitas",
-      "atualizadoEm": "2026-05-13T15:11:30.157Z",
-      "paginaAnterior": "notificacoes"
+      "paginaAtual": "assistente",
+      "labelAtual": "Assistente",
+      "dominioAtual": "sistema",
+      "rotaAtual": "/app/assistente",
+      "atualizadoEm": "2026-05-14T01:51:34.527Z",
+      "paginaAnterior": "dashboard"
     },
     "cor_ruj7md4cy2": {
       "paginaAtual": "dashboard",
@@ -3775,6 +3775,30 @@
       "para": "visitas",
       "userId": "corretor-47992010889",
       "data": "2026-05-13T15:11:30.166Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T01:36:09.922Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T01:36:14.641Z"
+    },
+    {
+      "de": "assistente",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T01:51:31.162Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "assistente",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T01:51:34.527Z"
     }
   ]
 }

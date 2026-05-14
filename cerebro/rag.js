@@ -139,3 +139,45 @@ function formatarBuscaImoveis(busca, btn) {
 }
 
 module.exports = { extrairSlots, buscarImoveis, buscarLeads, formatarBuscaImoveis };
+
+// ── SIMILARIDADE SEMÂNTICA MELHORADA ─────────────────────────────────────────
+var SINONIMOS_RAG = {
+  'grande': ['amplo','espacoso','enorme','vasto'],
+  'pequeno': ['compacto','enxuto','mini','menor'],
+  'barato': ['acessivel','economico','em conta','custo baixo'],
+  'caro': ['luxuoso','premium','alto padrao','valorizado'],
+  'novo': ['moderno','recente','lancamento','atual'],
+  'antigo': ['usado','velho','reformado','classico'],
+  'centro': ['central','regiao central','downtown'],
+  'praia': ['litoral','beira mar','beiramar','orla'],
+  'apartamento': ['apto','flat','studio'],
+  'casa': ['residencia','moradia','sobrado','chale'],
+  'garagem': ['vaga','estacionamento'],
+  'suite': ['master','quarto com banheiro'],
+};
+
+function expandirTermos(texto) {
+  var t = String(texto).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  var expandido = t;
+  Object.entries(SINONIMOS_RAG).forEach(function(entry) {
+    var base = entry[0], sinonimos = entry[1];
+    if (t.includes(base)) {
+      sinonimos.forEach(function(s) { if (!expandido.includes(s)) expandido += ' ' + s; });
+    }
+    sinonimos.forEach(function(s) {
+      if (t.includes(s) && !expandido.includes(base)) expandido += ' ' + base;
+    });
+  });
+  return expandido;
+}
+
+function similaridadeSemantica(texto, item) {
+  var t = expandirTermos(texto);
+  var campos = ['bairro','tipo','descricao','titulo','nome'].map(function(c) { return String(item[c]||'').toLowerCase(); }).join(' ');
+  var palavrasTexto = t.split(/\s+/).filter(function(p) { return p.length > 2; });
+  var hits = palavrasTexto.filter(function(p) { return campos.includes(p); }).length;
+  return palavrasTexto.length > 0 ? hits / palavrasTexto.length : 0;
+}
+
+module.exports.expandirTermos = expandirTermos;
+module.exports.similaridadeSemantica = similaridadeSemantica;

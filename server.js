@@ -1869,7 +1869,7 @@ app.get('/admin/zerar-conta-completo/:userId', (req, res) => {
       try {
         let leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
         const antes = leads.length;
-        leads = leads.filter(l => (l.codigoUsuario || l.userId || '') !== userId);
+        leads = leads.filter(l => (l.userId || l.codigoUsuario || '') !== userId);
         // Limpar mensagens WhatsApp de todos os leads
         leads = leads.map(l => { delete l.mensagens; delete l.perfilIA; delete l.matchesAuto; delete l.ultimaMensagem; delete l.ultimaMensagemEm; return l; });
         fs2.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
@@ -1884,7 +1884,7 @@ app.get('/admin/zerar-conta-completo/:userId', (req, res) => {
       try {
         let notif = JSON.parse(fs2.readFileSync(notifPath, 'utf8'));
         const antes = notif.length;
-        notif = notif.filter(n => (n.codigoUsuario || n.userId || '') !== userId);
+        notif = notif.filter(n => (n.userId || n.codigoUsuario || '') !== userId);
         fs2.writeFileSync(notifPath, JSON.stringify(notif, null, 2));
         resultado[base2].notificacoes_deletadas = antes - notif.length;
       } catch(e) { resultado[base2].notif_erro = e.message; }
@@ -1896,7 +1896,7 @@ app.get('/admin/zerar-conta-completo/:userId', (req, res) => {
       try {
         let visitas = JSON.parse(fs2.readFileSync(visitasPath, 'utf8'));
         const antes = visitas.length;
-        visitas = visitas.filter(v => (v.codigoUsuario || v.userId || '') !== userId);
+        visitas = visitas.filter(v => (v.userId || v.codigoUsuario || '') !== userId);
         fs2.writeFileSync(visitasPath, JSON.stringify(visitas, null, 2));
         resultado[base2].visitas_deletadas = antes - visitas.length;
       } catch(e) { resultado[base2].visitas_erro = e.message; }

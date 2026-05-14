@@ -368,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <div style="display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto;padding-right:4px">
     <% lead.mensagens.slice().reverse().forEach(m => { %>
     <div style="display:flex;flex-direction:column;align-items:<%= m.de==='corretor'?'flex-end':'flex-start' %>">
-      <div style="max-width:80%;background:<%= m.de==='corretor'?'#25D366':'#f0f0f0' %>;color:<%= m.de==='corretor'?'#fff':'#222' %>;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4">
+      <div style="max-width:80%;background:<%= m.de==='corretor'?'#25D366':m.de==='ia'?'#3b82f6':'#f0f0f0' %>;color:<%= m.de==='corretor'||m.de==='ia'?'#fff':'#222' %>;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4">
         <%= m.texto %>
       </div>
       <div style="font-size:11px;color:#999;margin-top:3px">

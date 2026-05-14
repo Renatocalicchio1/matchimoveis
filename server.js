@@ -2090,6 +2090,73 @@ app.post('/webhook/whatsapp', async (req, res) => {
       console.log('[WEBHOOK WA] lead nao encontrado para telefone:', telefone);
     }
 
+    // Resposta automática IA
+    if (leadEncontrado) {
+      try {
+        const { gerarResposta } = require('./cerebro/resposta-auto');
+        const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+        const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+        const INSTANCE = process.env.EVOLUTION_INSTANCE || 'match-corretor';
+
+        // Busca lead atualizado com mensagens e matches
+        let leadAtual = null;
+        for (const leadsPath of possiveisCaminhos) {
+          try {
+            const leads = JSON.parse(require('fs').readFileSync(leadsPath, 'utf8'));
+            const idx = leads.findIndex(l => {
+              const fone = (l.telefone || l.whatsapp || l.contato || '').replace(/\D/g,'');
+              return fone && fone.slice(-8) === telefone.slice(-8);
+            });
+            if (idx >= 0) { leadAtual = leads[idx]; break; }
+          } catch(e) {}
+        }
+
+        if (leadAtual) {
+          const matches = leadAtual.matchesAuto || leadAtual.matches || [];
+          const resposta = gerarResposta(leadAtual, texto, matches);
+
+          if (resposta) {
+            // Aguarda 2 segundos antes de responder (mais natural)
+            await new Promise(r => setTimeout(r, 2000));
+
+            await fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
+              body: JSON.stringify({ number: '55' + telefone, text: resposta })
+            });
+
+            console.log('[RESPOSTA AUTO] enviada para:', telefone);
+
+            // Salva resposta automática no lead
+            for (const leadsPath of possiveisCaminhos) {
+              try {
+                let leads = JSON.parse(require('fs').readFileSync(leadsPath, 'utf8'));
+                const idx = leads.findIndex(l => {
+                  const fone = (l.telefone || l.whatsapp || l.contato || '').replace(/\D/g,'');
+                  return fone && fone.slice(-8) === telefone.slice(-8);
+                });
+                if (idx >= 0) {
+                  if (!leads[idx].mensagens) leads[idx].mensagens = [];
+                  leads[idx].mensagens.push({
+                    id: Date.now().toString(),
+                    origem: 'whatsapp',
+                    de: 'ia',
+                    telefone,
+                    texto: resposta,
+                    timestamp: new Date().toISOString(),
+                    lida: true
+                  });
+                  require('fs').writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+                }
+              } catch(e) {}
+            }
+          }
+        }
+      } catch(e) {
+        console.error('[RESPOSTA AUTO] erro:', e.message);
+      }
+    }
+
     // Match automático se perfil suficiente
     if (leadEncontrado && Object.keys(perfilExtraido).length >= 2) {
       try {

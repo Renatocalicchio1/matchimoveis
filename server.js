@@ -2091,7 +2091,10 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       console.log('[WEBHOOK WA] lead nao encontrado para telefone:', telefone);
     }
 
-    // Resposta automática IA
+    // Responde imediatamente — resposta auto roda em background
+    res.status(200).json({ ok: true, telefone, texto, leadEncontrado, perfil: perfilExtraido });
+
+    // Resposta automática IA — background
     if (leadEncontrado) {
       try {
         const { gerarResposta } = require('./cerebro/resposta-auto');

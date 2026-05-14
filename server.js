@@ -1906,6 +1906,16 @@ app.get('/admin/zerar-conta-completo/:userId', (req, res) => {
   res.json({ ok: true, userId, resultado });
 });
 
+// KEEP-ALIVE Evolution API — acorda a cada 10 minutos
+setInterval(() => {
+  const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+  const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+  fetch(`${EVOLUTION_URL}/instance/fetchInstances`, {
+    headers: { 'apikey': EVOLUTION_KEY }
+  }).then(() => console.log('[KEEP-ALIVE] Evolution API acordada'))
+    .catch(() => console.log('[KEEP-ALIVE] Evolution API nao respondeu'));
+}, 10 * 60 * 1000); // 10 minutos
+
 // INBOX WHATSAPP
 app.get('/app/whatsapp', auth, (req, res) => {
   const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));

@@ -127,6 +127,17 @@
               });
           }
 
+          if (lead.mensagens && lead.mensagens.length) {
+            lead.mensagens.forEach(m => {
+              eventosLead.push({
+                tipo: 'whatsapp',
+                acao: '💬 ' + (m.texto || '').substring(0, 60) + (m.texto && m.texto.length > 60 ? '...' : ''),
+                data: m.timestamp || '',
+                extra: 'WhatsApp',
+                link: ''
+              });
+            });
+          }
           eventosLead.sort((a,b) => new Date(b.data || 0) - new Date(a.data || 0));
           const eventosRecentes = eventosLead.slice(0,3);
         %>

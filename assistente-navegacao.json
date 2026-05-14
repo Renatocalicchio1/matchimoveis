@@ -25,20 +25,20 @@
       "paginaAnterior": "cadastro"
     },
     "imobiliaria-47992010888": {
-      "paginaAtual": "imoveis",
-      "labelAtual": "Meus Imoveis",
-      "dominioAtual": "imoveis",
-      "rotaAtual": "/app/imoveis",
-      "atualizadoEm": "2026-05-12T01:24:35.150Z",
+      "paginaAtual": "leads",
+      "labelAtual": "Leads",
+      "dominioAtual": "leads",
+      "rotaAtual": "/app/leads",
+      "atualizadoEm": "2026-05-14T19:38:55.548Z",
       "paginaAnterior": "dashboard"
     },
     "corretor-47992010889": {
-      "paginaAtual": "dashboard",
-      "labelAtual": "Dashboard",
-      "dominioAtual": "dashboard",
-      "rotaAtual": "/app-home",
-      "atualizadoEm": "2026-05-14T17:28:46.602Z",
-      "paginaAnterior": "imoveis"
+      "paginaAtual": "leads",
+      "labelAtual": "Leads",
+      "dominioAtual": "leads",
+      "rotaAtual": "/app/leads",
+      "atualizadoEm": "2026-05-14T19:39:37.167Z",
+      "paginaAnterior": "dashboard"
     },
     "cor_ruj7md4cy2": {
       "paginaAtual": "dashboard",
@@ -3823,6 +3823,24 @@
       "para": "dashboard",
       "userId": "corretor-47992010889",
       "data": "2026-05-14T17:28:46.602Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "imobiliaria-47992010888",
+      "data": "2026-05-14T19:38:53.652Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "imobiliaria-47992010888",
+      "data": "2026-05-14T19:38:55.548Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-14T19:39:37.167Z"
     }
   ]
 }

@@ -2032,6 +2032,16 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     if (!telefone || !texto) return res.status(200).json({ ok: true, ignorado: 'sem_telefone_ou_texto' });
 
 
+    // ── VERIFICAR BLOQUEADOS ─────────────────────────────────
+    try {
+      const _usersBlk = JSON.parse(fs.readFileSync(require('path').join(__dirname, 'users.json'), 'utf8'));
+      const _bloqueado = _usersBlk.some(u => (u.bloqueados || []).includes(telefone));
+      if (_bloqueado) {
+        console.log('[WEBHOOK WA] numero bloqueado:', telefone);
+        return res.status(200).json({ ok: true, ignorado: 'bloqueado' });
+      }
+    } catch(e) {}
+
     // ── DETECTAR SE É CORRETOR OU LEAD ───────────────────────
     let _usersWH = [];
     try { _usersWH = JSON.parse(fs.readFileSync(require('path').join(__dirname, 'users.json'), 'utf8')); } catch(e) {}
@@ -5630,5 +5640,56 @@ app.post('/app/whatsapp/desconectar', auth, async (req, res) => {
     res.json({ ok: true });
   } catch(e) {
     res.json({ ok: false, erro: e.message });
+  }
+});
+
+// ── EXCLUIR LEAD ─────────────────────────────────────────────
+app.delete('/app/lead/:id', auth, (req, res) => {
+  try {
+    const uid = String(req.session.user.id || '');
+    const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
+    const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
+    const lead = leads[idx];
+    const leadOwner = String(lead.userId || lead.codigoUsuario || lead.corretorId || '');
+    if (leadOwner && leadOwner !== uid) return res.status(403).json({ erro: 'acesso negado' });
+    leads.splice(idx, 1);
+    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+    console.log('[LEAD] excluida:', req.params.id, 'por:', uid);
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
+
+// ── BLOQUEAR NÚMERO ──────────────────────────────────────────
+app.post('/app/lead/:id/bloquear', auth, (req, res) => {
+  try {
+    const uid = String(req.session.user.id || '');
+    const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
+    const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
+    const lead = leads[idx];
+    const leadOwner = String(lead.userId || lead.codigoUsuario || lead.corretorId || '');
+    if (leadOwner && leadOwner !== uid) return res.status(403).json({ erro: 'acesso negado' });
+    const telefone = String(lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g,'');
+    // Salva na lista negra do usuário
+    const usersPath = require('path').join(__dirname, 'users.json');
+    const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+    const uidx = users.findIndex(u => u.id === uid);
+    if (uidx >= 0) {
+      if (!users[uidx].bloqueados) users[uidx].bloqueados = [];
+      if (telefone && !users[uidx].bloqueados.includes(telefone)) {
+        users[uidx].bloqueados.push(telefone);
+        fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+      }
+    }
+    // Remove a lead
+    leads.splice(idx, 1);
+    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+    console.log('[LEAD] bloqueada:', telefone, 'por:', uid);
+    res.json({ ok: true, bloqueado: telefone });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
   }
 });

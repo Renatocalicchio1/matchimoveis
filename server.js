@@ -5340,3 +5340,26 @@ app.post('/app/visitas/perda-motivo/:id', auth, (req,res)=>{
   res.redirect('/app/visitas');
 });
 
+
+app.get('/admin/zerar-tudo-sistema', (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
+  const resultado = {};
+  for (const base2 of bases) {
+    resultado[base2] = {};
+    const dataPath = path2.join(base2, 'data.json');
+    if (fs2.existsSync(dataPath)) {
+      try { fs2.writeFileSync(dataPath, '[]'); resultado[base2].leads = 'zerado'; } catch(e) { resultado[base2].leads = e.message; }
+    }
+    const visitasPath = path2.join(base2, 'visitas.json');
+    if (fs2.existsSync(visitasPath)) {
+      try { fs2.writeFileSync(visitasPath, '[]'); resultado[base2].visitas = 'zerado'; } catch(e) { resultado[base2].visitas = e.message; }
+    }
+    const notifPath = path2.join(base2, 'notificacoes.json');
+    if (fs2.existsSync(notifPath)) {
+      try { fs2.writeFileSync(notifPath, '[]'); resultado[base2].notificacoes = 'zerado'; } catch(e) { resultado[base2].notificacoes = e.message; }
+    }
+  }
+  res.json({ ok: true, resultado });
+});

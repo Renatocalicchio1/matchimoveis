@@ -33,11 +33,11 @@
       "paginaAnterior": "dashboard"
     },
     "corretor-47992010889": {
-      "paginaAtual": "leads",
-      "labelAtual": "Leads",
-      "dominioAtual": "leads",
-      "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-15T01:41:31.707Z",
+      "paginaAtual": "visitas",
+      "labelAtual": "Visitas",
+      "dominioAtual": "visitas",
+      "rotaAtual": "/app/visitas",
+      "atualizadoEm": "2026-05-15T01:58:06.461Z",
       "paginaAnterior": "leads"
     },
     "cor_ruj7md4cy2": {
@@ -4045,6 +4045,24 @@
       "para": "leads",
       "userId": "corretor-47992010889",
       "data": "2026-05-15T01:38:54.985Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:51:50.256Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:51:51.881Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:58:06.461Z"
     }
   ]
 }

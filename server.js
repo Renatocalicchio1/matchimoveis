@@ -2017,6 +2017,10 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     const texto = msg.conversation || msg.extendedTextMessage?.text || msg.buttonsResponseMessage?.selectedDisplayText || '';
     const timestamp = data.messageTimestamp ? new Date(data.messageTimestamp * 1000).toISOString() : new Date().toISOString();
 
+    // Ignorar mensagens de grupos
+    if (fromJid.includes('@g.us') || fromJid.includes('@broadcast')) {
+      return res.status(200).json({ ok: true, ignorado: 'grupo' });
+    }
     if (fromMe) return res.status(200).json({ ok: true, ignorado: 'fromMe' });
     if (!telefone || !texto) return res.status(200).json({ ok: true, ignorado: 'sem_telefone_ou_texto' });
 

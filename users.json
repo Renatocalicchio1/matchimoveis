@@ -280,19 +280,6 @@
     "cpf": ""
   },
   {
-    "id": "cor_v15m873njx",
-    "nome": "rankim 2 ",
-    "telefone": "47992010888",
-    "celular": "47992010888",
-    "tipo": "imobiliaria",
-    "ativo": true,
-    "codigoUsuario": "RAN-0888",
-    "senha": "kkk",
-    "matchCoins": 0,
-    "matchCoinsTotal": 0,
-    "matchCoinsTransacoes": []
-  },
-  {
     "id": "corretor-47992010889",
     "nome": "Teste",
     "telefone": "47992010889",

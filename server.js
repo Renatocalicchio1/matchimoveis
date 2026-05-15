@@ -3201,6 +3201,8 @@ function gerarXMLPortal(imoveis, portal){
       <transactionType>${i.transacao || 'venda'}</transactionType>
       <address>
         <street>${i.endereco || ''}</street>
+        <streetNumber>${i.numero || ''}</streetNumber>
+        <complement>${i.complemento || ''}</complement>
         <neighborhood>${i.bairro || ''}</neighborhood>
         <city>${i.cidade || ''}</city>
         <state>${i.estado || 'SP'}</state>
@@ -3310,6 +3312,8 @@ function gerarXMLPortal(imoveis, portal){
       xml += '        <City>'+esc(i.cidade || 'São Paulo')+'</City>\n';
       xml += '        <Neighborhood>'+esc(i.bairro || '')+'</Neighborhood>\n';
       xml += '        <Address>'+esc(i.endereco || i.logradouro || '')+'</Address>\n';
+      xml += '        <StreetNumber>'+esc(i.numero || '')+'</StreetNumber>\n';
+      xml += '        <Complement>'+esc(i.complemento || '')+'</Complement>\n';
       xml += '        <PostalCode>'+esc(i.cep || '')+'</PostalCode>\n';
       xml += '      </Location>\n';
       xml += '      <OwnerInfo>\n';

@@ -914,6 +914,24 @@ function filtrarPorUsuario(lista, user){
 
 
 
+// HELPERS DE LEITURA COM FILTRO AUTOMÁTICO
+function lerImoveis(user) {
+  const todos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
+  return filtrarPorUsuario(todos, user);
+}
+function lerLeads(user) {
+  const todos = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
+  return filtrarPorUsuario(todos, user);
+}
+function lerVisitas(user) {
+  const todos = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  return filtrarPorUsuario(todos, user);
+}
+function lerNotificacoes(user) {
+  const todos = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
+  return filtrarPorUsuario(todos, user);
+}
+
 app.get('/app', auth, (req,res)=> res.redirect('/app-home'));
 
 app.get('/app/notificacoes', auth, (req,res)=>{
@@ -933,10 +951,10 @@ app.get('/app/notificacoes', auth, (req,res)=>{
 
 app.get('/app-home', auth, (req,res)=>{
   const user = req.session.user;
-  const todosImoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
-  const todosLeads = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
-  const todasVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
-  const notificacoes = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
+  const todosImoveis = lerImoveis(req.session.user);
+  const todosLeads = lerLeads(req.session.user);
+  const todasVisitas = lerVisitas(req.session.user);
+  const notificacoes = lerNotificacoes(req.session.user);
   const imoveis = filtrarPorUsuario(todosImoveis, user);
   const leadsArr = filtrarPorUsuario(Array.isArray(todosLeads) ? todosLeads : (todosLeads.results || []), user);
   const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
@@ -1016,18 +1034,7 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
       ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'))
       : [];
 
-    const meusImoveis = imoveis.filter(i => {
-      if (!userId) return true;
-      return (
-        i.userId === userId ||
-        i.usuarioId === userId ||
-        i.corretorId === userId ||
-        i.donoId === userId ||
-        i.ownerId === userId ||
-        i.cadastradoPor === userId ||
-        !i.userId && !i.usuarioId && !i.corretorId && !i.donoId && !i.ownerId && !i.cadastradoPor
-      );
-    });
+    const meusImoveis = filtrarPorUsuario(imoveis, user);
 
     const rows = meusImoveis.map(i => {
       const prop = i.proprietario || {};
@@ -1076,8 +1083,7 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
 });
 
 app.get('/app/imoveis', auth, (req,res)=>{
-  const todos = fs.existsSync(dataPath('imoveis.json')) ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
-  const imoveis = filtrarPorUsuario(todos, req.session.user);
+  const imoveis = lerImoveis(req.session.user);
   res.render('app-imoveis', { user: req.session.user, imoveis });
 });
 
@@ -1144,7 +1150,7 @@ app.get('/app/importar-leads', auth, (req,res)=>{
 });
 
 app.get('/app/leads', auth, (req,res)=>{
-  const raw = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
+  const raw = lerLeads(req.session.user);
   const data = Array.isArray(raw) ? raw : (raw.results || []);
   const leads = filtrarPorUsuario(data, req.session.user);
   // usa matchesBase (base interna) ou matches (externos)
@@ -1181,7 +1187,7 @@ app.get('/app/leads', auth, (req,res)=>{
 
 
 app.get('/app/visitas', auth, (req,res)=>{
-  const todasVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const todasVisitas = lerVisitas(req.session.user);
   const user = req.session.user;
   let visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
     String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
@@ -1918,11 +1924,8 @@ setInterval(() => {
 
 // INBOX WHATSAPP
 app.get('/app/whatsapp', auth, (req, res) => {
-  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
   const user = req.session.user;
-  const leadsFiltrados = leads.filter(l => 
-    !l.codigoUsuario || l.codigoUsuario === user.id
-  );
+  const leadsFiltrados = lerLeads(user);
   res.render('app-whatsapp-inbox', { user, leads: leadsFiltrados, active: 'whatsapp', baseUrl: process.env.BASE_URL || 'http://localhost:3000' });
 });
 
@@ -2254,8 +2257,8 @@ app.get('/feed', (req, res) => {
   res.render('feed-reels', { user: req.session.user });
 });
 
-app.get('/api/imoveis', (req, res) => {
-  const imoveis = loadImoveis();
+app.get('/api/imoveis', auth, (req, res) => {
+  const imoveis = lerImoveis(req.session.user);
 
 app.post('/imovel/:id/status', (req,res)=>{
   const fs=require('fs');
@@ -2601,6 +2604,10 @@ app.get('/app/lead/:id', auth, (req, res) => {
   const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
   const lead = leads.find(l => String(l.id) === String(req.params.id));
   if (!lead) return res.status(404).send('Lead não encontrada');
+  // Blindagem: verifica se lead pertence ao usuário logado
+  const uid = String(req.session.user.id || '');
+  const leadOwner = String(lead.userId || lead.codigoUsuario || lead.corretorId || '');
+  if (leadOwner && leadOwner !== uid) return res.status(403).send('Acesso negado');
 
   if (!Array.isArray(lead.historico)) lead.historico = [];
   lead.historico.push({

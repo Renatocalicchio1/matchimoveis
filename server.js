@@ -2084,6 +2084,24 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
     console.log('[WEBHOOK WA] de:', telefone, '| texto:', texto);
 
+    // ── IDENTIFICAR USERID PELO INSTANCE ─────────────────────
+    let _webhookUserId = '';
+    try {
+      const _users = JSON.parse(fs.readFileSync(require('path').join(__dirname, 'users.json'), 'utf8'));
+      const _userByInstance = _users.find(u => u.whatsappInstance === instance);
+      if (_userByInstance) {
+        _webhookUserId = _userByInstance.id;
+      } else {
+        // fallback: busca pelo número conectado
+        const _userByPhone = _users.find(u => {
+          const t = String(u.whatsappNumero || u.telefone || '').replace(/\D/g,'');
+          return t && t.slice(-8) === telefone.slice(-8);
+        });
+        if (_userByPhone) _webhookUserId = _userByPhone.id;
+      }
+      if (_webhookUserId) console.log('[WEBHOOK WA] userId identificado:', _webhookUserId);
+    } catch(e) {}
+
     // ── ENCONTRAR LEADS PATH E LEAD ──────────────────────────
     const fs2 = require('fs');
     const path2 = require('path');
@@ -2139,6 +2157,8 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         whatsapp: telefone,
         origem: 'whatsapp',
         status: 'novo',
+        userId: _webhookUserId || '',
+        codigoUsuario: _webhookUserId || '',
         criadoEm: new Date().toISOString(),
         mensagens: [],
         perfilIA: {},
@@ -5502,4 +5522,113 @@ app.get('/admin/deletar-imoveis/:userId', (req, res) => {
     } catch(e) {}
   }
   res.json({ ok: true, userId, deletados });
+});
+
+// ── WHATSAPP CONEXÃO POR USUÁRIO ─────────────────────────────
+app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
+  const userId = req.session.user.id;
+  const instanceName = 'match-' + userId.replace(/[^a-z0-9]/gi, '').toLowerCase().substring(0, 20);
+  const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+  const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+
+  try {
+    // Cria instância se não existir
+    await fetch(EVOLUTION_URL + '/instance/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
+      body: JSON.stringify({
+        instanceName,
+        integration: 'WHATSAPP-BAILEYS',
+        webhook: {
+          url: (process.env.BASE_URL || 'https://matchimoveis.onrender.com') + '/webhook/whatsapp',
+          enabled: true,
+          events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE']
+        }
+      })
+    }).catch(() => {});
+
+    // Gera QR Code
+    const qrRes = await fetch(EVOLUTION_URL + '/instance/connect/' + instanceName, {
+      headers: { 'apikey': EVOLUTION_KEY }
+    });
+    const qrData = await qrRes.json();
+
+    // Salva instanceName no usuário
+    const usersPath = require('path').join(__dirname, 'users.json');
+    const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+    const idx = users.findIndex(u => u.id === userId);
+    if (idx >= 0) {
+      users[idx].whatsappInstance = instanceName;
+      users[idx].whatsappStatus = 'connecting';
+      fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+    }
+
+    res.json({ ok: true, base64: qrData.base64 || qrData.qrcode?.base64, instanceName });
+  } catch(e) {
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
+app.get('/app/whatsapp/status', auth, async (req, res) => {
+  const user = req.session.user;
+  const instanceName = user.whatsappInstance || ('match-' + user.id.replace(/[^a-z0-9]/gi, '').toLowerCase().substring(0, 20));
+  const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+  const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+
+  try {
+    const r = await fetch(EVOLUTION_URL + '/instance/connectionState/' + instanceName, {
+      headers: { 'apikey': EVOLUTION_KEY }
+    });
+    const d = await r.json();
+    const status = d.instance?.state || 'close';
+
+    // Atualiza status no users.json
+    if (status === 'open') {
+      const usersPath = require('path').join(__dirname, 'users.json');
+      const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+      const idx = users.findIndex(u => u.id === user.id);
+      if (idx >= 0) {
+        users[idx].whatsappStatus = 'connected';
+        // Pega ownerJid
+        const instRes = await fetch(EVOLUTION_URL + '/instance/fetchInstances', { headers: { 'apikey': EVOLUTION_KEY } });
+        const instData = await instRes.json();
+        const inst = instData.find(i => i.name === instanceName);
+        if (inst && inst.ownerJid) {
+          users[idx].whatsappNumero = inst.ownerJid.replace('@s.whatsapp.net', '').replace(/D/g, '');
+        }
+        fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+        req.session.user = users[idx];
+      }
+    }
+
+    res.json({ ok: true, status, instanceName });
+  } catch(e) {
+    res.json({ ok: false, status: 'close', erro: e.message });
+  }
+});
+
+app.post('/app/whatsapp/desconectar', auth, async (req, res) => {
+  const user = req.session.user;
+  const instanceName = user.whatsappInstance;
+  if (!instanceName) return res.json({ ok: false, erro: 'sem instancia' });
+  const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+  const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+
+  try {
+    await fetch(EVOLUTION_URL + '/instance/logout/' + instanceName, {
+      method: 'DELETE', headers: { 'apikey': EVOLUTION_KEY }
+    });
+    const usersPath = require('path').join(__dirname, 'users.json');
+    const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+    const idx = users.findIndex(u => u.id === user.id);
+    if (idx >= 0) {
+      users[idx].whatsappStatus = 'disconnected';
+      users[idx].whatsappNumero = '';
+      fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+      req.session.user = users[idx];
+    }
+    res.json({ ok: true });
+  } catch(e) {
+    res.json({ ok: false, erro: e.message });
+  }
 });

@@ -5408,3 +5408,51 @@ app.get('/admin/deletar-conta/:userId', (req, res) => {
   }
   res.json({ ok: true, userId, removido });
 });
+
+app.get('/admin/diagnostico-contas', (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
+  let imoveis = [], users = [];
+  for (const base of bases) {
+    const ip = path2.join(base, 'imoveis.json');
+    if (fs2.existsSync(ip)) try { imoveis = JSON.parse(fs2.readFileSync(ip, 'utf8')); break; } catch(e) {}
+  }
+  for (const base of bases) {
+    const up = path2.join(base, 'users.json');
+    if (fs2.existsSync(up)) try { users = JSON.parse(fs2.readFileSync(up, 'utf8')); break; } catch(e) {}
+  }
+  const resultado = {};
+  const semVinculo = imoveis.filter(im => !im.userId && !im.codigoUsuario && !im.usuarioId).length;
+  users.forEach(u => {
+    const meus = imoveis.filter(im => (im.userId || im.codigoUsuario || im.usuarioId) === u.id);
+    resultado[u.id] = { nome: u.nome, telefone: u.telefone, total_imoveis: meus.length, ativos: meus.filter(im => im.ativo !== false).length, inativos: meus.filter(im => im.ativo === false).length };
+  });
+  const idsConhecidos = users.map(u => u.id);
+  const idsEstranhos = [...new Set(imoveis.map(im => im.userId || im.codigoUsuario || im.usuarioId).filter(id => id && !idsConhecidos.includes(id)))];
+  res.json({ ok: true, contas: resultado, sem_vinculo: semVinculo, ids_estranhos: idsEstranhos, total_imoveis: imoveis.length });
+});
+
+app.get('/admin/diagnostico-contas', (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
+  let imoveis = [], users = [];
+  for (const base of bases) {
+    const ip = path2.join(base, 'imoveis.json');
+    if (fs2.existsSync(ip)) try { imoveis = JSON.parse(fs2.readFileSync(ip, 'utf8')); break; } catch(e) {}
+  }
+  for (const base of bases) {
+    const up = path2.join(base, 'users.json');
+    if (fs2.existsSync(up)) try { users = JSON.parse(fs2.readFileSync(up, 'utf8')); break; } catch(e) {}
+  }
+  const resultado = {};
+  const semVinculo = imoveis.filter(im => !im.userId && !im.codigoUsuario && !im.usuarioId).length;
+  users.forEach(u => {
+    const meus = imoveis.filter(im => (im.userId || im.codigoUsuario || im.usuarioId) === u.id);
+    resultado[u.id] = { nome: u.nome, telefone: u.telefone, total_imoveis: meus.length, ativos: meus.filter(im => im.ativo !== false).length, inativos: meus.filter(im => im.ativo === false).length };
+  });
+  const idsConhecidos = users.map(u => u.id);
+  const idsEstranhos = [...new Set(imoveis.map(im => im.userId || im.codigoUsuario || im.usuarioId).filter(id => id && !idsConhecidos.includes(id)))];
+  res.json({ ok: true, contas: resultado, sem_vinculo: semVinculo, ids_estranhos: idsEstranhos, total_imoveis: imoveis.length });
+});

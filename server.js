@@ -3249,6 +3249,8 @@ function gerarXMLPortal(imoveis, portal){
       <transactionType>${i.transacao || 'venda'}</transactionType>
       <address>
         <street>${i.endereco || ''}</street>
+        <streetNumber>${i.numero || ''}</streetNumber>
+        <complement>${i.complemento || ''}</complement>
         <neighborhood>${i.bairro || ''}</neighborhood>
         <city>${i.cidade || ''}</city>
         <state>${i.estado || 'SP'}</state>
@@ -3358,6 +3360,8 @@ function gerarXMLPortal(imoveis, portal){
       <transactionType>${i.transacao || 'venda'}</transactionType>
       <address>
         <street>${i.endereco || ''}</street>
+        <streetNumber>${i.numero || ''}</streetNumber>
+        <complement>${i.complemento || ''}</complement>
         <neighborhood>${i.bairro || ''}</neighborhood>
         <city>${i.cidade || ''}</city>
         <state>${i.estado || 'SP'}</state>

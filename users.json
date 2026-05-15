@@ -555,5 +555,13 @@
     "xmlUrl": "https://rbfirmino.com.br/exportar/rankim?purpose=sale",
     "xmlAtualizadoEm": "2026-05-12T02:01:09.278Z",
     "xmlTotal": 1918
+  },
+  {
+    "id": "cor_0x6hzdlczg",
+    "nome": "Mario",
+    "telefone": "11999965998",
+    "email": "",
+    "tipo": "corretor",
+    "criadoEm": "2026-05-15T02:11:37.530Z"
   }
 ]

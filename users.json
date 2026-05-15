@@ -280,7 +280,7 @@
     "cpf": ""
   },
   {
-    "id": "imobiliaria-47992010888",
+    "id": "cor_v15m873njx",
     "nome": "rankim 2 ",
     "telefone": "47992010888",
     "celular": "47992010888",
@@ -555,14 +555,5 @@
     "xmlUrl": "https://rbfirmino.com.br/exportar/rankim?purpose=sale",
     "xmlAtualizadoEm": "2026-05-12T02:01:09.278Z",
     "xmlTotal": 1918
-  },
-  {
-    "id": "cor_ruj7md4cy2",
-    "nome": "Eduardo",
-    "telefone": "479929123932",
-    "celular": "479929123932",
-    "tipo": "corretor",
-    "ativo": true,
-    "codigoUsuario": "EDU-3932"
   }
 ]

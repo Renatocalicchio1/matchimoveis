@@ -5,8 +5,8 @@
       "labelAtual": "Dashboard",
       "dominioAtual": "dashboard",
       "rotaAtual": "/app-home",
-      "atualizadoEm": "2026-05-12T00:24:03.343Z",
-      "paginaAnterior": "imoveis"
+      "atualizadoEm": "2026-05-15T02:02:58.206Z",
+      "paginaAnterior": "leads"
     },
     "corretor-11975720750": {
       "paginaAtual": "visitas",
@@ -25,20 +25,20 @@
       "paginaAnterior": "cadastro"
     },
     "imobiliaria-47992010888": {
-      "paginaAtual": "leads",
-      "labelAtual": "Leads",
-      "dominioAtual": "leads",
-      "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-14T19:38:55.548Z",
-      "paginaAnterior": "dashboard"
+      "paginaAtual": "dashboard",
+      "labelAtual": "Dashboard",
+      "dominioAtual": "dashboard",
+      "rotaAtual": "/app-home",
+      "atualizadoEm": "2026-05-15T02:03:06.499Z",
+      "paginaAnterior": "leads"
     },
     "corretor-47992010889": {
-      "paginaAtual": "visitas",
-      "labelAtual": "Visitas",
-      "dominioAtual": "visitas",
-      "rotaAtual": "/app/visitas",
-      "atualizadoEm": "2026-05-15T01:58:06.461Z",
-      "paginaAnterior": "leads"
+      "paginaAtual": "dashboard",
+      "labelAtual": "Dashboard",
+      "dominioAtual": "dashboard",
+      "rotaAtual": "/app-home",
+      "atualizadoEm": "2026-05-15T02:03:18.068Z",
+      "paginaAnterior": "dashboard"
     },
     "cor_ruj7md4cy2": {
       "paginaAtual": "dashboard",
@@ -4063,6 +4063,48 @@
       "para": "visitas",
       "userId": "corretor-47992010889",
       "data": "2026-05-15T01:58:06.461Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T02:01:56.084Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T02:01:57.135Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T02:01:58.636Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T02:02:03.281Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-15T02:02:20.225Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "imobiliaria-47991919191",
+      "data": "2026-05-15T02:02:58.206Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "imobiliaria-47992010888",
+      "data": "2026-05-15T02:03:06.499Z"
     }
   ]
 }

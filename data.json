@@ -671,7 +671,92 @@
           "url": "https://www.imovelweb.com.br/propiedades/-3034436969.html"
         }
       }
-    ]
+    ],
+    "timeline": [
+      {
+        "tipo": "mensagem",
+        "canal": "whatsapp",
+        "texto": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
+        "timestamp": "2026-05-15T00:55:56.569Z"
+      },
+      {
+        "tipo": "mensagem",
+        "canal": "whatsapp",
+        "texto": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
+        "timestamp": "2026-05-15T00:56:15.080Z"
+      },
+      {
+        "tipo": "mensagem",
+        "canal": "whatsapp",
+        "texto": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
+        "timestamp": "2026-05-15T00:58:58.209Z"
+      }
+    ],
+    "mensagens": [
+      {
+        "id": "1778806556569",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
+        "timestamp": "2026-05-15T00:55:56.569Z",
+        "lida": false
+      },
+      {
+        "id": "1778806575080",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
+        "timestamp": "2026-05-15T00:56:15.080Z",
+        "lida": false
+      },
+      {
+        "id": "1778806738209",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
+        "timestamp": "2026-05-15T00:58:58.209Z",
+        "lida": false
+      }
+    ],
+    "ultimaMensagem": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
+    "ultimaMensagemEm": "2026-05-15T00:58:58.209Z",
+    "perfilIA": {
+      "tipo": "apartamento",
+      "quartos": 2,
+      "valorMax": 2000,
+      "intencao": "alugar",
+      "faseFunil": "qualificado",
+      "temperatura": "morno"
+    },
+    "temperatura": "morno",
+    "faseFunil": "qualificado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-15T00:58:58.212Z",
+      "resumo": "Quer alugar, apartamento, 2 quartos, até R$2.000, 3 mensagem(ns)"
+    },
+    "score": 71,
+    "scoreAtualizadoEm": "2026-05-15T00:58:58.238Z",
+    "intencao": "alugar",
+    "matchesAuto": [],
+    "matchAutoEm": "2026-05-15T00:58:58.367Z",
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "timestamp": "2026-05-15T00:55:56.882Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "timestamp": "2026-05-15T00:56:15.223Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "timestamp": "2026-05-15T00:58:58.367Z"
+      }
+    ],
+    "followUps": []
   },
   {
     "nome": "Alexandre",
@@ -928,5 +1013,60 @@
         }
       }
     ]
+  },
+  {
+    "id": "1778807139595",
+    "nome": "5547999888777",
+    "telefone": "5547999888777",
+    "whatsapp": "5547999888777",
+    "origem": "whatsapp",
+    "status": "novo",
+    "criadoEm": "2026-05-15T01:05:39.595Z",
+    "mensagens": [
+      {
+        "id": "1778807139601",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "oi quero comprar apartamento 3 quartos em Balneario Camboriu",
+        "timestamp": "2026-05-15T01:05:39.601Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "apartamento",
+      "quartos": 3,
+      "intencao": "comprar",
+      "faseFunil": "qualificado",
+      "temperatura": "morno"
+    },
+    "score": 57,
+    "temperatura": "morno",
+    "timeline": [
+      {
+        "tipo": "mensagem",
+        "canal": "whatsapp",
+        "texto": "oi quero comprar apartamento 3 quartos em Balneario Camboriu",
+        "timestamp": "2026-05-15T01:05:39.601Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "timestamp": "2026-05-15T01:05:39.723Z"
+      }
+    ],
+    "followUps": [],
+    "ultimaMensagem": "oi quero comprar apartamento 3 quartos em Balneario Camboriu",
+    "ultimaMensagemEm": "2026-05-15T01:05:39.601Z",
+    "faseFunil": "qualificado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-15T01:05:39.606Z",
+      "resumo": "Quer comprar, apartamento, 3 quartos, 1 mensagem(ns)"
+    },
+    "scoreAtualizadoEm": "2026-05-15T01:05:39.606Z",
+    "intencao": "comprar",
+    "matchesAuto": [],
+    "matchAutoEm": "2026-05-15T01:05:39.723Z"
   }
 ]

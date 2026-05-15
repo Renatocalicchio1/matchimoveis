@@ -165,6 +165,17 @@ function responder(mNorm, d, leads, btn, chip) {
 
   // QUENTES (com match + sem visita)
   if (/quente|interessado|alta intencao/.test(mNorm)) {
+    if (d.quentes > 0) {
+      let resp = `🔥 Você tem <b>${d.quentes} lead(s) quente(s)</b> agora!<br><br>`;
+      if (d.leadsQuentes && d.leadsQuentes.length > 0) {
+        d.leadsQuentes.forEach(l => {
+          resp += `• <b>${l.nome||'Sem nome'}</b> — ${l.faseFunil||'qualificado'}`;
+          if (l.ultimaMensagem) resp += ` — "${l.ultimaMensagem.substring(0,40)}..."`;
+          resp += '<br>';
+        });
+      }
+      return resp;
+    }
     const taxa = d.leads>0 ? Math.round(d.comMatch/d.leads*100) : 0;
     return `🔥 Leads quentes = com match + ainda sem visita agendada.<br>`+
       `Você tem <strong>${d.comMatch}</strong> leads com match (${taxa}%).<br><br>`+

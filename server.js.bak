@@ -1,11 +1,69 @@
 require("dotenv").config();
 const express = require('express');
-const cerebroNLP = require('./services/cerebro-nlp');nconst cerebro = require('./cerebro/index');
+const cerebroApp = require("./cerebro/index");
+const cerebroNLP = require("./services/cerebro-nlp");
 
 
 
 const fs = require('fs');
+const centralOperacional = require('./services/centralOperacional');
+const { aplicarWorkflowVisita } = require('./services/visitaWorkflow');
 const path = require('path');
+
+const DATA_DIR = process.env.RENDER
+  ? '/opt/render/project/src/data'
+  : __dirname;
+
+const BASE_URL = process.env.RENDER
+  ? 'https://matchimoveis.onrender.com'
+  : 'http://localhost:3000';
+
+function dataFile(name){
+  return path.join(DATA_DIR, name);
+}
+
+function dataPath(file){
+  return dataFile(file);
+}
+
+function ensureDataFiles(){
+  try{
+    if(!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive:true });
+
+    const arquivos = [
+      'users.json',
+      'imoveis.json',
+      'leads.json',
+      'visitas.json',
+      'notificacoes.json',
+      'data.json',
+      'portais.json',
+      'xml-feeds.json',
+      'assistente-memoria.json',
+      'assistente-navegacao.json',
+      'assistente-nao-entendidos.json',
+      'chat-history.json'
+    ];
+
+    arquivos.forEach(file=>{
+      const destino = dataFile(file);
+      const origem = path.join(__dirname, file);
+
+      if(!fs.existsSync(destino)){
+        if(fs.existsSync(origem)){
+          fs.copyFileSync(origem, destino);
+        } else {
+          fs.writeFileSync(destino, file.includes('navegacao') ? '{"sessoes":{},"fluxos":[]}' : '[]');
+        }
+      }
+    });
+  }catch(e){
+    console.error('Erro ensureDataFiles:', e.message);
+  }
+}
+
+ensureDataFiles();
+
 
 
 
@@ -26,8 +84,6 @@ if (process.env.RENDER) {
 }
 
 // Caminho persistente no Render
-const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : '.';
-function dataPath(file) { return DATA_DIR + '/' + file; }
 
 const app = express();
 
@@ -38,6 +94,8 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+const navegacao = require("./cerebro/navegacao");
+app.use(navegacao.rastrear); // rastreia navegação para o cérebro
 
 const port = 3000;
 
@@ -52,7 +110,10 @@ app.use(express.json());
 
 function loadImoveis() {
   try {
-    return JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+
+    console.log('BODY LEAD INTERESSE =>');
+    console.log(JSON.stringify(req.body,null,2));
+    return JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   } catch {
     return [];
   }
@@ -80,7 +141,7 @@ app.get('/api/testar-xml', async (req, res) => {
     const request = client.get(url, (response) => {
       response.on('data', chunk => {
         data += chunk.toString();
-        total = (data.match(/<Listing>/g) || []).length;
+        total = (data.match(/<[Ll]isting[^>]*>/g) || []).length;
         if (total >= 5 && !respondido) {
           respondido = true;
           request.destroy();
@@ -116,7 +177,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
     total: 0,
     mensagem: 'Importando XML...'
   };
-  global.importUserId = req.session.user ? req.session.user.id : '';
+  global.importUserId = req.body.userId || req.query.userId || (req.session.user ? req.session.user.id : '');
   global.importXmlUrl = xmlUrl;
 
   res.json({ ok:true, status:'rodando' });
@@ -125,11 +186,11 @@ app.post('/app/importar', upload.any(), async (req, res) => {
     try {
       const { execSync } = require('child_process');
       const userId = global.importUserId || '';
-      execSync(`node importXMLCompleto.js "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
+      execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
 
       const fs = require('fs');
-      const imoveis = fs.existsSync('imoveis.json')
-        ? JSON.parse(fs.readFileSync('imoveis.json','utf8'))
+      const imoveis = fs.existsSync(dataFile('imoveis.json'))
+        ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'))
         : [];
 
       global.importStatus = {
@@ -177,6 +238,48 @@ app.post('/app/importar-proprietarios', upload.any(), async (req, res) => {
 
 
 
+app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
+  try{
+    const file = (req.files || [])[0];
+
+    if(!file){
+      return res.json({ ok:false, resposta:'❌ Nenhum arquivo enviado.' });
+    }
+
+    const nome = (file.originalname || '').toLowerCase();
+
+    if(nome.endsWith('.csv') || nome.endsWith('.xlsx') || nome.endsWith('.xls')){
+      const { execSync } = require('child_process');
+      const userId = req.session.user ? req.session.user.id : '';
+
+      execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio:'inherit', cwd: __dirname });
+
+      return res.json({
+        ok:true,
+        resposta:'✅ Planilha de leads importada com sucesso. Acesse Leads para conferir.'
+      });
+    }
+
+    if(nome.endsWith('.xml')){
+      return res.json({
+        ok:false,
+        resposta:'📥 Para importar XML de imóveis, envie a URL do feed XML no chat.'
+      });
+    }
+
+    return res.json({
+      ok:false,
+      resposta:'❌ Formato não suportado. Envie CSV, XLS ou XLSX para leads.'
+    });
+
+  }catch(e){
+    return res.json({
+      ok:false,
+      resposta:'❌ Erro ao importar arquivo: '+e.message
+    });
+  }
+});
+
 app.post('/app/leads', upload.any(), async (req, res) => {
   try {
     const file = (req.files && req.files[0]) || req.file;
@@ -184,13 +287,55 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 
     const { execSync } = require("child_process");
 
-    const userId = req.session.user ? req.session.user.id : ""; execSync(`node processLeads.js "${file.path}" "${userId}"`, { stdio: "inherit" });
+    const userId = req.session.user ? req.session.user.id : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio: "inherit", cwd: __dirname });
 
     return res.redirect("/app/leads");
 
   } catch (err) {
     return res.send("Erro: " + err.message);
   }
+});
+
+// CADASTRAR LEAD MANUAL (pelo chat ou formulário)
+app.post("/app/leads/manual", auth, (req, res) => {
+try {
+const fs = require("fs");
+const { resolverUsuario } = require("./services/usuarios/resolverUsuario");
+const { resolverDestinoVisita } = require("./services/visita/resolverDestinoVisita");
+const { nome, tipo, bairro, cidade, estado, valor_imovel, quartos, suites, vagas, area_m2, tipo_operacao } = req.body; const contato = req.body.contato || req.body.celular;
+if (!nome || !contato) return res.json({ ok: false, erro: "Nome e contato são obrigatórios" });
+const data = fs.existsSync(dataPath("data.json")) ? JSON.parse(fs.readFileSync(dataPath("data.json"), "utf8")) : [];
+const userId = req.session.user.id;
+const novoLead = {
+nome: nome.trim(),
+contato: String(contato).replace(/\D/g,""),
+tipo: tipo || "",
+tipo_operacao: tipo_operacao || "",
+bairro: bairro || "",
+cidade: cidade || "",
+estado: estado || "",
+valor_imovel: Number(valor_imovel) || 0,
+quartos: Number(quartos) || 0,
+suites: Number(suites) || 0,
+vagas: Number(vagas) || 0,
+area_m2: Number(area_m2) || 0,
+id: Date.now().toString(),
+createdAt: new Date().toISOString(),
+userId,
+usuarioId: userId,
+corretorId: userId,
+matchCount: 0,
+matchesBase: [],
+matchCountBase: 0,
+indisponivel: false,
+status: "novo"
+};
+data.push(novoLead);
+fs.writeFileSync(dataPath("data.json"), JSON.stringify(data, null, 2));
+res.json({ ok: true, lead: novoLead });
+} catch(e) {
+res.json({ ok: false, erro: e.message });
+}
 });
 
 //
@@ -208,7 +353,7 @@ app.post('/app/portais', (req,res)=>{
     config[p] = ativos.includes(p);
   });
 
-  require('fs').writeFileSync('portais.json', JSON.stringify(config,null,2));
+  require('fs').writeFileSync(dataFile('portais.json'), JSON.stringify(config,null,2));
 
   res.redirect('/app/portais');
 });
@@ -219,9 +364,26 @@ app.get('/feed/:portal', (req,res)=>{
 
   execSync(`node exportXML.js ${portal}`);
 
-  res.sendFile(require('path').resolve(`feed-${portal}.xml`));
+  res.sendFile(dataPath(`feed-${portal}.xml`));
 });
 
+
+// Cadastro secreto
+app.get('/cadastro-secreto', (req,res)=>{
+  if((req.query.token||'') !== 'match2025') return res.status(403).send('Acesso negado');
+  res.send('<html><head><meta charset="UTF-8"><title>Nova Conta</title></head><body style="font-family:Arial;max-width:420px;margin:60px auto;padding:20px"><h2 style="color:#ff385c">Nova Conta</h2><form method="POST" action="/cadastro-secreto?token=match2025"><p><input name="nome" placeholder="Nome" required style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"></p><p><input name="telefone" placeholder="Telefone" required style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"></p><p><input name="senha" type="password" placeholder="Senha" required style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"></p><p><select name="tipoConta" style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"><option value="imobiliaria">Imobiliaria</option><option value="corretor">Corretor</option></select></p><p><button type="submit" style="width:100%;padding:12px;background:#ff385c;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer">Criar Conta</button></p></form></body></html>');
+});
+app.post('/cadastro-secreto', (req,res)=>{
+  if((req.query.token||'') !== 'match2025') return res.status(403).send('Acesso negado');
+  const {nome,telefone,senha,tipoConta} = req.body;
+  const users = fs.existsSync(dataPath('users.json')) ? JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8')) : [];
+  const prefixo = tipoConta==='imobiliaria' ? 'imob' : tipoConta==='corretor' ? 'cor' : 'usr';
+  const uid = prefixo+'_'+Math.random().toString(36).substring(2,8)+Date.now().toString(36).slice(-4);
+  const codigo = (nome||'USR').substring(0,3).toUpperCase()+'-'+Math.floor(1000+Math.random()*9000);
+  users.push({id:uid,nome,telefone,celular:telefone,senha,tipo:tipoConta||'corretor',ativo:true,codigoUsuario:codigo});
+  fs.writeFileSync(dataPath('users.json'),JSON.stringify(users,null,2));
+  res.send('<h2 style="color:green;font-family:Arial">Conta criada!</h2><p>ID: '+uid+'</p><p>Codigo: '+codigo+'</p><a href="/login">Ir para login</a>');
+});
 
 app.get('/login', (req,res)=>{
   res.render('login');
@@ -238,8 +400,10 @@ app.post('/login', (req,res)=>{
     const existe = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);
     if(existe) return res.render('login', { error: 'Este celular já está cadastrado. Entre usando apenas o celular.' });
 
+    const prefixo = req.body.tipoConta === 'imobiliaria' ? 'imob' : req.body.tipoConta === 'corretor' ? 'cor' : 'usr';
+    const uid = prefixo + '_' + Math.random().toString(36).substring(2,8) + Date.now().toString(36).slice(-4);
     const novo = {
-      id: (req.body.tipoConta || 'user') + '-' + telefone,
+      id: uid,
       nome: req.body.nome,
       telefone,
       celular: telefone,
@@ -293,12 +457,12 @@ app.post('/login', (req,res)=>{
 // ===== LEADS + MATCH + OFERTA CLIENTE =====
 function carregarLeads(){
   const fs = require('fs');
-  return fs.existsSync('leads.json') ? JSON.parse(fs.readFileSync('leads.json','utf8')) : [];
+  return fs.existsSync(dataFile('leads.json')) ? JSON.parse(fs.readFileSync(dataFile('leads.json'),'utf8')) : [];
 }
 
 function salvarLeads(leads){
   const fs = require('fs');
-  fs.writeFileSync('leads.json', JSON.stringify(leads,null,2));
+  fs.writeFileSync(dataFile('leads.json'), JSON.stringify(leads,null,2));
 }
 
 function marcarEtapaLead(lead, etapa){
@@ -311,13 +475,31 @@ function marcarEtapaLead(lead, etapa){
 
 app.get('/cliente/oferta/:leadId', (req,res)=>{
   const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
-  const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
+  const userIdOferta = req.query.userId || req.query.uid || '';
+
+  let lead = null;
+
+  if (userIdOferta) {
+    lead = leads.find(l =>
+      String(l.id || l.leadId || '') === String(req.params.leadId) &&
+      String(l.userId || l.usuarioId || l.corretorId || '') === String(userIdOferta)
+    );
+  }
+
+  if (!lead) {
+    lead = leads.find(l => String(l.id || l.leadId || '') === String(req.params.leadId));
+  }
+
   if(!lead) return res.status(404).send('Lead não encontrado');
 
   lead.matches = lead.matchesBase || lead.matches || [];
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
   fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
-  res.render('cliente-oferta', { user: null, lead });
+  res.render('cliente-oferta', {
+    user: null,
+    lead,
+    queryUserId: userIdOferta || lead.userId || lead.usuarioId || lead.corretorId || ''
+  });
 });
 
 app.get('/cliente/oferta/:leadId/escolher/:idx', (req,res)=>{
@@ -344,9 +526,11 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   // Gravar em visitas.json vinculado ao dono da lead
   const imovel = lead.imovelVisita || {};
   // Busca proprietario no imoveis.json
-  const imoveisBase = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json','utf8')) : [];
+  const imoveisBase = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const imovelBase = imoveisBase.find(i => String(i.idExterno||i.id) === String(imovel.idExterno||imovel.id||imovel.id_anuncio||''));
   const proprietario = imovelBase ? (imovelBase.proprietario || {}) : (imovel.proprietario || {});
+  const userFinal = user || { id: "TESTE-LOCAL", nome: "Usuário Teste", celular: "11999999999", telefone: "11999999999" };
+
   const novaVisita = {
     id: Date.now().toString(),
     leadId: lead.id || lead.leadId,
@@ -358,7 +542,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     imovelBairro: imovel.bairro || '',
     imovelCidade: imovel.cidade || '',
     imovelEstado: imovel.estado || '',
-    usuarioDestinoId: lead.userId || lead.codigoUsuario || '',
+    usuarioDestinoId: lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '',
     usuarioDestinoNome: '',
     usuarioDestinoPerfil: '',
     usuarioDestinoTelefone: '',
@@ -380,8 +564,9 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     data: new Date().toISOString(),
     data_br: new Date().toLocaleString('pt-BR')
   };
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
-  visitas.push(novaVisita);
+  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
+  const visitaComWorkflow = aplicarWorkflowVisita(novaVisita);
+  visitas.push(visitaComWorkflow);
   fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
 
   res.redirect('/cliente/oferta/'+req.params.leadId+'?visita=ok');
@@ -424,14 +609,14 @@ function registrarVisita(lead){
 
 // Página de confirmação do proprietário
 app.get('/proprietario/visita/:visitaId', (req, res) => {
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const visita = visitas.find(v => v.id === req.params.visitaId);
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('proprietario-visita', { visita });
 });
 
 app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.visitaId);
   if (idx === -1) return res.status(404).send('Visita não encontrada');
   
@@ -748,14 +933,14 @@ app.get('/app/notificacoes', auth, (req,res)=>{
 
 app.get('/app-home', auth, (req,res)=>{
   const user = req.session.user;
-  const todosImoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const todosImoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const todosLeads = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
   const todasVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
   const notificacoes = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
   const imoveis = filtrarPorUsuario(todosImoveis, user);
   const leadsArr = filtrarPorUsuario(Array.isArray(todosLeads) ? todosLeads : (todosLeads.results || []), user);
   const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
-    String(v.corretorId || v.usuarioDestinoId || '') === String(user.id || '') ||
+    String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
     String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/D/g,'') === String(user.celular || user.telefone || '').replace(/D/g,'')
   );
   const minhasNotificacoes = notificacoes.filter(n => String(n.usuarioId) === String(user.id));
@@ -827,8 +1012,8 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
     const user = req.session.user || {};
     const userId = user.id || user.celular || user.telefone || user.email || '';
 
-    const imoveis = fs.existsSync('imoveis.json')
-      ? JSON.parse(fs.readFileSync('imoveis.json', 'utf8'))
+    const imoveis = fs.existsSync(dataFile('imoveis.json'))
+      ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'))
       : [];
 
     const meusImoveis = imoveis.filter(i => {
@@ -848,7 +1033,7 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
       const prop = i.proprietario || {};
       const estado = typeof i.estado === 'object' ? (i.estado['#text'] || i.estado.abbreviation || i.estado.uf || '') : (i.estado || '');
 
-      const id = i.idExterno || i.idOriginal || i.id || i.codigo || '';
+      const id = i.id || i.idExterno || i.idOriginal || i.codigo || '';
       const urlPublica = i.urlPublica || i.url || i.link || (id ? `http://localhost:3000/imovel/${id}` : '');
 
       return {
@@ -917,12 +1102,37 @@ app.get('/app/cadastro', auth, (req,res)=>{
 });
 
 ////app.get('/app/portais', auth, (req,res)=>{
-//  const portais = fs.existsSync('portais.json') ? JSON.parse(fs.readFileSync('portais.json','utf8')) : [];
+//  const portais = fs.existsSync(dataFile('portais.json')) ? JSON.parse(fs.readFileSync(dataFile('portais.json'),'utf8')) : [];
 //  res.render('app-portais', { user: req.session.user, portais });
 //});
 
 app.get('/app/perfil', auth, (req,res)=>{
   res.render('app-perfil', { user: req.session.user });
+});
+
+app.post('/app/perfil', auth, (req,res)=>{
+  const usersFile = 'users.json';
+  const users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile,'utf8')) : [];
+  const uid = String(req.session.user.id || '');
+
+  const idx = users.findIndex(u => String(u.id || '') === uid);
+
+  const dados = {
+    nome: req.body.nome || '',
+    creci: req.body.creci || '',
+    cpf: req.body.cpf || '',
+    celular: req.body.celular || '',
+    telefone: req.body.celular || ''
+  };
+
+  if(idx >= 0){
+    users[idx] = { ...users[idx], ...dados };
+    fs.writeFileSync(usersFile, JSON.stringify(users,null,2));
+  }
+
+  req.session.user = { ...req.session.user, ...dados };
+
+  res.redirect('/app/perfil');
 });
 
 app.get('/app-importar-leads', auth, (req,res)=>{
@@ -956,6 +1166,7 @@ app.get('/app/leads', auth, (req,res)=>{
   const totalMatches = leads.reduce((sum,item)=> sum + ((item.matches && item.matches.length) || 0), 0);
   res.render('app-leads', {
     user: req.session.user,
+    userId: req.session.user ? req.session.user.id : '',
     active: 'leads',
     leads,
     stats: {
@@ -972,12 +1183,16 @@ app.get('/app/leads', auth, (req,res)=>{
 app.get('/app/visitas', auth, (req,res)=>{
   const todasVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
   const user = req.session.user;
-  const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
-    String(v.corretorId || v.usuarioDestinoId || '') === String(user.id || '') ||
-    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/D/g,'') === String(user.celular || user.telefone || '').replace(/D/g,'')
+  let visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
+    String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
+    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
   );
+  const { status, busca, data } = req.query;
+  if (status && status !== 'todos') visitas = visitas.filter(v => v.status === status);
+  if (busca) { const b = busca.toLowerCase(); visitas = visitas.filter(v => (v.nome||v.leadNome||'').toLowerCase().includes(b)||(v.imovelBairro||v.bairro||'').toLowerCase().includes(b)); }
+  if (data) visitas = visitas.filter(v => (v.dataVisita||v.dataPreferida||'').startsWith(data));
   const visitasOrdenadas = visitas.sort((a,b)=>new Date(b.data||0)-new Date(a.data||0));
-  res.render('app-visitas', { user: req.session.user, visitas: visitasOrdenadas });
+  res.render('app-visitas', { user: req.session.user, visitas: visitasOrdenadas, filtros: { status: status||'todos', busca: busca||'', data: data||'' }, baseUrl: BASE_URL });
 });
 
 app.get('/logout', (req,res)=>{
@@ -1090,7 +1305,7 @@ app.post('/app/perfil/localizacao', auth, (req,res)=>{
 app.get('/feed-:portal.xml', (req,res)=>{
   const fs = require('fs');
   const portal = req.params.portal;
-  const file = `feed-${portal}.xml`;
+  const file = dataPath(`feed-${portal}.xml`);
 
   if(fs.existsSync(file)){
     res.set('Content-Type','application/xml');
@@ -1113,7 +1328,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
       console.log('🔎 Match QuintoAndar em background iniciado:', leadIdParam);
 
       const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
-      const imoveis = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8')) : [];
+      const imoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8')) : [];
 
       const lead = leads.find(l =>
         String(l.leadId) === String(leadIdParam) ||
@@ -1574,6 +1789,463 @@ Tente perguntar de outra forma, por exemplo:
 });
 
 
+
+
+// MIDDLEWARE — injeta mensagensNaoLidas em todas as rotas auth
+app.use((req, res, next) => {
+  if (!req.session || !req.session.user) return next();
+  try {
+    const fs2 = require('fs');
+    const path2 = require('path');
+    const leadsPath = path2.join(__dirname, 'data.json');
+    if (fs2.existsSync(leadsPath)) {
+      const leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
+      const user = req.session.user;
+      let total = 0;
+      leads
+        .filter(l => !l.codigoUsuario || l.codigoUsuario === user.id)
+        .forEach(l => {
+          if (l.mensagens) {
+            total += l.mensagens.filter(m => !m.lida && m.de === 'cliente').length;
+          }
+        });
+      res.locals.mensagensNaoLidas = total;
+    } else {
+      res.locals.mensagensNaoLidas = 0;
+    }
+  } catch(e) {
+    res.locals.mensagensNaoLidas = 0;
+  }
+  next();
+});
+
+
+
+// LIMPAR DADOS DE UMA CONTA — ADMIN
+app.get('/admin/limpar-conta/:userId', (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const userId = req.params.userId;
+  const base = '/opt/render/project/src/data';
+  const baseLocal = __dirname;
+
+  function limparArquivo(filePath, campo) {
+    if (!fs2.existsSync(filePath)) return 0;
+    try {
+      let dados = JSON.parse(fs2.readFileSync(filePath, 'utf8'));
+      const antes = dados.length;
+      dados = dados.filter(d => (d.codigoUsuario || d.userId || d.corretor_id || '') !== userId);
+      fs2.writeFileSync(filePath, JSON.stringify(dados, null, 2));
+      return antes - dados.length;
+    } catch(e) { return -1; }
+  }
+
+  const resultado = {};
+  for (const base2 of [base, baseLocal]) {
+    resultado[base2] = {
+      leads: limparArquivo(path2.join(base2, 'data.json'), 'codigoUsuario'),
+      visitas: limparArquivo(path2.join(base2, 'visitas.json'), 'codigoUsuario'),
+      notificacoes: limparArquivo(path2.join(base2, 'notificacoes.json'), 'codigoUsuario'),
+    };
+  }
+  res.json({ ok: true, userId, resultado });
+});
+
+
+// ZERAR LEADS + MENSAGENS WA + NOTIFICACOES DE UMA CONTA
+app.get('/admin/zerar-conta-completo/:userId', (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const userId = req.params.userId;
+  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
+  const resultado = {};
+
+  for (const base2 of bases) {
+    resultado[base2] = {};
+
+    // Zerar leads da conta
+    const leadsPath = path2.join(base2, 'data.json');
+    if (fs2.existsSync(leadsPath)) {
+      try {
+        let leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
+        const antes = leads.length;
+        leads = leads.filter(l => (l.userId || l.codigoUsuario || '') !== userId);
+        // Limpar mensagens WhatsApp de todos os leads
+        leads = leads.map(l => { delete l.mensagens; delete l.perfilIA; delete l.matchesAuto; delete l.ultimaMensagem; delete l.ultimaMensagemEm; return l; });
+        fs2.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+        resultado[base2].leads_deletados = antes - leads.length;
+        resultado[base2].leads_restantes = leads.length;
+      } catch(e) { resultado[base2].leads_erro = e.message; }
+    }
+
+    // Zerar notificacoes da conta
+    const notifPath = path2.join(base2, 'notificacoes.json');
+    if (fs2.existsSync(notifPath)) {
+      try {
+        let notif = JSON.parse(fs2.readFileSync(notifPath, 'utf8'));
+        const antes = notif.length;
+        notif = notif.filter(n => (n.userId || n.codigoUsuario || '') !== userId);
+        fs2.writeFileSync(notifPath, JSON.stringify(notif, null, 2));
+        resultado[base2].notificacoes_deletadas = antes - notif.length;
+      } catch(e) { resultado[base2].notif_erro = e.message; }
+    }
+
+    // Zerar visitas da conta
+    const visitasPath = path2.join(base2, 'visitas.json');
+    if (fs2.existsSync(visitasPath)) {
+      try {
+        let visitas = JSON.parse(fs2.readFileSync(visitasPath, 'utf8'));
+        const antes = visitas.length;
+        visitas = visitas.filter(v => (v.userId || v.codigoUsuario || '') !== userId);
+        fs2.writeFileSync(visitasPath, JSON.stringify(visitas, null, 2));
+        resultado[base2].visitas_deletadas = antes - visitas.length;
+      } catch(e) { resultado[base2].visitas_erro = e.message; }
+    }
+  }
+
+  res.json({ ok: true, userId, resultado });
+});
+
+// KEEP-ALIVE Evolution API — acorda a cada 10 minutos
+setInterval(() => {
+  const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+  const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+  fetch(`${EVOLUTION_URL}/instance/fetchInstances`, {
+    headers: { 'apikey': EVOLUTION_KEY }
+  }).then(() => console.log('[KEEP-ALIVE] Evolution API acordada'))
+    .catch(() => console.log('[KEEP-ALIVE] Evolution API nao respondeu'));
+}, 10 * 60 * 1000); // 10 minutos
+
+// INBOX WHATSAPP
+app.get('/app/whatsapp', auth, (req, res) => {
+  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
+  const user = req.session.user;
+  const leadsFiltrados = leads.filter(l => 
+    !l.codigoUsuario || l.codigoUsuario === user.id
+  );
+  res.render('app-whatsapp-inbox', { user, leads: leadsFiltrados, active: 'whatsapp', baseUrl: process.env.BASE_URL || 'http://localhost:3000' });
+});
+
+
+// ENVIAR MENSAGEM WHATSAPP pelo corretor
+app.post('/app/lead/:id/whatsapp/enviar', auth, async (req, res) => {
+  try {
+    const { texto } = req.body;
+    if (!texto) return res.status(400).json({ erro: 'texto obrigatorio' });
+
+    const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
+    const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrado' });
+
+    const lead = leads[idx];
+    const telefone = (lead.contato || lead.telefone || '').replace(/\D/g, '');
+    if (!telefone) return res.status(400).json({ erro: 'lead sem telefone' });
+
+    // Enviar via Evolution API
+    const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+    const INSTANCE = process.env.EVOLUTION_INSTANCE || 'match-corretor';
+
+    const resp = await fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
+      body: JSON.stringify({ number: '55' + telefone, text: texto })
+    });
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      console.error('[ENVIAR WA] erro:', data);
+      return res.status(500).json({ erro: 'falha ao enviar', detalhe: data });
+    }
+
+    // Salvar mensagem enviada no lead
+    if (!leads[idx].mensagens) leads[idx].mensagens = [];
+    leads[idx].mensagens.push({
+      id: Date.now().toString(),
+      origem: 'whatsapp',
+      de: 'corretor',
+      telefone,
+      texto,
+      timestamp: new Date().toISOString(),
+      lida: true
+    });
+    leads[idx].ultimaMensagem = texto;
+    leads[idx].ultimaMensagemEm = new Date().toISOString();
+    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+
+    console.log('[ENVIAR WA] mensagem enviada para:', telefone);
+    return res.json({ ok: true, telefone, texto });
+
+  } catch(e) {
+    console.error('[ENVIAR WA] erro:', e.message);
+    return res.status(500).json({ erro: e.message });
+  }
+});
+
+// ============================================================
+// WEBHOOK WHATSAPP — Evolution API
+// ============================================================
+app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
+  try {
+    const body = req.body;
+    console.log('[WEBHOOK WA] body completo:', JSON.stringify(body).substring(0, 500));
+    const event = body.event;
+    const instance = body.instance;
+    const data = body.data;
+
+    console.log('[WEBHOOK WA] evento:', event, '| instancia:', instance);
+
+    // Pré-aquece Evolution API em background
+    const _EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const _EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+    fetch(`${_EVOLUTION_URL}/instance/fetchInstances`, {
+      headers: { 'apikey': _EVOLUTION_KEY }
+    }).catch(() => {});
+
+    // Só processa mensagens recebidas
+    if (event !== 'messages.upsert') {
+      return res.status(200).json({ ok: true, ignorado: event });
+    }
+
+    const msg = data?.message;
+    if (!msg) return res.status(200).json({ ok: true, sem_mensagem: true });
+
+    const fromJid = data.key?.remoteJid || '';
+    const fromMe = data.key?.fromMe || false;
+    const telefone = fromJid.replace('@s.whatsapp.net', '').replace(/\D/g, '');
+    const texto = msg.conversation || msg.extendedTextMessage?.text || msg.buttonsResponseMessage?.selectedDisplayText || '';
+    const timestamp = data.messageTimestamp ? new Date(data.messageTimestamp * 1000).toISOString() : new Date().toISOString();
+
+    // Ignorar mensagens enviadas pelo próprio número
+    if (fromMe) return res.status(200).json({ ok: true, ignorado: 'fromMe' });
+    if (!telefone || !texto) return res.status(200).json({ ok: true, ignorado: 'sem_telefone_ou_texto' });
+
+    console.log('[WEBHOOK WA] de:', telefone, '| texto:', texto);
+
+    // Extrair perfil IA da mensagem
+    let perfilExtraido = {};
+    try {
+      const { extrairPerfil } = require('./cerebro/extrator-perfil');
+      const msgsFake = [{ de: 'cliente', texto }];
+      perfilExtraido = extrairPerfil(msgsFake);
+      if (Object.keys(perfilExtraido).length) {
+        console.log('[WEBHOOK WA] perfil extraido:', JSON.stringify(perfilExtraido));
+      }
+    } catch(e) {
+      console.error('[WEBHOOK WA] erro extrator:', e.message);
+    }
+
+    // Registrar mensagem no lead — busca em TODOS os data.json de todas as contas
+    const fs2 = require('fs');
+    const path2 = require('path');
+    const baseDir = process.env.DATA_FILE 
+      ? path2.dirname(process.env.DATA_FILE) 
+      : path2.join(__dirname);
+
+    // Encontrar todos os data.json no projeto
+    const possiveisCaminhos = [];
+    try {
+      // data.json raiz
+      const raiz = path2.join(__dirname, 'data.json');
+      if (fs2.existsSync(raiz)) possiveisCaminhos.push(raiz);
+      // data/ subpasta
+      const sub = path2.join(__dirname, 'data', 'data.json');
+      if (fs2.existsSync(sub)) possiveisCaminhos.push(sub);
+      // /opt/render (Render Disk)
+      const renderBase = '/opt/render/project/src';
+      if (fs2.existsSync(renderBase)) {
+        // data.json na raiz
+        const renderRaiz = path2.join(renderBase, 'data.json');
+        if (fs2.existsSync(renderRaiz)) possiveisCaminhos.push(renderRaiz);
+        // data.json na pasta data/
+        const renderData = path2.join(renderBase, 'data', 'data.json');
+        if (fs2.existsSync(renderData)) possiveisCaminhos.push(renderData);
+      }
+    } catch(e) {}
+
+    const novaMsg = {
+      id: Date.now().toString(),
+      origem: 'whatsapp',
+      de: 'cliente',
+      telefone,
+      texto,
+      timestamp,
+      lida: false
+    };
+
+    let leadEncontrado = false;
+    let leadNome = '';
+
+    for (const leadsPath of possiveisCaminhos) {
+      try {
+        let leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
+        const leadIdx = leads.findIndex(l => {
+          const fone = (l.telefone || l.whatsapp || l.contato || l.phone || '').replace(/\D/g, '');
+          return fone && fone.slice(-8) === telefone.slice(-8);
+        });
+        if (leadIdx >= 0) {
+          if (!leads[leadIdx].mensagens) leads[leadIdx].mensagens = [];
+          leads[leadIdx].mensagens.push(novaMsg);
+          leads[leadIdx].ultimaMensagem = texto;
+          leads[leadIdx].ultimaMensagemEm = timestamp;
+          if (Object.keys(perfilExtraido).length) {
+            if (!leads[leadIdx].perfilIA) leads[leadIdx].perfilIA = {};
+            Object.assign(leads[leadIdx].perfilIA, perfilExtraido);
+            leads[leadIdx].temperatura = perfilExtraido.temperatura || leads[leadIdx].temperatura;
+            leads[leadIdx].faseFunil = perfilExtraido.faseFunil || leads[leadIdx].faseFunil;
+          }
+          fs2.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+          leadNome = leads[leadIdx].nome || telefone;
+          leadEncontrado = true;
+          console.log('[WEBHOOK WA] mensagem salva no lead:', leadNome, '| arquivo:', leadsPath);
+        }
+      } catch(e) {
+        console.error('[WEBHOOK WA] erro ao processar', leadsPath, e.message);
+      }
+    }
+
+    if (!leadEncontrado) {
+      console.log('[WEBHOOK WA] lead nao encontrado para telefone:', telefone);
+    }
+
+    // Responde imediatamente — resposta auto roda em background
+    res.status(200).json({ ok: true, telefone, texto, leadEncontrado, perfil: perfilExtraido });
+
+    // Resposta automática IA — background
+    if (leadEncontrado) {
+      const _caminhos = [...possiveisCaminhos];
+      const _telefone = telefone;
+      const _texto = texto;
+      setImmediate(async () => {
+      console.log('[RESPOSTA AUTO] iniciando para:', _telefone);
+      console.log('[RESPOSTA AUTO] caminhos:', _caminhos);
+      try {
+        const { gerarResposta } = require('./cerebro/resposta-auto');
+        const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+        const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+        const INSTANCE = process.env.EVOLUTION_INSTANCE || 'match-corretor';
+
+        // Busca lead atualizado com mensagens e matches
+        let leadAtual = null;
+        for (const leadsPath of _caminhos) {
+          try {
+            const leads = JSON.parse(require('fs').readFileSync(leadsPath, 'utf8'));
+            const idx = leads.findIndex(l => {
+              const fone = (l.telefone || l.whatsapp || l.contato || '').replace(/\D/g,'');
+              return fone && fone.slice(-8) === _telefone.slice(-8);
+            });
+            if (idx >= 0) { leadAtual = leads[idx]; break; }
+          } catch(e) {}
+        }
+
+        console.log('[RESPOSTA AUTO] leadAtual:', leadAtual ? leadAtual.nome : 'NAO ENCONTRADO');
+        if (leadAtual) {
+          const matches = leadAtual.matchesAuto || leadAtual.matches || [];
+          const resposta = gerarResposta(leadAtual, _texto, matches);
+          console.log('[RESPOSTA AUTO] resposta gerada:', resposta ? resposta.substring(0,50) : 'NULA');
+
+          if (resposta) {
+
+            // Formata número corretamente
+            const numLimpo = _telefone.replace(/\D/g,'');
+            const numFormatado = numLimpo.startsWith('55') ? numLimpo : '55' + numLimpo;
+            console.log('[RESPOSTA AUTO] chamando Evolution API:', EVOLUTION_URL, '| numero:', numFormatado);
+            fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
+              body: JSON.stringify({ number: numFormatado, text: resposta })
+            }).then(r => r.json()).then(d => {
+              console.log('[RESPOSTA AUTO] enviada! resultado:', JSON.stringify(d).substring(0,100));
+            }).catch(e => {
+              console.error('[RESPOSTA AUTO] erro envio:', e.message);
+            });
+            console.log('[RESPOSTA AUTO] envio disparado para:', numFormatado);
+
+            // Salva resposta automática no lead
+            for (const leadsPath of possiveisCaminhos) {
+              try {
+                let leads = JSON.parse(require('fs').readFileSync(leadsPath, 'utf8'));
+                const idx = leads.findIndex(l => {
+                  const fone = (l.telefone || l.whatsapp || l.contato || '').replace(/\D/g,'');
+                  return fone && fone.slice(-8) === telefone.slice(-8);
+                });
+                if (idx >= 0) {
+                  if (!leads[idx].mensagens) leads[idx].mensagens = [];
+                  leads[idx].mensagens.push({
+                    id: Date.now().toString(),
+                    origem: 'whatsapp',
+                    de: 'ia',
+                    telefone,
+                    texto: resposta,
+                    timestamp: new Date().toISOString(),
+                    lida: true
+                  });
+                  require('fs').writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+                }
+              } catch(e) {}
+            }
+          }
+        }
+      } catch(e) {
+        console.error('[RESPOSTA AUTO] erro COMPLETO:', e.message, e.stack);
+      }
+      }); // fim setImmediate
+    }
+
+    // Match automático se perfil suficiente
+    if (leadEncontrado && Object.keys(perfilExtraido).length >= 2) {
+      try {
+        const fs3 = require('fs');
+        const path3 = require('path');
+        const imoveisPath = path3.join(__dirname, 'imoveis.json');
+        if (fs3.existsSync(imoveisPath)) {
+          const imoveis = JSON.parse(fs3.readFileSync(imoveisPath, 'utf8'));
+          const { buscarMatchesBaseInterna } = require('./matchBaseInterna');
+          // Monta lead fake com perfil extraído para o match
+          const leadFake = {
+            bairro: perfilExtraido.bairro || '',
+            tipo: perfilExtraido.tipo || '',
+            quartos: perfilExtraido.quartos || 0,
+            valorMax: perfilExtraido.valorMax || 0,
+            valorMin: perfilExtraido.valorMin || 0,
+            area: perfilExtraido.area || 0,
+            suites: perfilExtraido.suites || 0,
+            vagas: perfilExtraido.vagas || 0
+          };
+          const matches = buscarMatchesBaseInterna(leadFake, imoveis);
+          if (matches && matches.length) {
+            // Salva matches em todos os data.json onde o lead foi encontrado
+            for (const leadsPath of possiveisCaminhos) {
+              try {
+                let leads = JSON.parse(fs3.readFileSync(leadsPath, 'utf8'));
+                const idx = leads.findIndex(l => {
+                  const fone = (l.telefone || l.whatsapp || l.contato || '').replace(/\D/g,'');
+                  return fone && fone.slice(-8) === telefone.slice(-8);
+                });
+                if (idx >= 0) {
+                  leads[idx].matchesAuto = matches.slice(0,8).map((m,i) => ({
+                    ...m, rank: i+1, score: Number(m.score||m.bestScore||0)
+                  }));
+                  leads[idx].matchAutoEm = new Date().toISOString();
+                  fs3.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+                  console.log('[WEBHOOK WA] match auto:', matches.length, 'imoveis para', telefone);
+                }
+              } catch(e) {}
+            }
+          }
+        }
+      } catch(e) {
+        console.error('[WEBHOOK WA] erro match auto:', e.message);
+      }
+    }
+
+
+  } catch (err) {
+    console.error('[WEBHOOK WA] erro:', err.message);
+    return res.status(500).json({ erro: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   // Inicia atualizacao automatica do XML a cada 12h
@@ -1592,7 +2264,7 @@ app.post('/process', upload.any(), async (req, res) => {
     if (!file) return res.send('Envie o arquivo');
 
     const { execSync } = require('child_process');
-    const uid = req.session.user ? req.session.user.id : ""; execSync(`node processLeads.js "${file.path}" "${uid}"`, { stdio: 'inherit' });
+    const uid = req.session.user ? req.session.user.id : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${uid}"`, { stdio: 'inherit', cwd: __dirname });
 
     return res.send('Importação iniciada. Você pode navegar normalmente.');
   } catch (err) {
@@ -1623,13 +2295,13 @@ app.get('/api/imoveis', (req, res) => {
 
 app.post('/imovel/:id/status', (req,res)=>{
   const fs=require('fs');
-  const imoveis=JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis=JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   const { status } = req.body;
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if(idx>=0){
     imoveis[idx].status = status;
-    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
   gerarXMLPortais();
   gerarXMLPortais();
   }
@@ -1639,13 +2311,13 @@ app.post('/imovel/:id/status', (req,res)=>{
 
 app.post('/imovel/:id/status', (req,res)=>{
   const fs=require('fs');
-  const imoveis=JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis=JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   const { status } = req.body;
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if(idx>=0){
     imoveis[idx].status = status;
-    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
   }
 
   res.json({ok:true});
@@ -1656,7 +2328,8 @@ app.post('/imovel/:id/status', (req,res)=>{
 
 // Cadastro manual de imóvel
 app.post('/app/imovel/cadastrar', auth, (req, res) => {
-  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
+  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const b = req.body;
   const novo = {
     idInterno: 'APP-' + Date.now(),
@@ -1694,7 +2367,7 @@ app.post('/app/imovel/cadastrar', auth, (req, res) => {
     lastUpdate: new Date().toISOString()
   };
   imoveis.push(novo);
-  fs.writeFileSync('imoveis.json', JSON.stringify(imoveis, null, 2));
+  fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis, null, 2));
   res.redirect('/app/imoveis');
 });
 
@@ -1704,7 +2377,7 @@ app.post('/app/imovel/cadastrar', auth, (req, res) => {
 // Salva lead vindo da página pública do imóvel
 app.post('/api/lead-interesse', (req, res) => {
   try {
-    const { nome, celular, imovelId, imovelTitulo } = req.body;
+    const { nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem } = req.body;
 
     if (!nome || !celular || !imovelId) {
       return res.json({ ok: false, error: 'Dados obrigatórios ausentes' });
@@ -1716,8 +2389,8 @@ app.post('/api/lead-interesse', (req, res) => {
       ? JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'))
       : [];
 
-    const imoveis = fs.existsSync('./imoveis.json')
-      ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8'))
+    const imoveis = fs.existsSync(dataFile('imoveis.json'))
+      ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'))
       : [];
 
     const imovelRef = imoveis.find(i =>
@@ -1726,11 +2399,39 @@ app.post('/api/lead-interesse', (req, res) => {
       String(i.idOriginal) === String(imovelId)
     ) || {};
 
-    // Dono/responsável do imóvel: quem cadastrou manualmente ou importou XML
-    const usuarioDestinoId = imovelRef.usuarioId || imovelRef.corretorId || '';
-    const usuarioDestinoNome = imovelRef.usuarioNome || imovelRef.corretorNome || '';
-    const usuarioDestinoPerfil = imovelRef.usuarioPerfil || imovelRef.perfil || '';
-    const usuarioDestinoTelefone = imovelRef.usuarioTelefone || imovelRef.corretorTelefone || '';
+    // Dono da lead/vitrine: quem gerou/importou a lead
+    let leadOrigem = {};
+
+    if (leadIdOrigem && userIdOrigem) {
+      leadOrigem = leads.find(l =>
+        String(l.id || l.leadId || '') === String(leadIdOrigem || '') &&
+        String(l.userId || l.usuarioId || l.corretorId || '') === String(userIdOrigem || '')
+      ) || {};
+    }
+
+    if (!leadOrigem.id && leadIdOrigem) {
+      leadOrigem = leads.find(l =>
+        String(l.id || l.leadId || '') === String(leadIdOrigem || '')
+      ) || {};
+    }
+
+    const usuarioDestinoId =
+      userIdOrigem || leadOrigem.userId || leadOrigem.usuarioId || leadOrigem.corretorId ||
+      imovelRef.usuarioId || imovelRef.corretorId || '';
+
+    const usuarioDestinoNome =
+      leadOrigem.usuarioNome || leadOrigem.corretorNome ||
+      imovelRef.usuarioNome || imovelRef.corretorNome || '';
+
+    const usuarioDestinoPerfil =
+      leadOrigem.usuarioPerfil || leadOrigem.perfil ||
+      imovelRef.usuarioPerfil || imovelRef.perfil || '';
+
+    const usuarioDestinoTelefone =
+      leadOrigem.usuarioTelefone || leadOrigem.corretorTelefone ||
+      imovelRef.usuarioTelefone || imovelRef.corretorTelefone || '';
+
+    const imovelOwnerId = imovelRef.usuarioId || imovelRef.corretorId || '';
 
     const celularLimpo = String(celular || '').replace(/\D/g,'');
 
@@ -1783,7 +2484,7 @@ app.post('/api/lead-interesse', (req, res) => {
         id: leadId,
         ...leadPayload
       });
-      console.log('✅ Novo lead salvo para o dono do imóvel:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
+      console.log('✅ Novo lead salvo para o dono da lead/vitrine:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
     } else {
       leadId = leads[idxExiste].id || Date.now().toString();
       leads[idxExiste] = {
@@ -1791,7 +2492,7 @@ app.post('/api/lead-interesse', (req, res) => {
         ...leadPayload,
         id: leadId
       };
-      console.log('✅ Lead existente atualizado para o dono do imóvel:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
+      console.log('✅ Lead existente atualizado para o dono da lead/vitrine:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
     }
 
     fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
@@ -1824,7 +2525,9 @@ app.post('/api/lead-interesse', (req, res) => {
         proprietarioNome: (imovelRef.proprietario && imovelRef.proprietario.nome) || '',
         proprietarioTelefone: ((imovelRef.proprietario && (imovelRef.proprietario.telefone || imovelRef.proprietario.celular)) || '').replace(/\D/g,''),
 
-        // Visita vai para o dono do imóvel
+        // Visita vai somente para o dono da lead/vitrine
+        leadOwnerId: usuarioDestinoId,
+        imovelOwnerId,
         usuarioDestinoId,
         usuarioDestinoNome,
         usuarioDestinoPerfil,
@@ -1867,7 +2570,7 @@ app.post('/api/lead-interesse', (req, res) => {
         console.log('Erro ao criar notificação:', e.message);
       }
 
-      console.log('📅 Visita criada para o dono do imóvel:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
+      console.log('📅 Visita criada para o dono da lead/vitrine:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
     }
 
     return res.json({ ok: true, leadId, visitaCriada: querVisita });
@@ -1879,7 +2582,7 @@ app.post('/api/lead-interesse', (req, res) => {
 
 // Página pública do imóvel — sem login
 app.get('/imovel/:id', (req, res) => {
-  const imoveis = JSON.parse(fs.readFileSync('./imoveis.json', 'utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'));
   const users = JSON.parse(fs.readFileSync(dataPath('users.json'), 'utf8'));
   const corretor = users.find(u => u.ativo) || {};
 
@@ -1941,18 +2644,26 @@ app.get('/app/lead/:id', auth, (req, res) => {
     data: new Date().toISOString()
   });
 
+  // Marcar mensagens WhatsApp como lidas
+  if (lead.mensagens && lead.mensagens.length) {
+    lead.mensagens = lead.mensagens.map(m => ({
+      ...m,
+      lida: m.de === 'cliente' ? true : m.lida
+    }));
+  }
+
   fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
 
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'), 'utf8')) : [];
+  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
 
   const visitasDaLead = visitas.filter(v =>
     String(v.leadId || v.lead_id || '') === String(lead.leadId || '') ||
     String(v.leadId || v.lead_id || '') === String(lead.id || '') ||
-    String(v.telefone || v.contato || '').replace(/\D/g,'') === String(lead.telefone || lead.contato || '').replace(/\D/g,'') ||
+    String(v.proprietarioTelefone || v.contato || '').replace(/\D/g,'') === String(lead.telefone || lead.contato || '').replace(/\D/g,'') ||
     String(v.email || '').toLowerCase() === String(lead.email || '').toLowerCase()
   );
 
-  const imoveisInternos = fs.existsSync('./imoveis.json') ? JSON.parse(fs.readFileSync('./imoveis.json', 'utf8')) : [];
+  const imoveisInternos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8')) : [];
 
   let matchesInternos = [];
   try {
@@ -1976,12 +2687,17 @@ app.get('/app/lead/:id', auth, (req, res) => {
     matchesInternos = [];
   }
 
-  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos });
+  let sugestoesCopiloto = [];
+  try {
+    const { gerarSugestoes } = require('./cerebro/copiloto');
+    sugestoesCopiloto = gerarSugestoes(lead);
+  } catch(e) { console.error('copiloto erro:', e.message); }
+  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto });
 });
 app.get('/app/imovel/:id', auth, (req, res) => {
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json', 'utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8'));
   const user = req.session.user;
-  const imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
+  const imovel = imoveis.find(i => String(i.id) === String(req.params.id) || String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if (!imovel) return res.status(404).send('Imóvel não encontrado');
   
   // Oculta proprietário se não for admin nem corretor do imóvel
@@ -1999,7 +2715,7 @@ app.get('/app/imovel/:id', auth, (req, res) => {
 // Editar imóvel - tela
 app.get('/app/imovel/:id/editar', auth, (req,res)=>{
   const fs = require('fs');
-  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
 
   if(!imovel){
@@ -2012,7 +2728,7 @@ app.get('/app/imovel/:id/editar', auth, (req,res)=>{
 // Editar imóvel - salvar
 app.post('/app/imovel/:id/editar', auth, (req,res)=>{
   const fs = require('fs');
-  const imoveis = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
 
   if(idx < 0){
@@ -2026,13 +2742,24 @@ app.post('/app/imovel/:id/editar', auth, (req,res)=>{
     bairro: req.body.bairro || '',
     cidade: req.body.cidade || '',
     estado: req.body.estado || '',
+    endereco: req.body.endereco || '',
+    numero: req.body.numero || '',
+    complemento: req.body.complemento || '',
+    cep: req.body.cep || '',
+    latitude: Number(req.body.latitude || 0) || null,
+    longitude: Number(req.body.longitude || 0) || null,
+    andar: req.body.andar || '',
     valor_imovel: Number(req.body.valor_imovel || 0),
+    condominio: Number(req.body.condominio || 0),
+    iptu: Number(req.body.iptu || 0),
     area_m2: Number(req.body.area_m2 || 0),
+    area_total: Number(req.body.area_total || 0),
     quartos: Number(req.body.quartos || 0),
     suites: Number(req.body.suites || 0),
     banheiros: Number(req.body.banheiros || 0),
     vagas: Number(req.body.vagas || 0),
     descricao: req.body.descricao || '',
+    descricaoEditada: true,
     proprietario: {
       nome: req.body.proprietario_nome || '',
       telefone: req.body.proprietario_telefone || '',
@@ -2045,12 +2772,13 @@ app.post('/app/imovel/:id/editar', auth, (req,res)=>{
       vivareal: !!req.body.portal_vivareal,
       chaves: !!req.body.portal_chaves,
       imovelweb: !!req.body.portal_imovelweb,
-      '123i': !!req.body.portal_123i
+      '123i': !!req.body.portal_123i,
+      quintoandar: !!req.body.portal_quintoandar
     },
     updatedAt: new Date().toISOString()
   };
 
-  fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+  fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
 
   if(typeof gerarXMLPortais === 'function'){
     gerarXMLPortais();
@@ -2075,14 +2803,14 @@ const uploadImoveis = multer({ storage: storageImoveis });
 // Upload de foto
 app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), (req,res)=>{
   const fs = require('fs');
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if(idx >= 0){
     const url = '/uploads/imoveis/' + req.file.filename;
     imoveis[idx].fotos = imoveis[idx].fotos || [];
     imoveis[idx].fotos.push(url);
-    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -2093,12 +2821,12 @@ app.post('/app/imovel/:id/excluir-foto', auth, (req,res)=>{
   const fs = require('fs');
   const { foto } = req.body;
 
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
 
   if(idx >= 0){
     imoveis[idx].fotos = (imoveis[idx].fotos || []).filter(f => f !== foto);
-    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -2109,7 +2837,7 @@ app.post('/app/imovel/:id/capa-foto', auth, (req,res)=>{
   const fs = require('fs');
   const { foto } = req.body;
 
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
 
   if(idx >= 0){
@@ -2117,7 +2845,7 @@ app.post('/app/imovel/:id/capa-foto', auth, (req,res)=>{
     fotos = fotos.filter(f => f !== foto);
     fotos.unshift(foto);
     imoveis[idx].fotos = fotos;
-    fs.writeFileSync('imoveis.json', JSON.stringify(imoveis,null,2));
+    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -2128,9 +2856,9 @@ app.post('/app/imovel/:id/capa-foto', auth, (req,res)=>{
 // =========================
 function gerarXMLPortais(){
   const fs = require('fs');
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
 
-  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i'];
+  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
 
   portais.forEach(portal => {
 
@@ -2152,7 +2880,8 @@ function gerarXMLPortais(){
     filtrados.forEach(i => {
       xml += `
     <listing>
-      <listingID>${i.idExterno || i.id}</listingID>
+      <listingID>${i.id || i.idExterno}</listingID>
+      <externalID>${i.idExterno || i.idOriginal || ''}</externalID>
       <title>${i.tipo || ''} em ${i.bairro || ''}</title>
       <description>${(i.descricao || '').replace(/&/g,'')}</description>
 
@@ -2188,8 +2917,13 @@ function gerarXMLPortais(){
   </listings>
 </listingDataFeed>`;
 
-    fs.writeFileSync(`feed-${portal}.xml`, xml);
-    console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
+    if(portal === 'quintoandar'){
+      require('child_process').execSync('node exportXML.js quintoandar', { stdio:'inherit' });
+      console.log('XML QuintoAndar gerado no padrão novo');
+    } else {
+      fs.writeFileSync(dataPath(`feed-${portal}.xml`), xml);
+      console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
+    }
   });
 }
 
@@ -2198,9 +2932,9 @@ function gerarXMLPortais(){
 // =========================
 function gerarXMLPortais(){
   const fs = require('fs');
-  const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+  const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
 
-  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i'];
+  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
 
   portais.forEach(portal => {
 
@@ -2258,7 +2992,7 @@ function gerarXMLPortais(){
   </listings>
 </listingDataFeed>`;
 
-    fs.writeFileSync(`feed-${portal}.xml`, xml);
+    fs.writeFileSync(dataPath(`feed-${portal}.xml`), xml);
     console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
   });
 }
@@ -2272,8 +3006,8 @@ app.post('/app/visitas/confirmar/:id', auth, (req,res)=>{
     : [];
 
   visitas = visitas.map(v => {
-    if(v.id === req.params.id){
-      v.status = 'confirmada';
+    if(String(v.id) === String(req.params.id)){
+      v.status = 'CONFIRMADA';
       v.confirmedAt = new Date().toISOString();
     }
     return v;
@@ -2368,19 +3102,117 @@ function registrarHistoricoImovelLead(lead, tipoEvento, imovel){
   });
 }
 
+
+// Retorna IDs de todos os imóveis ativos do usuário (para gerar XML pelo chat)
+app.get('/app/imoveis-ids', auth, (req, res) => {
+  const todos = fs.existsSync(dataPath('imoveis.json')) ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'), 'utf8')) : [];
+  const filtrados = filtrarPorUsuario(todos, req.session.user);
+  const ativos = filtrados.filter(i => (i.status||'ativo').toLowerCase() === 'ativo');
+  const ids = ativos.map(i => String(i.idExterno || i.id));
+  res.json({ ids, total: ids.length });
+});
+
 app.post('/app/gerar-xml', auth, (req,res)=>{
   const { portal, ids } = req.body;
-  const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const todos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
-  const selecionados = imoveis.filter(i => ids.includes(String(i.idExterno||i.id)) && (i.status||'ativo').toLowerCase() === 'ativo');
+  const selecionados = imoveis.filter(i => ids.includes(String(i.id)) || ids.includes(String(i.idExterno)) || ids.includes(String(i.idOriginal)));
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
   const filename = 'feed-'+portal+'-'+token+'.xml';
-  const xml = gerarXMLPortal(selecionados, portal);
-  fs.writeFileSync(filename, xml, 'utf8');
+  const selecionadosComCorretor = selecionados.map(i => ({
+    ...i,
+    corretorNome: req.session.user.nome || req.session.user.name || '',
+    corretorEmail: req.session.user.email || '',
+    corretorTelefone: req.session.user.celular || req.session.user.telefone || ''
+  }));
+
+  const xml = gerarXMLPortal(selecionadosComCorretor, portal);
+  fs.writeFileSync(dataPath(filename), xml, 'utf8');
   res.json({ url: '/'+filename, total: selecionados.length });
 });
 
 function gerarXMLPortal(imoveis, portal){
+
+  if(portal === 'quintoandar'){
+    const esc = v => String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    let xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<ListingDataFeed>\n  <Header>\n    <Provider>Rankim</Provider>\n    <Email>renato@rankim.com.br</Email>\n    <BatchId>matchimoveis-'+Date.now()+'</BatchId>\n    <BatchName>MatchImoveis QuintoAndar '+new Date().toISOString()+'</BatchName>\n  </Header>\n  <Listings>\n';
+
+    imoveis.forEach(i => {
+      const prop = i.proprietario || {};
+      const fotos = Array.isArray(i.fotos) ? i.fotos : [];
+      xml += '\n    <Listing>\n';
+      xml += '      <ListingID>'+esc(i.idExterno || i.idOriginal || i.id)+'</ListingID>\n';
+      xml += '      <Title>'+esc(i.titulo || ((i.tipo || 'Imóvel')+' em '+(i.bairro || '')))+'</Title>\n';
+      xml += '      <TransactionType>For Sale</TransactionType>\n';
+      xml += '      <PublicationType>STANDARD</PublicationType>\n';
+      xml += '      <Created_at>'+esc(i.createdAt || i.dataCadastro || '')+'</Created_at>\n';
+      xml += '      <Updated_at>'+esc(i.lastUpdate || i.updatedAt || i.ultimaAtualizacao || '')+'</Updated_at>\n';
+      xml += '      <DetailViewUrl>'+esc(i.url || i.link || '')+'</DetailViewUrl>\n';
+      xml += '      <VirtualTourLink>'+esc(i.tourVirtual || '')+'</VirtualTourLink>\n';
+      xml += '      <Details>\n';
+      xml += '        <UsageType>Residential</UsageType>\n';
+      xml += '        <PropertyType>'+esc(i.tipo || 'Apartamento')+'</PropertyType>\n';
+      xml += '        <Description>'+esc(i.descricao || '')+'</Description>\n';
+      xml += '        <ListPrice currency="BRL">'+(i.valor_imovel || i.valor || 0)+'</ListPrice>\n';
+      xml += '        <LotArea unit="square metres">'+(i.area_total || i.area_m2 || 0)+'</LotArea>\n';
+      xml += '        <UnitFloor>'+esc(i.andar || '')+'</UnitFloor>\n';
+      xml += '        <LivingArea unit="square metres">'+(i.area_m2 || i.area || 0)+'</LivingArea>\n';
+      xml += '        <PropertyAdministrationFee currency="BRL">'+(i.condominio || 0)+'</PropertyAdministrationFee>\n';
+      xml += '        <YearlyTax currency="BRL">'+(i.iptu || 0)+'</YearlyTax>\n';
+      xml += '        <Bedrooms>'+(i.quartos || 0)+'</Bedrooms>\n';
+      xml += '        <Bathrooms>'+(i.banheiros || 0)+'</Bathrooms>\n';
+      xml += '        <Room>'+(i.salas || i.rooms || 1)+'</Room>\n';
+      xml += '        <Suites>'+(i.suites || 0)+'</Suites>\n';
+      xml += '        <Garage>'+(i.vagas || 0)+'</Garage>\n';
+      xml += '      </Details>\n';
+      xml += '      <Media>\n';
+      fotos.forEach((f, idx) => {
+        const url = typeof f === 'string' ? f : f.url;
+        xml += '        <Item primary="'+(idx===0?'true':'false')+'" type="IMAGE">'+esc(url)+'</Item>\n';
+      });
+      xml += '      </Media>\n';
+      xml += '      <Location>\n';
+      xml += '        <Country abbreviation="BR">Brasil</Country>\n';
+      xml += '        <State abbreviation="SP">São Paulo</State>\n';
+      xml += '        <City>'+esc(i.cidade || 'São Paulo')+'</City>\n';
+      xml += '        <Neighborhood>'+esc(i.bairro || '')+'</Neighborhood>\n';
+      xml += '        <Address>'+esc(i.endereco || i.logradouro || '')+'</Address>\n';
+      xml += '        <StreetNumber>'+esc(i.numero || '')+'</StreetNumber>\n';
+      xml += '        <Complement>'+esc(i.complemento || '')+'</Complement>\n';
+      xml += '        <PostalCode>'+esc(String(i.cep || '').replace(/\\D/g,''))+'</PostalCode>\n';
+      xml += '        <Latitude>'+esc(i.latitude || '')+'</Latitude>\n';
+      xml += '        <Longitude>'+esc(i.longitude || '')+'</Longitude>\n';
+      xml += '        <AddresType>Rua</AddresType>\n';
+      xml += '        <Floor>'+esc(i.andar || '')+'</Floor>\n';
+      xml += '        <Tower>'+esc(i.torre || '')+'</Tower>\n';
+      xml += '        <Unity>'+esc(i.unidade || '')+'</Unity>\n';
+      xml += '        <CondominiumName>'+esc(i.condominioNome || i.condominio_name || '')+'</CondominiumName>\n';
+      xml += '      </Location>\n';
+      xml += '      <ContactInfo>\n';
+      xml += '        <Name>Rankim</Name>\n';
+      xml += '        <Email>renato@rankim.com.br</Email>\n';
+      xml += '        <Website></Website>\n';
+      xml += '        <Logo></Logo>\n';
+      xml += '        <OfficeName>Rankim</OfficeName>\n';
+      xml += '        <Telephone></Telephone>\n';
+      xml += '      </ContactInfo>\n';
+      xml += '      <OwnerInfo>\n';
+      xml += '        <Name>'+esc(prop.nome || i.proprietarioNome || '')+'</Name>\n';
+      xml += '        <Email>'+esc(prop.email || i.proprietarioEmail || '')+'</Email>\n';
+      xml += '        <Telephone>'+esc(prop.telefone || prop.celular || i.proprietarioTelefone || '')+'</Telephone>\n';
+      xml += '      </OwnerInfo>\n';
+      xml += '      <Broker>\n';
+      xml += '        <BrokerName>'+esc(i.corretorNome || '')+'</BrokerName>\n';
+      xml += '        <BrokerEmail>'+esc(i.corretorEmail || '')+'</BrokerEmail>\n';
+      xml += '        <BrokerTelephone>'+esc(i.corretorTelefone || '')+'</BrokerTelephone>\n';
+      xml += '      </Broker>\n';
+      xml += '    </Listing>\n';
+    });
+
+    xml += '  </Listings>\n</ListingDataFeed>\n';
+    return xml;
+  }
+
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
@@ -2410,6 +3242,12 @@ function gerarXMLPortal(imoveis, portal){
         <state>${i.estado || 'SP'}</state>
         <zipCode>${i.cep || ''}</zipCode>
       </address>
+      <broker>
+        <name>${i.corretorNome || ''}</name>
+        <email>${i.corretorEmail || ''}</email>
+        <phone>${i.corretorTelefone || ''}</phone>
+      </broker>
+
       <media>
         ${(i.fotos||[]).map(f=>`<image><url>${f}</url></image>`).join('\n        ')}
       </media>
@@ -2456,6 +3294,12 @@ function gerarXMLPortal(imoveis, portal){
         <email>${prop.email || ''}</email>
         <reference>${prop.referenciaTecimob || ''}</reference>
       </owner>` : ''}
+      <broker>
+        <name>${i.corretorNome || ''}</name>
+        <email>${i.corretorEmail || ''}</email>
+        <phone>${i.corretorTelefone || ''}</phone>
+      </broker>
+
       <media>
         ${(i.fotos||[]).map(f=>`<image><url>${f}</url></image>`).join('\n        ')}
       </media>
@@ -2466,6 +3310,61 @@ function gerarXMLPortal(imoveis, portal){
 }
 
 function gerarXMLPortal(imoveis, portal){
+
+  if(portal === 'quintoandar'){
+    const esc = v => String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    let xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<ListingDataFeed>\n  <Header>\n    <Provider>Rankim</Provider>\n    <Email>renato@rankim.com.br</Email>\n    <BatchId>matchimoveis-'+Date.now()+'</BatchId>\n    <BatchName>MatchImoveis QuintoAndar '+new Date().toISOString()+'</BatchName>\n  </Header>\n  <Listings>\n';
+
+    imoveis.forEach(i => {
+      const prop = i.proprietario || {};
+      const fotos = Array.isArray(i.fotos) ? i.fotos : [];
+      xml += '\n    <Listing>\n';
+      xml += '      <ListingID>'+esc(i.idExterno || i.idOriginal || i.id)+'</ListingID>\n';
+      xml += '      <Title>'+esc(i.titulo || ((i.tipo || 'Imóvel')+' em '+(i.bairro || '')))+'</Title>\n';
+      xml += '      <TransactionType>For Sale</TransactionType>\n';
+      xml += '      <PublicationType>STANDARD</PublicationType>\n';
+      xml += '      <Details>\n';
+      xml += '        <UsageType>Residential</UsageType>\n';
+      xml += '        <PropertyType>'+esc(i.tipo || 'Apartamento')+'</PropertyType>\n';
+      xml += '        <Description>'+esc(i.descricao || '')+'</Description>\n';
+      xml += '        <ListPrice currency="BRL">'+(i.valor_imovel || i.valor || 0)+'</ListPrice>\n';
+      xml += '        <LivingArea unit="square metres">'+(i.area_m2 || i.area || 0)+'</LivingArea>\n';
+      xml += '        <Bedrooms>'+(i.quartos || 0)+'</Bedrooms>\n';
+      xml += '        <Bathrooms>'+(i.banheiros || 0)+'</Bathrooms>\n';
+      xml += '        <Suites>'+(i.suites || 0)+'</Suites>\n';
+      xml += '        <Garage>'+(i.vagas || 0)+'</Garage>\n';
+      xml += '      </Details>\n';
+      xml += '      <Media>\n';
+      fotos.forEach((f, idx) => {
+        const url = typeof f === 'string' ? f : f.url;
+        xml += '        <Item primary="'+(idx===0?'true':'false')+'" type="IMAGE">'+esc(url)+'</Item>\n';
+      });
+      xml += '      </Media>\n';
+      xml += '      <Location>\n';
+      xml += '        <Country abbreviation="BR">Brasil</Country>\n';
+      xml += '        <State abbreviation="SP">São Paulo</State>\n';
+      xml += '        <City>'+esc(i.cidade || 'São Paulo')+'</City>\n';
+      xml += '        <Neighborhood>'+esc(i.bairro || '')+'</Neighborhood>\n';
+      xml += '        <Address>'+esc(i.endereco || i.logradouro || '')+'</Address>\n';
+      xml += '        <PostalCode>'+esc(i.cep || '')+'</PostalCode>\n';
+      xml += '      </Location>\n';
+      xml += '      <OwnerInfo>\n';
+      xml += '        <Name>'+esc(prop.nome || '')+'</Name>\n';
+      xml += '        <Email>'+esc(prop.email || '')+'</Email>\n';
+      xml += '        <Telephone>'+esc(prop.telefone || prop.celular || '')+'</Telephone>\n';
+      xml += '      </OwnerInfo>\n';
+      xml += '      <Broker>\n';
+      xml += '        <BrokerName>'+esc(i.corretorNome || '')+'</BrokerName>\n';
+      xml += '        <BrokerEmail>'+esc(i.corretorEmail || '')+'</BrokerEmail>\n';
+      xml += '        <BrokerTelephone>'+esc(i.corretorTelefone || '')+'</BrokerTelephone>\n';
+      xml += '      </Broker>\n';
+      xml += '    </Listing>\n';
+    });
+
+    xml += '  </Listings>\n</ListingDataFeed>\n';
+    return xml;
+  }
+
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
@@ -2502,6 +3401,12 @@ function gerarXMLPortal(imoveis, portal){
         <email>${prop.email || ''}</email>
         <reference>${prop.referenciaTecimob || ''}</reference>
       </owner>` : ''}
+      <broker>
+        <name>${i.corretorNome || ''}</name>
+        <email>${i.corretorEmail || ''}</email>
+        <phone>${i.corretorTelefone || ''}</phone>
+      </broker>
+
       <media>
         ${(i.fotos||[]).map(f=>`<image><url>${f}</url></image>`).join('\n        ')}
       </media>
@@ -2512,8 +3417,8 @@ function gerarXMLPortal(imoveis, portal){
 }
 
 app.get('/app/portais', auth, (req,res)=>{
-  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i'];
-  const todos = fs.existsSync('imoveis.json') ? JSON.parse(fs.readFileSync('imoveis.json','utf8')) : [];
+  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
+  const todos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
   const xmlFeeds = portais.map(portal => {
@@ -2521,16 +3426,166 @@ app.get('/app/portais', auth, (req,res)=>{
     let total = 0;
     let existe = false;
     let geradoEm = null;
-    if(fs.existsSync(filename)){
+    const filepath = dataPath(filename);
+    if(fs.existsSync(filepath)){
       existe = true;
-      const stat = fs.statSync(filename);
-      geradoEm = stat.mtime;
-      const conteudo = fs.readFileSync(filename,'utf8');
-      total = (conteudo.match(/<listing>/g)||[]).length;
+      const stat = fs.statSync(filepath);
+      geradoEm = new Date(stat.mtime).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'});
+      const conteudo = fs.readFileSync(filepath,'utf8');
+      total = (conteudo.match(/<[Ll]isting>/g)||[]).length;
     }
     return { portal, filename, url: '/'+filename, existe, total, geradoEm };
   });
   res.render('app-portais', { user: req.session.user, xmlFeeds });
+});
+
+// Limpar descrições de imóveis de uma conta
+app.get('/admin/limpar-descricoes/:userId', (req,res)=>{
+  const userId = req.params.userId;
+  const todos = fs.existsSync(dataPath('imoveis.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  let count = 0;
+  const atualizados = todos.map(i => {
+    if(String(i.userId||i.usuarioId||i.corretorId||'') !== userId) return i;
+    if(i.descricaoEditada) return i; // preservar descrições editadas manualmente
+    let d = i.descricao || '';
+    // remover "Agende já/ja a sua visita com o corretor..."
+    // remover "As informações estão sujeitas a alterações"
+    d = d.replace(/Ass+informa[çc][õo]ess+(est[ãa]os+)?sujeitas?s+as+altera[çc][õo]es[^.]*./gi, '');
+    // remover "Chave do anúncio: XXXXX"
+    d = d.replace(/Chaves+dos+an[úu]ncios*:s*S+/gi, '');
+    // remover dados de contato (telefones e emails no texto)
+    d = d.replace(/Cel.?s*[(d][ds()-.]+d/gi, '');
+    // remover espaços duplos
+    d = d.replace(/s{2,}/g, ' ').trim();
+    if(d !== i.descricao){ count++; }
+    return { ...i, descricao: d };
+  });
+  fs.writeFileSync(dataPath('imoveis.json'), JSON.stringify(atualizados,null,2));
+  res.json({ ok: true, limpos: count, total: atualizados.filter(i=>String(i.userId||'')===userId).length });
+});
+
+// Diagnostico descricoes
+app.get("/admin/diagnostico-descricoes/:userId",(req,res)=>{
+  const userId=req.params.userId;
+  const todos=fs.existsSync(dataPath("imoveis.json"))?JSON.parse(fs.readFileSync(dataPath("imoveis.json"),"utf8")):[]; 
+  const meus=todos.filter(i=>String(i.userId||i.usuarioId||i.corretorId||"")=== userId);
+  const comMario=meus.filter(i=>i.descricao&&i.descricao.toLowerCase().includes("mario"));
+  const comAgende=meus.filter(i=>i.descricao&&i.descricao.toLowerCase().includes("agende"));
+  const exemplo=comMario[0]?comMario[0].descricao.slice(-400):"nenhum";
+  res.json({total:meus.length,comMario:comMario.length,comAgende:comAgende.length,exemplo});
+});
+
+// Limpar descricoes
+app.get("/admin/limpar-descricoes/:userId",(req,res)=>{
+  const userId=req.params.userId;
+  const todos=fs.existsSync(dataPath("imoveis.json"))?JSON.parse(fs.readFileSync(dataPath("imoveis.json"),"utf8")):[]; 
+  let count=0;
+  const cortar=["aproveite e a oportunidade agende","aproveite essa oportunidade agende","agende agora mesmo sua visita","agende ja a sua visita","agende sua visita","agende agora","as informações estão sujeitas","as informacoes estao sujeitas","chave do anúncio","chave do anuncio"];
+  const remover=["mario sergio","mário sérgio","11999965998","11 9.9996.5998","adv.mssouza"];
+  const atualiz=todos.map(i=>{
+    if(String(i.userId||i.usuarioId||i.corretorId||"")!==userId)return i;
+    let d=i.descricao||"";
+    const orig=d;
+    const dl=d.toLowerCase();
+    cortar.forEach(f=>{const x=dl.indexOf(f);if(x>-1)d=d.substring(0,x).trim();});
+    remover.forEach(t=>{d=d.replace(new RegExp(t,"gi"),"");});
+    d=d.replace(/ {2,}/g," ").trim();
+    if(d!==orig)count++;
+    return{...i,descricao:d};
+  });
+  fs.writeFileSync(dataPath("imoveis.json"),JSON.stringify(atualiz,null,2));
+  res.json({ok:true,limpos:count,total:todos.filter(i=>String(i.userId||i.corretorId||"")=== userId).length});
+});
+
+// Reativar todos imóveis de uma conta
+app.get('/admin/reativar-imoveis/:userId', (req,res)=>{
+  const userId = req.params.userId;
+  const todos = fs.existsSync(dataPath('imoveis.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  let count = 0;
+  const atualizados = todos.map(i => {
+    if(String(i.userId||i.usuarioId||i.corretorId||'') === userId && i.status === 'inativo'){
+      count++;
+      return { ...i, status: 'ativo' };
+    }
+    return i;
+  });
+  fs.writeFileSync(dataPath('imoveis.json'), JSON.stringify(atualizados,null,2));
+  res.json({ ok: true, reativados: count });
+});
+
+// Backup leads por conta
+app.get('/admin/backup-leads/:userId', (req,res)=>{
+  const userId = req.params.userId;
+  const todos = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
+  const filtrados = todos.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
+  res.setHeader('Content-Disposition', 'attachment; filename="backup-leads-'+userId+'.json"');
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify(filtrados, null, 2));
+});
+
+// Backup de imóveis por conta
+app.get('/admin/backup-imoveis/:userId', (req,res)=>{
+  const userId = req.params.userId;
+  const todos = fs.existsSync(dataPath('imoveis.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  const filtrados = todos.filter(i =>
+    String(i.userId||i.usuarioId||i.corretorId||'') === userId
+  );
+  const filename = 'backup-imoveis-'+userId+'-'+Date.now()+'.json';
+  fs.writeFileSync(dataPath(filename), JSON.stringify(filtrados, null, 2));
+  res.setHeader('Content-Disposition', 'attachment; filename="'+filename+'"');
+  res.setHeader('Content-Type', 'application/json');
+  res.send(JSON.stringify(filtrados, null, 2));
+});
+
+// Página de upload XML
+app.get('/app/importar-xml-upload', (req, res) => {
+  const userId = req.query.userId || '';
+  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Importar XML</title>
+  <style>body{font-family:Arial;max-width:500px;margin:60px auto;padding:20px}
+  h2{color:#ff385c}input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #ddd;font-size:15px}
+  button{background:#ff385c;color:white;border:none;cursor:pointer;font-weight:700}
+  .msg{padding:12px;border-radius:8px;margin-top:12px}</style></head>
+  <body><h2>📥 Importar XML</h2>
+  <p>Conta: <strong>${userId}</strong></p>
+  <form id="f" enctype="multipart/form-data">
+    <input type="file" name="arquivo" accept=".xml" required>
+    <button type="submit">Importar XML</button>
+  </form>
+  <div id="msg"></div>
+  <script>
+    document.getElementById('f').onsubmit = async function(e){
+      e.preventDefault();
+      document.getElementById('msg').innerHTML = '<div class="msg" style="background:#fff3cd">⏳ Importando, aguarde...</div>';
+      const fd = new FormData(this);
+      const r = await fetch('/app/importar-xml-upload?userId=${userId}', {method:'POST',body:fd});
+      const d = await r.json();
+      document.getElementById('msg').innerHTML = d.ok
+        ? '<div class="msg" style="background:#d4edda">✅ '+d.mensagem+'</div>'
+        : '<div class="msg" style="background:#f8d7da">❌ '+d.erro+'</div>';
+    };
+  </script></body></html>`);
+});
+
+// Upload de XML local
+app.post('/app/importar-xml-upload', (req, res) => {
+  const upload2 = require('multer')({ dest: dataPath('uploads/') });
+  upload2.single('arquivo')(req, res, async (err) => {
+    if(err) return res.json({ ok: false, erro: err.message });
+    if(!req.file) return res.json({ ok: false, erro: 'Nenhum arquivo enviado' });
+    const userId = req.query.userId || '';
+    const { execSync } = require('child_process');
+    try {
+      const xmlPath = req.file.path;
+      execSync('node '+path.join(__dirname,'importXMLCompleto.js')+' "'+xmlPath+'" "'+userId+'"', { stdio: 'inherit' });
+      fs.unlinkSync(xmlPath);
+      res.json({ ok: true, mensagem: 'XML importado com sucesso!' });
+    } catch(e) {
+      res.json({ ok: false, erro: e.message });
+    }
+  });
 });
 
 // AUTO LOGIN ADMIN (somente para admin/leads)
@@ -2553,16 +3608,48 @@ app.get('/admin/zerar-visitas-notificacoes-temp', (req, res) => {
   res.send('✅ Visitas e notificações zeradas no disco persistente!');
 });
 
+// ADMIN — Zerar visitas por userId
+app.get("/admin/zerar-visitas/:userId", (req, res) => {
+const { userId } = req.params;
+const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
+const restantes = visitas.filter(v => v.userId !== userId);
+const removidas = visitas.length - restantes.length;
+fs.writeFileSync(dataPath("visitas.json"), JSON.stringify(restantes, null, 2));
+res.send("✅ " + removidas + " visita(s) removidas para userId: " + userId);
+});
+
+// ADMIN — Zerar notificações por userId
+app.get("/admin/zerar-notificacoes/:userId", (req, res) => {
+const { userId } = req.params;
+const notifs = fs.existsSync(dataPath("notificacoes.json")) ? JSON.parse(fs.readFileSync(dataPath("notificacoes.json"), "utf8")) : [];
+const restantes = notifs.filter(n => n.usuarioId !== userId);
+const removidas = notifs.length - restantes.length;
+fs.writeFileSync(dataPath("notificacoes.json"), JSON.stringify(restantes, null, 2));
+res.send("✅ " + removidas + " notificacao(oes) removidas para userId: " + userId);
+});
+
+// ADMIN — Zerar tudo por userId
+app.get("/admin/zerar-tudo/:userId", (req, res) => {
+const { userId } = req.params;
+const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
+const notifs = fs.existsSync(dataPath("notificacoes.json")) ? JSON.parse(fs.readFileSync(dataPath("notificacoes.json"), "utf8")) : [];
+const visitasRest = visitas.filter(v => v.userId !== userId);
+const notifsRest = notifs.filter(n => n.usuarioId !== userId);
+fs.writeFileSync(dataPath("visitas.json"), JSON.stringify(visitasRest, null, 2));
+fs.writeFileSync(dataPath("notificacoes.json"), JSON.stringify(notifsRest, null, 2));
+res.send("✅ Zerado para " + userId + ": " + (visitas.length - visitasRest.length) + " visita(s), " + (notifs.length - notifsRest.length) + " notificacao(oes)");
+});
+
 // Página confirmação de presença do lead
 app.get('/cliente/visita/:visitaId/confirmar', (req, res) => {
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const visita = visitas.find(v => v.id === req.params.visitaId);
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('cliente-visita-confirmar', { visita });
 });
 
 app.post('/cliente/visita/:visitaId/responder', (req, res) => {
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.visitaId);
   if (idx === -1) return res.status(404).send('Visita não encontrada');
   const { resposta } = req.body;
@@ -2598,14 +3685,14 @@ app.get('/app/coins', auth, (req, res) => {
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====
 app.get('/cliente/visita/:id/remarcar', (req, res) => {
-  const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'), 'utf8'));
+  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const visita = visitas.find(v => v.id === req.params.id);
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('cliente-visita-remarcar', { visita, sucesso: false });
 });
 
 app.post('/cliente/visita/:id/remarcar', (req, res) => {
-  const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'), 'utf8'));
+  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.id);
   if (idx === -1) return res.status(404).send('Visita não encontrada');
   const { novaData, novoHorario } = req.body;
@@ -2627,7 +3714,7 @@ app.post('/cliente/visita/:id/remarcar', (req, res) => {
 
 // DEBUG TEMP
 app.get('/admin/debug-visitas', (req, res) => {
-  const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const resumo = visitas.slice(-5).map(v => ({ id: v.id, userId: v.userId, status: v.status, nome: v.nome }));
   res.json(resumo);
 });
@@ -2642,7 +3729,7 @@ app.get('/admin/debug-leads', (req, res) => {
 
 // TEMP - Substituir data.json pelo do repositório
 app.get('/admin/reset-leads-repo', (req, res) => {
-  const repoPath = path.join(__dirname, 'data.json');
+  const repoPath = dataPath('data.json');
   const diskPath = dataPath('data.json');
   const data = fs.readFileSync(repoPath, 'utf8');
   fs.writeFileSync(diskPath, data);
@@ -2651,8 +3738,8 @@ app.get('/admin/reset-leads-repo', (req, res) => {
 });
 
 app.get('/app/assistente', auth, (req, res) => {
-  const imoveis = JSON.parse(fs.readFileSync(path.join(__dirname, 'imoveis.json'), 'utf8')).filter(i => i.userId === req.session.user.userId);
-  const leads = JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json'), 'utf8')).filter(l => l.userId === req.session.user.userId);
+  const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json'), 'utf8')).filter(i => i.userId === req.session.user.userId);
+  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8')).filter(l => l.userId === req.session.user.userId);
   const stats = { imoveis: imoveis.length, ativos: imoveis.filter(i => i.status !== 'inativo').length, leads: leads.length };
   res.render('app-assistente', { user: req.session.user, stats });
 });
@@ -2663,10 +3750,10 @@ app.get('/app/assistente', auth, (req, res) => {
 // ─── API interna do Assistente — dados reais ─────────────────────────────────
 app.get('/api/assistente/dados', auth, (req, res) => {
   const uid = req.session.user.userId;
-  const imoveis = JSON.parse(fs.readFileSync(path.join(__dirname,'imoveis.json'),'utf8')).filter(i=>i.userId===uid);
-  const leads   = JSON.parse(fs.readFileSync(path.join(__dirname,'data.json'),'utf8')).filter(l=>l.userId===uid);
-  const visitas = fs.existsSync(path.join(__dirname,'visitas.json'))
-    ? JSON.parse(fs.readFileSync(path.join(__dirname,'visitas.json'),'utf8')).filter(v=>v.userId===uid) : [];
+  const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')).filter(i=>i.userId===uid);
+  const leads   = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')).filter(l=>l.userId===uid);
+  const visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')).filter(v=>v.userId===uid) : [];
 
   const hoje = new Date().toLocaleDateString('pt-BR');
 
@@ -2703,184 +3790,1601 @@ app.get('/api/assistente/dados', auth, (req, res) => {
 
 // ─── ASSISTENTE ───────────────────────────────────────────────────────────────
 app.get('/app/assistente', auth, (req, res) => {
-  const imoveis = JSON.parse(fs.readFileSync(path.join(__dirname, 'imoveis.json'), 'utf8')).filter(i => i.userId === req.session.user.userId);
-  const leads = JSON.parse(fs.readFileSync(path.join(__dirname, 'data.json'), 'utf8')).filter(l => l.userId === req.session.user.userId);
+  const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json'), 'utf8')).filter(i => i.userId === req.session.user.userId);
+  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8')).filter(l => l.userId === req.session.user.userId);
   const stats = { imoveis: imoveis.length, ativos: imoveis.filter(i => i.status !== 'inativo').length, leads: leads.length, comMatch: leads.filter(l=>l.matchesBase&&l.matchesBase.length>0).length, visitas: 0, visitasHoje: 0 };
   res.render('app-assistente', { user: req.session.user, stats });
 });
 
+// Rota admin — top perguntas não entendidas
+app.get('/admin/nao-entendidos', (req, res) => {
+  try {
+    const aprendizado = require('./cerebro/aprendizado');
+    const top = aprendizado.topNaoEntendidos(20);
+    res.json({ ok: true, top });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
+// Rota admin — funil de leads por conta
+app.get('/admin/funil/:userId', (req, res) => {
+  try {
+    const funil = require('./cerebro/funil');
+    const userId = req.params.userId;
+    const data = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
+    const visitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+    const leads = data.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
+    const resumo = funil.resumoFunil(leads, visitas);
+    res.json({ ok: true, userId, total: leads.length, funil: resumo });
+  } catch(e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
 app.post('/app/assistente/chat', auth, (req, res) => {
   const { mensagem } = req.body;
-  const uid = req.session.user.id || req.session.user.userId;
-  const user = req.session.user;
   if (!mensagem) return res.json({ resposta: 'Digite uma mensagem.' });
 
-  const cerebro = JSON.parse(fs.readFileSync(path.join(__dirname,'assistente-mapa.json'),'utf8'));
-  const imoveis = JSON.parse(fs.readFileSync(path.join(__dirname,'imoveis.json'),'utf8')).filter(i=>i.userId===uid);
-  const leads   = JSON.parse(fs.readFileSync(path.join(__dirname,'data.json'),'utf8')).filter(l=>l.userId===uid);
-  const visitas = fs.existsSync(path.join(__dirname,'visitas.json')) ? JSON.parse(fs.readFileSync(path.join(__dirname,'visitas.json'),'utf8')).filter(v=>v.userId===uid) : [];
+  const uid  = req.session.user.id || req.session.user.userId;
+  const user = req.session.user;
+
+  const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')).filter(i=>i.userId===uid);
+  const leads   = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')).filter(l=>l.userId===uid);
+  const visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')).filter(v=>v.userId===uid)
+    : [];
 
   const hoje = new Date().toLocaleDateString('pt-BR');
-  const hora  = new Date().getHours();
-  const saud  = hora<12?'Bom dia':hora<18?'Boa tarde':'Boa noite';
-  const nome  = user.nome||user.name||'corretor';
-
   const d = {
     ativos:      imoveis.filter(i=>i.status!=='inativo').length,
     inativos:    imoveis.filter(i=>i.status==='inativo').length,
-    bairros:     [...new Set(imoveis.map(i=>i.bairro).filter(Boolean))].slice(0,6),
-    tipos:       [...new Set(imoveis.map(i=>i.tipo).filter(Boolean))].slice(0,6),
+    bairros:     [...new Set(imoveis.map(i=>i.bairro).filter(Boolean))],
+    tipos:       [...new Set(imoveis.map(i=>i.tipo).filter(Boolean))],
     leads:       leads.length,
     organicas:   leads.filter(l=>l.extractionStatus==='ok').length,
     importadas:  leads.filter(l=>l.extractionStatus!=='ok').length,
     comMatch:    leads.filter(l=>l.matchesBase&&l.matchesBase.length>0).length,
     semMatch:    leads.filter(l=>!l.matchesBase||l.matchesBase.length===0).length,
+    quentes:     leads.filter(l=>l.temperatura==='quente').length,
+    mornos:      leads.filter(l=>l.temperatura==='morno').length,
+    comPerfilIA: leads.filter(l=>l.perfilIA&&Object.keys(l.perfilIA).length>0).length,
+    comMensagensWA: leads.filter(l=>l.mensagens&&l.mensagens.length>0).length,
+    leadsQuentes: leads.filter(l=>l.temperatura==='quente').slice(0,5).map(l=>({nome:l.nome||l.contato, temperatura:l.temperatura, faseFunil:l.faseFunil, ultimaMensagem:l.ultimaMensagem})),
     visitas:     visitas.length,
     hoje:        visitas.filter(v=>v.dataVisita===hoje).length,
     pendentes:   visitas.filter(v=>v.status==='solicitada').length,
     confirmadas: visitas.filter(v=>v.status==='confirmada').length
   };
 
-  const btn = (label, href) => '<a href="'+href+'" style="display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px">'+label+' →</a>';
-
-  // Carregar memória primeiro
   const memoriaPath = path.join(__dirname,'assistente-memoria.json');
-  let memoria = fs.existsSync(memoriaPath) ? JSON.parse(fs.readFileSync(memoriaPath,'utf8')) : { historico:[] };
+  let memoria = fs.existsSync(memoriaPath)
+    ? JSON.parse(fs.readFileSync(memoriaPath,'utf8'))
+    : { historico:[] };
   memoria.historico = memoria.historico || [];
-
-  // NLP — normalizar e detectar intenção
-  let m = cerebroNLP.normalizar(mensagem);
-  const mNorm = m;
-  const tokens = cerebroNLP.tokenizar(m);
-  const historico_uid = memoria.historico.filter(h=>h.userId===uid).slice(-5);
-  const contexto = cerebroNLP.analisarContexto(historico_uid);
-  const intencaoNLP = cerebroNLP.detectarIntencao(mensagem, cerebro);
-
-  // Aplicar sinônimos do cérebro
-  Object.entries(cerebro.sinonimos||{}).forEach(([e,c]) => {
-    try { m = m.replace(new RegExp(e,'gi'), c); } catch(ex) {}
-  });
-
-  // Correções extras de digitação
-  const correcoes = {
-    'imovei':'imovel','imoveis':'imoveis','imovéis':'imoveis',
-    'vizita':'visita','lids':'leads','matsh':'match',
-    'tenho sim':'confirmacao_sim','sim eu tenho':'confirmacao_sim',
-    'confere':'verificar','minha conta':'meus dados',
-    'meus dados':'ver_resumo','ver resumo':'ver_resumo',
-    'tudo':'ver_resumo','mostre':'ver','mostra':'ver',
-    'quero ver':'ver','me mostra':'ver','me diz':'informar',
-    'qual':'informar','quanto':'total','quantos':'total','quantas':'total'
+  const historicoUsuario = memoria.historico.filter(h=>h.userId===uid).slice(-5);
+  const contexto = {
+    ultimoTema: historicoUsuario.length>0
+      ? cerebroApp.detectarTema(historicoUsuario[historicoUsuario.length-1].pergunta)
+      : null
   };
-  Object.entries(correcoes).forEach(([e,c]) => {
-    m = m.replace(new RegExp('\\b'+e+'\\b','gi'), c);
-  });
 
-  const palavras = m.split(/\s+/).filter(p=>p.length>2);
+  let resposta = null;
 
-  let resposta = '';
+  const msgNorm = String(mensagem || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const usarCentral = /(whatsapp|zap|mensagem|manda|enviar|falar|ele|ela|lead|leads|cliente|clientes|quente|quentes|match|matches|visita|visitas|notificacao|notificacoes|pendente|pendentes)/.test(msgNorm);
 
-  if (/^(oi|ola|saudacao|bom dia|boa tarde|boa noite|tudo|hello|e ai)/.test(m)) {
-    if (d.leads===0&&d.ativos===0) resposta = saud+' '+nome+'! 👋 Conta vazia. Importar XML de imóveis ou planilha de leads?';
-    else if (d.hoje>0) resposta = saud+' '+nome+'! 👋 ⚠️ '+d.hoje+' visita(s) hoje!<br>🏠 '+d.ativos+' imóveis | 👥 '+d.leads+' leads | 🎯 '+d.comMatch+' match';
-    else resposta = saud+' '+nome+'! 👋<br>🏠 '+d.ativos+' imóveis | 👥 '+d.leads+' leads | 🎯 '+d.comMatch+' match | 📅 '+d.hoje+' visitas hoje';
-  }
-  else if (/lead/.test(m)) {
-    if (d.leads===0) resposta = 'Nenhuma lead ainda. Clique em 📎 para importar planilha.';
-    else resposta = '👥 <strong>Leads:</strong><br>Total: '+d.leads+'<br>🌐 Orgânicas: '+d.organicas+'<br>📋 Importadas: '+d.importadas+'<br>🎯 Com match: '+d.comMatch+'<br>❌ Sem match: '+d.semMatch+'<br><br>'+btn('Ver leads','/app/leads')+btn('Importar','/app-importar-leads');
-  }
-  else if (/im.vel|carteira/.test(m)) {
-    if (d.ativos===0) resposta = 'Nenhum imóvel ainda. Clique em 📎 para importar XML.';
-    else resposta = '🏠 <strong>Imóveis:</strong><br>✅ Ativos: '+d.ativos+'<br>❌ Inativos: '+d.inativos+'<br>📍 Bairros: '+d.bairros.join(', ')+'<br>🏷️ Tipos: '+d.tipos.join(', ')+'<br><br>'+btn('Ver imóveis','/app/imoveis');
-  }
-  else if (/visita/.test(m)) {
-    if (d.visitas===0) resposta = 'Nenhuma visita agendada ainda.';
-    else resposta = '📅 <strong>Visitas:</strong><br>Total: '+d.visitas+'<br>⏳ Pendentes: '+d.pendentes+'<br>✅ Confirmadas: '+d.confirmadas+'<br>📆 Hoje: '+d.hoje+'<br><br>'+btn('Ver visitas','/app/visitas');
-  }
-  else if (/match|combinar/.test(m)) {
-    resposta = '🎯 <strong>Match:</strong><br>✅ Com match: '+d.comMatch+'<br>❌ Sem match: '+d.semMatch+'<br>📊 Taxa: '+(d.leads>0?Math.round(d.comMatch/d.leads*100):0)+'%<br><br>'+btn('Ver leads','/app/leads');
-  }
-  else if (/portal|xml|vivareal|zap|olx/.test(m)) {
-    resposta = '🔗 Portais disponíveis: VivaReal, ZAP, OLX, Chaves, ImovelWeb, 123i<br><br>'+btn('Ver portais','/app/portais');
-  }
-  else if (/notifica/.test(m)) {
-    resposta = '🔔 Central de notificações<br><br>'+btn('Ver notificações','/app/notificacoes');
-  }
-  else if (/coin|moeda|saldo/.test(m)) {
-    resposta = '🪙 Match Coins — seu sistema de recompensas<br><br>'+btn('Ver coins','/app/coins');
-  }
-  else if (/ajuda|help|o que|como/.test(m)) {
-    resposta = '🤖 Posso te ajudar com:<br>👥 leads • 🏠 imóveis • 📅 visitas • 🔗 portais • 🎯 match • 🪙 coins • 🔔 notificações<br><br>Me pergunte qualquer coisa!';
-  }
-  else {
-    if (!resposta) {
-    // Detectar confirmações e resumo geral
-    if (/\b(sim|ok|pode|isso|correto|confirmo|tenho sim|claro)\b/.test(m)) {
-      resposta = 'Entendido! 😊 O que você gostaria de ver?<br><br>' +
-        '<button onclick="enviarMsg(\'meus imoveis\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer">🏠 Imóveis</button>' +
-        '<button onclick="enviarMsg(\'minhas leads\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer">👥 Leads</button>' +
-        '<button onclick="enviarMsg(\'minhas visitas\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer">📅 Visitas</button>';
+  if (usarCentral) {
+    try {
+      const central = centralOperacional.responderCentral(user, mensagem);
+
+      if (central && central.resposta) {
+        resposta = central.resposta;
+
+        if (central.itens && central.itens.length) {
+          resposta += "\n\n" + central.itens.map((i)=>{
+            return "• " + (i.nome || i.titulo || i.title || i.cliente || "Item")
+              + (i.bairro ? " — " + i.bairro : "")
+              + (i.label ? " | " + i.label : "")
+              + (i.prioridade !== undefined ? " | Prioridade: " + i.prioridade : "")
+              + (i.matches !== undefined ? " | Matches: " + i.matches : "")
+              + (i.bestScore !== undefined ? " | Score: " + i.bestScore : "");
+          }).join("\n");
+        }
+
+        if (central.acao && central.acao.tipo === "whatsapp") {
+          resposta += "\n\n📲 WhatsApp preparado.";
+          if (central.acao.url) resposta += "\n" + central.acao.url;
+        }
+      }
+    } catch(e) {
+      console.error("Erro central operacional:", e.message);
     }
   }
 
   if (!resposta) {
-    // Detectar "ver resumo" / "minha conta" / "tudo"
-    if (/ver.resumo|minha.conta|meus.dados|ver.tudo|resumo/.test(mNorm)) {
-      resposta = '📊 <strong>Resumo da sua conta:</strong><br><br>' +
-        '🏠 Imóveis ativos: <strong>' + d.ativos + '</strong><br>' +
-        '❌ Imóveis inativos: <strong>' + d.inativos + '</strong><br>' +
-        '👥 Leads: <strong>' + d.leads + '</strong><br>' +
-        '🌐 Orgânicas: <strong>' + d.organicas + '</strong><br>' +
-        '📋 Importadas: <strong>' + d.importadas + '</strong><br>' +
-        '🎯 Com match: <strong>' + d.comMatch + '</strong><br>' +
-        '📅 Visitas hoje: <strong>' + d.hoje + '</strong><br>' +
-        '⏳ Pendentes: <strong>' + d.pendentes + '</strong>';
-    }
+    resposta = cerebroApp.responder(mensagem, d, user, imoveis, leads, visitas, contexto);
   }
 
-  // Busca no bairro
-    const temBairro = d.bairros.find(b=>m.includes(b.toLowerCase()));
-    const temTipo = ['apartamento','casa','cobertura','sala','terreno'].find(t=>m.includes(t));
-    if (temBairro||temTipo) {
-      let r = imoveis.filter(i=>i.status!=='inativo');
-      if (temBairro) r = r.filter(i=>i.bairro&&i.bairro.toLowerCase().includes(temBairro.toLowerCase()));
-      if (temTipo)   r = r.filter(i=>i.tipo&&i.tipo.toLowerCase().includes(temTipo));
-      if (r.length===0) resposta = 'Não encontrei imóveis'+(temTipo?' do tipo '+temTipo:'')+(temBairro?' em '+temBairro:'')+'. '+btn('Ver todos','/app/imoveis');
-      else resposta = '🔍 '+r.length+' imóvel(is)'+(temBairro?' em '+temBairro:'')+':<br>'+r.slice(0,5).map(i=>'• '+(i.tipo||'Imóvel')+' '+(i.quartos?i.quartos+'q ':'')+' '+(i.bairro||'')).join('<br>')+'<br><br>'+btn('Ver todos','/app/imoveis');
-    } else {
-      const frases = [
-      'Hmm, não entendi muito bem 🤔 Pode reformular?',
-      'Desculpe, não captei essa. Tente: leads, imóveis, visitas ou match.',
-      'Ainda estou aprendendo! Pode tentar de outro jeito?'
-    ];
-    resposta = frases[Math.floor(Math.random()*frases.length)] + '<br><br>' +
-      '<button onclick="enviarMsg(\'minhas leads\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px">👥 Leads</button>' +
-      '<button onclick="enviarMsg(\'meus imoveis\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px">🏠 Imóveis</button>' +
-      '<button onclick="enviarMsg(\'minhas visitas\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px">📅 Visitas</button>' +
-      '<button onclick="enviarMsg(\'ajuda\')" style="background:#f3f4f6;border:none;border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer;font-size:13px">❓ Ajuda</button>';
+  memoria.historico.push({ userId:uid, pergunta:mensagem, resposta, data:new Date().toISOString() });
+  if (memoria.historico.length>500) memoria.historico = memoria.historico.slice(-500);
+  fs.writeFileSync(memoriaPath, JSON.stringify(memoria,null,2));
+  // Salvar tambem no users.json para persistir no Render
+  try {
+    const usersPath = dataPath('users.json');
+    const users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
+    const uIdx = users.findIndex(u=>u.id===uid||u.userId===uid);
+    if (uIdx>=0) {
+      users[uIdx].historicoAssistente = users[uIdx].historicoAssistente || [];
+      users[uIdx].historicoAssistente.push({pergunta:mensagem,resposta,data:new Date().toISOString()});
+      if (users[uIdx].historicoAssistente.length>50) users[uIdx].historicoAssistente=users[uIdx].historicoAssistente.slice(-50);
+      fs.writeFileSync(usersPath,JSON.stringify(users,null,2));
     }
-  }
+  } catch(e){}
 
-  // Salvar histórico
-  const memPath = path.join(__dirname,'assistente-memoria.json');
-  const mem = fs.existsSync(memPath) ? JSON.parse(fs.readFileSync(memPath,'utf8')) : { historico:[] };
-  mem.historico = mem.historico||[];
-  mem.historico.push({ userId:uid, pergunta:mensagem, resposta, data:new Date().toISOString() });
-  if (mem.historico.length>500) mem.historico = mem.historico.slice(-500);
-  fs.writeFileSync(memPath, JSON.stringify(mem,null,2));
-
-  console.log("RESPOSTA:", resposta && resposta.substring(0,50));
   res.json({ resposta, fonte:'cerebro' });
 });
 
 // ─── Histórico do assistente por usuário ─────────────────────────────────────
 app.get('/app/assistente/historico', auth, (req, res) => {
   const uid = req.session.user.userId;
-  const memPath = require('path').join(__dirname,'assistente-memoria.json');
-  const mem = fs.existsSync(memPath) ? JSON.parse(fs.readFileSync(memPath,'utf8')) : { historico:[] };
-  const historico = (mem.historico||[])
-    .filter(h => h.userId === uid)
-    .slice(-20)
-    .map(h => ({ pergunta: h.pergunta, resposta: h.resposta, data: h.data }));
+  let historico = [];
+  // Tentar users.json primeiro (persiste no Render)
+  try {
+    const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
+    const u = users.find(u=>u.id===uid||u.userId===uid);
+    if (u && u.historicoAssistente && u.historicoAssistente.length>0) {
+      historico = u.historicoAssistente.slice(-20);
+    }
+  } catch(e){}
+  // Fallback para assistente-memoria.json
+  if (!historico.length) {
+    const memPath = require('path').join(__dirname,'assistente-memoria.json');
+    const mem = fs.existsSync(memPath) ? JSON.parse(fs.readFileSync(memPath,'utf8')) : { historico:[] };
+    historico = (mem.historico||[]).filter(h=>h.userId===uid).slice(-20).map(h=>({pergunta:h.pergunta,resposta:h.resposta,data:h.data}));
+  }
   res.json({ historico });
 });
+
+
+// =========================
+// IMPORT SYNC RAN 0888/9191
+// =========================
+app.post('/admin/import-sync-ran', express.json({limit:'200mb'}), (req,res)=>{
+
+  const token = req.headers['x-sync-token'];
+
+  if(token !== 'MATCHIMOVEIS_SYNC_2026'){
+    return res.status(401).json({ok:false,error:'token invalido'});
+  }
+
+  try{
+
+    const body = req.body || {};
+
+    const arquivos = {
+      users: 'users.json',
+      imoveis: 'imoveis.json',
+      leads: 'leads.json',
+      data: 'data.json',
+      visitas: 'visitas.json',
+      notificacoes: 'notificacoes.json'
+    };
+
+    Object.entries(arquivos).forEach(([key,file])=>{
+
+      const atuais = fs.existsSync(dataPath(file))
+        ? JSON.parse(fs.readFileSync(dataPath(file),'utf8'))
+        : [];
+
+      const novos = Array.isArray(body[key]) ? body[key] : [];
+
+      const idsNovos = new Set(
+        novos.map(i => String(i.id || i._id || i.codigoUsuario || Math.random()))
+      );
+
+      const limpos = atuais.filter(i => {
+        const id = String(i.id || i._id || i.codigoUsuario || '');
+        return !idsNovos.has(id);
+      });
+
+      const final = [...limpos, ...novos];
+
+      fs.writeFileSync(
+        dataPath(file),
+        JSON.stringify(final,null,2)
+      );
+
+    });
+
+    res.json({
+      ok:true,
+      users:(body.users||[]).length,
+      imoveis:(body.imoveis||[]).length,
+      data:(body.data||[]).length
+    });
+
+  }catch(e){
+    res.status(500).json({ok:false,error:e.message});
+  }
+
+});
+
+// ===============================
+
+
+
+
+// Sync leads extraídas localmente para o Render
+app.post('/admin/sync-leads-extraidas', express.json({limit:'50mb'}), (req,res)=>{
+  const token = req.headers['x-sync-token'];
+  if(token !== 'MATCHIMOVEIS_SYNC_2026'){
+    return res.status(401).json({ok:false,error:'token invalido'});
+  }
+  try{
+    const { userId, leads: leadsAtualizadas } = req.body || {};
+    if(!userId || !Array.isArray(leadsAtualizadas)){
+      return res.status(400).json({ok:false,error:'userId e leads obrigatorios'});
+    }
+    const df = dataPath('data.json');
+    const todas = fs.existsSync(df) ? JSON.parse(fs.readFileSync(df,'utf8')) : [];
+    const outrasContas = todas.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') !== String(userId));
+    const idsAtualizadas = new Set(leadsAtualizadas.map(l => String(l.id||l.url)));
+    const mesmaContaSemAtualizar = todas.filter(l => {
+      const dono = String(l.userId||l.usuarioId||l.corretorId||'');
+      const id = String(l.id||l.url);
+      return dono === String(userId) && !idsAtualizadas.has(id);
+    });
+    const final = [...outrasContas, ...mesmaContaSemAtualizar, ...leadsAtualizadas];
+    fs.writeFileSync(df, JSON.stringify(final, null, 2));
+    res.json({ok:true, salvas: leadsAtualizadas.length, total: final.length});
+  }catch(e){
+    res.status(500).json({ok:false,error:e.message});
+  }
+});
+
+// Rodar match interno por userId direto no Render
+app.get('/admin/rodar-match/:userId', (req,res)=>{
+  const userId = req.params.userId;
+  try{
+    const { buscarMatchesBaseInterna } = require('./matchBaseInterna.js');
+    const df = dataPath('data.json');
+    const imf = dataPath('imoveis.json');
+    const raw = JSON.parse(fs.readFileSync(df,'utf8'));
+    const leads = Array.isArray(raw) ? raw : (raw.results||[]);
+    const imoveis = JSON.parse(fs.readFileSync(imf,'utf8'));
+    const imoveisArr = Array.isArray(imoveis) ? imoveis : (imoveis.imoveis||[]);
+    const paraMatch = leads.filter(l => {
+      const uid = String(l.userId||l.usuarioId||l.corretorId||'');
+      return uid === userId && l.extractionStatus === 'ok';
+    });
+    let comMatch = 0, semMatch = 0;
+    paraMatch.forEach(lead => {
+      const matches = buscarMatchesBaseInterna(lead, imoveisArr);
+      lead.matchesBase = matches;
+      lead.matchCountBase = matches.length;
+      if(matches.length > 0) comMatch++; else semMatch++;
+    });
+    fs.writeFileSync(df, JSON.stringify(leads, null, 2));
+    res.json({ ok:true, userId, total: paraMatch.length, comMatch, semMatch });
+  }catch(e){
+    res.status(500).json({ ok:false, error: e.message });
+  }
+});
+
+// Mensagem de abertura proativa do assistente
+app.get('/app/assistente/abertura', auth, (req, res) => {
+  try {
+    const proatividade = require('./cerebro/proatividade');
+    const userId = req.session.user.id;
+    const dataFile = p => { const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname; return require('path').join(DATA_DIR, p); };
+    const lerJson = f => { try { return JSON.parse(fs.readFileSync(dataFile(f),'utf8')); } catch(e) { return []; } };
+    const leads = lerJson('data.json').filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
+    const imoveis = lerJson('imoveis.json').filter(i => String(i.userId||i.usuarioId||i.corretorId||'') === userId);
+    const visitas = lerJson('visitas.json').filter(v => String(v.userId||v.usuarioId||v.corretorId||v.corretorId||'') === userId);
+    const notificacoes = lerJson('notificacoes.json').filter(n => String(n.userId||n.usuarioId||n.corretorId||'') === userId);
+    const mensagem = proatividade.gerarAbertura(req.session.user, leads, imoveis, visitas, notificacoes);
+    res.json({ ok: true, mensagem });
+  } catch(e) {
+    res.json({ ok: true, mensagem: 'Olá! Como posso ajudar você hoje?' });
+  }
+});
+
+
+// Executa ações diretas pelo assistente
+app.post('/app/assistente/acao-direta', auth, express.json(), (req, res) => {
+  try {
+    const { acao, dados } = req.body || {};
+    const userId = req.session.user.id;
+
+    if (acao === 'fazer_match') {
+      const { buscarMatchesBaseInterna } = require('./matchBaseInterna.js');
+      const dataArq = dataPath('data.json');
+      const imovArq = dataPath('imoveis.json');
+      const todasLeads = fs.existsSync(dataArq) ? JSON.parse(fs.readFileSync(dataArq,'utf8')) : [];
+      const todosIm = fs.existsSync(imovArq) ? JSON.parse(fs.readFileSync(imovArq,'utf8')) : [];
+      const minhasLeads = todasLeads.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId && l.extractionStatus === 'ok');
+      let comMatch = 0, semMatch = 0;
+      minhasLeads.forEach(lead => {
+        const matches = buscarMatchesBaseInterna(lead, todosIm);
+        lead.matchesBase = matches; lead.matchCountBase = matches.length;
+        if (matches.length > 0) comMatch++; else semMatch++;
+      });
+      const outras = todasLeads.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') !== userId);
+      const restantes = todasLeads.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId && !minhasLeads.find(x => x.id === l.id));
+      fs.writeFileSync(dataArq, JSON.stringify([...outras,...restantes,...minhasLeads],null,2));
+      return res.json({ ok: true, comMatch, semMatch, total: minhasLeads.length });
+    }
+
+    res.json({ ok: false, erro: 'Ação não reconhecida: ' + acao });
+  } catch(e) {
+    res.status(500).json({ ok: false, erro: e.message });
+  }
+});
+
+
+// Métricas do assistente por conta
+app.get('/admin/metricas-assistente/:userId', (req, res) => {
+  try {
+    const metricas = require('./cerebro/metricas');
+    const naoEntendidos = require('./cerebro/aprendizado');
+    const resumo = metricas.resumo(req.params.userId);
+    const top = naoEntendidos.topNaoEntendidos(10);
+    res.json({ ok: true, resumo, topNaoEntendidos: top });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
+
+// Feedback do assistente — positivo ou negativo
+app.post('/app/assistente/feedback', auth, express.json(), (req, res) => {
+  try {
+    const feedbackLoop = require('./cerebro/feedback-loop');
+    const { mensagem, resposta, tipo, detalhe } = req.body || {};
+    const userId = req.session.user.id;
+    feedbackLoop.registrarFeedback(userId, mensagem, resposta, tipo, detalhe);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
+// Análise de feedback — admin
+app.get('/admin/feedback-assistente', (req, res) => {
+  try {
+    const feedbackLoop = require('./cerebro/feedback-loop');
+    res.json({ ok: true, analise: feedbackLoop.analisarFeedback() });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
+// Notas do usuário — preferências aprendidas
+app.get('/admin/notas-usuario/:userId', auth, (req, res) => {
+  try {
+    const notasUsuario = require('./cerebro/notas-usuario');
+    res.json({ ok: true, notas: notasUsuario.carregarNotas(req.params.userId) });
+  } catch(e) { res.json({ ok: false, error: e.message }); }
+});
+
+// CENTRAL OPERACIONAL CONVERSACIONAL
+// ===============================
+app.post('/api/central-operacional', auth, express.json(), (req, res) => {
+  try {
+    const texto = req.body.texto || req.body.mensagem || req.body.message || '';
+    if (!texto.trim()) {
+      return res.json({
+        ok: false,
+        resposta: 'Digite uma pergunta ou comando para a central operacional.'
+      });
+    }
+
+    const resultado = centralOperacional.responderCentral(req.session.user, texto);
+    res.json({
+      ok: true,
+      ...resultado
+    });
+  } catch (err) {
+    console.error('Erro central operacional:', err);
+    res.status(500).json({
+      ok: false,
+      resposta: 'Erro ao consultar a central operacional.',
+      erro: err.message
+    });
+  }
+});
+
+// ===============================
+// TELA CENTRAL OPERACIONAL
+// ===============================
+app.get('/app/central', auth, (req, res) => {
+  res.render('app-central', { user: req.session.user, active: 'central' });
+});
+
+// =====================================================
+// WORKFLOW VISITAS OPERACIONAL
+// =====================================================
+
+app.post('/api/visita/:id/workflow', auth, (req,res)=>{
+  try{
+    const id = req.params.id;
+
+    const {
+      workflowStatus,
+      workflowResponsavel,
+      workflowLabel,
+      workflowProximaAcao
+    } = req.body;
+
+    const visita = atualizarWorkflowVisita(id, workflowStatus, {
+      workflowResponsavel,
+      workflowLabel,
+      workflowProximaAcao
+    });
+
+    return res.json({
+      ok: true,
+      visita
+    });
+
+  }catch(err){
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+// =====================================================
+// MEMORIA OPERACIONAL
+// =====================================================
+
+app.get('/api/memoria-operacional', auth, (req,res)=>{
+  try{
+
+    const DATA_DIR =
+      process.env.RENDER
+        ? '/opt/render/project/src/data'
+        : '.';
+
+    const memoriaFile = path.join(DATA_DIR, 'memoria-operacional.json');
+
+    if(!fs.existsSync(memoriaFile)){
+      return res.json([]);
+    }
+
+    const memoria = JSON.parse(fs.readFileSync(memoriaFile,'utf8'));
+
+    return res.json(memoria);
+
+  }catch(err){
+
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+
+// =====================================================
+// WORKFLOW VISITAS OPERACIONAL
+// =====================================================
+
+app.post('/api/visita/:id/workflow', auth, (req,res)=>{
+  try{
+    const id = req.params.id;
+
+    const {
+      workflowStatus,
+      workflowResponsavel,
+      workflowLabel,
+      workflowProximaAcao
+    } = req.body;
+
+    const visita = atualizarWorkflowVisita(id, workflowStatus, {
+      workflowResponsavel,
+      workflowLabel,
+      workflowProximaAcao
+    });
+
+    return res.json({
+      ok: true,
+      visita
+    });
+
+  }catch(err){
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+// =====================================================
+// MEMORIA OPERACIONAL
+// =====================================================
+
+app.get('/api/memoria-operacional', auth, (req,res)=>{
+  try{
+
+    const DATA_DIR =
+      process.env.RENDER
+        ? '/opt/render/project/src/data'
+        : '.';
+
+    const memoriaFile = path.join(DATA_DIR, 'memoria-operacional.json');
+
+    if(!fs.existsSync(memoriaFile)){
+      return res.json([]);
+    }
+
+    const memoria = JSON.parse(fs.readFileSync(memoriaFile,'utf8'));
+
+    return res.json(memoria);
+
+  }catch(err){
+
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+
+// =====================================================
+// ACAO RAPIDA VISITA
+// =====================================================
+
+app.post('/api/visita/:id/confirmar', auth, (req,res)=>{
+  try{
+
+    const visita = atualizarWorkflowVisita(
+      req.params.id,
+      'CONFIRMADA',
+      {
+        workflowResponsavel: req.session.user.nome || '',
+        workflowLabel: 'Visita confirmada',
+        workflowProximaAcao: 'Definir corretor acompanhante'
+      }
+    );
+
+    registrarEvento({
+      tipo: 'VISITA_CONFIRMADA',
+      visitaId: visita.id,
+      leadId: visita.leadId || '',
+      imovelId: visita.imovelId || '',
+      userId: req.session.user.id || '',
+      descricao: 'Visita confirmada pelo usuário'
+    });
+
+    return res.json({
+      ok:true,
+      visita
+    });
+
+  }catch(err){
+
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+app.post('/api/visita/:id/remarcar', auth, (req,res)=>{
+  try{
+
+    const visita = atualizarWorkflowVisita(
+      req.params.id,
+      'REMARCAR',
+      {
+        workflowResponsavel: req.session.user.nome || '',
+        workflowLabel: 'Remarcação solicitada',
+        workflowProximaAcao: 'Definir nova data'
+      }
+    );
+
+    registrarEvento({
+      tipo: 'VISITA_REMARCAR',
+      visitaId: visita.id,
+      leadId: visita.leadId || '',
+      imovelId: visita.imovelId || '',
+      userId: req.session.user.id || '',
+      descricao: 'Usuário solicitou remarcação'
+    });
+
+    return res.json({
+      ok:true,
+      visita
+    });
+
+  }catch(err){
+
+    console.log(err);
+
+    return res.status(500).json({
+      ok:false,
+      erro: err.message
+    });
+  }
+});
+
+
+app.get('/api/visita/:id/whatsapp', auth, (req,res)=>{
+
+  try {
+
+    const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
+    const v = visitas.find(x => String(x.id) === String(req.params.id));
+
+    if(!v) return res.json({ ok:false, erro:'Visita não encontrada' });
+
+    const destino = resolverDestinoVisita(v, req.session.user);
+
+    if(!destino.telefone){
+      return res.json({ ok:false, erro:'Sem telefone destino' });
+    }
+
+    const msg =
+`Olá ${destino.nome}! 
+Temos uma visita agendada para:
+${v.imovelTitulo}
+Data: ${v.dataVisita} às ${v.horaVisita}
+Confirme aqui: https://matchimoveis.onrender.com/visita/${v.id}`;
+
+    const link = `https://wa.me/55${destino.telefone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`;
+
+    return res.json({
+      ok:true,
+      destino,
+      link
+    });
+
+  } catch(err){
+    console.log(err);
+    return res.json({ ok:false, erro: err.message });
+  }
+
+});
+
+
+function resolverUsuarioPorId(id){
+
+  try {
+    const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8') || '[]');
+    return users.find(u => String(u.id) === String(id)) || null;
+  } catch(e){
+    return null;
+  }
+
+}
+
+function resolverUsuarioPorId(id){
+
+  try {
+    const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8') || '[]');
+    return users.find(u => String(u.id) === String(id)) || null;
+  } catch(e){
+    return null;
+  }
+
+}
+
+// ===============================
+// NOVO FLUXO DE VISITAS (LIMPO)
+// ===============================
+
+app.post('/api/visita/nova-v2', (req,res)=>{
+  const { imovelId, nome, telefone, dataVisita, horaVisita, imovelTitulo } = req.body;
+
+  const imoveisAll = fs.existsSync(dataPath('imoveis.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  const imovel = imoveisAll.find(i => String(i.idExterno||i.id) === String(imovelId)) || {};
+
+  const users = fs.existsSync(dataPath('users.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8')) : [];
+  const donoImovel = users.find(u => u.id === (imovel.userId||imovel.usuarioId)) || {};
+
+  const visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+
+  const novaVisita = {
+    id: String(Date.now()),
+    nome,
+    telefone: (telefone||'').replace(/D/g,''),
+    contato:  (telefone||'').replace(/D/g,''),
+    imovelId,
+    imovelTitulo:    imovelTitulo || imovel.titulo || imovel.tipo || 'Imóvel',
+    imovelBairro:    imovel.bairro || '',
+    imovelDescricao: imovel.descricao || '',
+    dataVisita,
+    horaVisita,
+    userId:      donoImovel.id || imovel.userId || '',
+    corretorId:  donoImovel.id || imovel.userId || '',
+    ownerUserId: donoImovel.id || imovel.userId || '',
+    proprietarioNome:     (imovel.proprietario && imovel.proprietario.nome) || '',
+    proprietarioTelefone: ((imovel.proprietario && (imovel.proprietario.celular||imovel.proprietario.telefone))||'').replace(/D/g,''),
+    status:  'solicitada',
+    origem:  'pagina_publica',
+    data:    new Date().toISOString(),
+    data_br: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
+  };
+
+  visitas.push(novaVisita);
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  return res.json({ ok: true, visita: novaVisita });
+});
+
+// ===============================
+
+app.post('/app/visitas/remarcar/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+    if(String(v.id) === String(req.params.id)){
+      v.status = 'REMARCAR';
+      v.remarcarAt = new Date().toISOString();
+    }
+    return v;
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/cancelar/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+    if(String(v.id) === String(req.params.id)){
+      v.status = 'CANCELADA';
+      v.canceladaAt = new Date().toISOString();
+    }
+    return v;
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+    if(String(v.id) === String(req.params.id)){
+      v.status = 'CONCLUIDA';
+      v.concluidaAt = new Date().toISOString();
+    }
+    return v;
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+app.post('/app/visitas/remarcar/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+    if(String(v.id) === String(req.params.id)){
+      v.status = 'REMARCAR';
+      v.remarcarAt = new Date().toISOString();
+    }
+    return v;
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/cancelar/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+    if(String(v.id) === String(req.params.id)){
+      v.status = 'CANCELADA';
+      v.canceladaAt = new Date().toISOString();
+    }
+    return v;
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+    if(String(v.id) === String(req.params.id)){
+      v.status = 'CONCLUIDA';
+      v.concluidaAt = new Date().toISOString();
+    }
+    return v;
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+app.post('/app/visitas/observacao/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+    if(String(v.id) === String(req.params.id)){
+
+      if(!v.observacoes){
+        v.observacoes = [];
+      }
+
+      v.observacoes.unshift({
+        texto: req.body.observacao || '',
+        user: req.session.user ? req.session.user.nome : 'Sistema',
+        createdAt: new Date().toISOString()
+      });
+
+    }
+    return v;
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+app.post('/app/visitas/prioridade/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.prioridade = req.body.prioridade || 'NORMAL';
+
+      v.prioridadeUpdatedAt = new Date().toISOString();
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+app.post('/app/visitas/responsavel/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.responsavelOperacional = req.body.responsavel || '';
+
+      v.responsavelUpdatedAt = new Date().toISOString();
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+app.post('/app/visitas/cliente-gostou/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.status = 'CONCLUIDA';
+      v.pipelineStatus = 'CLIENTE_GOSTOU';
+
+      v.clienteGostouAt = new Date().toISOString();
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/proposta/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.status = 'CONCLUIDA';
+      v.pipelineStatus = 'PROPOSTA';
+
+      v.propostaAt = new Date().toISOString();
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/fechado/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.status = 'CONCLUIDA';
+      v.pipelineStatus = 'FECHADO';
+
+      v.fechadoAt = new Date().toISOString();
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+app.get('/app/visitas-kanban', auth, (req,res)=>{
+
+  const fs = require('fs');
+
+  const visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  const colunas = {
+    AGUARDANDO: [],
+    CONFIRMADA: [],
+    CONCLUIDA: [],
+    CLIENTE_GOSTOU: [],
+    POS_VISITA: [],
+    PROPOSTA: [],
+    NEGOCIACAO: [],
+    FECHADO: [],
+    PERDIDO: []
+  };
+
+  visitas.forEach(v => {
+
+    if(v.pipelineStatus === 'FECHADO'){
+      colunas.FECHADO.push(v);
+    }
+    else if(v.pipelineStatus === 'PROPOSTA'){
+      colunas.PROPOSTA.push(v);
+    }
+    else if(v.pipelineStatus === 'NEGOCIACAO'){
+      colunas.NEGOCIACAO.push(v);
+    }
+    else if(v.pipelineStatus === 'PERDIDO'){
+      colunas.PERDIDO.push(v);
+    }
+    else if(v.pipelineStatus === 'CLIENTE_GOSTOU'){
+      colunas.CLIENTE_GOSTOU.push(v);
+    }
+    else if(v.pipelineStatus === 'POS_VISITA'){
+      colunas.POS_VISITA.push(v);
+    }
+    else if(v.status === 'CONCLUIDA'){
+      colunas.CONCLUIDA.push(v);
+    }
+    else if(v.status === 'CONFIRMADA'){
+      colunas.CONFIRMADA.push(v);
+    }
+    else {
+      colunas.AGUARDANDO.push(v);
+    }
+
+  });
+
+  res.render('app-visitas-kanban',{
+    user:req.session.user,
+    colunas
+  });
+
+});
+
+
+app.post('/app/visitas/agendar/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.dataVisita = req.body.dataVisita || '';
+      v.horaVisita = req.body.horaVisita || '';
+
+      v.agendadaAt = new Date().toISOString();
+
+      if(v.status === 'AGUARDANDO'){
+        v.status = 'CONFIRMADA';
+      }
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+app.post('/app/visitas/solicitar-confirmacao/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.confirmacaoClienteStatus = 'PENDENTE';
+
+      v.confirmacaoSolicitadaAt = new Date().toISOString();
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+app.get('/cliente/visita/:id', (req,res)=>{
+
+  const fs = require('fs');
+
+  const visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  const visita = visitas.find(v =>
+    String(v.id) === String(req.params.id)
+  );
+
+  if(!visita){
+    return res.send('Visita não encontrada');
+  }
+
+  res.render('cliente-visita',{
+    visita
+  });
+
+});
+
+app.post('/cliente/visita/:id/confirmar', (req,res)=>{
+
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+      v.confirmacaoClienteStatus = 'CONFIRMADO';
+      v.confirmacaoClienteAt = new Date().toISOString();
+      v.clienteConfirmou = true;
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/cliente/visita/' + req.params.id);
+
+});
+
+app.post('/cliente/visita/:id/recusar', (req,res)=>{
+
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.confirmacaoClienteStatus = 'RECUSADO';
+
+      v.confirmacaoClienteRecusouAt = new Date().toISOString();
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/cliente/visita/' + req.params.id);
+
+});
+
+
+app.get('/cliente/visita/:id/remarcar', (req,res)=>{
+
+  const fs = require('fs');
+
+  const visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  const visita = visitas.find(v =>
+    String(v.id) === String(req.params.id)
+  );
+
+  if(!visita){
+    return res.send('Visita não encontrada');
+  }
+
+  res.render('cliente-remarcar-visita',{
+    visita
+  });
+
+});
+
+app.post('/cliente/visita/:id/remarcar', (req,res)=>{
+
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.status = 'REMARCAR';
+
+      v.novaDataSolicitada = req.body.dataVisita || '';
+
+      v.novaHoraSolicitada = req.body.horaVisita || '';
+
+      v.observacaoRemarcacao = req.body.observacao || '';
+
+      v.remarcarSolicitadoAt = new Date().toISOString();
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/cliente/visita/' + req.params.id);
+
+});
+
+
+app.post('/app/visitas/checkin/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.checkinAt = new Date().toISOString();
+
+      v.status = 'VISITA_INICIADA';
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/finalizar/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.visitaFinalizadaAt = new Date().toISOString();
+
+      v.status = 'VISITA_FINALIZADA';
+
+      v.pipelineStatus = 'POS_VISITA';
+
+      v.proximaAcao = 'Entrar em contato para entender percepção do cliente';
+
+      v.prioridade = 'QUENTE';
+
+      v.alertaOperacional = true;
+
+      if(!v.observacoes){
+        v.observacoes = [];
+      }
+
+      v.observacoes.unshift({
+        texto:'Sistema iniciou fluxo automático de pós-visita',
+        user:'IA Operacional',
+        createdAt:new Date().toISOString()
+      });
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+app.post('/app/visitas/negociacao/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.pipelineStatus = 'NEGOCIACAO';
+
+      v.proximaAcao = 'Acompanhar negociação com cliente';
+
+      v.negociacaoAt = new Date().toISOString();
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas-kanban');
+});
+
+app.post('/app/visitas/perdido/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.pipelineStatus = 'PERDIDO';
+
+      v.proximaAcao = 'Lead perdido';
+
+      v.perdidoAt = new Date().toISOString();
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas-kanban');
+});
+
+
+app.post('/app/visitas/parceiro-confirmou/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.parceiroConfirmouAt = new Date().toISOString();
+
+      if(!v.observacoes){
+        v.observacoes = [];
+      }
+
+      v.observacoes.unshift({
+        texto:'Parceiro confirmou disponibilidade da visita',
+        user:'Sistema',
+        createdAt:new Date().toISOString()
+      });
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/proprietario-confirmou/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.proprietarioConfirmouAt = new Date().toISOString();
+      v.proprietarioConfirmou = true;
+      v.confirmacaoProprietarioStatus = 'CONFIRMADO';
+
+      if(!v.observacoes){
+        v.observacoes = [];
+      }
+
+      v.observacoes.unshift({
+        texto:'Proprietário confirmou disponibilidade da visita',
+        user:'Sistema',
+        createdAt:new Date().toISOString()
+      });
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/cliente-chegou/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.clienteChegouAt = new Date().toISOString();
+
+      v.status = 'CLIENTE_CHEGOU';
+
+      v.proximaAcao = 'Iniciar visita ao imóvel';
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/no-show/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.status = 'NO_SHOW';
+
+      v.noShowAt = new Date().toISOString();
+
+      v.proximaAcao = 'Entrar em contato para reagendar';
+
+      v.prioridade = 'MORNA';
+
+      if(!v.observacoes){
+        v.observacoes = [];
+      }
+
+      v.observacoes.unshift({
+        texto:'Cliente não compareceu na visita',
+        user:'Sistema',
+        createdAt:new Date().toISOString()
+      });
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+
+app.post('/app/visitas/proposta-valor/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.valorProposta = req.body.valorProposta || '';
+
+      v.propostaUpdatedAt = new Date().toISOString();
+
+      v.pipelineStatus = 'PROPOSTA';
+
+      v.proximaAcao = 'Aguardar retorno da proposta';
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+
+app.post('/app/visitas/perda-motivo/:id', auth, (req,res)=>{
+  const fs = require('fs');
+
+  let visitas = fs.existsSync(dataPath('visitas.json'))
+    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
+    : [];
+
+  visitas = visitas.map(v => {
+
+    if(String(v.id) === String(req.params.id)){
+
+      v.pipelineStatus = 'PERDIDO';
+
+      v.motivoPerda = req.body.motivoPerda || '';
+
+      v.perdidoAt = new Date().toISOString();
+
+      v.proximaAcao = 'Lead perdido';
+
+    }
+
+    return v;
+
+  });
+
+  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+
+  res.redirect('/app/visitas');
+});
+

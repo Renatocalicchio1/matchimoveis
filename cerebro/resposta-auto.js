@@ -26,7 +26,7 @@ function gerarResposta(lead, texto, matches) {
 
   // Primeira mensagem — saudação
   if (totalMsgs <= 1 || ehSaudacao(texto)) {
-    return `Olá ${nome}! 😊 Sou a assistente do MatchImóveis. Estou aqui para te ajudar a encontrar o imóvel ideal!\n\nPode me contar o que você está buscando? Tipo de imóvel, bairro, número de quartos e faixa de preço?`;
+    return `Olá${nome ? ' ' + nome : ''}! 😊 Sou a assistente do MatchImóveis. Estou aqui para te ajudar a encontrar o imóvel ideal!\n\nPode me contar o que você está buscando? Tipo de imóvel, bairro, número de quartos e faixa de preço?`;
   }
 
   // Despedida

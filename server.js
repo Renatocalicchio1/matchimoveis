@@ -5363,3 +5363,28 @@ app.get('/admin/zerar-tudo-sistema', (req, res) => {
   }
   res.json({ ok: true, resultado });
 });
+
+app.get('/admin/migrar-imoveis/:idAntigo/:idNovo', (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const { idAntigo, idNovo } = req.params;
+  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
+  let migrados = 0;
+  for (const base of bases) {
+    const imoveisPath = path2.join(base, 'imoveis.json');
+    if (!fs2.existsSync(imoveisPath)) continue;
+    try {
+      let imoveis = JSON.parse(fs2.readFileSync(imoveisPath, 'utf8'));
+      imoveis = imoveis.map(im => {
+        if ((im.userId || im.codigoUsuario || im.usuarioId) === idAntigo) {
+          im.userId = idNovo;
+          im.codigoUsuario = idNovo;
+          migrados++;
+        }
+        return im;
+      });
+      fs2.writeFileSync(imoveisPath, JSON.stringify(imoveis, null, 2));
+    } catch(e) {}
+  }
+  res.json({ ok: true, idAntigo, idNovo, migrados });
+});

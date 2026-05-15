@@ -5456,3 +5456,23 @@ app.get('/admin/diagnostico-contas', (req, res) => {
   const idsEstranhos = [...new Set(imoveis.map(im => im.userId || im.codigoUsuario || im.usuarioId).filter(id => id && !idsConhecidos.includes(id)))];
   res.json({ ok: true, contas: resultado, sem_vinculo: semVinculo, ids_estranhos: idsEstranhos, total_imoveis: imoveis.length });
 });
+
+app.get('/admin/deletar-imoveis/:userId', (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const { userId } = req.params;
+  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
+  let deletados = 0;
+  for (const base of bases) {
+    const ip = path2.join(base, 'imoveis.json');
+    if (!fs2.existsSync(ip)) continue;
+    try {
+      let imoveis = JSON.parse(fs2.readFileSync(ip, 'utf8'));
+      const antes = imoveis.length;
+      imoveis = imoveis.filter(im => (im.userId || im.codigoUsuario || im.usuarioId) !== userId);
+      fs2.writeFileSync(ip, JSON.stringify(imoveis, null, 2));
+      deletados = antes - imoveis.length;
+    } catch(e) {}
+  }
+  res.json({ ok: true, userId, deletados });
+});

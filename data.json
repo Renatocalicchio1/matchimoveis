@@ -179,7 +179,10 @@
         },
         "status": "ativo",
         "codigoUsuario": "RAN-9191",
-        "id": "MI-1778368153959-ZIGW85"
+        "id": "MI-1778368153959-ZIGW85",
+        "rank": 1,
+        "score": 0,
+        "bestScore": 0
       },
       {
         "idExterno": "CAPRAFA122",
@@ -245,7 +248,10 @@
         },
         "status": "ativo",
         "codigoUsuario": "RAN-9191",
-        "id": "MI-1778368153959-KAPZQC"
+        "id": "MI-1778368153959-KAPZQC",
+        "rank": 2,
+        "score": 0,
+        "bestScore": 0
       },
       {
         "idExterno": "CAPRAFA121",
@@ -312,7 +318,10 @@
         },
         "status": "ativo",
         "codigoUsuario": "RAN-9191",
-        "id": "MI-1778368153959-VVDHJC"
+        "id": "MI-1778368153959-VVDHJC",
+        "rank": 3,
+        "score": 0,
+        "bestScore": 0
       }
     ],
     "area_m2": 27,
@@ -699,7 +708,7 @@
         "canal": "whatsapp",
         "texto": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
         "timestamp": "2026-05-15T00:55:56.569Z",
-        "lida": false
+        "lida": true
       },
       {
         "id": "1778806575080",
@@ -707,7 +716,7 @@
         "canal": "whatsapp",
         "texto": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
         "timestamp": "2026-05-15T00:56:15.080Z",
-        "lida": false
+        "lida": true
       },
       {
         "id": "1778806738209",
@@ -715,7 +724,7 @@
         "canal": "whatsapp",
         "texto": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
         "timestamp": "2026-05-15T00:58:58.209Z",
-        "lida": false
+        "lida": true
       }
     ],
     "ultimaMensagem": "quero alugar apartamento 2 quartos em Itajai ate 2000 reais",
@@ -756,7 +765,30 @@
         "timestamp": "2026-05-15T00:58:58.367Z"
       }
     ],
-    "followUps": []
+    "followUps": [],
+    "historico": [
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-15T01:20:47.624Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-15T01:29:28.664Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-15T01:30:32.380Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-15T01:36:53.236Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-15T01:38:56.147Z"
+      }
+    ],
+    "bestScore": 0
   },
   {
     "nome": "Alexandre",
@@ -895,7 +927,14 @@
     "indisponivel": false,
     "extractionStatus": "ok",
     "matchesBase": [],
-    "matchCountBase": 0
+    "matchCountBase": 0,
+    "historico": [
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-15T01:18:35.350Z"
+      }
+    ],
+    "bestScore": 0
   },
   {
     "id": "1778627152897",
@@ -928,8 +967,450 @@
     "corretorTelefone": "",
     "data_cadastro": "2026-05-13T00:20:48.904Z",
     "data_cadastro_br": "12/05/2026, 21:20:48",
-    "matches": [],
-    "matchCount": 0
+    "matches": [
+      {
+        "idExterno": "CAPJUJU024",
+        "idOriginal": "CAPJUJU024",
+        "titulo": "Apartamento de 26m² à Venda na Vila Olímpia",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Vila Olímpia",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Casa do Ator",
+        "cep": "04546-002",
+        "latitude": -23.5987564,
+        "longitude": -46.6789516,
+        "valor_imovel": 490000,
+        "condominio": 335,
+        "iptu": 0,
+        "area_m2": 26,
+        "area_total": 26,
+        "quartos": 1,
+        "suites": 1,
+        "banheiros": 1,
+        "vagas": 0,
+        "descricao": "OPORTUNIDADE IMPERDÍVEL! MORE NO CONDOMÍNIO TODAY VILA OLÍMPIA\n\nLindo Apartamento de 26m², contendo sala, varanda com uma vista panorâmica, cozinha americana, 1 banheiro e 1 quarto.\n\nCondomínio com:\nPiscina, Churrasqueira, Academia, Salão de Festas, Brinquedoteca, Lavanderia, Jardim, Elevador, Portaria 24 horas.\n\nÓtima localização! Perto do shopping Vila Olímpia, metro Vila Olímpia, escola, farmácia, academia, mercado, padaria, entre outros pontos de interesse.\n\nAGENDE JÁ SUA VISITA E NÃO PERCA ESSA OPORTUNIDADE!",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e292d871.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e302b203.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e32976d6.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e3622f04.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e3d378ec.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e2b5456c.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e2d80965.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e3911c1d.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e47759ce.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e6786cc1.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e604863c.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e40e2507.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e6444bfc.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e6ab6dad.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e4b78874.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e4e77f20.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e59cef24.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e441c6d2.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e5d22bd7.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212644/iwaC9e196GX6Mg559glX_212644686c4e5173e8e.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.568Z",
+        "updatedAt": "2026-05-05T16:03:39.568Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.568Z",
+        "proprietario": {
+          "nome": "Alessandra",
+          "telefone": "11 99972.1335",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191",
+        "id": "MI-1778368153959-ZIGW85",
+        "rank": 1,
+        "score": 0,
+        "bestScore": 0
+      },
+      {
+        "idExterno": "CAPRAFA430",
+        "idOriginal": "CAPRAFA430",
+        "titulo": "Apartamento em Vila Olímpia com 24 m²!",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Vila Olímpia",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Rua Casa do Ator",
+        "cep": "04546-002",
+        "latitude": -23.5987564,
+        "longitude": -46.6789516,
+        "valor_imovel": 495000,
+        "condominio": 350,
+        "iptu": 0,
+        "area_m2": 24,
+        "area_total": 24,
+        "quartos": 1,
+        "suites": 0,
+        "banheiros": 1,
+        "vagas": 0,
+        "descricao": "Apartamento em Andar alto, terraço com vista espetacular, excelente localização, muito próximo do Shopping Vila Olimpia e Faculdade Insper.\n\nEmpreendimento com academia, piscina, coworking, lavanderia coletiva, sala de TV e salão de festa.\n\nVocê merece morar ou investir bem! Agende uma visita!\n\nJuntamos a tradição com altas de tecnologia e um time muito experiente fazendo com que a jornada de busca seja muito mais objetiva e prazerosa.\n\nDescubra o Condomínio Today Vila Olímpia - Construtora Canopus, uma residência que reflete o espírito vibrante de São Paulo. Situado na Rua Casa do Ator, ele oferece uma ampla variedade de recursos para enriquecer a vida cotidiana.\n\nCom menos de 1 ano, o Condomínio Today Vila Olímpia - Construtora Canopus foi construído em meio ao aumento da busca por praticidade e em uma região que facilita o dia a dia.\n\nCom portaria 24 horas, elevador, academia, piscina, salão de festas, brinquedoteca e lavanderia no prédio, o Condomínio Today Vila Olímpia - Construtora Canopus é ideal para quem busca conforto e entretenimento.\n\nA proximidade com Insper, Universidade Anhembi-Morumbi, DeRose Method Vila Olímpia, FMU, Colégio da Companhia de Maria e Shopping Vila Olímpia adiciona praticidade a essa experiência.\n\nAgende já sua visita!",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657ffedba95.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_212604686580015d573.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657ffc3c77a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fefe5680.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_2126046865800641c12.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468658003492d7.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fdcd98bd.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fede36d1.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fe33ad47.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fdace071.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fd6e8605.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fe0f1be1.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fe76c1f1.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fd8dac30.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fdee4381.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657ff4a3ff6.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657ff9dfa63.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657ff25b8a7.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fe545191.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657fe9a9c34.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657febc97d0.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212604/i6Kerz3Wl9145D_21260468657ff7650b2.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.568Z",
+        "updatedAt": "2026-05-05T16:03:39.568Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.568Z",
+        "proprietario": {
+          "nome": "Glaucio",
+          "telefone": "11 98045.1762",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191",
+        "id": "MI-1778368153959-6KF6Y4",
+        "rank": 2,
+        "score": 0,
+        "bestScore": 0
+      },
+      {
+        "idExterno": "CAPRAFA127",
+        "idOriginal": "CAPRAFA127",
+        "titulo": "Studio Belíssimo próximo a Estação Vila Olímpia com 24 m²!",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Vila Olímpia",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Rua Casa do Ator",
+        "cep": "04546-001",
+        "latitude": -23.5966068,
+        "longitude": -46.6836537,
+        "valor_imovel": 475000,
+        "condominio": 285,
+        "iptu": 0,
+        "area_m2": 24,
+        "area_total": 24,
+        "quartos": 1,
+        "suites": 1,
+        "banheiros": 1,
+        "vagas": 0,
+        "descricao": "Lindo Studio na Rua Casa do Ator, na Vila Olímpia, oferece uma solução moderna e prática para quem busca um espaço compacto e funcional. \nEste tipo de apartamento é ideal para quem valoriza a praticidade do ambiente integrado, sem abrir mão do conforto. \nonde o conforto e a criatividade caminham lado a lado, permitindo que os moradores vivam sua arte de forma plena, sem abrir mão do bem-estar.\nCom 24m², 1 dormitório, sendo 1 suite, 1 banheiro, varanda, área de serviço, sem vaga de garagem.\n\nContando com portaria 24 horas, elevador, academia, piscina, salão de festas, cinema, Coworking, Pet Place, jardim, bicicletário, home market, sauna e lavanderia no prédio, o Condomínio Viva Benx Casa do Atror é preparado para atender às necessidades dos moradores que buscam lazer e conforto em um só lugar.\n\nA proximidade com Shopping Vila Olímpia, DeRose Method Vila Olímpia, Insper, Universidade Anhembi-Morumbi, Shopping JK Iguatemi e Estação Vila Olímpia acrescenta praticidade e comodidade na rotina dos que residem no local.\n\nO Viva Benx - Casa do Ator é, sem dúvida, o lugar perfeito para quem deseja viver em um ambiente que respira arte, inovação e cultura.\n Condomínio: 285,00 IPTU: 80,00 mensal.",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_2120976809349c2cb49.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_2120976809349e4af36.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_2120976809349537b1d.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_212097680934975ee03.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_212097680934a0c161b.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_21209768093499e2944.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_212097680934a2d5b49.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i7dQW22UK4_21209768093061ed80c.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_21209768093463145a1.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_212097680934656ba0f.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_2120976809346fb8fc8.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_212097680934692e551.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_21209768093476308ee.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_2120976809346c8abbe.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_212097680934731e947.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_2120976809347940234.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_2120976809347bc692f.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_2120976809347ecaab0.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_212097680934828e13c.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_212097680934868da32.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_21209768093489cb40b.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_2120976809348d9635f.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_21209768093490564b9.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212097/i387w_21209768093492d85d0.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.570Z",
+        "updatedAt": "2026-05-05T16:03:39.570Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.570Z",
+        "proprietario": {
+          "nome": "Pedro Costa",
+          "telefone": "11 94361.6012",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191",
+        "id": "MI-1778368153959-VHVJJL",
+        "rank": 3,
+        "score": 0,
+        "bestScore": 0
+      },
+      {
+        "idExterno": "CAPRAFA123",
+        "idOriginal": "CAPRAFA123",
+        "titulo": "Lindo Studio em Vila Olímpia com 24m²!",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Vila Olímpia",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Rua Quatá",
+        "cep": "04546-043",
+        "latitude": -23.5980509,
+        "longitude": -46.6789798,
+        "valor_imovel": 477000,
+        "condominio": 400,
+        "iptu": 0,
+        "area_m2": 24,
+        "area_total": 24,
+        "quartos": 1,
+        "suites": 0,
+        "banheiros": 1,
+        "vagas": 0,
+        "descricao": "Com uma localização privilegiada, 3 minutos a pé apenas da Av. Brig. Faria Lima, próximo ao Insper, em frente ao Natural da Terra e 10 minutos do Shopping Vila Olímpia.\n Esse empreendimento foi sucesso de vendas. \nConectada ao empreendimento existe uma Torre Corporate para os escritórios que gostam da região, isso agrega valor ao apartamento. Studio em andar alto com 25 m² com 1 dormitório, 1 banheiro e varanda, entregue com excelente acabamento, cabendo uma cama queen size, com fechadura eletrônica, infraestrutura para ar condicionado, tomada USB e portas com borracha amortecedora. \n\nCom portaria 24 horas, elevador, academia, piscina, salão de festas, playground, sauna e lavanderia no prédio, o Condomínio Today Faria Lima é ideal para quem busca conforto e entretenimento.\n\nA proximidade com Insper, Universidade Anhembi-Morumbi, DeRose Method Vila Olímpia, FMU, Colégio da Companhia de Maria e Shopping Vila Olímpia adiciona praticidade a essa experiência.\n\n\nCondomínio:.R$250,00 IPTU:.R$100,00 mensal\n\nAgende já sua visita!",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eadcd8bab.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eae5508d9.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eaf237ca5.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eaf5796d0.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eae10fbfd.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eaed5e13a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eaff5a118.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eaef648dd.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eafd89593.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eae97ebd0.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eafbeb241.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eaf9e716f.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eae35da9f.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eaeb7374a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eb015ee9c.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eadeddf3a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212080/ik9Kh7366158wQ69P1h_2120806807eae751c07.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.570Z",
+        "updatedAt": "2026-05-05T16:03:39.570Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.570Z",
+        "proprietario": {
+          "nome": "Lucas Attademo",
+          "telefone": "5511961844048",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191",
+        "id": "MI-1778368153959-M4VVM9",
+        "rank": 4,
+        "score": 0,
+        "bestScore": 0
+      },
+      {
+        "idExterno": "CAPRAFA122",
+        "idOriginal": "CAPRAFA122",
+        "titulo": "Lindo Studio no Condomínio Today Vila Olímpia com 27m²!",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Vila Olímpia",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Rua Casa do Ator",
+        "cep": "04546-002",
+        "latitude": -23.5987564,
+        "longitude": -46.6789516,
+        "valor_imovel": 418000,
+        "condominio": 0.1,
+        "iptu": 0,
+        "area_m2": 27,
+        "area_total": 27,
+        "quartos": 1,
+        "suites": 0,
+        "banheiros": 1,
+        "vagas": 0,
+        "descricao": "Lindo Studio com 27m2  com 1 dormitório, 1 banheiro, varanda.\n(em construção - entrega 1° semestre/2025) em ótima localização na Vila Olímpia (próximo às principais vias da região como Av. Santo Amaro, Av. Brigadeiro Faria Lima e Marginal Pinheiros, além de ter diversas linhas de ônibus, e a estação Vila Olímpia da linha 9 Esmeralda a apenas 7 minutos de bike).\n\nCom portaria 24 horas, elevador, academia, piscina, salão de festas, churrasqueira, brinquedoteca e lavanderia no prédio, o Condomínio Today Vila Olímpia - Residencial é ideal para quem busca conforto e entretenimento.\n\nA proximidade com Insper, Universidade Anhembi-Morumbi, DeRose Method Vila Olímpia, FMU, Colégio da Companhia de Maria e Shopping Vila Olímpia adiciona praticidade a essa experiência.",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6ad993fd.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6bf37dd4.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6b99d71a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6b3ceb50.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6b5e3dc4.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6bd64a69.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6b7e51d9.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6c6d9827.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6aa03472.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6afe9e92.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6b20a1c0.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6c1401c2.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6abea50b.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6c3369ef.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6bbb310d.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6c8bb501.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6c4b204c.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212079/io2XcK_2120796807e6ca8e759.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.570Z",
+        "updatedAt": "2026-05-05T16:03:39.570Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.570Z",
+        "proprietario": {
+          "nome": "Luiz Marcelo",
+          "telefone": "16 99609.9105",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191",
+        "id": "MI-1778368153959-KAPZQC",
+        "rank": 5,
+        "score": 0,
+        "bestScore": 0
+      },
+      {
+        "idExterno": "CAPRAFA121",
+        "idOriginal": "CAPRAFA121",
+        "titulo": "Lindo Studio em Vila Olímpia com 26m²!",
+        "transacao": "venda",
+        "tipo": "Apartamento",
+        "categoria": "",
+        "bairro": "Vila Olímpia",
+        "cidade": "São Paulo",
+        "estado": "São Paulo",
+        "endereco": "Rua Quatá",
+        "cep": "04546-043",
+        "latitude": -23.5980509,
+        "longitude": -46.6789798,
+        "valor_imovel": 455000,
+        "condominio": 315,
+        "iptu": 0,
+        "area_m2": 26,
+        "area_total": 26,
+        "quartos": 1,
+        "suites": 0,
+        "banheiros": 1,
+        "vagas": 0,
+        "descricao": "Apartamento em andar alto 20 º, novíssimo entregue em janeiro/2025. \nCom 26 m², studio com varanda, 1 banheiro.\nO Condomínio Today Faria Lima é para quem deseja ter todas as possibilidades que São Paulo tem a oferecer, é extremamente bem localizado, possui ao redor bares, restaurantes e diversos outros serviços, além de ficar a 2 minutos de bike do Shopping Vila Olímpia e a 12 minutos de bike do Parque Ibirapuera, fácil acesso a instituições como Insper, Anhembi-Morumbi, FMU e Colégio da Companhia de Maria. \nAs opções de mobilidade são diversas: apenas 3 minutos a pé, você chega à Av. Faria Lima (centro financeiro de São Paulo) e a 6 minutos de bike você está na Estação Vila Olímpia da CPTM. Construído em torre única, o apartamento possui excelente acabamento, conta com fechadura biométrica, porta com amortecedor (barulho nunca mais), tomada USB, espaço para uma cama queen size, infraestrutura pronta para o ar condicionado e varanda. \nCondomínio:.R$315,00 IPTU:.R$96,00 p/mês\n\nAgende já sua visita!",
+        "fotos": [
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e1452b32d.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e14f8b584.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e1472501a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e173062db.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e14936894.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e15ae5026.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e166dfa9a.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e160164dc.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e16b66c77.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e157cc432.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e1623c9df.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e16f6b0fb.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e14b6499b.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e154b3940.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e15e32f18.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e164ba72b.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e16d5a611.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e16913707.jpg",
+          "https://cdn.vistahost.com.br/cli21379/vista.imobi/fotos/212078/iLvk2oB2xQr1J_2120786807e17171ad0.jpg"
+        ],
+        "corretor": {
+          "nome": "",
+          "email": "",
+          "telefone": ""
+        },
+        "fonte": "Rankim",
+        "source": "xml",
+        "userId": "imobiliaria-47991919191",
+        "usuarioId": "imobiliaria-47991919191",
+        "createdAt": "2026-05-05T16:03:39.570Z",
+        "updatedAt": "2026-05-05T16:03:39.570Z",
+        "lastCheckedAt": "2026-05-05T16:03:39.570Z",
+        "proprietario": {
+          "nome": "Roseli Bianchi",
+          "telefone": "11 97471.1880",
+          "email": "",
+          "status": "vinculado"
+        },
+        "status": "ativo",
+        "codigoUsuario": "RAN-9191",
+        "id": "MI-1778368153959-VVDHJC",
+        "rank": 6,
+        "score": 0,
+        "bestScore": 0
+      }
+    ],
+    "matchCount": 6,
+    "historico": [
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-15T01:23:17.344Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-15T01:25:58.789Z"
+      },
+      {
+        "acao": "visualizou_detalhes_lead",
+        "data": "2026-05-15T01:29:15.617Z"
+      }
+    ],
+    "bestScore": 0
   },
   {
     "id": "1778628751602",

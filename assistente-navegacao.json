@@ -37,8 +37,8 @@
       "labelAtual": "Leads",
       "dominioAtual": "leads",
       "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-14T20:11:00.121Z",
-      "paginaAnterior": "visitas"
+      "atualizadoEm": "2026-05-15T01:38:54.985Z",
+      "paginaAnterior": "dashboard"
     },
     "cor_ruj7md4cy2": {
       "paginaAtual": "dashboard",
@@ -3949,6 +3949,102 @@
       "para": "leads",
       "userId": "corretor-47992010889",
       "data": "2026-05-14T20:11:00.121Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:14:51.514Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:15:00.684Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:17:52.648Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:17:53.697Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:19:22.665Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:19:24.139Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:22:32.961Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:22:39.787Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:29:07.323Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:29:09.274Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:30:29.612Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:30:30.748Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:36:49.483Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:36:51.922Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:38:53.847Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "corretor-47992010889",
+      "data": "2026-05-15T01:38:54.985Z"
     }
   ]
 }

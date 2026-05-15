@@ -86,108 +86,104 @@
         </div>
 
       <div class="ld-card">
-        <div class="ld-title">📊 Comportamento da Lead</div>
-
+        <div class="ld-title">📋 Timeline</div>
         <%
-          const eventosLead = [];
+          const tlEventos = [];
 
-          if (lead.imovel_interesse) {
-            eventosLead.push({
-              tipo: 'interesse',
-              acao: 'Cadastrou interesse no imóvel #' + lead.imovel_interesse,
-              data: lead.createdAt || lead.data_cadastro || new Date().toISOString(),
-              extra: lead.titulo_interesse || '',
-              link: '/imovel/' + lead.imovel_interesse
-            });
-          }
-
-          if (typeof visitasDaLead !== 'undefined' && visitasDaLead && visitasDaLead.length) {
-            (visitasDaLead || []).forEach(v => {
-              eventosLead.push({
-                tipo: 'visita',
-                acao: 'Solicitou/agendou visita no imóvel #' + (v.imovelId || v.imovel_id || v.idImovel || v.imovel_interesse || '-'),
-                data: v.createdAt || v.data || v.dataVisita || '',
-                extra: (v.status ? 'Status: ' + v.status : ''),
-                link: ''
-              });
-            });
-          }
-
-          if (lead.historico && lead.historico.length) {
-            lead.historico
-              .filter(h => h.acao !== 'visualizou_detalhes_lead')
-              .forEach(h => {
-                eventosLead.push({
-                  tipo: 'historico',
-                  acao: String(h.acao || 'ação').replace(/_/g,' '),
-                  data: h.data || '',
-                  extra: '',
-                  link: ''
-                });
-              });
-          }
-
+          // Mensagens WhatsApp
           if (lead.mensagens && lead.mensagens.length) {
             lead.mensagens.forEach(m => {
-              eventosLead.push({
-                tipo: 'whatsapp',
-                acao: '💬 ' + (m.texto || '').substring(0, 60) + (m.texto && m.texto.length > 60 ? '...' : ''),
-                data: m.timestamp || '',
-                extra: 'WhatsApp',
-                link: ''
+              tlEventos.push({
+                icone: m.de === 'cliente' ? '💬' : '📤',
+                acao: m.de === 'cliente' ? 'Mensagem recebida' : 'Mensagem enviada',
+                detalhe: (m.texto||'').substring(0,60) + (m.texto && m.texto.length > 60 ? '...' : ''),
+                data: m.timestamp || ''
               });
             });
           }
-          eventosLead.sort((a,b) => new Date(b.data || 0) - new Date(a.data || 0));
-          const eventosRecentes = eventosLead.slice(0,3);
+
+          // Match automático
+          if (lead.matchAutoEm) {
+            tlEventos.push({
+              icone: '🎯',
+              acao: 'Match automático gerado',
+              detalhe: (lead.matchesAuto||[]).length + ' imóveis compatíveis encontrados',
+              data: lead.matchAutoEm
+            });
+          }
+
+          // Matches base interna
+          if ((lead.matches||[]).length) {
+            tlEventos.push({
+              icone: '✅',
+              acao: 'Match base interna',
+              detalhe: (lead.matches||[]).length + ' imóveis compatíveis',
+              data: lead.matchAtualizadoEm || lead.createdAt || ''
+            });
+          }
+
+          // Interesse em imóvel
+          if (lead.imovel_interesse) {
+            tlEventos.push({
+              icone: '🏠',
+              acao: 'Interesse em imóvel',
+              detalhe: '#' + lead.imovel_interesse,
+              data: lead.createdAt || lead.data_cadastro || ''
+            });
+          }
+
+          // Visitas
+          if (typeof visitasDaLead !== 'undefined' && visitasDaLead && visitasDaLead.length) {
+            visitasDaLead.forEach(v => {
+              tlEventos.push({
+                icone: '📅',
+                acao: 'Visita agendada',
+                detalhe: 'Imóvel #' + (v.imovelId || '-') + (v.status ? ' — ' + v.status : ''),
+                data: v.createdAt || v.data || ''
+              });
+            });
+          }
+
+          // Perfil IA atualizado
+          if (lead.memoriaOperacional && lead.memoriaOperacional.atualizadoEm) {
+            tlEventos.push({
+              icone: '🧠',
+              acao: 'Perfil IA atualizado',
+              detalhe: lead.memoriaOperacional.resumo || '',
+              data: lead.memoriaOperacional.atualizadoEm
+            });
+          }
+
+          // Score
+          if (lead.scoreAtualizadoEm) {
+            tlEventos.push({
+              icone: '⚡',
+              acao: 'Score atualizado',
+              detalhe: 'Score: ' + (lead.score || 0) + '%',
+              data: lead.scoreAtualizadoEm
+            });
+          }
+
+          tlEventos.sort((a,b) => new Date(b.data||0) - new Date(a.data||0));
         %>
 
-        <% if(eventosRecentes.length) { %>
-          <% eventosRecentes.forEach(ev => { %>
-            <div class="tl-item">
-              <div class="tl-dot"></div>
-              <div>
-                <div class="tl-action"><%= ev.acao %></div>
-                <% if(ev.link) { %>
-                  <div style="margin-top:4px">
-                    <a href="<%= ev.link %>" target="_blank" style="font-size:12px;color:var(--brand);font-weight:800;text-decoration:none">Ver imóvel →</a>
-                  </div>
-                <% } %>
-                <div class="tl-date"><%= ev.data ? new Date(ev.data).toLocaleString('pt-BR') : 'Data não informada' %></div>
-                <% if(ev.extra) { %><div style="font-size:12px;color:var(--gray);margin-top:4px"><%= ev.extra %></div><% } %>
-              </div>
+        <% if(tlEventos.length) { %>
+          <% tlEventos.slice(0,8).forEach(ev => { %>
+          <div class="tl-item">
+            <div style="font-size:16px;text-align:center;margin-top:2px"><%= ev.icone %></div>
+            <div>
+              <div class="tl-action"><%= ev.acao %></div>
+              <% if(ev.detalhe) { %><div style="font-size:12px;color:var(--gray);margin-top:2px"><%= ev.detalhe %></div><% } %>
+              <div class="tl-date"><%= ev.data ? new Date(ev.data).toLocaleString('pt-BR') : '' %></div>
             </div>
+          </div>
           <% }) %>
-
-          <% if(eventosLead.length > 5) { %>
-            <button type="button" onclick="document.getElementById('modal-comportamento-lead').style.display='flex'" class="btn-acao" style="margin-top:12px;background:#111827;color:white;border:0">
-              Ver todos os comportamentos (<%= eventosLead.length %>)
-            </button>
+          <% if(tlEventos.length > 8) { %>
+          <div style="font-size:12px;color:var(--gray);margin-top:8px;text-align:center"><%= tlEventos.length - 8 %> eventos anteriores</div>
           <% } %>
         <% } else { %>
-          <div style="color:var(--gray);font-size:13px">Nenhum comportamento real registrado ainda.</div>
+          <div style="color:var(--gray);font-size:13px">Nenhuma interação registrada ainda.</div>
         <% } %>
-      </div></div>
-
-      <div id="modal-comportamento-lead" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999999;align-items:center;justify-content:center;padding:20px">
-        <div style="background:white;border-radius:18px;max-width:620px;width:100%;max-height:80vh;overflow:auto;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <div class="ld-title">📊 Todos os comportamentos</div>
-            <button type="button" onclick="document.getElementById('modal-comportamento-lead').style.display='none'" style="border:0;background:#f3f4f6;border-radius:999px;width:34px;height:34px;cursor:pointer">×</button>
-          </div>
-
-          <% eventosLead.forEach(ev => { %>
-            <div class="tl-item">
-              <div class="tl-dot"></div>
-              <div>
-                <div class="tl-action"><%= ev.acao %></div>
-                <div class="tl-date"><%= ev.data ? new Date(ev.data).toLocaleString('pt-BR') : 'Data não informada' %></div>
-                <% if(ev.extra) { %><div style="font-size:12px;color:var(--gray);margin-top:4px"><%= ev.extra %></div><% } %>
-              </div>
-            </div>
-          <% }) %>
-        </div>
-      </div>
 
       <% if(lead.imovel_interesse) { %>
       <div class="ld-card">
@@ -358,29 +354,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 
-<!-- SEÇÃO WHATSAPP -->
-<% if (lead.mensagens && lead.mensagens.length) { %>
-<div style="max-width:700px;margin:24px auto;background:var(--card);border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-    <span style="font-size:22px">💬</span>
-    <h3 style="margin:0;font-size:16px;font-weight:700">Mensagens WhatsApp (<%= lead.mensagens.length %>)</h3>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto;padding-right:4px">
-    <% lead.mensagens.slice().reverse().forEach(m => { %>
-    <div style="display:flex;flex-direction:column;align-items:<%= m.de==='corretor'?'flex-end':'flex-start' %>">
-      <div style="max-width:80%;background:<%= m.de==='corretor'?'#25D366':m.de==='ia'?'#3b82f6':'#f0f0f0' %>;color:<%= m.de==='corretor'||m.de==='ia'?'#fff':'#222' %>;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4">
-        <%= m.texto %>
-      </div>
-      <div style="font-size:11px;color:#999;margin-top:3px">
-        <%= m.timestamp ? new Date(m.timestamp).toLocaleString('pt-BR') : '' %>
-      </div>
-    </div>
-    <% }) %>
-  </div>
-</div>
-<% } %>
-
-
 <!-- CARD PERFIL IA -->
 <% if (lead.perfilIA && Object.keys(lead.perfilIA).length) { %>
 <div style="max-width:700px;margin:24px auto;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:16px;padding:24px;border:1.5px solid #86efac;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
@@ -444,78 +417,5 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 <% } %>
 
-
-<!-- CARD COPILOTO IA -->
-<% if (typeof sugestoesCopiloto !== 'undefined' && sugestoesCopiloto && sugestoesCopiloto.length) { %>
-<div style="max-width:700px;margin:24px auto;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;padding:24px;border:1.5px solid #93c5fd;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-    <span style="font-size:22px">🤖</span>
-    <h3 style="margin:0;font-size:16px;font-weight:700;color:#1e40af">Copiloto IA — sugestões de resposta</h3>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:10px">
-    <% sugestoesCopiloto.forEach(s => { %>
-    <div style="background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #bfdbfe">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <span style="font-size:16px"><%= s.icone %></span>
-        <span style="font-size:12px;font-weight:700;color:#3b82f6"><%= s.label %></span>
-      </div>
-      <div style="font-size:13px;color:#374151;line-height:1.5;margin-bottom:10px"><%= s.texto %></div>
-      <div style="display:flex;gap:8px">
-        <a href="https://wa.me/55<%= (lead.contato||lead.telefone||'').replace(/\D/g,'') %>?text=<%= encodeURIComponent(s.texto) %>" target="_blank" style="padding:6px 14px;background:#25D366;color:#fff;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none">📲 Enviar no WhatsApp</a>
-        <button onclick="navigator.clipboard.writeText(this.dataset.txt);this.textContent='✅ Copiado!';setTimeout(()=>this.textContent='📋 Copiar',2000)" data-txt="<%= s.texto.replace(/\"/g,'&quot;') %>" style="padding:6px 14px;background:#eff6ff;color:#3b82f6;border:1px solid #93c5fd;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">📋 Copiar</button>
-      </div>
-    </div>
-    <% }) %>
-  </div>
-</div>
-<% } %>
-
-
-<!-- CAMPO ENVIO WHATSAPP -->
-<% if (lead.mensagens && lead.mensagens.length) { %>
-<div style="max-width:700px;margin:24px auto;background:var(--card);border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-    <span style="font-size:20px">📲</span>
-    <h3 style="margin:0;font-size:15px;font-weight:700">Responder via WhatsApp</h3>
-  </div>
-  <div style="display:flex;gap:10px">
-    <textarea id="wa-texto" placeholder="Digite sua mensagem..." style="flex:1;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 14px;font-size:14px;resize:none;height:80px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#25D366'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
-    <button onclick="enviarWA('<%= lead.id %>')" style="padding:0 20px;background:#25D366;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap">📤 Enviar</button>
-  </div>
-  <div id="wa-status" style="margin-top:8px;font-size:12px;color:#6b7280"></div>
-</div>
-<% } %>
-
-<script>
-async function enviarWA(leadId) {
-  const texto = document.getElementById('wa-texto').value.trim();
-  const status = document.getElementById('wa-status');
-  if (!texto) { status.textContent = '⚠️ Digite uma mensagem'; status.style.color='#ef4444'; return; }
-  
-  status.textContent = '⏳ Enviando...';
-  status.style.color = '#6b7280';
-  
-  try {
-    const r = await fetch(`/app/lead/${leadId}/whatsapp/enviar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texto })
-    });
-    const d = await r.json();
-    if (d.ok) {
-      status.textContent = '✅ Mensagem enviada!';
-      status.style.color = '#16a34a';
-      document.getElementById('wa-texto').value = '';
-      setTimeout(() => location.reload(), 1500);
-    } else {
-      status.textContent = '❌ Erro: ' + (d.erro || 'falha');
-      status.style.color = '#ef4444';
-    }
-  } catch(e) {
-    status.textContent = '❌ Erro de conexão';
-    status.style.color = '#ef4444';
-  }
-}
-</script>
 
 <%- include('partials/app-end') %>

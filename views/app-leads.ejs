@@ -2,83 +2,29 @@
 <style>
 .excel-card {
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 10px 14px;
-  margin-bottom: 8px;
+  border-radius: 12px;
+  padding: 14px 16px;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-}
-.excel-client strong {
-  font-size: 14px;
-  color: #111;
-}
-.excel-client span {
-  font-size: 12px;
-  color: #555;
-  margin-top: 2px;
-}
-.excel-status {
-  margin: 4px 0;
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 8px;
 }
 .chip {
   padding: 3px 10px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   background: #f3f4f6;
   color: #374151;
 }
-.chip.success { background: #d1fae5; color: #065f46; }
-.chip.dark    { background: #111; color: #fff; }
-.chip.warning { background: #fef3c7; color: #92400e; }
-.excel-table-wrap {
-  overflow-x: auto;
-  margin-top: 6px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
+.chip.dark { background: #111; color: #fff; }
+.excel-results {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
 }
-.excel-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 11px;
-}
-.excel-table th {
-  background: #f9fafb;
-  color: #6b7280;
-  font-weight: 600;
-  padding: 4px 8px;
-  text-align: left;
-  border-bottom: 1px solid #e5e7eb;
-  white-space: nowrap;
-}
-.excel-table td {
-  padding: 4px 8px;
-  border-bottom: 1px solid #f3f4f6;
-  color: #374151;
-  white-space: nowrap;
-}
-.origin-row td {
-  background: #eff6ff;
-  font-weight: 600;
-  color: #1d4ed8;
-}
-.match-row td {
-  background: #f0fdf4;
-  color: #166534;
-}
-.match-row:hover td {
-  background: #dcfce7;
-}
-.empty-match-row td {
-  color: #9ca3af;
-  font-style: italic;
-  text-align: center;
-  padding: 16px;
-}
-.excel-results { margin-top: 16px; }
 .filter-card .filters-row {
   display: flex;
   gap: 16px;
@@ -93,39 +39,41 @@
   font-size: 13px;
   min-width: 140px;
 }
-#filter-counter {
-  font-size: 13px;
-  color: #6b7280;
-  margin-bottom: 12px;
-}
+#filter-counter { font-size: 13px; color: #6b7280; margin-bottom: 12px; }
+.lead-nome { font-size: 14px; font-weight: 700; color: #111; text-decoration: none; }
+.lead-nome:hover { color: #ff385c; }
+.lead-meta { font-size: 11px; color: #6b7280; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.score-bar-bg { width: 80px; height: 5px; background: #f3f4f6; border-radius: 4px; overflow: hidden; display: inline-block; vertical-align: middle; }
+.perfil-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.perfil-tag { font-size: 11px; color: #6b7280; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 1px 7px; }
+.ultima-msg { font-size: 11px; color: #6b7280; border-left: 2px solid #e5e7eb; padding-left: 8px; font-style: italic; margin-top: 2px; }
+.lead-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; padding-top: 8px; border-top: 1px solid #f3f4f6; }
+.btn-acao { font-size: 11px; padding: 4px 10px; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid #e5e7eb; color: #374151; background: #f9fafb; }
+.btn-acao.wa { color: #25D366; border-color: #25D366; }
+.btn-acao.red { color: #ff385c; border-color: #ff385c; }
+.btn-acao.dark { color: #fff; background: #111; border-color: #111; }
 </style>
-
-<div id="match-live-total">
-  Total matches: <span id="match-total-num">0</span>
-</div>
-<script>
-function atualizarTotalMatches(){
-  let total = 0;
-  document.querySelectorAll('.chip').forEach(function(c){
-    const txt = c.innerText || '';
-    const m = txt.match(/(\d+)\s*matches/i);
-    if (m) total += Number(m[1]);
-  });
-  const el = document.getElementById('match-total-num');
-  if (el) el.innerText = total;
-}
-setInterval(atualizarTotalMatches, 1000);
-document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
-</script>
 
 <div class="container" style="padding:24px">
 
   <!-- Stats -->
   <section style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
-    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center"><strong style="font-size:28px;display:block"><%= stats.totalLeads %></strong><span style="font-size:13px;color:#717171">Total Leads</span></div>
-    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #FF385C"><strong style="font-size:28px;display:block;color:#FF385C"><%= stats.comMatch %></strong><span style="font-size:13px;color:#717171">🤖 IA encontrou imóvel</span></div>
-    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center"><strong style="font-size:28px;display:block"><%= stats.pendentes %></strong><span style="font-size:13px;color:#717171">Sem match</span></div>
-    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #008A05"><strong style="font-size:28px;display:block;color:#008A05"><%= stats.totalMatches %></strong><span style="font-size:13px;color:#717171">🎯 Total de matches IA</span></div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center">
+      <strong style="font-size:28px;display:block"><%= stats.totalLeads %></strong>
+      <span style="font-size:13px;color:#717171">Total Leads</span>
+    </div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #FF385C">
+      <strong style="font-size:28px;display:block;color:#FF385C"><%= stats.comMatch %></strong>
+      <span style="font-size:13px;color:#717171">🤖 IA encontrou imóvel</span>
+    </div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center">
+      <strong style="font-size:28px;display:block"><%= stats.pendentes %></strong>
+      <span style="font-size:13px;color:#717171">Sem match</span>
+    </div>
+    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #008A05">
+      <strong style="font-size:28px;display:block;color:#008A05"><%= stats.totalMatches %></strong>
+      <span style="font-size:13px;color:#717171">🎯 Total de matches IA</span>
+    </div>
   </section>
 
   <!-- Filtros -->
@@ -134,9 +82,9 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
       <label><span>Status</span>
         <select id="filter-status">
           <option value="all">Todos</option>
-          <option value="with_matches">🤖 IA encontrou imóvel</option>
-          <option value="extracted">✅ Dados extraídos</option>
-          <option value="without_matches">⏳ Pendente extração</option>
+          <option value="with_matches">🤖 Com match</option>
+          <option value="extracted">✅ Extraídos</option>
+          <option value="without_matches">⏳ Pendentes</option>
           <option value="organica">🌐 Orgânica</option>
           <option value="importada">📋 Importada</option>
         </select>
@@ -153,169 +101,113 @@ document.addEventListener('DOMContentLoaded', atualizarTotalMatches);
       <label style="flex:2"><span>🔍 Busca inteligente</span>
         <input id="filter-search" type="text" placeholder="Nome, email, celular, bairro..." style="width:100%">
       </label>
-      <label>
-        <span>Fonte do match</span>
-        <select id="filter-fonte">
-          <option value="all">Todas</option>
-          <option value="Rankim">Rankim</option>
-          <option value="ImovelWeb">ImovelWeb</option>
-          <option value="QuintoAndar">QuintoAndar</option>
-          <option value="ZAP">ZAP</option>
-          <option value="VivaReal">VivaReal</option>
-        </select>
-      </label>
     </div>
   </section>
 
-  <!-- Cards -->
-  <section class="card results-card">
-    <div class="section-head">
-      <h2>Resultados da IA</h2>
-      <p class="muted">Cada card representa um cliente analisado pela IA — com imóvel de origem e sugestões de match.</p>
+  <!-- Header ações -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+    <div>
+      <h2 style="margin:0;font-size:18px;">Leads</h2>
+      <div id="filter-counter" style="font-size:13px;color:#6b7280;margin-top:2px"></div>
     </div>
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      
-      <h2 style="margin:0">Leads</h2>
-
-      <a href="#" onclick="abrirModalImportarLeads();return false;" 
-         id="btn-importar-leads"
-         style="
-           background:#ff385c;
-           color:white;
-           padding:10px 14px;
-           border-radius:10px;
-           text-decoration:none;
-           font-weight:700;
-         ">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="#" onclick="abrirModalImportarLeads();return false;"
+         style="background:#ff385c;color:white;padding:9px 14px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;">
         ⬆️ Importar leads
       </a>
-      <button id="btn-match-base" onclick="rodarMatchBase()" style="background:#111;color:#fff;border:none;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">🎯 Match Base Interna</button>
-
+      <button onclick="rodarMatchBase()" id="btn-match-base"
+        style="background:#111;color:#fff;border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">
+        🎯 Match Base Interna
+      </button>
     </div>
-
-    <div id="results-list" class="excel-results">
-      <% leads.forEach((item, idx) => {
-        const origin = item.origin || {};
-        const status = item.ignored ? 'ignored' : (item.matches || []).length ? 'with_matches' : (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? 'extracted' : 'without_matches';
-        const bestScore = item.bestScore || (item.matches && item.matches[0] ? item.matches[0].score : 0) || 0;
-        const matchCount = (item.matches || []).length;
-      %>
-      <div class="excel-card"
-        data-status="<%= status %>"
-        data-score="<%= bestScore %>"
-        data-origem="<%= item.origem || 'importada' %>"
-        data-search="<%= [item.nome, item.clientName, item.contato, item.telefone, item.email, origin.bairro, origin.cidade].filter(Boolean).join(' ').toLowerCase() %>">
-
-        <div class="excel-client">
-          <div style="font-size:13px;line-height:1.45">
-            <strong><a href="/app/lead/<%= item.id %>" style="text-decoration:none;color:#111"><%= item.nome || item.cliente || item.clientName || '-' %></a></strong>
-            <% if(item.origem === 'pagina_externa_imovel') { %><span style="background:#e0f2fe;color:#0369a1;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px">🌐 Orgânica</span><% } else { %><span style="background:#F5F5F5;color:#15803d;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px">📋 Importada</span><% } %>
-            · <span style="color:#1A1A1A;font-weight:600"><%= (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? 'Extraído' : 'Pendente' %></span>
-            · <span class="chip">🤖 <%= matchCount %> sugestões IA</span>
-            <% if(bestScore) { %> · <span class="chip dark">⚡ Compatibilidade <%= bestScore %>%</span><% } %>
-            <br>
-            <span style="color:#666"><%= item.contato || item.telefone || '-' %> · <%= item.email || '-' %></span>
-            · <a target="_blank" href="https://wa.me/<%= String(item.contato || item.telefone || '').replace(/\\D/g,'') %>">WhatsApp</a>
-            <% if(matchCount) { %>
-              · <a href="/cliente/oferta/<%= item.leadId || item.id %>?userId=<%= encodeURIComponent(item.userId || item.usuarioId || item.corretorId || '') %>" style="color:#ff385c;font-weight:700">Ver vitrine</a>
-              · <a target="_blank" href="https://wa.me/55<%= String(item.contato || item.telefone || '').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (item.nome || item.cliente || item.clientName || '') + '! Separamos algumas oportunidades semelhantes ao que você buscou. Veja sua vitrine: https://matchimoveis.onrender.com/cliente/oferta/' + (item.leadId || item.id) + '?userId=' + encodeURIComponent(item.userId || item.usuarioId || item.corretorId || '') + ' e agende sua visita!') %>" style="color:#25D366;font-weight:800">Enviar vitrine</a>
-            <% } %>
-          </div>
-        </div>
-
-        <div class="excel-table-wrap">
-          <table class="excel-table">
-            <thead>
-              <tr>
-                <th>Fonte</th><th>Rank IA</th><th>Compatibilidade</th><th>ID Externo</th><th>ID Interno</th><th>Tipo</th>
-                <th>Bairro</th><th>Cidade/UF</th><th>Valor</th>
-                <th>Área</th><th>Quartos</th><th>Suítes</th>
-                <th>Banheiros</th><th>Vagas</th><th>URL</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="origin-row">
-                <td>ImovelWeb</td>
-                <td>Origem</td>
-                <td>-</td>
-                <td><%= item.idExterno || item.idOriginal || item.id || '-' %></td>
-                <td><%= item.idInterno || item.codigoImovel || '-' %></td>
-                <td><%= item.tipo || '-' %></td>
-                <td><%= item.bairro || '-' %></td>
-                <td><%= item.cidade || '-' %> / SP</td>
-                <td><%= item.valor_imovel ? 'R$ ' + Number(item.valor_imovel).toLocaleString('pt-BR') : '-' %></td>
-                <td><%= item.area_m2 || '-' %> m²</td>
-                <td><%= item.quartos || '-' %></td>
-                <td><%= item.suites ?? '-' %></td>
-                <td><%= item.banheiros ?? '-' %></td>
-                <td><%= item.vagas ?? '-' %></td>
-                <td class="url-cell"><% if(item.url){ %><a href="<%= item.url %>" target="_blank">Ver ↗</a><% } else { %>-<% } %></td>
-              </tr>
-              <% if(matchCount) { %>
-                <% (item.matches||[]).forEach(m => { %>
-                <tr class="match-row">
-                  <td><%= m.fonte || 'rankim' %></td>
-                  <td>#<%= m.rank || '-' %></td>
-                  <% const scoreMatch = m.score || m.bestScore || m.matchScore || m.scoreIA || m.pontuacao || 0; %>
-                  <td><% if(scoreMatch){ %><span style="background:#1A1A1A;color:#fff;border-radius:12px;padding:2px 7px;font-size:11px;font-weight:700"><%= scoreMatch %></span><% } else { %>-<% } %></td>
-                  <td><%= m.idExterno || m.idOriginal || m.id_anuncio || m.id || '-' %></td>
-                  <td><%= m.idInterno || m.codigoImovel || '-' %></td>
-                  <td>
-  <%
-    const leadOwnerInline = String(item.userId || item.usuarioId || item.corretorId || '');
-    const matchOwnerInline = String(m.userId || m.usuarioId || m.corretorId || '');
-    const isProprioInline = leadOwnerInline && matchOwnerInline && leadOwnerInline === matchOwnerInline;
-    const ownerBadgeInline = isProprioInline ? '🏠 Próprio' : '🤝 Parceiro';
-    const ownerColorInline = isProprioInline ? '#008A05' : '#ff385c';
-  %>
-
-  <div style="display:flex;flex-direction:column;gap:4px">
-    <span><%= m.tipo || '-' %></span>
-
-    <span style="display:inline-block;background:<%= ownerColorInline %>;color:#fff;border-radius:999px;padding:2px 8px;font-size:10px;font-weight:700;width:max-content">
-      <%= ownerBadgeInline %>
-    </span>
   </div>
-</td>
-                  <td><%= m.bairro || '-' %></td>
-                  <td><%= m.cidade || '-' %> / <%= m.estado || '-' %></td>
-                  <td><%= (m.valor_imovel||m.valor) ? 'R$ ' + Number(m.valor_imovel||m.valor).toLocaleString('pt-BR') : '-' %></td>
-                  <td><%= m.area_m2 || m.area || '-' %> m²</td>
-                  <td><%= m.quartos ?? '-' %></td>
-                  <td><%= m.suites ?? '-' %></td>
-                  <td><%= m.banheiros ?? '-' %></td>
-                  <td><%= m.vagas ?? '-' %></td>
-                  <%
-const leadOwner = String(item.userId || item.usuarioId || item.corretorId || '');
-const matchOwner = String(m.userId || m.usuarioId || m.corretorId || '');
-const isProprio = leadOwner && matchOwner && leadOwner === matchOwner;
-const ownerBadge = isProprio ? '🏠 Próprio' : '🤝 Parceiro';
-const ownerColor = isProprio ? '#008A05' : '#ff385c';
-const matchId = m.idExterno || m.idOriginal || m.id_anuncio || m.id || m.idInterno || m.codigoImovel || '';
-%>
-<% const matchUrl = m.url || m.urlPublica || m.link || m.href || m.url_imovel || m.URL || (matchId ? '/app/imovel/' + matchId : ''); %>
-<td class="url-cell">
-  <% if(matchUrl){ %>
-    <a href="<%= matchUrl %>" target="_blank">Ver imóvel ↗</a>
-  <% } else { %>
-    -
-  <% } %>
-</td>
-                </tr>
-                <% }) %>
-              <% } else { %>
-                <tr class="empty-match-row">
-                  <td colspan="14">Nenhum match encontrado ainda.</td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
+
+  <!-- Cards grid -->
+  <div id="results-list" class="excel-results">
+    <% leads.forEach((item, idx) => {
+      const origin = item.origin || {};
+      const status = item.ignored ? 'ignored' : (item.matches || []).length ? 'with_matches' : (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? 'extracted' : 'without_matches';
+      const bestScore = item.bestScore || (item.matches && item.matches[0] ? item.matches[0].score : 0) || 0;
+      const matchCount = (item.matches || []).length;
+      const isOrganica = item.origem === 'pagina_externa_imovel';
+      const isWhatsapp = item.origem === 'whatsapp';
+      const telefone = String(item.contato || item.telefone || '').replace(/\D/g,'');
+    %>
+    <div class="excel-card"
+      data-status="<%= status %>"
+      data-score="<%= item.score || bestScore %>"
+      data-origem="<%= item.origem || 'importada' %>"
+      data-search="<%= [item.nome, item.clientName, item.contato, item.telefone, item.email, origin.bairro, origin.cidade].filter(Boolean).join(' ').toLowerCase() %>">
+
+      <!-- Nome + badges origem -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+        <a href="/app/lead/<%= item.id %>" class="lead-nome"><%= item.nome || item.cliente || item.clientName || telefone || '-' %></a>
+        <div style="display:flex;gap:4px;flex-shrink:0;">
+          <% if(isOrganica) { %><span class="chip" style="background:#e0f2fe;color:#0369a1;">🌐</span><% } else if(isWhatsapp) { %><span class="chip" style="background:#f0fdf4;color:#166534;">📱</span><% } else { %><span class="chip" style="background:#f5f5f5;color:#15803d;">📋</span><% } %>
         </div>
       </div>
-      <% }) %>
+
+      <!-- Score + temperatura (só se tiver) -->
+      <% if(item.score || item.temperatura) { %>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <% if(item.score) { %>
+        <div class="score-bar-bg">
+          <div style="width:<%= item.score %>%;height:100%;background:<%= item.score >= 70 ? '#16a34a' : item.score >= 40 ? '#d97706' : '#9ca3af' %>;border-radius:4px;"></div>
+        </div>
+        <span style="font-size:11px;font-weight:700;color:#111"><%= item.score %>%</span>
+        <% } %>
+        <% if(item.temperatura) { %>
+        <span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;
+          background:<%= item.temperatura==='quente'?'#fee2e2':item.temperatura==='morno'?'#fef3c7':'#eff6ff' %>;
+          color:<%= item.temperatura==='quente'?'#991b1b':item.temperatura==='morno'?'#92400e':'#1e40af' %>">
+          <%= item.temperatura==='quente'?'🔥 Quente':item.temperatura==='morno'?'🌡 Morno':'❄️ Frio' %>
+        </span>
+        <% } %>
+        <% if(item.matchesAuto && item.matchesAuto.length) { %>
+        <span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#ede9fe;color:#5b21b6;">🎯 <%= item.matchesAuto.length %> auto</span>
+        <% } %>
+      </div>
+      <% } %>
+
+      <!-- Perfil IA -->
+      <% if(item.perfilIA && Object.keys(item.perfilIA).length) { %>
+      <div class="perfil-tags">
+        <% if(item.perfilIA.tipo) { %><span class="perfil-tag">🏠 <%= item.perfilIA.tipo %></span><% } %>
+        <% if(item.perfilIA.quartos) { %><span class="perfil-tag">🛏 <%= item.perfilIA.quartos %>q</span><% } %>
+        <% if(item.perfilIA.bairro) { %><span class="perfil-tag">📍 <%= item.perfilIA.bairro %></span><% } %>
+        <% if(item.perfilIA.valorMax) { %><span class="perfil-tag">💰 R$<%= Number(item.perfilIA.valorMax).toLocaleString('pt-BR') %></span><% } %>
+        <% if(item.perfilIA.intencao) { %><span class="perfil-tag"><%= item.perfilIA.intencao %></span><% } %>
+      </div>
+      <% } %>
+
+      <!-- Última mensagem WhatsApp -->
+      <% if(item.ultimaMensagem) { %>
+      <div class="ultima-msg">"<%= item.ultimaMensagem.substring(0,70) %><%= item.ultimaMensagem.length>70?'...':'' %>"</div>
+      <% } %>
+
+      <!-- Meta info -->
+      <div class="lead-meta">
+        <span><%= (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? '✅ Extraído' : '⏳ Pendente' %></span>
+        <% if(matchCount) { %><span class="chip">🤖 <%= matchCount %> matches</span><% } %>
+        <% if(bestScore) { %><span class="chip dark">⚡ <%= bestScore %>%</span><% } %>
+      </div>
+
+      <!-- Ações -->
+      <div class="lead-actions">
+        <% if(telefone) { %>
+        <a href="https://wa.me/55<%= telefone %>" target="_blank" class="btn-acao wa">WhatsApp</a>
+        <% } %>
+        <% if(matchCount) { %>
+        <a href="/cliente/oferta/<%= item.leadId || item.id %>?userId=<%= encodeURIComponent(item.userId || item.usuarioId || item.corretorId || '') %>" class="btn-acao red">Ver vitrine</a>
+        <a href="https://wa.me/55<%= telefone %>?text=<%= encodeURIComponent('Olá ' + (item.nome || '') + '! Veja sua vitrine: https://matchimoveis.onrender.com/cliente/oferta/' + (item.leadId || item.id) + '?userId=' + encodeURIComponent(item.userId || item.usuarioId || item.corretorId || '')) %>" target="_blank" class="btn-acao wa">Enviar vitrine</a>
+        <% } %>
+        <a href="/app/lead/<%= item.id %>" class="btn-acao dark">Ver detalhes →</a>
+      </div>
+
     </div>
-  </section>
+    <% }) %>
+  </div>
+
 </div>
 
 <script>
@@ -323,51 +215,63 @@ const matchId = m.idExterno || m.idOriginal || m.id_anuncio || m.id || m.idInter
   const status = document.getElementById('filter-status');
   const score = document.getElementById('filter-score');
   const search = document.getElementById('filter-search');
-  const filterTipo = document.getElementById('filter-tipo');
-  const filterBairro = document.getElementById('filter-bairro');
-  const filterValorMin = document.getElementById('filter-valor-min');
-  const filterValorMax = document.getElementById('filter-valor-max');
-  const filterArea = document.getElementById('filter-area');
-  const filterQuartos = document.getElementById('filter-quartos');
   const cards = Array.from(document.querySelectorAll('.excel-card'));
-
-  let counter = document.getElementById('filter-counter');
-  if (!counter) {
-    counter = document.createElement('div');
-    counter.id = 'filter-counter';
-    counter.style.cssText = 'margin:12px 0;font-weight:700';
-    const results = document.querySelector('.results-card');
-    if (results) results.prepend(counter);
-  }
+  const counter = document.getElementById('filter-counter');
 
   function applyFilters() {
     let visible = 0;
     cards.forEach(card => {
       const sv = status ? status.value : 'all';
       const origem = card.dataset.origem || 'importada';
-      const statusOk = sv === 'all' || card.dataset.status === sv || 
+      const statusOk = sv === 'all' || card.dataset.status === sv ||
         (sv === 'organica' && origem === 'pagina_externa_imovel') ||
         (sv === 'importada' && origem !== 'pagina_externa_imovel');
       const minScore = parseInt(score?.value || '0');
       const scoreOk = parseInt(card.dataset.score || '0') >= minScore;
       const query = (search?.value || '').toLowerCase().trim();
-      const searchOk = !query || card.dataset.search.includes(query);
+      const searchOk = !query || (card.dataset.search || '').includes(query);
       const ok = statusOk && scoreOk && searchOk;
       card.style.display = ok ? '' : 'none';
       if (ok) visible++;
     });
-    counter.textContent = visible + ' de ' + cards.length + ' cards aparecendo';
+    if (counter) counter.textContent = visible + ' de ' + cards.length + ' leads';
   }
 
   [status, score, search].forEach(el => {
     if (!el) return;
     el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', applyFilters);
   });
-
   applyFilters();
 })();
-</script>
 
+function rodarMatchBase(){
+  const btn = document.getElementById('btn-match-base');
+  btn.disabled = true;
+  btn.textContent = '⏳ Rodando match...';
+  fetch('/admin/rodar-match/<%= userId %>')
+    .then(r=>r.json())
+    .then(d=>{
+      btn.textContent = '🎯 Match Base Interna';
+      btn.disabled = false;
+      if(d.ok){
+        alert('✅ Match concluído!\n\n🎯 Com match: '+d.comMatch+'\n😶 Sem match: '+d.semMatch+'\n📋 Total: '+d.total);
+        location.reload();
+      } else {
+        alert('Erro: '+d.error);
+      }
+    })
+    .catch(()=>{ btn.textContent='🎯 Match Base Interna'; btn.disabled=false; alert('Erro de conexão'); });
+}
+
+function abrirModalImportarLeads(){
+  const m = document.getElementById('modal-importar-leads');
+  if(m) m.style.display = 'flex';
+}
+function fecharModalImportarLeads(){
+  const m = document.getElementById('modal-importar-leads');
+  if(m) m.style.display = 'none';
+}
+</script>
 
 <!-- MODAL IMPORTAR LEADS -->
 <div id="modal-importar-leads" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999999;align-items:center;justify-content:center;padding:20px">
@@ -379,60 +283,6 @@ const matchId = m.idExterno || m.idOriginal || m.id_anuncio || m.id || m.idInter
       </div>
       <button type="button" onclick="fecharModalImportarLeads()" style="border:0;background:#f3f4f6;border-radius:999px;width:36px;height:36px;font-size:20px;cursor:pointer">×</button>
     </div>
-
-    <div style="background:#f9fafb;border:1px solid #eee;border-radius:16px;padding:14px;margin-bottom:16px">
-      <div style="font-size:14px;font-weight:900;margin-bottom:8px">Cabeçalhos combinados</div>
-      <div style="overflow:auto">
-        <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:680px">
-          <thead>
-            <tr style="background:white">
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Nome</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Telefone</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Telefone 2</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">E-mail usuário</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Id anúncio</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Url anúncio</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Estado</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Cidade</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left">Bairro</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Quartos</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Suítes</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Banheiros</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Vagas</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Área m²</th>
-              <th style="border:1px solid #e5e7eb;padding:8px;text-align:left;color:#6366f1">Valor</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="border:1px solid #e5e7eb;padding:8px">Maria Silva</td>
-              <td style="border:1px solid #e5e7eb;padding:8px">11999999999</td>
-              <td style="border:1px solid #e5e7eb;padding:8px">11988888888</td>
-              <td style="border:1px solid #e5e7eb;padding:8px">maria@email.com</td>
-              <td style="border:1px solid #e5e7eb;padding:8px">3023058037</td>
-              <td style="border:1px solid #e5e7eb;padding:8px">https://...</td>
-              <td style="border:1px solid #e5e7eb;padding:8px">SP</td>
-              <td style="border:1px solid #e5e7eb;padding:8px">São Paulo</td>
-              <td style="border:1px solid #e5e7eb;padding:8px">Moema</td>
-              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">2</td>
-              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">1</td>
-              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">2</td>
-              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">1</td>
-              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">65</td>
-              <td style="border:1px solid #e5e7eb;padding:8px;color:#6366f1">500000</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div style="font-size:13px;color:#444;line-height:1.55;margin-bottom:16px">
-      <b>Obrigatório:</b> Nome e Telefone/Contato do cliente.<br>
-      <b>Para gerar match:</b> informe preferencialmente a <b>Url anúncio</b>. Se tiver apenas o ID, informe também o portal/origem quando possível.<br>
-      <b>Campos opcionais (melhoram o match):</b> Área m², Quartos, Suítes, Banheiros, Vagas, Valor.<br>
-      <b>Importante:</b> o sistema considera imóveis de qualquer região do Brasil.
-    </div>
-
     <form method="POST" action="/process" enctype="multipart/form-data">
       <input type="file" name="file" accept=".xlsx,.xls,.csv" required style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px">
       <button type="submit" style="width:100%;border:0;background:#ff385c;color:white;border-radius:14px;padding:14px;font-weight:900;cursor:pointer">
@@ -441,38 +291,5 @@ const matchId = m.idExterno || m.idOriginal || m.id_anuncio || m.id || m.idInter
     </form>
   </div>
 </div>
-
-<script>
-function abrirModalImportarLeads(){
-  const m = document.getElementById('modal-importar-leads');
-  if(m) m.style.display = 'flex';
-}
-function fecharModalImportarLeads(){
-  const m = document.getElementById('modal-importar-leads');
-  if(m) m.style.display = 'none';
-}
-
-function rodarMatchBase(){
-  const btn = document.getElementById('btn-match-base');
-  btn.disabled = true;
-  btn.textContent = '⏳ Rodando match...';
-  fetch('/admin/rodar-match/<%= userId %>')
-    .then(r=>r.json())
-    .then(d=>{
-      if(d.ok){
-        btn.textContent = '🎯 Match Base Interna';
-        btn.disabled = false;
-        alert('✅ Match concluído!\n\n🎯 Com match: '+d.comMatch+'\n😶 Sem match: '+d.semMatch+'\n📋 Total processadas: '+d.total);
-        location.reload();
-      } else {
-        btn.textContent = '❌ Erro';
-        btn.disabled = false;
-        alert('Erro: '+d.error);
-      }
-    })
-    .catch(()=>{ btn.textContent='🎯 Match Base Interna'; btn.disabled=false; alert('Erro de conexão'); });
-}
-</script>
-
 
 <%- include('partials/app-end') %>

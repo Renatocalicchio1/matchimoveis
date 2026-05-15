@@ -151,11 +151,26 @@ class MatchCore {
   }
 
   // ============================================================
+  // VERIFICADOR: perfil completo para match
+  // ============================================================
+  perfilCompleto(perfil) {
+    const temTipo = !!perfil.tipo;
+    const temQuartos = !!perfil.quartos;
+    const temLocalizacao = !!(perfil.bairro || perfil.cidade);
+    const temValor = !!(perfil.valorMax || perfil.valorMin);
+    return temTipo && temQuartos && (temLocalizacao || temValor);
+  }
+
+  // ============================================================
   // 6. MATCH ENGINE
   // ============================================================
   rodarMatchEngine(lead, perfil) {
     try {
-      if (!perfil.tipo && !perfil.quartos && !perfil.valorMax) return lead;
+      if (!this.perfilCompleto(perfil)) {
+        console.log('[MATCH CORE] perfil incompleto — aguardando mais dados');
+        return lead;
+      }
+      console.log('[MATCH CORE] perfil completo — rodando match automatico');
 
       const { buscarMatchesBaseInterna } = require('../matchBaseInterna');
       const caminhos = [

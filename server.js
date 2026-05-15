@@ -2020,6 +2020,53 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     if (fromMe) return res.status(200).json({ ok: true, ignorado: 'fromMe' });
     if (!telefone || !texto) return res.status(200).json({ ok: true, ignorado: 'sem_telefone_ou_texto' });
 
+
+    // ── DETECTAR SE É CORRETOR OU LEAD ───────────────────────
+    let _usersWH = [];
+    try { _usersWH = JSON.parse(fs.readFileSync(require('path').join(__dirname, 'users.json'), 'utf8')); } catch(e) {}
+    const _corretorWH = _usersWH.find(u => {
+      const fontes = [u.telefone, u.phone, u.contato, u.id, u.userId].filter(Boolean);
+      return fontes.some(f => String(f).replace(/\D/g,'').slice(-8) === telefone.slice(-8));
+    });
+
+    if (_corretorWH) {
+      console.log('[WEBHOOK WA] CORRETOR detectado:', _corretorWH.nome || _corretorWH.id);
+      res.status(200).json({ ok: true, modo: 'corretor', usuario: _corretorWH.id });
+      setImmediate(async () => {
+        try {
+          const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+          const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+          const EI = process.env.EVOLUTION_INSTANCE || 'match-corretor';
+          const dp = process.env.DATA_FILE || require('path').join(__dirname, 'data.json');
+          let leads = [];
+          try { leads = JSON.parse(fs.readFileSync(dp, 'utf8')); } catch(e) {}
+          const uid = _corretorWH.id;
+          const meus = leads.filter(l => l.userId === uid || l.codigoUsuario === uid);
+          const total = meus.length;
+          const comMatch = meus.filter(l => (l.matches||[]).length > 0).length;
+          const quentes = meus.filter(l => l.temperatura === 'quente');
+          const mornos = meus.filter(l => l.temperatura === 'morno');
+          const txt = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+          let resp = '';
+          if (txt.match(/oi|ola|bom dia|boa tarde|boa noite|hello/)) {
+            resp = 'Ola ' + (_corretorWH.nome||'corretor') + '! Sou sua assistente MatchImoveis.\n\nResumo:\n- ' + total + ' leads\n- ' + comMatch + ' com match\n- ' + quentes.length + ' quentes\n- ' + mornos.length + ' mornos\n\nComandos: "leads quentes", "sem match", "resumo"';
+          } else if (txt.match(/quente|urgente/)) {
+            resp = quentes.length ? 'Leads quentes (' + quentes.length + '):\n\n' + quentes.slice(0,5).map(l => '- ' + (l.nome||l.telefone) + ' | Score ' + (l.score||0) + '%').join('\n') : 'Nenhum lead quente no momento.';
+          } else if (txt.match(/sem match|pendente/)) {
+            const sl = meus.filter(l => !(l.matches||[]).length).slice(0,5);
+            resp = sl.length + ' leads sem match:\n' + sl.map(l => '- ' + (l.nome||l.telefone)).join('\n');
+          } else if (txt.match(/resumo|dia|hoje/)) {
+            resp = 'Resumo do dia:\n- Total: ' + total + '\n- Com match: ' + comMatch + '\n- Quentes: ' + quentes.length + '\n- Mornos: ' + mornos.length + '\n- Frios: ' + (total - quentes.length - mornos.length);
+          } else {
+            resp = 'Posso te ajudar com:\n- "leads quentes"\n- "sem match"\n- "resumo do dia"\n- Acesse: matchimoveis.onrender.com';
+          }
+          await fetch(EU + '/message/sendText/' + EI, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': EK }, body: JSON.stringify({ number: telefone, text: resp }) });
+          console.log('[WEBHOOK WA] resposta corretor enviada');
+        } catch(e) { console.error('[WEBHOOK WA] erro corretor:', e.message); }
+      });
+      return;
+    }
+
     console.log('[WEBHOOK WA] de:', telefone, '| texto:', texto);
 
     // ── ENCONTRAR LEADS PATH E LEAD ──────────────────────────

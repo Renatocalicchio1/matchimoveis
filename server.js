@@ -2021,6 +2021,10 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     if (fromJid.includes('@g.us') || fromJid.includes('@broadcast')) {
       return res.status(200).json({ ok: true, ignorado: 'grupo' });
     }
+    // Ignorar mensagens de grupos e broadcast
+    if (fromJid.includes('@g.us') || fromJid.includes('@broadcast') || fromJid.includes('@newsletter')) {
+      return res.status(200).json({ ok: true, ignorado: 'grupo' });
+    }
     if (fromMe) return res.status(200).json({ ok: true, ignorado: 'fromMe' });
     if (!telefone || !texto) return res.status(200).json({ ok: true, ignorado: 'sem_telefone_ou_texto' });
 

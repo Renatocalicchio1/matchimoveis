@@ -5388,3 +5388,23 @@ app.get('/admin/migrar-imoveis/:idAntigo/:idNovo', (req, res) => {
   }
   res.json({ ok: true, idAntigo, idNovo, migrados });
 });
+
+app.get('/admin/deletar-conta/:userId', (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const { userId } = req.params;
+  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
+  let removido = false;
+  for (const base of bases) {
+    const usersPath = path2.join(base, 'users.json');
+    if (!fs2.existsSync(usersPath)) continue;
+    try {
+      let users = JSON.parse(fs2.readFileSync(usersPath, 'utf8'));
+      const antes = users.length;
+      users = users.filter(u => u.id !== userId);
+      fs2.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+      if (users.length < antes) removido = true;
+    } catch(e) {}
+  }
+  res.json({ ok: true, userId, removido });
+});

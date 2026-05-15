@@ -2029,8 +2029,12 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     let _usersWH = [];
     try { _usersWH = JSON.parse(fs.readFileSync(require('path').join(__dirname, 'users.json'), 'utf8')); } catch(e) {}
     const _corretorWH = _usersWH.find(u => {
-      const fontes = [u.telefone, u.phone, u.contato, u.id, u.userId].filter(Boolean);
-      return fontes.some(f => String(f).replace(/\D/g,'').slice(-8) === telefone.slice(-8));
+      // Prioriza telefone real antes do id
+      const fontesPrioritarias = [u.telefone, u.phone, u.contato].filter(Boolean);
+      if (fontesPrioritarias.some(f => String(f).replace(/\D/g,'').slice(-8) === telefone.slice(-8))) return true;
+      // Só verifica id se nao achou pelo telefone
+      const foneId = String(u.id || '').replace(/\D/g,'');
+      return foneId.length <= 11 && foneId.slice(-8) === telefone.slice(-8);
     });
 
     if (_corretorWH) {

@@ -1,200 +1,188 @@
-// match-core.js — Cérebro central da Match
-// Toda inteligência passa por aqui. O WhatsApp é apenas canal.
+// match-core.js v2.0 — Cérebro central da Match
+// 10 camadas completas + envio automático WhatsApp
 
 const fs   = require('fs');
 const path = require('path');
 
+const EVOLUTION_URL = process.env.EVOLUTION_API_URL || 'https://match-evolution-api.onrender.com';
+const EVOLUTION_KEY = process.env.EVOLUTION_API_KEY || 'match2025evolution';
+
+async function enviarWhatsApp(instancia, numero, texto) {
+  try {
+    const fetch = (...a) => import('node-fetch').then(({default: f}) => f(...a));
+    const r = await fetch(`${EVOLUTION_URL}/message/sendText/${instancia}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
+      body: JSON.stringify({ number: numero, text: texto })
+    });
+    const d = await r.json();
+    console.log('[MATCH CORE] WhatsApp enviado →', numero, '| id:', d.key?.id || 'ok');
+    return true;
+  } catch(e) {
+    console.error('[MATCH CORE] erro envio WhatsApp:', e.message);
+    return false;
+  }
+}
+
+function resolverCaminhoImoveis(userId) {
+  const candidatos = [
+    path.join(__dirname, '..', 'data', `imoveis-${userId}.json`),
+    '/opt/render/project/src/data/imoveis.json',
+    path.join(__dirname, '..', 'imoveis.json')
+  ];
+  return candidatos.find(c => fs.existsSync(c)) || null;
+}
+
+function lerLeadsSeguro(leadsPath) {
+  try { return JSON.parse(fs.readFileSync(leadsPath, 'utf8')); } catch(e) { return []; }
+}
+
 class MatchCore {
 
-  // ============================================================
-  // PONTO DE ENTRADA ÚNICO
-  // Qualquer canal (WhatsApp, Dashboard, App) chama processar()
-  // ============================================================
-  async processar({ lead, mensagem, canal, userId, leadsPath }) {
-    console.log('[MATCH CORE] processando lead:', lead.nome || lead.contato, '| canal:', canal);
-
+  async processar({ lead, mensagem, canal, userId, leadsPath, instancia }) {
+    console.log('[MATCH CORE] ► lead:', lead.nome || lead.contato, '| canal:', canal);
     try {
-      // 1. Atualiza Timeline
-      lead = this.atualizarTimeline(lead, { tipo: 'mensagem', canal, texto: mensagem, timestamp: new Date().toISOString() });
-
-      // 2. Salva mensagem
-      lead = this.salvarMensagem(lead, { de: 'cliente', canal, texto: mensagem, timestamp: new Date().toISOString() });
-
-      // 3. Atualiza Memória IA
-      const perfil = this.atualizarMemoriaIA(lead, mensagem);
-
-      // 4. Recalcula Score
-      lead = this.recalcularScore(lead, perfil);
-
-      // 5. Detecta Intenção
-      lead = this.detectarIntencao(lead, perfil);
-
-      // 6. Roda Match Engine
-      lead = this.rodarMatchEngine(lead, perfil);
-
-      // 7. Registra Evento
-      lead = this.registrarEvento(lead, { tipo: 'mensagem_recebida', canal, timestamp: new Date().toISOString() });
-
-      // 8. Verifica Follow-up
-      lead = this.verificarFollowUp(lead);
-
-      // 9. Salva lead atualizado
-      if (leadsPath) this.salvarLead(lead, leadsPath);
-
-      console.log('[MATCH CORE] lead processada | score:', lead.score, '| temperatura:', lead.temperatura);
-      return lead;
-
+      lead = this._timeline(lead, canal, mensagem);
+      lead = this._salvarMensagem(lead, canal, mensagem);
+      const perfil = this._atualizarMemoria(lead, mensagem);
+      lead = this._score(lead, perfil);
+      lead = this._intencao(lead, perfil);
+      lead = this._match(lead, perfil, userId);
+      lead = this._evento(lead, canal, mensagem);
+      lead = this._followUp(lead);
+      if (leadsPath) this._salvarLead(lead, leadsPath);
+      const resposta = await this._responderEEnviar(lead, mensagem, canal, instancia);
+      console.log(`[MATCH CORE] ✓ score:${lead.score} temp:${lead.temperatura} matches:${(lead.matchesAuto||[]).length}`);
+      return { lead, resposta };
     } catch(e) {
-      console.error('[MATCH CORE] erro:', e.message);
-      return lead;
+      console.error('[MATCH CORE] erro geral:', e.message);
+      return { lead, resposta: null };
     }
   }
 
-  // ============================================================
-  // 1. TIMELINE ENGINE
-  // ============================================================
-  atualizarTimeline(lead, evento) {
+  _timeline(lead, canal, mensagem) {
     if (!lead.timeline) lead.timeline = [];
-    lead.timeline.push(evento);
+    lead.timeline.push({ tipo: 'mensagem_recebida', canal, texto: mensagem, timestamp: new Date().toISOString() });
+    if (lead.timeline.length > 200) lead.timeline = lead.timeline.slice(-200);
     return lead;
   }
 
-  // ============================================================
-  // 2. MENSAGENS
-  // ============================================================
-  salvarMensagem(lead, msg) {
+  _salvarMensagem(lead, canal, texto) {
     if (!lead.mensagens) lead.mensagens = [];
-    lead.mensagens.push({ id: Date.now().toString(), ...msg, lida: false });
-    lead.ultimaMensagem = msg.texto;
-    lead.ultimaMensagemEm = msg.timestamp;
+    lead.mensagens.push({ id: Date.now().toString(), de: 'cliente', canal, texto, timestamp: new Date().toISOString(), lida: false });
+    lead.ultimaMensagem   = texto;
+    lead.ultimaMensagemEm = new Date().toISOString();
+    if (lead.mensagens.length > 100) lead.mensagens = lead.mensagens.slice(-100);
     return lead;
   }
 
-  // ============================================================
-  // 3. MEMORY ENGINE — Memória IA
-  // ============================================================
-  atualizarMemoriaIA(lead, mensagem) {
+  _atualizarMemoria(lead, mensagem) {
     try {
       const { extrairPerfil } = require('./extrator-perfil');
-      const novoPerfil = extrairPerfil([{ de: 'cliente', texto: mensagem }]);
-
-      // Merge inteligente — acumula, não sobrescreve
+      const todasMsgs = (lead.mensagens || []).filter(m => m.de === 'cliente');
+      const novoPerfil = extrairPerfil(todasMsgs);
       const perfilAtual = lead.perfilIA || {};
-      const perfilMerged = { ...perfilAtual };
+      const merged = { ...perfilAtual };
       for (const [k, v] of Object.entries(novoPerfil)) {
-        if (v !== undefined && v !== null) perfilMerged[k] = v;
+        if (v !== undefined && v !== null && v !== '') merged[k] = v;
       }
-
-      lead.perfilIA = perfilMerged;
-      lead.temperatura = perfilMerged.temperatura || lead.temperatura;
-      lead.faseFunil = perfilMerged.faseFunil || lead.faseFunil;
-
-      // Atualiza resumo da memória operacional
+      lead.perfilIA    = merged;
+      lead.temperatura = merged.temperatura || lead.temperatura || 'frio';
+      lead.faseFunil   = merged.faseFunil   || lead.faseFunil   || 'novo';
       if (!lead.memoriaOperacional) lead.memoriaOperacional = {};
       lead.memoriaOperacional.atualizadoEm = new Date().toISOString();
-      lead.memoriaOperacional.resumo = this.gerarResumo(perfilMerged, lead);
-
-      console.log('[MATCH CORE] memoria IA atualizada | temperatura:', lead.temperatura);
-      return perfilMerged;
-
+      lead.memoriaOperacional.resumo       = this._resumo(merged, lead);
+      lead.memoriaOperacional.totalMsgs    = todasMsgs.length;
+      return merged;
     } catch(e) {
-      console.error('[MATCH CORE] erro memoria:', e.message);
+      console.error('[MATCH CORE] erro memória:', e.message);
       return lead.perfilIA || {};
     }
   }
 
-  gerarResumo(perfil, lead) {
-    const partes = [];
-    if (perfil.intencao) partes.push(`Quer ${perfil.intencao}`);
-    if (perfil.tipo) partes.push(perfil.tipo);
-    if (perfil.quartos) partes.push(`${perfil.quartos} quartos`);
-    if (perfil.bairro) partes.push(`em ${perfil.bairro}`);
-    if (perfil.valorMax) partes.push(`até R$${Number(perfil.valorMax).toLocaleString('pt-BR')}`);
-    if (perfil.urgencia === 'alta') partes.push('urgente');
+  _resumo(perfil, lead) {
+    const p = [];
+    if (perfil.intencao)  p.push(`quer ${perfil.intencao}`);
+    if (perfil.tipo)      p.push(perfil.tipo);
+    if (perfil.quartos)   p.push(`${perfil.quartos}q`);
+    if (perfil.suites)    p.push(`${perfil.suites}s`);
+    if (perfil.vagas)     p.push(`${perfil.vagas}vg`);
+    if (perfil.bairro)    p.push(`em ${perfil.bairro}`);
+    if (perfil.valorMax)  p.push(`até R$${Number(perfil.valorMax).toLocaleString('pt-BR')}`);
+    if (perfil.area)      p.push(`${perfil.area}m²`);
+    if (perfil.urgencia === 'alta') p.push('urgente');
     const msgs = (lead.mensagens || []).filter(m => m.de === 'cliente').length;
-    if (msgs > 0) partes.push(`${msgs} mensagem(ns)`);
-    return partes.join(', ') || 'Lead sem perfil definido';
+    p.push(`${msgs} msg(s)`);
+    return p.join(' · ') || 'Sem perfil definido';
   }
 
-  // ============================================================
-  // 4. SCORE ENGINE
-  // ============================================================
-  recalcularScore(lead, perfil) {
-    let score = 0;
-    if (perfil.tipo) score += 20;
-    if (perfil.quartos) score += 15;
-    if (perfil.valorMax) score += 20;
-    if (perfil.bairro) score += 15;
-    if (perfil.urgencia === 'alta') score += 20;
-    if (perfil.intencao === 'comprar') score += 10;
-    if (perfil.faseFunil === 'decidido') score += 30;
-    if (perfil.faseFunil === 'interessado') score += 20;
-    if (perfil.faseFunil === 'qualificado') score += 10;
+  _score(lead, perfil) {
+    let s = 0;
+    if (perfil.tipo)      s += 15;
+    if (perfil.quartos)   s += 12;
+    if (perfil.valorMax)  s += 15;
+    if (perfil.bairro)    s += 12;
+    if (perfil.area)      s += 6;
+    if (perfil.suites)    s += 4;
+    if (perfil.vagas)     s += 4;
+    if (perfil.intencao === 'comprar')       s += 8;
+    if (perfil.intencao === 'alugar')        s += 5;
+    if (perfil.intencao === 'investir')      s += 6;
+    if (perfil.faseFunil === 'decidido')     s += 20;
+    if (perfil.faseFunil === 'interessado')  s += 12;
+    if (perfil.faseFunil === 'qualificado')  s += 6;
+    if (perfil.urgencia === 'alta')          s += 15;
+    if (perfil.urgencia === 'baixa')         s -= 5;
+    if (perfil.familia)                      s += 4;
+    if (perfil.motivacao)                    s += 3;
     const msgs = (lead.mensagens || []).filter(m => m.de === 'cliente').length;
-    score += Math.min(msgs * 2, 20);
-
-    lead.score = Math.min(score, 100);
+    s += Math.min(msgs * 3, 18);
+    if ((lead.matchesAuto || []).length > 0) s += 5;
+    if ((lead.matchesAuto || []).length >= 3) s += 5;
+    lead.score             = Math.max(0, Math.min(s, 100));
     lead.scoreAtualizadoEm = new Date().toISOString();
-
-    console.log('[MATCH CORE] score recalculado:', lead.score);
     return lead;
   }
 
-  // ============================================================
-  // 5. INTENÇÃO
-  // ============================================================
-  detectarIntencao(lead, perfil) {
-    if (perfil.intencao) lead.intencao = perfil.intencao;
-    if (perfil.faseFunil) lead.faseFunil = perfil.faseFunil;
-    if (perfil.urgencia) lead.urgencia = perfil.urgencia;
+  _intencao(lead, perfil) {
+    if (perfil.intencao)   lead.intencao   = perfil.intencao;
+    if (perfil.faseFunil)  lead.faseFunil  = perfil.faseFunil;
+    if (perfil.urgencia)   lead.urgencia   = perfil.urgencia;
+    if (perfil.sentimento) lead.sentimento = perfil.sentimento;
     return lead;
   }
 
-  // ============================================================
-  // VERIFICADOR: perfil completo para match
-  // ============================================================
-  perfilCompleto(perfil) {
-    const temTipo = !!perfil.tipo;
-    const temQuartos = !!perfil.quartos;
-    const temLocalizacao = !!(perfil.bairro || perfil.cidade);
-    const temValor = !!(perfil.valorMax || perfil.valorMin);
-    return temTipo && temQuartos && (temLocalizacao || temValor);
+  _perfilCompleto(perfil) {
+    return !!(perfil.tipo && perfil.quartos && (perfil.bairro || perfil.valorMax));
   }
 
-  // ============================================================
-  // 6. MATCH ENGINE
-  // ============================================================
-  rodarMatchEngine(lead, perfil) {
+  _match(lead, perfil, userId) {
     try {
-      if (!this.perfilCompleto(perfil)) {
-        console.log('[MATCH CORE] perfil incompleto — aguardando mais dados');
+      if (!this._perfilCompleto(perfil)) {
+        console.log('[MATCH CORE] perfil incompleto — aguardando dados');
         return lead;
       }
-      console.log('[MATCH CORE] perfil completo — rodando match automatico');
-
       const { buscarMatchesBaseInterna } = require('../matchBaseInterna');
-      const caminhos = [
-        '/opt/render/project/src/data/imoveis.json',
-        path.join(__dirname, '..', 'imoveis.json')
-      ];
-      const filePath = caminhos.find(c => fs.existsSync(c));
-      if (!filePath) return lead;
-
+      const filePath = resolverCaminhoImoveis(userId);
+      if (!filePath) { console.warn('[MATCH CORE] imoveis.json não encontrado'); return lead; }
       const imoveis = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      const imoveisDoUser = userId
+        ? imoveis.filter(i => i.codigoUsuario === userId || i.userId === userId)
+        : imoveis;
       const leadFake = {
-        tipo: perfil.tipo || lead.tipo || '',
-        bairro: perfil.bairro || lead.bairro || lead.bairroDesejado || '',
-        quartos: perfil.quartos || lead.quartos || 0,
+        tipo:     perfil.tipo     || lead.tipo     || '',
+        bairro:   perfil.bairro   || lead.bairro   || lead.bairroDesejado || '',
+        quartos:  perfil.quartos  || lead.quartos  || 0,
         valorMax: perfil.valorMax || lead.valorMax || 0,
         valorMin: perfil.valorMin || lead.valorMin || 0,
-        area: perfil.area || lead.area || 0
+        area:     perfil.area     || lead.area     || 0,
+        suites:   perfil.suites   || lead.suites   || 0,
+        vagas:    perfil.vagas    || lead.vagas     || 0
       };
-      const matches = buscarMatchesBaseInterna(leadFake, imoveis);
-      lead.matchesAuto = (matches || []).slice(0, 8).map((m, i) => ({
-        ...m, rank: i + 1, score: Number(m.score || m.bestScore || 0)
-      }));
+      const matches = buscarMatchesBaseInterna(leadFake, imoveisDoUser);
+      lead.matchesAuto = (matches || []).slice(0, 8).map((m, i) => ({ ...m, rank: i + 1, score: Number(m.score || m.bestScore || 0) }));
       lead.matchAutoEm = new Date().toISOString();
-
+      lead = this._timeline(lead, 'sistema', `Match automático: ${lead.matchesAuto.length} imóveis`);
       console.log('[MATCH CORE] matches encontrados:', lead.matchesAuto.length);
     } catch(e) {
       console.error('[MATCH CORE] erro match:', e.message);
@@ -202,67 +190,67 @@ class MatchCore {
     return lead;
   }
 
-  // ============================================================
-  // 7. EVENTOS
-  // ============================================================
-  registrarEvento(lead, evento) {
+  _evento(lead, canal, texto) {
     if (!lead.eventos) lead.eventos = [];
-    lead.eventos.push(evento);
+    lead.eventos.push({ tipo: 'mensagem_recebida', canal, resumo: (texto||'').slice(0,80), timestamp: new Date().toISOString() });
+    if (lead.eventos.length > 100) lead.eventos = lead.eventos.slice(-100);
     return lead;
   }
 
-  // ============================================================
-  // 8. FOLLOW-UP ENGINE
-  // ============================================================
-  verificarFollowUp(lead) {
+  _followUp(lead) {
     if (!lead.followUps) lead.followUps = [];
-
-    // Se lead quente e sem visita agendada → sugere follow-up
-    if (lead.temperatura === 'quente' && lead.faseFunil === 'interessado') {
-      const jaTemFollowUp = lead.followUps.some(f => f.tipo === 'agendar_visita' && f.status === 'pendente');
-      if (!jaTemFollowUp) {
-        lead.followUps.push({
-          id: Date.now().toString(),
-          tipo: 'agendar_visita',
-          status: 'pendente',
-          criadoEm: new Date().toISOString(),
-          prazo: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24h
-        });
-        console.log('[MATCH CORE] follow-up criado: agendar_visita');
+    const agora = Date.now();
+    const add = (tipo, prazoHoras) => {
+      const jaExiste = lead.followUps.some(f => f.tipo === tipo && f.status === 'pendente');
+      if (!jaExiste) {
+        lead.followUps.push({ id: agora.toString(), tipo, status: 'pendente', criadoEm: new Date(agora).toISOString(), prazo: new Date(agora + prazoHoras * 3600000).toISOString() });
+        console.log('[MATCH CORE] follow-up criado:', tipo);
       }
-    }
-
+    };
+    const temp = lead.temperatura;
+    const fase = lead.faseFunil;
+    const msgs = (lead.mensagens || []).filter(m => m.de === 'cliente').length;
+    if (temp === 'quente' && fase === 'interessado')          add('agendar_visita', 24);
+    if (temp === 'quente' && fase === 'decidido')             add('proposta_negocio', 12);
+    if (temp === 'morno'  && msgs >= 3)                       add('enviar_vitrine', 48);
+    if (msgs === 1 && temp === 'frio')                        add('qualificar_lead', 72);
+    if ((lead.matchesAuto||[]).length > 0 && fase !== 'decidido') add('enviar_matches', 48);
     return lead;
   }
 
-  // ============================================================
-  // PERSISTÊNCIA
-  // ============================================================
-  salvarLead(lead, leadsPath) {
+  _salvarLead(lead, leadsPath) {
     try {
-      const leads = JSON.parse(fs.readFileSync(leadsPath, 'utf8'));
+      const leads = lerLeadsSeguro(leadsPath);
       const idx = leads.findIndex(l => String(l.id) === String(lead.id));
-      if (idx >= 0) {
-        leads[idx] = lead;
-        fs.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
-        console.log('[MATCH CORE] lead salva:', lead.nome || lead.contato);
-      }
+      if (idx >= 0) { leads[idx] = lead; } else { leads.push(lead); }
+      fs.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
     } catch(e) {
       console.error('[MATCH CORE] erro salvar:', e.message);
     }
   }
 
-  // ============================================================
-  // GERADOR DE RESPOSTA — AI Engine
-  // ============================================================
-  gerarResposta(lead, mensagem) {
+  async _responderEEnviar(lead, mensagem, canal, instancia) {
     try {
       const { gerarResposta } = require('./resposta-auto');
-      return gerarResposta(lead, mensagem, lead.matchesAuto || []);
+      const texto = gerarResposta(lead, mensagem, lead.matchesAuto || []);
+      if (!texto) return null;
+      if (!lead.mensagens) lead.mensagens = [];
+      lead.mensagens.push({ id: (Date.now()+1).toString(), de: 'assistente', canal, texto, timestamp: new Date().toISOString(), lida: true });
+      if (canal === 'whatsapp' && instancia && lead.contato) {
+        setImmediate(() => enviarWhatsApp(instancia, lead.contato, texto));
+      }
+      return texto;
     } catch(e) {
       console.error('[MATCH CORE] erro resposta:', e.message);
       return null;
     }
+  }
+
+  gerarResposta(lead, mensagem) {
+    try {
+      const { gerarResposta } = require('./resposta-auto');
+      return gerarResposta(lead, mensagem, lead.matchesAuto || []);
+    } catch(e) { return null; }
   }
 }
 

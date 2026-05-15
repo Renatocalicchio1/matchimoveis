@@ -97,6 +97,74 @@ mapDiv.appendChild(iframe);
 <% } %>
 </script>
 
+
+<div class='card' style='margin-top:16px'>
+  <div style='display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap'>
+    <div style='display:flex;align-items:center;gap:10px'>
+      <span style='font-size:24px'>💬</span>
+      <div>
+        <h3 style='margin:0 0 2px;font-size:15px'>WhatsApp</h3>
+        <p style='color:#717171;font-size:12px;margin:0'>Conecte seu número para receber leads automaticamente.</p>
+      </div>
+    </div>
+    <span id='wa-badge' style='padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#f3f4f6;color:#374151'>Verificando...</span>
+  </div>
+  <div id='wa-qr-wrap' style='display:none;text-align:center;margin:12px 0'>
+    <p style='font-size:12px;color:#555;margin-bottom:8px'>Abra WhatsApp → Dispositivos conectados → Conectar → Escaneie:</p>
+    <img id='wa-qr' style='width:180px;height:180px;border-radius:10px;border:1px solid #e5e7eb'>
+  </div>
+  <div id='wa-ok' style='display:none;background:#f0fdf4;border-radius:8px;padding:10px 14px;margin:8px 0;font-size:13px;color:#166534;font-weight:600'>✅ Conectado — <span id='wa-num'></span></div>
+  <div style='display:flex;gap:8px;margin-top:8px'>
+    <button id='btn-wa' onclick='conectarWA()' style='background:#25D366;color:#fff;border:none;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer'>📱 Conectar WhatsApp</button>
+    <button id='btn-wa-off' onclick='desconectarWA()' style='display:none;background:#f3f4f6;color:#374151;border:1px solid #e5e7eb;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer'>Desconectar</button>
+  </div>
+</div>
+
+<script>
+let _waTimer = null;
+async function checkWA() {
+  try {
+    const d = await (await fetch('/app/whatsapp/status')).json();
+    const badge = document.getElementById('wa-badge');
+    if (d.status === 'open') {
+      badge.style.cssText = 'padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#d1fae5;color:#065f46';
+      badge.textContent = '✅ Conectado';
+      document.getElementById('wa-ok').style.display = 'block';
+      document.getElementById('wa-num').textContent = d.numero || '';
+      document.getElementById('wa-qr-wrap').style.display = 'none';
+      document.getElementById('btn-wa').style.display = 'none';
+      document.getElementById('btn-wa-off').style.display = 'inline-block';
+      if (_waTimer) { clearInterval(_waTimer); _waTimer = null; }
+    } else {
+      badge.style.cssText = 'padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#fee2e2;color:#991b1b';
+      badge.textContent = '❌ Desconectado';
+      document.getElementById('wa-ok').style.display = 'none';
+      document.getElementById('btn-wa').style.display = 'inline-block';
+      document.getElementById('btn-wa-off').style.display = 'none';
+    }
+  } catch(e) {}
+}
+async function conectarWA() {
+  const btn = document.getElementById('btn-wa');
+  btn.textContent = '⏳ Gerando QR...'; btn.disabled = true;
+  try {
+    const d = await (await fetch('/app/whatsapp/qrcode')).json();
+    if (d.base64) {
+      document.getElementById('wa-qr').src = d.base64;
+      document.getElementById('wa-qr-wrap').style.display = 'block';
+      btn.textContent = '🔄 Novo QR'; btn.disabled = false;
+      _waTimer = setInterval(checkWA, 3000);
+    } else {
+      btn.textContent = '📱 Conectar WhatsApp'; btn.disabled = false;
+    }
+  } catch(e) { btn.textContent = '📱 Conectar WhatsApp'; btn.disabled = false; }
+}
+async function desconectarWA() {
+  await fetch('/app/whatsapp/desconectar', { method: 'POST' });
+  checkWA();
+}
+checkWA();
+</script>
 <%- include('partials/app-end') %>
 
 <div class="card" style="margin-top:16px">

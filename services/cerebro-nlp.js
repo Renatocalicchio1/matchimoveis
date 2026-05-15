@@ -1,162 +1,46 @@
-const fs = require('fs');
-const path = require('path');
+// cerebro-nlp.js v3.0 — NÃO EDITAR — gerado por npm run cerebro
+const sinonimos = {"lids":"leads","lid":"lead","leades":"leads","leed":"lead","lide":"lead","lides":"leads","imovei":"imovel","imovéis":"imoveis","vizita":"visita","vizitas":"visitas","notificações":"notificacoes","proprietaro":"proprietario","conis":"coins","moedas":"coins","pontos":"coins","saldo":"coins","dashbord":"dashboard","dash":"dashboard","matsh":"match","mach":"match","matches":"match","subir":"importar","upload":"importar","meus clientes":"leads","interessados":"leads","compradores":"leads","minha carteira":"imoveis","meus imoveis":"imoveis","quantos":"total","quantas":"total","apagar":"excluir","deletar":"excluir","desativar":"inativar","arquivar":"inativar","reagendar":"remarcar","mudar data":"remarcar","gerar xml":"gerar_xml","exportar xml":"gerar_xml","link do cliente":"vitrine","oferta":"vitrine","oi":"saudacao","olá":"saudacao","ola":"saudacao","e ai":"saudacao","bom dia":"saudacao","boa tarde":"saudacao","boa noite":"saudacao","hello":"saudacao","hi":"saudacao","hey":"saudacao","qto":"quarto","qtos":"quartos","vaga":"vagas","garagem":"vagas","preço":"preco","custo":"preco","m2":"metragem","metros":"metragem"};
+const intencoes = [{"id":"saudacao","keywords":["saudacao","oi","ola","bom dia","boa tarde","boa noite","hello","hey"],"boost":["bem","como vai"],"penalize":[],"acao":"mostrar_resumo_conta","score_min":0.3},{"id":"ver_leads","keywords":["lead","leads","cliente","clientes","interessado"],"boost":["quantas","quantos","minhas","ver","listar"],"penalize":["importar","subir"],"acao":"buscar_dados_leads","rota":"/app/leads","score_min":0.35},{"id":"importar_leads","keywords":["importar","subir","upload","planilha","csv"],"boost":["lead","leads","arquivo"],"penalize":[],"acao":"wizard","fluxo":"wizard_importar_leads","score_min":0.4},{"id":"ver_imoveis","keywords":["imovel","imoveis","apartamento","casa","carteira"],"boost":["quantos","meus","ver","listar","ativo"],"penalize":["importar","cadastrar"],"acao":"buscar_dados_imoveis","rota":"/app/imoveis","score_min":0.35},{"id":"importar_xml","keywords":["xml","importar xml","subir xml","tecimob","rankim"],"boost":["importar","subir","arquivo"],"penalize":["gerar","criar"],"acao":"wizard","fluxo":"wizard_importar_xml","score_min":0.4},{"id":"ver_visitas","keywords":["visita","visitas","agendamento","agendar","hoje"],"boost":["minhas","pendentes","confirmadas","quantas"],"penalize":[],"acao":"buscar_dados_visitas","rota":"/app/visitas","score_min":0.35},{"id":"ver_match","keywords":["match","combinar","compativel","cruzar"],"boost":["fazer","rodar","ver","quantas leads"],"penalize":[],"acao":"buscar_leads_match","rota":"/app/leads","score_min":0.4},{"id":"gerar_xml","keywords":["gerar xml","criar xml","xml portal","publicar","portal"],"boost":["vivareal","zap","olx","chaves","imovelweb"],"penalize":["importar"],"acao":"wizard","fluxo":"wizard_gerar_xml_portal","score_min":0.4},{"id":"ver_portais","keywords":["portais","portal","vivareal","zap","olx"],"boost":["ver","status","feed"],"penalize":["gerar","criar"],"acao":"navegar","rota":"/app/portais","score_min":0.4},{"id":"ver_dashboard","keywords":["dashboard","resumo","grafico","estatistica","home"],"boost":["ver","abrir","meu"],"penalize":[],"acao":"navegar","rota":"/app-home","score_min":0.35},{"id":"cadastrar_imovel","keywords":["cadastrar","novo imovel","adicionar imovel"],"boost":["quero","preciso"],"penalize":["importar"],"acao":"navegar","rota":"/app/cadastro","score_min":0.45},{"id":"proprietarios","keywords":["proprietario","proprietarios","dono","vincular"],"boost":["importar","excel","telefone"],"penalize":[],"acao":"wizard","fluxo":"wizard_proprietarios","score_min":0.4},{"id":"vitrine","keywords":["vitrine","oferta","link","enviar cliente"],"boost":["lead","cliente"],"penalize":[],"acao":"explicar","descricao":"A vitrine é o link /cliente/oferta/:leadId — compartilhe com o cliente para ele ver os imóveis em match.","score_min":0.4},{"id":"estrategia_venda","keywords":["vender","fechar","negocio","proposta","lead quente"],"boost":["como","dica"],"penalize":[],"acao":"estrategia_venda","score_min":0.4},{"id":"mercado","keywords":["mercado","demanda","tendencia","mais buscado"],"boost":["analise","relatorio"],"penalize":[],"acao":"analise_mercado","score_min":0.4},{"id":"resumo_dia","keywords":["resumo","o que fazer","acoes","prioridade","devo fazer"],"boost":["dia","agora","hoje"],"penalize":[],"acao":"resumo_diario","score_min":0.4},{"id":"ajuda","keywords":["ajuda","help","como faz","nao sei","o que voce faz"],"boost":["fazer","usar"],"penalize":[],"acao":"mostrar_ajuda","score_min":0.3}];
 
-// ── TOKENIZER ─────────────────────────────────────────────────────────────────
-function tokenizar(texto) {
-  return texto
-    .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
-    .replace(/[^a-z0-9\s]/g, ' ')                     // remove pontuação
-    .split(/\s+/)
-    .filter(t => t.length > 1)
-    .filter(t => !['de','da','do','em','um','uma','que','para','com','por','se','eu','me','meu','minha','meus','minhas','não','sim','ok','tem','ter','isso','esse','essa','voce','você'].includes(t));
+function normalizar(txt) {
+  if (!txt) return '';
+  return txt.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,' ')
+    .split(/\s+/).map(t => sinonimos[t] || t).join(' ');
 }
 
-// ── NORMALIZAR ────────────────────────────────────────────────────────────────
-function normalizar(texto) {
-  const sinonimos = {
-    'imovei':'imovel','imovéis':'imovel','imoveis':'imovel',
-    'vizita':'visita','vizitas':'visita',
-    'lids':'lead','lid':'lead','leades':'lead',
-    'matsh':'match','mach':'match',
-    'conis':'coins','moedas':'coins',
-    'subir':'importar','enviar':'importar','upload':'importar',
-    'clientes':'leads','interessados':'leads','compradores':'leads',
-    'carteira':'imoveis','apartamentos':'imovel','casas':'imovel',
-    'quantos':'total','quantas':'total','quanto':'total',
-    'mostre':'ver','mostra':'ver','quero ver':'ver','me mostra':'ver',
-    'cadastrar':'cadastro','adicionar':'cadastro',
-    'apagar':'excluir','deletar':'excluir',
-    'desativar':'inativar','ocultar':'inativar',
-    'aceitar':'confirmar','aprovar':'confirmar',
-    'cancelar':'recusar','negar':'recusar',
-    'reagendar':'remarcar','mudar data':'remarcar',
-    'bom dia':'saudacao','boa tarde':'saudacao','boa noite':'saudacao',
-    'oi':'saudacao','ola':'saudacao','hello':'saudacao','eai':'saudacao',
-    'tudo bem':'saudacao','como vai':'saudacao'
-  };
-  let t = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  Object.entries(sinonimos).forEach(([e,c]) => {
-    t = t.replace(new RegExp('\\b'+e+'\\b','gi'), c);
-  });
-  return t;
-}
-
-// ── SIMILARIDADE ENTRE TEXTOS (Jaccard) ──────────────────────────────────────
-function similaridade(a, b) {
-  const ta = new Set(tokenizar(a));
-  const tb = new Set(tokenizar(b));
-  const intersecao = [...ta].filter(t => tb.has(t)).length;
-  const uniao = new Set([...ta,...tb]).size;
-  return uniao === 0 ? 0 : intersecao / uniao;
-}
-
-// ── DETECTAR INTENÇÃO ─────────────────────────────────────────────────────────
-function detectarIntencao(mensagem, cerebro) {
-  const mNorm = normalizar(mensagem);
-  const tokens = tokenizar(mNorm);
-
-  // 1. Verificar intenções compostas (2+ tokens batem)
-  if (cerebro.intencoes_compostas) {
-    for (const ic of cerebro.intencoes_compostas) {
-      const bate = ic.condicoes.every(c =>
-        tokens.some(t => t.includes(c) || c.includes(t))
-      );
-      if (bate) return { tipo:'composta', intencao: ic, score: 1.0 };
-    }
+function detectarIntencao(texto) {
+  const norm = normalizar(texto);
+  let melhor = null, melhorScore = 0;
+  for (const intencao of intencoes) {
+    let score = 0, hits = 0;
+    for (const kw of intencao.keywords) { if (norm.includes(kw)) { score += 1.0; hits++; } }
+    if (hits === 0) continue;
+    score = score / intencao.keywords.length;
+    for (const b of (intencao.boost||[])) { if (norm.includes(b)) score += 0.2; }
+    for (const p of (intencao.penalize||[])) { if (norm.includes(p)) score -= 0.3; }
+    score = Math.max(0, Math.min(score, 1.0));
+    if (score >= intencao.score_min && score > melhorScore) { melhor = intencao; melhorScore = score; }
   }
-
-  // 2. Verificar intenções simples por similaridade
-  let melhor = null;
-  let melhorScore = 0;
-
-  if (cerebro.intencoes) {
-    for (const intencao of cerebro.intencoes) {
-      for (const kw of intencao.keywords) {
-        const score = similaridade(mNorm, kw);
-        const match = tokens.some(t => t.includes(kw) || kw.includes(t));
-        const s = match ? Math.max(score, 0.3) : score;
-        if (s > melhorScore) { melhorScore = s; melhor = intencao; }
-      }
-    }
-  }
-
-  if (melhorScore >= 0.15) return { tipo:'simples', intencao: melhor, score: melhorScore };
-
-  // 3. Verificar base de conhecimento
-  if (cerebro.base_conhecimento) {
-    let melhorBase = null;
-    let melhorBaseScore = 0;
-    for (const item of cerebro.base_conhecimento) {
-      const s = similaridade(mNorm, item.p);
-      if (s > melhorBaseScore) { melhorBaseScore = s; melhorBase = item; }
-    }
-    if (melhorBaseScore >= 0.2) return { tipo:'conhecimento', item: melhorBase, score: melhorBaseScore };
-  }
-
-  // 4. Verificar explicações do sistema
-  if (cerebro.explicacoes_sistema) {
-    for (const exp of cerebro.explicacoes_sistema) {
-      for (const kw of exp.keywords) {
-        if (similaridade(mNorm, kw) >= 0.25) {
-          return { tipo:'explicacao', explicacao: exp, score: 0.25 };
-        }
-      }
-    }
-  }
-
-  return { tipo:'desconhecido', score: 0 };
+  return { intencao: melhor ? melhor.id : 'nao_entendido', score: melhorScore, acao: melhor?.acao||null, rota: melhor?.rota||null, fluxo: melhor?.fluxo||null, descricao: melhor?.descricao||null, confiante: melhorScore >= 0.6 };
 }
 
-// ── CONTEXTO DA CONVERSA ──────────────────────────────────────────────────────
-function analisarContexto(historico) {
-  if (!historico || historico.length === 0) return {};
-  const ultimas = historico.slice(-3);
-  return {
-    ultimoTema: detectarTema(ultimas[ultimas.length-1]?.pergunta || ''),
-    perguntasRecentes: ultimas.map(h => h.pergunta)
-  };
+function extrairSlots(texto) {
+  const norm = normalizar(texto);
+  const slots = {};
+  for (const t of ['apartamento','apto','casa','sobrado','sala','studio','kitnet','cobertura','terreno']) { if (norm.includes(t)) { slots.tipo = t; break; } }
+  const m1 = norm.match(/(\d+)\s*(quarto|dormitorio|suite)/);
+  const m2 = norm.match(/(quarto|dormitorio)\s*[:\-]?\s*(\d+)/);
+  if (m1) slots.quartos = parseInt(m1[1]); else if (m2) slots.quartos = parseInt(m2[2]);
+  const ate = norm.match(/(?:ate|maximo)\s*r?\$?\s*([\d.,]+)\s*(mil|k|m)?/);
+  if (ate) { let v = parseFloat(ate[1].replace(/\./g,'').replace(',','.')); if ((ate[2]||'').match(/mil|k/i)) v*=1000; if ((ate[2]||'').match(/^m$/i)) v*=1000000; slots.valorMax = v; }
+  for (const p of ['vivareal','zap','olx','chaves','imovelweb','123i']) { if (norm.includes(p)) { slots.portal = p; break; } }
+  const bm = norm.match(/\b(?:em|no|na|bairro)\s+([a-z\s]{3,25}?)(?:\s|$|,)/);
+  if (bm) slots.bairro = bm[1].trim();
+  return slots;
 }
 
-function detectarTema(texto) {
-  const t = normalizar(texto);
-  if (/lead/.test(t)) return 'leads';
-  if (/imovel/.test(t)) return 'imoveis';
-  if (/visita/.test(t)) return 'visitas';
-  if (/match/.test(t)) return 'match';
-  if (/portal|xml/.test(t)) return 'portais';
-  return null;
+function perguntarSlot(slot) {
+  return { tipo:'Que tipo de imóvel? (apartamento, casa...)', quartos:'Quantos quartos?', valorMax:'Qual o valor máximo?', bairro:'Qual bairro ou região?' }[slot] || 'Pode dar mais detalhes?';
 }
 
-// ── GERAR RESPOSTA CONTEXTUAL ─────────────────────────────────────────────────
-function gerarResposta(intencaoDetectada, dados, user, contexto) {
-  const nome = user.nome || user.name || 'corretor';
-  const btn = (label, href) =>
-    `<a href="${href}" style="display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px">${label} →</a>`;
-  const opcao = (label, msg) =>
-    `<button onclick="enviarMsg('${msg}')" style="background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px">${label}</button>`;
-
-  if (!intencaoDetectada || intencaoDetectada.tipo === 'desconhecido') {
-    // Usar contexto para sugerir
-    const sugestoes = contexto.ultimoTema === 'leads'
-      ? [opcao('👥 Ver leads', 'minhas leads'), opcao('🎯 Com match', 'leads com match'), opcao('📋 Importar', 'importar leads')]
-      : [opcao('👥 Leads', 'minhas leads'), opcao('🏠 Imóveis', 'meus imoveis'), opcao('📅 Visitas', 'minhas visitas'), opcao('❓ Ajuda', 'ajuda')];
-    
-    const frases = [
-      `Hmm, não entendi muito bem 🤔 Pode reformular de outro jeito?`,
-      `Desculpe ${nome}, não captei essa. Pode tentar de outra forma?`,
-      `Ainda estou aprendendo! Tente ser mais específico.`
-    ];
-    return frases[Math.floor(Math.random()*frases.length)] + '<br><br>' + sugestoes.join('');
-  }
-
-  if (intencaoDetectada.tipo === 'explicacao') {
-    const exp = intencaoDetectada.explicacao;
-    return `💡 <strong>${exp.id.replace(/_/g,' ')}</strong><br><br>${exp.texto}<br><br>` +
-      opcao('Ver mais', 'ajuda');
-  }
-
-  return null; // deixar rota principal responder
-}
-
-module.exports = { tokenizar, normalizar, similaridade, detectarIntencao, analisarContexto, gerarResposta };
+module.exports = { detectarIntencao, extrairSlots, perguntarSlot, normalizar };

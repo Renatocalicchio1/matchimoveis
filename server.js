@@ -2206,12 +2206,14 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         const INSTANCE = process.env.EVOLUTION_INSTANCE || 'match-corretor';
 
         // Passa lead pelo match-core (10 camadas)
-        const leadAtualizado = await matchCore.processar({
+        const instanciaCorreta = (() => { try { const users = JSON.parse(fs.readFileSync(require('path').join(__dirname, 'users.json'), 'utf8')); const u = users.find(u => u.id === (leadEncontrado.codigoUsuario || leadEncontrado.userId)); return u?.whatsappInstance || instance || 'match-corretor'; } catch(e) { return instance || 'match-corretor'; } })();
+        const { lead: leadAtualizado, resposta: _respostaJaEnviada } = await matchCore.processar({
           lead: leadEncontrado,
           mensagem: texto,
           canal: 'whatsapp',
           userId: leadEncontrado.codigoUsuario || leadEncontrado.userId || '',
-          leadsPath: leadsPathAtual
+          leadsPath: leadsPathAtual,
+          instancia: instanciaCorreta
         });
 
         console.log('[WEBHOOK WA] match-core concluido | score:', leadAtualizado.score, '| temperatura:', leadAtualizado.temperatura, '| matches:', (leadAtualizado.matchesAuto || []).length);

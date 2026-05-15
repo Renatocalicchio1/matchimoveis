@@ -1,20 +1,16 @@
 {
-  "versao": "11.0",
-  "geradoEm": "2026-05-14T01:20:38.699Z",
+  "versao": "13.0",
+  "geradoEm": "2026-05-15T21:08:22.221Z",
   "stats": {
-    "totalRotas": 140,
-    "totalViews": 36,
+    "totalRotas": 163,
+    "totalViews": 37,
     "totalUploads": 5,
-    "totalIntencoes": 17,
-    "totalIntencoesCompostas": 8,
-    "totalGatilhos": 7,
+    "totalIntencoes": 27,
+    "totalGatilhos": 5,
     "totalFluxos": 4,
-    "totalComandosDiretos": 6,
-    "totalSinonimos": 51,
-    "totalExplicacoes": 7,
-    "totalPassosOnboarding": 4,
-    "totalRegrasPersonalidade": 7,
-    "totalAnalisesMercado": 5
+    "totalSinonimos": 97,
+    "totalExplicacoes": 6,
+    "totalConhecimento": 17
   },
   "rotas": [
     {
@@ -23,7 +19,6 @@
       "linha": 124,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": "/login",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -36,7 +31,6 @@
       "linha": 133,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -52,7 +46,6 @@
       "linha": 168,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -72,7 +65,6 @@
       "linha": 225,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": true,
@@ -88,7 +80,6 @@
       "linha": 241,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": true,
@@ -109,7 +100,6 @@
       "linha": 283,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/leads",
       "leDados": [
         "data.json"
       ],
@@ -127,7 +117,6 @@
       "linha": 300,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "data.json"
       ],
@@ -146,7 +135,6 @@
       "linha": 347,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": "/app/portais",
       "leDados": [],
       "salvaDados": true,
       "aceitaUpload": false,
@@ -164,7 +152,6 @@
       "linha": 361,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "users.json"
       ],
@@ -184,7 +171,6 @@
       "linha": 372,
       "requerLogin": false,
       "renderiza": "login",
-      "redireciona": null,
       "leDados": [
         "users.json"
       ],
@@ -201,7 +187,6 @@
       "linha": 376,
       "requerLogin": false,
       "renderiza": "login",
-      "redireciona": null,
       "leDados": [
         "users.json"
       ],
@@ -218,7 +203,6 @@
       "linha": 388,
       "requerLogin": false,
       "renderiza": "login",
-      "redireciona": null,
       "leDados": [
         "users.json"
       ],
@@ -235,7 +219,6 @@
       "linha": 392,
       "requerLogin": false,
       "renderiza": "login",
-      "redireciona": null,
       "leDados": [
         "users.json"
       ],
@@ -252,7 +235,6 @@
       "linha": 476,
       "requerLogin": false,
       "renderiza": "cliente-oferta",
-      "redireciona": null,
       "leDados": [
         "data.json"
       ],
@@ -271,7 +253,6 @@
       "linha": 505,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": "/cliente/oferta/",
       "leDados": [
         "imoveis.json",
         "data.json",
@@ -294,7 +275,6 @@
       "linha": 515,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json",
@@ -317,7 +297,6 @@
       "linha": 611,
       "requerLogin": false,
       "renderiza": "proprietario-visita",
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -336,7 +315,6 @@
       "linha": 618,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "visitas.json"
@@ -357,7 +335,6 @@
       "linha": 754,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "data.json"
       ],
@@ -376,7 +353,6 @@
       "linha": 823,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": "/login",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -391,7 +367,6 @@
       "linha": 827,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": "/login",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -406,7 +381,6 @@
       "linha": 829,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": "/login",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -421,7 +395,6 @@
       "linha": 835,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": "/login",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -436,7 +409,6 @@
       "linha": 857,
       "requerLogin": true,
       "renderiza": "app-portais",
-      "redireciona": "/login",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -451,7 +423,6 @@
       "linha": 865,
       "requerLogin": true,
       "renderiza": "app-portais",
-      "redireciona": "/login",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -466,7 +437,6 @@
       "linha": 873,
       "requerLogin": true,
       "renderiza": "app-portais",
-      "redireciona": "/app/imoveis",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -481,7 +451,6 @@
       "linha": 882,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app-portais-xml",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -496,7 +465,6 @@
       "linha": 883,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app-portais-xml",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -511,7 +479,6 @@
       "linha": 886,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/login",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -526,7 +493,6 @@
       "linha": 890,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/login",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -538,14 +504,10 @@
     {
       "metodo": "GET",
       "rota": "/app",
-      "linha": 917,
+      "linha": 935,
       "requerLogin": true,
       "renderiza": "app-notificacoes",
-      "redireciona": "/app-home",
       "leDados": [
-        "imoveis.json",
-        "data.json",
-        "visitas.json",
         "notificacoes.json"
       ],
       "salvaDados": false,
@@ -558,14 +520,10 @@
     {
       "metodo": "GET",
       "rota": "/app/notificacoes",
-      "linha": 919,
+      "linha": 937,
       "requerLogin": true,
       "renderiza": "app-notificacoes",
-      "redireciona": null,
       "leDados": [
-        "imoveis.json",
-        "data.json",
-        "visitas.json",
         "notificacoes.json"
       ],
       "salvaDados": false,
@@ -579,16 +537,10 @@
     {
       "metodo": "GET",
       "rota": "/app-home",
-      "linha": 934,
+      "linha": 952,
       "requerLogin": true,
       "renderiza": "app-home",
-      "redireciona": null,
-      "leDados": [
-        "imoveis.json",
-        "data.json",
-        "visitas.json",
-        "notificacoes.json"
-      ],
+      "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
@@ -599,10 +551,9 @@
     {
       "metodo": "GET",
       "rota": "/app/imoveis/exportar-excel",
-      "linha": 1007,
+      "linha": 1025,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -620,12 +571,10 @@
     {
       "metodo": "GET",
       "rota": "/app/imoveis",
-      "linha": 1078,
+      "linha": 1085,
       "requerLogin": true,
       "renderiza": "app-imoveis",
-      "redireciona": "/app/cadastro",
       "leDados": [
-        "imoveis.json",
         "users.json"
       ],
       "salvaDados": true,
@@ -641,10 +590,9 @@
     {
       "metodo": "POST",
       "rota": "/app/excluir-xml",
-      "linha": 1084,
+      "linha": 1090,
       "requerLogin": true,
       "renderiza": "app-cadastro",
-      "redireciona": "/app/cadastro",
       "leDados": [
         "users.json"
       ],
@@ -661,10 +609,9 @@
     {
       "metodo": "GET",
       "rota": "/app/cadastro",
-      "linha": 1097,
+      "linha": 1103,
       "requerLogin": true,
       "renderiza": "app-cadastro",
-      "redireciona": null,
       "leDados": [
         "users.json"
       ],
@@ -681,10 +628,9 @@
     {
       "metodo": "GET",
       "rota": "/app/perfil",
-      "linha": 1109,
+      "linha": 1115,
       "requerLogin": true,
       "renderiza": "app-perfil",
-      "redireciona": null,
       "leDados": [
         "users.json"
       ],
@@ -699,10 +645,9 @@
     {
       "metodo": "POST",
       "rota": "/app/perfil",
-      "linha": 1113,
+      "linha": 1119,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/perfil",
       "leDados": [
         "users.json"
       ],
@@ -717,13 +662,10 @@
     {
       "metodo": "GET",
       "rota": "/app-importar-leads",
-      "linha": 1138,
+      "linha": 1144,
       "requerLogin": true,
       "renderiza": "app-importar-leads",
-      "redireciona": "/app-importar-leads",
-      "leDados": [
-        "data.json"
-      ],
+      "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
@@ -734,13 +676,10 @@
     {
       "metodo": "GET",
       "rota": "/app/importar-leads",
-      "linha": 1142,
+      "linha": 1148,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app-importar-leads",
-      "leDados": [
-        "data.json"
-      ],
+      "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
@@ -752,13 +691,10 @@
     {
       "metodo": "GET",
       "rota": "/app/leads",
-      "linha": 1146,
+      "linha": 1152,
       "requerLogin": true,
       "renderiza": "app-leads",
-      "redireciona": null,
-      "leDados": [
-        "data.json"
-      ],
+      "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
@@ -770,13 +706,10 @@
     {
       "metodo": "GET",
       "rota": "/app/visitas",
-      "linha": 1183,
+      "linha": 1189,
       "requerLogin": true,
       "renderiza": "app-visitas",
-      "redireciona": "/login",
-      "leDados": [
-        "visitas.json"
-      ],
+      "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
       "formatosUpload": [],
@@ -788,10 +721,9 @@
     {
       "metodo": "GET",
       "rota": "/logout",
-      "linha": 1198,
+      "linha": 1204,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": "/login",
       "leDados": [
         "data.json"
       ],
@@ -805,10 +737,9 @@
     {
       "metodo": "POST",
       "rota": "/webhook/imovelweb",
-      "linha": 1205,
+      "linha": 1211,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "data.json"
       ],
@@ -823,10 +754,9 @@
     {
       "metodo": "POST",
       "rota": "/app/perfil/localizacao",
-      "linha": 1274,
+      "linha": 1280,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/perfil",
       "leDados": [
         "users.json"
       ],
@@ -842,10 +772,9 @@
     {
       "metodo": "POST",
       "rota": "/app/perfil/localizacao",
-      "linha": 1289,
+      "linha": 1295,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/perfil",
       "leDados": [
         "users.json"
       ],
@@ -863,10 +792,9 @@
     {
       "metodo": "GET",
       "rota": "/feed-:portal.xml",
-      "linha": 1305,
+      "linha": 1311,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/lead/",
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -881,10 +809,9 @@
     {
       "metodo": "POST",
       "rota": "/app/lead/:id/buscar-quintoandar",
-      "linha": 1320,
+      "linha": 1326,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/lead/",
       "leDados": [
         "imoveis.json",
         "data.json"
@@ -901,10 +828,9 @@
     {
       "metodo": "POST",
       "rota": "/api/ajuda",
-      "linha": 1490,
+      "linha": 1496,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -915,12 +841,85 @@
       ]
     },
     {
+      "metodo": "GET",
+      "rota": "/admin/limpar-conta/:userId",
+      "linha": 1831,
+      "requerLogin": false,
+      "renderiza": null,
+      "leDados": [
+        "data.json",
+        "visitas.json",
+        "notificacoes.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "limpar-conta",
+        "userId"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/zerar-conta-completo/:userId",
+      "linha": 1862,
+      "requerLogin": false,
+      "renderiza": null,
+      "leDados": [
+        "data.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "zerar-conta-completo",
+        "userId"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/app/whatsapp",
+      "linha": 1926,
+      "requerLogin": true,
+      "renderiza": "app-whatsapp-inbox",
+      "leDados": [
+        "data.json"
+      ],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "app",
+        "whatsapp"
+      ]
+    },
+    {
+      "metodo": "POST",
+      "rota": "/app/lead/:id/whatsapp/enviar",
+      "linha": 1934,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [
+        "data.json"
+      ],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "app",
+        "lead",
+        "whatsapp",
+        "enviar"
+      ]
+    },
+    {
       "metodo": "POST",
       "rota": "/process",
-      "linha": 1804,
+      "linha": 2258,
       "requerLogin": false,
       "renderiza": "mapa",
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": true,
@@ -932,10 +931,9 @@
     {
       "metodo": "GET",
       "rota": "/mapa",
-      "linha": 1819,
-      "requerLogin": false,
+      "linha": 2273,
+      "requerLogin": true,
       "renderiza": "mapa",
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -949,10 +947,9 @@
     {
       "metodo": "GET",
       "rota": "/feed",
-      "linha": 1832,
-      "requerLogin": false,
+      "linha": 2286,
+      "requerLogin": true,
       "renderiza": "feed-reels",
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -966,10 +963,9 @@
     {
       "metodo": "GET",
       "rota": "/api/imoveis",
-      "linha": 1836,
-      "requerLogin": false,
+      "linha": 2290,
+      "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -984,10 +980,9 @@
     {
       "metodo": "POST",
       "rota": "/imovel/:id/status",
-      "linha": 1839,
+      "linha": 2293,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1002,10 +997,9 @@
     {
       "metodo": "POST",
       "rota": "/imovel/:id/status",
-      "linha": 1855,
+      "linha": 2309,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1020,10 +1014,9 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/cadastrar",
-      "linha": 1873,
+      "linha": 2327,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1039,10 +1032,9 @@
     {
       "metodo": "POST",
       "rota": "/api/lead-interesse",
-      "linha": 1921,
+      "linha": 2375,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json"
@@ -1058,10 +1050,9 @@
     {
       "metodo": "GET",
       "rota": "/imovel/:id",
-      "linha": 2127,
+      "linha": 2581,
       "requerLogin": false,
       "renderiza": "imovel-publico",
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json",
@@ -1077,14 +1068,11 @@
     {
       "metodo": "GET",
       "rota": "/app/lead/:id",
-      "linha": 2179,
+      "linha": 2633,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
-        "imoveis.json",
-        "data.json",
-        "visitas.json"
+        "data.json"
       ],
       "salvaDados": true,
       "aceitaUpload": false,
@@ -1097,10 +1085,9 @@
     {
       "metodo": "GET",
       "rota": "/app/imovel/:id",
-      "linha": 2227,
+      "linha": 2698,
       "requerLogin": true,
       "renderiza": "app-imovel-detalhe",
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1115,10 +1102,9 @@
     {
       "metodo": "GET",
       "rota": "/app/imovel/:id/editar",
-      "linha": 2246,
+      "linha": 2717,
       "requerLogin": true,
       "renderiza": "app-editar-imovel",
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1134,10 +1120,9 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/editar",
-      "linha": 2259,
+      "linha": 2730,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1153,10 +1138,9 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/upload-foto",
-      "linha": 2334,
+      "linha": 2805,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/imovel/",
       "leDados": [
         "imoveis.json"
       ],
@@ -1172,10 +1156,9 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/excluir-foto",
-      "linha": 2350,
+      "linha": 2821,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/imovel/",
       "leDados": [
         "imoveis.json"
       ],
@@ -1191,10 +1174,9 @@
     {
       "metodo": "POST",
       "rota": "/app/imovel/:id/capa-foto",
-      "linha": 2366,
+      "linha": 2837,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/imovel/",
       "leDados": [
         "imoveis.json"
       ],
@@ -1210,10 +1192,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/confirmar/:id",
-      "linha": 2531,
+      "linha": 3002,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -1229,10 +1210,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/recusar/:id",
-      "linha": 2554,
+      "linha": 3025,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -1248,10 +1228,9 @@
     {
       "metodo": "POST",
       "rota": "/api/gerar-descricao-imovel",
-      "linha": 2577,
+      "linha": 3048,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -1264,10 +1243,9 @@
     {
       "metodo": "GET",
       "rota": "/app/imoveis-ids",
-      "linha": 2637,
+      "linha": 3108,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1284,10 +1262,9 @@
     {
       "metodo": "POST",
       "rota": "/app/gerar-xml",
-      "linha": 2645,
+      "linha": 3116,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1304,10 +1281,9 @@
     {
       "metodo": "GET",
       "rota": "/app/portais",
-      "linha": 2949,
+      "linha": 3428,
       "requerLogin": true,
       "renderiza": "app-portais",
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1324,10 +1300,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/limpar-descricoes/:userId",
-      "linha": 2973,
+      "linha": 3452,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1343,10 +1318,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/diagnostico-descricoes/:userId",
-      "linha": 2999,
+      "linha": 3478,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1362,10 +1336,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/limpar-descricoes/:userId",
-      "linha": 3010,
+      "linha": 3489,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1381,10 +1354,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/reativar-imoveis/:userId",
-      "linha": 3032,
+      "linha": 3511,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json"
@@ -1401,10 +1373,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/backup-leads/:userId",
-      "linha": 3049,
+      "linha": 3528,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json"
@@ -1421,10 +1392,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/backup-imoveis/:userId",
-      "linha": 3059,
+      "linha": 3538,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json"
       ],
@@ -1440,10 +1410,9 @@
     {
       "metodo": "GET",
       "rota": "/app/importar-xml-upload",
-      "linha": 3074,
+      "linha": 3553,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -1458,10 +1427,9 @@
     {
       "metodo": "POST",
       "rota": "/app/importar-xml-upload",
-      "linha": 3103,
+      "linha": 3582,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -1474,10 +1442,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/zerar-visitas-notificacoes-temp",
-      "linha": 3135,
+      "linha": 3614,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json",
         "notificacoes.json"
@@ -1493,10 +1460,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/zerar-visitas/:userId",
-      "linha": 3142,
+      "linha": 3621,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json",
         "notificacoes.json"
@@ -1513,10 +1479,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/zerar-notificacoes/:userId",
-      "linha": 3152,
+      "linha": 3631,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json",
         "notificacoes.json"
@@ -1533,10 +1498,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/zerar-tudo/:userId",
-      "linha": 3162,
+      "linha": 3641,
       "requerLogin": false,
       "renderiza": "cliente-visita-confirmar",
-      "redireciona": null,
       "leDados": [
         "visitas.json",
         "notificacoes.json"
@@ -1553,10 +1517,9 @@
     {
       "metodo": "GET",
       "rota": "/cliente/visita/:visitaId/confirmar",
-      "linha": 3174,
+      "linha": 3653,
       "requerLogin": false,
       "renderiza": "cliente-visita-confirmar",
-      "redireciona": null,
       "leDados": [
         "visitas.json",
         "notificacoes.json"
@@ -1574,10 +1537,9 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:visitaId/responder",
-      "linha": 3181,
+      "linha": 3660,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json",
         "notificacoes.json"
@@ -1595,10 +1557,9 @@
     {
       "metodo": "GET",
       "rota": "/app/coins",
-      "linha": 3210,
+      "linha": 3689,
       "requerLogin": true,
       "renderiza": "app-coins",
-      "redireciona": null,
       "leDados": [
         "visitas.json",
         "users.json"
@@ -1614,10 +1575,9 @@
     {
       "metodo": "GET",
       "rota": "/cliente/visita/:id/remarcar",
-      "linha": 3217,
+      "linha": 3696,
       "requerLogin": false,
       "renderiza": "cliente-visita-remarcar",
-      "redireciona": null,
       "leDados": [
         "visitas.json",
         "notificacoes.json"
@@ -1634,10 +1594,9 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:id/remarcar",
-      "linha": 3224,
+      "linha": 3703,
       "requerLogin": false,
       "renderiza": "cliente-visita-remarcar",
-      "redireciona": null,
       "leDados": [
         "visitas.json",
         "notificacoes.json"
@@ -1654,10 +1613,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/debug-visitas",
-      "linha": 3246,
+      "linha": 3725,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "data.json",
         "visitas.json"
@@ -1673,10 +1631,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/debug-leads",
-      "linha": 3253,
+      "linha": 3732,
       "requerLogin": true,
       "renderiza": "app-assistente",
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json"
@@ -1692,10 +1649,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/reset-leads-repo",
-      "linha": 3261,
+      "linha": 3740,
       "requerLogin": true,
       "renderiza": "app-assistente",
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json",
@@ -1712,10 +1668,9 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente",
-      "linha": 3270,
+      "linha": 3749,
       "requerLogin": true,
       "renderiza": "app-assistente",
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json",
@@ -1732,10 +1687,9 @@
     {
       "metodo": "GET",
       "rota": "/api/assistente/dados",
-      "linha": 3281,
+      "linha": 3760,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json",
@@ -1753,10 +1707,9 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente",
-      "linha": 3322,
+      "linha": 3801,
       "requerLogin": true,
       "renderiza": "app-assistente",
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json",
@@ -1771,12 +1724,49 @@
       ]
     },
     {
-      "metodo": "POST",
-      "rota": "/app/assistente/chat",
-      "linha": 3329,
+      "metodo": "GET",
+      "rota": "/admin/nao-entendidos",
+      "linha": 3809,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
+      "leDados": [
+        "data.json",
+        "visitas.json"
+      ],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "nao-entendidos"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/funil/:userId",
+      "linha": 3818,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [
+        "imoveis.json",
+        "data.json",
+        "visitas.json"
+      ],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "funil",
+        "userId"
+      ]
+    },
+    {
+      "metodo": "POST",
+      "rota": "/app/assistente/chat",
+      "linha": 3830,
+      "requerLogin": true,
+      "renderiza": null,
       "leDados": [
         "imoveis.json",
         "data.json",
@@ -1794,10 +1784,9 @@
     {
       "metodo": "GET",
       "rota": "/app/assistente/historico",
-      "linha": 3428,
+      "linha": 3934,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "users.json"
       ],
@@ -1813,10 +1802,9 @@
     {
       "metodo": "POST",
       "rota": "/admin/import-sync-ran",
-      "linha": 3452,
+      "linha": 3958,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json",
@@ -1835,10 +1823,9 @@
     {
       "metodo": "POST",
       "rota": "/admin/sync-leads-extraidas",
-      "linha": 3518,
+      "linha": 4024,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "data.json"
       ],
@@ -1853,10 +1840,9 @@
     {
       "metodo": "GET",
       "rota": "/admin/rodar-match/:userId",
-      "linha": 3546,
+      "linha": 4052,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "data.json"
@@ -1871,12 +1857,114 @@
       ]
     },
     {
-      "metodo": "POST",
-      "rota": "/api/central-operacional",
-      "linha": 3575,
+      "metodo": "GET",
+      "rota": "/app/assistente/abertura",
+      "linha": 4081,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
+      "leDados": [
+        "imoveis.json",
+        "data.json",
+        "visitas.json",
+        "notificacoes.json"
+      ],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "app",
+        "assistente",
+        "abertura"
+      ]
+    },
+    {
+      "metodo": "POST",
+      "rota": "/app/assistente/acao-direta",
+      "linha": 4100,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [
+        "imoveis.json",
+        "data.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "app",
+        "assistente",
+        "acao-direta"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/metricas-assistente/:userId",
+      "linha": 4132,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "metricas-assistente",
+        "userId"
+      ]
+    },
+    {
+      "metodo": "POST",
+      "rota": "/app/assistente/feedback",
+      "linha": 4144,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "app",
+        "assistente",
+        "feedback"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/feedback-assistente",
+      "linha": 4155,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "feedback-assistente"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/notas-usuario/:userId",
+      "linha": 4163,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "notas-usuario",
+        "userId"
+      ]
+    },
+    {
+      "metodo": "POST",
+      "rota": "/api/central-operacional",
+      "linha": 4172,
+      "requerLogin": true,
+      "renderiza": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -1889,10 +1977,9 @@
     {
       "metodo": "GET",
       "rota": "/app/central",
-      "linha": 3603,
+      "linha": 4200,
       "requerLogin": true,
       "renderiza": "app-central",
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -1905,10 +1992,9 @@
     {
       "metodo": "POST",
       "rota": "/api/visita/:id/workflow",
-      "linha": 3611,
+      "linha": 4208,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -1922,10 +2008,9 @@
     {
       "metodo": "GET",
       "rota": "/api/memoria-operacional",
-      "linha": 3647,
+      "linha": 4244,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -1938,10 +2023,9 @@
     {
       "metodo": "POST",
       "rota": "/api/visita/:id/workflow",
-      "linha": 3681,
+      "linha": 4278,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -1955,10 +2039,9 @@
     {
       "metodo": "GET",
       "rota": "/api/memoria-operacional",
-      "linha": 3717,
+      "linha": 4314,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -1971,10 +2054,9 @@
     {
       "metodo": "POST",
       "rota": "/api/visita/:id/confirmar",
-      "linha": 3751,
+      "linha": 4348,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -1988,10 +2070,9 @@
     {
       "metodo": "POST",
       "rota": "/api/visita/:id/remarcar",
-      "linha": 3789,
+      "linha": 4386,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [],
       "salvaDados": false,
       "aceitaUpload": false,
@@ -2005,10 +2086,9 @@
     {
       "metodo": "GET",
       "rota": "/api/visita/:id/whatsapp",
-      "linha": 3828,
+      "linha": 4425,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2024,10 +2104,9 @@
     {
       "metodo": "POST",
       "rota": "/api/visita/nova-v2",
-      "linha": 3892,
+      "linha": 4489,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "imoveis.json",
         "visitas.json",
@@ -2045,10 +2124,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/remarcar/:id",
-      "linha": 3935,
+      "linha": 4532,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2064,10 +2142,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/cancelar/:id",
-      "linha": 3955,
+      "linha": 4552,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2083,10 +2160,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/concluir/:id",
-      "linha": 3975,
+      "linha": 4572,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2102,10 +2178,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/remarcar/:id",
-      "linha": 3996,
+      "linha": 4593,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2121,10 +2196,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/cancelar/:id",
-      "linha": 4016,
+      "linha": 4613,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2140,10 +2214,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/concluir/:id",
-      "linha": 4036,
+      "linha": 4633,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2159,10 +2232,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/observacao/:id",
-      "linha": 4057,
+      "linha": 4654,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2178,10 +2250,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/prioridade/:id",
-      "linha": 4087,
+      "linha": 4684,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2197,10 +2268,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/responsavel/:id",
-      "linha": 4114,
+      "linha": 4711,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2216,10 +2286,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/cliente-gostou/:id",
-      "linha": 4141,
+      "linha": 4738,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2235,10 +2304,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/proposta/:id",
-      "linha": 4168,
+      "linha": 4765,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2254,10 +2322,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/fechado/:id",
-      "linha": 4195,
+      "linha": 4792,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2273,10 +2340,9 @@
     {
       "metodo": "GET",
       "rota": "/app/visitas-kanban",
-      "linha": 4223,
+      "linha": 4820,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2291,10 +2357,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/agendar/:id",
-      "linha": 4283,
+      "linha": 4880,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2310,10 +2375,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/solicitar-confirmacao/:id",
-      "linha": 4315,
+      "linha": 4912,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2329,10 +2393,9 @@
     {
       "metodo": "GET",
       "rota": "/cliente/visita/:id",
-      "linha": 4342,
+      "linha": 4939,
       "requerLogin": false,
       "renderiza": "cliente-visita",
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2347,10 +2410,9 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:id/confirmar",
-      "linha": 4364,
+      "linha": 4961,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": "/cliente/visita/",
       "leDados": [
         "visitas.json"
       ],
@@ -2366,10 +2428,9 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:id/recusar",
-      "linha": 4390,
+      "linha": 4987,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": "/cliente/visita/",
       "leDados": [
         "visitas.json"
       ],
@@ -2385,10 +2446,9 @@
     {
       "metodo": "GET",
       "rota": "/cliente/visita/:id/remarcar",
-      "linha": 4419,
+      "linha": 5016,
       "requerLogin": false,
       "renderiza": "cliente-remarcar-visita",
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2404,10 +2464,9 @@
     {
       "metodo": "POST",
       "rota": "/cliente/visita/:id/remarcar",
-      "linha": 4441,
+      "linha": 5038,
       "requerLogin": false,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2423,10 +2482,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/checkin/:id",
-      "linha": 4476,
+      "linha": 5073,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": "/app/visitas",
       "leDados": [
         "visitas.json"
       ],
@@ -2442,10 +2500,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/finalizar/:id",
-      "linha": 4502,
+      "linha": 5099,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2461,10 +2518,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/negociacao/:id",
-      "linha": 4547,
+      "linha": 5144,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2480,10 +2536,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/perdido/:id",
-      "linha": 4575,
+      "linha": 5172,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2499,10 +2554,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/parceiro-confirmou/:id",
-      "linha": 4604,
+      "linha": 5201,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2518,10 +2572,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/proprietario-confirmou/:id",
-      "linha": 4638,
+      "linha": 5235,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2537,10 +2590,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/cliente-chegou/:id",
-      "linha": 4674,
+      "linha": 5271,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2556,10 +2608,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/no-show/:id",
-      "linha": 4702,
+      "linha": 5299,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2575,10 +2626,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/proposta-valor/:id",
-      "linha": 4743,
+      "linha": 5340,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2594,10 +2644,9 @@
     {
       "metodo": "POST",
       "rota": "/app/visitas/perda-motivo/:id",
-      "linha": 4773,
+      "linha": 5370,
       "requerLogin": true,
       "renderiza": null,
-      "redireciona": null,
       "leDados": [
         "visitas.json"
       ],
@@ -2609,6 +2658,204 @@
         "visitas",
         "perda-motivo"
       ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/zerar-tudo-sistema",
+      "linha": 5401,
+      "requerLogin": false,
+      "renderiza": null,
+      "leDados": [
+        "data.json",
+        "visitas.json",
+        "notificacoes.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "zerar-tudo-sistema"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/migrar-imoveis/:idAntigo/:idNovo",
+      "linha": 5424,
+      "requerLogin": false,
+      "renderiza": null,
+      "leDados": [
+        "imoveis.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "migrar-imoveis",
+        "idAntigo",
+        "idNovo"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/deletar-conta/:userId",
+      "linha": 5449,
+      "requerLogin": false,
+      "renderiza": null,
+      "leDados": [
+        "users.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "deletar-conta",
+        "userId"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/diagnostico-contas",
+      "linha": 5469,
+      "requerLogin": false,
+      "renderiza": null,
+      "leDados": [
+        "imoveis.json",
+        "users.json"
+      ],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "diagnostico-contas"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/diagnostico-contas",
+      "linha": 5493,
+      "requerLogin": false,
+      "renderiza": null,
+      "leDados": [
+        "imoveis.json",
+        "users.json"
+      ],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "diagnostico-contas"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/admin/deletar-imoveis/:userId",
+      "linha": 5517,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [
+        "imoveis.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "admin",
+        "deletar-imoveis",
+        "userId"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/app/whatsapp/qrcode",
+      "linha": 5538,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "app",
+        "whatsapp",
+        "qrcode"
+      ]
+    },
+    {
+      "metodo": "GET",
+      "rota": "/app/whatsapp/status",
+      "linha": 5582,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [
+        "users.json"
+      ],
+      "salvaDados": false,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "app",
+        "whatsapp",
+        "status"
+      ]
+    },
+    {
+      "metodo": "POST",
+      "rota": "/app/whatsapp/desconectar",
+      "linha": 5620,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [
+        "users.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "app",
+        "whatsapp",
+        "desconectar"
+      ]
+    },
+    {
+      "metodo": "DELETE",
+      "rota": "/app/lead/:id",
+      "linha": 5647,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [
+        "data.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "app",
+        "lead"
+      ]
+    },
+    {
+      "metodo": "POST",
+      "rota": "/app/lead/:id/bloquear",
+      "linha": 5666,
+      "requerLogin": true,
+      "renderiza": null,
+      "leDados": [
+        "data.json",
+        "users.json"
+      ],
+      "salvaDados": true,
+      "aceitaUpload": false,
+      "formatosUpload": [],
+      "keywords": [
+        "app",
+        "lead",
+        "bloquear"
+      ]
     }
   ],
   "views": {
@@ -2619,14 +2866,11 @@
         "/oferta/<%= item.offerToken %>"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Visita solicitada",
         "Visita solicitada ✅"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "agendar.ejs": {
       "forms": [
@@ -2637,14 +2881,11 @@
         "/imovel/<%= item.offerToken %>/<%= matchIdx %>"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Agendar visita",
         "Agendar visita"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "app-assistente.ejs": {
       "forms": [],
@@ -2663,36 +2904,10 @@
         "/app/importar",
         "/app/assistente/upload"
       ],
-      "botoes": [
-        "enviarMsg(",
-        "enviarMsg(",
-        "enviarMsg(",
-        "enviarMsg(",
-        "enviarMsg(",
-        "enviarMsg(",
-        "enviarMsg(",
-        "enviarMsg(",
-        "document.getElementById(",
-        "enviarMsg()",
-        "enviarMsg(",
-        "enviarMsg(",
-        "enviarMsg(",
-        "enviarFeedback(true,this)",
-        "enviarFeedback(false,this)"
-      ],
       "uploads": true,
       "titulos": [
-        "Olá,",
-        "' + dados.portal.toUpperCase() + '",
-        "' + dados.portal.toUpperCase() + '",
-        "' + dados.nome + '",
-        "Lead cadastrado com sucesso!",
-        "' + data.lead.nome + '",
-        "XML gerado!",
-        "' + portal.toUpperCase() + '"
-      ],
-      "temModal": false,
-      "temGrafico": false
+        "Olá,"
+      ]
     },
     "app-cadastro.ejs": {
       "forms": [
@@ -2712,19 +2927,6 @@
         "/app/importar",
         "/import-status"
       ],
-      "botoes": [
-        "escolherMetodo(",
-        "escolherMetodo(",
-        "escolherMetodo(",
-        "voltarMetodo()",
-        "document.getElementById(",
-        "voltarMetodo()",
-        "testarXML()",
-        "if(confirm(",
-        "voltarMetodo()",
-        "gerarDescricaoIA()",
-        "document.getElementById("
-      ],
       "uploads": true,
       "titulos": [
         "👤 Importar Proprietários",
@@ -2732,12 +2934,10 @@
         "Colunas esperadas na planilha",
         "📡 Importar via XML",
         "URL do XML",
-        "Link do XML:",
-        "Última atualização:",
-        "Imóveis ativos:"
-      ],
-      "temModal": false,
-      "temGrafico": false
+        "Importação concluída!",
+        "✍️ Cadastro manual",
+        "Publicação em portais"
+      ]
     },
     "app-central.ejs": {
       "forms": [],
@@ -2745,34 +2945,21 @@
       "fetches": [
         "/api/central-operacional"
       ],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "🤖 Central Operacional"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "app-coins.ejs": {
       "forms": [],
       "links": [],
       "fetches": [],
-      "botoes": [
-        "selecionarPacote(50)",
-        "selecionarPacote(100)",
-        "selecionarPacote(300)",
-        "selecionarPacote(500)",
-        "iniciarCompra()"
-      ],
       "uploads": false,
       "titulos": [
         "🪙 Comprar Match Coins",
-        "R$0,50",
         "Histórico de transações",
         "Nenhuma transação ainda"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "app-corretor.ejs": {
       "forms": [
@@ -2783,16 +2970,13 @@
         "/oferta/<%= l.offerToken %>"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Corretor",
         "Painel do Corretor",
         "Gerar Match (Subir Lead)",
         "Meus Leads"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "app-editar-imovel.ejs": {
       "forms": [
@@ -2805,16 +2989,13 @@
         "/app/imoveis"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": true,
       "titulos": [
         "Dados do imóvel",
         "Proprietário",
         "Publicação em portais",
         "Fotos"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "app-exportar.ejs": {
       "forms": [],
@@ -2823,14 +3004,11 @@
         "/export-xml"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Excel de matches",
         "XML dos imóveis"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "app-home.ejs": {
       "forms": [],
@@ -2842,16 +3020,8 @@
         "/app/visitas"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
-      "titulos": [
-        "Leads",
-        "Imóveis",
-        "Cadastrar",
-        "Visitas"
-      ],
-      "temModal": false,
-      "temGrafico": true
+      "titulos": []
     },
     "app-imoveis.ejs": {
       "forms": [],
@@ -2863,29 +3033,10 @@
       "fetches": [
         "/app/gerar-xml"
       ],
-      "botoes": [
-        "deselectAll()",
-        "gerarXML(",
-        "gerarXML(",
-        "gerarXML(",
-        "gerarXML(",
-        "gerarXML(",
-        "gerarXML(",
-        "toggleFiltros()",
-        "filtrar()",
-        "limpar()",
-        "toggleCard(this)",
-        "event.stopPropagation()",
-        "event.stopPropagation()",
-        "event.stopPropagation()",
-        "copiarURL()"
-      ],
       "uploads": false,
       "titulos": [
         "Gerando XML..."
-      ],
-      "temModal": true,
-      "temGrafico": false
+      ]
     },
     "app-imovel-detalhe.ejs": {
       "forms": [],
@@ -2893,23 +3044,11 @@
         "/app/imoveis"
       ],
       "fetches": [],
-      "botoes": [
-        "abrirGaleria(0)",
-        "abrirGaleria(1)",
-        "abrirGaleria(2)",
-        "abrirGaleria(3)",
-        "abrirGaleria(4)",
-        "fecharLightbox()",
-        "navFoto(-1)",
-        "navFoto(1)"
-      ],
       "uploads": false,
       "titulos": [
         "Características",
         "Descrição"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "app-importar-leads.ejs": {
       "forms": [
@@ -2919,19 +3058,12 @@
         "/airbnb.css"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": true,
       "titulos": [
         "Importar Leads",
         "Importar leads",
-        "📥 Modelo da planilha de leads",
-        "Nome",
-        "Telefone",
-        "URL do anúncio",
-        "ID do anúncio"
-      ],
-      "temModal": false,
-      "temGrafico": false
+        "📥 Modelo da planilha de leads"
+      ]
     },
     "app-lead-detalhe.ejs": {
       "forms": [
@@ -2940,17 +3072,15 @@
       "links": [
         "/app/leads",
         "/imovel/<%= lead.imovel_interesse %>",
-        "/imovel/<%= m.idExterno || m.id %>"
+        "/imovel/<%= m.idExterno || m.id %>",
+        "/app/imovel/<%= m.idInterno||m.id %>"
       ],
       "fetches": [],
-      "botoes": [
-        "document.getElementById(",
-        "document.getElementById("
-      ],
       "uploads": false,
-      "titulos": [],
-      "temModal": true,
-      "temGrafico": false
+      "titulos": [
+        "Perfil IA — extraído automaticamente",
+        "Matches Automáticos via WhatsApp ("
+      ]
     },
     "app-leads.ejs": {
       "forms": [
@@ -2958,23 +3088,18 @@
       ],
       "links": [
         "/app/lead/<%= item.id %>",
-        "/cliente/oferta/<%= item.leadId || item.id %>?userId=<%= encodeURIComponent(item.userId || item.usuarioId || item.corretorId || "
+        "/cliente/oferta/<%= item.leadId || item.id %>?userId=<%= encodeURIComponent(item.userId || item.usuarioId || item.corretorId || ",
+        "/app/lead/<%= item.id %>"
       ],
       "fetches": [
-        "/admin/rodar-match/<%= userId %>"
-      ],
-      "botoes": [
-        "abrirModalImportarLeads();return false;",
-        "rodarMatchBase()",
-        "fecharModalImportarLeads()"
+        "/admin/rodar-match/<%= userId %>",
+        "/app/lead/",
+        "/app/lead/"
       ],
       "uploads": true,
       "titulos": [
-        "Resultados da IA",
         "Leads"
-      ],
-      "temModal": true,
-      "temGrafico": false
+      ]
     },
     "app-notificacoes.ejs": {
       "forms": [],
@@ -2983,11 +3108,8 @@
         "/app/lead/<%= n.leadId %>"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
-      "titulos": [],
-      "temModal": false,
-      "temGrafico": false
+      "titulos": []
     },
     "app-perfil.ejs": {
       "forms": [
@@ -2996,31 +3118,30 @@
       ],
       "links": [],
       "fetches": [
-        "https://nominatim.openstreetmap.org/reverse?format=json&lat="
-      ],
-      "botoes": [
-        "pegarLocalizacao()"
+        "https://nominatim.openstreetmap.org/reverse?format=json&lat=",
+        "/app/whatsapp/status",
+        "/app/whatsapp/qrcode",
+        "/app/whatsapp/desconectar",
+        "/app/whatsapp/status",
+        "/app/whatsapp/qrcode",
+        "/app/whatsapp/desconectar"
       ],
       "uploads": false,
       "titulos": [
         "Dados do usuário",
         "📍 Minha localização",
-        "Atualizar localização"
-      ],
-      "temModal": false,
-      "temGrafico": false
+        "WhatsApp",
+        "WhatsApp"
+      ]
     },
     "app-portais-xml.ejs": {
       "forms": [],
       "links": [],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Portais / XML"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "app-portais.ejs": {
       "forms": [],
@@ -3029,16 +3150,10 @@
         "/app/imoveis"
       ],
       "fetches": [],
-      "botoes": [
-        "copiar("
-      ],
       "uploads": false,
       "titulos": [
-        "📡 Feeds XML gerados",
-        "Meus Imóveis"
-      ],
-      "temModal": false,
-      "temGrafico": false
+        "📡 Feeds XML gerados"
+      ]
     },
     "app-visitas-kanban.ejs": {
       "forms": [
@@ -3052,13 +3167,10 @@
         "/app/visitas"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Kanban de Visitas"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "app-visitas.ejs": {
       "forms": [
@@ -3071,11 +3183,19 @@
         "/app/visitas"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
-      "titulos": [],
-      "temModal": false,
-      "temGrafico": false
+      "titulos": []
+    },
+    "app-whatsapp-inbox.ejs": {
+      "forms": [],
+      "links": [
+        "/app/lead/<%= lead.id %>"
+      ],
+      "fetches": [],
+      "uploads": false,
+      "titulos": [
+        "Inbox WhatsApp"
+      ]
     },
     "cliente-oferta.ejs": {
       "forms": [],
@@ -3086,15 +3206,6 @@
       "fetches": [
         "/api/lead-interesse"
       ],
-      "botoes": [
-        "abrirModalOferta(this)",
-        "fecharModal()",
-        "continuarHorario()",
-        "fecharModal()",
-        "fecharModal()",
-        "confirmarVisita()",
-        "voltarContato()"
-      ],
       "uploads": false,
       "titulos": [
         "Ofertas para você • MatchImóveis",
@@ -3102,9 +3213,7 @@
         "Nenhum match disponível ainda",
         "Seus dados",
         "Agendar visita"
-      ],
-      "temModal": true,
-      "temGrafico": false
+      ]
     },
     "cliente-remarcar-visita.ejs": {
       "forms": [
@@ -3112,15 +3221,11 @@
       ],
       "links": [],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Remarcar visita",
-        "Remarcar visita",
-        "Imóvel:"
-      ],
-      "temModal": false,
-      "temGrafico": false
+        "Remarcar visita"
+      ]
     },
     "cliente-visita-confirmar.ejs": {
       "forms": [
@@ -3129,14 +3234,11 @@
       ],
       "links": [],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Confirmar Presença • MatchImóveis",
         "Sua visita foi confirmada!"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "cliente-visita-remarcar.ejs": {
       "forms": [
@@ -3144,14 +3246,11 @@
       ],
       "links": [],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Remarcar Visita • MatchImóveis",
         "Remarcar visita"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "cliente-visita.ejs": {
       "forms": [
@@ -3162,14 +3261,11 @@
         "/cliente/visita/<%= visita.id %>/remarcar"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Confirmar Visita — MatchImóveis",
         "Confirmar visita"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "feed-reels.ejs": {
       "forms": [],
@@ -3179,15 +3275,8 @@
       "fetches": [
         "/api/imoveis"
       ],
-      "botoes": [
-        "toggleLike(",
-        "salvar(",
-        "compartilhar("
-      ],
       "uploads": false,
-      "titulos": [],
-      "temModal": false,
-      "temGrafico": false
+      "titulos": []
     },
     "imovel-form.ejs": {
       "forms": [
@@ -3197,15 +3286,12 @@
         "/airbnb.css"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Cadastrar Imóvel",
         "Cadastrar Imóvel",
         "Dados do Proprietário (OBRIGATÓRIO)"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "imovel-publico.ejs": {
       "forms": [],
@@ -3214,31 +3300,13 @@
         "/api/lead-interesse",
         "/api/visita/nova-v2"
       ],
-      "botoes": [
-        "abrirGaleria(0)",
-        "abrirGaleria(1)",
-        "abrirGaleria(2)",
-        "abrirGaleria(3)",
-        "abrirGaleria(4)",
-        "fecharLightbox()",
-        "navFoto(-1)",
-        "navFoto(1)",
-        "abrirModal(this.dataset.href,",
-        "abrirModal(this.dataset.href);return false;",
-        "confirmarContato()",
-        "fecharModal()",
-        "confirmarVisita()",
-        "voltarContato()"
-      ],
       "uploads": false,
       "titulos": [
         "Características",
         "Descrição",
         "Quase lá! 👋",
         "Escolha sua visita 📅"
-      ],
-      "temModal": true,
-      "temGrafico": false
+      ]
     },
     "imovel.ejs": {
       "forms": [],
@@ -3250,15 +3318,10 @@
         "/track",
         "/track"
       ],
-      "botoes": [],
       "uploads": false,
       "titulos": [
-        "Imóvel",
-        "Proprietário",
-        "Sobre o imóvel"
-      ],
-      "temModal": false,
-      "temGrafico": false
+        "Imóvel"
+      ]
     },
     "index.ejs": {
       "forms": [
@@ -3272,7 +3335,6 @@
         "/oferta/<%= idx %>"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": true,
       "titulos": [
         "MatchImoveis",
@@ -3281,9 +3343,7 @@
         "Melhorias do MVP",
         "Filtros rápidos",
         "Resultados"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "login.ejs": {
       "forms": [
@@ -3293,38 +3353,21 @@
         "/airbnb.css"
       ],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "MatchImóveis — IA para o Mercado Imobiliário",
         "A IA que faz o",
-        "Corretor sobe os imóveis",
-        "Lead chega — IA entra em ação",
-        "Match instantâneo + agendamento automático",
-        "Você só aparece para fechar",
         "Acessar plataforma"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "mapa.ejs": {
       "forms": [],
       "links": [],
       "fetches": [],
-      "botoes": [
-        "ft(this,",
-        "ft(this,",
-        "ft(this,",
-        "location=",
-        "location=",
-        "location="
-      ],
       "uploads": false,
       "titulos": [
         "MatchImóveis — Mapa"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "oferta.ejs": {
       "forms": [],
@@ -3335,29 +3378,23 @@
       "fetches": [
         "/track"
       ],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Opções para você",
         "Olá,"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "proprietario-confirmado.ejs": {
       "forms": [],
       "links": [],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Resposta Registrada • MatchImóveis",
         "Visita confirmada!",
         "Imóvel indisponível",
         "Remarcação solicitada"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     },
     "proprietario-visita.ejs": {
       "forms": [
@@ -3365,14 +3402,11 @@
       ],
       "links": [],
       "fetches": [],
-      "botoes": [],
       "uploads": false,
       "titulos": [
         "Confirmação de Visita • MatchImóveis",
         "Solicitação de Visita"
-      ],
-      "temModal": false,
-      "temGrafico": false
+      ]
     }
   },
   "uploads": [
@@ -3382,13 +3416,13 @@
       "formatos": [
         ".xml"
       ],
-      "descricao": "Importar imóveis via XML"
+      "descricao": "Importar imóveis XML"
     },
     {
       "rota": "/app/importar-proprietarios",
       "metodo": "POST",
       "formatos": [],
-      "descricao": "Importar proprietários via Excel"
+      "descricao": "Importar proprietários"
     },
     {
       "rota": "/app/assistente/upload",
@@ -3398,19 +3432,19 @@
         ".xlsx",
         ".csv"
       ],
-      "descricao": "Upload de arquivo"
+      "descricao": "Upload"
     },
     {
       "rota": "/app/leads",
       "metodo": "POST",
       "formatos": [],
-      "descricao": "Importar leads via CSV/Excel"
+      "descricao": "Importar leads CSV"
     },
     {
       "rota": "/process",
       "metodo": "POST",
       "formatos": [],
-      "descricao": "Upload de arquivo"
+      "descricao": "Upload"
     }
   ],
   "sinonimos": {
@@ -3418,20 +3452,25 @@
     "lid": "lead",
     "leades": "leads",
     "leed": "lead",
+    "lide": "lead",
+    "lides": "leads",
     "imovei": "imovel",
     "imovéis": "imoveis",
     "vizita": "visita",
     "vizitas": "visitas",
-    "notificaçao": "notificacao",
+    "notificações": "notificacoes",
     "proprietaro": "proprietario",
     "conis": "coins",
     "moedas": "coins",
     "pontos": "coins",
+    "saldo": "coins",
     "dashbord": "dashboard",
+    "dash": "dashboard",
     "matsh": "match",
     "mach": "match",
+    "matches": "match",
     "subir": "importar",
-    "enviar arquivo": "importar",
+    "upload": "importar",
     "meus clientes": "leads",
     "interessados": "leads",
     "compradores": "leads",
@@ -3439,34 +3478,75 @@
     "meus imoveis": "imoveis",
     "quantos": "total",
     "quantas": "total",
-    "ver": "listar",
-    "mostrar": "listar",
-    "cadastrar": "cadastro",
-    "adicionar": "cadastro",
     "apagar": "excluir",
-    "inativar": "inativar",
+    "deletar": "excluir",
     "desativar": "inativar",
-    "confirmar": "confirmar",
-    "aceitar": "confirmar",
-    "recusar": "recusar",
-    "cancelar": "recusar",
-    "remarcar": "remarcar",
+    "arquivar": "inativar",
     "reagendar": "remarcar",
+    "mudar data": "remarcar",
     "gerar xml": "gerar_xml",
-    "criar xml": "gerar_xml",
+    "exportar xml": "gerar_xml",
     "link do cliente": "vitrine",
-    "enviar pro cliente": "vitrine",
+    "oferta": "vitrine",
     "oi": "saudacao",
     "olá": "saudacao",
     "ola": "saudacao",
+    "e ai": "saudacao",
     "bom dia": "saudacao",
     "boa tarde": "saudacao",
     "boa noite": "saudacao",
-    "tudo bem": "saudacao",
     "hello": "saudacao",
-    "e ai": "saudacao"
+    "hi": "saudacao",
+    "hey": "saudacao",
+    "qto": "quarto",
+    "qtos": "quartos",
+    "vaga": "vagas",
+    "garagem": "vagas",
+    "preço": "preco",
+    "custo": "preco",
+    "m2": "metragem",
+    "metros": "metragem",
+    "portias": "portais",
+    "portal": "portais",
+    "ver portais": "ver_portais",
+    "relatorrio": "relatorio",
+    "meu relatorrio": "relatorio",
+    "meus conis": "coins",
+    "subir xml": "importar_xml",
+    "xml": "importar_xml",
+    "enviar vitrine": "vitrine",
+    "manda follow-up": "followup",
+    "follow-up": "followup",
+    "followup": "followup",
+    "primeiros passos": "onboarding",
+    "como começo": "onboarding",
+    "minha conta": "perfil",
+    "meu perfil": "perfil",
+    "casas disponíveis": "ver_imoveis",
+    "casas com": "buscar_imovel",
+    "casa até": "buscar_imovel",
+    "apartamento até": "buscar_imovel",
+    "tem casa": "buscar_imovel",
+    "tem apartamento": "buscar_imovel",
+    "quem pediu visita": "ver_visitas",
+    "quem confirmou visita": "ver_visitas",
+    "minhas visitas": "ver_visitas",
+    "visitas pendentes": "ver_visitas",
+    "quem nao respondeu": "leads_sem_contato",
+    "bairros mais buscados": "analise_mercado",
+    "tipo mais buscado": "analise_mercado",
+    "quartos mais pedidos": "analise_mercado",
+    "faixa de valor": "analise_mercado",
+    "xml nao saiu no vivareal": "diagnostico_xml",
+    "meu portal rejeitou": "diagnostico_xml",
+    "a extracao falhou": "diagnostico_extracao",
+    "como adicionar fotos": "fotos_imovel",
+    "quais campos a planilha precisa": "campos_planilha",
+    "avisar proprietario da visita": "notificar_proprietario",
+    "tem casa com 2 vagas": "buscar_imovel",
+    "resumo do dia": "resumo_diario"
   },
-  "intencoes": [
+  "intencoes_nlp": [
     {
       "id": "saudacao",
       "keywords": [
@@ -3476,60 +3556,105 @@
         "bom dia",
         "boa tarde",
         "boa noite",
-        "tudo",
         "hello",
-        "eai"
+        "hey"
       ],
-      "acao": "mostrar_resumo_conta"
+      "boost": [
+        "bem",
+        "como vai"
+      ],
+      "penalize": [],
+      "acao": "mostrar_resumo_conta",
+      "score_min": 0.3
     },
     {
       "id": "ver_leads",
       "keywords": [
         "lead",
         "leads",
+        "cliente",
         "clientes",
-        "interessados",
-        "quantas lead"
+        "interessado"
+      ],
+      "boost": [
+        "quantas",
+        "quantos",
+        "minhas",
+        "ver",
+        "listar"
+      ],
+      "penalize": [
+        "importar",
+        "subir"
       ],
       "acao": "buscar_dados_leads",
-      "rota": "/app/leads"
+      "rota": "/app/leads",
+      "score_min": 0.35
     },
     {
       "id": "importar_leads",
       "keywords": [
-        "importar lead",
-        "subir lead",
+        "importar",
+        "subir",
+        "upload",
         "planilha",
-        "csv",
-        "upload lead"
+        "csv"
       ],
+      "boost": [
+        "lead",
+        "leads",
+        "arquivo"
+      ],
+      "penalize": [],
       "acao": "wizard",
-      "fluxo": "wizard_importar_leads"
+      "fluxo": "wizard_importar_leads",
+      "score_min": 0.4
     },
     {
       "id": "ver_imoveis",
       "keywords": [
         "imovel",
         "imoveis",
-        "carteira",
         "apartamento",
         "casa",
-        "quantos imoveis"
+        "carteira"
+      ],
+      "boost": [
+        "quantos",
+        "meus",
+        "ver",
+        "listar",
+        "ativo"
+      ],
+      "penalize": [
+        "importar",
+        "cadastrar"
       ],
       "acao": "buscar_dados_imoveis",
-      "rota": "/app/imoveis"
+      "rota": "/app/imoveis",
+      "score_min": 0.35
     },
     {
       "id": "importar_xml",
       "keywords": [
         "xml",
-        "subir xml",
         "importar xml",
+        "subir xml",
         "tecimob",
         "rankim"
       ],
+      "boost": [
+        "importar",
+        "subir",
+        "arquivo"
+      ],
+      "penalize": [
+        "gerar",
+        "criar"
+      ],
       "acao": "wizard",
-      "fluxo": "wizard_importar_xml"
+      "fluxo": "wizard_importar_xml",
+      "score_min": 0.4
     },
     {
       "id": "ver_visitas",
@@ -3540,8 +3665,16 @@
         "agendar",
         "hoje"
       ],
+      "boost": [
+        "minhas",
+        "pendentes",
+        "confirmadas",
+        "quantas"
+      ],
+      "penalize": [],
       "acao": "buscar_dados_visitas",
-      "rota": "/app/visitas"
+      "rota": "/app/visitas",
+      "score_min": 0.35
     },
     {
       "id": "ver_match",
@@ -3549,10 +3682,18 @@
         "match",
         "combinar",
         "compativel",
-        "leads match"
+        "cruzar"
       ],
+      "boost": [
+        "fazer",
+        "rodar",
+        "ver",
+        "quantas leads"
+      ],
+      "penalize": [],
       "acao": "buscar_leads_match",
-      "rota": "/app/leads"
+      "rota": "/app/leads",
+      "score_min": 0.4
     },
     {
       "id": "gerar_xml",
@@ -3563,8 +3704,19 @@
         "publicar",
         "portal"
       ],
+      "boost": [
+        "vivareal",
+        "zap",
+        "olx",
+        "chaves",
+        "imovelweb"
+      ],
+      "penalize": [
+        "importar"
+      ],
       "acao": "wizard",
-      "fluxo": "wizard_gerar_xml_portal"
+      "fluxo": "wizard_gerar_xml_portal",
+      "score_min": 0.4
     },
     {
       "id": "ver_portais",
@@ -3573,59 +3725,57 @@
         "portal",
         "vivareal",
         "zap",
-        "olx",
-        "chaves",
-        "imovelweb"
+        "olx"
+      ],
+      "boost": [
+        "ver",
+        "status",
+        "feed"
+      ],
+      "penalize": [
+        "gerar",
+        "criar"
       ],
       "acao": "navegar",
-      "rota": "/app/portais"
-    },
-    {
-      "id": "ver_notificacoes",
-      "keywords": [
-        "notificacao",
-        "notificacoes",
-        "aviso",
-        "alerta",
-        "sino"
-      ],
-      "acao": "navegar",
-      "rota": "/app/notificacoes"
-    },
-    {
-      "id": "ver_coins",
-      "keywords": [
-        "coins",
-        "moeda",
-        "saldo",
-        "pontos"
-      ],
-      "acao": "navegar",
-      "rota": "/app/coins"
+      "rota": "/app/portais",
+      "score_min": 0.4
     },
     {
       "id": "ver_dashboard",
       "keywords": [
         "dashboard",
-        "home",
-        "grafico",
         "resumo",
+        "grafico",
         "estatistica",
-        "stats"
+        "home"
       ],
+      "boost": [
+        "ver",
+        "abrir",
+        "meu"
+      ],
+      "penalize": [],
       "acao": "navegar",
-      "rota": "/app-home"
+      "rota": "/app-home",
+      "score_min": 0.35
     },
     {
       "id": "cadastrar_imovel",
       "keywords": [
         "cadastrar",
-        "cadastro",
         "novo imovel",
         "adicionar imovel"
       ],
+      "boost": [
+        "quero",
+        "preciso"
+      ],
+      "penalize": [
+        "importar"
+      ],
       "acao": "navegar",
-      "rota": "/app/cadastro"
+      "rota": "/app/cadastro",
+      "score_min": 0.45
     },
     {
       "id": "proprietarios",
@@ -3633,162 +3783,368 @@
         "proprietario",
         "proprietarios",
         "dono",
-        "vincular proprietario"
+        "vincular"
       ],
-      "acao": "wizard",
-      "fluxo": "wizard_proprietarios"
-    },
-    {
-      "id": "exportar",
-      "keywords": [
-        "exportar",
+      "boost": [
+        "importar",
         "excel",
-        "baixar",
-        "download",
-        "relatorio"
+        "telefone"
       ],
-      "acao": "navegar",
-      "rota": "/app/imoveis/exportar-excel"
+      "penalize": [],
+      "acao": "wizard",
+      "fluxo": "wizard_proprietarios",
+      "score_min": 0.4
     },
     {
       "id": "vitrine",
       "keywords": [
         "vitrine",
         "oferta",
-        "link cliente",
-        "enviar pro cliente"
+        "link",
+        "enviar cliente"
       ],
+      "boost": [
+        "lead",
+        "cliente"
+      ],
+      "penalize": [],
       "acao": "explicar",
-      "descricao": "A vitrine é o link /cliente/oferta/:leadId — compartilhe com o cliente para ele ver os imóveis em match e solicitar visita."
+      "descricao": "A vitrine é o link /cliente/oferta/:leadId — compartilhe com o cliente para ele ver os imóveis em match.",
+      "score_min": 0.4
+    },
+    {
+      "id": "estrategia_venda",
+      "keywords": [
+        "vender",
+        "fechar",
+        "negocio",
+        "proposta",
+        "lead quente"
+      ],
+      "boost": [
+        "como",
+        "dica"
+      ],
+      "penalize": [],
+      "acao": "estrategia_venda",
+      "score_min": 0.4
+    },
+    {
+      "id": "mercado",
+      "keywords": [
+        "mercado",
+        "demanda",
+        "tendencia",
+        "mais buscado"
+      ],
+      "boost": [
+        "analise",
+        "relatorio"
+      ],
+      "penalize": [],
+      "acao": "analise_mercado",
+      "score_min": 0.4
+    },
+    {
+      "id": "resumo_dia",
+      "keywords": [
+        "resumo",
+        "o que fazer",
+        "acoes",
+        "prioridade",
+        "devo fazer"
+      ],
+      "boost": [
+        "dia",
+        "agora",
+        "hoje"
+      ],
+      "penalize": [],
+      "acao": "resumo_diario",
+      "score_min": 0.4
     },
     {
       "id": "ajuda",
       "keywords": [
         "ajuda",
-        "socorro",
+        "help",
         "como faz",
         "nao sei",
-        "help",
         "o que voce faz"
       ],
-      "acao": "mostrar_ajuda"
-    }
-  ],
-  "intencoes_compostas": [
-    {
-      "id": "leads_sem_match",
-      "condicoes": [
-        "lead",
-        "sem match"
+      "boost": [
+        "fazer",
+        "usar"
       ],
-      "rota": "/app/leads",
-      "filtro": "sem_match"
+      "penalize": [],
+      "acao": "mostrar_ajuda",
+      "score_min": 0.3
     },
     {
-      "id": "leads_com_match",
-      "condicoes": [
-        "lead",
-        "com match"
+      "id": "buscar_imovel_rapido",
+      "keywords": [
+        "tem casa",
+        "tem apartamento",
+        "casa com",
+        "apartamento com",
+        "casa ate",
+        "apto ate"
       ],
-      "rota": "/app/leads",
-      "filtro": "com_match"
-    },
-    {
-      "id": "visitas_hoje",
-      "condicoes": [
-        "visita",
-        "hoje"
+      "boost": [
+        "quartos",
+        "vagas",
+        "bairro",
+        "valor",
+        "disponivel"
       ],
-      "rota": "/app/visitas",
-      "filtro": "hoje"
-    },
-    {
-      "id": "visitas_pendentes",
-      "condicoes": [
-        "visita",
-        "pendente"
-      ],
-      "rota": "/app/visitas",
-      "filtro": "pendentes"
-    },
-    {
-      "id": "imoveis_inativos",
-      "condicoes": [
-        "imovel",
-        "inativo"
-      ],
+      "penalize": [],
+      "acao": "busca_rapida_imovel",
       "rota": "/app/imoveis",
-      "filtro": "inativos"
+      "score_min": 0.4,
+      "exemplos": [
+        "casa até 500mil",
+        "tem casa com 2 vagas",
+        "casas com 3 quartos"
+      ]
     },
     {
-      "id": "imoveis_sem_proprietario",
-      "condicoes": [
+      "id": "analise_mercado",
+      "keywords": [
+        "tipo mais buscado",
+        "quartos mais pedidos",
+        "bairros mais buscados",
+        "faixa de valor",
+        "demanda",
+        "tendencia"
+      ],
+      "boost": [
+        "mercado",
+        "leads",
+        "analise"
+      ],
+      "penalize": [],
+      "acao": "analise_mercado",
+      "score_min": 0.35,
+      "exemplos": [
+        "tipo mais buscado",
+        "quartos mais pedidos",
+        "faixa de valor das leads"
+      ]
+    },
+    {
+      "id": "diagnostico_xml",
+      "keywords": [
+        "xml nao saiu",
+        "portal rejeitou",
+        "nao aparece no portal",
+        "xml invalido",
+        "erro xml"
+      ],
+      "boost": [
+        "vivareal",
+        "zap",
+        "olx",
+        "portal"
+      ],
+      "penalize": [],
+      "acao": "diagnostico_xml",
+      "score_min": 0.4,
+      "exemplos": [
+        "xml não saiu no vivareal",
+        "meu portal rejeitou"
+      ]
+    },
+    {
+      "id": "diagnostico_extracao",
+      "keywords": [
+        "extracao falhou",
+        "nao extraiu",
+        "erro extracao",
+        "nao pegou os dados",
+        "url nao funcionou"
+      ],
+      "boost": [
+        "imovelweb",
+        "zap",
+        "url",
+        "anuncio"
+      ],
+      "penalize": [],
+      "acao": "diagnostico_extracao",
+      "score_min": 0.4,
+      "exemplos": [
+        "a extração falhou",
+        "não extraiu os dados da URL"
+      ]
+    },
+    {
+      "id": "campos_planilha",
+      "keywords": [
+        "quais campos",
+        "planilha precisa",
+        "formato planilha",
+        "como montar planilha",
+        "colunas csv"
+      ],
+      "boost": [
+        "csv",
+        "excel",
+        "leads",
+        "importar"
+      ],
+      "penalize": [],
+      "acao": "explicar_campos_planilha",
+      "score_min": 0.35,
+      "exemplos": [
+        "quais campos a planilha precisa?",
+        "formato do CSV"
+      ]
+    },
+    {
+      "id": "fotos_imovel",
+      "keywords": [
+        "adicionar fotos",
+        "fotos do imovel",
+        "como colocar foto",
+        "upload foto",
+        "imagem imovel"
+      ],
+      "boost": [
         "imovel",
-        "proprietario"
+        "cadastro",
+        "editar"
       ],
+      "penalize": [],
+      "acao": "navegar",
       "rota": "/app/imoveis",
-      "filtro": "sem_proprietario"
+      "score_min": 0.4,
+      "exemplos": [
+        "como adicionar fotos",
+        "como colocar foto no imóvel"
+      ]
     },
     {
-      "id": "leads_organicas",
-      "condicoes": [
-        "lead",
-        "organica"
+      "id": "followup_lead",
+      "keywords": [
+        "manda follow-up",
+        "fazer follow-up",
+        "followup",
+        "acompanhar lead",
+        "retornar lead",
+        "quem nao respondeu"
       ],
-      "rota": "/app/leads",
-      "filtro": "organicas"
+      "boost": [
+        "lead",
+        "cliente",
+        "contato"
+      ],
+      "penalize": [],
+      "acao": "followup_lead",
+      "score_min": 0.35,
+      "exemplos": [
+        "manda follow-up",
+        "quem não respondeu?"
+      ]
     },
     {
-      "id": "leads_importadas",
-      "condicoes": [
-        "lead",
-        "importada"
+      "id": "onboarding",
+      "keywords": [
+        "como comeco",
+        "primeiros passos",
+        "por onde comecar",
+        "como usar",
+        "tutorial",
+        "nao sei comecar"
       ],
-      "rota": "/app/leads",
-      "filtro": "importadas"
+      "boost": [
+        "primeiro",
+        "inicio",
+        "comecar"
+      ],
+      "penalize": [],
+      "acao": "wizard",
+      "fluxo": "onboarding_completo",
+      "score_min": 0.35,
+      "exemplos": [
+        "como começo?",
+        "primeiros passos",
+        "por onde começo"
+      ]
+    },
+    {
+      "id": "notificar_proprietario",
+      "keywords": [
+        "avisar proprietario",
+        "notificar proprietario",
+        "chamar proprietario",
+        "falar com dono"
+      ],
+      "boost": [
+        "visita",
+        "imovel",
+        "confirmacao"
+      ],
+      "penalize": [],
+      "acao": "notificar_proprietario",
+      "score_min": 0.4,
+      "exemplos": [
+        "avisar proprietário da visita"
+      ]
+    },
+    {
+      "id": "relatorio",
+      "keywords": [
+        "relatorio",
+        "meu relatorio",
+        "ver relatorio",
+        "exportar relatorio",
+        "dados do mes"
+      ],
+      "boost": [
+        "mes",
+        "semana",
+        "periodo",
+        "excel"
+      ],
+      "penalize": [],
+      "acao": "navegar",
+      "rota": "/app/imoveis/exportar-excel",
+      "score_min": 0.35,
+      "exemplos": [
+        "meu relatório",
+        "ver relatório do mês"
+      ]
     }
   ],
   "gatilhos": [
     {
       "id": "visitas_hoje",
       "condicao": "visitas_hoje > 0",
-      "mensagem": "📅 Atenção! Você tem {n} visita(s) hoje!",
+      "mensagem": "📅 Você tem {n} visita(s) hoje!",
       "prioridade": "alta"
     },
     {
-      "id": "visitas_pendentes_antigas",
-      "condicao": "visitas_pendentes_2d > 0",
-      "mensagem": "⚠️ {n} visita(s) sem resposta há mais de 2 dias!",
+      "id": "leads_sem_match",
+      "condicao": "leads_sem_match > 5",
+      "mensagem": "❌ {n} leads sem match. Quer fazer agora?",
       "prioridade": "alta"
-    },
-    {
-      "id": "leads_sem_match_antigos",
-      "condicao": "leads_sem_match_7d > 0",
-      "mensagem": "❌ {n} leads sem match há mais de 7 dias. Quer tentar o match agora?",
-      "prioridade": "alta"
-    },
-    {
-      "id": "xml_desatualizado",
-      "condicao": "dias_sem_xml > 30",
-      "mensagem": "📅 XML desatualizado há {n} dias. Quer importar um novo?",
-      "prioridade": "media"
     },
     {
       "id": "sem_leads",
       "condicao": "leads === 0",
-      "mensagem": "👥 Nenhuma lead ainda. Quer importar uma planilha?",
+      "mensagem": "👥 Nenhuma lead ainda. Quer importar?",
       "prioridade": "media"
     },
     {
       "id": "sem_imoveis",
       "condicao": "imoveis === 0",
-      "mensagem": "🏠 Nenhum imóvel ainda. Quer importar um XML?",
+      "mensagem": "🏠 Nenhum imóvel. Quer importar XML?",
       "prioridade": "media"
     },
     {
-      "id": "sem_proprietario",
-      "condicao": "sem_prop > 50",
-      "mensagem": "🏠 {n} imóveis sem proprietário. Quer importar o Excel?",
+      "id": "xml_antigo",
+      "condicao": "dias_sem_xml > 30",
+      "mensagem": "📅 XML desatualizado há {n} dias.",
       "prioridade": "baixa"
     }
   ],
@@ -3814,8 +4170,7 @@
           "aguarda": "arquivo",
           "formatos": [
             ".csv",
-            ".xlsx",
-            ".xls"
+            ".xlsx"
           ]
         },
         {
@@ -3826,9 +4181,9 @@
         },
         {
           "id": 4,
-          "mensagem": "✅ {n} leads importadas! Quer fazer o match agora?",
+          "mensagem": "✅ {n} leads importadas! Quer fazer o match?",
           "opcoes": [
-            "Sim, fazer match",
+            "Sim",
             "Não agora"
           ],
           "aguarda": "escolha"
@@ -3840,7 +4195,7 @@
       "passos": [
         {
           "id": 1,
-          "mensagem": "Qual o sistema de origem?",
+          "mensagem": "Qual sistema de origem?",
           "opcoes": [
             "Tecimob",
             "Rankim",
@@ -3858,13 +4213,13 @@
         },
         {
           "id": 3,
-          "mensagem": "Importando imóveis... ⏳",
+          "mensagem": "Importando... ⏳",
           "acao": "upload",
           "rota": "/app/importar"
         },
         {
           "id": 4,
-          "mensagem": "✅ {n} imóveis importados! Quer gerar XML para algum portal?",
+          "mensagem": "✅ Importado! Quer gerar XML para algum portal?",
           "opcoes": [
             "VivaReal",
             "ZAP",
@@ -3893,22 +4248,22 @@
         },
         {
           "id": 2,
-          "mensagem": "Todos os ativos ou selecionar manualmente?",
+          "mensagem": "Todos os ativos ou selecionar?",
           "opcoes": [
             "Todos os ativos",
-            "Selecionar em /app/imoveis"
+            "Ir para /app/imoveis"
           ],
           "aguarda": "escolha"
         },
         {
           "id": 3,
-          "mensagem": "Gerando XML... ⏳",
+          "mensagem": "Gerando... ⏳",
           "acao": "gerar_xml",
           "rota": "/app/gerar-xml"
         },
         {
           "id": 4,
-          "mensagem": "✅ XML gerado! Acesse /app/portais para o link do feed."
+          "mensagem": "✅ XML gerado! Acesse /app/portais para o link."
         }
       ]
     },
@@ -3936,328 +4291,174 @@
       ]
     }
   ],
-  "comandos_diretos": [
-    {
-      "id": "inativar_imovel",
-      "padroes": [
-        "inativar imovel {id}"
-      ],
-      "extrai": [
-        "id"
-      ],
-      "acao": "POST",
-      "rota": "/app/imoveis/{id}/inativar",
-      "confirmacao": "Inativar imóvel {id}?"
-    },
-    {
-      "id": "confirmar_visita",
-      "padroes": [
-        "confirmar visita {id}"
-      ],
-      "extrai": [
-        "id"
-      ],
-      "acao": "POST",
-      "rota": "/app/visitas/confirmar/{id}",
-      "confirmacao": "Confirmar visita {id}?"
-    },
-    {
-      "id": "recusar_visita",
-      "padroes": [
-        "recusar visita {id}"
-      ],
-      "extrai": [
-        "id"
-      ],
-      "acao": "POST",
-      "rota": "/app/visitas/recusar/{id}",
-      "confirmacao": "Recusar visita {id}?"
-    },
-    {
-      "id": "gerar_xml_portal",
-      "padroes": [
-        "gerar xml {portal}"
-      ],
-      "extrai": [
-        "portal"
-      ],
-      "acao": "POST",
-      "rota": "/app/gerar-xml",
-      "confirmacao": "Gerar XML para {portal}?"
-    },
-    {
-      "id": "buscar_imovel",
-      "padroes": [
-        "tem {tipo} em {bairro}"
-      ],
-      "extrai": [
-        "tipo",
-        "bairro"
-      ],
-      "acao": "busca_local",
-      "arquivo": "imoveis.json"
-    },
-    {
-      "id": "buscar_lead",
-      "padroes": [
-        "lead em {bairro}"
-      ],
-      "extrai": [
-        "bairro"
-      ],
-      "acao": "busca_local",
-      "arquivo": "data.json"
-    }
-  ],
   "onboarding": {
-    "detectar": "user.onboardingConcluido === false ou ausente",
     "passos": [
       {
         "id": 1,
         "titulo": "Importar imóveis",
         "acao": "wizard_importar_xml",
-        "concluido_quando": "imoveis.length > 0"
+        "concluido_quando": "imoveis > 0"
       },
       {
         "id": 2,
         "titulo": "Importar leads",
         "acao": "wizard_importar_leads",
-        "concluido_quando": "leads.length > 0"
+        "concluido_quando": "leads > 0"
       },
       {
         "id": 3,
         "titulo": "Fazer match",
         "acao": "match",
-        "concluido_quando": "leads.comMatch > 0"
+        "concluido_quando": "leads_com_match > 0"
       },
       {
         "id": 4,
         "titulo": "Enviar vitrine",
         "acao": "vitrine",
-        "concluido_quando": "visitas.length > 0"
+        "concluido_quando": "visitas > 0"
       }
     ],
-    "mensagem_boas_vindas": "Olá {nome}! 👋 Seja bem-vindo ao MatchImóveis! Sou o Match, seu assistente pessoal. Vamos configurar sua conta juntos? É rapidinho! 🚀",
-    "mensagem_completo": "🎉 Parabéns {nome}! Conta configurada com sucesso. Agora você pode usar todo o poder do MatchImóveis!"
+    "boas_vindas": "Olá {nome}! 👋 Seja bem-vindo ao MatchImóveis! Sou o Match, seu assistente. Vamos configurar? 🚀",
+    "completo": "🎉 Parabéns {nome}! Conta configurada. Agora você tem todo o poder do MatchImóveis!"
   },
-  "aprendizado": {
-    "arquivo_nao_entendidos": "assistente-nao-entendidos.json",
-    "threshold_virar_oficial": 3,
-    "fluxo": [
-      "Pergunta não entendida → salvar com userId+data",
-      "Agrupar por similaridade >= 60%",
-      "3+ perguntas similares → sugerir nova intenção",
-      "Admin aprova → vira intenção oficial"
-    ]
-  },
-  "memoria_usuario": {
-    "arquivo": "assistente-memoria.json",
-    "campos": [
-      "preferencias",
-      "historico",
-      "onboarding_concluido",
-      "ultima_atividade"
+  "personalidade": {
+    "nome": "Match",
+    "tom": "amigável, prestativo, direto e inteligente",
+    "regras": [
+      "Cumprimentar pelo nome quando possível",
+      "Nunca responder de forma seca ou robótica",
+      "Quando não entender, pedir reformulação com gentileza",
+      "Sempre oferecer próximo passo após responder",
+      "Ser proativo: sugerir o que o usuário pode não ter pensado",
+      "Confirmar antes de executar ações importantes",
+      "Usar dados reais quando disponíveis",
+      "Responder em até 3 linhas quando possível"
     ],
-    "preferencias": [
-      "tipo_favorito",
-      "bairros_favoritos",
-      "portal_mais_usado",
-      "ultima_importacao"
+    "frases_nao_entendeu": [
+      "Hmm, não entendi 🤔 Pode reformular?",
+      "Não captei. Tente: leads, imóveis, visitas ou match.",
+      "Pode tentar de outro jeito? Ex: \"quantas leads tenho hoje\""
     ]
   },
-  "explicacoes_sistema": [
+  "explicacoes": [
     {
       "id": "match",
       "keywords": [
         "o que e match",
-        "como funciona match",
-        "explicar match"
+        "como funciona match"
       ],
-      "texto": "Match é quando um imóvel da sua carteira combina com o que um lead procura. O sistema cruza bairro+tipo+quartos automaticamente."
+      "texto": "Match cruza bairro+tipo+quartos de cada lead com seus imóveis. Automático."
     },
     {
       "id": "vitrine",
       "keywords": [
         "o que e vitrine",
-        "como funciona vitrine",
-        "explicar vitrine"
+        "como funciona vitrine"
       ],
-      "texto": "Vitrine é uma página exclusiva enviada ao lead com os imóveis em match. O lead escolhe e solicita visita — tudo automático!"
+      "texto": "Vitrine é uma página exclusiva para o lead ver os imóveis em match e solicitar visita."
     },
     {
       "id": "score",
       "keywords": [
         "score",
         "pontuacao",
-        "como calcula",
-        "nota do match"
+        "como calcula"
       ],
-      "texto": "Score define a ordem na vitrine: valor abaixo do max +50pts, área maior +30pts, quartos extras +20pts, suítes +15pts, vagas +15pts."
+      "texto": "Score da lead: tipo+20, quartos+15, valor+15, bairro+12, urgência+15, fase funil até +20."
     },
     {
       "id": "lead",
       "keywords": [
         "o que e lead",
-        "explicar lead",
-        "o que significa lead"
+        "explicar lead"
       ],
-      "texto": "Lead é um cliente interessado em comprar/alugar. Você importa planilhas dos portais e o sistema faz o match automático."
+      "texto": "Lead é um cliente interessado. Importe planilhas dos portais e o match é automático."
     },
     {
       "id": "xml",
       "keywords": [
         "o que e xml",
-        "para que serve xml",
-        "explicar xml"
+        "para que serve xml"
       ],
-      "texto": "XML é o arquivo que envia seus imóveis para portais (VivaReal, ZAP, OLX). Gere aqui e cadastre o link no portal."
+      "texto": "XML envia seus imóveis para portais (VivaReal, ZAP, OLX). Gere aqui e cadastre o link."
     },
     {
       "id": "coins",
       "keywords": [
         "o que sao coins",
-        "para que servem coins",
-        "explicar coins"
+        "para que servem coins"
       ],
-      "texto": "Match Coins são pontos ganhos a cada match realizado. Futuramente usados para recursos premium."
-    },
-    {
-      "id": "visita",
-      "keywords": [
-        "como funciona visita",
-        "fluxo visita",
-        "como agendar visita"
-      ],
-      "texto": "Fluxo: Lead recebe vitrine → escolhe imóvel → solicita visita → proprietário confirma/recusa → lead notificado. Tudo automático!"
+      "texto": "Match Coins são pontos por match realizado. Usados futuramente para recursos premium."
     }
   ],
-  "personalidade": {
-    "nome": "Match",
-    "tom": "amigável, educado, calmo, prestativo e inteligente",
-    "regras": [
-      "Sempre cumprimentar pelo nome",
-      "Nunca responder de forma seca ou robótica",
-      "Quando não entender, pedir para reformular com gentileza",
-      "Sempre oferecer próximo passo após responder",
-      "Ser proativo: sugerir o que o usuário pode não ter pensado",
-      "Elogiar quando usuário faz algo certo",
-      "Confirmar antes de executar ações importantes"
-    ],
-    "frases_nao_entendeu": [
-      "Hmm, não entendi muito bem 🤔 Pode reformular?",
-      "Desculpe, não captei essa. Pode tentar de outro jeito?",
-      "Ainda estou aprendendo! Tente: leads, imóveis, visitas ou match."
-    ],
-    "proximo_passo": {
-      "apos_importar_xml": "Agora que tem imóveis, que tal importar leads para fazer o match?",
-      "apos_importar_leads": "Ótimo! Quer fazer o match agora?",
-      "apos_match": "Match feito! Quer enviar a vitrine para algum lead?",
-      "apos_ver_leads": "Quer ver quais leads têm match com seus imóveis?",
-      "apos_ver_imoveis": "Quer importar leads para cruzar com essa carteira?"
+  "base_conhecimento": [
+    {
+      "p": "quantas leads tenho",
+      "r": "buscar_dados_leads"
+    },
+    {
+      "p": "quantas leads sem match",
+      "r": "leads_sem_match"
+    },
+    {
+      "p": "quantas leads com match",
+      "r": "leads_com_match"
+    },
+    {
+      "p": "como importar leads",
+      "r": "wizard_importar_leads"
+    },
+    {
+      "p": "quantos imoveis tenho",
+      "r": "buscar_dados_imoveis"
+    },
+    {
+      "p": "imoveis sem proprietario",
+      "r": "imoveis_sem_proprietario"
+    },
+    {
+      "p": "como cadastrar imovel",
+      "r": "navegar:/app/cadastro"
+    },
+    {
+      "p": "quantas visitas tenho",
+      "r": "buscar_dados_visitas"
+    },
+    {
+      "p": "visitas de hoje",
+      "r": "visitas_hoje"
+    },
+    {
+      "p": "visitas pendentes",
+      "r": "visitas_pendentes"
+    },
+    {
+      "p": "como funciona o match",
+      "r": "explicar_match"
+    },
+    {
+      "p": "como gerar xml",
+      "r": "wizard_gerar_xml_portal"
+    },
+    {
+      "p": "como vincular proprietario",
+      "r": "wizard_proprietarios"
+    },
+    {
+      "p": "me ajuda a vender",
+      "r": "estrategia_venda"
+    },
+    {
+      "p": "resumo do dia",
+      "r": "resumo_diario"
+    },
+    {
+      "p": "o que devo fazer hoje",
+      "r": "resumo_acoes_dia"
+    },
+    {
+      "p": "enviar vitrine para cliente",
+      "r": "copiar_link_vitrine"
     }
-  },
-  "metricas_assistente": {
-    "arquivo": "assistente-metricas.json",
-    "coleta": [
-      "total_perguntas_hoje",
-      "total_respondidas",
-      "total_nao_entendidas",
-      "taxa_satisfacao",
-      "perguntas_frequentes"
-    ]
-  },
-  "pos_visita": {
-    "keywords": [
-      "como foi",
-      "visita foi",
-      "cliente gostou",
-      "retorno da visita"
-    ],
-    "gatilhos": [
-      {
-        "id": "perguntar_como_foi",
-        "condicao": "visita.dataVisita === ontem && status === confirmada",
-        "mensagem": "📅 Como foi a visita de ontem no {imovel}? O cliente {lead} demonstrou interesse?",
-        "opcoes": [
-          "Sim, gostou!",
-          "Não se interessou",
-          "Vai pensar",
-          "Quer mais opções"
-        ]
-      },
-      {
-        "id": "follow_up",
-        "condicao": "lead sem visita há 15+ dias",
-        "mensagem": "👥 A lead {nome} está há {dias} dias sem visita. Quer entrar em contato?",
-        "opcoes": [
-          "Enviar vitrine",
-          "Já contatei",
-          "Desqualificar"
-        ]
-      }
-    ]
-  },
-  "estrategias_venda": {
-    "keywords": [
-      "vender",
-      "fechar",
-      "negocio",
-      "proposta",
-      "ajudar vender",
-      "leads quentes"
-    ],
-    "sugestoes": [
-      {
-        "id": "lead_quente",
-        "condicao": "visita confirmada + score alto",
-        "mensagem": "🔥 A lead {nome} está QUENTE! Visitou e tem alto score. Hora de fechar!"
-      },
-      {
-        "id": "imovel_parado",
-        "condicao": "imovel ativo há 30+ dias sem visita",
-        "mensagem": "📉 {imovel} há {dias} dias sem visita. Considere revisar o valor ou as fotos."
-      },
-      {
-        "id": "reducao_valor",
-        "condicao": "imovel sem visita há 45+ dias",
-        "mensagem": "💰 Uma redução de 5-10% no {imovel} pode gerar mais interesse."
-      },
-      {
-        "id": "alta_intencao",
-        "condicao": "score > 100 e visita agendada",
-        "mensagem": "🎯 {nome} tem altíssima intenção de compra (score {score}). Priorize!"
-      }
-    ]
-  },
-  "inteligencia_mercado": {
-    "keywords": [
-      "mercado",
-      "demanda",
-      "tendencia",
-      "mais buscado",
-      "faixa mais pedida"
-    ],
-    "analises": [
-      {
-        "id": "tipo_mais_demandado",
-        "descricao": "Tipo de imóvel com mais leads"
-      },
-      {
-        "id": "faixa_valor_buscada",
-        "descricao": "Faixa de valor mais procurada pelas leads"
-      },
-      {
-        "id": "bairros_mais_demandados",
-        "descricao": "Ranking de bairros por demanda"
-      },
-      {
-        "id": "oferta_vs_demanda",
-        "descricao": "Leads por bairro vs imóveis disponíveis"
-      },
-      {
-        "id": "quartos_mais_pedidos",
-        "descricao": "Quantidade de quartos mais buscada"
-      }
-    ]
-  }
+  ]
 }

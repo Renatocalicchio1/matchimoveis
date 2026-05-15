@@ -1,369 +1,267 @@
 {
-  "geradoEm": "2026-05-10T04:00:59.258Z",
-  "total": 100,
+  "geradoEm": "2026-05-15T21:08:22.360Z",
+  "total": 117,
   "items": [
     {
-      "p": "Estou falando sobre rotina, como vai me ajudar a gerenciar todos os dados e fechar vendas",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "visitas hoje",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "leads sem match",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "leads quentes",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "leads com match",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "leads sem match",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "leads quentes",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "importar leads",
-      "r": "historico",
-      "real": true
-    },
-    {
       "p": "quantas leads tenho",
-      "r": "historico",
-      "real": true
+      "r": "buscar_dados_leads"
     },
     {
-      "p": "ajuda",
-      "r": "historico",
-      "real": true
+      "p": "quantas leads sem match",
+      "r": "leads_sem_match"
+    },
+    {
+      "p": "quantas leads com match",
+      "r": "leads_com_match"
+    },
+    {
+      "p": "como importar leads",
+      "r": "wizard_importar_leads"
+    },
+    {
+      "p": "quantos imoveis tenho",
+      "r": "buscar_dados_imoveis"
+    },
+    {
+      "p": "imoveis sem proprietario",
+      "r": "imoveis_sem_proprietario"
+    },
+    {
+      "p": "como cadastrar imovel",
+      "r": "navegar:/app/cadastro"
+    },
+    {
+      "p": "quantas visitas tenho",
+      "r": "buscar_dados_visitas"
+    },
+    {
+      "p": "visitas de hoje",
+      "r": "visitas_hoje"
+    },
+    {
+      "p": "visitas pendentes",
+      "r": "visitas_pendentes"
+    },
+    {
+      "p": "como funciona o match",
+      "r": "explicar_match"
+    },
+    {
+      "p": "como gerar xml",
+      "r": "wizard_gerar_xml_portal"
+    },
+    {
+      "p": "como vincular proprietario",
+      "r": "wizard_proprietarios"
+    },
+    {
+      "p": "me ajuda a vender",
+      "r": "estrategia_venda"
+    },
+    {
+      "p": "resumo do dia",
+      "r": "resumo_diario"
     },
     {
       "p": "o que devo fazer hoje",
+      "r": "resumo_acoes_dia"
+    },
+    {
+      "p": "enviar vitrine para cliente",
+      "r": "copiar_link_vitrine"
+    },
+    {
+      "p": "quantos imoveis sem proprietario",
       "r": "historico",
       "real": true
     },
     {
-      "p": "ajuda",
+      "p": "tem algum imovel com proprietario",
       "r": "historico",
       "real": true
     },
     {
-      "p": "resumo geral",
+      "p": "quais imoveis tem dono",
       "r": "historico",
       "real": true
     },
     {
-      "p": "o que devo fazer hoje",
+      "p": "proprieritos",
       "r": "historico",
       "real": true
     },
     {
-      "p": "quais as dicas pra hoje ? ondo posso melhorar ?",
+      "p": "proprietorio",
       "r": "historico",
       "real": true
     },
     {
-      "p": "leads com match",
+      "p": "proprietorio",
       "r": "historico",
       "real": true
     },
     {
-      "p": "leads quentes",
+      "p": "propietario",
       "r": "historico",
       "real": true
     },
     {
-      "p": "apto na vila andrade ate 400 k",
+      "p": "proprietairo",
       "r": "historico",
       "real": true
     },
     {
-      "p": "ate 300 k",
+      "p": "leads de hoje",
       "r": "historico",
       "real": true
     },
     {
-      "p": "buscar por valor do imovel",
+      "p": "leads de ontem",
       "r": "historico",
       "real": true
     },
     {
-      "p": "\"cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí até 600k\"",
+      "p": "visitas de hoje",
       "r": "historico",
       "real": true
     },
     {
-      "p": "\"cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí até 600k\"",
+      "p": "visitas para amanhã",
       "r": "historico",
       "real": true
     },
     {
-      "p": "cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí\"",
+      "p": "imoveis cadastrados hoje",
       "r": "historico",
       "real": true
     },
     {
-      "p": "\"cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí\"",
+      "p": "matches dos ultimos 7 dias",
       "r": "historico",
       "real": true
     },
     {
-      "p": "\"cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí\"",
+      "p": "quantos matches tenho",
       "r": "historico",
       "real": true
     },
     {
-      "p": "cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí",
+      "p": "quantos leads sem match",
       "r": "historico",
       "real": true
     },
     {
-      "p": "cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí",
+      "p": "quais bairros mais buscados",
       "r": "historico",
       "real": true
     },
     {
-      "p": "cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí",
+      "p": "tipos mais buscados pelas leads",
       "r": "historico",
       "real": true
     },
     {
-      "p": "cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí",
+      "p": "quem nao respondeu",
       "r": "historico",
       "real": true
     },
     {
-      "p": "cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí",
+      "p": "visitas pendentes",
       "r": "historico",
       "real": true
     },
     {
-      "p": "cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí",
+      "p": "visitas aguardando proprietario",
       "r": "historico",
       "real": true
     },
     {
-      "p": "cadastra lead João Silva, 47999991234, quer apto 3q em Itajaí",
+      "p": "quero importar leads",
       "r": "historico",
       "real": true
     },
     {
-      "p": "quero imprtar um xml",
+      "p": "como gerar xml",
       "r": "historico",
       "real": true
     },
     {
-      "p": "quero importar xml",
+      "p": "como funciona visita",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gera xml vivareal",
+      "p": "como enviar vitrine",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gerar xml imovel web",
+      "p": "dtlhes da lead bruno",
       "r": "historico",
       "real": true
     },
     {
-      "p": "quando gerar xml tem que mandar ele para a pagina onde fica os xml app/portais",
+      "p": "viteinre do bruno",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gera xml vivareal",
+      "p": "cadastros de ontem",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gera xml zap",
+      "p": "pequeisa de leads",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gera xml zap",
+      "p": "lead bruno",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gerar xml 123i",
+      "p": "mostrar leads quentes",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gera xml 123i",
+      "p": "mostrar matches",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gera xml vivareal",
+      "p": "mostrar visitas pendentes",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gera xml vivareal",
+      "p": "manda WhatsApp pra ele",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gerar xml todos vivareal",
+      "p": "lead bruno",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gerar xml todos vivareal",
+      "p": "manda WhatsApp pra ele",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gera xml vivareal",
+      "p": "importat xml",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gerar xml todos vivareal",
+      "p": "gerar xml",
       "r": "historico",
       "real": true
     },
     {
-      "p": "gera xml vivareal",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "gerar xml todos vivareal",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi tudo bem",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi tudo bem",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi tudo bem",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi tudo bem",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi tudo bem",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "quero cadastrar um lead",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "quero cadastrar um cliente",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "quero importar um xml",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "voce pode cadastrar um lead por favor ?",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "renato 47 991919191",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "gera um xml no padrao olx",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi tudo bem",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "quero cadastrar um lead",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "renato , 47991919192",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "quero cadastrar um lead !",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "renato, 479999999",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "quero cadastrar um lead !",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "cadastra lead renato, 47991919191",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "obrigado, consegue gerar um xml olx",
+      "p": "gerar xml olx",
       "r": "historico",
       "real": true
     },
@@ -373,27 +271,167 @@
       "real": true
     },
     {
-      "p": "e agora consegue me ajudar importar um xml ?",
+      "p": "importar leads",
       "r": "historico",
       "real": true
     },
     {
-      "p": "legal. sabe me dizer quantas leads tem vitrine ja montada ?",
+      "p": "importar xml",
       "r": "historico",
       "real": true
     },
     {
-      "p": "tenho alguma notificacao nova ?",
+      "p": "lead bruno",
       "r": "historico",
       "real": true
     },
     {
-      "p": "tenho quantas visitas ?",
+      "p": "enviar whatsapp",
       "r": "historico",
       "real": true
     },
     {
-      "p": "encontrar um apartamento ate 600 mil",
+      "p": "enviar link whats app para bruno",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "lead bruno",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "manda WhatsApp pra ele",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "qual o bairro dele",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "mostrar leads quentes",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "mostrar leads sem match",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "quais clientes estão quentes",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "qual lead devo priorizar hoje",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "quem não respondeu",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "mostrar visitas pendentes",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "quais visitas tenho hoje",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "qual visita aguarda proprietário",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "quais visitas estão confirmadas",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "mostrar matches",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "qual lead tem mais match",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "qual cliente tem score maior",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "quais bairros mais deram match",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "manda mensagem pro Bruno",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "falar com cliente da Vila Olímpia",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "manda follow-up pra ele",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "quem precisa de follow-up",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "quais leads estão parados",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "quais leads estão parados",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "quem esfriou",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "qual cliente sumiu",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "ele respondeu?",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "o proprietário confirmou?",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "essa visita ainda está pendente?",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "manda outra opção pra ele",
       "r": "historico",
       "real": true
     },
@@ -403,7 +441,57 @@
       "real": true
     },
     {
-      "p": "preciso de apartamento 2 quartos até 700 mil na Vila Andrade",
+      "p": "tem alguma lead bruno ?",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "bruno",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "lead",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "importar xml",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "gerar xml",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "gerar xml imovelweb",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "gerar xml todos imovelweb",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "importat leads",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "importar leads",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "importar lead",
+      "r": "historico",
+      "real": true
+    },
+    {
+      "p": "palnilha de lead",
       "r": "historico",
       "real": true
     },
@@ -413,92 +501,72 @@
       "real": true
     },
     {
-      "p": "preciso de apartamento 2 quartos de 500 mil ate  700 mil na Vila Andrade",
+      "p": "importar leads",
       "r": "historico",
       "real": true
     },
     {
-      "p": "preciso de apartamento 2 quartos  entre 500 mil a 600 mil  na Vila Andrade",
+      "p": "gerar xml",
       "r": "historico",
       "real": true
     },
     {
-      "p": "oiii",
+      "p": "minhas visitas",
       "r": "historico",
       "real": true
     },
     {
-      "p": "oi",
+      "p": "notificacoes",
       "r": "historico",
       "real": true
     },
     {
-      "p": "preciso de um apartamento de 3 dorm na vila andrade",
+      "p": "o que devo fazer hoje",
       "r": "historico",
       "real": true
     },
     {
-      "p": "oiii",
+      "p": "o que devo fazer hoje",
       "r": "historico",
       "real": true
     },
     {
-      "p": "preciso de apartamento 3 quartos na Vila Andrade",
+      "p": "resumo geral",
       "r": "historico",
       "real": true
     },
     {
-      "p": "oi",
+      "p": "leads com match",
       "r": "historico",
       "real": true
     },
     {
-      "p": "preciso de um apartamento na vila andrade de 3 dorm",
+      "p": "importar leads",
       "r": "historico",
       "real": true
     },
     {
-      "p": "nao aparece o link do imovel",
+      "p": "importar",
       "r": "historico",
       "real": true
     },
     {
-      "p": "nao quero o nome do lea e sim dados do imovel",
+      "p": "que importr minha lead",
       "r": "historico",
       "real": true
     },
     {
-      "p": "oi",
+      "p": "visitas hoje",
       "r": "historico",
       "real": true
     },
     {
-      "p": "preciso de apartamento 3 quartos na Vila Andrade",
+      "p": "que dia ?",
       "r": "historico",
       "real": true
     },
     {
-      "p": "preciso de apartamento 3 quartos na Vila Andrade",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "oi",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "preciso de apartamento 3 quartos na Vila Andrade",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "preciso de apartamento 3 quartos na Vila Andrade",
-      "r": "historico",
-      "real": true
-    },
-    {
-      "p": "pode cadastrar um cliente pra mim?\"",
+      "p": "tem alguma visita pendente ?",
       "r": "historico",
       "real": true
     }

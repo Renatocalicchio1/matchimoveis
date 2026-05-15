@@ -1,7 +1,7 @@
 {
-  "geradoEm": "2026-05-10T04:00:59.035Z",
+  "geradoEm": "2026-05-15T21:08:22.131Z",
   "server": {
-    "totalRotas": 88,
+    "totalRotas": 166,
     "rotas": [
       {
         "metodo": "GET",
@@ -18,6 +18,10 @@
       {
         "metodo": "POST",
         "rota": "/app/importar-proprietarios"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/assistente/upload"
       },
       {
         "metodo": "POST",
@@ -38,6 +42,14 @@
       {
         "metodo": "GET",
         "rota": "/feed/:portal"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/cadastro-secreto"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/cadastro-secreto"
       },
       {
         "metodo": "GET",
@@ -156,6 +168,10 @@
         "rota": "/app/perfil"
       },
       {
+        "metodo": "POST",
+        "rota": "/app/perfil"
+      },
+      {
         "metodo": "GET",
         "rota": "/app-importar-leads"
       },
@@ -198,6 +214,22 @@
       {
         "metodo": "POST",
         "rota": "/api/ajuda"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/limpar-conta/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/zerar-conta-completo/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/whatsapp"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/lead/:id/whatsapp/enviar"
       },
       {
         "metodo": "POST",
@@ -289,6 +321,38 @@
       },
       {
         "metodo": "GET",
+        "rota": "/admin/limpar-descricoes/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/diagnostico-descricoes/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/limpar-descricoes/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/reativar-imoveis/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/backup-leads/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/backup-imoveis/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/importar-xml-upload"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/importar-xml-upload"
+      },
+      {
+        "metodo": "GET",
         "rota": "/admin/zerar-visitas-notificacoes-temp"
       },
       {
@@ -348,12 +412,260 @@
         "rota": "/app/assistente"
       },
       {
+        "metodo": "GET",
+        "rota": "/admin/nao-entendidos"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/funil/:userId"
+      },
+      {
         "metodo": "POST",
         "rota": "/app/assistente/chat"
       },
       {
         "metodo": "GET",
         "rota": "/app/assistente/historico"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/admin/import-sync-ran"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/admin/sync-leads-extraidas"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/rodar-match/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/assistente/abertura"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/assistente/acao-direta"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/metricas-assistente/:userId"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/assistente/feedback"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/feedback-assistente"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/notas-usuario/:userId"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/api/central-operacional"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/central"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/api/visita/:id/workflow"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/api/memoria-operacional"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/api/visita/:id/workflow"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/api/memoria-operacional"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/api/visita/:id/confirmar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/api/visita/:id/remarcar"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/api/visita/:id/whatsapp"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/api/visita/nova-v2"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/remarcar/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/cancelar/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/concluir/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/remarcar/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/cancelar/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/concluir/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/observacao/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/prioridade/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/responsavel/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/cliente-gostou/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/proposta/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/fechado/:id"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/visitas-kanban"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/agendar/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/solicitar-confirmacao/:id"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/cliente/visita/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/cliente/visita/:id/confirmar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/cliente/visita/:id/recusar"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/cliente/visita/:id/remarcar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/cliente/visita/:id/remarcar"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/checkin/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/finalizar/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/negociacao/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/perdido/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/parceiro-confirmou/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/proprietario-confirmou/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/cliente-chegou/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/no-show/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/proposta-valor/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/visitas/perda-motivo/:id"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/zerar-tudo-sistema"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/migrar-imoveis/:idAntigo/:idNovo"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/deletar-conta/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/diagnostico-contas"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/diagnostico-contas"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/admin/deletar-imoveis/:userId"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/whatsapp/qrcode"
+      },
+      {
+        "metodo": "GET",
+        "rota": "/app/whatsapp/status"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/whatsapp/desconectar"
+      },
+      {
+        "metodo": "DELETE",
+        "rota": "/app/lead/:id"
+      },
+      {
+        "metodo": "POST",
+        "rota": "/app/lead/:id/bloquear"
       }
     ],
     "jsonsUsados": [
@@ -362,7 +674,6 @@
       "data.json",
       "portais.json",
       "leads.json",
-      "./imoveis.json",
       "visitas.json",
       "notificacoes.json"
     ],
@@ -380,6 +691,7 @@
       "app-importar-leads",
       "app-leads",
       "app-visitas",
+      "app-whatsapp-inbox",
       "mapa",
       "feed-reels",
       "imovel-publico",
@@ -389,7 +701,11 @@
       "cliente-visita-confirmar",
       "app-coins",
       "cliente-visita-remarcar",
-      "app-assistente"
+      "app-assistente",
+      "app-central",
+      "app-visitas-kanban",
+      "cliente-visita",
+      "cliente-remarcar-visita"
     ]
   },
   "views": {
@@ -449,7 +765,9 @@
         "📅 Visitas hoje",
         "📍 Demanda",
         "🏠 Imóveis",
-        "📎"
+        "📎",
+        "Remarcar",
+        "Cancelar"
       ],
       "selects": [],
       "options": [],
@@ -457,6 +775,7 @@
       "fetches": [
         "/app/assistente/feedback",
         "/app/assistente/chat",
+        "/app/importar",
         "/app/leads/manual",
         "/app/imoveis-ids",
         "/app/gerar-xml",
@@ -474,9 +793,11 @@
         "enviarMsg(",
         "document.getElementById(",
         "enviarMsg()",
+        "enviarMsg(",
+        "enviarMsg(",
+        "enviarMsg(",
         "enviarFeedback(true,this)",
-        "enviarFeedback(false,this)",
-        "enviarMsg(\\"
+        "enviarFeedback(false,this)"
       ],
       "links": [
         "/app/imoveis",
@@ -538,6 +859,7 @@
         "portal_chaves",
         "portal_imovelweb",
         "portal_123i",
+        "portal_quintoandar",
         "endereco",
         "bairro",
         "cidade",
@@ -579,6 +901,25 @@
       "links": [
         "/app/imoveis"
       ]
+    },
+    "app-central": {
+      "textos": [
+        "🤖 Central Operacional",
+        "🔔 Notificações",
+        "🔥 Leads quentes",
+        "📅 Visitas",
+        "🏠 Matches",
+        "⏰ Follow-up",
+        "Enviar"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [
+        "/api/central-operacional"
+      ],
+      "onclicks": [],
+      "links": []
     },
     "app-coins": {
       "textos": [
@@ -644,17 +985,17 @@
         "Bairro",
         "Cidade",
         "Estado",
+        "Endereço",
+        "Número",
+        "Complemento",
+        "CEP",
+        "Latitude",
+        "Longitude",
         "Valor do imóvel",
-        "Área (m²)",
-        "Quartos",
-        "Suítes",
-        "Banheiros",
-        "Vagas",
-        "Descrição",
-        "Nome",
-        "Telefone",
-        "Email",
-        "Status do vínculo"
+        "Condomínio",
+        "IPTU",
+        "Área privativa (m²)",
+        "Área total (m²)"
       ],
       "selects": [
         "status",
@@ -673,8 +1014,18 @@
         "bairro",
         "cidade",
         "estado",
+        "endereco",
+        "numero",
+        "complemento",
+        "cep",
+        "latitude",
+        "longitude",
         "valor_imovel",
+        "condominio",
+        "iptu",
         "area_m2",
+        "area_total",
+        "andar",
         "quartos",
         "suites",
         "banheiros",
@@ -688,6 +1039,7 @@
         "portal_chaves",
         "portal_imovelweb",
         "portal_123i",
+        "portal_quintoandar",
         "foto"
       ],
       "fetches": [],
@@ -838,73 +1190,61 @@
       ]
     },
     "app-lead-detalhe": {
-      "textos": [],
+      "textos": [
+        "Perfil IA — extraído automaticamente",
+        "Matches Automáticos via WhatsApp ("
+      ],
       "selects": [],
       "options": [],
       "inputs": [],
       "fetches": [],
-      "onclicks": [
-        "document.getElementById(",
-        "document.getElementById("
-      ],
+      "onclicks": [],
       "links": [
         "/app/leads",
         "/imovel/<%= lead.imovel_interesse %>",
-        "/imovel/<%= m.idExterno || m.id %>"
+        "/imovel/<%= m.idExterno || m.id %>",
+        "/app/imovel/<%= m.idInterno||m.id %>"
       ]
     },
     "app-leads": {
       "textos": [
-        "Resultados da IA",
         "Leads",
         "Nome, email, celular, bairro...",
-        "Fonte",
-        "Rank IA",
-        "Compatibilidade",
-        "ID Externo",
-        "ID Interno",
-        "Tipo",
-        "Bairro",
-        "Cidade/UF",
-        "Valor",
-        "Área",
-        "Quartos",
-        "Suítes",
-        "Banheiros",
-        "Vagas",
-        "URL",
-        "Nome",
-        "Telefone"
+        "🎯 Match Base Interna"
       ],
       "selects": [],
       "options": [
         "Todos",
-        "🤖 IA encontrou imóvel",
-        "✅ Dados extraídos",
-        "⏳ Pendente extração",
+        "🤖 Com match",
+        "✅ Extraídos",
+        "⏳ Pendentes",
         "🌐 Orgânica",
         "📋 Importada",
         "30+",
         "50+",
         "70+",
-        "90+",
-        "Todas",
-        "Rankim",
-        "ImovelWeb",
-        "QuintoAndar",
-        "ZAP"
+        "90+"
       ],
       "inputs": [
         "file"
       ],
-      "fetches": [],
+      "fetches": [
+        "/admin/rodar-match/<%= userId %>",
+        "/app/lead/",
+        "/app/lead/"
+      ],
       "onclicks": [
         "abrirModalImportarLeads();return false;",
+        "rodarMatchBase()",
+        "confirmarExcluir(",
+        "excluirLead(",
+        "bloquearLead(",
+        "document.getElementById(",
         "fecharModalImportarLeads()"
       ],
       "links": [
         "/app/lead/<%= item.id %>",
-        "/cliente/oferta/<%= item.leadId || item.id %>"
+        "/cliente/oferta/<%= item.leadId || item.id %>?userId=<%= encodeURIComponent(item.userId || item.usuarioId || item.corretorId || "
       ]
     },
     "app-notificacoes": {
@@ -923,6 +1263,7 @@
       "textos": [
         "Dados do usuário",
         "📍 Minha localização",
+        "WhatsApp",
         "Nome",
         "Celular",
         "CRECI",
@@ -930,12 +1271,16 @@
         "Tipo de conta",
         "Código do usuário",
         "Salvar perfil",
-        "📡 Atualizar localização"
+        "📡 Atualizar localização",
+        "📱 Conectar WhatsApp",
+        "Desconectar",
+        "Conectar WhatsApp"
       ],
       "selects": [],
       "options": [],
       "inputs": [
         "nome",
+        "celular",
         "creci",
         "cpf",
         "lat",
@@ -943,10 +1288,20 @@
         "endereco"
       ],
       "fetches": [
-        "https://nominatim.openstreetmap.org/reverse?format=json&lat="
+        "https://nominatim.openstreetmap.org/reverse?format=json&lat=",
+        "/app/whatsapp/status",
+        "/app/whatsapp/qrcode",
+        "/app/whatsapp/desconectar",
+        "/app/whatsapp/status",
+        "/app/whatsapp/qrcode",
+        "/app/whatsapp/desconectar"
       ],
       "onclicks": [
-        "pegarLocalizacao()"
+        "pegarLocalizacao()",
+        "conectarWA()",
+        "desconectarWA()",
+        "conectarWA()",
+        "desconectarWA()"
       ],
       "links": []
     },
@@ -977,17 +1332,31 @@
         "/app/imoveis"
       ]
     },
+    "app-visitas-kanban": {
+      "textos": [
+        "Kanban de Visitas",
+        "🔥 Cliente gostou",
+        "💰 Proposta",
+        "🤝 Negociação",
+        "❌ Perdido",
+        "🏆 Fechado"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/app/visitas"
+      ]
+    },
     "app-visitas": {
       "textos": [
         "Cliente, bairro...",
-        "Status",
-        "Data",
         "Buscar",
-        "Cliente",
-        "Telefone",
-        "Imóvel",
-        "Horário",
-        "Ação"
+        "✅ Confirmar",
+        "❌ Cancelar",
+        "🏁 Realizada"
       ],
       "selects": [
         "status"
@@ -996,17 +1365,40 @@
         ">Todos",
         ">Pendente",
         ">Confirmada",
-        ">Recusada",
-        ">Realizada"
+        ">Realizada",
+        ">Cancelada"
       ],
       "inputs": [
-        "data",
         "busca"
       ],
       "fetches": [],
       "onclicks": [],
       "links": [
         "/app/visitas"
+      ]
+    },
+    "app-whatsapp-inbox": {
+      "textos": [
+        "Inbox WhatsApp",
+        "↻ Atualizar",
+        "Todos",
+        "Não lidas",
+        "🔥 Quentes",
+        "🌡️ Mornos"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [
+        "location.reload()",
+        "filtrar(",
+        "filtrar(",
+        "filtrar(",
+        "filtrar("
+      ],
+      "links": [
+        "/app/lead/<%= lead.id %>"
       ]
     },
     "cliente-oferta": {
@@ -1054,9 +1446,25 @@
         "voltarContato()"
       ],
       "links": [
-        "/imovel/<%= m.idExterno || m.id_anuncio || m.id_anuncio_quintoandar || m.id %>",
-        "/cliente/oferta/<%= lead.id || lead.leadId %>/escolher/<%= idx %>"
+        "/imovel/<%= m.idExterno || m.id_anuncio || m.id_anuncio_quintoandar || m.id %>?leadId=<%= lead.id || lead.leadId %><%= typeof queryUserId !== ",
+        "/cliente/oferta/<%= lead.id || lead.leadId %>/escolher/<%= idx %><%= typeof queryUserId !== "
       ]
+    },
+    "cliente-remarcar-visita": {
+      "textos": [
+        "Remarcar visita",
+        "Observação para o corretor...",
+        "Solicitar nova data"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [
+        "dataVisita",
+        "horaVisita"
+      ],
+      "fetches": [],
+      "onclicks": [],
+      "links": []
     },
     "cliente-visita-confirmar": {
       "textos": [
@@ -1087,6 +1495,21 @@
       "fetches": [],
       "onclicks": [],
       "links": []
+    },
+    "cliente-visita": {
+      "textos": [
+        "Confirmar visita",
+        "✅ Confirmar presença",
+        "❌ Não poderei comparecer"
+      ],
+      "selects": [],
+      "options": [],
+      "inputs": [],
+      "fetches": [],
+      "onclicks": [],
+      "links": [
+        "/cliente/visita/<%= visita.id %>/remarcar"
+      ]
     },
     "feed-reels": {
       "textos": [],
@@ -1206,7 +1629,7 @@
       "inputs": [],
       "fetches": [
         "/api/lead-interesse",
-        "/api/lead-interesse"
+        "/api/visita/nova-v2"
       ],
       "onclicks": [
         "abrirGaleria(0)",
@@ -1371,6 +1794,27 @@
     }
   },
   "cerebro": {
+    "acoes-diretas.js": {
+      "linhas": 148,
+      "padroes": [
+        "matchimoveis.onrender.com",
+        "matchimoveis.onrender.com",
+        "enviar? vitrine|mandar? vitrine|manda? o link|envia? o link|envia? vitrine",
+        "(?:para|pro|pra)\\s+([A-ZÀ-Úa-zà-ú]{3,})",
+        "matchimoveis.onrender.com",
+        "(?:para|pro|pra|com)\\s+([A-ZÀ-Úa-zà-ú]{3,})",
+        "whatsapp|zap|ligar|falar com|contato de|telefone de|numero de",
+        "(?:do|da|de|com|para)\\s+([A-ZÀ-Úa-zà-ú]{3,})",
+        "strong> não tem telefone cadastrado.<br><br>' + btn('Ver lead','",
+        "preparar visita|dicas para visita|o que levar|como me preparar|antes da visita",
+        "nao gostou|nao curtiu|nao aprovou|nao quis|recusou|nao quer|nao gostaram",
+        "([A-ZÀ-Úa-zà-ú]{3,})",
+        "span><span>Agende a visita ainda hoje<",
+        "span><span>Avise o proprietário<",
+        "span><span>Prepare a documentação necessária<",
+        "span><span>Se quiser proposta, acione agora<"
+      ]
+    },
     "acoes.js": {
       "linhas": 148,
       "padroes": [
@@ -1397,7 +1841,7 @@
       ]
     },
     "aprendizado.js": {
-      "linhas": 133,
+      "linhas": 158,
       "padroes": []
     },
     "arvore.js": {
@@ -1414,14 +1858,49 @@
         "o que devo fazer|plano do dia|o que fazer hoje"
       ]
     },
-    "contexto.js": {
-      "linhas": 264,
+    "auto-correcao.js": {
+      "linhas": 51,
+      "padroes": [
+        "nao concordo|discordo|nao acho|acho que nao|pelo contrario|na verdade",
+        "isso|esse|essa|ele|ela|aquele|aquela|o mesmo|a mesma|disso|desse|nesse|nessa"
+      ]
+    },
+    "auto-diagnostico.js": {
+      "linhas": 61,
+      "padroes": []
+    },
+    "busca-semantica.js": {
+      "linhas": 88,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "strong> — entendi: <em>' + busca.filtros.join(', ') + '<"
+      ]
+    },
+    "cache-inteligente.js": {
+      "linhas": 32,
+      "padroes": []
+    },
+    "compactador.js": {
+      "linhas": 66,
+      "padroes": [
+        "xml|portal",
+        "fazer|executar|rodar|gerar|importar"
+      ]
+    },
+    "context-engineering.js": {
+      "linhas": 112,
+      "padroes": []
+    },
+    "contexto.backup-import-xml-20260511-224009.js": {
+      "linhas": 278,
       "padroes": [
         "[\\u0300-\\u036f]",
         "agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para",
         "comprar|vender|financiar|compra",
         "alugar|aluguel|locar|locacao|mes|mensal",
         "(?:cliente|lead|para o|para a)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)",
+        "tem\\s+visita\\s+marcada|quem\\s+confirmou\\s+visita|visitas?\\s+da\\s+semana",
+        "tem\\s+algo\\s+novo|novidades|o\\s+que\\s+aconteceu",
         "(?:no|na|em|do|da)\\s+([a-z][a-z ]{2,20})(?:\\s|$|,|\\.)",
         "span><span style=\"color:#555;font-size:12px\"> '+det+'<",
         "strong>'+nome+'<br><span style=\"font-size:12px;color:#888\">'+filtros+'<",
@@ -1434,19 +1913,141 @@
         "span><span>Clique em <strong>'+portal.toUpperCase()+'<",
         "span><span>Copie a URL do feed em <strong>Portais<",
         "imoveis') + btn('Ver Portais', '",
-        "span><span>Selecione os imóveis em <a href=\"",
-        "imoveis\" style=\"color:#ff385c\">",
-        "span><span>Escolha o portal na barra inferior e clique em Gerar XML<"
+        "span><span>Selecione os imóveis em <a href=\""
+      ]
+    },
+    "contexto.js": {
+      "linhas": 325,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para",
+        "comprar|vender|financiar|compra",
+        "alugar|aluguel|locar|locacao|mes|mensal",
+        "(?:cliente|lead|para o|para a)\\s+([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?)",
+        "tem\\s+visita\\s+marcada|quem\\s+confirmou\\s+visita|visitas?\\s+da\\s+semana",
+        "tem\\s+algo\\s+novo|novidades|o\\s+que\\s+aconteceu",
+        "(?:no|na|em|do|da)\\s+([a-z][a-z ]{2,20})(?:\\s|$|,|\\.)",
+        "span><span style=\"color:#555;font-size:12px\"> '+det+'<",
+        "strong>'+nome+'<br><span style=\"font-size:12px;color:#888\">'+filtros+'<",
+        "^(cadastra?\\s+)?(lead|cliente)\\s+",
+        "(\\(?\\d{2}\\)?\\s?\\d{4,5}[-\\s]?\\d{4})",
+        "\\b(apto|apartamento|casa|terreno|comercial|cobertura|studio|kitnet)\\b",
+        "seucrm.com.br",
+        "vivareal|zap|olx|chaves|imovelweb|123i",
+        "span><span>Vá em Imóveis e selecione os imóveis<",
+        "span><span>Clique em <strong>'+portal.toUpperCase()+'<",
+        "span><span>Copie a URL do feed em <strong>Portais<",
+        "imoveis') + btn('Ver Portais', '",
+        "span><span>Selecione os imóveis em <a href=\""
+      ]
+    },
+    "copiloto.js": {
+      "linhas": 76,
+      "padroes": []
+    },
+    "datas.js": {
+      "linhas": 128,
+      "padroes": [
+        "amanha|amanhã",
+        "(\\d{1,2})[\\",
+        "\\-](\\d{2,4}))?",
+        "proxima semana|próxima semana",
+        "essa semana|esta semana",
+        "lead|leads|cliente|clientes",
+        "imovel|imóveis|imoveis|carteira",
+        "visita|visitas|agenda|agendamento",
+        "strong>.<br><br>${btn('Ver visitas','",
+        "strong>.<br><br>${btn('Ver leads','",
+        "strong>.<br><br>${btn('Ver imóveis','"
+      ]
+    },
+    "decompositor.js": {
+      "linhas": 133,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "essa semana|esta semana|nos ultimos 7",
+        "com match|que tem match",
+        "sem match|sem imovel",
+        "com visita|que visitou",
+        "confirmada|confirmado",
+        "pendente|aguardando",
+        "ativo|ativa|ativos",
+        "inativo|inativos",
+        "sem proprietario|sem dono",
+        "quente|quentes|alta prioridade"
+      ]
+    },
+    "emocao.js": {
+      "linhas": 58,
+      "padroes": [
+        "preocupado|medo|risco|cuidado|atencao|perigoso|nao quero perder|pode dar errado",
+        "amanha|essa semana|em breve|logo|nos proximos dias|ate sexta|ate segunda",
+        "quando puder|sem pressa|calma|tranquilo|pode ser depois|qualquer hora",
+        "vc|pra|ta|to|tbm|tb|kd|kkk|haha|rsrs",
+        "poderia|gostaria|solicito|prezado|segue"
+      ]
+    },
+    "entidades.js": {
+      "linhas": 56,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "aluguel|alugando|alugar|locacao|locar|\\bmes\\b|mensal",
+        "comprar|vender|venda|financiar|\\bcompra\\b",
+        "quando|data|entrou|cadastr",
+        "link|pagina|detalhe|abrir",
+        "proprietario|dono",
+        "whatsapp|zap|ligar|falar",
+        "visita|agendar|marcar",
+        "inativar|desativar|ocultar|remover",
+        "buscar|achar|encontrar|procurar|tem|existe",
+        "lead|cliente|comprador|interessado",
+        "imovel|imoveis|casa|apartamento|apto|cobertura|terreno|sobrado",
+        "visita|agendamento",
+        "proprietario|dono",
+        "vitrine|oferta",
+        "match|combinou|combinar"
       ]
     },
     "estrategista.js": {
-      "linhas": 119,
+      "linhas": 84,
       "padroes": [
-        "strong> Não perca o horário. ${btn('Ver visitas','",
-        "strong> aguardando confirmação. ${btn('Confirmar','",
-        "strong> que ainda não visitaram. ${btn('Ver leads','",
-        "strong><br><br>' + lista + '<br>' + btn('Dashboard', '"
+        "strong> Não perca o horário. ' + btn('Ver visitas','",
+        "strong> aguardando confirmação. ' + btn('Confirmar','",
+        "strong> que ainda não visitaram. ' + btn('Ver leads','",
+        "span><span>' + a + '<",
+        "strong><br><br>' + lista + '<br>' + btn('Dashboard','"
       ]
+    },
+    "extrator-perfil.js": {
+      "linhas": 205,
+      "padroes": [
+        "[\\u0300-\\u036f]"
+      ]
+    },
+    "feedback-loop.js": {
+      "linhas": 45,
+      "padroes": [
+        "obrigado|valeu|perfeito|show|otimo|excelente|ajudou|resolveu|deu certo",
+        "nao era isso|errou|errado|nao entendeu|nao foi isso|incorreto",
+        "nao sei|nao entendi|como assim|pode repetir|nao captei"
+      ]
+    },
+    "fluxo-guiado.js": {
+      "linhas": 105,
+      "padroes": [
+        "como fechar|fechar negocio|quero fechar|ta quase fechando|vamos fechar"
+      ]
+    },
+    "funil.js": {
+      "linhas": 73,
+      "padroes": [
+        "funil|pipeline|etapa|estagio|fase|kanban leads",
+        "10)) + '░'.repeat(10 - Math.round(pct"
+      ]
+    },
+    "gerador.js": {
+      "linhas": 106,
+      "padroes": []
     },
     "imoveis.js": {
       "linhas": 65,
@@ -1458,7 +2059,107 @@
         "[\\u0300-\\u036f]"
       ]
     },
-    "index.js": {
+    "index.backup-datas-20260512-133755.js": {
+      "linhas": 315,
+      "padroes": [
+        ".test(mNorm) && !",
+        "buscar?|procurar?|tem (imovel|algo)|quero ver",
+        "apto|apartamento|casa|terreno|cobertura|sobrado|comercial",
+        "^(ver |fazer |rodar |quero |me mostra )?match$",
+        "agendar|marcar|criar",
+        ".test(mNorm) && !",
+        "gerar|criar|exportar",
+        ".test(mNorm) && !",
+        "follow.?up|retornar|ligar|contatar",
+        "nome|quem|lead|cliente|joao|maria|ana|carlos",
+        "relatorio|relat[oó]rio",
+        "semana|mes|hoje|ontem|periodo|semanal|mensal",
+        "proprietario|dono",
+        "avisar|notificar|quem|imovel|sem|com|cadastrar",
+        "i.test(mensagem.trim()) || ",
+        "^cadastra(r)?\\s",
+        "i.test(mensagem.trim()) || ",
+        "i.test(mensagem.trim()) || ",
+        "^[a-z]{1,2}$",
+        "localhost:3000').replace("
+      ]
+    },
+    "index.backup-normalizador-20260512-155837.js": {
+      "linhas": 461,
+      "padroes": [
+        ".test(mNorm) && !",
+        "buscar?|procurar?|tem (imovel|algo)|quero ver",
+        "apto|apartamento|casa|terreno|cobertura|sobrado|comercial",
+        "^(ver |fazer |rodar |quero |me mostra )?match$",
+        "agendar|marcar|criar",
+        ".test(mNorm) && !",
+        "gerar|criar|exportar",
+        ".test(mNorm) && !",
+        "follow.?up|retornar|ligar|contatar",
+        "nome|quem|lead|cliente|joao|maria|ana|carlos",
+        "relatorio|relat[oó]rio",
+        "semana|mes|hoje|ontem|periodo|semanal|mensal",
+        "proprietario|dono",
+        "avisar|notificar|quem|imovel|sem|com|cadastrar",
+        "i.test(mensagem.trim()) || ",
+        "^cadastra(r)?\\s",
+        "i.test(mensagem.trim()) || ",
+        "i.test(mensagem.trim()) || ",
+        "^[a-z]{1,2}$",
+        " -- 1.25. PRIORIDADE TEMPORAL "
+      ]
+    },
+    "index.backup-prioridade-lead-prop-20260512-154356.js": {
+      "linhas": 350,
+      "padroes": [
+        ".test(mNorm) && !",
+        "buscar?|procurar?|tem (imovel|algo)|quero ver",
+        "apto|apartamento|casa|terreno|cobertura|sobrado|comercial",
+        "^(ver |fazer |rodar |quero |me mostra )?match$",
+        "agendar|marcar|criar",
+        ".test(mNorm) && !",
+        "gerar|criar|exportar",
+        ".test(mNorm) && !",
+        "follow.?up|retornar|ligar|contatar",
+        "nome|quem|lead|cliente|joao|maria|ana|carlos",
+        "relatorio|relat[oó]rio",
+        "semana|mes|hoje|ontem|periodo|semanal|mensal",
+        "proprietario|dono",
+        "avisar|notificar|quem|imovel|sem|com|cadastrar",
+        "i.test(mensagem.trim()) || ",
+        "^cadastra(r)?\\s",
+        "i.test(mensagem.trim()) || ",
+        "i.test(mensagem.trim()) || ",
+        "^[a-z]{1,2}$",
+        " -- 1.25. PRIORIDADE TEMPORAL "
+      ]
+    },
+    "index.backup-prioridade-temporal-20260512-152624.js": {
+      "linhas": 332,
+      "padroes": [
+        ".test(mNorm) && !",
+        "buscar?|procurar?|tem (imovel|algo)|quero ver",
+        "apto|apartamento|casa|terreno|cobertura|sobrado|comercial",
+        "^(ver |fazer |rodar |quero |me mostra )?match$",
+        "agendar|marcar|criar",
+        ".test(mNorm) && !",
+        "gerar|criar|exportar",
+        ".test(mNorm) && !",
+        "follow.?up|retornar|ligar|contatar",
+        "nome|quem|lead|cliente|joao|maria|ana|carlos",
+        "relatorio|relat[oó]rio",
+        "semana|mes|hoje|ontem|periodo|semanal|mensal",
+        "proprietario|dono",
+        "avisar|notificar|quem|imovel|sem|com|cadastrar",
+        "i.test(mensagem.trim()) || ",
+        "^cadastra(r)?\\s",
+        "i.test(mensagem.trim()) || ",
+        "i.test(mensagem.trim()) || ",
+        "^[a-z]{1,2}$",
+        "localhost:3000').replace("
+      ]
+    },
+    "index.backup-prioridade-vitrines-20260512-132143.js": {
       "linhas": 276,
       "padroes": [
         ".test(mNorm) && !",
@@ -1477,29 +2178,70 @@
         "avisar|notificar|quem|imovel|sem|com|cadastrar",
         "i.test(mensagem.trim()) || ",
         "^cadastra(r)?\\s",
-        "importar?\\s+(xml|imoveis?)|quero importar|subir xml|trazer imoveis?",
-        "gerar? xml todos|xml todos",
+        "i.test(mensagem.trim()) || ",
+        "i.test(mensagem.trim()) || ",
         "^[a-z]{1,2}$",
         "(casa|apto|apartamento|sobrado|cobertura|terreno|loft|studio)"
       ]
     },
+    "index.js": {
+      "linhas": 617,
+      "padroes": [
+        ".test(mNorm) && !",
+        "buscar?|procurar?|tem (imovel|algo)|quero ver",
+        "apto|apartamento|casa|terreno|cobertura|sobrado|comercial",
+        "^(ver |fazer |rodar |quero |me mostra )?match$",
+        "agendar|marcar|criar",
+        ".test(mNorm) && !",
+        "gerar|criar|exportar",
+        ".test(mNorm) && !",
+        "follow.?up|retornar|ligar|contatar",
+        "nome|quem|lead|cliente|joao|maria|ana|carlos",
+        "relatorio|relat[oó]rio",
+        "semana|mes|hoje|ontem|periodo|semanal|mensal",
+        "proprietario|dono",
+        "avisar|notificar|quem|imovel|sem|com|cadastrar",
+        "i.test(mensagem.trim()) || ",
+        "^cadastra(r)?\\s",
+        "i.test(mensagem.trim()) || ",
+        "i.test(mensagem.trim()) || ",
+        "^[a-z]{1,2}$",
+        " -- 1.25. PRIORIDADE TEMPORAL "
+      ]
+    },
+    "inteligencia-mercado.js": {
+      "linhas": 88,
+      "padroes": [
+        " Score de liquidez por bairro (leads",
+        "strong> +' + t.crescimento + '% de demanda · ' + t.recente + ' leads novas<",
+        "strong> — ' + l.demanda + ' leads · ' + l.oferta + ' imóveis · ' + status + '<"
+      ]
+    },
     "intencao.js": {
-      "linhas": 181,
+      "linhas": 214,
       "padroes": []
     },
     "leads-temporal.js": {
-      "linhas": 75,
+      "linhas": 82,
       "padroes": [
-        "hoje|entraram hoje|chegaram hoje|novas hoje",
-        "quente|mais chance|interessado|prioridade|atender primeiro",
-        "fria|frio|esfriou|esquecida|parada|sem contato|abandonada",
-        "reativar|reengajar|recuperar|voltar a contatar",
-        "(?:lead|cliente|contato|buscar|procurar|encontrar|onde esta)\\s+([a-z]{3,})",
-        "sem resposta|nao respondeu|sem retorno|visualizou"
+        "hoje|entraram hoje|chegaram hoje|novas hoje|novidades hoje",
+        "div>').join('')+'<br>'+btn('Ver todas','",
+        "ontem|chegaram ontem|entraram ontem",
+        "semana|essa semana|da semana|nos ultimos 7|ultimos 7 dias",
+        "strong><br>🎯 Com match: <strong>'+comMatch.length+'<",
+        "mes|esse mes|do mes|no mes|ultimos 30|ultimos 30 dias",
+        "strong><br>🎯 Com match: <strong>'+comMatch.length+'<",
+        "strong><br><a href=\"",
+        "'+l.id+'\" style=\"font-size:12px;color:#ff385c\">🔗 Abrir vitrine<",
+        "div>').join('')+'<br>'+btn('Ver leads','",
+        "reativar|reengajar|recuperar|voltar a contatar|retomar",
+        "'+l.id+'\" style=\"font-size:12px;color:#ff385c\">🔗 Vitrine<",
+        "div>').join('')+'<br>'+btn('Ver leads','",
+        "sem resposta|nao respondeu|sem retorno|nao retornou"
       ]
     },
     "leads.js": {
-      "linhas": 199,
+      "linhas": 210,
       "padroes": [
         "card lead|o que aparece na lead|informacoes da lead",
         "vitrine|o que e vitrine|como funciona vitrine|ver vitrine",
@@ -1527,6 +2269,10 @@
       "linhas": 183,
       "padroes": []
     },
+    "match-core.js": {
+      "linhas": 258,
+      "padroes": []
+    },
     "match.js": {
       "linhas": 128,
       "padroes": [
@@ -1542,19 +2288,47 @@
         "taxa|percentual|porcentagem"
       ]
     },
+    "memoria-conversa.js": {
+      "linhas": 66,
+      "padroes": [
+        "(?:lead|cliente)\\s+([a-z]{3,})",
+        "\\b(apartamento|apto|casa|cobertura|terreno|sobrado|studio)\\b",
+        "\\b(ele|ela|esse|essa|mesmo|mesma|o mesmo|a mesma|dele|dela)\\b"
+      ]
+    },
     "memoria.js": {
       "linhas": 96,
       "padroes": []
     },
     "mercado.js": {
-      "linhas": 102,
+      "linhas": 74,
       "padroes": [
+        "strong><br><br>'+opors.map(([b,n],i)=>(i+1)+'. <strong>'+b+'<",
         "bairro|demanda|mais buscado|onde|regiao",
         "10))+'░'.repeat(10-Math.round(pct",
-        "quartos? mais (pedido|buscado|procurado|demandado)|quantos quartos|quartos mais",
         "10))+'░'.repeat(10-Math.round(pct",
-        "valor|preco|faixa|orcamento|quanto pagam",
-        "quarto|dormitorio"
+        "valor|preco|faixa|orcamento|quanto pagam|ticket",
+        "strong><br><br>Mínimo: <strong>'+fmt(min)+'<",
+        "strong><br>Máximo: <strong>'+fmt(max)+'<"
+      ]
+    },
+    "metricas.js": {
+      "linhas": 31,
+      "padroes": []
+    },
+    "multiturno.js": {
+      "linhas": 67,
+      "padroes": [
+        "vitrine|link|oferta|opcoes|imoveis",
+        "matchimoveis.onrender.com",
+        "whatsapp|ligar|contato|falar|numero|telefone",
+        "strong>.<br><br>' + btn('Ver lead','",
+        "strong><br>' + tel + (l.bairro?' · '+l.bairro:'') + '<br><br><a href=\"https:",
+        "55' + String(tel).replace(",
+        "match|combinou|imovel|opcao",
+        "strong> tem <strong>' + qtdMatch + ' imóvel(is)<",
+        "leads') + '<",
+        "'+(i.id||i._id)) + '<"
       ]
     },
     "navegacao.js": {
@@ -1579,7 +2353,7 @@
       ]
     },
     "nlp.js": {
-      "linhas": 153,
+      "linhas": 175,
       "padroes": [
         "[\\u0300-\\u036f]",
         "[^a-z0-9\\s]",
@@ -1597,13 +2371,42 @@
         "notifica|alerta|aviso"
       ]
     },
-    "notificacoes.js": {
-      "linhas": 138,
+    "normalizador.js": {
+      "linhas": 75,
       "padroes": [
-        "tipos notificacao|quais notificacoes|o que aparece nas notificacoes",
-        "cliente remarcou|lead remarcou|nova data cliente",
-        "proprietario remarcou|proprietario pediu|proprietario nao pode",
-        "nova solicitacao|nova visita solicitada|lead solicitou"
+        "proprie?ri?t[oa]s?",
+        "propiet[oa]ri[oa]s?",
+        "proprietorio",
+        "propriaterio",
+        "proprieritos",
+        "viteinre|vitrne|vitine|vitrine",
+        "dtlhes|detlahes|detalhse|detlhe",
+        "cadsatrad[oa]s?",
+        "cadstrad[oa]s?",
+        "solciita|solcit|solicitao",
+        "pequeisa|pesqusa|pesquiza",
+        "imovei\\b|imovel\\b",
+        "imoveis|imóveis",
+        "whta|whats|whts|zap",
+        "[\\u0300-\\u036f]",
+        "buscar lead|ache lead|achar lead|encontrar lead|localizar lead|procure lead",
+        "proprietario|proprietarios|dono",
+        "(hoje|ontem|amanha|anteontem|semana|mes|ultimos|data)"
+      ]
+    },
+    "notas-usuario.js": {
+      "linhas": 102,
+      "padroes": [
+        "\\b(apartamento|apto|casa|cobertura|terreno|sobrado)\\b",
+        "nao funciona|problema|erro|nao consegui",
+        "quero|preciso|objetivo|meta|vou|planejo"
+      ]
+    },
+    "notificacoes.js": {
+      "linhas": 120,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "visitas\" style=\"color:#ff385c;font-weight:700\">Abrir visitas →<"
       ]
     },
     "onboarding.js": {
@@ -1611,6 +2414,10 @@
       "padroes": [
         "strong>${feito?'<"
       ]
+    },
+    "perfil-corretor.js": {
+      "linhas": 57,
+      "padroes": []
     },
     "portais.js": {
       "linhas": 109,
@@ -1637,7 +2444,7 @@
         "span><span>Selecione os imóveis com os checkboxes.<"
       ]
     },
-    "portugues.js": {
+    "portugues.backup-vitrines-chat-20260512-131514.js": {
       "linhas": 257,
       "padroes": [
         "[\\u0300-\\u036f]",
@@ -1662,35 +2469,85 @@
         "imoveis? (sem|sem nenhuma|sem) foto|sem imagem|nao tem foto|falta foto"
       ]
     },
-    "raciocinio.js": {
-      "linhas": 127,
+    "portugues.js": {
+      "linhas": 417,
       "padroes": [
         "[\\u0300-\\u036f]",
-        "lead|cliente",
-        "imovel|casa|apto"
+        "\bems+([a-z]+(?:s+[a-z]+)?)",
+        "g,\"\").includes(e.bairro.toLowerCase().normalize(\"NFD\").replace(",
+        "strong>.<br><br>'+btn('Ver visitas','",
+        "strong>.<br><br>'+btn('Ver visitas','",
+        "^filtros?$",
+        "imoveis') + btn('Ver leads','",
+        " \"me fale mais da app\" ",
+        " \"porque nao esta salvando\" ",
+        " \"dicas pra hoje\" ",
+        "strong><br><br>'+dicas.join('<br><br>')+'<br><br>'+btn('Dashboard','",
+        " \"ate 300k\" ",
+        "buscar por valor|filtrar por valor|imoveis? (ate|abaixo|menos de)|^ate d",
+        "ates+(d[d.,]+)",
+        "strong>'+(i.idExterno?'<br><a href=\"",
+        "a>':'')+'<",
+        "'+l.id+'\" style=\"font-size:12px;color:#ff385c\" target=\"_blank\">🔗 ",
+        "'+l.id+'\" style=\"font-size:12px;color:#ff385c\">🔗 Enviar vitrine<",
+        "visitas? confirmadas?|quais (visitas?|agendamentos?) (foram|estao) confirmad",
+        "imoveis? (sem|sem nenhuma|sem) foto|sem imagem|nao tem foto|falta foto"
+      ]
+    },
+    "proatividade.js": {
+      "linhas": 68,
+      "padroes": []
+    },
+    "raciocinio.js": {
+      "linhas": 54,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "travado|nao sei|o que fazer|me ajuda|me orienta|perdido",
+        "sumiu|nao respondeu|nao retornou|cadê|sem resposta",
+        "nao gostou|nao curtiu|nao quis|recusou|nao quer",
+        "gostou|adorou|curtiu|topou|quer fechar|quer comprar",
+        "caro|caro demais|nao cabe|acima do valor|fora do orcamento",
+        "visita amanha|visita hoje|tenho visita|visita marcada",
+        "strong> ' + raciocinio.conclusoes[0] + '<"
       ]
     },
     "rag.js": {
-      "linhas": 129,
+      "linhas": 184,
       "padroes": [
         "[\\u0300-\\u036f]",
         "[\\u0300-\\u036f]",
         "strong><br><br>${btn('Ver todos os imóveis','",
-        "strong> encontrado(s) para: <em>${filtrosAplicados}<"
+        "strong> encontrado(s) para: <em>${filtrosAplicados}<",
+        "[\\u0300-\\u036f]"
       ]
     },
     "relatorio.js": {
-      "linhas": 39,
+      "linhas": 32,
       "padroes": [
-        "leads')}${btn('Ver imóveis','"
+        "leads')+btn('Ver imóveis','"
+      ]
+    },
+    "resposta-auto.js": {
+      "linhas": 71,
+      "padroes": [
+        "[\\u0300-\\u036f]"
+      ]
+    },
+    "resposta-progressiva.js": {
+      "linhas": 38,
+      "padroes": [
+        "g, ' ').replace("
       ]
     },
     "scoring.js": {
-      "linhas": 81,
+      "linhas": 98,
       "padroes": [
-        "atender primeiro|mais urgente|prioridade|mais importante",
-        "strong><br>${btn('Ver leads','",
-        " \"pronto para fechar\" ",
+        "atender primeiro|mais urgente|prioridade|mais importante|quem atendo primeiro",
+        "strong> — '+(l.bairro||'')+' '+l._classe.label+' · <strong>'+l._score+'pts<",
+        "chance de fechar|mais propenso|vai comprar|pronto para proposta",
+        "strong> — '+l._score+'pts').join('<br>')+'<br><br>'+btn('Ver leads','",
+        "pronto para fechar|quase fechando|proposta|quer fechar",
+        "strong> — '+(l.bairro||'')).join('<br>')+'<br><br>'+btn('Ver leads','",
         "pronto para fechar|quase fechando|proximo de fechar|proposta|quer fechar"
       ]
     },
@@ -1719,8 +2576,24 @@
         "imoveis\" style=\"color:#ff385c;font-weight:700\">Imóveis →<"
       ]
     },
+    "slot-filling.js": {
+      "linhas": 78,
+      "padroes": [
+        "[\\u0300-\\u036f]",
+        "aluguel|alugar|locar",
+        "comprar|vender|venda",
+        "(\\(?\\d{2}\\)?\\s?\\d{4,5}[\\s-]?\\d{4})"
+      ]
+    },
+    "sugestao-proativa.js": {
+      "linhas": 49,
+      "padroes": [
+        "span><br>' + filtradas.map(function(op){ return chip(op, op); }).join('') + '<",
+        "span><br>' + sugestoes.slice(0,2).join('') + '<"
+      ]
+    },
     "suporte.js": {
-      "linhas": 71,
+      "linhas": 94,
       "padroes": [
         "xml nao atualizou|xml erro|nao atualizou|url erro|403|404",
         "portais\" style=\"color:#ff385c;font-weight:700\">Portais →<",
@@ -1742,6 +2615,16 @@
         "leads\" style=\"color:#ff385c;font-weight:700\">Ver leads →<",
         "por que nao deu match|nao encontrou imovel|match falhou|match nao funcionou",
         "strong><br><br>O match exige:<br>• <strong>Bairro<"
+      ]
+    },
+    "verificador.js": {
+      "linhas": 51,
+      "padroes": [
+        "lead|cliente|match|importar",
+        "imovel|carteira|ativo|bairro",
+        "visita|agendamento|confirmar",
+        "match|combinar|cruzar",
+        "bairro|demanda|mercado|oferta"
       ]
     },
     "visitas.js": {
@@ -1771,11 +2654,11 @@
     }
   },
   "resumo": {
-    "totalViews": 32,
-    "totalCampos": 85,
-    "totalBotoes": 88,
-    "totalLinks": 43,
-    "totalModulosCerebro": 28,
-    "totalLinhasCerebro": 3922
+    "totalViews": 37,
+    "totalCampos": 99,
+    "totalBotoes": 102,
+    "totalLinks": 47,
+    "totalModulosCerebro": 66,
+    "totalLinhasCerebro": 9427
   }
 }

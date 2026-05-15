@@ -1,18 +1,18 @@
 {
-  "geradoEm": "2026-05-10T04:00:59.251Z",
-  "versaoMapa": "11.0",
-  "totalHistorico": 235,
-  "totalNaoEntendidos": 28,
+  "geradoEm": "2026-05-15T21:08:22.349Z",
+  "versaoMapa": "13.0",
+  "totalHistorico": 471,
+  "totalNaoEntendidos": 36,
   "totalPerfis": 9,
   "perguntasPorDominio": {
-    "leads": 51,
-    "imoveis": 37,
-    "visitas": 9,
-    "match": 14,
-    "portais": 44,
-    "mercado": 6,
-    "sistema": 46,
-    "acoes": 35
+    "leads": 120,
+    "imoveis": 56,
+    "visitas": 28,
+    "match": 26,
+    "portais": 73,
+    "mercado": 10,
+    "sistema": 53,
+    "acoes": 69
   },
   "topNaoEntendidas": [
     {
@@ -81,6 +81,18 @@
       "imovel",
       "status"
     ],
+    "sistema": [
+      "app",
+      "assistente",
+      "upload",
+      "api",
+      "dados",
+      "chat",
+      "historico",
+      "abertura",
+      "acao-direta",
+      "admin"
+    ],
     "leads": [
       "app",
       "leads",
@@ -105,13 +117,10 @@
       "admin",
       "zerar-visitas-notificacoes-temp"
     ],
-    "sistema": [
-      "app",
-      "assistente",
-      "api",
-      "dados",
-      "chat",
-      "historico"
+    "match": [
+      "admin",
+      "rodar-match",
+      "userId"
     ]
   },
   "sugestoesNovasIntencoes": [

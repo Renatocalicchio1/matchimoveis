@@ -409,7 +409,7 @@ app.post('/login', (req,res)=>{
       celular: telefone,
       tipo: req.body.tipoConta,
       ativo: true,
-      codigoUsuario: (req.body.nome||'USR').substring(0,3).toUpperCase() + '-' + telefone.slice(-4)
+      codigoUsuario: gerarCodigoUsuario(req.body.nome)
     };
 
     users.push(novo);
@@ -752,6 +752,28 @@ app.get('/admin/fix-userId-alexandre', (req, res) => {
     resultado.visitas = countV + ' refs atualizadas';
 
     res.json({ ok: true, resultado });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+function gerarCodigoUsuario(nome) {
+  const ini = (nome||'USR').substring(0,3).toUpperCase().replace(/[^A-Z]/g,'').padEnd(3,'X');
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let rand = '';
+  for (let i=0; i<4; i++) rand += chars[Math.floor(Math.random()*chars.length)];
+  return ini + '-' + rand;
+}
+
+
+app.get('/admin/fix-codigos-usuarios', (req, res) => {
+  try {
+    const usersPath = dataPath('users.json');
+    let users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
+    users = users.map(u => {
+      if (!u.codigoUsuario) u.codigoUsuario = gerarCodigoUsuario(u.nome);
+      return u;
+    });
+    fs.writeFileSync(usersPath, JSON.stringify(users,null,2));
+    res.json({ ok: true, usuarios: users.map(u=>({nome:u.nome, id:u.id, codigoUsuario:u.codigoUsuario})) });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 // ===== APP ROUTES =====

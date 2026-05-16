@@ -3,7 +3,8 @@
     "id": "imob_nhvxchtlx5",
     "nome": "Alexandre",
     "telefone": "11947962442",
-    "tipo": "imobiliaria"
+    "tipo": "imobiliaria",
+    "codigoUsuario": "ALE-J463"
   },
   {
     "id": "cor_as61p840px",
@@ -11,12 +12,14 @@
     "telefone": "47991919191",
     "tipo": "corretor",
     "whatsappInstance": "match-coras61p840px",
-    "whatsappStatus": "connecting"
+    "whatsappStatus": "connecting",
+    "codigoUsuario": "REN-ELB7"
   },
   {
     "id": "cor_ko0271zv05",
     "nome": "Mario",
     "telefone": "11999965998",
-    "tipo": "corretor"
+    "tipo": "corretor",
+    "codigoUsuario": "MAR-24FS"
   }
 ]

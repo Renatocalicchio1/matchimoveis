@@ -53,8 +53,8 @@
       "labelAtual": "Visitas",
       "dominioAtual": "visitas",
       "rotaAtual": "/app/visitas",
-      "atualizadoEm": "2026-05-16T04:10:43.729Z",
-      "paginaAnterior": "visitas"
+      "atualizadoEm": "2026-05-16T04:12:31.809Z",
+      "paginaAnterior": "leads"
     }
   },
   "fluxos": [
@@ -5145,6 +5145,78 @@
       "para": "visitas",
       "userId": "cor_as61p840px",
       "data": "2026-05-16T04:10:37.249Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:11:34.860Z"
+    },
+    {
+      "de": "leads",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:11:35.605Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:11:37.629Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:11:38.896Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:11:40.813Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "dashboard",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:12:22.982Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:12:24.435Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:12:25.686Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:12:27.425Z"
+    },
+    {
+      "de": "visitas",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:12:28.592Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:12:30.395Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:12:31.809Z"
     }
   ]
 }

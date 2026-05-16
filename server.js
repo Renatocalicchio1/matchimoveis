@@ -713,6 +713,47 @@ app.get('/admin/resumo-contas', (req, res) => {
     res.json({ ok: true, resumo });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
+
+app.get('/admin/fix-userId-alexandre', (req, res) => {
+  try {
+    const idAntigo = 'imobiliaria-47991919191';
+    const idNovo = 'imob_nhvxchtlx5';
+    let resultado = {};
+
+    // Atualiza users.json
+    const usersPath = dataPath('users.json');
+    let users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
+    users = users.map(u => { if(u.id===idAntigo) u.id=idNovo; return u; });
+    fs.writeFileSync(usersPath, JSON.stringify(users,null,2));
+    resultado.users = 'ok';
+
+    // Atualiza imoveis.json
+    const imoveisPath = dataFile('imoveis.json');
+    let txt = fs.readFileSync(imoveisPath,'utf8');
+    const countIm = (txt.match(new RegExp(idAntigo,'g'))||[]).length;
+    txt = txt.replace(new RegExp(idAntigo,'g'), idNovo);
+    fs.writeFileSync(imoveisPath, txt);
+    resultado.imoveis = countIm + ' refs atualizadas';
+
+    // Atualiza data.json
+    const dataJson = dataPath('data.json');
+    let txtD = fs.readFileSync(dataJson,'utf8');
+    const countD = (txtD.match(new RegExp(idAntigo,'g'))||[]).length;
+    txtD = txtD.replace(new RegExp(idAntigo,'g'), idNovo);
+    fs.writeFileSync(dataJson, txtD);
+    resultado.leads = countD + ' refs atualizadas';
+
+    // Atualiza visitas.json
+    const visitasJson = dataPath('visitas.json');
+    let txtV = fs.readFileSync(visitasJson,'utf8');
+    const countV = (txtV.match(new RegExp(idAntigo,'g'))||[]).length;
+    txtV = txtV.replace(new RegExp(idAntigo,'g'), idNovo);
+    fs.writeFileSync(visitasJson, txtV);
+    resultado.visitas = countV + ' refs atualizadas';
+
+    res.json({ ok: true, resultado });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
 // ===== APP ROUTES =====
 
 

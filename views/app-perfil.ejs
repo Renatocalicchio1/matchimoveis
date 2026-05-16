@@ -1,42 +1,178 @@
 <%- include('partials/app-shell',{active:'perfil',title:'Meu perfil',subtitle:'Dados da sua conta.',perfil:(user && user.tipo)||'corretor',user:user}) %>
 
-<div class="card">
-  <h3>Dados do usuário</h3>
-  <form method="POST" action="/app/perfil" style="margin-top:14px">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div><label>Nome</label><input name="nome" value="<%= user.nome||'' %>"></div>
-      <div><label>Celular</label><input name="celular" value="<%= user.celular||user.telefone||'' %>"></div>
-      <div><label>CRECI</label><input name="creci" value="<%= user.creci||'' %>"></div>
-      <div><label>CPF</label><input name="cpf" value="<%= user.cpf||'' %>"></div>
-      <div><label>Tipo de conta</label><input value="<%= user.tipo||'corretor' %>" readonly style="background:#f7f7f7;color:#aaa"></div>
-      <div><label>Código do usuário</label><input value="<%= user.codigoUsuario || user.codigo || '-' %>" readonly style="background:#f7f7f7;color:#111;font-weight:700"></div>
+<style>
+.pf-card{
+  background:#fff;
+  border:0.5px solid rgba(0,0,0,.08);
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:12px;
+}
+.pf-card-title{
+  font-size:15px;
+  font-weight:500;
+  color:#111827;
+  margin:0 0 4px;
+}
+.pf-card-sub{
+  font-size:13px;
+  color:#9ca3af;
+  margin:0 0 16px;
+}
+.pf-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+@media(max-width:480px){.pf-grid{grid-template-columns:1fr}}
+.pf-field label{
+  display:block;
+  font-size:11px;
+  font-weight:500;
+  color:#6b7280;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+  margin-bottom:4px;
+}
+.pf-field input{
+  width:100%;
+  padding:9px 12px;
+  border:0.5px solid rgba(0,0,0,.12);
+  border-radius:8px;
+  font-size:14px;
+  color:#111827;
+  background:#fff;
+  box-sizing:border-box;
+  outline:none;
+}
+.pf-field input:focus{border-color:rgba(0,0,0,.3)}
+.pf-field input[readonly]{background:#f9fafb;color:#9ca3af}
+.pf-field input[readonly].strong{color:#111827;font-weight:500}
+.pf-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:9px 18px;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  border:0.5px solid rgba(0,0,0,.12);
+  background:#111827;
+  color:#fff;
+  margin-top:14px;
+}
+.pf-btn:hover{background:#1f2937}
+.pf-btn-outline{
+  background:#fff;
+  color:#374151;
+  border-color:rgba(0,0,0,.12);
+}
+.pf-btn-outline:hover{background:#f9fafb}
+.pf-btn-green{background:#22c55e;color:#fff;border-color:#16a34a}
+.pf-btn-green:hover{background:#16a34a}
+.pf-btn-red{background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)}
+.pf-btn-red:hover{background:#fee2e2;color:#b91c1c;border-color:#fca5a5}
+
+.pf-loc-status{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 14px;
+  border-radius:8px;
+  background:#f9fafb;
+  border:0.5px solid rgba(0,0,0,.06);
+  font-size:13px;
+  color:#374151;
+  margin-bottom:12px;
+}
+
+.wa-badge{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:500;
+}
+.wa-qr-wrap{
+  display:none;
+  text-align:center;
+  padding:16px;
+  background:#f9fafb;
+  border-radius:8px;
+  margin:12px 0;
+}
+.wa-qr-wrap p{font-size:12px;color:#6b7280;margin:0 0 10px}
+.wa-qr-wrap img{width:180px;height:180px;border-radius:8px;border:0.5px solid rgba(0,0,0,.1)}
+.wa-ok{
+  display:none;
+  padding:10px 14px;
+  border-radius:8px;
+  background:#f0fdf4;
+  border:0.5px solid #86efac;
+  font-size:13px;
+  color:#15803d;
+  font-weight:500;
+  margin:12px 0;
+}
+</style>
+
+<!-- Dados do usuário -->
+<div class="pf-card">
+  <p class="pf-card-title">Dados do usuário</p>
+  <p class="pf-card-sub">Informações da sua conta no MatchImóveis.</p>
+  <form method="POST" action="/app/perfil">
+    <div class="pf-grid">
+      <div class="pf-field">
+        <label>Nome</label>
+        <input name="nome" value="<%= user.nome||'' %>">
+      </div>
+      <div class="pf-field">
+        <label>Celular</label>
+        <input name="celular" value="<%= user.celular||user.telefone||'' %>">
+      </div>
+      <div class="pf-field">
+        <label>CRECI</label>
+        <input name="creci" value="<%= user.creci||'' %>">
+      </div>
+      <div class="pf-field">
+        <label>CPF</label>
+        <input name="cpf" value="<%= user.cpf||'' %>">
+      </div>
+      <div class="pf-field">
+        <label>Tipo de conta</label>
+        <input value="<%= user.tipo||'corretor' %>" readonly>
+      </div>
+      <div class="pf-field">
+        <label>Código do usuário</label>
+        <input value="<%= user.codigoUsuario||user.codigo||'-' %>" readonly class="strong">
+      </div>
     </div>
-    <button class="btn btn-primary" type="submit" style="margin-top:16px">Salvar perfil</button>
+    <button class="pf-btn" type="submit">Salvar perfil</button>
   </form>
 </div>
 
-<div class="card">
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+<!-- Localização -->
+<div class="pf-card">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
     <div>
-      <h3 style="margin-bottom:4px">📍 Minha localização</h3>
-      <p style="color:#717171;font-size:13px">Usada para calcular distâncias até os imóveis e leads.</p>
+      <p class="pf-card-title">Localização</p>
+      <p class="pf-card-sub" style="margin-bottom:0">Usada para calcular distâncias até imóveis e leads.</p>
     </div>
-    <button class="btn btn-primary" onclick="pegarLocalizacao()" id="btn-loc">
-      📡 Atualizar localização
-    </button>
+    <button class="pf-btn" onclick="pegarLocalizacao()" id="btn-loc" style="margin-top:0">Atualizar localização</button>
   </div>
 
-  <div id="loc-status" style="margin-top:14px;padding:12px;border-radius:10px;background:#f7f7f7;font-size:13px;display:flex;align-items:center;gap:10px">
-    <% if(user.lat && user.lng) { %>
-      <span style="color:#1A1A1A;font-size:16px">✅</span>
-      <span>Localização salva: <strong><%= user.endereco || (user.lat + ', ' + user.lng) %></strong></span>
+  <div class="pf-loc-status" id="loc-status">
+    <% if(user.lat && user.lng){ %>
+      <span style="color:#15803d;font-size:16px">●</span>
+      <span>Localização salva: <strong><%= user.endereco||(user.lat+', '+user.lng) %></strong></span>
     <% } else { %>
-      <span style="color:#6B6B6B;font-size:16px">⚠️</span>
+      <span style="color:#d97706;font-size:16px">●</span>
       <span>Localização não definida. Clique em <strong>Atualizar localização</strong> para habilitar o mapa de distâncias.</span>
     <% } %>
   </div>
 
-  <div id="mapa-perfil" style="margin-top:14px;border-radius:12px;overflow:hidden;display:<%= (user.lat && user.lng) ? 'block' : 'none' %>;height:200px"></div>
+  <div id="mapa-perfil" style="border-radius:10px;overflow:hidden;display:<%= (user.lat&&user.lng)?'block':'none' %>;height:180px"></div>
 
   <form id="form-loc" method="POST" action="/app/perfil/localizacao" style="display:none">
     <input type="hidden" name="lat" id="inp-lat">
@@ -45,15 +181,40 @@
   </form>
 </div>
 
+<!-- WhatsApp -->
+<div class="pf-card">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+    <div>
+      <p class="pf-card-title">WhatsApp</p>
+      <p class="pf-card-sub" style="margin-bottom:0">Conecte seu número para receber leads automaticamente.</p>
+    </div>
+    <span id="wa-badge" class="wa-badge" style="background:#f3f4f6;color:#6b7280">Verificando...</span>
+  </div>
+
+  <div class="wa-qr-wrap" id="wa-qr-wrap">
+    <p>Abra WhatsApp → Dispositivos conectados → Conectar → Escaneie o QR:</p>
+    <img id="wa-qr" alt="QR Code WhatsApp">
+  </div>
+
+  <div class="wa-ok" id="wa-ok">
+    Conectado — <span id="wa-num"></span>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button id="btn-wa" onclick="conectarWA()" class="pf-btn pf-btn-green" style="margin-top:0">Conectar WhatsApp</button>
+    <button id="btn-wa-off" onclick="desconectarWA()" class="pf-btn pf-btn-red" style="display:none;margin-top:0">Desconectar</button>
+  </div>
+</div>
+
 <script>
 function pegarLocalizacao() {
   const btn = document.getElementById('btn-loc');
   const status = document.getElementById('loc-status');
-  btn.textContent = '⏳ Obtendo localização...';
+  btn.textContent = 'Obtendo localização...';
   btn.disabled = true;
 
   if (!navigator.geolocation) {
-    status.innerHTML = '<span style="color:#FF385C">❌ Geolocalização não suportada neste navegador.</span>';
+    status.innerHTML = '<span style="color:#b91c1c">● Geolocalização não suportada neste navegador.</span>';
     btn.disabled = false;
     return;
   }
@@ -61,176 +222,86 @@ function pegarLocalizacao() {
   navigator.geolocation.getCurrentPosition(async (pos) => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
-
-    // busca endereço via geocoding reverso
     let endereco = lat + ', ' + lng;
     try {
       const r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng);
       const d = await r.json();
       endereco = d.display_name || endereco;
     } catch(e) {}
-
-    // salva via POST
     document.getElementById('inp-lat').value = lat;
     document.getElementById('inp-lng').value = lng;
     document.getElementById('inp-endereco').value = endereco;
     document.getElementById('form-loc').submit();
-
-  }, (err) => {
-    status.innerHTML = '<span style="color:#FF385C">❌ Não foi possível obter localização. Verifique as permissões do navegador.</span>';
-    btn.textContent = '📡 Atualizar localização';
+  }, () => {
+    status.innerHTML = '<span style="color:#b91c1c">● Não foi possível obter localização. Verifique as permissões do navegador.</span>';
+    btn.textContent = 'Atualizar localização';
     btn.disabled = false;
   }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
-// mostra mapa se já tem localização
-<% if(user.lat && user.lng) { %>
+<% if(user.lat && user.lng){ %>
 const mapDiv = document.getElementById('mapa-perfil');
 mapDiv.style.display = 'block';
 const iframe = document.createElement('iframe');
 iframe.width = '100%';
-iframe.height = '200';
+iframe.height = '180';
 iframe.frameBorder = '0';
 iframe.style.border = '0';
 iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=<%= user.lng-0.01 %>,<%= user.lat-0.01 %>,<%= user.lng+0.01 %>,<%= user.lat+0.01 %>&layer=mapnik&marker=<%= user.lat %>,<%= user.lng %>';
 mapDiv.appendChild(iframe);
 <% } %>
-</script>
 
-
-<div class='card' style='margin-top:16px'>
-  <div style='display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap'>
-    <div style='display:flex;align-items:center;gap:10px'>
-      <span style='font-size:24px'>💬</span>
-      <div>
-        <h3 style='margin:0 0 2px;font-size:15px'>WhatsApp</h3>
-        <p style='color:#717171;font-size:12px;margin:0'>Conecte seu número para receber leads automaticamente.</p>
-      </div>
-    </div>
-    <span id='wa-badge' style='padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#f3f4f6;color:#374151'>Verificando...</span>
-  </div>
-  <div id='wa-qr-wrap' style='display:none;text-align:center;margin:12px 0'>
-    <p style='font-size:12px;color:#555;margin-bottom:8px'>Abra WhatsApp → Dispositivos conectados → Conectar → Escaneie:</p>
-    <img id='wa-qr' style='width:180px;height:180px;border-radius:10px;border:1px solid #e5e7eb'>
-  </div>
-  <div id='wa-ok' style='display:none;background:#f0fdf4;border-radius:8px;padding:10px 14px;margin:8px 0;font-size:13px;color:#166534;font-weight:600'>✅ Conectado — <span id='wa-num'></span></div>
-  <div style='display:flex;gap:8px;margin-top:8px'>
-    <button id='btn-wa' onclick='conectarWA()' style='background:#25D366;color:#fff;border:none;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer'>📱 Conectar WhatsApp</button>
-    <button id='btn-wa-off' onclick='desconectarWA()' style='display:none;background:#f3f4f6;color:#374151;border:1px solid #e5e7eb;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer'>Desconectar</button>
-  </div>
-</div>
-
-<script>
 let _waTimer = null;
 async function checkWA() {
   try {
     const d = await (await fetch('/app/whatsapp/status')).json();
     const badge = document.getElementById('wa-badge');
     if (d.status === 'open') {
-      badge.style.cssText = 'padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#d1fae5;color:#065f46';
-      badge.textContent = '✅ Conectado';
+      badge.style.cssText = 'padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;background:#dcfce7;color:#15803d';
+      badge.textContent = 'Conectado';
       document.getElementById('wa-ok').style.display = 'block';
       document.getElementById('wa-num').textContent = d.numero || '';
       document.getElementById('wa-qr-wrap').style.display = 'none';
       document.getElementById('btn-wa').style.display = 'none';
-      document.getElementById('btn-wa-off').style.display = 'inline-block';
+      document.getElementById('btn-wa-off').style.display = 'inline-flex';
       if (_waTimer) { clearInterval(_waTimer); _waTimer = null; }
     } else {
-      badge.style.cssText = 'padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#fee2e2;color:#991b1b';
-      badge.textContent = '❌ Desconectado';
+      badge.style.cssText = 'padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;background:#fee2e2;color:#b91c1c';
+      badge.textContent = 'Desconectado';
       document.getElementById('wa-ok').style.display = 'none';
-      document.getElementById('btn-wa').style.display = 'inline-block';
+      document.getElementById('btn-wa').style.display = 'inline-flex';
       document.getElementById('btn-wa-off').style.display = 'none';
     }
   } catch(e) {}
 }
+
 async function conectarWA() {
   const btn = document.getElementById('btn-wa');
-  btn.textContent = '⏳ Gerando QR...'; btn.disabled = true;
+  btn.textContent = 'Gerando QR...';
+  btn.disabled = true;
   try {
     const d = await (await fetch('/app/whatsapp/qrcode')).json();
     if (d.base64) {
       document.getElementById('wa-qr').src = d.base64;
       document.getElementById('wa-qr-wrap').style.display = 'block';
-      btn.textContent = '🔄 Novo QR'; btn.disabled = false;
+      btn.textContent = 'Novo QR';
+      btn.disabled = false;
       _waTimer = setInterval(checkWA, 3000);
     } else {
-      btn.textContent = '📱 Conectar WhatsApp'; btn.disabled = false;
+      btn.textContent = 'Conectar WhatsApp';
+      btn.disabled = false;
     }
-  } catch(e) { btn.textContent = '📱 Conectar WhatsApp'; btn.disabled = false; }
+  } catch(e) {
+    btn.textContent = 'Conectar WhatsApp';
+    btn.disabled = false;
+  }
 }
+
 async function desconectarWA() {
   await fetch('/app/whatsapp/desconectar', { method: 'POST' });
   checkWA();
 }
-checkWA();
-</script>
-<%- include('partials/app-end') %>
 
-<div class="card" style="margin-top:16px">
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-    <div>
-      <h3 style="margin:0 0 4px">WhatsApp</h3>
-      <p style="color:#717171;font-size:13px;margin:0">Conecte seu número para receber leads automaticamente.</p>
-    </div>
-    <span id="wa-badge" style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#f3f4f6;color:#374151">Verificando...</span>
-  </div>
-
-  <div id="wa-qr-wrap" style="display:none;text-align:center;margin:12px 0">
-    <p style="font-size:13px;color:#555;margin-bottom:8px">Abra WhatsApp → Dispositivos conectados → Conectar → Escaneie:</p>
-    <img id="wa-qr" style="width:200px;height:200px;border-radius:10px;border:1px solid #e5e7eb">
-  </div>
-
-  <div id="wa-ok" style="display:none;background:#f0fdf4;border-radius:8px;padding:10px 14px;margin:8px 0;font-size:13px;color:#166534;font-weight:600">✅ Conectado — <span id="wa-num"></span></div>
-
-  <div style="display:flex;gap:8px;margin-top:4px">
-    <button id="btn-wa" onclick="conectarWA()" style="background:#25D366;color:#fff;border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Conectar WhatsApp</button>
-    <button id="btn-wa-off" onclick="desconectarWA()" style="display:none;background:#f3f4f6;color:#374151;border:1px solid #e5e7eb;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">Desconectar</button>
-  </div>
-</div>
-
-<script>
-let _waTimer = null;
-async function checkWA() {
-  try {
-    const d = await (await fetch('/app/whatsapp/status')).json();
-    const badge = document.getElementById('wa-badge');
-    if (d.status === 'open') {
-      badge.style.cssText = 'padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#d1fae5;color:#065f46';
-      badge.textContent = '✅ Conectado';
-      document.getElementById('wa-ok').style.display = 'block';
-      document.getElementById('wa-qr-wrap').style.display = 'none';
-      document.getElementById('btn-wa').style.display = 'none';
-      document.getElementById('btn-wa-off').style.display = 'inline-block';
-      if (_waTimer) { clearInterval(_waTimer); _waTimer = null; }
-    } else {
-      badge.style.cssText = 'padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#fee2e2;color:#991b1b';
-      badge.textContent = '❌ Desconectado';
-      document.getElementById('wa-ok').style.display = 'none';
-      document.getElementById('btn-wa').style.display = 'inline-block';
-      document.getElementById('btn-wa-off').style.display = 'none';
-    }
-  } catch(e) {}
-}
-async function conectarWA() {
-  const btn = document.getElementById('btn-wa');
-  btn.textContent = '⏳ Gerando QR...'; btn.disabled = true;
-  try {
-    const d = await (await fetch('/app/whatsapp/qrcode')).json();
-    if (d.base64) {
-      document.getElementById('wa-qr').src = d.base64;
-      document.getElementById('wa-qr-wrap').style.display = 'block';
-      btn.textContent = 'Novo QR'; btn.disabled = false;
-      _waTimer = setInterval(checkWA, 3000);
-    } else {
-      btn.textContent = 'Conectar WhatsApp'; btn.disabled = false;
-    }
-  } catch(e) { btn.textContent = 'Conectar WhatsApp'; btn.disabled = false; }
-}
-async function desconectarWA() {
-  await fetch('/app/whatsapp/desconectar', { method: 'POST' });
-  checkWA();
-}
 checkWA();
 </script>
 

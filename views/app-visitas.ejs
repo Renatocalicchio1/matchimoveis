@@ -1,125 +1,293 @@
 <%- include("partials/app-shell",{active:"visitas",title:"Visitas",subtitle:"Solicitações de visita dos seus clientes.",user:user}) %>
 
 <style>
-.v-card{background:#fff;border-radius:16px;border:1px solid #eee;padding:20px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.v-status{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700}
-@keyframes pulso-visita { 0%,100%{box-shadow:0 0 0 0 rgba(255,56,92,.4)} 50%{box-shadow:0 0 0 8px rgba(255,56,92,0)} }
-@keyframes pulso-amarelo { 0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.4)} 50%{box-shadow:0 0 0 8px rgba(217,119,6,0)} }
-.v-card-urgente { animation: pulso-visita 2s infinite; border-color:#fda4af !important; }
-.v-card-atencao { animation: pulso-amarelo 2s infinite; border-color:#fcd34d !important; }
-.v-badge-acao { display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:10px; }
-.st-solicitada{background:#fef9c3;color:#a16207}
+:root{
+  --card-bg:#fff;
+  --card-border:rgba(0,0,0,.08);
+  --muted:#6b7280;
+  --text:#111827;
+  --text-sm:#374151;
+  --radius:12px;
+  --radius-lg:16px;
+}
+
+.vi-card{
+  background:var(--card-bg);
+  border:0.5px solid var(--card-border);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  margin-bottom:10px;
+  transition:box-shadow .15s;
+}
+.vi-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.vi-card-urgente{border-color:#fca5a5 !important;background:#fffafa}
+.vi-card-atencao{border-color:#fcd34d !important;background:#fffef0}
+
+.vi-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+  margin-bottom:14px;
+  border:0.5px solid transparent;
+}
+
+.vi-status{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+}
+.st-solicitada{background:#fef9c3;color:#92400e}
 .st-confirmada{background:#dcfce7;color:#15803d}
 .st-cancelada{background:#fee2e2;color:#b91c1c}
 .st-realizada{background:#dbeafe;color:#1d4ed8}
 .st-no_show{background:#f3f4f6;color:#6b7280}
-.v-label{font-size:11px;color:#999;font-weight:600;text-transform:uppercase;margin-bottom:2px}
-.v-val{font-size:14px;color:#111;font-weight:500}
-.v-row{display:flex;gap:24px;flex-wrap:wrap;margin-top:12px}
-.v-col{min-width:120px}
-.v-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid #f3f4f6}
-.btn-a{display:inline-block;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer;border:none}
-.btn-green{background:#16a34a;color:white}
-.btn-red{background:#ef4444;color:white}
-.btn-zap{background:#22c55e;color:white}
-.btn-gray{background:#f3f4f6;color:#333}
-.filtro-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:flex-end}
-.filtro-bar select,.filtro-bar input{border:1px solid #ddd;border-radius:10px;padding:8px 12px;font-size:14px;background:white;outline:none}
+
+.vi-guia{
+  padding:10px 14px;
+  border-radius:8px;
+  background:#f9fafb;
+  border-left:2px solid #d1d5db;
+  font-size:13px;
+  font-weight:500;
+  margin:12px 0;
+  color:var(--text-sm);
+}
+
+.vi-info{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:12px;
+  margin:14px 0;
+}
+.vi-label{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em}
+.vi-val{font-size:14px;color:var(--text);font-weight:500}
+
+.vi-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  padding-top:14px;
+  border-top:0.5px solid rgba(0,0,0,.06);
+  margin-top:14px;
+}
+.vi-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:8px 16px;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:500;
+  text-decoration:none;
+  cursor:pointer;
+  border:0.5px solid rgba(0,0,0,.12);
+  background:#fff;
+  color:var(--text);
+  transition:background .12s;
+}
+.vi-btn:hover{background:#f9fafb}
+.vi-btn-green{background:#16a34a;color:#fff;border-color:#15803d}
+.vi-btn-green:hover{background:#15803d}
+.vi-btn-red{background:#ef4444;color:#fff;border-color:#dc2626}
+.vi-btn-red:hover{background:#dc2626}
+.vi-btn-zap{background:#22c55e;color:#fff;border-color:#16a34a}
+.vi-btn-zap:hover{background:#16a34a}
+.vi-btn-zap-dark{background:#15803d;color:#fff;border-color:#166534}
+.vi-btn-zap-dark:hover{background:#166534}
+.vi-btn-purple{background:#7c3aed;color:#fff;border-color:#6d28d9}
+.vi-btn-purple:hover{background:#6d28d9}
+
+.fi-bar{
+  background:var(--card-bg);
+  border:0.5px solid var(--card-border);
+  border-radius:var(--radius-lg);
+  padding:16px;
+  margin-bottom:16px;
+}
+.fi-stats{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+.fi-stat{
+  padding:5px 12px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:500;
+  background:#f9fafb;
+  border:0.5px solid rgba(0,0,0,.08);
+  color:var(--muted);
+}
+.fi-search-row{
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+}
+.fi-input{
+  flex:1;
+  padding:9px 14px;
+  border:0.5px solid rgba(0,0,0,.12);
+  border-radius:8px;
+  font-size:13px;
+  background:#fff;
+  outline:none;
+  color:var(--text);
+}
+.fi-input:focus{border-color:rgba(0,0,0,.3)}
+.fi-toggle{
+  padding:9px 14px;
+  border:0.5px solid rgba(0,0,0,.12);
+  border-radius:8px;
+  font-size:12px;
+  font-weight:500;
+  cursor:pointer;
+  background:#fff;
+  color:var(--muted);
+  white-space:nowrap;
+}
+.fi-toggle:hover{background:#f9fafb}
+
+.fi-chips-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:8px;
+}
+.fi-chips-label{
+  font-size:11px;
+  font-weight:500;
+  color:#9ca3af;
+  min-width:44px;
+  flex-shrink:0;
+}
+.fi-chip{
+  padding:5px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:500;
+  border:0.5px solid rgba(0,0,0,.12);
+  background:#fff;
+  cursor:pointer;
+  color:var(--text-sm);
+  transition:all .12s;
+}
+.fi-chip.on{background:#111;color:#fff;border-color:#111}
+.fi-chip.verde.on{background:#16a34a;border-color:#16a34a;color:#fff}
+.fi-chip.vermelho.on{background:#dc2626;border-color:#dc2626;color:#fff}
+.fi-chip.azul.on{background:#2563eb;border-color:#2563eb;color:#fff}
+.fi-chip.roxo.on{background:#7c3aed;border-color:#7c3aed;color:#fff}
+.fi-chip.amarelo.on{background:#d97706;border-color:#d97706;color:#fff}
+
+.fi-avancado{
+  display:none;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:0.5px solid rgba(0,0,0,.06);
+}
+.fi-avancado-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:10px;
+}
+.fi-avancado label{font-size:11px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px}
+.fi-avancado input,.fi-avancado select{
+  width:100%;
+  padding:7px 10px;
+  border:0.5px solid rgba(0,0,0,.12);
+  border-radius:8px;
+  font-size:12px;
+  box-sizing:border-box;
+  background:#fff;
+  color:var(--text);
+}
+.fi-counter{font-size:12px;color:var(--muted);margin-top:10px}
+
+.vi-empty{
+  padding:48px 24px;
+  text-align:center;
+  background:#f9fafb;
+  border:0.5px solid rgba(0,0,0,.06);
+  border-radius:var(--radius-lg);
+}
 </style>
 
 <%
 var statusLabel={
-  solicitada:{cls:'st-solicitada',txt:'⏳ Pendente'},
-  confirmada:{cls:'st-confirmada',txt:'✅ Confirmada'},
-  CONFIRMADA:{cls:'st-confirmada',txt:'✅ Confirmada'},
-  cancelada:{cls:'st-cancelada',txt:'❌ Cancelada'},
-  CANCELADA:{cls:'st-cancelada',txt:'❌ Cancelada'},
-  realizada:{cls:'st-realizada',txt:'🏁 Realizada'},
-  CONCLUIDA:{cls:'st-realizada',txt:'🏁 Realizada'},
-  no_show:{cls:'st-no_show',txt:'👻 No-show'},
-  NO_SHOW:{cls:'st-no_show',txt:'👻 No-show'},
-  AGUARDANDO:{cls:'st-solicitada',txt:'⏳ Pendente'}
+  solicitada:{cls:'st-solicitada',txt:'Pendente'},
+  confirmada:{cls:'st-confirmada',txt:'Confirmada'},
+  CONFIRMADA:{cls:'st-confirmada',txt:'Confirmada'},
+  cancelada:{cls:'st-cancelada',txt:'Cancelada'},
+  CANCELADA:{cls:'st-cancelada',txt:'Cancelada'},
+  realizada:{cls:'st-realizada',txt:'Realizada'},
+  CONCLUIDA:{cls:'st-realizada',txt:'Realizada'},
+  no_show:{cls:'st-no_show',txt:'No-show'},
+  NO_SHOW:{cls:'st-no_show',txt:'No-show'},
+  AGUARDANDO:{cls:'st-solicitada',txt:'Pendente'}
 };
 var corretorNome=user&&user.nome?user.nome:'Corretor';
 var corretorTel=(user&&(user.celular||user.telefone)||'').replace(/[^0-9]/g,'');
 %>
 
-<style>
-.vf-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:20px}
-.vf-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.vf-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid #e5e7eb;background:#f9fafb;cursor:pointer;color:#374151;transition:all .15s}
-.vf-chip.on{background:#111;color:#fff;border-color:#111}
-.vf-chip.verde.on{background:#16a34a;border-color:#16a34a;color:#fff}
-.vf-chip.vermelho.on{background:#dc2626;border-color:#dc2626;color:#fff}
-.vf-chip.azul.on{background:#2563eb;border-color:#2563eb;color:#fff}
-.vf-chip.roxo.on{background:#7c3aed;border-color:#7c3aed;color:#fff}
-.vf-chip.amarelo.on{background:#d97706;border-color:#d97706;color:#fff}
-.vf-avancado{display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f3f4f6}
-.vf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-.vf-grid label{font-size:11px;font-weight:700;color:#6b7280;display:block;margin-bottom:4px}
-.vf-grid input,.vf-grid select{width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;box-sizing:border-box}
-.vf-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.vf-stat{padding:6px 14px;border-radius:10px;font-size:12px;font-weight:700;background:#f9fafb;border:1px solid #e5e7eb;color:#374151}
-</style>
-
-<div class="vf-card">
-  <!-- Stats rápidas -->
-  <div class="vf-stats" id="vf-stats">
-    <span class="vf-stat" id="vst-total">— total</span>
-    <span class="vf-stat" style="background:#fef9c3;color:#a16207;border-color:#fcd34d" id="vst-pendentes">— pendentes</span>
-    <span class="vf-stat" style="background:#dcfce7;color:#15803d;border-color:#86efac" id="vst-confirmadas">— confirmadas</span>
-    <span class="vf-stat" style="background:#fef2f2;color:#dc2626;border-color:#fca5a5" id="vst-hoje">— hoje</span>
-    <span class="vf-stat" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd" id="vst-realizadas">— realizadas</span>
+<div class="fi-bar">
+  <div class="fi-stats">
+    <span class="fi-stat" id="vst-total">— total</span>
+    <span class="fi-stat" style="background:#fef9c3;color:#a16207;border-color:#fcd34d" id="vst-pendentes">— pendentes</span>
+    <span class="fi-stat" style="background:#dcfce7;color:#15803d;border-color:#86efac" id="vst-confirmadas">— confirmadas</span>
+    <span class="fi-stat" style="background:#fef2f2;color:#dc2626;border-color:#fca5a5" id="vst-hoje">— hoje</span>
+    <span class="fi-stat" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd" id="vst-realizadas">— realizadas</span>
   </div>
 
-  <!-- Busca -->
-  <div style="display:flex;gap:10px;margin-bottom:12px">
-    <input id="vf-busca" placeholder="🔎 Cliente, imóvel, bairro..." oninput="filtrarVisitas()" style="flex:1;padding:9px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px">
-    <button onclick="toggleFiltrosVisitas()" style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer">⚙️ Filtros</button>
+  <div class="fi-search-row">
+    <input class="fi-input" id="vf-busca" placeholder="Buscar cliente, imóvel, bairro..." oninput="filtrarVisitas()">
+    <button class="fi-toggle" onclick="toggleFiltrosVisitas()">Filtros avançados</button>
   </div>
 
-  <!-- Chips status -->
-  <div class="vf-chips">
-    <span style="font-size:11px;font-weight:700;color:#9ca3af;align-self:center">Status:</span>
-    <button class="vf-chip on" onclick="setChipVisita('status','todos',this)">Todos</button>
-    <button class="vf-chip amarelo" onclick="setChipVisita('status','solicitada',this)">⏳ Pendente</button>
-    <button class="vf-chip verde" onclick="setChipVisita('status','confirmada',this)">✅ Confirmada</button>
-    <button class="vf-chip azul" onclick="setChipVisita('status','realizada',this)">🏁 Realizada</button>
-    <button class="vf-chip vermelho" onclick="setChipVisita('status','cancelada',this)">❌ Cancelada</button>
-    <button class="vf-chip" onclick="setChipVisita('status','no_show',this)">👻 No-show</button>
+  <div class="fi-chips-row">
+    <span class="fi-chips-label">Status</span>
+    <button class="fi-chip on" onclick="setChipVisita('status','todos',this)">Todos</button>
+    <button class="fi-chip amarelo" onclick="setChipVisita('status','solicitada',this)">Pendente</button>
+    <button class="fi-chip verde" onclick="setChipVisita('status','confirmada',this)">Confirmada</button>
+    <button class="fi-chip azul" onclick="setChipVisita('status','realizada',this)">Realizada</button>
+    <button class="fi-chip vermelho" onclick="setChipVisita('status','cancelada',this)">Cancelada</button>
+    <button class="fi-chip" onclick="setChipVisita('status','no_show',this)">No-show</button>
   </div>
 
-  <!-- Chips período -->
-  <div class="vf-chips">
-    <span style="font-size:11px;font-weight:700;color:#9ca3af;align-self:center">Período:</span>
-    <button class="vf-chip on" onclick="setChipVisita('periodo','',this)">Todos</button>
-    <button class="vf-chip vermelho" onclick="setChipVisita('periodo','atrasada',this)">🚨 Atrasadas</button>
-    <button class="vf-chip vermelho" onclick="setChipVisita('periodo','hoje',this)">📅 Hoje</button>
-    <button class="vf-chip amarelo" onclick="setChipVisita('periodo','amanha',this)">⏰ Amanhã</button>
-    <button class="vf-chip" onclick="setChipVisita('periodo','semana',this)">📆 Essa semana</button>
-    <button class="vf-chip azul" onclick="setChipVisita('periodo','passadas',this)">🕐 Passadas</button>
+  <div class="fi-chips-row">
+    <span class="fi-chips-label">Período</span>
+    <button class="fi-chip on" onclick="setChipVisita('periodo','',this)">Todos</button>
+    <button class="fi-chip vermelho" onclick="setChipVisita('periodo','atrasada',this)">Atrasadas</button>
+    <button class="fi-chip vermelho" onclick="setChipVisita('periodo','hoje',this)">Hoje</button>
+    <button class="fi-chip amarelo" onclick="setChipVisita('periodo','amanha',this)">Amanhã</button>
+    <button class="fi-chip" onclick="setChipVisita('periodo','semana',this)">Essa semana</button>
+    <button class="fi-chip azul" onclick="setChipVisita('periodo','passadas',this)">Passadas</button>
   </div>
 
-  <!-- Chips ação -->
-  <div class="vf-chips">
-    <span style="font-size:11px;font-weight:700;color:#9ca3af;align-self:center">Ação:</span>
-    <button class="vf-chip on" onclick="setChipVisita('acao','',this)">Todas</button>
-    <button class="vf-chip roxo" onclick="setChipVisita('acao','sem_prop',this)">🏠 Aguard. prop.</button>
-    <button class="vf-chip azul" onclick="setChipVisita('acao','sem_cliente',this)">💬 Avisar cliente</button>
-    <button class="vf-chip verde" onclick="setChipVisita('acao','ambos_ok',this)">🎉 Ambos confirm.</button>
-    <button class="vf-chip" onclick="setChipVisita('acao','pos_visita',this)">🔁 Pós-visita</button>
+  <div class="fi-chips-row">
+    <span class="fi-chips-label">Ação</span>
+    <button class="fi-chip on" onclick="setChipVisita('acao','',this)">Todas</button>
+    <button class="fi-chip roxo" onclick="setChipVisita('acao','sem_prop',this)">Aguard. prop.</button>
+    <button class="fi-chip azul" onclick="setChipVisita('acao','sem_cliente',this)">Avisar cliente</button>
+    <button class="fi-chip verde" onclick="setChipVisita('acao','ambos_ok',this)">Ambos confirmaram</button>
+    <button class="fi-chip" onclick="setChipVisita('acao','pos_visita',this)">Pós-visita</button>
   </div>
 
-  <!-- Filtros avançados -->
-  <div class="vf-avancado" id="vf-avancado">
-    <div class="vf-grid">
+  <div class="fi-avancado" id="vf-avancado">
+    <div class="fi-avancado-grid">
       <div>
         <label>Data da visita</label>
         <input type="date" id="vf-data" oninput="filtrarVisitas()">
       </div>
       <div>
         <label>Bairro do imóvel</label>
-        <input id="vf-bairro" placeholder="Moema" oninput="filtrarVisitas()">
+        <input id="vf-bairro" placeholder="Ex: Meia Praia" oninput="filtrarVisitas()">
       </div>
       <div>
         <label>Ordenar por</label>
@@ -138,10 +306,10 @@ var corretorTel=(user&&(user.celular||user.telefone)||'').replace(/[^0-9]/g,'');
         </select>
       </div>
     </div>
-    <button onclick="limparFiltrosVisitas()" style="margin-top:10px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">🗑️ Limpar filtros</button>
+    <button onclick="limparFiltrosVisitas()" style="margin-top:12px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.1);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;color:#374151">Limpar filtros</button>
   </div>
 
-  <div id="vf-counter" style="font-size:12px;color:#6b7280;margin-top:8px"></div>
+  <div class="fi-counter" id="vf-counter"></div>
 </div>
 
 <script>
@@ -149,7 +317,7 @@ const _fv = { status:'todos', periodo:'', acao:'' };
 
 function setChipVisita(campo, valor, btn) {
   _fv[campo] = valor;
-  const grupo = btn.parentElement.querySelectorAll('.vf-chip');
+  const grupo = btn.parentElement.querySelectorAll('.fi-chip');
   grupo.forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   filtrarVisitas();
@@ -157,7 +325,7 @@ function setChipVisita(campo, valor, btn) {
 
 function toggleFiltrosVisitas() {
   const el = document.getElementById('vf-avancado');
-  el.style.display = el.style.display==='none'?'block':'none';
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
 }
 
 function limparFiltrosVisitas() {
@@ -166,9 +334,10 @@ function limparFiltrosVisitas() {
   document.getElementById('vf-data').value='';
   document.getElementById('vf-bairro').value='';
   document.getElementById('vf-prop').value='';
-  document.querySelectorAll('.vf-chip').forEach(b=>{
+  document.querySelectorAll('.fi-chip').forEach(b => {
     b.classList.remove('on');
-    if(b.textContent.trim()==='Todos'||b.textContent.trim()==='Todas'||b.textContent.trim()==='Todas') b.classList.add('on');
+    const t = b.textContent.trim();
+    if(t==='Todos'||t==='Todas') b.classList.add('on');
   });
   filtrarVisitas();
 }
@@ -177,34 +346,31 @@ function filtrarVisitas() {
   const busca = document.getElementById('vf-busca').value.toLowerCase();
   const dataFiltro = document.getElementById('vf-data').value;
   const bairroFiltro = document.getElementById('vf-bairro').value.toLowerCase();
-  const propFiltro = document.getElementById('vf-prop')?.value||'';
+  const propFiltro = document.getElementById('vf-prop')?.value || '';
   const hoje = new Date(); hoje.setHours(0,0,0,0);
   const amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
   const semana = new Date(hoje); semana.setDate(semana.getDate()+7);
 
-  const cards = document.querySelectorAll('.v-card[data-visita-id]');
-  let total=0, pendentes=0, confirmadas=0, realizadas=0, hojeCount=0;
-  let visiveis=0;
+  const cards = document.querySelectorAll('.vi-card[data-visita-id]');
+  let total=0, pendentes=0, confirmadas=0, realizadas=0, hojeCount=0, visiveis=0;
 
   cards.forEach(card => {
-    const status = card.dataset.status||'';
-    const propConfirmou = card.dataset.propConfirmou==='true';
-    const clienteConfirmou = card.dataset.clienteConfirmou==='true';
+    const status = card.dataset.status || '';
+    const propConfirmou = card.dataset.propConfirmou === 'true';
+    const clienteConfirmou = card.dataset.clienteConfirmou === 'true';
     const dataVisita = card.dataset.dataVisita ? new Date(card.dataset.dataVisita) : null;
-    const searchStr = (card.dataset.search||'').toLowerCase();
-    const bairroCard = (card.dataset.bairro||'').toLowerCase();
+    const searchStr = (card.dataset.search || '').toLowerCase();
+    const bairroCard = (card.dataset.bairro || '').toLowerCase();
 
-    // Stats
     total++;
     if(status==='solicitada'||status==='AGUARDANDO') pendentes++;
     if(status==='confirmada'||status==='CONFIRMADA') confirmadas++;
     if(status==='realizada'||status==='CONCLUIDA') realizadas++;
-    if(dataVisita) { const d=new Date(dataVisita); d.setHours(0,0,0,0); if(d.getTime()===hoje.getTime()) hojeCount++; }
+    if(dataVisita){ const d=new Date(dataVisita); d.setHours(0,0,0,0); if(d.getTime()===hoje.getTime()) hojeCount++; }
 
     let ok = true;
 
-    // Status
-    if(_fv.status!=='todos') {
+    if(_fv.status !== 'todos') {
       const st = status.toLowerCase();
       if(_fv.status==='solicitada'&&st!=='solicitada'&&st!=='aguardando') ok=false;
       else if(_fv.status==='confirmada'&&st!=='confirmada') ok=false;
@@ -213,7 +379,6 @@ function filtrarVisitas() {
       else if(_fv.status==='no_show'&&st!=='no_show') ok=false;
     }
 
-    // Período
     if(_fv.periodo && dataVisita) {
       const dv = new Date(dataVisita); dv.setHours(0,0,0,0);
       if(_fv.periodo==='hoje'&&dv.getTime()!==hoje.getTime()) ok=false;
@@ -223,16 +388,14 @@ function filtrarVisitas() {
       if(_fv.periodo==='passadas'&&dv>=hoje) ok=false;
     }
 
-    // Ação
     if(_fv.acao==='sem_prop'&&propConfirmou) ok=false;
     if(_fv.acao==='sem_cliente'&&(!propConfirmou||clienteConfirmou)) ok=false;
     if(_fv.acao==='ambos_ok'&&(!propConfirmou||!clienteConfirmou)) ok=false;
     if(_fv.acao==='pos_visita'&&(status!=='realizada'&&status!=='CONCLUIDA')) ok=false;
 
-    // Busca
-    if(busca && !searchStr.includes(busca)) ok=false;
-    if(bairroFiltro && !bairroCard.includes(bairroFiltro)) ok=false;
-    if(dataFiltro && dataVisita) {
+    if(busca&&!searchStr.includes(busca)) ok=false;
+    if(bairroFiltro&&!bairroCard.includes(bairroFiltro)) ok=false;
+    if(dataFiltro&&dataVisita){
       const dvStr = dataVisita.toISOString().split('T')[0];
       if(dvStr!==dataFiltro) ok=false;
     }
@@ -248,29 +411,25 @@ function filtrarVisitas() {
   document.getElementById('vst-confirmadas').textContent = confirmadas+' confirmadas';
   document.getElementById('vst-hoje').textContent = hojeCount+' hoje';
   document.getElementById('vst-realizadas').textContent = realizadas+' realizadas';
-  document.getElementById('vf-counter').textContent = visiveis+' visitas exibidas';
+  document.getElementById('vf-counter').textContent = visiveis+' visita'+(visiveis!==1?'s':'')+' exibida'+(visiveis!==1?'s':'');
 }
 
 window.addEventListener('DOMContentLoaded', filtrarVisitas);
 </script>
 
-<div style="font-size:13px;color:#888;margin-bottom:16px">
-  <strong style="color:#333"><%= visitas.length %></strong> visita(s)
-</div>
-
 <% if(!visitas||visitas.length===0){ %>
-  <div style="padding:40px;text-align:center;color:#888;background:#f9fafb;border-radius:16px">
-    <div style="font-size:36px;margin-bottom:10px">🏠</div>
-    <div style="font-weight:600;font-size:15px">Nenhuma visita ainda</div>
-    <div style="font-size:13px;margin-top:6px">Quando um cliente solicitar uma visita pela vitrine ou página pública, aparece aqui.</div>
-  </div>
+<div class="vi-empty">
+  <div style="font-size:32px;margin-bottom:12px;opacity:.4">🏠</div>
+  <div style="font-weight:500;font-size:15px;color:#374151">Nenhuma visita ainda</div>
+  <div style="font-size:13px;color:#9ca3af;margin-top:6px">Quando um cliente solicitar uma visita pela vitrine ou página pública, ela aparece aqui.</div>
+</div>
 <% } %>
 
 <% visitas.forEach(function(v){ %>
 <%
   var nome=v.nome||v.clienteNome||'-';
   var telefone=(v.telefone||v.contato||v.clienteTelefone||'').replace(/[^0-9]/g,'');
-  var imovelTit=v.imovelTitulo||v.titulo_interesse||'Imovel';
+  var imovelTit=v.imovelTitulo||v.titulo_interesse||'Imóvel';
   var imovelBairro=v.imovelBairro||v.bairro||'';
   var imovelDesc=v.imovelDescricao||'';
   var imovelLinkLocal=v.imovelUrl||v.url||(v.imovelId?'/imovel/'+v.imovelId:'');
@@ -289,47 +448,31 @@ window.addEventListener('DOMContentLoaded', filtrarVisitas);
   var st=v.status||'solicitada';
   var stInfo=statusLabel[st]||{cls:'st-solicitada',txt:st};
   var propTel=(v.proprietarioTelefone||'').replace(/[^0-9]/g,'');
-  var linhaImovel=imovelTit+(imovelBairro?' - '+imovelBairro:'');
+  var linhaImovel=imovelTit+(imovelBairro?' — '+imovelBairro:'');
 
-  var guia='';
-  var guiaCor='';
   var clienteConfirmou=v.clienteConfirmou||v.confirmacaoClienteStatus==='CONFIRMADO';
   var clienteRecusou=v.confirmacaoClienteStatus==='RECUSADO';
+  var propConfirmou=v.respostaProprietario==='confirmar'||v.proprietarioConfirmou===true||v.confirmacaoProprietarioStatus==='CONFIRMADO';
+  var propRespondeu=propConfirmou||v.confirmacaoProprietarioStatus==='RECUSADO'||v.proprietarioRecusou||v.respostaProprietario==='recusar'||v.respostaProprietario==='remarcar';
+  var mostrarBtnCliente=!propTel||propRespondeu;
+
+  var guia='';
+  var guiaCor='#6b7280';
   if(st==='solicitada'||st==='AGUARDANDO'){
-    if(propTel){
-      guia='👉 Mande WhatsApp para o proprietário confirmar disponibilidade';
-      guiaCor='#a16207';
-    } else {
-      guia='👉 Entre em contato com o responsável pelo imóvel para confirmar';
-      guiaCor='#a16207';
-    }
+    if(propTel){ guia='Mande WhatsApp para o proprietário confirmar disponibilidade'; guiaCor='#d97706'; }
+    else { guia='Entre em contato com o responsável pelo imóvel para confirmar'; guiaCor='#d97706'; }
   } else if(st==='confirmada'||st==='CONFIRMADA'){
-    var propConfirmou=v.respostaProprietario==='confirmar'||v.proprietarioConfirmou===true||v.confirmacaoProprietarioStatus==='CONFIRMADO';
-    if(clienteConfirmou&&propConfirmou){
-      guia='🎉 Proprietário e cliente confirmaram! Visita agendada para '+dataVisita+(horaVisita&&horaVisita!=='-'?' às '+horaVisita:'');
-      guiaCor='#15803d';
-    } else if(clienteConfirmou&&!propConfirmou){
-      guia='✅ Cliente confirmou! Aguardando confirmação do proprietário';
-      guiaCor='#1d4ed8';
-    } else if(propConfirmou&&!clienteConfirmou){
-      guia='🏠 Proprietário confirmou! Avise o cliente e envie o link de confirmação';
-      guiaCor='#1d4ed8';
-    } else if(clienteRecusou){
-      guia='❌ Cliente não poderá comparecer — entre em contato para reagendar';
-      guiaCor='#b91c1c';
-    } else {
-      guia='👉 Avise o cliente que a visita está confirmada e envie o link de confirmação';
-      guiaCor='#1d4ed8';
-    }
+    if(clienteConfirmou&&propConfirmou){ guia='Proprietário e cliente confirmaram! Visita agendada para '+dataVisita+(horaVisita&&horaVisita!=='-'?' às '+horaVisita:''); guiaCor='#15803d'; }
+    else if(clienteConfirmou&&!propConfirmou){ guia='Cliente confirmou! Aguardando confirmação do proprietário'; guiaCor='#1d4ed8'; }
+    else if(propConfirmou&&!clienteConfirmou){ guia='Proprietário confirmou! Avise o cliente e envie o link de confirmação'; guiaCor='#1d4ed8'; }
+    else if(clienteRecusou){ guia='Cliente não poderá comparecer — entre em contato para reagendar'; guiaCor='#b91c1c'; }
+    else { guia='Avise o cliente que a visita está confirmada e envie o link de confirmação'; guiaCor='#1d4ed8'; }
   } else if(st==='realizada'||st==='CONCLUIDA'){
-    guia='👉 Entre em contato com o cliente para saber se gostou do imóvel';
-    guiaCor='#1d4ed8';
+    guia='Entre em contato com o cliente para saber se gostou do imóvel'; guiaCor='#1d4ed8';
   } else if(st==='cancelada'||st==='CANCELADA'){
-    guia='👉 Ofereça outro imóvel ou reagende para não perder o cliente';
-    guiaCor='#b91c1c';
+    guia='Ofereça outro imóvel ou reagende para não perder o cliente'; guiaCor='#b91c1c';
   } else if(st==='no_show'||st==='NO_SHOW'){
-    guia='👉 Cliente não apareceu — entre em contato para entender o que houve';
-    guiaCor='#6b7280';
+    guia='Cliente não apareceu — entre em contato para entender o que houve'; guiaCor='#6b7280';
   }
 
   var linkCliente=baseUrl+'/cliente/visita/'+v.id;
@@ -361,129 +504,122 @@ window.addEventListener('DOMContentLoaded', filtrarVisitas);
     'Voce pode confirmar, recusar ou sugerir outra data. Obrigado!'
   ];
   var msgProp=msgPropParts.join('%0A');
-%>
 
-<%
-  // Define urgência da visita
-  const _hoje2 = new Date();
-  const _dataV = v.dataVisita || v.data || '';
-  const _diffDias = _dataV ? Math.floor((new Date(_dataV)-_hoje2)/86400000) : 999;
-  const _atrasada = _diffDias < 0 && (st==='solicitada'||st==='confirmada');
-  const _hoje3 = _diffDias === 0;
-  const _amanha = _diffDias === 1;
-  const _semProp = !propTel && (st==='solicitada'||st==='AGUARDANDO');
-  const _semCliente = mostrarBtnCliente && st==='confirmada';
+  const _hoje2=new Date();
+  const _dataV=v.dataVisita||v.data||'';
+  const _diffDias=_dataV?Math.floor((new Date(_dataV)-_hoje2)/86400000):999;
+  const _atrasada=_diffDias<0&&(st==='solicitada'||st==='confirmada');
+  const _hojeV=_diffDias===0;
+  const _amanha=_diffDias===1;
 
-  let _vBadge = '', _vBadgeCor = '', _vCardClass = '';
-  if (_atrasada) {
-    _vBadge = '🚨 Visita atrasada — resolva agora!';
-    _vBadgeCor = 'background:#fef2f2;color:#991b1b;border:1px solid #fca5a5';
-    _vCardClass = 'v-card-urgente';
-  } else if (_hoje3 && st !== 'realizada' && st !== 'cancelada') {
-    _vBadge = '📅 Visita HOJE — confirme agora!';
-    _vBadgeCor = 'background:#fef2f2;color:#991b1b;border:1px solid #fca5a5';
-    _vCardClass = 'v-card-urgente';
-  } else if (_amanha && st !== 'realizada' && st !== 'cancelada') {
-    _vBadge = '⏰ Visita amanhã — prepare-se!';
-    _vBadgeCor = 'background:#fff7ed;color:#9a3412;border:1px solid #fdba74';
-    _vCardClass = 'v-card-atencao';
-  } else if (st==='solicitada'||st==='AGUARDANDO') {
-    _vBadge = propTel ? '👉 Confirmar com proprietário' : '👉 Confirmar visita manualmente';
-    _vBadgeCor = 'background:#fffbeb;color:#92400e;border:1px solid #fcd34d';
-    _vCardClass = 'v-card-atencao';
-  } else if (st==='confirmada' && !clienteConfirmou) {
-    _vBadge = '💬 Avisar cliente — visita confirmada!';
-    _vBadgeCor = 'background:#eff6ff;color:#1e40af;border:1px solid #93c5fd';
-    _vCardClass = '';
-  } else if (st==='realizada') {
-    _vBadge = '🔁 Pós-visita — pergunte se gostou!';
-    _vBadgeCor = 'background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd';
-    _vCardClass = '';
-  } else if (st==='cancelada') {
-    _vBadge = '🔄 Cancelada — ofereça outra opção';
-    _vBadgeCor = 'background:#f9fafb;color:#6b7280;border:1px solid #e5e7eb';
-    _vCardClass = '';
+  let _badge='', _badgeCor='', _cardClass='';
+  if(_atrasada){
+    _badge='Visita atrasada — resolva agora';
+    _badgeCor='background:#fee2e2;color:#991b1b;border-color:#fca5a5';
+    _cardClass='vi-card-urgente';
+  } else if(_hojeV&&st!=='realizada'&&st!=='cancelada'){
+    _badge='Visita HOJE — confirme agora';
+    _badgeCor='background:#fee2e2;color:#991b1b;border-color:#fca5a5';
+    _cardClass='vi-card-urgente';
+  } else if(_amanha&&st!=='realizada'&&st!=='cancelada'){
+    _badge='Visita amanhã — prepare-se';
+    _badgeCor='background:#fff7ed;color:#9a3412;border-color:#fdba74';
+    _cardClass='vi-card-atencao';
+  } else if(st==='solicitada'||st==='AGUARDANDO'){
+    _badge=propTel?'Confirmar com proprietário':'Confirmar visita manualmente';
+    _badgeCor='background:#fefce8;color:#92400e;border-color:#fde68a';
+    _cardClass='vi-card-atencao';
+  } else if((st==='confirmada'||st==='CONFIRMADA')&&!clienteConfirmou){
+    _badge='Avisar cliente — visita confirmada';
+    _badgeCor='background:#eff6ff;color:#1e40af;border-color:#bfdbfe';
+    _cardClass='';
+  } else if(st==='realizada'||st==='CONCLUIDA'){
+    _badge='Pós-visita — pergunte se gostou';
+    _badgeCor='background:#f5f3ff;color:#5b21b6;border-color:#ddd6fe';
+    _cardClass='';
+  } else if(st==='cancelada'||st==='CANCELADA'){
+    _badge='Cancelada — ofereça outra opção';
+    _badgeCor='background:#f9fafb;color:#6b7280;border-color:#e5e7eb';
+    _cardClass='';
   }
+
+  var dataVisitaISO=v.dataVisita||v.dataPreferida||'';
 %>
-<div class="v-card <%=_vCardClass%>">
-  <% if(_vBadge) { %>
-  <div class="v-badge-acao" style="<%=_vBadgeCor%>"><%=_vBadge%></div>
+
+<div class="vi-card <%=_cardClass%>"
+  data-visita-id="<%=v.id%>"
+  data-status="<%=st%>"
+  data-prop-confirmou="<%=propConfirmou%>"
+  data-cliente-confirmou="<%=clienteConfirmou%>"
+  data-data-visita="<%=dataVisitaISO%>"
+  data-bairro="<%=imovelBairro%>"
+  data-search="<%=(nome+' '+telefone+' '+imovelTit+' '+imovelBairro).toLowerCase()%>"
+>
+
+  <% if(_badge){ %>
+  <div class="vi-badge" style="<%=_badgeCor%>"><%=_badge%></div>
   <% } %>
+
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
     <div>
-      <div style="font-size:17px;font-weight:800;color:#111"><%= nome %></div>
-      <div style="font-size:13px;color:#666;margin-top:2px"><%= telefone||'-' %></div>
+      <div style="font-size:16px;font-weight:500;color:#111827"><%=nome%></div>
+      <div style="font-size:13px;color:#9ca3af;margin-top:2px"><%=telefone||'—'%></div>
     </div>
-    <span class="v-status <%= stInfo.cls %>"><%= stInfo.txt %></span>
+    <span class="vi-status <%=stInfo.cls%>"><%=stInfo.txt%></span>
   </div>
 
-  <%if(guia){%>
-  <div style="margin-top:12px;padding:10px 14px;border-radius:10px;background:#f9fafb;border-left:3px solid <%=guiaCor%>;font-size:13px;font-weight:600;color:<%=guiaCor%>">
-    <%=guia%>
-  </div>
-  <%}%>
-  <div class="v-row">
-    <div class="v-col" style="flex:2;min-width:200px">
-      <div class="v-label">Imóvel</div>
-      <div class="v-val"><%= imovelTit %><%= imovelBairro?' — '+imovelBairro:'' %></div>
-      <%if(imovelDesc){%>
-        <div style="font-size:12px;color:#777;margin-top:3px"><%= imovelDesc.substring(0,80) %>...</div>
-      <%}%>
-      <%if(imovelLinkLocal){%>
-        <a href="<%=imovelLinkLocal%>" target="_blank" style="font-size:12px;color:#ff385c;font-weight:600;text-decoration:none;margin-top:4px;display:inline-block">Ver imóvel →</a>
-      <%}%>
+  <% if(guia){ %>
+  <div class="vi-guia" style="border-left-color:<%=guiaCor%>;color:<%=guiaCor%>"><%=guia%></div>
+  <% } %>
+
+  <div class="vi-info">
+    <div style="grid-column:span 2">
+      <div class="vi-label">Imóvel</div>
+      <div class="vi-val"><%=imovelTit%><%=imovelBairro?' — '+imovelBairro:''%></div>
+      <% if(imovelLinkLocal){ %>
+      <a href="<%=imovelLinkLocal%>" target="_blank" style="font-size:12px;color:#6366f1;text-decoration:none;margin-top:3px;display:inline-block">Ver imóvel →</a>
+      <% } %>
     </div>
-    <div class="v-col">
-      <div class="v-label">Data da visita</div>
-      <div class="v-val"><%= dataVisita %></div>
+    <div>
+      <div class="vi-label">Data</div>
+      <div class="vi-val"><%=dataVisita%></div>
     </div>
-    <div class="v-col">
-      <div class="v-label">Horário</div>
-      <div class="v-val"><%= horaVisita %></div>
+    <div>
+      <div class="vi-label">Horário</div>
+      <div class="vi-val"><%=horaVisita%></div>
     </div>
-    <div class="v-col">
-      <div class="v-label">Cadastrado em</div>
-      <div class="v-val" style="font-size:12px;color:#888"><%= cadastrado %></div>
+    <div>
+      <div class="vi-label">Cadastrado em</div>
+      <div class="vi-val" style="font-size:12px;color:#9ca3af"><%=cadastrado%></div>
     </div>
   </div>
 
-  <%
-  var propRespondeu=v.proprietarioConfirmou||v.confirmacaoProprietarioStatus==='CONFIRMADO'||v.confirmacaoProprietarioStatus==='RECUSADO'||v.proprietarioRecusou||v.respostaProprietario==='confirmar'||v.respostaProprietario==='recusar'||v.respostaProprietario==='remarcar';
-  var mostrarBtnCliente=!propTel||propRespondeu;
-  %>
-  <div class="v-actions">
+  <div class="vi-actions">
+    <% if(propTel&&!propRespondeu){ %>
+    <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn vi-btn-zap-dark">WhatsApp proprietário</a>
+    <% } %>
 
-    <!-- PASSO 1: WhatsApp proprietário — só aparece se tem proprietário e ainda não respondeu -->
-    <%if(propTel&&!propRespondeu){%>
-      <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="btn-a btn-zap" style="background:#15803d">🏠 WhatsApp proprietário</a>
-    <%}%>
+    <% if(telefone&&mostrarBtnCliente){ %>
+    <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn vi-btn-zap">WhatsApp cliente</a>
+    <% } %>
 
-    <!-- PASSO 2: WhatsApp cliente — só aparece após proprietário responder (ou sem proprietário) -->
-    <%if(telefone&&mostrarBtnCliente){%>
-      <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="btn-a btn-zap">💬 WhatsApp cliente</a>
-    <%}%>
+    <% if((st==='solicitada'||st==='AGUARDANDO')&&!propTel){ %>
+    <form method="POST" action="/app/visitas/confirmar/<%=v.id%>" style="margin:0">
+      <button type="submit" class="vi-btn vi-btn-green">Confirmar</button>
+    </form>
+    <% } %>
 
-    <!-- Confirmar manual — sem proprietário -->
-    <%if((st==='solicitada'||st==='AGUARDANDO')&&!propTel){%>
-      <form method="POST" action="/app/visitas/confirmar/<%=v.id%>" style="margin:0">
-        <button type="submit" class="btn-a btn-green">✅ Confirmar</button>
-      </form>
-    <%}%>
+    <% if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'){ %>
+    <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0" onsubmit="return confirm('Cancelar esta visita?')">
+      <button type="submit" class="vi-btn vi-btn-red">Cancelar</button>
+    </form>
+    <% } %>
 
-    <!-- Cancelar -->
-    <%if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'){%>
-      <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0" onsubmit="return confirm('Cancelar esta visita?')">
-        <button type="submit" class="btn-a btn-red">❌ Cancelar</button>
-      </form>
-    <%}%>
-
-    <!-- Realizada -->
-    <%if(st==='confirmada'||st==='CONFIRMADA'){%>
-      <form method="POST" action="/app/visitas/concluir/<%=v.id%>" style="margin:0">
-        <button type="submit" class="btn-a" style="background:#6366f1;color:white">🏁 Realizada</button>
-      </form>
-    <%}%>
-
+    <% if(st==='confirmada'||st==='CONFIRMADA'){ %>
+    <form method="POST" action="/app/visitas/concluir/<%=v.id%>" style="margin:0">
+      <button type="submit" class="vi-btn vi-btn-purple">Realizada</button>
+    </form>
+    <% } %>
   </div>
 </div>
 

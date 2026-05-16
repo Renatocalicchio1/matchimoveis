@@ -1,207 +1,153 @@
 <%- include('partials/app-shell',{active:'imoveis',title:'Editar imóvel',subtitle:'Dados, proprietário, fotos e publicação nos portais.',user:user}) %>
 
 <style>
-
-.dif-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
-.dif-label{display:flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer}
-.dif-label input{width:auto;margin:0}
-.cep-row{display:flex;gap:8px;margin-bottom:12px}
-.cep-row input{flex:1}
-.cep-btn{background:#111;color:#fff;border:none;padding:10px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;align-self:flex-end}
-.edit-card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:24px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.edit-section-title{font-size:11px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid #f3f4f6}
-.fg1{display:grid;grid-template-columns:1fr;gap:12px}
+.ec{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:16px;padding:20px;margin-bottom:12px}
+.ec-title{font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin:0 0 14px;padding-bottom:10px;border-bottom:0.5px solid rgba(0,0,0,.06)}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
 @media(max-width:700px){.fg2,.fg3,.fg4{grid-template-columns:1fr 1fr}}
-.field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
-.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;background:#fff;box-sizing:border-box;transition:border .2s}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:#ff385c;outline:none}
+@media(max-width:420px){.fg2,.fg3,.fg4{grid-template-columns:1fr}}
+.f label{display:block;font-size:11px;font-weight:500;color:#6b7280;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
+.f input,.f select,.f textarea{width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;background:#fff;box-sizing:border-box;color:#111827;outline:none}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:rgba(0,0,0,.3)}
+.dif-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.dif-label{display:flex;align-items:center;gap:6px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;padding:7px 10px;font-size:12px;cursor:pointer;color:#374151}
+.dif-label:hover{background:#f3f4f6}
+.dif-label input{width:auto;margin:0;flex-shrink:0}
+.dif-sub{font-size:10px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin:10px 0 6px}
 .portal-grid{display:flex;flex-wrap:wrap;gap:8px}
-.portal-grid label{display:flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
-.portal-grid label:hover{border-color:#ff385c;background:#fff5f5}
-.portal-grid input[type=checkbox]:checked+span{color:#ff385c}
-.fotos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px}
-.foto-card{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;position:relative;background:#f9fafb}
-.foto-card img{width:100%;height:120px;object-fit:cover;display:block}
-.foto-capa-badge{position:absolute;top:6px;left:6px;background:#ff385c;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.portal-label{display:flex;align-items:center;gap:6px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:999px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;color:#374151}
+.portal-label:hover{background:#f3f4f6}
+.portal-label input{width:auto;margin:0}
+.cep-row{display:flex;gap:8px;align-items:flex-end}
+.cep-row .f{flex:1}
+.cep-btn{padding:9px 16px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;background:#111827;color:#fff;white-space:nowrap;flex-shrink:0}
+.cep-btn:hover{background:#1f2937}
+.id-bar{background:#f9fafb;border:0.5px solid rgba(0,0,0,.06);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.btn-save{background:#111827;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
+.btn-save:hover{background:#1f2937}
+.btn-cancel{color:#9ca3af;text-decoration:none;padding:10px 16px;font-size:13px;font-weight:500}
+.btn-cancel:hover{color:#374151}
+.success-bar{background:#f0fdf4;color:#15803d;border:0.5px solid #86efac;padding:12px 16px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:500}
+.fotos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.foto-card{border:0.5px solid rgba(0,0,0,.08);border-radius:10px;overflow:hidden;background:#f9fafb;position:relative}
+.foto-card img{width:100%;height:110px;object-fit:cover;display:block}
+.foto-capa{position:absolute;top:6px;left:6px;background:#111827;color:#fff;font-size:10px;font-weight:500;padding:3px 8px;border-radius:999px}
 .foto-btns{display:flex;gap:4px;padding:6px}
-.foto-btns button{flex:1;font-size:10px;padding:5px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-weight:600}
-.foto-btns .btn-capa{color:#374151}
-.foto-btns .btn-del{color:#dc2626;border-color:#fca5a5}
-.upload-box{border:2px dashed #e5e7eb;border-radius:12px;padding:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fafafa}
-.upload-box input{flex:1;min-width:180px}
-.id-badge{background:#f9f9f8;border:1px solid #e5e0d8;border-radius:10px;padding:10px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
-.btn-save{background:#ff385c;color:#fff;border:none;padding:12px 28px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;transition:opacity .2s}
-.btn-save:hover{opacity:.85}
-.btn-cancel{color:#6b7280;text-decoration:none;padding:12px 20px;font-size:14px;font-weight:600}
-.success-bar{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;padding:12px 16px;border-radius:10px;margin-bottom:16px;font-weight:600}
+.foto-btns button{flex:1;font-size:11px;padding:5px;border-radius:6px;border:0.5px solid rgba(0,0,0,.1);background:#fff;cursor:pointer;font-weight:500;color:#374151}
+.foto-btns .btn-del{color:#b91c1c;border-color:#fca5a5}
+.upload-box{border:0.5px dashed rgba(0,0,0,.15);border-radius:10px;padding:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fafafa}
 </style>
 
 <% const idImovel = imovel.idExterno || imovel.id; %>
 
-<% if (typeof salvo !== 'undefined' && salvo) { %>
-<div class="success-bar">✅ Alterações salvas com sucesso.</div>
+<% if(typeof salvo !== 'undefined' && salvo){ %>
+<div class="success-bar">Alterações salvas com sucesso.</div>
 <% } %>
 
 <form method="POST" action="/app/imovel/<%= idImovel %>/editar">
 
-  <!-- ID -->
-  <div class="id-badge">
-    <span style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase">ID MatchImóveis</span>
-    <span style="font-family:monospace;font-size:14px;font-weight:700;color:#ff385c"><%= imovel.codigoImovel || imovel.id || '-' %></span>
-    <span style="font-size:11px;color:#d1d5db;margin-left:auto">🔒 Não editável</span>
+  <!-- ID badge -->
+  <div class="id-bar">
+    <span style="font-size:11px;color:#9ca3af;font-weight:500">ID MatchImóveis</span>
+    <span style="font-family:monospace;font-size:14px;font-weight:500;color:#111827"><%= imovel.codigoImovel||imovel.id||'-' %></span>
+    <span style="font-size:11px;color:#d1d5db;margin-left:auto">Não editável</span>
   </div>
 
-  <!-- STATUS + TIPO + TRANSAÇÃO -->
-  <div class="edit-card">
-    <div class="edit-section-title">Tipo e status</div>
+  <!-- Tipo e status -->
+  <div class="ec">
+    <p class="ec-title">Tipo e status</p>
     <div class="fg3">
-      <div class="field">
+      <div class="f">
         <label>Status</label>
         <select name="status">
-          <option value="ativo" <%=imovel.status==='ativo'?'selected':''%>>✅ Ativo</option>
-          <option value="inativo" <%=imovel.status==='inativo'?'selected':''%>>📦 Inativo</option>
-          <option value="publicado" <%=imovel.status==='publicado'?'selected':''%>>🌐 Publicado</option>
-          <option value="arquivado" <%=imovel.status==='arquivado'?'selected':''%>>🗄️ Arquivado</option>
+          <option value="ativo" <%=imovel.status==='ativo'?'selected':''%>>Ativo</option>
+          <option value="inativo" <%=imovel.status==='inativo'?'selected':''%>>Inativo</option>
+          <option value="publicado" <%=imovel.status==='publicado'?'selected':''%>>Publicado</option>
+          <option value="arquivado" <%=imovel.status==='arquivado'?'selected':''%>>Arquivado</option>
         </select>
       </div>
-      <div class="field">
+      <div class="f">
         <label>Tipo de imóvel</label>
         <select name="tipo">
-          <% const _tipo = (imovel.tipo||'').toLowerCase();
-          const _matchTipo = (v) => _tipo.includes(v.toLowerCase()) ? 'selected' : ''; %>
-          <option value="Apartamento" <%=_tipo.includes('apart')?'selected':''%>>🏢 Apartamento</option>
-          <option value="Casa" <%=_tipo.includes('casa')?'selected':''%>>🏠 Casa</option>
-          <option value="Cobertura" <%=_tipo.includes('cobert')?'selected':''%>>🏙️ Cobertura</option>
-          <option value="Studio" <%=_tipo.includes('studio')||_tipo.includes('flat')?'selected':''%>>🛋️ Studio / Flat</option>
-          <option value="Kitnet" <%=_tipo.includes('kitnet')||_tipo.includes('conjug')?'selected':''%>>🏡 Kitnet</option>
-          <option value="Sobrado" <%=_tipo.includes('sobrado')?'selected':''%>>🏘️ Sobrado</option>
-          <option value="Terreno" <%=_tipo.includes('terreno')||_tipo.includes('lote')?'selected':''%>>🟩 Terreno / Lote</option>
-          <option value="Sala Comercial" <%=_tipo.includes('sala')?'selected':''%>>🖥️ Sala Comercial</option>
-          <option value="Loja" <%=_tipo.includes('loja')?'selected':''%>>🛍️ Loja</option>
-          <option value="Galpão" <%=_tipo.includes('galp')?'selected':''%>>🏭 Galpão</option>
-          <option value="Escritório" <%=_tipo.includes('escrit')?'selected':''%>>💼 Escritório</option>
+          <% const _tipo=(imovel.tipo||'').toLowerCase(); %>
+          <option value="Apartamento" <%=_tipo.includes('apart')?'selected':''%>>Apartamento</option>
+          <option value="Casa" <%=_tipo.includes('casa')?'selected':''%>>Casa</option>
+          <option value="Cobertura" <%=_tipo.includes('cobert')?'selected':''%>>Cobertura</option>
+          <option value="Studio" <%=_tipo.includes('studio')||_tipo.includes('flat')?'selected':''%>>Studio / Flat</option>
+          <option value="Kitnet" <%=_tipo.includes('kitnet')||_tipo.includes('conjug')?'selected':''%>>Kitnet</option>
+          <option value="Sobrado" <%=_tipo.includes('sobrado')?'selected':''%>>Sobrado</option>
+          <option value="Terreno" <%=_tipo.includes('terreno')||_tipo.includes('lote')?'selected':''%>>Terreno / Lote</option>
+          <option value="Sala Comercial" <%=_tipo.includes('sala')?'selected':''%>>Sala Comercial</option>
+          <option value="Loja" <%=_tipo.includes('loja')?'selected':''%>>Loja</option>
+          <option value="Galpão" <%=_tipo.includes('galp')?'selected':''%>>Galpão</option>
+          <option value="Escritório" <%=_tipo.includes('escrit')?'selected':''%>>Escritório</option>
         </select>
       </div>
-      <div class="field">
+      <div class="f">
         <label>Transação</label>
         <select name="transacao">
-          <option value="venda" <%=(imovel.transacao||'venda')==='venda'?'selected':''%>>💰 Venda</option>
-          <option value="aluguel" <%=imovel.transacao==='aluguel'?'selected':''%>>🔑 Aluguel</option>
+          <option value="venda" <%=(imovel.transacao||'venda')==='venda'?'selected':''%>>Venda</option>
+          <option value="aluguel" <%=imovel.transacao==='aluguel'?'selected':''%>>Aluguel</option>
         </select>
       </div>
     </div>
   </div>
 
-  <!-- CEP INTELIGENTE -->
-  <div class="edit-card">
-    <div class="edit-section-title">📍 Busca por CEP</div>
-    <div class="cep-row">
-      <div class="field" style="flex:1"><label>CEP</label><input id="cep-edit" placeholder="00000-000" oninput="fmtCEP(this)" maxlength="9"></div>
-      <button type="button" class="cep-btn" onclick="buscarCEPEdit()">🔍 Buscar</button>
+  <!-- CEP -->
+  <div class="ec">
+    <p class="ec-title">Busca por CEP</p>
+    <div class="cep-row" style="margin-bottom:8px">
+      <div class="f"><label>CEP</label><input id="cep-edit" placeholder="00000-000" oninput="fmtCEP(this)" maxlength="9"></div>
+      <button type="button" class="cep-btn" onclick="buscarCEPEdit()">Buscar</button>
     </div>
-    <div id="cep-res" style="display:none;padding:8px 12px;background:#f0fdf4;border-radius:8px;font-size:13px;color:#166534;font-weight:600"></div>
+    <div id="cep-res" style="display:none;padding:8px 12px;background:#f0fdf4;border-radius:8px;font-size:13px;color:#15803d;font-weight:500"></div>
   </div>
 
-  <!-- LOCALIZAÇÃO -->
-  <div class="edit-card">
-    <div class="edit-section-title">Localização</div>
+  <!-- Localização -->
+  <div class="ec">
+    <p class="ec-title">Localização</p>
     <div class="fg2" style="margin-bottom:12px">
-      <div class="field">
-        <label>Endereço (rua)</label>
-        <input name="endereco" value="<%= imovel.endereco || '' %>">
-      </div>
-      <div class="field">
-        <label>Número</label>
-        <input name="numero" value="<%= imovel.numero || '' %>">
-      </div>
+      <div class="f"><label>Endereço</label><input name="endereco" value="<%= imovel.endereco||'' %>"></div>
+      <div class="f"><label>Número</label><input name="numero" value="<%= imovel.numero||'' %>"></div>
     </div>
     <div class="fg3" style="margin-bottom:12px">
-      <div class="field">
-        <label>Complemento</label>
-        <input name="complemento" value="<%= imovel.complemento || '' %>">
-      </div>
-      <div class="field">
-        <label>Bairro</label>
-        <input name="bairro" value="<%= imovel.bairro || '' %>">
-      </div>
-      <div class="field">
-        <label>CEP</label>
-        <input name="cep" value="<%= imovel.cep || '' %>">
-      </div>
+      <div class="f"><label>Complemento</label><input name="complemento" value="<%= imovel.complemento||'' %>"></div>
+      <div class="f"><label>Bairro</label><input name="bairro" value="<%= imovel.bairro||'' %>"></div>
+      <div class="f"><label>CEP</label><input name="cep" value="<%= imovel.cep||'' %>"></div>
     </div>
     <div class="fg3">
-      <div class="field">
-        <label>Cidade</label>
-        <input name="cidade" value="<%= imovel.cidade || '' %>">
-      </div>
-      <div class="field">
-        <label>Latitude</label>
-        <input name="latitude" value="<%= imovel.latitude || imovel.lat || '' %>">
-      </div>
-      <div class="field">
-        <label>Longitude</label>
-        <input name="longitude" value="<%= imovel.longitude || imovel.lng || '' %>">
-      </div>
+      <div class="f"><label>Cidade</label><input name="cidade" value="<%= imovel.cidade||'' %>"></div>
+      <div class="f"><label>Latitude</label><input name="latitude" value="<%= imovel.latitude||imovel.lat||'' %>"></div>
+      <div class="f"><label>Longitude</label><input name="longitude" value="<%= imovel.longitude||imovel.lng||'' %>"></div>
     </div>
   </div>
 
-  <!-- VALORES -->
-  <div class="edit-card">
-    <div class="edit-section-title">Valores</div>
+  <!-- Valores -->
+  <div class="ec">
+    <p class="ec-title">Valores</p>
     <div class="fg3">
-      <div class="field">
-        <label>Valor do imóvel (R$)</label>
-        <input name="valor_imovel" type="number" value="<%= imovel.valor_imovel || imovel.valor || '' %>">
-      </div>
-      <div class="field">
-        <label>Condomínio (R$)</label>
-        <input name="condominio" type="number" value="<%= imovel.condominio || '' %>">
-      </div>
-      <div class="field">
-        <label>IPTU (R$)</label>
-        <input name="iptu" type="number" value="<%= imovel.iptu || '' %>">
-      </div>
+      <div class="f"><label>Valor (R$)</label><input name="valor_imovel" type="number" value="<%= imovel.valor_imovel||imovel.valor||'' %>"></div>
+      <div class="f"><label>Condomínio (R$)</label><input name="condominio" type="number" value="<%= imovel.condominio||'' %>"></div>
+      <div class="f"><label>IPTU (R$)</label><input name="iptu" type="number" value="<%= imovel.iptu||'' %>"></div>
     </div>
   </div>
 
-  <!-- CARACTERÍSTICAS -->
-  <div class="edit-card">
-    <div class="edit-section-title">Características</div>
+  <!-- Características -->
+  <div class="ec">
+    <p class="ec-title">Características</p>
     <div class="fg4" style="margin-bottom:12px">
-      <div class="field">
-        <label>Área útil (m²)</label>
-        <input name="area_m2" type="number" value="<%= imovel.area_m2 || imovel.area || '' %>">
-      </div>
-      <div class="field">
-        <label>Área total (m²)</label>
-        <input name="area_total" type="number" value="<%= imovel.area_total || '' %>">
-      </div>
-      <div class="field">
-        <label>Andar</label>
-        <input name="andar" type="number" value="<%= imovel.andar || '' %>">
-      </div>
-      <div class="field">
-        <label>Quartos</label>
-        <input name="quartos" type="number" value="<%= imovel.quartos || '' %>">
-      </div>
+      <div class="f"><label>Área útil (m²)</label><input name="area_m2" type="number" value="<%= imovel.area_m2||imovel.area||'' %>"></div>
+      <div class="f"><label>Área total (m²)</label><input name="area_total" type="number" value="<%= imovel.area_total||'' %>"></div>
+      <div class="f"><label>Andar</label><input name="andar" type="number" value="<%= imovel.andar||'' %>"></div>
+      <div class="f"><label>Quartos</label><input name="quartos" type="number" value="<%= imovel.quartos||'' %>"></div>
     </div>
     <div class="fg4">
-      <div class="field">
-        <label>Suítes</label>
-        <input name="suites" type="number" value="<%= imovel.suites || '' %>">
-      </div>
-      <div class="field">
-        <label>Banheiros</label>
-        <input name="banheiros" type="number" value="<%= imovel.banheiros || '' %>">
-      </div>
-      <div class="field">
-        <label>Vagas</label>
-        <input name="vagas" type="number" value="<%= imovel.vagas || '' %>">
-      </div>
-      <div class="field">
+      <div class="f"><label>Suítes</label><input name="suites" type="number" value="<%= imovel.suites||'' %>"></div>
+      <div class="f"><label>Banheiros</label><input name="banheiros" type="number" value="<%= imovel.banheiros||'' %>"></div>
+      <div class="f"><label>Vagas</label><input name="vagas" type="number" value="<%= imovel.vagas||'' %>"></div>
+      <div class="f">
         <label>Fase</label>
         <select name="fase">
           <option value="pronto" <%=(imovel.fase||'pronto')==='pronto'?'selected':''%>>Pronto</option>
@@ -211,27 +157,19 @@
     </div>
   </div>
 
-  <!-- DESCRIÇÃO -->
-  <div class="edit-card">
-    <div class="edit-section-title">Descrição</div>
-    <div class="field">
-      <textarea name="descricao" rows="5"><%= imovel.descricao || '' %></textarea>
-    </div>
+  <!-- Descrição -->
+  <div class="ec">
+    <p class="ec-title">Descrição</p>
+    <div class="f"><textarea name="descricao" rows="5"><%= imovel.descricao||'' %></textarea></div>
   </div>
 
-  <!-- PROPRIETÁRIO -->
-  <div class="edit-card">
-    <div class="edit-section-title">Proprietário</div>
-    <div class="fg4">
-      <div class="field" style="grid-column:span 2">
-        <label>Nome</label>
-        <input name="proprietario_nome" value="<%= imovel.proprietario?.nome || imovel.proprietario || '' %>">
-      </div>
-      <div class="field">
-        <label>Telefone / WhatsApp</label>
-        <input name="proprietario_telefone" value="<%= imovel.proprietario?.telefone || imovel.proprietario?.celular || imovel.proprietario_celular || '' %>">
-      </div>
-      <div class="field">
+  <!-- Proprietário -->
+  <div class="ec">
+    <p class="ec-title">Proprietário</p>
+    <div class="fg4" style="margin-bottom:12px">
+      <div class="f" style="grid-column:span 2"><label>Nome</label><input name="proprietario_nome" value="<%= imovel.proprietario?.nome||imovel.proprietario||'' %>"></div>
+      <div class="f"><label>Telefone / WhatsApp</label><input name="proprietario_telefone" value="<%= imovel.proprietario?.telefone||imovel.proprietario?.celular||imovel.proprietario_celular||'' %>"></div>
+      <div class="f">
         <label>Status do vínculo</label>
         <select name="proprietario_status">
           <option value="vinculado" <%=(imovel.proprietario?.status||'vinculado')==='vinculado'?'selected':''%>>Vinculado</option>
@@ -240,91 +178,89 @@
         </select>
       </div>
     </div>
-    <div class="fg2" style="margin-top:12px">
-      <div class="field">
-        <label>Email</label>
-        <input name="proprietario_email" type="email" value="<%= imovel.proprietario?.email || imovel.proprietario_email || '' %>">
-      </div>
-      <div class="field">
-        <label>CPF</label>
-        <input name="proprietario_cpf" value="<%= imovel.proprietario?.cpf || imovel.proprietario_cpf || '' %>">
-      </div>
+    <div class="fg2">
+      <div class="f"><label>Email</label><input name="proprietario_email" type="email" value="<%= imovel.proprietario?.email||imovel.proprietario_email||'' %>"></div>
+      <div class="f"><label>CPF</label><input name="proprietario_cpf" value="<%= imovel.proprietario?.cpf||imovel.proprietario_cpf||'' %>"></div>
     </div>
   </div>
 
-  <!-- DIFERENCIAIS -->
-  <div class="edit-card">
-    <div class="edit-section-title">✨ Diferenciais</div>
-    <% const _difs = imovel.diferenciais || {}; %>
-    <div style="margin-bottom:8px;font-size:10px;font-weight:800;color:#9ca3af">LAZER</div>
-    <div class="dif-grid" style="margin-bottom:12px">
-      <% [['piscina','🏊 Piscina'],['academia','🏋️ Academia'],['churrasqueira','🔥 Churrasqueira'],['salao_festas','🎉 Salão festas'],['playground','🛝 Playground'],['quadra','🏀 Quadra'],['sauna','🧖 Sauna'],['cinema','🎬 Cinema'],['coworking','💻 Coworking'],['rooftop','🌆 Rooftop']].forEach(([k,l]) => { %>
+  <!-- Diferenciais -->
+  <div class="ec">
+    <p class="ec-title">Diferenciais</p>
+    <% const _difs=imovel.diferenciais||{}; %>
+
+    <p class="dif-sub">Lazer</p>
+    <div class="dif-grid" style="margin-bottom:4px">
+      <% [['piscina','Piscina'],['academia','Academia'],['churrasqueira','Churrasqueira'],['salao_festas','Salão festas'],['playground','Playground'],['quadra','Quadra'],['sauna','Sauna'],['cinema','Cinema'],['coworking','Coworking'],['rooftop','Rooftop']].forEach(([k,l])=>{ %>
       <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
       <% }) %>
     </div>
-    <div style="margin-bottom:8px;font-size:10px;font-weight:800;color:#9ca3af">SEGURANÇA</div>
-    <div class="dif-grid" style="margin-bottom:12px">
-      <% [['portaria_24h','👮 Portaria 24h'],['portao_eletronico','🚗 Portão eletr.'],['cameras','📷 Câmeras'],['interfone','📞 Interfone'],['condominio_fechado','🔒 Cond. fechado'],['alarme','🚨 Alarme']].forEach(([k,l]) => { %>
+
+    <p class="dif-sub">Segurança</p>
+    <div class="dif-grid" style="margin-bottom:4px">
+      <% [['portaria_24h','Portaria 24h'],['portao_eletronico','Portão eletr.'],['cameras','Câmeras'],['interfone','Interfone'],['condominio_fechado','Cond. fechado'],['alarme','Alarme']].forEach(([k,l])=>{ %>
       <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
       <% }) %>
     </div>
-    <div style="margin-bottom:8px;font-size:10px;font-weight:800;color:#9ca3af">IMÓVEL</div>
-    <div class="dif-grid" style="margin-bottom:12px">
-      <% [['varanda','🌿 Varanda'],['elevador','🛗 Elevador'],['mobiliado','🛋️ Mobiliado'],['semi_mobiliado','🪑 Semi mobiliado'],['ar_condicionado','❄️ Ar condicionado'],['solar','☀️ Energia solar'],['pet_friendly','🐾 Pet friendly'],['acessibilidade','♿ Acessibilidade'],['vista_mar','🌊 Vista mar'],['quintal','🏡 Quintal'],['jardim','🌳 Jardim'],['deposito','📦 Depósito']].forEach(([k,l]) => { %>
+
+    <p class="dif-sub">Imóvel</p>
+    <div class="dif-grid" style="margin-bottom:4px">
+      <% [['varanda','Varanda'],['elevador','Elevador'],['mobiliado','Mobiliado'],['semi_mobiliado','Semi mobiliado'],['ar_condicionado','Ar condicionado'],['solar','Energia solar'],['pet_friendly','Pet friendly'],['acessibilidade','Acessibilidade'],['vista_mar','Vista mar'],['quintal','Quintal'],['jardim','Jardim'],['deposito','Depósito']].forEach(([k,l])=>{ %>
       <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
       <% }) %>
     </div>
-    <div style="margin-bottom:8px;font-size:10px;font-weight:800;color:#9ca3af">LOCALIZAÇÃO</div>
+
+    <p class="dif-sub">Localização</p>
     <div class="dif-grid">
-      <% [['metro','🚇 Próx. metrô'],['onibus','🚌 Próx. ônibus'],['shopping','🛒 Próx. shopping'],['escola','🏫 Próx. escola'],['hospital','🏥 Próx. hospital'],['parque','🌳 Próx. parque'],['praia','🏖️ Próx. praia'],['centro','🏙️ Região central']].forEach(([k,l]) => { %>
+      <% [['metro','Próx. metrô'],['onibus','Próx. ônibus'],['shopping','Próx. shopping'],['escola','Próx. escola'],['hospital','Próx. hospital'],['parque','Próx. parque'],['praia','Próx. praia'],['centro','Região central']].forEach(([k,l])=>{ %>
       <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
       <% }) %>
     </div>
   </div>
 
-  <!-- PORTAIS -->
-  <div class="edit-card">
-    <div class="edit-section-title">Publicação em portais</div>
+  <!-- Portais -->
+  <div class="ec">
+    <p class="ec-title">Publicação em portais</p>
     <div class="portal-grid">
-      <% const _portais = imovel.portais || {}; %>
-      <label><input type="checkbox" name="portal_olx" <%=_portais.olx||_portais.portal_olx?'checked':''%>><span>OLX</span></label>
-      <label><input type="checkbox" name="portal_zap" <%=_portais.zap||_portais.portal_zap?'checked':''%>><span>ZAP Imóveis</span></label>
-      <label><input type="checkbox" name="portal_vivareal" <%=_portais.vivareal||_portais.portal_vivareal?'checked':''%>><span>VivaReal</span></label>
-      <label><input type="checkbox" name="portal_chaves" <%=_portais.chaves||_portais.portal_chaves?'checked':''%>><span>Chaves na Mão</span></label>
-      <label><input type="checkbox" name="portal_imovelweb" <%=_portais.imovelweb||_portais.portal_imovelweb?'checked':''%>><span>ImovelWeb</span></label>
-      <label><input type="checkbox" name="portal_123i" <%=_portais['123i']||_portais.portal_123i?'checked':''%>><span>123i</span></label>
-      <label><input type="checkbox" name="portal_quintoandar" <%=_portais.quintoandar||_portais.portal_quintoandar?'checked':''%>><span>QuintoAndar</span></label>
+      <% const _portais=imovel.portais||{}; %>
+      <label class="portal-label"><input type="checkbox" name="portal_olx" <%=_portais.olx||_portais.portal_olx?'checked':''%>> OLX</label>
+      <label class="portal-label"><input type="checkbox" name="portal_zap" <%=_portais.zap||_portais.portal_zap?'checked':''%>> ZAP Imóveis</label>
+      <label class="portal-label"><input type="checkbox" name="portal_vivareal" <%=_portais.vivareal||_portais.portal_vivareal?'checked':''%>> VivaReal</label>
+      <label class="portal-label"><input type="checkbox" name="portal_chaves" <%=_portais.chaves||_portais.portal_chaves?'checked':''%>> Chaves na Mão</label>
+      <label class="portal-label"><input type="checkbox" name="portal_imovelweb" <%=_portais.imovelweb||_portais.portal_imovelweb?'checked':''%>> ImovelWeb</label>
+      <label class="portal-label"><input type="checkbox" name="portal_123i" <%=_portais['123i']||_portais.portal_123i?'checked':''%>> 123i</label>
+      <label class="portal-label"><input type="checkbox" name="portal_quintoandar" <%=_portais.quintoandar||_portais.portal_quintoandar?'checked':''%>> QuintoAndar</label>
     </div>
   </div>
 
-  <!-- AÇÕES -->
-  <div style="display:flex;justify-content:flex-end;gap:12px;margin-bottom:18px">
+  <!-- Ações -->
+  <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:12px">
     <a href="/app/imoveis" class="btn-cancel">Cancelar</a>
-    <button type="submit" class="btn-save">💾 Salvar alterações</button>
+    <button type="submit" class="btn-save">Salvar alterações</button>
   </div>
 
 </form>
 
-<!-- FOTOS -->
-<div class="edit-card">
-  <div class="edit-section-title">Fotos do imóvel</div>
-  <% const _fotos = Array.isArray(imovel.fotos) ? imovel.fotos : []; %>
-  <% if(_fotos.length === 0) { %>
-    <p style="color:#9ca3af;font-size:13px;margin-bottom:16px">Nenhuma foto cadastrada ainda.</p>
+<!-- Fotos -->
+<div class="ec">
+  <p class="ec-title">Fotos do imóvel</p>
+  <% const _fotos=Array.isArray(imovel.fotos)?imovel.fotos:[]; %>
+  <% if(_fotos.length===0){ %>
+    <p style="color:#9ca3af;font-size:13px;margin-bottom:14px">Nenhuma foto cadastrada ainda.</p>
   <% } else { %>
   <div class="fotos-grid">
-    <% _fotos.forEach((foto, idx) => { %>
+    <% _fotos.forEach((foto,idx)=>{ %>
     <div class="foto-card">
       <img src="<%= foto %>" alt="Foto <%= idx+1 %>">
-      <% if(idx===0){%><span class="foto-capa-badge">Capa</span><%}%>
+      <% if(idx===0){%><span class="foto-capa">Capa</span><%}%>
       <div class="foto-btns">
         <form method="POST" action="/app/imovel/<%= idImovel %>/capa-foto" style="flex:1">
           <input type="hidden" name="foto" value="<%= foto %>">
-          <button type="submit" class="btn-capa">⭐ Capa</button>
+          <button type="submit">Capa</button>
         </form>
         <form method="POST" action="/app/imovel/<%= idImovel %>/excluir-foto" style="flex:1">
           <input type="hidden" name="foto" value="<%= foto %>">
-          <button type="submit" class="btn-del">🗑️</button>
+          <button type="submit" class="btn-del">Excluir</button>
         </form>
       </div>
     </div>
@@ -333,9 +269,36 @@
   <% } %>
   <div class="upload-box">
     <form method="POST" action="/app/imovel/<%= idImovel %>/upload-foto" enctype="multipart/form-data" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%">
-      <span style="font-size:13px;font-weight:600;color:#374151">📷 Enviar nova foto</span>
+      <span style="font-size:13px;color:#374151;font-weight:500">Enviar nova foto</span>
       <input type="file" name="foto" accept="image/*" required style="flex:1;min-width:180px">
-      <button type="submit" class="btn-save" style="padding:10px 20px">Subir foto</button>
+      <button type="submit" class="btn-save">Subir foto</button>
     </form>
   </div>
 </div>
+
+<script>
+function fmtCEP(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>5) v=v.slice(0,5)+'-'+v.slice(5,8);
+  el.value=v;
+}
+async function buscarCEPEdit(){
+  const cep=document.getElementById('cep-edit').value.replace(/\D/g,'');
+  const res=document.getElementById('cep-res');
+  if(cep.length!==8){res.style.display='block';res.style.background='#fef2f2';res.style.color='#b91c1c';res.textContent='CEP inválido.';return;}
+  res.style.display='block';res.style.background='#f9fafb';res.style.color='#6b7280';res.textContent='Buscando...';
+  try{
+    const d=await(await fetch('https://viacep.com.br/ws/'+cep+'/json/')).json();
+    if(d.erro){res.style.background='#fef2f2';res.style.color='#b91c1c';res.textContent='CEP não encontrado.';return;}
+    const set=(n,v)=>{const el=document.querySelector('[name="'+n+'"]');if(el&&v)el.value=v;};
+    set('endereco',d.logradouro);
+    set('bairro',d.bairro);
+    set('cidade',d.localidade);
+    set('cep',d.cep);
+    res.style.background='#f0fdf4';res.style.color='#15803d';
+    res.textContent='Endereço preenchido: '+d.logradouro+', '+d.bairro+' — '+d.localidade+'/'+d.uf;
+  }catch(e){res.style.background='#fef2f2';res.style.color='#b91c1c';res.textContent='Erro ao buscar CEP.';}
+}
+</script>
+
+<%- include('partials/app-end') %>

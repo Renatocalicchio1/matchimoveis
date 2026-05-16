@@ -49,12 +49,12 @@
       "paginaAnterior": "dashboard"
     },
     "cor_as61p840px": {
-      "paginaAtual": "leads",
-      "labelAtual": "Leads",
-      "dominioAtual": "leads",
-      "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-16T15:48:40.259Z",
-      "paginaAnterior": "visitas"
+      "paginaAtual": "visitas",
+      "labelAtual": "Visitas",
+      "dominioAtual": "visitas",
+      "rotaAtual": "/app/visitas",
+      "atualizadoEm": "2026-05-16T16:01:03.749Z",
+      "paginaAnterior": "notificacoes"
     }
   },
   "fluxos": [
@@ -5949,6 +5949,48 @@
       "para": "leads",
       "userId": "cor_as61p840px",
       "data": "2026-05-16T15:48:40.259Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T15:54:25.620Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T15:54:28.128Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T15:54:40.961Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T15:54:45.768Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T15:58:23.269Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T16:01:01.791Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T16:01:03.749Z"
     }
   ]
 }

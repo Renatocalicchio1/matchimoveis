@@ -53,23 +53,11 @@ function buscarMatchesBaseInterna(lead, imoveis) {
       if (quartosCand > quartosOrigem + 1) return false;
     }
 
-    // MATCH_VALOR_PERFIL — usa valorMin/valorMax do perfil do lead se disponível
-    const valorCand = Number(i.valor_imovel || i.valor || 0);
-    const _valorMaxLead = Number(lead.valorMax || lead.valor_imovel || lead.valor || 0);
-    const _valorMinLead = Number(lead.valorMin || 0);
     const valorOrigem = Number(origem.valor_imovel || origem.valor || 0);
-    if (_valorMaxLead > 0) {
-      // Usa faixa do perfil do lead
-      const _margemMax = _valorMaxLead > 1000000 ? 1.10 : 1.20;
-      const _min = _valorMinLead > 0 ? _valorMinLead : _valorMaxLead * 0.70;
-      const _max = _valorMaxLead * _margemMax;
-      if (valorCand < _min) return false;
-      if (valorCand > _max) return false;
-    } else if (valorOrigem > 0) {
-      // Fallback: usa valor do imóvel de origem — margem +20% até 1M, +10% acima de 1M
-      const _margemOrigem = valorOrigem > 1000000 ? 1.10 : 1.20;
+    const valorCand = Number(i.valor_imovel || i.valor || 0);
+    if (valorOrigem > 0) {
       if (valorCand < valorOrigem * 0.70) return false;
-      if (valorCand > valorOrigem * _margemOrigem) return false;
+      if (valorCand > valorOrigem * 1.20) return false;
     }
 
     const areaOrigem = Number(origem.area_m2 || origem.area || 0);
@@ -126,23 +114,11 @@ function filtrarCandidatosPelaRegraInterna(lead, candidatos, imoveisBase = []) {
       if (quartosCand > quartosOrigem + 1) return false;
     }
 
-    // MATCH_VALOR_PERFIL — usa valorMin/valorMax do perfil do lead se disponível
-    const valorCand = Number(i.valor_imovel || i.valor || 0);
-    const _valorMaxLead = Number(lead.valorMax || lead.valor_imovel || lead.valor || 0);
-    const _valorMinLead = Number(lead.valorMin || 0);
     const valorOrigem = Number(origem.valor_imovel || origem.valor || 0);
-    if (_valorMaxLead > 0) {
-      // Usa faixa do perfil do lead
-      const _margemMax = _valorMaxLead > 1000000 ? 1.10 : 1.20;
-      const _min = _valorMinLead > 0 ? _valorMinLead : _valorMaxLead * 0.70;
-      const _max = _valorMaxLead * _margemMax;
-      if (valorCand < _min) return false;
-      if (valorCand > _max) return false;
-    } else if (valorOrigem > 0) {
-      // Fallback: usa valor do imóvel de origem — margem +20% até 1M, +10% acima de 1M
-      const _margemOrigem = valorOrigem > 1000000 ? 1.10 : 1.20;
+    const valorCand = Number(i.valor_imovel || i.valor || 0);
+    if (valorOrigem > 0) {
       if (valorCand < valorOrigem * 0.70) return false;
-      if (valorCand > valorOrigem * _margemOrigem) return false;
+      if (valorCand > valorOrigem * 1.20) return false;
     }
 
     const areaOrigem = Number(origem.area_m2 || origem.area || 0);

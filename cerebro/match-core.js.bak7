@@ -260,26 +260,10 @@ class MatchCore {
   // 5. INTENÇÃO
   // ============================================================
   _intencao(lead, perfil) {
-    // SYNC_PERFIL_LEAD — copia todos os campos do perfil para o lead raiz
     if (perfil.intencao)   lead.intencao   = perfil.intencao;
     if (perfil.faseFunil)  lead.faseFunil  = perfil.faseFunil;
     if (perfil.urgencia)   lead.urgencia   = perfil.urgencia;
     if (perfil.sentimento) lead.sentimento = perfil.sentimento;
-    if (perfil.tipo)       lead.tipo       = perfil.tipo;
-    if (perfil.quartos)    lead.quartos    = perfil.quartos;
-    if (perfil.suites)     lead.suites     = perfil.suites;
-    if (perfil.banheiros)  lead.banheiros  = perfil.banheiros;
-    if (perfil.vagas)      lead.vagas      = perfil.vagas;
-    if (perfil.area)       lead.area       = perfil.area;
-    if (perfil.bairro)     lead.bairro     = perfil.bairro;
-    if (perfil.cidade)     lead.cidade     = perfil.cidade;
-    if (perfil.estado)     lead.estado     = perfil.estado;
-    if (perfil.valorMax)   lead.valorMax   = perfil.valorMax;
-    if (perfil.valorMin)   lead.valorMin   = perfil.valorMin;
-    if (perfil.motivacao)  lead.motivacao  = perfil.motivacao;
-    if (perfil.familia)    lead.familia    = perfil.familia;
-    if (perfil.diferenciais) lead.diferenciais = perfil.diferenciais;
-    if (perfil.temperatura) lead.temperatura = perfil.temperatura;
     return lead;
   }
 

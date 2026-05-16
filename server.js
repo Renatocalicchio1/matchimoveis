@@ -308,31 +308,39 @@ if (!nome || !contato) return res.json({ ok: false, erro: "Nome e contato são o
 const data = fs.existsSync(dataPath("data.json")) ? JSON.parse(fs.readFileSync(dataPath("data.json"), "utf8")) : [];
 const userId = req.session.user.id;
 const novoLead = {
-nome: nome.trim(),
-contato: String(contato).replace(/\D/g,""),
-tipo: tipo || "",
-tipo_operacao: tipo_operacao || "",
-bairro: bairro || "",
-cidade: cidade || "",
-estado: estado || "",
-valor_imovel: Number(valor_imovel) || 0,
-quartos: Number(quartos) || 0,
-suites: Number(suites) || 0,
-vagas: Number(vagas) || 0,
-area_m2: Number(area_m2) || 0,
-id: Date.now().toString(),
-createdAt: new Date().toISOString(),
-userId,
-usuarioId: userId,
-corretorId: userId,
-matchCount: 0,
-matchesBase: [],
-matchCountBase: 0,
-indisponivel: false,
-status: "novo"
+  id: Date.now().toString(),
+  nome: nome.trim(),
+  contato: String(contato).replace(/\D/g,''),
+  telefone: String(contato).replace(/\D/g,''),
+  tipo, tipo_operacao: tipo_operacao||'',
+  bairro: bairro||'', cidade: cidade||'', estado: estado||'',
+  valor_imovel: Number(valor_imovel)||0,
+  valorMax: Number(valor_imovel)||0,
+  quartos: Number(quartos)||0,
+  suites: Number(suites)||0,
+  vagas: Number(vagas)||0,
+  area_m2: Number(area_m2)||0,
+  area: Number(area_m2)||0,
+  origem: 'manual', canal: 'manual',
+  status: 'novo', faseFunil: 'novo', temperatura: 'frio', score: 0,
+  createdAt: new Date().toISOString(),
+  criadoEm: new Date().toISOString(),
+  userId, codigoUsuario: userId, usuarioId: userId, corretorId: userId,
+  perfilIA: {
+    tipo: tipo||'', bairro: bairro||'',
+    quartos: Number(quartos)||0,
+    valorMax: Number(valor_imovel)||0,
+    intencao: tipo_operacao==='aluguel'?'alugar':'comprar',
+    faseFunil: 'qualificado', temperatura: 'morno'
+  },
+  mensagens: [], timeline: [{ tipo:'lead_criada', timestamp: new Date().toISOString() }],
+  eventos: [], followUps: [], matches: [], matchesAuto: [],
+  matchCount: 0, matchesBase: [], matchCountBase: 0,
+  vitrineEnviada: false, visitaSolicitada: false
 };
-data.push(novoLead);
-fs.writeFileSync(dataPath("data.json"), JSON.stringify(data, null, 2));
+
+// Usa salvarLead centralizada
+salvarLead(novoLead, userId);
 res.json({ ok: true, lead: novoLead });
 } catch(e) {
 res.json({ ok: false, erro: e.message });
@@ -684,6 +692,148 @@ app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
   } catch(e) { console.log('Erro notif proprietario:', e.message); }
   res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
 });
+
+
+// ══════════════════════════════════════════════════════════════
+// FUNÇÃO CENTRALIZADA — salvarLead
+// Todos os canais devem usar essa função para salvar leads
+// Garante consistência de campos e dispara match-core
+// ══════════════════════════════════════════════════════════════
+function salvarLead(leadData, userId) {
+  try {
+    if (!userId) { console.warn('[salvarLead] userId vazio!'); }
+
+    // 1. Normaliza campos de identidade
+    const lead = {
+      ...leadData,
+      userId,
+      codigoUsuario: userId,
+      usuarioId: userId,
+      corretorId: userId,
+      criadoEm: leadData.criadoEm || new Date().toISOString(),
+      atualizadoEm: new Date().toISOString(),
+      // Campos obrigatórios com fallback
+      mensagens:  leadData.mensagens  || [],
+      timeline:   leadData.timeline   || [],
+      eventos:    leadData.eventos    || [],
+      followUps:  leadData.followUps  || [],
+      matches:    leadData.matches    || [],
+      matchesAuto: leadData.matchesAuto || [],
+      perfilIA:   leadData.perfilIA   || {},
+      score:      leadData.score      || 0,
+      temperatura: leadData.temperatura || 'frio',
+      faseFunil:  leadData.faseFunil  || 'novo',
+      vitrineEnviada:    leadData.vitrineEnviada    || false,
+      vitrineVisualizada: leadData.vitrineVisualizada || false,
+      visitaSolicitada:  leadData.visitaSolicitada  || false,
+      visitaConfirmada:  leadData.visitaConfirmada  || false,
+      visitaRealizada:   leadData.visitaRealizada   || false,
+      propostaFeita:     leadData.propostaFeita     || false,
+    };
+
+    if (!lead.id) lead.id = Date.now().toString();
+    if (!lead.leadId) lead.id = lead.id;
+
+    // 2. Salva no data.json
+    const leadsPath = dataPath('data.json');
+    const leads = fs.existsSync(leadsPath) ? JSON.parse(fs.readFileSync(leadsPath,'utf8')) : [];
+    const fone = String(lead.contato||lead.telefone||'').replace(/\D/g,'');
+    const idxExiste = leads.findIndex(l =>
+      String(l.id) === String(lead.id) ||
+      (fone && String(l.contato||l.telefone||'').replace(/\D/g,'') === fone && (l.userId===userId||l.codigoUsuario===userId))
+    );
+
+    if (idxExiste >= 0) {
+      leads[idxExiste] = { ...leads[idxExiste], ...lead, id: leads[idxExiste].id };
+      lead.id = leads[idxExiste].id;
+    } else {
+      leads.push(lead);
+    }
+    fs.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+    console.log('[salvarLead] ✅ lead salva | userId:', userId, '| id:', lead.id);
+
+    // 3. Dispara match-core em background
+    setImmediate(async () => {
+      try {
+        const matchCore = require('./cerebro/match-core');
+        const leadsAtual = JSON.parse(fs.readFileSync(leadsPath,'utf8'));
+        const leadAtual = leadsAtual.find(l => String(l.id) === String(lead.id));
+        if (leadAtual) {
+          await matchCore.processar({
+            lead: leadAtual,
+            mensagem: leadAtual.ultimaMensagem || 'Lead cadastrada',
+            canal: leadAtual.canal || 'sistema',
+            userId,
+            leadsPath,
+            instancia: null
+          });
+        }
+      } catch(e) { console.log('[salvarLead] match-core erro:', e.message); }
+    });
+
+    return lead;
+  } catch(e) {
+    console.error('[salvarLead] erro:', e.message);
+    return leadData;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// FUNÇÃO CENTRALIZADA — salvarVisita
+// ══════════════════════════════════════════════════════════════
+function salvarVisita(visitaData, userId) {
+  try {
+    const visita = {
+      ...visitaData,
+      userId,
+      codigoUsuario: userId,
+      usuarioDestinoId: userId,
+      corretorId: userId,
+      status: visitaData.status || 'solicitada',
+      criadoEm: visitaData.criadoEm || new Date().toISOString(),
+      proprietarioConfirmou: visitaData.proprietarioConfirmou || false,
+      clienteConfirmou: visitaData.clienteConfirmou || false,
+      confirmacaoProprietarioStatus: visitaData.confirmacaoProprietarioStatus || 'PENDENTE',
+      confirmacaoClienteStatus: visitaData.confirmacaoClienteStatus || 'PENDENTE',
+    };
+
+    if (!visita.id) visita.id = Date.now().toString();
+
+    const visitasPath = dataPath('visitas.json');
+    const visitas = fs.existsSync(visitasPath) ? JSON.parse(fs.readFileSync(visitasPath,'utf8')) : [];
+    const idxExiste = visitas.findIndex(v => String(v.id) === String(visita.id));
+
+    if (idxExiste >= 0) {
+      visitas[idxExiste] = { ...visitas[idxExiste], ...visita };
+    } else {
+      visitas.push(visita);
+    }
+    fs.writeFileSync(visitasPath, JSON.stringify(visitas, null, 2));
+
+    // Cria notificação
+    try {
+      const notifs = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
+      notifs.push({
+        id: Date.now().toString(),
+        tipo: 'nova_visita',
+        titulo: '📅 Nova visita solicitada',
+        mensagem: (visita.leadNome||visita.nome||'Lead') + ' solicitou visita para ' + (visita.imovelTitulo||'imóvel'),
+        usuarioId: userId,
+        leadId: visita.leadId,
+        imovelId: visita.imovelId,
+        lida: false,
+        criadaEm: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
+      });
+      fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(notifs, null, 2));
+    } catch(e) {}
+
+    console.log('[salvarVisita] ✅ visita salva | userId:', userId, '| id:', visita.id);
+    return visita;
+  } catch(e) {
+    console.error('[salvarVisita] erro:', e.message);
+    return visitaData;
+  }
+}
 
 // ===== APP ROUTES =====
 

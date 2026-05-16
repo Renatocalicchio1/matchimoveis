@@ -49,11 +49,11 @@
       "paginaAnterior": "dashboard"
     },
     "cor_as61p840px": {
-      "paginaAtual": "visitas",
-      "labelAtual": "Visitas",
-      "dominioAtual": "visitas",
-      "rotaAtual": "/app/visitas",
-      "atualizadoEm": "2026-05-16T01:17:41.382Z",
+      "paginaAtual": "imoveis",
+      "labelAtual": "Meus Imoveis",
+      "dominioAtual": "imoveis",
+      "rotaAtual": "/app/imoveis",
+      "atualizadoEm": "2026-05-16T01:36:54.052Z",
       "paginaAnterior": "leads"
     }
   },
@@ -4953,6 +4953,42 @@
       "para": "visitas",
       "userId": "cor_as61p840px",
       "data": "2026-05-16T01:17:41.382Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T01:22:33.202Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T01:22:35.292Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T01:22:36.360Z"
+    },
+    {
+      "de": "leads",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T01:22:36.890Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T01:36:03.477Z"
+    },
+    {
+      "de": "leads",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T01:36:54.052Z"
     }
   ]
 }

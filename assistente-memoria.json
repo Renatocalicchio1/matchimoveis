@@ -2977,7 +2977,7 @@
     },
     "test": {
       "nome": "Renato",
-      "ultimaAtividade": "2026-05-09T01:41:54.318Z",
+      "ultimaAtividade": "2026-05-16T21:45:46.522Z",
       "taxaMatch": 47,
       "totalLeads": 87,
       "totalImoveis": 45,
@@ -2987,9 +2987,10 @@
         "Florianópolis"
       ],
       "tiposFavoritos": [
-        "Apartamento"
+        "Apartamento",
+        "Casa"
       ],
-      "acessos": 1296
+      "acessos": 1365
     },
     "corretor-iniciante-001": {
       "nome": "Carlos",

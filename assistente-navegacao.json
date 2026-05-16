@@ -53,47 +53,11 @@
       "labelAtual": "Visitas",
       "dominioAtual": "visitas",
       "rotaAtual": "/app/visitas",
-      "atualizadoEm": "2026-05-16T21:15:08.498Z",
-      "paginaAnterior": "notificacoes"
+      "atualizadoEm": "2026-05-16T22:05:27.437Z",
+      "paginaAnterior": "visitas"
     }
   },
   "fluxos": [
-    {
-      "de": "assistente",
-      "para": "dashboard",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:03:24.845Z"
-    },
-    {
-      "de": "dashboard",
-      "para": "assistente",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:03:26.875Z"
-    },
-    {
-      "de": "assistente",
-      "para": "dashboard",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:06:26.838Z"
-    },
-    {
-      "de": "dashboard",
-      "para": "assistente",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:06:29.681Z"
-    },
-    {
-      "de": "assistente",
-      "para": "cadastro",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:06:44.758Z"
-    },
-    {
-      "de": "cadastro",
-      "para": "dashboard",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:06:53.915Z"
-    },
     {
       "de": "dashboard",
       "para": "assistente",
@@ -6057,6 +6021,42 @@
       "para": "visitas",
       "userId": "cor_as61p840px",
       "data": "2026-05-16T21:15:08.498Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T21:46:35.001Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T21:47:54.909Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T21:50:26.097Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T21:55:09.216Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T21:55:21.589Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T21:55:24.326Z"
     }
   ]
 }

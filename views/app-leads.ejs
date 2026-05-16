@@ -1,74 +1,90 @@
 <%- include('partials/app-shell', {active:'leads',title:'Leads',subtitle:'Gerencie e acompanhe seus clientes em busca de imóveis.',user:user}) %>
+<style>main{overflow-x:hidden!important} .page-content{overflow-x:hidden!important}</style>
 
 <style>
-.lead-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
-.lead-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:6px;transition:border-color .15s}
-.lead-card:hover{border-color:#c4b5fd}
-.lead-card.urg-alta{border-left:3px solid var(--brand)}
-.lead-card.urg-media{border-left:3px solid #f59e0b}
-.lead-card.urg-baixa{border-left:3px solid #7c3aed}
-@keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(255,56,92,.3)}50%{box-shadow:0 0 0 6px rgba(255,56,92,0)}}
+/* ── KPIs ── */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.kpi-sm{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden}
+.kpi-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:12px 0 0 12px}
+.kpi-label{font-size:10px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.kpi-val{font-size:24px;font-weight:600;color:#111827;letter-spacing:-1px}
+
+/* ── Filtros ── */
+.fi-bar{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:14px;padding:14px;margin-bottom:14px}
+.fi-search-row{display:flex;gap:8px;margin-bottom:10px}
+.fi-input{flex:1;padding:8px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;outline:none;color:#111827}
+.fi-input:focus{border-color:rgba(0,0,0,.3)}
+.fi-btn{padding:8px 14px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;background:#fff;color:#374151;white-space:nowrap}
+.fi-btn:hover{background:#f9fafb}
+.fi-btn-dark{background:#111827;color:#fff;border-color:#111827}
+.fi-btn-dark:hover{background:#1f2937}
+.chips-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.chips-lbl{font-size:10px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;min-width:60px}
+.fchip{padding:4px 12px;border-radius:999px;font-size:11px;font-weight:500;border:0.5px solid rgba(0,0,0,.1);background:#fff;cursor:pointer;color:#374151;transition:all .1s}
+.fchip.on{background:#111827;color:#fff;border-color:#111827}
+
+/* ── KANBAN ── */
+.kanban-wrap{display:flex;gap:10px;overflow-x:auto;padding-bottom:16px;align-items:flex-start;-webkit-overflow-scrolling:touch}
+.kanban-wrap::-webkit-scrollbar{height:5px}
+.kanban-wrap::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+.kanban-col{flex:0 0 260px;min-width:260px;max-width:260px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.06);border-radius:14px;padding:12px;min-height:300px;max-height:calc(100vh - 300px);overflow-y:auto}
+.kanban-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:0.5px solid rgba(0,0,0,.06)}
+.kanban-col-title{font-size:12px;font-weight:500;color:#374151}
+.kanban-col-count{font-size:11px;font-weight:500;color:#9ca3af;background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:999px;padding:2px 8px}
+.kanban-col-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── Cards ── */
+.lead-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;transition:box-shadow .15s;position:relative}
+.lead-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.lead-card.urg-alta{border-left:2px solid #ef4444}
+.lead-card.urg-media{border-left:2px solid #f59e0b}
+@keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.2)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
 .lead-card.urg-alta{animation:pulso 2.5s infinite}
-.acao-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:2px}
-.lead-nome{font-size:13px;font-weight:600;color:var(--dark);text-decoration:none}
-.lead-nome:hover{color:var(--brand)}
-.origem-badge{padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
-.score-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.score-pill{display:flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border-light);border-radius:7px;padding:3px 8px}
-.score-bar{width:44px;height:3px;background:var(--border);border-radius:3px;overflow:hidden}
+
+.acao-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:500;margin-bottom:8px;border:0.5px solid transparent}
+.lead-nome{font-size:13px;font-weight:500;color:#111827;text-decoration:none;display:block;margin-bottom:2px}
+.lead-nome:hover{color:#6366f1}
+.lead-tel{font-size:11px;color:#9ca3af;margin-bottom:6px}
+
+.score-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.score-bar{width:40px;height:3px;background:#f3f4f6;border-radius:3px;overflow:hidden}
 .score-fill{height:3px;border-radius:3px}
-.temp-pill{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
-.perfil-row{display:flex;gap:4px;flex-wrap:wrap}
-.perfil-tag{font-size:10px;color:var(--text-sec);background:var(--bg);border:1px solid var(--border-light);border-radius:5px;padding:1px 6px}
-.ultima-msg{font-size:11px;color:var(--text-ter);border-left:2px solid var(--border-light);padding-left:7px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lead-btns{display:flex;gap:5px;padding-top:8px;border-top:1px solid var(--border-light);flex-wrap:wrap}
-.lb{font-size:11px;padding:5px 10px;border-radius:7px;text-decoration:none;font-weight:500;border:1px solid var(--border);color:var(--text-sec);background:var(--white);cursor:pointer;transition:all .1s}
-.lb:hover{background:var(--bg)}
-.lb.wa{color:#16a34a;border-color:#bbf7d0}
+.temp-pill{padding:2px 8px;border-radius:999px;font-size:10px;font-weight:500}
+.match-pill{font-size:10px;font-weight:500;color:#15803d;background:#f0fdf4;border-radius:5px;padding:2px 7px}
+
+.perfil-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.perfil-tag{font-size:10px;color:#6b7280;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:5px;padding:1px 6px}
+
+.lead-btns{display:flex;gap:5px;padding-top:8px;border-top:0.5px solid rgba(0,0,0,.06);flex-wrap:wrap}
+.lb{font-size:11px;padding:5px 10px;border-radius:7px;text-decoration:none;font-weight:500;border:0.5px solid rgba(0,0,0,.1);color:#374151;background:#fff;cursor:pointer;transition:all .1s}
+.lb:hover{background:#f9fafb}
+.lb.wa{color:#15803d;border-color:#86efac}
 .lb.wa:hover{background:#f0fdf4}
-.lb.prim{color:var(--brand);border-color:#fda4af}
-.lb.prim:hover{background:var(--brand-light)}
-.lb.dark{background:var(--dark);color:#fff;border-color:var(--dark)}
-.lb.dark:hover{background:#333}
+.lb.prim{color:#6366f1;border-color:#c7d2fe}
+.lb.prim:hover{background:#eef2ff}
+.lb.dark{background:#111827;color:#fff;border-color:#111827}
+.lb.dark:hover{background:#1f2937}
 .lb.danger{color:#dc2626;border-color:#fca5a5}
-.confirm-box{display:none;padding:8px 10px;background:#fef2f2;border-radius:8px;border:1px solid #fca5a5;margin-top:4px}
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-.kpi-sm{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative}
-.kpi-sm .bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--radius) 0 0 var(--radius)}
-.chips-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
-.chips-lbl{font-size:10px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
-.fchip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--text-sec);transition:all .1s}
-.fchip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
-.fadv{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light)}
-.fadv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.fadv-grid label{font-size:11px;font-weight:500;color:var(--text-sec);display:block;margin-bottom:3px}
-.fadv-grid select{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:7px;font-size:12px}
+.confirm-box{display:none;padding:8px 10px;background:#fef2f2;border-radius:8px;border:0.5px solid #fca5a5;margin-top:6px}
+
+.empty-col{text-align:center;padding:24px 12px;color:#d1d5db;font-size:12px}
 </style>
 
 <!-- KPIs -->
 <div class="kpi-row">
-  <div class="kpi-sm"><div class="bar" style="background:var(--brand)"></div><div style="font-size:10px;font-weight:500;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Total</div><div style="font-size:26px;font-weight:700;color:var(--dark);letter-spacing:-1px"><%= stats.totalLeads %></div></div>
-  <div class="kpi-sm"><div class="bar" style="background:#22c55e"></div><div style="font-size:10px;font-weight:500;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Com match</div><div style="font-size:26px;font-weight:700;color:#16a34a;letter-spacing:-1px"><%= stats.comMatch %></div></div>
-  <div class="kpi-sm"><div class="bar" style="background:#9ca3af"></div><div style="font-size:10px;font-weight:500;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Sem match</div><div style="font-size:26px;font-weight:700;color:var(--dark);letter-spacing:-1px"><%= stats.pendentes %></div></div>
-  <div class="kpi-sm"><div class="bar" style="background:#7c3aed"></div><div style="font-size:10px;font-weight:500;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Matches IA</div><div style="font-size:26px;font-weight:700;color:#7c3aed;letter-spacing:-1px"><%= stats.totalMatches %></div></div>
+  <div class="kpi-sm"><div class="kpi-bar" style="background:#6366f1"></div><div class="kpi-label">Total</div><div class="kpi-val"><%= stats.totalLeads %></div></div>
+  <div class="kpi-sm"><div class="kpi-bar" style="background:#22c55e"></div><div class="kpi-label">Com match</div><div class="kpi-val" style="color:#15803d"><%= stats.comMatch %></div></div>
+  <div class="kpi-sm"><div class="kpi-bar" style="background:#9ca3af"></div><div class="kpi-label">Sem match</div><div class="kpi-val"><%= stats.pendentes %></div></div>
+  <div class="kpi-sm"><div class="kpi-bar" style="background:#7c3aed"></div><div class="kpi-label">Matches IA</div><div class="kpi-val" style="color:#7c3aed"><%= stats.totalMatches %></div></div>
 </div>
 
 <!-- Filtros -->
-<div class="card" style="margin-bottom:16px;padding:14px">
-  <div style="display:flex;gap:8px;margin-bottom:12px">
-    <input id="filter-search" type="text" placeholder="Buscar por nome, celular, bairro..." oninput="aplicarFiltros()" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px">
-    <button onclick="toggleFAdv()" class="btn btn-outline btn-sm">⚙️ Filtros</button>
-    <button onclick="rodarMatchBase()" id="btn-match-base" class="btn btn-dark btn-sm">Match IA</button>
-    <button onclick="abrirModalImportarLeads()" class="btn btn-primary btn-sm">+ Importar</button>
-  </div>
-
-  <div class="chips-row">
-    <span class="chips-lbl">Status</span>
-    <button class="fchip on" onclick="setChip('status','all',this)">Todos</button>
-    <button class="fchip" onclick="setChip('status','with_matches',this)">Com match</button>
-    <button class="fchip" onclick="setChip('status','without_matches',this)">Sem match</button>
-    <button class="fchip" onclick="setChip('status','organica',this)">Orgânica</button>
-    <button class="fchip" onclick="setChip('status','importada',this)">Importada</button>
+<div class="fi-bar">
+  <div class="fi-search-row">
+    <input class="fi-input" id="filter-search" placeholder="Buscar por nome, celular, bairro..." oninput="aplicarFiltros()">
+    <button class="fi-btn" onclick="toggleFAdv()">Filtros</button>
+    <button class="fi-btn fi-btn-dark" onclick="rodarMatchBase()" id="btn-match-base">Match IA</button>
+    <button class="fi-btn fi-btn-dark" onclick="abrirModalImportarLeads()">+ Importar</button>
   </div>
   <div class="chips-row">
     <span class="chips-lbl">Temperatura</span>
@@ -78,160 +94,191 @@
     <button class="fchip" onclick="setChip('temp','frio',this)" style="color:#2563eb;border-color:#bfdbfe">Frio</button>
   </div>
   <div class="chips-row">
-    <span class="chips-lbl">Etapa</span>
-    <button class="fchip on" onclick="setChip('etapa','',this)">Todas</button>
-    <button class="fchip" onclick="setChip('etapa','proposta',this)">Proposta</button>
-    <button class="fchip" onclick="setChip('etapa','visita',this)">Visita</button>
-    <button class="fchip" onclick="setChip('etapa','vitrine',this)">Vitrine</button>
-    <button class="fchip" onclick="setChip('etapa','novo',this)">Novo</button>
+    <span class="chips-lbl">Origem</span>
+    <button class="fchip on" onclick="setChip('origem','',this)">Todas</button>
+    <button class="fchip" onclick="setChip('origem','whatsapp',this)">WhatsApp</button>
+    <button class="fchip" onclick="setChip('origem','pagina_externa_imovel',this)">Página</button>
+    <button class="fchip" onclick="setChip('origem','manual',this)">Manual</button>
   </div>
-
-  <div class="fadv" id="fadv">
-    <div class="fadv-grid">
-      <div><label>Score mínimo</label><select id="filter-score" onchange="aplicarFiltros()"><option value="0">Todos</option><option value="20">20+</option><option value="40">40+</option><option value="60">60+</option><option value="80">80+</option></select></div>
-      <div><label>Tipo buscado</label><select id="filter-tipo-lead" onchange="aplicarFiltros()"><option value="">Todos</option><option value="apartamento">Apartamento</option><option value="casa">Casa</option><option value="cobertura">Cobertura</option><option value="studio">Studio</option><option value="kitnet">Kitnet</option><option value="terreno">Terreno</option><option value="sala">Sala</option></select></div>
-      <div><label>Intenção</label><select id="filter-intencao" onchange="aplicarFiltros()"><option value="">Todas</option><option value="comprar">Comprar</option><option value="alugar">Alugar</option><option value="investir">Investir</option></select></div>
-      <div><label>Origem</label><select id="filter-origem" onchange="aplicarFiltros()"><option value="">Todas</option><option value="whatsapp">WhatsApp</option><option value="pagina_externa_imovel">Página imóvel</option><option value="manual">Manual</option></select></div>
-      <div><label>Sem contato</label><select id="filter-sem-contato" onchange="aplicarFiltros()"><option value="">Qualquer</option><option value="3">3+ dias</option><option value="7">7+ dias</option><option value="15">15+ dias</option><option value="30">30+ dias</option></select></div>
+  <div id="fadv" style="display:none;margin-top:10px;padding-top:10px;border-top:0.5px solid rgba(0,0,0,.06)">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Score mínimo</label><select id="filter-score" onchange="aplicarFiltros()" style="width:100%;padding:7px;border:0.5px solid rgba(0,0,0,.12);border-radius:7px;font-size:12px"><option value="0">Todos</option><option value="20">20+</option><option value="40">40+</option><option value="60">60+</option><option value="80">80+</option></select></div>
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Tipo buscado</label><select id="filter-tipo-lead" onchange="aplicarFiltros()" style="width:100%;padding:7px;border:0.5px solid rgba(0,0,0,.12);border-radius:7px;font-size:12px"><option value="">Todos</option><option value="apartamento">Apartamento</option><option value="casa">Casa</option><option value="studio">Studio</option><option value="kitnet">Kitnet</option></select></div>
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Intenção</label><select id="filter-intencao" onchange="aplicarFiltros()" style="width:100%;padding:7px;border:0.5px solid rgba(0,0,0,.12);border-radius:7px;font-size:12px"><option value="">Todas</option><option value="comprar">Comprar</option><option value="alugar">Alugar</option></select></div>
     </div>
-    <button onclick="limparFiltros()" class="btn btn-outline btn-sm" style="margin-top:10px">Limpar filtros</button>
+    <button onclick="limparFiltros()" class="fi-btn" style="margin-top:10px;font-size:12px">Limpar filtros</button>
   </div>
-
-  <div id="filter-counter" style="font-size:11px;color:var(--text-ter);margin-top:8px"></div>
+  <div id="filter-counter" style="font-size:11px;color:#9ca3af;margin-top:8px"></div>
 </div>
 
-<!-- Grid de leads -->
-<div id="results-list" class="lead-grid">
-<% leads.forEach((item) => {
-  const origin = item.origin || {};
-  const status = (item.matches||[]).length ? 'with_matches' : 'without_matches';
-  const matchCount = (item.matches||[]).length;
-  const bestScore = item.bestScore || (item.matches&&item.matches[0]?item.matches[0].score:0)||0;
-  const isOrganica = item.origem==='pagina_externa_imovel';
-  const isWhatsapp = item.origem==='whatsapp';
-  const telefone = String(item.contato||item.telefone||'').replace(/\D/g,'');
-  const _mat = (item.matches||[]).length+(item.matchesAuto||[]).length;
-  const _msgs = (item.mensagens||[]).filter(m=>m.de==='cliente').length;
-  const _fase = item.faseFunil||'novo';
-  const _vitrine = !!item.vitrineEnviada;
-  const _semRespDias = item.ultimaMensagemEm?Math.floor((Date.now()-new Date(item.ultimaMensagemEm).getTime())/86400000):999;
-  const _perfil = item.perfilIA||{};
-  const _perfilOk = !!(_perfil.tipo&&_perfil.quartos);
-  let _acao=null,_acaoLabel='',_acaoCor='',_urg='';
-  if(_fase==='decidido'){_acao='fechar';_acaoLabel='Fechar negócio';_acaoCor='background:#f0fdf4;color:#166534;border:1px solid #86efac';_urg='alta';}
-  else if(_fase==='interessado'&&_mat>0){_acao='visita';_acaoLabel='Agendar visita';_acaoCor='background:#f0fdf4;color:#14532d;border:1px solid #4ade80';_urg='alta';}
-  else if(_mat>0&&!_vitrine){_acao='vitrine';_acaoLabel='Enviar vitrine';_acaoCor='background:var(--brand-light);color:var(--brand);border:1px solid #fda4af';_urg='alta';}
-  else if(_mat>0&&_vitrine&&_semRespDias>=3){_acao='followup';_acaoLabel='Follow-up — '+_semRespDias+'d';_acaoCor='background:#fff7ed;color:#9a3412;border:1px solid #fdba74';_urg='media';}
-  else if(_mat>0&&_vitrine){_acao='aguardando';_acaoLabel='Vitrine enviada';_acaoCor='background:#eff6ff;color:#1e40af;border:1px solid #93c5fd';_urg='';}
-  else if(!_perfilOk&&_msgs>0){_acao='qualificar';_acaoLabel='Qualificar';_acaoCor='background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd';_urg='baixa';}
-  else if(_perfilOk&&_mat===0){_acao='match';_acaoLabel='Rodar match';_acaoCor='background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd';_urg='baixa';}
-  else if(_msgs===0){_acao='contato';_acaoLabel='Iniciar contato';_acaoCor='background:#fffbeb;color:#92400e;border:1px solid #fcd34d';_urg='media';}
-  const _sj = item.score||0;
-  const _sjCor = _sj>=70?'#16a34a':_sj>=40?'#d97706':'#9ca3af';
+<!-- KANBAN -->
+<%
+const colunas = [
+  { key:'novo',      label:'Novo',           cor:'#9ca3af', dot:'#e5e7eb' },
+  { key:'qualificando', label:'Qualificando', cor:'#f59e0b', dot:'#fcd34d' },
+  { key:'match',     label:'Com Match',      cor:'#22c55e', dot:'#86efac' },
+  { key:'vitrine',   label:'Vitrine Enviada',cor:'#6366f1', dot:'#c7d2fe' },
+  { key:'visita',    label:'Visita',         cor:'#0ea5e9', dot:'#bae6fd' },
+  { key:'fechado',   label:'Fechado',        cor:'#16a34a', dot:'#86efac' }
+];
+
+function getColuna(item) {
+  const fase = item.faseFunil || 'novo';
+  const mat = (item.matchesAuto||item.matches||[]).length;
+  const vitrine = !!item.vitrineEnviada;
+  const temVisita = false; // será setado via visitas se necessário
+  if (fase === 'decidido') return 'fechado';
+  if (fase === 'interessado') return 'visita';
+  if (vitrine) return 'vitrine';
+  if (mat > 0) return 'match';
+  if (fase === 'qualificado' || (item.perfilIA && item.perfilIA.tipo)) return 'qualificando';
+  return 'novo';
+}
+
+const leadsPorColuna = {};
+colunas.forEach(c => { leadsPorColuna[c.key] = []; });
+leads.forEach(item => {
+  const col = getColuna(item);
+  if (leadsPorColuna[col]) leadsPorColuna[col].push(item);
+});
 %>
-<div class="lead-card <%= _urg==='alta'?'urg-alta':_urg==='media'?'urg-media':_urg==='baixa'?'urg-baixa':'' %>"
-  data-status="<%= status %>"
-  data-score="<%= _sj %>"
-  data-temperatura="<%= item.temperatura||'frio' %>"
-  data-etapa="<%= _fase %>"
-  data-search="<%= [item.nome,item.contato,item.telefone,item.email,item.bairro,_perfil.bairro].filter(Boolean).join(' ').toLowerCase() %>"
-  data-tipo-lead="<%= (_perfil.tipo||'').toLowerCase() %>"
-  data-intencao="<%= (_perfil.intencao||'').toLowerCase() %>"
-  data-origem="<%= item.origem||'importada' %>"
-  data-ultima-msg-em="<%= item.ultimaMensagemEm||'' %>">
 
-  <!-- Ação prioritária -->
-  <% if(_acao) { %>
-  <div class="acao-badge" style="<%= _acaoCor %>"><%= _acaoLabel %></div>
-  <% } %>
+<!-- Hint scroll lateral -->
+<div id="kanban-hint" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 14px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:12px;color:#6b7280">
+  <span style="font-size:16px">👆</span>
+  <span>Deslize para os lados para ver todas as etapas</span>
+  <div style="display:flex;gap:4px;margin-left:auto;align-items:center">
+    <button onclick="scrollKanban(-1)" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">‹</button>
+    <button onclick="scrollKanban(1)" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">›</button>
+  </div>
+</div>
 
-  <!-- Nome + origem -->
-  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-    <a href="/app/lead/<%= item.id %>" class="lead-nome"><%= item.nome||item.clientName||telefone||'Lead' %></a>
-    <span class="origem-badge" style="<%= isOrganica?'background:#e0f2fe;color:#0369a1':isWhatsapp?'background:#f0fdf4;color:#166534':'background:var(--bg);color:var(--text-ter)' %>">
-      <%= isOrganica?'Web':isWhatsapp?'WhatsApp':'Import' %>
-    </span>
+<div class="kanban-wrap" id="kanban-board">
+<% colunas.forEach(col => { %>
+<div class="kanban-col" data-col="<%= col.key %>">
+  <div class="kanban-col-header">
+    <div style="display:flex;align-items:center;gap:6px">
+      <div class="kanban-col-dot" style="background:<%= col.cor %>"></div>
+      <span class="kanban-col-title"><%= col.label %></span>
+    </div>
+    <span class="kanban-col-count" id="count-<%= col.key %>"><%= leadsPorColuna[col.key].length %></span>
   </div>
 
-  <!-- Score + temperatura -->
-  <div class="score-row">
-    <div class="score-pill">
+  <% if(leadsPorColuna[col.key].length === 0){ %>
+  <div class="empty-col">Nenhuma lead</div>
+  <% } %>
+
+  <% leadsPorColuna[col.key].forEach(item => {
+    const _mat = (item.matchesAuto||item.matches||[]).length;
+    const _perfil = item.perfilIA || {};
+    const telefone = String(item.contato||item.telefone||'').replace(/\D/g,'');
+    const _sj = item.score || 0;
+    const _sjCor = _sj>=70?'#16a34a':_sj>=40?'#d97706':'#9ca3af';
+    const _vitrine = !!item.vitrineEnviada;
+
+    let _acao='',_acaoCor='',_urg='';
+    if(col.key==='fechado'){_acao='Fechar negócio';_acaoCor='background:#f0fdf4;color:#166534;border-color:#86efac';_urg='alta';}
+    else if(col.key==='visita'){_acao='Agendar visita';_acaoCor='background:#eff6ff;color:#1e40af;border-color:#bfdbfe';_urg='alta';}
+    else if(col.key==='vitrine'&&!_vitrine){_acao='Enviar vitrine';_acaoCor='background:#eef2ff;color:#4338ca;border-color:#c7d2fe';_urg='alta';}
+    else if(col.key==='match'){_acao='Ver matches';_acaoCor='background:#f0fdf4;color:#15803d;border-color:#86efac';_urg='media';}
+    else if(col.key==='qualificando'){_acao='Qualificar';_acaoCor='background:#fffbeb;color:#92400e;border-color:#fcd34d';_urg='media';}
+    else if(col.key==='novo'){_acao='Iniciar contato';_acaoCor='background:#f9fafb;color:#6b7280;border-color:#e5e7eb';_urg='';}
+  %>
+  <div class="lead-card <%= _urg==='alta'?'urg-alta':_urg==='media'?'urg-media':'' %>"
+    data-id="<%= item.id %>"
+    data-col="<%= col.key %>"
+    data-temperatura="<%= item.temperatura||'frio' %>"
+    data-origem="<%= item.origem||'' %>"
+    data-score="<%= _sj %>"
+    data-tipo-lead="<%= (_perfil.tipo||'').toLowerCase() %>"
+    data-intencao="<%= (_perfil.intencao||'').toLowerCase() %>"
+    data-search="<%= [item.nome,item.contato,item.telefone,item.bairro,_perfil.bairro].filter(Boolean).join(' ').toLowerCase() %>">
+
+    <% if(_acao){ %>
+    <div class="acao-badge" style="<%= _acaoCor %>"><%= _acao %></div>
+    <% } %>
+
+    <a href="/app/lead/<%= item.id %>" class="lead-nome"><%= item.nome||telefone||'Lead' %></a>
+    <div class="lead-tel"><%= telefone||'—' %></div>
+
+    <div class="score-row">
       <div class="score-bar"><div class="score-fill" style="width:<%= _sj %>%;background:<%= _sjCor %>"></div></div>
-      <span style="font-size:10px;font-weight:700;color:<%= _sjCor %>"><%= _sj %></span>
-      <span style="font-size:9px;color:var(--text-ter)"><%= item.scoreEtapa||'Novo' %></span>
+      <span style="font-size:10px;font-weight:500;color:<%= _sjCor %>"><%= _sj %></span>
+      <% if(item.temperatura){ %>
+      <span class="temp-pill" style="background:<%= item.temperatura==='quente'?'#fee2e2':item.temperatura==='morno'?'#fef3c7':'#eff6ff' %>;color:<%= item.temperatura==='quente'?'#991b1b':item.temperatura==='morno'?'#92400e':'#1e40af' %>"><%= item.temperatura==='quente'?'🔥':item.temperatura==='morno'?'🌡':'❄️' %> <%= item.temperatura %></span>
+      <% } %>
+      <% if(_mat>0){ %><span class="match-pill"><%= _mat %> match<%= _mat>1?'es':'' %></span><% } %>
     </div>
-    <% if(item.temperatura) { %>
-    <span class="temp-pill" style="background:<%= item.temperatura==='quente'?'#fee2e2':item.temperatura==='morno'?'#fef3c7':'#eff6ff' %>;color:<%= item.temperatura==='quente'?'#991b1b':item.temperatura==='morno'?'#92400e':'#1e40af' %>"><%= item.temperatura==='quente'?'🔥':item.temperatura==='morno'?'🌡':'❄️' %> <%= item.temperatura %></span>
-    <% } %>
-    <% if(_mat>0) { %>
-    <span style="font-size:10px;font-weight:600;color:#16a34a;background:#f0fdf4;border-radius:5px;padding:2px 7px"><%= _mat %> match<%= _mat>1?'es':'' %></span>
-    <% } %>
-  </div>
 
-  <!-- Perfil IA -->
-  <% if(_perfil&&Object.keys(_perfil).length) { %>
-  <div class="perfil-row">
-    <% if(_perfil.tipo){%><span class="perfil-tag"><%= _perfil.tipo %></span><%}%>
-    <% if(_perfil.quartos){%><span class="perfil-tag"><%= _perfil.quartos %>q</span><%}%>
-    <% if(_perfil.bairro){%><span class="perfil-tag"><%= _perfil.bairro %></span><%}%>
-    <% if(_perfil.valorMax){%><span class="perfil-tag">R$<%= Math.round(Number(_perfil.valorMax)/1000) %>k</span><%}%>
-    <% if(_perfil.intencao){%><span class="perfil-tag"><%= _perfil.intencao %></span><%}%>
-  </div>
-  <% } %>
-
-  <!-- Última mensagem -->
-  <% if(item.ultimaMensagem) { %>
-  <div class="ultima-msg"><%= item.ultimaMensagem.substring(0,80) %></div>
-  <% } %>
-
-  <!-- Ações -->
-  <div class="lead-btns">
-    <% if(telefone) { %>
-    <a href="https://wa.me/55<%= telefone %>" target="_blank" class="lb wa">WhatsApp</a>
+    <% if(_perfil && Object.keys(_perfil).length){ %>
+    <div class="perfil-row">
+      <% if(_perfil.tipo){%><span class="perfil-tag"><%= _perfil.tipo %></span><%}%>
+      <% if(_perfil.quartos){%><span class="perfil-tag"><%= _perfil.quartos %>q</span><%}%>
+      <% if(_perfil.bairro){%><span class="perfil-tag"><%= _perfil.bairro %></span><%}%>
+      <% if(_perfil.valorMax){%><span class="perfil-tag">R$<%= Math.round(Number(_perfil.valorMax)/1000) %>k</span><%}%>
+    </div>
     <% } %>
-    <% if(matchCount) { %>
-    <a href="/cliente/oferta/<%= item.leadId||item.id %>?userId=<%= encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'') %>" class="lb prim">Vitrine</a>
+
+    <% if(item.ultimaMensagem){ %>
+    <div style="font-size:11px;color:#9ca3af;border-left:2px solid #f3f4f6;padding-left:6px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px"><%= item.ultimaMensagem.substring(0,60) %></div>
     <% } %>
-    <a href="/app/lead/<%= item.id %>" class="lb dark">Ver →</a>
-    <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">Excluir</button>
-  </div>
-  <div class="confirm-box" id="confirm-<%= item.id %>">
-    <div style="font-size:11px;color:#991b1b;margin-bottom:6px;font-weight:600">O que deseja?</div>
-    <div style="display:flex;gap:5px">
-      <button onclick="excluirLead('<%= item.id %>')" class="lb danger" style="font-size:10px">Só excluir</button>
-      <button onclick="bloquearLead('<%= item.id %>')" class="lb" style="font-size:10px;background:var(--dark);color:#fff;border-color:var(--dark)">Excluir e bloquear</button>
-      <button onclick="document.getElementById('confirm-<%= item.id %>').style.display='none'" class="lb" style="font-size:10px">Cancelar</button>
+
+    <div class="lead-btns">
+      <% if(telefone){ %>
+      <a href="https://wa.me/55<%= telefone %>" target="_blank" class="lb wa">WhatsApp</a>
+      <% } %>
+      <% if(_mat>0){ %>
+      <a href="/cliente/oferta/<%= item.leadId||item.id %>?userId=<%= encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'') %>" class="lb prim">Vitrine</a>
+      <% } %>
+      <a href="/app/lead/<%= item.id %>" class="lb dark">Ver →</a>
+      <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">×</button>
+    </div>
+    <div class="confirm-box" id="confirm-<%= item.id %>">
+      <div style="font-size:11px;color:#991b1b;margin-bottom:6px;font-weight:500">Excluir esta lead?</div>
+      <div style="display:flex;gap:5px">
+        <button onclick="excluirLead('<%= item.id %>')" class="lb danger" style="font-size:10px">Só excluir</button>
+        <button onclick="bloquearLead('<%= item.id %>')" class="lb dark" style="font-size:10px">Excluir e bloquear</button>
+        <button onclick="document.getElementById('confirm-<%= item.id %>').style.display='none'" class="lb" style="font-size:10px">Cancelar</button>
+      </div>
     </div>
   </div>
+  <% }) %>
 </div>
 <% }) %>
 </div>
 
-<div id="leads-empty" style="display:none;text-align:center;padding:60px 20px;color:var(--text-ter)">
-  <div style="font-size:36px;margin-bottom:12px;opacity:.3">👥</div>
-  <div style="font-size:14px;font-weight:500;color:var(--text-sec);margin-bottom:4px">Nenhuma lead encontrada</div>
-  <div style="font-size:12px">Ajuste os filtros ou importe novas leads</div>
-</div>
-
 <!-- Modal importar -->
 <div id="modal-importar-leads" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:var(--radius-lg);max-width:520px;width:100%;padding:24px;box-shadow:var(--shadow-md)">
+  <div style="background:#fff;border-radius:16px;max-width:480px;width:100%;padding:24px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div>
-        <div style="font-size:15px;font-weight:600;color:var(--dark)">Importar leads</div>
-        <div style="font-size:12px;color:var(--text-sec);margin-top:2px">CSV ou Excel com cabeçalhos na primeira linha</div>
-      </div>
-      <button onclick="fecharModalImportarLeads()" style="background:var(--bg);border:1px solid var(--border);border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:16px">×</button>
+      <div><div style="font-size:15px;font-weight:500;color:#111827">Importar leads</div><div style="font-size:12px;color:#9ca3af;margin-top:2px">CSV ou Excel com cabeçalhos na primeira linha</div></div>
+      <button onclick="fecharModalImportarLeads()" style="background:#f9fafb;border:0.5px solid rgba(0,0,0,.1);border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:16px">×</button>
     </div>
     <form method="POST" action="/process" enctype="multipart/form-data">
-      <input type="file" name="file" accept=".xlsx,.xls,.csv" required style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:12px;font-size:13px">
-      <button type="submit" class="btn btn-primary" style="width:100%;padding:11px">Importar planilha</button>
+      <input type="file" name="file" accept=".xlsx,.xls,.csv" required style="width:100%;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;padding:10px;margin-bottom:12px;font-size:13px">
+      <button type="submit" style="width:100%;padding:11px;background:#111827;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">Importar planilha</button>
     </form>
   </div>
 </div>
 
 <script>
-const _fl = { status:'all', temp:'', etapa:'' };
+const _fl = { temp:'', origem:'' };
+
+function scrollKanban(dir) {
+  const board = document.getElementById('kanban-board');
+  board.scrollBy({ left: dir * 280, behavior: 'smooth' });
+}
+
+// Esconde hint após primeiro scroll
+document.addEventListener('DOMContentLoaded', () => {
+  const board = document.getElementById('kanban-board');
+  const hint = document.getElementById('kanban-hint');
+  if (board) {
+    board.addEventListener('scroll', () => {
+      if (hint) hint.style.opacity = '0.4';
+    }, { once: true });
+  }
+});
 
 function setChip(campo, valor, btn) {
   _fl[campo] = valor;
@@ -246,10 +293,10 @@ function toggleFAdv() {
 }
 
 function limparFiltros() {
-  _fl.status='all'; _fl.temp=''; _fl.etapa='';
+  _fl.temp=''; _fl.origem='';
   document.getElementById('filter-search').value='';
-  ['filter-score','filter-tipo-lead','filter-intencao','filter-origem','filter-sem-contato'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=el.tagName==='SELECT'?el.options[0].value:'';});
-  document.querySelectorAll('.fchip').forEach(b=>{b.classList.remove('on');if(b.textContent.trim()==='Todos'||b.textContent.trim()==='Todas')b.classList.add('on');});
+  ['filter-score','filter-tipo-lead','filter-intencao'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.querySelectorAll('.fchip').forEach(b=>{b.classList.remove('on');if(b.textContent.trim()==='Todas'||b.textContent.trim()==='Todos')b.classList.add('on');});
   aplicarFiltros();
 }
 
@@ -258,48 +305,52 @@ function aplicarFiltros() {
   const scoreMin = parseInt(document.getElementById('filter-score')?.value||'0');
   const tipoLead = (document.getElementById('filter-tipo-lead')?.value||'').toLowerCase();
   const intencao = (document.getElementById('filter-intencao')?.value||'').toLowerCase();
-  const origem = (document.getElementById('filter-origem')?.value||'').toLowerCase();
-  const semContato = parseInt(document.getElementById('filter-sem-contato')?.value||'0');
-  const hoje = Date.now();
+
   const cards = document.querySelectorAll('.lead-card');
-  let vis = 0;
+  let total = 0;
+
+  // Conta por coluna
+  const counts = {};
 
   cards.forEach(card => {
     let ok = true;
-    const status = card.dataset.status||'';
-    const origemCard = (card.dataset.origem||'').toLowerCase();
+    if(_fl.temp && card.dataset.temperatura !== _fl.temp) ok=false;
+    if(_fl.origem && !(card.dataset.origem||'').includes(_fl.origem)) ok=false;
+    if(parseInt(card.dataset.score||'0') < scoreMin) ok=false;
+    if(busca && !(card.dataset.search||'').includes(busca)) ok=false;
+    if(tipoLead && !(card.dataset.tipoLead||'').includes(tipoLead)) ok=false;
+    if(intencao && !(card.dataset.intencao||'').includes(intencao)) ok=false;
 
-    if (_fl.status!=='all') {
-      if(_fl.status==='with_matches'&&status!=='with_matches') ok=false;
-      if(_fl.status==='without_matches'&&status!=='without_matches') ok=false;
-      if(_fl.status==='organica'&&origemCard!=='pagina_externa_imovel') ok=false;
-      if(_fl.status==='importada'&&origemCard==='pagina_externa_imovel') ok=false;
+    card.style.display = ok ? '' : 'none';
+    if(ok) {
+      total++;
+      const col = card.dataset.col;
+      counts[col] = (counts[col]||0)+1;
     }
-    if(_fl.temp&&card.dataset.temperatura!==_fl.temp) ok=false;
-    if(_fl.etapa){
-      const e=(card.dataset.etapa||'').toLowerCase();
-      if(_fl.etapa==='proposta'&&!e.includes('decid')) ok=false;
-      if(_fl.etapa==='visita'&&!e.includes('interes')) ok=false;
-      if(_fl.etapa==='vitrine'&&!e.includes('qualif')) ok=false;
-      if(_fl.etapa==='novo'&&e!=='novo') ok=false;
-    }
-    if(parseInt(card.dataset.score||'0')<scoreMin) ok=false;
-    if(busca&&!(card.dataset.search||'').includes(busca)) ok=false;
-    if(tipoLead&&!(card.dataset.tipoLead||'').includes(tipoLead)) ok=false;
-    if(intencao&&!(card.dataset.intencao||'').includes(intencao)) ok=false;
-    if(origem&&!(card.dataset.origem||'').includes(origem)) ok=false;
-    if(semContato>0&&card.dataset.ultimaMsgEm){
-      const dias=Math.floor((hoje-new Date(card.dataset.ultimaMsgEm).getTime())/86400000);
-      if(dias<semContato) ok=false;
-    }
-    card.style.display = ok?'':'none';
-    if(ok) vis++;
+  });
+
+  // Atualiza contadores das colunas
+  Object.keys(counts).forEach(col => {
+    const el = document.getElementById('count-'+col);
+    if(el) el.textContent = counts[col]||0;
+  });
+  // Zera colunas sem resultado
+  document.querySelectorAll('.kanban-col-count').forEach(el => {
+    const col = el.id.replace('count-','');
+    if(!counts[col]) el.textContent = '0';
+  });
+
+  // Empty state por coluna
+  document.querySelectorAll('.kanban-col').forEach(col => {
+    const colKey = col.dataset.col;
+    const visCards = Array.from(col.querySelectorAll('.lead-card')).filter(c=>c.style.display!=='none');
+    let empty = col.querySelector('.empty-col');
+    if(!empty){ empty=document.createElement('div'); empty.className='empty-col'; empty.textContent='Nenhuma lead'; col.appendChild(empty); }
+    empty.style.display = visCards.length===0?'block':'none';
   });
 
   const counter = document.getElementById('filter-counter');
-  if(counter) counter.textContent = vis + ' leads exibidas';
-  const empty = document.getElementById('leads-empty');
-  if(empty) empty.style.display = vis===0?'block':'none';
+  if(counter) counter.textContent = total+' leads exibidas';
 }
 
 function rodarMatchBase() {

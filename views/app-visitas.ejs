@@ -1,96 +1,56 @@
 <%- include("partials/app-shell",{active:"visitas",title:"Visitas",subtitle:"Solicitações de visita dos seus clientes.",user:user}) %>
 
 <style>
-:root{
-  --card-bg:#fff;
-  --card-border:rgba(0,0,0,.08);
-  --muted:#6b7280;
-  --text:#111827;
-  --text-sm:#374151;
-  --radius:12px;
-  --radius-lg:16px;
-}
+main{overflow-x:hidden!important}
 
-.vi-card{
-  background:var(--card-bg);
-  border:0.5px solid var(--card-border);
-  border-radius:var(--radius-lg);
-  padding:20px;
-  margin-bottom:10px;
-  transition:box-shadow .15s;
-}
-.vi-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.vi-card-urgente{border-color:#fca5a5 !important;background:#fffafa}
-.vi-card-atencao{border-color:#fcd34d !important;background:#fffef0}
+/* ── KPIs ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.kpi-sm{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;padding:12px 14px;position:relative;overflow:hidden}
+.kpi-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:12px 0 0 12px}
+.kpi-label{font-size:10px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.kpi-val{font-size:22px;font-weight:600;color:#111827;letter-spacing:-1px}
 
-.vi-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:5px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:600;
-  margin-bottom:14px;
-  border:0.5px solid transparent;
-}
+/* ── Filtros ── */
+.fi-bar{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:14px;padding:14px;margin-bottom:14px}
+.fi-input{flex:1;padding:8px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;outline:none;color:#111827}
+.fi-input:focus{border-color:rgba(0,0,0,.3)}
+.fi-btn{padding:8px 14px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;background:#fff;color:#374151;white-space:nowrap}
+.fi-btn:hover{background:#f9fafb}
+.chips-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.chips-lbl{font-size:10px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;min-width:50px}
+.fchip{padding:4px 12px;border-radius:999px;font-size:11px;font-weight:500;border:0.5px solid rgba(0,0,0,.1);background:#fff;cursor:pointer;color:#374151;transition:all .1s}
+.fchip.on{background:#111827;color:#fff;border-color:#111827}
 
-.vi-status{
-  display:inline-block;
-  padding:4px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:600;
-}
-.st-solicitada{background:#fef9c3;color:#92400e}
-.st-confirmada{background:#dcfce7;color:#15803d}
-.st-cancelada{background:#fee2e2;color:#b91c1c}
-.st-realizada{background:#dbeafe;color:#1d4ed8}
-.st-no_show{background:#f3f4f6;color:#6b7280}
+/* ── KANBAN ── */
+.kanban-hint{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 14px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:12px;color:#6b7280;transition:opacity .3s}
+.kanban-wrap{display:flex;gap:10px;overflow-x:auto;padding-bottom:16px;align-items:flex-start;-webkit-overflow-scrolling:touch}
+.kanban-wrap::-webkit-scrollbar{height:5px}
+.kanban-wrap::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+.kanban-col{flex:0 0 270px;min-width:270px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.06);border-radius:14px;padding:12px;min-height:300px;max-height:calc(100vh - 320px);overflow-y:auto}
+.kanban-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:0.5px solid rgba(0,0,0,.06);position:sticky;top:0;background:#f9fafb;z-index:1}
+.kanban-col-title{font-size:12px;font-weight:500;color:#374151}
+.kanban-col-count{font-size:11px;font-weight:500;color:#9ca3af;background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:999px;padding:2px 8px}
+.kanban-col-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.empty-col{text-align:center;padding:24px 12px;color:#d1d5db;font-size:12px}
 
-.vi-guia{
-  padding:10px 14px;
-  border-radius:8px;
-  background:#f9fafb;
-  border-left:2px solid #d1d5db;
-  font-size:13px;
-  font-weight:500;
-  margin:12px 0;
-  color:var(--text-sm);
-}
+/* ── Cards visita ── */
+.vi-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;padding:12px;margin-bottom:8px;transition:box-shadow .15s}
+.vi-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.vi-card-urgente{border-left:2px solid #ef4444;background:#fffafa}
+.vi-card-atencao{border-left:2px solid #fcd34d;background:#fffef0}
 
-.vi-info{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
-  gap:12px;
-  margin:14px 0;
-}
-.vi-label{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:2px;text-transform:uppercase;letter-spacing:.03em}
-.vi-val{font-size:14px;color:var(--text);font-weight:500}
+.vi-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:500;margin-bottom:8px;border:0.5px solid transparent}
+.vi-nome{font-size:13px;font-weight:500;color:#111827;display:block;margin-bottom:1px}
+.vi-tel{font-size:11px;color:#9ca3af;margin-bottom:6px}
 
-.vi-actions{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  padding-top:14px;
-  border-top:0.5px solid rgba(0,0,0,.06);
-  margin-top:14px;
-}
-.vi-btn{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  padding:8px 16px;
-  border-radius:8px;
-  font-size:13px;
-  font-weight:500;
-  text-decoration:none;
-  cursor:pointer;
-  border:0.5px solid rgba(0,0,0,.12);
-  background:#fff;
-  color:var(--text);
-  transition:background .12s;
-}
+.vi-info{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.vi-label{font-size:10px;color:#9ca3af;font-weight:500;text-transform:uppercase;letter-spacing:.03em;margin-bottom:1px}
+.vi-val{font-size:12px;color:#111827;font-weight:500}
+
+.vi-guia{padding:7px 10px;border-radius:7px;background:#f9fafb;border-left:2px solid #d1d5db;font-size:11px;font-weight:500;margin-bottom:8px;color:#374151}
+
+.vi-actions{display:flex;gap:5px;flex-wrap:wrap;padding-top:8px;border-top:0.5px solid rgba(0,0,0,.06)}
+.vi-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:7px;font-size:11px;font-weight:500;text-decoration:none;cursor:pointer;border:0.5px solid rgba(0,0,0,.1);background:#fff;color:#374151;transition:background .12s}
 .vi-btn:hover{background:#f9fafb}
 .vi-btn-green{background:#16a34a;color:#fff;border-color:#15803d}
 .vi-btn-green:hover{background:#15803d}
@@ -99,124 +59,7 @@
 .vi-btn-zap{background:#22c55e;color:#fff;border-color:#16a34a}
 .vi-btn-zap:hover{background:#16a34a}
 .vi-btn-zap-dark{background:#15803d;color:#fff;border-color:#166534}
-.vi-btn-zap-dark:hover{background:#166534}
 .vi-btn-purple{background:#7c3aed;color:#fff;border-color:#6d28d9}
-.vi-btn-purple:hover{background:#6d28d9}
-
-.fi-bar{
-  background:var(--card-bg);
-  border:0.5px solid var(--card-border);
-  border-radius:var(--radius-lg);
-  padding:16px;
-  margin-bottom:16px;
-}
-.fi-stats{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-bottom:14px;
-}
-.fi-stat{
-  padding:5px 12px;
-  border-radius:8px;
-  font-size:12px;
-  font-weight:500;
-  background:#f9fafb;
-  border:0.5px solid rgba(0,0,0,.08);
-  color:var(--muted);
-}
-.fi-search-row{
-  display:flex;
-  gap:8px;
-  margin-bottom:12px;
-}
-.fi-input{
-  flex:1;
-  padding:9px 14px;
-  border:0.5px solid rgba(0,0,0,.12);
-  border-radius:8px;
-  font-size:13px;
-  background:#fff;
-  outline:none;
-  color:var(--text);
-}
-.fi-input:focus{border-color:rgba(0,0,0,.3)}
-.fi-toggle{
-  padding:9px 14px;
-  border:0.5px solid rgba(0,0,0,.12);
-  border-radius:8px;
-  font-size:12px;
-  font-weight:500;
-  cursor:pointer;
-  background:#fff;
-  color:var(--muted);
-  white-space:nowrap;
-}
-.fi-toggle:hover{background:#f9fafb}
-
-.fi-chips-row{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-  margin-bottom:8px;
-}
-.fi-chips-label{
-  font-size:11px;
-  font-weight:500;
-  color:#9ca3af;
-  min-width:44px;
-  flex-shrink:0;
-}
-.fi-chip{
-  padding:5px 12px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:500;
-  border:0.5px solid rgba(0,0,0,.12);
-  background:#fff;
-  cursor:pointer;
-  color:var(--text-sm);
-  transition:all .12s;
-}
-.fi-chip.on{background:#111;color:#fff;border-color:#111}
-.fi-chip.verde.on{background:#16a34a;border-color:#16a34a;color:#fff}
-.fi-chip.vermelho.on{background:#dc2626;border-color:#dc2626;color:#fff}
-.fi-chip.azul.on{background:#2563eb;border-color:#2563eb;color:#fff}
-.fi-chip.roxo.on{background:#7c3aed;border-color:#7c3aed;color:#fff}
-.fi-chip.amarelo.on{background:#d97706;border-color:#d97706;color:#fff}
-
-.fi-avancado{
-  display:none;
-  margin-top:12px;
-  padding-top:12px;
-  border-top:0.5px solid rgba(0,0,0,.06);
-}
-.fi-avancado-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  gap:10px;
-}
-.fi-avancado label{font-size:11px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px}
-.fi-avancado input,.fi-avancado select{
-  width:100%;
-  padding:7px 10px;
-  border:0.5px solid rgba(0,0,0,.12);
-  border-radius:8px;
-  font-size:12px;
-  box-sizing:border-box;
-  background:#fff;
-  color:var(--text);
-}
-.fi-counter{font-size:12px;color:var(--muted);margin-top:10px}
-
-.vi-empty{
-  padding:48px 24px;
-  text-align:center;
-  background:#f9fafb;
-  border:0.5px solid rgba(0,0,0,.06);
-  border-radius:var(--radius-lg);
-}
 </style>
 
 <%
@@ -230,115 +73,261 @@ var statusLabel={
   CONCLUIDA:{cls:'st-realizada',txt:'Realizada'},
   no_show:{cls:'st-no_show',txt:'No-show'},
   NO_SHOW:{cls:'st-no_show',txt:'No-show'},
-  AGUARDANDO:{cls:'st-solicitada',txt:'Pendente'}
+  AGUARDANDO:{cls:'st-solicitada',txt:'Pendente'},
+  prop_confirmou:{cls:'st-confirmada',txt:'Prop. confirmou'},
+  prop_remarcou:{cls:'st-solicitada',txt:'Prop. remarcou'},
+  cliente_nao_vai:{cls:'st-cancelada',txt:'Cliente não vai'},
+  cliente_nova_data:{cls:'st-solicitada',txt:'Nova data'},
+  remarcada:{cls:'st-solicitada',txt:'Remarcada'},
+  parceiro_confirmou:{cls:'st-confirmada',txt:'Parceiro confirmou'}
 };
+
 var corretorNome=user&&user.nome?user.nome:'Corretor';
 var corretorTel=(user&&(user.celular||user.telefone)||'').replace(/[^0-9]/g,'');
+
+// Agrupa visitas por coluna kanban
+var colunas = [
+  { key:'solicitada',     label:'Solicitada',          cor:'#f59e0b', dot:'#fcd34d' },
+  { key:'aguard_prop',    label:'Aguard. Proprietário', cor:'#8b5cf6', dot:'#c4b5fd' },
+  { key:'aguard_cliente', label:'Aguard. Cliente',      cor:'#0ea5e9', dot:'#bae6fd' },
+  { key:'confirmada',     label:'Confirmada',           cor:'#22c55e', dot:'#86efac' },
+  { key:'realizada',      label:'Realizada',            cor:'#6366f1', dot:'#c7d2fe' },
+  { key:'cancelada',      label:'Cancelada / No-show',  cor:'#9ca3af', dot:'#e5e7eb' }
+];
+
+function getColuna(v) {
+  var st = (v.status||'solicitada').toLowerCase();
+  if(st==='realizada'||st==='concluida') return 'realizada';
+  if(st==='cancelada'||st==='cliente_nao_vai'||st==='no_show') return 'cancelada';
+  if(st==='confirmada') return 'confirmada';
+  if(st==='prop_confirmou'||st==='parceiro_confirmou') return 'aguard_cliente';
+  if(st==='solicitada'||st==='aguardando'||st==='prop_remarcou'||st==='cliente_nova_data'||st==='remarcada') {
+    if(v.proprietarioTelefone) return 'aguard_prop';
+    return 'solicitada';
+  }
+  return 'solicitada';
+}
+
+var visitasPorColuna = {};
+colunas.forEach(function(c){ visitasPorColuna[c.key] = []; });
+visitas.forEach(function(v){
+  var col = getColuna(v);
+  visitasPorColuna[col].push(v);
+});
+
+// Stats
+var totalV = visitas.length;
+var pendentesV = visitas.filter(function(v){return v.status==='solicitada'||v.status==='AGUARDANDO';}).length;
+var confirmadasV = visitas.filter(function(v){return v.status==='confirmada'||v.status==='CONFIRMADA';}).length;
+var realizadasV = visitas.filter(function(v){return v.status==='realizada'||v.status==='CONCLUIDA';}).length;
+var hoje = new Date(); hoje.setHours(0,0,0,0);
+var hojeV = visitas.filter(function(v){
+  if(!v.dataVisita) return false;
+  var d = new Date(v.dataVisita); d.setHours(0,0,0,0);
+  return d.getTime()===hoje.getTime();
+}).length;
 %>
 
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi-sm"><div class="kpi-bar" style="background:#6366f1"></div><div class="kpi-label">Total</div><div class="kpi-val"><%=totalV%></div></div>
+  <div class="kpi-sm"><div class="kpi-bar" style="background:#f59e0b"></div><div class="kpi-label">Pendentes</div><div class="kpi-val" style="color:#d97706"><%=pendentesV%></div></div>
+  <div class="kpi-sm"><div class="kpi-bar" style="background:#22c55e"></div><div class="kpi-label">Confirmadas</div><div class="kpi-val" style="color:#15803d"><%=confirmadasV%></div></div>
+  <div class="kpi-sm"><div class="kpi-bar" style="background:#ef4444"></div><div class="kpi-label">Hoje</div><div class="kpi-val" style="color:#dc2626"><%=hojeV%></div></div>
+  <div class="kpi-sm"><div class="kpi-bar" style="background:#8b5cf6"></div><div class="kpi-label">Realizadas</div><div class="kpi-val" style="color:#7c3aed"><%=realizadasV%></div></div>
+</div>
+
+<!-- Filtros -->
 <div class="fi-bar">
-  <div class="fi-stats">
-    <span class="fi-stat" id="vst-total">— total</span>
-    <span class="fi-stat" style="background:#fef9c3;color:#a16207;border-color:#fcd34d" id="vst-pendentes">— pendentes</span>
-    <span class="fi-stat" style="background:#dcfce7;color:#15803d;border-color:#86efac" id="vst-confirmadas">— confirmadas</span>
-    <span class="fi-stat" style="background:#fef2f2;color:#dc2626;border-color:#fca5a5" id="vst-hoje">— hoje</span>
-    <span class="fi-stat" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd" id="vst-realizadas">— realizadas</span>
-  </div>
-
-  <div class="fi-search-row">
+  <div style="display:flex;gap:8px;margin-bottom:10px">
     <input class="fi-input" id="vf-busca" placeholder="Buscar cliente, imóvel, bairro..." oninput="filtrarVisitas()">
-    <button class="fi-toggle" onclick="toggleFiltrosVisitas()">Filtros avançados</button>
+    <button class="fi-btn" onclick="toggleFAdv()">Filtros</button>
+    <button class="fi-btn" onclick="location.reload()" style="background:#f9fafb">↻</button>
+  </div>
+  <div class="chips-row">
+    <span class="chips-lbl">Período</span>
+    <button class="fchip on" onclick="setChipV('periodo','',this)">Todos</button>
+    <button class="fchip" onclick="setChipV('periodo','atrasada',this)" style="color:#dc2626;border-color:#fca5a5">Atrasadas</button>
+    <button class="fchip" onclick="setChipV('periodo','hoje',this)" style="color:#dc2626;border-color:#fca5a5">Hoje</button>
+    <button class="fchip" onclick="setChipV('periodo','amanha',this)" style="color:#d97706;border-color:#fcd34d">Amanhã</button>
+    <button class="fchip" onclick="setChipV('periodo','semana',this)">Essa semana</button>
+  </div>
+  <div id="fadv-v" style="display:none;margin-top:10px;padding-top:10px;border-top:0.5px solid rgba(0,0,0,.06)">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Data</label><input type="date" id="vf-data" oninput="filtrarVisitas()" style="width:100%;padding:7px;border:0.5px solid rgba(0,0,0,.12);border-radius:7px;font-size:12px"></div>
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Bairro</label><input id="vf-bairro" placeholder="Meia Praia" oninput="filtrarVisitas()" style="width:100%;padding:7px;border:0.5px solid rgba(0,0,0,.12);border-radius:7px;font-size:12px"></div>
+    </div>
+    <button onclick="limparFiltrosV()" class="fi-btn" style="margin-top:10px;font-size:12px">Limpar filtros</button>
+  </div>
+  <div id="vf-counter" style="font-size:11px;color:#9ca3af;margin-top:8px"></div>
+</div>
+
+<!-- Hint -->
+<div class="kanban-hint" id="kanban-hint">
+  <span style="font-size:16px">👆</span>
+  <span>Deslize para os lados para ver todas as etapas</span>
+  <div style="display:flex;gap:4px;margin-left:auto">
+    <button onclick="scrollKanban(-1)" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px">‹</button>
+    <button onclick="scrollKanban(1)" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px">›</button>
+  </div>
+</div>
+
+<!-- KANBAN -->
+<div class="kanban-wrap" id="kanban-board">
+<% colunas.forEach(function(col){ %>
+<div class="kanban-col" data-col="<%=col.key%>">
+  <div class="kanban-col-header">
+    <div style="display:flex;align-items:center;gap:6px">
+      <div class="kanban-col-dot" style="background:<%=col.cor%>"></div>
+      <span class="kanban-col-title"><%=col.label%></span>
+    </div>
+    <span class="kanban-col-count" id="count-<%=col.key%>"><%=visitasPorColuna[col.key].length%></span>
   </div>
 
-  <div class="fi-chips-row">
-    <span class="fi-chips-label">Status</span>
-    <button class="fi-chip on" onclick="setChipVisita('status','todos',this)">Todos</button>
-    <button class="fi-chip amarelo" onclick="setChipVisita('status','solicitada',this)">Pendente</button>
-    <button class="fi-chip verde" onclick="setChipVisita('status','confirmada',this)">Confirmada</button>
-    <button class="fi-chip azul" onclick="setChipVisita('status','realizada',this)">Realizada</button>
-    <button class="fi-chip vermelho" onclick="setChipVisita('status','cancelada',this)">Cancelada</button>
-    <button class="fi-chip" onclick="setChipVisita('status','no_show',this)">No-show</button>
-  </div>
+  <% if(visitasPorColuna[col.key].length===0){ %>
+  <div class="empty-col">Nenhuma visita</div>
+  <% } %>
 
-  <div class="fi-chips-row">
-    <span class="fi-chips-label">Período</span>
-    <button class="fi-chip on" onclick="setChipVisita('periodo','',this)">Todos</button>
-    <button class="fi-chip vermelho" onclick="setChipVisita('periodo','atrasada',this)">Atrasadas</button>
-    <button class="fi-chip vermelho" onclick="setChipVisita('periodo','hoje',this)">Hoje</button>
-    <button class="fi-chip amarelo" onclick="setChipVisita('periodo','amanha',this)">Amanhã</button>
-    <button class="fi-chip" onclick="setChipVisita('periodo','semana',this)">Essa semana</button>
-    <button class="fi-chip azul" onclick="setChipVisita('periodo','passadas',this)">Passadas</button>
-  </div>
+  <% visitasPorColuna[col.key].forEach(function(v){ %>
+  <%
+    var nome=v.nome||v.clienteNome||'-';
+    var telefone=(v.telefone||v.contato||v.clienteTelefone||'').replace(/[^0-9]/g,'');
+    var imovelTit=v.imovelTitulo||v.titulo_interesse||'Imóvel';
+    var imovelBairro=v.imovelBairro||v.bairro||'';
+    var dataVisitaRaw=v.dataVisita||v.dataPreferida||'';
+    var dataVisita='-';
+    if(dataVisitaRaw){
+      if(dataVisitaRaw.indexOf('-')>-1&&dataVisitaRaw.length===10){
+        var p=dataVisitaRaw.split('-');
+        dataVisita=p[2]+'/'+p[1]+'/'+p[0];
+      } else { dataVisita=dataVisitaRaw; }
+    }
+    var horaVisita=v.horaVisita||v.horarioPreferido||'-';
+    var st=v.status||'solicitada';
+    var propTel=(v.proprietarioTelefone||'').replace(/[^0-9]/g,'');
+    var clienteConfirmou=v.clienteConfirmou||v.confirmacaoClienteStatus==='CONFIRMADO';
+    var propConfirmou=v.respostaProprietario==='confirmar'||v.proprietarioConfirmou===true||v.confirmacaoProprietarioStatus==='CONFIRMADO';
+    var propRespondeu=propConfirmou||v.confirmacaoProprietarioStatus==='RECUSADO'||v.proprietarioRecusou||v.respostaProprietario==='recusar';
+    var mostrarBtnCliente=!propTel||propRespondeu;
 
-  <div class="fi-chips-row">
-    <span class="fi-chips-label">Ação</span>
-    <button class="fi-chip on" onclick="setChipVisita('acao','',this)">Todas</button>
-    <button class="fi-chip roxo" onclick="setChipVisita('acao','sem_prop',this)">Aguard. prop.</button>
-    <button class="fi-chip azul" onclick="setChipVisita('acao','sem_cliente',this)">Avisar cliente</button>
-    <button class="fi-chip verde" onclick="setChipVisita('acao','ambos_ok',this)">Ambos confirmaram</button>
-    <button class="fi-chip" onclick="setChipVisita('acao','pos_visita',this)">Pós-visita</button>
-  </div>
+    // Urgência
+    var _hoje2=new Date();
+    var _dataV=v.dataVisita||'';
+    var _diffDias=_dataV?Math.floor((new Date(_dataV)-_hoje2)/86400000):999;
+    var _atrasada=_diffDias<0&&(st==='solicitada'||st==='confirmada'||st==='prop_confirmou');
+    var _hojeV2=_diffDias===0;
+    var _amanha2=_diffDias===1;
 
-  <div class="fi-avancado" id="vf-avancado">
-    <div class="fi-avancado-grid">
+    var _badge='',_badgeCor='',_cardClass='';
+    if(_atrasada){
+      _badge='Atrasada — resolva agora';
+      _badgeCor='background:#fee2e2;color:#991b1b;border-color:#fca5a5';
+      _cardClass='vi-card-urgente';
+    } else if(_hojeV2&&st!=='realizada'&&st!=='cancelada'){
+      _badge='Visita HOJE';
+      _badgeCor='background:#fee2e2;color:#991b1b;border-color:#fca5a5';
+      _cardClass='vi-card-urgente';
+    } else if(_amanha2&&st!=='realizada'&&st!=='cancelada'){
+      _badge='Visita amanhã';
+      _badgeCor='background:#fff7ed;color:#9a3412;border-color:#fdba74';
+      _cardClass='vi-card-atencao';
+    }
+
+    var guia='',guiaCor='#6b7280';
+    if(col.key==='solicitada'){ guia='Confirme com o responsável pelo imóvel'; guiaCor='#d97706'; }
+    else if(col.key==='aguard_prop'){ guia='Aguardando resposta do proprietário'; guiaCor='#8b5cf6'; }
+    else if(col.key==='aguard_cliente'){ guia='Avise o cliente — visita confirmada!'; guiaCor='#0ea5e9'; }
+    else if(col.key==='confirmada'&&clienteConfirmou&&propConfirmou){ guia='Ambos confirmaram — visita agendada!'; guiaCor='#15803d'; }
+    else if(col.key==='realizada'){ guia='Pergunte se gostou do imóvel'; guiaCor='#6366f1'; }
+    else if(col.key==='cancelada'){ guia='Ofereça outra opção ao cliente'; guiaCor='#9ca3af'; }
+
+    var linkCliente=baseUrl+'/cliente/visita/'+v.id;
+    var linkProprietario=baseUrl+'/proprietario/visita/'+v.id;
+    var msgCliente='Ola '+nome+'! Sua visita foi confirmada!%0A%0AImovel: '+imovelTit+(imovelBairro?' - '+imovelBairro:'')+'%0AData: '+dataVisita+(horaVisita&&horaVisita!=='-'?'%0AHorario: '+horaVisita:'')+'%0A%0AConfirme sua presenca:%0A'+linkCliente;
+    var msgProp='Ola! Sou corretor da MatchImoveis.%0ATenho cliente interessado no imovel '+imovelTit+(imovelBairro?' - '+imovelBairro:'')+'%0AVisita para '+dataVisita+(horaVisita&&horaVisita!=='-'?' as '+horaVisita:'')+'%0A%0AConfirme disponibilidade:%0A'+linkProprietario;
+  %>
+  <div class="vi-card <%=_cardClass%>"
+    data-visita-id="<%=v.id%>"
+    data-col="<%=col.key%>"
+    data-data-visita="<%=v.dataVisita||''%>"
+    data-bairro="<%=imovelBairro%>"
+    data-search="<%=(nome+' '+telefone+' '+imovelTit+' '+imovelBairro).toLowerCase()%>">
+
+    <% if(_badge){ %><div class="vi-badge" style="<%=_badgeCor%>"><%=_badge%></div><% } %>
+
+    <a href="/app/lead/<%=v.leadId||''%>" class="vi-nome"><%=nome%></a>
+    <div class="vi-tel"><%=telefone||'—'%></div>
+
+    <% if(guia){ %>
+    <div class="vi-guia" style="border-left-color:<%=guiaCor%>;color:<%=guiaCor%>"><%=guia%></div>
+    <% } %>
+
+    <div class="vi-info">
       <div>
-        <label>Data da visita</label>
-        <input type="date" id="vf-data" oninput="filtrarVisitas()">
+        <div class="vi-label">Imóvel</div>
+        <div class="vi-val" style="font-size:11px"><%=imovelTit%><%=imovelBairro?' — '+imovelBairro:''%></div>
       </div>
       <div>
-        <label>Bairro do imóvel</label>
-        <input id="vf-bairro" placeholder="Ex: Meia Praia" oninput="filtrarVisitas()">
-      </div>
-      <div>
-        <label>Ordenar por</label>
-        <select id="vf-ordem" onchange="filtrarVisitas()">
-          <option value="data">Data da visita</option>
-          <option value="recente">Mais recente</option>
-          <option value="nome">Nome A-Z</option>
-        </select>
-      </div>
-      <div>
-        <label>Proprietário</label>
-        <select id="vf-prop" onchange="filtrarVisitas()">
-          <option value="">Todos</option>
-          <option value="confirmou">Confirmou</option>
-          <option value="pendente">Pendente</option>
-        </select>
+        <div class="vi-label">Data / Hora</div>
+        <div class="vi-val"><%=dataVisita%><%=horaVisita&&horaVisita!=='-'?' '+horaVisita:''%></div>
       </div>
     </div>
-    <button onclick="limparFiltrosVisitas()" style="margin-top:12px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.1);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;color:#374151">Limpar filtros</button>
-  </div>
 
-  <div class="fi-counter" id="vf-counter"></div>
+    <div class="vi-actions">
+      <% if(propTel&&!propRespondeu){ %>
+      <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn vi-btn-zap-dark">WA Prop.</a>
+      <% } %>
+      <% if(telefone&&mostrarBtnCliente){ %>
+      <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn vi-btn-zap">WA Cliente</a>
+      <% } %>
+      <% if((st==='solicitada'||st==='AGUARDANDO')&&!propTel){ %>
+      <form method="POST" action="/app/visitas/confirmar/<%=v.id%>" style="margin:0">
+        <button type="submit" class="vi-btn vi-btn-green">Confirmar</button>
+      </form>
+      <% } %>
+      <% if(col.key==='aguard_cliente'&&v.parceiroNome){ %>
+      <form method="POST" action="/app/visitas/parceiro-confirmou/<%=v.id%>" style="margin:0">
+        <button type="submit" class="vi-btn vi-btn-green">Parceiro OK</button>
+      </form>
+      <% } %>
+      <% if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'){ %>
+      <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0" onsubmit="return confirm('Cancelar esta visita?')">
+        <button type="submit" class="vi-btn vi-btn-red">×</button>
+      </form>
+      <% } %>
+      <% if(st==='confirmada'||st==='CONFIRMADA'||st==='prop_confirmou'){ %>
+      <form method="POST" action="/app/visitas/concluir/<%=v.id%>" style="margin:0">
+        <button type="submit" class="vi-btn vi-btn-purple">Realizada</button>
+      </form>
+      <% } %>
+    </div>
+  </div>
+  <% }); %>
+</div>
+<% }); %>
 </div>
 
 <script>
-const _fv = { status:'todos', periodo:'', acao:'' };
+const _fv = { periodo:'' };
 
-function setChipVisita(campo, valor, btn) {
+function setChipV(campo, valor, btn) {
   _fv[campo] = valor;
-  const grupo = btn.parentElement.querySelectorAll('.fi-chip');
-  grupo.forEach(b => b.classList.remove('on'));
+  btn.parentElement.querySelectorAll('.fchip').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   filtrarVisitas();
 }
 
-function toggleFiltrosVisitas() {
-  const el = document.getElementById('vf-avancado');
-  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+function toggleFAdv() {
+  const el = document.getElementById('fadv-v');
+  el.style.display = el.style.display==='block'?'none':'block';
 }
 
-function limparFiltrosVisitas() {
-  _fv.status='todos'; _fv.periodo=''; _fv.acao='';
+function limparFiltrosV() {
+  _fv.periodo='';
   document.getElementById('vf-busca').value='';
   document.getElementById('vf-data').value='';
   document.getElementById('vf-bairro').value='';
-  document.getElementById('vf-prop').value='';
-  document.querySelectorAll('.fi-chip').forEach(b => {
-    b.classList.remove('on');
-    const t = b.textContent.trim();
-    if(t==='Todos'||t==='Todas') b.classList.add('on');
-  });
+  document.querySelectorAll('.fchip').forEach(b=>{b.classList.remove('on');if(b.textContent.trim()==='Todos')b.classList.add('on');});
   filtrarVisitas();
 }
 
@@ -346,283 +335,70 @@ function filtrarVisitas() {
   const busca = document.getElementById('vf-busca').value.toLowerCase();
   const dataFiltro = document.getElementById('vf-data').value;
   const bairroFiltro = document.getElementById('vf-bairro').value.toLowerCase();
-  const propFiltro = document.getElementById('vf-prop')?.value || '';
   const hoje = new Date(); hoje.setHours(0,0,0,0);
   const amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
   const semana = new Date(hoje); semana.setDate(semana.getDate()+7);
 
   const cards = document.querySelectorAll('.vi-card[data-visita-id]');
-  let total=0, pendentes=0, confirmadas=0, realizadas=0, hojeCount=0, visiveis=0;
+  let total = 0;
+  const counts = {};
 
   cards.forEach(card => {
-    const status = card.dataset.status || '';
-    const propConfirmou = card.dataset.propConfirmou === 'true';
-    const clienteConfirmou = card.dataset.clienteConfirmou === 'true';
     const dataVisita = card.dataset.dataVisita ? new Date(card.dataset.dataVisita) : null;
-    const searchStr = (card.dataset.search || '').toLowerCase();
-    const bairroCard = (card.dataset.bairro || '').toLowerCase();
-
-    total++;
-    if(status==='solicitada'||status==='AGUARDANDO') pendentes++;
-    if(status==='confirmada'||status==='CONFIRMADA') confirmadas++;
-    if(status==='realizada'||status==='CONCLUIDA') realizadas++;
-    if(dataVisita){ const d=new Date(dataVisita); d.setHours(0,0,0,0); if(d.getTime()===hoje.getTime()) hojeCount++; }
-
+    const searchStr = (card.dataset.search||'').toLowerCase();
+    const bairroCard = (card.dataset.bairro||'').toLowerCase();
     let ok = true;
-
-    if(_fv.status !== 'todos') {
-      const st = status.toLowerCase();
-      if(_fv.status==='solicitada'&&st!=='solicitada'&&st!=='aguardando') ok=false;
-      else if(_fv.status==='confirmada'&&st!=='confirmada') ok=false;
-      else if(_fv.status==='realizada'&&st!=='realizada'&&st!=='concluida') ok=false;
-      else if(_fv.status==='cancelada'&&st!=='cancelada') ok=false;
-      else if(_fv.status==='no_show'&&st!=='no_show') ok=false;
-    }
 
     if(_fv.periodo && dataVisita) {
       const dv = new Date(dataVisita); dv.setHours(0,0,0,0);
       if(_fv.periodo==='hoje'&&dv.getTime()!==hoje.getTime()) ok=false;
       if(_fv.periodo==='amanha'&&dv.getTime()!==amanha.getTime()) ok=false;
       if(_fv.periodo==='semana'&&(dv<hoje||dv>semana)) ok=false;
-      if(_fv.periodo==='atrasada'&&(dv>=hoje||(status==='realizada'||status==='cancelada'))) ok=false;
-      if(_fv.periodo==='passadas'&&dv>=hoje) ok=false;
+      if(_fv.periodo==='atrasada'&&dv>=hoje) ok=false;
     }
-
-    if(_fv.acao==='sem_prop'&&propConfirmou) ok=false;
-    if(_fv.acao==='sem_cliente'&&(!propConfirmou||clienteConfirmou)) ok=false;
-    if(_fv.acao==='ambos_ok'&&(!propConfirmou||!clienteConfirmou)) ok=false;
-    if(_fv.acao==='pos_visita'&&(status!=='realizada'&&status!=='CONCLUIDA')) ok=false;
-
     if(busca&&!searchStr.includes(busca)) ok=false;
     if(bairroFiltro&&!bairroCard.includes(bairroFiltro)) ok=false;
     if(dataFiltro&&dataVisita){
       const dvStr = dataVisita.toISOString().split('T')[0];
       if(dvStr!==dataFiltro) ok=false;
     }
-    if(propFiltro==='confirmou'&&!propConfirmou) ok=false;
-    if(propFiltro==='pendente'&&propConfirmou) ok=false;
 
-    card.style.display = ok ? '' : 'none';
-    if(ok) visiveis++;
+    card.style.display = ok?'':'none';
+    if(ok){
+      total++;
+      const col = card.dataset.col;
+      counts[col] = (counts[col]||0)+1;
+    }
   });
 
-  document.getElementById('vst-total').textContent = total+' total';
-  document.getElementById('vst-pendentes').textContent = pendentes+' pendentes';
-  document.getElementById('vst-confirmadas').textContent = confirmadas+' confirmadas';
-  document.getElementById('vst-hoje').textContent = hojeCount+' hoje';
-  document.getElementById('vst-realizadas').textContent = realizadas+' realizadas';
-  document.getElementById('vf-counter').textContent = visiveis+' visita'+(visiveis!==1?'s':'')+' exibida'+(visiveis!==1?'s':'');
+  // Atualiza contadores
+  document.querySelectorAll('.kanban-col-count').forEach(el => {
+    const col = el.id.replace('count-','');
+    el.textContent = counts[col]||0;
+  });
+
+  // Empty state por coluna
+  document.querySelectorAll('.kanban-col').forEach(col => {
+    const visCards = Array.from(col.querySelectorAll('.vi-card')).filter(c=>c.style.display!=='none');
+    let empty = col.querySelector('.empty-col');
+    if(!empty){empty=document.createElement('div');empty.className='empty-col';empty.textContent='Nenhuma visita';col.appendChild(empty);}
+    empty.style.display = visCards.length===0?'block':'none';
+  });
+
+  document.getElementById('vf-counter').textContent = total+' visita'+(total!==1?'s':'')+' exibida'+(total!==1?'s':'');
 }
 
-window.addEventListener('DOMContentLoaded', filtrarVisitas);
+function scrollKanban(dir) {
+  const board = document.getElementById('kanban-board');
+  board.scrollBy({ left: dir*290, behavior:'smooth' });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  filtrarVisitas();
+  const board = document.getElementById('kanban-board');
+  const hint = document.getElementById('kanban-hint');
+  if(board) board.addEventListener('scroll', ()=>{ if(hint) hint.style.opacity='0.4'; }, {once:true});
+});
 </script>
-
-<% if(!visitas||visitas.length===0){ %>
-<div class="vi-empty">
-  <div style="font-size:32px;margin-bottom:12px;opacity:.4">🏠</div>
-  <div style="font-weight:500;font-size:15px;color:#374151">Nenhuma visita ainda</div>
-  <div style="font-size:13px;color:#9ca3af;margin-top:6px">Quando um cliente solicitar uma visita pela vitrine ou página pública, ela aparece aqui.</div>
-</div>
-<% } %>
-
-<% visitas.forEach(function(v){ %>
-<%
-  var nome=v.nome||v.clienteNome||'-';
-  var telefone=(v.telefone||v.contato||v.clienteTelefone||'').replace(/[^0-9]/g,'');
-  var imovelTit=v.imovelTitulo||v.titulo_interesse||'Imóvel';
-  var imovelBairro=v.imovelBairro||v.bairro||'';
-  var imovelDesc=v.imovelDescricao||'';
-  var imovelLinkLocal=v.imovelUrl||v.url||(v.imovelId?'/imovel/'+v.imovelId:'');
-  var imovelLinkPublico=v.imovelUrl||v.url||(v.imovelId?baseUrl+'/imovel/'+v.imovelId:'');
-  var linkProprietario=baseUrl+'/proprietario/visita/'+v.id;
-  var dataVisitaRaw=v.dataVisita||v.dataPreferida||'';
-  var dataVisita='-';
-  if(dataVisitaRaw){
-    if(dataVisitaRaw.indexOf('-')>-1&&dataVisitaRaw.length===10){
-      var p=dataVisitaRaw.split('-');
-      dataVisita=p[2]+'/'+p[1]+'/'+p[0];
-    } else { dataVisita=dataVisitaRaw; }
-  }
-  var horaVisita=v.horaVisita||v.horarioPreferido||'-';
-  var cadastrado=v.data_br||(v.data?new Date(v.data).toLocaleString('pt-BR'):'-');
-  var st=v.status||'solicitada';
-  var stInfo=statusLabel[st]||{cls:'st-solicitada',txt:st};
-  var propTel=(v.proprietarioTelefone||'').replace(/[^0-9]/g,'');
-  var linhaImovel=imovelTit+(imovelBairro?' — '+imovelBairro:'');
-
-  var clienteConfirmou=v.clienteConfirmou||v.confirmacaoClienteStatus==='CONFIRMADO';
-  var clienteRecusou=v.confirmacaoClienteStatus==='RECUSADO';
-  var propConfirmou=v.respostaProprietario==='confirmar'||v.proprietarioConfirmou===true||v.confirmacaoProprietarioStatus==='CONFIRMADO';
-  var propRespondeu=propConfirmou||v.confirmacaoProprietarioStatus==='RECUSADO'||v.proprietarioRecusou||v.respostaProprietario==='recusar'||v.respostaProprietario==='remarcar';
-  var mostrarBtnCliente=!propTel||propRespondeu;
-
-  var guia='';
-  var guiaCor='#6b7280';
-  if(st==='solicitada'||st==='AGUARDANDO'){
-    if(propTel){ guia='Mande WhatsApp para o proprietário confirmar disponibilidade'; guiaCor='#d97706'; }
-    else { guia='Entre em contato com o responsável pelo imóvel para confirmar'; guiaCor='#d97706'; }
-  } else if(st==='confirmada'||st==='CONFIRMADA'){
-    if(clienteConfirmou&&propConfirmou){ guia='Proprietário e cliente confirmaram! Visita agendada para '+dataVisita+(horaVisita&&horaVisita!=='-'?' às '+horaVisita:''); guiaCor='#15803d'; }
-    else if(clienteConfirmou&&!propConfirmou){ guia='Cliente confirmou! Aguardando confirmação do proprietário'; guiaCor='#1d4ed8'; }
-    else if(propConfirmou&&!clienteConfirmou){ guia='Proprietário confirmou! Avise o cliente e envie o link de confirmação'; guiaCor='#1d4ed8'; }
-    else if(clienteRecusou){ guia='Cliente não poderá comparecer — entre em contato para reagendar'; guiaCor='#b91c1c'; }
-    else { guia='Avise o cliente que a visita está confirmada e envie o link de confirmação'; guiaCor='#1d4ed8'; }
-  } else if(st==='realizada'||st==='CONCLUIDA'){
-    guia='Entre em contato com o cliente para saber se gostou do imóvel'; guiaCor='#1d4ed8';
-  } else if(st==='cancelada'||st==='CANCELADA'){
-    guia='Ofereça outro imóvel ou reagende para não perder o cliente'; guiaCor='#b91c1c';
-  } else if(st==='no_show'||st==='NO_SHOW'){
-    guia='Cliente não apareceu — entre em contato para entender o que houve'; guiaCor='#6b7280';
-  }
-
-  var linkCliente=baseUrl+'/cliente/visita/'+v.id;
-  var msgClienteParts=[
-    'Ola '+nome+'! Sua visita foi confirmada!',
-    '',
-    'Imovel: '+linhaImovel,
-    'Data: '+dataVisita,
-    (horaVisita&&horaVisita!=='-'?'Horario: '+horaVisita:''),
-    '',
-    'Confirme sua presenca pelo link:',
-    linkCliente,
-    '',
-    'Corretor: '+corretorNome,
-    (corretorTel?'Contato: '+corretorTel:''),
-    '',
-    'Qualquer duvida estou a disposicao!'
-  ];
-  var msgCliente=msgClienteParts.filter(function(x){return x!==null&&x!==undefined;}).join('%0A');
-
-  var msgPropParts=[
-    'Ola! Sou corretor da MatchImoveis.',
-    'Tenho um cliente interessado no imovel '+linhaImovel+'.',
-    'Gostaria de agendar uma visita para '+dataVisita+(horaVisita&&horaVisita!=='-'?' as '+horaVisita:'')+'.',
-    '',
-    'Por favor confirme a disponibilidade pelo link:',
-    linkProprietario,
-    '',
-    'Voce pode confirmar, recusar ou sugerir outra data. Obrigado!'
-  ];
-  var msgProp=msgPropParts.join('%0A');
-
-  const _hoje2=new Date();
-  const _dataV=v.dataVisita||v.data||'';
-  const _diffDias=_dataV?Math.floor((new Date(_dataV)-_hoje2)/86400000):999;
-  const _atrasada=_diffDias<0&&(st==='solicitada'||st==='confirmada');
-  const _hojeV=_diffDias===0;
-  const _amanha=_diffDias===1;
-
-  let _badge='', _badgeCor='', _cardClass='';
-  if(_atrasada){
-    _badge='Visita atrasada — resolva agora';
-    _badgeCor='background:#fee2e2;color:#991b1b;border-color:#fca5a5';
-    _cardClass='vi-card-urgente';
-  } else if(_hojeV&&st!=='realizada'&&st!=='cancelada'){
-    _badge='Visita HOJE — confirme agora';
-    _badgeCor='background:#fee2e2;color:#991b1b;border-color:#fca5a5';
-    _cardClass='vi-card-urgente';
-  } else if(_amanha&&st!=='realizada'&&st!=='cancelada'){
-    _badge='Visita amanhã — prepare-se';
-    _badgeCor='background:#fff7ed;color:#9a3412;border-color:#fdba74';
-    _cardClass='vi-card-atencao';
-  } else if(st==='solicitada'||st==='AGUARDANDO'){
-    _badge=propTel?'Confirmar com proprietário':'Confirmar visita manualmente';
-    _badgeCor='background:#fefce8;color:#92400e;border-color:#fde68a';
-    _cardClass='vi-card-atencao';
-  } else if((st==='confirmada'||st==='CONFIRMADA')&&!clienteConfirmou){
-    _badge='Avisar cliente — visita confirmada';
-    _badgeCor='background:#eff6ff;color:#1e40af;border-color:#bfdbfe';
-    _cardClass='';
-  } else if(st==='realizada'||st==='CONCLUIDA'){
-    _badge='Pós-visita — pergunte se gostou';
-    _badgeCor='background:#f5f3ff;color:#5b21b6;border-color:#ddd6fe';
-    _cardClass='';
-  } else if(st==='cancelada'||st==='CANCELADA'){
-    _badge='Cancelada — ofereça outra opção';
-    _badgeCor='background:#f9fafb;color:#6b7280;border-color:#e5e7eb';
-    _cardClass='';
-  }
-
-  var dataVisitaISO=v.dataVisita||v.dataPreferida||'';
-%>
-
-<div class="vi-card <%=_cardClass%>"
-  data-visita-id="<%=v.id%>"
-  data-status="<%=st%>"
-  data-prop-confirmou="<%=propConfirmou%>"
-  data-cliente-confirmou="<%=clienteConfirmou%>"
-  data-data-visita="<%=dataVisitaISO%>"
-  data-bairro="<%=imovelBairro%>"
-  data-search="<%=(nome+' '+telefone+' '+imovelTit+' '+imovelBairro).toLowerCase()%>"
->
-
-  <% if(_badge){ %>
-  <div class="vi-badge" style="<%=_badgeCor%>"><%=_badge%></div>
-  <% } %>
-
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
-    <div>
-      <div style="font-size:16px;font-weight:500;color:#111827"><%=nome%></div>
-      <div style="font-size:13px;color:#9ca3af;margin-top:2px"><%=telefone||'—'%></div>
-    </div>
-    <span class="vi-status <%=stInfo.cls%>"><%=stInfo.txt%></span>
-  </div>
-
-  <% if(guia){ %>
-  <div class="vi-guia" style="border-left-color:<%=guiaCor%>;color:<%=guiaCor%>"><%=guia%></div>
-  <% } %>
-
-  <div class="vi-info">
-    <div style="grid-column:span 2">
-      <div class="vi-label">Imóvel</div>
-      <div class="vi-val"><%=imovelTit%><%=imovelBairro?' — '+imovelBairro:''%></div>
-      <% if(imovelLinkLocal){ %>
-      <a href="<%=imovelLinkLocal%>" target="_blank" style="font-size:12px;color:#6366f1;text-decoration:none;margin-top:3px;display:inline-block">Ver imóvel →</a>
-      <% } %>
-    </div>
-    <div>
-      <div class="vi-label">Data</div>
-      <div class="vi-val"><%=dataVisita%></div>
-    </div>
-    <div>
-      <div class="vi-label">Horário</div>
-      <div class="vi-val"><%=horaVisita%></div>
-    </div>
-    <div>
-      <div class="vi-label">Cadastrado em</div>
-      <div class="vi-val" style="font-size:12px;color:#9ca3af"><%=cadastrado%></div>
-    </div>
-  </div>
-
-  <div class="vi-actions">
-    <% if(propTel&&!propRespondeu){ %>
-    <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn vi-btn-zap-dark">WhatsApp proprietário</a>
-    <% } %>
-
-    <% if(telefone&&mostrarBtnCliente){ %>
-    <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn vi-btn-zap">WhatsApp cliente</a>
-    <% } %>
-
-    <% if((st==='solicitada'||st==='AGUARDANDO')&&!propTel){ %>
-    <form method="POST" action="/app/visitas/confirmar/<%=v.id%>" style="margin:0">
-      <button type="submit" class="vi-btn vi-btn-green">Confirmar</button>
-    </form>
-    <% } %>
-
-    <% if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'){ %>
-    <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0" onsubmit="return confirm('Cancelar esta visita?')">
-      <button type="submit" class="vi-btn vi-btn-red">Cancelar</button>
-    </form>
-    <% } %>
-
-    <% if(st==='confirmada'||st==='CONFIRMADA'){ %>
-    <form method="POST" action="/app/visitas/concluir/<%=v.id%>" style="margin:0">
-      <button type="submit" class="vi-btn vi-btn-purple">Realizada</button>
-    </form>
-    <% } %>
-  </div>
-</div>
-
-<% }); %>
 
 <%- include("partials/app-end") %>

@@ -1,48 +1,48 @@
 {
-  "geradoEm": "2026-05-08T20:22:06.992Z",
-  "cobertura": 80,
-  "totalOk": 55,
-  "totalFalhou": 14,
+  "geradoEm": "2026-05-16T21:45:46.540Z",
+  "cobertura": 86,
+  "totalOk": 59,
+  "totalFalhou": 10,
   "porGrupo": {
     "Saudação": {
-      "ok": 4,
-      "falhou": 1
+      "ok": 1,
+      "falhou": 4
     },
     "Leads": {
-      "ok": 9,
-      "falhou": 1
+      "ok": 10,
+      "falhou": 0
     },
     "Imóveis": {
-      "ok": 7,
-      "falhou": 1
+      "ok": 8,
+      "falhou": 0
     },
     "Visitas": {
-      "ok": 2,
-      "falhou": 3
+      "ok": 5,
+      "falhou": 0
     },
     "Match": {
       "ok": 5,
       "falhou": 0
     },
     "Mercado": {
-      "ok": 5,
-      "falhou": 2
+      "ok": 7,
+      "falhou": 0
     },
     "Portais": {
       "ok": 3,
       "falhou": 1
     },
     "Suporte": {
-      "ok": 2,
-      "falhou": 4
+      "ok": 3,
+      "falhou": 3
     },
     "Estratégia": {
       "ok": 4,
       "falhou": 0
     },
     "Resumo": {
-      "ok": 3,
-      "falhou": 0
+      "ok": 2,
+      "falhou": 1
     },
     "Sistema": {
       "ok": 4,
@@ -64,98 +64,62 @@
   "falhas": [
     {
       "grupo": "Saudação",
+      "p": "oi",
+      "espera": [
+        "Bom dia",
+        "Boa tarde",
+        "Boa noite"
+      ],
+      "got": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver i"
+    },
+    {
+      "grupo": "Saudação",
       "p": "bom dia",
       "espera": [
         "Bom dia"
       ],
-      "got": "Boa tarde, Renato! 👋🔔 2 notificação(ões):⚠️ Urgente:🔴 2 visita(s) hoje — Não "
+      "got": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver i"
     },
     {
-      "grupo": "Leads",
-      "p": "leads com match",
+      "grupo": "Saudação",
+      "p": "olá",
       "espera": [
-        "match",
-        "Match"
+        "Bom dia",
+        "Boa tarde",
+        "Boa noite"
       ],
-      "got": "Não encontrei lead com nome \"com\". Verifique na lista completa.Ver leads →"
+      "got": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver i"
     },
     {
-      "grupo": "Imóveis",
-      "p": "casas disponíveis",
+      "grupo": "Saudação",
+      "p": "eai",
       "espera": [
-        "Casa",
-        "casa",
-        "imóvel"
+        "Bom dia",
+        "Boa tarde",
+        "Boa noite"
       ],
-      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
-    },
-    {
-      "grupo": "Visitas",
-      "p": "visitas pendentes",
-      "espera": [
-        "pendente",
-        "Pendente"
-      ],
-      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
-    },
-    {
-      "grupo": "Visitas",
-      "p": "quem confirmou visita",
-      "espera": [
-        "confirm",
-        "Confirm"
-      ],
-      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
-    },
-    {
-      "grupo": "Visitas",
-      "p": "como funciona a visita",
-      "espera": [
-        "Fluxo",
-        "fluxo",
-        "visita"
-      ],
-      "got": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóve"
-    },
-    {
-      "grupo": "Mercado",
-      "p": "tipo mais buscado",
-      "espera": [
-        "tipo",
-        "Tipo",
-        "lead"
-      ],
-      "got": "Desculpe, não captei. Tente de outro jeito.👥 Leads🏠 Imóveis📅 Visitas🧠 Plano\ud83c"
-    },
-    {
-      "grupo": "Mercado",
-      "p": "quartos mais pedidos",
-      "espera": [
-        "quarto",
-        "Quarto",
-        "lead"
-      ],
-      "got": "Desculpe, não captei. Tente de outro jeito.👥 Leads🏠 Imóveis📅 Visitas🧠 Plano\ud83c"
+      "got": "👋 Olá! Como posso ajudar?Meus imóveisLeadsVisitasGerar XMLLeadsImóveisVisitasMa"
     },
     {
       "grupo": "Portais",
-      "p": "ver portais",
+      "p": "meu portal rejeitou",
       "espera": [
-        "Portal",
+        "foto",
+        "descri",
+        "rejeit",
         "portal",
-        "VivaReal"
+        "XML"
       ],
       "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
     },
     {
       "grupo": "Suporte",
-      "p": "como cadastrar imóvel",
+      "p": "como inativar imóvel",
       "espera": [
-        "Cadastrar",
-        "cadastrar",
-        "imóvel"
+        "Inativar",
+        "inativar"
       ],
-      "got": "🏠 Imóveis:✅ Ativos: 45 · ❌ Inativos: 8📍 Bairros: Itajaí, Balneário Camboriú, I"
+      "got": "🏠 Imoveis:Ativos: 45 · Inativos: 8Bairros: Itajaí, Balneário Camboriú, Itapema,"
     },
     {
       "grupo": "Suporte",
@@ -164,17 +128,7 @@
         "foto",
         "Foto"
       ],
-      "got": "🔧 Suporte técnico:Pode me detalhar mais o problema? Por exemplo:• Qual funciona"
-    },
-    {
-      "grupo": "Suporte",
-      "p": "como trocar senha",
-      "espera": [
-        "senha",
-        "Senha",
-        "Perfil"
-      ],
-      "got": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóve"
+      "got": "🏠 Imoveis:Ativos: 45 · Inativos: 8Bairros: Itajaí, Balneário Camboriú, Itapema,"
     },
     {
       "grupo": "Suporte",
@@ -184,17 +138,27 @@
         "whatsapp",
         "Twilio"
       ],
-      "got": "🤖 Sou o Match — seu assistente imobiliário.Posso te ajudar com:👥 Leads🏠 Imóve"
+      "got": "🔗 Como publicar nos portais:1Acesse Imóveis → e selecione os imóveis2Clique no "
+    },
+    {
+      "grupo": "Resumo",
+      "p": "minha conta",
+      "espera": [
+        "Imóveis",
+        "leads",
+        "match"
+      ],
+      "got": "ERRO: raciocinio.analisarConversa is not a function"
     },
     {
       "grupo": "RAG",
-      "p": "casas com 3 quartos",
+      "p": "apartamento até 400 mil",
       "espera": [
-        "Casa",
-        "casa",
-        "imóvel"
+        "imóvel",
+        "Imóvel",
+        "valor"
       ],
-      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
+      "got": "😔 Nenhum imovel encontrado.Apartamento · ate R$ 400.000💡 Quer cadastrar esse c"
     }
   ]
 }

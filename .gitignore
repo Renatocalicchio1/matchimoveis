@@ -17,3 +17,5 @@ node_modules/
 *.xml
 *.bkp
 backup-*/
+\n# dados de teste local\n/tmp/seed-dados.js\ndata-seed-backup.json
+*.seed-bak

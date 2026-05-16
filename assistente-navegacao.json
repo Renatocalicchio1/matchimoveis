@@ -49,33 +49,15 @@
       "paginaAnterior": "dashboard"
     },
     "cor_as61p840px": {
-      "paginaAtual": "leads",
-      "labelAtual": "Leads",
-      "dominioAtual": "leads",
-      "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-16T20:42:33.333Z",
-      "paginaAnterior": "imoveis"
+      "paginaAtual": "visitas",
+      "labelAtual": "Visitas",
+      "dominioAtual": "visitas",
+      "rotaAtual": "/app/visitas",
+      "atualizadoEm": "2026-05-16T21:15:08.498Z",
+      "paginaAnterior": "notificacoes"
     }
   },
   "fluxos": [
-    {
-      "de": "dashboard",
-      "para": "assistente",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:01:06.254Z"
-    },
-    {
-      "de": "assistente",
-      "para": "dashboard",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:02:38.827Z"
-    },
-    {
-      "de": "dashboard",
-      "para": "assistente",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:02:40.841Z"
-    },
     {
       "de": "assistente",
       "para": "dashboard",
@@ -6057,6 +6039,24 @@
       "para": "leads",
       "userId": "cor_as61p840px",
       "data": "2026-05-16T20:42:33.333Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T21:15:03.393Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "notificacoes",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T21:15:06.552Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T21:15:08.498Z"
     }
   ]
 }

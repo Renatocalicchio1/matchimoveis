@@ -697,6 +697,22 @@ app.get('/dev/diagnostico-leads', auth, (req,res)=>{
     ultimas3: todos.slice(-3).map(l=>({id:l.id,nome:l.nome,userId:l.userId,codigoUsuario:l.codigoUsuario,corretorId:l.corretorId}))
   });
 });
+
+app.get('/admin/resumo-contas', (req, res) => {
+  try {
+    const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
+    const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
+    const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
+    const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'));
+    const resumo = users.map(u => ({
+      nome: u.nome, id: u.id, tipo: u.tipo,
+      imoveis: imoveis.filter(i=>i.codigoUsuario===u.id||i.userId===u.id).length,
+      leads: leads.filter(l=>l.userId===u.id||l.codigoUsuario===u.id||l.corretorId===u.id).length,
+      visitas: visitas.filter(v=>v.userId===u.id||v.codigoUsuario===u.id).length
+    }));
+    res.json({ ok: true, resumo });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
 // ===== APP ROUTES =====
 
 

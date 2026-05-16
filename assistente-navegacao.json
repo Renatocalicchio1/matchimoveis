@@ -49,12 +49,12 @@
       "paginaAnterior": "dashboard"
     },
     "cor_as61p840px": {
-      "paginaAtual": "leads",
-      "labelAtual": "Leads",
-      "dominioAtual": "leads",
-      "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-16T01:59:30.444Z",
-      "paginaAnterior": "imoveis"
+      "paginaAtual": "visitas",
+      "labelAtual": "Visitas",
+      "dominioAtual": "visitas",
+      "rotaAtual": "/app/visitas",
+      "atualizadoEm": "2026-05-16T04:10:43.729Z",
+      "paginaAnterior": "visitas"
     }
   },
   "fluxos": [
@@ -5025,6 +5025,126 @@
       "para": "leads",
       "userId": "cor_as61p840px",
       "data": "2026-05-16T01:59:30.444Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T03:55:23.571Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T03:55:26.603Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T03:58:44.014Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T03:58:47.473Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T03:58:52.183Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T03:59:03.303Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T03:59:19.645Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T03:59:33.956Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T03:59:49.278Z"
+    },
+    {
+      "de": "leads",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:00:18.411Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:01:01.963Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:01:39.880Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:01:41.383Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:07:51.061Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:07:54.583Z"
+    },
+    {
+      "de": "leads",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:08:54.869Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:09:23.786Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:09:56.314Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:09:57.680Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:10:37.249Z"
     }
   ]
 }

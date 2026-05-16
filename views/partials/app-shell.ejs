@@ -104,13 +104,12 @@
       <div class="user-nm"><%= (typeof user!=='undefined'&&user&&user.nome)?user.nome:'Usuário' %></div>
       <div class="user-tp"><%= (typeof user!=='undefined'&&user&&user.tipo)?user.tipo:'corretor' %></div>
       <div style="font-size:11px;color:#9ca3af;font-weight:700">ID: <%= (typeof user!=='undefined'&&user&&(user.codigoUsuario||user.codigo))?(user.codigoUsuario||user.codigo):'-' %></div>
-      <div style="font-size:11px;color:#f59e0b;font-weight:700;margin-top:2px">🪙 <%= (typeof user!=='undefined'&&user&&user.matchCoins)||0 %> Match Coins</div>
     </div>
   </div>
   <nav class="menu">
     <div class="menu-sec">Principal</div>
     <a class="<%= active==='home'?'active':'' %>" href="/app-home"><span class="menu-ic">📊</span>Dashboard</a>
-    <a class="<%= active==='central'?'active':'' %>" href="/app/central"><span class="menu-ic">🤖</span>Central</a>
+    <%# Central oculto temporariamente %>
     <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis"><span class="menu-ic">🏠</span>Meus Imóveis</a>
     <a class="<%= active==='leads'?'active':'' %>" href="/app/leads"><span class="menu-ic">👥</span>Leads</a>
     <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas"><span class="menu-ic">📅</span>Visitas</a>
@@ -131,7 +130,6 @@
     <a class="<%= active==='cadastro'?'active':'' %>" href="/app/cadastro"><span class="menu-ic">➕</span>Cadastrar Imóvel</a>
     <a class="<%= active==='portais'?'active':'' %>" href="/app/portais"><span class="menu-ic">🔗</span>Portais / XML</a>
     <a class="<%= active==='perfil'?'active':'' %>" href="/app/perfil"><span class="menu-ic">👤</span>Perfil</a>
-    <a class="<%= active==='coins'?'active':'' %>" href="/app/coins"><span class="menu-ic">🪙</span>Match Coins</a>
     <a class="<%= active==='assistente'?'active':'' %>" href="/app/assistente"><span class="menu-ic">🤖</span>Assistente</a>
   </nav>
   <div class="sidebar-footer"><a href="/login">🚪 Sair</a></div>

@@ -1,146 +1,293 @@
-<%- include('partials/app-shell',{active:'imoveis',title:'Editar imóvel',subtitle:'Dados, proprietário, fotos e publicação nos portais.',perfil:'corretor'}) %>
+<%- include('partials/app-shell',{active:'imoveis',title:'Editar imóvel',subtitle:'Dados, proprietário, fotos e publicação nos portais.',user:user}) %>
+
+<style>
+.edit-card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:24px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.edit-section-title{font-size:11px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid #f3f4f6}
+.fg1{display:grid;grid-template-columns:1fr;gap:12px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+@media(max-width:700px){.fg2,.fg3,.fg4{grid-template-columns:1fr 1fr}}
+.field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;background:#fff;box-sizing:border-box;transition:border .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#ff385c;outline:none}
+.portal-grid{display:flex;flex-wrap:wrap;gap:8px}
+.portal-grid label{display:flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.portal-grid label:hover{border-color:#ff385c;background:#fff5f5}
+.portal-grid input[type=checkbox]:checked+span{color:#ff385c}
+.fotos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.foto-card{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;position:relative;background:#f9fafb}
+.foto-card img{width:100%;height:120px;object-fit:cover;display:block}
+.foto-capa-badge{position:absolute;top:6px;left:6px;background:#ff385c;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.foto-btns{display:flex;gap:4px;padding:6px}
+.foto-btns button{flex:1;font-size:10px;padding:5px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-weight:600}
+.foto-btns .btn-capa{color:#374151}
+.foto-btns .btn-del{color:#dc2626;border-color:#fca5a5}
+.upload-box{border:2px dashed #e5e7eb;border-radius:12px;padding:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fafafa}
+.upload-box input{flex:1;min-width:180px}
+.id-badge{background:#f9f9f8;border:1px solid #e5e0d8;border-radius:10px;padding:10px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.btn-save{background:#ff385c;color:#fff;border:none;padding:12px 28px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;transition:opacity .2s}
+.btn-save:hover{opacity:.85}
+.btn-cancel{color:#6b7280;text-decoration:none;padding:12px 20px;font-size:14px;font-weight:600}
+.success-bar{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;padding:12px 16px;border-radius:10px;margin-bottom:16px;font-weight:600}
+</style>
 
 <% const idImovel = imovel.idExterno || imovel.id; %>
 
 <% if (typeof salvo !== 'undefined' && salvo) { %>
-  <div style="background:#dcfce7;color:#166534;border:1px solid #bbf7d0;padding:12px 14px;border-radius:10px;margin-bottom:14px;font-weight:600">
-    ✅ Alterações salvas com sucesso.
-  </div>
+<div class="success-bar">✅ Alterações salvas com sucesso.</div>
 <% } %>
 
-<div class="card">
-  <form method="POST" action="/app/imovel/<%= idImovel %>
-    <div style="background:#f9f9f8;border:1px solid #e5e0d8;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
-      <span style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px">ID MatchImóveis</span>
-      <span style="font-family:monospace;font-size:14px;font-weight:700;color:#ff385c"><%= imovel.id || '-' %></span>
-      <span style="font-size:11px;color:#bbb;margin-left:auto">🔒 Não editável</span>
-    </div>/editar">
-    <h3>Dados do imóvel</h3>
+<form method="POST" action="/app/imovel/<%= idImovel %>/editar">
 
-    <div class="form-grid">
-      <div>
-        <label>Status</label>
-        <select name="status">
-          <option value="publicado" <%= imovel.status === 'publicado' ? 'selected' : '' %>>Publicar</option>
-          <option value="nao_publicado" <%= !imovel.status || imovel.status === 'nao_publicado' ? 'selected' : '' %>>Não publicar</option>
-          <option value="arquivado" <%= imovel.status === 'arquivado' ? 'selected' : '' %>>Arquivar</option>
-        </select>
-      </div>
-
-      <div><label>Tipo</label><input name="tipo" value="<%= imovel.tipo || '' %>"></div>
-      <div><label>Bairro</label><input name="bairro" value="<%= imovel.bairro || '' %>"></div>
-      <div><label>Cidade</label><input name="cidade" value="<%= imovel.cidade || '' %>"></div>
-      <div><label>Estado</label><input name="estado" value="<%= imovel.estado && imovel.estado['#text'] ? imovel.estado['#text'] : (imovel.estado || '') %>"></div>
-      <div><label>Endereço</label><input name="endereco" value="<%= imovel.endereco || '' %>"></div>
-      <div><label>Número</label><input name="numero" value="<%= imovel.numero || '' %>"></div>
-      <div><label>Complemento</label><input name="complemento" value="<%= imovel.complemento || '' %>"></div>
-      <div><label>CEP</label><input name="cep" value="<%= imovel.cep || '' %>"></div>
-      <div><label>Latitude</label><input name="latitude" value="<%= imovel.latitude || '' %>"></div>
-      <div><label>Longitude</label><input name="longitude" value="<%= imovel.longitude || '' %>"></div>
-      <div><label>Valor do imóvel</label><input name="valor_imovel" type="number" value="<%= imovel.valor_imovel || '' %>"></div>
-      <div><label>Condomínio</label><input name="condominio" type="number" value="<%= imovel.condominio || '' %>"></div>
-      <div><label>IPTU</label><input name="iptu" type="number" value="<%= imovel.iptu || '' %>"></div>
-      <div><label>Área privativa (m²)</label><input name="area_m2" type="number" value="<%= imovel.area_m2 || '' %>"></div>
-      <div><label>Área total (m²)</label><input name="area_total" type="number" value="<%= imovel.area_total || '' %>"></div>
-      <div><label>Andar</label><input name="andar" value="<%= imovel.andar || '' %>"></div>
-      <div><label>Quartos</label><input name="quartos" type="number" value="<%= imovel.quartos || '' %>"></div>
-      <div><label>Suítes</label><input name="suites" type="number" value="<%= imovel.suites || '' %>"></div>
-      <div><label>Banheiros</label><input name="banheiros" type="number" value="<%= imovel.banheiros || '' %>"></div>
-      <div><label>Vagas</label><input name="vagas" type="number" value="<%= imovel.vagas || '' %>"></div>
-
-      <div style="grid-column:1/-1">
-        <label>Descrição</label>
-        <textarea name="descricao" rows="4"><%= imovel.descricao || '' %></textarea>
-      </div>
-    </div>
-
-    <hr>
-
-    <h3>Proprietário</h3>
-
-    <div class="form-grid">
-      <div><label>Nome</label><input name="proprietario_nome" value="<%= imovel.proprietario?.nome || '' %>"></div>
-      <div><label>Telefone</label><input name="proprietario_telefone" value="<%= imovel.proprietario?.telefone || imovel.proprietario?.celular || '' %>"></div>
-      <div><label>Email</label><input name="proprietario_email" value="<%= imovel.proprietario?.email || '' %>"></div>
-
-      <div>
-        <label>Status do vínculo</label>
-        <select name="proprietario_status">
-          <option value="vinculado" <%= imovel.proprietario?.status === 'vinculado' ? 'selected' : '' %>>Vinculado</option>
-          <option value="pendente" <%= imovel.proprietario?.status === 'pendente' ? 'selected' : '' %>>Pendente</option>
-          <option value="sem_contato" <%= imovel.proprietario?.status === 'sem_contato' ? 'selected' : '' %>>Sem contato</option>
-        </select>
-      </div>
-    </div>
-
-    <hr>
-
-    <h3>Publicação em portais</h3>
-    <div class="portal-box">
-      <% const portais = imovel.portais || {}; %>
-      <label><input type="checkbox" name="portal_olx" <%= portais.olx ? 'checked' : '' %>> OLX</label>
-      <label><input type="checkbox" name="portal_zap" <%= portais.zap ? 'checked' : '' %>> ZAP Imóveis</label>
-      <label><input type="checkbox" name="portal_vivareal" <%= portais.vivareal ? 'checked' : '' %>> VivaReal</label>
-      <label><input type="checkbox" name="portal_chaves" <%= portais.chaves ? 'checked' : '' %>> Chaves na Mão</label>
-      <label><input type="checkbox" name="portal_imovelweb" <%= portais.imovelweb ? 'checked' : '' %>> ImovelWeb</label>
-      <label><input type="checkbox" name="portal_123i" <%= portais['123i'] ? 'checked' : '' %>> 123i</label>
-      <label><input type="checkbox" name="portal_quintoandar" <%= portais.quintoandar ? 'checked' : '' %>> QuintoAndar</label>
-    </div>
-
-    <div class="form-actions">
-      <a href="/app/imoveis" class="btn light">Cancelar</a>
-      <button class="btn btn-primary" type="submit">Salvar alterações</button>
-    </div>
-  </form>
-</div>
-
-<div class="card" style="margin-top:16px">
-  <h3>Fotos</h3>
-  <p style="color:#777;font-size:13px;margin-top:-6px">Veja as fotos, escolha a capa, exclua imagens ou envie novas fotos.</p>
-
-  <div class="fotos-grid">
-    <% (Array.isArray(imovel.fotos) ? imovel.fotos : []).forEach((foto, idx) => { %>
-      <div class="foto-card">
-        <img src="<%= foto %>" alt="Foto do imóvel">
-        <% if(idx === 0) { %><span class="foto-capa">Capa</span><% } %>
-
-        <div class="foto-actions">
-          <form method="POST" action="/app/imovel/<%= idImovel %>/capa-foto">
-            <input type="hidden" name="foto" value="<%= foto %>">
-            <button type="submit" class="btn light">Usar como capa</button>
-          </form>
-
-          <form method="POST" action="/app/imovel/<%= idImovel %>/excluir-foto">
-            <input type="hidden" name="foto" value="<%= foto %>">
-            <button type="submit" class="btn red">Excluir</button>
-          </form>
-        </div>
-      </div>
-    <% }) %>
+  <!-- ID -->
+  <div class="id-badge">
+    <span style="font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase">ID MatchImóveis</span>
+    <span style="font-family:monospace;font-size:14px;font-weight:700;color:#ff385c"><%= imovel.codigoImovel || imovel.id || '-' %></span>
+    <span style="font-size:11px;color:#d1d5db;margin-left:auto">🔒 Não editável</span>
   </div>
 
-  <form method="POST" action="/app/imovel/<%= idImovel %>/upload-foto" enctype="multipart/form-data" class="upload-foto-box">
-    <label>Enviar nova foto</label>
-    <input type="file" name="foto" accept="image/*" required>
-    <button type="submit" class="btn btn-primary">Subir foto</button>
-  </form>
-</div>
+  <!-- STATUS + TIPO + TRANSAÇÃO -->
+  <div class="edit-card">
+    <div class="edit-section-title">Tipo e status</div>
+    <div class="fg3">
+      <div class="field">
+        <label>Status</label>
+        <select name="status">
+          <option value="ativo" <%=imovel.status==='ativo'?'selected':''%>>✅ Ativo</option>
+          <option value="inativo" <%=imovel.status==='inativo'?'selected':''%>>📦 Inativo</option>
+          <option value="publicado" <%=imovel.status==='publicado'?'selected':''%>>🌐 Publicado</option>
+          <option value="arquivado" <%=imovel.status==='arquivado'?'selected':''%>>🗄️ Arquivado</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tipo de imóvel</label>
+        <select name="tipo">
+          <% const _tipo = (imovel.tipo||'').toLowerCase(); %>
+          <option value="Apartamento" <%=_tipo.includes('apart')?'selected':''%>>🏢 Apartamento</option>
+          <option value="Casa" <%=_tipo.includes('casa')?'selected':''%>>🏠 Casa</option>
+          <option value="Cobertura" <%=_tipo.includes('cobert')?'selected':''%>>🏙️ Cobertura</option>
+          <option value="Studio" <%=_tipo.includes('studio')||_tipo.includes('flat')?'selected':''%>>🛋️ Studio / Flat</option>
+          <option value="Kitnet" <%=_tipo.includes('kitnet')||_tipo.includes('conjug')?'selected':''%>>🏡 Kitnet</option>
+          <option value="Sobrado" <%=_tipo.includes('sobrado')?'selected':''%>>🏘️ Sobrado</option>
+          <option value="Terreno" <%=_tipo.includes('terreno')||_tipo.includes('lote')?'selected':''%>>🟩 Terreno / Lote</option>
+          <option value="Sala Comercial" <%=_tipo.includes('sala')?'selected':''%>>🖥️ Sala Comercial</option>
+          <option value="Loja" <%=_tipo.includes('loja')?'selected':''%>>🛍️ Loja</option>
+          <option value="Galpão" <%=_tipo.includes('galp')?'selected':''%>>🏭 Galpão</option>
+          <option value="Escritório" <%=_tipo.includes('escrit')?'selected':''%>>💼 Escritório</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Transação</label>
+        <select name="transacao">
+          <option value="venda" <%=(imovel.transacao||'venda')==='venda'?'selected':''%>>💰 Venda</option>
+          <option value="aluguel" <%=imovel.transacao==='aluguel'?'selected':''%>>🔑 Aluguel</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
-<style>
-.card h3{margin:0 0 14px;color:#111}
-hr{border:none;border-top:1px solid #eee;margin:26px 0}
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-.form-grid input,.form-grid select,.form-grid textarea,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;background:#fff}
-.portal-box{display:flex;gap:12px;flex-wrap:wrap}
-.portal-box label{background:#f7f7f7;border:1px solid #eee;border-radius:999px;padding:8px 12px}
-.form-actions{margin-top:24px;display:flex;justify-content:flex-end;gap:10px}
-.fotos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
-.foto-card{position:relative;border:1px solid #eee;border-radius:12px;overflow:hidden;background:#fff}
-.foto-card img{width:100%;height:140px;object-fit:cover;display:block}
-.foto-capa{position:absolute;top:8px;left:8px;background:#1A1A1A;color:#fff;font-size:11px;padding:4px 8px;border-radius:999px}
-.foto-actions{display:flex;gap:6px;padding:8px}
-.foto-actions form{flex:1}
-.foto-actions button{width:100%;font-size:11px}
-.upload-foto-box{margin-top:16px;border:1px dashed #ddd;border-radius:12px;padding:14px;display:flex;gap:10px;align-items:end;flex-wrap:wrap}
-.upload-foto-box input{flex:1}
-</style>
+  <!-- LOCALIZAÇÃO -->
+  <div class="edit-card">
+    <div class="edit-section-title">Localização</div>
+    <div class="fg2" style="margin-bottom:12px">
+      <div class="field">
+        <label>Endereço (rua)</label>
+        <input name="endereco" value="<%= imovel.endereco || '' %>">
+      </div>
+      <div class="field">
+        <label>Número</label>
+        <input name="numero" value="<%= imovel.numero || '' %>">
+      </div>
+    </div>
+    <div class="fg3" style="margin-bottom:12px">
+      <div class="field">
+        <label>Complemento</label>
+        <input name="complemento" value="<%= imovel.complemento || '' %>">
+      </div>
+      <div class="field">
+        <label>Bairro</label>
+        <input name="bairro" value="<%= imovel.bairro || '' %>">
+      </div>
+      <div class="field">
+        <label>CEP</label>
+        <input name="cep" value="<%= imovel.cep || '' %>">
+      </div>
+    </div>
+    <div class="fg3">
+      <div class="field">
+        <label>Cidade</label>
+        <input name="cidade" value="<%= imovel.cidade || '' %>">
+      </div>
+      <div class="field">
+        <label>Latitude</label>
+        <input name="latitude" value="<%= imovel.latitude || imovel.lat || '' %>">
+      </div>
+      <div class="field">
+        <label>Longitude</label>
+        <input name="longitude" value="<%= imovel.longitude || imovel.lng || '' %>">
+      </div>
+    </div>
+  </div>
+
+  <!-- VALORES -->
+  <div class="edit-card">
+    <div class="edit-section-title">Valores</div>
+    <div class="fg3">
+      <div class="field">
+        <label>Valor do imóvel (R$)</label>
+        <input name="valor_imovel" type="number" value="<%= imovel.valor_imovel || imovel.valor || '' %>">
+      </div>
+      <div class="field">
+        <label>Condomínio (R$)</label>
+        <input name="condominio" type="number" value="<%= imovel.condominio || '' %>">
+      </div>
+      <div class="field">
+        <label>IPTU (R$)</label>
+        <input name="iptu" type="number" value="<%= imovel.iptu || '' %>">
+      </div>
+    </div>
+  </div>
+
+  <!-- CARACTERÍSTICAS -->
+  <div class="edit-card">
+    <div class="edit-section-title">Características</div>
+    <div class="fg4" style="margin-bottom:12px">
+      <div class="field">
+        <label>Área útil (m²)</label>
+        <input name="area_m2" type="number" value="<%= imovel.area_m2 || imovel.area || '' %>">
+      </div>
+      <div class="field">
+        <label>Área total (m²)</label>
+        <input name="area_total" type="number" value="<%= imovel.area_total || '' %>">
+      </div>
+      <div class="field">
+        <label>Andar</label>
+        <input name="andar" type="number" value="<%= imovel.andar || '' %>">
+      </div>
+      <div class="field">
+        <label>Quartos</label>
+        <input name="quartos" type="number" value="<%= imovel.quartos || '' %>">
+      </div>
+    </div>
+    <div class="fg4">
+      <div class="field">
+        <label>Suítes</label>
+        <input name="suites" type="number" value="<%= imovel.suites || '' %>">
+      </div>
+      <div class="field">
+        <label>Banheiros</label>
+        <input name="banheiros" type="number" value="<%= imovel.banheiros || '' %>">
+      </div>
+      <div class="field">
+        <label>Vagas</label>
+        <input name="vagas" type="number" value="<%= imovel.vagas || '' %>">
+      </div>
+      <div class="field">
+        <label>Fase</label>
+        <select name="fase">
+          <option value="pronto" <%=(imovel.fase||'pronto')==='pronto'?'selected':''%>>Pronto</option>
+          <option value="lancamento" <%=imovel.fase==='lancamento'?'selected':''%>>Lançamento</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESCRIÇÃO -->
+  <div class="edit-card">
+    <div class="edit-section-title">Descrição</div>
+    <div class="field">
+      <textarea name="descricao" rows="5"><%= imovel.descricao || '' %></textarea>
+    </div>
+  </div>
+
+  <!-- PROPRIETÁRIO -->
+  <div class="edit-card">
+    <div class="edit-section-title">Proprietário</div>
+    <div class="fg4">
+      <div class="field" style="grid-column:span 2">
+        <label>Nome</label>
+        <input name="proprietario_nome" value="<%= imovel.proprietario?.nome || imovel.proprietario || '' %>">
+      </div>
+      <div class="field">
+        <label>Telefone / WhatsApp</label>
+        <input name="proprietario_telefone" value="<%= imovel.proprietario?.telefone || imovel.proprietario?.celular || imovel.proprietario_celular || '' %>">
+      </div>
+      <div class="field">
+        <label>Status do vínculo</label>
+        <select name="proprietario_status">
+          <option value="vinculado" <%=(imovel.proprietario?.status||'vinculado')==='vinculado'?'selected':''%>>Vinculado</option>
+          <option value="pendente" <%=imovel.proprietario?.status==='pendente'?'selected':''%>>Pendente</option>
+          <option value="sem_contato" <%=imovel.proprietario?.status==='sem_contato'?'selected':''%>>Sem contato</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg2" style="margin-top:12px">
+      <div class="field">
+        <label>Email</label>
+        <input name="proprietario_email" type="email" value="<%= imovel.proprietario?.email || imovel.proprietario_email || '' %>">
+      </div>
+      <div class="field">
+        <label>CPF</label>
+        <input name="proprietario_cpf" value="<%= imovel.proprietario?.cpf || imovel.proprietario_cpf || '' %>">
+      </div>
+    </div>
+  </div>
+
+  <!-- PORTAIS -->
+  <div class="edit-card">
+    <div class="edit-section-title">Publicação em portais</div>
+    <div class="portal-grid">
+      <% const _portais = imovel.portais || {}; %>
+      <label><input type="checkbox" name="portal_olx" <%=_portais.olx||_portais.portal_olx?'checked':''%>><span>OLX</span></label>
+      <label><input type="checkbox" name="portal_zap" <%=_portais.zap||_portais.portal_zap?'checked':''%>><span>ZAP Imóveis</span></label>
+      <label><input type="checkbox" name="portal_vivareal" <%=_portais.vivareal||_portais.portal_vivareal?'checked':''%>><span>VivaReal</span></label>
+      <label><input type="checkbox" name="portal_chaves" <%=_portais.chaves||_portais.portal_chaves?'checked':''%>><span>Chaves na Mão</span></label>
+      <label><input type="checkbox" name="portal_imovelweb" <%=_portais.imovelweb||_portais.portal_imovelweb?'checked':''%>><span>ImovelWeb</span></label>
+      <label><input type="checkbox" name="portal_123i" <%=_portais['123i']||_portais.portal_123i?'checked':''%>><span>123i</span></label>
+      <label><input type="checkbox" name="portal_quintoandar" <%=_portais.quintoandar||_portais.portal_quintoandar?'checked':''%>><span>QuintoAndar</span></label>
+    </div>
+  </div>
+
+  <!-- AÇÕES -->
+  <div style="display:flex;justify-content:flex-end;gap:12px;margin-bottom:18px">
+    <a href="/app/imoveis" class="btn-cancel">Cancelar</a>
+    <button type="submit" class="btn-save">💾 Salvar alterações</button>
+  </div>
+
+</form>
+
+<!-- FOTOS -->
+<div class="edit-card">
+  <div class="edit-section-title">Fotos do imóvel</div>
+  <% const _fotos = Array.isArray(imovel.fotos) ? imovel.fotos : []; %>
+  <% if(_fotos.length === 0) { %>
+    <p style="color:#9ca3af;font-size:13px;margin-bottom:16px">Nenhuma foto cadastrada ainda.</p>
+  <% } else { %>
+  <div class="fotos-grid">
+    <% _fotos.forEach((foto, idx) => { %>
+    <div class="foto-card">
+      <img src="<%= foto %>" alt="Foto <%= idx+1 %>">
+      <% if(idx===0){%><span class="foto-capa-badge">Capa</span><%}%>
+      <div class="foto-btns">
+        <form method="POST" action="/app/imovel/<%= idImovel %>/capa-foto" style="flex:1">
+          <input type="hidden" name="foto" value="<%= foto %>">
+          <button type="submit" class="btn-capa">⭐ Capa</button>
+        </form>
+        <form method="POST" action="/app/imovel/<%= idImovel %>/excluir-foto" style="flex:1">
+          <input type="hidden" name="foto" value="<%= foto %>">
+          <button type="submit" class="btn-del">🗑️</button>
+        </form>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+  <div class="upload-box">
+    <form method="POST" action="/app/imovel/<%= idImovel %>/upload-foto" enctype="multipart/form-data" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%">
+      <span style="font-size:13px;font-weight:600;color:#374151">📷 Enviar nova foto</span>
+      <input type="file" name="foto" accept="image/*" required style="flex:1;min-width:180px">
+      <button type="submit" class="btn-save" style="padding:10px 20px">Subir foto</button>
+    </form>
+  </div>
+</div>

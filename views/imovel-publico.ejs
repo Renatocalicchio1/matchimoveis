@@ -191,7 +191,7 @@
 
 <script>
 const fotos = <%- JSON.stringify(imovel.fotos || []) %>;
-const imovelId = '<%= imovel.idExterno %>';
+const imovelId = '<%= imovel.idExterno || imovel.id || imovel.codigoImovel || "" %>';
 const imovelTitulo = '<%= (imovel.titulo || imovel.tipo + " em " + imovel.bairro).replace(/'/g, "") %>';
 let linkDestino = '';
 let modalTipo = 'visita';
@@ -209,6 +209,7 @@ function fecharModal() {
   document.getElementById('modal-contato').style.display = 'none';
 }
 
+const imovelUserId = "<%= imovel.codigoUsuario || imovel.userId || corretor.id || '' %>";
 function confirmarContato() {
   const nome = document.getElementById('modal-nome').value.trim();
   const celular = document.getElementById('modal-celular').value.trim();
@@ -226,7 +227,7 @@ function confirmarContato() {
     fetch('/api/lead-interesse', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem, canal: 'WhatsApp' })
+      body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem || imovelUserId, canal: 'WhatsApp' })
     }).catch(() => {});
 
     window.open(linkDestino, '_blank');
@@ -267,10 +268,10 @@ function confirmarVisita() {
   const leadIdOrigem = params.get('leadId') || params.get('lid') || '';
   const userIdOrigem = params.get('userId') || params.get('uid') || '';
 
-  fetch('/api/visita/nova-v2', {
+  fetch('/api/lead-interesse', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imovelId, nome, telefone: celular, imovelTitulo, dataVisita: data, horaVisita: hora })
+    body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem || imovelUserId, dataVisita: data, horaVisita: hora, acao: 'solicitar_visita', visita: 'true', querVisita: 'true' })
   }).catch(() => {});
 
   alert('Visita solicitada com sucesso!');

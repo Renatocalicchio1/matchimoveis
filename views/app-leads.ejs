@@ -51,6 +51,15 @@
 .btn-acao { font-size: 11px; padding: 4px 10px; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid #e5e7eb; color: #374151; background: #f9fafb; }
 .btn-acao.wa { color: #25D366; border-color: #25D366; }
 .btn-acao.red { color: #ff385c; border-color: #ff385c; }
+@keyframes pulso { 0%,100%{box-shadow:0 0 0 0 rgba(255,56,92,.4)} 50%{box-shadow:0 0 0 6px rgba(255,56,92,0)} }
+@keyframes pulso-verde { 0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.4)} 50%{box-shadow:0 0 0 6px rgba(37,211,102,0)} }
+.card-acao-vitrine { border-left: 3px solid #ff385c !important; animation: pulso 2s infinite; }
+.card-acao-contato { border-left: 3px solid #f59e0b !important; }
+.card-acao-match { border-left: 3px solid #7c3aed !important; }
+.badge-acao { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:6px; }
+.badge-acao.vitrine { background:#fff1f2;color:#be123c;border:1px solid #fda4af; }
+.badge-acao.contato { background:#fffbeb;color:#92400e;border:1px solid #fcd34d; }
+.badge-acao.match { background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd; }
 .btn-acao.dark { color: #fff; background: #111; border-color: #111; }
 </style>
 
@@ -133,11 +142,59 @@
       const isWhatsapp = item.origem === 'whatsapp';
       const telefone = String(item.contato || item.telefone || '').replace(/\D/g,'');
     %>
-    <div class="excel-card"
+    <%
+      const _mat2       = (item.matches||[]).length + (item.matchesAuto||[]).length;
+      const _msgs2      = (item.mensagens||[]).filter(m=>m.de==='cliente').length;
+      const _fase2      = item.faseFunil || 'novo';
+      const _temp2      = item.temperatura || 'frio';
+      const _vitrine    = !!item.vitrineEnviada;
+      const _temVisita  = typeof visitasDaLead !== 'undefined' && visitasDaLead && visitasDaLead.some(v=>v.leadId===item.id||v.leadId===item.leadId);
+      const _semRespDias = item.ultimaMensagemEm ? Math.floor((Date.now()-new Date(item.ultimaMensagemEm).getTime())/86400000) : 999;
+      const _perfil2    = item.perfilIA || {};
+      const _perfilOk   = !!(_perfil2.tipo && _perfil2.quartos);
+
+      // Hierarquia de ações — do mais urgente ao menos urgente
+      let _acaoPendente = null;
+      let _acaoLabel = '';
+      let _acaoCor = '';
+
+      if (_fase2 === 'decidido' && !_temVisita) {
+        _acaoPendente = 'fechar'; _acaoLabel = '🤝 Fechar negócio'; _acaoCor = 'background:#f0fdf4;color:#166534;border:1px solid #86efac';
+      } else if (_temVisita && _fase2 !== 'decidido') {
+        _acaoPendente = 'visita_ok'; _acaoLabel = '✅ Visita agendada'; _acaoCor = 'background:#f0fdf4;color:#166534;border:1px solid #86efac';
+      } else if (_fase2 === 'interessado' && !_temVisita) {
+        _acaoPendente = 'visita'; _acaoLabel = '📅 Agendar visita agora!'; _acaoCor = 'background:#f0fdf4;color:#14532d;border:1px solid #4ade80';
+      } else if (_mat2 > 0 && !_vitrine) {
+        _acaoPendente = 'vitrine'; _acaoLabel = '🏠 Enviar vitrine agora!'; _acaoCor = 'background:#fff1f2;color:#be123c;border:1px solid #fda4af';
+      } else if (_mat2 > 0 && _vitrine && _semRespDias >= 3) {
+        _acaoPendente = 'followup'; _acaoLabel = '⚠️ Follow-up — '+_semRespDias+'d sem resposta'; _acaoCor = 'background:#fff7ed;color:#9a3412;border:1px solid #fdba74';
+      } else if (_mat2 > 0 && _vitrine) {
+        _acaoPendente = 'aguardando'; _acaoLabel = '📨 Vitrine enviada — aguardando'; _acaoCor = 'background:#eff6ff;color:#1e40af;border:1px solid #93c5fd';
+      } else if (!_perfilOk && _msgs2 > 0) {
+        _acaoPendente = 'qualificar'; _acaoLabel = '🔍 Qualificar lead'; _acaoCor = 'background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd';
+      } else if (_perfilOk && _mat2 === 0) {
+        _acaoPendente = 'match'; _acaoLabel = '🎯 Rodar match'; _acaoCor = 'background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd';
+      } else if (_msgs2 === 0) {
+        _acaoPendente = 'contato'; _acaoLabel = '👋 Iniciar contato'; _acaoCor = 'background:#fffbeb;color:#92400e;border:1px solid #fcd34d';
+      } else if (_semRespDias >= 7) {
+        _acaoPendente = 'followup'; _acaoLabel = '⚠️ '+_semRespDias+'d sem contato'; _acaoCor = 'background:#fff7ed;color:#9a3412;border:1px solid #fdba74';
+      }
+
+      // Borda do card por urgência
+      const _cardClass = ['vitrine','visita','fechar'].includes(_acaoPendente) ? 'card-acao-vitrine' :
+                         ['contato','followup'].includes(_acaoPendente) ? 'card-acao-contato' :
+                         ['match','qualificar'].includes(_acaoPendente) ? 'card-acao-match' : '';
+    %>
+    <div class="excel-card <%= _cardClass %>"
       data-status="<%= status %>"
       data-score="<%= item.score || bestScore %>"
       data-origem="<%= item.origem || 'importada' %>"
       data-search="<%= [item.nome, item.clientName, item.contato, item.telefone, item.email, origin.bairro, origin.cidade].filter(Boolean).join(' ').toLowerCase() %>">
+      <% if(_acaoPendente && _acaoPendente !== 'visita_ok') { %>
+      <div class="badge-acao" style="<%= _acaoCor %>;animation:<%= ['vitrine','visita','fechar','followup'].includes(_acaoPendente)?'pulso 2s infinite':'none' %>"><%=_acaoLabel%></div>
+      <% } else if(_acaoPendente==='visita_ok') { %>
+      <div class="badge-acao" style="<%= _acaoCor %>"><%=_acaoLabel%></div>
+      <% } %>
 
       <!-- Nome + badges origem -->
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
@@ -147,27 +204,40 @@
         </div>
       </div>
 
-      <!-- Score + temperatura (só se tiver) -->
-      <% if(item.score || item.temperatura) { %>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <% if(item.score) { %>
-        <div class="score-bar-bg">
-          <div style="width:<%= item.score %>%;height:100%;background:<%= item.score >= 70 ? '#16a34a' : item.score >= 40 ? '#d97706' : '#9ca3af' %>;border-radius:4px;"></div>
+      <!-- Score jornada + Score match + temperatura -->
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">
+        <!-- Score jornada -->
+        <% const _sj = item.score || 0; %>
+        <% const _sjCor = _sj>=70?'#16a34a':_sj>=40?'#d97706':'#9ca3af'; %>
+        <div style="display:flex;align-items:center;gap:4px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:3px 8px">
+          <div style="width:50px;height:4px;background:#f3f4f6;border-radius:4px;overflow:hidden">
+            <div style="width:<%=_sj%>%;height:100%;background:<%=_sjCor%>;border-radius:4px"></div>
+          </div>
+          <span style="font-size:10px;font-weight:800;color:<%=_sjCor%>"><%=_sj%></span>
+          <span style="font-size:9px;color:#9ca3af;font-weight:600"><%= item.scoreEtapa || 'Novo' %></span>
         </div>
-        <span style="font-size:11px;font-weight:700;color:#111"><%= item.score %>%</span>
+        <!-- Score match -->
+        <% const _sm = item.bestScore || (item.matches&&item.matches[0]?item.matches[0].score:0) || 0; %>
+        <% if(_sm) { %>
+        <div style="background:#ede9fe;border-radius:8px;padding:3px 8px;font-size:10px;font-weight:800;color:#5b21b6">
+          🎯 <%=_sm%>% match
+        </div>
         <% } %>
+        <!-- Temperatura -->
         <% if(item.temperatura) { %>
-        <span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;
-          background:<%= item.temperatura==='quente'?'#fee2e2':item.temperatura==='morno'?'#fef3c7':'#eff6ff' %>;
-          color:<%= item.temperatura==='quente'?'#991b1b':item.temperatura==='morno'?'#92400e':'#1e40af' %>">
-          <%= item.temperatura==='quente'?'🔥 Quente':item.temperatura==='morno'?'🌡 Morno':'❄️ Frio' %>
+        <span style="padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;
+          background:<%=item.temperatura==='quente'?'#fee2e2':item.temperatura==='morno'?'#fef3c7':'#eff6ff'%>;
+          color:<%=item.temperatura==='quente'?'#991b1b':item.temperatura==='morno'?'#92400e':'#1e40af'%>">
+          <%=item.temperatura==='quente'?'🔥':item.temperatura==='morno'?'🌡':'❄️'%> <%=item.temperatura%>
         </span>
         <% } %>
+        <!-- Matches auto -->
         <% if(item.matchesAuto && item.matchesAuto.length) { %>
-        <span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:#ede9fe;color:#5b21b6;">🎯 <%= item.matchesAuto.length %> auto</span>
+        <span style="padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;background:#f0fdf4;color:#166534">
+          🏠 <%=item.matchesAuto.length%> match(es)
+        </span>
         <% } %>
       </div>
-      <% } %>
 
       <!-- Perfil IA -->
       <% if(item.perfilIA && Object.keys(item.perfilIA).length) { %>

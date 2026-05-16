@@ -117,30 +117,66 @@ class MatchCore {
   }
 
   _score(lead, perfil) {
+    // ── SCORE DA JORNADA (0-100) ──────────────────────────────
+    // Reflete onde a lead está no funil, não só o perfil
     let s = 0;
-    if (perfil.tipo)      s += 15;
-    if (perfil.quartos)   s += 12;
-    if (perfil.valorMax)  s += 15;
-    if (perfil.bairro)    s += 12;
-    if (perfil.area)      s += 6;
-    if (perfil.suites)    s += 4;
-    if (perfil.vagas)     s += 4;
-    if (perfil.intencao === 'comprar')       s += 8;
-    if (perfil.intencao === 'alugar')        s += 5;
-    if (perfil.intencao === 'investir')      s += 6;
-    if (perfil.faseFunil === 'decidido')     s += 20;
-    if (perfil.faseFunil === 'interessado')  s += 12;
-    if (perfil.faseFunil === 'qualificado')  s += 6;
-    if (perfil.urgencia === 'alta')          s += 15;
-    if (perfil.urgencia === 'baixa')         s -= 5;
-    if (perfil.familia)                      s += 4;
-    if (perfil.motivacao)                    s += 3;
+
+    // 1. Entrou no sistema
+    s += 5;
+
+    // 2. Perfil sendo construído
+    if (perfil.tipo)     s += 5;
+    if (perfil.quartos)  s += 4;
+    if (perfil.bairro)   s += 4;
+    if (perfil.valorMax) s += 4;
+    if (perfil.intencao) s += 3;
+
+    // 3. Engajamento — mensagens trocadas
     const msgs = (lead.mensagens || []).filter(m => m.de === 'cliente').length;
-    s += Math.min(msgs * 3, 18);
-    if ((lead.matchesAuto || []).length > 0) s += 5;
-    if ((lead.matchesAuto || []).length >= 3) s += 5;
+    s += Math.min(msgs * 2, 10);
+
+    // 4. Match encontrado
+    const totalMatches = (lead.matches||[]).length + (lead.matchesAuto||[]).length;
+    if (totalMatches > 0)  s += 10;
+    if (totalMatches >= 3) s += 5;
+
+    // 5. Vitrine enviada
+    if (lead.vitrineEnviada)      s += 10;
+
+    // 6. Vitrine visualizada pelo cliente
+    if (lead.vitrineVisualizada)  s += 8;
+
+    // 7. Visita solicitada
+    if (lead.visitaSolicitada)    s += 12;
+
+    // 8. Visita confirmada
+    if (lead.visitaConfirmada)    s += 8;
+
+    // 9. Visita realizada
+    if (lead.visitaRealizada)     s += 10;
+
+    // 10. Proposta feita
+    if (lead.propostaFeita)       s += 12;
+
+    // Bônus urgência
+    if (perfil.urgencia === 'alta') s += 5;
+    if (perfil.faseFunil === 'decidido') s += 3;
+
     lead.score             = Math.max(0, Math.min(s, 100));
     lead.scoreAtualizadoEm = new Date().toISOString();
+
+    // ── SCORE LABEL — nome da etapa atual ────────────────────
+    lead.scoreEtapa =
+      lead.propostaFeita      ? 'Proposta'      :
+      lead.visitaRealizada    ? 'Pós-visita'    :
+      lead.visitaConfirmada   ? 'Visita conf.'  :
+      lead.visitaSolicitada   ? 'Visita solic.' :
+      lead.vitrineVisualizada ? 'Vitrine vista' :
+      lead.vitrineEnviada     ? 'Vitrine env.'  :
+      totalMatches > 0        ? 'Match feito'   :
+      msgs > 0                ? 'Conversando'   :
+      'Novo';
+
     return lead;
   }
 

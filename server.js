@@ -298,6 +298,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 
 // CADASTRAR LEAD MANUAL (pelo chat ou formulário)
 app.post("/app/leads/manual", auth, (req, res) => {
+  // normaliza userId
 try {
 const fs = require("fs");
 const { resolverUsuario } = require("./services/usuarios/resolverUsuario");
@@ -820,19 +821,19 @@ app.post('/app-leads/:idx/match', async (req,res)=>{
   }
 });
 
-app.get('/import-status',(req,res)=>{
+// [DUPLICATA REMOVIDA] app.get('/import-status',(req,res)=>{
   res.json(global.importStatus || {status:'idle', total:0, mensagem:'Aguardando importação'});
 });
 
 app.get('/import-status',(req,res)=>{res.json({status:global.importStatus||'idle'});});
 
-app.get('/logout', (req,res)=>{
+// [DUPLICATA REMOVIDA] app.get('/logout', (req,res)=>{
   req.session.destroy(()=>res.redirect('/login'));
 });
 
 
 // ===== ROTAS CORRETAS CORRETOR / ADMIN =====
-app.get('/logout', (req,res)=>{
+// [DUPLICATA REMOVIDA] app.get('/logout', (req,res)=>{
   req.session.destroy(()=>res.redirect('/login'));
 });
 
@@ -854,7 +855,7 @@ function usuarioLogado(req){
 
 
 // ===== ROTAS CORRETAS CORRETOR / ADMIN =====
-app.get('/logout', (req,res)=>{
+// [DUPLICATA REMOVIDA] app.get('/logout', (req,res)=>{
   req.session.destroy(()=>res.redirect('/login'));
 });
 
@@ -862,7 +863,7 @@ function usuarioLogado(req){
   return req.session.user || null;
 }
 
-app.get('/app', (req,res)=>{
+// [DUPLICATA REMOVIDA] app.get('/app', (req,res)=>{
   if(!req.session.user) return res.redirect('/login');
   res.redirect('/app-home');
 });
@@ -887,7 +888,7 @@ app.get('/app-perfil', (req,res)=>{
   renderAppPage(res, 'app-perfil', { title: 'Perfil' });
 });
 
-app.get('/logout', (req,res)=> res.redirect('/login'));
+// [DUPLICATA REMOVIDA] app.get('/logout', (req,res)=> res.redirect('/login'));
 
 // ===== ROTAS FINAIS LIMPAS DO APP =====
 
@@ -1277,7 +1278,7 @@ app.post('/webhook/imovelweb', (req, res) => {
 
 const PORT = process.env.PORT || port || 3000;
 
-app.post('/app/perfil/localizacao', auth, (req,res)=>{
+// [DUPLICATA REMOVIDA] app.post('/app/perfil/localizacao', auth, (req,res)=>{
   const { lat, lng, endereco } = req.body;
   const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
   const idx = users.findIndex(u => u.id === req.session.user.id);
@@ -1809,7 +1810,7 @@ app.use((req, res, next) => {
       const user = req.session.user;
       let total = 0;
       leads
-        .filter(l => !l.codigoUsuario || l.codigoUsuario === user.id)
+        .filter(l => !l.codigoUsuario || l.codigoUsuario === user.id || l.userId === user.id || l.usuarioId === user.id || l.corretorId === user.id)
         .forEach(l => {
           if (l.mensagens) {
             total += l.mensagens.filter(m => !m.lida && m.de === 'cliente').length;
@@ -2169,6 +2170,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         status: 'novo',
         userId: _webhookUserId || '',
         codigoUsuario: _webhookUserId || '',
+        userId: _webhookUserId || '',
         criadoEm: new Date().toISOString(),
         mensagens: [],
         perfilIA: {},
@@ -2292,7 +2294,7 @@ app.get('/feed', (req, res) => {
 app.get('/api/imoveis', auth, (req, res) => {
   const imoveis = lerImoveis(req.session.user);
 
-app.post('/imovel/:id/status', (req,res)=>{
+// [DUPLICATA REMOVIDA] app.post('/imovel/:id/status', (req,res)=>{
   const fs=require('fs');
   const imoveis=JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
   const { status } = req.body;
@@ -2416,7 +2418,7 @@ app.post('/api/lead-interesse', (req, res) => {
 
     const usuarioDestinoId =
       userIdOrigem || leadOrigem.userId || leadOrigem.usuarioId || leadOrigem.corretorId ||
-      imovelRef.usuarioId || imovelRef.corretorId || '';
+      imovelRef.usuarioId || imovelRef.corretorId || imovelRef.codigoUsuario || imovelRef.userId || '';
 
     const usuarioDestinoNome =
       leadOrigem.usuarioNome || leadOrigem.corretorNome ||
@@ -2430,7 +2432,7 @@ app.post('/api/lead-interesse', (req, res) => {
       leadOrigem.usuarioTelefone || leadOrigem.corretorTelefone ||
       imovelRef.usuarioTelefone || imovelRef.corretorTelefone || '';
 
-    const imovelOwnerId = imovelRef.usuarioId || imovelRef.corretorId || '';
+    const imovelOwnerId = imovelRef.usuarioId || imovelRef.corretorId || imovelRef.codigoUsuario || imovelRef.userId || '';
 
     const celularLimpo = String(celular || '').replace(/\D/g,'');
 
@@ -2468,6 +2470,7 @@ app.post('/api/lead-interesse', (req, res) => {
       corretorId: usuarioDestinoId,
       corretorNome: usuarioDestinoNome,
       corretorTelefone: usuarioDestinoTelefone,
+      codigoUsuario: usuarioDestinoId,
 
       data_cadastro: agora.toISOString(),
       data_cadastro_br: agora.toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo' }),
@@ -2532,6 +2535,7 @@ app.post('/api/lead-interesse', (req, res) => {
         usuarioDestinoPerfil,
         usuarioDestinoTelefone,
         userId: usuarioDestinoId,
+        codigoUsuario: usuarioDestinoId,
         corretorId: usuarioDestinoId,
         corretorNome: usuarioDestinoNome,
         corretorTelefone: usuarioDestinoTelefone,
@@ -2571,6 +2575,26 @@ app.post('/api/lead-interesse', (req, res) => {
 
       console.log('📅 Visita criada para o dono da lead/vitrine:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
     }
+
+    // Processa lead pelo match-core (score, temperatura, faseFunil)
+    setImmediate(async () => {
+      try {
+        const matchCore = require('./cerebro/match-core');
+        const leadsAtual = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
+        const leadAtual = leadsAtual.find(l => String(l.id) === String(leadId));
+        if (leadAtual) {
+          const leadsPath = dataPath('data.json');
+          await matchCore.processar({
+            lead: leadAtual,
+            mensagem: 'Interesse em imóvel',
+            canal: 'pagina_imovel',
+            userId: usuarioDestinoId,
+            leadsPath,
+            instancia: null
+          });
+        }
+      } catch(e) { console.log('match-core erro:', e.message); }
+    });
 
     return res.json({ ok: true, leadId, visitaCriada: querVisita });
   } catch(e) {
@@ -3451,7 +3475,7 @@ app.get('/app/portais', auth, (req,res)=>{
 });
 
 // Limpar descrições de imóveis de uma conta
-app.get('/admin/limpar-descricoes/:userId', (req,res)=>{
+// [DUPLICATA REMOVIDA] app.get('/admin/limpar-descricoes/:userId', (req,res)=>{
   const userId = req.params.userId;
   const todos = fs.existsSync(dataPath('imoveis.json'))
     ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
@@ -3695,14 +3719,14 @@ app.get('/app/coins', auth, (req, res) => {
 });
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====
-app.get('/cliente/visita/:id/remarcar', (req, res) => {
+// [DUPLICATA REMOVIDA] app.get('/cliente/visita/:id/remarcar', (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const visita = visitas.find(v => v.id === req.params.id);
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('cliente-visita-remarcar', { visita, sucesso: false });
 });
 
-app.post('/cliente/visita/:id/remarcar', (req, res) => {
+// [DUPLICATA REMOVIDA] app.post('/cliente/visita/:id/remarcar', (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.id);
   if (idx === -1) return res.status(404).send('Visita não encontrada');
@@ -3748,7 +3772,7 @@ app.get('/admin/reset-leads-repo', (req, res) => {
   res.send('✅ data.json substituído! Total: ' + leads.length + ' leads');
 });
 
-app.get('/app/assistente', auth, (req, res) => {
+// [DUPLICATA REMOVIDA] app.get('/app/assistente', auth, (req, res) => {
   const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json'), 'utf8')).filter(i => i.userId === req.session.user.userId);
   const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8')).filter(l => l.userId === req.session.user.userId);
   const stats = { imoveis: imoveis.length, ativos: imoveis.filter(i => i.status !== 'inativo').length, leads: leads.length };
@@ -4207,7 +4231,7 @@ app.get('/app/central', auth, (req, res) => {
 // WORKFLOW VISITAS OPERACIONAL
 // =====================================================
 
-app.post('/api/visita/:id/workflow', auth, (req,res)=>{
+// [DUPLICATA REMOVIDA] app.post('/api/visita/:id/workflow', auth, (req,res)=>{
   try{
     const id = req.params.id;
 
@@ -4243,7 +4267,7 @@ app.post('/api/visita/:id/workflow', auth, (req,res)=>{
 // MEMORIA OPERACIONAL
 // =====================================================
 
-app.get('/api/memoria-operacional', auth, (req,res)=>{
+// [DUPLICATA REMOVIDA] app.get('/api/memoria-operacional', auth, (req,res)=>{
   try{
 
     const DATA_DIR =
@@ -4531,7 +4555,7 @@ app.post('/api/visita/nova-v2', (req,res)=>{
 
 // ===============================
 
-app.post('/app/visitas/remarcar/:id', auth, (req,res)=>{
+// [DUPLICATA REMOVIDA] app.post('/app/visitas/remarcar/:id', auth, (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -4551,7 +4575,7 @@ app.post('/app/visitas/remarcar/:id', auth, (req,res)=>{
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/cancelar/:id', auth, (req,res)=>{
+// [DUPLICATA REMOVIDA] app.post('/app/visitas/cancelar/:id', auth, (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -4571,7 +4595,7 @@ app.post('/app/visitas/cancelar/:id', auth, (req,res)=>{
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
+// [DUPLICATA REMOVIDA] app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5468,7 +5492,7 @@ app.get('/admin/deletar-conta/:userId', (req, res) => {
   res.json({ ok: true, userId, removido });
 });
 
-app.get('/admin/diagnostico-contas', (req, res) => {
+// [DUPLICATA REMOVIDA] app.get('/admin/diagnostico-contas', (req, res) => {
   const fs2 = require('fs');
   const path2 = require('path');
   const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
@@ -5694,4 +5718,185 @@ app.post('/app/lead/:id/bloquear', auth, (req, res) => {
   } catch(e) {
     res.status(500).json({ erro: e.message });
   }
+});
+
+// ── SIMULADOR WEBHOOK WHATSAPP (só dev/test) ──────────────────
+app.post('/dev/simular-whatsapp', auth, async (req, res) => {
+  const { telefone, texto, instancia } = req.body;
+  const userId = req.session.user.id;
+
+  // Monta body igual ao Evolution API
+  const fakeBody = {
+    event: 'messages.upsert',
+    instance: instancia || req.session.user.whatsappInstance || 'match-corretor',
+    data: {
+      key: { remoteJid: telefone + '@s.whatsapp.net', fromMe: false },
+      message: { conversation: texto },
+      messageTimestamp: Math.floor(Date.now() / 1000)
+    }
+  };
+
+  // Chama o match-core diretamente
+  try {
+    const fs2 = require('fs');
+    const path2 = require('path');
+    const leadsPath = process.env.DATA_FILE || path2.join(__dirname, 'data.json');
+    let leads = [];
+    try { leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8')); } catch(e) {}
+
+    // Busca ou cria lead
+    let lead = leads.find(l => (l.telefone||l.contato||'').replace(/\D/g,'').slice(-8) === telefone.replace(/\D/g,'').slice(-8));
+    if (!lead) {
+      lead = {
+        id: Date.now().toString(),
+        nome: 'Simulação ' + telefone,
+        telefone, whatsapp: telefone,
+        origem: 'simulacao',
+        status: 'novo',
+        userId, codigoUsuario: userId,
+        criadoEm: new Date().toISOString(),
+        mensagens: [], perfilIA: {}, score: 0,
+        temperatura: 'frio', timeline: [], eventos: [], followUps: []
+      };
+      leads.push(lead);
+      fs2.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+    }
+
+    const matchCore = require('./cerebro/match-core');
+    const { lead: leadAtualizado, resposta } = await matchCore.processar({
+      lead, mensagem: texto, canal: 'simulacao',
+      userId, leadsPath,
+      instancia: null // não envia WhatsApp real
+    });
+
+    res.json({
+      ok: true,
+      lead: {
+        id: leadAtualizado.id,
+        nome: leadAtualizado.nome,
+        score: leadAtualizado.score,
+        temperatura: leadAtualizado.temperatura,
+        faseFunil: leadAtualizado.faseFunil,
+        perfilIA: leadAtualizado.perfilIA,
+        matches: (leadAtualizado.matchesAuto||[]).length,
+        resumo: leadAtualizado.memoriaOperacional?.resumo
+      },
+      resposta
+    });
+  } catch(e) {
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
+// ── TELA SIMULADOR ────────────────────────────────────────────
+app.get('/dev/simulador', auth, (req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Simulador WhatsApp — MatchImóveis</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+.phone { width: 370px; background: #fff; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); overflow: hidden; }
+.header { background: #075E54; color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: #25D366; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+.header-info .name { font-weight: 600; font-size: 15px; }
+.header-info .sub { font-size: 11px; opacity: 0.8; }
+.chat { height: 420px; overflow-y: auto; padding: 12px; background: #e5ddd5; display: flex; flex-direction: column; gap: 8px; }
+.msg { max-width: 80%; padding: 8px 12px; border-radius: 10px; font-size: 13px; line-height: 1.5; position: relative; }
+.msg .time { font-size: 10px; opacity: 0.6; margin-top: 2px; text-align: right; }
+.msg.lead { background: #fff; align-self: flex-start; border-radius: 0 10px 10px 10px; }
+.msg.bot { background: #dcf8c6; align-self: flex-end; border-radius: 10px 0 10px 10px; }
+.msg.sistema { background: #fff3cd; align-self: center; font-size: 11px; color: #856404; border-radius: 8px; padding: 4px 10px; }
+.input-area { padding: 10px 12px; background: #f0f0f0; display: flex; gap: 8px; align-items: center; }
+.input-area input { flex: 1; border: none; border-radius: 20px; padding: 10px 14px; font-size: 13px; background: #fff; outline: none; }
+.input-area button { background: #25D366; border: none; border-radius: 50%; width: 40px; height: 40px; color: #fff; font-size: 18px; cursor: pointer; flex-shrink: 0; }
+.telefone-bar { padding: 8px 12px; background: #fff; border-bottom: 1px solid #eee; display: flex; gap: 6px; align-items: center; }
+.telefone-bar input { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 6px 10px; font-size: 12px; }
+.telefone-bar span { font-size: 11px; color: #888; }
+.score-bar { padding: 8px 12px; background: #f8f9fa; border-top: 1px solid #eee; font-size: 11px; color: #555; display: flex; flex-wrap: wrap; gap: 6px; }
+.badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.badge.frio { background: #e3f2fd; color: #1565c0; }
+.badge.morno { background: #fff8e1; color: #f57f17; }
+.badge.quente { background: #fce4ec; color: #c62828; }
+.typing { display: none; font-size: 12px; color: #888; padding: 4px 12px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="header">
+    <div class="avatar">L</div>
+    <div class="header-info">
+      <div class="name">Lead Simulada</div>
+      <div class="sub" id="sub-status">online</div>
+    </div>
+  </div>
+  <div class="telefone-bar">
+    <span>Fone:</span>
+    <input id="telefone" value="47999000001" placeholder="ex: 47999000001"/>
+  </div>
+  <div class="chat" id="chat"></div>
+  <div class="typing" id="typing">Match está digitando...</div>
+  <div class="score-bar" id="score-bar">Score: — | Temp: — | Perfil: —</div>
+  <div class="input-area">
+    <input id="msg-input" placeholder="Digite como a lead..." onkeydown="if(event.key==='Enter')enviar()"/>
+    <button onclick="enviar()">➤</button>
+  </div>
+</div>
+<script>
+function hora() { return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+
+function addMsg(txt, tipo) {
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg ' + tipo;
+  div.innerHTML = txt.replace(/\\n/g,'<br>') + '<div class="time">' + hora() + '</div>';
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function enviar() {
+  const input = document.getElementById('msg-input');
+  const telefone = document.getElementById('telefone').value.trim();
+  const texto = input.value.trim();
+  if (!texto) return;
+  input.value = '';
+  addMsg(texto, 'lead');
+  document.getElementById('typing').style.display = 'block';
+  document.getElementById('sub-status').textContent = 'digitando...';
+
+  try {
+    const r = await fetch('/dev/simular-whatsapp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ telefone, texto })
+    });
+    const d = await r.json();
+    document.getElementById('typing').style.display = 'none';
+    document.getElementById('sub-status').textContent = 'online';
+
+    if (d.resposta) addMsg(d.resposta, 'bot');
+    else addMsg('(sem resposta gerada)', 'sistema');
+
+    if (d.lead) {
+      const l = d.lead;
+      const temp = l.temperatura || 'frio';
+      document.getElementById('score-bar').innerHTML =
+        'Score: <strong>' + (l.score||0) + '</strong> &nbsp;|&nbsp; ' +
+        'Temp: <span class="badge ' + temp + '">' + temp + '</span> &nbsp;|&nbsp; ' +
+        'Matches: <strong>' + (l.matches||0) + '</strong> &nbsp;|&nbsp; ' +
+        (l.resumo ? l.resumo : '');
+    }
+    if (!d.ok) addMsg('Erro: ' + d.erro, 'sistema');
+  } catch(e) {
+    document.getElementById('typing').style.display = 'none';
+    addMsg('Erro de conexão: ' + e.message, 'sistema');
+  }
+}
+
+addMsg('Simulador ativo! Digite como se fosse a lead.', 'sistema');
+</script>
+</body>
+</html>`);
 });

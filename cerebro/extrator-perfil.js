@@ -71,6 +71,12 @@ function extrairValor(txt) {
     if ((val[2]||'').match(/^m$/i)) v *= 1000000;
     return { valorMax: v };
   }
+  // numero mil/k sem prefixo ex: "750 mil", "500k"
+  const numMil = txt.match(/\b(\d[\d.,]*)\s*(mil|k\b)/i);
+  if (numMil) {
+    let v = parseFloat(numMil[1].replace(/\./g,'').replace(',','.')) * 1000;
+    return { valorMax: v };
+  }
   return null;
 }
 
@@ -167,6 +173,12 @@ function extrairPerfil(mensagens) {
   // Área
   const area = extrairNumero(norm, ['m2','metros','m²','area','área']);
   if (area) perfil.area = area;
+
+  // Bairro — lista conhecida + preposicao + fallback virgula
+  const _bairros = ['vila olimpia','moema','itaim','brooklin','pinheiros','jardins','perdizes','lapa','santana','tatuape','morumbi','alphaville','campinas','balneario camboriu','itapema','florianopolis','joinville','blumenau','itajai','navegantes','biguacu','palhoca','garopaba','bombinhas','centro'];
+  let _bairro = null;
+  for (const b of _bairros) { if (norm.includes(b)) { _bairro = b; break; } }
+  if (_bairro) perfil.bairro = _bairro;
 
   // Valor
   const valor = extrairValor(norm);

@@ -3,6 +3,11 @@
 <style>
 .v-card{background:#fff;border-radius:16px;border:1px solid #eee;padding:20px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 .v-status{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700}
+@keyframes pulso-visita { 0%,100%{box-shadow:0 0 0 0 rgba(255,56,92,.4)} 50%{box-shadow:0 0 0 8px rgba(255,56,92,0)} }
+@keyframes pulso-amarelo { 0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,.4)} 50%{box-shadow:0 0 0 8px rgba(217,119,6,0)} }
+.v-card-urgente { animation: pulso-visita 2s infinite; border-color:#fda4af !important; }
+.v-card-atencao { animation: pulso-amarelo 2s infinite; border-color:#fcd34d !important; }
+.v-badge-acao { display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:10px; }
 .st-solicitada{background:#fef9c3;color:#a16207}
 .st-confirmada{background:#dcfce7;color:#15803d}
 .st-cancelada{background:#fee2e2;color:#b91c1c}
@@ -163,7 +168,52 @@ var corretorTel=(user&&(user.celular||user.telefone)||'').replace(/[^0-9]/g,'');
   var msgProp=msgPropParts.join('%0A');
 %>
 
-<div class="v-card">
+<%
+  // Define urgência da visita
+  const _hoje2 = new Date();
+  const _dataV = v.dataVisita || v.data || '';
+  const _diffDias = _dataV ? Math.floor((new Date(_dataV)-_hoje2)/86400000) : 999;
+  const _atrasada = _diffDias < 0 && (st==='solicitada'||st==='confirmada');
+  const _hoje3 = _diffDias === 0;
+  const _amanha = _diffDias === 1;
+  const _semProp = !propTel && (st==='solicitada'||st==='AGUARDANDO');
+  const _semCliente = mostrarBtnCliente && st==='confirmada';
+
+  let _vBadge = '', _vBadgeCor = '', _vCardClass = '';
+  if (_atrasada) {
+    _vBadge = '🚨 Visita atrasada — resolva agora!';
+    _vBadgeCor = 'background:#fef2f2;color:#991b1b;border:1px solid #fca5a5';
+    _vCardClass = 'v-card-urgente';
+  } else if (_hoje3 && st !== 'realizada' && st !== 'cancelada') {
+    _vBadge = '📅 Visita HOJE — confirme agora!';
+    _vBadgeCor = 'background:#fef2f2;color:#991b1b;border:1px solid #fca5a5';
+    _vCardClass = 'v-card-urgente';
+  } else if (_amanha && st !== 'realizada' && st !== 'cancelada') {
+    _vBadge = '⏰ Visita amanhã — prepare-se!';
+    _vBadgeCor = 'background:#fff7ed;color:#9a3412;border:1px solid #fdba74';
+    _vCardClass = 'v-card-atencao';
+  } else if (st==='solicitada'||st==='AGUARDANDO') {
+    _vBadge = propTel ? '👉 Confirmar com proprietário' : '👉 Confirmar visita manualmente';
+    _vBadgeCor = 'background:#fffbeb;color:#92400e;border:1px solid #fcd34d';
+    _vCardClass = 'v-card-atencao';
+  } else if (st==='confirmada' && !clienteConfirmou) {
+    _vBadge = '💬 Avisar cliente — visita confirmada!';
+    _vBadgeCor = 'background:#eff6ff;color:#1e40af;border:1px solid #93c5fd';
+    _vCardClass = '';
+  } else if (st==='realizada') {
+    _vBadge = '🔁 Pós-visita — pergunte se gostou!';
+    _vBadgeCor = 'background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd';
+    _vCardClass = '';
+  } else if (st==='cancelada') {
+    _vBadge = '🔄 Cancelada — ofereça outra opção';
+    _vBadgeCor = 'background:#f9fafb;color:#6b7280;border:1px solid #e5e7eb';
+    _vCardClass = '';
+  }
+%>
+<div class="v-card <%=_vCardClass%>">
+  <% if(_vBadge) { %>
+  <div class="v-badge-acao" style="<%=_vBadgeCor%>"><%=_vBadge%></div>
+  <% } %>
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
     <div>
       <div style="font-size:17px;font-weight:800;color:#111"><%= nome %></div>

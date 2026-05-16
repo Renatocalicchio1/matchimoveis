@@ -259,9 +259,9 @@ class MatchCore {
       if (!filePath) return lead;
 
       const imoveis = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      const imoveisDoUser = imoveis.filter(i =>
-        (i.codigoUsuario === userId || i.userId === userId) && i.status === 'ativo'
-      );
+      // Todos os imóveis ativos da plataforma (próprios + parceiros)
+      // A lead e visita sempre ficam com quem enviou a vitrine
+      const imoveisDoUser = imoveis.filter(i => i.status === 'ativo');
 
       // Pega o imóvel de interesse como âncora
       const imovelId = lead.imovel_interesse || lead.imovelId || lead.idAnuncio;
@@ -342,9 +342,8 @@ class MatchCore {
       if (!filePath) return lead;
 
       const imoveis = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      const imoveisDoUser = imoveis.filter(i =>
-        (i.codigoUsuario === userId || i.userId === userId) && i.status === 'ativo'
-      );
+      // Todos os imóveis ativos da plataforma (próprios + parceiros)
+      const imoveisDoUser = imoveis.filter(i => i.status === 'ativo');
 
       const leadFake = {
         tipo:     perfil.tipo     || lead.tipo     || '',

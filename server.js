@@ -493,11 +493,24 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
   if(!lead) return res.status(404).send('Lead não encontrado');
 
   lead.matches = lead.matchesBase || lead.matches || [];
+  
+  // Marca vitrine como visualizada
+  const idxLead = leads.findIndex(l => String(l.id||l.leadId||'') === String(req.params.leadId));
+  if (idxLead >= 0) {
+    leads[idxLead].vitrineVisualizada = true;
+    leads[idxLead].vitrineVisualizadaEm = new Date().toISOString();
+    if (!leads[idxLead].vitrineEnviada) {
+      leads[idxLead].vitrineEnviada = true;
+      leads[idxLead].vitrineEnviadaEm = new Date().toISOString();
+    }
+    lead = leads[idxLead];
+  }
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
   fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
   res.render('cliente-oferta', {
     user: null,
     lead,
+    matchesParceiro: lead.matchesQuintoAndar || [],
     queryUserId: userIdOferta || lead.userId || lead.usuarioId || lead.corretorId || ''
   });
 });

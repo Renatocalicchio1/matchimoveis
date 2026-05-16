@@ -74,7 +74,8 @@ async function dispararParceiro(visita) {
   const parceiro = users.find(u => u.id === visita.imovelUsuarioId);
   const telParceiro = (parceiro?.celular||parceiro?.telefone||'').replace(/\D/g,'');
   if (telParceiro) {
-    const msg = `Olá ${parceiro?.nome||''}! Sou da MatchImóveis.\n\nTenho um cliente interessado no imóvel *${visita.imovelTitulo||''}*.\n\nData solicitada: *${visita.dataVisita||'a combinar'}*${visita.horaVisita?' às '+visita.horaVisita:''}\n\nPode verificar disponibilidade com o responsável e me confirmar?\n\nObrigado!`;
+    const linkParceiro = `${BASE_URL}/parceiro/visita/${visita.id}`;
+    const msg = `Olá ${parceiro?.nome||''}! Sou da MatchImóveis.\n\nTenho um cliente interessado no imóvel *${visita.imovelTitulo||''}*.\n\nData solicitada: *${visita.dataVisita||'a combinar'}*${visita.horaVisita?' às '+visita.horaVisita:''}\nCliente: ${visita.nome||''}\n\nPode verificar disponibilidade com o responsável e confirmar aqui:\n${linkParceiro}\n\nObrigado!`;
     await enviarWA(getInstancia(visita.imovelUsuarioId), telParceiro, msg);
   }
   notificar(visita.userId,'visita_parceiro','Aguardando confirmação do parceiro',`Visita de ${visita.nome} para ${visita.imovelTitulo}. Parceiro ${parceiro?.nome||''} foi notificado.`);
@@ -313,3 +314,68 @@ setInterval(async () => {
 }, 60*60*1000);
 
 module.exports = router;
+
+// ── PARCEIRO — confirmação via link ───────────────────────────────────────────
+router.get('/parceiro/visita/:id', (req, res) => {
+  const visitas = lerVisitas();
+  const visita = visitas.find(v => v.id === req.params.id);
+  if (!visita) return res.status(404).send('Visita não encontrada');
+  res.render('parceiro-visita', { visita });
+});
+
+router.post('/parceiro/visita/:id/responder', async (req, res) => {
+  const visitas = lerVisitas();
+  const idx = visitas.findIndex(v => v.id === req.params.id);
+  if (idx === -1) return res.status(404).send('Visita não encontrada');
+
+  const { resposta } = req.body;
+  const visita = visitas[idx];
+  const users = lerUsers();
+  const corretorDono = users.find(u => u.id === visita.userId);
+  const telCorretorDono = (corretorDono?.celular || corretorDono?.telefone || '').replace(/\D/g, '');
+  const instanciaDono = getInstancia(visita.userId);
+  const parceiro = users.find(u => u.id === visita.imovelUsuarioId);
+
+  if (resposta === 'confirmar') {
+    visitas[idx].status = 'prop_confirmou';
+    visitas[idx].parceiroConfirmou = true;
+    visitas[idx].parceiroConfirmouEm = new Date().toISOString();
+    salvarVisitas(visitas);
+
+    // WA pro corretor dono da lead avisando que parceiro confirmou
+    if (telCorretorDono) {
+      const msg = `MatchImóveis 🏠\n\n✅ *${parceiro?.nome || 'Parceiro'}* confirmou disponibilidade do imóvel!\n\n*${visita.imovelTitulo || ''}*\nData: *${visita.dataVisita}*${visita.horaVisita ? ' às ' + visita.horaVisita : ''}\nCliente: ${visita.nome || ''}\n\nO cliente será avisado agora automaticamente!`;
+      setImmediate(() => enviarWA(instanciaDono, telCorretorDono, msg));
+    }
+
+    notificar(visita.userId, 'parceiro_confirmou', '✅ Parceiro confirmou!', `${parceiro?.nome || 'Parceiro'} confirmou disponibilidade do ${visita.imovelTitulo}. Cliente sendo avisado!`);
+
+    // Dispara WA pro cliente automaticamente
+    setImmediate(() => dispararCliente(visitas[idx]));
+
+  } else if (resposta === 'indisponivel') {
+    visitas[idx].status = 'cancelada';
+    visitas[idx].motivoCancelamento = 'parceiro_indisponivel';
+    salvarVisitas(visitas);
+
+    // WA pro corretor dono da lead
+    if (telCorretorDono) {
+      const msg = `MatchImóveis 🏠\n\n❌ *${parceiro?.nome || 'Parceiro'}* informou que o imóvel *${visita.imovelTitulo || ''}* não está disponível para ${visita.dataVisita}.\n\nOfereca outra opção ao cliente ${visita.nome || ''}.`;
+      setImmediate(() => enviarWA(instanciaDono, telCorretorDono, msg));
+    }
+
+    notificar(visita.userId, 'parceiro_indisponivel', '❌ Parceiro indisponível', `${parceiro?.nome || 'Parceiro'} informou indisponibilidade do ${visita.imovelTitulo}.`);
+
+    // Manda vitrine novamente pro cliente
+    const tel = (visita.telefone || visita.contato || '').replace(/\D/g, '');
+    const leads = lerLeads();
+    const lead = leads.find(l => (l.telefone || l.contato || '').replace(/\D/g, '').slice(-8) === tel.slice(-8));
+    if (lead) {
+      const linkVitrine = `${BASE_URL}/cliente/oferta/${lead.id}?userId=${visita.userId}`;
+      setImmediate(() => enviarWA(instanciaDono, tel, `Olá *${visita.nome}*! Infelizmente o imóvel *${visita.imovelTitulo}* não está disponível nesta data.\n\nMas separamos outras opções para você:\n${linkVitrine}`));
+    }
+  }
+
+  salvarVisitas(visitas);
+  res.render('parceiro-confirmado', { resposta, visita: visitas[idx], parceiro });
+});

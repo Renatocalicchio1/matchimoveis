@@ -687,13 +687,31 @@ function registrarVisita(lead){
 
 
 // Página de confirmação do proprietário
+
+/* REMOVIDO v2 — proprietario GET visitaId
+
+/* REMOVIDO v2 — proprietario GET visitaId
+
+/* REMOVIDO v2 — proprietario GET visitaId
 app.get('/proprietario/visita/:visitaId', (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const visita = visitas.find(v => v.id === req.params.visitaId);
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('proprietario-visita', { visita });
-});
+})
+*/
 
+*/
+
+*/
+;
+
+
+/* REMOVIDO v2 — proprietario POST responder visitaId
+
+/* REMOVIDO v2 — proprietario POST responder visitaId
+
+/* REMOVIDO v2 — proprietario POST responder visitaId
 app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.visitaId);
@@ -761,7 +779,13 @@ app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
     }
   } catch(e) { console.log('Erro notif proprietario:', e.message); }
   res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
-});
+})
+*/
+
+*/
+
+*/
+;
 
 
 app.get('/dev/diagnostico-leads', auth, (req,res)=>{
@@ -3322,6 +3346,12 @@ function gerarXMLPortais(){
 }
 
 
+
+/* REMOVIDO v2 — app POST confirmar id
+
+/* REMOVIDO v2 — app POST confirmar id
+
+/* REMOVIDO v2 — app POST confirmar id
 app.post('/app/visitas/confirmar/:id', auth, (req,res)=>{
   const fs = require('fs');
 
@@ -3340,11 +3370,23 @@ app.post('/app/visitas/confirmar/:id', auth, (req,res)=>{
   fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
 
   res.redirect('/app/visitas');
-});
+})
+*/
+
+*/
+
+*/
+;
 
 
 
 
+
+/* REMOVIDO v2 — app POST recusar id
+
+/* REMOVIDO v2 — app POST recusar id
+
+/* REMOVIDO v2 — app POST recusar id
 app.post('/app/visitas/recusar/:id', auth, (req,res)=>{
   const fs = require('fs');
 
@@ -3363,7 +3405,13 @@ app.post('/app/visitas/recusar/:id', auth, (req,res)=>{
   fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
 
   res.redirect('/app/visitas');
-});
+})
+*/
+
+*/
+
+*/
+;
 
 
 
@@ -3973,13 +4021,31 @@ res.send("✅ Zerado para " + userId + ": " + (visitas.length - visitasRest.leng
 });
 
 // Página confirmação de presença do lead
+
+/* REMOVIDO v2 — cliente GET confirmar visitaId
+
+/* REMOVIDO v2 — cliente GET confirmar visitaId
+
+/* REMOVIDO v2 — cliente GET confirmar visitaId
 app.get('/cliente/visita/:visitaId/confirmar', (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const visita = visitas.find(v => v.id === req.params.visitaId);
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('cliente-visita-confirmar', { visita });
-});
+})
+*/
 
+*/
+
+*/
+;
+
+
+/* REMOVIDO v2 — cliente POST responder visitaId
+
+/* REMOVIDO v2 — cliente POST responder visitaId
+
+/* REMOVIDO v2 — cliente POST responder visitaId
 app.post('/cliente/visita/:visitaId/responder', (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.visitaId);
@@ -4006,7 +4072,13 @@ app.post('/cliente/visita/:visitaId/responder', (req, res) => {
     }
   } catch(e) { console.log('Erro notif cliente:', e.message); }
   res.render('cliente-visita-confirmar', { visita: visitas[idx] });
-});
+})
+*/
+
+*/
+
+*/
+;
 
 // Match Coins
 app.get('/app/coins', auth, (req, res) => {
@@ -4016,13 +4088,31 @@ app.get('/app/coins', auth, (req, res) => {
 });
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====
+
+/* REMOVIDO v2 — cliente GET remarcar id (1a)
+
+/* REMOVIDO v2 — cliente GET remarcar id (1a)
+
+/* REMOVIDO v2 — cliente GET remarcar id (1a)
 app.get('/cliente/visita/:id/remarcar', (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const visita = visitas.find(v => v.id === req.params.id);
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('cliente-visita-remarcar', { visita, sucesso: false });
-});
+})
+*/
 
+*/
+
+*/
+;
+
+
+/* REMOVIDO v2 — cliente POST remarcar id (1a)
+
+/* REMOVIDO v2 — cliente POST remarcar id (1a)
+
+/* REMOVIDO v2 — cliente POST remarcar id (1a)
 app.post('/cliente/visita/:id/remarcar', (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.id);
@@ -4042,7 +4132,13 @@ app.post('/cliente/visita/:id/remarcar', (req, res) => {
     }
   } catch(e) { console.log('Erro notif remarcação:', e.message); }
   res.render('cliente-visita-remarcar', { visita: visitas[idx], sucesso: true });
-});
+})
+*/
+
+*/
+
+*/
+;
 
 // DEBUG TEMP
 app.get('/admin/debug-visitas', (req, res) => {
@@ -4598,6 +4694,12 @@ app.get('/api/memoria-operacional', auth, (req,res)=>{
 // WORKFLOW VISITAS OPERACIONAL
 // =====================================================
 
+
+/* REMOVIDO v2 duplicata — workflow duplicata
+
+/* REMOVIDO v2 duplicata — workflow duplicata
+
+/* REMOVIDO v2 duplicata — workflow duplicata
 app.post('/api/visita/:id/workflow', auth, (req,res)=>{
   try{
     const id = req.params.id;
@@ -4628,7 +4730,13 @@ app.post('/api/visita/:id/workflow', auth, (req,res)=>{
       erro: err.message
     });
   }
-});
+})
+*/
+
+*/
+
+*/
+;
 
 // =====================================================
 // MEMORIA OPERACIONAL
@@ -4913,6 +5021,12 @@ app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
 });
 
 
+
+/* REMOVIDO v2 duplicata — remarcar duplicata
+
+/* REMOVIDO v2 duplicata — remarcar duplicata
+
+/* REMOVIDO v2 duplicata — remarcar duplicata
 app.post('/app/visitas/remarcar/:id', auth, (req,res)=>{
   const fs = require('fs');
 
@@ -4931,8 +5045,20 @@ app.post('/app/visitas/remarcar/:id', auth, (req,res)=>{
   fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
 
   res.redirect('/app/visitas');
-});
+})
+*/
 
+*/
+
+*/
+;
+
+
+/* REMOVIDO v2 duplicata — cancelar duplicata
+
+/* REMOVIDO v2 duplicata — cancelar duplicata
+
+/* REMOVIDO v2 duplicata — cancelar duplicata
 app.post('/app/visitas/cancelar/:id', auth, (req,res)=>{
   const fs = require('fs');
 
@@ -4951,8 +5077,20 @@ app.post('/app/visitas/cancelar/:id', auth, (req,res)=>{
   fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
 
   res.redirect('/app/visitas');
-});
+})
+*/
 
+*/
+
+*/
+;
+
+
+/* REMOVIDO v2 duplicata — concluir duplicata
+
+/* REMOVIDO v2 duplicata — concluir duplicata
+
+/* REMOVIDO v2 duplicata — concluir duplicata
 app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
   const fs = require('fs');
 
@@ -4971,7 +5109,13 @@ app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
   fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
 
   res.redirect('/app/visitas');
-});
+})
+*/
+
+*/
+
+*/
+;
 
 
 app.post('/app/visitas/observacao/:id', auth, (req,res)=>{
@@ -5259,6 +5403,12 @@ app.post('/app/visitas/solicitar-confirmacao/:id', auth, (req,res)=>{
 });
 
 
+
+/* REMOVIDO v2 — cliente GET visita id
+
+/* REMOVIDO v2 — cliente GET visita id
+
+/* REMOVIDO v2 — cliente GET visita id
 app.get('/cliente/visita/:id', (req,res)=>{
 
   const fs = require('fs');
@@ -5279,8 +5429,20 @@ app.get('/cliente/visita/:id', (req,res)=>{
     visita
   });
 
-});
+})
+*/
 
+*/
+
+*/
+;
+
+
+/* REMOVIDO v2 — cliente POST confirmar id
+
+/* REMOVIDO v2 — cliente POST confirmar id
+
+/* REMOVIDO v2 — cliente POST confirmar id
 app.post('/cliente/visita/:id/confirmar', (req,res)=>{
 
   const fs = require('fs');
@@ -5305,8 +5467,20 @@ app.post('/cliente/visita/:id/confirmar', (req,res)=>{
 
   res.redirect('/cliente/visita/' + req.params.id);
 
-});
+})
+*/
 
+*/
+
+*/
+;
+
+
+/* REMOVIDO v2 — cliente POST recusar id
+
+/* REMOVIDO v2 — cliente POST recusar id
+
+/* REMOVIDO v2 — cliente POST recusar id
 app.post('/cliente/visita/:id/recusar', (req,res)=>{
 
   const fs = require('fs');
@@ -5333,7 +5507,13 @@ app.post('/cliente/visita/:id/recusar', (req,res)=>{
 
   res.redirect('/cliente/visita/' + req.params.id);
 
-});
+})
+*/
+
+*/
+
+*/
+;
 
 
 app.get('/cliente/visita/:id/remarcar', (req,res)=>{

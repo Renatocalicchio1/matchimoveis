@@ -1216,13 +1216,13 @@
     "ultimoLead": null,
     "ultimaVisita": null,
     "ultimaIntencao": {
-      "tipo": "visitas",
+      "tipo": "leads",
       "entidade": null,
       "acao": null,
       "filtro": {
-        "busca": "visit s h je"
+        "busca": "precis que me jude enc ntr r"
       },
-      "textoOriginal": "visitas hoje"
+      "textoOriginal": "preciso que me ajude a encontrar lead"
     },
     "ultimaAcao": null,
     "historico": [
@@ -1231,8 +1231,23 @@
         "tipo": "consulta_visitas",
         "texto": "visitas hoje",
         "total": 0
+      },
+      {
+        "at": "2026-05-16T19:33:12.204Z",
+        "tipo": "consulta_matches",
+        "texto": "leads com match",
+        "total": 0,
+        "ultimoLead": null
+      },
+      {
+        "at": "2026-05-16T20:36:39.723Z",
+        "tipo": "consulta_lead",
+        "texto": "preciso que me ajude a encontrar lead",
+        "termo": "precis que me jude enc ntr r",
+        "total": 0,
+        "ultimoLead": null
       }
     ],
-    "updatedAt": "2026-05-16T05:40:13.416Z"
+    "updatedAt": "2026-05-16T20:36:39.723Z"
   }
 }

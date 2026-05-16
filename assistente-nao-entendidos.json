@@ -6180,6 +6180,19 @@
       ],
       "primeira": "2026-05-14T01:53:38.698Z",
       "ultima": "2026-05-14T01:53:38.698Z"
+    },
+    {
+      "pergunta": "oi",
+      "count": 1,
+      "respostas": [
+        {
+          "texto": "👋 Olá! Como posso ajudar?Digite o que precisa ou escolha uma opção abaixo:Ver imóveis → Ver leads → Ver visitas →",
+          "dominio": "saudacao",
+          "data": "2026-05-16T20:36:26.004Z"
+        }
+      ],
+      "primeira": "2026-05-16T20:36:26.004Z",
+      "ultima": "2026-05-16T20:36:26.004Z"
     }
   ]
 }

@@ -4,50 +4,58 @@
   <meta charset="utf-8">
   <title>MatchImóveis — IA para o Mercado Imobiliário</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="/airbnb.css">
   <style>
-    body{display:flex;min-height:100vh;background:#F7F7F7}
-    .left{flex:1;padding:60px;display:flex;flex-direction:column;justify-content:center;background:#fff;border-right:1px solid #EBEBEB}
-    .logo{font-size:22px;font-weight:800;color:#FF385C;margin-bottom:48px;letter-spacing:-0.5px}
-    .tagline{font-size:38px;font-weight:800;line-height:1.15;margin-bottom:16px;letter-spacing:-1px;color:#222}
-    .tagline span{color:#FF385C}
-    .sub{font-size:16px;color:#717171;margin-bottom:40px;line-height:1.7;max-width:460px}
-    .badge{display:inline-flex;align-items:center;gap:6px;background:#FFF1F3;border:1px solid #FF385C;color:#FF385C;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:24px}
-    .steps{display:flex;flex-direction:column;gap:18px;max-width:460px}
-    .step{display:flex;gap:14px;align-items:flex-start}
-    .step-icon{width:38px;height:38px;border-radius:10px;background:#FFF1F3;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-    .step-text strong{font-size:14px;color:#222;display:block;margin-bottom:2px}
-    .step-text span{font-size:13px;color:#717171;line-height:1.5}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;min-height:100vh;background:#f9fafb;color:#111827}
 
-    .right{width:420px;display:flex;align-items:center;justify-content:center;padding:40px;background:#F7F7F7}
-    .box{width:100%;background:#fff;border-radius:20px;padding:36px;border:1px solid #EBEBEB;box-shadow:0 10px 30px rgba(0,0,0,.06)}
-    .box h2{font-size:22px;font-weight:800;margin-bottom:4px;color:#222}
-    .box p{color:#717171;font-size:14px;margin-bottom:24px}
-    label{font-size:13px;font-weight:600;color:#222;display:block;margin-bottom:6px}
-    input{width:100%;padding:13px 16px;border:1px solid #EBEBEB;border-radius:12px;background:#fff;color:#222;font-size:15px;margin-bottom:14px;outline:none;transition:border .2s;font-family:inherit}
-    input:focus{border-color:#FF385C}
-    button{width:100%;border:0;background:#FF385C;color:#fff;padding:14px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;transition:background .2s;font-family:inherit}
-    button:hover{background:#E31C5F}
-    .small{font-size:12px;color:#717171;text-align:center;margin-top:18px;line-height:1.6}
-    .error-msg{background:#FFF1F3;border:1px solid #FF385C;color:#E31C5F;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:14px}
+    /* ── Left panel ── */
+    .left{flex:1;padding:56px 60px;display:flex;flex-direction:column;justify-content:center;background:#fff;border-right:0.5px solid rgba(0,0,0,.08)}
+    .logo{font-size:18px;font-weight:600;color:#111827;margin-bottom:52px;letter-spacing:-.3px}
+    .logo span{color:#6366f1}
+    .tag{display:inline-flex;align-items:center;gap:6px;background:#eef2ff;border:0.5px solid #c7d2fe;color:#4338ca;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:500;margin-bottom:20px}
+    .headline{font-size:36px;font-weight:600;line-height:1.2;letter-spacing:-.8px;color:#111827;margin-bottom:14px;max-width:500px}
+    .headline em{font-style:normal;color:#6366f1}
+    .sub{font-size:15px;color:#6b7280;line-height:1.7;max-width:460px;margin-bottom:44px}
+    .steps{display:flex;flex-direction:column;gap:20px;max-width:460px}
+    .step{display:flex;gap:14px;align-items:flex-start}
+    .step-icon{width:36px;height:36px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .step-text strong{font-size:14px;color:#111827;display:block;margin-bottom:3px;font-weight:500}
+    .step-text span{font-size:13px;color:#9ca3af;line-height:1.55}
+
+    /* ── Right panel ── */
+    .right{width:400px;display:flex;align-items:center;justify-content:center;padding:40px;background:#f9fafb}
+    .box{width:100%;background:#fff;border-radius:16px;padding:32px;border:0.5px solid rgba(0,0,0,.08)}
+    .box-title{font-size:20px;font-weight:600;color:#111827;margin-bottom:4px}
+    .box-sub{font-size:13px;color:#9ca3af;margin-bottom:24px}
+
+    .field{margin-bottom:14px}
+    .field label{display:block;font-size:11px;font-weight:500;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+    .field input{width:100%;padding:10px 14px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;background:#fff;color:#111827;font-size:14px;outline:none;font-family:inherit;transition:border .15s}
+    .field input:focus{border-color:rgba(99,102,241,.5);box-shadow:0 0 0 3px rgba(99,102,241,.08)}
+
+    .btn-login{width:100%;border:none;background:#111827;color:#fff;padding:11px;border-radius:8px;font-weight:500;font-size:14px;cursor:pointer;font-family:inherit;transition:background .15s;margin-top:4px}
+    .btn-login:hover{background:#1f2937}
+
+    .error-msg{background:#fef2f2;border:0.5px solid #fca5a5;color:#b91c1c;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}
+    .footer-note{font-size:12px;color:#d1d5db;text-align:center;margin-top:20px;line-height:1.6}
 
     @media(max-width:768px){
       body{flex-direction:column}
-      .left{padding:32px 20px 20px}
-      .tagline{font-size:26px}
-      .steps{display:block}
+      .left{padding:32px 24px 24px}
+      .headline{font-size:26px}
       .right{width:100%;padding:20px}
+      .steps{display:none}
     }
   </style>
 </head>
 <body>
 
   <div class="left">
-    <div class="logo">Match<span style="color:#222">Imóveis</span></div>
+    <div class="logo">Match<span>Imóveis</span></div>
 
-    <div class="badge">⚡ IA ATIVA 24/7</div>
+    <div class="tag">IA ativa 24/7</div>
 
-    <h1 class="tagline">A IA que faz o <span>match perfeito</span> no mercado imobiliário</h1>
+    <h1 class="headline">A IA que faz o <em>match perfeito</em> no mercado imobiliário</h1>
     <p class="sub">Mineramos dados, cruzamos leads com imóveis e agendamos visitas automaticamente — tudo sem você precisar fazer nada.</p>
 
     <div class="steps">
@@ -84,26 +92,26 @@
 
   <div class="right">
     <div class="box">
-      <h2>Acessar plataforma</h2>
-      <p>Entre com suas credenciais de corretor</p>
+      <p class="box-title">Acessar plataforma</p>
+      <p class="box-sub">Entre com suas credenciais de corretor</p>
 
-      <% if(typeof error !== 'undefined' && error) { %>
+      <% if(typeof error !== 'undefined' && error){ %>
       <div class="error-msg"><%= error %></div>
       <% } %>
 
       <form method="POST" action="/login">
-        <label>Celular</label>
-        <input name="telefone" placeholder="11975720750" required autocomplete="username">
-        <label>Senha</label>
-        <input name="senha" type="password" placeholder="••••" autocomplete="current-password">
-        <button type="submit">Entrar →</button>
+        <div class="field">
+          <label>Celular</label>
+          <input name="telefone" placeholder="11975720750" required autocomplete="username">
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input name="senha" type="password" placeholder="••••••" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-login">Entrar</button>
       </form>
 
-
-
-
-
-      <div class="small">MatchImóveis · IA para o mercado imobiliário<br>Seus dados são protegidos e nunca compartilhados.</div>
+      <p class="footer-note">MatchImóveis · IA para o mercado imobiliário<br>Seus dados são protegidos e nunca compartilhados.</p>
     </div>
   </div>
 

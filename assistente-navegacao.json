@@ -49,12 +49,12 @@
       "paginaAnterior": "dashboard"
     },
     "cor_as61p840px": {
-      "paginaAtual": "visitas",
-      "labelAtual": "Visitas",
-      "dominioAtual": "visitas",
-      "rotaAtual": "/app/visitas",
-      "atualizadoEm": "2026-05-16T04:12:31.809Z",
-      "paginaAnterior": "leads"
+      "paginaAtual": "cadastro",
+      "labelAtual": "Cadastrar",
+      "dominioAtual": "imoveis",
+      "rotaAtual": "/app/cadastro",
+      "atualizadoEm": "2026-05-16T04:26:15.556Z",
+      "paginaAnterior": "imoveis"
     }
   },
   "fluxos": [
@@ -5217,6 +5217,78 @@
       "para": "visitas",
       "userId": "cor_as61p840px",
       "data": "2026-05-16T04:12:31.809Z"
+    },
+    {
+      "de": "visitas",
+      "para": "dashboard",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:01.337Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:04.347Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "dashboard",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:06.147Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:07.118Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:07.987Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:09.252Z"
+    },
+    {
+      "de": "visitas",
+      "para": "notificacoes",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:11.783Z"
+    },
+    {
+      "de": "notificacoes",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:13.012Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "portais",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:22.452Z"
+    },
+    {
+      "de": "portais",
+      "para": "cadastro",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:24.653Z"
+    },
+    {
+      "de": "cadastro",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:25:42.789Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "cadastro",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T04:26:15.556Z"
     }
   ]
 }

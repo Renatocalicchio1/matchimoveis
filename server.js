@@ -769,7 +769,7 @@ app.get('/admin/fix-codigos-usuarios', (req, res) => {
     const usersPath = dataPath('users.json');
     let users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
     users = users.map(u => {
-      if (!u.codigoUsuario) u.codigoUsuario = gerarCodigoUsuario(u.nome);
+      u.codigoUsuario = gerarCodigoUsuario(u.nome);
       return u;
     });
     fs.writeFileSync(usersPath, JSON.stringify(users,null,2));

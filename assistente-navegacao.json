@@ -49,27 +49,15 @@
       "paginaAnterior": "dashboard"
     },
     "cor_as61p840px": {
-      "paginaAtual": "assistente",
-      "labelAtual": "Assistente",
-      "dominioAtual": "sistema",
-      "rotaAtual": "/app/assistente",
-      "atualizadoEm": "2026-05-16T20:36:16.773Z",
-      "paginaAnterior": "dashboard"
+      "paginaAtual": "leads",
+      "labelAtual": "Leads",
+      "dominioAtual": "leads",
+      "rotaAtual": "/app/leads",
+      "atualizadoEm": "2026-05-16T20:42:33.333Z",
+      "paginaAnterior": "imoveis"
     }
   },
   "fluxos": [
-    {
-      "de": "dashboard",
-      "para": "assistente",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T16:56:51.940Z"
-    },
-    {
-      "de": "assistente",
-      "para": "dashboard",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:01:02.025Z"
-    },
     {
       "de": "dashboard",
       "para": "assistente",
@@ -6057,6 +6045,18 @@
       "para": "assistente",
       "userId": "cor_as61p840px",
       "data": "2026-05-16T20:36:16.773Z"
+    },
+    {
+      "de": "assistente",
+      "para": "imoveis",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T20:42:25.424Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "cor_as61p840px",
+      "data": "2026-05-16T20:42:33.333Z"
     }
   ]
 }

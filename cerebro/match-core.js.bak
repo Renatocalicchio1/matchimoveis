@@ -82,25 +82,6 @@ class MatchCore {
       if (matchesDepois > matchesAntes) {
         lead = this._timeline(lead, 'sistema', `Match: ${matchesDepois} imóveis encontrados`);
         console.log(`[MATCH CORE] match melhorou: ${matchesAntes} → ${matchesDepois}`);
-        // vitrine automática — envia link WhatsApp se ainda não enviou
-        if (!lead.vitrineEnviada && instancia && lead.contato) {
-          const BASE_URL = process.env.RENDER
-            ? 'https://matchimoveis.onrender.com'
-            : (process.env.BASE_URL || 'http://localhost:3000');
-          const linkVitrine = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + userId;
-          const nomeCorretor = lead.corretorNome || 'Seu corretor';
-          const total = matchesDepois;
-          const msgVitrine = 'Olá ' + (lead.nome || '') + '! Encontramos '
-            + total + ' imóve' + (total === 1 ? 'l' : 'is')
-            + ' que combinam com o seu perfil.\n\nAcesse sua seleção personalizada:\n'
-            + linkVitrine
-            + '\n\n' + nomeCorretor + ' - MatchImóveis';
-          setImmediate(() => enviarWhatsApp(instancia, lead.contato, msgVitrine));
-          lead.vitrineEnviada = true;
-          lead.vitrineEnviadaEm = new Date().toISOString();
-          lead.vitrineLink = linkVitrine;
-          console.log('[MATCH CORE] vitrine enviada para', lead.contato, linkVitrine);
-        }
       }
 
       // 7. Eventos

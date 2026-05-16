@@ -684,6 +684,19 @@ app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
   res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
 });
 
+
+app.get('/dev/diagnostico-leads', auth, (req,res)=>{
+  const user = req.session.user;
+  const todos = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
+  const uid = user.id;
+  const filtrados = filtrarPorUsuario(todos, user);
+  res.json({
+    userId: uid,
+    totalNoArquivo: todos.length,
+    totalFiltrados: filtrados.length,
+    ultimas3: todos.slice(-3).map(l=>({id:l.id,nome:l.nome,userId:l.userId,codigoUsuario:l.codigoUsuario,corretorId:l.corretorId}))
+  });
+});
 // ===== APP ROUTES =====
 
 

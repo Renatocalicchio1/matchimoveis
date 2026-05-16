@@ -2265,47 +2265,6 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     });
 
     if (!leadEncontrado) {
-      // ── FILTRO_CAPTURA_LEADS — só captura se mensagem tem palavras imobiliárias
-      const _palavrasImoveis = [
-        // Tipos de imóvel
-        'imovel','imóvel','apartamento','apto','ap ','casa','sobrado','cobertura','kitnet',
-        'kit','studio','flat','loft','terreno','lote','chacara','chácara','sitio','sítio',
-        'fazenda','sala comercial','sala','loja','galpao','galpão','escritorio','escritório',
-        'predio','prédio','edificio','edifício','condominio','condomínio','residencial',
-        // Cômodos
-        'quarto','quartos','qto','qtos','suite','suíte','suites','suítes','dormitorio',
-        'dormitório','banheiro','banheiros','lavabo','dependencia','dependência',
-        'varanda','sacada','quintal','jardim','piscina','area de lazer',
-        // Transação
-        'alugar','aluguel','aluga','comprar','compra','venda','vender','financiar',
-        'financiamento','parcelar','entrada','sinal','permuta','troca',
-        // Busca/interesse
-        'procurando','procuro','busco','buscar','quero','preciso','interesse','interessado',
-        'interessada','gostaria','queria','tem algo','tem algum','tem imovel','tem imóvel',
-        'voce tem','você tem','vc tem','disponivel','disponível','tem disponivel',
-        // Localização
-        'bairro','regiao','região','zona','centro','metro','metrô','avenida','rua','cep',
-        // Características
-        'metragem','metro quadrado','m2','m²','area','área','vaga','vagas','garagem',
-        'garagens','andar','pavimento','elevador','mobiliado','semi mobiliado','reformado',
-        // Valores
-        'valor','preco','preço','quanto','orcamento','orçamento','budget','investimento',
-        'custo','mensalidade','taxa','iptu',
-        // Ação/visita
-        'visita','visitar','agendar','ver o imovel','ver o imóvel','conhecer','quero ver',
-        'posso ver','quando posso','horario','horário',
-        // Anúncio
-        'anuncio','anúncio','oferta','oportunidade','lancamento','lançamento','entrega',
-        'novo','planta','projeto','construcao','construção',
-        // Gírias/abreviações comuns
-        'aptto','appto','knet','kitinete','tstudio','qd','qds','wc'
-      ];
-      const _textoNorm = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-      const _temPalavraImovel = _palavrasImoveis.some(p => _textoNorm.includes(p));
-      if (!_temPalavraImovel) {
-        console.log('[WEBHOOK WA] filtro: mensagem sem palavras imobiliárias — ignorando:', telefone, '|', texto.substring(0,50));
-        return;
-      }
       console.log('[WEBHOOK WA] lead nao encontrado — criando novo lead automatico:', telefone);
       // Cria lead novo automaticamente a partir do WhatsApp
       const novoLead = {

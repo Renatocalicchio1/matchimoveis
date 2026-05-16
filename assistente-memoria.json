@@ -2925,6 +2925,18 @@
       "pergunta": "tem alguma visita pendente ?",
       "resposta": "📅 Encontrei 3 visita(s)/agendamento(s).\n\n• renato\n• renato\n• renato",
       "data": "2026-05-14T01:53:50.745Z"
+    },
+    {
+      "userId": "cor_as61p840px",
+      "pergunta": "visitas hoje",
+      "resposta": "Não encontrei visitas cadastradas agora.",
+      "data": "2026-05-16T05:40:13.418Z"
+    },
+    {
+      "userId": "cor_as61p840px",
+      "pergunta": "resumo geral",
+      "resposta": "📊 <strong>Resumo:</strong><br>🏠 10 ativos · 👥 0 leads · 🎯 0 (0%) · 📅 0 visitas<br><br>🧠 <strong>Plano de ação para hoje:</strong><br><br><strong>✅ O que fazer:</strong><br><div style=\"display:flex;gap:10px;margin:6px 0;align-items:flex-start\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">1</span><span>Importe leads dos portais para fazer o match. <a href=\"/app-importar-leads\" style=\"display:inline-block;background:#ff385c;color:white;padding:8px 16px;border-radius:8px;text-decoration:none;font-weight:700;margin:4px\">Importar leads →</a></span></div><div style=\"display:flex;gap:10px;margin:6px 0;align-items:flex-start\"><span style=\"background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0\">2</span><span>📸 <strong>10 imóvel(is) sem foto</strong> — portais como VivaReal rejeitam. Adicione fotos!</span></div><br><br><br><div style=\"margin-top:8px\"><button onclick=\"enviarMsg('resumo geral')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">Resumo</button><button onclick=\"enviarMsg('o que devo fazer hoje')\" style=\"background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px\">O que fazer hoje</button></div>",
+      "data": "2026-05-16T05:40:16.614Z"
     }
   ],
   "perfis": {

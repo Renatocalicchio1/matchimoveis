@@ -1,392 +1,331 @@
-<%- include('partials/app-shell', {active:'leads',title:'Leads',subtitle:'Gerencie e acompanhe seus clientes em busca de imóveis.'}) %>
+<%- include('partials/app-shell', {active:'leads',title:'Leads',subtitle:'Gerencie e acompanhe seus clientes em busca de imóveis.',user:user}) %>
+
 <style>
-.excel-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 14px 16px;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.chip {
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  background: #f3f4f6;
-  color: #374151;
-}
-.chip.dark { background: #111; color: #fff; }
-.excel-results {
-  margin-top: 16px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-}
-.filter-card .filters-row {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  align-items: flex-end;
-}
-.filter-card label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #555; }
-.filter-card select, .filter-card input {
-  padding: 7px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 13px;
-  min-width: 140px;
-}
-#filter-counter { font-size: 13px; color: #6b7280; margin-bottom: 12px; }
-.lead-nome { font-size: 14px; font-weight: 700; color: #111; text-decoration: none; }
-.lead-nome:hover { color: #ff385c; }
-.lead-meta { font-size: 11px; color: #6b7280; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.score-bar-bg { width: 80px; height: 5px; background: #f3f4f6; border-radius: 4px; overflow: hidden; display: inline-block; vertical-align: middle; }
-.perfil-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
-.perfil-tag { font-size: 11px; color: #6b7280; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 1px 7px; }
-.ultima-msg { font-size: 11px; color: #6b7280; border-left: 2px solid #e5e7eb; padding-left: 8px; font-style: italic; margin-top: 2px; }
-.lead-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; padding-top: 8px; border-top: 1px solid #f3f4f6; }
-.btn-acao { font-size: 11px; padding: 4px 10px; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid #e5e7eb; color: #374151; background: #f9fafb; }
-.btn-acao.wa { color: #25D366; border-color: #25D366; }
-.btn-acao.red { color: #ff385c; border-color: #ff385c; }
-@keyframes pulso { 0%,100%{box-shadow:0 0 0 0 rgba(255,56,92,.4)} 50%{box-shadow:0 0 0 6px rgba(255,56,92,0)} }
-@keyframes pulso-verde { 0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.4)} 50%{box-shadow:0 0 0 6px rgba(37,211,102,0)} }
-.card-acao-vitrine { border-left: 3px solid #ff385c !important; animation: pulso 2s infinite; }
-.card-acao-contato { border-left: 3px solid #f59e0b !important; }
-.card-acao-match { border-left: 3px solid #7c3aed !important; }
-.badge-acao { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:6px; }
-.badge-acao.vitrine { background:#fff1f2;color:#be123c;border:1px solid #fda4af; }
-.badge-acao.contato { background:#fffbeb;color:#92400e;border:1px solid #fcd34d; }
-.badge-acao.match { background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd; }
-.btn-acao.dark { color: #fff; background: #111; border-color: #111; }
+.lead-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.lead-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:6px;transition:border-color .15s}
+.lead-card:hover{border-color:#c4b5fd}
+.lead-card.urg-alta{border-left:3px solid var(--brand)}
+.lead-card.urg-media{border-left:3px solid #f59e0b}
+.lead-card.urg-baixa{border-left:3px solid #7c3aed}
+@keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(255,56,92,.3)}50%{box-shadow:0 0 0 6px rgba(255,56,92,0)}}
+.lead-card.urg-alta{animation:pulso 2.5s infinite}
+.acao-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:2px}
+.lead-nome{font-size:13px;font-weight:600;color:var(--dark);text-decoration:none}
+.lead-nome:hover{color:var(--brand)}
+.origem-badge{padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
+.score-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.score-pill{display:flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border-light);border-radius:7px;padding:3px 8px}
+.score-bar{width:44px;height:3px;background:var(--border);border-radius:3px;overflow:hidden}
+.score-fill{height:3px;border-radius:3px}
+.temp-pill{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.perfil-row{display:flex;gap:4px;flex-wrap:wrap}
+.perfil-tag{font-size:10px;color:var(--text-sec);background:var(--bg);border:1px solid var(--border-light);border-radius:5px;padding:1px 6px}
+.ultima-msg{font-size:11px;color:var(--text-ter);border-left:2px solid var(--border-light);padding-left:7px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lead-btns{display:flex;gap:5px;padding-top:8px;border-top:1px solid var(--border-light);flex-wrap:wrap}
+.lb{font-size:11px;padding:5px 10px;border-radius:7px;text-decoration:none;font-weight:500;border:1px solid var(--border);color:var(--text-sec);background:var(--white);cursor:pointer;transition:all .1s}
+.lb:hover{background:var(--bg)}
+.lb.wa{color:#16a34a;border-color:#bbf7d0}
+.lb.wa:hover{background:#f0fdf4}
+.lb.prim{color:var(--brand);border-color:#fda4af}
+.lb.prim:hover{background:var(--brand-light)}
+.lb.dark{background:var(--dark);color:#fff;border-color:var(--dark)}
+.lb.dark:hover{background:#333}
+.lb.danger{color:#dc2626;border-color:#fca5a5}
+.confirm-box{display:none;padding:8px 10px;background:#fef2f2;border-radius:8px;border:1px solid #fca5a5;margin-top:4px}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.kpi-sm{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative}
+.kpi-sm .bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--radius) 0 0 var(--radius)}
+.chips-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.chips-lbl{font-size:10px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.fchip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--text-sec);transition:all .1s}
+.fchip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.fadv{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light)}
+.fadv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.fadv-grid label{font-size:11px;font-weight:500;color:var(--text-sec);display:block;margin-bottom:3px}
+.fadv-grid select{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:7px;font-size:12px}
 </style>
 
-<div class="container" style="padding:24px">
-
-  <!-- Stats -->
-  <section style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
-    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center">
-      <strong style="font-size:28px;display:block"><%= stats.totalLeads %></strong>
-      <span style="font-size:13px;color:#717171">Total Leads</span>
-    </div>
-    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #FF385C">
-      <strong style="font-size:28px;display:block;color:#FF385C"><%= stats.comMatch %></strong>
-      <span style="font-size:13px;color:#717171">🤖 IA encontrou imóvel</span>
-    </div>
-    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center">
-      <strong style="font-size:28px;display:block"><%= stats.pendentes %></strong>
-      <span style="font-size:13px;color:#717171">Sem match</span>
-    </div>
-    <div class="card" style="flex:1;min-width:120px;padding:16px 20px;text-align:center;border-left:3px solid #008A05">
-      <strong style="font-size:28px;display:block;color:#008A05"><%= stats.totalMatches %></strong>
-      <span style="font-size:13px;color:#717171">🎯 Total de matches IA</span>
-    </div>
-  </section>
-
-  <!-- Filtros -->
-  <section class="card filter-card" style="margin-bottom:24px">
-    <div class="filters-row">
-      <label><span>Status</span>
-        <select id="filter-status">
-          <option value="all">Todos</option>
-          <option value="with_matches">🤖 Com match</option>
-          <option value="extracted">✅ Extraídos</option>
-          <option value="without_matches">⏳ Pendentes</option>
-          <option value="organica">🌐 Orgânica</option>
-          <option value="importada">📋 Importada</option>
-        </select>
-      </label>
-      <label><span>Score mínimo</span>
-        <select id="filter-score">
-          <option value="0">Todos</option>
-          <option value="30">30+</option>
-          <option value="50">50+</option>
-          <option value="70">70+</option>
-          <option value="90">90+</option>
-        </select>
-      </label>
-      <label style="flex:2"><span>🔍 Busca inteligente</span>
-        <input id="filter-search" type="text" placeholder="Nome, email, celular, bairro..." style="width:100%">
-      </label>
-    </div>
-  </section>
-
-  <!-- Header ações -->
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-    <div>
-      <h2 style="margin:0;font-size:18px;">Leads</h2>
-      <div id="filter-counter" style="font-size:13px;color:#6b7280;margin-top:2px"></div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="#" onclick="abrirModalImportarLeads();return false;"
-         style="background:#ff385c;color:white;padding:9px 14px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;">
-        ⬆️ Importar leads
-      </a>
-      <button onclick="rodarMatchBase()" id="btn-match-base"
-        style="background:#111;color:#fff;border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">
-        🎯 Match Base Interna
-      </button>
-    </div>
-  </div>
-
-  <!-- Cards grid -->
-  <div id="results-list" class="excel-results">
-    <% leads.forEach((item, idx) => {
-      const origin = item.origin || {};
-      const status = item.ignored ? 'ignored' : (item.matches || []).length ? 'with_matches' : (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? 'extracted' : 'without_matches';
-      const bestScore = item.bestScore || (item.matches && item.matches[0] ? item.matches[0].score : 0) || 0;
-      const matchCount = (item.matches || []).length;
-      const isOrganica = item.origem === 'pagina_externa_imovel';
-      const isWhatsapp = item.origem === 'whatsapp';
-      const telefone = String(item.contato || item.telefone || '').replace(/\D/g,'');
-    %>
-    <%
-      const _mat2       = (item.matches||[]).length + (item.matchesAuto||[]).length;
-      const _msgs2      = (item.mensagens||[]).filter(m=>m.de==='cliente').length;
-      const _fase2      = item.faseFunil || 'novo';
-      const _temp2      = item.temperatura || 'frio';
-      const _vitrine    = !!item.vitrineEnviada;
-      const _temVisita  = typeof visitasDaLead !== 'undefined' && visitasDaLead && visitasDaLead.some(v=>v.leadId===item.id||v.leadId===item.leadId);
-      const _semRespDias = item.ultimaMensagemEm ? Math.floor((Date.now()-new Date(item.ultimaMensagemEm).getTime())/86400000) : 999;
-      const _perfil2    = item.perfilIA || {};
-      const _perfilOk   = !!(_perfil2.tipo && _perfil2.quartos);
-
-      // Hierarquia de ações — do mais urgente ao menos urgente
-      let _acaoPendente = null;
-      let _acaoLabel = '';
-      let _acaoCor = '';
-
-      if (_fase2 === 'decidido' && !_temVisita) {
-        _acaoPendente = 'fechar'; _acaoLabel = '🤝 Fechar negócio'; _acaoCor = 'background:#f0fdf4;color:#166534;border:1px solid #86efac';
-      } else if (_temVisita && _fase2 !== 'decidido') {
-        _acaoPendente = 'visita_ok'; _acaoLabel = '✅ Visita agendada'; _acaoCor = 'background:#f0fdf4;color:#166534;border:1px solid #86efac';
-      } else if (_fase2 === 'interessado' && !_temVisita) {
-        _acaoPendente = 'visita'; _acaoLabel = '📅 Agendar visita agora!'; _acaoCor = 'background:#f0fdf4;color:#14532d;border:1px solid #4ade80';
-      } else if (_mat2 > 0 && !_vitrine) {
-        _acaoPendente = 'vitrine'; _acaoLabel = '🏠 Enviar vitrine agora!'; _acaoCor = 'background:#fff1f2;color:#be123c;border:1px solid #fda4af';
-      } else if (_mat2 > 0 && _vitrine && _semRespDias >= 3) {
-        _acaoPendente = 'followup'; _acaoLabel = '⚠️ Follow-up — '+_semRespDias+'d sem resposta'; _acaoCor = 'background:#fff7ed;color:#9a3412;border:1px solid #fdba74';
-      } else if (_mat2 > 0 && _vitrine) {
-        _acaoPendente = 'aguardando'; _acaoLabel = '📨 Vitrine enviada — aguardando'; _acaoCor = 'background:#eff6ff;color:#1e40af;border:1px solid #93c5fd';
-      } else if (!_perfilOk && _msgs2 > 0) {
-        _acaoPendente = 'qualificar'; _acaoLabel = '🔍 Qualificar lead'; _acaoCor = 'background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd';
-      } else if (_perfilOk && _mat2 === 0) {
-        _acaoPendente = 'match'; _acaoLabel = '🎯 Rodar match'; _acaoCor = 'background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd';
-      } else if (_msgs2 === 0) {
-        _acaoPendente = 'contato'; _acaoLabel = '👋 Iniciar contato'; _acaoCor = 'background:#fffbeb;color:#92400e;border:1px solid #fcd34d';
-      } else if (_semRespDias >= 7) {
-        _acaoPendente = 'followup'; _acaoLabel = '⚠️ '+_semRespDias+'d sem contato'; _acaoCor = 'background:#fff7ed;color:#9a3412;border:1px solid #fdba74';
-      }
-
-      // Borda do card por urgência
-      const _cardClass = ['vitrine','visita','fechar'].includes(_acaoPendente) ? 'card-acao-vitrine' :
-                         ['contato','followup'].includes(_acaoPendente) ? 'card-acao-contato' :
-                         ['match','qualificar'].includes(_acaoPendente) ? 'card-acao-match' : '';
-    %>
-    <div class="excel-card <%= _cardClass %>"
-      data-status="<%= status %>"
-      data-score="<%= item.score || bestScore %>"
-      data-origem="<%= item.origem || 'importada' %>"
-      data-search="<%= [item.nome, item.clientName, item.contato, item.telefone, item.email, origin.bairro, origin.cidade].filter(Boolean).join(' ').toLowerCase() %>">
-      <% if(_acaoPendente && _acaoPendente !== 'visita_ok') { %>
-      <div class="badge-acao" style="<%= _acaoCor %>;animation:<%= ['vitrine','visita','fechar','followup'].includes(_acaoPendente)?'pulso 2s infinite':'none' %>"><%=_acaoLabel%></div>
-      <% } else if(_acaoPendente==='visita_ok') { %>
-      <div class="badge-acao" style="<%= _acaoCor %>"><%=_acaoLabel%></div>
-      <% } %>
-
-      <!-- Nome + badges origem -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
-        <a href="/app/lead/<%= item.id %>" class="lead-nome"><%= item.nome || item.cliente || item.clientName || telefone || '-' %></a>
-        <div style="display:flex;gap:4px;flex-shrink:0;">
-          <% if(isOrganica) { %><span class="chip" style="background:#e0f2fe;color:#0369a1;">🌐</span><% } else if(isWhatsapp) { %><span class="chip" style="background:#f0fdf4;color:#166534;">📱</span><% } else { %><span class="chip" style="background:#f5f5f5;color:#15803d;">📋</span><% } %>
-        </div>
-      </div>
-
-      <!-- Score jornada + Score match + temperatura -->
-      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px">
-        <!-- Score jornada -->
-        <% const _sj = item.score || 0; %>
-        <% const _sjCor = _sj>=70?'#16a34a':_sj>=40?'#d97706':'#9ca3af'; %>
-        <div style="display:flex;align-items:center;gap:4px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:3px 8px">
-          <div style="width:50px;height:4px;background:#f3f4f6;border-radius:4px;overflow:hidden">
-            <div style="width:<%=_sj%>%;height:100%;background:<%=_sjCor%>;border-radius:4px"></div>
-          </div>
-          <span style="font-size:10px;font-weight:800;color:<%=_sjCor%>"><%=_sj%></span>
-          <span style="font-size:9px;color:#9ca3af;font-weight:600"><%= item.scoreEtapa || 'Novo' %></span>
-        </div>
-        <!-- Score match -->
-        <% const _sm = item.bestScore || (item.matches&&item.matches[0]?item.matches[0].score:0) || 0; %>
-        <% if(_sm) { %>
-        <div style="background:#ede9fe;border-radius:8px;padding:3px 8px;font-size:10px;font-weight:800;color:#5b21b6">
-          🎯 <%=_sm%>% match
-        </div>
-        <% } %>
-        <!-- Temperatura -->
-        <% if(item.temperatura) { %>
-        <span style="padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;
-          background:<%=item.temperatura==='quente'?'#fee2e2':item.temperatura==='morno'?'#fef3c7':'#eff6ff'%>;
-          color:<%=item.temperatura==='quente'?'#991b1b':item.temperatura==='morno'?'#92400e':'#1e40af'%>">
-          <%=item.temperatura==='quente'?'🔥':item.temperatura==='morno'?'🌡':'❄️'%> <%=item.temperatura%>
-        </span>
-        <% } %>
-        <!-- Matches auto -->
-        <% if(item.matchesAuto && item.matchesAuto.length) { %>
-        <span style="padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;background:#f0fdf4;color:#166534">
-          🏠 <%=item.matchesAuto.length%> match(es)
-        </span>
-        <% } %>
-      </div>
-
-      <!-- Perfil IA -->
-      <% if(item.perfilIA && Object.keys(item.perfilIA).length) { %>
-      <div class="perfil-tags">
-        <% if(item.perfilIA.tipo) { %><span class="perfil-tag">🏠 <%= item.perfilIA.tipo %></span><% } %>
-        <% if(item.perfilIA.quartos) { %><span class="perfil-tag">🛏 <%= item.perfilIA.quartos %>q</span><% } %>
-        <% if(item.perfilIA.bairro) { %><span class="perfil-tag">📍 <%= item.perfilIA.bairro %></span><% } %>
-        <% if(item.perfilIA.valorMax) { %><span class="perfil-tag">💰 R$<%= Number(item.perfilIA.valorMax).toLocaleString('pt-BR') %></span><% } %>
-        <% if(item.perfilIA.intencao) { %><span class="perfil-tag"><%= item.perfilIA.intencao %></span><% } %>
-      </div>
-      <% } %>
-
-      <!-- Última mensagem WhatsApp -->
-      <% if(item.ultimaMensagem) { %>
-      <div class="ultima-msg">"<%= item.ultimaMensagem.substring(0,70) %><%= item.ultimaMensagem.length>70?'...':'' %>"</div>
-      <% } %>
-
-      <!-- Meta info -->
-      <div class="lead-meta">
-        <span><%= (item.extractionStatus === 'ok' || origin.extractionStatus === 'ok') ? '✅ Extraído' : '⏳ Pendente' %></span>
-        <% if(matchCount) { %><span class="chip">🤖 <%= matchCount %> matches</span><% } %>
-        <% if(bestScore) { %><span class="chip dark">⚡ <%= bestScore %>%</span><% } %>
-      </div>
-
-      <!-- Ações -->
-      <div class="lead-actions">
-        <% if(telefone) { %>
-        <a href="https://wa.me/55<%= telefone %>" target="_blank" class="btn-acao wa">WhatsApp</a>
-        <% } %>
-        <% if(matchCount) { %>
-        <a href="/cliente/oferta/<%= item.leadId || item.id %>?userId=<%= encodeURIComponent(item.userId || item.usuarioId || item.corretorId || '') %>" class="btn-acao red">Ver vitrine</a>
-        <a href="https://wa.me/55<%= telefone %>?text=<%= encodeURIComponent('Olá ' + (item.nome || '') + '! Veja sua vitrine: https://matchimoveis.onrender.com/cliente/oferta/' + (item.leadId || item.id) + '?userId=' + encodeURIComponent(item.userId || item.usuarioId || item.corretorId || '')) %>" target="_blank" class="btn-acao wa">Enviar vitrine</a>
-        <% } %>
-        <a href="/app/lead/<%= item.id %>" class="btn-acao dark">Ver detalhes →</a>
-        <button onclick="confirmarExcluir('<%= item.id %>')" class="btn-acao" style="color:#ef4444;border-color:#fca5a5;">Excluir</button>
-      </div>
-      <div id="confirm-<%= item.id %>" style="display:none;margin-top:8px;padding:8px 10px;background:#fef2f2;border-radius:8px;border:1px solid #fca5a5;">
-        <div style="font-size:12px;color:#991b1b;margin-bottom:6px;font-weight:600;">O que deseja fazer?</div>
-        <div style="display:flex;gap:6px;">
-          <button onclick="excluirLead('<%= item.id %>')" style="font-size:11px;padding:4px 10px;background:#ef4444;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Só excluir</button>
-          <button onclick="bloquearLead('<%= item.id %>')" style="font-size:11px;padding:4px 10px;background:#374151;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Excluir e bloquear</button>
-          <button onclick="document.getElementById('confirm-<%= item.id %>').style.display='none'" style="font-size:11px;padding:4px 10px;background:#f3f4f6;color:#374151;border:none;border-radius:6px;cursor:pointer;">Cancelar</button>
-        </div>
-      </div>
-
-    </div>
-    <% }) %>
-  </div>
-
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi-sm"><div class="bar" style="background:var(--brand)"></div><div style="font-size:10px;font-weight:500;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Total</div><div style="font-size:26px;font-weight:700;color:var(--dark);letter-spacing:-1px"><%= stats.totalLeads %></div></div>
+  <div class="kpi-sm"><div class="bar" style="background:#22c55e"></div><div style="font-size:10px;font-weight:500;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Com match</div><div style="font-size:26px;font-weight:700;color:#16a34a;letter-spacing:-1px"><%= stats.comMatch %></div></div>
+  <div class="kpi-sm"><div class="bar" style="background:#9ca3af"></div><div style="font-size:10px;font-weight:500;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Sem match</div><div style="font-size:26px;font-weight:700;color:var(--dark);letter-spacing:-1px"><%= stats.pendentes %></div></div>
+  <div class="kpi-sm"><div class="bar" style="background:#7c3aed"></div><div style="font-size:10px;font-weight:500;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Matches IA</div><div style="font-size:26px;font-weight:700;color:#7c3aed;letter-spacing:-1px"><%= stats.totalMatches %></div></div>
 </div>
 
-<script>
-(() => {
-  const status = document.getElementById('filter-status');
-  const score = document.getElementById('filter-score');
-  const search = document.getElementById('filter-search');
-  const cards = Array.from(document.querySelectorAll('.excel-card'));
-  const counter = document.getElementById('filter-counter');
+<!-- Filtros -->
+<div class="card" style="margin-bottom:16px;padding:14px">
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <input id="filter-search" type="text" placeholder="Buscar por nome, celular, bairro..." oninput="aplicarFiltros()" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px">
+    <button onclick="toggleFAdv()" class="btn btn-outline btn-sm">⚙️ Filtros</button>
+    <button onclick="rodarMatchBase()" id="btn-match-base" class="btn btn-dark btn-sm">Match IA</button>
+    <button onclick="abrirModalImportarLeads()" class="btn btn-primary btn-sm">+ Importar</button>
+  </div>
 
-  function applyFilters() {
-    let visible = 0;
-    cards.forEach(card => {
-      const sv = status ? status.value : 'all';
-      const origem = card.dataset.origem || 'importada';
-      const statusOk = sv === 'all' || card.dataset.status === sv ||
-        (sv === 'organica' && origem === 'pagina_externa_imovel') ||
-        (sv === 'importada' && origem !== 'pagina_externa_imovel');
-      const minScore = parseInt(score?.value || '0');
-      const scoreOk = parseInt(card.dataset.score || '0') >= minScore;
-      const query = (search?.value || '').toLowerCase().trim();
-      const searchOk = !query || (card.dataset.search || '').includes(query);
-      const ok = statusOk && scoreOk && searchOk;
-      card.style.display = ok ? '' : 'none';
-      if (ok) visible++;
-    });
-    if (counter) counter.textContent = visible + ' de ' + cards.length + ' leads';
-  }
+  <div class="chips-row">
+    <span class="chips-lbl">Status</span>
+    <button class="fchip on" onclick="setChip('status','all',this)">Todos</button>
+    <button class="fchip" onclick="setChip('status','with_matches',this)">Com match</button>
+    <button class="fchip" onclick="setChip('status','without_matches',this)">Sem match</button>
+    <button class="fchip" onclick="setChip('status','organica',this)">Orgânica</button>
+    <button class="fchip" onclick="setChip('status','importada',this)">Importada</button>
+  </div>
+  <div class="chips-row">
+    <span class="chips-lbl">Temperatura</span>
+    <button class="fchip on" onclick="setChip('temp','',this)">Todas</button>
+    <button class="fchip" onclick="setChip('temp','quente',this)" style="color:#dc2626;border-color:#fca5a5">Quente</button>
+    <button class="fchip" onclick="setChip('temp','morno',this)" style="color:#d97706;border-color:#fcd34d">Morno</button>
+    <button class="fchip" onclick="setChip('temp','frio',this)" style="color:#2563eb;border-color:#bfdbfe">Frio</button>
+  </div>
+  <div class="chips-row">
+    <span class="chips-lbl">Etapa</span>
+    <button class="fchip on" onclick="setChip('etapa','',this)">Todas</button>
+    <button class="fchip" onclick="setChip('etapa','proposta',this)">Proposta</button>
+    <button class="fchip" onclick="setChip('etapa','visita',this)">Visita</button>
+    <button class="fchip" onclick="setChip('etapa','vitrine',this)">Vitrine</button>
+    <button class="fchip" onclick="setChip('etapa','novo',this)">Novo</button>
+  </div>
 
-  [status, score, search].forEach(el => {
-    if (!el) return;
-    el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', applyFilters);
-  });
-  applyFilters();
-})();
+  <div class="fadv" id="fadv">
+    <div class="fadv-grid">
+      <div><label>Score mínimo</label><select id="filter-score" onchange="aplicarFiltros()"><option value="0">Todos</option><option value="20">20+</option><option value="40">40+</option><option value="60">60+</option><option value="80">80+</option></select></div>
+      <div><label>Tipo buscado</label><select id="filter-tipo-lead" onchange="aplicarFiltros()"><option value="">Todos</option><option value="apartamento">Apartamento</option><option value="casa">Casa</option><option value="cobertura">Cobertura</option><option value="studio">Studio</option><option value="kitnet">Kitnet</option><option value="terreno">Terreno</option><option value="sala">Sala</option></select></div>
+      <div><label>Intenção</label><select id="filter-intencao" onchange="aplicarFiltros()"><option value="">Todas</option><option value="comprar">Comprar</option><option value="alugar">Alugar</option><option value="investir">Investir</option></select></div>
+      <div><label>Origem</label><select id="filter-origem" onchange="aplicarFiltros()"><option value="">Todas</option><option value="whatsapp">WhatsApp</option><option value="pagina_externa_imovel">Página imóvel</option><option value="manual">Manual</option></select></div>
+      <div><label>Sem contato</label><select id="filter-sem-contato" onchange="aplicarFiltros()"><option value="">Qualquer</option><option value="3">3+ dias</option><option value="7">7+ dias</option><option value="15">15+ dias</option><option value="30">30+ dias</option></select></div>
+    </div>
+    <button onclick="limparFiltros()" class="btn btn-outline btn-sm" style="margin-top:10px">Limpar filtros</button>
+  </div>
 
-function rodarMatchBase(){
-  const btn = document.getElementById('btn-match-base');
-  btn.disabled = true;
-  btn.textContent = '⏳ Rodando match...';
-  fetch('/admin/rodar-match/<%= userId %>')
-    .then(r=>r.json())
-    .then(d=>{
-      btn.textContent = '🎯 Match Base Interna';
-      btn.disabled = false;
-      if(d.ok){
-        alert('✅ Match concluído!\n\n🎯 Com match: '+d.comMatch+'\n😶 Sem match: '+d.semMatch+'\n📋 Total: '+d.total);
-        location.reload();
-      } else {
-        alert('Erro: '+d.error);
-      }
-    })
-    .catch(()=>{ btn.textContent='🎯 Match Base Interna'; btn.disabled=false; alert('Erro de conexão'); });
-}
+  <div id="filter-counter" style="font-size:11px;color:var(--text-ter);margin-top:8px"></div>
+</div>
 
-function abrirModalImportarLeads(){
-  const m = document.getElementById('modal-importar-leads');
-  if(m) m.style.display = 'flex';
-}
-function fecharModalImportarLeads(){
-  const m = document.getElementById('modal-importar-leads');
-  if(m) m.style.display = 'none';
-}
-</script>
+<!-- Grid de leads -->
+<div id="results-list" class="lead-grid">
+<% leads.forEach((item) => {
+  const origin = item.origin || {};
+  const status = (item.matches||[]).length ? 'with_matches' : 'without_matches';
+  const matchCount = (item.matches||[]).length;
+  const bestScore = item.bestScore || (item.matches&&item.matches[0]?item.matches[0].score:0)||0;
+  const isOrganica = item.origem==='pagina_externa_imovel';
+  const isWhatsapp = item.origem==='whatsapp';
+  const telefone = String(item.contato||item.telefone||'').replace(/\D/g,'');
+  const _mat = (item.matches||[]).length+(item.matchesAuto||[]).length;
+  const _msgs = (item.mensagens||[]).filter(m=>m.de==='cliente').length;
+  const _fase = item.faseFunil||'novo';
+  const _vitrine = !!item.vitrineEnviada;
+  const _semRespDias = item.ultimaMensagemEm?Math.floor((Date.now()-new Date(item.ultimaMensagemEm).getTime())/86400000):999;
+  const _perfil = item.perfilIA||{};
+  const _perfilOk = !!(_perfil.tipo&&_perfil.quartos);
+  let _acao=null,_acaoLabel='',_acaoCor='',_urg='';
+  if(_fase==='decidido'){_acao='fechar';_acaoLabel='Fechar negócio';_acaoCor='background:#f0fdf4;color:#166534;border:1px solid #86efac';_urg='alta';}
+  else if(_fase==='interessado'&&_mat>0){_acao='visita';_acaoLabel='Agendar visita';_acaoCor='background:#f0fdf4;color:#14532d;border:1px solid #4ade80';_urg='alta';}
+  else if(_mat>0&&!_vitrine){_acao='vitrine';_acaoLabel='Enviar vitrine';_acaoCor='background:var(--brand-light);color:var(--brand);border:1px solid #fda4af';_urg='alta';}
+  else if(_mat>0&&_vitrine&&_semRespDias>=3){_acao='followup';_acaoLabel='Follow-up — '+_semRespDias+'d';_acaoCor='background:#fff7ed;color:#9a3412;border:1px solid #fdba74';_urg='media';}
+  else if(_mat>0&&_vitrine){_acao='aguardando';_acaoLabel='Vitrine enviada';_acaoCor='background:#eff6ff;color:#1e40af;border:1px solid #93c5fd';_urg='';}
+  else if(!_perfilOk&&_msgs>0){_acao='qualificar';_acaoLabel='Qualificar';_acaoCor='background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd';_urg='baixa';}
+  else if(_perfilOk&&_mat===0){_acao='match';_acaoLabel='Rodar match';_acaoCor='background:#f5f3ff;color:#5b21b6;border:1px solid #c4b5fd';_urg='baixa';}
+  else if(_msgs===0){_acao='contato';_acaoLabel='Iniciar contato';_acaoCor='background:#fffbeb;color:#92400e;border:1px solid #fcd34d';_urg='media';}
+  const _sj = item.score||0;
+  const _sjCor = _sj>=70?'#16a34a':_sj>=40?'#d97706':'#9ca3af';
+%>
+<div class="lead-card <%= _urg==='alta'?'urg-alta':_urg==='media'?'urg-media':_urg==='baixa'?'urg-baixa':'' %>"
+  data-status="<%= status %>"
+  data-score="<%= _sj %>"
+  data-temperatura="<%= item.temperatura||'frio' %>"
+  data-etapa="<%= _fase %>"
+  data-search="<%= [item.nome,item.contato,item.telefone,item.email,item.bairro,_perfil.bairro].filter(Boolean).join(' ').toLowerCase() %>"
+  data-tipo-lead="<%= (_perfil.tipo||'').toLowerCase() %>"
+  data-intencao="<%= (_perfil.intencao||'').toLowerCase() %>"
+  data-origem="<%= item.origem||'importada' %>"
+  data-ultima-msg-em="<%= item.ultimaMensagemEm||'' %>">
 
-<!-- MODAL IMPORTAR LEADS -->
-<div id="modal-importar-leads" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999999;align-items:center;justify-content:center;padding:20px">
-  <div style="background:white;border-radius:22px;max-width:780px;width:100%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.25)">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px">
+  <!-- Ação prioritária -->
+  <% if(_acao) { %>
+  <div class="acao-badge" style="<%= _acaoCor %>"><%= _acaoLabel %></div>
+  <% } %>
+
+  <!-- Nome + origem -->
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+    <a href="/app/lead/<%= item.id %>" class="lead-nome"><%= item.nome||item.clientName||telefone||'Lead' %></a>
+    <span class="origem-badge" style="<%= isOrganica?'background:#e0f2fe;color:#0369a1':isWhatsapp?'background:#f0fdf4;color:#166534':'background:var(--bg);color:var(--text-ter)' %>">
+      <%= isOrganica?'Web':isWhatsapp?'WhatsApp':'Import' %>
+    </span>
+  </div>
+
+  <!-- Score + temperatura -->
+  <div class="score-row">
+    <div class="score-pill">
+      <div class="score-bar"><div class="score-fill" style="width:<%= _sj %>%;background:<%= _sjCor %>"></div></div>
+      <span style="font-size:10px;font-weight:700;color:<%= _sjCor %>"><%= _sj %></span>
+      <span style="font-size:9px;color:var(--text-ter)"><%= item.scoreEtapa||'Novo' %></span>
+    </div>
+    <% if(item.temperatura) { %>
+    <span class="temp-pill" style="background:<%= item.temperatura==='quente'?'#fee2e2':item.temperatura==='morno'?'#fef3c7':'#eff6ff' %>;color:<%= item.temperatura==='quente'?'#991b1b':item.temperatura==='morno'?'#92400e':'#1e40af' %>"><%= item.temperatura==='quente'?'🔥':item.temperatura==='morno'?'🌡':'❄️' %> <%= item.temperatura %></span>
+    <% } %>
+    <% if(_mat>0) { %>
+    <span style="font-size:10px;font-weight:600;color:#16a34a;background:#f0fdf4;border-radius:5px;padding:2px 7px"><%= _mat %> match<%= _mat>1?'es':'' %></span>
+    <% } %>
+  </div>
+
+  <!-- Perfil IA -->
+  <% if(_perfil&&Object.keys(_perfil).length) { %>
+  <div class="perfil-row">
+    <% if(_perfil.tipo){%><span class="perfil-tag"><%= _perfil.tipo %></span><%}%>
+    <% if(_perfil.quartos){%><span class="perfil-tag"><%= _perfil.quartos %>q</span><%}%>
+    <% if(_perfil.bairro){%><span class="perfil-tag"><%= _perfil.bairro %></span><%}%>
+    <% if(_perfil.valorMax){%><span class="perfil-tag">R$<%= Math.round(Number(_perfil.valorMax)/1000) %>k</span><%}%>
+    <% if(_perfil.intencao){%><span class="perfil-tag"><%= _perfil.intencao %></span><%}%>
+  </div>
+  <% } %>
+
+  <!-- Última mensagem -->
+  <% if(item.ultimaMensagem) { %>
+  <div class="ultima-msg"><%= item.ultimaMensagem.substring(0,80) %></div>
+  <% } %>
+
+  <!-- Ações -->
+  <div class="lead-btns">
+    <% if(telefone) { %>
+    <a href="https://wa.me/55<%= telefone %>" target="_blank" class="lb wa">WhatsApp</a>
+    <% } %>
+    <% if(matchCount) { %>
+    <a href="/cliente/oferta/<%= item.leadId||item.id %>?userId=<%= encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'') %>" class="lb prim">Vitrine</a>
+    <% } %>
+    <a href="/app/lead/<%= item.id %>" class="lb dark">Ver →</a>
+    <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">Excluir</button>
+  </div>
+  <div class="confirm-box" id="confirm-<%= item.id %>">
+    <div style="font-size:11px;color:#991b1b;margin-bottom:6px;font-weight:600">O que deseja?</div>
+    <div style="display:flex;gap:5px">
+      <button onclick="excluirLead('<%= item.id %>')" class="lb danger" style="font-size:10px">Só excluir</button>
+      <button onclick="bloquearLead('<%= item.id %>')" class="lb" style="font-size:10px;background:var(--dark);color:#fff;border-color:var(--dark)">Excluir e bloquear</button>
+      <button onclick="document.getElementById('confirm-<%= item.id %>').style.display='none'" class="lb" style="font-size:10px">Cancelar</button>
+    </div>
+  </div>
+</div>
+<% }) %>
+</div>
+
+<div id="leads-empty" style="display:none;text-align:center;padding:60px 20px;color:var(--text-ter)">
+  <div style="font-size:36px;margin-bottom:12px;opacity:.3">👥</div>
+  <div style="font-size:14px;font-weight:500;color:var(--text-sec);margin-bottom:4px">Nenhuma lead encontrada</div>
+  <div style="font-size:12px">Ajuste os filtros ou importe novas leads</div>
+</div>
+
+<!-- Modal importar -->
+<div id="modal-importar-leads" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:var(--radius-lg);max-width:520px;width:100%;padding:24px;box-shadow:var(--shadow-md)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <div>
-        <div style="font-size:22px;font-weight:900;color:#111">📥 Importar leads</div>
-        <div style="font-size:13px;color:#717171;margin-top:4px">A planilha deve estar na horizontal, com os cabeçalhos na primeira linha.</div>
+        <div style="font-size:15px;font-weight:600;color:var(--dark)">Importar leads</div>
+        <div style="font-size:12px;color:var(--text-sec);margin-top:2px">CSV ou Excel com cabeçalhos na primeira linha</div>
       </div>
-      <button type="button" onclick="fecharModalImportarLeads()" style="border:0;background:#f3f4f6;border-radius:999px;width:36px;height:36px;font-size:20px;cursor:pointer">×</button>
+      <button onclick="fecharModalImportarLeads()" style="background:var(--bg);border:1px solid var(--border);border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:16px">×</button>
     </div>
     <form method="POST" action="/process" enctype="multipart/form-data">
-      <input type="file" name="file" accept=".xlsx,.xls,.csv" required style="width:100%;border:1px solid #ddd;border-radius:12px;padding:12px;margin-bottom:12px">
-      <button type="submit" style="width:100%;border:0;background:#ff385c;color:white;border-radius:14px;padding:14px;font-weight:900;cursor:pointer">
-        Enviar planilha e importar leads
-      </button>
+      <input type="file" name="file" accept=".xlsx,.xls,.csv" required style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:12px;font-size:13px">
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:11px">Importar planilha</button>
     </form>
   </div>
 </div>
 
-<%- include('partials/app-end') %>
 <script>
-function confirmarExcluir(id, nome) {
-  document.querySelectorAll('[id^="confirm-"]').forEach(el => el.style.display = 'none');
-  document.getElementById('confirm-' + id).style.display = 'block';
+const _fl = { status:'all', temp:'', etapa:'' };
+
+function setChip(campo, valor, btn) {
+  _fl[campo] = valor;
+  btn.parentElement.querySelectorAll('.fchip').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  aplicarFiltros();
 }
-async function excluirLead(id) {
-  const r = await fetch('/app/lead/' + id, { method: 'DELETE' });
-  const d = await r.json();
-  if (d.ok) location.reload();
-  else alert('Erro: ' + d.erro);
+
+function toggleFAdv() {
+  const el = document.getElementById('fadv');
+  el.style.display = el.style.display==='none'?'block':'none';
 }
-async function bloquearLead(id) {
-  const r = await fetch('/app/lead/' + id + '/bloquear', { method: 'POST' });
-  const d = await r.json();
-  if (d.ok) location.reload();
-  else alert('Erro: ' + d.erro);
+
+function limparFiltros() {
+  _fl.status='all'; _fl.temp=''; _fl.etapa='';
+  document.getElementById('filter-search').value='';
+  ['filter-score','filter-tipo-lead','filter-intencao','filter-origem','filter-sem-contato'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=el.tagName==='SELECT'?el.options[0].value:'';});
+  document.querySelectorAll('.fchip').forEach(b=>{b.classList.remove('on');if(b.textContent.trim()==='Todos'||b.textContent.trim()==='Todas')b.classList.add('on');});
+  aplicarFiltros();
 }
+
+function aplicarFiltros() {
+  const busca = (document.getElementById('filter-search')?.value||'').toLowerCase();
+  const scoreMin = parseInt(document.getElementById('filter-score')?.value||'0');
+  const tipoLead = (document.getElementById('filter-tipo-lead')?.value||'').toLowerCase();
+  const intencao = (document.getElementById('filter-intencao')?.value||'').toLowerCase();
+  const origem = (document.getElementById('filter-origem')?.value||'').toLowerCase();
+  const semContato = parseInt(document.getElementById('filter-sem-contato')?.value||'0');
+  const hoje = Date.now();
+  const cards = document.querySelectorAll('.lead-card');
+  let vis = 0;
+
+  cards.forEach(card => {
+    let ok = true;
+    const status = card.dataset.status||'';
+    const origemCard = (card.dataset.origem||'').toLowerCase();
+
+    if (_fl.status!=='all') {
+      if(_fl.status==='with_matches'&&status!=='with_matches') ok=false;
+      if(_fl.status==='without_matches'&&status!=='without_matches') ok=false;
+      if(_fl.status==='organica'&&origemCard!=='pagina_externa_imovel') ok=false;
+      if(_fl.status==='importada'&&origemCard==='pagina_externa_imovel') ok=false;
+    }
+    if(_fl.temp&&card.dataset.temperatura!==_fl.temp) ok=false;
+    if(_fl.etapa){
+      const e=(card.dataset.etapa||'').toLowerCase();
+      if(_fl.etapa==='proposta'&&!e.includes('decid')) ok=false;
+      if(_fl.etapa==='visita'&&!e.includes('interes')) ok=false;
+      if(_fl.etapa==='vitrine'&&!e.includes('qualif')) ok=false;
+      if(_fl.etapa==='novo'&&e!=='novo') ok=false;
+    }
+    if(parseInt(card.dataset.score||'0')<scoreMin) ok=false;
+    if(busca&&!(card.dataset.search||'').includes(busca)) ok=false;
+    if(tipoLead&&!(card.dataset.tipoLead||'').includes(tipoLead)) ok=false;
+    if(intencao&&!(card.dataset.intencao||'').includes(intencao)) ok=false;
+    if(origem&&!(card.dataset.origem||'').includes(origem)) ok=false;
+    if(semContato>0&&card.dataset.ultimaMsgEm){
+      const dias=Math.floor((hoje-new Date(card.dataset.ultimaMsgEm).getTime())/86400000);
+      if(dias<semContato) ok=false;
+    }
+    card.style.display = ok?'':'none';
+    if(ok) vis++;
+  });
+
+  const counter = document.getElementById('filter-counter');
+  if(counter) counter.textContent = vis + ' leads exibidas';
+  const empty = document.getElementById('leads-empty');
+  if(empty) empty.style.display = vis===0?'block':'none';
+}
+
+function rodarMatchBase() {
+  const btn = document.getElementById('btn-match-base');
+  btn.disabled=true; btn.textContent='Rodando...';
+  fetch('/admin/rodar-match/<%= userId %>')
+    .then(r=>r.json())
+    .then(d=>{
+      btn.textContent='Match IA'; btn.disabled=false;
+      if(d.ok){alert('Match concluído!\nCom match: '+d.comMatch+'\nSem match: '+d.semMatch);location.reload();}
+      else alert('Erro: '+d.error);
+    })
+    .catch(()=>{btn.textContent='Match IA';btn.disabled=false;});
+}
+
+function abrirModalImportarLeads(){document.getElementById('modal-importar-leads').style.display='flex';}
+function fecharModalImportarLeads(){document.getElementById('modal-importar-leads').style.display='none';}
+
+function confirmarExcluir(id) {
+  document.querySelectorAll('.confirm-box').forEach(el=>el.style.display='none');
+  document.getElementById('confirm-'+id).style.display='block';
+}
+async function excluirLead(id){const r=await fetch('/app/lead/'+id,{method:'DELETE'});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
+async function bloquearLead(id){const r=await fetch('/app/lead/'+id+'/bloquear',{method:'POST'});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
+
+window.addEventListener('DOMContentLoaded', aplicarFiltros);
 </script>
+
+<%- include('partials/app-end') %>

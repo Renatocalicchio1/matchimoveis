@@ -1,8 +1,174 @@
-<%- include('partials/app-shell',{active:'portais',title:'Portais e XML',subtitle:'Habilite os portais e gere XML separado para cada canal.',perfil:'corretor'}) %>
+<%- include('partials/app-shell',{active:'portais',title:'Portais e XML',subtitle:'Gere feeds XML para cada portal de imóveis.',user:user}) %>
+
+<style>
+.portal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:24px}
+.portal-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;transition:all .15s}
+.portal-card:hover{border-color:var(--dark);box-shadow:var(--shadow)}
+.portal-card.ativo{border-color:var(--brand);background:var(--brand-light)}
+.portal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.portal-nome{font-size:14px;font-weight:600;color:var(--dark)}
+.portal-desc{font-size:11px;color:var(--text-ter);margin-bottom:12px;line-height:1.5}
+.portal-url{display:flex;gap:6px;margin-top:10px}
+.portal-url input{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:11px;background:var(--bg);color:var(--text-sec);font-family:monospace}
+.portal-url button{background:var(--dark);color:#fff;border:none;padding:7px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:20px;cursor:pointer;transition:.2s}
+.toggle input:checked+.toggle-slider{background:var(--brand)}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-slider::before{transform:translateX(16px)}
+.url-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:8px}
+.url-row{display:flex;align-items:center;gap:8px}
+.url-text{flex:1;font-size:11px;color:var(--text-sec);font-family:monospace;word-break:break-all;line-height:1.5}
+.copy-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:10px;font-weight:600;cursor:pointer;color:var(--text-sec);white-space:nowrap;transition:all .1s}
+.copy-btn:hover{background:var(--dark);color:#fff;border-color:var(--dark)}
+</style>
+
+<%
+const userId = user && user.id ? user.id : '';
+const baseUrl = typeof BASE_URL !== 'undefined' ? BASE_URL : 'https://matchimoveis.onrender.com';
+const portais = [
+  { id:'vivareal', nome:'VivaReal', desc:'Feed padrão VRSync. Compatível com VivaReal e portais do grupo OLX.' },
+  { id:'zap', nome:'ZAP Imóveis', desc:'Feed para o ZAP Imóveis. Um dos maiores portais do Brasil.' },
+  { id:'olx', nome:'OLX', desc:'Feed para listagem no OLX Imóveis.' },
+  { id:'chaves', nome:'Chaves na Mão', desc:'Feed para o portal Chaves na Mão.' },
+  { id:'imovelweb', nome:'ImovelWeb', desc:'Feed para o ImovelWeb.' },
+  { id:'123i', nome:'123i', desc:'Feed para o portal 123i.' },
+  { id:'quintoandar', nome:'QuintoAndar', desc:'Feed no formato QuintoAndar com regras de match avançadas.' },
+];
+%>
+
+<div class="portal-grid">
+  <% portais.forEach(p => {
+    const feedUrl = baseUrl + '/feed-' + p.id + '-' + userId + '.xml';
+  %>
+  <div class="portal-card" id="card-<%= p.id %>">
+    <div class="portal-hd">
+      <div class="portal-nome"><%= p.nome %></div>
+      <label class="toggle">
+        <input type="checkbox" onchange="gerarFeed('<%= p.id %>', this.checked)" id="tog-<%= p.id %>">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="portal-desc"><%= p.desc %></div>
+    <div id="url-<%= p.id %>" style="display:none">
+      <div class="url-box">
+        <div style="font-size:10px;font-weight:600;color:var(--text-ter);margin-bottom:6px">URL DO FEED XML</div>
+        <div class="url-row">
+          <div class="url-text"><%= feedUrl %></div>
+          <button class="copy-btn" onclick="copiar('<%= feedUrl %>', this)">Copiar</button>
+        </div>
+      </div>
+      <button onclick="gerarAgora('<%= p.id %>')" class="btn btn-outline btn-sm" style="margin-top:8px;width:100%">↻ Gerar agora</button>
+    </div>
+    <div id="status-<%= p.id %>" style="font-size:11px;color:var(--text-ter);margin-top:6px"></div>
+  </div>
+  <% }) %>
+</div>
 
 <div class="card">
-  <h3>Portais / XML</h3>
-  <p class="small">Configure os canais de envio XML.</p>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--dark)">Gerar todos os feeds</div>
+      <div style="font-size:11px;color:var(--text-ter);margin-top:2px">Atualiza os XMLs de todos os portais com os imóveis ativos</div>
+    </div>
+    <button onclick="gerarTodos()" class="btn btn-primary">Gerar todos</button>
+  </div>
+  <div id="status-geral" style="display:none;padding:10px 12px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--text-sec)"></div>
 </div>
+
+<script>
+const BASE = '<%= baseUrl %>';
+const UID = '<%= userId %>';
+
+async function gerarFeed(portal, ativo) {
+  const card = document.getElementById('card-'+portal);
+  const urlBox = document.getElementById('url-'+portal);
+  const status = document.getElementById('status-'+portal);
+
+  if (!ativo) { urlBox.style.display='none'; card.classList.remove('ativo'); return; }
+
+  card.classList.add('ativo');
+  status.textContent = 'Gerando...';
+
+  try {
+    const r = await fetch('/app/gerar-xml', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ portal, ids: [] })
+    });
+    const d = await r.json();
+    if (d.ok || d.url) {
+      urlBox.style.display = 'block';
+      status.textContent = (d.total||0) + ' imóveis incluídos';
+    } else {
+      status.textContent = 'Erro: ' + (d.error||'falha');
+      card.classList.remove('ativo');
+      document.getElementById('tog-'+portal).checked = false;
+    }
+  } catch(e) {
+    status.textContent = 'Erro de conexão';
+    card.classList.remove('ativo');
+    document.getElementById('tog-'+portal).checked = false;
+  }
+}
+
+async function gerarAgora(portal) {
+  const status = document.getElementById('status-'+portal);
+  status.textContent = 'Atualizando...';
+  try {
+    const r = await fetch('/app/gerar-xml', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ portal, ids: [] })
+    });
+    const d = await r.json();
+    status.textContent = (d.total||0) + ' imóveis — atualizado agora';
+  } catch(e) { status.textContent = 'Erro'; }
+}
+
+async function gerarTodos() {
+  const portais = ['vivareal','zap','olx','chaves','imovelweb','123i','quintoandar'];
+  const el = document.getElementById('status-geral');
+  el.style.display = 'block';
+  el.textContent = 'Gerando feeds...';
+
+  let ok = 0;
+  for (const p of portais) {
+    try {
+      const r = await fetch('/app/gerar-xml', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ portal: p, ids: [] })
+      });
+      const d = await r.json();
+      if (d.ok || d.url) {
+        ok++;
+        document.getElementById('tog-'+p).checked = true;
+        document.getElementById('url-'+p).style.display = 'block';
+        document.getElementById('card-'+p).classList.add('ativo');
+        document.getElementById('status-'+p).textContent = (d.total||0) + ' imóveis';
+      }
+    } catch(e) {}
+  }
+  el.textContent = ok + ' feeds gerados com sucesso';
+}
+
+function copiar(texto, btn) {
+  navigator.clipboard.writeText(texto).then(() => {
+    btn.textContent = 'Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+  }).catch(() => {
+    const input = document.createElement('input');
+    input.value = texto;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    btn.textContent = 'Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+  });
+}
+</script>
 
 <%- include('partials/app-end') %>

@@ -1,76 +1,153 @@
-<%- include('partials/app-shell',{active:'imoveis',title:'Meus imóveis',subtitle:'🤖 Base indexada pela IA — pronta para match com leads.',perfil:'corretor'}) %>
+<%- include('partials/app-shell',{active:'imoveis',title:'Meus Imóveis',subtitle:'Base indexada pela IA — pronta para match com leads.',user:user}) %>
 
-<div id="barra-selecao" style="display:none;position:sticky;top:0;z-index:100;background:#1A1A1A;color:#fff;padding:14px 20px;border-radius:12px;margin-bottom:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,0.2)">
-  <div style="display:flex;align-items:center;gap:12px">
-    <span id="contador-sel" style="font-weight:700;font-size:15px">0 selecionados</span>
-    <button onclick="deselectAll()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;padding:5px 12px;border-radius:8px;cursor:pointer;font-size:12px">✕ Limpar</button>
+<style>
+.im-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.im-stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.im-stat{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:var(--bg);border:1px solid var(--border);color:var(--text-sec)}
+.im-stat.verde{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
+.im-stat.vermelho{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.im-stat.azul{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}
+.chips-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+.chips-lbl{font-size:10px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+.chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--text-sec);transition:all .1s}
+.chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.chip:hover{border-color:var(--dark)}
+.filtros-adv{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light)}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.fg label{font-size:11px;font-weight:500;color:var(--text-sec);display:block;margin-bottom:4px}
+.fg input,.fg select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;box-sizing:border-box}
+.barra-sel{display:none;position:sticky;top:0;z-index:50;background:var(--dark);color:#fff;padding:12px 16px;border-radius:10px;margin-bottom:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.barra-portais{display:flex;gap:6px;flex-wrap:wrap}
+.portal-btn-sel{background:rgba(255,255,255,.12);border:none;color:#fff;padding:7px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:600;transition:background .1s}
+.portal-btn-sel:hover{background:rgba(255,255,255,.2)}
+.im-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.im-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:all .15s}
+.im-card:hover{border-color:#c4b5fd;box-shadow:var(--shadow-md)}
+.im-card.sel{border-color:#7c3aed;box-shadow:0 0 0 2px #7c3aed33}
+.im-img{position:relative;width:100%;height:130px;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.im-img img{width:100%;height:100%;object-fit:cover}
+.im-img-ic{font-size:28px;opacity:.25}
+.im-check{position:absolute;top:8px;left:8px;width:20px;height:20px;border-radius:5px;border:2px solid rgba(255,255,255,.8);background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center}
+.im-check.on{background:#7c3aed;border-color:#7c3aed}
+.im-badge-status{position:absolute;top:8px;right:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
+.im-body{padding:12px;display:flex;flex-direction:column;flex:1}
+.im-tipo{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;background:var(--brand-light);color:var(--brand);margin-bottom:6px}
+.im-valor{font-size:16px;font-weight:700;color:var(--dark);letter-spacing:-.3px;margin-bottom:3px}
+.im-end{font-size:11px;color:var(--text-ter);margin-bottom:8px}
+.im-prop{font-size:11px;color:var(--text-sec);background:var(--bg);border:1px solid var(--border-light);border-radius:7px;padding:6px 8px;margin-bottom:8px;line-height:1.4}
+.im-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.im-tag{font-size:10px;color:var(--text-sec);background:var(--bg);border:1px solid var(--border-light);border-radius:5px;padding:2px 7px}
+.im-actions{display:flex;gap:6px;margin-top:auto}
+.im-btn{flex:1;text-align:center;font-size:11px;font-weight:600;padding:7px 8px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;transition:all .1s}
+.im-btn.ver{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.im-btn.ver:hover{background:#f0f0ee}
+.im-btn.edit{background:var(--brand);color:#fff}
+.im-btn.edit:hover{background:var(--brand-dark)}
+.im-empty{text-align:center;padding:60px 20px;color:var(--text-ter)}
+.modal-xml{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:20px}
+.modal-xml-box{background:#fff;border-radius:var(--radius-lg);padding:28px;max-width:480px;width:100%;text-align:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--dark);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+@media(max-width:900px){.im-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.im-grid{grid-template-columns:1fr}}
+</style>
+
+<!-- Barra de seleção -->
+<div class="barra-sel" id="barra-sel">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="cnt-sel" style="font-size:13px;font-weight:600">0 selecionados</span>
+    <button onclick="deselectAll()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">✕ Limpar</button>
   </div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button onclick="gerarXML('vivareal')" style="background:#1A1A1A;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 VivaReal</button>
-    <button onclick="gerarXML('zap')" style="background:#555;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 ZAP</button>
-    <button onclick="gerarXML('olx')" style="background:#333;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 OLX</button>
-    <button onclick="gerarXML('chaves')" style="background:#444;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 Chaves</button>
-    <button onclick="gerarXML('imovelweb')" style="background:#666;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 ImovelWeb</button>
-<button class="portal-btn" data-portal="quintoandar">🤍 QuintoAndar</button>
-    <button onclick="gerarXML('123i')" style="background:#777;border:none;color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">📡 123i</button>
+  <div class="barra-portais">
+    <button class="portal-btn-sel" onclick="gerarXML('vivareal')">VivaReal</button>
+    <button class="portal-btn-sel" onclick="gerarXML('zap')">ZAP</button>
+    <button class="portal-btn-sel" onclick="gerarXML('olx')">OLX</button>
+    <button class="portal-btn-sel" onclick="gerarXML('chaves')">Chaves</button>
+    <button class="portal-btn-sel" onclick="gerarXML('imovelweb')">ImovelWeb</button>
+    <button class="portal-btn-sel" onclick="gerarXML('quintoandar')">QuintoAndar</button>
+    <button class="portal-btn-sel" onclick="gerarXML('123i')">123i</button>
   </div>
 </div>
 
-<div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 16px 0;flex-wrap:wrap;gap:8px">
-  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600;background:#f3f4f6;padding:8px 14px;border-radius:8px;border:1px solid #e5e7eb">
-    <input type="checkbox" id="check-todos" onchange="toggleTodos(this)" style="width:16px;height:16px;cursor:pointer">
-    Selecionar todos
-  </label>
-  <!-- <a href="/app/imoveis/exportar-excel" class="btn btn-primary" style="text-decoration:none">📥 Baixar planilha</a> -->
-</div>
-
-<div class="card">
-  <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap">
-    <span><strong><%= typeof imoveis !== 'undefined' ? imoveis.length : 0 %></strong> imóveis indexados pela IA</span>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <input id="busca" placeholder="🔎 Buscar..." oninput="filtrar()" style="padding:8px 12px;border:1px solid #ddd;border-radius:8px;min-width:220px">
-      <button class="btn light" type="button" onclick="toggleFiltros()">⚙️ Filtros avançados</button>
+<!-- Toolbar -->
+<div class="im-toolbar">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer">
+      <input type="checkbox" id="check-todos" onchange="toggleTodos(this)" style="width:14px;height:14px">
+      Selecionar todos
+    </label>
+    <div class="im-stats">
+      <span class="im-stat"><%= typeof imoveis !== 'undefined' ? imoveis.length : 0 %> total</span>
+      <span class="im-stat verde" id="count-ativos">—</span>
+      <span class="im-stat vermelho" id="count-inativos">—</span>
+      <span class="im-stat azul" id="count-sem-foto">—</span>
+      <span class="im-stat" id="count-sem-prop">—</span>
     </div>
   </div>
-  <div id="box-filtros" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #ebebeb">
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-      <div style="flex:1;min-width:120px"><label>Tipo</label>
-      <select id="f-tipo"><option value="">Todos</option><option value="apartamento">🏢 Apartamento</option><option value="casa">🏠 Casa</option><option value="cobertura">🏙️ Cobertura</option><option value="loft">🏗️ Loft</option><option value="studio">🛋️ Studio</option><option value="kitnet">🏡 Kitnet</option><option value="terreno">🟩 Terreno</option><option value="comercial">🏪 Comercial</option></select>
-      </div>
-      <div style="flex:1;min-width:120px"><label>Bairro</label><input id="f-bairro" placeholder="Vila Mariana"></div>
-      <div style="flex:1;min-width:120px"><label>Cidade</label><input id="f-cidade" placeholder="São Paulo"></div>
-      <div style="flex:1;min-width:100px"><label>Valor mín.</label><input id="f-valor-min" type="number"></div>
-      <div style="flex:1;min-width:100px"><label>Valor máx.</label><input id="f-valor-max" type="number"></div>
-      <div style="flex:0 0 80px"><label>Área m²</label><input id="f-area-min" type="number"></div>
-      <div style="flex:0 0 70px"><label>Quartos</label><input id="f-quartos" type="number"></div>
-      <div style="flex:0 0 70px"><label>Vagas</label><input id="f-vagas" type="number"></div>
-      <div style="flex:1;min-width:120px"><label>Operação</label>
-        <select id="f-operacao"><option value="">Todas</option><option value="venda">Venda</option><option value="aluguel">Aluguel</option></select>
-      </div>
-      <div style="flex:1;min-width:120px"><label>Status</label>
-        <select id="f-status"><option value="">Todos</option><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select>
-      </div>
-      <div style="flex:0 0 70px"><label>Suítes</label><input id="f-suites" type="number" min="0"></div>
-      <div style="flex:0 0 70px"><label>Banheiros</label><input id="f-banheiros" type="number" min="0"></div>
-      <div style="flex:1;min-width:120px"><label>Proprietário</label>
-        <select id="f-proprietario"><option value="">Todos</option><option value="sim">Com proprietário</option><option value="nao">Sem proprietário</option></select>
-      </div>
-      <div style="flex:1;min-width:120px"><label>Fotos</label>
-        <select id="f-fotos"><option value="">Todos</option><option value="sim">Com fotos</option><option value="nao">Sem fotos</option></select>
-      </div>
-      <div style="display:flex;gap:6px;align-items:flex-end">
-        <button class="btn btn-primary" onclick="filtrar()">Aplicar</button>
-        <button class="btn btn-outline" onclick="limpar()">Limpar</button>
-      </div>
+  <div style="display:flex;gap:8px">
+    <input id="busca" placeholder="Buscar imóvel..." oninput="filtrar()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;min-width:220px">
+    <button onclick="toggleFiltros()" class="btn btn-outline btn-sm">⚙️ Filtros</button>
+    <a href="/app/cadastro" class="btn btn-primary btn-sm">+ Cadastrar</a>
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="card" style="margin-bottom:14px;padding:14px">
+  <div class="chips-row">
+    <span class="chips-lbl">Tipo</span>
+    <button class="chip on" onclick="setChip('tipo','',this)">Todos</button>
+    <button class="chip" onclick="setChip('tipo','apartamento',this)">Apartamento</button>
+    <button class="chip" onclick="setChip('tipo','casa',this)">Casa</button>
+    <button class="chip" onclick="setChip('tipo','cobertura',this)">Cobertura</button>
+    <button class="chip" onclick="setChip('tipo','studio',this)">Studio</button>
+    <button class="chip" onclick="setChip('tipo','kitnet',this)">Kitnet</button>
+    <button class="chip" onclick="setChip('tipo','terreno',this)">Terreno</button>
+    <button class="chip" onclick="setChip('tipo','sala',this)">Sala</button>
+    <button class="chip" onclick="setChip('tipo','galpao',this)">Galpão</button>
+  </div>
+  <div class="chips-row">
+    <span class="chips-lbl">Transação</span>
+    <button class="chip on" onclick="setChip('operacao','',this)">Todas</button>
+    <button class="chip" onclick="setChip('operacao','venda',this)">Venda</button>
+    <button class="chip" onclick="setChip('operacao','aluguel',this)">Aluguel</button>
+    <button class="chip" onclick="setChip('operacao','temporada',this)">Temporada</button>
+  </div>
+  <div class="chips-row">
+    <span class="chips-lbl">Status</span>
+    <button class="chip on" onclick="setChip('status','',this)">Todos</button>
+    <button class="chip" onclick="setChip('status','ativo',this)">Ativos</button>
+    <button class="chip" onclick="setChip('status','inativo',this)">Inativos</button>
+    <button class="chip" onclick="setChip('fotos','nao',this)">Sem foto</button>
+    <button class="chip" onclick="setChip('proprietario','nao',this)">Sem prop.</button>
+  </div>
+
+  <div class="filtros-adv" id="box-filtros">
+    <div class="fg">
+      <div><label>Tipo</label><select id="f-tipo" onchange="filtrar()"><option value="">Todos</option><optgroup label="Residencial"><option value="apartamento">Apartamento</option><option value="casa">Casa</option><option value="cobertura">Cobertura</option><option value="sobrado">Sobrado</option><option value="loft">Loft</option><option value="studio">Studio</option><option value="kitnet">Kitnet</option><option value="duplex">Duplex</option><option value="mansao">Mansão</option><option value="chacara">Chácara</option><option value="sitio">Sítio</option><option value="fazenda">Fazenda</option></optgroup><optgroup label="Comercial"><option value="sala">Sala Comercial</option><option value="loja">Loja</option><option value="galpao">Galpão</option><option value="conjunto">Conjunto</option><option value="predio">Prédio</option></optgroup><optgroup label="Terrenos"><option value="terreno">Terreno</option><option value="area rural">Área Rural</option></optgroup></select></div>
+      <div><label>Transação</label><select id="f-operacao" onchange="filtrar()"><option value="">Todas</option><option value="venda">Venda</option><option value="aluguel">Aluguel</option><option value="temporada">Temporada</option></select></div>
+      <div><label>Status</label><select id="f-status" onchange="filtrar()"><option value="">Todos</option><option value="ativo">Ativo</option><option value="inativo">Inativo</option><option value="rascunho">Rascunho</option></select></div>
+      <div><label>Bairro</label><input id="f-bairro" oninput="filtrar()"></div>
+      <div><label>Cidade</label><input id="f-cidade" oninput="filtrar()"></div>
+      <div><label>Valor mín.</label><input id="f-valor-min" type="number" oninput="filtrar()"></div>
+      <div><label>Valor máx.</label><input id="f-valor-max" type="number" oninput="filtrar()"></div>
+      <div><label>Área mín. m²</label><input id="f-area-min" type="number" oninput="filtrar()"></div>
+      <div><label>Quartos mín.</label><input id="f-quartos" type="number" min="0" oninput="filtrar()"></div>
+      <div><label>Suítes mín.</label><input id="f-suites" type="number" min="0" oninput="filtrar()"></div>
+      <div><label>Vagas mín.</label><input id="f-vagas" type="number" min="0" oninput="filtrar()"></div>
+      <div><label>Proprietário</label><select id="f-proprietario" onchange="filtrar()"><option value="">Todos</option><option value="sim">Com proprietário</option><option value="nao">Sem proprietário</option></select></div>
+      <div><label>Fotos</label><select id="f-fotos" onchange="filtrar()"><option value="">Todos</option><option value="sim">Com fotos</option><option value="nao">Sem fotos</option></select></div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+      <button onclick="limpar()" class="btn btn-outline btn-sm">Limpar filtros</button>
+      <span id="resultado-filtro" style="font-size:11px;color:var(--text-ter)"></span>
     </div>
   </div>
 </div>
 
-<br>
-
-<div id="grid-imoveis" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+<!-- Grid -->
+<div id="im-grid" class="im-grid">
 <% (typeof imoveis !== 'undefined' ? imoveis : []).forEach((item, idx) => { %>
-  <div class="card imovel-card"
+  <div class="im-card"
     data-id="<%= item.id || item.idExterno || idx %>"
     data-tipo="<%= (item.tipo||'').toLowerCase() %>"
     data-bairro="<%= (item.bairro||'').toLowerCase() %>"
@@ -79,71 +156,79 @@
     data-area="<%= item.area_m2 || 0 %>"
     data-quartos="<%= item.quartos || 0 %>"
     data-vagas="<%= item.vagas || 0 %>"
-    data-status="<%= (item.status||'ativo').toLowerCase() %>"
     data-suites="<%= item.suites || 0 %>"
     data-banheiros="<%= item.banheiros || 0 %>"
+    data-status="<%= (item.status||'ativo').toLowerCase() %>"
     data-operacao="<%= (item.transacao||item.operacao||'').toLowerCase() %>"
     data-proprietario="<%= (item.proprietario && item.proprietario.nome) ? item.proprietario.nome.toLowerCase() : '' %>"
     data-fotos="<%= (item.fotos && item.fotos.length>0) ? item.fotos.length : '0' %>"
-    data-texto="<%= ((item.tipo||'')+(item.bairro||'')+(item.cidade||'')+(item.titulo||'')).toLowerCase() %>"
-    style="padding:0;overflow:hidden;border-radius:12px;border:2px solid #eee;display:flex;flex-direction:column;height:100%;transition:border-color .2s,box-shadow .2s;cursor:pointer"
     onclick="toggleCard(this)">
-    <div style="position:relative">
+
+    <!-- Imagem -->
+    <div class="im-img">
       <% if(item.fotos && item.fotos.length > 0) { %>
-        <img src="<%= item.fotos[0] %>" alt="foto" style="width:100%;height:140px;object-fit:cover;display:block">
+        <img src="<%= item.fotos[0] %>" alt="foto" loading="lazy">
       <% } else { %>
-        <div style="width:100%;height:140px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:32px">🏠</div>
-      <% } %>
-      <div class="check-overlay" style="position:absolute;top:8px;left:8px;width:22px;height:22px;border-radius:6px;border:2px solid #fff;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:.2s">
-        <span class="check-icon" style="color:#fff;font-size:13px;display:none">✓</span>
-      </div>
-      <% if((item.status||'ativo').toLowerCase() !== 'ativo') { %>
-        <div style="position:absolute;top:8px;right:8px;background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px">INATIVO</div>
-      <% } %>
-    </div>
-    <div style="padding:12px;display:flex;flex-direction:column;flex:1" onclick="event.stopPropagation()">
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
-        <span style="background:#fee2e2;color:#dc2626;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px"><%= item.tipo || 'Imóvel' %></span>
-        <span style="font-size:11px;color:#999"><strong style="color:#ff385c"><%= item.id || '-' %></strong> · Ext: <%= item.idExterno || '-' %></span>
-      </div>
-      <div style="font-weight:700;font-size:16px;color:#111;margin-bottom:4px">R$ <%= item.valor_imovel ? Number(item.valor_imovel).toLocaleString('pt-BR') : '-' %></div>
-      <div style="color:#666;font-size:11px;padding:6px;margin-bottom:8px"><%= item.bairro || '-' %>, <%= item.cidade || '-' %></div>
-      <% if(item.proprietario && item.proprietario.nome) { %>
-        <div style="font-size:11px;color:#374151;background:#f9fafb;border:1px solid #eee;border-radius:8px;padding:7px;margin-bottom:8px;line-height:1.45">
-          👤 <strong><%= item.proprietario.nome %></strong><br>
-          📞 <%= item.proprietario.telefone || item.proprietario.celular || "-" %>
+        <div class="im-img-ic">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </div>
       <% } %>
-      <div style="display:flex;gap:8px;font-size:11px;color:#444;margin-bottom:10px;flex-wrap:wrap">
-        <% if(item.area_m2) { %><span>📐 <%= item.area_m2 %>m²</span><% } %>
-        <% if(item.quartos) { %><span>🛏 <%= item.quartos %> qtos</span><% } %>
-        <% if(item.suites) { %><span>🛁 <%= item.suites %> suítes</span><% } %>
-        <% if(item.vagas) { %><span>🚗 <%= item.vagas %> vagas</span><% } %>
+      <div class="im-check" id="chk-<%= item.id || idx %>"></div>
+      <% if((item.status||'ativo').toLowerCase() !== 'ativo') { %>
+        <div class="im-badge-status"><%= (item.status||'inativo').toUpperCase() %></div>
+      <% } %>
+    </div>
+
+    <!-- Body -->
+    <div class="im-body" onclick="event.stopPropagation()">
+      <span class="im-tipo"><%= item.tipo || 'Imóvel' %></span>
+      <div class="im-valor">R$ <%= item.valor_imovel ? Number(item.valor_imovel).toLocaleString('pt-BR') : '—' %></div>
+      <div class="im-end"><%= [item.bairro, item.cidade].filter(Boolean).join(', ') || '—' %></div>
+
+      <% if(item.proprietario && item.proprietario.nome) { %>
+      <div class="im-prop">
+        <strong><%= item.proprietario.nome %></strong><br>
+        <%= item.proprietario.telefone || item.proprietario.celular || '' %>
       </div>
-      <div style="display:flex;gap:8px;margin-top:auto">
-        <a href="/app/imovel/<%= item.id || item.idExterno %>" target="_blank" class="card-action-btn details" onclick="event.stopPropagation()">👁 Ver</a>
-        <a href="/app/imovel/<%= item.id || item.idExterno %>/editar" class="card-action-btn edit" onclick="event.stopPropagation()">✏️ Editar</a>
+      <% } %>
+
+      <div class="im-tags">
+        <% if(item.area_m2) { %><span class="im-tag"><%= item.area_m2 %>m²</span><% } %>
+        <% if(item.quartos) { %><span class="im-tag"><%= item.quartos %>q</span><% } %>
+        <% if(item.suites) { %><span class="im-tag"><%= item.suites %>s</span><% } %>
+        <% if(item.vagas) { %><span class="im-tag"><%= item.vagas %>vg</span><% } %>
+        <% if(item.banheiros) { %><span class="im-tag"><%= item.banheiros %>bnh</span><% } %>
+        <% if(item.andar) { %><span class="im-tag"><%= item.andar %>º andar</span><% } %>
+      </div>
+
+      <div class="im-actions">
+        <a href="/app/imovel/<%= item.id || item.idExterno %>" class="im-btn ver" onclick="event.stopPropagation()">Ver</a>
+        <a href="/app/imovel/<%= item.id || item.idExterno %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a>
       </div>
     </div>
   </div>
 <% }) %>
 </div>
 
-<div id="sem-resultados" style="display:none;text-align:center;padding:60px;color:#999">
-  <div style="font-size:48px">🔍</div><p>Nenhum imóvel encontrado.</p>
+<div id="im-empty" style="display:none" class="im-empty">
+  <div style="font-size:36px;margin-bottom:12px;opacity:.3">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  </div>
+  <div style="font-size:14px;font-weight:500;color:var(--text-sec);margin-bottom:4px">Nenhum imóvel encontrado</div>
+  <div style="font-size:12px">Tente ajustar os filtros</div>
 </div>
 
-<div id="modal-xml" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:16px;padding:32px;max-width:500px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
-    <div style="font-size:48px;margin-bottom:12px">📡</div>
-    <h2 style="margin:0 0 8px" id="modal-titulo">Gerando XML...</h2>
-    <p style="color:#666;margin-bottom:20px" id="modal-desc"></p>
-    <div id="modal-loading"><div style="width:40px;height:40px;border:3px solid #f3f4f6;border-top-color:#1a1a2e;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto"></div></div>
+<!-- Modal XML -->
+<div class="modal-xml" id="modal-xml">
+  <div class="modal-xml-box">
+    <div style="font-size:13px;font-weight:600;color:var(--dark);margin-bottom:8px" id="modal-titulo">Gerando XML...</div>
+    <div style="font-size:12px;color:var(--text-sec);margin-bottom:20px" id="modal-desc"></div>
+    <div id="modal-loading"><div class="spin"></div></div>
     <div id="modal-link" style="display:none">
-      <input id="modal-url" readonly style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:12px;margin-bottom:12px">
+      <input id="modal-url" readonly style="margin-bottom:10px;font-size:11px">
       <div style="display:flex;gap:8px;justify-content:center">
-        <button onclick="copiarURL()" style="background:#1A1A1A;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600">📋 Copiar URL</button>
-        <button onclick="document.getElementById('modal-xml').style.display='none'" style="background:#f3f4f6;border:none;padding:10px 20px;border-radius:8px;cursor:pointer">Fechar</button>
+        <button onclick="copiarURL()" class="btn btn-dark btn-sm">Copiar URL</button>
+        <button onclick="document.getElementById('modal-xml').style.display='none'" class="btn btn-outline btn-sm">Fechar</button>
       </div>
     </div>
   </div>
@@ -151,123 +236,152 @@
 
 <script>
 const selecionados = new Set();
-function toggleCard(card){
-  const id=card.dataset.id;
-  const overlay=card.querySelector('.check-overlay');
-  const icon=card.querySelector('.check-icon');
-  if(selecionados.has(id)){
+
+function toggleCard(card) {
+  const id = card.dataset.id;
+  const chk = document.getElementById('chk-' + id) || card.querySelector('.im-check');
+  if (selecionados.has(id)) {
     selecionados.delete(id);
-    card.style.borderColor='#eee';card.style.boxShadow='';
-    overlay.style.background='rgba(0,0,0,0.3)';overlay.style.borderColor='#fff';icon.style.display='none';
+    card.classList.remove('sel');
+    if (chk) chk.classList.remove('on');
   } else {
     selecionados.add(id);
-    card.style.borderColor='#7c3aed';card.style.boxShadow='0 0 0 2px #7c3aed33';
-    overlay.style.background='#7c3aed';overlay.style.borderColor='#7c3aed';icon.style.display='block';
+    card.classList.add('sel');
+    if (chk) chk.classList.add('on');
   }
   atualizarBarra();
 }
-function toggleTodos(chk){
-  document.querySelectorAll('.imovel-card').forEach(card=>{
-    if(card.style.display==='none')return;
-    const tem=selecionados.has(card.dataset.id);
-    if(chk.checked&&!tem)toggleCard(card);
-    else if(!chk.checked&&tem)toggleCard(card);
+
+function toggleTodos(chk) {
+  document.querySelectorAll('.im-card').forEach(card => {
+    if (card.style.display === 'none') return;
+    const tem = selecionados.has(card.dataset.id);
+    if (chk.checked && !tem) toggleCard(card);
+    else if (!chk.checked && tem) toggleCard(card);
   });
-}
-function deselectAll(){
-  document.querySelectorAll('.imovel-card').forEach(card=>{if(selecionados.has(card.dataset.id))toggleCard(card);});
-  document.getElementById('check-todos').checked=false;
-}
-function atualizarBarra(){
-  const barra=document.getElementById('barra-selecao');
-  document.getElementById('contador-sel').textContent=selecionados.size+' selecionado'+(selecionados.size!==1?'s':'');
-  barra.style.display=selecionados.size>0?'flex':'none';
-}
-async function gerarXML(portal){
-  const ids=[...selecionados];
-  const modal=document.getElementById('modal-xml');
-  document.getElementById('modal-titulo').textContent='Gerando XML '+portal.toUpperCase()+'...';
-  document.getElementById('modal-desc').textContent=ids.length+' imóveis selecionados.';
-  document.getElementById('modal-link').style.display='none';
-  document.getElementById('modal-loading').style.display='block';
-  modal.style.display='flex';
-  try{
-    const res=await fetch('/app/gerar-xml',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({portal,ids})});
-    const data=await res.json();
-    document.getElementById('modal-loading').style.display='none';
-    document.getElementById('modal-link').style.display='block';
-    document.getElementById('modal-titulo').textContent='✅ XML gerado!';
-    document.getElementById('modal-desc').textContent=data.total+' imóveis incluídos.';
-    document.getElementById('modal-url').value=window.location.origin+data.url;
-  }catch(e){
-    document.getElementById('modal-loading').style.display='none';
-    document.getElementById('modal-titulo').textContent='❌ Erro ao gerar XML';
-  }
-}
-function copiarURL(){const u=document.getElementById('modal-url');u.select();document.execCommand('copy');alert('URL copiada!');}
-function toggleFiltros(){const b=document.getElementById('box-filtros');b.style.display=b.style.display==='none'?'block':'none';}
-function norm(v){return(v||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
-function filtrar(){
-  const busca=norm(document.getElementById('busca').value);
-  const tipo=norm(document.getElementById('f-tipo')?.value);
-  const bairro=norm(document.getElementById('f-bairro')?.value);
-  const cidade=norm(document.getElementById('f-cidade')?.value);
-  const valorMin=Number(document.getElementById('f-valor-min')?.value)||0;
-  const valorMax=Number(document.getElementById('f-valor-max')?.value)||0;
-  const areaMin=Number(document.getElementById('f-area-min')?.value)||0;
-  const quartos=Number(document.getElementById('f-quartos')?.value)||0;
-  const vagas=Number(document.getElementById('f-vagas')?.value)||0;
-  const suites=Number(document.getElementById('f-suites')?.value)||0;
-  const banheiros=Number(document.getElementById('f-banheiros')?.value)||0;
-  const operacao=norm(document.getElementById('f-operacao')?.value);
-  const status=norm(document.getElementById('f-status')?.value);
-  const proprietario=document.getElementById('f-proprietario')?.value;
-  const fotos=document.getElementById('f-fotos')?.value;
-  let vis=0;
-  document.querySelectorAll('.imovel-card').forEach(card=>{
-    let ok=true;
-    if(busca&&!norm(card.outerText).includes(busca))ok=false;
-    if(tipo&&!card.dataset.tipo.includes(tipo))ok=false;
-    if(bairro&&!card.dataset.bairro.includes(bairro))ok=false;
-    if(cidade&&!card.dataset.cidade.includes(cidade))ok=false;
-    if(valorMin&&Number(card.dataset.valor)<valorMin)ok=false;
-    if(valorMax&&Number(card.dataset.valor)>valorMax)ok=false;
-    if(areaMin&&Number(card.dataset.area)<areaMin)ok=false;
-    if(quartos&&Number(card.dataset.quartos)<quartos)ok=false;
-    if(vagas&&Number(card.dataset.vagas)<vagas)ok=false;
-    if(suites&&Number(card.dataset.suites)<suites)ok=false;
-    if(banheiros&&Number(card.dataset.banheiros)<banheiros)ok=false;
-    if(operacao&&!norm(card.dataset.operacao||'').includes(operacao))ok=false;
-    if(status&&norm(card.dataset.status||'')!==status)ok=false;
-    if(proprietario==='sim'&&!card.dataset.proprietario)ok=false;
-    if(proprietario==='nao'&&card.dataset.proprietario)ok=false;
-    if(fotos==='sim'&&card.dataset.fotos==='0')ok=false;
-    if(fotos==='nao'&&card.dataset.fotos!=='0')ok=false;
-    card.style.display=ok?'':'none';
-    if(ok)vis++;
-  });
-  document.getElementById('sem-resultados').style.display=vis===0?'block':'none';
-}
-function limpar(){
-  ['f-tipo','f-bairro','f-cidade','f-valor-min','f-valor-max','f-area-min','f-quartos','f-vagas','f-suites','f-banheiros','f-operacao','f-status','f-proprietario','f-fotos'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('busca').value='';filtrar();
 }
 
-document.querySelectorAll('.portal-btn').forEach(btn=>{
-  if(btn.dataset.portal==='quintoandar'){
-    btn.addEventListener('click', ()=>{
-      gerarXML('quintoandar');
-    });
+function deselectAll() {
+  document.querySelectorAll('.im-card').forEach(card => { if (selecionados.has(card.dataset.id)) toggleCard(card); });
+  document.getElementById('check-todos').checked = false;
+}
+
+function atualizarBarra() {
+  const barra = document.getElementById('barra-sel');
+  document.getElementById('cnt-sel').textContent = selecionados.size + ' selecionado' + (selecionados.size !== 1 ? 's' : '');
+  barra.style.display = selecionados.size > 0 ? 'flex' : 'none';
+}
+
+async function gerarXML(portal) {
+  const ids = [...selecionados];
+  const modal = document.getElementById('modal-xml');
+  document.getElementById('modal-titulo').textContent = 'Gerando XML ' + portal.toUpperCase() + '...';
+  document.getElementById('modal-desc').textContent = ids.length + ' imóveis selecionados';
+  document.getElementById('modal-link').style.display = 'none';
+  document.getElementById('modal-loading').style.display = 'block';
+  modal.style.display = 'flex';
+  try {
+    const res = await fetch('/app/gerar-xml', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ portal, ids }) });
+    const data = await res.json();
+    document.getElementById('modal-loading').style.display = 'none';
+    document.getElementById('modal-link').style.display = 'block';
+    document.getElementById('modal-titulo').textContent = 'XML gerado';
+    document.getElementById('modal-desc').textContent = data.total + ' imóveis incluídos';
+    document.getElementById('modal-url').value = window.location.origin + data.url;
+  } catch(e) {
+    document.getElementById('modal-loading').style.display = 'none';
+    document.getElementById('modal-titulo').textContent = 'Erro ao gerar XML';
   }
-});
+}
+
+function copiarURL() { const u = document.getElementById('modal-url'); u.select(); document.execCommand('copy'); }
+
+const chipState = { tipo:'', operacao:'', status:'', fotos:'', proprietario:'' };
+
+function setChip(campo, valor, btn) {
+  chipState[campo] = valor;
+  const grupo = btn.parentElement.querySelectorAll('.chip');
+  grupo.forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const sel = document.getElementById('f-' + campo);
+  if (sel) sel.value = valor;
+  filtrar();
+}
+
+function toggleFiltros() {
+  const b = document.getElementById('box-filtros');
+  b.style.display = b.style.display === 'none' ? 'block' : 'none';
+}
+
+function norm(v) { return (v||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+function filtrar() {
+  const busca = norm(document.getElementById('busca').value);
+  const tipo = chipState.tipo || norm(document.getElementById('f-tipo')?.value||'');
+  const operacao = chipState.operacao || norm(document.getElementById('f-operacao')?.value||'');
+  const status = chipState.status || norm(document.getElementById('f-status')?.value||'');
+  const fotos = chipState.fotos || (document.getElementById('f-fotos')?.value||'');
+  const proprietario = chipState.proprietario || (document.getElementById('f-proprietario')?.value||'');
+  const bairro = norm(document.getElementById('f-bairro')?.value||'');
+  const cidade = norm(document.getElementById('f-cidade')?.value||'');
+  const valorMin = Number(document.getElementById('f-valor-min')?.value)||0;
+  const valorMax = Number(document.getElementById('f-valor-max')?.value)||0;
+  const areaMin = Number(document.getElementById('f-area-min')?.value)||0;
+  const quartos = Number(document.getElementById('f-quartos')?.value)||0;
+  const vagas = Number(document.getElementById('f-vagas')?.value)||0;
+  const suites = Number(document.getElementById('f-suites')?.value)||0;
+
+  let vis = 0;
+  document.querySelectorAll('.im-card').forEach(card => {
+    let ok = true;
+    if (busca && !norm(card.dataset.tipo+card.dataset.bairro+card.dataset.cidade).includes(busca)) ok = false;
+    if (tipo && !card.dataset.tipo.includes(tipo)) ok = false;
+    if (bairro && !card.dataset.bairro.includes(bairro)) ok = false;
+    if (cidade && !card.dataset.cidade.includes(cidade)) ok = false;
+    if (valorMin && Number(card.dataset.valor) < valorMin) ok = false;
+    if (valorMax && Number(card.dataset.valor) > valorMax) ok = false;
+    if (areaMin && Number(card.dataset.area) < areaMin) ok = false;
+    if (quartos && Number(card.dataset.quartos) < quartos) ok = false;
+    if (vagas && Number(card.dataset.vagas) < vagas) ok = false;
+    if (suites && Number(card.dataset.suites) < suites) ok = false;
+    if (operacao && !norm(card.dataset.operacao||'').includes(operacao)) ok = false;
+    if (status && norm(card.dataset.status||'') !== status) ok = false;
+    if (proprietario === 'sim' && !card.dataset.proprietario) ok = false;
+    if (proprietario === 'nao' && card.dataset.proprietario) ok = false;
+    if (fotos === 'sim' && card.dataset.fotos === '0') ok = false;
+    if (fotos === 'nao' && card.dataset.fotos !== '0') ok = false;
+    card.style.display = ok ? '' : 'none';
+    if (ok) vis++;
+  });
+
+  const el = document.getElementById('resultado-filtro');
+  if (el) el.textContent = vis + ' imóveis';
+  document.getElementById('im-empty').style.display = vis === 0 ? 'block' : 'none';
+}
+
+function limpar() {
+  Object.keys(chipState).forEach(k => chipState[k] = '');
+  document.querySelectorAll('.chip').forEach(b => { b.classList.remove('on'); if(b.textContent.trim()==='Todos'||b.textContent.trim()==='Todas') b.classList.add('on'); });
+  ['f-tipo','f-bairro','f-cidade','f-valor-min','f-valor-max','f-area-min','f-quartos','f-vagas','f-suites','f-operacao','f-status','f-proprietario','f-fotos'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('busca').value = '';
+  filtrar();
+}
+
+function atualizarStats() {
+  const cards = document.querySelectorAll('.im-card');
+  let ativos=0, inativos=0, semFoto=0, semProp=0;
+  cards.forEach(c => {
+    if (c.dataset.status === 'ativo') ativos++; else inativos++;
+    if (!c.dataset.fotos || c.dataset.fotos === '0') semFoto++;
+    if (!c.dataset.proprietario) semProp++;
+  });
+  document.getElementById('count-ativos').textContent = ativos + ' ativos';
+  document.getElementById('count-inativos').textContent = inativos + ' inativos';
+  document.getElementById('count-sem-foto').textContent = semFoto + ' sem foto';
+  document.getElementById('count-sem-prop').textContent = semProp + ' sem prop.';
+}
+
+window.addEventListener('DOMContentLoaded', atualizarStats);
 </script>
+
 <%- include('partials/app-end') %>
-<style>
-@keyframes spin{to{transform:rotate(360deg)}}
-.card-action-btn{flex:1;text-align:center;font-size:11px;font-weight:700;padding:8px 10px;border-radius:10px;text-decoration:none;transition:.2s}
-.card-action-btn.details{background:#f3f4f6;color:#111827;border:1px solid #e5e7eb}
-.card-action-btn.edit{background:var(--brand);color:#fff;border:1px solid var(--brand)}
-.imovel-card:hover{border-color:#c4b5fd !important}
-@media(max-width:900px){#grid-imoveis{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
-@media(max-width:650px){#grid-imoveis{grid-template-columns:repeat(1,minmax(0,1fr)) !important}}
-</style>

@@ -1210,5 +1210,29 @@
       }
     ],
     "updatedAt": "2026-05-12T20:22:36.744Z"
+  },
+  "cor_as61p840px": {
+    "userKey": "cor_as61p840px",
+    "ultimoLead": null,
+    "ultimaVisita": null,
+    "ultimaIntencao": {
+      "tipo": "visitas",
+      "entidade": null,
+      "acao": null,
+      "filtro": {
+        "busca": "visit s h je"
+      },
+      "textoOriginal": "visitas hoje"
+    },
+    "ultimaAcao": null,
+    "historico": [
+      {
+        "at": "2026-05-16T05:40:13.416Z",
+        "tipo": "consulta_visitas",
+        "texto": "visitas hoje",
+        "total": 0
+      }
+    ],
+    "updatedAt": "2026-05-16T05:40:13.416Z"
   }
 }

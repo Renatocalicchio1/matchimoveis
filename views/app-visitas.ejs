@@ -44,20 +44,215 @@ var corretorNome=user&&user.nome?user.nome:'Corretor';
 var corretorTel=(user&&(user.celular||user.telefone)||'').replace(/[^0-9]/g,'');
 %>
 
-<form method="GET" action="/app/visitas" class="filtro-bar">
-  <select name="status" onchange="this.form.submit()">
-    <option value="todos" <%=(!filtros||filtros.status==='todos')?'selected':''%>>Todos</option>
-    <option value="solicitada" <%=(filtros&&filtros.status==='solicitada')?'selected':''%>>Pendente</option>
-    <option value="confirmada" <%=(filtros&&filtros.status==='confirmada')?'selected':''%>>Confirmada</option>
-    <option value="realizada" <%=(filtros&&filtros.status==='realizada')?'selected':''%>>Realizada</option>
-    <option value="cancelada" <%=(filtros&&filtros.status==='cancelada')?'selected':''%>>Cancelada</option>
-  </select>
-  <input type="text" name="busca" value="<%=filtros&&filtros.busca||''%>" placeholder="Cliente, bairro...">
-  <button type="submit" class="btn-a btn-red">Buscar</button>
-  <%if(filtros&&(filtros.status!=='todos'||filtros.busca)){%>
-    <a href="/app/visitas" class="btn-a btn-gray">✕ Limpar</a>
-  <%}%>
-</form>
+<style>
+.vf-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:20px}
+.vf-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.vf-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid #e5e7eb;background:#f9fafb;cursor:pointer;color:#374151;transition:all .15s}
+.vf-chip.on{background:#111;color:#fff;border-color:#111}
+.vf-chip.verde.on{background:#16a34a;border-color:#16a34a;color:#fff}
+.vf-chip.vermelho.on{background:#dc2626;border-color:#dc2626;color:#fff}
+.vf-chip.azul.on{background:#2563eb;border-color:#2563eb;color:#fff}
+.vf-chip.roxo.on{background:#7c3aed;border-color:#7c3aed;color:#fff}
+.vf-chip.amarelo.on{background:#d97706;border-color:#d97706;color:#fff}
+.vf-avancado{display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f3f4f6}
+.vf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.vf-grid label{font-size:11px;font-weight:700;color:#6b7280;display:block;margin-bottom:4px}
+.vf-grid input,.vf-grid select{width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;box-sizing:border-box}
+.vf-stats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.vf-stat{padding:6px 14px;border-radius:10px;font-size:12px;font-weight:700;background:#f9fafb;border:1px solid #e5e7eb;color:#374151}
+</style>
+
+<div class="vf-card">
+  <!-- Stats rápidas -->
+  <div class="vf-stats" id="vf-stats">
+    <span class="vf-stat" id="vst-total">— total</span>
+    <span class="vf-stat" style="background:#fef9c3;color:#a16207;border-color:#fcd34d" id="vst-pendentes">— pendentes</span>
+    <span class="vf-stat" style="background:#dcfce7;color:#15803d;border-color:#86efac" id="vst-confirmadas">— confirmadas</span>
+    <span class="vf-stat" style="background:#fef2f2;color:#dc2626;border-color:#fca5a5" id="vst-hoje">— hoje</span>
+    <span class="vf-stat" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd" id="vst-realizadas">— realizadas</span>
+  </div>
+
+  <!-- Busca -->
+  <div style="display:flex;gap:10px;margin-bottom:12px">
+    <input id="vf-busca" placeholder="🔎 Cliente, imóvel, bairro..." oninput="filtrarVisitas()" style="flex:1;padding:9px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px">
+    <button onclick="toggleFiltrosVisitas()" style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer">⚙️ Filtros</button>
+  </div>
+
+  <!-- Chips status -->
+  <div class="vf-chips">
+    <span style="font-size:11px;font-weight:700;color:#9ca3af;align-self:center">Status:</span>
+    <button class="vf-chip on" onclick="setChipVisita('status','todos',this)">Todos</button>
+    <button class="vf-chip amarelo" onclick="setChipVisita('status','solicitada',this)">⏳ Pendente</button>
+    <button class="vf-chip verde" onclick="setChipVisita('status','confirmada',this)">✅ Confirmada</button>
+    <button class="vf-chip azul" onclick="setChipVisita('status','realizada',this)">🏁 Realizada</button>
+    <button class="vf-chip vermelho" onclick="setChipVisita('status','cancelada',this)">❌ Cancelada</button>
+    <button class="vf-chip" onclick="setChipVisita('status','no_show',this)">👻 No-show</button>
+  </div>
+
+  <!-- Chips período -->
+  <div class="vf-chips">
+    <span style="font-size:11px;font-weight:700;color:#9ca3af;align-self:center">Período:</span>
+    <button class="vf-chip on" onclick="setChipVisita('periodo','',this)">Todos</button>
+    <button class="vf-chip vermelho" onclick="setChipVisita('periodo','atrasada',this)">🚨 Atrasadas</button>
+    <button class="vf-chip vermelho" onclick="setChipVisita('periodo','hoje',this)">📅 Hoje</button>
+    <button class="vf-chip amarelo" onclick="setChipVisita('periodo','amanha',this)">⏰ Amanhã</button>
+    <button class="vf-chip" onclick="setChipVisita('periodo','semana',this)">📆 Essa semana</button>
+    <button class="vf-chip azul" onclick="setChipVisita('periodo','passadas',this)">🕐 Passadas</button>
+  </div>
+
+  <!-- Chips ação -->
+  <div class="vf-chips">
+    <span style="font-size:11px;font-weight:700;color:#9ca3af;align-self:center">Ação:</span>
+    <button class="vf-chip on" onclick="setChipVisita('acao','',this)">Todas</button>
+    <button class="vf-chip roxo" onclick="setChipVisita('acao','sem_prop',this)">🏠 Aguard. prop.</button>
+    <button class="vf-chip azul" onclick="setChipVisita('acao','sem_cliente',this)">💬 Avisar cliente</button>
+    <button class="vf-chip verde" onclick="setChipVisita('acao','ambos_ok',this)">🎉 Ambos confirm.</button>
+    <button class="vf-chip" onclick="setChipVisita('acao','pos_visita',this)">🔁 Pós-visita</button>
+  </div>
+
+  <!-- Filtros avançados -->
+  <div class="vf-avancado" id="vf-avancado">
+    <div class="vf-grid">
+      <div>
+        <label>Data da visita</label>
+        <input type="date" id="vf-data" oninput="filtrarVisitas()">
+      </div>
+      <div>
+        <label>Bairro do imóvel</label>
+        <input id="vf-bairro" placeholder="Moema" oninput="filtrarVisitas()">
+      </div>
+      <div>
+        <label>Ordenar por</label>
+        <select id="vf-ordem" onchange="filtrarVisitas()">
+          <option value="data">Data da visita</option>
+          <option value="recente">Mais recente</option>
+          <option value="nome">Nome A-Z</option>
+        </select>
+      </div>
+      <div>
+        <label>Proprietário</label>
+        <select id="vf-prop" onchange="filtrarVisitas()">
+          <option value="">Todos</option>
+          <option value="confirmou">Confirmou</option>
+          <option value="pendente">Pendente</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="limparFiltrosVisitas()" style="margin-top:10px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer">🗑️ Limpar filtros</button>
+  </div>
+
+  <div id="vf-counter" style="font-size:12px;color:#6b7280;margin-top:8px"></div>
+</div>
+
+<script>
+const _fv = { status:'todos', periodo:'', acao:'' };
+
+function setChipVisita(campo, valor, btn) {
+  _fv[campo] = valor;
+  const grupo = btn.parentElement.querySelectorAll('.vf-chip');
+  grupo.forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  filtrarVisitas();
+}
+
+function toggleFiltrosVisitas() {
+  const el = document.getElementById('vf-avancado');
+  el.style.display = el.style.display==='none'?'block':'none';
+}
+
+function limparFiltrosVisitas() {
+  _fv.status='todos'; _fv.periodo=''; _fv.acao='';
+  document.getElementById('vf-busca').value='';
+  document.getElementById('vf-data').value='';
+  document.getElementById('vf-bairro').value='';
+  document.getElementById('vf-prop').value='';
+  document.querySelectorAll('.vf-chip').forEach(b=>{
+    b.classList.remove('on');
+    if(b.textContent.trim()==='Todos'||b.textContent.trim()==='Todas'||b.textContent.trim()==='Todas') b.classList.add('on');
+  });
+  filtrarVisitas();
+}
+
+function filtrarVisitas() {
+  const busca = document.getElementById('vf-busca').value.toLowerCase();
+  const dataFiltro = document.getElementById('vf-data').value;
+  const bairroFiltro = document.getElementById('vf-bairro').value.toLowerCase();
+  const propFiltro = document.getElementById('vf-prop')?.value||'';
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
+  const semana = new Date(hoje); semana.setDate(semana.getDate()+7);
+
+  const cards = document.querySelectorAll('.v-card[data-visita-id]');
+  let total=0, pendentes=0, confirmadas=0, realizadas=0, hojeCount=0;
+  let visiveis=0;
+
+  cards.forEach(card => {
+    const status = card.dataset.status||'';
+    const propConfirmou = card.dataset.propConfirmou==='true';
+    const clienteConfirmou = card.dataset.clienteConfirmou==='true';
+    const dataVisita = card.dataset.dataVisita ? new Date(card.dataset.dataVisita) : null;
+    const searchStr = (card.dataset.search||'').toLowerCase();
+    const bairroCard = (card.dataset.bairro||'').toLowerCase();
+
+    // Stats
+    total++;
+    if(status==='solicitada'||status==='AGUARDANDO') pendentes++;
+    if(status==='confirmada'||status==='CONFIRMADA') confirmadas++;
+    if(status==='realizada'||status==='CONCLUIDA') realizadas++;
+    if(dataVisita) { const d=new Date(dataVisita); d.setHours(0,0,0,0); if(d.getTime()===hoje.getTime()) hojeCount++; }
+
+    let ok = true;
+
+    // Status
+    if(_fv.status!=='todos') {
+      const st = status.toLowerCase();
+      if(_fv.status==='solicitada'&&st!=='solicitada'&&st!=='aguardando') ok=false;
+      else if(_fv.status==='confirmada'&&st!=='confirmada') ok=false;
+      else if(_fv.status==='realizada'&&st!=='realizada'&&st!=='concluida') ok=false;
+      else if(_fv.status==='cancelada'&&st!=='cancelada') ok=false;
+      else if(_fv.status==='no_show'&&st!=='no_show') ok=false;
+    }
+
+    // Período
+    if(_fv.periodo && dataVisita) {
+      const dv = new Date(dataVisita); dv.setHours(0,0,0,0);
+      if(_fv.periodo==='hoje'&&dv.getTime()!==hoje.getTime()) ok=false;
+      if(_fv.periodo==='amanha'&&dv.getTime()!==amanha.getTime()) ok=false;
+      if(_fv.periodo==='semana'&&(dv<hoje||dv>semana)) ok=false;
+      if(_fv.periodo==='atrasada'&&(dv>=hoje||(status==='realizada'||status==='cancelada'))) ok=false;
+      if(_fv.periodo==='passadas'&&dv>=hoje) ok=false;
+    }
+
+    // Ação
+    if(_fv.acao==='sem_prop'&&propConfirmou) ok=false;
+    if(_fv.acao==='sem_cliente'&&(!propConfirmou||clienteConfirmou)) ok=false;
+    if(_fv.acao==='ambos_ok'&&(!propConfirmou||!clienteConfirmou)) ok=false;
+    if(_fv.acao==='pos_visita'&&(status!=='realizada'&&status!=='CONCLUIDA')) ok=false;
+
+    // Busca
+    if(busca && !searchStr.includes(busca)) ok=false;
+    if(bairroFiltro && !bairroCard.includes(bairroFiltro)) ok=false;
+    if(dataFiltro && dataVisita) {
+      const dvStr = dataVisita.toISOString().split('T')[0];
+      if(dvStr!==dataFiltro) ok=false;
+    }
+    if(propFiltro==='confirmou'&&!propConfirmou) ok=false;
+    if(propFiltro==='pendente'&&propConfirmou) ok=false;
+
+    card.style.display = ok ? '' : 'none';
+    if(ok) visiveis++;
+  });
+
+  document.getElementById('vst-total').textContent = total+' total';
+  document.getElementById('vst-pendentes').textContent = pendentes+' pendentes';
+  document.getElementById('vst-confirmadas').textContent = confirmadas+' confirmadas';
+  document.getElementById('vst-hoje').textContent = hojeCount+' hoje';
+  document.getElementById('vst-realizadas').textContent = realizadas+' realizadas';
+  document.getElementById('vf-counter').textContent = visiveis+' visitas exibidas';
+}
+
+window.addEventListener('DOMContentLoaded', filtrarVisitas);
+</script>
 
 <div style="font-size:13px;color:#888;margin-bottom:16px">
   <strong style="color:#333"><%= visitas.length %></strong> visita(s)

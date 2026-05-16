@@ -1,488 +1,332 @@
-<%- include('partials/app-shell',{active:'leads',title:'Detalhe da Lead',subtitle:'Acompanhe dados, comportamento e oportunidades',user:user}) %>
+<%- include('partials/app-shell',{active:'leads',title:'Detalhe da Lead',subtitle:'',user:user}) %>
 
 <style>
-.ld-wrap{max-width:1120px;margin:0 auto}
-.ld-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px}
-.ld-back{color:var(--gray);font-size:13px;text-decoration:none}
-.ld-layout{display:grid;grid-template-columns:1fr 340px;gap:22px}
-.ld-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px;box-shadow:0 8px 22px rgba(15,23,42,.04)}
-.ld-title{font-size:12px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
-.ld-hero{display:flex;align-items:center;gap:16px}
-.ld-avatar{width:58px;height:58px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:900;flex-shrink:0}
-.ld-name{font-size:22px;font-weight:900;color:var(--dark)}
-.ld-sub{font-size:13px;color:var(--gray);margin-top:4px}
-.info-row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.ld-layout{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+.ld-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.ld-title{font-size:10px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-light)}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:12px;gap:12px}
 .info-row:last-child{border:none}
-.info-lbl{color:var(--gray)}
-.info-val{font-weight:700;color:var(--dark);text-align:right}
-.tag{display:inline-block;background:#f3f4f6;color:#374151;font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;margin:4px 4px 0 0}
-.tag-blue{background:#eff6ff;color:#2563eb}
-.tag-green{background:#f0fdf4;color:#16a34a}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--light);border-radius:14px;padding:14px}
-.stat strong{display:block;font-size:22px;color:var(--dark)}
-.stat span{font-size:12px;color:var(--gray);font-weight:700}
-.timeline{position:relative}
-.tl-item{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.tl-dot{width:12px;height:12px;background:var(--brand);border-radius:50%;margin:4px auto 0}
-.tl-action{font-size:13px;font-weight:800;color:var(--dark)}
-.tl-date{font-size:12px;color:var(--gray);margin-top:2px}
-.match-card{background:var(--light);border-radius:14px;padding:14px;margin-bottom:12px;display:grid;grid-template-columns:76px 1fr auto;gap:12px;align-items:center}
-.match-foto{width:76px;height:58px;object-fit:cover;border-radius:10px}
-.match-placeholder{width:76px;height:58px;border-radius:10px;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:22px}
-.chip-spec{display:inline-block;background:var(--white);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;margin:3px}
-.btn-acao{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 14px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none;margin-bottom:10px;transition:opacity .2s}
-.btn-acao:hover{opacity:.85}
-@media(max-width:900px){.ld-layout{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.match-card{grid-template-columns:64px 1fr}.match-card>div:last-child{grid-column:1/-1;text-align:left!important}}
+.info-lbl{color:var(--text-sec);flex-shrink:0}
+.info-val{font-weight:500;color:var(--dark);text-align:right}
+.tag-pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:600;margin:2px}
+.match-card{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:10px;background:var(--bg);border-radius:9px;border:1px solid var(--border-light);margin-bottom:8px;text-decoration:none;color:inherit;transition:border-color .1s}
+.match-card:hover{border-color:var(--brand)}
+.match-foto{width:64px;height:50px;object-fit:cover;border-radius:7px}
+.match-ph{width:64px;height:50px;border-radius:7px;background:var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-ter);font-size:18px}
+.tl-item{display:grid;grid-template-columns:28px 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--border-light)}
+.tl-item:last-child{border:none}
+.tl-ic{width:22px;height:22px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+.tl-acao{font-size:12px;font-weight:500;color:var(--dark)}
+.tl-det{font-size:11px;color:var(--text-sec);margin-top:1px}
+.tl-data{font-size:10px;color:var(--text-ter);margin-top:2px}
+.acao-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px 14px;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none;border:none;cursor:pointer;margin-bottom:7px;transition:opacity .15s}
+.acao-btn:hover{opacity:.88}
+.perfil-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.perfil-item{background:var(--bg);border:1px solid var(--border-light);border-radius:8px;padding:9px 11px}
+.perfil-item-lbl{font-size:10px;color:var(--text-ter);margin-bottom:2px}
+.perfil-item-val{font-size:13px;font-weight:600;color:var(--dark)}
+.copiloto{border-radius:var(--radius);padding:16px;margin-bottom:14px}
+@media(max-width:900px){.ld-layout{grid-template-columns:1fr}}
 </style>
 
-<style id="organiza-blocos-lead-css">
-  .ld-layout{align-items:start}
-  .ld-card{margin-bottom:14px}
-  .grid2{grid-template-columns:1fr!important}
-  aside .ld-card{padding:18px}
-  @media(min-width:901px){
-    aside{position:relative}
-  }
-</style>
+<!-- Voltar -->
+<div style="margin-bottom:16px">
+  <a href="/app/leads" style="font-size:12px;color:var(--text-sec);text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar para Leads
+  </a>
+</div>
 
+<%
+const _p    = lead.perfilIA || {};
+const _mat  = lead.matches || lead.matchesAuto || [];
+const _matA = lead.matchesAuto || [];
+const _score= lead.score || 0;
+const _temp = lead.temperatura || 'frio';
+const _fase = lead.faseFunil || 'novo';
+const _msgs = (lead.mensagens||[]).filter(m=>m.de==='cliente').length;
+const _fone = (lead.contato||lead.telefone||'').replace(/\D/g,'');
+const _burl = typeof baseUrl!=='undefined' ? baseUrl : 'https://matchimoveis.onrender.com';
+const _vurl = _burl+'/cliente/oferta/'+(lead.leadId||lead.id);
+const _wtxt = encodeURIComponent('Olá '+(lead.nome||'')+'! Separei imóveis que combinam com o que você procura: '+_vurl);
+const _tcor = _temp==='quente'?'var(--brand)':_temp==='morno'?'#d97706':'var(--text-ter)';
+const _tbg  = _temp==='quente'?'var(--brand-light)':_temp==='morno'?'#fffbeb':'var(--bg)';
+const _tbor = _temp==='quente'?'#fda4af':_temp==='morno'?'#fcd34d':'var(--border)';
+let _copTitulo='', _copDesc='', _copAcoes=[];
+if(_msgs===0){_copTitulo='Primeiro contato';_copDesc='Lead ainda não foi contatada.';_copAcoes=['whatsapp'];}
+else if(!_p.tipo&&!_p.quartos){_copTitulo='Qualificando lead';_copDesc='Continue a conversa para entender o perfil.';_copAcoes=['whatsapp'];}
+else if(_mat.length===0){_copTitulo='Sem match ainda';_copDesc='Imóveis da carteira não combinaram com esse perfil.';_copAcoes=['whatsapp'];}
+else if(_mat.length>0&&_fase!=='decidido'){_copTitulo='Match encontrado — envie a vitrine!';_copDesc=_mat.length+' imóvel(is) compatível(is).';_copAcoes=['vitrine','whatsapp'];}
+else if(_fase==='interessado'||_fase==='decidido'){_copTitulo='Lead interessada — agende a visita!';_copDesc='Hora de confirmar uma visita!';_copAcoes=['visita','whatsapp'];}
+else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copAcoes=['whatsapp'];}
+%>
 
-<div class="ld-wrap">
+<div class="ld-layout">
 
-  <div class="ld-top">
-    <a class="ld-back" href="/app/leads">← Voltar para Leads</a>
-    <span class="tag tag-blue">Lead <%= lead.leadId || lead.id %></span>
-  </div>
+  <!-- COLUNA PRINCIPAL -->
+  <main>
 
-  <div class="ld-layout">
-
-    <main>
-      <%
-        const _p    = lead.perfilIA || {};
-        const _mat  = (lead.matches||lead.matchesAuto||[]);
-        const _score= lead.score || 0;
-        const _temp = lead.temperatura || 'frio';
-        const _fase = lead.faseFunil || 'novo';
-        const _msgs = (lead.mensagens||[]).filter(m=>m.de==='cliente').length;
-        const _fone = (lead.contato||lead.telefone||'').replace(/D/g,'');
-        const _burl = typeof baseUrl!=='undefined' ? baseUrl : 'https://matchimoveis.onrender.com';
-        const _vurl = _burl+'/cliente/oferta/'+(lead.leadId||lead.id);
-        const _wtxt = encodeURIComponent('Olá '+(lead.nome||'')+'! Separei opções que combinam com o que você procura: '+_vurl);
-        const _tcor = _temp==='quente'?'#dc2626':_temp==='morno'?'#d97706':'#6b7280';
-        const _tbg  = _temp==='quente'?'#fff1f1':_temp==='morno'?'#fffbeb':'#f9fafb';
-        const _tbor = _temp==='quente'?'#fca5a5':_temp==='morno'?'#fcd34d':'#e5e7eb';
-        let _titulo='', _desc='', _acoes=[];
-        if (_msgs===0) {
-          _titulo='👋 Primeiro contato'; _desc='Lead ainda não foi contatada. Inicie a conversa!'; _acoes=['whatsapp'];
-        } else if (!_p.tipo && !_p.quartos) {
-          _titulo='🔍 Qualificando lead'; _desc='Continue a conversa para entender o que a lead procura.'; _acoes=['whatsapp'];
-        } else if (_mat.length===0) {
-          _titulo='⚙️ Perfil coletado — sem match ainda'; _desc='Imóveis da carteira não combinaram com esse perfil.'; _acoes=['whatsapp'];
-        } else if (_mat.length>0 && _fase!=='decidido') {
-          _titulo='🏠 Match encontrado — envie a vitrine!'; _desc=_mat.length+' imóvel(is) compatível(is) com o perfil desta lead.'; _acoes=['vitrine','whatsapp'];
-        } else if (_fase==='interessado'||_fase==='decidido') {
-          _titulo='📅 Lead interessada — agende a visita!'; _desc='A lead demonstrou interesse. Hora de confirmar uma visita!'; _acoes=['visita','whatsapp'];
-        } else {
-          _titulo='✅ Acompanhando'; _desc='Tudo certo. Continue a conversa normalmente.'; _acoes=['whatsapp'];
-        }
-      %>
-      <div style="background:<%=_tbg%>;border:1.5px solid <%=_tbor%>;border-radius:16px;padding:18px 20px;margin-bottom:16px">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-          <div>
-            <div style="font-size:10px;font-weight:800;color:<%=_tcor%>;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px">🧠 Copiloto Match</div>
-            <div style="font-size:16px;font-weight:900;color:#111"><%=_titulo%></div>
-            <div style="font-size:13px;color:#555;margin-top:3px"><%=_desc%></div>
+    <!-- Copiloto -->
+    <div class="copiloto" style="background:<%=_tbg%>;border:1.5px solid <%=_tbor%>">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:<%=_tcor%>;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Copiloto Match</div>
+          <div style="font-size:14px;font-weight:600;color:var(--dark)"><%=_copTitulo%></div>
+          <div style="font-size:12px;color:var(--text-sec);margin-top:2px"><%=_copDesc%></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="text-align:center;background:var(--white);border-radius:8px;padding:8px 14px;border:1px solid <%=_tbor%>">
+            <div style="font-size:20px;font-weight:700;color:<%=_tcor%>"><%=_score%></div>
+            <div style="font-size:9px;color:var(--text-ter);font-weight:600;text-transform:uppercase">Score</div>
           </div>
-          <div style="display:flex;gap:8px">
-            <div style="text-align:center;background:white;border-radius:10px;padding:8px 16px;border:1px solid <%=_tbor%>">
-              <div style="font-size:22px;font-weight:900;color:<%=_tcor%>"><%=_score%></div>
-              <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase">Score</div>
-            </div>
-            <div style="text-align:center;background:white;border-radius:10px;padding:8px 16px;border:1px solid <%=_tbor%>">
-              <div style="font-size:22px;font-weight:900;color:#111"><%=_mat.length%></div>
-              <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase">Matches</div>
-            </div>
-            <div style="text-align:center;background:white;border-radius:10px;padding:8px 16px;border:1px solid <%=_tbor%>">
-              <div style="font-size:22px;font-weight:900;color:#111"><%=_msgs%></div>
-              <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase">Msgs</div>
-            </div>
+          <div style="text-align:center;background:var(--white);border-radius:8px;padding:8px 14px;border:1px solid <%=_tbor%>">
+            <div style="font-size:20px;font-weight:700;color:var(--dark)"><%=_mat.length%></div>
+            <div style="font-size:9px;color:var(--text-ter);font-weight:600;text-transform:uppercase">Matches</div>
           </div>
-        </div>
-        <% if(_p.tipo||_p.quartos||_p.bairro||_p.valorMax||_p.intencao) { %>
-        <div style="background:white;border-radius:10px;padding:10px 14px;margin-bottom:12px;border:1px solid <%=_tbor%>;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
-          <span style="font-size:10px;font-weight:800;color:#888;text-transform:uppercase;margin-right:2px">Perfil detectado:</span>
-          <% if(_p.intencao){%><span style="background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"><%=_p.intencao%></span><%}%>
-          <% if(_p.tipo){%><span style="background:#f3f4f6;color:#374151;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"><%=_p.tipo%></span><%}%>
-          <% if(_p.quartos){%><span style="background:#f3f4f6;color:#374151;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"><%=_p.quartos%> quartos</span><%}%>
-          <% if(_p.bairro){%><span style="background:#f0fdf4;color:#15803d;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">📍 <%=_p.bairro%></span><%}%>
-          <% if(_p.valorMax){%><span style="background:#f0fdf4;color:#15803d;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">até R$<%=Math.round(Number(_p.valorMax)/1000)%>k</span><%}%>
-          <% if(_p.urgencia==='alta'){%><span style="background:#fef2f2;color:#dc2626;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">🔥 urgente</span><%}%>
-          <% if(_p.temperatura){%><span style="background:<%=_tbg%>;color:<%=_tcor%>;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px"><%=_temp%></span><%}%>
-        </div>
-        <% } %>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <% if(_acoes.includes('vitrine')&&_fone){%>
-          <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" style="background:#25D366;color:white;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:6px">🔗 Enviar vitrine pelo WhatsApp</a>
-          <%}%>
-          <% if(_acoes.includes('visita')){%>
-          <a href="/app/visitas?lead=<%=lead.leadId||lead.id%>" style="background:#7c3aed;color:white;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:6px">📅 Agendar visita</a>
-          <%}%>
-          <% if(_acoes.includes('whatsapp')&&_fone){%>
-          <a href="https://wa.me/55<%=_fone%>" target="_blank" style="background:#128C7E;color:white;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:6px">💬 Abrir WhatsApp</a>
-          <%}%>
-        </div>
-      </div>
-
-      <div class="ld-card">
-        <div class="ld-hero">
-          <div class="ld-avatar"><%= (lead.nome||'?')[0].toUpperCase() %></div>
-          <div>
-            <div class="ld-name"><%= lead.nome || 'Lead sem nome' %></div>
-            <div class="ld-sub">
-              <%= lead.email || 'Sem email' %> 
-              <% if(lead.contato||lead.telefone) { %> · <%= lead.contato||lead.telefone %><% } %>
-            </div>
-            <div>
-              <% if(lead.fonte) { %><span class="tag tag-blue"><%= lead.fonte %></span><% } %>
-              <% if(lead.canal) { %><span class="tag tag-green"><%= lead.canal %></span><% } %>
-              <% if(lead.origem) { %><span class="tag"><%= String(lead.origem).replace(/_/g,' ') %></span><% } %>
-            </div>
+          <div style="text-align:center;background:var(--white);border-radius:8px;padding:8px 14px;border:1px solid <%=_tbor%>">
+            <div style="font-size:20px;font-weight:700;color:var(--dark)"><%=_msgs%></div>
+            <div style="font-size:9px;color:var(--text-ter);font-weight:600;text-transform:uppercase">Msgs</div>
           </div>
         </div>
       </div>
 
-      <div class="grid2">
-        <div class="ld-card" style="padding:14px;align-self:start">
-          <div class="ld-title" style="margin-bottom:10px">👤 Dados da Lead</div>
-          <% if(lead.contato||lead.telefone) { %><div class="info-row"><span class="info-lbl">Celular</span><span class="info-val"><%= lead.contato||lead.telefone %></span></div><% } %>
-          <% if(lead.email) { %><div class="info-row"><span class="info-lbl">Email</span><span class="info-val"><%= lead.email %></span></div><% } %>
-          <% if(lead.data_cadastro_br) { %><div class="info-row"><span class="info-lbl">Cadastro</span><span class="info-val"><%= lead.data_cadastro_br %></span></div><% } %>
-          <% if(lead.fonte||lead.source) { %><div class="info-row"><span class="info-lbl">Fonte</span><span class="info-val"><%= lead.fonte||lead.source %></span></div><% } %>
-        </div>
-
-      <div class="ld-card">
-        <div class="ld-title">📋 Timeline</div>
-        <%
-          const tlEventos = [];
-
-          // Mensagens WhatsApp
-          if (lead.mensagens && lead.mensagens.length) {
-            lead.mensagens.forEach(m => {
-              tlEventos.push({
-                icone: m.de === 'cliente' ? '💬' : '📤',
-                acao: m.de === 'cliente' ? 'Mensagem recebida' : 'Mensagem enviada',
-                detalhe: (m.texto||'').substring(0,60) + (m.texto && m.texto.length > 60 ? '...' : ''),
-                data: m.timestamp || ''
-              });
-            });
-          }
-
-          // Match automático
-          if (lead.matchAutoEm) {
-            tlEventos.push({
-              icone: '🎯',
-              acao: 'Match automático gerado',
-              detalhe: (lead.matchesAuto||[]).length + ' imóveis compatíveis encontrados',
-              data: lead.matchAutoEm
-            });
-          }
-
-          // Matches base interna
-          if ((lead.matches||[]).length) {
-            tlEventos.push({
-              icone: '✅',
-              acao: 'Match base interna',
-              detalhe: (lead.matches||[]).length + ' imóveis compatíveis',
-              data: lead.matchAtualizadoEm || lead.createdAt || ''
-            });
-          }
-
-          // Interesse em imóvel
-          if (lead.imovel_interesse) {
-            tlEventos.push({
-              icone: '🏠',
-              acao: 'Interesse em imóvel',
-              detalhe: '#' + lead.imovel_interesse,
-              data: lead.createdAt || lead.data_cadastro || ''
-            });
-          }
-
-          // Visitas
-          if (typeof visitasDaLead !== 'undefined' && visitasDaLead && visitasDaLead.length) {
-            visitasDaLead.forEach(v => {
-              tlEventos.push({
-                icone: '📅',
-                acao: 'Visita agendada',
-                detalhe: 'Imóvel #' + (v.imovelId || '-') + (v.status ? ' — ' + v.status : ''),
-                data: v.createdAt || v.data || ''
-              });
-            });
-          }
-
-          // Perfil IA atualizado
-          if (lead.memoriaOperacional && lead.memoriaOperacional.atualizadoEm) {
-            tlEventos.push({
-              icone: '🧠',
-              acao: 'Perfil IA atualizado',
-              detalhe: lead.memoriaOperacional.resumo || '',
-              data: lead.memoriaOperacional.atualizadoEm
-            });
-          }
-
-          // Score
-          if (lead.scoreAtualizadoEm) {
-            tlEventos.push({
-              icone: '⚡',
-              acao: 'Score atualizado',
-              detalhe: 'Score: ' + (lead.score || 0) + '%',
-              data: lead.scoreAtualizadoEm
-            });
-          }
-
-          tlEventos.sort((a,b) => new Date(b.data||0) - new Date(a.data||0));
-        %>
-
-        <% if(tlEventos.length) { %>
-          <% tlEventos.slice(0,8).forEach(ev => { %>
-          <div class="tl-item">
-            <div style="font-size:16px;text-align:center;margin-top:2px"><%= ev.icone %></div>
-            <div>
-              <div class="tl-action"><%= ev.acao %></div>
-              <% if(ev.detalhe) { %><div style="font-size:12px;color:var(--gray);margin-top:2px"><%= ev.detalhe %></div><% } %>
-              <div class="tl-date"><%= ev.data ? new Date(ev.data).toLocaleString('pt-BR') : '' %></div>
-            </div>
-          </div>
-          <% }) %>
-          <% if(tlEventos.length > 8) { %>
-          <div style="font-size:12px;color:var(--gray);margin-top:8px;text-align:center"><%= tlEventos.length - 8 %> eventos anteriores</div>
-          <% } %>
-        <% } else { %>
-          <div style="color:var(--gray);font-size:13px">Nenhuma interação registrada ainda.</div>
-        <% } %>
-
-      <% if(lead.imovel_interesse) { %>
-      <div class="ld-card">
-        <div class="ld-title">🏠 Imóvel que Gerou a Lead</div>
-        <div class="info-row"><span class="info-lbl">Referência</span><span class="info-val">#<%= lead.imovel_interesse %></span></div>
-        <% if(lead.titulo_interesse) { %><div class="info-row"><span class="info-lbl">Título</span><span class="info-val"><%= lead.titulo_interesse %></span></div><% } %>
-        <% if(lead.tipo) { %><div class="info-row"><span class="info-lbl">Tipo</span><span class="info-val"><%= lead.tipo %></span></div><% } %>
-        <% if(lead.bairro) { %><div class="info-row"><span class="info-lbl">Bairro</span><span class="info-val"><%= lead.bairro %></span></div><% } %>
-        <% if(lead.valor_imovel) { %><div class="info-row"><span class="info-lbl">Valor</span><span class="info-val">R$ <%= Number(lead.valor_imovel).toLocaleString('pt-BR') %></span></div><% } %>
-        <div style="margin-top:14px">
-          <a href="/imovel/<%= lead.imovel_interesse %>" target="_blank" class="btn-acao" style="display:inline-flex;background:var(--brand);color:#fff;margin:0">🔗 Ver imóvel completo</a>
-        </div>
+      <!-- Perfil detectado -->
+      <% if(_p.tipo||_p.quartos||_p.bairro||_p.valorMax) { %>
+      <div style="background:var(--white);border-radius:8px;padding:8px 12px;margin-bottom:10px;border:1px solid <%=_tbor%>;display:flex;flex-wrap:wrap;gap:5px;align-items:center">
+        <span style="font-size:10px;font-weight:600;color:var(--text-ter)">Perfil:</span>
+        <% if(_p.intencao){%><span class="tag-pill" style="background:#eff6ff;color:#1d4ed8"><%=_p.intencao%></span><%}%>
+        <% if(_p.tipo){%><span class="tag-pill" style="background:var(--bg);color:var(--text)"><%=_p.tipo%></span><%}%>
+        <% if(_p.quartos){%><span class="tag-pill" style="background:var(--bg);color:var(--text)"><%=_p.quartos%>q</span><%}%>
+        <% if(_p.bairro){%><span class="tag-pill" style="background:#f0fdf4;color:#15803d"><%=_p.bairro%></span><%}%>
+        <% if(_p.valorMax){%><span class="tag-pill" style="background:#f0fdf4;color:#15803d">até R$<%=Math.round(Number(_p.valorMax)/1000)%>k</span><%}%>
+        <% if(_p.urgencia==='alta'){%><span class="tag-pill" style="background:#fef2f2;color:#dc2626">urgente</span><%}%>
       </div>
       <% } %>
 
-      <div class="ld-card">
-        <div class="ld-title">🔍 Perfil de Busca</div>
-        <% if(lead.tipo) { %><div class="info-row"><span class="info-lbl">Tipo</span><span class="info-val"><%= lead.tipo %></span></div><% } %>
-        <% if(lead.bairro) { %><div class="info-row"><span class="info-lbl">Bairro</span><span class="info-val"><%= lead.bairro %></span></div><% } %>
-        <% if(lead.cidade) { %><div class="info-row"><span class="info-lbl">Cidade</span><span class="info-val"><%= lead.cidade %></span></div><% } %>
-        <% if(lead.valor_imovel) { %><div class="info-row"><span class="info-lbl">Valor</span><span class="info-val">R$ <%= Number(lead.valor_imovel).toLocaleString('pt-BR') %></span></div><% } %>
-        <% if(lead.area_m2) { %><div class="info-row"><span class="info-lbl">Área</span><span class="info-val"><%= lead.area_m2 %>m²</span></div><% } %>
-        <div style="margin-top:12px">
-          <% if(lead.quartos) { %><span class="chip-spec">🛏 <%= lead.quartos %> quartos</span><% } %>
-          <% if(lead.suites) { %><span class="chip-spec">⭐ <%= lead.suites %> suítes</span><% } %>
-          <% if(lead.vagas) { %><span class="chip-spec">🚗 <%= lead.vagas %> vagas</span><% } %>
-          <% if(lead.banheiros) { %><span class="chip-spec">🚿 <%= lead.banheiros %> banheiros</span><% } %>
+      <!-- Botões copiloto -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <% if(_copAcoes.includes('vitrine')&&_fone) { %>
+        <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" style="background:#25D366;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:5px">Enviar vitrine</a>
+        <% } %>
+        <% if(_copAcoes.includes('visita')) { %>
+        <a href="/app/visitas" style="background:#7c3aed;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none">Agendar visita</a>
+        <% } %>
+        <% if(_copAcoes.includes('whatsapp')&&_fone) { %>
+        <a href="https://wa.me/55<%=_fone%>" target="_blank" style="background:var(--dark);color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none">WhatsApp</a>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Dados da lead -->
+    <div class="ld-card">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--dark);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0"><%= (lead.nome||'?')[0].toUpperCase() %></div>
+        <div>
+          <div style="font-size:16px;font-weight:600;color:var(--dark)"><%= lead.nome||'Lead sem nome' %></div>
+          <div style="font-size:12px;color:var(--text-sec);margin-top:2px"><%= [lead.contato||lead.telefone, lead.email].filter(Boolean).join(' · ') %></div>
+          <div style="margin-top:4px">
+            <% if(lead.fonte){%><span class="tag-pill" style="background:#eff6ff;color:#2563eb"><%=lead.fonte%></span><%}%>
+            <% if(lead.canal){%><span class="tag-pill" style="background:#f0fdf4;color:#16a34a"><%=lead.canal%></span><%}%>
+            <% if(lead.origem){%><span class="tag-pill" style="background:var(--bg);color:var(--text-sec)"><%=String(lead.origem).replace(/_/g,' ')%></span><%}%>
+          </div>
         </div>
       </div>
+      <% if(lead.data_cadastro_br||lead.data_cadastro) { %>
+      <div class="info-row"><span class="info-lbl">Cadastro</span><span class="info-val"><%= lead.data_cadastro_br||new Date(lead.data_cadastro).toLocaleString('pt-BR') %></span></div>
+      <% } %>
+      <% if(lead.ultimaMensagemEm) { %>
+      <div class="info-row"><span class="info-lbl">Última mensagem</span><span class="info-val"><%= new Date(lead.ultimaMensagemEm).toLocaleString('pt-BR') %></span></div>
+      <% } %>
+    </div>
 
-      <div class="ld-card">
-        <div class="ld-title">✅ Imóveis Compatíveis da sua carteira (<%= (lead.matches||[]).length %>)</div>
-        <% const listaCompat = (lead.matches||[]); %>\n        <% if(!listaCompat.length) { %>
-          <div style="text-align:center;padding:20px;color:var(--gray);font-size:14px">Não encontramos nenhum imóvel compatível na base interna para o perfil deste imóvel.</div>
-        <% } else { %>
-          <% listaCompat.forEach(m => { %>
-          <div class="match-card">
-            <% if(m.fotos && m.fotos[0]) { %>
-              <img class="match-foto" src="<%= m.fotos[0] %>">
-            <% } else { %>
-              <div class="match-placeholder">🏠</div>
-            <% } %>
-            <div>
-              <div style="font-size:14px;font-weight:900;color:var(--dark);margin-bottom:3px"><%= m.tipo || '-' %> · <%= m.bairro || '-' %></div>
-              <div style="font-size:12px;color:var(--gray)"><%= m.area_m2 || '-' %>m² · <%= m.quartos || '-' %> qtos<% if(m.suites) { %> · <%= m.suites %> suítes<% } %><% if(m.vagas) { %> · <%= m.vagas %> vaga(s)<% } %></div>
-              <div style="margin-top:6px;font-size:12px;color:var(--gray)">
-                ID: <%= m.idExterno || m.id || '-' %> ·
-                <%= m.cidade || '-' %>/<%= (typeof m.estado === 'object' ? m.estado['#text'] : m.estado) || '-' %>
-              </div>
-              <% if(m.idExterno || m.id) { %>
-                <a href="/imovel/<%= m.idExterno || m.id %>" target="_blank" style="font-size:12px;color:var(--brand);font-weight:800;text-decoration:none">
-                  Ver perfil do imóvel →
-                </a>
-              <% } %>
-            </div>
-            <div style="font-size:15px;font-weight:900;color:var(--brand);text-align:right;white-space:nowrap">R$ <%= Number(m.valor_imovel||0).toLocaleString('pt-BR') %></div>
-          </div>
-          <% }) %>
-        <% } %>
+    <!-- Perfil de busca completo -->
+    <% if(Object.keys(_p).length) { %>
+    <div class="ld-card">
+      <div class="ld-title">Perfil de busca detectado pela IA</div>
+      <div class="perfil-grid">
+        <% if(_p.tipo){%><div class="perfil-item"><div class="perfil-item-lbl">Tipo</div><div class="perfil-item-val"><%=_p.tipo%></div></div><%}%>
+        <% if(_p.quartos){%><div class="perfil-item"><div class="perfil-item-lbl">Quartos</div><div class="perfil-item-val"><%=_p.quartos%></div></div><%}%>
+        <% if(_p.suites){%><div class="perfil-item"><div class="perfil-item-lbl">Suítes</div><div class="perfil-item-val"><%=_p.suites%></div></div><%}%>
+        <% if(_p.vagas){%><div class="perfil-item"><div class="perfil-item-lbl">Vagas</div><div class="perfil-item-val"><%=_p.vagas%></div></div><%}%>
+        <% if(_p.banheiros){%><div class="perfil-item"><div class="perfil-item-lbl">Banheiros</div><div class="perfil-item-val"><%=_p.banheiros%></div></div><%}%>
+        <% if(_p.area){%><div class="perfil-item"><div class="perfil-item-lbl">Área</div><div class="perfil-item-val"><%=_p.area%>m²</div></div><%}%>
+        <% if(_p.bairro){%><div class="perfil-item"><div class="perfil-item-lbl">Bairro</div><div class="perfil-item-val"><%=_p.bairro%></div></div><%}%>
+        <% if(_p.cidade){%><div class="perfil-item"><div class="perfil-item-lbl">Cidade</div><div class="perfil-item-val"><%=_p.cidade%></div></div><%}%>
+        <% if(_p.valorMax){%><div class="perfil-item"><div class="perfil-item-lbl">Valor máx.</div><div class="perfil-item-val">R$<%=Math.round(Number(_p.valorMax)/1000)%>k</div></div><%}%>
+        <% if(_p.intencao){%><div class="perfil-item"><div class="perfil-item-lbl">Intenção</div><div class="perfil-item-val"><%=_p.intencao%></div></div><%}%>
+        <% if(_p.urgencia){%><div class="perfil-item"><div class="perfil-item-lbl">Urgência</div><div class="perfil-item-val"><%=_p.urgencia%></div></div><%}%>
+        <% if(_p.faseFunil){%><div class="perfil-item"><div class="perfil-item-lbl">Funil</div><div class="perfil-item-val"><%=_p.faseFunil%></div></div><%}%>
+        <% if(_p.motivacao){%><div class="perfil-item"><div class="perfil-item-lbl">Motivação</div><div class="perfil-item-val"><%=_p.motivacao%></div></div><%}%>
+        <% if(_p.sentimento){%><div class="perfil-item"><div class="perfil-item-lbl">Sentimento</div><div class="perfil-item-val"><%=_p.sentimento%></div></div><%}%>
       </div>
-
-    </main>
-
-    <aside>
-
-      <div class="ld-card">
-        <div class="ld-title">⚡ Ações rápidas</div>
-
-        <form method="POST" action="/app/lead/<%= lead.id || lead.leadId %>/buscar-quintoandar" style="margin-top:10px">
-          <button type="submit" class="btn-acao" style="width:100%;border:0;background:#111;color:#fff;cursor:pointer">
-            🔎 Buscar match no QuintoAndar
-          </button>
-        </form>
-
-        <% if(lead.contato||lead.telefone) { %>
-          <a href="https://wa.me/55<%= (lead.contato||lead.telefone||'').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (lead.nome||'') + '! Temos imóveis compatíveis com seu perfil no MatchImóveis.') %>" target="_blank" class="btn-acao" style="background:#25D366;color:#fff">💬 WhatsApp</a>
-
-          <a href="tel:<%= (lead.contato||lead.telefone||'').replace(/\D/g,'') %>" class="btn-acao" style="background:#f0f0f0;color:var(--dark)">📞 Ligar</a>
-        <% } %>
-
-        <% if((lead.matches||[]).length) { %>
-          <a href="https://wa.me/55<%= (lead.contato||lead.telefone||'').replace(/\D/g,'') %>?text=<%= encodeURIComponent('Olá ' + (lead.nome||'') + '! Separamos algumas oportunidades semelhantes ao que você buscou. Veja sua vitrine: https://matchimoveis.onrender.com/cliente/oferta/' + (lead.leadId || lead.id) + ' e agende sua visita!') %>" target="_blank" class="btn-acao" style="background:var(--brand);color:#fff">🔗 Enviar vitrine</a>
-        <% } %>
-      </div>
-
-      <div class="ld-card">
-        <div class="ld-title">🧠 Status comercial</div>
-        <div class="info-row"><span class="info-lbl">Interesse</span><span class="info-val"><%= (lead.historico||[]).length >= 3 ? 'Quente' : ((lead.historico||[]).length >= 1 ? 'Morno' : 'Novo') %></span></div>
-        <div class="info-row"><span class="info-lbl">Matches carteira</span><span class="info-val"><%= (lead.matches||[]).length %></span></div>
-        <div class="info-row"><span class="info-lbl">Matches QuintoAndar</span><span class="info-val"><%= (lead.matchesQuintoAndar||[]).length %></span></div>
-        <div class="info-row"><span class="info-lbl">Ações</span><span class="info-val"><%= (lead.historico||[]).length %></span></div>
-      </div>
-
-      <div class="ld-card">
-        <div class="ld-title">🏙️ Imóveis Compatíveis do QuintoAndar (<%= (lead.matchesQuintoAndar||[]).length %>)</div>
-
-        <% if(!(lead.matchesQuintoAndar||[]).length) { %>
-          <div style="text-align:center;padding:20px;color:var(--gray);font-size:14px">
-            Não encontramos nenhum imóvel compatível no QuintoAndar para este perfil.
-          </div>
-        <% } else { %>
-          <% (lead.matchesQuintoAndar||[]).forEach(m => { %>
-            <div class="match-card">
-              <% if(m.fotos && m.fotos[0]) { %>
-                <img class="match-foto" src="<%= m.fotos[0] %>">
-              <% } else { %>
-                <div class="match-placeholder">🏙️</div>
-              <% } %>
-
-              <div>
-                <div style="font-size:14px;font-weight:900;color:var(--dark);margin-bottom:3px"><%= m.tipo || '-' %> · <%= m.bairro || '-' %></div>
-                <div style="font-size:12px;color:var(--gray)"><%= m.area_m2 || '-' %>m² · <%= m.quartos || '-' %> qtos<% if(m.suites) { %> · <%= m.suites %> suítes<% } %><% if(m.vagas) { %> · <%= m.vagas %> vaga(s)<% } %></div>
-                <div style="margin-top:6px;font-size:12px;color:var(--gray)">
-                  ID: <%= m.id_anuncio_quintoandar || m.id || m.idExterno || '-' %> ·
-                  <%= m.cidade || '-' %>/<%= m.estado || '-' %>
-                </div>
-                <% if(m.url) { %>
-                  <a href="<%= m.url %>" target="_blank" style="font-size:12px;color:var(--brand);font-weight:800;text-decoration:none">
-                    Ver perfil do imóvel no QuintoAndar →
-                  </a>
-                <% } %>
-              </div>
-
-              <div style="font-size:15px;font-weight:900;color:var(--brand);text-align:right;white-space:nowrap">
-                R$ <%= Number(m.valor_imovel||m.valor||0).toLocaleString('pt-BR') %>
-              </div>
-            </div>
-          <% }) %>
-        <% } %>
-      </div>
-
-    </aside>
-
-  </div>
-</div>
-
-
-<script id="organiza-blocos-lead-detalhe">
-document.addEventListener('DOMContentLoaded', function(){
-  const cards = Array.from(document.querySelectorAll('.ld-card'));
-
-  function cardComTitulo(txt){
-    return cards.find(card => {
-      const title = card.querySelector('.ld-title');
-      return title && title.textContent.includes(txt);
-    });
-  }
-
-  const cardDados = cardComTitulo('Dados da Lead');
-  const cardComportamento = cardComTitulo('Comportamento da Lead');
-  const cardQuinto = cardComTitulo('Imóveis Compatíveis do QuintoAndar');
-
-  if(cardDados){
-    cardDados.style.padding = '14px';
-    cardDados.style.marginBottom = '14px';
-  }
-
-  if(cardComportamento){
-    cardComportamento.style.marginTop = '14px';
-  }
-
-  // coloca comportamento abaixo do bloco QuintoAndar, se existir
-  if(cardComportamento && cardQuinto){
-    cardQuinto.insertAdjacentElement('afterend', cardComportamento);
-  }
-});
-</script>
-
-
-
-<!-- CARD PERFIL IA -->
-<% if (lead.perfilIA && Object.keys(lead.perfilIA).length) { %>
-<div style="max-width:700px;margin:24px auto;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:16px;padding:24px;border:1.5px solid #86efac;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
-  
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px">
-    <% const p = lead.perfilIA; %>
-    <% if(p.intencao) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Intenção</div><div style="font-weight:700;font-size:14px">🎯 <%= p.intencao %></div></div><% } %>
-    <% if(p.tipo) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Tipo</div><div style="font-weight:700;font-size:14px">🏠 <%= p.tipo %></div></div><% } %>
-    <% if(p.quartos) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Quartos</div><div style="font-weight:700;font-size:14px">🛏️ <%= p.quartos %></div></div><% } %>
-    <% if(p.suites) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Suítes</div><div style="font-weight:700;font-size:14px">🛁 <%= p.suites %></div></div><% } %>
-    <% if(p.vagas) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Vagas</div><div style="font-weight:700;font-size:14px">🚗 <%= p.vagas %></div></div><% } %>
-    <% if(p.area) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Área</div><div style="font-weight:700;font-size:14px">📐 <%= p.area %>m²</div></div><% } %>
-    <% if(p.valorMin||p.valorMax) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Valor</div><div style="font-weight:700;font-size:13px">💰 <%= p.valorMin ? 'R$'+p.valorMin.toLocaleString('pt-BR')+' – ' : 'até ' %><%= p.valorMax ? 'R$'+p.valorMax.toLocaleString('pt-BR') : '' %></div></div><% } %>
-    <% if(p.urgencia) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Urgência</div><div style="font-weight:700;font-size:14px"><%= p.urgencia==='alta'?'⚡ Alta':'🕐 Baixa' %></div></div><% } %>
-    <% if(p.familia) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Família</div><div style="font-weight:700;font-size:14px">👨‍👩‍👧 <%= p.familia %></div></div><% } %>
-    <% if(p.motivacao) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Motivação</div><div style="font-weight:700;font-size:14px">💡 <%= p.motivacao %></div></div><% } %>
-    <% if(p.sentimento) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Sentimento</div><div style="font-weight:700;font-size:14px">😊 <%= p.sentimento %></div></div><% } %>
-    <% if(p.faseFunil) { %><div style="background:#fff;border-radius:10px;padding:10px 14px"><div style="font-size:11px;color:#6b7280;margin-bottom:2px">Funil</div><div style="font-weight:700;font-size:14px">📊 <%= p.faseFunil %></div></div><% } %>
-  </div>
-</div>
-<% } %>
-
-
-<!-- CARD MATCHES AUTOMÁTICOS -->
-<% if (lead.matchesAuto && lead.matchesAuto.length) { %>
-<div style="max-width:700px;margin:24px auto;background:var(--card);border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-    <span style="font-size:22px">⚡</span>
-    <h3 style="margin:0;font-size:16px;font-weight:700">Matches Automáticos via WhatsApp (<%= lead.matchesAuto.length %>)</h3>
-    <% if(lead.matchAutoEm) { %>
-    <span style="margin-left:auto;font-size:11px;color:#6b7280">Atualizado <%= new Date(lead.matchAutoEm).toLocaleString('pt-BR') %></span>
+    </div>
     <% } %>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:10px">
-    <% lead.matchesAuto.forEach(m => { %>
-    <a href="/app/imovel/<%= m.idInterno||m.id %>" target="_blank" style="text-decoration:none;color:inherit">
-      <div style="display:flex;align-items:center;gap:14px;background:#f8fafc;border-radius:12px;padding:12px 16px;border:1px solid #e2e8f0;transition:box-shadow 0.2s" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='none'">
-        <div style="width:40px;height:40px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex-shrink:0"><%= m.rank %></div>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%= m.titulo||m.endereco||'Imóvel #'+m.rank %></div>
-          <div style="font-size:12px;color:#6b7280;margin-top:2px">
-            <%= m.tipo||'' %> • <%= m.quartos||0 %> quartos • <%= m.bairro||'' %>
+
+    <!-- Imóvel de interesse -->
+    <% if(lead.imovel_interesse) { %>
+    <div class="ld-card">
+      <div class="ld-title">Imóvel que gerou a lead</div>
+      <div class="info-row"><span class="info-lbl">Referência</span><span class="info-val">#<%= lead.imovel_interesse %></span></div>
+      <% if(lead.titulo_interesse){%><div class="info-row"><span class="info-lbl">Título</span><span class="info-val"><%=lead.titulo_interesse%></span></div><%}%>
+      <% if(lead.tipo){%><div class="info-row"><span class="info-lbl">Tipo</span><span class="info-val"><%=lead.tipo%></span></div><%}%>
+      <% if(lead.bairro){%><div class="info-row"><span class="info-lbl">Bairro</span><span class="info-val"><%=lead.bairro%></span></div><%}%>
+      <% if(lead.valor_imovel){%><div class="info-row"><span class="info-lbl">Valor</span><span class="info-val">R$ <%=Number(lead.valor_imovel).toLocaleString('pt-BR')%></span></div><%}%>
+      <a href="/imovel/<%= lead.imovel_interesse %>" target="_blank" class="btn btn-outline btn-sm" style="margin-top:10px;display:inline-flex">Ver imóvel →</a>
+    </div>
+    <% } %>
+
+    <!-- Matches da carteira -->
+    <div class="ld-card">
+      <div class="ld-title">Imóveis compatíveis da carteira (<%= _mat.length %>)</div>
+      <% if(!_mat.length) { %>
+        <div style="text-align:center;padding:20px;color:var(--text-ter);font-size:13px">Nenhum imóvel compatível encontrado na carteira.</div>
+      <% } else { %>
+        <% _mat.forEach(m => { %>
+        <a href="/app/imovel/<%= m.idExterno||m.id||'' %>" target="_blank" class="match-card">
+          <% if(m.fotos&&m.fotos[0]) { %><img class="match-foto" src="<%= m.fotos[0] %>"><% } else { %><div class="match-ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><% } %>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--dark)"><%= m.tipo||'Imóvel' %> · <%= m.bairro||'-' %></div>
+            <div style="font-size:11px;color:var(--text-sec);margin-top:2px"><%= [m.area_m2?m.area_m2+'m²':null, m.quartos?m.quartos+'q':null, m.vagas?m.vagas+'vg':null].filter(Boolean).join(' · ') %></div>
+            <% if(m.score){%><div style="font-size:10px;color:#7c3aed;font-weight:600;margin-top:2px">Score <%=m.score%></div><%}%>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:var(--brand);white-space:nowrap">R$ <%= Number(m.valor_imovel||m.valor||0).toLocaleString('pt-BR') %></div>
+        </a>
+        <% }) %>
+      <% } %>
+    </div>
+
+    <!-- Matches automáticos WhatsApp -->
+    <% if(_matA.length) { %>
+    <div class="ld-card">
+      <div class="ld-title">Matches automáticos via WhatsApp (<%= _matA.length %>)</div>
+      <% _matA.forEach(m => { %>
+      <a href="/app/imovel/<%= m.idInterno||m.id||'' %>" target="_blank" class="match-card">
+        <div class="match-ph" style="background:var(--brand-light)"><span style="font-size:13px;font-weight:700;color:var(--brand)"><%= m.rank||'' %></span></div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--dark)"><%= m.titulo||m.endereco||'Imóvel #'+(m.rank||'') %></div>
+          <div style="font-size:11px;color:var(--text-sec);margin-top:2px"><%= m.tipo||'' %> · <%= m.quartos||0 %>q · <%= m.bairro||'' %></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:12px;font-weight:700;color:var(--brand)">Score <%= m.score||0 %></div>
+          <div style="font-size:11px;color:var(--text-sec)"><%= m.valor?'R$'+Number(m.valor).toLocaleString('pt-BR'):'' %></div>
+        </div>
+      </a>
+      <% }) %>
+    </div>
+    <% } %>
+
+    <!-- Timeline -->
+    <div class="ld-card">
+      <div class="ld-title">Timeline de eventos</div>
+      <%
+      const tlEventos = [];
+      if(lead.mensagens&&lead.mensagens.length) {
+        lead.mensagens.slice(-10).forEach(m => {
+          tlEventos.push({ ic: m.de==='cliente'?'💬':'📤', acao: m.de==='cliente'?'Mensagem recebida':'Mensagem enviada', det: (m.texto||'').substring(0,60), data: m.timestamp||'' });
+        });
+      }
+      if(lead.matchAutoEm) tlEventos.push({ ic:'🎯', acao:'Match automático gerado', det:(lead.matchesAuto||[]).length+' imóveis compatíveis', data:lead.matchAutoEm });
+      if((lead.matches||[]).length) tlEventos.push({ ic:'✅', acao:'Match base interna', det:(lead.matches||[]).length+' imóveis', data:lead.matchAtualizadoEm||lead.createdAt||'' });
+      if(lead.imovel_interesse) tlEventos.push({ ic:'🏠', acao:'Interesse em imóvel', det:'#'+lead.imovel_interesse, data:lead.createdAt||lead.data_cadastro||'' });
+      if(typeof visitasDaLead!=='undefined'&&visitasDaLead&&visitasDaLead.length) {
+        visitasDaLead.forEach(v => tlEventos.push({ ic:'📅', acao:'Visita agendada', det:'Imóvel #'+(v.imovelId||'-')+' — '+v.status, data:v.createdAt||v.data||'' }));
+      }
+      if(lead.scoreAtualizadoEm) tlEventos.push({ ic:'⚡', acao:'Score atualizado', det:'Score: '+(lead.score||0), data:lead.scoreAtualizadoEm });
+      tlEventos.sort((a,b) => new Date(b.data||0)-new Date(a.data||0));
+      %>
+      <% if(tlEventos.length) { %>
+        <% tlEventos.slice(0,12).forEach(ev => { %>
+        <div class="tl-item">
+          <div class="tl-ic"><%= ev.ic %></div>
+          <div>
+            <div class="tl-acao"><%= ev.acao %></div>
+            <% if(ev.det){%><div class="tl-det"><%= ev.det %></div><%}%>
+            <div class="tl-data"><%= ev.data ? new Date(ev.data).toLocaleString('pt-BR') : '' %></div>
           </div>
         </div>
-        <div style="text-align:right;flex-shrink:0">
-          <div style="font-weight:800;font-size:14px;color:var(--brand)">Score <%= m.score||0 %></div>
-          <div style="font-size:12px;color:#6b7280"><%= m.valor ? 'R$'+Number(m.valor).toLocaleString('pt-BR') : '' %></div>
+        <% }) %>
+        <% if(tlEventos.length>12){%><div style="font-size:11px;color:var(--text-ter);text-align:center;padding-top:8px"><%= tlEventos.length-12 %> eventos anteriores</div><%}%>
+      <% } else { %>
+        <div style="font-size:12px;color:var(--text-ter);text-align:center;padding:16px">Nenhuma interação registrada.</div>
+      <% } %>
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside>
+
+    <!-- Ações rápidas -->
+    <div class="ld-card">
+      <div class="ld-title">Ações rápidas</div>
+
+      <% if(_fone) { %>
+      <a href="https://wa.me/55<%=_fone%>" target="_blank" class="acao-btn" style="background:#25D366;color:#fff">WhatsApp</a>
+      <a href="tel:<%=_fone%>" class="acao-btn" style="background:var(--bg);color:var(--dark);border:1px solid var(--border)">Ligar</a>
+      <% } %>
+
+      <% if(_mat.length&&_fone) { %>
+      <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" class="acao-btn" style="background:var(--brand);color:#fff">Enviar vitrine</a>
+      <% } %>
+
+      <a href="/cliente/oferta/<%=lead.leadId||lead.id%>?userId=<%=encodeURIComponent(lead.userId||lead.usuarioId||lead.corretorId||'')%>" target="_blank" class="acao-btn" style="background:var(--bg);color:var(--dark);border:1px solid var(--border)">Ver vitrine</a>
+
+      <form method="POST" action="/app/lead/<%= lead.id||lead.leadId %>/buscar-quintoandar" style="margin-bottom:7px">
+        <button type="submit" class="acao-btn" style="background:var(--dark);color:#fff;width:100%">Match QuintoAndar</button>
+      </form>
+    </div>
+
+    <!-- Status comercial -->
+    <div class="ld-card">
+      <div class="ld-title">Status comercial</div>
+      <div class="info-row"><span class="info-lbl">Temperatura</span><span class="info-val" style="color:<%=_tcor%>"><%= _temp %></span></div>
+      <div class="info-row"><span class="info-lbl">Funil</span><span class="info-val"><%= _fase %></span></div>
+      <div class="info-row"><span class="info-lbl">Score</span><span class="info-val"><%= _score %></span></div>
+      <div class="info-row"><span class="info-lbl">Etapa</span><span class="info-val"><%= lead.scoreEtapa||'Novo' %></span></div>
+      <div class="info-row"><span class="info-lbl">Matches carteira</span><span class="info-val"><%= _mat.length %></span></div>
+      <div class="info-row"><span class="info-lbl">Matches QA</span><span class="info-val"><%= (lead.matchesQuintoAndar||[]).length %></span></div>
+      <div class="info-row"><span class="info-lbl">Mensagens</span><span class="info-val"><%= _msgs %></span></div>
+      <% if(lead.vitrineEnviada){%><div class="info-row"><span class="info-lbl">Vitrine enviada</span><span class="info-val" style="color:#16a34a">✓</span></div><%}%>
+      <% if(lead.visitaSolicitada){%><div class="info-row"><span class="info-lbl">Visita solicitada</span><span class="info-val" style="color:#16a34a">✓</span></div><%}%>
+      <% if(lead.visitaConfirmada){%><div class="info-row"><span class="info-lbl">Visita confirmada</span><span class="info-val" style="color:#16a34a">✓</span></div><%}%>
+      <% if(lead.propostaFeita){%><div class="info-row"><span class="info-lbl">Proposta</span><span class="info-val" style="color:#16a34a">✓</span></div><%}%>
+    </div>
+
+    <!-- Visitas da lead -->
+    <% if(typeof visitasDaLead!=='undefined'&&visitasDaLead&&visitasDaLead.length) { %>
+    <div class="ld-card">
+      <div class="ld-title">Visitas (<%= visitasDaLead.length %>)</div>
+      <% visitasDaLead.forEach(v => { %>
+      <div style="padding:10px;background:var(--bg);border-radius:8px;border:1px solid var(--border-light);margin-bottom:8px;font-size:12px">
+        <div style="font-weight:500;color:var(--dark);margin-bottom:3px"><%= v.imovelTitulo||v.imovelBairro||'Imóvel' %></div>
+        <div style="color:var(--text-sec)"><%= v.dataVisita %> às <%= v.horaVisita %></div>
+        <div style="margin-top:4px">
+          <span style="padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;background:<%= v.status==='confirmada'?'#f0fdf4':v.status==='cancelada'?'#fef2f2':'#fef9c3' %>;color:<%= v.status==='confirmada'?'#16a34a':v.status==='cancelada'?'#dc2626':'#a16207' %>"><%= v.status||'solicitada' %></span>
         </div>
       </div>
-    </a>
-    <% }) %>
-  </div>
-</div>
-<% } %>
+      <% }) %>
+    </div>
+    <% } %>
 
+    <!-- QuintoAndar matches -->
+    <% if((lead.matchesQuintoAndar||[]).length) { %>
+    <div class="ld-card">
+      <div class="ld-title">QuintoAndar (<%= lead.matchesQuintoAndar.length %>)</div>
+      <% lead.matchesQuintoAndar.forEach(m => { %>
+      <a href="<%= m.url||'#' %>" target="_blank" class="match-card">
+        <div class="match-ph">🏙️</div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--dark)"><%= m.tipo||'Imóvel' %> · <%= m.bairro||'-' %></div>
+          <div style="font-size:11px;color:var(--text-sec)"><%= m.quartos||0 %>q · <%= m.area_m2||'-' %>m²</div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:var(--brand);white-space:nowrap">R$<%= Math.round(Number(m.valor_imovel||m.valor||0)/1000) %>k</div>
+      </a>
+      <% }) %>
+    </div>
+    <% } %>
+
+  </aside>
+
+</div>
 
 <%- include('partials/app-end') %>

@@ -1,206 +1,241 @@
 <%- include("partials/app-shell",{active:"home",title:"Dashboard",subtitle:"",user:user}) %>
 
 <style>
-.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.kpi{background:#fff;border:1px solid #E5E5E5;border-radius:14px;padding:18px;position:relative;overflow:hidden}
-.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6B6B6B;margin-bottom:8px}
-.kpi-num{font-size:34px;font-weight:700;letter-spacing:-1.5px;line-height:1;color:#1A1A1A}
-.kpi-sub{font-size:12px;color:#9B9B9B;margin-top:5px}
-.kpi-icon{position:absolute;right:16px;top:16px;font-size:20px;opacity:.12}
-.dash-row{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:16px}
-.section-title{font-size:13px;font-weight:600;color:#1A1A1A;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
-.section-title a{font-size:12px;font-weight:500;color:#FF385C;text-decoration:none}
-.feed{display:flex;flex-direction:column;gap:0}
-.feed-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #F5F5F5}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.kpi-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;position:relative}
+.kpi-card .bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:var(--radius) 0 0 var(--radius)}
+.kpi-card .bar.red{background:var(--brand)}
+.kpi-card .bar.green{background:#22c55e}
+.kpi-card .bar.blue{background:#3b82f6}
+.kpi-card .bar.amber{background:#f59e0b}
+.kpi-lbl{font-size:11px;font-weight:500;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.kpi-num{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1;color:var(--dark)}
+.kpi-num.red{color:var(--brand)}
+.kpi-num.green{color:#16a34a}
+.kpi-num.blue{color:#2563eb}
+.kpi-num.amber{color:#d97706}
+.kpi-sub{font-size:11px;color:var(--text-ter);margin-top:4px}
+
+.dash-main{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px}
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-hd h3{font-size:13px;font-weight:600;color:var(--dark)}
+.section-hd a{font-size:12px;color:var(--brand);text-decoration:none;font-weight:500}
+
+.feed{display:flex;flex-direction:column}
+.feed-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-light)}
 .feed-item:last-child{border-bottom:none}
-.feed-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:#F5F5F5}
-.feed-content{flex:1;min-width:0}
-.feed-nome{font-size:13px;font-weight:600;color:#1A1A1A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.feed-desc{font-size:12px;color:#6B6B6B}
-.rate-wrap{display:flex;flex-direction:column;gap:14px}
-.rate-item{display:flex;flex-direction:column;gap:5px}
-.rate-label{display:flex;justify-content:space-between;font-size:12px;color:#6B6B6B}
-.rate-bar{height:5px;background:#F0F0F0;border-radius:3px;overflow:hidden}
-.rate-fill{height:5px;background:#1A1A1A;border-radius:3px}
-.acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.acao{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:1px solid #E5E5E5;background:#fff;text-decoration:none;color:#1A1A1A;transition:all .15s}
-.acao:hover{border-color:#FF385C;background:#FFF5F6}
-.acao-icon{font-size:18px}
-.acao-text strong{display:block;font-size:13px;font-weight:600}
-.acao-text span{font-size:11px;color:#6B6B6B}
-.tag-match{background:#F5F5F5;color:#6B6B6B;padding:3px 10px;border-radius:20px;font-size:11px}
-.tag-com-match{background:#FFF1F2;color:#FF385C;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.live-dot{display:inline-block;width:6px;height:6px;background:#1A1A1A;border-radius:50%;animation:pulse 2s infinite;margin-right:6px}
+.feed-av{width:32px;height:32px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text-sec);flex-shrink:0}
+.feed-body{flex:1;min-width:0}
+.feed-nome{font-size:13px;font-weight:500;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-desc{font-size:11px;color:var(--text-ter);margin-top:1px}
+.feed-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.feed-badge.match{background:var(--brand-light);color:var(--brand)}
+.feed-badge.sem{background:var(--bg);color:var(--text-ter)}
+
+.metrics{display:flex;flex-direction:column;gap:12px}
+.metric-item{}
+.metric-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--text-sec);margin-bottom:4px}
+.metric-bar{height:4px;background:var(--border-light);border-radius:4px;overflow:hidden}
+.metric-fill{height:4px;background:var(--dark);border-radius:4px;transition:width .3s}
+.metric-fill.red{background:var(--brand)}
+.metric-fill.green{background:#22c55e}
+
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.quick-btn{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:#fff;text-decoration:none;color:var(--text);transition:all .1s}
+.quick-btn:hover{border-color:var(--brand);background:var(--brand-light)}
+.quick-btn svg{color:var(--text-ter);flex-shrink:0}
+.quick-btn:hover svg{color:var(--brand)}
+.quick-lbl strong{display:block;font-size:12px;font-weight:600;color:var(--dark)}
+.quick-lbl span{font-size:11px;color:var(--text-ter)}
+
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.chart-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+.live-dot{display:inline-block;width:6px;height:6px;background:#22c55e;border-radius:50%;animation:pulse-dot 2s infinite;margin-right:6px;vertical-align:middle}
 </style>
 
-<div class="dash-grid">
-  <div class="kpi">
-    <div class="kpi-icon">🏠</div>
-    <div class="kpi-label">Imóveis na carteira</div>
-    <div class="kpi-num"><%= stats.imoveisAtivos %></div>
-    <div class="kpi-sub">Base ativa</div>
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="bar red"></div>
+    <div class="kpi-lbl">Imóveis ativos</div>
+    <div class="kpi-num red"><%= stats.imoveisAtivos %></div>
+    <div class="kpi-sub">na carteira</div>
   </div>
-  <div class="kpi">
-    <div class="kpi-icon">🎯</div>
-    <div class="kpi-label">Matches gerados</div>
-    <div class="kpi-num"><%= stats.matchesGerados %></div>
+  <div class="kpi-card">
+    <div class="bar green"></div>
+    <div class="kpi-lbl">Matches gerados</div>
+    <div class="kpi-num green"><%= stats.matchesGerados %></div>
     <div class="kpi-sub"><%= stats.comMatch %> leads com match</div>
   </div>
-  <div class="kpi">
-    <div class="kpi-icon">👥</div>
-    <div class="kpi-label">Total de leads</div>
-    <div class="kpi-num"><%= stats.leadsNovos %></div>
-    <div class="kpi-sub">Taxa de match: <%= stats.taxaMatch %>%</div>
+  <div class="kpi-card">
+    <div class="bar blue"></div>
+    <div class="kpi-lbl">Total de leads</div>
+    <div class="kpi-num blue"><%= stats.leadsNovos %></div>
+    <div class="kpi-sub">Taxa: <%= stats.taxaMatch %>% com match</div>
   </div>
-  <div class="kpi">
-    <div class="kpi-icon">📅</div>
-    <div class="kpi-label">Visitas agendadas</div>
-    <div class="kpi-num"><%= stats.visitasAgendadas %></div>
+  <div class="kpi-card">
+    <div class="bar amber"></div>
+    <div class="kpi-lbl">Visitas agendadas</div>
+    <div class="kpi-num amber"><%= stats.visitasAgendadas %></div>
     <div class="kpi-sub"><%= stats.visitasHoje %> hoje</div>
   </div>
 </div>
 
-<div class="dash-row">
-  <div class="card" style="margin:0">
-    <div class="section-title">
-      <span><span class="live-dot"></span>Atividade recente</span>
-      <a href="/app/leads">Ver todos</a>
+<!-- Linha principal -->
+<div class="dash-main">
+  <!-- Atividade recente -->
+  <div class="card">
+    <div class="section-hd">
+      <h3><span class="live-dot"></span>Atividade recente</h3>
+      <a href="/app/leads">Ver todos →</a>
     </div>
     <div class="feed">
       <% if(!recentes || !recentes.length) { %>
-        <p style="color:#9B9B9B;font-size:13px;text-align:center;padding:24px 0">Nenhuma atividade ainda</p>
+        <div style="text-align:center;padding:32px 0;color:var(--text-ter)">
+          <div style="font-size:32px;margin-bottom:8px;opacity:.3">👥</div>
+          <div style="font-size:13px">Nenhuma atividade ainda</div>
+        </div>
       <% } else { %>
         <% recentes.forEach(function(l) {
           var temMatch = l.matches && l.matches.length > 0;
-          var origin = l.origin || {};
-          var bairro = origin.bairro || l.bairro || '-';
-          var tipo = origin.tipo || l.tipo || '';
-          var valor = origin.valor_imovel || l.valor_imovel || 0;
+          var bairro = l.bairro || (l.origin && l.origin.bairro) || '';
+          var tipo = l.tipo || (l.origin && l.origin.tipo) || '';
+          var inicial = (l.nome || l.clientName || 'L').charAt(0).toUpperCase();
         %>
         <div class="feed-item">
-          <div class="feed-dot"><%= temMatch ? '🎯' : '👤' %></div>
-          <div class="feed-content">
+          <div class="feed-av"><%= inicial %></div>
+          <div class="feed-body">
             <div class="feed-nome"><%= l.nome || l.clientName || 'Lead' %></div>
-            <div class="feed-desc"><%= bairro %><% if(tipo){ %> · <%= tipo %><% } %><% if(valor){ %> · R$ <%= Number(valor).toLocaleString('pt-BR') %><% } %></div>
+            <div class="feed-desc"><%= [bairro, tipo].filter(Boolean).join(' · ') || 'Novo lead' %></div>
           </div>
-          <div>
-            <% if(temMatch) { %>
-              <span class="tag-com-match"><%= l.matches.length %> match</span>
-            <% } else { %>
-              <span class="tag-match">sem match</span>
-            <% } %>
-          </div>
+          <% if(temMatch) { %>
+            <span class="feed-badge match"><%= l.matches.length %> match</span>
+          <% } else { %>
+            <span class="feed-badge sem">sem match</span>
+          <% } %>
         </div>
         <% }); %>
       <% } %>
     </div>
   </div>
 
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <div class="card" style="margin:0">
-      <div class="section-title"><span>Métricas</span></div>
-      <div class="rate-wrap">
-        <div class="rate-item">
-          <div class="rate-label"><span>Taxa de match</span><span><%= stats.taxaMatch %>%</span></div>
-          <div class="rate-bar"><div class="rate-fill" style="width:<%= stats.taxaMatch %>%"></div></div>
+  <!-- Métricas + ações -->
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="card">
+      <div class="section-hd"><h3>Métricas</h3></div>
+      <div class="metrics">
+        <div class="metric-item">
+          <div class="metric-lbl"><span>Taxa de match</span><span><%= stats.taxaMatch %>%</span></div>
+          <div class="metric-bar"><div class="metric-fill red" style="width:<%= stats.taxaMatch %>%"></div></div>
         </div>
-        <div class="rate-item">
+        <div class="metric-item">
           <% var pctMatch = stats.leadsNovos > 0 ? Math.round(stats.comMatch/stats.leadsNovos*100) : 0; %>
-          <div class="rate-label"><span>Leads com match</span><span><%= stats.comMatch %> / <%= stats.leadsNovos %></span></div>
-          <div class="rate-bar"><div class="rate-fill" style="width:<%= pctMatch %>%"></div></div>
+          <div class="metric-lbl"><span>Leads com match</span><span><%= stats.comMatch %>/<%= stats.leadsNovos %></span></div>
+          <div class="metric-bar"><div class="metric-fill green" style="width:<%= pctMatch %>%"></div></div>
         </div>
-        <div class="rate-item">
+        <div class="metric-item">
           <% var pctVisitas = stats.visitasAgendadas > 0 ? Math.round(stats.visitasHoje/stats.visitasAgendadas*100) : 0; %>
-          <div class="rate-label"><span>Visitas hoje</span><span><%= stats.visitasHoje %></span></div>
-          <div class="rate-bar"><div class="rate-fill" style="width:<%= pctVisitas %>%"></div></div>
+          <div class="metric-lbl"><span>Visitas hoje</span><span><%= stats.visitasHoje %></span></div>
+          <div class="metric-bar"><div class="metric-fill" style="width:<%= Math.min(pctVisitas,100) %>%"></div></div>
         </div>
       </div>
     </div>
 
-    <div class="card" style="margin:0">
-      <div class="section-title"><span>Ações rápidas</span></div>
-      <div class="acoes">
-        <a href="/app/leads" class="acao">
-          <span class="acao-icon">👥</span>
-          <div class="acao-text"><strong>Leads</strong><span>Gerenciar</span></div>
+    <div class="card">
+      <div class="section-hd"><h3>Ações rápidas</h3></div>
+      <div class="quick-grid">
+        <a href="/app/leads" class="quick-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          <div class="quick-lbl"><strong>Leads</strong><span>Gerenciar</span></div>
         </a>
-        <a href="/app/imoveis" class="acao">
-          <span class="acao-icon">🏠</span>
-          <div class="acao-text"><strong>Imóveis</strong><span>Carteira</span></div>
+        <a href="/app/imoveis" class="quick-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <div class="quick-lbl"><strong>Imóveis</strong><span>Carteira</span></div>
         </a>
-        <a href="/app/cadastro" class="acao">
-          <span class="acao-icon">➕</span>
-          <div class="acao-text"><strong>Cadastrar</strong><span>Novo imóvel</span></div>
+        <a href="/app/cadastro" class="quick-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <div class="quick-lbl"><strong>Cadastrar</strong><span>Novo imóvel</span></div>
         </a>
-        <a href="/app/visitas" class="acao">
-          <span class="acao-icon">📅</span>
-          <div class="acao-text"><strong>Visitas</strong><span>Agenda</span></div>
+        <a href="/app/visitas" class="quick-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <div class="quick-lbl"><strong>Visitas</strong><span>Agenda</span></div>
         </a>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Gráficos -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-  <div class="card" style="margin:0">
-    <div class="section-title"><span>Visitas por status</span></div>
-    <canvas id="chartVisitas" height="200"></canvas>
+<div class="charts-row">
+  <div class="chart-card">
+    <div class="section-hd"><h3>Visitas por status</h3></div>
+    <canvas id="chartVisitas" height="180"></canvas>
   </div>
-  <div class="card" style="margin:0">
-    <div class="section-title"><span>Leads por status</span></div>
-    <canvas id="chartLeads" height="200"></canvas>
-  </div>
-</div>
-
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-  <div class="card" style="margin:0">
-    <div class="section-title"><span>Imóveis por tipo</span></div>
-    <canvas id="chartImoveisTipo" height="200"></canvas>
-  </div>
-  <div class="card" style="margin:0">
-    <div class="section-title"><span>Imóveis por bairro</span></div>
-    <canvas id="chartImoveisBairro" height="200"></canvas>
+  <div class="chart-card">
+    <div class="section-hd"><h3>Leads por status</h3></div>
+    <canvas id="chartLeads" height="180"></canvas>
   </div>
 </div>
 
-<div style="margin-bottom:16px">
-  <div class="card" style="margin:0">
-    <div class="section-title"><span>Leads por bairro</span></div>
-    <canvas id="chartLeadsBairro" height="120"></canvas>
+<div class="charts-row">
+  <div class="chart-card">
+    <div class="section-hd"><h3>Imóveis por tipo</h3></div>
+    <canvas id="chartImoveisTipo" height="180"></canvas>
   </div>
+  <div class="chart-card">
+    <div class="section-hd"><h3>Imóveis por bairro</h3></div>
+    <canvas id="chartImoveisBairro" height="180"></canvas>
+  </div>
+</div>
+
+<div class="chart-card" style="margin-bottom:20px">
+  <div class="section-hd"><h3>Leads por bairro</h3></div>
+  <canvas id="chartLeadsBairro" height="100"></canvas>
 </div>
 
 <script>
-const COLORS=['#1A1A1A','#6B6B6B','#9B9B9B','#C5C5C5','#E5E5E5','#FF385C','#555','#333'];
+const PALETTE = ['#111111','#FF385C','#6b7280','#9ca3af','#d1d5db','#374151','#4b5563','#1f2937'];
 
-function makeDonut(id,data){
-  const labels=Object.keys(data),vals=Object.values(data);
-  new Chart(document.getElementById(id),{
-    type:'doughnut',
-    data:{labels,datasets:[{data:vals,backgroundColor:COLORS,borderWidth:2,borderColor:'#fff'}]},
-    options:{plugins:{legend:{position:'right',labels:{font:{size:11},color:'#6B6B6B'}}},cutout:'65%'}
+function makeDonut(id, data) {
+  const labels = Object.keys(data), vals = Object.values(data);
+  new Chart(document.getElementById(id), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: vals, backgroundColor: PALETTE, borderWidth: 2, borderColor: '#fff' }] },
+    options: { plugins: { legend: { position: 'right', labels: { font: { size: 11, family: 'Inter' }, color: '#6b7280', padding: 12 } } }, cutout: '68%' }
   });
 }
-function makeBar(id,data,horizontal){
-  const labels=Object.keys(data),vals=Object.values(data);
-  new Chart(document.getElementById(id),{
-    type:'bar',
-    data:{labels,datasets:[{data:vals,backgroundColor:'#1A1A1A',borderRadius:4,borderSkipped:false}]},
-    options:{indexAxis:horizontal?'y':'x',plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#6B6B6B',font:{size:10}}},y:{grid:{color:'#F5F5F5'},ticks:{color:'#6B6B6B',font:{size:10}}}}}
+
+function makeBar(id, data, horizontal) {
+  const labels = Object.keys(data), vals = Object.values(data);
+  new Chart(document.getElementById(id), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: vals, backgroundColor: '#111111', borderRadius: 4, borderSkipped: false }] },
+    options: {
+      indexAxis: horizontal ? 'y' : 'x',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 10, family: 'Inter' } } },
+        y: { grid: { color: '#f3f4f6' }, ticks: { color: '#9ca3af', font: { size: 10, family: 'Inter' } } }
+      }
+    }
   });
 }
-const visitasStatus=<%- graficoVisitasStatus %>;
-const leadsStatus=<%- graficoLeadsStatus %>;
-const imoveisTipo=<%- graficoImoveisTipo %>;
-const imoveisBairro=<%- graficoImoveisBairro %>;
-const leadsBairro=<%- graficoLeadsBairro %>;
-makeDonut('chartVisitas',visitasStatus);
-makeDonut('chartLeads',{'Extraído OK':leadsStatus.ok||0,'Incompleto':leadsStatus.incompleto||0,'Sem status':leadsStatus.semStatus||0});
-makeDonut('chartImoveisTipo',imoveisTipo);
-makeBar('chartImoveisBairro',imoveisBairro,true);
-makeBar('chartLeadsBairro',leadsBairro,true);
+
+const visitasStatus = <%- graficoVisitasStatus %>;
+const leadsStatus = <%- graficoLeadsStatus %>;
+const imoveisTipo = <%- graficoImoveisTipo %>;
+const imoveisBairro = <%- graficoImoveisBairro %>;
+const leadsBairro = <%- graficoLeadsBairro %>;
+
+makeDonut('chartVisitas', visitasStatus);
+makeDonut('chartLeads', { 'Extraído': leadsStatus.ok||0, 'Incompleto': leadsStatus.incompleto||0, 'Sem status': leadsStatus.semStatus||0 });
+makeDonut('chartImoveisTipo', imoveisTipo);
+makeBar('chartImoveisBairro', imoveisBairro, true);
+makeBar('chartLeadsBairro', leadsBairro, true);
 </script>
+
 <%- include('partials/app-end') %>

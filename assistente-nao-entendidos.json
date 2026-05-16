@@ -1027,7 +1027,7 @@
     },
     {
       "pergunta": "resumo geral",
-      "count": 9,
+      "count": 10,
       "respostas": [
         {
           "texto": "📊 Resumo:🏠 846 ativos · 👥 1393 leads · 🎯 43 (3%) · 📅 2 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 2 visita(s) pendente(s) aguardando c",
@@ -1073,10 +1073,15 @@
           "texto": "📊 Resumo:🏠 291 ativos · 👥 6 leads · 🎯 1 (17%) · 📅 3 visitas🧠 Plano de ação para hoje:⚠️ Atenção agora:🟡 5 leads sem match — pode estar faltando",
           "dominio": "dashboard",
           "data": "2026-05-14T01:52:34.660Z"
+        },
+        {
+          "texto": "📊 Resumo:🏠 10 ativos · 👥 0 leads · 🎯 0 (0%) · 📅 0 visitas🧠 Plano de ação para hoje:✅ O que fazer:1Importe leads dos portais para fazer o match. ",
+          "dominio": "dashboard",
+          "data": "2026-05-16T05:40:16.611Z"
         }
       ],
       "primeira": "2026-05-08T20:50:47.673Z",
-      "ultima": "2026-05-14T01:52:34.660Z"
+      "ultima": "2026-05-16T05:40:16.611Z"
     },
     {
       "pergunta": "oi",

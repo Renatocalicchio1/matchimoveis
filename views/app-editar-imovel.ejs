@@ -1,6 +1,13 @@
 <%- include('partials/app-shell',{active:'imoveis',title:'Editar imóvel',subtitle:'Dados, proprietário, fotos e publicação nos portais.',user:user}) %>
 
 <style>
+
+.dif-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.dif-label{display:flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:600;cursor:pointer}
+.dif-label input{width:auto;margin:0}
+.cep-row{display:flex;gap:8px;margin-bottom:12px}
+.cep-row input{flex:1}
+.cep-btn{background:#111;color:#fff;border:none;padding:10px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;align-self:flex-end}
 .edit-card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:24px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .edit-section-title{font-size:11px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.8px;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid #f3f4f6}
 .fg1{display:grid;grid-template-columns:1fr;gap:12px}
@@ -63,7 +70,8 @@
       <div class="field">
         <label>Tipo de imóvel</label>
         <select name="tipo">
-          <% const _tipo = (imovel.tipo||'').toLowerCase(); %>
+          <% const _tipo = (imovel.tipo||'').toLowerCase();
+          const _matchTipo = (v) => _tipo.includes(v.toLowerCase()) ? 'selected' : ''; %>
           <option value="Apartamento" <%=_tipo.includes('apart')?'selected':''%>>🏢 Apartamento</option>
           <option value="Casa" <%=_tipo.includes('casa')?'selected':''%>>🏠 Casa</option>
           <option value="Cobertura" <%=_tipo.includes('cobert')?'selected':''%>>🏙️ Cobertura</option>
@@ -85,6 +93,16 @@
         </select>
       </div>
     </div>
+  </div>
+
+  <!-- CEP INTELIGENTE -->
+  <div class="edit-card">
+    <div class="edit-section-title">📍 Busca por CEP</div>
+    <div class="cep-row">
+      <div class="field" style="flex:1"><label>CEP</label><input id="cep-edit" placeholder="00000-000" oninput="fmtCEP(this)" maxlength="9"></div>
+      <button type="button" class="cep-btn" onclick="buscarCEPEdit()">🔍 Buscar</button>
+    </div>
+    <div id="cep-res" style="display:none;padding:8px 12px;background:#f0fdf4;border-radius:8px;font-size:13px;color:#166534;font-weight:600"></div>
   </div>
 
   <!-- LOCALIZAÇÃO -->
@@ -231,6 +249,36 @@
         <label>CPF</label>
         <input name="proprietario_cpf" value="<%= imovel.proprietario?.cpf || imovel.proprietario_cpf || '' %>">
       </div>
+    </div>
+  </div>
+
+  <!-- DIFERENCIAIS -->
+  <div class="edit-card">
+    <div class="edit-section-title">✨ Diferenciais</div>
+    <% const _difs = imovel.diferenciais || {}; %>
+    <div style="margin-bottom:8px;font-size:10px;font-weight:800;color:#9ca3af">LAZER</div>
+    <div class="dif-grid" style="margin-bottom:12px">
+      <% [['piscina','🏊 Piscina'],['academia','🏋️ Academia'],['churrasqueira','🔥 Churrasqueira'],['salao_festas','🎉 Salão festas'],['playground','🛝 Playground'],['quadra','🏀 Quadra'],['sauna','🧖 Sauna'],['cinema','🎬 Cinema'],['coworking','💻 Coworking'],['rooftop','🌆 Rooftop']].forEach(([k,l]) => { %>
+      <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
+      <% }) %>
+    </div>
+    <div style="margin-bottom:8px;font-size:10px;font-weight:800;color:#9ca3af">SEGURANÇA</div>
+    <div class="dif-grid" style="margin-bottom:12px">
+      <% [['portaria_24h','👮 Portaria 24h'],['portao_eletronico','🚗 Portão eletr.'],['cameras','📷 Câmeras'],['interfone','📞 Interfone'],['condominio_fechado','🔒 Cond. fechado'],['alarme','🚨 Alarme']].forEach(([k,l]) => { %>
+      <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
+      <% }) %>
+    </div>
+    <div style="margin-bottom:8px;font-size:10px;font-weight:800;color:#9ca3af">IMÓVEL</div>
+    <div class="dif-grid" style="margin-bottom:12px">
+      <% [['varanda','🌿 Varanda'],['elevador','🛗 Elevador'],['mobiliado','🛋️ Mobiliado'],['semi_mobiliado','🪑 Semi mobiliado'],['ar_condicionado','❄️ Ar condicionado'],['solar','☀️ Energia solar'],['pet_friendly','🐾 Pet friendly'],['acessibilidade','♿ Acessibilidade'],['vista_mar','🌊 Vista mar'],['quintal','🏡 Quintal'],['jardim','🌳 Jardim'],['deposito','📦 Depósito']].forEach(([k,l]) => { %>
+      <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
+      <% }) %>
+    </div>
+    <div style="margin-bottom:8px;font-size:10px;font-weight:800;color:#9ca3af">LOCALIZAÇÃO</div>
+    <div class="dif-grid">
+      <% [['metro','🚇 Próx. metrô'],['onibus','🚌 Próx. ônibus'],['shopping','🛒 Próx. shopping'],['escola','🏫 Próx. escola'],['hospital','🏥 Próx. hospital'],['parque','🌳 Próx. parque'],['praia','🏖️ Próx. praia'],['centro','🏙️ Região central']].forEach(([k,l]) => { %>
+      <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
+      <% }) %>
     </div>
   </div>
 

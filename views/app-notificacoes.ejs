@@ -1,38 +1,107 @@
-<%- include("partials/app-shell",{active:"notificacoes",title:"Notificações",subtitle:"Acompanhe visitas, matches e avisos importantes.",user:user}) %>
+<%- include('partials/app-shell', {active:'notificacoes', title:'Notificações', subtitle:'Acompanhe tudo que acontece na sua conta.', user:user}) %>
 
-<div class="card">
+<style>
+.notif-list{display:flex;flex-direction:column;gap:2px}
+.notif-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:10px;border:1px solid transparent;transition:all .1s;cursor:pointer;text-decoration:none;color:inherit}
+.notif-item:hover{background:#fff;border-color:var(--border)}
+.notif-item.nao-lida{background:#fff;border-color:var(--border)}
+.notif-item.nao-lida::before{content:'';width:6px;height:6px;background:var(--brand);border-radius:50%;flex-shrink:0;margin-top:6px}
+.notif-item.lida::before{content:'';width:6px;height:6px;flex-shrink:0;margin-top:6px}
+.notif-ic{width:36px;height:36px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.notif-body{flex:1;min-width:0}
+.notif-titulo{font-size:13px;font-weight:500;color:var(--dark);margin-bottom:2px}
+.notif-item.nao-lida .notif-titulo{font-weight:600}
+.notif-msg{font-size:12px;color:var(--text-sec);line-height:1.5}
+.notif-tempo{font-size:11px;color:var(--text-ter);margin-top:4px}
+.notif-empty{text-align:center;padding:60px 20px;color:var(--text-ter)}
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--bg);border-radius:10px;padding:4px;width:fit-content}
+.tab{padding:6px 16px;border-radius:8px;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer;border:none;background:transparent;transition:all .1s}
+.tab.on{background:#fff;color:var(--dark);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+</style>
 
-    <% if (!notificacoes || notificacoes.length === 0) { %>
-      <div style="padding:30px;text-align:center;color:#666;background:#f9fafb;border-radius:14px">
-        Nenhuma notificação ainda.
-      </div>
-    <% } else { %>
-      <% notificacoes.forEach(n => { %>
-        <div style="padding:16px;border:1px solid #eee;border-radius:14px;margin-bottom:12px;background:<%= n.lida ? '#fff' : '#fff7f8' %>">
-          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-            <div>
-              <strong style="font-size:16px"><%= n.titulo || 'Notificação' %></strong>
-              <% if (!n.lida) { %>
-                <span style="background:#ff385c;color:white;font-size:11px;padding:3px 7px;border-radius:999px;margin-left:8px">nova</span>
-              <% } %>
-              <div style="color:#555;margin-top:6px"><%= n.mensagem || '' %></div>
-              <div style="font-size:12px;color:#999;margin-top:8px">
-                <%= n.criadaEm ? new Date(n.criadaEm).toLocaleString('pt-BR') : '' %>
-              </div>
-            </div>
-
-            <div style="white-space:nowrap">
-              <% if (n.imovelId) { %>
-                <a href="/imovel/<%= n.imovelId %>" target="_blank" style="display:inline-block;background:#f3f4f6;color:#111;padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:700">Ver imóvel</a>
-              <% } %>
-              <% if (n.leadId) { %>
-                <a href="/app/lead/<%= n.leadId %>" style="display:inline-block;background:#ff385c;color:white;padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:700;margin-left:6px">Ver lead</a>
-              <% } %>
-            </div>
-          </div>
-        </div>
-      <% }) %>
-    <% } %>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+  <div class="tabs">
+    <button class="tab on" onclick="filtrarNotif('todas',this)">Todas</button>
+    <button class="tab" onclick="filtrarNotif('nao_lida',this)">Não lidas</button>
+    <button class="tab" onclick="filtrarNotif('visita',this)">Visitas</button>
+    <button class="tab" onclick="filtrarNotif('match',this)">Matches</button>
+  </div>
+  <% if(notificacoes && notificacoes.length) { %>
+  <button onclick="marcarTodasLidas()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer">
+    Marcar todas como lidas
+  </button>
+  <% } %>
 </div>
 
-<%- include("partials/app-end") %>
+<div class="card" style="padding:8px">
+  <% if(!notificacoes || !notificacoes.length) { %>
+    <div class="notif-empty">
+      <div style="font-size:36px;margin-bottom:12px;opacity:.3">🔔</div>
+      <div style="font-size:14px;font-weight:500;color:var(--text-sec);margin-bottom:4px">Nenhuma notificação</div>
+      <div style="font-size:12px">Você está em dia com tudo!</div>
+    </div>
+  <% } else { %>
+  <div class="notif-list" id="notif-list">
+    <% notificacoes.forEach(n => {
+      const tipo = n.tipo || '';
+      const lida = n.lida;
+      const ic = tipo.includes('visita') ? '📅' :
+                 tipo.includes('match') || tipo.includes('vitrine') ? '🎯' :
+                 tipo.includes('lead') ? '👤' :
+                 tipo.includes('proposta') ? '💰' :
+                 tipo.includes('sistema') ? '⚙️' : '🔔';
+    %>
+    <div class="notif-item <%= lida ? 'lida' : 'nao-lida' %>"
+      data-tipo="<%= tipo %>"
+      data-lida="<%= lida %>"
+      onclick="marcarLida('<%= n.id %>', this)">
+      <div class="notif-ic"><%= ic %></div>
+      <div class="notif-body">
+        <div class="notif-titulo"><%= n.titulo || 'Notificação' %></div>
+        <div class="notif-msg"><%= n.mensagem || '' %></div>
+        <div class="notif-tempo"><%= n.criadaEm || '' %></div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+
+<script>
+function filtrarNotif(filtro, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.notif-item').forEach(item => {
+    const tipo = item.dataset.tipo || '';
+    const lida = item.dataset.lida === 'true';
+    let ok = true;
+    if (filtro === 'nao_lida' && lida) ok = false;
+    if (filtro === 'visita' && !tipo.includes('visita')) ok = false;
+    if (filtro === 'match' && !tipo.includes('match') && !tipo.includes('vitrine')) ok = false;
+    item.style.display = ok ? '' : 'none';
+  });
+}
+
+async function marcarLida(id, el) {
+  if (!id) return;
+  try {
+    await fetch('/app/notificacoes/' + id + '/lida', { method: 'POST' });
+    el.classList.remove('nao-lida');
+    el.classList.add('lida');
+    el.dataset.lida = 'true';
+  } catch(e) {}
+}
+
+async function marcarTodasLidas() {
+  try {
+    await fetch('/app/notificacoes/marcar-todas-lidas', { method: 'POST' });
+    document.querySelectorAll('.notif-item').forEach(el => {
+      el.classList.remove('nao-lida');
+      el.classList.add('lida');
+      el.dataset.lida = 'true';
+    });
+  } catch(e) {}
+}
+</script>
+
+<%- include('partials/app-end') %>

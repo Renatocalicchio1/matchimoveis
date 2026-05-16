@@ -1,360 +1,383 @@
 <%- include("partials/app-shell",{active:"cadastro",title:"Cadastrar Imóvel",subtitle:"Importe via XML ou cadastre manualmente",user:user}) %>
 
 <style>
-.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.method-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius);padding:28px;cursor:pointer;transition:all .2s;text-align:center}
-.method-card:hover{border-color:#ccc;box-shadow:var(--shadow)}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.method-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:28px;cursor:pointer;transition:all .15s;text-align:center}
+.method-card:hover{border-color:var(--dark);box-shadow:var(--shadow-md)}
 .method-card.on{border-color:var(--brand);background:var(--brand-light)}
-.method-icon{font-size:40px;margin-bottom:12px}
-.method-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--dark);margin-bottom:6px}
-.method-desc{font-size:12px;color:var(--gray);line-height:1.5}
-.method-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;margin-top:8px}
+.method-ic{margin-bottom:12px;color:var(--text-sec)}
+.method-title{font-size:15px;font-weight:600;color:var(--dark);margin-bottom:6px}
+.method-desc{font-size:12px;color:var(--text-sec);line-height:1.6}
+.method-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 10px;border-radius:20px;margin-top:10px}
 .section{display:none}
 .section.show{display:block}
-.wizard-steps{display:flex;gap:0;margin-bottom:28px}
-.wstep{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
-.wstep:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0}
-.wstep.done::after{background:var(--green)}
-.wstep-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;z-index:1;transition:all .2s}
-.wstep.active .wstep-dot{background:var(--dark);border-color:var(--dark);color:#fff}
-.wstep.done .wstep-dot{background:var(--green);border-color:var(--green);color:#fff}
-.wstep-label{font-size:11px;color:var(--gray);font-weight:500;text-align:center}
-.wstep.active .wstep-label{color:var(--dark);font-weight:700}
-.form-section{margin-bottom:20px}
-.form-section h4{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.form-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
-.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:var(--light)}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border-light)}
+.sec-hd h3{font-size:15px;font-weight:600;color:var(--dark)}
+.sec-hd p{font-size:12px;color:var(--text-sec);margin-top:2px}
+.fm-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.fm-title{font-size:10px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border-light)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+@media(max-width:700px){.fg2,.fg3,.fg4{grid-template-columns:1fr 1fr}}
+.campo label{display:block;font-size:11px;font-weight:500;color:var(--text-sec);margin-bottom:4px}
+.campo input,.campo select,.campo textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;font-family:'Inter',sans-serif;color:var(--dark);background:var(--white)}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--dark);outline:none}
+.dif-sec{font-size:10px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px}
+.dif-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.dif-item{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;cursor:pointer;transition:border .1s}
+.dif-item:hover{border-color:var(--dark)}
+.dif-item input{width:auto;margin:0;flex-shrink:0}
+.portal-wrap{display:flex;flex-wrap:wrap;gap:8px}
+.portal-item{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;transition:border .1s}
+.portal-item:hover{border-color:var(--dark)}
+.cep-row{display:flex;gap:8px;align-items:flex-end}
+.cep-row .campo{flex:1}
+.cep-btn{background:var(--dark);color:#fff;border:none;padding:9px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;height:38px}
+.upload-zone{border:1.5px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)}
 .upload-zone:hover{border-color:var(--brand);background:var(--brand-light)}
-.upload-zone.over{border-color:var(--brand);background:var(--brand-light)}
-.upload-icon{font-size:36px;margin-bottom:10px;opacity:.5}
-.progress-wrap{margin-top:16px;display:none}
-.progress-bar{height:6px;background:var(--light);border-radius:3px;overflow:hidden}
-.progress-fill{height:6px;background:var(--brand);border-radius:3px;transition:width .3s}
-.result-card{background:#F5F5F5;border:1px solid #bbf7d0;border-radius:12px;padding:20px;text-align:center;margin-top:16px;display:none}
-.foto-preview{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
-.foto-thumb{aspect-ratio:1;border-radius:8px;object-fit:cover;background:var(--light);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden}
+.foto-preview{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.foto-thumb{aspect-ratio:1;border-radius:7px;overflow:hidden;background:var(--bg)}
 .foto-thumb img{width:100%;height:100%;object-fit:cover}
 </style>
 
-<%# ── ESCOLHA DO MÉTODO ── %>
+<!-- ESCOLHA -->
 <div id="sec-metodo">
   <div class="method-grid">
-    <div class="method-card" id="mc-xml" onclick="escolherMetodo('xml')">
-      <div class="method-icon">📡</div>
+    <div class="method-card" onclick="escolherMetodo('xml')">
+      <div class="method-ic">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      </div>
       <div class="method-title">Importar via XML</div>
-      <div class="method-desc">Cole a URL do seu feed XML ou do CRM. O sistema importa todos os imóveis automaticamente.</div>
-      <span class="method-badge" style="background:#F5F5F5;color:#FF385C">Recomendado</span>
+      <div class="method-desc">Cole a URL do feed XML ou do CRM. O sistema importa todos os imóveis automaticamente.</div>
+      <span class="method-badge" style="background:var(--brand-light);color:var(--brand)">Recomendado</span>
     </div>
-    <div class="method-card" id="mc-manual" onclick="escolherMetodo('manual')">
-      <div class="method-icon">✍️</div>
+    <div class="method-card" onclick="escolherMetodo('manual')">
+      <div class="method-ic">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
       <div class="method-title">Cadastro manual</div>
       <div class="method-desc">Cadastre um imóvel por vez. Ideal para captações diretas ou exclusividades.</div>
-      <span class="method-badge" style="background:#F5F5F5;color:#1A1A1A">Simples</span>
-    </div>
-  
-    <div class='method-card' id='mc-prop' onclick="escolherMetodo('prop')">
-      <div class='method-icon'>👤</div>
-      <div class='method-title'>Importar Proprietários</div>
-      <div class='method-desc'>Envie CSV ou Excel com dados dos proprietários. O sistema cruza pelo ID do anúncio.</div>
-      <span class='method-badge' style='background:#fef9c3;color:#854d0e'>Cruzamento</span>
+      <span class="method-badge" style="background:var(--bg);color:var(--text-sec);border:1px solid var(--border)">Simples</span>
     </div>
   </div>
 </div>
 
-
-<%# ── SEÇÃO PROPRIETÁRIOS ── %>
-<div class='section' id='sec-prop'>
-  <div class='card'>
-    <div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:20px'>
-      <div>
-        <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">👤 Importar Proprietários</h3>
-        <p style='font-size:13px;color:var(--gray);margin-top:4px'>Cruza CSV/Excel com os imóveis pelo ID do anúncio</p>
-      </div>
-      <button onclick='voltarMetodo()' class='btn btn-ghost btn-sm'>← Voltar</button>
-    </div>
-    <form method='POST' action='/app/importar-proprietarios' enctype='multipart/form-data'>
-      <div class='form-section'>
-        <h4>Planilha de proprietários</h4>
-        <div class='upload-zone' onclick="document.getElementById('propInput').click()" id='dropZoneProp'>
-          <div class='upload-icon'>📋</div>
-          <p style='font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px'>Arraste o arquivo aqui</p>
-          <p style='font-size:12px;color:var(--gray)'>CSV ou XLSX — colunas: ID do anúncio, Nome, Telefone, Email</p>
-          <input type='file' name='file' id='propInput' style='display:none' accept='.csv,.xlsx' onchange='onPropSelect(this)'>
-        </div>
-        <div id='prop-file-name' style='font-size:13px;color:var(--green);margin-top:8px;display:none'></div>
-      </div>
-      <div class='form-section'>
-        <h4>Colunas esperadas na planilha</h4>
-        <div style='background:var(--light);border-radius:8px;padding:14px;font-size:12px;color:var(--gray);line-height:2'>
-          <b>ID do anúncio</b> — obrigatório (ex: ListingID, id, codigo)<br>
-          <b>Nome</b> — nome do proprietário<br>
-          <b>Telefone</b> — WhatsApp ou celular<br>
-          <b>Email</b> — email de contato
-        </div>
-      </div>
-      <button type='submit' class='btn btn-primary' style='width:100%;padding:14px;font-size:15px;margin-top:8px'>
-        🔗 Cruzar e importar
-      </button>
-    </form>
-    <div id='prop-result' style='display:none;margin-top:16px;background:#F5F5F5;border:1px solid #bbf7d0;border-radius:12px;padding:20px;text-align:center'></div>
-  </div>
-</div>
-
-<%# ── SEÇÃO XML ── %>
+<!-- XML -->
 <div class="section" id="sec-xml">
   <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div class="sec-hd">
       <div>
-        <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">📡 Importar via XML</h3>
-        <p style="font-size:13px;color:var(--gray);margin-top:4px">Cole a URL do feed ou envie o arquivo XML</p>
+        <h3>Importar via XML</h3>
+        <p>Cole a URL do feed ou envie o arquivo XML</p>
       </div>
-      <button onclick="voltarMetodo()" class="btn btn-ghost btn-sm">← Voltar</button>
+      <button onclick="voltarMetodo()" class="btn btn-outline btn-sm">← Voltar</button>
     </div>
 
     <form method="POST" action="/app/importar" enctype="multipart/form-data">
-      <div class="form-section">
-        <h4>URL do XML</h4>
-        <div style="display:flex;gap:10px">
-          <input name="xmlUrl" placeholder="https://sistema.rankim.com.br/feed.xml" style="flex:1">
-          <button type="button" onclick="testarXML()" class="btn btn-outline">🔍 Testar</button>
+      <div class="fm-card">
+        <div class="fm-title">URL do XML</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <input name="xmlUrl" placeholder="https://sistema.rankim.com.br/feed.xml" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px">
+          <button type="button" onclick="testarXML()" class="btn btn-outline btn-sm">Testar</button>
         </div>
-        <p style="font-size:12px;color:var(--gray);margin-top:8px">Formatos aceitos: VivaReal VRSync, ZAP, OLX, Rankim, CRM padrão</p>
-        <div id="xml-test-result" style="margin-top:10px;display:none"></div>
+        <div style="font-size:11px;color:var(--text-ter);margin-bottom:12px">Formatos: VivaReal VRSync, ZAP, OLX, Rankim, CRM padrão</div>
+        <div id="xml-test-result" style="display:none;margin-top:8px;padding:8px 12px;border-radius:7px;font-size:12px;font-weight:500"></div>
 
-        <div style="margin-top:14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:14px;padding:14px">
-          <div style="font-weight:800;color:#111827;margin-bottom:8px">XML cadastrado</div>
-
-          <% if (typeof xmlFeeds !== 'undefined' && xmlFeeds && xmlFeeds.length) { %>
-            <% xmlFeeds.forEach(function(feed){ %>
-              <div style="font-size:13px;color:#374151;line-height:1.6;margin-bottom:10px">
-                <div><strong>Link do XML:</strong> <span style="word-break:break-all"><%= feed.url %></span></div>
-                <div><strong>Última atualização:</strong>
-                  <%= feed.lastSyncAt ? new Date(feed.lastSyncAt).toLocaleString('pt-BR') : '-' %>
-                </div>
-                <div><strong>Imóveis ativos:</strong> <%= feed.total || 0 %></div>
-                <form method="POST" action="/app/excluir-xml" style="margin-top:10px" id="formExcluirXml">
-                  <button type="button" onclick="if(confirm('Excluir link do XML? Os imóveis não serão afetados.')){document.getElementById('formExcluirXml').submit();}" 
-                    style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">
-                    🗑️ Excluir XML
-                  </button>
-                </form>
-              </div>
-            <% }) %>
-          <% } else { %>
-            <div style="font-size:13px;color:#667085;line-height:1.6">
-              <div><strong>Link do XML:</strong> nenhum XML importado ainda</div>
-              <div><strong>Última atualização:</strong> -</div>
-            </div>
-          <% } %>
+        <% if (typeof xmlFeeds !== 'undefined' && xmlFeeds && xmlFeeds.length) { %>
+        <div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">XML Cadastrado</div>
+          <% xmlFeeds.forEach(function(feed){ %>
+          <div style="font-size:12px;color:var(--text-sec);line-height:2">
+            <div><strong style="color:var(--dark)">URL:</strong> <span style="word-break:break-all"><%= feed.url %></span></div>
+            <div><strong style="color:var(--dark)">Última sync:</strong> <%= feed.lastSyncAt ? new Date(feed.lastSyncAt).toLocaleString('pt-BR') : '-' %></div>
+            <div><strong style="color:var(--dark)">Imóveis:</strong> <%= feed.total || 0 %></div>
+          </div>
+          <form method="POST" action="/app/excluir-xml" style="margin-top:8px" id="formExcluirXml">
+            <button type="button" onclick="if(confirm('Excluir XML?')){document.getElementById('formExcluirXml').submit();}" class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Excluir XML</button>
+          </form>
+          <% }) %>
         </div>
-<div id="import-status" style="margin-top:12px;padding:12px;border:1px solid #eee;border-radius:12px;background:#fafafa;font-size:13px;color:#666">
-  Status da importação: <strong id="import-status-text">Idle</strong>
-</div>
-</div>
+        <% } %>
 
-      <div id="upload-xml-arquivo" style="display:none"></div>
-
-      <div class="progress-wrap" id="progress-wrap">
-        <p style="font-size:13px;color:var(--gray);margin-bottom:8px" id="progress-msg">Importando imóveis...</p>
-        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <div style="margin-top:12px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text-sec)">
+          Status: <strong id="import-status-text">Aguardando</strong>
+        </div>
       </div>
 
-      <div class="result-card" id="result-card">
-        <div style="font-size:32px;margin-bottom:8px">✅</div>
-        <h3 style="font-size:16px;font-weight:700;color:#1A1A1A;margin-bottom:4px" id="result-msg">Importação concluída!</h3>
-        <p style="font-size:13px;color:var(--gray)" id="result-sub"></p>
-      </div>
-
-      <button type="submit" class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;margin-top:16px">
-        🚀 Importar agora
-      </button>
+      <button type="submit" class="btn btn-primary" style="width:100%;padding:12px">Importar agora</button>
     </form>
   </div>
 </div>
 
-<%# ── SEÇÃO MANUAL ── %>
+<!-- MANUAL -->
 <div class="section" id="sec-manual">
   <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+    <div class="sec-hd">
       <div>
-        <h3 style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">✍️ Cadastro manual</h3>
-        <p style="font-size:13px;color:var(--gray);margin-top:4px">Preencha os dados do imóvel</p>
+        <h3>Cadastro manual</h3>
+        <p>Preencha os dados do imóvel</p>
       </div>
-      <button onclick="voltarMetodo()" class="btn btn-ghost btn-sm">← Voltar</button>
+      <button onclick="voltarMetodo()" class="btn btn-outline btn-sm">← Voltar</button>
     </div>
 
     <form method="POST" action="/app/imoveis">
 
-      <div class="form-section">
-        <h4>Publicação em portais</h4>
-        <div style="display:flex;flex-wrap:wrap;gap:10px">
-          <label><input type="checkbox" name="portal_olx"> OLX</label>
-          <label><input type="checkbox" name="portal_zap"> ZAP Imóveis</label>
-          <label><input type="checkbox" name="portal_vivareal"> VivaReal</label>
-          <label><input type="checkbox" name="portal_chaves"> Chaves na Mão</label>
-          <label><input type="checkbox" name="portal_imovelweb"> ImovelWeb</label>
-          <label><input type="checkbox" name="portal_123i"> 123i</label>
-          <label><input type="checkbox" name="portal_quintoandar"> QuintoAndar</label>
+      <!-- CEP -->
+      <div class="fm-card">
+        <div class="fm-title">Busca por CEP</div>
+        <div class="cep-row">
+          <div class="campo">
+            <label>CEP</label>
+            <input id="cep-input" name="cep" placeholder="00000-000" oninput="fmtCEP(this)" maxlength="9">
+          </div>
+          <button type="button" class="cep-btn" onclick="buscarCEP()">Buscar</button>
         </div>
+        <div id="cep-resultado" style="display:none;margin-top:8px;padding:8px 12px;background:#f0fdf4;border-radius:7px;font-size:12px;color:#166534;font-weight:500"></div>
       </div>
 
-      <div class="form-section">
-        <h4>Tipo e transação</h4>
-        <div class="form-grid-2">
-          <div class="field">
+      <!-- TIPO -->
+      <div class="fm-card">
+        <div class="fm-title">Tipo e transação</div>
+        <div class="fg3">
+          <div class="campo">
             <label>Tipo de imóvel</label>
-            <select name="tipo">
-              <option value="Apartamento">🏢 Apartamento</option>
-              <option value="Casa">🏠 Casa</option>
-              <option value="Cobertura">🏙️ Cobertura</option>
-              <option value="Loft">🏗️ Loft</option>
-              <option value="Studio">🛋️ Studio / Flat</option>
-              <option value="Kitnet">🏡 Kitnet / Conjugado</option>
-              <option value="Terreno">🟩 Terreno / Lote</option>
-              <option value="Comercial">🏪 Comercial</option>
-              <option value="Sala Comercial">🖥️ Sala Comercial</option>
-              <option value="Loja">🛍️ Loja</option>
-              <option value="Galpão">🏭 Galpão / Depósito</option>
+            <select name="tipo" id="select-tipo" onchange="toggleCampos()">
+              <optgroup label="Residencial">
+                <option value="Apartamento">Apartamento</option>
+                <option value="Casa">Casa</option>
+                <option value="Cobertura">Cobertura</option>
+                <option value="Sobrado">Sobrado</option>
+                <option value="Loft">Loft</option>
+                <option value="Studio">Studio / Flat</option>
+                <option value="Kitnet">Kitnet / Conjugado</option>
+                <option value="Duplex">Duplex</option>
+                <option value="Mansão">Mansão</option>
+                <option value="Chácara">Chácara</option>
+                <option value="Sítio">Sítio</option>
+                <option value="Fazenda">Fazenda</option>
+                <option value="Casa de Condomínio">Casa de Condomínio</option>
+                <option value="Flat">Flat / Apart Hotel</option>
+              </optgroup>
+              <optgroup label="Comercial">
+                <option value="Sala Comercial">Sala Comercial</option>
+                <option value="Loja">Loja</option>
+                <option value="Conjunto Comercial">Conjunto Comercial</option>
+                <option value="Galpão">Galpão / Depósito</option>
+                <option value="Prédio Comercial">Prédio Comercial</option>
+                <option value="Hotel">Hotel / Pousada</option>
+                <option value="Consultório">Consultório</option>
+                <option value="Restaurante">Restaurante / Bar</option>
+              </optgroup>
+              <optgroup label="Terrenos">
+                <option value="Terreno">Terreno / Lote</option>
+                <option value="Terreno Comercial">Terreno Comercial</option>
+                <option value="Área Rural">Área Rural</option>
+              </optgroup>
             </select>
           </div>
-          <div class="field">
+          <div class="campo">
             <label>Transação</label>
             <select name="transacao">
-              <option value="venda">💰 Venda</option>
-              <option value="aluguel">🔑 Aluguel</option>
+              <option value="venda">Venda</option>
+              <option value="aluguel">Aluguel</option>
+              <option value="temporada">Temporada</option>
+              <option value="permuta">Permuta</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Fase</label>
+            <select name="fase">
+              <option value="pronto">Pronto para morar</option>
+              <option value="lancamento">Lançamento</option>
+              <option value="na_planta">Na planta</option>
+              <option value="em_construcao">Em construção</option>
             </select>
           </div>
         </div>
       </div>
 
-      <div class="form-section">
-        <h4>Localização</h4>
-        <div class="field">
-          <label>Endereço</label>
-          <input name="endereco" placeholder="Rua, número">
-        </div>
-        <div class="form-grid-3">
-          <div class="field">
-            <label>Bairro</label>
-            <input name="bairro" placeholder="Vila Mariana">
-          </div>
-          <div class="field">
-            <label>Cidade</label>
-            <input name="cidade" value="São Paulo">
-          </div>
-          <div class="field">
-            <label>CEP</label>
-            <input name="cep" placeholder="00000-000">
+      <!-- LOCALIZAÇÃO -->
+      <div class="fm-card">
+        <div class="fm-title">Localização</div>
+        <div class="fg2" style="margin-bottom:10px">
+          <div class="campo"><label>Rua / Avenida</label><input name="endereco" id="campo-endereco" placeholder="Rua das Flores"></div>
+          <div class="fg2">
+            <div class="campo"><label>Número</label><input name="numero" id="campo-numero" placeholder="123"></div>
+            <div class="campo"><label>Complemento</label><input name="complemento" placeholder="Apto 42"></div>
           </div>
         </div>
-      </div>
-
-      <div class="form-section">
-        <h4>Valores</h4>
-        <div class="form-grid-2">
-          <div class="field">
-            <label>Valor do imóvel (R$)</label>
-            <input name="valor_imovel" type="number" placeholder="500000">
+        <div class="fg4" style="margin-bottom:10px">
+          <div class="campo">
+            <label>Estado</label>
+            <select name="estado" id="select-estado">
+              <option value="">Selecione</option>
+              <option value="AC">Acre</option><option value="AL">Alagoas</option><option value="AP">Amapá</option><option value="AM">Amazonas</option><option value="BA">Bahia</option><option value="CE">Ceará</option><option value="DF">Distrito Federal</option><option value="ES">Espírito Santo</option><option value="GO">Goiás</option><option value="MA">Maranhão</option><option value="MT">Mato Grosso</option><option value="MS">Mato Grosso do Sul</option><option value="MG">Minas Gerais</option><option value="PA">Pará</option><option value="PB">Paraíba</option><option value="PR">Paraná</option><option value="PE">Pernambuco</option><option value="PI">Piauí</option><option value="RJ">Rio de Janeiro</option><option value="RN">Rio Grande do Norte</option><option value="RS">Rio Grande do Sul</option><option value="RO">Rondônia</option><option value="RR">Roraima</option><option value="SC" selected>Santa Catarina</option><option value="SP">São Paulo</option><option value="SE">Sergipe</option><option value="TO">Tocantins</option>
+            </select>
           </div>
-          <div class="field">
-            <label>Condomínio (R$)</label>
-            <input name="condominio" type="number" placeholder="1200">
-          </div>
+          <div class="campo"><label>Cidade</label><input name="cidade" id="campo-cidade" placeholder="Cidade"></div>
+          <div class="campo" style="grid-column:span 2"><label>Bairro</label><input name="bairro" id="campo-bairro" placeholder="Moema"></div>
+        </div>
+        <div class="fg2">
+          <div class="campo"><label>Latitude</label><input name="latitude" id="campo-lat" placeholder="-23.5505" type="number" step="any"></div>
+          <div class="campo"><label>Longitude</label><input name="longitude" id="campo-lng" placeholder="-46.6333" type="number" step="any"></div>
         </div>
       </div>
 
-      <div class="form-section">
-        <h4>Características</h4>
-        <div class="form-grid-4">
-          <div class="field">
-            <label>Área Útil Privativa (m²)</label>
-            <input name="area_m2" type="number" placeholder="80">
-          </div>
-          <div class="field">
-            <label>Área Total (m²)</label>
-            <input name="area_total" type="number" placeholder="100">
-          </div>
-          <div class="field">
-            <label>Quartos</label>
-            <input name="quartos" type="number" placeholder="2">
-          </div>
-          <div class="field">
-            <label>Suítes</label>
-            <input name="suites" type="number" placeholder="1">
-          </div>
-          <div class="field">
-            <label>Vagas</label>
-            <input name="vagas" type="number" placeholder="1">
-          </div>
+      <!-- VALORES -->
+      <div class="fm-card">
+        <div class="fm-title">Valores</div>
+        <div class="fg3" style="margin-bottom:10px">
+          <div class="campo"><label>Valor (R$)</label><input name="valor_imovel" type="number" placeholder="500000"></div>
+          <div class="campo"><label>Condomínio (R$)</label><input name="condominio" type="number" placeholder="1200"></div>
+          <div class="campo"><label>IPTU anual (R$)</label><input name="iptu" type="number" placeholder="3600"></div>
         </div>
-        <div class="form-grid-2">
-          <div class="field">
-            <label>Banheiros</label>
-            <input name="banheiros" type="number" placeholder="2">
-          </div>
-          <div class="field">
-            <label>Andar</label>
-            <input name="andar" type="number" placeholder="5">
-          </div>
+        <div class="fg2">
+          <div class="campo"><label>Aceita financiamento?</label><select name="aceita_financiamento"><option value="sim">Sim</option><option value="nao">Não</option><option value="a_combinar">A combinar</option></select></div>
+          <div class="campo"><label>Aceita permuta?</label><select name="aceita_permuta"><option value="nao">Não</option><option value="sim">Sim</option><option value="a_combinar">A combinar</option></select></div>
         </div>
       </div>
 
-      <div class="form-section">
-        <h4>👤 Proprietário</h4>
-        <div class="form-grid-2">
-          <div class="field">
-            <label>Nome</label>
-            <input name="proprietario" placeholder="Nome completo do proprietário">
-          </div>
-          <div class="field">
-            <label>Celular / WhatsApp</label>
-            <input name="proprietario_celular" placeholder="(11) 99999-9999">
-          </div>
+      <!-- CARACTERÍSTICAS -->
+      <div class="fm-card">
+        <div class="fm-title">Características</div>
+        <div class="fg4" style="margin-bottom:10px">
+          <div class="campo"><label>Área útil (m²)</label><input name="area_m2" type="number" placeholder="80"></div>
+          <div class="campo"><label>Área total (m²)</label><input name="area_total" type="number" placeholder="100"></div>
+          <div class="campo"><label>Área construída (m²)</label><input name="area_construida" type="number" placeholder="90"></div>
+          <div class="campo"><label>Andar</label><input name="andar" type="number" placeholder="5"></div>
         </div>
-        <div class="field" style="margin-top:12px">
-          <label>Email</label>
-          <input name="proprietario_email" type="email" placeholder="proprietario@email.com">
+        <div class="fg4" id="campos-residencial">
+          <div class="campo"><label>Quartos</label><input name="quartos" type="number" placeholder="2" min="0"></div>
+          <div class="campo"><label>Suítes</label><input name="suites" type="number" placeholder="1" min="0"></div>
+          <div class="campo"><label>Banheiros</label><input name="banheiros" type="number" placeholder="2" min="0"></div>
+          <div class="campo"><label>Vagas</label><input name="vagas" type="number" placeholder="1" min="0"></div>
+        </div>
+        <div class="fg3" style="margin-top:10px">
+          <div class="campo"><label>Total de andares</label><input name="total_andares" type="number" placeholder="10"></div>
+          <div class="campo"><label>Unidades por andar</label><input name="unidades_por_andar" type="number" placeholder="4"></div>
+          <div class="campo"><label>Posição solar</label><select name="posicao_solar"><option value="">Selecione</option><option value="norte">Norte</option><option value="sul">Sul</option><option value="leste">Leste</option><option value="oeste">Oeste</option><option value="nordeste">Nordeste</option><option value="sudeste">Sudeste</option><option value="sudoeste">Sudoeste</option><option value="noroeste">Noroeste</option></select></div>
         </div>
       </div>
 
-      <div class="form-section">
-        <h4>Descrição</h4>
-        <div class="field">
+      <!-- DIFERENCIAIS -->
+      <div class="fm-card">
+        <div class="fm-title">Diferenciais</div>
+        <div class="dif-sec">Lazer</div>
+        <div class="dif-grid" style="margin-bottom:12px">
+          <label class="dif-item"><input type="checkbox" name="dif_piscina"> Piscina</label>
+          <label class="dif-item"><input type="checkbox" name="dif_academia"> Academia</label>
+          <label class="dif-item"><input type="checkbox" name="dif_churrasqueira"> Churrasqueira</label>
+          <label class="dif-item"><input type="checkbox" name="dif_salao_festas"> Salão de festas</label>
+          <label class="dif-item"><input type="checkbox" name="dif_playground"> Playground</label>
+          <label class="dif-item"><input type="checkbox" name="dif_quadra"> Quadra</label>
+          <label class="dif-item"><input type="checkbox" name="dif_sauna"> Sauna</label>
+          <label class="dif-item"><input type="checkbox" name="dif_cinema"> Cinema</label>
+          <label class="dif-item"><input type="checkbox" name="dif_coworking"> Coworking</label>
+          <label class="dif-item"><input type="checkbox" name="dif_rooftop"> Rooftop</label>
+        </div>
+        <div class="dif-sec">Segurança</div>
+        <div class="dif-grid" style="margin-bottom:12px">
+          <label class="dif-item"><input type="checkbox" name="dif_portaria_24h"> Portaria 24h</label>
+          <label class="dif-item"><input type="checkbox" name="dif_portao_eletronico"> Portão eletrônico</label>
+          <label class="dif-item"><input type="checkbox" name="dif_cameras"> Câmeras</label>
+          <label class="dif-item"><input type="checkbox" name="dif_interfone"> Interfone</label>
+          <label class="dif-item"><input type="checkbox" name="dif_condominio_fechado"> Cond. fechado</label>
+          <label class="dif-item"><input type="checkbox" name="dif_alarme"> Alarme</label>
+        </div>
+        <div class="dif-sec">Imóvel</div>
+        <div class="dif-grid" style="margin-bottom:12px">
+          <label class="dif-item"><input type="checkbox" name="dif_varanda"> Varanda</label>
+          <label class="dif-item"><input type="checkbox" name="dif_elevador"> Elevador</label>
+          <label class="dif-item"><input type="checkbox" name="dif_mobiliado"> Mobiliado</label>
+          <label class="dif-item"><input type="checkbox" name="dif_semi_mobiliado"> Semi mobiliado</label>
+          <label class="dif-item"><input type="checkbox" name="dif_ar_condicionado"> Ar condicionado</label>
+          <label class="dif-item"><input type="checkbox" name="dif_solar"> Energia solar</label>
+          <label class="dif-item"><input type="checkbox" name="dif_pet_friendly"> Pet friendly</label>
+          <label class="dif-item"><input type="checkbox" name="dif_acessibilidade"> Acessibilidade</label>
+          <label class="dif-item"><input type="checkbox" name="dif_vista_mar"> Vista mar</label>
+          <label class="dif-item"><input type="checkbox" name="dif_quintal"> Quintal</label>
+          <label class="dif-item"><input type="checkbox" name="dif_jardim"> Jardim</label>
+          <label class="dif-item"><input type="checkbox" name="dif_deposito"> Depósito</label>
+        </div>
+        <div class="dif-sec">Localização</div>
+        <div class="dif-grid">
+          <label class="dif-item"><input type="checkbox" name="dif_metro"> Próx. metrô</label>
+          <label class="dif-item"><input type="checkbox" name="dif_onibus"> Próx. ônibus</label>
+          <label class="dif-item"><input type="checkbox" name="dif_shopping"> Próx. shopping</label>
+          <label class="dif-item"><input type="checkbox" name="dif_escola"> Próx. escola</label>
+          <label class="dif-item"><input type="checkbox" name="dif_hospital"> Próx. hospital</label>
+          <label class="dif-item"><input type="checkbox" name="dif_parque"> Próx. parque</label>
+          <label class="dif-item"><input type="checkbox" name="dif_praia"> Próx. praia</label>
+          <label class="dif-item"><input type="checkbox" name="dif_centro"> Região central</label>
+        </div>
+      </div>
+
+      <!-- PROPRIETÁRIO -->
+      <div class="fm-card">
+        <div class="fm-title">Proprietário</div>
+        <div class="fg2" style="margin-bottom:10px">
+          <div class="campo"><label>Nome completo</label><input name="proprietario" placeholder="João da Silva"></div>
+          <div class="campo"><label>Celular / WhatsApp</label><input name="proprietario_celular" placeholder="(11) 99999-9999"></div>
+        </div>
+        <div class="fg2">
+          <div class="campo"><label>Email</label><input name="proprietario_email" type="email" placeholder="joao@email.com"></div>
+          <div class="campo"><label>CPF</label><input name="proprietario_cpf" placeholder="000.000.000-00"></div>
+        </div>
+      </div>
+
+      <!-- DESCRIÇÃO -->
+      <div class="fm-card">
+        <div class="fm-title">Descrição</div>
+        <div class="campo">
           <textarea name="descricao" rows="4" placeholder="Descreva o imóvel, diferenciais, localização..."></textarea>
-    <button type="button" onclick="gerarDescricaoIA()" style="margin-top:8px;background:#ff385c;color:white;border:none;padding:9px 14px;border-radius:10px;font-weight:700;cursor:pointer">
-      ✨ Criar descrição com IA
-    </button>
-    <small style="display:block;margin-top:6px;color:#717171">
-      Use a IA para criar uma descrição mais atrativa para o imóvel.
-    </small>
         </div>
+        <button type="button" onclick="gerarDescricaoIA()" class="btn btn-primary btn-sm" style="margin-top:8px">✨ Gerar com IA</button>
       </div>
 
-      <div class="form-section">
-        <h4>Fotos</h4>
+      <!-- FOTOS -->
+      <div class="fm-card">
+        <div class="fm-title">Fotos</div>
         <div class="upload-zone" onclick="document.getElementById('fotosInput').click()">
-          <div class="upload-icon">📷</div>
-          <p style="font-size:14px;font-weight:600;color:var(--dark);margin-bottom:4px">Adicionar fotos</p>
-          <p style="font-size:12px;color:var(--gray)">JPG, PNG — até 20 fotos</p>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.4;margin-bottom:8px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <div style="font-size:13px;font-weight:500;color:var(--text-sec);margin-bottom:4px">Adicionar fotos</div>
+          <div style="font-size:11px;color:var(--text-ter)">JPG, PNG — até 20 fotos</div>
           <input type="file" id="fotosInput" name="fotos" multiple accept="image/*" style="display:none" onchange="previewFotos(this)">
         </div>
         <div class="foto-preview" id="foto-preview"></div>
       </div>
 
-      <div class="form-section" style="margin-top:16px">
-        <h4>Status do imóvel</h4>
-        <select name="status" style="width:100%">
-          <option value="ativo">✅ Publicado</option>
-          <option value="inativo">📦 Arquivado</option>
-          <option value="rascunho">📝 Não publicado</option>
-        </select>
+      <!-- PORTAIS -->
+      <div class="fm-card">
+        <div class="fm-title">Publicação em portais</div>
+        <div class="portal-wrap">
+          <label class="portal-item"><input type="checkbox" name="portal_vivareal"> VivaReal</label>
+          <label class="portal-item"><input type="checkbox" name="portal_zap"> ZAP Imóveis</label>
+          <label class="portal-item"><input type="checkbox" name="portal_olx"> OLX</label>
+          <label class="portal-item"><input type="checkbox" name="portal_chaves"> Chaves na Mão</label>
+          <label class="portal-item"><input type="checkbox" name="portal_imovelweb"> ImovelWeb</label>
+          <label class="portal-item"><input type="checkbox" name="portal_123i"> 123i</label>
+          <label class="portal-item"><input type="checkbox" name="portal_quintoandar"> QuintoAndar</label>
+        </div>
       </div>
-      <div style="display:flex;gap:10px;margin-top:8px">
+
+      <!-- STATUS -->
+      <div class="fm-card">
+        <div class="fm-title">Status</div>
+        <div class="campo">
+          <select name="status">
+            <option value="ativo">Publicado</option>
+            <option value="inativo">Arquivado</option>
+            <option value="rascunho">Rascunho</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:4px;margin-bottom:24px">
         <button type="reset" class="btn btn-outline" style="flex:1">Limpar</button>
-        <button type="submit" class="btn btn-primary" style="flex:2;padding:14px">💾 Salvar imóvel</button>
+        <button type="submit" class="btn btn-primary" style="flex:2;padding:12px">Salvar imóvel</button>
       </div>
+
     </form>
   </div>
 </div>
@@ -370,32 +393,55 @@ function voltarMetodo() {
   document.getElementById('sec-xml').classList.remove('show');
   document.getElementById('sec-manual').classList.remove('show');
 }
-function onFileSelect(input) {
-  const f = input.files[0];
-  if(f) {
-    document.getElementById('file-name').style.display = 'block';
-    document.getElementById('file-name').textContent = '✅ ' + f.name + ' (' + (f.size/1024).toFixed(0) + 'KB)';
-  }
-}
 function testarXML() {
   const url = document.querySelector('input[name=xmlUrl]').value;
   if(!url) { alert('Cole uma URL primeiro!'); return; }
   const el = document.getElementById('xml-test-result');
   el.style.display = 'block';
-  el.innerHTML = '<span style="color:var(--gray);font-size:13px">🔍 Testando conexão...</span>';
+  el.style.background = '#f9fafb';
+  el.style.color = '#6b7280';
+  el.textContent = 'Testando conexão...';
   fetch('/api/testar-xml?url='+encodeURIComponent(url))
     .then(r=>r.json())
     .then(d=>{
-      el.innerHTML = d.ok
-        ? '<span style="color:#1A1A1A;font-size:13px">✅ XML válido — '+d.total+' imóveis encontrados</span>'
-        : '<span style="color:var(--brand);font-size:13px">❌ Erro: '+d.erro+'</span>';
+      el.style.background = d.ok ? '#f0fdf4' : '#fef2f2';
+      el.style.color = d.ok ? '#166534' : '#dc2626';
+      el.textContent = d.ok ? '✅ XML válido — '+d.total+' imóveis encontrados' : '❌ Erro: '+d.erro;
     })
-    .catch(()=>{ el.innerHTML = '<span style="color:var(--brand);font-size:13px">❌ Não foi possível conectar</span>'; });
+    .catch(()=>{ el.style.background='#fef2f2'; el.style.color='#dc2626'; el.textContent='❌ Não foi possível conectar'; });
+}
+async function buscarCEP() {
+  const cep = document.getElementById('cep-input').value.replace(/\D/g,'');
+  if (cep.length !== 8) { alert('CEP inválido'); return; }
+  const res = document.getElementById('cep-resultado');
+  res.style.display = 'block';
+  res.textContent = 'Buscando...';
+  try {
+    const d = await (await fetch('https://viacep.com.br/ws/'+cep+'/json/')).json();
+    if (d.erro) { res.style.background='#fef2f2'; res.style.color='#dc2626'; res.textContent='CEP não encontrado'; return; }
+    document.getElementById('campo-endereco').value = d.logradouro||'';
+    document.getElementById('campo-bairro').value = d.bairro||'';
+    document.getElementById('campo-cidade').value = d.localidade||'';
+    const sel = document.getElementById('select-estado');
+    for(let i=0;i<sel.options.length;i++) if(sel.options[i].value===d.uf){sel.selectedIndex=i;break;}
+    res.textContent = '✅ '+d.logradouro+', '+d.bairro+', '+d.localidade+'/'+d.uf;
+  } catch(e) { res.textContent='Erro ao buscar CEP'; }
+}
+function fmtCEP(input) {
+  let v = input.value.replace(/\D/g,'');
+  if (v.length>5) v = v.slice(0,5)+'-'+v.slice(5,8);
+  input.value = v;
+  if (v.replace(/\D/g,'').length===8) buscarCEP();
+}
+function toggleCampos() {
+  const tipo = document.getElementById('select-tipo').value.toLowerCase();
+  const isTerreno = tipo.includes('terreno')||tipo.includes('área rural');
+  document.getElementById('campos-residencial').style.display = isTerreno ? 'none' : 'grid';
 }
 function previewFotos(input) {
   const preview = document.getElementById('foto-preview');
   preview.innerHTML = '';
-  [...input.files].slice(0,12).forEach(f => {
+  [...input.files].slice(0,10).forEach(f => {
     const reader = new FileReader();
     reader.onload = e => {
       const div = document.createElement('div');
@@ -406,136 +452,55 @@ function previewFotos(input) {
     reader.readAsDataURL(f);
   });
 }
-
-// Drag and drop
-const dz = document.getElementById('dropZone');
-if(dz) {
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
-  dz.addEventListener('drop', e => {
-    e.preventDefault(); dz.classList.remove('over');
-    document.getElementById('fileInput').files = e.dataTransfer.files;
-    onFileSelect(document.getElementById('fileInput'));
-  });
-}
-</script>
-
-</main></div><script>document.addEventListener("DOMContentLoaded",function(){var el=document.getElementById("mc-prop");if(el)el.style.display="none";var sec=document.getElementById("sec-prop");if(sec)sec.style.display="none";});</script></body></html>
-
-<script>
 async function gerarDescricaoIA(){
-  const tipo = document.querySelector('[name="tipo"]')?.value || 'imóvel';
-  const bairro = document.querySelector('[name="bairro"]')?.value || '';
-  const cidade = document.querySelector('[name="cidade"]')?.value || 'São Paulo';
-  const quartos = document.querySelector('[name="quartos"]')?.value || '';
-  const suites = document.querySelector('[name="suites"]')?.value || '';
-  const banheiros = document.querySelector('[name="banheiros"]')?.value || '';
-  const vagas = document.querySelector('[name="vagas"]')?.value || '';
-  const area = document.querySelector('[name="area_m2"]')?.value || '';
-  const valor = document.querySelector('[name="valor_imovel"]')?.value || '';
-
-  const res = await fetch('/api/gerar-descricao-imovel', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ tipo, bairro, cidade, quartos, suites, banheiros, vagas, area, valor })
-  });
-
+  const tipo = document.querySelector('[name="tipo"]')?.value||'imóvel';
+  const bairro = document.querySelector('[name="bairro"]')?.value||'';
+  const cidade = document.querySelector('[name="cidade"]')?.value||'';
+  const quartos = document.querySelector('[name="quartos"]')?.value||'';
+  const area = document.querySelector('[name="area_m2"]')?.value||'';
+  const valor = document.querySelector('[name="valor_imovel"]')?.value||'';
+  const res = await fetch('/api/gerar-descricao-imovel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo,bairro,cidade,quartos,area,valor})});
   const data = await res.json();
   const campo = document.querySelector('[name="descricao"]');
-  if (campo) campo.value = data.descricao || '';
+  if(campo) campo.value = data.descricao||'';
 }
-</script>
-
-<script>
 async function atualizarStatusImport(){
   try{
-    const r = await fetch('/import-status');
-    const j = await r.json();
+    const j = await (await fetch('/import-status')).json();
     const el = document.getElementById('import-status-text');
     if(!el) return;
-
-    if(j.status === 'rodando'){
-      el.innerText = 'Importando...';
-      el.style.color = '#f59e0b';
-    } else if(j.status === 'finalizado'){
-      el.innerText = 'Finalizado ✅';
-      el.style.color = '#16a34a';
-    } else {
-      el.innerText = 'Idle';
-      el.style.color = '#666';
-    }
+    if(j.status==='rodando'){el.textContent='Importando...';el.style.color='#d97706';}
+    else if(j.status==='finalizado'){el.textContent='Finalizado ✅';el.style.color='#16a34a';}
+    else{el.textContent='Aguardando';el.style.color='';}
   }catch(e){}
 }
-
-setInterval(atualizarStatusImport, 2000);
+setInterval(atualizarStatusImport,2000);
 atualizarStatusImport();
-</script>
 
-<script>
-function setupImportacaoXMLAjax(){
+// Import XML via AJAX
+document.addEventListener('DOMContentLoaded',function(){
   const form = document.querySelector('form[action="/app/importar"]');
   if(!form) return;
-
-  form.addEventListener('submit', async function(e){
+  form.addEventListener('submit',async function(e){
     e.preventDefault();
-
-    const statusBox = document.getElementById('import-status');
-    const statusText = document.getElementById('import-status-text');
-
-    if(statusBox) statusBox.style.display = 'block';
-    if(statusText){
-      statusText.innerHTML = 'Importando XML... aguarde';
-      statusText.style.color = '#f59e0b';
-    }
-
-    const fd = new FormData(form);
-
+    const el = document.getElementById('import-status-text');
+    if(el){el.textContent='Importando XML...';el.style.color='#d97706';}
     try{
-      const r = await fetch('/app/importar', { method:'POST', body:fd });
+      const r = await fetch('/app/importar',{method:'POST',body:new FormData(form)});
       const j = await r.json();
-
-      if(!j.ok){
-        statusText.innerHTML = 'Erro: ' + (j.erro || 'falha ao iniciar importação');
-        statusText.style.color = '#dc2626';
-        return;
+      if(!j.ok&&el){el.textContent='Erro: '+(j.erro||'falha');el.style.color='#dc2626';}
+      else{
+        const timer = setInterval(async()=>{
+          try{
+            const s = await (await fetch('/import-status')).json();
+            if(s.status==='finalizado'){clearInterval(timer);if(el){el.innerHTML='Concluído: '+s.total+' imóveis. <a href="/app/imoveis" style="color:var(--brand);font-weight:600">Ver imóveis →</a>';}}
+            if(s.status==='erro'){clearInterval(timer);if(el){el.textContent='Erro: '+(s.mensagem||'');el.style.color='#dc2626';}}
+          }catch(e){}
+        },1500);
       }
-
-      acompanharImportacaoXML();
-    }catch(err){
-      statusText.innerHTML = 'Erro: ' + err.message;
-      statusText.style.color = '#dc2626';
-    }
+    }catch(err){if(el){el.textContent='Erro: '+err.message;el.style.color='#dc2626';}}
   });
-}
-
-async function acompanharImportacaoXML(){
-  const el = document.getElementById('import-status-text');
-  if(!el) return;
-
-  const timer = setInterval(async ()=>{
-    try{
-      const r = await fetch('/import-status');
-      const j = await r.json();
-
-      if(j.status === 'rodando'){
-        el.innerHTML = 'Importando XML...';
-        el.style.color = '#f59e0b';
-      }
-
-      if(j.status === 'finalizado'){
-        clearInterval(timer);
-        el.style.color = '#16a34a';
-        el.innerHTML = 'Importação concluída: ' + (j.total || 0) + ' imóveis importados. <a href="/app/imoveis" style="font-weight:700;color:#111;text-decoration:underline">Ver meus imóveis →</a>';
-      }
-
-      if(j.status === 'erro'){
-        clearInterval(timer);
-        el.style.color = '#dc2626';
-        el.innerHTML = 'Erro na importação: ' + (j.mensagem || '');
-      }
-    }catch(e){}
-  }, 1500);
-}
-
-document.addEventListener('DOMContentLoaded', setupImportacaoXMLAjax);
+});
 </script>
+
+<%- include('partials/app-end') %>

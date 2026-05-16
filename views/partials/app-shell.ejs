@@ -4,142 +4,362 @@
   <meta charset="utf-8">
   <title><%= (typeof title !== 'undefined' && title) ? title + ' · MatchImóveis' : 'MatchImóveis' %></title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    :root{--brand:#FF385C;--brand-dark:#e0314f;--brand-light:#fff1f3;--dark:#111;--gray:#717171;--light:#f9f9f8;--border:#ebebeb;--white:#fff;--green:#00a699;--sidebar:256px;--radius:16px;--shadow:0 2px 16px rgba(0,0,0,.06);--shadow-lg:0 8px 40px rgba(0,0,0,.12)}
-    body{font-family:'Inter',sans-serif;background:var(--light);color:var(--dark);font-size:11px;line-height:1.6}
+    :root{
+      --brand:#FF385C;
+      --brand-dark:#e0314f;
+      --brand-light:#fff1f3;
+      --dark:#111111;
+      --text:#1a1a1a;
+      --text-sec:#6b7280;
+      --text-ter:#9ca3af;
+      --bg:#f8f8f7;
+      --white:#ffffff;
+      --border:#e5e5e3;
+      --border-light:#f0f0ee;
+      --sidebar:248px;
+      --radius:12px;
+      --radius-lg:16px;
+      --shadow:0 1px 4px rgba(0,0,0,.06);
+      --shadow-md:0 4px 16px rgba(0,0,0,.08);
+    }
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+    
+    /* LAYOUT */
     .app{display:flex;min-height:100vh}
-    .sidebar{width:var(--sidebar);background:var(--white);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
-    .brand{display:flex;align-items:center;gap:10px;padding:24px 20px 20px;border-bottom:1px solid var(--border)}
-    .brand-mark{width:36px;height:36px;background:var(--brand);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-    .brand-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#1a1a1a;letter-spacing:-.3px}
-    .brand-name span{color:var(--brand)}
-    .user-pill{margin:16px 14px;padding:8px 10px;background:var(--light);border-radius:14px;display:flex;align-items:center;gap:10px}
-    .user-av{width:38px;height:38px;background:var(--brand);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0}
-    .user-nm{font-size:13px;font-weight:500;color:#1a1a1a;white-space:nowrap;overflow:hidden;display:flex;flex-direction:column;text-overflow:ellipsis;max-width:130px}
-    .user-tp{font-size:11px;color:var(--gray);text-transform:capitalize}
-    nav.menu{padding:8px 12px;flex:1}
-    .menu-sec{font-size:11px;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:.6px;padding:16px 8px 6px}
-    .menu a{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;color:#666;text-decoration:none;font-size:13px;font-weight:400;transition:all .12s;margin-bottom:1px}
-    .menu a:hover{background:var(--light);color:var(--dark)}
-    .menu a.active{background:#fff1f3;color:#ff385c;font-weight:600}
-    .menu-ic{font-size:16px;width:22px;text-align:center}
-    .menu-div{height:1px;background:var(--border);margin:10px 0}
-    .sidebar-footer{padding:16px 14px;border-top:1px solid var(--border)}
-    .sidebar-footer a{display:flex;align-items:center;gap:8px;color:var(--gray);text-decoration:none;font-size:11px;padding:8px 12px;border-radius:10px;transition:all .15s}
-    .sidebar-footer a:hover{color:var(--brand);background:var(--brand-light)}
-    .content{margin-left:var(--sidebar);width:calc(100% - var(--sidebar));min-height:100vh;padding:32px 40px}
-    .page-head{margin-bottom:28px}
-    .page-head h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#1a1a1a;letter-spacing:-.4px;margin-bottom:3px}
-    .page-head p{color:#888;font-size:13px;font-weight:400}
-    .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
-    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-    .kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden; display:flex; flex-direction:column;transition:box-shadow .2s}
-    .kpi:hover{box-shadow:var(--shadow-lg)}
-    .kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--gray);margin-bottom:8px}
-    .kpi-val{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-2px;line-height:1;color:var(--dark)}
-    .kpi-sub{font-size:11px;color:var(--gray);margin-top:6px}
-    .kpi-accent{position:absolute;right:0;top:0;bottom:0;width:4px;border-radius:0 var(--radius) var(--radius) 0}
-    .kpi.red .kpi-accent{background:var(--brand)}.kpi.red .kpi-val{color:var(--brand)}
-    .kpi.green .kpi-accent{background:var(--green)}.kpi.green .kpi-val{color:var(--green)}
-    .kpi.blue .kpi-accent{background:#3b82f6}.kpi.blue .kpi-val{color:#3b82f6}
-    .kpi.amber .kpi-accent{background:#f59e0b}.kpi.amber .kpi-val{color:#f59e0b}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;border:none;transition:all .15s;font-family:'Inter',sans-serif}
-    .btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand-dark);transform:translateY(-1px)}
-    .btn-outline{background:transparent;color:var(--dark);border:1.5px solid var(--border)}.btn-outline:hover{background:var(--light)}
-    .btn-ghost{background:transparent;color:var(--gray)}.btn-ghost:hover{color:var(--dark);background:var(--light)}
-    .btn-sm{padding:7px 12px;font-size:11px;border-radius:8px}
-    input,select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:11px;font-family:'DM Sans',sans-serif;color:var(--dark);background:var(--white);outline:none;transition:border .15s}
-    input:focus,select:focus{border-color:var(--dark)}
-    label{display:block;font-size:11px;font-weight:600;color:var(--dark);margin-bottom:6px}
-    table{width:100%;border-collapse:collapse;font-size:13px;font-family:'Inter',sans-serif}
-    th{text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #f0f0f0}
-    td{padding:13px 16px;border-bottom:1px solid #f5f5f5;color:#1a1a1a;vertical-align:middle}
+    
+    /* SIDEBAR */
+    .sidebar{
+      width:var(--sidebar);
+      background:var(--white);
+      border-right:1px solid var(--border);
+      position:fixed;top:0;left:0;bottom:0;
+      display:flex;flex-direction:column;
+      z-index:100;
+      overflow-y:auto;
+      overflow-x:hidden;
+    }
+
+    /* LOGO */
+    .sidebar-logo{
+      padding:20px 18px 16px;
+      border-bottom:1px solid var(--border-light);
+    }
+    .logo-text{
+      font-size:17px;font-weight:700;letter-spacing:-.4px;
+      color:var(--dark);line-height:1;
+    }
+    .logo-text span{color:var(--brand)}
+
+    /* USER */
+    .sidebar-user{
+      padding:12px 14px;
+      border-bottom:1px solid var(--border-light);
+    }
+    .user-row{
+      display:flex;align-items:center;gap:10px;
+      padding:8px 10px;border-radius:10px;
+      background:var(--bg);
+    }
+    .user-av{
+      width:32px;height:32px;border-radius:50%;
+      background:var(--dark);
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-size:13px;font-weight:600;
+      flex-shrink:0;
+    }
+    .user-info{overflow:hidden;flex:1}
+    .user-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .user-code{font-size:11px;color:var(--text-ter);margin-top:1px}
+
+    /* NAV */
+    nav.menu{padding:8px 10px;flex:1}
+    .menu-sec{
+      font-size:10px;font-weight:600;
+      color:var(--text-ter);
+      text-transform:uppercase;letter-spacing:.6px;
+      padding:14px 8px 5px;
+    }
+    .menu a{
+      display:flex;align-items:center;gap:9px;
+      padding:7px 10px;border-radius:8px;
+      color:var(--text-sec);text-decoration:none;
+      font-size:13px;font-weight:400;
+      transition:all .1s;margin-bottom:1px;
+      white-space:nowrap;
+    }
+    .menu a:hover{background:var(--bg);color:var(--text)}
+    .menu a.active{background:var(--brand-light);color:var(--brand);font-weight:500}
+    .menu-ic{
+      width:20px;height:20px;
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;opacity:.7;
+    }
+    .menu a.active .menu-ic{opacity:1}
+    .menu a:hover .menu-ic{opacity:1}
+    .menu-div{height:1px;background:var(--border-light);margin:6px 0}
+
+    /* BADGES NAV */
+    .nav-badge{
+      margin-left:auto;
+      background:var(--brand);color:#fff;
+      font-size:10px;font-weight:700;
+      padding:1px 6px;border-radius:20px;
+      min-width:18px;text-align:center;
+    }
+    .nav-badge.green{background:#22c55e}
+
+    /* SIDEBAR FOOTER */
+    .sidebar-footer{
+      padding:12px 14px;
+      border-top:1px solid var(--border-light);
+    }
+    .sidebar-footer a{
+      display:flex;align-items:center;gap:8px;
+      color:var(--text-ter);text-decoration:none;
+      font-size:12px;padding:7px 10px;border-radius:8px;
+      transition:all .1s;
+    }
+    .sidebar-footer a:hover{color:var(--text-sec);background:var(--bg)}
+
+    /* CONTENT */
+    .content{
+      margin-left:var(--sidebar);
+      width:calc(100% - var(--sidebar));
+      min-height:100vh;
+      padding:28px 36px;
+      max-width:calc(1280px + var(--sidebar));
+    }
+
+    /* PAGE HEAD */
+    .page-head{margin-bottom:24px}
+    .page-head h1{
+      font-size:20px;font-weight:600;
+      color:var(--dark);letter-spacing:-.3px;
+      margin-bottom:2px;line-height:1.3;
+    }
+    .page-head p{color:var(--text-sec);font-size:13px;font-weight:400}
+
+    /* CARDS */
+    .card{
+      background:var(--white);
+      border:1px solid var(--border);
+      border-radius:var(--radius-lg);
+      padding:20px;
+    }
+
+    /* BUTTONS */
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;
+      padding:8px 16px;border-radius:8px;
+      font-size:13px;font-weight:500;
+      cursor:pointer;text-decoration:none;border:none;
+      transition:all .1s;font-family:'Inter',sans-serif;
+      white-space:nowrap;
+    }
+    .btn-primary{background:var(--brand);color:#fff}
+    .btn-primary:hover{background:var(--brand-dark)}
+    .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+    .btn-outline:hover{background:var(--bg)}
+    .btn-ghost{background:transparent;color:var(--text-sec)}
+    .btn-ghost:hover{color:var(--text);background:var(--bg)}
+    .btn-dark{background:var(--dark);color:#fff}
+    .btn-dark:hover{background:#333}
+    .btn-sm{padding:6px 12px;font-size:12px;border-radius:7px}
+    .btn-lg{padding:11px 22px;font-size:14px}
+    .light{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+    .light:hover{background:#f0f0ee}
+
+    /* FORMS */
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:9px 12px;
+      font-size:13px;
+      font-family:'Inter',sans-serif;
+      color:var(--text);
+      background:var(--white);
+      outline:none;
+      transition:border .1s;
+    }
+    input:focus,select:focus,textarea:focus{border-color:var(--dark)}
+    label{display:block;font-size:12px;font-weight:500;color:var(--text-sec);margin-bottom:5px}
+    .field{display:flex;flex-direction:column;gap:4px}
+
+    /* TABLES */
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{text-align:left;padding:9px 14px;font-size:11px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border-light)}
+    td{padding:12px 14px;border-bottom:1px solid var(--border-light);color:var(--text);vertical-align:middle}
     tr:last-child td{border-bottom:none}
-    tr:hover td{background:#fafafa}
-    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:14px;font-size:11px;font-weight:600}
+    tr:hover td{background:var(--bg)}
+
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
     .badge-red{background:var(--brand-light);color:var(--brand)}
     .badge-green{background:#f0fdf4;color:#16a34a}
-    .badge-gray{background:var(--light);color:var(--gray)}
+    .badge-gray{background:var(--bg);color:var(--text-sec)}
     .badge-blue{background:#eff6ff;color:#2563eb}
     .badge-amber{background:#fffbeb;color:#d97706}
-    .prop-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden; display:flex; flex-direction:column;transition:all .2s;cursor:pointer}
-    .prop-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
-    .prop-price{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--dark);margin-bottom:4px}
-    .prop-addr{font-size:11px;color:var(--gray);margin-bottom:10px}
-    .prop-tags{display:flex;gap:6px;flex-wrap:wrap}
-    .prop-tag{background:var(--light);color:#444;font-size:11px;padding:3px 8px;border-radius:6px}
-    .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-    .filter-chip{padding:7px 14px;border-radius:14px;border:1.5px solid var(--border);background:var(--white);font-size:11px;font-weight:500;color:#444;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
-    .filter-chip:hover,.filter-chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
-    .empty{text-align:center;padding:60px 20px;color:var(--gray)}
-    .empty-icon{font-size:48px;margin-bottom:12px;opacity:.3}
-    .empty h3{font-size:16px;font-weight:600;color:#444;margin-bottom:6px}
-    .search-wrap{position:relative;margin-bottom:20px}
-    .search-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.4}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-    .live{display:inline-block;width:7px;height:7px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;margin-right:5px}
-    @media(max-width:900px){.sidebar{transform:translateX(-100%)}.content{margin-left:0;width:100%;padding:20px}.kpi-grid{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}}
-  
-@media(max-width:700px){
-  }
+    .badge-purple{background:#f5f3ff;color:#7c3aed}
 
-</style>
+    /* KPI */
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+    .kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;position:relative;overflow:hidden}
+    .kpi-label{font-size:11px;font-weight:500;color:var(--text-ter);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+    .kpi-val{font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1;color:var(--dark)}
+    .kpi-sub{font-size:11px;color:var(--text-ter);margin-top:4px}
+    .kpi-bar{position:absolute;left:0;top:0;bottom:0;width:3px}
+    .kpi.red .kpi-bar{background:var(--brand)}.kpi.red .kpi-val{color:var(--brand)}
+    .kpi.green .kpi-bar{background:#22c55e}.kpi.green .kpi-val{color:#16a34a}
+    .kpi.blue .kpi-bar{background:#3b82f6}.kpi.blue .kpi-val{color:#2563eb}
+    .kpi.amber .kpi-bar{background:#f59e0b}.kpi.amber .kpi-val{color:#d97706}
 
+    /* GRIDS */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+    /* EMPTY */
+    .empty{text-align:center;padding:60px 20px;color:var(--text-ter)}
+    .empty-icon{font-size:40px;margin-bottom:12px;opacity:.3}
+    .empty h3{font-size:15px;font-weight:500;color:var(--text-sec);margin-bottom:6px}
+
+    /* MISC */
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .live{display:inline-block;width:6px;height:6px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;margin-right:4px}
+
+    /* RESPONSIVE */
+    @media(max-width:900px){
+      .sidebar{transform:translateX(-100%)}
+      .content{margin-left:0;width:100%;padding:16px}
+      .kpi-grid{grid-template-columns:repeat(2,1fr)}
+      .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body>
-
-
 <div class="app">
+
 <aside class="sidebar">
-  <div class="brand">
-    <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:900;color:#FF385C;letter-spacing:-0.3px">Match<span style="color:#111">Imóveis</span></span>
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <div class="logo-text">Match<span>Imóveis</span></div>
   </div>
-  <div class="user-pill">
-    <div class="user-av"><%= ((typeof user!=='undefined'&&user&&user.nome)?user.nome:'A').charAt(0).toUpperCase() %></div>
-    <div>
-      <div class="user-nm"><%= (typeof user!=='undefined'&&user&&user.nome)?user.nome:'Usuário' %></div>
-      <div class="user-tp"><%= (typeof user!=='undefined'&&user&&user.tipo)?user.tipo:'corretor' %></div>
-      <div style="font-size:11px;color:#9ca3af;font-weight:700">ID: <%= (typeof user!=='undefined'&&user&&(user.codigoUsuario||user.codigo))?(user.codigoUsuario||user.codigo):'-' %></div>
+
+  <!-- User -->
+  <div class="sidebar-user">
+    <div class="user-row">
+      <div class="user-av"><%= ((typeof user!=='undefined'&&user&&user.nome)?user.nome:'U').charAt(0).toUpperCase() %></div>
+      <div class="user-info">
+        <div class="user-name"><%= (typeof user!=='undefined'&&user&&user.nome)?user.nome:'Usuário' %></div>
+        <div class="user-code">ID: <%= (typeof user!=='undefined'&&user&&(user.codigoUsuario||user.codigo))?(user.codigoUsuario||user.codigo):'-' %></div>
+      </div>
     </div>
   </div>
+
+  <!-- Nav -->
   <nav class="menu">
     <div class="menu-sec">Principal</div>
-    <a class="<%= active==='home'?'active':'' %>" href="/app-home"><span class="menu-ic">📊</span>Dashboard</a>
-    <%# Central oculto temporariamente %>
-    <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis"><span class="menu-ic">🏠</span>Meus Imóveis</a>
-    <a class="<%= active==='leads'?'active':'' %>" href="/app/leads"><span class="menu-ic">👥</span>Leads</a>
-    <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas"><span class="menu-ic">📅</span>Visitas</a>
-    <a class="<%= active==='whatsapp'?'active':'' %>" href="/app/whatsapp" style="justify-content:space-between">
-      <span><span class="menu-ic">💬</span>WhatsApp</span>
+
+    <a class="<%= active==='home'?'active':'' %>" href="/app-home">
+      <span class="menu-ic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      </span>
+      Dashboard
+    </a>
+
+    <a class="<%= active==='imoveis'?'active':'' %>" href="/app/imoveis">
+      <span class="menu-ic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </span>
+      Meus Imóveis
+    </a>
+
+    <a class="<%= active==='leads'?'active':'' %>" href="/app/leads">
+      <span class="menu-ic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </span>
+      Leads
+    </a>
+
+    <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas">
+      <span class="menu-ic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </span>
+      Visitas
+      <% if(typeof visitasPendentes !== 'undefined' && visitasPendentes > 0) { %>
+        <span class="nav-badge"><%= visitasPendentes %></span>
+      <% } %>
+    </a>
+
+    <a class="<%= active==='whatsapp'?'active':'' %>" href="/app/whatsapp">
+      <span class="menu-ic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </span>
+      WhatsApp
       <% if (typeof mensagensNaoLidas !== 'undefined' && mensagensNaoLidas > 0) { %>
-        <span style="background:#25D366;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;min-width:18px;text-align:center"><%= mensagensNaoLidas %></span>
+        <span class="nav-badge green"><%= mensagensNaoLidas %></span>
       <% } %>
     </a>
-    <a class="<%= active==='notificacoes'?'active':'' %>" href="/app/notificacoes" style="justify-content:space-between">
-      <span style="display:flex;align-items:center;gap:10px"><span class="menu-ic">🔔</span>Notificações</span>
+
+    <a class="<%= active==='notificacoes'?'active':'' %>" href="/app/notificacoes">
+      <span class="menu-ic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      </span>
+      Notificações
       <% if (typeof notificacoesNaoLidas !== 'undefined' && notificacoesNaoLidas > 0) { %>
-        <span style="background:#ff385c;color:white;font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;min-width:18px;text-align:center"><%= notificacoesNaoLidas %></span>
+        <span class="nav-badge"><%= notificacoesNaoLidas %></span>
       <% } %>
     </a>
+
     <div class="menu-div"></div>
     <div class="menu-sec">Configurar</div>
-    <a class="<%= active==='cadastro'?'active':'' %>" href="/app/cadastro"><span class="menu-ic">➕</span>Cadastrar Imóvel</a>
-    <a class="<%= active==='portais'?'active':'' %>" href="/app/portais"><span class="menu-ic">🔗</span>Portais / XML</a>
-    <a class="<%= active==='perfil'?'active':'' %>" href="/app/perfil"><span class="menu-ic">👤</span>Perfil</a>
-    <a class="<%= active==='assistente'?'active':'' %>" href="/app/assistente"><span class="menu-ic">🤖</span>Assistente</a>
-  </nav>
-  <div class="sidebar-footer"><a href="/login">🚪 Sair</a></div>
-</aside>
-<main class="content">
 
+    <a class="<%= active==='cadastro'?'active':'' %>" href="/app/cadastro">
+      <span class="menu-ic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </span>
+      Cadastrar Imóvel
+    </a>
+
+    <a class="<%= active==='portais'?'active':'' %>" href="/app/portais">
+      <span class="menu-ic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      </span>
+      Portais / XML
+    </a>
+
+    <a class="<%= active==='perfil'?'active':'' %>" href="/app/perfil">
+      <span class="menu-ic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </span>
+      Perfil
+    </a>
+
+    <a class="<%= active==='assistente'?'active':'' %>" href="/app/assistente">
+      <span class="menu-ic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </span>
+      Assistente
+    </a>
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <a href="/logout">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sair
+    </a>
+  </div>
+</aside>
+
+<main class="content">
   <% if(typeof title!=='undefined'&&title){ %>
   <div class="page-head">
     <h1><%= title %></h1>
     <% if(typeof subtitle!=='undefined'&&subtitle){ %><p><%= subtitle %></p><% } %>
   </div>
   <% } %>
-

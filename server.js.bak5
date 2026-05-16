@@ -465,68 +465,6 @@ function salvarLeads(leads){
   fs.writeFileSync(dataFile('leads.json'), JSON.stringify(leads,null,2));
 }
 
-// ── HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────────
-function lerLeadsData() {
-  try {
-    const p = dataPath('data.json');
-    return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : [];
-  } catch(e) { console.error('[lerLeadsData]', e.message); return []; }
-}
-
-function salvarLeadsData(leads) {
-  try {
-    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
-  } catch(e) { console.error('[salvarLeadsData]', e.message); }
-}
-
-function lerVisitasData() {
-  try {
-    const p = dataPath('visitas.json');
-    return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : [];
-  } catch(e) { console.error('[lerVisitasData]', e.message); return []; }
-}
-
-function salvarVisitasData(visitas) {
-  try {
-    fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
-  } catch(e) { console.error('[salvarVisitasData]', e.message); }
-}
-
-function atualizarLead(id, campos) {
-  const leads = lerLeadsData();
-  const idx = leads.findIndex(l => String(l.id) === String(id));
-  if (idx < 0) return null;
-  leads[idx] = { ...leads[idx], ...campos };
-  salvarLeadsData(leads);
-  return leads[idx];
-}
-
-function atualizarVisita(id, campos) {
-  const visitas = lerVisitasData();
-  const idx = visitas.findIndex(v => String(v.id) === String(id));
-  if (idx < 0) return null;
-  visitas[idx] = { ...visitas[idx], ...campos };
-  salvarVisitasData(visitas);
-  return visitas[idx];
-}
-
-function criarLead(payload) {
-  const leads = lerLeadsData();
-  const novo = { id: Date.now().toString(), criadoEm: new Date().toISOString(), ...payload };
-  leads.push(novo);
-  salvarLeadsData(leads);
-  return novo;
-}
-
-function criarVisita(payload) {
-  const visitas = lerVisitasData();
-  const nova = { id: Date.now().toString(), criadoEm: new Date().toISOString(), ...payload };
-  visitas.push(nova);
-  salvarVisitasData(visitas);
-  return nova;
-}
-// ── FIM HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────
-
 function marcarEtapaLead(lead, etapa){
   lead.etapaAtual = etapa;
   lead.jornada = lead.jornada || [];

@@ -2155,7 +2155,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         try {
           const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
           const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
-          const EI = process.env.EVOLUTION_INSTANCE || 'match-corretor';
+          const EI = (() => { try { const _u2 = JSON.parse(fs.readFileSync(require('path').join(__dirname,'users.json'),'utf8')); const _uc = _u2.find(u=>u.id===(_corretorWH.id)); return _uc?.whatsappInstance||instance||'match-corretor'; } catch(e){return instance||'match-corretor';} })();
           const dp = process.env.DATA_FILE || require('path').join(__dirname, 'data.json');
           let leads = [];
           try { leads = JSON.parse(fs.readFileSync(dp, 'utf8')); } catch(e) {}

@@ -20231,5 +20231,2457 @@
       "pets"
     ],
     "urgencia": "alta"
+  },
+  {
+    "id": "1778983218587",
+    "nome": "47999009296",
+    "telefone": "47999009296",
+    "whatsapp": "47999009296",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:00:18.587Z",
+    "mensagens": [
+      {
+        "id": "1778983218601",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T02:00:18.601Z",
+        "lida": false
+      },
+      {
+        "id": "1778983224703",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T02:00:24.703Z",
+        "lida": false
+      },
+      {
+        "id": "1778983231349",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T02:00:31.349Z",
+        "lida": false
+      },
+      {
+        "id": "1778983238661",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Preciso de quintal",
+        "timestamp": "2026-05-17T02:00:38.661Z",
+        "lida": false
+      },
+      {
+        "id": "1778983245098",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Tenho cachorro",
+        "timestamp": "2026-05-17T02:00:45.098Z",
+        "lida": false
+      },
+      {
+        "id": "1778983252692",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T02:00:52.692Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "casa",
+      "categoria": "residencial",
+      "bairro": "centro",
+      "estado": "pr",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "quartos": 3,
+      "cidade": "itajai",
+      "valorMin": 400,
+      "valorMax": 700000,
+      "sentimento": "impaciente",
+      "familia": [
+        "pets"
+      ],
+      "urgencia": "alta"
+    },
+    "score": 37,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T02:00:18.601Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T02:00:24.703Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T02:00:31.349Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Preciso de quintal",
+        "timestamp": "2026-05-17T02:00:38.661Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Tenho cachorro",
+        "timestamp": "2026-05-17T02:00:45.098Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T02:00:52.692Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T02:00:18.604Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T02:00:24.821Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T02:00:31.452Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Preciso de quintal",
+        "timestamp": "2026-05-17T02:00:38.803Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Tenho cachorro",
+        "timestamp": "2026-05-17T02:00:45.238Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T02:00:52.819Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983218604",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:00:18.604Z",
+        "prazo": "2026-05-20T02:00:18.604Z"
+      },
+      {
+        "id": "1778983231452",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:00:31.452Z",
+        "prazo": "2026-05-19T02:00:31.452Z"
+      },
+      {
+        "id": "1778983252819",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:00:52.819Z",
+        "prazo": "2026-05-18T02:00:52.819Z"
+      }
+    ],
+    "ultimaMensagem": "Quero agendar uma visita essa semana",
+    "ultimaMensagemEm": "2026-05-17T02:00:52.692Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:00:52.694Z",
+      "resumo": "casa · 3q · em centro · até R$700k · urgente · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:00:52.694Z",
+    "scoreEtapa": "Conversando",
+    "tipo": "casa",
+    "bairro": "centro",
+    "estado": "pr",
+    "quartos": 3,
+    "cidade": "itajai",
+    "matchesAuto": [],
+    "matches": [],
+    "matchAutoEm": "2026-05-17T02:00:52.819Z",
+    "valorMax": 700000,
+    "valorMin": 400,
+    "sentimento": "impaciente",
+    "familia": [
+      "pets"
+    ],
+    "urgencia": "alta"
+  },
+  {
+    "id": "1778983293728",
+    "nome": "47999009967",
+    "telefone": "47999009967",
+    "whatsapp": "47999009967",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:01:33.728Z",
+    "mensagens": [
+      {
+        "id": "1778983293754",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Bom dia! Vi anúncio de vocês",
+        "timestamp": "2026-05-17T02:01:33.754Z",
+        "lida": false
+      },
+      {
+        "id": "1778983299838",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Cobertura em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:01:39.838Z",
+        "lida": false
+      },
+      {
+        "id": "1778983307836",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Orçamento acima de 2 milhões",
+        "timestamp": "2026-05-17T02:01:47.836Z",
+        "lida": false
+      },
+      {
+        "id": "1778983312963",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Investimento",
+        "timestamp": "2026-05-17T02:01:52.963Z",
+        "lida": false
+      },
+      {
+        "id": "1778983316299",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Vista mar se possível",
+        "timestamp": "2026-05-17T02:01:56.299Z",
+        "lida": false
+      },
+      {
+        "id": "1778983323092",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode agendar visita?",
+        "timestamp": "2026-05-17T02:02:03.092Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "estado": "ba",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "tipo": "cobertura",
+      "categoria": "residencial",
+      "bairro": "balneario camboriu",
+      "cidade": "balneario camboriu",
+      "valorMax": 2000,
+      "intencao": "investir"
+    },
+    "score": 31,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Bom dia! Vi anúncio de vocês",
+        "timestamp": "2026-05-17T02:01:33.754Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Cobertura em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:01:39.838Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Orçamento acima de 2 milhões",
+        "timestamp": "2026-05-17T02:01:47.836Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Investimento",
+        "timestamp": "2026-05-17T02:01:52.963Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Vista mar se possível",
+        "timestamp": "2026-05-17T02:01:56.299Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode agendar visita?",
+        "timestamp": "2026-05-17T02:02:03.091Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Bom dia! Vi anúncio de vocês",
+        "timestamp": "2026-05-17T02:01:33.759Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Cobertura em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:01:39.841Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Orçamento acima de 2 milhões",
+        "timestamp": "2026-05-17T02:01:47.837Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Investimento",
+        "timestamp": "2026-05-17T02:01:52.967Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Vista mar se possível",
+        "timestamp": "2026-05-17T02:01:56.299Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode agendar visita?",
+        "timestamp": "2026-05-17T02:02:03.094Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983293759",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:01:33.759Z",
+        "prazo": "2026-05-20T02:01:33.759Z"
+      },
+      {
+        "id": "1778983307837",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:01:47.837Z",
+        "prazo": "2026-05-19T02:01:47.837Z"
+      },
+      {
+        "id": "1778983323094",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:02:03.094Z",
+        "prazo": "2026-05-18T02:02:03.094Z"
+      }
+    ],
+    "ultimaMensagem": "Pode agendar visita?",
+    "ultimaMensagemEm": "2026-05-17T02:02:03.092Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:02:03.094Z",
+      "resumo": "quer investir · cobertura · em balneario camboriu · até R$2k · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:02:03.094Z",
+    "scoreEtapa": "Conversando",
+    "estado": "ba",
+    "tipo": "cobertura",
+    "bairro": "balneario camboriu",
+    "cidade": "balneario camboriu",
+    "valorMax": 2000,
+    "intencao": "investir"
+  },
+  {
+    "id": "1778983443898",
+    "nome": "47999004317",
+    "telefone": "47999004317",
+    "whatsapp": "47999004317",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:04:03.898Z",
+    "mensagens": [
+      {
+        "id": "1778983443913",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Oi, vi um apartamento no site de vocês",
+        "timestamp": "2026-05-17T02:04:03.913Z",
+        "lida": false
+      },
+      {
+        "id": "1778983449499",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Estou procurando apto 2 quartos em Meia Praia",
+        "timestamp": "2026-05-17T02:04:09.499Z",
+        "lida": false
+      },
+      {
+        "id": "1778983455923",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Orçamento até 500 mil",
+        "timestamp": "2026-05-17T02:04:15.923Z",
+        "lida": false
+      },
+      {
+        "id": "1778983459806",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero comprar",
+        "timestamp": "2026-05-17T02:04:19.806Z",
+        "lida": false
+      },
+      {
+        "id": "1778983466439",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode ser com garagem",
+        "timestamp": "2026-05-17T02:04:26.439Z",
+        "lida": false
+      },
+      {
+        "id": "1778983473773",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quando posso visitar?",
+        "timestamp": "2026-05-17T02:04:33.773Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "bairro": "meia praia",
+      "estado": "pr",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "quartos": 2,
+      "valorMax": 500000,
+      "intencao": "comprar"
+    },
+    "score": 35,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Oi, vi um apartamento no site de vocês",
+        "timestamp": "2026-05-17T02:04:03.913Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Estou procurando apto 2 quartos em Meia Praia",
+        "timestamp": "2026-05-17T02:04:09.499Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Orçamento até 500 mil",
+        "timestamp": "2026-05-17T02:04:15.923Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero comprar",
+        "timestamp": "2026-05-17T02:04:19.806Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode ser com garagem",
+        "timestamp": "2026-05-17T02:04:26.439Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quando posso visitar?",
+        "timestamp": "2026-05-17T02:04:33.773Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Oi, vi um apartamento no site de vocês",
+        "timestamp": "2026-05-17T02:04:03.915Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Estou procurando apto 2 quartos em Meia Praia",
+        "timestamp": "2026-05-17T02:04:09.668Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Orçamento até 500 mil",
+        "timestamp": "2026-05-17T02:04:16.098Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero comprar",
+        "timestamp": "2026-05-17T02:04:19.880Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode ser com garagem",
+        "timestamp": "2026-05-17T02:04:26.722Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quando posso visitar?",
+        "timestamp": "2026-05-17T02:04:33.908Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983443915",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:04:03.915Z",
+        "prazo": "2026-05-20T02:04:03.915Z"
+      },
+      {
+        "id": "1778983456098",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:04:16.098Z",
+        "prazo": "2026-05-19T02:04:16.098Z"
+      },
+      {
+        "id": "1778983473908",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:04:33.908Z",
+        "prazo": "2026-05-18T02:04:33.908Z"
+      }
+    ],
+    "ultimaMensagem": "Quando posso visitar?",
+    "ultimaMensagemEm": "2026-05-17T02:04:33.773Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:04:33.777Z",
+      "resumo": "quer comprar · apartamento · 2q · em meia praia · até R$500k · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:04:33.777Z",
+    "scoreEtapa": "Conversando",
+    "tipo": "apartamento",
+    "bairro": "meia praia",
+    "estado": "pr",
+    "quartos": 2,
+    "matchesAuto": [],
+    "matches": [],
+    "matchAutoEm": "2026-05-17T02:04:33.908Z",
+    "valorMax": 500000,
+    "intencao": "comprar"
+  },
+  {
+    "id": "1778983551231",
+    "nome": "47999002050",
+    "telefone": "47999002050",
+    "whatsapp": "47999002050",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:05:51.231Z",
+    "mensagens": [
+      {
+        "id": "1778983551258",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T02:05:51.258Z",
+        "lida": false
+      },
+      {
+        "id": "1778983555187",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T02:05:55.187Z",
+        "lida": false
+      },
+      {
+        "id": "1778983559139",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T02:05:59.139Z",
+        "lida": false
+      },
+      {
+        "id": "1778983566061",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Preciso de quintal",
+        "timestamp": "2026-05-17T02:06:06.061Z",
+        "lida": false
+      },
+      {
+        "id": "1778983573898",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Tenho cachorro",
+        "timestamp": "2026-05-17T02:06:13.898Z",
+        "lida": false
+      },
+      {
+        "id": "1778983579928",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T02:06:19.928Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "casa",
+      "categoria": "residencial",
+      "bairro": "centro",
+      "estado": "pr",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "quartos": 3,
+      "cidade": "itajai",
+      "valorMin": 400,
+      "valorMax": 700000,
+      "sentimento": "impaciente",
+      "familia": [
+        "pets"
+      ],
+      "urgencia": "alta"
+    },
+    "score": 37,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T02:05:51.258Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T02:05:55.187Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T02:05:59.139Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Preciso de quintal",
+        "timestamp": "2026-05-17T02:06:06.061Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Tenho cachorro",
+        "timestamp": "2026-05-17T02:06:13.898Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T02:06:19.928Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T02:05:51.262Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T02:05:55.389Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T02:05:59.295Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Preciso de quintal",
+        "timestamp": "2026-05-17T02:06:06.173Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Tenho cachorro",
+        "timestamp": "2026-05-17T02:06:14.104Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T02:06:20.065Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983551262",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:05:51.262Z",
+        "prazo": "2026-05-20T02:05:51.262Z"
+      },
+      {
+        "id": "1778983559295",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:05:59.295Z",
+        "prazo": "2026-05-19T02:05:59.295Z"
+      },
+      {
+        "id": "1778983580065",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:06:20.065Z",
+        "prazo": "2026-05-18T02:06:20.065Z"
+      }
+    ],
+    "ultimaMensagem": "Quero agendar uma visita essa semana",
+    "ultimaMensagemEm": "2026-05-17T02:06:19.928Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:06:19.931Z",
+      "resumo": "casa · 3q · em centro · até R$700k · urgente · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:06:19.931Z",
+    "scoreEtapa": "Conversando",
+    "tipo": "casa",
+    "bairro": "centro",
+    "estado": "pr",
+    "quartos": 3,
+    "cidade": "itajai",
+    "matchesAuto": [],
+    "matches": [],
+    "matchAutoEm": "2026-05-17T02:06:20.064Z",
+    "valorMax": 700000,
+    "valorMin": 400,
+    "sentimento": "impaciente",
+    "familia": [
+      "pets"
+    ],
+    "urgencia": "alta"
+  },
+  {
+    "id": "1778983608672",
+    "nome": "47999006420",
+    "telefone": "47999006420",
+    "whatsapp": "47999006420",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:06:48.672Z",
+    "mensagens": [
+      {
+        "id": "1778983608715",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:06:48.715Z",
+        "lida": false
+      },
+      {
+        "id": "1778983616110",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T02:06:56.110Z",
+        "lida": false
+      },
+      {
+        "id": "1778983621446",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T02:07:01.446Z",
+        "lida": false
+      },
+      {
+        "id": "1778983628177",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Casal sem filhos",
+        "timestamp": "2026-05-17T02:07:08.177Z",
+        "lida": false
+      },
+      {
+        "id": "1778983634226",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T02:07:14.226Z",
+        "lida": false
+      },
+      {
+        "id": "1778983639654",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T02:07:19.654Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "estado": "pr",
+      "intencao": "comprar",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "suites": 3,
+      "bairro": "sul",
+      "valorMax": 2000,
+      "familia": [
+        "criancas",
+        "casal"
+      ],
+      "vagas": 2,
+      "diferenciais": [
+        "varanda"
+      ]
+    },
+    "score": 31,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:06:48.715Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T02:06:56.110Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T02:07:01.446Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Casal sem filhos",
+        "timestamp": "2026-05-17T02:07:08.177Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T02:07:14.226Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T02:07:19.654Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:06:48.719Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T02:06:56.112Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T02:07:01.447Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Casal sem filhos",
+        "timestamp": "2026-05-17T02:07:08.180Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T02:07:14.227Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T02:07:19.654Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983608719",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:06:48.719Z",
+        "prazo": "2026-05-20T02:06:48.719Z"
+      },
+      {
+        "id": "1778983621447",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:07:01.447Z",
+        "prazo": "2026-05-19T02:07:01.447Z"
+      },
+      {
+        "id": "1778983639654",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:07:19.654Z",
+        "prazo": "2026-05-18T02:07:19.654Z"
+      }
+    ],
+    "ultimaMensagem": "Quero ver pessoalmente",
+    "ultimaMensagemEm": "2026-05-17T02:07:19.654Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:07:19.654Z",
+      "resumo": "quer comprar · apartamento · em sul · até R$2k · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:07:19.654Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "comprar",
+    "estado": "pr",
+    "tipo": "apartamento",
+    "suites": 3,
+    "bairro": "sul",
+    "valorMax": 2000,
+    "familia": [
+      "criancas",
+      "casal"
+    ],
+    "vagas": 2,
+    "diferenciais": [
+      "varanda"
+    ]
+  },
+  {
+    "id": "1778983662517",
+    "nome": "47999002795",
+    "telefone": "47999002795",
+    "whatsapp": "47999002795",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:07:42.517Z",
+    "mensagens": [
+      {
+        "id": "1778983662550",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:07:42.550Z",
+        "lida": false
+      },
+      {
+        "id": "1778983666386",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T02:07:46.386Z",
+        "lida": false
+      },
+      {
+        "id": "1778983670414",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T02:07:50.414Z",
+        "lida": false
+      },
+      {
+        "id": "1778983674211",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Casal sem filhos",
+        "timestamp": "2026-05-17T02:07:54.211Z",
+        "lida": false
+      },
+      {
+        "id": "1778983677896",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T02:07:57.896Z",
+        "lida": false
+      },
+      {
+        "id": "1778983682886",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T02:08:02.886Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "estado": "pr",
+      "intencao": "comprar",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "suites": 3,
+      "bairro": "sul",
+      "valorMax": 2000,
+      "familia": [
+        "criancas",
+        "casal"
+      ],
+      "vagas": 2,
+      "diferenciais": [
+        "varanda"
+      ]
+    },
+    "score": 31,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:07:42.550Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T02:07:46.386Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T02:07:50.414Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Casal sem filhos",
+        "timestamp": "2026-05-17T02:07:54.211Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T02:07:57.896Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T02:08:02.886Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:07:42.554Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T02:07:46.389Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T02:07:50.414Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Casal sem filhos",
+        "timestamp": "2026-05-17T02:07:54.212Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T02:07:57.896Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T02:08:02.886Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983662554",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:07:42.554Z",
+        "prazo": "2026-05-20T02:07:42.554Z"
+      },
+      {
+        "id": "1778983670414",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:07:50.414Z",
+        "prazo": "2026-05-19T02:07:50.414Z"
+      },
+      {
+        "id": "1778983682886",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:08:02.886Z",
+        "prazo": "2026-05-18T02:08:02.886Z"
+      }
+    ],
+    "ultimaMensagem": "Quero ver pessoalmente",
+    "ultimaMensagemEm": "2026-05-17T02:08:02.886Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:08:02.886Z",
+      "resumo": "quer comprar · apartamento · em sul · até R$2k · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:08:02.886Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "comprar",
+    "estado": "pr",
+    "tipo": "apartamento",
+    "suites": 3,
+    "bairro": "sul",
+    "valorMax": 2000,
+    "familia": [
+      "criancas",
+      "casal"
+    ],
+    "vagas": 2,
+    "diferenciais": [
+      "varanda"
+    ]
+  },
+  {
+    "id": "1778983714565",
+    "nome": "47999009885",
+    "telefone": "47999009885",
+    "whatsapp": "47999009885",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:08:34.565Z",
+    "mensagens": [
+      {
+        "id": "1778983714582",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T02:08:34.582Z",
+        "lida": false
+      },
+      {
+        "id": "1778983721469",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:08:41.469Z",
+        "lida": false
+      },
+      {
+        "id": "1778983724694",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Até 2500 por mês",
+        "timestamp": "2026-05-17T02:08:44.694Z",
+        "lida": false
+      },
+      {
+        "id": "1778983730038",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Só eu morando",
+        "timestamp": "2026-05-17T02:08:50.038Z",
+        "lida": false
+      },
+      {
+        "id": "1778983734639",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T02:08:54.639Z",
+        "lida": false
+      },
+      {
+        "id": "1778983738312",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T02:08:58.312Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "estado": "sp",
+      "intencao": "alugar",
+      "faseFunil": "qualificado",
+      "temperatura": "morno",
+      "bairro": "balneario camboriu",
+      "cidade": "balneario camboriu",
+      "familia": [
+        "sozinho"
+      ],
+      "diferenciais": [
+        "mobiliado"
+      ]
+    },
+    "score": 27,
+    "temperatura": "morno",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T02:08:34.582Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:08:41.469Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Até 2500 por mês",
+        "timestamp": "2026-05-17T02:08:44.694Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Só eu morando",
+        "timestamp": "2026-05-17T02:08:50.038Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T02:08:54.639Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T02:08:58.312Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T02:08:34.584Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:08:41.472Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Até 2500 por mês",
+        "timestamp": "2026-05-17T02:08:44.694Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Só eu morando",
+        "timestamp": "2026-05-17T02:08:50.038Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T02:08:54.640Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quando tem disponível?",
+        "timestamp": "2026-05-17T02:08:58.313Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983714584",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:08:34.584Z",
+        "prazo": "2026-05-20T02:08:34.584Z"
+      },
+      {
+        "id": "1778983724694",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:08:44.694Z",
+        "prazo": "2026-05-19T02:08:44.694Z"
+      }
+    ],
+    "ultimaMensagem": "Quando tem disponível?",
+    "ultimaMensagemEm": "2026-05-17T02:08:58.313Z",
+    "faseFunil": "qualificado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:08:58.313Z",
+      "resumo": "quer alugar · apartamento · em balneario camboriu · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:08:58.313Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "alugar",
+    "tipo": "apartamento",
+    "estado": "sp",
+    "bairro": "balneario camboriu",
+    "cidade": "balneario camboriu",
+    "familia": [
+      "sozinho"
+    ],
+    "diferenciais": [
+      "mobiliado"
+    ]
+  },
+  {
+    "id": "1778983806739",
+    "nome": "47999005217",
+    "telefone": "47999005217",
+    "whatsapp": "47999005217",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:10:06.739Z",
+    "mensagens": [
+      {
+        "id": "1778983806755",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T02:10:06.755Z",
+        "lida": false
+      },
+      {
+        "id": "1778983810879",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T02:10:10.879Z",
+        "lida": false
+      },
+      {
+        "id": "1778983817411",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T02:10:17.411Z",
+        "lida": false
+      },
+      {
+        "id": "1778983822626",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Preciso de quintal",
+        "timestamp": "2026-05-17T02:10:22.626Z",
+        "lida": false
+      },
+      {
+        "id": "1778983827520",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Tenho cachorro",
+        "timestamp": "2026-05-17T02:10:27.520Z",
+        "lida": false
+      },
+      {
+        "id": "1778983835127",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T02:10:35.127Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "casa",
+      "categoria": "residencial",
+      "bairro": "centro",
+      "estado": "pr",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "quartos": 3,
+      "cidade": "itajai",
+      "valorMin": 400,
+      "valorMax": 700000,
+      "sentimento": "impaciente",
+      "familia": [
+        "pets"
+      ],
+      "urgencia": "alta"
+    },
+    "score": 37,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T02:10:06.755Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T02:10:10.879Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T02:10:17.411Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Preciso de quintal",
+        "timestamp": "2026-05-17T02:10:22.626Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Tenho cachorro",
+        "timestamp": "2026-05-17T02:10:27.520Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T02:10:35.127Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T02:10:06.761Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T02:10:11.073Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T02:10:17.644Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Preciso de quintal",
+        "timestamp": "2026-05-17T02:10:22.901Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Tenho cachorro",
+        "timestamp": "2026-05-17T02:10:27.808Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T02:10:35.341Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983806762",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:10:06.762Z",
+        "prazo": "2026-05-20T02:10:06.762Z"
+      },
+      {
+        "id": "1778983817644",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:10:17.644Z",
+        "prazo": "2026-05-19T02:10:17.644Z"
+      },
+      {
+        "id": "1778983835341",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:10:35.341Z",
+        "prazo": "2026-05-18T02:10:35.341Z"
+      }
+    ],
+    "ultimaMensagem": "Quero agendar uma visita essa semana",
+    "ultimaMensagemEm": "2026-05-17T02:10:35.127Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:10:35.139Z",
+      "resumo": "casa · 3q · em centro · até R$700k · urgente · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:10:35.139Z",
+    "scoreEtapa": "Conversando",
+    "tipo": "casa",
+    "bairro": "centro",
+    "estado": "pr",
+    "quartos": 3,
+    "cidade": "itajai",
+    "matchesAuto": [],
+    "matches": [],
+    "matchAutoEm": "2026-05-17T02:10:35.340Z",
+    "valorMax": 700000,
+    "valorMin": 400,
+    "sentimento": "impaciente",
+    "familia": [
+      "pets"
+    ],
+    "urgencia": "alta"
+  },
+  {
+    "id": "1778983971274",
+    "nome": "47999001379",
+    "telefone": "47999001379",
+    "whatsapp": "47999001379",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:12:51.274Z",
+    "mensagens": [
+      {
+        "id": "1778983971292",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T02:12:51.292Z",
+        "lida": false
+      },
+      {
+        "id": "1778983977399",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:12:57.399Z",
+        "lida": false
+      },
+      {
+        "id": "1778983984746",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Até 2500 por mês",
+        "timestamp": "2026-05-17T02:13:04.746Z",
+        "lida": false
+      },
+      {
+        "id": "1778983992263",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Só eu morando",
+        "timestamp": "2026-05-17T02:13:12.263Z",
+        "lida": false
+      },
+      {
+        "id": "1778983997234",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T02:13:17.234Z",
+        "lida": false
+      },
+      {
+        "id": "1778984000947",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T02:13:20.947Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "estado": "sp",
+      "intencao": "alugar",
+      "faseFunil": "qualificado",
+      "temperatura": "morno",
+      "bairro": "balneario camboriu",
+      "cidade": "balneario camboriu",
+      "familia": [
+        "sozinho"
+      ],
+      "diferenciais": [
+        "mobiliado"
+      ]
+    },
+    "score": 27,
+    "temperatura": "morno",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T02:12:51.292Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:12:57.399Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Até 2500 por mês",
+        "timestamp": "2026-05-17T02:13:04.746Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Só eu morando",
+        "timestamp": "2026-05-17T02:13:12.262Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T02:13:17.234Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T02:13:20.947Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T02:12:51.301Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:12:57.412Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Até 2500 por mês",
+        "timestamp": "2026-05-17T02:13:04.747Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Só eu morando",
+        "timestamp": "2026-05-17T02:13:12.279Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T02:13:17.245Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quando tem disponível?",
+        "timestamp": "2026-05-17T02:13:20.947Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983971301",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:12:51.301Z",
+        "prazo": "2026-05-20T02:12:51.301Z"
+      },
+      {
+        "id": "1778983984747",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:13:04.747Z",
+        "prazo": "2026-05-19T02:13:04.747Z"
+      }
+    ],
+    "ultimaMensagem": "Quando tem disponível?",
+    "ultimaMensagemEm": "2026-05-17T02:13:20.947Z",
+    "faseFunil": "qualificado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:13:20.947Z",
+      "resumo": "quer alugar · apartamento · em balneario camboriu · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:13:20.947Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "alugar",
+    "tipo": "apartamento",
+    "estado": "sp",
+    "bairro": "balneario camboriu",
+    "cidade": "balneario camboriu",
+    "familia": [
+      "sozinho"
+    ],
+    "diferenciais": [
+      "mobiliado"
+    ]
+  },
+  {
+    "id": "1778984071837",
+    "nome": "47999003453",
+    "telefone": "47999003453",
+    "whatsapp": "47999003453",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:14:31.837Z",
+    "mensagens": [
+      {
+        "id": "1778984071850",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Bom dia! Vi anúncio de vocês",
+        "timestamp": "2026-05-17T02:14:31.850Z",
+        "lida": false
+      },
+      {
+        "id": "1778984074886",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Cobertura em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:14:34.886Z",
+        "lida": false
+      },
+      {
+        "id": "1778984078224",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Orçamento acima de 2 milhões",
+        "timestamp": "2026-05-17T02:14:38.224Z",
+        "lida": false
+      },
+      {
+        "id": "1778984084200",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Investimento",
+        "timestamp": "2026-05-17T02:14:44.200Z",
+        "lida": false
+      },
+      {
+        "id": "1778984088532",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Vista mar se possível",
+        "timestamp": "2026-05-17T02:14:48.532Z",
+        "lida": false
+      },
+      {
+        "id": "1778984094106",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode agendar visita?",
+        "timestamp": "2026-05-17T02:14:54.106Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "estado": "ba",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "tipo": "cobertura",
+      "categoria": "residencial",
+      "bairro": "balneario camboriu",
+      "cidade": "balneario camboriu",
+      "valorMax": 2000,
+      "intencao": "investir"
+    },
+    "score": 31,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Bom dia! Vi anúncio de vocês",
+        "timestamp": "2026-05-17T02:14:31.850Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Cobertura em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:14:34.886Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Orçamento acima de 2 milhões",
+        "timestamp": "2026-05-17T02:14:38.224Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Investimento",
+        "timestamp": "2026-05-17T02:14:44.200Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Vista mar se possível",
+        "timestamp": "2026-05-17T02:14:48.532Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode agendar visita?",
+        "timestamp": "2026-05-17T02:14:54.106Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Bom dia! Vi anúncio de vocês",
+        "timestamp": "2026-05-17T02:14:31.851Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Cobertura em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:14:34.887Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Orçamento acima de 2 milhões",
+        "timestamp": "2026-05-17T02:14:38.240Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Investimento",
+        "timestamp": "2026-05-17T02:14:44.205Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Vista mar se possível",
+        "timestamp": "2026-05-17T02:14:48.533Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode agendar visita?",
+        "timestamp": "2026-05-17T02:14:54.107Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778984071851",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:14:31.851Z",
+        "prazo": "2026-05-20T02:14:31.851Z"
+      },
+      {
+        "id": "1778984078240",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:14:38.240Z",
+        "prazo": "2026-05-19T02:14:38.240Z"
+      },
+      {
+        "id": "1778984094107",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:14:54.107Z",
+        "prazo": "2026-05-18T02:14:54.107Z"
+      }
+    ],
+    "ultimaMensagem": "Pode agendar visita?",
+    "ultimaMensagemEm": "2026-05-17T02:14:54.106Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:14:54.107Z",
+      "resumo": "quer investir · cobertura · em balneario camboriu · até R$2k · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:14:54.107Z",
+    "scoreEtapa": "Conversando",
+    "estado": "ba",
+    "tipo": "cobertura",
+    "bairro": "balneario camboriu",
+    "cidade": "balneario camboriu",
+    "valorMax": 2000,
+    "intencao": "investir"
+  },
+  {
+    "id": "1778984119881",
+    "nome": "47999004963",
+    "telefone": "47999004963",
+    "whatsapp": "47999004963",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:15:19.881Z",
+    "mensagens": [
+      {
+        "id": "1778984119894",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T02:15:19.894Z",
+        "lida": false
+      },
+      {
+        "id": "1778984125844",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:15:25.844Z",
+        "lida": false
+      },
+      {
+        "id": "1778984131930",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Até 2500 por mês",
+        "timestamp": "2026-05-17T02:15:31.930Z",
+        "lida": false
+      },
+      {
+        "id": "1778984137298",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Só eu morando",
+        "timestamp": "2026-05-17T02:15:37.298Z",
+        "lida": false
+      },
+      {
+        "id": "1778984143068",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T02:15:43.068Z",
+        "lida": false
+      },
+      {
+        "id": "1778984146919",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T02:15:46.919Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "estado": "sp",
+      "intencao": "alugar",
+      "faseFunil": "qualificado",
+      "temperatura": "morno",
+      "bairro": "balneario camboriu",
+      "cidade": "balneario camboriu",
+      "familia": [
+        "sozinho"
+      ],
+      "diferenciais": [
+        "mobiliado"
+      ]
+    },
+    "score": 27,
+    "temperatura": "morno",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T02:15:19.894Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:15:25.844Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Até 2500 por mês",
+        "timestamp": "2026-05-17T02:15:31.930Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Só eu morando",
+        "timestamp": "2026-05-17T02:15:37.298Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T02:15:43.068Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T02:15:46.919Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T02:15:19.895Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T02:15:25.844Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Até 2500 por mês",
+        "timestamp": "2026-05-17T02:15:31.930Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Só eu morando",
+        "timestamp": "2026-05-17T02:15:37.303Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T02:15:43.070Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quando tem disponível?",
+        "timestamp": "2026-05-17T02:15:46.919Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778984119895",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:15:19.895Z",
+        "prazo": "2026-05-20T02:15:19.895Z"
+      },
+      {
+        "id": "1778984131930",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:15:31.930Z",
+        "prazo": "2026-05-19T02:15:31.930Z"
+      }
+    ],
+    "ultimaMensagem": "Quando tem disponível?",
+    "ultimaMensagemEm": "2026-05-17T02:15:46.919Z",
+    "faseFunil": "qualificado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:15:46.919Z",
+      "resumo": "quer alugar · apartamento · em balneario camboriu · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:15:46.919Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "alugar",
+    "tipo": "apartamento",
+    "estado": "sp",
+    "bairro": "balneario camboriu",
+    "cidade": "balneario camboriu",
+    "familia": [
+      "sozinho"
+    ],
+    "diferenciais": [
+      "mobiliado"
+    ]
+  },
+  {
+    "id": "1778984205014",
+    "nome": "47999004817",
+    "telefone": "47999004817",
+    "whatsapp": "47999004817",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:16:45.014Z",
+    "mensagens": [
+      {
+        "id": "1778984205030",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:16:45.030Z",
+        "lida": false
+      },
+      {
+        "id": "1778984212842",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T02:16:52.842Z",
+        "lida": false
+      },
+      {
+        "id": "1778984220533",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T02:17:00.533Z",
+        "lida": false
+      },
+      {
+        "id": "1778984227424",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Casal sem filhos",
+        "timestamp": "2026-05-17T02:17:07.424Z",
+        "lida": false
+      },
+      {
+        "id": "1778984230907",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T02:17:10.907Z",
+        "lida": false
+      },
+      {
+        "id": "1778984234080",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T02:17:14.080Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "estado": "pr",
+      "intencao": "comprar",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "suites": 3,
+      "bairro": "sul",
+      "valorMax": 2000,
+      "familia": [
+        "criancas",
+        "casal"
+      ],
+      "vagas": 2,
+      "diferenciais": [
+        "varanda"
+      ]
+    },
+    "score": 31,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:16:45.030Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T02:16:52.842Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T02:17:00.533Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Casal sem filhos",
+        "timestamp": "2026-05-17T02:17:07.424Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T02:17:10.907Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T02:17:14.080Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:16:45.031Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T02:16:52.842Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T02:17:00.538Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Casal sem filhos",
+        "timestamp": "2026-05-17T02:17:07.428Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T02:17:10.910Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T02:17:14.081Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778984205031",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:16:45.031Z",
+        "prazo": "2026-05-20T02:16:45.031Z"
+      },
+      {
+        "id": "1778984220538",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:17:00.538Z",
+        "prazo": "2026-05-19T02:17:00.538Z"
+      },
+      {
+        "id": "1778984234081",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:17:14.081Z",
+        "prazo": "2026-05-18T02:17:14.081Z"
+      }
+    ],
+    "ultimaMensagem": "Quero ver pessoalmente",
+    "ultimaMensagemEm": "2026-05-17T02:17:14.080Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:17:14.081Z",
+      "resumo": "quer comprar · apartamento · em sul · até R$2k · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:17:14.081Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "comprar",
+    "estado": "pr",
+    "tipo": "apartamento",
+    "suites": 3,
+    "bairro": "sul",
+    "valorMax": 2000,
+    "familia": [
+      "criancas",
+      "casal"
+    ],
+    "vagas": 2,
+    "diferenciais": [
+      "varanda"
+    ]
+  },
+  {
+    "id": "1778984321155",
+    "nome": "47999005675",
+    "telefone": "47999005675",
+    "whatsapp": "47999005675",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T02:18:41.155Z",
+    "mensagens": [
+      {
+        "id": "1778984321191",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:18:41.191Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "estado": "pr",
+      "intencao": "comprar",
+      "faseFunil": "qualificado",
+      "temperatura": "frio"
+    },
+    "score": 10,
+    "temperatura": "frio",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:18:41.191Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T02:18:41.192Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778984321192",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T02:18:41.192Z",
+        "prazo": "2026-05-20T02:18:41.192Z"
+      }
+    ],
+    "ultimaMensagem": "Oi tudo bem? Quero comprar imóvel",
+    "ultimaMensagemEm": "2026-05-17T02:18:41.191Z",
+    "faseFunil": "qualificado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T02:18:41.192Z",
+      "resumo": "quer comprar · 1 msg(s) · [caso2]",
+      "totalMsgs": 1,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T02:18:41.192Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "comprar",
+    "estado": "pr"
   }
 ]

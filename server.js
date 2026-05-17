@@ -2166,12 +2166,14 @@ setInterval(async () => {
           _leads[i].vitrineLink = _link;
 
         } else if (fu.tipo === 'followup_vitrine') {
+          _leads[i].waFollowupVitrineEnviadoEm = new Date().toISOString();
           const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;
           const _msg = 'Olá ' + (lead.nome || '') + '! Você chegou a ver os imóveis que separamos para você?\n\n'
             + _link + '\n\nFicou alguma dúvida? Estou à disposição! 😊';
           await _enviarWA(_instancia, _contato, _msg);
 
         } else if (fu.tipo === 'qualificar_lead') {
+          _leads[i].waQualificacaoEnviadoEm = new Date().toISOString();
           const _msg = 'Olá ' + (lead.nome || '') + '! Tudo bem? 😊\n\n'
             + 'Para encontrar o imóvel ideal para você, me conta:\n'
             + '1. Que tipo de imóvel você procura? (casa, apartamento...)\n'
@@ -2181,6 +2183,7 @@ setInterval(async () => {
           await _enviarWA(_instancia, _contato, _msg);
 
         } else if (fu.tipo === 'agendar_visita') {
+          _leads[i].waAgendarVisitaEnviadoEm = new Date().toISOString();
           const _imovel = (_leads[i].matchesAuto || _leads[i].matches || [])[0];
           const _msg = 'Olá ' + (lead.nome || '') + '! Que tal agendarmos uma visita? 🏠\n\n'
             + (_imovel ? 'Temos ' + _imovel.tipo + ' em ' + _imovel.bairro + ' disponível.\n\n' : '')
@@ -2188,10 +2191,12 @@ setInterval(async () => {
           await _enviarWA(_instancia, _contato, _msg);
 
         } else if (fu.tipo === 'followup_visita') {
+          _leads[i].waFollowupVisitaEnviadoEm = new Date().toISOString();
           const _msg = 'Olá ' + (lead.nome || '') + '! Como foi a visita? Gostou do imóvel? 🏠\n\nPosso te ajudar com alguma dúvida ou mostrar outras opções?';
           await _enviarWA(_instancia, _contato, _msg);
 
         } else if (fu.tipo === 'proposta_negocio') {
+          _leads[i].waPropostaEnviadoEm = new Date().toISOString();
           const _msg = 'Olá ' + (lead.nome || '') + '! Ótimo momento para darmos o próximo passo! 🎯\n\nVocê tem interesse em fazer uma proposta? Posso te ajudar com todo o processo.';
           await _enviarWA(_instancia, _contato, _msg);
         }
@@ -2858,6 +2863,7 @@ app.post('/api/lead-interesse', (req, res) => {
         // Visita vai somente para o dono da lead/vitrine
         leadOwnerId: usuarioDestinoId,
         imovelOwnerId,
+        imovelUsuarioId: imovelRef.userId || imovelRef.codigoUsuario || imovelRef.usuarioId || imovelOwnerId || '',
         usuarioDestinoId,
         usuarioDestinoNome,
         usuarioDestinoPerfil,
@@ -4747,6 +4753,7 @@ app.post('/api/visita/nova-v2', (req,res)=>{
     userId:      donoImovel.id || imovel.userId || '',
     corretorId:  donoImovel.id || imovel.userId || '',
     ownerUserId: donoImovel.id || imovel.userId || '',
+    imovelUsuarioId: imovel.userId || imovel.codigoUsuario || imovel.usuarioId || donoImovel.id || '',
     proprietarioNome:     (imovel.proprietario && imovel.proprietario.nome) || '',
     proprietarioTelefone: ((imovel.proprietario && (imovel.proprietario.celular||imovel.proprietario.telefone))||'').replace(/D/g,''),
     status:  'solicitada',

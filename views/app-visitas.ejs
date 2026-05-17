@@ -317,9 +317,16 @@ var hojeV = visitas.filter(function(v){
       </form>
       <% } %>
       <% if(col.key==='aguard_cliente'&&v.parceiroNome){ %>
+      <span class="vi-btn" style="background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)" title="WA enviado ao parceiro — aguardando confirmação">
+        ✓ WA Parceiro <%= new Date(v.waParceiroEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %>
+      </span>
+      <% } %>
       <form method="POST" action="/app/visitas/parceiro-confirmou/<%=v.id%>" style="margin:0">
         <button type="submit" class="vi-btn vi-btn-green">Parceiro OK</button>
       </form>
+      <% } else { %>
+      <span class="vi-btn" style="background:#f0fdf4;color:#15803d;border-color:#86efac">✓ Parceiro confirmou</span>
+      <% } %>
       <% } %>
       <% if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'){ %>
       <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0" onsubmit="return confirm('Cancelar esta visita?')">

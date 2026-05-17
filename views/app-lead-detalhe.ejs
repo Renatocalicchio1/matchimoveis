@@ -106,7 +106,13 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <!-- Botões copiloto -->
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <% if(_copAcoes.includes('vitrine')&&_fone) { %>
+        <% if(lead.vitrineEnviadaEm) { %>
+        <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" style="background:#f9fafb;color:#6b7280;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:5px;border:0.5px solid rgba(0,0,0,.1)" title="Sistema enviou — clique para reenviar">
+          ✓ Vitrine enviada <%= new Date(lead.vitrineEnviadaEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %>
+        </a>
+        <% } else { %>
         <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" style="background:#25D366;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:5px">Enviar vitrine</a>
+        <% } %>
         <% } %>
         <% if(_copAcoes.includes('visita')) { %>
         <a href="/app/visitas" style="background:#7c3aed;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none">Agendar visita</a>
@@ -261,12 +267,20 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <div class="ld-title">Ações rápidas</div>
 
       <% if(_fone) { %>
+      <% if(lead.waQualificacaoEnviadoEm) { %>
+      <a href="https://wa.me/55<%=_fone%>" target="_blank" class="acao-btn" style="background:#f9fafb;color:#6b7280;border:0.5px solid rgba(0,0,0,.1)" title="Sistema enviou qualificação — clique para abrir">✓ WA enviado <%= new Date(lead.waQualificacaoEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %></a>
+      <% } else { %>
       <a href="https://wa.me/55<%=_fone%>" target="_blank" class="acao-btn" style="background:#25D366;color:#fff">WhatsApp</a>
+      <% } %>
       <a href="tel:<%=_fone%>" class="acao-btn" style="background:var(--bg);color:var(--dark);border:1px solid var(--border)">Ligar</a>
       <% } %>
 
       <% if(_mat.length&&_fone) { %>
+      <% if(lead.vitrineEnviadaEm) { %>
+      <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" class="acao-btn" style="background:#f9fafb;color:#6b7280;border:0.5px solid rgba(0,0,0,.1)" title="Sistema enviou — clique para reenviar">✓ Vitrine enviada <%= new Date(lead.vitrineEnviadaEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %></a>
+      <% } else { %>
       <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" class="acao-btn" style="background:var(--brand);color:#fff">Enviar vitrine</a>
+      <% } %>
       <% } %>
 
       <a href="/cliente/oferta/<%=lead.leadId||lead.id%>?userId=<%=encodeURIComponent(lead.userId||lead.usuarioId||lead.corretorId||'')%>" target="_blank" class="acao-btn" style="background:var(--bg);color:var(--dark);border:1px solid var(--border)">Ver vitrine</a>
@@ -286,7 +300,9 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <div class="info-row"><span class="info-lbl">Matches carteira</span><span class="info-val"><%= _mat.length %></span></div>
       <div class="info-row"><span class="info-lbl">Matches QA</span><span class="info-val"><%= (lead.matchesQuintoAndar||[]).length %></span></div>
       <div class="info-row"><span class="info-lbl">Mensagens</span><span class="info-val"><%= _msgs %></span></div>
-      <% if(lead.vitrineEnviada){%><div class="info-row"><span class="info-lbl">Vitrine enviada</span><span class="info-val" style="color:#16a34a">✓</span></div><%}%>
+      <% if(lead.vitrineEnviada){%><div class="info-row"><span class="info-lbl">Vitrine enviada</span><span class="info-val" style="color:#16a34a">✓ <%= lead.vitrineEnviadaEm ? new Date(lead.vitrineEnviadaEm).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '' %></span></div><%}%>
+      <% if(lead.waFollowupVitrineEnviadoEm){%><div class="info-row"><span class="info-lbl">Follow-up vitrine</span><span class="info-val" style="color:#6b7280">✓ Sistema enviou</span></div><%}%>
+      <% if(lead.waAgendarVisitaEnviadoEm){%><div class="info-row"><span class="info-lbl">WA agendar visita</span><span class="info-val" style="color:#6b7280">✓ Sistema enviou</span></div><%}%>
       <% if(lead.visitaSolicitada){%><div class="info-row"><span class="info-lbl">Visita solicitada</span><span class="info-val" style="color:#16a34a">✓</span></div><%}%>
       <% if(lead.visitaConfirmada){%><div class="info-row"><span class="info-lbl">Visita confirmada</span><span class="info-val" style="color:#16a34a">✓</span></div><%}%>
       <% if(lead.propostaFeita){%><div class="info-row"><span class="info-lbl">Proposta</span><span class="info-val" style="color:#16a34a">✓</span></div><%}%>

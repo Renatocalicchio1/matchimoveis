@@ -57,51 +57,15 @@
       "paginaAnterior": "visitas"
     },
     "imob_nhvxchtlx5": {
-      "paginaAtual": "leads",
-      "labelAtual": "Leads",
-      "dominioAtual": "leads",
-      "rotaAtual": "/app/leads",
-      "atualizadoEm": "2026-05-17T01:59:53.439Z",
-      "paginaAnterior": "imoveis"
+      "paginaAtual": "visitas",
+      "labelAtual": "Visitas",
+      "dominioAtual": "visitas",
+      "rotaAtual": "/app/visitas",
+      "atualizadoEm": "2026-05-17T02:12:24.598Z",
+      "paginaAnterior": "leads"
     }
   },
   "fluxos": [
-    {
-      "de": "dashboard",
-      "para": "assistente",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:09:06.247Z"
-    },
-    {
-      "de": "assistente",
-      "para": "dashboard",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:10:49.674Z"
-    },
-    {
-      "de": "dashboard",
-      "para": "assistente",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:10:52.428Z"
-    },
-    {
-      "de": "assistente",
-      "para": "dashboard",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T20:49:10.582Z"
-    },
-    {
-      "de": "dashboard",
-      "para": "assistente",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T20:49:40.700Z"
-    },
-    {
-      "de": "assistente",
-      "para": "dashboard",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-09T03:19:15.898Z"
-    },
     {
       "de": "dashboard",
       "para": "assistente",
@@ -6065,6 +6029,42 @@
       "para": "leads",
       "userId": "imob_nhvxchtlx5",
       "data": "2026-05-17T01:59:53.439Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "imob_nhvxchtlx5",
+      "data": "2026-05-17T02:01:11.712Z"
+    },
+    {
+      "de": "visitas",
+      "para": "leads",
+      "userId": "imob_nhvxchtlx5",
+      "data": "2026-05-17T02:02:13.044Z"
+    },
+    {
+      "de": "leads",
+      "para": "dashboard",
+      "userId": "imob_nhvxchtlx5",
+      "data": "2026-05-17T02:12:17.367Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imob_nhvxchtlx5",
+      "data": "2026-05-17T02:12:20.969Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "imob_nhvxchtlx5",
+      "data": "2026-05-17T02:12:21.894Z"
+    },
+    {
+      "de": "leads",
+      "para": "visitas",
+      "userId": "imob_nhvxchtlx5",
+      "data": "2026-05-17T02:12:24.598Z"
     }
   ]
 }

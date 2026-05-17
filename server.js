@@ -5719,6 +5719,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
         }
       })
     }).catch(() => {});
+    await new Promise(r => setTimeout(r, 2000));
 
     // Gera QR Code
     const qrRes = await fetch(EVOLUTION_URL + '/instance/connect/' + instanceName, {

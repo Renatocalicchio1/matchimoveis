@@ -1,129 +1,151 @@
-<%- include("partials/app-shell",{active:"coins",user:user,title:"Match Coins"}) %>
+<%- include("partials/app-shell",{active:"coins",user:user,title:"Créditos"}) %>
 
-<div class="kpi-grid" style="margin-bottom:24px">
-  <div class="kpi">
-    <div class="kpi-accent"></div>
-    <div class="kpi-label">Saldo Atual</div>
-    <div class="kpi-val">🪙 <%= user.matchCoins || 0 %></div>
-    <div class="kpi-sub">Match Coins disponíveis</div>
-  </div>
-  <div class="kpi">
-    <div class="kpi-accent"></div>
-    <div class="kpi-label">Total Recebido</div>
-    <div class="kpi-val"><%= user.matchCoinsTotal || 0 %></div>
-    <div class="kpi-sub">Coins acumulados</div>
-  </div>
-</div>
+<%
+  const saldo = user.matchCoins || 0;
+  const total = Math.max(user.matchCoinsTotal || 200, saldo, 1);
+  const pct   = Math.min(100, Math.round((saldo / total) * 100));
+  const cor   = pct > 40 ? '#22c55e' : pct > 15 ? '#f59e0b' : '#ef4444';
+  const msg   = pct > 40 ? null : pct > 15 ? 'Seus créditos estão acabando. Considere recarregar.' : saldo === 0 ? 'Sua conta está pausada. Adicione créditos para continuar.' : 'Créditos baixos. Recarregue para não pausar sua conta.';
+%>
 
-<div class="card" style="margin-bottom:24px">
-  <h2 style="font-size:16px;font-weight:700;margin-bottom:4px">🪙 Comprar Match Coins</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Cada Match Coin custa <strong>R$0,50</strong>. Escolha a quantidade desejada.</p>
+<!-- SALDO -->
+<div class="card" style="margin-bottom:16px;text-align:center;padding:32px 24px">
+  <div style="font-size:12px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em">Seus créditos</div>
+  <div style="font-size:52px;font-weight:800;color:#111;margin-bottom:4px"><%= saldo %></div>
+  <div style="font-size:13px;color:#888;margin-bottom:20px">créditos disponíveis</div>
 
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
-    <div onclick="selecionarPacote(50)" class="pacote-coin" data-coins="50" style="border:2px solid #e5e7eb;border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s">
-      <div style="font-size:28px;font-weight:800;color:#6B6B6B">50</div>
-      <div style="font-size:12px;color:#888;margin:4px 0">Match Coins</div>
-      <div style="font-size:16px;font-weight:700;color:#111">R$25,00</div>
-    </div>
-    <div onclick="selecionarPacote(100)" class="pacote-coin" data-coins="100" style="border:2px solid #e5e7eb;border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s">
-      <div style="font-size:28px;font-weight:800;color:#6B6B6B">100</div>
-      <div style="font-size:12px;color:#888;margin:4px 0">Match Coins</div>
-      <div style="font-size:16px;font-weight:700;color:#111">R$50,00</div>
-    </div>
-    <div onclick="selecionarPacote(300)" class="pacote-coin" data-coins="300" style="border:2px solid #e5e7eb;border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s">
-      <div style="font-size:28px;font-weight:800;color:#6B6B6B">300</div>
-      <div style="font-size:12px;color:#888;margin:4px 0">Match Coins</div>
-      <div style="font-size:16px;font-weight:700;color:#111">R$150,00</div>
-    </div>
-    <div onclick="selecionarPacote(500)" class="pacote-coin" data-coins="500" style="border:2px solid #e5e7eb;border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s">
-      <div style="font-size:28px;font-weight:800;color:#6B6B6B">500</div>
-      <div style="font-size:12px;color:#888;margin:4px 0">Match Coins</div>
-      <div style="font-size:16px;font-weight:700;color:#111">R$250,00</div>
-    </div>
+  <div style="background:#f3f4f6;border-radius:99px;height:12px;overflow:hidden;margin-bottom:8px">
+    <div style="height:100%;width:<%= pct %>%;background:<%= cor %>;border-radius:99px;transition:width .6s"></div>
   </div>
 
-  <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
-    <div style="flex:1">
-      <label>Ou digite a quantidade</label>
-      <input type="number" id="coinsCustom" min="10" step="10" placeholder="Ex: 200" style="margin-top:6px">
-    </div>
-    <div style="text-align:center;padding:0 12px;min-width:120px">
-      <div style="font-size:12px;color:#888">Total</div>
-      <div id="totalValor" style="font-size:24px;font-weight:800;color:#111">R$0,00</div>
-    </div>
-  </div>
-
-  <button onclick="iniciarCompra()" style="width:100%;background:#FF385C;color:white;border:none;padding:16px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer">
-    🪙 Comprar Match Coins
-  </button>
-</div>
-
-<div class="card">
-  <h2 style="font-size:16px;font-weight:700;margin-bottom:4px">Histórico de transações</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Todas as movimentações de Match Coins da sua conta</p>
-  <% if(!user.matchCoinsTransacoes || user.matchCoinsTransacoes.length===0) { %>
-    <div class="empty">
-      <div class="empty-icon">🪙</div>
-      <h3>Nenhuma transação ainda</h3>
-      <p>Suas movimentações de Match Coins aparecerão aqui.</p>
-    </div>
-  <% } else { %>
-    <table>
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Quantidade</th>
-          <th>Saldo após</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% user.matchCoinsTransacoes.slice().reverse().forEach(t=>{ %>
-        <tr>
-          <td><%= t.data ? new Date(t.data).toLocaleString('pt-BR') : '-' %></td>
-          <td><%= t.motivo || '-' %></td>
-          <td>
-            <span style="font-weight:700;color:<%= t.quantidade>0?'#16a34a':'#ef4444' %>">
-              <%= t.quantidade>0?'+':'' %><%= t.quantidade %> 🪙
-            </span>
-          </td>
-          <td><%= t.saldoApos !== undefined ? t.saldoApos : '-' %> 🪙</td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
+  <% if(msg) { %>
+    <div style="font-size:13px;color:<%= cor %>;font-weight:600;margin-top:10px"><%= msg %></div>
   <% } %>
 </div>
 
+<!-- ONDE OS CRÉDITOS SÃO USADOS -->
+<div class="card" style="margin-bottom:16px">
+  <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Como seus créditos são usados</h2>
+  <p style="color:#888;font-size:13px;margin-bottom:20px">Toda atividade da plataforma consome créditos automaticamente.</p>
+
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+      <div style="font-size:22px">🏠</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#111">Imóveis</div>
+        <div style="font-size:12px;color:#888">Cadastro, edição, geração de XML e envio para portais</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+      <div style="font-size:22px">👤</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#111">Leads</div>
+        <div style="font-size:12px;color:#888">Leads ativos, qualificação automática e matches encontrados</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+      <div style="font-size:22px">🤖</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#111">Inteligência Artificial</div>
+        <div style="font-size:12px;color:#888">Respostas automáticas, follow-ups e sugestões pelo WhatsApp</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+      <div style="font-size:22px">📅</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#111">Visitas</div>
+        <div style="font-size:12px;color:#888">Agendamento, confirmações automáticas e notificações</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+      <div style="font-size:22px">📲</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#111">WhatsApp</div>
+        <div style="font-size:12px;color:#888">Mensagens enviadas, vitrines e confirmações via WhatsApp</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADICIONAR CRÉDITOS -->
+<div class="card" style="margin-bottom:16px">
+  <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Adicionar créditos</h2>
+  <p style="color:#888;font-size:13px;margin-bottom:20px">Mínimo R$5 · R$1 = 10 créditos</p>
+
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <% [5,10,20,50,100].forEach(v => { %>
+      <button onclick="selecionarValor(<%= v %>)" data-val="<%= v %>" style="flex:1;min-width:55px;padding:12px 6px;border:2px solid #e5e7eb;border-radius:12px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s">
+        R$<%= v %>
+      </button>
+    <% }) %>
+  </div>
+
+  <div style="margin-bottom:16px">
+    <label style="font-size:13px;color:#888;display:block;margin-bottom:6px">Ou digite outro valor</label>
+    <div style="display:flex;align-items:center;gap:12px">
+      <input type="number" id="valorInput" min="5" step="1" placeholder="R$ 0" style="flex:1;padding:12px;border:2px solid #e5e7eb;border-radius:10px;font-size:16px;font-weight:700">
+      <div style="text-align:right;min-width:110px">
+        <div style="font-size:12px;color:#888">você recebe</div>
+        <div id="creditosPreview" style="font-size:20px;font-weight:800;color:#111">0 créditos</div>
+      </div>
+    </div>
+  </div>
+
+  <button onclick="iniciarCompra()" style="width:100%;background:#FF385C;color:#fff;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">
+    Adicionar créditos
+  </button>
+</div>
+
+<!-- HISTÓRICO -->
+<% if(user.matchCoinsTransacoes && user.matchCoinsTransacoes.length > 0) { %>
+<div class="card">
+  <h2 style="font-size:15px;font-weight:700;margin-bottom:16px">Histórico</h2>
+  <% user.matchCoinsTransacoes.slice().reverse().slice(0,15).forEach(t=>{ %>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f3f4f6">
+    <div>
+      <div style="font-size:13px;font-weight:600;color:#111"><%= t.motivo || 'Movimentação' %></div>
+      <div style="font-size:12px;color:#888"><%= t.data ? new Date(t.data).toLocaleString('pt-BR') : '' %></div>
+    </div>
+    <div style="font-weight:700;font-size:15px;color:<%= t.quantidade>0?'#16a34a':'#ef4444' %>">
+      <%= t.quantidade>0?'+':'' %><%= t.quantidade %>
+    </div>
+  </div>
+  <% }) %>
+</div>
+<% } %>
+
 <script>
-let coinsSelecionados=0;
+let valorSelecionado = 0;
 
-function selecionarPacote(coins){
-  coinsSelecionados=coins;
-  document.querySelectorAll('.pacote-coin').forEach(el=>{
-    el.style.border=el.dataset.coins==coins?'2px solid #FF385C':'2px solid #e5e7eb';
-    el.style.background=el.dataset.coins==coins?'#fff1f3':'#fff';
+function selecionarValor(v) {
+  valorSelecionado = v;
+  document.getElementById('valorInput').value = v;
+  document.getElementById('creditosPreview').innerText = (v * 10) + ' créditos';
+  document.querySelectorAll('[data-val]').forEach(b => {
+    const sel = parseInt(b.dataset.val) === v;
+    b.style.border = sel ? '2px solid #FF385C' : '2px solid #e5e7eb';
+    b.style.background = sel ? '#fff1f3' : '#fff';
+    b.style.color = sel ? '#FF385C' : '#111';
   });
-  document.getElementById('coinsCustom').value=coins;
-  document.getElementById('totalValor').innerText='R$'+(coins*0.5).toFixed(2).replace('.',',');
 }
 
-function atualizarValor(val){
-  coinsSelecionados=parseInt(val)||0;
-  document.querySelectorAll('.pacote-coin').forEach(el=>{
-    el.style.border='2px solid #e5e7eb';
-    el.style.background='#fff';
+document.getElementById('valorInput').addEventListener('input', function() {
+  const v = parseFloat(this.value) || 0;
+  valorSelecionado = v;
+  document.getElementById('creditosPreview').innerText = Math.floor(v * 10) + ' créditos';
+  document.querySelectorAll('[data-val]').forEach(b => {
+    b.style.border = '2px solid #e5e7eb';
+    b.style.background = '#fff';
+    b.style.color = '#111';
   });
-  document.getElementById('totalValor').innerText='R$'+(coinsSelecionados*0.5).toFixed(2).replace('.',',');
-}
-
-document.getElementById('coinsCustom').addEventListener('input',function(){
-  atualizarValor(this.value);
 });
 
-function iniciarCompra(){
-  if(!coinsSelecionados||coinsSelecionados<10){ alert('Selecione pelo menos 10 coins.'); return; }
-  alert('Em breve! Integração com Mercado Pago chegando. Você selecionou '+coinsSelecionados+' coins por R$'+(coinsSelecionados*0.5).toFixed(2).replace('.',','));
+function iniciarCompra() {
+  if (!valorSelecionado || valorSelecionado < 5) {
+    alert('Valor mínimo é R$5.');
+    return;
+  }
+  alert('Em breve! Integração com pagamento chegando.\nVocê receberá ' + Math.floor(valorSelecionado * 10) + ' créditos por R$' + valorSelecionado.toFixed(2).replace('.', ','));
 }
 </script>
 

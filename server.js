@@ -6,7 +6,8 @@ const cerebroNLP = require("./services/cerebro-nlp");
 
 
 const fs = require('fs');
-const centralOperacional = require('./services/centralOperacional');
+const centralOperacional = require("./services/centralOperacional");
+const { consumir, adicionarCreditos, temSaldo, saldo: saldoCreditos } = require("./services/creditos");
 const { lerLeads: lerLeadsService, salvarLead, atualizarLead: atualizarLeadService, deletarLead, salvarTodosLeads } = require('./services/salvarLead');
 const { lerVisitas: lerVisitasService, salvarVisita, atualizarVisita: atualizarVisitaService, deletarVisita, salvarTodasVisitas } = require('./services/salvarVisita');
 const { lerNotificacoes: lerNotificacoesService, criarNotificacao, marcarLida, marcarTodasLidas } = require('./services/salvarNotificacao');
@@ -2210,6 +2211,7 @@ setInterval(async () => {
             + _link + '\n\n' + (_user?.nome || 'Seu corretor') + ' - MatchImóveis';
           await _enviarWA(_instancia, _contato, _msg);
           _leads[i].vitrineEnviada = true;
+          consumir(_leads[i].userId || _leads[i].corretorId, 'vitrine_whatsapp').catch(()=>{});
           _leads[i].vitrineEnviadaEm = new Date().toISOString();
           _leads[i].vitrineLink = _link;
 
@@ -2601,6 +2603,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         const leadAtualizado = _resultado?.lead || leadEncontrado;
 
         console.log('[WEBHOOK WA] match-core concluido | score:', leadAtualizado.score, '| temperatura:', leadAtualizado.temperatura, '| matches:', (leadAtualizado.matchesAuto || []).length);
+        if((leadAtualizado.matchesAuto||[]).length>0) consumir(leadAtualizado.userId||leadAtualizado.corretorId, 'match_encontrado').catch(()=>{});
 
         // Gera e envia resposta automática
         const respostaTexto = _resultado?.resposta || matchCore.gerarResposta(leadAtualizado, texto);
@@ -2633,8 +2636,8 @@ app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   // Inicia atualizacao automatica do XML a cada 12h
   try {
-const { iniciarScheduler } = require('./services/xmlScheduler'); iniciarScheduler();
-    console.log('[server] autoUpdateXML iniciado');
+    const { iniciarScheduler } = require('./services/xmlScheduler'); iniciarScheduler();
+    const { iniciarJobCreditos } = require('./services/jobCreditos'); iniciarJobCreditos();
   } catch(e) {
     console.error('[server] Erro ao iniciar autoUpdateXML:', e.message);
   }
@@ -2751,6 +2754,7 @@ app.post('/app/imovel/cadastrar', auth, async (req, res) => {
   };
   imoveis.push(novo);
   fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis, null, 2));
+  consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{});
   res.redirect('/app/imoveis');
 });
 

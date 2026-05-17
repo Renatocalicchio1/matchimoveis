@@ -3022,7 +3022,7 @@ app.get('/imovel/:id', (req, res) => {
 
 // Detalhe da lead
 app.get('/app/lead/:id', auth, async (req, res) => {
-  const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
+  const leads = lerLeads();
   const lead = leads.find(l => String(l.id) === String(req.params.id));
   if (!lead) return res.status(404).send('Lead não encontrada');
   // Blindagem: verifica se lead pertence ao usuário logado

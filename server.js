@@ -2461,41 +2461,17 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       if (_webhookUserId) console.log('[WEBHOOK WA] userId identificado:', _webhookUserId);
     } catch(e) {}
 
-    // ── ENCONTRAR LEADS PATH E LEAD ──────────────────────────
-    const fs2 = require('fs');
-    const path2 = require('path');
-    const possiveisCaminhos = [];
-    try {
-      const raiz = path2.join(__dirname, 'data.json');
-      if (fs2.existsSync(raiz)) possiveisCaminhos.push(raiz);
-      const sub = path2.join(__dirname, 'data', 'data.json');
-      if (fs2.existsSync(sub)) possiveisCaminhos.push(sub);
-      const renderBase = '/opt/render/project/src';
-      if (fs2.existsSync(renderBase)) {
-        const renderRaiz = path2.join(renderBase, 'data.json');
-        if (fs2.existsSync(renderRaiz)) possiveisCaminhos.push(renderRaiz);
-        const renderData = path2.join(renderBase, 'data', 'data.json');
-        if (fs2.existsSync(renderData)) possiveisCaminhos.push(renderData);
-      }
-    } catch(e) {}
-
-    // Busca lead pelo telefone
+    // ── ENCONTRAR LEAD PELO TELEFONE ──────────────────────────
+    const { lerLeads: _lerLeadsWH, salvarTodosLeads: _salvarLeadsWH } = require('./services/salvarLead');
     let leadEncontrado = null;
-    let leadsPathAtual = null;
-    for (const leadsPath of possiveisCaminhos) {
-      try {
-        const leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
-        const idx = leads.findIndex(l => {
-          const fone = (l.telefone || l.whatsapp || l.contato || l.phone || '').replace(/\D/g, '');
-          return fone && fone.slice(-8) === telefone.slice(-8);
-        });
-        if (idx >= 0) {
-          leadEncontrado = leads[idx];
-          leadsPathAtual = leadsPath;
-          break;
-        }
-      } catch(e) {}
-    }
+    let leadsPathAtual = 'service';
+    try {
+      const todosLeads = _lerLeadsWH();
+      leadEncontrado = todosLeads.find(l => {
+        const fone = (l.telefone || l.whatsapp || l.contato || l.phone || '').replace(/\D/g, '');
+        return fone && fone.slice(-8) === telefone.slice(-8);
+      }) || null;
+    } catch(e) { console.error('[WEBHOOK WA] erro ao buscar lead:', e.message); }
 
     // ── RESPONDE IMEDIATAMENTE ────────────────────────────────
     res.status(200).json({
@@ -2569,21 +2545,15 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         eventos: [],
         followUps: []
       };
-      // Salva no primeiro data.json encontrado
-      if (possiveisCaminhos.length > 0) {
-        try {
-          leadsPathAtual = possiveisCaminhos[0];
-          const leadsExistentes = JSON.parse(fs2.readFileSync(leadsPathAtual, 'utf8'));
-          leadsExistentes.push(novoLead);
-          salvarTodosLeads(leadsExistentes).catch(e=>console.error("[leads]",e.message));
-          leadEncontrado = novoLead;
-          console.log('[WEBHOOK WA] novo lead criado automaticamente:', telefone, '| id:', novoLead.id);
-        } catch(e) {
-          console.error('[WEBHOOK WA] erro ao criar lead automatico:', e.message);
-          return;
-        }
-      } else {
-        console.log('[WEBHOOK WA] nenhum data.json encontrado para salvar lead');
+      // Salva via service centralizado
+      try {
+        const todosLeads = _lerLeadsWH();
+        todosLeads.push(novoLead);
+        _salvarLeadsWH(todosLeads).catch(e=>console.error("[leads]",e.message));
+        leadEncontrado = novoLead;
+        console.log('[WEBHOOK WA] novo lead criado automaticamente:', telefone, '| id:', novoLead.id);
+      } catch(e) {
+        console.error('[WEBHOOK WA] erro ao criar lead automatico:', e.message);
         return;
       }
     }

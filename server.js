@@ -396,9 +396,7 @@ app.post('/cadastro-secreto', (req,res)=>{
   res.send('<h2 style="color:green;font-family:Arial">Conta criada!</h2><p>ID: '+uid+'</p><p>Codigo: '+codigo+'</p><a href="/login">Ir para login</a>');
 });
 
-app.get('/login', (req,res)=>{
-  res.render('login');
-});
+app.get('/login',(req,res)=>{ if(req.session&&req.session.user) return res.redirect('/app/leads'); res.redirect('/'); });
 
 app.post('/login', (req,res)=>{
   const fs = require('fs');

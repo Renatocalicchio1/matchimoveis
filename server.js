@@ -650,13 +650,13 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     horaVisita: lead.horaVisita || lead.horarioPreferido || '',
     imovelUrl: imovel.url || '',
     status: 'solicitada',
-    consumir(req.session?.user?.id, 'visita_agendada_ia').catch(()=>{});
     origem: 'vitrine_cliente',
     fonte: 'MatchImóveis',
     data: new Date().toISOString(),
     data_br: new Date().toLocaleString('pt-BR')
   };
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
+  consumir((lead && (lead.userId||lead.corretorId)) || '', 'visita_agendada_ia').catch(()=>{});
   const visitaComWorkflow = aplicarWorkflowVisita(novaVisita);
   visitas.push(visitaComWorkflow);
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));

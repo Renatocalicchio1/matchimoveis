@@ -5699,6 +5699,7 @@ app.get('/admin/deletar-imoveis/:userId', async (req, res) => {
 // ── WHATSAPP CONEXÃO POR USUÁRIO ─────────────────────────────
 app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
   const userId = req.session.user.id;
+  console.log('[QRCODE] userId:', userId);
   const instanceName = 'match-' + userId.replace(/[^a-z0-9]/gi, '').toLowerCase().substring(0, 20);
   const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
   const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';

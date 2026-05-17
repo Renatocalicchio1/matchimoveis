@@ -2367,6 +2367,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     const fromMe = data.key?.fromMe || false;
     const telefone = fromJid.replace('@s.whatsapp.net', '').replace(/\D/g, '');
     const texto = msg.conversation || msg.extendedTextMessage?.text || msg.buttonsResponseMessage?.selectedDisplayText || '';
+    const pushName = data.pushName || '';
     const timestamp = data.messageTimestamp ? new Date(data.messageTimestamp * 1000).toISOString() : new Date().toISOString();
 
     // Ignorar mensagens de grupos
@@ -2527,7 +2528,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       // Cria lead novo automaticamente a partir do WhatsApp
       const novoLead = {
         id: Date.now().toString(),
-        nome: telefone,
+        nome: pushName || telefone,
         telefone,
         whatsapp: telefone,
         origem: 'whatsapp',

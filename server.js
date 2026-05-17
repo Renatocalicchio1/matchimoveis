@@ -7,6 +7,10 @@ const cerebroNLP = require("./services/cerebro-nlp");
 
 const fs = require('fs');
 const centralOperacional = require('./services/centralOperacional');
+const { lerLeads: lerLeadsService, salvarLead, atualizarLead: atualizarLeadService, deletarLead, salvarTodosLeads } = require('./services/salvarLead');
+const { lerVisitas: lerVisitasService, salvarVisita, atualizarVisita: atualizarVisitaService, deletarVisita, salvarTodasVisitas } = require('./services/salvarVisita');
+const { lerNotificacoes: lerNotificacoesService, criarNotificacao, marcarLida, marcarTodasLidas } = require('./services/salvarNotificacao');
+const { lerUsuarios: lerUsuariosService, lerUsuario: lerUsuarioService, salvarUsuario: salvarUsuarioService, atualizarUsuario: atualizarUsuarioService, salvarTodosUsuarios } = require('./services/salvarUsuario');
 const { aplicarWorkflowVisita } = require('./services/visitaWorkflow');
 const path = require('path');
 
@@ -217,7 +221,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
           users[idx].xmlUrl = global.importXmlUrl || users[idx].xmlUrl || '';
           users[idx].xmlAtualizadoEm = new Date().toISOString();
           users[idx].xmlTotal = imoveis.length;
-          fs.writeFileSync(dataPath('users.json'), JSON.stringify(users, null, 2));
+          salvarTodosUsuarios(users).catch(e => console.log("Erro salvar users:", e.message));
         }
       } catch(e) { console.log('Erro ao salvar xmlUrl:', e.message); }
 
@@ -309,7 +313,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 });
 
 // CADASTRAR LEAD MANUAL (pelo chat ou formulário)
-app.post("/app/leads/manual", auth, (req, res) => {
+app.post("/app/leads/manual", auth, async (req, res) => {
 try {
 const fs = require("fs");
 const { resolverUsuario } = require("./services/usuarios/resolverUsuario");
@@ -343,7 +347,7 @@ indisponivel: false,
 status: "novo"
 };
 data.push(novoLead);
-fs.writeFileSync(dataPath("data.json"), JSON.stringify(data, null, 2));
+salvarTodosLeads(data).catch(e=>console.error("[leads]",e.message));
 res.json({ ok: true, lead: novoLead });
 } catch(e) {
 res.json({ ok: false, erro: e.message });
@@ -356,7 +360,7 @@ res.json({ ok: false, erro: e.message });
 //  res.render('app-portais', { user: req.session.user,  portais });
 //});
 
-app.post('/app/portais', (req,res)=>{
+app.post('/app/portais', async (req,res)=>{
   const ativos = [].concat(req.body.portais || []);
   const all = ['zap','vivareal','olx','imovelweb','chavesnamao','123i'];
 
@@ -385,7 +389,7 @@ app.get('/cadastro-secreto', (req,res)=>{
   if((req.query.token||'') !== 'match2025') return res.status(403).send('Acesso negado');
   res.send('<html><head><meta charset="UTF-8"><title>Nova Conta</title></head><body style="font-family:Arial;max-width:420px;margin:60px auto;padding:20px"><h2 style="color:#ff385c">Nova Conta</h2><form method="POST" action="/cadastro-secreto?token=match2025"><p><input name="nome" placeholder="Nome" required style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"></p><p><input name="telefone" placeholder="Telefone" required style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"></p><p><input name="senha" type="password" placeholder="Senha" required style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"></p><p><select name="tipoConta" style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"><option value="imobiliaria">Imobiliaria</option><option value="corretor">Corretor</option></select></p><p><button type="submit" style="width:100%;padding:12px;background:#ff385c;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer">Criar Conta</button></p></form></body></html>');
 });
-app.post('/cadastro-secreto', (req,res)=>{
+app.post('/cadastro-secreto', async (req,res)=>{
   if((req.query.token||'') !== 'match2025') return res.status(403).send('Acesso negado');
   const {nome,telefone,senha,tipoConta} = req.body;
   const users = fs.existsSync(dataPath('users.json')) ? JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8')) : [];
@@ -393,13 +397,13 @@ app.post('/cadastro-secreto', (req,res)=>{
   const uid = prefixo+'_'+Math.random().toString(36).substring(2,8)+Date.now().toString(36).slice(-4);
   const codigo = (nome||'USR').substring(0,3).toUpperCase()+'-'+Math.floor(1000+Math.random()*9000);
   users.push({id:uid,nome,telefone,celular:telefone,senha,tipo:tipoConta||'corretor',ativo:true,codigoUsuario:codigo});
-  fs.writeFileSync(dataPath('users.json'),JSON.stringify(users,null,2));
+  salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
   res.send('<h2 style="color:green;font-family:Arial">Conta criada!</h2><p>ID: '+uid+'</p><p>Codigo: '+codigo+'</p><a href="/login">Ir para login</a>');
 });
 
 app.get('/login',(req,res)=>{ if(req.session&&req.session.user) return res.redirect('/app/leads'); res.redirect('/'); });
 
-app.post('/login', (req,res)=>{
+app.post('/login', async (req,res)=>{
   const fs = require('fs');
   const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
 
@@ -423,7 +427,7 @@ app.post('/login', (req,res)=>{
     };
 
     users.push(novo);
-    fs.writeFileSync(dataPath('users.json'), JSON.stringify(users,null,2));
+    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
 
     req.session.user = novo;
     return res.redirect('/app-home');
@@ -470,9 +474,9 @@ function carregarLeads(){
   return fs.existsSync(dataFile('leads.json')) ? JSON.parse(fs.readFileSync(dataFile('leads.json'),'utf8')) : [];
 }
 
-function salvarLeads(leads){
+async function salvarLeads(leads){
   const fs = require('fs');
-  fs.writeFileSync(dataFile('leads.json'), JSON.stringify(leads,null,2));
+  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
 }
 
 // ── HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────────
@@ -483,9 +487,9 @@ function lerLeadsData() {
   } catch(e) { console.error('[lerLeadsData]', e.message); return []; }
 }
 
-function salvarLeadsData(leads) {
+async function salvarLeadsData(leads) {
   try {
-    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   } catch(e) { console.error('[salvarLeadsData]', e.message); }
 }
 
@@ -496,9 +500,9 @@ function lerVisitasData() {
   } catch(e) { console.error('[lerVisitasData]', e.message); return []; }
 }
 
-function salvarVisitasData(visitas) {
+async function salvarVisitasData(visitas) {
   try {
-    fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
+    salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
   } catch(e) { console.error('[salvarVisitasData]', e.message); }
 }
 
@@ -578,7 +582,7 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
     lead = leads[idxLead];
   }
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
-  fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   res.render('cliente-oferta', {
     user: null,
     lead,
@@ -593,7 +597,7 @@ app.get('/cliente/oferta/:leadId/escolher/:idx', (req,res)=>{
   if(!lead) return res.status(404).send('Lead não encontrado');
   const idx = Number(req.params.idx);
   lead.imovelEscolhido = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
-  fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   res.redirect('/cliente/oferta/'+req.params.leadId);
 });
 
@@ -606,7 +610,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   lead.imovelVisita = matchesDisp[idx] || null;
   lead.visitaSolicitadaEm = new Date().toISOString();
   registrarHistoricoImovelLead(lead, 'visita_solicitada', lead.imovelVisita);
-  fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
 
   // Gravar em visitas.json vinculado ao dono da lead
   const imovel = lead.imovelVisita || {};
@@ -652,7 +656,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const visitaComWorkflow = aplicarWorkflowVisita(novaVisita);
   visitas.push(visitaComWorkflow);
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/cliente/oferta/'+req.params.leadId+'?visita=ok');
 });
@@ -701,7 +705,7 @@ function registrarVisita(lead){
 
 
 
-app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
+app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.visitaId);
   if (idx === -1) return res.status(404).send('Visita não encontrada');
@@ -736,7 +740,7 @@ app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
     visitas[idx].status = 'pendente_remarcar';
   }
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
   try {
     const _notifs = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
     const _v = visitas[idx];
@@ -764,7 +768,7 @@ app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
         }[resposta];
         if (_msgParc) _notifs.push({ id: (Date.now()+1).toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _msgParc, usuarioId: _parcId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
       }
-      fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(_notifs, null, 2));
+      salvarJSON(dataPath('notificacoes.json'), _notifs).catch(e=>console.error("[notif]",e.message));
     }
   } catch(e) { console.log('Erro notif proprietario:', e.message); }
   res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
@@ -801,7 +805,7 @@ app.get('/admin/resumo-contas', (req, res) => {
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
-app.get('/admin/fix-userId-alexandre', (req, res) => {
+app.get('/admin/fix-userId-alexandre', async (req, res) => {
   try {
     const idAntigo = 'imobiliaria-47991919191';
     const idNovo = 'imob_nhvxchtlx5';
@@ -811,7 +815,7 @@ app.get('/admin/fix-userId-alexandre', (req, res) => {
     const usersPath = dataPath('users.json');
     let users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
     users = users.map(u => { if(u.id===idAntigo) u.id=idNovo; return u; });
-    fs.writeFileSync(usersPath, JSON.stringify(users,null,2));
+    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
     resultado.users = 'ok';
 
     // Atualiza imoveis.json
@@ -851,7 +855,7 @@ function gerarCodigoUsuario(nome) {
 }
 
 
-app.get('/admin/fix-codigos-usuarios', (req, res) => {
+app.get('/admin/fix-codigos-usuarios', async (req, res) => {
   try {
     const usersPath = dataPath('users.json');
     let users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
@@ -859,7 +863,7 @@ app.get('/admin/fix-codigos-usuarios', (req, res) => {
       u.codigoUsuario = gerarCodigoUsuario(u.nome);
       return u;
     });
-    fs.writeFileSync(usersPath, JSON.stringify(users,null,2));
+    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
     res.json({ ok: true, usuarios: users.map(u=>({nome:u.nome, id:u.id, codigoUsuario:u.codigoUsuario})) });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
@@ -990,7 +994,7 @@ app.post('/app-leads/:idx/match', async (req,res)=>{
       item.leadId = 'lead-' + realIndex + '-' + Date.now();
     }
 
-    fs.writeFileSync(dataPath('data.json'), JSON.stringify(data,null,2));
+    salvarTodosLeads(data).catch(e=>console.error("[leads]",e.message));
 
     res.redirect('/app-leads');
   } catch(err) {
@@ -1276,7 +1280,7 @@ app.post('/app/excluir-xml', auth, (req,res)=>{
     delete users[idx].xmlUrl;
     delete users[idx].xmlAtualizadoEm;
     delete users[idx].xmlTotal;
-    fs.writeFileSync(dataPath('users.json'), JSON.stringify(users, null, 2));
+    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
   }
   res.redirect('/app/cadastro');
 });
@@ -1297,7 +1301,7 @@ app.get('/app/perfil', auth, (req,res)=>{
   res.render('app-perfil', { user: req.session.user });
 });
 
-app.post('/app/perfil', auth, (req,res)=>{
+app.post('/app/perfil', auth, async (req,res)=>{
   const usersFile = 'users.json';
   const users = fs.existsSync(usersFile) ? JSON.parse(fs.readFileSync(usersFile,'utf8')) : [];
   const uid = String(req.session.user.id || '');
@@ -1314,7 +1318,7 @@ app.post('/app/perfil', auth, (req,res)=>{
 
   if(idx >= 0){
     users[idx] = { ...users[idx], ...dados };
-    fs.writeFileSync(usersFile, JSON.stringify(users,null,2));
+    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
   }
 
   req.session.user = { ...req.session.user, ...dados };
@@ -1458,7 +1462,7 @@ app.post('/webhook/imovelweb', (req, res) => {
 
 const PORT = process.env.PORT || port || 3000;
 
-app.post('/app/perfil/localizacao', auth, (req,res)=>{
+app.post('/app/perfil/localizacao', auth, async (req,res)=>{
   const { lat, lng, endereco } = req.body;
   const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
   const idx = users.findIndex(u => u.id === req.session.user.id);
@@ -1467,13 +1471,13 @@ app.post('/app/perfil/localizacao', auth, (req,res)=>{
     users[idx].lng = parseFloat(lng);
     users[idx].endereco = endereco || '';
     req.session.user = users[idx];
-    fs.writeFileSync(dataPath('users.json'), JSON.stringify(users, null, 2));
+    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
   }
   res.redirect('/app/perfil');
 });
 
 
-app.post('/app/perfil/localizacao', auth, (req,res)=>{
+app.post('/app/perfil/localizacao', auth, async (req,res)=>{
   const { lat, lng, endereco } = req.body;
   const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
   const idx = users.findIndex(u => u.id === req.session.user.id);
@@ -1482,7 +1486,7 @@ app.post('/app/perfil/localizacao', auth, (req,res)=>{
     users[idx].lng = parseFloat(lng);
     users[idx].endereco = endereco || '';
     req.session.user = users[idx];
-    fs.writeFileSync(dataPath('users.json'), JSON.stringify(users, null, 2));
+    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
   }
   res.redirect('/app/perfil');
 });
@@ -1530,7 +1534,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
       }
 
       lead.matchQuintoAndarStatus = 'processando';
-      fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+      salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
 
       const idOrigem = lead.imovel_interesse || lead.idAnuncio || lead.id_anuncio || lead.id;
       const imovelOrigem = imoveis.find(im =>
@@ -1658,7 +1662,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
         leadsAtualizados[idx].matchQuintoAndarCount = filtrados.length;
         leadsAtualizados[idx].matchQuintoAndarAt = new Date().toISOString();
         leadsAtualizados[idx].matchQuintoAndarStatus = 'finalizado';
-        fs.writeFileSync(dataPath('data.json'), JSON.stringify(leadsAtualizados, null, 2));
+        salvarTodosLeads(leadsAtualizados).catch(e=>console.error("[leads]",e.message));
       }
 
       console.log('✅ Match QuintoAndar finalizado em background:', leadIdParam, filtrados.length);
@@ -2009,7 +2013,7 @@ app.use((req, res, next) => {
 
 
 // LIMPAR DADOS DE UMA CONTA — ADMIN
-app.get('/admin/limpar-conta/:userId', (req, res) => {
+app.get('/admin/limpar-conta/:userId', async (req, res) => {
   const fs2 = require('fs');
   const path2 = require('path');
   const userId = req.params.userId;
@@ -2040,7 +2044,7 @@ app.get('/admin/limpar-conta/:userId', (req, res) => {
 
 
 // ZERAR LEADS + MENSAGENS WA + NOTIFICACOES DE UMA CONTA
-app.get('/admin/zerar-conta-completo/:userId', (req, res) => {
+app.get('/admin/zerar-conta-completo/:userId', async (req, res) => {
   const fs2 = require('fs');
   const path2 = require('path');
   const userId = req.params.userId;
@@ -2059,7 +2063,7 @@ app.get('/admin/zerar-conta-completo/:userId', (req, res) => {
         leads = leads.filter(l => (l.userId || l.codigoUsuario || '') !== userId);
         // Limpar mensagens WhatsApp de todos os leads
         leads = leads.map(l => { delete l.mensagens; delete l.perfilIA; delete l.matchesAuto; delete l.ultimaMensagem; delete l.ultimaMensagemEm; return l; });
-        fs2.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+        salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
         resultado[base2].leads_deletados = antes - leads.length;
         resultado[base2].leads_restantes = leads.length;
       } catch(e) { resultado[base2].leads_erro = e.message; }
@@ -2084,7 +2088,7 @@ app.get('/admin/zerar-conta-completo/:userId', (req, res) => {
         let visitas = JSON.parse(fs2.readFileSync(visitasPath, 'utf8'));
         const antes = visitas.length;
         visitas = visitas.filter(v => (v.userId || v.codigoUsuario || '') !== userId);
-        fs2.writeFileSync(visitasPath, JSON.stringify(visitas, null, 2));
+        salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
         resultado[base2].visitas_deletadas = antes - visitas.length;
       } catch(e) { resultado[base2].visitas_erro = e.message; }
     }
@@ -2252,7 +2256,7 @@ setInterval(async () => {
     }
 
     if (_salvou) {
-      fs.writeFileSync(_dataFile, JSON.stringify(_leads, null, 2));
+      salvarTodosLeads(_leads).catch(e=>console.error("[leads]",e.message));
       console.log('[JOB FU] leads atualizados');
     }
   } catch(e) {
@@ -2313,7 +2317,7 @@ app.post('/app/lead/:id/whatsapp/enviar', auth, async (req, res) => {
     });
     leads[idx].ultimaMensagem = texto;
     leads[idx].ultimaMensagemEm = new Date().toISOString();
-    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
 
     console.log('[ENVIAR WA] mensagem enviada para:', telefone);
     return res.json({ ok: true, telefone, texto });
@@ -2565,7 +2569,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           leadsPathAtual = possiveisCaminhos[0];
           const leadsExistentes = JSON.parse(fs2.readFileSync(leadsPathAtual, 'utf8'));
           leadsExistentes.push(novoLead);
-          fs2.writeFileSync(leadsPathAtual, JSON.stringify(leadsExistentes, null, 2));
+          salvarTodosLeads(leadsExistentes).catch(e=>console.error("[leads]",e.message));
           leadEncontrado = novoLead;
           console.log('[WEBHOOK WA] novo lead criado automaticamente:', telefone, '| id:', novoLead.id);
         } catch(e) {
@@ -2706,7 +2710,7 @@ app.post('/imovel/:id/status', (req,res)=>{
 
 
 // Cadastro manual de imóvel
-app.post('/app/imovel/cadastrar', auth, (req, res) => {
+app.post('/app/imovel/cadastrar', auth, async (req, res) => {
   const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
   const imoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const b = req.body;
@@ -2754,7 +2758,7 @@ app.post('/app/imovel/cadastrar', auth, (req, res) => {
 
 
 // Salva lead vindo da página pública do imóvel
-app.post('/api/lead-interesse', (req, res) => {
+app.post('/api/lead-interesse', async (req, res) => {
   try {
     const { nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem } = req.body;
 
@@ -2874,7 +2878,7 @@ app.post('/api/lead-interesse', (req, res) => {
       console.log('✅ Lead existente atualizado para o dono da lead/vitrine:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
     }
 
-    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
 
     // Só cria visita quando a ação for solicitação de visita
     const querVisita =
@@ -2924,7 +2928,7 @@ app.post('/api/lead-interesse', (req, res) => {
         data_br: agora.toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo' })
       });
 
-      fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
+      salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
       try {
         const notificacoes = fs.existsSync(dataPath('notificacoes.json'))
@@ -2944,7 +2948,7 @@ app.post('/api/lead-interesse', (req, res) => {
           criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
         });
 
-        fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(notificacoes, null, 2));
+        salvarJSON(dataPath('notificacoes.json'), notificacoes).catch(e=>console.error("[notif]",e.message));
         console.log('🔔 Notificação criada: nova visita');
       } catch(e) {
         console.log('Erro ao criar notificação:', e.message);
@@ -3013,7 +3017,7 @@ app.get('/imovel/:id', (req, res) => {
 
 
 // Detalhe da lead
-app.get('/app/lead/:id', auth, (req, res) => {
+app.get('/app/lead/:id', auth, async (req, res) => {
   const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
   const lead = leads.find(l => String(l.id) === String(req.params.id));
   if (!lead) return res.status(404).send('Lead não encontrada');
@@ -3036,7 +3040,7 @@ app.get('/app/lead/:id', auth, (req, res) => {
     }));
   }
 
-  fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
 
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
 
@@ -3065,7 +3069,7 @@ app.get('/app/lead/:id', auth, (req, res) => {
     });
     lead.matchCount = lead.matches.length;
     lead.bestScore = lead.matches[0] ? lead.matches[0].score : 0;
-    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   } catch(e) {
     console.error('Erro match base interna lead:', e.message);
     matchesInternos = [];
@@ -3110,7 +3114,7 @@ app.get('/app/imovel/:id/editar', auth, (req,res)=>{
 });
 
 // Editar imóvel - salvar
-app.post('/app/imovel/:id/editar', auth, (req,res)=>{
+app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   const fs = require('fs');
   const imoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
@@ -3185,7 +3189,7 @@ const storageImoveis = multer.diskStorage({
 const uploadImoveis = multer({ storage: storageImoveis });
 
 // Upload de foto
-app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), (req,res)=>{
+app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), async (req,res)=>{
   const fs = require('fs');
   const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
 
@@ -3201,7 +3205,7 @@ app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), (req
 });
 
 // Excluir foto
-app.post('/app/imovel/:id/excluir-foto', auth, (req,res)=>{
+app.post('/app/imovel/:id/excluir-foto', auth, async (req,res)=>{
   const fs = require('fs');
   const { foto } = req.body;
 
@@ -3217,7 +3221,7 @@ app.post('/app/imovel/:id/excluir-foto', auth, (req,res)=>{
 });
 
 // Definir foto de capa
-app.post('/app/imovel/:id/capa-foto', auth, (req,res)=>{
+app.post('/app/imovel/:id/capa-foto', auth, async (req,res)=>{
   const fs = require('fs');
   const { foto } = req.body;
 
@@ -3466,7 +3470,7 @@ app.get('/app/imoveis-ids', auth, (req, res) => {
   res.json({ ids, total: ids.length });
 });
 
-app.post('/app/gerar-xml', auth, (req,res)=>{
+app.post('/app/gerar-xml', auth, async (req,res)=>{
   const { portal, ids } = req.body;
   const todos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
@@ -3932,7 +3936,7 @@ app.get('/app/importar-xml-upload', (req, res) => {
 });
 
 // Upload de XML local
-app.post('/app/importar-xml-upload', (req, res) => {
+app.post('/app/importar-xml-upload', async (req, res) => {
   const upload2 = require('multer')({ dest: dataPath('uploads/') });
   upload2.single('arquivo')(req, res, async (err) => {
     if(err) return res.json({ ok: false, erro: err.message });
@@ -3964,41 +3968,41 @@ app.use('/admin', (req, res, next) => {
 
 
 // ROTA TEMPORÁRIA — zerar visitas e notificações
-app.get('/admin/zerar-visitas-notificacoes-temp', (req, res) => {
-  fs.writeFileSync(dataPath('visitas.json'), '[]');
-  fs.writeFileSync(dataPath('notificacoes.json'), '[]');
+app.get('/admin/zerar-visitas-notificacoes-temp', async (req, res) => {
+  salvarTodasVisitas([]).catch(e=>console.error("[visitas]",e.message));
+  salvarJSON(dataPath('notificacoes.json'), []).catch(e=>console.error("[notif]",e.message));
   res.send('✅ Visitas e notificações zeradas no disco persistente!');
 });
 
 // ADMIN — Zerar visitas por userId
-app.get("/admin/zerar-visitas/:userId", (req, res) => {
+app.get("/admin/zerar-visitas/:userId", async (req, res) => {
 const { userId } = req.params;
 const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
 const restantes = visitas.filter(v => v.userId !== userId);
 const removidas = visitas.length - restantes.length;
-fs.writeFileSync(dataPath("visitas.json"), JSON.stringify(restantes, null, 2));
+salvarTodasVisitas(restantes).catch(e=>console.error("[visitas]",e.message));
 res.send("✅ " + removidas + " visita(s) removidas para userId: " + userId);
 });
 
 // ADMIN — Zerar notificações por userId
-app.get("/admin/zerar-notificacoes/:userId", (req, res) => {
+app.get("/admin/zerar-notificacoes/:userId", async (req, res) => {
 const { userId } = req.params;
 const notifs = fs.existsSync(dataPath("notificacoes.json")) ? JSON.parse(fs.readFileSync(dataPath("notificacoes.json"), "utf8")) : [];
 const restantes = notifs.filter(n => n.usuarioId !== userId);
 const removidas = notifs.length - restantes.length;
-fs.writeFileSync(dataPath("notificacoes.json"), JSON.stringify(restantes, null, 2));
+salvarJSON(dataPath('notificacoes.json'), restantes).catch(e=>console.error("[notif]",e.message));
 res.send("✅ " + removidas + " notificacao(oes) removidas para userId: " + userId);
 });
 
 // ADMIN — Zerar tudo por userId
-app.get("/admin/zerar-tudo/:userId", (req, res) => {
+app.get("/admin/zerar-tudo/:userId", async (req, res) => {
 const { userId } = req.params;
 const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
 const notifs = fs.existsSync(dataPath("notificacoes.json")) ? JSON.parse(fs.readFileSync(dataPath("notificacoes.json"), "utf8")) : [];
 const visitasRest = visitas.filter(v => v.userId !== userId);
 const notifsRest = notifs.filter(n => n.usuarioId !== userId);
-fs.writeFileSync(dataPath("visitas.json"), JSON.stringify(visitasRest, null, 2));
-fs.writeFileSync(dataPath("notificacoes.json"), JSON.stringify(notifsRest, null, 2));
+salvarTodasVisitas(visitasRest).catch(e=>console.error("[visitas]",e.message));
+salvarJSON(dataPath('notificacoes.json'), notifsRest).catch(e=>console.error("[notif]",e.message));
 res.send("✅ Zerado para " + userId + ": " + (visitas.length - visitasRest.length) + " visita(s), " + (notifs.length - notifsRest.length) + " notificacao(oes)");
 });
 
@@ -4137,7 +4141,7 @@ app.get('/admin/funil/:userId', (req, res) => {
   } catch(e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
-app.post('/app/assistente/chat', auth, (req, res) => {
+app.post('/app/assistente/chat', auth, async (req, res) => {
   const { mensagem } = req.body;
   if (!mensagem) return res.json({ resposta: 'Digite uma mensagem.' });
 
@@ -4233,7 +4237,7 @@ app.post('/app/assistente/chat', auth, (req, res) => {
       users[uIdx].historicoAssistente = users[uIdx].historicoAssistente || [];
       users[uIdx].historicoAssistente.push({pergunta:mensagem,resposta,data:new Date().toISOString()});
       if (users[uIdx].historicoAssistente.length>50) users[uIdx].historicoAssistente=users[uIdx].historicoAssistente.slice(-50);
-      fs.writeFileSync(usersPath,JSON.stringify(users,null,2));
+      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
     }
   } catch(e){}
 
@@ -4265,7 +4269,7 @@ app.get('/app/assistente/historico', auth, (req, res) => {
 // =========================
 // IMPORT SYNC RAN 0888/9191
 // =========================
-app.post('/admin/import-sync-ran', express.json({limit:'200mb'}), (req,res)=>{
+app.post('/admin/import-sync-ran', express.json({limit:'200mb'}), async (req,res)=>{
 
   const token = req.headers['x-sync-token'];
 
@@ -4331,7 +4335,7 @@ app.post('/admin/import-sync-ran', express.json({limit:'200mb'}), (req,res)=>{
 
 
 // Sync leads extraídas localmente para o Render
-app.post('/admin/sync-leads-extraidas', express.json({limit:'50mb'}), (req,res)=>{
+app.post('/admin/sync-leads-extraidas', express.json({limit:'50mb'}), async (req,res)=>{
   const token = req.headers['x-sync-token'];
   if(token !== 'MATCHIMOVEIS_SYNC_2026'){
     return res.status(401).json({ok:false,error:'token invalido'});
@@ -4351,7 +4355,7 @@ app.post('/admin/sync-leads-extraidas', express.json({limit:'50mb'}), (req,res)=
       return dono === String(userId) && !idsAtualizadas.has(id);
     });
     const final = [...outrasContas, ...mesmaContaSemAtualizar, ...leadsAtualizadas];
-    fs.writeFileSync(df, JSON.stringify(final, null, 2));
+    salvarTodosLeads(final).catch(e=>console.error("[leads]",e.message));
     res.json({ok:true, salvas: leadsAtualizadas.length, total: final.length});
   }catch(e){
     res.status(500).json({ok:false,error:e.message});
@@ -4380,7 +4384,7 @@ app.get('/admin/rodar-match/:userId', (req,res)=>{
       lead.matchCountBase = matches.length;
       if(matches.length > 0) comMatch++; else semMatch++;
     });
-    fs.writeFileSync(df, JSON.stringify(leads, null, 2));
+    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
     res.json({ ok:true, userId, total: paraMatch.length, comMatch, semMatch });
   }catch(e){
     res.status(500).json({ ok:false, error: e.message });
@@ -4407,7 +4411,7 @@ app.get('/app/assistente/abertura', auth, (req, res) => {
 
 
 // Executa ações diretas pelo assistente
-app.post('/app/assistente/acao-direta', auth, express.json(), (req, res) => {
+app.post('/app/assistente/acao-direta', auth, express.json(), async (req, res) => {
   try {
     const { acao, dados } = req.body || {};
     const userId = req.session.user.id;
@@ -4427,7 +4431,7 @@ app.post('/app/assistente/acao-direta', auth, express.json(), (req, res) => {
       });
       const outras = todasLeads.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') !== userId);
       const restantes = todasLeads.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId && !minhasLeads.find(x => x.id === l.id));
-      fs.writeFileSync(dataArq, JSON.stringify([...outras,...restantes,...minhasLeads],null,2));
+      salvarTodosLeads([...outras,...restantes,...minhasLeads]).catch(e=>console.error("[leads]",e.message));
       return res.json({ ok: true, comMatch, semMatch, total: minhasLeads.length });
     }
 
@@ -4515,7 +4519,7 @@ app.get('/app/central', auth, (req, res) => {
 // WORKFLOW VISITAS OPERACIONAL
 // =====================================================
 
-app.post('/api/visita/:id/workflow', auth, (req,res)=>{
+app.post('/api/visita/:id/workflow', auth, async (req,res)=>{
   try{
     const id = req.params.id;
 
@@ -4628,7 +4632,7 @@ app.get('/api/memoria-operacional', auth, (req,res)=>{
 // ACAO RAPIDA VISITA
 // =====================================================
 
-app.post('/api/visita/:id/confirmar', auth, (req,res)=>{
+app.post('/api/visita/:id/confirmar', auth, async (req,res)=>{
   try{
 
     const visita = atualizarWorkflowVisita(
@@ -4666,7 +4670,7 @@ app.post('/api/visita/:id/confirmar', auth, (req,res)=>{
   }
 });
 
-app.post('/api/visita/:id/remarcar', auth, (req,res)=>{
+app.post('/api/visita/:id/remarcar', auth, async (req,res)=>{
   try{
 
     const visita = atualizarWorkflowVisita(
@@ -4705,7 +4709,7 @@ app.post('/api/visita/:id/remarcar', auth, (req,res)=>{
 });
 
 
-app.get('/api/visita/:id/whatsapp', auth, (req,res)=>{
+app.get('/api/visita/:id/whatsapp', auth, async (req,res)=>{
 
   try {
 
@@ -4769,7 +4773,7 @@ function resolverUsuarioPorId(id){
 // NOVO FLUXO DE VISITAS (LIMPO)
 // ===============================
 
-app.post('/api/visita/nova-v2', (req,res)=>{
+app.post('/api/visita/nova-v2', async (req,res)=>{
   const { imovelId, nome, telefone, dataVisita, horaVisita, imovelTitulo } = req.body;
 
   const imoveisAll = fs.existsSync(dataPath('imoveis.json'))
@@ -4807,13 +4811,13 @@ app.post('/api/visita/nova-v2', (req,res)=>{
   };
 
   visitas.push(novaVisita);
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
   return res.json({ ok: true, visita: novaVisita });
 });
 
 // ===============================
 
-app.post('/app/visitas/remarcar/:id', auth, (req,res)=>{
+app.post('/app/visitas/remarcar/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -4828,12 +4832,12 @@ app.post('/app/visitas/remarcar/:id', auth, (req,res)=>{
     return v;
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/cancelar/:id', auth, (req,res)=>{
+app.post('/app/visitas/cancelar/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -4848,12 +4852,12 @@ app.post('/app/visitas/cancelar/:id', auth, (req,res)=>{
     return v;
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
+app.post('/app/visitas/concluir/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -4868,7 +4872,7 @@ app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
     return v;
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
@@ -4890,7 +4894,7 @@ app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
 
 
 
-app.post('/app/visitas/observacao/:id', auth, (req,res)=>{
+app.post('/app/visitas/observacao/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -4914,13 +4918,13 @@ app.post('/app/visitas/observacao/:id', auth, (req,res)=>{
     return v;
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
 
-app.post('/app/visitas/prioridade/:id', auth, (req,res)=>{
+app.post('/app/visitas/prioridade/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -4941,13 +4945,13 @@ app.post('/app/visitas/prioridade/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
 
-app.post('/app/visitas/responsavel/:id', auth, (req,res)=>{
+app.post('/app/visitas/responsavel/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -4968,13 +4972,13 @@ app.post('/app/visitas/responsavel/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
 
-app.post('/app/visitas/cliente-gostou/:id', auth, (req,res)=>{
+app.post('/app/visitas/cliente-gostou/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -4996,12 +5000,12 @@ app.post('/app/visitas/cliente-gostou/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/proposta/:id', auth, (req,res)=>{
+app.post('/app/visitas/proposta/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5023,12 +5027,12 @@ app.post('/app/visitas/proposta/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/fechado/:id', auth, (req,res)=>{
+app.post('/app/visitas/fechado/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5050,7 +5054,7 @@ app.post('/app/visitas/fechado/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
@@ -5116,7 +5120,7 @@ app.get('/app/visitas-kanban', auth, (req,res)=>{
 });
 
 
-app.post('/app/visitas/agendar/:id', auth, (req,res)=>{
+app.post('/app/visitas/agendar/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5142,13 +5146,13 @@ app.post('/app/visitas/agendar/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
 
-app.post('/app/visitas/solicitar-confirmacao/:id', auth, (req,res)=>{
+app.post('/app/visitas/solicitar-confirmacao/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5169,7 +5173,7 @@ app.post('/app/visitas/solicitar-confirmacao/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
@@ -5213,7 +5217,7 @@ app.get('/cliente/visita/:id/remarcar', (req,res)=>{
 
 });
 
-app.post('/cliente/visita/:id/remarcar', (req,res)=>{
+app.post('/cliente/visita/:id/remarcar', async (req,res)=>{
 
   const fs = require('fs');
 
@@ -5241,14 +5245,14 @@ app.post('/cliente/visita/:id/remarcar', (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/cliente/visita/' + req.params.id);
 
 });
 
 
-app.post('/app/visitas/checkin/:id', auth, (req,res)=>{
+app.post('/app/visitas/checkin/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5269,12 +5273,12 @@ app.post('/app/visitas/checkin/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/finalizar/:id', auth, (req,res)=>{
+app.post('/app/visitas/finalizar/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5313,13 +5317,13 @@ app.post('/app/visitas/finalizar/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
 
-app.post('/app/visitas/negociacao/:id', auth, (req,res)=>{
+app.post('/app/visitas/negociacao/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5342,12 +5346,12 @@ app.post('/app/visitas/negociacao/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas-kanban');
 });
 
-app.post('/app/visitas/perdido/:id', auth, (req,res)=>{
+app.post('/app/visitas/perdido/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5370,13 +5374,13 @@ app.post('/app/visitas/perdido/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas-kanban');
 });
 
 
-app.post('/app/visitas/parceiro-confirmou/:id', auth, (req,res)=>{
+app.post('/app/visitas/parceiro-confirmou/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5405,12 +5409,12 @@ app.post('/app/visitas/parceiro-confirmou/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/proprietario-confirmou/:id', auth, (req,res)=>{
+app.post('/app/visitas/proprietario-confirmou/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5441,12 +5445,12 @@ app.post('/app/visitas/proprietario-confirmou/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/cliente-chegou/:id', auth, (req,res)=>{
+app.post('/app/visitas/cliente-chegou/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5469,12 +5473,12 @@ app.post('/app/visitas/cliente-chegou/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/no-show/:id', auth, (req,res)=>{
+app.post('/app/visitas/no-show/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5509,13 +5513,13 @@ app.post('/app/visitas/no-show/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
 
-app.post('/app/visitas/proposta-valor/:id', auth, (req,res)=>{
+app.post('/app/visitas/proposta-valor/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5540,12 +5544,12 @@ app.post('/app/visitas/proposta-valor/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
-app.post('/app/visitas/perda-motivo/:id', auth, (req,res)=>{
+app.post('/app/visitas/perda-motivo/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = fs.existsSync(dataPath('visitas.json'))
@@ -5570,13 +5574,13 @@ app.post('/app/visitas/perda-motivo/:id', auth, (req,res)=>{
 
   });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
   res.redirect('/app/visitas');
 });
 
 
-app.get('/admin/zerar-tudo-sistema', (req, res) => {
+app.get('/admin/zerar-tudo-sistema', async (req, res) => {
   const fs2 = require('fs');
   const path2 = require('path');
   const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
@@ -5585,15 +5589,15 @@ app.get('/admin/zerar-tudo-sistema', (req, res) => {
     resultado[base2] = {};
     const dataPath = path2.join(base2, 'data.json');
     if (fs2.existsSync(dataPath)) {
-      try { fs2.writeFileSync(dataPath, '[]'); resultado[base2].leads = 'zerado'; } catch(e) { resultado[base2].leads = e.message; }
+      try { salvarTodosLeads([]).catch(e=>console.error("[leads]",e.message)); resultado[base2].leads = 'zerado'; } catch(e) { resultado[base2].leads = e.message; }
     }
     const visitasPath = path2.join(base2, 'visitas.json');
     if (fs2.existsSync(visitasPath)) {
-      try { fs2.writeFileSync(visitasPath, '[]'); resultado[base2].visitas = 'zerado'; } catch(e) { resultado[base2].visitas = e.message; }
+      try { salvarTodasVisitas([]).catch(e=>console.error("[visitas]",e.message)); resultado[base2].visitas = 'zerado'; } catch(e) { resultado[base2].visitas = e.message; }
     }
     const notifPath = path2.join(base2, 'notificacoes.json');
     if (fs2.existsSync(notifPath)) {
-      try { fs2.writeFileSync(notifPath, '[]'); resultado[base2].notificacoes = 'zerado'; } catch(e) { resultado[base2].notificacoes = e.message; }
+      try { salvarJSON(notifPath, []).catch(e=>console.error("[notif]",e.message)); resultado[base2].notificacoes = 'zerado'; } catch(e) { resultado[base2].notificacoes = e.message; }
     }
   }
   res.json({ ok: true, resultado });
@@ -5624,7 +5628,7 @@ app.get('/admin/migrar-imoveis/:idAntigo/:idNovo', (req, res) => {
   res.json({ ok: true, idAntigo, idNovo, migrados });
 });
 
-app.get('/admin/deletar-conta/:userId', (req, res) => {
+app.get('/admin/deletar-conta/:userId', async (req, res) => {
   const fs2 = require('fs');
   const path2 = require('path');
   const { userId } = req.params;
@@ -5637,7 +5641,7 @@ app.get('/admin/deletar-conta/:userId', (req, res) => {
       let users = JSON.parse(fs2.readFileSync(usersPath, 'utf8'));
       const antes = users.length;
       users = users.filter(u => u.id !== userId);
-      fs2.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
       if (users.length < antes) removido = true;
     } catch(e) {}
   }
@@ -5692,7 +5696,7 @@ app.get('/admin/diagnostico-contas', (req, res) => {
   res.json({ ok: true, contas: resultado, sem_vinculo: semVinculo, ids_estranhos: idsEstranhos, total_imoveis: imoveis.length });
 });
 
-app.get('/admin/deletar-imoveis/:userId', (req, res) => {
+app.get('/admin/deletar-imoveis/:userId', async (req, res) => {
   const fs2 = require('fs');
   const path2 = require('path');
   const { userId } = req.params;
@@ -5748,7 +5752,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
     if (idx >= 0) {
       users[idx].whatsappInstance = instanceName;
       users[idx].whatsappStatus = 'connecting';
-      fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
     }
 
     res.json({ ok: true, base64: qrData.base64 || qrData.qrcode?.base64, instanceName });
@@ -5784,7 +5788,7 @@ app.get('/app/whatsapp/status', auth, async (req, res) => {
         if (inst && inst.ownerJid) {
           users[idx].whatsappNumero = inst.ownerJid.replace('@s.whatsapp.net', '').replace(/D/g, '');
         }
-        fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+        salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
         req.session.user = users[idx];
       }
     }
@@ -5812,7 +5816,7 @@ app.post('/app/whatsapp/desconectar', auth, async (req, res) => {
     if (idx >= 0) {
       users[idx].whatsappStatus = 'disconnected';
       users[idx].whatsappNumero = '';
-      fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
       req.session.user = users[idx];
     }
     res.json({ ok: true });
@@ -5822,7 +5826,7 @@ app.post('/app/whatsapp/desconectar', auth, async (req, res) => {
 });
 
 // ── EXCLUIR LEAD ─────────────────────────────────────────────
-app.delete('/app/lead/:id', auth, (req, res) => {
+app.delete('/app/lead/:id', auth, async (req, res) => {
   try {
     const uid = String(req.session.user.id || '');
     const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
@@ -5832,7 +5836,7 @@ app.delete('/app/lead/:id', auth, (req, res) => {
     const leadOwner = String(lead.userId || lead.codigoUsuario || lead.corretorId || '');
     if (leadOwner && leadOwner !== uid) return res.status(403).json({ erro: 'acesso negado' });
     leads.splice(idx, 1);
-    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
     console.log('[LEAD] excluida:', req.params.id, 'por:', uid);
     res.json({ ok: true });
   } catch(e) {
@@ -5841,7 +5845,7 @@ app.delete('/app/lead/:id', auth, (req, res) => {
 });
 
 // ── BLOQUEAR NÚMERO ──────────────────────────────────────────
-app.post('/app/lead/:id/bloquear', auth, (req, res) => {
+app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
   try {
     const uid = String(req.session.user.id || '');
     const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
@@ -5859,12 +5863,12 @@ app.post('/app/lead/:id/bloquear', auth, (req, res) => {
       if (!users[uidx].bloqueados) users[uidx].bloqueados = [];
       if (telefone && !users[uidx].bloqueados.includes(telefone)) {
         users[uidx].bloqueados.push(telefone);
-        fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+        salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
       }
     }
     // Remove a lead
     leads.splice(idx, 1);
-    fs.writeFileSync(dataPath('data.json'), JSON.stringify(leads, null, 2));
+    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
     console.log('[LEAD] bloqueada:', telefone, 'por:', uid);
     res.json({ ok: true, bloqueado: telefone });
   } catch(e) {

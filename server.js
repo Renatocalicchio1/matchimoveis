@@ -2445,12 +2445,12 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     // ── IDENTIFICAR USERID PELO INSTANCE ─────────────────────
     let _webhookUserId = '';
     try {
-      const _users = JSON.parse(fs.readFileSync(require('path').join(__dirname, 'users.json'), 'utf8'));
+      const { lerUsuarios: _luWH2 } = require('./services/salvarUsuario');
+      const _users = _luWH2();
       const _userByInstance = _users.find(u => u.whatsappInstance === instance);
       if (_userByInstance) {
         _webhookUserId = _userByInstance.id;
       } else {
-        // fallback: busca pelo número conectado
         const _userByPhone = _users.find(u => {
           const t = String(u.whatsappNumero || u.telefone || '').replace(/\D/g,'');
           return t && t.slice(-8) === telefone.slice(-8);
@@ -2458,7 +2458,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         if (_userByPhone) _webhookUserId = _userByPhone.id;
       }
       if (_webhookUserId) console.log('[WEBHOOK WA] userId identificado:', _webhookUserId);
-    } catch(e) {}
+    } catch(e) { console.error('[WEBHOOK WA] erro userId:', e.message); }
 
     // ── ENCONTRAR LEAD PELO TELEFONE ──────────────────────────
     const { lerLeads: _lerLeadsWH, salvarTodosLeads: _salvarLeadsWH } = require('./services/salvarLead');

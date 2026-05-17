@@ -2,27 +2,19 @@
 
 <style>
 main{overflow-x:hidden!important}
-
-/* ── KPIs ── */
 .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
 .kpi-sm{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;padding:12px 14px;position:relative;overflow:hidden}
 .kpi-bar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:12px 0 0 12px}
 .kpi-label{font-size:10px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
 .kpi-val{font-size:22px;font-weight:600;color:#111827;letter-spacing:-1px}
-
-/* ── Filtros ── */
 .fi-bar{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:14px;padding:14px;margin-bottom:14px}
-.fi-input{flex:1;padding:8px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;outline:none;color:#111827}
-.fi-input:focus{border-color:rgba(0,0,0,.3)}
+.fi-input{flex:1;padding:8px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;background:#fff;outline:none;color:#111827}
 .fi-btn{padding:8px 14px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;background:#fff;color:#374151;white-space:nowrap}
-.fi-btn:hover{background:#f9fafb}
 .chips-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
 .chips-lbl{font-size:10px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;min-width:50px}
-.fchip{padding:4px 12px;border-radius:999px;font-size:11px;font-weight:500;border:0.5px solid rgba(0,0,0,.1);background:#fff;cursor:pointer;color:#374151;transition:all .1s}
+.fchip{padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;border:0.5px solid rgba(0,0,0,.1);background:#fff;cursor:pointer;color:#374151;transition:all .1s}
 .fchip.on{background:#111827;color:#fff;border-color:#111827}
-
-/* ── KANBAN ── */
-.kanban-hint{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 14px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:12px;color:#6b7280;transition:opacity .3s}
+.kanban-hint{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 14px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:12px;color:#6b7280}
 .kanban-wrap{display:flex;gap:10px;overflow-x:auto;padding-bottom:16px;align-items:flex-start;-webkit-overflow-scrolling:touch}
 .kanban-wrap::-webkit-scrollbar{height:5px}
 .kanban-wrap::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
@@ -32,34 +24,24 @@ main{overflow-x:hidden!important}
 .kanban-col-count{font-size:11px;font-weight:500;color:#9ca3af;background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:999px;padding:2px 8px}
 .kanban-col-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .empty-col{text-align:center;padding:24px 12px;color:#d1d5db;font-size:12px}
-
-/* ── Cards visita ── */
 .vi-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;padding:12px;margin-bottom:8px;transition:box-shadow .15s}
 .vi-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
 .vi-card-urgente{border-left:2px solid #ef4444;background:#fffafa}
 .vi-card-atencao{border-left:2px solid #fcd34d;background:#fffef0}
-
 .vi-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:500;margin-bottom:8px;border:0.5px solid transparent}
-.vi-nome{font-size:13px;font-weight:500;color:#111827;display:block;margin-bottom:1px}
-.vi-tel{font-size:11px;color:#9ca3af;margin-bottom:6px}
-
 .vi-info{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
 .vi-label{font-size:10px;color:#9ca3af;font-weight:500;text-transform:uppercase;letter-spacing:.03em;margin-bottom:1px}
 .vi-val{font-size:12px;color:#111827;font-weight:500}
-
 .vi-guia{padding:7px 10px;border-radius:7px;background:#f9fafb;border-left:2px solid #d1d5db;font-size:11px;font-weight:500;margin-bottom:8px;color:#374151}
-
 .vi-actions{display:flex;gap:5px;flex-wrap:wrap;padding-top:8px;border-top:0.5px solid rgba(0,0,0,.06)}
 .vi-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:7px;font-size:11px;font-weight:500;text-decoration:none;cursor:pointer;border:0.5px solid rgba(0,0,0,.1);background:#fff;color:#374151;transition:background .12s}
 .vi-btn:hover{background:#f9fafb}
 .vi-btn-green{background:#16a34a;color:#fff;border-color:#15803d}
-.vi-btn-green:hover{background:#15803d}
 .vi-btn-red{background:#ef4444;color:#fff;border-color:#dc2626}
-.vi-btn-red:hover{background:#dc2626}
 .vi-btn-zap{background:#22c55e;color:#fff;border-color:#16a34a}
-.vi-btn-zap:hover{background:#16a34a}
 .vi-btn-zap-dark{background:#15803d;color:#fff;border-color:#166534}
 .vi-btn-purple{background:#7c3aed;color:#fff;border-color:#6d28d9}
+.vi-btn-gray{background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)}
 </style>
 
 <%
@@ -76,59 +58,48 @@ var statusLabel={
   AGUARDANDO:{cls:'st-solicitada',txt:'Pendente'},
   prop_confirmou:{cls:'st-confirmada',txt:'Prop. confirmou'},
   prop_remarcou:{cls:'st-solicitada',txt:'Prop. remarcou'},
-  cliente_nao_vai:{cls:'st-cancelada',txt:'Cliente não vai'},
+  cliente_nao_vai:{cls:'st-cancelada',txt:'Cliente nao vai'},
   cliente_nova_data:{cls:'st-solicitada',txt:'Nova data'},
   remarcada:{cls:'st-solicitada',txt:'Remarcada'},
   parceiro_confirmou:{cls:'st-confirmada',txt:'Parceiro confirmou'}
 };
-
 var corretorNome=user&&user.nome?user.nome:'Corretor';
 var corretorTel=(user&&(user.celular||user.telefone)||'').replace(/[^0-9]/g,'');
-
-// Agrupa visitas por coluna kanban
-var colunas = [
-  { key:'solicitada',     label:'Solicitada',          cor:'#f59e0b', dot:'#fcd34d' },
-  { key:'aguard_prop',    label:'Aguard. Proprietário', cor:'#8b5cf6', dot:'#c4b5fd' },
-  { key:'aguard_cliente', label:'Aguard. Cliente',      cor:'#0ea5e9', dot:'#bae6fd' },
-  { key:'confirmada',     label:'Confirmada',           cor:'#22c55e', dot:'#86efac' },
-  { key:'realizada',      label:'Realizada',            cor:'#6366f1', dot:'#c7d2fe' },
-  { key:'cancelada',      label:'Cancelada / No-show',  cor:'#9ca3af', dot:'#e5e7eb' }
+var colunas=[
+  {key:'solicitada',label:'Solicitada',cor:'#f59e0b',dot:'#fcd34d'},
+  {key:'aguard_prop',label:'Aguard. Proprietario',cor:'#8b5cf6',dot:'#c4b5fd'},
+  {key:'aguard_cliente',label:'Aguard. Cliente',cor:'#0ea5e9',dot:'#bae6fd'},
+  {key:'confirmada',label:'Confirmada',cor:'#22c55e',dot:'#86efac'},
+  {key:'realizada',label:'Realizada',cor:'#6366f1',dot:'#c7d2fe'},
+  {key:'cancelada',label:'Cancelada',cor:'#9ca3af',dot:'#e5e7eb'}
 ];
-
-function getColuna(v) {
-  var st = (v.status||'solicitada').toLowerCase();
+function getColuna(v){
+  var st=(v.status||'solicitada').toLowerCase();
   if(st==='realizada'||st==='concluida') return 'realizada';
   if(st==='cancelada'||st==='cliente_nao_vai'||st==='no_show') return 'cancelada';
   if(st==='confirmada') return 'confirmada';
   if(st==='prop_confirmou'||st==='parceiro_confirmou') return 'aguard_cliente';
-  if(st==='solicitada'||st==='aguardando'||st==='prop_remarcou'||st==='cliente_nova_data'||st==='remarcada') {
-    if(v.proprietarioTelefone) return 'aguard_prop';
-    return 'solicitada';
-  }
+  if(v.proprietarioTelefone) return 'aguard_prop';
   return 'solicitada';
 }
-
-var visitasPorColuna = {};
-colunas.forEach(function(c){ visitasPorColuna[c.key] = []; });
+var visitasPorColuna={};
+colunas.forEach(function(c){ visitasPorColuna[c.key]=[]; });
 visitas.forEach(function(v){
-  var col = getColuna(v);
+  var col=getColuna(v);
   visitasPorColuna[col].push(v);
 });
-
-// Stats
-var totalV = visitas.length;
-var pendentesV = visitas.filter(function(v){return v.status==='solicitada'||v.status==='AGUARDANDO';}).length;
-var confirmadasV = visitas.filter(function(v){return v.status==='confirmada'||v.status==='CONFIRMADA';}).length;
-var realizadasV = visitas.filter(function(v){return v.status==='realizada'||v.status==='CONCLUIDA';}).length;
-var hoje = new Date(); hoje.setHours(0,0,0,0);
-var hojeV = visitas.filter(function(v){
+var totalV=visitas.length;
+var pendentesV=visitas.filter(function(v){return v.status==='solicitada'||v.status==='AGUARDANDO';}).length;
+var confirmadasV=visitas.filter(function(v){return v.status==='confirmada'||v.status==='CONFIRMADA';}).length;
+var realizadasV=visitas.filter(function(v){return v.status==='realizada'||v.status==='CONCLUIDA';}).length;
+var hoje=new Date(); hoje.setHours(0,0,0,0);
+var hojeV=visitas.filter(function(v){
   if(!v.dataVisita) return false;
-  var d = new Date(v.dataVisita); d.setHours(0,0,0,0);
+  var d=new Date(v.dataVisita); d.setHours(0,0,0,0);
   return d.getTime()===hoje.getTime();
 }).length;
 %>
 
-<!-- KPIs -->
 <div class="kpi-row">
   <div class="kpi-sm"><div class="kpi-bar" style="background:#6366f1"></div><div class="kpi-label">Total</div><div class="kpi-val"><%=totalV%></div></div>
   <div class="kpi-sm"><div class="kpi-bar" style="background:#f59e0b"></div><div class="kpi-label">Pendentes</div><div class="kpi-val" style="color:#d97706"><%=pendentesV%></div></div>
@@ -137,23 +108,22 @@ var hojeV = visitas.filter(function(v){
   <div class="kpi-sm"><div class="kpi-bar" style="background:#8b5cf6"></div><div class="kpi-label">Realizadas</div><div class="kpi-val" style="color:#7c3aed"><%=realizadasV%></div></div>
 </div>
 
-<!-- Filtros -->
 <div class="fi-bar">
   <div style="display:flex;gap:8px;margin-bottom:10px">
-    <input class="fi-input" id="vf-busca" placeholder="Buscar cliente, imóvel, bairro..." oninput="filtrarVisitas()">
+    <input class="fi-input" id="vf-busca" placeholder="Buscar cliente, imovel, bairro..." oninput="filtrarVisitas()">
     <button class="fi-btn" onclick="toggleFAdv()">Filtros</button>
-    <button class="fi-btn" onclick="location.reload()" style="background:#f9fafb">↻</button>
+    <button class="fi-btn" onclick="location.reload()">Atualizar</button>
   </div>
   <div class="chips-row">
-    <span class="chips-lbl">Período</span>
+    <span class="chips-lbl">Periodo</span>
     <button class="fchip on" onclick="setChipV('periodo','',this)">Todos</button>
-    <button class="fchip" onclick="setChipV('periodo','atrasada',this)" style="color:#dc2626;border-color:#fca5a5">Atrasadas</button>
-    <button class="fchip" onclick="setChipV('periodo','hoje',this)" style="color:#dc2626;border-color:#fca5a5">Hoje</button>
-    <button class="fchip" onclick="setChipV('periodo','amanha',this)" style="color:#d97706;border-color:#fcd34d">Amanhã</button>
+    <button class="fchip" onclick="setChipV('periodo','atrasada',this)">Atrasadas</button>
+    <button class="fchip" onclick="setChipV('periodo','hoje',this)">Hoje</button>
+    <button class="fchip" onclick="setChipV('periodo','amanha',this)">Amanha</button>
     <button class="fchip" onclick="setChipV('periodo','semana',this)">Essa semana</button>
   </div>
   <div id="fadv-v" style="display:none;margin-top:10px;padding-top:10px;border-top:0.5px solid rgba(0,0,0,.06)">
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Data</label><input type="date" id="vf-data" oninput="filtrarVisitas()" style="width:100%;padding:7px;border:0.5px solid rgba(0,0,0,.12);border-radius:7px;font-size:12px"></div>
       <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Bairro</label><input id="vf-bairro" placeholder="Meia Praia" oninput="filtrarVisitas()" style="width:100%;padding:7px;border:0.5px solid rgba(0,0,0,.12);border-radius:7px;font-size:12px"></div>
     </div>
@@ -162,17 +132,15 @@ var hojeV = visitas.filter(function(v){
   <div id="vf-counter" style="font-size:11px;color:#9ca3af;margin-top:8px"></div>
 </div>
 
-<!-- Hint -->
 <div class="kanban-hint" id="kanban-hint">
   <span style="font-size:16px">👆</span>
   <span>Deslize para os lados para ver todas as etapas</span>
   <div style="display:flex;gap:4px;margin-left:auto">
-    <button onclick="scrollKanban(-1)" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px">‹</button>
-    <button onclick="scrollKanban(1)" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px">›</button>
+    <button onclick="scrollKanban(-1)" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px">&#8249;</button>
+    <button onclick="scrollKanban(1)" style="width:28px;height:28px;border:0.5px solid rgba(0,0,0,.1);border-radius:6px;background:#fff;cursor:pointer;font-size:14px">&#8250;</button>
   </div>
 </div>
 
-<!-- KANBAN -->
 <div class="kanban-wrap" id="kanban-board">
 <% colunas.forEach(function(col){ %>
 <div class="kanban-col" data-col="<%=col.key%>">
@@ -183,16 +151,15 @@ var hojeV = visitas.filter(function(v){
     </div>
     <span class="kanban-col-count" id="count-<%=col.key%>"><%=visitasPorColuna[col.key].length%></span>
   </div>
-
   <% if(visitasPorColuna[col.key].length===0){ %>
   <div class="empty-col">Nenhuma visita</div>
   <% } %>
-
   <% visitasPorColuna[col.key].forEach(function(v){ %>
   <%
     var nome=v.nome||v.clienteNome||'-';
+    var iniciais=(nome||'?').split(' ').map(function(n){return n[0]||'';}).slice(0,2).join('').toUpperCase();
     var telefone=(v.telefone||v.contato||v.clienteTelefone||'').replace(/[^0-9]/g,'');
-    var imovelTit=v.imovelTitulo||v.titulo_interesse||'Imóvel';
+    var imovelTit=v.imovelTitulo||v.titulo_interesse||'Imovel';
     var imovelBairro=v.imovelBairro||v.bairro||'';
     var dataVisitaRaw=v.dataVisita||v.dataPreferida||'';
     var dataVisita='-';
@@ -209,42 +176,30 @@ var hojeV = visitas.filter(function(v){
     var propConfirmou=v.respostaProprietario==='confirmar'||v.proprietarioConfirmou===true||v.confirmacaoProprietarioStatus==='CONFIRMADO';
     var propRespondeu=propConfirmou||v.confirmacaoProprietarioStatus==='RECUSADO'||v.proprietarioRecusou||v.respostaProprietario==='recusar';
     var mostrarBtnCliente=!propTel||propRespondeu;
-
-    // Urgência
     var _hoje2=new Date();
     var _dataV=v.dataVisita||'';
     var _diffDias=_dataV?Math.floor((new Date(_dataV)-_hoje2)/86400000):999;
     var _atrasada=_diffDias<0&&(st==='solicitada'||st==='confirmada'||st==='prop_confirmou');
     var _hojeV2=_diffDias===0;
     var _amanha2=_diffDias===1;
-
     var _badge='',_badgeCor='',_cardClass='';
-    if(_atrasada){
-      _badge='Atrasada — resolva agora';
-      _badgeCor='background:#fee2e2;color:#991b1b;border-color:#fca5a5';
-      _cardClass='vi-card-urgente';
-    } else if(_hojeV2&&st!=='realizada'&&st!=='cancelada'){
-      _badge='Visita HOJE';
-      _badgeCor='background:#fee2e2;color:#991b1b;border-color:#fca5a5';
-      _cardClass='vi-card-urgente';
-    } else if(_amanha2&&st!=='realizada'&&st!=='cancelada'){
-      _badge='Visita amanhã';
-      _badgeCor='background:#fff7ed;color:#9a3412;border-color:#fdba74';
-      _cardClass='vi-card-atencao';
-    }
-
+    if(_atrasada){_badge='Atrasada';_badgeCor='background:#fee2e2;color:#991b1b;border-color:#fca5a5';_cardClass='vi-card-urgente';}
+    else if(_hojeV2&&st!=='realizada'&&st!=='cancelada'){_badge='Visita HOJE';_badgeCor='background:#fee2e2;color:#991b1b;border-color:#fca5a5';_cardClass='vi-card-urgente';}
+    else if(_amanha2&&st!=='realizada'&&st!=='cancelada'){_badge='Visita amanha';_badgeCor='background:#fff7ed;color:#9a3412;border-color:#fdba74';_cardClass='vi-card-atencao';}
     var guia='',guiaCor='#6b7280';
-    if(col.key==='solicitada'){ guia='Confirme com o responsável pelo imóvel'; guiaCor='#d97706'; }
-    else if(col.key==='aguard_prop'){ guia='Aguardando resposta do proprietário'; guiaCor='#8b5cf6'; }
-    else if(col.key==='aguard_cliente'){ guia='Avise o cliente — visita confirmada!'; guiaCor='#0ea5e9'; }
-    else if(col.key==='confirmada'&&clienteConfirmou&&propConfirmou){ guia='Ambos confirmaram — visita agendada!'; guiaCor='#15803d'; }
-    else if(col.key==='realizada'){ guia='Pergunte se gostou do imóvel'; guiaCor='#6366f1'; }
-    else if(col.key==='cancelada'){ guia='Ofereça outra opção ao cliente'; guiaCor='#9ca3af'; }
-
+    if(col.key==='solicitada'){guia='Confirme com o responsavel pelo imovel';guiaCor='#d97706';}
+    else if(col.key==='aguard_prop'){guia='Aguardando resposta do proprietario';guiaCor='#8b5cf6';}
+    else if(col.key==='aguard_cliente'){guia='Avise o cliente — visita confirmada!';guiaCor='#0ea5e9';}
+    else if(col.key==='confirmada'&&clienteConfirmou&&propConfirmou){guia='Ambos confirmaram — visita agendada!';guiaCor='#15803d';}
+    else if(col.key==='realizada'){guia='Pergunte se gostou do imovel';guiaCor='#6366f1';}
+    else if(col.key==='cancelada'){guia='Oferea outra opcao ao cliente';guiaCor='#9ca3af';}
     var linkCliente=baseUrl+'/cliente/visita/'+v.id;
     var linkProprietario=baseUrl+'/proprietario/visita/'+v.id;
     var msgCliente='Ola '+nome+'! Sua visita foi confirmada!%0A%0AImovel: '+imovelTit+(imovelBairro?' - '+imovelBairro:'')+'%0AData: '+dataVisita+(horaVisita&&horaVisita!=='-'?'%0AHorario: '+horaVisita:'')+'%0A%0AConfirme sua presenca:%0A'+linkCliente;
     var msgProp='Ola! Sou corretor da MatchImoveis.%0ATenho cliente interessado no imovel '+imovelTit+(imovelBairro?' - '+imovelBairro:'')+'%0AVisita para '+dataVisita+(horaVisita&&horaVisita!=='-'?' as '+horaVisita:'')+'%0A%0AConfirme disponibilidade:%0A'+linkProprietario;
+    var waPropEnviado=v.waProprietarioEnviadoEm?new Date(v.waProprietarioEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+    var waClienteEnviado=v.waClienteEnviadoEm?new Date(v.waClienteEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+    var waParceiroEnviado=v.waParceiroEnviadoEm?new Date(v.waParceiroEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
   %>
   <div class="vi-card <%=_cardClass%>"
     data-visita-id="<%=v.id%>"
@@ -256,60 +211,40 @@ var hojeV = visitas.filter(function(v){
     <% if(_badge){ %><div class="vi-badge" style="<%=_badgeCor%>"><%=_badge%></div><% } %>
 
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <div style="width:34px;height:34px;border-radius:50%;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#4338ca;flex-shrink:0">
-        <%=(nome||'?').split(' ').map(function(n){return n[0]||'';}).slice(0,2).join('').toUpperCase()%>
-      </div>
+      <div style="width:34px;height:34px;border-radius:50%;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#4338ca;flex-shrink:0"><%=iniciais%></div>
       <div style="flex:1;min-width:0">
-        <a href="/app/lead/<%=v.leadId||''%>" style="font-size:13px;font-weight:500;color:#111827;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%=nome%></a>
-        <div style="font-size:11px;color:#9ca3af"><%=telefone||'—'%></div>
+        <div style="font-size:13px;font-weight:500;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%=nome%></div>
+        <div style="font-size:11px;color:#9ca3af"><%=telefone||'---'%></div>
       </div>
     </div>
 
-    <% if(guia){ %>
-    <div class="vi-guia" style="border-left-color:<%=guiaCor%>;color:<%=guiaCor%>"><%=guia%></div>
-    <% } %>
+    <% if(guia){ %><div class="vi-guia" style="border-left-color:<%=guiaCor%>;color:<%=guiaCor%>"><%=guia%></div><% } %>
 
     <div class="vi-info">
       <div style="grid-column:span 2">
-        <div class="vi-label">Imóvel</div>
+        <div class="vi-label">Imovel</div>
         <div class="vi-val" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%=imovelTit%><%=imovelBairro?' — '+imovelBairro:''%></div>
       </div>
-      <div>
-        <div class="vi-label">Data</div>
-        <div class="vi-val"><%=dataVisita%></div>
-      </div>
-      <div>
-        <div class="vi-label">Horário</div>
-        <div class="vi-val"><%=horaVisita&&horaVisita!=='-'?horaVisita:'—'%></div>
-      </div>
-      <div>
-        <div class="vi-label">Proprietário</div>
-        <div class="vi-val" style="color:<%=propConfirmou?'#15803d':'#d97706'%>"><%=propConfirmou?'✓ Confirmou':'Aguardando'%></div>
-      </div>
-      <div>
-        <div class="vi-label">Cliente</div>
-        <div class="vi-val" style="color:<%=clienteConfirmou?'#15803d':'#d97706'%>"><%=clienteConfirmou?'✓ Confirmou':'Aguardando'%></div>
-      </div>
+      <div><div class="vi-label">Data</div><div class="vi-val"><%=dataVisita%></div></div>
+      <div><div class="vi-label">Horario</div><div class="vi-val"><%=horaVisita&&horaVisita!=='-'?horaVisita:'---'%></div></div>
+      <div><div class="vi-label">Proprietario</div><div class="vi-val" style="color:<%=propConfirmou?'#15803d':'#d97706'%>"><%=propConfirmou?'Confirmou':'Aguardando'%></div></div>
+      <div><div class="vi-label">Cliente</div><div class="vi-val" style="color:<%=clienteConfirmou?'#15803d':'#d97706'%>"><%=clienteConfirmou?'Confirmou':'Aguardando'%></div></div>
     </div>
 
     <div class="vi-actions">
       <% if(propTel&&!propRespondeu){ %>
-      <% if(v.waProprietarioEnviadoEm){ %>
-      <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn" style="background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)" title="Sistema enviou — clique para reenviar">
-        ✓ WA Prop. <%= new Date(v.waProprietarioEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %>
-      </a>
-      <% } else { %>
-      <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn vi-btn-zap-dark">WA Prop.</a>
-      <% } %>
+        <% if(waPropEnviado){ %>
+        <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn vi-btn-gray" title="Sistema enviou — clique para reenviar">✓ WA Prop. <%=waPropEnviado%></a>
+        <% } else { %>
+        <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn vi-btn-zap-dark">WA Prop.</a>
+        <% } %>
       <% } %>
       <% if(telefone&&mostrarBtnCliente){ %>
-      <% if(v.waClienteEnviadoEm){ %>
-      <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn" style="background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)" title="Sistema enviou — clique para reenviar">
-        ✓ WA Cliente <%= new Date(v.waClienteEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %>
-      </a>
-      <% } else { %>
-      <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn vi-btn-zap">WA Cliente</a>
-      <% } %>
+        <% if(waClienteEnviado){ %>
+        <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn vi-btn-gray" title="Sistema enviou — clique para reenviar">✓ WA Cliente <%=waClienteEnviado%></a>
+        <% } else { %>
+        <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn vi-btn-zap">WA Cliente</a>
+        <% } %>
       <% } %>
       <% if((st==='solicitada'||st==='AGUARDANDO')&&!propTel){ %>
       <form method="POST" action="/app/visitas/confirmar/<%=v.id%>" style="margin:0">
@@ -317,20 +252,20 @@ var hojeV = visitas.filter(function(v){
       </form>
       <% } %>
       <% if(col.key==='aguard_cliente'&&v.parceiroNome){ %>
-      <span class="vi-btn" style="background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)" title="WA enviado ao parceiro — aguardando confirmação">
-        ✓ WA Parceiro <%= new Date(v.waParceiroEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %>
-      </span>
-      <% } %>
-      <form method="POST" action="/app/visitas/parceiro-confirmou/<%=v.id%>" style="margin:0">
-        <button type="submit" class="vi-btn vi-btn-green">Parceiro OK</button>
-      </form>
-      <% } else { %>
-      <span class="vi-btn" style="background:#f0fdf4;color:#15803d;border-color:#86efac">✓ Parceiro confirmou</span>
-      <% } %>
+        <% if(waParceiroEnviado&&!v.parceiroConfirmou){ %>
+        <span class="vi-btn vi-btn-gray" title="WA enviado ao parceiro">✓ WA Parceiro <%=waParceiroEnviado%></span>
+        <% } %>
+        <% if(!v.parceiroConfirmou){ %>
+        <form method="POST" action="/app/visitas/parceiro-confirmou/<%=v.id%>" style="margin:0">
+          <button type="submit" class="vi-btn vi-btn-green">Parceiro OK</button>
+        </form>
+        <% } else { %>
+        <span class="vi-btn" style="background:#f0fdf4;color:#15803d;border-color:#86efac">✓ Parceiro confirmou</span>
+        <% } %>
       <% } %>
       <% if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'){ %>
-      <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0" onsubmit="return confirm('Cancelar esta visita?')">
-        <button type="submit" class="vi-btn vi-btn-red">×</button>
+      <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0">
+        <button type="submit" class="vi-btn vi-btn-red" onclick="return confirm('Cancelar esta visita?')">X</button>
       </form>
       <% } %>
       <% if(st==='confirmada'||st==='CONFIRMADA'||st==='prop_confirmou'){ %>
@@ -346,96 +281,52 @@ var hojeV = visitas.filter(function(v){
 </div>
 
 <script>
-const _fv = { periodo:'' };
-
-function setChipV(campo, valor, btn) {
-  _fv[campo] = valor;
-  btn.parentElement.querySelectorAll('.fchip').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  filtrarVisitas();
-}
-
-function toggleFAdv() {
-  const el = document.getElementById('fadv-v');
-  el.style.display = el.style.display==='block'?'none':'block';
-}
-
-function limparFiltrosV() {
-  _fv.periodo='';
-  document.getElementById('vf-busca').value='';
-  document.getElementById('vf-data').value='';
-  document.getElementById('vf-bairro').value='';
-  document.querySelectorAll('.fchip').forEach(b=>{b.classList.remove('on');if(b.textContent.trim()==='Todos')b.classList.add('on');});
-  filtrarVisitas();
-}
-
-function filtrarVisitas() {
-  const busca = document.getElementById('vf-busca').value.toLowerCase();
-  const dataFiltro = document.getElementById('vf-data').value;
-  const bairroFiltro = document.getElementById('vf-bairro').value.toLowerCase();
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
-  const amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
-  const semana = new Date(hoje); semana.setDate(semana.getDate()+7);
-
-  const cards = document.querySelectorAll('.vi-card[data-visita-id]');
-  let total = 0;
-  const counts = {};
-
-  cards.forEach(card => {
-    const dataVisita = card.dataset.dataVisita ? new Date(card.dataset.dataVisita) : null;
-    const searchStr = (card.dataset.search||'').toLowerCase();
-    const bairroCard = (card.dataset.bairro||'').toLowerCase();
-    let ok = true;
-
-    if(_fv.periodo && dataVisita) {
-      const dv = new Date(dataVisita); dv.setHours(0,0,0,0);
-      if(_fv.periodo==='hoje'&&dv.getTime()!==hoje.getTime()) ok=false;
-      if(_fv.periodo==='amanha'&&dv.getTime()!==amanha.getTime()) ok=false;
-      if(_fv.periodo==='semana'&&(dv<hoje||dv>semana)) ok=false;
-      if(_fv.periodo==='atrasada'&&dv>=hoje) ok=false;
+const _fv={periodo:''};
+function setChipV(campo,valor,btn){_fv[campo]=valor;btn.parentElement.querySelectorAll('.fchip').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');filtrarVisitas();}
+function toggleFAdv(){var el=document.getElementById('fadv-v');el.style.display=el.style.display==='block'?'none':'block';}
+function limparFiltrosV(){_fv.periodo='';document.getElementById('vf-busca').value='';document.getElementById('vf-data').value='';document.getElementById('vf-bairro').value='';document.querySelectorAll('.fchip').forEach(function(b){b.classList.remove('on');if(b.textContent.trim()==='Todos')b.classList.add('on');});filtrarVisitas();}
+function filtrarVisitas(){
+  var busca=document.getElementById('vf-busca').value.toLowerCase();
+  var dataFiltro=document.getElementById('vf-data').value;
+  var bairroFiltro=document.getElementById('vf-bairro').value.toLowerCase();
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var amanha=new Date(hoje);amanha.setDate(amanha.getDate()+1);
+  var semana=new Date(hoje);semana.setDate(semana.getDate()+7);
+  var cards=document.querySelectorAll('.vi-card[data-visita-id]');
+  var total=0;var counts={};
+  cards.forEach(function(card){
+    var dataVisita=card.dataset.dataVisita?new Date(card.dataset.dataVisita):null;
+    var searchStr=(card.dataset.search||'').toLowerCase();
+    var bairroCard=(card.dataset.bairro||'').toLowerCase();
+    var ok=true;
+    if(_fv.periodo&&dataVisita){
+      var dv=new Date(dataVisita);dv.setHours(0,0,0,0);
+      if(_fv.periodo==='hoje'&&dv.getTime()!==hoje.getTime())ok=false;
+      if(_fv.periodo==='amanha'&&dv.getTime()!==amanha.getTime())ok=false;
+      if(_fv.periodo==='semana'&&(dv<hoje||dv>semana))ok=false;
+      if(_fv.periodo==='atrasada'&&dv>=hoje)ok=false;
     }
-    if(busca&&!searchStr.includes(busca)) ok=false;
-    if(bairroFiltro&&!bairroCard.includes(bairroFiltro)) ok=false;
-    if(dataFiltro&&dataVisita){
-      const dvStr = dataVisita.toISOString().split('T')[0];
-      if(dvStr!==dataFiltro) ok=false;
-    }
-
-    card.style.display = ok?'':'none';
-    if(ok){
-      total++;
-      const col = card.dataset.col;
-      counts[col] = (counts[col]||0)+1;
-    }
+    if(busca&&!searchStr.includes(busca))ok=false;
+    if(bairroFiltro&&!bairroCard.includes(bairroFiltro))ok=false;
+    if(dataFiltro&&dataVisita){var dvStr=dataVisita.toISOString().split('T')[0];if(dvStr!==dataFiltro)ok=false;}
+    card.style.display=ok?'':'none';
+    if(ok){total++;var col=card.dataset.col;counts[col]=(counts[col]||0)+1;}
   });
-
-  // Atualiza contadores
-  document.querySelectorAll('.kanban-col-count').forEach(el => {
-    const col = el.id.replace('count-','');
-    el.textContent = counts[col]||0;
-  });
-
-  // Empty state por coluna
-  document.querySelectorAll('.kanban-col').forEach(col => {
-    const visCards = Array.from(col.querySelectorAll('.vi-card')).filter(c=>c.style.display!=='none');
-    let empty = col.querySelector('.empty-col');
+  document.querySelectorAll('.kanban-col-count').forEach(function(el){var col=el.id.replace('count-','');el.textContent=counts[col]||0;});
+  document.querySelectorAll('.kanban-col').forEach(function(col){
+    var visCards=Array.from(col.querySelectorAll('.vi-card')).filter(function(c){return c.style.display!=='none';});
+    var empty=col.querySelector('.empty-col');
     if(!empty){empty=document.createElement('div');empty.className='empty-col';empty.textContent='Nenhuma visita';col.appendChild(empty);}
-    empty.style.display = visCards.length===0?'block':'none';
+    empty.style.display=visCards.length===0?'block':'none';
   });
-
-  document.getElementById('vf-counter').textContent = total+' visita'+(total!==1?'s':'')+' exibida'+(total!==1?'s':'');
+  document.getElementById('vf-counter').textContent=total+' visita'+(total!==1?'s':'')+' exibida'+(total!==1?'s':'');
 }
-
-function scrollKanban(dir) {
-  const board = document.getElementById('kanban-board');
-  board.scrollBy({ left: dir*290, behavior:'smooth' });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
+function scrollKanban(dir){var board=document.getElementById('kanban-board');board.scrollBy({left:dir*290,behavior:'smooth'});}
+document.addEventListener('DOMContentLoaded',function(){
   filtrarVisitas();
-  const board = document.getElementById('kanban-board');
-  const hint = document.getElementById('kanban-hint');
-  if(board) board.addEventListener('scroll', ()=>{ if(hint) hint.style.opacity='0.4'; }, {once:true});
+  var board=document.getElementById('kanban-board');
+  var hint=document.getElementById('kanban-hint');
+  if(board)board.addEventListener('scroll',function(){if(hint)hint.style.opacity='0.4';},{once:true});
 });
 </script>
 

@@ -2204,8 +2204,8 @@ setInterval(async () => {
 
         if (!_contato || !_instancia) continue;
 
-        if (consumir(_leads[i].userId || _leads[i].corretorId, 'followup_auto').catch(()=>{});
-          fu.tipo === 'enviar_vitrine') {
+        consumir(_leads[i].userId || _leads[i].corretorId, 'followup_auto').catch(()=>{});
+        if (fu.tipo === 'enviar_vitrine') {
           if (_leads[i].vitrineEnviada) continue;
           const _matches = (_leads[i].matchesAuto || _leads[i].matches || []).length;
           const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;

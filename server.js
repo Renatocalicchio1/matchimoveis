@@ -5756,13 +5756,13 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
     const qrData = await qrRes.json();
 
     // Salva instanceName no usuário
-    const usersPath = require('path').join(__dirname, 'users.json');
-    const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+    const { lerUsuarios: _lerU, salvarTodosUsuarios: _salvarU } = require('./services/salvarUsuario');
+    const users = _lerU();
     const idx = users.findIndex(u => u.id === userId);
     if (idx >= 0) {
       users[idx].whatsappInstance = instanceName;
       users[idx].whatsappStatus = 'connecting';
-      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+      _salvarU(users).catch(e=>console.error("[users]",e.message));
     }
 
     res.json({ ok: true, base64: qrData.base64 || qrData.qrcode?.base64, instanceName });

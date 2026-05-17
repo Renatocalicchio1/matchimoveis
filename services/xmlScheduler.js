@@ -7,6 +7,7 @@
 const fs   = require('fs');
 const path = require('path');
 const { syncXmlFeeds } = require('./xmlSync');
+const { consumir } = require('./creditos');
 
 function getDataDir() {
   return process.env.RENDER ? '/opt/render/project/src/data' : path.join(__dirname, '..');

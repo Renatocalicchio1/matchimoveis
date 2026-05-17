@@ -142,6 +142,7 @@ async function syncXmlFeeds() {
     writeJson('imoveis.json', imoveisAtuais);
     writeJson('xml-feeds.json', feeds);
 
+    try { const { consumir } = require('./creditos'); consumir(feed.userId, 'sync_xml_24h').catch(()=>{}); } catch(e) {}
     console.log('✅ XML sincronizado:', feed.url);
   }
 }

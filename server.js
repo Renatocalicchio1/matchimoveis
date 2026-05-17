@@ -203,6 +203,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
     try {
       const { execSync } = require('child_process');
       const userId = global.importUserId || '';
+      consumir(global.importUserId, 'importar_xml').catch(()=>{});
       execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
 
       const fs = require('fs');
@@ -649,6 +650,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     horaVisita: lead.horaVisita || lead.horarioPreferido || '',
     imovelUrl: imovel.url || '',
     status: 'solicitada',
+    consumir(req.session?.user?.id, 'visita_agendada_ia').catch(()=>{});
     origem: 'vitrine_cliente',
     fonte: 'MatchImóveis',
     data: new Date().toISOString(),
@@ -712,7 +714,8 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
   if (idx === -1) return res.status(404).send('Visita não encontrada');
   
   const { resposta } = req.body;
-  visitas[idx].respostaProprietario = resposta;
+  visitas[idx].consumir(visita?.ownerUserId || visita?.corretorId, 'confirmacao_auto').catch(()=>{});
+    respostaProprietario = resposta;
   visitas[idx].respostaEm = new Date().toISOString();
 
   if (resposta === 'confirmar') {
@@ -2201,7 +2204,8 @@ setInterval(async () => {
 
         if (!_contato || !_instancia) continue;
 
-        if (fu.tipo === 'enviar_vitrine') {
+        if (consumir(_leads[i].userId || _leads[i].corretorId, 'followup_auto').catch(()=>{});
+          fu.tipo === 'enviar_vitrine') {
           if (_leads[i].vitrineEnviada) continue;
           const _matches = (_leads[i].matchesAuto || _leads[i].matches || []).length;
           const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;
@@ -2601,6 +2605,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           leadsPath: leadsPathAtual
         });
         const leadAtualizado = _resultado?.lead || leadEncontrado;
+        consumir(leadAtualizado.userId || leadAtualizado.codigoUsuario, 'ia_responde_whatsapp').catch(()=>{});
 
         console.log('[WEBHOOK WA] match-core concluido | score:', leadAtualizado.score, '| temperatura:', leadAtualizado.temperatura, '| matches:', (leadAtualizado.matchesAuto || []).length);
         if((leadAtualizado.matchesAuto||[]).length>0) consumir(leadAtualizado.userId||leadAtualizado.corretorId, 'match_encontrado').catch(()=>{});
@@ -3313,6 +3318,7 @@ function gerarXMLPortais(){
       require('child_process').execSync('node exportXML.js quintoandar', { stdio:'inherit' });
       console.log('XML QuintoAndar gerado no padrão novo');
     } else {
+      consumir(req.session?.user?.id, 'gerar_xml_portal').catch(()=>{});
       fs.writeFileSync(dataPath(`feed-${portal}.xml`), xml);
       console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
     }

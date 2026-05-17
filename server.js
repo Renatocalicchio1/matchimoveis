@@ -5735,7 +5735,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
       _salvarU(users).catch(e=>console.error("[users]",e.message));
     }
 
-    res.json({ ok: true, base64: qrData.base64 || qrData.qrcode?.base64, instanceName });
+    res.json({ ok: true, base64: qrData.base64 || qrData.qrcode?.base64 || qrData.code, instanceName });
   } catch(e) {
     res.json({ ok: false, erro: e.message });
   }

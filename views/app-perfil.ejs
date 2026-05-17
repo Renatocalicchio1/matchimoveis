@@ -282,7 +282,13 @@ async function conectarWA() {
   try {
     const d = await (await fetch('/app/whatsapp/qrcode')).json();
     if (d.base64) {
-      document.getElementById('wa-qr').src = d.base64;
+      const qrVal = d.base64;
+      // se for data:image já pronto, usa direto; senão gera via QRServer
+      if (qrVal.startsWith('data:image')) {
+        document.getElementById('wa-qr').src = qrVal;
+      } else {
+        document.getElementById('wa-qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(qrVal);
+      }
       document.getElementById('wa-qr-wrap').style.display = 'block';
       btn.textContent = 'Novo QR';
       btn.disabled = false;

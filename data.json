@@ -231,7 +231,7 @@
       }
     ],
     "matchCount": 1,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -253,8 +253,9 @@
       {
         "id": "1778967775524",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.524Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.524Z",
+        "executadoEm": "2026-05-17T01:52:22.998Z"
       }
     ],
     "timeline": [
@@ -266,7 +267,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.524Z",
     "data": "2026-05-16T21:42:55.524Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:23.216Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755246979?userId=imob_nhvxchtlx5"
   },
   {
     "id": "SEED-LEAD-17789677755247872",
@@ -527,8 +530,9 @@
       {
         "id": "1778967775524",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.524Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.524Z",
+        "executadoEm": "2026-05-17T01:52:23.217Z"
       }
     ],
     "timeline": [
@@ -842,7 +846,7 @@
       }
     ],
     "matchCount": 1,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": "2026-05-16T21:42:55.525Z",
     "mensagens": [
       {
@@ -864,8 +868,9 @@
       {
         "id": "1778967775525",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.525Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.525Z",
+        "executadoEm": "2026-05-17T01:52:23.448Z"
       }
     ],
     "timeline": [
@@ -877,7 +882,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.525Z",
     "data": "2026-05-16T21:42:55.525Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:23.783Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755257242?userId=imob_nhvxchtlx5"
   },
   {
     "id": "SEED-LEAD-17789677755256848",
@@ -1177,7 +1184,7 @@
       }
     ],
     "matchCount": 3,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -1199,8 +1206,9 @@
       {
         "id": "1778967775525",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.525Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.525Z",
+        "executadoEm": "2026-05-17T01:52:23.783Z"
       }
     ],
     "timeline": [
@@ -1212,7 +1220,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.525Z",
     "data": "2026-05-16T21:42:55.525Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:24.006Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-1778967775525303?userId=cor_as61p840px"
   },
   {
     "id": "SEED-LEAD-1778967775526595",
@@ -1337,8 +1347,9 @@
       {
         "id": "1778967775526",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.526Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.526Z",
+        "executadoEm": "2026-05-17T01:52:24.007Z"
       }
     ],
     "timeline": [
@@ -1475,8 +1486,9 @@
       {
         "id": "1778967775526",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.526Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.526Z",
+        "executadoEm": "2026-05-17T01:52:24.007Z"
       }
     ],
     "timeline": [
@@ -1659,7 +1671,7 @@
       }
     ],
     "matchCount": 2,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -1681,8 +1693,9 @@
       {
         "id": "1778967775526",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.526Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.526Z",
+        "executadoEm": "2026-05-17T01:52:24.225Z"
       }
     ],
     "timeline": [
@@ -1694,7 +1707,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.526Z",
     "data": "2026-05-16T21:42:55.526Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:24.501Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755263081?userId=cor_as61p840px"
   },
   {
     "id": "SEED-LEAD-17789677755275656",
@@ -1749,8 +1764,9 @@
       {
         "id": "1778967775527",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.527Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.527Z",
+        "executadoEm": "2026-05-17T01:52:24.502Z"
       }
     ],
     "timeline": [
@@ -2016,8 +2032,9 @@
       {
         "id": "1778967775527",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.527Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.527Z",
+        "executadoEm": "2026-05-17T01:52:24.502Z"
       }
     ],
     "timeline": [
@@ -2290,8 +2307,9 @@
       {
         "id": "1778967775527",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.527Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.527Z",
+        "executadoEm": "2026-05-17T01:52:24.807Z"
       }
     ],
     "timeline": [
@@ -2625,8 +2643,9 @@
       {
         "id": "1778967775528",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.528Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.528Z",
+        "executadoEm": "2026-05-17T01:52:25.115Z"
       }
     ],
     "timeline": [
@@ -2693,8 +2712,9 @@
       {
         "id": "1778967775528",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.528Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.528Z",
+        "executadoEm": "2026-05-17T01:52:25.331Z"
       }
     ],
     "timeline": [
@@ -3098,8 +3118,9 @@
       {
         "id": "1778967775529",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.529Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.529Z",
+        "executadoEm": "2026-05-17T01:52:25.728Z"
       }
     ],
     "timeline": [
@@ -3365,8 +3386,9 @@
       {
         "id": "1778967775530",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.530Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.530Z",
+        "executadoEm": "2026-05-17T01:52:25.939Z"
       }
     ],
     "timeline": [
@@ -3700,8 +3722,9 @@
       {
         "id": "1778967775530",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.530Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.530Z",
+        "executadoEm": "2026-05-17T01:52:26.241Z"
       }
     ],
     "timeline": [
@@ -3938,7 +3961,7 @@
     "matches": [],
     "matchesAuto": [],
     "matchCount": 0,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -3960,8 +3983,9 @@
       {
         "id": "1778967775532",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.532Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.532Z",
+        "executadoEm": "2026-05-17T01:52:26.455Z"
       }
     ],
     "timeline": [
@@ -3973,7 +3997,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.532Z",
     "data": "2026-05-16T21:42:55.532Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:26.753Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755328792?userId=imob_nhvxchtlx5"
   },
   {
     "id": "SEED-LEAD-17789677755337773",
@@ -4166,8 +4192,9 @@
       {
         "id": "1778967775533",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.533Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.533Z",
+        "executadoEm": "2026-05-17T01:52:26.754Z"
       }
     ],
     "timeline": [
@@ -4234,8 +4261,9 @@
       {
         "id": "1778967775533",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.533Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.533Z",
+        "executadoEm": "2026-05-17T01:52:26.967Z"
       }
     ],
     "timeline": [
@@ -4501,8 +4529,9 @@
       {
         "id": "1778967775533",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.533Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.533Z",
+        "executadoEm": "2026-05-17T01:52:27.264Z"
       }
     ],
     "timeline": [
@@ -4569,8 +4598,9 @@
       {
         "id": "1778967775534",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.534Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.534Z",
+        "executadoEm": "2026-05-17T01:52:27.476Z"
       }
     ],
     "timeline": [
@@ -4707,8 +4737,9 @@
       {
         "id": "1778967775534",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.534Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.534Z",
+        "executadoEm": "2026-05-17T01:52:27.776Z"
       }
     ],
     "timeline": [
@@ -4775,8 +4806,9 @@
       {
         "id": "1778967775534",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.534Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.534Z",
+        "executadoEm": "2026-05-17T01:52:27.996Z"
       }
     ],
     "timeline": [
@@ -4891,7 +4923,7 @@
       }
     ],
     "matchCount": 1,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": "2026-05-16T21:42:55.534Z",
     "mensagens": [
       {
@@ -4913,8 +4945,9 @@
       {
         "id": "1778967775534",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.534Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.534Z",
+        "executadoEm": "2026-05-17T01:52:27.996Z"
       }
     ],
     "timeline": [
@@ -4926,7 +4959,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.534Z",
     "data": "2026-05-16T21:42:55.534Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:28.391Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755343518?userId=cor_as61p840px"
   },
   {
     "id": "SEED-LEAD-17789677755349947",
@@ -4981,8 +5016,9 @@
       {
         "id": "1778967775534",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.534Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.534Z",
+        "executadoEm": "2026-05-17T01:52:28.391Z"
       }
     ],
     "timeline": [
@@ -5119,8 +5155,9 @@
       {
         "id": "1778967775535",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.535Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.535Z",
+        "executadoEm": "2026-05-17T01:52:28.599Z"
       }
     ],
     "timeline": [
@@ -5393,8 +5430,9 @@
       {
         "id": "1778967775535",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.535Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.535Z",
+        "executadoEm": "2026-05-17T01:52:28.600Z"
       }
     ],
     "timeline": [
@@ -5461,8 +5499,9 @@
       {
         "id": "1778967775535",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.535Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.535Z",
+        "executadoEm": "2026-05-17T01:52:28.907Z"
       }
     ],
     "timeline": [
@@ -5599,8 +5638,9 @@
       {
         "id": "1778967775535",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.535Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.535Z",
+        "executadoEm": "2026-05-17T01:52:29.184Z"
       }
     ],
     "timeline": [
@@ -5737,8 +5777,9 @@
       {
         "id": "1778967775536",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.536Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.536Z",
+        "executadoEm": "2026-05-17T01:52:29.462Z"
       }
     ],
     "timeline": [
@@ -5921,7 +5962,7 @@
       }
     ],
     "matchCount": 2,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": "2026-05-16T21:42:55.536Z",
     "mensagens": [
       {
@@ -5943,8 +5984,9 @@
       {
         "id": "1778967775536",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.536Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.536Z",
+        "executadoEm": "2026-05-17T01:52:29.462Z"
       }
     ],
     "timeline": [
@@ -5956,7 +5998,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.536Z",
     "data": "2026-05-16T21:42:55.536Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:29.678Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755368813?userId=imob_nhvxchtlx5"
   },
   {
     "id": "SEED-LEAD-17789677755367252",
@@ -6217,8 +6261,9 @@
       {
         "id": "1778967775536",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.536Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.536Z",
+        "executadoEm": "2026-05-17T01:52:29.679Z"
       }
     ],
     "timeline": [
@@ -6394,7 +6439,7 @@
     "matches": [],
     "matchesAuto": [],
     "matchCount": 0,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -6416,8 +6461,9 @@
       {
         "id": "1778967775537",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.537Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.537Z",
+        "executadoEm": "2026-05-17T01:52:30.029Z"
       }
     ],
     "timeline": [
@@ -6429,7 +6475,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.537Z",
     "data": "2026-05-16T21:42:55.537Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:30.243Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755377943?userId=imob_nhvxchtlx5"
   },
   {
     "id": "SEED-LEAD-17789677755382736",
@@ -6676,8 +6724,9 @@
       {
         "id": "1778967775538",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.538Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.538Z",
+        "executadoEm": "2026-05-17T01:52:30.243Z"
       }
     ],
     "timeline": [
@@ -6928,7 +6977,7 @@
       }
     ],
     "matchCount": 3,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -6950,8 +6999,9 @@
       {
         "id": "1778967775539",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.539Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.539Z",
+        "executadoEm": "2026-05-17T01:52:30.243Z"
       }
     ],
     "timeline": [
@@ -6963,7 +7013,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.539Z",
     "data": "2026-05-16T21:42:55.539Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:30.542Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755397516?userId=cor_ko0271zv05"
   },
   {
     "id": "SEED-LEAD-17789677755393497",
@@ -7156,8 +7208,9 @@
       {
         "id": "1778967775539",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.539Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.539Z",
+        "executadoEm": "2026-05-17T01:52:30.543Z"
       }
     ],
     "timeline": [
@@ -7224,8 +7277,9 @@
       {
         "id": "1778967775539",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.539Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.539Z",
+        "executadoEm": "2026-05-17T01:52:30.758Z"
       }
     ],
     "timeline": [
@@ -7430,8 +7484,9 @@
       {
         "id": "1778967775540",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.540Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.540Z",
+        "executadoEm": "2026-05-17T01:52:31.052Z"
       }
     ],
     "timeline": [
@@ -7636,8 +7691,9 @@
       {
         "id": "1778967775540",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.540Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.540Z",
+        "executadoEm": "2026-05-17T01:52:31.262Z"
       }
     ],
     "timeline": [
@@ -7910,8 +7966,9 @@
       {
         "id": "1778967775540",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.540Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.540Z",
+        "executadoEm": "2026-05-17T01:52:31.567Z"
       }
     ],
     "timeline": [
@@ -8376,8 +8433,9 @@
       {
         "id": "1778967775541",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.541Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.541Z",
+        "executadoEm": "2026-05-17T01:52:31.567Z"
       }
     ],
     "timeline": [
@@ -8444,8 +8502,9 @@
       {
         "id": "1778967775541",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.541Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.541Z",
+        "executadoEm": "2026-05-17T01:52:32.386Z"
       }
     ],
     "timeline": [
@@ -8650,8 +8709,9 @@
       {
         "id": "1778967775541",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.541Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.541Z",
+        "executadoEm": "2026-05-17T01:52:32.703Z"
       }
     ],
     "timeline": [
@@ -8788,8 +8848,9 @@
       {
         "id": "1778967775542",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.542Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.542Z",
+        "executadoEm": "2026-05-17T01:52:32.925Z"
       }
     ],
     "timeline": [
@@ -9378,8 +9439,9 @@
       {
         "id": "1778967775543",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.543Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.543Z",
+        "executadoEm": "2026-05-17T01:52:33.177Z"
       }
     ],
     "timeline": [
@@ -9424,7 +9486,7 @@
     "matches": [],
     "matchesAuto": [],
     "matchCount": 0,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -9446,8 +9508,9 @@
       {
         "id": "1778967775543",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.543Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.543Z",
+        "executadoEm": "2026-05-17T01:52:33.177Z"
       }
     ],
     "timeline": [
@@ -9459,7 +9522,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.543Z",
     "data": "2026-05-16T21:42:55.543Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:33.393Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755431918?userId=imob_nhvxchtlx5"
   },
   {
     "id": "SEED-LEAD-17789677755439253",
@@ -9584,8 +9649,9 @@
       {
         "id": "1778967775543",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.543Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.543Z",
+        "executadoEm": "2026-05-17T01:52:33.394Z"
       }
     ],
     "timeline": [
@@ -9700,7 +9766,7 @@
       }
     ],
     "matchCount": 1,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -9722,8 +9788,9 @@
       {
         "id": "1778967775543",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.543Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.543Z",
+        "executadoEm": "2026-05-17T01:52:33.394Z"
       }
     ],
     "timeline": [
@@ -9735,7 +9802,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.543Z",
     "data": "2026-05-16T21:42:55.543Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:33.607Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755434592?userId=cor_as61p840px"
   },
   {
     "id": "SEED-LEAD-17789677755444928",
@@ -9790,8 +9859,9 @@
       {
         "id": "1778967775544",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.544Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.544Z",
+        "executadoEm": "2026-05-17T01:52:33.607Z"
       }
     ],
     "timeline": [
@@ -9989,8 +10059,9 @@
       {
         "id": "1778967775544",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.544Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.544Z",
+        "executadoEm": "2026-05-17T01:52:33.819Z"
       }
     ],
     "timeline": [
@@ -10516,8 +10587,9 @@
       {
         "id": "1778967775545",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.545Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.545Z",
+        "executadoEm": "2026-05-17T01:52:34.125Z"
       }
     ],
     "timeline": [
@@ -10693,7 +10765,7 @@
     "matches": [],
     "matchesAuto": [],
     "matchCount": 0,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": "2026-05-16T21:42:55.546Z",
     "mensagens": [
       {
@@ -10715,8 +10787,9 @@
       {
         "id": "1778967775546",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.546Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.546Z",
+        "executadoEm": "2026-05-17T01:52:34.125Z"
       }
     ],
     "timeline": [
@@ -10728,7 +10801,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.546Z",
     "data": "2026-05-16T21:42:55.546Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:34.437Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755469115?userId=cor_as61p840px"
   },
   {
     "id": "SEED-LEAD-17789677755463638",
@@ -10853,8 +10928,9 @@
       {
         "id": "1778967775546",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.546Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.546Z",
+        "executadoEm": "2026-05-17T01:52:34.438Z"
       }
     ],
     "timeline": [
@@ -11100,7 +11176,7 @@
       }
     ],
     "matchCount": 1,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -11122,8 +11198,9 @@
       {
         "id": "1778967775547",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.547Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.547Z",
+        "executadoEm": "2026-05-17T01:52:34.652Z"
       }
     ],
     "timeline": [
@@ -11135,7 +11212,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.547Z",
     "data": "2026-05-16T21:42:55.547Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:34.945Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755473760?userId=cor_as61p840px"
   },
   {
     "id": "SEED-LEAD-17789677755474643",
@@ -11389,8 +11468,9 @@
       {
         "id": "1778967775547",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.547Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.547Z",
+        "executadoEm": "2026-05-17T01:52:34.945Z"
       }
     ],
     "timeline": [
@@ -12054,8 +12134,9 @@
       {
         "id": "1778967775548",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.548Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.548Z",
+        "executadoEm": "2026-05-17T01:52:35.154Z"
       }
     ],
     "timeline": [
@@ -12192,8 +12273,9 @@
       {
         "id": "1778967775549",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.549Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.549Z",
+        "executadoEm": "2026-05-17T01:52:35.154Z"
       }
     ],
     "timeline": [
@@ -12260,8 +12342,9 @@
       {
         "id": "1778967775549",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.549Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.549Z",
+        "executadoEm": "2026-05-17T01:52:35.154Z"
       }
     ],
     "timeline": [
@@ -12512,7 +12595,7 @@
       }
     ],
     "matchCount": 3,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -12534,8 +12617,9 @@
       {
         "id": "1778967775549",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.549Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.549Z",
+        "executadoEm": "2026-05-17T01:52:35.371Z"
       }
     ],
     "timeline": [
@@ -12547,7 +12631,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.549Z",
     "data": "2026-05-16T21:42:55.549Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:35.585Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755491709?userId=cor_as61p840px"
   },
   {
     "id": "SEED-LEAD-17789677755492389",
@@ -12718,7 +12804,7 @@
       }
     ],
     "matchCount": 2,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -12740,8 +12826,9 @@
       {
         "id": "1778967775549",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.549Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.549Z",
+        "executadoEm": "2026-05-17T01:52:35.585Z"
       }
     ],
     "timeline": [
@@ -12753,7 +12840,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.549Z",
     "data": "2026-05-16T21:42:55.549Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:35.796Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755492389?userId=imob_nhvxchtlx5"
   },
   {
     "id": "SEED-LEAD-17789677755491736",
@@ -12924,7 +13013,7 @@
       }
     ],
     "matchCount": 2,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": null,
     "mensagens": [
       {
@@ -12946,8 +13035,9 @@
       {
         "id": "1778967775549",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.549Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.549Z",
+        "executadoEm": "2026-05-17T01:52:35.797Z"
       }
     ],
     "timeline": [
@@ -12959,7 +13049,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.549Z",
     "data": "2026-05-16T21:42:55.549Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:36.006Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755491736?userId=cor_ko0271zv05"
   },
   {
     "id": "SEED-LEAD-17789677755505009",
@@ -13014,8 +13106,9 @@
       {
         "id": "1778967775550",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.550Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.550Z",
+        "executadoEm": "2026-05-17T01:52:36.006Z"
       }
     ],
     "timeline": [
@@ -13082,8 +13175,9 @@
       {
         "id": "1778967775550",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.550Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.550Z",
+        "executadoEm": "2026-05-17T01:52:36.006Z"
       }
     ],
     "timeline": [
@@ -13356,8 +13450,9 @@
       {
         "id": "1778967775550",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.550Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.550Z",
+        "executadoEm": "2026-05-17T01:52:36.220Z"
       }
     ],
     "timeline": [
@@ -13555,8 +13650,9 @@
       {
         "id": "1778967775551",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.551Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.551Z",
+        "executadoEm": "2026-05-17T01:52:36.220Z"
       }
     ],
     "timeline": [
@@ -13671,7 +13767,7 @@
       }
     ],
     "matchCount": 1,
-    "vitrineEnviada": false,
+    "vitrineEnviada": true,
     "vitrineVisualizadaEm": "2026-05-16T21:42:55.552Z",
     "mensagens": [
       {
@@ -13693,8 +13789,9 @@
       {
         "id": "1778967775552",
         "tipo": "enviar_vitrine",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.552Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.552Z",
+        "executadoEm": "2026-05-17T01:52:36.432Z"
       }
     ],
     "timeline": [
@@ -13706,7 +13803,9 @@
     ],
     "criadoEm": "2026-05-16T21:42:55.552Z",
     "data": "2026-05-16T21:42:55.552Z",
-    "data_br": "16/05/2026, 18:42:55"
+    "data_br": "16/05/2026, 18:42:55",
+    "vitrineEnviadaEm": "2026-05-17T01:52:36.787Z",
+    "vitrineLink": "http://localhost:3000/cliente/oferta/SEED-LEAD-17789677755523705?userId=cor_ko0271zv05"
   },
   {
     "id": "SEED-LEAD-17789677755527637",
@@ -14030,8 +14129,9 @@
       {
         "id": "1778967775552",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.552Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.552Z",
+        "executadoEm": "2026-05-17T01:52:36.787Z"
       }
     ],
     "timeline": [
@@ -14098,8 +14198,9 @@
       {
         "id": "1778967775553",
         "tipo": "agendar_visita",
-        "status": "pendente",
-        "prazo": "2026-05-16T22:42:55.553Z"
+        "status": "executado",
+        "prazo": "2026-05-16T22:42:55.553Z",
+        "executadoEm": "2026-05-17T01:52:37.004Z"
       }
     ],
     "timeline": [
@@ -18392,5 +18493,1743 @@
     "diferenciais": [
       "varanda"
     ]
+  },
+  {
+    "id": "1778982534116",
+    "nome": "47999005192",
+    "telefone": "47999005192",
+    "whatsapp": "47999005192",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T01:48:54.116Z",
+    "mensagens": [
+      {
+        "id": "1778982534128",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T01:48:54.128Z",
+        "lida": false
+      },
+      {
+        "id": "1778982540246",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T01:49:00.246Z",
+        "lida": false
+      },
+      {
+        "id": "1778982547005",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T01:49:07.005Z",
+        "lida": false
+      },
+      {
+        "id": "1778982552777",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Preciso de quintal",
+        "timestamp": "2026-05-17T01:49:12.777Z",
+        "lida": false
+      },
+      {
+        "id": "1778982556610",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Tenho cachorro",
+        "timestamp": "2026-05-17T01:49:16.610Z",
+        "lida": false
+      },
+      {
+        "id": "1778982562728",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T01:49:22.728Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "casa",
+      "categoria": "residencial",
+      "bairro": "centro",
+      "estado": "pr",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "quartos": 3,
+      "cidade": "itajai",
+      "valorMin": 400,
+      "valorMax": 700000,
+      "sentimento": "impaciente",
+      "familia": [
+        "pets"
+      ],
+      "urgencia": "alta"
+    },
+    "score": 37,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T01:48:54.128Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T01:49:00.246Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T01:49:07.005Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Preciso de quintal",
+        "timestamp": "2026-05-17T01:49:12.777Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Tenho cachorro",
+        "timestamp": "2026-05-17T01:49:16.610Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T01:49:22.728Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T01:48:54.131Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T01:49:00.491Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T01:49:07.239Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Preciso de quintal",
+        "timestamp": "2026-05-17T01:49:12.867Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Tenho cachorro",
+        "timestamp": "2026-05-17T01:49:16.704Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T01:49:22.830Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778982534131",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:48:54.131Z",
+        "prazo": "2026-05-20T01:48:54.131Z"
+      },
+      {
+        "id": "1778982547239",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:49:07.239Z",
+        "prazo": "2026-05-19T01:49:07.239Z"
+      },
+      {
+        "id": "1778982562830",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:49:22.830Z",
+        "prazo": "2026-05-18T01:49:22.830Z"
+      }
+    ],
+    "ultimaMensagem": "Quero agendar uma visita essa semana",
+    "ultimaMensagemEm": "2026-05-17T01:49:22.728Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T01:49:22.731Z",
+      "resumo": "casa · 3q · em centro · até R$700k · urgente · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T01:49:22.731Z",
+    "scoreEtapa": "Conversando",
+    "tipo": "casa",
+    "bairro": "centro",
+    "estado": "pr",
+    "quartos": 3,
+    "cidade": "itajai",
+    "matchesAuto": [],
+    "matches": [],
+    "matchAutoEm": "2026-05-17T01:49:22.830Z",
+    "valorMax": 700000,
+    "valorMin": 400,
+    "sentimento": "impaciente",
+    "familia": [
+      "pets"
+    ],
+    "urgencia": "alta"
+  },
+  {
+    "id": "1778982596417",
+    "nome": "47999007818",
+    "telefone": "47999007818",
+    "whatsapp": "47999007818",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T01:49:56.417Z",
+    "mensagens": [
+      {
+        "id": "1778982596429",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T01:49:56.429Z",
+        "lida": false
+      },
+      {
+        "id": "1778982604214",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T01:50:04.214Z",
+        "lida": false
+      },
+      {
+        "id": "1778982608541",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T01:50:08.541Z",
+        "lida": false
+      },
+      {
+        "id": "1778982616295",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Casal sem filhos",
+        "timestamp": "2026-05-17T01:50:16.295Z",
+        "lida": false
+      },
+      {
+        "id": "1778982620760",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T01:50:20.760Z",
+        "lida": false
+      },
+      {
+        "id": "1778982625612",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T01:50:25.612Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "estado": "pr",
+      "intencao": "comprar",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "suites": 3,
+      "bairro": "sul",
+      "valorMax": 2000,
+      "familia": [
+        "criancas",
+        "casal"
+      ],
+      "vagas": 2,
+      "diferenciais": [
+        "varanda"
+      ]
+    },
+    "score": 31,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T01:49:56.429Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T01:50:04.214Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T01:50:08.541Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Casal sem filhos",
+        "timestamp": "2026-05-17T01:50:16.295Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T01:50:20.760Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T01:50:25.612Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T01:49:56.434Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T01:50:04.217Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T01:50:08.541Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Casal sem filhos",
+        "timestamp": "2026-05-17T01:50:16.296Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T01:50:20.760Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T01:50:25.614Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778982596434",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:49:56.434Z",
+        "prazo": "2026-05-20T01:49:56.434Z"
+      },
+      {
+        "id": "1778982608541",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:50:08.541Z",
+        "prazo": "2026-05-19T01:50:08.541Z"
+      },
+      {
+        "id": "1778982625614",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:50:25.614Z",
+        "prazo": "2026-05-18T01:50:25.614Z"
+      }
+    ],
+    "ultimaMensagem": "Quero ver pessoalmente",
+    "ultimaMensagemEm": "2026-05-17T01:50:25.612Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T01:50:25.612Z",
+      "resumo": "quer comprar · apartamento · em sul · até R$2k · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T01:50:25.612Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "comprar",
+    "estado": "pr",
+    "tipo": "apartamento",
+    "suites": 3,
+    "bairro": "sul",
+    "valorMax": 2000,
+    "familia": [
+      "criancas",
+      "casal"
+    ],
+    "vagas": 2,
+    "diferenciais": [
+      "varanda"
+    ]
+  },
+  {
+    "id": "1778982735041",
+    "nome": "47999009325",
+    "telefone": "47999009325",
+    "whatsapp": "47999009325",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T01:52:15.041Z",
+    "mensagens": [
+      {
+        "id": "1778982735054",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T01:52:15.054Z",
+        "lida": false
+      },
+      {
+        "id": "1778982742253",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:52:22.253Z",
+        "lida": false
+      },
+      {
+        "id": "1778982759401",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T01:52:39.401Z",
+        "lida": false
+      },
+      {
+        "id": "1778982765274",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T01:52:45.274Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "estado": "sp",
+      "intencao": "alugar",
+      "faseFunil": "qualificado",
+      "temperatura": "morno",
+      "bairro": "balneario camboriu",
+      "cidade": "balneario camboriu",
+      "diferenciais": [
+        "mobiliado"
+      ]
+    },
+    "score": 25,
+    "temperatura": "morno",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T01:52:15.054Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:52:22.253Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T01:52:39.401Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T01:52:45.274Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T01:52:15.055Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:52:22.253Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T01:52:39.401Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quando tem disponível?",
+        "timestamp": "2026-05-17T01:52:45.274Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778982735055",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:52:15.055Z",
+        "prazo": "2026-05-20T01:52:15.055Z"
+      },
+      {
+        "id": "1778982759401",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:52:39.401Z",
+        "prazo": "2026-05-19T01:52:39.401Z"
+      }
+    ],
+    "ultimaMensagem": "Quando tem disponível?",
+    "ultimaMensagemEm": "2026-05-17T01:52:45.274Z",
+    "faseFunil": "qualificado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T01:52:45.274Z",
+      "resumo": "quer alugar · apartamento · em balneario camboriu · 4 msg(s) · [caso2]",
+      "totalMsgs": 4,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T01:52:45.274Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "alugar",
+    "tipo": "apartamento",
+    "estado": "sp",
+    "bairro": "balneario camboriu",
+    "cidade": "balneario camboriu",
+    "diferenciais": [
+      "mobiliado"
+    ]
+  },
+  {
+    "id": "1778982801883",
+    "nome": "47999004674",
+    "telefone": "47999004674",
+    "whatsapp": "47999004674",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T01:53:21.883Z",
+    "mensagens": [
+      {
+        "id": "1778982801897",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Oi, vi um apartamento no site de vocês",
+        "timestamp": "2026-05-17T01:53:21.897Z",
+        "lida": false
+      },
+      {
+        "id": "1778982805407",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Estou procurando apto 2 quartos em Meia Praia",
+        "timestamp": "2026-05-17T01:53:25.407Z",
+        "lida": false
+      },
+      {
+        "id": "1778982813391",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Orçamento até 500 mil",
+        "timestamp": "2026-05-17T01:53:33.391Z",
+        "lida": false
+      },
+      {
+        "id": "1778982818287",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero comprar",
+        "timestamp": "2026-05-17T01:53:38.287Z",
+        "lida": false
+      },
+      {
+        "id": "1778982824155",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode ser com garagem",
+        "timestamp": "2026-05-17T01:53:44.155Z",
+        "lida": false
+      },
+      {
+        "id": "1778982829405",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quando posso visitar?",
+        "timestamp": "2026-05-17T01:53:49.405Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "bairro": "meia praia",
+      "estado": "pr",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "quartos": 2,
+      "valorMax": 500000,
+      "intencao": "comprar"
+    },
+    "score": 35,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Oi, vi um apartamento no site de vocês",
+        "timestamp": "2026-05-17T01:53:21.897Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Estou procurando apto 2 quartos em Meia Praia",
+        "timestamp": "2026-05-17T01:53:25.407Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Orçamento até 500 mil",
+        "timestamp": "2026-05-17T01:53:33.391Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero comprar",
+        "timestamp": "2026-05-17T01:53:38.287Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode ser com garagem",
+        "timestamp": "2026-05-17T01:53:44.155Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quando posso visitar?",
+        "timestamp": "2026-05-17T01:53:49.405Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Oi, vi um apartamento no site de vocês",
+        "timestamp": "2026-05-17T01:53:21.897Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Estou procurando apto 2 quartos em Meia Praia",
+        "timestamp": "2026-05-17T01:53:25.540Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Orçamento até 500 mil",
+        "timestamp": "2026-05-17T01:53:33.519Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero comprar",
+        "timestamp": "2026-05-17T01:53:38.384Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode ser com garagem",
+        "timestamp": "2026-05-17T01:53:44.229Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quando posso visitar?",
+        "timestamp": "2026-05-17T01:53:49.545Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778982801897",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:53:21.897Z",
+        "prazo": "2026-05-20T01:53:21.897Z"
+      },
+      {
+        "id": "1778982813519",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:53:33.519Z",
+        "prazo": "2026-05-19T01:53:33.519Z"
+      },
+      {
+        "id": "1778982829545",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:53:49.545Z",
+        "prazo": "2026-05-18T01:53:49.545Z"
+      }
+    ],
+    "ultimaMensagem": "Quando posso visitar?",
+    "ultimaMensagemEm": "2026-05-17T01:53:49.405Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T01:53:49.410Z",
+      "resumo": "quer comprar · apartamento · 2q · em meia praia · até R$500k · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T01:53:49.410Z",
+    "scoreEtapa": "Conversando",
+    "tipo": "apartamento",
+    "bairro": "meia praia",
+    "estado": "pr",
+    "quartos": 2,
+    "matchesAuto": [],
+    "matches": [],
+    "matchAutoEm": "2026-05-17T01:53:49.545Z",
+    "valorMax": 500000,
+    "intencao": "comprar"
+  },
+  {
+    "id": "1778982874478",
+    "nome": "47999009244",
+    "telefone": "47999009244",
+    "whatsapp": "47999009244",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T01:54:34.478Z",
+    "mensagens": [
+      {
+        "id": "1778982874493",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T01:54:34.493Z",
+        "lida": false
+      },
+      {
+        "id": "1778982878410",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:54:38.410Z",
+        "lida": false
+      },
+      {
+        "id": "1778982886097",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Até 2500 por mês",
+        "timestamp": "2026-05-17T01:54:46.097Z",
+        "lida": false
+      },
+      {
+        "id": "1778982889665",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Só eu morando",
+        "timestamp": "2026-05-17T01:54:49.665Z",
+        "lida": false
+      },
+      {
+        "id": "1778982895786",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T01:54:55.786Z",
+        "lida": false
+      },
+      {
+        "id": "1778982901405",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T01:55:01.405Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "estado": "sp",
+      "intencao": "alugar",
+      "faseFunil": "qualificado",
+      "temperatura": "morno",
+      "bairro": "balneario camboriu",
+      "cidade": "balneario camboriu",
+      "familia": [
+        "sozinho"
+      ],
+      "diferenciais": [
+        "mobiliado"
+      ]
+    },
+    "score": 27,
+    "temperatura": "morno",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T01:54:34.493Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:54:38.410Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Até 2500 por mês",
+        "timestamp": "2026-05-17T01:54:46.097Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Só eu morando",
+        "timestamp": "2026-05-17T01:54:49.665Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T01:54:55.786Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T01:55:01.405Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T01:54:34.497Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:54:38.412Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Até 2500 por mês",
+        "timestamp": "2026-05-17T01:54:46.097Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Só eu morando",
+        "timestamp": "2026-05-17T01:54:49.665Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T01:54:55.787Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quando tem disponível?",
+        "timestamp": "2026-05-17T01:55:01.406Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778982874497",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:54:34.497Z",
+        "prazo": "2026-05-20T01:54:34.497Z"
+      },
+      {
+        "id": "1778982886097",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:54:46.097Z",
+        "prazo": "2026-05-19T01:54:46.097Z"
+      }
+    ],
+    "ultimaMensagem": "Quando tem disponível?",
+    "ultimaMensagemEm": "2026-05-17T01:55:01.405Z",
+    "faseFunil": "qualificado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T01:55:01.405Z",
+      "resumo": "quer alugar · apartamento · em balneario camboriu · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T01:55:01.405Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "alugar",
+    "tipo": "apartamento",
+    "estado": "sp",
+    "bairro": "balneario camboriu",
+    "cidade": "balneario camboriu",
+    "familia": [
+      "sozinho"
+    ],
+    "diferenciais": [
+      "mobiliado"
+    ]
+  },
+  {
+    "id": "1778982925361",
+    "nome": "47999008200",
+    "telefone": "47999008200",
+    "whatsapp": "47999008200",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T01:55:25.361Z",
+    "mensagens": [
+      {
+        "id": "1778982925373",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T01:55:25.373Z",
+        "lida": false
+      },
+      {
+        "id": "1778982933026",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T01:55:33.026Z",
+        "lida": false
+      },
+      {
+        "id": "1778982938347",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T01:55:38.347Z",
+        "lida": false
+      },
+      {
+        "id": "1778982944972",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Casal sem filhos",
+        "timestamp": "2026-05-17T01:55:44.972Z",
+        "lida": false
+      },
+      {
+        "id": "1778982949955",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T01:55:49.955Z",
+        "lida": false
+      },
+      {
+        "id": "1778982953343",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T01:55:53.343Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "estado": "pr",
+      "intencao": "comprar",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "suites": 3,
+      "bairro": "sul",
+      "valorMax": 2000,
+      "familia": [
+        "criancas",
+        "casal"
+      ],
+      "vagas": 2,
+      "diferenciais": [
+        "varanda"
+      ]
+    },
+    "score": 31,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T01:55:25.373Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T01:55:33.026Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T01:55:38.347Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Casal sem filhos",
+        "timestamp": "2026-05-17T01:55:44.972Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T01:55:49.955Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T01:55:53.343Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Oi tudo bem? Quero comprar imóvel",
+        "timestamp": "2026-05-17T01:55:25.376Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Apartamento 3 suítes na Barra Sul",
+        "timestamp": "2026-05-17T01:55:33.029Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Tenho até 1.2 milhão",
+        "timestamp": "2026-05-17T01:55:38.348Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Casal sem filhos",
+        "timestamp": "2026-05-17T01:55:44.972Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Precisa ter varanda e 2 vagas",
+        "timestamp": "2026-05-17T01:55:49.962Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero ver pessoalmente",
+        "timestamp": "2026-05-17T01:55:53.343Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778982925376",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:55:25.376Z",
+        "prazo": "2026-05-20T01:55:25.376Z"
+      },
+      {
+        "id": "1778982938348",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:55:38.348Z",
+        "prazo": "2026-05-19T01:55:38.348Z"
+      },
+      {
+        "id": "1778982953343",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:55:53.343Z",
+        "prazo": "2026-05-18T01:55:53.343Z"
+      }
+    ],
+    "ultimaMensagem": "Quero ver pessoalmente",
+    "ultimaMensagemEm": "2026-05-17T01:55:53.343Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T01:55:53.343Z",
+      "resumo": "quer comprar · apartamento · em sul · até R$2k · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T01:55:53.343Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "comprar",
+    "estado": "pr",
+    "tipo": "apartamento",
+    "suites": 3,
+    "bairro": "sul",
+    "valorMax": 2000,
+    "familia": [
+      "criancas",
+      "casal"
+    ],
+    "vagas": 2,
+    "diferenciais": [
+      "varanda"
+    ]
+  },
+  {
+    "id": "1778983002277",
+    "nome": "47999006708",
+    "telefone": "47999006708",
+    "whatsapp": "47999006708",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T01:56:42.277Z",
+    "mensagens": [
+      {
+        "id": "1778983002288",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T01:56:42.288Z",
+        "lida": false
+      },
+      {
+        "id": "1778983006632",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:56:46.632Z",
+        "lida": false
+      },
+      {
+        "id": "1778983010739",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Até 2500 por mês",
+        "timestamp": "2026-05-17T01:56:50.739Z",
+        "lida": false
+      },
+      {
+        "id": "1778983018780",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Só eu morando",
+        "timestamp": "2026-05-17T01:56:58.780Z",
+        "lida": false
+      },
+      {
+        "id": "1778983024734",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T01:57:04.734Z",
+        "lida": false
+      },
+      {
+        "id": "1778983029823",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T01:57:09.823Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "apartamento",
+      "categoria": "residencial",
+      "estado": "sp",
+      "intencao": "alugar",
+      "faseFunil": "qualificado",
+      "temperatura": "morno",
+      "bairro": "balneario camboriu",
+      "cidade": "balneario camboriu",
+      "familia": [
+        "sozinho"
+      ],
+      "diferenciais": [
+        "mobiliado"
+      ]
+    },
+    "score": 27,
+    "temperatura": "morno",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T01:56:42.288Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:56:46.632Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Até 2500 por mês",
+        "timestamp": "2026-05-17T01:56:50.739Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Só eu morando",
+        "timestamp": "2026-05-17T01:56:58.780Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T01:57:04.734Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quando tem disponível?",
+        "timestamp": "2026-05-17T01:57:09.823Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Olá! Procuro apartamento para alugar",
+        "timestamp": "2026-05-17T01:56:42.292Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Studio ou kitnet em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:56:46.639Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Até 2500 por mês",
+        "timestamp": "2026-05-17T01:56:50.740Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Só eu morando",
+        "timestamp": "2026-05-17T01:56:58.785Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode ser semi mobiliado",
+        "timestamp": "2026-05-17T01:57:04.737Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quando tem disponível?",
+        "timestamp": "2026-05-17T01:57:09.824Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983002292",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:56:42.292Z",
+        "prazo": "2026-05-20T01:56:42.292Z"
+      },
+      {
+        "id": "1778983010740",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:56:50.740Z",
+        "prazo": "2026-05-19T01:56:50.740Z"
+      }
+    ],
+    "ultimaMensagem": "Quando tem disponível?",
+    "ultimaMensagemEm": "2026-05-17T01:57:09.823Z",
+    "faseFunil": "qualificado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T01:57:09.824Z",
+      "resumo": "quer alugar · apartamento · em balneario camboriu · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T01:57:09.824Z",
+    "scoreEtapa": "Conversando",
+    "intencao": "alugar",
+    "tipo": "apartamento",
+    "estado": "sp",
+    "bairro": "balneario camboriu",
+    "cidade": "balneario camboriu",
+    "familia": [
+      "sozinho"
+    ],
+    "diferenciais": [
+      "mobiliado"
+    ]
+  },
+  {
+    "id": "1778983079537",
+    "nome": "47999002141",
+    "telefone": "47999002141",
+    "whatsapp": "47999002141",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T01:57:59.537Z",
+    "mensagens": [
+      {
+        "id": "1778983079634",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Bom dia! Vi anúncio de vocês",
+        "timestamp": "2026-05-17T01:57:59.634Z",
+        "lida": false
+      },
+      {
+        "id": "1778983085550",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Cobertura em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:58:05.550Z",
+        "lida": false
+      },
+      {
+        "id": "1778983091341",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Orçamento acima de 2 milhões",
+        "timestamp": "2026-05-17T01:58:11.341Z",
+        "lida": false
+      },
+      {
+        "id": "1778983095904",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Investimento",
+        "timestamp": "2026-05-17T01:58:15.904Z",
+        "lida": false
+      },
+      {
+        "id": "1778983099711",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Vista mar se possível",
+        "timestamp": "2026-05-17T01:58:19.711Z",
+        "lida": false
+      },
+      {
+        "id": "1778983102997",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Pode agendar visita?",
+        "timestamp": "2026-05-17T01:58:22.997Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "estado": "ba",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "tipo": "cobertura",
+      "categoria": "residencial",
+      "bairro": "balneario camboriu",
+      "cidade": "balneario camboriu",
+      "valorMax": 2000,
+      "intencao": "investir"
+    },
+    "score": 31,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Bom dia! Vi anúncio de vocês",
+        "timestamp": "2026-05-17T01:57:59.634Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Cobertura em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:58:05.550Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Orçamento acima de 2 milhões",
+        "timestamp": "2026-05-17T01:58:11.341Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Investimento",
+        "timestamp": "2026-05-17T01:58:15.904Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Vista mar se possível",
+        "timestamp": "2026-05-17T01:58:19.711Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Pode agendar visita?",
+        "timestamp": "2026-05-17T01:58:22.997Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Bom dia! Vi anúncio de vocês",
+        "timestamp": "2026-05-17T01:57:59.638Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Cobertura em Balneário Camboriú",
+        "timestamp": "2026-05-17T01:58:05.553Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Orçamento acima de 2 milhões",
+        "timestamp": "2026-05-17T01:58:11.342Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Investimento",
+        "timestamp": "2026-05-17T01:58:15.905Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Vista mar se possível",
+        "timestamp": "2026-05-17T01:58:19.711Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Pode agendar visita?",
+        "timestamp": "2026-05-17T01:58:22.997Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983079638",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:57:59.638Z",
+        "prazo": "2026-05-20T01:57:59.638Z"
+      },
+      {
+        "id": "1778983091342",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:58:11.342Z",
+        "prazo": "2026-05-19T01:58:11.342Z"
+      },
+      {
+        "id": "1778983102997",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:58:22.997Z",
+        "prazo": "2026-05-18T01:58:22.997Z"
+      }
+    ],
+    "ultimaMensagem": "Pode agendar visita?",
+    "ultimaMensagemEm": "2026-05-17T01:58:22.997Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T01:58:22.997Z",
+      "resumo": "quer investir · cobertura · em balneario camboriu · até R$2k · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T01:58:22.997Z",
+    "scoreEtapa": "Conversando",
+    "estado": "ba",
+    "tipo": "cobertura",
+    "bairro": "balneario camboriu",
+    "cidade": "balneario camboriu",
+    "valorMax": 2000,
+    "intencao": "investir"
+  },
+  {
+    "id": "1778983154936",
+    "nome": "47999005038",
+    "telefone": "47999005038",
+    "whatsapp": "47999005038",
+    "origem": "whatsapp",
+    "status": "novo",
+    "userId": "",
+    "codigoUsuario": "",
+    "criadoEm": "2026-05-17T01:59:14.936Z",
+    "mensagens": [
+      {
+        "id": "1778983154945",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T01:59:14.945Z",
+        "lida": false
+      },
+      {
+        "id": "1778983161047",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T01:59:21.047Z",
+        "lida": false
+      },
+      {
+        "id": "1778983164719",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T01:59:24.719Z",
+        "lida": false
+      },
+      {
+        "id": "1778983170365",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Preciso de quintal",
+        "timestamp": "2026-05-17T01:59:30.365Z",
+        "lida": false
+      },
+      {
+        "id": "1778983175334",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Tenho cachorro",
+        "timestamp": "2026-05-17T01:59:35.334Z",
+        "lida": false
+      },
+      {
+        "id": "1778983179984",
+        "de": "cliente",
+        "canal": "whatsapp",
+        "texto": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T01:59:39.984Z",
+        "lida": false
+      }
+    ],
+    "perfilIA": {
+      "tipo": "casa",
+      "categoria": "residencial",
+      "bairro": "centro",
+      "estado": "pr",
+      "faseFunil": "interessado",
+      "temperatura": "quente",
+      "quartos": 3,
+      "cidade": "itajai",
+      "valorMin": 400,
+      "valorMax": 700000,
+      "sentimento": "impaciente",
+      "familia": [
+        "pets"
+      ],
+      "urgencia": "alta"
+    },
+    "score": 37,
+    "temperatura": "quente",
+    "timeline": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T01:59:14.945Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T01:59:21.047Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T01:59:24.719Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Preciso de quintal",
+        "timestamp": "2026-05-17T01:59:30.365Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Tenho cachorro",
+        "timestamp": "2026-05-17T01:59:35.332Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "texto": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T01:59:39.984Z"
+      }
+    ],
+    "eventos": [
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Boa tarde! Tenho interesse em casa",
+        "timestamp": "2026-05-17T01:59:14.948Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Casa 3 quartos no Centro de Itajaí",
+        "timestamp": "2026-05-17T01:59:21.152Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Valor entre 400 e 700 mil",
+        "timestamp": "2026-05-17T01:59:24.939Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Preciso de quintal",
+        "timestamp": "2026-05-17T01:59:30.447Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Tenho cachorro",
+        "timestamp": "2026-05-17T01:59:35.540Z"
+      },
+      {
+        "tipo": "mensagem_recebida",
+        "canal": "whatsapp",
+        "resumo": "Quero agendar uma visita essa semana",
+        "timestamp": "2026-05-17T01:59:40.079Z"
+      }
+    ],
+    "followUps": [
+      {
+        "id": "1778983154948",
+        "tipo": "qualificar_lead",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:59:14.948Z",
+        "prazo": "2026-05-20T01:59:14.948Z"
+      },
+      {
+        "id": "1778983164939",
+        "tipo": "enviar_vitrine",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:59:24.939Z",
+        "prazo": "2026-05-19T01:59:24.939Z"
+      },
+      {
+        "id": "1778983180079",
+        "tipo": "agendar_visita",
+        "status": "pendente",
+        "criadoEm": "2026-05-17T01:59:40.079Z",
+        "prazo": "2026-05-18T01:59:40.079Z"
+      }
+    ],
+    "ultimaMensagem": "Quero agendar uma visita essa semana",
+    "ultimaMensagemEm": "2026-05-17T01:59:39.984Z",
+    "faseFunil": "interessado",
+    "memoriaOperacional": {
+      "atualizadoEm": "2026-05-17T01:59:39.987Z",
+      "resumo": "casa · 3q · em centro · até R$700k · urgente · 6 msg(s) · [caso2]",
+      "totalMsgs": 6,
+      "caso": "caso2"
+    },
+    "scoreAtualizadoEm": "2026-05-17T01:59:39.987Z",
+    "scoreEtapa": "Conversando",
+    "tipo": "casa",
+    "bairro": "centro",
+    "estado": "pr",
+    "quartos": 3,
+    "cidade": "itajai",
+    "matchesAuto": [],
+    "matches": [],
+    "matchAutoEm": "2026-05-17T01:59:40.079Z",
+    "valorMax": 700000,
+    "valorMin": 400,
+    "sentimento": "impaciente",
+    "familia": [
+      "pets"
+    ],
+    "urgencia": "alta"
   }
 ]

@@ -55,21 +55,17 @@
       "rotaAtual": "/app/visitas",
       "atualizadoEm": "2026-05-16T22:05:27.437Z",
       "paginaAnterior": "visitas"
+    },
+    "imob_nhvxchtlx5": {
+      "paginaAtual": "leads",
+      "labelAtual": "Leads",
+      "dominioAtual": "leads",
+      "rotaAtual": "/app/leads",
+      "atualizadoEm": "2026-05-17T01:59:53.439Z",
+      "paginaAnterior": "imoveis"
     }
   },
   "fluxos": [
-    {
-      "de": "dashboard",
-      "para": "assistente",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:07:07.133Z"
-    },
-    {
-      "de": "assistente",
-      "para": "dashboard",
-      "userId": "imobiliaria-47991919191",
-      "data": "2026-05-08T17:09:04.200Z"
-    },
     {
       "de": "dashboard",
       "para": "assistente",
@@ -6057,6 +6053,18 @@
       "para": "visitas",
       "userId": "cor_as61p840px",
       "data": "2026-05-16T21:55:24.326Z"
+    },
+    {
+      "de": "dashboard",
+      "para": "imoveis",
+      "userId": "imob_nhvxchtlx5",
+      "data": "2026-05-17T01:59:10.416Z"
+    },
+    {
+      "de": "imoveis",
+      "para": "leads",
+      "userId": "imob_nhvxchtlx5",
+      "data": "2026-05-17T01:59:53.439Z"
     }
   ]
 }

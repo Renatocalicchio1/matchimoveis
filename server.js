@@ -2393,7 +2393,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
     // ── DETECTAR SE É CORRETOR OU LEAD ───────────────────────
     let _usersWH = [];
-    try { _usersWH = JSON.parse(fs.readFileSync(require('path').join(__dirname, 'users.json'), 'utf8')); } catch(e) {}
+    try { const { lerUsuarios: _luWH } = require('./services/salvarUsuario'); _usersWH = _luWH(); } catch(e) {}
     const _corretorWH = _usersWH.find(u => {
       // Prioriza telefone real antes do id
       const fontesPrioritarias = [u.telefone, u.phone, u.contato].filter(Boolean);
@@ -2411,9 +2411,8 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
           const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
           const EI = (() => { try { const { lerUsuarios: _lu } = require('./services/salvarUsuario'); const _u2 = _lu(); const _uc = _u2.find(u=>u.id===(_corretorWH?.id)); return _uc?.whatsappInstance||instance||'match-corretor'; } catch(e){return instance||'match-corretor';} })();
-          const dp = process.env.DATA_FILE || require('path').join(__dirname, 'data.json');
           let leads = [];
-          try { leads = JSON.parse(fs.readFileSync(dp, 'utf8')); } catch(e) {}
+          try { const { lerLeads: _llWH } = require('./services/salvarLead'); leads = _llWH(); } catch(e) {}
           const uid = _corretorWH.id;
           const meus = leads.filter(l => l.userId === uid || l.codigoUsuario === uid);
           const total = meus.length;

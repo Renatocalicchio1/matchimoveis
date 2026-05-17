@@ -2578,6 +2578,31 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         consumir(leadAtualizado.userId || leadAtualizado.codigoUsuario, 'ia_responde_whatsapp').catch(()=>{});
 
         console.log('[WEBHOOK WA] match-core concluido | score:', leadAtualizado.score, '| temperatura:', leadAtualizado.temperatura, '| matches:', (leadAtualizado.matchesAuto || []).length);
+        // Salva perfil, score e temperatura no lead
+        try {
+          const { lerLeads: _ll3, salvarTodosLeads: _sl3 } = require('./services/salvarLead');
+          const _todos3 = _ll3();
+          const _idx3 = _todos3.findIndex(l => l.id === leadAtualizado.id);
+          if (_idx3 >= 0) {
+            _todos3[_idx3] = {
+              ..._todos3[_idx3],
+              nome: leadAtualizado.nome || pushName || telefone,
+              score: leadAtualizado.score || 0,
+              temperatura: leadAtualizado.temperatura || 'frio',
+              faseFunil: leadAtualizado.faseFunil || _todos3[_idx3].faseFunil || 'novo',
+              perfilIA: leadAtualizado.perfilIA || {},
+              tipo: leadAtualizado.tipo || leadAtualizado.perfilIA?.tipo || '',
+              quartos: leadAtualizado.quartos || leadAtualizado.perfilIA?.quartos || 0,
+              bairro: leadAtualizado.bairro || leadAtualizado.perfilIA?.bairro || '',
+              valorMax: leadAtualizado.valorMax || leadAtualizado.perfilIA?.valorMax || 0,
+              mensagens: leadAtualizado.mensagens || _todos3[_idx3].mensagens || [],
+              matchesAuto: leadAtualizado.matchesAuto || [],
+              matchCount: (leadAtualizado.matchesAuto || []).length,
+            };
+            await _sl3(_todos3);
+            console.log('[WEBHOOK WA] perfil salvo:', _todos3[_idx3].nome, '| score:', _todos3[_idx3].score, '| temp:', _todos3[_idx3].temperatura);
+          }
+        } catch(e) { console.error('[WEBHOOK WA] erro salvar perfil:', e.message); }
         if((leadAtualizado.matchesAuto||[]).length>0) consumir(leadAtualizado.userId||leadAtualizado.corretorId, 'match_encontrado').catch(()=>{});
 
         // Gera e envia resposta automática

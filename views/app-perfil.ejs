@@ -283,7 +283,6 @@ async function conectarWA() {
     const d = await (await fetch('/app/whatsapp/qrcode')).json();
     if (d.base64) {
       const qrVal = d.base64;
-      // se for data:image já pronto, usa direto; senão gera via QRServer
       if (qrVal.startsWith('data:image')) {
         document.getElementById('wa-qr').src = qrVal;
       } else {
@@ -294,8 +293,9 @@ async function conectarWA() {
       btn.disabled = false;
       _waTimer = setInterval(checkWA, 3000);
     } else {
-      btn.textContent = 'Conectar WhatsApp';
-      btn.disabled = false;
+      // instância ainda não pronta — tenta de novo em 3s
+      btn.textContent = 'Gerando QR...';
+      setTimeout(conectarWA, 3000);
     }
   } catch(e) {
     btn.textContent = 'Conectar WhatsApp';

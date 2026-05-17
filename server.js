@@ -2433,7 +2433,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           } else {
             resp = 'Posso te ajudar com:\n- "leads quentes"\n- "sem match"\n- "resumo do dia"\n- Acesse: matchimoveis.onrender.com';
           }
-          await fetch(EU + '/message/sendText/' + EI, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': EK }, body: JSON.stringify({ number: telefone, text: resp }) });
+          // RESPOSTA AUTOMÁTICA DESATIVADA — corretor responde manualmente
           console.log('[WEBHOOK WA] resposta corretor enviada');
         } catch(e) { console.error('[WEBHOOK WA] erro corretor:', e.message); }
       });

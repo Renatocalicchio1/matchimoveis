@@ -228,7 +228,15 @@ leads.forEach(item => {
       <a href="https://wa.me/55<%= telefone %>" target="_blank" class="lb wa">WhatsApp</a>
       <% } %>
       <% if(_mat>0){ %>
+      <% if(item.vitrineEnviada && item.vitrineEnviadaEm){ %>
+      <a href="/cliente/oferta/<%= item.leadId||item.id %>?userId=<%= encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'') %>"
+         class="lb" style="background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)"
+         title="Vitrine enviada pelo sistema — clique para abrir">
+        ✓ Vitrine <%= new Date(item.vitrineEnviadaEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %>
+      </a>
+      <% } else { %>
       <a href="/cliente/oferta/<%= item.leadId||item.id %>?userId=<%= encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'') %>" class="lb prim">Vitrine</a>
+      <% } %>
       <% } %>
       <a href="/app/lead/<%= item.id %>" class="lb dark">Ver →</a>
       <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">×</button>

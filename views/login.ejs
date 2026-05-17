@@ -2,118 +2,194 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>MatchImóveis — IA para o Mercado Imobiliário</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MatchImóveis — Seu assistente imobiliário com memória</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;min-height:100vh;background:#f9fafb;color:#111827}
 
-    /* ── Left panel ── */
-    .left{flex:1;padding:56px 60px;display:flex;flex-direction:column;justify-content:center;background:#fff;border-right:0.5px solid rgba(0,0,0,.08)}
+    .left{flex:1;padding:60px;display:flex;flex-direction:column;justify-content:center;background:#fff;border-right:0.5px solid rgba(0,0,0,.08)}
     .logo{font-size:18px;font-weight:600;color:#111827;margin-bottom:52px;letter-spacing:-.3px}
     .logo span{color:#6366f1}
-    .tag{display:inline-flex;align-items:center;gap:6px;background:#eef2ff;border:0.5px solid #c7d2fe;color:#4338ca;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:500;margin-bottom:20px}
-    .headline{font-size:36px;font-weight:600;line-height:1.2;letter-spacing:-.8px;color:#111827;margin-bottom:14px;max-width:500px}
-    .headline em{font-style:normal;color:#6366f1}
-    .sub{font-size:15px;color:#6b7280;line-height:1.7;max-width:460px;margin-bottom:44px}
-    .steps{display:flex;flex-direction:column;gap:20px;max-width:460px}
-    .step{display:flex;gap:14px;align-items:flex-start}
-    .step-icon{width:36px;height:36px;border-radius:10px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-    .step-text strong{font-size:14px;color:#111827;display:block;margin-bottom:3px;font-weight:500}
-    .step-text span{font-size:13px;color:#9ca3af;line-height:1.55}
 
-    /* ── Right panel ── */
-    .right{width:400px;display:flex;align-items:center;justify-content:center;padding:40px;background:#f9fafb}
+    .headline{font-size:38px;font-weight:600;line-height:1.15;letter-spacing:-.8px;color:#111827;margin-bottom:20px;max-width:520px}
+    .headline em{font-style:normal;color:#6366f1}
+
+    .cena{background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:14px;padding:20px 24px;margin-bottom:32px;max-width:520px;position:relative}
+    .cena-label{font-size:10px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+    .cena-msg{font-size:14px;color:#374151;line-height:1.7;margin-bottom:10px}
+    .cena-msg strong{color:#111827;font-weight:500}
+    .cena-resultado{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#eef2ff;border-radius:8px;font-size:13px;color:#4338ca;font-weight:500}
+
+    .provas{display:flex;flex-direction:column;gap:12px;max-width:520px}
+    .prova{display:flex;align-items:flex-start;gap:12px}
+    .prova-icon{width:32px;height:32px;border-radius:8px;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+    .prova-text strong{font-size:13px;color:#111827;display:block;margin-bottom:2px;font-weight:500}
+    .prova-text span{font-size:12px;color:#9ca3af;line-height:1.5}
+
+    .right{width:420px;display:flex;align-items:center;justify-content:center;padding:40px;background:#f9fafb}
     .box{width:100%;background:#fff;border-radius:16px;padding:32px;border:0.5px solid rgba(0,0,0,.08)}
     .box-title{font-size:20px;font-weight:600;color:#111827;margin-bottom:4px}
     .box-sub{font-size:13px;color:#9ca3af;margin-bottom:24px}
 
-    .field{margin-bottom:14px}
-    .field label{display:block;font-size:11px;font-weight:500;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
-    .field input{width:100%;padding:10px 14px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;background:#fff;color:#111827;font-size:14px;outline:none;font-family:inherit;transition:border .15s}
-    .field input:focus{border-color:rgba(99,102,241,.5);box-shadow:0 0 0 3px rgba(99,102,241,.08)}
+    .tabs{display:flex;gap:4px;background:#f9fafb;border-radius:8px;padding:4px;margin-bottom:20px}
+    .tab{flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:transparent;color:#6b7280;transition:all .15s;text-align:center}
+    .tab.on{background:#fff;color:#111827;border:0.5px solid rgba(0,0,0,.1)}
 
-    .btn-login{width:100%;border:none;background:#111827;color:#fff;padding:11px;border-radius:8px;font-weight:500;font-size:14px;cursor:pointer;font-family:inherit;transition:background .15s;margin-top:4px}
-    .btn-login:hover{background:#1f2937}
+    .field{margin-bottom:12px}
+    .field label{display:block;font-size:11px;font-weight:500;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+    .field input,.field select{width:100%;padding:10px 14px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;background:#fff;color:#111827;font-size:14px;outline:none;font-family:inherit;transition:border .15s}
+    .field input:focus,.field select:focus{border-color:rgba(99,102,241,.5);box-shadow:0 0 0 3px rgba(99,102,241,.08)}
+
+    .btn-main{width:100%;border:none;background:#6366f1;color:#fff;padding:11px;border-radius:8px;font-weight:500;font-size:14px;cursor:pointer;font-family:inherit;margin-top:4px;transition:background .15s}
+    .btn-main:hover{background:#4f46e5}
 
     .error-msg{background:#fef2f2;border:0.5px solid #fca5a5;color:#b91c1c;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}
-    .footer-note{font-size:12px;color:#d1d5db;text-align:center;margin-top:20px;line-height:1.6}
+    .success-msg{background:#f0fdf4;border:0.5px solid #86efac;color:#15803d;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px}
+
+    .divider{display:flex;align-items:center;gap:10px;margin:16px 0}
+    .divider span{font-size:11px;color:#d1d5db;white-space:nowrap}
+    .divider::before,.divider::after{content:'';flex:1;height:0.5px;background:rgba(0,0,0,.08)}
+
+    .footer-note{font-size:11px;color:#d1d5db;text-align:center;margin-top:20px;line-height:1.6}
 
     @media(max-width:768px){
       body{flex-direction:column}
       .left{padding:32px 24px 24px}
       .headline{font-size:26px}
       .right{width:100%;padding:20px}
-      .steps{display:none}
+      .provas{display:none}
+      .cena{display:none}
     }
   </style>
 </head>
 <body>
 
-  <div class="left">
-    <div class="logo">Match<span>Imóveis</span></div>
+<div class="left">
+  <div class="logo">Match<span>Imóveis</span></div>
 
-    <div class="tag">IA ativa 24/7</div>
+  <h1 class="headline">Seu assistente imobiliário<br>com <em>memória inteligente.</em></h1>
 
-    <h1 class="headline">A IA que faz o <em>match perfeito</em> no mercado imobiliário</h1>
-    <p class="sub">Mineramos dados, cruzamos leads com imóveis e agendamos visitas automaticamente — tudo sem você precisar fazer nada.</p>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-icon">🏠</div>
-        <div class="step-text">
-          <strong>Corretor sobe os imóveis</strong>
-          <span>Cadastre sua carteira via XML ou manualmente. A IA indexa tudo em segundos.</span>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-icon">🎯</div>
-        <div class="step-text">
-          <strong>Lead chega — IA entra em ação</strong>
-          <span>Assim que um comprador se cadastra, nossa inteligência varre toda a base e encontra os imóveis mais compatíveis por bairro, valor, área e perfil.</span>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-icon">⚡</div>
-        <div class="step-text">
-          <strong>Match instantâneo + agendamento automático</strong>
-          <span>A IA envia as opções ao comprador e agenda a visita com o proprietário — sem expor contatos até o dia do encontro.</span>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-icon">✅</div>
-        <div class="step-text">
-          <strong>Você só aparece para fechar</strong>
-          <span>Todo o trabalho operacional é feito pela IA. Você entra na negociação com o cliente aquecido e o imóvel confirmado.</span>
-        </div>
-      </div>
+  <div class="cena">
+    <div class="cena-label">O que acontece enquanto você dorme</div>
+    <div class="cena-msg">
+      João mandou mensagem há 3 semanas querendo <strong>apto 2 quartos em Meia Praia até 500k.</strong><br><br>
+      Hoje apareceu o imóvel perfeito na sua carteira.<br><br>
+      <strong>O Match lembrou. Você não precisou.</strong>
+    </div>
+    <div class="cena-resultado">
+      ✓ Vitrine enviada · Visita agendada · Proprietário avisado
     </div>
   </div>
 
-  <div class="right">
-    <div class="box">
-      <p class="box-title">Acessar plataforma</p>
-      <p class="box-sub">Entre com suas credenciais de corretor</p>
+  <div class="provas">
+    <div class="prova">
+      <div class="prova-icon">🧠</div>
+      <div class="prova-text">
+        <strong>Memória de cada lead</strong>
+        <span>A IA lembra o que cada cliente quer — tipo, bairro, valor, urgência. Mesmo semanas depois.</span>
+      </div>
+    </div>
+    <div class="prova">
+      <div class="prova-icon">⚡</div>
+      <div class="prova-text">
+        <strong>Match automático</strong>
+        <span>Quando um imóvel compatível aparece, a vitrine é enviada pelo WhatsApp na hora. Sem você fazer nada.</span>
+      </div>
+    </div>
+    <div class="prova">
+      <div class="prova-icon">📅</div>
+      <div class="prova-text">
+        <strong>Visitas no piloto automático</strong>
+        <span>Sistema confirma com proprietário, avisa o cliente e manda lembrete 8h antes. Você só aparece para fechar.</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-      <% if(typeof error !== 'undefined' && error){ %>
-      <div class="error-msg"><%= error %></div>
-      <% } %>
+<div class="right">
+  <div class="box">
+    <p class="box-title">Acessar plataforma</p>
+    <p class="box-sub">Entre ou solicite seu acesso</p>
 
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab on" onclick="setTab('login',this)" id="tab-login">Entrar</button>
+      <button class="tab" onclick="setTab('cadastro',this)" id="tab-cadastro">Solicitar acesso</button>
+    </div>
+
+    <% if(typeof error !== 'undefined' && error){ %>
+    <div class="error-msg"><%= error %></div>
+    <% } %>
+
+    <!-- Login -->
+    <div id="form-login">
       <form method="POST" action="/login">
         <div class="field">
           <label>Celular</label>
-          <input name="telefone" placeholder="11975720750" required autocomplete="username">
+          <input name="telefone" placeholder="47999999999" required autocomplete="username">
         </div>
         <div class="field">
           <label>Senha</label>
           <input name="senha" type="password" placeholder="••••••" autocomplete="current-password">
         </div>
-        <button type="submit" class="btn-login">Entrar</button>
+        <button type="submit" class="btn-main">Entrar</button>
       </form>
-
-      <p class="footer-note">MatchImóveis · IA para o mercado imobiliário<br>Seus dados são protegidos e nunca compartilhados.</p>
     </div>
+
+    <!-- Cadastro -->
+    <div id="form-cadastro" style="display:none">
+      <form method="POST" action="/cadastro-secreto" onsubmit="return validarCadastro()">
+        <input type="hidden" name="token" value="match2025">
+        <div class="field">
+          <label>Tipo de conta</label>
+          <select name="tipo" required>
+            <option value="">Selecione...</option>
+            <option value="corretor">Corretor</option>
+            <option value="imobiliaria">Imobiliária</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Nome completo</label>
+          <input name="nome" placeholder="João Silva" required>
+        </div>
+        <div class="field">
+          <label>Celular (será seu login)</label>
+          <input name="telefone" placeholder="47999999999" required>
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input name="senha" type="password" placeholder="Mínimo 6 caracteres" required minlength="6">
+        </div>
+        <div class="field">
+          <label>CRECI</label>
+          <input name="creci" placeholder="Opcional">
+        </div>
+        <button type="submit" class="btn-main">Criar minha conta</button>
+        <p style="font-size:11px;color:#9ca3af;text-align:center;margin-top:12px;line-height:1.6">
+          Acesso gratuito para começar.<br>Você só paga pelo que usar.
+        </p>
+      </form>
+    </div>
+
+    <p class="footer-note">MatchImóveis · IA para o mercado imobiliário<br>Seus dados são protegidos e nunca compartilhados.</p>
   </div>
+</div>
+
+<script>
+function setTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('form-cadastro').style.display = tab === 'cadastro' ? 'block' : 'none';
+}
+
+function validarCadastro() {
+  const tipo = document.querySelector('[name="tipo"]').value;
+  if (!tipo) { alert('Selecione o tipo de conta'); return false; }
+  return true;
+}
+</script>
 
 </body>
 </html>

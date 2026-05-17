@@ -357,6 +357,59 @@
 </aside>
 
 <main class="content">
+
+<%
+const _temPerfil = !!(user && user.nome && (user.celular || user.telefone));
+const _temWA = !!(user && user.whatsappStatus === 'open');
+const _temImoveis = typeof totalImoveis !== 'undefined' ? totalImoveis > 0 : false;
+const _onboardingCompleto = _temPerfil && _temWA && _temImoveis;
+const _passos = [
+  { key:'perfil', label:'Perfil', feito:_temPerfil, titulo:'Complete seu perfil', motivo:'Sem isso o sistema não sabe quem você é e não consegue personalizar as mensagens para seus clientes.', acao:'Completar perfil', link:'/app/perfil' },
+  { key:'whatsapp', label:'WhatsApp', feito:_temWA, titulo:'Conecte seu WhatsApp', motivo:'Sem isso leads não são capturadas, a vitrine não é enviada e as visitas não são confirmadas automaticamente.', acao:'Conectar agora', link:'/app/perfil' },
+  { key:'imoveis', label:'Imóveis', feito:_temImoveis, titulo:'Adicione seus imóveis', motivo:'Sem imóveis o sistema não faz match e não tem o que mostrar na vitrine para seus clientes.', acao:'Adicionar imóveis', link:'/app/imoveis' }
+];
+const _prox = _passos.find(p => !p.feito);
+%>
+
+<% if(!_onboardingCompleto && _prox){ %>
+<div style="background:#fff;border:0.5px solid rgba(0,0,0,.08);border-left:3px solid #6366f1;border-radius:0 14px 14px 0;padding:16px 20px;margin-bottom:20px">
+  <div style="margin-bottom:12px">
+    <div style="font-size:13px;font-weight:500;color:#111827;margin-bottom:2px">⚡ Você está a <%=_passos.filter(p=>!p.feito).length%> passo<%=_passos.filter(p=>!p.feito).length>1?"s":""%> de ativar a máquina</div>
+    <div style="font-size:12px;color:#6b7280">Siga os passos abaixo e em menos de 10 minutos seu sistema estará captando leads automaticamente via WhatsApp, página de imóveis e vitrine.</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <span style="font-size:11px;font-weight:500;color:#9ca3af">Progresso:</span>
+    <% _passos.forEach(function(p,i){ %>
+    <div style="display:inline-flex;align-items:center;gap:6px">
+      <span style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:500;background:<%=p.feito?'#f0fdf4':'#f9fafb'%>;border:0.5px solid <%=p.feito?'#86efac':'rgba(0,0,0,.1)'%>;color:<%=p.feito?'#15803d':'#9ca3af'%>"><%=p.feito?'✓ ':''%><%=p.label%></span>
+      <% if(i<2){ %><span style="color:#d1d5db;font-size:12px">→</span><% } %>
+    </div>
+    <% }); %>
+  </div>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div>
+      <div style="font-size:14px;font-weight:500;color:#111827;margin-bottom:4px"><%=_prox.titulo%></div>
+      <div style="font-size:12px;color:#6b7280;max-width:480px;line-height:1.6"><%=_prox.motivo%></div>
+      <% if(_prox.key==='imoveis'){ %>
+      <div style="margin-top:8px;font-size:12px;color:#6b7280"><strong style="color:#374151">Leads chegam por:</strong> 📱 WhatsApp · 🏠 Página do imóvel · 🔗 Vitrine · ✍️ Manual</div>
+      <% } %>
+    </div>
+    <% if(_prox.key==='whatsapp'){ %>
+    <div id='ob-wa-wrap'>
+      <button onclick='obConectarWA()' id='ob-wa-btn' style='display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#6366f1;color:#fff;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none'>Conectar agora →</button>
+      <div id='ob-qr-wrap' style='display:none;margin-top:12px;text-align:center'>
+        <p style='font-size:12px;color:#6b7280;margin-bottom:8px'>Abra WhatsApp → Dispositivos conectados → Escanear QR</p>
+        <img id='ob-qr-img' style='width:160px;height:160px;border-radius:8px;border:0.5px solid rgba(0,0,0,.1)'>
+        <p style='font-size:11px;color:#9ca3af;margin-top:6px'>Aguardando conexão...</p>
+      </div>
+    </div>
+    <% } else { %>
+    <a href='<%=_prox.link%>' style='display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#6366f1;color:#fff;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none;white-space:nowrap;flex-shrink:0'><%=_prox.acao%> →</a>
+    <% } %>
+  </div>
+</div>
+<% } %>
+
   <% if(typeof title!=='undefined'&&title){ %>
   <div class="page-head">
     <h1><%= title %></h1>

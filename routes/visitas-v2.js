@@ -56,6 +56,11 @@ async function dispararProprietario(visita) {
   const linkProp = `${BASE_URL}/proprietario/visita/${visita.id}`;
   const msg = `Olá! Sou da MatchImóveis.\n\nTemos um cliente interessado em visitar o imóvel *${visita.imovelTitulo||'seu imóvel'}*.\n\nData solicitada: *${visita.dataVisita||'a combinar'}*${visita.horaVisita?' às '+visita.horaVisita:''}\nCliente: ${visita.nome||'não informado'}\n\nPor favor confirme a disponibilidade:\n${linkProp}`;
   await enviarWA(getInstancia(visita.userId), visita.proprietarioTelefone, msg);
+  try {
+    const vs = lerVisitas();
+    const idx = vs.findIndex(v=>v.id===visita.id);
+    if(idx>=0){ vs[idx].waProprietarioEnviadoEm=new Date().toISOString(); salvarVisitas(vs); }
+  } catch(e){}
 }
 
 async function notificarCorretorManual(visita) {
@@ -77,6 +82,11 @@ async function dispararParceiro(visita) {
     const linkParceiro = `${BASE_URL}/parceiro/visita/${visita.id}`;
     const msg = `Olá ${parceiro?.nome||''}! Sou da MatchImóveis.\n\nTenho um cliente interessado no imóvel *${visita.imovelTitulo||''}*.\n\nData solicitada: *${visita.dataVisita||'a combinar'}*${visita.horaVisita?' às '+visita.horaVisita:''}\nCliente: ${visita.nome||''}\n\nPode verificar disponibilidade com o responsável e confirmar aqui:\n${linkParceiro}\n\nObrigado!`;
     await enviarWA(getInstancia(visita.imovelUsuarioId), telParceiro, msg);
+    try {
+      const vs = lerVisitas();
+      const idx = vs.findIndex(v=>v.id===visita.id);
+      if(idx>=0){ vs[idx].waParceiroEnviadoEm=new Date().toISOString(); salvarVisitas(vs); }
+    } catch(e){}
   }
   notificar(visita.userId,'visita_parceiro','Aguardando confirmação do parceiro',`Visita de ${visita.nome} para ${visita.imovelTitulo}. Parceiro ${parceiro?.nome||''} foi notificado.`);
 }
@@ -87,6 +97,11 @@ async function dispararCliente(visita) {
   if (!tel) return;
   const msg = `Olá *${visita.nome||''}*! Sua visita foi confirmada! 🎉\n\nImóvel: *${visita.imovelTitulo||''}*\nData: *${visita.dataVisita}*${visita.horaVisita?' às '+visita.horaVisita:''}\n\nConfirme sua presença:\n${linkCliente}`;
   await enviarWA(getInstancia(visita.userId), tel, msg);
+  try {
+    const vs = lerVisitas();
+    const idx = vs.findIndex(v=>v.id===visita.id);
+    if(idx>=0){ vs[idx].waClienteEnviadoEm=new Date().toISOString(); salvarVisitas(vs); }
+  } catch(e){}
 }
 
 async function dispararLembrete(visita) {

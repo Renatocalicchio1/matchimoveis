@@ -255,30 +255,61 @@ var hojeV = visitas.filter(function(v){
 
     <% if(_badge){ %><div class="vi-badge" style="<%=_badgeCor%>"><%=_badge%></div><% } %>
 
-    <a href="/app/lead/<%=v.leadId||''%>" class="vi-nome"><%=nome%></a>
-    <div class="vi-tel"><%=telefone||'—'%></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="width:34px;height:34px;border-radius:50%;background:#eef2ff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#4338ca;flex-shrink:0">
+        <%=(nome||'?').split(' ').map(function(n){return n[0]||'';}).slice(0,2).join('').toUpperCase()%>
+      </div>
+      <div style="flex:1;min-width:0">
+        <a href="/app/lead/<%=v.leadId||''%>" style="font-size:13px;font-weight:500;color:#111827;text-decoration:none;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%=nome%></a>
+        <div style="font-size:11px;color:#9ca3af"><%=telefone||'—'%></div>
+      </div>
+    </div>
 
     <% if(guia){ %>
     <div class="vi-guia" style="border-left-color:<%=guiaCor%>;color:<%=guiaCor%>"><%=guia%></div>
     <% } %>
 
     <div class="vi-info">
-      <div>
+      <div style="grid-column:span 2">
         <div class="vi-label">Imóvel</div>
-        <div class="vi-val" style="font-size:11px"><%=imovelTit%><%=imovelBairro?' — '+imovelBairro:''%></div>
+        <div class="vi-val" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%=imovelTit%><%=imovelBairro?' — '+imovelBairro:''%></div>
       </div>
       <div>
-        <div class="vi-label">Data / Hora</div>
-        <div class="vi-val"><%=dataVisita%><%=horaVisita&&horaVisita!=='-'?' '+horaVisita:''%></div>
+        <div class="vi-label">Data</div>
+        <div class="vi-val"><%=dataVisita%></div>
+      </div>
+      <div>
+        <div class="vi-label">Horário</div>
+        <div class="vi-val"><%=horaVisita&&horaVisita!=='-'?horaVisita:'—'%></div>
+      </div>
+      <div>
+        <div class="vi-label">Proprietário</div>
+        <div class="vi-val" style="color:<%=propConfirmou?'#15803d':'#d97706'%>"><%=propConfirmou?'✓ Confirmou':'Aguardando'%></div>
+      </div>
+      <div>
+        <div class="vi-label">Cliente</div>
+        <div class="vi-val" style="color:<%=clienteConfirmou?'#15803d':'#d97706'%>"><%=clienteConfirmou?'✓ Confirmou':'Aguardando'%></div>
       </div>
     </div>
 
     <div class="vi-actions">
       <% if(propTel&&!propRespondeu){ %>
+      <% if(v.waProprietarioEnviadoEm){ %>
+      <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn" style="background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)" title="Sistema enviou — clique para reenviar">
+        ✓ WA Prop. <%= new Date(v.waProprietarioEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %>
+      </a>
+      <% } else { %>
       <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn vi-btn-zap-dark">WA Prop.</a>
       <% } %>
+      <% } %>
       <% if(telefone&&mostrarBtnCliente){ %>
+      <% if(v.waClienteEnviadoEm){ %>
+      <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn" style="background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)" title="Sistema enviou — clique para reenviar">
+        ✓ WA Cliente <%= new Date(v.waClienteEnviadoEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %>
+      </a>
+      <% } else { %>
       <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn vi-btn-zap">WA Cliente</a>
+      <% } %>
       <% } %>
       <% if((st==='solicitada'||st==='AGUARDANDO')&&!propTel){ %>
       <form method="POST" action="/app/visitas/confirmar/<%=v.id%>" style="margin:0">

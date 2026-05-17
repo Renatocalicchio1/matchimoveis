@@ -126,7 +126,14 @@ function loadImoveis() {
 // ====== ROTAS ======
 
 app.get('/', (req,res)=>{
-  res.redirect('/login');
+  if (req.session && req.session.user) return res.redirect('/app/leads');
+  res.render('landing', {});
+});
+
+app.get('/entrar', (req,res)=>{
+  if (req.session && req.session.user) return res.redirect('/app/leads');
+  const error = req.query.error || null;
+  res.render('login', { error });
 });
 
 
@@ -688,30 +695,13 @@ function registrarVisita(lead){
 
 // Página de confirmação do proprietário
 
-/* REMOVIDO v2 — proprietario GET visitaId
-
-/* REMOVIDO v2 — proprietario GET visitaId
-
-/* REMOVIDO v2 — proprietario GET visitaId
-app.get('/proprietario/visita/:visitaId', (req, res) => {
-  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
-  const visita = visitas.find(v => v.id === req.params.visitaId);
-  if (!visita) return res.status(404).send('Visita não encontrada');
-  res.render('proprietario-visita', { visita });
-})
-*/
-
-*/
-
-*/
-;
 
 
-/* REMOVIDO v2 — proprietario POST responder visitaId
 
-/* REMOVIDO v2 — proprietario POST responder visitaId
 
-/* REMOVIDO v2 — proprietario POST responder visitaId
+
+
+
 app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
   const idx = visitas.findIndex(v => v.id === req.params.visitaId);
@@ -780,12 +770,7 @@ app.post('/proprietario/visita/:visitaId/responder', (req, res) => {
   } catch(e) { console.log('Erro notif proprietario:', e.message); }
   res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
 })
-*/
 
-*/
-
-*/
-;
 
 
 app.get('/dev/diagnostico-leads', auth, (req,res)=>{
@@ -1659,7 +1644,6 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
         i.fonte = i.fonte || 'QuintoAndar';
         return true;
       });
-      */
 
       const leadsAtualizados = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
       const idx = leadsAtualizados.findIndex(l =>
@@ -1669,6 +1653,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
         String(l.imovel_interesse) === String(leadIdParam)
       );
 
+      */
       if (idx >= 0) {
         leadsAtualizados[idx].matchesQuintoAndar = filtrados;
         leadsAtualizados[idx].matchQuintoAndarCount = filtrados.length;
@@ -2553,18 +2538,19 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         const INSTANCE = process.env.EVOLUTION_INSTANCE || 'match-corretor';
 
         // Passa lead pelo match-core (10 camadas)
-        const leadAtualizado = await matchCore.processar({
+        const _resultado = await matchCore.processar({
           lead: leadEncontrado,
           mensagem: texto,
           canal: 'whatsapp',
           userId: leadEncontrado.codigoUsuario || leadEncontrado.userId || '',
           leadsPath: leadsPathAtual
         });
+        const leadAtualizado = _resultado?.lead || leadEncontrado;
 
         console.log('[WEBHOOK WA] match-core concluido | score:', leadAtualizado.score, '| temperatura:', leadAtualizado.temperatura, '| matches:', (leadAtualizado.matchesAuto || []).length);
 
         // Gera e envia resposta automática
-        const respostaTexto = matchCore.gerarResposta(leadAtualizado, texto);
+        const respostaTexto = _resultado?.resposta || matchCore.gerarResposta(leadAtualizado, texto);
         if (!respostaTexto) {
           console.log('[WEBHOOK WA] sem resposta automatica gerada');
           return;
@@ -3347,71 +3333,17 @@ function gerarXMLPortais(){
 
 
 
-/* REMOVIDO v2 — app POST confirmar id
-
-/* REMOVIDO v2 — app POST confirmar id
-
-/* REMOVIDO v2 — app POST confirmar id
-app.post('/app/visitas/confirmar/:id', auth, (req,res)=>{
-  const fs = require('fs');
-
-  let visitas = fs.existsSync(dataPath('visitas.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
-    : [];
-
-  visitas = visitas.map(v => {
-    if(String(v.id) === String(req.params.id)){
-      v.status = 'CONFIRMADA';
-      v.confirmedAt = new Date().toISOString();
-    }
-    return v;
-  });
-
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
-
-  res.redirect('/app/visitas');
-})
-*/
-
-*/
-
-*/
-;
 
 
 
 
 
-/* REMOVIDO v2 — app POST recusar id
 
-/* REMOVIDO v2 — app POST recusar id
 
-/* REMOVIDO v2 — app POST recusar id
-app.post('/app/visitas/recusar/:id', auth, (req,res)=>{
-  const fs = require('fs');
 
-  let visitas = fs.existsSync(dataPath('visitas.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
-    : [];
 
-  visitas = visitas.map(v => {
-    if(v.id === req.params.id){
-      v.status = 'recusada';
-      v.refusedAt = new Date().toISOString();
-    }
-    return v;
-  });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
 
-  res.redirect('/app/visitas');
-})
-*/
-
-*/
-
-*/
-;
 
 
 
@@ -4022,63 +3954,14 @@ res.send("✅ Zerado para " + userId + ": " + (visitas.length - visitasRest.leng
 
 // Página confirmação de presença do lead
 
-/* REMOVIDO v2 — cliente GET confirmar visitaId
-
-/* REMOVIDO v2 — cliente GET confirmar visitaId
-
-/* REMOVIDO v2 — cliente GET confirmar visitaId
-app.get('/cliente/visita/:visitaId/confirmar', (req, res) => {
-  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
-  const visita = visitas.find(v => v.id === req.params.visitaId);
-  if (!visita) return res.status(404).send('Visita não encontrada');
-  res.render('cliente-visita-confirmar', { visita });
-})
-*/
-
-*/
-
-*/
-;
 
 
-/* REMOVIDO v2 — cliente POST responder visitaId
 
-/* REMOVIDO v2 — cliente POST responder visitaId
 
-/* REMOVIDO v2 — cliente POST responder visitaId
-app.post('/cliente/visita/:visitaId/responder', (req, res) => {
-  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
-  const idx = visitas.findIndex(v => v.id === req.params.visitaId);
-  if (idx === -1) return res.status(404).send('Visita não encontrada');
-  const { resposta } = req.body;
-  if (resposta === 'confirmar') {
-    visitas[idx].status = 'lead_confirmou';
-    visitas[idx].leadConfirmouEm = new Date().toISOString();
-  } else {
-    visitas[idx].status = 'lead_recusou';
-    visitas[idx].leadRecusouEm = new Date().toISOString();
-  }
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
-  try {
-    const _notifs2 = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
-    const _v2 = visitas[idx];
-    const _titulo2 = resposta === 'confirmar' ? '✅ Cliente confirmou presença' : '❌ Cliente não comparecerá';
-    const _msg2 = resposta === 'confirmar'
-      ? (_v2.nome||'Cliente') + ' confirmou presença na visita ao imóvel ' + (_v2.imovelTitulo||_v2.imovelBairro||'') + ' no dia ' + (_v2.dataVisita||'') + '.'
-      : (_v2.nome||'Cliente') + ' informou que não poderá comparecer à visita ao imóvel ' + (_v2.imovelTitulo||_v2.imovelBairro||'') + '.';
-    if (_v2.userId) {
-      _notifs2.push({ id: Date.now().toString(), tipo: 'visita_cliente', titulo: _titulo2, mensagem: _msg2, usuarioId: _v2.userId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
-      fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(_notifs2, null, 2));
-    }
-  } catch(e) { console.log('Erro notif cliente:', e.message); }
-  res.render('cliente-visita-confirmar', { visita: visitas[idx] });
-})
-*/
 
-*/
 
-*/
-;
+
+
 
 // Match Coins
 app.get('/app/coins', auth, (req, res) => {
@@ -4089,56 +3972,14 @@ app.get('/app/coins', auth, (req, res) => {
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====
 
-/* REMOVIDO v2 — cliente GET remarcar id (1a)
-
-/* REMOVIDO v2 — cliente GET remarcar id (1a)
-
-/* REMOVIDO v2 — cliente GET remarcar id (1a)
-app.get('/cliente/visita/:id/remarcar', (req, res) => {
-  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
-  const visita = visitas.find(v => v.id === req.params.id);
-  if (!visita) return res.status(404).send('Visita não encontrada');
-  res.render('cliente-visita-remarcar', { visita, sucesso: false });
-})
-*/
-
-*/
-
-*/
-;
 
 
-/* REMOVIDO v2 — cliente POST remarcar id (1a)
 
-/* REMOVIDO v2 — cliente POST remarcar id (1a)
 
-/* REMOVIDO v2 — cliente POST remarcar id (1a)
-app.post('/cliente/visita/:id/remarcar', (req, res) => {
-  const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
-  const idx = visitas.findIndex(v => v.id === req.params.id);
-  if (idx === -1) return res.status(404).send('Visita não encontrada');
-  const { novaData, novoHorario } = req.body;
-  visitas[idx].dataVisita = novaData;
-  visitas[idx].horaVisita = novoHorario;
-  visitas[idx].status = 'solicitada';
-  visitas[idx].remarcadaEm = new Date().toISOString();
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas, null, 2));
-  try {
-    const _notifs3 = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
-    const _v3 = visitas[idx];
-    if (_v3.userId) {
-      _notifs3.push({ id: Date.now().toString(), tipo: 'visita_remarcada', titulo: '📅 Cliente remarcou a visita', mensagem: (_v3.nome||'Cliente') + ' escolheu nova data para visitar o imóvel ' + (_v3.imovelTitulo||_v3.imovelBairro||'') + ': ' + novaData + ' às ' + novoHorario + '. Notifique o proprietário.', usuarioId: _v3.userId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
-      fs.writeFileSync(dataPath('notificacoes.json'), JSON.stringify(_notifs3, null, 2));
-    }
-  } catch(e) { console.log('Erro notif remarcação:', e.message); }
-  res.render('cliente-visita-remarcar', { visita: visitas[idx], sucesso: true });
-})
-*/
 
-*/
 
-*/
-;
+
+
 
 // DEBUG TEMP
 app.get('/admin/debug-visitas', (req, res) => {
@@ -4695,48 +4536,9 @@ app.get('/api/memoria-operacional', auth, (req,res)=>{
 // =====================================================
 
 
-/* REMOVIDO v2 duplicata — workflow duplicata
 
-/* REMOVIDO v2 duplicata — workflow duplicata
 
-/* REMOVIDO v2 duplicata — workflow duplicata
-app.post('/api/visita/:id/workflow', auth, (req,res)=>{
-  try{
-    const id = req.params.id;
 
-    const {
-      workflowStatus,
-      workflowResponsavel,
-      workflowLabel,
-      workflowProximaAcao
-    } = req.body;
-
-    const visita = atualizarWorkflowVisita(id, workflowStatus, {
-      workflowResponsavel,
-      workflowLabel,
-      workflowProximaAcao
-    });
-
-    return res.json({
-      ok: true,
-      visita
-    });
-
-  }catch(err){
-    console.log(err);
-
-    return res.status(500).json({
-      ok:false,
-      erro: err.message
-    });
-  }
-})
-*/
-
-*/
-
-*/
-;
 
 // =====================================================
 // MEMORIA OPERACIONAL
@@ -5022,100 +4824,19 @@ app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
 
 
 
-/* REMOVIDO v2 duplicata — remarcar duplicata
-
-/* REMOVIDO v2 duplicata — remarcar duplicata
-
-/* REMOVIDO v2 duplicata — remarcar duplicata
-app.post('/app/visitas/remarcar/:id', auth, (req,res)=>{
-  const fs = require('fs');
-
-  let visitas = fs.existsSync(dataPath('visitas.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
-    : [];
-
-  visitas = visitas.map(v => {
-    if(String(v.id) === String(req.params.id)){
-      v.status = 'REMARCAR';
-      v.remarcarAt = new Date().toISOString();
-    }
-    return v;
-  });
-
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
-
-  res.redirect('/app/visitas');
-})
-*/
-
-*/
-
-*/
-;
 
 
-/* REMOVIDO v2 duplicata — cancelar duplicata
-
-/* REMOVIDO v2 duplicata — cancelar duplicata
-
-/* REMOVIDO v2 duplicata — cancelar duplicata
-app.post('/app/visitas/cancelar/:id', auth, (req,res)=>{
-  const fs = require('fs');
-
-  let visitas = fs.existsSync(dataPath('visitas.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
-    : [];
-
-  visitas = visitas.map(v => {
-    if(String(v.id) === String(req.params.id)){
-      v.status = 'CANCELADA';
-      v.canceladaAt = new Date().toISOString();
-    }
-    return v;
-  });
-
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
-
-  res.redirect('/app/visitas');
-})
-*/
-
-*/
-
-*/
-;
 
 
-/* REMOVIDO v2 duplicata — concluir duplicata
 
-/* REMOVIDO v2 duplicata — concluir duplicata
 
-/* REMOVIDO v2 duplicata — concluir duplicata
-app.post('/app/visitas/concluir/:id', auth, (req,res)=>{
-  const fs = require('fs');
 
-  let visitas = fs.existsSync(dataPath('visitas.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
-    : [];
 
-  visitas = visitas.map(v => {
-    if(String(v.id) === String(req.params.id)){
-      v.status = 'CONCLUIDA';
-      v.concluidaAt = new Date().toISOString();
-    }
-    return v;
-  });
 
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
 
-  res.redirect('/app/visitas');
-})
-*/
 
-*/
 
-*/
-;
+
 
 
 app.post('/app/visitas/observacao/:id', auth, (req,res)=>{
@@ -5404,116 +5125,19 @@ app.post('/app/visitas/solicitar-confirmacao/:id', auth, (req,res)=>{
 
 
 
-/* REMOVIDO v2 — cliente GET visita id
-
-/* REMOVIDO v2 — cliente GET visita id
-
-/* REMOVIDO v2 — cliente GET visita id
-app.get('/cliente/visita/:id', (req,res)=>{
-
-  const fs = require('fs');
-
-  const visitas = fs.existsSync(dataPath('visitas.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
-    : [];
-
-  const visita = visitas.find(v =>
-    String(v.id) === String(req.params.id)
-  );
-
-  if(!visita){
-    return res.send('Visita não encontrada');
-  }
-
-  res.render('cliente-visita',{
-    visita
-  });
-
-})
-*/
-
-*/
-
-*/
-;
 
 
-/* REMOVIDO v2 — cliente POST confirmar id
-
-/* REMOVIDO v2 — cliente POST confirmar id
-
-/* REMOVIDO v2 — cliente POST confirmar id
-app.post('/cliente/visita/:id/confirmar', (req,res)=>{
-
-  const fs = require('fs');
-
-  let visitas = fs.existsSync(dataPath('visitas.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
-    : [];
-
-  visitas = visitas.map(v => {
-
-    if(String(v.id) === String(req.params.id)){
-      v.confirmacaoClienteStatus = 'CONFIRMADO';
-      v.confirmacaoClienteAt = new Date().toISOString();
-      v.clienteConfirmou = true;
-    }
-
-    return v;
-
-  });
-
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
-
-  res.redirect('/cliente/visita/' + req.params.id);
-
-})
-*/
-
-*/
-
-*/
-;
 
 
-/* REMOVIDO v2 — cliente POST recusar id
 
-/* REMOVIDO v2 — cliente POST recusar id
 
-/* REMOVIDO v2 — cliente POST recusar id
-app.post('/cliente/visita/:id/recusar', (req,res)=>{
 
-  const fs = require('fs');
 
-  let visitas = fs.existsSync(dataPath('visitas.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'))
-    : [];
 
-  visitas = visitas.map(v => {
 
-    if(String(v.id) === String(req.params.id)){
 
-      v.confirmacaoClienteStatus = 'RECUSADO';
 
-      v.confirmacaoClienteRecusouAt = new Date().toISOString();
 
-    }
-
-    return v;
-
-  });
-
-  fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(visitas,null,2));
-
-  res.redirect('/cliente/visita/' + req.params.id);
-
-})
-*/
-
-*/
-
-*/
-;
 
 
 app.get('/cliente/visita/:id/remarcar', (req,res)=>{

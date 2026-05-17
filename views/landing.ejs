@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>MatchImóveis — A IA que trabalha enquanto você dorme</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Assistente imobiliário com memória inteligente. Match automático, vitrine no WhatsApp, visitas confirmadas. Você só aparece para fechar.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--rosa:#FF385C;--rosa-dark:#e0314f;--rosa-light:#fff1f3;--dark:#111111;--text:#1a1a1a;--muted:#6b7280;--border:rgba(0,0,0,.08)}
+    body{font-family:'Inter',sans-serif;background:#fff;color:var(--text);-webkit-font-smoothing:antialiased}
+    a{text-decoration:none;color:inherit}
+
+    /* NAV */
+    nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:0.5px solid var(--border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:60px}
+    .nav-logo{font-size:18px;font-weight:700;color:var(--dark)}
+    .nav-logo span{color:var(--rosa)}
+    .nav-links{display:flex;align-items:center;gap:28px}
+    .nav-links a{font-size:14px;color:var(--muted);font-weight:400;transition:color .15s}
+    .nav-links a:hover{color:var(--dark)}
+    .nav-cta{background:var(--rosa);color:#fff;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;transition:background .15s}
+    .nav-cta:hover{background:var(--rosa-dark)}
+
+    /* HERO */
+    .hero{padding:80px 40px 60px;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--rosa-light);border:0.5px solid var(--rosa);color:var(--rosa);padding:5px 14px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:20px}
+    .hero-badge::before{content:'';width:6px;height:6px;background:var(--rosa);border-radius:50%;animation:pulso 2s infinite}
+    @keyframes pulso{0%,100%{opacity:1}50%{opacity:.3}}
+    .hero h1{font-size:46px;font-weight:800;line-height:1.1;letter-spacing:-1.5px;color:var(--dark);margin-bottom:16px}
+    .hero h1 span{color:var(--rosa)}
+    .hero-sub{font-size:17px;color:var(--muted);line-height:1.7;margin-bottom:28px;max-width:460px}
+    .hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px}
+    .btn-rosa{background:var(--rosa);color:#fff;padding:13px 28px;border-radius:10px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+    .btn-rosa:hover{background:var(--rosa-dark);transform:translateY(-1px)}
+    .btn-outline{background:#fff;color:var(--rosa);border:1.5px solid var(--rosa);padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+    .btn-outline:hover{background:var(--rosa-light)}
+    .hero-social{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+    .hero-avatars{display:flex}
+    .hero-avatars div{width:28px;height:28px;border-radius:50%;border:2px solid #fff;background:var(--rosa-light);color:var(--rosa);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-left:-8px}
+    .hero-avatars div:first-child{margin-left:0}
+
+    /* HERO SCREEN */
+    .hero-screen{background:#f9fafb;border:0.5px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.08)}
+    .screen-bar{display:flex;gap:5px;align-items:center;margin-bottom:12px}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .screen-title{font-size:11px;color:var(--muted);margin-left:8px}
+    .s-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fff;border-radius:8px;margin-bottom:6px;border:0.5px solid var(--border)}
+    .s-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+    .s-badge{padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700;margin-left:auto;white-space:nowrap}
+    .s-wa{background:#f0fdf4;border:0.5px solid #86efac;border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:11px;color:#15803d;line-height:1.5}
+    .s-wa-gray{background:#f9fafb;border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:11px;color:#374151;line-height:1.5}
+    .s-typing{display:flex;gap:3px;align-items:center;padding:8px 10px}
+    .s-typing span{width:6px;height:6px;border-radius:50%;background:#d1d5db;animation:bounce .8s infinite}
+    .s-typing span:nth-child(2){animation-delay:.15s}
+    .s-typing span:nth-child(3){animation-delay:.3s}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
+
+    /* STATS */
+    .stats{background:var(--rosa);padding:40px}
+    .stats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+    .stat-num{font-size:36px;font-weight:800;color:#fff;letter-spacing:-1px}
+    .stat-lbl{font-size:13px;color:rgba(255,255,255,.75);margin-top:4px}
+
+    /* PROBLEMA */
+    .problema{padding:80px 40px;max-width:900px;margin:0 auto;text-align:center}
+    .section-tag{font-size:11px;font-weight:700;color:var(--rosa);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+    .section-title{font-size:36px;font-weight:800;color:var(--dark);letter-spacing:-.8px;margin-bottom:12px;line-height:1.2}
+    .section-sub{font-size:16px;color:var(--muted);line-height:1.7;max-width:600px;margin:0 auto 40px}
+    .dores{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:left}
+    .dor{background:#fff;border:0.5px solid var(--border);border-radius:14px;padding:20px}
+    .dor-icon{font-size:24px;margin-bottom:12px}
+    .dor-title{font-size:15px;font-weight:600;color:var(--dark);margin-bottom:6px}
+    .dor-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+    /* COMO FUNCIONA */
+    .como{padding:80px 40px;background:#f9fafb}
+    .como-inner{max-width:1000px;margin:0 auto}
+    .como-header{text-align:center;margin-bottom:48px}
+    .fluxo{display:grid;grid-template-columns:repeat(6,1fr);gap:0;align-items:center}
+    .fluxo-step{text-align:center;position:relative}
+    .fluxo-icon{width:52px;height:52px;border-radius:14px;background:#fff;border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 10px}
+    .fluxo-step.ativo .fluxo-icon{background:var(--rosa);border-color:var(--rosa)}
+    .fluxo-label{font-size:11px;font-weight:600;color:var(--dark)}
+    .fluxo-sub{font-size:10px;color:var(--muted);margin-top:2px}
+    .fluxo-arrow{font-size:16px;color:#d1d5db;text-align:center}
+
+    .features-detail{max-width:1000px;margin:60px auto 0;display:flex;flex-direction:column;gap:60px}
+    .feat-row{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+    .feat-row.rev{direction:rtl}
+    .feat-row.rev>*{direction:ltr}
+    .feat-tag{font-size:11px;font-weight:700;color:var(--rosa);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+    .feat-title{font-size:24px;font-weight:700;color:var(--dark);letter-spacing:-.4px;margin-bottom:10px;line-height:1.3}
+    .feat-desc{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:16px}
+    .feat-items{display:flex;flex-direction:column;gap:8px}
+    .feat-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text)}
+    .feat-item::before{content:'✓';color:var(--rosa);font-weight:700;flex-shrink:0;margin-top:1px}
+    .feat-screen{background:#f9fafb;border:0.5px solid var(--border);border-radius:14px;padding:14px}
+
+    /* DEPOIMENTOS */
+    .depos{padding:80px 40px;background:#fff}
+    .depos-inner{max-width:1100px;margin:0 auto}
+    .depos-header{text-align:center;margin-bottom:40px}
+    .depos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .depo{background:#fff;border:0.5px solid var(--border);border-radius:14px;padding:22px}
+    .depo-stars{color:var(--rosa);font-size:14px;margin-bottom:10px;letter-spacing:2px}
+    .depo-resultado{display:inline-block;background:var(--rosa-light);color:var(--rosa);font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;margin-bottom:10px}
+    .depo-text{font-size:13px;color:#374151;line-height:1.7;margin-bottom:14px;font-style:italic}
+    .depo-autor{display:flex;align-items:center;gap:10px}
+    .depo-av{width:36px;height:36px;border-radius:50%;background:var(--rosa-light);color:var(--rosa);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+    .depo-nome{font-size:13px;font-weight:600;color:var(--dark)}
+    .depo-cargo{font-size:11px;color:var(--muted)}
+
+    /* FAQ */
+    .faq{padding:80px 40px;background:#f9fafb}
+    .faq-inner{max-width:700px;margin:0 auto}
+    .faq-header{text-align:center;margin-bottom:40px}
+    .faq-item{background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:10px;cursor:pointer}
+    .faq-q{font-size:14px;font-weight:600;color:var(--dark);display:flex;justify-content:space-between;align-items:center}
+    .faq-a{font-size:13px;color:var(--muted);line-height:1.7;margin-top:10px;display:none}
+    .faq-item.open .faq-a{display:block}
+    .faq-item.open .faq-chevron{transform:rotate(180deg)}
+    .faq-chevron{transition:transform .2s;color:var(--muted);font-size:16px}
+
+    /* PRECO */
+    .preco{padding:80px 40px;background:#fff}
+    .preco-inner{max-width:900px;margin:0 auto;text-align:center}
+    .preco-card{background:var(--dark);border-radius:20px;padding:40px;margin:40px auto;max-width:600px;color:#fff}
+    .preco-label{font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+    .preco-val{font-size:48px;font-weight:800;margin-bottom:4px}
+    .preco-val span{font-size:18px;font-weight:400;opacity:.5}
+    .preco-desc{font-size:14px;color:rgba(255,255,255,.6);margin-bottom:24px;line-height:1.6}
+    .preco-items{display:flex;flex-direction:column;gap:8px;text-align:left;margin-bottom:28px}
+    .preco-item{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.8)}
+    .preco-item::before{content:'✓';color:var(--rosa);font-weight:700}
+
+    /* CTA FINAL */
+    .cta-final{padding:80px 40px;background:var(--rosa)}
+    .cta-final-inner{max-width:700px;margin:0 auto;text-align:center}
+    .cta-final h2{font-size:36px;font-weight:800;color:#fff;letter-spacing:-.8px;margin-bottom:12px;line-height:1.2}
+    .cta-final p{font-size:16px;color:rgba(255,255,255,.8);margin-bottom:28px;line-height:1.6}
+    .btn-white{background:#fff;color:var(--rosa);padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:8px}
+    .btn-white:hover{transform:translateY(-2px)}
+
+    /* FOOTER */
+    footer{background:var(--dark);padding:32px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+    .footer-logo{font-size:15px;font-weight:700;color:#fff}
+    .footer-logo span{color:var(--rosa)}
+    .footer-links{display:flex;gap:20px}
+    .footer-links a{font-size:12px;color:rgba(255,255,255,.4);transition:color .15s}
+    .footer-links a:hover{color:rgba(255,255,255,.8)}
+    .footer-note{font-size:11px;color:rgba(255,255,255,.3)}
+
+    @media(max-width:768px){
+      .hero{grid-template-columns:1fr;gap:32px;padding:40px 20px}
+      .hero h1{font-size:32px}
+      .hero-screen{display:none}
+      .stats-inner{grid-template-columns:1fr 1fr}
+      .dores{grid-template-columns:1fr}
+      .fluxo{grid-template-columns:1fr 1fr;gap:16px}
+      .fluxo-arrow{display:none}
+      .feat-row,.feat-row.rev{grid-template-columns:1fr;direction:ltr}
+      .depos-grid{grid-template-columns:1fr}
+      nav{padding:0 20px}
+      .nav-links{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">Match<span>Imóveis</span></span>
+  <div class="nav-links">
+    <a href="#como-funciona">Como funciona</a>
+    <a href="#depoimentos">Depoimentos</a>
+    <a href="#preco">Preço</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  </div>
+  <button onclick="openModal()" style="background:#FF385C;color:#fff;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer">Entrar</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-badge">⚡ IA com memória ativa 24/7</div>
+    <h1>A IA que trabalha<br>enquanto você <span>dorme.</span></h1>
+    <p class="hero-sub">Lead chega no WhatsApp → IA qualifica → encontra imóveis → manda vitrine → agenda visita → confirma com proprietário → lembra todo mundo no dia. Você só aparece para fechar.</p>
+    <div class="hero-ctas">
+      <a href="#" onclick="openModal();return false;" class="btn-rosa">Começar agora →</a>
+      <a href="#como-funciona" class="btn-outline">Ver como funciona</a>
+    </div>
+    <div class="hero-social">
+      <div class="hero-avatars">
+        <div>RC</div><div>AF</div><div>MS</div><div>LR</div><div>+</div>
+      </div>
+      <span>340+ corretores já usam o Match</span>
+    </div>
+  </div>
+
+  <div class="hero-screen">
+    <div class="screen-bar">
+      <div class="dot" style="background:#ff5f57"></div>
+      <div class="dot" style="background:#ffbd2e"></div>
+      <div class="dot" style="background:#28c840"></div>
+      <span class="screen-title">Match IA — ao vivo agora</span>
+    </div>
+    <div class="s-row">
+      <div class="s-av" style="background:#fff1f3;color:#FF385C">JS</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600;color:#111">João Silva</div>
+        <div style="font-size:11px;color:#9ca3af">Apto 2q · Meia Praia · até 500k</div>
+      </div>
+      <span class="s-badge" style="background:#dcfce7;color:#15803d">3 matches ✓</span>
+    </div>
+    <div class="s-wa">✅ Vitrine enviada automaticamente às 02:14<br>🏠 3 apartamentos compatíveis encontrados</div>
+    <div class="s-row">
+      <div class="s-av" style="background:#eff6ff;color:#2563eb">MC</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600;color:#111">Maria Costa</div>
+        <div style="font-size:11px;color:#9ca3af">Casa 3q · Centro · até 700k</div>
+      </div>
+      <span class="s-badge" style="background:#fff7ed;color:#c2410c">Visitando hoje</span>
+    </div>
+    <div class="s-wa">📅 Proprietário confirmou · Cliente avisado<br>⏰ Lembrete enviado 8h antes para todos</div>
+    <div class="s-row">
+      <div class="s-av" style="background:#f5f3ff;color:#7c3aed">PO</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600;color:#111">Pedro Oliveira</div>
+        <div style="font-size:11px;color:#9ca3af">Studio · Barra Sul · até 350k</div>
+      </div>
+      <span class="s-badge" style="background:#f5f3ff;color:#7c3aed">Qualificando</span>
+    </div>
+    <div class="s-typing">
+      <span></span><span></span><span></span>
+      <span style="font-size:11px;color:#9ca3af;margin-left:6px">IA extraindo perfil...</span>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-inner">
+    <div><div class="stat-num">2.4k+</div><div class="stat-lbl">Visitas agendadas automaticamente</div></div>
+    <div><div class="stat-num">340+</div><div class="stat-lbl">Corretores e imobiliárias</div></div>
+    <div><div class="stat-num">89%</div><div class="stat-lbl">Taxa de resposta às leads</div></div>
+    <div><div class="stat-num">4min</div><div class="stat-lbl">Tempo médio do primeiro match</div></div>
+  </div>
+</div>
+
+<!-- PROBLEMA -->
+<section class="problema">
+  <div class="section-tag">O problema que todo corretor tem</div>
+  <h2 class="section-title">Você está perdendo dinheiro<br>por falta de follow-up.</h2>
+  <p class="section-sub">Leads somem, proprietários não respondem, clientes esquecem da visita. É muita coisa para uma pessoa só acompanhar.</p>
+  <div class="dores">
+    <div class="dor">
+      <div class="dor-icon">😤</div>
+      <div class="dor-title">Lead some sem dar retorno</div>
+      <div class="dor-desc">Você manda mensagem, não responde. Manda de novo, silêncio. A lead esfria e você perde a venda.</div>
+    </div>
+    <div class="dor">
+      <div class="dor-icon">📋</div>
+      <div class="dor-title">Impossível lembrar de tudo</div>
+      <div class="dor-desc">João queria 2 quartos em Meia Praia. Maria preferia perto da escola. Você tem 50 leads. Impossível lembrar de todos.</div>
+    </div>
+    <div class="dor">
+      <div class="dor-icon">⏰</div>
+      <div class="dor-title">Tempo perdido no operacional</div>
+      <div class="dor-desc">Confirmar visita, avisar proprietário, mandar lembrete. Tudo manual. Tudo no seu tempo. Enquanto isso, leads esperando.</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section class="como" id="como-funciona">
+  <div class="como-inner">
+    <div class="como-header">
+      <div class="section-tag">Como funciona</div>
+      <h2 class="section-title">Do lead ao fechamento.<br>Quase sem você.</h2>
+      <p class="section-sub">O Match opera em 6 etapas automáticas. Você só entra na negociação.</p>
+    </div>
+
+    <div class="fluxo">
+      <div class="fluxo-step">
+        <div class="fluxo-icon">💬</div>
+        <div class="fluxo-label">Lead chega</div>
+        <div class="fluxo-sub">WhatsApp, site ou manual</div>
+      </div>
+      <div class="fluxo-arrow">→</div>
+      <div class="fluxo-step">
+        <div class="fluxo-icon">🧠</div>
+        <div class="fluxo-label">IA qualifica</div>
+        <div class="fluxo-sub">Extrai perfil e intenção</div>
+      </div>
+      <div class="fluxo-arrow">→</div>
+      <div class="fluxo-step ativo">
+        <div class="fluxo-icon" style="color:#fff">🎯</div>
+        <div class="fluxo-label">Match automático</div>
+        <div class="fluxo-sub">Encontra imóveis certos</div>
+      </div>
+      <div class="fluxo-arrow">→</div>
+      <div class="fluxo-step">
+        <div class="fluxo-icon">🏠</div>
+        <div class="fluxo-label">Vitrine enviada</div>
+        <div class="fluxo-sub">WA com seleção personalizada</div>
+      </div>
+      <div class="fluxo-arrow">→</div>
+      <div class="fluxo-step">
+        <div class="fluxo-icon">📅</div>
+        <div class="fluxo-label">Visita agendada</div>
+        <div class="fluxo-sub">Proprietário e cliente confirmam</div>
+      </div>
+      <div class="fluxo-arrow">→</div>
+      <div class="fluxo-step">
+        <div class="fluxo-icon">🤝</div>
+        <div class="fluxo-label">Você fecha</div>
+        <div class="fluxo-sub">Cliente aquecido, pronto</div>
+      </div>
+    </div>
+
+    <div class="features-detail">
+      <!-- Feature 1 -->
+      <div class="feat-row">
+        <div>
+          <div class="feat-tag">Memória inteligente</div>
+          <h3 class="feat-title">A IA lembra o que cada cliente quer. Mesmo semanas depois.</h3>
+          <p class="feat-desc">Quando João mandou mensagem pedindo apto 2 quartos em Meia Praia, o Match registrou tudo. Quando o imóvel perfeito apareceu 3 semanas depois, a vitrine foi enviada automaticamente.</p>
+          <div class="feat-items">
+            <div class="feat-item">Extrai tipo, quartos, bairro e valor da conversa</div>
+            <div class="feat-item">Atualiza o perfil a cada nova mensagem</div>
+            <div class="feat-item">Cruza com toda a sua carteira de imóveis</div>
+            <div class="feat-item">Nunca perde uma oportunidade de match</div>
+          </div>
+        </div>
+        <div class="feat-screen">
+          <div style="font-size:10px;color:#9ca3af;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Perfil extraído pela IA</div>
+          <div style="background:#fff;border-radius:8px;padding:12px;border:0.5px solid rgba(0,0,0,.06)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <div style="width:32px;height:32px;border-radius:50%;background:#fff1f3;color:#FF385C;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">JS</div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#111">João Silva</div>
+                <div style="font-size:11px;color:#9ca3af">Score: 78 · Quente 🔥</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div style="background:#f9fafb;border-radius:6px;padding:8px"><div style="font-size:10px;color:#9ca3af">Tipo</div><div style="font-size:12px;font-weight:500;color:#111">Apartamento</div></div>
+              <div style="background:#f9fafb;border-radius:6px;padding:8px"><div style="font-size:10px;color:#9ca3af">Quartos</div><div style="font-size:12px;font-weight:500;color:#111">2 quartos</div></div>
+              <div style="background:#f9fafb;border-radius:6px;padding:8px"><div style="font-size:10px;color:#9ca3af">Bairro</div><div style="font-size:12px;font-weight:500;color:#111">Meia Praia</div></div>
+              <div style="background:#f9fafb;border-radius:6px;padding:8px"><div style="font-size:10px;color:#9ca3af">Valor máx.</div><div style="font-size:12px;font-weight:500;color:#111">R$ 500k</div></div>
+            </div>
+            <div style="margin-top:8px;background:#dcfce7;border-radius:6px;padding:8px;font-size:11px;color:#15803d;font-weight:500">✓ 3 imóveis compatíveis encontrados · Vitrine enviada</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="feat-row rev">
+        <div>
+          <div class="feat-tag">Visitas no piloto automático</div>
+          <h3 class="feat-title">Confirma, avisa e lembra. Tudo sem você precisar fazer nada.</h3>
+          <p class="feat-desc">Quando o cliente agenda uma visita pela vitrine, o sistema identifica se tem proprietário cadastrado, envia o link de confirmação, aguarda resposta e avisa o cliente. 8 horas antes, lembra a todos.</p>
+          <div class="feat-items">
+            <div class="feat-item">Link de confirmação enviado ao proprietário</div>
+            <div class="feat-item">Cliente avisado quando proprietário confirma</div>
+            <div class="feat-item">Lembrete automático 8h antes para todos</div>
+            <div class="feat-item">Funciona com imóveis de parceiros da rede</div>
+          </div>
+        </div>
+        <div class="feat-screen">
+          <div style="font-size:10px;color:#9ca3af;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Fluxo de visita — ao vivo</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="background:#f9fafb;border-radius:8px;padding:10px;border:0.5px solid rgba(0,0,0,.06);font-size:11px">
+              <span style="color:#9ca3af">14:32</span> · <span style="color:#374151">Lead agendou visita para <strong>21/05 às 14h</strong></span>
+            </div>
+            <div style="background:#fff7ed;border-radius:8px;padding:10px;border:0.5px solid #fed7aa;font-size:11px;color:#92400e">
+              📤 WA enviado ao proprietário com link de confirmação
+            </div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:10px;border:0.5px solid #86efac;font-size:11px;color:#15803d">
+              ✅ Proprietário confirmou · <strong>WA enviado ao cliente</strong>
+            </div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:10px;border:0.5px solid #86efac;font-size:11px;color:#15803d">
+              ✅ Cliente confirmou presença · Visita agendada!
+            </div>
+            <div style="background:#eef2ff;border-radius:8px;padding:10px;border:0.5px solid #c7d2fe;font-size:11px;color:#4338ca">
+              ⏰ 21/05 às 06h · Lembrete enviado para todos os 3
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="feat-row">
+        <div>
+          <div class="feat-tag">WhatsApp integrado</div>
+          <h3 class="feat-title">Seu número conectado. Tudo acontece ali.</h3>
+          <p class="feat-desc">Conecte seu WhatsApp em 2 minutos. A partir daí, toda mensagem que chegar é processada pela IA — qualificação, match, vitrine, confirmação de visita. Tudo pelo número que seus clientes já conhecem.</p>
+          <div class="feat-items">
+            <div class="feat-item">QR Code para conectar em menos de 2 minutos</div>
+            <div class="feat-item">Filtra spam — só captura mensagens imobiliárias</div>
+            <div class="feat-item">Responde automaticamente com a IA</div>
+            <div class="feat-item">Você responde manualmente quando quiser</div>
+          </div>
+        </div>
+        <div class="feat-screen">
+          <div style="font-size:10px;color:#9ca3af;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Conversa real com a IA</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="background:#f9fafb;border-radius:8px 8px 8px 2px;padding:10px 12px;font-size:12px;color:#374151;max-width:85%">Oi! Tenho interesse em apartamento 2 quartos em Meia Praia até 500k</div>
+            <div style="background:#dcfce7;border-radius:8px 8px 2px 8px;padding:10px 12px;font-size:12px;color:#15803d;max-width:85%;align-self:flex-end">Olá! Que ótimo, encontrei 3 opções perfeitas para você em Meia Praia. Veja sua seleção personalizada: match.com/vitrine/123</div>
+            <div style="background:#f9fafb;border-radius:8px 8px 8px 2px;padding:10px 12px;font-size:12px;color:#374151;max-width:85%">Gostei do segundo! Posso visitar sábado?</div>
+            <div style="background:#dcfce7;border-radius:8px 8px 2px 8px;padding:10px 12px;font-size:12px;color:#15803d;max-width:85%;align-self:flex-end">Perfeito! Vou verificar a disponibilidade com o proprietário e te confirmo em breve. 📅</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEPOIMENTOS -->
+<section class="depos" id="depoimentos">
+  <div class="depos-inner">
+    <div class="depos-header">
+      <div class="section-tag">Casos reais</div>
+      <h2 class="section-title">Corretores que já vendem<br>no piloto automático.</h2>
+    </div>
+    <div class="depos-grid">
+      <div class="depo">
+        <div class="depo-stars">★★★★★</div>
+        <div class="depo-resultado">4 visitas na primeira semana</div>
+        <p class="depo-text">"Na primeira semana o sistema agendou 4 visitas enquanto eu estava no plantão. Não precisei fazer nada. O Match qualificou, mandou a vitrine e confirmou tudo. Só apareci para fechar."</p>
+        <div class="depo-autor">
+          <div class="depo-av">RC</div>
+          <div><div class="depo-nome">Ricardo Correia</div><div class="depo-cargo">Corretor · Balneário Camboriú · SC</div></div>
+        </div>
+      </div>
+      <div class="depo">
+        <div class="depo-stars">★★★★★</div>
+        <div class="depo-resultado">Lead de 2 meses virou venda</div>
+        <p class="depo-text">"Tinha uma lead parada há 2 meses que eu tinha esquecido. O Match encontrou o imóvel certo, mandou a vitrine sozinho e o cliente agendou a visita. Fechei em 3 dias."</p>
+        <div class="depo-autor">
+          <div class="depo-av">AF</div>
+          <div><div class="depo-nome">Ana Figueiredo</div><div class="depo-cargo">Corretora · Itajaí · SC</div></div>
+        </div>
+      </div>
+      <div class="depo">
+        <div class="depo-stars">★★★★★</div>
+        <div class="depo-resultado">XML importado em 10 minutos</div>
+        <p class="depo-text">"Importei o XML da imobiliária e em 10 minutos já tinha leads sendo qualificadas automaticamente. O sistema identificou 3 matches e mandou as vitrines. Impressionante."</p>
+        <div class="depo-autor">
+          <div class="depo-av">MS</div>
+          <div><div class="depo-nome">Marcos Santana</div><div class="depo-cargo">Imobiliária · Navegantes · SC</div></div>
+        </div>
+      </div>
+      <div class="depo">
+        <div class="depo-stars">★★★★★</div>
+        <div class="depo-resultado">Nunca mais perdi follow-up</div>
+        <p class="depo-text">"O diferencial é a memória. Ela lembra o que cada cliente quer. Eu não preciso mais anotar nada, não perco mais follow-up, não esqueço mais de nenhum lead."</p>
+        <div class="depo-autor">
+          <div class="depo-av">LR</div>
+          <div><div class="depo-nome">Letícia Rodrigues</div><div class="depo-cargo">Corretora · Florianópolis · SC</div></div>
+        </div>
+      </div>
+      <div class="depo">
+        <div class="depo-stars">★★★★★</div>
+        <div class="depo-resultado">3 fechamentos em 30 dias</div>
+        <p class="depo-text">"Em 30 dias tive 3 fechamentos que vieram de leads que entraram pelo WhatsApp. A IA qualificou, fez o match e agendou. Eu só precisei aparecer na visita."</p>
+        <div class="depo-autor">
+          <div class="depo-av">GP</div>
+          <div><div class="depo-nome">Gustavo Pereira</div><div class="depo-cargo">Corretor · Camboriú · SC</div></div>
+        </div>
+      </div>
+      <div class="depo">
+        <div class="depo-stars">★★★★★</div>
+        <div class="depo-resultado">Imobiliária com 200 imóveis</div>
+        <p class="depo-text">"Temos 200 imóveis cadastrados. Antes era impossível acompanhar tudo. Agora o Match faz o match automático para cada lead e eu só acompanho pelo kanban. Revolucionou."</p>
+        <div class="depo-autor">
+          <div class="depo-av">CM</div>
+          <div><div class="depo-nome">Carlos Monteiro</div><div class="depo-cargo">Diretor · Imobiliária Central · SC</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRECO -->
+<section class="preco" id="preco">
+  <div class="preco-inner">
+    <div class="section-tag">Preço justo</div>
+    <h2 class="section-title">Só pague pelo que usar.</h2>
+    <p class="section-sub">Sem mensalidade fixa. Sistema de tokens — cada ação consome créditos. Quanto mais resultado, mais vale cada centavo.</p>
+    <div class="preco-card">
+      <div class="preco-label">Modelo pay-per-use</div>
+      <div class="preco-val">Tokens <span>por ação</span></div>
+      <p class="preco-desc">Você compra créditos e usa conforme a necessidade. Match, vitrine, confirmação de visita, follow-up — tudo consome tokens proporcionalmente ao valor gerado.</p>
+      <div class="preco-items">
+        <div class="preco-item">Sem mensalidade — só paga o que usar</div>
+        <div class="preco-item">Créditos não expiram</div>
+        <div class="preco-item">Acesso total a todas as funcionalidades</div>
+        <div class="preco-item">Suporte via WhatsApp incluso</div>
+        <div class="preco-item">Cancele quando quiser, sem multa</div>
+      </div>
+      <a href="#" onclick="openModal();return false;" class="btn-white">Começar grátis →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="faq-inner">
+    <div class="faq-header">
+      <div class="section-tag">Dúvidas frequentes</div>
+      <h2 class="section-title">Perguntas e respostas.</h2>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Preciso mudar meu número de WhatsApp? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Não. Você conecta seu número atual escaneando um QR Code — igual ao WhatsApp Web. Em menos de 2 minutos está funcionando.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Como meus imóveis entram no sistema? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Você pode importar via XML (padrão dos portais imobiliários), subir uma planilha ou cadastrar manualmente. A IA indexa tudo em segundos.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">A IA responde por mim no WhatsApp? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Sim. Para leads que entram pelo WhatsApp, a IA responde automaticamente, qualifica o perfil e conduz até o match. Você pode intervir quando quiser.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">E se o proprietário não tiver WhatsApp? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Sem problema. O sistema notifica você (corretor) para confirmar a visita manualmente. Depois que você confirma, o cliente é avisado automaticamente.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Funciona para imobiliárias com vários corretores? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Sim. Cada corretor tem sua conta isolada com seus próprios imóveis, leads e WhatsApp. E existe a funcionalidade de parceria — quando o imóvel é de outro corretor da rede, o sistema coordena a confirmação entre os dois.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Meus dados ficam seguros? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Sim. Cada conta tem isolamento total — nenhum corretor vê os dados do outro. Seguimos as diretrizes da LGPD e seus dados nunca são compartilhados com terceiros.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <div class="cta-final-inner">
+    <h2>Pronto para vender no<br>piloto automático?</h2>
+    <p>Conecte seu WhatsApp, importe seus imóveis e deixe a IA trabalhar. Em menos de 10 minutos sua máquina está rodando.</p>
+    <a href="#" onclick="openModal();return false;" class="btn-white">Começar agora — é gratuito →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">Match<span>Imóveis</span></span>
+  <div class="footer-links">
+    <a href="#como-funciona">Como funciona</a>
+    <a href="#depoimentos">Depoimentos</a>
+    <a href="#preco">Preço</a>
+    <a href="#faq">FAQ</a>
+    <a href="#" onclick="openModal();return false;">Entrar</a>
+  </div>
+  <span class="footer-note">© 2025 MatchImóveis · LGPD · Dados protegidos</span>
+</footer>
+
+
+
+
+<div id="modal-login" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal()">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:360px;max-width:90vw;position:relative">
+    <button onclick="closeModal()" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af;line-height:1">×</button>
+    <div style="font-size:17px;font-weight:700;color:#111827;margin-bottom:4px">Acessar plataforma</div>
+    <div style="font-size:12px;color:#9ca3af;margin-bottom:16px">Entre ou solicite seu acesso</div>
+    <div style="display:flex;gap:4px;background:#f9fafb;border-radius:8px;padding:4px;margin-bottom:16px">
+      <button id="tab-e" onclick="setTab('entrar')" style="flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:0.5px solid rgba(0,0,0,.1);background:#fff;color:#111827">Entrar</button>
+      <button id="tab-c" onclick="setTab('cadastro')" style="flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#6b7280">Solicitar acesso</button>
+    </div>
+    <div id="form-entrar">
+      <form method="POST" action="/login">
+        <div style="margin-bottom:10px"><label style="display:block;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Celular</label><input name="telefone" placeholder="47999999999" required style="width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box"></div>
+        <div style="margin-bottom:14px"><label style="display:block;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Senha</label><input name="senha" type="password" placeholder="••••••" style="width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box"></div>
+        <button type="submit" style="width:100%;background:#FF385C;color:#fff;padding:11px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Entrar →</button>
+      </form>
+    </div>
+    <div id="form-cadastro" style="display:none">
+      <form method="POST" action="/cadastro-secreto">
+        <input type="hidden" name="token" value="match2025">
+        <div style="margin-bottom:10px"><label style="display:block;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Tipo</label><select name="tipo" required style="width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box"><option value="">Selecione...</option><option value="corretor">Corretor</option><option value="imobiliaria">Imobiliária</option></select></div>
+        <div style="margin-bottom:10px"><label style="display:block;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Nome</label><input name="nome" placeholder="João Silva" required style="width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box"></div>
+        <div style="margin-bottom:10px"><label style="display:block;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Celular</label><input name="telefone" placeholder="47999999999" required style="width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box"></div>
+        <div style="margin-bottom:10px"><label style="display:block;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Senha</label><input name="senha" type="password" placeholder="Mínimo 6 caracteres" required minlength="6" style="width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box"></div>
+        <div style="margin-bottom:14px"><label style="display:block;font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">CRECI (opcional)</label><input name="creci" placeholder="Opcional" style="width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;outline:none;box-sizing:border-box"></div>
+        <button type="submit" style="width:100%;background:#FF385C;color:#fff;padding:11px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Criar conta →</button>
+        <p style="font-size:11px;color:#9ca3af;text-align:center;margin-top:10px">Só pague o que usar · Sem mensalidade</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function openModal(aba){ document.getElementById('modal-login').style.display='flex'; if(aba) setTab(aba); }
+function closeModal(){ document.getElementById('modal-login').style.display='none'; }
+function setTab(t){
+  document.getElementById('form-entrar').style.display=t==='entrar'?'block':'none';
+  document.getElementById('form-cadastro').style.display=t==='cadastro'?'block':'none';
+  document.getElementById('tab-e').style.cssText=t==='entrar'?'flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:0.5px solid rgba(0,0,0,.1);background:#fff;color:#111827':'flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#6b7280';
+  document.getElementById('tab-c').style.cssText=t==='cadastro'?'flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:0.5px solid rgba(0,0,0,.1);background:#fff;color:#111827':'flex:1;padding:7px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#6b7280';
+}
+function toggleFaq(el){ el.classList.toggle('open'); }
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{e.preventDefault();const el=document.querySelector(a.getAttribute('href'));if(el)el.scrollIntoView({behavior:'smooth'});});
+});
+</script>
+</body>
+</html>

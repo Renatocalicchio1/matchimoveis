@@ -5725,6 +5725,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
       headers: { 'apikey': EVOLUTION_KEY }
     });
     const qrData = await qrRes.json();
+    console.log('[QRCODE] instanceName:', instanceName, '| qrData keys:', Object.keys(qrData), '| base64 existe:', !!qrData.base64, '| code existe:', !!qrData.code);
 
     // Salva instanceName no usuário
     const { lerUsuarios: _lerU, salvarTodosUsuarios: _salvarU } = require('./services/salvarUsuario');

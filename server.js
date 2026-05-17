@@ -5576,7 +5576,7 @@ app.get('/admin/zerar-tudo-sistema', async (req, res) => {
     }
     const notifPath = path2.join(base2, 'notificacoes.json');
     if (fs2.existsSync(notifPath)) {
-      try { salvarJSON(notifPath, []).catch(e=>console.error("[notif]",e.message)); resultado[base2].notificacoes = 'zerado'; } catch(e) { resultado[base2].notificacoes = e.message; }
+      try { const {salvarJSON:_sj}=require('./services/storage'); _sj(notifPath,[]).catch(e=>console.error("[notif]",e.message)); resultado[base2].notificacoes = 'zerado'; } catch(e) { resultado[base2].notificacoes = e.message; }
     }
   }
   res.json({ ok: true, resultado });

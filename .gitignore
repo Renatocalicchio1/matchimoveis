@@ -22,3 +22,23 @@ backup-*/
 *.bak*
 uploads/
 0
+
+# Dados locais — nunca subir pro Render
+data.json
+visitas.json
+imoveis.json
+users.json
+assistente-memoria.json
+assistente-navegacao.json
+assistente-contexto-operacional.json
+assistente-nao-entendidos.json
+notificacoes.json
+*.seed-bak
+*.bak
+*.bak2
+*.bak3
+*.bak4
+*.bak5
+*.bak6
+*.bak7
+uploads/

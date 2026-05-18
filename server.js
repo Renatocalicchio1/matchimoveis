@@ -3139,7 +3139,15 @@ app.get('/imovel/:id', (req, res) => {
     delete pub.proprietario;
     delete pub.proprietario_celular;
     delete pub.proprietario_email;
-    return res.render('imovel-publico', { imovel: pub, corretor });
+    // Busca dados da lead para preencher formulário
+    let leadDados = { nome: '', telefone: '' };
+    const _leadId = req.query.leadId || req.query.lid || '';
+    if (_leadId) {
+      const _leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
+      const _lead = _leads.find(l => String(l.id) === String(_leadId));
+      if (_lead) leadDados = { nome: _lead.nome||'', telefone: (_lead.telefone||_lead.whatsapp||'').replace(/\D/g,'') };
+    }
+    return res.render('imovel-publico', { imovel: pub, corretor, leadDados });
   }
 
   // Busca nos matches do QuintoAndar

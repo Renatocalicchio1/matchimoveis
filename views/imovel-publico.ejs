@@ -156,12 +156,12 @@
 
       <div style="margin-bottom:14px">
         <label style="font-size:13px;font-weight:600;color:#222;display:block;margin-bottom:6px">Seu nome</label>
-        <input id="modal-nome" type="text" placeholder="Nome completo" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none">
+        <input id="modal-nome" type="text" placeholder="Nome completo" value="<%= typeof leadDados !== 'undefined' ? leadDados.nome : '' %>" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none">
       </div>
 
       <div style="margin-bottom:20px">
         <label style="font-size:13px;font-weight:600;color:#222;display:block;margin-bottom:6px">Seu celular</label>
-        <input id="modal-celular" type="tel" placeholder="(11) 99999-9999" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none">
+        <input id="modal-celular" type="tel" placeholder="(11) 99999-9999" value="<%= typeof leadDados !== 'undefined' ? leadDados.telefone : '' %>" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none">
       </div>
 
       <button onclick="confirmarContato()" style="width:100%;padding:14px;background:#FF385C;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Continuar →</button>

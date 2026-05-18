@@ -3195,10 +3195,8 @@ app.get('/app/lead/:id', auth, async (req, res) => {
   const visitas = fs.existsSync(dataPath("visitas.json")) ? JSON.parse(fs.readFileSync(dataPath("visitas.json"),"utf8")) : [];
 
   const visitasDaLead = visitas.filter(v =>
-    String(v.leadId || v.lead_id || '') === String(lead.leadId || '') ||
-    String(v.leadId || v.lead_id || '') === String(lead.id || '') ||
-    String(v.proprietarioTelefone || v.contato || '').replace(/\D/g,'') === String(lead.telefone || lead.contato || '').replace(/\D/g,'') ||
-    String(v.email || '').toLowerCase() === String(lead.email || '').toLowerCase()
+    String(v.leadId || v.lead_id || '') === String(lead.id) &&
+    String(v.userId || v.codigoUsuario || '') === uid
   );
 
   const imoveisInternos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'), 'utf8')) : [];

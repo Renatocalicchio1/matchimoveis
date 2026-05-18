@@ -284,9 +284,11 @@ function extrairPerfil(mensagens) {
 
   // Bairro
   const bairro = extrairBairro(norm);
-  // Só salva como bairro se não for uma cidade conhecida
+  // Só salva como bairro se não for uma cidade conhecida e não for uma rua
   const CIDADES_SET = new Set(CIDADES.map(c => c.toLowerCase()));
-  if (bairro && !CIDADES_SET.has(bairro.toLowerCase())) perfil.bairro = bairro;
+  const ehRua = bairro && /^(rua|av|avenida|alameda|travessa|estrada|rodovia|r\.|al\.)/i.test(bairro.trim());
+  if (bairro && !CIDADES_SET.has(bairro.toLowerCase()) && !ehRua) perfil.bairro = bairro;
+  if (ehRua) perfil.rua = bairro;
 
   // Cidade
   for (const cidade of CIDADES) { if (norm.includes(cidade)) { perfil.cidade = cidade; break; } }

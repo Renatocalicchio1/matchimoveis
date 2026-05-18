@@ -5311,6 +5311,26 @@ app.post('/app/visitas/solicitar-confirmacao/:id', auth, async (req,res)=>{
 
 
 
+
+app.get('/cliente/visita/:id', (req, res) => {
+  const { lerVisitas } = require('./services/salvarVisita');
+  const visitas = lerVisitas();
+  const visita = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!visita) return res.status(404).send('Visita não encontrada');
+  res.render('cliente-visita-confirmar', { visita, user: null });
+});
+
+app.post('/cliente/visita/:id/confirmar', (req, res) => {
+  const { lerVisitas, salvarTodasVisitas } = require('./services/salvarVisita');
+  const visitas = lerVisitas();
+  const idx = visitas.findIndex(v => String(v.id) === String(req.params.id));
+  if (idx < 0) return res.status(404).send('Visita não encontrada');
+  visitas[idx].confirmacaoClienteStatus = 'CONFIRMADO';
+  visitas[idx].confirmacaoClienteEm = new Date().toISOString();
+  salvarTodasVisitas(visitas).catch(e => console.error(e));
+  res.render('cliente-confirmado', { visita: visitas[idx], user: null });
+});
+
 app.get('/cliente/visita/:id/remarcar', (req,res)=>{
 
   const fs = require('fs');

@@ -324,6 +324,71 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
     </div>
     <% } %>
 
+    <!-- Imóvel do vendedor -->
+    <% if(lead.tipoLead === 'vendedor') { %>
+    <div class="ld-card">
+      <div class="ld-title">🏠 Imóvel para Vender/Alugar</div>
+      <% if(lead.imovelVendedor) { %>
+      <div style="padding:10px;background:var(--bg);border-radius:8px;border:1px solid var(--border-light);font-size:12px">
+        <div style="font-weight:600;color:var(--dark);margin-bottom:6px"><%= lead.imovelVendedor.tipo||'Imóvel' %> · <%= lead.imovelVendedor.bairro||'-' %></div>
+        <div style="color:var(--text-sec);margin-bottom:3px"><%= lead.imovelVendedor.quartos||0 %> quartos · <%= lead.imovelVendedor.area||'-' %>m²</div>
+        <div style="color:var(--text-sec);margin-bottom:6px">R$ <%= Number(lead.imovelVendedor.valor||0).toLocaleString('pt-BR') %> · <%= lead.imovelVendedor.finalidade||'venda' %></div>
+        <% if(lead.imovelVendedor.obs) { %><div style="color:var(--text-ter);font-style:italic"><%= lead.imovelVendedor.obs %></div><% } %>
+        <button onclick="abrirFormImovelVendedor()" style="margin-top:8px;font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer;color:var(--text-sec)">Editar</button>
+      </div>
+      <% } else { %>
+      <div style="font-size:12px;color:var(--text-sec);margin-bottom:10px">Nenhum imóvel cadastrado ainda.</div>
+      <button onclick="abrirFormImovelVendedor()" style="font-size:11px;padding:6px 14px;border-radius:8px;border:1px solid var(--brand);background:#fff;cursor:pointer;color:var(--brand);font-weight:600">+ Cadastrar imóvel</button>
+      <% } %>
+
+      <!-- Formulário inline -->
+      <div id="form-imovel-vendedor" style="display:none;margin-top:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div>
+            <label style="font-size:10px;color:var(--text-ter);font-weight:600">TIPO</label>
+            <select id="iv-tipo" style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:12px;margin-top:3px">
+              <option value="apartamento">Apartamento</option>
+              <option value="casa">Casa</option>
+              <option value="terreno">Terreno</option>
+              <option value="comercial">Comercial</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text-ter);font-weight:600">FINALIDADE</label>
+            <select id="iv-finalidade" style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:12px;margin-top:3px">
+              <option value="venda">Venda</option>
+              <option value="aluguel">Aluguel</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text-ter);font-weight:600">BAIRRO</label>
+            <input id="iv-bairro" type="text" style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:12px;margin-top:3px" placeholder="Bairro">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text-ter);font-weight:600">QUARTOS</label>
+            <input id="iv-quartos" type="number" min="0" style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:12px;margin-top:3px" placeholder="0">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text-ter);font-weight:600">ÁREA (m²)</label>
+            <input id="iv-area" type="number" style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:12px;margin-top:3px" placeholder="0">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text-ter);font-weight:600">VALOR (R$)</label>
+            <input id="iv-valor" type="number" style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:12px;margin-top:3px" placeholder="0">
+          </div>
+        </div>
+        <div style="margin-bottom:8px">
+          <label style="font-size:10px;color:var(--text-ter);font-weight:600">OBSERVAÇÕES</label>
+          <textarea id="iv-obs" rows="2" style="width:100%;padding:6px;border-radius:6px;border:1px solid var(--border);font-size:12px;margin-top:3px;resize:none" placeholder="Detalhes adicionais..."></textarea>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="salvarImovelVendedor('<%= lead.id %>')" style="flex:1;padding:8px;border-radius:8px;background:var(--brand);color:#fff;border:none;font-size:12px;font-weight:600;cursor:pointer">Salvar</button>
+          <button onclick="document.getElementById('form-imovel-vendedor').style.display='none'" style="padding:8px 14px;border-radius:8px;background:var(--bg);color:var(--text-sec);border:1px solid var(--border);font-size:12px;cursor:pointer">Cancelar</button>
+        </div>
+      </div>
+    </div>
+    <% } %>
+
     <!-- QuintoAndar matches -->
     <% if((lead.matchesQuintoAndar||[]).length) { %>
     <div class="ld-card">
@@ -345,4 +410,29 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
 
 </div>
 
+<script>
+function abrirFormImovelVendedor(){
+  const f = document.getElementById('form-imovel-vendedor');
+  if(f) f.style.display = f.style.display==='none'?'block':'none';
+}
+async function salvarImovelVendedor(leadId){
+  const payload = {
+    tipo: document.getElementById('iv-tipo').value,
+    finalidade: document.getElementById('iv-finalidade').value,
+    bairro: document.getElementById('iv-bairro').value,
+    quartos: document.getElementById('iv-quartos').value,
+    area: document.getElementById('iv-area').value,
+    valor: document.getElementById('iv-valor').value,
+    obs: document.getElementById('iv-obs').value
+  };
+  const r = await fetch('/app/lead/'+leadId+'/imovel-vendedor', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const d = await r.json();
+  if(d.ok) location.reload();
+  else alert('Erro: '+d.erro);
+}
+</script>
 <%- include('partials/app-end') %>

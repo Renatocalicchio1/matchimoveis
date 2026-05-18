@@ -6094,3 +6094,27 @@ app.post('/app/lead/:id/classificar', auth, async (req, res) => {
     res.status(500).json({ erro: e.message });
   }
 });
+
+// ── IMÓVEL DO VENDEDOR ───────────────────────────────────────
+app.post('/app/lead/:id/imovel-vendedor', auth, async (req, res) => {
+  try {
+    const leads = JSON.parse(require('fs').readFileSync(dataPath('data.json'),'utf8'));
+    const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
+    leads[idx].imovelVendedor = {
+      tipo: req.body.tipo || 'apartamento',
+      finalidade: req.body.finalidade || 'venda',
+      bairro: req.body.bairro || '',
+      quartos: Number(req.body.quartos) || 0,
+      area: Number(req.body.area) || 0,
+      valor: Number(req.body.valor) || 0,
+      obs: req.body.obs || '',
+      cadastradoEm: new Date().toISOString()
+    };
+    await salvarTodosLeads(leads);
+    console.log('[LEAD] imovel vendedor salvo | lead:', req.params.id);
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});

@@ -5320,14 +5320,16 @@ app.get('/cliente/visita/:id', (req, res) => {
   res.render('cliente-visita-confirmar', { visita, user: null });
 });
 
-app.post('/cliente/visita/:id/confirmar', (req, res) => {
+app.post('/cliente/visita/:id/responder', async (req, res) => {
   const { lerVisitas, salvarTodasVisitas } = require('./services/salvarVisita');
   const visitas = lerVisitas();
   const idx = visitas.findIndex(v => String(v.id) === String(req.params.id));
   if (idx < 0) return res.status(404).send('Visita não encontrada');
-  visitas[idx].confirmacaoClienteStatus = 'CONFIRMADO';
+  const acao = req.body.acao || 'confirmar';
+  visitas[idx].status = acao === 'confirmar' ? 'lead_confirmou' : 'lead_recusou';
+  visitas[idx].confirmacaoClienteStatus = acao === 'confirmar' ? 'CONFIRMADO' : 'RECUSADO';
   visitas[idx].confirmacaoClienteEm = new Date().toISOString();
-  salvarTodasVisitas(visitas).catch(e => console.error(e));
+  await salvarTodasVisitas(visitas);
   res.render('cliente-confirmado', { visita: visitas[idx], user: null });
 });
 

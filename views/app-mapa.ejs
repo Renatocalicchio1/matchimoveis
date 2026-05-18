@@ -4,10 +4,10 @@
 
 <div style="position:relative;margin:-20px;height:calc(100vh - 60px)">
   <div style="position:absolute;top:12px;left:12px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:13px;color:#111">
-    <strong><%= total %></strong> imóveis · <span id="qtd">carregando...</span>
+    <strong id="qtd">0</strong> bairros no mapa
   </div>
   <div style="position:absolute;top:12px;right:12px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:12px">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:12px;height:12px;border-radius:50%;background:#FF385C"></div>Meus imóveis</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:12px;height:12px;border-radius:50%;background:#FF385C"></div>Meus</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:12px;height:12px;border-radius:50%;background:#6366f1"></div>Parceiros</div>
     <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border-radius:50%;background:#f59e0b"></div>Ambos</div>
   </div>
@@ -16,92 +16,62 @@
 
 <script>
 const _grupos = <%- gruposJSON %>;
-const _uLatSalvo = <%= user.lat || -26.9543 %>;
-const _uLngSalvo = <%= user.lng || -48.6419 %>;
-const _raio = 10;
-let _map;
+const _uLat = <%= user.lat || -26.9543 %>;
+const _uLng = <%= user.lng || -48.6419 %>;
 
-function _distKm(la1,lo1,la2,lo2){
-  const R=6371,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;
-  const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+// Coordenadas hardcoded das principais cidades
+const _cidadeCoords = {
+  'itajai':{lat:-26.9078,lng:-48.6619},'itajaí':{lat:-26.9078,lng:-48.6619},
+  'balneario camboriu':{lat:-26.9906,lng:-48.6348},'balneário camboriú':{lat:-26.9906,lng:-48.6348},
+  'florianopolis':{lat:-27.5954,lng:-48.5480},'florianópolis':{lat:-27.5954,lng:-48.5480},
+  'blumenau':{lat:-26.9194,lng:-49.0661},
+  'joinville':{lat:-26.3044,lng:-48.8487},
+  'navegantes':{lat:-26.8986,lng:-48.6539},
+  'camboriu':{lat:-27.0239,lng:-48.6508},'camboriú':{lat:-27.0239,lng:-48.6508},
+  'itapema':{lat:-27.0906,lng:-48.6119},
+  'porto belo':{lat:-27.1578,lng:-48.5508},
+  'sao paulo':{lat:-23.5505,lng:-46.6333},'são paulo':{lat:-23.5505,lng:-46.6333},
+  'rio de janeiro':{lat:-22.9068,lng:-43.1729},
+  'curitiba':{lat:-25.4290,lng:-49.2671},
+  'belo horizonte':{lat:-19.9167,lng:-43.9345},
+  'brasilia':{lat:-15.7797,lng:-47.9297},'brasília':{lat:-15.7797,lng:-47.9297},
+};
+
+// Offset por bairro para não sobrepor pins na mesma cidade
+const _offsets = {};
+function _offset(cidade) {
+  _offsets[cidade] = (_offsets[cidade]||0) + 1;
+  const n = _offsets[cidade];
+  const ang = (n * 137.5) * Math.PI/180;
+  const r = 0.005 * Math.ceil(n/8);
+  return {dlat: r*Math.sin(ang), dlng: r*Math.cos(ang)};
 }
+
+const _map = L.map('mapa').setView([_uLat,_uLng],11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(_map);
+
+// Pin usuário
+L.marker([_uLat,_uLng],{icon:L.divIcon({className:'',html:'<div style="background:#FF385C;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.3);border:2px solid #fff">📍</div>',iconSize:[34,34],iconAnchor:[17,17]})}).addTo(_map).bindPopup('<b>Você está aqui</b>');
 
 function _icone(cor,n){
-  return L.divIcon({className:'',html:'<div style="background:'+cor+';color:#fff;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid #fff">'+n+'</div>',iconSize:[38,38],iconAnchor:[19,19]});
+  return L.divIcon({className:'',html:'<div style="background:'+cor+';color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid #fff">'+n+'</div>',iconSize:[36,36],iconAnchor:[18,18]});
 }
 
-function _pinUser(lat,lng){
-  L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div style="background:#FF385C;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.3);border:2px solid #fff">📍</div>',iconSize:[34,34],iconAnchor:[17,17]})}).addTo(_map).bindPopup('<b>Você está aqui</b>').openPopup();
-  L.circle([lat,lng],{radius:_raio*1000,color:'#FF385C',fillColor:'#FF385C',fillOpacity:.04,weight:1.5,dashArray:'6,4'}).addTo(_map);
-}
-
-async function _geo(bairro,cidade){
-  const q=encodeURIComponent(bairro+', '+cidade+', Brasil');
-  const r=await fetch('https://nominatim.openstreetmap.org/search?q='+q+'&format=json&limit=1',{headers:{'Accept-Language':'pt-BR'}});
-  const d=await r.json();
-  if(d&&d[0]) return {lat:parseFloat(d[0].lat),lng:parseFloat(d[0].lon)};
-  return null;
-}
-
-async function _carregar(uLat,uLng){
-  // Tenta usar cache primeiro
-  let cache = {};
-  try {
-    const r = await fetch('/api/bairros-coords');
-    cache = await r.json();
-  } catch(e){}
-
-  const temCache = Object.keys(cache).length > 0;
-  if(!temCache){
-    // Dispara geocodificação em background
-    fetch('/api/geocodificar-bairros').catch(()=>{});
-    document.getElementById('qtd').textContent = 'geocodificando bairros... (primeira vez, aguarde)';
-  }
-
-  let ok=0;
-  for(let i=0;i<_grupos.length;i++){
-    const g=_grupos[i];
-    if(!g.bairro&&!g.cidade) continue;
-    const key = g.bairro+'|'+g.cidade;
-    let coords = cache[key];
-
-    // Se não tem no cache, geocodifica agora
-    if(!coords){
-      await new Promise(r=>setTimeout(r,1100));
-      try{ coords=await _geo(g.bairro,g.cidade); }catch(e){ continue; }
-    }
-    if(!coords) continue;
-
-    const dist=_distKm(uLat,uLng,coords.lat,coords.lng);
-    if(dist>_raio) continue;
-
-    const tot=g.meus.length+g.parceiros.length;
-    const cor=g.meus.length>0&&g.parceiros.length===0?'#FF385C':g.meus.length===0?'#6366f1':'#f59e0b';
-    const mk=L.marker([coords.lat,coords.lng],{icon:_icone(cor,tot)}).addTo(_map);
-    mk.bindPopup('<div style="padding:10px;min-width:160px"><b style="font-size:14px">'+(g.bairro||g.cidade)+'</b><div style="font-size:12px;color:#666;margin-bottom:8px">'+g.cidade+'</div>'+(g.meus.length?'<div style="font-size:12px"><span style="color:#FF385C">●</span> <b>'+g.meus.length+'</b> seus imóveis</div>':'')+(g.parceiros.length?'<div style="font-size:12px"><span style="color:#6366f1">●</span> <b>'+g.parceiros.length+'</b> parceiros</div>':'')+'</div>');
-    ok++;
-    document.getElementById('qtd').textContent=ok+' bairros no mapa';
-  }
-  if(ok===0) document.getElementById('qtd').textContent='nenhum bairro no raio de '+_raio+'km';
-}
-
-function _iniciar(lat,lng){
-  _map=L.map('mapa').setView([lat,lng],13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(_map);
-  _pinUser(lat,lng);
-  _carregar(lat,lng);
-}
-
-if(navigator.geolocation){
-  navigator.geolocation.getCurrentPosition(
-    pos=>_iniciar(pos.coords.latitude,pos.coords.longitude),
-    ()=>_iniciar(_uLatSalvo,_uLngSalvo),
-    {timeout:5000}
-  );
-} else {
-  _iniciar(_uLatSalvo,_uLngSalvo);
-}
+let ok=0;
+_grupos.forEach(g => {
+  const cidNorm = (g.cidade||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const base = _cidadeCoords[cidNorm] || _cidadeCoords[(g.cidade||'').toLowerCase()];
+  if(!base) return;
+  const off = _offset(cidNorm);
+  const lat = base.lat + off.dlat;
+  const lng = base.lng + off.dlng;
+  const tot = g.meus.length + g.parceiros.length;
+  const cor = g.meus.length>0&&g.parceiros.length===0?'#FF385C':g.meus.length===0?'#6366f1':'#f59e0b';
+  const mk = L.marker([lat,lng],{icon:_icone(cor,tot)}).addTo(_map);
+  mk.bindPopup('<div style="padding:10px;min-width:160px"><b style="font-size:14px">'+(g.bairro||g.cidade)+'</b><div style="font-size:12px;color:#666;margin-bottom:8px">'+g.cidade+'</div>'+(g.meus.length?'<div style="font-size:12px"><span style="color:#FF385C">●</span> <b>'+g.meus.length+'</b> seus imóveis</div>':'')+(g.parceiros.length?'<div style="font-size:12px"><span style="color:#6366f1">●</span> <b>'+g.parceiros.length+'</b> parceiros</div>':'')+'</div>');
+  ok++;
+});
+document.getElementById('qtd').textContent = ok;
 </script>
 
 <%- include('partials/app-end') %>

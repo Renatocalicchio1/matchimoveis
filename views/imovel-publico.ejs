@@ -366,5 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
+<% if(imovel.dataCadastro||imovel.data_cadastro){ %>
+<div style="font-size:11px;color:#9ca3af;margin-top:4px">📅 Cadastrado: <%= new Date(imovel.dataCadastro||imovel.data_cadastro).toLocaleDateString('pt-BR') %> <% if(imovel.dataAtualizacao||imovel.updatedAt){ %> · 🔄 Atualizado: <%= new Date(imovel.dataAtualizacao||imovel.updatedAt).toLocaleDateString('pt-BR') %><% } %></div>
+<% } %>
 </body>
 </html>

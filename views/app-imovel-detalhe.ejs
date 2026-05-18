@@ -206,4 +206,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharLightbox();if(
 </div>
 </div>
 
+
+      <% if(imovel.dataCadastro||imovel.data_cadastro||imovel.criadoEm){ %>
+      <div style="font-size:11px;color:#9ca3af;margin-top:6px">📅 Cadastrado: <%= new Date(imovel.dataCadastro||imovel.data_cadastro||imovel.criadoEm).toLocaleDateString('pt-BR') %></div>
+      <% } %>
+      <% if(imovel.dataAtualizacao||imovel.updatedAt){ %>
+      <div style="font-size:11px;color:#9ca3af">🔄 Atualizado: <%= new Date(imovel.dataAtualizacao||imovel.updatedAt).toLocaleDateString('pt-BR') %></div>
+      <% } %>
 <%- include('partials/app-end') %>

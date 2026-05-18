@@ -231,6 +231,10 @@ leads.forEach(item => {
     <% if(item.ultimaMensagem){ %>
     <div style="font-size:11px;color:#9ca3af;border-left:2px solid #f3f4f6;padding-left:6px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px"><%= item.ultimaMensagem.substring(0,60) %></div>
     <% } %>
+    <div style="font-size:10px;color:#d1d5db;display:flex;gap:8px;margin-bottom:4px">
+      <% if(item.criadoEm||item.data_cadastro){ %><span>📅 <%= new Date(item.criadoEm||item.data_cadastro).toLocaleDateString('pt-BR') %></span><% } %>
+      <% if(item.ultimaMensagemEm){ %><span>💬 <%= new Date(item.ultimaMensagemEm).toLocaleDateString('pt-BR') %></span><% } %>
+    </div>
 
     <div class="lead-btns">
       <% if(telefone){ %>

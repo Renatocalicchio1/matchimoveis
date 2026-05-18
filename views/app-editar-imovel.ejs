@@ -301,4 +301,11 @@ async function buscarCEPEdit(){
 }
 </script>
 
+
+<% if(imovel.dataCadastro||imovel.data_cadastro||imovel.criadoEm||imovel.dataAtualizacao||imovel.updatedAt){ %>
+<div style="font-size:11px;color:#9ca3af;margin:8px 0;display:flex;gap:16px;flex-wrap:wrap">
+  <% if(imovel.dataCadastro||imovel.data_cadastro||imovel.criadoEm){ %><span>📅 Cadastrado: <%= new Date(imovel.dataCadastro||imovel.data_cadastro||imovel.criadoEm).toLocaleDateString('pt-BR') %></span><% } %>
+  <% if(imovel.dataAtualizacao||imovel.updatedAt){ %><span>🔄 Atualizado: <%= new Date(imovel.dataAtualizacao||imovel.updatedAt).toLocaleDateString('pt-BR') %></span><% } %>
+</div>
+<% } %>
 <%- include('partials/app-end') %>

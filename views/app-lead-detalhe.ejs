@@ -138,11 +138,11 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
           </div>
         </div>
       </div>
-      <% if(lead.data_cadastro_br||lead.data_cadastro) { %>
-      <div class="info-row"><span class="info-lbl">Cadastro</span><span class="info-val"><%= lead.data_cadastro_br||new Date(lead.data_cadastro).toLocaleString('pt-BR') %></span></div>
+      <% if(lead.criadoEm||lead.data_cadastro_br||lead.data_cadastro) { %>
+      <div class="info-row"><span class="info-lbl">📅 Entrada</span><span class="info-val"><%= lead.data_cadastro_br||new Date(lead.criadoEm||lead.data_cadastro).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) %></span></div>
       <% } %>
       <% if(lead.ultimaMensagemEm) { %>
-      <div class="info-row"><span class="info-lbl">Última mensagem</span><span class="info-val"><%= new Date(lead.ultimaMensagemEm).toLocaleString('pt-BR') %></span></div>
+      <div class="info-row"><span class="info-lbl">💬 Última interação</span><span class="info-val"><%= new Date(lead.ultimaMensagemEm).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) %></span></div>
       <% } %>
     </div>
 

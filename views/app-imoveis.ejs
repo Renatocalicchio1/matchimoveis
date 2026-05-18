@@ -201,6 +201,10 @@
         <% if(item.andar) { %><span class="im-tag"><%= item.andar %>º andar</span><% } %>
       </div>
 
+      <div style="font-size:10px;color:var(--text-ter);margin-bottom:6px;display:flex;gap:8px;flex-wrap:wrap">
+        <% if(item.dataCadastro||item.data_cadastro||item.criadoEm){ %><span>📅 <%= new Date(item.dataCadastro||item.data_cadastro||item.criadoEm).toLocaleDateString('pt-BR') %></span><% } %>
+        <% if(item.dataAtualizacao||item.updatedAt){ %><span>🔄 <%= new Date(item.dataAtualizacao||item.updatedAt).toLocaleDateString('pt-BR') %></span><% } %>
+      </div>
       <div class="im-actions">
         <a href="/app/imovel/<%= item.id || item.idExterno %>" class="im-btn ver" onclick="event.stopPropagation()">Ver</a>
         <a href="/app/imovel/<%= item.id || item.idExterno %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a>

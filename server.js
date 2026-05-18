@@ -2641,6 +2641,52 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
   }
 });
 
+
+// Geocodifica bairros em background e salva cache
+app.get('/api/geocodificar-bairros', auth, async (req, res) => {
+  const path2 = require('path');
+  const fs2 = require('fs');
+  const DATA_DIR2 = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
+  const cacheFile = path2.join(DATA_DIR2, 'bairros-coords.json');
+  const imoveisPath = path2.join(DATA_DIR2, 'imoveis.json');
+  const imoveis = fs2.existsSync(imoveisPath) ? JSON.parse(fs2.readFileSync(imoveisPath,'utf8')) : [];
+  const cache = fs2.existsSync(cacheFile) ? JSON.parse(fs2.readFileSync(cacheFile,'utf8')) : {};
+  
+  // Pega bairros únicos
+  const bairros = [...new Set(imoveis.filter(i=>i.bairro&&i.cidade).map(i=>i.bairro+'|'+i.cidade))];
+  res.json({ ok: true, total: bairros.length, cached: Object.keys(cache).length });
+  
+  // Geocodifica em background
+  setImmediate(async () => {
+    for (const key of bairros) {
+      if (cache[key]) continue;
+      const [bairro, cidade] = key.split('|');
+      await new Promise(r => setTimeout(r, 1200));
+      try {
+        // Pega o endereço do primeiro imóvel desse bairro
+        const imBairro = imoveis.find(i => i.bairro === bairro && i.cidade === cidade);
+        const rua = imBairro?.endereco || '';
+        const queryParts = [rua, bairro, cidade, 'Brasil'].filter(Boolean).join(', ');
+        const q = encodeURIComponent(queryParts);
+        const r = await fetch('https://nominatim.openstreetmap.org/search?q='+q+'&format=json&limit=1',{headers:{'Accept-Language':'pt-BR','User-Agent':'MatchImoveis/1.0'}});
+        const d = await r.json();
+        if (d&&d[0]) { cache[key]={lat:parseFloat(d[0].lat),lng:parseFloat(d[0].lon)}; fs2.writeFileSync(cacheFile,JSON.stringify(cache)); }
+      } catch(e) {}
+    }
+    console.log('[GEO] cache completo:', Object.keys(cache).length, 'bairros');
+  });
+});
+
+// Retorna cache de coords dos bairros
+app.get('/api/bairros-coords', auth, (req, res) => {
+  const path2 = require('path');
+  const fs2 = require('fs');
+  const DATA_DIR2 = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
+  const cacheFile = path2.join(DATA_DIR2, 'bairros-coords.json');
+  const cache = fs2.existsSync(cacheFile) ? JSON.parse(fs2.readFileSync(cacheFile,'utf8')) : {};
+  res.json(cache);
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   // Inicia atualizacao automatica do XML a cada 12h

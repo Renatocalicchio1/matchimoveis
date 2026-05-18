@@ -215,8 +215,7 @@ function extrairBairro(norm) {
     'itaim','berrini','faria lima','paulista','ibirapuera','mooca','ipiranga',
     'saude','paraiso','vila mariana','jabaquara','santo amaro','socorro',
     // SC
-    'balneario camboriu','itapema','florianopolis','centro','norte','sul','leste','oeste',
-    'joinville','blumenau','itajai','navegantes','biguacu','palhoca','garopaba',
+    'balneario camboriu','itapema','centro','norte','sul','leste','oeste',
     'bombinhas','porto belo','penha','barra velha','picarras','tijucas'
   ];
   for (const b of bairrosConhecidos) { if (norm.includes(b)) return b; }
@@ -274,7 +273,9 @@ function extrairPerfil(mensagens) {
 
   // Bairro
   const bairro = extrairBairro(norm);
-  if (bairro) perfil.bairro = bairro;
+  // Só salva como bairro se não for uma cidade conhecida
+  const CIDADES_SET = new Set(CIDADES.map(c => c.toLowerCase()));
+  if (bairro && !CIDADES_SET.has(bairro.toLowerCase())) perfil.bairro = bairro;
 
   // Cidade
   for (const cidade of CIDADES) { if (norm.includes(cidade)) { perfil.cidade = cidade; break; } }

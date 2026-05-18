@@ -2119,43 +2119,43 @@ setInterval(() => {
   }).then(() => console.log('[KEEP-ALIVE] Evolution API acordada'))
     .catch(() => console.log('[KEEP-ALIVE] Evolution API nao respondeu'));
 }, 4 * 60 * 1000); // 4 minutos — mantém Evolution API acordada
-
+// 
 // ── WA_RECONECTOR — verifica e reconecta WhatsApp a cada 5 minutos ───────────
-setInterval(async () => {
-  if (!process.env.RENDER) return; // só no Render
-  try {
-    const _EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
-    const _EK = process.env.EVOLUTION_KEY || 'match2025evolution';
-    const _users = JSON.parse(fs.readFileSync(dataPath('users.json'), 'utf8'));
-
-    for (const user of _users) {
-      if (!user.whatsappInstance) continue;
-      try {
-        const r = await fetch(_EU + '/instance/connectionState/' + user.whatsappInstance, {
-          headers: { 'apikey': _EK }
-        });
-        const d = await r.json();
-        const status = d?.instance?.state || d?.state || '';
-
-        if (status !== 'open') {
-          console.log('[WA_RECONECTOR] instancia desconectada:', user.whatsappInstance, '| status:', status);
-          // Tenta reconectar
-          await fetch(_EU + '/instance/connect/' + user.whatsappInstance, {
-            method: 'GET',
-            headers: { 'apikey': _EK }
-          });
-          console.log('[WA_RECONECTOR] tentativa de reconexao enviada para:', user.whatsappInstance);
-        }
-      } catch(e) {
-        console.log('[WA_RECONECTOR] erro instancia', user.whatsappInstance, ':', e.message);
-      }
-    }
-  } catch(e) {
-    console.error('[WA_RECONECTOR] erro geral:', e.message);
-  }
-}, 5 * 60 * 1000); // verifica a cada 5 minutos
+// setInterval(async () => {
+//   if (!process.env.RENDER) return; // só no Render
+//   try {
+//     const _EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+//     const _EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+//     const _users = JSON.parse(fs.readFileSync(dataPath('users.json'), 'utf8'));
+// 
+//     for (const user of _users) {
+//       if (!user.whatsappInstance) continue;
+//       try {
+//         const r = await fetch(_EU + '/instance/connectionState/' + user.whatsappInstance, {
+//           headers: { 'apikey': _EK }
+//         });
+//         const d = await r.json();
+//         const status = d?.instance?.state || d?.state || '';
+// 
+//         if (status !== 'open') {
+//           console.log('[WA_RECONECTOR] instancia desconectada:', user.whatsappInstance, '| status:', status);
+//           // Tenta reconectar
+//           await fetch(_EU + '/instance/connect/' + user.whatsappInstance, {
+//             method: 'GET',
+//             headers: { 'apikey': _EK }
+//           });
+//           console.log('[WA_RECONECTOR] tentativa de reconexao enviada para:', user.whatsappInstance);
+//         }
+//       } catch(e) {
+//         console.log('[WA_RECONECTOR] erro instancia', user.whatsappInstance, ':', e.message);
+//       }
+//     }
+//   } catch(e) {
+//     console.error('[WA_RECONECTOR] erro geral:', e.message);
+//   }
+// }, 5 * 60 * 1000); // verifica a cada 5 minutos
 // ── FIM WA_RECONECTOR ────────────────────────────────────────────────────────
-
+// 
 // ── JOB_FOLLOWUPS — processa followUps pendentes vencidos ────────────────────
 setInterval(async () => {
   try {

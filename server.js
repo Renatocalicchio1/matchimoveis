@@ -6033,8 +6033,6 @@ app.delete('/app/lead/:id', auth, async (req, res) => {
     const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
     if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
     const lead = leads[idx];
-    const leadOwner = String(lead.userId || lead.codigoUsuario || lead.corretorId || '');
-    if (leadOwner && leadOwner !== uid) return res.status(403).json({ erro: 'acesso negado' });
     // Marca como deletada por este usuário — não remove globalmente
     if (!leads[idx].deletadoPor) leads[idx].deletadoPor = [];
     if (!leads[idx].deletadoPor.includes(uid)) leads[idx].deletadoPor.push(uid);
@@ -6052,10 +6050,6 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
     const uid = String(req.session.user.id || '');
     const leads = JSON.parse(fs.readFileSync(dataPath('data.json'), 'utf8'));
     const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
-    if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
-    const lead = leads[idx];
-    const leadOwner = String(lead.userId || lead.codigoUsuario || lead.corretorId || '');
-    if (leadOwner && leadOwner !== uid) return res.status(403).json({ erro: 'acesso negado' });
     const telefone = String(lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g,'');
     // Salva na lista negra do usuário
     const usersPath = require('path').join(__dirname, 'users.json');

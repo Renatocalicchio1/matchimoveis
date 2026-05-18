@@ -97,8 +97,8 @@ async function lerLeads(userId) {
         sql = `SELECT * FROM leads ORDER BY criado_em DESC`;
         params = [];
       } else {
-        sql = `SELECT * FROM leads WHERE (user_id=$1 OR codigo_usuario=$1) AND NOT (deletado_por @> $2::jsonb) ORDER BY criado_em DESC`;
-        params = [userId, JSON.stringify([userId])];
+        sql = `SELECT * FROM leads WHERE (user_id=$1 OR codigo_usuario=$1) AND NOT (deletado_por @> to_jsonb($2::text)) ORDER BY criado_em DESC`;
+        params = [userId, userId];
       }
       const res = await query(sql, params);
       return res.rows.map(rowToLead);

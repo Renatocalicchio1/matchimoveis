@@ -1342,7 +1342,26 @@ app.get('/app/importar-leads', auth, (req,res)=>{
 app.get('/app/leads', auth, (req,res)=>{
   const raw = lerLeads(req.session.user.id);
   const data = Array.isArray(raw) ? raw : (raw.results || []);
-  const leads = filtrarPorUsuario(data, req.session.user).filter(l => l.tipoLead !== 'corretor');
+  const _todasVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const leads = filtrarPorUsuario(data, req.session.user)
+    .filter(l => l.tipoLead !== 'corretor')
+    .filter(l => {
+      // Se tem visita avançada (não solicitada) → some do kanban de leads
+      const temVisitaAvancada = _todasVisitas.some(v =>
+        String(v.leadId||'') === String(l.id) &&
+        String(v.userId||v.ownerUserId||v.corretorId||'') === String(req.session.user.id) &&
+        (v.status||'') !== 'solicitada'
+      );
+      return !temVisitaAvancada;
+    });
+  // Marca visitaAgendada se tem visita solicitada
+  leads.forEach(l => {
+    l.visitaAgendada = _todasVisitas.some(v =>
+      String(v.leadId||'') === String(l.id) &&
+      String(v.userId||v.ownerUserId||v.corretorId||'') === String(req.session.user.id) &&
+      (v.status||'') === 'solicitada'
+    );
+  });
   // usa matchesBase (base interna) ou matches (externos)
   leads.forEach(l => {
     if (!l.matches || l.matches.length === 0) {

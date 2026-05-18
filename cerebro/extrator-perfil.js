@@ -1377,7 +1377,7 @@ function extrairBairro(norm) {
   "álvares machado","álvaro de carvalho","árvore só","áurea","ângelo frechiani","ângulo","érico cardoso","índios",
   "óbidos","óleo",
 ];
-  for (const b of bairrosConhecidos) { if (norm.includes(b)) return b; }
+  for (const b of bairrosConhecidos) { const re = new RegExp("(^|\\s)" + b.replace(/[.*+?^${}()|[\\]]/g,"\\  for (const b of bairrosConhecidos) { if (norm.includes(b)) return b; }") + "(\\s|$|,|\\.)"); if (re.test(norm)) return b; }
   // Padrão preposição explícita — só aceita quando há palavra-chave de localização
   const bm = norm.match(/\b(?:no bairro|na bairro|bairro|regiao|região|proximo a|perto de|localizado em|fica em|quero em|busco em|procuro em)\s+([a-z\s]{3,25}?)(?:,|\.|\s{2}|$)/);
   if (bm) return bm[1].trim();

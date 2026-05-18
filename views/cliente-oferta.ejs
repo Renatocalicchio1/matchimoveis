@@ -120,8 +120,8 @@
         <h3 style="font-size:18px">Seus dados</h3>
         <button onclick="fecharModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888">×</button>
       </div>
-      <input id="modal-nome" type="text" placeholder="Nome completo" style="width:100%;padding:10px;margin-bottom:10px">
-      <input id="modal-celular" type="tel" placeholder="Celular" style="width:100%;padding:10px;margin-bottom:10px">
+      <input id="modal-nome" type="text" placeholder="Nome completo" value="<%= lead.nome||'' %>" style="width:100%;padding:10px;margin-bottom:10px">
+      <input id="modal-celular" type="tel" placeholder="Celular" value="<%= (lead.telefone||lead.whatsapp||'').replace(/\D/g,'') %>" style="width:100%;padding:10px;margin-bottom:10px">
       <button onclick="continuarHorario()" style="width:100%;padding:12px;background:#e11d48;color:#fff;border:none;border-radius:8px">Continuar</button>
       <button onclick="fecharModal()" style="width:100%;padding:10px;margin-top:8px;background:none;border:1px solid #ddd;border-radius:8px;cursor:pointer">Cancelar</button>
     </div>

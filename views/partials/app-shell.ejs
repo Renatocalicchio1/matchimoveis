@@ -378,7 +378,7 @@ const _temImoveis = typeof totalImoveis !== 'undefined' ? totalImoveis > 0 : fal
 const _onboardingCompleto = _temPerfil && _temWA && _temImoveis;
 const _passos = [
   { key:'perfil', label:'Perfil', feito:_temPerfil, titulo:'Complete seu perfil', motivo:'Sem isso o sistema não sabe quem você é e não consegue personalizar as mensagens para seus clientes.', acao:'Completar perfil', link:'/app/perfil' },
-  { key:'whatsapp', label:'WhatsApp', feito:_temWA, titulo:'Conecte seu WhatsApp', motivo:'Sem isso leads não são capturadas, a vitrine não é enviada e as visitas não são confirmadas automaticamente.', acao:'Conectar agora', link:'/app/perfil' },
+  { key:'whatsapp', label:'WhatsApp', feito:_temWA, titulo:'Conecte seu WhatsApp', motivo:'Sem isso leads não são capturadas, a vitrine não é enviada e as visitas não são confirmadas automaticamente.', acao:'Conectar agora', link:'/app/perfil#secao-whatsapp' },
   { key:'imoveis', label:'Imóveis', feito:_temImoveis, titulo:'Adicione seus imóveis', motivo:'Sem imóveis o sistema não faz match e não tem o que mostrar na vitrine para seus clientes.', acao:'Adicionar imóveis', link:'/app/imoveis' }
 ];
 const _prox = _passos.find(p => !p.feito);

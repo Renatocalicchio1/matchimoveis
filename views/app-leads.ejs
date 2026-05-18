@@ -34,6 +34,9 @@
 .kanban-col-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
 /* ── Cards ── */
+@keyframes flagPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.7}}
+.btn-classificar-flag{background:#fff8f0!important;color:#f97316!important;border-color:#fed7aa!important;animation:flagPulse 2s infinite;font-size:13px!important;padding:3px 7px!important}
+.btn-classificar-flag:hover{animation:none;transform:scale(1.1)}
 .lead-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;transition:box-shadow .15s;position:relative}
 .lead-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
 .lead-card.urg-alta{border-left:2px solid #ef4444}
@@ -244,7 +247,9 @@ leads.forEach(item => {
       <% } %>
       <% } %>
       <a href="/app/lead/<%= item.id %>" class="lb dark">Ver →</a>
-      <button onclick="abrirClassificar('<%= item.id %>')" class="lb" style="background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)" title="Classificar lead">⚑</button>
+      <% if(!item.tipoLead || item.tipoLead==='cliente'){ %>
+      <button onclick="abrirClassificar('<%= item.id %>')" class="lb btn-classificar-flag" title="Classificar esta lead">🚩</button>
+      <% } %>
       <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">×</button>
     </div>
     <div class="confirm-box" id="confirm-<%= item.id %>">

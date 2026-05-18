@@ -230,12 +230,9 @@ function extrairBairro(norm) {
     'bombinhas','porto belo','penha','barra velha','picarras','tijucas'
   ];
   for (const b of bairrosConhecidos) { if (norm.includes(b)) return b; }
-  // Padrão preposição
-  const bm = norm.match(/\b(?:em|no|na|bairro|regiao|região|proximo a|perto de)\s+([a-z\s]{3,30}?)(?:,|\.|\s{2}|$)/);
+  // Padrão preposição explícita — só aceita quando há palavra-chave de localização
+  const bm = norm.match(/\b(?:no bairro|na bairro|bairro|regiao|região|proximo a|perto de|localizado em|fica em|quero em|busco em|procuro em)\s+([a-z\s]{3,25}?)(?:,|\.|\s{2}|$)/);
   if (bm) return bm[1].trim();
-  // Fallback vírgula
-  const partes = norm.split(',').map(p=>p.trim()).filter(p=>p.length>3&&!p.match(/^\d/)&&!TODOS_TIPOS.includes(p.split(' ')[0]));
-  if (partes.length>1) return partes[partes.length-1].split(' ').slice(0,4).join(' ');
   return null;
 }
 

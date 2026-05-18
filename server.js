@@ -6161,12 +6161,28 @@ app.get('/admin/reprocessar-perfis', async (req, res) => {
     const { extrairPerfil } = require('./cerebro/extrator-perfil');
     const leads = JSON.parse(require('fs').readFileSync(dataPath('data.json'),'utf8'));
     let count = 0;
+    const bairrosValidos = [
+      'vila olimpia','moema','itaim bibi','brooklin','pinheiros','jardins','perdizes',
+      'lapa','santana','tatuape','morumbi','vila madalena','higienopolis','consolacao',
+      'bela vista','campo belo','alphaville','granja viana','centro','liberdade',
+      'aclimacao','jardim paulista','jardim america','jardim europa','vila nova conceicao',
+      'itaim','berrini','faria lima','paulista','ibirapuera','mooca','ipiranga',
+      'saude','paraiso','vila mariana','jabaquara','santo amaro','socorro',
+      'balneario camboriu','itapema','norte','sul','leste','oeste','barra sul','barra norte',
+      'bombinhas','porto belo','penha','barra velha','picarras','tijucas','meia praia'
+    ];
     leads.forEach(l => {
+      // Limpa bairro inválido
+      if (l.perfilIA && l.perfilIA.bairro) {
+        const b = l.perfilIA.bairro.toLowerCase().trim();
+        const valido = bairrosValidos.some(bv => b.includes(bv) || bv.includes(b));
+        const ehRua = /^(rua|av|avenida|alameda|travessa)/.test(b);
+        if (!valido || ehRua) { delete l.perfilIA.bairro; if(l.bairro) delete l.bairro; }
+      }
       if (!l.mensagens || !l.mensagens.length) return;
       const msgs = l.mensagens.filter(m => m.de === 'cliente');
       if (!msgs.length) return;
       const novoPerfil = extrairPerfil(msgs);
-      // Só atualiza campos que fazem sentido — não sobrescreve tudo
       if (novoPerfil.tipo) l.perfilIA = { ...(l.perfilIA||{}), ...novoPerfil };
       count++;
     });

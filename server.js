@@ -5982,7 +5982,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
 
     // Salva instanceName no usuário
     const { lerUsuarios: _lerU, salvarTodosUsuarios: _salvarU } = require('./services/salvarUsuario');
-    const users = _lerU();
+    const users = await _lerU();
     const idx = users.findIndex(u => u.id === userId);
     if (idx >= 0) {
       users[idx].whatsappInstance = instanceName;

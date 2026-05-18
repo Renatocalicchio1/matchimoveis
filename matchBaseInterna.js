@@ -30,7 +30,15 @@ function buscarMatchesBaseInterna(lead, imoveis) {
 
   const origem = imovelOrigem || lead;
 
-  return imoveis.filter(i => {
+// Filtra imoveis dos ultimos 3 meses e ordena por mais recente
+const _3m = new Date(); _3m.setMonth(_3m.getMonth() - 3);
+const imoveisFiltrados = imoveis.filter(i => {
+const d = i.dataAtualizacao||i.updatedAt||i.dataCadastro||i.data_cadastro||null;
+if (!d) return true;
+return new Date(d) >= _3m;
+}).sort((a,b) => new Date(b.dataAtualizacao||b.updatedAt||b.dataCadastro||b.data_cadastro||0) - new Date(a.dataAtualizacao||a.updatedAt||a.dataCadastro||a.data_cadastro||0));
+
+  return imoveisFiltrados.filter(i => {
     const idCandidato = getIdImovel(i);
     if (idCandidato && idCandidato === String(idOrigem)) return false;
 

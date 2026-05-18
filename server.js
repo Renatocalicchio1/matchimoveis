@@ -2440,7 +2440,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
           const EI = await (async () => { try { const { lerUsuarios: _lu } = require('./services/salvarUsuario'); const _u2 = await _lu(); const _uc = _u2.find(u=>u.id===(_corretorWH?.id)); return _uc?.whatsappInstance||instance||'match-corretor'; } catch(e){return instance||'match-corretor';} })();
           let leads = [];
-          try { const { lerLeads: _llWH } = require('./services/salvarLead'); leads = _llWH(); } catch(e) {}
+          try { const { lerLeads: _llWH } = require('./services/salvarLead'); leads = await _llWH(); } catch(e) {}
           const uid = _corretorWH.id;
           const meus = leads.filter(l => l.userId === uid || l.codigoUsuario === uid);
           const total = meus.length;
@@ -2612,7 +2612,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       };
       // Salva via service centralizado
       try {
-        const todosLeads = _lerLeadsWH();
+        const todosLeads = await _lerLeadsWH();
         todosLeads.push(novoLead);
         _salvarLeadsWH(todosLeads).catch(e=>console.error("[leads]",e.message));
         leadEncontrado = novoLead;

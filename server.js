@@ -5725,7 +5725,11 @@ app.get('/admin/deletar-imoveis/:userId', async (req, res) => {
 app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
   const userId = req.session.user.id;
   console.log('[QRCODE] userId:', userId);
-  const instanceName = 'match-' + userId.replace(/[^a-z0-9]/gi, '').toLowerCase().substring(0, 20);
+  // Usa instância salva no user ou gera nova
+  const { lerUsuarios: _luQR } = require('./services/salvarUsuario');
+  const _usersQR = _luQR();
+  const _userQR = _usersQR.find(u => u.id === userId);
+  let instanceName = _userQR?.whatsappInstance || ('match-' + userId.replace(/[^a-z0-9]/gi, '').toLowerCase().substring(0, 20));
   const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
   const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
 
@@ -5752,6 +5756,26 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
     });
     const qrData = await qrRes.json();
     console.log('[QRCODE] instanceName:', instanceName, '| qrData keys:', Object.keys(qrData), '| base64 existe:', !!qrData.base64, '| code existe:', !!qrData.code);
+    // Se não gerou QR — instância travada, recria com nome novo
+    if (!qrData.base64 && !qrData.code) {
+      const novoNome = 'match-' + userId.replace(/[^a-z0-9]/gi,'').toLowerCase().substring(0,15) + '-' + Date.now().toString().slice(-4);
+      console.log('[QRCODE] instância travada, recriando como:', novoNome);
+      await fetch(EVOLUTION_URL + '/instance/delete/' + instanceName, { method: 'DELETE', headers: { 'apikey': EVOLUTION_KEY } }).catch(()=>{});
+      await new Promise(r => setTimeout(r, 1500));
+      await fetch(EVOLUTION_URL + '/instance/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
+        body: JSON.stringify({ instanceName: novoNome, integration: 'WHATSAPP-BAILEYS', webhook: { url: (process.env.BASE_URL || 'https://matchimoveis.onrender.com') + '/webhook/whatsapp', enabled: true, events: ['MESSAGES_UPSERT','CONNECTION_UPDATE'] } })
+      }).catch(()=>{});
+      await new Promise(r => setTimeout(r, 2000));
+      const qrRes2 = await fetch(EVOLUTION_URL + '/instance/connect/' + novoNome, { headers: { 'apikey': EVOLUTION_KEY } });
+      const qrData2 = await qrRes2.json();
+      if (qrData2.base64 || qrData2.code) {
+        instanceName = novoNome;
+        Object.assign(qrData, qrData2);
+        console.log('[QRCODE] nova instância gerou QR:', novoNome);
+      }
+    }
 
     // Salva instanceName no usuário
     const { lerUsuarios: _lerU, salvarTodosUsuarios: _salvarU } = require('./services/salvarUsuario');

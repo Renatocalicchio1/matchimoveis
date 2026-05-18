@@ -2467,7 +2467,23 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         });
         if (_userByPhone) _webhookUserId = _userByPhone.id;
       }
-      if (_webhookUserId) console.log('[WEBHOOK WA] userId identificado:', _webhookUserId);
+      if (_webhookUserId) {
+      console.log('[WEBHOOK WA] userId identificado:', _webhookUserId);
+      // Se lead existia e estava deletada por este userId — restaura
+      try {
+        const _leadsRestore = lerLeads();
+        const _tel = telefone;
+        const _idxRestore = _leadsRestore.findIndex(l => {
+          const t = String(l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,'');
+          return t.slice(-8) === _tel.slice(-8) && (l.deletadoPor||[]).includes(_webhookUserId);
+        });
+        if (_idxRestore >= 0) {
+          _leadsRestore[_idxRestore].deletadoPor = (_leadsRestore[_idxRestore].deletadoPor||[]).filter(u => u !== _webhookUserId);
+          await salvarTodosLeads(_leadsRestore);
+          console.log('[WEBHOOK WA] lead restaurada para:', _webhookUserId);
+        }
+      } catch(e) {}
+    }
       else console.warn('[WEBHOOK WA] userId NAO identificado | instance:', instance, '| telefone:', telefone);
     } catch(e) { console.error('[WEBHOOK WA] erro userId:', e.message); }
     // Se não identificou userId — tenta pelo número da instância diretamente

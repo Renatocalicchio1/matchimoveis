@@ -2680,7 +2680,7 @@ app.get('/app/mapa', auth, (req, res) => {
   imoveis.forEach(im => {
     if (!im.bairro && !im.cidade) return;
     const key = (im.bairro||'') + '|' + (im.cidade||'');
-    if (!mapa[key]) mapa[key] = { bairro: im.bairro||'', cidade: im.cidade||'', meus:[], parceiros:[] };
+    if (!mapa[key]) mapa[key] = { bairro: im.bairro||'', cidade: im.cidade||'', endereco: im.endereco||'', meus:[], parceiros:[] };
     if (im.userId === userId || im.codigoUsuario === userId || im.usuarioId === userId) {
       mapa[key].meus.push(im);
     } else {

@@ -39,8 +39,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Geocodifica bairro+cidade via Nominatim
-async function geocodificar(bairro, cidade) {
-  const q = encodeURIComponent((bairro ? bairro + ', ' : '') + cidade + ', Brasil');
+async function geocodificar(bairro, cidade, endereco) {
+  const partes = [endereco, bairro, cidade, 'Brasil'].filter(Boolean).join(', ');
+  const q = encodeURIComponent(partes);
   try {
     const r = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1', {
       headers: { 'Accept-Language': 'pt-BR' }
@@ -75,7 +76,7 @@ async function carregarMapa() {
   for (let i = 0; i < grupos.length; i++) {
     const g = grupos[i];
     await new Promise(r => setTimeout(r, 300)); // respeita limite Nominatim
-    const coords = await geocodificar(g.bairro, g.cidade);
+    const coords = await geocodificar(g.bairro, g.cidade, g.endereco);
     if (!coords) continue;
     bounds.push([coords.lat, coords.lng]);
     const total = g.meus.length + g.parceiros.length;

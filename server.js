@@ -5998,7 +5998,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
 
 app.get('/app/whatsapp/status', auth, async (req, res) => {
   const user = req.session.user;
-  const instanceName = user.whatsappInstance || ('match-' + user.id.replace(/[^a-z0-9]/gi, '').toLowerCase().substring(0, 20));
+  const { lerUsuarios: _luSt } = require("./services/salvarUsuario"); const _uSt = await _luSt(); const _uStFind = _uSt.find(u => u.id === req.session.user.id); const instanceName = _uStFind?.whatsappInstance || req.session.user.whatsappInstance || ("match-" + req.session.user.id.replace(/[^a-z0-9]/gi, "").toLowerCase().substring(0, 20));
   const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
   const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
 
@@ -6012,7 +6012,7 @@ app.get('/app/whatsapp/status', auth, async (req, res) => {
     // Atualiza status no users.json
     if (status === 'open') {
       const { lerUsuarios: _luS, salvarTodosUsuarios: _suS } = require('./services/salvarUsuario');
-      const users = _luS();
+      const users = await _luS();
       const idx = users.findIndex(u => u.id === user.id);
       if (idx >= 0) {
         users[idx].whatsappStatus = 'connected';

@@ -116,7 +116,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
         <% } %>
         <% } %>
         <% if(_copAcoes.includes('visita')) { %>
-        <a href="/app/visitas" style="background:#7c3aed;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none">Agendar visita</a>
+        <button onclick="abrirModalAgendarVisita()" style="background:#7c3aed;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;border:none;cursor:pointer">Agendar visita</button>
         <% } %>
         <% if(_copAcoes.includes('whatsapp')&&_fone) { %>
         <a href="https://wa.me/55<%=_fone%>" target="_blank" style="background:var(--dark);color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none">WhatsApp</a>
@@ -433,10 +433,79 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
   </div>
 </div>
 
+<!-- Modal Agendar Visita -->
+<div id="modal-agendar-visita" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:520px;padding:24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-size:15px;font-weight:600;color:#111">Agendar Visita</div>
+      <button onclick="fecharModalAgendarVisita()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">×</button>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Imóvel</label>
+      <select id="av-imovel" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e5e3;border-radius:8px;font-size:13px">
+        <option value="">Selecione um imóvel...</option>
+        <% (lead.matches||lead.matchesAuto||[]).forEach(m => { %>
+        <option value="<%= m.id||m.codigoInterno||'' %>" data-titulo="<%= (m.titulo||m.tipo||'Imóvel')+' · '+(m.bairro||'-') %>">
+          <%= (m.titulo||m.tipo||'Imóvel') %> · <%= m.bairro||'-' %> · <%= m.quartos||0 %>q
+        </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Data</label>
+        <input type="date" id="av-data" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e5e3;border-radius:8px;font-size:13px">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Hora</label>
+        <input type="time" id="av-hora" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e5e3;border-radius:8px;font-size:13px">
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px">Observações</label>
+      <textarea id="av-obs" rows="2" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e5e3;border-radius:8px;font-size:13px;resize:none" placeholder="Alguma observação para a visita..."></textarea>
+    </div>
+
+    <div style="display:flex;gap:8px">
+      <button onclick="confirmarAgendarVisita('<%= lead.id %>','<%= lead.nome||lead.telefone %>','<%= (lead.telefone||lead.whatsapp||'').replace(/\D/g,'') %>')" style="flex:1;padding:10px;border-radius:8px;background:#7c3aed;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer">Agendar</button>
+      <button onclick="fecharModalAgendarVisita()" style="padding:10px 16px;border-radius:8px;background:#f9fafb;color:#6b7280;border:1px solid #e5e5e3;font-size:13px;cursor:pointer">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 function abrirFormImovelVendedor(){
   const f = document.getElementById('form-imovel-vendedor');
   if(f) f.style.display = f.style.display==='none'?'block':'none';
+}
+function abrirModalAgendarVisita(){
+  document.getElementById('modal-agendar-visita').style.display='flex';
+  // preenche data de hoje
+  const hoje = new Date().toISOString().split('T')[0];
+  document.getElementById('av-data').value = hoje;
+}
+function fecharModalAgendarVisita(){
+  document.getElementById('modal-agendar-visita').style.display='none';
+}
+async function confirmarAgendarVisita(leadId, nome, telefone){
+  const imovelId = document.getElementById('av-imovel').value;
+  const data = document.getElementById('av-data').value;
+  const hora = document.getElementById('av-hora').value;
+  const obs = document.getElementById('av-obs').value;
+  if(!imovelId) return alert('Selecione um imóvel');
+  if(!data) return alert('Informe a data');
+  if(!hora) return alert('Informe o horário');
+  const r = await fetch('/app/visita/agendar-corretor', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ leadId, imovelId, nome, telefone, dataVisita:data, horaVisita:hora, obs })
+  });
+  const d = await r.json();
+  if(d.ok){ fecharModalAgendarVisita(); location.reload(); }
+  else alert('Erro: '+d.erro);
 }
 function abrirModalCadastroImovel(){
   document.getElementById('modal-cadastro-imovel').style.display='flex';

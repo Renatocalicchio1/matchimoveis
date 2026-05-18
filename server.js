@@ -6203,3 +6203,53 @@ app.get('/admin/reprocessar-perfis', async (req, res) => {
     res.status(500).json({ erro: e.message });
   }
 });
+
+// ── AGENDAR VISITA PELO CORRETOR ─────────────────────────────
+app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    const { leadId, imovelId, nome, telefone, dataVisita, horaVisita, obs } = req.body;
+    if (!imovelId || !dataVisita || !horaVisita) return res.status(400).json({ erro: 'dados incompletos' });
+    const imoveis = JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8'));
+    const imovel = imoveis.find(i => String(i.id||i.codigoInterno||'') === String(imovelId));
+    if (!imovel) return res.status(404).json({ erro: 'imovel nao encontrado' });
+    const novaVisita = {
+      id: String(Date.now()),
+      leadId,
+      nome: nome || '',
+      telefone: (telefone||'').replace(/\D/g,''),
+      contato: (telefone||'').replace(/\D/g,''),
+      imovelId,
+      imovelTitulo: imovel.titulo || imovel.tipo || 'Imóvel',
+      imovelBairro: imovel.bairro || '',
+      dataVisita,
+      horaVisita,
+      obs: obs || '',
+      userId: uid,
+      corretorId: uid,
+      ownerUserId: uid,
+      imovelUsuarioId: imovel.userId || imovel.codigoUsuario || uid,
+      proprietarioNome: (imovel.proprietario && imovel.proprietario.nome) || '',
+      proprietarioTelefone: ((imovel.proprietario && (imovel.proprietario.celular||imovel.proprietario.telefone))||'').replace(/\D/g,''),
+      status: 'solicitada',
+      origem: 'corretor_manual',
+      data: new Date().toISOString(),
+      data_br: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
+    };
+    await salvarTodasVisitas([...lerVisitas(req.session.user), novaVisita]);
+    // Marca lead como visitaAgendada
+    if (leadId) {
+      const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
+      const idx = leads.findIndex(l => String(l.id) === String(leadId));
+      if (idx >= 0) {
+        leads[idx].visitaAgendada = true;
+        leads[idx].visitaAgendadaEm = new Date().toISOString();
+        await salvarTodosLeads(leads);
+      }
+    }
+    console.log('[VISITA] agendada pelo corretor | lead:', leadId, '| imovel:', imovelId);
+    res.json({ ok: true, visita: novaVisita });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});

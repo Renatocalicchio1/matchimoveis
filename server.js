@@ -3201,7 +3201,17 @@ app.get('/app/lead/:id', auth, async (req, res) => {
   let matchesInternos = [];
   try {
     const { buscarMatchesBaseInterna } = require('./matchBaseInterna');
-    matchesInternos = buscarMatchesBaseInterna(lead, imoveisInternos);
+    // Enriquece lead com dados do perfilIA antes do match
+    const leadParaMatch = {
+      ...lead,
+      bairro: lead.perfilIA?.bairro || lead.bairro || '',
+      tipo: lead.perfilIA?.tipo || lead.tipo || '',
+      quartos: lead.perfilIA?.quartos || lead.quartos || 0,
+      valorMax: lead.perfilIA?.valorMax || lead.valorMax || 0,
+      cidade: lead.perfilIA?.cidade || lead.cidade || '',
+      estado: lead.perfilIA?.estado || lead.estado || ''
+    };
+    matchesInternos = buscarMatchesBaseInterna(leadParaMatch, imoveisInternos);
 
     lead.matches = (matchesInternos || []).map((m,idx) => {
       const score = Number(m.score || m.bestScore || m.matchScore || m.pontuacao || 0);

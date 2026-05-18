@@ -87,14 +87,25 @@ function normalizar(txt) {
 }
 
 function extrairNumero(txt, palavras) {
+  // Converte números por extenso
+  const extenso = {
+    'um':1,'uma':1,'hum':1,'huma':1,
+    'dois':2,'duas':2,
+    'tres':3,'três':3,
+    'quatro':4,'cinco':5,'seis':6,'sete':7,'oito':8,'nove':9,'dez':10
+  };
+  let txtNorm = txt;
+  for (const [ext, num] of Object.entries(extenso)) {
+    txtNorm = txtNorm.replace(new RegExp('\\b' + ext + '\\b', 'gi'), num);
+  }
   for (const p of palavras) {
     const re = new RegExp(p + '\\s*[:]?\\s*(\\d+)', 'i');
-    const m = txt.match(re);
+    const m = txtNorm.match(re);
     if (m) return parseInt(m[1]);
   }
   for (const p of palavras) {
     const re = new RegExp('(\\d+)\\s*' + p, 'i');
-    const m = txt.match(re);
+    const m = txtNorm.match(re);
     if (m) return parseInt(m[1]);
   }
   return null;

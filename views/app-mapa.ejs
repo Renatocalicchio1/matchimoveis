@@ -1,25 +1,39 @@
-<%- include("partials/app-shell",{active:"mapa",user:user,title:"Mapa de Imóveis"}) %>
+<%- include("partials/app-shell",{active:"mapa",user:user,title:"Mapa Operacional"}) %>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <div style="position:relative;margin:-20px;height:calc(100vh - 60px)">
-  <div style="position:absolute;top:12px;left:12px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:13px;color:#111">
-    <strong id="qtd">0</strong> bairros no mapa
+
+  <!-- Toggles -->
+  <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;border-radius:12px;padding:6px;box-shadow:0 2px 12px rgba(0,0,0,.12);display:flex;gap:4px">
+    <button onclick="toggle('imoveis')" id="btn-imoveis" style="padding:8px 14px;border-radius:8px;border:none;background:#FF385C;color:#fff;font-size:12px;font-weight:600;cursor:pointer">🏠 Imóveis</button>
+    <button onclick="toggle('visitas')" id="btn-visitas" style="padding:8px 14px;border-radius:8px;border:none;background:#f3f4f6;color:#666;font-size:12px;font-weight:600;cursor:pointer">📅 Visitas hoje</button>
+    <button onclick="toggle('leads')" id="btn-leads" style="padding:8px 14px;border-radius:8px;border:none;background:#f3f4f6;color:#666;font-size:12px;font-weight:600;cursor:pointer">👤 Leads</button>
   </div>
-  <div style="position:absolute;top:12px;right:12px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:12px">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:12px;height:12px;border-radius:50%;background:#FF385C"></div>Meus</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:12px;height:12px;border-radius:50%;background:#6366f1"></div>Parceiros</div>
-    <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border-radius:50%;background:#f59e0b"></div>Ambos</div>
+
+  <!-- Contador -->
+  <div style="position:absolute;top:12px;left:12px;z-index:1000;background:#fff;border-radius:10px;padding:8px 12px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:12px;color:#111" id="contador">
+    carregando...
   </div>
+
+  <!-- Legenda -->
+  <div style="position:absolute;bottom:20px;right:12px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:12px" id="legenda">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#FF385C"></div>Meus imóveis</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#6366f1"></div>Parceiros</div>
+    <div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></div>Ambos</div>
+  </div>
+
   <div id="mapa" style="width:100%;height:100%"></div>
 </div>
 
 <script>
-const _grupos = <%- gruposJSON %>;
+const _grupos  = <%- gruposJSON %>;
+const _visitas = <%- visitasJSON %>;
+const _leads   = <%- leadsJSON %>;
 const _uLat = <%= user.lat || -26.9543 %>;
 const _uLng = <%= user.lng || -48.6419 %>;
+const _hoje = '<%= hoje %>';
 
-// Coordenadas hardcoded das principais cidades
 const _cidadeCoords = {
   'itajai':{lat:-26.9078,lng:-48.6619},'itajaí':{lat:-26.9078,lng:-48.6619},
   'balneario camboriu':{lat:-26.9906,lng:-48.6348},'balneário camboriú':{lat:-26.9906,lng:-48.6348},
@@ -33,68 +47,144 @@ const _cidadeCoords = {
   'sao paulo':{lat:-23.5505,lng:-46.6333},'são paulo':{lat:-23.5505,lng:-46.6333},
   'rio de janeiro':{lat:-22.9068,lng:-43.1729},
   'curitiba':{lat:-25.4290,lng:-49.2671},
-  'belo horizonte':{lat:-19.9167,lng:-43.9345},
-  'brasilia':{lat:-15.7797,lng:-47.9297},'brasília':{lat:-15.7797,lng:-47.9297},
 };
 
-// Offset por bairro para não sobrepor pins na mesma cidade
+const _norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+
+function _coords(bairro, cidade) {
+  return _cidadeCoords[_norm(cidade)] || _cidadeCoords[_norm(bairro)] || null;
+}
+
 const _offsets = {};
-function _offset(cidade) {
-  _offsets[cidade] = (_offsets[cidade]||0) + 1;
-  const n = _offsets[cidade];
+function _offset(key) {
+  _offsets[key] = (_offsets[key]||0) + 1;
+  const n = _offsets[key];
   const ang = (n * 137.5) * Math.PI/180;
-  const r = 0.005 * Math.ceil(n/8);
+  const r = 0.004 * Math.ceil(n/8);
   return {dlat: r*Math.sin(ang), dlng: r*Math.cos(ang)};
 }
 
-const _map = L.map('mapa').setView([_uLat,_uLng],11);
+const _map = L.map('mapa').setView([_uLat,_uLng],12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(_map);
 
 // Pin usuário
-L.marker([_uLat,_uLng],{icon:L.divIcon({className:'',html:'<div style="background:#FF385C;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.3);border:2px solid #fff">📍</div>',iconSize:[34,34],iconAnchor:[17,17]})}).addTo(_map).bindPopup('<b>Você está aqui</b>');
+L.marker([_uLat,_uLng],{zIndexOffset:1000,icon:L.divIcon({className:'',html:'<div style="background:#FF385C;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.3);border:2px solid #fff">📍</div>',iconSize:[34,34],iconAnchor:[17,17]})}).addTo(_map).bindPopup('<b>Você está aqui</b>');
 
-function _icone(cor,n){
-  return L.divIcon({className:'',html:'<div style="background:'+cor+';color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid #fff">'+n+'</div>',iconSize:[36,36],iconAnchor:[18,18]});
+function _icone(emoji, cor, n) {
+  return L.divIcon({className:'',html:'<div style="background:'+cor+';color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:'+(n?'12px':'16px')+';font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid #fff">'+(n||emoji)+'</div>',iconSize:[36,36],iconAnchor:[18,18]});
 }
 
-let ok=0;
+// Camadas
+const _layers = { imoveis: L.layerGroup(), visitas: L.layerGroup(), leads: L.layerGroup() };
+const _ativos = { imoveis: true, visitas: false, leads: false };
+
+// IMÓVEIS
+const _imoveisOffsets = {};
 _grupos.forEach(g => {
-  const cidNorm = (g.cidade||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  const base = _cidadeCoords[cidNorm] || _cidadeCoords[(g.cidade||'').toLowerCase()];
+  const base = _coords(g.bairro, g.cidade);
   if(!base) return;
-  const off = _offset(cidNorm);
-  const lat = base.lat + off.dlat;
-  const lng = base.lng + off.dlng;
-  const tot = g.meus.length + g.parceiros.length;
+  const key = _norm(g.cidade);
+  _imoveisOffsets[key] = (_imoveisOffsets[key]||0)+1;
+  const n = _imoveisOffsets[key];
+  const ang = (n*137.5)*Math.PI/180, r=0.004*Math.ceil(n/8);
+  const lat = base.lat + r*Math.sin(ang);
+  const lng = base.lng + r*Math.cos(ang);
+  const tot = g.meus.length+g.parceiros.length;
   const cor = g.meus.length>0&&g.parceiros.length===0?'#FF385C':g.meus.length===0?'#6366f1':'#f59e0b';
-  const mk = L.marker([lat,lng],{icon:_icone(cor,tot)}).addTo(_map);
-  // Monta lista de imóveis do bairro
+  const mk = L.marker([lat,lng],{icon:_icone('🏠',cor,tot)});
   const todos = [...g.meus.map(i=>({...i,_meu:true})),...g.parceiros.map(i=>({...i,_meu:false}))].slice(0,5);
   const lista = todos.map(i=>
-    '<div style="padding:8px 0;border-bottom:1px solid #f3f4f6">'+
-    '<div style="font-size:13px;font-weight:600;color:#111">'+(i.titulo||i.tipo||'Imóvel')+'</div>'+
-    '<div style="font-size:12px;color:#666;margin-top:2px">'+
-      (i.quartos?i.quartos+'q ':'')+
-      (i.area_m2?i.area_m2+'m² ':'')+ 
-      (i.vagas?i.vagas+' vaga(s) ':'')+
-    '</div>'+
-    '<div style="font-size:13px;font-weight:700;color:'+(i._meu?'#FF385C':'#6366f1')+';margin-top:2px">'+
-      (i.valor_imovel?'R$'+Number(i.valor_imovel).toLocaleString('pt-BR'):'Consultar')+
-    '</div>'+
+    '<div style="padding:6px 0;border-bottom:1px solid #f3f4f6">'+
+    '<div style="font-size:12px;font-weight:600;color:#111">'+(i.titulo||i.tipo||'Imóvel')+'</div>'+
+    '<div style="font-size:11px;color:#888">'+(i.quartos?i.quartos+'q ':'')+(i.area_m2?i.area_m2+'m² ':'')+(i.vagas?i.vagas+' vg':'')+'</div>'+
+    '<div style="font-size:12px;font-weight:700;color:'+(i._meu?'#FF385C':'#6366f1')+'">'+(i.valor_imovel?'R$'+Number(i.valor_imovel).toLocaleString('pt-BR'):'Consultar')+'</div>'+
     '</div>'
   ).join('');
-  mk.bindPopup(
-    '<div style="padding:10px;min-width:220px;max-width:280px">'+
-    '<b style="font-size:14px">'+(g.bairro||g.cidade)+'</b>'+
-    '<div style="font-size:11px;color:#888;margin-bottom:8px">'+g.cidade+' · '+tot+' imóvel(is)</div>'+
-    lista+
-    (tot>5?'<div style="font-size:11px;color:#888;margin-top:6px">+mais '+(tot-5)+' imóveis</div>':'')+
-    '</div>',
-    {maxWidth:300}
-  );
-  ok++;
+  mk.bindPopup('<div style="padding:10px;min-width:220px"><b>'+(g.bairro||g.cidade)+'</b><div style="font-size:11px;color:#888;margin-bottom:6px">'+g.cidade+' · '+tot+' imóvel(is)</div>'+lista+(tot>5?'<div style="font-size:11px;color:#888;margin-top:4px">+mais '+(tot-5)+'</div>':'')+'</div>',{maxWidth:280});
+  _layers.imoveis.addLayer(mk);
 });
-document.getElementById('qtd').textContent = ok;
+
+// VISITAS DO DIA
+const _visitasOffsets = {};
+_visitas.forEach((v,idx) => {
+  const bairro = v.imovelBairro||'';
+  const cidade = v.imovelCidade||'Itajaí';
+  const base = _coords(bairro, cidade) || {lat:_uLat,lng:_uLng};
+  const key = _norm(cidade)+bairro;
+  _visitasOffsets[key] = (_visitasOffsets[key]||0)+1;
+  const n = _visitasOffsets[key];
+  const ang = (n*90)*Math.PI/180, r=0.003*n;
+  const lat = base.lat+r*Math.sin(ang);
+  const lng = base.lng+r*Math.cos(ang);
+  const cor = v.status==='confirmada'?'#22c55e':v.status==='solicitada'?'#f59e0b':'#6366f1';
+  const mk = L.marker([lat,lng],{icon:_icone('📅',cor,idx+1)});
+  mk.bindPopup(
+    '<div style="padding:10px;min-width:200px">'+
+    '<div style="font-size:13px;font-weight:700;color:#111">'+(idx+1)+'ª visita · '+(v.horaVisita||'')+'</div>'+
+    '<div style="font-size:12px;color:#666;margin:4px 0">'+(v.imovelTitulo||'Imóvel')+'</div>'+
+    '<div style="font-size:12px;color:#888">'+(bairro?bairro+' · ':'')+cidade+'</div>'+
+    '<div style="font-size:12px;margin-top:6px"><b>Lead:</b> '+(v.nome||v.telefone||'-')+'</div>'+
+    '<div style="font-size:11px;margin-top:4px;padding:3px 8px;border-radius:999px;background:'+(cor)+'20;color:'+cor+';display:inline-block">'+v.status+'</div>'+
+    '</div>',{maxWidth:260}
+  );
+  _layers.visitas.addLayer(mk);
+});
+
+// LEADS
+const _leadsOffsets = {};
+_leads.forEach(l => {
+  const base = _coords(l.bairro, l.cidade);
+  if(!base) return;
+  const key = _norm(l.cidade||'')+l.bairro;
+  _leadsOffsets[key] = (_leadsOffsets[key]||0)+1;
+  const n = _leadsOffsets[key];
+  const ang = (n*120)*Math.PI/180, r=0.003*n;
+  const lat = base.lat+r*Math.sin(ang);
+  const lng = base.lng+r*Math.cos(ang);
+  const cor = l.temperatura==='quente'?'#ef4444':l.temperatura==='morno'?'#f59e0b':'#94a3b8';
+  const mk = L.marker([lat,lng],{icon:_icone('👤',cor,null)});
+  mk.bindPopup(
+    '<div style="padding:10px;min-width:180px">'+
+    '<div style="font-size:13px;font-weight:700;color:#111">'+(l.nome||l.telefone)+'</div>'+
+    '<div style="font-size:12px;color:#666;margin:4px 0">'+(l.bairro?l.bairro+' · ':'')+l.cidade+'</div>'+
+    '<div style="font-size:12px">Score: <b>'+l.score+'</b> · '+l.matchCount+' matches</div>'+
+    '<div style="font-size:11px;margin-top:4px;padding:3px 8px;border-radius:999px;background:'+cor+'20;color:'+cor+';display:inline-block">'+l.temperatura+'</div>'+
+    '</div>',{maxWidth:240}
+  );
+  _layers.leads.addLayer(mk);
+});
+
+// Adiciona camada ativa
+_layers.imoveis.addTo(_map);
+
+function toggle(camada) {
+  _ativos[camada] = !_ativos[camada];
+  if(_ativos[camada]) _layers[camada].addTo(_map);
+  else _map.removeLayer(_layers[camada]);
+  // Atualiza botões
+  const cores = {imoveis:'#FF385C', visitas:'#22c55e', leads:'#6366f1'};
+  Object.keys(_ativos).forEach(k => {
+    const btn = document.getElementById('btn-'+k);
+    btn.style.background = _ativos[k] ? cores[k] : '#f3f4f6';
+    btn.style.color = _ativos[k] ? '#fff' : '#666';
+  });
+  // Atualiza contador
+  const ni = _layers.imoveis.getLayers().length;
+  const nv = _layers.visitas.getLayers().length;
+  const nl = _layers.leads.getLayers().length;
+  document.getElementById('contador').textContent = 
+    (_ativos.imoveis?ni+' bairros ':'')+
+    (_ativos.visitas?nv+' visitas hoje ':'')+
+    (_ativos.leads?nl+' leads':'');
+  // Atualiza legenda
+  const leg = document.getElementById('legenda');
+  if(_ativos.imoveis) leg.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#FF385C"></div>Meus</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#6366f1"></div>Parceiros</div><div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></div>Ambos</div>';
+  else if(_ativos.visitas) leg.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#22c55e"></div>Confirmada</div><div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></div>Pendente</div>';
+  else if(_ativos.leads) leg.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#ef4444"></div>Quente</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></div>Morno</div><div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:#94a3b8"></div>Frio</div>';
+}
+
+// Contador inicial
+document.getElementById('contador').textContent = _layers.imoveis.getLayers().length+' bairros';
 </script>
 
 <%- include('partials/app-end') %>

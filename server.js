@@ -5926,7 +5926,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
   console.log('[QRCODE] userId:', userId);
   // Usa instância salva no user ou gera nova
   const { lerUsuarios: _luQR } = require('./services/salvarUsuario');
-  const _usersQR = _luQR();
+  const _usersQR = await _luQR();
   const _userQR = _usersQR.find(u => u.id === userId);
   let instanceName = _userQR?.whatsappInstance || ('match-' + userId.replace(/[^a-z0-9]/gi, '').toLowerCase().substring(0, 20));
   const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';

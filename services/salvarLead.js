@@ -10,7 +10,14 @@ function dataPath() {
 function lerLeads(userId) {
   const todos = lerJSON(dataPath(), []);
   if (!userId) return todos;
-  return todos.filter(l => l.userId === userId || l.codigoUsuario === userId || l.corretorId === userId);
+  return todos.filter(l => {
+    // Pertence ao usuário
+    const pertence = l.userId === userId || l.codigoUsuario === userId || l.corretorId === userId;
+    if (!pertence) return false;
+    // Não foi deletada por este usuário
+    if (l.deletadoPor && l.deletadoPor.includes(userId)) return false;
+    return true;
+  });
 }
 
 async function salvarLead(lead) {

@@ -226,11 +226,6 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <div class="ld-title">Timeline de eventos</div>
       <%
       const tlEventos = [];
-      if(lead.mensagens&&lead.mensagens.length) {
-        lead.mensagens.slice(-10).forEach(m => {
-          tlEventos.push({ ic: m.de==='cliente'?'💬':'📤', acao: m.de==='cliente'?'Mensagem recebida':'Mensagem enviada', det: (m.texto||'').substring(0,60), data: m.timestamp||'' });
-        });
-      }
       if(lead.matchAutoEm) tlEventos.push({ ic:'🎯', acao:'Match automático gerado', det:(lead.matchesAuto||[]).length+' imóveis compatíveis', data:lead.matchAutoEm });
       if((lead.matches||[]).length) tlEventos.push({ ic:'✅', acao:'Match base interna', det:(lead.matches||[]).length+' imóveis', data:lead.matchAtualizadoEm||lead.createdAt||'' });
       if(lead.imovel_interesse) tlEventos.push({ ic:'🏠', acao:'Interesse em imóvel', det:'#'+lead.imovel_interesse, data:lead.createdAt||lead.data_cadastro||'' });
@@ -238,6 +233,21 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
         visitasDaLead.forEach(v => tlEventos.push({ ic:'📅', acao:'Visita agendada', det:'Imóvel #'+(v.imovelId||'-')+' — '+v.status, data:v.createdAt||v.data||'' }));
       }
       if(lead.scoreAtualizadoEm) tlEventos.push({ ic:'⚡', acao:'Score atualizado', det:'Score: '+(lead.score||0), data:lead.scoreAtualizadoEm });
+      if(lead.criadoEm||lead.data_cadastro) tlEventos.push({ ic:'🆕', acao:'Lead criada', det:'Origem: '+(lead.origem||'manual'), data:lead.criadoEm||lead.data_cadastro||'' });
+      if(lead.vitrineEnviadaEm) tlEventos.push({ ic:'🏪', acao:'Vitrine enviada', det:(lead.matchCount||0)+' imóveis na vitrine', data:lead.vitrineEnviadaEm });
+      if(lead.tipoLead && lead.tipoLeadAtualizadoEm) tlEventos.push({ ic:'🏷️', acao:'Lead classificada', det:lead.tipoLead==='vendedor'?'Tem imóvel para vender':lead.tipoLead==='corretor'?'Corretor parceiro':'Buscando imóvel', data:lead.tipoLeadAtualizadoEm });
+      if(lead.imovelVendedor&&lead.imovelVendedor.cadastradoEm) tlEventos.push({ ic:'🏠', acao:'Imóvel do cliente cadastrado', det:(lead.imovelVendedor.tipo||'')+' em '+(lead.imovelVendedor.bairro||'-'), data:lead.imovelVendedor.cadastradoEm });
+      if(lead.cicloAnterior) tlEventos.push({ ic:'🔄', acao:'Novo ciclo de busca', det:'Continuação de lead anterior', data:lead.criadoEm||'' });
+      (lead.historico||[]).filter(h=>h.acao!=='visualizou_detalhes_lead').forEach(h => tlEventos.push({ ic:'📋', acao:h.acao, det:'', data:h.data||'' }));
+      if(lead.criadoEm||lead.data_cadastro) tlEventos.push({ ic:'🆕', acao:'Lead criada', det:'Origem: '+(lead.origem||'manual'), data:lead.criadoEm||lead.data_cadastro||'' });
+      if(lead.vitrineEnviadaEm) tlEventos.push({ ic:'🏪', acao:'Vitrine enviada', det:(lead.matchCount||0)+' imóveis na vitrine', data:lead.vitrineEnviadaEm });
+      if(lead.tipoLead && lead.tipoLeadAtualizadoEm) tlEventos.push({ ic:'🏷️', acao:'Lead classificada', det:lead.tipoLead==='vendedor'?'Tem imóvel para vender':lead.tipoLead==='corretor'?'Corretor parceiro':'Buscando imóvel', data:lead.tipoLeadAtualizadoEm });
+      if(lead.imovelVendedor && lead.imovelVendedor.cadastradoEm) tlEventos.push({ ic:'🏠', acao:'Imóvel do cliente cadastrado', det:(lead.imovelVendedor.tipo||'')+ ' em '+(lead.imovelVendedor.bairro||'-'), data:lead.imovelVendedor.cadastradoEm });
+      if(lead.cicloAnterior) tlEventos.push({ ic:'🔄', acao:'Novo ciclo de busca', det:'Lead anterior: '+lead.cicloAnterior, data:lead.criadoEm||'' });
+      if(lead.faseFunil) tlEventos.push({ ic:'📊', acao:'Fase do funil', det:lead.faseFunil, data:lead.memoriaOperacional&&lead.memoriaOperacional.atualizadoEm||'' });
+      (lead.historico||[]).forEach(h => {
+        if(h.acao !== 'visualizou_detalhes_lead') tlEventos.push({ ic:'📋', acao:h.acao, det:'', data:h.data||'' });
+      });
       tlEventos.sort((a,b) => new Date(b.data||0)-new Date(a.data||0));
       %>
       <% if(tlEventos.length) { %>

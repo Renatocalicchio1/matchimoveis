@@ -2668,6 +2668,29 @@ app.post('/process', upload.any(), async (req, res) => {
 });
 
 // ====== ROTA MAPA ======
+app.get('/app/mapa', auth, (req, res) => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const DATA_DIR2 = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
+  const imoveisPath = path2.join(DATA_DIR2, 'imoveis.json');
+  const imoveis = fs2.existsSync(imoveisPath) ? JSON.parse(fs2.readFileSync(imoveisPath,'utf8')) : [];
+  const userId = req.session.user.id;
+  // Agrupa por bairro+cidade
+  const mapa = {};
+  imoveis.forEach(im => {
+    if (!im.bairro && !im.cidade) return;
+    const key = (im.bairro||'') + '|' + (im.cidade||'');
+    if (!mapa[key]) mapa[key] = { bairro: im.bairro||'', cidade: im.cidade||'', meus:[], parceiros:[] };
+    if (im.userId === userId || im.codigoUsuario === userId || im.usuarioId === userId) {
+      mapa[key].meus.push(im);
+    } else {
+      mapa[key].parceiros.push(im);
+    }
+  });
+  const grupos = Object.values(mapa).filter(g => g.meus.length + g.parceiros.length > 0);
+  res.render('app-mapa', { user: req.session.user, gruposJSON: JSON.stringify(grupos), total: imoveis.length });
+});
+
 app.get('/mapa', (req, res) => {
   const imoveis = loadImoveis();
   const { tipo } = req.query;

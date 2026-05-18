@@ -1,0 +1,94 @@
+<%- include("partials/app-shell",{active:"mapa",user:user,title:"Mapa de Imóveis"}) %>
+
+<div style="margin:-20px;height:calc(100vh - 60px);position:relative">
+
+  <!-- Legenda -->
+  <div style="position:absolute;top:16px;right:16px;z-index:1000;background:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 2px 12px rgba(0,0,0,.1);font-size:12px">
+    <div style="font-weight:600;margin-bottom:8px;color:#111">Legenda</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <div style="width:14px;height:14px;border-radius:50%;background:#FF385C"></div>
+      <span style="color:#555">Meus imóveis</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:14px;height:14px;border-radius:50%;background:#6366f1"></div>
+      <span style="color:#555">Parceiros</span>
+    </div>
+  </div>
+
+  <!-- Contador -->
+  <div style="position:absolute;top:16px;left:16px;z-index:1000;background:#fff;border-radius:12px;padding:10px 16px;box-shadow:0 2px 12px rgba(0,0,0,.1);font-size:13px;color:#111">
+    <strong><%= total %></strong> imóveis em <strong id="qtd-bairros">0</strong> bairros
+  </div>
+
+  <div id="mapa" style="width:100%;height:100%"></div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+
+<script>
+const grupos = <%- gruposJSON %>;
+document.getElementById('qtd-bairros').textContent = grupos.length;
+
+const map = L.map('mapa').setView([-23.55, -46.63], 10);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+// Geocodifica bairro+cidade via Nominatim
+async function geocodificar(bairro, cidade) {
+  const q = encodeURIComponent((bairro ? bairro + ', ' : '') + cidade + ', Brasil');
+  try {
+    const r = await fetch('https://nominatim.openstreetmap.org/search?q=' + q + '&format=json&limit=1', {
+      headers: { 'Accept-Language': 'pt-BR' }
+    });
+    const d = await r.json();
+    if (d && d[0]) return { lat: parseFloat(d[0].lat), lng: parseFloat(d[0].lon) };
+  } catch(e) {}
+  return null;
+}
+
+function criarIcone(cor, total) {
+  return L.divIcon({
+    className: '',
+    html: '<div style="background:' + cor + ';color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.3);border:2px solid #fff">' + total + '</div>',
+    iconSize: [36, 36],
+    iconAnchor: [18, 18]
+  });
+}
+
+function popupHTML(g) {
+  return '<div style="padding:12px;min-width:180px">' +
+    '<div style="font-weight:700;font-size:14px;color:#111;margin-bottom:4px">' + (g.bairro || g.cidade) + '</div>' +
+    '<div style="font-size:12px;color:#666;margin-bottom:10px">' + g.cidade + '</div>' +
+    (g.meus.length ? '<div style="font-size:12px;margin-bottom:4px"><span style="color:#FF385C;font-weight:600">●</span> <strong>' + g.meus.length + '</strong> seus imóveis</div>' : '') +
+    (g.parceiros.length ? '<div style="font-size:12px"><span style="color:#6366f1;font-weight:600">●</span> <strong>' + g.parceiros.length + '</strong> de parceiros</div>' : '') +
+    '</div>';
+}
+
+// Processa grupos em lotes para não sobrecarregar Nominatim
+async function carregarMapa() {
+  const bounds = [];
+  for (let i = 0; i < grupos.length; i++) {
+    const g = grupos[i];
+    await new Promise(r => setTimeout(r, 300)); // respeita limite Nominatim
+    const coords = await geocodificar(g.bairro, g.cidade);
+    if (!coords) continue;
+    bounds.push([coords.lat, coords.lng]);
+    const total = g.meus.length + g.parceiros.length;
+    const cor = g.meus.length > 0 && g.parceiros.length === 0 ? '#FF385C' :
+                g.meus.length === 0 ? '#6366f1' : '#f59e0b';
+    const marker = L.marker([coords.lat, coords.lng], { icon: criarIcone(cor, total) });
+    marker.bindPopup(popupHTML(g));
+    marker.addTo(map);
+  }
+  if (bounds.length > 0) map.fitBounds(bounds, { padding: [40, 40] });
+}
+
+carregarMapa();
+</script>
+
+<%- include('partials/app-end') %>

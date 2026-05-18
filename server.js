@@ -6271,3 +6271,45 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
     res.status(500).json({ erro: e.message });
   }
 });
+
+// ── DIAGNÓSTICO COMPLETO ─────────────────────────────────────
+app.get('/admin/diagnostico-completo', (req, res) => {
+  try {
+    const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
+    const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'));
+    const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
+    const resultado = {};
+    users.forEach(u => {
+      const minhasLeads = leads.filter(l => String(l.userId||l.codigoUsuario||l.corretorId||'') === String(u.id));
+      const minhasVisitas = visitas.filter(v => String(v.userId||v.ownerUserId||v.corretorId||'') === String(u.id));
+      resultado[u.id] = {
+        nome: u.nome,
+        leads: {
+          total: minhasLeads.length,
+          por_status: {
+            novo: minhasLeads.filter(l => !l.faseFunil || l.faseFunil==='novo').length,
+            qualificando: minhasLeads.filter(l => l.faseFunil==='qualificado').length,
+            interessado: minhasLeads.filter(l => l.faseFunil==='interessado').length,
+            fechado: minhasLeads.filter(l => l.faseFunil==='decidido').length,
+          },
+          deletados: minhasLeads.filter(l => (l.deletadoPor||[]).includes(u.id)).length,
+          com_match: minhasLeads.filter(l => (l.matches||l.matchesAuto||[]).length > 0).length,
+          vitrine_enviada: minhasLeads.filter(l => l.vitrineEnviada).length,
+          visita_agendada: minhasLeads.filter(l => l.visitaAgendada).length,
+          corretor: minhasLeads.filter(l => l.tipoLead==='corretor').length,
+          vendedor: minhasLeads.filter(l => l.tipoLead==='vendedor').length,
+        },
+        visitas: {
+          total: minhasVisitas.length,
+          solicitada: minhasVisitas.filter(v => v.status==='solicitada').length,
+          confirmada: minhasVisitas.filter(v => v.status==='confirmada').length,
+          realizada: minhasVisitas.filter(v => v.status==='realizada').length,
+          cancelada: minhasVisitas.filter(v => v.status==='cancelada').length,
+        }
+      };
+    });
+    res.json({ ok: true, contas: resultado, total_leads: leads.length, total_visitas: visitas.length });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});

@@ -98,6 +98,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
         <% if(_p.tipo){%><span class="tag-pill" style="background:var(--bg);color:var(--text)"><%=_p.tipo%></span><%}%>
         <% if(_p.quartos){%><span class="tag-pill" style="background:var(--bg);color:var(--text)"><%=_p.quartos%>q</span><%}%>
         <% if(_p.bairro){%><span class="tag-pill" style="background:#f0fdf4;color:#15803d"><%=_p.bairro%></span><%}%>
+        <% if(_p.rua){%><span class="tag-pill" style="background:#f0fdf4;color:#15803d"><%=_p.rua%></span><%}%>
         <% if(_p.valorMax){%><span class="tag-pill" style="background:#f0fdf4;color:#15803d">até R$<%=Math.round(Number(_p.valorMax)/1000)%>k</span><%}%>
         <% if(_p.urgencia==='alta'){%><span class="tag-pill" style="background:#fef2f2;color:#dc2626">urgente</span><%}%>
       </div>
@@ -157,6 +158,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
         <% if(_p.banheiros){%><div class="perfil-item"><div class="perfil-item-lbl">Banheiros</div><div class="perfil-item-val"><%=_p.banheiros%></div></div><%}%>
         <% if(_p.area){%><div class="perfil-item"><div class="perfil-item-lbl">Área</div><div class="perfil-item-val"><%=_p.area%>m²</div></div><%}%>
         <% if(_p.bairro){%><div class="perfil-item"><div class="perfil-item-lbl">Bairro</div><div class="perfil-item-val"><%=_p.bairro%></div></div><%}%>
+        <% if(_p.rua){%><div class="perfil-item"><div class="perfil-item-lbl">Rua</div><div class="perfil-item-val"><%=_p.rua%></div></div><%}%>
         <% if(_p.cidade){%><div class="perfil-item"><div class="perfil-item-lbl">Cidade</div><div class="perfil-item-val"><%=_p.cidade%></div></div><%}%>
         <% if(_p.valorMax){%><div class="perfil-item"><div class="perfil-item-lbl">Valor máx.</div><div class="perfil-item-val">R$<%=Math.round(Number(_p.valorMax)/1000)%>k</div></div><%}%>
         <% if(_p.intencao){%><div class="perfil-item"><div class="perfil-item-lbl">Intenção</div><div class="perfil-item-val"><%=_p.intencao%></div></div><%}%>

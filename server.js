@@ -1107,10 +1107,11 @@ function lerImoveis(user) {
   return filtrarPorUsuario(todos, user);
 }
 function lerLeads(user) {
+  const uid = user && (user.id || user);
   const todos = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
   const filtradas = filtrarPorUsuario(todos, user);
-  console.log('[lerLeads] user.id:', user&&user.id, 'total:', todos.length, 'filtradas:', filtradas.length);
-  return filtradas;
+  if (!uid) return filtradas;
+  return filtradas.filter(l => !(l.deletadoPor && l.deletadoPor.includes(uid)));
 }
 function lerVisitas(user) {
   const todos = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];

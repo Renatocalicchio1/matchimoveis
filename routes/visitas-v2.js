@@ -9,7 +9,7 @@ const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
 const BASE_URL = process.env.RENDER ? 'https://matchimoveis.onrender.com' : (process.env.BASE_URL || 'http://localhost:3000');
 
 function dataPath(f) {
-  if (process.env.RENDER) return path.join('/opt/render/project/src', f);
+  if (process.env.RENDER) return path.join('/opt/render/project/src/data', f);
   return path.join(__dirname, '..', f);
 }
 function lerVisitas() { try { return JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')); } catch(e) { return []; } }

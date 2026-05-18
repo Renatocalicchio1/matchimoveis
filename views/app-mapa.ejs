@@ -3,82 +3,70 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <div style="position:relative;margin:-20px;height:calc(100vh - 60px)">
-
   <div style="position:absolute;top:12px;left:12px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:13px;color:#111">
     <strong><%= total %></strong> imóveis · <span id="qtd">carregando...</span>
   </div>
-
   <div style="position:absolute;top:12px;right:12px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:12px">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:12px;height:12px;border-radius:50%;background:#FF385C"></div> Meus imóveis</div>
-    <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border-radius:50%;background:#6366f1"></div> Parceiros</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:12px;height:12px;border-radius:50%;background:#FF385C"></div>Meus imóveis</div>
+    <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border-radius:50%;background:#6366f1"></div>Parceiros</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:4px"><div style="width:12px;height:12px;border-radius:50%;background:#f59e0b"></div>Ambos</div>
   </div>
-
   <div id="mapa" style="width:100%;height:100%"></div>
 </div>
 
 <script>
-const grupos = <%- gruposJSON %>;
-const userLat = <%= user.lat || -26.9543 %>;
-const userLng = <%= user.lng || -48.6419 %>;
+const _grupos = <%- gruposJSON %>;
+const _uLat = <%= user.lat || -26.9543 %>;
+const _uLng = <%= user.lng || -48.6419 %>;
+const _raio = 10; // km
 
-const map = L.map('mapa').setView([userLat, userLng], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap'
-}).addTo(map);
-
-// Pin do usuário
-L.marker([userLat, userLng], {
-  icon: L.divIcon({
-    className:'',
-    html:'<div style="background:#FF385C;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.3);border:2px solid #fff">📍</div>',
-    iconSize:[34,34],iconAnchor:[17,17]
-  })
-}).addTo(map).bindPopup('<b>Você está aqui</b>');
-
-function criarIcone(cor, n) {
-  return L.divIcon({
-    className:'',
-    html:'<div style="background:'+cor+';color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid #fff">'+n+'</div>',
-    iconSize:[36,36],iconAnchor:[18,18]
-  });
+function _distKm(la1,lo1,la2,lo2){
+  const R=6371,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;
+  const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
-async function geocodificar(bairro, cidade) {
-  const q = encodeURIComponent([bairro, cidade, 'Brasil'].filter(Boolean).join(', '));
-  try {
-    const r = await fetch('https://nominatim.openstreetmap.org/search?q='+q+'&format=json&limit=1',{headers:{'Accept-Language':'pt-BR','User-Agent':'MatchImoveis/1.0'}});
-    const d = await r.json();
-    if (d && d[0]) return {lat:parseFloat(d[0].lat),lng:parseFloat(d[0].lon)};
-  } catch(e){}
+const _map = L.map('mapa').setView([_uLat,_uLng],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(_map);
+
+L.marker([_uLat,_uLng],{icon:L.divIcon({className:'',html:'<div style="background:#FF385C;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.3);border:2px solid #fff">📍</div>',iconSize:[34,34],iconAnchor:[17,17]})}).addTo(_map).bindPopup('<b>Você está aqui</b>');
+
+L.circle([_uLat,_uLng],{radius:_raio*1000,color:'#FF385C',fillColor:'#FF385C',fillOpacity:.04,weight:1.5,dashArray:'6,4'}).addTo(_map);
+
+function _icone(cor,n){
+  return L.divIcon({className:'',html:'<div style="background:'+cor+';color:#fff;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid #fff">'+n+'</div>',iconSize:[38,38],iconAnchor:[19,19]});
+}
+
+async function _geo(bairro, cidade){
+  const q=encodeURIComponent(bairro+', '+cidade+', Brasil');
+  const r=await fetch('https://nominatim.openstreetmap.org/search?q='+q+'&format=json&limit=1',{headers:{'Accept-Language':'pt-BR'}});
+  const d=await r.json();
+  if(d&&d[0]) return {lat:parseFloat(d[0].lat),lng:parseFloat(d[0].lon)};
   return null;
 }
 
-async function carregarMapa() {
-  let ok = 0;
-  for (let i = 0; i < grupos.length; i++) {
-    const g = grupos[i];
-    await new Promise(r => setTimeout(r, 1100)); // Nominatim: max 1 req/s
-    const coords = await geocodificar(g.bairro, g.cidade);
-    if (!coords) continue;
-    const total = g.meus.length + g.parceiros.length;
-    const cor = g.meus.length > 0 && g.parceiros.length === 0 ? '#FF385C' :
-                g.meus.length === 0 ? '#6366f1' : '#f59e0b';
-    const m = L.marker([coords.lat, coords.lng], {icon: criarIcone(cor, total)}).addTo(map);
-    m.bindPopup(
-      '<div style="padding:10px;min-width:160px">'+
-      '<b style="font-size:14px">'+(g.bairro||g.cidade)+'</b>'+
-      '<div style="font-size:12px;color:#666;margin-bottom:8px">'+g.cidade+'</div>'+
-      (g.meus.length?'<div style="font-size:12px"><span style="color:#FF385C">●</span> <b>'+g.meus.length+'</b> seus imóveis</div>':'')+
-      (g.parceiros.length?'<div style="font-size:12px"><span style="color:#6366f1">●</span> <b>'+g.parceiros.length+'</b> parceiros</div>':'')+
-      '</div>'
-    );
+async function _carregar(){
+  let ok=0;
+  for(let i=0;i<_grupos.length;i++){
+    const g=_grupos[i];
+    if(!g.bairro&&!g.cidade) continue;
+    await new Promise(r=>setTimeout(r,1100));
+    let coords;
+    try{ coords=await _geo(g.bairro,g.cidade); }catch(e){ continue; }
+    if(!coords) continue;
+    const dist=_distKm(_uLat,_uLng,coords.lat,coords.lng);
+    if(dist>_raio) continue;
+    const tot=g.meus.length+g.parceiros.length;
+    const cor=g.meus.length>0&&g.parceiros.length===0?'#FF385C':g.meus.length===0?'#6366f1':'#f59e0b';
+    const mk=L.marker([coords.lat,coords.lng],{icon:_icone(cor,tot)}).addTo(_map);
+    mk.bindPopup('<div style="padding:10px;min-width:160px"><b style="font-size:14px">'+(g.bairro||g.cidade)+'</b><div style="font-size:12px;color:#666;margin-bottom:8px">'+g.cidade+'</div>'+(g.meus.length?'<div style="font-size:12px"><span style="color:#FF385C">●</span> <b>'+g.meus.length+'</b> seus imóveis</div>':'')+(g.parceiros.length?'<div style="font-size:12px"><span style="color:#6366f1">●</span> <b>'+g.parceiros.length+'</b> parceiros</div>':'')+'</div>');
     ok++;
-    document.getElementById('qtd').textContent = ok + ' bairros carregados';
+    document.getElementById('qtd').textContent=ok+' bairros carregados';
   }
-  document.getElementById('qtd').textContent = ok + ' bairros no mapa';
+  document.getElementById('qtd').textContent=ok+' bairros no mapa';
 }
 
-carregarMapa();
+_carregar();
 </script>
 
 <%- include('partials/app-end') %>

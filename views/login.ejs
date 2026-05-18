@@ -185,7 +185,13 @@ function setTab(tab, btn) {
 }
 
 function validarCadastro() {
-  const tipo = document.querySelector('[name="tipo"]').value;
+  const nome = document.querySelector('#form-cadastro [name="nome"]')?.value?.trim();
+  const tel = document.querySelector('#form-cadastro [name="telefone"]')?.value?.replace(/\D/g,'');
+  const tipo = document.querySelector('#form-cadastro [name="tipo"]')?.value;
+
+  if (!nome || nome.length < 3) { alert('Digite seu nome completo'); return false; }
+  if (!tel || tel.length < 10 || tel.length > 13) { alert('Telefone inválido. Use o formato: 47999999999'); return false; }
+  if (!/^[0-9]{10,13}$/.test(tel)) { alert('Telefone deve conter apenas números. Ex: 47999999999'); return false; }
   if (!tipo) { alert('Selecione o tipo de conta'); return false; }
   return true;
 }

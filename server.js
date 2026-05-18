@@ -413,6 +413,10 @@ app.post('/login', async (req,res)=>{
 
   // CADASTRO
   if(req.body.nome && req.body.tipoConta){
+    // Validação backend
+    const nomeVal = (req.body.nome||'').trim();
+    if (!nomeVal || nomeVal.length < 3) return res.render('login', { error: 'Nome inválido. Digite seu nome completo.' });
+    if (!telefone || telefone.length < 10 || telefone.length > 13) return res.render('login', { error: 'Telefone inválido. Use o formato: 47999999999' });
     const existe = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);
     if(existe) return res.render('login', { error: 'Este celular já está cadastrado. Entre usando apenas o celular.' });
 

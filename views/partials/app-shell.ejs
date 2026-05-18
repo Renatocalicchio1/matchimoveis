@@ -391,3 +391,27 @@ const _prox = _passos.find(p => !p.feito);
     <% if(typeof subtitle!=='undefined'&&subtitle){ %><p><%= subtitle %></p><% } %>
   </div>
   <% } %>
+
+  <% if(!_onboardingCompleto){ %>
+  <div style="margin:0 0 20px;background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px 20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:600;color:#111">Configure sua conta <span style="font-size:11px;font-weight:400;color:#9ca3af;margin-left:6px"><%= _passos.filter(p=>p.feito).length %> de <%= _passos.length %> concluídos</span></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <% _passos.forEach((p,i) => { %>
+      <a href="<%= p.feito ? '#' : p.link %>" style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;border:1px solid <%= p.feito ? '#d1fae5' : p===_prox ? '#111' : '#e5e5e3' %>;background:<%= p.feito ? '#f0fdf4' : p===_prox ? '#111' : '#f9fafb' %>;text-decoration:none;flex:1;min-width:160px">
+        <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:<%= p.feito ? '#16a34a' : p===_prox ? '#fff' : '#e5e7eb' %>;flex-shrink:0;font-size:11px;font-weight:700;color:<%= p.feito ? '#fff' : p===_prox ? '#111' : '#9ca3af' %>"><%= p.feito ? '✓' : i+1 %></div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:<%= p.feito ? '#16a34a' : p===_prox ? '#fff' : '#6b7280' %>"><%= p.label %></div>
+          <div style="font-size:10px;color:<%= p.feito ? '#16a34a' : p===_prox ? '#d1d5db' : '#9ca3af' %>"><%= p.feito ? 'Concluído' : p===_prox ? p.acao : 'Pendente' %></div>
+        </div>
+      </a>
+      <% }) %>
+    </div>
+    <% if(_prox){ %>
+    <div style="margin-top:12px;padding:10px 14px;background:#fffbeb;border-radius:8px;border:1px solid #fcd34d;font-size:12px;color:#92400e">
+      <strong><%= _prox.titulo %>:</strong> <%= _prox.motivo %>
+    </div>
+    <% } %>
+  </div>
+  <% } %>

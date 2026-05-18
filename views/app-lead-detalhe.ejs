@@ -410,10 +410,27 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
 
 </div>
 
+<!-- Modal Cadastro Imóvel -->
+<div id="modal-cadastro-imovel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:900px;height:85vh;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e5e5e3">
+      <div style="font-size:15px;font-weight:600;color:#111">Cadastrar Imóvel do Cliente</div>
+      <button onclick="fecharModalCadastroImovel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">×</button>
+    </div>
+    <iframe id="iframe-cadastro" src="/app/cadastro?leadId=<%=lead.id%>&modal=1" style="flex:1;border:none;width:100%"></iframe>
+  </div>
+</div>
+
 <script>
 function abrirFormImovelVendedor(){
   const f = document.getElementById('form-imovel-vendedor');
   if(f) f.style.display = f.style.display==='none'?'block':'none';
+}
+function abrirModalCadastroImovel(){
+  document.getElementById('modal-cadastro-imovel').style.display='flex';
+}
+function fecharModalCadastroImovel(){
+  document.getElementById('modal-cadastro-imovel').style.display='none';
 }
 async function salvarImovelVendedor(leadId){
   const payload = {

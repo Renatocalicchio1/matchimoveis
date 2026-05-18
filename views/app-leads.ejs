@@ -122,6 +122,7 @@ const colunas = [
   { key:'match',     label:'Com Match',      cor:'#22c55e', dot:'#86efac' },
   { key:'vitrine',   label:'Vitrine Enviada',cor:'#6366f1', dot:'#c7d2fe' },
 
+  { key:'visita',    label:'Visita Solicitada', cor:'#0ea5e9', dot:'#bae6fd' },
   { key:'fechado',   label:'Fechado',        cor:'#16a34a', dot:'#86efac' }
 ];
 
@@ -131,7 +132,7 @@ function getColuna(item) {
   const vitrine = !!item.vitrineEnviada;
   const temVisita = false; // será setado via visitas se necessário
   if (fase === 'decidido') return 'fechado';
-  if (fase === 'interessado') return 'interessado';
+  if (item.visitaAgendada) return 'visita';
   if (vitrine) return 'vitrine';
   if (mat > 0) return 'match';
   if (fase === 'qualificado' || (item.perfilIA && item.perfilIA.tipo)) return 'qualificando';

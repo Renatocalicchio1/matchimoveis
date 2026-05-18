@@ -5808,20 +5808,21 @@ app.get('/app/whatsapp/status', auth, async (req, res) => {
 
     // Atualiza status no users.json
     if (status === 'open') {
-      const usersPath = require('path').join(__dirname, 'users.json');
-      const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+      const { lerUsuarios: _luS, salvarTodosUsuarios: _suS } = require('./services/salvarUsuario');
+      const users = _luS();
       const idx = users.findIndex(u => u.id === user.id);
       if (idx >= 0) {
         users[idx].whatsappStatus = 'connected';
+        users[idx].whatsappInstance = instanceName;
         // Pega ownerJid
         const instRes = await fetch(EVOLUTION_URL + '/instance/fetchInstances', { headers: { 'apikey': EVOLUTION_KEY } });
         const instData = await instRes.json();
         const inst = instData.find(i => i.name === instanceName);
         if (inst && inst.ownerJid) {
-          users[idx].whatsappNumero = inst.ownerJid.replace('@s.whatsapp.net', '').replace(/D/g, '');
+          users[idx].whatsappNumero = inst.ownerJid.replace('@s.whatsapp.net', '').replace(/\D/g, '');
         }
-        salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
-        req.session.user = users[idx];
+        await _suS(users);
+        req.session.user = { ...req.session.user, ...users[idx] };
       }
     }
 

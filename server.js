@@ -1141,7 +1141,7 @@ app.get('/app/notificacoes', auth, (req,res)=>{
 app.get('/app-home', auth, (req,res)=>{
   const user = req.session.user;
   const todosImoveis = lerImoveis(req.session.user);
-  const todosLeads = lerLeads(req.session.user);
+  const todosLeads = lerLeads(req.session.user.id);
   const todasVisitas = lerVisitas(req.session.user);
   const notificacoes = lerNotificacoes(req.session.user);
   const imoveis = filtrarPorUsuario(todosImoveis, user);
@@ -1339,7 +1339,7 @@ app.get('/app/importar-leads', auth, (req,res)=>{
 });
 
 app.get('/app/leads', auth, (req,res)=>{
-  const raw = lerLeads(req.session.user);
+  const raw = lerLeads(req.session.user.id);
   const data = Array.isArray(raw) ? raw : (raw.results || []);
   const leads = filtrarPorUsuario(data, req.session.user);
   // usa matchesBase (base interna) ou matches (externos)

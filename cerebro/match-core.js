@@ -63,6 +63,8 @@ class MatchCore {
       lead = this._salvarMensagem(lead, canal, mensagem);
 
       // 3. Memória IA — acumula perfil
+      // Detecta novo ciclo de busca (cliente voltou com interesse diferente)
+      lead = await this._detectarNovoCiclo(lead, mensagem, userId);
       const perfil = this._atualizarMemoria(lead, mensagem);
 
       // 4. Score da jornada
@@ -144,6 +146,69 @@ class MatchCore {
     lead.ultimaMensagemEm = new Date().toISOString();
     if (lead.mensagens.length > 100) lead.mensagens = lead.mensagens.slice(-100);
     return lead;
+  }
+
+  // ============================================================
+  // NOVO CICLO — detecta se cliente voltou com interesse diferente
+  // ============================================================
+  async _detectarNovoCiclo(lead, mensagem, userId) {
+    try {
+      const { extrairPerfil } = require('./extrator-perfil');
+      const novoPerfil = extrairPerfil([{ texto: mensagem, de: 'cliente' }]);
+      const perfilAtual = lead.perfilIA || {};
+
+      // Só analisa se novo perfil tem tipo ou bairro
+      if (!novoPerfil.tipo && !novoPerfil.bairro) return lead;
+
+      // Verifica se é perfil diferente do atual
+      const tipoMudou = novoPerfil.tipo && perfilAtual.tipo && novoPerfil.tipo !== perfilAtual.tipo;
+      const bairroMudou = novoPerfil.bairro && perfilAtual.bairro && novoPerfil.bairro !== perfilAtual.bairro;
+      const valorMudou = novoPerfil.valorMax && perfilAtual.valorMax &&
+        Math.abs(novoPerfil.valorMax - perfilAtual.valorMax) / perfilAtual.valorMax > 0.5;
+
+      const perfilDiferente = tipoMudou || (bairroMudou && valorMudou);
+      if (!perfilDiferente) return lead;
+
+      // Verifica se lead já teve ciclo completo (visita realizada ou fechado)
+      const { lerVisitas } = require('../services/salvarVisita');
+      const visitas = lerVisitas ? lerVisitas(userId) : [];
+      const temVisitaRealizada = visitas.some(v =>
+        String(v.leadId || v.lead_id || '') === String(lead.id) &&
+        ['realizada', 'concluida', 'fechado'].includes((v.status || '').toLowerCase())
+      );
+      const statusFechado = ['fechado', 'comprou', 'convertido', 'ganho'].includes((lead.status || '').toLowerCase());
+
+      if (!temVisitaRealizada && !statusFechado) return lead;
+
+      // Cria nova lead para o novo ciclo
+      console.log('[MATCH CORE] novo ciclo detectado para:', lead.nome || lead.telefone);
+      const { salvarLead } = require('../services/salvarLead');
+      const novaLead = {
+        id: Date.now().toString(),
+        nome: lead.nome,
+        telefone: lead.telefone,
+        whatsapp: lead.whatsapp,
+        contato: lead.contato,
+        origem: lead.origem,
+        userId: lead.userId,
+        codigoUsuario: lead.codigoUsuario,
+        criadoEm: new Date().toISOString(),
+        perfilIA: novoPerfil,
+        mensagens: [],
+        status: 'novo',
+        faseFunil: 'novo',
+        temperatura: 'frio',
+        cicloAnterior: lead.id
+      };
+      await salvarLead(novaLead);
+      lead.cicloSeguinte = novaLead.id;
+      lead.status = lead.status || 'convertido';
+      console.log('[MATCH CORE] nova lead criada:', novaLead.id);
+      return novaLead;
+    } catch(e) {
+      console.error('[MATCH CORE] erro detectarNovoCiclo:', e.message);
+      return lead;
+    }
   }
 
   // ============================================================

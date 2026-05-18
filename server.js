@@ -6313,3 +6313,23 @@ app.get('/admin/diagnostico-completo', (req, res) => {
     res.status(500).json({ erro: e.message });
   }
 });
+
+// ── LEADS RAW ────────────────────────────────────────────────
+app.get('/admin/leads-raw', (req, res) => {
+  try {
+    const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));
+    res.json({ total: leads.length, leads: leads.map(l => ({
+      id: l.id,
+      nome: l.nome,
+      telefone: l.telefone,
+      userId: l.userId||l.codigoUsuario||l.corretorId||'',
+      faseFunil: l.faseFunil,
+      tipoLead: l.tipoLead,
+      deletadoPor: l.deletadoPor||[],
+      vitrineEnviada: l.vitrineEnviada||false,
+      visitaAgendada: l.visitaAgendada||false
+    }))});
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});

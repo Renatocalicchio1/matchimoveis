@@ -2421,7 +2421,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
     // ── DETECTAR SE É CORRETOR OU LEAD ───────────────────────
     let _usersWH = [];
-    try { const { lerUsuarios: _luWH } = require('./services/salvarUsuario'); _usersWH = _luWH(); } catch(e) {}
+    try { const { lerUsuarios: _luWH } = require('./services/salvarUsuario'); _usersWH = await _luWH(); } catch(e) {}
     const _corretorWH = _usersWH.find(u => {
       // Prioriza telefone real antes do id
       const fontesPrioritarias = [u.telefone, u.phone, u.contato].filter(Boolean);
@@ -2438,7 +2438,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         try {
           const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
           const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
-          const EI = (() => { try { const { lerUsuarios: _lu } = require('./services/salvarUsuario'); const _u2 = _lu(); const _uc = _u2.find(u=>u.id===(_corretorWH?.id)); return _uc?.whatsappInstance||instance||'match-corretor'; } catch(e){return instance||'match-corretor';} })();
+          const EI = await (async () => { try { const { lerUsuarios: _lu } = require('./services/salvarUsuario'); const _u2 = await _lu(); const _uc = _u2.find(u=>u.id===(_corretorWH?.id)); return _uc?.whatsappInstance||instance||'match-corretor'; } catch(e){return instance||'match-corretor';} })();
           let leads = [];
           try { const { lerLeads: _llWH } = require('./services/salvarLead'); leads = _llWH(); } catch(e) {}
           const uid = _corretorWH.id;
@@ -2474,7 +2474,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     let _webhookUserId = '';
     try {
       const { lerUsuarios: _luWH2 } = require('./services/salvarUsuario');
-      const _users = _luWH2();
+      const _users = await _luWH2();
       const _userByInstance = _users.find(u => u.whatsappInstance === instance);
       if (_userByInstance) {
         _webhookUserId = _userByInstance.id;
@@ -2508,7 +2508,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     if (!_webhookUserId) {
       try {
         const { lerUsuarios: _luWH3 } = require('./services/salvarUsuario');
-        const _users3 = _luWH3();
+        const _users3 = await _luWH3();
         // Tenta match parcial no nome da instância
         const _userByInst2 = _users3.find(u => {
           const inst = (u.whatsappInstance||'').toLowerCase();

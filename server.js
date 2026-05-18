@@ -2468,7 +2468,25 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         if (_userByPhone) _webhookUserId = _userByPhone.id;
       }
       if (_webhookUserId) console.log('[WEBHOOK WA] userId identificado:', _webhookUserId);
+      else console.warn('[WEBHOOK WA] userId NAO identificado | instance:', instance, '| telefone:', telefone);
     } catch(e) { console.error('[WEBHOOK WA] erro userId:', e.message); }
+    // Se não identificou userId — tenta pelo número da instância diretamente
+    if (!_webhookUserId) {
+      try {
+        const { lerUsuarios: _luWH3 } = require('./services/salvarUsuario');
+        const _users3 = _luWH3();
+        // Tenta match parcial no nome da instância
+        const _userByInst2 = _users3.find(u => {
+          const inst = (u.whatsappInstance||'').toLowerCase();
+          const inc = (instance||'').toLowerCase();
+          return inst && inc && (inst.includes(inc) || inc.includes(inst));
+        });
+        if (_userByInst2) {
+          _webhookUserId = _userByInst2.id;
+          console.log('[WEBHOOK WA] userId por match parcial instancia:', _webhookUserId);
+        }
+      } catch(e) {}
+    }
 
     // ── ENCONTRAR LEAD PELO TELEFONE ──────────────────────────
     const { lerLeads: _lerLeadsWH, salvarTodosLeads: _salvarLeadsWH } = require('./services/salvarLead');

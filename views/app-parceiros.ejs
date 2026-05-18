@@ -1,0 +1,76 @@
+<%- include("partials/app-shell",{active:"parceiros",title:"Parceiros",subtitle:"Corretores parceiros e suas indicações.",user:user}) %>
+
+<style>
+.parc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:24px}
+.parc-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:14px;padding:16px;transition:box-shadow .15s}
+.parc-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.parc-avatar{width:42px;height:42px;border-radius:50%;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.parc-nome{font-size:14px;font-weight:600;color:#111;margin-bottom:2px}
+.parc-tel{font-size:12px;color:#6b7280;margin-bottom:10px}
+.parc-stats{display:flex;gap:10px;margin-bottom:12px}
+.parc-stat{flex:1;background:#f9fafb;border-radius:8px;padding:8px;text-align:center}
+.parc-stat-val{font-size:16px;font-weight:700;color:#111}
+.parc-stat-lbl{font-size:10px;color:#9ca3af;font-weight:500}
+.parc-comissao{display:flex;align-items:center;gap:6px}
+.parc-comissao input{flex:1;padding:6px 10px;border-radius:8px;border:1px solid #e5e5e3;font-size:12px}
+.parc-comissao button{padding:6px 12px;border-radius:8px;background:#111;color:#fff;border:none;font-size:11px;font-weight:600;cursor:pointer}
+.parc-empty{text-align:center;padding:80px 20px;color:#9ca3af}
+.parc-empty-icon{font-size:48px;margin-bottom:12px}
+</style>
+
+<div style="padding:24px 24px 0">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#111">Corretores Parceiros</div>
+      <div style="font-size:13px;color:#6b7280;margin-top:2px"><%= parceiros.length %> parceiro<%= parceiros.length!==1?'s':'' %> cadastrado<%= parceiros.length!==1?'s':'' %></div>
+    </div>
+    <a href="/app/leads" style="font-size:12px;color:#6b7280;text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid #e5e5e3">← Leads</a>
+  </div>
+</div>
+
+<% if(!parceiros || parceiros.length === 0) { %>
+<div class="parc-empty">
+  <div class="parc-empty-icon">🤝</div>
+  <div style="font-size:15px;font-weight:600;color:#374151;margin-bottom:6px">Nenhum parceiro ainda</div>
+  <div style="font-size:13px">Classifique uma lead como "Corretor Parceiro" para ela aparecer aqui.</div>
+</div>
+<% } else { %>
+<div class="parc-grid">
+  <% parceiros.forEach(p => { %>
+  <div class="parc-card">
+    <div class="parc-avatar">🤝</div>
+    <div class="parc-nome"><%= p.nome %></div>
+    <div class="parc-tel"><%= p.telefone %></div>
+    <div class="parc-stats">
+      <div class="parc-stat">
+        <div class="parc-stat-val"><%= p.leads.length %></div>
+        <div class="parc-stat-lbl">Indicações</div>
+      </div>
+      <div class="parc-stat">
+        <div class="parc-stat-val"><%= p.comissao || '—' %></div>
+        <div class="parc-stat-lbl">Comissão</div>
+      </div>
+    </div>
+    <div class="parc-comissao">
+      <input type="text" id="com-<%= p.id %>" value="<%= p.comissao %>" placeholder="Ex: 30% ou R$5.000">
+      <button onclick="salvarComissao('<%= p.id %>')">Salvar</button>
+    </div>
+    <div style="margin-top:10px">
+      <a href="https://wa.me/55<%= p.telefone %>" target="_blank" style="font-size:11px;color:#16a34a;text-decoration:none;font-weight:500">📱 WhatsApp</a>
+    </div>
+  </div>
+  <% }) %>
+</div>
+<% } %>
+
+<script>
+async function salvarComissao(id){
+  const val = document.getElementById('com-'+id).value;
+  const r = await fetch('/app/parceiro/'+id+'/comissao',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({comissao:val})});
+  const d = await r.json();
+  if(d.ok) alert('Comissão salva!');
+  else alert('Erro: '+d.erro);
+}
+</script>
+
+<%- include('partials/app-end') %>

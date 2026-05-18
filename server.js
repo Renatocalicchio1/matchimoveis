@@ -1342,7 +1342,7 @@ app.get('/app/importar-leads', auth, (req,res)=>{
 app.get('/app/leads', auth, (req,res)=>{
   const raw = lerLeads(req.session.user.id);
   const data = Array.isArray(raw) ? raw : (raw.results || []);
-  const leads = filtrarPorUsuario(data, req.session.user);
+  const leads = filtrarPorUsuario(data, req.session.user).filter(l => l.tipoLead !== 'corretor');
   // usa matchesBase (base interna) ou matches (externos)
   leads.forEach(l => {
     if (!l.matches || l.matches.length === 0) {
@@ -6113,6 +6113,42 @@ app.post('/app/lead/:id/imovel-vendedor', auth, async (req, res) => {
     };
     await salvarTodosLeads(leads);
     console.log('[LEAD] imovel vendedor salvo | lead:', req.params.id);
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
+
+// ── PARCEIROS ────────────────────────────────────────────────
+app.get('/app/parceiros', auth, (req, res) => {
+  const uid = req.session.user.id;
+  const raw = lerLeads(uid);
+  const parceiros = raw.filter(l => l.tipoLead === 'corretor');
+  // Agrupa por telefone do parceiro
+  const mapa = {};
+  parceiros.forEach(l => {
+    const tel = String(l.telefone || l.whatsapp || l.contato || '').replace(/\D/g,'');
+    if (!mapa[tel]) mapa[tel] = {
+      id: l.id,
+      nome: l.nome || tel,
+      telefone: tel,
+      comissao: l.comissaoParceiro || '',
+      leads: [],
+      criadoEm: l.criadoEm
+    };
+    mapa[tel].leads.push(l);
+  });
+  const lista = Object.values(mapa).sort((a,b) => b.leads.length - a.leads.length);
+  res.render('app-parceiros', { user: req.session.user, parceiros: lista });
+});
+
+app.post('/app/parceiro/:id/comissao', auth, async (req, res) => {
+  try {
+    const leads = JSON.parse(require('fs').readFileSync(dataPath('data.json'),'utf8'));
+    const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).json({ erro: 'nao encontrado' });
+    leads[idx].comissaoParceiro = req.body.comissao || '';
+    await salvarTodosLeads(leads);
     res.json({ ok: true });
   } catch(e) {
     res.status(500).json({ erro: e.message });

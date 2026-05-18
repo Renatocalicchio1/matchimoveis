@@ -68,7 +68,30 @@ _grupos.forEach(g => {
   const tot = g.meus.length + g.parceiros.length;
   const cor = g.meus.length>0&&g.parceiros.length===0?'#FF385C':g.meus.length===0?'#6366f1':'#f59e0b';
   const mk = L.marker([lat,lng],{icon:_icone(cor,tot)}).addTo(_map);
-  mk.bindPopup('<div style="padding:10px;min-width:160px"><b style="font-size:14px">'+(g.bairro||g.cidade)+'</b><div style="font-size:12px;color:#666;margin-bottom:8px">'+g.cidade+'</div>'+(g.meus.length?'<div style="font-size:12px"><span style="color:#FF385C">●</span> <b>'+g.meus.length+'</b> seus imóveis</div>':'')+(g.parceiros.length?'<div style="font-size:12px"><span style="color:#6366f1">●</span> <b>'+g.parceiros.length+'</b> parceiros</div>':'')+'</div>');
+  // Monta lista de imóveis do bairro
+  const todos = [...g.meus.map(i=>({...i,_meu:true})),...g.parceiros.map(i=>({...i,_meu:false}))].slice(0,5);
+  const lista = todos.map(i=>
+    '<div style="padding:8px 0;border-bottom:1px solid #f3f4f6">'+
+    '<div style="font-size:13px;font-weight:600;color:#111">'+(i.titulo||i.tipo||'Imóvel')+'</div>'+
+    '<div style="font-size:12px;color:#666;margin-top:2px">'+
+      (i.quartos?i.quartos+'q ':'')+
+      (i.area_m2?i.area_m2+'m² ':'')+ 
+      (i.vagas?i.vagas+' vaga(s) ':'')+
+    '</div>'+
+    '<div style="font-size:13px;font-weight:700;color:'+(i._meu?'#FF385C':'#6366f1')+';margin-top:2px">'+
+      (i.valor_imovel?'R$'+Number(i.valor_imovel).toLocaleString('pt-BR'):'Consultar')+
+    '</div>'+
+    '</div>'
+  ).join('');
+  mk.bindPopup(
+    '<div style="padding:10px;min-width:220px;max-width:280px">'+
+    '<b style="font-size:14px">'+(g.bairro||g.cidade)+'</b>'+
+    '<div style="font-size:11px;color:#888;margin-bottom:8px">'+g.cidade+' · '+tot+' imóvel(is)</div>'+
+    lista+
+    (tot>5?'<div style="font-size:11px;color:#888;margin-top:6px">+mais '+(tot-5)+' imóveis</div>':'')+
+    '</div>',
+    {maxWidth:300}
+  );
   ok++;
 });
 document.getElementById('qtd').textContent = ok;

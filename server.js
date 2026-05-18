@@ -6154,3 +6154,25 @@ app.post('/app/parceiro/:id/comissao', auth, async (req, res) => {
     res.status(500).json({ erro: e.message });
   }
 });
+
+// ── REPROCESSAR PERFIL DE TODAS AS LEADS ─────────────────────
+app.get('/admin/reprocessar-perfis', async (req, res) => {
+  try {
+    const { extrairPerfil } = require('./cerebro/extrator-perfil');
+    const leads = JSON.parse(require('fs').readFileSync(dataPath('data.json'),'utf8'));
+    let count = 0;
+    leads.forEach(l => {
+      if (!l.mensagens || !l.mensagens.length) return;
+      const msgs = l.mensagens.filter(m => m.de === 'cliente');
+      if (!msgs.length) return;
+      const novoPerfil = extrairPerfil(msgs);
+      // Só atualiza campos que fazem sentido — não sobrescreve tudo
+      if (novoPerfil.tipo) l.perfilIA = { ...(l.perfilIA||{}), ...novoPerfil };
+      count++;
+    });
+    await salvarTodosLeads(leads);
+    res.json({ ok: true, reprocessadas: count, total: leads.length });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});

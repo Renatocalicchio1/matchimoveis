@@ -219,15 +219,103 @@ function extrairDiferenciais(norm) {
 function extrairBairro(norm) {
   // Lista de bairros conhecidos SP
   const bairrosConhecidos = [
+    // SP - São Paulo
     'vila olimpia','moema','itaim bibi','brooklin','pinheiros','jardins','perdizes',
     'lapa','santana','tatuape','morumbi','vila madalena','higienopolis','consolacao',
-    'bela vista','campo belo','alphaville','granja viana','centro','liberdade',
-    'aclimacao','jardim paulista','jardim america','jardim europa','vila nova conceicao',
+    'bela vista','campo belo','alphaville','granja viana','liberdade','aclimacao',
+    'jardim paulista','jardim america','jardim europa','vila nova conceicao',
     'itaim','berrini','faria lima','paulista','ibirapuera','mooca','ipiranga',
     'saude','paraiso','vila mariana','jabaquara','santo amaro','socorro',
-    // SC
-    'balneario camboriu','itapema','centro','norte','sul','leste','oeste',
-    'bombinhas','porto belo','penha','barra velha','picarras','tijucas'
+    'tucuruvi','vila guilherme','penha','ermelino matarazzo','sao mateus',
+    'cidade tiradentes','guaianases','iguatemi','sapopemba','cursino',
+    'vila prudente','agua rasa','belenzinho','bras','pari','bom retiro',
+    'cambuci','liberdade','se','republica','santa cecilia','barra funda',
+    'pompeia','agua branca','jaguara','jaguare','alto de pinheiros',
+    'butanta','raposo tavares','rio pequeno','vila sonia','campo limpo',
+    'capao redondo','cidade ademar','pedreira','grajaau','parelheiros',
+    // SP - Grande SP
+    'guarulhos','osasco','santo andre','sao bernardo','sao caetano',
+    'diadema','maua','ribeirao pires','rio grande da serra','mogi das cruzes',
+    'suzano','itaquaquecetuba','ferraz de vasconcelos','poá','carapicuiba',
+    'barueri','santana de parnaiba','cotia','embu das artes','taboao da serra',
+    // RJ - Rio de Janeiro
+    'copacabana','ipanema','leblon','barra da tijuca','recreio','botafogo',
+    'flamengo','laranjeiras','cosme velho','santa teresa','lapa','centro',
+    'tijuca','vila isabel','grajaau','meier','engenho novo','rocha',
+    'todos os santos','olaria','ramos','penha','ilha do governador',
+    'jacarepagua','taquara','campo grande','santa cruz','bangu',
+    'realengo','padre miguel','deodoro','marechal hermes','oswaldo cruz',
+    'niteroi','sao goncalo','duque de caxias','nova iguacu','belford roxo',
+    'nilopolitano','mesquita','queimados','japeri','paracambi',
+    // MG - Belo Horizonte
+    'savassi','lourdes','funcionarios','sao pedro','santo agostinho',
+    'carmo','sion','anchieta','mangabeiras','buritis','belvedere',
+    'pampulha','cidade nova','carlos prates','codisburgo','gutierrez',
+    'barreiro','venda nova','nordeste','noroeste','centro sul',
+    // RS - Porto Alegre
+    'moinhos de vento','bela vista','rio branco','petrópolis','independencia',
+    'floresta','navegantes','farroupilha','centro historico','cidade baixa',
+    'menino deus','santana','partenon','medianeira','gloria','cristal',
+    'tristeza','camaqua','cavalhada','ipanema','vila nova','rubem berta',
+    // PR - Curitiba
+    'batel','agua verde','bigorrilho','mercês','seminario','vista alegre',
+    'campo comprido','portão','xaxim','sítio cercado','cajuru','alto boqueirão',
+    'boqueirão','hauer','pinheirinho','capão raso','novo mundo','cidade industrial',
+    // SC - Florianópolis
+    'centro','trindade','pantanal','carvoeira','corrego grande','itacorubi',
+    'santa monica','joao paulo','cacupe','santo antonio','jurere','canasvieiras',
+    'ingleses','rio vermelho','lagoa da conceicao','campeche','ribeirão da ilha',
+    // SC - Balneário Camboriú e região
+    'barra sul','barra norte','barra','centro','das nacoes','dos estados',
+    'pioneiros','agronomica','municípios','taboleiro','fazenda','pereque',
+    'meia praia','itapema','bombinhas','porto belo','penha','barra velha',
+    'picarras','tijucas','camboriu','balneario camboriu',
+    // SC - Joinville
+    'america','anita garibaldi','atiradores','aventureiro','bom retiro',
+    'bucarein','centro','costa e silva','fatima','floresta','glória',
+    'guanabara','iririú','jardim iririú','jardim paraíso','jardim sofia',
+    'jarivatuba','nova brasília','paranaguamirim','petrópolis','pirabeiraba',
+    'profipo','saguacu','santo antonio','são marcos','ulysses guimarães',
+    'vila nova','zona industrial norte','zona industrial sul',
+    // SC - Blumenau
+    'itoupava norte','itoupava central','itoupava seca','fortaleza','velha',
+    'velha central','velha grande','fidélis','salto do norte','ponta aguda',
+    'vorstadt','centro','garcia','água verde','progresso','asilo',
+    // DF - Brasília
+    'asa norte','asa sul','lago norte','lago sul','noroeste','sudoeste',
+    'aguas claras','taguatinga','ceilandia','samambaia','recanto das emas',
+    'gama','santa maria','guara','cruzeiro','octogonal','park way',
+    // CE - Fortaleza
+    'meireles','aldeota','varjota','fátima','cocó','cidade dos funcionários',
+    'messejana','jose de alencar','maraponga','mondubim','barra do ceará',
+    'mucuripe','praia de iracema','benfica','centro',
+    // PE - Recife
+    'boa viagem','pina','imbiribeira','ilha do leite','derby','espinheiro',
+    'graças','aflitos','jaqueira','santana','soledade','campo grande',
+    'torre','madalena','iputinga','cordeiro','encruzilhada','torreao',
+    // BA - Salvador
+    'barra','ondina','rio vermelho','pituba','caminho das arvores',
+    'iguatemi','paralela','brotas','nazare','barris','vitoria','graca',
+    'federacao','ondina','amaralina','santa lucia','imbuí','patamares',
+    // AM - Manaus
+    'adrianopolis','nossa senhora das gracas','chapada','aleixo','flores',
+    'parque dez','cidade nova','norte','leste','oeste','sul','centro',
+    // PA - Belém
+    'umarizal','nazare','batista campos','marco','sacramenta','pedreira',
+    'fatima','souza','guama','terra firme','bengui','jurunas',
+    // GO - Goiânia
+    'setor bueno','setor marista','setor oeste','setor sul','setor bela vista',
+    'jardim goias','jardim america','setor aeroporto','setor central',
+    'campinas','vila nova','setor norte ferroviario','setor coimbra',
+    // ES - Vitória
+    'praia do canto','bento ferreira','jardim da penha','jardim camburi',
+    'mata da praia','goiabeiras','mario cypreste','santa lucia','centro',
+    // MT - Cuiabá
+    'centro sul','jardim das americas','cidade alta','duque de caxias',
+    'goiabeiras','grande terceiro','popular','cpa','quilombo',
+    // Genéricos
+    'centro','norte','sul','leste','oeste','zona norte','zona sul',
+    'zona leste','zona oeste','zona central','hipercentro'
   ];
   for (const b of bairrosConhecidos) { if (norm.includes(b)) return b; }
   // Padrão preposição explícita — só aceita quando há palavra-chave de localização

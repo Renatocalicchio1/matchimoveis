@@ -108,6 +108,7 @@ async function carregarMapa() {
     marker.bindPopup(popupHTML(g));
     marker.addTo(map);
   }
+  }
   if (bounds.length > 0) map.fitBounds(bounds, { padding: [40, 40] });
 }
 

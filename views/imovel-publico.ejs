@@ -214,8 +214,9 @@ function confirmarContato() {
   const nome = document.getElementById('modal-nome').value.trim();
   const celular = document.getElementById('modal-celular').value.trim();
 
-  if (!nome || !celular) {
-    alert('Preencha nome e celular para continuar');
+  const celularLimpo = (celular||'').replace(/\D/g,'');
+  if (!nome || nome.length < 3) { alert('Digite seu nome completo'); return; }
+  if (!celular || celularLimpo.length < 10 || celularLimpo.length > 11) { alert('Celular inválido. Use o formato: 47992010888 ou 4792010888'); 
     return;
   }
 

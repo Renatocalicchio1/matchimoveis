@@ -165,16 +165,26 @@ function voltarContato(){
   document.getElementById('modal-step-horario').style.display = 'none';
 }
 
+
+  function validarTelBR(tel) {
+    const n = tel.replace(/\D/g,'');
+    if (n.length < 10 || n.length > 11) return false;
+    const ddd = parseInt(n.substring(0,2));
+    if (ddd < 11 || ddd > 99) return false;
+    if (n.length === 11 && n[2] !== '9') return false;
+    return true;
+  }
 function confirmarVisita() {
   const nome = document.getElementById('modal-nome').value.trim();
   const celular = document.getElementById('modal-celular').value.trim();
   const data = document.getElementById('modal-data').value;
   const hora = document.getElementById('modal-hora').value;
 
-  if (!nome || !celular || !data || !hora) {
-    alert('Preencha todos os campos');
-    return;
-  }
+  const celularLimpo = celular.replace(/\D/g,'');
+  if (!nome || nome.length < 3) { alert('Digite seu nome completo'); return; }
+  if (!validarTelBR(celular)) { alert('Celular inválido. Use o formato: 47992010888 ou 4792010888'); return; }
+  if (!data || !hora) { alert('Selecione data e horário'); return; }
+  
 
   fetch('/api/lead-interesse', {
     method: 'POST',

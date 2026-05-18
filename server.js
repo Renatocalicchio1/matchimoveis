@@ -6074,3 +6074,23 @@ app.get('/admin/debug-lead/:id', (req, res) => {
   const lead = todos.find(l => String(l.id) === String(req.params.id));
   res.json(lead || { erro: 'nao encontrada' });
 });
+
+// ── CLASSIFICAR LEAD ─────────────────────────────────────────
+app.post('/app/lead/:id/classificar', auth, async (req, res) => {
+  try {
+    const uid = String(req.session.user.id || '');
+    const { tipoLead } = req.body;
+    if (!['cliente','vendedor','corretor'].includes(tipoLead)) return res.status(400).json({ erro: 'tipo invalido' });
+    const leads = JSON.parse(require('fs').readFileSync(dataPath('data.json'),'utf8'));
+    const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
+    leads[idx].tipoLead = tipoLead;
+    leads[idx].tipoLeadAtualizadoEm = new Date().toISOString();
+    leads[idx].tipoLeadAtualizadoPor = uid;
+    await salvarTodosLeads(leads);
+    console.log('[LEAD] classificada como:', tipoLead, '| id:', req.params.id);
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});

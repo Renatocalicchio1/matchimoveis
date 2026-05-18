@@ -3168,13 +3168,10 @@ app.get('/imovel/:id', (req, res) => {
 
 // Detalhe da lead
 app.get('/app/lead/:id', auth, async (req, res) => {
-  const leads = lerLeads();
+  const uid = String(req.session.user.id || '');
+  const leads = lerLeads(req.session.user);
   const lead = leads.find(l => String(l.id) === String(req.params.id));
   if (!lead) return res.status(404).send('Lead não encontrada');
-  // Blindagem: verifica se lead pertence ao usuário logado
-  const uid = String(req.session.user.id || '');
-  const leadOwner = String(lead.userId || lead.codigoUsuario || lead.corretorId || '');
-  if (leadOwner && leadOwner !== uid) return res.status(403).send('Acesso negado');
 
   if (!Array.isArray(lead.historico)) lead.historico = [];
   lead.historico.push({

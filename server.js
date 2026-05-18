@@ -2616,7 +2616,8 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           mensagem: texto,
           canal: 'whatsapp',
           userId: leadEncontrado.codigoUsuario || leadEncontrado.userId || '',
-          leadsPath: leadsPathAtual
+          leadsPath: leadsPathAtual,
+          instancia: INSTANCE
         });
         const leadAtualizado = _resultado?.lead || leadEncontrado;
         consumir(leadAtualizado.userId || leadAtualizado.codigoUsuario, 'ia_responde_whatsapp').catch(()=>{});

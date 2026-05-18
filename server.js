@@ -6071,3 +6071,10 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
     res.status(500).json({ erro: e.message });
   }
 });
+
+app.get('/admin/debug-lead/:id', (req, res) => {
+  const todos = require('./services/salvarLead').lerLeads ? 
+    JSON.parse(require('fs').readFileSync(dataPath('data.json'),'utf8')) : [];
+  const lead = todos.find(l => String(l.id) === String(req.params.id));
+  res.json(lead || { erro: 'nao encontrada' });
+});

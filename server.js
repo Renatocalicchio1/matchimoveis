@@ -2521,9 +2521,13 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     let leadsPathAtual = 'service';
     try {
       const todosLeads = _lerLeadsWH();
+      // Busca lead pelo telefone E userId da instância — evita vazamento entre contas
       leadEncontrado = todosLeads.find(l => {
         const fone = (l.telefone || l.whatsapp || l.contato || l.phone || '').replace(/\D/g, '');
-        return fone && fone.slice(-8) === telefone.slice(-8);
+        const leadUserId = String(l.userId || l.codigoUsuario || l.corretorId || '');
+        const fonesIgual = fone && fone.slice(-8) === telefone.slice(-8);
+        const contaIgual = !_webhookUserId || !leadUserId || leadUserId === _webhookUserId;
+        return fonesIgual && contaIgual;
       }) || null;
     } catch(e) { console.error('[WEBHOOK WA] erro ao buscar lead:', e.message); }
 

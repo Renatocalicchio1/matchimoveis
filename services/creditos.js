@@ -5,21 +5,22 @@
 
 const { lerUsuarios, salvarTodosUsuarios } = require('./salvarUsuario');
 
+// R$1 = 100 créditos | 1.000 créditos grátis no cadastro
 const CUSTO = {
-  cadastrar_imovel:      50,
-  editar_imovel:         10,
-  importar_xml:         100,
-  gerar_xml_portal:      30,
-  sync_xml_24h:          50,
-  lead_ativo_dia:        10,
-  ia_qualifica_lead:     30,
-  match_encontrado:      50,
-  vitrine_whatsapp:      80,
-  ia_responde_whatsapp:  30,
-  followup_auto:         40,
-  visita_agendada_ia:   100,
-  notificacao_prop:      20,
-  confirmacao_auto:      20
+  cadastrar_imovel:       10,
+  editar_imovel:           5,
+  importar_xml:           20,
+  gerar_xml_portal:       10,
+  sync_xml_24h:            5,
+  lead_ativo_dia:          2,
+  ia_qualifica_lead:      10,
+  match_encontrado:       15,
+  vitrine_whatsapp:       20,
+  ia_responde_whatsapp:    8,
+  followup_auto:          10,
+  visita_agendada_ia:     30,
+  notificacao_prop:        5,
+  confirmacao_auto:        5
 };
 
 async function consumir(userId, acao) {

@@ -398,7 +398,7 @@ app.post('/cadastro-secreto', async (req,res)=>{
   const prefixo = tipoConta==='imobiliaria' ? 'imob' : tipoConta==='corretor' ? 'cor' : 'usr';
   const uid = prefixo+'_'+Math.random().toString(36).substring(2,8)+Date.now().toString(36).slice(-4);
   const codigo = (nome||'USR').substring(0,3).toUpperCase()+'-'+Math.floor(1000+Math.random()*9000);
-  users.push({id:uid,nome,telefone,celular:telefone,senha,tipo:tipoConta||'corretor',ativo:true,codigoUsuario:codigo});
+  users.push({id:uid,nome,telefone,celular:telefone,senha,tipo:tipoConta||'corretor',ativo:true,codigoUsuario:codigo,matchCoins:1000,matchCoinsTotal:1000,matchCoinsBonusInicial:1000});
   salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
   res.send('<h2 style="color:green;font-family:Arial">Conta criada!</h2><p>ID: '+uid+'</p><p>Codigo: '+codigo+'</p><a href="/login">Ir para login</a>');
 });
@@ -425,7 +425,10 @@ app.post('/login', async (req,res)=>{
       celular: telefone,
       tipo: req.body.tipoConta,
       ativo: true,
-      codigoUsuario: gerarCodigoUsuario(req.body.nome)
+      codigoUsuario: gerarCodigoUsuario(req.body.nome),
+      matchCoins: 1000,
+      matchCoinsTotal: 1000,
+      matchCoinsBonusInicial: 1000
     };
 
     users.push(novo);

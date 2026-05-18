@@ -2338,6 +2338,10 @@ app.post('/app/lead/:id/whatsapp/enviar', auth, async (req, res) => {
 // WEBHOOK WHATSAPP — Evolution API
 // ============================================================
 // NOVO WEBHOOK — usa match-core.js como ponto único
+// Cache anti-duplicação de mensagens WhatsApp
+const _msgCache = new Set();
+setInterval(() => { if (_msgCache.size > 500) _msgCache.clear(); }, 60000);
+
 app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
   try {
     const body = req.body;
@@ -2368,6 +2372,11 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     const telefone = fromJid.replace('@s.whatsapp.net', '').replace(/\D/g, '');
     const texto = msg.conversation || msg.extendedTextMessage?.text || msg.buttonsResponseMessage?.selectedDisplayText || '';
     const pushName = data.pushName || '';
+    const msgId = data.key?.id || '';
+    if (msgId && _msgCache.has(msgId)) {
+      return res.status(200).json({ ok: true, ignorado: 'duplicado' });
+    }
+    if (msgId) _msgCache.add(msgId);
     const timestamp = data.messageTimestamp ? new Date(data.messageTimestamp * 1000).toISOString() : new Date().toISOString();
 
     // Ignorar mensagens de grupos

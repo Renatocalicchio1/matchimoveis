@@ -475,7 +475,8 @@ class MatchCore {
       if (!texto) return null;
 
       if (!lead.mensagens) lead.mensagens = [];
-      lead.mensagens.push({ id:(Date.now()+1).toString(), de:'assistente', canal, texto, timestamp: new Date().toISOString(), lida:true });
+      // RESPOSTA AUTOMÁTICA DESATIVADA — corretor responde manualmente
+      // lead.mensagens.push({ id:(Date.now()+1).toString(), de:'assistente', canal, texto, timestamp: new Date().toISOString(), lida:true });
 
       if (canal==='whatsapp' && instancia && lead.contato) {
         setImmediate(() => enviarWhatsApp(instancia, lead.contato, texto));

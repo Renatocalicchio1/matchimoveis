@@ -219,8 +219,61 @@ function extrairDiferenciais(norm) {
 function extrairBairro(norm) {
   // Lista de bairros conhecidos SP
   const bairrosConhecidos = [
-    // SP - São Paulo
+    // SP - São Paulo - Zona Centro
+    'se','republica','bom retiro','bras','pari','cambuci','liberdade','aclimacao',
+    'bela vista','consolacao','santa cecilia','higienopolis','vila buarque',
+    // SP - Zona Oeste
+    'pinheiros','jardins','jardim paulista','jardim america','jardim europa',
+    'itaim bibi','vila nova conceicao','moema','campo belo','brooklyn','brooklin',
+    'vila olimpia','vila funchal','planalto paulista','saude','ipiranga',
+    'alto de pinheiros','jardim guedala','morumbi','real parque','panamby',
+    'vila andrade','campo limpo','vila sonia','butanta','raposo tavares',
+    'rio pequeno','lapa','barra funda','agua branca','perdizes','pompeia',
+    'vila madalena','pinheiros','sumare','agua verde','pacaembu','campo belo',
+    'chacara klabin','vila mariana','mirandopolis','cursino','sacomã',
+    // SP - Zona Norte  
+    'santana','tucuruvi','vila guilherme','vila medeiros','vila maria',
+    'jardim sao paulo','lauzane paulista','mandaqui','jaçana','tremembé',
+    'horto florestal','vila nova cachoeirinha','limao','casa verde','cambuci',
+    'bairro do limao','pirituba','jaragua','perus','anhanguera','jaraguá',
+    // SP - Zona Sul
+    'santo amaro','socorro','campo grande','cidade ademar','pedreira',
+    'jabaquara','vila mariana','paraiso','vila clementino','saude',
+    'planalto paulista','cursino','vila prudente','agua rasa','vila alpina',
+    'ipe','ipiranga','heliópolis','sao lucas','moinho velho','sapopemba',
+    'vila re','vila esperança','cidade lider','iguatemi','jose bonifacio',
+    'parque do carmo','artur alvim','cangaiba','penha','ermelino matarazzo',
+    'sao mateus','sao rafael','boa esperanca','cidade tiradentes','guaianases',
+    'lajeado','jardim helena','vila curuçá','sao miguel paulista','jardim angela',
+    'capao redondo','cidade dutra','grajaú','marsilac','parelheiros',
+    // SP - Zona Leste
+    'tatuape','mooca','belenzinho','bresser','pari','agua rasa','vila matilde',
+    'penha','vila carrão','vila formosa','analia franco','jardim analia franco',
+    'vila regente feijo','sao lucas','sapopemba','iguatemi','jose bonifacio',
+    'jardim popular','cidade lider','itaquera','guaianases','lajeado',
+    'cidade tiradentes','sao miguel paulista','jardim helena','vila jacuí',
+    // SP - Alphaville e Grande SP
+    'alphaville','tamboré','granja viana','cotia','barueri','santana de parnaiba',
+    'osasco','carapicuiba','jandira','itapevi','embu das artes','taboao da serra',
+    'santo andre','sao bernardo do campo','sao caetano do sul','diadema',
+    'maua','ribeirão pires','rio grande da serra','guarulhos','aruja',
+    'suzano','mogi das cruzes','itaquaquecetuba','ferraz de vasconcelos',
+    'poá','salesopolis','biritiba mirim','santa isabel','mogi das cruzes',
+    // SP - Outros bairros conhecidos
     'vila olimpia','moema','itaim bibi','brooklin','pinheiros','jardins','perdizes',
+    'lapa','santana','tatuape','morumbi','vila madalena','higienopolis','consolacao',
+    'bela vista','campo belo','alphaville','granja viana','liberdade',
+    'jardim paulista','jardim america','jardim europa','vila nova conceicao',
+    'itaim','berrini','faria lima','paulista','ibirapuera','mooca','ipiranga',
+    'saude','paraiso','vila mariana','jabaquara','santo amaro','socorro',
+    'tucuruvi','vila guilherme','penha','ermelino matarazzo','sao mateus',
+    'cidade tiradentes','guaianases','iguatemi','sapopemba','cursino',
+    'vila prudente','agua rasa','belenzinho','bras','pari','bom retiro',
+    'cambuci','republica','santa cecilia','barra funda','pompeia','agua branca',
+    'vila sonia','campo limpo','capao redondo','cidade dutra','grajaú',
+    'jardim angela','jardim sao luis','vila andrade','real parque','panamby',
+    'chacara klabin','mirandopolis','planalto paulista','analia franco',
+    'vila carrão','vila formosa','jardim analia franco','moinho velho',
     'lapa','santana','tatuape','morumbi','vila madalena','higienopolis','consolacao',
     'bela vista','campo belo','alphaville','granja viana','liberdade','aclimacao',
     'jardim paulista','jardim america','jardim europa','vila nova conceicao',

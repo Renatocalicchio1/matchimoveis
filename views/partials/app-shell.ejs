@@ -301,15 +301,7 @@
       </span>
       Parceiros
     </a>
-    <a class="<%= active==='whatsapp'?'active':'' %>" href="/app/whatsapp">
-      <span class="menu-ic">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      </span>
-      WhatsApp
-      <% if (typeof mensagensNaoLidas !== 'undefined' && mensagensNaoLidas > 0) { %>
-        <span class="nav-badge green"><%= mensagensNaoLidas %></span>
-      <% } %>
-    </a>
+    <!-- menu whatsapp oculto -->
 
     <a class="<%= active==='notificacoes'?'active':'' %>" href="/app/notificacoes">
       <span class="menu-ic">

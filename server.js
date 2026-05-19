@@ -1312,16 +1312,25 @@ app.get('/app/imoveis', auth, (req,res)=>{
   res.render('app-imoveis', { user: req.session.user, imoveis });
 });
 
-app.post('/app/excluir-xml', auth, (req,res)=>{
-  const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
-  const idx = users.findIndex(u => u.id === req.session.user.id);
-  console.log('idx:', idx, 'session id:', req.session.user && req.session.user.id);
-  if (idx >= 0) {
-    delete users[idx].xmlUrl;
-    delete users[idx].xmlAtualizadoEm;
-    delete users[idx].xmlTotal;
-    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
-  }
+app.post('/app/excluir-xml', auth, async (req,res)=>{
+  try {
+    const { lerUsuarios: _luXml, salvarTodosUsuarios: _stuXml } = require('./services/salvarUsuario');
+    const users = await _luXml();
+    const idx = users.findIndex(u => u.id === req.session.user.id);
+    if (idx >= 0) {
+      delete users[idx].xmlUrl;
+      delete users[idx].xmlAtualizadoEm;
+      delete users[idx].xmlTotal;
+      await _stuXml(users);
+    }
+    // Remove do xml-feeds.json
+    const feedsPath = dataPath('xml-feeds.json');
+    if (fs.existsSync(feedsPath)) {
+      const feeds = JSON.parse(fs.readFileSync(feedsPath,'utf8'));
+      const novosFeeds = feeds.filter(f => f.userId !== req.session.user.id);
+      fs.writeFileSync(feedsPath, JSON.stringify(novosFeeds, null, 2));
+    }
+  } catch(e) { console.error('[excluir-xml]', e.message); }
   res.redirect('/app/cadastro');
 });
 

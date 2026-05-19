@@ -1125,8 +1125,15 @@ function filtrarPorUsuario(lista, user){
 
 // HELPERS DE LEITURA COM FILTRO AUTOMÁTICO
 function lerImoveis(user) {
-  const todos = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
-  return filtrarPorUsuario(todos, user);
+  const todos = _cacheImoveis || [];
+  if (!user) return todos;
+  const uid = user.id || user;
+  return todos.filter(i =>
+    String(i.userId||'') === String(uid) ||
+    String(i.usuarioId||'') === String(uid) ||
+    String(i.codigoUsuario||'') === String(uid) ||
+    String(i.corretorId||'') === String(uid)
+  );
 }
 // Cache em memória — sincronizado com PostgreSQL
 let _cacheLeads = null;

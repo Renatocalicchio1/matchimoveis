@@ -418,7 +418,7 @@ app.post('/cadastro-secreto', async (req,res)=>{ return res.redirect('/'); // CA
   res.send('<h2 style="color:green;font-family:Arial">Conta criada!</h2><p>ID: '+uid+'</p><p>Codigo: '+codigo+'</p><a href="/login">Ir para login</a>');
 });
 
-app.get('/login',(req,res)=>{ if(req.session&&req.session.user) return res.redirect('/app/leads'); res.redirect('/'); });
+app.get('/login',(req,res)=>{ if(req.session&&req.session.user) return res.redirect('/app/leads'); res.render('login', { error: req.query.error || null }); });
 
 app.post('/login', async (req,res)=>{
   const fs = require('fs');

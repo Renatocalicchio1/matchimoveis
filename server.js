@@ -1146,10 +1146,11 @@ app.get('/app/notificacoes', auth, (req,res)=>{
 });
 
 
-app.get('/app-home', auth, (req,res)=>{
+app.get('/app-home', auth, async (req,res)=>{
   const user = req.session.user;
+  const { lerLeads: _llSvc2 } = require('./services/salvarLead');
   const todosImoveis = lerImoveis(req.session.user);
-  const todosLeads = lerLeads(req.session.user.id);
+  const todosLeads = await _llSvc2(req.session.user.id);
   const todasVisitas = lerVisitas(req.session.user);
   const notificacoes = lerNotificacoes(req.session.user);
   const imoveis = filtrarPorUsuario(todosImoveis, user);
@@ -1346,8 +1347,9 @@ app.get('/app/importar-leads', auth, (req,res)=>{
   res.redirect('/app-importar-leads');
 });
 
-app.get('/app/leads', auth, (req,res)=>{
-  const raw = lerLeads(req.session.user.id);
+app.get('/app/leads', auth, async (req,res)=>{
+  const { lerLeads: _lerLeadsService } = require('./services/salvarLead');
+  const raw = await _lerLeadsService();
   const data = Array.isArray(raw) ? raw : (raw.results || []);
   const _todasVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
   const leads = filtrarPorUsuario(data, req.session.user)

@@ -126,7 +126,7 @@ function loadImoveis() {
 
     console.log('BODY LEAD INTERESSE =>');
     console.log(JSON.stringify(req.body,null,2));
-    return (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+    return ((_cacheImoveis || []));
   } catch {
     return [];
   }
@@ -212,7 +212,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
 
       const fs = require('fs');
       const imoveis = fs.existsSync(dataFile('imoveis.json'))
-        ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [])
+        ? ((_cacheImoveis || []))
         : [];
 
       global.importStatus = {
@@ -639,7 +639,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   // Gravar em visitas.json vinculado ao dono da lead
   const imovel = lead.imovelVisita || {};
   // Busca proprietario no imoveis.json
-  const imoveisBase = fs.existsSync(dataFile('imoveis.json')) ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []) : [];
+  const imoveisBase = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
   const imovelBase = imoveisBase.find(i => String(i.idExterno||i.id) === String(imovel.idExterno||imovel.id||imovel.id_anuncio||''));
   const proprietario = imovelBase ? (imovelBase.proprietario || {}) : (imovel.proprietario || {});
   const userFinal = user || { id: "TESTE-LOCAL", nome: "Usuário Teste", celular: "11999999999", telefone: "11999999999" };
@@ -818,7 +818,7 @@ app.get('/dev/diagnostico-leads', auth, (req,res)=>{
 app.get('/admin/resumo-contas', (req, res) => {
   try {
     const users = (_cacheUsuarios || []);
-    const imoveis = (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+    const imoveis = ((_cacheImoveis || []));
     const leads = (_cacheLeads || []);
     const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'));
     const resumo = users.map(u => ({
@@ -1125,7 +1125,7 @@ function filtrarPorUsuario(lista, user){
 
 // HELPERS DE LEITURA COM FILTRO AUTOMÁTICO
 function lerImoveis(user) {
-  const todos = fs.existsSync(dataFile('imoveis.json')) ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []) : [];
+  const todos = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
   return filtrarPorUsuario(todos, user);
 }
 // Cache em memória — sincronizado com PostgreSQL
@@ -1136,8 +1136,6 @@ async function _recarregarLeads() {
     const { lerLeads: _llSvc } = require('./services/salvarLead');
     _cacheLeads = await _llSvc();
     _cacheLeadsAt = Date.now();
-    // Dual-write: mantém data.json atualizado para rotas que leem arquivo
-    try { fs.writeFileSync(dataPath('data.json'), JSON.stringify(_cacheLeads, null, 2)); } catch(e) {}
   } catch(e) {
     if (!_cacheLeads) _cacheLeads = (_cacheLeads || []);
   }
@@ -1151,9 +1149,8 @@ let _cacheImoveis = null;
 async function _recarregarImoveis() {
   try {
     _cacheImoveis = await lerImoveisService();
-    try { fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(_cacheImoveis, null, 2)); } catch(e) {}
   } catch(e) {
-    if (!_cacheImoveis) _cacheImoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
+    if (!_cacheImoveis) _cacheImoveis = (_cacheImoveis || []);
   }
 }
 _recarregarImoveis();
@@ -1164,7 +1161,6 @@ async function _recarregarUsuarios() {
   try {
     const { lerUsuarios: _luSvc } = require('./services/salvarUsuario');
     _cacheUsuarios = await _luSvc();
-    try { fs.writeFileSync(dataPath('users.json'), JSON.stringify(_cacheUsuarios, null, 2)); } catch(e) {}
   } catch(e) {
     if (!_cacheUsuarios) _cacheUsuarios = fs.existsSync(dataPath('users.json')) ? (_cacheUsuarios || []) : [];
   }
@@ -1184,8 +1180,6 @@ async function _recarregarVisitas() {
   try {
     const { lerVisitas: _lvSvc } = require('./services/salvarVisita');
     _cacheVisitas = await _lvSvc();
-    // Dual-write: mantém visitas.json atualizado para rotas que leem arquivo
-    try { fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(_cacheVisitas, null, 2)); } catch(e) {}
   } catch(e) {
     if (!_cacheVisitas) _cacheVisitas = (_cacheVisitas || []);
   }
@@ -1302,7 +1296,7 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
     const userId = user.id || user.celular || user.telefone || user.email || '';
 
     const imoveis = fs.existsSync(dataFile('imoveis.json'))
-      ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [])
+      ? ((_cacheImoveis || []))
       : [];
 
     const meusImoveis = filtrarPorUsuario(imoveis, user);
@@ -1661,7 +1655,7 @@ app.post('/app/lead/:id/buscar-quintoandar', auth, async (req, res) => {
       console.log('🔎 Match QuintoAndar em background iniciado:', leadIdParam);
 
       const leads = (_cacheLeads || []);
-      const imoveis = fs.existsSync(dataFile('imoveis.json')) ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []) : [];
+      const imoveis = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
 
       const lead = leads.find(l =>
         String(l.leadId) === String(leadIdParam) ||
@@ -2960,13 +2954,13 @@ app.get('/api/imoveis', auth, async (req, res) => {
 
 app.post('/imovel/:id/status', (req,res)=>{
   const fs=require('fs');
-  const imoveis=(fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+  const imoveis=((_cacheImoveis || []));
   const { status } = req.body;
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if(idx>=0){
     imoveis[idx].status = status;
-    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
+    salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
   gerarXMLPortais();
   gerarXMLPortais();
   }
@@ -2976,13 +2970,13 @@ app.post('/imovel/:id/status', (req,res)=>{
 
 app.post('/imovel/:id/status', (req,res)=>{
   const fs=require('fs');
-  const imoveis=(fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+  const imoveis=((_cacheImoveis || []));
   const { status } = req.body;
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if(idx>=0){
     imoveis[idx].status = status;
-    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
+    salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
   }
 
   res.json({ok:true});
@@ -2994,7 +2988,7 @@ app.post('/imovel/:id/status', (req,res)=>{
 // Cadastro manual de imóvel
 app.post('/app/imovel/cadastrar', auth, async (req, res) => {
   const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
-  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []) : [];
+  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
   const b = req.body;
   const novo = {
     idInterno: 'APP-' + Date.now(),
@@ -3032,7 +3026,7 @@ app.post('/app/imovel/cadastrar', auth, async (req, res) => {
     lastUpdate: new Date().toISOString()
   };
   imoveis.push(novo);
-  fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis, null, 2));
+  salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
   consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{});
   res.redirect('/app/imoveis');
 });
@@ -3054,7 +3048,7 @@ app.post('/api/lead-interesse', async (req, res) => {
     const leads = (_cacheLeads || []);
 
     const imoveis = fs.existsSync(dataFile('imoveis.json'))
-      ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [])
+      ? ((_cacheImoveis || []))
       : [];
 
     const imovelRef = imoveis.find(i =>
@@ -3245,7 +3239,7 @@ app.post('/api/lead-interesse', async (req, res) => {
 
 // Página pública do imóvel — sem login
 app.get('/imovel/:id', (req, res) => {
-  const imoveis = (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+  const imoveis = ((_cacheImoveis || []));
   const users = (_cacheUsuarios || []);
   const corretor = users.find(u => u.ativo) || {};
 
@@ -3334,7 +3328,7 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     String(v.userId || v.codigoUsuario || '') === uid
   );
 
-  const imoveisInternos = fs.existsSync(dataFile('imoveis.json')) ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []) : [];
+  const imoveisInternos = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
 
   let matchesInternos = [];
   try {
@@ -3376,7 +3370,7 @@ app.get('/app/lead/:id', auth, async (req, res) => {
   res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto });
 });
 app.get('/app/imovel/:id', auth, (req, res) => {
-  const imoveis = (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+  const imoveis = ((_cacheImoveis || []));
   const user = req.session.user;
   const imovel = imoveis.find(i => String(i.id) === String(req.params.id) || String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if (!imovel) return res.status(404).send('Imóvel não encontrado');
@@ -3396,7 +3390,7 @@ app.get('/app/imovel/:id', auth, (req, res) => {
 // Editar imóvel - tela
 app.get('/app/imovel/:id/editar', auth, (req,res)=>{
   const fs = require('fs');
-  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []) : [];
+  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
   const imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
 
   if(!imovel){
@@ -3409,7 +3403,7 @@ app.get('/app/imovel/:id/editar', auth, (req,res)=>{
 // Editar imóvel - salvar
 app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   const fs = require('fs');
-  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []) : [];
+  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
 
   if(idx < 0){
@@ -3459,7 +3453,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
     updatedAt: new Date().toISOString()
   };
 
-  fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
+  salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
 
   if(typeof gerarXMLPortais === 'function'){
     gerarXMLPortais();
@@ -3484,14 +3478,14 @@ const uploadImoveis = multer({ storage: storageImoveis });
 // Upload de foto
 app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), async (req,res)=>{
   const fs = require('fs');
-  const imoveis = (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+  const imoveis = ((_cacheImoveis || []));
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if(idx >= 0){
     const url = '/uploads/imoveis/' + req.file.filename;
     imoveis[idx].fotos = imoveis[idx].fotos || [];
     imoveis[idx].fotos.push(url);
-    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
+    salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -3502,12 +3496,12 @@ app.post('/app/imovel/:id/excluir-foto', auth, async (req,res)=>{
   const fs = require('fs');
   const { foto } = req.body;
 
-  const imoveis = (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+  const imoveis = ((_cacheImoveis || []));
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
 
   if(idx >= 0){
     imoveis[idx].fotos = (imoveis[idx].fotos || []).filter(f => f !== foto);
-    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
+    salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -3518,7 +3512,7 @@ app.post('/app/imovel/:id/capa-foto', auth, async (req,res)=>{
   const fs = require('fs');
   const { foto } = req.body;
 
-  const imoveis = (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+  const imoveis = ((_cacheImoveis || []));
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
 
   if(idx >= 0){
@@ -3526,7 +3520,7 @@ app.post('/app/imovel/:id/capa-foto', auth, async (req,res)=>{
     fotos = fotos.filter(f => f !== foto);
     fotos.unshift(foto);
     imoveis[idx].fotos = fotos;
-    fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(imoveis,null,2));
+    salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -3537,7 +3531,7 @@ app.post('/app/imovel/:id/capa-foto', auth, async (req,res)=>{
 // =========================
 function gerarXMLPortais(){
   const fs = require('fs');
-  const imoveis = (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+  const imoveis = ((_cacheImoveis || []));
 
   const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
 
@@ -3614,7 +3608,7 @@ function gerarXMLPortais(){
 // =========================
 function gerarXMLPortais(){
   const fs = require('fs');
-  const imoveis = (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+  const imoveis = ((_cacheImoveis || []));
 
   const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
 
@@ -3757,7 +3751,7 @@ function registrarHistoricoImovelLead(lead, tipoEvento, imovel){
 
 // Retorna IDs de todos os imóveis ativos do usuário (para gerar XML pelo chat)
 app.get('/app/imoveis-ids', auth, (req, res) => {
-  const todos = fs.existsSync(dataPath('imoveis.json')) ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'), 'utf8')) : [];
+  const todos = (_cacheImoveis || []);
   const filtrados = filtrarPorUsuario(todos, req.session.user);
   const ativos = filtrados.filter(i => (i.status||'ativo').toLowerCase() === 'ativo');
   const ids = ativos.map(i => String(i.idExterno || i.id));
@@ -3766,7 +3760,7 @@ app.get('/app/imoveis-ids', auth, (req, res) => {
 
 app.post('/app/gerar-xml', auth, async (req,res)=>{
   const { portal, ids } = req.body;
-  const todos = fs.existsSync(dataFile('imoveis.json')) ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []) : [];
+  const todos = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
   const selecionados = imoveis.filter(i => ids.includes(String(i.id)) || ids.includes(String(i.idExterno)) || ids.includes(String(i.idOriginal)));
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
@@ -4081,7 +4075,7 @@ function gerarXMLPortal(imoveis, portal){
 
 app.get('/app/portais', auth, (req,res)=>{
   const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
-  const todos = fs.existsSync(dataFile('imoveis.json')) ? (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []) : [];
+  const todos = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
   const imoveis = filtrarPorUsuario(todos, req.session.user);
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
   const xmlFeeds = portais.map(portal => {
@@ -4105,8 +4099,7 @@ app.get('/app/portais', auth, (req,res)=>{
 // Limpar descrições de imóveis de uma conta
 app.get('/admin/limpar-descricoes/:userId', (req,res)=>{
   const userId = req.params.userId;
-  const todos = fs.existsSync(dataPath('imoveis.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  const todos = (_cacheImoveis || []);
   let count = 0;
   const atualizados = todos.map(i => {
     if(String(i.userId||i.usuarioId||i.corretorId||'') !== userId) return i;
@@ -4124,14 +4117,14 @@ app.get('/admin/limpar-descricoes/:userId', (req,res)=>{
     if(d !== i.descricao){ count++; }
     return { ...i, descricao: d };
   });
-  fs.writeFileSync(dataPath('imoveis.json'), JSON.stringify(atualizados,null,2));
+  salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
   res.json({ ok: true, limpos: count, total: atualizados.filter(i=>String(i.userId||'')===userId).length });
 });
 
 // Diagnostico descricoes
 app.get("/admin/diagnostico-descricoes/:userId",(req,res)=>{
   const userId=req.params.userId;
-  const todos=fs.existsSync(dataPath("imoveis.json"))?JSON.parse(fs.readFileSync(dataPath("imoveis.json"),"utf8")):[]; 
+  const todos=(_cacheImoveis || []); 
   const meus=todos.filter(i=>String(i.userId||i.usuarioId||i.corretorId||"")=== userId);
   const comMario=meus.filter(i=>i.descricao&&i.descricao.toLowerCase().includes("mario"));
   const comAgende=meus.filter(i=>i.descricao&&i.descricao.toLowerCase().includes("agende"));
@@ -4142,7 +4135,7 @@ app.get("/admin/diagnostico-descricoes/:userId",(req,res)=>{
 // Limpar descricoes
 app.get("/admin/limpar-descricoes/:userId",(req,res)=>{
   const userId=req.params.userId;
-  const todos=fs.existsSync(dataPath("imoveis.json"))?JSON.parse(fs.readFileSync(dataPath("imoveis.json"),"utf8")):[]; 
+  const todos=(_cacheImoveis || []); 
   let count=0;
   const cortar=["aproveite e a oportunidade agende","aproveite essa oportunidade agende","agende agora mesmo sua visita","agende ja a sua visita","agende sua visita","agende agora","as informações estão sujeitas","as informacoes estao sujeitas","chave do anúncio","chave do anuncio"];
   const remover=["mario sergio","mário sérgio","11999965998","11 9.9996.5998","adv.mssouza"];
@@ -4157,15 +4150,14 @@ app.get("/admin/limpar-descricoes/:userId",(req,res)=>{
     if(d!==orig)count++;
     return{...i,descricao:d};
   });
-  fs.writeFileSync(dataPath("imoveis.json"),JSON.stringify(atualiz,null,2));
+  salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
   res.json({ok:true,limpos:count,total:todos.filter(i=>String(i.userId||i.corretorId||"")=== userId).length});
 });
 
 // Reativar todos imóveis de uma conta
 app.get('/admin/reativar-imoveis/:userId', (req,res)=>{
   const userId = req.params.userId;
-  const todos = fs.existsSync(dataPath('imoveis.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  const todos = (_cacheImoveis || []);
   let count = 0;
   const atualizados = todos.map(i => {
     if(String(i.userId||i.usuarioId||i.corretorId||'') === userId && i.status === 'inativo'){
@@ -4174,7 +4166,7 @@ app.get('/admin/reativar-imoveis/:userId', (req,res)=>{
     }
     return i;
   });
-  fs.writeFileSync(dataPath('imoveis.json'), JSON.stringify(atualizados,null,2));
+  salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
   res.json({ ok: true, reativados: count });
 });
 
@@ -4191,8 +4183,7 @@ app.get('/admin/backup-leads/:userId', (req,res)=>{
 // Backup de imóveis por conta
 app.get('/admin/backup-imoveis/:userId', (req,res)=>{
   const userId = req.params.userId;
-  const todos = fs.existsSync(dataPath('imoveis.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  const todos = (_cacheImoveis || []);
   const filtrados = todos.filter(i =>
     String(i.userId||i.usuarioId||i.corretorId||'') === userId
   );
@@ -4358,7 +4349,7 @@ app.get('/admin/reset-leads-repo', (req, res) => {
 });
 
 app.get('/app/assistente', auth, (req, res) => {
-  const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json'), 'utf8')).filter(i => i.userId === req.session.user.userId);
+  const imoveis = (_cacheImoveis || []).filter(i => i.userId === req.session.user.userId);
   const leads = (_cacheLeads || []).filter(l => l.userId === req.session.user.userId);
   const stats = { imoveis: imoveis.length, ativos: imoveis.filter(i => i.status !== 'inativo').length, leads: leads.length };
   res.render('app-assistente', { user: req.session.user, stats });
@@ -4370,7 +4361,7 @@ app.get('/app/assistente', auth, (req, res) => {
 // ─── API interna do Assistente — dados reais ─────────────────────────────────
 app.get('/api/assistente/dados', auth, (req, res) => {
   const uid = req.session.user.userId;
-  const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')).filter(i=>i.userId===uid);
+  const imoveis = (_cacheImoveis || []).filter(i=>i.userId===uid);
   const leads   = (_cacheLeads || []).filter(l=>l.userId===uid);
   const visitas = fs.existsSync(dataPath('visitas.json'))
     ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')).filter(v=>v.userId===uid) : [];
@@ -4410,7 +4401,7 @@ app.get('/api/assistente/dados', auth, (req, res) => {
 
 // ─── ASSISTENTE ───────────────────────────────────────────────────────────────
 app.get('/app/assistente', auth, (req, res) => {
-  const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json'), 'utf8')).filter(i => i.userId === req.session.user.userId);
+  const imoveis = (_cacheImoveis || []).filter(i => i.userId === req.session.user.userId);
   const leads = (_cacheLeads || []).filter(l => l.userId === req.session.user.userId);
   const stats = { imoveis: imoveis.length, ativos: imoveis.filter(i => i.status !== 'inativo').length, leads: leads.length, comMatch: leads.filter(l=>l.matchesBase&&l.matchesBase.length>0).length, visitas: 0, visitasHoje: 0 };
   res.render('app-assistente', { user: req.session.user, stats });
@@ -4445,7 +4436,7 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
   const uid  = req.session.user.id || req.session.user.userId;
   const user = req.session.user;
 
-  const imoveis = JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')).filter(i=>i.userId===uid);
+  const imoveis = (_cacheImoveis || []).filter(i=>i.userId===uid);
   const leads   = (_cacheLeads || []).filter(l=>l.userId===uid);
   const visitas = fs.existsSync(dataPath('visitas.json'))
     ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')).filter(v=>v.userId===uid)
@@ -5073,8 +5064,7 @@ function resolverUsuarioPorId(id){
 app.post('/api/visita/nova-v2', async (req,res)=>{
   const { imovelId, nome, telefone, dataVisita, horaVisita, imovelTitulo } = req.body;
 
-  const imoveisAll = fs.existsSync(dataPath('imoveis.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('imoveis.json'),'utf8')) : [];
+  const imoveisAll = (_cacheImoveis || []);
   const imovel = imoveisAll.find(i => String(i.idExterno||i.id) === String(imovelId)) || {};
 
   const users = fs.existsSync(dataPath('users.json'))
@@ -6361,7 +6351,7 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
     const uid = req.session.user.id;
     const { leadId, imovelId, nome, telefone, dataVisita, horaVisita, obs } = req.body;
     if (!imovelId || !dataVisita || !horaVisita) return res.status(400).json({ erro: 'dados incompletos' });
-    const imoveis = (fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : []);
+    const imoveis = ((_cacheImoveis || []));
     const imovel = imoveis.find(i => String(i.id||i.codigoInterno||'') === String(imovelId));
     if (!imovel) return res.status(404).json({ erro: 'imovel nao encontrado' });
     const novaVisita = {

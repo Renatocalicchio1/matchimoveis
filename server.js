@@ -2476,9 +2476,14 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
     
       // Captura QR code enviado via webhook (Evolution v2.2.3)
-      if (body.event === 'connection.update' && body.data?.qrcode?.base64) {
-        _qrCache[body.instance] = { base64: body.data.qrcode.base64, ts: Date.now() };
-        console.log('[QR_CACHE] QR salvo para instância:', body.instance);
+      const _qrB64 = body.data?.qrcode?.base64 || body.data?.base64 || body.qrcode?.base64;
+      if (_qrB64) {
+        _qrCache[body.instance] = { base64: _qrB64, ts: Date.now() };
+        console.log('[QR_CACHE] QR salvo para instância:', body.instance, '| evento:', body.event);
+      }
+      // Log completo quando vier qualquer dado de qrcode
+      if (body.event === 'qrcode.updated' || body.event === 'QRCODE_UPDATED' || body.data?.qrcode) {
+        console.log('[QR_DEBUG] evento qrcode:', JSON.stringify(body.data).substring(0, 300));
       }
       console.log('[WEBHOOK WA] evento:', event, '| instancia:', instance);
 

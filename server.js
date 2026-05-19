@@ -5483,7 +5483,7 @@ app.post('/app/visitas/solicitar-confirmacao/:id', auth, async (req,res)=>{
 
 
 
-app.get('/cliente/visita/:id', (req, res) => {
+app.get('/cliente/visita/:id', async (req, res) => {
   const { lerVisitas } = require('./services/salvarVisita');
   const visitas = await lerVisitas();
   const visita = visitas.find(v => String(v.id) === String(req.params.id));

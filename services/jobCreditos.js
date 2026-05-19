@@ -9,7 +9,7 @@ const { criarNotificacao } = require('./salvarNotificacao');
 
 const CUSTO_LEAD_DIA = 10;
 
-async async function debitarLeadsAtivos() {
+async async async function debitarLeadsAtivos() {
   try {
     const users = await lerUsuarios();
     let alterou = false;

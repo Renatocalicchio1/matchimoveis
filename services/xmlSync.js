@@ -1,16 +1,20 @@
+const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
+function getDataDir() {
+  return process.env.RENDER ? '/opt/render/project/src/data' : path.join(__dirname, '..');
+}
 
 function readJson(file, fallback) {
   try {
-    return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : fallback;
+    const full = path.join(getDataDir(), file); return fs.existsSync(full) ? JSON.parse(fs.readFileSync(full, "utf8")) : fallback;
   } catch (e) {
     return fallback;
   }
 }
 
 function writeJson(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  fs.writeFileSync(path.join(getDataDir(), file), JSON.stringify(data, null, 2));
 }
 
 function getId(imovel) {

@@ -2606,7 +2606,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       console.log('[WEBHOOK WA] userId identificado:', _webhookUserId);
       // Se lead existia e estava deletada por este userId — restaura
       try {
-        const _leadsRestore = lerLeads();
+        const _leadsRestore = await lerLeads();
         const _tel = telefone;
         const _idxRestore = _leadsRestore.findIndex(l => {
           const t = String(l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,'');
@@ -5485,7 +5485,7 @@ app.post('/app/visitas/solicitar-confirmacao/:id', auth, async (req,res)=>{
 
 app.get('/cliente/visita/:id', (req, res) => {
   const { lerVisitas } = require('./services/salvarVisita');
-  const visitas = lerVisitas();
+  const visitas = await lerVisitas();
   const visita = visitas.find(v => String(v.id) === String(req.params.id));
   if (!visita) return res.status(404).send('Visita não encontrada');
   res.render('cliente-visita-confirmar', { visita, user: null });
@@ -5493,7 +5493,7 @@ app.get('/cliente/visita/:id', (req, res) => {
 
 app.post('/cliente/visita/:id/responder', async (req, res) => {
   const { lerVisitas, salvarTodasVisitas } = require('./services/salvarVisita');
-  const visitas = lerVisitas();
+  const visitas = await lerVisitas();
   const idx = visitas.findIndex(v => String(v.id) === String(req.params.id));
   if (idx < 0) return res.status(404).send('Visita não encontrada');
   const acao = req.body.acao || 'confirmar';

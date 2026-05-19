@@ -12,6 +12,7 @@ const fs = require('fs');
 const centralOperacional = require("./services/centralOperacional");
 const { consumir, adicionarCreditos, temSaldo, saldo: saldoCreditos } = require("./services/creditos");
 const { lerLeads: lerLeadsService, salvarLead, atualizarLead: atualizarLeadService, deletarLead, salvarTodosLeads } = require('./services/salvarLead');
+const { lerImoveis: lerImoveisService, salvarImovel, salvarTodosImoveis } = require('./services/salvarImovel');
 const { lerVisitas: lerVisitasService, salvarVisita, atualizarVisita: atualizarVisitaService, deletarVisita, salvarTodasVisitas } = require('./services/salvarVisita');
 const { lerNotificacoes: lerNotificacoesService, criarNotificacao, marcarLida, marcarTodasLidas } = require('./services/salvarNotificacao');
 const { lerUsuarios: lerUsuariosService, lerUsuario: lerUsuarioService, salvarUsuario: salvarUsuarioService, atualizarUsuario: atualizarUsuarioService, salvarTodosUsuarios } = require('./services/salvarUsuario');
@@ -1144,6 +1145,19 @@ async function _recarregarLeads() {
 _recarregarLeads();
 setInterval(_recarregarLeads, 15000);
 
+
+// Cache imóveis em memória
+let _cacheImoveis = null;
+async function _recarregarImoveis() {
+  try {
+    _cacheImoveis = await lerImoveisService();
+    try { fs.writeFileSync(dataFile('imoveis.json'), JSON.stringify(_cacheImoveis, null, 2)); } catch(e) {}
+  } catch(e) {
+    if (!_cacheImoveis) _cacheImoveis = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
+  }
+}
+_recarregarImoveis();
+setInterval(_recarregarImoveis, 15000);
 // Cache usuários
 let _cacheUsuarios = null;
 async function _recarregarUsuarios() {

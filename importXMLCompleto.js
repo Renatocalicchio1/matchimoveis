@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { salvarImovel } = require('./services/salvarImovel');
 const axios = require('axios');
 const XLSX = require('xlsx');
 const { XMLParser } = require('fast-xml-parser');
@@ -21,7 +22,11 @@ function normalizeId(id) {
 }
 
 function saveData(data) {
-  fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
+  // Fallback JSON — mantido para compatibilidade local
+  try { fs.writeFileSync(FILE, JSON.stringify(data, null, 2)); } catch(e) {}
+}
+async function saveImovelPG(imovel) {
+  try { await salvarImovel(imovel); } catch(e) { console.error('[PG]', e.message); }
 }
 
 function extractNumber(field) {

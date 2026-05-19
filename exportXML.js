@@ -1,9 +1,11 @@
+(async () => {
 const fs = require('fs');
 
 const portal = process.argv[2] || 'vivareal';
 const ids = process.argv.slice(3);
 
-const imoveis = JSON.parse(fs.readFileSync('imoveis.json','utf8'));
+const { lerImoveis } = require('./services/salvarImovel');
+const imoveis = await lerImoveis();
 
 function esc(str){
   return String(str || '')
@@ -189,3 +191,5 @@ const xml = portal === 'quintoandar'
 fs.writeFileSync(`feed-${portal}.xml`, xml);
 
 console.log('Feed gerado:', `feed-${portal}.xml`);
+
+})().catch(e=>console.error(e.message));

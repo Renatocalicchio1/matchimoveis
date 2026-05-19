@@ -1,4 +1,5 @@
 const path = require('path');
+const { salvarTodosLeads } = require('./services/salvarLead');
 const fs = require('fs');
 const XLSX = require('xlsx');
 
@@ -121,6 +122,7 @@ for (const r of rows) {
   console.log('ADICIONADO:', lead.nome, lead.telefone, lead.perfilIA.bairro || '-', lead.perfilIA.tipo || '-');
 }
 
-fs.writeFileSync(DATA_FILE, JSON.stringify(existing, null, 2));
+salvarTodosLeads(existing).catch(e=>console.error('[leads PG]',e.message));
+try { fs.writeFileSync(DATA_FILE, JSON.stringify(existing, null, 2)); } catch(e) {}
 console.log(`\nRESULTADO: ${adicionados} adicionados | ${duplicados} duplicados | ${ignorados} ignorados`);
 console.log('TOTAL NA BASE:', existing.length);

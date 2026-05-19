@@ -48,9 +48,26 @@ function mergeImovelAtualizado(antigo, novo) {
   const mudou = houveMudanca(antigo, novo);
   const agora = new Date().toISOString();
 
+  // Campos manuais do corretor — nunca sobrescrever
+  const camposPreservados = {
+    proprietario: antigo.proprietario,
+    proprietarioNome: antigo.proprietarioNome,
+    proprietarioTelefone: antigo.proprietarioTelefone,
+    proprietarioEmail: antigo.proprietarioEmail,
+    destaque: antigo.destaque,
+    observacoes: antigo.observacoes,
+    statusManual: antigo.statusManual,
+    userId: antigo.userId,
+    codigoUsuario: antigo.codigoUsuario,
+    inativo: antigo.inativo,
+    descricao: antigo.descricao
+  };
+  // Remove campos undefined para nao sobrescrever com undefined
+  Object.keys(camposPreservados).forEach(k => camposPreservados[k] === undefined && delete camposPreservados[k]);
   return {
     ...antigo,
     ...novo,
+    ...camposPreservados,
     ativo: true,
     statusDisponibilidade: 'ativo',
     removedFromXmlAt: '',

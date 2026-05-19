@@ -2857,6 +2857,9 @@ app.get('/api/bairros-coords', auth, (req, res) => {
   res.json(cache);
 });
 
+// Garante schema do banco atualizado no boot
+try { require('./setupDB'); } catch(e) { console.error('[setupDB]', e.message); }
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   // Inicia atualizacao automatica do XML a cada 12h

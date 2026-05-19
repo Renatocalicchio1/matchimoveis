@@ -1208,9 +1208,9 @@ app.get('/app/notificacoes', auth, (req,res)=>{
 app.get('/app-home', auth, async (req,res)=>{
   const user = req.session.user;
   const { lerLeads: _llSvc2 } = require('./services/salvarLead');
-  const todosImoveis = lerImoveis(req.session.user);
+  const todosImoveis = await lerImoveis(req.session.user.id);
   const todosLeads = await _llSvc2(req.session.user.id);
-  const todasVisitas = lerVisitas(req.session.user);
+  const todasVisitas = await lerVisitas(req.session.user.id);
   const notificacoes = lerNotificacoes(req.session.user);
   const imoveis = filtrarPorUsuario(todosImoveis, user);
   const leadsArr = filtrarPorUsuario(Array.isArray(todosLeads) ? todosLeads : (todosLeads.results || []), user);
@@ -1340,7 +1340,7 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
 });
 
 app.get('/app/imoveis', auth, (req,res)=>{
-  const imoveis = lerImoveis(req.session.user);
+  const imoveis = await lerImoveis(req.session.user.id);
   res.render('app-imoveis', { user: req.session.user, imoveis });
 });
 
@@ -1500,7 +1500,7 @@ app.get('/app/leads', auth, async (req,res)=>{
 
 
 app.get('/app/visitas', auth, (req,res)=>{
-  const todasVisitas = lerVisitas(req.session.user);
+  const todasVisitas = await lerVisitas(req.session.user.id);
   const user = req.session.user;
   let visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
     String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
@@ -2942,7 +2942,7 @@ app.get('/feed', (req, res) => {
 });
 
 app.get('/api/imoveis', auth, (req, res) => {
-  const imoveis = lerImoveis(req.session.user);
+  const imoveis = await lerImoveis(req.session.user.id);
 
 app.post('/imovel/:id/status', (req,res)=>{
   const fs=require('fs');
@@ -6425,7 +6425,7 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
       data: new Date().toISOString(),
       data_br: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
     };
-    await salvarTodasVisitas([...lerVisitas(req.session.user), novaVisita]);
+    await salvarTodasVisitas([...await lerVisitas(req.session.user.id), novaVisita]);
     // Marca lead como visitaAgendada
     if (leadId) {
       const leads = JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8'));

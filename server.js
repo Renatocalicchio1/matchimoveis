@@ -6225,7 +6225,7 @@ app.post('/app/whatsapp/desconectar', auth, async (req, res) => {
 app.delete('/app/lead/:id', auth, async (req, res) => {
   try {
     const uid = String(req.session.user.id || '');
-    const leads = lerLeads();
+    const leads = await lerLeads(req.session.user);
     const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
     if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
     const lead = leads[idx];

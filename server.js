@@ -2887,7 +2887,7 @@ app.get('/app/mapa', auth, async (req, res) => {
   const DATA_DIR2 = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
   const userId = req.session.user.id;
   const hoje = new Date().toISOString().split('T')[0];
-  const imoveis = fs2.existsSync(path2.join(DATA_DIR2,'imoveis.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'imoveis.json'),'utf8')) : [];
+  const imoveis = (_cacheImoveis || []);
   // Visitas do dia
   const todasVisitas = _cacheVisitas || (fs2.existsSync(path2.join(DATA_DIR2,'visitas.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'visitas.json'),'utf8')) : []);
   const amanha = new Date(Date.now()+86400000).toISOString().split('T')[0];
@@ -5034,25 +5034,15 @@ Confirme aqui: https://matchimoveis.onrender.com/visita/${v.id}`;
 
 
 function resolverUsuarioPorId(id){
-
   try {
-    const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8') || '[]');
-    return users.find(u => String(u.id) === String(id)) || null;
-  } catch(e){
-    return null;
-  }
-
+    return (_cacheUsuarios || []).find(u => String(u.id) === String(id)) || null;
+  } catch(e){ return null; }
 }
 
 function resolverUsuarioPorId(id){
-
   try {
-    const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8') || '[]');
-    return users.find(u => String(u.id) === String(id)) || null;
-  } catch(e){
-    return null;
-  }
-
+    return (_cacheUsuarios || []).find(u => String(u.id) === String(id)) || null;
+  } catch(e){ return null; }
 }
 
 // ===============================

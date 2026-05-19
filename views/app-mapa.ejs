@@ -24,9 +24,11 @@
   </div>
 
   <div class="leg" id="legenda">
-    <div class="leg-i"><div class="leg-d" style="background:#1D9E75"></div>Visita hoje</div>
+    <div class="leg-i"><div class="leg-d" style="background:#1D9E75"></div>Visita hoje/amanhã</div>
+    <div class="leg-i"><div class="leg-d" style="background:#f59e0b"></div>Solicitada</div>
     <div class="leg-i"><div class="leg-d" style="background:#ef4444"></div>Interesse quente</div>
-    <div class="leg-i" style="margin-bottom:0"><div class="leg-d" style="background:#f59e0b"></div>Interesse morno</div>
+    <div class="leg-i"><div class="leg-d" style="background:#6366f1"></div>Lead sem match</div>
+    <div class="leg-i" style="margin-bottom:0"><div class="leg-d" style="background:#94a3b8"></div>Lead frio</div>
   </div>
 
   <div class="map-panel" id="painelVisitas">
@@ -109,13 +111,16 @@ _imInt.forEach(im => {
 
 // LEADS POR BAIRRO
 _leads.forEach(l => {
+  // Pin diferente para leads sem match
+  const semMatch = l.matchCount === 0;
   const base = _coords(l.bairro,l.cidade);
   if(!base) return;
   const key = _norm(l.cidade||'')+l.bairro;
   const off = _offset(key);
   const cor = l.temperatura==='quente'?'#ef4444':l.temperatura==='morno'?'#f59e0b':'#94a3b8';
-  const mk = L.marker([base.lat+off.dlat,base.lng+off.dlng],{icon:_pin('👤',cor,null)});
-  mk.bindPopup('<div style="padding:8px;min-width:180px"><b>'+(l.nome||l.telefone)+'</b><div style="font-size:12px;color:#666;margin:4px 0">'+(l.bairro?l.bairro+' · ':'')+l.cidade+'</div><div style="font-size:12px">Score: <b>'+l.score+'</b> · '+l.matchCount+' matches</div></div>',{maxWidth:220});
+  const emoji = semMatch ? '❓' : '👤';
+  const mk = L.marker([base.lat+off.dlat,base.lng+off.dlng],{icon:_pin(emoji,semMatch?'#6366f1':cor,null)});
+  mk.bindPopup('<div style="padding:8px;min-width:180px"><b>'+(l.nome||l.telefone)+'</b><div style="font-size:12px;color:#666;margin:4px 0">'+(l.bairro?l.bairro+' · ':'')+l.cidade+'</div><div style="font-size:12px">Score: <b>'+l.score+'</b> · '+l.matchCount+' matches</div>'+(semMatch?'<div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:#ede9fe;color:#6366f1">Sem match ainda</div>':'')+'</div>',{maxWidth:220});
   _layers.leads.addLayer(mk);
 });
 

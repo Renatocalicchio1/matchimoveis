@@ -2868,7 +2868,11 @@ app.get('/app/mapa', auth, async (req, res) => {
   const imoveis = fs2.existsSync(path2.join(DATA_DIR2,'imoveis.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'imoveis.json'),'utf8')) : [];
   // Visitas do dia
   const todasVisitas = _cacheVisitas || (fs2.existsSync(path2.join(DATA_DIR2,'visitas.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'visitas.json'),'utf8')) : []);
-  const visitasHoje = todasVisitas.filter(v => (v.userId===userId||v.corretorId===userId) && v.dataVisita===hoje).sort((a,b)=>(a.horaVisita||'').localeCompare(b.horaVisita||''));
+  const amanha = new Date(Date.now()+86400000).toISOString().split('T')[0];
+  const visitasHoje = todasVisitas.filter(v =>
+    (v.userId===userId||v.corretorId===userId) &&
+    (v.dataVisita===hoje || v.dataVisita===amanha || v.status==='solicitada' || v.status==='pendente')
+  ).sort((a,b)=>(a.dataVisita||'').localeCompare(b.dataVisita||'') || (a.horaVisita||'').localeCompare(b.horaVisita||''));
   // Leads ativas do corretor
   const todasLeads = _cacheLeads || (fs2.existsSync(path2.join(DATA_DIR2,'data.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'data.json'),'utf8')) : []);
   const leadsCorretor = todasLeads.filter(l => (l.userId===userId||l.codigoUsuario===userId) && l.status!=='arquivado');

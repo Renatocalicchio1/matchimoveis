@@ -170,6 +170,23 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
     </div>
     <% } %>
 
+    <!-- Ciclos de busca -->
+    <% if(lead.ciclosBusca && lead.ciclosBusca.length > 0) { %>
+    <div class="ld-card">
+      <div class="ld-title">🔄 Histórico de buscas (<%= lead.ciclosBusca.length + 1 %> perfis)</div>
+      <% lead.ciclosBusca.slice().reverse().forEach(function(ciclo) { %>
+      <div style="border:1px solid var(--border-light);border-radius:8px;padding:10px;margin-bottom:8px;background:var(--bg)">
+        <div style="font-size:11px;color:var(--text-ter);margin-bottom:6px">Perfil anterior · <%= new Date(ciclo.em).toLocaleDateString("pt-BR") %></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <% if(ciclo.perfil.tipo){%><span style="background:#f3f4f6;border-radius:6px;padding:3px 8px;font-size:12px"><%=ciclo.perfil.tipo%></span><%}%>
+          <% if(ciclo.perfil.quartos){%><span style="background:#f3f4f6;border-radius:6px;padding:3px 8px;font-size:12px"><%=ciclo.perfil.quartos%> qtos</span><%}%>
+          <% if(ciclo.perfil.bairro){%><span style="background:#f3f4f6;border-radius:6px;padding:3px 8px;font-size:12px"><%=ciclo.perfil.bairro%></span><%}%>
+          <% if(ciclo.perfil.valorMax){%><span style="background:#f3f4f6;border-radius:6px;padding:3px 8px;font-size:12px">R$<%=Math.round(Number(ciclo.perfil.valorMax)/1000)%>k</span><%}%>
+        </div>
+      </div>
+      <% }); %>
+    </div>
+    <% } %>
     <!-- Imóvel de interesse -->
     <% if(lead.imovel_interesse) { %>
     <div class="ld-card">

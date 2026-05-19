@@ -178,33 +178,21 @@ class MatchCore {
       );
       const statusFechado = ['fechado', 'comprou', 'convertido', 'ganho'].includes((lead.status || '').toLowerCase());
 
-      if (!temVisitaRealizada && !statusFechado) return lead;
 
-      // Cria nova lead para o novo ciclo
-      console.log('[MATCH CORE] novo ciclo detectado para:', lead.nome || lead.telefone);
-      const { salvarLead } = require('../services/salvarLead');
-      const novaLead = {
-        id: Date.now().toString(),
-        nome: lead.nome,
-        telefone: lead.telefone,
-        whatsapp: lead.whatsapp,
-        contato: lead.contato,
-        origem: lead.origem,
-        userId: lead.userId,
-        codigoUsuario: lead.codigoUsuario,
-        criadoEm: new Date().toISOString(),
-        perfilIA: novoPerfil,
-        mensagens: [],
-        status: 'novo',
-        faseFunil: 'novo',
-        temperatura: 'frio',
-        cicloAnterior: lead.id
-      };
-      await salvarLead(novaLead);
-      lead.cicloSeguinte = novaLead.id;
-      lead.status = lead.status || 'convertido';
-      console.log('[MATCH CORE] nova lead criada:', novaLead.id);
-      return novaLead;
+// Arquiva perfil anterior em ciclosBusca[] e ativa novo perfil na mesma lead
+console.log("[MATCH CORE] novo ciclo de busca:", lead.nome || lead.telefone);
+if (!lead.ciclosBusca) lead.ciclosBusca = [];
+lead.ciclosBusca.push({ em: new Date().toISOString(), perfil: { ...perfilAtual }, motivo: tipoMudou ? "tipo_mudou" : "bairro_mudou" });
+lead.perfilIA = { ...perfilAtual, ...novoPerfil };
+lead.status = "novo";
+lead.faseFunil = "novo";
+lead.temperatura = "frio";
+lead.score = 0;
+lead.matchesAuto = [];
+lead.matchesBase = [];
+console.log("[MATCH CORE] ciclos arquivados:", lead.ciclosBusca.length);
+return lead;
+      if (!temVisitaRealizada && !statusFechado) return lead;
     } catch(e) {
       console.error('[MATCH CORE] erro detectarNovoCiclo:', e.message);
       return lead;

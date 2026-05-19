@@ -1378,6 +1378,16 @@ app.post('/app/excluir-xml', auth, async (req,res)=>{
       const novosFeeds = feeds.filter(f => !(f.userId === req.session.user.id && f.url === urlRemover));
       fs.writeFileSync(feedsPath, JSON.stringify(novosFeeds, null, 2));
     }
+    // Remove imóveis do PostgreSQL se solicitado
+    if (req.body.removerImoveis === 'true') {
+      const { query: _q } = require('./services/db');
+      const uid = req.session.user.id;
+      const xmlUrl = req.body.xmlUrl;
+      await _q('DELETE FROM imoveis WHERE user_id=$1 AND xml_url=$2', [uid, xmlUrl]).catch(()=>{});
+      // Atualiza cache
+      _cacheImoveis = (_cacheImoveis||[]).filter(i => !(i.userId===uid && i.xmlUrl===xmlUrl));
+      console.log('[excluir-xml] imóveis removidos do PostgreSQL para:', uid);
+    }
   } catch(e) { console.error('[excluir-xml]', e.message); }
   res.redirect('/app/cadastro');
 });

@@ -137,7 +137,7 @@ function loadImoveis() {
 app.get('/health',(req,res)=>res.json({ok:true,ts:new Date().toISOString()}));
 app.get('/', (req,res)=>{
   if (req.session && req.session.user) return res.redirect('/app/leads');
-  res.render('landing', {});
+  res.render('landing', { error: req.query.error || null });
 });
 
 app.get('/entrar', (req,res)=>{
@@ -460,7 +460,7 @@ app.post('/login', async (req,res)=>{
   // LOGIN SEM SENHA
   const user = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);
 
-  if(!user) return res.render('login', { error: 'Celular não cadastrado. Crie sua conta abaixo.' });
+  if(!user) return res.redirect('/?error=nao_cadastrado');
 
   req.session.user = user;
   res.redirect('/app-home');

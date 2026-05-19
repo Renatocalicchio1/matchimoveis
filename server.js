@@ -1135,8 +1135,20 @@ function lerLeads(user) {
   if (!uid) return filtradas;
   return filtradas.filter(l => !(l.deletadoPor && l.deletadoPor.includes(uid)));
 }
+let _cacheVisitas = null;
+async function _recarregarVisitas() {
+  try {
+    const { lerVisitas: _lvSvc } = require('./services/salvarVisita');
+    _cacheVisitas = await _lvSvc();
+  } catch(e) {
+    if (!_cacheVisitas) _cacheVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  }
+}
+_recarregarVisitas();
+setInterval(_recarregarVisitas, 15000);
+
 function lerVisitas(user) {
-  const todos = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
+  const todos = _cacheVisitas || (fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : []);
   return filtrarPorUsuario(todos, user);
 }
 function lerNotificacoes(user) {

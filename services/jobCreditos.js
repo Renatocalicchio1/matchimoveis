@@ -11,7 +11,7 @@ const CUSTO_LEAD_DIA = 10;
 
 async function debitarLeadsAtivos() {
   try {
-    const users = lerUsuarios();
+    const users = await lerUsuarios();
     let alterou = false;
 
     for (let i = 0; i < users.length; i++) {
@@ -54,7 +54,7 @@ async function debitarLeadsAtivos() {
 
 async function verificarAlertas() {
   try {
-    const users = lerUsuarios();
+    const users = await lerUsuarios();
 
     for (const u of users) {
       const uid = u.id || u.userId;

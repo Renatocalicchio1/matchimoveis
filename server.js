@@ -6041,13 +6041,22 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
     await new Promise(r => setTimeout(r, 2000));
 
     // Gera QR Code
-    const qrRes = await fetch(EVOLUTION_URL + '/instance/connect/' + instanceName, {
-      headers: { 'apikey': EVOLUTION_KEY }
-    });
-    const qrData = await qrRes.json();
-    console.log('[QRCODE] instanceName:', instanceName, '| qrData keys:', Object.keys(qrData), '| base64 existe:', !!qrData.base64, '| code existe:', !!qrData.code);
+    // v2.2.3: tenta até 5x com intervalo de 3s para gerar o QR
+    let qrData = {};
+    for (let _i = 0; _i < 5; _i++) {
+      await new Promise(r => setTimeout(r, 3000));
+      const qrRes = await fetch(EVOLUTION_URL + '/instance/connect/' + instanceName, {
+        headers: { 'apikey': EVOLUTION_KEY }
+      });
+      qrData = await qrRes.json();
+      const _b64 = qrData.base64 || qrData.qrcode?.base64 || qrData.code || qrData.qrcode?.code;
+      console.log('[QRCODE] tentativa', _i+1, '| instanceName:', instanceName, '| keys:', Object.keys(qrData), '| base64:', !!_b64);
+      if (_b64) break;
+    }
+    const _qrFinal = qrData.base64 || qrData.qrcode?.base64 || qrData.code || qrData.qrcode?.code;
+    console.log('[QRCODE] instanceName:', instanceName, '| qrData keys:', Object.keys(qrData), '| base64 existe:', !!_qrFinal, '| code existe:', !!qrData.code);
     // Se não gerou QR — instância travada, recria com nome novo
-    if (!qrData.base64 && !qrData.code) {
+    if (!_qrFinal) {
       const novoNome = 'match-' + userId.replace(/[^a-z0-9]/gi,'').toLowerCase().substring(0,15) + '-' + Date.now().toString().slice(-4);
       console.log('[QRCODE] instância travada, recriando como:', novoNome);
       await fetch(EVOLUTION_URL + '/instance/delete/' + instanceName, { method: 'DELETE', headers: { 'apikey': EVOLUTION_KEY } }).catch(()=>{});
@@ -6077,7 +6086,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
       _salvarU(users).catch(e=>console.error("[users]",e.message));
     }
 
-    res.json({ ok: true, base64: qrData.base64 || qrData.qrcode?.base64 || qrData.code, instanceName });
+    res.json({ ok: true, base64: qrData.base64 || qrData.qrcode?.base64 || qrData.code || qrData.qrcode?.code, instanceName });
   } catch(e) {
     res.json({ ok: false, erro: e.message });
   }

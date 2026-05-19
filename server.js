@@ -2409,7 +2409,8 @@ setInterval(async () => {
 // INBOX WHATSAPP
 app.get('/app/whatsapp', auth, async (req, res) => {
   const user = req.session.user;
-  const leadsFiltrados = await lerLeads(user?.id || user);
+  const { lerLeads: _llWA } = require('./services/salvarLead');
+  const leadsFiltrados = await _llWA(user.id);
   res.render('app-whatsapp-inbox', { user, leads: leadsFiltrados, active: 'whatsapp', baseUrl: process.env.BASE_URL || 'http://localhost:3000' });
 });
 

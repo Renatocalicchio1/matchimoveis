@@ -178,7 +178,7 @@
         <div class="im-badge-status"><%= (item.status||'inativo').toUpperCase() %></div>
         <% if(item.condicao && item.condicao !== 'usado') { %>
         <div style="position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;<%=item.condicao==='lancamento'?'background:#7c3aed;color:#fff':item.condicao==='novo'?'background:#059669;color:#fff':''%>">
-          <%=item.condicao==='lancamento'?'LANÇAMENTO':item.condicao==='novo'?'NOVO':'%>
+          <%=item.condicao==='lancamento'?'LANÇAMENTO':'NOVO'%>
         </div>
         <% } %>
       <% } %>

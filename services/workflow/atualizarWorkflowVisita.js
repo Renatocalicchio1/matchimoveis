@@ -50,6 +50,29 @@ function atualizarWorkflowVisita(visitaId, workflowStatus, extras = {}) {
 
   saveVisitas(visitas);
 
+  // PIPELINE: visita realizada → lead avança automaticamente
+  try {
+    const _leadId = visitas[idx].leadId || visitas[idx].lead_id || '';
+    if (_leadId) {
+      const _path = require('path');
+      const _fs = require('fs');
+      const _dir = process.env.RENDER ? '/opt/render/project/src/data' : _path.join(__dirname, '../..');
+      const _dataFile = _path.join(_dir, 'data.json');
+      if (_fs.existsSync(_dataFile)) {
+        const _leads = JSON.parse(_fs.readFileSync(_dataFile, 'utf8'));
+        const _li = _leads.findIndex(l => String(l.id) === String(_leadId));
+        if (_li >= 0) {
+          const _ws = (workflowStatus || '').toLowerCase();
+          if (_ws === 'realizada') { _leads[_li].faseFunil = 'visitou'; _leads[_li].status = 'visitou'; }
+          else if (_ws === 'confirmada') { _leads[_li].faseFunil = 'visita'; _leads[_li].status = 'visita'; }
+          _leads[_li].atualizadoEm = new Date().toISOString();
+          _fs.writeFileSync(_dataFile, JSON.stringify(_leads, null, 2));
+          console.log('[PIPELINE] lead', _leadId, '->', _leads[_li].faseFunil);
+        }
+      }
+    }
+  } catch(_e) { console.error('[PIPELINE] erro:', _e.message); }
+
   registrarEvento({
     tipo: 'WORKFLOW_VISITA_ATUALIZADO',
     visitaId: visitas[idx].id,

@@ -92,6 +92,14 @@
           <option value="aluguel" <%=imovel.transacao==='aluguel'?'selected':''%>>Aluguel</option>
         </select>
       </div>
+      <div class="f">
+        <label>Condição</label>
+        <select name="condicao">
+          <option value="usado" <%=(imovel.condicao||'usado')==='usado'?'selected':''%>>Usado</option>
+          <option value="novo" <%=imovel.condicao==='novo'?'selected':''%>>Novo / Pronto</option>
+          <option value="lancamento" <%=imovel.condicao==='lancamento'?'selected':''%>>Lançamento</option>
+        </select>
+      </div>
     </div>
   </div>
 

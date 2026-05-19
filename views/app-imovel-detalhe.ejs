@@ -190,6 +190,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharLightbox();if(
       <div class="info-row"><span class="info-lbl">ID</span><span class="info-val" style="font-family:monospace;font-size:12px"><%= imovel.codigoImovel||imovel.id||'-' %></span></div>
       <% if(imovel.fonte){ %><div class="info-row"><span class="info-lbl">Fonte</span><span class="info-val"><%= imovel.fonte %></span></div><% } %>
       <% if(imovel.transacao){ %><div class="info-row"><span class="info-lbl">Operação</span><span class="info-val"><%= imovel.transacao %></span></div><% } %>
+      <% if(imovel.condicao){ %><div class="info-row"><span class="info-lbl">Condição</span><span class="info-val" style="<%=imovel.condicao==="lancamento"?"color:#7c3aed;font-weight:600":imovel.condicao==="novo"?"color:#059669;font-weight:600":""%>"><%=imovel.condicao==="lancamento"?"Lançamento":imovel.condicao==="novo"?"Novo / Pronto":"Usado"%></span></div><% } %>
       <% if(imovel.cep){ %><div class="info-row"><span class="info-lbl">CEP</span><span class="info-val"><%= imovel.cep %></span></div><% } %>
       <% if(imovel.iptu && imovel.iptu>0){ %><div class="info-row"><span class="info-lbl">IPTU</span><span class="info-val">R$ <%= Number(imovel.iptu).toLocaleString('pt-BR') %>/ano</span></div><% } %>
       <% const _dataCad=imovel.createdAt||imovel.dataCadastro||imovel.data_cadastro||imovel.importedAt; %>

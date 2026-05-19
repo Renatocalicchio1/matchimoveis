@@ -82,6 +82,14 @@ function parseListing(l) {
       transacao: l.TransactionType === 'For Sale' ? 'venda' : 'aluguel',
       tipo: normalizeTipo(extractText(details.PropertyType)),
       categoria: extractText(details.UsageType),
+      condicao: (() => {
+        const cat = (extractText(details.UsageType) || '').toLowerCase();
+        const tit = (l.Title || '').toLowerCase();
+        const desc = (l.Description || '').toLowerCase();
+        if (cat.includes('launch') || cat.includes('lancamento') || tit.includes('lançamento') || tit.includes('lancamento') || desc.includes('lançamento')) return 'lancamento';
+        if (cat.includes('new') || cat.includes('novo') || tit.includes('novo') || tit.includes(' na planta') || desc.includes('na planta')) return 'novo';
+        return 'usado';
+      })(),
       bairro: extractText(location.Neighborhood),
       cidade: extractText(location.City),
       estado: extractText(location.State),

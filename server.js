@@ -402,7 +402,7 @@ app.get('/cadastro-secreto', (req,res)=>{
   if((req.query.token||'') !== 'match2025') return res.status(403).send('Acesso negado');
   res.send('<html><head><meta charset="UTF-8"><title>Nova Conta</title></head><body style="font-family:Arial;max-width:420px;margin:60px auto;padding:20px"><h2 style="color:#ff385c">Nova Conta</h2><form method="POST" action="/cadastro-secreto?token=match2025"><p><input name="nome" placeholder="Nome" required style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"></p><p><input name="telefone" placeholder="Telefone" required style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"></p><p><input name="senha" type="password" placeholder="Senha" required style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"></p><p><select name="tipoConta" style="width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:8px"><option value="imobiliaria">Imobiliaria</option><option value="corretor">Corretor</option></select></p><p><button type="submit" style="width:100%;padding:12px;background:#ff385c;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer">Criar Conta</button></p></form></body></html>');
 });
-app.post('/cadastro-secreto', async (req,res)=>{
+app.post('/cadastro-secreto', async (req,res)=>{ return res.redirect('/'); // CADASTROS DESATIVADOS
   if((req.query.token||'') !== 'match2025') return res.status(403).send('Acesso negado');
   const {nome,telefone,senha,tipoConta} = req.body;
   const users = fs.existsSync(dataPath('users.json')) ? JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8')) : [];

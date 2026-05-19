@@ -1,38 +1,69 @@
 <%- include("partials/app-shell",{active:"mapa",user:user,title:"Mapa Operacional"}) %>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+.map-panel{position:absolute;right:12px;top:12px;width:230px;background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,.13);z-index:1000;overflow:hidden;max-height:calc(100vh - 100px);display:flex;flex-direction:column}
+.map-panel-head{padding:12px 14px;border-bottom:1px solid #f3f4f6;font-size:12px;font-weight:600;color:#111;display:flex;align-items:center;justify-content:space-between}
+.map-panel-body{overflow-y:auto;flex:1}
+.vcard{padding:10px 14px;border-bottom:1px solid #f9fafb;cursor:pointer;transition:background .15s}
+.vcard:hover{background:#f9fafb}
+.vcard.proxima{border-left:3px solid #1D9E75}
+.vstatus{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-bottom:4px}
+.s-indo{background:#E1F5EE;color:#0F6E56}
+.s-conf{background:#E6F1FB;color:#185FA5}
+.s-pend{background:#FAEEDA;color:#854F0B}
+.s-real{background:#f3f4f6;color:#888}
+.eta-box{position:absolute;left:12px;bottom:20px;z-index:1000;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.15);padding:10px 16px;display:flex;align-items:center;gap:12px}
+.eta-n{font-size:26px;font-weight:600;color:#1D9E75;line-height:1}
+.toggles{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;border-radius:12px;padding:5px;box-shadow:0 2px 12px rgba(0,0,0,.12);display:flex;gap:4px}
+.tbtn{padding:7px 12px;border-radius:8px;border:none;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.legenda{position:absolute;left:12px;top:12px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.1);font-size:11px}
+.leg-item{display:flex;align-items:center;gap:7px;margin-bottom:5px;color:#555}
+.leg-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+</style>
 
 <div style="position:relative;margin:-20px;height:calc(100vh - 60px)">
 
-  <!-- Toggles -->
-  <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;border-radius:12px;padding:6px;box-shadow:0 2px 12px rgba(0,0,0,.12);display:flex;gap:4px">
-    <button onclick="toggle('imoveis')" id="btn-imoveis" style="padding:8px 14px;border-radius:8px;border:none;background:#FF385C;color:#fff;font-size:12px;font-weight:600;cursor:pointer">🏠 Imóveis</button>
-    <button onclick="toggle('visitas')" id="btn-visitas" style="padding:8px 14px;border-radius:8px;border:none;background:#f3f4f6;color:#666;font-size:12px;font-weight:600;cursor:pointer">📅 Visitas hoje</button>
-    <button onclick="toggle('leads')" id="btn-leads" style="padding:8px 14px;border-radius:8px;border:none;background:#f3f4f6;color:#666;font-size:12px;font-weight:600;cursor:pointer">👤 Leads</button>
+  <div class="toggles">
+    <button class="tbtn" onclick="toggle('imoveis')" id="btn-imoveis" style="background:#FF385C;color:#fff">🏠 Imóveis</button>
+    <button class="tbtn" onclick="toggle('interesse')" id="btn-interesse" style="background:#f3f4f6;color:#666">🔥 Interesse</button>
+    <button class="tbtn" onclick="toggle('visitas')" id="btn-visitas" style="background:#f3f4f6;color:#666">📅 Visitas</button>
+    <button class="tbtn" onclick="toggle('leads')" id="btn-leads" style="background:#f3f4f6;color:#666">👤 Leads</button>
   </div>
 
-  <!-- Contador -->
-  <div style="position:absolute;top:12px;left:12px;z-index:1000;background:#fff;border-radius:10px;padding:8px 12px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:12px;color:#111" id="contador">
-    carregando...
+  <div class="legenda" id="legenda">
+    <div class="leg-item"><div class="leg-dot" style="background:#FF385C"></div>Meus imóveis</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#6366f1"></div>Parceiros</div>
+    <div class="leg-item" style="margin-bottom:0"><div class="leg-dot" style="background:#f59e0b"></div>Ambos</div>
   </div>
 
-  <!-- Legenda -->
-  <div style="position:absolute;bottom:20px;right:12px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:12px" id="legenda">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#FF385C"></div>Meus imóveis</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#6366f1"></div>Parceiros</div>
-    <div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></div>Ambos</div>
+  <div class="map-panel" id="painelVisitas" style="display:none">
+    <div class="map-panel-head">
+      <span>Visitas de hoje</span>
+      <span id="vcount" style="color:#888;font-weight:400"></span>
+    </div>
+    <div class="map-panel-body" id="listaVisitas"></div>
+  </div>
+
+  <div class="eta-box" id="etaBox" style="display:none">
+    <div><div class="eta-n" id="etaMin">--</div></div>
+    <div>
+      <div style="font-size:12px;font-weight:600;color:#111" id="etaNome">--</div>
+      <div style="font-size:11px;color:#888" id="etaEnd">--</div>
+      <div style="font-size:10px;color:#1D9E75;margin-top:2px">Próxima visita</div>
+    </div>
   </div>
 
   <div id="mapa" style="width:100%;height:100%"></div>
 </div>
 
 <script>
-const _grupos  = <%- gruposJSON %>;
-const _visitas = <%- visitasJSON %>;
-const _leads   = <%- leadsJSON %>;
+const _grupos   = <%- gruposJSON %>;
+const _visitas  = <%- visitasJSON %>;
+const _leads    = <%- leadsJSON %>;
+const _proxima  = <%- proximaVisitaJSON %>;
 const _uLat = <%= user.lat || -26.9543 %>;
 const _uLng = <%= user.lng || -48.6419 %>;
-const _hoje = '<%= hoje %>';
 
 const _cidadeCoords = {
   'itajai':{lat:-26.9078,lng:-48.6619},'itajaí':{lat:-26.9078,lng:-48.6619},
@@ -46,145 +77,177 @@ const _cidadeCoords = {
   'porto belo':{lat:-27.1578,lng:-48.5508},
   'sao paulo':{lat:-23.5505,lng:-46.6333},'são paulo':{lat:-23.5505,lng:-46.6333},
   'rio de janeiro':{lat:-22.9068,lng:-43.1729},
-  'curitiba':{lat:-25.4290,lng:-49.2671},
+  'curitiba':{lat:-25.4284,lng:-49.2733},
+  'belo horizonte':{lat:-19.9167,lng:-43.9345},
 };
-
 const _norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-
 function _coords(bairro, cidade) {
   return _cidadeCoords[_norm(cidade)] || _cidadeCoords[_norm(bairro)] || null;
-}
-
-const _offsets = {};
-function _offset(key) {
-  _offsets[key] = (_offsets[key]||0) + 1;
-  const n = _offsets[key];
-  const ang = (n * 137.5) * Math.PI/180;
-  const r = 0.004 * Math.ceil(n/8);
-  return {dlat: r*Math.sin(ang), dlng: r*Math.cos(ang)};
 }
 
 const _map = L.map('mapa').setView([_uLat,_uLng],12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(_map);
 
-// Pin usuário
-L.marker([_uLat,_uLng],{zIndexOffset:1000,icon:L.divIcon({className:'',html:'<div style="background:#FF385C;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.3);border:2px solid #fff">📍</div>',iconSize:[34,34],iconAnchor:[17,17]})}).addTo(_map).bindPopup('<b>Você está aqui</b>');
-
-function _icone(emoji, cor, n) {
-  return L.divIcon({className:'',html:'<div style="background:'+cor+';color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:'+(n?'12px':'16px')+';font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid #fff">'+(n||emoji)+'</div>',iconSize:[36,36],iconAnchor:[18,18]});
+function _icone(emoji, cor, label) {
+  const inner = label
+    ? '<div style="background:'+cor+';color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid #fff">'+label+'</div>'
+    : '<div style="background:'+cor+';color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2px solid #fff">'+emoji+'</div>';
+  return L.divIcon({className:'',html:inner,iconSize:[36,36],iconAnchor:[18,18]});
 }
 
-// Camadas
-const _layers = { imoveis: L.layerGroup(), visitas: L.layerGroup(), leads: L.layerGroup() };
-const _ativos = { imoveis: true, visitas: false, leads: false };
+function _iconeInteresse(temp) {
+  const cor = temp==='quente'?'#ef4444':temp==='morno'?'#f59e0b':'#6366f1';
+  return L.divIcon({className:'',html:'<div style="background:'+cor+';color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);border:2px solid #fff;position:relative"><span>👤</span><div style="position:absolute;top:-4px;right:-4px;background:#fff;border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-size:9px;border:1px solid '+cor+'">❤</div></div>',iconSize:[32,32],iconAnchor:[16,16]});
+}
+
+const _layers = { imoveis: L.layerGroup(), interesse: L.layerGroup(), visitas: L.layerGroup(), leads: L.layerGroup() };
+const _ativos = { imoveis: true, interesse: false, visitas: false, leads: false };
+const _offsets = {};
+function _offset(key) {
+  _offsets[key] = (_offsets[key]||0)+1;
+  const n = _offsets[key];
+  const ang = (n*137.5)*Math.PI/180, r=0.004*Math.ceil(n/8);
+  return {dlat:r*Math.sin(ang),dlng:r*Math.cos(ang)};
+}
+
+// Pin corretor
+L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:L.divIcon({className:'',html:'<div style="background:#1D9E75;color:#fff;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 12px rgba(0,0,0,.3);border:2.5px solid #fff">📍</div>',iconSize:[38,38],iconAnchor:[19,19]})}).addTo(_map).bindPopup('<b>Você está aqui</b>');
 
 // IMÓVEIS
-const _imoveisOffsets = {};
+const _imOffsets = {};
 _grupos.forEach(g => {
   const base = _coords(g.bairro, g.cidade);
   if(!base) return;
   const key = _norm(g.cidade);
-  _imoveisOffsets[key] = (_imoveisOffsets[key]||0)+1;
-  const n = _imoveisOffsets[key];
+  _imOffsets[key] = (_imOffsets[key]||0)+1;
+  const n = _imOffsets[key];
   const ang = (n*137.5)*Math.PI/180, r=0.004*Math.ceil(n/8);
-  const lat = base.lat + r*Math.sin(ang);
-  const lng = base.lng + r*Math.cos(ang);
+  const lat = base.lat+r*Math.sin(ang), lng = base.lng+r*Math.cos(ang);
   const tot = g.meus.length+g.parceiros.length;
   const cor = g.meus.length>0&&g.parceiros.length===0?'#FF385C':g.meus.length===0?'#6366f1':'#f59e0b';
-  const mk = L.marker([lat,lng],{icon:_icone('🏠',cor,tot)});
-  const todos = [...g.meus.map(i=>({...i,_meu:true})),...g.parceiros.map(i=>({...i,_meu:false}))].slice(0,5);
-  const lista = todos.map(i=>
-    '<div style="padding:6px 0;border-bottom:1px solid #f3f4f6">'+
-    '<div style="font-size:12px;font-weight:600;color:#111">'+(i.titulo||i.tipo||'Imóvel')+'</div>'+
-    '<div style="font-size:11px;color:#888">'+(i.quartos?i.quartos+'q ':'')+(i.area_m2?i.area_m2+'m² ':'')+(i.vagas?i.vagas+' vg':'')+'</div>'+
-    '<div style="font-size:12px;font-weight:700;color:'+(i._meu?'#FF385C':'#6366f1')+'">'+(i.valor_imovel?'R$'+Number(i.valor_imovel).toLocaleString('pt-BR'):'Consultar')+'</div>'+
-    '</div>'
+  const mk = L.marker([lat,lng],{icon:_icone('🏠',cor,tot>1?tot:null)});
+  const lista = [...g.meus.map(i=>({...i,_meu:true})),...g.parceiros.map(i=>({...i,_meu:false}))].slice(0,4).map(i=>
+    '<div style="padding:5px 0;border-bottom:1px solid #f3f4f6"><div style="font-size:12px;font-weight:600">'+(i.titulo||i.tipo||'Imóvel')+'</div>'+
+    '<div style="font-size:11px;color:#888">'+(i.quartos?i.quartos+'q ':'')+( i.area_m2?i.area_m2+'m² ':'')+'</div>'+
+    '<div style="font-size:12px;font-weight:700;color:'+(i._meu?'#FF385C':'#6366f1')+'">'+(i.valor_imovel?'R$'+Number(i.valor_imovel).toLocaleString('pt-BR'):'Consultar')+'</div></div>'
   ).join('');
-  mk.bindPopup('<div style="padding:10px;min-width:220px"><b>'+(g.bairro||g.cidade)+'</b><div style="font-size:11px;color:#888;margin-bottom:6px">'+g.cidade+' · '+tot+' imóvel(is)</div>'+lista+(tot>5?'<div style="font-size:11px;color:#888;margin-top:4px">+mais '+(tot-5)+'</div>':'')+'</div>',{maxWidth:280});
+  mk.bindPopup('<div style="padding:8px;min-width:200px"><b>'+(g.bairro||g.cidade)+'</b><br><small style="color:#888">'+g.cidade+' · '+tot+' imóvel(is)</small><div style="margin-top:6px">'+lista+'</div></div>',{maxWidth:260});
   _layers.imoveis.addLayer(mk);
 });
 
+// INTERESSE DE LEADS (imóvel onde lead tem interesse)
+_leads.filter(l=>l.temInteresse).forEach(l => {
+  const base = _coords(l.bairro, l.cidade);
+  if(!base) return;
+  const key = 'int_'+_norm(l.cidade)+l.bairro;
+  const off = _offset(key);
+  const mk = L.marker([base.lat+off.dlat, base.lng+off.dlng],{icon:_iconeInteresse(l.temperatura),zIndexOffset:500});
+  mk.bindPopup('<div style="padding:8px;min-width:180px"><b>'+(l.nome||l.telefone)+'</b><br><small style="color:#888">Interesse em '+l.bairro+(l.cidade?' · '+l.cidade:'')+'</small><br><div style="margin-top:4px;font-size:12px">Score: <b>'+l.score+'</b> · '+l.matchCount+' matches</div><div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:'+(l.temperatura==='quente'?'#fef2f2':l.temperatura==='morno'?'#fefce8':'#f3f4f6')+';color:'+(l.temperatura==='quente'?'#dc2626':l.temperatura==='morno'?'#d97706':'#888')+'">'+l.temperatura+'</div></div>',{maxWidth:220});
+  _layers.interesse.addLayer(mk);
+});
+
 // VISITAS DO DIA
-const _visitasOffsets = {};
+const _vOffsets = {};
 _visitas.forEach((v,idx) => {
-  const bairro = v.imovelBairro||'';
-  const cidade = v.imovelCidade||'Itajaí';
-  const base = _coords(bairro, cidade) || {lat:_uLat,lng:_uLng};
+  const bairro = v.imovelBairro||'', cidade = v.imovelCidade||'Itajaí';
+  const base = _coords(bairro, cidade)||{lat:_uLat,lng:_uLng};
   const key = _norm(cidade)+bairro;
-  _visitasOffsets[key] = (_visitasOffsets[key]||0)+1;
-  const n = _visitasOffsets[key];
+  _vOffsets[key] = (_vOffsets[key]||0)+1;
+  const n = _vOffsets[key];
   const ang = (n*90)*Math.PI/180, r=0.003*n;
-  const lat = base.lat+r*Math.sin(ang);
-  const lng = base.lng+r*Math.cos(ang);
-  const cor = v.status==='confirmada'?'#22c55e':v.status==='solicitada'?'#f59e0b':'#6366f1';
-  const mk = L.marker([lat,lng],{icon:_icone('📅',cor,idx+1)});
-  mk.bindPopup(
-    '<div style="padding:10px;min-width:200px">'+
-    '<div style="font-size:13px;font-weight:700;color:#111">'+(idx+1)+'ª visita · '+(v.horaVisita||'')+'</div>'+
-    '<div style="font-size:12px;color:#666;margin:4px 0">'+(v.imovelTitulo||'Imóvel')+'</div>'+
-    '<div style="font-size:12px;color:#888">'+(bairro?bairro+' · ':'')+cidade+'</div>'+
-    '<div style="font-size:12px;margin-top:6px"><b>Lead:</b> '+(v.nome||v.telefone||'-')+'</div>'+
-    '<div style="font-size:11px;margin-top:4px;padding:3px 8px;border-radius:999px;background:'+(cor)+'20;color:'+cor+';display:inline-block">'+v.status+'</div>'+
-    '</div>',{maxWidth:260}
-  );
+  const lat = base.lat+r*Math.sin(ang), lng = base.lng+r*Math.cos(ang);
+  const cor = v.status==='confirmada'?'#1D9E75':v.status==='solicitada'?'#f59e0b':'#6366f1';
+  const mk = L.marker([lat,lng],{icon:_icone('📅',cor,idx+1),zIndexOffset:800});
+  mk.bindPopup('<div style="padding:8px;min-width:200px"><div style="font-size:13px;font-weight:700">'+(idx+1)+'ª visita · '+(v.horaVisita||'')+'</div><div style="font-size:12px;color:#666;margin:4px 0">'+(v.imovelTitulo||'Imóvel')+'</div><div style="font-size:12px;color:#888">'+(bairro?bairro+' · ':'')+cidade+'</div><div style="font-size:12px;margin-top:6px"><b>Lead:</b> '+(v.nome||v.telefone||'-')+'</div><div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:'+cor+'20;color:'+cor+'">'+v.status+'</div></div>',{maxWidth:260});
   _layers.visitas.addLayer(mk);
 });
 
 // LEADS
-const _leadsOffsets = {};
+const _lOffsets = {};
 _leads.forEach(l => {
   const base = _coords(l.bairro, l.cidade);
   if(!base) return;
   const key = _norm(l.cidade||'')+l.bairro;
-  _leadsOffsets[key] = (_leadsOffsets[key]||0)+1;
-  const n = _leadsOffsets[key];
+  _lOffsets[key] = (_lOffsets[key]||0)+1;
+  const n = _lOffsets[key];
   const ang = (n*120)*Math.PI/180, r=0.003*n;
-  const lat = base.lat+r*Math.sin(ang);
-  const lng = base.lng+r*Math.cos(ang);
   const cor = l.temperatura==='quente'?'#ef4444':l.temperatura==='morno'?'#f59e0b':'#94a3b8';
-  const mk = L.marker([lat,lng],{icon:_icone('👤',cor,null)});
-  mk.bindPopup(
-    '<div style="padding:10px;min-width:180px">'+
-    '<div style="font-size:13px;font-weight:700;color:#111">'+(l.nome||l.telefone)+'</div>'+
-    '<div style="font-size:12px;color:#666;margin:4px 0">'+(l.bairro?l.bairro+' · ':'')+l.cidade+'</div>'+
-    '<div style="font-size:12px">Score: <b>'+l.score+'</b> · '+l.matchCount+' matches</div>'+
-    '<div style="font-size:11px;margin-top:4px;padding:3px 8px;border-radius:999px;background:'+cor+'20;color:'+cor+';display:inline-block">'+l.temperatura+'</div>'+
-    '</div>',{maxWidth:240}
-  );
+  const mk = L.marker([base.lat+r*Math.sin(ang), base.lng+r*Math.cos(ang)],{icon:_icone('👤',cor,null)});
+  mk.bindPopup('<div style="padding:8px;min-width:180px"><b>'+(l.nome||l.telefone)+'</b><div style="font-size:12px;color:#666;margin:4px 0">'+(l.bairro?l.bairro+' · ':'')+l.cidade+'</div><div style="font-size:12px">Score: <b>'+l.score+'</b> · '+l.matchCount+' matches</div></div>',{maxWidth:220});
   _layers.leads.addLayer(mk);
 });
 
-// Adiciona camada ativa
+// Rota até próxima visita
+let _rotaLayer = null;
+function _desenharRota() {
+  if(!_proxima) return;
+  const bairro = _proxima.imovelBairro||'', cidade = _proxima.imovelCidade||'Itajaí';
+  const dest = _coords(bairro, cidade);
+  if(!dest) return;
+  if(_rotaLayer) _map.removeLayer(_rotaLayer);
+  _rotaLayer = L.polyline([[_uLat,_uLng],[dest.lat,dest.lng]],{
+    color:'#1D9E75', weight:4, dashArray:'10,6', opacity:.85
+  }).addTo(_map);
+  // ETA aproximado (distância em linha reta * fator)
+  const R = 6371;
+  const dLat = (dest.lat-_uLat)*Math.PI/180;
+  const dLng = (dest.lng-_uLng)*Math.PI/180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(_uLat*Math.PI/180)*Math.cos(dest.lat*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  const dist = R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  const minutos = Math.round(dist/0.5);
+  document.getElementById('etaBox').style.display='flex';
+  document.getElementById('etaMin').textContent = minutos+' min';
+  document.getElementById('etaNome').textContent = _proxima.nome||_proxima.telefone||'Lead';
+  document.getElementById('etaEnd').textContent = (_proxima.imovelBairro||'')+(_proxima.imovelCidade?' · '+_proxima.imovelCidade:'');
+}
+_desenharRota();
+
+// Painel visitas
+function _renderPainel() {
+  const lista = document.getElementById('listaVisitas');
+  document.getElementById('vcount').textContent = _visitas.length+' hoje';
+  if(!_visitas.length) { lista.innerHTML='<div style="padding:16px;text-align:center;font-size:12px;color:#888">Nenhuma visita hoje</div>'; return; }
+  lista.innerHTML = _visitas.map((v,i) => {
+    const cor = v.status==='confirmada'?'s-conf':v.status==='solicitada'||v.status==='pendente'?'s-pend':v.status==='realizada'?'s-real':'s-pend';
+    const label = v.status==='confirmada'?'✓ Confirmada':v.status==='realizada'?'Realizada':'Ag. confirmação';
+    const proxima = _proxima && _proxima.id===v.id;
+    return '<div class="vcard'+(proxima?' proxima':'')+'">'+
+      '<div class="vstatus '+cor+'">'+label+'</div>'+
+      '<div style="font-size:12px;font-weight:600;color:#111">'+(v.nome||v.leadNome||v.telefone||'Lead')+'</div>'+
+      '<div style="font-size:11px;color:#888;margin-top:2px">'+(v.horaVisita||'')+(v.imovelBairro?' · '+v.imovelBairro:'')+'</div>'+
+      (proxima?'<div style="font-size:10px;color:#1D9E75;font-weight:600;margin-top:3px">Próxima visita →</div>':'')+
+      '</div>';
+  }).join('');
+}
+_renderPainel();
+
+// Toggle camadas
+const _cores = {imoveis:'#FF385C', interesse:'#ef4444', visitas:'#1D9E75', leads:'#6366f1'};
+const _labels = {imoveis:'🏠 Imóveis', interesse:'🔥 Interesse', visitas:'📅 Visitas', leads:'👤 Leads'};
 _layers.imoveis.addTo(_map);
 
 function toggle(camada) {
   _ativos[camada] = !_ativos[camada];
   if(_ativos[camada]) _layers[camada].addTo(_map);
   else _map.removeLayer(_layers[camada]);
-  // Atualiza botões
-  const cores = {imoveis:'#FF385C', visitas:'#22c55e', leads:'#6366f1'};
   Object.keys(_ativos).forEach(k => {
     const btn = document.getElementById('btn-'+k);
-    btn.style.background = _ativos[k] ? cores[k] : '#f3f4f6';
-    btn.style.color = _ativos[k] ? '#fff' : '#666';
+    btn.style.background = _ativos[k]?_cores[k]:'#f3f4f6';
+    btn.style.color = _ativos[k]?'#fff':'#666';
   });
-  // Atualiza contador
-  const ni = _layers.imoveis.getLayers().length;
-  const nv = _layers.visitas.getLayers().length;
-  const nl = _layers.leads.getLayers().length;
-  document.getElementById('contador').textContent = 
-    (_ativos.imoveis?ni+' bairros ':'')+
-    (_ativos.visitas?nv+' visitas hoje ':'')+
-    (_ativos.leads?nl+' leads':'');
-  // Atualiza legenda
+  // Painel visitas
+  document.getElementById('painelVisitas').style.display = _ativos.visitas?'flex':'none';
+  // Legenda
   const leg = document.getElementById('legenda');
-  if(_ativos.imoveis) leg.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#FF385C"></div>Meus</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#6366f1"></div>Parceiros</div><div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></div>Ambos</div>';
-  else if(_ativos.visitas) leg.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#22c55e"></div>Confirmada</div><div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></div>Pendente</div>';
-  else if(_ativos.leads) leg.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#ef4444"></div>Quente</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:10px;height:10px;border-radius:50%;background:#f59e0b"></div>Morno</div><div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:#94a3b8"></div>Frio</div>';
+  if(_ativos.imoveis) {
+    leg.innerHTML='<div class="leg-item"><div class="leg-dot" style="background:#FF385C"></div>Meus</div><div class="leg-item"><div class="leg-dot" style="background:#6366f1"></div>Parceiros</div><div class="leg-item" style="margin-bottom:0"><div class="leg-dot" style="background:#f59e0b"></div>Ambos</div>';
+  } else if(_ativos.interesse) {
+    leg.innerHTML='<div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Lead quente</div><div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div>Lead morno</div><div class="leg-item" style="margin-bottom:0"><div class="leg-dot" style="background:#6366f1"></div>Lead frio</div>';
+  } else if(_ativos.visitas) {
+    leg.innerHTML='<div class="leg-item"><div class="leg-dot" style="background:#1D9E75"></div>Confirmada</div><div class="leg-item" style="margin-bottom:0"><div class="leg-dot" style="background:#f59e0b"></div>Pendente</div>';
+  } else if(_ativos.leads) {
+    leg.innerHTML='<div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Quente</div><div class="leg-item"><div class="leg-dot" style="background:#f59e0b"></div>Morno</div><div class="leg-item" style="margin-bottom:0"><div class="leg-dot" style="background:#94a3b8"></div>Frio</div>';
+  }
 }
-
-// Contador inicial
-document.getElementById('contador').textContent = _layers.imoveis.getLayers().length+' bairros';
 </script>
-
 <%- include('partials/app-end') %>

@@ -2884,14 +2884,16 @@ app.get('/app/mapa', auth, (req, res) => {
     cidade: l.cidade || l.perfilIA?.cidade || '',
     temperatura: l.temperatura || 'frio',
     score: l.score || 0,
-    matchCount: (l.matchesAuto||[]).length
-  }));
+    matchCount: (l.matchesAuto||l.matches||[]).length,
+    temInteresse: ((l.matchesAuto||l.matches||[]).length > 0)
+  const proximaVisita = visitasHoje.find(v => v.status !== 'realizada' && v.status !== 'cancelada') || null;
 
   res.render('app-mapa', {
     user: req.session.user,
     gruposJSON: JSON.stringify(grupos),
     visitasJSON: JSON.stringify(visitasHoje),
     leadsJSON: JSON.stringify(leadsAtivas),
+    proximaVisitaJSON: JSON.stringify(proximaVisita),
     total: imoveis.length,
     hoje
   });

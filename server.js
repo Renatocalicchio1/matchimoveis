@@ -1,3 +1,6 @@
+
+// Cache QR codes em memória (Evolution v2.2.3 envia via webhook)
+const _qrCache = {};
 require("dotenv").config();
 const express = require('express');
 const cerebroApp = require("./cerebro/index");
@@ -2471,7 +2474,13 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     const instance = body.instance;
     const data = body.data;
 
-    console.log('[WEBHOOK WA] evento:', event, '| instancia:', instance);
+    
+      // Captura QR code enviado via webhook (Evolution v2.2.3)
+      if (body.event === 'connection.update' && body.data?.qrcode?.base64) {
+        _qrCache[body.instance] = { base64: body.data.qrcode.base64, ts: Date.now() };
+        console.log('[QR_CACHE] QR salvo para instância:', body.instance);
+      }
+      console.log('[WEBHOOK WA] evento:', event, '| instancia:', instance);
 
     // Pré-aquece Evolution API em background
     const _EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
@@ -6013,6 +6022,56 @@ app.get('/admin/deletar-imoveis/:userId', async (req, res) => {
 
 // ── WHATSAPP CONEXÃO POR USUÁRIO ─────────────────────────────
 app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
+  const userId = req.session.user.id;
+  const { lerUsuarios: _luQR2, salvarTodosUsuarios: _salvarQR2 } = require('./services/salvarUsuario');
+  const _usersQR2 = await _luQR2();
+  const _userQR2 = _usersQR2.find(u => u.id === userId);
+  const EVOLUTION_URL2 = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+  const EVOLUTION_KEY2 = process.env.EVOLUTION_KEY || 'match2025evolution';
+  let instanceName2 = _userQR2?.whatsappInstance || ('match-' + userId.replace(/[^a-z0-9]/gi,'').toLowerCase().substring(0,20));
+  try {
+    // Deleta instância antiga e recria limpa
+    await fetch(EVOLUTION_URL2 + '/instance/delete/' + instanceName2, { method: 'DELETE', headers: { 'apikey': EVOLUTION_KEY2 } }).catch(()=>{});
+    delete _qrCache[instanceName2];
+    await new Promise(r => setTimeout(r, 1000));
+    // Cria instância nova com webhook configurado para receber QR
+    const createRes = await fetch(EVOLUTION_URL2 + '/instance/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY2 },
+      body: JSON.stringify({
+        instanceName: instanceName2,
+        integration: 'WHATSAPP-BAILEYS',
+        qrcode: true,
+        webhook: {
+          url: (process.env.BASE_URL || 'https://matchimoveis.onrender.com') + '/webhook/whatsapp',
+          enabled: true,
+          byEvents: true,
+          events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE', 'QRCODE_UPDATED']
+        }
+      })
+    });
+    const createData = await createRes.json();
+    console.log('[QRCODE2] instância criada:', instanceName2, '| status:', createData?.instance?.status);
+    // Salva instância no usuário
+    const _usersQR3 = await _luQR2();
+    const _idxQR = _usersQR3.findIndex(u => u.id === userId);
+    if (_idxQR >= 0) { _usersQR3[_idxQR].whatsappInstance = instanceName2; _usersQR3[_idxQR].whatsappStatus = 'connecting'; await _salvarQR2(_usersQR3).catch(()=>{}); }
+    // Polling no cache por até 30s aguardando QR via webhook
+    for (let _wi = 0; _wi < 10; _wi++) {
+      await new Promise(r => setTimeout(r, 3000));
+      if (_qrCache[instanceName2]?.base64) {
+        console.log('[QRCODE2] QR encontrado no cache após', (_wi+1)*3, 'segundos');
+        return res.json({ ok: true, base64: _qrCache[instanceName2].base64, instanceName: instanceName2 });
+      }
+      console.log('[QRCODE2] aguardando QR... tentativa', _wi+1);
+    }
+    return res.json({ ok: false, erro: 'QR não gerado em 30s — tente novamente' });
+  } catch(e) {
+    return res.json({ ok: false, erro: e.message });
+  }
+});
+// ROTA_QRCODE_ANTIGA_DESATIVADA
+app.get('/app/whatsapp/qrcode_old_disabled', auth, async (req, res) => {
   const userId = req.session.user.id;
   console.log('[QRCODE] userId:', userId);
   // Usa instância salva no user ou gera nova

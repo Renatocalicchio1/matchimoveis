@@ -1467,7 +1467,7 @@ app.get('/app/modelo-leads.xlsx', auth, (req, res) => {
 
 app.get('/app/leads', auth, async (req,res)=>{
   const { lerLeads: _lerLeadsService } = require('./services/salvarLead');
-  const raw = await _lerLeadsService();
+  const raw = await _lerLeadsService(req.session.user.id);
   const data = Array.isArray(raw) ? raw : (raw.results || []);
   const _todasVisitas = (_cacheVisitas || []);
   const leads = filtrarPorUsuario(data, req.session.user)

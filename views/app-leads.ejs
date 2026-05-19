@@ -229,7 +229,6 @@ leads.forEach(item => {
       <% if(_perfil.valorMax){%><span class="perfil-tag">R$<%= Math.round(Number(_perfil.valorMax)/1000) %>k</span><%}%>
     </div>
     <% } %>
-
     <% } %>
     <div style="font-size:10px;color:#d1d5db;display:flex;gap:8px;margin-bottom:4px">
       <% if(item.criadoEm||item.data_cadastro){ %><span>📅 <%= new Date(item.criadoEm||item.data_cadastro).toLocaleDateString('pt-BR') %></span><% } %>

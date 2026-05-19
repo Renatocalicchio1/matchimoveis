@@ -1132,12 +1132,28 @@ async function _recarregarLeads() {
     const { lerLeads: _llSvc } = require('./services/salvarLead');
     _cacheLeads = await _llSvc();
     _cacheLeadsAt = Date.now();
+    // Dual-write: mantém data.json atualizado para rotas que leem arquivo
+    try { fs.writeFileSync(dataPath('data.json'), JSON.stringify(_cacheLeads, null, 2)); } catch(e) {}
   } catch(e) {
     if (!_cacheLeads) _cacheLeads = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
   }
 }
 _recarregarLeads();
-setInterval(_recarregarLeads, 15000); // atualiza a cada 15s
+setInterval(_recarregarLeads, 15000);
+
+// Cache usuários
+let _cacheUsuarios = null;
+async function _recarregarUsuarios() {
+  try {
+    const { lerUsuarios: _luSvc } = require('./services/salvarUsuario');
+    _cacheUsuarios = await _luSvc();
+    try { fs.writeFileSync(dataPath('users.json'), JSON.stringify(_cacheUsuarios, null, 2)); } catch(e) {}
+  } catch(e) {
+    if (!_cacheUsuarios) _cacheUsuarios = fs.existsSync(dataPath('users.json')) ? JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8')) : [];
+  }
+}
+_recarregarUsuarios();
+setInterval(_recarregarUsuarios, 15000); // atualiza a cada 15s
 
 function lerLeads(user) {
   const uid = user && (user.id || user);
@@ -1151,6 +1167,8 @@ async function _recarregarVisitas() {
   try {
     const { lerVisitas: _lvSvc } = require('./services/salvarVisita');
     _cacheVisitas = await _lvSvc();
+    // Dual-write: mantém visitas.json atualizado para rotas que leem arquivo
+    try { fs.writeFileSync(dataPath('visitas.json'), JSON.stringify(_cacheVisitas, null, 2)); } catch(e) {}
   } catch(e) {
     if (!_cacheVisitas) _cacheVisitas = fs.existsSync(dataPath('visitas.json')) ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')) : [];
   }

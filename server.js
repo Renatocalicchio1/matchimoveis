@@ -530,7 +530,7 @@ async function salvarVisitasData(visitas) {
   } catch(e) { console.error('[salvarVisitasData]', e.message); }
 }
 
-function atualizarLead(id, campos) {
+async function atualizarLead(id, campos) {
   const leads = await lerLeadsData();
   const idx = leads.findIndex(l => String(l.id) === String(id));
   if (idx < 0) return null;
@@ -539,7 +539,7 @@ function atualizarLead(id, campos) {
   return leads[idx];
 }
 
-function atualizarVisita(id, campos) {
+async function atualizarVisita(id, campos) {
   const visitas = await lerVisitasData();
   const idx = visitas.findIndex(v => String(v.id) === String(id));
   if (idx < 0) return null;
@@ -548,7 +548,7 @@ function atualizarVisita(id, campos) {
   return visitas[idx];
 }
 
-function criarLead(payload) {
+async function criarLead(payload) {
   const leads = await lerLeadsData();
   const novo = { id: Date.now().toString(), criadoEm: new Date().toISOString(), ...payload };
   leads.push(novo);
@@ -556,7 +556,7 @@ function criarLead(payload) {
   return novo;
 }
 
-function criarVisita(payload) {
+async function criarVisita(payload) {
   const visitas = await lerVisitasData();
   const nova = { id: Date.now().toString(), criadoEm: new Date().toISOString(), ...payload };
   visitas.push(nova);

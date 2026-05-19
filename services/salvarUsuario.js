@@ -140,4 +140,20 @@ async function salvarTodosUsuarios(users) {
   return users;
 }
 
-module.exports = { lerUsuarios, salvarUsuario, salvarTodosUsuarios };
+
+async function atualizarUsuario(id, campos) {
+  if (await dbOk()) {
+    try {
+      const res = await query('SELECT * FROM usuarios WHERE id=$1', [id]);
+      if (res.rows.length === 0) throw new Error('usuario nao encontrado');
+      const atual = rowToUser(res.rows[0]);
+      return await salvarUsuario({ ...atual, ...campos });
+    } catch(e) { console.error('[atualizarUsuario PG]', e.message); }
+  }
+  const todos = lerJSON(usersPath(), []);
+  const idx = todos.findIndex(u => u.id === id);
+  if (idx >= 0) { todos[idx] = { ...todos[idx], ...campos }; await salvarJSON(usersPath(), todos); return todos[idx]; }
+  return null;
+}
+
+module.exports = { lerUsuarios, salvarUsuario, salvarTodosUsuarios, atualizarUsuario };

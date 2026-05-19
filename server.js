@@ -1406,12 +1406,8 @@ app.get('/app/perfil', auth, async (req,res)=>{
 });
 
 app.post('/app/perfil', auth, async (req,res)=>{
-  const { lerUsuarios: _luPerfil, salvarTodosUsuarios: _suPerfil } = require('./services/salvarUsuario');
-  const users = await _luPerfil();
+  const { atualizarUsuario: _auPerfil } = require('./services/salvarUsuario');
   const uid = String(req.session.user.id || '');
-
-  const idx = users.findIndex(u => String(u.id || '') === uid);
-
   const dados = {
     nome: req.body.nome || '',
     creci: req.body.creci || '',
@@ -1419,14 +1415,8 @@ app.post('/app/perfil', auth, async (req,res)=>{
     celular: req.body.celular || '',
     telefone: req.body.celular || ''
   };
-
-  if(idx >= 0){
-    users[idx] = { ...users[idx], ...dados };
-    await _suPerfil(users).catch(e=>console.error("[users]",e.message));
-  }
-
+  await _auPerfil(uid, dados).catch(e=>console.error("[perfil]",e.message));
   req.session.user = { ...req.session.user, ...dados };
-
   res.redirect('/app/perfil');
 });
 

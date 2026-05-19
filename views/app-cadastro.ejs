@@ -93,8 +93,10 @@
             <div><strong style="color:var(--dark)">Última sync:</strong> <%= feed.lastSyncAt ? new Date(feed.lastSyncAt).toLocaleString('pt-BR') : '-' %></div>
             <div><strong style="color:var(--dark)">Imóveis:</strong> <%= feed.total || 0 %></div>
           </div>
-          <form method="POST" action="/app/excluir-xml" style="margin-top:8px" id="formExcluirXml">
-            <button type="button" onclick="if(confirm('Excluir XML?')){document.getElementById('formExcluirXml').submit();}" class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Excluir XML</button>
+          <form method="POST" action="/app/excluir-xml" style="margin-top:8px" class="formExcluirXml">
+            <input type="hidden" name="removerImoveis" class="inputRemoverImoveis" value="false">
+            <input type="hidden" name="xmlUrl" value="<%= feed.url %>">
+            <button type="button" onclick="abrirModalExcluirXml(this)" class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Excluir XML</button>
           </form>
           <% }) %>
         </div>

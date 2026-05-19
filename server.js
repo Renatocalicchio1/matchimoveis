@@ -221,6 +221,17 @@ app.post('/app/importar', upload.any(), async (req, res) => {
         const idx = users.findIndex(u => u.id === global.importUserId);
         if (idx >= 0) {
           users[idx].xmlUrl = global.importXmlUrl || users[idx].xmlUrl || '';
+      // Adiciona ao xml-feeds.json se não existir
+      try {
+        const _fp = dataPath('xml-feeds.json');
+        const _feeds = fs.existsSync(_fp) ? JSON.parse(fs.readFileSync(_fp,'utf8')) : [];
+        const _url = global.importXmlUrl;
+        const _uid = users[idx].id;
+        if (_url && !_feeds.find(f => f.userId === _uid && f.url === _url)) {
+          _feeds.push({ userId: _uid, url: _url, lastSyncAt: null, lastResult: null });
+          fs.writeFileSync(_fp, JSON.stringify(_feeds, null, 2));
+        }
+      } catch(e) {}
           users[idx].xmlAtualizadoEm = new Date().toISOString();
           users[idx].xmlTotal = imoveis.length;
           salvarTodosUsuarios(users).catch(e => console.log("Erro salvar users:", e.message));
@@ -1323,11 +1334,12 @@ app.post('/app/excluir-xml', auth, async (req,res)=>{
       delete users[idx].xmlTotal;
       await _stuXml(users);
     }
-    // Remove do xml-feeds.json
+    // Remove feed específico do xml-feeds.json
     const feedsPath = dataPath('xml-feeds.json');
     if (fs.existsSync(feedsPath)) {
       const feeds = JSON.parse(fs.readFileSync(feedsPath,'utf8'));
-      const novosFeeds = feeds.filter(f => f.userId !== req.session.user.id);
+      const urlRemover = req.body.xmlUrl;
+      const novosFeeds = feeds.filter(f => !(f.userId === req.session.user.id && f.url === urlRemover));
       fs.writeFileSync(feedsPath, JSON.stringify(novosFeeds, null, 2));
     }
   } catch(e) { console.error('[excluir-xml]', e.message); }
@@ -1337,7 +1349,11 @@ app.post('/app/excluir-xml', auth, async (req,res)=>{
 app.get('/app/cadastro', auth, (req,res)=>{
   const users = JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8'));
   const u = users.find(u => u.id === req.session.user.id) || {};
-  const xmlFeeds = u.xmlUrl ? [{ url: u.xmlUrl, lastSyncAt: u.xmlAtualizadoEm, total: u.xmlTotal }] : [];
+  const feedsPath = dataPath('xml-feeds.json');
+  const todosFeeds = fs.existsSync(feedsPath) ? JSON.parse(fs.readFileSync(feedsPath,'utf8')) : [];
+  const xmlFeeds = todosFeeds.filter(f => f.userId === req.session.user.id).map(f => ({
+    url: f.url, lastSyncAt: f.lastSyncAt, total: f.total || u.xmlTotal || 0
+  }));
   res.render('app-cadastro', { user: req.session.user, xmlFeeds });
 });
 

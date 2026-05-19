@@ -1113,9 +1113,24 @@ function lerImoveis(user) {
   const todos = fs.existsSync(dataFile('imoveis.json')) ? JSON.parse(fs.readFileSync(dataFile('imoveis.json'),'utf8')) : [];
   return filtrarPorUsuario(todos, user);
 }
+// Cache em memória — sincronizado com PostgreSQL
+let _cacheLeads = null;
+let _cacheLeadsAt = 0;
+async function _recarregarLeads() {
+  try {
+    const { lerLeads: _llSvc } = require('./services/salvarLead');
+    _cacheLeads = await _llSvc();
+    _cacheLeadsAt = Date.now();
+  } catch(e) {
+    if (!_cacheLeads) _cacheLeads = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
+  }
+}
+_recarregarLeads();
+setInterval(_recarregarLeads, 15000); // atualiza a cada 15s
+
 function lerLeads(user) {
   const uid = user && (user.id || user);
-  const todos = fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : [];
+  const todos = _cacheLeads || (fs.existsSync(dataPath('data.json')) ? JSON.parse(fs.readFileSync(dataPath('data.json'),'utf8')) : []);
   const filtradas = filtrarPorUsuario(todos, user);
   if (!uid) return filtradas;
   return filtradas.filter(l => !(l.deletadoPor && l.deletadoPor.includes(uid)));
@@ -3186,7 +3201,8 @@ app.get('/imovel/:id', (req, res) => {
 // Detalhe da lead
 app.get('/app/lead/:id', auth, async (req, res) => {
   const uid = String(req.session.user.id || '');
-  const leads = lerLeads(req.session.user);
+  const { lerLeads: _llSvcDetalhe, salvarTodosLeads: _slSvcDetalhe } = require('./services/salvarLead');
+  const leads = await _llSvcDetalhe(req.session.user.id);
   const lead = leads.find(l => String(l.id) === String(req.params.id));
   if (!lead) return res.status(404).send('Lead não encontrada');
 

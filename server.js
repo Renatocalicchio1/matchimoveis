@@ -1036,13 +1036,13 @@ app.get('/import-status',(req,res)=>{
 app.get('/import-status',(req,res)=>{res.json({status:global.importStatus||'idle'});});
 
 app.get('/logout', (req,res)=>{
-  req.session.destroy(()=>res.redirect('/login'));
+  req.session.destroy(()=>res.redirect('/'));
 });
 
 
 // ===== ROTAS CORRETAS CORRETOR / ADMIN =====
 app.get('/logout', (req,res)=>{
-  req.session.destroy(()=>res.redirect('/login'));
+  req.session.destroy(()=>res.redirect('/'));
 });
 
 function usuarioLogado(req){
@@ -1064,7 +1064,7 @@ function usuarioLogado(req){
 
 // ===== ROTAS CORRETAS CORRETOR / ADMIN =====
 app.get('/logout', (req,res)=>{
-  req.session.destroy(()=>res.redirect('/login'));
+  req.session.destroy(()=>res.redirect('/'));
 });
 
 function usuarioLogado(req){
@@ -1072,7 +1072,7 @@ function usuarioLogado(req){
 }
 
 app.get('/app', (req,res)=>{
-  if(!req.session.user) return res.redirect('/login');
+  if(!req.session.user) return res.redirect('/');
   res.redirect('/app-home');
 });
 
@@ -1096,12 +1096,12 @@ app.get('/app-perfil', (req,res)=>{
   renderAppPage(res, 'app-perfil', { title: 'Perfil' });
 });
 
-app.get('/logout', (req,res)=> res.redirect('/login'));
+app.get('/logout', (req,res)=> res.redirect('/'));
 
 // ===== ROTAS FINAIS LIMPAS DO APP =====
 
 function auth(req,res,next){
-  if(!req.session || !req.session.user) return res.redirect('/login');
+  if(!req.session || !req.session.user) return res.redirect('/');
   next();
 }
 
@@ -1523,8 +1523,8 @@ app.get('/app/visitas', auth, async (req,res)=>{
 });
 
 app.get('/logout', (req,res)=>{
-  if (req.session) req.session.destroy(()=>res.redirect('/login'));
-  else res.redirect('/login');
+  if (req.session) req.session.destroy(()=>res.redirect('/'));
+  else res.redirect('/');
 });
 
 

@@ -58,7 +58,8 @@
 </div>
 
 <script>
-const _grupos   = <%- gruposJSON %>;
+const _imoveisVisita = <%- imoveisVisitaJSON %>;
+const _imoveisInteresse = <%- imoveisInteresseJSON %>;
 const _visitas  = <%- visitasJSON %>;
 const _leads    = <%- leadsJSON %>;
 const _proxima  = <%- proximaVisitaJSON %>;
@@ -115,35 +116,20 @@ L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:L.divIcon({className:'',html:'<di
 
 // IMÓVEIS
 const _imOffsets = {};
-_grupos.forEach(g => {
-  const base = _coords(g.bairro, g.cidade);
-  if(!base) return;
-  const key = _norm(g.cidade);
-  _imOffsets[key] = (_imOffsets[key]||0)+1;
-  const n = _imOffsets[key];
-  const ang = (n*137.5)*Math.PI/180, r=0.004*Math.ceil(n/8);
-  const lat = base.lat+r*Math.sin(ang), lng = base.lng+r*Math.cos(ang);
-  const tot = g.meus.length+g.parceiros.length;
-  const cor = g.meus.length>0&&g.parceiros.length===0?'#FF385C':g.meus.length===0?'#6366f1':'#f59e0b';
-  const mk = L.marker([lat,lng],{icon:_icone('🏠',cor,tot>1?tot:null)});
-  const lista = [...g.meus.map(i=>({...i,_meu:true})),...g.parceiros.map(i=>({...i,_meu:false}))].slice(0,4).map(i=>
-    '<div style="padding:5px 0;border-bottom:1px solid #f3f4f6"><div style="font-size:12px;font-weight:600">'+(i.titulo||i.tipo||'Imóvel')+'</div>'+
-    '<div style="font-size:11px;color:#888">'+(i.quartos?i.quartos+'q ':'')+( i.area_m2?i.area_m2+'m² ':'')+'</div>'+
-    '<div style="font-size:12px;font-weight:700;color:'+(i._meu?'#FF385C':'#6366f1')+'">'+(i.valor_imovel?'R$'+Number(i.valor_imovel).toLocaleString('pt-BR'):'Consultar')+'</div></div>'
-  ).join('');
-  mk.bindPopup('<div style="padding:8px;min-width:200px"><b>'+(g.bairro||g.cidade)+'</b><br><small style="color:#888">'+g.cidade+' · '+tot+' imóvel(is)</small><div style="margin-top:6px">'+lista+'</div></div>',{maxWidth:260});
+// IMÓVEIS COM VISITA HOJE
+_imoveisVisita.forEach((im,idx) => {
+  const mk = L.marker([im.lat,im.lng],{icon:_icone('\ud83d\udcc5','#1D9E75',idx+1),zIndexOffset:900});
+  mk.bindPopup('<div style="padding:8px;min-width:200px"><div style="font-size:13px;font-weight:700">Visita '+String(idx+1)+'\u00b0 \u00b7 '+(im.visita.horaVisita||'')+'</div><div style="font-size:12px;color:#666;margin:4px 0">'+(im.titulo||'Im\u00f3vel')+'</div><div style="font-size:12px;color:#888">'+(im.bairro||'')+'</div><div style="font-size:12px;margin-top:6px"><b>Lead:</b> '+(im.visita.nome||im.visita.telefone||'-')+'</div><div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:#E1F5EE;color:#0F6E56">'+im.visita.status+'</div></div>',{maxWidth:260});
   _layers.imoveis.addLayer(mk);
 });
 
-// INTERESSE DE LEADS (imóvel onde lead tem interesse)
-_leads.filter(l=>l.temInteresse).forEach(l => {
-  const base = _coords(l.bairro, l.cidade);
-  if(!base) return;
-  const key = 'int_'+_norm(l.cidade)+l.bairro;
-  const off = _offset(key);
-  const mk = L.marker([base.lat+off.dlat, base.lng+off.dlng],{icon:_iconeInteresse(l.temperatura),zIndexOffset:500});
-  mk.bindPopup('<div style="padding:8px;min-width:180px"><b>'+(l.nome||l.telefone)+'</b><br><small style="color:#888">Interesse em '+l.bairro+(l.cidade?' · '+l.cidade:'')+'</small><br><div style="margin-top:4px;font-size:12px">Score: <b>'+l.score+'</b> · '+l.matchCount+' matches</div><div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:'+(l.temperatura==='quente'?'#fef2f2':l.temperatura==='morno'?'#fefce8':'#f3f4f6')+';color:'+(l.temperatura==='quente'?'#dc2626':l.temperatura==='morno'?'#d97706':'#888')+'">'+l.temperatura+'</div></div>',{maxWidth:220});
+// IMÓVEIS COM INTERESSE DE LEADS
+_imoveisInteresse.forEach((im,idx) => {
+  const cor = im.leadTemp==='quente'?'#ef4444':im.leadTemp==='morno'?'#f59e0b':'#6366f1';
+  const mk = L.marker([im.lat,im.lng],{icon:_iconeInteresse(im.leadTemp),zIndexOffset:500});
+  mk.bindPopup('<div style="padding:8px;min-width:200px"><b>'+im.titulo+'</b><div style="font-size:12px;color:#666;margin:4px 0">'+im.bairro+'</div><div style="font-size:12px;margin-top:4px"><b>Lead:</b> '+im.leadNome+'</div><div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:'+cor+'20;color:'+cor+'">'+im.leadTemp+'</div></div>',{maxWidth:220});
   _layers.interesse.addLayer(mk);
+});
 });
 
 // VISITAS DO DIA

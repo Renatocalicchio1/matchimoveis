@@ -2841,58 +2841,47 @@ app.post('/process', upload.any(), async (req, res) => {
 });
 
 // ====== ROTA MAPA ======
-app.get('/app/mapa', auth, (req, res) => {
+app.get('/app/mapa', auth, async (req, res) => {
   const fs2 = require('fs');
   const path2 = require('path');
   const DATA_DIR2 = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
   const userId = req.session.user.id;
   const hoje = new Date().toISOString().split('T')[0];
-
-  // Imóveis agrupados por bairro
-  const imoveisPath = path2.join(DATA_DIR2, 'imoveis.json');
-  const imoveis = fs2.existsSync(imoveisPath) ? JSON.parse(fs2.readFileSync(imoveisPath,'utf8')) : [];
-  const mapa = {};
-  imoveis.forEach(im => {
-    if (!im.bairro && !im.cidade) return;
-    const key = (im.bairro||'') + '|' + (im.cidade||'');
-    if (!mapa[key]) mapa[key] = { bairro: im.bairro||'', cidade: im.cidade||'', meus:[], parceiros:[] };
-    if (im.userId === userId || im.codigoUsuario === userId || im.usuarioId === userId) mapa[key].meus.push(im);
-    else mapa[key].parceiros.push(im);
-  });
-  const grupos = Object.values(mapa).filter(g => g.meus.length + g.parceiros.length > 0);
-
+  const imoveis = fs2.existsSync(path2.join(DATA_DIR2,'imoveis.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'imoveis.json'),'utf8')) : [];
   // Visitas do dia
-  const visitasPath = path2.join(DATA_DIR2, 'visitas.json');
-  const todasVisitas = fs2.existsSync(visitasPath) ? JSON.parse(fs2.readFileSync(visitasPath,'utf8')) : [];
-  const visitasHoje = todasVisitas.filter(v =>
-    (v.userId === userId || v.corretorId === userId) &&
-    v.dataVisita === hoje
-  ).sort((a,b) => (a.horaVisita||'').localeCompare(b.horaVisita||''));
-
-  // Leads com bairro definido
-  const leadsPath = path2.join(DATA_DIR2, 'data.json');
-  const todasLeads = fs2.existsSync(leadsPath) ? JSON.parse(fs2.readFileSync(leadsPath,'utf8')) : [];
-  const leadsAtivas = todasLeads.filter(l =>
-    (l.userId === userId || l.codigoUsuario === userId) &&
-    (l.bairro || l.perfilIA?.bairro) &&
-    l.status !== 'arquivado' && l.status !== 'fechado'
-  ).map(l => ({
-    id: l.id,
-    nome: l.nome,
-    telefone: l.telefone,
-    bairro: l.bairro || l.perfilIA?.bairro || '',
-    cidade: l.cidade || l.perfilIA?.cidade || '',
-    temperatura: l.temperatura || 'frio',
-    score: l.score || 0,
-    matchCount: (l.matchesAuto||l.matches||[]).length,
-    temInteresse: ((l.matchesAuto||l.matches||[]).length > 0)
-  const proximaVisita = visitasHoje.find(v => v.status !== 'realizada' && v.status !== 'cancelada') || null;
-
+  const todasVisitas = _cacheVisitas || (fs2.existsSync(path2.join(DATA_DIR2,'visitas.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'visitas.json'),'utf8')) : []);
+  const visitasHoje = todasVisitas.filter(v => (v.userId===userId||v.corretorId===userId) && v.dataVisita===hoje).sort((a,b)=>(a.horaVisita||'').localeCompare(b.horaVisita||''));
+  // Leads ativas do corretor
+  const todasLeads = _cacheLeads || (fs2.existsSync(path2.join(DATA_DIR2,'data.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'data.json'),'utf8')) : []);
+  const leadsCorretor = todasLeads.filter(l => (l.userId===userId||l.codigoUsuario===userId) && l.status!=='arquivado');
+  // Imóveis com visita hoje
+  const imoveisVisita = [];
+  visitasHoje.forEach(v => {
+    const im = imoveis.find(i => i.id===v.imovelId || i.idOriginal===v.imovelId || i.idExterno===v.imovelId);
+    if(im && (im.latitude||im.lat) && (im.longitude||im.lng)) {
+      imoveisVisita.push({ lat:im.latitude||im.lat, lng:im.longitude||im.lng, titulo:im.titulo||im.tipo||'Imóvel', bairro:im.bairro||'', valor:im.valor_imovel||0, visita:v, tipo:'visita' });
+    }
+  });
+  // Imóveis com interesse/match de leads
+  const imoveisInteresse = [];
+  leadsCorretor.forEach(l => {
+    const matches = l.matchesAuto||l.matches||[];
+    matches.slice(0,2).forEach(m => {
+      const im = imoveis.find(i => i.id===m.id||i.idOriginal===m.id||i.idExterno===m.id);
+      if(im && (im.latitude||im.lat) && (im.longitude||im.lng)) {
+        imoveisInteresse.push({ lat:im.latitude||im.lat, lng:im.longitude||im.lng, titulo:im.titulo||im.tipo||'Imóvel', bairro:im.bairro||'', valor:im.valor_imovel||0, leadNome:l.nome||l.telefone, leadTemp:l.temperatura, score:m.score||0, tipo:'interesse' });
+      }
+    });
+  });
+  // Leads com bairro para mostrar onde buscam
+  const leadsAtivas = leadsCorretor.filter(l => l.bairro||l.perfilIA?.bairro).map(l => ({ id:l.id, nome:l.nome, telefone:l.telefone, bairro:l.bairro||l.perfilIA?.bairro||'', cidade:l.cidade||l.perfilIA?.cidade||'', temperatura:l.temperatura||'frio', score:l.score||0, matchCount:(l.matchesAuto||l.matches||[]).length }));
+  const proximaVisita = visitasHoje.find(v => v.status!=='realizada'&&v.status!=='cancelada')||null;
   res.render('app-mapa', {
     user: req.session.user,
-    gruposJSON: JSON.stringify(grupos),
     visitasJSON: JSON.stringify(visitasHoje),
     leadsJSON: JSON.stringify(leadsAtivas),
+    imoveisVisitaJSON: JSON.stringify(imoveisVisita),
+    imoveisInteresseJSON: JSON.stringify(imoveisInteresse),
     proximaVisitaJSON: JSON.stringify(proximaVisita),
     total: imoveis.length,
     hoje

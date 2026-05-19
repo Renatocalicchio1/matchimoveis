@@ -3,11 +3,12 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 .tbtn{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
-.map-panel{position:absolute;right:12px;top:62px;width:230px;background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,.13);z-index:1000;overflow:hidden;max-height:calc(100vh - 120px);display:flex;flex-direction:column}
+.map-panel{position:absolute;right:12px;top:62px;width:240px;background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,.13);z-index:1000;overflow:hidden;max-height:calc(100vh - 120px);display:flex;flex-direction:column}
 .map-panel-head{padding:12px 14px;border-bottom:1px solid #f3f4f6;font-size:12px;font-weight:600;color:#111;display:flex;align-items:center;justify-content:space-between}
 .map-panel-body{overflow-y:auto;flex:1}
-.vcard{padding:10px 14px;border-bottom:1px solid #f9fafb;border-left:3px solid transparent}
-.vcard.proxima{border-left-color:#1D9E75}
+.vcard{padding:10px 14px;border-bottom:1px solid #f9fafb;border-left:3px solid transparent;cursor:pointer}
+.vcard:hover{background:#f9fafb}
+.vcard.proxima{border-left-color:#1D9E75;background:#f0fdf4}
 .vstatus{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-bottom:4px}
 .eta-box{position:absolute;left:12px;bottom:20px;z-index:1000;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.15);padding:10px 16px;display:flex;align-items:center;gap:12px}
 .leg{position:absolute;left:12px;top:62px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.1);font-size:11px}
@@ -16,7 +17,6 @@
 </style>
 
 <div style="position:relative;margin:-20px;height:calc(100vh - 60px)">
-
   <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;border-radius:12px;padding:5px;box-shadow:0 2px 12px rgba(0,0,0,.12);display:flex;gap:4px">
     <button class="tbtn" id="btn-visitas" onclick="toggle('visitas')" style="background:#1D9E75;color:#fff">📅 Visitas</button>
     <button class="tbtn" id="btn-interesse" onclick="toggle('interesse')" style="background:#f3f4f6;color:#666">🔥 Interesse</button>
@@ -24,17 +24,17 @@
   </div>
 
   <div class="leg" id="legenda">
-    <div class="leg-i"><div class="leg-d" style="background:#1D9E75"></div>Visita hoje/amanhã</div>
+    <div class="leg-i"><div class="leg-d" style="background:#1D9E75"></div>Confirmada</div>
     <div class="leg-i"><div class="leg-d" style="background:#f59e0b"></div>Solicitada</div>
     <div class="leg-i"><div class="leg-d" style="background:#ef4444"></div>Interesse quente</div>
-    <div class="leg-i"><div class="leg-d" style="background:#6366f1"></div>Lead sem match</div>
+    <div class="leg-i"><div class="leg-d" style="background:#6366f1"></div>Sem match</div>
     <div class="leg-i" style="margin-bottom:0"><div class="leg-d" style="background:#94a3b8"></div>Lead frio</div>
   </div>
 
   <div class="map-panel" id="painelVisitas">
     <div class="map-panel-head">
-      <span>Visitas de hoje</span>
-      <span id="vcount" style="color:#888;font-weight:400">0</span>
+      <span>Agenda</span>
+      <span id="vcount" style="color:#888;font-weight:400"></span>
     </div>
     <div class="map-panel-body" id="listaVisitas"></div>
   </div>
@@ -57,6 +57,7 @@ const _leads    = <%- leadsJSON %>;
 const _imVisita = <%- imoveisVisitaJSON %>;
 const _imInt    = <%- imoveisInteresseJSON %>;
 const _proxima  = <%- proximaVisitaJSON %>;
+const _hoje     = '<%= hoje %>';
 const _uLat = <%= user.lat || -26.9543 %>;
 const _uLng = <%= user.lng || -48.6419 %>;
 
@@ -69,20 +70,31 @@ const _cc = {
   'itapema':{lat:-27.0906,lng:-48.6119},'porto belo':{lat:-27.1578,lng:-48.5508},
   'sao paulo':{lat:-23.5505,lng:-46.6333},'são paulo':{lat:-23.5505,lng:-46.6333},
   'rio de janeiro':{lat:-22.9068,lng:-43.1729},'curitiba':{lat:-25.4284,lng:-49.2733},
+  'praia brava':{lat:-26.9106,lng:-48.6158},'barra velha':{lat:-26.6308,lng:-48.6881},
+  'penha':{lat:-26.7678,lng:-48.6464},'picarras':{lat:-26.7678,lng:-48.6681},
 };
 const _norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-const _coords = (b,c) => _cc[_norm(c)]||_cc[_norm(b)]||null;
+const _coords = (b,c) => _cc[_norm(c)] || _cc[_norm(b)] || null;
 
 const _map = L.map('mapa').setView([_uLat,_uLng],12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(_map);
 
-function _pin(emoji, cor, label) {
-  const html = '<div style="background:'+cor+';color:#fff;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:'+(label?'13px':'18px')+';font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2.5px solid #fff">'+(label||emoji)+'</div>';
+function _pin(emoji, cor, label, pulse) {
+  const p = pulse ? 'animation:pulse 1.5s infinite' : '';
+  const html = `<div style="position:relative">
+    ${pulse?`<div style="position:absolute;inset:-6px;border-radius:50%;background:${cor};opacity:.2;${p}"></div>`:''}
+    <div style="background:${cor};color:#fff;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:${label?'13px':'18px'};font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.25);border:2.5px solid #fff;position:relative">${label||emoji}</div>
+  </div>`;
   return L.divIcon({className:'',html,iconSize:[38,38],iconAnchor:[19,19]});
 }
 
-// Pin corretor
-L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#1D9E75',null)}).addTo(_map).bindPopup('<b>Você está aqui</b>');
+// CSS pulse
+const st = document.createElement('style');
+st.textContent = '@keyframes pulse{0%,100%{transform:scale(1);opacity:.2}50%{transform:scale(1.5);opacity:.1}}';
+document.head.appendChild(st);
+
+// Pin corretor — pulsa
+L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#1D9E75',null,true)}).addTo(_map).bindPopup('<div style="padding:8px"><b>Você está aqui</b><br><small style="color:#888">Posição atual</small></div>');
 
 const _layers = {visitas:L.layerGroup(),interesse:L.layerGroup(),leads:L.layerGroup()};
 const _ativos = {visitas:true,interesse:false,leads:false};
@@ -93,68 +105,100 @@ function _offset(key) {
   return {dlat:r*Math.sin(ang),dlng:r*Math.cos(ang)};
 }
 
-// VISITAS HOJE
-_imVisita.forEach((im,i) => {
-  const mk = L.marker([im.lat,im.lng],{icon:_pin('📅','#1D9E75',i+1),zIndexOffset:900});
-  const cor = im.visita.status==='confirmada'?'#1D9E75':'#f59e0b';
-  mk.bindPopup('<div style="padding:8px;min-width:200px"><div style="font-size:13px;font-weight:700">Visita '+(i+1)+'ª · '+(im.visita.horaVisita||'')+'</div><div style="font-size:12px;color:#666;margin:4px 0">'+(im.titulo||'Imóvel')+'</div><div style="font-size:11px;color:#888">'+(im.bairro||'')+'</div><div style="font-size:12px;margin-top:6px"><b>Lead:</b> '+(im.visita.nome||im.visita.telefone||'-')+'</div><div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:'+cor+'20;color:'+cor+'">'+im.visita.status+'</div></div>',{maxWidth:260});
+// VISITAS — usa lat/lng do imóvel OU fallback por bairro/cidade
+_visitas.forEach((v,i) => {
+  // Tenta pegar coords do imóvel visitado
+  const imV = _imVisita.find(im => im.visita && im.visita.id === v.id);
+  let lat, lng;
+  if (imV) {
+    lat = imV.lat; lng = imV.lng;
+  } else {
+    const base = _coords(v.imovelBairro||'', v.imovelCidade||'Itajaí');
+    if (!base) return;
+    const off = _offset('v_'+(v.imovelBairro||v.imovelCidade||i));
+    lat = base.lat + off.dlat; lng = base.lng + off.dlng;
+  }
+  const confirmada = v.status === 'confirmada';
+  const cor = confirmada ? '#1D9E75' : '#f59e0b';
+  const isAmanha = v.dataVisita && v.dataVisita !== _hoje;
+  const mk = L.marker([lat,lng],{icon:_pin('📅',cor,i+1,false),zIndexOffset:900});
+  mk.bindPopup(`<div style="padding:8px;min-width:220px">
+    <div style="font-size:13px;font-weight:700">${isAmanha?'Amanhã':'Hoje'} ${v.horaVisita||''}</div>
+    <div style="font-size:12px;color:#666;margin:4px 0">${v.imovelTitulo||v.imovelBairro||'Imóvel'}</div>
+    <div style="font-size:11px;color:#888">${v.imovelBairro||''} ${v.imovelCidade?'· '+v.imovelCidade:''}</div>
+    <div style="font-size:12px;margin-top:6px"><b>Lead:</b> ${v.nome||v.leadNome||v.telefone||'-'}</div>
+    <div style="margin-top:6px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:${cor}20;color:${cor}">${v.status}</div>
+    ${v.parceiro?`<div style="font-size:11px;margin-top:4px;color:#6366f1">Parceiro: ${v.parceiro}</div>`:''}
+  </div>`,{maxWidth:280});
   _layers.visitas.addLayer(mk);
 });
 
 // INTERESSE DE LEADS
 _imInt.forEach(im => {
   const cor = im.leadTemp==='quente'?'#ef4444':im.leadTemp==='morno'?'#f59e0b':'#6366f1';
-  const mk = L.marker([im.lat,im.lng],{icon:_pin('🔥',cor,null),zIndexOffset:500});
-  mk.bindPopup('<div style="padding:8px;min-width:200px"><b>'+im.titulo+'</b><div style="font-size:12px;color:#666;margin:4px 0">'+(im.bairro||'')+'</div><div style="font-size:12px"><b>Lead:</b> '+im.leadNome+'</div><div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:'+cor+'20;color:'+cor+'">'+im.leadTemp+'</div></div>',{maxWidth:220});
+  const mk = L.marker([im.lat,im.lng],{icon:_pin('🔥',cor,null,false),zIndexOffset:500});
+  mk.bindPopup(`<div style="padding:8px;min-width:200px">
+    <b>${im.titulo}</b>
+    <div style="font-size:12px;color:#666;margin:4px 0">${im.bairro||''}</div>
+    <div style="font-size:12px"><b>Lead:</b> ${im.leadNome}</div>
+    <div style="font-size:11px;color:#888">Score: ${im.score}</div>
+    <div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:${cor}20;color:${cor}">${im.leadTemp}</div>
+  </div>`,{maxWidth:220});
   _layers.interesse.addLayer(mk);
 });
 
 // LEADS POR BAIRRO
 _leads.forEach(l => {
-  // Pin diferente para leads sem match
-  const semMatch = l.matchCount === 0;
-  const base = _coords(l.bairro,l.cidade);
+  const base = _coords(l.bairro, l.cidade);
   if(!base) return;
   const key = _norm(l.cidade||'')+l.bairro;
   const off = _offset(key);
-  const cor = l.temperatura==='quente'?'#ef4444':l.temperatura==='morno'?'#f59e0b':'#94a3b8';
-  const emoji = semMatch ? '❓' : '👤';
-  const mk = L.marker([base.lat+off.dlat,base.lng+off.dlng],{icon:_pin(emoji,semMatch?'#6366f1':cor,null)});
-  mk.bindPopup('<div style="padding:8px;min-width:180px"><b>'+(l.nome||l.telefone)+'</b><div style="font-size:12px;color:#666;margin:4px 0">'+(l.bairro?l.bairro+' · ':'')+l.cidade+'</div><div style="font-size:12px">Score: <b>'+l.score+'</b> · '+l.matchCount+' matches</div>'+(semMatch?'<div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:#ede9fe;color:#6366f1">Sem match ainda</div>':'')+'</div>',{maxWidth:220});
+  const semMatch = l.matchCount === 0;
+  const cor = semMatch?'#6366f1':l.temperatura==='quente'?'#ef4444':l.temperatura==='morno'?'#f59e0b':'#94a3b8';
+  const mk = L.marker([base.lat+off.dlat,base.lng+off.dlng],{icon:_pin(semMatch?'❓':'👤',cor,null,false)});
+  mk.bindPopup(`<div style="padding:8px;min-width:180px">
+    <b>${l.nome||l.telefone}</b>
+    <div style="font-size:12px;color:#666;margin:4px 0">${l.bairro?l.bairro+' · ':''}${l.cidade}</div>
+    <div style="font-size:12px">Score: <b>${l.score}</b> · ${l.matchCount} matches</div>
+    ${semMatch?'<div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:#ede9fe;color:#6366f1">Sem match ainda</div>':''}
+  </div>`,{maxWidth:220});
   _layers.leads.addLayer(mk);
 });
 
 // Rota até próxima visita
 if(_proxima) {
-  const bairro=_proxima.imovelBairro||'', cidade=_proxima.imovelCidade||'Itajaí';
-  const dest = _coords(bairro,cidade);
+  const imV = _imVisita.find(im => im.visita && im.visita.id === _proxima.id);
+  const dest = imV ? {lat:imV.lat,lng:imV.lng} : _coords(_proxima.imovelBairro||'', _proxima.imovelCidade||'Itajaí');
   if(dest) {
     L.polyline([[_uLat,_uLng],[dest.lat,dest.lng]],{color:'#1D9E75',weight:4,dashArray:'10,6',opacity:.85}).addTo(_map);
+    // Seta no destino
+    L.marker([dest.lat,dest.lng],{icon:L.divIcon({className:'',html:'<div style="background:#1D9E75;color:#fff;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 3px 12px rgba(0,0,0,.3);border:3px solid #fff">🏠</div>',iconSize:[44,44],iconAnchor:[22,22]}),zIndexOffset:1500}).addTo(_map);
     const R=6371, dLat=(dest.lat-_uLat)*Math.PI/180, dLng=(dest.lng-_uLng)*Math.PI/180;
     const a=Math.sin(dLat/2)**2+Math.cos(_uLat*Math.PI/180)*Math.cos(dest.lat*Math.PI/180)*Math.sin(dLng/2)**2;
     const dist=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
     const min=Math.max(1,Math.round(dist/0.5));
     document.getElementById('etaBox').style.display='flex';
     document.getElementById('etaMin').textContent=min+' min';
-    document.getElementById('etaNome').textContent=_proxima.nome||_proxima.telefone||'Lead';
-    document.getElementById('etaEnd').textContent=(bairro||'')+(cidade?' · '+cidade:'');
+    document.getElementById('etaNome').textContent=_proxima.nome||_proxima.leadNome||_proxima.telefone||'Lead';
+    document.getElementById('etaEnd').textContent=(_proxima.imovelBairro||'')+(_proxima.imovelCidade?' · '+_proxima.imovelCidade:'');
   }
 }
 
 // Painel visitas
-document.getElementById('vcount').textContent=_visitas.length+' hoje';
+document.getElementById('vcount').textContent=_visitas.length+' agendadas';
 document.getElementById('listaVisitas').innerHTML = _visitas.length
-  ? _visitas.map((v,i)=>{
-    const proxima=_proxima&&_proxima.id===v.id;
-    const cor=v.status==='confirmada'?'#1D9E75':'#f59e0b';
-    return '<div class="vcard'+(proxima?' proxima':'')+'">'+
-      '<div class="vstatus" style="background:'+cor+'20;color:'+cor+'">'+v.status+'</div>'+
-      '<div style="font-size:12px;font-weight:600;color:#111">'+(v.nome||v.leadNome||v.telefone||'Lead')+'</div>'+
-      '<div style="font-size:11px;color:#888;margin-top:2px">'+(v.horaVisita||'')+(v.imovelBairro?' · '+v.imovelBairro:'')+'</div>'+
-      (proxima?'<div style="font-size:10px;color:#1D9E75;font-weight:600;margin-top:3px">Próxima →</div>':'')+
-      '</div>';
+  ? _visitas.map((v,i) => {
+    const proxima = _proxima && _proxima.id===v.id;
+    const cor = v.status==='confirmada'?'#1D9E75':'#f59e0b';
+    const isAmanha = v.dataVisita && v.dataVisita !== _hoje;
+    return `<div class="vcard${proxima?' proxima':''}">
+      <div class="vstatus" style="background:${cor}20;color:${cor}">${v.status}</div>
+      <div style="font-size:12px;font-weight:600;color:#111">${v.nome||v.leadNome||v.telefone||'Lead'}</div>
+      <div style="font-size:11px;color:#888;margin-top:2px">${isAmanha?'Amanhã ':''}${v.horaVisita||''}${v.imovelBairro?' · '+v.imovelBairro:''}</div>
+      ${proxima?'<div style="font-size:10px;color:#1D9E75;font-weight:600;margin-top:3px">Próxima → rota ativa</div>':''}
+    </div>`;
   }).join('')
-  : '<div style="padding:16px;text-align:center;font-size:12px;color:#888">Nenhuma visita hoje</div>';
+  : '<div style="padding:16px;text-align:center;font-size:12px;color:#888">Nenhuma visita agendada</div>';
 
 // Toggle
 const _cores={visitas:'#1D9E75',interesse:'#ef4444',leads:'#6366f1'};

@@ -219,8 +219,8 @@
           <div class="campo" style="grid-column:span 2"><label>Bairro</label><input name="bairro" id="campo-bairro" placeholder="Moema"></div>
         </div>
         <div class="fg2">
-          <div class="campo"><label>Latitude</label><input name="latitude" id="campo-lat" placeholder="-23.5505" type="number" step="any"></div>
-          <div class="campo"><label>Longitude</label><input name="longitude" id="campo-lng" placeholder="-46.6333" type="number" step="any"></div>
+          <div class="campo"><label>Latitude</label><input name="latitude" id="campo-lat" placeholder="Preenchido automaticamente" type="number" step="any" readonly style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed"></div>
+          <div class="campo"><label>Longitude</label><input name="longitude" id="campo-lng" placeholder="Preenchido automaticamente" type="number" step="any" readonly style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed"></div>
         </div>
       </div>
 
@@ -425,6 +425,16 @@ async function buscarCEP() {
     const sel = document.getElementById('select-estado');
     for(let i=0;i<sel.options.length;i++) if(sel.options[i].value===d.uf){sel.selectedIndex=i;break;}
     res.textContent = '✅ '+d.logradouro+', '+d.bairro+', '+d.localidade+'/'+d.uf;
+    // Geocodifica para obter lat/lng
+    try {
+      const end = encodeURIComponent((d.logradouro||'')+', '+(d.bairro||'')+', '+(d.localidade||'')+', '+d.uf+', Brasil');
+      const geo = await (await fetch('https://nominatim.openstreetmap.org/search?format=json&q='+end+'&limit=1')).json();
+      if (geo && geo[0]) {
+        document.getElementById('campo-lat').value = parseFloat(geo[0].lat).toFixed(7);
+        document.getElementById('campo-lng').value = parseFloat(geo[0].lon).toFixed(7);
+        res.textContent += ' · 📍 coordenadas preenchidas';
+      }
+    } catch(e) {}
   } catch(e) { res.textContent='Erro ao buscar CEP'; }
 }
 function fmtCEP(input) {

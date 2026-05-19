@@ -6181,6 +6181,8 @@ app.delete('/app/lead/:id', auth, async (req, res) => {
     if (!leads[idx].deletadoPor) leads[idx].deletadoPor = [];
     if (!leads[idx].deletadoPor.includes(uid)) leads[idx].deletadoPor.push(uid);
     await salvarTodosLeads(leads);
+    // Força recarregamento do cache
+    _cacheLeads = leads;
     console.log('[LEAD] ocultada para:', uid, '| lead:', req.params.id);
     res.json({ ok: true });
   } catch(e) {

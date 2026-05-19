@@ -783,7 +783,7 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
     const _info = _msgs[resposta];
     if (_info && _uid) {
       // Notifica corretor dono da lead
-      _notifs.push({ id: Date.now().toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _info.msg, usuarioId: _uid, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
+      criarNotificacaoService({ id: Date.now().toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _info.msg, usuarioId: _uid, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
       // Notifica parceiro dono do imóvel (se diferente do corretor)
       const _parcId = _v.imovelUsuarioId || '';
       if (_parcId && _parcId !== _uid) {
@@ -792,7 +792,7 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
           indisponivel: 'Você informou indisponibilidade do imóvel ' + _imovel + '. O imóvel foi inativado.',
           remarcar: 'Você pediu remarcação da visita de ' + _cliente + ' ao imóvel ' + _imovel + '.'
         }[resposta];
-        if (_msgParc) _notifs.push({ id: (Date.now()+1).toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _msgParc, usuarioId: _parcId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
+        if (_msgParc) criarNotificacaoService({ id: (Date.now()+1).toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _msgParc, usuarioId: _parcId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
       }
       salvarJSON(dataPath('notificacoes.json'), _notifs).catch(e=>console.error("[notif]",e.message));
     }
@@ -1191,9 +1191,9 @@ function lerVisitas(user) {
   const todos = _cacheVisitas || ((_cacheVisitas || []));
   return filtrarPorUsuario(todos, user);
 }
-function lerNotificacoes(user) {
-  const todos = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
-  return filtrarPorUsuario(todos, user);
+async function lerNotificacoes(user) {
+  const uid = user?.id || user;
+  return await lerNotificacoesService(uid) || [];
 }
 
 app.get('/app', auth, (req,res)=> res.redirect('/app-home'));
@@ -3204,11 +3204,9 @@ app.post('/api/lead-interesse', async (req, res) => {
       salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
       try {
-        const notificacoes = fs.existsSync(dataPath('notificacoes.json'))
-          ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'), 'utf8'))
-          : [];
+        const notificacoes = await lerNotificacoesService() || [];
 
-        notificacoes.push({
+        criarNotificacaoService({
           id: Date.now().toString(),
           tipo: 'nova_visita',
           titulo: 'Nova solicitação de visita',

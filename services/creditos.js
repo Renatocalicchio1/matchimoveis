@@ -26,7 +26,7 @@ const CUSTO = {
 async function consumir(userId, acao) {
   try {
     const custo = CUSTO[acao] || 10;
-    const users = lerUsuarios();
+    const users = await lerUsuarios();
     const idx = users.findIndex(u => u.id === userId || u.userId === userId);
     if (idx < 0) return true;
 
@@ -52,7 +52,7 @@ async function consumir(userId, acao) {
 
 async function adicionarCreditos(userId, quantidade, motivo = 'recarga') {
   try {
-    const users = lerUsuarios();
+    const users = await lerUsuarios();
     const idx = users.findIndex(u => u.id === userId || u.userId === userId);
     if (idx < 0) return false;
 
@@ -76,7 +76,7 @@ async function adicionarCreditos(userId, quantidade, motivo = 'recarga') {
 
 function temSaldo(userId) {
   try {
-    const users = lerUsuarios();
+    const users = await lerUsuarios();
     const u = users.find(u => u.id === userId || u.userId === userId);
     return (u?.matchCoins || 0) > 0;
   } catch(e) { return true; }
@@ -84,7 +84,7 @@ function temSaldo(userId) {
 
 function saldo(userId) {
   try {
-    const users = lerUsuarios();
+    const users = await lerUsuarios();
     const u = users.find(u => u.id === userId || u.userId === userId);
     return u?.matchCoins || 0;
   } catch(e) { return 0; }

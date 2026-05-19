@@ -74,7 +74,7 @@ async function adicionarCreditos(userId, quantidade, motivo = 'recarga') {
   }
 }
 
-function temSaldo(userId) {
+async function temSaldo(userId) {
   try {
     const users = await lerUsuarios();
     const u = users.find(u => u.id === userId || u.userId === userId);
@@ -82,7 +82,7 @@ function temSaldo(userId) {
   } catch(e) { return true; }
 }
 
-function saldo(userId) {
+async function saldo(userId) {
   try {
     const users = await lerUsuarios();
     const u = users.find(u => u.id === userId || u.userId === userId);

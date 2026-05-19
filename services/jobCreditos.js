@@ -9,7 +9,7 @@ const { criarNotificacao } = require('./salvarNotificacao');
 
 const CUSTO_LEAD_DIA = 10;
 
-async function debitarLeadsAtivos() {
+async async function debitarLeadsAtivos() {
   try {
     const users = await lerUsuarios();
     let alterou = false;
@@ -19,7 +19,7 @@ async function debitarLeadsAtivos() {
       const uid = u.id || u.userId;
       if (!uid) continue;
 
-      const leads = lerLeads(uid);
+      const leads = await lerLeads(uid);
       const ativos = leads.filter(l =>
         l.status !== 'arquivado' &&
         l.status !== 'fechado' &&

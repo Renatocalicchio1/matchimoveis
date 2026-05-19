@@ -3,6 +3,44 @@ const path = require('path');
 const { lerJSON, salvarJSON } = require('./storage');
 const { query, dbOk } = require('./db');
 
+
+// Auto-cria tabela e migra users.json no boot
+async function _inicializarUsuarios() {
+  try {
+    const { dbOk: _dok, query: _q } = require('./db');
+    if (!await _dok()) return;
+    await _q(`CREATE TABLE IF NOT EXISTS usuarios (
+      id TEXT PRIMARY KEY, nome TEXT, telefone TEXT, celular TEXT, email TEXT, senha TEXT,
+      tipo TEXT DEFAULT 'corretor', ativo BOOLEAN DEFAULT true, codigo_usuario TEXT,
+      creci TEXT, cpf TEXT, match_coins INTEGER DEFAULT 0, match_coins_total INTEGER DEFAULT 0,
+      match_coins_bonus_inicial INTEGER DEFAULT 0, whatsapp_instance TEXT,
+      whatsapp_status TEXT, whatsapp_numero TEXT, bloqueados JSONB DEFAULT '[]',
+      lat DOUBLE PRECISION, lng DOUBLE PRECISION, endereco TEXT,
+      xml_url TEXT, xml_atualizado_em TIMESTAMPTZ, xml_total INTEGER DEFAULT 0,
+      historico_assistente JSONB DEFAULT '[]',
+      criado_em TIMESTAMPTZ DEFAULT NOW(), atualizado_em TIMESTAMPTZ DEFAULT NOW(),
+      dados JSONB DEFAULT '{}'
+    )`);
+    // Migra users.json se tabela vazia
+    const count = await _q('SELECT COUNT(*) as c FROM usuarios');
+    if (parseInt(count.rows[0].c) === 0) {
+      const _fs = require('fs'), _path = require('path');
+      const _dir = process.env.RENDER ? '/opt/render/project/src/data' : _path.join(__dirname, '..');
+      const _file = _path.join(_dir, 'users.json');
+      if (_fs.existsSync(_file)) {
+        const _users = JSON.parse(_fs.readFileSync(_file, 'utf8'));
+        if (_users.length > 0) {
+          console.log('[usuarios] migrando', _users.length, 'users do JSON...');
+          const { salvarTodosUsuarios: _stu } = require('./salvarUsuario');
+          await _stu(_users);
+          console.log('[usuarios] ✅ migração automática concluída');
+        }
+      }
+    }
+  } catch(e) { console.error('[usuarios boot]', e.message); }
+}
+_inicializarUsuarios();
+
 function usersPath() {
   const DIR = process.env.RENDER ? '/opt/render/project/src/data' : path.join(__dirname, '..');
   return path.join(DIR, 'users.json');

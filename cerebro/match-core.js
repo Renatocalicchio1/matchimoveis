@@ -540,12 +540,6 @@ class MatchCore {
       if (!texto) return null;
 
       if (!lead.mensagens) lead.mensagens = [];
-      // RESPOSTA AUTOMÁTICA DESATIVADA — corretor responde manualmente
-      // lead.mensagens.push({ id:(Date.now()+1).toString(), de:'assistente', canal, texto, timestamp: new Date().toISOString(), lida:true });
-
-      // ENVIO DESATIVADO — corretor responde manualmenten      if (false && canal==='whatsapp' && instancia && lead.contato) {
-        setImmediate(() => enviarWhatsApp(instancia, lead.contato, texto));
-      }
       return texto;
     } catch(e) {
       console.error('[MATCH CORE] erro resposta:', e.message);

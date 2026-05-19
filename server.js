@@ -2671,21 +2671,6 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         } catch(e) { console.error('[WEBHOOK WA] erro salvar perfil:', e.message); }
         if((leadAtualizado.matchesAuto||[]).length>0) consumir(leadAtualizado.userId||leadAtualizado.corretorId, 'match_encontrado').catch(()=>{});
 
-        // Gera e envia resposta automática
-        const respostaTexto = _resultado?.resposta || matchCore.gerarResposta(leadAtualizado, texto);
-        if (!respostaTexto) {
-          console.log('[WEBHOOK WA] sem resposta automatica gerada');
-          return;
-        }
-
-        const envioRes = await fetch(`${EVOLUTION_URL}/message/sendText/${INSTANCE}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
-          body: JSON.stringify({ number: telefone, text: respostaTexto })
-        });
-
-        const envioJson = await envioRes.json();
-        console.log('[WEBHOOK WA] resposta enviada:', respostaTexto.substring(0, 80), '| status:', envioRes.status);
 
       } catch(e) {
         console.error('[WEBHOOK WA] erro background match-core:', e.message);

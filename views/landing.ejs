@@ -336,31 +336,13 @@
 <div class="modal-overlay" id="modal-login" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal()">×</button>
-    <div class="modal-title">Acessar plataforma</div>
-    <div class="modal-sub">Entre ou solicite seu acesso</div>
-    <div class="modal-tabs" style="display:none">
-      <button class="modal-tab on" id="tab-e" onclick="setTab('entrar')">Entrar</button>
-      
-    </div>
-    <div id="form-entrar">
-      <form method="POST" action="/login">
-        <div class="m-field"><label>Celular</label><input name="telefone" placeholder="47999999999" required autocomplete="username"></div>
-        <div class="m-field"><label>Senha</label><input name="senha" type="password" placeholder="••••••" autocomplete="current-password"></div>
-        <button type="submit" class="m-btn">Entrar →</button>
-      </form>
-    </div>
-    <div id="form-cadastro" style="display:none">
-      <form method="POST" action="/cadastro-secreto">
-        <input type="hidden" name="token" value="match2025">
-        <div class="m-field"><label>Tipo de conta</label><select name="tipo" required><option value="">Selecione...</option><option value="corretor">Corretor</option><option value="imobiliaria">Imobiliária</option></select></div>
-        <div class="m-field"><label>Nome completo</label><input name="nome" placeholder="João Silva" required></div>
-        <div class="m-field"><label>Celular (será seu login)</label><input name="telefone" placeholder="47999999999" required></div>
-        <div class="m-field"><label>Senha</label><input name="senha" type="password" placeholder="Mínimo 6 caracteres" required minlength="6"></div>
-        <div class="m-field"><label>CRECI (opcional)</label><input name="creci" placeholder="Opcional"></div>
-        <button type="submit" class="m-btn">Criar minha conta →</button>
-        <p class="m-note">Sem mensalidade · Só pague o que usar</p>
-      </form>
-    </div>
+    <div class="modal-title">Entrar na plataforma</div>
+    <div class="modal-sub">Acesse sua conta MatchImóveis</div>
+    <form method="POST" action="/login">
+      <div class="m-field"><label>Celular</label><input name="telefone" placeholder="47999999999" required autocomplete="username"></div>
+      <div class="m-field"><label>Senha</label><input name="senha" type="password" placeholder="••••••" autocomplete="current-password"></div>
+      <button type="submit" class="m-btn">Entrar →</button>
+    </form>
   </div>
 </div>
 

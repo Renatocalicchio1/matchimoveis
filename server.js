@@ -2867,6 +2867,7 @@ app.listen(PORT, () => {
   try {
     const { iniciarScheduler } = require('./services/xmlScheduler'); iniciarScheduler();
     const { iniciarJobCreditos } = require('./services/jobCreditos'); iniciarJobCreditos();
+    const { iniciarBackup } = require('./services/backup'); iniciarBackup();
   } catch(e) {
     console.error('[server] Erro ao iniciar autoUpdateXML:', e.message);
   }

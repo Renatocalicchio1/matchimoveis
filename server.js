@@ -1192,8 +1192,11 @@ function lerVisitas(user) {
   return filtrarPorUsuario(todos, user);
 }
 async function lerNotificacoes(user) {
-  const uid = user?.id || user;
-  return await lerNotificacoesService(uid) || [];
+  try {
+    const uid = user?.id || user;
+    const result = await lerNotificacoesService(uid);
+    return Array.isArray(result) ? result : [];
+  } catch(e) { return []; }
 }
 
 app.get('/app', auth, (req,res)=> res.redirect('/app-home'));
@@ -1219,7 +1222,7 @@ app.get('/app-home', auth, async (req,res)=>{
   const todosImoveis = await lerImoveis(req.session.user.id);
   const todosLeads = await _llSvc2(req.session.user.id);
   const todasVisitas = await lerVisitas(req.session.user.id);
-  const notificacoes = lerNotificacoes(req.session.user);
+  const notificacoes = await lerNotificacoes(req.session.user);
   const imoveis = filtrarPorUsuario(todosImoveis, user);
   const leadsArr = filtrarPorUsuario(Array.isArray(todosLeads) ? todosLeads : (todosLeads.results || []), user);
   const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>

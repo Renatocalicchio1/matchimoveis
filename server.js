@@ -820,7 +820,7 @@ app.get('/admin/resumo-contas', (req, res) => {
     const users = (_cacheUsuarios || []);
     const imoveis = ((_cacheImoveis || []));
     const leads = (_cacheLeads || []);
-    const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'));
+    const visitas = (_cacheVisitas || []);
     const resumo = users.map(u => ({
       nome: u.nome, id: u.id, tipo: u.tipo,
       imoveis: imoveis.filter(i=>i.codigoUsuario===u.id||i.userId===u.id).length,
@@ -2295,7 +2295,7 @@ setInterval(async () => {
     const _dataFile = dataPath('data.json');
     if (!fs.existsSync(_dataFile)) return;
     const _leads = JSON.parse(fs.readFileSync(_dataFile, 'utf8'));
-    const _users = JSON.parse(fs.readFileSync(_path.join(__dirname, 'users.json'), 'utf8'));
+    const _users = (_cacheUsuarios || []);
     const _agora = Date.now();
     const BASE_URL = process.env.RENDER ? 'https://matchimoveis.onrender.com' : (process.env.BASE_URL || 'http://localhost:3000');
     const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
@@ -2536,7 +2536,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
 
     // ── VERIFICAR BLOQUEADOS ─────────────────────────────────
     try {
-      const _usersBlk = JSON.parse(fs.readFileSync(require('path').join(__dirname, 'users.json'), 'utf8'));
+      const _usersBlk = (_cacheUsuarios || []);
       const _bloqueado = _usersBlk.some(u => (u.bloqueados || []).includes(telefone));
       if (_bloqueado) {
         console.log('[WEBHOOK WA] numero bloqueado:', telefone);
@@ -3204,7 +3204,7 @@ app.post('/api/lead-interesse', async (req, res) => {
       salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
       try {
-        const notificacoes = await lerNotificacoesService() || [];
+        const notificacoes = await lerNotificacoesService(req.session?.user?.id) || [];
 
         criarNotificacaoService({
           id: Date.now().toString(),
@@ -4362,7 +4362,7 @@ app.get('/api/assistente/dados', auth, (req, res) => {
   const imoveis = (_cacheImoveis || []).filter(i=>i.userId===uid);
   const leads   = (_cacheLeads || []).filter(l=>l.userId===uid);
   const visitas = fs.existsSync(dataPath('visitas.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')).filter(v=>v.userId===uid) : [];
+    ? (_cacheVisitas || []).filter(v=>v.userId===uid) : [];
 
   const hoje = new Date().toLocaleDateString('pt-BR');
 
@@ -4437,7 +4437,7 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
   const imoveis = (_cacheImoveis || []).filter(i=>i.userId===uid);
   const leads   = (_cacheLeads || []).filter(l=>l.userId===uid);
   const visitas = fs.existsSync(dataPath('visitas.json'))
-    ? JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8')).filter(v=>v.userId===uid)
+    ? (_cacheVisitas || []).filter(v=>v.userId===uid)
     : [];
 
   const hoje = new Date().toLocaleDateString('pt-BR');
@@ -6397,7 +6397,7 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
 app.get('/admin/diagnostico-completo', (req, res) => {
   try {
     const leads = (_cacheLeads || []);
-    const visitas = JSON.parse(fs.readFileSync(dataPath('visitas.json'),'utf8'));
+    const visitas = (_cacheVisitas || []);
     const users = (_cacheUsuarios || []);
     const resultado = {};
     users.forEach(u => {

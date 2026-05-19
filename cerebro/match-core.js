@@ -543,7 +543,7 @@ class MatchCore {
       // RESPOSTA AUTOMÁTICA DESATIVADA — corretor responde manualmente
       // lead.mensagens.push({ id:(Date.now()+1).toString(), de:'assistente', canal, texto, timestamp: new Date().toISOString(), lida:true });
 
-      if (canal==='whatsapp' && instancia && lead.contato) {
+      // ENVIO DESATIVADO — corretor responde manualmenten      if (false && canal==='whatsapp' && instancia && lead.contato) {
         setImmediate(() => enviarWhatsApp(instancia, lead.contato, texto));
       }
       return texto;

@@ -2527,7 +2527,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     let leadEncontrado = null;
     let leadsPathAtual = 'service';
     try {
-      const todosLeads = _lerLeadsWH();
+      const todosLeads = await _lerLeadsWH();
       // Busca lead pelo telefone E userId da instância — evita vazamento entre contas
       leadEncontrado = todosLeads.find(l => {
         const fone = (l.telefone || l.whatsapp || l.contato || l.phone || '').replace(/\D/g, '');
@@ -2647,7 +2647,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         // Salva perfil, score e temperatura no lead
         try {
           const { lerLeads: _ll3, salvarTodosLeads: _sl3 } = require('./services/salvarLead');
-          const _todos3 = _ll3();
+          const _todos3 = await _ll3();
           const _idx3 = _todos3.findIndex(l => l.id === leadAtualizado.id);
           if (_idx3 >= 0) {
             _todos3[_idx3] = {

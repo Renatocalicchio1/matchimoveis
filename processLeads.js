@@ -3,136 +3,124 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 
 const file = process.argv[2];
+const importUserId = process.argv[3] || "";
 const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
 const DATA_FILE = path.join(DATA_DIR, 'data.json');
-const importUserId = process.argv[3] || "";
-if (!file) {
-  console.log('ERRO: informe o arquivo');
-  process.exit(1);
-}
+
+if (!file) { console.log('ERRO: informe o arquivo'); process.exit(1); }
 
 function norm(v = '') {
-  return String(v)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
+  return String(v).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 }
 
-function pick(row, aliases) {
-  const keys = Object.keys(row);
-  for (const alias of aliases) {
-    const found = keys.find(k => norm(k) === norm(alias));
-    if (found && row[found] !== undefined && row[found] !== null) {
-      return String(row[found]).trim();
-    }
+function pick(row, keys) {
+  for (const k of keys) {
+    const found = Object.keys(row).find(h => norm(h) === norm(k));
+    if (found && row[found] !== undefined && row[found] !== '') return String(row[found]).trim();
   }
   return '';
 }
 
-function money(v='') {
-  const n = String(v).replace(/\D/g,'');
-  return n ? Number(n) : 0;
+function money(v) {
+  if (!v) return 0;
+  return Number(String(v).replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
 }
 
-function fixUrl(url, id) {
-  if (url && url.startsWith('http')) return url;
-  if (id) return `https://www.imovelweb.com.br/propiedades/-${id}.html`;
-  return '';
-}
-
-function readRows(file) {
-  const wb = XLSX.readFile(file, { raw:false, codepage:65001 });
-  const sheetName = wb.SheetNames.includes('Data') ? 'Data' : wb.SheetNames[0];
-  const sheet = wb.Sheets[sheetName];
-
-  const raw = XLSX.utils.sheet_to_json(sheet, { header:1, defval:'' });
-
+function parseSheet(filePath) {
+  const wb = XLSX.readFile(filePath);
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const raw = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
   const headerIndex = raw.findIndex(r =>
     r.some(c => norm(c) === 'nome') &&
-    r.some(c => norm(c).includes('url'))
+    r.some(c => norm(c).includes('telefone') || norm(c).includes('celular') || norm(c).includes('whatsapp') || norm(c).includes('contato'))
   );
-
   if (headerIndex < 0) {
-    console.log('ERRO: cabeçalho não encontrado');
-    console.log(raw.slice(0,5));
+    console.log('ERRO: cabeçalho não encontrado. Obrigatório: Nome + Telefone');
+    console.log('Primeiras linhas:', JSON.stringify(raw.slice(0, 3)));
     process.exit(1);
   }
-
   const headers = raw[headerIndex].map(h => String(h).trim());
-  console.log('HEADER USADO:', headers.join(' | '));
-
-  return raw.slice(headerIndex + 1)
-    .filter(r => r.some(c => String(c).trim()))
-    .map(r => {
-      const obj = {};
-      headers.forEach((h,i) => obj[h]=r[i]);
-      return obj;
-    });
+  console.log('HEADER:', headers.join(' | '));
+  return raw.slice(headerIndex + 1).map(r => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = r[i]; });
+    return obj;
+  });
 }
 
-(async () => {
-  const rows = readRows(file);
+const rows = parseSheet(file);
+const existing = fs.existsSync(DATA_FILE) ? JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')) : [];
+let adicionados = 0, duplicados = 0, ignorados = 0;
 
-  let existing = fs.existsSync(DATA_FILE)
-    ? JSON.parse(fs.readFileSync(DATA_FILE,'utf8'))
-    : [];
+for (const r of rows) {
+  const nome = pick(r, ['Nome', 'name']);
+  const telefone = String(pick(r, ['Telefone', 'Celular', 'WhatsApp', 'Contato', 'phone'])).replace(/\D/g, '');
 
-  if (!Array.isArray(existing)) existing = existing.results || [];
+  if (!nome && !telefone) { ignorados++; continue; }
+  if (!telefone) { ignorados++; console.log('IGNORADO sem telefone:', nome); continue; }
 
-  let adicionados = 0;
-  let duplicados = 0;
+  // Anti-duplicação por telefone + userId
+  const dup = existing.find(x => {
+    const xUser = String(x.userId || x.codigoUsuario || '');
+    const xFone = String(x.telefone || x.contato || '').replace(/\D/g, '');
+    return xUser === importUserId && xFone.slice(-8) === telefone.slice(-8);
+  });
+  if (dup) { duplicados++; console.log('DUPLICADO:', nome, telefone); continue; }
 
-  for (const r of rows) {
-    const id = pick(r, ['Id anúncio','Id anuncio','id do anúncio','id']);
-    const url = fixUrl(pick(r, ['Url anúncio','Url anuncio','url do anúncio','url']), id);
+  const valorMin = money(pick(r, ['Valor_min', 'Valor min', 'Valor mínimo', 'valor_min']));
+  const valorMax = money(pick(r, ['Valor_max', 'Valor max', 'Valor máximo', 'valor_max']));
+  const areaMin = money(pick(r, ['Area_min', 'Área min', 'Area min', 'area_min']));
+  const areaMax = money(pick(r, ['Area_max', 'Área max', 'Area max', 'area_max']));
 
-    const lead = {
-      nome: pick(r, ['Nome']),
-      email: pick(r, ['E-mail usuário','E-mail usuario','email','e-mail']),
-      contato: pick(r, ['Telefone','Telefone 2','celular','whatsapp','contato']),
-      telefone2: pick(r, ['Telefone 2']),
-      id,
-      estado: pick(r, ['Estado','UF']) || 'SP',
-      cidade: pick(r, ['Cidade']) || 'São Paulo',
-      bairro: pick(r, ['Bairro']),
-      tipo: pick(r, ['Tipo de imóvel','Tipo de imovel']),
-      tipo_operacao: pick(r, ['Tipo de operação','Tipo de operacao']),
-      valor_imovel: money(pick(r, ['Preço','Preco','Valor'])),
-      titulo: pick(r, ['Título','Titulo']),
-      url,
-      matchCount: 0,
-      createdAt: new Date().toISOString()
-    };
+  const lead = {
+    id: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+    nome,
+    telefone,
+    whatsapp: telefone,
+    email: pick(r, ['Email', 'E-mail', 'email']),
+    origem: pick(r, ['Origem', 'origem', 'source']) || 'planilha',
+    userId: importUserId,
+    codigoUsuario: importUserId,
+    status: 'novo',
+    faseFunil: pick(r, ['Fase_funil', 'Fase funil', 'fase']) || 'novo',
+    temperatura: pick(r, ['Temperatura', 'temperatura']) || 'frio',
+    observacoes: pick(r, ['Observacoes', 'Observações', 'obs', 'notas']),
+    perfilIA: {
+      tipo: norm(pick(r, ['Tipo', 'tipo', 'type'])),
+      transacao: norm(pick(r, ['Transacao', 'Transação', 'operacao'])) || 'compra',
+      condicao: norm(pick(r, ['Condicao', 'Condição', 'condicao'])) || 'usado',
+      bairro: pick(r, ['Bairro', 'bairro', 'neighborhood']),
+      cidade: pick(r, ['Cidade', 'cidade', 'city']),
+      estado: pick(r, ['Estado', 'estado', 'state']),
+      quartos: Number(pick(r, ['Quartos', 'quartos', 'bedrooms'])) || 0,
+      suites: Number(pick(r, ['Suites', 'Suítes', 'suites'])) || 0,
+      vagas: Number(pick(r, ['Vagas', 'vagas', 'garage'])) || 0,
+      banheiros: Number(pick(r, ['Banheiros', 'banheiros', 'bathrooms'])) || 0,
+      areaMin,
+      areaMax,
+      valorMin,
+      valorMax,
+    },
+    bairro: pick(r, ['Bairro', 'bairro']),
+    cidade: pick(r, ['Cidade', 'cidade']),
+    quartos: Number(pick(r, ['Quartos', 'quartos'])) || 0,
+    valorMax,
+    mensagens: [],
+    matches: [],
+    matchesAuto: [],
+    timeline: [],
+    eventos: [],
+    followUps: [],
+    deletadoPor: [],
+    criadoEm: new Date().toISOString(),
+    data_cadastro: new Date().toISOString()
+  };
 
-    if (!lead.id && !lead.url) continue;
+  existing.push(lead);
+  adicionados++;
+  console.log('ADICIONADO:', lead.nome, lead.telefone, lead.perfilIA.bairro || '-', lead.perfilIA.tipo || '-');
+}
 
-    const dup = existing.find(x => {
-      const xUser = String(x.userId || x.usuarioId || x.corretorId || '');
-      const sameUser = xUser === String(importUserId || '');
-
-      return sameUser && (
-        (x.url && lead.url && x.url === lead.url) ||
-        (x.id && lead.id && x.id === lead.id && x.email === lead.email && x.contato === lead.contato)
-      );
-    });
-
-    if (dup) {
-      duplicados++;
-      console.log('IGNORADO DUPLICADO:', lead.id, lead.nome);
-      continue;
-    }
-
-    
-    lead.userId = importUserId; lead.usuarioId = importUserId; lead.corretorId = importUserId; lead.origem = lead.origem || "importada"; existing.push(lead);
-    adicionados++;
-
-    console.log('ADICIONADO:', lead.id, lead.nome, lead.bairro, lead.valor_imovel, lead.area_m2);
-  }
-
-  fs.writeFileSync(DATA_FILE, JSON.stringify(existing, null, 2));
-
-  console.log('TOTAL NA BASE:', existing.length);
-  console.log('ADICIONADOS:', adicionados);
-  console.log('DUPLICADOS:', duplicados);
-})();
+fs.writeFileSync(DATA_FILE, JSON.stringify(existing, null, 2));
+console.log(`\nRESULTADO: ${adicionados} adicionados | ${duplicados} duplicados | ${ignorados} ignorados`);
+console.log('TOTAL NA BASE:', existing.length);

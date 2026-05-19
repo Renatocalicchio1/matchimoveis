@@ -1399,6 +1399,40 @@ app.get('/app/importar-leads', auth, (req,res)=>{
   res.redirect('/app-importar-leads');
 });
 
+
+// ── MODELO PLANILHA LEADS ─────────────────────────────────────
+app.get('/app/modelo-leads.xlsx', auth, (req, res) => {
+  const XLSX = require('xlsx');
+  const modelo = [{
+    Nome: 'João Silva',
+    Telefone: '47999999999',
+    Email: 'joao@email.com',
+    Origem: 'portal',
+    Tipo: 'apartamento',
+    Transacao: 'compra',
+    Condicao: 'usado',
+    Bairro: 'Centro',
+    Cidade: 'Itajaí',
+    Estado: 'SC',
+    Quartos: 2,
+    Suites: 1,
+    Vagas: 1,
+    Banheiros: 2,
+    Area_min: 60,
+    Area_max: 100,
+    Valor_min: 300000,
+    Valor_max: 500000,
+    Observacoes: 'Prefere andar alto'
+  }];
+  const ws = XLSX.utils.json_to_sheet(modelo);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Leads');
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+  res.setHeader('Content-Disposition', 'attachment; filename="modelo-leads.xlsx"');
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.send(buf);
+});
+
 app.get('/app/leads', auth, async (req,res)=>{
   const { lerLeads: _lerLeadsService } = require('./services/salvarLead');
   const raw = await _lerLeadsService();

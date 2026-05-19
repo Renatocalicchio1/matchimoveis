@@ -2858,7 +2858,10 @@ app.get('/api/bairros-coords', auth, (req, res) => {
 });
 
 // Garante schema do banco atualizado no boot
-try { require('./setupDB'); } catch(e) { console.error('[setupDB]', e.message); }
+try {
+  const _setupDB = require('./setupDB');
+  if (typeof _setupDB === 'function') _setupDB().catch(e => console.error('[setupDB]', e.message));
+} catch(e) { console.error('[setupDB]', e.message); }
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);

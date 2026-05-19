@@ -160,7 +160,7 @@ async function main() {
   console.log('✅ notificacoes');
 
   console.log('\n🎉 Banco de dados 100% configurado!');
-  process.exit(0);
+  
 }
 
-main().catch(e => { console.error('Erro:', e.message); process.exit(1); });
+main().catch(e => { console.error('Erro:', e.message);  });

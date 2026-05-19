@@ -1386,11 +1386,8 @@ app.get('/app/leads', auth, async (req,res)=>{
   });
   // Leads com match primeiro, depois por data
   leads.sort((a, b) => {
-    const aMatch = (a.matches && a.matches.length) ? 1 : 0;
-    const bMatch = (b.matches && b.matches.length) ? 1 : 0;
-    if (bMatch !== aMatch) return bMatch - aMatch;
-    const da = new Date(a.data_cadastro || 0);
-    const db = new Date(b.data_cadastro || 0);
+    const da = new Date(a.ultimaMensagemEm || a.scoreAtualizadoEm || a.criadoEm || a.data_cadastro || 0);
+    const db = new Date(b.ultimaMensagemEm || b.scoreAtualizadoEm || b.criadoEm || b.data_cadastro || 0);
     return db - da;
   });
   const totalMatches = leads.reduce((sum,item)=> sum + ((item.matches && item.matches.length) || 0), 0);

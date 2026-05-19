@@ -17,11 +17,17 @@ function dataPath(file) {
   return path.join(getDataDir(), file);
 }
 
-function sincronizarFeedsComUsers() {
+async function sincronizarFeedsComUsers() {
   try {
-    const users = fs.existsSync(dataPath('users.json'))
-      ? JSON.parse(fs.readFileSync(dataPath('users.json'), 'utf8'))
-      : [];
+    let users = [];
+    try {
+      const { lerUsuarios } = require('./salvarUsuario');
+      users = await lerUsuarios();
+    } catch(e) {
+      users = fs.existsSync(dataPath('users.json'))
+        ? JSON.parse(fs.readFileSync(dataPath('users.json'), 'utf8'))
+        : [];
+    }
 
     const feedsPath = dataPath('xml-feeds.json');
     const feedsExistentes = fs.existsSync(feedsPath)
@@ -56,7 +62,7 @@ function sincronizarFeedsComUsers() {
 
 async function rodarSync() {
   try {
-    sincronizarFeedsComUsers();
+    await sincronizarFeedsComUsers();
     await syncXmlFeeds();
   } catch(e) {
     console.error('[xmlScheduler] Erro no sync:', e.message);

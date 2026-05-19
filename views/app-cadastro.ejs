@@ -524,3 +524,30 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 <%- include('partials/app-end') %>
+
+<!-- Modal Excluir XML -->
+<div id="modalExcluirXml" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:28px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <div style="font-size:18px;font-weight:700;margin-bottom:8px">Remover XML</div>
+    <div style="font-size:14px;color:#6b7280;margin-bottom:20px">O que você quer fazer com os imóveis importados por este XML?</div>
+    <button onclick="excluirXml(false)" style="width:100%;padding:12px;border-radius:10px;border:1px solid #e5e7eb;background:#f9fafb;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;text-align:left">
+      📋 Remover só o XML<br><span style="font-weight:400;font-size:12px;color:#6b7280">Mantém os imóveis cadastrados</span>
+    </button>
+    <button onclick="excluirXml(true)" style="width:100%;padding:12px;border-radius:10px;border:1px solid #fca5a5;background:#fef2f2;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:16px;text-align:left;color:#dc2626">
+      🗑️ Remover XML + imóveis<br><span style="font-weight:400;font-size:12px;color:#6b7280">Apaga todos os imóveis deste feed</span>
+    </button>
+    <button onclick="document.getElementById('modalExcluirXml').style.display='none'" style="width:100%;padding:10px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:13px;cursor:pointer;color:#6b7280">Cancelar</button>
+  </div>
+</div>
+<script>
+var _formXmlAtual = null;
+function abrirModalExcluirXml(btn) {
+  _formXmlAtual = btn.closest('.formExcluirXml');
+  document.getElementById('modalExcluirXml').style.display = 'flex';
+}
+function excluirXml(removerImoveis) {
+  _formXmlAtual.querySelector('.inputRemoverImoveis').value = removerImoveis ? 'true' : 'false';
+  document.getElementById('modalExcluirXml').style.display = 'none';
+  _formXmlAtual.submit();
+}
+</script>

@@ -3706,7 +3706,8 @@ function gerarXMLPortal(imoveis, portal){
       xml += '      <DetailViewUrl>'+esc(i.url || i.link || '')+'</DetailViewUrl>\n';
       xml += '      <VirtualTourLink>'+esc(i.tourVirtual || '')+'</VirtualTourLink>\n';
       xml += '      <Details>\n';
-      xml += '        <UsageType>Residential</UsageType>\n';
+      const _usageType = i.condicao === 'lancamento' ? 'Launch' : i.condicao === 'novo' ? 'New' : 'Residential';
+      xml += '        <UsageType>'+_usageType+'</UsageType>\n';
       xml += '        <PropertyType>'+esc(i.tipo || 'Apartamento')+'</PropertyType>\n';
       xml += '        <Description>'+esc(i.descricao || '')+'</Description>\n';
       xml += '        <ListPrice currency="BRL">'+(i.valor_imovel || i.valor || 0)+'</ListPrice>\n';
@@ -3791,6 +3792,7 @@ function gerarXMLPortal(imoveis, portal){
       <garageSpaces>${i.vagas || 0}</garageSpaces>
       <propertyType>${i.tipo || ''}</propertyType>
       <transactionType>${i.transacao || 'venda'}</transactionType>
+      <condition>${i.condicao === 'lancamento' ? 'launch' : i.condicao === 'novo' ? 'new' : 'used'}</condition>
       <address>
         <street>${i.endereco || ''}</street>
         <streetNumber>${i.numero || ''}</streetNumber>
@@ -3884,7 +3886,8 @@ function gerarXMLPortal(imoveis, portal){
       xml += '      <TransactionType>For Sale</TransactionType>\n';
       xml += '      <PublicationType>STANDARD</PublicationType>\n';
       xml += '      <Details>\n';
-      xml += '        <UsageType>Residential</UsageType>\n';
+      const _ut = i.condicao === 'lancamento' ? 'Launch' : i.condicao === 'novo' ? 'New' : 'Residential';
+      xml += '        <UsageType>'+_ut+'</UsageType>\n';
       xml += '        <PropertyType>'+esc(i.tipo || 'Apartamento')+'</PropertyType>\n';
       xml += '        <Description>'+esc(i.descricao || '')+'</Description>\n';
       xml += '        <ListPrice currency="BRL">'+(i.valor_imovel || i.valor || 0)+'</ListPrice>\n';

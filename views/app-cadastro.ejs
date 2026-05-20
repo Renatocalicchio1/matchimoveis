@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </div>
 <script>
 var _xmlUrlAtual = null;
-function abrirModalExcluirXml(btn) {
+function abrirModalExcluirXml(xmlUrlEncoded) {
   const form = btn.closest('.formExcluirXml');
   _xmlUrlAtual = form.querySelector('.inputXmlUrl').value;
   document.getElementById('modalExcluirXml').style.display = 'flex';

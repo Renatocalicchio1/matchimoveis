@@ -523,8 +523,6 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
-<%- include('partials/app-end') %>
-
 <!-- Modal Excluir XML -->
 <div id="modalExcluirXml" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:16px;padding:28px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2)">
@@ -551,3 +549,5 @@ function excluirXml(removerImoveis) {
   _formXmlAtual.submit();
 }
 </script>
+
+<%- include('partials/app-end') %>

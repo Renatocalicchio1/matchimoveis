@@ -3541,7 +3541,6 @@ app.post('/app/imovel/:id/excluir', auth, async (req, res) => {
     const { query: _qExcluir } = require('./services/db');
     await _qExcluir('DELETE FROM imoveis WHERE (id_externo=$1 OR id_interno=$1 OR id=$1) AND user_id=$2', [pid, uid]);
 
-    );
     // Cache
     if (_cacheImoveis) {
       _cacheImoveis = _cacheImoveis.filter(i =>

@@ -164,3 +164,4 @@ async function main() {
 }
 
 main().catch(e => { console.error('Erro:', e.message);  });
+// Já executado no main() acima — xml_feeds

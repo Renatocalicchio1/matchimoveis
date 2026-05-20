@@ -12,6 +12,7 @@ const fs = require('fs');
 const centralOperacional = require("./services/centralOperacional");
 const { consumir, adicionarCreditos, temSaldo, saldo: saldoCreditos } = require("./services/creditos");
 const { lerLeads: lerLeadsService, salvarLead, atualizarLead: atualizarLeadService, deletarLead, salvarTodosLeads } = require('./services/salvarLead');
+const { lerFeeds: lerFeedsService, salvarFeed: salvarFeedService, removerFeed: removerFeedService } = require('./services/salvarXmlFeed');
 const { lerImoveis: lerImoveisService, salvarImovel, salvarTodosImoveis } = require('./services/salvarImovel');
 const { lerVisitas: lerVisitasService, salvarVisita, atualizarVisita: atualizarVisitaService, deletarVisita, salvarTodasVisitas } = require('./services/salvarVisita');
 const { lerNotificacoes: lerNotificacoesService, criarNotificacao: criarNotificacaoService, marcarLida, marcarTodasLidas } = require('./services/salvarNotificacao');
@@ -228,10 +229,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
         const _feeds = fs.existsSync(_fp) ? JSON.parse(fs.readFileSync(_fp,'utf8')) : [];
         const _url = global.importXmlUrl;
         const _uid = users[idx].id;
-        if (_url && !_feeds.find(f => f.userId === _uid && f.url === _url)) {
-          _feeds.push({ userId: _uid, url: _url, lastSyncAt: null, lastResult: null });
-          fs.writeFileSync(_fp, JSON.stringify(_feeds, null, 2));
-        }
+        salvarFeedService({ userId: _uid, url: _url, lastSyncAt: new Date().toISOString(), total: _totalIm, tipo: 'importado' }).catch(e=>console.error('[xml-feed]',e.message));
       } catch(e) {}
           users[idx].xmlAtualizadoEm = new Date().toISOString();
           users[idx].xmlTotal = imoveis.length;
@@ -1370,14 +1368,8 @@ app.post('/app/excluir-xml', auth, async (req,res)=>{
       delete users[idx].xmlTotal;
       await _stuXml(users);
     }
-    // Remove feed específico do xml-feeds.json
-    const feedsPath = dataPath('xml-feeds.json');
-    if (fs.existsSync(feedsPath)) {
-      const feeds = JSON.parse(fs.readFileSync(feedsPath,'utf8'));
-      const urlRemover = req.body.xmlUrl;
-      const novosFeeds = feeds.filter(f => !(f.userId === req.session.user.id && f.url === urlRemover));
-      fs.writeFileSync(feedsPath, JSON.stringify(novosFeeds, null, 2));
-    }
+    // Remove feed do PostgreSQL
+    await removerFeedService(req.session.user.id, req.body.xmlUrl).catch(e=>console.error('[xml-feed]',e.message));
     // Remove imóveis do PostgreSQL se solicitado
     if (req.body.removerImoveis === 'true') {
       const { query: _q } = require('./services/db');
@@ -1395,10 +1387,8 @@ app.post('/app/excluir-xml', auth, async (req,res)=>{
 app.get('/app/cadastro', auth, async (req,res)=>{
   const users = (_cacheUsuarios || []);
   const u = users.find(u => u.id === req.session.user.id) || {};
-  const feedsPath = dataPath('xml-feeds.json');
-  const todosFeeds = fs.existsSync(feedsPath) ? JSON.parse(fs.readFileSync(feedsPath,'utf8')) : [];
-  const xmlFeeds = todosFeeds.filter(f => f.userId === req.session.user.id).map(f => ({
-    url: f.url, lastSyncAt: f.lastSyncAt, total: f.total || u.xmlTotal || 0
+  const xmlFeeds = (await lerFeedsService(req.session.user.id)).map(f => ({
+    url: f.url, lastSyncAt: f.lastSyncAt, total: f.total || 0
   }));
   res.render('app-cadastro', { user: req.session.user, xmlFeeds });
 });

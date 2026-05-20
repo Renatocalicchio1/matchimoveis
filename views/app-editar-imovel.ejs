@@ -70,6 +70,9 @@
       </div>
       <div class="f">
         <label>Tipo de imóvel</label>
+        </div>
+      <div class="f" style="grid-column:span 2"><label>Título</label><input name="titulo" value="<%= imovel.titulo||'' %>" placeholder="Ex: Apartamento 3 quartos em Moema"></div>
+      <div class="f"><label>Tipo</label>
         <select name="tipo">
           <% const _tipo=(imovel.tipo||'').toLowerCase(); %>
           <option value="Apartamento" <%=_tipo.includes('apart')?'selected':''%>>Apartamento</option>
@@ -155,6 +158,12 @@
       <div class="f"><label>Suítes</label><input name="suites" type="number" value="<%= imovel.suites||'' %>"></div>
       <div class="f"><label>Banheiros</label><input name="banheiros" type="number" value="<%= imovel.banheiros||'' %>"></div>
       <div class="f"><label>Vagas</label><input name="vagas" type="number" value="<%= imovel.vagas||'' %>"></div>
+      <div class="f"><label>Área construída (m²)</label><input name="area_construida" type="number" value="<%= imovel.area_construida||imovel.dados&&imovel.dados.area_construida||'' %>"></div>
+      <div class="f"><label>Total de andares</label><input name="total_andares" type="number" value="<%= imovel.total_andares||imovel.dados&&imovel.dados.total_andares||'' %>"></div>
+      <div class="f"><label>Unidades por andar</label><input name="unidades_por_andar" type="number" value="<%= imovel.unidades_por_andar||imovel.dados&&imovel.dados.unidades_por_andar||'' %>"></div>
+      <div class="f"><label>Posição solar</label><select name="posicao_solar"><option value="">Selecione</option><option value="norte" <%=(imovel.posicao_solar||imovel.dados&&imovel.dados.posicao_solar)==='norte'?'selected':''%>>Norte</option><option value="sul" <%=(imovel.posicao_solar||imovel.dados&&imovel.dados.posicao_solar)==='sul'?'selected':''%>>Sul</option><option value="leste" <%=(imovel.posicao_solar||imovel.dados&&imovel.dados.posicao_solar)==='leste'?'selected':''%>>Leste</option><option value="oeste" <%=(imovel.posicao_solar||imovel.dados&&imovel.dados.posicao_solar)==='oeste'?'selected':''%>>Oeste</option></select></div>
+      <div class="f"><label>Aceita financiamento?</label><select name="aceita_financiamento"><option value="sim" <%=(imovel.aceita_financiamento||imovel.dados&&imovel.dados.aceita_financiamento)==='sim'?'selected':''%>>Sim</option><option value="nao" <%=(imovel.aceita_financiamento||imovel.dados&&imovel.dados.aceita_financiamento)==='nao'?'selected':''%>>Não</option><option value="a_combinar">A combinar</option></select></div>
+      <div class="f"><label>Aceita permuta?</label><select name="aceita_permuta"><option value="nao" <%=(imovel.aceita_permuta||imovel.dados&&imovel.dados.aceita_permuta)==='nao'?'selected':''%>>Não</option><option value="sim" <%=(imovel.aceita_permuta||imovel.dados&&imovel.dados.aceita_permuta)==='sim'?'selected':''%>>Sim</option><option value="a_combinar">A combinar</option></select></div>
       <div class="f">
         <label>Fase</label>
         <select name="fase">

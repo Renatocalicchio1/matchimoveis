@@ -1075,7 +1075,7 @@ app.get('/app', (req,res)=>{
 
 // Meus imóveis = carteira do corretor, NÃO match
 app.get('/app-imoveis', (req,res)=>{
-  return res.redirect('/app/imoveis');
+  return res.redirect('/app/imovel/' + (novo.idInterno || novo.codigoImovel) + '/editar?salvo=1');
 });
 
 ////app.get('/app/portais', auth, (req,res)=>{

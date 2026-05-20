@@ -211,8 +211,8 @@
         <% if(item.dataAtualizacao||item.updatedAt){ %><span>🔄 <%= new Date(item.dataAtualizacao||item.updatedAt).toLocaleDateString('pt-BR') %></span><% } %>
       </div>
       <div class="im-actions">
-        <a href="/app/imovel/<%= item.id || item.idExterno %>" class="im-btn ver" onclick="event.stopPropagation()">Ver</a>
-        <a href="/app/imovel/<%= item.id || item.idExterno %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a>
+        <a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>" class="im-btn ver" onclick="event.stopPropagation()">Ver</a>
+        <a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a>
       </div>
     </div>
   </div>

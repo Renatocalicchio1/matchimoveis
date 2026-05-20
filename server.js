@@ -3512,7 +3512,7 @@ app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), asyn
   const fs = require('fs');
   const imoveis = ((_cacheImoveis || []));
 
-  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
+  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
   if(idx >= 0){
     const url = '/uploads/imoveis/' + req.file.filename;
     imoveis[idx].fotos = imoveis[idx].fotos || [];
@@ -3532,7 +3532,7 @@ app.post('/app/imovel/:id/excluir', auth, async (req, res) => {
     const pid = req.params.id;
     // PostgreSQL
     await pool.query(
-      'DELETE FROM imoveis WHERE (id_externo=$1 OR id_interno=$1 OR id::text=$1) AND user_id=$2',
+      'DELETE FROM imoveis WHERE (id_externo=$1 OR id_interno=$1 OR id=$1) AND user_id=$2',
       [pid, uid]
     );
     // Cache

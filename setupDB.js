@@ -159,6 +159,19 @@ async function main() {
   await query(`CREATE INDEX IF NOT EXISTS idx_notificacoes_usuario_id ON notificacoes(usuario_id)`);
   console.log('✅ notificacoes');
 
+  // XML FEEDS
+  await query(`CREATE TABLE IF NOT EXISTS xml_feeds (
+    id SERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL, url TEXT NOT NULL,
+    tipo TEXT DEFAULT 'importado', portal TEXT,
+    arquivo TEXT, last_sync_at TIMESTAMPTZ,
+    total INTEGER DEFAULT 0, last_result TEXT,
+    ativo BOOLEAN DEFAULT true,
+    criado_em TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, url)
+  )`);
+  console.log('✅ xml_feeds');
+
   console.log('\n🎉 Banco de dados 100% configurado!');
   
 }

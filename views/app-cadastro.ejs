@@ -95,6 +95,7 @@
           </div>
           <form method="POST" action="/app/excluir-xml" style="margin-top:8px" class="formExcluirXml">
             <input type="hidden" name="removerImoveis" class="inputRemoverImoveis" value="false">
+            <input type="hidden" class="inputXmlUrl" name="xmlUrl" value="<%= feed.url %>">
             <input type="hidden" name="xmlUrl" value="<%= feed.url %>">
             <button type="button" onclick="abrirModalExcluirXml(this)" class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Excluir XML</button>
           </form>
@@ -538,15 +539,25 @@ document.addEventListener('DOMContentLoaded',function(){
   </div>
 </div>
 <script>
-var _formXmlAtual = null;
+var _xmlUrlAtual = null;
 function abrirModalExcluirXml(btn) {
-  _formXmlAtual = btn.closest('.formExcluirXml');
+  const form = btn.closest('.formExcluirXml');
+  _xmlUrlAtual = form.querySelector('.inputXmlUrl').value;
   document.getElementById('modalExcluirXml').style.display = 'flex';
 }
-function excluirXml(removerImoveis) {
-  _formXmlAtual.querySelector('.inputRemoverImoveis').value = removerImoveis ? 'true' : 'false';
+async function excluirXml(removerImoveis) {
   document.getElementById('modalExcluirXml').style.display = 'none';
-  _formXmlAtual.submit();
+  if (!_xmlUrlAtual) return;
+  try {
+    const fd = new FormData();
+    fd.append('xmlUrl', _xmlUrlAtual);
+    fd.append('removerImoveis', removerImoveis ? 'true' : 'false');
+    const r = await fetch('/app/excluir-xml', { method: 'POST', body: fd });
+    if (r.ok) {
+      alert(removerImoveis ? '✅ XML e imóveis removidos!' : '✅ XML removido!');
+      location.reload();
+    } else { alert('Erro ao remover XML'); }
+  } catch(e) { alert('Erro: ' + e.message); }
 }
 </script>
 

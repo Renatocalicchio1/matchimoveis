@@ -2962,7 +2962,7 @@ app.post('/imovel/:id/status', (req,res)=>{
   const imoveis=((_cacheImoveis || []));
   const { status } = req.body;
 
-  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
+  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
   if(idx>=0){
     imoveis[idx].status = status;
     salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
@@ -3429,7 +3429,7 @@ app.get('/app/imovel/:id/editar', auth, (req,res)=>{
     return res.send('Imóvel não encontrado. <a href="/app/imoveis">Voltar</a>');
   }
 
-  res.render('app-editar-imovel', { user: req.session.user, imovel, salvo: req.query.salvo === '1' });
+  const idImovelEdit = (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || String(imovel.id) || ''); res.render('app-editar-imovel', { user: req.session.user, imovel, salvo: req.query.salvo === '1', idImovel: idImovelEdit });
 });
 
 // Editar imóvel - salvar
@@ -3491,7 +3491,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
     gerarXMLPortais();
   }
 
-  res.redirect('/app/imovel/' + (imoveis[idx].idExterno || imoveis[idx].id) + '/editar?salvo=1');
+  res.redirect('/app/imovel/' + (imoveis[idx].idExterno && imoveis[idx].idExterno.trim() ? imoveis[idx].idExterno : imoveis[idx].idInterno || imoveis[idx].id) + '/editar?salvo=1');
 });
 
 // Upload de fotos do imóvel

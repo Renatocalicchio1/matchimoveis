@@ -244,7 +244,7 @@
   <!-- Ações -->
   <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:12px">
     <a href="/app/imoveis" class="btn-cancel">Cancelar</a>
-    <form method="POST" action="/app/imovel/<%= (imovel.idExterno && imovel.idExterno.trim() ? imovel.idExterno : imovel.idInterno || imovel.id) %>/excluir" style="display:inline" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" style="background:#b91c1c;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">Excluir imóvel</button></form>
+    <form method="POST" action="/app/imovel/<%= (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || imovel.id) %>/excluir" style="display:inline" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" style="background:#b91c1c;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">Excluir imóvel</button></form>
     <button type="submit" class="btn-save">Salvar alterações</button>
   </div>
 

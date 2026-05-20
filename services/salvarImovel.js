@@ -162,7 +162,7 @@ function imovelToRow(i) {
   const campos = ['id','idExterno','idOriginal','idInterno','codigoImovel','titulo','tipo','categoria','transacao','condicao','status','bairro','cidade','estado','endereco','numero','complemento','cep','latitude','longitude','andar','torre','unidade','condominioNome','valor_imovel','condominio','iptu','area_m2','area_total','quartos','suites','banheiros','vagas','salas','descricao','descricaoEditada','fotos','proprietario','portais','corretor','fonte','source','userId','usuarioId','codigoUsuario','usuarioNome','usuarioPerfil','usuarioTelefone','corretorId','corretorNome','corretorEmail','corretorTelefone','url','urlPublica','tourVirtual','inativadoEm','inativadoPor','xmlUrl','lastUpdate','criadoEm'];
   campos.forEach(k => delete dados[k]);
   return {
-    id: String(i.id || i.idExterno || i.idOriginal || i.codigoImovel || Date.now()),
+    id: String(i.id || i.idInterno || i.idExterno || i.idOriginal || i.codigoImovel || Date.now()),
     id_externo: i.idExterno || i.idOriginal || '',
     id_original: i.idOriginal || i.idExterno || '',
     id_interno: i.idInterno || '',

@@ -3509,18 +3509,22 @@ const uploadImoveis = multer({ storage: storageImoveis });
 
 // Upload de foto
 app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), async (req,res)=>{
-  const fs = require('fs');
-  const imoveis = ((_cacheImoveis || []));
-
-  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
-  if(idx >= 0){
-    const url = '/uploads/imoveis/' + req.file.filename;
-    imoveis[idx].fotos = imoveis[idx].fotos || [];
-    imoveis[idx].fotos.push(url);
-    salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
+  try {
+    const pid = req.params.id;
+    if(!req.file) return res.redirect('/app/imovel/' + pid + '/editar?erro=foto');
+    const imoveis = (_cacheImoveis || []);
+    const idx = imoveis.findIndex(i => String(i.idExterno)===pid || String(i.idInterno)===pid || String(i.codigoImovel)===pid || String(i.id)===pid);
+    if(idx >= 0){
+      const url = '/uploads/imoveis/' + req.file.filename;
+      imoveis[idx].fotos = imoveis[idx].fotos || [];
+      imoveis[idx].fotos.push(url);
+      await salvarTodosImoveis(imoveis);
+    }
+    res.redirect('/app/imovel/' + pid + '/editar?salvo=1');
+  } catch(e) {
+    console.error('[upload-foto]', e.message);
+    res.redirect('/app/imovel/' + req.params.id + '/editar?erro=foto');
   }
-
-  res.redirect('/app/imovel/' + req.params.id + '/editar');
 });
 
 // Excluir foto

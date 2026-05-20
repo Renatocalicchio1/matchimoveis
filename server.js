@@ -3495,6 +3495,31 @@ app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), asyn
 });
 
 // Excluir foto
+
+// Excluir imóvel
+app.post('/app/imovel/:id/excluir', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.id;
+    const pid = req.params.id;
+    // PostgreSQL
+    await pool.query(
+      'DELETE FROM imoveis WHERE (id_externo=$1 OR id_interno=$1 OR id::text=$1) AND user_id=$2',
+      [pid, uid]
+    );
+    // Cache
+    if (_cacheImoveis) {
+      _cacheImoveis = _cacheImoveis.filter(i =>
+        String(i.idExterno) !== pid &&
+        String(i.idInterno) !== pid &&
+        String(i.id) !== pid
+      );
+    }
+    res.redirect('/app/imoveis?excluido=1');
+  } catch(e) {
+    console.error('[excluir-imovel]', e.message);
+    res.redirect('/app/imoveis?erro=1');
+  }
+});
 app.post('/app/imovel/:id/excluir-foto', auth, async (req,res)=>{
   const fs = require('fs');
   const { foto } = req.body;

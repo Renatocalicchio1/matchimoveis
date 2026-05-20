@@ -3475,15 +3475,20 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
       email: req.body.proprietario_email || '',
       status: req.body.proprietario_status || 'pendente'
     },
-    portais: {
-      olx: !!req.body.portal_olx,
-      zap: !!req.body.portal_zap,
-      vivareal: !!req.body.portal_vivareal,
-      chaves: !!req.body.portal_chaves,
-      imovelweb: !!req.body.portal_imovelweb,
-      '123i': !!req.body.portal_123i,
-      quintoandar: !!req.body.portal_quintoandar
-    },
+    portais: ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'].filter(p => !!req.body['portal_'+p]),
+    diferenciais: Object.keys(req.body).filter(k => k.startsWith('dif_') && req.body[k]==='on').map(k => k.replace('dif_','')),
+    proprietario: req.body.proprietario || '',
+    proprietario_celular: req.body.proprietario_celular || '',
+    proprietario_email: req.body.proprietario_email || '',
+    proprietario_cpf: req.body.proprietario_cpf || '',
+    condicao: req.body.condicao || '',
+    fase: req.body.fase || '',
+    area_construida: Number(req.body.area_construida || 0),
+    total_andares: Number(req.body.total_andares || 0),
+    unidades_por_andar: Number(req.body.unidades_por_andar || 0),
+    posicao_solar: req.body.posicao_solar || '',
+    aceita_financiamento: req.body.aceita_financiamento || 'a_combinar',
+    aceita_permuta: req.body.aceita_permuta || 'nao',
     updatedAt: new Date().toISOString()
   };
 

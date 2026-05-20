@@ -3532,6 +3532,7 @@ app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), asyn
 // Excluir imóvel
 app.post('/app/imovel/:id/excluir', auth, async (req, res) => {
   try {
+    console.log('[excluir-imovel] pid:', req.params.id, 'uid:', req.session.user.id);
     const uid = req.session.user.id;
     const pid = req.params.id;
     // PostgreSQL

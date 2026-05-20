@@ -541,8 +541,7 @@ document.addEventListener('DOMContentLoaded',function(){
 <script>
 var _xmlUrlAtual = null;
 function abrirModalExcluirXml(xmlUrlEncoded) {
-  const form = btn.closest('.formExcluirXml');
-  _xmlUrlAtual = form.querySelector('.inputXmlUrl').value;
+  _xmlUrlAtual = decodeURIComponent(xmlUrlEncoded);
   document.getElementById('modalExcluirXml').style.display = 'flex';
 }
 async function excluirXml(removerImoveis) {

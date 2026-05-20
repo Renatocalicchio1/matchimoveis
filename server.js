@@ -2993,36 +2993,65 @@ app.post('/imovel/:id/status', (req,res)=>{
 // Cadastro manual de imóvel
 app.post('/app/imovel/cadastrar', auth, async (req, res) => {
   const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
-  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
+  const imoveis = (_cacheImoveis || []);
   const b = req.body;
+  // diferenciais
+  const difs = [];
+  Object.keys(b).forEach(k => { if(k.startsWith('dif_') && b[k]==='on') difs.push(k.replace('dif_','')); });
+  // portais
+  const portais = [];
+  ['vivareal','zap','olx','chaves','imovelweb','123i','quintoandar'].forEach(p => { if(b['portal_'+p]==='on') portais.push(p); });
   const novo = {
-    idInterno: 'APP-' + Date.now(),
-    codigoImovel: 'APP-' + Date.now(),
+    idInterno: idInterno,
+    codigoImovel: idInterno,
     idExterno: '',
     titulo: b.titulo || '',
     tipo: b.tipo || 'Apartamento',
-    area_total: parseFloat(b.area_total) || 0,
-    proprietario: b.proprietario || '',
-    proprietario_celular: b.proprietario_celular || '',
-    proprietario_email: b.proprietario_email || '',
     transacao: b.transacao || 'venda',
+    condicao: b.condicao || '',
+    fase: b.fase || '',
+    status: b.status || 'nao_publicado',
+    // localização
+    cep: b.cep || '',
+    endereco: b.endereco || '',
+    numero: b.numero || '',
+    complemento: b.complemento || '',
     bairro: b.bairro || '',
     cidade: b.cidade || 'São Paulo',
     estado: b.estado || 'SP',
-    endereco: b.endereco || '',
-    valor_imovel: parseFloat(b.preco) || 0,
-    area_m2: parseFloat(b.area) || 0,
+    latitude: parseFloat(b.latitude) || null,
+    longitude: parseFloat(b.longitude) || null,
+    // valores
+    valor_imovel: parseFloat(b.valor_imovel) || 0,
+    condominio: parseFloat(b.condominio) || 0,
+    iptu: parseFloat(b.iptu) || 0,
+    aceita_financiamento: b.aceita_financiamento || 'a_combinar',
+    aceita_permuta: b.aceita_permuta || 'nao',
+    // areas
+    area_m2: parseFloat(b.area_m2) || 0,
+    area_total: parseFloat(b.area_total) || 0,
+    area_construida: parseFloat(b.area_construida) || 0,
+    andar: parseInt(b.andar) || 0,
+    total_andares: parseInt(b.total_andares) || 0,
+    unidades_por_andar: parseInt(b.unidades_por_andar) || 0,
+    posicao_solar: b.posicao_solar || '',
+    // cômodos
     quartos: parseInt(b.quartos) || 0,
     suites: parseInt(b.suites) || 0,
     banheiros: parseInt(b.banheiros) || 0,
     vagas: parseInt(b.vagas) || 0,
+    // diferenciais e portais
+    diferenciais: difs,
+    portais: portais,
+    // proprietário
+    proprietario: b.proprietario || '',
+    proprietario_celular: b.proprietario_celular || '',
+    proprietario_email: b.proprietario_email || '',
+    proprietario_cpf: b.proprietario_cpf || '',
+    // descrição e mídia
     descricao: b.descricao || '',
     fotos: [],
-    proprietario: b.propNome ? { nome: b.propNome, celular: b.propTelefone, email: b.propEmail } : null,
-    usuarioId: req.session.user.id,
-    usuarioNome: req.session.user.nome,
-    usuarioPerfil: req.session.user.perfil,
-    usuarioTelefone: req.session.user.celular || req.session.user.telefone,
+    // meta
     usuarioId: req.session.user.id,
     usuarioNome: req.session.user.nome || req.session.user.nomeCompleto || '',
     usuarioPerfil: req.session.user.perfil || req.session.user.tipoConta || '',
@@ -3033,7 +3062,7 @@ app.post('/app/imovel/cadastrar', auth, async (req, res) => {
   imoveis.push(novo);
   salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
   consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{});
-  res.redirect('/app/imoveis');
+  res.redirect('/app/imovel/' + idInterno + '/editar?salvo=1');
 });
 
 // Detalhe do imóvel

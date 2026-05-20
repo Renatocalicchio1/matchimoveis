@@ -3060,7 +3060,9 @@ app.post('/app/imovel/cadastrar', auth, async (req, res) => {
     lastUpdate: new Date().toISOString()
   };
   imoveis.push(novo);
-  salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
+  await salvarTodosImoveis(imoveis);
+  _cacheImoveis = null;
+  await _recarregarImoveis();
   consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{});
   res.redirect('/app/imovel/' + idInterno + '/editar?salvo=1');
 });

@@ -3,8 +3,6 @@ const path = require('path');
 const { lerJSON, salvarJSON } = require('./storage');
 const { query, dbOk } = require('./db');
 
-
-// Auto-cria tabela e migra users.json no boot
 async function _inicializarUsuarios() {
   try {
     const { dbOk: _dok, query: _q } = require('./db');
@@ -21,22 +19,6 @@ async function _inicializarUsuarios() {
       criado_em TIMESTAMPTZ DEFAULT NOW(), atualizado_em TIMESTAMPTZ DEFAULT NOW(),
       dados JSONB DEFAULT '{}'
     )`);
-    // Migra users.json se tabela vazia
-    const count = await _q('SELECT COUNT(*) as c FROM usuarios');
-    if (parseInt(count.rows[0].c) === 0) {
-      const _fs = require('fs'), _path = require('path');
-      const _dir = process.env.RENDER ? '/opt/render/project/src/data' : _path.join(__dirname, '..');
-      const _file = _path.join(_dir, 'users.json');
-      if (_fs.existsSync(_file)) {
-        const _users = JSON.parse(_fs.readFileSync(_file, 'utf8'));
-        if (_users.length > 0) {
-          console.log('[usuarios] migrando', _users.length, 'users do JSON...');
-          const { salvarTodosUsuarios: _stu } = require('./salvarUsuario');
-          await _stu(_users);
-          console.log('[usuarios] ✅ migração automática concluída');
-        }
-      }
-    }
   } catch(e) { console.error('[usuarios boot]', e.message); }
 }
 _inicializarUsuarios();
@@ -52,15 +34,28 @@ function rowToUser(r) {
     nome: r.nome,
     email: r.email,
     senha: r.senha,
-    telefone: r.telefone,
+    telefone: r.telefone || r.celular,
+    celular: r.celular || r.telefone,
     tipo: r.tipo,
     ativo: r.ativo,
-    creditos: r.creditos,
+    creditos: r.creditos || r.match_coins || 0,
+    matchCoins: r.match_coins || 0,
+    matchCoinsTotal: r.match_coins_total || 0,
+    codigoUsuario: r.codigo_usuario,
+    creci: r.creci,
+    cpf: r.cpf,
     whatsappInstance: r.whatsapp_instance,
     whatsappStatus: r.whatsapp_status,
     whatsappNumero: r.whatsapp_numero,
     bloqueados: r.bloqueados || [],
-    plano: r.plano,
+    plano: r.plano || r.dados?.plano || 'basico',
+    lat: r.lat,
+    lng: r.lng,
+    endereco: r.endereco,
+    xmlUrl: r.xml_url,
+    xmlAtualizadoEm: r.xml_atualizado_em,
+    xmlTotal: r.xml_total || 0,
+    historicoAssistente: r.historico_assistente || [],
     criadoEm: r.criado_em,
     ...(r.dados || {})
   };
@@ -68,21 +63,34 @@ function rowToUser(r) {
 
 function userToRow(user) {
   const dados = { ...user };
-  ['id','nome','email','senha','telefone','tipo','ativo','creditos','whatsappInstance','whatsappStatus','whatsappNumero','bloqueados','plano','criadoEm'].forEach(k => delete dados[k]);
+  ['id','nome','email','senha','telefone','celular','tipo','ativo','creditos','matchCoins',
+   'matchCoinsTotal','codigoUsuario','creci','cpf','whatsappInstance','whatsappStatus',
+   'whatsappNumero','bloqueados','plano','lat','lng','endereco','xmlUrl','xmlAtualizadoEm',
+   'xmlTotal','historicoAssistente','criadoEm'].forEach(k => delete dados[k]);
   return {
     id: user.id,
     nome: user.nome || '',
     email: user.email || '',
     senha: user.senha || '',
-    telefone: user.telefone || '',
+    telefone: user.telefone || user.celular || '',
+    celular: user.celular || user.telefone || '',
     tipo: user.tipo || 'corretor',
     ativo: user.ativo !== false,
-    creditos: user.creditos || 0,
+    codigo_usuario: user.codigoUsuario || user.codigo_usuario || '',
+    creci: user.creci || '',
+    cpf: user.cpf || '',
+    match_coins: user.matchCoins || user.creditos || 0,
+    match_coins_total: user.matchCoinsTotal || 0,
     whatsapp_instance: user.whatsappInstance || null,
     whatsapp_status: user.whatsappStatus || null,
     whatsapp_numero: user.whatsappNumero || null,
     bloqueados: JSON.stringify(user.bloqueados || []),
-    plano: user.plano || 'basico',
+    lat: user.lat || null,
+    lng: user.lng || null,
+    endereco: user.endereco || '',
+    xml_url: user.xmlUrl || user.xmlUrl || '',
+    xml_total: user.xmlTotal || 0,
+    historico_assistente: JSON.stringify(user.historicoAssistente || []),
     dados: JSON.stringify(dados)
   };
 }
@@ -90,7 +98,7 @@ function userToRow(user) {
 async function lerUsuarios() {
   if (await dbOk()) {
     try {
-      const res = await query(`SELECT * FROM users ORDER BY criado_em ASC`);
+      const res = await query('SELECT * FROM usuarios ORDER BY criado_em ASC');
       return res.rows.map(rowToUser);
     } catch(e) {
       console.error('[lerUsuarios PG]', e.message);
@@ -104,16 +112,30 @@ async function salvarUsuario(user) {
     try {
       const r = userToRow(user);
       await query(`
-        INSERT INTO users (id,nome,email,senha,telefone,tipo,ativo,creditos,whatsapp_instance,whatsapp_status,whatsapp_numero,bloqueados,plano,dados)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+        INSERT INTO usuarios (id,nome,email,senha,telefone,celular,tipo,ativo,codigo_usuario,
+          creci,cpf,match_coins,match_coins_total,whatsapp_instance,whatsapp_status,
+          whatsapp_numero,bloqueados,lat,lng,endereco,xml_url,xml_total,
+          historico_assistente,dados)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
         ON CONFLICT (id) DO UPDATE SET
           nome=EXCLUDED.nome, email=EXCLUDED.email, senha=EXCLUDED.senha,
-          telefone=EXCLUDED.telefone, tipo=EXCLUDED.tipo, ativo=EXCLUDED.ativo,
-          creditos=EXCLUDED.creditos, whatsapp_instance=EXCLUDED.whatsapp_instance,
-          whatsapp_status=EXCLUDED.whatsapp_status, whatsapp_numero=EXCLUDED.whatsapp_numero,
-          bloqueados=EXCLUDED.bloqueados, plano=EXCLUDED.plano,
+          telefone=EXCLUDED.telefone, celular=EXCLUDED.celular,
+          tipo=EXCLUDED.tipo, ativo=EXCLUDED.ativo,
+          codigo_usuario=EXCLUDED.codigo_usuario,
+          creci=EXCLUDED.creci, cpf=EXCLUDED.cpf,
+          match_coins=EXCLUDED.match_coins, match_coins_total=EXCLUDED.match_coins_total,
+          whatsapp_instance=EXCLUDED.whatsapp_instance,
+          whatsapp_status=EXCLUDED.whatsapp_status,
+          whatsapp_numero=EXCLUDED.whatsapp_numero,
+          bloqueados=EXCLUDED.bloqueados,
+          lat=EXCLUDED.lat, lng=EXCLUDED.lng, endereco=EXCLUDED.endereco,
+          xml_url=EXCLUDED.xml_url, xml_total=EXCLUDED.xml_total,
+          historico_assistente=EXCLUDED.historico_assistente,
           dados=EXCLUDED.dados, atualizado_em=NOW()
-      `, [r.id,r.nome,r.email,r.senha,r.telefone,r.tipo,r.ativo,r.creditos,r.whatsapp_instance,r.whatsapp_status,r.whatsapp_numero,r.bloqueados,r.plano,r.dados]);
+      `, [r.id,r.nome,r.email,r.senha,r.telefone,r.celular,r.tipo,r.ativo,r.codigo_usuario,
+          r.creci,r.cpf,r.match_coins,r.match_coins_total,r.whatsapp_instance,r.whatsapp_status,
+          r.whatsapp_numero,r.bloqueados,r.lat,r.lng,r.endereco,r.xml_url,r.xml_total,
+          r.historico_assistente,r.dados]);
       return user;
     } catch(e) {
       console.error('[salvarUsuario PG]', e.message);
@@ -139,7 +161,6 @@ async function salvarTodosUsuarios(users) {
   await salvarJSON(usersPath(), users);
   return users;
 }
-
 
 async function atualizarUsuario(id, campos) {
   if (await dbOk()) {

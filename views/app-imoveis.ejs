@@ -102,11 +102,25 @@
 
 <!-- Filtro -->
 <div class="filtro-box">
-  <!-- Linha 1 -->
   <div class="filtro-grid">
     <div class="filtro-field">
-      <label>🔍 Buscar</label>
-      <input id="busca" placeholder="Bairro, cidade, tipo..." oninput="filtrar()">
+      <label>Status</label>
+      <select id="f-status" onchange="filtrar()">
+        <option value="">Todos</option>
+        <option value="ativo">Ativo</option>
+        <option value="inativo">Inativo</option>
+        <option value="rascunho">Rascunho</option>
+      </select>
+    </div>
+    <div class="filtro-field">
+      <label>Transação</label>
+      <select id="f-operacao" onchange="filtrar()">
+        <option value="">Todas</option>
+        <option value="venda">Venda</option>
+        <option value="aluguel">Aluguel</option>
+        <option value="temporada">Temporada</option>
+        <option value="permuta">Permuta</option>
+      </select>
     </div>
     <div class="filtro-field">
       <label>Tipo</label>
@@ -140,25 +154,6 @@
       </select>
     </div>
     <div class="filtro-field">
-      <label>Transação</label>
-      <select id="f-operacao" onchange="filtrar()">
-        <option value="">Todas</option>
-        <option value="venda">Venda</option>
-        <option value="aluguel">Aluguel</option>
-        <option value="temporada">Temporada</option>
-        <option value="permuta">Permuta</option>
-      </select>
-    </div>
-    <div class="filtro-field">
-      <label>Status</label>
-      <select id="f-status" onchange="filtrar()">
-        <option value="">Todos</option>
-        <option value="ativo">Ativo</option>
-        <option value="inativo">Inativo</option>
-        <option value="rascunho">Rascunho</option>
-      </select>
-    </div>
-    <div class="filtro-field">
       <label>Condição</label>
       <select id="f-condicao" onchange="filtrar()">
         <option value="">Todas</option>
@@ -167,30 +162,38 @@
         <option value="lancamento">Lançamento</option>
       </select>
     </div>
+    <div class="filtro-field">
+      <label>Fase</label>
+      <select id="f-fase" onchange="filtrar()">
+        <option value="">Todas</option>
+        <option value="pronto">Pronto</option>
+        <option value="lancamento">Lançamento</option>
+        <option value="na_planta">Na planta</option>
+        <option value="em_construcao">Em construção</option>
+      </select>
+    </div>
   </div>
-  <!-- Linha 2 -->
+
   <div class="filtro-grid2" style="margin-top:10px">
     <div class="filtro-field">
-      <label>Bairro</label>
-      <input id="f-bairro" placeholder="Ex: Centro" oninput="filtrar()">
+      <label>Estado</label>
+      <select id="f-estado" onchange="atualizarCidades()">
+        <option value="">Todos</option>
+        <% (typeof estados !== 'undefined' ? estados : []).forEach(e => { %>
+        <option value="<%= e.toLowerCase() %>"><%= e %></option>
+        <% }) %>
+      </select>
     </div>
     <div class="filtro-field">
       <label>Cidade</label>
-      <input id="f-cidade" placeholder="Ex: Itajaí" oninput="filtrar()">
+      <select id="f-cidade" onchange="atualizarBairros()">
+        <option value="">Todas</option>
+      </select>
     </div>
     <div class="filtro-field">
-      <label>Estado</label>
-      <select id="f-estado" onchange="filtrar()">
+      <label>Bairro</label>
+      <select id="f-bairro" onchange="filtrar()">
         <option value="">Todos</option>
-        <option value="sc">SC</option><option value="sp">SP</option><option value="rj">RJ</option>
-        <option value="mg">MG</option><option value="rs">RS</option><option value="pr">PR</option>
-        <option value="ba">BA</option><option value="go">GO</option><option value="df">DF</option>
-        <option value="pe">PE</option><option value="ce">CE</option><option value="am">AM</option>
-        <option value="pa">PA</option><option value="mt">MT</option><option value="ms">MS</option>
-        <option value="es">ES</option><option value="al">AL</option><option value="se">SE</option>
-        <option value="rn">RN</option><option value="pb">PB</option><option value="pi">PI</option>
-        <option value="ma">MA</option><option value="to">TO</option><option value="ro">RO</option>
-        <option value="ac">AC</option><option value="rr">RR</option><option value="ap">AP</option>
       </select>
     </div>
     <div class="filtro-field">
@@ -206,36 +209,42 @@
       <input id="f-area-min" type="number" placeholder="0" oninput="filtrar()">
     </div>
   </div>
-  <!-- Linha 3 -->
+
   <div class="filtro-grid2" style="margin-top:10px">
     <div class="filtro-field">
+      <label>Área máx. m²</label>
+      <input id="f-area-max" type="number" placeholder="∞" oninput="filtrar()">
+    </div>
+    <div class="filtro-field">
       <label>Quartos mín.</label>
-      <select id="f-quartos" onchange="filtrar()">
-        <option value="">Qualquer</option>
-        <option value="1">1+</option><option value="2">2+</option>
-        <option value="3">3+</option><option value="4">4+</option><option value="5">5+</option>
-      </select>
+      <input id="f-quartos" type="number" min="0" placeholder="0" oninput="filtrar()">
+    </div>
+    <div class="filtro-field">
+      <label>Quartos máx.</label>
+      <input id="f-quartos-max" type="number" min="0" placeholder="∞" oninput="filtrar()">
     </div>
     <div class="filtro-field">
       <label>Suítes mín.</label>
-      <select id="f-suites" onchange="filtrar()">
-        <option value="">Qualquer</option>
-        <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option>
-      </select>
+      <input id="f-suites" type="number" min="0" placeholder="0" oninput="filtrar()">
+    </div>
+    <div class="filtro-field">
+      <label>Suítes máx.</label>
+      <input id="f-suites-max" type="number" min="0" placeholder="∞" oninput="filtrar()">
     </div>
     <div class="filtro-field">
       <label>Banheiros mín.</label>
-      <select id="f-banheiros" onchange="filtrar()">
-        <option value="">Qualquer</option>
-        <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option>
-      </select>
+      <input id="f-banheiros" type="number" min="0" placeholder="0" oninput="filtrar()">
     </div>
+  </div>
+
+  <div class="filtro-grid2" style="margin-top:10px">
     <div class="filtro-field">
       <label>Vagas mín.</label>
-      <select id="f-vagas" onchange="filtrar()">
-        <option value="">Qualquer</option>
-        <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option>
-      </select>
+      <input id="f-vagas" type="number" min="0" placeholder="0" oninput="filtrar()">
+    </div>
+    <div class="filtro-field">
+      <label>Vagas máx.</label>
+      <input id="f-vagas-max" type="number" min="0" placeholder="∞" oninput="filtrar()">
     </div>
     <div class="filtro-field">
       <label>Proprietário</label>
@@ -253,13 +262,23 @@
         <option value="nao">Sem fotos</option>
       </select>
     </div>
+    <div class="filtro-field">
+      <label>🔍 Busca geral</label>
+      <input id="busca" placeholder="Qualquer campo..." oninput="filtrar()">
+    </div>
   </div>
+
   <div class="filtro-rodape">
     <span id="nf-count" style="font-size:11px;color:var(--text-ter)"></span>
     <button onclick="limpar()" class="btn btn-outline btn-sm">↺ Limpar filtros</button>
   </div>
 </div>
 
+
+<script>
+const _cidades = <%- JSON.stringify(typeof cidades !== 'undefined' ? cidades : {}) %>;
+const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {}) %>;
+</script>
 <!-- Grid -->
 <div id="im-grid" class="im-grid">
 <% (typeof imoveis !== 'undefined' ? imoveis : []).forEach((item, idx) => { %>
@@ -276,6 +295,7 @@
     data-banheiros="<%= item.banheiros || 0 %>"
     data-status="<%= (item.status||'ativo').toLowerCase() %>"
     data-condicao="<%= (item.condicao||'').toLowerCase() %>"
+    data-fase="<%= (item.fase||item.dados&&item.dados.fase||'').toLowerCase() %>"
     data-estado="<%= (item.estado||'').toLowerCase() %>"
     data-operacao="<%= (item.transacao||item.operacao||'').toLowerCase() %>"
     data-proprietario="<%= (item.proprietario && item.proprietario.nome) ? item.proprietario.nome.toLowerCase() : '' %>"
@@ -406,47 +426,89 @@ function copiarURL() { const u = document.getElementById('modal-url'); u.select(
 
 
 function norm(v) { return (v||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+function atualizarCidades() {
+  const estado = document.getElementById('f-estado').value.toUpperCase();
+  const selCidade = document.getElementById('f-cidade');
+  selCidade.innerHTML = '<option value="">Todas</option>';
+  const cids = estado && _cidades[estado] ? _cidades[estado] : [];
+  cids.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.toLowerCase();
+    opt.textContent = c;
+    selCidade.appendChild(opt);
+  });
+  document.getElementById('f-bairro').innerHTML = '<option value="">Todos</option>';
+  filtrar();
+}
+
+function atualizarBairros() {
+  const cidade = document.getElementById('f-cidade').value;
+  const selBairro = document.getElementById('f-bairro');
+  selBairro.innerHTML = '<option value="">Todos</option>';
+  const cidKey = Object.keys(_bairros).find(k => k.toLowerCase() === cidade);
+  const bairs = cidKey ? _bairros[cidKey] : [];
+  bairs.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.toLowerCase();
+    opt.textContent = b;
+    selBairro.appendChild(opt);
+  });
+  filtrar();
+}
+
 function filtrar() {
-  const busca = norm(document.getElementById('busca').value);
+  const busca = norm(document.getElementById('busca')?.value||'');
   const tipo = norm(document.getElementById('f-tipo')?.value||'');
   const operacao = norm(document.getElementById('f-operacao')?.value||'');
   const status = norm(document.getElementById('f-status')?.value||'');
   const condicao = norm(document.getElementById('f-condicao')?.value||'');
+  const fase = norm(document.getElementById('f-fase')?.value||'');
   const estado = norm(document.getElementById('f-estado')?.value||'');
+  const cidade = norm(document.getElementById('f-cidade')?.value||'');
+  const bairro = norm(document.getElementById('f-bairro')?.value||'');
   const fotos = document.getElementById('f-fotos')?.value||'';
   const proprietario = document.getElementById('f-proprietario')?.value||'';
-  const bairro = norm(document.getElementById('f-bairro')?.value||'');
-  const cidade = norm(document.getElementById('f-cidade')?.value||'');
   const valorMin = Number(document.getElementById('f-valor-min')?.value)||0;
   const valorMax = Number(document.getElementById('f-valor-max')?.value)||0;
   const areaMin = Number(document.getElementById('f-area-min')?.value)||0;
-  const quartos = Number(document.getElementById('f-quartos')?.value)||0;
-  const suites = Number(document.getElementById('f-suites')?.value)||0;
+  const areaMax = Number(document.getElementById('f-area-max')?.value)||0;
+  const quartosMin = Number(document.getElementById('f-quartos')?.value)||0;
+  const quartosMax = Number(document.getElementById('f-quartos-max')?.value)||0;
+  const suitesMin = Number(document.getElementById('f-suites')?.value)||0;
+  const suitesMax = Number(document.getElementById('f-suites-max')?.value)||0;
   const banheiros = Number(document.getElementById('f-banheiros')?.value)||0;
-  const vagas = Number(document.getElementById('f-vagas')?.value)||0;
+  const vagasMin = Number(document.getElementById('f-vagas')?.value)||0;
+  const vagasMax = Number(document.getElementById('f-vagas-max')?.value)||0;
 
   let vis = 0;
   document.querySelectorAll('.im-card').forEach(card => {
     let ok = true;
-    if (busca && !norm(card.dataset.tipo+' '+card.dataset.bairro+' '+card.dataset.cidade).includes(busca)) ok = false;
-    if (tipo && !card.dataset.tipo.includes(tipo)) ok = false;
-    if (bairro && !card.dataset.bairro.includes(bairro)) ok = false;
-    if (cidade && !card.dataset.cidade.includes(cidade)) ok = false;
-    if (estado && !norm(card.dataset.estado||'').includes(estado)) ok = false;
-    if (operacao && !norm(card.dataset.operacao||'').includes(operacao)) ok = false;
-    if (status && norm(card.dataset.status||'') !== status) ok = false;
-    if (condicao && !norm(card.dataset.condicao||'').includes(condicao)) ok = false;
-    if (valorMin && Number(card.dataset.valor) < valorMin) ok = false;
-    if (valorMax && Number(card.dataset.valor) > valorMax) ok = false;
-    if (areaMin && Number(card.dataset.area) < areaMin) ok = false;
-    if (quartos && Number(card.dataset.quartos) < quartos) ok = false;
-    if (suites && Number(card.dataset.suites) < suites) ok = false;
-    if (banheiros && Number(card.dataset.banheiros) < banheiros) ok = false;
-    if (vagas && Number(card.dataset.vagas) < vagas) ok = false;
-    if (proprietario === 'sim' && !card.dataset.proprietario) ok = false;
-    if (proprietario === 'nao' && card.dataset.proprietario) ok = false;
-    if (fotos === 'sim' && card.dataset.fotos === '0') ok = false;
-    if (fotos === 'nao' && card.dataset.fotos !== '0') ok = false;
+    const d = card.dataset;
+    if (busca && !norm(d.tipo+' '+d.bairro+' '+d.cidade+' '+d.estado).includes(busca)) ok = false;
+    if (tipo && !norm(d.tipo||'').includes(tipo)) ok = false;
+    if (operacao && !norm(d.operacao||'').includes(operacao)) ok = false;
+    if (status && norm(d.status||'') !== status) ok = false;
+    if (condicao && !norm(d.condicao||'').includes(condicao)) ok = false;
+    if (fase && !norm(d.fase||'').includes(fase)) ok = false;
+    if (estado && !norm(d.estado||'').includes(estado)) ok = false;
+    if (cidade && norm(d.cidade||'') !== cidade) ok = false;
+    if (bairro && norm(d.bairro||'') !== bairro) ok = false;
+    if (valorMin && Number(d.valor||0) < valorMin) ok = false;
+    if (valorMax && Number(d.valor||0) > valorMax) ok = false;
+    if (areaMin && Number(d.area||0) < areaMin) ok = false;
+    if (areaMax && Number(d.area||0) > areaMax) ok = false;
+    if (quartosMin && Number(d.quartos||0) < quartosMin) ok = false;
+    if (quartosMax && Number(d.quartos||0) > quartosMax) ok = false;
+    if (suitesMin && Number(d.suites||0) < suitesMin) ok = false;
+    if (suitesMax && Number(d.suites||0) > suitesMax) ok = false;
+    if (banheiros && Number(d.banheiros||0) < banheiros) ok = false;
+    if (vagasMin && Number(d.vagas||0) < vagasMin) ok = false;
+    if (vagasMax && Number(d.vagas||0) > vagasMax) ok = false;
+    if (proprietario === 'sim' && !d.proprietario) ok = false;
+    if (proprietario === 'nao' && d.proprietario) ok = false;
+    if (fotos === 'sim' && d.fotos === '0') ok = false;
+    if (fotos === 'nao' && d.fotos !== '0') ok = false;
     card.style.display = ok ? '' : 'none';
     if (ok) vis++;
   });
@@ -454,13 +516,21 @@ function filtrar() {
   const el = document.getElementById('nf-count');
   const total = document.querySelectorAll('.im-card').length;
   if (el) el.textContent = vis < total ? vis + ' de ' + total + ' imoveis' : total + ' imoveis';
-  document.getElementById('im-empty').style.display = vis === 0 ? 'block' : 'none';
+  const empty = document.getElementById('im-empty');
+  if (empty) empty.style.display = vis === 0 ? 'block' : 'none';
 }
 
 function limpar() {
-  ['f-tipo','f-bairro','f-cidade','f-estado','f-valor-min','f-valor-max','f-area-min',
-   'f-quartos','f-suites','f-banheiros','f-vagas','f-operacao','f-status','f-condicao',
-   'f-proprietario','f-fotos'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['f-tipo','f-bairro','f-cidade','f-estado','f-valor-min','f-valor-max',
+   'f-area-min','f-area-max','f-quartos','f-quartos-max','f-suites','f-suites-max',
+   'f-banheiros','f-vagas','f-vagas-max','f-operacao','f-status','f-condicao',
+   'f-fase','f-proprietario','f-fotos','busca'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  atualizarCidades();
+  filtrar();
+});
   document.getElementById('busca').value = '';
   filtrar();
 });

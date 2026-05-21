@@ -1350,7 +1350,34 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
 
 app.get('/app/imoveis', auth, async (req,res)=>{
   const imoveis = await lerImoveis(req.session.user.id);
-  res.render('app-imoveis', { user: req.session.user, imoveis });
+
+  // Monta dados para filtros em cascata
+  const estadosSet = new Set();
+  const cidadesPorEstado = {};
+  const bairrosPorCidade = {};
+
+  imoveis.forEach(i => {
+    const est = (i.estado||'').toUpperCase().trim();
+    const cid = (i.cidade||'').trim();
+    const bai = (i.bairro||'').trim();
+    if (est) estadosSet.add(est);
+    if (est && cid) {
+      if (!cidadesPorEstado[est]) cidadesPorEstado[est] = new Set();
+      cidadesPorEstado[est].add(cid);
+    }
+    if (cid && bai) {
+      if (!bairrosPorCidade[cid]) bairrosPorCidade[cid] = new Set();
+      bairrosPorCidade[cid].add(bai);
+    }
+  });
+
+  const estados = [...estadosSet].sort();
+  const cidades = {};
+  Object.keys(cidadesPorEstado).forEach(e => { cidades[e] = [...cidadesPorEstado[e]].sort(); });
+  const bairros = {};
+  Object.keys(bairrosPorCidade).forEach(ci => { bairros[ci] = [...bairrosPorCidade[ci]].sort(); });
+
+  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros });
 });
 
 app.post('/app/excluir-xml', auth, async (req,res)=>{

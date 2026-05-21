@@ -5532,10 +5532,20 @@ app.post('/app/visitas/solicitar-confirmacao/:id', auth, async (req,res)=>{
 
 
 app.get('/cliente/visita/:id', async (req, res) => {
+  const { query: _qV } = require('./services/db');
+  const r = await _qV('SELECT * FROM visitas WHERE id=$1', [req.params.id]);
+  if (!r.rows.length) return res.status(404).send('Visita não encontrada');
   const { lerVisitas } = require('./services/salvarVisita');
-  const visitas = await lerVisitas();
-  const visita = visitas.find(v => String(v.id) === String(req.params.id));
-  if (!visita) return res.status(404).send('Visita não encontrada');
+  const rowToVisita = (row) => ({
+    id: row.id, leadId: row.lead_id, nome: row.nome, telefone: row.telefone,
+    imovelId: row.imovel_id, imovelTitulo: row.imovel_titulo, imovelBairro: row.imovel_bairro,
+    dataVisita: row.data_visita, horaVisita: row.hora_visita, status: row.status,
+    userId: row.user_id, corretorId: row.corretor_id, obs: row.obs,
+    proprietarioNome: row.proprietario_nome, proprietarioTelefone: row.proprietario_telefone,
+    respostaProprietario: row.resposta_proprietario, confirmacaoClienteStatus: row.confirmacao_cliente_status,
+    ...(row.dados || {})
+  });
+  const visita = rowToVisita(r.rows[0]);
   res.render('cliente-visita-confirmar', { visita, user: null });
 });
 

@@ -3921,6 +3921,12 @@ function gerarXMLPortal(imoveis, portal){
       xml += '        <Room>'+(i.salas || i.rooms || 1)+'</Room>\n';
       xml += '        <Suites>'+(i.suites || 0)+'</Suites>\n';
       xml += '        <Garage>'+(i.vagas || 0)+'</Garage>\n';
+      xml += '        <YearBuilt>'+esc(i.anoContrucao || i.anoConstrucao || '')+'</YearBuilt>\n';
+      if (i.diferenciais && i.diferenciais.length) {
+        xml += '        <Features>\n';
+        i.diferenciais.forEach(d => { xml += '          <Feature>'+esc(d)+'</Feature>\n'; });
+        xml += '        </Features>\n';
+      }
       xml += '      </Details>\n';
       xml += '      <Media>\n';
       fotos.forEach((f, idx) => {
@@ -3930,7 +3936,7 @@ function gerarXMLPortal(imoveis, portal){
       xml += '      </Media>\n';
       xml += '      <Location>\n';
       xml += '        <Country abbreviation="BR">Brasil</Country>\n';
-      xml += '        <State abbreviation="SP">São Paulo</State>\n';
+      xml += '        <State abbreviation="'+(i.estado||'SP').toUpperCase()+'">'+esc(i.estado||'São Paulo')+'</State>\n';
       xml += '        <City>'+esc(i.cidade || 'São Paulo')+'</City>\n';
       xml += '        <Neighborhood>'+esc(i.bairro || '')+'</Neighborhood>\n';
       xml += '        <Address>'+esc(i.endereco || i.logradouro || '')+'</Address>\n';

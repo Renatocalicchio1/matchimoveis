@@ -285,7 +285,27 @@ async function run() {
     console.log('🔗 Proprietários vinculados:', vinculados);
   }
 
-  const atuais = fs.existsSync(FILE) ? JSON.parse(fs.readFileSync(FILE,"utf8")) : [];
+  // Busca imóveis antigos do PostgreSQL em vez do JSON
+  let atuais = [];
+  try {
+    const { query: _qAnt } = require('./services/db');
+    const _res = await _qAnt('SELECT * FROM imoveis WHERE user_id=$1', [USER_ID]);
+    atuais = _res.rows.map(r => ({
+      ...r,
+      idExterno: r.id_externo,
+      idInterno: r.id_interno,
+      userId: r.user_id,
+      proprietario: r.proprietario || {},
+      descricao: r.descricao,
+      descricaoEditada: r.descricao_editada,
+      fotos: r.fotos || [],
+      status: r.status
+    }));
+    console.log('[importXML] Carregados', atuais.length, 'imóveis antigos do PostgreSQL');
+  } catch(e) {
+    console.error('[importXML] Erro ao carregar antigos:', e.message);
+    atuais = fs.existsSync(FILE) ? JSON.parse(fs.readFileSync(FILE,'utf8')) : [];
+  }
   // REMOVE todos os imóveis antigos desse usuário
 const restantes = atuais.filter(i => {
   const dono = String(i.userId || i.usuarioId || i.corretorId || '');

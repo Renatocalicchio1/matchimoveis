@@ -103,8 +103,7 @@
 <!-- Filtro -->
 <div class="filtro-box">
   <div class="filtro-grid">
-    <div class="filtro-field">
-      <label>Status</label>
+    <div class="filtro-field"><label>Status</label>
       <select id="f-status" onchange="filtrar()">
         <option value="">Todos</option>
         <option value="ativo">Ativo</option>
@@ -112,8 +111,7 @@
         <option value="rascunho">Rascunho</option>
       </select>
     </div>
-    <div class="filtro-field">
-      <label>Transação</label>
+    <div class="filtro-field"><label>Transação</label>
       <select id="f-operacao" onchange="filtrar()">
         <option value="">Todas</option>
         <option value="venda">Venda</option>
@@ -122,8 +120,7 @@
         <option value="permuta">Permuta</option>
       </select>
     </div>
-    <div class="filtro-field">
-      <label>Tipo</label>
+    <div class="filtro-field"><label>Tipo</label>
       <select id="f-tipo" onchange="filtrar()">
         <option value="">Todos</option>
         <optgroup label="Residencial">
@@ -153,8 +150,7 @@
         </optgroup>
       </select>
     </div>
-    <div class="filtro-field">
-      <label>Condição</label>
+    <div class="filtro-field"><label>Condição</label>
       <select id="f-condicao" onchange="filtrar()">
         <option value="">Todas</option>
         <option value="usado">Usado</option>
@@ -162,8 +158,7 @@
         <option value="lancamento">Lançamento</option>
       </select>
     </div>
-    <div class="filtro-field">
-      <label>Fase</label>
+    <div class="filtro-field"><label>Fase</label>
       <select id="f-fase" onchange="filtrar()">
         <option value="">Todas</option>
         <option value="pronto">Pronto</option>
@@ -173,10 +168,8 @@
       </select>
     </div>
   </div>
-
   <div class="filtro-grid2" style="margin-top:10px">
-    <div class="filtro-field">
-      <label>Estado</label>
+    <div class="filtro-field"><label>Estado</label>
       <select id="f-estado" onchange="atualizarCidades()">
         <option value="">Todos</option>
         <% (typeof estados !== 'undefined' ? estados : []).forEach(e => { %>
@@ -184,90 +177,71 @@
         <% }) %>
       </select>
     </div>
-    <div class="filtro-field">
-      <label>Cidade</label>
+    <div class="filtro-field"><label>Cidade</label>
       <select id="f-cidade" onchange="atualizarBairros()">
         <option value="">Todas</option>
       </select>
     </div>
-    <div class="filtro-field">
-      <label>Bairro</label>
+    <div class="filtro-field"><label>Bairro</label>
       <select id="f-bairro" onchange="filtrar()">
         <option value="">Todos</option>
       </select>
     </div>
-    <div class="filtro-field">
-      <label>Valor mín. R$</label>
+    <div class="filtro-field"><label>Valor mín. R$</label>
       <input id="f-valor-min" type="number" placeholder="0" oninput="filtrar()">
     </div>
-    <div class="filtro-field">
-      <label>Valor máx. R$</label>
+    <div class="filtro-field"><label>Valor máx. R$</label>
       <input id="f-valor-max" type="number" placeholder="∞" oninput="filtrar()">
     </div>
-    <div class="filtro-field">
-      <label>Área mín. m²</label>
+    <div class="filtro-field"><label>Área mín. m²</label>
       <input id="f-area-min" type="number" placeholder="0" oninput="filtrar()">
     </div>
   </div>
-
   <div class="filtro-grid2" style="margin-top:10px">
-    <div class="filtro-field">
-      <label>Área máx. m²</label>
+    <div class="filtro-field"><label>Área máx. m²</label>
       <input id="f-area-max" type="number" placeholder="∞" oninput="filtrar()">
     </div>
-    <div class="filtro-field">
-      <label>Quartos mín.</label>
+    <div class="filtro-field"><label>Quartos mín.</label>
       <input id="f-quartos" type="number" min="0" placeholder="0" oninput="filtrar()">
     </div>
-    <div class="filtro-field">
-      <label>Quartos máx.</label>
+    <div class="filtro-field"><label>Quartos máx.</label>
       <input id="f-quartos-max" type="number" min="0" placeholder="∞" oninput="filtrar()">
     </div>
-    <div class="filtro-field">
-      <label>Suítes mín.</label>
+    <div class="filtro-field"><label>Suítes mín.</label>
       <input id="f-suites" type="number" min="0" placeholder="0" oninput="filtrar()">
     </div>
-    <div class="filtro-field">
-      <label>Suítes máx.</label>
+    <div class="filtro-field"><label>Suítes máx.</label>
       <input id="f-suites-max" type="number" min="0" placeholder="∞" oninput="filtrar()">
     </div>
-    <div class="filtro-field">
-      <label>Banheiros mín.</label>
+    <div class="filtro-field"><label>Banheiros mín.</label>
       <input id="f-banheiros" type="number" min="0" placeholder="0" oninput="filtrar()">
     </div>
   </div>
-
   <div class="filtro-grid2" style="margin-top:10px">
-    <div class="filtro-field">
-      <label>Vagas mín.</label>
+    <div class="filtro-field"><label>Vagas mín.</label>
       <input id="f-vagas" type="number" min="0" placeholder="0" oninput="filtrar()">
     </div>
-    <div class="filtro-field">
-      <label>Vagas máx.</label>
+    <div class="filtro-field"><label>Vagas máx.</label>
       <input id="f-vagas-max" type="number" min="0" placeholder="∞" oninput="filtrar()">
     </div>
-    <div class="filtro-field">
-      <label>Proprietário</label>
+    <div class="filtro-field"><label>Proprietário</label>
       <select id="f-proprietario" onchange="filtrar()">
         <option value="">Todos</option>
         <option value="sim">Com proprietário</option>
         <option value="nao">Sem proprietário</option>
       </select>
     </div>
-    <div class="filtro-field">
-      <label>Fotos</label>
+    <div class="filtro-field"><label>Fotos</label>
       <select id="f-fotos" onchange="filtrar()">
         <option value="">Todos</option>
         <option value="sim">Com fotos</option>
         <option value="nao">Sem fotos</option>
       </select>
     </div>
-    <div class="filtro-field">
-      <label>🔍 Busca geral</label>
+    <div class="filtro-field"><label>🔍 Busca geral</label>
       <input id="busca" placeholder="Qualquer campo..." oninput="filtrar()">
     </div>
   </div>
-
   <div class="filtro-rodape">
     <span id="nf-count" style="font-size:11px;color:var(--text-ter)"></span>
     <button onclick="limpar()" class="btn btn-outline btn-sm">↺ Limpar filtros</button>
@@ -485,7 +459,7 @@ function filtrar() {
   document.querySelectorAll('.im-card').forEach(card => {
     let ok = true;
     const d = card.dataset;
-    if (busca && !norm(d.tipo+' '+d.bairro+' '+d.cidade+' '+d.estado).includes(busca)) ok = false;
+    if (busca && !norm((d.tipo||'')+' '+(d.bairro||'')+' '+(d.cidade||'')+' '+(d.estado||'')).includes(busca)) ok = false;
     if (tipo && !norm(d.tipo||'').includes(tipo)) ok = false;
     if (operacao && !norm(d.operacao||'').includes(operacao)) ok = false;
     if (status && norm(d.status||'') !== status) ok = false;
@@ -528,6 +502,10 @@ function limpar() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  document.getElementById('f-cidade').innerHTML = '<option value="">Todas</option>';
+  document.getElementById('f-bairro').innerHTML = '<option value="">Todos</option>';
+  filtrar();
+});
   atualizarCidades();
   filtrar();
 });

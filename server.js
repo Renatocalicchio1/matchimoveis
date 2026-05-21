@@ -3064,8 +3064,8 @@ app.post('/app/imovel/cadastrar', auth, async (req, res) => {
   _cacheImoveis = null;
   await _recarregarImoveis();
   consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{});
-  regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-cadastro]', e.message));
   res.redirect('/app/imovel/' + idInterno + '/editar?salvo=1');
+  setTimeout(() => regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-cadastro]', e.message)), 1000);
 });
 
 // Detalhe do imóvel

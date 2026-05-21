@@ -106,6 +106,17 @@
         </div>
       </div>
 
+      <% const _difsP = Array.isArray(imovel.diferenciais) ? imovel.diferenciais : (imovel.dados&&imovel.dados.diferenciais ? imovel.dados.diferenciais : Object.keys(imovel.diferenciais||{}).filter(k=>imovel.diferenciais[k])); %>
+      <% if(_difsP && _difsP.length > 0){ %>
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">Diferenciais</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <% _difsP.forEach(k=>{ %>
+          <span style="background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:999px;padding:5px 12px;font-size:12px;color:#374151"><%= k.replace(/_/g,' ') %></span>
+          <% }) %>
+        </div>
+      </div>
+      <% } %>
       <% if(imovel.descricao) { %>
       <div class="card">
         <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">Descrição</h3>

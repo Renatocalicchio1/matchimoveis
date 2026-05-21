@@ -5532,8 +5532,10 @@ app.post('/app/visitas/solicitar-confirmacao/:id', auth, async (req,res)=>{
 
 
 app.get('/cliente/visita/:id', async (req, res) => {
+  try {
   const { query: _qV } = require('./services/db');
   const r = await _qV('SELECT * FROM visitas WHERE id=$1', [req.params.id]);
+  console.log('[cliente-visita] id:', req.params.id, 'rows:', r.rows.length);
   if (!r.rows.length) return res.status(404).send('Visita não encontrada');
   const { lerVisitas } = require('./services/salvarVisita');
   const rowToVisita = (row) => ({

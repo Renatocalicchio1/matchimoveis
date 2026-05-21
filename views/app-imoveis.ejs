@@ -7,15 +7,25 @@
 .im-stat.verde{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
 .im-stat.vermelho{background:#fef2f2;color:#dc2626;border-color:#fecaca}
 .im-stat.azul{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}
-.chips-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
-.chips-lbl{font-size:10px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
-.chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--text-sec);transition:all .1s}
-.chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
-.chip:hover{border-color:var(--dark)}
-.filtros-adv{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light)}
-.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
-.fg label{font-size:11px;font-weight:500;color:var(--text-sec);display:block;margin-bottom:4px}
-.fg input,.fg select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;box-sizing:border-box}
+/* filtro novo */
+.fbar{display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:6px 8px;margin-bottom:12px;flex-wrap:wrap;transition:border-color .15s}
+.fbar:focus-within{border-color:var(--dark)}
+.fbar-sep{width:1px;height:24px;background:var(--border);flex-shrink:0}
+.fbar-group{display:flex;flex-direction:column;padding:0 10px;min-width:0;flex:1}
+.fbar-lbl{font-size:9px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.fbar-group input,.fbar-group select{border:none;outline:none;font-size:12px;font-weight:500;color:var(--dark);background:transparent;padding:0;width:100%;min-width:80px}
+.fbar-group select{cursor:pointer}
+.ftags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.ftag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;border:1.5px solid var(--border);background:var(--white);cursor:pointer;color:var(--text-sec);transition:all .12s;user-select:none}
+.ftag:hover{border-color:#a78bfa;color:#7c3aed}
+.ftag.on{background:#7c3aed;color:#fff;border-color:#7c3aed}
+.ftag.on:hover{background:#6d28d9;border-color:#6d28d9}
+.fadv{display:none;background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.fadv.show{display:block}
+.fadv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.fadv-field label{font-size:10px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px}
+.fadv-field input,.fadv-field select{width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;box-sizing:border-box;background:var(--white);color:var(--dark);outline:none;transition:border .12s}
+.fadv-field input:focus,.fadv-field select:focus{border-color:var(--dark)}
 .barra-sel{display:none;position:sticky;top:0;z-index:50;background:var(--dark);color:#fff;padding:12px 16px;border-radius:10px;margin-bottom:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .barra-portais{display:flex;gap:6px;flex-wrap:wrap}
 .portal-btn-sel{background:rgba(255,255,255,.12);border:none;color:#fff;padding:7px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:600;transition:background .1s}
@@ -62,77 +72,110 @@
 </div>
 
 <!-- Toolbar -->
-<div class="im-toolbar">
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-    <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer">
-      <input type="checkbox" id="check-todos" onchange="toggleTodos(this)" style="width:14px;height:14px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+  <div class="im-stats">
+    <span class="im-stat"><%= typeof imoveis !== 'undefined' ? imoveis.length : 0 %> total</span>
+    <span class="im-stat verde" id="count-ativos">—</span>
+    <span class="im-stat vermelho" id="count-inativos">—</span>
+    <span class="im-stat azul" id="count-sem-foto">—</span>
+    <span class="im-stat" id="count-sem-prop">—</span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <label style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--text-sec);cursor:pointer">
+      <input type="checkbox" id="check-todos" onchange="toggleTodos(this)" style="width:13px;height:13px">
       Selecionar todos
     </label>
-    <div class="im-stats">
-      <span class="im-stat"><%= typeof imoveis !== 'undefined' ? imoveis.length : 0 %> total</span>
-      <span class="im-stat verde" id="count-ativos">—</span>
-      <span class="im-stat vermelho" id="count-inativos">—</span>
-      <span class="im-stat azul" id="count-sem-foto">—</span>
-      <span class="im-stat" id="count-sem-prop">—</span>
-    </div>
-  </div>
-  <div style="display:flex;gap:8px">
-    <input id="busca" placeholder="Buscar imóvel..." oninput="filtrar()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;min-width:220px">
-    <button onclick="toggleFiltros()" class="btn btn-outline btn-sm">⚙️ Filtros</button>
     <a href="/app/cadastro" class="btn btn-primary btn-sm">+ Cadastrar</a>
   </div>
 </div>
 
-<!-- Filtros -->
-<div class="card" style="margin-bottom:14px;padding:14px">
-  <div class="chips-row">
-    <span class="chips-lbl">Tipo</span>
-    <button class="chip on" onclick="setChip('tipo','',this)">Todos</button>
-    <button class="chip" onclick="setChip('tipo','apartamento',this)">Apartamento</button>
-    <button class="chip" onclick="setChip('tipo','casa',this)">Casa</button>
-    <button class="chip" onclick="setChip('tipo','cobertura',this)">Cobertura</button>
-    <button class="chip" onclick="setChip('tipo','studio',this)">Studio</button>
-    <button class="chip" onclick="setChip('tipo','kitnet',this)">Kitnet</button>
-    <button class="chip" onclick="setChip('tipo','terreno',this)">Terreno</button>
-    <button class="chip" onclick="setChip('tipo','sala',this)">Sala</button>
-    <button class="chip" onclick="setChip('tipo','galpao',this)">Galpão</button>
+<!-- Filtro novo -->
+<div class="fbar">
+  <div class="fbar-group" style="flex:2;min-width:160px">
+    <span class="fbar-lbl">🔍 Buscar</span>
+    <input id="busca" placeholder="Bairro, cidade, tipo..." oninput="filtrar()">
   </div>
-  <div class="chips-row">
-    <span class="chips-lbl">Transação</span>
-    <button class="chip on" onclick="setChip('operacao','',this)">Todas</button>
-    <button class="chip" onclick="setChip('operacao','venda',this)">Venda</button>
-    <button class="chip" onclick="setChip('operacao','aluguel',this)">Aluguel</button>
-    <button class="chip" onclick="setChip('operacao','temporada',this)">Temporada</button>
+  <div class="fbar-sep"></div>
+  <div class="fbar-group">
+    <span class="fbar-lbl">Tipo</span>
+    <select id="f-tipo" onchange="filtrar()">
+      <option value="">Todos</option>
+      <optgroup label="Residencial">
+        <option value="apartamento">Apartamento</option>
+        <option value="casa">Casa</option>
+        <option value="cobertura">Cobertura</option>
+        <option value="sobrado">Sobrado</option>
+        <option value="loft">Loft</option>
+        <option value="studio">Studio</option>
+        <option value="kitnet">Kitnet</option>
+        <option value="duplex">Duplex</option>
+      </optgroup>
+      <optgroup label="Comercial">
+        <option value="sala">Sala</option>
+        <option value="loja">Loja</option>
+        <option value="galpao">Galpão</option>
+      </optgroup>
+      <optgroup label="Terrenos">
+        <option value="terreno">Terreno</option>
+        <option value="area rural">Área Rural</option>
+      </optgroup>
+    </select>
   </div>
-  <div class="chips-row">
-    <span class="chips-lbl">Status</span>
-    <button class="chip on" onclick="setChip('status','',this)">Todos</button>
-    <button class="chip" onclick="setChip('status','ativo',this)">Ativos</button>
-    <button class="chip" onclick="setChip('status','inativo',this)">Inativos</button>
-    <button class="chip" onclick="setChip('fotos','nao',this)">Sem foto</button>
-    <button class="chip" onclick="setChip('proprietario','nao',this)">Sem prop.</button>
+  <div class="fbar-sep"></div>
+  <div class="fbar-group">
+    <span class="fbar-lbl">Transação</span>
+    <select id="f-operacao" onchange="filtrar()">
+      <option value="">Todas</option>
+      <option value="venda">Venda</option>
+      <option value="aluguel">Aluguel</option>
+      <option value="temporada">Temporada</option>
+    </select>
   </div>
+  <div class="fbar-sep"></div>
+  <div class="fbar-group">
+    <span class="fbar-lbl">Status</span>
+    <select id="f-status" onchange="filtrar()">
+      <option value="">Todos</option>
+      <option value="ativo">Ativo</option>
+      <option value="inativo">Inativo</option>
+      <option value="rascunho">Rascunho</option>
+    </select>
+  </div>
+  <div class="fbar-sep"></div>
+  <button onclick="toggleFadv()" id="btn-fadv" style="display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;font-size:11px;font-weight:600;color:var(--text-sec);white-space:nowrap;padding:4px 8px;border-radius:8px;transition:all .1s" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+    Mais filtros
+  </button>
+</div>
 
-  <div class="filtros-adv" id="box-filtros">
-    <div class="fg">
-      <div><label>Tipo</label><select id="f-tipo" onchange="filtrar()"><option value="">Todos</option><optgroup label="Residencial"><option value="apartamento">Apartamento</option><option value="casa">Casa</option><option value="cobertura">Cobertura</option><option value="sobrado">Sobrado</option><option value="loft">Loft</option><option value="studio">Studio</option><option value="kitnet">Kitnet</option><option value="duplex">Duplex</option><option value="mansao">Mansão</option><option value="chacara">Chácara</option><option value="sitio">Sítio</option><option value="fazenda">Fazenda</option></optgroup><optgroup label="Comercial"><option value="sala">Sala Comercial</option><option value="loja">Loja</option><option value="galpao">Galpão</option><option value="conjunto">Conjunto</option><option value="predio">Prédio</option></optgroup><optgroup label="Terrenos"><option value="terreno">Terreno</option><option value="area rural">Área Rural</option></optgroup></select></div>
-      <div><label>Transação</label><select id="f-operacao" onchange="filtrar()"><option value="">Todas</option><option value="venda">Venda</option><option value="aluguel">Aluguel</option><option value="temporada">Temporada</option></select></div>
-      <div><label>Status</label><select id="f-status" onchange="filtrar()"><option value="">Todos</option><option value="ativo">Ativo</option><option value="inativo">Inativo</option><option value="rascunho">Rascunho</option></select></div>
-      <div><label>Bairro</label><input id="f-bairro" oninput="filtrar()"></div>
-      <div><label>Cidade</label><input id="f-cidade" oninput="filtrar()"></div>
-      <div><label>Valor mín.</label><input id="f-valor-min" type="number" oninput="filtrar()"></div>
-      <div><label>Valor máx.</label><input id="f-valor-max" type="number" oninput="filtrar()"></div>
-      <div><label>Área mín. m²</label><input id="f-area-min" type="number" oninput="filtrar()"></div>
-      <div><label>Quartos mín.</label><input id="f-quartos" type="number" min="0" oninput="filtrar()"></div>
-      <div><label>Suítes mín.</label><input id="f-suites" type="number" min="0" oninput="filtrar()"></div>
-      <div><label>Vagas mín.</label><input id="f-vagas" type="number" min="0" oninput="filtrar()"></div>
-      <div><label>Proprietário</label><select id="f-proprietario" onchange="filtrar()"><option value="">Todos</option><option value="sim">Com proprietário</option><option value="nao">Sem proprietário</option></select></div>
-      <div><label>Fotos</label><select id="f-fotos" onchange="filtrar()"><option value="">Todos</option><option value="sim">Com fotos</option><option value="nao">Sem fotos</option></select></div>
-    </div>
-    <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
-      <button onclick="limpar()" class="btn btn-outline btn-sm">Limpar filtros</button>
-      <span id="resultado-filtro" style="font-size:11px;color:var(--text-ter)"></span>
-    </div>
+<!-- Tags rápidas -->
+<div class="ftags">
+  <span class="ftag on" onclick="setFtag('status','',this)">Todos</span>
+  <span class="ftag" onclick="setFtag('status','ativo',this)">✅ Ativos</span>
+  <span class="ftag" onclick="setFtag('status','inativo',this)">📦 Inativos</span>
+  <span class="ftag" onclick="setFtag('fotos','nao',this)">📷 Sem foto</span>
+  <span class="ftag" onclick="setFtag('proprietario','nao',this)">👤 Sem prop.</span>
+  <span class="ftag" onclick="setFtag('operacao','venda',this)">🏷️ Venda</span>
+  <span class="ftag" onclick="setFtag('operacao','aluguel',this)">🔑 Aluguel</span>
+  <span id="tag-resultado" style="margin-left:auto;font-size:11px;color:var(--text-ter);display:flex;align-items:center"></span>
+</div>
+
+<!-- Filtros avançados -->
+<div class="fadv" id="box-fadv">
+  <div class="fadv-grid">
+    <div class="fadv-field"><label>Bairro</label><input id="f-bairro" placeholder="Ex: Centro" oninput="filtrar()"></div>
+    <div class="fadv-field"><label>Cidade</label><input id="f-cidade" placeholder="Ex: Itajaí" oninput="filtrar()"></div>
+    <div class="fadv-field"><label>Valor mín. (R$)</label><input id="f-valor-min" type="number" placeholder="0" oninput="filtrar()"></div>
+    <div class="fadv-field"><label>Valor máx. (R$)</label><input id="f-valor-max" type="number" placeholder="∞" oninput="filtrar()"></div>
+    <div class="fadv-field"><label>Área mín. (m²)</label><input id="f-area-min" type="number" placeholder="0" oninput="filtrar()"></div>
+    <div class="fadv-field"><label>Quartos mín.</label><input id="f-quartos" type="number" min="0" placeholder="0" oninput="filtrar()"></div>
+    <div class="fadv-field"><label>Suítes mín.</label><input id="f-suites" type="number" min="0" placeholder="0" oninput="filtrar()"></div>
+    <div class="fadv-field"><label>Vagas mín.</label><input id="f-vagas" type="number" min="0" placeholder="0" oninput="filtrar()"></div>
+    <div class="fadv-field"><label>Proprietário</label><select id="f-proprietario" onchange="filtrar()"><option value="">Todos</option><option value="sim">Com proprietário</option><option value="nao">Sem proprietário</option></select></div>
+    <div class="fadv-field"><label>Fotos</label><select id="f-fotos" onchange="filtrar()"><option value="">Todos</option><option value="sim">Com fotos</option><option value="nao">Sem fotos</option></select></div>
+  </div>
+  <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+    <button onclick="limpar()" class="btn btn-outline btn-sm">↺ Limpar tudo</button>
   </div>
 </div>
 

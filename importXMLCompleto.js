@@ -65,6 +65,26 @@ function normalizeTipo(raw) {
   return raw || '';
 }
 
+
+const mapaFeatures = {
+  'furnished': 'mobiliado', 'semi-furnished': 'semi_mobiliado',
+  'bbq': 'churrasqueira', 'pool': 'piscina', 'gym': 'academia',
+  'party room': 'salao_festas', 'playground': 'playground',
+  'toys place': 'playground', 'sauna': 'sauna',
+  'movie theater': 'cinema', 'media room': 'cinema',
+  'close to schools': 'escola', 'close to shopping centers': 'shopping',
+  'close to subway': 'metro', 'close to bus': 'onibus',
+  'elevator': 'elevador', 'doorman': 'portaria_24h',
+  'gated community': 'condominio_fechado', 'balcony': 'varanda',
+  'garden': 'jardim', 'pet friendly': 'pet_friendly',
+  'solar energy': 'solar', 'air conditioning': 'ar_condicionado',
+  'sea view': 'vista_mar', 'alarm': 'alarme',
+  'intercom': 'interfone', 'electric gate': 'portao_eletronico',
+  'cameras': 'cameras', 'storage': 'deposito',
+  'backyard': 'quintal', 'rooftop': 'rooftop',
+  'coworking': 'coworking', 'sports court': 'quadra',
+  'fenced yard': 'condominio_fechado', 'kitchen': '',
+};
 function parseListing(l) {
   try {
     const idRaw = l.ListingID || l.ListingId || l.Id;
@@ -117,6 +137,15 @@ function parseListing(l) {
       suites: Number(details.Suites) || 0,
       banheiros: Number(details.Bathrooms) || 0,
       vagas: extractNumber(details.Garage) || 0,
+      diferenciais: (() => {
+        const feats = details.Features?.Feature || [];
+        const arr = Array.isArray(feats) ? feats : [feats];
+        return arr.map(f => {
+          const key = (typeof f === 'string' ? f : f['#text'] || f._text || '').toLowerCase().trim();
+          return mapaFeatures[key] || null;
+        }).filter(Boolean);
+      })(),
+      anoContrucao: details.YearBuilt || '',
       descricao: (() => {
         let d = l.Description || extractText(details.Description) || '';
         // remover chamadas para visita com nome do corretor

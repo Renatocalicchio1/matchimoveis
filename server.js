@@ -1212,7 +1212,6 @@ app.get('/app/notificacoes', auth, async (req,res)=>{
     res.render('app-notificacoes', { user: req.session.user, notificacoes: [] });
   }
 });
-});
 
 
 app.get('/app-home', auth, async (req,res)=>{

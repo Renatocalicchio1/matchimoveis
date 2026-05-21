@@ -2,58 +2,68 @@ const fs = require('fs');
 const path = require('path');
 const { query, dbOk } = require('./db');
 
-const BACKUP_DIR = process.env.RENDER 
-  ? '/opt/render/project/src/data/backups' 
-  : path.join(__dirname, '..', 'backups');
+async function _criarTabelaBackup() {
+  try {
+    await query(`CREATE TABLE IF NOT EXISTS backups (
+      id SERIAL PRIMARY KEY,
+      timestamp TIMESTAMPTZ DEFAULT NOW(),
+      totais JSONB DEFAULT '{}',
+      dados JSONB DEFAULT '{}'
+    )`);
+  } catch(e) { console.error('[BACKUP] erro criar tabela:', e.message); }
+}
+_criarTabelaBackup();
 
 async function fazerBackup() {
   try {
     if (!await dbOk()) { console.log('[BACKUP] banco offline, pulando'); return; }
-    
-    if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
 
-    const ts = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
-    
+    const ts = new Date().toISOString();
     const tabelas = ['leads', 'visitas', 'usuarios', 'imoveis', 'notificacoes'];
     const backup = {};
-    
+
     for (const tabela of tabelas) {
-      const res = await query(`SELECT * FROM ${tabela}`);
+      const res = await query('SELECT * FROM ' + tabela);
       backup[tabela] = res.rows;
     }
-    
-    backup.timestamp = new Date().toISOString();
-    backup.totais = {};
-    tabelas.forEach(t => backup.totais[t] = backup[t].length);
-    
-    const arquivo = path.join(BACKUP_DIR, `backup-${ts}.json`);
-    fs.writeFileSync(arquivo, JSON.stringify(backup, null, 2));
-    
-    console.log(`[BACKUP] ✅ ${ts} | leads:${backup.totais.leads} | imoveis:${backup.totais.imoveis} | users:${backup.totais.usuarios}`);
-    
-    // Mantém apenas os últimos 48 backups (24h)
-    const arquivos = fs.readdirSync(BACKUP_DIR)
-      .filter(f => f.startsWith('backup-') && f.endsWith('.json'))
-      .sort();
-    
-    if (arquivos.length > 48) {
-      const paraApagar = arquivos.slice(0, arquivos.length - 48);
-      paraApagar.forEach(f => {
-        fs.unlinkSync(path.join(BACKUP_DIR, f));
-        console.log('[BACKUP] apagado backup antigo:', f);
-      });
-    }
+
+    const totais = {};
+    tabelas.forEach(t => totais[t] = backup[t].length);
+
+    // Salva no PostgreSQL
+    await query(
+      'INSERT INTO backups (timestamp, totais, dados) VALUES ($1, $2, $3)',
+      [ts, JSON.stringify(totais), JSON.stringify(backup)]
+    );
+
+    // Mantém só os últimos 48 backups
+    await query(`
+      DELETE FROM backups WHERE id NOT IN (
+        SELECT id FROM backups ORDER BY timestamp DESC LIMIT 48
+      )
+    `);
+
+    console.log('[BACKUP] ✅ ' + ts + ' | leads:' + totais.leads + ' | imoveis:' + totais.imoveis + ' | users:' + totais.usuarios);
   } catch(e) {
     console.error('[BACKUP] erro:', e.message);
   }
 }
 
+async function listarBackups() {
+  const res = await query('SELECT id, timestamp, totais FROM backups ORDER BY timestamp DESC LIMIT 10');
+  return res.rows;
+}
+
+async function restaurarBackup(id) {
+  const res = await query('SELECT dados FROM backups WHERE id=$1', [id]);
+  if (!res.rows.length) throw new Error('Backup nao encontrado');
+  return res.rows[0].dados;
+}
+
 function iniciarBackup() {
-  console.log('[BACKUP] ⏱️ Backup automático iniciado — a cada 30 minutos');
-  // Primeiro backup após 1 minuto do boot
+  console.log('[BACKUP] Backup automatico iniciado — a cada 30 minutos');
   setTimeout(fazerBackup, 60 * 1000);
-  // Depois a cada 30 minutos
   setInterval(fazerBackup, 30 * 60 * 1000);
 }
 
-module.exports = { fazerBackup, iniciarBackup };
+module.exports = { fazerBackup, iniciarBackup, listarBackups, restaurarBackup };

@@ -3609,11 +3609,14 @@ function gerarXMLPortais(){
 
   portais.forEach(portal => {
 
-    const filtrados = imoveis.filter(i =>
-      i.status === 'publicado' &&
-      i.portais &&
-      i.portais[portal]
-    );
+    const filtrados = imoveis.filter(i => {
+      if(!i.portais) return false;
+      const temPortal = Array.isArray(i.portais)
+        ? i.portais.includes(portal)
+        : !!i.portais[portal];
+      const ativo = i.status === 'ativo' || i.status === 'publicado';
+      return ativo && temPortal;
+    });
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>

@@ -131,10 +131,19 @@ function rowToImovel(r) {
     descricaoEditada: r.descricao_editada,
     fotos: r.fotos || [],
     proprietario: r.proprietario || {},
-    portais: r.portais || {},
+    portais: r.portais || [],
+    diferenciais: r.diferenciais || [],
     corretor: r.corretor || {},
     fonte: r.fonte,
     source: r.source,
+    fase: r.fase || "",
+    anoConstrucao: r.ano_construcao || "",
+    posicaoSolar: r.posicao_solar || "",
+    area_construida: r.area_construida || 0,
+    totalAndares: r.total_andares || 0,
+    unidadesPorAndar: r.unidades_por_andar || 0,
+    aceitaFinanciamento: r.aceita_financiamento || "a_combinar",
+    aceitaPermuta: r.aceita_permuta || "nao",
     userId: r.user_id,
     usuarioId: r.usuario_id,
     codigoUsuario: r.codigo_usuario,
@@ -159,7 +168,7 @@ function rowToImovel(r) {
 
 function imovelToRow(i) {
   const dados = { ...i };
-  const campos = ['id','idExterno','idOriginal','idInterno','codigoImovel','titulo','tipo','categoria','transacao','condicao','status','bairro','cidade','estado','endereco','numero','complemento','cep','latitude','longitude','andar','torre','unidade','condominioNome','valor_imovel','condominio','iptu','area_m2','area_total','quartos','suites','banheiros','vagas','salas','descricao','descricaoEditada','fotos','proprietario','portais','corretor','fonte','source','userId','usuarioId','codigoUsuario','usuarioNome','usuarioPerfil','usuarioTelefone','corretorId','corretorNome','corretorEmail','corretorTelefone','url','urlPublica','tourVirtual','inativadoEm','inativadoPor','xmlUrl','lastUpdate','criadoEm'];
+  const campos = ['id','idExterno','idOriginal','idInterno','codigoImovel','titulo','tipo','categoria','transacao','condicao','status','bairro','cidade','estado','endereco','numero','complemento','cep','latitude','longitude','andar','torre','unidade','condominioNome','valor_imovel','condominio','iptu','area_m2','area_total','area_construida','quartos','suites','banheiros','vagas','salas','descricao','descricaoEditada','fotos','proprietario','portais','diferenciais','corretor','fonte','source','fase','anoConstrucao','posicaoSolar','totalAndares','unidadesPorAndar','aceitaFinanciamento','aceitaPermuta','userId','usuarioId','codigoUsuario','usuarioNome','usuarioPerfil','usuarioTelefone','corretorId','corretorNome','corretorEmail','corretorTelefone','url','urlPublica','tourVirtual','inativadoEm','inativadoPor','xmlUrl','lastUpdate','criadoEm'];
   campos.forEach(k => delete dados[k]);
   return {
     id: String(i.id || i.idInterno || i.idExterno || i.idOriginal || i.codigoImovel || Date.now()),
@@ -198,6 +207,15 @@ function imovelToRow(i) {
     salas: parseInt(i.salas || i.rooms || 0) || 0,
     descricao: i.descricao || '',
     descricao_editada: i.descricaoEditada || false,
+    diferenciais: JSON.stringify(Array.isArray(i.diferenciais) ? i.diferenciais : []),
+    fase: i.fase || '',
+    ano_construcao: i.anoConstrucao || i.anoContrucao || i.ano_construcao || '',
+    posicao_solar: i.posicaoSolar || i.posicao_solar || '',
+    area_construida: parseFloat(i.area_construida || i.areaConstruida || 0) || 0,
+    total_andares: parseInt(i.totalAndares || i.total_andares || 0) || 0,
+    unidades_por_andar: parseInt(i.unidadesPorAndar || i.unidades_por_andar || 0) || 0,
+    aceita_financiamento: i.aceitaFinanciamento || i.aceita_financiamento || 'a_combinar',
+    aceita_permuta: i.aceitaPermuta || i.aceita_permuta || 'nao',
     fotos: JSON.stringify(i.fotos || []),
     proprietario: JSON.stringify(i.proprietario || {}),
     portais: JSON.stringify(i.portais || {}),
@@ -252,20 +270,26 @@ async function salvarImovel(imovel) {
     try {
       const r = imovelToRow(imovel);
       await query(`
-        INSERT INTO imoveis (id,id_externo,id_original,id_interno,codigo_imovel,titulo,tipo,categoria,transacao,condicao,status,bairro,cidade,estado,endereco,numero,complemento,cep,latitude,longitude,andar,torre,unidade,condominio_nome,valor_imovel,condominio,iptu,area_m2,area_total,quartos,suites,banheiros,vagas,salas,descricao,descricao_editada,fotos,proprietario,portais,corretor,fonte,source,user_id,usuario_id,codigo_usuario,usuario_nome,usuario_perfil,usuario_telefone,corretor_id,corretor_nome,corretor_email,corretor_telefone,url,url_publica,tour_virtual,inativado_em,inativado_por,xml_url,last_update,dados)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43,$44,$45,$46,$47,$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60)
+        INSERT INTO imoveis (id,id_externo,id_original,id_interno,codigo_imovel,titulo,tipo,categoria,transacao,condicao,status,bairro,cidade,estado,endereco,numero,complemento,cep,latitude,longitude,andar,torre,unidade,condominio_nome,valor_imovel,condominio,iptu,area_m2,area_total,area_construida,quartos,suites,banheiros,vagas,salas,descricao,descricao_editada,fotos,proprietario,portais,diferenciais,corretor,fonte,source,fase,ano_construcao,posicao_solar,total_andares,unidades_por_andar,aceita_financiamento,aceita_permuta,user_id,usuario_id,codigo_usuario,usuario_nome,usuario_perfil,usuario_telefone,corretor_id,corretor_nome,corretor_email,corretor_telefone,url,url_publica,tour_virtual,inativado_em,inativado_por,xml_url,last_update,dados)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43,$44,$45,$46,$47,$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,$62,$63,$64,$65,$66,$67,$68,$69)
         ON CONFLICT (id) DO UPDATE SET
           titulo=EXCLUDED.titulo, tipo=EXCLUDED.tipo, status=EXCLUDED.status,
           bairro=EXCLUDED.bairro, cidade=EXCLUDED.cidade, estado=EXCLUDED.estado,
           endereco=EXCLUDED.endereco, valor_imovel=EXCLUDED.valor_imovel,
-          area_m2=EXCLUDED.area_m2, quartos=EXCLUDED.quartos, suites=EXCLUDED.suites,
+          condominio=EXCLUDED.condominio, iptu=EXCLUDED.iptu,
+          area_m2=EXCLUDED.area_m2, area_total=EXCLUDED.area_total, area_construida=EXCLUDED.area_construida,
+          quartos=EXCLUDED.quartos, suites=EXCLUDED.suites,
           banheiros=EXCLUDED.banheiros, vagas=EXCLUDED.vagas, descricao=EXCLUDED.descricao,
           fotos=EXCLUDED.fotos, proprietario=EXCLUDED.proprietario, portais=EXCLUDED.portais,
+          diferenciais=EXCLUDED.diferenciais, fase=EXCLUDED.fase,
+          ano_construcao=EXCLUDED.ano_construcao, posicao_solar=EXCLUDED.posicao_solar,
+          total_andares=EXCLUDED.total_andares, unidades_por_andar=EXCLUDED.unidades_por_andar,
+          aceita_financiamento=EXCLUDED.aceita_financiamento, aceita_permuta=EXCLUDED.aceita_permuta,
           user_id=EXCLUDED.user_id, codigo_usuario=EXCLUDED.codigo_usuario,
           latitude=EXCLUDED.latitude, longitude=EXCLUDED.longitude,
           inativado_em=EXCLUDED.inativado_em, inativado_por=EXCLUDED.inativado_por,
           dados=EXCLUDED.dados, atualizado_em=NOW()
-      `, [r.id,r.id_externo,r.id_original,r.id_interno,r.codigo_imovel,r.titulo,r.tipo,r.categoria,r.transacao,r.condicao,r.status,r.bairro,r.cidade,r.estado,r.endereco,r.numero,r.complemento,r.cep,r.latitude,r.longitude,r.andar,r.torre,r.unidade,r.condominio_nome,r.valor_imovel,r.condominio,r.iptu,r.area_m2,r.area_total,r.quartos,r.suites,r.banheiros,r.vagas,r.salas,r.descricao,r.descricao_editada,r.fotos,r.proprietario,r.portais,r.corretor,r.fonte,r.source,r.user_id,r.usuario_id,r.codigo_usuario,r.usuario_nome,r.usuario_perfil,r.usuario_telefone,r.corretor_id,r.corretor_nome,r.corretor_email,r.corretor_telefone,r.url,r.url_publica,r.tour_virtual,r.inativado_em,r.inativado_por,r.xml_url,r.last_update,r.dados]);
+      `, [r.id,r.id_externo,r.id_original,r.id_interno,r.codigo_imovel,r.titulo,r.tipo,r.categoria,r.transacao,r.condicao,r.status,r.bairro,r.cidade,r.estado,r.endereco,r.numero,r.complemento,r.cep,r.latitude,r.longitude,r.andar,r.torre,r.unidade,r.condominio_nome,r.valor_imovel,r.condominio,r.iptu,r.area_m2,r.area_total,r.area_construida,r.quartos,r.suites,r.banheiros,r.vagas,r.salas,r.descricao,r.descricao_editada,r.fotos,r.proprietario,r.portais,r.diferenciais,r.corretor,r.fonte,r.source,r.fase,r.ano_construcao,r.posicao_solar,r.total_andares,r.unidades_por_andar,r.aceita_financiamento,r.aceita_permuta,r.user_id,r.usuario_id,r.codigo_usuario,r.usuario_nome,r.usuario_perfil,r.usuario_telefone,r.corretor_id,r.corretor_nome,r.corretor_email,r.corretor_telefone,r.url,r.url_publica,r.tour_virtual,r.inativado_em,r.inativado_por,r.xml_url,r.last_update,r.dados]);
       return imovel;
     } catch(e) {
       console.error('[salvarImovel PG]', e.message);

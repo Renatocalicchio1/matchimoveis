@@ -3499,8 +3499,8 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
     gerarXMLPortais();
   }
 
-  regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-editar]', e.message));
   res.redirect('/app/imovel/' + (imoveis[idx].idExterno && imoveis[idx].idExterno.trim() ? imoveis[idx].idExterno : imoveis[idx].idInterno || imoveis[idx].id) + '/editar?salvo=1');
+  setTimeout(() => regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-editar]', e.message)), 1000);
 });
 
 // Upload de fotos do imóvel

@@ -3594,6 +3594,42 @@ app.post('/app/imovel/:id/capa-foto', auth, async (req,res)=>{
   res.redirect('/app/imovel/' + req.params.id + '/editar');
 });
 
+// Regenera XMLs por usuário após cadastro/edição
+async function regenerarXMLUsuario(userId) {
+  try {
+    const imoveis = (_cacheImoveis || []).filter(i =>
+      String(i.userId||'') === String(userId) ||
+      String(i.usuarioId||'') === String(userId)
+    );
+    const users = (_cacheUsuarios || []);
+    const user = users.find(u => u.id === userId) || {};
+    const token = userId.replace(/[^a-z0-9]/gi,'-');
+    const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
+    portais.forEach(portal => {
+      const filtrados = imoveis.filter(i => {
+        if(!i.portais) return false;
+        const temPortal = Array.isArray(i.portais) ? i.portais.includes(portal) : !!i.portais[portal];
+        const ativo = i.status === 'ativo' || i.status === 'publicado';
+        return ativo && temPortal;
+      }).map(i => ({
+        ...i,
+        corretorNome: user.nome || user.name || '',
+        corretorEmail: user.email || '',
+        corretorTelefone: user.celular || user.telefone || ''
+      }));
+      const filename = `feed-${portal}-${token}.xml`;
+      const xml = gerarXMLPortal(filtrados, portal);
+      const { dataPath: _dp } = require('./services/db');
+      if(typeof dataPath === 'function') {
+        fs.writeFileSync(dataPath(filename), xml, 'utf8');
+        console.log(`[xml] ${filename}: ${filtrados.length} imóveis`);
+      }
+    });
+  } catch(e) {
+    console.error('[regenerarXMLUsuario]', e.message);
+  }
+}
+
 // =========================
 // GERAR XML PORTAIS (VivaReal padrão)
 // =========================

@@ -5552,9 +5552,6 @@ app.get('/cliente/visita/:id', async (req, res) => {
     res.status(500).send('Erro: ' + e.message);
   }
 });
-  const visita = rowToVisita(r.rows[0]);
-  res.render('cliente-visita-confirmar', { visita, user: null });
-});
 
 app.post('/cliente/visita/:id/responder', async (req, res) => {
   const { lerVisitas, salvarTodasVisitas } = require('./services/salvarVisita');

@@ -229,7 +229,8 @@ app.post('/app/importar', upload.any(), async (req, res) => {
         const _feeds = fs.existsSync(_fp) ? JSON.parse(fs.readFileSync(_fp,'utf8')) : [];
         const _url = global.importXmlUrl;
         const _uid = users[idx].id;
-        salvarFeedService({ userId: _uid, url: _url, lastSyncAt: new Date().toISOString(), total: _totalIm, tipo: 'importado' }).catch(e=>console.error('[xml-feed]',e.message));
+        const _feedTotal = typeof _totalIm !== 'undefined' ? _totalIm : 0;
+        salvarFeedService({ userId: _uid, url: _url, lastSyncAt: new Date().toISOString(), total: _feedTotal, tipo: 'importado' }).then(() => console.log('[xml-feed] salvo:', _uid, _feedTotal)).catch(e=>console.error('[xml-feed]', e.message));
       } catch(e) {}
           users[idx].xmlAtualizadoEm = new Date().toISOString();
           users[idx].xmlTotal = imoveis.length;

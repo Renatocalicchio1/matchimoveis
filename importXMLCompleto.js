@@ -168,6 +168,38 @@ function parseListing(l) {
       xml_url: XML_URL,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      _camposDesconhecidos: (() => {
+        // Detecta campos do XML que não estão mapeados
+        const camposMapeados = new Set([
+          'ListingID','ListingId','Id','Title','TransactionType','DetailViewUrl',
+          'PublicationType','Description','PropertyType','UsageType','ListPrice',
+          'PropertyAdministrationFee','Iptu','YearlyTax','LotArea','LivingArea',
+          'Bedrooms','Bathrooms','Suites','Garage','YearBuilt','Features',
+          'Address','StreetNumber','PostalCode','State','City','Neighborhood',
+          'Latitude','Longitude','Complement','Floor','Tower','Unit'
+        ]);
+        const desconhecidos = {};
+        // Verifica campos em Details
+        Object.keys(details || {}).forEach(k => {
+          if (!camposMapeados.has(k)) desconhecidos['Details.'+k] = details[k];
+        });
+        // Verifica campos em Location
+        Object.keys(location || {}).forEach(k => {
+          if (!camposMapeados.has(k)) desconhecidos['Location.'+k] = location[k];
+        });
+        if (Object.keys(desconhecidos).length > 0) {
+          const logPath = require('path').join(process.env.RENDER ? '/opt/render/project/src/data' : require('path').join(__dirname), 'campos-desconhecidos.json');
+          try {
+            const log = require('fs').existsSync(logPath) ? JSON.parse(require('fs').readFileSync(logPath,'utf8')) : {};
+            Object.keys(desconhecidos).forEach(k => {
+              if (!log[k]) log[k] = { exemplo: JSON.stringify(desconhecidos[k]).slice(0,100), count: 0, descoberto: new Date().toISOString() };
+              log[k].count++;
+            });
+            require('fs').writeFileSync(logPath, JSON.stringify(log, null, 2));
+          } catch(e) {}
+        }
+        return Object.keys(desconhecidos);
+      })(),
       lastCheckedAt: new Date().toISOString(),
       proprietario: {
         nome: '',

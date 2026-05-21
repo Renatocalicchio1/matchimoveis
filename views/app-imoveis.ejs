@@ -58,15 +58,7 @@
     <span id="cnt-sel" style="font-size:13px;font-weight:600">0 selecionados</span>
     <button onclick="deselectAll()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">✕ Limpar</button>
   </div>
-  <div class="barra-portais">
-    <button class="portal-btn-sel" onclick="gerarXML('vivareal')">VivaReal</button>
-    <button class="portal-btn-sel" onclick="gerarXML('zap')">ZAP</button>
-    <button class="portal-btn-sel" onclick="gerarXML('olx')">OLX</button>
-    <button class="portal-btn-sel" onclick="gerarXML('chaves')">Chaves</button>
-    <button class="portal-btn-sel" onclick="gerarXML('imovelweb')">ImovelWeb</button>
-    <button class="portal-btn-sel" onclick="gerarXML('quintoandar')">QuintoAndar</button>
-    <button class="portal-btn-sel" onclick="gerarXML('123i')">123i</button>
-  </div>
+
 </div>
 
 <!-- Toolbar -->
@@ -282,26 +274,6 @@ function atualizarBarra() {
   barra.style.display = selecionados.size > 0 ? 'flex' : 'none';
 }
 
-async function gerarXML(portal) {
-  const ids = [...selecionados];
-  const modal = document.getElementById('modal-xml');
-  document.getElementById('modal-titulo').textContent = 'Gerando XML ' + portal.toUpperCase() + '...';
-  document.getElementById('modal-desc').textContent = ids.length + ' imóveis selecionados';
-  document.getElementById('modal-link').style.display = 'none';
-  document.getElementById('modal-loading').style.display = 'block';
-  modal.style.display = 'flex';
-  try {
-    const res = await fetch('/app/gerar-xml', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ portal, ids }) });
-    const data = await res.json();
-    document.getElementById('modal-loading').style.display = 'none';
-    document.getElementById('modal-link').style.display = 'block';
-    document.getElementById('modal-titulo').textContent = 'XML gerado';
-    document.getElementById('modal-desc').textContent = data.total + ' imóveis incluídos';
-    document.getElementById('modal-url').value = window.location.origin + data.url;
-  } catch(e) {
-    document.getElementById('modal-loading').style.display = 'none';
-    document.getElementById('modal-titulo').textContent = 'Erro ao gerar XML';
-  }
 }
 
 function copiarURL() { const u = document.getElementById('modal-url'); u.select(); document.execCommand('copy'); }

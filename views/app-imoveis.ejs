@@ -2,20 +2,6 @@
 
 <style>
 .im-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-/* ── FILTRO NOTION ── */
-.nf-wrap{margin-bottom:16px}
-.nf-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0}
-.nf-pill{display:inline-flex;align-items:center;gap:0;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:12px;cursor:pointer;overflow:hidden;transition:border-color .12s}
-.nf-pill:hover{border-color:#7c3aed}
-.nf-pill-campo{padding:5px 10px;font-weight:600;color:var(--dark);background:#f9fafb;border-right:1.5px solid var(--border)}
-.nf-pill-valor{padding:5px 8px;color:#7c3aed;font-weight:500}
-.nf-pill-rm{padding:5px 8px;color:#9ca3af;font-weight:700;border-left:1.5px solid var(--border);line-height:1}
-.nf-pill-rm:hover{background:#fef2f2;color:#ef4444}
-.nf-add{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;border:1.5px dashed var(--border);background:transparent;font-size:12px;font-weight:500;color:var(--text-sec);cursor:pointer;transition:all .12s}
-.nf-add:hover{border-color:#7c3aed;color:#7c3aed;background:#f5f3ff}
-.nf-clear{display:none;padding:5px 10px;border-radius:8px;border:none;background:none;font-size:11px;font-weight:600;color:#ef4444;cursor:pointer}
-.nf-clear:hover{background:#fef2f2}
-.nf-count{font-size:11px;color:var(--text-ter);padding:5px 0;margin-left:4px}
 /* Dropdown */
 .nf-dropdown{position:fixed;background:#fff;border:1.5px solid var(--border);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:9999;min-width:220px;overflow:hidden;display:none}
 .nf-dropdown.open{display:block}
@@ -74,6 +60,17 @@
 .modal-xml-box{background:#fff;border-radius:var(--radius-lg);padding:28px;max-width:480px;width:100%;text-align:center}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--dark);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+
+.filtro-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.filtro-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:10px;align-items:end}
+.filtro-grid2{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;gap:10px;margin-top:10px}
+.filtro-field label{display:block;font-size:10px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.filtro-field input,.filtro-field select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--dark);background:#fff;outline:none;box-sizing:border-box;transition:border .1s;font-family:inherit}
+.filtro-field input:focus,.filtro-field select:focus{border-color:#7c3aed}
+.filtro-field input::placeholder{color:#b0b0b8}
+.filtro-rodape{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)}
+@media(max-width:900px){.filtro-grid{grid-template-columns:1fr 1fr 1fr}.filtro-grid2{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:600px){.filtro-grid,.filtro-grid2{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){.im-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.im-grid{grid-template-columns:1fr}}
 </style>
@@ -106,44 +103,114 @@
 </div>
 
 
-<!-- Filtro Notion -->
-<div class="nf-wrap">
-  <!-- Busca geral -->
-  <div class="nf-search-wrap">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input id="busca" placeholder="Busca rápida por bairro, cidade, tipo..." oninput="filtrar()">
+<!-- Filtro -->
+<div class="filtro-box">
+  <div class="filtro-grid">
+    <div class="filtro-field">
+      <label>🔍 Buscar</label>
+      <input id="busca" placeholder="Bairro, cidade, tipo, descrição..." oninput="filtrar()">
+    </div>
+    <div class="filtro-field">
+      <label>Tipo</label>
+      <select id="f-tipo" onchange="filtrar()">
+        <option value="">Todos os tipos</option>
+        <optgroup label="Residencial">
+          <option value="apartamento">Apartamento</option>
+          <option value="casa">Casa</option>
+          <option value="cobertura">Cobertura</option>
+          <option value="sobrado">Sobrado</option>
+          <option value="loft">Loft</option>
+          <option value="studio">Studio / Flat</option>
+          <option value="kitnet">Kitnet</option>
+          <option value="duplex">Duplex</option>
+          <option value="mansao">Mansão</option>
+          <option value="chacara">Chácara</option>
+          <option value="sitio">Sítio</option>
+          <option value="fazenda">Fazenda</option>
+        </optgroup>
+        <optgroup label="Comercial">
+          <option value="sala">Sala Comercial</option>
+          <option value="loja">Loja</option>
+          <option value="galpao">Galpão</option>
+          <option value="conjunto">Conjunto</option>
+          <option value="predio">Prédio</option>
+        </optgroup>
+        <optgroup label="Terrenos">
+          <option value="terreno">Terreno</option>
+          <option value="area rural">Área Rural</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="filtro-field">
+      <label>Transação</label>
+      <select id="f-operacao" onchange="filtrar()">
+        <option value="">Todas</option>
+        <option value="venda">Venda</option>
+        <option value="aluguel">Aluguel</option>
+        <option value="temporada">Temporada</option>
+        <option value="permuta">Permuta</option>
+      </select>
+    </div>
+    <div class="filtro-field">
+      <label>Status</label>
+      <select id="f-status" onchange="filtrar()">
+        <option value="">Todos</option>
+        <option value="ativo">Ativo</option>
+        <option value="inativo">Inativo</option>
+        <option value="rascunho">Rascunho</option>
+      </select>
+    </div>
+    <div class="filtro-field">
+      <label>Quartos mín.</label>
+      <select id="f-quartos" onchange="filtrar()">
+        <option value="">Qualquer</option>
+        <option value="1">1+</option>
+        <option value="2">2+</option>
+        <option value="3">3+</option>
+        <option value="4">4+</option>
+        <option value="5">5+</option>
+      </select>
+    </div>
   </div>
-  <!-- Pills de filtro ativo -->
-  <div class="nf-bar" id="nf-bar">
-    <button class="nf-add" onclick="nfAbrirCampos(this)">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Adicionar filtro
-    </button>
-    <button class="nf-clear" id="nf-clear" onclick="limpar()">↺ Limpar tudo</button>
-    <span class="nf-count" id="nf-count"></span>
+  <div class="filtro-grid2">
+    <div class="filtro-field">
+      <label>Bairro</label>
+      <input id="f-bairro" placeholder="Ex: Centro" oninput="filtrar()">
+    </div>
+    <div class="filtro-field">
+      <label>Cidade</label>
+      <input id="f-cidade" placeholder="Ex: Itajaí" oninput="filtrar()">
+    </div>
+    <div class="filtro-field">
+      <label>Valor mín. R$</label>
+      <input id="f-valor-min" type="number" placeholder="0" oninput="filtrar()">
+    </div>
+    <div class="filtro-field">
+      <label>Valor máx. R$</label>
+      <input id="f-valor-max" type="number" placeholder="∞" oninput="filtrar()">
+    </div>
+    <div class="filtro-field">
+      <label>Vagas mín.</label>
+      <select id="f-vagas" onchange="filtrar()">
+        <option value="">Qualquer</option>
+        <option value="1">1+</option>
+        <option value="2">2+</option>
+        <option value="3">3+</option>
+      </select>
+    </div>
+    <div class="filtro-field">
+      <label>Fotos</label>
+      <select id="f-fotos" onchange="filtrar()">
+        <option value="">Todos</option>
+        <option value="sim">Com fotos</option>
+        <option value="nao">Sem fotos</option>
+      </select>
+    </div>
   </div>
-</div>
-
-<!-- Dropdown -->
-<div class="nf-dropdown" id="nf-dropdown">
-  <input class="nf-dd-search" id="nf-dd-search" placeholder="Buscar campo..." oninput="nfFiltrarCampos(this.value)">
-  <div class="nf-dd-list" id="nf-dd-list"></div>
-  <div class="nf-dd-input" id="nf-dd-input" style="display:none">
-    <input type="number" id="nf-dd-num" placeholder="Digite o valor">
-    <button onclick="nfAplicarNum()">Aplicar</button>
+  <div class="filtro-rodape">
+    <span id="nf-count" style="font-size:11px;color:var(--text-ter)"></span>
+    <button onclick="limpar()" class="btn btn-outline btn-sm">↺ Limpar filtros</button>
   </div>
-</div>
-
-<!-- Inputs hidden para o filtrar() existente -->
-<div style="display:none">
-  <input id="f-tipo"><input id="f-bairro"><input id="f-cidade">
-  <input id="f-operacao"><input id="f-status">
-  <input id="f-valor-min" type="number"><input id="f-valor-max" type="number">
-  <input id="f-area-min" type="number"><input id="f-quartos" type="number">
-  <input id="f-suites" type="number"><input id="f-vagas" type="number">
-  <input id="f-banheiros" type="number">
-  <select id="f-fotos"><option value="">Todos</option><option value="sim">Com fotos</option><option value="nao">Sem fotos</option></select>
-  <select id="f-proprietario"><option value="">Todos</option><option value="sim">Com proprietário</option><option value="nao">Sem proprietário</option></select>
 </div>
 
 <!-- Grid -->
@@ -289,208 +356,32 @@ function atualizarBarra() {
 function copiarURL() { const u = document.getElementById('modal-url'); u.select(); document.execCommand('copy'); }
 
 
-// ── FILTRO NOTION ──
-const nfAtivos = {}; // { campo: { label, valor, labelValor } }
-
-const nfCampos = [
-  { grupo: 'Tipo de imóvel', campo: 'tipo', tipo: 'lista', opcoes: [
-    { v:'apartamento', l:'Apartamento' }, { v:'casa', l:'Casa' }, { v:'cobertura', l:'Cobertura' },
-    { v:'sobrado', l:'Sobrado' }, { v:'loft', l:'Loft' }, { v:'studio', l:'Studio' },
-    { v:'kitnet', l:'Kitnet' }, { v:'duplex', l:'Duplex' }, { v:'mansao', l:'Mansão' },
-    { v:'chacara', l:'Chácara' }, { v:'sitio', l:'Sítio' }, { v:'fazenda', l:'Fazenda' },
-    { v:'sala', l:'Sala Comercial' }, { v:'loja', l:'Loja' }, { v:'galpao', l:'Galpão' },
-    { v:'terreno', l:'Terreno' }, { v:'area rural', l:'Área Rural' }
-  ]},
-  { grupo: 'Transação', campo: 'operacao', tipo: 'lista', opcoes: [
-    { v:'venda', l:'Venda' }, { v:'aluguel', l:'Aluguel' }, { v:'temporada', l:'Temporada' }, { v:'permuta', l:'Permuta' }
-  ]},
-  { grupo: 'Status', campo: 'status', tipo: 'lista', opcoes: [
-    { v:'ativo', l:'Ativo' }, { v:'inativo', l:'Inativo' }, { v:'rascunho', l:'Rascunho' }
-  ]},
-  { grupo: 'Localização', campo: 'bairro', tipo: 'texto', label: 'Bairro' },
-  { grupo: 'Localização', campo: 'cidade', tipo: 'texto', label: 'Cidade' },
-  { grupo: 'Valores', campo: 'valor-min', tipo: 'numero', label: 'Valor mínimo (R$)' },
-  { grupo: 'Valores', campo: 'valor-max', tipo: 'numero', label: 'Valor máximo (R$)' },
-  { grupo: 'Características', campo: 'quartos', tipo: 'numero', label: 'Quartos mínimo' },
-  { grupo: 'Características', campo: 'suites', tipo: 'numero', label: 'Suítes mínimo' },
-  { grupo: 'Características', campo: 'vagas', tipo: 'numero', label: 'Vagas mínimo' },
-  { grupo: 'Características', campo: 'banheiros', tipo: 'numero', label: 'Banheiros mínimo' },
-  { grupo: 'Características', campo: 'area-min', tipo: 'numero', label: 'Área mínima (m²)' },
-  { grupo: 'Mídia', campo: 'fotos', tipo: 'lista', opcoes: [
-    { v:'sim', l:'Com fotos' }, { v:'nao', l:'Sem fotos' }
-  ]},
-  { grupo: 'Proprietário', campo: 'proprietario', tipo: 'lista', opcoes: [
-    { v:'sim', l:'Com proprietário' }, { v:'nao', l:'Sem proprietário' }
-  ]},
-];
-
-let nfCampoAtual = null;
-
-function nfAbrirCampos(btn) {
-  const dd = document.getElementById('nf-dropdown');
-  const rect = btn.getBoundingClientRect();
-  dd.style.top = (rect.bottom + window.scrollY + 4) + 'px';
-  dd.style.left = rect.left + 'px';
-  nfRenderCampos('');
-  document.getElementById('nf-dd-search').value = '';
-  document.getElementById('nf-dd-input').style.display = 'none';
-  nfCampoAtual = null;
-  dd.classList.add('open');
-  setTimeout(() => document.getElementById('nf-dd-search').focus(), 50);
-  document.addEventListener('click', nfFecharDropdown, { once: true });
-}
-
-function nfFecharDropdown(e) {
-  const dd = document.getElementById('nf-dropdown');
-  if (!dd.contains(e.target)) { dd.classList.remove('open'); nfCampoAtual = null; }
-  else document.addEventListener('click', nfFecharDropdown, { once: true });
-}
-
-function nfFiltrarCampos(q) {
-  nfRenderCampos(q.toLowerCase());
-}
-
-function nfRenderCampos(q) {
-  const list = document.getElementById('nf-dd-list');
-  list.innerHTML = '';
-  let grupoAtual = '';
-  nfCampos.filter(f => !q || f.campo.includes(q) || (f.label||'').toLowerCase().includes(q) || (f.grupo||'').toLowerCase().includes(q)).forEach(f => {
-    if (f.grupo !== grupoAtual) {
-      grupoAtual = f.grupo;
-      const sep = document.createElement('div');
-      sep.className = 'nf-dd-sep';
-      sep.textContent = f.grupo;
-      list.appendChild(sep);
-    }
-    const item = document.createElement('div');
-    item.className = 'nf-dd-item' + (nfAtivos[f.campo] ? ' on' : '');
-    item.textContent = f.label || f.campo;
-    item.onclick = () => nfSelecionarCampo(f);
-    list.appendChild(item);
-  });
-}
-
-function nfSelecionarCampo(f) {
-  nfCampoAtual = f;
-  const list = document.getElementById('nf-dd-list');
-  const input = document.getElementById('nf-dd-input');
-  if (f.tipo === 'lista') {
-    list.innerHTML = '';
-    const back = document.createElement('div');
-    back.className = 'nf-dd-item';
-    back.innerHTML = '← Voltar';
-    back.onclick = () => nfRenderCampos('');
-    list.appendChild(back);
-    f.opcoes.forEach(op => {
-      const item = document.createElement('div');
-      item.className = 'nf-dd-item' + (nfAtivos[f.campo]?.valor === op.v ? ' on' : '');
-      item.textContent = op.l;
-      item.onclick = () => { nfAplicar(f.campo, op.v, f.label||f.grupo, op.l); };
-      list.appendChild(item);
-    });
-    input.style.display = 'none';
-  } else if (f.tipo === 'numero') {
-    list.innerHTML = '';
-    const back = document.createElement('div');
-    back.className = 'nf-dd-item';
-    back.innerHTML = '← Voltar';
-    back.onclick = () => nfRenderCampos('');
-    list.appendChild(back);
-    const num = document.getElementById('nf-dd-num');
-    num.placeholder = 'Ex: ' + (f.campo.includes('valor') ? '500000' : f.campo.includes('area') ? '80' : '2');
-    num.value = nfAtivos[f.campo]?.valor || '';
-    input.style.display = 'block';
-  } else if (f.tipo === 'texto') {
-    list.innerHTML = '';
-    const back = document.createElement('div');
-    back.className = 'nf-dd-item';
-    back.innerHTML = '← Voltar';
-    back.onclick = () => nfRenderCampos('');
-    list.appendChild(back);
-    const num = document.getElementById('nf-dd-num');
-    num.type = 'text';
-    num.placeholder = 'Digite ' + (f.label||f.campo).toLowerCase() + '...';
-    num.value = nfAtivos[f.campo]?.valor || '';
-    input.style.display = 'block';
-  }
-}
-
-function nfAplicarNum() {
-  if (!nfCampoAtual) return;
-  const val = document.getElementById('nf-dd-num').value.trim();
-  if (!val) { nfRemover(nfCampoAtual.campo); document.getElementById('nf-dropdown').classList.remove('open'); return; }
-  nfAplicar(nfCampoAtual.campo, val, nfCampoAtual.label||nfCampoAtual.grupo, val + (nfCampoAtual.campo.includes('valor') ? '' : nfCampoAtual.campo.includes('area') ? 'm²' : ''));
-}
-
-function nfAplicar(campo, valor, labelCampo, labelValor) {
-  nfAtivos[campo] = { label: labelCampo, valor, labelValor };
-  const el = document.getElementById('f-' + campo);
-  if (el) el.value = valor;
-  document.getElementById('nf-dropdown').classList.remove('open');
-  nfCampoAtual = null;
-  nfRenderPills();
-  filtrar();
-}
-
-function nfRemover(campo) {
-  delete nfAtivos[campo];
-  const el = document.getElementById('f-' + campo);
-  if (el) el.value = '';
-  nfRenderPills();
-  filtrar();
-}
-
-function nfRenderPills() {
-  const bar = document.getElementById('nf-bar');
-  const btnAdd = bar.querySelector('.nf-add');
-  const btnClear = document.getElementById('nf-clear');
-  // Remove pills antigas
-  bar.querySelectorAll('.nf-pill').forEach(p => p.remove());
-  const temFiltro = Object.keys(nfAtivos).length > 0;
-  Object.entries(nfAtivos).forEach(([campo, { label, labelValor }]) => {
-    const pill = document.createElement('div');
-    pill.className = 'nf-pill';
-    pill.innerHTML = '<span class="nf-pill-campo">' + label + '</span><span class="nf-pill-valor">' + labelValor + '</span><span class="nf-pill-rm" onclick="nfRemover(''+campo+'')">×</span>';
-    bar.insertBefore(pill, btnAdd);
-  });
-  if (btnClear) btnClear.style.display = temFiltro ? 'inline-flex' : 'none';
-}
-
-function norm(v) { return (v||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
-
 function filtrar() {
   const busca = norm(document.getElementById('busca').value);
   const tipo = norm(document.getElementById('f-tipo')?.value||'');
-  const operacao = norm((nfAtivos['operacao']?.valor) || document.getElementById('f-operacao')?.value||'');
-  const status = norm((nfAtivos['status']?.valor) || document.getElementById('f-status')?.value||'');
-  const fotos = (nfAtivos['fotos']?.valor) || document.getElementById('f-fotos')?.value||'';
-  const proprietario = (nfAtivos['proprietario']?.valor) || document.getElementById('f-proprietario')?.value||'';
+  const operacao = norm(document.getElementById('f-operacao')?.value||'');
+  const status = norm(document.getElementById('f-status')?.value||'');
+  const fotos = document.getElementById('f-fotos')?.value||'';
   const bairro = norm(document.getElementById('f-bairro')?.value||'');
   const cidade = norm(document.getElementById('f-cidade')?.value||'');
   const valorMin = Number(document.getElementById('f-valor-min')?.value)||0;
   const valorMax = Number(document.getElementById('f-valor-max')?.value)||0;
-  const areaMin = Number(document.getElementById('f-area-min')?.value)||0;
   const quartos = Number(document.getElementById('f-quartos')?.value)||0;
   const vagas = Number(document.getElementById('f-vagas')?.value)||0;
-  const suites = Number(document.getElementById('f-suites')?.value)||0;
 
   let vis = 0;
   document.querySelectorAll('.im-card').forEach(card => {
     let ok = true;
-    if (busca && !norm(card.dataset.tipo+card.dataset.bairro+card.dataset.cidade).includes(busca)) ok = false;
+    if (busca && !norm(card.dataset.tipo+' '+card.dataset.bairro+' '+card.dataset.cidade).includes(busca)) ok = false;
     if (tipo && !card.dataset.tipo.includes(tipo)) ok = false;
     if (bairro && !card.dataset.bairro.includes(bairro)) ok = false;
     if (cidade && !card.dataset.cidade.includes(cidade)) ok = false;
-    if (valorMin && Number(card.dataset.valor) < valorMin) ok = false;
-    if (valorMax && Number(card.dataset.valor) > valorMax) ok = false;
-    if (areaMin && Number(card.dataset.area) < areaMin) ok = false;
-    if (quartos && Number(card.dataset.quartos) < quartos) ok = false;
-    if (vagas && Number(card.dataset.vagas) < vagas) ok = false;
-    if (suites && Number(card.dataset.suites) < suites) ok = false;
     if (operacao && !norm(card.dataset.operacao||'').includes(operacao)) ok = false;
     if (status && norm(card.dataset.status||'') !== status) ok = false;
-    if (proprietario === 'sim' && !card.dataset.proprietario) ok = false;
-    if (proprietario === 'nao' && card.dataset.proprietario) ok = false;
+    if (valorMin && Number(card.dataset.valor) < valorMin) ok = false;
+    if (valorMax && Number(card.dataset.valor) > valorMax) ok = false;
+    if (quartos && Number(card.dataset.quartos) < quartos) ok = false;
+    if (vagas && Number(card.dataset.vagas) < vagas) ok = false;
     if (fotos === 'sim' && card.dataset.fotos === '0') ok = false;
     if (fotos === 'nao' && card.dataset.fotos !== '0') ok = false;
     card.style.display = ok ? '' : 'none';
@@ -499,13 +390,15 @@ function filtrar() {
 
   const el = document.getElementById('nf-count');
   const total = document.querySelectorAll('.im-card').length;
-  if (el) el.textContent = vis < total ? vis + ' de ' + total + ' imóveis' : '';
+  if (el) el.textContent = vis < total ? vis + ' de ' + total + ' imóveis' : total + ' imóveis';
   document.getElementById('im-empty').style.display = vis === 0 ? 'block' : 'none';
 }
 
 function limpar() {
-  Object.keys(nfAtivos).forEach(k => delete nfAtivos[k]);
-  ['f-tipo','f-bairro','f-cidade','f-valor-min','f-valor-max','f-area-min','f-quartos','f-vagas','f-suites','f-banheiros','f-operacao','f-status','f-proprietario','f-fotos'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['f-tipo','f-bairro','f-cidade','f-valor-min','f-valor-max','f-quartos','f-vagas','f-operacao','f-status','f-fotos'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('busca').value = '';
+  filtrar();
+});
   document.getElementById('busca').value = '';
   nfRenderPills();
   filtrar();

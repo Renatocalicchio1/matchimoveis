@@ -1,8 +1,8 @@
 {
-  "geradoEm": "2026-05-21T19:21:10.565Z",
-  "cobertura": 87,
-  "totalOk": 60,
-  "totalFalhou": 9,
+  "geradoEm": "2026-05-21T19:29:04.820Z",
+  "cobertura": 86,
+  "totalOk": 59,
+  "totalFalhou": 10,
   "porGrupo": {
     "Saudação": {
       "ok": 1,
@@ -41,8 +41,8 @@
       "falhou": 0
     },
     "Resumo": {
-      "ok": 3,
-      "falhou": 0
+      "ok": 2,
+      "falhou": 1
     },
     "Sistema": {
       "ok": 4,
@@ -110,7 +110,7 @@
         "portal",
         "XML"
       ],
-      "got": "ERRO: raciocinio.analisarConversa is not a function"
+      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
     },
     {
       "grupo": "Suporte",
@@ -139,6 +139,16 @@
         "Twilio"
       ],
       "got": "🔗 Como publicar nos portais:1Acesse Imóveis → e selecione os imóveis2Clique no "
+    },
+    {
+      "grupo": "Resumo",
+      "p": "minha conta",
+      "espera": [
+        "Imóveis",
+        "leads",
+        "match"
+      ],
+      "got": "ERRO: raciocinio.analisarConversa is not a function"
     },
     {
       "grupo": "RAG",

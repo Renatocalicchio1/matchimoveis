@@ -384,8 +384,9 @@ function toggleTodos(chk) {
 }
 
 function deselectAll() {
-  document.querySelectorAll('.im-card').forEach(card => { if (selecionados.has(card.dataset.id)) toggleCard(card); });
-  document.getElementById('check-todos').checked = false;
+  document.querySelectorAll('.im-card').forEach(card => {
+    if (selecionados.has(card.dataset.id)) toggleCard(card);
+  });
 }
 
 function atualizarBarra() {
@@ -394,22 +395,25 @@ function atualizarBarra() {
   barra.style.display = selecionados.size > 0 ? 'flex' : 'none';
 }
 
+function copiarURL() {
+  const u = document.getElementById('modal-url');
+  u.select();
+  document.execCommand('copy');
 }
 
-function copiarURL() { const u = document.getElementById('modal-url'); u.select(); document.execCommand('copy'); }
-
-
-function norm(v) { return (v||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function norm(v) {
+  return (v||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
 
 function atualizarCidades() {
   const estado = document.getElementById('f-estado').value.toUpperCase();
   const selCidade = document.getElementById('f-cidade');
   selCidade.innerHTML = '<option value="">Todas</option>';
   const cids = estado && _cidades[estado] ? _cidades[estado] : [];
-  cids.forEach(c => {
+  cids.forEach(cv => {
     const opt = document.createElement('option');
-    opt.value = c.toLowerCase();
-    opt.textContent = c;
+    opt.value = cv.toLowerCase();
+    opt.textContent = cv;
     selCidade.appendChild(opt);
   });
   document.getElementById('f-bairro').innerHTML = '<option value="">Todos</option>';
@@ -504,15 +508,6 @@ function limpar() {
   });
   document.getElementById('f-cidade').innerHTML = '<option value="">Todas</option>';
   document.getElementById('f-bairro').innerHTML = '<option value="">Todos</option>';
-  filtrar();
-});
-  atualizarCidades();
-  filtrar();
-});
-  document.getElementById('busca').value = '';
-  filtrar();
-});
-  document.getElementById('busca').value = '';
   filtrar();
 }
 

@@ -3608,8 +3608,7 @@ async function regenerarXMLUsuario(userId) {
     const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
     portais.forEach(portal => {
       const filtrados = imoveis.filter(i => {
-        if(!i.portais) return false;
-        const temPortal = Array.isArray(i.portais) ? i.portais.includes(portal) : !!i.portais[portal];
+        const temPortal = Array.isArray(i.portais) ? i.portais.includes(portal) : !!(i.portais||{})[portal];
         const ativo = i.status === 'ativo' || i.status === 'publicado';
         return ativo && temPortal;
       }).map(i => ({
@@ -3618,13 +3617,10 @@ async function regenerarXMLUsuario(userId) {
         corretorEmail: user.email || '',
         corretorTelefone: user.celular || user.telefone || ''
       }));
-      const filename = `feed-${portal}-${token}.xml`;
+      const filename = 'feed-'+portal+'-'+token+'.xml';
       const xml = gerarXMLPortal(filtrados, portal);
-      const { dataPath: _dp } = require('./services/db');
-      if(typeof dataPath === 'function') {
-        fs.writeFileSync(dataPath(filename), xml, 'utf8');
-        console.log(`[xml] ${filename}: ${filtrados.length} imóveis`);
-      }
+      fs.writeFileSync(dataPath(filename), xml, 'utf8');
+      console.log('[xml] '+filename+': '+filtrados.length+' imóveis');
     });
   } catch(e) {
     console.error('[regenerarXMLUsuario]', e.message);

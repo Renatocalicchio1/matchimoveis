@@ -3598,10 +3598,17 @@ app.post('/app/imovel/:id/capa-foto', auth, async (req,res)=>{
 // Regenera XMLs por usuário após cadastro/edição
 async function regenerarXMLUsuario(userId) {
   try {
-    const imoveis = (_cacheImoveis || []).filter(i =>
-      String(i.userId||'') === String(userId) ||
-      String(i.usuarioId||'') === String(userId)
-    );
+    const { query: _qXml } = require('./services/db');
+    const result = await _qXml('SELECT * FROM imoveis WHERE user_id=$1', [userId]);
+    const imoveis = result.rows.map(r => ({
+      ...r,
+      userId: r.user_id,
+      usuarioId: r.usuario_id,
+      idExterno: r.id_externo,
+      idInterno: r.id_interno,
+      portais: r.portais || [],
+      status: r.status
+    }));
     const users = (_cacheUsuarios || []);
     const user = users.find(u => u.id === userId) || {};
     const token = userId.replace(/[^a-z0-9]/gi,'-');

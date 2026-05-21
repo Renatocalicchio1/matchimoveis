@@ -3064,6 +3064,7 @@ app.post('/app/imovel/cadastrar', auth, async (req, res) => {
   _cacheImoveis = null;
   await _recarregarImoveis();
   consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{});
+  regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-cadastro]', e.message));
   res.redirect('/app/imovel/' + idInterno + '/editar?salvo=1');
 });
 
@@ -3498,6 +3499,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
     gerarXMLPortais();
   }
 
+  regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-editar]', e.message));
   res.redirect('/app/imovel/' + (imoveis[idx].idExterno && imoveis[idx].idExterno.trim() ? imoveis[idx].idExterno : imoveis[idx].idInterno || imoveis[idx].id) + '/editar?salvo=1');
 });
 

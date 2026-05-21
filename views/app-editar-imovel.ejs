@@ -1,329 +1,409 @@
-<%- include('partials/app-shell',{active:'imoveis',title:'Editar imóvel',subtitle:'Dados, proprietário, fotos e publicação nos portais.',user:user}) %>
+<%- include("partials/app-shell",{active:"imoveis",title:"Editar Imóvel",subtitle:"Atualize os dados do imóvel",user:user}) %>
 
 <style>
-.ec{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:16px;padding:20px;margin-bottom:12px}
-.ec-title{font-size:11px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;margin:0 0 14px;padding-bottom:10px;border-bottom:0.5px solid rgba(0,0,0,.06)}
+.fm-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.fm-title{font-size:10px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border-light)}
 .fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
 @media(max-width:700px){.fg2,.fg3,.fg4{grid-template-columns:1fr 1fr}}
-@media(max-width:420px){.fg2,.fg3,.fg4{grid-template-columns:1fr}}
-.f label{display:block;font-size:11px;font-weight:500;color:#6b7280;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
-.f input,.f select,.f textarea{width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;background:#fff;box-sizing:border-box;color:#111827;outline:none}
-.f input:focus,.f select:focus,.f textarea:focus{border-color:rgba(0,0,0,.3)}
+.campo label{display:block;font-size:11px;font-weight:500;color:var(--text-sec);margin-bottom:4px}
+.campo input,.campo select,.campo textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;font-family:'Inter',sans-serif;color:var(--dark);background:var(--white)}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--dark);outline:none}
+.dif-sec{font-size:10px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px}
 .dif-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
-.dif-label{display:flex;align-items:center;gap:6px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;padding:7px 10px;font-size:12px;cursor:pointer;color:#374151}
-.dif-label:hover{background:#f3f4f6}
-.dif-label input{width:auto;margin:0;flex-shrink:0}
-.dif-sub{font-size:10px;font-weight:500;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em;margin:10px 0 6px}
-.portal-grid{display:flex;flex-wrap:wrap;gap:8px}
-.portal-label{display:flex;align-items:center;gap:6px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:999px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;color:#374151}
-.portal-label:hover{background:#f3f4f6}
-.portal-label input{width:auto;margin:0}
-.cep-row{display:flex;gap:8px;align-items:flex-end}
-.cep-row .f{flex:1}
-.cep-btn{padding:9px 16px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;background:#111827;color:#fff;white-space:nowrap;flex-shrink:0}
-.cep-btn:hover{background:#1f2937}
-.id-bar{background:#f9fafb;border:0.5px solid rgba(0,0,0,.06);border-radius:10px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
-.btn-save{background:#111827;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
-.btn-save:hover{background:#1f2937}
-.btn-cancel{color:#9ca3af;text-decoration:none;padding:10px 16px;font-size:13px;font-weight:500}
-.btn-cancel:hover{color:#374151}
-.success-bar{background:#f0fdf4;color:#15803d;border:0.5px solid #86efac;padding:12px 16px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:500}
-.fotos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px}
-.foto-card{border:0.5px solid rgba(0,0,0,.08);border-radius:10px;overflow:hidden;background:#f9fafb;position:relative}
-.foto-card img{width:100%;height:110px;object-fit:cover;display:block}
-.foto-capa{position:absolute;top:6px;left:6px;background:#111827;color:#fff;font-size:10px;font-weight:500;padding:3px 8px;border-radius:999px}
-.foto-btns{display:flex;gap:4px;padding:6px}
-.foto-btns button{flex:1;font-size:11px;padding:5px;border-radius:6px;border:0.5px solid rgba(0,0,0,.1);background:#fff;cursor:pointer;font-weight:500;color:#374151}
-.foto-btns .btn-del{color:#b91c1c;border-color:#fca5a5}
-.upload-box{border:0.5px dashed rgba(0,0,0,.15);border-radius:10px;padding:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fafafa}
+.dif-item{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;cursor:pointer;transition:border .1s}
+.dif-item:hover{border-color:var(--dark)}
+.dif-item input{width:auto;margin:0;flex-shrink:0}
+.portal-wrap{display:flex;flex-wrap:wrap;gap:8px}
+.portal-item{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;transition:border .1s}
+.portal-item:hover{border-color:var(--dark)}
+.foto-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
+.foto-thumb{aspect-ratio:1;border-radius:7px;overflow:hidden;background:var(--bg);position:relative}
+.foto-thumb img{width:100%;height:100%;object-fit:cover}
 </style>
 
-<% const idImovel = imovel.idExterno || imovel.id; %>
+<%
+const _pid = (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || imovel.id || '');
+const _portaisRaw = imovel.portais || [];
+const _portaisArr = Array.isArray(_portaisRaw) ? _portaisRaw : Object.keys(_portaisRaw).filter(k=>_portaisRaw[k]);
+const _difsRaw = imovel.diferenciais || (imovel.dados && imovel.dados.diferenciais) || [];
+const _difsArr = Array.isArray(_difsRaw) ? _difsRaw : Object.keys(_difsRaw).filter(k=>_difsRaw[k]);
+const _temDif = (k) => _difsArr.includes(k);
+const _temPortal = (k) => _portaisArr.includes(k);
+const _dados = imovel.dados || {};
+const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !== null ? imovel[campo] : (_dados[campo] !== undefined ? _dados[campo] : (fallback || ''));
+%>
 
-<% if(typeof salvo !== 'undefined' && salvo){ %>
-<div class="success-bar">Alterações salvas com sucesso.</div>
+<% if(salvo){ %>
+<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#166534;font-weight:500">✅ Alterações salvas com sucesso.</div>
 <% } %>
 
-<form method="POST" action="/app/imovel/<%= idImovel %>/editar">
-
-  <!-- ID badge -->
-  <div class="id-bar">
-    <span style="font-size:11px;color:#9ca3af;font-weight:500">ID MatchImóveis</span>
-    <span style="font-family:monospace;font-size:14px;font-weight:500;color:#111827"><%= imovel.codigoImovel||imovel.id||'-' %></span>
-    <span style="font-size:11px;color:#d1d5db;margin-left:auto">Não editável</span>
+<div class="card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border-light)">
+    <div>
+      <div style="font-size:15px;font-weight:600;color:var(--dark)"><%= imovel.titulo || 'Imóvel sem título' %></div>
+      <div style="font-size:12px;color:var(--text-sec);margin-top:2px"><%= _pid %></div>
+    </div>
+    <a href="/app/imoveis" class="btn btn-outline btn-sm">← Voltar</a>
   </div>
 
-  <!-- Tipo e status -->
-  <div class="ec">
-    <p class="ec-title">Tipo e status</p>
-    <div class="fg3">
-      <div class="f">
-        <label>Status</label>
-        <select name="status">
-          <option value="ativo" <%=imovel.status==='ativo'?'selected':''%>>Ativo</option>
-          <option value="inativo" <%=imovel.status==='inativo'?'selected':''%>>Inativo</option>
-          <option value="publicado" <%=imovel.status==='publicado'?'selected':''%>>Publicado</option>
-          <option value="arquivado" <%=imovel.status==='arquivado'?'selected':''%>>Arquivado</option>
-        </select>
+  <form method="POST" action="/app/imovel/<%= _pid %>/editar">
+
+    <!-- TÍTULO E STATUS -->
+    <div class="fm-card">
+      <div class="fm-title">Identificação</div>
+      <div class="fg2">
+        <div class="campo" style="grid-column:span 2"><label>Título do imóvel</label><input name="titulo" value="<%= _val('titulo') %>" placeholder="Ex: Apartamento 3 quartos com varanda em Moema"></div>
       </div>
-      <div class="f">
-        <label>Tipo de imóvel</label>
+      <div class="fg3" style="margin-top:12px">
+        <div class="campo">
+          <label>Status</label>
+          <select name="status">
+            <option value="ativo" <%=_val('status')==='ativo'?'selected':''%>>Publicado</option>
+            <option value="inativo" <%=_val('status')==='inativo'?'selected':''%>>Arquivado</option>
+            <option value="rascunho" <%=_val('status')==='rascunho'?'selected':''%>>Rascunho</option>
+          </select>
         </div>
-      <div class="f" style="grid-column:span 2"><label>Título</label><input name="titulo" value="<%= imovel.titulo||'' %>" placeholder="Ex: Apartamento 3 quartos em Moema"></div>
-      <div class="f"><label>Tipo</label>
-        <select name="tipo">
-          <% const _tipo=(imovel.tipo||'').toLowerCase(); %>
-          <option value="Apartamento" <%=_tipo.includes('apart')?'selected':''%>>Apartamento</option>
-          <option value="Casa" <%=_tipo.includes('casa')?'selected':''%>>Casa</option>
-          <option value="Cobertura" <%=_tipo.includes('cobert')?'selected':''%>>Cobertura</option>
-          <option value="Studio" <%=_tipo.includes('studio')||_tipo.includes('flat')?'selected':''%>>Studio / Flat</option>
-          <option value="Kitnet" <%=_tipo.includes('kitnet')||_tipo.includes('conjug')?'selected':''%>>Kitnet</option>
-          <option value="Sobrado" <%=_tipo.includes('sobrado')?'selected':''%>>Sobrado</option>
-          <option value="Terreno" <%=_tipo.includes('terreno')||_tipo.includes('lote')?'selected':''%>>Terreno / Lote</option>
-          <option value="Sala Comercial" <%=_tipo.includes('sala')?'selected':''%>>Sala Comercial</option>
-          <option value="Loja" <%=_tipo.includes('loja')?'selected':''%>>Loja</option>
-          <option value="Galpão" <%=_tipo.includes('galp')?'selected':''%>>Galpão</option>
-          <option value="Escritório" <%=_tipo.includes('escrit')?'selected':''%>>Escritório</option>
-        </select>
+        <div class="campo">
+          <label>Tipo de imóvel</label>
+          <select name="tipo">
+            <optgroup label="Residencial">
+              <option value="Apartamento" <%=_val('tipo')==='Apartamento'?'selected':''%>>Apartamento</option>
+              <option value="Casa" <%=_val('tipo')==='Casa'?'selected':''%>>Casa</option>
+              <option value="Cobertura" <%=_val('tipo')==='Cobertura'?'selected':''%>>Cobertura</option>
+              <option value="Sobrado" <%=_val('tipo')==='Sobrado'?'selected':''%>>Sobrado</option>
+              <option value="Loft" <%=_val('tipo')==='Loft'?'selected':''%>>Loft</option>
+              <option value="Studio" <%=_val('tipo')==='Studio'?'selected':''%>>Studio / Flat</option>
+              <option value="Kitnet" <%=_val('tipo')==='Kitnet'?'selected':''%>>Kitnet / Conjugado</option>
+              <option value="Duplex" <%=_val('tipo')==='Duplex'?'selected':''%>>Duplex</option>
+              <option value="Mansão" <%=_val('tipo')==='Mansão'?'selected':''%>>Mansão</option>
+              <option value="Chácara" <%=_val('tipo')==='Chácara'?'selected':''%>>Chácara</option>
+              <option value="Sítio" <%=_val('tipo')==='Sítio'?'selected':''%>>Sítio</option>
+              <option value="Fazenda" <%=_val('tipo')==='Fazenda'?'selected':''%>>Fazenda</option>
+              <option value="Casa de Condomínio" <%=_val('tipo')==='Casa de Condomínio'?'selected':''%>>Casa de Condomínio</option>
+              <option value="Flat" <%=_val('tipo')==='Flat'?'selected':''%>>Flat / Apart Hotel</option>
+            </optgroup>
+            <optgroup label="Comercial">
+              <option value="Sala Comercial" <%=_val('tipo')==='Sala Comercial'?'selected':''%>>Sala Comercial</option>
+              <option value="Loja" <%=_val('tipo')==='Loja'?'selected':''%>>Loja</option>
+              <option value="Conjunto Comercial" <%=_val('tipo')==='Conjunto Comercial'?'selected':''%>>Conjunto Comercial</option>
+              <option value="Galpão" <%=_val('tipo')==='Galpão'?'selected':''%>>Galpão / Depósito</option>
+              <option value="Prédio Comercial" <%=_val('tipo')==='Prédio Comercial'?'selected':''%>>Prédio Comercial</option>
+              <option value="Hotel" <%=_val('tipo')==='Hotel'?'selected':''%>>Hotel / Pousada</option>
+              <option value="Consultório" <%=_val('tipo')==='Consultório'?'selected':''%>>Consultório</option>
+              <option value="Restaurante" <%=_val('tipo')==='Restaurante'?'selected':''%>>Restaurante / Bar</option>
+            </optgroup>
+            <optgroup label="Terrenos">
+              <option value="Terreno" <%=_val('tipo')==='Terreno'?'selected':''%>>Terreno / Lote</option>
+              <option value="Terreno Comercial" <%=_val('tipo')==='Terreno Comercial'?'selected':''%>>Terreno Comercial</option>
+              <option value="Área Rural" <%=_val('tipo')==='Área Rural'?'selected':''%>>Área Rural</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Transação</label>
+          <select name="transacao">
+            <option value="venda" <%=_val('transacao')==='venda'?'selected':''%>>Venda</option>
+            <option value="aluguel" <%=_val('transacao')==='aluguel'?'selected':''%>>Aluguel</option>
+            <option value="temporada" <%=_val('transacao')==='temporada'?'selected':''%>>Temporada</option>
+            <option value="permuta" <%=_val('transacao')==='permuta'?'selected':''%>>Permuta</option>
+          </select>
+        </div>
       </div>
-      <div class="f">
-        <label>Transação</label>
-        <select name="transacao">
-          <option value="venda" <%=(imovel.transacao||'venda')==='venda'?'selected':''%>>Venda</option>
-          <option value="aluguel" <%=imovel.transacao==='aluguel'?'selected':''%>>Aluguel</option>
-        </select>
-      </div>
-      <div class="f">
-        <label>Condição</label>
-        <select name="condicao">
-          <option value="usado" <%=(imovel.condicao||'usado')==='usado'?'selected':''%>>Usado</option>
-          <option value="novo" <%=imovel.condicao==='novo'?'selected':''%>>Novo / Pronto</option>
-          <option value="lancamento" <%=imovel.condicao==='lancamento'?'selected':''%>>Lançamento</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <!-- CEP -->
-  <div class="ec">
-    <p class="ec-title">Busca por CEP</p>
-    <div class="cep-row" style="margin-bottom:8px">
-      <div class="f"><label>CEP</label><input id="cep-edit" placeholder="00000-000" oninput="fmtCEP(this)" maxlength="9"></div>
-      <button type="button" class="cep-btn" onclick="buscarCEPEdit()">Buscar</button>
-    </div>
-    <div id="cep-res" style="display:none;padding:8px 12px;background:#f0fdf4;border-radius:8px;font-size:13px;color:#15803d;font-weight:500"></div>
-  </div>
-
-  <!-- Localização -->
-  <div class="ec">
-    <p class="ec-title">Localização</p>
-    <div class="fg2" style="margin-bottom:12px">
-      <div class="f"><label>Endereço</label><input name="endereco" value="<%= imovel.endereco||'' %>"></div>
-      <div class="f"><label>Número</label><input name="numero" value="<%= imovel.numero||'' %>"></div>
-    </div>
-    <div class="fg3" style="margin-bottom:12px">
-      <div class="f"><label>Complemento</label><input name="complemento" value="<%= imovel.complemento||'' %>"></div>
-      <div class="f"><label>Bairro</label><input name="bairro" value="<%= imovel.bairro||'' %>"></div>
-      <div class="f"><label>CEP</label><input name="cep" value="<%= imovel.cep||'' %>"></div>
-    </div>
-    <div class="fg3">
-      <div class="f"><label>Cidade</label><input name="cidade" value="<%= imovel.cidade||'' %>"></div>
-      <div class="f"><label>Latitude</label><input name="latitude" value="<%= imovel.latitude||imovel.lat||'' %>" readonly style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed"></div>
-      <div class="f"><label>Longitude</label><input name="longitude" value="<%= imovel.longitude||imovel.lng||'' %>" readonly style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed"></div>
-    </div>
-  </div>
-
-  <!-- Valores -->
-  <div class="ec">
-    <p class="ec-title">Valores</p>
-    <div class="fg3">
-      <div class="f"><label>Valor (R$)</label><input name="valor_imovel" type="number" value="<%= imovel.valor_imovel||imovel.valor||'' %>"></div>
-      <div class="f"><label>Condomínio (R$)</label><input name="condominio" type="number" value="<%= imovel.condominio||'' %>"></div>
-      <div class="f"><label>IPTU (R$)</label><input name="iptu" type="number" value="<%= imovel.iptu||'' %>"></div>
-    </div>
-  </div>
-
-  <!-- Características -->
-  <div class="ec">
-    <p class="ec-title">Características</p>
-    <div class="fg4" style="margin-bottom:12px">
-      <div class="f"><label>Área útil (m²)</label><input name="area_m2" type="number" value="<%= imovel.area_m2||imovel.area||'' %>"></div>
-      <div class="f"><label>Área total (m²)</label><input name="area_total" type="number" value="<%= imovel.area_total||'' %>"></div>
-      <div class="f"><label>Andar</label><input name="andar" type="number" value="<%= imovel.andar||'' %>"></div>
-      <div class="f"><label>Quartos</label><input name="quartos" type="number" value="<%= imovel.quartos||'' %>"></div>
-    </div>
-    <div class="fg4">
-      <div class="f"><label>Suítes</label><input name="suites" type="number" value="<%= imovel.suites||'' %>"></div>
-      <div class="f"><label>Banheiros</label><input name="banheiros" type="number" value="<%= imovel.banheiros||'' %>"></div>
-      <div class="f"><label>Vagas</label><input name="vagas" type="number" value="<%= imovel.vagas||'' %>"></div>
-      <div class="f"><label>Área construída (m²)</label><input name="area_construida" type="number" value="<%= imovel.area_construida||imovel.dados&&imovel.dados.area_construida||'' %>"></div>
-      <div class="f"><label>Total de andares</label><input name="total_andares" type="number" value="<%= imovel.total_andares||imovel.dados&&imovel.dados.total_andares||'' %>"></div>
-      <div class="f"><label>Unidades por andar</label><input name="unidades_por_andar" type="number" value="<%= imovel.unidades_por_andar||imovel.dados&&imovel.dados.unidades_por_andar||'' %>"></div>
-      <div class="f"><label>Posição solar</label><select name="posicao_solar"><option value="">Selecione</option><option value="norte" <%=(imovel.posicao_solar||imovel.dados&&imovel.dados.posicao_solar)==='norte'?'selected':''%>>Norte</option><option value="sul" <%=(imovel.posicao_solar||imovel.dados&&imovel.dados.posicao_solar)==='sul'?'selected':''%>>Sul</option><option value="leste" <%=(imovel.posicao_solar||imovel.dados&&imovel.dados.posicao_solar)==='leste'?'selected':''%>>Leste</option><option value="oeste" <%=(imovel.posicao_solar||imovel.dados&&imovel.dados.posicao_solar)==='oeste'?'selected':''%>>Oeste</option></select></div>
-      <div class="f"><label>Aceita financiamento?</label><select name="aceita_financiamento"><option value="sim" <%=(imovel.aceita_financiamento||imovel.dados&&imovel.dados.aceita_financiamento)==='sim'?'selected':''%>>Sim</option><option value="nao" <%=(imovel.aceita_financiamento||imovel.dados&&imovel.dados.aceita_financiamento)==='nao'?'selected':''%>>Não</option><option value="a_combinar">A combinar</option></select></div>
-      <div class="f"><label>Aceita permuta?</label><select name="aceita_permuta"><option value="nao" <%=(imovel.aceita_permuta||imovel.dados&&imovel.dados.aceita_permuta)==='nao'?'selected':''%>>Não</option><option value="sim" <%=(imovel.aceita_permuta||imovel.dados&&imovel.dados.aceita_permuta)==='sim'?'selected':''%>>Sim</option><option value="a_combinar">A combinar</option></select></div>
-      <div class="f">
-        <label>Fase</label>
-        <select name="fase">
-          <option value="pronto" <%=(imovel.fase||'pronto')==='pronto'?'selected':''%>>Pronto</option>
-          <option value="lancamento" <%=imovel.fase==='lancamento'?'selected':''%>>Lançamento</option>
-        </select>
+      <div class="fg2" style="margin-top:12px">
+        <div class="campo">
+          <label>Condição</label>
+          <select name="condicao">
+            <option value="usado" <%=_val('condicao')==='usado'?'selected':''%>>Usado</option>
+            <option value="novo" <%=_val('condicao')==='novo'?'selected':''%>>Novo / Pronto</option>
+            <option value="lancamento" <%=_val('condicao')==='lancamento'?'selected':''%>>Lançamento</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Fase</label>
+          <select name="fase">
+            <option value="pronto" <%=(_val('fase')||_dados.fase||'')==='pronto'?'selected':''%>>Pronto para morar</option>
+            <option value="lancamento" <%=(_val('fase')||_dados.fase||'')==='lancamento'?'selected':''%>>Lançamento</option>
+            <option value="na_planta" <%=(_val('fase')||_dados.fase||'')==='na_planta'?'selected':''%>>Na planta</option>
+            <option value="em_construcao" <%=(_val('fase')||_dados.fase||'')==='em_construcao'?'selected':''%>>Em construção</option>
+          </select>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Descrição -->
-  <div class="ec">
-    <p class="ec-title">Descrição</p>
-    <div class="f"><textarea name="descricao" rows="5"><%= imovel.descricao||'' %></textarea></div>
-  </div>
-
-  <!-- Proprietário -->
-  <div class="ec">
-    <p class="ec-title">Proprietário</p>
-    <div class="fg4" style="margin-bottom:12px">
-      <div class="f" style="grid-column:span 2"><label>Nome</label><input name="proprietario_nome" value="<%= imovel.proprietario?.nome||imovel.proprietario||'' %>"></div>
-      <div class="f"><label>Telefone / WhatsApp</label><input name="proprietario_telefone" value="<%= imovel.proprietario?.telefone||imovel.proprietario?.celular||imovel.proprietario_celular||'' %>"></div>
-      <div class="f">
-        <label>Status do vínculo</label>
-        <select name="proprietario_status">
-          <option value="vinculado" <%=(imovel.proprietario?.status||'vinculado')==='vinculado'?'selected':''%>>Vinculado</option>
-          <option value="pendente" <%=imovel.proprietario?.status==='pendente'?'selected':''%>>Pendente</option>
-          <option value="sem_contato" <%=imovel.proprietario?.status==='sem_contato'?'selected':''%>>Sem contato</option>
-        </select>
+    <!-- LOCALIZAÇÃO -->
+    <div class="fm-card">
+      <div class="fm-title">Localização</div>
+      <div class="fg2" style="margin-bottom:10px">
+        <div class="campo"><label>Rua / Avenida</label><input name="endereco" value="<%= _val('endereco') %>" placeholder="Rua das Flores"></div>
+        <div class="fg2">
+          <div class="campo"><label>Número</label><input name="numero" value="<%= _val('numero') %>" placeholder="123"></div>
+          <div class="campo"><label>Complemento</label><input name="complemento" value="<%= _val('complemento') %>" placeholder="Apto 42"></div>
+        </div>
+      </div>
+      <div class="fg4" style="margin-bottom:10px">
+        <div class="campo">
+          <label>Estado</label>
+          <select name="estado">
+            <option value="">Selecione</option>
+            <option value="AC" <%=_val('estado')==='AC'?'selected':''%>>Acre</option>
+            <option value="AL" <%=_val('estado')==='AL'?'selected':''%>>Alagoas</option>
+            <option value="AP" <%=_val('estado')==='AP'?'selected':''%>>Amapá</option>
+            <option value="AM" <%=_val('estado')==='AM'?'selected':''%>>Amazonas</option>
+            <option value="BA" <%=_val('estado')==='BA'?'selected':''%>>Bahia</option>
+            <option value="CE" <%=_val('estado')==='CE'?'selected':''%>>Ceará</option>
+            <option value="DF" <%=_val('estado')==='DF'?'selected':''%>>Distrito Federal</option>
+            <option value="ES" <%=_val('estado')==='ES'?'selected':''%>>Espírito Santo</option>
+            <option value="GO" <%=_val('estado')==='GO'?'selected':''%>>Goiás</option>
+            <option value="MA" <%=_val('estado')==='MA'?'selected':''%>>Maranhão</option>
+            <option value="MT" <%=_val('estado')==='MT'?'selected':''%>>Mato Grosso</option>
+            <option value="MS" <%=_val('estado')==='MS'?'selected':''%>>Mato Grosso do Sul</option>
+            <option value="MG" <%=_val('estado')==='MG'?'selected':''%>>Minas Gerais</option>
+            <option value="PA" <%=_val('estado')==='PA'?'selected':''%>>Pará</option>
+            <option value="PB" <%=_val('estado')==='PB'?'selected':''%>>Paraíba</option>
+            <option value="PR" <%=_val('estado')==='PR'?'selected':''%>>Paraná</option>
+            <option value="PE" <%=_val('estado')==='PE'?'selected':''%>>Pernambuco</option>
+            <option value="PI" <%=_val('estado')==='PI'?'selected':''%>>Piauí</option>
+            <option value="RJ" <%=_val('estado')==='RJ'?'selected':''%>>Rio de Janeiro</option>
+            <option value="RN" <%=_val('estado')==='RN'?'selected':''%>>Rio Grande do Norte</option>
+            <option value="RS" <%=_val('estado')==='RS'?'selected':''%>>Rio Grande do Sul</option>
+            <option value="RO" <%=_val('estado')==='RO'?'selected':''%>>Rondônia</option>
+            <option value="RR" <%=_val('estado')==='RR'?'selected':''%>>Roraima</option>
+            <option value="SC" <%=_val('estado')==='SC'?'selected':''%>>Santa Catarina</option>
+            <option value="SP" <%=_val('estado')==='SP'?'selected':''%>>São Paulo</option>
+            <option value="SE" <%=_val('estado')==='SE'?'selected':''%>>Sergipe</option>
+            <option value="TO" <%=_val('estado')==='TO'?'selected':''%>>Tocantins</option>
+          </select>
+        </div>
+        <div class="campo"><label>Cidade</label><input name="cidade" value="<%= _val('cidade') %>" placeholder="Cidade"></div>
+        <div class="campo" style="grid-column:span 2"><label>Bairro</label><input name="bairro" value="<%= _val('bairro') %>" placeholder="Moema"></div>
+      </div>
+      <div class="fg2">
+        <div class="campo"><label>CEP</label><input name="cep" value="<%= _val('cep') %>" placeholder="00000-000"></div>
+        <div class="campo"></div>
+      </div>
+      <div class="fg2" style="margin-top:10px">
+        <div class="campo"><label>Latitude</label><input name="latitude" value="<%= _val('latitude') %>" type="number" step="any" readonly style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed"></div>
+        <div class="campo"><label>Longitude</label><input name="longitude" value="<%= _val('longitude') %>" type="number" step="any" readonly style="background:#f3f4f6;color:#9ca3af;cursor:not-allowed"></div>
       </div>
     </div>
-    <div class="fg2">
-      <div class="f"><label>Email</label><input name="proprietario_email" type="email" value="<%= imovel.proprietario?.email||imovel.proprietario_email||'' %>"></div>
-      <div class="f"><label>CPF</label><input name="proprietario_cpf" value="<%= imovel.proprietario?.cpf||imovel.proprietario_cpf||'' %>"></div>
+
+    <!-- VALORES -->
+    <div class="fm-card">
+      <div class="fm-title">Valores</div>
+      <div class="fg3" style="margin-bottom:10px">
+        <div class="campo"><label>Valor (R$)</label><input name="valor_imovel" type="number" value="<%= _val('valor_imovel') %>" placeholder="500000"></div>
+        <div class="campo"><label>Condomínio (R$)</label><input name="condominio" type="number" value="<%= _val('condominio') %>" placeholder="1200"></div>
+        <div class="campo"><label>IPTU anual (R$)</label><input name="iptu" type="number" value="<%= _val('iptu') %>" placeholder="3600"></div>
+      </div>
+      <div class="fg2">
+        <div class="campo">
+          <label>Aceita financiamento?</label>
+          <select name="aceita_financiamento">
+            <option value="sim" <%=(_val('aceita_financiamento')||_dados.aceita_financiamento||'sim')==='sim'?'selected':''%>>Sim</option>
+            <option value="nao" <%=(_val('aceita_financiamento')||_dados.aceita_financiamento)==='nao'?'selected':''%>>Não</option>
+            <option value="a_combinar" <%=(_val('aceita_financiamento')||_dados.aceita_financiamento)==='a_combinar'?'selected':''%>>A combinar</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Aceita permuta?</label>
+          <select name="aceita_permuta">
+            <option value="nao" <%=(_val('aceita_permuta')||_dados.aceita_permuta||'nao')==='nao'?'selected':''%>>Não</option>
+            <option value="sim" <%=(_val('aceita_permuta')||_dados.aceita_permuta)==='sim'?'selected':''%>>Sim</option>
+            <option value="a_combinar" <%=(_val('aceita_permuta')||_dados.aceita_permuta)==='a_combinar'?'selected':''%>>A combinar</option>
+          </select>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Diferenciais -->
-  <div class="ec">
-    <p class="ec-title">Diferenciais</p>
-    <% const _difs=imovel.diferenciais||{}; %>
+    <!-- CARACTERÍSTICAS -->
+    <div class="fm-card">
+      <div class="fm-title">Características</div>
+      <div class="fg4" style="margin-bottom:10px">
+        <div class="campo"><label>Área útil (m²)</label><input name="area_m2" type="number" value="<%= _val('area_m2') %>" placeholder="80"></div>
+        <div class="campo"><label>Área total (m²)</label><input name="area_total" type="number" value="<%= _val('area_total') %>" placeholder="100"></div>
+        <div class="campo"><label>Área construída (m²)</label><input name="area_construida" type="number" value="<%= _val('area_construida')||_dados.area_construida||'' %>" placeholder="90"></div>
+        <div class="campo"><label>Andar</label><input name="andar" type="number" value="<%= _val('andar') %>" placeholder="5"></div>
+      </div>
+      <div class="fg4" style="margin-bottom:10px">
+        <div class="campo"><label>Quartos</label><input name="quartos" type="number" value="<%= _val('quartos') %>" placeholder="2" min="0"></div>
+        <div class="campo"><label>Suítes</label><input name="suites" type="number" value="<%= _val('suites') %>" placeholder="1" min="0"></div>
+        <div class="campo"><label>Banheiros</label><input name="banheiros" type="number" value="<%= _val('banheiros') %>" placeholder="2" min="0"></div>
+        <div class="campo"><label>Vagas</label><input name="vagas" type="number" value="<%= _val('vagas') %>" placeholder="1" min="0"></div>
+      </div>
+      <div class="fg3">
+        <div class="campo"><label>Total de andares</label><input name="total_andares" type="number" value="<%= _val('total_andares')||_dados.total_andares||'' %>" placeholder="10"></div>
+        <div class="campo"><label>Unidades por andar</label><input name="unidades_por_andar" type="number" value="<%= _val('unidades_por_andar')||_dados.unidades_por_andar||'' %>" placeholder="4"></div>
+        <div class="campo">
+          <label>Posição solar</label>
+          <select name="posicao_solar">
+            <option value="">Selecione</option>
+            <option value="norte" <%=(_val('posicao_solar')||_dados.posicao_solar||'')==='norte'?'selected':''%>>Norte</option>
+            <option value="sul" <%=(_val('posicao_solar')||_dados.posicao_solar||'')==='sul'?'selected':''%>>Sul</option>
+            <option value="leste" <%=(_val('posicao_solar')||_dados.posicao_solar||'')==='leste'?'selected':''%>>Leste</option>
+            <option value="oeste" <%=(_val('posicao_solar')||_dados.posicao_solar||'')==='oeste'?'selected':''%>>Oeste</option>
+            <option value="nordeste" <%=(_val('posicao_solar')||_dados.posicao_solar||'')==='nordeste'?'selected':''%>>Nordeste</option>
+            <option value="sudeste" <%=(_val('posicao_solar')||_dados.posicao_solar||'')==='sudeste'?'selected':''%>>Sudeste</option>
+            <option value="sudoeste" <%=(_val('posicao_solar')||_dados.posicao_solar||'')==='sudoeste'?'selected':''%>>Sudoeste</option>
+            <option value="noroeste" <%=(_val('posicao_solar')||_dados.posicao_solar||'')==='noroeste'?'selected':''%>>Noroeste</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
-    <p class="dif-sub">Lazer</p>
-    <div class="dif-grid" style="margin-bottom:4px">
-      <% [['piscina','Piscina'],['academia','Academia'],['churrasqueira','Churrasqueira'],['salao_festas','Salão festas'],['playground','Playground'],['quadra','Quadra'],['sauna','Sauna'],['cinema','Cinema'],['coworking','Coworking'],['rooftop','Rooftop']].forEach(([k,l])=>{ %>
-      <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
+    <!-- DIFERENCIAIS -->
+    <div class="fm-card">
+      <div class="fm-title">Diferenciais</div>
+      <div class="dif-sec">Lazer</div>
+      <div class="dif-grid" style="margin-bottom:12px">
+        <label class="dif-item"><input type="checkbox" name="dif_piscina" <%=_temDif('piscina')?'checked':''%>> Piscina</label>
+        <label class="dif-item"><input type="checkbox" name="dif_academia" <%=_temDif('academia')?'checked':''%>> Academia</label>
+        <label class="dif-item"><input type="checkbox" name="dif_churrasqueira" <%=_temDif('churrasqueira')?'checked':''%>> Churrasqueira</label>
+        <label class="dif-item"><input type="checkbox" name="dif_salao_festas" <%=_temDif('salao_festas')?'checked':''%>> Salão de festas</label>
+        <label class="dif-item"><input type="checkbox" name="dif_playground" <%=_temDif('playground')?'checked':''%>> Playground</label>
+        <label class="dif-item"><input type="checkbox" name="dif_quadra" <%=_temDif('quadra')?'checked':''%>> Quadra</label>
+        <label class="dif-item"><input type="checkbox" name="dif_sauna" <%=_temDif('sauna')?'checked':''%>> Sauna</label>
+        <label class="dif-item"><input type="checkbox" name="dif_cinema" <%=_temDif('cinema')?'checked':''%>> Cinema</label>
+        <label class="dif-item"><input type="checkbox" name="dif_coworking" <%=_temDif('coworking')?'checked':''%>> Coworking</label>
+        <label class="dif-item"><input type="checkbox" name="dif_rooftop" <%=_temDif('rooftop')?'checked':''%>> Rooftop</label>
+      </div>
+      <div class="dif-sec">Segurança</div>
+      <div class="dif-grid" style="margin-bottom:12px">
+        <label class="dif-item"><input type="checkbox" name="dif_portaria_24h" <%=_temDif('portaria_24h')?'checked':''%>> Portaria 24h</label>
+        <label class="dif-item"><input type="checkbox" name="dif_portao_eletronico" <%=_temDif('portao_eletronico')?'checked':''%>> Portão eletrônico</label>
+        <label class="dif-item"><input type="checkbox" name="dif_cameras" <%=_temDif('cameras')?'checked':''%>> Câmeras</label>
+        <label class="dif-item"><input type="checkbox" name="dif_interfone" <%=_temDif('interfone')?'checked':''%>> Interfone</label>
+        <label class="dif-item"><input type="checkbox" name="dif_condominio_fechado" <%=_temDif('condominio_fechado')?'checked':''%>> Cond. fechado</label>
+        <label class="dif-item"><input type="checkbox" name="dif_alarme" <%=_temDif('alarme')?'checked':''%>> Alarme</label>
+      </div>
+      <div class="dif-sec">Imóvel</div>
+      <div class="dif-grid" style="margin-bottom:12px">
+        <label class="dif-item"><input type="checkbox" name="dif_varanda" <%=_temDif('varanda')?'checked':''%>> Varanda</label>
+        <label class="dif-item"><input type="checkbox" name="dif_elevador" <%=_temDif('elevador')?'checked':''%>> Elevador</label>
+        <label class="dif-item"><input type="checkbox" name="dif_mobiliado" <%=_temDif('mobiliado')?'checked':''%>> Mobiliado</label>
+        <label class="dif-item"><input type="checkbox" name="dif_semi_mobiliado" <%=_temDif('semi_mobiliado')?'checked':''%>> Semi mobiliado</label>
+        <label class="dif-item"><input type="checkbox" name="dif_ar_condicionado" <%=_temDif('ar_condicionado')?'checked':''%>> Ar condicionado</label>
+        <label class="dif-item"><input type="checkbox" name="dif_solar" <%=_temDif('solar')?'checked':''%>> Energia solar</label>
+        <label class="dif-item"><input type="checkbox" name="dif_pet_friendly" <%=_temDif('pet_friendly')?'checked':''%>> Pet friendly</label>
+        <label class="dif-item"><input type="checkbox" name="dif_acessibilidade" <%=_temDif('acessibilidade')?'checked':''%>> Acessibilidade</label>
+        <label class="dif-item"><input type="checkbox" name="dif_vista_mar" <%=_temDif('vista_mar')?'checked':''%>> Vista mar</label>
+        <label class="dif-item"><input type="checkbox" name="dif_quintal" <%=_temDif('quintal')?'checked':''%>> Quintal</label>
+        <label class="dif-item"><input type="checkbox" name="dif_jardim" <%=_temDif('jardim')?'checked':''%>> Jardim</label>
+        <label class="dif-item"><input type="checkbox" name="dif_deposito" <%=_temDif('deposito')?'checked':''%>> Depósito</label>
+      </div>
+      <div class="dif-sec">Localização</div>
+      <div class="dif-grid">
+        <label class="dif-item"><input type="checkbox" name="dif_metro" <%=_temDif('metro')?'checked':''%>> Próx. metrô</label>
+        <label class="dif-item"><input type="checkbox" name="dif_onibus" <%=_temDif('onibus')?'checked':''%>> Próx. ônibus</label>
+        <label class="dif-item"><input type="checkbox" name="dif_shopping" <%=_temDif('shopping')?'checked':''%>> Próx. shopping</label>
+        <label class="dif-item"><input type="checkbox" name="dif_escola" <%=_temDif('escola')?'checked':''%>> Próx. escola</label>
+        <label class="dif-item"><input type="checkbox" name="dif_hospital" <%=_temDif('hospital')?'checked':''%>> Próx. hospital</label>
+        <label class="dif-item"><input type="checkbox" name="dif_parque" <%=_temDif('parque')?'checked':''%>> Próx. parque</label>
+        <label class="dif-item"><input type="checkbox" name="dif_praia" <%=_temDif('praia')?'checked':''%>> Próx. praia</label>
+        <label class="dif-item"><input type="checkbox" name="dif_centro" <%=_temDif('centro')?'checked':''%>> Região central</label>
+      </div>
+    </div>
+
+    <!-- PROPRIETÁRIO -->
+    <div class="fm-card">
+      <div class="fm-title">Proprietário</div>
+      <div class="fg2" style="margin-bottom:10px">
+        <div class="campo"><label>Nome completo</label><input name="proprietario" value="<%= typeof imovel.proprietario === 'string' ? imovel.proprietario : (imovel.proprietario && imovel.proprietario.nome || '') %>" placeholder="João da Silva"></div>
+        <div class="campo"><label>Celular / WhatsApp</label><input name="proprietario_celular" value="<%= _val('proprietario_celular')||_dados.proprietario_celular||(imovel.proprietario&&imovel.proprietario.celular)||'' %>" placeholder="(11) 99999-9999"></div>
+      </div>
+      <div class="fg2">
+        <div class="campo"><label>Email</label><input name="proprietario_email" type="email" value="<%= _val('proprietario_email')||_dados.proprietario_email||(imovel.proprietario&&imovel.proprietario.email)||'' %>" placeholder="joao@email.com"></div>
+        <div class="campo"><label>CPF</label><input name="proprietario_cpf" value="<%= _val('proprietario_cpf')||_dados.proprietario_cpf||(imovel.proprietario&&imovel.proprietario.cpf)||'' %>" placeholder="000.000.000-00"></div>
+      </div>
+    </div>
+
+    <!-- DESCRIÇÃO -->
+    <div class="fm-card">
+      <div class="fm-title">Descrição</div>
+      <div class="campo">
+        <textarea name="descricao" rows="5" placeholder="Descreva o imóvel..."><%= _val('descricao') %></textarea>
+      </div>
+      <button type="button" onclick="gerarDescricaoIA()" class="btn btn-primary btn-sm" style="margin-top:8px">✨ Gerar com IA</button>
+    </div>
+
+    <!-- PORTAIS -->
+    <div class="fm-card">
+      <div class="fm-title">Publicação em portais</div>
+      <div class="portal-wrap">
+        <label class="portal-item"><input type="checkbox" name="portal_vivareal" <%=_temPortal('vivareal')?'checked':''%>> VivaReal</label>
+        <label class="portal-item"><input type="checkbox" name="portal_zap" <%=_temPortal('zap')?'checked':''%>> ZAP Imóveis</label>
+        <label class="portal-item"><input type="checkbox" name="portal_olx" <%=_temPortal('olx')?'checked':''%>> OLX</label>
+        <label class="portal-item"><input type="checkbox" name="portal_chaves" <%=_temPortal('chaves')?'checked':''%>> Chaves na Mão</label>
+        <label class="portal-item"><input type="checkbox" name="portal_imovelweb" <%=_temPortal('imovelweb')?'checked':''%>> ImovelWeb</label>
+        <label class="portal-item"><input type="checkbox" name="portal_123i" <%=_temPortal('123i')?'checked':''%>> 123i</label>
+        <label class="portal-item"><input type="checkbox" name="portal_quintoandar" <%=_temPortal('quintoandar')?'checked':''%>> QuintoAndar</label>
+      </div>
+    </div>
+
+    <!-- AÇÕES -->
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:12px">
+      <a href="/app/imoveis" class="btn btn-outline">Cancelar</a>
+      <button type="submit" class="btn btn-primary">Salvar alterações</button>
+    </div>
+
+  </form>
+
+  <!-- EXCLUIR fora do form principal -->
+  <form method="POST" action="/app/imovel/<%= _pid %>/excluir" style="margin-bottom:24px" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')">
+    <button type="submit" style="background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">Excluir imóvel</button>
+  </form>
+
+  <!-- FOTOS -->
+  <div class="fm-card">
+    <div class="fm-title">Fotos do imóvel</div>
+    <% const _fotos = Array.isArray(imovel.fotos) ? imovel.fotos : []; %>
+    <% if(_fotos.length === 0){ %>
+      <div style="font-size:13px;color:var(--text-ter);margin-bottom:12px">Nenhuma foto cadastrada ainda.</div>
+    <% } else { %>
+    <div class="foto-grid">
+      <% _fotos.forEach(function(foto){ %>
+      <div class="foto-thumb">
+        <img src="<%= foto %>" alt="foto">
+        <div style="position:absolute;bottom:0;left:0;right:0;display:flex;gap:2px;padding:4px;background:rgba(0,0,0,.4)">
+          <form method="POST" action="/app/imovel/<%= _pid %>/capa-foto" style="flex:1">
+            <input type="hidden" name="foto" value="<%= foto %>">
+            <button type="submit" style="width:100%;font-size:10px;padding:3px;border-radius:4px;border:none;background:#fff;cursor:pointer;font-weight:500;color:#374151">Capa</button>
+          </form>
+          <form method="POST" action="/app/imovel/<%= _pid %>/excluir-foto" style="flex:1">
+            <input type="hidden" name="foto" value="<%= foto %>">
+            <button type="submit" style="width:100%;font-size:10px;padding:3px;border-radius:4px;border:none;background:#fef2f2;cursor:pointer;font-weight:500;color:#b91c1c">Excluir</button>
+          </form>
+        </div>
+      </div>
       <% }) %>
     </div>
-
-    <p class="dif-sub">Segurança</p>
-    <div class="dif-grid" style="margin-bottom:4px">
-      <% [['portaria_24h','Portaria 24h'],['portao_eletronico','Portão eletr.'],['cameras','Câmeras'],['interfone','Interfone'],['condominio_fechado','Cond. fechado'],['alarme','Alarme']].forEach(([k,l])=>{ %>
-      <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
-      <% }) %>
-    </div>
-
-    <p class="dif-sub">Imóvel</p>
-    <div class="dif-grid" style="margin-bottom:4px">
-      <% [['varanda','Varanda'],['elevador','Elevador'],['mobiliado','Mobiliado'],['semi_mobiliado','Semi mobiliado'],['ar_condicionado','Ar condicionado'],['solar','Energia solar'],['pet_friendly','Pet friendly'],['acessibilidade','Acessibilidade'],['vista_mar','Vista mar'],['quintal','Quintal'],['jardim','Jardim'],['deposito','Depósito']].forEach(([k,l])=>{ %>
-      <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
-      <% }) %>
-    </div>
-
-    <p class="dif-sub">Localização</p>
-    <div class="dif-grid">
-      <% [['metro','Próx. metrô'],['onibus','Próx. ônibus'],['shopping','Próx. shopping'],['escola','Próx. escola'],['hospital','Próx. hospital'],['parque','Próx. parque'],['praia','Próx. praia'],['centro','Região central']].forEach(([k,l])=>{ %>
-      <label class="dif-label"><input type="checkbox" name="dif_<%=k%>" <%=_difs[k]?'checked':''%>> <%=l%></label>
-      <% }) %>
-    </div>
-  </div>
-
-  <!-- Portais -->
-  <div class="ec">
-    <p class="ec-title">Publicação em portais</p>
-    <div class="portal-grid">
-      <% const _portais=imovel.portais||{}; %>
-      <label class="portal-label"><input type="checkbox" name="portal_olx" <%=_portais.olx||_portais.portal_olx?'checked':''%>> OLX</label>
-      <label class="portal-label"><input type="checkbox" name="portal_zap" <%=_portais.zap||_portais.portal_zap?'checked':''%>> ZAP Imóveis</label>
-      <label class="portal-label"><input type="checkbox" name="portal_vivareal" <%=_portais.vivareal||_portais.portal_vivareal?'checked':''%>> VivaReal</label>
-      <label class="portal-label"><input type="checkbox" name="portal_chaves" <%=_portais.chaves||_portais.portal_chaves?'checked':''%>> Chaves na Mão</label>
-      <label class="portal-label"><input type="checkbox" name="portal_imovelweb" <%=_portais.imovelweb||_portais.portal_imovelweb?'checked':''%>> ImovelWeb</label>
-      <label class="portal-label"><input type="checkbox" name="portal_123i" <%=_portais['123i']||_portais.portal_123i?'checked':''%>> 123i</label>
-      <label class="portal-label"><input type="checkbox" name="portal_quintoandar" <%=_portais.quintoandar||_portais.portal_quintoandar?'checked':''%>> QuintoAndar</label>
-    </div>
-  </div>
-
-  <!-- Ações -->
-  <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:12px">
-    <a href="/app/imoveis" class="btn-cancel">Cancelar</a>
-    <button type="submit" class="btn-save">Salvar alterações</button>
-  </div>
-
-</form>
-<form method="POST" action="/app/imovel/<%= (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || imovel.id) %>/excluir" style="margin-top:12px" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" style="background:#b91c1c;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">Excluir imóvel</button></form>
-
-<!-- Fotos -->
-<div class="ec">
-  <p class="ec-title">Fotos do imóvel</p>
-  <% const _fotos=Array.isArray(imovel.fotos)?imovel.fotos:[]; %>
-  <% if(_fotos.length===0){ %>
-    <p style="color:#9ca3af;font-size:13px;margin-bottom:14px">Nenhuma foto cadastrada ainda.</p>
-  <% } else { %>
-  <div class="fotos-grid">
-    <% _fotos.forEach((foto,idx)=>{ %>
-    <div class="foto-card">
-      <img src="<%= foto %>" alt="Foto <%= idx+1 %>">
-      <% if(idx===0){%><span class="foto-capa">Capa</span><%}%>
-      <div class="foto-btns">
-        <form method="POST" action="/app/imovel/<%= idImovel %>/capa-foto" style="flex:1">
-          <input type="hidden" name="foto" value="<%= foto %>">
-          <button type="submit">Capa</button>
-        </form>
-        <form method="POST" action="/app/imovel/<%= idImovel %>/excluir-foto" style="flex:1">
-          <input type="hidden" name="foto" value="<%= foto %>">
-          <button type="submit" class="btn-del">Excluir</button>
-        </form>
-      </div>
-    </div>
-    <% }) %>
-  </div>
-  <% } %>
-  <div class="upload-box">
-    <form method="POST" action="/app/imovel/<%= idImovel %>/upload-foto" enctype="multipart/form-data" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%">
-      <span style="font-size:13px;color:#374151;font-weight:500">Enviar nova foto</span>
-      <input type="file" name="foto" accept="image/*" required style="flex:1;min-width:180px">
-      <button type="submit" class="btn-save">Subir foto</button>
+    <% } %>
+    <form method="POST" action="/app/imovel/<%= _pid %>/upload-foto" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;margin-top:8px">
+      <input type="file" name="foto" accept="image/*" required style="flex:1;min-width:180px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px">
+      <button type="submit" class="btn btn-primary">Subir foto</button>
     </form>
+  </div>
+
+  <div style="font-size:12px;color:var(--text-ter);margin-top:8px">
+    📅 Cadastrado: <%= imovel.criadoEm ? new Date(imovel.criadoEm).toLocaleDateString('pt-BR') : '-' %>
+    &nbsp;&nbsp;🔄 Atualizado: <%= imovel.atualizadoEm ? new Date(imovel.atualizadoEm).toLocaleDateString('pt-BR') : '-' %>
   </div>
 </div>
 
 <script>
-function fmtCEP(el){
-  let v=el.value.replace(/\D/g,'');
-  if(v.length>5) v=v.slice(0,5)+'-'+v.slice(5,8);
-  el.value=v;
-}
-async function buscarCEPEdit(){
-  const cep=document.getElementById('cep-edit').value.replace(/\D/g,'');
-  const res=document.getElementById('cep-res');
-  if(cep.length!==8){res.style.display='block';res.style.background='#fef2f2';res.style.color='#b91c1c';res.textContent='CEP inválido.';return;}
-  res.style.display='block';res.style.background='#f9fafb';res.style.color='#6b7280';res.textContent='Buscando...';
-  try{
-    const d=await(await fetch('https://viacep.com.br/ws/'+cep+'/json/')).json();
-    if(d.erro){res.style.background='#fef2f2';res.style.color='#b91c1c';res.textContent='CEP não encontrado.';return;}
-    const set=(n,v)=>{const el=document.querySelector('[name="'+n+'"]');if(el&&v)el.value=v;};
-    set('endereco',d.logradouro);
-    set('bairro',d.bairro);
-    set('cidade',d.localidade);
-    set('cep',d.cep);
-    res.style.background='#f0fdf4';res.style.color='#15803d';
-    res.textContent='Endereço preenchido: '+d.logradouro+', '+d.bairro+' — '+d.localidade+'/'+d.uf;
-  }catch(e){res.style.background='#fef2f2';res.style.color='#b91c1c';res.textContent='Erro ao buscar CEP.';}
+async function gerarDescricaoIA(){
+  const tipo = document.querySelector('[name="tipo"]')?.value||'imóvel';
+  const bairro = document.querySelector('[name="bairro"]')?.value||'';
+  const cidade = document.querySelector('[name="cidade"]')?.value||'';
+  const quartos = document.querySelector('[name="quartos"]')?.value||'';
+  const area = document.querySelector('[name="area_m2"]')?.value||'';
+  const valor = document.querySelector('[name="valor_imovel"]')?.value||'';
+  const res = await fetch('/api/gerar-descricao-imovel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo,bairro,cidade,quartos,area,valor})});
+  const data = await res.json();
+  const campo = document.querySelector('[name="descricao"]');
+  if(campo && data.descricao) campo.value = data.descricao;
 }
 </script>
 
-
-<% if(imovel.dataCadastro||imovel.data_cadastro||imovel.criadoEm||imovel.dataAtualizacao||imovel.updatedAt){ %>
-<div style="font-size:11px;color:#9ca3af;margin:8px 0;display:flex;gap:16px;flex-wrap:wrap">
-  <% if(imovel.dataCadastro||imovel.data_cadastro||imovel.criadoEm){ %><span>📅 Cadastrado: <%= new Date(imovel.dataCadastro||imovel.data_cadastro||imovel.criadoEm).toLocaleDateString('pt-BR') %></span><% } %>
-  <% if(imovel.dataAtualizacao||imovel.updatedAt){ %><span>🔄 Atualizado: <%= new Date(imovel.dataAtualizacao||imovel.updatedAt).toLocaleDateString('pt-BR') %></span><% } %>
-</div>
-<% } %>
 <%- include('partials/app-end') %>

@@ -549,10 +549,10 @@ async function excluirXml(removerImoveis) {
   document.getElementById('modalExcluirXml').style.display = 'none';
   if (!_xmlUrlAtual) return;
   try {
-    const fd = new FormData();
-    fd.append('xmlUrl', _xmlUrlAtual);
-    fd.append('removerImoveis', removerImoveis ? 'true' : 'false');
-    const r = await fetch('/app/excluir-xml', { method: 'POST', body: fd });
+    const params = new URLSearchParams();
+    params.append('xmlUrl', _xmlUrlAtual);
+    params.append('removerImoveis', removerImoveis ? 'true' : 'false');
+    const r = await fetch('/app/excluir-xml', { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: params.toString() });
     if (r.ok) {
       alert(removerImoveis ? '✅ XML e imóveis removidos!' : '✅ XML removido!');
       location.reload();

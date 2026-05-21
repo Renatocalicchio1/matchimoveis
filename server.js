@@ -3604,18 +3604,49 @@ async function regenerarXMLUsuario(userId) {
     const result = await _qXml('SELECT * FROM imoveis WHERE user_id=$1', [userId]);
     const imoveis = result.rows.map(r => ({
       ...r,
+      id: r.id,
+      idExterno: r.id_externo || '',
+      idOriginal: r.id_original || '',
+      idInterno: r.id_interno || '',
+      codigoImovel: r.codigo_imovel || '',
+      titulo: r.titulo || '',
+      tipo: r.tipo || '',
+      transacao: r.transacao || '',
+      condicao: r.condicao || '',
+      status: r.status || '',
+      bairro: r.bairro || '',
+      cidade: r.cidade || '',
+      estado: r.estado || '',
+      endereco: r.endereco || '',
+      numero: r.numero || '',
+      complemento: r.complemento || '',
+      cep: r.cep || '',
+      latitude: r.latitude || '',
+      longitude: r.longitude || '',
+      valor_imovel: r.valor_imovel || 0,
+      condominio: r.condominio || 0,
+      iptu: r.iptu || 0,
+      area_m2: r.area_m2 || 0,
+      area_total: r.area_total || 0,
+      quartos: r.quartos || 0,
+      suites: r.suites || 0,
+      banheiros: r.banheiros || 0,
+      vagas: r.vagas || 0,
+      descricao: r.descricao || '',
+      fotos: r.fotos || [],
+      portais: r.portais || [],
       userId: r.user_id,
       usuarioId: r.usuario_id,
-      idExterno: r.id_externo,
-      idInterno: r.id_interno,
-      portais: r.portais || [],
-      status: r.status
+      usuarioNome: r.usuario_nome || '',
+      lastUpdate: r.last_update || '',
+      createdAt: r.criado_em || '',
+      updatedAt: r.atualizado_em || ''
     }));
     const users = (_cacheUsuarios || []);
     const user = users.find(u => u.id === userId) || {};
     const token = userId.replace(/[^a-z0-9]/gi,'-');
-    const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
-    portais.forEach(portal => {
+    const todosPortais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
+    todosPortais.forEach(portal => {
       const filtrados = imoveis.filter(i => {
         const temPortal = Array.isArray(i.portais) ? i.portais.includes(portal) : !!(i.portais||{})[portal];
         const ativo = i.status === 'ativo' || i.status === 'publicado';
@@ -3627,9 +3658,18 @@ async function regenerarXMLUsuario(userId) {
         corretorTelefone: user.celular || user.telefone || ''
       }));
       const filename = 'feed-'+portal+'-'+token+'.xml';
-      const xml = gerarXMLPortal(filtrados, portal);
-      fs.writeFileSync(dataPath(filename), xml, 'utf8');
-      console.log('[xml] '+filename+': '+filtrados.length+' imóveis');
+      if(filtrados.length > 0) {
+        const xml = gerarXMLPortal(filtrados, portal);
+        fs.writeFileSync(dataPath(filename), xml, 'utf8');
+        console.log('[xml] '+filename+': '+filtrados.length+' imóveis');
+      } else {
+        // Remove XML se não tem imóveis para esse portal
+        const filepath = dataPath(filename);
+        if(fs.existsSync(filepath)) {
+          fs.unlinkSync(filepath);
+          console.log('[xml] removido '+filename+' (0 imóveis)');
+        }
+      }
     });
   } catch(e) {
     console.error('[regenerarXMLUsuario]', e.message);

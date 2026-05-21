@@ -84,6 +84,7 @@ function parseListing(l) {
       id: 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase(),
       idExterno: idRaw,
       idOriginal: idRaw,
+      idInterno: 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase(),
       titulo: l.Title || '',
       transacao: l.TransactionType === 'For Sale' ? 'venda' : 'aluguel',
       tipo: normalizeTipo(extractText(details.PropertyType)),

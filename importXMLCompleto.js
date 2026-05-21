@@ -16,6 +16,7 @@ if (!XML_URL) {
 const path = require('path');
 const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
 const FILE = path.join(DATA_DIR, 'imoveis.json');
+const { salvarTodosImoveis } = require('./services/salvarImovel');
 
 function normalizeId(id) {
   return String(id || '').replace(/\D/g, '').trim();
@@ -282,7 +283,14 @@ const novosFormatadosComStatus = novos.map(n => {
 });
 
 const final = [...restantes, ...novosFormatadosComStatus, ...inativos];
-  saveData(final);
+  // Salva no PostgreSQL
+  try {
+    await salvarTodosImoveis(final);
+    console.log('[importXML] Salvo no PostgreSQL:', final.length, 'imóveis');
+  } catch(e) {
+    console.error('[importXML] Erro PostgreSQL:', e.message);
+    saveData(final);
+  }
 
   const comValor = novos.filter(n => n.valor_imovel > 0).length;
   const comArea = novos.filter(n => n.area_m2 > 0).length;

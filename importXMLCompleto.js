@@ -52,6 +52,7 @@ function extractText(field) {
 
 function normalizeTipo(raw) {
   const t = (raw || '').toLowerCase();
+  if (t.includes('residential/condo') || t.includes('casa em condominio') || t.includes('casa condominio')) return 'Casa de Condomínio';
   if (t.includes('apartment') || t.includes('apartamento')) return 'Apartamento';
   if (t.includes('house') || t.includes('casa')) return 'Casa';
   if (t.includes('sobrado')) return 'Sobrado';
@@ -60,6 +61,7 @@ function normalizeTipo(raw) {
   if (t.includes('land') || t.includes('terreno')) return 'Terreno';
   if (t.includes('flat')) return 'Flat';
   if (t.includes('cobertura')) return 'Cobertura';
+  if (t.includes('condo') || t.includes('condominio')) return 'Casa de Condomínio';
   return raw || '';
 }
 

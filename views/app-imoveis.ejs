@@ -353,6 +353,7 @@ function atualizarBarra() {
 function copiarURL() { const u = document.getElementById('modal-url'); u.select(); document.execCommand('copy'); }
 
 
+function norm(v) { return (v||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 function filtrar() {
   const busca = norm(document.getElementById('busca').value);
   const tipo = norm(document.getElementById('f-tipo')?.value||'');
@@ -394,10 +395,6 @@ function filtrar() {
 function limpar() {
   ['f-tipo','f-bairro','f-cidade','f-valor-min','f-valor-max','f-quartos','f-vagas','f-operacao','f-status','f-fotos'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('busca').value = '';
-  filtrar();
-});
-  document.getElementById('busca').value = '';
-  nfRenderPills();
   filtrar();
 }
 

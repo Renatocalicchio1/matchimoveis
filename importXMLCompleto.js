@@ -114,7 +114,7 @@ function parseListing(l) {
       quartos: Number(details.Bedrooms) || 0,
       suites: Number(details.Suites) || 0,
       banheiros: Number(details.Bathrooms) || 0,
-      vagas: Number(details.Garage) || 0,
+      vagas: extractNumber(details.Garage) || 0,
       descricao: (() => {
         let d = l.Description || extractText(details.Description) || '';
         // remover chamadas para visita com nome do corretor

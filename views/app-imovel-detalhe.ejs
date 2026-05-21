@@ -137,7 +137,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharLightbox();if(
     <% } %>
 
     <!-- Diferenciais -->
-    <% const _difs=imovel.diferenciais||{}; const _dKeys=Object.keys(_difs).filter(k=>_difs[k]); %>
+    <% const _difsRaw=imovel.diferenciais||(imovel.dados&&imovel.dados.diferenciais)||[]; const _dKeys=Array.isArray(_difsRaw)?_difsRaw:Object.keys(_difsRaw).filter(k=>_difsRaw[k]); %>
     <% if(_dKeys.length>0){ %>
     <div class="dc">
       <p class="dc-label">Diferenciais</p>

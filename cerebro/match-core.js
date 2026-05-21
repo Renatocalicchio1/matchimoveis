@@ -25,13 +25,34 @@ async function enviarWhatsApp(instancia, numero, texto) {
   }
 }
 
-function resolverCaminhoImoveis(userId) {
-  const candidatos = [
-    path.join(__dirname, '..', 'data', `imoveis-${userId}.json`),
-    '/opt/render/project/src/data/imoveis.json',
-    path.join(__dirname, '..', 'imoveis.json')
-  ];
-  return candidatos.find(c => fs.existsSync(c)) || null;
+async function lerImoveisDoUsuario(userId) {
+  try {
+    const { query, dbOk } = require('../services/db');
+    if (await dbOk()) {
+      const res = await query('SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'', [userId]);
+      const { lerImoveis: _lerIm } = require('../services/salvarImovel');
+      return res.rows.map(r => ({
+        ...r,
+        idExterno: r.id_externo,
+        idInterno: r.id_interno,
+        userId: r.user_id,
+        valor_imovel: r.valor_imovel,
+        area_m2: r.area_m2,
+        quartos: r.quartos,
+        suites: r.suites,
+        banheiros: r.banheiros,
+        vagas: r.vagas,
+        bairro: r.bairro,
+        cidade: r.cidade,
+        estado: r.estado,
+        tipo: r.tipo,
+        transacao: r.transacao,
+        fotos: r.fotos || [],
+        diferenciais: r.diferenciais || []
+      }));
+    }
+  } catch(e) { console.error('[match-core lerImoveis]', e.message); }
+  return [];
 }
 
 function lerLeadsSeguro(leadsPath) {

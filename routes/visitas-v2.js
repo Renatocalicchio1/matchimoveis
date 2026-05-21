@@ -174,10 +174,26 @@ router.post('/proprietario/visita/:id/responder', async (req,res) => {
 });
 
 // ── CLIENTE ───────────────────────────────────────────────────────────────────
-router.get('/cliente/visita/:id', (req,res) => {
-  const visita = lerVisitas().find(v => v.id===req.params.id);
-  if (!visita) return res.status(404).send('Visita não encontrada');
-  res.render('cliente-visita',{visita});
+router.get('/cliente/visita/:id', async (req,res) => {
+  try {
+    const { query } = require('../services/db');
+    const r = await query('SELECT * FROM visitas WHERE id=$1', [req.params.id]);
+    if (!r.rows.length) return res.status(404).send('Visita não encontrada');
+    const row = r.rows[0];
+    const visita = {
+      id: row.id, leadId: row.lead_id, nome: row.nome, telefone: row.telefone,
+      imovelId: row.imovel_id, imovelTitulo: row.imovel_titulo, imovelBairro: row.imovel_bairro,
+      dataVisita: row.data_visita, horaVisita: row.hora_visita, status: row.status,
+      userId: row.user_id, corretorId: row.corretor_id, obs: row.obs,
+      proprietarioNome: row.proprietario_nome, proprietarioTelefone: row.proprietario_telefone,
+      respostaProprietario: row.resposta_proprietario, confirmacaoClienteStatus: row.confirmacao_cliente_status,
+      ...(row.dados || {})
+    };
+    res.render('cliente-visita-confirmar', {visita, user: null});
+  } catch(e) {
+    console.error('[visitas-v2 cliente]', e.message);
+    res.status(500).send('Erro: ' + e.message);
+  }
 });
 
 router.post('/cliente/visita/:id/confirmar', async (req,res) => {

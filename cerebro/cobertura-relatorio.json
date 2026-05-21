@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-05-21T19:29:04.820Z",
+  "geradoEm": "2026-05-21T19:34:36.576Z",
   "cobertura": 86,
   "totalOk": 59,
   "totalFalhou": 10,
@@ -110,7 +110,7 @@
         "portal",
         "XML"
       ],
-      "got": "Tente: leads, imóveis, visitas, match ou \"o que devo fazer hoje\".👥 Leads🏠 Imóv"
+      "got": "ERRO: raciocinio.analisarConversa is not a function"
     },
     {
       "grupo": "Suporte",

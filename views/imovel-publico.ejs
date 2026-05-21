@@ -99,19 +99,7 @@
         <h3 style="margin:0 0 4px;font-size:15px;font-weight:700">Características</h3>
         <div class="spec-grid">
           <% if(imovel.area_m2) { %><div class="spec-item"><div class="spec-icon">📐</div><div class="spec-val"><%= imovel.area_m2 %>m²</div><div class="spec-lbl">Área</div></div><% } %>
-          
-<% const _difsP = Array.isArray(imovel.diferenciais) ? imovel.diferenciais : (imovel.dados&&imovel.dados.diferenciais ? imovel.dados.diferenciais : Object.keys(imovel.diferenciais||{}).filter(k=>imovel.diferenciais[k])); %>
-<% if(_difsP && _difsP.length > 0){ %>
-<div style='margin-top:20px'>
-  <p style='font-size:13px;font-weight:600;color:#111827;margin-bottom:10px'>Diferenciais</p>
-  <div style='display:flex;flex-wrap:wrap;gap:6px'>
-    <% _difsP.forEach(k=>{ %>
-    <span style='background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:999px;padding:5px 12px;font-size:12px;color:#374151'><%= k.replace(/_/g,' ') %></span>
-    <% }) %>
-  </div>
-</div>
-<% } %>
-          <% if(imovel.quartos) { %><div class="spec-item"><div class="spec-icon">🛏</div><div class="spec-val"><%= imovel.quartos %></div><div class="spec-lbl">Quartos</div></div><% } %>
+                    <% if(imovel.quartos) { %><div class="spec-item"><div class="spec-icon">🛏</div><div class="spec-val"><%= imovel.quartos %></div><div class="spec-lbl">Quartos</div></div><% } %>
           <% if(imovel.suites) { %><div class="spec-item"><div class="spec-icon">⭐</div><div class="spec-val"><%= imovel.suites %></div><div class="spec-lbl">Suítes</div></div><% } %>
           <% if(imovel.banheiros) { %><div class="spec-item"><div class="spec-icon">🚿</div><div class="spec-val"><%= imovel.banheiros %></div><div class="spec-lbl">Banheiros</div></div><% } %>
           <% if(imovel.vagas) { %><div class="spec-item"><div class="spec-icon">🚗</div><div class="spec-val"><%= imovel.vagas %></div><div class="spec-lbl">Vagas</div></div><% } %>

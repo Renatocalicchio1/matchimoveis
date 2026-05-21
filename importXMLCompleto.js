@@ -130,7 +130,7 @@ function parseListing(l) {
       longitude: Number(location.Longitude) || null,
       valor_imovel: extractNumber(details.ListPrice),
       condominio: extractNumber(details.PropertyAdministrationFee),
-      iptu: extractNumber(details.Iptu),
+      iptu: extractNumber(details.Iptu) || extractNumber(details.YearlyTax) || 0,
       area_m2: extractNumber(details.LivingArea),
       area_total: extractNumber(details.LotArea),
       quartos: Number(details.Bedrooms) || 0,

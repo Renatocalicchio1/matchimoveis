@@ -1204,18 +1204,14 @@ async function lerNotificacoes(user) {
 
 app.get('/app', auth, (req,res)=> res.redirect('/app-home'));
 
-app.get('/app/notificacoes', auth, (req,res)=>{
-  const notificacoesAll = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
-  const userId = String(req.session.user.id || '');
-  const notificacoes = notificacoesAll
-    .filter(n => String(n.usuarioId || '') === userId)
-    .slice()
-    .reverse();
-
-  res.render('app-notificacoes', {
-    user: req.session.user,
-    notificacoes
-  });
+app.get('/app/notificacoes', auth, async (req,res)=>{
+  try {
+    const notificacoes = await lerNotificacoes(req.session.user);
+    res.render('app-notificacoes', { user: req.session.user, notificacoes });
+  } catch(e) {
+    res.render('app-notificacoes', { user: req.session.user, notificacoes: [] });
+  }
+});
 });
 
 

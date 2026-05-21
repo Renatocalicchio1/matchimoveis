@@ -3554,6 +3554,7 @@ app.post('/app/imovel/:id/excluir', auth, async (req, res) => {
         String(i.id) !== pid
       );
     }
+    regenerarXMLUsuario(uid).catch(()=>{});
     res.redirect('/app/imoveis?excluido=1');
   } catch(e) {
     console.error('[excluir-imovel]', e.message);

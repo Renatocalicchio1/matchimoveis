@@ -1376,7 +1376,13 @@ app.post('/app/excluir-xml', auth, async (req,res)=>{
       const { query: _q } = require('./services/db');
       const uid = req.session.user.id;
       const xmlUrl = req.body.xmlUrl;
-      await _q('DELETE FROM imoveis WHERE user_id=$1 AND xml_url=$2', [uid, xmlUrl]).catch(()=>{});
+      // Exclui por xml_url ou por user_id se xml_url estiver vazio
+      const _countByUrl = await _q('SELECT COUNT(*) as n FROM imoveis WHERE user_id=$1 AND xml_url=$2', [uid, xmlUrl]);
+      if(parseInt(_countByUrl.rows[0].n) > 0) {
+        await _q('DELETE FROM imoveis WHERE user_id=$1 AND xml_url=$2', [uid, xmlUrl]).catch(()=>{});
+      } else {
+        await _q('DELETE FROM imoveis WHERE user_id=$1 AND (xml_url=$2 OR xml_url=''  OR xml_url IS NULL) AND source='xml'', [uid, xmlUrl]).catch(()=>{});
+      }
       // Atualiza cache
       _cacheImoveis = (_cacheImoveis||[]).filter(i => !(i.userId===uid && i.xmlUrl===xmlUrl));
       console.log('[excluir-xml] imóveis removidos do PostgreSQL para:', uid);

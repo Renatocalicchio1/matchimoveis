@@ -132,6 +132,8 @@ function parseListing(l) {
       source: 'xml',
       userId: USER_ID,
       usuarioId: USER_ID,
+      xmlUrl: XML_URL,
+      xml_url: XML_URL,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       lastCheckedAt: new Date().toISOString(),

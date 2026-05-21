@@ -1360,6 +1360,7 @@ app.get('/app/imoveis', auth, async (req,res)=>{
 
 app.post('/app/excluir-xml', auth, async (req,res)=>{
   try {
+    console.log('[excluir-xml] body:', JSON.stringify(req.body));
     const { lerUsuarios: _luXml, salvarTodosUsuarios: _stuXml } = require('./services/salvarUsuario');
     const users = await _luXml();
     const idx = users.findIndex(u => u.id === req.session.user.id);

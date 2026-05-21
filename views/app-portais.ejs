@@ -19,7 +19,7 @@
             <strong style="font-size:15px"><%= nomes[feed.portal]||feed.portal %></strong>
             <% if(feed.existe) { %>
               <div style="font-size:12px;color:#1A1A1A;font-weight:600;margin:2px 0">✅ <%= feed.total %> imóveis no XML</div>
-              <div style="font-size:11px;color:#999">Gerado em: <%= new Date(feed.geradoEm).toLocaleString('pt-BR') %></div>
+              <div style="font-size:11px;color:#999">Gerado em: <%= feed.geradoEm ? new Date(feed.geradoEm).toLocaleString('pt-BR') : new Date(feed.lastSyncAt || feed.updatedAt || Date.now()).toLocaleString('pt-BR') %></div>
               <a href="<%= feed.url %>" target="_blank" style="font-size:12px;color:#FF385C;word-break:break-all"><%= feed.url %></a>
             <% } else { %>
               <div style="font-size:12px;color:#999;margin-top:2px">Nenhum XML gerado ainda</div>

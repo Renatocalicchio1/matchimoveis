@@ -1381,7 +1381,7 @@ app.post('/app/excluir-xml', auth, async (req,res)=>{
       if(parseInt(_countByUrl.rows[0].n) > 0) {
         await _q('DELETE FROM imoveis WHERE user_id=$1 AND xml_url=$2', [uid, xmlUrl]).catch(()=>{});
       } else {
-        await _q('DELETE FROM imoveis WHERE user_id=$1 AND (xml_url=$2 OR xml_url=''  OR xml_url IS NULL) AND source='xml'', [uid, xmlUrl]).catch(()=>{});
+        await _q("DELETE FROM imoveis WHERE user_id=$1 AND (xml_url=$2 OR xml_url='' OR xml_url IS NULL) AND source='xml'", [uid, xmlUrl]).catch(()=>{});
       }
       // Atualiza cache
       _cacheImoveis = (_cacheImoveis||[]).filter(i => !(i.userId===uid && i.xmlUrl===xmlUrl));

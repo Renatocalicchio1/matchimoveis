@@ -102,22 +102,23 @@
 
 <!-- Filtro -->
 <div class="filtro-box">
+  <!-- Linha 1 -->
   <div class="filtro-grid">
     <div class="filtro-field">
       <label>🔍 Buscar</label>
-      <input id="busca" placeholder="Bairro, cidade, tipo, descrição..." oninput="filtrar()">
+      <input id="busca" placeholder="Bairro, cidade, tipo..." oninput="filtrar()">
     </div>
     <div class="filtro-field">
       <label>Tipo</label>
       <select id="f-tipo" onchange="filtrar()">
-        <option value="">Todos os tipos</option>
+        <option value="">Todos</option>
         <optgroup label="Residencial">
           <option value="apartamento">Apartamento</option>
           <option value="casa">Casa</option>
           <option value="cobertura">Cobertura</option>
           <option value="sobrado">Sobrado</option>
           <option value="loft">Loft</option>
-          <option value="studio">Studio / Flat</option>
+          <option value="studio">Studio</option>
           <option value="kitnet">Kitnet</option>
           <option value="duplex">Duplex</option>
           <option value="mansao">Mansão</option>
@@ -158,18 +159,17 @@
       </select>
     </div>
     <div class="filtro-field">
-      <label>Quartos mín.</label>
-      <select id="f-quartos" onchange="filtrar()">
-        <option value="">Qualquer</option>
-        <option value="1">1+</option>
-        <option value="2">2+</option>
-        <option value="3">3+</option>
-        <option value="4">4+</option>
-        <option value="5">5+</option>
+      <label>Condição</label>
+      <select id="f-condicao" onchange="filtrar()">
+        <option value="">Todas</option>
+        <option value="usado">Usado</option>
+        <option value="novo">Novo</option>
+        <option value="lancamento">Lançamento</option>
       </select>
     </div>
   </div>
-  <div class="filtro-grid2">
+  <!-- Linha 2 -->
+  <div class="filtro-grid2" style="margin-top:10px">
     <div class="filtro-field">
       <label>Bairro</label>
       <input id="f-bairro" placeholder="Ex: Centro" oninput="filtrar()">
@@ -177,6 +177,21 @@
     <div class="filtro-field">
       <label>Cidade</label>
       <input id="f-cidade" placeholder="Ex: Itajaí" oninput="filtrar()">
+    </div>
+    <div class="filtro-field">
+      <label>Estado</label>
+      <select id="f-estado" onchange="filtrar()">
+        <option value="">Todos</option>
+        <option value="sc">SC</option><option value="sp">SP</option><option value="rj">RJ</option>
+        <option value="mg">MG</option><option value="rs">RS</option><option value="pr">PR</option>
+        <option value="ba">BA</option><option value="go">GO</option><option value="df">DF</option>
+        <option value="pe">PE</option><option value="ce">CE</option><option value="am">AM</option>
+        <option value="pa">PA</option><option value="mt">MT</option><option value="ms">MS</option>
+        <option value="es">ES</option><option value="al">AL</option><option value="se">SE</option>
+        <option value="rn">RN</option><option value="pb">PB</option><option value="pi">PI</option>
+        <option value="ma">MA</option><option value="to">TO</option><option value="ro">RO</option>
+        <option value="ac">AC</option><option value="rr">RR</option><option value="ap">AP</option>
+      </select>
     </div>
     <div class="filtro-field">
       <label>Valor mín. R$</label>
@@ -187,12 +202,47 @@
       <input id="f-valor-max" type="number" placeholder="∞" oninput="filtrar()">
     </div>
     <div class="filtro-field">
+      <label>Área mín. m²</label>
+      <input id="f-area-min" type="number" placeholder="0" oninput="filtrar()">
+    </div>
+  </div>
+  <!-- Linha 3 -->
+  <div class="filtro-grid2" style="margin-top:10px">
+    <div class="filtro-field">
+      <label>Quartos mín.</label>
+      <select id="f-quartos" onchange="filtrar()">
+        <option value="">Qualquer</option>
+        <option value="1">1+</option><option value="2">2+</option>
+        <option value="3">3+</option><option value="4">4+</option><option value="5">5+</option>
+      </select>
+    </div>
+    <div class="filtro-field">
+      <label>Suítes mín.</label>
+      <select id="f-suites" onchange="filtrar()">
+        <option value="">Qualquer</option>
+        <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option>
+      </select>
+    </div>
+    <div class="filtro-field">
+      <label>Banheiros mín.</label>
+      <select id="f-banheiros" onchange="filtrar()">
+        <option value="">Qualquer</option>
+        <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option>
+      </select>
+    </div>
+    <div class="filtro-field">
       <label>Vagas mín.</label>
       <select id="f-vagas" onchange="filtrar()">
         <option value="">Qualquer</option>
-        <option value="1">1+</option>
-        <option value="2">2+</option>
-        <option value="3">3+</option>
+        <option value="1">1+</option><option value="2">2+</option><option value="3">3+</option>
+      </select>
+    </div>
+    <div class="filtro-field">
+      <label>Proprietário</label>
+      <select id="f-proprietario" onchange="filtrar()">
+        <option value="">Todos</option>
+        <option value="sim">Com proprietário</option>
+        <option value="nao">Sem proprietário</option>
       </select>
     </div>
     <div class="filtro-field">
@@ -225,6 +275,8 @@
     data-suites="<%= item.suites || 0 %>"
     data-banheiros="<%= item.banheiros || 0 %>"
     data-status="<%= (item.status||'ativo').toLowerCase() %>"
+    data-condicao="<%= (item.condicao||'').toLowerCase() %>"
+    data-estado="<%= (item.estado||'').toLowerCase() %>"
     data-operacao="<%= (item.transacao||item.operacao||'').toLowerCase() %>"
     data-proprietario="<%= (item.proprietario && item.proprietario.nome) ? item.proprietario.nome.toLowerCase() : '' %>"
     data-fotos="<%= (item.fotos && item.fotos.length>0) ? item.fotos.length : '0' %>"
@@ -359,12 +411,18 @@ function filtrar() {
   const tipo = norm(document.getElementById('f-tipo')?.value||'');
   const operacao = norm(document.getElementById('f-operacao')?.value||'');
   const status = norm(document.getElementById('f-status')?.value||'');
+  const condicao = norm(document.getElementById('f-condicao')?.value||'');
+  const estado = norm(document.getElementById('f-estado')?.value||'');
   const fotos = document.getElementById('f-fotos')?.value||'';
+  const proprietario = document.getElementById('f-proprietario')?.value||'';
   const bairro = norm(document.getElementById('f-bairro')?.value||'');
   const cidade = norm(document.getElementById('f-cidade')?.value||'');
   const valorMin = Number(document.getElementById('f-valor-min')?.value)||0;
   const valorMax = Number(document.getElementById('f-valor-max')?.value)||0;
+  const areaMin = Number(document.getElementById('f-area-min')?.value)||0;
   const quartos = Number(document.getElementById('f-quartos')?.value)||0;
+  const suites = Number(document.getElementById('f-suites')?.value)||0;
+  const banheiros = Number(document.getElementById('f-banheiros')?.value)||0;
   const vagas = Number(document.getElementById('f-vagas')?.value)||0;
 
   let vis = 0;
@@ -374,12 +432,19 @@ function filtrar() {
     if (tipo && !card.dataset.tipo.includes(tipo)) ok = false;
     if (bairro && !card.dataset.bairro.includes(bairro)) ok = false;
     if (cidade && !card.dataset.cidade.includes(cidade)) ok = false;
+    if (estado && !norm(card.dataset.estado||'').includes(estado)) ok = false;
     if (operacao && !norm(card.dataset.operacao||'').includes(operacao)) ok = false;
     if (status && norm(card.dataset.status||'') !== status) ok = false;
+    if (condicao && !norm(card.dataset.condicao||'').includes(condicao)) ok = false;
     if (valorMin && Number(card.dataset.valor) < valorMin) ok = false;
     if (valorMax && Number(card.dataset.valor) > valorMax) ok = false;
+    if (areaMin && Number(card.dataset.area) < areaMin) ok = false;
     if (quartos && Number(card.dataset.quartos) < quartos) ok = false;
+    if (suites && Number(card.dataset.suites) < suites) ok = false;
+    if (banheiros && Number(card.dataset.banheiros) < banheiros) ok = false;
     if (vagas && Number(card.dataset.vagas) < vagas) ok = false;
+    if (proprietario === 'sim' && !card.dataset.proprietario) ok = false;
+    if (proprietario === 'nao' && card.dataset.proprietario) ok = false;
     if (fotos === 'sim' && card.dataset.fotos === '0') ok = false;
     if (fotos === 'nao' && card.dataset.fotos !== '0') ok = false;
     card.style.display = ok ? '' : 'none';
@@ -388,12 +453,17 @@ function filtrar() {
 
   const el = document.getElementById('nf-count');
   const total = document.querySelectorAll('.im-card').length;
-  if (el) el.textContent = vis < total ? vis + ' de ' + total + ' imóveis' : total + ' imóveis';
+  if (el) el.textContent = vis < total ? vis + ' de ' + total + ' imoveis' : total + ' imoveis';
   document.getElementById('im-empty').style.display = vis === 0 ? 'block' : 'none';
 }
 
 function limpar() {
-  ['f-tipo','f-bairro','f-cidade','f-valor-min','f-valor-max','f-quartos','f-vagas','f-operacao','f-status','f-fotos'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['f-tipo','f-bairro','f-cidade','f-estado','f-valor-min','f-valor-max','f-area-min',
+   'f-quartos','f-suites','f-banheiros','f-vagas','f-operacao','f-status','f-condicao',
+   'f-proprietario','f-fotos'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('busca').value = '';
+  filtrar();
+});
   document.getElementById('busca').value = '';
   filtrar();
 }

@@ -4603,28 +4603,21 @@ app.post('/admin/sync-leads-extraidas', express.json({limit:'50mb'}), async (req
 });
 
 // Rodar match interno por userId direto no Render
-app.get('/admin/rodar-match/:userId', (req,res)=>{
+app.get('/admin/rodar-match/:userId', auth, async (req,res)=>{
   const userId = req.params.userId;
   try{
     const { buscarMatchesBaseInterna } = require('./matchBaseInterna.js');
-    const df = dataPath('data.json');
-    const imf = dataPath('imoveis.json');
-    const raw = JSON.parse(fs.readFileSync(df,'utf8'));
-    const leads = Array.isArray(raw) ? raw : (raw.results||[]);
-    const imoveis = JSON.parse(fs.readFileSync(imf,'utf8'));
-    const imoveisArr = Array.isArray(imoveis) ? imoveis : (imoveis.imoveis||[]);
-    const paraMatch = leads.filter(l => {
-      const uid = String(l.userId||l.usuarioId||l.corretorId||'');
-      return uid === userId && l.extractionStatus === 'ok';
-    });
+    const leads = await lerLeads(userId);
+    const imoveis = await lerImoveis(userId);
+    const paraMatch = leads.filter(l => l.extractionStatus === 'ok');
     let comMatch = 0, semMatch = 0;
-    paraMatch.forEach(lead => {
-      const matches = buscarMatchesBaseInterna(lead, imoveisArr);
+    for (const lead of paraMatch) {
+      const matches = buscarMatchesBaseInterna(lead, imoveis);
       lead.matchesBase = matches;
       lead.matchCountBase = matches.length;
       if(matches.length > 0) comMatch++; else semMatch++;
-    });
-    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+      await salvarLead(lead).catch(e=>console.error('[match]',e.message));
+    }
     res.json({ ok:true, userId, total: paraMatch.length, comMatch, semMatch });
   }catch(e){
     res.status(500).json({ ok:false, error: e.message });

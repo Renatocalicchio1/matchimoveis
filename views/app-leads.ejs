@@ -445,14 +445,43 @@ function abrirModalKanban(colKey, colLabel) {
   document.getElementById('modal-kanban-title').textContent = colLabel + ' (' + cards.length + ')';
   const body = document.getElementById('modal-kanban-body');
   body.innerHTML = '';
+
+  // header da tabela
+  const header = document.createElement('div');
+  header.style.cssText = 'display:grid;grid-template-columns:140px 110px 80px 60px 70px 120px 1fr 80px;gap:8px;padding:6px 10px;border-bottom:1px solid #f0f0f0;margin-bottom:4px';
+  header.innerHTML = '<span style="font-size:10px;font-weight:600;color:#9ca3af">NOME</span><span style="font-size:10px;font-weight:600;color:#9ca3af">TELEFONE</span><span style="font-size:10px;font-weight:600;color:#9ca3af">TEMP</span><span style="font-size:10px;font-weight:600;color:#9ca3af">SCORE</span><span style="font-size:10px;font-weight:600;color:#9ca3af">MATCHES</span><span style="font-size:10px;font-weight:600;color:#9ca3af">PERFIL</span><span style="font-size:10px;font-weight:600;color:#9ca3af">ÚLT. MENSAGEM</span><span style="font-size:10px;font-weight:600;color:#9ca3af">DATA</span>';
+  body.appendChild(header);
+
   cards.forEach(function(card) {
-    const clone = card.cloneNode(true);
-    clone.style.cssText = 'margin-bottom:0';
-    // remover confirm-box do clone
-    const confirmBox = clone.querySelector('.confirm-box');
-    if (confirmBox) confirmBox.remove();
-    body.appendChild(clone);
+    const nome = card.querySelector('.lead-nome') ? card.querySelector('.lead-nome').textContent.trim() : '—';
+    const tel = card.dataset.tel || '—';
+    const id = card.dataset.id || '#';
+    const score = card.dataset.score || '0';
+    const temp = card.querySelector('.temp-pill') ? card.querySelector('.temp-pill').textContent.trim() : '—';
+    const matches = card.querySelector('.match-pill') ? card.querySelector('.match-pill').textContent.trim() : '—';
+    const perfil = Array.from(card.querySelectorAll('.perfil-tag')).map(t=>t.textContent.trim()).join(' · ') || '—';
+    const msg = card.querySelector('[style*="border-left:2px"]') ? card.querySelector('[style*="border-left:2px"]').textContent.trim() : '—';
+    const data = card.querySelector('[style*="color:#d1d5db"] span') ? card.querySelector('[style*="color:#d1d5db"] span').textContent.trim() : '—';
+    const scoreNum = parseInt(score);
+    const scoreCor = scoreNum>=70?'#16a34a':scoreNum>=40?'#d97706':'#9ca3af';
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:140px 110px 80px 60px 70px 120px 1fr 80px;gap:8px;padding:8px 10px;border-radius:8px;align-items:center;cursor:pointer;border:0.5px solid rgba(0,0,0,.06);background:#fff';
+    row.onmouseenter = function(){ this.style.background='#f9fafb'; };
+    row.onmouseleave = function(){ this.style.background='#fff'; };
+    row.onclick = function(){ window.location.href='/app/lead/'+id; };
+    row.innerHTML =
+      '<span style="font-size:12px;font-weight:500;color:#111;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nome+'</span>'+
+      '<span style="font-size:11px;color:#6b7280">'+tel+'</span>'+
+      '<span style="font-size:11px">'+temp+'</span>'+
+      '<span style="font-size:11px;font-weight:600;color:'+scoreCor+'">'+score+'</span>'+
+      '<span style="font-size:11px;color:#7c3aed">'+matches+'</span>'+
+      '<span style="font-size:11px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+perfil+'</span>'+
+      '<span style="font-size:11px;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic">'+msg+'</span>'+
+      '<span style="font-size:10px;color:#d1d5db">'+data+'</span>';
+    body.appendChild(row);
   });
+
   const m = document.getElementById('modal-kanban');
   m.style.display = 'flex';
 }

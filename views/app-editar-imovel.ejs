@@ -140,7 +140,14 @@ const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !
         </div>
         <div class="campo">
           <label>Fase</label>
-          <select name="fase">
+          </div>
+          <div class="campo"><label>Categoria</label><select name="categoria">
+            <option value="residencial" <%= _val('categoria')==='residencial'?'selected':'' %>>Residencial</option>
+            <option value="comercial" <%= _val('categoria')==='comercial'?'selected':'' %>>Comercial</option>
+            <option value="rural" <%= _val('categoria')==='rural'?'selected':'' %>>Rural</option>
+            <option value="terreno" <%= _val('categoria')==='terreno'?'selected':'' %>>Terreno</option>
+          </select></div>
+          <div class="campo"><label>Fase</label><select name="fase">
             <option value="pronto" <%=(_val('fase')||_dados.fase||'')==='pronto'?'selected':''%>>Pronto para morar</option>
             <option value="lancamento" <%=(_val('fase')||_dados.fase||'')==='lancamento'?'selected':''%>>Lançamento</option>
             <option value="na_planta" <%=(_val('fase')||_dados.fase||'')==='na_planta'?'selected':''%>>Na planta</option>
@@ -242,13 +249,19 @@ const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !
         <div class="campo"><label>Área útil (m²)</label><input name="area_m2" type="number" value="<%= _val('area_m2') %>" placeholder="80"></div>
         <div class="campo"><label>Área total (m²)</label><input name="area_total" type="number" value="<%= _val('area_total') %>" placeholder="100"></div>
         <div class="campo"><label>Área construída (m²)</label><input name="area_construida" type="number" value="<%= _val('area_construida')||_dados.area_construida||'' %>" placeholder="90"></div>
-        <div class="campo"><label>Andar</label><input name="andar" type="number" value="<%= _val('andar') %>" placeholder="5"></div>
+        <div class="campo"><label>Torre</label><input name="torre" value="<%= _val('torre') %>" placeholder="Torre A"></div>
+          <div class="campo"><label>Unidade</label><input name="unidade" value="<%= _val('unidade') %>" placeholder="101"></div>
+          <div class="campo"><label>Nome do Condomínio</label><input name="condominio_nome" value="<%= _val('condominio_nome') || _val('condominioNome') %>" placeholder="Ex: Residencial das Flores"></div>
+          <div class="campo"><label>Ano de Construção</label><input name="ano_construcao" type="number" value="<%= _val('ano_construcao') || _val('anoConstrucao') %>" placeholder="2010"></div>
+          <div class="campo"><label>Tour Virtual (URL)</label><input name="tour_virtual" value="<%= _val('tour_virtual') || _val('tourVirtual') %>" placeholder="https://..."></div>
+          <div class="campo"><label>Andar</label><input name="andar" type="number" value="<%= _val('andar') %>" placeholder="5"></div>
       </div>
       <div class="fg4" style="margin-bottom:10px">
         <div class="campo"><label>Quartos</label><input name="quartos" type="number" value="<%= _val('quartos') %>" placeholder="2" min="0"></div>
         <div class="campo"><label>Suítes</label><input name="suites" type="number" value="<%= _val('suites') %>" placeholder="1" min="0"></div>
         <div class="campo"><label>Banheiros</label><input name="banheiros" type="number" value="<%= _val('banheiros') %>" placeholder="2" min="0"></div>
-        <div class="campo"><label>Vagas</label><input name="vagas" type="number" value="<%= _val('vagas') %>" placeholder="1" min="0"></div>
+        <div class="campo"><label>Salas</label><input name="salas" type="number" min="0" value="<%= _val('salas') %>" placeholder="1"></div>
+          <div class="campo"><label>Vagas</label><input name="vagas" type="number" value="<%= _val('vagas') %>" placeholder="1" min="0"></div>
       </div>
       <div class="fg3">
         <div class="campo"><label>Total de andares</label><input name="total_andares" type="number" value="<%= _val('total_andares')||_dados.total_andares||'' %>" placeholder="10"></div>

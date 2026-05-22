@@ -3504,11 +3504,12 @@ app.get('/app/imovel/:id/editar', auth, (req,res)=>{
 app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   const userId = req.session.user.id;
   const imoveis = await lerImoveis(userId);
+  const _pid = decodeURIComponent(req.params.id);
   const idx = imoveis.findIndex(i =>
-    String(i.idExterno) === String(req.params.id) ||
-    String(i.idInterno) === String(req.params.id) ||
-    String(i.codigoImovel) === String(req.params.id) ||
-    String(i.id) === String(req.params.id)
+    String(i.idExterno) === _pid ||
+    String(i.idInterno) === _pid ||
+    String(i.codigoImovel) === _pid ||
+    String(i.id) === _pid
   );
   if(idx < 0) return res.send('Imóvel não encontrado. <a href="/app/imoveis">Voltar</a>');
 
@@ -3582,7 +3583,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
 
   await salvarImovel(imoveis[idx]);
   _cacheImoveis = null;
-  res.redirect('/app/imovel/' + req.params.id + '/editar?salvo=1');
+  res.redirect('/app/imovel/' + encodeURIComponent(_pid) + '/editar?salvo=1');
   setTimeout(() => regenerarXMLUsuario(userId).catch(e => console.error('[xml-editar]', e.message)), 1000);
 });
 

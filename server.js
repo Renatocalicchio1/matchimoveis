@@ -4019,6 +4019,14 @@ function gerarXMLPortal(imoveis, portal){
       <yearBuilt>${i.anoConstrucao || i.anoContrucao || i.ano_construcao || ''}</yearBuilt>
       <acceptsFinancing>${i.aceitaFinanciamento || i.aceita_financiamento || 'a_combinar'}</acceptsFinancing>
       <acceptsExchange>${i.aceitaPermuta || i.aceita_permuta || 'nao'}</acceptsExchange>
+      <solarPosition>${i.posicaoSolar || i.posicao_solar || ''}</solarPosition>
+      <totalFloors>${i.totalAndares || i.total_andares || 0}</totalFloors>
+      <unitsPerFloor>${i.unidadesPorAndar || i.unidades_por_andar || 0}</unitsPerFloor>
+      <tower>${i.torre || ''}</tower>
+      <unity>${i.unidade || ''}</unity>
+      <condominiumName>${i.condominioNome || i.condominio_nome || ''}</condominiumName>
+      <virtualTour>${i.tourVirtual || i.tour_virtual || ''}</virtualTour>
+      <detailUrl>${i.url || i.urlPublica || i.url_publica || ''}</detailUrl>
       ${(i.diferenciais && i.diferenciais.length) ? '<features>'+i.diferenciais.map(d=>'<feature>'+d+'</feature>').join('')+'</features>' : ''}
       <address>
         <street>${i.endereco || ''}</street>

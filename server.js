@@ -3583,6 +3583,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
 
   await salvarImovel(imoveis[idx]);
   _cacheImoveis = null;
+  await new Promise(r => setTimeout(r, 500));
   res.redirect('/app/imovel/' + _pid + '/editar');
   setTimeout(() => regenerarXMLUsuario(userId).catch(e => console.error('[xml-editar]', e.message)), 1000);
 });

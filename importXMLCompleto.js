@@ -152,6 +152,10 @@ function parseListing(l) {
         d = d.replace(/Agende\s+j[aá]\s+as\s+suas\s+visitas[^.]*\./gi, '').trim();
         d = d.replace(/Agende\s+suas\s+visitas[^.]*\./gi, '').trim();
         d = d.replace(/s{2,}/g, ' ').trim();
+        // desescapa HTML
+        d = d.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+        // remove tags br
+        d = d.replace(/<br\s*\/?>/gi,' ').replace(/\s{2,}/g,' ').trim();
         return d;
       })(),
       fotos,

@@ -54,6 +54,11 @@ const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !
     <div class="fm-card">
       <div class="fm-title">Identificação</div>
       <div class="fg2">
+        <!-- Código do usuário -->
+        <div class="campo" style="grid-column:span 2">
+          <label style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px">Código do corretor</label>
+          <input value="<%= imovel.codigoUsuario || imovel.codigo_usuario || imovel.userId || imovel.user_id || '' %>" readonly style="background:#f3f4f6;color:#6b7280;cursor:not-allowed;font-family:monospace;font-size:12px;width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;box-sizing:border-box">
+        </div>
         <!-- IDs do imóvel -->
         <div class="campo" style="grid-column:span 2;display:flex;gap:12px">
           <div style="flex:1">

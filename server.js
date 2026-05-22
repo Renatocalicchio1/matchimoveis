@@ -3517,15 +3517,16 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   const difs = Object.keys(b).filter(k => k.startsWith('dif_') && b[k]==='on').map(k => k.replace('dif_',''));
   const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'].filter(p => !!b['portal_'+p]);
 
-  // Preserva proprietario existente se usuario nao preencheu
+  // Proprietario: se usuario preencheu qualquer campo usa novo, se limpou tudo limpa
   const propAtual = imoveis[idx].proprietario || {};
   const temPropNovo = b.proprietario || b.proprietario_celular || b.proprietario_email;
-  const proprietario = temPropNovo ? {
-    nome: b.proprietario || propAtual.nome || '',
-    telefone: b.proprietario_celular || propAtual.telefone || '',
-    celular: b.proprietario_celular || propAtual.celular || '',
-    email: b.proprietario_email || propAtual.email || '',
-    cpf: b.proprietario_cpf || propAtual.cpf || '',
+  const usuarioLimpou = b.proprietario === '' && b.proprietario_celular === '' && b.proprietario_email === '';
+  const proprietario = usuarioLimpou ? {} : temPropNovo ? {
+    nome: b.proprietario || '',
+    telefone: b.proprietario_celular || '',
+    celular: b.proprietario_celular || '',
+    email: b.proprietario_email || '',
+    cpf: b.proprietario_cpf || '',
     status: 'vinculado'
   } : propAtual;
 

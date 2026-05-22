@@ -340,12 +340,12 @@ const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !
     <div class="fm-card">
       <div class="fm-title">Proprietário</div>
       <div class="fg2" style="margin-bottom:10px">
-        <div class="campo"><label>Nome completo</label><input name="proprietario" value="<%= typeof imovel.proprietario === 'string' ? imovel.proprietario : (imovel.proprietario && imovel.proprietario.nome || '') %>" placeholder="João da Silva"></div>
-        <div class="campo"><label>Celular / WhatsApp</label><input name="proprietario_celular" value="<%= _val('proprietario_celular')||_dados.proprietario_celular||(imovel.proprietario&&imovel.proprietario.celular)||'' %>" placeholder="(11) 99999-9999"></div>
+        <div class="campo"><label>Nome completo</label><input name="proprietario" value="<%= (imovel.proprietario&&typeof imovel.proprietario==='object') ? (imovel.proprietario.nome||'') : '' %>" placeholder="João da Silva"></div>
+        <div class="campo"><label>Celular / WhatsApp</label><input name="proprietario_celular" value="<%= (imovel.proprietario&&typeof imovel.proprietario==='object') ? (imovel.proprietario.celular||imovel.proprietario.telefone||'') : '' %>" placeholder="(11) 99999-9999"></div>
       </div>
       <div class="fg2">
-        <div class="campo"><label>Email</label><input name="proprietario_email" type="email" value="<%= _val('proprietario_email')||_dados.proprietario_email||(imovel.proprietario&&imovel.proprietario.email)||'' %>" placeholder="joao@email.com"></div>
-        <div class="campo"><label>CPF</label><input name="proprietario_cpf" value="<%= _val('proprietario_cpf')||_dados.proprietario_cpf||(imovel.proprietario&&imovel.proprietario.cpf)||'' %>" placeholder="000.000.000-00"></div>
+        <div class="campo"><label>Email</label><input name="proprietario_email" type="email" value="<%= (imovel.proprietario&&typeof imovel.proprietario==='object') ? (imovel.proprietario.email||'') : '' %>" placeholder="joao@email.com"></div>
+        <div class="campo"><label>CPF</label><input name="proprietario_cpf" value="<%= (imovel.proprietario&&typeof imovel.proprietario==='object') ? (imovel.proprietario.cpf||'') : '' %>" placeholder="000.000.000-00"></div>
       </div>
     </div>
 

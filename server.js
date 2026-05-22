@@ -3518,15 +3518,13 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'].filter(p => !!b['portal_'+p]);
 
   // Proprietario: se usuario preencheu qualquer campo usa novo, se limpou tudo limpa
-  const propAtual = imoveis[idx].proprietario || {};
-  const usuarioLimpouTudo = b.proprietario === '' && b.proprietario_celular === '' && b.proprietario_email === '' && b.proprietario_cpf === '';
-  const proprietario = usuarioLimpouTudo ? {} : {
-    nome: b.proprietario !== undefined ? b.proprietario : (propAtual.nome || ''),
-    telefone: b.proprietario_celular !== undefined ? b.proprietario_celular : (propAtual.telefone || ''),
-    celular: b.proprietario_celular !== undefined ? b.proprietario_celular : (propAtual.celular || ''),
-    email: b.proprietario_email !== undefined ? b.proprietario_email : (propAtual.email || ''),
-    cpf: b.proprietario_cpf !== undefined ? b.proprietario_cpf : (propAtual.cpf || ''),
-    status: (b.proprietario || b.proprietario_celular) ? 'vinculado' : (propAtual.status || 'pendente')
+  const proprietario = {
+    nome: b.proprietario || '',
+    telefone: b.proprietario_celular || '',
+    celular: b.proprietario_celular || '',
+    email: b.proprietario_email || '',
+    cpf: b.proprietario_cpf || '',
+    status: (b.proprietario || b.proprietario_celular) ? 'vinculado' : ''
   };
 
   imoveis[idx] = {

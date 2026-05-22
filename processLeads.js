@@ -28,7 +28,7 @@ function money(v) {
 }
 
 function parseSheet(filePath) {
-  const wb = XLSX.readFile(filePath);
+  const wb = XLSX.readFile(filePath, { codepage: 65001 });
   const sheet = wb.Sheets[wb.SheetNames[0]];
   const raw = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
   const headerIndex = raw.findIndex(r =>

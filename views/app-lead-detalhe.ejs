@@ -511,7 +511,7 @@ function abrirModalCadastroImovel() {
   const nome = encodeURIComponent('<%= (lead.nome||"") %>');
   const tel = encodeURIComponent('<%= (lead.contato||lead.telefone||"") %>');
   const email = encodeURIComponent('<%= (lead.email||"") %>');
-  const url = '/app/imovel/cadastrar?proprietario=' + nome + '&telefone=' + tel + '&email=' + email + '&modal=1';
+  const url = '/app/cadastro?proprietario=' + nome + '&telefone=' + tel + '&email=' + email + '&modal=1';
   document.getElementById('iframe-cad-imovel').src = url;
   document.getElementById('modal-cad-imovel').style.display = 'flex';
 }

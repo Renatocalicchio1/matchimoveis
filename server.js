@@ -3091,7 +3091,18 @@ app.post('/app/imovel/cadastrar', auth, async (req, res) => {
     usuarioPerfil: req.session.user.perfil || req.session.user.tipoConta || '',
     usuarioTelefone: req.session.user.celular || req.session.user.telefone || '',
     source: 'manual',
-    lastUpdate: new Date().toISOString()
+    lastUpdate: new Date().toISOString(),
+    // campos obrigatórios banco
+    user_id: req.session.user.id,
+    userId: req.session.user.id,
+    condominio_nome: b.condominio_nome || '',
+    torre: b.torre || '',
+    unidade: b.unidade || '',
+    ano_construcao: b.ano_construcao || '',
+    corretor_nome: req.session.user.nome || '',
+    corretor_email: req.session.user.email || '',
+    corretor_telefone: req.session.user.telefone || req.session.user.celular || '',
+    corretor_id: req.session.user.id
   };
   imoveis.push(novo);
   await salvarTodosImoveis(imoveis);

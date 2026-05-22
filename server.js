@@ -3921,7 +3921,14 @@ function gerarXMLPortal(imoveis, portal){
       xml += '        <Room>'+(i.salas || i.rooms || 1)+'</Room>\n';
       xml += '        <Suites>'+(i.suites || 0)+'</Suites>\n';
       xml += '        <Garage>'+(i.vagas || 0)+'</Garage>\n';
-      xml += '        <YearBuilt>'+esc(i.anoContrucao || i.anoConstrucao || '')+'</YearBuilt>\n';
+      xml += '        <YearBuilt>'+esc(i.anoContrucao || i.anoConstrucao || i.ano_construcao || '')+'</YearBuilt>\n';
+      xml += '        <Phase>'+esc(i.fase || '')+'</Phase>\n';
+      xml += '        <AcceptsFinancing>'+(i.aceitaFinanciamento || i.aceita_financiamento || 'a_combinar')+'</AcceptsFinancing>\n';
+      xml += '        <AcceptsExchange>'+(i.aceitaPermuta || i.aceita_permuta || 'nao')+'</AcceptsExchange>\n';
+      xml += '        <SolarPosition>'+esc(i.posicaoSolar || i.posicao_solar || '')+'</SolarPosition>\n';
+      xml += '        <TotalFloors>'+(i.totalAndares || i.total_andares || 0)+'</TotalFloors>\n';
+      xml += '        <UnitsPerFloor>'+(i.unidadesPorAndar || i.unidades_por_andar || 0)+'</UnitsPerFloor>\n';
+      xml += '        <BuiltArea unit="square metres">'+(i.area_construida || i.areaConstruida || 0)+'</BuiltArea>\n';
       if (i.diferenciais && i.diferenciais.length) {
         xml += '        <Features>\n';
         i.diferenciais.forEach(d => { xml += '          <Feature>'+esc(d)+'</Feature>\n'; });

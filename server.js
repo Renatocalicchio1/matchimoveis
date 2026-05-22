@@ -1390,6 +1390,8 @@ app.post('/app/atualizar-xml', auth, async (req, res) => {
     execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
     _cacheImoveis = null;
     await _recarregarImoveis();
+    const total = (_cacheImoveis || []).filter(im => (im.userId||im.usuarioId) === userId).length;
+    await salvarFeedService({ userId, url: xmlUrl, lastSyncAt: new Date().toISOString(), total, tipo: 'importado' });
     res.json({ ok: true });
   } catch(e) {
     console.error('[atualizar-xml]', e.message);

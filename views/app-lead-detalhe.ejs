@@ -367,7 +367,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       </div>
       <% } else { %>
       <div style="font-size:12px;color:var(--text-sec);margin-bottom:10px">Nenhum imóvel cadastrado ainda.</div>
-      <button onclick="abrirFormImovelVendedor()" style="font-size:11px;padding:6px 14px;border-radius:8px;border:1px solid var(--brand);background:#fff;cursor:pointer;color:var(--brand);font-weight:600">+ Cadastrar imóvel</button>
+      <a href="/app/imovel/cadastrar?proprietario=<%= encodeURIComponent(lead.nome||'') %>&telefone=<%= encodeURIComponent(lead.contato||lead.telefone||'') %>&email=<%= encodeURIComponent(lead.email||'') %>" style="display:inline-block;font-size:11px;padding:6px 14px;border-radius:8px;border:1px solid var(--brand);background:#fff;cursor:pointer;color:var(--brand);font-weight:600;text-decoration:none">+ Cadastrar imóvel completo</a>
       <% } %>
 
       <!-- Formulário inline -->

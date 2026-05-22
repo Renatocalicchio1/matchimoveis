@@ -3905,7 +3905,7 @@ app.get('/app/imoveis-ids', auth, (req, res) => {
 
 app.post('/app/gerar-xml', auth, async (req,res)=>{
   const { portal, ids } = req.body;
-  const todos = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
+  const todos = await lerImoveis(req.session.user.id);
   const imoveis = filtrarPorUsuario(todos, req.session.user);
   const selecionados = imoveis.filter(i => ids.includes(String(i.id)) || ids.includes(String(i.idExterno)) || ids.includes(String(i.idOriginal)));
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');

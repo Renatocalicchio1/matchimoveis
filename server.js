@@ -3102,7 +3102,27 @@ app.post('/app/imovel/cadastrar', auth, async (req, res) => {
     corretor_nome: req.session.user.nome || '',
     corretor_email: req.session.user.email || '',
     corretor_telefone: req.session.user.telefone || req.session.user.celular || '',
-    corretor_id: req.session.user.id
+    corretor_id: req.session.user.id,
+    // campos banco corretos
+    id: idInterno,
+    usuario_id: req.session.user.id,
+    codigo_usuario: req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id,
+    usuario_nome: req.session.user.nome || '',
+    usuario_perfil: req.session.user.tipo || req.session.user.tipoConta || 'corretor',
+    usuario_telefone: req.session.user.telefone || req.session.user.celular || '',
+    categoria: b.categoria || 'residencial',
+    salas: parseInt(b.salas) || 0,
+    descricao_editada: false,
+    fonte: 'manual',
+    url: '',
+    url_publica: '/imovel/' + idInterno,
+    tour_virtual: b.tour_virtual || '',
+    corretor: {
+      id: req.session.user.id,
+      nome: req.session.user.nome || '',
+      email: req.session.user.email || '',
+      telefone: req.session.user.telefone || req.session.user.celular || ''
+    }
   };
   imoveis.push(novo);
   await salvarTodosImoveis(imoveis);

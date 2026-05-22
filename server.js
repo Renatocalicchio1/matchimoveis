@@ -3519,16 +3519,15 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
 
   // Proprietario: se usuario preencheu qualquer campo usa novo, se limpou tudo limpa
   const propAtual = imoveis[idx].proprietario || {};
-  const temPropNovo = b.proprietario || b.proprietario_celular || b.proprietario_email;
-  const usuarioLimpou = b.proprietario === '' && b.proprietario_celular === '' && b.proprietario_email === '';
-  const proprietario = usuarioLimpou ? {} : temPropNovo ? {
-    nome: b.proprietario || '',
-    telefone: b.proprietario_celular || '',
-    celular: b.proprietario_celular || '',
-    email: b.proprietario_email || '',
-    cpf: b.proprietario_cpf || '',
-    status: 'vinculado'
-  } : propAtual;
+  const usuarioLimpouTudo = b.proprietario === '' && b.proprietario_celular === '' && b.proprietario_email === '' && b.proprietario_cpf === '';
+  const proprietario = usuarioLimpouTudo ? {} : {
+    nome: b.proprietario !== undefined ? b.proprietario : (propAtual.nome || ''),
+    telefone: b.proprietario_celular !== undefined ? b.proprietario_celular : (propAtual.telefone || ''),
+    celular: b.proprietario_celular !== undefined ? b.proprietario_celular : (propAtual.celular || ''),
+    email: b.proprietario_email !== undefined ? b.proprietario_email : (propAtual.email || ''),
+    cpf: b.proprietario_cpf !== undefined ? b.proprietario_cpf : (propAtual.cpf || ''),
+    status: (b.proprietario || b.proprietario_celular) ? 'vinculado' : (propAtual.status || 'pendente')
+  };
 
   imoveis[idx] = {
     ...imoveis[idx],

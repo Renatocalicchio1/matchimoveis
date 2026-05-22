@@ -215,7 +215,8 @@ leads.forEach(item => {
     data-score="<%= _sj %>"
     data-tipo-lead="<%= (_perfil.tipo||'').toLowerCase() %>"
     data-intencao="<%= (_perfil.intencao||'').toLowerCase() %>"
-    data-search="<%= [item.nome,item.contato,item.telefone,item.bairro,_perfil.bairro].filter(Boolean).join(' ').toLowerCase() %>">
+    data-search="<%= [item.nome,item.contato,item.telefone,item.bairro,_perfil.bairro].filter(Boolean).join(' ').toLowerCase() %>"
+    data-tel="<%= item.contato||item.telefone||'' %>">
 
     <% if(_acao){ %>
     <div class="acao-badge" style="<%= _acaoCor %>"><%= _acao %></div>
@@ -438,16 +439,20 @@ async function bloquearLead(id){const r=await fetch('/app/lead/'+id+'/bloquear',
 window.addEventListener('DOMContentLoaded', aplicarFiltros);
 
 function abrirModalKanban(colKey, colLabel) {
-  const leads = window._leadsKanban && window._leadsKanban[colKey];
-  if (!leads) return;
-  document.getElementById('modal-kanban-title').textContent = colLabel + ' (' + leads.length + ')';
+  const col = document.querySelector('[data-col="' + colKey + '"]');
+  if (!col) return;
+  const cards = col.querySelectorAll('.lead-card');
+  document.getElementById('modal-kanban-title').textContent = colLabel + ' (' + cards.length + ')';
   const body = document.getElementById('modal-kanban-body');
   body.innerHTML = '';
-  leads.forEach(function(l) {
+  cards.forEach(function(card) {
+    const nome = card.querySelector('.lead-nome') ? card.querySelector('.lead-nome').textContent.trim() : 'Lead';
+    const tel = card.dataset.tel || '';
+    const id = card.dataset.id || '#';
     const div = document.createElement('div');
     div.style.cssText = 'background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:10px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between';
-    div.innerHTML = '<div><div style="font-size:13px;font-weight:500;color:#111">' + (l.nome||l.telefone||'Lead') + '</div><div style="font-size:11px;color:#9ca3af;margin-top:2px">' + (l.telefone||'') + '</div></div><span style="font-size:11px;color:#7c3aed;font-weight:500">Ver →</span>';
-    div.onclick = function() { window.location.href = '/app/lead/' + l.id; };
+    div.innerHTML = '<div><div style="font-size:13px;font-weight:500;color:#111">' + nome + '</div><div style="font-size:11px;color:#9ca3af;margin-top:2px">' + tel + '</div></div><span style="font-size:11px;color:#7c3aed;font-weight:500">Ver →</span>';
+    div.onclick = function() { window.location.href = '/app/lead/' + id; };
     body.appendChild(div);
   });
   const m = document.getElementById('modal-kanban');

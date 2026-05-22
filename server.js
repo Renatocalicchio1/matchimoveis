@@ -4027,6 +4027,7 @@ function gerarXMLPortal(imoveis, portal){
   <listings>
 `;
   imoveis.forEach(i => {
+    const prop = (i.proprietario && typeof i.proprietario === 'object') ? i.proprietario : {};
     xml += `
     <listing>
       <listingID>${i.idExterno || i.idOriginal || i.id}</listingID>
@@ -4071,9 +4072,9 @@ function gerarXMLPortal(imoveis, portal){
         <longitude>${i.longitude || ''}</longitude>
       </address>
       <owner>
-        <name>${(i.proprietario&&i.proprietario.nome)||''}</name>
-        <email>${(i.proprietario&&i.proprietario.email)||''}</email>
-        <phone>${(i.proprietario&&(i.proprietario.telefone||i.proprietario.celular))||''}</phone>
+        <name>${prop.nome||''}</name>
+        <email>${prop.email||''}</email>
+        <phone>${prop.telefone||prop.celular||''}</phone>
       </owner>
       <broker>
         <name>${i.corretorNome || ''}</name>

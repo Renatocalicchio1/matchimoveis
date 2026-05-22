@@ -181,7 +181,10 @@ leads.forEach(item => {
       <div class="kanban-col-dot" style="background:<%= col.cor %>"></div>
       <span class="kanban-col-title"><%= col.label %></span>
     </div>
-    <span class="kanban-col-count" id="count-<%= col.key %>"><%= leadsPorColuna[col.key].length %></span>
+    <div style="display:flex;align-items:center;gap:6px">
+      <span class="kanban-col-count" id="count-<%= col.key %>"><%= leadsPorColuna[col.key].length %></span>
+      <button class="km-ver-btn" onclick="abrirModalKanban('<%= col.key %>', '<%= col.label %>')">Ver todos</button>
+    </div>
   </div>
 
   <% if(leadsPorColuna[col.key].length === 0){ %>

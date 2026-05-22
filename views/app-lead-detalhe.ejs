@@ -198,6 +198,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <% if(lead.valor_imovel){%><div class="info-row"><span class="info-lbl">Valor</span><span class="info-val">R$ <%=Number(lead.valor_imovel).toLocaleString('pt-BR')%></span></div><%}%>
       <a href="/imovel/<%= lead.imovel_interesse %>" target="_blank" class="btn btn-outline btn-sm" style="margin-top:10px;display:inline-flex">Ver imóvel →</a>
     </div>
+    <% } %>
 
     <!-- Matches da carteira -->
     <div class="ld-card">
@@ -353,6 +354,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
     <% } %>
 
     <!-- Imóvel do vendedor -->
+    <% if(lead.tipoLead === 'vendedor') { %>
     <div class="ld-card">
       <div class="ld-title">🏠 Imóvel para Vender/Alugar</div>
       <% if(lead.imovelVendedor) { %>

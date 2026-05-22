@@ -3502,70 +3502,88 @@ app.get('/app/imovel/:id/editar', auth, (req,res)=>{
 
 // Editar imóvel - salvar
 app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
-  const fs = require('fs');
-  const imoveis = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
-  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
+  const userId = req.session.user.id;
+  const imoveis = await lerImoveis(userId);
+  const idx = imoveis.findIndex(i =>
+    String(i.idExterno) === String(req.params.id) ||
+    String(i.idInterno) === String(req.params.id) ||
+    String(i.codigoImovel) === String(req.params.id) ||
+    String(i.id) === String(req.params.id)
+  );
+  if(idx < 0) return res.send('Imóvel não encontrado. <a href="/app/imoveis">Voltar</a>');
 
-  if(idx < 0){
-    return res.send('Imóvel não encontrado. <a href="/app/imoveis">Voltar</a>');
-  }
+  const b = req.body;
+  const difs = Object.keys(b).filter(k => k.startsWith('dif_') && b[k]==='on').map(k => k.replace('dif_',''));
+  const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'].filter(p => !!b['portal_'+p]);
+
+  // Preserva proprietario existente se usuario nao preencheu
+  const propAtual = imoveis[idx].proprietario || {};
+  const temPropNovo = b.proprietario || b.proprietario_celular || b.proprietario_email;
+  const proprietario = temPropNovo ? {
+    nome: b.proprietario || propAtual.nome || '',
+    telefone: b.proprietario_celular || propAtual.telefone || '',
+    celular: b.proprietario_celular || propAtual.celular || '',
+    email: b.proprietario_email || propAtual.email || '',
+    cpf: b.proprietario_cpf || propAtual.cpf || '',
+    status: 'vinculado'
+  } : propAtual;
 
   imoveis[idx] = {
     ...imoveis[idx],
-    status: req.body.status || 'nao_publicado',
-    tipo: req.body.tipo || '',
-    bairro: req.body.bairro || '',
-    cidade: req.body.cidade || '',
-    estado: req.body.estado || '',
-    endereco: req.body.endereco || '',
-    numero: req.body.numero || '',
-    complemento: req.body.complemento || '',
-    cep: req.body.cep || '',
-    latitude: Number(req.body.latitude || 0) || null,
-    longitude: Number(req.body.longitude || 0) || null,
-    andar: req.body.andar || '',
-    valor_imovel: Number(req.body.valor_imovel || 0),
-    condominio: Number(req.body.condominio || 0),
-    iptu: Number(req.body.iptu || 0),
-    area_m2: Number(req.body.area_m2 || 0),
-    area_total: Number(req.body.area_total || 0),
-    quartos: Number(req.body.quartos || 0),
-    suites: Number(req.body.suites || 0),
-    banheiros: Number(req.body.banheiros || 0),
-    vagas: Number(req.body.vagas || 0),
-    descricao: req.body.descricao || '',
+    titulo: b.titulo || imoveis[idx].titulo || '',
+    status: b.status || 'nao_publicado',
+    tipo: b.tipo || '',
+    categoria: b.categoria || imoveis[idx].categoria || 'residencial',
+    transacao: b.transacao || 'venda',
+    condicao: b.condicao || '',
+    fase: b.fase || '',
+    cep: b.cep || '',
+    endereco: b.endereco || '',
+    numero: b.numero || '',
+    complemento: b.complemento || '',
+    bairro: b.bairro || '',
+    cidade: b.cidade || '',
+    estado: b.estado || '',
+    latitude: Number(b.latitude || 0) || null,
+    longitude: Number(b.longitude || 0) || null,
+    valor_imovel: Number(b.valor_imovel || 0),
+    condominio: Number(b.condominio || 0),
+    iptu: Number(b.iptu || 0),
+    aceita_financiamento: b.aceita_financiamento || 'a_combinar',
+    aceita_permuta: b.aceita_permuta || 'nao',
+    area_m2: Number(b.area_m2 || 0),
+    area_total: Number(b.area_total || 0),
+    area_construida: Number(b.area_construida || 0),
+    andar: b.andar || '',
+    total_andares: Number(b.total_andares || 0),
+    unidades_por_andar: Number(b.unidades_por_andar || 0),
+    posicao_solar: b.posicao_solar || '',
+    torre: b.torre || '',
+    unidade: b.unidade || '',
+    condominio_nome: b.condominio_nome || '',
+    ano_construcao: b.ano_construcao || '',
+    tour_virtual: b.tour_virtual || '',
+    quartos: Number(b.quartos || 0),
+    suites: Number(b.suites || 0),
+    banheiros: Number(b.banheiros || 0),
+    vagas: Number(b.vagas || 0),
+    salas: Number(b.salas || 0),
+    proprietario: proprietario,
+    descricao: b.descricao || '',
+    descricao_editada: true,
     descricaoEditada: true,
-    proprietario: {
-      nome: req.body.proprietario_nome || '',
-      telefone: req.body.proprietario_telefone || '',
-      email: req.body.proprietario_email || '',
-      status: req.body.proprietario_status || 'pendente'
-    },
-    portais: ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'].filter(p => !!req.body['portal_'+p]),
-    diferenciais: Object.keys(req.body).filter(k => k.startsWith('dif_') && req.body[k]==='on').map(k => k.replace('dif_','')),
-    proprietario: req.body.proprietario || '',
-    proprietario_celular: req.body.proprietario_celular || '',
-    proprietario_email: req.body.proprietario_email || '',
-    proprietario_cpf: req.body.proprietario_cpf || '',
-    condicao: req.body.condicao || '',
-    fase: req.body.fase || '',
-    area_construida: Number(req.body.area_construida || 0),
-    total_andares: Number(req.body.total_andares || 0),
-    unidades_por_andar: Number(req.body.unidades_por_andar || 0),
-    posicao_solar: req.body.posicao_solar || '',
-    aceita_financiamento: req.body.aceita_financiamento || 'a_combinar',
-    aceita_permuta: req.body.aceita_permuta || 'nao',
-    updatedAt: new Date().toISOString()
+    diferenciais: difs,
+    portais: portais,
+    user_id: userId,
+    userId: userId,
+    updatedAt: new Date().toISOString(),
+    last_update: new Date().toISOString()
   };
 
-  salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
-
-  if(typeof gerarXMLPortais === 'function'){
-    gerarXMLPortais();
-  }
-
-  res.redirect('/app/imovel/' + (imoveis[idx].idExterno && imoveis[idx].idExterno.trim() ? imoveis[idx].idExterno : imoveis[idx].idInterno || imoveis[idx].id) + '/editar?salvo=1');
-  setTimeout(() => regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-editar]', e.message)), 1000);
+  await salvarImovel(imoveis[idx]);
+  _cacheImoveis = null;
+  res.redirect('/app/imovel/' + req.params.id + '/editar?salvo=1');
+  setTimeout(() => regenerarXMLUsuario(userId).catch(e => console.error('[xml-editar]', e.message)), 1000);
 });
 
 // Upload de fotos do imóvel

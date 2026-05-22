@@ -2909,7 +2909,7 @@ app.post('/process', upload.any(), async (req, res) => {
     const { execSync } = require('child_process');
     const uid = req.session.user ? req.session.user.id : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${uid}"`, { stdio: 'inherit', cwd: __dirname });
 
-    return res.send('Importação iniciada. Você pode navegar normalmente.');
+    return res.redirect('/app/leads');
   } catch (err) {
     return res.send('Erro ao importar leads: ' + err.message);
   }

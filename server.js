@@ -1380,6 +1380,23 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros });
 });
 
+app.post('/app/atualizar-xml', auth, async (req, res) => {
+  const xmlUrl = req.body.xmlUrl;
+  const userId = req.session.user.id;
+  if (!xmlUrl) return res.json({ ok: false, erro: 'URL não informada' });
+  try {
+    const { execSync } = require('child_process');
+    const path = require('path');
+    execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
+    _cacheImoveis = null;
+    await _recarregarImoveis();
+    res.json({ ok: true });
+  } catch(e) {
+    console.error('[atualizar-xml]', e.message);
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
 app.post('/app/excluir-xml', auth, async (req,res)=>{
   try {
     console.log('[excluir-xml] body:', JSON.stringify(req.body));

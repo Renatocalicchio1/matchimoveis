@@ -97,7 +97,10 @@
             <input type="hidden" name="removerImoveis" class="inputRemoverImoveis" value="false">
             <input type="hidden" class="inputXmlUrl" name="xmlUrl" value="<%= feed.url %>">
             <input type="hidden" name="xmlUrl" value="<%= feed.url %>">
-            <button type="button" onclick="abrirModalExcluirXml('<%= encodeURIComponent(feed.url) %>')" class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Excluir XML</button>
+            <div style="display:flex;gap:8px">
+              <button type="button" onclick="atualizarXML('<%= encodeURIComponent(feed.url) %>', this)" class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">🔄 Atualizar</button>
+              <button type="button" onclick="abrirModalExcluirXml('<%= encodeURIComponent(feed.url) %>')" class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Excluir XML</button>
+            </div>
           </form>
           <% }) %>
         </div>
@@ -593,6 +596,30 @@ async function excluirXml(removerImoveis) {
 <script>
 if (new URLSearchParams(window.location.search).get('aba') === 'manual') {
   document.addEventListener('DOMContentLoaded', function(){ escolherMetodo('manual'); });
+}
+
+async function atualizarXML(urlEncoded, btn) {
+  const url = decodeURIComponent(urlEncoded);
+  btn.textContent = '⏳ Atualizando...';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/app/atualizar-xml', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ xmlUrl: url })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      btn.textContent = '✅ Atualizado!';
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      btn.textContent = '❌ Erro';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    btn.textContent = '❌ Erro';
+    btn.disabled = false;
+  }
 }
 </script>
 

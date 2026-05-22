@@ -3583,8 +3583,10 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
 
   await salvarImovel(imoveis[idx]);
   _cacheImoveis = null;
-  res.redirect(303, '/app/imovel/' + encodeURIComponent(_pid) + '/editar');
   setTimeout(() => regenerarXMLUsuario(userId).catch(e => console.error('[xml-editar]', e.message)), 1000);
+  // Renderiza direto sem redirect para evitar problema de sessao
+  const idImovelEdit = (imoveis[idx].idExterno&&imoveis[idx].idExterno.trim())?imoveis[idx].idExterno:(imoveis[idx].idInterno||String(imoveis[idx].id)||'');
+  res.render('app-editar-imovel', { user: req.session.user, imovel: imoveis[idx], salvo: true, idImovel: idImovelEdit });
 });
 
 // Upload de fotos do imóvel

@@ -3998,27 +3998,44 @@ function gerarXMLPortal(imoveis, portal){
   imoveis.forEach(i => {
     xml += `
     <listing>
-      <listingID>${i.idExterno || i.id}</listingID>
-      <title>${i.tipo || ''} em ${i.bairro || ''}</title>
+      <listingID>${i.idExterno || i.idOriginal || i.id}</listingID>
+      <title>${i.titulo || ((i.tipo||'Imóvel')+' em '+(i.bairro||''))}</title>
       <description>${(i.descricao || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</description>
-      <price>${i.valor_imovel || 0}</price>
-      <livingArea>${i.area_m2 || 0}</livingArea>
+      <transactionType>${i.transacao === 'aluguel' ? 'For Rent' : 'For Sale'}</transactionType>
+      <propertyType>${i.tipo || ''}</propertyType>
+      <condition>${i.condicao === 'lancamento' ? 'launch' : i.condicao === 'novo' ? 'new' : 'used'}</condition>
+      <phase>${i.fase || ''}</phase>
+      <price>${i.valor_imovel || i.valor || 0}</price>
+      <condominiumFee>${i.condominio || 0}</condominiumFee>
+      <iptu>${i.iptu || 0}</iptu>
+      <livingArea>${i.area_m2 || i.area || 0}</livingArea>
+      <totalArea>${i.area_total || i.area_m2 || 0}</totalArea>
+      <builtArea>${i.area_construida || 0}</builtArea>
       <bedrooms>${i.quartos || 0}</bedrooms>
       <bathrooms>${i.banheiros || 0}</bathrooms>
       <suites>${i.suites || 0}</suites>
       <garageSpaces>${i.vagas || 0}</garageSpaces>
-      <propertyType>${i.tipo || ''}</propertyType>
-      <transactionType>${i.transacao || 'venda'}</transactionType>
-      <condition>${i.condicao === 'lancamento' ? 'launch' : i.condicao === 'novo' ? 'new' : 'used'}</condition>
+      <floor>${i.andar || ''}</floor>
+      <yearBuilt>${i.anoConstrucao || i.anoContrucao || i.ano_construcao || ''}</yearBuilt>
+      <acceptsFinancing>${i.aceitaFinanciamento || i.aceita_financiamento || 'a_combinar'}</acceptsFinancing>
+      <acceptsExchange>${i.aceitaPermuta || i.aceita_permuta || 'nao'}</acceptsExchange>
+      ${(i.diferenciais && i.diferenciais.length) ? '<features>'+i.diferenciais.map(d=>'<feature>'+d+'</feature>').join('')+'</features>' : ''}
       <address>
         <street>${i.endereco || ''}</street>
         <streetNumber>${i.numero || ''}</streetNumber>
         <complement>${i.complemento || ''}</complement>
         <neighborhood>${i.bairro || ''}</neighborhood>
         <city>${i.cidade || ''}</city>
-        <state>${i.estado || 'SP'}</state>
-        <zipCode>${i.cep || ''}</zipCode>
+        <state>${i.estado || ''}</state>
+        <zipCode>${(i.cep||'').replace(/\D/g,'')}</zipCode>
+        <latitude>${i.latitude || ''}</latitude>
+        <longitude>${i.longitude || ''}</longitude>
       </address>
+      <owner>
+        <name>${(i.proprietario&&i.proprietario.nome)||''}</name>
+        <email>${(i.proprietario&&i.proprietario.email)||''}</email>
+        <phone>${(i.proprietario&&(i.proprietario.telefone||i.proprietario.celular))||''}</phone>
+      </owner>
       <broker>
         <name>${i.corretorNome || ''}</name>
         <email>${i.corretorEmail || ''}</email>

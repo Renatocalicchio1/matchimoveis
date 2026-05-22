@@ -3074,10 +3074,14 @@ app.post('/app/imovel/cadastrar', auth, async (req, res) => {
     diferenciais: difs,
     portais: portais,
     // proprietário
-    proprietario: b.proprietario || '',
-    proprietario_celular: b.proprietario_celular || '',
-    proprietario_email: b.proprietario_email || '',
-    proprietario_cpf: b.proprietario_cpf || '',
+    proprietario: (b.proprietario || b.proprietario_celular || b.proprietario_email) ? {
+      nome: b.proprietario || '',
+      telefone: b.proprietario_celular || '',
+      celular: b.proprietario_celular || '',
+      email: b.proprietario_email || '',
+      cpf: b.proprietario_cpf || '',
+      status: 'vinculado'
+    } : {},
     // descrição e mídia
     descricao: b.descricao || '',
     fotos: [],

@@ -436,6 +436,32 @@ async function classificarLead(id,tipo){const r=await fetch('/app/lead/'+id+'/cl
 async function bloquearLead(id){const r=await fetch('/app/lead/'+id+'/bloquear',{method:'POST'});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
 
 window.addEventListener('DOMContentLoaded', aplicarFiltros);
+
+function abrirModalKanban(colKey, colLabel) {
+  const leads = window._leadsKanban && window._leadsKanban[colKey];
+  if (!leads) return;
+  document.getElementById('modal-kanban-title').textContent = colLabel + ' (' + leads.length + ')';
+  const body = document.getElementById('modal-kanban-body');
+  body.innerHTML = '';
+  leads.forEach(function(l) {
+    const div = document.createElement('div');
+    div.style.cssText = 'background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:10px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between';
+    div.innerHTML = '<div><div style="font-size:13px;font-weight:500;color:#111">' + (l.nome||l.telefone||'Lead') + '</div><div style="font-size:11px;color:#9ca3af;margin-top:2px">' + (l.telefone||'') + '</div></div><span style="font-size:11px;color:#7c3aed;font-weight:500">Ver →</span>';
+    div.onclick = function() { window.location.href = '/app/lead/' + l.id; };
+    body.appendChild(div);
+  });
+  const m = document.getElementById('modal-kanban');
+  m.style.display = 'flex';
+}
+
+function fecharModalKanban() {
+  document.getElementById('modal-kanban').style.display = 'none';
+}
+
+document.getElementById('modal-kanban').addEventListener('click', function(e) {
+  if (e.target === this) fecharModalKanban();
+});
+
 </script>
 
 <%- include('partials/app-end') %>

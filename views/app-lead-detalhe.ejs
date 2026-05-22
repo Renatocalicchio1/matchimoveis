@@ -509,140 +509,29 @@ async function confirmarAgendarVisita(leadId, nome, telefone){
   if(d.ok){ fecharModalAgendarVisita(); location.reload(); }
   else alert('Erro: '+d.erro);
 }
-function abrirModalCadastroImovel(){
-  document.getElementById('modal-cadastro-imovel').style.display='flex';
-}
-function fecharModalCadastroImovel(){
-  document.getElementById('modal-cadastro-imovel').style.display='none';
-}
-async function salvarImovelVendedor(leadId){
-  const payload = {
-    tipo: document.getElementById('iv-tipo').value,
-    finalidade: document.getElementById('iv-finalidade').value,
-    bairro: document.getElementById('iv-bairro').value,
-    quartos: document.getElementById('iv-quartos').value,
-    area: document.getElementById('iv-area').value,
-    valor: document.getElementById('iv-valor').value,
-    obs: document.getElementById('iv-obs').value
-  };
-  const r = await fetch('/app/lead/'+leadId+'/imovel-vendedor', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  });
-  const d = await r.json();
-  if(d.ok) location.reload();
-  else alert('Erro: '+d.erro);
-}
-
 function abrirModalCadastroImovel() {
-  document.getElementById('mc-prop-nome').value = '<%= (lead.nome||"").replace(/'/g,"") %>';
-  document.getElementById('mc-prop-tel').value = '<%= ((lead.contato||lead.telefone||"").replace(/'/g,"")) %>';
-  document.getElementById('mc-prop-email').value = '<%= (lead.email||"").replace(/'/g,"") %>';
+  const nome = encodeURIComponent('<%= (lead.nome||"") %>');
+  const tel = encodeURIComponent('<%= (lead.contato||lead.telefone||"") %>');
+  const email = encodeURIComponent('<%= (lead.email||"") %>');
+  const url = '/app/imovel/cadastrar?proprietario=' + nome + '&telefone=' + tel + '&email=' + email + '&modal=1';
+  document.getElementById('iframe-cad-imovel').src = url;
   document.getElementById('modal-cad-imovel').style.display = 'flex';
 }
 function fecharModalCadImovel() {
   document.getElementById('modal-cad-imovel').style.display = 'none';
-}
-async function salvarImovelModal() {
-  const form = document.getElementById('form-cad-imovel-modal');
-  const data = new FormData(form);
-  const body = new URLSearchParams(data).toString();
-  const btn = form.querySelector('button[onclick="salvarImovelModal()"]');
-  btn.textContent = 'Salvando...';
-  btn.disabled = true;
-  try {
-    const r = await fetch('/app/imovel/cadastrar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: body
-    });
-    const d = await r.json();
-    if (d.ok || d.id || d.idInterno) {
-      fecharModalCadImovel();
-      alert('Imóvel cadastrado com sucesso!');
-      location.reload();
-    } else {
-      alert('Erro ao salvar: ' + (d.erro || JSON.stringify(d)));
-      btn.textContent = 'Salvar Imóvel';
-      btn.disabled = false;
-    }
-  } catch(e) {
-    alert('Erro: ' + e.message);
-    btn.textContent = 'Salvar Imóvel';
-    btn.disabled = false;
-  }
+  document.getElementById('iframe-cad-imovel').src = '';
 }
 </script>
 
 <!-- Modal Cadastro Imóvel do Vendedor -->
-<div id="modal-cad-imovel" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 0">
-  <div style="background:#fff;border-radius:16px;width:95%;max-width:700px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #f0f0f0">
-      <span style="font-size:15px;font-weight:700;color:#111">🏠 Cadastrar Imóvel</span>
-      <button onclick="fecharModalCadImovel()" style="background:none;border:none;cursor:pointer;font-size:22px;color:#9ca3af">×</button>
+<div id="modal-cad-imovel" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;width:96%;max-width:900px;height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #f0f0f0;flex-shrink:0">
+      <span style="font-size:14px;font-weight:700;color:#111">🏠 Cadastrar Imóvel</span>
+      <button onclick="fecharModalCadImovel()" style="background:none;border:none;cursor:pointer;font-size:22px;color:#9ca3af;line-height:1">×</button>
     </div>
-    <form id="form-cad-imovel-modal" style="padding:20px 24px;display:flex;flex-direction:column;gap:16px">
-
-      <!-- Proprietário -->
-      <div style="background:#f9fafb;border-radius:10px;padding:14px;border:0.5px solid rgba(0,0,0,.06)">
-        <div style="font-size:11px;font-weight:700;color:#7c3aed;margin-bottom:10px">👤 PROPRIETÁRIO</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div><label style="font-size:10px;font-weight:600;color:#6b7280">NOME</label><input name="proprietario" id="mc-prop-nome" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-          <div><label style="font-size:10px;font-weight:600;color:#6b7280">CELULAR</label><input name="proprietario_celular" id="mc-prop-tel" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-          <div><label style="font-size:10px;font-weight:600;color:#6b7280">EMAIL</label><input name="proprietario_email" id="mc-prop-email" type="email" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-        </div>
-      </div>
-
-      <!-- Tipo e transação -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">TIPO</label>
-          <select name="tipo" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px">
-            <option value="Apartamento">Apartamento</option><option value="Casa">Casa</option><option value="Terreno">Terreno</option><option value="Comercial">Comercial</option><option value="Cobertura">Cobertura</option>
-          </select></div>
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">TRANSAÇÃO</label>
-          <select name="transacao" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px">
-            <option value="venda">Venda</option><option value="aluguel">Aluguel</option>
-          </select></div>
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">STATUS</label>
-          <select name="status" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px">
-            <option value="nao_publicado">Não publicado</option><option value="publicado">Publicado</option>
-          </select></div>
-      </div>
-
-      <!-- Localização -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">BAIRRO</label><input name="bairro" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">CIDADE</label><input name="cidade" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">ESTADO</label><input name="estado" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-        <div style="grid-column:1/-1"><label style="font-size:10px;font-weight:600;color:#6b7280">ENDEREÇO</label><input name="endereco" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-      </div>
-
-      <!-- Valores -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">VALOR (R$)</label><input name="valor_imovel" type="number" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">CONDOMÍNIO</label><input name="condominio" type="number" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">IPTU</label><input name="iptu" type="number" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-      </div>
-
-      <!-- Cômodos -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">QUARTOS</label><input name="quartos" type="number" min="0" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">SUÍTES</label><input name="suites" type="number" min="0" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">BANHEIROS</label><input name="banheiros" type="number" min="0" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">VAGAS</label><input name="vagas" type="number" min="0" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-        <div><label style="font-size:10px;font-weight:600;color:#6b7280">ÁREA (m²)</label><input name="area_m2" type="number" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;box-sizing:border-box"></div>
-      </div>
-
-      <!-- Descrição -->
-      <div><label style="font-size:10px;font-weight:600;color:#6b7280">DESCRIÇÃO</label><textarea name="descricao" rows="3" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;margin-top:3px;resize:vertical;box-sizing:border-box"></textarea></div>
-
-      <!-- Botões -->
-      <div style="display:flex;gap:8px;padding-top:4px">
-        <button type="button" onclick="salvarImovelModal()" style="flex:1;padding:10px;border-radius:8px;background:#7c3aed;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer">Salvar Imóvel</button>
-        <button type="button" onclick="fecharModalCadImovel()" style="padding:10px 20px;border-radius:8px;background:#f9fafb;color:#6b7280;border:1px solid #e5e7eb;font-size:13px;cursor:pointer">Cancelar</button>
-      </div>
-    </form>
+    <iframe id="iframe-cad-imovel" src="" style="flex:1;border:none;width:100%" allow="same-origin"></iframe>
   </div>
 </div>
+
 <%- include('partials/app-end') %>

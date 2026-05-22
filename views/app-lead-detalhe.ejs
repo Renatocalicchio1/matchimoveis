@@ -510,11 +510,7 @@ async function confirmarAgendarVisita(leadId, nome, telefone){
   else alert('Erro: '+d.erro);
 }
 function abrirModalCadastroImovel() {
-  const nome = encodeURIComponent('<%= (lead.nome||"") %>');
-  const tel = encodeURIComponent('<%= (lead.contato||lead.telefone||"") %>');
-  const email = encodeURIComponent('<%= (lead.email||"") %>');
-  const url = '/app/imovel/cadastrar?proprietario=' + nome + '&telefone=' + tel + '&email=' + email + '&modal=1';
-  document.getElementById('iframe-cad-imovel').src = url;
+  document.getElementById('iframe-cad-imovel').src = '/app/cadastro';
   document.getElementById('modal-cad-imovel').style.display = 'flex';
 }
 function fecharModalCadImovel() {

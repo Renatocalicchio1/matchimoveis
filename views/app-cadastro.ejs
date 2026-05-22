@@ -566,5 +566,29 @@ async function excluirXml(removerImoveis) {
   } catch(e) { alert('Erro: ' + e.message); }
 }
 </script>
+<script>
+(function(){
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('proprietario')) {
+    const el = document.querySelector('input[name="proprietario"]');
+    if (el) el.value = decodeURIComponent(p.get('proprietario'));
+  }
+  if (p.get('telefone')) {
+    const el = document.querySelector('input[name="proprietario_celular"]');
+    if (el) el.value = decodeURIComponent(p.get('telefone'));
+  }
+  if (p.get('email')) {
+    const el = document.querySelector('input[name="proprietario_email"]');
+    if (el) el.value = decodeURIComponent(p.get('email'));
+  }
+  // scroll para seção proprietário
+  if (p.get('proprietario') || p.get('telefone')) {
+    setTimeout(function(){
+      const el = document.querySelector('input[name="proprietario"]');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 500);
+  }
+})();
+</script>
 
 <%- include('partials/app-end') %>

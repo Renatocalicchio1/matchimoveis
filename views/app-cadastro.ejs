@@ -590,5 +590,10 @@ async function excluirXml(removerImoveis) {
   }
 })();
 </script>
+<script>
+if (new URLSearchParams(window.location.search).get('aba') === 'manual') {
+  document.addEventListener('DOMContentLoaded', function(){ escolherMetodo('manual'); });
+}
+</script>
 
 <%- include('partials/app-end') %>

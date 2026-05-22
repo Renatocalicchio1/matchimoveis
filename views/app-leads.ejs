@@ -478,12 +478,12 @@ function abrirModalKanban(colKey, colLabel) {
       '<span style="font-size:11px;color:#7c3aed">'+matches+'</span>'+
       '<span style="font-size:11px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+perfil+'</span>'+
       '<span style="font-size:11px;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic">'+msg+'</span>'+
-      '<div style="display:flex;gap:4px;align-items:center">'+
-      (tel&&tel!=='—'?'<a href="https://wa.me/55'+tel.replace(/\D/g,\'\')+'" target="_blank" style="font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;background:#dcfce7;color:#166534;text-decoration:none;border:0.5px solid #86efac">WA</a>':'')+
-      '<a href="/app/lead/'+id+'" style="font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;background:#f3f4f6;color:#374151;text-decoration:none;border:0.5px solid #e5e7eb">Ver</a>'+
-      '<button onclick="fecharModalKanban();abrirClassificar(\''+id+'\')" style="font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;background:#fef3c7;color:#92400e;border:0.5px solid #fcd34d;cursor:pointer">🚩</button>'+
-      '<button onclick="fecharModalKanban();confirmarExcluir(\''+id+'\')" style="font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;background:#fee2e2;color:#991b1b;border:0.5px solid #fca5a5;cursor:pointer">×</button>'+
-    '</div>';
+      '<div style="display:flex;gap:4px;align-items:center">' +
+      (tel && tel !== '—' ? '<a href="https://wa.me/55' + tel.replace(/\D/g, '') + '" target="_blank" style="font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;background:#dcfce7;color:#166534;text-decoration:none;border:0.5px solid #86efac">WA</a>' : '') +
+      '<a href="/app/lead/' + id + '" style="font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;background:#f3f4f6;color:#374151;text-decoration:none;border:0.5px solid #e5e7eb">Ver</a>' +
+      '<button onclick="fecharModalKanban();abrirClassificar(\'' + id + '\')" style="font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;background:#fef3c7;color:#92400e;border:0.5px solid #fcd34d;cursor:pointer">🚩</button>' +
+      '<button onclick="fecharModalKanban();confirmarExcluir(\'' + id + '\')" style="font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;background:#fee2e2;color:#991b1b;border:0.5px solid #fca5a5;cursor:pointer">×</button>' +
+      '</div>';
     body.appendChild(row);
   });
 

@@ -458,8 +458,11 @@ function fecharModalKanban() {
   document.getElementById('modal-kanban').style.display = 'none';
 }
 
-document.getElementById('modal-kanban').addEventListener('click', function(e) {
-  if (e.target === this) fecharModalKanban();
+document.addEventListener('DOMContentLoaded', function() {
+  const mk = document.getElementById('modal-kanban');
+  if (mk) mk.addEventListener('click', function(e) {
+    if (e.target === this) fecharModalKanban();
+  });
 });
 
 </script>

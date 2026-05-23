@@ -38,10 +38,10 @@
 .km-table tr:hover td{background:#f9fafb;cursor:pointer}
 .km-ver-btn{font-size:10px;font-weight:600;color:#7c3aed;background:none;border:none;cursor:pointer;padding:0;white-space:nowrap}
 .km-ver-btn:hover{text-decoration:underline}
-.kanban-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-bottom:16px;align-items:flex-start}
+.kanban-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-bottom:16px;align-items:flex-start;overflow-x:auto}
 .kanban-wrap::-webkit-scrollbar{height:5px}
 .kanban-wrap::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
-.kanban-col{background:#f9fafb;border:0.5px solid rgba(0,0,0,.06);border-radius:14px;padding:14px;min-height:400px;max-height:calc(100vh - 240px);overflow-y:auto}
+.kanban-col{background:#f9fafb;border:0.5px solid rgba(0,0,0,.06);border-radius:14px;padding:14px;min-height:400px;max-height:calc(100vh - 240px);overflow-y:auto;min-width:280px}
 .kanban-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:0.5px solid rgba(0,0,0,.06);position:sticky;top:0;background:#f9fafb;z-index:10}
 .kanban-col-title{font-size:12px;font-weight:500;color:#374151}
 .kanban-col-count{font-size:11px;font-weight:500;color:#9ca3af;background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:999px;padding:2px 8px}
@@ -173,6 +173,24 @@ leads.forEach(item => {
   </div>
 </div>
 
+
+<style>
+@media (max-width: 768px) {
+  .kanban-wrap {
+    grid-template-columns: repeat(3, 280px) !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 12px;
+    gap: 8px;
+  }
+  .kanban-col {
+    min-width: 280px !important;
+    max-height: calc(100vh - 180px) !important;
+  }
+  .km-ver-btn { font-size: 9px !important; }
+  .lead-card { padding: 10px !important; }
+}
+</style>
 <div class="kanban-wrap" id="kanban-board">
 <% colunas.forEach(col => { %>
 <div class="kanban-col" data-col="<%= col.key %>">

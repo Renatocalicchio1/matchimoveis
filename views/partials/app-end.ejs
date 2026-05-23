@@ -1,4 +1,19 @@
   </main>
 </div>
+<script>
+function abrirMenu() {
+  document.querySelector('.sidebar').classList.add('open');
+  document.getElementById('mobOverlay').style.display = 'block';
+}
+function fecharMenu() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('mobOverlay').style.display = 'none';
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.menu a').forEach(function(a) {
+    a.addEventListener('click', fecharMenu);
+  });
+});
+</script>
 </body>
 </html>

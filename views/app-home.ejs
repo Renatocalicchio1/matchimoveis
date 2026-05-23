@@ -53,6 +53,17 @@
 
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
 .live-dot{display:inline-block;width:6px;height:6px;background:#22c55e;border-radius:50%;animation:pulse-dot 2s infinite;margin-right:6px;vertical-align:middle}
+
+@media(max-width:768px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)!important}
+  .dash-main{grid-template-columns:1fr!important}
+  .charts-row{grid-template-columns:1fr!important}
+  .quick-grid{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:480px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)!important}
+  .quick-grid{grid-template-columns:1fr 1fr!important}
+}
 </style>
 
 <!-- KPIs -->

@@ -4,10 +4,12 @@
 function abrirMenu() {
   document.querySelector('.sidebar').classList.add('open');
   document.getElementById('mobOverlay').style.display = 'block';
+  document.getElementById('mobMenuBtn').style.display = 'none';
 }
 function fecharMenu() {
   document.querySelector('.sidebar').classList.remove('open');
   document.getElementById('mobOverlay').style.display = 'none';
+  document.getElementById('mobMenuBtn').style.display = 'flex';
 }
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.menu a').forEach(function(a) {

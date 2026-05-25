@@ -4025,13 +4025,13 @@ app.get('/app/assistente/abertura', auth, (req, res) => {
     const proatividade = require('./cerebro/proatividade');
     const userId = req.session.user.id;
     const dataFile = p => { const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname; return require('path').join(DATA_DIR, p); };
-    const lerJson = f => { try { return JSON.parse(fs.readFileSync(dataFile(f),'utf8')); } catch(e) { return []; } };
-    const leads = lerJson('data.json').filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
-    const imoveis = lerJson('imoveis.json').filter(i => String(i.userId||i.usuarioId||i.corretorId||'') === userId);
-    const visitas = lerJson('visitas.json').filter(v => String(v.userId||v.usuarioId||v.corretorId||v.corretorId||'') === userId);
-    const notificacoes = lerJson('notificacoes.json').filter(n => String(n.userId||n.usuarioId||n.corretorId||'') === userId);
-    const mensagem = proatividade.gerarAbertura(req.session.user, leads, imoveis, visitas, notificacoes);
-    res.json({ ok: true, mensagem });
+    const { lerLeads: _llP } = require('./services/salvarLead');
+    const { lerImoveis: _liP } = require('./services/salvarImovel');
+    const { query: _qP } = require('./services/db');
+    const leads = await _llP(userId);
+    const imoveis = await _liP(userId);
+    const visitas = (await _qP('SELECT * FROM visitas WHERE user_id=$1', [userId])).rows;
+    const notificacoes = (await _qP('SELECT * FROM notificacoes WHERE usuario_id=$1', [userId])).rows;
   } catch(e) {
     res.json({ ok: true, mensagem: 'Olá! Como posso ajudar você hoje?' });
   }

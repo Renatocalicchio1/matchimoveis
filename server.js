@@ -4563,16 +4563,16 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
   memoria.historico.push({ userId:uid, pergunta:mensagem, resposta, data:new Date().toISOString() });
   if (memoria.historico.length>500) memoria.historico = memoria.historico.slice(-500);
   fs.writeFileSync(memoriaPath, JSON.stringify(memoria,null,2));
-  // Salvar tambem no users.json para persistir no Render
+  // Salva histórico assistente no PG
   try {
-    const usersPath = dataPath('users.json');
-    const users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
-    const uIdx = users.findIndex(u=>u.id===uid||u.userId===uid);
-    if (uIdx>=0) {
-      users[uIdx].historicoAssistente = users[uIdx].historicoAssistente || [];
-      users[uIdx].historicoAssistente.push({pergunta:mensagem,resposta,data:new Date().toISOString()});
-      if (users[uIdx].historicoAssistente.length>50) users[uIdx].historicoAssistente=users[uIdx].historicoAssistente.slice(-50);
-      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+    const { lerUsuarios: _luA, salvarTodosUsuarios: _suA } = require('./services/salvarUsuario');
+    const _usersA = await _luA();
+    const _uIdxA = _usersA.findIndex(u=>u.id===uid||u.userId===uid);
+    if (_uIdxA>=0) {
+      _usersA[_uIdxA].historicoAssistente = _usersA[_uIdxA].historicoAssistente || [];
+      _usersA[_uIdxA].historicoAssistente.push({pergunta:mensagem,resposta,data:new Date().toISOString()});
+      if (_usersA[_uIdxA].historicoAssistente.length>50) _usersA[_uIdxA].historicoAssistente=_usersA[_uIdxA].historicoAssistente.slice(-50);
+      await _suA(_usersA);
     }
   } catch(e){}
 

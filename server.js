@@ -748,15 +748,15 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
   } else if (resposta === 'indisponivel') {
     visitas[idx].status = 'cancelada';
     // Marca imóvel como inativo
-    const imoveisPath = dataPath('imoveis.json');
-    const imoveis = JSON.parse(fs.readFileSync(imoveisPath,'utf8'));
-    const imovelIdx = imoveis.findIndex(i => String(i.idExterno || i.id) === String(visitas[idx].imovelId));
-    if (imovelIdx !== -1) {
-      imoveis[imovelIdx].status = 'inativo';
-      imoveis[imovelIdx].inativadoEm = new Date().toISOString();
-      imoveis[imovelIdx].inativadoPor = 'proprietario';
-      fs.writeFileSync(imoveisPath, JSON.stringify(imoveis, null, 2));
+    const { query: _qIm } = require('./services/db');
+    const _rIm = await _qIm("SELECT * FROM imoveis WHERE (id_externo=$1 OR id::text=$1)", [String(visitas[idx].imovelId)]);
+    if (_rIm.rows.length > 0) {
+      await _qIm("UPDATE imoveis SET status='inativo', inativado_em=NOW(), inativado_por='proprietario' WHERE id=$1", [_rIm.rows[0].id]);
       console.log('Imóvel inativado:', visitas[idx].imovelId);
+    }
+
+
+
     }
   } else if (resposta === 'remarcar') {
     visitas[idx].status = 'pendente_remarcar';
@@ -2023,23 +2023,23 @@ app.use((req, res, next) => {
   if (!req.session || !req.session.user) return next();
   try {
     const fs2 = require('fs');
-    const path2 = require('path');
-    const leadsPath = path2.join(__dirname, 'data.json');
-    if (fs2.existsSync(leadsPath)) {
-      const leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
+    try {
+      const { lerLeads: _llNL } = require('./services/salvarLead');
+      const leads = await _llNL(req.session.user.id);
       const user = req.session.user;
       let total = 0;
-      leads
-        .filter(l => !l.codigoUsuario || l.codigoUsuario === user.id || l.userId === user.id || l.usuarioId === user.id || l.corretorId === user.id)
-        .forEach(l => {
-          if (l.mensagens) {
-            total += l.mensagens.filter(m => !m.lida && m.de === 'cliente').length;
-          }
-        });
+      leads.forEach(l => {
+        if (l.mensagens) total += l.mensagens.filter(m => !m.lida && m.de === 'cliente').length;
+      });
       res.locals.mensagensNaoLidas = total;
-    } else {
-      res.locals.mensagensNaoLidas = 0;
-    }
+    } catch(e) { res.locals.mensagensNaoLidas = 0; }
+
+
+
+
+
+
+
   } catch(e) {
     res.locals.mensagensNaoLidas = 0;
   }
@@ -2535,7 +2535,7 @@ app.get('/app/mapa', auth, async (req, res) => {
   const hoje = new Date().toISOString().split('T')[0];
   const imoveis = (_cacheImoveis || []);
   // Visitas do dia
-  const todasVisitas = _cacheVisitas || (fs2.existsSync(path2.join(DATA_DIR2,'visitas.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'visitas.json'),'utf8')) : []);
+  const { query: _qVis } = require('./services/db'); const _rVis = await _qVis('SELECT * FROM visitas WHERE (user_id=$1 OR corretor_id=$1)', [userId]); const todasVisitas = _cacheVisitas || _rVis.rows;
   const amanha = new Date(Date.now()+86400000).toISOString().split('T')[0];
   const visitasHoje = todasVisitas.filter(v =>
     (v.userId===userId||v.corretorId===userId) &&
@@ -5294,16 +5294,16 @@ app.get('/admin/deletar-conta/:userId', async (req, res) => {
   const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
   let removido = false;
   for (const base of bases) {
-    const usersPath = path2.join(base, 'users.json');
-    if (!fs2.existsSync(usersPath)) continue;
     try {
-      let users = JSON.parse(fs2.readFileSync(usersPath, 'utf8'));
-      const antes = users.length;
-      users = users.filter(u => u.id !== userId);
-      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
-      if (users.length < antes) removido = true;
+      const { lerUsuarios: _luDC, salvarTodosUsuarios: _suDC } = require('./services/salvarUsuario');
+      const _allUsers = await _luDC();
+      const _antes = _allUsers.length;
+      const _filtered = _allUsers.filter(u => u.id !== userId);
+      await _suDC(_filtered);
+      if (_filtered.length < _antes) removido = true;
     } catch(e) {}
   }
+  res.json({ ok: true, userId, removido });
   res.json({ ok: true, userId, removido });
 });
 

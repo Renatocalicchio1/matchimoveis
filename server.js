@@ -489,9 +489,9 @@ app.post('/login', async (req,res)=>{
 
 
 // ===== LEADS + MATCH + OFERTA CLIENTE =====
-function carregarLeads(){
-  const fs = require('fs');
-  return fs.existsSync(dataFile('leads.json')) ? JSON.parse(fs.readFileSync(dataFile('leads.json'),'utf8')) : [];
+async function carregarLeads(){
+  const { lerLeads: _llCL } = require('./services/salvarLead');
+  return await _llCL();
 }
 
 async function salvarLeads(leads){
@@ -500,10 +500,10 @@ async function salvarLeads(leads){
 }
 
 // ── HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────────
-function lerLeadsData() {
+async function lerLeadsData(userId) {
   try {
-    const p = dataPath('data.json');
-    return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : [];
+    const { lerLeads: _llLD } = require('./services/salvarLead');
+    return await _llLD(userId);
   } catch(e) { console.error('[lerLeadsData]', e.message); return []; }
 }
 

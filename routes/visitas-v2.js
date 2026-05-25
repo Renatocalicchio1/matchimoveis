@@ -41,7 +41,12 @@ function dataPath(f) {
   if (process.env.RENDER) return path.join('/opt/render/project/src/data', f);
   return path.join(__dirname, '..', f);
 }
-function lerUsers() { try { return JSON.parse(fs.readFileSync(dataPath('users.json'),'utf8')); } catch(e) { return []; } }
+async function lerUsers() {
+  try {
+    const { lerUsuarios } = require('../services/salvarUsuario');
+    return await lerUsuarios();
+  } catch(e) { return []; }
+}
 
 async function lerLeadsByTel(tel) {
   try {
@@ -71,7 +76,7 @@ async function enviarWA(instancia, numero, texto) {
 }
 
 function getInstancia(userId) {
-  const users = lerUsers();
+  const users = await lerUsers();
   const u = users.find(u => u.id === userId);
   return u?.whatsappInstance || 'match-corretor';
 }
@@ -89,7 +94,7 @@ async function dispararProprietario(visita) {
 }
 
 async function notificarCorretorManual(visita) {
-  const users = lerUsers();
+  const users = await lerUsers();
   const corretor = users.find(u => u.id === visita.userId);
   const telCorretor = (corretor?.celular||corretor?.telefone||'').replace(/\D/g,'');
   if (telCorretor) {
@@ -100,7 +105,7 @@ async function notificarCorretorManual(visita) {
 }
 
 async function dispararParceiro(visita) {
-  const users = lerUsers();
+  const users = await lerUsers();
   const parceiro = users.find(u => u.id === visita.imovelUsuarioId);
   const telParceiro = (parceiro?.celular||parceiro?.telefone||'').replace(/\D/g,'');
   if (telParceiro) {
@@ -122,7 +127,7 @@ async function dispararCliente(visita) {
 async function dispararLembrete(visita) {
   const tel = (visita.telefone||visita.contato||'').replace(/\D/g,'');
   const instancia = getInstancia(visita.userId);
-  const users = lerUsers();
+  const users = await lerUsers();
   const corretor = users.find(u => u.id === visita.userId);
   const telCorretor = (corretor?.celular||corretor?.telefone||'').replace(/\D/g,'');
   if (tel) await enviarWA(instancia, tel, `Lembrete MatchImóveis 🏠\n\nSua visita ao *${visita.imovelTitulo||''}* é hoje!\n⏰ *${visita.horaVisita||'a combinar'}*`);
@@ -302,7 +307,7 @@ router.post('/parceiro/visita/:id/responder', async (req, res) => {
     const visita = await getVisita(req.params.id);
     if (!visita) return res.status(404).send('Visita não encontrada');
     const { resposta } = req.body;
-    const users = lerUsers();
+    const users = await lerUsers();
     const corretorDono = users.find(u => u.id === visita.userId);
     const telCorretorDono = (corretorDono?.celular || corretorDono?.telefone || '').replace(/\D/g, '');
     const instanciaDono = getInstancia(visita.userId);

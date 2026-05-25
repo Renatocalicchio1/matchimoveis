@@ -2782,15 +2782,14 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         eventos: [],
         followUps: []
       };
-      // Salva via service centralizado
+      // Salva no PostgreSQL
       try {
-        const todosLeads = await _lerLeadsWH();
-        todosLeads.push(novoLead);
-        _salvarLeadsWH(todosLeads).catch(e=>console.error("[leads]",e.message));
+        const { salvarLead: _salvarLeadPG } = require('./services/salvarLead');
+        await _salvarLeadPG(novoLead);
         leadEncontrado = novoLead;
-        console.log('[WEBHOOK WA] novo lead criado automaticamente:', telefone, '| id:', novoLead.id);
+        console.log('[WEBHOOK WA] novo lead criado no PG:', telefone, '| id:', novoLead.id);
       } catch(e) {
-        console.error('[WEBHOOK WA] erro ao criar lead automatico:', e.message);
+        console.error('[WEBHOOK WA] erro ao criar lead no PG:', e.message);
         return;
       }
     }

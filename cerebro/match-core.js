@@ -97,8 +97,8 @@ class MatchCore {
       // 6. Match — detecta caso e roda engine certa
       const matchesAntes = (lead.matchesAuto || lead.matches || []).length;
       lead = detectarCaso(lead) === 'caso1'
-        ? this._matchCaso1(lead, userId)
-        : this._matchCaso2(lead, perfil, userId);
+        ? this.async _matchCaso1(lead, userId)
+        : this.async _matchCaso2(lead, perfil, userId);
       const matchesDepois = (lead.matchesAuto || lead.matches || []).length;
 
       // Se match melhorou → notifica corretor
@@ -361,7 +361,7 @@ return lead;
   // 6a. MATCH CASO 1 — Lead com imóvel de interesse
   // Busca imóveis SIMILARES ao que a lead clicou
   // ============================================================
-  _matchCaso1(lead, userId) {
+  async _matchCaso1(lead, userId) {
     try {
       const { buscarMatchesBaseInterna } = require('../matchBaseInterna');
       const { query: _queryMatch } = require('../services/db');
@@ -435,7 +435,7 @@ return lead;
     return !!(perfil.tipo && perfil.quartos && (perfil.bairro || perfil.valorMax));
   }
 
-  _matchCaso2(lead, perfil, userId) {
+  async _matchCaso2(lead, perfil, userId) {
     try {
       if (!this._perfilSuficiente(perfil)) {
         const faltando = [];

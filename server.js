@@ -6062,7 +6062,8 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
       })
     });
     const createData = await createRes.json();
-    console.log('[QRCODE2] instância criada:', instanceName2, '| status:', createData?.instance?.status);
+    const instanceToken = createData?.hash || EVOLUTION_KEY2;
+    console.log('[QRCODE2] instância criada:', instanceName2, '| status:', createData?.instance?.status, '| token:', instanceToken?.substring(0,8));
     // QR já vem na resposta do create
     const qrDireto = createData?.qrcode?.base64 || createData?.instance?.qrcode?.base64;
     if (qrDireto) {
@@ -6081,7 +6082,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
       await new Promise(r => setTimeout(r, 3000));
       try {
         const qrRes = await fetch(EVOLUTION_URL2 + '/instance/connect/' + instanceName2, {
-          headers: { 'apikey': EVOLUTION_KEY2 }
+          headers: { 'apikey': instanceToken }
         });
         const qrData = await qrRes.json();
         const directQR = qrData?.base64 || qrData?.qrcode?.base64 || qrData?.code;

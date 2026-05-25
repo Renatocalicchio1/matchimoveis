@@ -6270,25 +6270,7 @@ app.delete('/app/lead/:id', auth, async (req, res) => {
     // Deleta a lead do banco
     await deletarLead(req.params.id, uid);
     console.log('[LEAD] deletada:', req.params.id, '| userId:', uid);
-    // Deleta histórico de chat na Evolution API
-    if (telefone) {
-      try {
-        const _usersEv = await lerUsuarios();
-        const _userEv = _usersEv.find(u => u.id === uid);
-        const _instEv = _userEv?.whatsappInstance;
-        const _evUrl = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
-        const _evKey = process.env.EVOLUTION_KEY || 'match2025evolution';
-        if (_instEv) {
-          const jid = '55' + telefone.replace(/^55/,'') + '@s.whatsapp.net';
-          await fetch(_evUrl + '/chat/deleteMessage/' + _instEv, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json', 'apikey': _evKey },
-            body: JSON.stringify({ remoteJid: jid })
-          }).catch(e => console.log('[LEAD] erro delete chat Evolution:', e.message));
-          console.log('[LEAD] histórico WhatsApp deletado para:', telefone);
-        }
-      } catch(e) { console.log('[LEAD] erro delete Evolution:', e.message); }
-    }
+    // Histórico WhatsApp: não deletar na Evolution para não bloquear novas mensagens
     res.json({ ok: true });
   } catch(e) {
     res.status(500).json({ erro: e.message });

@@ -364,12 +364,12 @@ return lead;
   _matchCaso1(lead, userId) {
     try {
       const { buscarMatchesBaseInterna } = require('../matchBaseInterna');
-      const filePath = resolverCaminhoImoveis(userId);
-      if (!filePath) return lead;
+      const { query: _queryMatch } = require('../services/db');
+      const _resMatch = await _queryMatch("SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'", [userId]);
+      const imoveisDoUser = _resMatch.rows;
+      console.log('[MATCH CORE] imóveis PG:', imoveisDoUser.length);
 
-      const imoveis = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      // Todos os imóveis ativos da plataforma (próprios + parceiros)
-      // A lead e visita sempre ficam com quem enviou a vitrine
+
       const imoveisDoUser = imoveis.filter(i => i.status === 'ativo');
 
       // Pega o imóvel de interesse como âncora
@@ -447,12 +447,12 @@ return lead;
       }
 
       const { buscarMatchesBaseInterna } = require('../matchBaseInterna');
-      const filePath = resolverCaminhoImoveis(userId);
-      if (!filePath) return lead;
+      const { query: _queryMatch2 } = require('../services/db');
+      const _resMatch2 = await _queryMatch2("SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'", [userId]);
+      const imoveisDoUser = _resMatch2.rows;
+      console.log('[MATCH CORE] imóveis PG caso2:', imoveisDoUser.length);
 
-      const imoveis = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      // Todos os imóveis ativos da plataforma (próprios + parceiros)
-      const imoveisDoUser = imoveis.filter(i => i.status === 'ativo');
+
 
       const leadFake = {
         tipo:     perfil.tipo     || lead.tipo     || '',

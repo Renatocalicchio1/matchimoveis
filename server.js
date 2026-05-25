@@ -753,7 +753,6 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
     if (_rIm.rows.length > 0) {
       await _qIm("UPDATE imoveis SET status='inativo', inativado_em=NOW(), inativado_por='proprietario' WHERE id=$1", [_rIm.rows[0].id]);
       console.log('Imóvel inativado:', visitas[idx].imovelId);
-    }
 
 
 
@@ -995,7 +994,6 @@ async function _recarregarLeads() {
     _cacheLeadsAt = Date.now();
   } catch(e) {
     if (!_cacheLeads) _cacheLeads = (_cacheLeads || []);
-  }
 }
 _recarregarLeads();
 setInterval(_recarregarLeads, 15000);
@@ -2019,10 +2017,9 @@ Tente perguntar de outra forma, por exemplo:
 
 
 // MIDDLEWARE — injeta mensagensNaoLidas em todas as rotas auth
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   if (!req.session || !req.session.user) return next();
   try {
-    const fs2 = require('fs');
     try {
       const { lerLeads: _llNL } = require('./services/salvarLead');
       const leads = await _llNL(req.session.user.id);
@@ -4020,7 +4017,7 @@ app.get('/app/assistente/historico', auth, (req, res) => {
 
 
 // Sync leads extraídas localmente para o Render
-app.get('/app/assistente/abertura', auth, (req, res) => {
+app.get('/app/assistente/abertura', auth, async (req, res) => {
   try {
     const proatividade = require('./cerebro/proatividade');
     const userId = req.session.user.id;
@@ -5558,4 +5555,13 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
   }
 });
 
-// ── DIAGNÓSTICO COMPLETO ─────────────────────────────────────
+// ── SERVER START ──────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log('[SERVER] rodando na porta', PORT);
+});
+};
+
+// ── SERVER START ──────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log('[SERVER] rodando na porta', PORT);
+});

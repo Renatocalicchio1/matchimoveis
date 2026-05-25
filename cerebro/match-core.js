@@ -97,8 +97,8 @@ class MatchCore {
       // 6. Match — detecta caso e roda engine certa
       const matchesAntes = (lead.matchesAuto || lead.matches || []).length;
       lead = detectarCaso(lead) === 'caso1'
-        ? this.async _matchCaso1(lead, userId)
-        : this.async _matchCaso2(lead, perfil, userId);
+        ? await this._matchCaso1(lead, userId)
+        : await this._matchCaso2(lead, perfil, userId);
       const matchesDepois = (lead.matchesAuto || lead.matches || []).length;
 
       // Se match melhorou → notifica corretor

@@ -75,7 +75,7 @@ async function enviarWA(instancia, numero, texto) {
   } catch(e) { console.error('[VISITA WA]', e.message); }
 }
 
-function getInstancia(userId) {
+async function getInstancia(userId) {
   const users = await lerUsers();
   const u = users.find(u => u.id === userId);
   return u?.whatsappInstance || 'match-corretor';

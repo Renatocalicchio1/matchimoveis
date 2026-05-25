@@ -234,7 +234,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
       } catch(e) {}
           users[idx].xmlAtualizadoEm = new Date().toISOString();
           users[idx].xmlTotal = imoveis.length;
-          salvarTodosUsuarios(users).catch(e => console.log("Erro salvar users:", e.message));
+          _suW(users).catch(e => console.log("Erro salvar users:", e.message));
         }
       } catch(e) { console.log('Erro ao salvar xmlUrl:', e.message); }
 
@@ -410,7 +410,7 @@ app.post('/cadastro-secreto', async (req,res)=>{ return res.redirect('/'); // CA
   const uid = prefixo+'_'+Math.random().toString(36).substring(2,8)+Date.now().toString(36).slice(-4);
   const codigo = (nome||'USR').substring(0,3).toUpperCase()+'-'+Math.floor(1000+Math.random()*9000);
   users.push({id:uid,nome,telefone,celular:telefone,senha,tipo:tipoConta||'corretor',ativo:true,codigoUsuario:codigo,matchCoins:1000,matchCoinsTotal:1000,matchCoinsBonusInicial:1000});
-  salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+  _suW(users).catch(e=>console.error("[users]",e.message));
   res.send('<h2 style="color:green;font-family:Arial">Conta criada!</h2><p>ID: '+uid+'</p><p>Codigo: '+codigo+'</p><a href="/login">Ir para login</a>');
 });
 
@@ -447,7 +447,7 @@ app.post('/login', async (req,res)=>{
     };
 
     users.push(novo);
-    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+    _suW(users).catch(e=>console.error("[users]",e.message));
 
     req.session.user = novo;
     return res.redirect('/app-home');
@@ -1507,7 +1507,7 @@ app.post('/app/perfil/localizacao', auth, async (req,res)=>{
     users[idx].lng = parseFloat(lng);
     users[idx].endereco = endereco || '';
     req.session.user = users[idx];
-    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+    _suW(users).catch(e=>console.error("[users]",e.message));
   }
   res.redirect('/app/perfil');
 });
@@ -1522,7 +1522,7 @@ app.post('/app/perfil/localizacao', auth, async (req,res)=>{
     users[idx].lng = parseFloat(lng);
     users[idx].endereco = endereco || '';
     req.session.user = users[idx];
-    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+    _suW(users).catch(e=>console.error("[users]",e.message));
   }
   res.redirect('/app/perfil');
 });
@@ -2454,8 +2454,8 @@ app.get('/api/geocodificar-bairros', auth, async (req, res) => {
   const fs2 = require('fs');
   const DATA_DIR2 = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
   const cacheFile = path2.join(DATA_DIR2, 'bairros-coords.json');
-  const imoveisPath = path2.join(DATA_DIR2, 'imoveis.json');
-  const imoveis = fs2.existsSync(imoveisPath) ? JSON.parse(fs2.readFileSync(imoveisPath,'utf8')) : [];
+  const { lerImoveis: _liGeo } = require('./services/salvarImovel'); const imoveis = await _liGeo(req.session?.user?.id);
+
   const cache = fs2.existsSync(cacheFile) ? JSON.parse(fs2.readFileSync(cacheFile,'utf8')) : {};
   
   // Pega bairros únicos
@@ -5366,13 +5366,13 @@ app.post('/app/whatsapp/desconectar', auth, async (req, res) => {
     await fetch(EVOLUTION_URL + '/instance/logout/' + instanceName, {
       method: 'DELETE', headers: { 'apikey': EVOLUTION_KEY }
     });
-    const usersPath = require('path').join(__dirname, 'users.json');
-    const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+    const { lerUsuarios: _luW, salvarTodosUsuarios: _suW } = require('./services/salvarUsuario');
+    const users = await _luW();
     const idx = users.findIndex(u => u.id === user.id);
     if (idx >= 0) {
       users[idx].whatsappStatus = 'disconnected';
       users[idx].whatsappNumero = '';
-      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+      _suW(users).catch(e=>console.error("[users]",e.message));
       req.session.user = users[idx];
     }
     res.json({ ok: true });
@@ -5409,14 +5409,14 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
     const lead = idx >= 0 ? leads[idx] : {};
     const telefone = String(lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g,'');
     // Salva na lista negra do usuário
-    const usersPath = require('path').join(__dirname, 'users.json');
-    const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+    const { lerUsuarios: _luB, salvarTodosUsuarios: _suB } = require('./services/salvarUsuario');
+    const users = await _luB();
     const uidx = users.findIndex(u => u.id === uid);
     if (uidx >= 0) {
       if (!users[uidx].bloqueados) users[uidx].bloqueados = [];
       if (telefone && !users[uidx].bloqueados.includes(telefone)) {
         users[uidx].bloqueados.push(telefone);
-        salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+        _suW(users).catch(e=>console.error("[users]",e.message));
       }
     }
     // Remove a lead

@@ -5563,6 +5563,6 @@ app.listen(_PORT, () => {
 };
 
 // ── SERVER START ──────────────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log('[SERVER] rodando na porta', PORT);
 });

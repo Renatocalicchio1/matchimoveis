@@ -6039,7 +6039,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
   const _userQR2 = _usersQR2.find(u => u.id === userId);
   const EVOLUTION_URL2 = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
   const EVOLUTION_KEY2 = process.env.EVOLUTION_KEY || 'match2025evolution';
-  let instanceName2 = _userQR2?.whatsappInstance || ('match-' + userId.replace(/[^a-z0-9]/gi,'').toLowerCase().substring(0,20));
+  let instanceName2 = 'match-' + userId.replace(/[^a-z0-9]/gi,'').toLowerCase().substring(0,20);
   try {
     // Deleta instância antiga e recria limpa
     await fetch(EVOLUTION_URL2 + '/instance/delete/' + instanceName2, { method: 'DELETE', headers: { 'apikey': EVOLUTION_KEY2 } }).catch(()=>{});

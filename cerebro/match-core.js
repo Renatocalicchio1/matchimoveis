@@ -29,7 +29,7 @@ async function lerImoveisDoUsuario(userId) {
   try {
     const { query, dbOk } = require('../services/db');
     if (await dbOk()) {
-      const res = await query('SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'', [userId]);
+      const res = await query("SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'", [userId]);
       const { lerImoveis: _lerIm } = require('../services/salvarImovel');
       return res.rows.map(r => ({
         ...r,

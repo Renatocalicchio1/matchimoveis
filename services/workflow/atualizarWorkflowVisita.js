@@ -1,106 +1,65 @@
-const fs = require('fs');
-const path = require('path');
-
+const { query, dbOk } = require('../db');
 const { registrarEvento } = require('../memoria/registrarEvento');
 const { criarNotificacao } = require('../notificacoes/criarNotificacao');
 
-const DATA_DIR =
-  process.env.RENDER
-    ? '/opt/render/project/src/data'
-    : '.';
-
-const visitasFile = path.join(DATA_DIR, 'visitas.json');
-
-function loadVisitas() {
-  if (!fs.existsSync(visitasFile)) return [];
+async function atualizarWorkflowVisita(visitaId, workflowStatus, extras = {}) {
+  if (!await dbOk()) return { erro: 'DB indisponível' };
   try {
-    return JSON.parse(fs.readFileSync(visitasFile, 'utf8'));
-  } catch {
-    return [];
-  }
-}
+    // Busca visita no PG
+    const r = await query('SELECT * FROM visitas WHERE id=$1', [visitaId]);
+    if (!r.rows.length) return { erro: 'Visita não encontrada' };
+    const visita = r.rows[0];
 
-function saveVisitas(data) {
-  fs.writeFileSync(visitasFile, JSON.stringify(data, null, 2));
-}
+    // Atualiza workflow no PG
+    await query(`
+      UPDATE visitas SET
+        workflow_status=$1, workflow_atualizado_em=NOW(),
+        workflow_responsavel=$2, workflow_label=$3, workflow_proxima_acao=$4,
+        atualizado_em=NOW()
+      WHERE id=$5
+    `, [
+      workflowStatus,
+      extras.workflowResponsavel || visita.workflow_responsavel || '',
+      extras.workflowLabel || visita.workflow_label || '',
+      extras.workflowProximaAcao || visita.workflow_proxima_acao || '',
+      visitaId
+    ]);
 
-function atualizarWorkflowVisita(visitaId, workflowStatus, extras = {}) {
-  const visitas = loadVisitas();
-
-  const idx = visitas.findIndex(v => String(v.id) === String(visitaId));
-
-  if (idx === -1) {
-    return { erro: 'Visita não encontrada' };
-  }
-
-  visitas[idx].workflowStatus = workflowStatus;
-  visitas[idx].workflowAtualizadoEm = new Date().toISOString();
-
-  if (extras.workflowResponsavel) {
-    visitas[idx].workflowResponsavel = extras.workflowResponsavel;
-  }
-
-  if (extras.workflowLabel) {
-    visitas[idx].workflowLabel = extras.workflowLabel;
-  }
-
-  if (extras.workflowProximaAcao) {
-    visitas[idx].workflowProximaAcao = extras.workflowProximaAcao;
-  }
-
-  saveVisitas(visitas);
-
-  // PIPELINE: visita realizada → lead avança automaticamente
-  try {
-    const _leadId = visitas[idx].leadId || visitas[idx].lead_id || '';
-    if (_leadId) {
-      const _path = require('path');
-      const _fs = require('fs');
-      const _dir = process.env.RENDER ? '/opt/render/project/src/data' : _path.join(__dirname, '../..');
-      const _dataFile = _path.join(_dir, 'data.json');
-      if (_fs.existsSync(_dataFile)) {
-        const _leads = JSON.parse(_fs.readFileSync(_dataFile, 'utf8'));
-        const _li = _leads.findIndex(l => String(l.id) === String(_leadId));
-        if (_li >= 0) {
-          const _ws = (workflowStatus || '').toLowerCase();
-          if (_ws === 'realizada') { _leads[_li].faseFunil = 'visitou'; _leads[_li].status = 'visitou'; }
-          else if (_ws === 'confirmada') { _leads[_li].faseFunil = 'visita'; _leads[_li].status = 'visita'; }
-          _leads[_li].atualizadoEm = new Date().toISOString();
-          _fs.writeFileSync(_dataFile, JSON.stringify(_leads, null, 2));
-          console.log('[PIPELINE] lead', _leadId, '->', _leads[_li].faseFunil);
+    // PIPELINE: atualiza faseFunil da lead no PG
+    const leadId = visita.lead_id || '';
+    if (leadId) {
+      try {
+        const ws = (workflowStatus || '').toLowerCase();
+        if (ws === 'realizada') {
+          await query(`UPDATE leads SET fase_funil='visitou', status='visitou', atualizado_em=NOW() WHERE id=$1`, [leadId]);
+          console.log('[PIPELINE] lead', leadId, '-> visitou');
+        } else if (ws === 'confirmada') {
+          await query(`UPDATE leads SET fase_funil='visita', status='visita', atualizado_em=NOW() WHERE id=$1`, [leadId]);
+          console.log('[PIPELINE] lead', leadId, '-> visita');
         }
-      }
+      } catch(e) { console.error('[PIPELINE] erro:', e.message); }
     }
-  } catch(_e) { console.error('[PIPELINE] erro:', _e.message); }
 
-  registrarEvento({
-    tipo: 'WORKFLOW_VISITA_ATUALIZADO',
-    visitaId: visitas[idx].id,
-    leadId: visitas[idx].leadId || '',
-    imovelId: visitas[idx].imovelId || '',
-    userId: visitas[idx].userId || '',
-    descricao: `Workflow alterado para ${workflowStatus}`,
-    payload: {
-      workflowStatus
-    }
-  });
+    // Notificação e evento
+    const userId = visita.user_id || visita.corretor_id || '';
+    registrarEvento({
+      tipo: 'WORKFLOW_VISITA_ATUALIZADO', visitaId, leadId,
+      imovelId: visita.imovel_id || '', userId,
+      descricao: `Workflow alterado para ${workflowStatus}`,
+      payload: { workflowStatus }
+    });
+    await criarNotificacao({
+      tipo: 'WORKFLOW_VISITA', titulo: 'Workflow da visita atualizado',
+      mensagem: `Visita alterada para ${workflowStatus}`,
+      prioridade: 'alta', userId, leadId, visitaId,
+      imovelId: visita.imovel_id || '', acao: 'abrir_visita', link: '/app/visitas'
+    });
 
-  criarNotificacao({
-    tipo: 'WORKFLOW_VISITA',
-    titulo: 'Workflow da visita atualizado',
-    mensagem: `Visita alterada para ${workflowStatus}`,
-    prioridade: 'alta',
-    userId: visitas[idx].userId || '',
-    leadId: visitas[idx].leadId || '',
-    visitaId: visitas[idx].id,
-    imovelId: visitas[idx].imovelId || '',
-    acao: 'abrir_visita',
-    link: '/app/visitas'
-  });
-
-  return visitas[idx];
+    return { ...visita, workflowStatus };
+  } catch(e) {
+    console.error('[atualizarWorkflowVisita PG]', e.message);
+    return { erro: e.message };
+  }
 }
 
-module.exports = {
-  atualizarWorkflowVisita
-};
+module.exports = { atualizarWorkflowVisita };

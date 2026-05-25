@@ -6076,49 +6076,24 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
     const _usersQR3 = await _luQR2();
     const _idxQR = _usersQR3.findIndex(u => u.id === userId);
     if (_idxQR >= 0) { _usersQR3[_idxQR].whatsappInstance = instanceName2; _usersQR3[_idxQR].whatsappStatus = 'connecting'; await _salvarQR2(_usersQR3).catch(()=>{}); }
-    // Polling: tenta buscar QR direto da API e também via cache webhook
+    // Polling: busca QR via /instance/connect a cada 3s
     for (let _wi = 0; _wi < 10; _wi++) {
       await new Promise(r => setTimeout(r, 3000));
-      // Verifica cache webhook
-      if (_qrCache[instanceName2]?.base64) {
-        console.log('[QRCODE2] QR encontrado no cache após', (_wi+1)*3, 'segundos');
-        return res.json({ ok: true, base64: _qrCache[instanceName2].base64, instanceName: instanceName2 });
-      }
-      // Busca QR direto na Evolution API
       try {
-        const qrRes = await fetch(EVOLUTION_URL2 + '/instance/fetchInstances/' + instanceName2, {
+        const qrRes = await fetch(EVOLUTION_URL2 + '/instance/connect/' + instanceName2, {
           headers: { 'apikey': EVOLUTION_KEY2 }
         });
         const qrData = await qrRes.json();
-        const directQR = qrData?.instance?.qrcode?.base64 || qrData?.qrcode?.base64 || qrData?.base64;
-        if (directQR) {
-          console.log('[QRCODE2] QR encontrado direto na API tentativa', _wi+1);
-          return res.json({ ok: true, base64: directQR, instanceName: instanceName2 });
-        }
-        // Tenta endpoint dedicado de QR
-        const qrRes2 = await fetch(EVOLUTION_URL2 + '/instance/connect/' + instanceName2, {
-          headers: { 'apikey': EVOLUTION_KEY2 }
-        });
-        const qrData2 = await qrRes2.json();
-        const directQR2 = qrData2?.base64 || qrData2?.qrcode?.base64 || qrData2?.code;
-        if (directQR2) {
-          console.log('[QRCODE2] QR encontrado via connect tentativa', _wi+1);
-          return res.json({ ok: true, base64: directQR2, instanceName: instanceName2 });
-        }
-      } catch(_qrErr) { console.log('[QRCODE2] erro fetch direto:', _qrErr.message); }
-      // Busca QR direto na Evolution API
-      try {
-        const qrRes2 = await fetch(EVOLUTION_URL2 + '/instance/connect/' + instanceName2, {
-          headers: { 'apikey': EVOLUTION_KEY2 }
-        });
-        const qrData2 = await qrRes2.json();
-        const directQR = qrData2?.base64 || qrData2?.qrcode?.base64 || qrData2?.code;
+        const directQR = qrData?.base64 || qrData?.qrcode?.base64 || qrData?.code;
         if (directQR) {
           console.log('[QRCODE2] QR encontrado via connect tentativa', _wi+1);
           return res.json({ ok: true, base64: directQR, instanceName: instanceName2 });
         }
-      } catch(_qrErr) { console.log('[QRCODE2] erro fetch direto:', _qrErr.message); }
-      console.log('[QRCODE2] aguardando QR... tentativa', _wi+1);
+        console.log('[QRCODE2] connect tentativa', _wi+1, ':', JSON.stringify(qrData).substring(0,80));
+      } catch(_qrErr) { console.log('[QRCODE2] erro connect:', _qrErr.message); }
+      if (_qrCache[instanceName2]?.base64) {
+        return res.json({ ok: true, base64: _qrCache[instanceName2].base64, instanceName: instanceName2 });
+      }
     }
     return res.json({ ok: false, erro: 'QR não gerado em 30s — tente novamente' });
   } catch(e) {

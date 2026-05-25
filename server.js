@@ -6266,13 +6266,29 @@ app.delete('/app/lead/:id', auth, async (req, res) => {
     const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
     if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
     const lead = leads[idx];
-    // Marca como deletada por este usuário — não remove globalmente
-    if (!leads[idx].deletadoPor) leads[idx].deletadoPor = [];
-    if (!leads[idx].deletadoPor.includes(uid)) leads[idx].deletadoPor.push(uid);
-    await salvarTodosLeads(leads);
-    // Força recarregamento do cache
-    _cacheLeads = leads;
-    console.log('[LEAD] ocultada para:', uid, '| lead:', req.params.id);
+    const telefone = String(lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g,'');
+    // Deleta a lead do banco
+    await deletarLead(req.params.id, uid);
+    console.log('[LEAD] deletada:', req.params.id, '| userId:', uid);
+    // Deleta histórico de chat na Evolution API
+    if (telefone) {
+      try {
+        const _usersEv = await lerUsuarios();
+        const _userEv = _usersEv.find(u => u.id === uid);
+        const _instEv = _userEv?.whatsappInstance;
+        const _evUrl = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+        const _evKey = process.env.EVOLUTION_KEY || 'match2025evolution';
+        if (_instEv) {
+          const jid = '55' + telefone.replace(/^55/,'') + '@s.whatsapp.net';
+          await fetch(_evUrl + '/chat/deleteMessage/' + _instEv, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'apikey': _evKey },
+            body: JSON.stringify({ remoteJid: jid })
+          }).catch(e => console.log('[LEAD] erro delete chat Evolution:', e.message));
+          console.log('[LEAD] histórico WhatsApp deletado para:', telefone);
+        }
+      } catch(e) { console.log('[LEAD] erro delete Evolution:', e.message); }
+    }
     res.json({ ok: true });
   } catch(e) {
     res.status(500).json({ erro: e.message });

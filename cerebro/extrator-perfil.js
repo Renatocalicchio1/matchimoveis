@@ -98,13 +98,15 @@ function extrairNumero(txt, palavras) {
   for (const [ext, num] of Object.entries(extenso)) {
     txtNorm = txtNorm.replace(new RegExp('\\b' + ext + '\\b', 'gi'), num);
   }
+  // Tenta ANTES da palavra primeiro (ex: "3 dorm", "2 banheiros")
   for (const p of palavras) {
-    const re = new RegExp(p + '\\s*[:]?\\s*(\\d+)', 'i');
+    const re = new RegExp('(\\d+)\\s*' + p, 'i');
     const m = txtNorm.match(re);
     if (m) return parseInt(m[1]);
   }
+  // Fallback: número DEPOIS da palavra (ex: "dorm: 3")
   for (const p of palavras) {
-    const re = new RegExp('(\\d+)\\s*' + p, 'i');
+    const re = new RegExp(p + '\\s*[:]?\\s*(\\d+)', 'i');
     const m = txtNorm.match(re);
     if (m) return parseInt(m[1]);
   }

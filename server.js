@@ -513,13 +513,13 @@ async function salvarLeadsData(leads) {
   } catch(e) { console.error('[salvarLeadsData]', e.message); }
 }
 
-function lerVisitasData() {
+async function lerVisitasData(userId) {
   try {
-    const p = dataPath('visitas.json');
-    return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : [];
+    const { query: _qV } = require('./services/db');
+    const _rV = userId ? await _qV('SELECT * FROM visitas WHERE user_id=$1 ORDER BY criado_em DESC', [userId]) : await _qV('SELECT * FROM visitas ORDER BY criado_em DESC');
+    return _rV.rows;
   } catch(e) { console.error('[lerVisitasData]', e.message); return []; }
 }
-
 async function salvarVisitasData(visitas) {
   try {
     salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
@@ -4306,7 +4306,7 @@ app.use('/admin', (req, res, next) => {
 // ROTA TEMPORÁRIA — zerar visitas e notificações
 app.get('/admin/zerar-visitas-notificacoes-temp', async (req, res) => {
   salvarTodasVisitas([]).catch(e=>console.error("[visitas]",e.message));
-  salvarJSON(dataPath('notificacoes.json'), []).catch(e=>console.error("[notif]",e.message));
+  try { const { query: _qN } = require('./services/db'); await _qN('DELETE FROM notificacoes'); } catch(e) {}
   res.send('✅ Visitas e notificações zeradas no disco persistente!');
 });
 
@@ -4679,8 +4679,8 @@ app.post('/admin/sync-leads-extraidas', express.json({limit:'50mb'}), async (req
     if(!userId || !Array.isArray(leadsAtualizadas)){
       return res.status(400).json({ok:false,error:'userId e leads obrigatorios'});
     }
-    const df = dataPath('data.json');
-    const todas = fs.existsSync(df) ? JSON.parse(fs.readFileSync(df,'utf8')) : [];
+
+    const { lerLeads: _llPL } = require('./services/salvarLead'); const todas = await _llPL(userId);
     const outrasContas = todas.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') !== String(userId));
     const idsAtualizadas = new Set(leadsAtualizadas.map(l => String(l.id||l.url)));
     const mesmaContaSemAtualizar = todas.filter(l => {
@@ -4746,9 +4746,9 @@ app.post('/app/assistente/acao-direta', auth, express.json(), async (req, res) =
     if (acao === 'fazer_match') {
       const { buscarMatchesBaseInterna } = require('./matchBaseInterna.js');
       const dataArq = dataPath('data.json');
-      const imovArq = dataPath('imoveis.json');
-      const todasLeads = fs.existsSync(dataArq) ? JSON.parse(fs.readFileSync(dataArq,'utf8')) : [];
-      const todosIm = fs.existsSync(imovArq) ? JSON.parse(fs.readFileSync(imovArq,'utf8')) : [];
+
+      const { lerLeads: _llM } = require('./services/salvarLead'); const todasLeads = await _llM(userId);
+      const { lerImoveis: _liM } = require('./services/salvarImovel'); const todosIm = await _liM(userId);
       const minhasLeads = todasLeads.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId && l.extractionStatus === 'ok');
       let comMatch = 0, semMatch = 0;
       minhasLeads.forEach(lead => {

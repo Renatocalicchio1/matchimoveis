@@ -2336,10 +2336,8 @@ setInterval(() => {
 // ── JOB_FOLLOWUPS — processa followUps pendentes vencidos ────────────────────
 setInterval(async () => {
   try {
-    const _path = require('path');
-    const _dataFile = dataPath('data.json');
-    if (!fs.existsSync(_dataFile)) return;
-    const _leads = JSON.parse(fs.readFileSync(_dataFile, 'utf8'));
+    const { lerLeads: _llFU } = require('./services/salvarLead');
+    const _leads = await _llFU();
     const _users = (_cacheUsuarios || []);
     const _agora = Date.now();
     const BASE_URL = process.env.RENDER ? 'https://matchimoveis.onrender.com' : (process.env.BASE_URL || 'http://localhost:3000');
@@ -2942,7 +2940,8 @@ app.get('/app/mapa', auth, async (req, res) => {
     (v.dataVisita===hoje || v.dataVisita===amanha || v.status==='solicitada' || v.status==='pendente')
   ).sort((a,b)=>(a.dataVisita||'').localeCompare(b.dataVisita||'') || (a.horaVisita||'').localeCompare(b.horaVisita||''));
   // Leads ativas do corretor
-  const todasLeads = _cacheLeads || (fs2.existsSync(path2.join(DATA_DIR2,'data.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'data.json'),'utf8')) : []);
+  const { lerLeads: _llMapa } = require('./services/salvarLead');
+  const todasLeads = _cacheLeads || await _llMapa(userId);
   const leadsCorretor = todasLeads.filter(l => (l.userId===userId||l.codigoUsuario===userId) && l.status!=='arquivado');
   // Imóveis com visita hoje
   const imoveisVisita = [];

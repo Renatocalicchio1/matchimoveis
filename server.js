@@ -764,7 +764,6 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
 
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
   try {
-    const _notifs = fs.existsSync(dataPath('notificacoes.json')) ? JSON.parse(fs.readFileSync(dataPath('notificacoes.json'),'utf8')) : [];
     const _v = visitas[idx];
     const _uid = _v.userId || _v.corretorId || '';
     const _imovel = _v.imovelTitulo || _v.imovelBairro || 'imovel';
@@ -790,7 +789,7 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
         }[resposta];
         if (_msgParc) criarNotificacaoService({ id: (Date.now()+1).toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _msgParc, usuarioId: _parcId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
       }
-      salvarJSON(dataPath('notificacoes.json'), _notifs).catch(e=>console.error("[notif]",e.message));
+      // notificações salvas via criarNotificacaoService (PG)
     }
   } catch(e) { console.log('Erro notif proprietario:', e.message); }
   res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
@@ -3333,8 +3332,7 @@ app.post('/api/lead-interesse', async (req, res) => {
           criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
         });
 
-        salvarJSON(dataPath('notificacoes.json'), notificacoes).catch(e=>console.error("[notif]",e.message));
-        console.log('🔔 Notificação criada: nova visita');
+        console.log('🔔 Notificação criada: nova visita (PG)');
       } catch(e) {
         console.log('Erro ao criar notificação:', e.message);
       }
@@ -4326,23 +4324,21 @@ res.send("✅ " + removidas + " visita(s) removidas para userId: " + userId);
 // ADMIN — Zerar notificações por userId
 app.get("/admin/zerar-notificacoes/:userId", async (req, res) => {
 const { userId } = req.params;
-const notifs = fs.existsSync(dataPath("notificacoes.json")) ? JSON.parse(fs.readFileSync(dataPath("notificacoes.json"), "utf8")) : [];
-const restantes = notifs.filter(n => n.usuarioId !== userId);
-const removidas = notifs.length - restantes.length;
-salvarJSON(dataPath('notificacoes.json'), restantes).catch(e=>console.error("[notif]",e.message));
-res.send("✅ " + removidas + " notificacao(oes) removidas para userId: " + userId);
+try {
+  const { query: _q } = require('./services/db');
+  const r = await _q('DELETE FROM notificacoes WHERE usuario_id=$1', [userId]);
+  res.send("✅ Notificações removidas para userId: " + userId);
+} catch(e) { res.send("Erro: " + e.message); }
 });
 
 // ADMIN — Zerar tudo por userId
 app.get("/admin/zerar-tudo/:userId", async (req, res) => {
 const { userId } = req.params;
 const visitas = (_cacheVisitas || []);
-const notifs = fs.existsSync(dataPath("notificacoes.json")) ? JSON.parse(fs.readFileSync(dataPath("notificacoes.json"), "utf8")) : [];
 const visitasRest = visitas.filter(v => v.userId !== userId);
-const notifsRest = notifs.filter(n => n.usuarioId !== userId);
 salvarTodasVisitas(visitasRest).catch(e=>console.error("[visitas]",e.message));
-salvarJSON(dataPath('notificacoes.json'), notifsRest).catch(e=>console.error("[notif]",e.message));
-res.send("✅ Zerado para " + userId + ": " + (visitas.length - visitasRest.length) + " visita(s), " + (notifs.length - notifsRest.length) + " notificacao(oes)");
+try { const { query: _q2 } = require('./services/db'); await _q2('DELETE FROM notificacoes WHERE usuario_id=$1', [userId]); } catch(e) {}
+res.send("✅ Zerado para " + userId + ": " + (visitas.length - visitasRest.length) + " visita(s) + notificações");
 });
 
 // Página confirmação de presença do lead

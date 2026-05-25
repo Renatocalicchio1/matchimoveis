@@ -1,29 +1,6 @@
-const fs = require('fs');
-const path = require('path');
+const { query, dbOk } = require('../db');
 
-const DATA_DIR =
-  process.env.RENDER
-    ? '/opt/render/project/src/data'
-    : '.';
-
-const notificacoesFile = path.join(DATA_DIR, 'notificacoes.json');
-
-function loadNotificacoes() {
-  if (!fs.existsSync(notificacoesFile)) return [];
-  try {
-    return JSON.parse(fs.readFileSync(notificacoesFile, 'utf8'));
-  } catch {
-    return [];
-  }
-}
-
-function saveNotificacoes(data) {
-  fs.writeFileSync(notificacoesFile, JSON.stringify(data, null, 2));
-}
-
-function criarNotificacao(notificacao = {}) {
-  const notificacoes = loadNotificacoes();
-
+async function criarNotificacao(notificacao = {}) {
   const nova = {
     id: 'notif-' + Date.now(),
     tipo: notificacao.tipo || 'GERAL',
@@ -31,26 +8,43 @@ function criarNotificacao(notificacao = {}) {
     mensagem: notificacao.mensagem || '',
     prioridade: notificacao.prioridade || 'normal',
     status: 'pendente',
-
     userId: notificacao.userId || '',
     leadId: notificacao.leadId || '',
     visitaId: notificacao.visitaId || '',
     imovelId: notificacao.imovelId || '',
-
     acao: notificacao.acao || '',
     link: notificacao.link || '',
-
     createdAt: new Date().toISOString()
   };
-
-  notificacoes.unshift(nova);
-
-  saveNotificacoes(notificacoes);
-
+  if (await dbOk()) {
+    try {
+      await query(`
+        INSERT INTO notificacoes (id, tipo, titulo, mensagem, prioridade, status, user_id, lead_id, visita_id, imovel_id, acao, link, created_at)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+        ON CONFLICT (id) DO NOTHING
+      `, [nova.id, nova.tipo, nova.titulo, nova.mensagem, nova.prioridade, nova.status,
+          nova.userId, nova.leadId, nova.visitaId, nova.imovelId, nova.acao, nova.link, nova.createdAt]);
+    } catch(e) { console.error('[criarNotificacao PG]', e.message); }
+  }
   return nova;
 }
 
-module.exports = {
-  criarNotificacao,
-  loadNotificacoes
-};
+async function loadNotificacoes(userId) {
+  if (await dbOk()) {
+    try {
+      const r = await query(
+        `SELECT * FROM notificacoes WHERE user_id=$1 ORDER BY created_at DESC LIMIT 100`,
+        [userId]
+      );
+      return r.rows.map(n => ({
+        id: n.id, tipo: n.tipo, titulo: n.titulo, mensagem: n.mensagem,
+        prioridade: n.prioridade, status: n.status, userId: n.user_id,
+        leadId: n.lead_id, visitaId: n.visita_id, imovelId: n.imovel_id,
+        acao: n.acao, link: n.link, createdAt: n.created_at
+      }));
+    } catch(e) { console.error('[loadNotificacoes PG]', e.message); }
+  }
+  return [];
+}
+
+module.exports = { criarNotificacao, loadNotificacoes };

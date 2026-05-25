@@ -5556,8 +5556,9 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
 });
 
 // ── SERVER START ──────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log('[SERVER] rodando na porta', PORT);
+const _PORT = process.env.PORT || 3000;
+app.listen(_PORT, () => {
+  console.log('[SERVER] rodando na porta', _PORT);
 });
 };
 

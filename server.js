@@ -6066,11 +6066,8 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
     let instanceToken = createData?.hash;
     if (!instanceToken) {
       try {
-        console.log('[QRCODE2] fetchInstances url=', EVOLUTION_URL2, '| key=', EVOLUTION_KEY2?.substring(0,8));
         const fetchRes = await fetch(EVOLUTION_URL2 + '/instance/fetchInstances', { headers: { 'apikey': EVOLUTION_KEY2 } });
-        const fetchRaw = await fetchRes.text();
-        console.log('[QRCODE2] fetchInstances raw:', fetchRaw.substring(0,200));
-        const fetchData = JSON.parse(fetchRaw);
+        const fetchData = await fetchRes.json();
         const instList = Array.isArray(fetchData) ? fetchData : (fetchData?.data || []);
         const inst = instList.find(i => i.name === instanceName2);
         instanceToken = inst?.token || null;

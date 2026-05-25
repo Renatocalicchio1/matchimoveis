@@ -6063,6 +6063,15 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
     });
     const createData = await createRes.json();
     console.log('[QRCODE2] instância criada:', instanceName2, '| status:', createData?.instance?.status);
+    // QR já vem na resposta do create
+    const qrDireto = createData?.qrcode?.base64 || createData?.instance?.qrcode?.base64;
+    if (qrDireto) {
+      console.log('[QRCODE2] QR encontrado direto no create!');
+      const _usersQR3b = await _luQR2();
+      const _idxQR3b = _usersQR3b.findIndex(u => u.id === userId);
+      if (_idxQR3b >= 0) { _usersQR3b[_idxQR3b].whatsappInstance = instanceName2; _usersQR3b[_idxQR3b].whatsappStatus = 'connecting'; await _salvarQR2(_usersQR3b).catch(()=>{}); }
+      return res.json({ ok: true, base64: qrDireto, instanceName: instanceName2 });
+    }
     // Salva instância no usuário
     const _usersQR3 = await _luQR2();
     const _idxQR = _usersQR3.findIndex(u => u.id === userId);

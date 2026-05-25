@@ -6062,7 +6062,17 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
       })
     });
     const createData = await createRes.json();
-    const instanceToken = createData?.hash || EVOLUTION_KEY2;
+    // Busca token: vem no create ou busca via fetchInstances se já existia
+    let instanceToken = createData?.hash;
+    if (!instanceToken) {
+      try {
+        const fetchRes = await fetch(EVOLUTION_URL2 + '/instance/fetchInstances', { headers: { 'apikey': EVOLUTION_KEY2 } });
+        const fetchData = await fetchRes.json();
+        const inst = Array.isArray(fetchData) ? fetchData.find(i => i.name === instanceName2) : null;
+        instanceToken = inst?.token || EVOLUTION_KEY2;
+        console.log('[QRCODE2] token buscado via fetchInstances:', instanceToken?.substring(0,8));
+      } catch(e) { instanceToken = EVOLUTION_KEY2; }
+    }
     console.log('[QRCODE2] instância criada:', instanceName2, '| status:', createData?.instance?.status, '| token:', instanceToken?.substring(0,8));
     // QR já vem na resposta do create
     const qrDireto = createData?.qrcode?.base64 || createData?.instance?.qrcode?.base64;

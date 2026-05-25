@@ -113,7 +113,7 @@ function extrairNumero(txt, palavras) {
   return null;
 }
 
-function extrairValor(txt) {
+function extrairValor(txt, intencao) {
   // entre X e Y
   const entre = txt.match(/entre\s*r?\$?\s*([\d.,]+)\s*(mil|k|m)?\s*(?:e|a)\s*r?\$?\s*([\d.,]+)\s*(mil|k)?/i);
   if (entre) {
@@ -140,6 +140,20 @@ function extrairValor(txt) {
     if ((val[2]||'').match(/mil|k/i)) v *= 1000;
     if ((val[2]||'').match(/^m$/i)) v *= 1000000;
     return { valorMax: v };
+  }
+  // número + mil/k sem prefixo (ex: "500 mil", "800k")
+  const semPrefixo = txt.match(/(?:^|\s)(\d[\d.]*(?:,\d+)?)\s*(mil(?:hao|hoes|hoes)?|k\b)/i);
+  if (semPrefixo) {
+    let v = parseFloat(semPrefixo[1].replace(/\./g,'').replace(',','.'));
+    v *= 1000;
+    return { valorMax: v };
+  }
+  // número puro — threshold depende da intenção
+  const minVal = intencao === 'alugar' ? 300 : 50000;
+  const numPuro = txt.match(/(?:^|\s)(\d{3,})(?:\s|$)/g);
+  if (numPuro) {
+    const numeros = numPuro.map(n => parseInt(n.trim())).filter(n => n >= minVal).sort((a,b) => b-a);
+    if (numeros.length) return { valorMax: numeros[0] };
   }
   return null;
 }
@@ -1425,8 +1439,11 @@ function extrairPerfil(mensagens) {
   const andar = extrairNumero(norm, ['andar','andares','piso']);
   if (andar) perfil.andar = andar;
 
+  // Intenção (antes do valor para contexto)
+  const intencaoPrevia = extrairIntencao(norm);
+  if (intencaoPrevia) perfil.intencao = intencaoPrevia;
   // Valor
-  const valor = extrairValor(norm);
+  const valor = extrairValor(norm, intencaoPrevia);
   if (valor) Object.assign(perfil, valor);
 
   // Bairro

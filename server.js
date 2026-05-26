@@ -3252,39 +3252,9 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     String(v.userId || v.codigoUsuario || '') === uid
   );
 
-  const imoveisInternos = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
-
-  let matchesInternos = [];
-  try {
-    const { buscarMatchesBaseInterna } = require('./matchBaseInterna');
-    // Enriquece lead com dados do perfilIA antes do match
-    const leadParaMatch = {
-      ...lead,
-      bairro: lead.perfilIA?.bairro || lead.bairro || '',
-      tipo: lead.perfilIA?.tipo || lead.tipo || '',
-      quartos: lead.perfilIA?.quartos || lead.quartos || 0,
-      valorMax: lead.perfilIA?.valorMax || lead.valorMax || 0,
-      cidade: lead.perfilIA?.cidade || lead.cidade || '',
-      estado: lead.perfilIA?.estado || lead.estado || ''
-    };
-    matchesInternos = buscarMatchesBaseInterna(leadParaMatch, imoveisInternos);
-
-    lead.matches = (matchesInternos || []).map((m,idx) => {
-      const score = Number(m.score || m.bestScore || m.matchScore || m.pontuacao || 0);
-      return {
-        ...m,
-        rank: m.rank || idx + 1,
-        score,
-        bestScore: score
-      };
-    });
-    lead.matchCount = lead.matches.length;
-    lead.bestScore = lead.matches[0] ? lead.matches[0].score : 0;
-    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
-  } catch(e) {
-    console.error('Erro match base interna lead:', e.message);
-    matchesInternos = [];
-  }
+  // Usa matches já salvos no PG (gerados pelo motor de intenção)
+  let matchesInternos = lead.matches || lead.matchesAuto || [];
+  console.log(`[LEAD DETALHE] matches do PG: ${matchesInternos.length}`);
 
   let sugestoesCopiloto = [];
   try {

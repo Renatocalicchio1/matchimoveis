@@ -488,56 +488,47 @@ return lead;
   async _matchCaso2(lead, perfil, userId) {
     try {
       if (!this._perfilSuficiente(perfil, lead)) {
-        const faltando = [];
-        if (!perfil.tipo) faltando.push('tipo');
-        if (!perfil.quartos) faltando.push('quartos');
-        if (!perfil.bairro && !perfil.valorMax) faltando.push('bairro ou valor');
-        console.log(`[MATCH CORE] caso2 | perfil insuficiente | faltando: ${faltando.join(', ')}`);
         return lead;
       }
 
-      const { buscarMatchesBaseInterna } = require('../matchBaseInterna');
-      const { query: _queryMatch2 } = require('../services/db');
-      const _resMatch2 = await _queryMatch2("SELECT * FROM imoveis WHERE status='ativo'", []);
-      const imoveisDoUser = _resMatch2.rows;
-      console.log('[MATCH CORE] imóveis PG caso2 (toda base):', imoveisDoUser.length);
-
-
-
-      const leadFake = {
-        tipo:     perfil.tipo     || lead.tipo     || '',
-        bairro:   perfil.bairro   || lead.bairro   || lead.bairroDesejado || '',
-        cidade:   perfil.cidade   || lead.cidade   || 'São Paulo',
-        estado:   perfil.estado   || lead.estado   || 'SP',
-        quartos:  perfil.quartos  || lead.quartos  || 0,
-        valorMax: perfil.valorMax || lead.valorMax || 0,
-        valorMin: perfil.valorMin || lead.valorMin || 0,
-        area:     perfil.area     || lead.area     || 0,
-        suites:   perfil.suites   || lead.suites   || 0,
-        vagas:    perfil.vagas    || lead.vagas    || 0
-      };
-
-      console.log(`[MATCH CORE] caso2 | tipo:${leadFake.tipo} bairro:${leadFake.bairro} quartos:${leadFake.quartos} valorMax:${leadFake.valorMax}`);
-
-      // ── MOTOR DE INTENÇÃO: usa mapaIntencao se disponível ──────
       const { matchPorMapa, inferirOcultos } = require('./motor-intencao');
-      let matchesNovos = [];
+      const { query: _queryMatch2 } = require('../services/db');
+      const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 
-      if (lead.mapaIntencao && (lead.mapaIntencao.tipo_imovel||[]).length > 0) {
-        const resultadosMapa = matchPorMapa(lead, imoveisDoUser);
-        matchesNovos = resultadosMapa.map((r, i) => ({
-          ...r.imovel, rank: i+1, score: r.scoreMatch, motivos: r.motivos, origemMatch: 'mapa_intencao'
-        }));
-        lead.intencoesOcultas = inferirOcultos(lead);
-        const oc = Object.entries(lead.intencoesOcultas||{}).filter(([,v])=>v.score>0).map(([k,v])=>k+':'+v.score).join(' ');
-        console.log(`[MATCH CORE] caso2 via mapaIntencao | matches: ${matchesNovos.length} | ocultos: ${oc}`);
+      // Garante que mapaIntencao tem estado normalizado
+      const mapa = lead.mapaIntencao || {};
+      const estadoLead = norm(mapa.estado?.[0]?.valor || mapa.cidade?.[0]?.estado || perfil.estado || lead.estado || '');
+
+      // Busca imóveis do corretor + parceiros do mesmo estado
+      let _resMatch2;
+      if (estadoLead) {
+        _resMatch2 = await _queryMatch2(
+          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2 OR estado ILIKE $3)",
+          [userId, estadoLead, '%santa catarina%']
+        );
       } else {
-        const matchesTrad = buscarMatchesBaseInterna(leadFake, imoveisDoUser);
-        matchesNovos = (matchesTrad || []).slice(0, 8).map((m, i) => ({
-          ...m, rank: i+1, score: Number(m.score||m.bestScore||0), origemMatch: 'perfil_ia'
-        }));
-        console.log(`[MATCH CORE] caso2 via perfilIA (fallback) | matches: ${matchesNovos.length}`);
+        _resMatch2 = await _queryMatch2("SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'", [userId]);
       }
+      const imoveisDoUser = _resMatch2.rows;
+      console.log('[MATCH CORE] caso2 | imóveis pool:', imoveisDoUser.length, '| estado:', estadoLead);
+
+
+
+      // Se mapaIntencao não tem estado, tenta inferir do perfilIA
+      if (!(mapa.estado||[]).length && estadoLead) {
+        if (!mapa.estado) mapa.estado = [];
+        mapa.estado = [{ valor: estadoLead, score: 80, confianca: 80, scoreEfetivo: 80 }];
+      }
+
+      // Sempre usa matchPorMapa — mesma regra para todos os casos
+      let matchesNovos = [];
+      const resultadosMapa = matchPorMapa(lead, imoveisDoUser);
+      matchesNovos = resultadosMapa.map((r, i) => ({
+        ...r.imovel, rank: i+1, score: r.scoreMatch, motivos: r.motivos, origemMatch: 'motor_intencao'
+      }));
+      lead.intencoesOcultas = inferirOcultos(lead);
+      const oc = Object.entries(lead.intencoesOcultas||{}).filter(([,v])=>v.score>0).map(([k,v])=>k+':'+v.score).join(' ');
+      console.log(`[MATCH CORE] caso2 | matches: ${matchesNovos.length} | ocultos: ${oc||'nenhum'}`);
 
       const matchesAntes = lead.matchesAuto || lead.matches || [];
       if (matchesNovos.length >= matchesAntes.length) {

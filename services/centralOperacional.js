@@ -261,7 +261,7 @@ function montarMensagemWhatsappLead(leadResumo) {
   return `Olá ${nome}, tudo bem? Vi seu interesse${bairro}.${matches} Posso te enviar algumas opções e verificar um melhor horário para conversar?`;
 }
 
-function responderCentral(user, texto, dadosExternos = {}) {
+async function responderCentral(user, texto, dadosExternos = {}) {
   const ctx = carregarContexto(user, dadosExternos);
   ctx.imoveis = dadosExternos.imoveis || [];
   const intent = interpretarComando(texto);
@@ -317,7 +317,7 @@ function responderCentral(user, texto, dadosExternos = {}) {
         if (matches.length > 0) comMatch++; else semMatch++;
       });
       const { salvarTodosLeads } = require('./salvarLead');
-      await salvarTodosLeads(leadsOk);
+      salvarTodosLeads(leadsOk).catch(e=>console.error("[central match]",e.message));
       registrarHistorico(user, memoria, { tipo: 'fazer_match', texto: texto, comMatch: comMatch, semMatch: semMatch });
       return { intent: intent, resumo: resumo, resposta: 'Match concluido! ' + comMatch + ' lead(s) com match, ' + semMatch + ' sem match. Total: ' + leadsOk.length, itens: [] };
     } catch(e) {

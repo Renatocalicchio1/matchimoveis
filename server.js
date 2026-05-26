@@ -1068,6 +1068,7 @@ app.get('/app/notificacoes', auth, async (req,res)=>{
 
 app.get('/app-home', auth, async (req,res)=>{
   const user = req.session.user;
+  try {
   const { lerLeads: _llSvc2 } = require('./services/salvarLead');
   const todosImoveis = await lerImoveis(req.session.user.id);
   const todosLeads = await _llSvc2(req.session.user.id);
@@ -1086,6 +1087,7 @@ app.get('/app-home', auth, async (req,res)=>{
   const hoje = new Date().toDateString();
   const visitasHoje = visitas.filter(v => new Date(v.data).toDateString() === hoje);
   const recentes = leadsArr.slice(-5).reverse();
+  } catch(_homeErr) { console.error('[APP-HOME] erro:', _homeErr.message, _homeErr.stack); return res.status(500).send('Erro: ' + _homeErr.message); }
   res.render('app-home', {
     user: req.session.user,
     stats: {

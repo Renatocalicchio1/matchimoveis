@@ -1556,15 +1556,13 @@ function extrairPerfil(mensagens) {
   const ehRua = bairro && /^(rua|av|avenida|alameda|travessa|estrada|rodovia|r\.|al\.)/i.test(bairro.trim());
   if (bairro && !CIDADES_SET.has(bairro.toLowerCase()) && !ehRua) perfil.bairro = bairro;
 
-  // Infere cidade/estado pelo bairro SC
+  // Infere cidade/estado pelo dicionário do banco
   if (perfil.bairro) {
-    const _scInf = getBairrosSC();
-    for (const [_cid, _brs] of Object.entries(_scInf)) {
-      if (_brs.includes(perfil.bairro)) {
-        if (!perfil.cidade) perfil.cidade = _cid;
-        perfil.estado = 'sc';
-        break;
-      }
+    const _dic = getBairrosSC();
+    const _info = _dic[perfil.bairro];
+    if (_info) {
+      if (!perfil.cidade) perfil.cidade = _info.cidade;
+      if (!perfil.estado) perfil.estado = _info.estado;
     }
   }
   if (ehRua) perfil.rua = bairro;

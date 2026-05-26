@@ -569,10 +569,11 @@ async function carregarRecomendacoes() {
     data.recomendacoes.forEach(r => {
       const im = r.imovel;
       const id = im.id_externo || im.id || '';
-      const foto = (im.fotos && im.fotos[0]) ? im.fotos[0] : '';
+      const todasFotos = (im.fotos || []).filter(f => f && !f.includes('youtube') && !f.includes('youtu.be') && (f.includes('.jpg') || f.includes('.jpeg') || f.includes('.png') || f.includes('.webp')));
+      const foto = todasFotos[0] || '';
       const tipo = im.tipo || im.tipo_imovel || '';
       const bairro = im.bairro || '';
-      const preco = im.preco || im.valor_imovel || im.valor || 0;
+      const preco = Number(im.valor_imovel || im.preco || im.valor || 0);
       const quartos = im.quartos || im.dormitorios || 0;
       const score = r.scoreMatch || 0;
       const novidade = r.novidade ? '<span style="background:#f0fdf4;color:#16a34a;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600">novo</span>' : '';

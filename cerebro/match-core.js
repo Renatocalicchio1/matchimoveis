@@ -523,9 +523,15 @@ return lead;
       // Sempre usa matchPorMapa — mesma regra para todos os casos
       let matchesNovos = [];
       const resultadosMapa = matchPorMapa(lead, imoveisDoUser);
-      matchesNovos = resultadosMapa.map((r, i) => ({
-        ...r.imovel, rank: i+1, score: r.scoreMatch, motivos: r.motivos, origemMatch: 'motor_intencao'
-      }));
+      // Deduplica por id_externo
+      const _idsVistos2 = new Set();
+      for (const r of resultadosMapa) {
+        const rid = String(r.imovel.id_externo || r.imovel.id);
+        if (_idsVistos2.has(rid)) continue;
+        _idsVistos2.add(rid);
+        matchesNovos.push({ ...r.imovel, rank: matchesNovos.length+1, score: r.scoreMatch, motivos: r.motivos, origemMatch: 'motor_intencao' });
+        if (matchesNovos.length >= 30) break;
+      }
       lead.intencoesOcultas = inferirOcultos(lead);
       const oc = Object.entries(lead.intencoesOcultas||{}).filter(([,v])=>v.score>0).map(([k,v])=>k+':'+v.score).join(' ');
       console.log(`[MATCH CORE] caso2 | matches: ${matchesNovos.length} | ocultos: ${oc||'nenhum'}`);

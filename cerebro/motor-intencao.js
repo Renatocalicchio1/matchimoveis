@@ -32,137 +32,197 @@ function matchPorMapa(lead, imoveis) {
 
   const resultados = [];
 
-  for (const imovel of imoveis) {
-    if (imovel.status === 'inativo') continue;
+  for (const im of imoveis) {
+    if (im.status === 'inativo') continue;
+
+    // Normaliza campos do PG (snake_case) para nomes usados no motor
+    const imovel = {
+      id:          im.id,
+      id_externo:  im.id_externo || im.id_interno || im.codigo_imovel,
+      tipo:        im.tipo || im.categoria || '',
+      bairro:      im.bairro || '',
+      cidade:      im.cidade || '',
+      estado:      im.estado || '',
+      preco:       Number(im.valor_imovel || im.valor || 0),
+      quartos:     Number(im.quartos || im.dormitorios || 0),
+      suites:      Number(im.suites || 0),
+      vagas:       Number(im.vagas || 0),
+      banheiros:   Number(im.banheiros || 0),
+      area:        Number(im.area_m2 || im.area_construida || im.area_total || 0),
+      transacao:   _normalizar(im.transacao || im.condicao || ''),
+      financiamento: im.aceita_financiamento || false,
+      diferenciais: im.diferenciais || [],
+      fotos:       im.fotos || [],
+      condominio:  Number(im.condominio || 0),
+      andar:       Number(im.andar || 0),
+      _raw:        im // mantém o objeto original
+    };
 
     let scoreTotal = 0;
     let pesoTotal  = 0;
     const motivos  = [];
 
-    // ── TIPO DE IMÓVEL ──────────────────────────────────────────
-    // Considera todos os tipos com score, não só o principal
+    // ── TIPO ────────────────────────────────────────────────────
     if (mapa.tipo_imovel && mapa.tipo_imovel.length > 0) {
-      const tipoImovel = _normalizar(imovel.tipo || imovel.tipoImovel || '');
-      let melhorTipo = 0;
+      const tipoIm = _normalizar(imovel.tipo);
+      let melhor = 0;
       for (const sinal of mapa.tipo_imovel) {
-        const tipoLead = _normalizar(sinal.valor || '');
-        const scoreEfetivo = sinal.scoreEfetivo ?? sinal.score;
-        if (_tiposCompativeis(tipoLead, tipoImovel)) {
-          // Match exato vale mais; match por categoria (ex: "apartamento"+"cobertura") vale menos
-          const fator = tipoLead === tipoImovel ? 1.0 : 0.6;
-          melhorTipo = Math.max(melhorTipo, scoreEfetivo * fator);
+        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
+        if (_tiposCompativeis(_normalizar(sinal.valor||''), tipoIm)) {
+          const fator = _normalizar(sinal.valor||'') === tipoIm ? 1.0 : 0.6;
+          melhor = Math.max(melhor, scoreEf * fator);
         }
       }
-      if (melhorTipo > 0) {
-        scoreTotal += melhorTipo * 2.0; // peso 2x — tipo é crítico
-        pesoTotal  += 200;
-        motivos.push(`tipo compatível (score ${Math.round(melhorTipo)})`);
-      } else {
-        // Penalidade leve se tipo não bate — pode ser lead explorando
-        scoreTotal += 0;
-        pesoTotal  += 200;
+      pesoTotal += 200;
+      if (melhor > 0) { scoreTotal += melhor * 2.0; motivos.push(`tipo: ${imovel.tipo}`); }
+    }
+
+    // ── TRANSAÇÃO (compra/aluguel) ───────────────────────────────
+    if (mapa.transacao && mapa.transacao.length > 0) {
+      const transacaoIm = imovel.transacao;
+      let melhor = 0;
+      for (const sinal of mapa.transacao) {
+        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
+        const tv = _normalizar(sinal.valor||'');
+        const bate = (tv.includes('compra')||tv.includes('venda')) && (transacaoIm.includes('venda')||transacaoIm.includes('compra'))
+          || (tv.includes('alug')) && transacaoIm.includes('alug');
+        if (bate) melhor = Math.max(melhor, scoreEf);
       }
+      pesoTotal += 100;
+      if (melhor > 0) { scoreTotal += melhor * 1.0; motivos.push('transação compatível'); }
     }
 
     // ── BAIRRO ──────────────────────────────────────────────────
     if (mapa.bairro && mapa.bairro.length > 0) {
-      const bairroImovel = _normalizar(imovel.bairro || '');
-      let melhorBairro = 0;
+      const bairroIm = _normalizar(imovel.bairro);
+      let melhor = 0;
       for (const sinal of mapa.bairro) {
-        const bairroLead = _normalizar(sinal.valor || '');
-        const scoreEfetivo = sinal.scoreEfetivo ?? sinal.score;
-        if (bairroLead === bairroImovel) {
-          melhorBairro = Math.max(melhorBairro, scoreEfetivo);
-        } else if (_bairrosProximos(bairroLead, bairroImovel)) {
-          melhorBairro = Math.max(melhorBairro, scoreEfetivo * 0.5);
-        }
+        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
+        const bl = _normalizar(sinal.valor||'');
+        if (bl === bairroIm) melhor = Math.max(melhor, scoreEf);
+        else if (_bairrosProximos(bl, bairroIm)) melhor = Math.max(melhor, scoreEf * 0.5);
       }
-      if (melhorBairro > 0) {
-        scoreTotal += melhorBairro * 1.5;
-        pesoTotal  += 150;
-        motivos.push(`bairro compatível (score ${Math.round(melhorBairro)})`);
-      } else {
-        pesoTotal += 150;
-      }
+      pesoTotal += 150;
+      if (melhor > 0) { scoreTotal += melhor * 1.5; motivos.push(`bairro: ${imovel.bairro}`); }
     }
 
-    // ── VALOR / ORÇAMENTO ────────────────────────────────────────
-    if (mapa.valor && mapa.valor.length > 0) {
-      const precoImovel = Number(imovel.preco || imovel.valor || 0);
-      if (precoImovel > 0) {
-        let melhorValor = 0;
-        for (const sinal of mapa.valor) {
-          const scoreEfetivo = sinal.scoreEfetivo ?? sinal.score;
-          const vmin = sinal.valor?.min || 0;
-          const vmax = sinal.valor?.max || Infinity;
-          // Dentro do range: full score; até 20% acima: parcial; acima: penalidade
-          if (precoImovel >= vmin && precoImovel <= vmax) {
-            melhorValor = Math.max(melhorValor, scoreEfetivo);
-          } else if (precoImovel <= vmax * 1.20) {
-            melhorValor = Math.max(melhorValor, scoreEfetivo * 0.5);
-          } else if (precoImovel < vmin * 0.70) {
-            // Imóvel muito barato em relação ao budget — pode ser aspiracional invertido
-            melhorValor = Math.max(melhorValor, scoreEfetivo * 0.2);
-          }
-        }
-        if (melhorValor > 0) {
-          scoreTotal += melhorValor * 1.5;
-          pesoTotal  += 150;
-          motivos.push(`valor dentro do range (score ${Math.round(melhorValor)})`);
-        } else {
-          pesoTotal += 150;
-        }
+    // ── CIDADE ──────────────────────────────────────────────────
+    if (mapa.cidade && mapa.cidade.length > 0) {
+      const cidadeIm = _normalizar(imovel.cidade);
+      let melhor = 0;
+      for (const sinal of mapa.cidade) {
+        if (_normalizar(sinal.valor||'') === cidadeIm) melhor = Math.max(melhor, sinal.scoreEfetivo ?? sinal.score);
       }
+      pesoTotal += 80;
+      if (melhor > 0) { scoreTotal += melhor * 0.8; motivos.push(`cidade: ${imovel.cidade}`); }
+    }
+
+    // ── VALOR ───────────────────────────────────────────────────
+    if (mapa.valor && mapa.valor.length > 0 && imovel.preco > 0) {
+      let melhor = 0;
+      for (const sinal of mapa.valor) {
+        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
+        const vmin = sinal.valor?.min || 0;
+        const vmax = sinal.valor?.max || Infinity;
+        if (imovel.preco >= vmin && imovel.preco <= vmax)        melhor = Math.max(melhor, scoreEf);
+        else if (imovel.preco <= vmax * 1.20)                    melhor = Math.max(melhor, scoreEf * 0.5);
+        else if (imovel.preco < vmin * 0.70)                     melhor = Math.max(melhor, scoreEf * 0.2);
+      }
+      pesoTotal += 150;
+      if (melhor > 0) { scoreTotal += melhor * 1.5; motivos.push(`valor: R$${imovel.preco.toLocaleString('pt-BR')}`); }
     }
 
     // ── QUARTOS ─────────────────────────────────────────────────
     if (mapa.quartos && mapa.quartos.length > 0) {
-      const qtosImovel = Number(imovel.quartos || imovel.dormitorios || 0);
-      let melhorQtos = 0;
+      let melhor = 0;
       for (const sinal of mapa.quartos) {
-        const scoreEfetivo = sinal.scoreEfetivo ?? sinal.score;
-        const qtosLead = Number(sinal.valor || 0);
-        if (qtosLead === qtosImovel) {
-          melhorQtos = Math.max(melhorQtos, scoreEfetivo);
-        } else if (Math.abs(qtosLead - qtosImovel) === 1) {
-          // 1 quarto de diferença: parcial
-          melhorQtos = Math.max(melhorQtos, scoreEfetivo * 0.6);
-        }
+        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
+        const ql = Number(sinal.valor||0);
+        if (ql === imovel.quartos)               melhor = Math.max(melhor, scoreEf);
+        else if (Math.abs(ql - imovel.quartos) === 1) melhor = Math.max(melhor, scoreEf * 0.6);
       }
-      if (melhorQtos > 0) {
-        scoreTotal += melhorQtos;
-        pesoTotal  += 100;
-        motivos.push(`quartos compatível (score ${Math.round(melhorQtos)})`);
-      } else {
-        pesoTotal += 100;
+      pesoTotal += 100;
+      if (melhor > 0) { scoreTotal += melhor; motivos.push(`${imovel.quartos} quartos`); }
+    }
+
+    // ── SUÍTES ──────────────────────────────────────────────────
+    if (mapa.suites && mapa.suites.length > 0 && imovel.suites > 0) {
+      let melhor = 0;
+      for (const sinal of mapa.suites) {
+        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
+        if (Number(sinal.valor||0) <= imovel.suites) melhor = Math.max(melhor, scoreEf);
+      }
+      pesoTotal += 50;
+      if (melhor > 0) { scoreTotal += melhor * 0.5; motivos.push(`${imovel.suites} suítes`); }
+    }
+
+    // ── VAGAS ───────────────────────────────────────────────────
+    if (mapa.vagas && mapa.vagas.length > 0 && imovel.vagas > 0) {
+      let melhor = 0;
+      for (const sinal of mapa.vagas) {
+        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
+        if (Number(sinal.valor||0) <= imovel.vagas) melhor = Math.max(melhor, scoreEf);
+      }
+      pesoTotal += 50;
+      if (melhor > 0) { scoreTotal += melhor * 0.5; motivos.push(`${imovel.vagas} vagas`); }
+    }
+
+    // ── ÁREA ────────────────────────────────────────────────────
+    if (mapa.area && mapa.area.length > 0 && imovel.area > 0) {
+      let melhor = 0;
+      for (const sinal of mapa.area) {
+        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
+        const aMin = sinal.valor?.min || 0;
+        const aMax = sinal.valor?.max || Infinity;
+        if (imovel.area >= aMin && imovel.area <= aMax) melhor = Math.max(melhor, scoreEf);
+        else if (imovel.area >= aMin * 0.85)             melhor = Math.max(melhor, scoreEf * 0.6);
+      }
+      pesoTotal += 60;
+      if (melhor > 0) { scoreTotal += melhor * 0.6; motivos.push(`${imovel.area}m²`); }
+    }
+
+    // ── DIFERENCIAIS ─────────────────────────────────────────────
+    if (mapa.diferenciais && mapa.diferenciais.length > 0) {
+      const difsIm = Array.isArray(imovel.diferenciais)
+        ? imovel.diferenciais.map(d => _normalizar(String(d)))
+        : [];
+      let hits = 0;
+      for (const sinal of mapa.diferenciais) {
+        const dv = _normalizar(sinal.valor||'');
+        if (difsIm.some(d => d.includes(dv) || dv.includes(d))) hits++;
+      }
+      if (hits > 0) {
+        scoreTotal += hits * 8;
+        pesoTotal  += hits * 8;
+        motivos.push(`${hits} diferenciais compatíveis`);
       }
     }
 
-    // ── URGÊNCIA — boost para leads quentes ─────────────────────
+    // ── FINANCIAMENTO ────────────────────────────────────────────
+    if (mapa.financiamento && imovel.financiamento) {
+      scoreTotal += 10; pesoTotal += 10;
+      motivos.push('aceita financiamento');
+    }
+
+    // ── URGÊNCIA ─────────────────────────────────────────────────
     const urgencia = mapa.urgencia || 0;
     if (urgencia > 50) {
-      scoreTotal += urgencia * 0.3;
-      pesoTotal  += 30;
-      motivos.push(`lead urgente (${urgencia})`);
+      scoreTotal += urgencia * 0.3; pesoTotal += 30;
+      motivos.push(`urgência ${urgencia}`);
     }
 
-    // ── PERFIS OCULTOS — boost se imovel bate com intenção oculta
+    // ── INTENÇÕES OCULTAS ────────────────────────────────────────
     const ocultos = lead.intencoesOcultas || {};
-    if (ocultos.aspiracional && _ehPremium(imovel)) {
-      scoreTotal += 20;
-      pesoTotal  += 20;
-      motivos.push('interesse aspiracional detectado');
+    if (ocultos.aspiracional?.score > 40 && _ehPremium(imovel)) {
+      scoreTotal += 20; pesoTotal += 20;
+      motivos.push('✨ aspiracional');
     }
 
-    // ── SCORE FINAL ─────────────────────────────────────────────
+    // ── SCORE FINAL ──────────────────────────────────────────────
     const scoreMatch = pesoTotal > 0 ? Math.round((scoreTotal / pesoTotal) * 100) : 0;
-
-    if (scoreMatch > 15) { // threshold mínimo
-      resultados.push({ imovel, scoreMatch, motivos });
-    }
+    if (scoreMatch > 10) resultados.push({ imovel: im, scoreMatch, motivos });
   }
 
-  // Ordena por scoreMatch desc, retorna top 10
   resultados.sort((a, b) => b.scoreMatch - a.scoreMatch);
   return resultados.slice(0, 10);
 }

@@ -1,0 +1,72 @@
+{
+  "balneario camboriu": [
+    "barra sul",
+    "barra norte",
+    "barra",
+    "centro",
+    "estados",
+    "municipios",
+    "nacoes",
+    "nova esperanca",
+    "pioneiros",
+    "praia do estaleirinho",
+    "praia do estaleiro",
+    "praia dos amores",
+    "sao judas tadeu",
+    "taquaras",
+    "vila real",
+    "ariribá",
+    "ariruba"
+  ],
+  "camboriu": [
+    "centro",
+    "rio pequeno",
+    "santa regina",
+    "sao francisco de assis",
+    "tabuleiro"
+  ],
+  "itajai": [
+    "centro",
+    "fazenda",
+    "praia brava",
+    "kobrasol",
+    "campinas",
+    "itaipava",
+    "espinheiros",
+    "murta",
+    "cordeiros",
+    "limoeiro",
+    "sao joao",
+    "jardim esperanca",
+    "sao vicente",
+    "vila operaria",
+    "cabecudas",
+    "barra do rio",
+    "laranjeiras"
+  ],
+  "itapema": [
+    "meia praia",
+    "alto sao bento",
+    "centro",
+    "perequê",
+    "morretes"
+  ],
+  "porto belo": [
+    "perequê",
+    "centro"
+  ],
+  "navegantes": [
+    "meia praia",
+    "gravata",
+    "centro",
+    "machados"
+  ],
+  "garopaba": [
+    "capao",
+    "centro"
+  ],
+  "jaraguá do sul": [
+    "vila nova",
+    "centro"
+  ]
+}

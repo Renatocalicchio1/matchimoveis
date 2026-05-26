@@ -1,4 +1,13 @@
 // extrator-perfil.js v2.0 — extrai perfil completo do cliente
+
+// Bairros SC carregados dinamicamente
+let _bairrosSC = null;
+function getBairrosSC() {
+  if (!_bairrosSC) {
+    try { _bairrosSC = require('./bairros-sc.json'); } catch(e) { _bairrosSC = {}; }
+  }
+  return _bairrosSC;
+}
 // Captura TUDO que pode estar relacionado a um imóvel
 
 const TIPOS_RESIDENCIAL = ['apartamento','apto','casa','sobrado','cobertura','studio','kitnet','loft','flat','mansao','chacara','sitio','fazenda','vila'];
@@ -47,7 +56,7 @@ const DIFERENCIAIS = {
 const CIDADES = [
   'sao paulo','rio de janeiro','campinas','guarulhos','osasco','santo andre',
   'sao caetano','joinville','blumenau','florianopolis','itajai','navegantes',
-  'balneario camboriu','curitiba','porto alegre','belo horizonte','brasilia',
+  'balneario camboriu','balneário camboriú','itajai','itajaí','itapema','navegantes','camboriu','camboriú','porto belo','bombinhas','garopaba','penha','picarras','tijucas','brusque','gaspar','curitiba','porto alegre','belo horizonte','brasilia',
   'goiania','manaus','fortaleza','recife','salvador','natal','maceio','teresina',
   'campo grande','cuiaba','porto velho','macapa','palmas','vitoria','aracaju'
 ];
@@ -55,30 +64,30 @@ const CIDADES = [
 const ESTADOS = {
   'sp': ['sao paulo','sp','são paulo'],
   'rj': ['rio de janeiro','rj'],
-  'sc': ['santa catarina','sc'],
+  'sc': ['santa catarina',' sc ','(sc)','balneario camboriu','balneario camboriú','balneário camboriú','itajai','itajaí','navegantes','itapema','porto belo','bombinhas','camboriu','camboriú','garopaba','jaraguá do sul','jaragua do sul','blumenau','joinville','florianopolis','florianópolis'],
   'pr': ['parana','paraná','pr'],
   'rs': ['rio grande do sul','rs'],
   'mg': ['minas gerais','mg'],
   'go': ['goias','goiás','go'],
   'df': ['distrito federal','df','brasilia'],
-  'ba': ['bahia','ba'],
-  'pe': ['pernambuco','pe'],
-  'ce': ['ceara','ceará','ce'],
-  'am': ['amazonas','am'],
-  'pa': ['para','pará','pa'],
-  'mt': ['mato grosso','mt'],
-  'ms': ['mato grosso do sul','ms'],
+  'ba': ['bahia',' ba ','(ba)'],
+  'pe': ['pernambuco',' pe ','(pe)'],
+  'ce': ['ceara','ceará',' ce ','(ce)'],
+  'am': ['amazonas',' am ','(am)'],
+  'pa': ['para','pará',' pa ','(pa)'],
+  'mt': ['mato grosso',' mt ','(mt)'],
+  'ms': ['mato grosso do sul',' ms ','(ms)'],
   'es': ['espirito santo','espírito santo','es'],
-  'se': ['sergipe','se'],
-  'al': ['alagoas','al'],
-  'rn': ['rio grande do norte','rn'],
-  'pb': ['paraiba','paraíba','pb'],
-  'pi': ['piaui','piauí','pi'],
-  'ma': ['maranhao','maranhão','ma'],
-  'to': ['tocantins','to'],
-  'ro': ['rondonia','rondônia','ro'],
-  'ac': ['acre','ac'],
-  'rr': ['roraima','rr'],
+  'se': ['sergipe',' se ','(se)'],
+  'al': ['alagoas',' al ','(al)'],
+  'rn': ['rio grande do norte',' rn ','(rn)'],
+  'pb': ['paraiba','paraíba',' pb ','(pb)'],
+  'pi': ['piaui','piauí',' pi ','(pi)'],
+  'ma': ['maranhao','maranhão',' ma ','(ma)'],
+  'to': ['tocantins',' to ','(to)'],
+  'ro': ['rondonia','rondônia',' ro ','(ro)'],
+  'ac': ['acre',' ac ','(ac)'],
+  'rr': ['roraima',' rr ','(rr)'],
   'ap': ['amapa','amapá','ap']
 };
 
@@ -233,8 +242,72 @@ function extrairDiferenciais(norm) {
 }
 
 function extrairBairro(norm) {
+  // ── PRIORIDADE: bairros SC (mais específicos, evita falsos positivos) ──
+  const _scMap = getBairrosSC();
+  for (const [, _bairros] of Object.entries(_scMap)) {
+    // Ordena do mais longo para o mais curto (evita "barra" antes de "barra sul")
+    const sorted = [..._bairros].sort((a,b) => b.length - a.length);
+    for (const b of sorted) {
+      if (norm.includes(b)) return b;
+    }
+  }
+
   // Lista de bairros conhecidos SP
   const bairrosConhecidos = [
+
+  // ── SC — Balneário Camboriú ──
+  "barra sul","barra norte","das nações","nacoes","das nacoes","municipios","dos municipios",
+  "pioneiros","dos pioneiros","taquaras","nova esperanca","nova esperança","estados","dos estados",
+  "ariribá","ariruba","sao judas tadeu","praia do estaleirinho","praia do estaleiro","praia dos amores",
+  "vila real bc","centro bc",
+  // ── SC — Itajaí ──
+  "kobrasol","praia brava de itajai","praia brava itajai","espinheiros","murta","cordeiros",
+  "limoeiro itajai","vila operaria","cabecudas","cabeçudas","barra do rio itajai",
+  "sao joao itajai","laranjeiras itajai","imaruim",
+  // ── SC — Itapema ──
+  "meia praia itapema","alto sao bento","perequê itapema",
+  // ── SC — Camboriú ──
+  "rio pequeno camboriu","santa regina camboriu","tabuleiro camboriu",
+  // ── SC — Navegantes ──
+  "gravata navegantes","meia praia navegantes",
+  // ── SC — Florianópolis ──
+  "trindade floripa","lagoa da conceicao","ingleses","canasvieiras","jurere","campeche",
+  "rio tavares","ribeirao da ilha","santo antonio de lisboa","agronômica","agronomica",
+  "centro florianopolis","pantanal floripa","itacorubi","corrego grande","santa monica floripa",
+  // ── SC — Joinville ──
+  "america joinville","anita garibaldi joinville","boa vista joinville","bucarein",
+  "centro joinville","costa e silva","faguense","floresta joinville","glen","glória joinville",
+  "paranaguamirim","petrópolis joinville","saguaçu","ulysses guimaraes",
+  // ── SC — Blumenau ──
+  "centro blumenau","ponta aguda","velha","velha grande","fortaleza blumenau",
+  "itoupava norte","itoupava central","garcia blumenau","agua verde blumenau",
+
+  // ── SC — Balneário Camboriú ──
+  "barra sul","barra norte","das nações","nacoes","das nacoes","municipios","dos municipios",
+  "pioneiros","dos pioneiros","taquaras","nova esperanca","nova esperança","estados","dos estados",
+  "ariribá","ariruba","sao judas tadeu","praia do estaleirinho","praia do estaleiro","praia dos amores",
+  "vila real bc","centro bc",
+  // ── SC — Itajaí ──
+  "kobrasol","praia brava de itajai","praia brava itajai","espinheiros","murta","cordeiros",
+  "limoeiro itajai","vila operaria","cabecudas","cabeçudas","barra do rio itajai",
+  "sao joao itajai","laranjeiras itajai","imaruim",
+  // ── SC — Itapema ──
+  "meia praia itapema","alto sao bento","perequê itapema",
+  // ── SC — Camboriú ──
+  "rio pequeno camboriu","santa regina camboriu","tabuleiro camboriu",
+  // ── SC — Navegantes ──
+  "gravata navegantes","meia praia navegantes",
+  // ── SC — Florianópolis ──
+  "trindade floripa","lagoa da conceicao","ingleses","canasvieiras","jurere","campeche",
+  "rio tavares","ribeirao da ilha","santo antonio de lisboa","agronômica","agronomica",
+  "centro florianopolis","pantanal floripa","itacorubi","corrego grande","santa monica floripa",
+  // ── SC — Joinville ──
+  "america joinville","anita garibaldi joinville","boa vista joinville","bucarein",
+  "centro joinville","costa e silva","faguense","floresta joinville","glen","glória joinville",
+  "paranaguamirim","petrópolis joinville","saguaçu","ulysses guimaraes",
+  // ── SC — Blumenau ──
+  "centro blumenau","ponta aguda","velha","velha grande","fortaleza blumenau",
+  "itoupava norte","itoupava central","garcia blumenau","agua verde blumenau",
   "abadia","abadia de carbonita","abadia de goiás","abadia dos dourados","abadiânia","abaetetuba","abaeté","abaeté dos mendes",
   "abaeté dos venâncios","abaiara","abapã","abarracamento","abaré","abatiá","abaíba","abaíra",
   "abdon batista","abel figueiredo","abelardo luz","abrantes","abraão","abre campo","abreu e lima","abreulândia",
@@ -1393,6 +1466,10 @@ function extrairBairro(norm) {
   "álvares machado","álvaro de carvalho","árvore só","áurea","ângelo frechiani","ângulo","érico cardoso","índios",
   "óbidos","óleo",
 ];
+  // Ordena bairros do mais longo para o mais curto para evitar match parcial
+  bairrosConhecidos.sort((a,b) => b.length - a.length);
+  // Ordena bairros do mais longo para o mais curto para evitar match parcial
+  bairrosConhecidos.sort((a,b) => b.length - a.length);
   for (const b of bairrosConhecidos) { const re = new RegExp("(^|\\s)" + b.replace(/[.*+?^${}()|[\\]]/g,"\\  for (const b of bairrosConhecidos) { if (norm.includes(b)) return b; }") + "(\\s|$|,|\\.)"); if (re.test(norm)) return b; }
   // Padrão preposição explícita — só aceita quando há palavra-chave de localização
   const bm = norm.match(/\b(?:no bairro|na bairro|bairro|regiao|região|proximo a|perto de|localizado em|fica em|quero em|busco em|procuro em)\s+([a-z\s]{3,25}?)(?:,|\.|\s{2}|$)/);
@@ -1452,6 +1529,18 @@ function extrairPerfil(mensagens) {
   const CIDADES_SET = new Set(CIDADES.map(c => c.toLowerCase()));
   const ehRua = bairro && /^(rua|av|avenida|alameda|travessa|estrada|rodovia|r\.|al\.)/i.test(bairro.trim());
   if (bairro && !CIDADES_SET.has(bairro.toLowerCase()) && !ehRua) perfil.bairro = bairro;
+
+  // Infere cidade/estado pelo bairro SC
+  if (perfil.bairro) {
+    const _scInf = getBairrosSC();
+    for (const [_cid, _brs] of Object.entries(_scInf)) {
+      if (_brs.includes(perfil.bairro)) {
+        if (!perfil.cidade) perfil.cidade = _cid;
+        perfil.estado = 'sc';
+        break;
+      }
+    }
+  }
   if (ehRua) perfil.rua = bairro;
 
   // Cidade
@@ -1459,7 +1548,13 @@ function extrairPerfil(mensagens) {
 
   // Estado
   for (const [sigla, nomes] of Object.entries(ESTADOS)) {
-    if (nomes.some(n => norm.includes(n))) { perfil.estado = sigla; break; }
+    if (nomes.some(n => {
+      // Siglas de 2 letras só batem se isoladas (com espaço ou no início/fim)
+      if (n.length === 2 && !n.includes(' ')) {
+        return new RegExp('(^|\\s)' + n + '(\\s|$)').test(norm);
+      }
+      return norm.includes(n);
+    })) { perfil.estado = sigla; break; }
   }
 
   // Intenção

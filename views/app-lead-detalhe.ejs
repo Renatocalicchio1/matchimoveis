@@ -530,4 +530,112 @@ function fecharModalCadImovel() {
   </div>
 </div>
 
+<script>
+// ── MOTOR DE INTENÇÃO — Rastreamento de comportamento ──────────
+// Envia evento quando corretor clica em match/imóvel
+document.querySelectorAll('.match-card').forEach(card => {
+  card.addEventListener('click', function() {
+    const href = this.getAttribute('href') || '';
+    const idMatch = href.split('/').pop();
+    // Extrai dados do card
+    const tipo  = this.querySelector('.match-tipo')?.textContent || '';
+    const bairro = this.querySelector('.match-bairro')?.textContent || '';
+    const preco = Number((this.querySelector('.match-preco')?.textContent || '0').replace(/D/g,''));
+    const quartos = Number((this.querySelector('.match-quartos')?.textContent || '0').replace(/D/g,''));
+    fetch('/app/lead/<%= lead.id %>/comportamento', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        tipo: 'visualizou_imovel',
+        duracao_segundos: 0,
+        imovel: { id: idMatch, tipo, bairro, preco, quartos }
+      })
+    }).catch(()=>{});
+  });
+});
+
+// ── RECOMENDAÇÕES PROATIVAS ─────────────────────────────────────
+async function carregarRecomendacoes() {
+  const sec = document.getElementById('sec-recomendacoes');
+  const lista = document.getElementById('lista-recomendacoes');
+  if (!sec || !lista) return;
+  try {
+    const res = await fetch('/app/lead/<%= lead.id %>/recomendacoes');
+    const data = await res.json();
+    if (!data.ok || !data.recomendacoes || !data.recomendacoes.length) {
+      sec.style.display = 'none'; return;
+    }
+    lista.innerHTML = '';
+    data.recomendacoes.forEach(r => {
+      const im = r.imovel;
+      const id = im.id_externo || im.id || '';
+      const foto = (im.fotos && im.fotos[0]) ? im.fotos[0] : '';
+      const tipo = im.tipo || im.tipo_imovel || '';
+      const bairro = im.bairro || '';
+      const preco = im.preco || im.valor_imovel || im.valor || 0;
+      const quartos = im.quartos || im.dormitorios || 0;
+      const score = r.scoreMatch || 0;
+      const novidade = r.novidade ? '<span style="background:#f0fdf4;color:#16a34a;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600">novo</span>' : '';
+      const categoria = r.categoria === 'aspiracional' ? '<span style="background:#fef9c3;color:#b45309;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600">aspiracional</span>' : '';
+      lista.innerHTML += `
+        <a href="/app/imovel/${id}" target="_blank" class="match-card" style="position:relative"
+           onclick="registrarComportamento('${id}','${tipo}','${bairro}',${preco},${quartos})">
+          ${foto
+            ? `<img class="match-foto" src="${foto}" onerror="this.style.display='none'">`
+            : `<div class="match-ph">🏠</div>`}
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#111">${tipo} · ${bairro}</div>
+            <div style="font-size:11px;color:#6b7280">${quartos} qtos · R$ ${preco.toLocaleString('pt-BR')}</div>
+            <div style="font-size:10px;color:#9ca3af;margin-top:2px">${r.motivos?.slice(0,2).join(' · ') || ''}</div>
+            <div style="margin-top:4px;display:flex;gap:4px;align-items:center">${novidade}${categoria}</div>
+          </div>
+          <div style="text-align:right;min-width:38px">
+            <div style="font-size:13px;font-weight:700;color:var(--brand)">${score}</div>
+            <div style="font-size:10px;color:#9ca3af">score</div>
+          </div>
+        </a>`;
+    });
+
+    // Intenções ocultas
+    const oc = data.intencoesOcultas || {};
+    const tags = document.getElementById('tags-ocultas');
+    if (tags) {
+      const ativos = Object.entries(oc).filter(([,v])=>v.score>30);
+      tags.innerHTML = ativos.map(([k,v])=>`
+        <span style="background:#f1f5f9;color:#475569;font-size:11px;padding:3px 9px;border-radius:99px;font-weight:500">
+          ${_labelOculto(k)} ${v.score}
+        </span>`).join('');
+      if (!ativos.length) tags.innerHTML = '<span style="color:#9ca3af;font-size:11px">nenhuma detectada ainda</span>';
+    }
+  } catch(e) { sec.style.display = 'none'; }
+}
+
+function _labelOculto(k) {
+  return {aspiracional:'✨ aspiracional',upgrade:'⬆️ upgrade',downgrade:'⬇️ revendo budget',indeciso:'🤔 indeciso',multiRegiao:'📍 multi-região',compradorReal:'🔥 comprador sério',locatario:'🔑 locatário'}[k] || k;
+}
+
+function registrarComportamento(id, tipo, bairro, preco, quartos) {
+  fetch('/app/lead/<%= lead.id %>/comportamento', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      tipo: 'visualizou_imovel',
+      imovel: { id, tipo, bairro, preco, quartos }
+    })
+  }).catch(()=>{});
+}
+
+carregarRecomendacoes();
+</script>
+
+<!-- Seção Recomendações Motor de Intenção -->
+<div id="sec-recomendacoes" style="margin:16px 0">
+  <div style="font-size:12px;font-weight:700;color:#111;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+    ✨ Recomendações do Motor de Intenção
+    <span style="font-size:10px;font-weight:400;color:#9ca3af">baseado no perfil dinâmico</span>
+  </div>
+  <div id="tags-ocultas" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+  <div id="lista-recomendacoes"></div>
+</div>
+
 <%- include('partials/app-end') %>

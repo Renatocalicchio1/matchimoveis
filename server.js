@@ -2496,9 +2496,6 @@ try {
   if (typeof _setupDB === 'function') _setupDB().catch(e => console.error('[setupDB]', e.message));
 } catch(e) { console.error('[setupDB]', e.message); }
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-  // Inicia atualizacao automatica do XML a cada 12h
   try {
     const { iniciarScheduler } = require('./services/xmlScheduler'); iniciarScheduler();
     const { iniciarJobCreditos } = require('./services/jobCreditos'); iniciarJobCreditos();
@@ -2506,7 +2503,6 @@ app.listen(PORT, () => {
   } catch(e) {
     console.error('[server] Erro ao iniciar autoUpdateXML:', e.message);
   }
-});
 
 // ROTA DA TELA IMPORTAR LEADS
 app.post('/process', upload.any(), async (req, res) => {
@@ -5562,6 +5558,3 @@ app.listen(process.env.PORT || 3000, () => {
 };
 
 // ── SERVER START ──────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log('[SERVER] rodando na porta', PORT);
-});

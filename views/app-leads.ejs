@@ -598,4 +598,27 @@ function fecharMiniModal() {
     <div id="mini-modal-body"></div>
   </div>
 </div>
+<script>
+// Auto-refresh: atualiza status das leads a cada 30s sem recarregar a página
+(function() {
+  let _ultimoHash = '';
+  async function checkAtualizacoes() {
+    try {
+      const r = await fetch('/api/leads/status-hash');
+      const d = await r.json();
+      if (d.hash && d.hash !== _ultimoHash) {
+        if (_ultimoHash !== '') {
+          // Tem atualização — recarrega silenciosamente
+          window.location.reload();
+        }
+        _ultimoHash = d.hash;
+      }
+    } catch(e) {}
+  }
+  // Verifica imediatamente e depois a cada 30s
+  checkAtualizacoes();
+  setInterval(checkAtualizacoes, 30000);
+})();
+</script>
+
 <%- include('partials/app-end') %>

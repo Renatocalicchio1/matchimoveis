@@ -5770,6 +5770,22 @@ app.get('/app/lead/:id/recomendacoes', auth, async (req, res) => {
   }
 });
 
+// ── STATUS HASH — detecta mudanças nas leads sem recarregar ──
+app.get('/api/leads/status-hash', auth, async (req, res) => {
+  try {
+    const { query: _qHash } = require('./services/db');
+    const r = await _qHash(
+      "SELECT COUNT(*) as total, MAX(atualizado_em) as ultima FROM leads WHERE user_id=$1",
+      [req.session.user.id]
+    );
+    const { total, ultima } = r.rows[0];
+    const hash = `${total}-${ultima}`;
+    res.json({ ok: true, hash });
+  } catch(e) {
+    res.json({ ok: false, hash: '' });
+  }
+});
+
 // ── PARCEIROS ────────────────────────────────────────────────
 app.get('/app/parceiros', auth, async (req, res) => {
   const uid = req.session.user.id;

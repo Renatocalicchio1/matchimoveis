@@ -1,13 +1,42 @@
 // extrator-perfil.js v2.0 — extrai perfil completo do cliente
 
-// Bairros SC carregados dinamicamente
-let _bairrosSC = null;
-function getBairrosSC() {
-  if (!_bairrosSC) {
-    try { _bairrosSC = require('./bairros-sc.json'); } catch(e) { _bairrosSC = {}; }
+// Dicionário de bairros — cache em memória, atualiza do PG a cada 1h
+let _dicBairros = null;
+let _dicBairrosAt = 0;
+function getBairrosSC() { return _dicBairros || {}; }
+function _getDicComoMapa() {
+  const dic = getBairrosSC();
+  const mapa = {};
+  for (const [bairro, info] of Object.entries(dic)) {
+    if (!mapa[info.cidade]) mapa[info.cidade] = [];
+    mapa[info.cidade].push(bairro);
   }
-  return _bairrosSC;
+  return mapa;
 }
+async function _carregarDicBairrosPG() {
+  const agora = Date.now();
+  if (_dicBairros && agora - _dicBairrosAt < 3600000) return;
+  try {
+    const { query } = require('../services/db');
+    // Usa tabela localidades — 5570 cidades IBGE + bairros dos imoveis
+    const r = await query("SELECT bairro, cidade, estado FROM localidades WHERE bairro IS NOT NULL ORDER BY fonte DESC");
+    const dic = {};
+    for (const row of r.rows) {
+      const b = row.bairro.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+      const ci = row.cidade.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+      const e = row.estado.toLowerCase().trim();
+      if (!dic[b]) dic[b] = { cidade: ci, estado: e };
+    }
+    _dicBairros = dic;
+    _dicBairrosAt = agora;
+    console.log('[LOCALIDADES] bairros:', Object.keys(dic).length);
+  } catch(e) {
+    console.error('[LOCALIDADES] erro PG:', e.message);
+    try { _dicBairros = require('./dicionario-bairros.json'); } catch(_) { _dicBairros = {}; }
+  }
+}
+_carregarDicBairrosPG();
+setInterval(_carregarDicBairrosPG, 3600000);
 // Captura TUDO que pode estar relacionado a um imóvel
 
 const TIPOS_RESIDENCIAL = ['apartamento','apto','casa','sobrado','cobertura','studio','kitnet','loft','flat','mansao','chacara','sitio','fazenda','vila'];

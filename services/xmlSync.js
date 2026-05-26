@@ -87,7 +87,11 @@ async function syncXmlFeeds() {
   if (!feeds.length) return;
 
   const agora = Date.now();
-  let imoveisAtuais = readJson('imoveis.json', []);
+  const { query, dbOk } = require('./db');
+  let imoveisAtuais = [];
+  if (await dbOk()) {
+    try { const r = await query('SELECT dados FROM imoveis'); imoveisAtuais = r.rows.map(r=>r.dados); } catch(e) { console.error('[xmlSync] erro lendo imoveis PG:', e.message); }
+  }
 
   for (const feed of feeds) {
     const ultima = new Date(feed.lastSyncAt || 0).getTime();
@@ -97,12 +101,12 @@ async function syncXmlFeeds() {
 
     console.log('🔄 Sincronizando XML:', feed.url);
 
-    const backupFile = `imoveis.backup-before-xmlsync-${Date.now()}.json`;
-    writeJson(backupFile, imoveisAtuais);
-
     execSync(`node importXMLCompleto.js "${feed.url}"`, { stdio: 'inherit' });
 
-    const importados = readJson('imoveis.json', []);
+    let importados = [];
+    if (await dbOk()) {
+      try { const r2 = await query('SELECT dados FROM imoveis WHERE dados->>'userId'=$1', [feed.userId||'default']); importados = r2.rows.map(r=>r.dados); } catch(e) { console.error('[xmlSync] erro lendo importados PG:', e.message); }
+    }
     const mapaImportados = new Map();
 
     for (const imovel of importados) {
@@ -160,8 +164,8 @@ async function syncXmlFeeds() {
       syncedAt: new Date().toISOString()
     };
 
-    writeJson('imoveis.json', imoveisAtuais);
     writeJson('xml-feeds.json', feeds);
+    // imoveis já salvos no PG via importXMLCompleto.js
 
     try { const { consumir } = require('./creditos'); consumir(feed.userId, 'sync_xml_24h').catch(()=>{}); } catch(e) {}
     console.log('✅ XML sincronizado:', feed.url);

@@ -97,15 +97,15 @@ function registrarHistorico(user, memoria, entrada) {
   salvarMemoriaOperacional(user, memoria);
 }
 
-function carregarContexto(user) {
+function carregarContexto(user, dadosExternos = {}) {
   const userId = String(user?.id || user?.codigoUsuario || user?.celular || '');
 
-  const data = readJson('data.json', []);
-  const leadsJson = readJson('leads.json', []);
-  const visitas = readJson('visitas.json', []);
-  const notificacoes = readJson('notificacoes.json', []);
-  const memoria = readJson('assistente-memoria.json', []);
-  const chatHistory = readJson('chat-history.json', []);
+  const data = dadosExternos.leads || readJson('data.json', []);
+  const leadsJson = dadosExternos.leadsBase || readJson('leads.json', []);
+  const visitas = dadosExternos.visitas || readJson('visitas.json', []);
+  const notificacoes = dadosExternos.notificacoes || readJson('notificacoes.json', []);
+  const memoria = dadosExternos.memoria || readJson('assistente-memoria.json', []);
+  const chatHistory = dadosExternos.chatHistory || readJson('chat-history.json', []);
 
   const leadsMatch = Array.isArray(data) ? data : [];
   const leadsBase = Array.isArray(leadsJson) ? leadsJson : [];
@@ -261,8 +261,9 @@ function montarMensagemWhatsappLead(leadResumo) {
   return `Olá ${nome}, tudo bem? Vi seu interesse${bairro}.${matches} Posso te enviar algumas opções e verificar um melhor horário para conversar?`;
 }
 
-function responderCentral(user, texto) {
-  const ctx = carregarContexto(user);
+function responderCentral(user, texto, dadosExternos = {}) {
+  const ctx = carregarContexto(user, dadosExternos);
+  ctx.imoveis = dadosExternos.imoveis || [];
   const intent = interpretarComando(texto);
   const resumo = montarResumoCentral(ctx);
   const memoria = ctx.memoriaOperacional || carregarMemoriaOperacional(user);
@@ -307,7 +308,7 @@ function responderCentral(user, texto) {
       const bmi = require('../matchBaseInterna.js');
       const userId = getUserKey(user);
       const leadsOk = (ctx.leadsMatch||[]).filter(function(l){ return l.extractionStatus === 'ok'; });
-      const imoveis = readJson('imoveis.json', []);
+      const imoveis = ctx.imoveis || [];
       let comMatch = 0, semMatch = 0;
       leadsOk.forEach(function(lead) {
         const matches = bmi.buscarMatchesBaseInterna(lead, imoveis);
@@ -315,10 +316,8 @@ function responderCentral(user, texto) {
         lead.matchCountBase = matches.length;
         if (matches.length > 0) comMatch++; else semMatch++;
       });
-      const data = readJson('data.json', []);
-      const outras = data.filter(function(l){ return String(l.userId||l.usuarioId||l.corretorId||'') !== userId; });
-      const restantes = data.filter(function(l){ return String(l.userId||l.usuarioId||l.corretorId||'') === userId && !leadsOk.find(function(x){ return x.id === l.id; }); });
-      writeJson('data.json', outras.concat(restantes).concat(leadsOk));
+      const { salvarTodosLeads } = require('./salvarLead');
+      await salvarTodosLeads(leadsOk);
       registrarHistorico(user, memoria, { tipo: 'fazer_match', texto: texto, comMatch: comMatch, semMatch: semMatch });
       return { intent: intent, resumo: resumo, resposta: 'Match concluido! ' + comMatch + ' lead(s) com match, ' + semMatch + ' sem match. Total: ' + leadsOk.length, itens: [] };
     } catch(e) {
@@ -332,7 +331,7 @@ function responderCentral(user, texto) {
     var leadsHoje = (ctx.leadsMatch||[]).filter(function(l){ return (l.createdAt||'').slice(0,10) === hoje; });
     var semMatchCount = (ctx.leadsMatch||[]).filter(function(l){ return !l.matchesBase || l.matchesBase.length === 0; }).length;
     var uidRes = getUserKey(user);
-    var semPropCount = readJson('imoveis.json',[]).filter(function(i){ return String(i.userId||i.usuarioId||i.corretorId||'') === uidRes && (!i.proprietario || !i.proprietario.telefone); }).length;
+    var semPropCount = (ctx.imoveis||[]).filter(function(i){ return String(i.userId||i.usuarioId||i.corretorId||'') === uidRes && (!i.proprietario || !i.proprietario.telefone); }).length;
     var rr = 'Resumo do dia:\n';
     rr += 'Visitas hoje: ' + visitasHoje.length + '\n';
     rr += 'Leads novas hoje: ' + leadsHoje.length + '\n';
@@ -388,7 +387,7 @@ function responderCentral(user, texto) {
   if (intent.tipo === 'estrategia_venda') {
     var leadsQ = (ctx.leadsMatch||[]).filter(function(l){ return l.matchesBase && l.matchesBase.length >= 3; });
     var uid3 = getUserKey(user);
-    var imovP = readJson('imoveis.json',[]).filter(function(i){ return String(i.userId||i.usuarioId||i.corretorId||'') === uid3 && i.status === 'ativo' && i.updatedAt && (Date.now() - new Date(i.updatedAt).getTime()) > 30*24*60*60*1000; });
+    var imovP = (ctx.imoveis||[]).filter(function(i){ return String(i.userId||i.usuarioId||i.corretorId||'') === uid3 && i.status === 'ativo' && i.updatedAt && (Date.now() - new Date(i.updatedAt).getTime()) > 30*24*60*60*1000; });
     var r4 = 'Estrategia de Vendas:\n';
     if (leadsQ.length > 0) r4 += leadsQ.length + ' lead(s) quente(s) com 3+ matches — priorize!\n';
     if (imovP.length > 0) r4 += imovP.length + ' imovel(is) parado(s) ha 30+ dias.\n';
@@ -406,7 +405,7 @@ function responderCentral(user, texto) {
 
   if (intent.tipo === 'imoveis_carteira') {
     var uid5 = getUserKey(user);
-    var todosIm = readJson('imoveis.json',[]).filter(function(i){ return String(i.userId||i.usuarioId||i.corretorId||'') === uid5; });
+    var todosIm = (ctx.imoveis||[]).filter(function(i){ return String(i.userId||i.usuarioId||i.corretorId||'') === uid5; });
     var ativosIm = todosIm.filter(function(i){ return i.status !== 'inativo'; });
     var inativosIm = todosIm.filter(function(i){ return i.status === 'inativo'; });
     var semPropIm = todosIm.filter(function(i){ return !i.proprietario || !i.proprietario.telefone; });

@@ -4168,7 +4168,7 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
 
   if (usarCentral) {
     try {
-      const central = centralOperacional.responderCentral(user, mensagem);
+      const central = centralOperacional.responderCentral(user, mensagem, { leads: _cacheLeads||[], imoveis: _cacheImoveis||[], visitas: _cacheVisitas||[], notificacoes: _cacheNotificacoes||[] });
 
       if (central && central.resposta) {
         resposta = central.resposta;
@@ -4322,7 +4322,7 @@ app.post('/api/central-operacional', auth, express.json(), (req, res) => {
       });
     }
 
-    const resultado = centralOperacional.responderCentral(req.session.user, texto);
+    const resultado = centralOperacional.responderCentral(req.session.user, texto, { leads: _cacheLeads||[], imoveis: _cacheImoveis||[], visitas: _cacheVisitas||[], notificacoes: _cacheNotificacoes||[] });
     res.json({
       ok: true,
       ...resultado

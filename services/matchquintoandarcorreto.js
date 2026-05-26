@@ -67,19 +67,19 @@ function passaFiltros(origin, c) {
   return true;
 }
 
-function searchRankim(origin) {
+function searchRankim(origin, base = []) {
   try {
-    if (!fs.existsSync('imoveis.json')) return [];
-    const base = JSON.parse(fs.readFileSync('imoveis.json', 'utf8'));
     return base.filter(i => passaFiltros(origin, i)).map(i => ({ ...i, fonte: i.fonte || 'rankim' }));
   } catch (e) {
-    console.log('ERRO ao ler base Rankim:', e.message);
+    console.log('ERRO ao filtrar base Rankim:', e.message);
     return [];
   }
 }
 
-function findTopMatches(origin, candidatosExternos = []) {
-  const internos = searchRankim(origin);
+}
+
+function findTopMatches(origin, candidatosExternos = [], baseImoveis = []) {
+  const internos = searchRankim(origin, baseImoveis);
   console.log('Base Rankim:', internos.length, 'candidatos');
   const externos = candidatosExternos.map(c => ({ ...c, fonte: c.fonte || 'externo' }));
   console.log('Externos:', externos.length, 'candidatos');

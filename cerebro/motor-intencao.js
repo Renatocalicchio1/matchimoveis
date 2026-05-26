@@ -210,7 +210,17 @@ function matchPorMapa(lead, imoveis) {
   }
 
   resultados.sort((a, b) => b.scoreMatch - a.scoreMatch);
-  return resultados.slice(0, 30);
+  // Deduplica por id_externo ou id — resolve imóveis duplicados no banco
+  const _vistos = new Set();
+  const _dedup = [];
+  for (const r of resultados) {
+    const rid = String(r.imovel.id_externo || r.imovel.id_interno || r.imovel.id);
+    if (_vistos.has(rid)) continue;
+    _vistos.add(rid);
+    _dedup.push(r);
+    if (_dedup.length >= 30) break;
+  }
+  return _dedup;
 }
 
 // ════════════════════════════════════════════════════════════════

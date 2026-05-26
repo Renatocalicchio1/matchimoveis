@@ -225,15 +225,19 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
     <div class="ld-card">
       <div class="ld-title">Matches automáticos via WhatsApp (<%= _matA.length %>)</div>
       <% _matA.forEach(m => { %>
-      <a href="/app/imovel/<%= m.idInterno||m.id||'' %>" target="_blank" class="match-card">
+      <a href="/app/imovel/<%= m.id_interno||m.id_externo||m.idInterno||m.id||'' %>" target="_blank" class="match-card">
+        <% const _fotoAuto = (m.fotos&&m.fotos.filter(f=>f&&!f.includes('youtube'))[0])||null; %>
+        <% if(_fotoAuto){%><img class="match-foto" src="<%=_fotoAuto%>" onerror="this.style.display='none'"><% } else { %>
         <div class="match-ph" style="background:var(--brand-light)"><span style="font-size:13px;font-weight:700;color:var(--brand)"><%= m.rank||'' %></span></div>
+        <% } %>
         <div>
-          <div style="font-size:12px;font-weight:600;color:var(--dark)"><%= m.titulo||m.endereco||'Imóvel #'+(m.rank||'') %></div>
-          <div style="font-size:11px;color:var(--text-sec);margin-top:2px"><%= m.tipo||'' %> · <%= m.quartos||0 %>q · <%= m.bairro||'' %></div>
+          <div style="font-size:12px;font-weight:600;color:var(--dark)"><%= m.tipo||'Imóvel' %> · <%= m.bairro||'' %></div>
+          <div style="font-size:11px;color:var(--text-sec);margin-top:2px"><%= [m.area_m2?m.area_m2+'m²':null, m.quartos?m.quartos+'q':null, m.suites?m.suites+'st':null, m.vagas?m.vagas+'vg':null].filter(Boolean).join(' · ') %></div>
+          <% if(m.motivos&&m.motivos.length){%><div style="font-size:10px;color:#7c3aed;margin-top:2px"><%=m.motivos.slice(0,2).join(' · ')%></div><%}%>
         </div>
         <div style="text-align:right">
           <div style="font-size:12px;font-weight:700;color:var(--brand)">Score <%= m.score||0 %></div>
-          <div style="font-size:11px;color:var(--text-sec)"><%= m.valor?'R$'+Number(m.valor).toLocaleString('pt-BR'):'' %></div>
+          <div style="font-size:11px;color:var(--text-sec)">R$ <%= Number(m.valor_imovel||m.valor||0).toLocaleString('pt-BR') %></div>
         </div>
       </a>
       <% }) %>

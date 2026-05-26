@@ -417,8 +417,8 @@ app.post('/cadastro-secreto', async (req,res)=>{ return res.redirect('/'); // CA
 app.get('/login',(req,res)=>{ if(req.session&&req.session.user) return res.redirect('/app/leads'); res.redirect('/'); });
 
 app.post('/login', async (req,res)=>{
-  const fs = require('fs');
-  const users = (_cacheUsuarios || []);
+  const { lerUsuarios: _luLogin } = require('./services/salvarUsuario');
+  const users = await _luLogin();
 
   const telefone = String(req.body.telefone || '').replace(/\D/g,'');
 

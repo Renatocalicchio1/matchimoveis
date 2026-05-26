@@ -379,7 +379,6 @@ return lead;
       console.log('[MATCH CORE] imóveis PG:', imoveisDoUser.length);
 
 
-      const imoveisDoUser = imoveis.filter(i => i.status === 'ativo');
 
       // Pega o imóvel de interesse como âncora
       const imovelId = lead.imovel_interesse || lead.imovelId || lead.idAnuncio;
@@ -478,20 +477,33 @@ return lead;
 
       console.log(`[MATCH CORE] caso2 | tipo:${leadFake.tipo} bairro:${leadFake.bairro} quartos:${leadFake.quartos} valorMax:${leadFake.valorMax}`);
 
-      const matches = buscarMatchesBaseInterna(leadFake, imoveisDoUser);
-      const matchesNovos = (matches || []).slice(0, 8).map((m, i) => ({
-        ...m, rank: i+1, score: Number(m.score||m.bestScore||0)
-      }));
+      // ── MOTOR DE INTENÇÃO: usa mapaIntencao se disponível ──────
+      const { matchPorMapa, inferirOcultos } = require('./motor-intencao');
+      let matchesNovos = [];
 
-      // Compara com antes — só atualiza se melhorou
+      if (lead.mapaIntencao && (lead.mapaIntencao.tipo_imovel||[]).length > 0) {
+        const resultadosMapa = matchPorMapa(lead, imoveisDoUser);
+        matchesNovos = resultadosMapa.map((r, i) => ({
+          ...r.imovel, rank: i+1, score: r.scoreMatch, motivos: r.motivos, origemMatch: 'mapa_intencao'
+        }));
+        lead.intencoesOcultas = inferirOcultos(lead);
+        const oc = Object.entries(lead.intencoesOcultas||{}).filter(([,v])=>v.score>0).map(([k,v])=>k+':'+v.score).join(' ');
+        console.log(`[MATCH CORE] caso2 via mapaIntencao | matches: ${matchesNovos.length} | ocultos: ${oc}`);
+      } else {
+        const matchesTrad = buscarMatchesBaseInterna(leadFake, imoveisDoUser);
+        matchesNovos = (matchesTrad || []).slice(0, 8).map((m, i) => ({
+          ...m, rank: i+1, score: Number(m.score||m.bestScore||0), origemMatch: 'perfil_ia'
+        }));
+        console.log(`[MATCH CORE] caso2 via perfilIA (fallback) | matches: ${matchesNovos.length}`);
+      }
+
       const matchesAntes = lead.matchesAuto || lead.matches || [];
       if (matchesNovos.length >= matchesAntes.length) {
         lead.matchesAuto = matchesNovos;
         lead.matches     = matchesNovos;
         lead.matchAutoEm = new Date().toISOString();
       }
-
-      console.log(`[MATCH CORE] caso2 matches: ${matchesNovos.length}`);
+      console.log(`[MATCH CORE] caso2 matches final: ${matchesNovos.length}`);
     } catch(e) {
       console.error('[MATCH CORE] erro caso2:', e.message);
     }

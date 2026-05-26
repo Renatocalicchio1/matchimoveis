@@ -5711,6 +5711,65 @@ app.post('/app/lead/:id/imovel-vendedor', auth, async (req, res) => {
   }
 });
 
+// ── COMPORTAMENTO DO LEAD (Fase 4 — Motor de Intenção) ─────────
+// Recebe eventos de comportamento: visualizou_imovel, salvou_imovel,
+// compartilhou, abriu_mapa, clicou_contato, viu_vitrine
+app.post('/app/lead/:id/comportamento', auth, async (req, res) => {
+  try {
+    const { registrarComportamento } = require('./cerebro/motor-intencao');
+    const { atualizarLead, lerLeads } = require('./services/salvarLead');
+    const userId = req.session.user.id;
+    const leads = await lerLeads(userId);
+    const lead = leads.find(l => String(l.id) === String(req.params.id));
+    if (!lead) return res.status(404).json({ erro: 'lead nao encontrada' });
+
+    const evento = {
+      tipo:              req.body.tipo,
+      duracao_segundos:  Number(req.body.duracao_segundos) || 0,
+      em:                new Date().toISOString(),
+      imovel: req.body.imovel || null
+    };
+
+    const leadAtualizado = registrarComportamento(lead, evento);
+    await atualizarLead(leadAtualizado.id, {
+      comportamento:    leadAtualizado.comportamento,
+      mapaIntencao:     leadAtualizado.mapaIntencao,
+      intencoesOcultas: leadAtualizado.intencoesOcultas
+    });
+
+    console.log(`[COMPORTAMENTO] lead:${lead.id} | evento:${evento.tipo} | ocultos:${JSON.stringify(Object.fromEntries(Object.entries(leadAtualizado.intencoesOcultas||{}).filter(([,v])=>v.score>0).map(([k,v])=>[k,v.score])))}`);
+    res.json({ ok: true, fase: leadAtualizado.mapaIntencao?.fase, temperatura: leadAtualizado.mapaIntencao?.temperatura });
+  } catch(e) {
+    console.error('[COMPORTAMENTO] erro:', e.message);
+    res.status(500).json({ erro: e.message });
+  }
+});
+
+// ── RECOMENDAÇÕES PROATIVAS (Fase 5 — Recommendation Engine) ────
+app.get('/app/lead/:id/recomendacoes', auth, async (req, res) => {
+  try {
+    const { recomendar, inferirOcultos } = require('./cerebro/motor-intencao');
+    const { lerLeads } = require('./services/salvarLead');
+    const { query: _q } = require('./services/db');
+    const userId = req.session.user.id;
+    const leads = await lerLeads(userId);
+    const lead = leads.find(l => String(l.id) === String(req.params.id));
+    if (!lead) return res.status(404).json({ erro: 'lead nao encontrada' });
+
+    const resIm = await _q("SELECT * FROM imoveis WHERE status='ativo'");
+    const imoveis = resIm.rows;
+
+    lead.intencoesOcultas = inferirOcultos(lead);
+    const recomendacoes = recomendar(lead, imoveis, { limite: 8, diversidade: true });
+
+    console.log(`[RECOMENDACOES] lead:${lead.id} | total:${recomendacoes.length}`);
+    res.json({ ok: true, recomendacoes, intencoesOcultas: lead.intencoesOcultas });
+  } catch(e) {
+    console.error('[RECOMENDACOES] erro:', e.message);
+    res.status(500).json({ erro: e.message });
+  }
+});
+
 // ── PARCEIROS ────────────────────────────────────────────────
 app.get('/app/parceiros', auth, async (req, res) => {
   const uid = req.session.user.id;

@@ -439,14 +439,38 @@ return lead;
   // E compara com resultado anterior para ver se melhorou
   // ============================================================
   _perfilSuficiente(perfil, lead) {
-    // Mínimo: tipo + quartos + (bairro OU cidade OU valor)
-    const temTipo    = !!(perfil.tipo || (lead?.mapaIntencao?.tipo_imovel||[]).length > 0);
-    const temQuartos = !!(perfil.quartos || (lead?.mapaIntencao?.quartos||[]).length > 0);
-    const temLocal   = !!(perfil.bairro || perfil.cidade || perfil.valorMax ||
-                         (lead?.mapaIntencao?.bairro||[]).length > 0 ||
-                         (lead?.mapaIntencao?.cidade||[]).length > 0 ||
-                         (lead?.mapaIntencao?.valor||[]).length > 0);
-    return !!(temTipo && (temQuartos || temLocal));
+    // Ideal: transacao + tipo + cidade + bairro + valor
+    // Mínimo para rodar: tipo + (cidade OU bairro) — quanto mais campos, melhor o match
+    const mapa = lead?.mapaIntencao || {};
+    const temTipo      = !!(perfil.tipo      || (mapa.tipo_imovel||[]).length > 0);
+    const temCidade    = !!(perfil.cidade    || (mapa.cidade||[]).length > 0);
+    const temBairro    = !!(perfil.bairro    || (mapa.bairro||[]).length > 0);
+    const temValor     = !!(perfil.valorMax  || (mapa.valor||[]).length > 0);
+    const temTransacao = !!(perfil.intencao  || (mapa.transacao||[]).length > 0);
+    const temQuartos   = !!(perfil.quartos   || (mapa.quartos||[]).length > 0);
+
+    // Score de qualidade do perfil (0-6)
+    const qualidade = [temTipo,temCidade,temBairro,temValor,temTransacao,temQuartos].filter(Boolean).length;
+
+    // Mínimo: tipo + pelo menos 1 outro sinal
+    const suficiente = temTipo && qualidade >= 2;
+
+    if (!suficiente) {
+      const faltando = [];
+      if (!temTipo)      faltando.push('tipo');
+      if (!temTransacao) faltando.push('transacao');
+      if (!temCidade)    faltando.push('cidade');
+      if (!temBairro)    faltando.push('bairro');
+      if (!temValor)     faltando.push('valor');
+      if (!temQuartos)   faltando.push('quartos');
+      console.log('[MATCH CORE] perfil insuficiente | qualidade:', qualidade, '| faltando:', faltando.join(', '));
+    } else {
+      console.log('[MATCH CORE] perfil qualidade:', qualidade, '/6 |', [
+        temTransacao?'transacao':'', temTipo?'tipo':'', temCidade?'cidade':'',
+        temBairro?'bairro':'', temValor?'valor':'', temQuartos?'quartos':''
+      ].filter(Boolean).join('+'));
+    }
+    return suficiente;
   }
 
   async _matchCaso2(lead, perfil, userId) {

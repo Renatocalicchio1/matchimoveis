@@ -33,6 +33,7 @@ function rowToLead(r) {
     timeline: r.timeline || [],
     eventos: r.eventos || [],
     followUps: r.follow_ups || [],
+    mapaIntencao: r.mapa_intencao || null,
     deletadoPor: r.deletado_por || [],
     vitrineEnviada: r.vitrine_enviada,
     vitrineEnviadaEm: r.vitrine_enviada_em,
@@ -85,6 +86,7 @@ function leadToRow(lead) {
     comissao_parceiro: lead.comissaoParceiro || null,
     ciclo_anterior: lead.cicloAnterior || null,
     ciclo_seguinte: lead.cicloSeguinte || null,
+    mapa_intencao: lead.mapaIntencao ? JSON.stringify(lead.mapaIntencao) : null,
     dados: JSON.stringify(dados)
   };
 }
@@ -117,13 +119,19 @@ async function lerLeads(userId) {
   });
 }
 
+// Migration automática
+async function _migrarColunaMapa() {
+  try { const { query: _q } = require('./db'); await _q('ALTER TABLE leads ADD COLUMN IF NOT EXISTS mapa_intencao JSONB DEFAULT NULL'); } catch(e) {}
+}
+_migrarColunaMapa();
+
 async function salvarLead(lead) {
   if (await dbOk()) {
     try {
       const r = leadToRow(lead);
       await query(`
-        INSERT INTO leads (id,nome,telefone,whatsapp,contato,origem,status,fase_funil,temperatura,score,user_id,codigo_usuario,tipo_lead,perfil_ia,mensagens,matches,matches_auto,matches_base,historico,timeline,eventos,follow_ups,deletado_por,vitrine_enviada,vitrine_enviada_em,visita_agendada,visita_agendada_em,imovel_vendedor,comissao_parceiro,ciclo_anterior,ciclo_seguinte,dados)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32)
+        INSERT INTO leads (id,nome,telefone,whatsapp,contato,origem,status,fase_funil,temperatura,score,user_id,codigo_usuario,tipo_lead,perfil_ia,mensagens,matches,matches_auto,matches_base,historico,timeline,eventos,follow_ups,deletado_por,vitrine_enviada,vitrine_enviada_em,visita_agendada,visita_agendada_em,imovel_vendedor,comissao_parceiro,ciclo_anterior,ciclo_seguinte,mapa_intencao,dados)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33)
         ON CONFLICT (id) DO UPDATE SET
           nome=EXCLUDED.nome, telefone=EXCLUDED.telefone, whatsapp=EXCLUDED.whatsapp,
           contato=EXCLUDED.contato, origem=EXCLUDED.origem, status=EXCLUDED.status,
@@ -137,8 +145,9 @@ async function salvarLead(lead) {
           visita_agendada=EXCLUDED.visita_agendada, visita_agendada_em=EXCLUDED.visita_agendada_em,
           imovel_vendedor=EXCLUDED.imovel_vendedor, comissao_parceiro=EXCLUDED.comissao_parceiro,
           ciclo_anterior=EXCLUDED.ciclo_anterior, ciclo_seguinte=EXCLUDED.ciclo_seguinte,
+          mapa_intencao=EXCLUDED.mapa_intencao,
           dados=EXCLUDED.dados, atualizado_em=NOW()
-      `, [r.id,r.nome,r.telefone,r.whatsapp,r.contato,r.origem,r.status,r.fase_funil,r.temperatura,r.score,r.user_id,r.codigo_usuario,r.tipo_lead,r.perfil_ia,r.mensagens,r.matches,r.matches_auto,r.matches_base,r.historico,r.timeline,r.eventos,r.follow_ups,r.deletado_por,r.vitrine_enviada,r.vitrine_enviada_em,r.visita_agendada,r.visita_agendada_em,r.imovel_vendedor,r.comissao_parceiro,r.ciclo_anterior,r.ciclo_seguinte,r.dados]);
+      `, [r.id,r.nome,r.telefone,r.whatsapp,r.contato,r.origem,r.status,r.fase_funil,r.temperatura,r.score,r.user_id,r.codigo_usuario,r.tipo_lead,r.perfil_ia,r.mensagens,r.matches,r.matches_auto,r.matches_base,r.historico,r.timeline,r.eventos,r.follow_ups,r.deletado_por,r.vitrine_enviada,r.vitrine_enviada_em,r.visita_agendada,r.visita_agendada_em,r.imovel_vendedor,r.comissao_parceiro,r.ciclo_anterior,r.ciclo_seguinte,r.mapa_intencao,r.dados]);
       return lead;
     } catch(e) {
       console.error('[salvarLead PG]', e.message);

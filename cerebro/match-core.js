@@ -87,6 +87,15 @@ class MatchCore {
       // Detecta novo ciclo de busca (cliente voltou com interesse diferente)
       lead = await this._detectarNovoCiclo(lead, mensagem, userId);
       const perfil = this._atualizarMemoria(lead, mensagem);
+      // Motor de intenção dinâmico — acumula em paralelo
+      try {
+        const { analisarMensagem } = require('./analisador-intencao');
+        const mapaAtual = lead.mapaIntencao || null;
+        lead.mapaIntencao = analisarMensagem(mapaAtual, mensagem, canal);
+        lead.faseFunil    = lead.mapaIntencao.fase || lead.faseFunil;
+        lead.temperatura  = lead.mapaIntencao.temperatura || lead.temperatura;
+        console.log('[INTENCAO] fase:', lead.mapaIntencao.fase, '| temp:', lead.mapaIntencao.temperatura, '| sinais:', lead.mapaIntencao.tipo_imovel.length > 0 ? lead.mapaIntencao.tipo_imovel[0]?.valor : 'nenhum');
+      } catch(e) { console.error('[INTENCAO] erro:', e.message); }
 
       // 4. Score da jornada
       lead = this._score(lead, perfil);

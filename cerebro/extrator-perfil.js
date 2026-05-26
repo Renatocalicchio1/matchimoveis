@@ -89,6 +89,19 @@ function extrairObjetivo(norm) {
 const _INTENCAO_BACKUP = {
 };
 
+// Intenção de VENDER imóvel próprio — não deve atualizar perfil de busca
+const INTENCAO_VENDA_PROPRIO = [
+  'quero vender','vou vender','tenho imovel','tenho um imovel','tenho apartamento',
+  'tenho uma casa','meu imovel','meu apartamento','minha casa','estou vendendo',
+  'coloquei para vender','coloquei a venda','meu imovel a venda','proprietario',
+  'sou proprietario','sou dono','tenho para vender','quero colocar a venda',
+  'preciso vender','vender meu','vender minha','meu terreno','tenho terreno',
+  'tenho lote','meu lote','minha cobertura','tenho cobertura'
+];
+function ehIntencaoVenda(norm) {
+  return INTENCAO_VENDA_PROPRIO.some(p => norm.includes(p));
+}
+
 const URGENCIA = {
   alta: ['urgente','preciso logo','rápido','rapido','imediato','essa semana','hoje','agora','prazo','mudança imediata'],
   baixa: ['só pesquisando','so pesquisando','sem pressa','futuramente','ano que vem','ainda nao sei','explorando','pesquisando']
@@ -1690,4 +1703,4 @@ function extrairPerfil(mensagens) {
   return perfil;
 }
 
-module.exports = { extrairPerfil };
+module.exports = { extrairPerfil, ehIntencaoVenda };

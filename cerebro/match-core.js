@@ -91,6 +91,13 @@ class MatchCore {
       try {
         const { analisarMensagem } = require('./analisador-intencao');
         const mapaAtual = lead.mapaIntencao || null;
+        // Detecta se é mensagem de venda — não atualiza perfil de busca
+        const _ehVenda = this._detectarVenda(mensagem || '');
+        if (_ehVenda && lead.tipoLead !== 'vendedor') {
+          lead.tipoLead = 'vendedor';
+          lead.tipoLeadAtualizadoEm = new Date().toISOString();
+          console.log('[MATCH CORE] lead identificado como VENDEDOR — perfil de busca não atualizado');
+        }
         lead.mapaIntencao = analisarMensagem(mapaAtual, mensagem, canal);
         lead.faseFunil    = lead.mapaIntencao.fase || lead.faseFunil;
         lead.temperatura  = lead.mapaIntencao.temperatura || lead.temperatura;
@@ -114,8 +121,20 @@ class MatchCore {
       if (matchesDepois > matchesAntes) {
         lead = this._timeline(lead, 'sistema', `Match: ${matchesDepois} imóveis encontrados`);
         console.log(`[MATCH CORE] match melhorou: ${matchesAntes} → ${matchesDepois}`);
-        // vitrine automática — envia link WhatsApp se ainda não enviou
-        if (!lead.vitrineEnviada && instancia && lead.contato) {
+        // vitrine automática — envia se não enviou OU se mapa mudou (bairro/valor/tipo mudaram)
+        const _mapaHash = JSON.stringify([
+          lead.mapaIntencao?.tipo_imovel?.[0]?.valor,
+          lead.mapaIntencao?.bairro?.[0]?.valor,
+          lead.mapaIntencao?.cidade?.[0]?.valor,
+          lead.mapaIntencao?.valor?.[0]?.valor,
+          lead.mapaIntencao?.quartos?.[0]?.valor,
+          lead.mapaIntencao?.transacao?.[0]?.valor
+        ]);
+        const _mapaHashAnterior = lead._ultimoMapaHash || '';
+        const _mapaAtualizado = _mapaHash !== _mapaHashAnterior;
+        lead._ultimoMapaHash = _mapaHash;
+
+        if ((!lead.vitrineEnviada || _mapaAtualizado) && instancia && lead.contato) {
           const BASE_URL = process.env.RENDER
             ? 'https://matchimoveis.onrender.com'
             : (process.env.BASE_URL || 'http://localhost:3000');
@@ -464,8 +483,8 @@ return lead;
     // Score de qualidade do perfil (0-6)
     const qualidade = [temTipo,temCidade,temBairro,temValor,temTransacao,temQuartos].filter(Boolean).length;
 
-    // Mínimo: tipo + pelo menos 1 outro sinal
-    const suficiente = temTipo && qualidade >= 2;
+    // Mínimo obrigatório: todos os 6 campos
+    const suficiente = temTipo && temTransacao && temCidade && temBairro && temValor;
 
     if (!suficiente) {
       const faltando = [];

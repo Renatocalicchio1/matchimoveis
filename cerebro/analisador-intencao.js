@@ -71,7 +71,20 @@ function detectarMudanca(texto) {
 // ─── ANALISAR UMA MENSAGEM E ATUALIZAR O MAPA ─────────────────
 function analisarMensagem(mapaAtual, mensagem, origem = 'whatsapp') {
   const mapa = mapaAtual ? JSON.parse(JSON.stringify(mapaAtual)) : criarMapaVazio();
-  
+
+  // Se lead está tentando VENDER imóvel próprio, não atualiza mapa de busca
+  try {
+    const { ehIntencaoVenda } = require('./extrator-perfil');
+    const normMsg = mensagem.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if (ehIntencaoVenda(normMsg)) {
+      mapa.ultimaAnalise = new Date().toISOString();
+      mapa.totalMensagens = (mapa.totalMensagens || 0) + 1;
+      mapa._ultimaMsgVenda = mensagem.substring(0, 100);
+      console.log('[INTENCAO] mensagem de venda própria — mapa de busca não atualizado');
+      return mapa;
+    }
+  } catch(e) {}
+
   const perfil = extrairPerfil([{ texto: mensagem, de: 'cliente' }]);
   const ehMudanca = detectarMudanca(mensagem);
   const multiplicador = ehMudanca ? 2.0 : 1.0;

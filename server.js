@@ -4253,8 +4253,6 @@ app.get('/app/assistente/abertura', auth, (req, res) => {
   try {
     const proatividade = require('./cerebro/proatividade');
     const userId = req.session.user.id;
-    const dataFile = p => { const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname; return require('path').join(DATA_DIR, p); };
-    const lerJson = f => { try { return JSON.parse(fs.readFileSync(dataFile(f),'utf8')); } catch(e) { return []; } };
     const leads = (_cacheLeads||[]).filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
     const imoveis = (_cacheImoveis||[]).filter(i => String(i.userId||i.usuarioId||i.corretorId||'') === userId);
     const visitas = (_cacheVisitas||[]).filter(v => String(v.userId||v.usuarioId||v.corretorId||'') === userId);

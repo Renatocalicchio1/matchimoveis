@@ -2065,24 +2065,17 @@ Tente perguntar de outra forma, por exemplo:
 app.use((req, res, next) => {
   if (!req.session || !req.session.user) return next();
   try {
-    const fs2 = require('fs');
-    const path2 = require('path');
-    const leadsPath = path2.join(__dirname, 'data.json');
-    if (fs2.existsSync(leadsPath)) {
-      const leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
-      const user = req.session.user;
-      let total = 0;
-      leads
-        .filter(l => !l.codigoUsuario || l.codigoUsuario === user.id || l.userId === user.id || l.usuarioId === user.id || l.corretorId === user.id)
-        .forEach(l => {
-          if (l.mensagens) {
-            total += l.mensagens.filter(m => !m.lida && m.de === 'cliente').length;
-          }
-        });
-      res.locals.mensagensNaoLidas = total;
-    } else {
-      res.locals.mensagensNaoLidas = 0;
-    }
+    const user = req.session.user;
+    const leads = (_cacheLeads || []);
+    let total = 0;
+    leads
+      .filter(l => !l.codigoUsuario || l.codigoUsuario === user.id || l.userId === user.id || l.usuarioId === user.id || l.corretorId === user.id)
+      .forEach(l => {
+        if (l.mensagens) {
+          total += l.mensagens.filter(m => !m.lida && m.de === 'cliente').length;
+        }
+      });
+    res.locals.mensagensNaoLidas = total;
   } catch(e) {
     res.locals.mensagensNaoLidas = 0;
   }
@@ -2667,8 +2660,7 @@ app.get('/api/geocodificar-bairros', auth, async (req, res) => {
   const fs2 = require('fs');
   const DATA_DIR2 = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
   const cacheFile = path2.join(DATA_DIR2, 'bairros-coords.json');
-  const imoveisPath = path2.join(DATA_DIR2, 'imoveis.json');
-  const imoveis = fs2.existsSync(imoveisPath) ? JSON.parse(fs2.readFileSync(imoveisPath,'utf8')) : [];
+  const imoveis = (_cacheImoveis || []);
   const cache = fs2.existsSync(cacheFile) ? JSON.parse(fs2.readFileSync(cacheFile,'utf8')) : {};
   
   // Pega bairros únicos
@@ -2748,7 +2740,7 @@ app.get('/app/mapa', auth, async (req, res) => {
   const hoje = new Date().toISOString().split('T')[0];
   const imoveis = (_cacheImoveis || []);
   // Visitas do dia
-  const todasVisitas = _cacheVisitas || (fs2.existsSync(path2.join(DATA_DIR2,'visitas.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'visitas.json'),'utf8')) : []);
+  const todasVisitas = _cacheVisitas || await lerVisitasData();
   const amanha = new Date(Date.now()+86400000).toISOString().split('T')[0];
   const visitasHoje = todasVisitas.filter(v =>
     (v.userId===userId||v.corretorId===userId) &&
@@ -4209,10 +4201,9 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
   memoria.historico.push({ userId:uid, pergunta:mensagem, resposta, data:new Date().toISOString() });
   if (memoria.historico.length>500) memoria.historico = memoria.historico.slice(-500);
   fs.writeFileSync(memoriaPath, JSON.stringify(memoria,null,2));
-  // Salvar tambem no users.json para persistir no Render
+  // Salvar historico no cache de usuarios
   try {
-    const usersPath = dataPath('users.json');
-    const users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
+    const users = (_cacheUsuarios || []);
     const uIdx = users.findIndex(u=>u.id===uid||u.userId===uid);
     if (uIdx>=0) {
       users[uIdx].historicoAssistente = users[uIdx].historicoAssistente || [];
@@ -4264,10 +4255,10 @@ app.get('/app/assistente/abertura', auth, (req, res) => {
     const userId = req.session.user.id;
     const dataFile = p => { const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname; return require('path').join(DATA_DIR, p); };
     const lerJson = f => { try { return JSON.parse(fs.readFileSync(dataFile(f),'utf8')); } catch(e) { return []; } };
-    const leads = lerJson('data.json').filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
-    const imoveis = lerJson('imoveis.json').filter(i => String(i.userId||i.usuarioId||i.corretorId||'') === userId);
-    const visitas = lerJson('visitas.json').filter(v => String(v.userId||v.usuarioId||v.corretorId||v.corretorId||'') === userId);
-    const notificacoes = lerJson('notificacoes.json').filter(n => String(n.userId||n.usuarioId||n.corretorId||'') === userId);
+    const leads = (_cacheLeads||[]).filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
+    const imoveis = (_cacheImoveis||[]).filter(i => String(i.userId||i.usuarioId||i.corretorId||'') === userId);
+    const visitas = (_cacheVisitas||[]).filter(v => String(v.userId||v.usuarioId||v.corretorId||'') === userId);
+    const notificacoes = (_cacheNotificacoes||[]).filter(n => String(n.userId||n.usuarioId||n.corretorId||'') === userId);
     const mensagem = proatividade.gerarAbertura(req.session.user, leads, imoveis, visitas, notificacoes);
     res.json({ ok: true, mensagem });
   } catch(e) {
@@ -5608,8 +5599,7 @@ app.post('/app/whatsapp/desconectar', auth, async (req, res) => {
     await fetch(EVOLUTION_URL + '/instance/logout/' + instanceName, {
       method: 'DELETE', headers: { 'apikey': EVOLUTION_KEY }
     });
-    const usersPath = require('path').join(__dirname, 'users.json');
-    const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+    const users = (_cacheUsuarios || []);
     const idx = users.findIndex(u => u.id === user.id);
     if (idx >= 0) {
       users[idx].whatsappStatus = 'disconnected';

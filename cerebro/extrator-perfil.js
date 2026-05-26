@@ -39,7 +39,44 @@ _carregarDicBairrosPG();
 setInterval(_carregarDicBairrosPG, 3600000);
 // Captura TUDO que pode estar relacionado a um imóvel
 
-const TIPOS_RESIDENCIAL = ['apartamento','apto','casa','sobrado','cobertura','studio','kitnet','loft','flat','mansao','chacara','sitio','fazenda','vila'];
+// ── LEVENSHTEIN — tolerância a erros de digitação ──────────────
+function _levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, (_,i) => Array.from({length: n+1}, (_,j) => i===0?j:j===0?i:0));
+  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
+    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+// Distância máxima permitida baseada no tamanho da palavra
+function _distMax(palavra) {
+  if (palavra.length <= 4) return 1;
+  if (palavra.length <= 7) return 2;
+  return 3;
+}
+
+// Encontra a palavra mais próxima em uma lista
+function _fuzzyMatch(input, lista) {
+  if (!input || input.length < 3) return null;
+  let melhor = null, menorDist = Infinity;
+  for (const palavra of lista) {
+    if (Math.abs(input.length - palavra.length) > 4) continue; // descarta muito diferente
+    const dist = _levenshtein(input, palavra);
+    if (dist <= _distMax(palavra) && dist < menorDist) {
+      menorDist = dist;
+      melhor = palavra;
+    }
+  }
+  return melhor;
+}
+
+const TIPOS_RESIDENCIAL = [
+    'apartamento','apartamento','aprtamento','aparemtneo','apartemento','apartamneto',
+    'aprtamento','apartmento','apatamento','apto','ap to',
+    'casa','sobrado','cobertura','studio','kitnet','loft','flat',
+    'mansao','mansão','chacara','chácara','sitio','sítio','fazenda','vila',
+    'imovel residencial','imóvel residencial'
+  ];
 const TIPOS_COMERCIAL = ['sala comercial','sala','loja','galpao','galpão','escritorio','escritório','conjunto comercial','conjunto','predio','prédio','hotel','pousada'];
 const TODOS_TIPOS = [...TIPOS_RESIDENCIAL, ...TIPOS_COMERCIAL];
 
@@ -282,7 +319,34 @@ function extrairValor(txt, intencao) {
   return null;
 }
 
+// Mapa de correção de erros de digitação comuns
+const TYPOS_TIPO = {
+  'aparemtneo':'apartamento','aparemento':'apartamento','apartamento':'apartamento',
+  'aprtamento':'apartamento','apartmento':'apartamento','apatamento':'apartamento',
+  'apartemento':'apartamento','apartamneto':'apartamento','apartameto':'apartamento',
+  'casas':'casa','sobrados':'sobrado','coberturas':'cobertura','studios':'studio',
+  'kitnets':'kitnet','lofts':'loft','flats':'flat','mansoes':'mansao',
+  'chácaras':'chacara','chacaras':'chacara','sítios':'sitio','sitios':'sitio'
+};
+
+function corrigirTipo(norm) {
+  for (const [typo, correto] of Object.entries(TYPOS_TIPO)) {
+    if (norm.includes(typo)) return correto;
+  }
+  return null;
+}
+
 function extrairTipo(norm) {
+  // Corrige erros de digitação primeiro
+  const corrigido = corrigirTipo(norm);
+  if (corrigido) return corrigido;
+  // Fuzzy match para erros de digitação não mapeados
+  const palavras = norm.split(/\s+/);
+  for (const palavra of palavras) {
+    if (palavra.length < 3) continue;
+    const fuzzyTipo = _fuzzyMatch(palavra, TODOS_TIPOS);
+    if (fuzzyTipo) return fuzzyTipo;
+  }
   // Comercial primeiro (mais específico)
   for (const t of TIPOS_COMERCIAL) { if (norm.includes(t)) return { tipo: t, categoria: 'comercial' }; }
   for (const t of TIPOS_RESIDENCIAL) { if (norm.includes(t)) return { tipo: t, categoria: 'residencial' }; }
@@ -1583,6 +1647,15 @@ function extrairBairro(norm) {
   // Ordena bairros do mais longo para o mais curto para evitar match parcial
   bairrosConhecidos.sort((a,b) => b.length - a.length);
   for (const b of bairrosConhecidos) { const re = new RegExp("(^|\\s)" + b.replace(/[.*+?^${}()|[\\]]/g,"\\  for (const b of bairrosConhecidos) { if (norm.includes(b)) return b; }") + "(\\s|$|,|\\.)"); if (re.test(norm)) return b; }
+  // Fuzzy match nos bairros do dicionário PG
+  const _dicFuzzy = getBairrosSC();
+  const _bairrosLista = Object.keys(_dicFuzzy);
+  for (const palavra of norm.split(/[\s,]+/)) {
+    if (palavra.length < 4) continue;
+    const fuzzyBairro = _fuzzyMatch(palavra, _bairrosLista);
+    if (fuzzyBairro) return fuzzyBairro;
+  }
+
   // Padrão preposição explícita — só aceita quando há palavra-chave de localização
   const bm = norm.match(/\b(?:no bairro|na bairro|bairro|regiao|região|proximo a|perto de|localizado em|fica em|quero em|busco em|procuro em)\s+([a-z\s]{3,25}?)(?:,|\.|\s{2}|$)/);
   if (bm) return bm[1].trim();

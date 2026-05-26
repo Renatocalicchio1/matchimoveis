@@ -93,10 +93,16 @@ class MatchCore {
         const mapaAtual = lead.mapaIntencao || null;
         // Detecta se é mensagem de venda — não atualiza perfil de busca
         const _ehVenda = this._detectarVenda(mensagem || '');
-        if (_ehVenda && lead.tipoLead !== 'vendedor') {
-          lead.tipoLead = 'vendedor';
+        if (_ehVenda) {
+          if (!lead.tipoLead || lead.tipoLead === 'cliente') {
+            // Só buscando até agora → passa a ser cliente_vendedor
+            lead.tipoLead = 'cliente_vendedor';
+          } else if (lead.tipoLead === 'vendedor') {
+            // Já era vendedor — mantém
+          }
+          // Se já é cliente_vendedor — mantém
           lead.tipoLeadAtualizadoEm = new Date().toISOString();
-          console.log('[MATCH CORE] lead identificado como VENDEDOR — perfil de busca não atualizado');
+          console.log('[MATCH CORE] lead tem imovel para vender | tipoLead:', lead.tipoLead);
         }
         lead.mapaIntencao = analisarMensagem(mapaAtual, mensagem, canal);
         lead.faseFunil    = lead.mapaIntencao.fase || lead.faseFunil;

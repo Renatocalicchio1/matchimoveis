@@ -372,63 +372,75 @@ return lead;
   // ============================================================
   async _matchCaso1(lead, userId) {
     try {
-      const { buscarMatchesBaseInterna } = require('../matchBaseInterna');
       const { query: _queryMatch } = require('../services/db');
-      const _resMatch = await _queryMatch("SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'", [userId]);
-      const imoveisDoUser = _resMatch.rows;
-      console.log('[MATCH CORE] imóveis PG:', imoveisDoUser.length);
+      const { matchPorMapa } = require('./motor-intencao');
+      const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 
-
-
-      // Pega o imóvel de interesse como âncora
+      // Busca o imóvel âncora pelo id
       const imovelId = lead.imovel_interesse || lead.imovelId || lead.idAnuncio;
-      const imovelAncora = imoveisDoUser.find(i =>
-        String(i.id) === String(imovelId) ||
-        String(i.idExterno) === String(imovelId) ||
-        String(i.codigoImovel) === String(imovelId)
+      const _resAncora = await _queryMatch(
+        "SELECT * FROM imoveis WHERE id=$1 OR id_externo=$1 OR id_interno=$1 OR codigo_imovel=$1 LIMIT 1",
+        [String(imovelId)]
       );
+      const ancora = _resAncora.rows[0];
+      console.log(`[MATCH CORE] caso1 | âncora:${imovelId} | encontrada:${!!ancora}`);
 
-      // Monta leadFake baseado no imóvel de interesse
-      const leadFake = {
-        tipo:     imovelAncora?.tipo    || lead.tipo     || '',
-        bairro:   imovelAncora?.bairro  || lead.bairro   || '',
-        cidade:   imovelAncora?.cidade  || lead.cidade   || 'São Paulo',
-        estado:   imovelAncora?.estado  || lead.estado   || 'SP',
-        quartos:  imovelAncora?.quartos || lead.quartos  || 0,
-        valorMax: imovelAncora ? (imovelAncora.valor_imovel || imovelAncora.valor) * 1.25 : (lead.valorMax || 0),
-        valorMin: imovelAncora ? (imovelAncora.valor_imovel || imovelAncora.valor) * 0.75 : (lead.valorMin || 0),
-        area:     imovelAncora?.area_m2 || lead.area     || 0,
-        suites:   imovelAncora?.suites  || lead.suites   || 0,
-        vagas:    imovelAncora?.vagas   || lead.vagas    || 0
+      // Busca imóveis do corretor + parceiros do mesmo estado
+      const estadoAncora = norm(ancora?.estado || lead.estado || '');
+      let _resImoveis;
+      if (estadoAncora) {
+        _resImoveis = await _queryMatch(
+          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2)",
+          [userId, '%' + estadoAncora + '%']
+        );
+      } else {
+        _resImoveis = await _queryMatch("SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'", [userId]);
+      }
+      const imoveis = _resImoveis.rows;
+      console.log('[MATCH CORE] caso1 | imóveis pool:', imoveis.length);
+
+      if (!ancora) {
+        console.log('[MATCH CORE] caso1 | âncora não encontrada, sem match');
+        return lead;
+      }
+
+      // Constrói mapaIntencao temporário baseado no imóvel âncora
+      const precoAncora = Number(ancora.valor_imovel || ancora.valor || 0);
+      const mapaTemp = {
+        tipo_imovel: [{ valor: norm(ancora.tipo||''), score: 100, confianca: 100, scoreEfetivo: 100 }],
+        transacao:   [{ valor: norm(ancora.transacao||'venda'), score: 100, confianca: 100, scoreEfetivo: 100 }],
+        cidade:      ancora.cidade ? [{ valor: norm(ancora.cidade), score: 100, confianca: 100, scoreEfetivo: 100 }] : [],
+        bairro:      ancora.bairro ? [{ valor: norm(ancora.bairro), score: 90, confianca: 90, scoreEfetivo: 90 }] : [],
+        quartos:     ancora.quartos ? [{ valor: Number(ancora.quartos), score: 90, confianca: 90, scoreEfetivo: 90 }] : [],
+        suites:      ancora.suites  ? [{ valor: Number(ancora.suites),  score: 80, confianca: 80, scoreEfetivo: 80 }] : [],
+        vagas:       ancora.vagas   ? [{ valor: Number(ancora.vagas),   score: 80, confianca: 80, scoreEfetivo: 80 }] : [],
+        area:        ancora.area_m2 ? [{ valor: { min: Number(ancora.area_m2)*0.80, max: Number(ancora.area_m2)*1.35 }, score: 70, confianca: 70, scoreEfetivo: 70 }] : [],
+        valor:       precoAncora    ? [{ valor: { min: precoAncora*0.75, max: precoAncora*1.25 }, score: 90, confianca: 90, scoreEfetivo: 90 }] : [],
+        urgencia: 0, fase: 'interesse', temperatura: 'morno'
       };
 
-      console.log(`[MATCH CORE] caso1 | âncora:${imovelId} | tipo:${leadFake.tipo} bairro:${leadFake.bairro}`);
+      const leadTemp = { ...lead, mapaIntencao: mapaTemp };
 
-      const matches = buscarMatchesBaseInterna(leadFake, imoveisDoUser);
+      // Match ponderado usando motor de intenção
+      const resultados = matchPorMapa(leadTemp, imoveis);
 
-      // Exclui o próprio imóvel de interesse dos resultados
-      const matchesFiltrados = (matches || [])
-        .filter(m => String(m.id||m.idExterno) !== String(imovelId))
-        .slice(0, 8)
-        .map((m, i) => ({ ...m, rank: i+1, score: Number(m.score||m.bestScore||0) }));
+      // Exclui o próprio imóvel âncora
+      const matchesFiltrados = resultados
+        .filter(r => String(r.imovel.id) !== String(ancora.id))
+        .slice(0, 30)
+        .map((r, i) => ({ ...r.imovel, rank: i+1, score: r.scoreMatch, motivos: r.motivos, origemMatch: 'caso1' }));
 
-      // Inclui sempre o imóvel de interesse como primeiro resultado
-      if (imovelAncora) {
-        matchesFiltrados.unshift({ ...imovelAncora, rank: 0, score: 100, destaque: true, imovelInteresse: true });
-      }
+      // Imóvel âncora sempre no topo com score 100
+      matchesFiltrados.unshift({ ...ancora, rank: 0, score: 100, destaque: true, imovelInteresse: true });
 
       lead.matches     = matchesFiltrados;
       lead.matchesAuto = matchesFiltrados;
       lead.matchAutoEm = new Date().toISOString();
+      if (lead.temperatura === 'frio') lead.temperatura = 'morno';
 
-      // Atualiza temperatura — caso 1 já é mais quente
-      if (matchesFiltrados.length > 0 && lead.temperatura === 'frio') {
-        lead.temperatura = 'morno';
-      }
-
-      console.log(`[MATCH CORE] caso1 matches: ${matchesFiltrados.length}`);
+      console.log(`[MATCH CORE] caso1 matches: ${matchesFiltrados.length} | top score: ${matchesFiltrados[1]?.score||0}`);
     } catch(e) {
-      console.error('[MATCH CORE] erro caso1:', e.message);
+      console.error('[MATCH CORE] erro caso1:', e.message, e.stack);
     }
     return lead;
   }

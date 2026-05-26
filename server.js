@@ -816,63 +816,6 @@ app.get('/dev/diagnostico-leads', auth, (req,res)=>{
   });
 });
 
-app.get('/admin/resumo-contas', (req, res) => {
-  try {
-    const users = (_cacheUsuarios || []);
-    const imoveis = ((_cacheImoveis || []));
-    const leads = (_cacheLeads || []);
-    const visitas = (_cacheVisitas || []);
-    const resumo = users.map(u => ({
-      nome: u.nome, id: u.id, tipo: u.tipo,
-      imoveis: imoveis.filter(i=>i.codigoUsuario===u.id||i.userId===u.id).length,
-      leads: leads.filter(l=>l.userId===u.id||l.codigoUsuario===u.id||l.corretorId===u.id).length,
-      visitas: visitas.filter(v=>v.userId===u.id||v.codigoUsuario===u.id).length
-    }));
-    res.json({ ok: true, resumo });
-  } catch(e) { res.json({ ok: false, erro: e.message }); }
-});
-
-app.get('/admin/fix-userId-alexandre', async (req, res) => {
-  try {
-    const idAntigo = 'imobiliaria-47991919191';
-    const idNovo = 'imob_nhvxchtlx5';
-    let resultado = {};
-
-    // Atualiza users.json
-    const usersPath = dataPath('users.json');
-    let users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
-    users = users.map(u => { if(u.id===idAntigo) u.id=idNovo; return u; });
-    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
-    resultado.users = 'ok';
-
-    // Atualiza imoveis.json
-    const imoveisPath = dataFile('imoveis.json');
-    let txt = fs.readFileSync(imoveisPath,'utf8');
-    const countIm = (txt.match(new RegExp(idAntigo,'g'))||[]).length;
-    txt = txt.replace(new RegExp(idAntigo,'g'), idNovo);
-    fs.writeFileSync(imoveisPath, txt);
-    resultado.imoveis = countIm + ' refs atualizadas';
-
-    // Atualiza data.json
-    const dataJson = dataPath('data.json');
-    let txtD = fs.readFileSync(dataJson,'utf8');
-    const countD = (txtD.match(new RegExp(idAntigo,'g'))||[]).length;
-    txtD = txtD.replace(new RegExp(idAntigo,'g'), idNovo);
-    fs.writeFileSync(dataJson, txtD);
-    resultado.leads = countD + ' refs atualizadas';
-
-    // Atualiza visitas.json
-    const visitasJson = dataPath('visitas.json');
-    let txtV = fs.readFileSync(visitasJson,'utf8');
-    const countV = (txtV.match(new RegExp(idAntigo,'g'))||[]).length;
-    txtV = txtV.replace(new RegExp(idAntigo,'g'), idNovo);
-    fs.writeFileSync(visitasJson, txtV);
-    resultado.visitas = countV + ' refs atualizadas';
-
-    res.json({ ok: true, resultado });
-  } catch(e) { res.json({ ok: false, erro: e.message }); }
-});
-
 function gerarCodigoUsuario(nome) {
   const ini = (nome||'USR').substring(0,3).toUpperCase().replace(/[^A-Z]/g,'').padEnd(3,'X');
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -882,18 +825,6 @@ function gerarCodigoUsuario(nome) {
 }
 
 
-app.get('/admin/fix-codigos-usuarios', async (req, res) => {
-  try {
-    const usersPath = dataPath('users.json');
-    let users = JSON.parse(fs.readFileSync(usersPath,'utf8'));
-    users = users.map(u => {
-      u.codigoUsuario = gerarCodigoUsuario(u.nome);
-      return u;
-    });
-    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
-    res.json({ ok: true, usuarios: users.map(u=>({nome:u.nome, id:u.id, codigoUsuario:u.codigoUsuario})) });
-  } catch(e) { res.json({ ok: false, erro: e.message }); }
-});
 // ===== APP ROUTES =====
 
 
@@ -2200,90 +2131,8 @@ app.use((req, res, next) => {
 
 
 // LIMPAR DADOS DE UMA CONTA — ADMIN
-app.get('/admin/limpar-conta/:userId', async (req, res) => {
-  const fs2 = require('fs');
-  const path2 = require('path');
-  const userId = req.params.userId;
-  const base = '/opt/render/project/src/data';
-  const baseLocal = __dirname;
-
-  function limparArquivo(filePath, campo) {
-    if (!fs2.existsSync(filePath)) return 0;
-    try {
-      let dados = JSON.parse(fs2.readFileSync(filePath, 'utf8'));
-      const antes = dados.length;
-      dados = dados.filter(d => (d.codigoUsuario || d.userId || d.corretor_id || '') !== userId);
-      fs2.writeFileSync(filePath, JSON.stringify(dados, null, 2));
-      return antes - dados.length;
-    } catch(e) { return -1; }
-  }
-
-  const resultado = {};
-  for (const base2 of [base, baseLocal]) {
-    resultado[base2] = {
-      leads: limparArquivo(path2.join(base2, 'data.json'), 'codigoUsuario'),
-      visitas: limparArquivo(path2.join(base2, 'visitas.json'), 'codigoUsuario'),
-      notificacoes: limparArquivo(path2.join(base2, 'notificacoes.json'), 'codigoUsuario'),
-    };
-  }
-  res.json({ ok: true, userId, resultado });
-});
-
 
 // ZERAR LEADS + MENSAGENS WA + NOTIFICACOES DE UMA CONTA
-app.get('/admin/zerar-conta-completo/:userId', async (req, res) => {
-  const fs2 = require('fs');
-  const path2 = require('path');
-  const userId = req.params.userId;
-  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
-  const resultado = {};
-
-  for (const base2 of bases) {
-    resultado[base2] = {};
-
-    // Zerar leads da conta
-    const leadsPath = path2.join(base2, 'data.json');
-    if (fs2.existsSync(leadsPath)) {
-      try {
-        let leads = JSON.parse(fs2.readFileSync(leadsPath, 'utf8'));
-        const antes = leads.length;
-        leads = leads.filter(l => (l.userId || l.codigoUsuario || '') !== userId);
-        // Limpar mensagens WhatsApp de todos os leads
-        leads = leads.map(l => { delete l.mensagens; delete l.perfilIA; delete l.matchesAuto; delete l.ultimaMensagem; delete l.ultimaMensagemEm; return l; });
-        salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
-        resultado[base2].leads_deletados = antes - leads.length;
-        resultado[base2].leads_restantes = leads.length;
-      } catch(e) { resultado[base2].leads_erro = e.message; }
-    }
-
-    // Zerar notificacoes da conta
-    const notifPath = path2.join(base2, 'notificacoes.json');
-    if (fs2.existsSync(notifPath)) {
-      try {
-        let notif = JSON.parse(fs2.readFileSync(notifPath, 'utf8'));
-        const antes = notif.length;
-        notif = notif.filter(n => (n.userId || n.codigoUsuario || '') !== userId);
-        fs2.writeFileSync(notifPath, JSON.stringify(notif, null, 2));
-        resultado[base2].notificacoes_deletadas = antes - notif.length;
-      } catch(e) { resultado[base2].notif_erro = e.message; }
-    }
-
-    // Zerar visitas da conta
-    const visitasPath = path2.join(base2, 'visitas.json');
-    if (fs2.existsSync(visitasPath)) {
-      try {
-        let visitas = JSON.parse(fs2.readFileSync(visitasPath, 'utf8'));
-        const antes = visitas.length;
-        visitas = visitas.filter(v => (v.userId || v.codigoUsuario || '') !== userId);
-        salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
-        resultado[base2].visitas_deletadas = antes - visitas.length;
-      } catch(e) { resultado[base2].visitas_erro = e.message; }
-    }
-  }
-
-  res.json({ ok: true, userId, resultado });
-});
-
 
 // ── KEEP-ALIVE RENDER — auto-ping a cada 4 minutos ──────────────────────────
 setInterval(() => {
@@ -4152,103 +4001,11 @@ app.get('/app/portais', auth, (req,res)=>{
 });
 
 // Limpar descrições de imóveis de uma conta
-app.get('/admin/limpar-descricoes/:userId', (req,res)=>{
-  const userId = req.params.userId;
-  const todos = (_cacheImoveis || []);
-  let count = 0;
-  const atualizados = todos.map(i => {
-    if(String(i.userId||i.usuarioId||i.corretorId||'') !== userId) return i;
-    if(i.descricaoEditada) return i; // preservar descrições editadas manualmente
-    let d = i.descricao || '';
-    // remover "Agende já/ja a sua visita com o corretor..."
-    // remover "As informações estão sujeitas a alterações"
-    d = d.replace(/Ass+informa[çc][õo]ess+(est[ãa]os+)?sujeitas?s+as+altera[çc][õo]es[^.]*./gi, '');
-    // remover "Chave do anúncio: XXXXX"
-    d = d.replace(/Chaves+dos+an[úu]ncios*:s*S+/gi, '');
-    // remover dados de contato (telefones e emails no texto)
-    d = d.replace(/Cel.?s*[(d][ds()-.]+d/gi, '');
-    // remover espaços duplos
-    d = d.replace(/s{2,}/g, ' ').trim();
-    if(d !== i.descricao){ count++; }
-    return { ...i, descricao: d };
-  });
-  salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
-  res.json({ ok: true, limpos: count, total: atualizados.filter(i=>String(i.userId||'')===userId).length });
-});
-
 // Diagnostico descricoes
-app.get("/admin/diagnostico-descricoes/:userId",(req,res)=>{
-  const userId=req.params.userId;
-  const todos=(_cacheImoveis || []); 
-  const meus=todos.filter(i=>String(i.userId||i.usuarioId||i.corretorId||"")=== userId);
-  const comMario=meus.filter(i=>i.descricao&&i.descricao.toLowerCase().includes("mario"));
-  const comAgende=meus.filter(i=>i.descricao&&i.descricao.toLowerCase().includes("agende"));
-  const exemplo=comMario[0]?comMario[0].descricao.slice(-400):"nenhum";
-  res.json({total:meus.length,comMario:comMario.length,comAgende:comAgende.length,exemplo});
-});
-
 // Limpar descricoes
-app.get("/admin/limpar-descricoes/:userId",(req,res)=>{
-  const userId=req.params.userId;
-  const todos=(_cacheImoveis || []); 
-  let count=0;
-  const cortar=["aproveite e a oportunidade agende","aproveite essa oportunidade agende","agende agora mesmo sua visita","agende ja a sua visita","agende sua visita","agende agora","as informações estão sujeitas","as informacoes estao sujeitas","chave do anúncio","chave do anuncio"];
-  const remover=["mario sergio","mário sérgio","11999965998","11 9.9996.5998","adv.mssouza"];
-  const atualiz=todos.map(i=>{
-    if(String(i.userId||i.usuarioId||i.corretorId||"")!==userId)return i;
-    let d=i.descricao||"";
-    const orig=d;
-    const dl=d.toLowerCase();
-    cortar.forEach(f=>{const x=dl.indexOf(f);if(x>-1)d=d.substring(0,x).trim();});
-    remover.forEach(t=>{d=d.replace(new RegExp(t,"gi"),"");});
-    d=d.replace(/ {2,}/g," ").trim();
-    if(d!==orig)count++;
-    return{...i,descricao:d};
-  });
-  salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
-  res.json({ok:true,limpos:count,total:todos.filter(i=>String(i.userId||i.corretorId||"")=== userId).length});
-});
-
 // Reativar todos imóveis de uma conta
-app.get('/admin/reativar-imoveis/:userId', (req,res)=>{
-  const userId = req.params.userId;
-  const todos = (_cacheImoveis || []);
-  let count = 0;
-  const atualizados = todos.map(i => {
-    if(String(i.userId||i.usuarioId||i.corretorId||'') === userId && i.status === 'inativo'){
-      count++;
-      return { ...i, status: 'ativo' };
-    }
-    return i;
-  });
-  salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
-  res.json({ ok: true, reativados: count });
-});
-
 // Backup leads por conta
-app.get('/admin/backup-leads/:userId', (req,res)=>{
-  const userId = req.params.userId;
-  const todos = (_cacheLeads || []);
-  const filtrados = todos.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
-  res.setHeader('Content-Disposition', 'attachment; filename="backup-leads-'+userId+'.json"');
-  res.setHeader('Content-Type', 'application/json');
-  res.send(JSON.stringify(filtrados, null, 2));
-});
-
 // Backup de imóveis por conta
-app.get('/admin/backup-imoveis/:userId', (req,res)=>{
-  const userId = req.params.userId;
-  const todos = (_cacheImoveis || []);
-  const filtrados = todos.filter(i =>
-    String(i.userId||i.usuarioId||i.corretorId||'') === userId
-  );
-  const filename = 'backup-imoveis-'+userId+'-'+Date.now()+'.json';
-  fs.writeFileSync(dataPath(filename), JSON.stringify(filtrados, null, 2));
-  res.setHeader('Content-Disposition', 'attachment; filename="'+filename+'"');
-  res.setHeader('Content-Type', 'application/json');
-  res.send(JSON.stringify(filtrados, null, 2));
-});
-
 // Página de upload XML
 app.get('/app/importar-xml-upload', (req, res) => {
   const userId = req.query.userId || '';
@@ -4311,42 +4068,9 @@ app.use('/admin', (req, res, next) => {
 
 
 // ROTA TEMPORÁRIA — zerar visitas e notificações
-app.get('/admin/zerar-visitas-notificacoes-temp', async (req, res) => {
-  salvarTodasVisitas([]).catch(e=>console.error("[visitas]",e.message));
-  salvarJSON(dataPath('notificacoes.json'), []).catch(e=>console.error("[notif]",e.message));
-  res.send('✅ Visitas e notificações zeradas no disco persistente!');
-});
-
 // ADMIN — Zerar visitas por userId
-app.get("/admin/zerar-visitas/:userId", async (req, res) => {
-const { userId } = req.params;
-const visitas = (_cacheVisitas || []);
-const restantes = visitas.filter(v => v.userId !== userId);
-const removidas = visitas.length - restantes.length;
-salvarTodasVisitas(restantes).catch(e=>console.error("[visitas]",e.message));
-res.send("✅ " + removidas + " visita(s) removidas para userId: " + userId);
-});
-
 // ADMIN — Zerar notificações por userId
-app.get("/admin/zerar-notificacoes/:userId", async (req, res) => {
-const { userId } = req.params;
-try {
-  const { query: _q } = require('./services/db');
-  const r = await _q('DELETE FROM notificacoes WHERE usuario_id=$1', [userId]);
-  res.send("✅ Notificações removidas para userId: " + userId);
-} catch(e) { res.send("Erro: " + e.message); }
-});
-
 // ADMIN — Zerar tudo por userId
-app.get("/admin/zerar-tudo/:userId", async (req, res) => {
-const { userId } = req.params;
-const visitas = (_cacheVisitas || []);
-const visitasRest = visitas.filter(v => v.userId !== userId);
-salvarTodasVisitas(visitasRest).catch(e=>console.error("[visitas]",e.message));
-try { const { query: _q2 } = require('./services/db'); await _q2('DELETE FROM notificacoes WHERE usuario_id=$1', [userId]); } catch(e) {}
-res.send("✅ Zerado para " + userId + ": " + (visitas.length - visitasRest.length) + " visita(s) + notificações");
-});
-
 // Página confirmação de presença do lead
 
 
@@ -4377,30 +4101,8 @@ app.get('/app/coins', auth, (req, res) => {
 
 
 // DEBUG TEMP
-app.get('/admin/debug-visitas', (req, res) => {
-  const visitas = (_cacheVisitas || []);
-  const resumo = visitas.slice(-5).map(v => ({ id: v.id, userId: v.userId, status: v.status, nome: v.nome }));
-  res.json(resumo);
-});
-
 // DEBUG LEADS
-app.get('/admin/debug-leads', (req, res) => {
-  const leads = (_cacheLeads || []);
-  const comId = leads.filter(l => l.userId || l.corretorId).length;
-  const semId = leads.filter(l => !l.userId && !l.corretorId).length;
-  res.json({ total: leads.length, comUserId: comId, semUserId: semId });
-});
-
 // TEMP - Substituir data.json pelo do repositório
-app.get('/admin/reset-leads-repo', (req, res) => {
-  const repoPath = dataPath('data.json');
-  const diskPath = dataPath('data.json');
-  const data = fs.readFileSync(repoPath, 'utf8');
-  fs.writeFileSync(diskPath, data);
-  const leads = JSON.parse(data);
-  res.send('✅ data.json substituído! Total: ' + leads.length + ' leads');
-});
-
 app.get('/app/assistente', auth, (req, res) => {
   const imoveis = (_cacheImoveis || []).filter(i => i.userId === req.session.user.userId);
   const leads = (_cacheLeads || []).filter(l => l.userId === req.session.user.userId);
@@ -4461,27 +4163,7 @@ app.get('/app/assistente', auth, (req, res) => {
 });
 
 // Rota admin — top perguntas não entendidas
-app.get('/admin/nao-entendidos', (req, res) => {
-  try {
-    const aprendizado = require('./cerebro/aprendizado');
-    const top = aprendizado.topNaoEntendidos(20);
-    res.json({ ok: true, top });
-  } catch(e) { res.json({ ok: false, error: e.message }); }
-});
-
 // Rota admin — funil de leads por conta
-app.get('/admin/funil/:userId', (req, res) => {
-  try {
-    const funil = require('./cerebro/funil');
-    const userId = req.params.userId;
-    const data = (_cacheLeads || []);
-    const visitas = (_cacheVisitas || []);
-    const leads = data.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId);
-    const resumo = funil.resumoFunil(leads, visitas);
-    res.json({ ok: true, userId, total: leads.length, funil: resumo });
-  } catch(e) { res.status(500).json({ ok: false, error: e.message }); }
-});
-
 app.post('/app/assistente/chat', auth, async (req, res) => {
   const { mensagem } = req.body;
   if (!mensagem) return res.json({ resposta: 'Digite uma mensagem.' });
@@ -4610,121 +4292,13 @@ app.get('/app/assistente/historico', auth, (req, res) => {
 // =========================
 // IMPORT SYNC RAN 0888/9191
 // =========================
-app.post('/admin/import-sync-ran', express.json({limit:'200mb'}), async (req,res)=>{
-
-  const token = req.headers['x-sync-token'];
-
-  if(token !== 'MATCHIMOVEIS_SYNC_2026'){
-    return res.status(401).json({ok:false,error:'token invalido'});
-  }
-
-  try{
-
-    const body = req.body || {};
-
-    const arquivos = {
-      users: 'users.json',
-      imoveis: 'imoveis.json',
-      leads: 'leads.json',
-      data: 'data.json',
-      visitas: 'visitas.json',
-      notificacoes: 'notificacoes.json'
-    };
-
-    Object.entries(arquivos).forEach(([key,file])=>{
-
-      const atuais = fs.existsSync(dataPath(file))
-        ? JSON.parse(fs.readFileSync(dataPath(file),'utf8'))
-        : [];
-
-      const novos = Array.isArray(body[key]) ? body[key] : [];
-
-      const idsNovos = new Set(
-        novos.map(i => String(i.id || i._id || i.codigoUsuario || Math.random()))
-      );
-
-      const limpos = atuais.filter(i => {
-        const id = String(i.id || i._id || i.codigoUsuario || '');
-        return !idsNovos.has(id);
-      });
-
-      const final = [...limpos, ...novos];
-
-      fs.writeFileSync(
-        dataPath(file),
-        JSON.stringify(final,null,2)
-      );
-
-    });
-
-    res.json({
-      ok:true,
-      users:(body.users||[]).length,
-      imoveis:(body.imoveis||[]).length,
-      data:(body.data||[]).length
-    });
-
-  }catch(e){
-    res.status(500).json({ok:false,error:e.message});
-  }
-
-});
-
 // ===============================
 
 
 
 
 // Sync leads extraídas localmente para o Render
-app.post('/admin/sync-leads-extraidas', express.json({limit:'50mb'}), async (req,res)=>{
-  const token = req.headers['x-sync-token'];
-  if(token !== 'MATCHIMOVEIS_SYNC_2026'){
-    return res.status(401).json({ok:false,error:'token invalido'});
-  }
-  try{
-    const { userId, leads: leadsAtualizadas } = req.body || {};
-    if(!userId || !Array.isArray(leadsAtualizadas)){
-      return res.status(400).json({ok:false,error:'userId e leads obrigatorios'});
-    }
-    const df = dataPath('data.json');
-    const todas = fs.existsSync(df) ? JSON.parse(fs.readFileSync(df,'utf8')) : [];
-    const outrasContas = todas.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') !== String(userId));
-    const idsAtualizadas = new Set(leadsAtualizadas.map(l => String(l.id||l.url)));
-    const mesmaContaSemAtualizar = todas.filter(l => {
-      const dono = String(l.userId||l.usuarioId||l.corretorId||'');
-      const id = String(l.id||l.url);
-      return dono === String(userId) && !idsAtualizadas.has(id);
-    });
-    const final = [...outrasContas, ...mesmaContaSemAtualizar, ...leadsAtualizadas];
-    salvarTodosLeads(final).catch(e=>console.error("[leads]",e.message));
-    res.json({ok:true, salvas: leadsAtualizadas.length, total: final.length});
-  }catch(e){
-    res.status(500).json({ok:false,error:e.message});
-  }
-});
-
 // Rodar match interno por userId direto no Render
-app.get('/admin/rodar-match/:userId', auth, async (req,res)=>{
-  const userId = req.params.userId;
-  try{
-    const { buscarMatchesBaseInterna } = require('./matchBaseInterna.js');
-    const leads = await lerLeads(userId);
-    const imoveis = await lerImoveis(userId);
-    const paraMatch = leads.filter(l => l.extractionStatus === 'ok');
-    let comMatch = 0, semMatch = 0;
-    for (const lead of paraMatch) {
-      const matches = buscarMatchesBaseInterna(lead, imoveis);
-      lead.matchesBase = matches;
-      lead.matchCountBase = matches.length;
-      if(matches.length > 0) comMatch++; else semMatch++;
-      await salvarLead(lead).catch(e=>console.error('[match]',e.message));
-    }
-    res.json({ ok:true, userId, total: paraMatch.length, comMatch, semMatch });
-  }catch(e){
-    res.status(500).json({ ok:false, error: e.message });
-  }
-});
-
 // Mensagem de abertura proativa do assistente
 app.get('/app/assistente/abertura', auth, (req, res) => {
   try {
@@ -4777,16 +4351,6 @@ app.post('/app/assistente/acao-direta', auth, express.json(), async (req, res) =
 
 
 // Métricas do assistente por conta
-app.get('/admin/metricas-assistente/:userId', (req, res) => {
-  try {
-    const metricas = require('./cerebro/metricas');
-    const naoEntendidos = require('./cerebro/aprendizado');
-    const resumo = metricas.resumo(req.params.userId);
-    const top = naoEntendidos.topNaoEntendidos(10);
-    res.json({ ok: true, resumo, topNaoEntendidos: top });
-  } catch(e) { res.json({ ok: false, error: e.message }); }
-});
-
 
 // Feedback do assistente — positivo ou negativo
 app.post('/app/assistente/feedback', auth, express.json(), (req, res) => {
@@ -4800,21 +4364,7 @@ app.post('/app/assistente/feedback', auth, express.json(), (req, res) => {
 });
 
 // Análise de feedback — admin
-app.get('/admin/feedback-assistente', (req, res) => {
-  try {
-    const feedbackLoop = require('./cerebro/feedback-loop');
-    res.json({ ok: true, analise: feedbackLoop.analisarFeedback() });
-  } catch(e) { res.json({ ok: false, error: e.message }); }
-});
-
 // Notas do usuário — preferências aprendidas
-app.get('/admin/notas-usuario/:userId', auth, (req, res) => {
-  try {
-    const notasUsuario = require('./cerebro/notas-usuario');
-    res.json({ ok: true, notas: notasUsuario.carregarNotas(req.params.userId) });
-  } catch(e) { res.json({ ok: false, error: e.message }); }
-});
-
 // CENTRAL OPERACIONAL CONVERSACIONAL
 // ===============================
 app.post('/api/central-operacional', auth, express.json(), (req, res) => {
@@ -5890,142 +5440,6 @@ app.post('/app/visitas/perda-motivo/:id', auth, async (req,res)=>{
 });
 
 
-app.get('/admin/zerar-tudo-sistema', async (req, res) => {
-  const fs2 = require('fs');
-  const path2 = require('path');
-  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
-  const resultado = {};
-  for (const base2 of bases) {
-    resultado[base2] = {};
-    const dataPath = path2.join(base2, 'data.json');
-    if (fs2.existsSync(dataPath)) {
-      try { salvarTodosLeads([]).catch(e=>console.error("[leads]",e.message)); resultado[base2].leads = 'zerado'; } catch(e) { resultado[base2].leads = e.message; }
-    }
-    const visitasPath = path2.join(base2, 'visitas.json');
-    if (fs2.existsSync(visitasPath)) {
-      try { salvarTodasVisitas([]).catch(e=>console.error("[visitas]",e.message)); resultado[base2].visitas = 'zerado'; } catch(e) { resultado[base2].visitas = e.message; }
-    }
-    const notifPath = path2.join(base2, 'notificacoes.json');
-    if (fs2.existsSync(notifPath)) {
-      try { const {salvarJSON:_sj}=require('./services/storage'); _sj(notifPath,[]).catch(e=>console.error("[notif]",e.message)); resultado[base2].notificacoes = 'zerado'; } catch(e) { resultado[base2].notificacoes = e.message; }
-    }
-  }
-  res.json({ ok: true, resultado });
-});
-
-app.get('/admin/migrar-imoveis/:idAntigo/:idNovo', (req, res) => {
-  const fs2 = require('fs');
-  const path2 = require('path');
-  const { idAntigo, idNovo } = req.params;
-  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
-  let migrados = 0;
-  for (const base of bases) {
-    const imoveisPath = path2.join(base, 'imoveis.json');
-    if (!fs2.existsSync(imoveisPath)) continue;
-    try {
-      let imoveis = JSON.parse(fs2.readFileSync(imoveisPath, 'utf8'));
-      imoveis = imoveis.map(im => {
-        if ((im.userId || im.codigoUsuario || im.usuarioId) === idAntigo) {
-          im.userId = idNovo;
-          im.codigoUsuario = idNovo;
-          migrados++;
-        }
-        return im;
-      });
-      fs2.writeFileSync(imoveisPath, JSON.stringify(imoveis, null, 2));
-    } catch(e) {}
-  }
-  res.json({ ok: true, idAntigo, idNovo, migrados });
-});
-
-app.get('/admin/deletar-conta/:userId', async (req, res) => {
-  const fs2 = require('fs');
-  const path2 = require('path');
-  const { userId } = req.params;
-  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
-  let removido = false;
-  for (const base of bases) {
-    const usersPath = path2.join(base, 'users.json');
-    if (!fs2.existsSync(usersPath)) continue;
-    try {
-      let users = JSON.parse(fs2.readFileSync(usersPath, 'utf8'));
-      const antes = users.length;
-      users = users.filter(u => u.id !== userId);
-      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
-      if (users.length < antes) removido = true;
-    } catch(e) {}
-  }
-  res.json({ ok: true, userId, removido });
-});
-
-app.get('/admin/diagnostico-contas', (req, res) => {
-  const fs2 = require('fs');
-  const path2 = require('path');
-  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
-  let imoveis = [], users = [];
-  for (const base of bases) {
-    const ip = path2.join(base, 'imoveis.json');
-    if (fs2.existsSync(ip)) try { imoveis = JSON.parse(fs2.readFileSync(ip, 'utf8')); break; } catch(e) {}
-  }
-  for (const base of bases) {
-    const up = path2.join(base, 'users.json');
-    if (fs2.existsSync(up)) try { users = JSON.parse(fs2.readFileSync(up, 'utf8')); break; } catch(e) {}
-  }
-  const resultado = {};
-  const semVinculo = imoveis.filter(im => !im.userId && !im.codigoUsuario && !im.usuarioId).length;
-  users.forEach(u => {
-    const meus = imoveis.filter(im => (im.userId || im.codigoUsuario || im.usuarioId) === u.id);
-    resultado[u.id] = { nome: u.nome, telefone: u.telefone, total_imoveis: meus.length, ativos: meus.filter(im => im.ativo !== false).length, inativos: meus.filter(im => im.ativo === false).length };
-  });
-  const idsConhecidos = users.map(u => u.id);
-  const idsEstranhos = [...new Set(imoveis.map(im => im.userId || im.codigoUsuario || im.usuarioId).filter(id => id && !idsConhecidos.includes(id)))];
-  res.json({ ok: true, contas: resultado, sem_vinculo: semVinculo, ids_estranhos: idsEstranhos, total_imoveis: imoveis.length });
-});
-
-app.get('/admin/diagnostico-contas', (req, res) => {
-  const fs2 = require('fs');
-  const path2 = require('path');
-  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
-  let imoveis = [], users = [];
-  for (const base of bases) {
-    const ip = path2.join(base, 'imoveis.json');
-    if (fs2.existsSync(ip)) try { imoveis = JSON.parse(fs2.readFileSync(ip, 'utf8')); break; } catch(e) {}
-  }
-  for (const base of bases) {
-    const up = path2.join(base, 'users.json');
-    if (fs2.existsSync(up)) try { users = JSON.parse(fs2.readFileSync(up, 'utf8')); break; } catch(e) {}
-  }
-  const resultado = {};
-  const semVinculo = imoveis.filter(im => !im.userId && !im.codigoUsuario && !im.usuarioId).length;
-  users.forEach(u => {
-    const meus = imoveis.filter(im => (im.userId || im.codigoUsuario || im.usuarioId) === u.id);
-    resultado[u.id] = { nome: u.nome, telefone: u.telefone, total_imoveis: meus.length, ativos: meus.filter(im => im.ativo !== false).length, inativos: meus.filter(im => im.ativo === false).length };
-  });
-  const idsConhecidos = users.map(u => u.id);
-  const idsEstranhos = [...new Set(imoveis.map(im => im.userId || im.codigoUsuario || im.usuarioId).filter(id => id && !idsConhecidos.includes(id)))];
-  res.json({ ok: true, contas: resultado, sem_vinculo: semVinculo, ids_estranhos: idsEstranhos, total_imoveis: imoveis.length });
-});
-
-app.get('/admin/deletar-imoveis/:userId', async (req, res) => {
-  const fs2 = require('fs');
-  const path2 = require('path');
-  const { userId } = req.params;
-  const bases = ['/opt/render/project/src/data', '/opt/render/project/src', __dirname];
-  let deletados = 0;
-  for (const base of bases) {
-    const ip = path2.join(base, 'imoveis.json');
-    if (!fs2.existsSync(ip)) continue;
-    try {
-      let imoveis = JSON.parse(fs2.readFileSync(ip, 'utf8'));
-      const antes = imoveis.length;
-      imoveis = imoveis.filter(im => (im.userId || im.codigoUsuario || im.usuarioId) !== userId);
-      fs2.writeFileSync(ip, JSON.stringify(imoveis, null, 2));
-      deletados = antes - imoveis.length;
-    } catch(e) {}
-  }
-  res.json({ ok: true, userId, deletados });
-});
-
 // ── WHATSAPP CONEXÃO POR USUÁRIO ─────────────────────────────
 app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
   const userId = req.session.user.id;
@@ -6301,13 +5715,6 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
   }
 });
 
-app.get('/admin/debug-lead/:id', (req, res) => {
-  const todos = require('./services/salvarLead').lerLeads ? 
-    (_cacheLeads || []) : [];
-  const lead = todos.find(l => String(l.id) === String(req.params.id));
-  res.json(lead || { erro: 'nao encontrada' });
-});
-
 // ── CLASSIFICAR LEAD ─────────────────────────────────────────
 app.post('/app/lead/:id/classificar', auth, async (req, res) => {
   try {
@@ -6389,43 +5796,6 @@ app.post('/app/parceiro/:id/comissao', auth, async (req, res) => {
 });
 
 // ── REPROCESSAR PERFIL DE TODAS AS LEADS ─────────────────────
-app.get('/admin/reprocessar-perfis', async (req, res) => {
-  try {
-    const { extrairPerfil } = require('./cerebro/extrator-perfil');
-    const leads = (_cacheLeads || []);
-    let count = 0;
-    const bairrosValidos = [
-      'vila olimpia','moema','itaim bibi','brooklin','pinheiros','jardins','perdizes',
-      'lapa','santana','tatuape','morumbi','vila madalena','higienopolis','consolacao',
-      'bela vista','campo belo','alphaville','granja viana','centro','liberdade',
-      'aclimacao','jardim paulista','jardim america','jardim europa','vila nova conceicao',
-      'itaim','berrini','faria lima','paulista','ibirapuera','mooca','ipiranga',
-      'saude','paraiso','vila mariana','jabaquara','santo amaro','socorro',
-      'balneario camboriu','itapema','norte','sul','leste','oeste','barra sul','barra norte',
-      'bombinhas','porto belo','penha','barra velha','picarras','tijucas','meia praia'
-    ];
-    leads.forEach(l => {
-      // Limpa bairro inválido
-      if (l.perfilIA && l.perfilIA.bairro) {
-        const b = l.perfilIA.bairro.toLowerCase().trim();
-        const valido = bairrosValidos.some(bv => b.includes(bv) || bv.includes(b));
-        const ehRua = /^(rua|av|avenida|alameda|travessa)/.test(b);
-        if (!valido || ehRua) { delete l.perfilIA.bairro; if(l.bairro) delete l.bairro; }
-      }
-      if (!l.mensagens || !l.mensagens.length) return;
-      const msgs = l.mensagens.filter(m => m.de === 'cliente');
-      if (!msgs.length) return;
-      const novoPerfil = extrairPerfil(msgs);
-      if (novoPerfil.tipo) l.perfilIA = { ...(l.perfilIA||{}), ...novoPerfil };
-      count++;
-    });
-    await salvarTodosLeads(leads);
-    res.json({ ok: true, reprocessadas: count, total: leads.length });
-  } catch(e) {
-    res.status(500).json({ erro: e.message });
-  }
-});
-
 // ── AGENDAR VISITA PELO CORRETOR ─────────────────────────────
 app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
   try {
@@ -6477,63 +5847,4 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
 });
 
 // ── DIAGNÓSTICO COMPLETO ─────────────────────────────────────
-app.get('/admin/diagnostico-completo', (req, res) => {
-  try {
-    const leads = (_cacheLeads || []);
-    const visitas = (_cacheVisitas || []);
-    const users = (_cacheUsuarios || []);
-    const resultado = {};
-    users.forEach(u => {
-      const minhasLeads = leads.filter(l => String(l.userId||l.codigoUsuario||l.corretorId||'') === String(u.id));
-      const minhasVisitas = visitas.filter(v => String(v.userId||v.ownerUserId||v.corretorId||'') === String(u.id));
-      resultado[u.id] = {
-        nome: u.nome,
-        leads: {
-          total: minhasLeads.length,
-          por_status: {
-            novo: minhasLeads.filter(l => !l.faseFunil || l.faseFunil==='novo').length,
-            qualificando: minhasLeads.filter(l => l.faseFunil==='qualificado').length,
-            interessado: minhasLeads.filter(l => l.faseFunil==='interessado').length,
-            fechado: minhasLeads.filter(l => l.faseFunil==='decidido').length,
-          },
-          deletados: minhasLeads.filter(l => (l.deletadoPor||[]).includes(u.id)).length,
-          com_match: minhasLeads.filter(l => (l.matches||l.matchesAuto||[]).length > 0).length,
-          vitrine_enviada: minhasLeads.filter(l => l.vitrineEnviada).length,
-          visita_agendada: minhasLeads.filter(l => l.visitaAgendada).length,
-          corretor: minhasLeads.filter(l => l.tipoLead==='corretor').length,
-          vendedor: minhasLeads.filter(l => l.tipoLead==='vendedor').length,
-        },
-        visitas: {
-          total: minhasVisitas.length,
-          solicitada: minhasVisitas.filter(v => v.status==='solicitada').length,
-          confirmada: minhasVisitas.filter(v => v.status==='confirmada').length,
-          realizada: minhasVisitas.filter(v => v.status==='realizada').length,
-          cancelada: minhasVisitas.filter(v => v.status==='cancelada').length,
-        }
-      };
-    });
-    res.json({ ok: true, contas: resultado, total_leads: leads.length, total_visitas: visitas.length });
-  } catch(e) {
-    res.status(500).json({ erro: e.message });
-  }
-});
-
 // ── LEADS RAW ────────────────────────────────────────────────
-app.get('/admin/leads-raw', (req, res) => {
-  try {
-    const leads = (_cacheLeads || []);
-    res.json({ total: leads.length, leads: leads.map(l => ({
-      id: l.id,
-      nome: l.nome,
-      telefone: l.telefone,
-      userId: l.userId||l.codigoUsuario||l.corretorId||'',
-      faseFunil: l.faseFunil,
-      tipoLead: l.tipoLead,
-      deletadoPor: l.deletadoPor||[],
-      vitrineEnviada: l.vitrineEnviada||false,
-      visitaAgendada: l.visitaAgendada||false
-    }))});
-  } catch(e) {
-    res.status(500).json({ erro: e.message });
-  }
-});

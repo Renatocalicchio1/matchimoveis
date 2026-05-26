@@ -2609,6 +2609,13 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
         const INSTANCE = process.env.EVOLUTION_INSTANCE || 'match-corretor';
 
+        // Recarrega lead do PG para garantir mensagens anteriores
+        try {
+          const { lerLeads: _llReload } = require('./services/salvarLead');
+          const _todasReload = await _llReload();
+          const _leadReload = _todasReload.find(l => String(l.id) === String(leadEncontrado.id));
+          if (_leadReload) leadEncontrado = { ..._leadReload, ...{ userId: leadEncontrado.userId || _leadReload.userId } };
+        } catch(e) { console.error('[WEBHOOK WA] erro reload lead:', e.message); }
         // Passa lead pelo match-core (10 camadas)
         const _resultado = await matchCore.processar({
           lead: leadEncontrado,

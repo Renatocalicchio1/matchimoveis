@@ -495,9 +495,8 @@ app.post('/login', async (req,res)=>{
 
 
 // ===== LEADS + MATCH + OFERTA CLIENTE =====
-function carregarLeads(){
-  const fs = require('fs');
-  return fs.existsSync(dataFile('leads.json')) ? JSON.parse(fs.readFileSync(dataFile('leads.json'),'utf8')) : [];
+async function carregarLeads(){
+  try { const r = await _qL('SELECT dados FROM leads ORDER BY criado_em DESC'); return r.rows.map(r=>r.dados); } catch(e) { console.error('[carregarLeads]',e.message); return []; }
 }
 
 async function salvarLeads(leads){
@@ -506,11 +505,8 @@ async function salvarLeads(leads){
 }
 
 // ── HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────────
-function lerLeadsData() {
-  try {
-    const p = dataPath('data.json');
-    return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : [];
-  } catch(e) { console.error('[lerLeadsData]', e.message); return []; }
+async function lerLeadsData() {
+  try { const r = await _qL('SELECT dados FROM leads ORDER BY criado_em DESC'); return r.rows.map(r=>r.dados); } catch(e) { console.error('[lerLeadsData]',e.message); return []; }
 }
 
 async function salvarLeadsData(leads) {
@@ -519,11 +515,8 @@ async function salvarLeadsData(leads) {
   } catch(e) { console.error('[salvarLeadsData]', e.message); }
 }
 
-function lerVisitasData() {
-  try {
-    const p = dataPath('visitas.json');
-    return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : [];
-  } catch(e) { console.error('[lerVisitasData]', e.message); return []; }
+async function lerVisitasData() {
+  try { const r = await _qV('SELECT dados FROM visitas ORDER BY criado_em DESC'); return r.rows.map(r=>r.dados); } catch(e) { console.error('[lerVisitasData]',e.message); return []; }
 }
 
 async function salvarVisitasData(visitas) {
@@ -754,16 +747,13 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
   } else if (resposta === 'indisponivel') {
     visitas[idx].status = 'cancelada';
     // Marca imóvel como inativo
-    const imoveisPath = dataPath('imoveis.json');
-    const imoveis = JSON.parse(fs.readFileSync(imoveisPath,'utf8'));
-    const imovelIdx = imoveis.findIndex(i => String(i.idExterno || i.id) === String(visitas[idx].imovelId));
-    if (imovelIdx !== -1) {
-      imoveis[imovelIdx].status = 'inativo';
-      imoveis[imovelIdx].inativadoEm = new Date().toISOString();
-      imoveis[imovelIdx].inativadoPor = 'proprietario';
-      fs.writeFileSync(imoveisPath, JSON.stringify(imoveis, null, 2));
-      console.log('Imóvel inativado:', visitas[idx].imovelId);
-    }
+    try {
+      const _iid = visitas[idx].imovelId;
+      const _agora = new Date().toISOString();
+      const _qInativar = `UPDATE imoveis SET dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','proprietario') WHERE id_externo=$1 OR id_interno=$1`;
+      await _qExcluir(_qInativar, [_iid, _agora]);
+      console.log('Imóvel inativado via PG:', _iid);
+    } catch(_e) { console.error('[inativar imovel]', _e.message); }
   } else if (resposta === 'remarcar') {
     visitas[idx].status = 'pendente_remarcar';
   }
@@ -843,28 +833,6 @@ function readJsonSafe(file, fallback){
   }
 }
 
-
-
-// ===== ADMIN: ACOMPANHAR LISTAS POR CORRETOR =====
-function safeReadJsonAdmin(file, fallback){
-  try {
-    if(!fs.existsSync(file)) return fallback;
-    return JSON.parse(fs.readFileSync(file,'utf8'));
-  } catch(e) {
-    return fallback;
-  }
-}
-
-function salvarHistoricoUpload(payload){
-  const file = 'uploads-admin.json';
-  const historico = safeReadJsonAdmin(file, []);
-  historico.push({
-    id: 'upload-' + Date.now(),
-    data: new Date().toISOString(),
-    ...payload
-  });
-  fs.writeFileSync(file, JSON.stringify(historico,null,2));
-}
 
 
 // ===== ADMIN: ACOMPANHAR LISTAS POR CORRETOR =====
@@ -1511,20 +1479,14 @@ app.get('/logout', (req,res)=>{
 
 
 // WEBHOOK IMOVELWEB / GRUPO QUINTOANDAR - RECEBE LEADS
-app.post('/webhook/imovelweb', (req, res) => {
+app.post('/webhook/imovelweb', async (req, res) => {
   try {
     const body = req.body || {};
     const fs = require('fs');
 
     console.log('📩 LEAD IMOVELWEB RECEBIDO:', body);
 
-    const file = dataPath('data.json');
-    let data = [];
-
-    if (fs.existsSync(file)) {
-      const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
-      data = Array.isArray(raw) ? raw : (raw.results || []);
-    }
+    const data = await lerLeadsData();
 
     const eventId = body.idEvento || body.eventId || body.eventoId || body.id || '';
     const tipoEvento = body.tipoEvento || body.eventType || '';
@@ -1567,8 +1529,7 @@ app.post('/webhook/imovelweb', (req, res) => {
     const duplicated = eventId && data.some(l => String(l.eventId || '') === String(eventId));
 
     if (!duplicated) {
-      data.push(lead);
-      fs.writeFileSync(file, JSON.stringify(data, null, 2));
+      await salvarTodosLeads([...data, lead]).catch(e=>console.error("[webhook imovelweb]",e.message));
     }
 
     res.status(200).send('OK');
@@ -2191,10 +2152,7 @@ setInterval(() => {
 // ── JOB_FOLLOWUPS — processa followUps pendentes vencidos ────────────────────
 setInterval(async () => {
   try {
-    const _path = require('path');
-    const _dataFile = dataPath('data.json');
-    if (!fs.existsSync(_dataFile)) return;
-    const _leads = JSON.parse(fs.readFileSync(_dataFile, 'utf8'));
+    const _leads = await lerLeadsData();
     const _users = (_cacheUsuarios || []);
     const _agora = Date.now();
     const BASE_URL = process.env.RENDER ? 'https://matchimoveis.onrender.com' : (process.env.BASE_URL || 'http://localhost:3000');
@@ -2797,7 +2755,7 @@ app.get('/app/mapa', auth, async (req, res) => {
     (v.dataVisita===hoje || v.dataVisita===amanha || v.status==='solicitada' || v.status==='pendente')
   ).sort((a,b)=>(a.dataVisita||'').localeCompare(b.dataVisita||'') || (a.horaVisita||'').localeCompare(b.horaVisita||''));
   // Leads ativas do corretor
-  const todasLeads = _cacheLeads || (fs2.existsSync(path2.join(DATA_DIR2,'data.json')) ? JSON.parse(fs2.readFileSync(path2.join(DATA_DIR2,'data.json'),'utf8')) : []);
+  const todasLeads = _cacheLeads || await lerLeadsData();
   const leadsCorretor = todasLeads.filter(l => (l.userId===userId||l.codigoUsuario===userId) && l.status!=='arquivado');
   // Imóveis com visita hoje
   const imoveisVisita = [];
@@ -4326,10 +4284,8 @@ app.post('/app/assistente/acao-direta', auth, express.json(), async (req, res) =
 
     if (acao === 'fazer_match') {
       const { buscarMatchesBaseInterna } = require('./matchBaseInterna.js');
-      const dataArq = dataPath('data.json');
-      const imovArq = dataPath('imoveis.json');
-      const todasLeads = fs.existsSync(dataArq) ? JSON.parse(fs.readFileSync(dataArq,'utf8')) : [];
-      const todosIm = fs.existsSync(imovArq) ? JSON.parse(fs.readFileSync(imovArq,'utf8')) : [];
+      const todasLeads = await lerLeadsData();
+      const todosIm = _cacheImoveis || [];
       const minhasLeads = todasLeads.filter(l => String(l.userId||l.usuarioId||l.corretorId||'') === userId && l.extractionStatus === 'ok');
       let comMatch = 0, semMatch = 0;
       minhasLeads.forEach(lead => {
@@ -5695,8 +5651,7 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
     const lead = idx >= 0 ? leads[idx] : {};
     const telefone = String(lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g,'');
     // Salva na lista negra do usuário
-    const usersPath = require('path').join(__dirname, 'users.json');
-    const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+    const users = (_cacheUsuarios || []);
     const uidx = users.findIndex(u => u.id === uid);
     if (uidx >= 0) {
       if (!users[uidx].bloqueados) users[uidx].bloqueados = [];

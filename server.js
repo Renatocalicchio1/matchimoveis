@@ -5557,9 +5557,10 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
   }
 });
 
+} // fecha try app-home
+
 // ── SERVER START ──────────────────────────────────────────────
 
-};
 
 const _PORT = process.env.PORT || 3000;
 app.listen(_PORT, () => {

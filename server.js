@@ -99,10 +99,16 @@ const app = express();
 
 const session = require('express-session');
 
+app.set('trust proxy', 1);
 app.use(session({
   secret: 'matchimoveis',
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  cookie: {
+    secure: process.env.RENDER ? true : false,
+    sameSite: process.env.RENDER ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000
+  }
 }));
 const navegacao = require("./cerebro/navegacao");
 app.use(navegacao.rastrear); // rastreia navegação para o cérebro

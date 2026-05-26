@@ -44,7 +44,7 @@ const TIPOS_COMERCIAL = ['sala comercial','sala','loja','galpao','galpão','escr
 const TODOS_TIPOS = [...TIPOS_RESIDENCIAL, ...TIPOS_COMERCIAL];
 
 const INTENCAO = {
-  comprar: ['comprar','compra','quero comprar','adquirir','financiar','financiamento','proprio','próprio'],
+  comprar: ['comprar','compra','quero comprar','adquirir','financiar','financiamento','proprio','próprio','venda','para venda','a venda','à venda','compro','interesse em comprar'],
   alugar: ['alugar','aluguel','locacao','locação','arrendar','quero alugar','temporada'],
   investir: ['investir','investimento','renda','rentabilidade','retorno','valorizar','renda passiva']
 };
@@ -152,47 +152,80 @@ function extrairNumero(txt, palavras) {
 }
 
 function extrairValor(txt, intencao) {
-  // entre X e Y
-  const entre = txt.match(/entre\s*r?\$?\s*([\d.,]+)\s*(mil|k|m)?\s*(?:e|a)\s*r?\$?\s*([\d.,]+)\s*(mil|k)?/i);
+  // Normaliza o texto para facilitar parsing
+  const t = txt.toLowerCase();
+
+  // Função auxiliar para converter string em número
+  function toNum(s, unidade) {
+    if (!s) return 0;
+    // Remove pontos de milhar, troca virgula por ponto decimal
+    let n = parseFloat(s.replace(/\./g,'').replace(',','.'));
+    if (!n || isNaN(n)) return 0;
+    const u = (unidade||'').toLowerCase();
+    if (u.match(/^(milhao|milhoes|milhão|milhões|mi|mm)$/)) n *= 1000000;
+    else if (u.match(/^(mil|k)$/)) n *= 1000;
+    else if (u === 'm' && n < 1000) n *= 1000000; // 2m = 2 milhões
+    return n;
+  }
+
+  // 1. ENTRE X E Y
+  const entre = t.match(/entre\s*r?\$?\s*([\d.,]+)\s*(milhao|milhoes|mi|mil|k|m)?\s*(?:e|a)\s*r?\$?\s*([\d.,]+)\s*(milhao|milhoes|mi|mil|k|m)?/);
   if (entre) {
-    let vmin = parseFloat(entre[1].replace(/\./g,'').replace(',','.'));
-    let vmax = parseFloat(entre[3].replace(/\./g,'').replace(',','.'));
-    if ((entre[2]||'').match(/mil|k/i)) vmin *= 1000;
-    if ((entre[4]||'').match(/mil|k/i)) vmax *= 1000;
-    if ((entre[2]||'').match(/^m$/i)) vmin *= 1000000;
-    if ((entre[4]||'').match(/^m$/i)) vmax *= 1000000;
-    return { valorMin: vmin, valorMax: vmax };
+    const vmin = toNum(entre[1], entre[2]);
+    const vmax = toNum(entre[3], entre[4]);
+    if (vmin > 0 && vmax > 0) return { valorMin: vmin, valorMax: vmax };
   }
-  // até X / máximo X
-  const ate = txt.match(/(?:ate|até|maximo|máximo|no maximo|valor|orcamento|budget)?\s*r?\$?\s*(\d[\d.]*(?:,\d+)?)\s*(mil(?:hao|hões|hao)?|k(?:\b)|m(?=\b))/i);
-  if (ate) {
-    let v = parseFloat(ate[1].replace(/\./g,'').replace(',','.'));
-    if ((ate[2]||'').match(/mil|k/i)) v *= 1000;
-    if ((ate[2]||'').match(/^m$/i)) v *= 1000000;
-    return { valorMax: v };
+
+  // 2. R$ X (com ou sem unidade)
+  const comRS = t.match(/r\$\s*([\d.,]+)\s*(milhao|milhoes|milhão|mi|mil|k|m(?=\b))?/);
+  if (comRS) {
+    const v = toNum(comRS[1], comRS[2]);
+    if (v >= 1000) return { valorMax: v };
   }
-  // R$ X
-  const val = txt.match(/r?\$\s*([\d.,]+)\s*(mil|k|m)?/i);
-  if (val) {
-    let v = parseFloat(val[1].replace(/\./g,'').replace(',','.'));
-    if ((val[2]||'').match(/mil|k/i)) v *= 1000;
-    if ((val[2]||'').match(/^m$/i)) v *= 1000000;
-    return { valorMax: v };
+
+  // 3. X milhões / X mi / X MM
+  const milhoesP = t.match(/([\d.,]+)\s*(milhao|milhoes|milhão|milhões|\bmi\b|\bmm\b)/);
+  if (milhoesP) {
+    const v = toNum(milhoesP[1], milhoesP[2]);
+    if (v >= 100000) return { valorMax: v };
   }
-  // número + mil/k sem prefixo (ex: "500 mil", "800k")
-  const semPrefixo = txt.match(/(?:^|\s)(\d[\d.]*(?:,\d+)?)\s*(mil(?:hao|hoes|hoes)?|k\b)/i);
-  if (semPrefixo) {
-    let v = parseFloat(semPrefixo[1].replace(/\./g,'').replace(',','.'));
-    v *= 1000;
-    return { valorMax: v };
+
+  // 4. X mil / X k
+  const milP = t.match(/([\d.,]+)\s*(mil(?:hao|hoes)?|\bk\b)/);
+  if (milP) {
+    const v = toNum(milP[1], milP[2]);
+    if (v >= 1000) return { valorMax: v };
   }
-  // número puro — threshold depende da intenção
-  const minVal = intencao === 'alugar' ? 300 : 50000;
-  const numPuro = txt.match(/(?:^|\s)(\d{3,})(?:\s|$)/g);
+
+  // 5. Formato X.XXX.XXX (ponto como separador de milhar — ex: 2.100.000)
+  const pontoMilhar = t.match(/(?:^|[\s,R$])(\d{1,3}(?:\.\d{3}){2})(?:[,\s]|$)/);
+  if (pontoMilhar) {
+    const v = parseFloat(pontoMilhar[1].replace(/\./g,''));
+    if (v >= 50000) return { valorMax: v };
+  }
+
+  // 6. Formato X.XXX (ex: 500.000 ou 800.000)
+  const pontoMil = t.match(/(?:^|[\s,R$])(\d{3,6}\.\d{3})(?:[,\s]|$)/);
+  if (pontoMil) {
+    const v = parseFloat(pontoMil[1].replace(/\./g,''));
+    if (v >= 50000) return { valorMax: v };
+  }
+
+  // 7. Número puro grande (ex: 2100000, 500000)
+  const numPuro = t.match(/(?:^|\s)(\d{6,})(?:\s|$)/);
   if (numPuro) {
-    const numeros = numPuro.map(n => parseInt(n.trim())).filter(n => n >= minVal).sort((a,b) => b-a);
+    const v = parseInt(numPuro[1]);
+    if (v >= 50000) return { valorMax: v };
+  }
+
+  // 8. Número puro menor com contexto (ex: "300 mil" já tratado, mas "300" solto)
+  const minVal = intencao === 'alugar' ? 300 : 50000;
+  const numMenor = t.match(/(?:^|\s)(\d{3,5})(?:\s|$)/g);
+  if (numMenor) {
+    const numeros = numMenor.map(n => parseInt(n.trim())).filter(n => n >= minVal).sort((a,b) => b-a);
     if (numeros.length) return { valorMax: numeros[0] };
   }
+
   return null;
 }
 
@@ -282,7 +315,7 @@ function extrairBairro(norm) {
   const bairrosConhecidos = [
 
   // ── SC — Balneário Camboriú ──
-  "barra sul","barra norte","das nações","nacoes","das nacoes","municipios","dos municipios",
+  "pioneiros","dos pioneiros","barra sul","barra norte","das nações","nacoes","das nacoes","municipios","dos municipios",
   "pioneiros","dos pioneiros","taquaras","nova esperanca","nova esperança","estados","dos estados",
   "ariribá","ariruba","sao judas tadeu","praia do estaleirinho","praia do estaleiro","praia dos amores",
   "vila real bc","centro bc",
@@ -309,7 +342,7 @@ function extrairBairro(norm) {
   "itoupava norte","itoupava central","garcia blumenau","agua verde blumenau",
 
   // ── SC — Balneário Camboriú ──
-  "barra sul","barra norte","das nações","nacoes","das nacoes","municipios","dos municipios",
+  "pioneiros","dos pioneiros","barra sul","barra norte","das nações","nacoes","das nacoes","municipios","dos municipios",
   "pioneiros","dos pioneiros","taquaras","nova esperanca","nova esperança","estados","dos estados",
   "ariribá","ariruba","sao judas tadeu","praia do estaleirinho","praia do estaleiro","praia dos amores",
   "vila real bc","centro bc",

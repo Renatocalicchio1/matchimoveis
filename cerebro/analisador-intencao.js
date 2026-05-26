@@ -82,11 +82,17 @@ function analisarMensagem(mapaAtual, mensagem, origem = 'whatsapp') {
     acumularSinal(mapa.tipo_imovel, perfil.tipo, score * multiplicador, 75, origem);
   }
 
-  // Transação (comprar/alugar) — normaliza para "venda" ou "aluguel"
+  // Transação — normaliza para "venda" ou "aluguel"
   if (perfil.intencao) {
     const _tr = String(perfil.intencao).toLowerCase();
     const _trNorm = (_tr.includes('alug') || _tr.includes('locat')) ? 'aluguel' : 'venda';
     acumularSinal(mapa.transacao, _trNorm, 70 * multiplicador, 80, origem);
+  }
+
+  // Objetivo — moradia, investimento, temporada
+  if (perfil.objetivo) {
+    if (!mapa.objetivo) mapa.objetivo = [];
+    acumularSinal(mapa.objetivo, perfil.objetivo, 70 * multiplicador, 75, origem);
   }
 
   // Bairro
@@ -195,6 +201,7 @@ function criarMapaVazio() {
     area:           [],
     familia:        [],
     diferenciais:   [],
+    objetivo:       [], // moradia, investimento, temporada
     urgencia:       0,
     sentimento:     null,
     eventos:        [],

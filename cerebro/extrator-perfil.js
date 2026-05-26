@@ -65,6 +65,30 @@ const INTENCAO = {
   // investir = comprar (adicionado nas palavras de compra)
 };
 
+const OBJETIVO = {
+  investimento: [
+    'investimento','investir','renda','renda passiva','rentabilidade','retorno',
+    'valorizar','valorização','para alugar','comprar para alugar','para locacao',
+    'para locação','fins de investimento','para rentabilizar','quero alugar depois'
+  ],
+  moradia: [
+    'para morar','quero morar','minha casa','casa propria','casa própria',
+    'moradia','residencia','residência','minha familia','minha família','mudar'
+  ],
+  temporada: [
+    'temporada','verao','verão','ferias','férias','final de semana','fds',
+    'segunda residencia','segunda residência','casa de praia','casa de campo'
+  ]
+};
+function extrairObjetivo(norm) {
+  for (const [obj, palavras] of Object.entries(OBJETIVO)) {
+    if (palavras.some(p => norm.includes(p))) return obj;
+  }
+  return null;
+}
+const _INTENCAO_BACKUP = {
+};
+
 const URGENCIA = {
   alta: ['urgente','preciso logo','rápido','rapido','imediato','essa semana','hoje','agora','prazo','mudança imediata'],
   baixa: ['só pesquisando','so pesquisando','sem pressa','futuramente','ano que vem','ainda nao sei','explorando','pesquisando']
@@ -1593,6 +1617,10 @@ function extrairPerfil(mensagens) {
 
   // Intenção (antes do valor para contexto)
   const intencaoPrevia = extrairIntencao(norm);
+  const objetivoPrevio = extrairObjetivo(norm);
+  if (objetivoPrevio) perfil.objetivo = objetivoPrevio;
+  // Se objetivo é investimento, transacao é sempre venda
+  if (objetivoPrevio === 'investimento' && !intencaoPrevia) perfil.intencao = 'comprar';
   if (intencaoPrevia) perfil.intencao = intencaoPrevia;
   // Valor
   const valor = extrairValor(norm, intencaoPrevia);

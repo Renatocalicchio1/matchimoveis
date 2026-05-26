@@ -448,9 +448,9 @@ return lead;
 
       const { buscarMatchesBaseInterna } = require('../matchBaseInterna');
       const { query: _queryMatch2 } = require('../services/db');
-      const _resMatch2 = await _queryMatch2("SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'", [userId]);
+      const _resMatch2 = await _queryMatch2("SELECT * FROM imoveis WHERE status='ativo'", []);
       const imoveisDoUser = _resMatch2.rows;
-      console.log('[MATCH CORE] imóveis PG caso2:', imoveisDoUser.length);
+      console.log('[MATCH CORE] imóveis PG caso2 (toda base):', imoveisDoUser.length);
 
 
 

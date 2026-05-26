@@ -39,9 +39,12 @@ function responder(mensagem='', user={}){
     return null;
   }
 
-  const notificacoes = loadJSON('notificacoes.json', []);
-  const visitas = loadJSON('visitas.json', []);
-  const leads = loadJSON('data.json', []);
+  const { lerNotificacoes } = require('../services/salvarNotificacao');
+  const { lerVisitas } = require('../services/salvarVisita');
+  const { lerLeads } = require('../services/salvarLead');
+  const notificacoes = await lerNotificacoes(userId) || [];
+  const visitas = await lerVisitas(userId) || [];
+  const leads = await lerLeads(userId) || [];
 
   const userId =
     user.id ||

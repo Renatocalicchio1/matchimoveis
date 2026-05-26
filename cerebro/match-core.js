@@ -55,8 +55,8 @@ async function lerImoveisDoUsuario(userId) {
   return [];
 }
 
-function lerLeadsSeguro(leadsPath) {
-  try { return JSON.parse(fs.readFileSync(leadsPath, 'utf8')); } catch(e) { return []; }
+async function lerLeadsSeguro() {
+  try { const { lerLeads } = require('../services/salvarLead'); return await lerLeads(); } catch(e) { return []; }
 }
 
 function detectarCaso(lead) {
@@ -133,7 +133,7 @@ class MatchCore {
       lead = this._followUp(lead);
 
       // 9. Salva
-      if (leadsPath) this._salvarLead(lead, leadsPath);
+      await this._salvarLead(lead);
 
       // 10. Resposta + envio WhatsApp
       const resposta = await this._responderEEnviar(lead, mensagem, canal, instancia);
@@ -527,12 +527,10 @@ return lead;
   // ============================================================
   // 9. PERSISTÊNCIA
   // ============================================================
-  _salvarLead(lead, leadsPath) {
+  async _salvarLead(lead) {
     try {
-      const leads = lerLeadsSeguro(leadsPath);
-      const idx = leads.findIndex(l => String(l.id) === String(lead.id));
-      if (idx >= 0) { leads[idx] = lead; } else { leads.push(lead); }
-      fs.writeFileSync(leadsPath, JSON.stringify(leads, null, 2));
+      const { salvarLead } = require('../services/salvarLead');
+      await salvarLead(lead);
     } catch(e) {
       console.error('[MATCH CORE] erro salvar:', e.message);
     }

@@ -143,75 +143,67 @@ function matchPorMapa(lead, imoveis) {
     if (eliminado) continue;
 
     // ════════════════════════════════════════════════════════
-    // SCORING — diferencia quem passou o critério mínimo
     // ════════════════════════════════════════════════════════
-    let score = 50; // base
-
-    // Transação
-    if (leadTransacao) { score += 5; motivos.push('transação ✓'); }
-
-    // Tipo exato vs compatível
-    if (leadTipo) {
-      score += _normalizar(leadTipo) === _normalizar(imovel.tipo) ? 10 : 5;
-      motivos.push(`${imovel.tipo}`);
-    }
-
-    // Cidade + bairro
-    if (leadCidade) { score += 5; }
-    if (leadBairro && imovel.bairro === leadBairro) { score += 10; motivos.push(`${im.bairro}`); }
-    else if (leadBairro) { score += 5; motivos.push('bairro próximo'); }
-
-    // Valor — mais próximo = mais score
+    // SCORING PONDERADO — máx 100pts, normalizado
+    // ════════════════════════════════════════════════════════
+    let pontos = 0; let maxPontos = 0;
+    // Transação (5pts)
+    maxPontos += 5;
+    if (leadTransacao) { pontos += 5; motivos.push('transação ✓'); }
+    // Tipo (10pts)
+    maxPontos += 10;
+    if (leadTipo) { pontos += _normalizar(leadTipo) === _normalizar(imovel.tipo) ? 10 : 6; motivos.push(`${imovel.tipo}`); }
+    // Cidade (5pts)
+    maxPontos += 5;
+    if (leadCidade) pontos += 5;
+    // Bairro (15pts)
+    maxPontos += 15;
+    if (leadBairro && imovel.bairro === leadBairro) { pontos += 15; motivos.push(`${im.bairro}`); }
+    else if (leadBairro) { pontos += 8; motivos.push('bairro próximo'); }
+    // Valor (20pts)
+    maxPontos += 20;
     if (leadValorMax > 0 && imovel.preco > 0) {
       const diff = Math.abs(imovel.preco - leadValorMax) / leadValorMax;
-      if (diff <= 0.05)      { score += 20; motivos.push(`R${imovel.preco.toLocaleString('pt-BR')} ✓✓`); }
-      else if (diff <= 0.15) { score += 15; motivos.push(`R${imovel.preco.toLocaleString('pt-BR')} ✓`); }
-      else if (diff <= 0.25) { score += 10; motivos.push(`R${imovel.preco.toLocaleString('pt-BR')}`); }
-      else                   { score += 5;  motivos.push(`R${imovel.preco.toLocaleString('pt-BR')}`); }
+      if (diff <= 0.05)      { pontos += 20; motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')} ✓✓`); }
+      else if (diff <= 0.10) { pontos += 16; motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')} ✓`); }
+      else if (diff <= 0.20) { pontos += 12; motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')}`); }
+      else                   { pontos += 8;  motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')}`); }
     }
-
-    // Quartos
+    // Quartos (15pts)
+    maxPontos += 15;
     if (leadQuartos > 0) {
-      if (imovel.quartos === leadQuartos)      { score += 15; motivos.push(`${imovel.quartos}q ✓`); }
-      else                                      { score += 8;  motivos.push(`${imovel.quartos}q`); }
+      if (imovel.quartos === leadQuartos) { pontos += 15; motivos.push(`${imovel.quartos}q ✓`); }
+      else { pontos += 8; motivos.push(`${imovel.quartos}q`); }
     }
-
-    // Suítes
+    // Suítes (10pts)
+    maxPontos += 10;
     if (leadSuites > 0) {
-      if (imovel.suites === leadSuites)        { score += 15; motivos.push(`${imovel.suites}st ✓`); }
-      else if (imovel.suites === leadSuites-1) { score += 8;  motivos.push(`${imovel.suites}st (-1)`); }
-      else                                      { score += 10; motivos.push(`${imovel.suites}st (+)`); }
+      if (imovel.suites === leadSuites)        { pontos += 10; motivos.push(`${imovel.suites}st ✓`); }
+      else if (imovel.suites === leadSuites-1) { pontos += 6;  motivos.push(`${imovel.suites}st (-1)`); }
+      else                                      { pontos += 7;  motivos.push(`${imovel.suites}st (+)`); }
     }
-
-    // Vagas
+    // Vagas (10pts)
+    maxPontos += 10;
     if (leadVagas > 0) {
-      if (imovel.vagas === leadVagas)          { score += 15; motivos.push(`${imovel.vagas}vg ✓`); }
-      else if (imovel.vagas === leadVagas-1)   { score += 8;  motivos.push(`${imovel.vagas}vg (-1)`); }
-      else                                      { score += 10; motivos.push(`${imovel.vagas}vg (+)`); }
+      if (imovel.vagas === leadVagas)          { pontos += 10; motivos.push(`${imovel.vagas}vg ✓`); }
+      else if (imovel.vagas === leadVagas-1)   { pontos += 6;  motivos.push(`${imovel.vagas}vg (-1)`); }
+      else                                      { pontos += 7;  motivos.push(`${imovel.vagas}vg (+)`); }
     }
-
-    // Área
+    // Área (5pts)
+    maxPontos += 5;
     const leadArea = mapa.area?.[0]?.valor?.min || 0;
-    if (leadArea > 0 && imovel.area >= leadArea * 0.90) {
-      score += 8; motivos.push(`${imovel.area}m²`);
-    }
-
-    // Diferenciais
+    if (leadArea > 0 && imovel.area >= leadArea * 0.90) { pontos += 5; motivos.push(`${imovel.area}m²`); }
+    // Diferenciais (5pts máx)
+    maxPontos += 5;
     if (mapa.diferenciais && mapa.diferenciais.length > 0) {
-      const difsIm = Array.isArray(imovel.diferenciais)
-        ? imovel.diferenciais.map(d => _normalizar(String(d))) : [];
+      const difsIm = Array.isArray(imovel.diferenciais) ? imovel.diferenciais.map(d => _normalizar(String(d))) : [];
       let hits = 0;
-      for (const sinal of mapa.diferenciais) {
-        const dv = _normalizar(sinal.valor||'');
-        if (difsIm.some(d => d.includes(dv) || dv.includes(d))) hits++;
-      }
-      if (hits > 0) { score += hits * 5; motivos.push(`${hits} diferenciais ✓`); }
+      for (const sinal of mapa.diferenciais) { const dv = _normalizar(sinal.valor||''); if (difsIm.some(d => d.includes(dv)||dv.includes(d))) hits++; }
+      if (hits > 0) { pontos += Math.min(hits*2,5); motivos.push(`${hits} diferenciais ✓`); }
     }
-
-    // Urgência
-    if ((mapa.urgencia || 0) > 50) score += 5;
-
-    resultados.push({ imovel: im, scoreMatch: Math.min(score, 100), motivos });
+    if ((mapa.urgencia||0) > 50) pontos += 3;
+    const scoreMatch = maxPontos > 0 ? Math.round((pontos/maxPontos)*100) : 50;
+    resultados.push({ imovel: im, scoreMatch, motivos });
   }
 
   resultados.sort((a, b) => b.scoreMatch - a.scoreMatch);

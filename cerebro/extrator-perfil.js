@@ -1573,12 +1573,11 @@ function extrairPerfil(mensagens) {
   // Estado
   for (const [sigla, nomes] of Object.entries(ESTADOS)) {
     if (nomes.some(n => {
-      // Siglas de 2 letras só batem se isoladas (com espaço ou no início/fim)
       if (n.length === 2 && !n.includes(' ')) {
         return new RegExp('(^|\\s)' + n + '(\\s|$)').test(norm);
       }
       return norm.includes(n);
-    })) { perfil.estado = sigla; break; }
+    })) { perfil.estado = sigla; break; } // sempre salva como sigla (sc, sp, rj...)
   }
 
   // Intenção

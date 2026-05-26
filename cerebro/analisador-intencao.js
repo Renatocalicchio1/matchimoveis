@@ -49,7 +49,7 @@ function acumularSinal(lista, valor, scoreDelta, confianca, origem) {
 
 // ─── APLICAR DECAY EM TODOS OS SINAIS ─────────────────────────
 function aplicarDecay(mapa) {
-  const campos = ['tipo_imovel','transacao','bairro','cidade','quartos','valor','area','urgencia','familia'];
+  const campos = ['tipo_imovel','transacao','estado','bairro','cidade','quartos','suites','vagas','valor','area','familia','diferenciais'];
   for (const campo of campos) {
     if (!mapa[campo]) continue;
     for (const sinal of mapa[campo]) {
@@ -82,9 +82,11 @@ function analisarMensagem(mapaAtual, mensagem, origem = 'whatsapp') {
     acumularSinal(mapa.tipo_imovel, perfil.tipo, score * multiplicador, 75, origem);
   }
 
-  // Transação (comprar/alugar)
+  // Transação (comprar/alugar) — normaliza para "venda" ou "aluguel"
   if (perfil.intencao) {
-    acumularSinal(mapa.transacao, perfil.intencao, 70 * multiplicador, 80, origem);
+    const _tr = String(perfil.intencao).toLowerCase();
+    const _trNorm = (_tr.includes('alug') || _tr.includes('locat')) ? 'aluguel' : 'venda';
+    acumularSinal(mapa.transacao, _trNorm, 70 * multiplicador, 80, origem);
   }
 
   // Bairro
@@ -97,9 +99,33 @@ function analisarMensagem(mapaAtual, mensagem, origem = 'whatsapp') {
     acumularSinal(mapa.cidade, perfil.cidade, 80 * multiplicador, 85, origem);
   }
 
+  // Estado
+  if (perfil.estado) {
+    const estadoNorm = perfil.estado.toLowerCase().trim();
+    acumularSinal(mapa.estado, estadoNorm, 85 * multiplicador, 90, origem);
+  }
+
   // Quartos
   if (perfil.quartos) {
     acumularSinal(mapa.quartos, perfil.quartos, 70 * multiplicador, 75, origem);
+  }
+
+  // Suítes
+  if (perfil.suites) {
+    if (!mapa.suites) mapa.suites = [];
+    acumularSinal(mapa.suites, perfil.suites, 65 * multiplicador, 70, origem);
+  }
+
+  // Vagas
+  if (perfil.vagas) {
+    if (!mapa.vagas) mapa.vagas = [];
+    acumularSinal(mapa.vagas, perfil.vagas, 65 * multiplicador, 70, origem);
+  }
+
+  // Área
+  if (perfil.area || perfil.areaMin) {
+    if (!mapa.area) mapa.area = [];
+    acumularSinal(mapa.area, { min: perfil.areaMin||perfil.area||0, max: perfil.areaMax||perfil.area*1.5||0 }, 60 * multiplicador, 65, origem);
   }
 
   // Valor
@@ -159,11 +185,16 @@ function criarMapaVazio() {
   return {
     tipo_imovel:    [],
     transacao:      [],
-    bairro:         [],
+    estado:         [],
     cidade:         [],
+    bairro:         [],
     quartos:        [],
+    suites:         [],
+    vagas:          [],
     valor:          [],
+    area:           [],
     familia:        [],
+    diferenciais:   [],
     urgencia:       0,
     sentimento:     null,
     eventos:        [],

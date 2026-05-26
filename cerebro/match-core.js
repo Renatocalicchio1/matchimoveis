@@ -444,6 +444,10 @@ return lead;
         urgencia: 0, fase: 'interesse', temperatura: 'morno'
       };
 
+      // Salva mapaTemp no lead para exibir no perfil de busca
+      if (!lead.mapaIntencao || (lead.mapaIntencao.tipo_imovel||[]).length === 0) {
+        lead.mapaIntencao = mapaTemp;
+      }
       const leadTemp = { ...lead, mapaIntencao: mapaTemp };
 
       // Match ponderado usando motor de intenção

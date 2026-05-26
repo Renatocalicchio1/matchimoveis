@@ -26,205 +26,191 @@
  *
  * Retorna array de { imovel, scoreMatch, motivos } ordenado por scoreMatch desc.
  */
+
+const _ESTADOS_SIGLA = {
+  'acre':'ac','alagoas':'al','amapa':'ap','amazonas':'am','bahia':'ba',
+  'ceara':'ce','distrito federal':'df','espirito santo':'es','goias':'go',
+  'maranhao':'ma','mato grosso':'mt','mato grosso do sul':'ms',
+  'minas gerais':'mg','para':'pa','paraiba':'pb','parana':'pr',
+  'pernambuco':'pe','piaui':'pi','rio de janeiro':'rj',
+  'rio grande do norte':'rn','rio grande do sul':'rs','rondonia':'ro',
+  'roraima':'rr','santa catarina':'sc','sao paulo':'sp','sergipe':'se',
+  'tocantins':'to'
+};
+function _normalizarEstado(s) {
+  const n = _normalizar(s);
+  return _ESTADOS_SIGLA[n] || n;
+}
+
+
 function matchPorMapa(lead, imoveis) {
   const mapa = lead.mapaIntencao;
   if (!mapa || !imoveis || !imoveis.length) return [];
+
+  // Extrai critérios mínimos do mapa
+  const leadTransacao = _normalizar(mapa.transacao?.[0]?.valor || '');
+  const leadTipo      = _normalizar(mapa.tipo_imovel?.[0]?.valor || '');
+  const leadEstado    = _normalizarEstado(mapa.estado?.[0]?.valor || mapa.cidade?.[0]?.estado || '');
+  const leadCidade    = _normalizar(mapa.cidade?.[0]?.valor || '');
+  const leadBairro    = _normalizar(mapa.bairro?.[0]?.valor || '');
+  const leadValorMax  = mapa.valor?.[0]?.valor?.max || 0;
+  const leadValorMin  = mapa.valor?.[0]?.valor?.min || 0;
 
   const resultados = [];
 
   for (const im of imoveis) {
     if (im.status === 'inativo') continue;
 
-    // Normaliza campos do PG (snake_case) para nomes usados no motor
+    // Normaliza campos do imóvel
     const imovel = {
       id:          im.id,
       id_externo:  im.id_externo || im.id_interno || im.codigo_imovel,
       tipo:        im.tipo || im.categoria || '',
       bairro:      _normalizar(im.bairro || ''),
       cidade:      _normalizar(im.cidade || ''),
-      estado:      _normalizar(im.estado || ''),
+      estado:      _normalizarEstado(im.estado || ''),
       preco:       Number(im.valor_imovel || im.valor || 0),
       quartos:     Number(im.quartos || im.dormitorios || 0),
       suites:      Number(im.suites || 0),
       vagas:       Number(im.vagas || 0),
       banheiros:   Number(im.banheiros || 0),
       area:        Number(im.area_m2 || im.area_construida || im.area_total || 0),
-      transacao:   _normalizar(im.transacao || im.condicao || ''),
+      transacao:   _normalizar(im.transacao || ''),
       financiamento: im.aceita_financiamento || false,
       diferenciais: im.diferenciais || [],
       fotos:       im.fotos || [],
-      condominio:  Number(im.condominio || 0),
-      andar:       Number(im.andar || 0),
-      _raw:        im // mantém o objeto original
+      _raw:        im
     };
 
-    let scoreTotal = 0;
-    let pesoTotal  = 0;
-    const motivos  = [];
+    // ════════════════════════════════════════════════════════
+    // CRITÉRIO MÍNIMO OBRIGATÓRIO — todos devem bater
+    // ════════════════════════════════════════════════════════
+    const motivos = [];
+    let eliminado = false;
+    let motEliminado = '';
 
-    // ── TIPO ────────────────────────────────────────────────────
-    if (mapa.tipo_imovel && mapa.tipo_imovel.length > 0) {
-      const tipoIm = _normalizar(imovel.tipo);
-      let melhor = 0;
-      for (const sinal of mapa.tipo_imovel) {
-        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
-        if (_tiposCompativeis(_normalizar(sinal.valor||''), tipoIm)) {
-          const fator = _normalizar(sinal.valor||'') === tipoIm ? 1.0 : 0.6;
-          melhor = Math.max(melhor, scoreEf * fator);
-        }
-      }
-      pesoTotal += 200;
-      if (melhor > 0) { scoreTotal += melhor * 2.0; motivos.push(`tipo: ${imovel.tipo}`); }
+    // 1. TRANSAÇÃO
+    if (leadTransacao) {
+      const bate = (leadTransacao.includes('vend') || leadTransacao.includes('compr')) && (imovel.transacao.includes('vend') || imovel.transacao.includes('compr'))
+        || leadTransacao.includes('alug') && imovel.transacao.includes('alug');
+      if (!bate) { eliminado = true; motEliminado = 'transacao'; }
     }
 
-    // ── TRANSAÇÃO (compra/aluguel) ───────────────────────────────
-    if (mapa.transacao && mapa.transacao.length > 0) {
-      const transacaoIm = imovel.transacao;
-      let melhor = 0;
-      for (const sinal of mapa.transacao) {
-        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
-        const tv = _normalizar(sinal.valor||'');
-        const bate = (tv.includes('compra')||tv.includes('venda')) && (transacaoIm.includes('venda')||transacaoIm.includes('compra'))
-          || (tv.includes('alug')) && transacaoIm.includes('alug');
-        if (bate) melhor = Math.max(melhor, scoreEf);
+    // 2. TIPO
+    if (!eliminado && leadTipo) {
+      if (!_tiposCompativeis(leadTipo, _normalizar(imovel.tipo))) {
+        eliminado = true; motEliminado = 'tipo';
       }
-      pesoTotal += 100;
-      if (melhor > 0) { scoreTotal += melhor * 1.0; motivos.push('transação compatível'); }
     }
 
-    // ── BAIRRO ──────────────────────────────────────────────────
-    if (mapa.bairro && mapa.bairro.length > 0) {
-      const bairroIm = _normalizar(imovel.bairro);
-      let melhor = 0;
-      for (const sinal of mapa.bairro) {
-        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
-        const bl = _normalizar(sinal.valor||'');
-        if (bl === bairroIm) melhor = Math.max(melhor, scoreEf);
-        else if (_bairrosProximos(bl, bairroIm)) melhor = Math.max(melhor, scoreEf * 0.5);
+    // 3. ESTADO
+    if (!eliminado && leadEstado) {
+      if (imovel.estado !== leadEstado) {
+        eliminado = true; motEliminado = 'estado';
       }
-      pesoTotal += 150;
-      if (melhor > 0) { scoreTotal += melhor * 1.5; motivos.push(`bairro: ${imovel.bairro}`); }
     }
 
-    // ── CIDADE ──────────────────────────────────────────────────
-    if (mapa.cidade && mapa.cidade.length > 0) {
-      const cidadeIm = _normalizar(imovel.cidade);
-      let melhor = 0;
-      for (const sinal of mapa.cidade) {
-        if (_normalizar(sinal.valor||'') === cidadeIm) melhor = Math.max(melhor, sinal.scoreEfetivo ?? sinal.score);
+    // 4. CIDADE
+    if (!eliminado && leadCidade) {
+      if (imovel.cidade !== leadCidade) {
+        eliminado = true; motEliminado = 'cidade';
       }
-      pesoTotal += 80;
-      if (melhor > 0) { scoreTotal += melhor * 0.8; motivos.push(`cidade: ${imovel.cidade}`); }
     }
 
-    // ── VALOR ───────────────────────────────────────────────────
-    if (mapa.valor && mapa.valor.length > 0 && imovel.preco > 0) {
-      let melhor = 0;
-      for (const sinal of mapa.valor) {
-        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
-        const vmin = sinal.valor?.min || 0;
-        const vmax = sinal.valor?.max || Infinity;
-        if (imovel.preco >= vmin && imovel.preco <= vmax)        melhor = Math.max(melhor, scoreEf);
-        else if (imovel.preco <= vmax * 1.20)                    melhor = Math.max(melhor, scoreEf * 0.5);
-        else if (imovel.preco < vmin * 0.70)                     melhor = Math.max(melhor, scoreEf * 0.2);
+    // 5. BAIRRO
+    if (!eliminado && leadBairro) {
+      if (imovel.bairro !== leadBairro && !_bairrosProximos(imovel.bairro, leadBairro)) {
+        eliminado = true; motEliminado = 'bairro';
       }
-      pesoTotal += 150;
-      if (melhor > 0) { scoreTotal += melhor * 1.5; motivos.push(`valor: R$${imovel.preco.toLocaleString('pt-BR')}`); }
     }
 
-    // ── QUARTOS ─────────────────────────────────────────────────
-    if (mapa.quartos && mapa.quartos.length > 0) {
-      let melhor = 0;
-      for (const sinal of mapa.quartos) {
-        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
-        const ql = Number(sinal.valor||0);
-        if (ql === imovel.quartos)               melhor = Math.max(melhor, scoreEf);
-        else if (Math.abs(ql - imovel.quartos) === 1) melhor = Math.max(melhor, scoreEf * 0.6);
+    // 6. VALOR ±25%
+    if (!eliminado && leadValorMax > 0 && imovel.preco > 0) {
+      const vmin = leadValorMin > 0 ? leadValorMin * 0.75 : 0;
+      const vmax = leadValorMax * 1.25;
+      if (imovel.preco > vmax || (vmin > 0 && imovel.preco < vmin)) {
+        eliminado = true; motEliminado = 'valor';
       }
-      pesoTotal += 100;
-      if (melhor > 0) { scoreTotal += melhor; motivos.push(`${imovel.quartos} quartos`); }
     }
 
-    // ── SUÍTES ──────────────────────────────────────────────────
-    if (mapa.suites && mapa.suites.length > 0 && imovel.suites > 0) {
-      let melhor = 0;
-      for (const sinal of mapa.suites) {
-        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
-        if (Number(sinal.valor||0) <= imovel.suites) melhor = Math.max(melhor, scoreEf);
-      }
-      pesoTotal += 50;
-      if (melhor > 0) { scoreTotal += melhor * 0.5; motivos.push(`${imovel.suites} suítes`); }
+    if (eliminado) continue; // imóvel eliminado
+
+    // ════════════════════════════════════════════════════════
+    // SCORING — campos extras aumentam o score
+    // ════════════════════════════════════════════════════════
+    let score = 60; // base para quem passou o critério mínimo
+
+    // Transação compatível
+    if (leadTransacao) { score += 10; motivos.push('transação ✓'); }
+
+    // Tipo compatível
+    if (leadTipo) {
+      const exato = _normalizar(leadTipo) === _normalizar(imovel.tipo);
+      score += exato ? 15 : 8;
+      motivos.push(`tipo: ${imovel.tipo}`);
     }
 
-    // ── VAGAS ───────────────────────────────────────────────────
-    if (mapa.vagas && mapa.vagas.length > 0 && imovel.vagas > 0) {
-      let melhor = 0;
-      for (const sinal of mapa.vagas) {
-        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
-        if (Number(sinal.valor||0) <= imovel.vagas) melhor = Math.max(melhor, scoreEf);
-      }
-      pesoTotal += 50;
-      if (melhor > 0) { scoreTotal += melhor * 0.5; motivos.push(`${imovel.vagas} vagas`); }
+    // Cidade compatível
+    if (leadCidade) { score += 10; motivos.push(`${imovel.cidade}`); }
+
+    // Bairro compatível
+    if (leadBairro && imovel.bairro === leadBairro) { score += 20; motivos.push(`bairro: ${im.bairro}`); }
+    else if (leadBairro && _bairrosProximos(imovel.bairro, leadBairro)) { score += 10; motivos.push('bairro próximo'); }
+
+    // Valor — quanto mais próximo do ideal, maior o score
+    if (leadValorMax > 0 && imovel.preco > 0) {
+      const diff = Math.abs(imovel.preco - leadValorMax) / leadValorMax;
+      if (diff <= 0.05)       { score += 15; motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')} ✓✓`); }
+      else if (diff <= 0.15)  { score += 10; motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')} ✓`); }
+      else                    { score += 5;  motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')}`); }
     }
 
-    // ── ÁREA ────────────────────────────────────────────────────
-    if (mapa.area && mapa.area.length > 0 && imovel.area > 0) {
-      let melhor = 0;
-      for (const sinal of mapa.area) {
-        const scoreEf = sinal.scoreEfetivo ?? sinal.score;
-        const aMin = sinal.valor?.min || 0;
-        const aMax = sinal.valor?.max || Infinity;
-        if (imovel.area >= aMin && imovel.area <= aMax) melhor = Math.max(melhor, scoreEf);
-        else if (imovel.area >= aMin * 0.85)             melhor = Math.max(melhor, scoreEf * 0.6);
-      }
-      pesoTotal += 60;
-      if (melhor > 0) { scoreTotal += melhor * 0.6; motivos.push(`${imovel.area}m²`); }
+    // Quartos >= pedido (nunca menos)
+    const leadQuartos = Number(mapa.quartos?.[0]?.valor || 0);
+    if (leadQuartos > 0) {
+      if (imovel.quartos < leadQuartos) continue; // elimina se tiver menos quartos
+      if (imovel.quartos === leadQuartos) { score += 15; motivos.push(`${imovel.quartos} quartos ✓`); }
+      else { score += 8; motivos.push(`${imovel.quartos} quartos (pediu ${leadQuartos}+)`); }
     }
 
-    // ── DIFERENCIAIS ─────────────────────────────────────────────
+    // Suítes >= pedido
+    const leadSuites = Number(mapa.suites?.[0]?.valor || 0);
+    if (leadSuites > 0 && imovel.suites >= leadSuites) {
+      score += 10; motivos.push(`${imovel.suites} suítes ✓`);
+    }
+
+    // Vagas >= pedido
+    const leadVagas = Number(mapa.vagas?.[0]?.valor || 0);
+    if (leadVagas > 0 && imovel.vagas >= leadVagas) {
+      score += 10; motivos.push(`${imovel.vagas} vagas ✓`);
+    }
+
+    // Área >= pedido (tolerância -10%)
+    const leadArea = mapa.area?.[0]?.valor?.min || 0;
+    if (leadArea > 0 && imovel.area >= leadArea * 0.90) {
+      score += 8; motivos.push(`${imovel.area}m² ✓`);
+    }
+
+    // Diferenciais compatíveis
     if (mapa.diferenciais && mapa.diferenciais.length > 0) {
       const difsIm = Array.isArray(imovel.diferenciais)
-        ? imovel.diferenciais.map(d => _normalizar(String(d)))
-        : [];
+        ? imovel.diferenciais.map(d => _normalizar(String(d))) : [];
       let hits = 0;
       for (const sinal of mapa.diferenciais) {
         const dv = _normalizar(sinal.valor||'');
         if (difsIm.some(d => d.includes(dv) || dv.includes(d))) hits++;
       }
-      if (hits > 0) {
-        scoreTotal += hits * 8;
-        pesoTotal  += hits * 8;
-        motivos.push(`${hits} diferenciais compatíveis`);
-      }
+      if (hits > 0) { score += hits * 8; motivos.push(`${hits} diferenciais ✓`); }
     }
 
-    // ── FINANCIAMENTO ────────────────────────────────────────────
-    if (mapa.financiamento && imovel.financiamento) {
-      scoreTotal += 10; pesoTotal += 10;
-      motivos.push('aceita financiamento');
-    }
+    // Urgência do lead — boost
+    if ((mapa.urgencia || 0) > 50) { score += 5; }
 
-    // ── URGÊNCIA ─────────────────────────────────────────────────
-    const urgencia = mapa.urgencia || 0;
-    if (urgencia > 50) {
-      scoreTotal += urgencia * 0.3; pesoTotal += 30;
-      motivos.push(`urgência ${urgencia}`);
-    }
-
-    // ── INTENÇÕES OCULTAS ────────────────────────────────────────
-    const ocultos = lead.intencoesOcultas || {};
-    if (ocultos.aspiracional?.score > 40 && _ehPremium(imovel)) {
-      scoreTotal += 20; pesoTotal += 20;
-      motivos.push('✨ aspiracional');
-    }
-
-    // ── SCORE FINAL ──────────────────────────────────────────────
-    const scoreMatch = pesoTotal > 0 ? Math.round((scoreTotal / pesoTotal) * 100) : 0;
-    if (scoreMatch > 10) resultados.push({ imovel: im, scoreMatch, motivos });
+    resultados.push({ imovel: im, scoreMatch: Math.min(score, 100), motivos });
   }
 
   resultados.sort((a, b) => b.scoreMatch - a.scoreMatch);
-  return resultados.slice(0, 10);
+  return resultados.slice(0, 30);
 }
 
 // ════════════════════════════════════════════════════════════════

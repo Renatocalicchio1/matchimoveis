@@ -99,16 +99,10 @@ const app = express();
 
 const session = require('express-session');
 
-app.set('trust proxy', 1);
 app.use(session({
   secret: 'matchimoveis',
   resave: false,
-  saveUninitialized: true,
-  cookie: {
-    secure: process.env.RENDER ? true : false,
-    sameSite: process.env.RENDER ? 'none' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000
-  }
+  saveUninitialized: true
 }));
 const navegacao = require("./cerebro/navegacao");
 app.use(navegacao.rastrear); // rastreia navegação para o cérebro
@@ -423,8 +417,8 @@ app.post('/cadastro-secreto', async (req,res)=>{ return res.redirect('/'); // CA
 app.get('/login',(req,res)=>{ if(req.session&&req.session.user) return res.redirect('/app/leads'); res.redirect('/'); });
 
 app.post('/login', async (req,res)=>{
-  const { lerUsuarios: _luLogin } = require('./services/salvarUsuario');
-  const users = await _luLogin();
+  const fs = require('fs');
+  const users = (_cacheUsuarios || []);
 
   const telefone = String(req.body.telefone || '').replace(/\D/g,'');
 
@@ -5561,13 +5555,13 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
   }
 });
 
+// ── SERVER START ──────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log('[SERVER] rodando na porta', PORT);
+});
+};
 
 // ── SERVER START ──────────────────────────────────────────────
-
-
-}
-
-const _PORT = process.env.PORT || 3000;
-app.listen(_PORT, () => {
-  console.log('[SERVER] rodando na porta', _PORT);
+app.listen(PORT, () => {
+  console.log('[SERVER] rodando na porta', PORT);
 });

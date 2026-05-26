@@ -5793,3 +5793,36 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
 
 // ── DIAGNÓSTICO COMPLETO ─────────────────────────────────────
 // ── LEADS RAW ────────────────────────────────────────────────
+// ── NOTIFICAÇÕES — MARCAR LIDA ─────────────────────────────
+app.post('/app/notificacoes/:id/lida', auth, async (req, res) => {
+  try {
+    const { marcarLida } = require('./services/salvarNotificacao');
+    await marcarLida(req.params.id);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/app/notificacoes/marcar-todas-lidas', auth, async (req, res) => {
+  try {
+    const { marcarTodasLidas } = require('./services/salvarNotificacao');
+    await marcarTodasLidas(req.session.user.id);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// ── NOTIFICAÇÕES — MARCAR LIDA ─────────────────────────────
+app.post('/app/notificacoes/:id/lida', auth, async (req, res) => {
+  try {
+    const { marcarLida } = require('./services/salvarNotificacao');
+    await marcarLida(req.params.id);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/app/notificacoes/marcar-todas-lidas', auth, async (req, res) => {
+  try {
+    const { marcarTodasLidas } = require('./services/salvarNotificacao');
+    await marcarTodasLidas(req.session.user.id);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});

@@ -271,14 +271,11 @@ function extrairDiferenciais(norm) {
 }
 
 function extrairBairro(norm) {
-  // ── PRIORIDADE: bairros SC (mais específicos, evita falsos positivos) ──
-  const _scMap = getBairrosSC();
-  for (const [, _bairros] of Object.entries(_scMap)) {
-    // Ordena do mais longo para o mais curto (evita "barra" antes de "barra sul")
-    const sorted = [..._bairros].sort((a,b) => b.length - a.length);
-    for (const b of sorted) {
-      if (norm.includes(b)) return b;
-    }
+  // ── PRIORIDADE: bairros do banco (mais específicos, evita falsos positivos) ──
+  const _dicMap = getBairrosSC(); // {bairro: {cidade, estado}}
+  const _bairrosOrdenados = Object.keys(_dicMap).sort((a,b) => b.length - a.length);
+  for (const b of _bairrosOrdenados) {
+    if (norm.includes(b)) return b;
   }
 
   // Lista de bairros conhecidos SP

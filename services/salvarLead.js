@@ -34,6 +34,8 @@ function rowToLead(r) {
     eventos: r.eventos || [],
     followUps: r.follow_ups || [],
     mapaIntencao: r.mapa_intencao || null,
+    comportamento: r.comportamento || null,
+    intencoesOcultas: r.intencoes_ocultas || null,
     deletadoPor: r.deletado_por || [],
     vitrineEnviada: r.vitrine_enviada,
     vitrineEnviadaEm: r.vitrine_enviada_em,
@@ -52,7 +54,7 @@ function rowToLead(r) {
 // Converte objeto lead para colunas do banco
 function leadToRow(lead) {
   const dados = { ...lead };
-  const campos = ['id','nome','telefone','whatsapp','contato','origem','status','faseFunil','temperatura','score','userId','codigoUsuario','tipoLead','perfilIA','mensagens','matches','matchesAuto','matchesBase','historico','timeline','eventos','followUps','deletadoPor','vitrineEnviada','vitrineEnviadaEm','visitaAgendada','visitaAgendadaEm','imovelVendedor','comissaoParceiro','cicloAnterior','cicloSeguinte','criadoEm','data_cadastro'];
+  const campos = ['id','nome','telefone','whatsapp','contato','origem','status','faseFunil','temperatura','score','userId','codigoUsuario','tipoLead','perfilIA','mensagens','matches','matchesAuto','matchesBase','historico','timeline','eventos','followUps','deletadoPor','vitrineEnviada','vitrineEnviadaEm','visitaAgendada','visitaAgendadaEm','imovelVendedor','comissaoParceiro','cicloAnterior','cicloSeguinte','criadoEm','data_cadastro','mapaIntencao','comportamento','intencoesOcultas'];
   campos.forEach(k => delete dados[k]);
   return {
     id: lead.id || String(Date.now()),
@@ -87,6 +89,8 @@ function leadToRow(lead) {
     ciclo_anterior: lead.cicloAnterior || null,
     ciclo_seguinte: lead.cicloSeguinte || null,
     mapa_intencao: lead.mapaIntencao ? JSON.stringify(lead.mapaIntencao) : null,
+    comportamento: lead.comportamento ? JSON.stringify(lead.comportamento) : null,
+    intencoes_ocultas: lead.intencoesOcultas ? JSON.stringify(lead.intencoesOcultas) : null,
     dados: JSON.stringify(dados)
   };
 }
@@ -130,8 +134,8 @@ async function salvarLead(lead) {
     try {
       const r = leadToRow(lead);
       await query(`
-        INSERT INTO leads (id,nome,telefone,whatsapp,contato,origem,status,fase_funil,temperatura,score,user_id,codigo_usuario,tipo_lead,perfil_ia,mensagens,matches,matches_auto,matches_base,historico,timeline,eventos,follow_ups,deletado_por,vitrine_enviada,vitrine_enviada_em,visita_agendada,visita_agendada_em,imovel_vendedor,comissao_parceiro,ciclo_anterior,ciclo_seguinte,mapa_intencao,dados)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33)
+        INSERT INTO leads (id,nome,telefone,whatsapp,contato,origem,status,fase_funil,temperatura,score,user_id,codigo_usuario,tipo_lead,perfil_ia,mensagens,matches,matches_auto,matches_base,historico,timeline,eventos,follow_ups,deletado_por,vitrine_enviada,vitrine_enviada_em,visita_agendada,visita_agendada_em,imovel_vendedor,comissao_parceiro,ciclo_anterior,ciclo_seguinte,mapa_intencao,comportamento,intencoes_ocultas,dados)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35)
         ON CONFLICT (id) DO UPDATE SET
           nome=EXCLUDED.nome, telefone=EXCLUDED.telefone, whatsapp=EXCLUDED.whatsapp,
           contato=EXCLUDED.contato, origem=EXCLUDED.origem, status=EXCLUDED.status,
@@ -146,8 +150,10 @@ async function salvarLead(lead) {
           imovel_vendedor=EXCLUDED.imovel_vendedor, comissao_parceiro=EXCLUDED.comissao_parceiro,
           ciclo_anterior=EXCLUDED.ciclo_anterior, ciclo_seguinte=EXCLUDED.ciclo_seguinte,
           mapa_intencao=EXCLUDED.mapa_intencao,
+          comportamento=EXCLUDED.comportamento,
+          intencoes_ocultas=EXCLUDED.intencoes_ocultas,
           dados=EXCLUDED.dados, atualizado_em=NOW()
-      `, [r.id,r.nome,r.telefone,r.whatsapp,r.contato,r.origem,r.status,r.fase_funil,r.temperatura,r.score,r.user_id,r.codigo_usuario,r.tipo_lead,r.perfil_ia,r.mensagens,r.matches,r.matches_auto,r.matches_base,r.historico,r.timeline,r.eventos,r.follow_ups,r.deletado_por,r.vitrine_enviada,r.vitrine_enviada_em,r.visita_agendada,r.visita_agendada_em,r.imovel_vendedor,r.comissao_parceiro,r.ciclo_anterior,r.ciclo_seguinte,r.mapa_intencao,r.dados]);
+      `, [r.id,r.nome,r.telefone,r.whatsapp,r.contato,r.origem,r.status,r.fase_funil,r.temperatura,r.score,r.user_id,r.codigo_usuario,r.tipo_lead,r.perfil_ia,r.mensagens,r.matches,r.matches_auto,r.matches_base,r.historico,r.timeline,r.eventos,r.follow_ups,r.deletado_por,r.vitrine_enviada,r.vitrine_enviada_em,r.visita_agendada,r.visita_agendada_em,r.imovel_vendedor,r.comissao_parceiro,r.ciclo_anterior,r.ciclo_seguinte,r.mapa_intencao,r.comportamento,r.intencoes_ocultas,r.dados]);
       return lead;
     } catch(e) {
       console.error('[salvarLead PG]', e.message);

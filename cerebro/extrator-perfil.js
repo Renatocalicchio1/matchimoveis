@@ -44,9 +44,25 @@ const TIPOS_COMERCIAL = ['sala comercial','sala','loja','galpao','galpão','escr
 const TODOS_TIPOS = [...TIPOS_RESIDENCIAL, ...TIPOS_COMERCIAL];
 
 const INTENCAO = {
-  comprar: ['comprar','compra','quero comprar','adquirir','financiar','financiamento','proprio','próprio','venda','para venda','a venda','à venda','compro','interesse em comprar'],
-  alugar: ['alugar','aluguel','locacao','locação','arrendar','quero alugar','temporada'],
-  investir: ['investir','investimento','renda','rentabilidade','retorno','valorizar','renda passiva']
+  comprar: [
+    'comprar','compro','quero comprar','to querendo comprar','to procurando comprar',
+    'compra','de compra','para compra','quero adquirir','adquirir','aquisicao','aquisição',
+    'financiar','financiamento','proprio','próprio','casa propria','casa própria',
+    'venda','para venda','a venda','à venda','em venda','interesse em comprar',
+    'quero um imovel','quero uma casa','quero um apartamento','preciso comprar',
+    'investir','investimento','quero investir','para investimento','fins de investimento',
+    'renda passiva','rentabilidade','retorno financeiro','valorizar'
+  ],
+  alugar: [
+    'alugar','aluguel','alugo','quero alugar','para alugar','to querendo alugar',
+    'locacao','locação','locar','arrendar','arrendamento','temporada',
+    'disponivel para alugar','disponível para alugar','quero locacao','quero locação'
+  ],
+  investir: [
+    'investir','investimento','renda','renda passiva','rentabilidade',
+    'retorno','valorizar','valorizacao','valorização','quero investir'
+  ]
+  // investir = comprar (adicionado nas palavras de compra)
 };
 
 const URGENCIA = {

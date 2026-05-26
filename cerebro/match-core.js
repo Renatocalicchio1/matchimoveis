@@ -438,14 +438,20 @@ return lead;
   // Só roda quando perfil está suficientemente completo
   // E compara com resultado anterior para ver se melhorou
   // ============================================================
-  _perfilSuficiente(perfil) {
-    // Mínimo: tipo + quartos + (bairro OU valor)
-    return !!(perfil.tipo && perfil.quartos && (perfil.bairro || perfil.valorMax));
+  _perfilSuficiente(perfil, lead) {
+    // Mínimo: tipo + quartos + (bairro OU cidade OU valor)
+    const temTipo    = !!(perfil.tipo || (lead?.mapaIntencao?.tipo_imovel||[]).length > 0);
+    const temQuartos = !!(perfil.quartos || (lead?.mapaIntencao?.quartos||[]).length > 0);
+    const temLocal   = !!(perfil.bairro || perfil.cidade || perfil.valorMax ||
+                         (lead?.mapaIntencao?.bairro||[]).length > 0 ||
+                         (lead?.mapaIntencao?.cidade||[]).length > 0 ||
+                         (lead?.mapaIntencao?.valor||[]).length > 0);
+    return !!(temTipo && (temQuartos || temLocal));
   }
 
   async _matchCaso2(lead, perfil, userId) {
     try {
-      if (!this._perfilSuficiente(perfil)) {
+      if (!this._perfilSuficiente(perfil, lead)) {
         const faltando = [];
         if (!perfil.tipo) faltando.push('tipo');
         if (!perfil.quartos) faltando.push('quartos');

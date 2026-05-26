@@ -2357,7 +2357,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     }).catch(() => {});
 
     // Só processa mensagens recebidas
-    if (event !== 'messages.upsert') {
+    if (event !== 'messages.upsert' && event !== 'MESSAGES_UPSERT') {
       return res.status(200).json({ ok: true, ignorado: event });
     }
 

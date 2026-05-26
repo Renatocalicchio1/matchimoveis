@@ -39,18 +39,14 @@ function responder(mensagem='', user={}){
     return null;
   }
 
+  const userId = user.id || user.userId || '';
+
   const { lerNotificacoes } = require('../services/salvarNotificacao');
   const { lerVisitas } = require('../services/salvarVisita');
   const { lerLeads } = require('../services/salvarLead');
   const notificacoes = await lerNotificacoes(userId) || [];
   const visitas = await lerVisitas(userId) || [];
   const leads = await lerLeads(userId) || [];
-
-  const userId =
-    user.id ||
-    user.userId ||
-    '';
-
   const minhasNotificacoes = notificacoes.filter(n =>
     String(n.usuarioId || '') === String(userId)
   );

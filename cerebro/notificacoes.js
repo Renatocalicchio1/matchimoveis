@@ -29,7 +29,7 @@ function normalizar(txt=''){
     .trim();
 }
 
-function responder(mensagem='', user={}){
+async function responder(mensagem='', user={}){
 
   const m = normalizar(mensagem);
 

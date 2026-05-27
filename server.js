@@ -1585,6 +1585,52 @@ app.post('/webhook/vivareal/:userId', (req, res, next) => { req.url = req.url.re
 app.post('/webhook/olx/:userId', (req, res, next) => { req.url = req.url.replace('/webhook/olx/', '/webhook/grupoolx/'); next(); });
 
 // WEBHOOK CHAVES NA MÃO
+// WEBHOOK 123i / LOFT — mesmo formato do Grupo OLX
+app.post('/webhook/123i/:userId', async (req, res) => {
+  res.status(200).send('OK');
+  try {
+    const body = req.body || {};
+    const userId = req.params.userId || '';
+    console.log('[WEBHOOK 123i] userId:', userId, '| lead:', body.name);
+    const { lerUsuarios: _lu123 } = require('./services/salvarUsuario');
+    const _users = await _lu123();
+    const _user = _users.find(u => u.id === userId);
+    if (!_user) { console.warn('[WEBHOOK 123i] userId nao encontrado:', userId); return; }
+    const telefone = (body.phoneNumber || (body.ddd||'') + (body.phone||'')).replace(/D/g,'');
+    const originLeadId = body.originLeadId || body.originListingId || '';
+    const lead = {
+      id: Date.now().toString(),
+      eventId: originLeadId,
+      nome: body.name || telefone || '',
+      email: body.email || '',
+      telefone, whatsapp: telefone, contato: telefone,
+      mensagem: body.message || '',
+      idAnuncio: body.clientListingId || body.originListingId || '',
+      fonte: '123i', origem: '123i', origemEntrada: 'webhook_123i',
+      userId, codigoUsuario: userId,
+      status: 'novo', score: 0, temperatura: 'frio', faseFunil: 'novo',
+      mensagens: [], matches: [], timeline: [], eventos: [], followUps: [],
+      criadoEm: body.timestamp || new Date().toISOString(),
+    };
+    const { lerLeads: _ll123, salvarLead: _sl123 } = require('./services/salvarLead');
+    const _leads = await _ll123();
+    const _dup = _leads.find(l =>
+      (originLeadId && String(l.eventId||'') === String(originLeadId)) ||
+      (telefone && String(l.telefone||'').replace(/D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
+    );
+    if (_dup) { console.log('[WEBHOOK 123i] duplicata ignorada:', telefone); return; }
+    await _sl123(lead);
+    console.log('[WEBHOOK 123i] lead salva:', lead.nome, '|', telefone);
+    setImmediate(async () => {
+      try {
+        const matchCore = require('./cerebro/match-core');
+        const mensagemInicial = [lead.mensagem, lead.idAnuncio].filter(Boolean).join(' | ');
+        if (mensagemInicial) await matchCore.processar({ lead, mensagem: mensagemInicial, canal: 'portal', userId });
+      } catch(e) { console.error('[WEBHOOK 123i] erro match-core:', e.message); }
+    });
+  } catch(err) { console.error('[WEBHOOK 123i] erro:', err.message); }
+});
+
 app.post('/webhook/chaves/:userId', async (req, res) => {
   res.status(200).send('OK');
   try {

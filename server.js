@@ -1518,12 +1518,24 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     if (_dup) { console.log('[WEBHOOK IMOVELWEB] duplicata ignorada:', telefone); return; }
     await _slIW(lead);
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
+
     setImmediate(async () => {
       try {
-        const matchCore = require('./cerebro/match-core');
-        const mensagemInicial = [lead.mensagem, lead.idAnuncio].filter(Boolean).join(' | ');
-        if (mensagemInicial) await matchCore.processar({ lead, mensagem: mensagemInicial, canal: 'portal', userId });
-      } catch(e) { console.error('[WEBHOOK IMOVELWEB] erro match-core:', e.message); }
+        const { processarLeadPortal } = require('./cerebro/portal-processor');
+        const { atualizarLead: _atualizarIMOVELWEB } = require('./services/salvarLead');
+        const mapa = await processarLeadPortal(lead);
+        if (mapa) {
+          lead.mapaIntencao = mapa;
+          await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura });
+          console.log('[WEBHOOK IMOVELWEB] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
+          // Roda match se perfil suficiente
+          const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
+          if (temMinimo) {
+            const matchCore = require('./cerebro/match-core');
+            await matchCore.processar({ lead, mensagem: lead.mensagem||'', canal: 'portal', userId });
+          }
+        }
+      } catch(e) { console.error('[WEBHOOK IMOVELWEB] erro portal-processor:', e.message); }
     });
   } catch(err) { console.error('[WEBHOOK IMOVELWEB] erro:', err.message); }
 });
@@ -1570,12 +1582,24 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     if (_dup) { console.log('[WEBHOOK GRUPOOLX] duplicata ignorada:', telefone); return; }
     await _slOLX(lead);
     console.log('[WEBHOOK GRUPOOLX] lead salva:', lead.nome, '|', telefone, '| portal:', portal);
+
     setImmediate(async () => {
       try {
-        const matchCore = require('./cerebro/match-core');
-        const mensagemInicial = [lead.mensagem, lead.idAnuncio].filter(Boolean).join(' | ');
-        if (mensagemInicial) await matchCore.processar({ lead, mensagem: mensagemInicial, canal: 'portal', userId });
-      } catch(e) { console.error('[WEBHOOK GRUPOOLX] erro match-core:', e.message); }
+        const { processarLeadPortal } = require('./cerebro/portal-processor');
+        const { atualizarLead: _atualizarGRUPOOLX } = require('./services/salvarLead');
+        const mapa = await processarLeadPortal(lead);
+        if (mapa) {
+          lead.mapaIntencao = mapa;
+          await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura });
+          console.log('[WEBHOOK GRUPOOLX] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
+          // Roda match se perfil suficiente
+          const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
+          if (temMinimo) {
+            const matchCore = require('./cerebro/match-core');
+            await matchCore.processar({ lead, mensagem: lead.mensagem||'', canal: 'portal', userId });
+          }
+        }
+      } catch(e) { console.error('[WEBHOOK GRUPOOLX] erro portal-processor:', e.message); }
     });
   } catch(err) { console.error('[WEBHOOK GRUPOOLX] erro:', err.message); }
 });
@@ -1621,12 +1645,24 @@ app.post('/webhook/123i/:userId', async (req, res) => {
     if (_dup) { console.log('[WEBHOOK 123i] duplicata ignorada:', telefone); return; }
     await _sl123(lead);
     console.log('[WEBHOOK 123i] lead salva:', lead.nome, '|', telefone);
+
     setImmediate(async () => {
       try {
-        const matchCore = require('./cerebro/match-core');
-        const mensagemInicial = [lead.mensagem, lead.idAnuncio].filter(Boolean).join(' | ');
-        if (mensagemInicial) await matchCore.processar({ lead, mensagem: mensagemInicial, canal: 'portal', userId });
-      } catch(e) { console.error('[WEBHOOK 123i] erro match-core:', e.message); }
+        const { processarLeadPortal } = require('./cerebro/portal-processor');
+        const { atualizarLead: _atualizar123i } = require('./services/salvarLead');
+        const mapa = await processarLeadPortal(lead);
+        if (mapa) {
+          lead.mapaIntencao = mapa;
+          await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura });
+          console.log('[WEBHOOK 123i] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
+          // Roda match se perfil suficiente
+          const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
+          if (temMinimo) {
+            const matchCore = require('./cerebro/match-core');
+            await matchCore.processar({ lead, mensagem: lead.mensagem||'', canal: 'portal', userId });
+          }
+        }
+      } catch(e) { console.error('[WEBHOOK 123i] erro portal-processor:', e.message); }
     });
   } catch(err) { console.error('[WEBHOOK 123i] erro:', err.message); }
 });
@@ -1663,12 +1699,24 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     if (_dup) { console.log('[WEBHOOK CHAVES] duplicata ignorada:', telefone); return; }
     await _slCH(lead);
     console.log('[WEBHOOK CHAVES] lead salva:', lead.nome, '|', telefone);
+
     setImmediate(async () => {
       try {
-        const matchCore = require('./cerebro/match-core');
-        const mensagemInicial = [lead.mensagem, lead.idAnuncio].filter(Boolean).join(' | ');
-        if (mensagemInicial) await matchCore.processar({ lead, mensagem: mensagemInicial, canal: 'portal', userId });
-      } catch(e) { console.error('[WEBHOOK CHAVES] erro match-core:', e.message); }
+        const { processarLeadPortal } = require('./cerebro/portal-processor');
+        const { atualizarLead: _atualizarCHAVES } = require('./services/salvarLead');
+        const mapa = await processarLeadPortal(lead);
+        if (mapa) {
+          lead.mapaIntencao = mapa;
+          await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura });
+          console.log('[WEBHOOK CHAVES] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
+          // Roda match se perfil suficiente
+          const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
+          if (temMinimo) {
+            const matchCore = require('./cerebro/match-core');
+            await matchCore.processar({ lead, mensagem: lead.mensagem||'', canal: 'portal', userId });
+          }
+        }
+      } catch(e) { console.error('[WEBHOOK CHAVES] erro portal-processor:', e.message); }
     });
   } catch(err) { console.error('[WEBHOOK CHAVES] erro:', err.message); }
 });

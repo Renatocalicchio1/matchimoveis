@@ -39,7 +39,7 @@ async function fazerBackup() {
     // Mantém só os últimos 48 backups
     await query(`
       DELETE FROM backups WHERE id NOT IN (
-        SELECT id FROM backups ORDER BY timestamp DESC LIMIT 48
+        SELECT id FROM backups ORDER BY timestamp DESC LIMIT 3
       )
     `);
 
@@ -61,9 +61,9 @@ async function restaurarBackup(id) {
 }
 
 function iniciarBackup() {
-  console.log('[BACKUP] Backup automatico iniciado — a cada 30 minutos');
+  console.log('[BACKUP] Backup automatico iniciado — a cada 1 minuto, mantendo 3 copias');
   setTimeout(fazerBackup, 60 * 1000);
-  setInterval(fazerBackup, 30 * 60 * 1000);
+  setInterval(fazerBackup, 60 * 1000);
 }
 
 module.exports = { fazerBackup, iniciarBackup, listarBackups, restaurarBackup };

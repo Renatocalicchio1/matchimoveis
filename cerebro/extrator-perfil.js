@@ -211,7 +211,9 @@ const ESTADOS = {
 };
 
 function normalizar(txt) {
-  return (txt||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,' ').trim();
+  // Preserva pontos em valores numéricos (ex: 2.100.000) antes de remover pontuação
+  const comValores = (txt||'').replace(/(\d)\.(?=\d)/g, '$1PONTO');
+  return comValores.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,' ').replace(/PONTO/g,'.').trim();
 }
 
 function extrairNumero(txt, palavras) {

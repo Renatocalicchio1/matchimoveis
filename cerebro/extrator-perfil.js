@@ -336,7 +336,10 @@ const TYPOS_TIPO = {
 
 function corrigirTipo(norm) {
   for (const [typo, correto] of Object.entries(TYPOS_TIPO)) {
-    if (norm.includes(typo)) return correto;
+    if (norm.includes(typo)) {
+      const cat = ['casa','sobrado','mansao','chacara','sitio','fazenda','vila','studio','kitnet','loft','flat','cobertura','apartamento','apto'].includes(correto) ? 'residencial' : 'comercial';
+      return { tipo: correto, categoria: cat };
+    }
   }
   return null;
 }

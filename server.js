@@ -3455,6 +3455,25 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     String(v.userId || v.codigoUsuario || '') === uid
   );
 
+  // Se perfilIA vazio mas mapaIntencao preenchido — converte para perfilIA
+  if ((!lead.perfilIA || Object.keys(lead.perfilIA).length === 0) && lead.mapaIntencao) {
+    const mi = lead.mapaIntencao;
+    const _v = (arr) => arr && arr.length ? arr[0].valor : null;
+    lead.perfilIA = {};
+    if (_v(mi.tipo_imovel)) lead.perfilIA.tipo = _v(mi.tipo_imovel);
+    if (_v(mi.transacao))   lead.perfilIA.intencao = _v(mi.transacao);
+    if (_v(mi.bairro))      lead.perfilIA.bairro = _v(mi.bairro);
+    if (_v(mi.cidade))      lead.perfilIA.cidade = _v(mi.cidade);
+    if (_v(mi.estado))      lead.perfilIA.estado = _v(mi.estado);
+    if (_v(mi.quartos))     lead.perfilIA.quartos = _v(mi.quartos);
+    if (_v(mi.suites))      lead.perfilIA.suites = _v(mi.suites);
+    if (_v(mi.vagas))       lead.perfilIA.vagas = _v(mi.vagas);
+    if (_v(mi.banheiros))   lead.perfilIA.banheiros = _v(mi.banheiros);
+    if (_v(mi.valor))       lead.perfilIA.valorMax = _v(mi.valor)?.max || null;
+    if (mi.fase)            lead.perfilIA.faseFunil = mi.fase;
+    if (mi.temperatura)     lead.perfilIA.temperatura = mi.temperatura;
+  }
+
   // Usa matches já salvos no PG (gerados pelo motor de intenção)
   let matchesInternos = lead.matches || lead.matchesAuto || [];
   console.log(`[LEAD DETALHE] matches do PG: ${matchesInternos.length}`);

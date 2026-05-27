@@ -1709,6 +1709,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     await _slCH(lead);
     console.log('[WEBHOOK CHAVES] lead salva:', lead.nome, '|', telefone);
 
+    console.log('[CHAVES BODY] message:', String(body.message||'').substring(0,50), '| phone:', body.phone);
     const _msgCH = String(body.message || body.mensagem || lead.mensagem || '');
     const _refCH = String(body.reference || lead.idAnuncio || '');
     const _idCH = String(lead.id);

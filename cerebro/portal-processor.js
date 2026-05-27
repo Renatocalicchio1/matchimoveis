@@ -81,6 +81,7 @@ async function processarLeadPortal(lead) {
         if (_r.rows[0]?.msg) lead.mensagem = _r.rows[0].msg;
       } catch(e) {}
     }
+    console.log('[PP-DEBUG] imovel:', !!imovel, '| mensagem:', (lead.mensagem||'').substring(0,40));
     if (!imovel && lead.mensagem) {
       const { extrairPerfil } = require('./extrator-perfil');
       // Normaliza mensagem — portais enviam em MAIÚSCULAS às vezes

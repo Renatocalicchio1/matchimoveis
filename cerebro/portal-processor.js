@@ -74,6 +74,13 @@ async function processarLeadPortal(lead) {
 
     // 3. Se não achou imóvel — limpa idAnuncio para forçar caso2 e extrai da mensagem
     if (!imovel) lead.idAnuncio = '';
+    // Se mensagem veio vazia — busca do PG (pode estar só no campo dados)
+    if (!lead.mensagem && lead.id) {
+      try {
+        const _r = await query("SELECT dados->>'mensagem' as msg FROM leads WHERE id=$1", [String(lead.id)]);
+        if (_r.rows[0]?.msg) lead.mensagem = _r.rows[0].msg;
+      } catch(e) {}
+    }
     if (!imovel && lead.mensagem) {
       const { extrairPerfil } = require('./extrator-perfil');
       // Normaliza mensagem — portais enviam em MAIÚSCULAS às vezes

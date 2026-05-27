@@ -76,7 +76,9 @@ async function processarLeadPortal(lead) {
     if (!imovel) lead.idAnuncio = '';
     if (!imovel && lead.mensagem) {
       const { extrairPerfil } = require('./extrator-perfil');
-      const perfil = extrairPerfil([{ de: 'cliente', texto: lead.mensagem }]);
+      // Normaliza mensagem — portais enviam em MAIÚSCULAS às vezes
+      const msgNorm = lead.mensagem.toLowerCase();
+      const perfil = extrairPerfil([{ de: 'cliente', texto: msgNorm }]);
 
       if (perfil.tipo)      mapa.tipo_imovel = sinal(perfil.tipo, 80, 'portal_mensagem');
       if (perfil.intencao)  mapa.transacao   = sinal(perfil.intencao, 80, 'portal_mensagem');

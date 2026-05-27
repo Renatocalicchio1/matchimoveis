@@ -1502,7 +1502,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
       email: body.email || body.txtEmail || '',
       telefone, whatsapp: telefone, contato: telefone,
       mensagem: body.mensagem || body.message || body.txtMensagem || '',
-      idAnuncio: body.referencia || body.reference || body.clientListingId || body.codigoAnuncio || body.originListingId || '',
+      idAnuncio: body.idAnuncio || body.referencia || body.reference || body.clientListingId || body.codigoAnuncio || body.originListingId || '',
       fonte: 'ImovelWeb', origem: 'ImovelWeb', origemEntrada: 'webhook_imovelweb',
       userId, codigoUsuario: userId,
       status: 'novo', score: 0, temperatura: 'frio', faseFunil: 'novo',
@@ -1520,7 +1520,6 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
     const _snapIW = { id: lead.id, userId, mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'' };
     console.log('[SNAPIW] mensagem:', (_snapIW.mensagem||'').substring(0,60), '| idAnuncio:', _snapIW.idAnuncio);
-    console.log('[SNAPIW-BODY] body.idAnuncio:', body.idAnuncio, '| body.clientListingId:', body.clientListingId, '| lead.idAnuncio:', lead.idAnuncio);
 
     setTimeout(async () => {
       try {

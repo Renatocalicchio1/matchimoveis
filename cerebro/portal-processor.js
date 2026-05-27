@@ -84,7 +84,7 @@ async function processarLeadPortal(lead) {
     if (!imovel && lead.mensagem) {
       const { extrairPerfil } = require('./extrator-perfil');
       // Normaliza mensagem — portais enviam em MAIÚSCULAS às vezes
-      const msgNorm = lead.mensagem.toLowerCase();
+      const msgNorm = NORM(lead.mensagem);
       const perfil = extrairPerfil([{ de: 'cliente', texto: msgNorm }]);
 
       if (perfil.tipo)      mapa.tipo_imovel = sinal(perfil.tipo, 80, 'portal_mensagem');

@@ -1493,7 +1493,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK IMOVELWEB] userId nao encontrado:', userId); return; }
     const eventId = body.idEvento || body.eventId || body.eventoId || body.id || '';
-    const telefone = (body.telefone || body.phoneNumber || body.phone || body.txtTelefone || '').replace(/D/g,'');
+    const telefone = (body.telefone || body.phoneNumber || body.phone || body.txtTelefone || '').replace(/\D/g,'');
     const nome = body.nome || body.name || body.txtNome || telefone || '';
     const lead = {
       id: Date.now().toString(),
@@ -1513,7 +1513,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     const _leads = await _llIW();
     const _dup = _leads.find(l =>
       (eventId && String(l.eventId||'') === String(eventId)) ||
-      (telefone && String(l.telefone||'').replace(/D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
+      (telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
     );
     if (_dup) { console.log('[WEBHOOK IMOVELWEB] duplicata ignorada:', telefone); return; }
     await _slIW(lead);

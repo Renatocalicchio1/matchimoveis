@@ -1600,7 +1600,8 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
           if (temMinimo) {
             const matchCore = require('./cerebro/match-core');
-            await matchCore.processar({ lead, mensagem: lead.mensagem||'', canal: 'portal', userId });
+            const _leadComMapaGRUPOOLX = { ..._leadSnapshotGRUPOOLX, mapaIntencao: mapa };
+            await matchCore.processar({ lead: _leadComMapaGRUPOOLX, mensagem: _leadSnapshotGRUPOOLX.mensagem||'', canal: 'portal', userId: _leadSnapshotGRUPOOLX.userId||userId });
           }
         }
       } catch(e) { console.error('[WEBHOOK GRUPOOLX] erro portal-processor:', e.message); }
@@ -1664,7 +1665,8 @@ app.post('/webhook/123i/:userId', async (req, res) => {
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
           if (temMinimo) {
             const matchCore = require('./cerebro/match-core');
-            await matchCore.processar({ lead, mensagem: lead.mensagem||'', canal: 'portal', userId });
+            const _leadComMapa123i = { ..._leadSnapshot123i, mapaIntencao: mapa };
+            await matchCore.processar({ lead: _leadComMapa123i, mensagem: _leadSnapshot123i.mensagem||'', canal: 'portal', userId: _leadSnapshot123i.userId||userId });
           }
         }
       } catch(e) { console.error('[WEBHOOK 123i] erro portal-processor:', e.message); }
@@ -1719,7 +1721,8 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
           if (temMinimo) {
             const matchCore = require('./cerebro/match-core');
-            await matchCore.processar({ lead, mensagem: lead.mensagem||'', canal: 'portal', userId });
+            const _leadComMapaCHAVES = { ..._leadSnapshotCHAVES, mapaIntencao: mapa };
+            await matchCore.processar({ lead: _leadComMapaCHAVES, mensagem: _leadSnapshotCHAVES.mensagem||'', canal: 'portal', userId: _leadSnapshotCHAVES.userId||userId });
           }
         }
       } catch(e) { console.error('[WEBHOOK CHAVES] erro portal-processor:', e.message); }

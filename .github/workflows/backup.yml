@@ -1,25 +1,15 @@
 name: Backup PostgreSQL
-
 on:
   schedule:
-    - cron: '0 3 * * *'  # Todo dia às 3h da manhã
-  workflow_dispatch:      # Permite rodar manualmente
-
+    - cron: '0 3 * * *'
+  workflow_dispatch:
 jobs:
   backup:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
+      - uses: actions/checkout@v3
       - name: Install pg client
         run: sudo apt-get install -y postgresql-client
-
       - name: Fazer backup
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -28,19 +18,11 @@ jobs:
           FILENAME="backups/backup_$(date +%Y%m%d_%H%M%S).sql"
           pg_dump "$DATABASE_URL" > "$FILENAME"
           gzip "$FILENAME"
-          echo "Backup criado: $FILENAME.gz"
-
-      - name: Manter apenas os 3 ultimos backups
-        run: |
-          cd backups
-          ls -t *.sql.gz | tail -n +4 | xargs -r rm
-          echo "Backups mantidos:"
-          ls -lh *.sql.gz 2>/dev/null || echo "nenhum"
-
+          ls -t backups/*.sql.gz | tail -n +4 | xargs -r rm
       - name: Commit backup
         run: |
-          git config user.name "MatchImóveis Bot"
-          git config user.email "backup@matchimoveis.com"
+          git config user.name "MatchBot"
+          git config user.email "bot@matchimoveis.com"
           git add backups/
-          git diff --staged --quiet || git commit -m "backup: $(date +%Y-%m-%d_%H:%M:%S)"
+          git diff --staged --quiet || git commit -m "backup: $(date +%Y-%m-%d)"
           git push

@@ -1709,9 +1709,12 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     await _slCH(lead);
     console.log('[WEBHOOK CHAVES] lead salva:', lead.nome, '|', telefone);
 
-    const _msgCH = body.message || body.mensagem || '';
-    console.log('[CHAVES SNAP] msg:', _msgCH.substring(0,50), '| id:', lead.id, '| userId:', userId);
-    const _leadSnapshotCHAVES = { id: lead.id, userId, mensagem: _msgCH, idAnuncio: body.reference||'' };
+    const _msgCH = String(body.message || body.mensagem || lead.mensagem || '');
+    const _refCH = String(body.reference || lead.idAnuncio || '');
+    const _idCH = String(lead.id);
+    const _uidCH = String(userId);
+    console.log('[CHAVES SNAP] msg:', _msgCH.substring(0,50), '| id:', _idCH, '| userId:', _uidCH);
+    const _leadSnapshotCHAVES = { id: _idCH, userId: _uidCH, mensagem: _msgCH, idAnuncio: _refCH };
     setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');

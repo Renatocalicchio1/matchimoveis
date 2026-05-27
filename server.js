@@ -1519,6 +1519,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     await _slIW(lead);
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
     const _snapIW = { id: lead.id, userId, mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'' };
+    console.log('[SNAPIW] mensagem:', (_snapIW.mensagem||'').substring(0,60), '| idAnuncio:', _snapIW.idAnuncio);
 
     setTimeout(async () => {
       try {

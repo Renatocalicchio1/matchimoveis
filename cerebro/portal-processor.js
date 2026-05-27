@@ -55,7 +55,7 @@ async function processarLeadPortal(lead) {
       const cidade = NORM(imovel.cidade || imovel.city || '');
       const estado = NORM(imovel.estado || imovel.state || '');
       const bairro = NORM(imovel.bairro || imovel.neighborhood || '');
-      const valor = parseFloat(imovel.valor || imovel.preco || imovel.price || 0);
+      const valor = parseFloat(imovel.valor_imovel || imovel.valor || imovel.preco || imovel.price || 0);
       const quartos = parseInt(imovel.quartos || imovel.bedrooms || 0);
       const suites = parseInt(imovel.suites || 0);
       const vagas = parseInt(imovel.vagas || imovel.parking || 0);

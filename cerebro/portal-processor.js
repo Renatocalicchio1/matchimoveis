@@ -7,6 +7,14 @@
 
 const NORM = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 
+async function comRetry(fn, tentativas = 3, espera = 2000) {
+  for (let i = 0; i < tentativas; i++) {
+    try { const r = await fn(); if (r) return r; } catch(e) {}
+    if (i < tentativas - 1) await new Promise(res => setTimeout(res, espera));
+  }
+  return null;
+}
+
 function sinal(valor, confianca, origem) {
   return [{ valor, confianca, score: confianca, peso: 1, timestamp: Date.now(), origem }];
 }
@@ -34,13 +42,10 @@ async function processarLeadPortal(lead) {
     const idAnuncio = lead.idAnuncio || lead.clientListingId || lead.referencia || '';
     let imovel = null;
     if (idAnuncio) {
-      try {
-        const r = await query(
-          "SELECT * FROM imoveis WHERE id_externo=$1 OR id=$1 LIMIT 1",
-          [String(idAnuncio)]
-        );
-        if (r.rows.length > 0) imovel = r.rows[0];
-      } catch(e) {}
+      imovel = await comRetry(async () => {
+        const r = await query("SELECT * FROM imoveis WHERE id_externo=$1 OR id=$1 LIMIT 1", [String(idAnuncio)]);
+        return r.rows[0] || null;
+      });
     }
 
     // 2. Se achou o imóvel — usa os dados dele (alta confiança)
@@ -76,10 +81,11 @@ async function processarLeadPortal(lead) {
     if (!imovel) lead.idAnuncio = '';
     // Se mensagem veio vazia — busca do PG (pode estar só no campo dados)
     if (lead.id) {
-      try {
+      const _msgRow = await comRetry(async () => {
         const _r = await query("SELECT dados->>'mensagem' as msg FROM leads WHERE id=$1", [String(lead.id)]);
-        if (_r.rows[0]?.msg) lead.mensagem = _r.rows[0].msg;
-      } catch(e) {}
+        return _r.rows[0]?.msg ? _r.rows[0] : null;
+      });
+      if (_msgRow?.msg) lead.mensagem = _msgRow.msg;
     }
     console.log('[PP-DEBUG] imovel:', !!imovel, '| mensagem:', (lead.mensagem||'').substring(0,40));
     if (!imovel && lead.mensagem) {

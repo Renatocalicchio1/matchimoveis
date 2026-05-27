@@ -1584,6 +1584,49 @@ app.post('/webhook/zap/:userId', (req, res, next) => { req.url = req.url.replace
 app.post('/webhook/vivareal/:userId', (req, res, next) => { req.url = req.url.replace('/webhook/vivareal/', '/webhook/grupoolx/'); next(); });
 app.post('/webhook/olx/:userId', (req, res, next) => { req.url = req.url.replace('/webhook/olx/', '/webhook/grupoolx/'); next(); });
 
+// WEBHOOK CHAVES NA MÃO
+app.post('/webhook/chaves/:userId', async (req, res) => {
+  res.status(200).send('OK');
+  try {
+    const body = req.body || {};
+    const userId = req.params.userId || '';
+    console.log('[WEBHOOK CHAVES] userId:', userId, '| lead:', body.name);
+    const { lerUsuarios: _luCH } = require('./services/salvarUsuario');
+    const _users = await _luCH();
+    const _user = _users.find(u => u.id === userId);
+    if (!_user) { console.warn('[WEBHOOK CHAVES] userId nao encontrado:', userId); return; }
+    const telefone = (body.phone || '').replace(/D/g,'');
+    const lead = {
+      id: Date.now().toString(),
+      nome: body.name || telefone || '',
+      email: body.email || '',
+      telefone, whatsapp: telefone, contato: telefone,
+      mensagem: body.message || '',
+      idAnuncio: body.reference || '',
+      fonte: 'Chaves na Mão', origem: 'Chaves na Mão', origemEntrada: 'webhook_chaves',
+      userId, codigoUsuario: userId,
+      status: 'novo', score: 0, temperatura: 'frio', faseFunil: 'novo',
+      mensagens: [], matches: [], timeline: [], eventos: [], followUps: [],
+      criadoEm: new Date().toISOString(),
+    };
+    const { lerLeads: _llCH, salvarLead: _slCH } = require('./services/salvarLead');
+    const _leads = await _llCH();
+    const _dup = _leads.find(l =>
+      telefone && String(l.telefone||'').replace(/D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId
+    );
+    if (_dup) { console.log('[WEBHOOK CHAVES] duplicata ignorada:', telefone); return; }
+    await _slCH(lead);
+    console.log('[WEBHOOK CHAVES] lead salva:', lead.nome, '|', telefone);
+    setImmediate(async () => {
+      try {
+        const matchCore = require('./cerebro/match-core');
+        const mensagemInicial = [lead.mensagem, lead.idAnuncio].filter(Boolean).join(' | ');
+        if (mensagemInicial) await matchCore.processar({ lead, mensagem: mensagemInicial, canal: 'portal', userId });
+      } catch(e) { console.error('[WEBHOOK CHAVES] erro match-core:', e.message); }
+    });
+  } catch(err) { console.error('[WEBHOOK CHAVES] erro:', err.message); }
+});
+
 const PORT = process.env.PORT || port || 3000;
 
 app.post('/app/perfil/localizacao', auth, async (req,res)=>{

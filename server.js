@@ -1533,7 +1533,8 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
           if (temMinimo) {
             const matchCore = require('./cerebro/match-core');
-            await matchCore.processar({ lead, mensagem: lead.mensagem||'', canal: 'portal', userId });
+            const _leadComMapa = { ..._snapIW, mapaIntencao: mapa, userId: _snapIW.userId };
+            await matchCore.processar({ lead: _leadComMapa, mensagem: _snapIW.mensagem||'', canal: 'portal', userId: _snapIW.userId });
           }
         }
       } catch(e) { console.error('[WEBHOOK IMOVELWEB] erro portal-processor:', e.message); }

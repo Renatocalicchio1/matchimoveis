@@ -479,6 +479,12 @@ return lead;
   // Só roda quando perfil está suficientemente completo
   // E compara com resultado anterior para ver se melhorou
   // ============================================================
+  _detectarVenda(mensagem) {
+    const norm = (mensagem||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const palavrasVenda = ['tenho imovel','tenho um imovel','tenho apartamento','tenho uma casa','meu imovel','meu apartamento','minha casa','estou vendendo','quero vender','vou vender','para vender','a venda','coloca a venda','anunciar','anuncio'];
+    return palavrasVenda.some(p => norm.includes(p));
+  }
+
   _perfilSuficiente(perfil, lead) {
     // Ideal: transacao + tipo + cidade + bairro + valor
     // Mínimo para rodar: tipo + (cidade OU bairro) — quanto mais campos, melhor o match

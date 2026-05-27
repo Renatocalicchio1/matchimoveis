@@ -1709,12 +1709,17 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     await _slCH(lead);
     console.log('[WEBHOOK CHAVES] lead salva:', lead.nome, '|', telefone);
 
-    console.log('[CHAVES BODY] message:', String(body.message||'').substring(0,50), '| phone:', body.phone);
     const _msgCH = String(body.message || body.mensagem || lead.mensagem || '');
     const _refCH = String(body.reference || lead.idAnuncio || '');
     const _idCH = String(lead.id);
     const _uidCH = String(userId);
     console.log('[CHAVES SNAP] msg:', _msgCH.substring(0,50), '| id:', _idCH, '| userId:', _uidCH);
+    if (_msgCH) {
+      try {
+        const { query: _qCH } = require('./services/db');
+        await _qCH("UPDATE leads SET dados = jsonb_set(COALESCE(dados,'{}'), '{mensagem}', $1::jsonb) WHERE id=$2", [JSON.stringify(_msgCH), _idCH]);
+      } catch(e) {}
+    }
     const _leadSnapshotCHAVES = { id: _idCH, userId: _uidCH, mensagem: _msgCH, idAnuncio: _refCH };
     setTimeout(async () => {
       try {

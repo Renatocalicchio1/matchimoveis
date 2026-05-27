@@ -72,7 +72,8 @@ async function processarLeadPortal(lead) {
       console.log('[PORTAL PROCESSOR] imovel encontrado:', idAnuncio, '| tipo:', tipo, '| cidade:', cidade);
     }
 
-    // 3. Se não achou imóvel — extrai da mensagem do portal
+    // 3. Se não achou imóvel — limpa idAnuncio para forçar caso2 e extrai da mensagem
+    if (!imovel) lead.idAnuncio = '';
     if (!imovel && lead.mensagem) {
       const { extrairPerfil } = require('./extrator-perfil');
       const perfil = extrairPerfil([{ de: 'cliente', texto: lead.mensagem }]);

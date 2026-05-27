@@ -1539,7 +1539,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
           }
         }
       } catch(e) { console.error('[WEBHOOK IMOVELWEB] erro portal-processor:', e.message); }
-    }, 2000);
+    }, 5000);
   } catch(err) { console.error('[WEBHOOK IMOVELWEB] erro:', err.message); }
 });
 app.post('/webhook/imovelweb', (req, res) => res.status(200).send('OK'));
@@ -1606,7 +1606,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
           }
         }
       } catch(e) { console.error('[WEBHOOK GRUPOOLX] erro portal-processor:', e.message); }
-    }, 2000);
+    }, 5000);
   } catch(err) { console.error('[WEBHOOK GRUPOOLX] erro:', err.message); }
 });
 // Aliases para ZAP, VivaReal e OLX individualmente
@@ -1672,7 +1672,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
           }
         }
       } catch(e) { console.error('[WEBHOOK 123i] erro portal-processor:', e.message); }
-    }, 2000);
+    }, 5000);
   } catch(err) { console.error('[WEBHOOK 123i] erro:', err.message); }
 });
 
@@ -1739,7 +1739,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
           }
         }
       } catch(e) { console.error('[WEBHOOK CHAVES] erro portal-processor:', e.message); }
-    }, 2000);
+    }, 5000);
   } catch(err) { console.error('[WEBHOOK CHAVES] erro:', err.message); }
 });
 

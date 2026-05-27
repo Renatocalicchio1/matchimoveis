@@ -1481,65 +1481,53 @@ app.get('/logout', (req,res)=>{
 
 
 // WEBHOOK IMOVELWEB / GRUPO QUINTOANDAR - RECEBE LEADS
-app.post('/webhook/imovelweb', async (req, res) => {
+// WEBHOOK IMOVELWEB — recebe lead do portal por userId
+app.post('/webhook/imovelweb/:userId', async (req, res) => {
+  res.status(200).send('OK');
   try {
     const body = req.body || {};
-    const fs = require('fs');
-
-    console.log('📩 LEAD IMOVELWEB RECEBIDO:', body);
-
-    const data = await lerLeadsData();
-
+    const userId = req.params.userId || '';
+    console.log('[WEBHOOK IMOVELWEB] userId:', userId, '| body:', JSON.stringify(body).substring(0,300));
+    const { lerUsuarios: _luIW } = require('./services/salvarUsuario');
+    const _users = await _luIW();
+    const _user = _users.find(u => u.id === userId);
+    if (!_user) { console.warn('[WEBHOOK IMOVELWEB] userId nao encontrado:', userId); return; }
     const eventId = body.idEvento || body.eventId || body.eventoId || body.id || '';
-    const tipoEvento = body.tipoEvento || body.eventType || '';
-
+    const telefone = (body.telefone || body.phoneNumber || body.phone || body.txtTelefone || '').replace(/D/g,'');
+    const nome = body.nome || body.name || body.txtNome || telefone || '';
     const lead = {
-      id: Date.now(),
+      id: Date.now().toString(),
       eventId,
-      tipoEvento,
-
-      nome: body.nome || body.name || body.txtNome || '',
+      nome,
       email: body.email || body.txtEmail || '',
-      contato: body.telefone || body.phoneNumber || body.phone || body.txtTelefone || '',
-      telefone: body.telefone || body.phoneNumber || body.phone || body.txtTelefone || '',
+      telefone, whatsapp: telefone, contato: telefone,
       mensagem: body.mensagem || body.message || body.txtMensagem || '',
-
-      idAnuncio: body.referencia || body.reference || body.clientListingId || body.codigoAnuncio || body.codigoAviso || body.originListingId || '',
-      referencia: body.referencia || body.reference || body.clientListingId || '',
-      codigoDoAnunciante: body.codigoDoAnunciante || body.internalReference || body.claveInterna || '',
-
-      fonte: 'ImovelWeb',
-      origem: 'ImovelWeb',
-      origemEntrada: 'webhook_imovelweb',
-      leadOrigin: body.leadOrigin || 'MatchImóveis',
-
-      userId: 'admin',
-      usuarioId: 'admin',
-      corretorId: 'admin',
-
-      status: 'novo',
-      processado: false,
-      matchCount: 0,
-      matches: [],
-
-      data_cadastro: body.dataRegistro || body.registerDate || body.timestamp || new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-
-      rawWebhook: body
+      idAnuncio: body.referencia || body.reference || body.clientListingId || body.codigoAnuncio || body.originListingId || '',
+      fonte: 'ImovelWeb', origem: 'ImovelWeb', origemEntrada: 'webhook_imovelweb',
+      userId, codigoUsuario: userId,
+      status: 'novo', score: 0, temperatura: 'frio', faseFunil: 'novo',
+      mensagens: [], matches: [], timeline: [], eventos: [], followUps: [],
+      criadoEm: new Date().toISOString(),
     };
-
-    const duplicated = eventId && data.some(l => String(l.eventId || '') === String(eventId));
-
-    if (!duplicated) {
-      await salvarTodosLeads([...data, lead]).catch(e=>console.error("[webhook imovelweb]",e.message));
-    }
-
-    res.status(200).send('OK');
-  } catch (err) {
-    console.error('Erro no webhook ImovelWeb:', err);
-    res.status(200).send('OK');
-  }
+    const { lerLeads: _llIW, salvarLead: _slIW } = require('./services/salvarLead');
+    const _leads = await _llIW();
+    const _dup = _leads.find(l =>
+      (eventId && String(l.eventId||'') === String(eventId)) ||
+      (telefone && String(l.telefone||'').replace(/D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
+    );
+    if (_dup) { console.log('[WEBHOOK IMOVELWEB] duplicata ignorada:', telefone); return; }
+    await _slIW(lead);
+    console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
+    setImmediate(async () => {
+      try {
+        const matchCore = require('./cerebro/match-core');
+        const mensagemInicial = [lead.mensagem, lead.idAnuncio].filter(Boolean).join(' | ');
+        if (mensagemInicial) await matchCore.processar({ lead, mensagem: mensagemInicial, canal: 'portal', userId });
+      } catch(e) { console.error('[WEBHOOK IMOVELWEB] erro match-core:', e.message); }
+    });
+  } catch(err) { console.error('[WEBHOOK IMOVELWEB] erro:', err.message); }
 });
+app.post('/webhook/imovelweb', (req, res) => res.status(200).send('OK'));
 
 const PORT = process.env.PORT || port || 3000;
 

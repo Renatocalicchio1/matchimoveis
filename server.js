@@ -1529,6 +1529,61 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
 });
 app.post('/webhook/imovelweb', (req, res) => res.status(200).send('OK'));
 
+// WEBHOOK GRUPO OLX — ZAP Imóveis, VivaReal e OLX (mesmo formato)
+app.post('/webhook/grupoolx/:userId', async (req, res) => {
+  res.status(200).send('OK');
+  try {
+    const body = req.body || {};
+    const userId = req.params.userId || '';
+    const portal = (body.leadOrigin || 'Grupo OLX').includes('Zap') ? 'ZAP Imóveis' : (body.leadOrigin || 'Grupo OLX').includes('Viva') ? 'VivaReal' : 'Grupo OLX';
+    console.log('[WEBHOOK GRUPOOLX] userId:', userId, '| portal:', portal, '| lead:', body.name);
+    const { lerUsuarios: _luOLX } = require('./services/salvarUsuario');
+    const _users = await _luOLX();
+    const _user = _users.find(u => u.id === userId);
+    if (!_user) { console.warn('[WEBHOOK GRUPOOLX] userId nao encontrado:', userId); return; }
+    const telefone = (body.phoneNumber || (body.ddd||'') + (body.phone||'')).replace(/D/g,'');
+    const originLeadId = body.originLeadId || body.originListingId || '';
+    const lead = {
+      id: Date.now().toString(),
+      eventId: originLeadId,
+      originLeadId,
+      nome: body.name || telefone || '',
+      email: body.email || '',
+      telefone, whatsapp: telefone, contato: telefone,
+      mensagem: body.message || '',
+      idAnuncio: body.clientListingId || body.originListingId || '',
+      temperatura: body.temperature === 'Alta' ? 'quente' : body.temperature === 'Média' ? 'morno' : 'frio',
+      transacao: body.transactionType === 'SELL' ? 'venda' : body.transactionType === 'RENT' ? 'aluguel' : '',
+      tipoLead: body.extraData?.leadType || '',
+      fonte: portal, origem: portal, origemEntrada: 'webhook_grupoolx',
+      userId, codigoUsuario: userId,
+      status: 'novo', score: 0, faseFunil: 'novo',
+      mensagens: [], matches: [], timeline: [], eventos: [], followUps: [],
+      criadoEm: body.timestamp || new Date().toISOString(),
+    };
+    const { lerLeads: _llOLX, salvarLead: _slOLX } = require('./services/salvarLead');
+    const _leads = await _llOLX();
+    const _dup = _leads.find(l =>
+      (originLeadId && String(l.eventId||l.originLeadId||'') === String(originLeadId)) ||
+      (telefone && String(l.telefone||'').replace(/D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
+    );
+    if (_dup) { console.log('[WEBHOOK GRUPOOLX] duplicata ignorada:', telefone); return; }
+    await _slOLX(lead);
+    console.log('[WEBHOOK GRUPOOLX] lead salva:', lead.nome, '|', telefone, '| portal:', portal);
+    setImmediate(async () => {
+      try {
+        const matchCore = require('./cerebro/match-core');
+        const mensagemInicial = [lead.mensagem, lead.idAnuncio].filter(Boolean).join(' | ');
+        if (mensagemInicial) await matchCore.processar({ lead, mensagem: mensagemInicial, canal: 'portal', userId });
+      } catch(e) { console.error('[WEBHOOK GRUPOOLX] erro match-core:', e.message); }
+    });
+  } catch(err) { console.error('[WEBHOOK GRUPOOLX] erro:', err.message); }
+});
+// Aliases para ZAP, VivaReal e OLX individualmente
+app.post('/webhook/zap/:userId', (req, res, next) => { req.url = req.url.replace('/webhook/zap/', '/webhook/grupoolx/'); next(); });
+app.post('/webhook/vivareal/:userId', (req, res, next) => { req.url = req.url.replace('/webhook/vivareal/', '/webhook/grupoolx/'); next(); });
+app.post('/webhook/olx/:userId', (req, res, next) => { req.url = req.url.replace('/webhook/olx/', '/webhook/grupoolx/'); next(); });
+
 const PORT = process.env.PORT || port || 3000;
 
 app.post('/app/perfil/localizacao', auth, async (req,res)=>{

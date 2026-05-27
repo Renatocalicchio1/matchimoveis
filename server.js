@@ -1518,12 +1518,13 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     if (_dup) { console.log('[WEBHOOK IMOVELWEB] duplicata ignorada:', telefone); return; }
     await _slIW(lead);
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
+    const _snapIW = { id: lead.id, userId, mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'' };
 
     setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');
         const { atualizarLead: _atualizarIMOVELWEB } = require('./services/salvarLead');
-        const mapa = await processarLeadPortal(lead);
+        const mapa = await processarLeadPortal(_snapIW);
         if (mapa) {
           lead.mapaIntencao = mapa;
           await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura });

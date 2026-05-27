@@ -1519,7 +1519,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     await _slIW(lead);
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
 
-    setImmediate(async () => {
+    setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');
         const { atualizarLead: _atualizarIMOVELWEB } = require('./services/salvarLead');
@@ -1583,7 +1583,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     await _slOLX(lead);
     console.log('[WEBHOOK GRUPOOLX] lead salva:', lead.nome, '|', telefone, '| portal:', portal);
 
-    setImmediate(async () => {
+    setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');
         const { atualizarLead: _atualizarGRUPOOLX } = require('./services/salvarLead');
@@ -1646,7 +1646,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
     await _sl123(lead);
     console.log('[WEBHOOK 123i] lead salva:', lead.nome, '|', telefone);
 
-    setImmediate(async () => {
+    setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');
         const { atualizarLead: _atualizar123i } = require('./services/salvarLead');
@@ -1700,7 +1700,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     await _slCH(lead);
     console.log('[WEBHOOK CHAVES] lead salva:', lead.nome, '|', telefone);
 
-    setImmediate(async () => {
+    setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');
         const { atualizarLead: _atualizarCHAVES } = require('./services/salvarLead');

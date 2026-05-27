@@ -739,7 +739,7 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
 
   if (resposta === 'confirmar') {
     visitas[idx].status = 'confirmada';
-    const telCliente = String(visitas[idx].telefone || visitas[idx].contato || '').replace(/D/g,'');
+    const telCliente = String(visitas[idx].telefone || visitas[idx].contato || '').replace(/\D/g,'');
     const dataVisita = visitas[idx].dataVisita || 'em breve';
     const horaVisita = visitas[idx].horaVisita || '';
     const imovelTitulo = visitas[idx].imovelTitulo || visitas[idx].imovelBairro || 'o imóvel';
@@ -1131,7 +1131,7 @@ app.get('/app-home', auth, async (req,res)=>{
   const leadsArr = filtrarPorUsuario(Array.isArray(todosLeads) ? todosLeads : (todosLeads.results || []), user);
   const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
     String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
-    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/D/g,'') === String(user.celular || user.telefone || '').replace(/D/g,'')
+    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
   );
   const minhasNotificacoes = notificacoes.filter(n => String(n.usuarioId) === String(user.id));
   const naoLidas = minhasNotificacoes.filter(n => !n.lida);
@@ -1555,7 +1555,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     const _users = await _luOLX();
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK GRUPOOLX] userId nao encontrado:', userId); return; }
-    const telefone = (body.phoneNumber || (body.ddd||'') + (body.phone||'')).replace(/D/g,'');
+    const telefone = (body.phoneNumber || (body.ddd||'') + (body.phone||'')).replace(/\D/g,'');
     const originLeadId = body.originLeadId || body.originListingId || '';
     const lead = {
       id: Date.now().toString(),
@@ -1579,7 +1579,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     const _leads = await _llOLX();
     const _dup = _leads.find(l =>
       (originLeadId && String(l.eventId||l.originLeadId||'') === String(originLeadId)) ||
-      (telefone && String(l.telefone||'').replace(/D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
+      (telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
     );
     if (_dup) { console.log('[WEBHOOK GRUPOOLX] duplicata ignorada:', telefone); return; }
     await _slOLX(lead);
@@ -1623,7 +1623,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
     const _users = await _lu123();
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK 123i] userId nao encontrado:', userId); return; }
-    const telefone = (body.phoneNumber || (body.ddd||'') + (body.phone||'')).replace(/D/g,'');
+    const telefone = (body.phoneNumber || (body.ddd||'') + (body.phone||'')).replace(/\D/g,'');
     const originLeadId = body.originLeadId || body.originListingId || '';
     const lead = {
       id: Date.now().toString(),
@@ -1643,7 +1643,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
     const _leads = await _ll123();
     const _dup = _leads.find(l =>
       (originLeadId && String(l.eventId||'') === String(originLeadId)) ||
-      (telefone && String(l.telefone||'').replace(/D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
+      (telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
     );
     if (_dup) { console.log('[WEBHOOK 123i] duplicata ignorada:', telefone); return; }
     await _sl123(lead);
@@ -1681,7 +1681,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     const _users = await _luCH();
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK CHAVES] userId nao encontrado:', userId); return; }
-    const telefone = (body.phone || '').replace(/D/g,'');
+    const telefone = (body.phone || '').replace(/\D/g,'');
     const lead = {
       id: Date.now().toString(),
       nome: body.name || telefone || '',
@@ -1698,7 +1698,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     const { lerLeads: _llCH, salvarLead: _slCH } = require('./services/salvarLead');
     const _leads = await _llCH();
     const _dup = _leads.find(l =>
-      telefone && String(l.telefone||'').replace(/D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId
+      telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId
     );
     if (_dup) { console.log('[WEBHOOK CHAVES] duplicata ignorada:', telefone); return; }
     await _slCH(lead);
@@ -4772,8 +4772,8 @@ app.post('/api/visita/nova-v2', async (req,res)=>{
   const novaVisita = {
     id: String(Date.now()),
     nome,
-    telefone: (telefone||'').replace(/D/g,''),
-    contato:  (telefone||'').replace(/D/g,''),
+    telefone: (telefone||'').replace(/\D/g,''),
+    contato:  (telefone||'').replace(/\D/g,''),
     imovelId,
     imovelTitulo:    imovelTitulo || imovel.titulo || imovel.tipo || 'Imóvel',
     imovelBairro:    imovel.bairro || '',
@@ -4785,7 +4785,7 @@ app.post('/api/visita/nova-v2', async (req,res)=>{
     ownerUserId: donoImovel.id || imovel.userId || '',
     imovelUsuarioId: imovel.userId || imovel.codigoUsuario || imovel.usuarioId || donoImovel.id || '',
     proprietarioNome:     (imovel.proprietario && imovel.proprietario.nome) || '',
-    proprietarioTelefone: ((imovel.proprietario && (imovel.proprietario.celular||imovel.proprietario.telefone))||'').replace(/D/g,''),
+    proprietarioTelefone: ((imovel.proprietario && (imovel.proprietario.celular||imovel.proprietario.telefone))||'').replace(/\D/g,''),
     status:  'solicitada',
     origem:  'pagina_publica',
     data:    new Date().toISOString(),

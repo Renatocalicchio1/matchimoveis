@@ -1586,7 +1586,8 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     await _slOLX(lead);
     console.log('[WEBHOOK GRUPOOLX] lead salva:', lead.nome, '|', telefone, '| portal:', portal);
 
-    const _leadSnapshotGRUPOOLX = { id: lead.id, userId: lead.userId||lead.codigoUsuario||'', mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'' };
+    const _msgOLX = body.message || body.mensagem || lead.mensagem || '';
+    const _leadSnapshotGRUPOOLX = { id: lead.id, userId: lead.userId||lead.codigoUsuario||userId||'', mensagem: _msgOLX, idAnuncio: lead.idAnuncio||'' };
     setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');
@@ -1651,7 +1652,8 @@ app.post('/webhook/123i/:userId', async (req, res) => {
     await _sl123(lead);
     console.log('[WEBHOOK 123i] lead salva:', lead.nome, '|', telefone);
 
-    const _leadSnapshot123i = { id: lead.id, userId: lead.userId||lead.codigoUsuario||'', mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'' };
+    const _msg123 = body.message || body.mensagem || lead.mensagem || '';
+    const _leadSnapshot123i = { id: lead.id, userId: lead.userId||lead.codigoUsuario||userId||'', mensagem: _msg123, idAnuncio: lead.idAnuncio||'' };
     setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');
@@ -1707,7 +1709,8 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     await _slCH(lead);
     console.log('[WEBHOOK CHAVES] lead salva:', lead.nome, '|', telefone);
 
-    const _leadSnapshotCHAVES = { id: lead.id, userId: lead.userId||lead.codigoUsuario||'', mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'' };
+    const _msgCH = body.message || body.mensagem || lead.mensagem || '';
+    const _leadSnapshotCHAVES = { id: lead.id, userId: lead.userId||lead.codigoUsuario||userId||'', mensagem: _msgCH, idAnuncio: lead.idAnuncio||'' };
     setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');

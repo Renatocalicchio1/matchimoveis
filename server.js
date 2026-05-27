@@ -2638,6 +2638,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
             temperatura: leadAtualizado.temperatura || 'frio',
             faseFunil: leadAtualizado.faseFunil || 'novo',
             perfilIA: leadAtualizado.perfilIA || {},
+            mapaIntencao: leadAtualizado.mapaIntencao || null,
             tipo: leadAtualizado.tipo || leadAtualizado.perfilIA?.tipo || '',
             quartos: leadAtualizado.quartos || leadAtualizado.perfilIA?.quartos || 0,
             bairro: leadAtualizado.bairro || leadAtualizado.perfilIA?.bairro || '',

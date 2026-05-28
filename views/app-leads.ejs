@@ -242,6 +242,31 @@ leads.forEach(item => {
 
     <a href="/app/lead/<%= item.id %>" class="lead-nome"><%= item.nome||telefone||'Lead' %></a>
     <div class="lead-tel"><%= telefone||'—' %></div>
+    <% 
+      const _origemLabel = {
+        'webhook_imovelweb': 'ImovelWeb',
+        'webhook_grupoolx': 'GrupoOLX',
+        'webhook_123i': '123i',
+        'webhook_chaves': 'Chaves',
+        'whatsapp': 'WhatsApp',
+        'manual': 'Manual',
+        'pagina_externa_imovel': 'Página'
+      };
+      const _origemEntrada = (item.dados && item.dados.origemEntrada) || item.origemEntrada || item.origem || '';
+      const _origemNome = _origemLabel[_origemEntrada] || _origemEntrada || '';
+      const _origemCor = {
+        'webhook_imovelweb': '#fef3c7;color:#92400e',
+        'webhook_grupoolx': '#fee2e2;color:#991b1b',
+        'webhook_123i': '#ede9fe;color:#6d28d9',
+        'webhook_chaves': '#dcfce7;color:#166534',
+        'whatsapp': '#d1fae5;color:#065f46',
+        'manual': '#f3f4f6;color:#374151',
+        'pagina_externa_imovel': '#dbeafe;color:#1e40af'
+      }[_origemEntrada] || '#f3f4f6;color:#374151';
+    %>
+    <% if(_origemNome){ %>
+    <span style="display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:<%= _origemCor %>;margin-bottom:4px"><%= _origemNome %></span>
+    <% } %>
 <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px">
     <%
       const _temBusca = item.mapaIntencao && (item.mapaIntencao.tipo_imovel||[]).length > 0;

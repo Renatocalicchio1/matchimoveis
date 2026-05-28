@@ -5151,7 +5151,7 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
     const users = await _luVC();
     const user = users.find(u => u.id === userId);
     const instancia = user?.whatsappInstance;
-    const numero = (telefone||'').replace(/D/g,'');
+    const numero = (telefone||'').replace(/\D/g,'');
 
     if (instancia && numero) {
       const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';

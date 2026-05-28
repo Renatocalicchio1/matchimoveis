@@ -3202,8 +3202,6 @@ app.post('/api/lead-interesse', async (req, res) => {
         leadOrigem = leads.find(l => String(l.id || l.leadId || '') === String(leadIdOrigem)) || {};
       }
     }
-      ) || {};
-    }
 
     const usuarioDestinoId =
       userIdOrigem || leadOrigem.userId || leadOrigem.usuarioId || leadOrigem.corretorId ||

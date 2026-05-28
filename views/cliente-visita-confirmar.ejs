@@ -45,12 +45,10 @@
       </div>
     <% } else { %>
       <div class="btns">
-        <form method="POST" action="/cliente/visita/<%= visita.id %>/responder">
-          <input type="hidden" name="acao" value="confirmar">
+        <form method="POST" action="/cliente/visita/<%= visita.id %>/confirmar">
           <button class="btn btn-confirmar">✅ Confirmo minha presença</button>
         </form>
-        <form method="POST" action="/cliente/visita/<%= visita.id %>/responder">
-          <input type="hidden" name="acao" value="recusar">
+        <form method="POST" action="/cliente/visita/<%= visita.id %>/recusar">
           <button class="btn btn-recusar">❌ Não poderei comparecer</button>
         </form>
       </div>

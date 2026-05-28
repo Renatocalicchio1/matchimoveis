@@ -5264,6 +5264,73 @@ app.get('/cliente/visita/:id', async (req, res) => {
   }
 });
 
+
+app.post('/cliente/visita/:id/confirmar', async (req, res) => {
+  try {
+    const { query: _qC } = require('./services/db');
+    await _qC("UPDATE visitas SET status='lead_confirmou', confirmacao_cliente_status='CONFIRMADO', confirmacao_cliente_em=NOW() WHERE id=$1", [req.params.id]);
+    const _vRow = await _qC('SELECT * FROM visitas WHERE id=$1', [req.params.id]);
+    const _v = _vRow.rows[0];
+    // Notifica corretor
+    if (_v) {
+      const { lerUsuarios: _lu } = require('./services/salvarUsuario');
+      const _users = await _lu();
+      const _user = _users.find(u => u.id === (_v.user_id || _v.corretor_id));
+      const _instancia = _user?.whatsappInstance;
+      const _numCorretor = (_user?.celular || _user?.telefone || '').replace(/\D/g,'');
+      if (_instancia && _numCorretor) {
+        const _nome = _v.nome || 'Cliente';
+        const _tel = (_v.telefone || _v.contato || '').replace(/\D/g,'');
+        const _imovel = _v.imovel_titulo || _v.imovel_bairro || 'o imóvel';
+        const _waLink = _tel ? 'https://wa.me/55' + _tel : '';
+        const _msg = '*' + _nome + '* confirmou presença na visita de *' + _imovel + '*.' + (_waLink ? '\n\nWhatsApp do cliente: ' + _waLink : '');
+        const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+        const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+        await fetch(EU + '/message/sendText/' + _instancia, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': EK },
+          body: JSON.stringify({ number: '55' + _numCorretor.replace(/^55/,''), text: _msg })
+        });
+      }
+    }
+    const visita = _v ? { id: _v.id, nome: _v.nome, imovelTitulo: _v.imovel_titulo, imovelBairro: _v.imovel_bairro, imovelCidade: _v.imovel_cidade, dataVisita: _v.data_visita, horaVisita: _v.hora_visita, status: 'lead_confirmou' } : { id: req.params.id, status: 'lead_confirmou' };
+    res.render('cliente-visita-confirmar', { visita, user: null });
+  } catch(e) { console.error('[confirmar-visita]', e.message); res.status(500).send('Erro'); }
+});
+
+app.post('/cliente/visita/:id/recusar', async (req, res) => {
+  try {
+    const { query: _qR } = require('./services/db');
+    await _qR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO', confirmacao_cliente_em=NOW() WHERE id=$1", [req.params.id]);
+    const _vRow = await _qR('SELECT * FROM visitas WHERE id=$1', [req.params.id]);
+    const _v = _vRow.rows[0];
+    // Notifica corretor
+    if (_v) {
+      const { lerUsuarios: _lu } = require('./services/salvarUsuario');
+      const _users = await _lu();
+      const _user = _users.find(u => u.id === (_v.user_id || _v.corretor_id));
+      const _instancia = _user?.whatsappInstance;
+      const _numCorretor = (_user?.celular || _user?.telefone || '').replace(/\D/g,'');
+      if (_instancia && _numCorretor) {
+        const _nome = _v.nome || 'Cliente';
+        const _tel = (_v.telefone || _v.contato || '').replace(/\D/g,'');
+        const _imovel = _v.imovel_titulo || _v.imovel_bairro || 'o imóvel';
+        const _waLink = _tel ? 'https://wa.me/55' + _tel : '';
+        const _msg = '*' + _nome + '* não poderá comparecer na visita de *' + _imovel + '*.' + (_waLink ? '\n\nWhatsApp do cliente: ' + _waLink : '');
+        const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+        const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+        await fetch(EU + '/message/sendText/' + _instancia, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': EK },
+          body: JSON.stringify({ number: '55' + _numCorretor.replace(/^55/,''), text: _msg })
+        });
+      }
+    }
+    const visita = _v ? { id: _v.id, nome: _v.nome, imovelTitulo: _v.imovel_titulo, imovelBairro: _v.imovel_bairro, imovelCidade: _v.imovel_cidade, dataVisita: _v.data_visita, horaVisita: _v.hora_visita, status: 'lead_recusou' } : { id: req.params.id, status: 'lead_recusou' };
+    res.render('cliente-visita-confirmar', { visita, user: null });
+  } catch(e) { console.error('[recusar-visita]', e.message); res.status(500).send('Erro'); }
+});
+
 app.post('/cliente/visita/:id/responder', async (req, res) => {
   const { lerVisitas, salvarTodasVisitas } = require('./services/salvarVisita');
   const visitas = await lerVisitas();

@@ -148,7 +148,7 @@ function getColuna(item) {
   const vitrine = !!item.vitrineEnviada;
   const temVisita = false; // será setado via visitas se necessário
   if (fase === 'decidido') return 'fechado';
-  if (item.visitaAgendada) return 'visita';
+  if (item.visitaAgendada || item.visitaSolicitada || item.visitaSolicitadaEm) return null;
   if (vitrine) return 'vitrine';
   if (mat > 0) return 'match';
   if (fase === 'qualificado' || (item.perfilIA && item.perfilIA.tipo)) return 'qualificando';

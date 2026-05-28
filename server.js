@@ -506,7 +506,7 @@ async function salvarLeads(leads){
 
 // ── HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────────
 async function lerLeadsData() {
-  try { const r = await _qL('SELECT dados, follow_ups, vitrine_enviada, vitrine_enviada_em, matches, matches_auto, id, nome, telefone, whatsapp, contato, user_id, codigo_usuario FROM leads ORDER BY criado_em DESC'); return r.rows.map(r=>({ ...(r.dados||{}), id: r.id, nome: r.nome, telefone: r.telefone, whatsapp: r.whatsapp, contato: r.contato, userId: r.user_id, codigoUsuario: r.codigo_usuario, followUps: r.follow_ups||[], vitrineEnviada: r.vitrine_enviada, vitrineEnviadaEm: r.vitrine_enviada_em, matches: r.matches||[], matchesAuto: r.matches_auto||[] })); } catch(e) { console.error('[lerLeadsData]',e.message); return []; }
+  try { const { query: _qLD } = require('./services/db'); const r = await _qLD('SELECT dados, follow_ups, vitrine_enviada, vitrine_enviada_em, matches, matches_auto, id, nome, telefone, whatsapp, contato, user_id, codigo_usuario FROM leads ORDER BY criado_em DESC'); return r.rows.map(r=>({ ...(r.dados||{}), id: r.id, nome: r.nome, telefone: r.telefone, whatsapp: r.whatsapp, contato: r.contato, userId: r.user_id, codigoUsuario: r.codigo_usuario, followUps: r.follow_ups||[], vitrineEnviada: r.vitrine_enviada, vitrineEnviadaEm: r.vitrine_enviada_em, matches: r.matches||[], matchesAuto: r.matches_auto||[] })); } catch(e) { console.error('[lerLeadsData]',e.message); return []; }
 }
 
 async function salvarLeadsData(leads) {

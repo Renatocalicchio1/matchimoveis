@@ -333,4 +333,37 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
+<!-- Modal Confirmar Visita Caso 2 -->
+<div id="modal-confirmar-visita" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--white);border-radius:12px;padding:24px;width:100%;max-width:360px">
+    <div style="font-size:15px;font-weight:600;color:var(--dark);margin-bottom:8px">Confirmar visita</div>
+    <div style="font-size:13px;color:var(--text-sec);margin-bottom:20px">Tem certeza que a visita está confirmada? O cliente receberá uma mensagem pelo WhatsApp para confirmar, remarcar ou cancelar a presença.</div>
+    <div style="display:flex;gap:8px">
+      <button onclick="confirmarVisitaCaso2()" style="flex:1;padding:10px;border-radius:8px;background:#7c3aed;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer">Sim, confirmar</button>
+      <button onclick="fecharModalConfirmarVisita()" style="padding:10px 16px;border-radius:8px;background:#f9fafb;color:#6b7280;border:1px solid #e5e5e3;font-size:13px;cursor:pointer">Não</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let _vcId='',_vcNome='',_vcTel='';
+function abrirModalConfirmarVisita(id,nome,tel){
+  _vcId=id; _vcNome=nome; _vcTel=tel;
+  document.getElementById('modal-confirmar-visita').style.display='flex';
+}
+function fecharModalConfirmarVisita(){
+  document.getElementById('modal-confirmar-visita').style.display='none';
+}
+async function confirmarVisitaCaso2(){
+  const r = await fetch('/app/visita/'+_vcId+'/confirmar-caso2',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({nome:_vcNome,telefone:_vcTel})
+  });
+  const d = await r.json();
+  if(d.ok){ fecharModalConfirmarVisita(); location.reload(); }
+  else alert('Erro: '+(d.erro||'tente novamente'));
+}
+</script>
+
 <%- include("partials/app-end") %>

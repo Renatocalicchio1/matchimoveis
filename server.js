@@ -3189,17 +3189,19 @@ app.post('/api/lead-interesse', async (req, res) => {
 
     // Dono da lead/vitrine: quem gerou/importou a lead
     let leadOrigem = {};
-
-    if (leadIdOrigem && userIdOrigem) {
-      leadOrigem = leads.find(l =>
-        String(l.id || l.leadId || '') === String(leadIdOrigem || '') &&
-        String(l.userId || l.usuarioId || l.corretorId || '') === String(userIdOrigem || '')
-      ) || {};
+    if (leadIdOrigem) {
+      try {
+        const { query: _qLO } = require('./services/db');
+        const _rLO = await _qLO('SELECT * FROM leads WHERE id=$1 LIMIT 1', [String(leadIdOrigem)]);
+        if (_rLO.rows[0]) {
+          const row = _rLO.rows[0];
+          leadOrigem = { ...(row.dados||{}), id: row.id, nome: row.nome, telefone: row.telefone, whatsapp: row.whatsapp, userId: row.user_id, codigoUsuario: row.codigo_usuario };
+        }
+      } catch(e) {}
+      if (!leadOrigem.id) {
+        leadOrigem = leads.find(l => String(l.id || l.leadId || '') === String(leadIdOrigem)) || {};
+      }
     }
-
-    if (!leadOrigem.id && leadIdOrigem) {
-      leadOrigem = leads.find(l =>
-        String(l.id || l.leadId || '') === String(leadIdOrigem || '')
       ) || {};
     }
 

@@ -5292,7 +5292,7 @@ app.get('/cliente/visita/:id/confirmar', async (req, res) => {
         });
       }
     }
-    const visita = _v ? { id: _v.id, nome: _v.nome, imovelTitulo: _v.imovel_titulo, imovelBairro: _v.imovel_bairro, imovelCidade: _v.imovel_cidade, dataVisita: _v.data_visita, horaVisita: _v.hora_visita, status: 'lead_confirmou' } : { id: req.params.id, status: 'lead_confirmou' };
+    const visita = _v ? { id: _v.id, nome: _v.nome, imovelTitulo: _v.imovel_titulo, imovelBairro: _v.imovel_bairro, imovelCidade: '', dataVisita: _v.data_visita, horaVisita: _v.hora_visita, status: 'lead_confirmou' } : { id: req.params.id, status: 'lead_confirmou' };
     res.render('cliente-visita-confirmar', { visita, user: null });
   } catch(e) { console.error('[confirmar-visita-get]', e.message); res.status(500).send('Erro'); }
 });
@@ -5325,7 +5325,7 @@ app.post('/cliente/visita/:id/confirmar', async (req, res) => {
         });
       }
     }
-    const visita = _v ? { id: _v.id, nome: _v.nome, imovelTitulo: _v.imovel_titulo, imovelBairro: _v.imovel_bairro, imovelCidade: _v.imovel_cidade, dataVisita: _v.data_visita, horaVisita: _v.hora_visita, status: 'lead_confirmou' } : { id: req.params.id, status: 'lead_confirmou' };
+    const visita = _v ? { id: _v.id, nome: _v.nome, imovelTitulo: _v.imovel_titulo, imovelBairro: _v.imovel_bairro, imovelCidade: _v.imovel_cidade || '', dataVisita: _v.data_visita, horaVisita: _v.hora_visita, status: 'lead_confirmou' } : { id: req.params.id, status: 'lead_confirmou' };
     res.render('cliente-visita-confirmar', { visita, user: null });
   } catch(e) { console.error('[confirmar-visita]', e.message); res.status(500).send('Erro'); }
 });
@@ -5358,7 +5358,7 @@ app.post('/cliente/visita/:id/recusar', async (req, res) => {
         });
       }
     }
-    const visita = _v ? { id: _v.id, nome: _v.nome, imovelTitulo: _v.imovel_titulo, imovelBairro: _v.imovel_bairro, imovelCidade: _v.imovel_cidade, dataVisita: _v.data_visita, horaVisita: _v.hora_visita, status: 'lead_recusou' } : { id: req.params.id, status: 'lead_recusou' };
+    const visita = _v ? { id: _v.id, nome: _v.nome, imovelTitulo: _v.imovel_titulo, imovelBairro: _v.imovel_bairro, imovelCidade: _v.imovel_cidade || '', dataVisita: _v.data_visita, horaVisita: _v.hora_visita, status: 'lead_recusou' } : { id: req.params.id, status: 'lead_recusou' };
     res.render('cliente-visita-confirmar', { visita, user: null });
   } catch(e) { console.error('[recusar-visita]', e.message); res.status(500).send('Erro'); }
 });

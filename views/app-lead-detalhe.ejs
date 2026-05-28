@@ -135,6 +135,12 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
             <% if(lead.fonte){%><span class="tag-pill" style="background:#eff6ff;color:#2563eb"><%=lead.fonte%></span><%}%>
             <% if(lead.canal){%><span class="tag-pill" style="background:#f0fdf4;color:#16a34a"><%=lead.canal%></span><%}%>
             <% if(lead.origem){%><span class="tag-pill" style="background:var(--bg);color:var(--text-sec)"><%=String(lead.origem).replace(/_/g,' ')%></span><%}%>
+            <% 
+              const _oeMap = {'webhook_imovelweb':'ImovelWeb','webhook_grupoolx':'GrupoOLX','webhook_123i':'123i','webhook_chaves':'Chaves na Mão','whatsapp':'WhatsApp','manual':'Manual','pagina_externa_imovel':'Página'};
+              const _oe = (lead.dados&&lead.dados.origemEntrada)||lead.origemEntrada||'';
+              const _oeLabel = _oeMap[_oe]||'';
+            %>
+            <% if(_oeLabel && _oeLabel !== lead.fonte && _oeLabel !== lead.origem){%><span class="tag-pill" style="background:#fef9c3;color:#854d0e">📡 <%=_oeLabel%></span><%}%>
           </div>
         </div>
       </div>

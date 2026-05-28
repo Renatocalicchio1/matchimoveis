@@ -5137,10 +5137,7 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
     const data = visita?.data_visita || '';
     const hora = visita?.hora_visita || '';
 
-    const msg = 'Olá ' + (nome||'') + '! Sua visita ao imóvel *' + imovel + '* foi confirmada' + (data?' para '+data:'') + (hora?' às '+hora:'') + '.
-
-Acesse o link para confirmar presença, remarcar ou cancelar:
-' + link;
+    const msg = 'Olá ' + (nome||'') + '! Sua visita ao imóvel *' + imovel + '* foi confirmada' + (data?' para '+data:'') + (hora?' às '+hora:'') + '.\n\nAcesse o link para confirmar presença, remarcar ou cancelar:\n' + link;
 
     // Envia WhatsApp pelo corretor logado
     const userId = req.session.user.id;

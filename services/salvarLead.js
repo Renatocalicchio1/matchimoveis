@@ -62,7 +62,7 @@ function leadToRow(lead) {
     telefone: lead.telefone || '',
     whatsapp: lead.whatsapp || '',
     contato: lead.contato || '',
-    origem: lead.origem || 'whatsapp',
+    origem: lead.origem || lead.origemEntrada || 'manual',
     status: lead.status || 'novo',
     fase_funil: lead.faseFunil || 'novo',
     temperatura: lead.temperatura || 'frio',

@@ -3265,8 +3265,14 @@ app.post('/api/lead-interesse', async (req, res) => {
     };
 
     let leadId;
-
-    if (idxExiste === -1) {
+    if (leadIdOrigem && leadOrigem.id) {
+      leadId = leadOrigem.id;
+      try {
+        const { atualizarLead: _atualizarLO } = require('./services/salvarLead');
+        await _atualizarLO(leadId, { visitaSolicitada: true, visitaSolicitadaEm: new Date().toISOString() });
+      } catch(e) {}
+      console.log('[API] visita vinculada lead original:', leadId);
+    } else if (idxExiste === -1) {
       leadId = Date.now().toString();
       leads.push({
         id: leadId,

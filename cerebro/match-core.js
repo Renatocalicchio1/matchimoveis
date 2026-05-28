@@ -261,7 +261,10 @@ return lead;
     try {
       const { extrairPerfil } = require('./extrator-perfil');
       const todasMsgs = (lead.mensagens || []).filter(m => m.de === 'cliente');
-      const novoPerfil = extrairPerfil(todasMsgs);
+      // Garante que a mensagem atual está incluída mesmo se ainda não persistida
+      const msgAtualIncluida = mensagem && !todasMsgs.find(m => m.texto === mensagem);
+      const msgsParaExtrar = msgAtualIncluida ? [...todasMsgs, { de: 'cliente', texto: mensagem }] : todasMsgs;
+      const novoPerfil = extrairPerfil(msgsParaExtrar);
 
       // Merge inteligente — nunca perde dado já capturado
       const perfilAtual = lead.perfilIA || {};

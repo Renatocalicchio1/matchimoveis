@@ -1693,7 +1693,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
       email: body.email || '',
       telefone, whatsapp: telefone, contato: telefone,
       mensagem: body.message || '',
-      idAnuncio: body.reference || '',
+      idAnuncio: body.idAnuncio || body.reference || body.clientListingId || '',
       fonte: 'Chaves na Mão', origem: 'Chaves na Mão', origemEntrada: 'webhook_chaves',
       userId, codigoUsuario: userId,
       status: 'novo', score: 0, temperatura: 'frio', faseFunil: 'novo',

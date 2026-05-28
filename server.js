@@ -3384,7 +3384,7 @@ app.get('/imovel/:id', (req, res) => {
     if (_leadId) {
       const _leads = (_cacheLeads || []);
       const _lead = _leads.find(l => String(l.id) === String(_leadId));
-      if (_lead) leadDados = { nome: _lead.nome||'', telefone: (_lead.telefone||_lead.whatsapp||'').replace(/\D/g,'') };
+      if (_lead) leadDados = { nome: _lead.nome||'', telefone: (_lead.telefone||_lead.whatsapp||'').replace(/\D/g,'').replace(/^55/,'') };
     }
     return res.render('imovel-publico', { imovel: pub, corretor, leadDados });
   }

@@ -5274,6 +5274,37 @@ app.post('/cliente/visita/:id/responder', async (req, res) => {
   visitas[idx].confirmacaoClienteStatus = acao === 'confirmar' ? 'CONFIRMADO' : 'RECUSADO';
   visitas[idx].confirmacaoClienteEm = new Date().toISOString();
   await salvarTodasVisitas(visitas);
+
+  // Notifica corretor via WhatsApp
+  try {
+    const { query: _qResp } = require('./services/db');
+    const _vRow = await _qResp('SELECT * FROM visitas WHERE id=$1', [req.params.id]);
+    const _v = _vRow.rows[0];
+    if (_v) {
+      const { lerUsuarios: _luResp } = require('./services/salvarUsuario');
+      const _users = await _luResp();
+      const _user = _users.find(u => u.id === (_v.user_id || _v.corretor_id));
+      const _instancia = _user?.whatsappInstance;
+      const _numCorretor = (_user?.celular || _user?.telefone || '').replace(/\D/g,'');
+      if (_instancia && _numCorretor) {
+        const _nome = _v.nome || 'Cliente';
+        const _tel = (_v.telefone || _v.contato || '').replace(/\D/g,'');
+        const _imovel = _v.imovel_titulo || _v.imovel_bairro || 'o imóvel';
+        const _data = _v.data_visita || '';
+        const _waLink = _tel ? 'https://wa.me/55' + _tel : '';
+        const _msg = acao === 'confirmar'
+          ? '*' + _nome + '* confirmou presença na visita de *' + _imovel + '*' + (_data ? ' para ' + _data : '') + '.\n\n' + (_waLink ? 'WhatsApp do cliente: ' + _waLink : '')
+          : '*' + _nome + '* não poderá comparecer na visita de *' + _imovel + '*' + (_data ? ' marcada para ' + _data : '') + '.\n\n' + (_waLink ? 'WhatsApp do cliente: ' + _waLink : '');
+        const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+        const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+        await fetch(EU + '/message/sendText/' + _instancia, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': EK },
+          body: JSON.stringify({ number: '55' + _numCorretor.replace(/^55/,''), text: _msg })
+        });
+      }
+    }
+  } catch(e) { console.error('[responder-visita] erro WA corretor:', e.message); }
   res.render('cliente-confirmado', { visita: visitas[idx], user: null });
 });
 

@@ -2393,6 +2393,7 @@ setInterval(async () => {
 
         consumir(_leads[i].userId || _leads[i].corretorId, 'followup_auto').catch(()=>{});
         if (fu.tipo === 'enviar_vitrine') {
+          console.log('[JOB FU DEBUG] enviar_vitrine | vitrineEnviada:', _leads[i].vitrineEnviada, '| contato:', _contato, '| instancia:', _instancia);
           if (_leads[i].vitrineEnviada) continue;
           const _matches = (_leads[i].matchesAuto || _leads[i].matches || []).length;
           const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;

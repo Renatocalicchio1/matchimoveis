@@ -5118,6 +5118,55 @@ app.get('/app/visitas-kanban', auth, (req,res)=>{
 });
 
 
+
+app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
+  try {
+    const { query: _qVC } = require('./services/db');
+    const { id } = req.params;
+    const { nome, telefone } = req.body;
+
+    // Atualiza status da visita
+    await _qVC("UPDATE visitas SET status='confirmada', dados=jsonb_set(COALESCE(dados,'{}'),'{confirmadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), id]);
+
+    // Busca dados da visita para montar link
+    const r = await _qVC('SELECT * FROM visitas WHERE id=$1', [id]);
+    const visita = r.rows[0];
+    const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
+    const link = BASE_URL + '/cliente/visita/' + id;
+    const imovel = visita?.imovel_titulo || visita?.imovel_bairro || 'o imóvel';
+    const data = visita?.data_visita || '';
+    const hora = visita?.hora_visita || '';
+
+    const msg = 'Olá ' + (nome||'') + '! Sua visita ao imóvel *' + imovel + '* foi confirmada' + (data?' para '+data:'') + (hora?' às '+hora:'') + '.
+
+Acesse o link para confirmar presença, remarcar ou cancelar:
+' + link;
+
+    // Envia WhatsApp pelo corretor logado
+    const userId = req.session.user.id;
+    const { lerUsuarios: _luVC } = require('./services/salvarUsuario');
+    const users = await _luVC();
+    const user = users.find(u => u.id === userId);
+    const instancia = user?.whatsappInstance;
+    const numero = (telefone||'').replace(/D/g,'');
+
+    if (instancia && numero) {
+      const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+      const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+      await fetch(EU + '/message/sendText/' + instancia, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': EK },
+        body: JSON.stringify({ number: numero, text: msg })
+      });
+      await _qVC("UPDATE visitas SET dados=jsonb_set(COALESCE(dados,'{}'),'{waClienteEnviadoEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), id]);
+    }
+
+    res.json({ ok: true });
+  } catch(e) {
+    console.error('[confirmar-caso2]', e.message);
+    res.json({ ok: false, erro: e.message });
+  }
+});
 app.post('/app/visitas/agendar/:id', auth, async (req,res)=>{
   const fs = require('fs');
 

@@ -227,7 +227,7 @@ var hojeV=visitas.filter(function(v){
       </div>
       <div><div class="vi-label">Data</div><div class="vi-val"><%=dataVisita%></div></div>
       <div><div class="vi-label">Horario</div><div class="vi-val"><%=horaVisita&&horaVisita!=='-'?horaVisita:'---'%></div></div>
-      <div><div class="vi-label">Proprietario</div><div class="vi-val" style="color:<%=propConfirmou?'#15803d':'#d97706'%>"><%=propConfirmou?'Confirmou':'Aguardando'%></div></div>
+      <% if(propTel){ %><div><div class="vi-label">Proprietario</div><div class="vi-val" style="color:<%=propConfirmou?'#15803d':'#d97706'%>"><%=propConfirmou?'Confirmou':'Aguardando'%></div></div><% } %>
       <div><div class="vi-label">Cliente</div><div class="vi-val" style="color:<%=clienteConfirmou?'#15803d':'#d97706'%>"><%=clienteConfirmou?'Confirmou':'Aguardando'%></div></div>
     </div>
 
@@ -247,9 +247,12 @@ var hojeV=visitas.filter(function(v){
         <% } %>
       <% } %>
       <% if((st==='solicitada'||st==='AGUARDANDO')&&!propTel){ %>
-      <form method="POST" action="/app/visitas/confirmar/<%=v.id%>" style="margin:0">
-        <button type="submit" class="vi-btn vi-btn-green">Confirmar</button>
-      </form>
+      <button
+        class="vi-btn vi-btn-green"
+        title="Fale com o responsável pelo imóvel e depois confirme a visita no botão"
+        onclick="abrirModalConfirmarVisita('<%=v.id%>','<%=nome%>','<%=telefone%>')">
+        Confirmar visita
+      </button>
       <% } %>
       <% if(col.key==='aguard_cliente'&&v.parceiroNome){ %>
         <% if(waParceiroEnviado&&!v.parceiroConfirmou){ %>

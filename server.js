@@ -1635,7 +1635,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
       email: body.email || '',
       telefone, whatsapp: telefone, contato: telefone,
       mensagem: body.message || '',
-      idAnuncio: body.clientListingId || body.originListingId || '',
+      idAnuncio: body.idAnuncio || body.clientListingId || body.originListingId || '',
       fonte: '123i', origem: '123i', origemEntrada: 'webhook_123i',
       userId, codigoUsuario: userId,
       status: 'novo', score: 0, temperatura: 'frio', faseFunil: 'novo',

@@ -3977,8 +3977,8 @@ function gerarXMLPortais(){
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
-    <provider>Rankim</provider>
-    <email>renato@rankim.com.br</email>
+    <provider>Matchimoveis</provider>
+    <email>contato@matchimoveis.ia.br</email>
   </header>
   <listings>
 `;
@@ -4203,12 +4203,12 @@ function gerarXMLPortal(imoveis, portal){
       xml += '        <CondominiumName>'+esc(i.condominioNome || i.condominio_name || '')+'</CondominiumName>\n';
       xml += '      </Location>\n';
       xml += '      <ContactInfo>\n';
-      xml += '        <Name>Rankim</Name>\n';
-      xml += '        <Email>renato@rankim.com.br</Email>\n';
+      xml += '        <Name>'+esc(i.corretor_nome || i.usuario_nome || i.corretor?.nome || 'Matchimoveis')+'</Name>\n';
+      xml += '        <Email>'+esc(i.corretor_email || i.usuario_email || i.corretor?.email || 'contato@matchimoveis.ia.br')+'</Email>\n';
       xml += '        <Website></Website>\n';
       xml += '        <Logo></Logo>\n';
-      xml += '        <OfficeName>Rankim</OfficeName>\n';
-      xml += '        <Telephone></Telephone>\n';
+      xml += '        <OfficeName>'+esc(i.corretor_nome || i.usuario_nome || i.corretor?.nome || 'Matchimoveis')+'</OfficeName>\n';
+      xml += '        <Telephone>'+esc(i.corretor_telefone || i.usuario_telefone || i.corretor?.telefone || '')+'</Telephone>\n';
       xml += '      </ContactInfo>\n';
       xml += '      <OwnerInfo>\n';
       xml += '        <Name>'+esc(prop.nome || i.proprietarioNome || '')+'</Name>\n';

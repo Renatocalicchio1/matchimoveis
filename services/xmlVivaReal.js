@@ -30,10 +30,10 @@ function buildVivaRealXML(items, portal='canalpro'){
         <Address>${esc(get(i,'logradouro') || get(i,'endereco'))}</Address>
       </Location>
       <ContactInfo>
-        <Name>Mario Sergio</Name>
-        <Email>mario@matchimoveis.com.br</Email>
-        <Website>https://matchimoveis.com.br</Website>
-        <Telephone>11999965998</Telephone>
+        <Name>${esc(get(i,'corretor_nome') || get(i,'usuario_nome') || get(i,'corretor')?.nome || 'Matchimoveis')}</Name>
+        <Email>${esc(get(i,'corretor_email') || get(i,'usuario_email') || get(i,'corretor')?.email || 'contato@matchimoveis.ia.br')}</Email>
+        <Website>https://matchimoveis.ia.br</Website>
+        <Telephone>${esc(get(i,'corretor_telefone') || get(i,'usuario_telefone') || get(i,'corretor')?.telefone || '')}</Telephone>
       </ContactInfo>
     </Listing>`;
   }).join('\n');
@@ -41,9 +41,9 @@ function buildVivaRealXML(items, portal='canalpro'){
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Listings>
   <Header>
-    <Provider>MatchImoveis</Provider>
+    <Provider>Matchimoveis</Provider>
     <Portal>${esc(portal)}</Portal>
-    <Email>mario@matchimoveis.com.br</Email>
+    <Email>contato@matchimoveis.ia.br</Email>
     <PublishDate>${new Date().toISOString()}</PublishDate>
   </Header>
   ${listings}

@@ -552,6 +552,9 @@ async function criarLead(payload) {
   const novo = { id: Date.now().toString(), criadoEm: new Date().toISOString(), ...payload };
   leads.push(novo);
   salvarLeadsData(leads);
+  // Cobra 10 créditos por nova lead
+  const _userId = payload.userId || payload.corretorId || payload.usuarioDestinoId || '';
+  if (_userId) consumir(_userId, 'nova_lead').catch(()=>{});
   return novo;
 }
 

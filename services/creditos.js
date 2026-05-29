@@ -18,7 +18,8 @@ const CUSTO = {
   followup_auto:          15,
   visita_agendada_ia:     30,
   notificacao_prop:        5,
-  confirmacao_auto:       15
+  confirmacao_auto:       15,
+  nova_lead:              10
 };
 
 async function consumir(userId, acao) {

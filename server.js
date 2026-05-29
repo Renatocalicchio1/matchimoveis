@@ -761,9 +761,14 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
     const _BASE = process.env.RENDER ? 'https://matchimoveis.ia.br' : 'http://localhost:3000';
     const _v = todas[idx];
     const _telCliente = String(_v.telefone || _v.contato || '').replace(/\D/g,'');
-    const _instancia = 'match-corretor';
-    const _imovel = _v.imovelTitulo || _v.imovelBairro || 'imóvel';
-    const _data = _v.dataVisita ? ' para ' + _v.dataVisita + (_v.horaVisita ? ' às ' + _v.horaVisita : '') : '';
+    // Busca instância do corretor dono da visita
+    const _userId = _v.userId || _v.user_id || _v.corretorId || _v.corretor_id || '';
+    const { lerUsuarios: _luCV } = require('./services/salvarUsuario');
+    const _usersCV = await _luCV();
+    const _corrCV = _usersCV.find(u => u.id === _userId);
+    const _instancia = _corrCV?.whatsappInstance || 'match-corretor';
+    const _imovel = _v.imovelTitulo || _v.imovel_titulo || _v.imovelBairro || _v.imovel_bairro || 'imóvel';
+    const _data = (_v.dataVisita || _v.data_visita) ? ' para ' + (_v.dataVisita || _v.data_visita) + ((_v.horaVisita || _v.hora_visita) ? ' às ' + (_v.horaVisita || _v.hora_visita) : '') : '';
 
     async function _enviarWA(numero, texto) {
       try {

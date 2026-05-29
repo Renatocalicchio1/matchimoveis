@@ -5286,7 +5286,7 @@ app.get('/cliente/visita/:id/confirmar', async (req, res) => {
         await fetch(EU + '/message/sendText/' + _instancia, { method:'POST', headers:{'Content-Type':'application/json','apikey':EK}, body: JSON.stringify({ number:'55'+_num.replace(/^55/,''), text:_msg }) });
       }
     }
-    res.render('cliente-confirmado', { visita: { id: req.params.id, imovelTitulo: _v?.imovel_titulo||'', dataVisita: _v?.data_visita||'', status:'lead_confirmou' }, user: null });
+    res.render('cliente-confirmado', { visita: { id: req.params.id, imovelTitulo: _v?.imovel_titulo||'', dataVisita: _v?.data_visita||'' }, status:'confirmado', user: null });
   } catch(e) { console.error('[confirmar]', e.message); res.status(500).send('Erro: '+e.message); }
 });
 
@@ -5311,7 +5311,7 @@ app.get('/cliente/visita/:id/recusar', async (req, res) => {
         await fetch(EU + '/message/sendText/' + _instancia, { method:'POST', headers:{'Content-Type':'application/json','apikey':EK}, body: JSON.stringify({ number:'55'+_num.replace(/^55/,''), text:_msg }) });
       }
     }
-    res.render('cliente-confirmado', { visita: { id: req.params.id, imovelTitulo: _v?.imovel_titulo||'', dataVisita: _v?.data_visita||'', status:'lead_recusou' }, user: null });
+    res.render('cliente-confirmado', { visita: { id: req.params.id, imovelTitulo: _v?.imovel_titulo||'', dataVisita: _v?.data_visita||'' }, status:'recusado', user: null });
   } catch(e) { console.error('[recusar]', e.message); res.status(500).send('Erro: '+e.message); }
 });
 

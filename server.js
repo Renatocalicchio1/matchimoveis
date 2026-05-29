@@ -756,23 +756,71 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
     const idx = todas.findIndex(v => String(v.id) === String(req.params.id));
     if (idx < 0) return res.status(404).send('<h2>Visita não encontrada</h2>');
 
+    const _EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const _EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+    const _BASE = process.env.RENDER ? 'https://matchimoveis.ia.br' : 'http://localhost:3000';
+    const _v = todas[idx];
+    const _telCliente = String(_v.telefone || _v.contato || '').replace(/\D/g,'');
+    const _instancia = 'match-corretor';
+    const _imovel = _v.imovelTitulo || _v.imovelBairro || 'imóvel';
+    const _data = _v.dataVisita ? ' para ' + _v.dataVisita + (_v.horaVisita ? ' às ' + _v.horaVisita : '') : '';
+
+    async function _enviarWA(numero, texto) {
+      try {
+        await fetch(_EU + '/message/sendText/' + _instancia, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': _EK },
+          body: JSON.stringify({ number: '55' + numero.replace(/^55/,''), text: texto })
+        });
+      } catch(e) { console.error('[WA corretor-visita]', e.message); }
+    }
+
     if (resposta === 'confirmar') {
       todas[idx].status = 'confirmada';
       todas[idx].respostaCorretor = 'confirmar';
       todas[idx].corretorConfirmouEm = new Date().toISOString();
-    } else if (resposta === 'recusar') {
-      todas[idx].status = 'cancelada';
-      todas[idx].respostaCorretor = 'recusar';
+      // WA para o cliente confirmar presença
+      if (_telCliente) {
+        const _linkConfirmar = _BASE + '/cliente/visita/' + _v.id + '/confirmar';
+        const _linkRecusar = _BASE + '/cliente/visita/' + _v.id + '/recusar';
+        const _msg = 'Olá *' + (_v.nome||'') + '*! Sua visita ao imóvel *' + _imovel + '*' + _data + ' foi confirmada!\n\nConfirme sua presença:\n✅ Confirmar: ' + _linkConfirmar + '\n❌ Não posso ir: ' + _linkRecusar;
+        await _enviarWA(_telCliente, _msg);
+      }
+    } else if (resposta === 'indisponivel') {
+      todas[idx].status = 'imovel_indisponivel';
+      todas[idx].respostaCorretor = 'indisponivel';
       todas[idx].corretorRecusouEm = new Date().toISOString();
+      // Inativa o imóvel no PG
+      try {
+        const { query: _qInat } = require('./services/db');
+        const _agora = new Date().toISOString();
+        await _qInat('UPDATE imoveis SET dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','corretor') WHERE id=$1 OR id_externo=$1 OR id_interno=$1', [_v.imovelId, _agora]);
+        console.log('[corretor] Imóvel inativado:', _v.imovelId);
+      } catch(_e) { console.error('[inativar]', _e.message); }
+      // WA para o cliente com link da vitrine
+      if (_telCliente) {
+        const _leadId = _v.leadId || '';
+        const _linkVitrine = _leadId ? _BASE + '/cliente/oferta/' + _leadId : _BASE;
+        const _msg = 'Olá *' + (_v.nome||'') + '*! Infelizmente o imóvel *' + _imovel + '* não está mais disponível.\n\nAcesse a vitrine e escolha outra opção: ' + _linkVitrine;
+        await _enviarWA(_telCliente, _msg);
+      }
     } else if (resposta === 'remarcar') {
       todas[idx].status = 'pendente_remarcar';
       todas[idx].respostaCorretor = 'remarcar';
       todas[idx].corretorRemarcarEm = new Date().toISOString();
+      // WA para o cliente remarcar
+      if (_telCliente) {
+        const _leadId = _v.leadId || '';
+        const _linkImovel = _v.imovelId ? _BASE + '/imovel/' + _v.imovelId + '?leadId=' + _leadId : _BASE;
+        const _msg = 'Olá *' + (_v.nome||'') + '*! O corretor solicitou uma remarcação da visita ao imóvel *' + _imovel + '*.\n\nEscolha uma nova data: ' + _linkImovel;
+        await _enviarWA(_telCliente, _msg);
+      }
     }
 
     await _salvarVisitas(todas);
     res.render('corretor-visita', { visita: todas[idx] });
   } catch(e) {
+    console.error('[corretor-visita]', e.message);
     res.status(500).send('<h2>Erro: ' + e.message + '</h2>');
   }
 });

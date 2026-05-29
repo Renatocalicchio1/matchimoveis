@@ -20,6 +20,7 @@
     .btn-confirmar{background:#22c55e;color:#fff}
     .btn-recusar{background:#ef4444;color:#fff}
     .btn-remarcar{background:#f59e0b;color:#fff}
+    .btn-indisponivel{background:#6b7280;color:#fff}
     .msg{text-align:center;padding:20px;font-size:14px;color:#444;font-weight:500}
     .badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:16px}
     .badge-sol{background:#fef3c7;color:#d97706}
@@ -32,11 +33,13 @@
   <div class="card">
     <div class="logo">MatchImóveis</div>
     <% if (visita.status === 'confirmada' || visita.status === 'lead_confirmou') { %>
-      <div class="msg">✅ Visita já confirmada!</div>
+      <div class="msg">✅ Visita confirmada! Cliente foi notificado.</div>
+    <% } else if (visita.status === 'imovel_indisponivel') { %>
+      <div class="msg">🏠 Imóvel marcado como indisponível. Cliente foi notificado.</div>
     <% } else if (visita.status === 'cancelada' || visita.status === 'recusada') { %>
       <div class="msg">❌ Visita cancelada.</div>
     <% } else if (visita.status === 'pendente_remarcar' || visita.respostaCorretor === 'remarcar') { %>
-      <div class="msg">📅 Você solicitou remarcação. Aguarde o cliente escolher nova data.</div>
+      <div class="msg">📅 Remarcação solicitada. Cliente foi notificado.</div>
     <% } else { %>
       <span class="badge badge-sol">Visita solicitada</span>
       <h2>Nova solicitação de visita</h2>
@@ -78,6 +81,9 @@
         </form>
         <form method="POST" action="/corretor/visita/<%= visita.id %>/responder">
           <button class="btn btn-remarcar" name="resposta" value="remarcar">📅 Solicitar remarcação</button>
+        </form>
+        <form method="POST" action="/corretor/visita/<%= visita.id %>/responder">
+          <button class="btn btn-indisponivel" name="resposta" value="indisponivel">🚫 Imóvel indisponível</button>
         </form>
       </div>
     <% } %>

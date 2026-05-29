@@ -1267,6 +1267,45 @@ app.get('/app-home', auth, async (req,res)=>{
       imoveisSemFoto: imoveis.filter(i => !i.fotos || i.fotos.length === 0).length,
       // Imóveis sem proprietário
       imoveisSemProprietario: imoveis.filter(i => !i.proprietario || !i.proprietario.telefone).length,
+      // BI Visitas
+      visitasPorStatus: (() => {
+        const map = { solicitada:0, confirmada:0, realizada:0, cancelada:0, recusada:0 };
+        visitas.forEach(v => {
+          const st = ['confirmada','lead_confirmou'].includes(v.status) ? 'confirmada'
+            : v.status === 'realizada' ? 'realizada'
+            : ['cancelada','recusada'].includes(v.status) ? 'cancelada'
+            : 'solicitada';
+          map[st] = (map[st]||0) + 1;
+        });
+        return JSON.stringify(map);
+      })(),
+      visitasTaxaConfirmacao: visitas.length > 0 ? Math.round(
+        visitas.filter(v => ['confirmada','lead_confirmou','realizada'].includes(v.status)).length / visitas.length * 100
+      ) : 0,
+      visitasRealizadasMes: (() => {
+        const ini = new Date(); ini.setDate(1); ini.setHours(0,0,0,0);
+        return visitas.filter(v => v.status==='realizada' && new Date(v.dataVisita||v.data||0) >= ini).length;
+      })(),
+      visitasRealizadasMesPassado: (() => {
+        const ini = new Date(); ini.setDate(1); ini.setHours(0,0,0,0);
+        const fim = new Date(ini); fim.setDate(0);
+        const iniMp = new Date(fim); iniMp.setDate(1);
+        return visitas.filter(v => {
+          const d = new Date(v.dataVisita||v.data||0);
+          return v.status==='realizada' && d >= iniMp && d <= fim;
+        }).length;
+      })(),
+      imovelMaisVisitado: (() => {
+        const map = {};
+        visitas.forEach(v => {
+          const id = String(v.imovelId||v.imovelBairro||'');
+          if(id) map[id] = (map[id]||0) + 1;
+        });
+        const top = Object.entries(map).sort((a,b)=>b[1]-a[1])[0];
+        if(!top) return null;
+        const im = imoveis.find(i => String(i.idInterno||i.id||i.idExterno||'')===top[0]) || {};
+        return { titulo: im.titulo||im.tipo||top[0], bairro: im.bairro||'', cnt: top[1] };
+      })(),
       // Lead mais antiga sem resposta
       leadMaisAntigaSemVisita: (() => {
         const semVisita = leadsArr.filter(l => !visitas.some(v => String(v.leadId)===String(l.id||l._id)));

@@ -247,6 +247,44 @@
 <% } %>
 
 
+
+<!-- BI VISITAS -->
+<div class="chart-card" style="margin-bottom:14px">
+  <div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.6px;margin-bottom:14px">Visitas — painel</div>
+
+  <!-- KPIs visitas -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+    <div style="text-align:center;background:#f0fdf4;border-radius:8px;padding:10px 6px">
+      <div style="font-size:20px;font-weight:800;color:#10b981"><%= stats.visitasRealizadasMes %></div>
+      <div style="font-size:9px;color:var(--text-ter);font-weight:600;text-transform:uppercase">Realizadas<br>este mês</div>
+    </div>
+    <div style="text-align:center;background:#eff6ff;border-radius:8px;padding:10px 6px">
+      <div style="font-size:20px;font-weight:800;color:#6366f1"><%= stats.visitasTaxaConfirmacao %>%</div>
+      <div style="font-size:9px;color:var(--text-ter);font-weight:600;text-transform:uppercase">Taxa de<br>confirmação</div>
+    </div>
+    <div style="text-align:center;background:<%= stats.visitasRealizadasMes >= stats.visitasRealizadasMesPassado ? '#f0fdf4' : '#fff7ed' %>;border-radius:8px;padding:10px 6px">
+      <div style="font-size:20px;font-weight:800;color:<%= stats.visitasRealizadasMes >= stats.visitasRealizadasMesPassado ? '#10b981' : '#f59e0b' %>">
+        <%= stats.visitasRealizadasMes >= stats.visitasRealizadasMesPassado ? '↑' : '↓' %><%= stats.visitasRealizadasMesPassado %>
+      </div>
+      <div style="font-size:9px;color:var(--text-ter);font-weight:600;text-transform:uppercase">Mês<br>anterior</div>
+    </div>
+  </div>
+
+  <!-- Gráfico status -->
+  <canvas id="chartVisitasBI" height="140"></canvas>
+
+  <!-- Imóvel mais visitado -->
+  <% if(stats.imovelMaisVisitado){ %>
+  <div style="margin-top:12px;display:flex;align-items:center;gap:8px;background:#f9fafb;border-radius:8px;padding:10px 12px">
+    <span style="font-size:16px">🏆</span>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--dark)">Imóvel mais visitado</div>
+      <div style="font-size:10px;color:var(--text-ter)"><%= stats.imovelMaisVisitado.titulo %> · <%= stats.imovelMaisVisitado.bairro %> · <%= stats.imovelMaisVisitado.cnt %> visita<%= stats.imovelMaisVisitado.cnt>1?'s':'' %></div>
+    </div>
+  </div>
+  <% } %>
+</div>
+
 <!-- ALERTA LEAD MAIS ANTIGA -->
 <% if(stats.leadMaisAntigaSemVisita && stats.leadMaisAntigaSemVisita.dias >= 3){ %>
 <div class="chart-card" style="margin-bottom:14px;border-left:3px solid #ef4444">

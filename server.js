@@ -816,7 +816,9 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
       // WA para o cliente remarcar
       if (_telCliente) {
         const _leadId = _v.leadId || '';
-        const _linkImovel = _v.imovelId ? _BASE + '/imovel/' + _v.imovelId + '?leadId=' + _leadId : _BASE;
+        const _imovelIdEnc = encodeURIComponent(_v.imovelId || '');
+        const _leadIdEnc = encodeURIComponent(_leadId || '');
+        const _linkImovel = _v.imovelId ? _BASE + '/imovel/' + _imovelIdEnc + '?leadId=' + _leadIdEnc : _BASE;
         const _msg = 'Olá *' + (_v.nome||'') + '*! O corretor solicitou uma remarcação da visita ao imóvel *' + _imovel + '*.\n\nEscolha uma nova data: ' + _linkImovel;
         await _enviarWA(_telCliente, _msg);
       }

@@ -1153,7 +1153,35 @@ app.get('/app-home', auth, async (req,res)=>{
       matchesGerados: totalMatches,
       comMatch: comMatch.length,
       visitasHoje: visitasHoje.length,
-      taxaMatch: leadsArr.length > 0 ? Math.round((comMatch.length / leadsArr.length) * 100) : 0
+      taxaMatch: leadsArr.length > 0 ? Math.round((comMatch.length / leadsArr.length) * 100) : 0,
+      // Funil
+      funnelLeads: leadsArr.length,
+      funnelMatch: comMatch.length,
+      funnelVisitaAgendada: visitas.length,
+      funnelVisitaConfirmada: visitas.filter(v => ['confirmada','lead_confirmou','realizada'].includes(v.status)).length,
+      funnelPctMatch: leadsArr.length > 0 ? Math.round(comMatch.length / leadsArr.length * 100) : 0,
+      funnelPctVisita: comMatch.length > 0 ? Math.round(visitas.length / comMatch.length * 100) : 0,
+      funnelPctConfirmada: visitas.length > 0 ? Math.round(visitas.filter(v => ['confirmada','lead_confirmou','realizada'].includes(v.status)).length / visitas.length * 100) : 0,
+      // Insights
+      leadsQuentesSemVisita: leadsArr.filter(l => {
+        const temMatch = (l.matches&&l.matches.length>0)||(l.matchesBase&&l.matchesBase.length>0);
+        const temVisita = visitas.some(v => String(v.leadId)===String(l.id||l._id));
+        return temMatch && !temVisita;
+      }).length,
+      imoveisSemLead: imoveis.filter(im => !leadsArr.some(l => {
+        const ids = [...(l.matches||[]),...(l.matchesBase||[])].map(m=>String(m.idInterno||m.id||m.imovelId||''));
+        return ids.includes(String(im.idInterno||im.id||''));
+      })).length,
+      bairroMaisDemandado: (() => {
+        const map = {};
+        leadsArr.forEach(l => { const b=l.bairro||l.perfilIA?.bairro||''; if(b) map[b]=(map[b]||0)+1; });
+        return Object.entries(map).sort((a,b)=>b[1]-a[1])[0]?.[0] || '';
+      })(),
+      bairroMaisOferta: (() => {
+        const map = {};
+        imoveis.forEach(im => { const b=im.bairro||''; if(b) map[b]=(map[b]||0)+1; });
+        return Object.entries(map).sort((a,b)=>b[1]-a[1])[0]?.[0] || '';
+      })(),
     },
     recentes,
     topMatches: comMatch.slice(0,3),

@@ -3629,23 +3629,6 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   res.render('app-editar-imovel', { user: req.session.user, imovel: imoveis[idx], salvo: true, idImovel: idImovelEdit });
 });
 
-// Upload de fotos do imóvel
-const UPLOADS_IMOVEIS_DIR = process.env.RENDER
-  ? '/opt/render/project/src/data/uploads/imoveis'
-  : path.join(__dirname, 'public', 'uploads', 'imoveis');
-if (!fs.existsSync(UPLOADS_IMOVEIS_DIR)) fs.mkdirSync(UPLOADS_IMOVEIS_DIR, { recursive: true });
-
-const storageImoveis = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, UPLOADS_IMOVEIS_DIR);
-  },
-  filename: function (req, file, cb) {
-    const ext = file.originalname.split('.').pop();
-    cb(null, Date.now() + '-' + Math.floor(Math.random()*1000) + '.' + ext);
-  }
-});
-
-const uploadImoveis = multer({ storage: storageImoveis });
 
 // Upload de foto
 app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), async (req,res)=>{

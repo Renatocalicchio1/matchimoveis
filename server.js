@@ -3053,6 +3053,22 @@ app.post('/imovel/:id/status', (req,res)=>{
 
 
 // Cadastro manual de imóvel
+const UPLOADS_IMOVEIS_DIR = process.env.RENDER
+  ? '/opt/render/project/src/data/uploads/imoveis'
+  : path.join(__dirname, 'public', 'uploads', 'imoveis');
+if (!fs.existsSync(UPLOADS_IMOVEIS_DIR)) fs.mkdirSync(UPLOADS_IMOVEIS_DIR, { recursive: true });
+
+const storageImoveis = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, UPLOADS_IMOVEIS_DIR);
+  },
+  filename: function (req, file, cb) {
+    const ext = file.originalname.split('.').pop();
+    cb(null, Date.now() + '-' + Math.floor(Math.random()*1000) + '.' + ext);
+  }
+});
+const uploadImoveis = multer({ storage: storageImoveis });
+
 app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async (req, res) => {
   const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
   const imoveis = (_cacheImoveis || []);

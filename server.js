@@ -794,7 +794,7 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
       try {
         const { query: _qInat } = require('./services/db');
         const _agora = new Date().toISOString();
-        await _qInat('UPDATE imoveis SET dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','corretor') WHERE id=$1 OR id_externo=$1 OR id_interno=$1', [_v.imovelId, _agora]);
+        await _qInat("UPDATE imoveis SET dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','corretor') WHERE id=$1 OR id_externo=$1 OR id_interno=$1", [_v.imovelId, _agora]);
         console.log('[corretor] Imóvel inativado:', _v.imovelId);
       } catch(_e) { console.error('[inativar]', _e.message); }
       // WA para o cliente com link da vitrine
@@ -5085,48 +5085,6 @@ function resolverUsuarioPorId(id){
 // NOVO FLUXO DE VISITAS (LIMPO)
 // ===============================
 
-app.post('/api/visita/nova-v2', async (req,res)=>{
-  const { imovelId, nome, telefone, dataVisita, horaVisita, imovelTitulo } = req.body;
-
-  const imoveisAll = (_cacheImoveis || []);
-  const imovel = imoveisAll.find(i => String(i.idExterno||i.id) === String(imovelId)) || {};
-
-  const users = fs.existsSync(dataPath('users.json'))
-    ? (_cacheUsuarios || []) : [];
-  const donoImovel = users.find(u => u.id === (imovel.userId||imovel.usuarioId)) || {};
-
-  const visitas = (_cacheVisitas || []);
-
-  const novaVisita = {
-    id: String(Date.now()),
-    nome,
-    telefone: (telefone||'').replace(/\D/g,''),
-    contato:  (telefone||'').replace(/\D/g,''),
-    imovelId,
-    imovelTitulo:    imovelTitulo || imovel.titulo || imovel.tipo || 'Imóvel',
-    imovelBairro:    imovel.bairro || '',
-    imovelDescricao: imovel.descricao || '',
-    dataVisita,
-    horaVisita,
-    userId:      donoImovel.id || imovel.userId || '',
-    corretorId:  donoImovel.id || imovel.userId || '',
-    ownerUserId: donoImovel.id || imovel.userId || '',
-    imovelUsuarioId: imovel.userId || imovel.codigoUsuario || imovel.usuarioId || donoImovel.id || '',
-    proprietarioNome:     (imovel.proprietario && imovel.proprietario.nome) || '',
-    proprietarioTelefone: ((imovel.proprietario && (imovel.proprietario.celular||imovel.proprietario.telefone))||'').replace(/\D/g,''),
-    status:  'solicitada',
-    origem:  'pagina_publica',
-    data:    new Date().toISOString(),
-    data_br: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
-  };
-
-  visitas.push(novaVisita);
-  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
-  return res.json({ ok: true, visita: novaVisita });
-});
-
-// ===============================
-
 app.post('/app/visitas/remarcar/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
@@ -5484,48 +5442,6 @@ app.post('/app/visitas/agendar/:id', auth, async (req,res)=>{
 
   res.redirect('/app/visitas');
 });
-
-
-app.post('/app/visitas/solicitar-confirmacao/:id', auth, async (req,res)=>{
-  const fs = require('fs');
-
-  let visitas = (_cacheVisitas || []);
-
-  visitas = visitas.map(v => {
-
-    if(String(v.id) === String(req.params.id)){
-
-      v.confirmacaoClienteStatus = 'PENDENTE';
-
-      v.confirmacaoSolicitadaAt = new Date().toISOString();
-
-    }
-
-    return v;
-
-  });
-
-  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
-
-  res.redirect('/app/visitas');
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 app.get('/cliente/visita/:id', async (req, res) => {

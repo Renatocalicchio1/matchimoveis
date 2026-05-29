@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visita Solicitada — MatchImóveis</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:#f8f9fa;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{background:#fff;border-radius:16px;padding:28px;max-width:420px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+    .logo{font-size:13px;font-weight:700;color:#6366f1;margin-bottom:20px;text-align:center}
+    h2{font-size:18px;font-weight:800;color:#111;margin-bottom:4px}
+    .sub{font-size:13px;color:#666;margin-bottom:20px}
+    .info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+    .info-label{color:#888;font-weight:500}
+    .info-val{color:#111;font-weight:600;text-align:right}
+    .imovel-link{color:#6366f1;text-decoration:none;font-weight:600;font-size:13px}
+    .btns{display:flex;flex-direction:column;gap:10px;margin-top:24px}
+    .btn{padding:14px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;width:100%}
+    .btn-confirmar{background:#22c55e;color:#fff}
+    .btn-recusar{background:#ef4444;color:#fff}
+    .btn-remarcar{background:#f59e0b;color:#fff}
+    .msg{text-align:center;padding:20px;font-size:14px;color:#444;font-weight:500}
+    .badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:16px}
+    .badge-sol{background:#fef3c7;color:#d97706}
+    .badge-conf{background:#dcfce7;color:#16a34a}
+    .badge-rec{background:#fee2e2;color:#dc2626}
+    .badge-rem{background:#ede9fe;color:#7c3aed}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">MatchImóveis</div>
+    <% if (visita.status === 'confirmada' || visita.status === 'lead_confirmou') { %>
+      <div class="msg">✅ Visita já confirmada!</div>
+    <% } else if (visita.status === 'cancelada' || visita.status === 'recusada') { %>
+      <div class="msg">❌ Visita cancelada.</div>
+    <% } else if (visita.status === 'pendente_remarcar' || visita.respostaCorretor === 'remarcar') { %>
+      <div class="msg">📅 Você solicitou remarcação. Aguarde o cliente escolher nova data.</div>
+    <% } else { %>
+      <span class="badge badge-sol">Visita solicitada</span>
+      <h2>Nova solicitação de visita</h2>
+      <div class="sub">Um cliente quer visitar seu imóvel</div>
+
+      <div class="info-row">
+        <span class="info-label">Cliente</span>
+        <span class="info-val"><%= visita.nome || 'Não informado' %></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Telefone</span>
+        <span class="info-val"><%= visita.telefone || visita.contato || '—' %></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Imóvel</span>
+        <span class="info-val">
+          <% if (visita.imovelId) { %>
+            <a href="/imovel/<%= visita.imovelId %>" target="_blank" class="imovel-link"><%= visita.imovelTitulo || visita.imovelBairro || visita.imovelId %> ↗</a>
+          <% } else { %>
+            <%= visita.imovelTitulo || visita.imovelBairro || '—' %>
+          <% } %>
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Data solicitada</span>
+        <span class="info-val"><%= visita.dataVisita || 'A definir' %></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Horário</span>
+        <span class="info-val"><%= visita.horaVisita || 'A definir' %></span>
+      </div>
+
+      <div class="btns">
+        <form method="POST" action="/corretor/visita/<%= visita.id %>/responder">
+          <button class="btn btn-confirmar" name="resposta" value="confirmar">✅ Confirmar visita</button>
+        </form>
+        <form method="POST" action="/corretor/visita/<%= visita.id %>/responder">
+          <button class="btn btn-recusar" name="resposta" value="recusar">❌ Recusar visita</button>
+        </form>
+        <form method="POST" action="/corretor/visita/<%= visita.id %>/responder">
+          <button class="btn btn-remarcar" name="resposta" value="remarcar">📅 Solicitar remarcação</button>
+        </form>
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>

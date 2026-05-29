@@ -734,6 +734,49 @@ function registrarVisita(lead){
 
 
 
+
+// Página do corretor para confirmar/recusar visita (sem login)
+app.get('/corretor/visita/:id', async (req, res) => {
+  try {
+    const { lerVisitas } = require('./services/salvarVisita');
+    const todas = await lerVisitas();
+    const visita = todas.find(v => String(v.id) === String(req.params.id));
+    if (!visita) return res.status(404).send('<h2>Visita não encontrada</h2>');
+    res.render('corretor-visita', { visita });
+  } catch(e) {
+    res.status(500).send('<h2>Erro: ' + e.message + '</h2>');
+  }
+});
+
+app.post('/corretor/visita/:id/responder', async (req, res) => {
+  try {
+    const { resposta } = req.body;
+    const { lerVisitas, salvarTodasVisitas: _salvarVisitas } = require('./services/salvarVisita');
+    const todas = await lerVisitas();
+    const idx = todas.findIndex(v => String(v.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).send('<h2>Visita não encontrada</h2>');
+
+    if (resposta === 'confirmar') {
+      todas[idx].status = 'confirmada';
+      todas[idx].respostaCorretor = 'confirmar';
+      todas[idx].corretorConfirmouEm = new Date().toISOString();
+    } else if (resposta === 'recusar') {
+      todas[idx].status = 'cancelada';
+      todas[idx].respostaCorretor = 'recusar';
+      todas[idx].corretorRecusouEm = new Date().toISOString();
+    } else if (resposta === 'remarcar') {
+      todas[idx].status = 'pendente_remarcar';
+      todas[idx].respostaCorretor = 'remarcar';
+      todas[idx].corretorRemarcarEm = new Date().toISOString();
+    }
+
+    await _salvarVisitas(todas);
+    res.render('corretor-visita', { visita: todas[idx] });
+  } catch(e) {
+    res.status(500).send('<h2>Erro: ' + e.message + '</h2>');
+  }
+});
+
 app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
   const visitas = (_cacheVisitas || []);
   const idx = visitas.findIndex(v => v.id === req.params.visitaId);
@@ -3534,7 +3577,7 @@ app.post('/api/lead-interesse', async (req, res) => {
           const _telCorretor = (_corrUser?.celular || _corrUser?.telefone || '').replace(/\D/g,'');
           if (_telCorretor) {
             const _visitaId = visitas[visitas.length - 1].id;
-            const _linkConfirmar = _BASE + '/proprietario/visita/' + _visitaId;
+            const _linkConfirmar = _BASE + '/corretor/visita/' + _visitaId;
             const _msg = 'Olá! O cliente *' + nome + '* solicitou uma visita ao imóvel *' + (imovelTitulo || imovelRef.titulo || imovelRef.bairro || 'imóvel') + '*.\n\nConfirme a visita pelo link: ' + _linkConfirmar + '\n\nOu acesse o painel: ' + _BASE + '/app/visitas';
             await fetch(_EU + '/message/sendText/' + _instancia, {
               method: 'POST',

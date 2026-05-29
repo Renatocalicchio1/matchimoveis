@@ -5265,7 +5265,7 @@ app.get('/cliente/visita/:id', async (req, res) => {
 });
 
 
-app.get('/cliente/visita/:id/confirmar', async (req, res) => {
+app.post('/cliente/visita/:id/confirmar', async (req, res) => {
   try {
     const { query: _qC } = require('./services/db');
     await _qC("UPDATE visitas SET status='lead_confirmou', confirmacao_cliente_status='CONFIRMADO' WHERE id=$1", [req.params.id]);
@@ -5290,7 +5290,7 @@ app.get('/cliente/visita/:id/confirmar', async (req, res) => {
   } catch(e) { console.error('[confirmar]', e.message); res.status(500).send('Erro: '+e.message); }
 });
 
-app.get('/cliente/visita/:id/recusar', async (req, res) => {
+app.post('/cliente/visita/:id/recusar', async (req, res) => {
   try {
     const { query: _qR } = require('./services/db');
     await _qR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO' WHERE id=$1", [req.params.id]);

@@ -182,6 +182,114 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
+
+<!-- SCORE DE SAÚDE -->
+<div class="chart-card" style="margin-bottom:14px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.6px">Saúde da carteira</div>
+    <div style="font-size:22px;font-weight:800;color:<%= stats.scoreCarteira>=70?'#10b981':stats.scoreCarteira>=40?'#f59e0b':'#ef4444' %>"><%= stats.scoreCarteira %><span style="font-size:12px;font-weight:500;color:var(--text-ter)">/100</span></div>
+  </div>
+  <div style="background:#f3f4f6;border-radius:20px;height:8px;overflow:hidden">
+    <div style="height:100%;width:<%= stats.scoreCarteira %>%;background:<%= stats.scoreCarteira>=70?'#10b981':stats.scoreCarteira>=40?'#f59e0b':'#ef4444' %>;border-radius:20px;transition:width .5s"></div>
+  </div>
+  <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+    <% if(stats.imoveisSemFoto>0){ %><div style="font-size:10px;background:#fff7ed;color:#f59e0b;padding:3px 8px;border-radius:20px">📷 <%= stats.imoveisSemFoto %> sem foto</div><% } %>
+    <% if(stats.imoveisSemProprietario>0){ %><div style="font-size:10px;background:#fff7ed;color:#f59e0b;padding:3px 8px;border-radius:20px">👤 <%= stats.imoveisSemProprietario %> sem proprietário</div><% } %>
+    <% if(stats.imoveisSemFoto===0 && stats.imoveisSemProprietario===0){ %><div style="font-size:10px;background:#f0fdf4;color:#10b981;padding:3px 8px;border-radius:20px">✅ Carteira completa</div><% } %>
+  </div>
+</div>
+
+<!-- TEMPERATURA DAS LEADS -->
+<div class="chart-card" style="margin-bottom:14px">
+  <div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">Temperatura das leads</div>
+  <div style="display:flex;gap:10px">
+    <a href="/app/leads" style="flex:1;text-align:center;background:#fff7ed;border-radius:10px;padding:12px 8px;text-decoration:none">
+      <div style="font-size:22px">🔥</div>
+      <div style="font-size:20px;font-weight:800;color:#ef4444"><%= stats.leadsQuentes %></div>
+      <div style="font-size:9px;color:var(--text-ter);font-weight:600;text-transform:uppercase">Quentes</div>
+      <div style="font-size:9px;color:var(--text-ter)">até 2 dias</div>
+    </a>
+    <a href="/app/leads" style="flex:1;text-align:center;background:#fffbeb;border-radius:10px;padding:12px 8px;text-decoration:none">
+      <div style="font-size:22px">🟡</div>
+      <div style="font-size:20px;font-weight:800;color:#f59e0b"><%= stats.leadsMornas %></div>
+      <div style="font-size:9px;color:var(--text-ter);font-weight:600;text-transform:uppercase">Mornas</div>
+      <div style="font-size:9px;color:var(--text-ter)">3 a 7 dias</div>
+    </a>
+    <a href="/app/leads" style="flex:1;text-align:center;background:#eff6ff;border-radius:10px;padding:12px 8px;text-decoration:none">
+      <div style="font-size:22px">❄️</div>
+      <div style="font-size:20px;font-weight:800;color:#6366f1"><%= stats.leadsFrias %></div>
+      <div style="font-size:9px;color:var(--text-ter);font-weight:600;text-transform:uppercase">Frias</div>
+      <div style="font-size:9px;color:var(--text-ter)">mais de 7 dias</div>
+    </a>
+  </div>
+</div>
+
+<!-- PRÓXIMAS VISITAS -->
+<% if(stats.proximasVisitas && stats.proximasVisitas.length > 0){ %>
+<div class="chart-card" style="margin-bottom:14px">
+  <div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">Próximas visitas</div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <% stats.proximasVisitas.forEach(function(v){ %>
+    <a href="/app/visitas" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:<%= v.hoje?'#f0fdf4':'#f9fafb' %>;border-radius:8px;text-decoration:none;border-left:3px solid <%= v.hoje?'#10b981':'#d1d5db' %>">
+      <div style="font-size:18px"><%= v.hoje?'📅':'🗓️' %></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%= v.nome %></div>
+        <div style="font-size:10px;color:var(--text-ter)"><%= v.titulo %> · <%= v.bairro %></div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:11px;font-weight:700;color:<%= v.hoje?'#10b981':'var(--text-sec)' %>"><%= v.hoje?'Hoje':'Amanhã' %></div>
+        <div style="font-size:10px;color:var(--text-ter)"><%= v.hora %></div>
+      </div>
+    </a>
+    <% }); %>
+  </div>
+</div>
+<% } %>
+
+<!-- RANKING IMÓVEIS -->
+<% if(stats.rankingImoveis && stats.rankingImoveis.length > 0){ %>
+<div class="chart-card" style="margin-bottom:14px">
+  <div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">Imóveis mais matcheados</div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <% stats.rankingImoveis.forEach(function(im, idx){ %>
+    <a href="/app/imoveis" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <div style="font-size:14px;font-weight:800;color:var(--text-ter);width:16px;text-align:center">#<%= idx+1 %></div>
+      <% if(im.foto){ %>
+      <img src="<%= im.foto %>" style="width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0">
+      <% } else { %>
+      <div style="width:40px;height:40px;border-radius:6px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🏠</div>
+      <% } %>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%= im.titulo %></div>
+        <div style="font-size:10px;color:var(--text-ter)"><%= im.bairro %> · R$ <%= (im.valor||0).toLocaleString('pt-BR') %></div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:#6366f1;background:#f0f0ff;padding:3px 8px;border-radius:20px;flex-shrink:0"><%= im.cnt %> match<%= im.cnt>1?'es':'' %></div>
+    </a>
+    <% }); %>
+  </div>
+</div>
+<% } %>
+
+<!-- ALERTA LEAD MAIS ANTIGA -->
+<% if(stats.leadMaisAntigaSemVisita && stats.leadMaisAntigaSemVisita.dias >= 3){ %>
+<div class="chart-card" style="margin-bottom:14px;border-left:3px solid #ef4444">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="font-size:20px">⚠️</div>
+    <div>
+      <div style="font-size:12px;font-weight:700;color:#ef4444">Lead sem atenção há <%= stats.leadMaisAntigaSemVisita.dias %> dias</div>
+      <div style="font-size:11px;color:var(--text-ter)"><%= stats.leadMaisAntigaSemVisita.nome %> ainda não tem visita agendada</div>
+    </div>
+    <a href="/app/leads" style="margin-left:auto;font-size:11px;background:#ef4444;color:white;padding:6px 12px;border-radius:6px;text-decoration:none;font-weight:600;flex-shrink:0">Ver agora</a>
+  </div>
+</div>
+<% } %>
+
+<!-- EVOLUÇÃO SEMANAL -->
+<div class="chart-card" style="margin-bottom:14px">
+  <div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px">Leads por semana</div>
+  <canvas id="chartEvolucao" height="120"></canvas>
+</div>
+
 <!-- FUNIL DE CONVERSÃO -->
 <div class="chart-card" style="margin-bottom:14px">
   <div style="font-size:11px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px">Funil de conversão</div>

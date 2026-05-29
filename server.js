@@ -1182,6 +1182,99 @@ app.get('/app-home', auth, async (req,res)=>{
         imoveis.forEach(im => { const b=im.bairro||''; if(b) map[b]=(map[b]||0)+1; });
         return Object.entries(map).sort((a,b)=>b[1]-a[1])[0]?.[0] || '';
       })(),
+      // Ranking imóveis mais matcheados
+      rankingImoveis: (() => {
+        const map = {};
+        leadsArr.forEach(l => {
+          [...(l.matches||[]),...(l.matchesBase||[])].forEach(m => {
+            const id = String(m.idInterno||m.id||m.imovelId||'');
+            if(id) map[id] = (map[id]||0) + 1;
+          });
+        });
+        return Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([id,cnt]) => {
+          const im = imoveis.find(i => String(i.idInterno||i.id||'')===id) || {};
+          return { id, cnt, titulo: im.titulo||im.tipo||'Imóvel', bairro: im.bairro||'', foto: (im.fotos&&im.fotos[0])||'', valor: im.valor_imovel||0 };
+        });
+      })(),
+      // Temperatura das leads
+      leadsQuentes: leadsArr.filter(l => {
+        const temMatch = (l.matches&&l.matches.length>0)||(l.matchesBase&&l.matchesBase.length>0);
+        const dias = l.criadoEm||l.data_cadastro ? Math.floor((Date.now()-new Date(l.criadoEm||l.data_cadastro).getTime())/86400000) : 99;
+        return temMatch && dias <= 2;
+      }).length,
+      leadsMornas: leadsArr.filter(l => {
+        const temMatch = (l.matches&&l.matches.length>0)||(l.matchesBase&&l.matchesBase.length>0);
+        const dias = l.criadoEm||l.data_cadastro ? Math.floor((Date.now()-new Date(l.criadoEm||l.data_cadastro).getTime())/86400000) : 99;
+        return temMatch && dias > 2 && dias <= 7;
+      }).length,
+      leadsFrias: leadsArr.filter(l => {
+        const temMatch = (l.matches&&l.matches.length>0)||(l.matchesBase&&l.matchesBase.length>0);
+        const dias = l.criadoEm||l.data_cadastro ? Math.floor((Date.now()-new Date(l.criadoEm||l.data_cadastro).getTime())/86400000) : 99;
+        return temMatch && dias > 7;
+      }).length,
+      // Próximas visitas (hoje + amanhã)
+      proximasVisitas: (() => {
+        const hoje = new Date(); hoje.setHours(0,0,0,0);
+        const amanha = new Date(hoje); amanha.setDate(amanha.getDate()+1);
+        const depois = new Date(hoje); depois.setDate(depois.getDate()+2);
+        return visitas.filter(v => {
+          if(!v.dataVisita) return false;
+          const d = new Date(v.dataVisita); d.setHours(0,0,0,0);
+          return d >= hoje && d < depois && !['cancelada','recusada'].includes(v.status);
+        }).sort((a,b) => new Date(a.dataVisita)-new Date(b.dataVisita)).slice(0,5).map(v => ({
+          nome: v.nome||v.nomeCliente||'Cliente',
+          bairro: v.imovelBairro||v.bairro||'',
+          titulo: v.imovelTitulo||'Imóvel',
+          data: v.dataVisita,
+          hora: v.horaVisita||'',
+          status: v.status||'solicitada',
+          hoje: new Date(v.dataVisita).setHours(0,0,0,0) === hoje.getTime()
+        }));
+      })(),
+      // Evolução semanal de leads (últimas 4 semanas)
+      evolucaoSemanal: (() => {
+        const semanas = [0,0,0,0];
+        const agora = Date.now();
+        leadsArr.forEach(l => {
+          const d = new Date(l.criadoEm||l.data_cadastro||0).getTime();
+          const diasAtras = Math.floor((agora-d)/86400000);
+          if(diasAtras < 7) semanas[3]++;
+          else if(diasAtras < 14) semanas[2]++;
+          else if(diasAtras < 21) semanas[1]++;
+          else if(diasAtras < 28) semanas[0]++;
+        });
+        return JSON.stringify(semanas);
+      })(),
+      // Score de saúde da carteira (0-100)
+      scoreCarteira: (() => {
+        let score = 0;
+        if(imoveis.length > 0) score += 20;
+        if(imoveis.length >= 10) score += 10;
+        const pctFoto = imoveis.filter(i=>i.fotos&&i.fotos.length>0).length / Math.max(imoveis.length,1);
+        score += Math.round(pctFoto * 20);
+        const pctProp = imoveis.filter(i=>i.proprietario&&i.proprietario.telefone).length / Math.max(imoveis.length,1);
+        score += Math.round(pctProp * 15);
+        if(leadsArr.length > 0) score += 10;
+        if(comMatch.length > 0) score += 10;
+        const visitasRecentes = visitas.filter(v => {
+          const d = new Date(v.data||v.dataVisita||0);
+          return (Date.now()-d.getTime()) < 30*86400000;
+        }).length;
+        if(visitasRecentes > 0) score += 15;
+        return Math.min(score, 100);
+      })(),
+      // Imóveis sem foto
+      imoveisSemFoto: imoveis.filter(i => !i.fotos || i.fotos.length === 0).length,
+      // Imóveis sem proprietário
+      imoveisSemProprietario: imoveis.filter(i => !i.proprietario || !i.proprietario.telefone).length,
+      // Lead mais antiga sem resposta
+      leadMaisAntigaSemVisita: (() => {
+        const semVisita = leadsArr.filter(l => !visitas.some(v => String(v.leadId)===String(l.id||l._id)));
+        if(!semVisita.length) return null;
+        const mais = semVisita.sort((a,b) => new Date(a.criadoEm||a.data_cadastro||0)-new Date(b.criadoEm||b.data_cadastro||0))[0];
+        const dias = mais.criadoEm||mais.data_cadastro ? Math.floor((Date.now()-new Date(mais.criadoEm||mais.data_cadastro).getTime())/86400000) : 0;
+        return { nome: mais.nome||'Lead', dias };
+      })(),
     },
     recentes,
     topMatches: comMatch.slice(0,3),

@@ -117,6 +117,10 @@ const port = 3000;
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+const UPLOADS_STATIC_DIR = process.env.RENDER
+  ? '/opt/render/project/src/data/uploads/imoveis'
+  : path.join(__dirname, 'public', 'uploads', 'imoveis');
+app.use('/data-uploads', express.static(UPLOADS_STATIC_DIR));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.json({ limit: "50mb" }));
 
@@ -3049,7 +3053,7 @@ app.post('/imovel/:id/status', (req,res)=>{
 
 
 // Cadastro manual de imóvel
-app.post('/app/imovel/cadastrar', auth, async (req, res) => {
+app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async (req, res) => {
   const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
   const imoveis = (_cacheImoveis || []);
   const b = req.body;
@@ -3112,7 +3116,7 @@ app.post('/app/imovel/cadastrar', auth, async (req, res) => {
     } : {},
     // descrição e mídia
     descricao: b.descricao || '',
-    fotos: [],
+    fotos: (req.files || []).map(f => '/data-uploads/' + f.filename),
     // meta
     usuarioId: req.session.user.id,
     usuarioNome: req.session.user.nome || req.session.user.nomeCompleto || '',
@@ -3610,9 +3614,14 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
 });
 
 // Upload de fotos do imóvel
+const UPLOADS_IMOVEIS_DIR = process.env.RENDER
+  ? '/opt/render/project/src/data/uploads/imoveis'
+  : path.join(__dirname, 'public', 'uploads', 'imoveis');
+if (!fs.existsSync(UPLOADS_IMOVEIS_DIR)) fs.mkdirSync(UPLOADS_IMOVEIS_DIR, { recursive: true });
+
 const storageImoveis = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/imoveis');
+    cb(null, UPLOADS_IMOVEIS_DIR);
   },
   filename: function (req, file, cb) {
     const ext = file.originalname.split('.').pop();
@@ -3630,7 +3639,7 @@ app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), asyn
     const imoveis = (_cacheImoveis || []);
     const idx = imoveis.findIndex(i => String(i.idExterno)===pid || String(i.idInterno)===pid || String(i.codigoImovel)===pid || String(i.id)===pid);
     if(idx >= 0){
-      const url = '/uploads/imoveis/' + req.file.filename;
+      const url = '/data-uploads/' + req.file.filename;
       imoveis[idx].fotos = imoveis[idx].fotos || [];
       imoveis[idx].fotos.push(url);
       await salvarTodosImoveis(imoveis);

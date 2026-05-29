@@ -49,6 +49,7 @@ var statusLabel={
   solicitada:{cls:'st-solicitada',txt:'Pendente'},
   confirmada:{cls:'st-confirmada',txt:'Confirmada'},
   CONFIRMADA:{cls:'st-confirmada',txt:'Confirmada'},
+  lead_confirmou:{cls:'st-confirmada',txt:'Cliente confirmou'},
   cancelada:{cls:'st-cancelada',txt:'Cancelada'},
   CANCELADA:{cls:'st-cancelada',txt:'Cancelada'},
   realizada:{cls:'st-realizada',txt:'Realizada'},
@@ -77,7 +78,7 @@ function getColuna(v){
   var st=(v.status||'solicitada').toLowerCase();
   if(st==='realizada'||st==='concluida') return 'realizada';
   if(st==='cancelada'||st==='cliente_nao_vai'||st==='no_show') return 'cancelada';
-  if(st==='confirmada') return 'confirmada';
+  if(st==='confirmada'||st==='CONFIRMADA'||st==='lead_confirmou'||st==='lead_confirmou') return 'confirmada';
   if(st==='prop_confirmou'||st==='parceiro_confirmou') return 'aguard_cliente';
   if(v.proprietarioTelefone) return 'aguard_prop';
   return 'solicitada';
@@ -90,7 +91,7 @@ visitas.forEach(function(v){
 });
 var totalV=visitas.length;
 var pendentesV=visitas.filter(function(v){return v.status==='solicitada'||v.status==='AGUARDANDO';}).length;
-var confirmadasV=visitas.filter(function(v){return v.status==='confirmada'||v.status==='CONFIRMADA';}).length;
+var confirmadasV=visitas.filter(function(v){return v.status==='confirmada'||v.status==='CONFIRMADA'||v.status==='lead_confirmou';}).length;
 var realizadasV=visitas.filter(function(v){return v.status==='realizada'||v.status==='CONCLUIDA';}).length;
 var hoje=new Date(); hoje.setHours(0,0,0,0);
 var hojeV=visitas.filter(function(v){

@@ -215,7 +215,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
     try {
       const { execSync } = require('child_process');
       const userId = global.importUserId || '';
-      consumir(global.importUserId, 'importar_xml').catch(()=>{});
+      // créditos de importar_xml são cobrados por imóvel novo dentro do importXMLCompleto.js
       execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
 
       const fs = require('fs');
@@ -3336,7 +3336,7 @@ app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async 
   await salvarTodosImoveis(imoveis);
   _cacheImoveis = null;
   await _recarregarImoveis();
-  consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{});
+  consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{}); // 15 créditos por imóvel novo
   res.redirect('/app/imovel/' + idInterno + '/editar?salvo=1');
   setTimeout(() => regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-cadastro]', e.message)), 1000);
 });

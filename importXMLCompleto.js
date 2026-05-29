@@ -372,6 +372,10 @@ const novosFormatadosComStatus = novos.map(n => {
   };
 });
 
+// Calcula imóveis realmente novos (não existiam antes)
+const idsAntigos = new Set(antigosDoUsuario.map(a => String(a.idExterno || '')).filter(Boolean));
+const imoveisNovos = novosFormatadosComStatus.filter(n => !idsAntigos.has(String(n.idExterno || '')));
+console.log('[importXML] Imóveis novos:', imoveisNovos.length, '| Já existiam:', novosFormatadosComStatus.length - imoveisNovos.length);
 const final = [...restantes, ...novosFormatadosComStatus, ...inativos];
   // Salva no PostgreSQL
   try {
@@ -386,6 +390,16 @@ const final = [...restantes, ...novosFormatadosComStatus, ...inativos];
   const comArea = novos.filter(n => n.area_m2 > 0).length;
   const comFotos = novos.filter(n => n.fotos.length > 0).length;
 
+  // Cobra créditos apenas pelos imóveis novos
+  if (USER_ID && imoveisNovos.length > 0) {
+    try {
+      const { consumir } = require('./services/creditos');
+      for (let _ic = 0; _ic < imoveisNovos.length; _ic++) {
+        await consumir(USER_ID, 'importar_xml');
+      }
+      console.log('[importXML] Créditos consumidos:', imoveisNovos.length * 10, '(' + imoveisNovos.length + ' imóveis novos)');
+    } catch(e) { console.error('[creditos]', e.message); }
+  }
   console.log('✅ Total imóveis salvos:', novos.length);
   console.log('💰 Com valor:', comValor);
   console.log('📐 Com área:', comArea);

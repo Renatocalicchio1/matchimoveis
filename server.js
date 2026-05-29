@@ -5265,6 +5265,9 @@ app.get('/cliente/visita/:id', async (req, res) => {
 });
 
 
+app.get('/cliente/visita/:id/confirmar', (req, res) => res.redirect(307, '/cliente/visita/' + req.params.id + '/confirmar'));
+app.get('/cliente/visita/:id/recusar', (req, res) => res.redirect(307, '/cliente/visita/' + req.params.id + '/recusar'));
+
 app.post('/cliente/visita/:id/confirmar', async (req, res) => {
   try {
     const { query: _qC } = require('./services/db');

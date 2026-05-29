@@ -4135,7 +4135,7 @@ function gerarXMLPortal(imoveis, portal){
 
   if(portal === 'quintoandar'){
     const esc = v => String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    let xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<ListingDataFeed>\n  <Header>\n    <Provider>Rankim</Provider>\n    <Email>renato@rankim.com.br</Email>\n    <BatchId>matchimoveis-'+Date.now()+'</BatchId>\n    <BatchName>MatchImoveis QuintoAndar '+new Date().toISOString()+'</BatchName>\n  </Header>\n  <Listings>\n';
+    let xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<ListingDataFeed>\n  <Header>\n    <Provider>Matchimoveis</Provider>\n    <Email>contato@matchimoveis.ia.br</Email>\n    <BatchId>matchimoveis-'+Date.now()+'</BatchId>\n    <BatchName>MatchImoveis QuintoAndar '+new Date().toISOString()+'</BatchName>\n  </Header>\n  <Listings>\n';
 
     imoveis.forEach(i => {
       const prop = i.proprietario || {};
@@ -4230,8 +4230,8 @@ function gerarXMLPortal(imoveis, portal){
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <listingDataFeed>
   <header>
-    <provider>Rankim</provider>
-    <email>renato@rankim.com.br</email>
+    <provider>Matchimoveis</provider>
+    <email>contato@matchimoveis.ia.br</email>
   </header>
   <listings>
 `;

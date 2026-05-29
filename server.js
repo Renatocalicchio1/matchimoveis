@@ -3539,7 +3539,7 @@ app.post('/api/lead-interesse', async (req, res) => {
             await fetch(_EU + '/message/sendText/' + _instancia, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'apikey': _EK },
-              body: JSON.stringify({ number: _telCorretor, text: _msg })
+              body: JSON.stringify({ number: '55' + _telCorretor.replace(/^55/,''), text: _msg })
             });
             console.log('[visita] WA corretor notificado:', _telCorretor);
           }

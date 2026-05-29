@@ -25,7 +25,7 @@ const DATA_DIR = process.env.RENDER
   : __dirname;
 
 const BASE_URL = process.env.RENDER
-  ? 'https://matchimoveis.onrender.com'
+  ? 'https://matchimoveis.ia.br'
   : 'http://localhost:3000';
 
 function dataFile(name){
@@ -2458,7 +2458,7 @@ app.use((req, res, next) => {
 
 // ── KEEP-ALIVE RENDER — auto-ping a cada 4 minutos ──────────────────────────
 setInterval(() => {
-  const _BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : null;
+  const _BASE = process.env.RENDER ? 'https://matchimoveis.ia.br' : null;
   if (!_BASE) return;
   fetch(_BASE + '/health').catch(() => {});
 }, 4 * 60 * 1000);

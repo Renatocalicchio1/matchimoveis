@@ -3522,6 +3522,30 @@ app.post('/api/lead-interesse', async (req, res) => {
 
       salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
 
+      // Notifica corretor via WhatsApp sobre nova visita solicitada
+      (async () => {
+        try {
+          const _EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+          const _EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+          const _BASE = process.env.RENDER ? 'https://matchimoveis.ia.br' : 'http://localhost:3000';
+          const _corrUsers = (_cacheUsuarios || []);
+          const _corrUser = _corrUsers.find(u => u.id === usuarioDestinoId);
+          const _instancia = _corrUser?.whatsappInstance || 'match-corretor';
+          const _telCorretor = (_corrUser?.celular || _corrUser?.telefone || '').replace(/\D/g,'');
+          if (_telCorretor) {
+            const _visitaId = visitas[visitas.length - 1].id;
+            const _linkConfirmar = _BASE + '/proprietario/visita/' + _visitaId;
+            const _msg = 'Olá! O cliente *' + nome + '* solicitou uma visita ao imóvel *' + (imovelTitulo || imovelRef.titulo || imovelRef.bairro || 'imóvel') + '*.\n\nConfirme a visita pelo link: ' + _linkConfirmar + '\n\nOu acesse o painel: ' + _BASE + '/app/visitas';
+            await fetch(_EU + '/message/sendText/' + _instancia, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'apikey': _EK },
+              body: JSON.stringify({ number: _telCorretor, text: _msg })
+            });
+            console.log('[visita] WA corretor notificado:', _telCorretor);
+          }
+        } catch(e) { console.error('[visita] erro WA corretor:', e.message); }
+      })();
+
       try {
         const notificacoes = await lerNotificacoesService(req.session?.user?.id) || [];
 

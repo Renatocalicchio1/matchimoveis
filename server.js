@@ -5551,8 +5551,54 @@ app.get('/cliente/visita/:id', async (req, res) => {
 });
 
 
-app.get('/cliente/visita/:id/confirmar', (req, res) => res.redirect(307, '/cliente/visita/' + req.params.id + '/confirmar'));
-app.get('/cliente/visita/:id/recusar', (req, res) => res.redirect(307, '/cliente/visita/' + req.params.id + '/recusar'));
+app.get('/cliente/visita/:id/confirmar', async (req, res) => {
+  try {
+    const { query: _qGC } = require('./services/db');
+    await _qGC("UPDATE visitas SET status='lead_confirmou', confirmacao_cliente_status='CONFIRMADO' WHERE id=$1", [req.params.id]);
+    const _v = (await _qGC('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (_v) {
+      const { lerUsuarios: _lu } = require('./services/salvarUsuario');
+      const _user = (await _lu()).find(u => u.id === (_v.user_id || _v.corretor_id));
+      const _instancia = _user?.whatsappInstance;
+      const _num = (_user?.celular || _user?.telefone || '').replace(/\D/g,'');
+      if (_instancia && _num) {
+        const _nome = _v.nome || 'Cliente';
+        const _imovel = _v.imovel_titulo || _v.imovel_bairro || 'o imóvel';
+        const _tel = (_v.telefone || '').replace(/\D/g,'');
+        const _waLink = _tel ? 'https://wa.me/55' + _tel : '';
+        const _msg = '*' + _nome + '* confirmou presença na visita de *' + _imovel + '*.' + (_waLink ? '\n\nWhatsApp do cliente: ' + _waLink : '');
+        const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+        const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+        await fetch(EU + '/message/sendText/' + _instancia, { method:'POST', headers:{'Content-Type':'application/json','apikey':EK}, body: JSON.stringify({ number:'55'+_num.replace(/^55/,''), text:_msg }) });
+      }
+    }
+    res.render('cliente-confirmado', { visita: { id: req.params.id, imovelTitulo: _v?.imovel_titulo||'', dataVisita: _v?.data_visita||'' }, status:'confirmado', user: null });
+  } catch(e) { console.error('[get-confirmar]', e.message); res.status(500).send('Erro: '+e.message); }
+});
+app.get('/cliente/visita/:id/recusar', async (req, res) => {
+  try {
+    const { query: _qGR } = require('./services/db');
+    await _qGR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO' WHERE id=$1", [req.params.id]);
+    const _v = (await _qGR('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (_v) {
+      const { lerUsuarios: _lu } = require('./services/salvarUsuario');
+      const _user = (await _lu()).find(u => u.id === (_v.user_id || _v.corretor_id));
+      const _instancia = _user?.whatsappInstance;
+      const _num = (_user?.celular || _user?.telefone || '').replace(/\D/g,'');
+      if (_instancia && _num) {
+        const _nome = _v.nome || 'Cliente';
+        const _imovel = _v.imovel_titulo || _v.imovel_bairro || 'o imóvel';
+        const _tel = (_v.telefone || '').replace(/\D/g,'');
+        const _waLink = _tel ? 'https://wa.me/55' + _tel : '';
+        const _msg = '*' + _nome + '* não poderá comparecer na visita de *' + _imovel + '*.' + (_waLink ? '\n\nWhatsApp do cliente: ' + _waLink : '');
+        const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+        const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+        await fetch(EU + '/message/sendText/' + _instancia, { method:'POST', headers:{'Content-Type':'application/json','apikey':EK}, body: JSON.stringify({ number:'55'+_num.replace(/^55/,''), text:_msg }) });
+      }
+    }
+    res.render('cliente-confirmado', { visita: { id: req.params.id, imovelTitulo: _v?.imovel_titulo||'', dataVisita: _v?.data_visita||'' }, status:'recusado', user: null });
+  } catch(e) { console.error('[get-recusar]', e.message); res.status(500).send('Erro: '+e.message); }
+});
 
 app.post('/cliente/visita/:id/confirmar', async (req, res) => {
   try {

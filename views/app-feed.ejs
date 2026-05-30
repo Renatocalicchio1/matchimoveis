@@ -237,5 +237,24 @@ setInterval(async ()=>{
   } catch(e){}
 }, 30000);
 
-renderFeed(_imoveis);
+// pede GPS se não tiver coords salvas
+if(!_uLat){
+  navigator.geolocation && navigator.geolocation.getCurrentPosition(
+    pos => {
+      window._gLat = pos.coords.latitude;
+      window._gLng = pos.coords.longitude;
+      // salva no perfil silenciosamente
+      fetch('/app/perfil/localizacao', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({lat: window._gLat, lng: window._gLng, endereco: 'GPS automático'})
+      }).catch(()=>{});
+      renderFeed(_imoveis);
+    },
+    () => renderFeed(_imoveis),
+    {enableHighAccuracy:true, timeout:6000, maximumAge:60000}
+  );
+} else {
+  renderFeed(_imoveis);
+}
 </script>

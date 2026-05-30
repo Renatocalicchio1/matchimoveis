@@ -818,6 +818,8 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
         const _leadId = _v.leadId || '';
         const _imovelIdEnc = encodeURIComponent(_v.imovelId || '');
         const _linkRemarcar = _BASE + '/cliente/visita/' + _v.id + '/remarcar';
+        const _msgRemarcar = 'Olá *' + (_v.nome||'') + '*! O corretor solicitou uma remarcação da visita ao imóvel *' + _imovel + '*.\n\nEscolha uma nova data: ' + _linkRemarcar;
+        await _enviarWA(_telCliente, _msgRemarcar);
       }
     }
 

@@ -6367,33 +6367,37 @@ app.get('/api/leads/status-hash', auth, async (req, res) => {
 // ── PARCEIROS ────────────────────────────────────────────────
 app.get('/app/feed', auth, async (req, res) => {
   try {
-    const userId = req.session.user?.codigoUsuario || req.session.user?.codigo;
+    const myId = req.session.user?.codigoUsuario || req.session.user?.codigo;
     const todos = _cacheImoveis || [];
+    const usuarios = _cacheUsuarios || [];
 
-    // pega lat/lng do usuário
+    // mapa userId -> nome do usuário
+    const nomeMap = {};
+    usuarios.forEach(u => {
+      const uid = u.codigoUsuario || u.codigo || u.id;
+      if(uid) nomeMap[uid] = u.nome || u.name || uid;
+    });
+
     const uLat = req.session.user?.lat || null;
     const uLng = req.session.user?.lng || null;
 
-    // filtra imóveis com foto e ativos, ordena por distância se tiver GPS
     let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido');
 
-    if(uLat && uLng){
-      imoveis = imoveis.map(im => {
-        const iLat = im.latitude || im.lat;
-        const iLng = im.longitude || im.lng;
-        if(!iLat || !iLng) return {...im, _dist: 9999};
+    imoveis = imoveis.map(im => {
+      const iLat = im.latitude || im.lat;
+      const iLng = im.longitude || im.lng;
+      const uid = im.user_id || im.userId || im.codigoUsuario;
+      const nomeUsuario = nomeMap[uid] || '';
+      let _dist = 9999;
+      if(uLat && uLng && iLat && iLng){
         const dLat=(iLat-uLat)*Math.PI/180, dLng=(iLng-uLng)*Math.PI/180;
         const a=Math.sin(dLat/2)**2+Math.cos(uLat*Math.PI/180)*Math.cos(iLat*Math.PI/180)*Math.sin(dLng/2)**2;
-        return {...im, _dist: 6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))};
-      }).sort((a,b) => a._dist - b._dist);
-    }
+        _dist = 6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+      }
+      return {...im, _nomeUsuario: nomeUsuario, _dist};
+    }).sort((a,b) => a._dist - b._dist).slice(0, 50);
 
-    imoveis = imoveis.slice(0, 50);
-
-    res.render('app-feed', {
-      user: req.session.user,
-      imoveis: imoveis
-    });
+    res.render('app-feed', { user: req.session.user, imoveis });
   } catch(e) {
     console.error('feed error:', e);
     res.status(500).send('Erro no feed');

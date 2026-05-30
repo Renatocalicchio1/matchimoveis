@@ -6365,6 +6365,54 @@ app.get('/api/leads/status-hash', auth, async (req, res) => {
 });
 
 // ── PARCEIROS ────────────────────────────────────────────────
+app.get('/app/feed', auth, async (req, res) => {
+  try {
+    const userId = req.session.user?.codigoUsuario || req.session.user?.codigo;
+    const todos = _cacheImoveis || [];
+
+    // pega lat/lng do usuário
+    const uLat = req.session.user?.lat || null;
+    const uLng = req.session.user?.lng || null;
+
+    // filtra imóveis com foto e ativos, ordena por distância se tiver GPS
+    let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido');
+
+    if(uLat && uLng){
+      imoveis = imoveis.map(im => {
+        if(!im.lat || !im.lng) return {...im, _dist: 9999};
+        const dLat=(im.lat-uLat)*Math.PI/180, dLng=(im.lng-uLng)*Math.PI/180;
+        const a=Math.sin(dLat/2)**2+Math.cos(uLat*Math.PI/180)*Math.cos(im.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+        return {...im, _dist: 6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))};
+      }).sort((a,b) => a._dist - b._dist);
+    }
+
+    imoveis = imoveis.slice(0, 50);
+
+    res.render('app-feed', {
+      user: req.session.user,
+      imoveis: JSON.stringify(imoveis)
+    });
+  } catch(e) {
+    console.error('feed error:', e);
+    res.status(500).send('Erro no feed');
+  }
+});
+
+// API polling novos imóveis
+app.get('/api/feed/novos', auth, async (req, res) => {
+  try {
+    const since = parseInt(req.query.since) || 0;
+    const todos = _cacheImoveis || [];
+    const novos = todos.filter(im => {
+      const ts = new Date(im.criadoEm || im.dataCadastro || 0).getTime();
+      return ts > since && im.status !== 'inativo';
+    }).slice(0, 10);
+    res.json({ imoveis: novos });
+  } catch(e) {
+    res.json({ imoveis: [] });
+  }
+});
+
 app.get('/app/parceiros', auth, async (req, res) => {
   const uid = req.session.user.id;
   const raw = await lerLeads(uid);

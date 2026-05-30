@@ -1,0 +1,241 @@
+<%- include("partials/app-shell",{active:"feed",user:user,title:"Feed"}) %>
+
+<style>
+#feed-root{margin:-20px;overflow-y:auto;scroll-snap-type:y mandatory;height:calc(100vh - 60px);background:#fff;}
+.feed-post{scroll-snap-align:start;border-bottom:.5px solid #f5f5f5;background:#fff;}
+.post-hdr{padding:10px 14px;display:flex;align-items:center;gap:9px;}
+.post-av{width:30px;height:30px;border-radius:50%;background:#E8404A;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.post-name{font-size:12px;font-weight:600;color:#111;}
+.post-loc{font-size:10px;color:#aaa;display:flex;align-items:center;gap:3px;}
+.post-more{margin-left:auto;font-size:20px;color:#ccc;cursor:pointer;letter-spacing:1px;}
+
+.photos-wrap{position:relative;height:260px;overflow:hidden;cursor:grab;touch-action:pan-y;}
+.photos-track{display:flex;height:100%;transition:transform .28s cubic-bezier(.4,0,.2,1);}
+.photo-slide{min-width:100%;height:100%;background:#1a2a1e;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;}
+.photo-slide img{width:100%;height:100%;object-fit:cover;}
+.photo-slide-placeholder{opacity:.15;}
+.p-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;pointer-events:none;}
+.p-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.4);transition:all .25s;}
+.p-dot.a{background:#fff;width:14px;border-radius:3px;}
+.p-num{position:absolute;top:9px;right:10px;background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:2px 7px;border-radius:6px;}
+
+.post-actions{padding:10px 14px 4px;display:flex;align-items:center;gap:16px;}
+.act-btn{font-size:24px;color:#111;cursor:pointer;background:none;border:none;padding:0;display:flex;align-items:center;transition:transform .1s;}
+.act-btn:active{transform:scale(1.2);}
+.act-btn.liked{color:#E8404A;}
+.act-spacer{flex:1;}
+.act-save{font-size:22px;color:#111;cursor:pointer;background:none;border:none;padding:0;}
+
+.ia-row{padding:4px 14px;display:flex;align-items:center;gap:8px;}
+.ia-lbl{font-size:9px;color:#ccc;display:flex;align-items:center;gap:3px;white-space:nowrap;}
+.ia-bg{flex:1;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden;}
+.ia-fill{height:100%;background:#1D9E75;border-radius:2px;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+.ia-pct{font-size:10px;font-weight:600;color:#1D9E75;min-width:28px;text-align:right;}
+
+.minimap{margin:6px 14px;height:52px;background:#dde8dd;border-radius:10px;overflow:hidden;position:relative;flex-shrink:0;}
+.mm-label{position:absolute;right:7px;top:5px;background:rgba(0,0,0,.5);color:#fff;font-size:8px;padding:2px 6px;border-radius:5px;}
+.mm-you-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:#E8404A;border:1.5px solid #fff;z-index:5;transform:translate(-50%,-50%);}
+.mm-prop-dot{position:absolute;width:9px;height:9px;border-radius:50%;background:#1D9E75;border:1.5px solid #fff;z-index:5;transform:translate(-50%,-50%);}
+
+.post-info{padding:6px 14px 14px;}
+.post-price{font-size:22px;font-weight:700;color:#111;letter-spacing:-.4px;line-height:1.1;}
+.post-desc{font-size:11px;color:#888;font-weight:300;margin-top:3px;}
+.post-addr{font-size:10px;color:#ccc;margin-top:3px;display:flex;align-items:center;gap:3px;}
+
+.new-banner{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#E8404A;color:#fff;font-size:11px;font-weight:600;padding:7px 18px;border-radius:20px;box-shadow:0 2px 12px rgba(232,64,74,.35);z-index:100;display:none;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;}
+.new-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+</style>
+
+<div class="new-banner" id="newBanner" onclick="loadNewPosts()">
+  <div class="new-dot"></div>
+  <span id="newCount">2 novos imóveis na sua região</span>
+</div>
+
+<div id="feed-root"></div>
+
+<script>
+const _imoveis = <%- JSON.stringify(imoveis) %>;
+const _uLat = <%= user.lat || 'null' %>;
+const _uLng = <%= user.lng || 'null' %>;
+let _newQueue = [];
+
+function _initials(nome){
+  if(!nome) return 'MI';
+  return nome.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+function _dist(lat1,lng1,lat2,lng2){
+  if(!lat1||!lat2) return null;
+  const R=6371,dL=(lat2-lat1)*Math.PI/180,dN=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dL/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dN/2)**2;
+  return (R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))).toFixed(1);
+}
+
+function _renderPost(im, idx){
+  const fotos = (im.fotos||[]).slice(0,6);
+  const hasPhotos = fotos.length > 0;
+  const nSlides = hasPhotos ? fotos.length : 1;
+  const initials = _initials(im.nomeCorretor || im.usuario || 'MI');
+  const dist = _dist(_uLat, _uLng, im.lat, im.lng);
+  const compat = im.compatibilidade || Math.floor(70 + Math.random()*25);
+  const isParceiro = im.userId !== '<%= user.codigoUsuario || user.codigo %>';
+  const preco = im.valor ? 'R$ ' + Number(im.valor).toLocaleString('pt-BR') : (im.preco||'Consulte');
+  const desc = [im.tipo||'Imóvel', im.quartos ? im.quartos+' qts' : '', im.area ? im.area+'m²' : '', im.vagas ? im.vagas+' vaga'+(im.vagas>1?'s':'') : ''].filter(Boolean).join(' · ');
+  const addr = [im.bairro, im.cidade].filter(Boolean).join(', ');
+
+  const slidesHtml = hasPhotos
+    ? fotos.map(f=>`<div class="photo-slide"><img src="${f}" loading="lazy" onerror="this.parentNode.style.background='#1a2a1e';this.remove()"></div>`).join('')
+    : `<div class="photo-slide"><svg class="photo-slide-placeholder" width="150" height="110" viewBox="0 0 150 110" fill="none"><rect x="8" y="44" width="134" height="66" fill="#fff" rx="3"/><polygon points="75,12 8,46 142,46" fill="#fff"/><rect x="50" y="64" width="24" height="46" fill="#1a2a1e" rx="2"/><rect x="78" y="64" width="22" height="26" fill="#fff" rx="2" opacity=".5"/></svg></div>`;
+
+  const dotsHtml = nSlides > 1 ? Array.from({length:nSlides},(_,i)=>`<div class="p-dot${i===0?' a':''}"></div>`).join('') : '';
+  const numHtml  = nSlides > 1 ? `<div class="p-num">1 / ${nSlides}</div>` : '';
+
+  const mmYouLeft = 50, mmYouTop = 62;
+  const mmPropLeft = dist ? Math.min(82, mmYouLeft + 22) : 70;
+  const mmPropTop  = dist ? Math.max(18, mmYouTop - 28) : 33;
+
+  return `
+<div class="feed-post" data-id="${im.id||im.idExterno||idx}">
+  <div class="post-hdr">
+    <div class="post-av" style="background:${isParceiro?'#185FA5':'#E8404A'}">${initials}</div>
+    <div>
+      <div class="post-name">${isParceiro ? (im.nomeCorretor||'Parceiro') : 'Meu imóvel'}</div>
+      <div class="post-loc"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#E8404A" stroke-width="2.5" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg> ${addr||'Região'}</div>
+    </div>
+    <div class="post-more">···</div>
+  </div>
+
+  <div class="photos-wrap" data-cur="0" data-total="${nSlides}">
+    <div class="photos-track">${slidesHtml}</div>
+    ${dotsHtml ? `<div class="p-dots">${dotsHtml}</div>` : ''}
+    ${numHtml}
+  </div>
+
+  <div class="post-actions">
+    <button class="act-btn" onclick="toggleLike(this)" aria-label="Gostei">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </button>
+    <button class="act-btn" aria-label="Compartilhar" onclick="compartilhar('${im.id||im.idExterno||idx}')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+    <div class="act-spacer"></div>
+    <button class="act-save" aria-label="Salvar">
+      <svg width="20" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    </button>
+  </div>
+
+  <div class="ia-row">
+    <span class="ia-lbl">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="#1D9E75" stroke="none"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+      IA
+    </span>
+    <div class="ia-bg"><div class="ia-fill" style="width:0%" data-target="${compat}"></div></div>
+    <span class="ia-pct">0%</span>
+  </div>
+
+  <div class="minimap">
+    <div style="position:absolute;left:0;right:0;top:28%;height:1.5px;background:#fff;opacity:.6"></div>
+    <div style="position:absolute;left:0;right:0;top:58%;height:1.5px;background:#fff;opacity:.6"></div>
+    <div style="position:absolute;top:0;bottom:0;left:24%;width:1.5px;background:#fff;opacity:.6"></div>
+    <div style="position:absolute;top:0;bottom:0;left:54%;width:1.5px;background:#fff;opacity:.6"></div>
+    <div style="position:absolute;top:7%;left:26%;width:26%;height:19%;background:#c6d6c6;border-radius:1px"></div>
+    <div style="position:absolute;top:7%;left:56%;width:18%;height:19%;background:#c6d6c6;border-radius:1px"></div>
+    <div style="position:absolute;top:33%;left:26%;width:26%;height:22%;background:#c6d6c6;border-radius:1px"></div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:18%;background:#b6d0e8"></div>
+    <svg style="position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none">
+      <line x1="${mmYouLeft}%" y1="${mmYouTop}%" x2="${mmPropLeft}%" y2="${mmPropTop}%" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="4,3" opacity=".8"/>
+    </svg>
+    <div class="mm-you-dot" style="left:${mmYouLeft}%;top:${mmYouTop}%"></div>
+    <div class="mm-prop-dot" style="left:${mmPropLeft}%;top:${mmPropTop}%"></div>
+    <div class="mm-label">${dist ? `<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="10" r="4"/><path d="M12 2C7.58 2 4 5.58 4 10c0 5.5 8 12 8 12s8-6.5 8-12c0-4.42-3.58-8-8-8z"/></svg> ${dist} km` : 'sem GPS'}</div>
+  </div>
+
+  <div class="post-info">
+    <div class="post-price">${preco}</div>
+    <div class="post-desc">${desc}</div>
+    <div class="post-addr"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#E8404A" stroke-width="2.5" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg> ${addr}</div>
+  </div>
+</div>`;
+}
+
+function renderFeed(list){
+  const root = document.getElementById('feed-root');
+  root.innerHTML = list.map((im,i) => _renderPost(im,i)).join('');
+  _initCarousels();
+  _animateBars();
+}
+
+function _initCarousels(){
+  document.querySelectorAll('.photos-wrap').forEach(wrap => {
+    let sx=0, dx=0, dragging=false;
+    const track = wrap.querySelector('.photos-track');
+    const dots  = wrap.querySelectorAll('.p-dot');
+    const num   = wrap.querySelector('.p-num');
+    const total = parseInt(wrap.dataset.total)||1;
+    let cur = 0;
+
+    function goTo(n){
+      cur = Math.max(0, Math.min(n, total-1));
+      track.style.transform = `translateX(-${cur*100}%)`;
+      dots.forEach((d,i) => d.classList.toggle('a', i===cur));
+      if(num) num.textContent = `${cur+1} / ${total}`;
+    }
+
+    wrap.addEventListener('pointerdown', e => { sx=e.clientX; dragging=true; dx=0; wrap.setPointerCapture(e.pointerId); });
+    wrap.addEventListener('pointermove', e => { if(!dragging) return; dx=e.clientX-sx; });
+    wrap.addEventListener('pointerup',   e => {
+      if(!dragging) return; dragging=false;
+      if(Math.abs(dx)>40){ dx<0 ? goTo(cur+1) : goTo(cur-1); }
+      dx=0;
+    });
+  });
+}
+
+function _animateBars(){
+  document.querySelectorAll('.ia-fill').forEach(bar => {
+    const target = parseInt(bar.dataset.target)||0;
+    const pctEl = bar.closest('.ia-row')?.querySelector('.ia-pct');
+    let v=0;
+    const t = setInterval(()=>{
+      v = Math.min(v+2, target);
+      bar.style.width = v+'%';
+      if(pctEl) pctEl.textContent = v+'%';
+      if(v>=target) clearInterval(t);
+    }, 16);
+  });
+}
+
+function toggleLike(btn){
+  btn.classList.toggle('liked');
+}
+
+function compartilhar(id){
+  const url = `${window.location.origin}/imovel/${id}`;
+  if(navigator.share){ navigator.share({title:'MatchImóveis', url}); }
+  else { navigator.clipboard?.writeText(url).then(()=>alert('Link copiado!')); }
+}
+
+function loadNewPosts(){
+  document.getElementById('newBanner').style.display='none';
+  if(_newQueue.length){ renderFeed([..._newQueue, ..._imoveis]); _newQueue=[]; }
+}
+
+// polling novos imóveis a cada 30s
+let _lastCheck = Date.now();
+setInterval(async ()=>{
+  try {
+    const r = await fetch(`/api/feed/novos?since=${_lastCheck}&lat=${_uLat||''}&lng=${_uLng||''}`);
+    const d = await r.json();
+    if(d.imoveis && d.imoveis.length){
+      _newQueue = d.imoveis;
+      _lastCheck = Date.now();
+      const b = document.getElementById('newBanner');
+      document.getElementById('newCount').textContent = `${d.imoveis.length} novo${d.imoveis.length>1?'s':''} na sua região`;
+      b.style.display='flex';
+    }
+  } catch(e){}
+}, 30000);
+
+renderFeed(_imoveis);
+</script>

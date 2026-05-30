@@ -38,8 +38,6 @@
       <div class="msg">🏠 Imóvel marcado como indisponível. Cliente foi notificado.</div>
     <% } else if (visita.status === 'cancelada' || visita.status === 'recusada') { %>
       <div class="msg">❌ Visita cancelada.</div>
-    <% } else if (visita.status === 'pendente_remarcar' || visita.respostaCorretor === 'remarcar') { %>
-      <div class="msg">📅 Remarcação solicitada. Cliente foi notificado.</div>
     <% } else { %>
       <span class="badge badge-sol">Visita solicitada</span>
       <h2>Nova solicitação de visita</h2>

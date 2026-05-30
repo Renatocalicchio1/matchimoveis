@@ -89,20 +89,23 @@ let _uLng = _uLngSalvo || -48.6419;
 const _map = L.map('mapa').setView([_uLat,_uLng],13);
 
 // Se não tem coords salvas, tenta geolocation do browser
-if(!_uLatSalvo){
-  navigator.geolocation && navigator.geolocation.getCurrentPosition(
-    pos => {
-      _uLat = pos.coords.latitude;
-      _uLng = pos.coords.longitude;
+// watchPosition: atualiza pin em tempo real ao se deslocar
+if(navigator.geolocation){
+  const _geoOpts = {enableHighAccuracy:true, maximumAge:10000, timeout:10000};
+  const _onPos = pos => {
+    _uLat = pos.coords.latitude;
+    _uLng = pos.coords.longitude;
+    if(!window._geoIniciou){
+      // primeira fix: centraliza o mapa
       _map.setView([_uLat,_uLng],13);
-      // atualiza o pin "você aqui"
-      if(window._pinVoce){ _map.removeLayer(window._pinVoce); }
-      window._pinVoce = L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#1D9E75',null,true)})
-        .addTo(_map).bindPopup('<div style="padding:8px"><b>Você está aqui</b><br><small style="color:#888">Posição atual (GPS)</small></div>');
-    },
-    _err => { /* sem permissão — mantém fallback */ },
-    {timeout:5000, maximumAge:60000}
-  );
+      window._geoIniciou = true;
+    }
+    if(window._pinVoce){ _map.removeLayer(window._pinVoce); }
+    window._pinVoce = L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#1D9E75',null,true)})
+      .addTo(_map).bindPopup('<div style="padding:8px"><b>Você está aqui</b><br><small style="color:#888">Posição em tempo real</small></div>');
+  };
+  const _onErr = () => { /* sem permissão — mantém coords salvas/fallback */ };
+  window._watchId = navigator.geolocation.watchPosition(_onPos, _onErr, _geoOpts);
 }
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(_map);
 

@@ -134,21 +134,21 @@ function _renderPost(im, idx){
     <span class="ia-pct">0%</span>
   </div>
 
-  <div class="minimap">
-    <div style="position:absolute;left:0;right:0;top:28%;height:1.5px;background:#fff;opacity:.6"></div>
-    <div style="position:absolute;left:0;right:0;top:58%;height:1.5px;background:#fff;opacity:.6"></div>
-    <div style="position:absolute;top:0;bottom:0;left:24%;width:1.5px;background:#fff;opacity:.6"></div>
-    <div style="position:absolute;top:0;bottom:0;left:54%;width:1.5px;background:#fff;opacity:.6"></div>
-    <div style="position:absolute;top:7%;left:26%;width:26%;height:19%;background:#c6d6c6;border-radius:1px"></div>
-    <div style="position:absolute;top:7%;left:56%;width:18%;height:19%;background:#c6d6c6;border-radius:1px"></div>
-    <div style="position:absolute;top:33%;left:26%;width:26%;height:22%;background:#c6d6c6;border-radius:1px"></div>
-    <div style="position:absolute;bottom:0;left:0;right:0;height:18%;background:#b6d0e8"></div>
+  <div class="minimap" style="background:#fff;border:.5px solid #f0f0f0;">
+    <div style="position:absolute;left:0;right:0;top:30%;height:1px;background:#f0f0f0;"></div>
+    <div style="position:absolute;left:0;right:0;top:60%;height:1px;background:#f0f0f0;"></div>
+    <div style="position:absolute;top:0;bottom:0;left:25%;width:1px;background:#f0f0f0;"></div>
+    <div style="position:absolute;top:0;bottom:0;left:55%;width:1px;background:#f0f0f0;"></div>
+    <div style="position:absolute;top:8%;left:27%;width:25%;height:20%;background:#f5f5f5;border-radius:2px"></div>
+    <div style="position:absolute;top:8%;left:57%;width:18%;height:20%;background:#f5f5f5;border-radius:2px"></div>
+    <div style="position:absolute;top:34%;left:27%;width:25%;height:22%;background:#f5f5f5;border-radius:2px"></div>
+    <div style="position:absolute;top:8%;left:2%;width:20%;height:20%;background:#f5f5f5;border-radius:2px"></div>
     <svg style="position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none">
-      <line x1="${mmYouLeft}%" y1="${mmYouTop}%" x2="${mmPropLeft}%" y2="${mmPropTop}%" stroke="#1D9E75" stroke-width="1.5" stroke-dasharray="4,3" opacity=".8"/>
+      <line x1="${mmYouLeft}%" y1="${mmYouTop}%" x2="${mmPropLeft}%" y2="${mmPropTop}%" stroke="#E8404A" stroke-width="1.5" stroke-dasharray="5,3" opacity=".7"/>
     </svg>
-    <div class="mm-you-dot" style="left:${mmYouLeft}%;top:${mmYouTop}%"></div>
-    <div class="mm-prop-dot" style="left:${mmPropLeft}%;top:${mmPropTop}%"></div>
-    <div class="mm-label">${dist ? `<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="10" r="4"/><path d="M12 2C7.58 2 4 5.58 4 10c0 5.5 8 12 8 12s8-6.5 8-12c0-4.42-3.58-8-8-8z"/></svg> ${dist} km` : 'sem GPS'}</div>
+    <div class="mm-you-dot" style="left:${mmYouLeft}%;top:${mmYouTop}%;background:#E8404A;"></div>
+    <div class="mm-prop-dot" style="left:${mmPropLeft}%;top:${mmPropTop}%;background:#1D9E75;"></div>
+    <div class="mm-label" style="background:rgba(232,64,74,.1);color:#E8404A;border:.5px solid rgba(232,64,74,.2);">${dist ? dist+' km de você' : 'atualize seu perfil'}</div>
   </div>
 
   <div class="post-info">
@@ -237,24 +237,5 @@ setInterval(async ()=>{
   } catch(e){}
 }, 30000);
 
-// pede GPS se não tiver coords salvas
-if(!_uLat){
-  navigator.geolocation && navigator.geolocation.getCurrentPosition(
-    pos => {
-      window._gLat = pos.coords.latitude;
-      window._gLng = pos.coords.longitude;
-      // salva no perfil silenciosamente
-      fetch('/app/perfil/localizacao', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({lat: window._gLat, lng: window._gLng, endereco: 'GPS automático'})
-      }).catch(()=>{});
-      renderFeed(_imoveis);
-    },
-    () => renderFeed(_imoveis),
-    {enableHighAccuracy:true, timeout:6000, maximumAge:60000}
-  );
-} else {
-  renderFeed(_imoveis);
-}
+renderFeed(_imoveis);
 </script>

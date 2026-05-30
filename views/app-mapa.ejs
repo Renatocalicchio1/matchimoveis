@@ -65,8 +65,9 @@ const _imVisita = <%- imoveisVisitaJSON %>;
 const _imInt    = <%- imoveisInteresseJSON %>;
 const _proxima  = <%- proximaVisitaJSON %>;
 const _hoje     = '<%= hoje %>';
-const _uLat = <%= user.lat || -26.9543 %>;
-const _uLng = <%= user.lng || -48.6419 %>;
+// Centralização: 1) coords salvas no perfil  2) geolocation do browser  3) fallback SC
+const _uLatSalvo = <%= user.lat ? user.lat : 'null' %>;
+const _uLngSalvo = <%= user.lng ? user.lng : 'null' %>;
 
 const _cc = {
   'itajai':{lat:-26.9078,lng:-48.6619},'itajaí':{lat:-26.9078,lng:-48.6619},
@@ -83,7 +84,26 @@ const _cc = {
 const _norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const _coords = (b,c) => _cc[_norm(c)] || _cc[_norm(b)] || null;
 
-const _map = L.map('mapa').setView([_uLat,_uLng],12);
+let _uLat = _uLatSalvo || -26.9543;
+let _uLng = _uLngSalvo || -48.6419;
+const _map = L.map('mapa').setView([_uLat,_uLng],13);
+
+// Se não tem coords salvas, tenta geolocation do browser
+if(!_uLatSalvo){
+  navigator.geolocation && navigator.geolocation.getCurrentPosition(
+    pos => {
+      _uLat = pos.coords.latitude;
+      _uLng = pos.coords.longitude;
+      _map.setView([_uLat,_uLng],13);
+      // atualiza o pin "você aqui"
+      if(window._pinVoce){ _map.removeLayer(window._pinVoce); }
+      window._pinVoce = L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#1D9E75',null,true)})
+        .addTo(_map).bindPopup('<div style="padding:8px"><b>Você está aqui</b><br><small style="color:#888">Posição atual (GPS)</small></div>');
+    },
+    _err => { /* sem permissão — mantém fallback */ },
+    {timeout:5000, maximumAge:60000}
+  );
+}
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(_map);
 
 function _pin(emoji, cor, label, pulse) {
@@ -101,7 +121,7 @@ st.textContent = '@keyframes pulse{0%,100%{transform:scale(1);opacity:.2}50%{tra
 document.head.appendChild(st);
 
 // Pin corretor — pulsa
-L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#1D9E75',null,true)}).addTo(_map).bindPopup('<div style="padding:8px"><b>Você está aqui</b><br><small style="color:#888">Posição atual</small></div>');
+window._pinVoce = L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#1D9E75',null,true)}).addTo(_map).bindPopup('<div style="padding:8px"><b>Você está aqui</b><br><small style="color:#888">Posição atual</small></div>');
 
 const _layers = {visitas:L.layerGroup(),interesse:L.layerGroup(),leads:L.layerGroup()};
 const _ativos = {visitas:true,interesse:false,leads:false};

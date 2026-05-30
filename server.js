@@ -6371,12 +6371,14 @@ app.get('/app/feed', auth, async (req, res) => {
     const todos = _cacheImoveis || [];
     const usuarios = _cacheUsuarios || [];
 
-    // mapa userId -> nome do usuário
+    // mapa userId -> nome — testa todos os campos possíveis
     const nomeMap = {};
     usuarios.forEach(u => {
-      const uid = u.codigo_usuario || u.codigoUsuario || u.codigo || u.id;
-      if(uid) nomeMap[uid] = u.nome || u.name || uid;
+      const nome = u.nome || u.name || '';
+      const ids = [u.codigo_usuario, u.codigoUsuario, u.codigo, u.id, u._id].filter(Boolean);
+      ids.forEach(uid => { if(uid && nome) nomeMap[String(uid)] = nome; });
     });
+    console.log('[feed] nomeMap:', JSON.stringify(nomeMap));
 
     const uLat = req.session.user?.lat || null;
     const uLng = req.session.user?.lng || null;

@@ -27,7 +27,7 @@
 .ia-bg{flex:1;height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden;}
 .ia-fill{height:100%;background:#1D9E75;border-radius:2px;width:0;}
 .ia-pct{font-size:10px;font-weight:600;color:#1D9E75;min-width:28px;text-align:right;}
-.minimap{margin:6px 14px;height:80px;border-radius:10px;overflow:hidden;border:.5px solid #ebebeb;}
+
 .post-info{padding:6px 14px 16px;}
 .post-price{font-size:22px;font-weight:700;color:#111;letter-spacing:-.4px;}
 .post-desc{font-size:11px;color:#888;margin-top:3px;}
@@ -89,9 +89,10 @@ function _renderPost(im, idx){
     </div>
     <div class="post-more">···</div>
   </div>
-  <div class="photos-wrap" data-cur="0" data-total="${nSlides}">
+  <div class="photos-wrap" data-cur="0" data-total="${nSlides}" style="position:relative;">
     <div class="photos-track">${slidesHtml}</div>
     ${nSlides>1?`<div class="p-dots">${dotsHtml}</div><div class="p-num">1 / ${nSlides}</div>`:''}
+    <div id="${mmId}" style="position:absolute;bottom:10px;right:10px;width:80px;height:80px;border-radius:10px;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:10;background:#f0f0f0;"></div>
   </div>
   <div class="post-actions">
     <button class="act-btn" onclick="this.classList.toggle('liked')" aria-label="Gostei">
@@ -110,7 +111,6 @@ function _renderPost(im, idx){
     <div class="ia-bg"><div class="ia-fill" data-target="${compat}"></div></div>
     <span class="ia-pct">0%</span>
   </div>
-  <div class="minimap" id="${mmId}"></div>
   <div class="post-info">
     <div class="post-price">${preco}</div>
     <div class="post-desc">${desc}</div>

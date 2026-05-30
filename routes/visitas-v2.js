@@ -235,6 +235,24 @@ router.post('/cliente/visita/:id/remarcar', async (req,res) => {
     const caso = detectarCaso(visitaAtualizada);
     if (caso==='caso1') setImmediate(()=>dispararProprietario(visitaAtualizada));
     else if (caso==='caso3') setImmediate(()=>dispararParceiro(visitaAtualizada));
+    (async () => {
+      try {
+        const { lerUsuarios } = require('../services/salvarUsuario');
+        const users = await lerUsuarios();
+        const user = users.find(u => u.id === (visita.userId || visita.user_id || visita.corretorId));
+        const instancia = user?.whatsappInstance || 'match-corretor';
+        const numCorretor = (user?.celular || user?.telefone || '').replace(/\D/g,'');
+        if (numCorretor) {
+          const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+          const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+          const BASE = 'https://matchimoveis.ia.br';
+          const imovel = visita.imovelTitulo || visita.imovel_titulo || visita.imovelBairro || visita.imovel_bairro || 'imovel';
+          const linkConfirmar = BASE + '/corretor/visita/' + visita.id;
+          const msg = (visita.nome||'Cliente') + ' remarcou a visita ao imovel ' + imovel + ' para ' + (novaData||'nova data') + (novaHora ? ' as ' + novaHora : '') + '. Confirme: ' + linkConfirmar;
+          await fetch(EU + '/message/sendText/' + instancia, { method:'POST', headers:{'Content-Type':'application/json','apikey':EK}, body: JSON.stringify({ number:'55'+numCorretor.replace(/^55/,''), text:msg }) });
+        }
+      } catch(e) { console.error('[v2-remarcar WA]', e.message); }
+    })();
     res.render('cliente-confirmado',{visita:visitaAtualizada,status:'remarcado'});
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });

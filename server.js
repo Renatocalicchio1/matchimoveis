@@ -6374,7 +6374,7 @@ app.get('/app/feed', auth, async (req, res) => {
     // mapa userId -> nome do usuário
     const nomeMap = {};
     usuarios.forEach(u => {
-      const uid = u.codigoUsuario || u.codigo || u.id;
+      const uid = u.codigo_usuario || u.codigoUsuario || u.codigo || u.id;
       if(uid) nomeMap[uid] = u.nome || u.name || uid;
     });
 

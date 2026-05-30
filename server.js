@@ -5637,38 +5637,33 @@ app.get('/cliente/visita/:id/remarcar', (req,res)=>{
 });
 
 app.post('/cliente/visita/:id/remarcar', async (req,res)=>{
-
-  const fs = require('fs');
-
-  let visitas = (_cacheVisitas || []);
-
-  visitas = visitas.map(v => {
-
-    if(String(v.id) === String(req.params.id)){
-
-      v.status = 'REMARCAR';
-
-      v.novaDataSolicitada = req.body.dataVisita || '';
-
-      v.novaHoraSolicitada = req.body.horaVisita || '';
-
-      v.observacaoRemarcacao = req.body.observacao || '';
-
-      v.remarcarSolicitadoAt = new Date().toISOString();
-
+  try {
+    const { query: _qRem } = require('./services/db');
+    const novaData = req.body.dataVisita || '';
+    const novaHora = req.body.horaVisita || '';
+    await _qRem("UPDATE visitas SET status='remarcado', data_visita=$2, hora_visita=$3 WHERE id=$1", [req.params.id, novaData, novaHora]);
+    const _vRow = await _qRem('SELECT * FROM visitas WHERE id=$1', [req.params.id]);
+    const _v = _vRow.rows[0];
+    if (_v) {
+      const { lerUsuarios: _luRem } = require('./services/salvarUsuario');
+      const _users = await _luRem();
+      const _user = _users.find(u => u.id === (_v.user_id || _v.corretor_id));
+      const _instancia = _user?.whatsappInstance || 'match-corretor';
+      const _numCorretor = (_user?.celular || _user?.telefone || '').replace(/\D/g,'');
+      if (_numCorretor) {
+        const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+        const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+        const BASE = 'https://matchimoveis.ia.br';
+        const _imovel = _v.imovel_titulo || _v.imovel_bairro || 'imovel';
+        const _linkConfirmar = BASE + '/corretor/visita/' + _v.id;
+        const _msg = (_v.nome||'Cliente') + ' remarcou a visita ao imovel ' + _imovel + ' para ' + novaData + (novaHora ? ' as ' + novaHora : '') + '. Confirme: ' + _linkConfirmar;
+        await fetch(EU + '/message/sendText/' + _instancia, { method:'POST', headers:{'Content-Type':'application/json','apikey':EK}, body: JSON.stringify({ number:'55'+_numCorretor.replace(/^55/,''), text:_msg }) });
+        console.log('[remarcar] WA corretor notificado');
+      }
     }
-
-    return v;
-
-  });
-
-  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
-
-  res.redirect('/cliente/visita/' + req.params.id);
-
+    res.render('cliente-confirmado', { visita: { id: req.params.id, imovelTitulo: _v?.imovel_titulo||'', dataVisita: novaData }, status:'remarcado', user: null });
+  } catch(e) { console.error('[remarcar]', e.message); res.status(500).send('Erro: '+e.message); }
 });
-
-
 app.post('/app/visitas/checkin/:id', auth, async (req,res)=>{
   const fs = require('fs');
 

@@ -6390,7 +6390,7 @@ app.get('/app/feed', auth, async (req, res) => {
 
     res.render('app-feed', {
       user: req.session.user,
-      imoveis: JSON.stringify(imoveis)
+      imoveis: imoveis
     });
   } catch(e) {
     console.error('feed error:', e);

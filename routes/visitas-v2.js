@@ -229,7 +229,7 @@ router.post('/cliente/visita/:id/remarcar', async (req,res) => {
     const visita = await getVisita(req.params.id);
     if (!visita) return res.status(404).send('Visita não encontrada');
     const {novaData, novaHora} = req.body;
-    await updateVisita(visita.id, { status: 'cliente_nova_data', data_visita: novaData||visita.dataVisita, hora_visita: novaHora||visita.horaVisita });
+    await updateVisita(visita.id, { status: 'remarcado', data_visita: novaData||visita.dataVisita, hora_visita: novaHora||visita.horaVisita });
     await notificar(visita.userId,'cliente_remarcou','Cliente solicitou nova data',`${visita.nome} solicitou nova data: ${novaData}.`);
     const visitaAtualizada = await getVisita(req.params.id);
     const caso = detectarCaso(visitaAtualizada);

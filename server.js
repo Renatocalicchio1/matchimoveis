@@ -6379,9 +6379,11 @@ app.get('/app/feed', auth, async (req, res) => {
 
     if(uLat && uLng){
       imoveis = imoveis.map(im => {
-        if(!im.lat || !im.lng) return {...im, _dist: 9999};
-        const dLat=(im.lat-uLat)*Math.PI/180, dLng=(im.lng-uLng)*Math.PI/180;
-        const a=Math.sin(dLat/2)**2+Math.cos(uLat*Math.PI/180)*Math.cos(im.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+        const iLat = im.latitude || im.lat;
+        const iLng = im.longitude || im.lng;
+        if(!iLat || !iLng) return {...im, _dist: 9999};
+        const dLat=(iLat-uLat)*Math.PI/180, dLng=(iLng-uLng)*Math.PI/180;
+        const a=Math.sin(dLat/2)**2+Math.cos(uLat*Math.PI/180)*Math.cos(iLat*Math.PI/180)*Math.sin(dLng/2)**2;
         return {...im, _dist: 6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))};
       }).sort((a,b) => a._dist - b._dist);
     }

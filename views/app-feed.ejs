@@ -77,11 +77,14 @@ function _renderPost(im, idx){
   const hasPhotos = fotos.length > 0;
   const nSlides = hasPhotos ? fotos.length : 1;
   const initials = _initials(im.nomeCorretor || im.usuario || 'MI');
-  const dist = _dist(_uLat, _uLng, im.lat, im.lng);
+  const dist = _dist(_uLat, _uLng, im.latitude || im.lat, im.longitude || im.lng);
   const compat = im.compatibilidade || Math.floor(70 + Math.random()*25);
-  const isParceiro = im.userId !== '<%= user.codigoUsuario || user.codigo %>';
-  const preco = im.valor ? 'R$ ' + Number(im.valor).toLocaleString('pt-BR') : (im.preco||'Consulte');
-  const desc = [im.tipo||'Imóvel', im.quartos ? im.quartos+' qts' : '', im.area ? im.area+'m²' : '', im.vagas ? im.vagas+' vaga'+(im.vagas>1?'s':'') : ''].filter(Boolean).join(' · ');
+  const _myId = '<%= user.codigoUsuario || user.codigo %>';
+  const isParceiro = (im.user_id || im.userId || im.codigoUsuario) !== _myId;
+  const nomeExibir = isParceiro ? (im.fonte || im.usuario_nome || im.nomeCorretor || 'Parceiro') : 'Meu imóvel';
+  const _v = im.valor_imovel || im.valor || im.preco || im.valorVenda || 0;
+  const preco = _v && Number(_v) > 0 ? 'R$ ' + Number(_v).toLocaleString('pt-BR') : 'Consulte';
+  const desc = [im.tipo||'Imóvel', im.quartos ? im.quartos+' qts' : '', (im.area_m2||im.area) ? (im.area_m2||im.area)+'m²' : '', im.vagas ? im.vagas+' vaga'+(im.vagas>1?'s':'') : ''].filter(Boolean).join(' · ');
   const addr = [im.bairro, im.cidade].filter(Boolean).join(', ');
 
   const slidesHtml = hasPhotos
@@ -91,7 +94,7 @@ function _renderPost(im, idx){
   const dotsHtml = nSlides > 1 ? Array.from({length:nSlides},(_,i)=>`<div class="p-dot${i===0?' a':''}"></div>`).join('') : '';
   const numHtml  = nSlides > 1 ? `<div class="p-num">1 / ${nSlides}</div>` : '';
 
-  const mmYouLeft = 50, mmYouTop = 62;
+  const _imLat = im.latitude || im.lat; const _imLng = im.longitude || im.lng; const mmYouLeft = 50, mmYouTop = 62;
   const mmPropLeft = dist ? Math.min(82, mmYouLeft + 22) : 70;
   const mmPropTop  = dist ? Math.max(18, mmYouTop - 28) : 33;
 
@@ -100,7 +103,7 @@ function _renderPost(im, idx){
   <div class="post-hdr">
     <div class="post-av" style="background:${isParceiro?'#185FA5':'#E8404A'}">${initials}</div>
     <div>
-      <div class="post-name">${isParceiro ? (im.nomeCorretor||'Parceiro') : 'Meu imóvel'}</div>
+      <div class="post-name">${nomeExibir}</div>
       <div class="post-loc"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#E8404A" stroke-width="2.5" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg> ${addr||'Região'}</div>
     </div>
     <div class="post-more">···</div>
@@ -134,21 +137,25 @@ function _renderPost(im, idx){
     <span class="ia-pct">0%</span>
   </div>
 
-  <div class="minimap" style="background:#fff;border:.5px solid #f0f0f0;">
-    <div style="position:absolute;left:0;right:0;top:30%;height:1px;background:#f0f0f0;"></div>
-    <div style="position:absolute;left:0;right:0;top:60%;height:1px;background:#f0f0f0;"></div>
-    <div style="position:absolute;top:0;bottom:0;left:25%;width:1px;background:#f0f0f0;"></div>
-    <div style="position:absolute;top:0;bottom:0;left:55%;width:1px;background:#f0f0f0;"></div>
-    <div style="position:absolute;top:8%;left:27%;width:25%;height:20%;background:#f5f5f5;border-radius:2px"></div>
-    <div style="position:absolute;top:8%;left:57%;width:18%;height:20%;background:#f5f5f5;border-radius:2px"></div>
-    <div style="position:absolute;top:34%;left:27%;width:25%;height:22%;background:#f5f5f5;border-radius:2px"></div>
-    <div style="position:absolute;top:8%;left:2%;width:20%;height:20%;background:#f5f5f5;border-radius:2px"></div>
+  <div style="margin:6px 14px;height:52px;background:#f7f7f7;border-radius:10px;overflow:hidden;position:relative;border:.5px solid #ebebeb;">
+    <div style="position:absolute;left:0;right:0;top:33%;height:1.5px;background:#e0e0e0;"></div>
+    <div style="position:absolute;left:0;right:0;top:66%;height:1.5px;background:#e0e0e0;"></div>
+    <div style="position:absolute;top:0;bottom:0;left:28%;width:1.5px;background:#e0e0e0;"></div>
+    <div style="position:absolute;top:0;bottom:0;left:58%;width:1.5px;background:#e0e0e0;"></div>
+    <div style="position:absolute;top:6%;left:30%;width:24%;height:24%;background:#e8e8e8;border-radius:2px"></div>
+    <div style="position:absolute;top:6%;left:60%;width:16%;height:24%;background:#e8e8e8;border-radius:2px"></div>
+    <div style="position:absolute;top:38%;left:30%;width:24%;height:24%;background:#e8e8e8;border-radius:2px"></div>
+    <div style="position:absolute;top:6%;left:2%;width:22%;height:24%;background:#e8e8e8;border-radius:2px"></div>
     <svg style="position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none">
-      <line x1="${mmYouLeft}%" y1="${mmYouTop}%" x2="${mmPropLeft}%" y2="${mmPropTop}%" stroke="#E8404A" stroke-width="1.5" stroke-dasharray="5,3" opacity=".7"/>
+      <line x1="${mmYouLeft}%" y1="${mmYouTop}%" x2="${mmPropLeft}%" y2="${mmPropTop}%" stroke="#E8404A" stroke-width="2" stroke-dasharray="5,3" opacity=".8"/>
     </svg>
-    <div class="mm-you-dot" style="left:${mmYouLeft}%;top:${mmYouTop}%;background:#E8404A;"></div>
-    <div class="mm-prop-dot" style="left:${mmPropLeft}%;top:${mmPropTop}%;background:#1D9E75;"></div>
-    <div class="mm-label" style="background:rgba(232,64,74,.1);color:#E8404A;border:.5px solid rgba(232,64,74,.2);">${dist ? dist+' km de você' : 'atualize seu perfil'}</div>
+    <div style="position:absolute;width:12px;height:12px;border-radius:50%;background:#E8404A;border:2px solid #fff;z-index:5;left:${mmYouLeft}%;top:${mmYouTop}%;transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(232,64,74,.4)"></div>
+    <div style="position:absolute;width:12px;height:12px;border-radius:50%;background:#1D9E75;border:2px solid #fff;z-index:5;left:${mmPropLeft}%;top:${mmPropTop}%;transform:translate(-50%,-50%);box-shadow:0 1px 4px rgba(29,158,117,.4)"></div>
+    <div style="position:absolute;right:7px;top:50%;transform:translateY(-50%);background:${dist?'rgba(232,64,74,.1)':'rgba(0,0,0,.06)'};color:${dist?'#E8404A':'#999'};font-size:9px;padding:3px 8px;border-radius:6px;border:.5px solid ${dist?'rgba(232,64,74,.2)':'#e0e0e0'};white-space:nowrap">${dist ? dist+' km' : 'sem GPS'}</div>
+    <div style="position:absolute;left:7px;bottom:4px;display:flex;gap:7px;">
+      <div style="display:flex;align-items:center;gap:3px;font-size:8px;color:#999"><div style="width:7px;height:7px;border-radius:50%;background:#E8404A;border:1px solid #fff"></div>você</div>
+      <div style="display:flex;align-items:center;gap:3px;font-size:8px;color:#999"><div style="width:7px;height:7px;border-radius:50%;background:#1D9E75;border:1px solid #fff"></div>imóvel</div>
+    </div>
   </div>
 
   <div class="post-info">

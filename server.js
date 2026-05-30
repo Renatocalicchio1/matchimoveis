@@ -799,7 +799,7 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
       try {
         const { query: _qInat } = require('./services/db');
         const _agora = new Date().toISOString();
-        await _qInat("UPDATE imoveis SET dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','corretor') WHERE id=$1 OR id_externo=$1 OR id_interno=$1", [_v.imovelId, _agora]);
+        await _qInat("UPDATE imoveis SET status='inativo', dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','corretor') WHERE id=$1 OR id_externo=$1 OR id_interno=$1", [_v.imovelId, _agora]);
         console.log('[corretor] Imóvel inativado:', _v.imovelId);
       } catch(_e) { console.error('[inativar]', _e.message); }
       // WA para o cliente com link da vitrine

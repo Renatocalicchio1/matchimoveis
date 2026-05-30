@@ -50,8 +50,9 @@ var statusLabel={
   confirmada:{cls:'st-confirmada',txt:'Confirmada'},
   CONFIRMADA:{cls:'st-confirmada',txt:'Confirmada'},
   lead_confirmou:{cls:'st-confirmada',txt:'Cliente confirmou'},
-  pendente_remarcar:{cls:'st-remarcar',txt:'Remarcação solicitada'},
+  pendente_remarcar:{cls:'st-remarcar',txt:'Aguardando remarcação'},
   imovel_indisponivel:{cls:'st-cancelada',txt:'Imóvel indisponível'},
+  lead_recusou:{cls:'st-cancelada',txt:'Cliente recusou'},
   cancelada:{cls:'st-cancelada',txt:'Cancelada'},
   CANCELADA:{cls:'st-cancelada',txt:'Cancelada'},
   realizada:{cls:'st-realizada',txt:'Realizada'},
@@ -72,7 +73,7 @@ var colunas=[
   {key:'solicitada',label:'Solicitada',cor:'#f59e0b',dot:'#fcd34d'},
   {key:'aguard_prop',label:'Aguard. Proprietario',cor:'#8b5cf6',dot:'#c4b5fd'},
   {key:'aguard_cliente',label:'Aguard. Cliente',cor:'#0ea5e9',dot:'#bae6fd'},
-  {key:'remarcacao',label:'Remarcação',cor:'#f59e0b',dot:'#fcd34d'},
+  {key:'aguard_cliente',label:'Aguardando Cliente',cor:'#0ea5e9',dot:'#bae6fd'},
   {key:'confirmada',label:'Confirmada',cor:'#22c55e',dot:'#86efac'},
   {key:'realizada',label:'Realizada',cor:'#6366f1',dot:'#c7d2fe'},
   {key:'cancelada',label:'Cancelada',cor:'#9ca3af',dot:'#e5e7eb'}
@@ -80,11 +81,9 @@ var colunas=[
 function getColuna(v){
   var st=(v.status||'solicitada').toLowerCase();
   if(st==='realizada'||st==='concluida') return 'realizada';
-  if(st==='cancelada'||st==='cliente_nao_vai'||st==='no_show'||st==='imovel_indisponivel') return 'cancelada';
-  if(st==='confirmada'||st==='confirmada'||st==='lead_confirmou') return 'confirmada';
-  if(st==='pendente_remarcar') return 'remarcacao';
-  if(st==='prop_confirmou'||st==='parceiro_confirmou') return 'aguard_cliente';
-  if(v.proprietarioTelefone) return 'aguard_prop';
+  if(st==='cancelada'||st==='cliente_nao_vai'||st==='no_show'||st==='imovel_indisponivel'||st==='lead_recusou') return 'cancelada';
+  if(st==='lead_confirmou') return 'confirmada';
+  if(st==='confirmada'||st==='pendente_remarcar'||st==='prop_confirmou'||st==='parceiro_confirmou') return 'aguard_cliente';
   return 'solicitada';
 }
 var visitasPorColuna={};
@@ -195,8 +194,8 @@ var hojeV=visitas.filter(function(v){
     if(col.key==='solicitada'){guia='Confirme com o responsavel pelo imovel';guiaCor='#d97706';}
     else if(col.key==='aguard_prop'){guia='Aguardando resposta do proprietario';guiaCor='#8b5cf6';}
     else if(col.key==='aguard_cliente'){guia='Avise o cliente — visita confirmada!';guiaCor='#0ea5e9';}
-    else if(col.key==='remarcacao'){guia='Aguardando cliente escolher nova data';guiaCor='#d97706';}
-    else if(col.key==='confirmada'&&clienteConfirmou&&propConfirmou){guia='Ambos confirmaram — visita agendada!';guiaCor='#15803d';}
+    else if(col.key==='aguard_cliente'){guia='Aguardando confirmação do cliente';guiaCor='#0ea5e9';}
+    else if(col.key==='confirmada'){guia='Cliente confirmou — visita agendada!';guiaCor='#15803d';}
     else if(col.key==='realizada'){guia='Pergunte se gostou do imovel';guiaCor='#6366f1';}
     else if(col.key==='cancelada'){guia='Oferea outra opcao ao cliente';guiaCor='#9ca3af';}
     var linkCliente=baseUrl+'/cliente/visita/'+v.id;

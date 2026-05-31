@@ -142,9 +142,10 @@ function _renderPost(im, idx){
     </div>
 
     <div class="fp-actions">
-      <button class="fp-btn" onclick="this.classList.toggle('liked')" aria-label="Gostei">
+      <button class="fp-btn" id="like-${im.id||idx}" onclick="toggleLike(this,'${im.id||im.id_externo||idx}')" aria-label="Gostei">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
+      <span class="fp-like-count" id="lc-${im.id||idx}" style="font-size:11px;color:#aaa;margin-left:-8px"></span>
       <button class="fp-btn" aria-label="Compartilhar" onclick="compartilhar('${im.id||im.id_externo||idx}')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
@@ -208,6 +209,19 @@ function _initMaps(){
       L.polyline([[_uLat,_uLng],[iLat,iLng]],{color:'#E8404A',weight:1.5,dashArray:'4,3',opacity:.7}).addTo(map);
     }
   });
+}
+
+async function toggleLike(btn, imovelId){
+  const liked = btn.classList.contains('liked');
+  btn.classList.toggle('liked');
+  const svg = btn.querySelector('svg');
+  if(svg){ svg.setAttribute('fill', liked ? 'none' : '#E8404A'); svg.setAttribute('stroke', liked ? 'currentColor' : '#E8404A'); }
+  try {
+    const r = await fetch('/api/feed/like', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({imovelId, acao: liked ? 'unlike' : 'like'})});
+    const d = await r.json();
+    const countEl = document.getElementById('lc-'+imovelId);
+    if(countEl) countEl.textContent = d.total > 0 ? d.total : '';
+  } catch(e){}
 }
 
 function compartilhar(id){

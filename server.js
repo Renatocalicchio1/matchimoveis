@@ -6473,6 +6473,67 @@ app.get('/app/feed', auth, async (req, res) => {
 });
 
 // API polling novos imóveis
+
+// ── FEED LIKES ──────────────────────────────────────────────────────────────
+app.post('/api/feed/like', auth, express.json(), async (req, res) => {
+  try {
+    const { imovelId, acao } = req.body; // acao: 'like' ou 'unlike'
+    const userId = req.session.user?.codigoUsuario || req.session.user?.codigo;
+    const nome = req.session.user?.nome || 'Corretor';
+    if(!imovelId) return res.json({ok:false});
+
+    const {query} = require('./services/db');
+
+    // upsert no jsonb de likes do imóvel
+    if(acao === 'like'){
+      await query(
+        "UPDATE imoveis SET dados = jsonb_set(COALESCE(dados,'{}'), '{likes}', COALESCE(dados->'likes','[]')::jsonb || $1::jsonb) WHERE id=$2 AND NOT (dados->'likes' @> $1::jsonb)",
+        [JSON.stringify([{userId, nome, em: new Date().toISOString()}]), imovelId]
+      );
+      // notifica dono do imóvel
+      const imRes = await query("SELECT user_id FROM imoveis WHERE id=$1", [imovelId]);
+      if(imRes.rows[0]){
+        const donoId = imRes.rows[0].user_id;
+        if(donoId !== userId){
+          criarNotificacaoService({
+            id: Date.now().toString(),
+            tipo: 'feed_like',
+            titulo: 'Alguém curtiu seu imóvel',
+            mensagem: nome + ' curtiu seu imóvel',
+            usuarioId: donoId,
+            imovelId,
+            lida: false,
+            criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+          });
+        }
+      }
+    } else {
+      // unlike — remove do array
+      await query(
+        "UPDATE imoveis SET dados = jsonb_set(COALESCE(dados,'{}'), '{likes}', (SELECT jsonb_agg(l) FROM jsonb_array_elements(COALESCE(dados->'likes','[]'::jsonb)) l WHERE l->>'userId' != $1)) WHERE id=$2",
+        [userId, imovelId]
+      );
+    }
+    // retorna contagem atual
+    const r = await query("SELECT jsonb_array_length(COALESCE(dados->'likes','[]'::jsonb)) as total, dados->'likes' as likes FROM imoveis WHERE id=$1", [imovelId]);
+    res.json({ok:true, total: r.rows[0]?.total||0, likes: r.rows[0]?.likes||[]});
+  } catch(e) {
+    console.error('[feed like]', e.message);
+    res.json({ok:false});
+  }
+});
+
+app.get('/api/feed/likes/:imovelId', auth, async (req, res) => {
+  try {
+    const {query} = require('./services/db');
+    const r = await query("SELECT dados->'likes' as likes FROM imoveis WHERE id=$1", [req.params.imovelId]);
+    const likes = r.rows[0]?.likes || [];
+    res.json({ok:true, likes, total: likes.length});
+  } catch(e) {
+    res.json({ok:true, likes:[], total:0});
+  }
+});
+
 app.get('/api/feed/novos', auth, async (req, res) => {
   try {
     const since = parseInt(req.query.since) || 0;

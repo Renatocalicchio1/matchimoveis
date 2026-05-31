@@ -157,7 +157,7 @@ function _renderPost(im, idx){
 }
 
 function renderFeed(list){
-  document.getElementById('feed-inner').innerHTML = list.map(_renderPost).join('');
+  document.getElementById('feed-inner').innerHTML = list.map(_renderPost).join(''); _page=0;
   _initCarousels();
   _animateBars();
   _initMaps();
@@ -172,7 +172,11 @@ function _initCarousels(){
     const total=parseInt(wrap.dataset.total)||1;
     let cur=0;
     function goTo(n){cur=Math.max(0,Math.min(n,total-1));track.style.transform=`translateX(-${cur*100}%)`;dots.forEach((d,i)=>d.classList.toggle('a',i===cur));if(num)num.textContent=`${cur+1} / ${total}`;}
-    wrap.addEventListener('pointerdown',e=>{sx=e.clientX;drag=true;dx=0;wrap.setPointerCapture(e.pointerId);});
+    wrap.addEventListener('mousedown',e=>{sx=e.clientX;drag=true;dx=0;});
+    wrap.addEventListener('mousemove',e=>{if(!drag)return;dx=e.clientX-sx;});
+    wrap.addEventListener('mouseup',e=>{if(!drag)return;drag=false;if(Math.abs(dx)>40){dx<0?goTo(cur+1):goTo(cur-1);}dx=0;});
+    wrap.addEventListener('mouseleave',e=>{if(!drag)return;drag=false;if(Math.abs(dx)>40){dx<0?goTo(cur+1):goTo(cur-1);}dx=0;});
+    wrap.addEventListener('pointerdown',e=>{sx=e.clientX;drag=true;dx=0;try{wrap.setPointerCapture(e.pointerId);}catch(err){}});
     wrap.addEventListener('pointermove',e=>{if(!drag)return;dx=e.clientX-sx;});
     wrap.addEventListener('pointerup',e=>{if(!drag)return;drag=false;if(Math.abs(dx)>40){dx<0?goTo(cur+1):goTo(cur-1);}dx=0;});
   });
@@ -230,5 +234,31 @@ setInterval(async()=>{
   }catch(e){}
 },30000);
 
-renderFeed(_imoveis);
+// scroll infinito — carrega 10 por vez
+const _PAGE = 10;
+let _page = 0;
+
+function renderPage(){
+  const slice = _imoveis.slice(0, (_page+1)*_PAGE);
+  document.getElementById('feed-inner').innerHTML = slice.map(_renderPost).join('') + (_imoveis.length > slice.length ? '<div id="feed-sentinel" style="height:40px"></div>' : '');
+  _initCarousels();
+  _animateBars();
+  _initMaps();
+  _observeSentinel();
+}
+
+function _observeSentinel(){
+  const s = document.getElementById('feed-sentinel');
+  if(!s) return;
+  const obs = new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting){
+      obs.disconnect();
+      _page++;
+      renderPage();
+    }
+  },{rootMargin:'200px'});
+  obs.observe(s);
+}
+
+renderPage();
 </script>

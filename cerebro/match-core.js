@@ -588,6 +588,7 @@ return lead;
       if (matchesNovos.length >= matchesAntes.length) {
         lead.matchesAuto = matchesNovos;
         lead.matches     = matchesNovos;
+        lead.matchesBase = matchesNovos;
         lead.matchAutoEm = new Date().toISOString();
       }
       console.log(`[MATCH CORE] caso2 matches final: ${matchesNovos.length}`);

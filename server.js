@@ -3664,11 +3664,11 @@ app.post('/api/lead-interesse', async (req, res) => {
             if(_isParceiro){
               const _parcNome = _novaVisita.imovelUsuarioNome || '';
               const _parcTel = _novaVisita.imovelUsuarioTelefone || '';
-              if(_parcNome || _parcTel) _contatoExtra = '\n\n📋 *Imóvel de parceiro*\nCorretor: *' + (_parcNome||'parceiro') + '*' + (_parcTel ? '\nWhatsApp: ' + _parcTel : '');
+              const _parcWA = _parcTel ? 'https://wa.me/55'+_parcTel.replace(/\D/g,'').replace(/^55/,'') : ''; if(_parcNome || _parcWA) _contatoExtra = '\n\n📋 *Imóvel de parceiro*\nCorretor: *' + (_parcNome||'parceiro') + '*' + (_parcWA ? '\n📲 ' + _parcWA : '');
             } else if(_temProprietario){
               const _propNome = _novaVisita.proprietarioNome || 'Proprietário';
               const _propTel = _novaVisita.proprietarioTelefone || '';
-              _contatoExtra = '\n\n🏠 *Proprietário cadastrado*\nNome: *' + _propNome + '*' + (_propTel ? '\nWhatsApp: ' + _propTel : '');
+              const _propWA = _propTel ? 'https://wa.me/55'+_propTel.replace(/\D/g,'').replace(/^55/,'') : ''; _contatoExtra = '\n\n🏠 *Proprietário cadastrado*\nNome: *' + _propNome + '*' + (_propWA ? '\n📲 ' + _propWA : '');
             }
             const _msg = 'Olá! O cliente *' + nome + '* solicitou uma visita ao imóvel *' + (imovelTitulo || imovelRef.titulo || imovelRef.bairro || 'imóvel') + '*.' + _contatoExtra + '\n\nConfirme a visita pelo link: ' + _linkConfirmar + '\n\nOu acesse o painel: ' + _BASE + '/app/visitas';
             await fetch(_EU + '/message/sendText/' + _instancia, {

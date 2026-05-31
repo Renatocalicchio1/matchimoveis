@@ -107,7 +107,7 @@ function matchPorMapa(lead, imoveis) {
 
     // 4. CIDADE
     if (!eliminado && leadCidade) {
-      if (imovel.cidade !== leadCidade) eliminado = true;
+      if (_normalizar(imovel.cidade) !== _normalizar(leadCidade)) eliminado = true;
     }
 
     // 5. BAIRRO

@@ -3670,7 +3670,15 @@ app.post('/api/lead-interesse', async (req, res) => {
               const _propTel = _novaVisita.proprietarioTelefone || '';
               const _propWA = _propTel ? 'https://wa.me/55'+_propTel.replace(/\D/g,'').replace(/^55/,'') : ''; _contatoExtra = '\n\n🏠 *Proprietário cadastrado*\nNome: *' + _propNome + '*' + (_propWA ? '\n📲 ' + _propWA : '');
             }
-            const _msg = 'Olá! O cliente *' + nome + '* solicitou uma visita ao imóvel *' + (imovelTitulo || imovelRef.titulo || imovelRef.bairro || 'imóvel') + '*.' + _contatoExtra + '\n\nConfirme a visita pelo link: ' + _linkConfirmar + '\n\nOu acesse o painel: ' + _BASE + '/app/visitas';
+            const _linkImovel = (_novaVisita.imovelId||imovelId) ? '\n🔗 '+_BASE+'/imovel/'+(_novaVisita.imovelId||imovelId) : '';
+            const _dataHora = _novaVisita.dataVisita ? '\n📅 '+_novaVisita.dataVisita+(_novaVisita.horaVisita?' às '+_novaVisita.horaVisita:'') : '';
+            const _msg = '🏠 *Nova solicitação de visita*'
+              + '\n\n👤 Cliente: *' + nome + '*'
+              + _linkImovel
+              + _dataHora
+              + _contatoExtra
+              + '\n\n✅ Confirmar: ' + _linkConfirmar
+              + '\n📋 Painel: ' + _BASE + '/app/visitas';
             await fetch(_EU + '/message/sendText/' + _instancia, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'apikey': _EK },

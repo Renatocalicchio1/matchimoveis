@@ -122,6 +122,7 @@ function _renderPost(im, idx){
   </div>
 
   <div class="fp-photos" data-cur="0" data-total="${nSlides}">
+    ${im._leadsCompativeis > 0 ? `<div style="position:absolute;top:10px;left:10px;z-index:6;background:#E8404A;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;box-shadow:0 2px 6px rgba(232,64,74,.4);display:flex;align-items:center;gap:4px"><svg width="10" height="10" viewBox="0 0 24 24" fill="#fff"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${im._leadsCompativeis} lead${im._leadsCompativeis>1?'s':''} compatível${im._leadsCompativeis>1?'is':''}</div>` : ''}
     <div class="fp-track">${slidesHtml}</div>
     ${nSlides>1?`<div class="fp-dots">${dotsHtml}</div><div class="fp-num">1 / ${nSlides}</div>`:''}
     ${condicaoBadge}

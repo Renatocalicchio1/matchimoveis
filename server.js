@@ -6446,6 +6446,25 @@ app.get('/app/feed', auth, async (req, res) => {
       return {...im, _nomeUsuario: nomeUsuario, _dist};
     }).sort((a,b) => a._dist - b._dist).slice(0, 50);
 
+    // conta leads compatíveis por imóvel
+    const leads = _cacheLeads || [];
+    const meusLeads = leads.filter(l => (l.userId||l.codigoUsuario||l.user_id) === myId);
+    const leadsMap = {};
+    meusLeads.forEach(lead => {
+      const matches = lead.matchesBase || lead.matchesAuto || lead.matches || [];
+      matches.forEach(m => {
+        const mid = String(m.id || m.id_externo || '');
+        if(!mid) return;
+        if(!leadsMap[mid]) leadsMap[mid] = [];
+        leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead'});
+      });
+    });
+    imoveis = imoveis.map(im => {
+      const mid = String(im.id || im.id_externo || '');
+      const lc = leadsMap[mid] || [];
+      return {...im, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>l.nome)};
+    });
+
     res.render('app-feed', { user: req.session.user, imoveis });
   } catch(e) {
     console.error('feed error:', e);

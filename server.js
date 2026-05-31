@@ -6459,10 +6459,29 @@ app.get('/app/feed', auth, async (req, res) => {
         leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead'});
       });
     });
+    // mapa de cidades/bairros mais buscados pelos leads do corretor
+    const demandaMap = {}; // cidade+bairro -> count
+    meusLeads.forEach(lead => {
+      const cidade = (lead.perfilIa?.cidade || lead.dados?.cidade || '').toLowerCase().trim();
+      const bairro = (lead.perfilIa?.bairro || lead.dados?.bairro || '').toLowerCase().trim();
+      if(cidade){ demandaMap[cidade] = (demandaMap[cidade]||0) + 1; }
+      if(bairro){ demandaMap[bairro] = (demandaMap[bairro]||0) + 1; }
+    });
+
     imoveis = imoveis.map(im => {
       const mid = String(im.id || im.id_externo || '');
       const lc = leadsMap[mid] || [];
-      return {...im, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>l.nome)};
+      const cidade = (im.cidade||'').toLowerCase().trim();
+      const bairro = (im.bairro||'').toLowerCase().trim();
+      const _demanda = (demandaMap[cidade]||0) + (demandaMap[bairro]||0);
+      return {...im, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>l.nome), _demanda};
+    });
+
+    // ordena: 1) leads compatíveis 2) demanda da carteira 3) distância GPS
+    imoveis.sort((a,b) => {
+      if(b._leadsCompativeis !== a._leadsCompativeis) return b._leadsCompativeis - a._leadsCompativeis;
+      if(b._demanda !== a._demanda) return b._demanda - a._demanda;
+      return a._dist - b._dist;
     });
 
     res.render('app-feed', { user: req.session.user, imoveis });

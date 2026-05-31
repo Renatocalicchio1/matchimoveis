@@ -660,18 +660,42 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     imovelCidade: imovel.cidade || '',
     imovelEstado: imovel.estado || '',
     usuarioDestinoId: lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '',
-    usuarioDestinoNome: '',
-    usuarioDestinoPerfil: '',
-    usuarioDestinoTelefone: '',
     userId: lead.userId || lead.codigoUsuario || '',
     corretorId: lead.userId || lead.codigoUsuario || '',
-    corretorNome: '',
-    corretorTelefone: '',
     proprietarioNome: proprietario.nome || '',
     proprietarioTelefone: (proprietario.telefone || proprietario.celular || '').replace(/\D/g,''),
-    imovelUsuarioId: imovelBase ? (imovelBase.userId || imovelBase.usuarioId || '') : '',
-    imovelUsuarioNome: imovelBase ? (imovelBase.fonte || '') : '',
-    imovelUsuarioTelefone: (() => { const u = (_cacheUsuarios || []).find(u => u.id === (imovelBase && (imovelBase.userId||imovelBase.usuarioId))); return u ? ((u.celular||u.telefone||'').replace(/\D/g,'')) : ''; })(),
+    imovelUsuarioId: imovelBase ? (imovelBase.user_id || imovelBase.userId || imovelBase.usuarioId || '') : '',
+    imovelUsuarioNome: (() => {
+      const _imOwnerId = imovelBase ? (imovelBase.user_id || imovelBase.userId || imovelBase.usuarioId || '') : '';
+      const _imOwner = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _imOwnerId);
+      return _imOwner ? (_imOwner.nome||'') : (imovelBase ? (imovelBase.fonte||'') : '');
+    })(),
+    imovelUsuarioTelefone: (() => {
+      const _imOwnerId = imovelBase ? (imovelBase.user_id || imovelBase.userId || imovelBase.usuarioId || '') : '';
+      const _imOwner = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _imOwnerId);
+      return _imOwner ? ((_imOwner.celular||_imOwner.telefone||'').replace(/\D/g,'')) : '';
+    })(),
+    usuarioDestinoNome: (() => {
+      const _uid = lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '';
+      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
+      return _u ? (_u.nome||'') : '';
+    })(),
+    usuarioDestinoPerfil: '',
+    usuarioDestinoTelefone: (() => {
+      const _uid = lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '';
+      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
+      return _u ? ((_u.celular||_u.telefone||'').replace(/\D/g,'')) : '';
+    })(),
+    corretorNome: (() => {
+      const _uid = lead.userId || lead.codigoUsuario || '';
+      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
+      return _u ? (_u.nome||'') : '';
+    })(),
+    corretorTelefone: (() => {
+      const _uid = lead.userId || lead.codigoUsuario || '';
+      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
+      return _u ? ((_u.celular||_u.telefone||'').replace(/\D/g,'')) : '';
+    })(),
     dataVisita: lead.dataVisita || lead.dataPreferida || '',
     horaVisita: lead.horaVisita || lead.horarioPreferido || '',
     imovelUrl: imovel.url || '',

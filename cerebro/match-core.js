@@ -418,8 +418,8 @@ return lead;
       let _resImoveis;
       if (estadoAncora) {
         _resImoveis = await _queryMatch(
-          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2)",
-          [userId, '%' + estadoAncora + '%']
+          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2 OR estado ILIKE $3)",
+          [userId, '%' + estadoAncora + '%', '%' + (_estadoMapC1[estadoAncora]||estadoAncora) + '%']
         );
       } else {
         _resImoveis = await _queryMatch("SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'", [userId]);
@@ -539,13 +539,23 @@ return lead;
 
       // Busca imóveis do corretor + parceiros do mesmo estado
       let _resMatch2;
+      // mapeia abreviação para nome completo
+      const _estadoMap = {
+        'sp':'São Paulo','rj':'Rio de Janeiro','mg':'Minas Gerais','sc':'Santa Catarina',
+        'rs':'Rio Grande do Sul','pr':'Paraná','ba':'Bahia','go':'Goiás','df':'Distrito Federal',
+        'es':'Espírito Santo','pe':'Pernambuco','ce':'Ceará','am':'Amazonas','pa':'Pará'
+      };
+      const _estadoNome = _estadoMap[estadoLead] || estadoLead;
       if (estadoLead) {
         _resMatch2 = await _queryMatch2(
-          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2 OR estado ILIKE $3)",
-          [userId, estadoLead, '%santa catarina%']
+          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2 OR estado ILIKE $3 OR estado ILIKE $4)",
+          [userId, '%'+estadoLead+'%', '%'+_estadoNome+'%', '%santa catarina%']
         );
       } else {
-        _resMatch2 = await _queryMatch2("SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'", [userId]);
+        _resMatch2 = await _queryMatch2(
+          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR TRUE)",
+          [userId]
+        );
       }
       const imoveisDoUser = _resMatch2.rows;
       console.log('[MATCH CORE] caso2 | imóveis pool:', imoveisDoUser.length, '| estado:', estadoLead);

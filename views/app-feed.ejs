@@ -3,7 +3,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 #feed-root{margin:-20px;overflow-y:auto;height:calc(100vh - 60px);background:var(--bg);}
-.fp{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:12px;transition:all .15s;}
+#feed-inner{max-width:480px;margin:0 auto;padding:0 0 20px;}
+.fp{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:12px 0;transition:all .15s;}
 
 /* header do post */
 .fp-hdr{padding:10px 12px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border-light);}
@@ -13,9 +14,10 @@
 .fp-more{margin-left:auto;font-size:16px;color:var(--text-ter);cursor:pointer;letter-spacing:2px;line-height:1;}
 
 /* carrossel */
-.fp-photos{position:relative;height:220px;overflow:hidden;touch-action:pan-y;background:var(--bg);}
-.fp-track{display:flex;height:100%;transition:transform .28s cubic-bezier(.4,0,.2,1);}
-.fp-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:var(--bg);}
+.fp-photos{position:relative;width:100%;padding-top:75%;overflow:hidden;touch-action:pan-y;background:var(--bg);}
+.fp-track{position:absolute;top:0;left:0;right:0;bottom:0;}
+.fp-track{display:flex;height:100%;transition:transform .28s cubic-bezier(.4,0,.2,1);position:absolute;top:0;left:0;right:0;bottom:0;}
+.fp-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#f0f0f0;}
 .fp-slide img{width:100%;height:100%;object-fit:cover;}
 .fp-slide-ic{opacity:.2;}
 .fp-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;pointer-events:none;}
@@ -61,7 +63,7 @@
   <span id="newCount"></span>
 </div>
 
-<div id="feed-root"></div>
+<div id="feed-root"><div id="feed-inner"></div></div>
 
 <script>
 const _imoveis = <%- JSON.stringify(imoveis) %>;
@@ -155,7 +157,7 @@ function _renderPost(im, idx){
 }
 
 function renderFeed(list){
-  document.getElementById('feed-root').innerHTML = list.map(_renderPost).join('');
+  document.getElementById('feed-inner').innerHTML = list.map(_renderPost).join('');
   _initCarousels();
   _animateBars();
   _initMaps();

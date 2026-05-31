@@ -83,7 +83,7 @@ function _renderPost(im, idx){
   const uid = im.user_id||im.userId||im.codigoUsuario||'';
   const isParceiro = uid !== _myId;
   const nome = im._nomeUsuario||(isParceiro?'Parceiro':'Meu imóvel');
-  const avBg = isParceiro ? '#185FA5' : '#E8404A';
+  const avBg = '#E8404A';
   const vl = im.valor_imovel||im.valor||im.preco||0;
   const preco = vl&&Number(vl)>0 ? 'R$ '+Number(vl).toLocaleString('pt-BR') : '—';
   const area = im.area_m2||im.area||'';
@@ -95,7 +95,7 @@ function _renderPost(im, idx){
 
   const slidesHtml = fotos.length
     ? fotos.map(f=>`<div class="fp-slide"><img src="${f}" loading="lazy" onerror="this.style.display='none'"></div>`).join('')
-    : `<div class="fp-slide"><svg class="fp-slide-ic" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>`;
+    : `<div class="fp-slide" style="background:#E8404A;"><span style="font-size:48px;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:-2px;">M</span></div>`;
 
   const dotsHtml = nSlides>1 ? Array.from({length:nSlides},(_,i)=>`<div class="fp-dot${i===0?' a':''}"></div>`).join('') : '';
 

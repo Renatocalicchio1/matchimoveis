@@ -70,32 +70,23 @@
 <!-- ADICIONAR CRÉDITOS -->
 <div class="card" style="margin-bottom:16px">
   <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Adicionar créditos</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Mínimo R$5 · R$1 = 10 créditos</p>
-
-  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-    <% [5,10,20,50,100].forEach(v => { %>
-      <button onclick="selecionarValor(<%= v %>)" data-val="<%= v %>" style="flex:1;min-width:55px;padding:12px 6px;border:2px solid #e5e7eb;border-radius:12px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s">
-        R$<%= v %>
-      </button>
-    <% }) %>
-  </div>
-
+  <p style="color:#888;font-size:13px;margin-bottom:20px">Mínimo R$20 · R$1 = 10 créditos</p>
   <div style="margin-bottom:16px">
-    <label style="font-size:13px;color:#888;display:block;margin-bottom:6px">Ou digite outro valor</label>
     <div style="display:flex;align-items:center;gap:12px">
-      <input type="number" id="valorInput" min="5" step="1" placeholder="R$ 0" style="flex:1;padding:12px;border:2px solid #e5e7eb;border-radius:10px;font-size:16px;font-weight:700">
+      <div style="position:relative;flex:1">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:700;color:#888">R$</span>
+        <input type="number" id="valorInput" min="20" step="1" placeholder="0" style="width:100%;padding:14px 12px 14px 36px;border:2px solid #e5e7eb;border-radius:10px;font-size:20px;font-weight:700;outline:none">
+      </div>
       <div style="text-align:right;min-width:110px">
-        <div style="font-size:12px;color:#888">você recebe</div>
-        <div id="creditosPreview" style="font-size:20px;font-weight:800;color:#111">0 créditos</div>
+        <div style="font-size:11px;color:#888">você recebe</div>
+        <div id="creditosPreview" style="font-size:22px;font-weight:800;color:#111">0 créditos</div>
       </div>
     </div>
   </div>
-
   <button id="btnPagar" onclick="iniciarCompra()" style="width:100%;background:#FF385C;color:#fff;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">
     Adicionar créditos
   </button>
 </div>
-
 <!-- HISTÓRICO OCULTO -->
 
 <script>

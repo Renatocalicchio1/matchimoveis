@@ -3503,9 +3503,9 @@ app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async 
     }
   };
   imoveis.push(novo);
-  const { salvarImovel: _salvarImovelNovo } = require('./services/salvarImovel');
-  await _salvarImovelNovo(novo);
-  if(_cacheImoveis) _cacheImoveis.push(novo);
+  await salvarTodosImoveis(imoveis);
+  _cacheImoveis = null;
+  await _recarregarImoveis();
   consumir(req.session.user.id, 'cadastrar_imovel').catch(()=>{}); // 15 créditos por imóvel novo
   res.redirect('/app/imovel/' + idInterno + '/editar?salvo=1');
   setTimeout(() => regenerarXMLUsuario(req.session.user.id).catch(e => console.error('[xml-cadastro]', e.message)), 1000);

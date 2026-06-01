@@ -8,18 +8,18 @@ const CUSTO = {
   cadastrar_imovel:       15,
   editar_imovel:           0,
   importar_xml:            2,
-  gerar_xml_portal:       10,
+  gerar_xml_portal:       20,
   sync_xml_24h:            5,
   lead_ativo_dia:          1,
-  ia_qualifica_lead:      20,
-  match_encontrado:       30,
-  vitrine_whatsapp:       20,
-  ia_responde_whatsapp:   20,
-  followup_auto:          15,
-  visita_agendada_ia:     30,
-  notificacao_prop:        5,
-  confirmacao_auto:       15,
-  nova_lead:              10
+  ia_qualifica_lead:      30,
+  match_encontrado:       40,
+  vitrine_whatsapp:       30,
+  ia_responde_whatsapp:   30,
+  followup_auto:          25,
+  visita_agendada_ia:     40,
+  notificacao_prop:       15,
+  confirmacao_auto:       25,
+  nova_lead:              20
 };
 
 async function consumir(userId, acao) {

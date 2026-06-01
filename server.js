@@ -879,7 +879,7 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
   if (idx === -1) return res.status(404).send('Visita não encontrada');
   
   const { resposta } = req.body;
-  visitas[idx].consumir(visita?.ownerUserId || visita?.corretorId, 'confirmacao_auto').catch(()=>{});
+  consumir(visita?.ownerUserId || visita?.corretorId, 'confirmacao_auto').catch(()=>{});
     respostaProprietario = resposta;
   visitas[idx].respostaEm = new Date().toISOString();
 
@@ -936,6 +936,7 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
       // notificações salvas via criarNotificacaoService (PG)
     }
   } catch(e) { console.log('Erro notif proprietario:', e.message); }
+  consumir(_uid || '', 'notificacao_prop').catch(()=>{});
   res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
 })
 
@@ -2742,6 +2743,7 @@ setInterval(async () => {
             + '3. Qual bairro ou região prefere?\n'
             + '4. Qual é o seu orçamento?';
           await _enviarWA(_instancia, _contato, _msg);
+          consumir(_userId, 'ia_qualifica_lead').catch(()=>{});
 
         } else if (fu.tipo === 'agendar_visita') {
           _leads[i].waAgendarVisitaEnviadoEm = new Date().toISOString();

@@ -160,9 +160,9 @@ async function iniciarCompra() {
         amount: valorSelecionado,
         preferenceId: d.id,
         payer: {
-          firstName: '<%= ((user.nome||"").split(" ")[0]||"").replace(/'/g,"") %>',
-          lastName: '<%= ((user.nome||"").split(" ").slice(1).join(" ")||"").replace(/'/g,"") %>',
-          email: '<%= (user.email||"").replace(/'/g,"") %>'
+          firstName: <%- JSON.stringify((user.nome||'').split(' ')[0]||'') %>,
+          lastName: <%- JSON.stringify((user.nome||'').split(' ').slice(1).join(' ')||'') %>,
+          email: <%- JSON.stringify(user.email||'') %>
         }
       },
       customization: {

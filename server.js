@@ -6605,7 +6605,7 @@ app.get('/app/feed', auth, async (req, res) => {
         leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead'});
       });
     });
-    let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido');
+    let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && (im.user_id || im.userId || im.codigoUsuario));
     imoveis = imoveis.map(im => {
       const uid = im.user_id || im.userId || im.codigoUsuario;
       const nomeUsuario = nomeMap[uid] || '';

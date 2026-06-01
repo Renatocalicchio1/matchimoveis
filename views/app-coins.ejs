@@ -91,7 +91,7 @@
     </div>
   </div>
 
-  <button onclick="iniciarCompra()" style="width:100%;background:#FF385C;color:#fff;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">
+  <button id="btnPagar" onclick="iniciarCompra()" style="width:100%;background:#FF385C;color:#fff;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">
     Adicionar créditos
   </button>
 </div>
@@ -125,8 +125,8 @@ document.getElementById('valorInput').addEventListener('input', function() {
 });
 
 function iniciarCompra() {
-  if (!valorSelecionado || valorSelecionado < 5) {
-    alert('Valor mínimo é R$5.');
+  if (!valorSelecionado || valorSelecionado < 20) {
+    alert('Valor mínimo é R$20.');
     return;
   }
   const btn = document.getElementById('btnPagar');

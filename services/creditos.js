@@ -41,6 +41,15 @@ async function consumir(userId, acao) {
     });
     await salvarTodosUsuarios(users);
 
+    // salva no PostgreSQL também
+    try {
+      const { query: _qCred } = require('./db');
+      await _qCred(
+        "UPDATE usuarios SET match_coins = $1 WHERE codigo_usuario = $2",
+        [users[idx].matchCoins, userId]
+      );
+    } catch(e2) { console.error('[creditos] erro PG consumir:', e2.message); }
+
     // avisos de saldo baixo
     const saldoNovo = users[idx].matchCoins;
     const saldoMax = users[idx].matchCoinsTotal || 1000;
@@ -101,6 +110,25 @@ async function adicionarCreditos(userId, quantidade, motivo = 'recarga') {
       saldoApos: users[idx].matchCoins
     });
     await salvarTodosUsuarios(users);
+
+    // salva no PostgreSQL também
+    try {
+      const { query: _qCredA } = require('./db');
+      await _qCredA(
+        "UPDATE usuarios SET match_coins = $1 WHERE codigo_usuario = $2",
+        [users[idx].matchCoins, userId]
+      );
+      console.log('[creditos] PG adicionarCreditos:', userId, users[idx].matchCoins);
+    } catch(e2) { console.error('[creditos] erro PG adicionar:', e2.message); }
+
+    // salva no PostgreSQL também
+    try {
+      const { query: _qCred } = require('./db');
+      await _qCred(
+        "UPDATE usuarios SET match_coins = $1 WHERE codigo_usuario = $2",
+        [users[idx].matchCoins, userId]
+      );
+    } catch(e2) { console.error('[creditos] erro PG consumir:', e2.message); }
 
     // avisos de saldo baixo
     const saldoNovo = users[idx].matchCoins;

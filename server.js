@@ -1134,6 +1134,19 @@ app.get('/logout', (req,res)=> res.redirect('/'));
 
 function auth(req,res,next){
   if(!req.session || !req.session.user) return res.redirect('/');
+  // rotas liberadas mesmo sem saldo
+  const _rotasLivres = ['/app/coins', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp'];
+  const _isLivre = _rotasLivres.some(r => req.path.startsWith(r));
+  if(!_isLivre){
+    const _userId = req.session.user.codigoUsuario || req.session.user.codigo || req.session.user.id;
+    const _saldo = req.session.user.matchCoins || 0;
+    if(_saldo !== undefined && _saldo <= 0 && req.session.user.tipo !== 'admin'){
+      if(req.xhr || req.headers.accept?.includes('application/json')){
+        return res.status(402).json({ok:false, erro:'Saldo insuficiente', redirect:'/app/coins'});
+      }
+      return res.redirect('/app/coins?sem_saldo=1');
+    }
+  }
   next();
 }
 

@@ -155,7 +155,12 @@ async function iniciarCompra() {
     _brickController = await bricks.create('payment', 'mpBrick', {
       initialization: {
         amount: valorSelecionado,
-        preferenceId: d.id
+        preferenceId: d.id,
+        payer: {
+          firstName: '<%= (user.nome||"").split(" ")[0] %>',
+          lastName: '<%= (user.nome||"").split(" ").slice(1).join(" ") %>',
+          email: '<%= user.email || "" %>'
+        }
       },
       customization: {
         paymentMethods: {

@@ -3502,7 +3502,6 @@ app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async 
       telefone: req.session.user.telefone || req.session.user.celular || ''
     }
   };
-  imoveis.push(novo);
   const { salvarImovel: _salvarImovelNovo } = require('./services/salvarImovel');
   await _salvarImovelNovo(novo);
   if(_cacheImoveis) _cacheImoveis.push(novo);

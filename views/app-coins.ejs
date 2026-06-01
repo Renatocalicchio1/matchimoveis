@@ -124,7 +124,7 @@ document.getElementById('valorInput').addEventListener('input', function() {
   });
 });
 
-function iniciarCompra() {
+async function iniciarCompra() {
   if (!valorSelecionado || valorSelecionado < 20) {
     alert('Valor mínimo é R$20.');
     return;

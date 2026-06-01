@@ -4711,6 +4711,7 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
     if(pagamento.status !== 'approved') return res.sendStatus(200);
 
     const meta = pagamento.metadata || {};
+    console.log('[MP webhook] metadata:', JSON.stringify(meta), '| status:', pagamento.status, '| valor:', pagamento.transaction_amount);
     const userId = meta.user_id || meta.userId || '';
     const creditos = parseInt(meta.creditos) || Math.floor((pagamento.transaction_amount||0) * 50);
 

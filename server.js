@@ -3400,6 +3400,10 @@ const storageImoveis = multer.diskStorage({
 const uploadImoveis = multer({ storage: storageImoveis });
 
 app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async (req, res) => {
+  // verifica saldo antes de cadastrar
+  const _userCad = (_cacheUsuarios||[]).find(u => u.id === req.session.user?.id || u.codigoUsuario === req.session.user?.codigoUsuario);
+  const _saldoCad = _userCad?.matchCoins || req.session.user?.matchCoins || 0;
+  if(_saldoCad < 15) return res.redirect('/app/coins?erro=saldo_insuficiente');
   const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
   const imoveis = (_cacheImoveis || []);
   const b = req.body;

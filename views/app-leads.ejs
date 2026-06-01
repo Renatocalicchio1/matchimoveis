@@ -39,6 +39,7 @@
 .km-ver-btn{font-size:10px;font-weight:600;color:#7c3aed;background:none;border:none;cursor:pointer;padding:0;white-space:nowrap}
 .km-ver-btn:hover{text-decoration:underline}
 .kanban-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-bottom:16px;align-items:flex-start;overflow-x:auto}
+@media(max-width:768px){.kanban-wrap{grid-template-columns:1fr!important;overflow-x:unset!important}.kanban-col{min-width:unset!important;max-height:unset!important}.kanban-hint-btns{display:none!important}}
 .kanban-wrap::-webkit-scrollbar{height:5px}
 .kanban-wrap::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
 .kanban-col{background:#f9fafb;border:0.5px solid rgba(0,0,0,.06);border-radius:14px;padding:14px;min-height:400px;max-height:calc(100vh - 240px);overflow-y:auto;min-width:280px}

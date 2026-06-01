@@ -1,10 +1,8 @@
 <style>
-.kanban-board{display:flex;gap:16px;overflow-x:auto;align-items:flex-start;padding-bottom:20px;flex-wrap:nowrap;}
-.kanban-col-v{min-width:320px;flex-shrink:0;}
+.kanban-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding-bottom:20px;}
+.kanban-col-v{width:100%;}
 @media(max-width:768px){
-  .kanban-col-v{ min-width:unset !important; width:100% !important; flex-shrink:1 !important; }
-  .kanban-board{ flex-direction:column !important; overflow-x:unset !important; align-items:stretch !important; flex-wrap:wrap !important; }
-  .kanban-board > div { min-width:unset !important; width:100% !important; }
+  .kanban-board{grid-template-columns:1fr !important;}
 }
 </style>
 <%- include('partials/app-shell', { user, active: 'visitas' }) %>

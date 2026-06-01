@@ -4019,7 +4019,8 @@ app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), asyn
       const url = '/data-uploads/' + req.file.filename;
       imoveis[idx].fotos = imoveis[idx].fotos || [];
       imoveis[idx].fotos.push(url);
-      await salvarTodosImoveis(imoveis);
+      await salvarImovel(imoveis[idx]);
+      if(_cacheImoveis) { const _ci = _cacheImoveis.findIndex(i => i.id === imoveis[idx].id); if(_ci >= 0) _cacheImoveis[_ci] = imoveis[idx]; }
     }
     res.redirect('/app/imovel/' + pid + '/editar?salvo=1');
   } catch(e) {

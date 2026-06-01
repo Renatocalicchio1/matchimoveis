@@ -27,7 +27,7 @@ async function consumir(userId, acao) {
     const custo = CUSTO[acao] || 10;
     if (custo === 0) return true;
     const users = await lerUsuarios();
-    const idx = users.findIndex(u => u.id === userId || u.userId === userId);
+    const idx = users.findIndex(u => u.id === userId || u.userId === userId || u.codigo_usuario === userId || u.codigoUsuario === userId);
     if (idx < 0) return true;
     const saldoAtual = users[idx].matchCoins || 0;
     if (saldoAtual <= 0) return false;

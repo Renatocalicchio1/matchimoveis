@@ -6426,29 +6426,19 @@ app.get('/app/feed', auth, async (req, res) => {
       ids.forEach(uid => { if(uid && nome) nomeMap[String(uid)] = nome; });
     });
     console.log('[feed] nomeMap:', JSON.stringify(nomeMap));
-
-    const uLat = req.session.user?.lat || null;
-    const uLng = req.session.user?.lng || null;
-
-    let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido');
-
-    imoveis = imoveis.map(im => {
-      const iLat = im.latitude || im.lat;
-      const iLng = im.longitude || im.lng;
-      const uid = im.user_id || im.userId || im.codigoUsuario;
-      const nomeUsuario = nomeMap[uid] || '';
-      let _dist = 9999;
-      if(uLat && uLng && iLat && iLng){
-        const dLat=(iLat-uLat)*Math.PI/180, dLng=(iLng-uLng)*Math.PI/180;
-        const a=Math.sin(dLat/2)**2+Math.cos(uLat*Math.PI/180)*Math.cos(iLat*Math.PI/180)*Math.sin(dLng/2)**2;
-        _dist = 6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-      }
-      return {...im, _nomeUsuario: nomeUsuario, _dist};
-    }).sort((a,b) => a._dist - b._dist).slice(0, 50);
-
-    // conta leads compatíveis por imóvel
-    const leads = _cacheLeads || [];
-    const meusLeads = leads.filter(l => (l.userId||l.codigoUsuario||l.user_id) === myId);
+    // REGRAS DO FEED — baseado na carteira do corretor, sem GPS
+    const _feedLeads = _cacheLeads || [];
+    const meusLeads = _feedLeads.filter(l => (l.userId||l.codigoUsuario||l.user_id) === myId);
+    const demandaMap = {};
+    meusLeads.forEach(lead => {
+      const perfil = lead.perfilIa || lead.perfil_ia || lead.dados || {};
+      const cidade = (perfil.cidade||'').toLowerCase().trim();
+      const bairro = (perfil.bairro||'').toLowerCase().trim();
+      const tipo   = (perfil.tipo||perfil.tipo_imovel||'').toLowerCase().trim();
+      if(cidade) demandaMap[cidade] = (demandaMap[cidade]||0) + 2;
+      if(bairro) demandaMap[bairro] = (demandaMap[bairro]||0) + 3;
+      if(tipo)   demandaMap[tipo]   = (demandaMap[tipo]||0)   + 1;
+    });
     const leadsMap = {};
     meusLeads.forEach(lead => {
       const matches = lead.matchesBase || lead.matchesAuto || lead.matches || [];
@@ -6459,30 +6449,28 @@ app.get('/app/feed', auth, async (req, res) => {
         leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead'});
       });
     });
-    // mapa de cidades/bairros mais buscados pelos leads do corretor
-    const demandaMap = {}; // cidade+bairro -> count
-    meusLeads.forEach(lead => {
-      const cidade = (lead.perfilIa?.cidade || lead.dados?.cidade || '').toLowerCase().trim();
-      const bairro = (lead.perfilIa?.bairro || lead.dados?.bairro || '').toLowerCase().trim();
-      if(cidade){ demandaMap[cidade] = (demandaMap[cidade]||0) + 1; }
-      if(bairro){ demandaMap[bairro] = (demandaMap[bairro]||0) + 1; }
-    });
-
+    let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido');
     imoveis = imoveis.map(im => {
+      const uid = im.user_id || im.userId || im.codigoUsuario;
+      const nomeUsuario = nomeMap[uid] || '';
       const mid = String(im.id || im.id_externo || '');
       const lc = leadsMap[mid] || [];
-      const cidade = (im.cidade||'').toLowerCase().trim();
-      const bairro = (im.bairro||'').toLowerCase().trim();
-      const _demanda = (demandaMap[cidade]||0) + (demandaMap[bairro]||0);
-      return {...im, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>l.nome), _demanda};
+      const _cidade = (im.cidade||'').toLowerCase().trim();
+      const _bairro = (im.bairro||'').toLowerCase().trim();
+      const _tipo   = (im.tipo||'').toLowerCase().trim();
+      const _demanda = (demandaMap[_cidade]||0) + (demandaMap[_bairro]||0) + (demandaMap[_tipo]||0);
+      const _score = (lc.length * 10) + _demanda;
+      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>l.nome), _demanda, _score};
     });
-
-    // ordena: 1) leads compatíveis 2) demanda da carteira 3) distância GPS
-    imoveis.sort((a,b) => {
-      if(b._leadsCompativeis !== a._leadsCompativeis) return b._leadsCompativeis - a._leadsCompativeis;
-      if(b._demanda !== a._demanda) return b._demanda - a._demanda;
-      return a._dist - b._dist;
-    });
+    imoveis.sort((a,b) => b._score - a._score);
+    const _prop = imoveis.filter(im => (im.user_id||im.userId||im.codigoUsuario) === myId);
+    const _parc = imoveis.filter(im => (im.user_id||im.userId||im.codigoUsuario) !== myId);
+    const _mix = [];
+    for(let i=0; i<Math.max(_prop.length,_parc.length); i++){
+      if(_parc[i]) _mix.push(_parc[i]);
+      if(_prop[i]) _mix.push(_prop[i]);
+    }
+    imoveis = _mix.slice(0, 50);
 
     res.render('app-feed', { user: req.session.user, imoveis });
   } catch(e) {

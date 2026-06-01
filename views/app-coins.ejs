@@ -106,7 +106,7 @@ function atualizarPreview(v){
   document.getElementById("creditosPreview").innerText = Math.floor(valorSelecionado*50).toLocaleString("pt-BR")+" créditos";
 }
 async function iniciarCompra(){
-  if(!valorSelecionado || valorSelecionado < 20){ alert("Valor mínimo é R$20."); return; }
+  if(!valorSelecionado || valorSelecionado < 1){ alert("Valor mínimo é R$1."); return; }
   const btn = document.getElementById("btnPagar");
   btn.disabled = true; btn.textContent = "Aguarde...";
   try{

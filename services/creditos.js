@@ -98,8 +98,8 @@ async function consumir(userId, acao) {
 async function adicionarCreditos(userId, quantidade, motivo = 'recarga') {
   try {
     const users = await lerUsuarios();
-    const idx = users.findIndex(u => u.id === userId || u.userId === userId);
-    if (idx < 0) return false;
+    const idx = users.findIndex(u => u.id === userId || u.userId === userId || u.codigo_usuario === userId || u.codigoUsuario === userId);
+    if (idx < 0){ console.log('[creditos] usuario nao encontrado:', userId); return false; }
     users[idx].matchCoins = (users[idx].matchCoins || 0) + quantidade;
     users[idx].matchCoinsTotal = (users[idx].matchCoinsTotal || 0) + quantidade;
     if (!users[idx].matchCoinsTransacoes) users[idx].matchCoinsTransacoes = [];

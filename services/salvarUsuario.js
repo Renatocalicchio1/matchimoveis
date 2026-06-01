@@ -123,7 +123,6 @@ async function salvarUsuario(user) {
           tipo=EXCLUDED.tipo, ativo=EXCLUDED.ativo,
           codigo_usuario=EXCLUDED.codigo_usuario,
           creci=EXCLUDED.creci, cpf=EXCLUDED.cpf,
-          match_coins=EXCLUDED.match_coins, match_coins_total=EXCLUDED.match_coins_total,
           whatsapp_instance=EXCLUDED.whatsapp_instance,
           whatsapp_status=EXCLUDED.whatsapp_status,
           whatsapp_numero=EXCLUDED.whatsapp_numero,

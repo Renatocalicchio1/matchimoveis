@@ -3673,7 +3673,8 @@ app.post('/api/lead-interesse', async (req, res) => {
             const _linkImovel = (_novaVisita.imovelId||imovelId) ? '\n🔗 '+_BASE+'/imovel/'+encodeURIComponent(_novaVisita.imovelId||imovelId) : '';
             const _dataHora = _novaVisita.dataVisita ? '\n📅 '+_novaVisita.dataVisita+(_novaVisita.horaVisita?' às '+_novaVisita.horaVisita:'') : '';
             const _avisoContato = _contatoExtra ? '\n\n⚠️ *Fale com o responsável antes de confirmar a visita.*' : '';
-            const _msg = '🏠 *Nova solicitação de visita*'
+            const _nomeCorretor = (_corrUser?.nome || '').split(' ')[0] || 'Corretor';
+            const _msg = 'Olá *' + _nomeCorretor + '*! Você recebeu uma nova solicitação de visita. 🏠'
               + _linkImovel
               + _dataHora
               + _contatoExtra

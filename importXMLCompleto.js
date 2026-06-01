@@ -293,7 +293,12 @@ async function run() {
   let atuais = [];
   try {
     const { query: _qAnt } = require('./services/db');
-    const _res = await _qAnt('SELECT * FROM imoveis WHERE user_id=$1', [USER_ID]);
+    // busca por codigo_usuario atual E user_id legado
+    const _uRes = await _qAnt("SELECT dados->>'user_id_legado' as legado FROM usuarios WHERE codigo_usuario=$1", [USER_ID]);
+    const _legadoId = _uRes.rows[0]?.legado || null;
+    const _res = _legadoId
+      ? await _qAnt('SELECT * FROM imoveis WHERE user_id=$1 OR user_id=$2', [USER_ID, _legadoId])
+      : await _qAnt('SELECT * FROM imoveis WHERE user_id=$1', [USER_ID]);
     atuais = _res.rows.map(r => ({
       ...r,
       idExterno: r.id_externo,

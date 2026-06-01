@@ -6578,7 +6578,7 @@ app.get('/app/feed', auth, async (req, res) => {
     const nomeMap = {};
     usuarios.forEach(u => {
       const nome = u.nome || u.name || '';
-      const ids = [u.codigo_usuario, u.codigoUsuario, u.codigo, u.id, u._id].filter(Boolean);
+      const ids = [u.codigo_usuario, u.codigoUsuario, u.codigo, u.id, u._id, u.dados?.user_id_legado].filter(Boolean);
       ids.forEach(uid => { if(uid && nome) nomeMap[String(uid)] = nome; });
     });
     console.log('[feed] nomeMap:', JSON.stringify(nomeMap));

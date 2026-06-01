@@ -4000,7 +4000,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   };
 
   await salvarImovel(imoveis[idx]);
-  _cacheImoveis = null;
+  if(_cacheImoveis) { const _ci = _cacheImoveis.findIndex(i => i.id === imoveis[idx].id); if(_ci >= 0) _cacheImoveis[_ci] = imoveis[idx]; }
   setTimeout(() => regenerarXMLUsuario(userId).catch(e => console.error('[xml-editar]', e.message)), 1000);
   // Renderiza direto sem redirect para evitar problema de sessao
   const idImovelEdit = (imoveis[idx].idExterno&&imoveis[idx].idExterno.trim())?imoveis[idx].idExterno:(imoveis[idx].idInterno||String(imoveis[idx].id)||'');

@@ -50,6 +50,10 @@
                  tipo.includes('lead') ? '👤' :
                  tipo.includes('proposta') ? '💰' :
                  tipo.includes('like') ? '❤️' :
+                 tipo.includes('saldo_zerado') ? '🚫' :
+                 tipo.includes('saldo_baixo') ? '⚠️' :
+                 tipo.includes('saldo_medio') ? '💛' :
+                 tipo.includes('recarga') ? '✅' :
                  tipo.includes('sistema') ? '⚙️' : '🔔';
     %>
     <div class="notif-item <%= lida ? 'lida' : 'nao-lida' %>"

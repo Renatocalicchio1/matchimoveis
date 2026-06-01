@@ -40,6 +40,45 @@ async function consumir(userId, acao) {
       saldoApos: users[idx].matchCoins
     });
     await salvarTodosUsuarios(users);
+
+    // avisos de saldo baixo
+    const saldoNovo = users[idx].matchCoins;
+    const saldoMax = users[idx].matchCoinsTotal || 1000;
+    try {
+      const { criarNotificacao } = require('./salvarNotificacao');
+      if(saldoNovo === 0){
+        criarNotificacao({
+          id: Date.now().toString(),
+          tipo: 'saldo_zerado',
+          titulo: 'Conta pausada',
+          mensagem: 'Seus créditos acabaram. Adicione créditos para continuar usando a plataforma.',
+          usuarioId: userId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+      } else if(saldoNovo <= 200 && saldoAtual > 200){
+        criarNotificacao({
+          id: (Date.now()+1).toString(),
+          tipo: 'saldo_baixo',
+          titulo: 'Créditos acabando',
+          mensagem: 'Você tem apenas ' + saldoNovo + ' créditos. Recarregue para não pausar sua conta.',
+          usuarioId: userId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+      } else if(saldoNovo <= 500 && saldoAtual > 500){
+        criarNotificacao({
+          id: (Date.now()+2).toString(),
+          tipo: 'saldo_medio',
+          titulo: 'Créditos na metade',
+          mensagem: 'Você tem ' + saldoNovo + ' créditos restantes.',
+          usuarioId: userId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+      }
+    } catch(e2) {}
+
     return true;
   } catch(e) {
     console.error('[creditos] Erro:', e.message);
@@ -62,6 +101,45 @@ async function adicionarCreditos(userId, quantidade, motivo = 'recarga') {
       saldoApos: users[idx].matchCoins
     });
     await salvarTodosUsuarios(users);
+
+    // avisos de saldo baixo
+    const saldoNovo = users[idx].matchCoins;
+    const saldoMax = users[idx].matchCoinsTotal || 1000;
+    try {
+      const { criarNotificacao } = require('./salvarNotificacao');
+      if(saldoNovo === 0){
+        criarNotificacao({
+          id: Date.now().toString(),
+          tipo: 'saldo_zerado',
+          titulo: 'Conta pausada',
+          mensagem: 'Seus créditos acabaram. Adicione créditos para continuar usando a plataforma.',
+          usuarioId: userId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+      } else if(saldoNovo <= 200 && saldoAtual > 200){
+        criarNotificacao({
+          id: (Date.now()+1).toString(),
+          tipo: 'saldo_baixo',
+          titulo: 'Créditos acabando',
+          mensagem: 'Você tem apenas ' + saldoNovo + ' créditos. Recarregue para não pausar sua conta.',
+          usuarioId: userId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+      } else if(saldoNovo <= 500 && saldoAtual > 500){
+        criarNotificacao({
+          id: (Date.now()+2).toString(),
+          tipo: 'saldo_medio',
+          titulo: 'Créditos na metade',
+          mensagem: 'Você tem ' + saldoNovo + ' créditos restantes.',
+          usuarioId: userId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+      }
+    } catch(e2) {}
+
     return true;
   } catch(e) {
     console.error('[creditos] Erro:', e.message);

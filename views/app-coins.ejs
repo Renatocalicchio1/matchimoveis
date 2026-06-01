@@ -103,79 +103,20 @@
 let valorSelecionado = 0;
 function atualizarPreview(v){
   valorSelecionado = parseFloat(v)||0;
-  document.getElementById('creditosPreview').innerText = Math.floor(valorSelecionado*50).toLocaleString('pt-BR')+' créditos';
+  document.getElementById("creditosPreview").innerText = Math.floor(valorSelecionado*50).toLocaleString("pt-BR")+" créditos";
 }
-
-function selecionarValor(v) {
-  valorSelecionado = v;
-  document.getElementById('valorInput').value = v;
-  document.getElementById('creditosPreview').innerText = (v * 50) + ' créditos';
-  document.querySelectorAll('[data-val]').forEach(b => {
-    const sel = parseInt(b.dataset.val) === v;
-    b.style.border = sel ? '2px solid #FF385C' : '2px solid #e5e7eb';
-    b.style.background = sel ? '#fff1f3' : '#fff';
-    b.style.color = sel ? '#FF385C' : '#111';
-  });
-}
-
-document.getElementById('valorInput').addEventListener('input', function() {
-  const v = parseFloat(this.value) || 0;
-  valorSelecionado = v;
-  document.getElementById('creditosPreview').innerText = Math.floor(v * 50) + ' créditos';
-  document.querySelectorAll('[data-val]').forEach(b => {
-    b.style.border = '2px solid #e5e7eb';
-    b.style.background = '#fff';
-    b.style.color = '#111';
-  });
-});
-
-const _mpPublicKey = <%- JSON.stringify(mpPublicKey||'') %>;
-let _brickController = null;
-
-async function iniciarCompra() {
-  if (!valorSelecionado || valorSelecionado < 20) {
-    alert('Valor mínimo é R$20.');
-    return;
-  }
-  const btn = document.getElementById('btnPagar');
-  btn.disabled = true;
-  btn.textContent = 'Aguarde...';
-  try {
-    const r = await fetch('/pagamento/criar', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({valor: valorSelecionado})
-    });
+async function iniciarCompra(){
+  if(!valorSelecionado || valorSelecionado < 20){ alert("Valor mínimo é R$20."); return; }
+  const btn = document.getElementById("btnPagar");
+  btn.disabled = true; btn.textContent = "Aguarde...";
+  try{
+    const r = await fetch("/pagamento/criar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({valor:valorSelecionado})});
     const d = await r.json();
-    if(!d.ok){ alert(d.erro||'Erro'); btn.disabled=false; btn.textContent='Adicionar créditos'; return; }
-
-    // abre modal e renderiza brick
-    document.getElementById('mpModal').style.display = 'flex';
-    document.getElementById('mpBrick').innerHTML = '';
-    window.location.href = d.url;
-            fecharMP();
-            window.location.href = '/app/coins?sucesso=1';
-          } else if(result.status === 'pending'){
-            fecharMP();
-            window.location.href = '/app/coins?pendente=1';
-          } else {
-            alert('Pagamento não aprovado. Tente novamente.');
-          }
-        },
-        onError: (err) => { console.error(err); }
-      }
-    });
-  } catch(e) {
-    alert('Erro de conexão');
-    btn.disabled = false;
-    btn.textContent = 'Adicionar créditos';
+    if(d.ok && d.url){ window.location.href = d.url; }
+    else{ alert(d.erro||"Erro ao criar pagamento"); btn.disabled=false; btn.textContent="Adicionar créditos"; }
+  } catch(e){
+    alert("Erro de conexão"); btn.disabled=false; btn.textContent="Adicionar créditos";
   }
-}
-
-function fecharMP(){
-  document.getElementById('mpModal').style.display = 'none';
-  if(_brickController){ _brickController.unmount(); _brickController = null; }
-  document.getElementById('mpBrick').innerHTML = '';
 }
 </script>
 

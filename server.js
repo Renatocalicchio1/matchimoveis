@@ -445,14 +445,15 @@ app.post('/login', async (req,res)=>{
 
     const prefixo = req.body.tipoConta === 'imobiliaria' ? 'imob' : req.body.tipoConta === 'corretor' ? 'cor' : 'usr';
     const uid = prefixo + '_' + Math.random().toString(36).substring(2,8) + Date.now().toString(36).slice(-4);
+    const _codigoNovo = gerarCodigoUsuario(req.body.nome);
     const novo = {
-      id: uid,
+      id: _codigoNovo,
       nome: req.body.nome,
       telefone,
       celular: telefone,
       tipo: req.body.tipoConta,
       ativo: true,
-      codigoUsuario: gerarCodigoUsuario(req.body.nome),
+      codigoUsuario: _codigoNovo,
       matchCoins: 1000,
       matchCoinsTotal: 1000,
       matchCoinsBonusInicial: 1000

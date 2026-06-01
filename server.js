@@ -6535,7 +6535,7 @@ app.post('/api/feed/like', auth, express.json(), async (req, res) => {
           criarNotificacaoService({
             id: Date.now().toString(),
             tipo: 'feed_like',
-            titulo: 'Alguém curtiu seu imóvel',
+            titulo: nome + ' curtiu seu imóvel',
             mensagem: nome + ' curtiu seu imóvel',
             usuarioId: donoId,
             imovelId,

@@ -13,6 +13,21 @@ const centralOperacional = require("./services/centralOperacional");
 const { consumir, adicionarCreditos, temSaldo, saldo: saldoCreditos } = require("./services/creditos");
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 const _mpClient = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || '' });
+
+// ── HELPER: verificar saldo antes de ação ───────────────────────────────────
+function checarSaldo(acao, custo) {
+  return (req, res, next) => {
+    const user = req.session?.user;
+    const _u = (_cacheUsuarios||[]).find(u => u.id === user?.id || u.codigoUsuario === user?.codigoUsuario);
+    const saldo = _u?.matchCoins ?? user?.matchCoins ?? 0;
+    if(saldo < custo) {
+      const msg = encodeURIComponent(`Saldo insuficiente para "${acao}". Você tem ${saldo} coins e precisa de ${custo}.`);
+      return res.redirect('/app/coins?erro=' + msg);
+    }
+    next();
+  };
+}
+// ────────────────────────────────────────────────────────────────────────────
 const { lerLeads: lerLeadsService, salvarLead, atualizarLead: atualizarLeadService, deletarLead, salvarTodosLeads } = require('./services/salvarLead');
 const { lerFeeds: lerFeedsService, salvarFeed: salvarFeedService, removerFeed: removerFeedService } = require('./services/salvarXmlFeed');
 const { lerImoveis: lerImoveisService, salvarImovel, salvarTodosImoveis } = require('./services/salvarImovel');
@@ -338,7 +353,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 });
 
 // CADASTRAR LEAD MANUAL (pelo chat ou formulário)
-app.post("/app/leads/manual", auth, async (req, res) => {
+app.post("/app/leads/manual", auth, checarSaldo("Cadastrar lead manual", 10), async (req, res) => {
 try {
 const fs = require("fs");
 const { resolverUsuario } = require("./services/usuarios/resolverUsuario");
@@ -1590,7 +1605,7 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros });
 });
 
-app.post('/app/atualizar-xml', auth, async (req, res) => {
+app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req, res) => {
   const xmlUrl = req.body.xmlUrl;
   const userId = req.session.user.id;
   if (!xmlUrl) return res.json({ ok: false, erro: 'URL não informada' });
@@ -2773,7 +2788,7 @@ app.get('/app/whatsapp', auth, async (req, res) => {
 
 
 // ENVIAR MENSAGEM WHATSAPP pelo corretor
-app.post('/app/lead/:id/whatsapp/enviar', auth, async (req, res) => {
+app.post('/app/lead/:id/whatsapp/enviar', auth, checarSaldo('Enviar vitrine WhatsApp', 20), async (req, res) => {
   try {
     const { texto } = req.body;
     if (!texto) return res.status(400).json({ erro: 'texto obrigatorio' });
@@ -4334,7 +4349,7 @@ app.get('/app/imoveis-ids', auth, (req, res) => {
   res.json({ ids, total: ids.length });
 });
 
-app.post('/app/gerar-xml', auth, async (req,res)=>{
+app.post('/app/gerar-xml', auth, checarSaldo('Gerar XML para portais', 10), async (req,res)=>{
   const { portal, ids } = req.body;
   const todos = await lerImoveis(req.session.user.id);
   const imoveis = filtrarPorUsuario(todos, req.session.user);

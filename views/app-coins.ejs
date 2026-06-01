@@ -126,7 +126,7 @@ document.getElementById('valorInput').addEventListener('input', function() {
   });
 });
 
-const _mpPublicKey = '<%= process.env.MP_PUBLIC_KEY || "" %>';
+const _mpPublicKey = '<%= mpPublicKey %>';
 let _brickController = null;
 
 async function iniciarCompra() {

@@ -4737,7 +4737,7 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
 app.get('/app/coins', auth, (req, res) => {
   const users = (_cacheUsuarios || []);
   const user = users.find(u => u.id === req.session.user.id);
-  res.render('app-coins', { user: user || req.session.user });
+  res.render('app-coins', { user: user || req.session.user, mpPublicKey: process.env.MP_PUBLIC_KEY || '' });
 });
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====

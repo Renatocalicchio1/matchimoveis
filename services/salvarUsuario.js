@@ -30,7 +30,7 @@ function usersPath() {
 
 function rowToUser(r) {
   return {
-    id: r.id,
+    id: r.codigo_usuario || r.id,
     nome: r.nome,
     email: r.email,
     senha: r.senha,

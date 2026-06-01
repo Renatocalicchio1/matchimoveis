@@ -7,7 +7,7 @@ const { lerUsuarios, salvarTodosUsuarios } = require('./salvarUsuario');
 const CUSTO = {
   cadastrar_imovel:       15,
   editar_imovel:           0,
-  importar_xml:           10,
+  importar_xml:            2,
   gerar_xml_portal:       10,
   sync_xml_24h:            5,
   lead_ativo_dia:          1,

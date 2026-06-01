@@ -3085,6 +3085,19 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         await _salvarLeadPG(novoLead);
         leadEncontrado = novoLead;
         console.log('[WEBHOOK WA] novo lead criado no PG:', telefone, '| id:', novoLead.id);
+        // notificação sino — novo lead
+        try {
+          criarNotificacaoService({
+            id: Date.now().toString(),
+            tipo: 'novo_lead',
+            titulo: 'Novo lead chegou',
+            mensagem: (novoLead.nome||telefone) + ' entrou em contato via WhatsApp',
+            usuarioId: _webhookUserId,
+            leadId: novoLead.id,
+            lida: false,
+            criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+          });
+        } catch(e) { console.error('[notif lead]', e.message); }
       } catch(e) {
         console.error('[WEBHOOK WA] erro ao criar lead no PG:', e.message);
         return;
@@ -3119,6 +3132,22 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         consumir(leadAtualizado.userId || leadAtualizado.codigoUsuario, 'ia_responde_whatsapp').catch(()=>{});
 
         console.log('[WEBHOOK WA] match-core concluido | score:', leadAtualizado.score, '| temperatura:', leadAtualizado.temperatura, '| matches:', (leadAtualizado.matchesAuto || []).length);
+        // notificação sino — match gerado
+        const _qtdMatches = (leadAtualizado.matchesAuto || leadAtualizado.matches || []).length;
+        if(_qtdMatches > 0){
+          try {
+            criarNotificacaoService({
+              id: (Date.now()+2).toString(),
+              tipo: 'match_gerado',
+              titulo: 'Match encontrado',
+              mensagem: _qtdMatches + ' imóvel(is) compatível(is) com ' + (leadAtualizado.nome||'lead'),
+              usuarioId: _webhookUserId,
+              leadId: leadAtualizado.id,
+              lida: false,
+              criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+            });
+          } catch(e) { console.error('[notif match]', e.message); }
+        }
         // Salva perfil, score e temperatura no lead via PostgreSQL
         try {
           const { atualizarLead: _atualizarLeadWH } = require('./services/salvarLead');

@@ -15,7 +15,7 @@ main{overflow-x:hidden!important}
 .fchip{padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;border:0.5px solid rgba(0,0,0,.1);background:#fff;cursor:pointer;color:#374151;transition:all .1s}
 .fchip.on{background:#111827;color:#fff;border-color:#111827}
 .kanban-hint{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 14px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:8px;font-size:12px;color:#6b7280}
-.kanban-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-bottom:16px;align-items:flex-start}
+.kanban-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-bottom:16px;align-items:flex-start}@media(max-width:768px){.kanban-wrap{grid-template-columns:1fr!important}.kanban-col{min-height:unset!important;max-height:unset!important}}
 .kanban-wrap::-webkit-scrollbar{height:5px}
 .kanban-wrap::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
 .kanban-col{background:#f9fafb;border:0.5px solid rgba(0,0,0,.06);border-radius:14px;padding:14px;min-height:400px;max-height:calc(100vh - 240px);overflow-y:auto}

@@ -1625,7 +1625,7 @@ app.post('/app/excluir-xml', auth, async (req,res)=>{
     // Remove imóveis do PostgreSQL se solicitado
     if (req.body.removerImoveis === 'true') {
       const { query: _q } = require('./services/db');
-      const uid = req.session.user.id;
+      const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
       const xmlUrl = req.body.xmlUrl;
       // Exclui por xml_url ou por user_id se xml_url estiver vazio
       const _countByUrl = await _q('SELECT COUNT(*) as n FROM imoveis WHERE user_id=$1 AND xml_url=$2', [uid, xmlUrl]);

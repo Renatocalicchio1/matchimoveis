@@ -85,8 +85,7 @@
   <div style="margin-bottom:16px">
     <div style="display:flex;align-items:center;gap:12px">
       <div style="position:relative;flex:1">
-        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:700;color:#888">R$</span>
-        <input type="number" id="valorInput" min="20" step="1" placeholder="0" style="width:100%;padding:14px 12px 14px 36px;border:2px solid #e5e7eb;border-radius:10px;font-size:20px;font-weight:700;outline:none">
+        <input type="number" id="valorInput" min="20" step="1" placeholder="20" oninput="atualizarPreview(this.value)" style="width:100%;padding:14px 16px;border:2px solid #e5e7eb;border-radius:10px;font-size:20px;font-weight:700;outline:none">
       </div>
       <div style="text-align:right;min-width:110px">
         <div style="font-size:11px;color:#888">você recebe</div>
@@ -102,6 +101,10 @@
 
 <script>
 let valorSelecionado = 0;
+function atualizarPreview(v){
+  valorSelecionado = parseFloat(v)||0;
+  document.getElementById('creditosPreview').innerText = Math.floor(valorSelecionado*50).toLocaleString('pt-BR')+' créditos';
+}
 
 function selecionarValor(v) {
   valorSelecionado = v;

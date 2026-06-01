@@ -1,6 +1,7 @@
 <style>
+.kanban-board{display:flex;gap:16px;overflow-x:auto;align-items:flex-start;padding-bottom:20px;flex-wrap:nowrap;}
 @media(max-width:768px){
-  .kanban-board{ flex-direction:column !important; overflow-x:unset !important; align-items:stretch !important; }
+  .kanban-board{ flex-direction:column !important; overflow-x:unset !important; align-items:stretch !important; flex-wrap:wrap !important; }
   .kanban-board > div { min-width:unset !important; width:100% !important; }
 }
 </style>
@@ -12,14 +13,7 @@
 Kanban de Visitas
 </h1>
 
-<div style="
-display:flex;
-gap:16px;
-overflow-x:auto;
-align-items:flex-start;
-padding-bottom:20px;
-flex-wrap:nowrap;
-" class="kanban-board">
+<div class="kanban-board">
 
 <%
 const labels = {

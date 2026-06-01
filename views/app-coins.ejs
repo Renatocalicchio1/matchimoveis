@@ -112,7 +112,7 @@ async function iniciarCompra(){
   try{
     const r = await fetch("/pagamento/criar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({valor:valorSelecionado})});
     const d = await r.json();
-    if(d.ok && d.url){ window.location.href = d.url; }
+    if(d.ok && d.url){ window.open(d.url, '_blank'); btn.disabled=false; btn.textContent='Adicionar créditos'; }
     else{ alert(d.erro||"Erro ao criar pagamento"); btn.disabled=false; btn.textContent="Adicionar créditos"; }
   } catch(e){
     alert("Erro de conexão"); btn.disabled=false; btn.textContent="Adicionar créditos";

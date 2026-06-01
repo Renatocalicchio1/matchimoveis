@@ -27,8 +27,18 @@ async function consumir(userId, acao) {
     const custo = CUSTO[acao] || 10;
     if (custo === 0) return true;
     const users = await lerUsuarios();
-    const idx = users.findIndex(u => u.id === userId || u.userId === userId || u.codigo_usuario === userId || u.codigoUsuario === userId);
-    if (idx < 0) return true;
+    // Resolve id legado para codigo_usuario atual
+  let _resolvedId = userId;
+  try {
+    const { query: _qRes } = require('./db');
+    const _rRes = await _qRes(
+      "SELECT codigo_usuario FROM usuarios WHERE codigo_usuario=$1 OR dados->>'user_id_legado'=$1 LIMIT 1",
+      [userId]
+    );
+    if (_rRes.rows.length > 0) _resolvedId = _rRes.rows[0].codigo_usuario;
+  } catch(e2) { /* mantém userId original */ }
+  const idx = users.findIndex(u => u.id === _resolvedId || u.codigo_usuario === _resolvedId || u.codigoUsuario === _resolvedId);
+  if (idx < 0) { console.log('[creditos] usuario nao encontrado apos resolucao:', userId, '->', _resolvedId); return true; }
     const saldoAtual = users[idx].matchCoins || 0;
     if (saldoAtual <= 0) return false;
     users[idx].matchCoins = Math.max(0, saldoAtual - custo);

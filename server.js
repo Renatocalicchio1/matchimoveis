@@ -6605,6 +6605,11 @@ app.get('/app/feed', auth, async (req, res) => {
         leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead'});
       });
     });
+    // extrai estado do endereco do usuario
+    const _endUser = req.session.user?.endereco || '';
+    const _estadoUser = (/Santa Catarina/.test(_endUser) ? 'santa catarina' : /São Paulo|Sao Paulo/.test(_endUser) ? 'são paulo' : '').toLowerCase();
+    const _cidadeUser = (req.session.user?.cidade || '').toLowerCase().trim();
+
     let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && (im.user_id || im.userId || im.codigoUsuario));
     imoveis = imoveis.map(im => {
       const uid = im.user_id || im.userId || im.codigoUsuario;
@@ -6615,7 +6620,15 @@ app.get('/app/feed', auth, async (req, res) => {
       const _bairro = (im.bairro||'').toLowerCase().trim();
       const _tipo   = (im.tipo||'').toLowerCase().trim();
       const _demanda = (demandaMap[_cidade]||0) + (demandaMap[_bairro]||0) + (demandaMap[_tipo]||0);
-      const _score = (lc.length * 10) + _demanda;
+      // proximidade
+      const _imEstado = (im.estado||'').toLowerCase().trim();
+      const _proxEstado = _estadoUser && _imEstado && (_imEstado.includes(_estadoUser) || _estadoUser.includes(_imEstado)) ? 50 : 0;
+      const _proxCidade = _cidadeUser && _cidade && _cidade.includes(_cidadeUser) ? 30 : 0;
+      // recencia (dias desde criacao, max 30 pontos)
+      const _criado = im.criado_em ? new Date(im.criado_em).getTime() : 0;
+      const _diasAtras = _criado ? Math.max(0, (Date.now() - _criado) / 86400000) : 999;
+      const _recencia = Math.max(0, 30 - _diasAtras);
+      const _score = (lc.length * 10) + _demanda + _proxEstado + _proxCidade + _recencia;
       return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>l.nome), _demanda, _score};
     });
     // intercala 1x1 por usuario

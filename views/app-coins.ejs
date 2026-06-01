@@ -129,7 +129,7 @@ document.getElementById('valorInput').addEventListener('input', function() {
   });
 });
 
-const _mpPublicKey = '<%= mpPublicKey %>';
+const _mpPublicKey = <%- JSON.stringify(mpPublicKey||'') %>;
 let _brickController = null;
 
 async function iniciarCompra() {

@@ -50,6 +50,17 @@
 .fp-btn{background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;transition:transform .1s;color:var(--dark);}
 .fp-btn:active{transform:scale(1.2);}
 .fp-btn.liked svg path{stroke:#E8404A;fill:#E8404A;}
+.share-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:flex-end;justify-content:center;}
+.share-modal.open{display:flex;}
+.share-box{background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:70vh;overflow-y:auto;}
+.share-title{font-size:14px;font-weight:600;color:#111;margin-bottom:4px;}
+.share-sub{font-size:11px;color:#aaa;margin-bottom:16px;}
+.share-lead{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;cursor:pointer;border:.5px solid #f0f0f0;margin-bottom:8px;}
+.share-lead:hover{background:#fef2f2;}
+.share-av{width:36px;height:36px;border-radius:50%;background:#E8404A;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.share-nome{font-size:12px;font-weight:600;color:#111;}
+.share-tel{font-size:10px;color:#aaa;}
+.share-wa{margin-left:auto;background:#25D366;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;}
 .fp-spacer{flex:1;}
 
 /* banner novos */
@@ -63,6 +74,14 @@
   <span id="newCount"></span>
 </div>
 
+<div id="shareModal" class="share-modal" onclick="if(event.target===this)fecharShare()">
+  <div class="share-box">
+    <div class="share-title">Compartilhar imóvel</div>
+    <div class="share-sub">Escolha o lead para enviar</div>
+    <div id="shareLeadList"></div>
+    <button onclick="fecharShare()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#f5f5f5;color:#888;font-size:12px;font-weight:500;cursor:pointer;margin-top:4px;">Cancelar</button>
+  </div>
+</div>
 <div id="feed-root"><div id="feed-inner"></div></div>
 
 <script>
@@ -146,7 +165,7 @@ function _renderPost(im, idx){
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
       <span class="fp-like-count" id="lc-${im.id||idx}" style="font-size:11px;color:#aaa;margin-left:-8px"></span>
-      <button class="fp-btn" aria-label="Compartilhar" onclick="compartilhar('${im.id||im.id_externo||idx}')">
+      <button class="fp-btn" aria-label="Compartilhar" onclick="abrirShare('${im.id||im.id_externo||idx}','${encodeURIComponent(JSON.stringify(im._leadsNomes||[]))}','${im._nomeUsuario||''}')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
       <div class="fp-spacer"></div>
@@ -209,6 +228,45 @@ function _initMaps(){
       L.polyline([[_uLat,_uLng],[iLat,iLng]],{color:'#E8404A',weight:1.5,dashArray:'4,3',opacity:.7}).addTo(map);
     }
   });
+}
+
+const _meuNome = '<%= user.nome || "Corretor" %>';
+const _meuId = '<%= user.codigoUsuario || user.codigo %>';
+const _BASE_URL = window.location.origin;
+
+function abrirShare(imovelId, leadsJson, nomeImovel){
+  window._shareImovelId = imovelId;
+  const leads = JSON.parse(decodeURIComponent(leadsJson)||'[]');
+  const list = document.getElementById('shareLeadList');
+  if(leads.length === 0){
+    // sem leads compatíveis — compartilha direto
+    const link = _BASE_URL+'/imovel/'+encodeURIComponent(imovelId)+'?userId='+_meuId;
+    const msg = 'Olá! Me chamo '+_meuNome+' e encontrei um imóvel que pode atender seu perfil de busca! 🏠\n\nEntre em contato ou agende sua visita diretamente pelo link:\n'+link;
+    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+    return;
+  }
+  list.innerHTML = leads.map(nome => `
+    <div class="share-lead" onclick="enviarShare('${imovelId}','${encodeURIComponent(nome)}')">
+      <div class="share-av">${nome.charAt(0).toUpperCase()}</div>
+      <div>
+        <div class="share-nome">${nome}</div>
+        <div class="share-tel">lead compatível</div>
+      </div>
+      <button class="share-wa">Enviar WA</button>
+    </div>`).join('');
+  document.getElementById('shareModal').classList.add('open');
+}
+
+function enviarShare(imovelId, nomeEnc){
+  const nomeLead = decodeURIComponent(nomeEnc);
+  const link = _BASE_URL+'/imovel/'+encodeURIComponent(imovelId)+'?userId='+_meuId;
+  const msg = 'Olá '+nomeLead+'! Me chamo '+_meuNome+' e encontrei um imóvel que atende seu perfil de busca! 🏠\n\nEntre em contato ou agende sua visita diretamente pelo link:\n'+link;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  fecharShare();
+}
+
+function fecharShare(){
+  document.getElementById('shareModal').classList.remove('open');
 }
 
 async function toggleLike(btn, imovelId){

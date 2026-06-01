@@ -129,7 +129,28 @@ function iniciarCompra() {
     alert('Valor mínimo é R$5.');
     return;
   }
-  alert('Em breve! Integração com pagamento chegando.\nVocê receberá ' + Math.floor(valorSelecionado * 10) + ' créditos por R$' + valorSelecionado.toFixed(2).replace('.', ','));
+  const btn = document.getElementById('btnPagar');
+  btn.disabled = true;
+  btn.textContent = 'Aguarde...';
+  try {
+    const r = await fetch('/pagamento/criar', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({valor: valorSelecionado})
+    });
+    const d = await r.json();
+    if(d.ok && d.url){
+      window.location.href = d.url;
+    } else {
+      alert(d.erro || 'Erro ao criar pagamento');
+      btn.disabled = false;
+      btn.textContent = 'Pagar agora';
+    }
+  } catch(e) {
+    alert('Erro de conexão');
+    btn.disabled = false;
+    btn.textContent = 'Pagar agora';
+  }
 }
 </script>
 

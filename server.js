@@ -11,6 +11,8 @@ const cerebroNLP = require("./services/cerebro-nlp");
 const fs = require('fs');
 const centralOperacional = require("./services/centralOperacional");
 const { consumir, adicionarCreditos, temSaldo, saldo: saldoCreditos } = require("./services/creditos");
+const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
+const _mpClient = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || '' });
 const { lerLeads: lerLeadsService, salvarLead, atualizarLead: atualizarLeadService, deletarLead, salvarTodosLeads } = require('./services/salvarLead');
 const { lerFeeds: lerFeedsService, salvarFeed: salvarFeedService, removerFeed: removerFeedService } = require('./services/salvarXmlFeed');
 const { lerImoveis: lerImoveisService, salvarImovel, salvarTodosImoveis } = require('./services/salvarImovel');
@@ -4609,6 +4611,89 @@ app.use('/admin', (req, res, next) => {
 
 
 // Match Coins
+
+// ── MERCADO PAGO ─────────────────────────────────────────────────────────────
+app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
+  try {
+    const { valor } = req.body;
+    const user = req.session.user;
+    if(!valor || Number(valor) < 5) return res.json({ok:false, erro:'Valor mínimo R$ 5'});
+
+    const preference = new Preference(_mpClient);
+    const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';
+
+    const result = await preference.create({
+      body: {
+        items: [{
+          title: 'Créditos MatchImóveis',
+          quantity: 1,
+          unit_price: Number(valor),
+          currency_id: 'BRL'
+        }],
+        payer: {
+          name: user.nome || '',
+          email: user.email || ''
+        },
+        back_urls: {
+          success: BASE + '/pagamento/sucesso',
+          failure: BASE + '/app/coins',
+          pending: BASE + '/app/coins'
+        },
+        auto_return: 'approved',
+        notification_url: BASE + '/webhook/mercadopago',
+        metadata: {
+          userId: user.codigoUsuario || user.codigo || user.id,
+          valor: Number(valor),
+          creditos: Math.floor(Number(valor) * 10)
+        }
+      }
+    });
+
+    res.json({ ok: true, url: result.init_point, id: result.id });
+  } catch(e) {
+    console.error('[MP] erro criar preferencia:', e.message);
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
+app.get('/pagamento/sucesso', auth, async (req, res) => {
+  res.redirect('/app/coins?sucesso=1');
+});
+
+app.post('/webhook/mercadopago', express.json(), async (req, res) => {
+  try {
+    const { type, data } = req.body;
+    if(type !== 'payment') return res.sendStatus(200);
+
+    const payment = new Payment(_mpClient);
+    const pagamento = await payment.get({ id: data.id });
+
+    if(pagamento.status !== 'approved') return res.sendStatus(200);
+
+    const meta = pagamento.metadata || {};
+    const userId = meta.user_id || meta.userId || '';
+    const creditos = parseInt(meta.creditos) || Math.floor((pagamento.transaction_amount||0) * 10);
+
+    if(userId && creditos > 0){
+      await adicionarCreditos(userId, creditos, 'recarga_mp');
+      console.log('[MP] créditos adicionados:', userId, creditos);
+      criarNotificacaoService({
+        id: Date.now().toString(),
+        tipo: 'recarga',
+        titulo: 'Recarga aprovada',
+        mensagem: creditos + ' créditos adicionados à sua conta',
+        usuarioId: userId,
+        lida: false,
+        criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+      });
+    }
+    res.sendStatus(200);
+  } catch(e) {
+    console.error('[MP] webhook erro:', e.message);
+    res.sendStatus(200);
+  }
+});
+
 app.get('/app/coins', auth, (req, res) => {
   const users = (_cacheUsuarios || []);
   const user = users.find(u => u.id === req.session.user.id);

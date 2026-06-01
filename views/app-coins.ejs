@@ -152,38 +152,7 @@ async function iniciarCompra() {
     // abre modal e renderiza brick
     document.getElementById('mpModal').style.display = 'flex';
     document.getElementById('mpBrick').innerHTML = '';
-
-    const mp = new MercadoPago(_mpPublicKey, {locale:'pt-BR'});
-    const bricks = mp.bricks();
-    _brickController = await bricks.create('payment', 'mpBrick', {
-      initialization: {
-        amount: valorSelecionado,
-        preferenceId: d.id,
-        payer: {
-          firstName: <%- JSON.stringify((user.nome||'').split(' ')[0]||'') %>,
-          lastName: <%- JSON.stringify((user.nome||'').split(' ').slice(1).join(' ')||'') %>,
-          email: <%- JSON.stringify(user.email||'') %>
-        }
-      },
-      customization: {
-        paymentMethods: {
-          creditCard: 'all',
-          debitCard: 'all',
-          ticket: 'all',
-          bankTransfer: 'all',
-          atm: 'all'
-        }
-      },
-      callbacks: {
-        onReady: () => { btn.disabled=false; btn.textContent='Adicionar créditos'; },
-        onSubmit: async ({selectedPaymentMethod, formData}) => {
-          const resp = await fetch('/pagamento/processar', {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body: JSON.stringify(formData)
-          });
-          const result = await resp.json();
-          if(result.status === 'approved'){
+    window.location.href = d.url;
             fecharMP();
             window.location.href = '/app/coins?sucesso=1';
           } else if(result.status === 'pending'){

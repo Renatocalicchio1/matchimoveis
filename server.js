@@ -4669,6 +4669,32 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
   }
 });
 
+app.post('/pagamento/processar', auth, express.json(), async (req, res) => {
+  try {
+    const payment = new Payment(_mpClient);
+    const result = await payment.create({ body: req.body });
+    const userId = req.session.user?.codigoUsuario || req.session.user?.codigo;
+    const valor = result.transaction_amount || 0;
+    const creditos = Math.floor(valor * 10);
+    if(result.status === 'approved' && creditos > 0){
+      await adicionarCreditos(userId, creditos, 'recarga_mp');
+      criarNotificacaoService({
+        id: Date.now().toString(),
+        tipo: 'recarga',
+        titulo: 'Recarga aprovada',
+        mensagem: creditos + ' créditos adicionados',
+        usuarioId: userId,
+        lida: false,
+        criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+      });
+    }
+    res.json({ status: result.status, id: result.id });
+  } catch(e) {
+    console.error('[MP] processar erro:', e.message);
+    res.json({ status: 'error', erro: e.message });
+  }
+});
+
 app.get('/pagamento/sucesso', auth, async (req, res) => {
   res.redirect('/app/coins?sucesso=1');
 });

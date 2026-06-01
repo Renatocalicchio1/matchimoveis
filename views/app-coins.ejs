@@ -67,6 +67,17 @@
   </div>
 </div>
 
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+
+<!-- MODAL PAGAMENTO -->
+<div id="mpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;position:relative">
+    <button onclick="fecharMP()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Adicionar créditos</h3>
+    <div id="mpBrick"></div>
+  </div>
+</div>
+
 <!-- ADICIONAR CRÉDITOS -->
 <div class="card" style="margin-bottom:16px">
   <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Adicionar créditos</h2>
@@ -115,6 +126,9 @@ document.getElementById('valorInput').addEventListener('input', function() {
   });
 });
 
+const _mpPublicKey = '<%= process.env.MP_PUBLIC_KEY || "" %>';
+let _brickController = null;
+
 async function iniciarCompra() {
   if (!valorSelecionado || valorSelecionado < 20) {
     alert('Valor mínimo é R$20.');
@@ -130,18 +144,61 @@ async function iniciarCompra() {
       body: JSON.stringify({valor: valorSelecionado})
     });
     const d = await r.json();
-    if(d.ok && d.url){
-      window.location.href = d.url;
-    } else {
-      alert(d.erro || 'Erro ao criar pagamento');
-      btn.disabled = false;
-      btn.textContent = 'Pagar agora';
-    }
+    if(!d.ok){ alert(d.erro||'Erro'); btn.disabled=false; btn.textContent='Adicionar créditos'; return; }
+
+    // abre modal e renderiza brick
+    document.getElementById('mpModal').style.display = 'flex';
+    document.getElementById('mpBrick').innerHTML = '';
+
+    const mp = new MercadoPago(_mpPublicKey, {locale:'pt-BR'});
+    const bricks = mp.bricks();
+    _brickController = await bricks.create('payment', 'mpBrick', {
+      initialization: {
+        amount: valorSelecionado,
+        preferenceId: d.id
+      },
+      customization: {
+        paymentMethods: {
+          creditCard: 'all',
+          debitCard: 'all',
+          ticket: 'all',
+          bankTransfer: 'all',
+          atm: 'all'
+        }
+      },
+      callbacks: {
+        onReady: () => { btn.disabled=false; btn.textContent='Adicionar créditos'; },
+        onSubmit: async ({selectedPaymentMethod, formData}) => {
+          const resp = await fetch('/pagamento/processar', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(formData)
+          });
+          const result = await resp.json();
+          if(result.status === 'approved'){
+            fecharMP();
+            window.location.href = '/app/coins?sucesso=1';
+          } else if(result.status === 'pending'){
+            fecharMP();
+            window.location.href = '/app/coins?pendente=1';
+          } else {
+            alert('Pagamento não aprovado. Tente novamente.');
+          }
+        },
+        onError: (err) => { console.error(err); }
+      }
+    });
   } catch(e) {
     alert('Erro de conexão');
     btn.disabled = false;
-    btn.textContent = 'Pagar agora';
+    btn.textContent = 'Adicionar créditos';
   }
+}
+
+function fecharMP(){
+  document.getElementById('mpModal').style.display = 'none';
+  if(_brickController){ _brickController.unmount(); _brickController = null; }
+  document.getElementById('mpBrick').innerHTML = '';
 }
 </script>
 

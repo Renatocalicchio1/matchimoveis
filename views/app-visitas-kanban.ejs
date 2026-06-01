@@ -1,5 +1,6 @@
 <style>
 .kanban-board{display:flex;gap:16px;overflow-x:auto;align-items:flex-start;padding-bottom:20px;flex-wrap:nowrap;}
+.kanban-col-v{min-width:320px;flex-shrink:0;}
 @media(max-width:768px){
   .kanban-col-v{ min-width:unset !important; width:100% !important; flex-shrink:1 !important; }
   .kanban-board{ flex-direction:column !important; overflow-x:unset !important; align-items:stretch !important; flex-wrap:wrap !important; }
@@ -33,12 +34,10 @@ const labels = {
 <% Object.keys(colunas).forEach(status => { %>
 
 <div class="kanban-col-v" style="
-min-width:320px;
 background:#f9fafb;
 border:1px solid #eee;
 border-radius:16px;
 padding:14px;
-flex-shrink:0;
 ">
 
 <div style="

@@ -1667,6 +1667,7 @@ app.post('/app/perfil', auth, async (req,res)=>{
     nome: req.body.nome || '',
     creci: req.body.creci || '',
     cpf: req.body.cpf || '',
+    email: req.body.email || '',
     celular: req.body.celular || '',
     telefone: req.body.celular || ''
   };

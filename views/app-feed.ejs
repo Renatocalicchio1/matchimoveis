@@ -1,4 +1,6 @@
 <%- include("partials/app-shell",{active:"feed",user:user,title:"Feed"}) %>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 #feed-root{margin:-20px;overflow-y:auto;height:calc(100vh - 60px);background:var(--bg);} @media(max-width:900px){#feed-root{margin-top:24px;}}
 #feed-inner{max-width:480px;margin:0 auto;padding:0 0 20px;}
@@ -24,7 +26,7 @@
 .fp-num{position:absolute;top:8px;right:10px;background:rgba(0,0,0,.45);color:#fff;font-size:9px;padding:2px 7px;border-radius:6px;}
 
 /* mini-mapa sobre foto */
-
+.fp-minimap{position:absolute;bottom:10px;right:10px;width:72px;height:72px;border-radius:8px;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:10;background:#f0f0f0;}
 
 /* tipo badge igual im-tipo */
 .fp-tipo{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;background:var(--brand-light);color:var(--brand);margin-bottom:6px;}
@@ -89,6 +91,7 @@ function _renderPost(im, idx){
   const compat = im.compatibilidade||(70+(idx*7)%25);
   const iLat = im.latitude||im.lat||null;
   const iLng = im.longitude||im.lng||null;
+  const mmId = 'mm'+idx;
 
   const slidesHtml = fotos.length
     ? fotos.map(f=>`<div class="fp-slide"><img src="${f}" loading="lazy" onerror="this.style.display='none'"></div>`).join('')
@@ -123,6 +126,7 @@ function _renderPost(im, idx){
     <div class="fp-track">${slidesHtml}</div>
     ${nSlides>1?`<div class="fp-dots">${dotsHtml}</div><div class="fp-num">1 / ${nSlides}</div>`:''}
     ${condicaoBadge}
+    <div class="fp-minimap" id="${mmId}"></div>
   </div>
 
   <div class="fp-body">
@@ -158,6 +162,7 @@ function renderFeed(list){
   document.getElementById('feed-inner').innerHTML = list.map(_renderPost).join(''); _page=0;
   _initCarousels();
   _animateBars();
+  _initMaps();
 }
 
 function _initCarousels(){
@@ -188,6 +193,13 @@ function _animateBars(){
   });
 }
 
+function _initMaps(){
+  _imoveis.forEach((im,idx)=>{
+    const el=document.getElementById('mm'+idx);
+    if(!el) return;
+    const iLat=im.latitude||im.lat||null;
+    const iLng=im.longitude||im.lng||null;
+    if(!iLat||!iLng){el.innerHTML='<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg></div>';return;}
     const center=_uLat&&_uLng?[(_uLat+iLat)/2,(_uLng+iLng)/2]:[iLat,iLng];
     const map=L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false}).setView(center,13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
@@ -246,6 +258,7 @@ function renderPage(){
   document.getElementById('feed-inner').innerHTML = slice.map(_renderPost).join('') + (_imoveis.length > slice.length ? '<div id="feed-sentinel" style="height:40px"></div>' : '');
   _initCarousels();
   _animateBars();
+  _initMaps();
   _observeSentinel();
 }
 

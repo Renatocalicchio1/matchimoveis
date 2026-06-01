@@ -6618,13 +6618,18 @@ app.get('/app/feed', auth, async (req, res) => {
       const _score = (lc.length * 10) + _demanda;
       return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>l.nome), _demanda, _score};
     });
-    imoveis.sort((a,b) => b._score - a._score);
-    const _prop = imoveis.filter(im => (im.user_id||im.userId||im.codigoUsuario) === myId);
-    const _parc = imoveis.filter(im => (im.user_id||im.userId||im.codigoUsuario) !== myId);
+    // intercala 1x1 por usuario
+    const _porUser = {};
+    imoveis.forEach(im => {
+      const uid = im.user_id||im.userId||im.codigoUsuario||'sem_id';
+      if(!_porUser[uid]) _porUser[uid] = [];
+      _porUser[uid].push(im);
+    });
+    const _grupos = Object.values(_porUser);
     const _mix = [];
-    for(let i=0; i<Math.max(_prop.length,_parc.length); i++){
-      if(_parc[i]) _mix.push(_parc[i]);
-      if(_prop[i]) _mix.push(_prop[i]);
+    const _max = Math.max(..._grupos.map(g => g.length));
+    for(let i=0; i<_max; i++){
+      _grupos.forEach(g => { if(g[i]) _mix.push(g[i]); });
     }
     imoveis = _mix.slice(0, 50);
 

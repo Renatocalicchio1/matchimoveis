@@ -466,6 +466,7 @@ app.post('/login', async (req,res)=>{
       nome: req.body.nome,
       telefone,
       celular: telefone,
+      email: req.body.email || '',
       tipo: req.body.tipoConta,
       ativo: true,
       codigoUsuario: _codigoNovo,

@@ -81,7 +81,7 @@
 <!-- ADICIONAR CRÉDITOS -->
 <div class="card" style="margin-bottom:16px">
   <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Adicionar créditos</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Mínimo R$20 · R$1 = 10 créditos</p>
+  <p style="color:#888;font-size:13px;margin-bottom:20px">Mínimo R$20 · R$1 = 50 créditos</p>
   <div style="margin-bottom:16px">
     <div style="display:flex;align-items:center;gap:12px">
       <div style="position:relative;flex:1">
@@ -106,7 +106,7 @@ let valorSelecionado = 0;
 function selecionarValor(v) {
   valorSelecionado = v;
   document.getElementById('valorInput').value = v;
-  document.getElementById('creditosPreview').innerText = (v * 10) + ' créditos';
+  document.getElementById('creditosPreview').innerText = (v * 50) + ' créditos';
   document.querySelectorAll('[data-val]').forEach(b => {
     const sel = parseInt(b.dataset.val) === v;
     b.style.border = sel ? '2px solid #FF385C' : '2px solid #e5e7eb';
@@ -118,7 +118,7 @@ function selecionarValor(v) {
 document.getElementById('valorInput').addEventListener('input', function() {
   const v = parseFloat(this.value) || 0;
   valorSelecionado = v;
-  document.getElementById('creditosPreview').innerText = Math.floor(v * 10) + ' créditos';
+  document.getElementById('creditosPreview').innerText = Math.floor(v * 50) + ' créditos';
   document.querySelectorAll('[data-val]').forEach(b => {
     b.style.border = '2px solid #e5e7eb';
     b.style.background = '#fff';

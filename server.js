@@ -4657,7 +4657,7 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
         metadata: {
           userId: user.codigoUsuario || user.codigo || user.id,
           valor: Number(valor),
-          creditos: Math.floor(Number(valor) * 10)
+          creditos: Math.floor(Number(valor) * 50)
         }
       }
     });
@@ -4675,7 +4675,7 @@ app.post('/pagamento/processar', auth, express.json(), async (req, res) => {
     const result = await payment.create({ body: req.body });
     const userId = req.session.user?.codigoUsuario || req.session.user?.codigo;
     const valor = result.transaction_amount || 0;
-    const creditos = Math.floor(valor * 10);
+    const creditos = Math.floor(valor * 50);
     if(result.status === 'approved' && creditos > 0){
       await adicionarCreditos(userId, creditos, 'recarga_mp');
       criarNotificacaoService({
@@ -4711,7 +4711,7 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
 
     const meta = pagamento.metadata || {};
     const userId = meta.user_id || meta.userId || '';
-    const creditos = parseInt(meta.creditos) || Math.floor((pagamento.transaction_amount||0) * 10);
+    const creditos = parseInt(meta.creditos) || Math.floor((pagamento.transaction_amount||0) * 50);
 
     if(userId && creditos > 0){
       await adicionarCreditos(userId, creditos, 'recarga_mp');

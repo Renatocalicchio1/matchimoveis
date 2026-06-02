@@ -314,6 +314,7 @@ async function atualizarFeed() {
       d.imoveis.forEach(i => _imoveis.push(i));
       _page = 0;
       renderPage();
+      document.getElementById('feed-root').scrollTo({top:0, behavior:'smooth'});
     }
   } catch(e) { console.error('feed update error', e); }
 }

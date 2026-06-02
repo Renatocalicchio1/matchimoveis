@@ -349,8 +349,10 @@ let _page = 0;
 
 function renderPage(){
   const slice = _imoveis.slice(0, (_page+1)*_PAGE);
-  const btnAtualizar = '<div style="max-width:480px;margin:8px auto;padding:0 12px;"><button onclick="atualizarFeed()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;font-size:13px;font-weight:600;color:#666;cursor:pointer;">↻ Atualizar feed</button></div>';
+  const btnAtualizar = '<div style="max-width:480px;margin:8px auto;padding:0 12px;"><button id="btn-atualizar-feed" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;font-size:13px;font-weight:600;color:#666;cursor:pointer;">↻ Atualizar feed</button></div>';
   document.getElementById('feed-inner').innerHTML = btnAtualizar + slice.map(_renderPost).join('') + (_imoveis.length > slice.length ? '<div id="feed-sentinel" style="height:40px"></div>' : '');
+  const _btnAt = document.getElementById('btn-atualizar-feed');
+  if(_btnAt) _btnAt.addEventListener('click', atualizarFeed);
   _initCarousels();
   _animateBars();
   _initMaps(slice);

@@ -500,7 +500,8 @@ app.post('/login', async (req,res)=>{
   if(!user) return res.redirect('/?error=nao_cadastrado');
 
   req.session.user = user;
-  res.redirect('/app-home');
+  const _uaL = req.headers['user-agent']||'';
+  res.redirect(/Mobile|Android|iPhone|iPad/i.test(_uaL) ? '/app/feed' : '/app-home');
 });
 
 

@@ -293,19 +293,7 @@ function loadNew(){
   if(_newQueue.length){renderFeed([..._newQueue,..._imoveis]);_newQueue=[];}
 }
 
-let _lastCheck=Date.now();
-setInterval(async()=>{
-  try{
-    const r=await fetch(`/api/feed/novos?since=${_lastCheck}`);
-    const d=await r.json();
-    if(d.imoveis&&d.imoveis.length){
-      _newQueue=d.imoveis;_lastCheck=Date.now();
-      const b=document.getElementById('newBanner');
-      document.getElementById('newCount').textContent=d.imoveis.length+' novo'+(d.imoveis.length>1?'s':'')+' na sua região';
-      b.style.display='flex';
-    }
-  }catch(e){}
-},30000);
+setInterval(()=>{ location.reload(); }, 60000);
 
 // scroll infinito — carrega 10 por vez
 const _PAGE = 10;

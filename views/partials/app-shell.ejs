@@ -403,10 +403,50 @@
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="<%= active==='home'?'#FF385C':'#9ca3af' %>" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
     <span style="font-size:10px;color:<%= active==='home'?'#FF385C':'#9ca3af' %>;font-weight:<%= active==='home'?'600':'400' %>;">Dashboard</span>
   </a>
-  <a href="/app/imoveis" style="display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 12px;border-radius:10px;flex:1;<%= active==='imoveis'?'background:#fff1f3;':'' %>">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="<%= active==='imoveis'?'#FF385C':'#9ca3af' %>" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    <span style="font-size:10px;color:<%= active==='imoveis'?'#FF385C':'#9ca3af' %>;font-weight:<%= active==='imoveis'?'600':'400' %>;">Imóveis</span>
-  </a>
+  <button onclick="toggleMaisMenu()" style="display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;padding:6px 12px;border-radius:10px;flex:1;cursor:pointer;">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+    <span style="font-size:10px;color:#9ca3af;font-weight:400;">Mais</span>
+  </button>
+</nav>
+<div id="maisMenu" style="display:none;position:fixed;bottom:64px;left:0;right:0;background:#fff;border-top:1px solid #e5e5e3;z-index:499;padding:12px 16px;box-shadow:0 -4px 20px rgba(0,0,0,.08);">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+    <a href="/app/imoveis" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:#f8f8f7;text-decoration:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span style="font-size:11px;color:#6b7280;">Imóveis</span>
+    </a>
+    <a href="/app/parceiros" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:#f8f8f7;text-decoration:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      <span style="font-size:11px;color:#6b7280;">Parceiros</span>
+    </a>
+    <a href="/app/notificacoes" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:#f8f8f7;text-decoration:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span style="font-size:11px;color:#6b7280;">Notificações</span>
+    </a>
+    <a href="/app/portais" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:#f8f8f7;text-decoration:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+      <span style="font-size:11px;color:#6b7280;">Portais</span>
+    </a>
+    <a href="/app/perfil" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:#f8f8f7;text-decoration:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span style="font-size:11px;color:#6b7280;">Perfil</span>
+    </a>
+    <a href="/logout" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;background:#f8f8f7;text-decoration:none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span style="font-size:11px;color:#6b7280;">Sair</span>
+    </a>
+  </div>
+</div>
+<div id="maisOverlay" onclick="toggleMaisMenu()" style="display:none;position:fixed;inset:0;z-index:498;"></div>
+<script>
+function toggleMaisMenu(){
+  const m=document.getElementById('maisMenu');
+  const o=document.getElementById('maisOverlay');
+  const open=m.style.display==='none';
+  m.style.display=open?'block':'none';
+  o.style.display=open?'block':'none';
+}
+</script>
+<nav class="bottom-nav" style="display:none;position:fixed;bottom:0;left:0;right:0;height:64px;background:#fff;border-top:1px solid #e5e5e3;z-index:500;align-items:center;justify-content:space-around;padding:0 4px 6px;">
 </nav>
 <main class="content">
 

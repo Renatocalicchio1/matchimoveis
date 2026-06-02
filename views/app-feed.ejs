@@ -84,7 +84,7 @@ body{overscroll-behavior-y:contain;} @media(max-width:900px){#feed-root{margin-t
   </div>
 </div>
 <div id="feed-btn-wrap" style="max-width:480px;margin:8px auto 0;padding:0 12px;display:none;">
-  <button onclick="location.reload(true)" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:#666;cursor:pointer;">↻ Atualizar feed</button>
+  <button onclick="atualizarFeed()" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:#666;cursor:pointer;">↻ Atualizar feed</button>
 </div>
 <div id="feed-root"><div id="feed-inner"></div></div>
 <script>
@@ -304,7 +304,20 @@ function loadNew(){
   if(_newQueue.length){renderFeed([..._newQueue,..._imoveis]);_newQueue=[];}
 }
 
-// Pull-to-refresh
+// Pull-to-refresh + atualizar via API
+async function atualizarFeed() {
+  try {
+    const r = await fetch('/api/feed/novos');
+    const d = await r.json();
+    if(d.imoveis && d.imoveis.length) {
+      _imoveis.length = 0;
+      d.imoveis.forEach(i => _imoveis.push(i));
+      _page = 0;
+      renderPage();
+    }
+  } catch(e) { console.error('feed update error', e); }
+}
+
 (function(){
   const root = document.getElementById('feed-root');
   let startY = 0, pulling = false;
@@ -328,7 +341,7 @@ function loadNew(){
     if(!pulling) return;
     pulling = false;
     const dy = e.changedTouches[0].clientY - startY;
-    if(dy > 60) { indicator.textContent = 'Atualizando...'; setTimeout(() => location.reload(true), 300); }
+    if(dy > 60) { indicator.textContent = 'Atualizando...'; atualizarFeed().then(() => { indicator.style.display = 'none'; }); }
     else { indicator.style.display = 'none'; }
   });
 })();

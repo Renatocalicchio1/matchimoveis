@@ -238,11 +238,13 @@ app.get('/admin/logout', (req, res) => {
 app.get('/admin', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    const usuarios = await _q('SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status FROM usuarios ORDER BY criado_em DESC');
+    const usuarios = await _q('SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status, ultimo_acesso FROM usuarios ORDER BY criado_em DESC');
     const counts = await _q('SELECT user_id, COUNT(*) as total FROM imoveis GROUP BY user_id');
     const leads = await _q('SELECT user_id, COUNT(*) as total FROM leads GROUP BY user_id');
+    const visitas = await _q('SELECT user_id, COUNT(*) as total FROM visitas GROUP BY user_id');
     const countMap = {}; counts.rows.forEach(r => countMap[r.user_id] = r.total);
     const leadsMap = {}; leads.rows.forEach(r => leadsMap[r.user_id] = r.total);
+    const visitasMap = {}; visitas.rows.forEach(r => visitasMap[r.user_id] = r.total);
     const rows = usuarios.rows.map(u => `
       <tr>
         <td>${u.codigo_usuario||'-'}</td>
@@ -251,7 +253,9 @@ app.get('/admin', authAdmin, async (req, res) => {
         <td>${u.senha||'-'}</td>
         <td style="text-align:center">${countMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${leadsMap[u.codigo_usuario]||0}</td>
+        <td style="text-align:center">${visitasMap[u.codigo_usuario]||0}</td>
         <td><span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:${u.whatsapp_status==='open'?'#f0fdf4':'#f9fafb'};color:${u.whatsapp_status==='open'?'#16a34a':'#888'}">${u.whatsapp_status||'desconectado'}</span></td>
+        <td>${u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '-'}</td>
         <td>${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
         <td>
           <a href="/admin/usuario/${u.codigo_usuario}" style="font-size:11px;color:#2563eb;text-decoration:none;">Ver</a>
@@ -289,7 +293,7 @@ tr:hover td{background:#fafafa;}
   <div class="card">
     <table>
       <thead><tr>
-        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>WhatsApp</th><th>Cadastro</th><th>Ações</th>
+        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>Último acesso</th><th>Cadastro</th><th>Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -694,6 +698,8 @@ app.post('/login', async (req,res)=>{
   if(!user) return res.redirect('/?error=nao_cadastrado');
 
   req.session.user = user;
+  const { query: _qlg } = require('./services/db');
+  _qlg('UPDATE usuarios SET ultimo_acesso=$1 WHERE codigo_usuario=$2', [new Date().toISOString(), user.codigoUsuario||user.codigo||user.id]).catch(()=>{});
   const _uaL = req.headers['user-agent']||'';
   res.redirect(/Mobile|Android|iPhone|iPad/i.test(_uaL) ? '/app/feed' : '/app-home');
 });

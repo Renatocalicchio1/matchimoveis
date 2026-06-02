@@ -454,7 +454,7 @@ makeBar('chartLeadsBairro', leadsBairro, true);
 
 <script>
 (function(){
-  const passos = [
+  var passos = [
     {
       key: 'ob_whatsapp',
       icon: '📱',
@@ -469,26 +469,11 @@ makeBar('chartLeadsBairro', leadsBairro, true);
     }
   ];
 
-  function obProximo() {
-    for (var i = 0; i < passos.length; i++) {
-      var p = passos[i];
-      if (!localStorage.getItem(p.key + '_done')) {
-        document.getElementById('ob-icon').textContent = p.icon;
-        document.getElementById('ob-title').textContent = p.title;
-        document.getElementById('ob-desc').textContent = p.desc;
-        document.getElementById('ob-toast').dataset.key = p.key;
-        document.getElementById('ob-toast').style.display = 'block';
-        return;
-      }
-    }
-  }
-
   var obIdx = 0;
 
   function obMostrar() {
-    // filtra só os não concluídos
     var pendentes = passos.filter(function(p){ return !localStorage.getItem(p.key+'_done'); });
-    if (!pendentes.length) return; // todos concluídos
+    if (!pendentes.length) return;
     var p = pendentes[obIdx % pendentes.length];
     obIdx++;
     document.getElementById('ob-icon').textContent = p.icon;
@@ -498,30 +483,19 @@ makeBar('chartLeadsBairro', leadsBairro, true);
     document.getElementById('ob-toast').style.display = 'block';
   }
 
-  function obProximo() {
-    var pendentes = passos.filter(function(p){ return !localStorage.getItem(p.key+'_done'); });
-    if (!pendentes.length) return;
-    obMostrar();
-  }
-
   window.obFechar = function() {
     var key = document.getElementById('ob-toast').dataset.key;
     localStorage.setItem(key + '_done', '1');
     document.getElementById('ob-toast').style.display = 'none';
-    // mostra próxima pendente após 1s
-    setTimeout(obProximo, 1000);
+    setTimeout(obMostrar, 1000);
   };
 
   window.obDepois = function() {
     document.getElementById('ob-toast').style.display = 'none';
-    // reaparece em 3 minutos reiniciando o ciclo
     obIdx = 0;
-    setTimeout(function(){
-      obMostrar();
-    }, 3 * 60 * 1000);
+    setTimeout(obMostrar, 3 * 60 * 1000);
   };
 
-  // primeira exibição após 1.5s
   setTimeout(function(){
     obIdx = 0;
     obMostrar();

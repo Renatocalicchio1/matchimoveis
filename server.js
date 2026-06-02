@@ -134,6 +134,13 @@ const port = 3000;
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+// Força no-cache em rotas autenticadas
+app.use('/app', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
 const UPLOADS_STATIC_DIR = process.env.RENDER
   ? '/opt/render/project/src/data/uploads/imoveis'
   : path.join(__dirname, 'public', 'uploads', 'imoveis');
@@ -6667,7 +6674,9 @@ app.get('/app/feed', auth, async (req, res) => {
     for(let i=0; i<_max; i++){
       _grupos.forEach(g => { if(g[i]) _mix.push(g[i]); });
     }
-    imoveis = _mix.slice(0, 50);
+    // ordena por score desc (mais recentes e relevantes primeiro)
+    _grupos.forEach(g => g.sort((a,b) => b._score - a._score));
+    imoveis = _mix.sort((a,b) => b._score - a._score).slice(0, 50);
 
     res.render('app-feed', { user: req.session.user, imoveis });
   } catch(e) {

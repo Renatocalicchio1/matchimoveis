@@ -299,22 +299,6 @@ function loadNew(){
 }
 
 // Pull-to-refresh + atualizar via API
-let _feedSince = 0;
-window.atualizarFeed = async function() {
-  try {
-    const r = await fetch('/api/feed/novos?since=0');
-    const d = await r.json();
-    if(d.imoveis && d.imoveis.length) {
-      _feedSince = Date.now();
-      _imoveis.length = 0;
-      d.imoveis.forEach(i => _imoveis.push(i));
-      _page = 0;
-      renderPage();
-      document.getElementById('feed-root').scrollTo({top:0, behavior:'smooth'});
-    }
-  } catch(e) { console.error('feed update error', e); }
-}
-
 (function(){
   const root = document.getElementById('feed-root');
   let startY = 0, pulling = false;
@@ -342,6 +326,22 @@ window.atualizarFeed = async function() {
     else { indicator.style.display = 'none'; }
   });
 })();
+
+let _feedSince = 0;
+async function atualizarFeed() {
+  try {
+    const r = await fetch('/api/feed/novos?since=0');
+    const d = await r.json();
+    if(d.imoveis && d.imoveis.length) {
+      _feedSince = Date.now();
+      _imoveis.length = 0;
+      d.imoveis.forEach(i => _imoveis.push(i));
+      _page = 0;
+      renderPage();
+      document.getElementById('feed-root').scrollTo({top:0, behavior:'smooth'});
+    }
+  } catch(e) { console.error('feed update error', e); }
+}
 
 // scroll infinito — carrega 10 por vez
 const _PAGE = 10;

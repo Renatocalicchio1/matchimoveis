@@ -217,8 +217,8 @@ function _animateBars(){
   });
 }
 
-function _initMaps(){
-  _imoveis.forEach((im,idx)=>{
+function _initMaps(list){
+  (list||_imoveis).forEach((im,idx)=>{
     const el=document.getElementById('mm'+idx);
     if(!el) return;
     const iLat=im.latitude||im.lat||null;
@@ -358,7 +358,7 @@ function renderPage(){
   document.getElementById('feed-inner').innerHTML = slice.map(_renderPost).join('') + (_imoveis.length > slice.length ? '<div id="feed-sentinel" style="height:40px"></div>' : '');
   _initCarousels();
   _animateBars();
-  _initMaps();
+  _initMaps(slice);
   _observeSentinel();
 }
 

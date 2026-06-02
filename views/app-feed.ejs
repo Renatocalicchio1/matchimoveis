@@ -83,13 +83,7 @@ body{overscroll-behavior-y:contain;} @media(max-width:900px){#feed-root{margin-t
     <button onclick="fecharShare()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#f5f5f5;color:#888;font-size:12px;font-weight:500;cursor:pointer;margin-top:4px;">Cancelar</button>
   </div>
 </div>
-<div id="feed-btn-wrap" style="max-width:480px;margin:8px auto 0;padding:0 12px;display:none;">
-  <button onclick="atualizarFeed()" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:#666;cursor:pointer;">↻ Atualizar feed</button>
-</div>
 <div id="feed-root"><div id="feed-inner"></div></div>
-<script>
-if(window.innerWidth >= 900) document.getElementById('feed-btn-wrap').style.display='block';
-</script>
 
 <script>
 const _imoveis = <%- JSON.stringify(imoveis) %>;
@@ -355,7 +349,8 @@ let _page = 0;
 
 function renderPage(){
   const slice = _imoveis.slice(0, (_page+1)*_PAGE);
-  document.getElementById('feed-inner').innerHTML = slice.map(_renderPost).join('') + (_imoveis.length > slice.length ? '<div id="feed-sentinel" style="height:40px"></div>' : '');
+  const btnAtualizar = '<div style="max-width:480px;margin:8px auto;padding:0 12px;"><button onclick="atualizarFeed()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;font-size:13px;font-weight:600;color:#666;cursor:pointer;">↻ Atualizar feed</button></div>';
+  document.getElementById('feed-inner').innerHTML = btnAtualizar + slice.map(_renderPost).join('') + (_imoveis.length > slice.length ? '<div id="feed-sentinel" style="height:40px"></div>' : '');
   _initCarousels();
   _animateBars();
   _initMaps(slice);

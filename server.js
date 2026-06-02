@@ -6751,14 +6751,55 @@ app.get('/api/feed/likes/:imovelId', auth, async (req, res) => {
 
 app.get('/api/feed/novos', auth, async (req, res) => {
   try {
+    // reutiliza a mesma logica do /app/feed
+    const myId = req.session.user?.codigoUsuario || req.session.user?.codigo;
     const { lerImoveis: _lerFeedApi } = require('./services/salvarImovel');
+    const { lerUsuarios: _lerUsrApi } = require('./services/salvarUsuario');
     const todos = await _lerFeedApi();
-    const imoveis = todos
-      .filter(im => im.status !== 'inativo' && im.status !== 'excluido' && (im.user_id || im.userId || im.codigoUsuario))
-      .sort((a,b) => new Date(b.criado_em||b.criadoEm||0) - new Date(a.criado_em||a.criadoEm||0))
-      .slice(0, 50);
-    res.json({ imoveis });
+    const usuarios = await _lerUsrApi();
+    const nomeMap = {};
+    usuarios.forEach(u => {
+      const nome = u.nome || u.name || '';
+      const ids = [u.codigo_usuario, u.codigoUsuario, u.codigo, u.id].filter(Boolean);
+      ids.forEach(uid => { if(uid && nome) nomeMap[String(uid)] = nome; });
+    });
+    const _feedLeads = _cacheLeads || [];
+    const meusLeads = _feedLeads.filter(l => (l.userId||l.codigoUsuario||l.user_id) === myId);
+    const leadsMap = {};
+    meusLeads.forEach(lead => {
+      const matches = lead.matchesBase || lead.matchesAuto || lead.matches || [];
+      matches.forEach(m => {
+        const mid = String(m.id || m.id_externo || '');
+        if(!mid) return;
+        if(!leadsMap[mid]) leadsMap[mid] = [];
+        leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead', tel: (lead.telefone||lead.whatsapp||lead.contato||'').replace(/\D/g,'')});
+      });
+    });
+    let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && (im.user_id || im.userId || im.codigoUsuario));
+    imoveis = imoveis.map(im => {
+      const uid = im.user_id || im.userId || im.codigoUsuario;
+      const nomeUsuario = nomeMap[uid] || '';
+      const mid = String(im.id || im.id_externo || '');
+      const lc = leadsMap[mid] || [];
+      const _score = lc.length * 10;
+      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score};
+    });
+    const _porUser = {};
+    imoveis.forEach(im => {
+      const uid = im.user_id||im.userId||im.codigoUsuario||'sem_id';
+      if(!_porUser[uid]) _porUser[uid] = [];
+      _porUser[uid].push(im);
+    });
+    const _grupos = Object.values(_porUser);
+    _grupos.forEach(g => g.sort((a,b) => new Date(b.criado_em||b.criadoEm||0) - new Date(a.criado_em||a.criadoEm||0)));
+    const _mix = [];
+    const _max = Math.max(..._grupos.map(g => g.length));
+    for(let i=0; i<_max; i++){
+      _grupos.forEach(g => { if(g[i]) _mix.push(g[i]); });
+    }
+    res.json({ imoveis: _mix.slice(0, 50) });
   } catch(e) {
+    console.error('[api/feed/novos]', e.message);
     res.json({ imoveis: [] });
   }
 });

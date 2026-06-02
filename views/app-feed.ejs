@@ -172,9 +172,7 @@ function _renderPost(im, idx){
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
       <span class="fp-like-count" id="lc-${im.id||idx}" style="font-size:11px;color:#aaa;margin-left:-8px"></span>
-      <button class="fp-btn" aria-label="Compartilhar" onclick="abrirShare('${im.id||im.id_externo||idx}','${encodeURIComponent(JSON.stringify(im._leadsNomes||[]))}','${im._nomeUsuario||''}')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      </button>
+      ${im._leadsCompativeis === 0 ? `<button class="fp-btn" aria-label="Compartilhar" onclick="abrirShare('${im.id||im.id_externo||idx}','${encodeURIComponent(JSON.stringify(im._leadsNomes||[]))}','${im._nomeUsuario||''}')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>` : ''}
       <div class="fp-spacer"></div>
       <button class="fp-btn" aria-label="Salvar">
         <svg width="18" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>

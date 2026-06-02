@@ -470,7 +470,7 @@ function filtrar() {
   document.querySelectorAll('.im-card').forEach(card => {
     let ok = true;
     const d = card.dataset;
-    if (busca && !norm((d.tipo||'')+' '+(d.bairro||'')+' '+(d.cidade||'')+' '+(d.estado||'')).includes(busca)) ok = false;
+    if (busca && !norm((d.tipo||'')+' '+(d.bairro||'')+' '+(d.cidade||'')+' '+(d.estado||'')+' '+(d.id||'')+' '+(d.id_externo||d.idExterno||'')+' '+(d.id_interno||d.idInterno||d.codigo_imovel||d.codigoImovel||'')).includes(busca)) ok = false;
     if (tipo && !norm(d.tipo||'').includes(tipo)) ok = false;
     if (operacao && !norm(d.operacao||'').includes(operacao)) ok = false;
     if (status && norm(d.status||'') !== status) ok = false;

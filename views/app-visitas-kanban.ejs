@@ -373,7 +373,7 @@ gap:6px;
 margin-top:10px;
 ">
 
-<% if(status === 'CONFIRMADA') { %>
+<% if(status === 'CONFIRMADA' || status === 'AGUARDANDO') { %>
 <form method="POST" action="/app/visitas/concluir/<%= v.id %>">
 <button type="submit" style="width:100%;background:#6366f1;color:white;border:none;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
 ✅ Realizada

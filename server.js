@@ -6601,8 +6601,10 @@ app.get('/api/leads/status-hash', auth, async (req, res) => {
 app.get('/app/feed', auth, async (req, res) => {
   try {
     const myId = req.session.user?.codigoUsuario || req.session.user?.codigo;
-    const todos = _cacheImoveis || [];
-    const usuarios = _cacheUsuarios || [];
+    const { lerImoveis: _lerFeed } = require('./services/salvarImovel');
+    const { lerUsuarios: _lerUsrFeed } = require('./services/salvarUsuario');
+    const todos = await _lerFeed();
+    const usuarios = await _lerUsrFeed();
 
     // mapa userId -> nome — testa todos os campos possíveis
     const nomeMap = {};

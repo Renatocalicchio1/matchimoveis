@@ -2,7 +2,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-#feed-root{margin:-20px;overflow-y:auto;height:calc(100vh - 60px);background:var(--bg);overscroll-behavior-y:contain;}
+#feed-root{margin:-20px;margin-top:0;overflow-y:auto;height:calc(100vh - 102px);background:var(--bg);overscroll-behavior-y:contain;}
+#feed-tabs-wrap{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:2px solid var(--border-light);margin:-20px -20px 0;padding:0 20px;}
 body{overscroll-behavior-y:contain;}
 @media(max-width:900px){#feed-root{margin-top:24px;}}
 #feed-inner{max-width:480px;margin:0 auto;padding:0 0 40px;}
@@ -65,14 +66,14 @@ body{overscroll-behavior-y:contain;}
   </div>
 </div>
 
-<div style="max-width:480px;margin:0 auto;">
-  <div class="feed-tabs">
+<div id="feed-tabs-wrap">
+  <div class="feed-tabs" style="max-width:480px;margin:0 auto;">
     <button class="feed-tab active" id="tab-feed" onclick="trocarAba('feed')">Feed</button>
     <button class="feed-tab" id="tab-favs" onclick="trocarAba('favs')">⭐ Favoritos</button>
     <button class="feed-tab" id="tab-leads" onclick="trocarAba('leads')">🎯 Com Lead</button>
   </div>
 </div>
-<div id="feed-root"><div id="feed-inner"></div></div>
+<div id="feed-root" style="margin-top:0"><div id="feed-inner"></div></div>
 
 <script>
 // ── DADOS INICIAIS ──────────────────────────────────────────

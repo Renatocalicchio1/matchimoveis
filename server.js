@@ -490,7 +490,8 @@ app.post('/login', async (req,res)=>{
     salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
 
     req.session.user = novo;
-    return res.redirect('/app-home');
+    const _uaN = req.headers['user-agent']||'';
+    return res.redirect(/Mobile|Android|iPhone|iPad/i.test(_uaN) ? '/app/feed' : '/app-home');
   }
 
   // LOGIN SEM SENHA

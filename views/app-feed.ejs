@@ -270,7 +270,8 @@ function enviarShare(imovelId, nomeEnc, tel){
   const link = _BASE_URL+'/imovel/'+encodeURIComponent(imovelId)+'?userId='+_meuId;
   const msg = 'Olá '+nomeLead+'! Me chamo '+_meuNome+' e encontrei um imóvel que atende seu perfil de busca! 🏠\n\nEntre em contato ou agende sua visita diretamente pelo link:\n'+link;
   const telLimpo = (tel||'').replace(/\D/g,'');
-  const url = telLimpo ? 'https://wa.me/55'+telLimpo+'?text='+encodeURIComponent(msg) : 'https://wa.me/?text='+encodeURIComponent(msg);
+  const telFinal = telLimpo.startsWith('55') ? telLimpo : '55'+telLimpo;
+  const url = telLimpo ? 'https://wa.me/'+telFinal+'?text='+encodeURIComponent(msg) : 'https://wa.me/?text='+encodeURIComponent(msg);
   window.open(url,'_blank');
   fecharShare();
 }

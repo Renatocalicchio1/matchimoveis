@@ -308,7 +308,7 @@ function loadNew(){
 let _feedSince = 0;
 async function atualizarFeed() {
   try {
-    const r = await fetch('/api/feed/novos?since=' + _feedSince);
+    const r = await fetch('/api/feed/novos?since=0');
     const d = await r.json();
     if(d.imoveis && d.imoveis.length) {
       _feedSince = Date.now();

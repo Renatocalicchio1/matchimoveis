@@ -173,6 +173,196 @@ function loadImoveis() {
 
 // ====== ROTAS ======
 
+
+// ═══════════════════════════════════════════════════════
+// ÁREA ADMIN
+// ═══════════════════════════════════════════════════════
+function authAdmin(req, res, next) {
+  if (req.session && req.session.admin) return next();
+  res.redirect('/admin/login');
+}
+
+app.get('/admin/login', (req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · MatchImóveis</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8f8f7;display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.box{background:#fff;border:1px solid #e5e5e3;border-radius:16px;padding:32px;width:100%;max-width:360px;}
+h1{font-size:18px;font-weight:700;color:#111;margin-bottom:4px;}
+p{font-size:13px;color:#888;margin-bottom:24px;}
+label{font-size:12px;font-weight:500;color:#555;display:block;margin-bottom:5px;}
+input{width:100%;border:1px solid #e5e5e3;border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:16px;outline:none;}
+input:focus{border-color:#111;}
+button{width:100%;background:#111;color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;}
+.err{color:#e8404a;font-size:12px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Admin</h1>
+  <p>MatchImóveis — Área restrita</p>
+  ${req.query.error ? '<div class="err">Credenciais inválidas</div>' : ''}
+  <form method="POST" action="/admin/login">
+    <label>Usuário</label>
+    <input type="text" name="usuario" required autofocus>
+    <label>Senha</label>
+    <input type="password" name="senha" required>
+    <button type="submit">Entrar</button>
+  </form>
+</div>
+</body>
+</html>`);
+});
+
+app.post('/admin/login', (req, res) => {
+  const { usuario, senha } = req.body;
+  const adminUser = process.env.ADMIN_USER || 'admin';
+  const adminPass = process.env.ADMIN_PASSWORD || 'match@2025';
+  if (usuario === adminUser && senha === adminPass) {
+    req.session.admin = true;
+    return res.redirect('/admin');
+  }
+  res.redirect('/admin/login?error=1');
+});
+
+app.get('/admin/logout', (req, res) => {
+  req.session.admin = false;
+  res.redirect('/admin/login');
+});
+
+app.get('/admin', authAdmin, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const usuarios = await _q('SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status FROM usuarios ORDER BY criado_em DESC');
+    const counts = await _q('SELECT user_id, COUNT(*) as total FROM imoveis GROUP BY user_id');
+    const leads = await _q('SELECT user_id, COUNT(*) as total FROM leads GROUP BY user_id');
+    const countMap = {}; counts.rows.forEach(r => countMap[r.user_id] = r.total);
+    const leadsMap = {}; leads.rows.forEach(r => leadsMap[r.user_id] = r.total);
+    const rows = usuarios.rows.map(u => `
+      <tr>
+        <td>${u.codigo_usuario||'-'}</td>
+        <td>${u.nome||'-'}</td>
+        <td>${u.telefone||'-'}</td>
+        <td>${u.senha||'-'}</td>
+        <td style="text-align:center">${countMap[u.codigo_usuario]||0}</td>
+        <td style="text-align:center">${leadsMap[u.codigo_usuario]||0}</td>
+        <td><span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:${u.whatsapp_status==='open'?'#f0fdf4':'#f9fafb'};color:${u.whatsapp_status==='open'?'#16a34a':'#888'}">${u.whatsapp_status||'desconectado'}</span></td>
+        <td>${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
+        <td>
+          <a href="/admin/usuario/${u.codigo_usuario}" style="font-size:11px;color:#2563eb;text-decoration:none;">Ver</a>
+          &nbsp;|&nbsp;
+          <a href="/admin/deletar/${u.codigo_usuario}" onclick="return confirm('Deletar ${u.nome}?')" style="font-size:11px;color:#e8404a;text-decoration:none;">Deletar</a>
+        </td>
+      </tr>`).join('');
+    res.send(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · MatchImóveis</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px;}
+.top{background:#fff;border-bottom:1px solid #e5e5e3;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+.top h1{font-size:16px;font-weight:700;}
+.top a{font-size:12px;color:#888;text-decoration:none;}
+.wrap{padding:24px;}
+.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #f0f0ee;background:#fafafa;}
+td{padding:11px 14px;border-bottom:1px solid #f0f0ee;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafafa;}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>Admin · MatchImóveis</h1>
+  <a href="/admin/logout">Sair</a>
+</div>
+<div class="wrap">
+  <div class="card">
+    <table>
+      <thead><tr>
+        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>WhatsApp</th><th>Cadastro</th><th>Ações</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>`);
+  } catch(e) {
+    res.send('Erro: ' + e.message);
+  }
+});
+
+app.get('/admin/deletar/:codigo', authAdmin, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const cod = req.params.codigo;
+    await _q('DELETE FROM usuarios WHERE codigo_usuario=$1', [cod]);
+    await _q('DELETE FROM imoveis WHERE user_id=$1', [cod]);
+    await _q('DELETE FROM leads WHERE user_id=$1', [cod]);
+    await _q('DELETE FROM visitas WHERE user_id=$1', [cod]);
+    await _q('DELETE FROM notificacoes WHERE user_id=$1', [cod]);
+    res.redirect('/admin');
+  } catch(e) { res.send('Erro: ' + e.message); }
+});
+
+app.get('/admin/usuario/:codigo', authAdmin, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const cod = req.params.codigo;
+    const u = (await _q('SELECT * FROM usuarios WHERE codigo_usuario=$1', [cod])).rows[0];
+    if(!u) return res.redirect('/admin');
+    res.send(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>${u.nome} · Admin</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:#f8f8f7;font-size:13px;}
+.top{background:#fff;border-bottom:1px solid #e5e5e3;padding:14px 24px;display:flex;align-items:center;gap:16px;}
+.top a{font-size:12px;color:#888;text-decoration:none;}.top h1{font-size:16px;font-weight:700;}
+.wrap{padding:24px;max-width:600px;}.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:20px;margin-bottom:16px;}
+h2{font-size:14px;font-weight:600;margin-bottom:14px;}label{display:block;font-size:11px;font-weight:500;color:#888;margin-bottom:4px;}
+input{width:100%;border:1px solid #e5e5e3;border-radius:8px;padding:9px 12px;font-size:13px;margin-bottom:12px;outline:none;}
+input:focus{border-color:#111;}button{background:#111;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;}
+</style></head>
+<body>
+<div class="top"><a href="/admin">← Voltar</a><h1>${u.nome}</h1></div>
+<div class="wrap">
+  <div class="card">
+    <h2>Dados</h2>
+    <label>Código</label><input value="${u.codigo_usuario||''}" readonly>
+    <label>Nome</label><input value="${u.nome||''}" readonly>
+    <label>Telefone</label><input value="${u.telefone||''}" readonly>
+    <label>WhatsApp Status</label><input value="${u.whatsapp_status||''}" readonly>
+  </div>
+  <div class="card">
+    <h2>Alterar Senha</h2>
+    <form method="POST" action="/admin/usuario/${u.codigo_usuario}/senha">
+      <label>Nova Senha</label>
+      <input type="text" name="senha" value="${u.senha||''}" required>
+      <button type="submit">Salvar</button>
+    </form>
+  </div>
+</div>
+</body></html>`);
+  } catch(e) { res.send('Erro: ' + e.message); }
+});
+
+app.post('/admin/usuario/:codigo/senha', authAdmin, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    await _q('UPDATE usuarios SET senha=$1 WHERE codigo_usuario=$2', [req.body.senha, req.params.codigo]);
+    res.redirect('/admin');
+  } catch(e) { res.send('Erro: ' + e.message); }
+});
+// ═══════════════════════════════════════════════════════
 app.get('/health',(req,res)=>res.json({ok:true,ts:new Date().toISOString()}));
 app.get('/', (req,res)=>{
   if (req.session && req.session.user) {

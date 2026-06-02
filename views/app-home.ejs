@@ -433,3 +433,65 @@ makeBar('chartLeadsBairro', leadsBairro, true);
 </script>
 
 <%- include('partials/app-end') %>
+
+<style>
+.ob-toast{position:fixed;bottom:24px;right:24px;z-index:9999;width:300px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.15);border:1px solid #f0f0f0;padding:18px 18px 14px;animation:ob-in .3s ease}
+@keyframes ob-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.ob-icon{font-size:22px;margin-bottom:8px}
+.ob-title{font-size:14px;font-weight:700;color:#111827;margin-bottom:4px}
+.ob-desc{font-size:12px;color:#6b7280;line-height:1.5;margin-bottom:12px}
+.ob-btn{width:100%;padding:8px;border-radius:8px;border:none;background:#111827;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.ob-skip{display:block;text-align:center;margin-top:8px;font-size:11px;color:#9ca3af;cursor:pointer;background:none;border:none;width:100%}
+</style>
+
+<div class="ob-toast" id="ob-toast" style="display:none">
+  <div class="ob-icon" id="ob-icon"></div>
+  <div class="ob-title" id="ob-title"></div>
+  <div class="ob-desc" id="ob-desc"></div>
+  <button class="ob-btn" onclick="obFechar()">Já fiz isso ✓</button>
+  <button class="ob-skip" onclick="obFechar()">Lembrar depois</button>
+</div>
+
+<script>
+(function(){
+  const passos = [
+    {
+      key: 'ob_whatsapp',
+      icon: '📱',
+      title: 'Conecte seu WhatsApp',
+      desc: 'Para receber leads automaticamente e enviar vitrines, conecte seu número de WhatsApp no painel.'
+    },
+    {
+      key: 'ob_imoveis',
+      icon: '🏠',
+      title: 'Cadastre ou importe imóveis',
+      desc: 'Sem imóveis não há match. Cadastre manualmente ou importe via XML para o sistema começar a trabalhar.'
+    }
+  ];
+
+  function obProximo() {
+    for (var i = 0; i < passos.length; i++) {
+      var p = passos[i];
+      var fechou = parseInt(localStorage.getItem(p.key) || '0');
+      if (fechou < 2) {
+        document.getElementById('ob-icon').textContent = p.icon;
+        document.getElementById('ob-title').textContent = p.title;
+        document.getElementById('ob-desc').textContent = p.desc;
+        document.getElementById('ob-toast').dataset.key = p.key;
+        document.getElementById('ob-toast').style.display = 'block';
+        return;
+      }
+    }
+  }
+
+  window.obFechar = function() {
+    var key = document.getElementById('ob-toast').dataset.key;
+    var n = parseInt(localStorage.getItem(key) || '0') + 1;
+    localStorage.setItem(key, n);
+    document.getElementById('ob-toast').style.display = 'none';
+    setTimeout(obProximo, 500);
+  };
+
+  setTimeout(obProximo, 1500);
+})();
+</script>

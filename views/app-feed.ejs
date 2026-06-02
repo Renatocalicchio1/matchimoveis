@@ -298,6 +298,23 @@ function loadNew(){
   if(_newQueue.length){renderFeed([..._newQueue,..._imoveis]);_newQueue=[];}
 }
 
+const _PAGE = 10;
+let _page = 0;
+let _feedSince = 0;
+async function atualizarFeed() {
+  try {
+    const r = await fetch('/api/feed/novos?since=0');
+    const d = await r.json();
+    if(d.imoveis && d.imoveis.length) {
+      _imoveis.length = 0;
+      d.imoveis.forEach(i => _imoveis.push(i));
+      _page = 0;
+      renderPage();
+      document.getElementById('feed-root').scrollTo({top:0, behavior:'smooth'});
+    }
+  } catch(e) { console.error('feed update error', e); }
+}
+
 // Pull-to-refresh + atualizar via API
 (function(){
   const root = document.getElementById('feed-root');
@@ -327,25 +344,7 @@ function loadNew(){
   });
 })();
 
-let _feedSince = 0;
-async function atualizarFeed() {
-  try {
-    const r = await fetch('/api/feed/novos?since=0');
-    const d = await r.json();
-    if(d.imoveis && d.imoveis.length) {
-      _feedSince = Date.now();
-      _imoveis.length = 0;
-      d.imoveis.forEach(i => _imoveis.push(i));
-      _page = 0;
-      renderPage();
-      document.getElementById('feed-root').scrollTo({top:0, behavior:'smooth'});
-    }
-  } catch(e) { console.error('feed update error', e); }
-}
-
 // scroll infinito — carrega 10 por vez
-const _PAGE = 10;
-let _page = 0;
 
 function renderPage(){
   const slice = _imoveis.slice(0, (_page+1)*_PAGE);

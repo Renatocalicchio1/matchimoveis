@@ -50,6 +50,10 @@ body{overscroll-behavior-y:contain;}
 .share-wa{margin-left:auto;background:#25D366;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;}
 .btn-atualizar{width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;font-size:13px;font-weight:600;color:#666;cursor:pointer;margin:8px 0 4px;}
 .btn-atualizar:active{background:#f9fafb;}
+.feed-tabs{display:flex;max-width:480px;margin:0 auto;border-bottom:2px solid var(--border-light);background:var(--white);}
+.feed-tab{flex:1;padding:10px 0;font-size:13px;font-weight:600;color:var(--text-sec);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;}
+.feed-tab.active{color:var(--brand);border-bottom-color:var(--brand);}
+.fp-btn.saved svg path{stroke:#f59e0b;fill:#f59e0b;}
 </style>
 
 <div id="shareModal" class="share-modal" onclick="if(event.target===this)fecharShare()">
@@ -61,6 +65,12 @@ body{overscroll-behavior-y:contain;}
   </div>
 </div>
 
+<div style="max-width:480px;margin:0 auto;">
+  <div class="feed-tabs">
+    <button class="feed-tab active" id="tab-feed" onclick="trocarAba('feed')">Feed</button>
+    <button class="feed-tab" id="tab-favs" onclick="trocarAba('favs')">⭐ Favoritos</button>
+  </div>
+</div>
 <div id="feed-root"><div id="feed-inner"></div></div>
 
 <script>
@@ -157,7 +167,7 @@ function _renderPost(im, idx) {
       <span class="fp-like-count" id="lc-${im.id||idx}" style="font-size:11px;color:#aaa;margin-left:-8px"></span>
       ${btnCompartilhar}
       <div class="fp-spacer"></div>
-      <button class="fp-btn" aria-label="Salvar">
+      <button class="fp-btn" id="fav-${im.id||idx}" data-fav="${im.id||idx}" aria-label="Salvar" onclick="toggleFav(this,'${im.id||idx}')">
         <svg width="18" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
       </button>
     </div>
@@ -339,8 +349,47 @@ function fecharShare() {
   document.getElementById('shareModal').classList.remove('open');
 }
 
+// ── FAVORITOS ───────────────────────────────────────────────
+let _abaAtiva = 'feed';
+function _getFavs(){ try{ return JSON.parse(localStorage.getItem('mi_favs')||'[]'); }catch(e){ return []; } }
+function _setFavs(arr){ localStorage.setItem('mi_favs', JSON.stringify(arr)); }
+function toggleFav(btn, id){
+  const favs = _getFavs();
+  const idx = favs.indexOf(String(id));
+  if(idx === -1){ favs.push(String(id)); btn.classList.add('saved'); }
+  else{ favs.splice(idx,1); btn.classList.remove('saved'); }
+  _setFavs(favs);
+  if(_abaAtiva === 'favs') renderFavs();
+}
+function _marcarFavsBtns(){
+  const favs = _getFavs();
+  document.querySelectorAll('[data-fav]').forEach(btn => {
+    if(favs.includes(String(btn.dataset.fav))) btn.classList.add('saved');
+    else btn.classList.remove('saved');
+  });
+}
+function renderFavs(){
+  const favs = _getFavs();
+  const lista = _imoveis.filter(im => favs.includes(String(im.id)));
+  const inner = document.getElementById('feed-inner');
+  if(!lista.length){
+    inner.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#aaa;font-size:13px;">Nenhum imóvel favoritado ainda.<br>Toque no 🔖 para salvar.</div>';
+    return;
+  }
+  inner.innerHTML = lista.map(_renderPost).join('');
+  _marcarFavsBtns();
+  _initCarousels(); _animateBars(); _initMaps(lista);
+}
+function trocarAba(aba){
+  _abaAtiva = aba;
+  document.getElementById('tab-feed').classList.toggle('active', aba==='feed');
+  document.getElementById('tab-favs').classList.toggle('active', aba==='favs');
+  if(aba==='feed'){ renderPage(); _marcarFavsBtns(); }
+  else{ renderFavs(); }
+}
 // ── INIT ─────────────────────────────────────────────────────
 renderPage();
+_marcarFavsBtns();
 atualizarFeed();
 </script>
 

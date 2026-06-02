@@ -6631,10 +6631,11 @@ app.get('/app/feed', auth, async (req, res) => {
     meusLeads.forEach(lead => {
       const matches = lead.matchesBase || lead.matchesAuto || lead.matches || [];
       matches.forEach(m => {
-        const mid = String(m.id || m.id_externo || '');
-        if(!mid) return;
-        if(!leadsMap[mid]) leadsMap[mid] = [];
-        leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead', tel: (lead.telefone||lead.whatsapp||lead.contato||'').replace(/\D/g,'')});
+        const mids = [m.id, m.id_externo, m.id_interno, m.imovelId, m.idInterno].filter(Boolean).map(String);
+        mids.forEach(mid => {
+          if(!leadsMap[mid]) leadsMap[mid] = [];
+          leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead', tel: (lead.telefone||lead.whatsapp||lead.contato||'').replace(/\D/g,'')});
+        });
       });
     });
     // extrai estado do endereco do usuario
@@ -6647,7 +6648,8 @@ app.get('/app/feed', auth, async (req, res) => {
       const uid = im.user_id || im.userId || im.codigoUsuario;
       const nomeUsuario = nomeMap[uid] || '';
       const mid = String(im.id || im.id_externo || '');
-      const lc = leadsMap[mid] || [];
+      const mid2 = String(im.id_externo || '');
+      const lc = [...(leadsMap[mid]||[]), ...(mid2 && mid2!==mid ? (leadsMap[mid2]||[]) : [])];
       const _cidade = (im.cidade||'').toLowerCase().trim();
       const _bairro = (im.bairro||'').toLowerCase().trim();
       const _tipo   = (im.tipo||'').toLowerCase().trim();
@@ -6769,10 +6771,11 @@ app.get('/api/feed/novos', auth, async (req, res) => {
     meusLeads.forEach(lead => {
       const matches = lead.matchesBase || lead.matchesAuto || lead.matches || [];
       matches.forEach(m => {
-        const mid = String(m.id || m.id_externo || '');
-        if(!mid) return;
-        if(!leadsMap[mid]) leadsMap[mid] = [];
-        leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead', tel: (lead.telefone||lead.whatsapp||lead.contato||'').replace(/\D/g,'')});
+        const mids = [m.id, m.id_externo, m.id_interno, m.imovelId, m.idInterno].filter(Boolean).map(String);
+        mids.forEach(mid => {
+          if(!leadsMap[mid]) leadsMap[mid] = [];
+          leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead', tel: (lead.telefone||lead.whatsapp||lead.contato||'').replace(/\D/g,'')});
+        });
       });
     });
     let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && (im.user_id || im.userId || im.codigoUsuario));
@@ -6780,7 +6783,8 @@ app.get('/api/feed/novos', auth, async (req, res) => {
       const uid = im.user_id || im.userId || im.codigoUsuario;
       const nomeUsuario = nomeMap[uid] || '';
       const mid = String(im.id || im.id_externo || '');
-      const lc = leadsMap[mid] || [];
+      const mid2 = String(im.id_externo || '');
+      const lc = [...(leadsMap[mid]||[]), ...(mid2 && mid2!==mid ? (leadsMap[mid2]||[]) : [])];
       const _score = lc.length * 10;
       return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score};
     });

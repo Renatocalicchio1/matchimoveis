@@ -3,9 +3,15 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 .tbtn{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
-.map-panel{position:absolute;right:12px;top:62px;width:240px;background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,.13);z-index:1000;overflow:hidden;max-height:calc(100vh - 120px);display:flex;flex-direction:column}
-.map-panel-head{padding:12px 14px;border-bottom:1px solid #f3f4f6;font-size:12px;font-weight:600;color:#111;display:flex;align-items:center;justify-content:space-between}
-.map-panel-body{overflow-y:auto;flex:1}
+.map-fab{position:absolute;right:14px;bottom:90px;width:52px;height:52px;border-radius:50%;background:#1D9E75;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;flex-direction:column;gap:1px;}
+.map-fab-badge{position:absolute;top:-4px;right:-4px;background:#FF385C;color:#fff;font-size:10px;font-weight:700;border-radius:20px;padding:1px 5px;min-width:18px;text-align:center;display:none;}
+.map-drawer{position:absolute;right:12px;bottom:90px;width:260px;background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1001;overflow:hidden;max-height:50vh;display:none;flex-direction:column;}
+.map-panel-head{padding:12px 14px;border-bottom:1px solid #f3f4f6;font-size:12px;font-weight:600;color:#111;display:flex;align-items:center;justify-content:space-between;}
+.map-panel-body{overflow-y:auto;flex:1;}
+@media(max-width:900px){
+  .map-fab{bottom:80px;}
+  .map-drawer{right:12px;bottom:80px;width:calc(100vw - 24px);max-height:45vh;}
+}
 .vcard{padding:10px 14px;border-bottom:1px solid #f9fafb;border-left:3px solid transparent;cursor:pointer}
 .vcard:hover{background:#f9fafb}
 .vcard.proxima{border-left-color:#1D9E75;background:#f0fdf4}
@@ -17,7 +23,7 @@
 </style>
 <style>
 @media(max-width:768px){
-  .map-panel{width:calc(100vw - 24px)!important;right:12px!important;top:auto!important;bottom:80px!important;max-height:40vh!important}
+
   .eta-box{left:50%!important;transform:translateX(-50%)!important;bottom:10px!important;width:90%!important}
   .leg{display:none!important}
 }
@@ -38,10 +44,15 @@
     <div class="leg-i" style="margin-bottom:0"><div class="leg-d" style="background:#94a3b8"></div>Lead frio</div>
   </div>
 
-  <div class="map-panel" id="painelVisitas">
+  <button class="map-fab" id="agendaFab" onclick="toggleAgendaDrawer()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <div class="map-fab-badge" id="agendaBadge"></div>
+  </button>
+  <div class="map-drawer" id="painelVisitas">
     <div class="map-panel-head">
       <span>Agenda</span>
       <span id="vcount" style="color:#888;font-weight:400"></span>
+      <button onclick="toggleAgendaDrawer()" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:16px;padding:0 0 0 8px;">✕</button>
     </div>
     <div class="map-panel-body" id="listaVisitas"></div>
   </div>
@@ -216,6 +227,7 @@ if(_proxima) {
 
 // Painel visitas
 document.getElementById('vcount').textContent=_visitas.length+' agendadas';
+if(_visitas.length>0){const b=document.getElementById('agendaBadge');b.style.display='block';b.textContent=_visitas.length;}
 document.getElementById('listaVisitas').innerHTML = _visitas.length
   ? _visitas.map((v,i) => {
     const proxima = _proxima && _proxima.id===v.id;
@@ -232,6 +244,11 @@ document.getElementById('listaVisitas').innerHTML = _visitas.length
 
 // Toggle
 const _cores={visitas:'#1D9E75',interesse:'#ef4444',leads:'#6366f1'};
+function toggleAgendaDrawer(){
+  const d=document.getElementById('painelVisitas');
+  const open=d.style.display==='flex';
+  d.style.display=open?'none':'flex';
+}
 _layers.visitas.addTo(_map);
 
 function toggle(k) {

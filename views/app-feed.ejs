@@ -305,11 +305,13 @@ function loadNew(){
 }
 
 // Pull-to-refresh + atualizar via API
+let _feedSince = 0;
 async function atualizarFeed() {
   try {
-    const r = await fetch('/api/feed/novos');
+    const r = await fetch('/api/feed/novos?since=' + _feedSince);
     const d = await r.json();
     if(d.imoveis && d.imoveis.length) {
+      _feedSince = Date.now();
       _imoveis.length = 0;
       d.imoveis.forEach(i => _imoveis.push(i));
       _page = 0;

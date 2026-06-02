@@ -6793,8 +6793,8 @@ app.get('/api/feed/novos', auth, async (req, res) => {
     const since = parseInt(req.query.since) || 0;
     const _grupos = Object.values(_porUser);
     _grupos.forEach(g => {
-      const novos = g.filter(im => Math.max(new Date(im.criado_em||0).getTime(), new Date(im.last_update||im.updatedAt||0).getTime()) > since);
-      const resto = g.filter(im => Math.max(new Date(im.criado_em||0).getTime(), new Date(im.last_update||im.updatedAt||0).getTime()) <= since);
+      const novos = since === 0 ? [] : g.filter(im => Math.max(new Date(im.criado_em||0).getTime(), new Date(im.last_update||im.updatedAt||0).getTime()) > since);
+      const resto = since === 0 ? [...g] : g.filter(im => Math.max(new Date(im.criado_em||0).getTime(), new Date(im.last_update||im.updatedAt||0).getTime()) <= since);
       for(let i=resto.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[resto[i],resto[j]]=[resto[j],resto[i]];}
       g.length=0; novos.forEach(x=>g.push(x)); resto.forEach(x=>g.push(x));
     });

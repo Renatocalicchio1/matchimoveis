@@ -449,7 +449,7 @@ makeBar('chartLeadsBairro', leadsBairro, true);
   <div class="ob-title" id="ob-title"></div>
   <div class="ob-desc" id="ob-desc"></div>
   <button class="ob-btn" onclick="obFechar()">Já fiz isso ✓</button>
-  <button class="ob-skip" onclick="obFechar()">Lembrar depois</button>
+  <button class="ob-skip" onclick="obDepois()">Lembrar depois</button>
 </div>
 
 <script>
@@ -459,21 +459,20 @@ makeBar('chartLeadsBairro', leadsBairro, true);
       key: 'ob_whatsapp',
       icon: '📱',
       title: 'Conecte seu WhatsApp',
-      desc: 'Para receber leads automaticamente e enviar vitrines, conecte seu número de WhatsApp no painel.'
+      desc: 'Acesse o menu lateral → Perfil para conectar seu número. Sem isso o sistema não recebe leads automaticamente.'
     },
     {
       key: 'ob_imoveis',
       icon: '🏠',
       title: 'Cadastre ou importe imóveis',
-      desc: 'Sem imóveis não há match. Cadastre manualmente ou importe via XML para o sistema começar a trabalhar.'
+      desc: 'Acesse o menu lateral → Cadastrar Imóveis. Sem imóveis cadastrados não há match possível.'
     }
   ];
 
   function obProximo() {
     for (var i = 0; i < passos.length; i++) {
       var p = passos[i];
-      var fechou = parseInt(localStorage.getItem(p.key) || '0');
-      if (fechou < 2) {
+      if (!localStorage.getItem(p.key + '_done')) {
         document.getElementById('ob-icon').textContent = p.icon;
         document.getElementById('ob-title').textContent = p.title;
         document.getElementById('ob-desc').textContent = p.desc;
@@ -486,10 +485,14 @@ makeBar('chartLeadsBairro', leadsBairro, true);
 
   window.obFechar = function() {
     var key = document.getElementById('ob-toast').dataset.key;
-    var n = parseInt(localStorage.getItem(key) || '0') + 1;
-    localStorage.setItem(key, n);
+    localStorage.setItem(key + '_done', '1');
     document.getElementById('ob-toast').style.display = 'none';
     setTimeout(obProximo, 500);
+  };
+
+  window.obDepois = function() {
+    document.getElementById('ob-toast').style.display = 'none';
+    setTimeout(obProximo, 5 * 60 * 1000);
   };
 
   setTimeout(obProximo, 1500);

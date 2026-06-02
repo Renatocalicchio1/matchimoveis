@@ -5360,7 +5360,7 @@ app.post('/app/visitas/concluir/:id', auth, async (req,res)=>{
 
   visitas = visitas.map(v => {
     if(String(v.id) === String(req.params.id)){
-      v.status = 'CONCLUIDA';
+      v.status = 'realizada';
       v.concluidaAt = new Date().toISOString();
     }
     return v;

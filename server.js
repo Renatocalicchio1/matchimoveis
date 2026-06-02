@@ -6634,7 +6634,7 @@ app.get('/app/feed', auth, async (req, res) => {
         const mid = String(m.id || m.id_externo || '');
         if(!mid) return;
         if(!leadsMap[mid]) leadsMap[mid] = [];
-        leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead'});
+        leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead', tel: (lead.telefone||lead.whatsapp||lead.contato||'').replace(/\D/g,'')});
       });
     });
     // extrai estado do endereco do usuario
@@ -6661,7 +6661,7 @@ app.get('/app/feed', auth, async (req, res) => {
       const _diasAtras = _criado ? Math.max(0, (Date.now() - _criado) / 86400000) : 999;
       const _recencia = Math.max(0, 30 - _diasAtras);
       const _score = (lc.length * 10) + _demanda + _proxEstado + _proxCidade + _recencia;
-      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>l.nome), _demanda, _score};
+      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score};
     });
     // intercala 1x1 por usuario
     const _porUser = {};

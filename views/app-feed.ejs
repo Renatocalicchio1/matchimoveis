@@ -250,23 +250,28 @@ function abrirShare(imovelId, leadsJson, nomeImovel){
     window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
     return;
   }
-  list.innerHTML = leads.map(nome => `
-    <div class="share-lead" onclick="enviarShare('${imovelId}','${encodeURIComponent(nome)}')">
+  list.innerHTML = leads.map(l => {
+    const nome = typeof l === 'object' ? l.nome : l;
+    const tel = typeof l === 'object' ? (l.tel||'') : '';
+    return `<div class="share-lead" onclick="enviarShare('${imovelId}','${encodeURIComponent(nome)}','${tel}')">
       <div class="share-av">${nome.charAt(0).toUpperCase()}</div>
       <div>
         <div class="share-nome">${nome}</div>
-        <div class="share-tel">lead compatível</div>
+        <div class="share-tel">${tel ? tel : 'lead compatível'}</div>
       </div>
       <button class="share-wa">Enviar WA</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   document.getElementById('shareModal').classList.add('open');
 }
 
-function enviarShare(imovelId, nomeEnc){
+function enviarShare(imovelId, nomeEnc, tel){
   const nomeLead = decodeURIComponent(nomeEnc);
   const link = _BASE_URL+'/imovel/'+encodeURIComponent(imovelId)+'?userId='+_meuId;
   const msg = 'Olá '+nomeLead+'! Me chamo '+_meuNome+' e encontrei um imóvel que atende seu perfil de busca! 🏠\n\nEntre em contato ou agende sua visita diretamente pelo link:\n'+link;
-  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  const telLimpo = (tel||'').replace(/\D/g,'');
+  const url = telLimpo ? 'https://wa.me/55'+telLimpo+'?text='+encodeURIComponent(msg) : 'https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
   fecharShare();
 }
 

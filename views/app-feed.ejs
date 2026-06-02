@@ -84,7 +84,7 @@ body{overscroll-behavior-y:contain;} @media(max-width:900px){#feed-root{margin-t
   </div>
 </div>
 <div id="feed-btn-wrap" style="max-width:480px;margin:8px auto 0;padding:0 12px;display:none;">
-  <button onclick="location.reload()" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:#666;cursor:pointer;">↻ Atualizar feed</button>
+  <button onclick="location.reload(true)" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:#666;cursor:pointer;">↻ Atualizar feed</button>
 </div>
 <div id="feed-root"><div id="feed-inner"></div></div>
 <script>
@@ -328,7 +328,7 @@ function loadNew(){
     if(!pulling) return;
     pulling = false;
     const dy = e.changedTouches[0].clientY - startY;
-    if(dy > 60) { indicator.textContent = 'Atualizando...'; setTimeout(() => location.reload(), 300); }
+    if(dy > 60) { indicator.textContent = 'Atualizando...'; setTimeout(() => location.reload(true), 300); }
     else { indicator.style.display = 'none'; }
   });
 })();

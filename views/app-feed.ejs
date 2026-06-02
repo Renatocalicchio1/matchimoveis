@@ -381,16 +381,23 @@ function renderFavs(){
   _marcarFavsBtns();
   _initCarousels(); _animateBars(); _initMaps(lista);
 }
-function renderLeads(){
-  const lista = _imoveis.filter(im => (im._leadsCompativeis||0) > 0);
+async function renderLeads(){
   const inner = document.getElementById('feed-inner');
-  if(!lista.length){
-    inner.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#aaa;font-size:13px;">Nenhum imóvel com lead compatível ainda.</div>';
-    return;
+  inner.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#aaa;font-size:13px;">Carregando...</div>';
+  try {
+    const r = await fetch('/api/feed/com-lead');
+    const d = await r.json();
+    const lista = d.imoveis || [];
+    if(!lista.length){
+      inner.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#aaa;font-size:13px;">Nenhum imóvel com lead compatível ainda.</div>';
+      return;
+    }
+    inner.innerHTML = lista.map(_renderPost).join('');
+    _marcarFavsBtns();
+    _initCarousels(); _animateBars(); _initMaps(lista);
+  } catch(e) {
+    inner.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#aaa;font-size:13px;">Erro ao carregar.</div>';
   }
-  inner.innerHTML = lista.map(_renderPost).join('');
-  _marcarFavsBtns();
-  _initCarousels(); _animateBars(); _initMaps(lista);
 }
 function trocarAba(aba){
   _abaAtiva = aba;

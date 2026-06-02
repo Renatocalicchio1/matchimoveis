@@ -6751,6 +6751,57 @@ app.get('/api/feed/likes/:imovelId', auth, async (req, res) => {
   }
 });
 
+app.get('/api/feed/com-lead', auth, async (req, res) => {
+  try {
+    const myId = req.session.user?.codigoUsuario || req.session.user?.codigo;
+    const { lerLeads: _llCL } = require('./services/salvarLead');
+    const { lerImoveis: _lerImCL } = require('./services/salvarImovel');
+    const { lerUsuarios: _lerUsrCL } = require('./services/salvarUsuario');
+    const meusLeads = (await _llCL(myId)) || [];
+    const usuarios = await _lerUsrCL();
+    const nomeMap = {};
+    usuarios.forEach(u => {
+      const nome = u.nome || u.name || '';
+      const ids = [u.codigo_usuario, u.codigoUsuario, u.codigo, u.id].filter(Boolean);
+      ids.forEach(uid => { if(uid && nome) nomeMap[String(uid)] = nome; });
+    });
+    // monta mapa id_externo -> leads
+    const leadsMap = {};
+    meusLeads.forEach(lead => {
+      const matches = lead.matchesBase || lead.matchesAuto || lead.matches || [];
+      matches.forEach(m => {
+        const mids = [m.id, m.id_externo, m.id_interno, m.imovelId, m.idInterno].filter(Boolean).map(String);
+        mids.forEach(mid => {
+          if(!leadsMap[mid]) leadsMap[mid] = [];
+          leadsMap[mid].push({id: lead.id, nome: lead.nome||'Lead', tel: (lead.telefone||lead.whatsapp||lead.contato||'').replace(/\D/g,'')});
+        });
+      });
+    });
+    const todosIds = Object.keys(leadsMap);
+    if(!todosIds.length) return res.json({ imoveis: [] });
+    // busca imóveis por id OU id_externo
+    const todos = await _lerImCL();
+    const imoveis = todos.filter(im => {
+      if(im.status === 'inativo' || im.status === 'excluido') return false;
+      const imId = String(im.id || '');
+      const imIdExt = String(im.id_externo || '');
+      return todosIds.includes(imId) || todosIds.includes(imIdExt);
+    }).map(im => {
+      const uid = im.user_id || im.userId || im.codigoUsuario;
+      const nomeUsuario = nomeMap[uid] || '';
+      const imId = String(im.id || '');
+      const imIdExt = String(im.id_externo || '');
+      const lc = [...(leadsMap[imId]||[]), ...(leadsMap[imIdExt]||[])];
+      const unique = lc.filter((l,i,a) => a.findIndex(x=>x.id===l.id)===i);
+      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: unique.length, _leadsNomes: unique.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score: unique.length * 10};
+    });
+    res.json({ imoveis });
+  } catch(e) {
+    console.error('[api/feed/com-lead]', e.message);
+    res.json({ imoveis: [] });
+  }
+});
+
 app.get('/api/feed/novos', auth, async (req, res) => {
   try {
     // reutiliza a mesma logica do /app/feed

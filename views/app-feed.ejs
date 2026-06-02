@@ -300,7 +300,7 @@ function loadNew(){
 
 // Pull-to-refresh + atualizar via API
 let _feedSince = 0;
-async function atualizarFeed() {
+window.atualizarFeed = async function() {
   try {
     const r = await fetch('/api/feed/novos?since=0');
     const d = await r.json();

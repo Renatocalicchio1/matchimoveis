@@ -69,6 +69,7 @@ body{overscroll-behavior-y:contain;}
   <div class="feed-tabs">
     <button class="feed-tab active" id="tab-feed" onclick="trocarAba('feed')">Feed</button>
     <button class="feed-tab" id="tab-favs" onclick="trocarAba('favs')">⭐ Favoritos</button>
+    <button class="feed-tab" id="tab-leads" onclick="trocarAba('leads')">🎯 Com Lead</button>
   </div>
 </div>
 <div id="feed-root"><div id="feed-inner"></div></div>
@@ -380,12 +381,25 @@ function renderFavs(){
   _marcarFavsBtns();
   _initCarousels(); _animateBars(); _initMaps(lista);
 }
+function renderLeads(){
+  const lista = _imoveis.filter(im => (im._leadsCompativeis||0) > 0);
+  const inner = document.getElementById('feed-inner');
+  if(!lista.length){
+    inner.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#aaa;font-size:13px;">Nenhum imóvel com lead compatível ainda.</div>';
+    return;
+  }
+  inner.innerHTML = lista.map(_renderPost).join('');
+  _marcarFavsBtns();
+  _initCarousels(); _animateBars(); _initMaps(lista);
+}
 function trocarAba(aba){
   _abaAtiva = aba;
   document.getElementById('tab-feed').classList.toggle('active', aba==='feed');
   document.getElementById('tab-favs').classList.toggle('active', aba==='favs');
+  document.getElementById('tab-leads').classList.toggle('active', aba==='leads');
   if(aba==='feed'){ renderPage(); _marcarFavsBtns(); }
-  else{ renderFavs(); }
+  else if(aba==='favs'){ renderFavs(); }
+  else{ renderLeads(); }
 }
 // ── INIT ─────────────────────────────────────────────────────
 renderPage();

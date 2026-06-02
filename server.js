@@ -115,16 +115,20 @@ if (process.env.RENDER) {
 const app = express();
 
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+const { Pool } = require('pg');
+const _pgPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
 app.set('trust proxy', 1);
 app.use(session({
+  store: new pgSession({ pool: _pgPool, tableName: 'session', createTableIfMissing: true }),
   secret: 'matchimoveis',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     secure: process.env.RENDER ? true : false,
     sameSite: process.env.RENDER ? 'none' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000
+    maxAge: 30 * 24 * 60 * 60 * 1000
   }
 }));
 const navegacao = require("./cerebro/navegacao");

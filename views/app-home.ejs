@@ -455,50 +455,41 @@ makeBar('chartLeadsBairro', leadsBairro, true);
 <script>
 (function(){
   var passos = [
-    {
-      key: 'ob_whatsapp',
-      icon: '📱',
-      title: 'Conecte seu WhatsApp',
-      desc: 'Acesse o menu lateral → Perfil para conectar seu número. Sem isso o sistema não recebe leads automaticamente.'
-    },
-    {
-      key: 'ob_imoveis',
-      icon: '🏠',
-      title: 'Cadastre ou importe imóveis',
-      desc: 'Acesse o menu lateral → Cadastrar Imóveis. Sem imóveis cadastrados não há match possível.'
-    }
+    { key:'ob_whatsapp', icon:'📱', title:'Conecte seu WhatsApp', desc:'Acesse o menu lateral → Perfil para conectar seu número. Sem isso o sistema não recebe leads automaticamente.' },
+    { key:'ob_imoveis',  icon:'🏠', title:'Cadastre ou importe imóveis', desc:'Acesse o menu lateral → Cadastrar Imóveis. Sem imóveis o sistema não consegue fazer match.' }
   ];
+  var idx = 0;
 
-  var obIdx = 0;
-
-  function obMostrar() {
-    var pendentes = passos.filter(function(p){ return !localStorage.getItem(p.key+'_done'); });
-    if (!pendentes.length) return;
-    var p = pendentes[obIdx % pendentes.length];
-    obIdx++;
-    document.getElementById('ob-icon').textContent = p.icon;
+  function mostrar() {
+    if (idx >= passos.length) {
+      // ciclo completo — reaparece em 3 min se algum ainda não foi confirmado
+      var temPendente = passos.some(function(p){ return !localStorage.getItem(p.key+'_done'); });
+      if (temPendente) setTimeout(function(){ idx=0; mostrar(); }, 3*60*1000);
+      return;
+    }
+    var p = passos[idx];
+    if (localStorage.getItem(p.key+'_done')) { idx++; mostrar(); return; }
+    document.getElementById('ob-icon').textContent  = p.icon;
     document.getElementById('ob-title').textContent = p.title;
-    document.getElementById('ob-desc').textContent = p.desc;
+    document.getElementById('ob-desc').textContent  = p.desc;
     document.getElementById('ob-toast').dataset.key = p.key;
     document.getElementById('ob-toast').style.display = 'block';
   }
 
   window.obFechar = function() {
     var key = document.getElementById('ob-toast').dataset.key;
-    localStorage.setItem(key + '_done', '1');
+    localStorage.setItem(key+'_done','1');
     document.getElementById('ob-toast').style.display = 'none';
-    setTimeout(obMostrar, 1000);
+    idx++;
+    setTimeout(mostrar, 800);
   };
 
   window.obDepois = function() {
     document.getElementById('ob-toast').style.display = 'none';
-    obIdx = 0;
-    setTimeout(obMostrar, 3 * 60 * 1000);
+    idx++;
+    setTimeout(mostrar, 800);
   };
 
-  setTimeout(function(){
-    obIdx = 0;
-    obMostrar();
-  }, 1500);
+  setTimeout(function(){ idx=0; mostrar(); }, 1500);
 })();
 </script>

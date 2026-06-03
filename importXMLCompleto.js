@@ -339,9 +339,13 @@ const antigosDoUsuario = atuais.filter(i => {
   return dono === String(USER_ID);
 });
 
-// Marca como inativo quem não veio no XML (só se USER_ID válido)
+// Marca como inativo quem não veio no XML (só se USER_ID válido e mesma fonte/xml_url)
 const inativos = USER_ID ? antigosDoUsuario
-  .filter(i => !idsNovos.has(String(i.idExterno)))
+  .filter(i => {
+    if(idsNovos.has(String(i.idExterno))) return false; // ainda existe no XML
+    if(XML_URL && i.xml_url && String(i.xml_url).trim() !== String(XML_URL).trim()) return false; // veio de outra fonte
+    return true;
+  })
   .map(i => ({
     ...i,
     status: 'inativo',

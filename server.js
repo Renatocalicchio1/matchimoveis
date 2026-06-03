@@ -973,7 +973,7 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
   if (idxLead >= 0) {
     leads[idxLead].vitrineVisualizada = true;
     leads[idxLead].vitrineVisualizadaEm = new Date().toISOString();
-    if (!leads[idxLead].vitrineEnviada) {
+    if (false && !leads[idxLead].vitrineEnviada) {
       leads[idxLead].vitrineEnviada = true;
       leads[idxLead].vitrineEnviadaEm = new Date().toISOString();
     }

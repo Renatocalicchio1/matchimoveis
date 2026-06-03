@@ -309,7 +309,9 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <% if(_mat.length&&_fone) { %>
       <% } %>
 
+      <% if((lead.matchCount||0) > 0 || (lead.matches||[]).length > 0 || (lead.matchesBase||[]).length > 0) { %>
       <a href="/cliente/oferta/<%=lead.leadId||lead.id%>?userId=<%=encodeURIComponent(lead.userId||lead.usuarioId||lead.corretorId||'')%>" target="_blank" class="acao-btn" style="background:var(--bg);color:var(--dark);border:1px solid var(--border)">Ver vitrine</a>
+      <% } %>
 
       <form method="POST" action="/app/lead/<%= lead.id||lead.leadId %>/buscar-quintoandar" style="margin-bottom:7px">
         <!-- Match QuintoAndar oculto -->

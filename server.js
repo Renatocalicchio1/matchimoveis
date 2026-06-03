@@ -338,10 +338,7 @@ app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
         resultados.push(portal+': 0 imóveis (pulado)');
       }
     });
-    res.send('<pre>XML regenerado para '+userId+':
-
-'+resultados.join('
-')+'</pre><br><a href="/admin">Voltar</a>');
+    res.send('<pre>XML regenerado para '+userId+':\n\n'+resultados.join('\n')+'</pre><br><a href="/admin">Voltar</a>');
   } catch(e) {
     res.send('Erro: '+e.message);
   }

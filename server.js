@@ -238,7 +238,7 @@ app.get('/admin/logout', (req, res) => {
 app.get('/admin', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    const usuarios = await _q('SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status, ultimo_acesso FROM usuarios ORDER BY criado_em DESC');
+    const usuarios = await _q('SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status, ultimo_acesso, match_coins FROM usuarios ORDER BY criado_em DESC');
     const counts = await _q('SELECT user_id, COUNT(*) as total FROM imoveis GROUP BY user_id');
     const leads = await _q('SELECT user_id, COUNT(*) as total FROM leads GROUP BY user_id');
     const visitas = await _q('SELECT user_id, COUNT(*) as total FROM visitas GROUP BY user_id');
@@ -257,6 +257,13 @@ app.get('/admin', authAdmin, async (req, res) => {
         <td><span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:${u.whatsapp_status==='open'?'#f0fdf4':'#f9fafb'};color:${u.whatsapp_status==='open'?'#16a34a':'#888'}">${u.whatsapp_status||'desconectado'}</span></td>
         <td>${u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '-'}</td>
         <td>${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
+        <td>
+          <form method="POST" action="/admin/usuario/${u.codigo_usuario}/creditos" style="display:flex;gap:4px;align-items:center;">
+            <input type="number" name="creditos" value="1000" min="1" style="width:70px;padding:3px 6px;font-size:11px;border:1px solid #e5e5e3;border-radius:5px;">
+            <input type="hidden" name="operacao" value="adicionar">
+            <button type="submit" style="font-size:10px;padding:3px 8px;background:#16a34a;color:#fff;border:none;border-radius:5px;cursor:pointer;">+</button>
+          </form>
+        </td>
         <td>
           <a href="/admin/usuario/${u.codigo_usuario}" style="font-size:11px;color:#2563eb;text-decoration:none;">Ver</a>
           &nbsp;|&nbsp;
@@ -306,7 +313,7 @@ tr:hover td{background:#fafafa;}
   <div class="card">
     <table>
       <thead><tr>
-        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>Último acesso</th><th>Cadastro</th><th>Ações</th>
+        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>Último acesso</th><th>Cadastro</th><th>Créditos</th><th>Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -370,6 +377,21 @@ app.get('/admin/acessar/:codigo', authAdmin, async (req, res) => {
     req.session.user = user || { id: u.codigo_usuario, codigoUsuario: u.codigo_usuario, nome: u.nome, telefone: u.telefone, email: u.email };
     res.redirect('/app/leads');
   } catch(e) { res.send('Erro: '+e.message); }
+});
+
+app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const cod = req.params.codigo;
+    const qtd = parseInt(req.body.creditos) || 0;
+    const op = req.body.operacao || 'adicionar';
+    if(op === 'adicionar'){
+      await _q('UPDATE usuarios SET match_coins=COALESCE(match_coins,0)+$1, match_coins_total=COALESCE(match_coins_total,0)+$1 WHERE codigo_usuario=$2', [qtd, cod]);
+    } else {
+      await _q('UPDATE usuarios SET match_coins=GREATEST(0,COALESCE(match_coins,0)-$1) WHERE codigo_usuario=$2', [qtd, cod]);
+    }
+    res.redirect('/admin');
+  } catch(e) { res.send('Erro: ' + e.message); }
 });
 
 app.get('/admin/deletar/:codigo', authAdmin, async (req, res) => {

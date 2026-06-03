@@ -335,7 +335,7 @@ app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
       if(filtrados.length > 0){
         const xml = gerarXMLPortal(filtrados, portal);
         fs.writeFileSync(dataPath(filename), xml, 'utf8');
-        const _urlXml = '/feed-xml/'+portal+'/'+token;
+        const _urlXml = BASE_URL+'/feed-xml/'+portal+'/'+token;
         _q('INSERT INTO xml_feeds (user_id, portal, url, total, arquivo, last_sync_at, ativo) VALUES ($1,$2,$3,$4,$5,$6,true) ON CONFLICT (user_id, portal) DO UPDATE SET arquivo=EXCLUDED.arquivo, url=EXCLUDED.url, total=EXCLUDED.total, last_sync_at=EXCLUDED.last_sync_at', [userId, portal, _urlXml, filtrados.length, xml, new Date().toISOString()]).catch(()=>{});
         resultados.push(portal+': '+filtrados.length+' imóveis → '+filename);
       } else {
@@ -4516,7 +4516,7 @@ async function regenerarXMLUsuario(userId) {
         const xml = gerarXMLPortal(filtrados, portal);
         fs.writeFileSync(dataPath(filename), xml, 'utf8');
         console.log('[xml] '+filename+': '+filtrados.length+' imóveis');
-        const _urlXmlE = '/feed-xml/'+portal+'/'+token;
+        const _urlXmlE = BASE_URL+'/feed-xml/'+portal+'/'+token;
         const { query: _qXml } = require('./services/db');
         _qXml('INSERT INTO xml_feeds (user_id, portal, url, total, arquivo, last_sync_at, ativo) VALUES ($1,$2,$3,$4,$5,$6,true) ON CONFLICT (user_id, portal) DO UPDATE SET arquivo=EXCLUDED.arquivo, url=EXCLUDED.url, total=EXCLUDED.total, last_sync_at=EXCLUDED.last_sync_at', [userId, portal, _urlXmlE, filtrados.length, xml, new Date().toISOString()]).catch(()=>{});
       } else {

@@ -3426,13 +3426,23 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         await _salvarLeadPG(novoLead);
         leadEncontrado = novoLead;
         console.log('[WEBHOOK WA] novo lead criado no PG:', telefone, '| id:', novoLead.id);
-        // notificação sino — novo lead
+        // notificação sino — novo lead (conta quantas vezes o mesmo número entrou)
         try {
+          const { lerLeads: _llNotif } = require('./services/salvarLead');
+          const _todasLeads = await _llNotif();
+          const _vezesEntrou = _todasLeads.filter(l => {
+            const fone = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,'');
+            return fone.slice(-8) === telefone.slice(-8) && (l.userId||l.codigoUsuario) === _webhookUserId;
+          }).length;
+          const _titulo = _vezesEntrou > 1 ? 'Lead retornou (' + _vezesEntrou + 'ª vez)' : 'Novo lead chegou';
+          const _msg = _vezesEntrou > 1
+            ? (novoLead.nome||telefone) + ' entrou em contato novamente — é a ' + _vezesEntrou + 'ª vez que busca imóvel'
+            : (novoLead.nome||telefone) + ' entrou em contato via WhatsApp';
           criarNotificacaoService({
             id: Date.now().toString(),
             tipo: 'novo_lead',
-            titulo: 'Novo lead chegou',
-            mensagem: (novoLead.nome||telefone) + ' entrou em contato via WhatsApp',
+            titulo: _titulo,
+            mensagem: _msg,
             usuarioId: _webhookUserId,
             leadId: novoLead.id,
             lida: false,

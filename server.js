@@ -500,6 +500,15 @@ function _temPerfilMinimoLead(l) {
          !!(pf.valorMax||d.valorMax||l.valorMax||(m.valor||[]).length);
 }
 app.get('/health',(req,res)=>res.json({ok:true,ts:new Date().toISOString()}));
+// Redirect onrender.com -> matchimoveis.ia.br para feeds XML
+app.use('/feed-xml', (req, res, next) => {
+  const host = req.headers.host || '';
+  if (host.includes('onrender.com')) {
+    return res.redirect(301, 'https://matchimoveis.ia.br/feed-xml' + req.path);
+  }
+  next();
+});
+
 app.get('/feed-xml/:portal/:token', async (req, res) => {
   try {
     const { query: _qfx } = require('./services/db');

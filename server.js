@@ -3328,11 +3328,13 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     try {
       const todosLeads = await _lerLeadsWH();
       // Busca lead pelo telefone E userId da instância — evita vazamento entre contas
+      console.log('[WEBHOOK WA DEBUG] total leads:', todosLeads.length, '| buscando telefone:', telefone.slice(-8), '| userId:', _webhookUserId);
       leadEncontrado = todosLeads.find(l => {
         const fone = (l.telefone || l.whatsapp || l.contato || l.phone || '').replace(/\D/g, '');
         const leadUserId = String(l.userId || l.codigoUsuario || l.corretorId || '');
         const fonesIgual = fone && fone.slice(-8) === telefone.slice(-8);
         const contaIgual = !_webhookUserId || !leadUserId || leadUserId === _webhookUserId;
+        if (fonesIgual) console.log('[WEBHOOK WA DEBUG] fone match:', fone, '| contaIgual:', contaIgual, '| leadUserId:', leadUserId);
         if (!fonesIgual || !contaIgual) return false;
         // Se ja tem perfil minimo, nao usar esta lead — vai criar nova
         const pf = l.perfilIA || {}; const d = l.dados || {}; const m = l.mapaIntencao || {};

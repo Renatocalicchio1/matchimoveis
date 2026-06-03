@@ -4608,50 +4608,6 @@ function gerarXMLPortais(){
       return ativo && temPortal;
     });
 
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<listingDataFeed>
-  <header>
-    <provider>Matchimoveis</provider>
-    <email>contato@matchimoveis.ia.br</email>
-  </header>
-  <listings>
-`;
-
-    filtrados.forEach(i => {
-      xml += `
-    <listing>
-      <listingID>${i.idExterno || i.id}</listingID>
-      <title>${i.tipo || ''} em ${i.bairro || ''}</title>
-      <description>${(i.descricao || '').replace(/&/g,'')}</description>
-
-      <price>${i.valor_imovel || 0}</price>
-      <livingArea>${i.area_m2 || 0}</livingArea>
-
-      <bedrooms>${i.quartos || 0}</bedrooms>
-      <bathrooms>${i.banheiros || 0}</bathrooms>
-      <suites>${i.suites || 0}</suites>
-      <garageSpaces>${i.vagas || 0}</garageSpaces>
-
-      <address>
-        <city>São Paulo</city>
-        <neighborhood>${i.bairro || ''}</neighborhood>
-        <state>SP</state>
-      </address>
-
-      <images>
-        ${(i.fotos || []).map(f => `<image>${f}</image>`).join('')}
-      </images>
-
-      <contact>
-        <name>${i.proprietario?.nome || ''}</name>
-        <email>${i.proprietario?.email || ''}</email>
-        <phone>${i.proprietario?.telefone || ''}</phone>
-      </contact>
-
-    </listing>
-`;
-    });
-
     const xml = gerarXMLPortal(filtrados, portal);
     fs.writeFileSync(dataPath(`feed-${portal}.xml`), xml);
     console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);

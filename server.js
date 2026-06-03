@@ -439,6 +439,15 @@ app.post('/admin/usuario/:codigo/senha', authAdmin, async (req, res) => {
   } catch(e) { res.send('Erro: ' + e.message); }
 });
 // ═══════════════════════════════════════════════════════
+
+function _temPerfilMinimoLead(l) {
+  const pf = l.perfilIA || {}; const d = l.dados || {}; const m = l.mapaIntencao || {};
+  return !!(pf.tipo||d.tipo||l.tipo||(m.tipo_imovel||[]).length) &&
+         !!(pf.intencao||d.intencao||l.intencao||(m.transacao||[]).length) &&
+         !!(pf.cidade||d.cidade||l.cidade||(m.cidade||[]).length) &&
+         !!(pf.bairro||d.bairro||l.bairro||(m.bairro||[]).length) &&
+         !!(pf.valorMax||d.valorMax||l.valorMax||(m.valor||[]).length);
+}
 app.get('/health',(req,res)=>res.json({ok:true,ts:new Date().toISOString()}));
 app.get('/feed-xml/:portal/:token', async (req, res) => {
   try {
@@ -2144,7 +2153,8 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
       (eventId && String(l.eventId||'') === String(eventId)) ||
       (telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
     );
-    if (_dup) { console.log('[WEBHOOK IMOVELWEB] duplicata ignorada:', telefone); return; }
+    if (_dup && !_temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK IMOVELWEB] duplicata ignorada:', telefone); return; }
+    if (_dup && _temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK IMOVELWEB] perfil minimo — cria nova lead:', telefone); lead.id = Date.now().toString(); }
     await _slIW(lead);
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
     const _snapIW = { id: lead.id, userId, mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'' };
@@ -2211,7 +2221,8 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
       (originLeadId && String(l.eventId||l.originLeadId||'') === String(originLeadId)) ||
       (telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
     );
-    if (_dup) { console.log('[WEBHOOK GRUPOOLX] duplicata ignorada:', telefone); return; }
+    if (_dup && !_temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK GRUPOOLX] duplicata ignorada:', telefone); return; }
+    if (_dup && _temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK GRUPOOLX] perfil minimo — cria nova lead:', telefone); lead.id = Date.now().toString(); }
     await _slOLX(lead);
     console.log('[WEBHOOK GRUPOOLX] lead salva:', lead.nome, '|', telefone, '| portal:', portal);
 
@@ -2334,7 +2345,8 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     const _dup = _leads.find(l =>
       telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId
     );
-    if (_dup) { console.log('[WEBHOOK CHAVES] duplicata ignorada:', telefone); return; }
+    if (_dup && !_temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK CHAVES] duplicata ignorada:', telefone); return; }
+    if (_dup && _temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK CHAVES] perfil minimo — cria nova lead:', telefone); lead.id = Date.now().toString(); }
     await _slCH(lead);
     console.log('[WEBHOOK CHAVES] lead salva:', lead.nome, '|', telefone);
 

@@ -106,15 +106,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
 
       <!-- Botões copiloto -->
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <% if(_copAcoes.includes('vitrine')&&_fone) { %>
-        <% if(lead.vitrineEnviadaEm) { %>
-        <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" style="background:#f9fafb;color:#6b7280;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:5px;border:0.5px solid rgba(0,0,0,.1)" title="Sistema enviou — clique para reenviar">
-          ✓ Vitrine enviada <%= new Date(lead.vitrineEnviadaEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %>
-        </a>
-        <% } else { %>
-        <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" style="background:#25D366;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:5px">Enviar vitrine</a>
-        <% } %>
-        <% } %>
+
         <% if(_copAcoes.includes('visita')) { %>
         <button onclick="abrirModalAgendarVisita()" style="background:#7c3aed;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;border:none;cursor:pointer">Agendar visita</button>
         <% } %>
@@ -315,11 +307,6 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <% } %>
 
       <% if(_mat.length&&_fone) { %>
-      <% if(lead.vitrineEnviadaEm) { %>
-      <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" class="acao-btn" style="background:#f9fafb;color:#6b7280;border:0.5px solid rgba(0,0,0,.1)" title="Sistema enviou — clique para reenviar">✓ Vitrine enviada <%= new Date(lead.vitrineEnviadaEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %></a>
-      <% } else { %>
-      <a href="https://wa.me/55<%=_fone%>?text=<%=_wtxt%>" target="_blank" class="acao-btn" style="background:var(--brand);color:#fff">Enviar vitrine</a>
-      <% } %>
       <% } %>
 
       <a href="/cliente/oferta/<%=lead.leadId||lead.id%>?userId=<%=encodeURIComponent(lead.userId||lead.usuarioId||lead.corretorId||'')%>" target="_blank" class="acao-btn" style="background:var(--bg);color:var(--dark);border:1px solid var(--border)">Ver vitrine</a>

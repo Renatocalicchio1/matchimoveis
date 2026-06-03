@@ -260,6 +260,8 @@ app.get('/admin', authAdmin, async (req, res) => {
         <td>
           <a href="/admin/usuario/${u.codigo_usuario}" style="font-size:11px;color:#2563eb;text-decoration:none;">Ver</a>
           &nbsp;|&nbsp;
+          <a href="/admin/regenerar-xml/${u.codigo_usuario}" style="font-size:11px;color:#16a34a;text-decoration:none;">XML</a>
+          &nbsp;|&nbsp;
           <a href="/admin/deletar/${u.codigo_usuario}" onclick="return confirm('Deletar ${u.nome}?')" style="font-size:11px;color:#e8404a;text-decoration:none;">Deletar</a>
         </td>
       </tr>`).join('');

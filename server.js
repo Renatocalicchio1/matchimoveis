@@ -257,6 +257,10 @@ app.get('/admin', authAdmin, async (req, res) => {
         <td><span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:${u.whatsapp_status==='open'?'#f0fdf4':'#f9fafb'};color:${u.whatsapp_status==='open'?'#16a34a':'#888'}">${u.whatsapp_status||'desconectado'}</span></td>
         <td>${u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '-'}</td>
         <td>${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
+        <td style="text-align:center">
+          <span style="font-size:12px;font-weight:700;color:#FF385C;">${(u.match_coins||0).toLocaleString('pt-BR')}</span>
+          <span style="font-size:10px;color:#9ca3af;display:block">coins</span>
+        </td>
         <td>
           <form method="POST" action="/admin/usuario/${u.codigo_usuario}/creditos" style="display:flex;gap:4px;align-items:center;">
             <input type="number" name="creditos" value="1000" min="1" style="width:70px;padding:3px 6px;font-size:11px;border:1px solid #e5e5e3;border-radius:5px;">
@@ -313,7 +317,7 @@ tr:hover td{background:#fafafa;}
   <div class="card">
     <table>
       <thead><tr>
-        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>Último acesso</th><th>Cadastro</th><th>Créditos</th><th>Ações</th>
+        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>Último acesso</th><th>Cadastro</th><th>Coins</th><th>Créditos</th><th>Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>

@@ -250,7 +250,7 @@ app.get('/admin', authAdmin, async (req, res) => {
         <td>${u.codigo_usuario||'-'}</td>
         <td>${u.nome||'-'}</td>
         <td>${u.telefone||'-'}</td>
-        <td>${u.senha||'-'}</td>
+        <td><span title="${u.senha||''}" style="cursor:pointer;letter-spacing:2px;color:#9ca3af;" onclick="this.textContent=this.textContent==='••••••'?'${u.senha||''}':'••••••'">••••••</span></td>
         <td style="text-align:center">${countMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${leadsMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${visitasMap[u.codigo_usuario]||0}</td>

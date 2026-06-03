@@ -306,6 +306,46 @@ tr:hover td{background:#fafafa;}
   }
 });
 
+
+app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const userId = req.params.userId;
+    const userR = await _q('SELECT * FROM usuarios WHERE codigo_usuario=$1', [userId]);
+    if(!userR.rows.length) return res.send('Usuário não encontrado');
+    const user = userR.rows[0];
+    const imoveisR = await _q('SELECT * FROM imoveis WHERE user_id=$1 AND status IN ($2,$3)', [userId,'ativo','publicado']);
+    const imoveis = imoveisR.rows.map(row => ({...((row.dados)||{}), ...row, idExterno: row.id_externo, portais: row.portais||[]}));
+    const token = userId.replace(/[^a-z0-9]/gi,'-');
+    const todosPortais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
+    const resultados = [];
+    todosPortais.forEach(portal => {
+      const filtrados = imoveis.filter(i => {
+        const temPortal = Array.isArray(i.portais) ? i.portais.includes(portal) : !!(i.portais||{})[portal];
+        return temPortal;
+      }).map(i => ({
+        ...i,
+        corretorNome: user.nome||'',
+        corretorEmail: user.email||'',
+        corretorTelefone: user.celular||user.telefone||''
+      }));
+      const filename = 'feed-'+portal+'-'+token+'.xml';
+      if(filtrados.length > 0){
+        const xml = gerarXMLPortal(filtrados, portal);
+        fs.writeFileSync(dataPath(filename), xml, 'utf8');
+        resultados.push(portal+': '+filtrados.length+' imóveis → '+filename);
+      } else {
+        resultados.push(portal+': 0 imóveis (pulado)');
+      }
+    });
+    res.send('<pre>XML regenerado para '+userId+':
+
+'+resultados.join('
+')+'</pre><br><a href="/admin">Voltar</a>');
+  } catch(e) {
+    res.send('Erro: '+e.message);
+  }
+});
 app.get('/admin/deletar/:codigo', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');

@@ -260,6 +260,8 @@ app.get('/admin', authAdmin, async (req, res) => {
         <td>
           <a href="/admin/usuario/${u.codigo_usuario}" style="font-size:11px;color:#2563eb;text-decoration:none;">Ver</a>
           &nbsp;|&nbsp;
+          <a href="/admin/acessar/${u.codigo_usuario}" style="font-size:11px;color:#7c3aed;text-decoration:none;">Acessar</a>
+          &nbsp;|&nbsp;
           <a href="/admin/regenerar-xml/${u.codigo_usuario}" style="font-size:11px;color:#16a34a;text-decoration:none;">XML</a>
           &nbsp;|&nbsp;
           <a href="/admin/deletar/${u.codigo_usuario}" onclick="return confirm('Deletar ${u.nome}?')" style="font-size:11px;color:#e8404a;text-decoration:none;">Deletar</a>
@@ -356,6 +358,20 @@ app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
     res.send('Erro: '+e.message);
   }
 });
+app.get('/admin/acessar/:codigo', authAdmin, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const u = (await _q('SELECT * FROM usuarios WHERE codigo_usuario=$1', [req.params.codigo])).rows[0];
+    if(!u) return res.redirect('/admin');
+    const { lerUsuarios: _lu } = require('./services/salvarUsuario');
+    const users = await _lu();
+    const user = users.find(u2 => u2.id === u.codigo_usuario || u2.codigoUsuario === u.codigo_usuario);
+    req.session.admin = true; // mantém admin ativo
+    req.session.user = user || { id: u.codigo_usuario, codigoUsuario: u.codigo_usuario, nome: u.nome, telefone: u.telefone, email: u.email };
+    res.redirect('/app/leads');
+  } catch(e) { res.send('Erro: '+e.message); }
+});
+
 app.get('/admin/deletar/:codigo', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');

@@ -4652,10 +4652,7 @@ function gerarXMLPortais(){
 `;
     });
 
-    xml += `
-  </listings>
-</listingDataFeed>`;
-
+    const xml = gerarXMLPortal(filtrados, portal);
     fs.writeFileSync(dataPath(`feed-${portal}.xml`), xml);
     console.log(`XML gerado: feed-${portal}.xml (${filtrados.length} imóveis)`);
   });
@@ -4861,76 +4858,84 @@ function gerarXMLPortal(imoveis, portal){
     return xml;
   }
 
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<listingDataFeed>
-  <header>
-    <provider>Matchimoveis</provider>
-    <email>contato@matchimoveis.ia.br</email>
-  </header>
-  <listings>
-`;
+  const esc = v => String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+  xml += '<ListingDataFeed xmlns="http://www.vivareal.com/schemas/1.0/VRSync"\n';
+  xml += '  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n';
+  xml += '  xsi:schemaLocation="http://www.vivareal.com/schemas/1.0/VRSync http://xml.vivareal.com/vrsync.xsd">\n';
+  xml += '  <Header>\n';
+  xml += '    <Provider>Matchimoveis</Provider>\n';
+  xml += '    <Email>contato@matchimoveis.ia.br</Email>\n';
+  xml += '    <PublishDate>'+new Date().toISOString()+'</PublishDate>\n';
+  xml += '  </Header>\n';
+  xml += '  <Listings>\n';
+
   imoveis.forEach(i => {
     const prop = (i.proprietario && typeof i.proprietario === 'object') ? i.proprietario : {};
-    xml += `
-    <listing>
-      <listingID>${i.idExterno || i.idOriginal || i.id}</listingID>
-      <title>${i.titulo || ((i.tipo||'Imóvel')+' em '+(i.bairro||''))}</title>
-      <description>${(i.descricao || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</description>
-      <transactionType>${i.transacao === 'aluguel' ? 'For Rent' : 'For Sale'}</transactionType>
-      <propertyType>${i.tipo || ''}</propertyType>
-      <condition>${i.condicao === 'lancamento' ? 'launch' : i.condicao === 'novo' ? 'new' : 'used'}</condition>
-      <phase>${i.fase || ''}</phase>
-      <price>${i.valor_imovel || i.valor || 0}</price>
-      <condominiumFee>${i.condominio || 0}</condominiumFee>
-      <iptu>${i.iptu || 0}</iptu>
-      <livingArea>${i.area_m2 || i.area || 0}</livingArea>
-      <totalArea>${i.area_total || i.area_m2 || 0}</totalArea>
-      <builtArea>${i.area_construida || 0}</builtArea>
-      <bedrooms>${i.quartos || 0}</bedrooms>
-      <bathrooms>${i.banheiros || 0}</bathrooms>
-      <suites>${i.suites || 0}</suites>
-      <garageSpaces>${i.vagas || 0}</garageSpaces>
-      <floor>${i.andar || ''}</floor>
-      <yearBuilt>${i.anoConstrucao || i.anoContrucao || i.ano_construcao || ''}</yearBuilt>
-      <acceptsFinancing>${i.aceitaFinanciamento || i.aceita_financiamento || 'a_combinar'}</acceptsFinancing>
-      <acceptsExchange>${i.aceitaPermuta || i.aceita_permuta || 'nao'}</acceptsExchange>
-      <solarPosition>${i.posicaoSolar || i.posicao_solar || ''}</solarPosition>
-      <totalFloors>${i.totalAndares || i.total_andares || 0}</totalFloors>
-      <unitsPerFloor>${i.unidadesPorAndar || i.unidades_por_andar || 0}</unitsPerFloor>
-      <tower>${i.torre || ''}</tower>
-      <unity>${i.unidade || ''}</unity>
-      <condominiumName>${i.condominioNome || i.condominio_nome || ''}</condominiumName>
-      <virtualTour>${i.tourVirtual || i.tour_virtual || ''}</virtualTour>
-      <detailUrl>${i.url || i.urlPublica || i.url_publica || ''}</detailUrl>
-      ${(i.diferenciais && i.diferenciais.length) ? '<features>'+i.diferenciais.map(d=>'<feature>'+d+'</feature>').join('')+'</features>' : ''}
-      <address>
-        <street>${i.endereco || ''}</street>
-        <streetNumber>${i.numero || ''}</streetNumber>
-        <complement>${i.complemento || ''}</complement>
-        <neighborhood>${i.bairro || ''}</neighborhood>
-        <city>${i.cidade || ''}</city>
-        <state>${i.estado || ''}</state>
-        <zipCode>${(i.cep||'').replace(/\D/g,'')}</zipCode>
-        <latitude>${i.latitude || ''}</latitude>
-        <longitude>${i.longitude || ''}</longitude>
-      </address>
-      <owner>
-        <name>${prop.nome||''}</name>
-        <email>${prop.email||''}</email>
-        <phone>${prop.telefone||prop.celular||''}</phone>
-      </owner>
-      <broker>
-        <name>${i.corretorNome || ''}</name>
-        <email>${i.corretorEmail || ''}</email>
-        <phone>${i.corretorTelefone || ''}</phone>
-      </broker>
-
-      <media>
-        ${(i.fotos||[]).map(f=>`<image><url>${f}</url></image>`).join('\n        ')}
-      </media>
-    </listing>`;
+    const fotos = Array.isArray(i.fotos) ? i.fotos : [];
+    const transacao = i.transacao === 'aluguel' ? 'For Rent' : 'For Sale';
+    const usageType = (i.tipo||'').toLowerCase().match(/sala|loja|galpao|galpão|comercial|escritorio|escritório|ponto/) ? 'Commercial' : 'Residential';
+    xml += '\n    <Listing>\n';
+    xml += '      <ListingID>'+esc(i.idExterno || i.idOriginal || i.id)+'</ListingID>\n';
+    xml += '      <Title><![CDATA['+( i.titulo || ((i.tipo||'Imóvel')+' em '+(i.bairro||'')))+']]></Title>\n';
+    xml += '      <TransactionType>'+transacao+'</TransactionType>\n';
+    xml += '      <PublicationType>STANDARD</PublicationType>\n';
+    xml += '      <DetailViewUrl>'+esc(i.url || i.urlPublica || i.url_publica || '')+'</DetailViewUrl>\n';
+    xml += '      <VirtualTourLink>'+esc(i.tourVirtual || i.tour_virtual || '')+'</VirtualTourLink>\n';
+    xml += '      <Details>\n';
+    xml += '        <UsageType>'+usageType+'</UsageType>\n';
+    xml += '        <PropertyType>'+esc(i.tipo || 'Apartamento')+'</PropertyType>\n';
+    xml += '        <Description><![CDATA['+( i.descricao || '')+']]></Description>\n';
+    xml += '        <ListPrice currency="BRL">'+(i.valor_imovel || i.valor || 0)+'</ListPrice>\n';
+    if(transacao === 'For Rent') xml += '        <RentalPrice currency="BRL">'+(i.valor_imovel || i.valor || 0)+'</RentalPrice>\n';
+    xml += '        <Iptu currency="BRL" period="Yearly">'+(i.iptu || 0)+'</Iptu>\n';
+    xml += '        <PropertyAdministrationFee currency="BRL">'+(i.condominio || 0)+'</PropertyAdministrationFee>\n';
+    xml += '        <LivingArea unit="square metres">'+(i.area_m2 || i.area || 0)+'</LivingArea>\n';
+    xml += '        <LotArea unit="square metres">'+(i.area_total || i.area_m2 || 0)+'</LotArea>\n';
+    xml += '        <BuiltArea unit="square metres">'+(i.area_construida || 0)+'</BuiltArea>\n';
+    xml += '        <Bedrooms>'+(i.quartos || 0)+'</Bedrooms>\n';
+    xml += '        <Bathrooms>'+(i.banheiros || 0)+'</Bathrooms>\n';
+    xml += '        <Suite>'+(i.suites || 0)+'</Suite>\n';
+    xml += '        <Garage>'+(i.vagas || 0)+'</Garage>\n';
+    xml += '        <YearBuilt>'+esc(i.anoConstrucao || i.anoContrucao || i.ano_construcao || '')+'</YearBuilt>\n';
+    xml += '        <TotalFloors>'+(i.totalAndares || i.total_andares || 0)+'</TotalFloors>\n';
+    xml += '        <UnitFloor>'+esc(i.andar || '')+'</UnitFloor>\n';
+    xml += '        <AcceptsFinancing>'+esc(i.aceitaFinanciamento || i.aceita_financiamento || 'a_combinar')+'</AcceptsFinancing>\n';
+    xml += '        <AcceptsExchange>'+esc(i.aceitaPermuta || i.aceita_permuta || 'nao')+'</AcceptsExchange>\n';
+    if (i.diferenciais && i.diferenciais.length) {
+      xml += '        <Features>\n';
+      i.diferenciais.forEach(d => { xml += '          <Feature>'+esc(d)+'</Feature>\n'; });
+      xml += '        </Features>\n';
+    }
+    xml += '      </Details>\n';
+    xml += '      <Media>\n';
+    fotos.forEach((f, idx) => {
+      const url = typeof f === 'string' ? f : (f.url || '');
+      if(url) xml += '        <Item primary="'+(idx===0?'true':'false')+'" type="IMAGE">'+esc(url)+'</Item>\n';
+    });
+    xml += '      </Media>\n';
+    xml += '      <Location>\n';
+    xml += '        <Country abbreviation="BR">Brasil</Country>\n';
+    xml += '        <State abbreviation="'+esc((i.estado||'SP').toUpperCase())+'"><![CDATA['+( i.estado||'SP')+']]></State>\n';
+    xml += '        <City><![CDATA['+( i.cidade||'')+']]></City>\n';
+    xml += '        <Neighborhood><![CDATA['+( i.bairro||'')+']]></Neighborhood>\n';
+    xml += '        <Address><![CDATA['+( i.endereco || i.logradouro ||'')+']]></Address>\n';
+    xml += '        <StreetNumber>'+esc(i.numero || '')+'</StreetNumber>\n';
+    xml += '        <Complement>'+esc(i.complemento || '')+'</Complement>\n';
+    xml += '        <PostalCode>'+esc(String(i.cep||'').replace(/\D/g,''))+'</PostalCode>\n';
+    xml += '        <Latitude>'+esc(i.latitude || '')+'</Latitude>\n';
+    xml += '        <Longitude>'+esc(i.longitude || '')+'</Longitude>\n';
+    xml += '      </Location>\n';
+    xml += '      <ContactInfo>\n';
+    xml += '        <Name>'+esc(i.corretor_nome || i.usuario_nome || 'Matchimoveis')+'</Name>\n';
+    xml += '        <Email>'+esc(i.corretor_email || i.usuario_email || 'contato@matchimoveis.ia.br')+'</Email>\n';
+    xml += '        <Website>https://matchimoveis.ia.br</Website>\n';
+    xml += '        <Telephone>'+esc(i.corretor_telefone || i.usuario_telefone || '')+'</Telephone>\n';
+    xml += '      </ContactInfo>\n';
+    xml += '    </Listing>\n';
   });
-  xml += `\n  </listings>\n</listingDataFeed>`;
+
+  xml += '  </Listings>\n</ListingDataFeed>';
   return xml;
 }
 

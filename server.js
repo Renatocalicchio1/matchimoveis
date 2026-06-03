@@ -395,6 +395,37 @@ input:focus{border-color:#111;}button{background:#111;color:#fff;border:none;bor
       <button type="submit">Salvar</button>
     </form>
   </div>
+  <div class="card">
+    <h2>Importar XML de Imóveis</h2>
+    <p style="font-size:12px;color:#888;margin-bottom:12px;">Padrão VivaReal/ZAP. Os imóveis serão importados para esta conta.</p>
+    <form id="formXml" onsubmit="importarXml(event)">
+      <label>Arquivo XML</label>
+      <input type="file" id="arquivoXml" accept=".xml" required style="margin-bottom:12px;">
+      <button type="submit" id="btnXml">Importar XML</button>
+      <div id="xmlStatus" style="margin-top:10px;font-size:12px;color:#888;"></div>
+    </form>
+    <script>
+    async function importarXml(e){
+      e.preventDefault();
+      const btn = document.getElementById('btnXml');
+      const status = document.getElementById('xmlStatus');
+      const file = document.getElementById('arquivoXml').files[0];
+      if(!file) return;
+      btn.disabled=true; btn.textContent='Importando...';
+      status.textContent='Enviando arquivo...';
+      const fd = new FormData();
+      fd.append('arquivo', file);
+      try {
+        const r = await fetch('/app/importar-xml-upload?userId=${u.codigo_usuario}', {method:'POST',body:fd});
+        const d = await r.json();
+        status.textContent = d.ok ? '✅ '+d.mensagem : '❌ '+d.erro;
+      } catch(err) {
+        status.textContent = '❌ Erro: '+err.message;
+      }
+      btn.disabled=false; btn.textContent='Importar XML';
+    }
+    </script>
+  </div>
 </div>
 </body></html>`);
   } catch(e) { res.send('Erro: ' + e.message); }

@@ -334,7 +334,7 @@ app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
         const xml = gerarXMLPortal(filtrados, portal);
         fs.writeFileSync(dataPath(filename), xml, 'utf8');
         const _urlXml = '/feed-xml/'+portal+'/'+token;
-        await _q('INSERT INTO xml_feeds (user_id, portal, url, total, arquivo, last_sync_at, ativo) VALUES ($1,$2,$3,$4,$5,$6,true) ON CONFLICT (user_id, portal) DO UPDATE SET arquivo=EXCLUDED.arquivo, url=EXCLUDED.url, total=EXCLUDED.total, last_sync_at=EXCLUDED.last_sync_at', [userId, portal, _urlXml, filtrados.length, xml, new Date().toISOString()]).catch(()=>{});
+        _q('INSERT INTO xml_feeds (user_id, portal, url, total, arquivo, last_sync_at, ativo) VALUES ($1,$2,$3,$4,$5,$6,true) ON CONFLICT (user_id, portal) DO UPDATE SET arquivo=EXCLUDED.arquivo, url=EXCLUDED.url, total=EXCLUDED.total, last_sync_at=EXCLUDED.last_sync_at', [userId, portal, _urlXml, filtrados.length, xml, new Date().toISOString()]).catch(()=>{});
         resultados.push(portal+': '+filtrados.length+' imóveis → '+filename);
       } else {
         resultados.push(portal+': 0 imóveis (pulado)');

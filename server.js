@@ -296,9 +296,6 @@ tr:hover td{background:#fafafa;}
     <table>
       <thead><tr><th>Ação</th><th>Rota</th><th>Descrição</th></tr></thead>
       <tbody>
-        <tr><td><a href="/admin/regenerar-xml/ALE-DXDS" style="color:#16a34a;font-weight:600;">▶ Executar</a></td><td style="font-family:monospace;font-size:11px;">/admin/regenerar-xml/ALE-DXDS</td><td>Regenera todos os XMLs do Alexandre</td></tr>
-        <tr><td><a href="/admin/regenerar-xml/MAR-7KWU" style="color:#16a34a;font-weight:600;">▶ Executar</a></td><td style="font-family:monospace;font-size:11px;">/admin/regenerar-xml/MAR-7KWU</td><td>Regenera todos os XMLs do Mario</td></tr>
-        <tr><td><a href="/admin/regenerar-xml/REN-HUH6" style="color:#16a34a;font-weight:600;">▶ Executar</a></td><td style="font-family:monospace;font-size:11px;">/admin/regenerar-xml/REN-HUH6</td><td>Regenera todos os XMLs do Renato</td></tr>
         <tr><td><span style="color:#888;font-size:11px;">Ver usuário</span></td><td style="font-family:monospace;font-size:11px;">/admin/usuario/:codigo</td><td>Ver detalhes, alterar senha e fazer upload de XML</td></tr>
         <tr><td><span style="color:#e8404a;font-size:11px;">⚠ Deletar</span></td><td style="font-family:monospace;font-size:11px;">/admin/deletar/:codigo</td><td>Deleta usuário e todos os dados</td></tr>
       </tbody>

@@ -2053,6 +2053,28 @@ app.get('/app/leads', auth, async (req,res)=>{
       l.matchCount = l.matchCountBase || 0;
     }
   });
+  // Conta quantas vezes cada telefone gerou lead
+  const _foneCount = {};
+  const _todasLeadsCount = Array.isArray(raw) ? raw : (raw.results || []);
+  _todasLeadsCount.filter(l => l.tipoLead !== 'corretor').forEach(l => {
+    const fone = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,'').slice(-8);
+    if(fone) _foneCount[fone] = (_foneCount[fone]||0) + 1;
+  });
+  leads.forEach(l => {
+    const fone = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,'').slice(-8);
+    l._vezesEntrou = fone ? (_foneCount[fone]||1) : 1;
+  });
+  // Conta quantas vezes cada telefone gerou lead
+  const _foneCount = {};
+  const _todasLeadsCount = Array.isArray(raw) ? raw : (raw.results || []);
+  _todasLeadsCount.filter(l => l.tipoLead !== 'corretor').forEach(l => {
+    const fone = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,'').slice(-8);
+    if(fone) _foneCount[fone] = (_foneCount[fone]||0) + 1;
+  });
+  leads.forEach(l => {
+    const fone = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,'').slice(-8);
+    l._vezesEntrou = fone ? (_foneCount[fone]||1) : 1;
+  });
   // Leads com match primeiro, depois por data
   leads.sort((a, b) => {
     const da = new Date(a.ultimaMensagemEm || a.scoreAtualizadoEm || a.criadoEm || a.data_cadastro || 0);

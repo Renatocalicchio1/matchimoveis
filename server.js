@@ -333,6 +333,8 @@ app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
       if(filtrados.length > 0){
         const xml = gerarXMLPortal(filtrados, portal);
         fs.writeFileSync(dataPath(filename), xml, 'utf8');
+        const _urlXml = '/feed-xml/'+portal+'/'+token;
+        await _q('INSERT INTO xml_feeds (user_id, portal, url, total, arquivo, last_sync_at, ativo) VALUES ($1,$2,$3,$4,$5,$6,true) ON CONFLICT (user_id, portal) DO UPDATE SET arquivo=EXCLUDED.arquivo, url=EXCLUDED.url, total=EXCLUDED.total, last_sync_at=EXCLUDED.last_sync_at', [userId, portal, _urlXml, filtrados.length, xml, new Date().toISOString()]).catch(()=>{});
         resultados.push(portal+': '+filtrados.length+' imóveis → '+filename);
       } else {
         resultados.push(portal+': 0 imóveis (pulado)');
@@ -405,6 +407,16 @@ app.post('/admin/usuario/:codigo/senha', authAdmin, async (req, res) => {
 });
 // ═══════════════════════════════════════════════════════
 app.get('/health',(req,res)=>res.json({ok:true,ts:new Date().toISOString()}));
+app.get('/feed-xml/:portal/:token', async (req, res) => {
+  try {
+    const { query: _qfx } = require('./services/db');
+    const userId = req.params.token.replace(/-/g, match => match);
+    const r = await _qfx('SELECT arquivo FROM xml_feeds WHERE portal=$1 AND user_id=$2 AND ativo=true', [req.params.portal, req.params.token]);
+    if(!r.rows.length || !r.rows[0].arquivo) return res.status(404).send('XML não encontrado');
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.send(r.rows[0].arquivo);
+  } catch(e) { res.status(500).send('Erro: '+e.message); }
+});
 app.get('/', (req,res)=>{
   if (req.session && req.session.user) {
     const ua = req.headers['user-agent'] || '';
@@ -4426,6 +4438,9 @@ async function regenerarXMLUsuario(userId) {
         const xml = gerarXMLPortal(filtrados, portal);
         fs.writeFileSync(dataPath(filename), xml, 'utf8');
         console.log('[xml] '+filename+': '+filtrados.length+' imóveis');
+        const _urlXmlE = '/feed-xml/'+portal+'/'+token;
+        const { query: _qXml } = require('./services/db');
+        _qXml('INSERT INTO xml_feeds (user_id, portal, url, total, arquivo, last_sync_at, ativo) VALUES ($1,$2,$3,$4,$5,$6,true) ON CONFLICT (user_id, portal) DO UPDATE SET arquivo=EXCLUDED.arquivo, url=EXCLUDED.url, total=EXCLUDED.total, last_sync_at=EXCLUDED.last_sync_at', [userId, portal, _urlXmlE, filtrados.length, xml, new Date().toISOString()]).catch(()=>{});
       } else {
         // Remove XML se não tem imóveis para esse portal
         const filepath = dataPath(filename);
@@ -4792,25 +4807,21 @@ function gerarXMLPortal(imoveis, portal){
 
 
 
-app.get('/app/portais', auth, (req,res)=>{
+app.get('/app/portais', auth, async (req,res)=>{
   const portais = ['olx','zap','vivareal','chaves','imovelweb','123i','quintoandar'];
-  const todos = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
-  const imoveis = filtrarPorUsuario(todos, req.session.user);
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
+  const { query: _qp } = require('./services/db');
+  const pgFeeds = await _qp('SELECT portal, url, total, last_sync_at FROM xml_feeds WHERE user_id=$1 AND ativo=true', [req.session.user.id]).catch(()=>({rows:[]}));
+  const pgMap = {};
+  pgFeeds.rows.forEach(r => { pgMap[r.portal] = r; });
   const xmlFeeds = portais.map(portal => {
     const filename = 'feed-'+portal+'-'+token+'.xml';
-    let total = 0;
-    let existe = false;
-    let geradoEm = null;
     const filepath = dataPath(filename);
-    if(fs.existsSync(filepath)){
-      existe = true;
-      const stat = fs.statSync(filepath);
-      geradoEm = new Date(stat.mtime).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'});
-      const conteudo = fs.readFileSync(filepath,'utf8');
-      total = (conteudo.match(/<[Ll]isting>/g)||[]).length;
-    }
-    return { portal, filename, url: '/'+filename, existe, total, geradoEm };
+    const pgEntry = pgMap[portal];
+    let existe = false, total = 0, geradoEm = null, url = '/'+filename;
+    if(pgEntry){ existe = true; total = pgEntry.total||0; geradoEm = pgEntry.last_sync_at ? new Date(pgEntry.last_sync_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) : null; url = pgEntry.url||url; }
+    else if(fs.existsSync(filepath)){ existe = true; const stat = fs.statSync(filepath); geradoEm = new Date(stat.mtime).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}); const conteudo = fs.readFileSync(filepath,'utf8'); total = (conteudo.match(/<[Ll]isting>/g)||[]).length; }
+    return { portal, filename, url, existe, total, geradoEm };
   });
   res.render('app-portais', { user: req.session.user, xmlFeeds });
 });

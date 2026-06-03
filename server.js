@@ -2018,7 +2018,7 @@ app.post('/app/excluir-xml', auth, async (req,res)=>{
 app.get('/app/cadastro', auth, async (req,res)=>{
   const users = (_cacheUsuarios || []);
   const u = users.find(u => u.id === req.session.user.id) || {};
-  const xmlFeeds = (await lerFeedsService(req.session.user.id)).map(f => ({
+  const xmlFeeds = (await lerFeedsService(req.session.user.id)).filter(f => f.url && !f.url.startsWith('/feed-xml')).map(f => ({
     url: f.url, lastSyncAt: f.lastSyncAt, total: f.total || 0
   }));
   res.render('app-cadastro', { user: req.session.user, xmlFeeds });

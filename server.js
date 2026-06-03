@@ -3333,7 +3333,16 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         const leadUserId = String(l.userId || l.codigoUsuario || l.corretorId || '');
         const fonesIgual = fone && fone.slice(-8) === telefone.slice(-8);
         const contaIgual = !_webhookUserId || !leadUserId || leadUserId === _webhookUserId;
-        return fonesIgual && contaIgual;
+        if (!fonesIgual || !contaIgual) return false;
+        // Se ja tem perfil minimo, nao usar esta lead — vai criar nova
+        const pf = l.perfilIA || {}; const d = l.dados || {}; const m = l.mapaIntencao || {};
+        const temPerfilMinimo = !!(pf.tipo||d.tipo||(m.tipo_imovel||[]).length) &&
+          !!(pf.intencao||d.intencao||(m.transacao||[]).length) &&
+          !!(pf.cidade||d.cidade||(m.cidade||[]).length) &&
+          !!(pf.bairro||d.bairro||(m.bairro||[]).length) &&
+          !!(pf.valorMax||d.valorMax||(m.valor||[]).length);
+        if (temPerfilMinimo) { console.log('[WEBHOOK WA] lead com perfil minimo — vai criar nova para:', telefone); return false; }
+        return true;
       }) || null;
     } catch(e) { console.error('[WEBHOOK WA] erro ao buscar lead:', e.message); }
 

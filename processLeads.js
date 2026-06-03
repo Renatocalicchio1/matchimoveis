@@ -9,6 +9,13 @@ const userId = process.argv[3] || '';
 
 if (!filePath) { console.error('Arquivo não informado'); process.exit(1); }
 
+const TIPOS_COMERCIAIS = ['sala','loja','galpao','galpão','escritorio','escritório','comercial','ponto comercial','industria','indústria','terreno comercial','predio','prédio','pavilhao','pavilhão'];
+
+function isComercial(tipo) {
+  if (!tipo) return false;
+  return TIPOS_COMERCIAIS.some(t => tipo.toLowerCase().includes(t));
+}
+
 function normalizarTelefone(tel) {
   if (!tel) return '';
   let t = String(tel).replace(/\D/g, '');
@@ -60,23 +67,25 @@ async function run() {
         bairro: row.Bairro || row.bairro || '',
         cidade: row.Cidade || row.cidade || '',
         estado: row.Estado || row.estado || '',
-        quartos: row.Quartos || row.quartos || '',
-        suites: row.Suites || row.suites || '',
-        vagas: row.Vagas || row.vagas || '',
-        banheiros: row.Banheiros || row.banheiros || '',
+        quartos: isComercial(row.Tipo || row.tipo) ? '' : (row.Quartos || row.quartos || ''),
+        suites: isComercial(row.Tipo || row.tipo) ? '' : (row.Suites || row.suites || ''),
+        vagas: isComercial(row.Tipo || row.tipo) ? '' : (row.Vagas || row.vagas || ''),
+        banheiros: isComercial(row.Tipo || row.tipo) ? '' : (row.Banheiros || row.banheiros || ''),
         area_min: row.Area_min || row.area_min || '',
         area_max: row.Area_max || row.area_max || '',
         valorMin: row.Valor_min || row.valor_min || '',
         valorMax: row.Valor_max || row.valor_max || '',
         observacoes: row.Observacoes || row.observacoes || '',
+        segmento: isComercial(row.Tipo || row.tipo) ? 'comercial' : 'residencial',
         perfilIA: {
           tipo: row.Tipo || row.tipo || '',
           intencao: row.Transacao || row.transacao || '',
           bairro: row.Bairro || row.bairro || '',
           cidade: row.Cidade || row.cidade || '',
           estado: row.Estado || row.estado || '',
-          quartos: row.Quartos || row.quartos || '',
+          quartos: isComercial(row.Tipo || row.tipo) ? '' : (row.Quartos || row.quartos || ''),
           valorMax: row.Valor_max || row.valor_max || '',
+          segmento: isComercial(row.Tipo || row.tipo) ? 'comercial' : 'residencial',
         },
         mensagens: [],
         matches: [],

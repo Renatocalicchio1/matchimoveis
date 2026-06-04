@@ -2186,6 +2186,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     const body = req.body || {};
     const userId = req.params.userId || '';
     console.log('[WEBHOOK IMOVELWEB] userId:', userId, '| body:', JSON.stringify(body));
+    require('fs').writeFileSync('/tmp/imovelweb-payload.json', JSON.stringify(body, null, 2));
     const { lerUsuarios: _luIW } = require('./services/salvarUsuario');
     const _users = await _luIW();
     const _user = _users.find(u => u.id === userId);

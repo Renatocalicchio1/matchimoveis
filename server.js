@@ -2192,16 +2192,20 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK IMOVELWEB] userId nao encontrado:', userId); return; }
     const eventId = body.idEvento || body.eventId || body.eventoId || body.id || '';
+    const _msgRaw = body.mensagem || body.message || body.txtMensagem || '';
+    const mensagemLimpa = _msgRaw.replace(/https?:\/\/[^\s]+/g, '').replace(/¡[^!]+!/g, '').trim();
     const telefone = (body.telefone || body.phoneNumber || body.phone || body.txtTelefone || '').replace(/\D/g,'');
-    const nome = body.nome || body.name || body.txtNome || telefone || '';
+    const nome = body.nome || body.name || body.txtNome || body.firstName || telefone || '';
+    const email = body.email || body.txtEmail || '';
     const lead = {
       id: Date.now().toString(),
       eventId,
       nome,
       email: body.email || body.txtEmail || '',
       telefone, whatsapp: telefone, contato: telefone,
-      mensagem: body.mensagem || body.message || body.txtMensagem || '',
-      idAnuncio: body.idAnuncio || body.referencia || body.reference || body.clientListingId || body.codigoAnuncio || body.originListingId || '',
+      mensagem: mensagemLimpa,
+      idAnuncio: body.idAnuncio || body.referencia || body.reference || body.internalReference || body.clientListingId || body.codigoAnuncio || body.originListingId || '',
+      eventId: body.eventId || body.idEvento || body.eventoId || body.id || '',
       fonte: 'ImovelWeb', origem: 'ImovelWeb', origemEntrada: 'webhook_imovelweb',
       userId, codigoUsuario: userId,
       status: 'novo', score: 0, temperatura: 'frio', faseFunil: 'novo',

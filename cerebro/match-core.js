@@ -419,7 +419,7 @@ return lead;
       if (estadoAncora) {
         _resImoveis = await _queryMatch(
           "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2 OR estado ILIKE $3)",
-          [userId, '%' + estadoAncora + '%', '%' + (_estadoMapC1[estadoAncora]||estadoAncora) + '%']
+          [userId, '%' + estadoAncora + '%', '%' + (estadoAncora) + '%']
         );
       } else {
         _resImoveis = await _queryMatch("SELECT * FROM imoveis WHERE user_id=$1 AND status='ativo'", [userId]);

@@ -43,7 +43,7 @@ async function processarLeadPortal(lead) {
     let imovel = null;
     if (idAnuncio) {
       imovel = await comRetry(async () => {
-        const r = await query("SELECT * FROM imoveis WHERE id_externo=$1 OR id=$1 LIMIT 1", [String(idAnuncio)]);
+        const r = await query("SELECT * FROM imoveis WHERE id_externo=$1 OR id_interno=$1 OR id=$1 LIMIT 1", [String(idAnuncio)]);
         return r.rows[0] || null;
       });
     }

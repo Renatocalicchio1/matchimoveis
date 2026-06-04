@@ -2180,6 +2180,35 @@ app.get('/logout', (req,res)=>{
 
 // WEBHOOK IMOVELWEB / GRUPO QUINTOANDAR - RECEBE LEADS
 // WEBHOOK IMOVELWEB — recebe lead do portal por userId
+
+// Auxiliar: cruzar idAnuncio com imóvel cadastrado e montar perfil da lead
+async function _cruzarImovelWebhook(lead, userId) {
+  const idAnuncio = lead.idAnuncio || '';
+  if (!idAnuncio) return;
+  try {
+    const { query: _qCruz } = require('./services/db');
+    const _res = await _qCruz('SELECT * FROM imoveis WHERE user_id=$1 AND (id_externo=$2 OR id_interno=$2 OR id=$2) LIMIT 1', [userId, idAnuncio]);
+    if (!_res.rows.length) return;
+    const _im = _res.rows[0];
+    const _d = _im.dados || {};
+    lead.tipo = _im.tipo || _d.tipo || lead.tipo || '';
+    lead.tipo_operacao = _im.transacao || _d.transacao || lead.tipo_operacao || 'comprar';
+    lead.bairro = _im.bairro || _d.bairro || lead.bairro || '';
+    lead.cidade = _im.cidade || _d.cidade || lead.cidade || '';
+    lead.estado = _im.estado || _d.estado || lead.estado || '';
+    lead.quartos = _im.quartos || _d.quartos || lead.quartos || '';
+    lead.valorMax = parseFloat(_im.valor_imovel || _d.valor_imovel || 0) * 1.35;
+    lead.valorMin = parseFloat(_im.valor_imovel || _d.valor_imovel || 0) * 0.65;
+    lead.imovelInteresse = _im.id;
+    lead.perfilIA = {
+      tipo: lead.tipo, intencao: lead.tipo_operacao,
+      bairro: lead.bairro, cidade: lead.cidade, estado: lead.estado,
+      quartos: lead.quartos, valorMax: lead.valorMax,
+    };
+    console.log('[WEBHOOK] imóvel cruzado:', _im.titulo || idAnuncio, '| bairro:', lead.bairro, '| cidade:', lead.cidade);
+  } catch(e) { console.error('[WEBHOOK] erro cruzar imóvel:', e.message); }
+}
+
 app.post('/webhook/imovelweb/:userId', async (req, res) => {
   res.status(200).send('OK');
   try {
@@ -2319,6 +2348,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     );
     if (_dup && !_temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK GRUPOOLX] duplicata ignorada:', telefone); return; }
     if (_dup && _temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK GRUPOOLX] perfil minimo — cria nova lead:', telefone); lead.id = Date.now().toString(); }
+    await _cruzarImovelWebhook(lead, userId);
     await _slOLX(lead);
     console.log('[WEBHOOK GRUPOOLX] lead salva:', lead.nome, '|', telefone, '| portal:', portal);
 
@@ -2385,6 +2415,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
       (telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
     );
     if (_dup) { console.log('[WEBHOOK 123i] duplicata ignorada:', telefone); return; }
+    await _cruzarImovelWebhook(lead, userId);
     await _sl123(lead);
     console.log('[WEBHOOK 123i] lead salva:', lead.nome, '|', telefone);
 
@@ -2443,6 +2474,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     );
     if (_dup && !_temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK CHAVES] duplicata ignorada:', telefone); return; }
     if (_dup && _temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK CHAVES] perfil minimo — cria nova lead:', telefone); lead.id = Date.now().toString(); }
+    await _cruzarImovelWebhook(lead, userId);
     await _slCH(lead);
     console.log('[WEBHOOK CHAVES] lead salva:', lead.nome, '|', telefone);
 

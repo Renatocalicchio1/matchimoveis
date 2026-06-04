@@ -2250,6 +2250,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     if (_dup && !_temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK IMOVELWEB] duplicata ignorada:', telefone); return; }
     if (_dup && _temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK IMOVELWEB] perfil minimo — cria nova lead:', telefone); lead.id = Date.now().toString(); }
     await _cruzarImovelWebhook(lead, userId);
+    console.log('[WEBHOOK IMOVELWEB] antes salvar | nome:', lead.nome, '| tel:', lead.telefone, '| origem:', lead.origem);
     await _slIW(lead);
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
     const _snapIW = { id: lead.id, userId, mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'' };

@@ -2249,37 +2249,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     );
     if (_dup && !_temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK IMOVELWEB] duplicata ignorada:', telefone); return; }
     if (_dup && _temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK IMOVELWEB] perfil minimo — cria nova lead:', telefone); lead.id = Date.now().toString(); }
-    // Cruzar com imóvel cadastrado pelo id_externo
-    const idAnuncio = lead.idAnuncio || '';
-    if (idAnuncio) {
-      try {
-        const { query: _qIW } = require('./services/db');
-        const _imRes = await _qIW('SELECT * FROM imoveis WHERE user_id=$1 AND (id_externo=$2 OR id_interno=$2 OR id=$2) LIMIT 1', [userId, idAnuncio]);
-        if (_imRes.rows.length) {
-          const _im = _imRes.rows[0];
-          const _dados = _im.dados || {};
-          lead.tipo = _im.tipo || _dados.tipo || '';
-          lead.tipo_operacao = _im.transacao || _dados.transacao || 'comprar';
-          lead.bairro = _im.bairro || _dados.bairro || '';
-          lead.cidade = _im.cidade || _dados.cidade || '';
-          lead.estado = _im.estado || _dados.estado || '';
-          lead.quartos = _im.quartos || _dados.quartos || '';
-          lead.valorMax = parseFloat(_im.valor_imovel || _dados.valor_imovel || 0) * 1.35;
-          lead.valorMin = parseFloat(_im.valor_imovel || _dados.valor_imovel || 0) * 0.65;
-          lead.imovelInteresse = _im.id;
-          lead.perfilIA = {
-            tipo: lead.tipo,
-            intencao: lead.tipo_operacao,
-            bairro: lead.bairro,
-            cidade: lead.cidade,
-            estado: lead.estado,
-            quartos: lead.quartos,
-            valorMax: lead.valorMax,
-          };
-          console.log('[WEBHOOK IMOVELWEB] imóvel cruzado:', _im.titulo || idAnuncio, '| bairro:', lead.bairro, '| valor:', lead.valorMax);
-        }
-      } catch(e) { console.error('[WEBHOOK IMOVELWEB] erro cruzar imóvel:', e.message); }
-    }
+    await _cruzarImovelWebhook(lead, userId);
     await _slIW(lead);
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
     const _snapIW = { id: lead.id, userId, mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'' };

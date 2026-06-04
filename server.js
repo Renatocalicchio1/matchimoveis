@@ -2225,7 +2225,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     if (idAnuncio) {
       try {
         const { query: _qIW } = require('./services/db');
-        const _imRes = await _qIW('SELECT * FROM imoveis WHERE user_id=$1 AND id_externo=$2 LIMIT 1', [userId, idAnuncio]);
+        const _imRes = await _qIW('SELECT * FROM imoveis WHERE user_id=$1 AND (id_externo=$2 OR id_interno=$2 OR id=$2) LIMIT 1', [userId, idAnuncio]);
         if (_imRes.rows.length) {
           const _im = _imRes.rows[0];
           const _dados = _im.dados || {};

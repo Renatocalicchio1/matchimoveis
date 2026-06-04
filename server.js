@@ -4877,7 +4877,7 @@ function gerarXMLPortal(imoveis, portal){
     const transacao = i.transacao === 'aluguel' ? 'For Rent' : 'For Sale';
     const usageType = (i.tipo||'').toLowerCase().match(/sala|loja|galpao|galpão|comercial|escritorio|escritório|ponto/) ? 'Commercial' : 'Residential';
     xml += '\n    <Listing>\n';
-    xml += '      <ListingID>'+esc(i.idExterno || i.idOriginal || i.id)+'</ListingID>\n';
+    xml += '      <ListingID>'+esc(i.idExterno || i.idOriginal || i.id_interno || i.idInterno || i.id)+'</ListingID>\n';
     xml += '      <Title><![CDATA['+( i.titulo || ((i.tipo||'Imóvel')+' em '+(i.bairro||'')))+']]></Title>\n';
     xml += '      <TransactionType>'+transacao+'</TransactionType>\n';
     xml += '      <PublicationType>STANDARD</PublicationType>\n';

@@ -50,8 +50,9 @@ function _levenshtein(a, b) {
 
 // Distância máxima permitida baseada no tamanho da palavra
 function _distMax(palavra) {
-  if (palavra.length <= 4) return 1;
-  if (palavra.length <= 7) return 2;
+  if (palavra.length <= 4) return 0; // palavras muito curtas: só match exato
+  if (palavra.length <= 6) return 1; // palavras curtas: distância 1 no máximo
+  if (palavra.length <= 9) return 2;
   return 3;
 }
 

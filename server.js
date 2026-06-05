@@ -7174,6 +7174,19 @@ app.get('/app/feed', auth, async (req, res) => {
         });
       });
     });
+    // mapa de bairros/cidades da carteira do usuário logado
+    const _meusImoveis = todos.filter(im => (im.user_id||im.userId||im.codigoUsuario) === myId);
+    const _carteiraMap = {};
+    _meusImoveis.forEach(im => {
+      const b = (im.bairro||'').toLowerCase().trim();
+      const c = (im.cidade||'').toLowerCase().trim();
+      if(b) _carteiraMap[b] = (_carteiraMap[b]||0) + 1;
+      if(c) _carteiraMap[c] = (_carteiraMap[c]||0) + 0.5;
+    });
+    // normaliza para score 0-100
+    const _carteiraMax = Math.max(...Object.values(_carteiraMap), 1);
+    const _carteiraScore = (key) => Math.round(((_carteiraMap[key]||0) / _carteiraMax) * 100);
+
     // extrai estado do endereco do usuario
     const _endUser = req.session.user?.endereco || '';
     const _estadoUser = (/Santa Catarina/.test(_endUser) ? 'santa catarina' : /São Paulo|Sao Paulo/.test(_endUser) ? 'são paulo' : '').toLowerCase();
@@ -7198,7 +7211,9 @@ app.get('/app/feed', auth, async (req, res) => {
       const _criado = im.criado_em ? new Date(im.criado_em).getTime() : 0;
       const _diasAtras = _criado ? Math.max(0, (Date.now() - _criado) / 86400000) : 999;
       const _recencia = Math.max(0, 30 - _diasAtras);
-      const _score = (lc.length * 10) + _demanda + _proxEstado + _proxCidade + _recencia;
+      const _carteiraBairro = _carteiraScore(_bairro);
+      const _carteiraCidade = _carteiraScore(_cidade);
+      const _score = (lc.length * 10) + _demanda + _proxEstado + _proxCidade + _recencia + _carteiraBairro + (_carteiraCidade * 0.5);
       return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score};
     });
     // intercala 1x1 por usuario — cada grupo ordenado por data desc
@@ -7213,7 +7228,7 @@ app.get('/app/feed', auth, async (req, res) => {
     _grupos.forEach(g => g.sort((a,b) => {
       const av = !!(a.tourVirtual||a.tour_virtual); const bv = !!(b.tourVirtual||b.tour_virtual);
       if(av && !bv) return -1; if(!av && bv) return 1;
-      return new Date(b.criado_em||b.criadoEm||0) - new Date(a.criado_em||a.criadoEm||0);
+      return (b._score||0) - (a._score||0);
     }));
     // move vídeos para topo de cada grupo, depois intercala 1x1
     _grupos.forEach(g => {

@@ -659,6 +659,7 @@ class MatchCore {
   async _salvarLead(lead) {
     try {
       const { salvarLead } = require('../services/salvarLead');
+      console.log('[MATCH CORE] _salvarLead chamado | perfilIA:', JSON.stringify(lead.perfilIA || {}));
       await salvarLead(lead);
     } catch(e) {
       console.error('[MATCH CORE] erro salvar:', e.message);

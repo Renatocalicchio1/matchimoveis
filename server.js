@@ -2253,10 +2253,17 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     const _leads = await _llIW();
     const _dup = _leads.find(l =>
       (eventId && String(l.eventId||'') === String(eventId)) ||
-      (telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId)
+      (telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId) ||
+      (lead.idAnuncio && String(l.idAnuncio||'') === String(lead.idAnuncio) && l.userId === userId)
     );
-    if (_dup && !_temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK IMOVELWEB] duplicata ignorada:', telefone); return; }
-    if (_dup && _temPerfilMinimoLead(_dup)) { console.log('[WEBHOOK IMOVELWEB] perfil minimo — cria nova lead:', telefone); lead.id = Date.now().toString(); }
+    if (_dup && _temPerfilMinimoLead(_dup)) { 
+      console.log('[WEBHOOK IMOVELWEB] perfil minimo — cria nova lead:', telefone); 
+      lead.id = Date.now().toString(); 
+    } else if (_dup) {
+      // Atualiza lead existente com dados do webhook
+      console.log('[WEBHOOK IMOVELWEB] lead existente — atualizando dados:', _dup.id);
+      lead.id = _dup.id;
+    }
     await _cruzarImovelWebhook(lead, userId);
     console.log('[WEBHOOK IMOVELWEB] antes salvar | nome:', lead.nome, '| tel:', lead.telefone, '| origem:', lead.origem);
     await _slIW(lead);

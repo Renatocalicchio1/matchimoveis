@@ -193,11 +193,8 @@ function _renderPost(im, idx) {
 }
 
 // ── RENDER PAGE ─────────────────────────────────────────────
-let _feedOffset = 0;
 function renderPage() {
-  const _start = _feedOffset % Math.max(_imoveis.length,1);
-  const _end = _start + (_page+1)*_PAGE;
-  const slice = _end <= _imoveis.length ? _imoveis.slice(_start, _end) : [..._imoveis.slice(_start), ..._imoveis.slice(0, _end - _imoveis.length)];
+  const slice = _imoveis.slice(0, (_page+1)*_PAGE);
   const btn = '<div style="max-width:480px;margin:8px auto;padding:0 12px;"><button class="btn-atualizar" id="btn-feed-refresh">↻ Atualizar feed</button></div>';
   const sentinel = _imoveis.length > slice.length ? '<div id="feed-sentinel" style="height:40px"></div>' : '';
   document.getElementById('feed-inner').innerHTML = btn + slice.map(_renderPost).join('') + sentinel;
@@ -436,7 +433,7 @@ function trocarAba(aba){
   document.getElementById('tab-feed').classList.toggle('active', aba==='feed');
   document.getElementById('tab-favs').classList.toggle('active', aba==='favs');
   document.getElementById('tab-leads').classList.toggle('active', aba==='leads');
-  if(aba==='feed'){ _feedOffset=(_feedOffset||0)+_PAGE; if(_feedOffset>=_imoveis.length)_feedOffset=0; renderPage(); _marcarFavsBtns(); }
+  if(aba==='feed'){ if(_imoveis.length>1){_imoveis.push(_imoveis.shift());} _page=0; renderPage(); _marcarFavsBtns(); }
   else if(aba==='favs'){ renderFavs(); }
   else{ renderLeads(); }
 }

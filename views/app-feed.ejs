@@ -259,7 +259,7 @@ function _initCarousels() {
     wrap.addEventListener('pointerdown', e=>{
       const slide = track.children[cur];
       if(slide && slide.classList.contains('fp-slide-video')) return;
-      sx=e.clientX;drag=true;dx=0;try{wrap.setPointerCapture(e.pointerId);}catch(err){}
+      sx=e.clientX;drag=true;dx=0;
     });
     wrap.addEventListener('pointermove', e=>{if(!drag)return;dx=e.clientX-sx;});
     wrap.addEventListener('pointerup',   e=>{

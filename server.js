@@ -4958,10 +4958,11 @@ function gerarXMLPortal(imoveis, portal, user){
       }
       xml += '      </Details>\n';
       xml += '      <Media>\n';
+      if (i.tourVirtual) xml += '        <Item medium="video">'+esc(i.tourVirtual)+'</Item>\n';
       fotos.forEach((f, idx) => {
         let url = typeof f === 'string' ? f : f.url;
         if (url && url.startsWith('/')) url = 'https://matchimoveis.ia.br' + url;
-        xml += '        <Item primary="'+(idx===0?'true':'false')+'" type="IMAGE">'+esc(url)+'</Item>\n';
+        xml += '        <Item medium="image" caption="foto'+(idx+1)+'" primary="'+(idx===0?'true':'false')+'">'+esc(url)+'</Item>\n';
       });
       xml += '      </Media>\n';
       xml += '      <Location>\n';
@@ -5057,9 +5058,10 @@ function gerarXMLPortal(imoveis, portal, user){
     }
     xml += '      </Details>\n';
     xml += '      <Media>\n';
+    if (i.tourVirtual) xml += '        <Item medium="video">'+esc(i.tourVirtual)+'</Item>\n';
     fotos.forEach((f, idx) => {
       const url = typeof f === 'string' ? f : (f.url || '');
-      if(url) xml += '        <Item primary="'+(idx===0?'true':'false')+'" type="IMAGE">'+esc(url)+'</Item>\n';
+      if(url) xml += '        <Item medium="image" caption="foto'+(idx+1)+'" primary="'+(idx===0?'true':'false')+'">'+esc(url)+'</Item>\n';
     });
     xml += '      </Media>\n';
     xml += '      <Location>\n';

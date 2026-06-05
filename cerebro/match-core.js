@@ -269,8 +269,13 @@ return lead;
       // Merge inteligente — nunca perde dado já capturado
       const perfilAtual = lead.perfilIA || {};
       const merged = { ...perfilAtual };
+      const _ehPortal = (lead.origemEntrada||'').includes('webhook_') || ['ImovelWeb','ZAP Imóveis','VivaReal','Grupo OLX','123i','Chaves na Mão'].includes(lead.origem||'');
       for (const [k, v] of Object.entries(novoPerfil)) {
-        if (v !== undefined && v !== null && v !== '') merged[k] = v;
+        if (v !== undefined && v !== null && v !== '') {
+          // Se é portal e já tem dado do imóvel, não sobrescrever campos de localização/tipo
+          if (_ehPortal && perfilAtual[k] && ['bairro','cidade','estado','tipo','quartos','suites','vagas','banheiros','area'].includes(k)) continue;
+          merged[k] = v;
+        }
       }
 
       // Caso 1: complementa com dados do imóvel de interesse

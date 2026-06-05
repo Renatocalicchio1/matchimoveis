@@ -1,270 +1,217 @@
-<%- include('partials/app-shell', {active:'home',title:'Dashboard',subtitle:'Visão geral da sua operação em tempo real.',user:user}) %>
+<%- include('partials/app-shell', {active:'home',title:'Dashboard',subtitle:'',user:user}) %>
 <style>
-.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
-.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden;transition:box-shadow .2s}
-.kpi:hover{box-shadow:var(--shadow-md)}
-.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
-.kpi.green::after{background:#10b981}.kpi.blue::after{background:#3b82f6}.kpi.amber::after{background:#f59e0b}.kpi.purple::after{background:#8b5cf6}.kpi.teal::after{background:#14b8a6}.kpi.red::after{background:#ef4444}
-.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-sec);margin-bottom:6px;font-weight:500}
-.kpi-val{font-size:24px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
-.kpi-sub{font-size:10px;margin-top:4px;color:var(--text-ter)}
-.kpi-sub.up{color:#10b981}.kpi-sub.down{color:#ef4444}
-
-.dash-grid{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
-.dash-grid2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
-.dash-grid3{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
-
-.dcard{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
-.dcard-title{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-sec);font-weight:500;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-.dcard-title a{font-size:10px;color:var(--brand);text-decoration:none;text-transform:none;letter-spacing:0}
-
-.funil-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.funil-row:last-child{margin-bottom:0}
-.funil-lbl{font-size:11px;color:var(--text-sec);width:72px;flex-shrink:0}
-.funil-track{flex:1;height:8px;background:var(--border-light);border-radius:4px;overflow:hidden}
-.funil-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
-.funil-n{font-size:11px;font-weight:500;width:28px;text-align:right;font-variant-numeric:tabular-nums}
-
-.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0}
-.gauge-num{font-size:28px;font-weight:600;line-height:1;margin-top:-4px}
-.gauge-sub{font-size:10px;color:var(--text-ter);margin-top:4px}
-
-.hgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.hc{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;cursor:default}
-.h0{background:var(--border-light)}
-.h1{background:#dbeafe;color:#1d4ed8}
-.h2{background:#d1fae5;color:#065f46}
-.h3{background:#fef3c7;color:#92400e}
-.h4{background:#fee2e2;color:#991b1b}
-
+.ticker-bar{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.ticker-bar::-webkit-scrollbar{display:none}
+.tkr{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 15px;min-width:130px;flex-shrink:0;position:relative;overflow:hidden;cursor:default;transition:box-shadow .2s}
+.tkr:hover{box-shadow:var(--shadow-md)}
+.tkr::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.tkr.g::before{background:#10b981}.tkr.b::before{background:#3b82f6}.tkr.a::before{background:#f59e0b}.tkr.p::before{background:#8b5cf6}.tkr.t::before{background:#14b8a6}.tkr.r::before{background:#ef4444}
+.tkr-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-ter);margin-bottom:5px}
+.tkr-val{font-size:22px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.tkr-delta{font-size:10px;margin-top:3px}
+.tkr-delta.up{color:#10b981}.tkr-delta.dn{color:#ef4444}.tkr-delta.n{color:var(--text-ter)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.dc{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.dc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.dc-t{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-sec);font-weight:600}
+.dc-t a{font-size:10px;color:var(--brand);text-decoration:none;font-weight:400;text-transform:none;letter-spacing:0}
+.badge-xs{font-size:9px;padding:2px 6px;border-radius:20px;font-weight:500}
+.bxg{background:#d1fae5;color:#065f46}.bxb{background:#dbeafe;color:#1d4ed8}.bxa{background:#fef3c7;color:#92400e}.bxr{background:#fee2e2;color:#991b1b}
+.funil-vis{display:flex;flex-direction:column;gap:6px}
+.fv-row{display:flex;align-items:center;gap:8px}
+.fv-lbl{font-size:10px;color:var(--text-sec);width:80px;flex-shrink:0;text-align:right}
+.fv-bar{flex:1;position:relative;height:28px;border-radius:6px;overflow:hidden;background:rgba(0,0,0,.04)}
+.fv-bar-inner{position:absolute;left:0;top:0;bottom:0;border-radius:6px;transition:width 1.4s cubic-bezier(.16,1,.3,1)}
+.fv-num{font-size:11px;font-weight:600;position:relative;z-index:1;color:#fff;padding:0 8px;line-height:28px}
+.fv-pct{font-size:9px;color:var(--text-ter);width:32px;text-align:right;flex-shrink:0}
+.bairro-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bairro-row:last-child{margin-bottom:0}
+.bairro-nome{font-size:11px;color:var(--text-sec);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bairro-track{flex:1;height:10px;background:var(--border-light);border-radius:3px;overflow:hidden}
+.bairro-fill{height:100%;border-radius:3px}
+.bairro-cnt{font-size:10px;font-weight:600;width:20px;text-align:right;flex-shrink:0;color:var(--text-sec)}
 .lead-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border-light)}
 .lead-row:last-child{border-bottom:none}
-.lead-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
-.lead-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lead-src{font-size:10px;color:var(--text-ter)}
-.badge-sm{font-size:9px;padding:2px 6px;border-radius:20px;font-weight:500;flex-shrink:0}
-.badge-green{background:#d1fae5;color:#065f46}
-.badge-amber{background:#fef3c7;color:#92400e}
-.badge-blue{background:#dbeafe;color:#1d4ed8}
-
-.im-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light)}
-.im-row:last-child{border-bottom:none}
-.im-rk{font-size:10px;color:var(--text-ter);width:14px;flex-shrink:0}
-.im-tipo{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.im-loc{font-size:10px;color:var(--text-ter)}
-.im-cnt{font-size:12px;font-weight:600;color:#10b981;flex-shrink:0}
-
-.acao-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;text-decoration:none;color:var(--text);font-size:12px;margin-bottom:6px;border:1px solid var(--border);background:var(--white);transition:all .15s;font-weight:500}
-.acao-btn:hover{border-color:var(--brand);color:var(--brand);transform:translateX(2px)}
-.acao-btn:last-child{margin-bottom:0}
-.acao-ico{font-size:16px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-
-.clock-badge{font-family:monospace;font-size:11px;color:var(--text-sec);background:var(--border-light);padding:3px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:5px}
-.pulse-dot{width:6px;height:6px;border-radius:50%;background:#10b981;animation:pd 2s infinite;flex-shrink:0}
-@keyframes pd{0%,100%{opacity:1}50%{opacity:.3}}
-
-.score-ring{position:relative;display:inline-flex;align-items:center;justify-content:center}
-.score-num{font-size:22px;font-weight:600;position:absolute}
-
-@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.dash-grid{grid-template-columns:1fr}.dash-grid2{grid-template-columns:1fr 1fr}.dash-grid3{grid-template-columns:1fr}}
-@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.dash-grid2{grid-template-columns:1fr}}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.ln{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls{font-size:10px;color:var(--text-ter)}
+.top-im{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light)}
+.top-im:last-child{border-bottom:none}
+.top-rk{font-size:10px;color:var(--text-ter);width:14px;flex-shrink:0}
+.top-tipo{font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-loc{font-size:9px;color:var(--text-ter)}
+.top-cnt{font-size:12px;font-weight:700;color:#10b981;flex-shrink:0}
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0}
+.gauge-big{font-size:30px;font-weight:700;line-height:1;margin-top:-6px;letter-spacing:-1px}
+.gauge-sub{font-size:10px;color:var(--text-ter);margin-top:3px}
+.ins{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-radius:8px;margin-bottom:6px}
+.ins:last-child{margin-bottom:0}
+.ins-txt{font-size:11px;font-weight:500}
+.ins-lnk{font-size:10px;font-weight:500;text-decoration:none}
+.score-wrap{padding:10px 12px;background:var(--border-light);border-radius:8px;margin-bottom:6px}
+.score-lbl{font-size:10px;color:var(--text-ter);margin-bottom:6px}
+.score-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.score-fill{height:100%;border-radius:4px;transition:width 1.5s cubic-bezier(.16,1,.3,1)}
+.tipo-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:500;margin:2px}
+.clk-badge{font-size:10px;color:var(--text-ter);background:var(--border-light);padding:3px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
+.pdot{width:5px;height:5px;border-radius:50%;background:#10b981;animation:pd 2s infinite}
+@keyframes pd{0%,100%{opacity:1}50%{opacity:.2}}
+.evol-num{font-size:16px;font-weight:700;line-height:1}
+.evol-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+@media(max-width:1100px){.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
 </style>
 
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
   <div>
-    <h2 style="font-size:18px;font-weight:600;color:var(--dark)">Olá, <%= (user.nome||'').split(' ')[0] %> 👋</h2>
-    <p style="font-size:12px;color:var(--text-sec);margin-top:2px">Aqui está o resumo da sua operação</p>
+    <h2 style="font-size:17px;font-weight:700;color:var(--dark);letter-spacing:-.3px">Olá, <%= (user.nome||'').split(' ')[0] %> 👋</h2>
+    <p style="font-size:11px;color:var(--text-ter);margin-top:1px">Resumo da operação em tempo real</p>
   </div>
-  <div class="clock-badge"><span class="pulse-dot"></span><span id="clk">--:--:--</span></div>
+  <div class="clk-badge"><span class="pdot"></span><span id="clk"></span></div>
 </div>
 
-<!-- KPIs -->
-<div class="kpi-grid">
-  <div class="kpi green">
-    <div class="kpi-label">Imóveis</div>
-    <div class="kpi-val" id="ki"><%=stats.imoveisAtivos%></div>
-    <div class="kpi-sub">carteira ativa</div>
-  </div>
-  <div class="kpi blue">
-    <div class="kpi-label">Leads</div>
-    <div class="kpi-val" id="kl"><%=stats.leadsNovos%></div>
-    <div class="kpi-sub">no pipeline</div>
-  </div>
-  <div class="kpi amber">
-    <div class="kpi-label">Com match</div>
-    <div class="kpi-val" id="km"><%=stats.comMatch%></div>
-    <div class="kpi-sub up">↑ <%=stats.taxaMatch%>% taxa</div>
-  </div>
-  <div class="kpi teal">
-    <div class="kpi-label">Visitas</div>
-    <div class="kpi-val" id="kv"><%=stats.visitasAgendadas%></div>
-    <div class="kpi-sub">agendadas</div>
-  </div>
-  <div class="kpi purple">
-    <div class="kpi-label">Hoje</div>
-    <div class="kpi-val" id="kh"><%=stats.visitasHoje%></div>
-    <div class="kpi-sub">visitas hoje</div>
-  </div>
-  <div class="kpi red">
-    <div class="kpi-label">Matches</div>
-    <div class="kpi-val"><%=stats.matchesGerados%></div>
-    <div class="kpi-sub up">↑ total gerados</div>
-  </div>
+<div class="ticker-bar">
+  <div class="tkr g"><div class="tkr-lbl">Imóveis</div><div class="tkr-val" id="ki"><%= stats.imoveisAtivos %></div><div class="tkr-delta up">↑ carteira</div></div>
+  <div class="tkr b"><div class="tkr-lbl">Leads</div><div class="tkr-val" id="kl"><%= stats.leadsNovos %></div><div class="tkr-delta n">pipeline</div></div>
+  <div class="tkr a"><div class="tkr-lbl">Com match</div><div class="tkr-val" id="km"><%= stats.comMatch %></div><div class="tkr-delta up">↑ <%= stats.taxaMatch %>% taxa</div></div>
+  <div class="tkr t"><div class="tkr-lbl">Visitas</div><div class="tkr-val" id="kv"><%= stats.visitasAgendadas %></div><div class="tkr-delta n">agendadas</div></div>
+  <div class="tkr p"><div class="tkr-lbl">Hoje</div><div class="tkr-val" id="kh"><%= stats.visitasHoje %></div><div class="tkr-delta n">visitas hoje</div></div>
+  <div class="tkr r"><div class="tkr-lbl">Pendentes</div><div class="tkr-val"><%= stats.leadsNovos - stats.comMatch %></div><div class="tkr-delta dn">↓ sem match</div></div>
+  <div class="tkr g"><div class="tkr-lbl">Score</div><div class="tkr-val"><%= stats.scoreCarteira||0 %></div><div class="tkr-delta up">carteira</div></div>
 </div>
 
-<!-- LINHA 1: FUNIL + GAUGE + HEATMAP -->
-<div class="dash-grid">
-  <div class="dcard">
-    <div class="dcard-title">Funil de leads <span class="badge-sm badge-blue">ao vivo</span></div>
-    <%var ft=Math.max(stats.funnelLeads||1,1);var fd=[
-      {l:'Total leads',v:stats.funnelLeads,c:'#3b82f6',p:100},
-      {l:'Qualificando',v:Math.round(ft*.55),c:'#8b5cf6',p:55},
-      {l:'Com match',v:stats.funnelMatch,c:'#f59e0b',p:Math.round((stats.funnelMatch/ft)*100)},
-      {l:'Vitrine env.',v:stats.funnelVitrine||0,c:'#10b981',p:Math.round(((stats.funnelVitrine||0)/ft)*100)},
-      {l:'Visita agend.',v:stats.visitasAgendadas,c:'#14b8a6',p:Math.round((stats.visitasAgendadas/ft)*100)},
-    ];%>
-    <%fd.forEach(function(f){%>
-    <div class="funil-row">
-      <span class="funil-lbl"><%=f.l%></span>
-      <div class="funil-track"><div class="funil-fill" style="width:<%=f.p%>%;background:<%=f.c%>"></div></div>
-      <span class="funil-n"><%=f.v%></span>
+<div class="g3">
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Funil de conversão</span><span class="badge-xs bxb">ao vivo</span></div>
+    <% var ft=Math.max(stats.funnelLeads||1,1);var funnelRows=[{l:'Leads',v:stats.funnelLeads,c:'#3b82f6',p:100},{l:'Qualific.',v:Math.round(ft*.55),c:'#8b5cf6',p:55},{l:'Match',v:stats.funnelMatch,c:'#f59e0b',p:Math.round((stats.funnelMatch/ft)*100)},{l:'Vitrine',v:stats.funnelVitrine||0,c:'#10b981',p:Math.round(((stats.funnelVitrine||0)/ft)*100)},{l:'Visita',v:stats.visitasAgendadas,c:'#14b8a6',p:Math.round((stats.visitasAgendadas/ft)*100)}]; %>
+    <div class="funil-vis">
+    <% funnelRows.forEach(function(f){ %>
+    <div class="fv-row"><span class="fv-lbl"><%= f.l %></span><div class="fv-bar"><div class="fv-bar-inner" style="width:<%= f.p %>%;background:<%= f.c %>"></div><span class="fv-num"><%= f.v %></span></div><span class="fv-pct"><%= f.p %>%</span></div>
+    <% }); %>
     </div>
-    <%});%>
   </div>
 
-  <div style="display:flex;flex-direction:column;gap:14px">
-    <div class="dcard">
-      <div class="dcard-title">Taxa de match</div>
-      <%var tp=stats.taxaMatch||0;var gc=tp>60?'#10b981':tp>30?'#f59e0b':'#ef4444';var tr=(tp/100)*180;var trad=(tr-180)*Math.PI/180;var tx=(70+50*Math.cos(trad)).toFixed(1);var ty=(70+50*Math.sin(trad)).toFixed(1);%>
-      <div class="gauge-wrap">
-        <svg width="130" height="75" viewBox="0 0 140 80">
-          <path d="M 20 70 A 50 50 0 0 1 120 70" fill="none" stroke="var(--border-light)" stroke-width="10" stroke-linecap="round"/>
-          <path d="M 20 70 A 50 50 0 0 1 <%=tx%> <%=ty%>" fill="none" stroke="<%=gc%>" stroke-width="10" stroke-linecap="round"/>
-        </svg>
-        <div class="gauge-num" style="color:<%=gc%>"><%=tp%>%</div>
-        <div class="gauge-sub">leads com match</div>
-      </div>
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Evolução semanal</span><span class="badge-xs bxg">4 semanas</span></div>
+    <% var evol=JSON.parse(stats.evolucaoSemanal||'[0,0,0,0]');var semLabels=['Sem -3','Sem -2','Sem -1','Esta sem'];var semCores=['#e0e7ff','#c7d2fe','#818cf8','#4f46e5']; %>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+    <% evol.forEach(function(v,i){ %>
+    <div style="background:<%= semCores[i] %>;border-radius:8px;padding:9px 11px">
+      <div class="evol-num" style="color:<%= i>=2?'#fff':'#4f46e5' %>"><%= v %></div>
+      <div class="evol-lbl" style="color:<%= i>=2?'rgba(255,255,255,.7)':'#6366f1' %>"><%= semLabels[i] %></div>
     </div>
+    <% }); %>
+    </div>
+    <div style="position:relative;height:80px"><canvas id="cevol" role="img" aria-label="Evolução de leads"></canvas></div>
+  </div>
 
-    <div class="dcard">
-      <div class="dcard-title">Calor do pipeline <span class="badge-sm badge-amber">heatmap</span></div>
-      <div style="display:flex;gap:6px;font-size:9px;color:var(--text-ter);margin-bottom:6px;flex-wrap:wrap">
-        <span><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:#fee2e2;margin-right:2px"></span>Hot</span>
-        <span><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:#fef3c7;margin-right:2px"></span>Morno</span>
-        <span><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:#d1fae5;margin-right:2px"></span>Ativo</span>
-        <span><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:#dbeafe;margin-right:2px"></span>Frio</span>
-      </div>
-      <div class="hgrid" id="hm"></div>
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Taxa de match</span></div>
+    <% var tp=stats.taxaMatch||0;var gc=tp>60?'#10b981':tp>30?'#f59e0b':'#ef4444';var tr2=(tp/100)*180;var trad=(tr2-180)*Math.PI/180;var tx=(70+50*Math.cos(trad)).toFixed(1);var ty=(70+50*Math.sin(trad)).toFixed(1); %>
+    <div class="gauge-wrap">
+      <svg width="130" height="75" viewBox="0 0 140 80">
+        <path d="M 20 70 A 50 50 0 0 1 120 70" fill="none" stroke="var(--border-light)" stroke-width="12" stroke-linecap="round"/>
+        <path d="M 20 70 A 50 50 0 0 1 <%= tx %> <%= ty %>" fill="none" stroke="<%= gc %>" stroke-width="12" stroke-linecap="round"/>
+        <circle cx="<%= tx %>" cy="<%= ty %>" r="4" fill="<%= gc %>"/>
+      </svg>
+      <div class="gauge-big" style="color:<%= gc %>"><%= tp %>%</div>
+      <div class="gauge-sub">leads com match</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:10px">
+      <div style="padding:7px;background:#fee2e2;border-radius:7px;text-align:center"><div style="font-size:14px;font-weight:700;color:#991b1b"><%= stats.leadsFrias||0 %></div><div style="font-size:9px;color:#991b1b">Frias</div></div>
+      <div style="padding:7px;background:#fef3c7;border-radius:7px;text-align:center"><div style="font-size:14px;font-weight:700;color:#92400e"><%= stats.leadsMornas||0 %></div><div style="font-size:9px;color:#92400e">Mornas</div></div>
+      <div style="padding:7px;background:#d1fae5;border-radius:7px;text-align:center"><div style="font-size:14px;font-weight:700;color:#065f46"><%= stats.leadsQuentes||0 %></div><div style="font-size:9px;color:#065f46">Quentes</div></div>
     </div>
   </div>
 </div>
 
-<!-- LINHA 2: LEADS + TOP IMÓVEIS + AÇÕES -->
-<div class="dash-grid2">
-  <div class="dcard">
-    <div class="dcard-title">Leads recentes <a href="/app/leads">ver todos →</a></div>
-    <%var avCores=[['#dbeafe','#1d4ed8'],['#d1fae5','#065f46'],['#ede9fe','#5b21b6'],['#fef3c7','#92400e'],['#fee2e2','#991b1b']];var rec=locals.recentes||[];%>
-    <%if(!rec.length){%><div style="text-align:center;padding:20px;color:var(--text-ter);font-size:12px">Nenhum lead ainda</div><%}%>
-    <%rec.slice(0,5).forEach(function(l,i){var tm=(l.matches&&l.matches.length>0)||(l.matchesAuto&&l.matchesAuto.length>0);var c=avCores[i%5];%>
-    <div class="lead-row">
-      <div class="lead-av" style="background:<%=c[0]%>;color:<%=c[1]%>"><%=(l.nome||'?').charAt(0).toUpperCase()%></div>
-      <div style="flex:1;min-width:0">
-        <div class="lead-name"><%=l.nome||l.telefone||'Lead'%></div>
-        <div class="lead-src"><%=l.origem||'WhatsApp'%> · <%=(l.perfilIA&&l.perfilIA.cidade)||l.cidade||'—'%></div>
-      </div>
-      <%if(tm){%><span class="badge-sm badge-green">match</span><%}else{%><span class="badge-sm" style="background:var(--border-light);color:var(--text-ter)">novo</span><%}%>
-    </div>
-    <%});%>
+<div class="g3">
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Regiões mais buscadas</span><span class="badge-xs bxa">demanda</span></div>
+    <div id="bairros-grid"></div>
   </div>
 
-  <div class="dcard">
-    <div class="dcard-title">Top imóveis <a href="/app/imoveis">ver todos →</a></div>
-    <%var top=locals.topImoveis||[];%>
-    <%if(!top.length){%><div style="text-align:center;padding:20px;color:var(--text-ter);font-size:11px">Sem dados ainda</div><%}%>
-    <%top.slice(0,5).forEach(function(im,i){%>
-    <div class="im-row">
-      <span class="im-rk">#<%=i+1%></span>
-      <div style="flex:1;min-width:0">
-        <div class="im-tipo"><%=im.titulo||im.tipo||'Imóvel'%></div>
-        <div class="im-loc"><%=im.bairro||''%><%=im.cidade?', '+im.cidade:''%></div>
-      </div>
-      <span class="im-cnt"><%=im.cnt||0%></span>
-    </div>
-    <%});%>
-  </div>
-
-  <div class="dcard">
-    <div class="dcard-title">Ações rápidas</div>
-    <a href="/app/imovel/novo" class="acao-btn"><span class="acao-ico" style="background:#d1fae5">🏠</span>Cadastrar imóvel</a>
-    <a href="/app/leads" class="acao-btn"><span class="acao-ico" style="background:#dbeafe">👥</span>Ver leads</a>
-    <a href="/app/visitas" class="acao-btn"><span class="acao-ico" style="background:#ede9fe">📅</span>Agendar visita</a>
-    <a href="/app/portais" class="acao-btn"><span class="acao-ico" style="background:#fef3c7">📡</span>Portais / XML</a>
-    <a href="/app/assistente" class="acao-btn"><span class="acao-ico" style="background:#fee2e2">🤖</span>Assistente IA</a>
-  </div>
-</div>
-
-<!-- LINHA 3: GRÁFICO CANAIS + INSIGHTS -->
-<div class="dash-grid3">
-  <div class="dcard">
-    <div class="dcard-title">Leads por canal — 7 dias
-      <div style="display:flex;gap:10px;font-size:9px;color:var(--text-ter)">
-        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#3b82f6;margin-right:2px"></span>WhatsApp</span>
-        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#10b981;margin-right:2px"></span>VivaReal</span>
-        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#f59e0b;margin-right:2px"></span>ZAP</span>
-        <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#8b5cf6;margin-right:2px"></span>ImovelWeb</span>
-      </div>
-    </div>
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Leads por canal — 7d</span></div>
     <div style="position:relative;height:160px"><canvas id="cc" role="img" aria-label="Leads por canal"></canvas></div>
   </div>
 
-  <div class="dcard">
-    <div class="dcard-title">Insights da carteira</div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:<%=stats.imoveisSemFoto>0?'#fef3c7':'#d1fae5'%>;border-radius:8px">
-        <span style="font-size:11px;color:<%=stats.imoveisSemFoto>0?'#92400e':'#065f46'%>"><%=stats.imoveisSemFoto>0?'⚠️ '+stats.imoveisSemFoto+' imóvel(is) sem foto':'✅ Todos têm foto'%></span>
-        <%if(stats.imoveisSemFoto>0){%><a href="/app/imoveis" style="font-size:10px;color:#92400e;font-weight:500">corrigir</a><%}%>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:<%=stats.leadsQuentesSemVisita>0?'#fee2e2':'#d1fae5'%>;border-radius:8px">
-        <span style="font-size:11px;color:<%=stats.leadsQuentesSemVisita>0?'#991b1b':'#065f46'%>"><%=stats.leadsQuentesSemVisita>0?'🔥 '+stats.leadsQuentesSemVisita+' lead(s) quentes sem visita':'✅ Sem leads quentes pendentes'%></span>
-        <%if(stats.leadsQuentesSemVisita>0){%><a href="/app/leads" style="font-size:10px;color:#991b1b;font-weight:500">ver</a><%}%>
-      </div>
-      <div style="padding:10px 12px;background:var(--border-light);border-radius:8px">
-        <div style="font-size:10px;color:var(--text-ter);margin-bottom:4px">Bairro mais buscado</div>
-        <div style="font-size:13px;font-weight:600;color:var(--dark)"><%=stats.bairroMaisDemandado||'—'%></div>
-      </div>
-      <div style="padding:10px 12px;background:var(--border-light);border-radius:8px">
-        <div style="font-size:10px;color:var(--text-ter);margin-bottom:4px">Score da carteira</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:<%=stats.scoreCarteira||0%>%;background:<%=(stats.scoreCarteira||0)>70?'#10b981':(stats.scoreCarteira||0)>40?'#f59e0b':'#ef4444'%>;border-radius:3px"></div></div>
-          <span style="font-size:12px;font-weight:600;color:var(--dark)"><%=stats.scoreCarteira||0%></span>
-        </div>
-      </div>
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Tipos de imóvel</span><span class="badge-xs bxb">oferta</span></div>
+    <div style="position:relative;height:120px"><canvas id="ctipo" role="img" aria-label="Tipos de imóvel"></canvas></div>
+    <div id="tipo-pills" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:3px"></div>
+  </div>
+</div>
+
+<div class="g3">
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Leads recentes</span><a href="/app/leads">ver todos →</a></div>
+    <% var avCores=[['#dbeafe','#1d4ed8'],['#d1fae5','#065f46'],['#ede9fe','#5b21b6'],['#fef3c7','#92400e'],['#fee2e2','#991b1b']];var rec=locals.recentes||[]; %>
+    <% if(!rec.length){ %><div style="text-align:center;padding:20px;color:var(--text-ter);font-size:11px">Nenhum lead ainda</div><% } %>
+    <% rec.slice(0,5).forEach(function(l,i){var tm=(l.matches&&l.matches.length>0)||(l.matchesAuto&&l.matchesAuto.length>0);var c=avCores[i%5]; %>
+    <div class="lead-row">
+      <div class="av" style="background:<%= c[0] %>;color:<%= c[1] %>"><%= (l.nome||'?').charAt(0).toUpperCase() %></div>
+      <div style="flex:1;min-width:0"><div class="ln"><%= l.nome||l.telefone||'Lead' %></div><div class="ls"><%= l.origem||'WhatsApp' %> · <%= (l.perfilIA&&l.perfilIA.cidade)||l.cidade||'—' %></div></div>
+      <% if(tm){ %><span class="badge-xs bxg">match</span><% }else{ %><span class="badge-xs" style="background:var(--border-light);color:var(--text-ter)">novo</span><% } %>
+    </div>
+    <% }); %>
+  </div>
+
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Top imóveis</span><a href="/app/imoveis">ver todos →</a></div>
+    <% var top=locals.topImoveis||[]; %>
+    <% if(!top.length){ %><div style="text-align:center;padding:20px;color:var(--text-ter);font-size:11px">Sem dados ainda</div><% } %>
+    <% top.slice(0,5).forEach(function(im,i){ %>
+    <div class="top-im"><span class="top-rk">#<%= i+1 %></span><div class="top-info" style="flex:1;min-width:0"><div class="top-tipo"><%= im.titulo||im.tipo||'Imóvel' %></div><div class="top-loc"><%= im.bairro||'' %><%= im.cidade?', '+im.cidade:'' %></div></div><span class="top-cnt"><%= im.cnt||0 %></span></div>
+    <% }); %>
+    <div style="margin-top:10px;position:relative;height:70px"><canvas id="ctopim" role="img" aria-label="Top imóveis"></canvas></div>
+  </div>
+
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Saúde da carteira</span></div>
+    <div class="score-wrap">
+      <div class="score-lbl">Score — <strong><%= stats.scoreCarteira||0 %>/100</strong></div>
+      <div class="score-bar"><div class="score-fill" id="score-fill" style="width:0%;background:<%= (stats.scoreCarteira||0)>70?'#10b981':(stats.scoreCarteira||0)>40?'#f59e0b':'#ef4444' %>"></div></div>
+    </div>
+    <div class="ins" style="background:<%= stats.imoveisSemFoto>0?'#fef3c7':'#d1fae5' %>">
+      <span class="ins-txt" style="color:<%= stats.imoveisSemFoto>0?'#92400e':'#065f46' %>"><%= stats.imoveisSemFoto>0?'⚠️ '+stats.imoveisSemFoto+' sem foto':'✅ Fotos ok' %></span>
+      <% if(stats.imoveisSemFoto>0){ %><a href="/app/imoveis" class="ins-lnk" style="color:#92400e">corrigir</a><% } %>
+    </div>
+    <div class="ins" style="background:<%= stats.leadsQuentesSemVisita>0?'#fee2e2':'#d1fae5' %>">
+      <span class="ins-txt" style="color:<%= stats.leadsQuentesSemVisita>0?'#991b1b':'#065f46' %>"><%= stats.leadsQuentesSemVisita>0?'🔥 '+stats.leadsQuentesSemVisita+' quentes s/ visita':'✅ Sem pendências' %></span>
+      <% if(stats.leadsQuentesSemVisita>0){ %><a href="/app/leads" class="ins-lnk" style="color:#991b1b">ver</a><% } %>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+      <div style="padding:8px 10px;background:var(--border-light);border-radius:7px"><div style="font-size:9px;color:var(--text-ter);margin-bottom:2px">+ buscado</div><div style="font-size:12px;font-weight:600;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= stats.bairroMaisDemandado||'—' %></div></div>
+      <div style="padding:8px 10px;background:var(--border-light);border-radius:7px"><div style="font-size:9px;color:var(--text-ter);margin-bottom:2px">+ oferta</div><div style="font-size:12px;font-weight:600;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= stats.bairroMaisOferta||'—' %></div></div>
     </div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-setInterval(function(){document.getElementById('clk').textContent=new Date().toLocaleTimeString('pt-BR');},1000);
-document.getElementById('clk').textContent=new Date().toLocaleTimeString('pt-BR');
-
-var hm=document.getElementById('hm');
-<%var leadsQuentes=stats.leadsQuentes||0;var leadsMornas=stats.leadsMornas||0;var leadsFrias=stats.leadsFrias||0;var leadsTotal=stats.leadsNovos||0;%>
-var hdata=[];
-for(var i=0;i<28;i++){
-  var r=Math.random();
-  var v=r<<%=leadsTotal>0?(leadsQuentes/leadsTotal*.3).toFixed(2):0.05%>?4:r<<%=leadsTotal>0?((leadsQuentes+leadsMornas)/leadsTotal*.5).toFixed(2):0.15%>?3:r<.6?2:r<.8?1:0;
-  var c=document.createElement('div');c.className='hc h'+v;c.textContent=v>0?v:'';c.title=['Inativo','Frio','Ativo','Morno','Hot'][v];hm.appendChild(c);
-}
-
-new Chart(document.getElementById('cc'),{type:'bar',data:{labels:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],datasets:[
-  {label:'WhatsApp',data:[3,5,4,6,4,2,1],backgroundColor:'rgba(59,130,246,.75)',borderRadius:3},
-  {label:'VivaReal',data:[1,2,3,2,3,1,0],backgroundColor:'rgba(16,185,129,.75)',borderRadius:3},
-  {label:'ZAP',data:[2,1,2,3,2,0,0],backgroundColor:'rgba(245,158,11,.75)',borderRadius:3},
-  {label:'ImovelWeb',data:[1,1,1,2,1,0,0],backgroundColor:'rgba(139,92,246,.75)',borderRadius:3}
-]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},color:'#9ca3af'}},y:{stacked:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},color:'#9ca3af'}}}}});
-
-function anim(id,final){var el=document.getElementById(id);if(!el)return;var s=Date.now();(function f(){var p=Math.min((Date.now()-s)/600,1);el.textContent=Math.round(p*final);if(p<1)requestAnimationFrame(f);})();}
+(function tick(){document.getElementById('clk').textContent=new Date().toLocaleTimeString('pt-BR');setTimeout(tick,1000);})();
+function anim(id,final){var el=document.getElementById(id);if(!el)return;var s=Date.now();(function f(){var p=Math.min((Date.now()-s)/700,1);el.textContent=Math.round(p*final);if(p<1)requestAnimationFrame(f);})();}
 anim('ki',<%=stats.imoveisAtivos%>);anim('kl',<%=stats.leadsNovos%>);anim('km',<%=stats.comMatch%>);anim('kv',<%=stats.visitasAgendadas%>);anim('kh',<%=stats.visitasHoje%>);
+setTimeout(function(){var el=document.getElementById('score-fill');if(el)el.style.width='<%=stats.scoreCarteira||0%>%';},300);
+
+var bairroData=<%- JSON.stringify((function(){var map={};(locals.topImoveis||[]).forEach(function(im){if(im.bairro)map[im.bairro]=(map[im.bairro]||0)+im.cnt;});return Object.entries(map).sort(function(a,b){return b[1]-a[1];}).slice(0,7).map(function(e){return{nome:e[0],cnt:e[1]};});})()) %>;
+var maxB=bairroData.reduce(function(m,b){return Math.max(m,b.cnt);},1);
+var bCores=['#4f46e5','#7c3aed','#2563eb','#0891b2','#059669','#d97706','#dc2626'];
+var bg=document.getElementById('bairros-grid');
+if(bairroData.length){bairroData.forEach(function(b,i){bg.innerHTML+='<div class="bairro-row"><span class="bairro-nome">'+b.nome+'</span><div class="bairro-track"><div class="bairro-fill" style="width:'+Math.round((b.cnt/maxB)*100)+'%;background:'+bCores[i%7]+'"></div></div><span class="bairro-cnt">'+b.cnt+'</span></div>';});}else{bg.innerHTML='<div style="text-align:center;padding:16px;color:var(--text-ter);font-size:11px">Dados insuficientes</div>';}
+
+new Chart(document.getElementById('cc'),{type:'bar',data:{labels:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],datasets:[{label:'WhatsApp',data:[3,5,4,6,4,2,1],backgroundColor:'rgba(59,130,246,.75)',borderRadius:3},{label:'VivaReal',data:[1,2,3,2,3,1,0],backgroundColor:'rgba(16,185,129,.75)',borderRadius:3},{label:'ZAP',data:[2,1,2,3,2,0,0],backgroundColor:'rgba(245,158,11,.75)',borderRadius:3},{label:'ImovelWeb',data:[1,1,1,2,1,0,0],backgroundColor:'rgba(139,92,246,.75)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:9},color:'#9ca3af'}},y:{stacked:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#9ca3af'}}}}});
+
+var tipoLabels=['Apart.','Casa','Cobert.','Terreno','Sala','Outros'];var tipoData=[45,25,12,8,6,4];var tipoCores=['#4f46e5','#7c3aed','#2563eb','#0891b2','#059669','#9ca3af'];
+new Chart(document.getElementById('ctipo'),{type:'doughnut',data:{labels:tipoLabels,datasets:[{data:tipoData,backgroundColor:tipoCores,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}});
+var pp=document.getElementById('tipo-pills');tipoLabels.forEach(function(l,i){pp.innerHTML+='<span class="tipo-pill" style="background:'+tipoCores[i]+'15;color:'+tipoCores[i]+'"><span style="width:5px;height:5px;border-radius:50%;background:'+tipoCores[i]+';display:inline-block"></span>'+l+'</span>';});
+
+var evolData=<%- stats.evolucaoSemanal||'[0,0,0,0]' %>;
+new Chart(document.getElementById('cevol'),{type:'line',data:{labels:['S-3','S-2','S-1','Atual'],datasets:[{data:evolData,borderColor:'#4f46e5',backgroundColor:'rgba(79,70,229,.1)',fill:true,tension:.4,pointBackgroundColor:'#4f46e5',pointRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9},color:'#9ca3af'}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#9ca3af'},beginAtZero:true}}}});
+
+var topData=<%- JSON.stringify((locals.topImoveis||[]).slice(0,5).map(function(im){return im.cnt||0;})) %>;var topLabels=<%- JSON.stringify((locals.topImoveis||[]).slice(0,5).map(function(im,i){return '#'+(i+1);})) %>;
+new Chart(document.getElementById('ctopim'),{type:'bar',data:{labels:topLabels,datasets:[{data:topData,backgroundColor:'rgba(16,185,129,.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9},color:'#9ca3af'}},y:{grid:{display:false},ticks:{font:{size:9},color:'#9ca3af'},beginAtZero:true}}}});
 </script>
 <%- include('partials/app-end') %>

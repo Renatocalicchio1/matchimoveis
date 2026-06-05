@@ -7209,8 +7209,12 @@ app.get('/app/feed', auth, async (req, res) => {
       _porUser[uid].push(im);
     });
     const _grupos = Object.values(_porUser);
-    // ordena cada grupo por data de criacao desc
-    _grupos.forEach(g => g.sort((a,b) => new Date(b.criado_em||b.criadoEm||0) - new Date(a.criado_em||a.criadoEm||0)));
+    // ordena cada grupo: vídeo primeiro, depois por data desc
+    _grupos.forEach(g => g.sort((a,b) => {
+      const av = !!(a.tourVirtual||a.tour_virtual); const bv = !!(b.tourVirtual||b.tour_virtual);
+      if(av && !bv) return -1; if(!av && bv) return 1;
+      return new Date(b.criado_em||b.criadoEm||0) - new Date(a.criado_em||a.criadoEm||0);
+    }));
     const _mix = [];
     const _max = Math.max(..._grupos.map(g => g.length));
     for(let i=0; i<_max; i++){

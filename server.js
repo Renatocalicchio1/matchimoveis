@@ -2299,7 +2299,14 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
             valorMax: _imIW ? parseFloat(_imIW.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: _imIW ? parseFloat(_imIW.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
           };
-          await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIAIW, bairro: _perfilIAIW.bairro, cidade: _perfilIAIW.cidade, estado: _perfilIAIW.estado, tipo: _perfilIAIW.tipo, tipo_operacao: _perfilIAIW.intencao });
+          // Buscar perfilIA atual para mesclar
+          const { query: _qMergeIW } = require('./services/db');
+          const _rMergeIW = await _qMergeIW('SELECT perfil_ia FROM leads WHERE id=$1', [lead.id]);
+          const _perfilAtualIW = _rMergeIW.rows[0]?.perfil_ia || {};
+          const _perfilFinalIW = { ..._perfilAtualIW, ..._perfilIAIW };
+          // Remover campos com valor vazio se já havia dado
+          Object.keys(_perfilFinalIW).forEach(k => { if(!_perfilFinalIW[k] && _perfilAtualIW[k]) _perfilFinalIW[k] = _perfilAtualIW[k]; });
+          await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalIW, bairro: _perfilFinalIW.bairro||'', cidade: _perfilFinalIW.cidade||'', estado: _perfilFinalIW.estado||'', tipo: _perfilFinalIW.tipo||'', tipo_operacao: _perfilFinalIW.intencao||'' });
           console.log('[WEBHOOK IMOVELWEB] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
@@ -2390,7 +2397,12 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
             valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
           };
-          await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
+          const { query: _qMergeOLX } = require('./services/db');
+          const _rMergeOLX = await _qMergeOLX('SELECT perfil_ia FROM leads WHERE id=$1', [lead.id]);
+          const _perfilAtualOLX = _rMergeOLX.rows[0]?.perfil_ia || {};
+          const _perfilFinalOLX = { ..._perfilAtualOLX, ..._perfilIA };
+          Object.keys(_perfilFinalOLX).forEach(k => { if(!_perfilFinalOLX[k] && _perfilAtualOLX[k]) _perfilFinalOLX[k] = _perfilAtualOLX[k]; });
+          await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalOLX, bairro: _perfilFinalOLX.bairro||'', cidade: _perfilFinalOLX.cidade||'', estado: _perfilFinalOLX.estado||'', tipo: _perfilFinalOLX.tipo||'', tipo_operacao: _perfilFinalOLX.intencao||'' });
           console.log('[WEBHOOK GRUPOOLX] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
@@ -2479,7 +2491,12 @@ app.post('/webhook/123i/:userId', async (req, res) => {
             valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
           };
-          await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
+          const { query: _qMerge123 } = require('./services/db');
+          const _rMerge123 = await _qMerge123('SELECT perfil_ia FROM leads WHERE id=$1', [lead.id]);
+          const _perfilAtual123 = _rMerge123.rows[0]?.perfil_ia || {};
+          const _perfilFinal123 = { ..._perfilAtual123, ..._perfilIA };
+          Object.keys(_perfilFinal123).forEach(k => { if(!_perfilFinal123[k] && _perfilAtual123[k]) _perfilFinal123[k] = _perfilAtual123[k]; });
+          await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinal123, bairro: _perfilFinal123.bairro||'', cidade: _perfilFinal123.cidade||'', estado: _perfilFinal123.estado||'', tipo: _perfilFinal123.tipo||'', tipo_operacao: _perfilFinal123.intencao||'' });
           console.log('[WEBHOOK 123i] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
@@ -2570,7 +2587,12 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
             valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
           };
-          await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
+          const { query: _qMergeCH } = require('./services/db');
+          const _rMergeCH = await _qMergeCH('SELECT perfil_ia FROM leads WHERE id=$1', [lead.id]);
+          const _perfilAtualCH = _rMergeCH.rows[0]?.perfil_ia || {};
+          const _perfilFinalCH = { ..._perfilAtualCH, ..._perfilIA };
+          Object.keys(_perfilFinalCH).forEach(k => { if(!_perfilFinalCH[k] && _perfilAtualCH[k]) _perfilFinalCH[k] = _perfilAtualCH[k]; });
+          await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalCH, bairro: _perfilFinalCH.bairro||'', cidade: _perfilFinalCH.cidade||'', estado: _perfilFinalCH.estado||'', tipo: _perfilFinalCH.tipo||'', tipo_operacao: _perfilFinalCH.intencao||'' });
           console.log('[WEBHOOK CHAVES] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;

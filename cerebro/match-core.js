@@ -267,7 +267,6 @@ class MatchCore {
       return lead;
     }
   }
-  }
 
   // ============================================================
   // 3. MEMORY ENGINE — acumula sem sobrescrever

@@ -2268,7 +2268,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     console.log('[WEBHOOK IMOVELWEB] antes salvar | nome:', lead.nome, '| tel:', lead.telefone, '| origem:', lead.origem);
     await _slIW(lead);
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
-    const _snapIW = { id: lead.id, userId, mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'' };
+    const _snapIW = { id: lead.id, userId, mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: lead.origemEntrada||'webhook_imovelweb', origem: lead.origem||'ImovelWeb' };
     console.log('[SNAPIW] mensagem:', (_snapIW.mensagem||'').substring(0,60), '| idAnuncio:', _snapIW.idAnuncio);
 
     setTimeout(async () => {
@@ -2376,7 +2376,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     console.log('[WEBHOOK GRUPOOLX] lead salva:', lead.nome, '|', telefone, '| portal:', portal);
 
     const _msgOLX = body.message || body.mensagem || lead.mensagem || '';
-    const _leadSnapshotGRUPOOLX = { id: lead.id, userId: lead.userId||lead.codigoUsuario||userId||'', mensagem: _msgOLX, idAnuncio: lead.idAnuncio||'' };
+    const _leadSnapshotGRUPOOLX = { id: lead.id, userId: lead.userId||lead.codigoUsuario||userId||'', mensagem: _msgOLX, idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: lead.origemEntrada||'webhook_grupoolx', origem: lead.origem||portal };
     setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');
@@ -2470,7 +2470,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
     console.log('[WEBHOOK 123i] lead salva:', lead.nome, '|', telefone);
 
     const _msg123 = body.message || body.mensagem || lead.mensagem || '';
-    const _leadSnapshot123i = { id: lead.id, userId: lead.userId||lead.codigoUsuario||userId||'', mensagem: _msg123, idAnuncio: lead.idAnuncio||'' };
+    const _leadSnapshot123i = { id: lead.id, userId: lead.userId||lead.codigoUsuario||userId||'', mensagem: _msg123, idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: lead.origemEntrada||'webhook_123i', origem: lead.origem||'123i' };
     setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');
@@ -2557,6 +2557,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
 
     const _msgCH = String(body.message || body.mensagem || lead.mensagem || '');
     const _refCH = String(body.reference || lead.idAnuncio || '');
+    const _leadSnapshotCHAVES = { id: lead.id, userId: lead.userId||lead.codigoUsuario||userId||'', mensagem: _msgCH, idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: lead.origemEntrada||'webhook_chaves', origem: lead.origem||'Chaves na Mão' };
     const _idCH = String(lead.id);
     const _uidCH = String(userId);
     console.log('[CHAVES SNAP] msg:', _msgCH.substring(0,50), '| id:', _idCH, '| userId:', _uidCH);

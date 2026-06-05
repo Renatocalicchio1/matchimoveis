@@ -431,7 +431,7 @@ function trocarAba(aba){
   document.getElementById('tab-feed').classList.toggle('active', aba==='feed');
   document.getElementById('tab-favs').classList.toggle('active', aba==='favs');
   document.getElementById('tab-leads').classList.toggle('active', aba==='leads');
-  if(aba==='feed'){ renderPage(); _marcarFavsBtns(); }
+  if(aba==='feed'){ _page = (_page + 1) % Math.ceil(_imoveis.length / _PAGE); renderPage(); _marcarFavsBtns(); }
   else if(aba==='favs'){ renderFavs(); }
   else{ renderLeads(); }
 }

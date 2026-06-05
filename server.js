@@ -1837,6 +1837,8 @@ app.get('/app-home', auth, async (req,res)=>{
       })(),
     },
     recentes,
+    topImoveis: (() => { const map = {}; leadsArr.forEach(l => { [...(l.matches||[]),...(l.matchesAuto||[]),...(l.matchesBase||[])].forEach(m => { const id = String(m.idInterno||m.id||m.imovelId||''); if(id) map[id]=(map[id]||0)+1; }); }); return Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,cnt]) => { const im = imoveis.find(i => String(i.idInterno||i.id||'')===id)||{}; return {id,cnt,titulo:im.titulo||im.tipo||'Imóvel',bairro:im.bairro||'',cidade:im.cidade||''}; }); })(),
+    naoLidas,
     topMatches: comMatch.slice(0,3),
     notificacoes: minhasNotificacoes.slice(-5).reverse(),
     notificacoesNaoLidas: naoLidas.length,

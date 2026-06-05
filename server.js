@@ -2299,13 +2299,22 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
             valorMax: _imIW ? parseFloat(_imIW.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: _imIW ? parseFloat(_imIW.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
           };
-          // Buscar perfilIA atual para mesclar
+          // Buscar perfilIA atual — se já tem dados do imóvel, não sobrescrever
           const { query: _qMergeIW } = require('./services/db');
           const _rMergeIW = await _qMergeIW('SELECT perfil_ia FROM leads WHERE id=$1', [lead.id]);
           const _perfilAtualIW = _rMergeIW.rows[0]?.perfil_ia || {};
-          const _perfilFinalIW = { ..._perfilAtualIW, ..._perfilIAIW };
-          // Remover campos com valor vazio se já havia dado
-          Object.keys(_perfilFinalIW).forEach(k => { if(!_perfilFinalIW[k] && _perfilAtualIW[k]) _perfilFinalIW[k] = _perfilAtualIW[k]; });
+          // Se já tem bairro e cidade do imóvel, preservar — só complementar campos vazios
+          const _perfilFinalIW = { ..._perfilIAIW, ..._perfilAtualIW };
+          // Garantir que campos do imóvel (alta confiança) prevalecem sobre IA
+          if (_perfilIAIW.bairro) _perfilFinalIW.bairro = _perfilIAIW.bairro;
+          if (_perfilIAIW.cidade) _perfilFinalIW.cidade = _perfilIAIW.cidade;
+          if (_perfilIAIW.tipo) _perfilFinalIW.tipo = _perfilIAIW.tipo;
+          if (_perfilIAIW.quartos) _perfilFinalIW.quartos = _perfilIAIW.quartos;
+          if (_perfilIAIW.suites) _perfilFinalIW.suites = _perfilIAIW.suites;
+          if (_perfilIAIW.vagas) _perfilFinalIW.vagas = _perfilIAIW.vagas;
+          if (_perfilIAIW.banheiros) _perfilFinalIW.banheiros = _perfilIAIW.banheiros;
+          if (_perfilIAIW.area) _perfilFinalIW.area = _perfilIAIW.area;
+          if (_perfilIAIW.valorMax) _perfilFinalIW.valorMax = _perfilIAIW.valorMax;
           await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalIW, bairro: _perfilFinalIW.bairro||'', cidade: _perfilFinalIW.cidade||'', estado: _perfilFinalIW.estado||'', tipo: _perfilFinalIW.tipo||'', tipo_operacao: _perfilFinalIW.intencao||'' });
           console.log('[WEBHOOK IMOVELWEB] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente

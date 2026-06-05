@@ -215,43 +215,58 @@ class MatchCore {
       // Só analisa se novo perfil tem tipo ou bairro
       if (!novoPerfil.tipo && !novoPerfil.bairro) return lead;
 
-      // Verifica se é perfil diferente do atual
+      // Se lead ainda não teve matches nem viu vitrine → está qualificando
+      // Nesse caso acumula cenários no perfil em vez de resetar
+      const jaTevMatches = (lead.matchesAuto || lead.matches || []).length > 0;
+      const jaViuVitrine = !!lead.vitrineEnviada;
+
+      if (!jaTevMatches && !jaViuVitrine) {
+        // Modo refinamento: acumula bairros e tipos sem resetar
+        if (novoPerfil.bairro && novoPerfil.bairro !== perfilAtual.bairro) {
+          const bairrosAtuais = perfilAtual.bairros || (perfilAtual.bairro ? [perfilAtual.bairro] : []);
+          if (!bairrosAtuais.includes(novoPerfil.bairro)) {
+            bairrosAtuais.push(novoPerfil.bairro);
+            lead.perfilIA = { ...perfilAtual, bairro: bairrosAtuais[0], bairros: bairrosAtuais };
+            console.log('[MATCH CORE] refinamento — bairros acumulados:', bairrosAtuais);
+          }
+        }
+        if (novoPerfil.tipo && novoPerfil.tipo !== perfilAtual.tipo) {
+          const tiposAtuais = perfilAtual.tipos || (perfilAtual.tipo ? [perfilAtual.tipo] : []);
+          if (!tiposAtuais.includes(novoPerfil.tipo)) {
+            tiposAtuais.push(novoPerfil.tipo);
+            lead.perfilIA = { ...(lead.perfilIA || perfilAtual), tipo: tiposAtuais[0], tipos: tiposAtuais };
+            console.log('[MATCH CORE] refinamento — tipos acumulados:', tiposAtuais);
+          }
+        }
+        return lead;
+      }
+
+      // Lead já teve matches ou viu vitrine → verifica se é ciclo novo de verdade
       const tipoMudou = novoPerfil.tipo && perfilAtual.tipo && novoPerfil.tipo !== perfilAtual.tipo;
       const bairroMudou = novoPerfil.bairro && perfilAtual.bairro && novoPerfil.bairro !== perfilAtual.bairro;
       const valorMudou = novoPerfil.valorMax && perfilAtual.valorMax &&
         Math.abs(novoPerfil.valorMax - perfilAtual.valorMax) / perfilAtual.valorMax > 0.5;
-
       const perfilDiferente = tipoMudou || (bairroMudou && valorMudou);
       if (!perfilDiferente) return lead;
 
-      // Verifica se lead já teve ciclo completo (visita realizada ou fechado)
-      const { lerVisitas } = require('../services/salvarVisita');
-      const visitas = lerVisitas ? lerVisitas(userId) : [];
-      const temVisitaRealizada = visitas.some(v =>
-        String(v.leadId || v.lead_id || '') === String(lead.id) &&
-        ['realizada', 'concluida', 'fechado'].includes((v.status || '').toLowerCase())
-      );
-      const statusFechado = ['fechado', 'comprou', 'convertido', 'ganho'].includes((lead.status || '').toLowerCase());
-
-
-// Arquiva perfil anterior em ciclosBusca[] e ativa novo perfil na mesma lead
-console.log("[MATCH CORE] novo ciclo de busca:", lead.nome || lead.telefone);
-if (!lead.ciclosBusca) lead.ciclosBusca = [];
-lead.ciclosBusca.push({ em: new Date().toISOString(), perfil: { ...perfilAtual }, motivo: tipoMudou ? "tipo_mudou" : "bairro_mudou" });
-lead.perfilIA = { ...perfilAtual, ...novoPerfil };
-lead.status = "novo";
-lead.faseFunil = "novo";
-lead.temperatura = "frio";
-lead.score = 0;
-lead.matchesAuto = [];
-lead.matchesBase = [];
-console.log("[MATCH CORE] ciclos arquivados:", lead.ciclosBusca.length);
-return lead;
-      if (!temVisitaRealizada && !statusFechado) return lead;
+      // Novo ciclo real — arquiva perfil anterior e reseta
+      console.log("[MATCH CORE] novo ciclo de busca:", lead.nome || lead.telefone);
+      if (!lead.ciclosBusca) lead.ciclosBusca = [];
+      lead.ciclosBusca.push({ em: new Date().toISOString(), perfil: { ...perfilAtual }, motivo: tipoMudou ? "tipo_mudou" : "bairro_mudou" });
+      lead.perfilIA = { ...perfilAtual, ...novoPerfil, bairros: undefined, tipos: undefined };
+      lead.status = "novo";
+      lead.faseFunil = "novo";
+      lead.temperatura = "frio";
+      lead.score = 0;
+      lead.matchesAuto = [];
+      lead.matchesBase = [];
+      console.log("[MATCH CORE] ciclos arquivados:", lead.ciclosBusca.length);
+      return lead;
     } catch(e) {
       console.error('[MATCH CORE] erro detectarNovoCiclo:', e.message);
       return lead;
     }
+  }
   }
 
   // ============================================================

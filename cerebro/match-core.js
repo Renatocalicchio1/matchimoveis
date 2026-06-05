@@ -518,12 +518,12 @@ class MatchCore {
     const temTransacao = !!(perfil.intencao  || (mapa.transacao||[]).length > 0);
     const temQuartos   = !!(perfil.quartos   || (mapa.quartos||[]).length > 0);
 
-    // Score de qualidade do perfil (0-6)
-    const qualidade = [temTipo,temCidade,temBairro,temValor,temTransacao,temQuartos].filter(Boolean).length;
-
-    // Mínimo obrigatório: todos os 6 campos
-    const suficiente = temTipo && temTransacao && temCidade && temBairro && temValor;
-
+    // Tipos comerciais — quartos não obrigatório
+    const _tipoStr = (perfil.tipo || (mapa.tipo_imovel||[])[0]?.valor || '').toLowerCase();
+    const _ehComercial = ['sala','loja','galpao','galpão','terreno','predio','prédio','comercial','escritorio','escritório'].some(t => _tipoStr.includes(t));
+    const _maxQual = _ehComercial ? 5 : 6;
+    const qualidade = [temTipo,temCidade,temBairro,temValor,temTransacao,...(_ehComercial?[]:[temQuartos])].filter(Boolean).length;
+    const suficiente = temTipo && temTransacao && temCidade && temBairro && temValor && (_ehComercial || temQuartos);
     if (!suficiente) {
       const faltando = [];
       if (!temTipo)      faltando.push('tipo');
@@ -531,12 +531,12 @@ class MatchCore {
       if (!temCidade)    faltando.push('cidade');
       if (!temBairro)    faltando.push('bairro');
       if (!temValor)     faltando.push('valor');
-      if (!temQuartos)   faltando.push('quartos');
+      if (!_ehComercial && !temQuartos) faltando.push('quartos');
       console.log('[MATCH CORE] perfil insuficiente | qualidade:', qualidade, '| faltando:', faltando.join(', '));
     } else {
-      console.log('[MATCH CORE] perfil qualidade:', qualidade, '/6 |', [
+      console.log('[MATCH CORE] perfil qualidade:', qualidade, '/', _maxQual, '|', [
         temTransacao?'transacao':'', temTipo?'tipo':'', temCidade?'cidade':'',
-        temBairro?'bairro':'', temValor?'valor':'', temQuartos?'quartos':''
+        temBairro?'bairro':'', temValor?'valor':'', (!_ehComercial&&temQuartos)?'quartos':''
       ].filter(Boolean).join('+'));
     }
     return suficiente;

@@ -4956,7 +4956,8 @@ function gerarXMLPortal(imoveis, portal){
       xml += '      </Details>\n';
       xml += '      <Media>\n';
       fotos.forEach((f, idx) => {
-        const url = typeof f === 'string' ? f : f.url;
+        let url = typeof f === 'string' ? f : f.url;
+        if (url && url.startsWith('/')) url = 'https://matchimoveis.ia.br' + url;
         xml += '        <Item primary="'+(idx===0?'true':'false')+'" type="IMAGE">'+esc(url)+'</Item>\n';
       });
       xml += '      </Media>\n';

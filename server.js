@@ -3269,6 +3269,7 @@ setInterval(async () => {
         if (fu.tipo === 'enviar_vitrine') {
           if (_leads[i].vitrineEnviada) continue;
           const _matches = (_leads[i].matchesAuto || _leads[i].matches || []).length;
+          if (_matches === 0) continue; // não envia vitrine vazia
           const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;
           const _msg = 'Olá ' + (lead.nome || '') + '! Encontramos '
             + _matches + ' imóve' + (_matches === 1 ? 'l' : 'is')

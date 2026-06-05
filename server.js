@@ -7215,6 +7215,11 @@ app.get('/app/feed', auth, async (req, res) => {
       if(av && !bv) return -1; if(!av && bv) return 1;
       return new Date(b.criado_em||b.criadoEm||0) - new Date(a.criado_em||a.criadoEm||0);
     }));
+    // move imóvel com vídeo para o topo de cada grupo
+    _grupos.forEach(g => {
+      const vidIdx = g.findIndex(i => i.tourVirtual || i.tour_virtual);
+      if (vidIdx > 0) { const [vid] = g.splice(vidIdx, 1); g.unshift(vid); }
+    });
     const _mix = [];
     const _max = Math.max(..._grupos.map(g => g.length));
     for(let i=0; i<_max; i++){

@@ -152,7 +152,8 @@ function getColuna(item) {
   if (item.visitaAgendada || item.visitaSolicitada || item.visitaSolicitadaEm) return null;
   if (vitrine) return 'vitrine';
   if (mat > 0) return 'match';
-  if (fase === 'qualificado' || (item.perfilIA && item.perfilIA.tipo)) return 'qualificando';
+  const temPerfil = (item.perfilIA && (item.perfilIA.tipo || item.perfilIA.bairro || item.perfilIA.cidade || item.perfilIA.quartos || item.perfilIA.valorMax)) || (item.dados && (item.dados.bairro || item.dados.cidade || item.dados.quartos || item.dados.valorMax));
+  if (fase === 'qualificado' || temPerfil) return 'qualificando';
   return 'novo';
 }
 

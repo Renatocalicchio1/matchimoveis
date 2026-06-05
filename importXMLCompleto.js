@@ -94,13 +94,21 @@ function parseListing(l) {
     const ownerInfo = l.OwnerInfo || {};
 
     let fotos = [];
+    let tourVirtual = '';
     if (media.Item) {
       const items = Array.isArray(media.Item) ? media.Item : [media.Item];
-      fotos = items.map(i => {
-        if (typeof i === 'string') return i;
-        return i['#text'] || i.MediaURL || i.url || '';
-      }).filter(Boolean);
+      items.forEach(i => {
+        const url = typeof i === 'string' ? i : (i['#text'] || i.MediaURL || i.url || '');
+        if (!url) return;
+        const type = (typeof i === 'object' && (i['@_type'] || i.type || '')).toUpperCase();
+        if (type === 'VIDEO' || /youtube|vimeo|\.mp4/.test(url)) {
+          if (!tourVirtual) tourVirtual = url;
+        } else {
+          fotos.push(url);
+        }
+      });
     }
+    if (!tourVirtual) tourVirtual = l.VirtualTourLink || '';
 
     return {
       id: 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase(),
@@ -159,6 +167,7 @@ function parseListing(l) {
         return d;
       })(),
       fotos,
+      tourVirtual,
       corretor: {
         nome: extractText(ownerInfo.Name),
         email: extractText(ownerInfo.Email),

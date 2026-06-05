@@ -266,7 +266,9 @@ function _initCarousels() {
       if(!drag)return;drag=false;
       const slide = track.children[cur];
       if(slide && slide.classList.contains('fp-slide-video')){dx=0;return;}
-      if(Math.abs(dx)>40){dx<0?goTo(cur+1):goTo(cur-1);}dx=0;
+      if(Math.abs(dx)>40){dx<0?goTo(cur+1):goTo(cur-1);}
+      else if(Math.abs(dx)<5 && cur===0 && track.children[0] && track.children[0].classList.contains('fp-slide-video')){dx=0;return;}
+      dx=0;
     });
   });
 }

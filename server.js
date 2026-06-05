@@ -2278,19 +2278,26 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
         const mapa = await processarLeadPortal(_snapIW);
         if (mapa) {
           lead.mapaIntencao = mapa;
+          // Buscar imóvel pelo idAnuncio para completar perfilIA
+          let _imIW = null;
+          if (_snapIW.idAnuncio) {
+            const { query: _qImIW } = require('./services/db');
+            const _rIW = await _qImIW('SELECT * FROM imoveis WHERE id_externo=$1 OR id_interno=$1 OR id=$1 LIMIT 1', [_snapIW.idAnuncio]);
+            _imIW = _rIW.rows[0] || null;
+          }
           const _perfilIAIW = {
-            tipo: mapa.tipo_imovel?.[0]?.valor || '',
+            tipo: _imIW?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
             intencao: mapa.transacao?.[0]?.valor || '',
-            bairro: mapa.bairro?.[0]?.valor || '',
-            cidade: mapa.cidade?.[0]?.valor || '',
-            estado: mapa.estado?.[0]?.valor || '',
-            quartos: mapa.quartos?.[0]?.valor || '',
-            suites: mapa.suites?.[0]?.valor || '',
-            vagas: mapa.vagas?.[0]?.valor || '',
-            banheiros: mapa.banheiros?.[0]?.valor || '',
-            area: mapa.area?.[0]?.valor || '',
-            valorMax: mapa.valor?.[0]?.valor?.max || 0,
-            valorMin: mapa.valor?.[0]?.valor?.min || 0,
+            bairro: _imIW?.bairro || mapa.bairro?.[0]?.valor || '',
+            cidade: _imIW?.cidade || mapa.cidade?.[0]?.valor || '',
+            estado: _imIW?.estado || mapa.estado?.[0]?.valor || '',
+            quartos: _imIW?.quartos || mapa.quartos?.[0]?.valor || '',
+            suites: _imIW?.suites || mapa.suites?.[0]?.valor || '',
+            vagas: _imIW?.vagas || mapa.vagas?.[0]?.valor || '',
+            banheiros: _imIW?.banheiros || mapa.banheiros?.[0]?.valor || '',
+            area: _imIW?.area_m2 || mapa.area?.[0]?.valor || '',
+            valorMax: _imIW ? parseFloat(_imIW.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
+            valorMin: _imIW ? parseFloat(_imIW.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
           };
           await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIAIW, bairro: _perfilIAIW.bairro, cidade: _perfilIAIW.cidade, estado: _perfilIAIW.estado, tipo: _perfilIAIW.tipo, tipo_operacao: _perfilIAIW.intencao });
           console.log('[WEBHOOK IMOVELWEB] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
@@ -2362,20 +2369,27 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
         if (mapa) {
           lead.mapaIntencao = mapa;
 
-          const _perfilIA = {
-            tipo: mapa.tipo_imovel?.[0]?.valor || '',
+          // Buscar imóvel pelo idAnuncio para completar perfilIA
+          let _imPortal = null;
+          if (_leadSnapshotGRUPOOLX.idAnuncio) {{
+            const {{ query: _qImPortal }} = require('./services/db');
+            const _rPortal = await _qImPortal('SELECT * FROM imoveis WHERE id_externo=$1 OR id_interno=$1 OR id=$1 LIMIT 1', [_leadSnapshotGRUPOOLX.idAnuncio]);
+            _imPortal = _rPortal.rows[0] || null;
+          }}
+          const _perfilIA = {{
+            tipo: _imPortal?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
             intencao: mapa.transacao?.[0]?.valor || '',
-            bairro: mapa.bairro?.[0]?.valor || '',
-            cidade: mapa.cidade?.[0]?.valor || '',
-            estado: mapa.estado?.[0]?.valor || '',
-            quartos: mapa.quartos?.[0]?.valor || '',
-            suites: mapa.suites?.[0]?.valor || '',
-            vagas: mapa.vagas?.[0]?.valor || '',
-            banheiros: mapa.banheiros?.[0]?.valor || '',
-            area: mapa.area?.[0]?.valor || '',
-            valorMax: mapa.valor?.[0]?.valor?.max || 0,
-            valorMin: mapa.valor?.[0]?.valor?.min || 0,
-          };
+            bairro: _imPortal?.bairro || mapa.bairro?.[0]?.valor || '',
+            cidade: _imPortal?.cidade || mapa.cidade?.[0]?.valor || '',
+            estado: _imPortal?.estado || mapa.estado?.[0]?.valor || '',
+            quartos: _imPortal?.quartos || mapa.quartos?.[0]?.valor || '',
+            suites: _imPortal?.suites || mapa.suites?.[0]?.valor || '',
+            vagas: _imPortal?.vagas || mapa.vagas?.[0]?.valor || '',
+            banheiros: _imPortal?.banheiros || mapa.banheiros?.[0]?.valor || '',
+            area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
+            valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
+            valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
+          }};
           await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
           console.log('[WEBHOOK GRUPOOLX] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
@@ -2444,20 +2458,27 @@ app.post('/webhook/123i/:userId', async (req, res) => {
         if (mapa) {
           lead.mapaIntencao = mapa;
 
-          const _perfilIA = {
-            tipo: mapa.tipo_imovel?.[0]?.valor || '',
+          // Buscar imóvel pelo idAnuncio para completar perfilIA
+          let _imPortal = null;
+          if (_leadSnapshot123i.idAnuncio) {{
+            const {{ query: _qImPortal }} = require('./services/db');
+            const _rPortal = await _qImPortal('SELECT * FROM imoveis WHERE id_externo=$1 OR id_interno=$1 OR id=$1 LIMIT 1', [_leadSnapshot123i.idAnuncio]);
+            _imPortal = _rPortal.rows[0] || null;
+          }}
+          const _perfilIA = {{
+            tipo: _imPortal?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
             intencao: mapa.transacao?.[0]?.valor || '',
-            bairro: mapa.bairro?.[0]?.valor || '',
-            cidade: mapa.cidade?.[0]?.valor || '',
-            estado: mapa.estado?.[0]?.valor || '',
-            quartos: mapa.quartos?.[0]?.valor || '',
-            suites: mapa.suites?.[0]?.valor || '',
-            vagas: mapa.vagas?.[0]?.valor || '',
-            banheiros: mapa.banheiros?.[0]?.valor || '',
-            area: mapa.area?.[0]?.valor || '',
-            valorMax: mapa.valor?.[0]?.valor?.max || 0,
-            valorMin: mapa.valor?.[0]?.valor?.min || 0,
-          };
+            bairro: _imPortal?.bairro || mapa.bairro?.[0]?.valor || '',
+            cidade: _imPortal?.cidade || mapa.cidade?.[0]?.valor || '',
+            estado: _imPortal?.estado || mapa.estado?.[0]?.valor || '',
+            quartos: _imPortal?.quartos || mapa.quartos?.[0]?.valor || '',
+            suites: _imPortal?.suites || mapa.suites?.[0]?.valor || '',
+            vagas: _imPortal?.vagas || mapa.vagas?.[0]?.valor || '',
+            banheiros: _imPortal?.banheiros || mapa.banheiros?.[0]?.valor || '',
+            area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
+            valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
+            valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
+          }};
           await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
           console.log('[WEBHOOK 123i] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
@@ -2528,20 +2549,27 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
         if (mapa) {
           lead.mapaIntencao = mapa;
 
-          const _perfilIA = {
-            tipo: mapa.tipo_imovel?.[0]?.valor || '',
+          // Buscar imóvel pelo idAnuncio para completar perfilIA
+          let _imPortal = null;
+          if (_leadSnapshotCHAVES.idAnuncio) {{
+            const {{ query: _qImPortal }} = require('./services/db');
+            const _rPortal = await _qImPortal('SELECT * FROM imoveis WHERE id_externo=$1 OR id_interno=$1 OR id=$1 LIMIT 1', [_leadSnapshotCHAVES.idAnuncio]);
+            _imPortal = _rPortal.rows[0] || null;
+          }}
+          const _perfilIA = {{
+            tipo: _imPortal?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
             intencao: mapa.transacao?.[0]?.valor || '',
-            bairro: mapa.bairro?.[0]?.valor || '',
-            cidade: mapa.cidade?.[0]?.valor || '',
-            estado: mapa.estado?.[0]?.valor || '',
-            quartos: mapa.quartos?.[0]?.valor || '',
-            suites: mapa.suites?.[0]?.valor || '',
-            vagas: mapa.vagas?.[0]?.valor || '',
-            banheiros: mapa.banheiros?.[0]?.valor || '',
-            area: mapa.area?.[0]?.valor || '',
-            valorMax: mapa.valor?.[0]?.valor?.max || 0,
-            valorMin: mapa.valor?.[0]?.valor?.min || 0,
-          };
+            bairro: _imPortal?.bairro || mapa.bairro?.[0]?.valor || '',
+            cidade: _imPortal?.cidade || mapa.cidade?.[0]?.valor || '',
+            estado: _imPortal?.estado || mapa.estado?.[0]?.valor || '',
+            quartos: _imPortal?.quartos || mapa.quartos?.[0]?.valor || '',
+            suites: _imPortal?.suites || mapa.suites?.[0]?.valor || '',
+            vagas: _imPortal?.vagas || mapa.vagas?.[0]?.valor || '',
+            banheiros: _imPortal?.banheiros || mapa.banheiros?.[0]?.valor || '',
+            area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
+            valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
+            valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
+          }};
           await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
           console.log('[WEBHOOK CHAVES] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente

@@ -2371,12 +2371,12 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
 
           // Buscar imóvel pelo idAnuncio para completar perfilIA
           let _imPortal = null;
-          if (_leadSnapshotGRUPOOLX.idAnuncio) {{
-            const {{ query: _qImPortal }} = require('./services/db');
+          if (_leadSnapshotGRUPOOLX.idAnuncio) {
+            const { query: _qImPortal } = require('./services/db');
             const _rPortal = await _qImPortal('SELECT * FROM imoveis WHERE id_externo=$1 OR id_interno=$1 OR id=$1 LIMIT 1', [_leadSnapshotGRUPOOLX.idAnuncio]);
             _imPortal = _rPortal.rows[0] || null;
-          }}
-          const _perfilIA = {{
+          }
+          const _perfilIA = {
             tipo: _imPortal?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
             intencao: mapa.transacao?.[0]?.valor || '',
             bairro: _imPortal?.bairro || mapa.bairro?.[0]?.valor || '',
@@ -2389,7 +2389,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
             area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
             valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
-          }};
+          };
           await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
           console.log('[WEBHOOK GRUPOOLX] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
@@ -2460,12 +2460,12 @@ app.post('/webhook/123i/:userId', async (req, res) => {
 
           // Buscar imóvel pelo idAnuncio para completar perfilIA
           let _imPortal = null;
-          if (_leadSnapshot123i.idAnuncio) {{
-            const {{ query: _qImPortal }} = require('./services/db');
+          if (_leadSnapshot123i.idAnuncio) {
+            const { query: _qImPortal } = require('./services/db');
             const _rPortal = await _qImPortal('SELECT * FROM imoveis WHERE id_externo=$1 OR id_interno=$1 OR id=$1 LIMIT 1', [_leadSnapshot123i.idAnuncio]);
             _imPortal = _rPortal.rows[0] || null;
-          }}
-          const _perfilIA = {{
+          }
+          const _perfilIA = {
             tipo: _imPortal?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
             intencao: mapa.transacao?.[0]?.valor || '',
             bairro: _imPortal?.bairro || mapa.bairro?.[0]?.valor || '',
@@ -2478,7 +2478,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
             area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
             valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
-          }};
+          };
           await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
           console.log('[WEBHOOK 123i] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
@@ -2551,12 +2551,12 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
 
           // Buscar imóvel pelo idAnuncio para completar perfilIA
           let _imPortal = null;
-          if (_leadSnapshotCHAVES.idAnuncio) {{
-            const {{ query: _qImPortal }} = require('./services/db');
+          if (_leadSnapshotCHAVES.idAnuncio) {
+            const { query: _qImPortal } = require('./services/db');
             const _rPortal = await _qImPortal('SELECT * FROM imoveis WHERE id_externo=$1 OR id_interno=$1 OR id=$1 LIMIT 1', [_leadSnapshotCHAVES.idAnuncio]);
             _imPortal = _rPortal.rows[0] || null;
-          }}
-          const _perfilIA = {{
+          }
+          const _perfilIA = {
             tipo: _imPortal?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
             intencao: mapa.transacao?.[0]?.valor || '',
             bairro: _imPortal?.bairro || mapa.bairro?.[0]?.valor || '',
@@ -2569,7 +2569,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
             area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
             valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
-          }};
+          };
           await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
           console.log('[WEBHOOK CHAVES] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente

@@ -7215,14 +7215,15 @@ app.get('/app/feed', auth, async (req, res) => {
       if(av && !bv) return -1; if(!av && bv) return 1;
       return new Date(b.criado_em||b.criadoEm||0) - new Date(a.criado_em||a.criadoEm||0);
     }));
-    // intercala: rodada 1 com vídeo, rodada 2 sem vídeo, repete
-    const _gruposVid = _grupos.map(g => g.filter(i => i.tourVirtual && i.tourVirtual !== ''));
-    const _gruposSem = _grupos.map(g => g.filter(i => !i.tourVirtual || i.tourVirtual === ''));
+    // move vídeos para topo de cada grupo, depois intercala 1x1
+    _grupos.forEach(g => {
+      const comVid = g.filter(i => i.tourVirtual && i.tourVirtual !== '');
+      const semVid = g.filter(i => !i.tourVirtual || i.tourVirtual === '');
+      g.length = 0; comVid.forEach(i => g.push(i)); semVid.forEach(i => g.push(i));
+    });
     const _mix = [];
-    const _maxVid = Math.max(..._gruposVid.map(g => g.length), 0);
-    const _maxSem = Math.max(..._gruposSem.map(g => g.length), 0);
-    for(let i=0; i<_maxVid; i++){ _gruposVid.forEach(g => { if(g[i]) _mix.push(g[i]); }); }
-    for(let i=0; i<_maxSem; i++){ _gruposSem.forEach(g => { if(g[i]) _mix.push(g[i]); }); }
+    const _max = Math.max(..._grupos.map(g => g.length));
+    for(let i=0; i<_max; i++){ _grupos.forEach(g => { if(g[i]) _mix.push(g[i]); }); }
     imoveis = _mix.slice(0, 50);
 
     res.render('app-feed', { user: req.session.user, imoveis });

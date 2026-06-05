@@ -2271,7 +2271,21 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
         const mapa = await processarLeadPortal(_snapIW);
         if (mapa) {
           lead.mapaIntencao = mapa;
-          await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura });
+          const _perfilIAIW = {
+            tipo: mapa.tipo_imovel?.[0]?.valor || '',
+            intencao: mapa.transacao?.[0]?.valor || '',
+            bairro: mapa.bairro?.[0]?.valor || '',
+            cidade: mapa.cidade?.[0]?.valor || '',
+            estado: mapa.estado?.[0]?.valor || '',
+            quartos: mapa.quartos?.[0]?.valor || '',
+            suites: mapa.suites?.[0]?.valor || '',
+            vagas: mapa.vagas?.[0]?.valor || '',
+            banheiros: mapa.banheiros?.[0]?.valor || '',
+            area: mapa.area?.[0]?.valor || '',
+            valorMax: mapa.valor?.[0]?.valor?.max || 0,
+            valorMin: mapa.valor?.[0]?.valor?.min || 0,
+          };
+          await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIAIW, bairro: _perfilIAIW.bairro, cidade: _perfilIAIW.cidade, estado: _perfilIAIW.estado, tipo: _perfilIAIW.tipo, tipo_operacao: _perfilIAIW.intencao });
           console.log('[WEBHOOK IMOVELWEB] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
@@ -2340,7 +2354,22 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
         const mapa = await processarLeadPortal(_leadSnapshotGRUPOOLX);
         if (mapa) {
           lead.mapaIntencao = mapa;
-          await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura });
+
+          const _perfilIA = {
+            tipo: mapa.tipo_imovel?.[0]?.valor || '',
+            intencao: mapa.transacao?.[0]?.valor || '',
+            bairro: mapa.bairro?.[0]?.valor || '',
+            cidade: mapa.cidade?.[0]?.valor || '',
+            estado: mapa.estado?.[0]?.valor || '',
+            quartos: mapa.quartos?.[0]?.valor || '',
+            suites: mapa.suites?.[0]?.valor || '',
+            vagas: mapa.vagas?.[0]?.valor || '',
+            banheiros: mapa.banheiros?.[0]?.valor || '',
+            area: mapa.area?.[0]?.valor || '',
+            valorMax: mapa.valor?.[0]?.valor?.max || 0,
+            valorMin: mapa.valor?.[0]?.valor?.min || 0,
+          };
+          await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
           console.log('[WEBHOOK GRUPOOLX] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
@@ -2407,7 +2436,22 @@ app.post('/webhook/123i/:userId', async (req, res) => {
         const mapa = await processarLeadPortal(_leadSnapshot123i);
         if (mapa) {
           lead.mapaIntencao = mapa;
-          await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura });
+
+          const _perfilIA = {
+            tipo: mapa.tipo_imovel?.[0]?.valor || '',
+            intencao: mapa.transacao?.[0]?.valor || '',
+            bairro: mapa.bairro?.[0]?.valor || '',
+            cidade: mapa.cidade?.[0]?.valor || '',
+            estado: mapa.estado?.[0]?.valor || '',
+            quartos: mapa.quartos?.[0]?.valor || '',
+            suites: mapa.suites?.[0]?.valor || '',
+            vagas: mapa.vagas?.[0]?.valor || '',
+            banheiros: mapa.banheiros?.[0]?.valor || '',
+            area: mapa.area?.[0]?.valor || '',
+            valorMax: mapa.valor?.[0]?.valor?.max || 0,
+            valorMin: mapa.valor?.[0]?.valor?.min || 0,
+          };
+          await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
           console.log('[WEBHOOK 123i] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
@@ -2476,7 +2520,22 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
         const mapa = await processarLeadPortal(_leadSnapshotCHAVES);
         if (mapa) {
           lead.mapaIntencao = mapa;
-          await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura });
+
+          const _perfilIA = {
+            tipo: mapa.tipo_imovel?.[0]?.valor || '',
+            intencao: mapa.transacao?.[0]?.valor || '',
+            bairro: mapa.bairro?.[0]?.valor || '',
+            cidade: mapa.cidade?.[0]?.valor || '',
+            estado: mapa.estado?.[0]?.valor || '',
+            quartos: mapa.quartos?.[0]?.valor || '',
+            suites: mapa.suites?.[0]?.valor || '',
+            vagas: mapa.vagas?.[0]?.valor || '',
+            banheiros: mapa.banheiros?.[0]?.valor || '',
+            area: mapa.area?.[0]?.valor || '',
+            valorMax: mapa.valor?.[0]?.valor?.max || 0,
+            valorMin: mapa.valor?.[0]?.valor?.min || 0,
+          };
+          await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilIA, bairro: _perfilIA.bairro, cidade: _perfilIA.cidade, estado: _perfilIA.estado, tipo: _perfilIA.tipo, tipo_operacao: _perfilIA.intencao });
           console.log('[WEBHOOK CHAVES] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;

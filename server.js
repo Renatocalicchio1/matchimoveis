@@ -2567,7 +2567,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
         await _qCH("UPDATE leads SET dados = jsonb_set(COALESCE(dados,'{}'), '{mensagem}', $1::jsonb) WHERE id=$2", [JSON.stringify(_msgCH), _idCH]);
       } catch(e) {}
     }
-    const _leadSnapshotCHAVES = { id: _idCH, userId: _uidCH, mensagem: _msgCH, idAnuncio: _refCH };
+
     setTimeout(async () => {
       try {
         const { processarLeadPortal } = require('./cerebro/portal-processor');

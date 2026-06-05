@@ -3624,6 +3624,11 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         console.log('[WEBHOOK WA] filtro: mensagem sem palavras imobiliárias — ignorando:', telefone, '|', texto.substring(0,50));
         return;
       }
+      // Não criar lead pelo WhatsApp se mensagem veio de portal
+      if (texto.includes('imovelweb.com.br') || texto.includes('Quero ser contatado sobre este imóvel') || texto.includes('vivareal.com') || texto.includes('zapimoveis.com')) {
+        console.log('[WEBHOOK WA] mensagem de portal detectada — ignorando criação de lead pelo WA:', telefone);
+        return;
+      }
       console.log('[WEBHOOK WA] lead nao encontrado — criando novo lead automatico:', telefone);
       // Cria lead novo automaticamente a partir do WhatsApp
       const novoLead = {

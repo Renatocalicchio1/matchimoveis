@@ -2197,13 +2197,20 @@ async function _cruzarImovelWebhook(lead, userId) {
     lead.cidade = _im.cidade || _d.cidade || lead.cidade || '';
     lead.estado = _im.estado || _d.estado || lead.estado || '';
     lead.quartos = _im.quartos || _d.quartos || lead.quartos || '';
+    lead.suites = _im.suites || _d.suites || lead.suites || '';
+    lead.vagas = _im.vagas || _d.vagas || lead.vagas || '';
+    lead.banheiros = _im.banheiros || _d.banheiros || lead.banheiros || '';
+    lead.area_min = _im.area_m2 || _d.area_m2 || lead.area_min || '';
+    lead.area_max = _im.area_total || _d.area_total || lead.area_max || '';
     lead.valorMax = parseFloat(_im.valor_imovel || _d.valor_imovel || 0) * 1.35;
     lead.valorMin = parseFloat(_im.valor_imovel || _d.valor_imovel || 0) * 0.65;
     lead.imovelInteresse = _im.id;
     lead.perfilIA = {
       tipo: lead.tipo, intencao: lead.tipo_operacao,
       bairro: lead.bairro, cidade: lead.cidade, estado: lead.estado,
-      quartos: lead.quartos, valorMax: lead.valorMax,
+      quartos: lead.quartos, suites: lead.suites, vagas: lead.vagas,
+      banheiros: lead.banheiros, area_min: lead.area_min, area_max: lead.area_max,
+      valorMin: lead.valorMin, valorMax: lead.valorMax,
     };
     console.log('[WEBHOOK] imóvel cruzado:', _im.titulo || idAnuncio, '| bairro:', lead.bairro, '| cidade:', lead.cidade);
   } catch(e) { console.error('[WEBHOOK] erro cruzar imóvel:', e.message); }

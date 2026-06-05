@@ -355,7 +355,8 @@ app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
       }));
       const filename = 'feed-'+portal+'-'+token+'.xml';
       if(filtrados.length > 0){
-        const xml = gerarXMLPortal(filtrados, portal);
+        const _userXml = (_cacheUsuarios||[]).find(u => String(u.id||u.codigoUsuario||'') === String(userId||'')) || {};
+        const xml = gerarXMLPortal(filtrados, portal, _userXml);
         fs.writeFileSync(dataPath(filename), xml, 'utf8');
         const _urlXml = BASE_URL+'/feed-xml/'+portal+'/'+token;
         _q('INSERT INTO xml_feeds (user_id, portal, url, total, arquivo, last_sync_at, ativo) VALUES ($1,$2,$3,$4,$5,$6,true) ON CONFLICT (user_id, portal) DO UPDATE SET arquivo=EXCLUDED.arquivo, url=EXCLUDED.url, total=EXCLUDED.total, last_sync_at=EXCLUDED.last_sync_at', [userId, portal, _urlXml, filtrados.length, xml, new Date().toISOString()]).catch(()=>{});
@@ -4754,7 +4755,7 @@ async function regenerarXMLUsuario(userId) {
       }));
       const filename = 'feed-'+portal+'-'+token+'.xml';
       if(filtrados.length > 0) {
-        const xml = gerarXMLPortal(filtrados, portal);
+        const xml = gerarXMLPortal(filtrados, portal, user);
         fs.writeFileSync(dataPath(filename), xml, 'utf8');
         console.log('[xml] '+filename+': '+filtrados.length+' imóveis');
         const _urlXmlE = BASE_URL+'/feed-xml/'+portal+'/'+token;
@@ -4908,7 +4909,7 @@ app.post('/app/gerar-xml', auth, checarSaldo('Gerar XML para portais', 10), asyn
   res.json({ url: '/'+filename, total: selecionados.length });
 });
 
-function gerarXMLPortal(imoveis, portal){
+function gerarXMLPortal(imoveis, portal, user){
 
   if(portal === 'quintoandar'){
     const esc = v => String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -4981,12 +4982,12 @@ function gerarXMLPortal(imoveis, portal){
       xml += '        <CondominiumName>'+esc(i.condominioNome || i.condominio_name || '')+'</CondominiumName>\n';
       xml += '      </Location>\n';
       xml += '      <ContactInfo>\n';
-      xml += '        <Name>'+esc(i.corretor_nome || i.usuario_nome || i.corretor?.nome || 'Matchimoveis')+'</Name>\n';
-      xml += '        <Email>'+esc(i.corretor_email || i.usuario_email || i.corretor?.email || 'contato@matchimoveis.ia.br')+'</Email>\n';
-      xml += '        <Website></Website>\n';
+      xml += '        <Name>'+esc(i.corretor_nome || i.usuario_nome || (user&&user.nome) || 'Corretor')+'</Name>\n';
+      xml += '        <Email>'+esc(i.corretor_email || i.usuario_email || (user&&user.email) || '')+'</Email>\n';
+      xml += '        <Website>'+esc((user&&user.website)||'https://matchimoveis.ia.br')+'</Website>\n';
       xml += '        <Logo></Logo>\n';
-      xml += '        <OfficeName>'+esc(i.corretor_nome || i.usuario_nome || i.corretor?.nome || 'Matchimoveis')+'</OfficeName>\n';
-      xml += '        <Telephone>'+esc(i.corretor_telefone || i.usuario_telefone || i.corretor?.telefone || '')+'</Telephone>\n';
+      xml += '        <OfficeName>'+esc(i.corretor_nome || i.usuario_nome || (user&&user.nome) || 'Corretor')+'</OfficeName>\n';
+      xml += '        <Telephone>'+esc(i.corretor_telefone || i.usuario_telefone || (user&&(user.celular||user.telefone)) || '')+'</Telephone>\n';
       xml += '      </ContactInfo>\n';
       xml += '      <OwnerInfo>\n';
       xml += '        <Name>'+esc(prop.nome || i.proprietarioNome || '')+'</Name>\n';
@@ -5074,10 +5075,10 @@ function gerarXMLPortal(imoveis, portal){
     xml += '        <Longitude>'+esc(i.longitude || '')+'</Longitude>\n';
     xml += '      </Location>\n';
     xml += '      <ContactInfo>\n';
-    xml += '        <Name>'+esc(i.corretor_nome || i.usuario_nome || 'Matchimoveis')+'</Name>\n';
-    xml += '        <Email>'+esc(i.corretor_email || i.usuario_email || 'contato@matchimoveis.ia.br')+'</Email>\n';
-    xml += '        <Website>https://matchimoveis.ia.br</Website>\n';
-    xml += '        <Telephone>'+esc(i.corretor_telefone || i.usuario_telefone || '')+'</Telephone>\n';
+    xml += '        <Name>'+esc(i.corretor_nome || i.usuario_nome || (user&&user.nome) || 'Corretor')+'</Name>\n';
+    xml += '        <Email>'+esc(i.corretor_email || i.usuario_email || (user&&user.email) || '')+'</Email>\n';
+    xml += '        <Website>'+esc((user&&user.website)||'https://matchimoveis.ia.br')+'</Website>\n';
+    xml += '        <Telephone>'+esc(i.corretor_telefone || i.usuario_telefone || (user&&(user.celular||user.telefone)) || '')+'</Telephone>\n';
     xml += '      </ContactInfo>\n';
     xml += '    </Listing>\n';
   });

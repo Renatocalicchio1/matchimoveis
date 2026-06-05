@@ -7367,7 +7367,9 @@ app.get('/api/feed/novos', auth, async (req, res) => {
     const myId = req.session.user?.codigoUsuario || req.session.user?.codigo;
     const { lerImoveis: _lerFeedApi } = require('./services/salvarImovel');
     const { lerUsuarios: _lerUsrApi } = require('./services/salvarUsuario');
-    const todos = await _lerFeedApi();
+    let todos = await _lerFeedApi();
+    // embaralha o pool antes de processar
+    for(let i=todos.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[todos[i],todos[j]]=[todos[j],todos[i]];}
     const usuarios = await _lerUsrApi();
     const nomeMap = {};
     usuarios.forEach(u => {

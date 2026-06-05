@@ -28,8 +28,8 @@
               <div style="margin-top:8px;padding:8px 10px;background:#f0f9ff;border:1px dashed #93c5fd;border-radius:8px">
                 <div style="font-size:11px;font-weight:600;color:#1d4ed8;margin-bottom:3px">🔗 URL para receber leads do portal</div>
                 <% const _wh = ['zap','vivareal','olx'].includes(feed.portal) ? 'grupoolx' : feed.portal; %>
-                <div style="font-size:11px;color:#374151;word-break:break-all;font-family:monospace">https://matchimoveis.onrender.com/webhook/<%= _wh %>/<%= user.id %></div>
-                <button onclick="copiarWebhook('https://matchimoveis.onrender.com/webhook/<%= _wh %>/<%= user.id %>',this)" style="margin-top:5px;font-size:11px;padding:3px 10px;background:#1d4ed8;color:#fff;border:none;border-radius:5px;cursor:pointer">📋 Copiar</button>
+                <div style="font-size:11px;color:#374151;word-break:break-all;font-family:monospace">https://matchimoveis.ia.br/webhook/<%= _wh %>/<%= user.id %></div>
+                <button onclick="copiarWebhook('https://matchimoveis.ia.br/webhook/<%= _wh %>/<%= user.id %>',this)" style="margin-top:5px;font-size:11px;padding:3px 10px;background:#1d4ed8;color:#fff;border:none;border-radius:5px;cursor:pointer">📋 Copiar</button>
               </div>
             <% } %>
           </div>

@@ -3596,11 +3596,11 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         if (!fonesIgual || !contaIgual) return false;
         // Se ja tem perfil minimo, nao usar esta lead — vai criar nova
         const pf = l.perfilIA || {}; const d = l.dados || {}; const m = l.mapaIntencao || {};
-        const temPerfilMinimo = !!(pf.tipo||d.tipo||l.tipo||(m.tipo_imovel||[]).length) &&
-          !!(pf.intencao||d.intencao||l.intencao||(m.transacao||[]).length) &&
-          !!(pf.cidade||d.cidade||l.cidade||(m.cidade||[]).length) &&
-          !!(pf.bairro||d.bairro||l.bairro||(m.bairro||[]).length) &&
-          !!(pf.valorMax||d.valorMax||l.valorMax||(m.valor||[]).length);
+        const temPerfilMinimo = !!(pf.tipo||d.tipo) &&
+          !!(pf.intencao||d.intencao) &&
+          !!(pf.cidade||d.cidade) &&
+          !!(pf.bairro||d.bairro) &&
+          !!(pf.valorMax||d.valorMax);
         if (temPerfilMinimo) { console.log('[WEBHOOK WA] lead com perfil minimo — vai criar nova para:', telefone); return false; }
         return true;
       }) || null;

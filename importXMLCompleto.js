@@ -100,7 +100,7 @@ function parseListing(l) {
       items.forEach(i => {
         const url = typeof i === 'string' ? i : (i['#text'] || i.MediaURL || i.url || '');
         if (!url) return;
-        const type = (typeof i === 'object' && (i['@_type'] || i.type || '')).toUpperCase();
+        const type = (typeof i === 'object' && (i['@_medium'] || i['@_type'] || i.medium || i.type || '')).toUpperCase();
         if (type === 'VIDEO' || /youtube|vimeo|\.mp4/.test(url)) {
           if (!tourVirtual) tourVirtual = url;
         } else {

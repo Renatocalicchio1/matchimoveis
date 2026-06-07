@@ -5892,6 +5892,7 @@ app.post('/app/visitas/cancelar/:id', auth, async (req,res)=>{
     if(String(v.id) === String(req.params.id)){
       v.status = 'CANCELADA';
       v.canceladaAt = new Date().toISOString();
+      v.canceladaPor = 'corretor';
     }
     return v;
   });
@@ -6324,7 +6325,7 @@ app.post('/cliente/visita/:id/confirmar', async (req, res) => {
 app.post('/cliente/visita/:id/recusar', async (req, res) => {
   try {
     const { query: _qR } = require('./services/db');
-    await _qR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO' WHERE id=$1", [req.params.id]);
+    await _qR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO', dados=jsonb_set(COALESCE(dados,'{}'),'{canceladaPor}','\"cliente\"') WHERE id=$1", [req.params.id]);
     const _v = (await _qR('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (_v) {
       const { lerUsuarios: _lu } = require('./services/salvarUsuario');

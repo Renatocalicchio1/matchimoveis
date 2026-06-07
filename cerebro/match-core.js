@@ -383,6 +383,17 @@ class MatchCore {
       totalMatches > 0        ? 'Match feito'   :
       msgs > 0                ? 'Conversando'   : 'Novo';
 
+    // Temperatura baseada no estágio do kanban
+    lead.temperatura =
+      lead.propostaFeita                         ? 'fogo'         :
+      lead.visitaRealizada                       ? 'super_quente' :
+      lead.visitaConfirmada                      ? 'quente_plus'  :
+      lead.visitaSolicitada                      ? 'quente'       :
+      lead.vitrineEnviada                        ? 'morno_plus'   :
+      totalMatches > 0                           ? 'morno'        :
+      (perfil.tipo || perfil.bairro || perfil.cidade || perfil.quartos || perfil.valorMax) ? 'frio_plus' :
+      'frio';
+
     return lead;
   }
 

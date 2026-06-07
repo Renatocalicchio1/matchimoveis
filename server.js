@@ -3334,7 +3334,7 @@ setInterval(async () => {
   } catch(e) {
     console.error('[JOB FU] erro geral:', e.message);
   }
-}, 5 * 60 * 1000); // roda a cada 5 minutos
+}, 60 * 1000); // roda a cada 1 minuto
 // ── FIM JOB_FOLLOWUPS ────────────────────────────────────────────────────────
 
 // INBOX WHATSAPP

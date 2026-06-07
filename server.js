@@ -6210,7 +6210,7 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
       await fetch(EU + '/message/sendText/' + instancia, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': EK },
-        body: JSON.stringify({ number: numero, text: msg })
+        body: JSON.stringify({ number: numero, text: 'Olá ' + (nome||'' ) + '! Sua visita ao imóvel *' + imovel + '* foi confirmada' + (data ? ' para ' + data : '' ) + (hora ? ' às ' + hora : '' ) + '.\n\nAcesse o link para confirmar presença, remarcar ou cancelar:\n' + link })
       });
       await _qVC("UPDATE visitas SET dados=jsonb_set(COALESCE(dados,'{}'),'{waClienteEnviadoEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), id]);
     }

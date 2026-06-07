@@ -63,7 +63,7 @@ function _fuzzyMatch(input, lista) {
   for (const palavra of lista) {
     if (Math.abs(input.length - palavra.length) > 4) continue; // descarta muito diferente
     const dist = _levenshtein(input, palavra);
-    if (dist <= _distMax(palavra) && dist < menorDist) {
+    if (dist <= Math.min(_distMax(palavra), _distMax(input)) && dist < menorDist) {
       menorDist = dist;
       melhor = palavra;
     }

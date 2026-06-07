@@ -6168,7 +6168,11 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
     const data = visita?.data_visita || '';
     const hora = visita?.hora_visita || '';
 
-    const msg = 'Olá ' + (nome||'') + '! Sua visita ao imóvel *' + imovel + '* foi confirmada' + (data?' para '+data:'') + (hora?' às '+hora:'') + '.\n\nAcesse o link para confirmar presença, remarcar ou cancelar:\n' + link;
+    const _nomeV = visita?.nome || nome || '';
+    const _linkConfirmar = BASE_URL + '/cliente/visita/' + id + '/confirmar';
+    const _linkRecusar = BASE_URL + '/cliente/visita/' + id + '/recusar';
+    const _dataStr = data ? ' para ' + data + (hora ? ' às ' + hora : '') : '';
+    const msg = 'Olá *' + _nomeV + '*! Sua visita ao imóvel *' + imovel + '*' + _dataStr + ' foi confirmada!\n\nConfirme sua presença:\n✅ Confirmar: ' + _linkConfirmar + '\n❌ Não posso ir: ' + _linkRecusar;
 
     // Envia WhatsApp pelo corretor logado
     const userId = req.session.user.id;
@@ -6176,7 +6180,8 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
     const users = await _luVC();
     const user = users.find(u => u.id === userId);
     const instancia = user?.whatsappInstance;
-    const numero = '55' + (telefone||'').replace(/\D/g,'').replace(/^55/,'');
+    const _telV = (visita?.telefone || telefone || '').replace(/\D/g,'').replace(/^55/,'');
+    const numero = _telV ? '55' + _telV : '';
 
     if (instancia && numero) {
       const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';

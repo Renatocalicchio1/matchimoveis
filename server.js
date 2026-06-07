@@ -4257,6 +4257,14 @@ app.post('/api/lead-interesse', async (req, res) => {
       req.body.acao === 'solicitar_visita';
 
     if (querVisita) {
+      const _dv = req.body.dataVisita || '';
+      const _hv = req.body.horaVisita || '00:00';
+      if (_dv) {
+        const _dtVisita = new Date(_dv + 'T' + _hv + ':00');
+        if (_dtVisita < new Date()) {
+          return res.json({ ok: false, error: 'Data e horário da visita não podem ser no passado.' });
+        }
+      }
       const visitas = (_cacheVisitas || []);
 
       visitas.push({

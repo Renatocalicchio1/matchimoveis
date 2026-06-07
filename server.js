@@ -4286,6 +4286,8 @@ app.post('/api/lead-interesse', async (req, res) => {
         corretorNome: usuarioDestinoNome,
         corretorTelefone: usuarioDestinoTelefone,
 
+        dataVisita: req.body.dataVisita || '',
+        horaVisita: req.body.horaVisita || '',
         status: 'solicitada',
         origem: 'pagina_externa_imovel', extractionStatus: 'ok',
         fonte: 'MatchImóveis',

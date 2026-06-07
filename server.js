@@ -7553,3 +7553,53 @@ app.post('/app/notificacoes/marcar-todas-lidas', auth, async (req, res) => {
     res.json({ ok: true });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
+
+// ── JOB_VISITA_REALIZADA — 5h após visita confirmada ─────────────────────────
+setInterval(async () => {
+  try {
+    const _visitas = await lerVisitasData();
+    const _users = (_cacheUsuarios || []);
+    const _agora = Date.now();
+    const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+    const BASE_URL = process.env.RENDER ? 'https://matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
+    async function _envWAVisita(inst, num, txt) {
+      try { await fetch(EU+'/message/sendText/'+inst,{method:'POST',headers:{'Content-Type':'application/json','apikey':EK},body:JSON.stringify({number:num,text:txt})}); } catch(e){}
+    }
+    let _mudou = false;
+    for (const v of _visitas) {
+      const status = (v.status||'').toLowerCase();
+      if (!['confirmada','confirmado','lead_confirmou'].includes(status)) continue;
+      if (v.confirmacaoEnviada) continue;
+      const dataHora = v.dataVisita || v.data || '';
+      if (!dataHora) continue;
+      const [h,m] = (v.horaVisita||v.hora||'00:00').split(':').map(Number);
+      const dt = new Date(dataHora); dt.setHours(h||0,m||0,0,0);
+      if (_agora - dt.getTime() < 5*60*60*1000) continue;
+      const uid = v.userId||v.corretorId||v.usuarioDestinoId||'';
+      const _user = _users.find(u=>u.id===uid);
+      const _inst = _user?.whatsappInstance||'match-corretor';
+      const _linkCorretor = BASE_URL+'/corretor/visita/'+v.id+'/responder';
+      const _imovel = v.imovelTitulo||v.imovelBairro||'imóvel';
+      const _cliente = v.nome||v.nomeCliente||'cliente';
+      // WA para o CORRETOR
+      const _telC = (_user?.celular||_user?.telefone||'').replace(/\D/g,'');
+      if(_telC) await _envWAVisita(_inst, _telC,
+        'Olá ' + (_user?.nome||'Corretor') + '! 👋\n\n' +
+        'A visita de *' + _cliente + '* ao imóvel *' + _imovel + '* já aconteceu?\n\n' +
+        '✅ Confirme como realizada aqui:\n' + _linkCorretor);
+      // WA para o LEAD
+      const _telL = (v.telefone||v.whatsappCliente||v.contatoCliente||'').replace(/\D/g,'');
+      if(_telL) await _envWAVisita(_inst, _telL,
+        'Olá ' + _cliente + '! 😊\n\n' +
+        'Como foi a visita ao *' + _imovel + '*?\n\n' +
+        'Gostou do imóvel? Ficou com alguma dúvida? Me conta! 🏠');
+      v.confirmacaoEnviada = true;
+      v.confirmacaoEnviadaEm = new Date().toISOString();
+      _mudou = true;
+      console.log('[JOB VISITA] confirmação enviada | visita:', v.id, '| lead:', _cliente);
+    }
+    if(_mudou) await salvarVisitasData(_visitas);
+  } catch(e) { console.error('[JOB VISITA REALIZADA]', e.message); }
+}, 15*60*1000);
+// ── FIM JOB_VISITA_REALIZADA ─────────────────────────────────────────────────

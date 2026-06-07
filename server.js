@@ -5736,7 +5736,8 @@ app.get('/api/memoria-operacional', auth, (req,res)=>{
 
 app.post('/api/visita/:id/confirmar', auth, async (req,res)=>{
   try{
-    const visita = await atualizarWorkflowVisita(
+
+    const visita = atualizarWorkflowVisita(
       req.params.id,
       'CONFIRMADA',
       {
@@ -5754,34 +5755,6 @@ app.post('/api/visita/:id/confirmar', auth, async (req,res)=>{
       userId: req.session.user.id || '',
       descricao: 'Visita confirmada pelo usuário'
     });
-    // Envia WA para o cliente igual ao fluxo pelo WhatsApp
-    try {
-      const { query: _qC } = require('./services/db');
-      const _vR = await _qC('SELECT * FROM visitas WHERE id=$1', [req.params.id]);
-      const _v = _vR.rows[0];
-      if (_v) {
-        const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
-        const _link = BASE_URL + '/cliente/visita/' + req.params.id;
-        const _imovel = _v.imovel_titulo || _v.imovel_bairro || 'o imóvel';
-        const _data = _v.data_visita || '';
-        const _hora = _v.hora_visita || '';
-        const _nome = _v.nome || '';
-        const _tel = (_v.telefone || '').replace(/\D/g, '');
-        const _msg = 'Olá ' + _nome + '! Sua visita ao imóvel *' + _imovel + '* foi confirmada' + (_data ? ' para ' + _data : '') + (_hora ? ' às ' + _hora : '') + '.\n\nAcesse o link para confirmar presença, remarcar ou cancelar:\n' + _link;
-
-        const { lerUsuarios: _luC } = require('./services/salvarUsuario');
-        const _users = await _luC();
-        const _user = _users.find(u => u.id === req.session.user.id);
-        const _inst = _user?.whatsappInstance;
-        if (_inst && _tel) {
-          const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
-          const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
-          await fetch(EU + '/message/sendText/' + _inst, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': EK }, body: JSON.stringify({ number: '55' + _tel.replace(/^55/, ''), text: _msg }) });
-          await _qC("UPDATE visitas SET dados=jsonb_set(COALESCE(dados,'{}'),'{waClienteEnviadoEm}',\$1::jsonb) WHERE id=\$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
-          console.log('[CONFIRMAR PAINEL] WA enviado para:', _tel);
-        }
-      }
-    } catch(eWA) { console.error('[CONFIRMAR PAINEL] erro WA:', eWA.message); }
 
     return res.json({
       ok:true,
@@ -6195,6 +6168,7 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
     const data = visita?.data_visita || '';
     const hora = visita?.hora_visita || '';
 
+    const msg = 'Olá ' + (nome||'') + '! Sua visita ao imóvel *' + imovel + '* foi confirmada' + (data?' para '+data:'') + (hora?' às '+hora:'') + '.\n\nAcesse o link para confirmar presença, remarcar ou cancelar:\n' + link;
 
     // Envia WhatsApp pelo corretor logado
     const userId = req.session.user.id;
@@ -6210,7 +6184,7 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
       await fetch(EU + '/message/sendText/' + instancia, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': EK },
-        body: JSON.stringify({ number: numero, text: 'Olá ' + (nome||'' ) + '! Sua visita ao imóvel *' + imovel + '* foi confirmada' + (data ? ' para ' + data : '' ) + (hora ? ' às ' + hora : '' ) + '.\n\nAcesse o link para confirmar presença, remarcar ou cancelar:\n' + link })
+        body: JSON.stringify({ number: numero, text: msg })
       });
       await _qVC("UPDATE visitas SET dados=jsonb_set(COALESCE(dados,'{}'),'{waClienteEnviadoEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), id]);
     }

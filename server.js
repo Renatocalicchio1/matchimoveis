@@ -7560,49 +7560,129 @@ app.post('/app/notificacoes/marcar-todas-lidas', auth, async (req, res) => {
 // ── JOB_VISITA_REALIZADA — 5h após visita confirmada ─────────────────────────
 setInterval(async () => {
   try {
-    const _visitas = await lerVisitasData();
+    const { query: _qJob } = require('./services/db');
+    const _vRows = await _qJob("SELECT * FROM visitas WHERE status IN ('confirmada','confirmado','lead_confirmou') AND (dados->>'confirmacaoEnviada') IS NULL");
+    const _visitas = _vRows.rows;
     const _users = (_cacheUsuarios || []);
     const _agora = Date.now();
     const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
     const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
-    const BASE_URL = process.env.RENDER ? 'https://matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
+    const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
     async function _envWAVisita(inst, num, txt) {
       try { await fetch(EU+'/message/sendText/'+inst,{method:'POST',headers:{'Content-Type':'application/json','apikey':EK},body:JSON.stringify({number:num,text:txt})}); } catch(e){}
     }
-    let _mudou = false;
     for (const v of _visitas) {
-      const status = (v.status||'').toLowerCase();
-      if (!['confirmada','confirmado','lead_confirmou'].includes(status)) continue;
-      if (v.confirmacaoEnviada) continue;
-      const dataHora = v.dataVisita || v.data || '';
+      const dataHora = v.data_visita || '';
       if (!dataHora) continue;
-      const [h,m] = (v.horaVisita||v.hora||'00:00').split(':').map(Number);
+      const [h,m] = (v.hora_visita||'00:00').split(':').map(Number);
       const dt = new Date(dataHora); dt.setHours(h||0,m||0,0,0);
       if (_agora - dt.getTime() < 5*60*60*1000) continue;
-      const uid = v.userId||v.corretorId||v.usuarioDestinoId||'';
+      const uid = v.user_id || v.corretor_id || '';
       const _user = _users.find(u=>u.id===uid);
       const _inst = _user?.whatsappInstance||'match-corretor';
-      const _linkCorretor = BASE_URL+'/corretor/visita/'+v.id+'/responder';
-      const _imovel = v.imovelTitulo||v.imovelBairro||'imóvel';
-      const _cliente = v.nome||v.nomeCliente||'cliente';
+      const _imovel = v.imovel_titulo||v.imovel_bairro||'imóvel';
+      const _cliente = v.nome||'cliente';
+      const _linkCorretor = BASE_URL+'/visita/'+v.id+'/realizada-corretor';
+      const _linkLead = BASE_URL+'/visita/'+v.id+'/realizada-lead';
       // WA para o CORRETOR
       const _telC = (_user?.celular||_user?.telefone||'').replace(/\D/g,'');
-      if(_telC) await _envWAVisita(_inst, _telC,
-        'Olá ' + (_user?.nome||'Corretor') + '! 👋\n\n' +
-        'A visita de *' + _cliente + '* ao imóvel *' + _imovel + '* já aconteceu?\n\n' +
-        '✅ Confirme como realizada aqui:\n' + _linkCorretor);
+      if(_telC) await _envWAVisita(_inst, '55'+_telC.replace(/^55/,''),
+        'Ola ' + (_user?.nome||'Corretor') + '!\n\nA visita de *' + _cliente + '* ao imovel *' + _imovel + '* ja aconteceu?\n\nInforme aqui:\n' + _linkCorretor);
       // WA para o LEAD
-      const _telL = (v.telefone||v.whatsappCliente||v.contatoCliente||'').replace(/\D/g,'');
-      if(_telL) await _envWAVisita(_inst, _telL,
-        'Olá ' + _cliente + '! 😊\n\n' +
-        'Como foi a visita ao *' + _imovel + '*?\n\n' +
-        'Gostou do imóvel? Ficou com alguma dúvida? Me conta! 🏠');
-      v.confirmacaoEnviada = true;
-      v.confirmacaoEnviadaEm = new Date().toISOString();
-      _mudou = true;
-      console.log('[JOB VISITA] confirmação enviada | visita:', v.id, '| lead:', _cliente);
+      const _telL = (v.telefone||'').replace(/\D/g,'');
+      if(_telL) await _envWAVisita(_inst, '55'+_telL.replace(/^55/,''),
+        'Ola ' + _cliente + '!\n\nComo foi a visita ao *' + _imovel + '*?\n\nConta pra gente:\n' + _linkLead);
+      // Salva flag no banco
+      await _qJob("UPDATE visitas SET dados=jsonb_set(COALESCE(dados,'{}'),'{confirmacaoEnviada}',$1::jsonb) WHERE id=$2", [JSON.stringify(true), v.id]);
+      console.log('[JOB VISITA] mensagens enviadas | visita:', v.id, '| lead:', _cliente);
     }
-    if(_mudou) await salvarVisitasData(_visitas);
   } catch(e) { console.error('[JOB VISITA REALIZADA]', e.message); }
 }, 15*60*1000);
 // ── FIM JOB_VISITA_REALIZADA ─────────────────────────────────────────────────
+
+// ── ROTAS VISITA REALIZADA / LEAD FEEDBACK ────────────────────────────────────
+app.get('/visita/:id/realizada-corretor', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (!visita) return res.status(404).send('Visita não encontrada');
+    const respondido = ['realizada','nao_realizada'].includes(visita.status);
+    const msg = visita.status === 'realizada' ? '✅ Visita marcada como realizada!' : '❌ Visita marcada como não realizada.';
+    res.render('visita-realizada-corretor', { visita, respondido, msg });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/visita/:id/marcar-realizada', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    await _q("UPDATE visitas SET status='realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{realizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (visita?.lead_id) await _q("UPDATE leads SET fase_funil='visitou', status='visitou', atualizado_em=NOW() WHERE id=$1", [visita.lead_id]);
+    res.render('visita-realizada-corretor', { visita, respondido: true, msg: '✅ Visita marcada como realizada!' });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    await _q("UPDATE visitas SET status='nao_realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    res.render('visita-realizada-corretor', { visita, respondido: true, msg: '❌ Visita marcada como não realizada.' });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.get('/visita/:id/realizada-lead', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (!visita) return res.status(404).send('Visita não encontrada');
+    const respondido = ['proposta','nao_gostou'].includes(visita.status);
+    res.render('visita-realizada-lead', { visita, respondido });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/visita/:id/lead-gostou', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    await _q("UPDATE visitas SET status='proposta', dados=jsonb_set(COALESCE(dados,'{}'),'{leadGostouEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (visita?.lead_id) await _q("UPDATE leads SET fase_funil='proposta', status='proposta', atualizado_em=NOW() WHERE id=$1", [visita.lead_id]);
+    try {
+      const { lerUsuarios: _lu } = require('./services/salvarUsuario');
+      const _user = (await _lu()).find(u => u.id === (visita.user_id || visita.corretor_id));
+      const _inst = _user?.whatsappInstance;
+      const _tel = (_user?.celular||_user?.telefone||'').replace(/\D/g,'');
+      if (_inst && _tel) {
+        const EU = process.env.EVOLUTION_URL||'https://match-evolution-api.onrender.com';
+        const EK = process.env.EVOLUTION_KEY||'match2025evolution';
+        const _nome = visita.nome||'Cliente';
+        const _imovel = visita.imovel_titulo||visita.imovel_bairro||'o imóvel';
+        await fetch(EU+'/message/sendText/'+_inst,{method:'POST',headers:{'Content-Type':'application/json','apikey':EK},body:JSON.stringify({number:'55'+_tel.replace(/^55/,''),text:'*'+_nome+'* gostou do imovel *'+_imovel+'* e quer fazer uma proposta!\n\nEntre em contato para avancar.'})});
+      }
+    } catch(e) { console.error('[lead-gostou] WA:', e.message); }
+    res.render('visita-realizada-lead', { visita, respondido: true });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/visita/:id/lead-nao-gostou', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    await _q("UPDATE visitas SET status='nao_gostou', dados=jsonb_set(COALESCE(dados,'{}'),'{leadNaoGostouEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    try {
+      const { lerUsuarios: _lu } = require('./services/salvarUsuario');
+      const _user = (await _lu()).find(u => u.id === (visita.user_id || visita.corretor_id));
+      const _inst = _user?.whatsappInstance;
+      const _tel = (_user?.celular||_user?.telefone||'').replace(/\D/g,'');
+      if (_inst && _tel) {
+        const EU = process.env.EVOLUTION_URL||'https://match-evolution-api.onrender.com';
+        const EK = process.env.EVOLUTION_KEY||'match2025evolution';
+        const _nome = visita.nome||'Cliente';
+        const _imovel = visita.imovel_titulo||visita.imovel_bairro||'o imóvel';
+        await fetch(EU+'/message/sendText/'+_inst,{method:'POST',headers:{'Content-Type':'application/json','apikey':EK},body:JSON.stringify({number:'55'+_tel.replace(/^55/,''),text:'*'+_nome+'* nao gostou do imovel *'+_imovel+'*.\n\nTalvez precise de outras opcoes.'})});
+      }
+    } catch(e) { console.error('[lead-nao-gostou] WA:', e.message); }
+    res.render('visita-realizada-lead', { visita, respondido: true });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+// ── FIM ROTAS VISITA REALIZADA ────────────────────────────────────────────────

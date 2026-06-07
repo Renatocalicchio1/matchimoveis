@@ -64,6 +64,9 @@ var statusLabel={
   prop_confirmou:{cls:'st-confirmada',txt:'Prop. confirmou'},
   prop_remarcou:{cls:'st-solicitada',txt:'Prop. remarcou'},
   cliente_nao_vai:{cls:'st-cancelada',txt:'Cliente nao vai'},
+  nao_realizada:{cls:'st-cancelada',txt:'Não realizada'},
+  nao_gostou:{cls:'st-cancelada',txt:'Não gostou do imóvel'},
+  proposta:{cls:'st-realizada',txt:'Proposta'},
   cliente_nova_data:{cls:'st-solicitada',txt:'Nova data'},
   remarcada:{cls:'st-solicitada',txt:'Remarcada'},
   parceiro_confirmou:{cls:'st-confirmada',txt:'Parceiro confirmou'}
@@ -82,7 +85,8 @@ var colunas=[
 function getColuna(v){
   var st=(v.status||'solicitada').toLowerCase();
   if(st==='realizada'||st==='concluida') return 'realizada';
-  if(st==='cancelada'||st==='cliente_nao_vai'||st==='no_show'||st==='imovel_indisponivel'||st==='lead_recusou') return 'cancelada';
+  if(st==='cancelada'||st==='cliente_nao_vai'||st==='no_show'||st==='imovel_indisponivel'||st==='lead_recusou'||st==='nao_realizada'||st==='nao_gostou') return 'cancelada';
+  if(st==='proposta') return 'realizada';
   if(st==='lead_confirmou') return 'confirmada';
   if(st==='remarcado') return 'remarcacao';
   if(st==='confirmada'||st==='pendente_remarcar'||st==='prop_confirmou'||st==='parceiro_confirmou') return 'aguard_cliente';

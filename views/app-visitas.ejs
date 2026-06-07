@@ -254,14 +254,7 @@ var hojeV=visitas.filter(function(v){
         <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn vi-btn-zap">WA Cliente</a>
         <% } %>
       <% } %>
-      <% if((st==='solicitada'||st==='AGUARDANDO')&&!propTel){ %>
-      <button
-        class="vi-btn vi-btn-green"
-        title="Fale com o responsável pelo imóvel e depois confirme a visita no botão"
-        onclick="abrirModalConfirmarVisita('<%=v.id%>','<%=nome%>','<%=telefone%>')">
-        Confirmar visita
-      </button>
-      <% } %>
+
       <% if(col.key==='aguard_cliente'&&v.parceiroNome){ %>
         <% if(waParceiroEnviado&&!v.parceiroConfirmou){ %>
         <span class="vi-btn vi-btn-gray" title="WA enviado ao parceiro">✓ WA Parceiro <%=waParceiroEnviado%></span>

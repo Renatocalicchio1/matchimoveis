@@ -3605,6 +3605,9 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           !!(pf.bairro||d.bairro) &&
           !!(pf.valorMax||d.valorMax);
         if (temPerfilMinimo) { console.log('[WEBHOOK WA] lead com perfil minimo — vai criar nova para:', telefone); return false; }
+        // Se lead tem visita cancelada — vai criar nova
+        const _visitaCancelada = l.visitaStatus && ['cancelada','recusada','cancelado'].includes((l.visitaStatus||'').toLowerCase());
+        if (_visitaCancelada) { console.log('[WEBHOOK WA] lead com visita cancelada — vai criar nova para:', telefone); return false; }
         return true;
       }) || null;
     } catch(e) { console.error('[WEBHOOK WA] erro ao buscar lead:', e.message); }

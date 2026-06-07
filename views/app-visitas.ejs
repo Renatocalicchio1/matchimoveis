@@ -272,11 +272,7 @@ var hojeV=visitas.filter(function(v){
         <button type="submit" class="vi-btn vi-btn-red" onclick="return confirm('Cancelar esta visita?')">X</button>
       </form>
       <% } %>
-      <% if(st==='confirmada'||st==='CONFIRMADA'||st==='prop_confirmou'){ %>
-      <form method="POST" action="/app/visitas/concluir/<%=v.id%>" style="margin:0">
-        <button type="submit" class="vi-btn vi-btn-purple">Realizada</button>
-      </form>
-      <% } %>
+
     </div>
   </div>
   <% }); %>

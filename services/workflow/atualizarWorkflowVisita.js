@@ -11,18 +11,22 @@ async function atualizarWorkflowVisita(visitaId, workflowStatus, extras = {}) {
     const visita = r.rows[0];
 
     // Atualiza workflow no PG
+    // mapeia workflowStatus para status da visita
+    const _statusMap = { 'CONFIRMADA': 'confirmada', 'REALIZADA': 'realizada', 'CANCELADA': 'cancelada', 'REMARCAR': 'remarcar', 'AGUARDANDO_PROPRIETARIO': 'solicitada', 'AGUARDANDO_PARCEIRO': 'solicitada', 'AGUARDANDO_CORRETOR': 'solicitada' };
+    const _novoStatus = _statusMap[workflowStatus] || visita.status;
     await query(`
       UPDATE visitas SET
         workflow_status=$1, workflow_atualizado_em=NOW(),
         workflow_responsavel=$2, workflow_label=$3, workflow_proxima_acao=$4,
-        atualizado_em=NOW()
+        status=$6, atualizado_em=NOW()
       WHERE id=$5
     `, [
       workflowStatus,
       extras.workflowResponsavel || visita.workflow_responsavel || '',
       extras.workflowLabel || visita.workflow_label || '',
       extras.workflowProximaAcao || visita.workflow_proxima_acao || '',
-      visitaId
+      visitaId,
+      _novoStatus
     ]);
 
     // PIPELINE: atualiza faseFunil da lead no PG

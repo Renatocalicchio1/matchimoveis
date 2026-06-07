@@ -200,11 +200,7 @@ var hojeV=visitas.filter(function(v){
     else if(col.key==='aguard_cliente'){guia='Aguardando confirmação do cliente';guiaCor='#0ea5e9';}
     else if(col.key==='confirmada'){guia='Cliente confirmou — visita agendada!';guiaCor='#15803d';}
     else if(col.key==='realizada'){guia='Pergunte se gostou do imovel';guiaCor='#6366f1';}
-    else if(col.key==='cancelada'){
-      var _canceladaPor = v.canceladaPor || (v.dados&&v.dados.canceladaPor) || '';
-      guia = _canceladaPor==='cliente' ? '❌ Cancelada pelo cliente' : _canceladaPor==='corretor' ? '❌ Cancelada pelo corretor' : '❌ Visita cancelada';
-      guiaCor='#9ca3af';
-    }
+    else if(col.key==='cancelada'){guia='Oferea outra opcao ao cliente';guiaCor='#9ca3af';}
     var linkCliente=baseUrl+'/cliente/visita/'+v.id;
     var linkProprietario=baseUrl+'/proprietario/visita/'+v.id;
     var msgCliente='Ola '+nome+'! Sua visita foi confirmada!%0A%0AImovel: '+imovelTit+(imovelBairro?' - '+imovelBairro:'')+'%0AData: '+dataVisita+(horaVisita&&horaVisita!=='-'?'%0AHorario: '+horaVisita:'')+'%0A%0AConfirme sua presenca:%0A'+linkCliente;
@@ -280,7 +276,7 @@ var hojeV=visitas.filter(function(v){
       <% } %>
       <% if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'){ %>
       <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0">
-        <button type="submit" class="vi-btn vi-btn-red">X</button>
+        <button type="submit" class="vi-btn vi-btn-red" onclick="return confirm('Cancelar esta visita?')">X</button>
       </form>
       <% } %>
       <% if(st==='confirmada'||st==='CONFIRMADA'||st==='prop_confirmou'){ %>

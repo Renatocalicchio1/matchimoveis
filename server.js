@@ -5892,7 +5892,6 @@ app.post('/app/visitas/cancelar/:id', auth, async (req,res)=>{
     if(String(v.id) === String(req.params.id)){
       v.status = 'CANCELADA';
       v.canceladaAt = new Date().toISOString();
-      v.canceladaPor = 'corretor';
     }
     return v;
   });
@@ -6168,11 +6167,7 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
     const data = visita?.data_visita || '';
     const hora = visita?.hora_visita || '';
 
-    const _nomeV = visita?.nome || nome || '';
-    const _linkConfirmar = BASE_URL + '/cliente/visita/' + id + '/confirmar';
-    const _linkRecusar = BASE_URL + '/cliente/visita/' + id + '/recusar';
-    const _dataStr = data ? ' para ' + data + (hora ? ' às ' + hora : '') : '';
-    const msg = 'Olá *' + _nomeV + '*! Sua visita ao imóvel *' + imovel + '*' + _dataStr + ' foi confirmada!\n\nConfirme sua presença:\n✅ Confirmar: ' + _linkConfirmar + '\n❌ Não posso ir: ' + _linkRecusar;
+    const msg = 'Olá ' + (nome||'') + '! Sua visita ao imóvel *' + imovel + '* foi confirmada' + (data?' para '+data:'') + (hora?' às '+hora:'') + '.\n\nAcesse o link para confirmar presença, remarcar ou cancelar:\n' + link;
 
     // Envia WhatsApp pelo corretor logado
     const userId = req.session.user.id;
@@ -6180,8 +6175,7 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
     const users = await _luVC();
     const user = users.find(u => u.id === userId);
     const instancia = user?.whatsappInstance;
-    const _telV = (visita?.telefone || telefone || '').replace(/\D/g,'').replace(/^55/,'');
-    const numero = _telV ? '55' + _telV : '';
+    const numero = '55' + (telefone||'').replace(/\D/g,'').replace(/^55/,'');
 
     if (instancia && numero) {
       const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
@@ -6330,7 +6324,7 @@ app.post('/cliente/visita/:id/confirmar', async (req, res) => {
 app.post('/cliente/visita/:id/recusar', async (req, res) => {
   try {
     const { query: _qR } = require('./services/db');
-    await _qR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO', dados=jsonb_set(COALESCE(dados,'{}'),'{canceladaPor}','\"cliente\"') WHERE id=$1", [req.params.id]);
+    await _qR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO' WHERE id=$1", [req.params.id]);
     const _v = (await _qR('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (_v) {
       const { lerUsuarios: _lu } = require('./services/salvarUsuario');

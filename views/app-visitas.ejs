@@ -276,7 +276,7 @@ var hojeV=visitas.filter(function(v){
       <% } %>
       <% if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'){ %>
       <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0">
-        <button type="submit" class="vi-btn vi-btn-red" onclick="return confirm('Cancelar esta visita?')">X</button>
+        <button type="submit" class="vi-btn vi-btn-red">X</button>
       </form>
       <% } %>
       <% if(st==='confirmada'||st==='CONFIRMADA'||st==='prop_confirmou'){ %>

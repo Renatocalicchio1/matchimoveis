@@ -235,7 +235,12 @@ var hojeV=visitas.filter(function(v){
     <div class="vi-info">
       <div style="grid-column:span 2">
         <div class="vi-label">Imovel</div>
+        <% var _imovelLink = (v.imovelId) ? '/imovel/' + v.imovelId + '?userId=' + (v.userId||v.corretorId||'') : ''; %>
+        <% if(_imovelLink){ %>
+        <a href="<%=_imovelLink%>" target="_blank" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#6366f1;text-decoration:none;display:block"><%=imovelTit%><%=imovelBairro?' — '+imovelBairro:''%> ↗</a>
+        <% } else { %>
         <div class="vi-val" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%=imovelTit%><%=imovelBairro?' — '+imovelBairro:''%></div>
+        <% } %>
       </div>
       <div><div class="vi-label">Data</div><div class="vi-val"><%=dataVisita%></div></div>
       <div><div class="vi-label">Horario</div><div class="vi-val"><%=horaVisita&&horaVisita!=='-'?horaVisita:'---'%></div></div>

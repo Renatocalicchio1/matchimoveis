@@ -7593,15 +7593,10 @@ setInterval(async () => {
       const _imovel = v.imovel_titulo||v.imovel_bairro||'imóvel';
       const _cliente = v.nome||'cliente';
       const _linkCorretor = BASE_URL+'/visita/'+v.id+'/realizada-corretor';
-      const _linkLead = BASE_URL+'/visita/'+v.id+'/realizada-lead';
       // WA para o CORRETOR
       const _telC = (_user?.celular||_user?.telefone||'').replace(/\D/g,'');
       if(_telC) await _envWAVisita(_inst, '55'+_telC.replace(/^55/,''),
         'Ola ' + (_user?.nome||'Corretor') + '!\n\nA visita de *' + _cliente + '* ao imovel *' + _imovel + '* ja aconteceu?\n\nInforme aqui:\n' + _linkCorretor);
-      // WA para o LEAD
-      const _telL = (v.telefone||'').replace(/\D/g,'');
-      if(_telL) await _envWAVisita(_inst, '55'+_telL.replace(/^55/,''),
-        'Ola ' + _cliente + '!\n\nComo foi a visita ao *' + _imovel + '*?\n\nConta pra gente:\n' + _linkLead);
       // Salva flag no banco
       await _qJob("UPDATE visitas SET dados=jsonb_set(COALESCE(dados,'{}'),'{confirmacaoEnviada}',$1::jsonb) WHERE id=$2", [JSON.stringify(true), v.id]);
       console.log('[JOB VISITA] mensagens enviadas | visita:', v.id, '| lead:', _cliente);
@@ -7609,6 +7604,38 @@ setInterval(async () => {
   } catch(e) { console.error('[JOB VISITA REALIZADA]', e.message); }
 }, 15*60*1000);
 // ── FIM JOB_VISITA_REALIZADA ─────────────────────────────────────────────────
+
+// ── ROTAS VISITA REALIZADA CORRETOR ──────────────────────────────────────────
+app.get('/visita/:id/realizada-corretor', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (!visita) return res.status(404).send('Visita não encontrada');
+    const respondido = ['realizada','nao_realizada'].includes(visita.status);
+    const msg = visita.status === 'realizada' ? '✅ Visita marcada como realizada!' : '❌ Visita marcada como não realizada.';
+    res.render('visita-realizada-corretor', { visita, respondido, msg });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/visita/:id/marcar-realizada', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    await _q("UPDATE visitas SET status='realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{realizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (visita?.lead_id) await _q("UPDATE leads SET fase_funil='visitou', status='visitou', atualizado_em=NOW() WHERE id=$1", [visita.lead_id]);
+    res.render('visita-realizada-corretor', { visita, respondido: true, msg: '✅ Visita marcada como realizada!' });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    await _q("UPDATE visitas SET status='nao_realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    res.render('visita-realizada-corretor', { visita, respondido: true, msg: '❌ Visita marcada como não realizada.' });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+// ── FIM ROTAS VISITA REALIZADA ────────────────────────────────────────────────
 
 // ── ROTAS VISITA REALIZADA / LEAD FEEDBACK ────────────────────────────────────
 app.get('/visita/:id/realizada-corretor', async (req, res) => {

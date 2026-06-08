@@ -7421,7 +7421,9 @@ app.get('/api/feed/novos', auth, async (req, res) => {
       const mid2 = String(im.id_externo || '');
       const lc = [...(leadsMap[mid]||[]), ...(mid2 && mid2!==mid ? (leadsMap[mid2]||[]) : [])];
       const _score = lc.length * 10;
-      return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score};
+      const _uObjN = (_cacheUsuarios||[]).find(u=>u.id===uid||u.codigo_usuario===uid);
+      const _uTelN = (_uObjN?.celular||_uObjN?.telefone||'').replace(/\D/g,'');
+      return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTelN, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score};
     });
     const _porUser = {};
     imoveis.forEach(im => {

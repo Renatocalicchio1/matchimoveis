@@ -7261,7 +7261,7 @@ app.get('/app/feed', auth, async (req, res) => {
     const _mix = [];
     const _max = Math.max(..._grupos.map(g => g.length));
     for(let i=0; i<_max; i++){ _grupos.forEach(g => { if(g[i]) _mix.push(g[i]); }); }
-    imoveis = _mix.slice(0, 10000);
+    imoveis = _mix.slice(0, 500);
 
     res.render('app-feed', { user: req.session.user, imoveis });
   } catch(e) {

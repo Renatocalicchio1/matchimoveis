@@ -240,7 +240,6 @@ async function atualizarFeed() {
       _page = 0;
       renderPage();
       _marcarFavsBtns();
-      document.getElementById('feed-root').scrollTo({top:0, behavior:'smooth'});
     }
   } catch(e) { console.error('feed update error', e); }
 }

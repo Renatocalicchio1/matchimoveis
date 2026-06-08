@@ -208,7 +208,15 @@ function imovelToRow(i) {
     descricao: i.descricao || '',
     descricao_editada: i.descricaoEditada || false,
     diferenciais: JSON.stringify(Array.isArray(i.diferenciais) ? i.diferenciais : []),
-    fase: i.fase || '',
+    fase: (() => {
+      if (i.fase) return i.fase;
+      const txt = ((i.descricao||'') + ' ' + (i.titulo||'')).toLowerCase();
+      if (txt.includes('pronto para morar') || txt.includes('pronto pra morar') || txt.includes('entregue')) return 'pronto';
+      if (txt.includes('lançamento') || txt.includes('lancamento')) return 'lancamento';
+      if (txt.includes('na planta') || txt.includes('apartamento na planta')) return 'na_planta';
+      if (txt.includes('em construção') || txt.includes('em construcao') || txt.includes('em obras')) return 'em_construcao';
+      return '';
+    })(),
     ano_construcao: i.anoConstrucao || i.anoContrucao || i.ano_construcao || '',
     posicao_solar: i.posicaoSolar || i.posicao_solar || '',
     area_construida: parseFloat(i.area_construida || i.areaConstruida || 0) || 0,

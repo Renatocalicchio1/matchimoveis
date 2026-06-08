@@ -301,7 +301,7 @@ function _initMaps(list) {
       return;
     }
     const center = _uLat&&_uLng ? [(_uLat+iLat)/2,(_uLng+iLng)/2] : [iLat,iLng];
-    const map = L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false}).setView(center,15);
+    const map = L.map(el,{zoomControl:false,attributionControl:false,dragging:true,scrollWheelZoom:true,doubleClickZoom:true,touchZoom:true}).setView(center,15);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
     L.marker([iLat,iLng],{icon:L.divIcon({className:'',html:'<div style="background:#1D9E75;border:2px solid #fff;border-radius:50%;width:10px;height:10px;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[10,10],iconAnchor:[5,5]})}).addTo(map);
     if(_uLat&&_uLng){

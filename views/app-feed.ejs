@@ -247,6 +247,7 @@ async function atualizarFeed() {
       _marcarFavsBtns();
     }
   } catch(e) { console.error('feed update error', e); }
+  finally { if(btn) { btn.textContent = '↻ Atualizar feed'; btn.disabled = false; } }
 }
 
 // ── CARROSSEL ───────────────────────────────────────────────

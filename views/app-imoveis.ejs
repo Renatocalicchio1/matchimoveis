@@ -300,6 +300,8 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
     <!-- Body -->
     <div class="im-body" onclick="event.stopPropagation()">
       <span class="im-tipo"><%= item.tipo || 'Imóvel' %></span>
+      <% const _faseMapI = {pronto:'✅ Pronto',lancamento:'🚀 Lançamento',na_planta:'📐 Na planta',em_construcao:'🏗 Em construção',planta:'📐 Na planta',construcao:'🏗 Em construção'}; const _faseLabelI = _faseMapI[(item.fase||'').toLowerCase().replace(/\s/g,'_')]; %>
+      <% if(_faseLabelI){ %><span style="display:inline-block;background:#1D9E75;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px"><%=_faseLabelI%></span><% } %>
       <div class="im-valor">R$ <%= item.valor_imovel ? Number(item.valor_imovel).toLocaleString('pt-BR') : '—' %></div>
       <div class="im-end"><%= [item.bairro, item.cidade].filter(Boolean).join(', ') || '—' %></div>
 

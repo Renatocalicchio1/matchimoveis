@@ -142,6 +142,9 @@ function _renderPost(im, idx) {
     im.banheiros ? `<span class="fp-tag">${im.banheiros}bnh</span>` : '',
   ].filter(Boolean).join('');
 
+  const _faseMap = {pronto:'✅ Pronto',lancamento:'🚀 Lançamento',na_planta:'📐 Na planta',em_construcao:'🏗 Em construção',planta:'📐 Na planta',construcao:'🏗 Em construção'};
+  const _faseLabel = _faseMap[(im.fase||'').toLowerCase().replace(/\s/g,'_')] || null;
+  const badgeFase = _faseLabel ? `<span style="position:absolute;top:10px;left:10px;z-index:6;background:#1D9E75;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;box-shadow:0 2px 6px rgba(0,0,0,.2)">${_faseLabel}</span>` : '';
   const badgeVideo = tourUrl ? `<a href="${tourUrl}" target="_blank" style="position:absolute;top:10px;right:48px;z-index:6;background:rgba(0,0,0,.7);color:#fff;font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;text-decoration:none;display:flex;align-items:center;gap:4px;backdrop-filter:blur(4px)">▶ Tour 360°</a>` : '';
   const badgeLeads = im._leadsCompativeis > 0
     ? `<div style="position:absolute;top:10px;left:10px;z-index:6;background:#E8404A;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;box-shadow:0 2px 6px rgba(232,64,74,.4);display:flex;align-items:center;gap:4px">
@@ -166,6 +169,7 @@ function _renderPost(im, idx) {
     <div class="fp-more">···</div>
   </div>
   <div class="fp-photos" data-cur="0" data-total="${nSlides}">
+    ${badgeFase}
     ${badgeLeads}
     <div class="fp-track">${slidesHtml}</div>
     ${nSlides>1?'<button class="fp-arrow fp-arrow-prev" onclick="event.stopPropagation();this.closest(\'.fp-photos\').dispatchEvent(new CustomEvent(\'prev\'))">‹</button><button class="fp-arrow fp-arrow-next" onclick="event.stopPropagation();this.closest(\'.fp-photos\').dispatchEvent(new CustomEvent(\'next\'))">›</button>':''}

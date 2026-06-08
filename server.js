@@ -6885,6 +6885,7 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
         instanceName: instanceName2,
         integration: 'WHATSAPP-BAILEYS',
         qrcode: true,
+        syncFullHistory: false,
         webhook: {
           url: (process.env.BASE_URL || 'https://matchimoveis.onrender.com') + '/webhook/whatsapp',
           enabled: true,

@@ -179,6 +179,7 @@ function _renderPost(im, idx) {
     <div class="fp-end">${addr}</div>
     <div class="fp-tags">${tagsHtml}</div>
     <a href="/imovel/${im.id_interno||im.idInterno||im.id}?userId=${im.user_id||im.userId||im.codigoUsuario||''}" target="_blank" style="display:block;margin:8px 0 4px;font-size:11px;color:#E8404A;font-weight:500;text-decoration:none">Ver detalhes do imóvel →</a>
+    ${(()=>{ const _waTel=(im.user_celular||im.user_telefone||im.userCelular||im.userTelefone||'').replace(/\D/g,''); const _waName=im._nomeUsuario||im.nomeUsuario||'Corretor'; const _imovelLink='https://www.matchimoveis.ia.br/imovel/'+(im.id_interno||im.idInterno||im.id)+'?userId='+(im.user_id||im.userId||im.codigoUsuario||''); const _waMsg=encodeURIComponent('Olá, sou o corretor '+_waName+' e quero mais informações sobre este imóvel: '+_imovelLink); return _waTel ? '<a href="https://wa.me/55'+_waTel+'?text='+_waMsg+'" target="_blank" style="display:inline-flex;align-items:center;gap:5px;margin-top:4px;padding:5px 10px;background:#25d366;color:#fff;border-radius:8px;font-size:11px;font-weight:600;text-decoration:none">'+' WhatsApp Corretor</a>' : ''; })()}
   </div>
   <div class="fp-minimap" id="${mmId}"></div>
   </div>

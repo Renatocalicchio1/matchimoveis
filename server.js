@@ -7207,8 +7207,16 @@ app.get('/app/feed', auth, async (req, res) => {
     const _estadoUser = (/Santa Catarina/.test(_endUser) ? 'santa catarina' : /São Paulo|Sao Paulo/.test(_endUser) ? 'são paulo' : '').toLowerCase();
     const _cidadeUser = (req.session.user?.cidade || '').toLowerCase().trim();
 
-    const _vistosRow = await (async()=>{ try{ const {query:_qv}=require('./services/db'); const rv=await _qv('SELECT feed_vistos FROM usuarios WHERE id=$1',[req.session.user.id]); return rv.rows[0]?.feed_vistos||[]; }catch(e){return[];} })();
-    let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && (im.user_id || im.userId || im.codigoUsuario) && ((im.fotos && im.fotos.length > 0) || (im.tourVirtual && im.tourVirtual !== '')) && !_vistosRow.includes(String(im.id||im.id_externo||im.id_interno||'')));
+    const { query: _qVF } = require('./services/db');
+    const _vistosRow2 = await (async()=>{ try{ const rv=await _qVF('SELECT feed_vistos FROM usuarios WHERE id=$1',[req.session.user.id]); return rv.rows[0]?.feed_vistos||[]; }catch(e){return[];} })();
+    let _todosValidos = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && (im.user_id || im.userId || im.codigoUsuario) && ((im.fotos && im.fotos.length > 0) || (im.tourVirtual && im.tourVirtual !== '')));
+    let _naoVistos = _todosValidos.filter(im => !_vistosRow2.includes(String(im.id||im.id_externo||im.id_interno||'')));
+    // Se menos de 10 não vistos, reseta o baralho
+    if (_naoVistos.length < 10) {
+      await _qVF("UPDATE usuarios SET feed_vistos='[]'::jsonb WHERE id=$1", [req.session.user.id]);
+      _naoVistos = _todosValidos;
+    }
+    let imoveis = _naoVistos;
     imoveis = imoveis.map(im => {
       const uid = im.user_id || im.userId || im.codigoUsuario;
       const nomeUsuario = nomeMap[uid] || '';

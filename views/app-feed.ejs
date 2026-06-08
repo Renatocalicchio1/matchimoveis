@@ -455,11 +455,7 @@ renderPage();
 _marcarFavsBtns();
 atualizarFeed();
 // Atualiza feed ao voltar para a página
-document.addEventListener('visibilitychange', function() {
-  if (document.visibilityState === 'visible') {
-    atualizarFeed();
-  }
-});
+
 </script>
 
 <%- include('partials/app-end') %>

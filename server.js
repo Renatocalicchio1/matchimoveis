@@ -2055,6 +2055,12 @@ app.get('/app/cadastro', auth, async (req,res)=>{
 //});
 
 app.get('/app/perfil', auth, async (req,res)=>{
+  try {
+    const { lerUsuarios: _luP } = require('./services/salvarUsuario');
+    const _users = await _luP();
+    const _userFresh = _users.find(u => u.id === req.session.user.id);
+    if (_userFresh) req.session.user = { ...req.session.user, ..._userFresh };
+  } catch(e) {}
   res.render('app-perfil', { user: req.session.user });
 });
 

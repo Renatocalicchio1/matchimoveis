@@ -6927,7 +6927,9 @@ app.get('/app/whatsapp/status', auth, async (req, res) => {
       headers: { 'apikey': EVOLUTION_KEY }
     });
     const d = await r.json();
-    const status = d.instance?.state || 'close';
+    const _statusEvo = d.instance?.state || 'close';
+    const _statusBanco = _uStFind?.whatsapp_status || _uStFind?.whatsappStatus || '';
+    const status = (_statusBanco === 'disconnected') ? 'close' : _statusEvo;
 
     // Atualiza status no users.json
     if (status === 'open') {

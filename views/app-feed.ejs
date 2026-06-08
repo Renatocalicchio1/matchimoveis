@@ -21,6 +21,11 @@ body{overscroll-behavior-y:contain;}
 .fp-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.5);transition:all .25s;}
 .fp-dot.a{background:#fff;width:14px;border-radius:3px;}
 .fp-num{position:absolute;top:8px;right:10px;background:rgba(0,0,0,.45);color:#fff;font-size:9px;padding:2px 7px;border-radius:6px;}
+.fp-arrow{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;background:rgba(0,0,0,.45);border:none;border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:9;opacity:0;transition:opacity .2s;}
+.fp-photos:hover .fp-arrow{opacity:1;}
+.fp-arrow-prev{left:8px;}
+.fp-arrow-next{right:8px;}
+@media(hover:none){.fp-arrow{display:none;}}
 .fp-minimap{width:118px;height:118px;border-radius:10px;overflow:hidden;border:1.5px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,.12);background:#f0f0f0;flex-shrink:0;}
 .fp-tipo{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;background:var(--brand-light);color:var(--brand);margin-bottom:6px;}
 .fp-body{padding:12px;}
@@ -163,6 +168,7 @@ function _renderPost(im, idx) {
   <div class="fp-photos" data-cur="0" data-total="${nSlides}">
     ${badgeLeads}
     <div class="fp-track">${slidesHtml}</div>
+    ${nSlides>1?'<button class="fp-arrow fp-arrow-prev" onclick="event.stopPropagation();this.closest(\'.fp-photos\').dispatchEvent(new CustomEvent(\'prev\'))">‹</button><button class="fp-arrow fp-arrow-next" onclick="event.stopPropagation();this.closest(\'.fp-photos\').dispatchEvent(new CustomEvent(\'next\'))">›</button>':''}
     ${nSlides>1?`<div class="fp-dots">${dotsHtml}</div><div class="fp-num">1 / ${nSlides}</div>`:''}
   </div>
   <div class="fp-body">
@@ -254,6 +260,8 @@ function _initCarousels() {
       dots.forEach((d,i) => d.classList.toggle('a',i===cur));
       if(num) num.textContent = `${cur+1} / ${total}`;
     }
+    wrap.addEventListener('prev', ()=>goTo(cur-1));
+    wrap.addEventListener('next', ()=>goTo(cur+1));
     wrap.addEventListener('pointerdown', e=>{
       const slide = track.children[cur];
       if(slide && slide.classList.contains('fp-slide-video')) return;

@@ -440,7 +440,12 @@ function trocarAba(aba){
 // ── INIT ─────────────────────────────────────────────────────
 renderPage();
 _marcarFavsBtns();
-// atualizarFeed removido do init — só via botão ou pull-to-refresh
+// Atualiza feed ao voltar para a página
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') {
+    atualizarFeed();
+  }
+});
 </script>
 
 <%- include('partials/app-end') %>

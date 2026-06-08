@@ -178,19 +178,17 @@ function _renderPost(im, idx) {
   <div class="fp-body">
   <div style="display:flex;gap:10px;align-items:flex-start">
   <div style="flex:1;min-width:0">
-    <span class="fp-tipo">${im.tipo||'Imóvel'}</span>
-    <div class="fp-valor">${preco}</div>
-    <div class="fp-end">${addr}</div>
+    <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+      <span class="fp-tipo">${im.tipo||'Imóvel'}</span>
+      <span style="font-size:16px;font-weight:700;color:var(--dark)">${preco}</span>
+      <span style="font-size:11px;color:var(--text-ter)">${addr}</span>
+    </div>
     <div class="fp-tags">${tagsHtml}</div>
     <a href="/imovel/${im.id_interno||im.idInterno||im.id}?userId=${im.user_id||im.userId||im.codigoUsuario||''}" target="_blank" style="display:block;margin:8px 0 4px;font-size:11px;color:#E8404A;font-weight:500;text-decoration:none">Ver detalhes do imóvel →</a>
   </div>
   <!-- mapa oculto <div class="fp-minimap" id="${mmId}"></div> -->
   </div>
-    <div class="fp-ia">
-      <span class="fp-ia-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="#1D9E75"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg> IA</span>
-      <div class="fp-ia-bg"><div class="fp-ia-fill" data-target="${compat}"></div></div>
-      <span class="fp-ia-pct">0%</span>
-    </div>
+    <!-- barra IA oculta -->
     <div class="fp-actions">
       <button class="fp-btn" data-like="${im.id||im.id_externo||idx}" aria-label="Gostei">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>

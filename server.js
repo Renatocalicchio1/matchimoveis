@@ -7639,6 +7639,30 @@ app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
 });
 // ── FIM ROTAS VISITA REALIZADA ────────────────────────────────────────────────
 
+// ── ROTAS FAVORITOS ──────────────────────────────────────────────────────────
+app.get('/api/favoritos', auth, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const r = await _q('SELECT favoritos FROM usuarios WHERE id=$1', [req.session.user.id]);
+    res.json({ ok: true, favoritos: r.rows[0]?.favoritos || [] });
+  } catch(e) { res.json({ ok: false, favoritos: [] }); }
+});
+
+app.post('/api/favoritos/toggle', auth, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const { imovelId } = req.body;
+    const r = await _q('SELECT favoritos FROM usuarios WHERE id=$1', [req.session.user.id]);
+    let favs = r.rows[0]?.favoritos || [];
+    const idx = favs.indexOf(String(imovelId));
+    if (idx === -1) favs.push(String(imovelId));
+    else favs.splice(idx, 1);
+    await _q('UPDATE usuarios SET favoritos=$1 WHERE id=$2', [JSON.stringify(favs), req.session.user.id]);
+    res.json({ ok: true, favoritos: favs, acao: idx === -1 ? 'adicionado' : 'removido' });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+// ── FIM ROTAS FAVORITOS ───────────────────────────────────────────────────────
+
 // ── ROTAS VISITA REALIZADA / LEAD FEEDBACK ────────────────────────────────────
 app.get('/visita/:id/realizada-corretor', async (req, res) => {
   try {

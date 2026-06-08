@@ -394,20 +394,19 @@ function fecharShare() {
 
 // ── FAVORITOS ───────────────────────────────────────────────
 let _abaAtiva = 'feed';
-function _getFavs(){ try{ return JSON.parse(localStorage.getItem('mi_favs')||'[]'); }catch(e){ return []; } }
-function _setFavs(arr){ localStorage.setItem('mi_favs', JSON.stringify(arr)); }
+let _favsCache = [];
+async function _loadFavs(){ try{ const r=await fetch('/api/favoritos'); const d=await r.json(); _favsCache=d.favoritos||[]; }catch(e){ _favsCache=[]; } }
+function _getFavs(){ return _favsCache; }
 function toggleFav(btn, id){
-  const favs = _getFavs();
-  const idx = favs.indexOf(String(id));
-  if(idx === -1){ favs.push(String(id)); btn.classList.add('saved'); }
-  else{ favs.splice(idx,1); btn.classList.remove('saved'); }
-  _setFavs(favs);
-  if(_abaAtiva === 'favs') renderFavs();
+  fetch('/api/favoritos/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imovelId:id})})
+    .then(r=>r.json()).then(d=>{
+      if(d.ok){ _favsCache=d.favoritos; btn.classList.toggle('saved', _favsCache.includes(String(id))); if(_abaAtiva==='favs') renderFavs(); }
+    });
 }
 function _marcarFavsBtns(){
   const favs = _getFavs();
   document.querySelectorAll('[data-fav]').forEach(btn => {
-    if(favs.includes(String(btn.dataset.fav))) btn.classList.add('saved');
+    btn.classList.toggle('saved', favs.includes(String(btn.dataset.fav)));
     else btn.classList.remove('saved');
   });
 }
@@ -451,9 +450,7 @@ function trocarAba(aba){
   else{ renderLeads(); }
 }
 // ── INIT ─────────────────────────────────────────────────────
-renderPage();
-_marcarFavsBtns();
-atualizarFeed();
+_loadFavs().then(()=>{ renderPage(); _marcarFavsBtns(); atualizarFeed(); });
 // Atualiza feed ao voltar para a página
 document.addEventListener('visibilitychange', function() {
   if (document.visibilityState === 'visible') {

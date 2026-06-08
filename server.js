@@ -7623,6 +7623,7 @@ app.post('/visita/:id/marcar-realizada', async (req, res) => {
     await _q("UPDATE visitas SET status='realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{realizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (visita?.lead_id) await _q("UPDATE leads SET fase_funil='visitou', status='visitou', atualizado_em=NOW() WHERE id=$1", [visita.lead_id]);
+    if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0) _cacheVisitas[_ci].status='realizada'; }
     res.render('visita-realizada-corretor', { visita, respondido: true, msg: '✅ Visita marcada como realizada!' });
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
@@ -7632,6 +7633,7 @@ app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
     const { query: _q } = require('./services/db');
     await _q("UPDATE visitas SET status='nao_realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0) _cacheVisitas[_ci].status='nao_realizada'; }
     res.render('visita-realizada-corretor', { visita, respondido: true, msg: '❌ Visita marcada como não realizada.' });
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });

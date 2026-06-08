@@ -318,6 +318,9 @@ function _observeSentinel() {
   const obs = new IntersectionObserver(entries => {
     if(entries[0].isIntersecting) {
       obs.disconnect();
+      // marca os imóveis da página atual como vistos
+      const _slice = _imoveis.slice(0, _page * 10);
+      _slice.forEach(im => _marcarVisto(im.id||im.id_externo||im.id_interno||''));
       _page++;
       renderPage();
     }
@@ -450,6 +453,19 @@ function trocarAba(aba){
   else if(aba==='favs'){ renderFavs(); }
   else{ renderLeads(); }
 }
+// ── MARCAR VISTOS ───────────────────────────────────────────
+let _vistosPendentes = [];
+let _vistosTimer = null;
+function _marcarVisto(id) {
+  if (!_vistosPendentes.includes(String(id))) _vistosPendentes.push(String(id));
+  clearTimeout(_vistosTimer);
+  _vistosTimer = setTimeout(() => {
+    if (!_vistosPendentes.length) return;
+    fetch('/api/feed/marcar-visto', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids:[..._vistosPendentes]})});
+    _vistosPendentes = [];
+  }, 3000);
+}
+
 // ── INIT ─────────────────────────────────────────────────────
 renderPage();
 _marcarFavsBtns();

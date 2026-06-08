@@ -7207,7 +7207,8 @@ app.get('/app/feed', auth, async (req, res) => {
     const _estadoUser = (/Santa Catarina/.test(_endUser) ? 'santa catarina' : /São Paulo|Sao Paulo/.test(_endUser) ? 'são paulo' : '').toLowerCase();
     const _cidadeUser = (req.session.user?.cidade || '').toLowerCase().trim();
 
-    let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && (im.user_id || im.userId || im.codigoUsuario) && ((im.fotos && im.fotos.length > 0) || (im.tourVirtual && im.tourVirtual !== '')));
+    const _vistosRow = await (async()=>{ try{ const {query:_qv}=require('./services/db'); const rv=await _qv('SELECT feed_vistos FROM usuarios WHERE id=$1',[req.session.user.id]); return rv.rows[0]?.feed_vistos||[]; }catch(e){return[];} })();
+    let imoveis = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && (im.user_id || im.userId || im.codigoUsuario) && ((im.fotos && im.fotos.length > 0) || (im.tourVirtual && im.tourVirtual !== '')) && !_vistosRow.includes(String(im.id||im.id_externo||im.id_interno||'')));
     imoveis = imoveis.map(im => {
       const uid = im.user_id || im.userId || im.codigoUsuario;
       const nomeUsuario = nomeMap[uid] || '';
@@ -7606,6 +7607,53 @@ setInterval(async () => {
   } catch(e) { console.error('[JOB VISITA REALIZADA]', e.message); }
 }, 15*60*1000);
 // ── FIM JOB_VISITA_REALIZADA ─────────────────────────────────────────────────
+
+// ── ROTAS FAVORITOS ──────────────────────────────────────────────────────────
+app.get('/api/favoritos', auth, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const r = await _q('SELECT favoritos FROM usuarios WHERE id=$1', [req.session.user.id]);
+    res.json({ ok: true, favoritos: r.rows[0]?.favoritos || [] });
+  } catch(e) { res.json({ ok: false, favoritos: [] }); }
+});
+
+app.post('/api/favoritos/toggle', auth, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const { imovelId } = req.body;
+    const r = await _q('SELECT favoritos FROM usuarios WHERE id=$1', [req.session.user.id]);
+    let favs = r.rows[0]?.favoritos || [];
+    const idx = favs.indexOf(String(imovelId));
+    if (idx === -1) favs.push(String(imovelId));
+    else favs.splice(idx, 1);
+    await _q('UPDATE usuarios SET favoritos=$1 WHERE id=$2', [JSON.stringify(favs), req.session.user.id]);
+    res.json({ ok: true, favoritos: favs, acao: idx === -1 ? 'adicionado' : 'removido' });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// ── ROTAS FEED VISTOS ────────────────────────────────────────────────────────
+app.post('/api/feed/marcar-visto', auth, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const { ids } = req.body;
+    if (!ids || !ids.length) return res.json({ ok: true });
+    const r = await _q('SELECT feed_vistos FROM usuarios WHERE id=$1', [req.session.user.id]);
+    let vistos = r.rows[0]?.feed_vistos || [];
+    ids.forEach(id => { if (!vistos.includes(String(id))) vistos.push(String(id)); });
+    if (vistos.length > 500) vistos = vistos.slice(-500);
+    await _q('UPDATE usuarios SET feed_vistos=$1 WHERE id=$2', [JSON.stringify(vistos), req.session.user.id]);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false }); }
+});
+
+app.post('/api/feed/limpar-vistos', auth, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    await _q("UPDATE usuarios SET feed_vistos='[]'::jsonb WHERE id=$1", [req.session.user.id]);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false }); }
+});
+// ── FIM ROTAS FEED ────────────────────────────────────────────────────────────
 
 // ── ROTAS VISITA REALIZADA CORRETOR ──────────────────────────────────────────
 app.get('/visita/:id/realizada-corretor', async (req, res) => {

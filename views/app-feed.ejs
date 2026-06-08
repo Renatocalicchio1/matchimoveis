@@ -21,7 +21,7 @@ body{overscroll-behavior-y:contain;}
 .fp-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.5);transition:all .25s;}
 .fp-dot.a{background:#fff;width:14px;border-radius:3px;}
 .fp-num{position:absolute;top:8px;right:10px;background:rgba(0,0,0,.45);color:#fff;font-size:9px;padding:2px 7px;border-radius:6px;}
-.fp-minimap{position:absolute;bottom:10px;right:10px;width:72px;height:72px;border-radius:8px;overflow:hidden;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:10;background:#f0f0f0;}
+.fp-minimap{width:100%;height:110px;border-radius:10px;overflow:hidden;border:1.5px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,.12);background:#f0f0f0;margin-top:10px;}
 .fp-tipo{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;background:var(--brand-light);color:var(--brand);margin-bottom:6px;}
 .fp-body{padding:12px;}
 .fp-valor{font-size:18px;font-weight:700;color:var(--dark);letter-spacing:-.3px;margin-bottom:3px;}
@@ -164,7 +164,6 @@ function _renderPost(im, idx) {
     ${badgeLeads}
     <div class="fp-track">${slidesHtml}</div>
     ${nSlides>1?`<div class="fp-dots">${dotsHtml}</div><div class="fp-num">1 / ${nSlides}</div>`:''}
-    <div class="fp-minimap" id="${mmId}"></div>
   </div>
   <div class="fp-body">
     <span class="fp-tipo">${im.tipo||'Imóvel'}</span>
@@ -172,6 +171,7 @@ function _renderPost(im, idx) {
     <div class="fp-end">${addr}</div>
     <div class="fp-tags">${tagsHtml}</div>
     <a href="/imovel/${im.id_interno||im.idInterno||im.id}?userId=${im.user_id||im.userId||im.codigoUsuario||''}" target="_blank" style="display:block;margin:8px 0 4px;font-size:11px;color:#E8404A;font-weight:500;text-decoration:none">Ver detalhes do imóvel →</a>
+    <div class="fp-minimap" id="${mmId}"></div>
     <div class="fp-ia">
       <span class="fp-ia-lbl"><svg width="10" height="10" viewBox="0 0 24 24" fill="#1D9E75"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg> IA</span>
       <div class="fp-ia-bg"><div class="fp-ia-fill" data-target="${compat}"></div></div>
@@ -288,7 +288,7 @@ function _initMaps(list) {
       return;
     }
     const center = _uLat&&_uLng ? [(_uLat+iLat)/2,(_uLng+iLng)/2] : [iLat,iLng];
-    const map = L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false}).setView(center,13);
+    const map = L.map(el,{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false}).setView(center,15);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
     L.marker([iLat,iLng],{icon:L.divIcon({className:'',html:'<div style="background:#1D9E75;border:2px solid #fff;border-radius:50%;width:10px;height:10px;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[10,10],iconAnchor:[5,5]})}).addTo(map);
     if(_uLat&&_uLng){

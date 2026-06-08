@@ -2055,12 +2055,6 @@ app.get('/app/cadastro', auth, async (req,res)=>{
 //});
 
 app.get('/app/perfil', auth, async (req,res)=>{
-  try {
-    const { lerUsuarios: _luP } = require('./services/salvarUsuario');
-    const _users = await _luP();
-    const _userFresh = _users.find(u => u.id === req.session.user.id);
-    if (_userFresh) req.session.user = { ...req.session.user, ..._userFresh };
-  } catch(e) {}
   res.render('app-perfil', { user: req.session.user });
 });
 
@@ -6885,7 +6879,6 @@ app.get('/app/whatsapp/qrcode', auth, async (req, res) => {
         instanceName: instanceName2,
         integration: 'WHATSAPP-BAILEYS',
         qrcode: true,
-        syncFullHistory: false,
         webhook: {
           url: (process.env.BASE_URL || 'https://matchimoveis.onrender.com') + '/webhook/whatsapp',
           enabled: true,
@@ -7037,9 +7030,7 @@ app.get('/app/whatsapp/status', auth, async (req, res) => {
       headers: { 'apikey': EVOLUTION_KEY }
     });
     const d = await r.json();
-    const _statusEvo = d.instance?.state || 'close';
-    const _statusBanco = _uStFind?.whatsapp_status || _uStFind?.whatsappStatus || '';
-    const status = (_statusBanco === 'disconnected') ? 'close' : _statusEvo;
+    const status = d.instance?.state || 'close';
 
     // Atualiza status no users.json
     if (status === 'open') {

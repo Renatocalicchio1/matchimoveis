@@ -227,27 +227,31 @@ function renderPage() {
   _initCarousels();
   _animateBars();
   _initMaps(slice);
-  setTimeout(_observeSentinel, 1500);
+  setTimeout(_observeSentinel, 300);
 }
 
 // ── ATUALIZAR FEED ──────────────────────────────────────────
-async function atualizarFeed() {
+async function atualizarFeed(append=false) {
   const btn = document.getElementById('btn-feed-refresh');
-  if(btn) { btn.textContent = 'Atualizando...'; btn.disabled = true; }
+  if(!append && btn) { btn.textContent = 'Atualizando...'; btn.disabled = true; }
   try {
     const r = await fetch('/api/feed/novos?since=0&shuffle='+Date.now());
     const d = await r.json();
     if(d.imoveis && d.imoveis.length) {
       const _sh = [...d.imoveis];
       for(let i=_sh.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[_sh[i],_sh[j]]=[_sh[j],_sh[i]];}
-      _imoveis.length = 0;
-      _sh.forEach(i => _imoveis.push(i));
-      _page = 0;
+      if(append) {
+        _sh.forEach(i => _imoveis.push(i));
+      } else {
+        _imoveis.length = 0;
+        _sh.forEach(i => _imoveis.push(i));
+        _page = 0;
+      }
       renderPage();
       _marcarFavsBtns();
     }
   } catch(e) { console.error('feed update error', e); }
-  finally { if(btn) { btn.textContent = '↻ Atualizar feed'; btn.disabled = false; } }
+  finally { if(!append && btn) { btn.textContent = '↻ Atualizar feed'; btn.disabled = false; } }
 }
 
 // ── CARROSSEL ───────────────────────────────────────────────
@@ -319,7 +323,11 @@ function _initMaps(list) {
 // ── SCROLL INFINITO ─────────────────────────────────────────
 function _observeSentinel() {
   const s = document.getElementById('feed-sentinel');
-  if(!s) return;
+  if(!s) {
+    // sem sentinel = acabou os imoveis — busca mais e adiciona
+    if(_imoveis.length > 0) atualizarFeed(true);
+    return;
+  }
   const obs = new IntersectionObserver(entries => {
     if(entries[0].isIntersecting) {
       obs.disconnect();

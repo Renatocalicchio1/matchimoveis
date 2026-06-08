@@ -7369,7 +7369,7 @@ app.get('/api/feed/com-lead', auth, async (req, res) => {
       const imIdExt = String(im.id_externo || '');
       const lc = [...(leadsMap[imId]||[]), ...(leadsMap[imIdExt]||[])];
       const unique = lc.filter((l,i,a) => a.findIndex(x=>x.id===l.id)===i);
-      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: unique.length, _leadsNomes: unique.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score: unique.length * 10};
+      return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel, _dist: 9999, _leadsCompativeis: unique.length, _leadsNomes: unique.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score: unique.length * 10};
     });
     res.json({ imoveis });
   } catch(e) {
@@ -7415,7 +7415,7 @@ app.get('/api/feed/novos', auth, async (req, res) => {
       const mid2 = String(im.id_externo || '');
       const lc = [...(leadsMap[mid]||[]), ...(mid2 && mid2!==mid ? (leadsMap[mid2]||[]) : [])];
       const _score = lc.length * 10;
-      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score};
+      return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score};
     });
     const _porUser = {};
     imoveis.forEach(im => {

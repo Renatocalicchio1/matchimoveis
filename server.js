@@ -322,6 +322,19 @@ tr:hover td{background:#fafafa;}
       <tbody>${rows}</tbody>
     </table>
   </div>
+  <div class="card" style="margin-top:16px;padding:16px;">
+    <div style="font-weight:700;margin-bottom:12px;font-size:13px;">🌐 XML Global & Webhook</div>
+    <div style="margin-bottom:8px;">
+      <strong>XML ImovelWeb Global:</strong>
+      <a href="/admin/xml/imovelweb-global" target="_blank" style="color:#2563eb;margin-left:8px;">/admin/xml/imovelweb-global</a>
+      <span style="color:#888;font-size:11px;margin-left:8px;">— todos os imóveis da plataforma</span>
+    </div>
+    <div>
+      <strong>Webhook ImovelWeb Global:</strong>
+      <span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">POST https://www.matchimoveis.ia.br/webhook/imovelweb-global</span>
+      <span style="color:#888;font-size:11px;margin-left:8px;">— identifica corretor pelo ID do imóvel</span>
+    </div>
+  </div>
 </div>
 </body>
 </html>`);

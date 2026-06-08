@@ -7229,7 +7229,7 @@ app.get('/app/feed', auth, async (req, res) => {
       const _carteiraBairro = _carteiraScore(_bairro);
       const _carteiraCidade = _carteiraScore(_cidade);
       const _score = (lc.length * 10) + _demanda + _proxEstado + _proxCidade + _recencia + _carteiraBairro + (_carteiraCidade * 0.5);
-      const _uTel1 = (u?.celular||u?.telefone||'').replace(/\D/g,''); return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel1, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score};
+      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score};
     });
     // intercala 1x1 por usuario — cada grupo ordenado por data desc
     const _porUser = {};
@@ -7367,7 +7367,7 @@ app.get('/api/feed/com-lead', auth, async (req, res) => {
       const imIdExt = String(im.id_externo || '');
       const lc = [...(leadsMap[imId]||[]), ...(leadsMap[imIdExt]||[])];
       const unique = lc.filter((l,i,a) => a.findIndex(x=>x.id===l.id)===i);
-      const _uTel2 = (u?.celular||u?.telefone||'').replace(/\D/g,''); return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel2, _dist: 9999, _leadsCompativeis: unique.length, _leadsNomes: unique.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score: unique.length * 10};
+      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: unique.length, _leadsNomes: unique.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score: unique.length * 10};
     });
     res.json({ imoveis });
   } catch(e) {
@@ -7413,7 +7413,7 @@ app.get('/api/feed/novos', auth, async (req, res) => {
       const mid2 = String(im.id_externo || '');
       const lc = [...(leadsMap[mid]||[]), ...(mid2 && mid2!==mid ? (leadsMap[mid2]||[]) : [])];
       const _score = lc.length * 10;
-      const _uTel3 = (u?.celular||u?.telefone||'').replace(/\D/g,''); return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel3, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score};
+      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score};
     });
     const _porUser = {};
     imoveis.forEach(im => {
@@ -7638,30 +7638,6 @@ app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 // ── FIM ROTAS VISITA REALIZADA ────────────────────────────────────────────────
-
-// ── ROTAS FAVORITOS ──────────────────────────────────────────────────────────
-app.get('/api/favoritos', auth, async (req, res) => {
-  try {
-    const { query: _q } = require('./services/db');
-    const r = await _q('SELECT favoritos FROM usuarios WHERE id=$1', [req.session.user.id]);
-    res.json({ ok: true, favoritos: r.rows[0]?.favoritos || [] });
-  } catch(e) { res.json({ ok: false, favoritos: [] }); }
-});
-
-app.post('/api/favoritos/toggle', auth, async (req, res) => {
-  try {
-    const { query: _q } = require('./services/db');
-    const { imovelId } = req.body;
-    const r = await _q('SELECT favoritos FROM usuarios WHERE id=$1', [req.session.user.id]);
-    let favs = r.rows[0]?.favoritos || [];
-    const idx = favs.indexOf(String(imovelId));
-    if (idx === -1) favs.push(String(imovelId));
-    else favs.splice(idx, 1);
-    await _q('UPDATE usuarios SET favoritos=$1 WHERE id=$2', [JSON.stringify(favs), req.session.user.id]);
-    res.json({ ok: true, favoritos: favs, acao: idx === -1 ? 'adicionado' : 'removido' });
-  } catch(e) { res.json({ ok: false, erro: e.message }); }
-});
-// ── FIM ROTAS FAVORITOS ───────────────────────────────────────────────────────
 
 // ── ROTAS VISITA REALIZADA / LEAD FEEDBACK ────────────────────────────────────
 app.get('/visita/:id/realizada-corretor', async (req, res) => {

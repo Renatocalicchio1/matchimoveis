@@ -7229,7 +7229,7 @@ app.get('/app/feed', auth, async (req, res) => {
       const _carteiraBairro = _carteiraScore(_bairro);
       const _carteiraCidade = _carteiraScore(_cidade);
       const _score = (lc.length * 10) + _demanda + _proxEstado + _proxCidade + _recencia + _carteiraBairro + (_carteiraCidade * 0.5);
-      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score};
+      const _uTel1 = (u?.celular||u?.telefone||'').replace(/\D/g,''); return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel1, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score};
     });
     // intercala 1x1 por usuario — cada grupo ordenado por data desc
     const _porUser = {};
@@ -7367,7 +7367,7 @@ app.get('/api/feed/com-lead', auth, async (req, res) => {
       const imIdExt = String(im.id_externo || '');
       const lc = [...(leadsMap[imId]||[]), ...(leadsMap[imIdExt]||[])];
       const unique = lc.filter((l,i,a) => a.findIndex(x=>x.id===l.id)===i);
-      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: unique.length, _leadsNomes: unique.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score: unique.length * 10};
+      const _uTel2 = (u?.celular||u?.telefone||'').replace(/\D/g,''); return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel2, _dist: 9999, _leadsCompativeis: unique.length, _leadsNomes: unique.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score: unique.length * 10};
     });
     res.json({ imoveis });
   } catch(e) {
@@ -7413,7 +7413,7 @@ app.get('/api/feed/novos', auth, async (req, res) => {
       const mid2 = String(im.id_externo || '');
       const lc = [...(leadsMap[mid]||[]), ...(mid2 && mid2!==mid ? (leadsMap[mid2]||[]) : [])];
       const _score = lc.length * 10;
-      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score};
+      const _uTel3 = (u?.celular||u?.telefone||'').replace(/\D/g,''); return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel3, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _score};
     });
     const _porUser = {};
     imoveis.forEach(im => {

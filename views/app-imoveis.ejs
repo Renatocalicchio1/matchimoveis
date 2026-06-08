@@ -328,7 +328,6 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
       <div class="im-actions">
         <a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>" class="im-btn ver" onclick="event.stopPropagation()">Ver</a>
         <a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a>
-        <a href="https://wa.me/?text=<%= encodeURIComponent('Olá! Confira este imóvel: https://www.matchimoveis.ia.br/imovel/' + (item.id_interno||item.idInterno||item.id) + '?userId=<%= user.id %>') %>" target="_blank" class="im-btn" style="background:#f0fdf4;color:#15803d;border-color:#86efac" onclick="event.stopPropagation()">Compartilhar</a>
         <form method="POST" action="/app/imovel/<%= (item.idExterno && item.idExterno.trim()) ? item.idExterno : (item.idInterno || item.id) %>/excluir" style="display:inline" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" class="im-btn" style="background:#fef2f2;color:#b91c1c;border-color:#fca5a5" onclick="event.stopPropagation()">Excluir</button></form>
       </div>
     </div>

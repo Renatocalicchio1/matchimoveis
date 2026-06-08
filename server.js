@@ -7238,7 +7238,8 @@ app.get('/app/feed', auth, async (req, res) => {
       const _carteiraBairro = _carteiraScore(_bairro);
       const _carteiraCidade = _carteiraScore(_cidade);
       const _score = (lc.length * 10) + _demanda + _proxEstado + _proxCidade + _recencia + _carteiraBairro + (_carteiraCidade * 0.5);
-      return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score};
+      const _likesCount = Array.isArray(im.dados?.likes) ? im.dados.likes.length : 0;
+      return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score, _likesCount};
     });
     // intercala 1x1 por usuario — cada grupo ordenado por data desc
     const _porUser = {};

@@ -322,19 +322,6 @@ tr:hover td{background:#fafafa;}
       <tbody>${rows}</tbody>
     </table>
   </div>
-  <div class="card" style="margin-top:16px;padding:16px;">
-    <div style="font-weight:700;margin-bottom:12px;font-size:13px;">🌐 XML Global & Webhook</div>
-    <div style="margin-bottom:8px;">
-      <strong>XML ImovelWeb Global:</strong>
-      <a href="/admin/xml/imovelweb-global" target="_blank" style="color:#2563eb;margin-left:8px;">/admin/xml/imovelweb-global</a>
-      <span style="color:#888;font-size:11px;margin-left:8px;">— todos os imóveis da plataforma</span>
-    </div>
-    <div>
-      <strong>Webhook ImovelWeb Global:</strong>
-      <span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">POST https://www.matchimoveis.ia.br/webhook/imovelweb-global</span>
-      <span style="color:#888;font-size:11px;margin-left:8px;">— identifica corretor pelo ID do imóvel</span>
-    </div>
-  </div>
 </div>
 </body>
 </html>`);
@@ -810,7 +797,7 @@ app.post('/cadastro-secreto', async (req,res)=>{ return res.redirect('/'); // CA
   const prefixo = tipoConta==='imobiliaria' ? 'imob' : tipoConta==='corretor' ? 'cor' : 'usr';
   const uid = prefixo+'_'+Math.random().toString(36).substring(2,8)+Date.now().toString(36).slice(-4);
   const codigo = (nome||'USR').substring(0,3).toUpperCase()+'-'+Math.floor(1000+Math.random()*9000);
-  users.push({id:uid,nome,telefone,celular:telefone,senha,tipo:tipoConta||'corretor',ativo:true,codigoUsuario:codigo,matchCoins:2500,matchCoinsTotal:2500,matchCoinsBonusInicial:2500});
+  users.push({id:uid,nome,telefone,celular:telefone,senha,tipo:tipoConta||'corretor',ativo:true,codigoUsuario:codigo,matchCoins:1000,matchCoinsTotal:1000,matchCoinsBonusInicial:1000});
   salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
   res.send('<h2 style="color:green;font-family:Arial">Conta criada!</h2><p>ID: '+uid+'</p><p>Codigo: '+codigo+'</p><a href="/login">Ir para login</a>');
 });
@@ -846,7 +833,7 @@ app.post('/login', async (req,res)=>{
       codigoUsuario: _codigoNovo,
       matchCoins: 1000,
       matchCoinsTotal: 1000,
-      matchCoinsBonusInicial: 2500
+      matchCoinsBonusInicial: 1000
     };
 
     users.push(novo);
@@ -3959,96 +3946,6 @@ app.get('/mapa', (req, res) => {
 
 // ====== FEED REELS ======
 // rota /feed removida — usar /app/feed
-
-// ── XML GLOBAL ADMIN ────────────────────────────────────────────────────────
-app.get('/admin/xml/imovelweb-global', async (req, res) => {
-  try {
-    const { lerImoveis: _lerXG } = require('./services/salvarImovel');
-    const { lerUsuarios: _lerUXG } = require('./services/salvarUsuario');
-    const todos = await _lerXG();
-    const usuarios = await _lerUXG();
-    const ativos = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && im.fotos && im.fotos.length > 0);
-    const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const linhas = [];
-    linhas.push('<?xml version="1.0" encoding="UTF-8"?>');
-    linhas.push('<ListingDataFeed xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">');
-    linhas.push('<Header>');
-    linhas.push('  <Provider>MatchImoveis</Provider>');
-    linhas.push('  <Email>contato@matchimoveis.ia.br</Email>');
-    linhas.push('</Header>');
-    linhas.push('<Listings>');
-    for (const im of ativos) {
-      const uid = im.user_id || im.userId || im.codigoUsuario || '';
-      const u = usuarios.find(u => u.id === uid || u.codigo_usuario === uid);
-      const _id = im.id_externo || im.id_interno || im.id || '';
-      const _preco = im.valor_imovel || 0;
-      const _fotos = (im.fotos||[]).slice(0,20);
-      linhas.push('<Listing>');
-      linhas.push('  <ListingID>'+esc(_id)+'</ListingID>');
-      linhas.push('  <Title><![CDATA['+esc(im.titulo||im.tipo||'Imovel')+']]></Title>');
-      linhas.push('  <Description><![CDATA['+esc(im.descricao||'')+']]></Description>');
-      linhas.push('  <ContactInfo>');
-      linhas.push('    <Name>'+esc(u?.nome||'MatchImoveis')+'</Name>');
-      linhas.push('    <Email>'+esc(u?.email||'contato@matchimoveis.ia.br')+'</Email>');
-      linhas.push('    <Telephone>'+esc((u?.celular||u?.telefone||'').replace(/\D/g,''))+'</Telephone>');
-      linhas.push('    <Website>https://www.matchimoveis.ia.br</Website>');
-      linhas.push('  </ContactInfo>');
-      linhas.push('  <Details>');
-      linhas.push('    <PropertyType>'+esc(im.tipo||'Apartamento')+'</PropertyType>');
-      linhas.push('    <ListPrice currency="BRL">'+_preco+'</ListPrice>');
-      linhas.push('    <Bedrooms>'+esc(im.quartos||0)+'</Bedrooms>');
-      linhas.push('    <Suites>'+esc(im.suites||0)+'</Suites>');
-      linhas.push('    <Bathrooms>'+esc(im.banheiros||0)+'</Bathrooms>');
-      linhas.push('    <Garage>'+esc(im.vagas||0)+'</Garage>');
-      linhas.push('    <LivingArea>'+esc(im.area_m2||0)+'</LivingArea>');
-      linhas.push('    <Phase>'+esc(im.fase||'')+'</Phase>');
-      linhas.push('  </Details>');
-      linhas.push('  <Location>');
-      linhas.push('    <Country>Brasil</Country>');
-      linhas.push('    <State>'+esc(im.estado||'')+'</State>');
-      linhas.push('    <City>'+esc(im.cidade||'')+'</City>');
-      linhas.push('    <Neighborhood>'+esc(im.bairro||'')+'</Neighborhood>');
-      linhas.push('    <Address>'+esc(im.endereco||'')+'</Address>');
-      if(im.latitude && im.longitude){ linhas.push('    <Latitude>'+im.latitude+'</Latitude>'); linhas.push('    <Longitude>'+im.longitude+'</Longitude>'); }
-      linhas.push('  </Location>');
-      linhas.push('  <Media>');
-      _fotos.forEach(f => { linhas.push('    <Item medium="image"><![CDATA['+f+']]></Item>'); });
-      if(im.tourVirtual) linhas.push('    <Item medium="video"><![CDATA['+im.tourVirtual+']]></Item>');
-      linhas.push('  </Media>');
-      linhas.push('</Listing>');
-    }
-    linhas.push('</Listings>');
-    linhas.push('</ListingDataFeed>');
-    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-    res.send(linhas.join('\n'));
-  } catch(e) { res.status(500).send('Erro: '+e.message); }
-});
-
-// ── WEBHOOK IMOVELWEB GLOBAL ──────────────────────────────────────────────────
-app.post('/webhook/imovelweb-global', async (req, res) => {
-  try {
-    res.status(200).json({ ok: true });
-    const body = req.body;
-    const { query: _qWG } = require('./services/db');
-    const reference = body.reference || body.listingId || body.listing_id || '';
-    if (!reference) return;
-    const _imRow = await _qWG('SELECT * FROM imoveis WHERE id_externo=$1 OR id_interno=$1 OR id=$1 LIMIT 1', [String(reference)]);
-    const im = _imRow.rows[0];
-    if (!im) { console.log('[webhook-global] imovel nao encontrado:', reference); return; }
-    const userId = im.user_id || im.codigo_usuario || '';
-    if (!userId) return;
-    const { processarLeadPortal } = require('./cerebro/portal-processor');
-    const nome = body.name || body.clientName || '';
-    const email = body.email || body.clientEmail || '';
-    const phones = (body.phone || body.clientPhone || '').split('/');
-    const telefone = phones[phones.length - 1].replace(/\D/g,'');
-    const mensagem = body.message || body.clientMessage || '';
-    if (!telefone && !email) return;
-    await processarLeadPortal({ nome, email, telefone, mensagem, origemEntrada: 'webhook_imovelweb_global', imovelId: reference, imovelRef: im, userId, canal: 'ImovelWeb' });
-    console.log('[webhook-global] lead processada | userId:', userId, '| tel:', telefone);
-  } catch(e) { console.error('[webhook-global]', e.message); }
-});
-// ── FIM XML/WEBHOOK GLOBAL ────────────────────────────────────────────────────
 
 app.get('/api/imoveis', auth, async (req, res) => {
   const imoveis = await lerImoveis(req.session.user.id);

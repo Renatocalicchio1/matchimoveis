@@ -7211,6 +7211,8 @@ app.get('/app/feed', auth, async (req, res) => {
     imoveis = imoveis.map(im => {
       const uid = im.user_id || im.userId || im.codigoUsuario;
       const nomeUsuario = nomeMap[uid] || '';
+      const _uObj = (_cacheUsuarios||[]).find(u=>u.id===uid||u.codigo_usuario===uid);
+      const _uTel = (_uObj?.celular||_uObj?.telefone||'').replace(/\D/g,'');
       const mid = String(im.id || im.id_externo || '');
       const mid2 = String(im.id_externo || '');
       const lc = [...(leadsMap[mid]||[]), ...(mid2 && mid2!==mid ? (leadsMap[mid2]||[]) : [])];
@@ -7229,7 +7231,7 @@ app.get('/app/feed', auth, async (req, res) => {
       const _carteiraBairro = _carteiraScore(_bairro);
       const _carteiraCidade = _carteiraScore(_cidade);
       const _score = (lc.length * 10) + _demanda + _proxEstado + _proxCidade + _recencia + _carteiraBairro + (_carteiraCidade * 0.5);
-      return {...im, _nomeUsuario: nomeUsuario, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score};
+      return {...im, _nomeUsuario: nomeUsuario, _userTelefone: _uTel, _dist: 9999, _leadsCompativeis: lc.length, _leadsNomes: lc.slice(0,3).map(l=>({nome:l.nome,tel:l.tel||''})), _demanda, _score};
     });
     // intercala 1x1 por usuario — cada grupo ordenado por data desc
     const _porUser = {};

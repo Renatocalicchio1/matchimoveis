@@ -3945,9 +3945,7 @@ app.get('/mapa', (req, res) => {
 });
 
 // ====== FEED REELS ======
-app.get('/feed', (req, res) => {
-  res.render('feed-reels', { user: req.session.user });
-});
+// rota /feed removida — usar /app/feed
 
 app.get('/api/imoveis', auth, async (req, res) => {
   const imoveis = await lerImoveis(req.session.user.id);
@@ -7250,16 +7248,14 @@ app.get('/app/feed', auth, async (req, res) => {
       _porUser[uid].push(im);
     });
     const _grupos = Object.values(_porUser);
-    // ordena cada grupo: vídeo primeiro, depois por data desc
-    _grupos.forEach(g => g.sort((a,b) => {
-      const av = !!(a.tourVirtual||a.tour_virtual); const bv = !!(b.tourVirtual||b.tour_virtual);
-      if(av && !bv) return -1; if(!av && bv) return 1;
-      return (b._score||0) - (a._score||0);
-    }));
-    // move vídeos para topo de cada grupo, depois intercala 1x1
+    // embaralha a ordem dos grupos (usuários) a cada requisição
+    for(let i=_grupos.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[_grupos[i],_grupos[j]]=[_grupos[j],_grupos[i]];}
+    // dentro de cada grupo: vídeos primeiro, resto embaralhado
     _grupos.forEach(g => {
       const comVid = g.filter(i => i.tourVirtual && i.tourVirtual !== '');
-      const semVid = g.filter(i => !i.tourVirtual || i.tourVirtual === '');
+      let semVid = g.filter(i => !i.tourVirtual || i.tourVirtual === '');
+      // embaralha os sem vídeo
+      for(let i=semVid.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[semVid[i],semVid[j]]=[semVid[j],semVid[i]];}
       g.length = 0; comVid.forEach(i => g.push(i)); semVid.forEach(i => g.push(i));
     });
     const _mix = [];

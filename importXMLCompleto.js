@@ -127,6 +127,16 @@ function parseListing(l) {
         if (cat.includes('new') || cat.includes('novo') || tit.includes('novo') || tit.includes(' na planta') || desc.includes('na planta')) return 'novo';
         return 'usado';
       })(),
+      fase: (() => {
+        const _desc = (l.Description || '').toLowerCase();
+        const _tit = (l.Title || '').toLowerCase();
+        const _txt = _desc + ' ' + _tit;
+        if (_txt.includes('pronto para morar') || _txt.includes('pronto pra morar') || _txt.includes('entregue') || _txt.includes('pronto p/ morar')) return 'pronto';
+        if (_txt.includes('lançamento') || _txt.includes('lancamento')) return 'lancamento';
+        if (_txt.includes('na planta') || _txt.includes('apartamento na planta')) return 'na_planta';
+        if (_txt.includes('em construção') || _txt.includes('em construcao') || _txt.includes('em obras')) return 'em_construcao';
+        return '';
+      })(),
       bairro: extractText(location.Neighborhood),
       cidade: extractText(location.City),
       estado: extractText(location.State),

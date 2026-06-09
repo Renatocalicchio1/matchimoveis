@@ -140,6 +140,8 @@
         <% if(imovel.cep) { %><div class="info-row"><span class="info-lbl">CEP</span><span class="info-val"><%= imovel.cep %></span></div><% } %>
         <% if(imovel.iptu > 0) { %><div class="info-row"><span class="info-lbl">IPTU</span><span class="info-val">R$ <%= Number(imovel.iptu).toLocaleString('pt-BR') %>/ano</span></div><% } %>
         <% if(imovel.andar) { %><div class="info-row"><span class="info-lbl">Andar</span><span class="info-val"><%= imovel.andar %>º</span></div><% } %>
+        <% if(imovel.idInterno||imovel.id_interno) { %><div class="info-row"><span class="info-lbl">Cód. Interno</span><span class="info-val" style="font-size:11px;color:#888"><%= imovel.idInterno||imovel.id_interno %></span></div><% } %>
+        <% if(imovel.idExterno||imovel.id_externo) { %><div class="info-row"><span class="info-lbl">Cód. Referência</span><span class="info-val" style="font-size:11px;color:#888"><%= imovel.idExterno||imovel.id_externo %></span></div><% } %>
       </div>
       <div class="cta-card">
         <div style="font-size:15px;font-weight:700;margin-bottom:4px">Interessado neste imóvel?</div>

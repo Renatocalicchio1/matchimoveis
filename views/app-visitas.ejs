@@ -240,18 +240,12 @@ var hojeV=visitas.filter(function(v){
       </div>
       <div><div class="vi-label">Data</div><div class="vi-val"><%=dataVisita%></div></div>
       <div><div class="vi-label">Horario</div><div class="vi-val"><%=horaVisita&&horaVisita!=='-'?horaVisita:'---'%></div></div>
-      <% if(propTel){ %><div><div class="vi-label">Proprietario</div><div class="vi-val" style="color:<%=propConfirmou?'#15803d':'#d97706'%>"><%=propConfirmou?'Confirmou':'Aguardando'%></div></div><% } %>
+
       <div><div class="vi-label">Cliente</div><div class="vi-val" style="color:<%=clienteConfirmou?'#15803d':'#d97706'%>"><%=clienteConfirmou?'Confirmou':'Aguardando'%></div></div>
     </div>
 
     <div class="vi-actions">
-      <% if(propTel&&!propRespondeu){ %>
-        <% if(waPropEnviado){ %>
-        <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn vi-btn-gray" title="Sistema enviou — clique para reenviar">✓ WA Prop. <%=waPropEnviado%></a>
-        <% } else { %>
-        <a href="https://wa.me/55<%=propTel%>?text=<%=msgProp%>" target="_blank" class="vi-btn vi-btn-zap-dark">WA Prop.</a>
-        <% } %>
-      <% } %>
+      
       <% if(telefone&&mostrarBtnCliente){ %>
         <% if(waClienteEnviado){ %>
         <a href="https://wa.me/55<%=telefone%>?text=<%=msgCliente%>" target="_blank" class="vi-btn vi-btn-gray" title="Sistema enviou — clique para reenviar">✓ WA Cliente <%=waClienteEnviado%></a>

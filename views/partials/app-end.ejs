@@ -23,5 +23,21 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+<div id="_tip" style="display:none;position:fixed;background:#1a1a1a;color:#fff;font-size:11px;font-weight:500;padding:5px 10px;border-radius:6px;white-space:nowrap;z-index:9999;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.2)"></div>
+<script>
+(function(){
+  const tip = document.getElementById('_tip');
+  document.querySelectorAll('.menu a[title]').forEach(a => {
+    a.addEventListener('mouseenter', e => {
+      const r = a.getBoundingClientRect();
+      tip.textContent = a.getAttribute('title');
+      tip.style.display = 'block';
+      tip.style.left = (r.right + 8) + 'px';
+      tip.style.top = (r.top + r.height/2 - 14) + 'px';
+    });
+    a.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+  });
+})();
+</script>
 </body>
 </html>

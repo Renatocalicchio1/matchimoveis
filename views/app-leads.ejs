@@ -98,18 +98,15 @@
 
 <!-- Filtros -->
 <div class="fi-bar">
-  <div class="fi-search-row">
-    <input class="fi-input" id="filter-search" placeholder="Buscar por nome, celular, bairro..." oninput="aplicarFiltros()">
-    <button class="fi-btn" onclick="toggleFAdv()">Filtros</button>
-    <button class="fi-btn fi-btn-dark" onclick="rodarMatchBase()" id="btn-match-base" style="display:none">Match IA</button>
-    <button class="fi-btn fi-btn-dark" onclick="abrirModalImportarLeads()">+ Importar</button>
-  </div>
-  <div class="chips-row">
-    <span class="chips-lbl">Temperatura</span>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <input class="fi-input" id="filter-search" placeholder="Buscar..." oninput="aplicarFiltros()" style="flex:1;min-width:160px">
     <button class="fchip on" onclick="setChip('temp','',this)">Todas</button>
     <button class="fchip" onclick="setChip('temp','quente',this)" style="color:#dc2626;border-color:#fca5a5">Quente</button>
     <button class="fchip" onclick="setChip('temp','morno',this)" style="color:#d97706;border-color:#fcd34d">Morno</button>
     <button class="fchip" onclick="setChip('temp','frio',this)" style="color:#2563eb;border-color:#bfdbfe">Frio</button>
+    <button class="fi-btn" onclick="toggleFAdv()">Filtros</button>
+    <button class="fi-btn fi-btn-dark" onclick="abrirModalImportarLeads()">+ Importar</button>
+    <button class="fi-btn fi-btn-dark" onclick="rodarMatchBase()" id="btn-match-base" style="display:none">Match IA</button>
   </div>
   <div class="chips-row" style="display:none">
     <span class="chips-lbl">Origem</span>

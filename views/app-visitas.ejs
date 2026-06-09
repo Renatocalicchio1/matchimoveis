@@ -119,18 +119,15 @@ var hojeV=visitas.filter(function(v){
 </div>
 
 <div class="fi-bar">
-  <div style="display:flex;gap:8px;margin-bottom:10px">
-    <input class="fi-input" id="vf-busca" placeholder="Buscar cliente, imovel, bairro..." oninput="filtrarVisitas()">
-    <button class="fi-btn" onclick="toggleFAdv()">Filtros</button>
-    <button class="fi-btn" onclick="location.reload()">Atualizar</button>
-  </div>
-  <div class="chips-row">
-    <span class="chips-lbl">Periodo</span>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <input class="fi-input" id="vf-busca" placeholder="Buscar..." oninput="filtrarVisitas()" style="flex:1;min-width:160px">
     <button class="fchip on" onclick="setChipV('periodo','',this)">Todos</button>
     <button class="fchip" onclick="setChipV('periodo','atrasada',this)">Atrasadas</button>
     <button class="fchip" onclick="setChipV('periodo','hoje',this)">Hoje</button>
-    <button class="fchip" onclick="setChipV('periodo','amanha',this)">Amanha</button>
-    <button class="fchip" onclick="setChipV('periodo','semana',this)">Essa semana</button>
+    <button class="fchip" onclick="setChipV('periodo','amanha',this)">Amanhã</button>
+    <button class="fchip" onclick="setChipV('periodo','semana',this)">Semana</button>
+    <button class="fi-btn" onclick="toggleFAdv()">Filtros</button>
+    <button class="fi-btn" onclick="location.reload()">Atualizar</button>
   </div>
   <div id="fadv-v" style="display:none;margin-top:10px;padding-top:10px;border-top:0.5px solid rgba(0,0,0,.06)">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">

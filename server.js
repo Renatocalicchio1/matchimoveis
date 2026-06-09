@@ -7071,19 +7071,13 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
     const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
     const lead = idx >= 0 ? leads[idx] : {};
     const telefone = String(lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g,'');
-    // Salva na lista negra do usuário
-    const users = (_cacheUsuarios || []);
-    const uidx = users.findIndex(u => u.id === uid);
-    if (uidx >= 0) {
-      if (!users[uidx].bloqueados) users[uidx].bloqueados = [];
-      if (telefone && !users[uidx].bloqueados.includes(telefone)) {
-        users[uidx].bloqueados.push(telefone);
-        salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
-      }
+    // Salva na lista negra do usuário no banco
+    const { query: _qBlk } = require('./services/db');
+    if (telefone) {
+      await _qBlk("UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'), '{bloqueados}', COALESCE(dados->'bloqueados','[]')::jsonb || $1::jsonb) WHERE id=$2 AND NOT (dados->'bloqueados' @> $1::jsonb)", [JSON.stringify([telefone]), uid]);
     }
-    // Remove a lead
-    leads.splice(idx, 1);
-    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+    // Remove a lead do banco
+    await deletarLead(req.params.id, uid);
     console.log('[LEAD] bloqueada:', telefone, 'por:', uid);
     res.json({ ok: true, bloqueado: telefone });
   } catch(e) {

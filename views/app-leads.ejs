@@ -101,7 +101,7 @@
   <div class="fi-search-row">
     <input class="fi-input" id="filter-search" placeholder="Buscar por nome, celular, bairro..." oninput="aplicarFiltros()">
     <button class="fi-btn" onclick="toggleFAdv()">Filtros</button>
-    <button class="fi-btn fi-btn-dark" onclick="rodarMatchBase()" id="btn-match-base">Match IA</button>
+    <button class="fi-btn fi-btn-dark" onclick="rodarMatchBase()" id="btn-match-base" style="display:none">Match IA</button>
     <button class="fi-btn fi-btn-dark" onclick="abrirModalImportarLeads()">+ Importar</button>
   </div>
   <div class="chips-row">
@@ -111,7 +111,7 @@
     <button class="fchip" onclick="setChip('temp','morno',this)" style="color:#d97706;border-color:#fcd34d">Morno</button>
     <button class="fchip" onclick="setChip('temp','frio',this)" style="color:#2563eb;border-color:#bfdbfe">Frio</button>
   </div>
-  <div class="chips-row">
+  <div class="chips-row" style="display:none">
     <span class="chips-lbl">Origem</span>
     <button class="fchip on" onclick="setChip('origem','',this)">Todas</button>
     <button class="fchip" onclick="setChip('origem','whatsapp',this)">WhatsApp</button>

@@ -322,6 +322,11 @@ tr:hover td{background:#fafafa;}
       <tbody>${rows}</tbody>
     </table>
   </div>
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 24px;">
+    <div style="font-weight:700;margin-bottom:12px;font-size:13px;">🌐 XML Global & Webhook ImovelWeb</div>
+    <div style="margin-bottom:8px;font-size:12px;"><strong>XML Global:</strong><a href="/admin/xml/imovelweb-global" target="_blank" style="color:#2563eb;margin-left:8px;">/admin/xml/imovelweb-global</a><span style="color:#888;margin-left:8px;">— todos os imóveis da plataforma</span></div>
+    <div style="font-size:12px;"><strong>Webhook Global:</strong><span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">POST https://www.matchimoveis.ia.br/webhook/imovelweb-global</span></div>
+  </div>
 </div>
 </body>
 </html>`);
@@ -330,6 +335,70 @@ tr:hover td{background:#fafafa;}
   }
 });
 
+
+// ── XML GLOBAL ADMIN ────────────────────────────────────────────────────────
+app.get('/admin/xml/imovelweb-global', async (req, res) => {
+  try {
+    const { lerImoveis: _lerXG } = require('./services/salvarImovel');
+    const { lerUsuarios: _lerUXG } = require('./services/salvarUsuario');
+    const todos = await _lerXG();
+    const usuarios = await _lerUXG();
+    const ativos = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && im.fotos && im.fotos.length > 0);
+    const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const linhas = [];
+    linhas.push('<?xml version="1.0" encoding="UTF-8"?>');
+    linhas.push('<ListingDataFeed xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">');
+    linhas.push('<Header><Provider>MatchImoveis</Provider><Email>contato@matchimoveis.ia.br</Email></Header>');
+    linhas.push('<Listings>');
+    for (const im of ativos) {
+      const uid = im.user_id || im.userId || im.codigoUsuario || '';
+      const u = usuarios.find(u => u.id === uid || u.codigo_usuario === uid);
+      const _id = im.id_externo || im.id_interno || im.id || '';
+      const _fotos = (im.fotos||[]).slice(0,20);
+      linhas.push('<Listing>');
+      linhas.push('<ListingID>'+esc(_id)+'</ListingID>');
+      linhas.push('<Title><![CDATA['+esc(im.titulo||im.tipo||'Imovel')+']]></Title>');
+      linhas.push('<Description><![CDATA['+esc(im.descricao||'')+']]></Description>');
+      linhas.push('<ContactInfo><Name>'+esc(u?.nome||'MatchImoveis')+'</Name><Email>'+esc(u?.email||'contato@matchimoveis.ia.br')+'</Email><Telephone>'+esc((u?.celular||u?.telefone||'').replace(/\D/g,''))+'</Telephone><Website>https://www.matchimoveis.ia.br</Website></ContactInfo>');
+      linhas.push('<Details><PropertyType>'+esc(im.tipo||'Apartamento')+'</PropertyType><ListPrice currency="BRL">'+(im.valor_imovel||0)+'</ListPrice><Bedrooms>'+esc(im.quartos||0)+'</Bedrooms><Suites>'+esc(im.suites||0)+'</Suites><Bathrooms>'+esc(im.banheiros||0)+'</Bathrooms><Garage>'+esc(im.vagas||0)+'</Garage><LivingArea>'+esc(im.area_m2||0)+'</LivingArea><Phase>'+esc(im.fase||'')+'</Phase></Details>');
+      linhas.push('<Location><Country>Brasil</Country><State>'+esc(im.estado||'')+'</State><City>'+esc(im.cidade||'')+'</City><Neighborhood>'+esc(im.bairro||'')+'</Neighborhood><Address>'+esc(im.endereco||'')+'</Address>'+(im.latitude&&im.longitude?'<Latitude>'+im.latitude+'</Latitude><Longitude>'+im.longitude+'</Longitude>':'')+'</Location>');
+      linhas.push('<Media>');
+      _fotos.forEach(f => linhas.push('<Item medium="image"><![CDATA['+f+']]></Item>'));
+      if(im.tourVirtual) linhas.push('<Item medium="video"><![CDATA['+im.tourVirtual+']]></Item>');
+      linhas.push('</Media>');
+      linhas.push('</Listing>');
+    }
+    linhas.push('</Listings></ListingDataFeed>');
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.send(linhas.join('\n'));
+  } catch(e) { res.status(500).send('Erro: '+e.message); }
+});
+
+// ── WEBHOOK IMOVELWEB GLOBAL ──────────────────────────────────────────────────
+app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
+  try {
+    res.status(200).json({ ok: true });
+    const body = req.body;
+    const { query: _qWG } = require('./services/db');
+    const reference = body.reference || body.listingId || body.listing_id || '';
+    if (!reference) return;
+    const _imRow = await _qWG('SELECT * FROM imoveis WHERE id_externo=$1 OR id_interno=$1 OR id=$1 LIMIT 1', [String(reference)]);
+    const im = _imRow.rows[0];
+    if (!im) { console.log('[webhook-global] imovel nao encontrado:', reference); return; }
+    const userId = im.user_id || im.codigo_usuario || '';
+    if (!userId) return;
+    const { processarLeadPortal } = require('./cerebro/portal-processor');
+    const nome = body.name || body.clientName || '';
+    const email = body.email || body.clientEmail || '';
+    const phones = (body.phone || body.clientPhone || '').split('/');
+    const telefone = phones[phones.length - 1].replace(/\D/g,'');
+    const mensagem = body.message || body.clientMessage || '';
+    if (!telefone && !email) return;
+    await processarLeadPortal({ nome, email, telefone, mensagem, origemEntrada: 'webhook_imovelweb_global', imovelId: reference, imovelRef: im, userId, canal: 'ImovelWeb' });
+    console.log('[webhook-global] lead processada | userId:', userId, '| tel:', telefone);
+  } catch(e) { console.error('[webhook-global]', e.message); }
+});
+// ── FIM XML/WEBHOOK GLOBAL ────────────────────────────────────────────────────
 
 app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
   try {

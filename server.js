@@ -7078,7 +7078,7 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
     console.log('[BLOQUEAR] telefone:', telefone, '| uid:', uid);
     // Salva na lista negra do usuário no banco
     if (telefone) {
-      await _qBlk("UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'), '{bloqueados}', COALESCE(dados->'bloqueados','[]')::jsonb || $1::jsonb) WHERE id=$2 AND NOT (dados->'bloqueados' @> $1::jsonb)", [JSON.stringify([telefone]), uid]);
+      await _qBlk("UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'), '{bloqueados}', COALESCE(dados->'bloqueados','[]')::jsonb || $1::jsonb) WHERE codigo_usuario=$2 AND NOT (dados->'bloqueados' @> $1::jsonb)", [JSON.stringify([telefone]), uid]);
       console.log('[BLOQUEAR] salvo no banco!');
     }
     // Remove a lead do banco

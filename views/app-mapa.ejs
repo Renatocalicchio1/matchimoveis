@@ -107,9 +107,16 @@ if(navigator.geolocation){
     _uLat = pos.coords.latitude;
     _uLng = pos.coords.longitude;
     if(!window._geoIniciou){
-      // primeira fix: centraliza o mapa
       _map.setView([_uLat,_uLng],13);
       window._geoIniciou = true;
+      // salva no banco apenas na primeira fix
+      fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+_uLat+'&lon='+_uLng)
+        .then(r=>r.json()).then(d=>{
+          const _end = d.display_name || (_uLat+', '+_uLng);
+          fetch('/app/perfil/localizacao', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({lat:_uLat, lng:_uLng, endereco:_end})});
+        }).catch(()=>{
+          fetch('/app/perfil/localizacao', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({lat:_uLat, lng:_uLng, endereco:_uLat+', '+_uLng})});
+        });
     }
     if(window._pinVoce){ _map.removeLayer(window._pinVoce); }
     window._pinVoce = L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#1D9E75',null,true)})

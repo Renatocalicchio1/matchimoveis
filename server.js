@@ -2622,34 +2622,27 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
 
 const PORT = process.env.PORT || port || 3000;
 
-app.post('/app/perfil/localizacao', auth, async (req,res)=>{
+app.post('/app/perfil/localizacao', auth, express.json(), async (req,res)=>{
   const { lat, lng, endereco } = req.body;
-  const users = (_cacheUsuarios || []);
-  const idx = users.findIndex(u => u.id === req.session.user.id);
-  if(idx >= 0) {
-    users[idx].lat = parseFloat(lat);
-    users[idx].lng = parseFloat(lng);
-    users[idx].endereco = endereco || '';
-    req.session.user = users[idx];
-    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
-  }
+  const isJson = (req.headers['content-type']||'').includes('application/json');
+  try {
+    const { query: _qLoc } = require('./services/db');
+    await _qLoc('UPDATE usuarios SET lat=$1, lng=$2, endereco=$3 WHERE id=$4', [parseFloat(lat), parseFloat(lng), endereco||'', req.session.user.id]);
+    const users = (_cacheUsuarios || []);
+    const idx = users.findIndex(u => u.id === req.session.user.id);
+    if(idx >= 0) {
+      users[idx].lat = parseFloat(lat);
+      users[idx].lng = parseFloat(lng);
+      users[idx].endereco = endereco || '';
+      req.session.user = { ...req.session.user, ...users[idx] };
+    }
+  } catch(e) { console.error('[localizacao]', e.message); }
+  if(isJson) return res.json({ok:true});
   res.redirect('/app/perfil');
 });
 
 
-app.post('/app/perfil/localizacao', auth, async (req,res)=>{
-  const { lat, lng, endereco } = req.body;
-  const users = (_cacheUsuarios || []);
-  const idx = users.findIndex(u => u.id === req.session.user.id);
-  if(idx >= 0) {
-    users[idx].lat = parseFloat(lat);
-    users[idx].lng = parseFloat(lng);
-    users[idx].endereco = endereco || '';
-    req.session.user = users[idx];
-    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
-  }
-  res.redirect('/app/perfil');
-});
+
 
 
 // Servir XML dos portais

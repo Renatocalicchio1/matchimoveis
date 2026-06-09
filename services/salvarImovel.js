@@ -184,7 +184,11 @@ function imovelToRow(i) {
     status: i.status || 'ativo',
     bairro: i.bairro || '',
     cidade: i.cidade || '',
-    estado: typeof i.estado === 'object' ? (i.estado?.abbreviation || i.estado?.['#text'] || '') : (i.estado || ''),
+    estado: (() => {
+      const _map = {'SP':'São Paulo','SC':'Santa Catarina','BA':'Bahia','RJ':'Rio de Janeiro','MG':'Minas Gerais','PR':'Paraná','RS':'Rio Grande do Sul','GO':'Goiás','DF':'Distrito Federal','PE':'Pernambuco','CE':'Ceará','AM':'Amazonas','PA':'Pará','MT':'Mato Grosso','MS':'Mato Grosso do Sul','ES':'Espírito Santo','RN':'Rio Grande do Norte','PB':'Paraíba','AL':'Alagoas','PI':'Piauí','MA':'Maranhão','SE':'Sergipe','TO':'Tocantins','RO':'Rondônia','AC':'Acre','RR':'Roraima','AP':'Amapá'};
+      const _e = typeof i.estado === 'object' ? (i.estado?.abbreviation || i.estado?.['#text'] || '') : (i.estado || '');
+      return _map[_e.trim().toUpperCase()] || _e;
+    })(),
     endereco: i.endereco || '',
     numero: i.numero || '',
     complemento: i.complemento || '',

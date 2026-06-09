@@ -139,7 +139,11 @@ function parseListing(l) {
       })(),
       bairro: extractText(location.Neighborhood),
       cidade: extractText(location.City),
-      estado: extractText(location.State),
+      estado: (() => {
+        const _map = {'SP':'São Paulo','SC':'Santa Catarina','BA':'Bahia','RJ':'Rio de Janeiro','MG':'Minas Gerais','PR':'Paraná','RS':'Rio Grande do Sul','GO':'Goiás','DF':'Distrito Federal','PE':'Pernambuco','CE':'Ceará','AM':'Amazonas','PA':'Pará','MT':'Mato Grosso','MS':'Mato Grosso do Sul','ES':'Espírito Santo','RN':'Rio Grande do Norte','PB':'Paraíba','AL':'Alagoas','PI':'Piauí','MA':'Maranhão','SE':'Sergipe','TO':'Tocantins','RO':'Rondônia','AC':'Acre','RR':'Roraima','AP':'Amapá'};
+        const _e = extractText(location.State) || '';
+        return _map[_e.trim().toUpperCase()] || _e;
+      })(),
       endereco: extractText(location.Address),
       numero: extractText(location.StreetNumber),
       complemento: extractText(location.Complement),

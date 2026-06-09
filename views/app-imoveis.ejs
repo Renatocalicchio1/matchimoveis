@@ -422,7 +422,7 @@ function atualizarCidades() {
   const cids = cidKey2 && _cidades[cidKey2] ? _cidades[cidKey2] : [];
   cids.forEach(cv => {
     const opt = document.createElement('option');
-    opt.value = cv.toLowerCase();
+    opt.value = norm(cv);
     opt.textContent = cv;
     selCidade.appendChild(opt);
   });
@@ -438,7 +438,7 @@ function atualizarBairros() {
   const bairs = cidKey ? _bairros[cidKey] : [];
   bairs.forEach(b => {
     const opt = document.createElement('option');
-    opt.value = b.toLowerCase();
+    opt.value = norm(b);
     opt.textContent = b;
     selBairro.appendChild(opt);
   });

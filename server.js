@@ -7067,14 +7067,19 @@ app.delete('/app/lead/:id', auth, async (req, res) => {
 app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
   try {
     const uid = String(req.session.user.id || '');
+    const { query: _qBlk } = require('./services/db');
+    // Busca telefone direto do banco
+    const _leadRow = await _qBlk('SELECT telefone, whatsapp, contato FROM leads WHERE id=$1', [req.params.id]);
+    const _leadDb = _leadRow.rows[0] || {};
     const leads = (_cacheLeads || []);
     const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
     const lead = idx >= 0 ? leads[idx] : {};
-    const telefone = String(lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g,'');
+    const telefone = String(_leadDb.telefone || _leadDb.whatsapp || _leadDb.contato || lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g,'');
+    console.log('[BLOQUEAR] telefone:', telefone, '| uid:', uid);
     // Salva na lista negra do usuário no banco
-    const { query: _qBlk } = require('./services/db');
     if (telefone) {
       await _qBlk("UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'), '{bloqueados}', COALESCE(dados->'bloqueados','[]')::jsonb || $1::jsonb) WHERE id=$2 AND NOT (dados->'bloqueados' @> $1::jsonb)", [JSON.stringify([telefone]), uid]);
+      console.log('[BLOQUEAR] salvo no banco!');
     }
     // Remove a lead do banco
     await deletarLead(req.params.id, uid);

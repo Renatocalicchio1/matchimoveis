@@ -201,7 +201,7 @@ var hojeV=visitas.filter(function(v){
     else if(col.key==='confirmada'){guia='Cliente confirmou — visita agendada!';guiaCor='#15803d';}
     else if(col.key==='realizada'){guia='Pergunte se gostou do imovel';guiaCor='#6366f1';}
     else if(col.key==='cancelada'){guia='Oferea outra opcao ao cliente';guiaCor='#9ca3af';}
-    var linkCliente=baseUrl+'/cliente/visita/'+v.id;
+    var linkCliente=baseUrl+'/cliente/visita/'+v.id+'/confirmar';
     var linkProprietario=baseUrl+'/proprietario/visita/'+v.id;
     var msgCliente='Ola '+nome+'! Sua visita foi confirmada!%0A%0AImovel: '+imovelTit+(imovelBairro?' - '+imovelBairro:'')+'%0AData: '+dataVisita+(horaVisita&&horaVisita!=='-'?'%0AHorario: '+horaVisita:'')+'%0A%0AConfirme sua presenca:%0A'+linkCliente;
     var msgProp='Ola! Sou corretor da MatchImoveis.%0ATenho cliente interessado no imovel '+imovelTit+(imovelBairro?' - '+imovelBairro:'')+'%0AVisita para '+dataVisita+(horaVisita&&horaVisita!=='-'?' as '+horaVisita:'')+'%0A%0AConfirme disponibilidade:%0A'+linkProprietario;

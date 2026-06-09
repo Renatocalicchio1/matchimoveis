@@ -189,7 +189,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharLightbox();if(
     <!-- Informações -->
     <div class="dc">
       <p class="dc-label">Informações</p>
-      <div class="info-row"><span class="info-lbl">ID</span><span class="info-val" style="font-family:monospace;font-size:12px"><%= imovel.codigoImovel||imovel.id||'-' %></span></div>
+      <div class="info-row"><span class="info-lbl">Código Interno</span><span class="info-val" style="font-family:monospace;font-size:12px"><%= imovel.codigoImovel||imovel.id||'-' %></span></div>
+      <% if(imovel.id_externo){ %><div class="info-row"><span class="info-lbl">Código Externo</span><span class="info-val" style="font-family:monospace;font-size:12px"><%= imovel.id_externo %></span></div><% } %>
       <% if(imovel.fonte){ %><div class="info-row"><span class="info-lbl">Fonte</span><span class="info-val"><%= imovel.fonte %></span></div><% } %>
       <% if(imovel.transacao){ %><div class="info-row"><span class="info-lbl">Operação</span><span class="info-val"><%= imovel.transacao %></span></div><% } %>
       <% if(imovel.condicao){ %><div class="info-row"><span class="info-lbl">Condição</span><span class="info-val" style="<%=imovel.condicao==="lancamento"?"color:#7c3aed;font-weight:600":imovel.condicao==="novo"?"color:#059669;font-weight:600":""%>"><%=imovel.condicao==="lancamento"?"Lançamento":imovel.condicao==="novo"?"Novo / Pronto":"Usado"%></span></div><% } %>

@@ -96,12 +96,14 @@
     .menu a.active .menu-ic{opacity:1}
     .menu a:hover .menu-ic{opacity:1}
     .menu-div{height:1px;background:var(--border-light);margin:6px 0}
-    .menu a[title]:hover::before{
+    .menu a[title]{position:relative}
+    .menu a[title]:hover::after{
       content:attr(title);
-      position:absolute;left:58px;top:50%;transform:translateY(-50%);
-      background:#222;color:#fff;font-size:11px;font-weight:500;
-      padding:4px 8px;border-radius:6px;white-space:nowrap;z-index:999;
+      position:fixed;left:76px;
+      background:#1a1a1a;color:#fff;font-size:11px;font-weight:500;
+      padding:5px 10px;border-radius:6px;white-space:nowrap;z-index:9999;
       pointer-events:none;
+      box-shadow:0 2px 8px rgba(0,0,0,.2);
     }
 
     /* BADGES NAV */

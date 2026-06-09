@@ -3534,7 +3534,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     // ── VERIFICAR BLOQUEADOS ─────────────────────────────────
     try {
       const _usersBlk = (_cacheUsuarios || []);
-      const _bloqueado = _usersBlk.some(u => (u.bloqueados || []).includes(telefone));
+      const _bloqueado = _usersBlk.some(u => (u.bloqueados || u.dados?.bloqueados || []).includes(telefone));
       if (_bloqueado) {
         console.log('[WEBHOOK WA] numero bloqueado:', telefone);
         return res.status(200).json({ ok: true, ignorado: 'bloqueado' });

@@ -158,26 +158,15 @@
 
 <!-- Localização -->
 <div class="pf-card">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-    <div>
-      <p class="pf-card-title">Localização</p>
-      <p class="pf-card-sub" style="margin-bottom:0">Usada para calcular distâncias até imóveis e leads.</p>
-    </div>
-    <button class="pf-btn" onclick="pegarLocalizacao()" id="btn-loc" style="margin-top:0">Atualizar localização</button>
-  </div>
-
-  <div class="pf-loc-status" id="loc-status">
+  <p class="pf-card-title">Localização</p>
+  <p class="pf-card-sub">Usada para calcular distâncias até imóveis e leads.</p>
+  <div id="loc-status">
     <% if(user.lat && user.lng){ %>
-      <span style="color:#15803d;font-size:16px">●</span>
-      <span>Localização salva: <strong><%= user.endereco||(user.lat+', '+user.lng) %></strong></span>
+      <span style="color:#15803d">●</span> <span style="font-size:13px"><%= user.endereco||(user.lat+', '+user.lng) %></span>
     <% } else { %>
-      <span style="color:#d97706;font-size:16px">●</span>
-      <span>Localização não definida. Clique em <strong>Atualizar localização</strong> para habilitar o mapa de distâncias.</span>
+      <span style="color:#d97706">●</span> <span style="font-size:13px;color:#888">Localização não definida — acesse o <a href="/app/mapa">Mapa</a> para atualizar.</span>
     <% } %>
   </div>
-
-  <div id="mapa-perfil" style="border-radius:10px;overflow:hidden;display:<%= (user.lat&&user.lng)?'block':'none' %>;height:180px"></div>
-
   <form id="form-loc" method="POST" action="/app/perfil/localizacao" style="display:none">
     <input type="hidden" name="lat" id="inp-lat">
     <input type="hidden" name="lng" id="inp-lng">
@@ -244,17 +233,7 @@ function pegarLocalizacao() {
   }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
-<% if(user.lat && user.lng){ %>
-const mapDiv = document.getElementById('mapa-perfil');
-mapDiv.style.display = 'block';
-const iframe = document.createElement('iframe');
-iframe.width = '100%';
-iframe.height = '180';
-iframe.frameBorder = '0';
-iframe.style.border = '0';
-iframe.src = 'https://www.openstreetmap.org/export/embed.html?bbox=<%= user.lng-0.01 %>,<%= user.lat-0.01 %>,<%= user.lng+0.01 %>,<%= user.lat+0.01 %>&layer=mapnik&marker=<%= user.lat %>,<%= user.lng %>';
-mapDiv.appendChild(iframe);
-<% } %>
+
 
 let _waTimer = null;
 async function checkWA() {

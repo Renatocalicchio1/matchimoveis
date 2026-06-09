@@ -415,10 +415,11 @@ function norm(v) {
 }
 
 function atualizarCidades() {
-  const estado = document.getElementById('f-estado').value.toUpperCase();
+  const estadoVal = document.getElementById('f-estado').value;
   const selCidade = document.getElementById('f-cidade');
   selCidade.innerHTML = '<option value="">Todas</option>';
-  const cids = estado && _cidades[estado] ? _cidades[estado] : [];
+  const cidKey2 = Object.keys(_cidades).find(k => k.toLowerCase() === estadoVal.toLowerCase()) || estadoVal;
+  const cids = cidKey2 && _cidades[cidKey2] ? _cidades[cidKey2] : [];
   cids.forEach(cv => {
     const opt = document.createElement('option');
     opt.value = cv.toLowerCase();

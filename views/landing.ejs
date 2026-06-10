@@ -333,7 +333,7 @@
   <span class="footer-note">© 2025 MatchImóveis · LGPD · Dados protegidos</span>
 </footer>
 
-<div class="modal-overlay" id="modal-login" onclick="if(event.target===this)closeModal()">
+<div class="modal-overlay" id="modal-login">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal()">×</button>
     <div class="modal-title">MatchImóveis</div>
@@ -383,6 +383,9 @@ function setTab(t){
   document.getElementById('tab-c').className='modal-tab'+(t==='cadastro'?' on':'');
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+let _mdTarget=null;
+document.getElementById('modal-login').addEventListener('mousedown',e=>{_mdTarget=e.target;});
+document.getElementById('modal-login').addEventListener('mouseup',e=>{if(_mdTarget===e.target&&e.target===document.getElementById('modal-login'))closeModal();_mdTarget=null;});
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener('click',e=>{
     e.preventDefault();

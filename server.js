@@ -912,7 +912,7 @@ app.post('/login', async (req,res)=>{
     (async () => {
       try {
         const _telNovo = (novo.telefone||novo.celular||'').replace(/\D/g,'');
-        const _msgAdmin = `🆕 *Novo usuário cadastrado!*\n\n👤 *Nome:* ${novo.nome}\n📱 *Telefone:* ${_telNovo}\n🏷 *Tipo:* ${novo.tipo}\n🔑 *Código:* ${novo.codigoUsuario}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
+        const _msgAdmin = `🆕 *Novo usuário cadastrado!*\n\n👤 *Nome:* ${novo.nome}\n📱 *Telefone:* ${_telNovo}\n🏷 *Tipo:* ${novo.tipo}\n🔑 *Código:* ${novo.codigoUsuario}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}\n\n💬 Falar agora: https://wa.me/55${_telNovo}`;
         await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },

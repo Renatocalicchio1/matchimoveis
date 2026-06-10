@@ -249,7 +249,7 @@ app.get('/admin', authAdmin, async (req, res) => {
       <tr>
         <td>${u.codigo_usuario||'-'}</td>
         <td>${u.nome||'-'}</td>
-        <td>${u.telefone||'-'}</td>
+        <td>${u.telefone ? `<a href="https://wa.me/55${(u.telefone||'').replace(/\D/g,'')}" target="_blank" style="color:#25D366;font-weight:600;text-decoration:none;">📱 ${u.telefone}</a>` : '-'}</td>
         <td><span title="${u.senha||''}" style="cursor:pointer;letter-spacing:2px;color:#9ca3af;" onclick="this.textContent=this.textContent==='••••••'?'${u.senha||''}':'••••••'">••••••</span></td>
         <td style="text-align:center">${countMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${leadsMap[u.codigo_usuario]||0}</td>

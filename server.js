@@ -4062,6 +4062,37 @@ const storageImoveis = multer.diskStorage({
 });
 const uploadImoveis = multer({ storage: storageImoveis });
 
+app.post('/app/imoveis/portais-lote', auth, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const ids = JSON.parse(req.body.ids || '[]');
+    const portais = JSON.parse(req.body.portais || '[]');
+    if (!ids.length) return res.json({ ok: false, erro: 'Nenhum imóvel selecionado' });
+    const imoveis = await lerImoveis(userId);
+    let atualizados = 0;
+    for (const pid of ids) {
+      const idx = imoveis.findIndex(i =>
+        String(i.idExterno) === pid || String(i.idInterno) === pid ||
+        String(i.codigoImovel) === pid || String(i.id) === pid
+      );
+      if (idx < 0) continue;
+      imoveis[idx].portais = portais;
+      imoveis[idx].last_update = new Date().toISOString();
+      await salvarImovel(imoveis[idx]);
+      if (_cacheImoveis) {
+        const _ci = _cacheImoveis.findIndex(i => i.id === imoveis[idx].id);
+        if (_ci >= 0) _cacheImoveis[_ci] = imoveis[idx];
+      }
+      atualizados++;
+    }
+    setTimeout(() => regenerarXMLUsuario(userId).catch(e => console.error('[xml-lote]', e.message)), 500);
+    res.json({ ok: true, atualizados });
+  } catch(e) {
+    console.error('[portais-lote]', e.message);
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
 app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async (req, res) => {
   // verifica saldo antes de cadastrar
   const _userCad = (_cacheUsuarios||[]).find(u => u.id === req.session.user?.id || u.codigoUsuario === req.session.user?.codigoUsuario);

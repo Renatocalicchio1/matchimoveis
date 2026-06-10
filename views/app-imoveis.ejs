@@ -78,10 +78,34 @@
 <!-- Barra de seleção -->
 <div class="barra-sel" id="barra-sel">
   <div style="display:flex;align-items:center;gap:10px">
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600">
+      <input type="checkbox" id="chk-todos" onchange="toggleTodos(this)" style="width:16px;height:16px;accent-color:#7c3aed"> Todos
+    </label>
     <span id="cnt-sel" style="font-size:13px;font-weight:600">0 selecionados</span>
     <button onclick="deselectAll()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">✕ Limpar</button>
   </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button onclick="abrirModalPortais()" style="background:#7c3aed;border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700">📡 Publicar em portais</button>
+  </div>
+</div>
 
+<!-- Modal portais lote -->
+<div id="modal-portais" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;padding:28px;max-width:440px;width:100%">
+    <div style="font-size:15px;font-weight:700;color:var(--dark);margin-bottom:4px">Publicar em portais</div>
+    <div style="font-size:12px;color:var(--text-sec);margin-bottom:20px" id="modal-portais-cnt">Aplicar para os imóveis selecionados</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px">
+      <% [['vivareal','VivaReal'],['zap','ZAP Imóveis'],['olx','OLX'],['chaves','Chaves na Mão'],['imovelweb','ImovelWeb'],['123i','123i'],['quintoandar','QuintoAndar']].forEach(([k,l]) => { %>
+      <label style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:500;transition:border .1s" class="portal-lote-label">
+        <input type="checkbox" class="portal-lote-chk" value="<%= k %>" style="accent-color:#7c3aed"> <%= l %>
+      </label>
+      <% }) %>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="fecharModalPortais()" style="padding:9px 18px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:12px;font-weight:600">Cancelar</button>
+      <button onclick="salvarPortaisLote()" id="btn-salvar-portais" style="padding:9px 18px;border-radius:8px;border:none;background:#7c3aed;color:#fff;cursor:pointer;font-size:12px;font-weight:700">Salvar</button>
+    </div>
+  </div>
 </div>
 
 <!-- Toolbar -->
@@ -321,6 +345,15 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
         <% if(item.andar) { %><span class="im-tag"><%= item.andar %>º andar</span><% } %>
       </div>
 
+      <% const _portaisCard = Array.isArray(item.portais) ? item.portais : (item.portais && typeof item.portais==='object' ? Object.keys(item.portais).filter(k=>item.portais[k]) : []); %>
+      <% if(_portaisCard.length > 0){ %>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
+        <% const _labelPortal={vivareal:'VR',zap:'ZAP',olx:'OLX',chaves:'CHV',imovelweb:'IW','123i':'123',quintoandar:'QA'}; %>
+        <% _portaisCard.forEach(p=>{ %>
+        <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#ede9fe;color:#7c3aed"><%=_labelPortal[p]||p.toUpperCase()%></span>
+        <% }) %>
+      </div>
+      <% } %>
       <div style="font-size:10px;color:var(--text-ter);margin-bottom:6px;display:flex;gap:8px;flex-wrap:wrap">
         <% if(item.dataCadastro||item.data_cadastro||item.criadoEm){ %><span>📅 <%= new Date(item.dataCadastro||item.data_cadastro||item.criadoEm).toLocaleDateString('pt-BR') %></span><% } %>
         <% if(item.dataAtualizacao||item.updatedAt){ %><span>🔄 <%= new Date(item.dataAtualizacao||item.updatedAt).toLocaleDateString('pt-BR') %></span><% } %>
@@ -444,6 +477,50 @@ function atualizarBairros() {
   });
   filtrar();
 }
+
+function abrirModalPortais() {
+  if (!selecionados.size) return;
+  document.getElementById('modal-portais-cnt').textContent = selecionados.size + ' imóvel(is) selecionado(s)';
+  document.getElementById('modal-portais').style.display = 'flex';
+}
+
+function fecharModalPortais() {
+  document.getElementById('modal-portais').style.display = 'none';
+}
+
+async function salvarPortaisLote() {
+  const portais = [...document.querySelectorAll('.portal-lote-chk:checked')].map(c => c.value);
+  const btn = document.getElementById('btn-salvar-portais');
+  btn.textContent = 'Salvando...';
+  btn.disabled = true;
+  try {
+    const body = new URLSearchParams();
+    body.append('ids', JSON.stringify([...selecionados]));
+    body.append('portais', JSON.stringify(portais));
+    const r = await fetch('/app/imoveis/portais-lote', { method: 'POST', body });
+    const data = await r.json();
+    if (data.ok) {
+      fecharModalPortais();
+      deselectAll();
+      location.reload();
+    } else {
+      alert('Erro: ' + (data.erro || 'tente novamente'));
+    }
+  } catch(e) {
+    alert('Erro de conexão');
+  } finally {
+    btn.textContent = 'Salvar';
+    btn.disabled = false;
+  }
+}
+
+// estilo hover portal lote
+document.querySelectorAll('.portal-lote-label').forEach(l => {
+  l.querySelector('input').addEventListener('change', function() {
+    l.style.borderColor = this.checked ? '#7c3aed' : 'var(--border)';
+    l.style.background = this.checked ? '#ede9fe' : 'var(--bg)';
+  });
+});
 
 function filtrar() {
   const busca = norm(document.getElementById('busca')?.value||'');

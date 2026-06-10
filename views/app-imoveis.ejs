@@ -8,17 +8,17 @@
 .nf-dd-search{width:100%;padding:10px 14px;border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;font-family:inherit}
 .nf-dd-list{max-height:260px;overflow-y:auto}
 .nf-dd-item{padding:9px 14px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .08s}
-.nf-dd-item:hover{background:#f5f3ff;color:#7c3aed}
-.nf-dd-item.on{background:#f5f3ff;color:#7c3aed;font-weight:600}
+.nf-dd-item:hover{background:#f5f3ff;color:#FF385C}
+.nf-dd-item.on{background:#f5f3ff;color:#FF385C;font-weight:600}
 .nf-dd-sep{padding:6px 14px 2px;font-size:10px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.5px;background:#fafafa;border-top:1px solid var(--border)}
 /* Input numérico no dropdown */
 .nf-dd-input{padding:10px 14px;border-top:1px solid var(--border)}
 .nf-dd-input input{width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;outline:none;box-sizing:border-box}
-.nf-dd-input input:focus{border-color:#7c3aed}
-.nf-dd-input button{margin-top:6px;width:100%;padding:7px;border-radius:8px;border:none;background:#7c3aed;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.nf-dd-input input:focus{border-color:#FF385C}
+.nf-dd-input button{margin-top:6px;width:100%;padding:7px;border-radius:8px;border:none;background:#FF385C;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
 /* Busca geral */
 .nf-search-wrap{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:9px 14px;margin-bottom:10px;transition:border-color .12s}
-.nf-search-wrap:focus-within{border-color:#7c3aed;box-shadow:0 0 0 3px #7c3aed14}
+.nf-search-wrap:focus-within{border-color:#FF385C;box-shadow:0 0 0 3px #FF385C14}
 .nf-search-wrap input{border:none;outline:none;font-size:13px;color:var(--dark);background:transparent;flex:1;font-family:inherit}
 .nf-search-wrap input::placeholder{color:#b0b0b8}
 
@@ -35,12 +35,12 @@
 .im-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .im-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:all .15s}
 .im-card:hover{border-color:#c4b5fd;box-shadow:var(--shadow-md)}
-.im-card.sel{border-color:#7c3aed;box-shadow:0 0 0 2px #7c3aed33}
+.im-card.sel{border-color:#FF385C;box-shadow:0 0 0 2px #FF385C33}
 .im-img{position:relative;width:100%;height:130px;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .im-img img{width:100%;height:100%;object-fit:cover}
 .im-img-ic{font-size:28px;opacity:.25}
 .im-check{position:absolute;top:8px;left:8px;width:20px;height:20px;border-radius:5px;border:2px solid rgba(255,255,255,.8);background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center}
-.im-check.on{background:#7c3aed;border-color:#7c3aed}
+.im-check.on{background:#FF385C;border-color:#FF385C}
 .im-badge-status{position:absolute;top:8px;right:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
 .im-body{padding:12px;display:flex;flex-direction:column;flex:1}
 .im-tipo{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;background:var(--brand-light);color:var(--brand);margin-bottom:6px}
@@ -66,7 +66,7 @@
 .filtro-grid2{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;gap:10px;margin-top:10px}
 .filtro-field label{display:block;font-size:10px;font-weight:700;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
 .filtro-field input,.filtro-field select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--dark);background:#fff;outline:none;box-sizing:border-box;transition:border .1s;font-family:inherit}
-.filtro-field input:focus,.filtro-field select:focus{border-color:#7c3aed}
+.filtro-field input:focus,.filtro-field select:focus{border-color:#FF385C}
 .filtro-field input::placeholder{color:#b0b0b8}
 .filtro-rodape{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)}
 @media(max-width:900px){.filtro-grid{grid-template-columns:1fr 1fr 1fr}.filtro-grid2{grid-template-columns:1fr 1fr 1fr}}
@@ -79,13 +79,13 @@
 <div class="barra-sel" id="barra-sel">
   <div style="display:flex;align-items:center;gap:10px">
     <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600">
-      <input type="checkbox" id="chk-todos" onchange="toggleTodos(this)" style="width:16px;height:16px;accent-color:#7c3aed"> Todos
+      <input type="checkbox" id="chk-todos" onchange="toggleTodos(this)" style="width:16px;height:16px;accent-color:#FF385C"> Todos
     </label>
     <span id="cnt-sel" style="font-size:13px;font-weight:600">0 selecionados</span>
     <button onclick="deselectAll()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">✕ Limpar</button>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
-    <button onclick="abrirModalPortais()" style="background:#7c3aed;border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700">📡 Publicar em portais</button>
+    <button onclick="abrirModalPortais()" style="background:#FF385C;border:none;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700">📡 Publicar em portais</button>
   </div>
 </div>
 
@@ -97,13 +97,13 @@
     <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px">
       <% [['vivareal','VivaReal'],['zap','ZAP Imóveis'],['olx','OLX'],['chaves','Chaves na Mão'],['imovelweb','ImovelWeb'],['123i','123i'],['quintoandar','QuintoAndar']].forEach(([k,l]) => { %>
       <label style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:500;transition:border .1s" class="portal-lote-label">
-        <input type="checkbox" class="portal-lote-chk" value="<%= k %>" style="accent-color:#7c3aed"> <%= l %>
+        <input type="checkbox" class="portal-lote-chk" value="<%= k %>" style="accent-color:#FF385C"> <%= l %>
       </label>
       <% }) %>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button onclick="fecharModalPortais()" style="padding:9px 18px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:12px;font-weight:600">Cancelar</button>
-      <button onclick="salvarPortaisLote()" id="btn-salvar-portais" style="padding:9px 18px;border-radius:8px;border:none;background:#7c3aed;color:#fff;cursor:pointer;font-size:12px;font-weight:700">Salvar</button>
+      <button onclick="salvarPortaisLote()" id="btn-salvar-portais" style="padding:9px 18px;border-radius:8px;border:none;background:#FF385C;color:#fff;cursor:pointer;font-size:12px;font-weight:700">Salvar</button>
     </div>
   </div>
 </div>
@@ -314,7 +314,7 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
       <% if((item.status||'ativo').toLowerCase() !== 'ativo') { %>
         <div class="im-badge-status"><%= (item.status||'inativo').toUpperCase() %></div>
         <% if(item.condicao && item.condicao !== 'usado') { %>
-        <div style="position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;<%=item.condicao==='lancamento'?'background:#7c3aed;color:#fff':item.condicao==='novo'?'background:#059669;color:#fff':''%>">
+        <div style="position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;<%=item.condicao==='lancamento'?'background:#FF385C;color:#fff':item.condicao==='novo'?'background:#059669;color:#fff':''%>">
           <%=item.condicao==='lancamento'?'LANÇAMENTO':'NOVO'%>
         </div>
         <% } %>
@@ -350,7 +350,7 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
       <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
         <% const _labelPortal={vivareal:'VR',zap:'ZAP',olx:'OLX',chaves:'CHV',imovelweb:'IW','123i':'123',quintoandar:'QA'}; %>
         <% _portaisCard.forEach(p=>{ %>
-        <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#ede9fe;color:#7c3aed"><%=_labelPortal[p]||p.toUpperCase()%></span>
+        <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#fff0f3;color:#FF385C"><%=_labelPortal[p]||p.toUpperCase()%></span>
         <% }) %>
       </div>
       <% } %>
@@ -517,8 +517,8 @@ async function salvarPortaisLote() {
 // estilo hover portal lote
 document.querySelectorAll('.portal-lote-label').forEach(l => {
   l.querySelector('input').addEventListener('change', function() {
-    l.style.borderColor = this.checked ? '#7c3aed' : 'var(--border)';
-    l.style.background = this.checked ? '#ede9fe' : 'var(--bg)';
+    l.style.borderColor = this.checked ? '#FF385C' : 'var(--border)';
+    l.style.background = this.checked ? '#fff0f3' : 'var(--bg)';
   });
 });
 

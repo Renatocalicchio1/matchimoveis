@@ -157,7 +157,37 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
         <span id="perfil-status" style="font-size:11px;color:#9ca3af"></span>
       </div>
       <div class="perfil-grid" id="perfil-editavel">
-        <div class="perfil-item"><div class="perfil-item-lbl">Tipo</div><input class="perfil-input" data-campo="tipo" value="<%=_p.tipo||''%>" placeholder="Apartamento"></div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Tipo</div>
+          <select class="perfil-input" data-campo="tipo">
+            <option value="">—</option>
+            <optgroup label="Residencial">
+              <option value="Apartamento" <%=_p.tipo==='Apartamento'?'selected':''%>>Apartamento</option>
+              <option value="Casa" <%=_p.tipo==='Casa'?'selected':''%>>Casa</option>
+              <option value="Casa de Condomínio" <%=_p.tipo==='Casa de Condomínio'?'selected':''%>>Casa de Condomínio</option>
+              <option value="Cobertura" <%=_p.tipo==='Cobertura'?'selected':''%>>Cobertura</option>
+              <option value="Sobrado" <%=_p.tipo==='Sobrado'?'selected':''%>>Sobrado</option>
+              <option value="Loft" <%=_p.tipo==='Loft'?'selected':''%>>Loft</option>
+              <option value="Studio" <%=_p.tipo==='Studio'?'selected':''%>>Studio</option>
+              <option value="Kitnet" <%=_p.tipo==='Kitnet'?'selected':''%>>Kitnet</option>
+              <option value="Duplex" <%=_p.tipo==='Duplex'?'selected':''%>>Duplex</option>
+              <option value="Mansão" <%=_p.tipo==='Mansão'?'selected':''%>>Mansão</option>
+              <option value="Chácara" <%=_p.tipo==='Chácara'?'selected':''%>>Chácara</option>
+              <option value="Sítio" <%=_p.tipo==='Sítio'?'selected':''%>>Sítio</option>
+              <option value="Fazenda" <%=_p.tipo==='Fazenda'?'selected':''%>>Fazenda</option>
+            </optgroup>
+            <optgroup label="Comercial">
+              <option value="Sala Comercial" <%=_p.tipo==='Sala Comercial'?'selected':''%>>Sala Comercial</option>
+              <option value="Loja" <%=_p.tipo==='Loja'?'selected':''%>>Loja</option>
+              <option value="Galpão" <%=_p.tipo==='Galpão'?'selected':''%>>Galpão</option>
+              <option value="Conjunto" <%=_p.tipo==='Conjunto'?'selected':''%>>Conjunto</option>
+              <option value="Prédio" <%=_p.tipo==='Prédio'?'selected':''%>>Prédio</option>
+            </optgroup>
+            <optgroup label="Terrenos">
+              <option value="Terreno" <%=_p.tipo==='Terreno'?'selected':''%>>Terreno</option>
+              <option value="Área Rural" <%=_p.tipo==='Área Rural'?'selected':''%>>Área Rural</option>
+            </optgroup>
+          </select>
+        </div>
         <div class="perfil-item"><div class="perfil-item-lbl">Intenção</div>
           <select class="perfil-input" data-campo="intencao">
             <option value="">—</option>

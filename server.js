@@ -595,7 +595,7 @@ app.get('/', (req,res)=>{
     const isMobile = /Mobile|Android|iPhone|iPad/i.test(ua);
     return res.redirect(isMobile ? '/app/feed' : '/app/leads');
   }
-  res.render('landing', { error: req.query.error || null });
+  res.render('landing', { error: req.query.erro || req.query.error || null });
 });
 
 app.get('/entrar', (req,res)=>{ res.redirect('/'); //
@@ -886,7 +886,12 @@ app.post('/login', async (req,res)=>{
     if (!nomeVal || nomeVal.length < 3) return res.render('login', { error: 'Nome inválido. Digite seu nome completo.' });
     if (!telefone || telefone.length < 10 || telefone.length > 13) return res.render('login', { error: 'Telefone inválido. Use o formato: 47999999999' });
     const existe = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);
-    if(existe) return res.render('login', { error: 'Este celular já está cadastrado. Entre usando apenas o celular.' });
+    if(existe) return res.redirect('/?erro=celular_existente');
+    const _emailNovo = (req.body.email || '').trim().toLowerCase();
+    if(_emailNovo){
+      const existeEmail = users.find(u => (u.email||'').trim().toLowerCase() === _emailNovo);
+      if(existeEmail) return res.redirect('/?erro=email_existente');
+    }
 
     const prefixo = req.body.tipoConta === 'imobiliaria' ? 'imob' : req.body.tipoConta === 'corretor' ? 'cor' : 'usr';
     const uid = prefixo + '_' + Math.random().toString(36).substring(2,8) + Date.now().toString(36).slice(-4);

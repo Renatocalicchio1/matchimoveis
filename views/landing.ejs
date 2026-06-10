@@ -338,6 +338,13 @@
     <button class="modal-close" onclick="closeModal()">×</button>
     <div class="modal-title">MatchImóveis</div>
     <div class="modal-sub">Entre ou crie sua conta</div>
+    <% const _erroMap = {telefone_nao_encontrado:'Telefone não encontrado.',erro_interno:'Erro ao processar. Tente novamente.',nome_invalido:'Nome inválido.',telefone_invalido:'Telefone inválido.',celular_existente:'Este celular já está cadastrado.',email_existente:'Este e-mail já está cadastrado.',senha_incorreta:'Senha incorreta.',nao_cadastrado:'Celular não cadastrado.'}; %>
+    <% if(typeof error !== 'undefined' && error && _erroMap[error]){ %>
+    <div style="background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px"><%= _erroMap[error] %></div>
+    <% } %>
+    <% if(typeof error !== 'undefined' && error === 'senha_enviada'){ %>
+    <div style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px">Nova senha enviada via WhatsApp!</div>
+    <% } %>
     <div class="modal-tabs">
       <button class="modal-tab on" id="tab-e" onclick="setTab('entrar')">Entrar</button>
       <button class="modal-tab" id="tab-c" onclick="setTab('cadastro')" style="background:#FF385C;color:#fff;border-color:#FF385C">Criar conta</button>

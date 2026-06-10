@@ -2335,6 +2335,12 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
       // Atualiza lead existente com dados do webhook
       console.log('[WEBHOOK IMOVELWEB] lead existente — atualizando dados:', _dup.id);
       lead.id = _dup.id;
+      // Preserva dados existentes se o novo payload não trouxer
+      if (!lead.nome && _dup.nome) lead.nome = _dup.nome;
+      if (!lead.telefone && _dup.telefone) lead.telefone = _dup.telefone;
+      if (!lead.whatsapp && _dup.whatsapp) lead.whatsapp = _dup.whatsapp;
+      if (!lead.contato && _dup.contato) lead.contato = _dup.contato;
+      if (!lead.email && _dup.email) lead.email = _dup.email;
     }
     await _cruzarImovelWebhook(lead, userId);
     console.log('[WEBHOOK IMOVELWEB] antes salvar | nome:', lead.nome, '| tel:', lead.telefone, '| origem:', lead.origem);

@@ -871,7 +871,7 @@ app.post('/cadastro-secreto', async (req,res)=>{ return res.redirect('/'); // CA
   res.send('<h2 style="color:green;font-family:Arial">Conta criada!</h2><p>ID: '+uid+'</p><p>Codigo: '+codigo+'</p><a href="/login">Ir para login</a>');
 });
 
-app.get('/login',(req,res)=>{ if(req.session&&req.session.user){ const ua=req.headers['user-agent']||''; const isMobile=/Mobile|Android|iPhone|iPad/i.test(ua); return res.redirect(isMobile?'/app/feed':'/app/leads'); } res.redirect('/'); });
+// rota /login removida
 
 app.post('/login', async (req,res)=>{
   const { lerUsuarios: _luLogin } = require('./services/salvarUsuario');

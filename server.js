@@ -2340,7 +2340,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     console.log('[WEBHOOK IMOVELWEB] antes salvar | nome:', lead.nome, '| tel:', lead.telefone, '| origem:', lead.origem);
     await _slIW(lead);
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
-    const _snapIW = { id: lead.id, userId, mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: lead.origemEntrada||'webhook_imovelweb', origem: lead.origem||'ImovelWeb' };
+    const _snapIW = { id: lead.id, userId, nome: lead.nome||'', telefone: lead.telefone||'', whatsapp: lead.whatsapp||'', contato: lead.contato||'', email: lead.email||'', mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: lead.origemEntrada||'webhook_imovelweb', origem: lead.origem||'ImovelWeb' };
     console.log('[SNAPIW] mensagem:', (_snapIW.mensagem||'').substring(0,60), '| idAnuncio:', _snapIW.idAnuncio);
 
     setTimeout(async () => {

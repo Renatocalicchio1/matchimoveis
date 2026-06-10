@@ -37,6 +37,8 @@
 .km-table td{padding:10px 14px;border-bottom:1px solid #f9fafb;color:#374151}
 .km-table tr:hover td{background:#f9fafb;cursor:pointer}
 .km-ver-btn{font-size:10px;font-weight:600;color:#7c3aed;background:none;border:none;cursor:pointer;padding:0;white-space:nowrap}
+@keyframes piscar{0%,100%{opacity:1}50%{opacity:.4}}
+.lb-ver-pisca{animation:piscar 1.2s ease-in-out infinite;background:#FF385C!important;color:#fff!important;border-color:#FF385C!important}
 .km-ver-btn:hover{text-decoration:underline}
 .kanban-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding-bottom:16px;align-items:flex-start;overflow-x:auto}
 @media(max-width:768px){.kanban-wrap{grid-template-columns:1fr!important;overflow-x:unset!important}.kanban-col{min-width:unset!important;max-height:unset!important}.kanban-hint-btns{display:none!important}}
@@ -328,7 +330,7 @@ leads.forEach(item => {
       <a href="/cliente/oferta/<%= item.leadId||item.id %>?userId=<%= encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'') %>" class="lb prim" target="_blank">Vitrine</a>
       <% } %>
       <% } %>
-      <a href="/app/lead/<%= item.id %>" class="lb dark">Ver →</a>
+      <a href="/app/lead/<%= item.id %>" class="lb dark lb-ver-pisca">Ver →</a>
       <% if(!item.tipoLead || item.tipoLead==='cliente'){ %>
       <button onclick="abrirClassificar('<%= item.id %>')" class="lb btn-classificar-flag" title="Classificar esta lead">🚩</button>
       <% } %>

@@ -908,6 +908,19 @@ app.post('/login', async (req,res)=>{
     users.push(novo);
     salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
 
+    // Notificar admin sobre novo cadastro
+    (async () => {
+      try {
+        const _telNovo = (novo.telefone||novo.celular||'').replace(/\D/g,'');
+        const _msgAdmin = `🆕 *Novo usuário cadastrado!*\n\n👤 *Nome:* ${novo.nome}\n📱 *Telefone:* ${_telNovo}\n🏷 *Tipo:* ${novo.tipo}\n🔑 *Código:* ${novo.codigoUsuario}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
+        await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
+          body: JSON.stringify({ number: '5511956655428', text: _msgAdmin })
+        }).catch(()=>{});
+      } catch(_e) { console.error('[notif-cadastro]', _e.message); }
+    })();
+
     req.session.user = novo;
     const _uaN = req.headers['user-agent']||'';
     return res.redirect(/Mobile|Android|iPhone|iPad/i.test(_uaN) ? '/app/feed' : '/app-home');

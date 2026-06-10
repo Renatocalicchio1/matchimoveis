@@ -99,12 +99,13 @@
 <!-- Filtros -->
 <div class="fi-bar">
   <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-    <input class="fi-input" id="filter-search" placeholder="Buscar..." oninput="aplicarFiltros()" style="flex:1;min-width:160px">
+    <input class="fi-input" id="filter-search" placeholder="Buscar..." oninput="aplicarFiltros()" style="flex:1;min-width:80px;max-width:200px">
     <button class="fchip on" onclick="setChip('temp','',this)">Todas</button>
     <button class="fchip" onclick="setChip('temp','quente',this)" style="color:#dc2626;border-color:#fca5a5">Quente</button>
     <button class="fchip" onclick="setChip('temp','morno',this)" style="color:#d97706;border-color:#fcd34d">Morno</button>
     <button class="fchip" onclick="setChip('temp','frio',this)" style="color:#2563eb;border-color:#bfdbfe">Frio</button>
     <button class="fi-btn" onclick="toggleFAdv()">Filtros</button>
+    <button class="fi-btn fi-btn-dark" onclick="abrirModalNovaLead()" style="background:#7c3aed;border-color:#7c3aed">+ Nova Lead</button>
     <button class="fi-btn fi-btn-dark" onclick="abrirModalImportarLeads()">+ Importar</button>
     <button class="fi-btn fi-btn-dark" onclick="rodarMatchBase()" id="btn-match-base" style="display:none">Match IA</button>
   </div>
@@ -397,6 +398,75 @@ leads.forEach(item => {
   </div>
 </div>
 
+<!-- Modal Nova Lead -->
+<div id="modal-nova-lead" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:14px;padding:24px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div style="font-size:15px;font-weight:600;color:#111827">Nova Lead</div>
+        <div style="font-size:12px;color:#9ca3af;margin-top:2px">Cadastro manual de cliente</div>
+      </div>
+      <button onclick="fecharModalNovaLead()" style="background:#f9fafb;border:0.5px solid rgba(0,0,0,.1);border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:16px">×</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button id="nl-btn-residencial" onclick="setTipoLead('residencial')" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #7c3aed;background:#ede9fe;color:#7c3aed;font-size:12px;font-weight:600;cursor:pointer">🏠 Residencial</button>
+      <button id="nl-btn-comercial" onclick="setTipoLead('comercial')" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #e5e7eb;background:#f9fafb;color:#6b7280;font-size:12px;font-weight:600;cursor:pointer">🏢 Comercial</button>
+      <button id="nl-btn-terreno" onclick="setTipoLead('terreno')" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #e5e7eb;background:#f9fafb;color:#6b7280;font-size:12px;font-weight:600;cursor:pointer">🌿 Terreno</button>
+    </div>
+    <div id="nl-aviso" style="font-size:11px;color:#7c3aed;background:#ede9fe;border-radius:7px;padding:8px 12px;margin-bottom:14px">
+      🏠 Residencial — obrigatório: Nome, Celular, Tipo, Transação, Cidade, Bairro, Valor, Quartos
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Nome <span style="color:#ef4444">*</span></label><input id="nl-nome" type="text" placeholder="Nome do cliente" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Celular <span id="nl-lbl-celular" style="color:#ef4444">*</span></label><input id="nl-telefone" type="text" placeholder="Ex: 47999999999" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+    </div>
+    <div style="margin-bottom:10px"><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Email</label><input id="nl-email" type="email" placeholder="email@exemplo.com" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+    <div style="font-size:11px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Perfil de busca</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Tipo de imóvel <span style="color:#ef4444">*</span></label>
+        <select id="nl-tipo" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box">
+          <option value="">Selecione</option>
+          <optgroup label="Residencial"><option>Apartamento</option><option>Casa</option><option>Cobertura</option><option>Sobrado</option><option>Loft</option><option>Studio / Flat</option><option>Kitnet / Conjugado</option><option>Duplex</option><option>Mansão</option><option>Casa de Condomínio</option></optgroup>
+          <optgroup label="Comercial"><option>Sala Comercial</option><option>Loja</option><option>Conjunto Comercial</option><option>Galpão / Depósito</option><option>Prédio Comercial</option><option>Consultório</option></optgroup>
+          <optgroup label="Terrenos"><option>Terreno / Lote</option><option>Terreno Comercial</option><option>Área Rural</option></optgroup>
+        </select>
+      </div>
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Transação <span style="color:#ef4444">*</span></label>
+        <select id="nl-transacao" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box">
+          <option value="">Selecione</option><option value="comprar">Comprar</option><option value="alugar">Alugar</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Estado</label><input id="nl-estado" type="text" placeholder="Ex: Santa Catarina" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Cidade <span style="color:#ef4444">*</span></label><input id="nl-cidade" type="text" placeholder="Ex: Balneário Camboriú" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Bairro <span style="color:#ef4444">*</span></label><input id="nl-bairro" type="text" placeholder="Ex: Centro" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+      <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Valor máx. (R$) <span style="color:#ef4444">*</span></label><input id="nl-valor" type="number" placeholder="Ex: 500000" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+    </div>
+    <div id="nl-campos-residencial">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px">
+        <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Quartos <span style="color:#ef4444">*</span></label><input id="nl-quartos" type="number" min="0" placeholder="0" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Suítes</label><input id="nl-suites" type="number" min="0" placeholder="0" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Vagas</label><input id="nl-vagas" type="number" min="0" placeholder="0" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+        <div><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Banheiros</label><input id="nl-banheiros" type="number" min="0" placeholder="0" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box"></div>
+      </div>
+    </div>
+    <div id="nl-campos-area" style="display:none;margin-bottom:10px">
+      <label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Área (m²) <span style="color:#ef4444">*</span></label>
+      <input id="nl-area" type="number" min="0" placeholder="Ex: 200" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box">
+    </div>
+    <div style="margin-bottom:16px"><label style="font-size:11px;color:#6b7280;display:block;margin-bottom:3px">Fase do imóvel</label>
+      <select id="nl-fase" style="width:100%;padding:9px;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;font-size:13px;box-sizing:border-box">
+        <option value="">Qualquer fase</option><option value="pronto">Pronto para morar</option><option value="lancamento">Lançamento</option><option value="na_planta">Na planta</option><option value="em_construcao">Em construção</option>
+      </select>
+    </div>
+    <div id="nl-erro" style="display:none;font-size:12px;color:#ef4444;margin-bottom:10px"></div>
+    <button onclick="salvarNovaLead()" style="width:100%;padding:12px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Cadastrar Lead</button>
+  </div>
+</div>
+
 <script>
 const _fl = { temp:'', origem:'' };
 
@@ -504,6 +574,87 @@ function rodarMatchBase() {
 
 function abrirModalImportarLeads(){document.getElementById('modal-importar-leads').style.display='flex';}
 function fecharModalImportarLeads(){document.getElementById('modal-importar-leads').style.display='none';}
+
+// Modal Nova Lead
+let _nlTipo = 'residencial';
+function abrirModalNovaLead(){
+  _nlTipo='residencial';
+  setTipoLead('residencial');
+  document.getElementById('modal-nova-lead').style.display='flex';
+}
+function fecharModalNovaLead(){document.getElementById('modal-nova-lead').style.display='none';}
+function setTipoLead(tipo){
+  _nlTipo = tipo;
+  ['residencial','comercial','terreno'].forEach(t => {
+    const btn = document.getElementById('nl-btn-'+t);
+    const ativo = t === tipo;
+    btn.style.borderColor = ativo ? '#7c3aed' : '#e5e7eb';
+    btn.style.background  = ativo ? '#ede9fe' : '#f9fafb';
+    btn.style.color       = ativo ? '#7c3aed' : '#6b7280';
+  });
+  const avisos = {
+    residencial: '🏠 Residencial — obrigatório: Nome, Celular, Tipo, Transação, Cidade, Bairro, Valor, Quartos',
+    comercial:   '🏢 Comercial — obrigatório: Tipo, Transação, Cidade, Bairro, Valor, Área (m²)',
+    terreno:     '🌿 Terreno — obrigatório: Tipo, Transação, Cidade, Bairro, Valor, Área (m²)'
+  };
+  document.getElementById('nl-aviso').textContent = avisos[tipo];
+  document.getElementById('nl-campos-residencial').style.display = tipo==='residencial' ? '' : 'none';
+  document.getElementById('nl-campos-area').style.display = tipo!=='residencial' ? '' : 'none';
+}
+async function salvarNovaLead(){
+  const err = document.getElementById('nl-erro');
+  err.style.display='none';
+  const nome     = document.getElementById('nl-nome').value.trim();
+  const telefone = document.getElementById('nl-telefone').value.replace(/\D/g,'');
+  const email    = document.getElementById('nl-email').value.trim();
+  const tipo     = document.getElementById('nl-tipo').value;
+  const transacao= document.getElementById('nl-transacao').value;
+  const estado   = document.getElementById('nl-estado').value.trim();
+  const cidade   = document.getElementById('nl-cidade').value.trim();
+  const bairro   = document.getElementById('nl-bairro').value.trim();
+  const valor    = parseFloat(document.getElementById('nl-valor').value)||0;
+  const quartos  = parseInt(document.getElementById('nl-quartos').value)||0;
+  const suites   = parseInt(document.getElementById('nl-suites').value)||0;
+  const vagas    = parseInt(document.getElementById('nl-vagas').value)||0;
+  const banheiros= parseInt(document.getElementById('nl-banheiros').value)||0;
+  const area     = parseFloat(document.getElementById('nl-area').value)||0;
+  const fase     = document.getElementById('nl-fase').value;
+
+  // Validação por tipo
+  const faltando = [];
+  if(_nlTipo==='residencial'){
+    if(!nome) faltando.push('Nome');
+    if(!telefone) faltando.push('Celular');
+    if(!tipo) faltando.push('Tipo');
+    if(!transacao) faltando.push('Transação');
+    if(!cidade) faltando.push('Cidade');
+    if(!bairro) faltando.push('Bairro');
+    if(!valor) faltando.push('Valor');
+    if(!quartos) faltando.push('Quartos');
+  } else {
+    if(!tipo) faltando.push('Tipo');
+    if(!transacao) faltando.push('Transação');
+    if(!cidade) faltando.push('Cidade');
+    if(!bairro) faltando.push('Bairro');
+    if(!valor) faltando.push('Valor');
+    if(!area) faltando.push('Área (m²)');
+  }
+  if(faltando.length){ err.textContent='Preencha: '+faltando.join(', '); err.style.display='block'; return; }
+
+  const payload = {
+    nome, telefone, email, tipo, transacao, estado, cidade, bairro,
+    valorMax: valor, valorMin: valor*0.65,
+    quartos, suites, vagas, banheiros, area, fase,
+    origem: 'manual', origemEntrada: 'manual'
+  };
+
+  try {
+    const r = await fetch('/app/lead/manual', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const d = await r.json();
+    if(d.ok){ fecharModalNovaLead(); window.location.href='/app/lead/'+d.id; }
+    else { err.textContent = d.erro||'Erro ao cadastrar'; err.style.display='block'; }
+  } catch(e){ err.textContent='Erro de conexão'; err.style.display='block'; }
+}
 
 function confirmarExcluir(id) {
   document.querySelectorAll('.confirm-box').forEach(el=>el.style.display='none');

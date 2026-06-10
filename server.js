@@ -7114,6 +7114,56 @@ app.post('/app/lead/:id/perfil', auth, async (req, res) => {
     res.status(500).json({ erro: e.message });
   }
 });
+// ── CADASTRO MANUAL DE LEAD ─────────────────────────────────────────
+app.post('/app/lead/manual', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.id || req.session.user.codigo_usuario;
+    const { nome, telefone, email, tipo, transacao, estado, cidade, bairro,
+            valorMax, valorMin, quartos, suites, vagas, banheiros, area, fase,
+            origem, origemEntrada } = req.body;
+
+    const { salvarLead } = require('./services/salvarLead');
+    const id = Date.now().toString();
+
+    const perfilIA = {
+      tipo, intencao: transacao, estado, cidade, bairro,
+      valorMax: parseFloat(valorMax)||0, valorMin: parseFloat(valorMin)||0,
+      quartos: parseInt(quartos)||0, suites: parseInt(suites)||0,
+      vagas: parseInt(vagas)||0, banheiros: parseInt(banheiros)||0,
+      area: parseFloat(area)||0, fase: fase||''
+    };
+
+    const lead = {
+      id, nome: nome||'', telefone: String(telefone||'').replace(/\D/g,''),
+      whatsapp: String(telefone||'').replace(/\D/g,''),
+      contato: String(telefone||'').replace(/\D/g,''),
+      email: email||'', origem: origem||'manual',
+      origemEntrada: origemEntrada||'manual',
+      status: 'novo', faseFunil: 'novo', temperatura: 'frio', score: 0,
+      userId: uid, codigoUsuario: uid,
+      perfilIA, mensagens: [], matches: [], matchesAuto: [],
+      timeline: [], eventos: [], followUps: [],
+      criadoEm: new Date().toISOString(),
+      dados: { origemEntrada: 'manual', mensagem: '', matchAutoEm: null }
+    };
+
+    await salvarLead(lead);
+
+    // Roda match em background
+    setImmediate(async () => {
+      try {
+        const matchCore = require('./cerebro/match-core');
+        await matchCore.processar({ lead: { ...lead, mapaIntencao: null }, mensagem: '', canal: 'manual', userId: uid });
+        console.log('[LEAD MANUAL] match rodado:', id);
+      } catch(e) { console.error('[LEAD MANUAL] erro match:', e.message); }
+    });
+
+    res.json({ ok: true, id });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
+
 // ── CLASSIFICAR LEAD ─────────────────────────────────────────
 app.post('/app/lead/:id/classificar', auth, async (req, res) => {
   try {

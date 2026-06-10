@@ -900,6 +900,7 @@ app.post('/login', async (req,res)=>{
       tipo: req.body.tipoConta,
       ativo: true,
       codigoUsuario: _codigoNovo,
+      senha: req.body.senha || '',
       matchCoins: 1000,
       matchCoinsTotal: 1000,
       matchCoinsBonusInicial: 1000
@@ -930,6 +931,12 @@ app.post('/login', async (req,res)=>{
   const user = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);
 
   if(!user) return res.redirect('/?error=nao_cadastrado');
+
+  const _senhaInformada = (req.body.senha || '').trim();
+  const _senhaSalva = (user.senha || '').trim();
+  if (_senhaSalva && _senhaInformada !== _senhaSalva) {
+    return res.redirect('/?erro=senha_incorreta');
+  }
 
   req.session.user = user;
   const { query: _qlg } = require('./services/db');

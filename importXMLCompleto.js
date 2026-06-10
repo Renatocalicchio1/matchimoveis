@@ -42,10 +42,11 @@ function extractNumber(field) {
 }
 
 function extractText(field) {
-  if (!field) return '';
+  if (field === null || field === undefined) return '';
+  if (typeof field === 'number') return String(field).trim();
   if (typeof field === 'string') return field.trim();
   if (typeof field === 'object') {
-    return String(field['#text'] ?? field['@_abbreviation'] ?? '').trim();
+    return String(field['#text'] ?? field['#cdata'] ?? field['@_abbreviation'] ?? '').trim();
   }
   return '';
 }

@@ -528,13 +528,15 @@ class MatchCore {
     const temValor     = !!(perfil.valorMax  || (mapa.valor||[]).length > 0);
     const temTransacao = !!(perfil.intencao  || (mapa.transacao||[]).length > 0);
     const temQuartos   = !!(perfil.quartos   || (mapa.quartos||[]).length > 0);
+    const temArea      = !!(perfil.area      || (mapa.area||[]).length > 0);
 
-    // Tipos comerciais — quartos não obrigatório
+    // Tipos comerciais e terrenos — quartos não obrigatório, área obrigatória
     const _tipoStr = (perfil.tipo || (mapa.tipo_imovel||[])[0]?.valor || '').toLowerCase();
-    const _ehComercial = ['sala','loja','galpao','galpão','terreno','predio','prédio','comercial','escritorio','escritório'].some(t => _tipoStr.includes(t));
-    const _maxQual = _ehComercial ? 5 : 6;
-    const qualidade = [temTipo,temCidade,temBairro,temValor,temTransacao,...(_ehComercial?[]:[temQuartos])].filter(Boolean).length;
-    const suficiente = temTipo && temTransacao && temCidade && temBairro && temValor && (_ehComercial || temQuartos);
+    const _ehTerreno   = ['terreno','lote','area rural','chacara','sitio','fazenda'].some(t => _tipoStr.includes(t));
+    const _ehComercial = !_ehTerreno && ['sala','loja','galpao','galpão','predio','prédio','comercial','escritorio','escritório','conjunto','hotel','pousada','consultorio','restaurante'].some(t => _tipoStr.includes(t));
+    const _maxQual = 6;
+    const qualidade = [temTipo,temCidade,temBairro,temValor,temTransacao,...(_ehComercial||_ehTerreno ? [temArea] : [temQuartos])].filter(Boolean).length;
+    const suficiente = temTipo && temTransacao && temCidade && temBairro && temValor && (_ehTerreno ? temArea : _ehComercial ? temArea : temQuartos);
     if (!suficiente) {
       const faltando = [];
       if (!temTipo)      faltando.push('tipo');
@@ -542,7 +544,9 @@ class MatchCore {
       if (!temCidade)    faltando.push('cidade');
       if (!temBairro)    faltando.push('bairro');
       if (!temValor)     faltando.push('valor');
-      if (!_ehComercial && !temQuartos) faltando.push('quartos');
+      if (_ehTerreno && !temArea)                    faltando.push('area');
+      if (_ehComercial && !temArea)                   faltando.push('area');
+      if (!_ehComercial && !_ehTerreno && !temQuartos) faltando.push('quartos');
       console.log('[MATCH CORE] perfil insuficiente | qualidade:', qualidade, '| faltando:', faltando.join(', '));
     } else {
       console.log('[MATCH CORE] perfil qualidade:', qualidade, '/', _maxQual, '|', [

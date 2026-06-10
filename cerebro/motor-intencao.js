@@ -122,15 +122,26 @@ function matchPorMapa(lead, imoveis) {
       if (imovel.preco > vmax || imovel.preco < vmin) eliminado = true;
     }
 
-    // 7. QUARTOS >= pedido (nunca menos)
+    // 6b. ÁREA — entre -20% e +20% (comercial e terreno)
+    const leadArea = Number(mapa.area?.[0]?.valor || mapa.area?.[0]?.valor?.min || 0);
+    const _tipoStrMotor = _normalizar(imovel.tipo || '');
+    const _ehTerrenoMotor = ['terreno','lote','area rural','chacara','sitio','fazenda'].some(t => _tipoStrMotor.includes(t));
+    const _ehComercialMotor = !_ehTerrenoMotor && ['sala','loja','galpao','predio','comercial','escritorio','conjunto','hotel','consultorio','restaurante'].some(t => _tipoStrMotor.includes(t));
+    if (!eliminado && leadArea > 0 && imovel.area > 0 && (_ehTerrenoMotor || _ehComercialMotor)) {
+      const areaMin = leadArea * 0.80;
+      const areaMax = leadArea * 1.20;
+      if (imovel.area < areaMin || imovel.area > areaMax) eliminado = true;
+    }
+
+    // 7. QUARTOS >= pedido (nunca menos) — ignorado para terreno e comercial
     const leadQuartos = Number(mapa.quartos?.[0]?.valor || 0);
-    if (!eliminado && leadQuartos > 0) {
+    if (!eliminado && leadQuartos > 0 && !_ehTerrenoMotor && !_ehComercialMotor) {
       if (imovel.quartos < leadQuartos) eliminado = true;
     }
 
-    // 8. SUÍTES >= pedido -1 (aceita 1 a menos)
+    // 8. SUÍTES >= pedido -1 (aceita 1 a menos) — ignorado para terreno e comercial
     const leadSuites = Number(mapa.suites?.[0]?.valor || 0);
-    if (!eliminado && leadSuites > 0) {
+    if (!eliminado && leadSuites > 0 && !_ehTerrenoMotor && !_ehComercialMotor) {
       if (imovel.suites < leadSuites - 1) eliminado = true;
     }
 
@@ -169,18 +180,22 @@ function matchPorMapa(lead, imoveis) {
       else if (diff <= 0.20) { pontos += 12; motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')}`); }
       else                   { pontos += 8;  motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')}`); }
     }
-    // Quartos (15pts)
-    maxPontos += 15;
-    if (leadQuartos > 0) {
-      if (imovel.quartos === leadQuartos) { pontos += 15; motivos.push(`${imovel.quartos}q ✓`); }
-      else { pontos += 8; motivos.push(`${imovel.quartos}q`); }
+    // Quartos (15pts) — ignorado para terreno e comercial
+    if (!_ehTerrenoMotor && !_ehComercialMotor) {
+      maxPontos += 15;
+      if (leadQuartos > 0) {
+        if (imovel.quartos === leadQuartos) { pontos += 15; motivos.push(`${imovel.quartos}q ✓`); }
+        else { pontos += 8; motivos.push(`${imovel.quartos}q`); }
+      }
     }
-    // Suítes (10pts)
-    maxPontos += 10;
-    if (leadSuites > 0) {
-      if (imovel.suites === leadSuites)        { pontos += 10; motivos.push(`${imovel.suites}st ✓`); }
-      else if (imovel.suites === leadSuites-1) { pontos += 6;  motivos.push(`${imovel.suites}st (-1)`); }
-      else                                      { pontos += 7;  motivos.push(`${imovel.suites}st (+)`); }
+    // Suítes (10pts) — ignorado para terreno e comercial
+    if (!_ehTerrenoMotor && !_ehComercialMotor) {
+      maxPontos += 10;
+      if (leadSuites > 0) {
+        if (imovel.suites === leadSuites)        { pontos += 10; motivos.push(`${imovel.suites}st ✓`); }
+        else if (imovel.suites === leadSuites-1) { pontos += 6;  motivos.push(`${imovel.suites}st (-1)`); }
+        else                                      { pontos += 7;  motivos.push(`${imovel.suites}st (+)`); }
+      }
     }
     // Vagas (10pts)
     maxPontos += 10;
@@ -189,10 +204,17 @@ function matchPorMapa(lead, imoveis) {
       else if (imovel.vagas === leadVagas-1)   { pontos += 6;  motivos.push(`${imovel.vagas}vg (-1)`); }
       else                                      { pontos += 7;  motivos.push(`${imovel.vagas}vg (+)`); }
     }
-    // Área (5pts)
-    maxPontos += 5;
-    const leadArea = mapa.area?.[0]?.valor?.min || 0;
-    if (leadArea > 0 && imovel.area >= leadArea * 0.90) { pontos += 5; motivos.push(`${imovel.area}m²`); }
+    // Área — 5pts para residencial, 15pts para terreno/comercial
+    const _areaScore = (_ehTerrenoMotor || _ehComercialMotor) ? 15 : 5;
+    maxPontos += _areaScore;
+    const leadAreaScore = Number(mapa.area?.[0]?.valor || mapa.area?.[0]?.valor?.min || 0);
+    if (leadAreaScore > 0 && imovel.area > 0) {
+      const diffArea = Math.abs(imovel.area - leadAreaScore) / leadAreaScore;
+      if (diffArea <= 0.05)      { pontos += _areaScore;                motivos.push(`${imovel.area}m² ✓✓`); }
+      else if (diffArea <= 0.10) { pontos += Math.round(_areaScore*0.9); motivos.push(`${imovel.area}m² ✓`); }
+      else if (diffArea <= 0.20) { pontos += Math.round(_areaScore*0.7); motivos.push(`${imovel.area}m²`); }
+      else if (imovel.area >= leadAreaScore * 0.80) { pontos += Math.round(_areaScore*0.5); motivos.push(`${imovel.area}m²`); }
+    } else if (imovel.area > 0) { motivos.push(`${imovel.area}m²`); }
     // Diferenciais (5pts máx)
     maxPontos += 5;
     if (mapa.diferenciais && mapa.diferenciais.length > 0) {
@@ -594,7 +616,8 @@ const GRUPOS_TIPO = {
   apartamento: ['apartamento','apto','flat','studio','kitnet','cobertura','duplex'],
   casa:        ['casa','sobrado','chacara','sitio','fazenda','villa'],
   comercial:   ['sala','loja','galpao','predio','escritorio','comercial'],
-  terreno:     ['terreno','lote','area']
+  terreno:     ['terreno','lote','area rural','chacara','sitio','fazenda'],
+  comercial2:  ['conjunto','hotel','pousada','consultorio','restaurante','bar']
 };
 
 function _tiposCompativeis(t1, t2) {

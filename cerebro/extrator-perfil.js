@@ -78,8 +78,9 @@ const TIPOS_RESIDENCIAL = [
     'mansao','mansão','chacara','chácara','sitio','sítio','fazenda','vila',
     'imovel residencial','imóvel residencial'
   ];
-const TIPOS_COMERCIAL = ['sala comercial','sala','loja','galpao','galpão','escritorio','escritório','conjunto comercial','conjunto','predio','prédio','hotel','pousada'];
-const TODOS_TIPOS = [...TIPOS_RESIDENCIAL, ...TIPOS_COMERCIAL];
+const TIPOS_COMERCIAL = ['sala comercial','sala','loja','galpao','galpão','escritorio','escritório','conjunto comercial','conjunto','predio','prédio','hotel','pousada','consultorio','consultório','restaurante','bar','galpao deposito','galpão depósito','predio comercial','prédio comercial','hotel pousada'];
+const TIPOS_TERRENO = ['terreno','lote','area rural','área rural','terreno comercial','terreno lote','chacara','chácara','sitio','sítio','fazenda'];
+const TODOS_TIPOS = [...TIPOS_RESIDENCIAL, ...TIPOS_COMERCIAL, ...TIPOS_TERRENO];
 
 const INTENCAO = {
   comprar: [
@@ -170,7 +171,20 @@ const DIFERENCIAIS = {
   seguranca: ['segurança','seguranca','condominio fechado','condomínio fechado','cercado'],
   mobiliado: ['mobiliado','mobília','mobilia','semi mobiliado','com móveis'],
   novo: ['novo','na planta','lançamento','lancamento','nunca habitado'],
-  reformado: ['reformado','reformado','renovado','atualizado']
+  reformado: ['reformado','reformado','renovado','atualizado'],
+  // Terreno
+  escriturado: ['escriturado','escritura','documentado','registro'],
+  plano: ['plano','terreno plano','nivel','nivelado'],
+  esquina: ['esquina','quina'],
+  frente_mar: ['frente mar','frente ao mar','beira mar','frente praia'],
+  desmembrado: ['desmembrado','desmembramento','loteado','loteamento'],
+  murado: ['murado','muro','cercado','cercamento'],
+  // Comercial
+  ponto_comercial: ['ponto comercial','ponto','fluxo de pessoas','alto fluxo','movimento'],
+  mezanino: ['mezanino','mezanine'],
+  laje: ['laje corporativa','laje','andar corrido'],
+  vitrine: ['vitrine','fachada','esquina comercial'],
+  estacionamento: ['estacionamento','vagas rotativas','vaga rotativa']
 };
 
 const CIDADES = [
@@ -338,7 +352,7 @@ const TYPOS_TIPO = {
 function corrigirTipo(norm) {
   for (const [typo, correto] of Object.entries(TYPOS_TIPO)) {
     if (norm.includes(typo)) {
-      const cat = ['casa','sobrado','mansao','chacara','sitio','fazenda','vila','studio','kitnet','loft','flat','cobertura','apartamento','apto'].includes(correto) ? 'residencial' : 'comercial';
+      const cat = ['terreno','lote','area rural','terreno comercial'].includes(correto) ? 'terreno' : ['casa','sobrado','mansao','chacara','sitio','fazenda','vila','studio','kitnet','loft','flat','cobertura','apartamento','apto'].includes(correto) ? 'residencial' : 'comercial';
       return { tipo: correto, categoria: cat };
     }
   }
@@ -356,7 +370,9 @@ function extrairTipo(norm) {
     const fuzzyTipo = _fuzzyMatch(palavra, TODOS_TIPOS);
     if (fuzzyTipo) return fuzzyTipo;
   }
-  // Comercial primeiro (mais específico)
+  // Terreno primeiro (mais específico)
+  for (const t of TIPOS_TERRENO) { if (norm.includes(t)) return { tipo: t, categoria: 'terreno' }; }
+  // Comercial segundo
   for (const t of TIPOS_COMERCIAL) { if (norm.includes(t)) return { tipo: t, categoria: 'comercial' }; }
   for (const t of TIPOS_RESIDENCIAL) { if (norm.includes(t)) return { tipo: t, categoria: 'residencial' }; }
   return null;
@@ -1705,6 +1721,9 @@ function extrairPerfil(mensagens) {
   // Área
   const area = extrairNumero(norm, ['m2','metros','m²','area','área','metragem']);
   if (area) perfil.area = area;
+  // Hectares (terrenos) — converte para m²
+  const hectares = extrairNumero(norm, ['hectare','hectares','ha']);
+  if (hectares && !perfil.area) perfil.area = hectares * 10000;
 
   // Andar
   const andar = extrairNumero(norm, ['andar','andares','piso']);

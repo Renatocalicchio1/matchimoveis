@@ -5,7 +5,7 @@ const XLSX = require('xlsx');
 const { XMLParser } = require('fast-xml-parser');
 
 const XML_URL = process.argv[2];
-const USER_ID = process.argv[3] || '';
+const USER_ID = process.env.USER_ID || process.argv[3] || '';
 const EXCEL_FILE = process.argv[4];
 
 if (!XML_URL) {

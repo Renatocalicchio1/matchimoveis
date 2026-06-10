@@ -919,6 +919,21 @@ app.post('/login', async (req,res)=>{
           headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
           body: JSON.stringify({ number: '5511956655428', text: _msgAdmin })
         }).catch(()=>{});
+
+        // Onboarding — 3 mensagens para o novo corretor
+        const _telCorretor = '55' + (novo.telefone||novo.celular||'').replace(/\D/g,'');
+        const _passo1 = `Olá, ${novo.nome}! 👋 Seja bem-vindo ao *MatchImóveis*!\n\n*📋 Passo 1 — Cadastre seus imóveis*\n\nVá em *Menu → Cadastrar* e importe um XML padrão VivaReal/ZAP ou cadastre seus imóveis manualmente.\n\nQuanto mais imóveis cadastrados, mais matches você gera! 🏠`;
+        const _passo2 = `*📱 Passo 2 — Ative seu WhatsApp*\n\nVá em *Menu → Perfil* e conecte seu número do WhatsApp.\n\nO MatchImóveis usa seu WhatsApp para enviar vitrines, confirmar visitas e se comunicar com seus leads automaticamente. ⚡`;
+        const _passo3 = `*🎯 Passo 3 — Adicione seus leads*\n\nVá em *Menu → Leads* e importe sua planilha de leads, cadastre manualmente ou ative os portais para receber leads automaticamente.\n\nPronto! O sistema começa a gerar matches e enviar vitrines para você. 🚀\n\nQualquer dúvida, fale com a gente aqui mesmo!`;
+
+        for(const _msg of [_passo1, _passo2, _passo3]){
+          await new Promise(r => setTimeout(r, 2000));
+          await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
+            body: JSON.stringify({ number: _telCorretor, text: _msg })
+          }).catch(()=>{});
+        }
       } catch(_e) { console.error('[notif-cadastro]', _e.message); }
     })();
 

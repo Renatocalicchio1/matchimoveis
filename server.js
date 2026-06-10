@@ -7094,11 +7094,22 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
 // ── EDITAR PERFIL IA DA LEAD ─────────────────────────────────────────
 app.post('/app/lead/:id/perfil', auth, async (req, res) => {
   try {
-    const { atualizarLead } = require('./services/salvarLead');
+    const { atualizarLead, lerLeads } = require('./services/salvarLead');
     const { perfilIA } = req.body;
     if (!perfilIA) return res.status(400).json({ erro: 'perfilIA obrigatório' });
     await atualizarLead(req.params.id, { perfilIA });
     res.json({ ok: true });
+    // Roda match em background
+    setImmediate(async () => {
+      try {
+        const leads = await lerLeads();
+        const lead = leads.find(l => String(l.id) === String(req.params.id));
+        if (!lead) return;
+        const matchCore = require('./cerebro/match-core');
+        await matchCore.processar({ lead: { ...lead, perfilIA }, mensagem: '', canal: 'manual', userId: lead.userId || lead.codigoUsuario });
+        console.log('[PERFIL EDIT] match rodado para lead:', req.params.id);
+      } catch(e) { console.error('[PERFIL EDIT] erro match:', e.message); }
+    });
   } catch(e) {
     res.status(500).json({ erro: e.message });
   }

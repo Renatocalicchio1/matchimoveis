@@ -7090,6 +7090,19 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
   }
 });
 
+
+// ── EDITAR PERFIL IA DA LEAD ─────────────────────────────────────────
+app.post('/app/lead/:id/perfil', auth, async (req, res) => {
+  try {
+    const { atualizarLead } = require('./services/salvarLead');
+    const { perfilIA } = req.body;
+    if (!perfilIA) return res.status(400).json({ erro: 'perfilIA obrigatório' });
+    await atualizarLead(req.params.id, { perfilIA });
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ erro: e.message });
+  }
+});
 // ── CLASSIFICAR LEAD ─────────────────────────────────────────
 app.post('/app/lead/:id/classificar', auth, async (req, res) => {
   try {

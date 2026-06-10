@@ -25,6 +25,10 @@
 .perfil-item{background:var(--bg);border:1px solid var(--border-light);border-radius:8px;padding:9px 11px}
 .perfil-item-lbl{font-size:10px;color:var(--text-ter);margin-bottom:2px}
 .perfil-item-val{font-size:13px;font-weight:600;color:var(--dark)}
+.perfil-input{font-size:13px;font-weight:600;color:var(--dark);background:transparent;border:none;border-bottom:1.5px solid #e5e7eb;outline:none;width:100%;padding:2px 0;border-radius:0;transition:border-color .2s}
+.perfil-input:focus{border-bottom-color:#7c3aed}
+.perfil-input[type=number]{-moz-appearance:textfield}
+.perfil-input select{font-size:13px}
 .copiloto{border-radius:var(--radius);padding:16px;margin-bottom:14px}
 @media(max-width:900px){.ld-layout{grid-template-columns:1fr}}
 </style>
@@ -147,28 +151,66 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
     </div>
 
     <!-- Perfil de busca completo -->
-    <% if(Object.keys(_p).length) { %>
     <div class="ld-card">
-      <div class="ld-title">Perfil de busca detectado pela IA</div>
-      <div class="perfil-grid">
-        <% if(_p.tipo){%><div class="perfil-item"><div class="perfil-item-lbl">Tipo</div><div class="perfil-item-val"><%=_p.tipo%></div></div><%}%>
-        <% if(_p.quartos){%><div class="perfil-item"><div class="perfil-item-lbl">Quartos</div><div class="perfil-item-val"><%=_p.quartos%></div></div><%}%>
-        <% if(_p.suites){%><div class="perfil-item"><div class="perfil-item-lbl">Suítes</div><div class="perfil-item-val"><%=_p.suites%></div></div><%}%>
-        <% if(_p.vagas){%><div class="perfil-item"><div class="perfil-item-lbl">Vagas</div><div class="perfil-item-val"><%=_p.vagas%></div></div><%}%>
-        <% if(_p.banheiros){%><div class="perfil-item"><div class="perfil-item-lbl">Banheiros</div><div class="perfil-item-val"><%=_p.banheiros%></div></div><%}%>
-        <% if(_p.area){%><div class="perfil-item"><div class="perfil-item-lbl">Área</div><div class="perfil-item-val"><%=_p.area%>m²</div></div><%}%>
-        <% if(_p.bairro){%><div class="perfil-item"><div class="perfil-item-lbl">Bairro</div><div class="perfil-item-val"><%=_p.bairro%></div></div><%}%>
-        <% if(_p.rua){%><div class="perfil-item"><div class="perfil-item-lbl">Rua</div><div class="perfil-item-val"><%=_p.rua%></div></div><%}%>
-        <% if(_p.cidade){%><div class="perfil-item"><div class="perfil-item-lbl">Cidade</div><div class="perfil-item-val"><%=_p.cidade%></div></div><%}%>
-        <% if(_p.valorMax){%><div class="perfil-item"><div class="perfil-item-lbl">Valor máx.</div><div class="perfil-item-val">R$<%=Math.round(Number(_p.valorMax)/1000)%>k</div></div><%}%>
-        <% if(_p.intencao){%><div class="perfil-item"><div class="perfil-item-lbl">Intenção</div><div class="perfil-item-val"><%=_p.intencao%></div></div><%}%>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="ld-title" style="margin-bottom:0">Perfil de busca</div>
+        <span id="perfil-status" style="font-size:11px;color:#9ca3af"></span>
+      </div>
+      <div class="perfil-grid" id="perfil-editavel">
+        <div class="perfil-item"><div class="perfil-item-lbl">Tipo</div><input class="perfil-input" data-campo="tipo" value="<%=_p.tipo||''%>" placeholder="Apartamento"></div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Intenção</div>
+          <select class="perfil-input" data-campo="intencao">
+            <option value="">—</option>
+            <option value="comprar" <%=_p.intencao==='comprar'?'selected':''%>>Comprar</option>
+            <option value="alugar" <%=_p.intencao==='alugar'?'selected':''%>>Alugar</option>
+          </select>
+        </div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Quartos</div><input class="perfil-input" data-campo="quartos" type="number" min="0" value="<%=_p.quartos||''%>" placeholder="0"></div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Suítes</div><input class="perfil-input" data-campo="suites" type="number" min="0" value="<%=_p.suites||''%>" placeholder="0"></div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Vagas</div><input class="perfil-input" data-campo="vagas" type="number" min="0" value="<%=_p.vagas||''%>" placeholder="0"></div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Banheiros</div><input class="perfil-input" data-campo="banheiros" type="number" min="0" value="<%=_p.banheiros||''%>" placeholder="0"></div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Área (m²)</div><input class="perfil-input" data-campo="area" type="number" min="0" value="<%=_p.area||''%>" placeholder="0"></div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Bairro</div><input class="perfil-input" data-campo="bairro" value="<%=_p.bairro||''%>" placeholder="Bairro"></div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Cidade</div><input class="perfil-input" data-campo="cidade" value="<%=_p.cidade||''%>" placeholder="Cidade"></div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Valor máx. (R$)</div><input class="perfil-input" data-campo="valorMax" type="number" min="0" value="<%=_p.valorMax||''%>" placeholder="0"></div>
+        <div class="perfil-item"><div class="perfil-item-lbl">Valor mín. (R$)</div><input class="perfil-input" data-campo="valorMin" type="number" min="0" value="<%=_p.valorMin||''%>" placeholder="0"></div>
         <% if(_p.urgencia){%><div class="perfil-item"><div class="perfil-item-lbl">Urgência</div><div class="perfil-item-val"><%=_p.urgencia%></div></div><%}%>
         <% if(_p.faseFunil){%><div class="perfil-item"><div class="perfil-item-lbl">Funil</div><div class="perfil-item-val"><%=_p.faseFunil%></div></div><%}%>
         <% if(_p.motivacao){%><div class="perfil-item"><div class="perfil-item-lbl">Motivação</div><div class="perfil-item-val"><%=_p.motivacao%></div></div><%}%>
         <% if(_p.sentimento){%><div class="perfil-item"><div class="perfil-item-lbl">Sentimento</div><div class="perfil-item-val"><%=_p.sentimento%></div></div><%}%>
       </div>
     </div>
-    <% } %>
+    <script>
+    (function(){
+      var _timer;
+      var _leadId = '<%=lead.id%>';
+      document.querySelectorAll('.perfil-input').forEach(function(el){
+        el.addEventListener('change', salvarPerfil);
+        el.addEventListener('blur', salvarPerfil);
+      });
+      function salvarPerfil(){
+        clearTimeout(_timer);
+        _timer = setTimeout(function(){
+          var perfil = {};
+          document.querySelectorAll('.perfil-input').forEach(function(el){
+            var v = el.value.trim();
+            if(v) perfil[el.dataset.campo] = isNaN(v)||el.type==='text'||el.tagName==='SELECT' ? v : Number(v);
+          });
+          document.getElementById('perfil-status').textContent = 'Salvando...';
+          fetch('/app/lead/'+_leadId+'/perfil', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ perfilIA: perfil })
+          }).then(function(r){ return r.json(); }).then(function(d){
+            document.getElementById('perfil-status').textContent = d.ok ? '✓ Salvo' : '✗ Erro';
+            setTimeout(function(){ document.getElementById('perfil-status').textContent=''; }, 2000);
+          }).catch(function(){
+            document.getElementById('perfil-status').textContent = '✗ Erro';
+          });
+        }, 600);
+      }
+    })();
+    </script>
 
     <!-- Ciclos de busca -->
     <% if(lead.ciclosBusca && lead.ciclosBusca.length > 0) { %>

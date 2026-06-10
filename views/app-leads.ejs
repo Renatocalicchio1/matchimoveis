@@ -600,6 +600,23 @@ function setTipoLead(tipo){
   document.getElementById('nl-aviso').textContent = avisos[tipo];
   document.getElementById('nl-campos-residencial').style.display = tipo==='residencial' ? '' : 'none';
   document.getElementById('nl-campos-area').style.display = tipo!=='residencial' ? '' : 'none';
+
+  // Filtra opções do select de tipo
+  const sel = document.getElementById('nl-tipo');
+  sel.value = '';
+  Array.from(sel.options).forEach(opt => {
+    if(!opt.value) { opt.style.display=''; return; }
+    const grp = opt.closest('optgroup')?.label?.toLowerCase()||'';
+    if(tipo==='residencial') opt.style.display = grp==='residencial' ? '' : 'none';
+    else if(tipo==='comercial') opt.style.display = grp==='comercial' ? '' : 'none';
+    else if(tipo==='terreno') opt.style.display = grp==='terrenos' ? '' : 'none';
+  });
+  Array.from(sel.querySelectorAll('optgroup')).forEach(grp => {
+    const label = grp.label.toLowerCase();
+    if(tipo==='residencial') grp.style.display = label==='residencial' ? '' : 'none';
+    else if(tipo==='comercial') grp.style.display = label==='comercial' ? '' : 'none';
+    else if(tipo==='terreno') grp.style.display = label==='terrenos' ? '' : 'none';
+  });
 }
 async function salvarNovaLead(){
   const err = document.getElementById('nl-erro');

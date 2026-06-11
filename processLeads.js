@@ -110,6 +110,27 @@ async function run() {
         criadoEm: new Date().toISOString(),
         data_cadastro: new Date().toISOString(),
       };
+      // Setar status correto baseado no perfilIA
+      const _p = lead.perfilIA || {};
+      const _suficiente = _p.tipo && _p.intencao && _p.cidade && _p.bairro && _p.valorMax && _p.quartos;
+      if (_suficiente) {
+        lead.status = 'qualificando';
+        lead.faseFunil = 'qualificando';
+        lead.temperatura = 'morno';
+        lead.score = 30;
+        lead.scoreEtapa = 'Qualificado';
+        lead.mapaIntencao = {
+          fase: 'qualificando',
+          temperatura: 'morno',
+          tipo_imovel: _p.tipo ? [{ valor: _p.tipo, peso: 1 }] : [],
+          transacao: _p.intencao ? [{ valor: _p.intencao, peso: 1 }] : [],
+          bairro: _p.bairro ? [{ valor: _p.bairro, peso: 1 }] : [],
+          cidade: _p.cidade ? [{ valor: _p.cidade, peso: 1 }] : [],
+          estado: _p.estado ? [{ valor: _p.estado, peso: 1 }] : [],
+          quartos: _p.quartos ? [{ valor: _p.quartos, peso: 1 }] : [],
+          valor: _p.valorMax ? [{ valor: _p.valorMax, max: _p.valorMax, peso: 1 }] : [],
+        };
+      }
       novas.push(lead);
     }
 

@@ -53,14 +53,16 @@ async function processarLeadPortal(lead) {
       const tipo = NORM(imovel.tipo || imovel.type || '');
       const transacao = NORM(imovel.transacao || imovel.transaction_type || '');
       const cidade = NORM(imovel.cidade || imovel.city || '');
-      const estado = NORM(imovel.estado || imovel.state || '');
+      const _estadoRaw = imovel.estado || imovel.state || '';
+      const _estadoMapPortal = {'sp':'Santa Catarina','sc':'Santa Catarina','rj':'Rio de Janeiro','mg':'Minas Gerais','rs':'Rio Grande do Sul','pr':'Paraná','ba':'Bahia','go':'Goiás','df':'Distrito Federal','es':'Espírito Santo','pe':'Pernambuco','ce':'Ceará','am':'Amazonas','pa':'Pará','mt':'Mato Grosso','ms':'Mato Grosso do Sul','pb':'Paraíba','rn':'Rio Grande do Norte','pi':'Piauí','al':'Alagoas','se':'Sergipe','ro':'Rondônia','to':'Tocantins','ac':'Acre','ap':'Amapá','rr':'Roraima','ma':'Maranhão'};
+      const estado = NORM(_estadoMapPortal[_estadoRaw.toLowerCase()] || _estadoRaw);
       const bairro = NORM(imovel.bairro || imovel.neighborhood || '');
       const valor = parseFloat(imovel.valor_imovel || imovel.valor || imovel.preco || imovel.price || 0);
       const quartos = parseInt(imovel.quartos || imovel.bedrooms || 0);
       const suites = parseInt(imovel.suites || 0);
       const vagas = parseInt(imovel.vagas || imovel.parking || 0);
       const banheiros = parseInt(imovel.banheiros || imovel.bathrooms || 0);
-      const area = parseFloat(imovel.area || imovel.area_util || 0);
+      const area = parseFloat(imovel.area_m2 || imovel.area || imovel.area_util || 0);
 
       if (tipo)      mapa.tipo_imovel = sinal(tipo, 95, 'portal_imovel');
       if (transacao) mapa.transacao   = sinal(transacao === 'sell' || transacao === 'venda' ? 'venda' : transacao === 'rent' || transacao === 'aluguel' ? 'aluguel' : transacao, 95, 'portal_imovel');

@@ -79,12 +79,18 @@ async function run() {
         segmento: isComercial(row.Tipo || row.tipo) ? 'comercial' : 'residencial',
         perfilIA: {
           tipo: row.Tipo || row.tipo || '',
-          intencao: row.Transacao || row.transacao || '',
+          intencao: normalizarTransacao(row.Transacao || row.transacao || row['Transação'] || ''),
           bairro: row.Bairro || row.bairro || '',
           cidade: row.Cidade || row.cidade || '',
           estado: row.Estado || row.estado || '',
           quartos: isComercial(row.Tipo || row.tipo) ? '' : (row.Quartos || row.quartos || ''),
-          valorMax: row.Valor_max || row.valor_max || '',
+          suites: isComercial(row.Tipo || row.tipo) ? '' : (row.Suites || row.suites || row['Suítes'] || ''),
+          vagas: isComercial(row.Tipo || row.tipo) ? '' : (row.Vagas || row.vagas || ''),
+          banheiros: isComercial(row.Tipo || row.tipo) ? '' : (row.Banheiros || row.banheiros || ''),
+          areaMin: row.Area_min || row.area_min || '',
+          areaMax: row.Area_max || row.area_max || '',
+          valorMax: row.Valor_max || row.valor_max || row['Valor_(R$)'] || row['Valor (R$)'] || '',
+          valorMin: row.Valor_min || row.valor_min || '',
           segmento: isComercial(row.Tipo || row.tipo) ? 'comercial' : 'residencial',
         },
         mensagens: [],
@@ -107,6 +113,17 @@ async function run() {
     const todas = [...existentes, ...novas];
     await salvarTodosLeads(todas);
     console.log(`✅ ${novas.length} leads importadas com sucesso.`);
+
+    // Disparar match-core para cada lead nova
+    try {
+      const matchCore = require('./cerebro/match-core');
+      for (const lead of novas) {
+        try {
+          await matchCore.processar({ lead, mensagem: '', canal: 'importacao', userId, instancia: null });
+        } catch(e) { console.error('[import-match]', e.message); }
+      }
+      console.log(`✅ Match processado para ${novas.length} leads.`);
+    } catch(e) { console.error('[import-match-core]', e.message); }
     process.exit(0);
   } catch (e) {
     console.error('Erro ao importar leads:', e.message);

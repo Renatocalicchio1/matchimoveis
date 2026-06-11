@@ -114,16 +114,7 @@ async function run() {
     await salvarTodosLeads(todas);
     console.log(`✅ ${novas.length} leads importadas com sucesso.`);
 
-    // Disparar match-core para cada lead nova
-    try {
-      const matchCore = require('./cerebro/match-core');
-      for (const lead of novas) {
-        try {
-          await matchCore.processar({ lead, mensagem: '', canal: 'importacao', userId, instancia: null });
-        } catch(e) { console.error('[import-match]', e.message); }
-      }
-      console.log(`✅ Match processado para ${novas.length} leads.`);
-    } catch(e) { console.error('[import-match-core]', e.message); }
+
     process.exit(0);
   } catch (e) {
     console.error('Erro ao importar leads:', e.message);

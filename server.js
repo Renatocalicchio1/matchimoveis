@@ -744,15 +744,32 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
       setImmediate(async () => {
         try {
           const { lerLeads } = require('./services/salvarLead');
+          const { salvarLead } = require('./services/salvarLead');
           const matchCore = require('./cerebro/match-core');
+          const { matchPorMapa } = require('./cerebro/motor-intencao');
+          const { query: _qImp } = require('./services/db');
           const _leads = await lerLeads(userId);
-          const _novas = _leads.filter(l => !l.matches?.length && !l.matchesAuto?.length && (l.perfilIA?.tipo || l.perfilIA?.bairro));
+          const _novas = _leads.filter(l => !l.matches?.length && !l.matchesAuto?.length && l.perfilIA?.tipo && l.perfilIA?.bairro && l.perfilIA?.intencao && l.perfilIA?.valorMax);
           for (const _lead of _novas) {
             try {
-              await matchCore.processar({ lead: _lead, mensagem: '', canal: 'importacao', userId, instancia: null });
+              const _perfil = _lead.perfilIA;
+              const _estadoMap = {'sp':'São Paulo','rj':'Rio de Janeiro','mg':'Minas Gerais','sc':'Santa Catarina','rs':'Rio Grande do Sul','pr':'Paraná','ba':'Bahia','go':'Goiás','df':'Distrito Federal','es':'Espírito Santo','pe':'Pernambuco','ce':'Ceará','am':'Amazonas','pa':'Pará'};
+              const _estadoRaw = (_perfil.estado||'').toLowerCase();
+              const _estadoNome = _estadoMap[_estadoRaw] || _perfil.estado || '';
+              const _res = await _qImp("SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2 OR estado ILIKE $3)", [userId, '%'+_estadoRaw+'%', '%'+_estadoNome+'%']);
+              const _matches = matchPorMapa(_lead, _res.rows);
+              if (_matches && _matches.length > 0) {
+                _lead.matchesAuto = _matches;
+                _lead.matches = _matches;
+                _lead.faseFunil = 'com_match';
+                _lead.temperatura = 'quente';
+                _lead.score = Math.max(_lead.score||30, 50);
+                await salvarLead(_lead);
+                console.log(`[import-match] ✅ ${_lead.nome||_lead.id} — ${_matches.length} matches`);
+              }
             } catch(e) { console.error('[import-match]', _lead.id, e.message); }
           }
-          console.log(`[import-match] ${_novas.length} leads reprocessadas`);
+          console.log(`[import-match] ${_novas.length} leads processadas`);
         } catch(e) { console.error('[import-match]', e.message); }
       });
 

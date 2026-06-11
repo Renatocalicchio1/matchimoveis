@@ -740,18 +740,47 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
 
       execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio:'inherit', cwd: __dirname });
 
-      // Reprocessar match para leads novas importadas — igual à rota de perfil
+      // Reprocessar match para leads novas importadas — mesmo fluxo do portal-processor
       setTimeout(async () => {
         try {
-          const { lerLeads } = require('./services/salvarLead');
-          const matchCore = require('./cerebro/match-core');
+          const { lerLeads, salvarLead } = require('./services/salvarLead');
+          const { matchPorMapa } = require('./cerebro/motor-intencao');
+          const { query: _qImp } = require('./services/db');
           const _leads = await lerLeads(userId);
           const _novas = _leads.filter(l => !l.matches?.length && !l.matchesAuto?.length && l.perfilIA?.tipo && l.perfilIA?.bairro && l.perfilIA?.intencao && l.perfilIA?.valorMax);
           console.log(`[import-match] ${_novas.length} leads para processar`);
           for (const _lead of _novas) {
             try {
-              await matchCore.processar({ lead: { ..._lead, perfilIA: _lead.perfilIA }, mensagem: '', canal: 'manual', userId });
-              console.log(`[import-match] ✅ ${_lead.nome||_lead.id}`);
+              const _p = _lead.perfilIA;
+              const sinal = (v, peso, src) => [{ valor: v, peso, fonte: src }];
+              // Monta mapaIntencao igual ao portal-processor
+              const _mapa = {
+                transacao:   _p.intencao ? sinal(_p.intencao, 95, 'importacao') : [],
+                tipo_imovel: _p.tipo     ? sinal(_p.tipo,     95, 'importacao') : [],
+                cidade:      _p.cidade   ? sinal(_p.cidade,   95, 'importacao') : [],
+                estado:      _p.estado   ? sinal(_p.estado,   95, 'importacao') : [],
+                bairro:      _p.bairro   ? sinal(_p.bairro,   95, 'importacao') : [],
+                valor:       _p.valorMax ? sinal({ min: 0, max: _p.valorMax }, 95, 'importacao') : [],
+                quartos:     _p.quartos  ? sinal(_p.quartos,  95, 'importacao') : [],
+                suites:      _p.suites   ? sinal(_p.suites,   90, 'importacao') : [],
+                vagas:       _p.vagas    ? sinal(_p.vagas,    90, 'importacao') : [],
+                banheiros:   _p.banheiros? sinal(_p.banheiros,90, 'importacao') : [],
+                fase:        'qualificando',
+                temperatura: 'morno',
+              };
+              _lead.mapaIntencao = _mapa;
+              const _imoveis = await _qImp("SELECT * FROM imoveis WHERE status='ativo' AND user_id=$1", [userId]);
+              const _matches = matchPorMapa({ ..._lead, mapaIntencao: _mapa }, _imoveis.rows);
+              if (_matches && _matches.length > 0) {
+                _lead.matchesAuto = _matches;
+                _lead.matches = _matches;
+                _lead.faseFunil = 'com_match';
+                _lead.temperatura = 'quente';
+                _lead.score = Math.max(_lead.score||30, 50);
+                _lead.mapaIntencao = _mapa;
+                await salvarLead(_lead);
+                console.log(`[import-match] ✅ ${_lead.nome||_lead.id} — ${_matches.length} matches`);
+              }
             } catch(e) { console.error('[import-match]', _lead.id, e.message); }
           }
         } catch(e) { console.error('[import-match]', e.message); }

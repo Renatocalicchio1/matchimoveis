@@ -464,6 +464,12 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
     } else {
       await _q('UPDATE usuarios SET match_coins=GREATEST(0,COALESCE(match_coins,0)-$1) WHERE codigo_usuario=$2', [qtd, cod]);
     }
+    // Atualizar cache e sessão
+    const _novoSaldo = (await _q('SELECT match_coins FROM usuarios WHERE codigo_usuario=$1', [cod])).rows[0]?.match_coins || 0;
+    if (_cacheUsuarios) {
+      const _ci = _cacheUsuarios.findIndex(u => u.codigoUsuario === cod || u.codigo_usuario === cod);
+      if (_ci >= 0) _cacheUsuarios[_ci].matchCoins = _novoSaldo;
+    }
     res.redirect('/admin');
   } catch(e) { res.send('Erro: ' + e.message); }
 });

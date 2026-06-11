@@ -2447,8 +2447,11 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
           if (_perfilIAIW.suites) _perfilFinalIW.suites = _perfilIAIW.suites;
           if (_perfilIAIW.vagas) _perfilFinalIW.vagas = _perfilIAIW.vagas;
           if (_perfilIAIW.banheiros) _perfilFinalIW.banheiros = _perfilIAIW.banheiros;
-          if (_perfilIAIW.area) _perfilFinalIW.area = _perfilIAIW.area;
+          if (_perfilIAIW.area) _perfilFinalIW.area = parseFloat(_perfilIAIW.area) || _perfilIAIW.area;
           if (_perfilIAIW.valorMax) _perfilFinalIW.valorMax = _perfilIAIW.valorMax;
+          // Remover area_max/area_min — usar só area
+          delete _perfilFinalIW.area_max;
+          delete _perfilFinalIW.area_min;
           await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalIW, bairro: _perfilFinalIW.bairro||'', cidade: _perfilFinalIW.cidade||'', estado: _perfilFinalIW.estado||'', tipo: _perfilFinalIW.tipo||'', tipo_operacao: _perfilFinalIW.intencao||'' });
           console.log('[WEBHOOK IMOVELWEB] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
@@ -2545,6 +2548,8 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
           const _perfilAtualOLX = _rMergeOLX.rows[0]?.perfil_ia || {};
           const _perfilFinalOLX = { ..._perfilAtualOLX, ..._perfilIA };
           Object.keys(_perfilFinalOLX).forEach(k => { if(!_perfilFinalOLX[k] && _perfilAtualOLX[k]) _perfilFinalOLX[k] = _perfilAtualOLX[k]; });
+          if (_perfilIA.area) _perfilFinalOLX.area = parseFloat(_perfilIA.area) || _perfilIA.area;
+          delete _perfilFinalOLX.area_max; delete _perfilFinalOLX.area_min;
           await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalOLX, bairro: _perfilFinalOLX.bairro||'', cidade: _perfilFinalOLX.cidade||'', estado: _perfilFinalOLX.estado||'', tipo: _perfilFinalOLX.tipo||'', tipo_operacao: _perfilFinalOLX.intencao||'' });
           console.log('[WEBHOOK GRUPOOLX] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
@@ -2639,6 +2644,8 @@ app.post('/webhook/123i/:userId', async (req, res) => {
           const _perfilAtual123 = _rMerge123.rows[0]?.perfil_ia || {};
           const _perfilFinal123 = { ..._perfilAtual123, ..._perfilIA };
           Object.keys(_perfilFinal123).forEach(k => { if(!_perfilFinal123[k] && _perfilAtual123[k]) _perfilFinal123[k] = _perfilAtual123[k]; });
+          if (_perfilIA.area) _perfilFinal123.area = parseFloat(_perfilIA.area) || _perfilIA.area;
+          delete _perfilFinal123.area_max; delete _perfilFinal123.area_min;
           await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinal123, bairro: _perfilFinal123.bairro||'', cidade: _perfilFinal123.cidade||'', estado: _perfilFinal123.estado||'', tipo: _perfilFinal123.tipo||'', tipo_operacao: _perfilFinal123.intencao||'' });
           console.log('[WEBHOOK 123i] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente
@@ -2736,6 +2743,8 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
           const _perfilAtualCH = _rMergeCH.rows[0]?.perfil_ia || {};
           const _perfilFinalCH = { ..._perfilAtualCH, ..._perfilIA };
           Object.keys(_perfilFinalCH).forEach(k => { if(!_perfilFinalCH[k] && _perfilAtualCH[k]) _perfilFinalCH[k] = _perfilAtualCH[k]; });
+          if (_perfilIA.area) _perfilFinalCH.area = parseFloat(_perfilIA.area) || _perfilIA.area;
+          delete _perfilFinalCH.area_max; delete _perfilFinalCH.area_min;
           await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalCH, bairro: _perfilFinalCH.bairro||'', cidade: _perfilFinalCH.cidade||'', estado: _perfilFinalCH.estado||'', tipo: _perfilFinalCH.tipo||'', tipo_operacao: _perfilFinalCH.intencao||'' });
           console.log('[WEBHOOK CHAVES] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           // Roda match se perfil suficiente

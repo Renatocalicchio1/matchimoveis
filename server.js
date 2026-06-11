@@ -740,6 +740,22 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
 
       execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio:'inherit', cwd: __dirname });
 
+      // Reprocessar match para leads novas importadas
+      setImmediate(async () => {
+        try {
+          const { lerLeads } = require('./services/salvarLead');
+          const matchCore = require('./cerebro/match-core');
+          const _leads = await lerLeads(userId);
+          const _novas = _leads.filter(l => !l.matches?.length && !l.matchesAuto?.length && (l.perfilIA?.tipo || l.perfilIA?.bairro));
+          for (const _lead of _novas) {
+            try {
+              await matchCore.processar({ lead: _lead, mensagem: '', canal: 'importacao', userId, instancia: null });
+            } catch(e) { console.error('[import-match]', _lead.id, e.message); }
+          }
+          console.log(`[import-match] ${_novas.length} leads reprocessadas`);
+        } catch(e) { console.error('[import-match]', e.message); }
+      });
+
       return res.json({
         ok:true,
         resposta:'✅ Planilha de leads importada com sucesso. Acesse Leads para conferir.'

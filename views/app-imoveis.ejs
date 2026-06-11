@@ -328,9 +328,19 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
       <% if(_faseLabelI){ %><span style="display:inline-block;background:#1D9E75;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px"><%=_faseLabelI%></span><% } %>
       <div class="im-valor">R$ <%= item.valor_imovel ? Number(item.valor_imovel).toLocaleString('pt-BR') : '—' %></div>
       <div class="im-end"><%= [item.bairro, item.cidade].filter(Boolean).join(', ') || '—' %></div>
-      <div style="font-size:9px;color:var(--text-ter);margin-bottom:4px;display:flex;gap:8px;flex-wrap:wrap">
-        <% if(item.idInterno||item.id_interno){ %><span style="background:var(--bg);border:1px solid var(--border-light);border-radius:4px;padding:1px 6px">INT: <%= item.idInterno||item.id_interno %></span><% } %>
-        <% if(item.idExterno||item.id_externo){ %><span style="background:var(--bg);border:1px solid var(--border-light);border-radius:4px;padding:1px 6px">EXT: <%= item.idExterno||item.id_externo %></span><% } %>
+      <div style="font-size:9px;color:var(--text-sec);margin-bottom:4px;display:flex;gap:6px;flex-wrap:wrap">
+        <% if(item.idInterno||item.id_interno){ %>
+        <span style="background:#e8e8e6;border:1px solid #ccc;border-radius:4px;padding:2px 7px;display:flex;align-items:center;gap:4px">
+          INT: <%= item.idInterno||item.id_interno %>
+          <button onclick="event.stopPropagation();navigator.clipboard.writeText('<%= item.idInterno||item.id_interno %>');this.textContent='✓';setTimeout(()=>this.textContent='⎘',1000)" style="background:none;border:none;cursor:pointer;font-size:10px;padding:0;color:#555">⎘</button>
+        </span>
+        <% } %>
+        <% if(item.idExterno||item.id_externo){ %>
+        <span style="background:#e8e8e6;border:1px solid #ccc;border-radius:4px;padding:2px 7px;display:flex;align-items:center;gap:4px">
+          EXT: <%= item.idExterno||item.id_externo %>
+          <button onclick="event.stopPropagation();navigator.clipboard.writeText('<%= item.idExterno||item.id_externo %>');this.textContent='✓';setTimeout(()=>this.textContent='⎘',1000)" style="background:none;border:none;cursor:pointer;font-size:10px;padding:0;color:#555">⎘</button>
+        </span>
+        <% } %>
       </div>
 
       <% if(item.proprietario && item.proprietario.nome) { %>

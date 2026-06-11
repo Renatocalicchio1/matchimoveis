@@ -104,7 +104,12 @@ class MatchCore {
           lead.tipoLeadAtualizadoEm = new Date().toISOString();
           console.log('[MATCH CORE] lead tem imovel para vender | tipoLead:', lead.tipoLead);
         }
-        lead.mapaIntencao = analisarMensagem(mapaAtual, mensagem, canal);
+        // Só atualiza mapaIntencao se há mensagem real — evita distorcer dados do portal
+        if (mensagem && mensagem.trim()) {
+          lead.mapaIntencao = analisarMensagem(mapaAtual, mensagem, canal);
+        } else if (!lead.mapaIntencao) {
+          lead.mapaIntencao = mapaAtual || {};
+        }
         lead.faseFunil    = lead.mapaIntencao.fase || lead.faseFunil;
         lead.temperatura  = lead.mapaIntencao.temperatura || lead.temperatura;
         console.log('[INTENCAO] fase:', lead.mapaIntencao.fase, '| temp:', lead.mapaIntencao.temperatura, '| sinais:', lead.mapaIntencao.tipo_imovel.length > 0 ? lead.mapaIntencao.tipo_imovel[0]?.valor : 'nenhum');

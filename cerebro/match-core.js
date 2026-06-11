@@ -287,7 +287,7 @@ class MatchCore {
       for (const [k, v] of Object.entries(novoPerfil)) {
         if (v !== undefined && v !== null && v !== '') {
           // Se é portal e já tem dado do imóvel, não sobrescrever campos de localização/tipo
-          if (_ehPortal && perfilAtual[k] && ['bairro','cidade','estado','tipo','quartos','suites','vagas','banheiros','area'].includes(k)) continue;
+          if (_ehPortal && perfilAtual[k] && ['bairro','cidade','estado','tipo','quartos','suites','vagas','banheiros','area','valorMax','valorMin'].includes(k)) continue;
           merged[k] = v;
         }
       }
@@ -416,7 +416,8 @@ class MatchCore {
     if (perfil.cidade)     lead.cidade     = perfil.cidade;
     if (perfil.estado)     lead.estado     = perfil.estado;
     if (perfil.valorMax)   lead.valorMax   = perfil.valorMax;
-    if (perfil.valorMin)   lead.valorMin   = perfil.valorMin;
+    // Nunca sobrescrever valorMin com cálculo automático — só salvar se vier explícito do usuário
+    // if (perfil.valorMin)   lead.valorMin   = perfil.valorMin;
     if (perfil.motivacao)  lead.motivacao  = perfil.motivacao;
     if (perfil.familia)    lead.familia    = perfil.familia;
     if (perfil.diferenciais) lead.diferenciais = perfil.diferenciais;

@@ -16,6 +16,14 @@ function isComercial(tipo) {
   return TIPOS_COMERCIAIS.some(t => tipo.toLowerCase().includes(t));
 }
 
+function normalizarTransacao(t) {
+  if (!t) return '';
+  const v = t.toLowerCase().trim();
+  if (v === 'venda' || v === 'compra' || v === 'comprar') return 'comprar';
+  if (v === 'aluguel' || v === 'alugar' || v === 'locacao' || v === 'locação') return 'alugar';
+  return v;
+}
+
 function normalizarTelefone(tel) {
   if (!tel) return '';
   let t = String(tel).replace(/\D/g, '');

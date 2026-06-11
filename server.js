@@ -740,36 +740,21 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
 
       execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio:'inherit', cwd: __dirname });
 
-      // Reprocessar match para leads novas importadas — mesmo fluxo do WhatsApp
+      // Reprocessar match para leads novas importadas — via import-processor
       setTimeout(async () => {
         try {
           const { lerLeads, atualizarLead } = require('./services/salvarLead');
+          const { processarLeadImportada } = require('./cerebro/import-processor');
           const matchCore = require('./cerebro/match-core');
           const _leads = await lerLeads(userId);
           const _novas = _leads.filter(l => !l.matches?.length && !l.matchesAuto?.length && l.perfilIA?.tipo && l.perfilIA?.bairro && l.perfilIA?.intencao && l.perfilIA?.valorMax);
           console.log(`[import-match] ${_novas.length} leads para processar`);
           for (const _lead of _novas) {
             try {
-              const _p = _lead.perfilIA;
-              const sinal = (v, peso, src) => [{ valor: v, peso, fonte: src }];
-              // Monta mapaIntencao igual ao portal-processor antes de chamar processar
-              _lead.mapaIntencao = {
-                transacao:   _p.intencao ? sinal(_p.intencao, 95, 'importacao') : [],
-                tipo_imovel: _p.tipo     ? sinal(_p.tipo,     95, 'importacao') : [],
-                cidade:      _p.cidade   ? sinal(_p.cidade,   95, 'importacao') : [],
-                estado:      _p.estado   ? sinal(_p.estado,   95, 'importacao') : [],
-                bairro:      _p.bairro   ? sinal(_p.bairro,   95, 'importacao') : [],
-                valor:       _p.valorMax ? sinal({ min: 0, max: _p.valorMax }, 95, 'importacao') : [],
-                quartos:     _p.quartos  ? sinal(_p.quartos,  95, 'importacao') : [],
-                suites:      _p.suites   ? sinal(_p.suites,   90, 'importacao') : [],
-                vagas:       _p.vagas    ? sinal(_p.vagas,    90, 'importacao') : [],
-                banheiros:   _p.banheiros? sinal(_p.banheiros,90, 'importacao') : [],
-                fase:        'qualificando',
-                temperatura: 'morno',
-              };
-              // Salva o mapaIntencao antes de processar
-              await atualizarLead(_lead.id, { mapaIntencao: _lead.mapaIntencao });
-              // Chama processar igual ao WhatsApp — com mapaIntencao preenchido
+              const _mapa = await processarLeadImportada(_lead);
+              if (!_mapa) continue;
+              _lead.mapaIntencao = _mapa;
+              await atualizarLead(_lead.id, { mapaIntencao: _mapa });
               await matchCore.processar({ lead: _lead, mensagem: '', canal: 'importacao', userId, instancia: null });
               console.log(`[import-match] ✅ ${_lead.nome||_lead.id}`);
             } catch(e) { console.error('[import-match]', _lead.id, e.message); }

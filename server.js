@@ -740,39 +740,22 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
 
       execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio:'inherit', cwd: __dirname });
 
-      // Reprocessar match para leads novas importadas
-      setImmediate(async () => {
+      // Reprocessar match para leads novas importadas — igual à rota de perfil
+      setTimeout(async () => {
         try {
           const { lerLeads } = require('./services/salvarLead');
-          const { salvarLead } = require('./services/salvarLead');
           const matchCore = require('./cerebro/match-core');
-          const { matchPorMapa } = require('./cerebro/motor-intencao');
-          const { query: _qImp } = require('./services/db');
           const _leads = await lerLeads(userId);
           const _novas = _leads.filter(l => !l.matches?.length && !l.matchesAuto?.length && l.perfilIA?.tipo && l.perfilIA?.bairro && l.perfilIA?.intencao && l.perfilIA?.valorMax);
+          console.log(`[import-match] ${_novas.length} leads para processar`);
           for (const _lead of _novas) {
             try {
-              const _perfil = _lead.perfilIA;
-              const _estadoMap = {'sp':'São Paulo','rj':'Rio de Janeiro','mg':'Minas Gerais','sc':'Santa Catarina','rs':'Rio Grande do Sul','pr':'Paraná','ba':'Bahia','go':'Goiás','df':'Distrito Federal','es':'Espírito Santo','pe':'Pernambuco','ce':'Ceará','am':'Amazonas','pa':'Pará'};
-              const _estadoRaw = (_perfil.estado||'').toLowerCase();
-              const _estadoNome = _estadoMap[_estadoRaw] || _perfil.estado || '';
-              const _cidadeRaw = (_perfil.cidade||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-              const _res = await _qImp("SELECT * FROM imoveis WHERE status='ativo' AND user_id=$1", [userId]);
-              const _matches = matchPorMapa(_lead, _res.rows);
-              if (_matches && _matches.length > 0) {
-                _lead.matchesAuto = _matches;
-                _lead.matches = _matches;
-                _lead.faseFunil = 'com_match';
-                _lead.temperatura = 'quente';
-                _lead.score = Math.max(_lead.score||30, 50);
-                await salvarLead(_lead);
-                console.log(`[import-match] ✅ ${_lead.nome||_lead.id} — ${_matches.length} matches`);
-              }
+              await matchCore.processar({ lead: { ..._lead, perfilIA: _lead.perfilIA }, mensagem: '', canal: 'manual', userId });
+              console.log(`[import-match] ✅ ${_lead.nome||_lead.id}`);
             } catch(e) { console.error('[import-match]', _lead.id, e.message); }
           }
-          console.log(`[import-match] ${_novas.length} leads processadas`);
         } catch(e) { console.error('[import-match]', e.message); }
-      });
+      }, 3000);
 
       return res.json({
         ok:true,

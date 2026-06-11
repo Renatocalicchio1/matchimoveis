@@ -2429,7 +2429,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
             suites: _imIW?.suites || mapa.suites?.[0]?.valor || '',
             vagas: _imIW?.vagas || mapa.vagas?.[0]?.valor || '',
             banheiros: _imIW?.banheiros || mapa.banheiros?.[0]?.valor || '',
-            area: _imIW?.area_m2 || mapa.area?.[0]?.valor || '',
+            area: _imIW?.area_m2 || (typeof mapa.area?.[0]?.valor === 'object' ? mapa.area?.[0]?.valor?.max : mapa.area?.[0]?.valor) || '',
             valorMax: _imIW ? parseFloat(_imIW.valor_imovel||0) : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: 0,
           };
@@ -2536,7 +2536,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
             suites: _imPortal?.suites || mapa.suites?.[0]?.valor || '',
             vagas: _imPortal?.vagas || mapa.vagas?.[0]?.valor || '',
             banheiros: _imPortal?.banheiros || mapa.banheiros?.[0]?.valor || '',
-            area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
+            area: _imPortal?.area_m2 || (typeof mapa.area?.[0]?.valor === 'object' ? mapa.area?.[0]?.valor?.max : mapa.area?.[0]?.valor) || '',
             valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0) : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: 0,
           };
@@ -2630,7 +2630,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
             suites: _imPortal?.suites || mapa.suites?.[0]?.valor || '',
             vagas: _imPortal?.vagas || mapa.vagas?.[0]?.valor || '',
             banheiros: _imPortal?.banheiros || mapa.banheiros?.[0]?.valor || '',
-            area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
+            area: _imPortal?.area_m2 || (typeof mapa.area?.[0]?.valor === 'object' ? mapa.area?.[0]?.valor?.max : mapa.area?.[0]?.valor) || '',
             valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0) : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: 0,
           };
@@ -2727,7 +2727,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
             suites: _imPortal?.suites || mapa.suites?.[0]?.valor || '',
             vagas: _imPortal?.vagas || mapa.vagas?.[0]?.valor || '',
             banheiros: _imPortal?.banheiros || mapa.banheiros?.[0]?.valor || '',
-            area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
+            area: _imPortal?.area_m2 || (typeof mapa.area?.[0]?.valor === 'object' ? mapa.area?.[0]?.valor?.max : mapa.area?.[0]?.valor) || '',
             valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0) : (mapa.valor?.[0]?.valor?.max || 0),
             valorMin: 0,
           };

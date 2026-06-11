@@ -4607,6 +4607,12 @@ app.get('/app/lead/:id', auth, async (req, res) => {
   );
 
   // Se perfilIA vazio mas mapaIntencao preenchido — converte para perfilIA
+  // Normalizar tipo para capitalizado
+  if (lead.perfilIA && lead.perfilIA.tipo) {
+    const _tipoMap = {'apartamento':'Apartamento','casa':'Casa','cobertura':'Cobertura','sobrado':'Sobrado','loft':'Loft','studio':'Studio / Flat','flat':'Studio / Flat','kitnet':'Kitnet / Conjugado','conjugado':'Kitnet / Conjugado','duplex':'Duplex','mansao':'Mansão','mansão':'Mansão','chacara':'Chácara','chácara':'Chácara','sitio':'Sítio','sítio':'Sítio','fazenda':'Fazenda','terreno':'Terreno','sala':'Sala Comercial','loja':'Loja','galpao':'Galpão','galpão':'Galpão','conjunto':'Conjunto','predio':'Prédio','prédio':'Prédio'};
+    lead.perfilIA.tipo = _tipoMap[lead.perfilIA.tipo.toLowerCase()] || lead.perfilIA.tipo;
+  }
+
   if ((!lead.perfilIA || Object.keys(lead.perfilIA).length === 0) && lead.mapaIntencao) {
     const mi = lead.mapaIntencao;
     const _v = (arr) => arr && arr.length ? arr[0].valor : null;

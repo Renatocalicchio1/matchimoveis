@@ -2336,8 +2336,8 @@ async function _cruzarImovelWebhook(lead, userId) {
     lead.banheiros = _im.banheiros || _d.banheiros || lead.banheiros || '';
     lead.area_min = _im.area_m2 || _d.area_m2 || lead.area_min || '';
     lead.area_max = _im.area_total || _d.area_total || lead.area_max || '';
-    lead.valorMax = parseFloat(_im.valor_imovel || _d.valor_imovel || 0) * 1.35;
-    lead.valorMin = parseFloat(_im.valor_imovel || _d.valor_imovel || 0) * 0.65;
+    lead.valorMax = parseFloat(_im.valor_imovel || _d.valor_imovel || 0);
+    lead.valorMin = 0;
     lead.imovelInteresse = _im.id;
     lead.perfilIA = {
       tipo: lead.tipo, intencao: lead.tipo_operacao,
@@ -2430,8 +2430,8 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
             vagas: _imIW?.vagas || mapa.vagas?.[0]?.valor || '',
             banheiros: _imIW?.banheiros || mapa.banheiros?.[0]?.valor || '',
             area: _imIW?.area_m2 || mapa.area?.[0]?.valor || '',
-            valorMax: _imIW ? parseFloat(_imIW.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
-            valorMin: _imIW ? parseFloat(_imIW.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
+            valorMax: _imIW ? parseFloat(_imIW.valor_imovel||0) : (mapa.valor?.[0]?.valor?.max || 0),
+            valorMin: 0,
           };
           // Buscar perfilIA atual — se já tem dados do imóvel, não sobrescrever
           const { query: _qMergeIW } = require('./services/db');
@@ -2537,8 +2537,8 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
             vagas: _imPortal?.vagas || mapa.vagas?.[0]?.valor || '',
             banheiros: _imPortal?.banheiros || mapa.banheiros?.[0]?.valor || '',
             area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
-            valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
-            valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
+            valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0) : (mapa.valor?.[0]?.valor?.max || 0),
+            valorMin: 0,
           };
           const { query: _qMergeOLX } = require('./services/db');
           const _rMergeOLX = await _qMergeOLX('SELECT perfil_ia FROM leads WHERE id=$1', [lead.id]);
@@ -2631,8 +2631,8 @@ app.post('/webhook/123i/:userId', async (req, res) => {
             vagas: _imPortal?.vagas || mapa.vagas?.[0]?.valor || '',
             banheiros: _imPortal?.banheiros || mapa.banheiros?.[0]?.valor || '',
             area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
-            valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
-            valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
+            valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0) : (mapa.valor?.[0]?.valor?.max || 0),
+            valorMin: 0,
           };
           const { query: _qMerge123 } = require('./services/db');
           const _rMerge123 = await _qMerge123('SELECT perfil_ia FROM leads WHERE id=$1', [lead.id]);
@@ -2728,8 +2728,8 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
             vagas: _imPortal?.vagas || mapa.vagas?.[0]?.valor || '',
             banheiros: _imPortal?.banheiros || mapa.banheiros?.[0]?.valor || '',
             area: _imPortal?.area_m2 || mapa.area?.[0]?.valor || '',
-            valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*1.35 : (mapa.valor?.[0]?.valor?.max || 0),
-            valorMin: _imPortal ? parseFloat(_imPortal.valor_imovel||0)*0.65 : (mapa.valor?.[0]?.valor?.min || 0),
+            valorMax: _imPortal ? parseFloat(_imPortal.valor_imovel||0) : (mapa.valor?.[0]?.valor?.max || 0),
+            valorMin: 0,
           };
           const { query: _qMergeCH } = require('./services/db');
           const _rMergeCH = await _qMergeCH('SELECT perfil_ia FROM leads WHERE id=$1', [lead.id]);

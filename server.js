@@ -820,7 +820,8 @@ app.post('/app/leads', upload.any(), async (req, res) => {
         console.log(`[import-match2] ${_novas.length} leads | userId: ${userId}`);
         for (const _lead of _novas) {
           try {
-            await matchCore.processar({ lead: { ..._lead, perfilIA: _lead.perfilIA }, mensagem: '', canal: 'manual', userId: _lead.userId || _lead.codigoUsuario || userId });
+            const _msgImport = `${_lead.perfilIA?.tipo||''} ${_lead.perfilIA?.intencao||''} ${_lead.perfilIA?.cidade||''} ${_lead.perfilIA?.bairro||''} ${_lead.perfilIA?.quartos||''} quartos ${_lead.perfilIA?.valorMax||''} reais`.trim();
+            await matchCore.processar({ lead: { ..._lead, perfilIA: _lead.perfilIA }, mensagem: _msgImport, canal: 'manual', userId: _lead.userId || _lead.codigoUsuario || userId });
             console.log(`[import-match2] ✅ ${_lead.nome||_lead.id}`);
           } catch(e) { console.error('[import-match2]', _lead.id, e.message); }
         }

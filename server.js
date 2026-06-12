@@ -818,6 +818,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
         const matchCore = require('./cerebro/match-core');
         const _leads = await lerLeads(userId);
         const _novas = _leads.filter(l => !l.matches?.length && !l.matchesAuto?.length && l.perfilIA?.tipo && l.perfilIA?.bairro && l.perfilIA?.intencao && l.perfilIA?.valorMax);
+        console.log(`[import-match2] ${_novas.length} leads para processar | userId: ${userId}`);
         for (const _lead of _novas) {
           try {
             const _nomeOrig = _lead.nome || '';
@@ -827,9 +828,10 @@ app.post('/app/leads', upload.any(), async (req, res) => {
             _lead.faseFunil = _mapa.fase || 'qualificando';
             _lead.temperatura = _mapa.temperatura || 'morno';
             _lead.mapaIntencao = _mapa;
-            await atualizarLead(_lead.id, { mapaIntencao: _mapa, faseFunil: _lead.faseFunil, temperatura: _lead.temperatura });
-            await matchCore.processar({ lead: { ..._lead, nome: _nomeOrig, telefone: _telOrig, contato: _telOrig, whatsapp: _telOrig, faseFunil: _lead.faseFunil, temperatura: _lead.temperatura }, mensagem: '', canal: 'importacao', userId, instancia: null });
-            console.log(`[import-match2] ✅ ${_lead.nome||_lead.id}`);
+            await atualizarLead(_lead.id, { mapaIntencao: _mapa, faseFunil: _lead.faseFunil, temperatura: _lead.temperatura, perfilIA: _lead.perfilIA });
+            const _leadProcessar = { ..._lead, nome: _nomeOrig, telefone: _telOrig, contato: _telOrig, whatsapp: _telOrig, faseFunil: _lead.faseFunil, temperatura: _lead.temperatura, mapaIntencao: _mapa };
+            await matchCore.processar({ lead: _leadProcessar, mensagem: '', canal: 'importacao', userId, instancia: null });
+            console.log(`[import-match2] ✅ ${_nomeOrig||_lead.id} matches: ${(_leadProcessar.matchesAuto||_leadProcessar.matches||[]).length}`);
           } catch(e) { console.error('[import-match2]', _lead.id, e.message); }
         }
       } catch(e) { console.error('[import-match2]', e.message); }

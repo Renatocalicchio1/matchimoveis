@@ -763,8 +763,12 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
               // Garantir nome e telefone antes de processar
               const _nomeOrig = _lead.nome || '';
               const _telOrig = _lead.telefone || _lead.contato || '';
-              await atualizarLead(_lead.id, { mapaIntencao: _mapa });
-              await matchCore.processar({ lead: { ..._lead, nome: _nomeOrig, telefone: _telOrig, contato: _telOrig, whatsapp: _telOrig }, mensagem: '', canal: 'importacao', userId, instancia: null });
+              // Setar fase/temperatura antes de processar
+              _lead.faseFunil = _mapa.fase || 'qualificando';
+              _lead.temperatura = _mapa.temperatura || 'morno';
+              _lead.mapaIntencao = _mapa;
+              await atualizarLead(_lead.id, { mapaIntencao: _mapa, faseFunil: _lead.faseFunil, temperatura: _lead.temperatura });
+              await matchCore.processar({ lead: { ..._lead, nome: _nomeOrig, telefone: _telOrig, contato: _telOrig, whatsapp: _telOrig, faseFunil: _lead.faseFunil, temperatura: _lead.temperatura }, mensagem: '', canal: 'importacao', userId, instancia: null });
               console.log(`[import-match] ✅ ${_lead.nome||_lead.id}`);
             } catch(e) { console.error('[import-match]', _lead.id, e.message); }
           }

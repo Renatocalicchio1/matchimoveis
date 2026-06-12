@@ -818,7 +818,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
         const matchCore = require('./cerebro/match-core');
         const _leads = await lerLeads(userId);
         const _novas = _leads.filter(l => !l.matches?.length && !l.matchesAuto?.length && l.perfilIA?.tipo && l.perfilIA?.bairro && l.perfilIA?.intencao && l.perfilIA?.valorMax);
-        console.log(`[import-match2] ${_novas.length} leads para processar | userId: ${userId}`);
+        console.log(`[import-match2] INICIANDO | userId: ${userId} | total leads: ${_leads.length} | novas: ${_novas.length}`);
         for (const _lead of _novas) {
           try {
             const _nomeOrig = _lead.nome || '';

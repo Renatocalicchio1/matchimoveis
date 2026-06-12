@@ -7263,14 +7263,21 @@ app.post('/app/lead/manual', auth, async (req, res) => {
 
     await salvarLead(lead);
 
-    // Roda match em background
-    setImmediate(async () => {
+    // Roda match via import-processor
+    setTimeout(async () => {
       try {
+        const { processarLeadImportada } = require('./cerebro/import-processor');
+        const { atualizarLead } = require('./services/salvarLead');
         const matchCore = require('./cerebro/match-core');
-        await matchCore.processar({ lead: { ...lead, mapaIntencao: null }, mensagem: '', canal: 'manual', userId: uid });
-        console.log('[LEAD MANUAL] match rodado:', id);
+        const _mapa = await processarLeadImportada(lead);
+        if (_mapa) {
+          lead.mapaIntencao = _mapa;
+          await atualizarLead(lead.id, { mapaIntencao: _mapa });
+          await matchCore.processar({ lead, mensagem: '', canal: 'manual', userId: uid, instancia: null });
+          console.log('[LEAD MANUAL] match rodado:', id);
+        }
       } catch(e) { console.error('[LEAD MANUAL] erro match:', e.message); }
-    });
+    }, 2000);
 
     res.json({ ok: true, id });
   } catch(e) {

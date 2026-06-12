@@ -810,32 +810,22 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 
     const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio: "inherit", cwd: __dirname });
 
-    // Reprocessar match para leads novas importadas — assíncrono sem bloquear
-    ;(async () => {
+    // Reprocessar match — igual à rota /app/lead/:id/perfil
+    setImmediate(async () => {
       try {
-        const { lerLeads, atualizarLead } = require('./services/salvarLead');
-        const { processarLeadImportada } = require('./cerebro/import-processor');
+        const { lerLeads } = require('./services/salvarLead');
         const matchCore = require('./cerebro/match-core');
         const _leads = await lerLeads(userId);
         const _novas = _leads.filter(l => !l.matches?.length && !l.matchesAuto?.length && l.perfilIA?.tipo && l.perfilIA?.bairro && l.perfilIA?.intencao && l.perfilIA?.valorMax);
-        console.log(`[import-match2] INICIANDO | userId: ${userId} | total leads: ${_leads.length} | novas: ${_novas.length}`);
+        console.log(`[import-match2] ${_novas.length} leads | userId: ${userId}`);
         for (const _lead of _novas) {
           try {
-            const _nomeOrig = _lead.nome || '';
-            const _telOrig = _lead.telefone || _lead.contato || '';
-            const _mapa = await processarLeadImportada(_lead);
-            if (!_mapa) continue;
-            _lead.faseFunil = _mapa.fase || 'qualificando';
-            _lead.temperatura = _mapa.temperatura || 'morno';
-            _lead.mapaIntencao = _mapa;
-            await atualizarLead(_lead.id, { mapaIntencao: _mapa, faseFunil: _lead.faseFunil, temperatura: _lead.temperatura, perfilIA: _lead.perfilIA });
-            const _leadProcessar = { ..._lead, nome: _nomeOrig, telefone: _telOrig, contato: _telOrig, whatsapp: _telOrig, faseFunil: _lead.faseFunil, temperatura: _lead.temperatura, mapaIntencao: _mapa };
-            await matchCore.processar({ lead: _leadProcessar, mensagem: '', canal: 'importacao', userId, instancia: null });
-            console.log(`[import-match2] ✅ ${_nomeOrig||_lead.id} matches: ${(_leadProcessar.matchesAuto||_leadProcessar.matches||[]).length}`);
+            await matchCore.processar({ lead: { ..._lead, perfilIA: _lead.perfilIA }, mensagem: '', canal: 'manual', userId: _lead.userId || _lead.codigoUsuario || userId });
+            console.log(`[import-match2] ✅ ${_lead.nome||_lead.id}`);
           } catch(e) { console.error('[import-match2]', _lead.id, e.message); }
         }
       } catch(e) { console.error('[import-match2]', e.message); }
-    })();
+    });
 
     return res.redirect("/app/leads");
 

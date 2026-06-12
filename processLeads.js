@@ -145,7 +145,8 @@ async function run() {
 
     // Rodar match para leads novas com perfil suficiente
     try {
-      const { lerLeads } = require('./services/salvarLead');
+      const { lerLeads, atualizarLead } = require('./services/salvarLead');
+      const { processarLeadImportada } = require('./cerebro/import-processor');
       const matchCore = require('./cerebro/match-core');
       const _leadsDB = await lerLeads(userId);
       for (const _lead of novas) {
@@ -154,8 +155,13 @@ async function run() {
           if (!_leadDB) continue;
           const _p = _leadDB.perfilIA || {};
           if (!_p.tipo || !_p.intencao || !_p.cidade || !_p.bairro || !_p.valorMax) continue;
-          const _msgImport = `${_p.tipo} ${_p.intencao} ${_p.cidade} ${_p.bairro} ${_p.quartos||''} quartos ${_p.valorMax} reais`.trim();
-          await matchCore.processar({ lead: { ..._leadDB, perfilIA: _p }, mensagem: _msgImport, canal: 'manual', userId: _leadDB.userId || _leadDB.codigoUsuario || userId });
+          // Montar mapaIntencao via import-processor (igual ao portal-processor)
+          const _mapa = await processarLeadImportada(_leadDB);
+          if (!_mapa) continue;
+          _leadDB.mapaIntencao = _mapa;
+          await atualizarLead(_leadDB.id, { mapaIntencao: _mapa });
+          // Processar com mensagem vazia — mapaIntencao já está correto
+          await matchCore.processar({ lead: { ..._leadDB, perfilIA: _p, mapaIntencao: _mapa }, mensagem: '', canal: 'manual', userId: _leadDB.userId || _leadDB.codigoUsuario || userId });
           console.log(`[import-match] ✅ ${_leadDB.nome||_lead.id}`);
         } catch(e) { console.error('[import-match]', _lead.id, e.message); }
       }

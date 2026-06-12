@@ -130,6 +130,8 @@ class MatchCore {
 
       // Se match melhorou → notifica corretor
       if (matchesDepois > matchesAntes) {
+        lead.faseFunil = 'match';
+        lead.temperatura = lead.temperatura === 'quente' ? 'quente' : 'morno';
         lead = this._timeline(lead, 'sistema', `Match: ${matchesDepois} imóveis encontrados`);
         console.log(`[MATCH CORE] match melhorou: ${matchesAntes} → ${matchesDepois}`);
         // vitrine automática — envia se não enviou OU se mapa mudou (bairro/valor/tipo mudaram)

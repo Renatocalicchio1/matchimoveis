@@ -143,6 +143,14 @@ async function run() {
     await salvarTodosLeads(todas);
     console.log(`✅ ${novas.length} leads importadas com sucesso.`);
 
+    // Consumir 10 coins por lead importada
+    try {
+      const { consumir } = require('./services/creditos');
+      for (let i = 0; i < novas.length; i++) {
+        consumir(userId, 'importar_lead').catch(()=>{});
+      }
+    } catch(e) {}
+
     // Rodar match para leads novas com perfil suficiente
     try {
       const { lerLeads, atualizarLead } = require('./services/salvarLead');

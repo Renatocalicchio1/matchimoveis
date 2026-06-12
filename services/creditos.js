@@ -19,7 +19,8 @@ const CUSTO = {
   visita_agendada_ia:     40,
   notificacao_prop:       15,
   confirmacao_auto:       25,
-  nova_lead:              20
+  nova_lead:              20,
+  importar_lead:          10
 };
 
 async function consumir(userId, acao) {

@@ -47,7 +47,9 @@ function rowToLead(r) {
     cicloSeguinte: r.ciclo_seguinte,
     criadoEm: r.criado_em,
     data_cadastro: r.criado_em,
-    ...(r.dados || {})
+    ...(r.dados || {}),
+    mapaIntencao: r.mapa_intencao || null,
+    perfilIA: r.perfil_ia || null
   };
 }
 

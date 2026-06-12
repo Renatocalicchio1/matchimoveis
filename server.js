@@ -766,7 +766,7 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
             } catch(e) { console.error('[import-match]', _lead.id, e.message); }
           }
         } catch(e) { console.error('[import-match]', e.message); }
-      }, 3000);
+      }, 5000);
 
       return res.json({
         ok:true,

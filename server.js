@@ -760,8 +760,11 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
               const _mapa = await processarLeadImportada(_lead);
               if (!_mapa) continue;
               _lead.mapaIntencao = _mapa;
+              // Garantir nome e telefone antes de processar
+              const _nomeOrig = _lead.nome || '';
+              const _telOrig = _lead.telefone || _lead.contato || '';
               await atualizarLead(_lead.id, { mapaIntencao: _mapa });
-              await matchCore.processar({ lead: _lead, mensagem: '', canal: 'importacao', userId, instancia: null });
+              await matchCore.processar({ lead: { ..._lead, nome: _nomeOrig, telefone: _telOrig, contato: _telOrig, whatsapp: _telOrig }, mensagem: '', canal: 'importacao', userId, instancia: null });
               console.log(`[import-match] ✅ ${_lead.nome||_lead.id}`);
             } catch(e) { console.error('[import-match]', _lead.id, e.message); }
           }

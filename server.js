@@ -810,8 +810,8 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 
     const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio: "inherit", cwd: __dirname });
 
-    // Reprocessar match para leads novas importadas
-    setTimeout(async () => {
+    // Reprocessar match para leads novas importadas — assíncrono sem bloquear
+    ;(async () => {
       try {
         const { lerLeads, atualizarLead } = require('./services/salvarLead');
         const { processarLeadImportada } = require('./cerebro/import-processor');
@@ -835,7 +835,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
           } catch(e) { console.error('[import-match2]', _lead.id, e.message); }
         }
       } catch(e) { console.error('[import-match2]', e.message); }
-    }, 5000);
+    })();
 
     return res.redirect("/app/leads");
 

@@ -742,7 +742,7 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
 
     if(nome.endsWith('.csv') || nome.endsWith('.xlsx') || nome.endsWith('.xls')){
       const { execSync } = require('child_process');
-      const userId = req.session.user ? req.session.user.id : '';
+      const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : '';
 
       execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio:'inherit', cwd: __dirname });
 
@@ -808,7 +808,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 
     const { execSync } = require("child_process");
 
-    const userId = req.session.user ? req.session.user.id : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio: "inherit", cwd: __dirname });
+    const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio: "inherit", cwd: __dirname });
 
     // Reprocessar match para leads novas importadas
     setTimeout(async () => {

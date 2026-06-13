@@ -353,6 +353,8 @@ async function gerarXMLQuintoAndarGlobal() {
   const _usrMap = {}; _usrs.rows.forEach(u => { _usrMap[u.codigo_usuario] = u; });
   // Estado + Cidade onde QuintoAndar atua (validação conjunta)
   const _normQA = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const _siglaQA = {'ac':'acre','al':'alagoas','ap':'amapa','am':'amazonas','ba':'bahia','ce':'ceara','df':'distrito federal','es':'espirito santo','go':'goias','ma':'maranhao','mt':'mato grosso','ms':'mato grosso do sul','mg':'minas gerais','pa':'para','pb':'paraiba','pr':'parana','pe':'pernambuco','pi':'piaui','rj':'rio de janeiro','rn':'rio grande do norte','rs':'rio grande do sul','ro':'rondonia','rr':'roraima','sc':'santa catarina','sp':'sao paulo','se':'sergipe','to':'tocantins'};
+  const _normEstadoQA = s => { const n=_normQA(s); return _siglaQA[n]||n; };
   const _cidadesQA = [
     // SC
     {e:'santa catarina', c:'florianopolis'},{e:'santa catarina', c:'joinville'},
@@ -416,7 +418,7 @@ async function gerarXMLQuintoAndarGlobal() {
     // AM
     {e:'amazonas', c:'manaus'}
   ];
-  const _isQA = (estado, cidade) => _cidadesQA.some(x => x.e===_normQA(estado) && x.c===_normQA(cidade));
+  const _isQA = (estado, cidade) => _cidadesQA.some(x => x.e===_normEstadoQA(estado) && x.c===_normQA(cidade));
 
   // Busca imóveis com proprietário (nome + celular) dos usuários autorizados — apenas venda
   const _placeholders = _uids.map((_,i) => '$'+(i+1)).join(',');

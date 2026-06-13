@@ -174,7 +174,7 @@
     </div>
     <button class="pf-btn" type="submit" style="margin-top:12px;">Salvar</button>
   </form>
-  <% if(typeof qaCount !== 'undefined') { %>
+  <% if(typeof qaCount !== 'undefined' && (user.autoriza_quintoandar || user.autorizaQuintoandar)) { %>
   <div style="margin-top:14px;padding:12px 14px;border-radius:8px;background:<%= qaCount>0?'#f0fdf4':'#fef9ec' %>;border:1px solid <%= qaCount>0?'#bbf7d0':'#fde68a' %>">
     <% if(qaCount > 0) { %>
       <span style="color:#15803d;font-size:13px;font-weight:600">✅ <%= qaCount %> imóvel(is) elegível(is) para o QuintoAndar</span>

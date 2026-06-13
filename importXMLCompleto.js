@@ -51,11 +51,11 @@ function extractText(field) {
   return '';
 }
 
-function normalizeTipo(raw) {
+function normalizeTipo(raw, titulo) {
   const t = (raw || '').toLowerCase();
+  const tit = (titulo || '').toLowerCase();
   if (t.includes('residential/condo') || t.includes('casa em condominio') || t.includes('casa condominio')) return 'Casa de Condomínio';
   if (t.includes('apartment') || t.includes('apartamento')) return 'Apartamento';
-  if (t.includes('cobertura') || t.includes('penthouse')) return 'Cobertura';
   if (t.includes('sobrado')) return 'Sobrado';
   if (t.includes('loft')) return 'Loft';
   if (t.includes('duplex')) return 'Duplex';
@@ -69,6 +69,8 @@ function normalizeTipo(raw) {
   if (t.includes('house') || t.includes('casa')) return 'Casa';
   if (t.includes('residential / agricultural') || t.includes('rural') || t.includes('area rural') || t.includes('área rural')) return 'Área Rural';
   if (t.includes('residential / farm') || t.includes('farm')) return 'Fazenda';
+  if (tit.includes('cobertura duplex') || t.includes('cobertura duplex')) return 'Cobertura Duplex';
+  if (tit.includes('cobertura') || t.includes('cobertura') || t.includes('penthouse')) return 'Cobertura';
   if (t.includes('residential / home') || t.includes('residential/home')) return 'Casa';
   if (t.includes('residential')) return 'Casa';
   if (t.includes('galpao') || t.includes('galpão') || t.includes('deposito') || t.includes('depósito') || t.includes('warehouse')) return 'Galpão / Depósito';
@@ -137,7 +139,7 @@ function parseListing(l) {
       idInterno: 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,9).toUpperCase(),
       titulo: l.Title || '',
       transacao: l.TransactionType === 'For Sale' ? 'venda' : 'aluguel',
-      tipo: normalizeTipo(extractText(details.PropertyType)),
+      tipo: normalizeTipo(extractText(details.PropertyType), l.Title||''),
       categoria: extractText(details.UsageType),
       condicao: (() => {
         const cat = (extractText(details.UsageType) || '').toLowerCase();

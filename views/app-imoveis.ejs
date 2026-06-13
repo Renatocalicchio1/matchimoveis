@@ -573,8 +573,9 @@ function filtrar() {
     if (estado && !norm(d.estado||'').includes(estado)) ok = false;
     if (cidade && norm(d.cidade||'') !== cidade) ok = false;
     if (bairro && norm(d.bairro||'') !== bairro) ok = false;
-    if (valorMin && Number(d.valor||0) < valorMin) ok = false;
-    if (valorMax && Number(d.valor||0) > valorMax) ok = false;
+    const _vIm = Number((d.valor||'0').toString().replace(/\./g,'').replace(',','.'))||0;
+    if (valorMin && _vIm < valorMin) ok = false;
+    if (valorMax && _vIm > valorMax) ok = false;
     if (areaMin && Number(d.area||0) < areaMin) ok = false;
     if (areaMax && Number(d.area||0) > areaMax) ok = false;
     if (quartosMin && Number(d.quartos||0) < quartosMin) ok = false;

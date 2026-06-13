@@ -169,7 +169,7 @@ function parseListing(l) {
       cep: extractText(location.PostalCode),
       latitude: Number(location.Latitude) || null,
       longitude: Number(location.Longitude) || null,
-      valor_imovel: extractNumber(details.ListPrice),
+      valor_imovel: extractNumber(details.ListPrice) || extractNumber(details.RentalPrice) || extractNumber(details.RentalTotalPrice) || 0,
       condominio: extractNumber(details.PropertyAdministrationFee),
       iptu: extractNumber(details.Iptu) || extractNumber(details.YearlyTax) || 0,
       area_m2: extractNumber(details.LivingArea),

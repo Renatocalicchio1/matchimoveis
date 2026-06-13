@@ -117,8 +117,8 @@ function matchPorMapa(lead, imoveis) {
 
     // 6. VALOR — entre -35% e +25%
     if (!eliminado && leadValorMax > 0 && imovel.preco > 0) {
-      const vmin = leadValorMax * 0.65; // -35%
-      const vmax = leadValorMax * 1.25; // +25%
+      const vmin = leadValorMax * 0.70; // -30%
+      const vmax = leadValorMax * 1.20; // +20%
       if (imovel.preco > vmax || imovel.preco < vmin) eliminado = true;
     }
 

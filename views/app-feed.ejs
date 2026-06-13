@@ -181,6 +181,7 @@ function _renderPost(im, idx) {
   <div style="flex:1;min-width:0">
     <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px">
       <span class="fp-tipo">${im.tipo||'Imóvel'}</span>
+      ${(()=>{ const t=(im.transacao||im.operacao||'').toLowerCase(); return t==='aluguel'?'<span style="display:inline-block;background:#2563eb;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">ALUGUEL</span>':t==='venda'?'<span style="display:inline-block;background:#FF385C;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">VENDA</span>':''; })()}
       <span style="font-size:16px;font-weight:700;color:var(--dark)">${preco}</span>
       <span style="font-size:11px;color:var(--text-ter)">${addr}</span>
     </div>

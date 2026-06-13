@@ -1066,7 +1066,7 @@ async function salvarLeadsData(leads) {
 }
 
 async function lerVisitasData() {
-  try { const r = await _qV('SELECT dados FROM visitas ORDER BY criado_em DESC'); return r.rows.map(r=>r.dados); } catch(e) { console.error('[lerVisitasData]',e.message); return []; }
+  try { const r = await _qV('SELECT dados, imovel_id, imovel_bairro FROM visitas ORDER BY criado_em DESC'); return r.rows.map(r=>({...r.dados, imovelId: r.dados.imovelId||r.imovel_id, imovelBairro: r.dados.imovelBairro||r.imovel_bairro})); } catch(e) { console.error('[lerVisitasData]',e.message); return []; }
 }
 
 async function salvarVisitasData(visitas) {

@@ -18,6 +18,7 @@ function rowToVisita(r) {
     imovelId: r.imovel_id,
     imovelTitulo: r.imovel_titulo,
     imovelBairro: r.imovel_bairro,
+    imovelCidade: (r.dados && r.dados.imovelCidade) || '',
     dataVisita: r.data_visita,
     horaVisita: r.hora_visita,
     status: r.status,

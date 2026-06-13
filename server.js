@@ -2287,13 +2287,23 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
 });
 
 app.get('/app/imoveis', auth, async (req,res)=>{
-  const imoveis = await lerImoveis(req.session.user.id);
-
+  let imoveis = await lerImoveis(req.session.user.id);
+  const qaIncompleto = req.query.qa_incompleto === '1';
+  if (qaIncompleto) {
+    const _nQA = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+    const _cQA = [{e:'santa catarina',c:'florianopolis'},{e:'santa catarina',c:'joinville'},{e:'santa catarina',c:'blumenau'},{e:'santa catarina',c:'balneario camboriu'},{e:'santa catarina',c:'itajai'},{e:'santa catarina',c:'sao jose'},{e:'santa catarina',c:'palhoca'},{e:'santa catarina',c:'biguacu'},{e:'santa catarina',c:'criciuma'},{e:'santa catarina',c:'chapeco'},{e:'sao paulo',c:'sao paulo'},{e:'sao paulo',c:'guarulhos'},{e:'sao paulo',c:'osasco'},{e:'sao paulo',c:'santo andre'},{e:'sao paulo',c:'campinas'},{e:'sao paulo',c:'sao bernardo do campo'},{e:'sao paulo',c:'sao caetano do sul'},{e:'sao paulo',c:'diadema'},{e:'sao paulo',c:'maua'},{e:'sao paulo',c:'ribeirao preto'},{e:'sao paulo',c:'sorocaba'},{e:'sao paulo',c:'sao jose dos campos'},{e:'sao paulo',c:'taubate'},{e:'sao paulo',c:'americana'},{e:'sao paulo',c:'sumare'},{e:'rio de janeiro',c:'rio de janeiro'},{e:'rio de janeiro',c:'niteroi'},{e:'rio de janeiro',c:'duque de caxias'},{e:'rio de janeiro',c:'nova iguacu'},{e:'rio de janeiro',c:'sao goncalo'},{e:'rio de janeiro',c:'petropolis'},{e:'minas gerais',c:'belo horizonte'},{e:'minas gerais',c:'contagem'},{e:'minas gerais',c:'nova lima'},{e:'minas gerais',c:'betim'},{e:'minas gerais',c:'uberlandia'},{e:'minas gerais',c:'juiz de fora'},{e:'rio grande do sul',c:'porto alegre'},{e:'rio grande do sul',c:'canoas'},{e:'rio grande do sul',c:'novo hamburgo'},{e:'parana',c:'curitiba'},{e:'parana',c:'londrina'},{e:'parana',c:'maringa'},{e:'goias',c:'goiania'},{e:'distrito federal',c:'brasilia'},{e:'bahia',c:'salvador'},{e:'pernambuco',c:'recife'},{e:'ceara',c:'fortaleza'},{e:'espirito santo',c:'vitoria'},{e:'espirito santo',c:'vila velha'},{e:'para',c:'belem'},{e:'amazonas',c:'manaus'}];
+    imoveis = imoveis.filter(i => {
+      if (!_cQA.some(x => x.e===_nQA(i.estado||'') && x.c===_nQA(i.cidade||''))) return false;
+      const prop = i.proprietario || {};
+      const temProp = (prop.nome||'') !== '' && ((prop.celular||prop.telefone||'') !== '');
+      const temEnd = (i.cep||'') !== '' && (i.endereco||'') !== '' && (i.numero||'') !== '';
+      return !(temProp && temEnd);
+    });
+  }
   // Monta dados para filtros em cascata
   const estadosSet = new Set();
   const cidadesPorEstado = {};
   const bairrosPorCidade = {};
-
   imoveis.forEach(i => {
     const est = (i.estado||'').toUpperCase().trim();
     const cid = (i.cidade||'').trim();
@@ -2308,6 +2318,13 @@ app.get('/app/imoveis', auth, async (req,res)=>{
       bairrosPorCidade[cid].add(bai);
     }
   });
+  const estados = [...estadosSet].sort();
+  const cidades = {};
+  Object.keys(cidadesPorEstado).forEach(e => { cidades[e] = [...cidadesPorEstado[e]].sort(); });
+  const bairros = {};
+  Object.keys(bairrosPorCidade).forEach(ci => { bairros[ci] = [...bairrosPorCidade[ci]].sort(); });
+  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto });
+});
 
   const estados = [...estadosSet].sort();
   const cidades = {};
@@ -2410,10 +2427,22 @@ app.get('/app/perfil', auth, async (req,res)=>{
       {e:'para',c:'belem'},{e:'amazonas',c:'manaus'}
     ];
     const _isQAp = (e,c) => _cidadesQAp.some(x => x.e===_normP(e) && x.c===_normP(c));
-    const _imoveisUser = await _qPerfil("SELECT estado, cidade FROM imoveis WHERE user_id=$1 AND status='ativo' AND transacao='venda'", [uid]);
-    const _totalQA = _imoveisUser.rows.filter(r => _isQAp(r.estado||'', r.cidade||'')).length;
+    const _imoveisUser = await _qPerfil("SELECT estado, cidade, cep, endereco, numero, proprietario FROM imoveis WHERE user_id=$1 AND status='ativo' AND transacao='venda'", [uid]);
+    const _emCidadeQA = _imoveisUser.rows.filter(r => _isQAp(r.estado||'', r.cidade||''));
+    const _totalQA = _emCidadeQA.filter(r => {
+      const prop = r.proprietario || {};
+      const temProp = (prop.nome||'') !== '' && ((prop.celular||prop.telefone||'') !== '');
+      const temEnd = (r.cep||'') !== '' && (r.endereco||'') !== '' && (r.numero||'') !== '';
+      return temProp && temEnd;
+    }).length;
+    const _totalIncompletos = _emCidadeQA.filter(r => {
+      const prop = r.proprietario || {};
+      const temProp = (prop.nome||'') !== '' && ((prop.celular||prop.telefone||'') !== '');
+      const temEnd = (r.cep||'') !== '' && (r.endereco||'') !== '' && (r.numero||'') !== '';
+      return !(temProp && temEnd);
+    }).length;
     const _totalVenda = _imoveisUser.rows.length;
-    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda });
+    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos });
   } catch(e) {
     res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0 });
   }

@@ -351,46 +351,72 @@ async function gerarXMLQuintoAndarGlobal() {
   if (!_usrs.rows.length) return null;
   const _uids = _usrs.rows.map(u => u.codigo_usuario);
   const _usrMap = {}; _usrs.rows.forEach(u => { _usrMap[u.codigo_usuario] = u; });
-  // Cidades onde QuintoAndar atua
+  // Estado + Cidade onde QuintoAndar atua (validação conjunta)
+  const _normQA = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   const _cidadesQA = [
     // SC
-    'florianopolis','florianópolis','joinville','blumenau','balneario camboriu','balneário camboriú',
-    'itajai','itajaí','sao jose','são josé','palhoca','palhoça','biguacu','biguaçu',
+    {e:'santa catarina', c:'florianopolis'},{e:'santa catarina', c:'joinville'},
+    {e:'santa catarina', c:'blumenau'},{e:'santa catarina', c:'balneario camboriu'},
+    {e:'santa catarina', c:'itajai'},{e:'santa catarina', c:'sao jose'},
+    {e:'santa catarina', c:'palhoca'},{e:'santa catarina', c:'biguacu'},
+    {e:'santa catarina', c:'criciuma'},{e:'santa catarina', c:'chapeco'},
     // SP
-    'sao paulo','são paulo','guarulhos','osasco','santo andre','santo andré','campinas',
-    'sao bernardo do campo','são bernardo do campo','sao caetano do sul','são caetano do sul',
-    'diadema','maua','mauá','ribeirao preto','ribeirão preto','sorocaba','sao jose dos campos',
-    'são josé dos campos','taubate','taubaté','americana','sumare','sumaré',
+    {e:'sao paulo', c:'sao paulo'},{e:'sao paulo', c:'guarulhos'},
+    {e:'sao paulo', c:'osasco'},{e:'sao paulo', c:'santo andre'},
+    {e:'sao paulo', c:'campinas'},{e:'sao paulo', c:'sao bernardo do campo'},
+    {e:'sao paulo', c:'sao caetano do sul'},{e:'sao paulo', c:'diadema'},
+    {e:'sao paulo', c:'maua'},{e:'sao paulo', c:'ribeirao preto'},
+    {e:'sao paulo', c:'sorocaba'},{e:'sao paulo', c:'sao jose dos campos'},
+    {e:'sao paulo', c:'taubate'},{e:'sao paulo', c:'americana'},
+    {e:'sao paulo', c:'sumare'},{e:'sao paulo', c:'taboao da serra'},
+    {e:'sao paulo', c:'varzea paulista'},{e:'sao paulo', c:'embu das artes'},
     // RJ
-    'rio de janeiro','niteroi','niterói','duque de caxias','nova iguacu','nova iguaçu',
-    'sao goncalo','são gonçalo','petropolis','petrópolis','cabo frio','macae','macaé',
+    {e:'rio de janeiro', c:'rio de janeiro'},{e:'rio de janeiro', c:'niteroi'},
+    {e:'rio de janeiro', c:'duque de caxias'},{e:'rio de janeiro', c:'nova iguacu'},
+    {e:'rio de janeiro', c:'sao goncalo'},{e:'rio de janeiro', c:'petropolis'},
+    {e:'rio de janeiro', c:'cabo frio'},{e:'rio de janeiro', c:'macae'},
+    {e:'rio de janeiro', c:'marica'},{e:'rio de janeiro', c:'mesquita'},
+    {e:'rio de janeiro', c:'nilopolis'},{e:'rio de janeiro', c:'belford roxo'},
+    {e:'rio de janeiro', c:'rio das ostras'},
     // MG
-    'belo horizonte','contagem','nova lima','betim','uberlandia','uberlândia','juiz de fora',
-    'ribeirao das neves','ribeirão das neves','sabara','sabarà','vespasiano','lagoa santa',
+    {e:'minas gerais', c:'belo horizonte'},{e:'minas gerais', c:'contagem'},
+    {e:'minas gerais', c:'nova lima'},{e:'minas gerais', c:'betim'},
+    {e:'minas gerais', c:'uberlandia'},{e:'minas gerais', c:'juiz de fora'},
+    {e:'minas gerais', c:'ribeirao das neves'},{e:'minas gerais', c:'sabara'},
+    {e:'minas gerais', c:'vespasiano'},{e:'minas gerais', c:'lagoa santa'},
+    {e:'minas gerais', c:'brumadinho'},{e:'minas gerais', c:'itatiro'},
     // RS
-    'porto alegre','canoas','sao leopoldo','são leopoldo','novo hamburgo','caxias do sul',
-    'pelotas','santa maria','gravatai','gravatai','gravatái','viamao','viamão',
+    {e:'rio grande do sul', c:'porto alegre'},{e:'rio grande do sul', c:'canoas'},
+    {e:'rio grande do sul', c:'sao leopoldo'},{e:'rio grande do sul', c:'novo hamburgo'},
+    {e:'rio grande do sul', c:'caxias do sul'},{e:'rio grande do sul', c:'pelotas'},
+    {e:'rio grande do sul', c:'santa maria'},{e:'rio grande do sul', c:'gravatai'},
+    {e:'rio grande do sul', c:'viamao'},
     // PR
-    'curitiba','sao jose dos pinhais','são josé dos pinhais','londrina','maringa','maringá',
-    'foz do iguacu','foz do iguaçu','cascavel',
+    {e:'parana', c:'curitiba'},{e:'parana', c:'sao jose dos pinhais'},
+    {e:'parana', c:'londrina'},{e:'parana', c:'maringa'},
+    {e:'parana', c:'foz do iguacu'},{e:'parana', c:'cascavel'},
     // GO
-    'goiania','goiânia','aparecida de goiania','aparecida de goiânia','anapolis','anápolis',
+    {e:'goias', c:'goiania'},{e:'goias', c:'aparecida de goiania'},
+    {e:'goias', c:'anapolis'},
     // DF
-    'brasilia','brasília',
+    {e:'distrito federal', c:'brasilia'},
     // BA
-    'salvador','lauro de freitas','camaçari','camacari','feira de santana',
+    {e:'bahia', c:'salvador'},{e:'bahia', c:'lauro de freitas'},
+    {e:'bahia', c:'camacari'},{e:'bahia', c:'feira de santana'},
     // PE
-    'recife','olinda','caruaru','jaboatao dos guararapes','jaboatão dos guararapes',
+    {e:'pernambuco', c:'recife'},{e:'pernambuco', c:'olinda'},
+    {e:'pernambuco', c:'caruaru'},{e:'pernambuco', c:'jaboatao dos guararapes'},
     // CE
-    'fortaleza','caucaia','maracanau','maracanaú',
+    {e:'ceara', c:'fortaleza'},{e:'ceara', c:'caucaia'},{e:'ceara', c:'maracanau'},
     // ES
-    'vitoria','vitória','vila velha','cariacica','serra',
+    {e:'espirito santo', c:'vitoria'},{e:'espirito santo', c:'vila velha'},
+    {e:'espirito santo', c:'cariacica'},{e:'espirito santo', c:'serra'},
     // PA
-    'belem','belém','ananindeua',
+    {e:'para', c:'belem'},{e:'para', c:'ananindeua'},
     // AM
-    'manaus'
+    {e:'amazonas', c:'manaus'}
   ];
-  const _normQA = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const _isQA = (estado, cidade) => _cidadesQA.some(x => x.e===_normQA(estado) && x.c===_normQA(cidade));
 
   // Busca imóveis com proprietário (nome + celular) dos usuários autorizados — apenas venda
   const _placeholders = _uids.map((_,i) => '$'+(i+1)).join(',');
@@ -400,7 +426,7 @@ async function gerarXMLQuintoAndarGlobal() {
   );
   // Filtra por cidades onde QuintoAndar atua
   const _imoveisBrutos = _res.rows;
-  const _res2 = { rows: _imoveisBrutos.filter(row => _cidadesQA.includes(_normQA(row.cidade||row.dados?.cidade||''))) };
+  const _res2 = { rows: _imoveisBrutos.filter(row => _isQA(row.estado||row.dados?.estado||'', row.cidade||row.dados?.cidade||'')) };
   const _res_final = _res2;
   const imoveis = _res_final.rows;
   const esc = v => String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -2360,7 +2386,37 @@ app.get('/app/cadastro', auth, async (req,res)=>{
 //});
 
 app.get('/app/perfil', auth, async (req,res)=>{
-  res.render('app-perfil', { user: req.session.user });
+  try {
+    const { query: _qPerfil } = require('./services/db');
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const _normP = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+    const _cidadesQAp = [
+      {e:'santa catarina',c:'florianopolis'},{e:'santa catarina',c:'joinville'},{e:'santa catarina',c:'blumenau'},
+      {e:'santa catarina',c:'balneario camboriu'},{e:'santa catarina',c:'itajai'},{e:'santa catarina',c:'sao jose'},
+      {e:'santa catarina',c:'palhoca'},{e:'santa catarina',c:'biguacu'},{e:'santa catarina',c:'criciuma'},{e:'santa catarina',c:'chapeco'},
+      {e:'sao paulo',c:'sao paulo'},{e:'sao paulo',c:'guarulhos'},{e:'sao paulo',c:'osasco'},{e:'sao paulo',c:'santo andre'},
+      {e:'sao paulo',c:'campinas'},{e:'sao paulo',c:'sao bernardo do campo'},{e:'sao paulo',c:'sao caetano do sul'},
+      {e:'sao paulo',c:'diadema'},{e:'sao paulo',c:'maua'},{e:'sao paulo',c:'ribeirao preto'},{e:'sao paulo',c:'sorocaba'},
+      {e:'sao paulo',c:'sao jose dos campos'},{e:'sao paulo',c:'taubate'},{e:'sao paulo',c:'americana'},{e:'sao paulo',c:'sumare'},
+      {e:'rio de janeiro',c:'rio de janeiro'},{e:'rio de janeiro',c:'niteroi'},{e:'rio de janeiro',c:'duque de caxias'},
+      {e:'rio de janeiro',c:'nova iguacu'},{e:'rio de janeiro',c:'sao goncalo'},{e:'rio de janeiro',c:'petropolis'},
+      {e:'minas gerais',c:'belo horizonte'},{e:'minas gerais',c:'contagem'},{e:'minas gerais',c:'nova lima'},
+      {e:'minas gerais',c:'betim'},{e:'minas gerais',c:'uberlandia'},{e:'minas gerais',c:'juiz de fora'},
+      {e:'rio grande do sul',c:'porto alegre'},{e:'rio grande do sul',c:'canoas'},{e:'rio grande do sul',c:'novo hamburgo'},
+      {e:'parana',c:'curitiba'},{e:'parana',c:'londrina'},{e:'parana',c:'maringa'},
+      {e:'goias',c:'goiania'},{e:'distrito federal',c:'brasilia'},
+      {e:'bahia',c:'salvador'},{e:'pernambuco',c:'recife'},{e:'ceara',c:'fortaleza'},
+      {e:'espirito santo',c:'vitoria'},{e:'espirito santo',c:'vila velha'},
+      {e:'para',c:'belem'},{e:'amazonas',c:'manaus'}
+    ];
+    const _isQAp = (e,c) => _cidadesQAp.some(x => x.e===_normP(e) && x.c===_normP(c));
+    const _imoveisUser = await _qPerfil("SELECT estado, cidade FROM imoveis WHERE user_id=$1 AND status='ativo' AND transacao='venda'", [uid]);
+    const _totalQA = _imoveisUser.rows.filter(r => _isQAp(r.estado||'', r.cidade||'')).length;
+    const _totalVenda = _imoveisUser.rows.length;
+    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda });
+  } catch(e) {
+    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0 });
+  }
 });
 
 app.post('/app/perfil/quintoandar', auth, async (req, res) => {

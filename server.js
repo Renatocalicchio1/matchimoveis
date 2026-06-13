@@ -327,6 +327,12 @@ tr:hover td{background:#fafafa;}
     <div style="margin-bottom:8px;font-size:12px;"><strong>XML Global:</strong><a href="/admin/xml/imovelweb-global" target="_blank" style="color:#2563eb;margin-left:8px;">/admin/xml/imovelweb-global</a><span style="color:#888;margin-left:8px;">— todos os imóveis da plataforma</span></div>
     <div style="font-size:12px;"><strong>Webhook Global:</strong><span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">POST https://www.matchimoveis.ia.br/webhook/imovelweb-global</span></div>
   </div>
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:0 24px 16px;">
+    <div style="font-weight:700;margin-bottom:12px;font-size:13px;">🏢 XML Global QuintoAndar</div>
+    <div style="margin-bottom:8px;font-size:12px;"><strong>Ver XML:</strong><a href="/admin/xml/quintoandar-global" target="_blank" style="color:#2563eb;margin-left:8px;">/admin/xml/quintoandar-global</a></div>
+    <div style="margin-bottom:8px;font-size:12px;"><strong>Baixar XML:</strong><a href="/admin/xml/quintoandar-global?download=1" style="background:#1D9E75;color:#fff;padding:4px 12px;border-radius:6px;text-decoration:none;font-size:11px;margin-left:8px;">⬇ Download XML</a></div>
+    <div style="font-size:12px;"><strong>URL Pública:</strong><span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">https://www.matchimoveis.ia.br/xml/quintoandar-global?token=match-qa-global-2025</span></div>
+  </div>
 </div>
 </body>
 </html>`);
@@ -335,6 +341,111 @@ tr:hover td{background:#fafafa;}
   }
 });
 
+
+// ── XML GLOBAL QUINTOANDAR ──────────────────────────────────────────────────
+const QA_GLOBAL_TOKEN = process.env.QA_GLOBAL_TOKEN || 'match-qa-global-2025';
+async function gerarXMLQuintoAndarGlobal() {
+  const { query: _qQA } = require('./services/db');
+  // Busca usuários autorizados
+  const _usrs = await _qQA("SELECT codigo_usuario, nome, email, celular, telefone FROM usuarios WHERE autoriza_quintoandar=true");
+  if (!_usrs.rows.length) return null;
+  const _uids = _usrs.rows.map(u => u.codigo_usuario);
+  const _usrMap = {}; _usrs.rows.forEach(u => { _usrMap[u.codigo_usuario] = u; });
+  // Busca imóveis com proprietário (nome + celular) dos usuários autorizados
+  const _placeholders = _uids.map((_,i) => '$'+(i+1)).join(',');
+  const _res = await _qQA(
+    "SELECT * FROM imoveis WHERE status='ativo' AND user_id IN ("+_placeholders+") AND dados->>'proprietarioNome' IS NOT NULL AND dados->>'proprietarioTelefone' IS NOT NULL AND dados->>'proprietarioNome' != '' AND dados->>'proprietarioTelefone' != ''",
+    _uids
+  );
+  const imoveis = _res.rows;
+  const esc = v => String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  let xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<ListingDataFeed>\n  <Header>\n    <Provider>Matchimoveis</Provider>\n    <Email>contato@matchimoveis.ia.br</Email>\n    <BatchId>matchimoveis-qa-'+Date.now()+'</BatchId>\n    <BatchName>MatchImoveis QuintoAndar '+new Date().toISOString()+'</BatchName>\n  </Header>\n  <Listings>\n';
+  imoveis.forEach(row => {
+    const i = { ...row, ...(row.dados||{}) };
+    const prop = i.proprietario || {};
+    const propNome = prop.nome || i.proprietarioNome || i.dados?.proprietarioNome || '';
+    const propTel = prop.telefone || prop.celular || i.proprietarioTelefone || i.dados?.proprietarioTelefone || '';
+    const propEmail = prop.email || i.proprietarioEmail || i.dados?.proprietarioEmail || '';
+    const user = _usrMap[row.user_id] || {};
+    const fotos = Array.isArray(i.fotos) ? i.fotos : [];
+    xml += '\n    <Listing>\n';
+    xml += '      <ListingID>'+esc(row.id_externo||row.id_interno||row.id)+'</ListingID>\n';
+    xml += '      <Title>'+esc(i.titulo||((i.tipo||'Imóvel')+' em '+(i.bairro||'')))+'</Title>\n';
+    xml += '      <TransactionType>'+(i.transacao==='aluguel'?'For Rent':'For Sale')+'</TransactionType>\n';
+    xml += '      <PublicationType>STANDARD</PublicationType>\n';
+    xml += '      <Details>\n';
+    const _usageType = i.condicao==='lancamento'?'Launch':i.condicao==='novo'?'New':'Residential';
+    xml += '        <UsageType>'+_usageType+'</UsageType>\n';
+    xml += '        <PropertyType>'+esc(i.tipo||'Apartamento')+'</PropertyType>\n';
+    xml += '        <Description>'+esc(i.descricao||'')+'</Description>\n';
+    xml += '        <ListPrice currency="BRL">'+(i.valor_imovel||i.valor||0)+'</ListPrice>\n';
+    xml += '        <LivingArea unit="square metres">'+(i.area_m2||i.area||0)+'</LivingArea>\n';
+    xml += '        <LotArea unit="square metres">'+(i.area_total||i.area_m2||0)+'</LotArea>\n';
+    xml += '        <PropertyAdministrationFee currency="BRL">'+(i.condominio||0)+'</PropertyAdministrationFee>\n';
+    xml += '        <YearlyTax currency="BRL">'+(i.iptu||0)+'</YearlyTax>\n';
+    xml += '        <Bedrooms>'+(i.quartos||0)+'</Bedrooms>\n';
+    xml += '        <Bathrooms>'+(i.banheiros||0)+'</Bathrooms>\n';
+    xml += '        <Suites>'+(i.suites||0)+'</Suites>\n';
+    xml += '        <Garage>'+(i.vagas||0)+'</Garage>\n';
+    xml += '        <UnitFloor>'+esc(i.andar||'')+'</UnitFloor>\n';
+    if(i.diferenciais&&i.diferenciais.length){ xml += '        <Features>\n'; i.diferenciais.forEach(d=>{xml+='          <Feature>'+esc(d)+'</Feature>\n';}); xml += '        </Features>\n'; }
+    xml += '      </Details>\n';
+    xml += '      <Media>\n';
+    fotos.forEach((f,idx)=>{ let url=typeof f==='string'?f:f.url; if(url&&url.startsWith('/')) url='https://www.matchimoveis.ia.br'+url; xml+='        <Item medium="image" caption="foto'+(idx+1)+'" primary="'+(idx===0?'true':'false')+'">'+esc(url)+'</Item>\n'; });
+    xml += '      </Media>\n';
+    xml += '      <Location>\n';
+    xml += '        <Country abbreviation="BR">Brasil</Country>\n';
+    xml += '        <State>'+esc(i.estado||'')+'</State>\n';
+    xml += '        <City>'+esc(i.cidade||'')+'</City>\n';
+    xml += '        <Neighborhood>'+esc(i.bairro||'')+'</Neighborhood>\n';
+    xml += '        <Address>'+esc(i.endereco||i.logradouro||'')+'</Address>\n';
+    xml += '        <StreetNumber>'+esc(i.numero||'')+'</StreetNumber>\n';
+    xml += '        <PostalCode>'+esc(String(i.cep||'').replace(/\D/g,''))+'</PostalCode>\n';
+    xml += '        <Latitude>'+esc(i.latitude||'')+'</Latitude>\n';
+    xml += '        <Longitude>'+esc(i.longitude||'')+'</Longitude>\n';
+    xml += '      </Location>\n';
+    xml += '      <ContactInfo>\n';
+    xml += '        <Name>'+esc(user.nome||'')+'</Name>\n';
+    xml += '        <Email>'+esc(user.email||'')+'</Email>\n';
+    xml += '        <Telephone>'+esc(user.celular||user.telefone||'')+'</Telephone>\n';
+    xml += '        <Website>https://www.matchimoveis.ia.br</Website>\n';
+    xml += '      </ContactInfo>\n';
+    xml += '      <OwnerInfo>\n';
+    xml += '        <Name>'+esc(propNome)+'</Name>\n';
+    xml += '        <Email>'+esc(propEmail)+'</Email>\n';
+    xml += '        <Telephone>'+esc(propTel)+'</Telephone>\n';
+    xml += '      </OwnerInfo>\n';
+    xml += '    </Listing>\n';
+  });
+  xml += '  </Listings>\n</ListingDataFeed>';
+  return { xml, total: imoveis.length };
+}
+
+// Rota admin (autenticada)
+app.get('/admin/xml/quintoandar-global', authAdmin, async (req, res) => {
+  try {
+    const result = await gerarXMLQuintoAndarGlobal();
+    if (!result) return res.send('<p>Nenhum usuário autorizado ou imóvel com proprietário cadastrado.</p>');
+    if (req.query.download === '1') {
+      res.setHeader('Content-Type', 'application/xml');
+      res.setHeader('Content-Disposition', 'attachment; filename="quintoandar-global-'+Date.now()+'.xml"');
+      return res.send(result.xml);
+    }
+    res.setHeader('Content-Type', 'application/xml');
+    return res.send(result.xml);
+  } catch(e) { res.status(500).send('Erro: '+e.message); }
+});
+
+// URL pública com token
+app.get('/xml/quintoandar-global', async (req, res) => {
+  if (req.query.token !== QA_GLOBAL_TOKEN) return res.status(401).send('Unauthorized');
+  try {
+    const result = await gerarXMLQuintoAndarGlobal();
+    if (!result) return res.send('<?xml version="1.0"?><ListingDataFeed><Listings></Listings></ListingDataFeed>');
+    res.setHeader('Content-Type', 'application/xml');
+    return res.send(result.xml);
+  } catch(e) { res.status(500).send('Erro: '+e.message); }
+});
 
 // ── XML GLOBAL ADMIN ────────────────────────────────────────────────────────
 app.get('/admin/xml/imovelweb-global', async (req, res) => {
@@ -2205,6 +2316,17 @@ app.get('/app/cadastro', auth, async (req,res)=>{
 
 app.get('/app/perfil', auth, async (req,res)=>{
   res.render('app-perfil', { user: req.session.user });
+});
+
+app.post('/app/perfil/quintoandar', auth, async (req, res) => {
+  try {
+    const { query: _qQA } = require('./services/db');
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const autoriza = req.body.autoriza_quintoandar === '1';
+    await _qQA('UPDATE usuarios SET autoriza_quintoandar=$1 WHERE codigo_usuario=$2', [autoriza, uid]);
+    req.session.user.autoriza_quintoandar = autoriza;
+    res.redirect('/app/perfil?msg=quintoandar_salvo');
+  } catch(e) { res.redirect('/app/perfil?err='+encodeURIComponent(e.message)); }
 });
 
 app.post('/app/perfil', auth, async (req,res)=>{

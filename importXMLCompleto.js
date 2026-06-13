@@ -69,6 +69,7 @@ function normalizeTipo(raw) {
   if (t.includes('house') || t.includes('casa')) return 'Casa';
   if (t.includes('residential / agricultural') || t.includes('rural') || t.includes('area rural') || t.includes('área rural')) return 'Área Rural';
   if (t.includes('residential / farm') || t.includes('farm')) return 'Fazenda';
+  if (t.includes('residential / home') || t.includes('residential/home')) return 'Casa';
   if (t.includes('residential')) return 'Casa';
   if (t.includes('galpao') || t.includes('galpão') || t.includes('deposito') || t.includes('depósito') || t.includes('warehouse')) return 'Galpão / Depósito';
   if (t.includes('predio') || t.includes('prédio') || t.includes('building')) return 'Prédio Comercial';

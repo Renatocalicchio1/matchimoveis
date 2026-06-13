@@ -4055,19 +4055,31 @@ app.get('/app/mapa', auth, async (req, res) => {
   // Visitas do dia
   const todasVisitas = await lerVisitasData();
   const amanha = new Date(Date.now()+86400000).toISOString().split('T')[0];
+  const _statusAtivos = ['solicitada','pendente','confirmada','lead_confirmou','aguard_cliente','remarcacao'];
   const visitasHoje = todasVisitas.filter(v =>
-    (v.userId===userId||v.corretorId===userId) &&
-    (v.dataVisita===hoje || v.dataVisita===amanha || v.status==='solicitada' || v.status==='pendente')
+    (v.userId===userId||v.corretorId===userId||v.leadOwnerId===userId||v.imovelOwnerId===userId) &&
+    (v.dataVisita===hoje || v.dataVisita===amanha || _statusAtivos.includes(v.status))
   ).sort((a,b)=>(a.dataVisita||'').localeCompare(b.dataVisita||'') || (a.horaVisita||'').localeCompare(b.horaVisita||''));
   // Leads ativas do corretor
   const todasLeads = _cacheLeads || await lerLeadsData();
   const leadsCorretor = todasLeads.filter(l => (l.userId===userId||l.codigoUsuario===userId) && l.status!=='arquivado');
   // Imóveis com visita hoje
   const imoveisVisita = [];
+  const _cidadeCoords = {'balneário camboriú':{lat:-26.9906,lng:-48.6348},'balneario camboriu':{lat:-26.9906,lng:-48.6348},'itajaí':{lat:-26.9078,lng:-48.6619},'itajai':{lat:-26.9078,lng:-48.6619},'florianópolis':{lat:-27.5954,lng:-48.5480},'florianopolis':{lat:-27.5954,lng:-48.5480},'navegantes':{lat:-26.8986,lng:-48.6539},'itapema':{lat:-27.0906,lng:-48.6119}};
+  const _normC = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   visitasHoje.forEach(v => {
-    const im = imoveis.find(i => i.id===v.imovelId || i.idOriginal===v.imovelId || i.idExterno===v.imovelId);
+    const im = imoveis.find(i => i.id===v.imovelId || i.idOriginal===v.imovelId || i.idExterno===v.imovelId || i.id_interno===v.imovelId);
+    let lat, lng;
     if(im && (im.latitude||im.lat) && (im.longitude||im.lng)) {
-      imoveisVisita.push({ lat:im.latitude||im.lat, lng:im.longitude||im.lng, titulo:im.titulo||im.tipo||'Imóvel', bairro:im.bairro||'', valor:im.valor_imovel||0, visita:v, tipo:'visita' });
+      lat = im.latitude||im.lat; lng = im.longitude||im.lng;
+    } else {
+      const bairro = _normC(v.imovelBairro||im?.bairro||'');
+      const cidade = _normC(v.imovelCidade||im?.cidade||'');
+      const coords = _cidadeCoords[bairro] || _cidadeCoords[cidade] || null;
+      if(coords){ lat=coords.lat; lng=coords.lng; }
+    }
+    if(lat && lng) {
+      imoveisVisita.push({ lat, lng, titulo:v.imovelTitulo||v.imovelBairro||im?.titulo||'Imóvel', bairro:v.imovelBairro||im?.bairro||'', valor:im?.valor_imovel||0, visita:v, tipo:'visita' });
     }
   });
   // Imóveis com interesse/match de leads

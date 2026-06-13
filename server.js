@@ -4053,7 +4053,7 @@ app.get('/app/mapa', auth, async (req, res) => {
   const hoje = new Date().toISOString().split('T')[0];
   const imoveis = (_cacheImoveis || []);
   // Visitas do dia
-  const todasVisitas = _cacheVisitas || await lerVisitasData();
+  const todasVisitas = await lerVisitasData();
   const amanha = new Date(Date.now()+86400000).toISOString().split('T')[0];
   const visitasHoje = todasVisitas.filter(v =>
     (v.userId===userId||v.corretorId===userId) &&

@@ -82,7 +82,7 @@ const _uLngSalvo = <%= user.lng ? user.lng : 'null' %>;
 
 const _cc = {
   'itajai':{lat:-26.9078,lng:-48.6619},'itajaí':{lat:-26.9078,lng:-48.6619},
-  'balneario camboriu':{lat:-26.9906,lng:-48.6348},'balneário camboriú':{lat:-26.9906,lng:-48.6348},
+  'balneario camboriu':{lat:-26.9906,lng:-48.6348},'balneário camboriú':{lat:-26.9906,lng:-48.6348},'pioneiros':{lat:-26.9906,lng:-48.6348},'centro':{lat:-26.9975,lng:-48.6356},'nações':{lat:-26.9850,lng:-48.6280},'nacoes':{lat:-26.9850,lng:-48.6280},
   'florianopolis':{lat:-27.5954,lng:-48.5480},'florianópolis':{lat:-27.5954,lng:-48.5480},
   'blumenau':{lat:-26.9194,lng:-49.0661},'joinville':{lat:-26.3044,lng:-48.8487},
   'navegantes':{lat:-26.8986,lng:-48.6539},'camboriu':{lat:-27.0239,lng:-48.6508},
@@ -161,7 +161,7 @@ _visitas.forEach((v,i) => {
   if (imV) {
     lat = imV.lat; lng = imV.lng;
   } else {
-    const base = _coords(v.imovelBairro||'', v.imovelCidade||'Itajaí');
+    const base = _coords(v.imovelBairro||'', v.imovelCidade||v.cidade||'Balneário Camboriú');
     if (!base) return;
     const off = _offset('v_'+(v.imovelBairro||v.imovelCidade||i));
     lat = base.lat + off.dlat; lng = base.lng + off.dlng;

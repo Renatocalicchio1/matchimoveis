@@ -4049,7 +4049,7 @@ app.get('/app/mapa', auth, async (req, res) => {
   const fs2 = require('fs');
   const path2 = require('path');
   const DATA_DIR2 = process.env.RENDER ? '/opt/render/project/src/data' : __dirname;
-  const userId = req.session.user.id;
+  const userId = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
   const hoje = new Date().toISOString().split('T')[0];
   const imoveis = (_cacheImoveis || []);
   // Visitas do dia

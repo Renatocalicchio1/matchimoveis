@@ -2398,6 +2398,8 @@ app.get('/app/perfil', auth, async (req,res)=>{
     const { query: _qPerfil } = require('./services/db');
     const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
     const _normP = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+    const _siglaParaNome = {'ac':'acre','al':'alagoas','ap':'amapa','am':'amazonas','ba':'bahia','ce':'ceara','df':'distrito federal','es':'espirito santo','go':'goias','ma':'maranhao','mt':'mato grosso','ms':'mato grosso do sul','mg':'minas gerais','pa':'para','pb':'paraiba','pr':'parana','pe':'pernambuco','pi':'piaui','rj':'rio de janeiro','rn':'rio grande do norte','rs':'rio grande do sul','ro':'rondonia','rr':'roraima','sc':'santa catarina','sp':'sao paulo','se':'sergipe','to':'tocantins'};
+    const _normEstadoP = s => { const n=_normP(s); return _siglaParaNome[n]||n; };
     const _cidadesQAp = [
       {e:'santa catarina',c:'florianopolis'},{e:'santa catarina',c:'joinville'},{e:'santa catarina',c:'blumenau'},
       {e:'santa catarina',c:'balneario camboriu'},{e:'santa catarina',c:'itajai'},{e:'santa catarina',c:'sao jose'},
@@ -2417,7 +2419,7 @@ app.get('/app/perfil', auth, async (req,res)=>{
       {e:'espirito santo',c:'vitoria'},{e:'espirito santo',c:'vila velha'},
       {e:'para',c:'belem'},{e:'amazonas',c:'manaus'}
     ];
-    const _isQAp = (e,c) => _cidadesQAp.some(x => x.e===_normP(e) && x.c===_normP(c));
+    const _isQAp = (e,c) => _cidadesQAp.some(x => x.e===_normEstadoP(e) && x.c===_normP(c));
     const _imoveisUser = await _qPerfil("SELECT estado, cidade, cep, endereco, numero, proprietario FROM imoveis WHERE user_id=$1 AND status='ativo' AND transacao='venda'", [uid]);
     const _emCidadeQA = _imoveisUser.rows.filter(r => _isQAp(r.estado||'', r.cidade||''));
     const _totalQA = _emCidadeQA.filter(r => {

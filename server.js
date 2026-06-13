@@ -2326,15 +2326,6 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto });
 });
 
-  const estados = [...estadosSet].sort();
-  const cidades = {};
-  Object.keys(cidadesPorEstado).forEach(e => { cidades[e] = [...cidadesPorEstado[e]].sort(); });
-  const bairros = {};
-  Object.keys(bairrosPorCidade).forEach(ci => { bairros[ci] = [...bairrosPorCidade[ci]].sort(); });
-
-  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros });
-});
-
 app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req, res) => {
   const xmlUrl = req.body.xmlUrl;
   const userId = req.session.user.id;

@@ -351,13 +351,58 @@ async function gerarXMLQuintoAndarGlobal() {
   if (!_usrs.rows.length) return null;
   const _uids = _usrs.rows.map(u => u.codigo_usuario);
   const _usrMap = {}; _usrs.rows.forEach(u => { _usrMap[u.codigo_usuario] = u; });
-  // Busca imóveis com proprietário (nome + celular) dos usuários autorizados
+  // Cidades onde QuintoAndar atua
+  const _cidadesQA = [
+    // SC
+    'florianopolis','florianópolis','joinville','blumenau','balneario camboriu','balneário camboriú',
+    'itajai','itajaí','sao jose','são josé','palhoca','palhoça','biguacu','biguaçu',
+    // SP
+    'sao paulo','são paulo','guarulhos','osasco','santo andre','santo andré','campinas',
+    'sao bernardo do campo','são bernardo do campo','sao caetano do sul','são caetano do sul',
+    'diadema','maua','mauá','ribeirao preto','ribeirão preto','sorocaba','sao jose dos campos',
+    'são josé dos campos','taubate','taubaté','americana','sumare','sumaré',
+    // RJ
+    'rio de janeiro','niteroi','niterói','duque de caxias','nova iguacu','nova iguaçu',
+    'sao goncalo','são gonçalo','petropolis','petrópolis','cabo frio','macae','macaé',
+    // MG
+    'belo horizonte','contagem','nova lima','betim','uberlandia','uberlândia','juiz de fora',
+    'ribeirao das neves','ribeirão das neves','sabara','sabarà','vespasiano','lagoa santa',
+    // RS
+    'porto alegre','canoas','sao leopoldo','são leopoldo','novo hamburgo','caxias do sul',
+    'pelotas','santa maria','gravatai','gravatai','gravatái','viamao','viamão',
+    // PR
+    'curitiba','sao jose dos pinhais','são josé dos pinhais','londrina','maringa','maringá',
+    'foz do iguacu','foz do iguaçu','cascavel',
+    // GO
+    'goiania','goiânia','aparecida de goiania','aparecida de goiânia','anapolis','anápolis',
+    // DF
+    'brasilia','brasília',
+    // BA
+    'salvador','lauro de freitas','camaçari','camacari','feira de santana',
+    // PE
+    'recife','olinda','caruaru','jaboatao dos guararapes','jaboatão dos guararapes',
+    // CE
+    'fortaleza','caucaia','maracanau','maracanaú',
+    // ES
+    'vitoria','vitória','vila velha','cariacica','serra',
+    // PA
+    'belem','belém','ananindeua',
+    // AM
+    'manaus'
+  ];
+  const _normQA = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+
+  // Busca imóveis com proprietário (nome + celular) dos usuários autorizados — apenas venda
   const _placeholders = _uids.map((_,i) => '$'+(i+1)).join(',');
   const _res = await _qQA(
-    "SELECT * FROM imoveis WHERE status='ativo' AND user_id IN ("+_placeholders+") AND dados->>'proprietarioNome' IS NOT NULL AND dados->>'proprietarioTelefone' IS NOT NULL AND dados->>'proprietarioNome' != '' AND dados->>'proprietarioTelefone' != ''",
+    "SELECT * FROM imoveis WHERE status='ativo' AND transacao='venda' AND user_id IN ("+_placeholders+") AND dados->>'proprietarioNome' IS NOT NULL AND dados->>'proprietarioTelefone' IS NOT NULL AND dados->>'proprietarioNome' != '' AND dados->>'proprietarioTelefone' != ''",
     _uids
   );
-  const imoveis = _res.rows;
+  // Filtra por cidades onde QuintoAndar atua
+  const _imoveisBrutos = _res.rows;
+  const _res2 = { rows: _imoveisBrutos.filter(row => _cidadesQA.includes(_normQA(row.cidade||row.dados?.cidade||''))) };
+  const _res_final = _res2;
+  const imoveis = _res_final.rows;
   const esc = v => String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   let xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<ListingDataFeed>\n  <Header>\n    <Provider>Matchimoveis</Provider>\n    <Email>contato@matchimoveis.ia.br</Email>\n    <BatchId>matchimoveis-qa-'+Date.now()+'</BatchId>\n    <BatchName>MatchImoveis QuintoAndar '+new Date().toISOString()+'</BatchName>\n  </Header>\n  <Listings>\n';
   imoveis.forEach(row => {

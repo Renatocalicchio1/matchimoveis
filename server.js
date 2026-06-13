@@ -423,7 +423,7 @@ async function gerarXMLQuintoAndarGlobal() {
   // Busca imóveis com proprietário (nome + celular) dos usuários autorizados — apenas venda
   const _placeholders = _uids.map((_,i) => '$'+(i+1)).join(',');
   const _res = await _qQA(
-    "SELECT * FROM imoveis WHERE status='ativo' AND transacao='venda' AND user_id IN ("+_placeholders+") AND ((proprietario->>'nome' IS NOT NULL AND proprietario->>'nome' != '' AND (proprietario->>'celular' IS NOT NULL AND proprietario->>'celular' != '' OR proprietario->>'telefone' IS NOT NULL AND proprietario->>'telefone' != '')) OR (dados->>'proprietarioNome' IS NOT NULL AND dados->>'proprietarioNome' != '' AND dados->>'proprietarioTelefone' IS NOT NULL AND dados->>'proprietarioTelefone' != ''))",
+    "SELECT * FROM imoveis WHERE status='ativo' AND transacao='venda' AND user_id IN ("+_placeholders+") AND cep IS NOT NULL AND cep != '' AND endereco IS NOT NULL AND endereco != '' AND numero IS NOT NULL AND numero != '' AND ((proprietario->>'nome' IS NOT NULL AND proprietario->>'nome' != '' AND (proprietario->>'celular' IS NOT NULL AND proprietario->>'celular' != '' OR proprietario->>'telefone' IS NOT NULL AND proprietario->>'telefone' != '')) OR (dados->>'proprietarioNome' IS NOT NULL AND dados->>'proprietarioNome' != '' AND dados->>'proprietarioTelefone' IS NOT NULL AND dados->>'proprietarioTelefone' != ''))",
     _uids
   );
   // Filtra por cidades onde QuintoAndar atua

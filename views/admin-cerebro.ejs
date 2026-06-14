@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — Cérebro do Assistente</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#111827;font-size:14px}
+header{background:#111827;color:#fff;padding:16px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+header h1{font-size:16px;font-weight:500}
+header .badge{background:#FF385C;color:#fff;font-size:11px;padding:2px 8px;border-radius:20px}
+.tabs{display:flex;gap:0;border-bottom:1px solid #e5e5e3;background:#fff;padding:0 24px;position:sticky;top:53px;z-index:99}
+.tab{padding:12px 20px;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#6b7280;background:none;border-top:none;border-left:none;border-right:none}
+.tab.ativo{color:#FF385C;border-bottom-color:#FF385C}
+.content{padding:24px;max-width:1100px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;text-align:center}
+.stat-n{font-size:28px;font-weight:500;color:#111827}
+.stat-l{font-size:12px;color:#6b7280;margin-top:4px}
+.search{width:100%;padding:10px 14px;border:1px solid #e5e5e3;border-radius:10px;font-size:14px;margin-bottom:16px;background:#fff}
+.item{background:#fff;border:1px solid #e5e5e3;border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start}
+.item-body{flex:1;min-width:0}
+.item-p{font-weight:500;font-size:13px;color:#111827;margin-bottom:4px}
+.item-r{font-size:12px;color:#6b7280;line-height:1.5}
+.item-cat{font-size:10px;color:#9ca3af;margin-bottom:6px}
+.item-actions{display:flex;gap:6px;flex-shrink:0}
+.btn{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #e5e5e3;background:#fff;color:#374151}
+.btn:hover{background:#f9f9f7}
+.btn-ok{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
+.btn-err{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.btn-edit{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.btn-del{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.btn-save{background:#FF385C;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:24px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal-box h2{font-size:16px;font-weight:500;margin-bottom:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:#6b7280;margin-bottom:4px;font-weight:500}
+.field input,.field textarea{width:100%;padding:10px 12px;border:1px solid #e5e5e3;border-radius:8px;font-size:13px;font-family:inherit}
+.field textarea{min-height:80px;resize:vertical}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.badge-ok{display:inline-block;background:#f0fdf4;color:#15803d;font-size:10px;padding:2px 6px;border-radius:4px}
+.badge-err{display:inline-block;background:#fef2f2;color:#dc2626;font-size:10px;padding:2px 6px;border-radius:4px}
+.pag{display:flex;gap:8px;margin-top:16px;align-items:center;justify-content:center}
+.pag button{padding:6px 12px;border:1px solid #e5e5e3;border-radius:8px;background:#fff;cursor:pointer;font-size:12px}
+.pag button.ativo{background:#111827;color:#fff;border-color:#111827}
+.secao{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;margin-bottom:12px}
+.secao-titulo{font-size:13px;font-weight:500;margin-bottom:12px;color:#111827}
+.secao-rota{font-size:11px;color:#6b7280;margin-bottom:8px}
+.passo{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px}
+.passo-num{background:#FF385C;color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Cérebro do Assistente <span class="badge">Admin</span></h1>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:12px;align-items:center">
+    <span style="font-size:12px;color:#9ca3af">Base: <strong style="color:#fff"><%=totalBase%></strong> pares</span>
+    <a href="/admin" style="color:#9ca3af;font-size:12px;text-decoration:none">← Voltar ao admin</a>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab ativo" onclick="mudarAba('base')">Base de conhecimento (<%= modulos.base_conhecimento.length %>)</button>
+  <button class="tab" onclick="mudarAba('paginas')">Páginas (<%= modulos.paginas.length %>)</button>
+  <button class="tab" onclick="mudarAba('fluxos')">Fluxos (<%= modulos.fluxos.length %>)</button>
+  <button class="tab" onclick="mudarAba('novo')">+ Novo par</button>
+</div>
+
+<div class="content">
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="cnt-total"><%=modulos.base_conhecimento.length%></div><div class="stat-l">Total pares</div></div>
+    <div class="stat"><div class="stat-n" style="color:#15803d" id="cnt-ok">0</div><div class="stat-l">Aprovados</div></div>
+    <div class="stat"><div class="stat-n" style="color:#dc2626" id="cnt-err">0</div><div class="stat-l">Com problema</div></div>
+    <div class="stat"><div class="stat-n" id="cnt-pct">0%</div><div class="stat-l">Revisados</div></div>
+  </div>
+
+  <!-- ABA BASE -->
+  <div id="aba-base">
+    <input class="search" type="text" placeholder="Buscar pergunta ou resposta..." oninput="filtrar(this.value)" id="busca">
+    <div id="lista-base"></div>
+    <div class="pag" id="paginacao"></div>
+  </div>
+
+  <!-- ABA PÁGINAS -->
+  <div id="aba-paginas" class="hidden">
+    <% modulos.paginas.forEach(p => { %>
+    <div class="secao">
+      <div class="secao-titulo"><%= p.titulo %></div>
+      <div class="secao-rota"><%= p.rota %></div>
+      <% if(p.oque_tem && p.oque_tem.length) { %>
+        <div style="font-size:12px;color:#374151;margin-bottom:8px"><strong>O que tem:</strong><br><%= p.oque_tem.map(i=>'• '+i).join('<br>') %></div>
+      <% } %>
+      <% if(p.botoes && p.botoes.length) { %>
+        <div style="font-size:12px;color:#374151"><strong>Ações:</strong> <%= p.botoes.join(', ') %></div>
+      <% } %>
+      <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">
+        <% p.keywords.slice(0,6).forEach(k => { %><span style="background:#f3f4f6;color:#374151;font-size:10px;padding:2px 6px;border-radius:4px"><%= k %></span><% }) %>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+
+  <!-- ABA FLUXOS -->
+  <div id="aba-fluxos" class="hidden">
+    <% modulos.fluxos.forEach(f => { %>
+    <div class="secao">
+      <div class="secao-titulo"><%= f.titulo %></div>
+      <div class="secao-rota"><%= f.rota %></div>
+      <% f.passos.forEach((p,i) => { %>
+        <div class="passo"><div class="passo-num"><%= i+1 %></div><div style="font-size:12px;color:#374151"><%= p %></div></div>
+      <% }) %>
+    </div>
+    <% }) %>
+  </div>
+
+  <!-- ABA NOVO -->
+  <div id="aba-novo" class="hidden">
+    <div style="background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:20px;max-width:560px">
+      <h2 style="font-size:15px;font-weight:500;margin-bottom:16px">Adicionar novo par pergunta/resposta</h2>
+      <div class="field"><label>Pergunta (como o usuário digita)</label><input type="text" id="novo-p" placeholder="ex: como exporto imoveis"></div>
+      <div class="field"><label>Intenção / Resposta</label><input type="text" id="novo-r" placeholder="ex: exportar ou texto de resposta"></div>
+      <button class="btn-save" onclick="salvarNovo()">Salvar</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h2>Editar par</h2>
+    <div class="field"><label>Pergunta</label><input type="text" id="edit-p"></div>
+    <div class="field"><label>Resposta / Intenção</label><textarea id="edit-r"></textarea></div>
+    <input type="hidden" id="edit-id-original">
+    <div class="modal-btns">
+      <button class="btn" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-save" onclick="salvarEdicao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = <%- JSON.stringify(modulos.base_conhecimento) %>;
+let filtrado = [...BASE];
+let pagAtual = 0;
+const POR_PAG = 30;
+let revisados = {ok:0, err:0};
+
+function mudarAba(aba) {
+  ['base','paginas','fluxos','novo'].forEach(a => {
+    document.getElementById('aba-'+a).classList.toggle('hidden', a!==aba);
+  });
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('ativo', ['base','paginas','fluxos','novo'][i]===aba);
+  });
+}
+
+function filtrar(q) {
+  pagAtual = 0;
+  if (!q) { filtrado = [...BASE]; }
+  else {
+    const ql = q.toLowerCase();
+    filtrado = BASE.filter(i => (i.p||'').toLowerCase().includes(ql) || (i.r||'').toLowerCase().includes(ql));
+  }
+  renderLista();
+}
+
+function renderLista() {
+  const total = filtrado.length;
+  const inicio = pagAtual * POR_PAG;
+  const fim = Math.min(inicio + POR_PAG, total);
+  const pagina = filtrado.slice(inicio, fim);
+
+  document.getElementById('lista-base').innerHTML = pagina.map((item,i) => {
+    const idx = inicio + i;
+    const status = item._status || '';
+    return '<div class="item" id="item-'+idx+'">' +
+      '<div class="item-body">' +
+        (item._status ? '<span class="badge-'+(item._status==='ok'?'ok':'err')+'">'+(item._status==='ok'?'✓ Ok':'✗ Problema')+'</span> ' : '') +
+        '<div class="item-p">"' + (item.p||'') + '"</div>' +
+        '<div class="item-r">' + (item.r||'') + '</div>' +
+      '</div>' +
+      '<div class="item-actions">' +
+        '<button class="btn btn-ok" onclick="marcar('+idx+',\'ok\')">✓</button>' +
+        '<button class="btn btn-err" onclick="marcar('+idx+',\'erro\')">✗</button>' +
+        '<button class="btn btn-edit" onclick="abrirModal('+idx+')">✎</button>' +
+        '<button class="btn btn-del" onclick="deletar('+idx+')">🗑</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // Paginação
+  const totalPags = Math.ceil(total / POR_PAG);
+  let pags = '<span style="font-size:12px;color:#6b7280">' + (inicio+1) + '-' + fim + ' de ' + total + '</span>';
+  if (pagAtual > 0) pags += '<button onclick="irPag('+(pagAtual-1)+')">← Anterior</button>';
+  for (let p = Math.max(0,pagAtual-2); p <= Math.min(totalPags-1,pagAtual+2); p++) {
+    pags += '<button class="'+(p===pagAtual?'ativo':'')+'" onclick="irPag('+p+')">'+(p+1)+'</button>';
+  }
+  if (pagAtual < totalPags-1) pags += '<button onclick="irPag('+(pagAtual+1)+')">Próximo →</button>';
+  document.getElementById('paginacao').innerHTML = pags;
+}
+
+function irPag(p) { pagAtual = p; renderLista(); window.scrollTo(0,200); }
+
+function marcar(idx, status) {
+  filtrado[idx]._status = status;
+  if (status === 'ok') revisados.ok++;
+  else revisados.err++;
+  atualizarStats();
+  renderLista();
+}
+
+function atualizarStats() {
+  const total = revisados.ok + revisados.err;
+  document.getElementById('cnt-ok').textContent = revisados.ok;
+  document.getElementById('cnt-err').textContent = revisados.err;
+  document.getElementById('cnt-pct').textContent = total > 0 ? Math.round(revisados.ok/total*100)+'%' : '0%';
+}
+
+function abrirModal(idx) {
+  const item = filtrado[idx];
+  document.getElementById('edit-p').value = item.p || '';
+  document.getElementById('edit-r').value = item.r || '';
+  document.getElementById('edit-id-original').value = item.p || '';
+  document.getElementById('modal').classList.add('open');
+}
+
+function fecharModal() { document.getElementById('modal').classList.remove('open'); }
+
+async function salvarEdicao() {
+  const idOriginal = document.getElementById('edit-id-original').value;
+  const novoP = document.getElementById('edit-p').value.trim();
+  const novoR = document.getElementById('edit-r').value.trim();
+  if (!novoP || !novoR) return alert('Preencha os dois campos');
+  
+  const res = await fetch('/admin/cerebro/salvar', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ tipo:'base', id: idOriginal, dados: { p: novoP, r: novoR } })
+  });
+  const json = await res.json();
+  if (json.ok) {
+    const item = filtrado.find(i => i.p === idOriginal);
+    if (item) { item.p = novoP; item.r = novoR; }
+    fecharModal();
+    renderLista();
+  } else { alert('Erro: ' + json.erro); }
+}
+
+async function deletar(idx) {
+  const item = filtrado[idx];
+  if (!confirm('Deletar "' + item.p + '"?')) return;
+  const res = await fetch('/admin/cerebro/salvar', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ tipo:'deletar_base', id: item.p })
+  });
+  const json = await res.json();
+  if (json.ok) { filtrado.splice(idx,1); renderLista(); }
+  else alert('Erro: ' + json.erro);
+}
+
+async function salvarNovo() {
+  const p = document.getElementById('novo-p').value.trim();
+  const r = document.getElementById('novo-r').value.trim();
+  if (!p || !r) return alert('Preencha pergunta e resposta');
+  const res = await fetch('/admin/cerebro/salvar', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ tipo:'base', id: p, dados: { p, r } })
+  });
+  const json = await res.json();
+  if (json.ok) {
+    BASE.push({ p, r });
+    filtrado = [...BASE];
+    document.getElementById('novo-p').value = '';
+    document.getElementById('novo-r').value = '';
+    document.getElementById('cnt-total').textContent = BASE.length;
+    mudarAba('base');
+    renderLista();
+  } else alert('Erro: ' + json.erro);
+}
+
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) fecharModal();
+});
+
+renderLista();
+</script>
+</body>
+</html>

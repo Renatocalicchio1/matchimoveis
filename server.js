@@ -175,6 +175,53 @@ function loadImoveis() {
 
 
 // ═══════════════════════════════════════════════════════
+
+// ── ADMIN CÉREBRO ────────────────────────────────────────────────────────────
+app.get('/admin/cerebro', authAdmin, (req, res) => {
+  const base = JSON.parse(fs.readFileSync(path.join(__dirname,'cerebro','base-conhecimento-expandida.json'),'utf8'));
+  const navegador = require('./cerebro/navegador');
+  const { PAGINAS, FLUXOS } = navegador;
+  
+  const modulos = {
+    base_conhecimento: base.items,
+    paginas: Object.entries(PAGINAS).map(([id,p]) => ({ id, titulo: p.titulo, rota: p.rota, keywords: p.keywords, oque_tem: p.oque_tem||[], botoes: p.botoes||[] })),
+    fluxos: Object.entries(FLUXOS).map(([id,f]) => ({ id, titulo: f.titulo, rota: f.rota, passos: f.passos })),
+  };
+  
+  res.render('admin-cerebro', { modulos, totalBase: base.total });
+});
+
+app.post('/admin/cerebro/salvar', authAdmin, express.json(), (req, res) => {
+  try {
+    const { tipo, id, dados } = req.body;
+    
+    if (tipo === 'base') {
+      const basePath = path.join(__dirname,'cerebro','base-conhecimento-expandida.json');
+      const base = JSON.parse(fs.readFileSync(basePath,'utf8'));
+      const idx = base.items.findIndex(i => i.p === id);
+      if (idx >= 0) {
+        base.items[idx] = { ...base.items[idx], ...dados };
+      } else {
+        base.items.push({ p: dados.p, r: dados.r });
+      }
+      base.total = base.items.length;
+      fs.writeFileSync(basePath, JSON.stringify(base, null, 2));
+    }
+    
+    if (tipo === 'deletar_base') {
+      const basePath = path.join(__dirname,'cerebro','base-conhecimento-expandida.json');
+      const base = JSON.parse(fs.readFileSync(basePath,'utf8'));
+      base.items = base.items.filter(i => i.p !== id);
+      base.total = base.items.length;
+      fs.writeFileSync(basePath, JSON.stringify(base, null, 2));
+    }
+    
+    res.json({ ok: true });
+  } catch(e) {
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
 // ÁREA ADMIN
 // ═══════════════════════════════════════════════════════
 function authAdmin(req, res, next) {

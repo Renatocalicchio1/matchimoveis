@@ -183,7 +183,13 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     } catch(e) { console.error('cadastrar lead err:', e.message); }
   }
 
-  // -- PRIORIDADE 0.3: suporte direto — erros e custos antes de tudo
+  // -- PRIORIDADE 0.2: onboarding — primeiros passos
+  try {
+    const resOnb = onboarding.responder(mNorm, d, btn, chip);
+    if (resOnb) return finalizar(resOnb);
+  } catch(e) {}
+
+    // -- PRIORIDADE 0.3: suporte direto — erros e custos antes de tudo
   if (/vitrine nao abre|vitrine nao carrega|link.*nao funciona|nao consigo abrir vitrine/.test(mNorm)) {
     return finalizar('🔧 <strong>Vitrine não abre?</strong><br><br>• A lead precisa ter ao menos 1 imóvel em match<br>• Imóveis inativos não aparecem na vitrine<br>• Verifique se o imóvel em match está ativo<br><br><a href="/app/leads" style="color:#ff385c;font-weight:700">Ver Leads →</a>');
   }

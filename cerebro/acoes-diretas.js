@@ -61,7 +61,7 @@ function responderAcaoDireta(mNorm, mensagemOriginal, d, leads, imoveis, visitas
   }
 
   // FOLLOW-UP DE LEAD
-  if (/follow.?up|retornar|ligar|entrar em contato|cobrar|lead sumiu|sumiu|nao respondeu/.test(t)) {
+  if (/follow.?up|retornar|ligar|entrar em contato|cobrar|lead sumiu|sumiu|nao respondeu/.test(t) && !/como abordar|como retomar|estrategia|dica|conselho|ha \d+|dias sem|semanas sem/.test(t)) {
     var nomeMatch2 = mensagemOriginal.match(/(?:para|pro|pra|com)\s+([A-ZÀ-Úa-zà-ú]{3,})/i);
     var nomeBusca2 = nomeMatch2 ? nomeMatch2[1].toLowerCase() : null;
     var candidatos = nomeBusca2 ? leads.filter(function(l){ return (l.nome||l.name||'').toLowerCase().includes(nomeBusca2); }) : leads.filter(function(l){ var dias = l.createdAt?(Date.now()-new Date(l.createdAt).getTime())/86400000:0; return dias>3&&(!visitas||!visitas.some(function(v){return String(v.leadId||'')===String(l.id||'');})); }).slice(0,5);

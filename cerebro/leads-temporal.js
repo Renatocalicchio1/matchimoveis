@@ -65,7 +65,9 @@ function responder(mNorm, leads, btn, chip) {
   }
 
   // BUSCA POR NOME
-  const nomeMatch=mNorm.match(/(?:lead|cliente|contato|buscar|procurar|encontrar|onde esta|achar|ache)\s+([a-z]{3,})/);
+  // Não busca por nome se for pergunta de estratégia/conhecimento
+  const ehEstrategia = /estrategia|dica|conselho|como abordar|como retomar|melhor forma|como negociar|como convencer|ha \d+|dias sem|semanas sem/.test(mNorm);
+  const nomeMatch = ehEstrategia ? null : mNorm.match(/(?:lead|cliente|contato|buscar|procurar|encontrar|onde esta|achar|ache)\s+([a-z]{3,})/);
   if(nomeMatch) {
     const nome=nomeMatch[1];
     const enc=leads.filter(l=>(l.nome||l.name||'').toLowerCase().includes(nome)||(l.email||'').toLowerCase().includes(nome)||(String(l.telefone||l.contato||'')).includes(nome));
@@ -74,7 +76,7 @@ function responder(mNorm, leads, btn, chip) {
   }
 
   // SEM RESPOSTA
-  if(/sem resposta|nao respondeu|sem retorno|nao retornou/.test(mNorm)) return 'Leads sem resposta ficam com status pendente.<br><br>'+btn('Ver leads','/app/leads')+chip('Visitas pendentes','visitas pendentes');
+  if(/sem resposta|nao respondeu|sem retorno|nao retornou/.test(mNorm) && !/como abordar|como retomar|como reativar|estrategia|dica|conselho/.test(mNorm)) return 'Leads sem resposta ficam com status pendente.<br><br>'+btn('Ver leads','/app/leads')+chip('Visitas pendentes','visitas pendentes');
 
   return null;
 }

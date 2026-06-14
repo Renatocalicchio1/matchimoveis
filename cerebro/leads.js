@@ -149,7 +149,7 @@ function responder(mNorm, d, leads, btn, chip) {
 
   // COM MATCH
   if (/com match|tem match|com combinacao/.test(mNorm)) {
-    const taxa = d.leads>0 ? Math.round(d.comMatch/d.leads*100) : 0;
+  const taxa = d.leads>0 ? Math.round(d.comMatch/d.leads*100) : 0;
     return `🎯 <strong>${d.comMatch} leads com match</strong> (${taxa}% da base)<br><br>`+
       `Essas leads já receberam a vitrine? Envie agora e converta em visitas!<br><br>`+
       `${btn('Ver leads com match','/app/leads?filtro=com_match')}`;
@@ -188,6 +188,9 @@ function responder(mNorm, d, leads, btn, chip) {
       `${btn('Ver todas as leads','/app/leads')}${chip('🎯 Fazer match','fazer match agora')}`;
 
   // TOTAL / GERAL
+  // Só responde fallback geral se for pergunta direta sobre leads
+  const ehPerguntaLeads = /^(minhas? leads?|total leads?|quantas? leads?|leads? (quentes?|frias?|com match|sem match|organicas?|importadas?|recentes?|novas?)|listar leads?|resumo leads?|minha base)/.test(mNorm);
+  if (!ehPerguntaLeads) return null;
   if (d.leads===0)
     return `Nenhuma lead ainda. 👥<br><br>Importe planilhas dos portais para começar o match!<br><br>${btn('Importar leads','/app-importar-leads')}`;
 

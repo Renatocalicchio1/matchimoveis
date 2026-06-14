@@ -344,6 +344,16 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     );
   }
 
+    // -- PRIORIDADE 0.24: perguntas de conhecimento/estrategia — vai direto para Groq
+  if (/estrategia|dica|conselho|como abordar|melhor forma|melhor jeito|como negociar|como convencer|como fechar|como prospectar|como captar|mercado imobiliario|tendencia|alto padrao|luxo|lancamento|como fazer para|me ensina|me explica como|nao respondeu|nao me respondeu|sumiu|dias sem resposta|semanas sem|meses sem|retomar contato|reativar/.test(mNorm)) {
+    if (process.env.GROQ_API_KEY) {
+      const contextoGroqP = { ativos:d.ativos||0, leads:d.leads||0, comMatch:d.comMatch||0, quentes:d.quentes||0, visitas:d.visitas||0, bairrosCarteira:(d.bairros||[]).slice(0,5), corretor:user.nome||'corretor' };
+      return groqIA.chamarGroq(mensagem, contextoGroqP, hist)
+        .then(function(r){ return r + '<br><br><span style="font-size:11px;color:#9ca3af">✦ Resposta gerada por IA</span>'; })
+        .catch(function(e){ console.error('[groq-p]',e.message); return null; });
+    }
+  }
+
     // -- PRIORIDADE 0.23: TF-IDF alta prioridade — conceitos e custos
   try {
     const tfResAlta = tfidf.detectarIntencao(mensagem);
@@ -359,7 +369,17 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     }
   } catch(e) {}
 
-    // -- PRIORIDADE 0.22: gírias e expressões do corretor
+    // -- PRIORIDADE 0.24: perguntas de conhecimento/estrategia — vai direto para Groq
+  if (/estrategia|dica|conselho|como abordar|melhor forma|melhor jeito|como negociar|como convencer|como fechar|como prospectar|como captar|mercado imobiliario|tendencia|alto padrao|luxo|lancamento|como fazer para|me ensina|me explica como|nao respondeu ha|dias sem resposta|semanas sem resposta|meses sem resposta|retomar contato|reativar lead/.test(mNorm)) {
+    if (process.env.GROQ_API_KEY) {
+      const contextoGroqP = { ativos:d.ativos||0, leads:d.leads||0, comMatch:d.comMatch||0, quentes:d.quentes||0, visitas:d.visitas||0, bairrosCarteira:(d.bairros||[]).slice(0,5), corretor:user.nome||'corretor' };
+      return groqIA.chamarGroq(mensagem, contextoGroqP, hist)
+        .then(function(r){ return r + '<br><br><span style="font-size:11px;color:#9ca3af">✦ Resposta gerada por IA</span>'; })
+        .catch(function(e){ console.error('[groq-p]',e.message); return null; });
+    }
+  }
+
+  // -- PRIORIDADE 0.22: gírias e expressões do corretor
   const girias = {
     'ta caro|muito caro|caro demais|acima do budget|fora do orcamento|nao cabe no bolso': 'busca_mais_barato',
     'to travado|nao sei o que fazer|sem ideia|perdido|estrategia de venda': 'orientar',

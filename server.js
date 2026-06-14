@@ -5886,7 +5886,38 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
     visitas:     visitas.length,
     hoje:        visitas.filter(v=>v.dataVisita===hoje).length,
     pendentes:   visitas.filter(v=>v.status==='solicitada').length,
-    confirmadas: visitas.filter(v=>v.status==='confirmada').length
+    confirmadas:    visitas.filter(v=>v.status==='confirmada').length,
+    realizadas:     visitas.filter(v=>v.status==='realizada').length,
+    canceladas:     visitas.filter(v=>v.status==='cancelada').length,
+    // Leads detalhes
+    superQuentes:   leads.filter(l=>l.temperatura==='super_quente').length,
+    frias:          leads.filter(l=>!l.temperatura||l.temperatura==='frio').length,
+    comVisita:      leads.filter(l=>l.faseFunil==='visita').length,
+    comProposta:    leads.filter(l=>l.faseFunil==='proposta').length,
+    fechadas:       leads.filter(l=>l.faseFunil==='fechado').length,
+    semProprietario: imoveis.filter(i=>i.status!=='inativo'&&(!i.proprietario||(!i.proprietario.nome&&!i.proprietario.telefone))).length,
+    semFoto:        imoveis.filter(i=>i.status!=='inativo'&&(!i.fotos||i.fotos.length===0)).length,
+    semCep:         imoveis.filter(i=>i.status!=='inativo'&&!i.cep).length,
+    topBairrosDemanda: (() => {
+      const bairroCount = {};
+      leads.forEach(l=>{ if(l.bairro) bairroCount[l.bairro]=(bairroCount[l.bairro]||0)+1; });
+      return Object.entries(bairroCount).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([b,n])=>({bairro:b,total:n}));
+    })(),
+    topTiposDemanda: (() => {
+      const tipoCount = {};
+      leads.forEach(l=>{ if(l.tipo) tipoCount[l.tipo]=(tipoCount[l.tipo]||0)+1; });
+      return Object.entries(tipoCount).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([t,n])=>({tipo:t,total:n}));
+    })(),
+    leadsRecentes:  leads.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0)).slice(0,5).map(l=>({nome:l.nome||l.contato||'Lead',bairro:l.bairro,tipo:l.tipo,temperatura:l.temperatura})),
+    visitasHoje:    visitas.filter(v=>{
+      if(!v.dataVisita) return false;
+      const d = new Date(v.dataVisita);
+      const hoje2 = new Date();
+      return d.toDateString()===hoje2.toDateString();
+    }).length,
+    whatsappConectado: !!(user && user.whatsappStatus==='connected'),
+    temPerfil:      !!(user && user.celular && user.nome),
+    vitrinesEnviadas: leads.filter(l=>l.vitrineEnviada).length,
   };
 
   const memoriaPath = path.join(__dirname,'assistente-memoria.json');

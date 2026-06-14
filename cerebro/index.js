@@ -189,6 +189,90 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     if (resOnb) return finalizar(resOnb);
   } catch(e) {}
 
+    // -- PRIORIDADE 0.21: perguntas sobre dados reais
+  if (/quantas? leads? (tenho|tem)|total.*leads?|minhas leads?$|listar leads|resumo leads/.test(mNorm)) {
+    return finalizar(
+      '👥 <strong>Suas leads:</strong><br><br>' +
+      '• Total: <strong>' + (d.leads||0) + '</strong><br>' +
+      '• Com match: <strong>' + (d.comMatch||0) + '</strong> · Sem match: <strong>' + (d.semMatch||0) + '</strong><br>' +
+      '• 🔥 Quentes: <strong>' + (d.quentes||0) + '</strong> · 🧊 Frias: <strong>' + (d.frias||0) + '</strong><br>' +
+      '• Com visita: <strong>' + (d.comVisita||0) + '</strong> · Fechadas: <strong>' + (d.fechadas||0) + '</strong><br><br>' +
+      btn('Ver Leads','/app/leads')
+    );
+  }
+  if (/quantos? imoveis? (tenho|tem|ativo)|total.*imoveis?|minha carteira$|listar imoveis|resumo imoveis/.test(mNorm)) {
+    return finalizar(
+      '🏠 <strong>Sua carteira:</strong><br><br>' +
+      '• Ativos: <strong>' + (d.ativos||0) + '</strong><br>' +
+      '• Inativos: <strong>' + (d.inativos||0) + '</strong><br>' +
+      '• Sem foto: <strong>' + (d.semFoto||0) + '</strong><br>' +
+      '• Sem proprietário: <strong>' + (d.semProprietario||0) + '</strong><br>' +
+      '• Sem CEP: <strong>' + (d.semCep||0) + '</strong><br><br>' +
+      btn('Ver Imóveis','/app/imoveis')
+    );
+  }
+  if (/quantas? visitas? (tenho|tem)|total.*visitas?|minhas visitas?$|listar visitas|resumo visitas/.test(mNorm)) {
+    return finalizar(
+      '📅 <strong>Suas visitas:</strong><br><br>' +
+      '• Total: <strong>' + (d.visitas||0) + '</strong><br>' +
+      '• Hoje: <strong>' + (d.visitasHoje||d.hoje||0) + '</strong><br>' +
+      '• Pendentes: <strong>' + (d.pendentes||0) + '</strong><br>' +
+      '• Confirmadas: <strong>' + (d.confirmadas||0) + '</strong><br>' +
+      '• Realizadas: <strong>' + (d.realizadas||0) + '</strong><br><br>' +
+      btn('Ver Visitas','/app/visitas')
+    );
+  }
+  if (/imoveis? sem foto|sem fotos?|imoveis? sem imagem/.test(mNorm)) {
+    return finalizar(
+      '📸 <strong>Imóveis sem foto:</strong> <strong>' + (d.semFoto||0) + '</strong><br><br>' +
+      'Imóveis sem foto têm menos cliques nos portais.<br><br>' +
+      btn('Ver Imóveis','/app/imoveis') + ' ' + chip('Como adicionar foto','como adicionar foto')
+    );
+  }
+  if (/imovel.*sem proprietario|sem proprietario|proprietario faltando|quantos sem proprietario/.test(mNorm)) {
+    return finalizar(
+      '👤 <strong>Imóveis sem proprietário:</strong> <strong>' + (d.semProprietario||0) + '</strong><br><br>' +
+      'Sem proprietário o sistema não pode notificar sobre visitas.<br><br>' +
+      btn('Ver Imóveis','/app/imoveis')
+    );
+  }
+  if (/qual.*bairro.*mais|bairro.*demanda|bairro mais buscado|demanda por bairro/.test(mNorm)) {
+    const top = (d.topBairrosDemanda||[]);
+    if (!top.length) return finalizar('Ainda sem dados de demanda por bairro.<br><br>' + btn('Ver Leads','/app/leads'));
+    return finalizar(
+      '📍 <strong>Bairros mais buscados pelas suas leads:</strong><br><br>' +
+      top.map((b,i)=>'<strong>'+(i+1)+'.</strong> '+b.bairro+' — '+b.total+' lead(s)').join('<br>') +
+      '<br><br>' + btn('Ver Leads','/app/leads')
+    );
+  }
+  if (/qual.*tipo.*mais|tipo mais buscado|tipo mais procurado|tipo mais demandado|qual analise_mercado|analise.*mercado tipo/.test(mNorm)) {
+    const top = (d.topTiposDemanda||[]);
+    if (!top.length) return finalizar('Ainda sem dados de tipo mais buscado.<br><br>' + btn('Ver Leads','/app/leads'));
+    return finalizar(
+      '🏠 <strong>Tipos mais buscados pelas suas leads:</strong><br><br>' +
+      top.map((t,i)=>'<strong>'+(i+1)+'.</strong> '+t.tipo+' — '+t.total+' lead(s)').join('<br>') +
+      '<br><br>' + btn('Ver Leads','/app/leads')
+    );
+  }
+  if (/leads? recentes?|ultimas? leads?|leads? novas?|chegou hoje/.test(mNorm)) {
+    const recentes = (d.leadsRecentes||[]);
+    if (!recentes.length) return finalizar('Nenhuma lead ainda.<br><br>' + btn('Importar Leads','/app/importar-leads'));
+    return finalizar(
+      '👥 <strong>Leads mais recentes:</strong><br><br>' +
+      recentes.map(l=>'• <strong>'+(l.nome||'Lead')+'</strong> — '+(l.bairro||'-')+' · '+(l.tipo||'-')+' · '+(l.temperatura||'fria')).join('<br>') +
+      '<br><br>' + btn('Ver Leads','/app/leads')
+    );
+  }
+  if (/leads? quentes?|quem esta quente|mais quente/.test(mNorm)) {
+    const quentes = (d.leadsQuentes||[]);
+    if (!quentes.length) return finalizar('Nenhuma lead quente ainda. Faça o match e envie vitrines!<br><br>' + chip('Fazer match','fazer match agora'));
+    return finalizar(
+      '🔥 <strong>Leads quentes:</strong><br><br>' +
+      quentes.map(l=>'• <strong>'+(l.nome||'Lead')+'</strong> — '+(l.faseFunil||'-')+' · '+(l.temperatura||'-')).join('<br>') +
+      '<br><br>' + btn('Ver Leads','/app/leads')
+    );
+  }
+
     // -- PRIORIDADE 0.22: gírias e expressões do corretor
   const girias = {
     'ta caro|muito caro|caro demais|acima do budget|fora do orcamento|nao cabe no bolso': 'busca_mais_barato',

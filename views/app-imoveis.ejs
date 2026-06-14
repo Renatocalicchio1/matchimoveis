@@ -296,6 +296,8 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
 <% (typeof imoveis !== 'undefined' ? imoveis : []).forEach((item, idx) => { %>
   <div class="im-card"
     data-id="<%= item.id || item.idExterno || idx %>"
+    data-id_interno="<%= item.idInterno || item.id_interno || '' %>"
+    data-id_externo="<%= item.idExterno || item.id_externo || '' %>"
     data-tipo="<%= (item.tipo||'').toLowerCase() %>"
     data-bairro="<%= (item.bairro||'').toLowerCase() %>"
     data-cidade="<%= (item.cidade||'').toLowerCase() %>"

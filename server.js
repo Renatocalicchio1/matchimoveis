@@ -349,7 +349,10 @@ tr:hover td{background:#fafafa;}
 <body>
 <div class="top">
   <h1>Admin · MatchImóveis</h1>
-  <a href="/admin/logout">Sair</a>
+  <div style="display:flex;gap:16px;align-items:center">
+    <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
+    <a href="/admin/logout" style="font-size:12px;color:#888;text-decoration:none">Sair</a>
+  </div>
 </div>
 <div class="wrap">
   <div class="card" style="margin-bottom:16px;">

@@ -184,17 +184,19 @@ app.get('/admin/cerebro', authAdmin, (req, res) => {
   
   // Agrupar variações por intenção
   const variacoesPorIntencao = {};
-  base.items.forEach(item => {
-    const r = item.r || 'sem_intencao';
+  base.items.forEach(function(item) {
+    const r = String(item.r || 'sem');
     if (!variacoesPorIntencao[r]) variacoesPorIntencao[r] = [];
     variacoesPorIntencao[r].push(item.p);
   });
   
   // Adicionar variações em cada item
-  const baseComVariacoes = base.items.map(item => ({
-    ...item,
-    variacoes: (variacoesPorIntencao[item.r] || []).filter(p => p !== item.p).slice(0, 5)
-  }));
+  const baseComVariacoes = base.items.map(function(item) {
+    const r = String(item.r || 'sem');
+    return Object.assign({}, item, {
+      variacoes: (variacoesPorIntencao[r] || []).filter(function(p){ return p !== item.p; }).slice(0, 8)
+    });
+  });
   
   const modulos = {
     base_conhecimento: baseComVariacoes,

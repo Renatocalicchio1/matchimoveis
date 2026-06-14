@@ -30,6 +30,7 @@ const notasUsuario = require('./notas-usuario');
 const compactador = require('./compactador');
 const tfidf = require('./tfidf');
 const buscaConhecimento = require('./busca-conhecimento');
+const groqIA = require('./groq-ia');
 const feedbackLoop = require('./feedback-loop');
 const verificador = require('./verificador');
 const decompositor = require('./decompositor');
@@ -986,8 +987,35 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
   const pergunta = perguntarDeVolta(mNorm, intencaoObj);
   if (pergunta) return pergunta;
 
-  // ── 12. NÃO ENTENDEU ─────────────────────────────────────────────────────────
+  // ── 12. GROQ IA — fallback inteligente ───────────────────────────────────────
   aprendizado.registrar(uid, mensagem);
+  
+  // Tenta Groq se disponível
+  if (process.env.GROQ_API_KEY) {
+    const contextoGroq = {
+      ativos: d.ativos||0, inativos: d.inativos||0,
+      leads: d.leads||0, comMatch: d.comMatch||0, semMatch: d.semMatch||0,
+      quentes: d.quentes||0, pendentes: d.pendentes||0,
+      visitas: d.visitas||0, visitasHoje: d.visitasHoje||0,
+      topBairrosDemanda: d.topBairrosDemanda||[],
+      topTiposDemanda: d.topTiposDemanda||[],
+      bairrosCarteira: (d.bairros||[]).slice(0,10),
+      corretor: user.nome||'corretor',
+    };
+    
+    return groqIA.chamarGroq(mensagem, contextoGroq, hist)
+      .then(function(resGroq) {
+        aprendizado.registrarResposta(mensagem, resGroq, 'groq');
+        return resGroq + '<br><br><span style="font-size:11px;color:#9ca3af">✦ Resposta gerada por IA</span>';
+      })
+      .catch(function(e) {
+        console.error('[groq]', e.message);
+        return 'Hmm, não entendi bem. 🤔 Pode reformular?<br><br>' +
+          chip('Leads','minhas leads') + chip('Imóveis','meus imoveis') +
+          chip('Visitas','visitas hoje') + chip('Plano do dia','o que devo fazer hoje');
+      });
+  }
+  
   return 'Hmm, não entendi bem. 🤔 Pode reformular?<br><br>' +
     chip('Leads','minhas leads') + chip('Imóveis','meus imoveis') +
     chip('Visitas','visitas hoje') + chip('Plano do dia','o que devo fazer hoje') +

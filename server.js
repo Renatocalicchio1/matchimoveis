@@ -191,6 +191,33 @@ app.get('/admin/cerebro', authAdmin, (req, res) => {
   res.render('admin-cerebro', { modulos, totalBase: base.total });
 });
 
+
+app.post('/admin/cerebro/testar', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { pergunta } = req.body;
+    const uid = 'REN-HUH6';
+    const imoveis = (_cacheImoveis||[]).filter(i=>i.userId===uid);
+    const leads = (_cacheLeads||[]).filter(l=>l.userId===uid);
+    const visitas = (_cacheVisitas||[]).filter(v=>v.userId===uid);
+    const d = {
+      ativos: imoveis.filter(i=>i.status!=='inativo').length,
+      inativos: imoveis.filter(i=>i.status==='inativo').length,
+      bairros: [...new Set(imoveis.map(i=>i.bairro).filter(Boolean))],
+      leads: leads.length, comMatch: leads.filter(l=>l.matchesBase&&l.matchesBase.length>0).length,
+      semMatch: leads.filter(l=>!l.matchesBase||!l.matchesBase.length).length,
+      quentes: leads.filter(l=>l.temperatura==='quente').length,
+      visitas: visitas.length, pendentes: visitas.filter(v=>v.status==='solicitada').length,
+      confirmadas: visitas.filter(v=>v.status==='confirmada').length,
+      topBairrosDemanda:[], topTiposDemanda:[], leadsQuentes:[], leadsRecentes:[],
+    };
+    const user = { id: uid, nome: 'Admin Teste' };
+    const resposta = await Promise.resolve(cerebroApp.responder(pergunta, d, user, imoveis, leads, visitas));
+    res.json({ ok: true, resposta: resposta || 'Sem resposta' });
+  } catch(e) {
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
 app.post('/admin/cerebro/salvar', authAdmin, express.json(), (req, res) => {
   try {
     const { tipo, id, dados } = req.body;

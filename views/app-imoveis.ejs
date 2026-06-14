@@ -279,6 +279,10 @@
   <div class="filtro-rodape">
     <span id="nf-count" style="font-size:11px;color:var(--text-ter)"></span>
     <button onclick="limpar()" class="btn btn-outline btn-sm">↺ Limpar filtros</button>
+    <a href="/app/imoveis?qa_incompleto=1" class="btn btn-sm" style="background:#fff7ed;border:1px solid #f97316;color:#c2410c;text-decoration:none;<%= (typeof qaIncompleto !== 'undefined' && qaIncompleto) ? 'display:none' : '' %>">⚠️ Ver incompletos QA</a>
+    <% if (typeof qaIncompleto !== 'undefined' && qaIncompleto) { %>
+    <a href="/app/imoveis" class="btn btn-sm" style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;text-decoration:none;">✅ Ver todos os imóveis</a>
+    <% } %>
   </div>
 </div>
 

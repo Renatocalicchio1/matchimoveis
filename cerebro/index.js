@@ -189,7 +189,16 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     if (resOnb) return finalizar(resOnb);
   } catch(e) {}
 
-      // -- PRIORIDADE 0.20: acoes diretas
+      // -- PRIORIDADE 0.15: multiturno — resolve pronomes e contexto anterior
+  try {
+    const refCtx = multiturno.resolverReferencia(uid, mensagem, leads, imoveis, visitas);
+    if (refCtx && refCtx.resolveu) {
+      const resMulti = multiturno.responderComContexto(uid, mensagem, refCtx, btn, chip);
+      if (resMulti) return finalizar(resMulti);
+    }
+  } catch(e) { console.error('[multiturno]', e.message); }
+
+    // -- PRIORIDADE 0.20: acoes diretas
   try {
     const resAcao = acoesDiretas.responderAcaoDireta(mNorm, mensagem, d, leads, imoveis, visitas, uid, btn, chip);
     if (resAcao) return finalizar(resAcao);
@@ -384,6 +393,7 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
   // Registrar resposta para aprendizado
   function finalizar(resposta) {
     aprendizado.registrarResposta(mensagem, resposta, dominio);
+    try { memoriaConversa.salvar(uid, "user", mensagem, {intencao:dominio}); memoriaConversa.salvar(uid, "assistant", resposta); } catch(e) {}
     // Adicionar próximo passo contextual
     const passo = proximoPasso(dominio, d, leads, imoveis, visitas);
     return resposta + passo;

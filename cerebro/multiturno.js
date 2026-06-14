@@ -4,7 +4,7 @@ var memoriaConversa = require('./memoria-conversa');
 function resolverReferencia(userId, texto, leads, imoveis, visitas) {
   var t = String(texto).toLowerCase();
   var resultado = { lead: null, imovel: null, visita: null, resolveu: false };
-  var pronomes = /\b(ele|ela|esse|essa|mesmo|mesma|o mesmo|a mesma|dele|dela|aquele|aquela|o cara|a menina|o cliente|a cliente|esse lead|essa lead)\b/;
+  var pronomes = /\b(ele|ela|esse|essa|mesmo|mesma|o mesmo|a mesma|dele|dela|aquele|aquela|o cara|a menina|o cliente|a cliente|esse lead|essa lead|dele|dela|para ele|para ela|do cliente|da cliente)\b/;
   if (!pronomes.test(t)) return resultado;
 
   var ctx = memoriaConversa.contextoAtual(userId);

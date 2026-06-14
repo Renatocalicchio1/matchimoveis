@@ -34,7 +34,21 @@ function contextoAtual(userId) {
   for (const m of msgs) {
     const t = String(m.texto || '').toLowerCase();
     if (!ctx.bairro) { const b = t.match(/\b(?:em|no|na|bairro)\s+([a-z][a-z\s]{2,20}?)(?:\s*[,.]|$)/i); if(b) ctx.bairro = b[1].trim(); }
-    if (!ctx.nomeLead) { const n = t.match(/(?:lead|cliente)\s+([a-z]{3,})/i); if(n) ctx.nomeLead = n[1]; }
+    if (!ctx.nomeLead) {
+      // Tenta pegar nome próprio (2+ palavras capitalizadas) de qualquer msg
+      const n1 = t.match(/(?:lead|cliente)\s+([a-z]{3,})/i);
+      if (n1) { ctx.nomeLead = n1[1]; }
+      else {
+        // Busca nome próprio nas respostas anteriores
+        const n2 = t.match(/👤\s*([\w\s]{3,30})/);
+        if (n2) ctx.nomeLead = n2[1].trim().toLowerCase();
+        else {
+          // Busca padrão "João Silva" — duas palavras com inicial maiúscula
+          const n3 = m.texto.match(/([A-ZÁÉÍÓÚÀÂÊÔÃÕ][a-záéíóúàâêôãõ]+(?:\s+[A-ZÁÉÍÓÚÀÂÊÔÃÕ][a-záéíóúàâêôãõ]+)+)/);
+          if (n3) ctx.nomeLead = n3[1].toLowerCase();
+        }
+      }
+    }
     if (!ctx.tipo) { const tp = t.match(/\b(apartamento|apto|casa|cobertura|terreno|sobrado|studio)\b/i); if(tp) ctx.tipo = tp[1]; }
     if (!ctx.quartos) { const q = t.match(/(\d+)\s*(?:quarto|dorm)/i); if(q) ctx.quartos = parseInt(q[1]); }
     if (!ctx.valorMax) { const v = t.match(/(?:ate|r\$)\s*([\d.]+(?:,\d{2})?)/i); if(v){const vv=parseFloat(v[1].replace(/\./g,'').replace(',','.')); if(vv>10000) ctx.valorMax=vv;} }

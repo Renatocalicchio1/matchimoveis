@@ -28,6 +28,7 @@ const memoriaConversa = require('./memoria-conversa');
 const contextEngineering = require('./context-engineering');
 const notasUsuario = require('./notas-usuario');
 const compactador = require('./compactador');
+const tfidf = require('./tfidf');
 const feedbackLoop = require('./feedback-loop');
 const verificador = require('./verificador');
 const decompositor = require('./decompositor');
@@ -340,6 +341,21 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
       '<br><br>' + btn('Ver Leads','/app/leads')
     );
   }
+
+    // -- PRIORIDADE 0.23: TF-IDF alta prioridade — conceitos e custos
+  try {
+    const tfResAlta = tfidf.detectarIntencao(mensagem);
+    if (tfResAlta && tfResAlta.score > 0.15) {
+      const intAlta = tfResAlta.intencao;
+      if (intAlta === 'conceito_coins' || intAlta === 'conceito_match' || intAlta === 'conceito_vitrine' || intAlta === 'conceito_temperatura' || intAlta === 'conceito_score') {
+        const resSisAlta = modSistema.responder(mNorm, d, btn, chip);
+        if (resSisAlta) return finalizar(resSisAlta);
+      }
+      if (intAlta === 'navegar_dashboard') {
+        return finalizar(onboarding.renderOnboarding(d, btn, chip));
+      }
+    }
+  } catch(e) {}
 
     // -- PRIORIDADE 0.22: gírias e expressões do corretor
   const girias = {
@@ -815,6 +831,45 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
   // ── 10. INTENÇÃO DETECTADA ───────────────────────────────────────────────────
   const resIntent = intencao.respostaBaseadaEmIntencao(intencaoObj, mNorm, btn, chip);
   if (resIntent) return finalizar(resIntent);
+
+  // ── 10.5. TF-IDF FALLBACK — detecta intenção e redireciona
+  try {
+    const tfRes = tfidf.detectarIntencao(mensagem);
+    if (tfRes && tfRes.score > 0.1) {
+      const int = tfRes.intencao;
+      const nav = require('./navegador');
+      // Navegação
+      if (int.startsWith('navegar_')) {
+        const pagina = int.replace('navegar_','');
+        const resNav = nav.responder(pagina, btn, chip);
+        if (resNav) return finalizar(resNav + sugestoes(dominio, d));
+      }
+      // Erros — redireciona para suporte
+      if (int.startsWith('erro_')) {
+        const keyword = int.replace('erro_','');
+        const erroMap = {
+          whatsapp: 'whatsapp desconectou',
+          xml: 'xml nao atualizou',
+          match: 'por que nao deu match',
+          vitrine: 'vitrine nao abre',
+          foto: 'foto nao sobe',
+          acesso: 'nao consigo entrar',
+          lead: 'lead nao importou',
+        };
+        const resSup = suporte.responder(erroMap[keyword]||keyword, btn, chip);
+        if (resSup) return finalizar(resSup);
+      }
+      // Dados reais
+      if (int === 'dados_leads') return finalizar('👥 <strong>Suas leads:</strong><br><br>Total: <strong>'+(d.leads||0)+'</strong> · Com match: <strong>'+(d.comMatch||0)+'</strong> · Quentes: <strong>'+(d.quentes||0)+'</strong><br><br>'+btn('Ver Leads','/app/leads'));
+      if (int === 'dados_imoveis') return finalizar('🏠 <strong>Sua carteira:</strong><br><br>Ativos: <strong>'+(d.ativos||0)+'</strong> · Inativos: <strong>'+(d.inativos||0)+'</strong><br><br>'+btn('Ver Imóveis','/app/imoveis'));
+      if (int === 'dados_visitas') return finalizar('📅 <strong>Suas visitas:</strong><br><br>Total: <strong>'+(d.visitas||0)+'</strong> · Hoje: <strong>'+(d.visitasHoje||0)+'</strong> · Pendentes: <strong>'+(d.pendentes||0)+'</strong><br><br>'+btn('Ver Visitas','/app/visitas'));
+      if (int === 'plano_dia') return finalizar(estrategista.analisar(d, leads, imoveis, visitas, btn, chip));
+      if (int === 'navegar_dashboard' || int === 'primeiros_passos') return finalizar(onboarding.renderOnboarding(d, btn, chip));
+      if (int === 'conceito_coins') return finalizar('🪙 <strong>Tabela de custos (Match Coins):</strong><br><br>• Match: 20 coins · Vitrine WA: 30 coins · IA WA: 30 coins · Importar XML: 2/imóvel<br><br>💰 R$20 = 1.000 coins<br><br>'+btn('Ver Coins','/app/coins'));
+      if (int === 'fazer_match') return finalizar('🎯 O match é feito automaticamente quando uma lead chega. Você também pode rodar manualmente em Leads.<br><br>'+btn('Ver Leads','/app/leads'));
+      if (int === 'dados_leads_quentes') return finalizar((d.leadsQuentes&&d.leadsQuentes.length)?'🔥 <strong>Leads quentes:</strong><br><br>'+(d.leadsQuentes||[]).map(function(l){return '• <strong>'+(l.nome||'Lead')+'</strong> — '+(l.faseFunil||'-');}).join('<br>')+'<br><br>'+btn('Ver Leads','/app/leads'):'Nenhuma lead quente ainda.<br><br>'+chip('Fazer match','fazer match agora'));
+    }
+  } catch(e) { console.error('[tfidf]', e.message); }
 
   // ── 11. PERGUNTA DE VOLTA ────────────────────────────────────────────────────
   const pergunta = perguntarDeVolta(mNorm, intencaoObj);

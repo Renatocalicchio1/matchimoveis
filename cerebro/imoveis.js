@@ -56,7 +56,7 @@ function responder(mNorm, d, imoveis, btn, chip) {
 
   return '🏠 <strong>Imoveis:</strong><br>' +
     'Ativos: <strong>' + d.ativos + '</strong> · Inativos: ' + d.inativos + '<br>' +
-    'Bairros: ' + (d.bairros.slice(0, 5).join(', ') || '—') + '<br>' +
+    'Bairros: ' + ((d.bairros||[]).slice(0, 5).join(', ') || '—') + '<br>' +
     'Tipos: ' + (topTipos || '—') + '<br><br>' +
     btn('Ver imoveis', '/app/imoveis') + chip('Importar XML', 'importar xml') + chip('Valor medio', 'valor medio da carteira');
 }

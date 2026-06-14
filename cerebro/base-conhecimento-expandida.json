@@ -1,6 +1,6 @@
 {
   "geradoEm": "2026-06-14T16:07:23.684Z",
-  "total": 933,
+  "total": 934,
   "items": [
     {
       "p": "quantas leads tenho",
@@ -3833,6 +3833,12 @@
     {
       "p": "campo de descricao",
       "r": "editar_imovel"
+    },
+    {
+      "p": "conectar numero no sistema",
+      "r": "conectar_whatsapp",
+      "aprendido": true,
+      "at": "2026-06-14T19:36:37.971Z"
     }
   ]
 }

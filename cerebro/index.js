@@ -30,6 +30,7 @@ const notasUsuario = require('./notas-usuario');
 const compactador = require('./compactador');
 const tfidf = require('./tfidf');
 const buscaConhecimento = require('./busca-conhecimento');
+const embeddings = require('./embeddings');
 const groqIA = require('./groq-ia');
 const feedbackLoop = require('./feedback-loop');
 const verificador = require('./verificador');
@@ -869,6 +870,59 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
   // ── 10. INTENÇÃO DETECTADA ───────────────────────────────────────────────────
   const resIntent = intencao.respostaBaseadaEmIntencao(intencaoObj, mNorm, btn, chip);
   if (resIntent) return finalizar(resIntent);
+
+  // ── 10.3. EMBEDDINGS — busca semântica por similaridade
+  try {
+    const base = buscaConhecimento.getBase();
+    const embRes = embeddings.buscarSimilar(mensagem, base, 0.45);
+    if (embRes && embRes.item) {
+      const intEmb = embRes.item.r;
+      // Redireciona para módulos especializados
+      const redirEmb = {
+        dados_leads: 'quantas leads tenho',
+        dados_imoveis: 'quantos imoveis tenho',
+        dados_visitas: 'quantas visitas tenho',
+        dados_bairros: 'qual bairro tem mais demanda',
+        dados_quentes: 'leads quentes',
+        conectar_whatsapp: 'como conectar whatsapp',
+        importar_leads: 'como importo leads',
+        importar_xml: 'como importo imoveis via xml',
+        erro_match: 'por que nao deu match',
+        erro_whatsapp: 'whatsapp desconectou',
+        erro_xml: 'xml nao atualizou',
+        erro_vitrine: 'vitrine nao abre',
+        erro_foto: 'foto nao sobe',
+        conceito_vitrine: 'o que e vitrine',
+        conceito_match: 'o que e match',
+        conceito_coins: 'quanto custa match',
+        gerar_xml: 'como publico no vivareal',
+        navegar_leads: 'como acesso leads',
+        navegar_imoveis: 'como acesso meus imoveis',
+        navegar_visitas: 'como acesso visitas',
+        navegar_whatsapp: 'como acesso whatsapp',
+        navegar_portais: 'como acesso portais',
+        plano_dia: 'o que devo fazer hoje',
+        dados_sem_foto: 'imoveis sem foto',
+        dados_sem_prop: 'imoveis sem proprietario',
+      };
+      
+      if (redirEmb[intEmb]) {
+        // Registra para aprendizado
+        buscaConhecimento.aprender(mensagem, intEmb);
+        // Tenta responder via módulos
+        const mRedir = nlp.normalizar(redirEmb[intEmb]);
+        const resSup3 = suporte.responder(mRedir, btn, chip);
+        if (resSup3) return finalizar(resSup3);
+        const resSis3 = modSistema.responder(mRedir, d, btn, chip);
+        if (resSis3) return finalizar(resSis3);
+        const resNav3 = navegador.responder(mRedir, btn, chip);
+        if (resNav3) return finalizar(resNav3 + sugestoes(dominio, d));
+      } else if (intEmb && !intEmb.startsWith('navegar') && !intEmb.startsWith('dados')) {
+        // Resposta direta da base
+        buscaConhecimento.aprender(mensagem, intEmb);
+      }
+    }
+  } catch(e) { console.error('[embeddings]', e.message); }
 
   // ── 10.5. TF-IDF FALLBACK — detecta intenção e redireciona
   try {

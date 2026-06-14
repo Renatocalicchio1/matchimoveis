@@ -269,3 +269,32 @@ console.log('   Rotas:   ' + mapa.totalRotas);
 console.log('   Intents: ' + mapa.totalIntents);
 console.log('   Páginas: ' + Object.keys(paginas).length);
 console.log('   Sinônimos: ' + Object.keys(sinonimos).length + ' grupos');
+
+// Gerar contexto rico para o Groq
+const contextoGroq = {
+  geradoEm: new Date().toISOString(),
+  paginas: rotas.map(r => ({ rota: r.rota, label: r.label, descricao: r.descricao })),
+  fluxos: [
+    { titulo: 'Importar imóveis via XML', passos: ['Vá em Cadastrar → cole URL XML → Testar → Importar'] },
+    { titulo: 'Importar leads', passos: ['Leads → Importar → baixar modelo → preencher → upload'] },
+    { titulo: 'Publicar nos portais', passos: ['Imóveis → checkbox → barra flutuante → portal → copiar URL em Portais'] },
+    { titulo: 'Conectar WhatsApp', passos: ['Perfil → Conectar WhatsApp → QR code → escanear'] },
+    { titulo: 'Enviar vitrine', passos: ['Lead com match → Enviar Vitrine via WhatsApp'] },
+    { titulo: 'Agendar visita', passos: ['Lead recebe vitrine → solicita visita → confirmar em Visitas'] },
+    { titulo: 'QuintoAndar', passos: ['Perfil → toggle QA → verificar elegíveis → XML gerado automaticamente'] },
+  ],
+  conceitos: {
+    match: 'Cruzamento automático lead × imóvel por bairro + tipo + quartos + valor (-30%/+20%)',
+    vitrine: 'Página exclusiva enviada ao lead com imóveis em match',
+    coins: 'Créditos: match=20, vitrine WA=30, IA WA=30, XML=2/imóvel. R$20=1.000 coins',
+    temperatura: 'frio → morno → quente → super quente (conforme engajamento)',
+    caso1: 'Imóvel com proprietário WA → notifica automaticamente',
+    caso2: 'Sem proprietário → corretor confirma direto',
+  }
+};
+
+const contextoGroqPath = path.join(BASE, 'cerebro', 'contexto-groq.json');
+fs.writeFileSync(contextoGroqPath, JSON.stringify(contextoGroq, null, 2), 'utf8');
+console.log('✅ contexto-groq.json gerado!');
+console.log('   Páginas: ' + contextoGroq.paginas.length);
+console.log('   Fluxos: ' + contextoGroq.fluxos.length);

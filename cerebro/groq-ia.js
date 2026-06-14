@@ -6,18 +6,48 @@ const path = require('path');
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const MODEL = 'llama-3.1-8b-instant';
 
+// Carregar contexto-groq.json uma vez
+let _contextoGroq = null;
+function getContextoGroq() {
+  if (_contextoGroq) return _contextoGroq;
+  try {
+    const raw = JSON.parse(fs.readFileSync(path.join(__dirname,'contexto-groq.json'),'utf8'));
+    const paginas = raw.paginas.map(function(p){ return p.label + ' → ' + p.rota + (p.descricao?' ('+p.descricao+')':''); }).join('\n');
+    const fluxos = raw.fluxos.map(function(f){ return '• ' + f.titulo + ': ' + f.passos.join(' → '); }).join('\n');
+    const conceitos = Object.entries(raw.conceitos || {}).map(function(e){ return e[0]+': '+e[1]; }).join('\n');
+    _contextoGroq = 'PÁGINAS:\n'+paginas+'\n\nFLUXOS:\n'+fluxos+'\n\nCONCEITOS:\n'+conceitos;
+  } catch(e) { _contextoGroq = ''; }
+  return _contextoGroq;
+}
+
 // Carregar mapa do sistema uma vez
 let _mapaCompleto = null;
 function getMapaCompleto() {
   if (_mapaCompleto) return _mapaCompleto;
   try {
     const raw = JSON.parse(fs.readFileSync(path.join(__dirname,'mapa-completo.json'),'utf8'));
-    // Resumir rotas relevantes
-    const rotasApp = (raw.server?.rotas || [])
-      .filter(r => r.rota && r.rota.startsWith('/app'))
-      .map(r => r.metodo + ' ' + r.rota)
+    
+    // Rotas principais do app
+    const rotasApp = (raw.server && raw.server.rotas || [])
+      .filter(function(r){ return r.rota && r.rota.startsWith('/app'); })
+      .map(function(r){ return r.metodo + ' ' + r.rota; })
       .join('\n');
-    _mapaCompleto = rotasApp;
+    
+    // Views com campos e links
+    const views = raw.views || {};
+    const viewsStr = Object.entries(views)
+      .filter(function(e){ return e[0].startsWith('app-'); })
+      .slice(0, 20)
+      .map(function(e) {
+        const nome = e[0];
+        const v = e[1];
+        const campos = (v.inputs || []).slice(0,5).join(', ');
+        const links = (v.links || []).slice(0,5).join(', ');
+        return nome + (campos ? ' [campos: '+campos+']' : '') + (links ? ' [links: '+links+']' : '');
+      })
+      .join('\n');
+    
+    _mapaCompleto = 'ROTAS:\n' + rotasApp + '\n\nVIEWS:\n' + viewsStr;
   } catch(e) { _mapaCompleto = ''; }
   return _mapaCompleto;
 }
@@ -77,8 +107,9 @@ function chamarGroq(mensagem, contexto, historico) {
         : '',
     ].filter(Boolean).join('\n');
 
+    const ctxGroq = getContextoGroq();
     const messages = [
-      { role: 'system', content: SYSTEM_PROMPT + '\n\n' + ctxStr }
+      { role: 'system', content: SYSTEM_PROMPT + '\n\n' + ctxStr + (ctxGroq ? '\n\n' + ctxGroq.slice(0,1500) : '') }
     ];
 
     // Histórico recente
@@ -94,7 +125,7 @@ function chamarGroq(mensagem, contexto, historico) {
     const body = JSON.stringify({
       model: MODEL,
       messages: messages,
-      max_tokens: 500,
+      max_tokens: 350,
       temperature: 0.3,
     });
 

@@ -183,7 +183,13 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     } catch(e) { console.error('cadastrar lead err:', e.message); }
   }
 
-  const intencaoObj = intencao.detectar(mNorm);
+  // -- PRIORIDADE 0.5: navegação explícita — antes de qualquer módulo
+  if (/como acesso|como abro|onde fica|onde acho|como entro|como chego|o que tem na pagina|o que tem no|tela de|pagina de|como uso a pagina|me leva para|ir para|abrir pagina/.test(mNorm)) {
+    const resNavP05 = navegador.responder(mNorm, btn, chip);
+    if (resNavP05) return finalizar(resNavP05 + sugestoes(dominio, d));
+  }
+
+    const intencaoObj = intencao.detectar(mNorm);
 
   // Registrar resposta para aprendizado
   function finalizar(resposta) {
@@ -538,6 +544,12 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     );
   }
 
+
+    // -- PRIORIDADE NAVEGAÇÃO: perguntas de acesso/localização vão para navegador
+  if (/como acesso|onde fica|onde acho|o que tem na pagina|tela de|pagina de|filtro.*de|como entro/.test(mNorm)) {
+    const resNavAntes = navegador.responder(mNorm, btn, chip);
+    if (resNavAntes) return finalizar(resNavAntes + sugestoes(dominio, d));
+  }
 
   // ── 2. INTERPRETADOR DE PORTUGUÊS ────────────────────────────────────────────
   // IMOVEIS tem prioridade sobre leads

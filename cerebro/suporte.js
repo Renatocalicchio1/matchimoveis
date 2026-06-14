@@ -1,93 +1,95 @@
 'use strict';
 
 const FAQ = [
-  // XML e portais
-  { chave:/xml nao atualizou|xml erro|nao atualizou|url erro|403|404/, resposta:`🔧 <strong>XML não atualizou?</strong><br><br>Causas mais comuns:<br>• URL do feed incorreta no portal — copie novamente em <a href="/app/portais" style="color:#ff385c;font-weight:700">Portais →</a><br>• Imóveis sem foto ou descrição (portais rejeitam)<br>• XML gerado há muito tempo — gere novamente<br><br>Solução: gere um novo XML e cadastre a URL atualizada no portal.` },
-  { chave:/portal rejeitou|imóvel nao apareceu|nao publicou|nao saiu no portal/, resposta:`🔧 <strong>Portal rejeitou imóvel?</strong><br><br>Verifique:<br>• Mínimo 3 fotos obrigatórias na maioria dos portais<br>• Descrição com pelo menos 100 caracteres<br>• Preço preenchido<br>• Endereço completo (bairro + cidade)<br>• Tipo do imóvel preenchido<br><br>Corrija o imóvel e gere o XML novamente.` },
-  { chave:/como integrar|como conectar|como publicar portal|como subir xml|como gerar xml/, resposta:`🔗 <strong>Como publicar nos portais:</strong><br><br><div style="display:flex;gap:8px;margin:4px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span><span>Acesse <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Imóveis →</a> e selecione os imóveis</span></div><div style="display:flex;gap:8px;margin:4px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span><span>Clique no portal desejado (VivaReal, ZAP, OLX...)</span></div><div style="display:flex;gap:8px;margin:4px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:20px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</span><span>Copie o link gerado em <a href="/app/portais" style="color:#ff385c;font-weight:700">Portais →</a></span></div><div style="display:flex;gap:8px;margin:4px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</span><span>Cole esse link nas configurações do portal</span></div>` },
-  // Leads
-  { chave:/por que lead nao apareceu|lead nao importou|extracao falhou|campos planilha|quais campos/, resposta:`📋 <strong>Campos obrigatórios na planilha de leads:</strong><br><br>• <strong>Nome</strong> do cliente<br>• <strong>Telefone</strong> ou e-mail<br>• <strong>Bairro</strong> de interesse<br>• <strong>Tipo</strong> de imóvel (apartamento, casa...)<br>• <strong>Quartos</strong><br>• <strong>Valor máximo</strong><br><br>Sem bairro + tipo + quartos o match não funciona.<br>Formatos aceitos: CSV e Excel (.xlsx)` },
-  { chave:/como importar lead|importar planilha|subir planilha/, resposta:`📋 <strong>Importar leads:</strong><br><br>Acesse <a href="/app-importar-leads" style="color:#ff385c;font-weight:700">Importar Leads →</a> e envie o CSV ou Excel exportado do portal.<br><br>Portais suportados: ImovelWeb, ZAP, VivaReal, OLX, Chaves, 123i.` },
-  { chave:/remover duplicado|lead duplicado|duplicatas/, resposta:`🔍 Leads duplicadas são identificadas pelo telefone ou e-mail. Acesse a lista de leads e exclua manualmente as duplicadas por enquanto — em breve teremos detecção automática.<br><br><a href="/app/leads" style="color:#ff385c;font-weight:700">Ver leads →</a>` },
-  // Match
-  { chave:/por que nao deu match|nao encontrou imovel|match falhou|match nao funcionou/, resposta:`🎯 <strong>Por que não deu match?</strong><br><br>O match exige:<br>• <strong>Bairro</strong> igual entre lead e imóvel<br>• <strong>Tipo</strong> igual (apartamento, casa...)<br>• Imóvel com quartos <strong>≥</strong> quartos pedidos pela lead<br><br>Causas comuns:<br>• Imóvel no bairro correto mas <strong>inativo</strong><br>• Lead com bairro em formato diferente (ex: "Itajaí" vs "itajai")<br>• Nenhum imóvel no bairro buscado<br><br>Verifique a demanda por bairro:` },
-  { chave:/como melhorar match|aumentar match|mais match|score baixo/, resposta:`📈 <strong>Como melhorar o match:</strong><br><br>• Importe mais imóveis nos bairros mais buscados<br>• Verifique se os tipos batem (leads querem apto, você tem casas?)<br>• Reative imóveis inativos que podem ter match<br>• Revise o campo de bairro nos imóveis (padronize o nome)` },
-  { chave:/como rodar rematch|rematch|refazer match|atualizar match/, resposta:`🔄 Para refazer o match, acesse <a href="/app/leads" style="color:#ff385c;font-weight:700">Leads →</a> e clique em <strong>Fazer Match</strong>. O sistema reprocessa todos os cruzamentos.` },
-  // Imóveis
-  { chave:/como cadastrar imovel|como adicionar imovel|novo imovel/, resposta:`🏠 <strong>Cadastrar imóvel:</strong><br><br>Acesse <a href="/app/imovel/cadastrar" style="color:#ff385c;font-weight:700">Cadastrar Imóvel →</a> e preencha os campos obrigatórios: tipo, bairro, quartos, valor e pelo menos 1 foto.` },
-  { chave:/como inativar|como desativar|como ocultar imovel/, resposta:`🔴 Para inativar um imóvel, acesse <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Imóveis →</a>, abra o imóvel e clique em <strong>Inativar</strong>. Ele sai do match e dos portais automaticamente.` },
-  { chave:/como adicionar foto|como subir foto|fotos do imovel/, resposta:`📸 Para adicionar fotos, acesse o imóvel em <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Imóveis →</a> e use o botão <strong>Adicionar Fotos</strong>. Formatos aceitos: JPG, PNG. Mínimo recomendado: 5 fotos.` },
-  // Visitas
-  { chave:/como confirmar visita|como aceitar visita/, resposta:`✅ Acesse <a href="/app/visitas" style="color:#ff385c;font-weight:700">Visitas →</a> e clique em <strong>Confirmar</strong> na visita desejada. O proprietário e o lead serão notificados automaticamente.` },
-  { chave:/como agendar visita|como marcar visita/, resposta:`📅 As visitas são solicitadas pelos leads na vitrine. Você confirma ou recusa em <a href="/app/visitas" style="color:#ff385c;font-weight:700">Visitas →</a>. Em breve será possível agendar manualmente pelo chat.` },
-  // Conta
-  { chave:/como trocar senha|alterar senha|mudar senha/, resposta:`🔒 Acesse <a href="/app/perfil" style="color:#ff385c;font-weight:700">Perfil →</a> e use a opção <strong>Alterar Senha</strong>.` },
-  { chave:/como acessar celular|app celular|versao mobile/, resposta:`📱 O MatchImóveis funciona pelo navegador do celular. Acesse <strong>matchimoveis.onrender.com</strong> pelo Chrome ou Safari e adicione à tela inicial para experiência de app.` },
-  // WhatsApp
-  { chave:/como conectar whatsapp|integrar whatsapp|whatsapp nao funciona/, resposta:`📱 <strong>WhatsApp:</strong><br><br>A integração WhatsApp via Twilio está em desenvolvimento. Em breve você poderá responder clientes direto pelo chat do MatchImóveis.<br><br>Por enquanto, use o número de telefone da lead para contato direto.` },
+
+  // ── ERROS COMUNS ─────────────────────────────────────────────────────────────
+  { chave:/whatsapp desconectou|whatsapp caiu|perdeu conexao whatsapp|reconectar whatsapp|qr code expirou/,
+    resposta:'⚠️ <strong>WhatsApp desconectado:</strong><br><br>1. Vá em Perfil → Conectar WhatsApp<br>2. Gere um novo QR code<br>3. Abra o WhatsApp no celular → Dispositivos conectados → Conectar dispositivo<br>4. Escaneie o QR code<br><br>💡 Mantenha o celular com internet para evitar desconexões.<br><br><a href="/app/whatsapp/qrcode" style="color:#ff385c;font-weight:700">Reconectar WhatsApp →</a>' },
+
+  { chave:/xml nao atualizou|xml nao foi|xml nao apareceu|xml erro|nao atualizou|403|404/,
+    resposta:'🔧 <strong>XML não atualizou no portal?</strong><br><br>Causas mais comuns:<br>• URL do feed incorreta no portal — copie novamente em <a href="/app/portais" style="color:#ff385c;font-weight:700">Portais →</a><br>• Imóveis sem foto ou sem preço (portais rejeitam)<br>• XML antigo — gere novamente em Meus Imóveis<br><br>Os portais atualizam o XML a cada 24-48h automaticamente.' },
+
+  { chave:/portal rejeitou|imovel nao apareceu no portal|nao publicou|nao saiu no portal/,
+    resposta:'🔧 <strong>Portal rejeitou imóvel?</strong><br><br>Verifique:<br>• Mínimo 3 fotos (maioria dos portais exige)<br>• Preço preenchido<br>• Endereço completo: bairro + cidade + CEP<br>• Tipo do imóvel preenchido<br><br>Corrija o imóvel e gere o XML novamente.<br><br><a href="/app/imoveis" style="color:#ff385c;font-weight:700">Ver Imóveis →</a>' },
+
+  { chave:/nao consigo entrar|nao consigo logar|esqueci senha|senha errada|nao acessa/,
+    resposta:'🔒 <strong>Problema de acesso:</strong><br><br>• Senha errada: use <strong>Esqueci minha senha</strong> na tela de login — você recebe a nova senha via WhatsApp<br>• Cache: tente limpar o cache do navegador (Ctrl+Shift+R)<br>• Se persistir: entre em contato com o suporte via WhatsApp' },
+
+  { chave:/foto nao sobe|foto nao carrega|erro ao subir foto|foto nao aparece/,
+    resposta:'📸 <strong>Problema com foto:</strong><br><br>• Formatos aceitos: JPG e PNG<br>• Tamanho máximo: 5MB por foto<br>• Tente outro navegador (Chrome recomendado)<br>• Verifique sua conexão com a internet<br><br><a href="/app/imoveis" style="color:#ff385c;font-weight:700">Ver Imóveis →</a>' },
+
+  { chave:/vitrine nao abre|vitrine nao carrega|link da vitrine nao funciona/,
+    resposta:'🔧 <strong>Vitrine não abre?</strong><br><br>• A lead precisa ter ao menos 1 imóvel em match<br>• Imóveis inativos não aparecem na vitrine<br>• Verifique se o imóvel em match está ativo<br><br><a href="/app/leads" style="color:#ff385c;font-weight:700">Ver Leads →</a>' },
+
+  { chave:/proprietario nao recebe|dono nao recebe|proprietario nao foi notificado/,
+    resposta:'📱 <strong>Proprietário não recebeu notificação?</strong><br><br>• Confirme se o celular do proprietário está preenchido no imóvel (com DDD)<br>• O número precisa ter WhatsApp ativo<br>• A notificação é enviada quando a visita é confirmada<br><br><a href="/app/imoveis" style="color:#ff385c;font-weight:700">Verificar imóvel →</a>' },
+
+  { chave:/lead nao importou|leads nao apareceram|importacao falhou|erro ao importar leads/,
+    resposta:'📋 <strong>Leads não importaram?</strong><br><br>• Verifique se a planilha tem as colunas: nome, celular, bairro, tipo, quartos, valor<br>• Evite linhas em branco no início do arquivo<br>• Formatos aceitos: Excel (.xlsx) e CSV<br>• Sem bairro + tipo + quartos o match não funciona<br><br><a href="/app/importar-leads" style="color:#ff385c;font-weight:700">Importar Leads →</a>' },
+
+  { chave:/coins nao aparece|saldo errado|coins nao atualizou|nao recebi coins/,
+    resposta:'🪙 <strong>Problema com Coins?</strong><br><br>• O saldo atualiza após cada ação processada<br>• Recarregue a página para ver o saldo atual<br>• Veja o histórico completo em Coins<br><br><a href="/app/coins" style="color:#ff385c;font-weight:700">Ver Coins →</a>' },
+
+  { chave:/mapa nao carrega|pins nao aparecem|imovel nao aparece no mapa/,
+    resposta:'🗺️ <strong>Mapa sem pins?</strong><br><br>• Imóveis precisam ter CEP preenchido para aparecer no mapa<br>• Se sem CEP: o sistema usa fallback por bairro/cidade<br>• Aguarde alguns segundos para o mapa carregar<br><br><a href="/app/mapa" style="color:#ff385c;font-weight:700">Ver Mapa →</a>' },
+
+  { chave:/imovel duplicado|duplicata imovel|mesmo imovel duas vezes/,
+    resposta:'🔍 <strong>Imóvel duplicado?</strong><br><br>• Acontece quando o XML é importado mais de uma vez com o mesmo ID externo<br>• Inative ou exclua o duplicado em Meus Imóveis<br>• O sistema usa o ID externo para evitar duplicatas na próxima importação<br><br><a href="/app/imoveis" style="color:#ff385c;font-weight:700">Ver Imóveis →</a>' },
+
+  { chave:/lead duplicada|cliente duplicado|mesmo cliente duas vezes/,
+    resposta:'🔍 <strong>Lead duplicada?</strong><br><br>• O sistema identifica duplicatas pelo telefone/celular<br>• Se o mesmo número entrar por canais diferentes pode gerar duas leads<br>• Exclua manualmente a duplicata em Leads<br><br><a href="/app/leads" style="color:#ff385c;font-weight:700">Ver Leads →</a>' },
+
+  // ── COMO FAZER ────────────────────────────────────────────────────────────────
+  { chave:/como integrar|como conectar|como publicar portal|como subir xml|como gerar xml/,
+    resposta:'🔗 <strong>Publicar imóveis nos portais:</strong><br><br>1. Vá em Meus Imóveis → selecione os imóveis (checkbox)<br>2. Na barra flutuante escolha os portais<br>3. Clique em Publicar<br>4. Vá em Portais → copie o link XML<br>5. Cole nas configurações do portal parceiro<br><br><a href="/app/imoveis" style="color:#ff385c;font-weight:700">Ir para Imóveis →</a>' },
+
+  { chave:/como importar lead|importar planilha|subir planilha|como importo leads/,
+    resposta:'📋 <strong>Importar leads:</strong><br><br>1. Vá em Leads → Importar Leads<br>2. Baixe o modelo de planilha<br>3. Preencha com os leads dos portais<br>4. Faça upload<br><br>Portais suportados: ImovelWeb, ZAP, VivaReal, OLX, Chaves, 123i<br><br><a href="/app/importar-leads" style="color:#ff385c;font-weight:700">Importar Leads →</a>' },
+
+  { chave:/por que nao deu match|nao encontrou imovel|match falhou|match nao funcionou|sem match/,
+    resposta:'🎯 <strong>Por que não deu match?</strong><br><br>O match exige:<br>• Bairro igual entre lead e imóvel<br>• Tipo igual (apartamento, casa...)<br>• Valor da lead dentro da faixa do imóvel (-30%/+20%)<br><br>Causas comuns:<br>• Imóvel no bairro correto mas <strong>inativo</strong><br>• Lead sem bairro preenchido<br>• Nenhum imóvel no bairro buscado<br>• Valor do imóvel fora da faixa<br><br><a href="/app/leads" style="color:#ff385c;font-weight:700">Ver Leads →</a>' },
+
+  { chave:/como confirmar visita|como aceitar visita|confirmar agendamento/,
+    resposta:'✅ <strong>Confirmar visita:</strong><br><br>1. Vá em Visitas<br>2. Encontre a visita na coluna "Solicitada" ou "Aguard. Cliente"<br>3. Clique em <strong>Confirmar</strong><br>4. O lead e o proprietário são notificados automaticamente<br><br><a href="/app/visitas" style="color:#ff385c;font-weight:700">Ver Visitas →</a>' },
+
+  { chave:/como remarcar visita|remarcar agendamento|mudar data visita/,
+    resposta:'📅 <strong>Remarcar visita:</strong><br><br>1. Vá em Visitas<br>2. No card da visita clique em <strong>Remarcar</strong><br>3. Escolha nova data e horário<br>4. O lead é notificado automaticamente<br><br><a href="/app/visitas" style="color:#ff385c;font-weight:700">Ver Visitas →</a>' },
+
+  { chave:/como avisar proprietario|notificar proprietario|avisar dono/,
+    resposta:'📱 <strong>Avisar proprietário:</strong><br><br>Em Visitas, clique em <strong>Notificar Proprietário</strong>. O sistema envia WhatsApp automático com data, horário e nome do cliente.<br><br><a href="/app/visitas" style="color:#ff385c;font-weight:700">Ver Visitas →</a>' },
+
+  { chave:/quais campos planilha|campos obrigatorios|o que precisa na planilha|campos da planilha/,
+    resposta:'📋 <strong>Campos da planilha de leads:</strong><br><br><strong>Obrigatórios para match:</strong><br>• Bairro · Tipo · Quartos · Valor máximo<br><br><strong>Dados do cliente:</strong><br>• Nome · Celular · E-mail<br><br><strong>Dados do anúncio:</strong><br>• ID do anúncio · URL do anúncio · Portal<br><br>Sem bairro + tipo + quartos o match não funciona.' },
+
+  { chave:/como bloquear lead|bloquear cliente|nao quero mais mensagem/,
+    resposta:'🚫 <strong>Bloquear lead:</strong><br><br>1. Abra a lead em Leads<br>2. Clique em <strong>Bloquear</strong><br>3. O número vai para a lista de bloqueados<br>4. Não receberá mais mensagens automáticas<br><br><a href="/app/leads" style="color:#ff385c;font-weight:700">Ver Leads →</a>' },
+
+  { chave:/como melhorar match|aumentar match|mais match|match baixo/,
+    resposta:'📈 <strong>Como melhorar o match:</strong><br><br>• Importe mais imóveis nos bairros mais buscados<br>• Verifique se os tipos batem (leads querem apto, você tem casas?)<br>• Reative imóveis inativos que podem ter match<br>• Padronize o nome dos bairros nos imóveis<br>• Use Demanda por bairro para identificar gaps<br><br><a href="/app/leads" style="color:#ff385c;font-weight:700">Ver Leads →</a>' },
+
+  { chave:/como acessa celular|app celular|versao mobile|pelo celular/,
+    resposta:'📱 O MatchImóveis funciona pelo navegador do celular. Acesse <strong>matchimoveis.ia.br</strong> pelo Chrome ou Safari e adicione à tela inicial para experiência de app.' },
+
+  { chave:/quem nao respondeu|sem resposta|nao me respondeu|leads frias/,
+    resposta:'📋 Leads sem resposta ficam com temperatura <strong>fria</strong> no kanban. Filtre por temperatura em Leads para ver quem não engajou.<br><br><a href="/app/leads" style="color:#ff385c;font-weight:700">Ver Leads →</a>' },
 ];
 
 function responder(mNorm, btn, chip) {
-  // Verificar se é dúvida técnica
-  const isDuvida = (
-    /extracao falhou|campos planilha|como cadastro foto|follow up|link do cliente|vitrine do cliente/.test(mNorm) ||
-    /nao funciona|nao atualizou|nao apareceu|nao saiu|nao consigo/.test(mNorm) ||
-    /como cadastrar imovel|como adicionar foto|como subir foto/.test(mNorm) ||
-    /como inativar|como trocar senha|como importar lead/.test(mNorm) ||
-    /como conectar whatsapp|como acessar celular/.test(mNorm) ||
-    /como confirmar visita|como publicar portal|como gerar xml/.test(mNorm) ||
-    /xml nao|portal rejeit/.test(mNorm)
-  ) && !/como funciona|como e o/.test(mNorm);
+  for (const item of FAQ) {
+    if (item.chave.test(mNorm)) return item.resposta;
+  }
+
+  const isDuvida =
+    /nao funciona|nao atualizou|nao apareceu|nao saiu|nao consigo|nao carrega|erro|problema|falhou|nao abre|nao importou|nao recebe/.test(mNorm) ||
+    /como cadastrar imovel|como adicionar foto|como subir foto|como inativar|como trocar senha/.test(mNorm) ||
+    /como importar lead|como confirmar visita|como remarcar|como bloquear|como publicar portal/.test(mNorm);
+
   if (!isDuvida) return null;
 
-  // Buscar na FAQ
-  for (const item of FAQ) {
-    if (item.chave.test(mNorm)) {
-      return item.resposta + (item.chave.source.includes('match')
-        ? `<br><br>${chip('📍 Demanda por bairro','demanda por bairro')}${btn('Ver imóveis','/app/imoveis')}`
-        : '');
-    }
-  }
-
-  // Dúvida técnica genérica
-  return `🔧 <strong>Suporte técnico:</strong><br><br>Pode me detalhar mais o problema? Por exemplo:<br>• Qual funcionalidade não está funcionando?<br>• O que aparece na tela?<br>• Imóvel, lead ou visita específica?<br><br>${chip('❓ XML não atualizou','meu xml nao atualizou')}${chip('❓ Lead sem match','por que nao deu match')}${chip('❓ Portal rejeitou','portal rejeitou imovel')}`;
+  return '🔧 <strong>Pode me detalhar mais o problema?</strong><br><br>Por exemplo:<br>• Qual funcionalidade não está funcionando?<br>• O que aparece na tela?<br>• É sobre imóvel, lead ou visita específica?<br><br>' +
+    chip('XML não atualizou','meu xml nao atualizou') + ' ' +
+    chip('Lead sem match','por que nao deu match') + ' ' +
+    chip('WhatsApp caiu','whatsapp desconectou');
 }
 
-FAQ.push({chave:/quais campos planilha|campos obrigatorios|o que precisa na planilha/, resposta:'📋 <strong>Campos obrigatórios na planilha:</strong><br>• Nome · Telefone ou e-mail · Bairro · Tipo · Quartos · Valor máximo<br><br>Sem bairro + tipo + quartos o match não funciona.'});
-FAQ.push({chave:/link do cliente|vitrine do cliente|link da vitrine|enviar link/, resposta:'✨ A <strong>vitrine</strong> é a página enviada ao lead com imóveis em match. Acesse <a href="/app/leads" style="color:#ff385c;font-weight:700">Leads →</a> e clique em <strong>Enviar Vitrine</strong>.'});
-FAQ.push({chave:/follow.?up|lembrar cliente|mandar lembrete/, resposta:'📱 Follow-up ainda é manual. Em breve teremos automação direto pelo MatchImóveis.<br><br>Dica: filtre leads sem visita há 7+ dias e entre em contato.'});
-FAQ.push({chave:/como comeco|por onde comecar|primeiro passo|nao sei comecar/, resposta:'🚀 <strong>Por onde começar:</strong><br>1. Importe XML dos imóveis<br>2. Importe planilha de leads<br>3. Faça o match<br>4. Envie vitrine<br>5. Aguarde visitas'});
-FAQ.push({chave:/campos planilha precisa|campos da planilha|quais campos|campos obrigatorios/, resposta:'📋 <strong>Campos obrigatórios na planilha:</strong><br><br>• Nome · Celular/Telefone · E-mail<br>• ID do anúncio · URL do anúncio<br>• Estado · Cidade · Bairro<br>• Quartos · Suítes · Banheiros · Vagas · Área · Valor<br><br><strong>Mais importantes:</strong> ID do anúncio, nome, celular e URL do portal.' });
-FAQ.push({chave:/xml nao saiu|xml nao foi|xml nao apareceu|subir xml|enviar xml para portal/, resposta:'🔧 <strong>XML não saiu no portal?</strong><br><br>1. Acesse <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Imóveis →</a><br>2. Selecione os imóveis<br>3. Clique no portal desejado para gerar o XML<br>4. Copie o link em <a href="/app/portais" style="color:#ff385c;font-weight:700">Portais →</a><br>5. Cole nas configurações do portal<br><br>Se já tem o link mas não atualizou, aguarde até 24h ou regere o XML.' });
-FAQ.push({chave:/enviar vitrine para cliente|mandar vitrine para cliente|como envio vitrine|como mando vitrine/, resposta:'📱 <strong>Enviar vitrine para o cliente:</strong><br><br>1. Acesse <a href="/app/leads" style="color:#ff385c;font-weight:700">Leads →</a><br>2. Encontre a lead com match<br>3. Clique em <strong>Enviar Vitrine</strong><br>4. O WhatsApp abre com a mensagem pronta:<br><em>"Olá! Separamos algumas oportunidades. Veja: [link]"</em>' });
-FAQ.push({
-  chave:/como portal acessa imoveis|como portal le imoveis|como integrar portal|basta ler xml|xml e suficiente|xml da conta|portal le xml/,
-  resposta:'📡 <strong>Como o portal acessa seus imóveis:</strong><br><br>O portal só precisa ler o link do XML da sua conta.<br><br>O XML contém <strong>todos os imóveis selecionados</strong> — é a fonte de verdade.<br><br>Fluxo:<br>1. Gere o XML em <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Meus Imóveis →</a><br>2. Copie o link em <a href="/app/portais" style="color:#ff385c;font-weight:700">Portais →</a><br>3. Cole nas configurações do portal<br>4. O portal lê e publica automaticamente todos os imóveis<br><br>Ao atualizar e gerar novo XML, o portal se atualiza.'
-});
-FAQ.push({chave:/enviar vitrine para cliente|mandar vitrine para cliente|como envio vitrine/, resposta:'📱 Acesse <a href="/app/leads" style="color:#ff385c;font-weight:700">Leads →</a>, encontre a lead com match e clique em <strong>Enviar Vitrine</strong>. O WhatsApp abre com o link pronto.'});
-FAQ.push({chave:/quem nao respondeu|sem resposta|nao me respondeu/, resposta:'📋 Leads sem resposta ficam com status <strong>pendente</strong> na página de leads. Filtre por status para ver quem não respondeu.'});
-FAQ.push({chave:/avisar proprietario da visita|notificar dono|avisar dono imovel/, resposta:'📱 Em <a href="/app/visitas" style="color:#ff385c;font-weight:700">Visitas →</a> clique em <strong>Notificar Proprietário</strong>. Abre o WhatsApp com mensagem automática para confirmação.'});
 module.exports = { responder, FAQ };
-
-// ── FAQ TÉCNICO EXTRA ─────────────────────────────────────────────────────────
-const FAQ_EXTRA = {
-  'portal nao atualiza': 'O portal atualiza o XML automaticamente a cada 24-48h. Se não atualizou, verifique se o link do feed está correto nas configurações do portal.',
-  'xml invalido': 'XML inválido geralmente ocorre por imóveis sem preço, sem foto ou sem tipo preenchido. Corrija os campos obrigatórios e gere novamente.',
-  'lead nao importou': 'Verifique se o CSV tem as colunas obrigatórias: nome, celular, email, url, bairro. Evite linhas em branco no início do arquivo.',
-  'match nao funcionou': 'Para dar match é preciso: bairro igual, tipo igual e quartos compatíveis. Verifique se seus imóveis têm esses campos preenchidos.',
-  'vitrine nao abre': 'Verifique se a lead tem match com pelo menos 1 imóvel ativo. Imóveis inativos não aparecem na vitrine.',
-  'proprietario nao recebe': 'Confirme se o telefone do proprietário está no formato correto (com DDD). O link de confirmação vai por WhatsApp.',
-  'foto nao sobe': 'Formatos aceitos: JPG e PNG. Tamanho máximo recomendado: 5MB por foto. Mínimo recomendado: 3 fotos por imóvel.',
-  'nao consigo entrar': 'Tente limpar o cache do navegador. Se persistir, use a opção Esqueci a senha na tela de login.',
-  'coins nao aparece': 'Os Match Coins são creditados após o match ser processado. Acesse /app/coins para ver o saldo atualizado.',
-};
-
-function responderFAQ(mNorm, btn, chip) {
-  for (const [chave, resposta] of Object.entries(FAQ_EXTRA)) {
-    if (mNorm.includes(chave.replace(/ /g,'').substring(0,10)) || chave.split(' ').every(p => mNorm.includes(p))) {
-      return '🔧 <strong>Suporte técnico:</strong><br><br>' + resposta + '<br><br>' + chip('Mais ajuda','ajuda') + btn('Dashboard','/app-home');
-    }
-  }
-  return null;
-}
-module.exports.responderFAQ = responderFAQ;

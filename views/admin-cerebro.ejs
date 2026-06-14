@@ -66,6 +66,13 @@ header .badge{background:#FF385C;color:#fff;font-size:11px;padding:2px 8px;borde
   </div>
 </header>
 
+<div style="background:#fff;border-bottom:1px solid #e5e5e3;padding:12px 24px;display:flex;gap:8px;align-items:center">
+  <span style="font-size:13px;font-weight:500;color:#374151;margin-right:8px">Modo revisão:</span>
+  <button onclick="iniciarRevisao('tudo')" style="background:#FF385C;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">▶ Revisar tudo</button>
+  <button onclick="iniciarRevisao('base')" style="background:#fff;border:1px solid #e5e5e3;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer">Base de conhecimento</button>
+  <button onclick="iniciarRevisao('paginas')" style="background:#fff;border:1px solid #e5e5e3;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer">Páginas</button>
+  <button onclick="iniciarRevisao('fluxos')" style="background:#fff;border:1px solid #e5e5e3;padding:8px 16px;border-radius:8px;font-size:13px;cursor:pointer">Fluxos</button>
+</div>
 <div class="tabs">
   <button class="tab ativo" onclick="mudarAba('base')">Base de conhecimento (<%= modulos.base_conhecimento.length %>)</button>
   <button class="tab" onclick="mudarAba('paginas')">Páginas (<%= modulos.paginas.length %>)</button>
@@ -297,3 +304,179 @@ renderLista();
 </script>
 </body>
 </html>
+
+<script>
+// MODO REVISÃO
+let modoRevisao = false;
+let filaRevisao = [];
+let idxRevisao = 0;
+let resultadosRevisao = { ok:0, erro:0, correcoes:[] };
+
+function iniciarRevisao(tipo) {
+  modoRevisao = true;
+  idxRevisao = 0;
+  resultadosRevisao = { ok:0, erro:0, correcoes:[] };
+  
+  if (tipo === 'base') {
+    filaRevisao = filtrado.map((item,i) => ({ tipo:'base', idx:i, p:item.p, r:item.r, cat:'Base de conhecimento' }));
+  } else if (tipo === 'paginas') {
+    filaRevisao = <%- JSON.stringify(modulos.paginas) %>.map(p => ({
+      tipo:'pagina', p:'O que tem em: ' + p.titulo + ' (' + p.rota + ')',
+      r: (p.oque_tem||[]).join(' • ') || '—',
+      cat:'Página', id:p.id, dados:p
+    }));
+  } else if (tipo === 'fluxos') {
+    filaRevisao = <%- JSON.stringify(modulos.fluxos) %>.map(f => ({
+      tipo:'fluxo', p:'Fluxo: ' + f.titulo,
+      r: (f.passos||[]).map((p,i)=>(i+1)+'. '+p).join('\n'),
+      cat:'Fluxo', id:f.id, dados:f
+    }));
+  } else if (tipo === 'tudo') {
+    const base = filtrado.map((item,i) => ({ tipo:'base', idx:i, p:item.p, r:item.r, cat:'Base' }));
+    const pags = <%- JSON.stringify(modulos.paginas) %>.map(p => ({
+      tipo:'pagina', p:'O que tem em: '+p.titulo+' ('+p.rota+')',
+      r:(p.oque_tem||[]).join(' • ')||'—', cat:'Página', id:p.id
+    }));
+    const flux = <%- JSON.stringify(modulos.fluxos) %>.map(f => ({
+      tipo:'fluxo', p:'Fluxo: '+f.titulo,
+      r:(f.passos||[]).map((p,i)=>(i+1)+'. '+p).join('\n'), cat:'Fluxo', id:f.id
+    }));
+    filaRevisao = [...base, ...pags, ...flux];
+  }
+  
+  // Embaralha
+  filaRevisao.sort(() => Math.random() - 0.5);
+  
+  mostrarRevisao();
+  document.getElementById('modal-revisao').classList.add('open');
+}
+
+function mostrarRevisao() {
+  if (idxRevisao >= filaRevisao.length) {
+    finalizarRevisao();
+    return;
+  }
+  
+  const item = filaRevisao[idxRevisao];
+  const total = filaRevisao.length;
+  const pct = Math.round(idxRevisao/total*100);
+  
+  document.getElementById('rev-cat').textContent = item.cat + ' · ' + (idxRevisao+1) + '/' + total;
+  document.getElementById('rev-pergunta').textContent = item.p;
+  document.getElementById('rev-resposta').textContent = item.r;
+  document.getElementById('rev-edit').value = item.r;
+  document.getElementById('rev-edit').style.display = 'none';
+  document.getElementById('rev-progbar').style.width = pct + '%';
+  document.getElementById('rev-stats').textContent = '✅ ' + resultadosRevisao.ok + '  ❌ ' + resultadosRevisao.erro;
+  document.getElementById('rev-modo-edicao').style.display = 'none';
+  document.getElementById('rev-modo-normal').style.display = 'block';
+}
+
+function avaliarRevisao(resultado) {
+  const item = filaRevisao[idxRevisao];
+  
+  if (resultado === 'ok') {
+    resultadosRevisao.ok++;
+    idxRevisao++;
+    mostrarRevisao();
+  } else if (resultado === 'erro') {
+    // Mostrar modo edição
+    document.getElementById('rev-modo-normal').style.display = 'none';
+    document.getElementById('rev-modo-edicao').style.display = 'block';
+    document.getElementById('rev-edit').style.display = 'block';
+    document.getElementById('rev-edit').focus();
+  } else if (resultado === 'pular') {
+    idxRevisao++;
+    mostrarRevisao();
+  }
+}
+
+async function salvarCorrecao() {
+  const item = filaRevisao[idxRevisao];
+  const novaResposta = document.getElementById('rev-edit').value.trim();
+  
+  if (!novaResposta) return;
+  
+  // Salvar no servidor
+  if (item.tipo === 'base') {
+    await fetch('/admin/cerebro/salvar', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ tipo:'base', id: item.p, dados: { p: item.p, r: novaResposta } })
+    });
+    if (item.idx !== undefined) filtrado[item.idx].r = novaResposta;
+  }
+  
+  resultadosRevisao.erro++;
+  resultadosRevisao.correcoes.push({ p: item.p, original: item.r, novo: novaResposta });
+  idxRevisao++;
+  mostrarRevisao();
+}
+
+function finalizarRevisao() {
+  const total = resultadosRevisao.ok + resultadosRevisao.erro;
+  const pct = total > 0 ? Math.round(resultadosRevisao.ok/total*100) : 0;
+  
+  document.getElementById('rev-resultado').innerHTML = 
+    '<div style="text-align:center;padding:1rem">' +
+    '<div style="font-size:48px;margin-bottom:12px">' + (pct>=90?'🎉':pct>=70?'👍':'⚠️') + '</div>' +
+    '<div style="font-size:20px;font-weight:500;margin-bottom:8px">' + pct + '% aprovado</div>' +
+    '<div style="font-size:13px;color:#6b7280;margin-bottom:16px">✅ ' + resultadosRevisao.ok + ' corretos · ❌ ' + resultadosRevisao.erro + ' corrigidos</div>' +
+    (resultadosRevisao.correcoes.length ? 
+      '<div style="text-align:left;max-height:200px;overflow-y:auto"><p style="font-size:12px;font-weight:500;margin-bottom:8px">Correções salvas:</p>' +
+      resultadosRevisao.correcoes.map(c => '<div style="background:#fef2f2;border-radius:8px;padding:8px;margin-bottom:4px;font-size:12px"><strong>"'+c.p+'"</strong><br>→ '+c.novo+'</div>').join('') +
+      '</div>' : '') +
+    '<button onclick="fecharRevisao()" style="margin-top:16px;background:#111827;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">Fechar</button>' +
+    '</div>';
+    
+  document.getElementById('rev-conteudo').style.display = 'none';
+  document.getElementById('rev-resultado').style.display = 'block';
+}
+
+function fecharRevisao() {
+  document.getElementById('modal-revisao').classList.remove('open');
+  document.getElementById('rev-conteudo').style.display = 'block';
+  document.getElementById('rev-resultado').style.display = 'none';
+  renderLista();
+}
+</script>
+
+<!-- MODAL REVISÃO -->
+<div class="modal" id="modal-revisao">
+  <div class="modal-box" style="width:640px">
+    <div id="rev-conteudo">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-size:11px;color:#6b7280" id="rev-cat"></div>
+        <div style="font-size:12px;color:#6b7280" id="rev-stats"></div>
+      </div>
+      <div style="height:4px;background:#f0f0ee;border-radius:4px;margin-bottom:16px">
+        <div id="rev-progbar" style="height:4px;background:#FF385C;border-radius:4px;transition:width .3s;width:0%"></div>
+      </div>
+      <div style="background:#f9f9f7;border-radius:10px;padding:14px;margin-bottom:12px">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:6px">Pergunta / Tópico</div>
+        <div style="font-size:15px;font-weight:500;color:#111827" id="rev-pergunta"></div>
+      </div>
+      <div style="background:#fff;border:1px solid #e5e5e3;border-radius:10px;padding:14px;margin-bottom:16px">
+        <div style="font-size:11px;color:#9ca3af;margin-bottom:6px">Resposta / Conteúdo esperado</div>
+        <div style="font-size:13px;color:#374151;line-height:1.6;white-space:pre-line" id="rev-resposta"></div>
+      </div>
+      <textarea id="rev-edit" style="width:100%;padding:10px;border:1px solid #FF385C;border-radius:8px;font-size:13px;min-height:80px;font-family:inherit;margin-bottom:12px;resize:vertical" placeholder="Edite a resposta correta aqui..."></textarea>
+      
+      <div id="rev-modo-normal">
+        <div style="display:flex;gap:8px">
+          <button class="btn-ok" style="flex:1;padding:12px" onclick="avaliarRevisao('ok')">✅ Correto</button>
+          <button class="btn-err" style="flex:1;padding:12px" onclick="avaliarRevisao('erro')">✏️ Editar</button>
+          <button class="btn" onclick="avaliarRevisao('pular')">Pular</button>
+        </div>
+      </div>
+      
+      <div id="rev-modo-edicao" style="display:none">
+        <div style="display:flex;gap:8px">
+          <button class="btn-save" style="flex:1;padding:12px" onclick="salvarCorrecao()">💾 Salvar correção</button>
+          <button class="btn" onclick="mostrarRevisao()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+    <div id="rev-resultado" style="display:none"></div>
+  </div>
+</div>

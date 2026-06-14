@@ -189,6 +189,39 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     if (resOnb) return finalizar(resOnb);
   } catch(e) {}
 
+    // -- PRIORIDADE 0.22: gírias e expressões do corretor
+  const girias = {
+    'ta caro|muito caro|caro demais|acima do budget|fora do orcamento|nao cabe no bolso': 'busca_mais_barato',
+    'to travado|nao sei o que fazer|sem ideia|perdido': 'orientar',
+    'o cara sumiu|a menina sumiu|nao da retorno|nao atende|sumiu|sumindo': 'lead_sumiu',
+    'ta quente|muito interessado|quer muito|animado|animada': 'lead_quente',
+    'bate o martelo|vai fechar|fechando|assinar contrato': 'fechar',
+    'encalhado|nao sai|ninguem visita|parado': 'imovel_parado',
+  };
+  for (const [pattern, acao] of Object.entries(girias)) {
+    if (new RegExp(pattern).test(mNorm)) {
+      if (acao === 'busca_mais_barato') return finalizar('💰 <strong>Buscando opções mais acessíveis:</strong><br><br>Veja os imóveis com menor valor na sua carteira.' + '<br><br>' + btn('Ver imóveis por valor','/app/imoveis') + ' ' + chip('Mais baratos','tem algo mais barato'));
+      if (acao === 'orientar') return finalizar(estrategista.analisar(d, leads, imoveis, visitas, btn, chip));
+      if (acao === 'lead_sumiu') return finalizar('📵 <strong>Lead sem retorno?</strong><br><br>• Tente um follow-up via WhatsApp<br>• Veja quando foi o último contato na página da lead<br>• Se passou mais de 7 dias sem resposta, classifique como fria<br><br>' + btn('Ver Leads','/app/leads') + ' ' + chip('Leads frias','leads frias'));
+      if (acao === 'lead_quente') return finalizar('🔥 <strong>Lead quente!</strong><br><br>Próximo passo: envie a vitrine ou agende a visita enquanto o interesse está alto.<br><br>' + btn('Ver Leads','/app/leads') + ' ' + chip('Leads com match','leads com match'));
+      if (acao === 'fechar') return finalizar('🤝 <strong>Fechando negócio!</strong><br><br>Registre a visita como realizada e mova a lead para <strong>Proposta</strong> no kanban.<br><br>' + btn('Ver Visitas','/app/visitas') + ' ' + btn('Ver Leads','/app/leads'));
+      if (acao === 'imovel_parado') return finalizar('📦 <strong>Imóvel sem visitas?</strong><br><br>• Verifique se está publicado nos portais<br>• Revise as fotos e o preço<br>• Compare com a demanda do bairro<br><br>' + btn('Ver Imóveis','/app/imoveis') + ' ' + chip('Demanda por bairro','demanda por bairro'));
+    }
+  }
+
+    // -- PRIORIDADE 0.25: situações do corretor — linguagem natural
+  if (/ja enviei.*vitrine|mandei.*vitrine|enviei.*link/.test(mNorm)) {
+    return finalizar('✅ Vitrine enviada! Agora aguarde o cliente escolher o imóvel e solicitar visita.<br><br>' +
+      btn('Ver visitas','/app/visitas') + ' ' + chip('Leads com match','leads com match'));
+  }
+  if (/quando.*proxima visita|proxima visita|visita.*quando|quando.*visita/.test(mNorm)) {
+    return finalizar(modVisitas.responder(mNorm, d, [], btn, chip) || 
+      'Veja suas visitas agendadas em Visitas.<br><br>' + btn('Ver visitas','/app/visitas'));
+  }
+  if (/resumo.*dia|resumo do dia|como foi o dia|o que aconteceu hoje/.test(mNorm)) {
+    return finalizar(estrategista.analisar(d, [], [], [], btn, chip));
+  }
+
     // -- PRIORIDADE 0.3: suporte direto — erros e custos antes de tudo
   if (/vitrine nao abre|vitrine nao carrega|link.*nao funciona|nao consigo abrir vitrine/.test(mNorm)) {
     return finalizar('🔧 <strong>Vitrine não abre?</strong><br><br>• A lead precisa ter ao menos 1 imóvel em match<br>• Imóveis inativos não aparecem na vitrine<br>• Verifique se o imóvel em match está ativo<br><br><a href="/app/leads" style="color:#ff385c;font-weight:700">Ver Leads →</a>');
@@ -620,10 +653,10 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
   }
 
   // ── 9. RACIOCÍNIO PROFUNDO ───────────────────────────────────────────────────
-  const ctxConv = raciocinio.analisarConversa(hist);
-  const melhor = raciocinio.buscarMelhorResposta(mensagem, ctxConv,
+  const ctxConv = (typeof raciocinio.analisarConversa === 'function') ? raciocinio.analisarConversa(hist) : {tema:null};
+  const melhor = (typeof raciocinio.buscarMelhorResposta === 'function') ? raciocinio.buscarMelhorResposta(mensagem, ctxConv,
     {modLeads,modImoveis,modVisitas,modMatch,modPortais,modMercado,modSistema,suporte,leadsTemp,scoring,acoes},
-    d, user, imoveis, leads, visitas, btn, chip);
+    d, user, imoveis, leads, visitas, btn, chip) : null;
   if (melhor) return finalizar(raciocinio.enriquecerResposta(melhor, ctxConv, chip) + sugestoes(dominio, d));
 
   // ── 10. INTENÇÃO DETECTADA ───────────────────────────────────────────────────

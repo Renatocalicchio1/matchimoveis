@@ -350,7 +350,7 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     if (process.env.GROQ_API_KEY) {
       const contextoGroqP = { ativos:d.ativos||0, leads:d.leads||0, comMatch:d.comMatch||0, quentes:d.quentes||0, visitas:d.visitas||0, bairrosCarteira:(d.bairros||[]).slice(0,5), corretor:user.nome||'corretor' };
       return groqIA.chamarGroq(mensagem, contextoGroqP, hist)
-        .then(function(r){ return r + '<br><br><span style="font-size:11px;color:#9ca3af">✦ Resposta gerada por IA</span>'; })
+        .then(function(r){ const rh = r.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>').replace(/• /g,'<br>• '); return rh + '<br><br><span style="font-size:11px;color:#9ca3af">✦ Resposta gerada por IA</span>'; })
         .catch(function(e){ console.error('[groq-p]',e.message); return null; });
     }
   }
@@ -1080,7 +1080,8 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     return groqIA.chamarGroq(mensagem, contextoGroq, hist)
       .then(function(resGroq) {
         aprendizado.registrarResposta(mensagem, resGroq, 'groq');
-        return resGroq + '<br><br><span style="font-size:11px;color:#9ca3af">✦ Resposta gerada por IA</span>';
+        const resHtml = resGroq.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>').replace(/• /g,'<br>• ');
+        return resHtml + '<br><br><span style="font-size:11px;color:#9ca3af">✦ Resposta gerada por IA</span>';
       })
       .catch(function(e) {
         console.error('[groq]', e.message);

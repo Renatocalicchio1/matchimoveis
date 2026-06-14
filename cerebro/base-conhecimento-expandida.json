@@ -1,6 +1,6 @@
 {
-  "geradoEm": "2026-05-15T21:08:22.360Z",
-  "total": 117,
+  "geradoEm": "2026-06-14T16:07:23.684Z",
+  "total": 933,
   "items": [
     {
       "p": "quantas leads tenho",
@@ -569,6 +569,3270 @@
       "p": "tem alguma visita pendente ?",
       "r": "historico",
       "real": true
+    },
+    {
+      "p": "onde fico imoveis",
+      "r": "navegar_imoveis"
+    },
+    {
+      "p": "abrir imoveis",
+      "r": "navegar_imoveis"
+    },
+    {
+      "p": "ir para imoveis",
+      "r": "navegar_imoveis"
+    },
+    {
+      "p": "ver minha carteira",
+      "r": "navegar_imoveis"
+    },
+    {
+      "p": "acessar carteira",
+      "r": "navegar_imoveis"
+    },
+    {
+      "p": "meus apartamentos",
+      "r": "navegar_imoveis"
+    },
+    {
+      "p": "abrir leads",
+      "r": "navegar_leads"
+    },
+    {
+      "p": "ver clientes",
+      "r": "navegar_leads"
+    },
+    {
+      "p": "acessar clientes",
+      "r": "navegar_leads"
+    },
+    {
+      "p": "ver meus clientes",
+      "r": "navegar_leads"
+    },
+    {
+      "p": "abrir base de leads",
+      "r": "navegar_leads"
+    },
+    {
+      "p": "lista de clientes",
+      "r": "navegar_leads"
+    },
+    {
+      "p": "ver agendamentos",
+      "r": "navegar_visitas"
+    },
+    {
+      "p": "abrir agenda",
+      "r": "navegar_visitas"
+    },
+    {
+      "p": "minhas visitas agendadas",
+      "r": "navegar_visitas"
+    },
+    {
+      "p": "ver calendario",
+      "r": "navegar_visitas"
+    },
+    {
+      "p": "agenda do dia",
+      "r": "navegar_visitas"
+    },
+    {
+      "p": "compromissos de hoje",
+      "r": "navegar_visitas"
+    },
+    {
+      "p": "ver mensagens",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "abrir inbox",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "mensagens recebidas",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "ver conversas",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "inbox do whatsapp",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "abrir chat",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "minha conta",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "configuracoes",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "meus dados",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "editar perfil",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "dados da conta",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "informacoes da conta",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "ver saldo",
+      "r": "navegar_coins"
+    },
+    {
+      "p": "meus creditos",
+      "r": "navegar_coins"
+    },
+    {
+      "p": "saldo de creditos",
+      "r": "navegar_coins"
+    },
+    {
+      "p": "creditos disponiveis",
+      "r": "navegar_coins"
+    },
+    {
+      "p": "ver moedas",
+      "r": "navegar_coins"
+    },
+    {
+      "p": "saldo atual",
+      "r": "navegar_coins"
+    },
+    {
+      "p": "ver portais",
+      "r": "navegar_portais"
+    },
+    {
+      "p": "abrir portais",
+      "r": "navegar_portais"
+    },
+    {
+      "p": "integracoes",
+      "r": "navegar_portais"
+    },
+    {
+      "p": "meus feeds",
+      "r": "navegar_portais"
+    },
+    {
+      "p": "links dos portais",
+      "r": "navegar_portais"
+    },
+    {
+      "p": "ver feeds",
+      "r": "navegar_portais"
+    },
+    {
+      "p": "ver notificacoes",
+      "r": "navegar_notificacoes"
+    },
+    {
+      "p": "alertas",
+      "r": "navegar_notificacoes"
+    },
+    {
+      "p": "avisos",
+      "r": "navegar_notificacoes"
+    },
+    {
+      "p": "sino",
+      "r": "navegar_notificacoes"
+    },
+    {
+      "p": "nao lidas",
+      "r": "navegar_notificacoes"
+    },
+    {
+      "p": "novas notificacoes",
+      "r": "navegar_notificacoes"
+    },
+    {
+      "p": "o que tem no dashboard",
+      "r": "pagina_dashboard"
+    },
+    {
+      "p": "o que tem na home",
+      "r": "pagina_dashboard"
+    },
+    {
+      "p": "o que tem no painel",
+      "r": "pagina_dashboard"
+    },
+    {
+      "p": "o que aparece no dashboard",
+      "r": "pagina_dashboard"
+    },
+    {
+      "p": "o que tem em leads",
+      "r": "pagina_leads"
+    },
+    {
+      "p": "o que tem na tela de leads",
+      "r": "pagina_leads"
+    },
+    {
+      "p": "o que aparece em leads",
+      "r": "pagina_leads"
+    },
+    {
+      "p": "pagina de clientes",
+      "r": "pagina_leads"
+    },
+    {
+      "p": "o que tem em visitas",
+      "r": "pagina_visitas"
+    },
+    {
+      "p": "o que aparece em visitas",
+      "r": "pagina_visitas"
+    },
+    {
+      "p": "tela de visitas",
+      "r": "pagina_visitas"
+    },
+    {
+      "p": "o que tem na agenda",
+      "r": "pagina_visitas"
+    },
+    {
+      "p": "o que tem em imoveis",
+      "r": "pagina_imoveis"
+    },
+    {
+      "p": "tela de imoveis",
+      "r": "pagina_imoveis"
+    },
+    {
+      "p": "o que aparece em imoveis",
+      "r": "pagina_imoveis"
+    },
+    {
+      "p": "o que tem na carteira",
+      "r": "pagina_imoveis"
+    },
+    {
+      "p": "o que tem no perfil",
+      "r": "pagina_perfil"
+    },
+    {
+      "p": "o que tem em configuracoes",
+      "r": "pagina_perfil"
+    },
+    {
+      "p": "o que tem em portais",
+      "r": "pagina_portais"
+    },
+    {
+      "p": "o que tem nos feeds",
+      "r": "pagina_portais"
+    },
+    {
+      "p": "o que tem no whatsapp",
+      "r": "pagina_whatsapp"
+    },
+    {
+      "p": "o que tem nas mensagens",
+      "r": "pagina_whatsapp"
+    },
+    {
+      "p": "o que tem em coins",
+      "r": "pagina_coins"
+    },
+    {
+      "p": "o que tem no saldo",
+      "r": "pagina_coins"
+    },
+    {
+      "p": "subir xml",
+      "r": "importar_xml"
+    },
+    {
+      "p": "importar feed",
+      "r": "importar_xml"
+    },
+    {
+      "p": "trazer imoveis",
+      "r": "importar_xml"
+    },
+    {
+      "p": "puxar imoveis do crm",
+      "r": "importar_xml"
+    },
+    {
+      "p": "importar do tecimob",
+      "r": "importar_xml"
+    },
+    {
+      "p": "importar do rankim",
+      "r": "importar_xml"
+    },
+    {
+      "p": "url do feed xml",
+      "r": "importar_xml"
+    },
+    {
+      "p": "como faco o import",
+      "r": "importar_xml"
+    },
+    {
+      "p": "trazer do sistema",
+      "r": "importar_xml"
+    },
+    {
+      "p": "subir planilha",
+      "r": "importar_leads"
+    },
+    {
+      "p": "importar base",
+      "r": "importar_leads"
+    },
+    {
+      "p": "csv de leads",
+      "r": "importar_leads"
+    },
+    {
+      "p": "excel de leads",
+      "r": "importar_leads"
+    },
+    {
+      "p": "planilha do portal",
+      "r": "importar_leads"
+    },
+    {
+      "p": "importar do zap",
+      "r": "importar_leads"
+    },
+    {
+      "p": "importar do imovelweb",
+      "r": "importar_leads"
+    },
+    {
+      "p": "importar do vivareal",
+      "r": "importar_leads"
+    },
+    {
+      "p": "subir leads",
+      "r": "importar_leads"
+    },
+    {
+      "p": "publicar no zap",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "publicar no olx",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "publicar no chaves",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "gerar feed",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "criar xml",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "exportar imoveis",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "link do xml",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "url do xml",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "feed para portal",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "ligar whatsapp",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "ativar whatsapp",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "qr code",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "escanear qr",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "nova instancia",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "vincular numero",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "enviar link vitrine",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "mandar vitrine",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "link do cliente",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "oferta para cliente",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "pagina do cliente",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "link de imoveis",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "nova lead",
+      "r": "cadastrar_lead"
+    },
+    {
+      "p": "novo cliente",
+      "r": "cadastrar_lead"
+    },
+    {
+      "p": "adicionar cliente",
+      "r": "cadastrar_lead"
+    },
+    {
+      "p": "registrar lead",
+      "r": "cadastrar_lead"
+    },
+    {
+      "p": "anotar cliente",
+      "r": "cadastrar_lead"
+    },
+    {
+      "p": "salvar contato",
+      "r": "cadastrar_lead"
+    },
+    {
+      "p": "confirmar agendamento",
+      "r": "confirmar_visita"
+    },
+    {
+      "p": "aceitar visita",
+      "r": "confirmar_visita"
+    },
+    {
+      "p": "aprovar visita",
+      "r": "confirmar_visita"
+    },
+    {
+      "p": "mudar data visita",
+      "r": "remarcar_visita"
+    },
+    {
+      "p": "adiar visita",
+      "r": "remarcar_visita"
+    },
+    {
+      "p": "reagendar",
+      "r": "remarcar_visita"
+    },
+    {
+      "p": "rodar match",
+      "r": "fazer_match"
+    },
+    {
+      "p": "cruzar leads",
+      "r": "fazer_match"
+    },
+    {
+      "p": "buscar match",
+      "r": "fazer_match"
+    },
+    {
+      "p": "match automatico",
+      "r": "fazer_match"
+    },
+    {
+      "p": "fazer cruzamento",
+      "r": "fazer_match"
+    },
+    {
+      "p": "combinar leads",
+      "r": "fazer_match"
+    },
+    {
+      "p": "ativar quintoandar",
+      "r": "quintoandar"
+    },
+    {
+      "p": "quinto andar",
+      "r": "quintoandar"
+    },
+    {
+      "p": "xml quintoandar",
+      "r": "quintoandar"
+    },
+    {
+      "p": "publicar quintoandar",
+      "r": "quintoandar"
+    },
+    {
+      "p": "imoveis elegiveis qa",
+      "r": "quintoandar"
+    },
+    {
+      "p": "toggle quintoandar",
+      "r": "quintoandar"
+    },
+    {
+      "p": "zap caiu",
+      "r": "erro_whatsapp"
+    },
+    {
+      "p": "wpp desconectou",
+      "r": "erro_whatsapp"
+    },
+    {
+      "p": "instancia caiu",
+      "r": "erro_whatsapp"
+    },
+    {
+      "p": "qr expirou",
+      "r": "erro_whatsapp"
+    },
+    {
+      "p": "perdeu conexao",
+      "r": "erro_whatsapp"
+    },
+    {
+      "p": "whatsapp offline",
+      "r": "erro_whatsapp"
+    },
+    {
+      "p": "xml nao foi",
+      "r": "erro_xml"
+    },
+    {
+      "p": "feed desatualizado",
+      "r": "erro_xml"
+    },
+    {
+      "p": "portal nao atualizou",
+      "r": "erro_xml"
+    },
+    {
+      "p": "xml errado",
+      "r": "erro_xml"
+    },
+    {
+      "p": "feed com erro",
+      "r": "erro_xml"
+    },
+    {
+      "p": "xml nao carregou",
+      "r": "erro_xml"
+    },
+    {
+      "p": "nao deu match",
+      "r": "erro_match"
+    },
+    {
+      "p": "sem resultado de match",
+      "r": "erro_match"
+    },
+    {
+      "p": "match vazio",
+      "r": "erro_match"
+    },
+    {
+      "p": "lead sem match",
+      "r": "erro_match"
+    },
+    {
+      "p": "nao encontrou imovel",
+      "r": "erro_match"
+    },
+    {
+      "p": "nenhum imovel compativel",
+      "r": "erro_match"
+    },
+    {
+      "p": "link da vitrine nao abre",
+      "r": "erro_vitrine"
+    },
+    {
+      "p": "vitrine com erro",
+      "r": "erro_vitrine"
+    },
+    {
+      "p": "pagina da vitrine quebrou",
+      "r": "erro_vitrine"
+    },
+    {
+      "p": "imagem nao carrega",
+      "r": "erro_foto"
+    },
+    {
+      "p": "foto nao sobe",
+      "r": "erro_foto"
+    },
+    {
+      "p": "erro ao subir foto",
+      "r": "erro_foto"
+    },
+    {
+      "p": "esqueci a senha",
+      "r": "erro_acesso"
+    },
+    {
+      "p": "senha incorreta",
+      "r": "erro_acesso"
+    },
+    {
+      "p": "nao consigo acessar",
+      "r": "erro_acesso"
+    },
+    {
+      "p": "leads nao apareceram",
+      "r": "erro_lead"
+    },
+    {
+      "p": "importacao com erro",
+      "r": "erro_lead"
+    },
+    {
+      "p": "planilha nao importou",
+      "r": "erro_lead"
+    },
+    {
+      "p": "proprietario nao foi avisado",
+      "r": "erro_proprietario"
+    },
+    {
+      "p": "dono nao recebeu",
+      "r": "erro_proprietario"
+    },
+    {
+      "p": "proprietario sem notificacao",
+      "r": "erro_proprietario"
+    },
+    {
+      "p": "imovel duplicado",
+      "r": "erro_duplicata"
+    },
+    {
+      "p": "lead duplicada",
+      "r": "erro_duplicata"
+    },
+    {
+      "p": "cadastro duplicado",
+      "r": "erro_duplicata"
+    },
+    {
+      "p": "mapa nao carrega",
+      "r": "erro_mapa"
+    },
+    {
+      "p": "pins nao aparecem",
+      "r": "erro_mapa"
+    },
+    {
+      "p": "imovel sem pin no mapa",
+      "r": "erro_mapa"
+    },
+    {
+      "p": "total de leads",
+      "r": "dados_leads"
+    },
+    {
+      "p": "minhas leads",
+      "r": "dados_leads"
+    },
+    {
+      "p": "resumo das leads",
+      "r": "dados_leads"
+    },
+    {
+      "p": "quantos clientes tenho",
+      "r": "dados_leads"
+    },
+    {
+      "p": "base de leads",
+      "r": "dados_leads"
+    },
+    {
+      "p": "minha base",
+      "r": "dados_leads"
+    },
+    {
+      "p": "total de imoveis",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "quantos imoveis ativos",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "resumo da carteira",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "minha carteira de imoveis",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "imoveis cadastrados",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "estoque",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "total de visitas",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "visitas agendadas",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "compromissos",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "agenda de hoje",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "o que tenho hoje",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "bairro mais procurado",
+      "r": "dados_bairros"
+    },
+    {
+      "p": "onde tem mais demanda",
+      "r": "dados_bairros"
+    },
+    {
+      "p": "demanda por regiao",
+      "r": "dados_bairros"
+    },
+    {
+      "p": "bairros mais buscados",
+      "r": "dados_bairros"
+    },
+    {
+      "p": "onde os clientes querem morar",
+      "r": "dados_bairros"
+    },
+    {
+      "p": "mapa de demanda",
+      "r": "dados_bairros"
+    },
+    {
+      "p": "tipo mais procurado",
+      "r": "dados_tipo"
+    },
+    {
+      "p": "o que mais vendem",
+      "r": "dados_tipo"
+    },
+    {
+      "p": "casa ou apartamento mais buscado",
+      "r": "dados_tipo"
+    },
+    {
+      "p": "clientes quentes",
+      "r": "dados_quentes"
+    },
+    {
+      "p": "leads mais engajadas",
+      "r": "dados_quentes"
+    },
+    {
+      "p": "quem esta mais interessado",
+      "r": "dados_quentes"
+    },
+    {
+      "p": "leads novas",
+      "r": "dados_recentes"
+    },
+    {
+      "p": "ultimas leads",
+      "r": "dados_recentes"
+    },
+    {
+      "p": "chegou lead nova",
+      "r": "dados_recentes"
+    },
+    {
+      "p": "sem foto",
+      "r": "dados_sem_foto"
+    },
+    {
+      "p": "fotos faltando",
+      "r": "dados_sem_foto"
+    },
+    {
+      "p": "quais imoveis nao tem foto",
+      "r": "dados_sem_foto"
+    },
+    {
+      "p": "sem proprietario",
+      "r": "dados_sem_prop"
+    },
+    {
+      "p": "imoveis sem dono",
+      "r": "dados_sem_prop"
+    },
+    {
+      "p": "falta proprietario",
+      "r": "dados_sem_prop"
+    },
+    {
+      "p": "taxa de match",
+      "r": "dados_taxa_match"
+    },
+    {
+      "p": "percentual de match",
+      "r": "dados_taxa_match"
+    },
+    {
+      "p": "quantos tem match",
+      "r": "dados_taxa_match"
+    },
+    {
+      "p": "o que e o match",
+      "r": "conceito_match"
+    },
+    {
+      "p": "como o match funciona",
+      "r": "conceito_match"
+    },
+    {
+      "p": "explicar match",
+      "r": "conceito_match"
+    },
+    {
+      "p": "como funciona o cruzamento",
+      "r": "conceito_match"
+    },
+    {
+      "p": "o que faz o match",
+      "r": "conceito_match"
+    },
+    {
+      "p": "o que e a vitrine",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "como a vitrine funciona",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "o que e oferta",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "pagina de oferta",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "o que o cliente ve",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "o que sao match coins",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "quanto custa",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "tabela de precos",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "preco das acoes",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "custo por acao",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "valor dos creditos",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "o que e temperatura",
+      "r": "conceito_temperatura"
+    },
+    {
+      "p": "lead fria quente",
+      "r": "conceito_temperatura"
+    },
+    {
+      "p": "como funciona temperatura",
+      "r": "conceito_temperatura"
+    },
+    {
+      "p": "o que significa quente",
+      "r": "conceito_temperatura"
+    },
+    {
+      "p": "o que e score",
+      "r": "conceito_score"
+    },
+    {
+      "p": "como funciona pontuacao",
+      "r": "conceito_score"
+    },
+    {
+      "p": "pontos da vitrine",
+      "r": "conceito_score"
+    },
+    {
+      "p": "o que e funil",
+      "r": "conceito_funil"
+    },
+    {
+      "p": "etapas do funil",
+      "r": "conceito_funil"
+    },
+    {
+      "p": "fases da lead",
+      "r": "conceito_funil"
+    },
+    {
+      "p": "o que e proprietario",
+      "r": "conceito_proprietario"
+    },
+    {
+      "p": "quem e o proprietario",
+      "r": "conceito_proprietario"
+    },
+    {
+      "p": "o que e instancia whatsapp",
+      "r": "conceito_instancia"
+    },
+    {
+      "p": "o que e a instancia",
+      "r": "conceito_instancia"
+    },
+    {
+      "p": "to sem saber o que fazer",
+      "r": "plano_dia"
+    },
+    {
+      "p": "nao sei por onde comecar hoje",
+      "r": "plano_dia"
+    },
+    {
+      "p": "me da um norte",
+      "r": "plano_dia"
+    },
+    {
+      "p": "qual minha prioridade agora",
+      "r": "plano_dia"
+    },
+    {
+      "p": "o que e mais urgente",
+      "r": "plano_dia"
+    },
+    {
+      "p": "nao deu retorno",
+      "r": "lead_sumiu"
+    },
+    {
+      "p": "cliente sumido",
+      "r": "lead_sumiu"
+    },
+    {
+      "p": "nao responde mais",
+      "r": "lead_sumiu"
+    },
+    {
+      "p": "desapareceu",
+      "r": "lead_sumiu"
+    },
+    {
+      "p": "nao atende o telefone",
+      "r": "lead_sumiu"
+    },
+    {
+      "p": "sumiu depois da vitrine",
+      "r": "lead_sumiu"
+    },
+    {
+      "p": "muito caro",
+      "r": "busca_barato"
+    },
+    {
+      "p": "nao cabe no bolso",
+      "r": "busca_barato"
+    },
+    {
+      "p": "acima do budget",
+      "r": "busca_barato"
+    },
+    {
+      "p": "tem algo mais barato",
+      "r": "busca_barato"
+    },
+    {
+      "p": "valor menor",
+      "r": "busca_barato"
+    },
+    {
+      "p": "mais em conta",
+      "r": "busca_barato"
+    },
+    {
+      "p": "cliente topou",
+      "r": "cliente_gostou"
+    },
+    {
+      "p": "adorou o imovel",
+      "r": "cliente_gostou"
+    },
+    {
+      "p": "quer fechar",
+      "r": "cliente_gostou"
+    },
+    {
+      "p": "muito interessado",
+      "r": "cliente_gostou"
+    },
+    {
+      "p": "gostou muito",
+      "r": "cliente_gostou"
+    },
+    {
+      "p": "animou com o imovel",
+      "r": "cliente_gostou"
+    },
+    {
+      "p": "nao curtiu",
+      "r": "cliente_nao_gostou"
+    },
+    {
+      "p": "nao gostou de nenhum",
+      "r": "cliente_nao_gostou"
+    },
+    {
+      "p": "dispensou todos",
+      "r": "cliente_nao_gostou"
+    },
+    {
+      "p": "recusou",
+      "r": "cliente_nao_gostou"
+    },
+    {
+      "p": "nao rolou",
+      "r": "cliente_nao_gostou"
+    },
+    {
+      "p": "nao aprovou",
+      "r": "cliente_nao_gostou"
+    },
+    {
+      "p": "ninguem visitou",
+      "r": "imovel_parado"
+    },
+    {
+      "p": "nao sai",
+      "r": "imovel_parado"
+    },
+    {
+      "p": "imovel encalhado",
+      "r": "imovel_parado"
+    },
+    {
+      "p": "parado faz tempo",
+      "r": "imovel_parado"
+    },
+    {
+      "p": "sem visitas",
+      "r": "imovel_parado"
+    },
+    {
+      "p": "nao tem movimento",
+      "r": "imovel_parado"
+    },
+    {
+      "p": "vai assinar",
+      "r": "fechar_negocio"
+    },
+    {
+      "p": "quer comprar",
+      "r": "fechar_negocio"
+    },
+    {
+      "p": "fechou negocio",
+      "r": "fechar_negocio"
+    },
+    {
+      "p": "proposta aceita",
+      "r": "fechar_negocio"
+    },
+    {
+      "p": "deu certo",
+      "r": "fechar_negocio"
+    },
+    {
+      "p": "vendeu",
+      "r": "fechar_negocio"
+    },
+    {
+      "p": "lead em proposta",
+      "r": "funil_proposta"
+    },
+    {
+      "p": "enviou proposta",
+      "r": "funil_proposta"
+    },
+    {
+      "p": "proposta em andamento",
+      "r": "funil_proposta"
+    },
+    {
+      "p": "lead fechou",
+      "r": "funil_fechado"
+    },
+    {
+      "p": "negocio fechado",
+      "r": "funil_fechado"
+    },
+    {
+      "p": "venda concluida",
+      "r": "funil_fechado"
+    },
+    {
+      "p": "lead em visita",
+      "r": "funil_visita"
+    },
+    {
+      "p": "visitou o imovel",
+      "r": "funil_visita"
+    },
+    {
+      "p": "foi na visita",
+      "r": "funil_visita"
+    },
+    {
+      "p": "lead nova chegou",
+      "r": "funil_novo"
+    },
+    {
+      "p": "novo interessado",
+      "r": "funil_novo"
+    },
+    {
+      "p": "chegou lead",
+      "r": "funil_novo"
+    },
+    {
+      "p": "lead qualificada",
+      "r": "funil_qualificando"
+    },
+    {
+      "p": "qualificar lead",
+      "r": "funil_qualificando"
+    },
+    {
+      "p": "lead em qualificacao",
+      "r": "funil_qualificando"
+    },
+    {
+      "p": "por que esse imovel aparece primeiro",
+      "r": "conceito_score"
+    },
+    {
+      "p": "ordem da vitrine",
+      "r": "conceito_score"
+    },
+    {
+      "p": "por que esse imovel tem nota alta",
+      "r": "conceito_score"
+    },
+    {
+      "p": "como aumentar score",
+      "r": "conceito_score"
+    },
+    {
+      "p": "imovel com pontuacao baixa",
+      "r": "conceito_score"
+    },
+    {
+      "p": "melhorar pontuacao do imovel",
+      "r": "conceito_score"
+    },
+    {
+      "p": "relatorio semanal",
+      "r": "relatorio"
+    },
+    {
+      "p": "relatorio mensal",
+      "r": "relatorio"
+    },
+    {
+      "p": "relatorio do mes",
+      "r": "relatorio"
+    },
+    {
+      "p": "relatorio de visitas",
+      "r": "relatorio"
+    },
+    {
+      "p": "relatorio de leads",
+      "r": "relatorio"
+    },
+    {
+      "p": "ver relatorio",
+      "r": "relatorio"
+    },
+    {
+      "p": "estatisticas",
+      "r": "relatorio"
+    },
+    {
+      "p": "metricas",
+      "r": "relatorio"
+    },
+    {
+      "p": "desempenho",
+      "r": "relatorio"
+    },
+    {
+      "p": "como estou indo",
+      "r": "relatorio"
+    },
+    {
+      "p": "meu desempenho",
+      "r": "relatorio"
+    },
+    {
+      "p": "meus resultados",
+      "r": "relatorio"
+    },
+    {
+      "p": "ver parceiros",
+      "r": "navegar_parceiros"
+    },
+    {
+      "p": "corretores parceiros",
+      "r": "navegar_parceiros"
+    },
+    {
+      "p": "meus parceiros",
+      "r": "navegar_parceiros"
+    },
+    {
+      "p": "comissao parceiro",
+      "r": "navegar_parceiros"
+    },
+    {
+      "p": "agendar com parceiro",
+      "r": "navegar_parceiros"
+    },
+    {
+      "p": "visita com parceiro",
+      "r": "navegar_parceiros"
+    },
+    {
+      "p": "como funciona parceiro",
+      "r": "conceito_parceiro"
+    },
+    {
+      "p": "o que e parceiro",
+      "r": "conceito_parceiro"
+    },
+    {
+      "p": "parceiro no sistema",
+      "r": "conceito_parceiro"
+    },
+    {
+      "p": "ver feed",
+      "r": "navegar_feed"
+    },
+    {
+      "p": "feed de imoveis",
+      "r": "navegar_feed"
+    },
+    {
+      "p": "timeline de imoveis",
+      "r": "navegar_feed"
+    },
+    {
+      "p": "compartilhar imovel",
+      "r": "navegar_feed"
+    },
+    {
+      "p": "enviar imovel para cliente",
+      "r": "navegar_feed"
+    },
+    {
+      "p": "ver central",
+      "r": "navegar_central"
+    },
+    {
+      "p": "central de controle",
+      "r": "navegar_central"
+    },
+    {
+      "p": "configuracoes avancadas",
+      "r": "navegar_central"
+    },
+    {
+      "p": "leads sem contato",
+      "r": "leads_sem_contato"
+    },
+    {
+      "p": "leads ignoradas",
+      "r": "leads_sem_contato"
+    },
+    {
+      "p": "leads frias",
+      "r": "leads_frias"
+    },
+    {
+      "p": "leads sem engajamento",
+      "r": "leads_frias"
+    },
+    {
+      "p": "leads paradas",
+      "r": "leads_frias"
+    },
+    {
+      "p": "leads com visita",
+      "r": "leads_com_visita"
+    },
+    {
+      "p": "quem ja visitou",
+      "r": "leads_com_visita"
+    },
+    {
+      "p": "leads em visita",
+      "r": "leads_com_visita"
+    },
+    {
+      "p": "leads com proposta",
+      "r": "leads_com_proposta"
+    },
+    {
+      "p": "quem mandou proposta",
+      "r": "leads_com_proposta"
+    },
+    {
+      "p": "leads fechadas",
+      "r": "leads_fechadas"
+    },
+    {
+      "p": "quantas vendas fiz",
+      "r": "leads_fechadas"
+    },
+    {
+      "p": "negocios fechados",
+      "r": "leads_fechadas"
+    },
+    {
+      "p": "imoveis ativos",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "imoveis disponiveis",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "imoveis a venda",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "imoveis inativos",
+      "r": "dados_imoveis_inativos"
+    },
+    {
+      "p": "imoveis desativados",
+      "r": "dados_imoveis_inativos"
+    },
+    {
+      "p": "imoveis ocultos",
+      "r": "dados_imoveis_inativos"
+    },
+    {
+      "p": "imoveis sem cep",
+      "r": "dados_sem_cep"
+    },
+    {
+      "p": "falta cep",
+      "r": "dados_sem_cep"
+    },
+    {
+      "p": "cep incompleto",
+      "r": "dados_sem_cep"
+    },
+    {
+      "p": "imoveis publicados",
+      "r": "dados_imoveis_publicados"
+    },
+    {
+      "p": "imoveis no vivareal",
+      "r": "dados_imoveis_publicados"
+    },
+    {
+      "p": "quantos no zap",
+      "r": "dados_imoveis_publicados"
+    },
+    {
+      "p": "como funciona o sistema",
+      "r": "conceito_sistema"
+    },
+    {
+      "p": "o que e o matchimoveis",
+      "r": "conceito_sistema"
+    },
+    {
+      "p": "para que serve",
+      "r": "conceito_sistema"
+    },
+    {
+      "p": "o que e o cerebro",
+      "r": "conceito_cerebro"
+    },
+    {
+      "p": "como funciona a ia",
+      "r": "conceito_cerebro"
+    },
+    {
+      "p": "a ia do sistema",
+      "r": "conceito_cerebro"
+    },
+    {
+      "p": "o que e o rag",
+      "r": "conceito_rag"
+    },
+    {
+      "p": "como o assistente aprende",
+      "r": "conceito_rag"
+    },
+    {
+      "p": "o assistente melhora",
+      "r": "conceito_rag"
+    },
+    {
+      "p": "tipo de conta",
+      "r": "conceito_conta"
+    },
+    {
+      "p": "corretor ou imobiliaria",
+      "r": "conceito_conta"
+    },
+    {
+      "p": "qual tipo escolher",
+      "r": "conceito_conta"
+    },
+    {
+      "p": "codigo do usuario",
+      "r": "conceito_codigo"
+    },
+    {
+      "p": "meu codigo",
+      "r": "conceito_codigo"
+    },
+    {
+      "p": "id da conta",
+      "r": "conceito_codigo"
+    },
+    {
+      "p": "como funciona o xml",
+      "r": "conceito_xml"
+    },
+    {
+      "p": "o que e o feed xml",
+      "r": "conceito_xml"
+    },
+    {
+      "p": "xml vrsync",
+      "r": "conceito_xml"
+    },
+    {
+      "p": "como funciona a visita",
+      "r": "conceito_visita_fluxo"
+    },
+    {
+      "p": "fluxo da visita",
+      "r": "conceito_visita_fluxo"
+    },
+    {
+      "p": "como a visita funciona",
+      "r": "conceito_visita_fluxo"
+    },
+    {
+      "p": "caso 1 visita",
+      "r": "conceito_caso1"
+    },
+    {
+      "p": "o que e caso 1",
+      "r": "conceito_caso1"
+    },
+    {
+      "p": "visita com proprietario",
+      "r": "conceito_caso1"
+    },
+    {
+      "p": "caso 2 visita",
+      "r": "conceito_caso2"
+    },
+    {
+      "p": "o que e caso 2",
+      "r": "conceito_caso2"
+    },
+    {
+      "p": "visita sem proprietario",
+      "r": "conceito_caso2"
+    },
+    {
+      "p": "pelo celular",
+      "r": "acesso_mobile"
+    },
+    {
+      "p": "app no celular",
+      "r": "acesso_mobile"
+    },
+    {
+      "p": "versao mobile",
+      "r": "acesso_mobile"
+    },
+    {
+      "p": "instalar app",
+      "r": "acesso_mobile"
+    },
+    {
+      "p": "baixar app",
+      "r": "acesso_mobile"
+    },
+    {
+      "p": "adicionar na tela",
+      "r": "acesso_mobile"
+    },
+    {
+      "p": "comprar coins",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "recarregar creditos",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "adicionar saldo",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "como compro coins",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "preco dos coins",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "pacote de coins",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "exportar leads",
+      "r": "exportar"
+    },
+    {
+      "p": "baixar leads",
+      "r": "exportar"
+    },
+    {
+      "p": "exportar excel",
+      "r": "exportar"
+    },
+    {
+      "p": "planilha de imoveis",
+      "r": "exportar"
+    },
+    {
+      "p": "baixar imoveis",
+      "r": "exportar"
+    },
+    {
+      "p": "exportar carteira",
+      "r": "exportar"
+    },
+    {
+      "p": "avisar proprietario",
+      "r": "avisar_proprietario"
+    },
+    {
+      "p": "notificar dono",
+      "r": "avisar_proprietario"
+    },
+    {
+      "p": "mandar mensagem para proprietario",
+      "r": "avisar_proprietario"
+    },
+    {
+      "p": "proprietario confirmou",
+      "r": "proprietario_confirmou"
+    },
+    {
+      "p": "dono confirmou",
+      "r": "proprietario_confirmou"
+    },
+    {
+      "p": "proprietario aceitou",
+      "r": "proprietario_confirmou"
+    },
+    {
+      "p": "proprietario recusou",
+      "r": "proprietario_recusou"
+    },
+    {
+      "p": "dono nao quer",
+      "r": "proprietario_recusou"
+    },
+    {
+      "p": "proprietario nao aceitou",
+      "r": "proprietario_recusou"
+    },
+    {
+      "p": "oi tudo bem",
+      "r": "saudacao"
+    },
+    {
+      "p": "bom dia tudo bem",
+      "r": "saudacao"
+    },
+    {
+      "p": "boa tarde como vai",
+      "r": "saudacao"
+    },
+    {
+      "p": "ola assistente",
+      "r": "saudacao"
+    },
+    {
+      "p": "ei me ajuda",
+      "r": "saudacao"
+    },
+    {
+      "p": "preciso de ajuda",
+      "r": "saudacao"
+    },
+    {
+      "p": "ola match",
+      "r": "saudacao"
+    },
+    {
+      "p": "oi match",
+      "r": "saudacao"
+    },
+    {
+      "p": "hey",
+      "r": "saudacao"
+    },
+    {
+      "p": "tudo certo",
+      "r": "saudacao"
+    },
+    {
+      "p": "e ai",
+      "r": "saudacao"
+    },
+    {
+      "p": "ola tudo bem",
+      "r": "saudacao"
+    },
+    {
+      "p": "me leva para imoveis",
+      "r": "navegar_imoveis"
+    },
+    {
+      "p": "abre imoveis",
+      "r": "navegar_imoveis"
+    },
+    {
+      "p": "vai em imoveis",
+      "r": "navegar_imoveis"
+    },
+    {
+      "p": "me leva para leads",
+      "r": "navegar_leads"
+    },
+    {
+      "p": "abre leads",
+      "r": "navegar_leads"
+    },
+    {
+      "p": "vai em leads",
+      "r": "navegar_leads"
+    },
+    {
+      "p": "me leva para visitas",
+      "r": "navegar_visitas"
+    },
+    {
+      "p": "abre visitas",
+      "r": "navegar_visitas"
+    },
+    {
+      "p": "vai em visitas",
+      "r": "navegar_visitas"
+    },
+    {
+      "p": "me leva para whatsapp",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "abre whatsapp",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "vai em whatsapp",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "me leva para perfil",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "abre perfil",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "vai em perfil",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "me leva para portais",
+      "r": "navegar_portais"
+    },
+    {
+      "p": "abre portais",
+      "r": "navegar_portais"
+    },
+    {
+      "p": "vai em portais",
+      "r": "navegar_portais"
+    },
+    {
+      "p": "me leva para dashboard",
+      "r": "navegar_dashboard"
+    },
+    {
+      "p": "abre dashboard",
+      "r": "navegar_dashboard"
+    },
+    {
+      "p": "vai para home",
+      "r": "navegar_dashboard"
+    },
+    {
+      "p": "me leva para coins",
+      "r": "navegar_coins"
+    },
+    {
+      "p": "abre coins",
+      "r": "navegar_coins"
+    },
+    {
+      "p": "vai em coins",
+      "r": "navegar_coins"
+    },
+    {
+      "p": "me leva para mapa",
+      "r": "navegar_mapa"
+    },
+    {
+      "p": "abre mapa",
+      "r": "navegar_mapa"
+    },
+    {
+      "p": "vai em mapa",
+      "r": "navegar_mapa"
+    },
+    {
+      "p": "me leva para feed",
+      "r": "navegar_feed"
+    },
+    {
+      "p": "abre feed",
+      "r": "navegar_feed"
+    },
+    {
+      "p": "vai em feed",
+      "r": "navegar_feed"
+    },
+    {
+      "p": "me leva para notificacoes",
+      "r": "navegar_notificacoes"
+    },
+    {
+      "p": "abre notificacoes",
+      "r": "navegar_notificacoes"
+    },
+    {
+      "p": "me leva para parceiros",
+      "r": "navegar_parceiros"
+    },
+    {
+      "p": "abre parceiros",
+      "r": "navegar_parceiros"
+    },
+    {
+      "p": "me leva para central",
+      "r": "navegar_central"
+    },
+    {
+      "p": "abre central",
+      "r": "navegar_central"
+    },
+    {
+      "p": "me leva para assistente",
+      "r": "navegar_assistente"
+    },
+    {
+      "p": "abre assistente",
+      "r": "navegar_assistente"
+    },
+    {
+      "p": "como coloco imoveis no sistema",
+      "r": "importar_xml"
+    },
+    {
+      "p": "como adiciono imoveis",
+      "r": "importar_xml"
+    },
+    {
+      "p": "como cadastro imoveis em lote",
+      "r": "importar_xml"
+    },
+    {
+      "p": "importar em lote",
+      "r": "importar_xml"
+    },
+    {
+      "p": "url do feed tecimob",
+      "r": "importar_xml"
+    },
+    {
+      "p": "url do feed vista",
+      "r": "importar_xml"
+    },
+    {
+      "p": "url do feed jetimob",
+      "r": "importar_xml"
+    },
+    {
+      "p": "url do feed cv crm",
+      "r": "importar_xml"
+    },
+    {
+      "p": "nao sei a url do feed",
+      "r": "importar_xml"
+    },
+    {
+      "p": "onde acho o url do xml",
+      "r": "importar_xml"
+    },
+    {
+      "p": "como pego o feed do crm",
+      "r": "importar_xml"
+    },
+    {
+      "p": "link do feed do sistema",
+      "r": "importar_xml"
+    },
+    {
+      "p": "modelo de planilha",
+      "r": "importar_leads"
+    },
+    {
+      "p": "baixar modelo",
+      "r": "importar_leads"
+    },
+    {
+      "p": "template de leads",
+      "r": "importar_leads"
+    },
+    {
+      "p": "como preencho a planilha",
+      "r": "importar_leads"
+    },
+    {
+      "p": "formato da planilha",
+      "r": "importar_leads"
+    },
+    {
+      "p": "planilha do zap imoveis",
+      "r": "importar_leads"
+    },
+    {
+      "p": "planilha do olx",
+      "r": "importar_leads"
+    },
+    {
+      "p": "planilha do chaves na mao",
+      "r": "importar_leads"
+    },
+    {
+      "p": "planilha do imovelweb",
+      "r": "importar_leads"
+    },
+    {
+      "p": "planilha do 123i",
+      "r": "importar_leads"
+    },
+    {
+      "p": "exportar leads do portal",
+      "r": "importar_leads"
+    },
+    {
+      "p": "como exporto do vivareal",
+      "r": "importar_leads"
+    },
+    {
+      "p": "como exporto do zap",
+      "r": "importar_leads"
+    },
+    {
+      "p": "campos obrigatorios planilha",
+      "r": "importar_leads"
+    },
+    {
+      "p": "o que precisa na planilha",
+      "r": "importar_leads"
+    },
+    {
+      "p": "como o match e feito",
+      "r": "conceito_match"
+    },
+    {
+      "p": "criterios do match",
+      "r": "conceito_match"
+    },
+    {
+      "p": "o que o match considera",
+      "r": "conceito_match"
+    },
+    {
+      "p": "algoritmo do match",
+      "r": "conceito_match"
+    },
+    {
+      "p": "match por bairro",
+      "r": "conceito_match"
+    },
+    {
+      "p": "match por tipo",
+      "r": "conceito_match"
+    },
+    {
+      "p": "match por valor",
+      "r": "conceito_match"
+    },
+    {
+      "p": "match por quartos",
+      "r": "conceito_match"
+    },
+    {
+      "p": "por que match nao considera area",
+      "r": "conceito_match"
+    },
+    {
+      "p": "match considera area",
+      "r": "conceito_match"
+    },
+    {
+      "p": "match considera suite",
+      "r": "conceito_match"
+    },
+    {
+      "p": "match considera vaga",
+      "r": "conceito_match"
+    },
+    {
+      "p": "refazer match",
+      "r": "fazer_match"
+    },
+    {
+      "p": "atualizar match",
+      "r": "fazer_match"
+    },
+    {
+      "p": "rematch",
+      "r": "fazer_match"
+    },
+    {
+      "p": "match nao rodou",
+      "r": "erro_match"
+    },
+    {
+      "p": "match travou",
+      "r": "erro_match"
+    },
+    {
+      "p": "match demorou",
+      "r": "erro_match"
+    },
+    {
+      "p": "match errado",
+      "r": "erro_match"
+    },
+    {
+      "p": "imovel errado no match",
+      "r": "erro_match"
+    },
+    {
+      "p": "como o cliente acessa a vitrine",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "o cliente precisa de conta",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "vitrine expira",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "o link da vitrine expira",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "cliente pode solicitar visita pela vitrine",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "quantos imoveis tem na vitrine",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "imoveis da vitrine",
+      "r": "conceito_vitrine"
+    },
+    {
+      "p": "vitrine por whatsapp",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "mandar link por whatsapp",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "copiar link da vitrine",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "compartilhar vitrine",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "vitrine personalizada",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "vitrine do cliente",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "cliente recebeu a vitrine",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "ja mandei o link",
+      "r": "enviar_vitrine"
+    },
+    {
+      "p": "visita hoje",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "tenho visita hoje",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "visita amanha",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "proxima visita",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "quando e a visita",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "visita confirmada",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "visita pendente",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "quantas visitas pendentes",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "visitas nao confirmadas",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "visita cancelada",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "visita foi cancelada",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "visita realizada",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "visita concluida",
+      "r": "dados_visitas"
+    },
+    {
+      "p": "visita em negociacao",
+      "r": "funil_negociacao"
+    },
+    {
+      "p": "negociando apos visita",
+      "r": "funil_negociacao"
+    },
+    {
+      "p": "checkin da visita",
+      "r": "conceito_visita_fluxo"
+    },
+    {
+      "p": "fazer checkin",
+      "r": "conceito_visita_fluxo"
+    },
+    {
+      "p": "finalizar visita",
+      "r": "conceito_visita_fluxo"
+    },
+    {
+      "p": "marcar visita como realizada",
+      "r": "confirmar_visita"
+    },
+    {
+      "p": "cliente chegou",
+      "r": "conceito_visita_fluxo"
+    },
+    {
+      "p": "cliente esta no imovel",
+      "r": "conceito_visita_fluxo"
+    },
+    {
+      "p": "cliente nao apareceu",
+      "r": "conceito_visita_fluxo"
+    },
+    {
+      "p": "no show",
+      "r": "conceito_visita_fluxo"
+    },
+    {
+      "p": "receber leads pelo whatsapp",
+      "r": "conceito_whatsapp"
+    },
+    {
+      "p": "lead veio pelo whatsapp",
+      "r": "conceito_whatsapp"
+    },
+    {
+      "p": "lead mandou mensagem",
+      "r": "conceito_whatsapp"
+    },
+    {
+      "p": "cliente escreveu",
+      "r": "conceito_whatsapp"
+    },
+    {
+      "p": "responder lead pelo sistema",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "falar com lead pelo sistema",
+      "r": "navegar_whatsapp"
+    },
+    {
+      "p": "copiloto",
+      "r": "conceito_copiloto"
+    },
+    {
+      "p": "o que e o copiloto",
+      "r": "conceito_copiloto"
+    },
+    {
+      "p": "sugestao de resposta",
+      "r": "conceito_copiloto"
+    },
+    {
+      "p": "como funciona o copiloto",
+      "r": "conceito_copiloto"
+    },
+    {
+      "p": "ia me ajuda a responder",
+      "r": "conceito_copiloto"
+    },
+    {
+      "p": "numero do whatsapp",
+      "r": "conceito_whatsapp"
+    },
+    {
+      "p": "qual numero conectar",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "posso conectar qualquer numero",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "um numero por conta",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "whatsapp business",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "posso usar whatsapp business",
+      "r": "conectar_whatsapp"
+    },
+    {
+      "p": "limitar de mensagens whatsapp",
+      "r": "conceito_whatsapp"
+    },
+    {
+      "p": "ban do whatsapp",
+      "r": "conceito_whatsapp"
+    },
+    {
+      "p": "quanto gasto por lead",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "quanto gasto por match",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "quanto gasto por visita",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "qual acao custa mais",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "ganhar coins de graca",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "como ganho coins",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "coins de bonus",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "promoção de coins",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "saldo negativo",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "acabou os coins",
+      "r": "conceito_coins"
+    },
+    {
+      "p": "nao tenho coins",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "preciso de mais coins",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "recarregar saldo",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "quanto custa 1000 coins",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "mercado pago",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "pagar com cartao",
+      "r": "comprar_coins"
+    },
+    {
+      "p": "quantos portais tem",
+      "r": "conceito_portais"
+    },
+    {
+      "p": "quais portais posso usar",
+      "r": "conceito_portais"
+    },
+    {
+      "p": "vivareal funciona",
+      "r": "conceito_portais"
+    },
+    {
+      "p": "zap imoveis funciona",
+      "r": "conceito_portais"
+    },
+    {
+      "p": "olx funciona",
+      "r": "conceito_portais"
+    },
+    {
+      "p": "chaves na mao funciona",
+      "r": "conceito_portais"
+    },
+    {
+      "p": "imovelweb funciona",
+      "r": "conceito_portais"
+    },
+    {
+      "p": "123i funciona",
+      "r": "conceito_portais"
+    },
+    {
+      "p": "cadastrar link no vivareal",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "cadastrar link no zap",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "cadastrar link no olx",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "cadastrar link no chaves",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "onde coloco o link no portal",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "como cadastro o feed no portal",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "atualizar xml manualmente",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "forcar atualizacao do xml",
+      "r": "gerar_xml"
+    },
+    {
+      "p": "xml nao esta sincronizando",
+      "r": "erro_xml"
+    },
+    {
+      "p": "portal nao sincroniza",
+      "r": "erro_xml"
+    },
+    {
+      "p": "imovel nao aparece no portal",
+      "r": "erro_xml"
+    },
+    {
+      "p": "sumiu do portal",
+      "r": "erro_xml"
+    },
+    {
+      "p": "como edito um imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "editar imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "alterar dados do imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "mudar preco do imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "atualizar valor do imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "mudar foto capa",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "foto de capa",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "qual foto e a capa",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "reordenar fotos",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "ordenar fotos",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "mudar ordem das fotos",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "excluir imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "deletar imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "remover imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "excluir foto",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "remover foto",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "deletar foto",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "imovel a venda",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "imovel para alugar",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "imovel comercial",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "imovel residencial",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "terreno disponivel",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "cobertura disponivel",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "imovel com suite",
+      "r": "buscar_imovel"
+    },
+    {
+      "p": "imovel com vaga",
+      "r": "buscar_imovel"
+    },
+    {
+      "p": "imovel com area",
+      "r": "buscar_imovel"
+    },
+    {
+      "p": "imovel mobiliado",
+      "r": "buscar_imovel"
+    },
+    {
+      "p": "imovel novo",
+      "r": "buscar_imovel"
+    },
+    {
+      "p": "imovel na planta",
+      "r": "buscar_imovel"
+    },
+    {
+      "p": "selecionar imoveis em lote",
+      "r": "acao_lote"
+    },
+    {
+      "p": "publicar varios imoveis",
+      "r": "acao_lote"
+    },
+    {
+      "p": "selecionar todos",
+      "r": "acao_lote"
+    },
+    {
+      "p": "perfil da lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "dados do cliente",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "informacoes da lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "historico da lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "timeline da lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "atividade da lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "bairro que o cliente quer",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "tipo que o cliente quer",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "valor maximo do cliente",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "orcamento do cliente",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "quartos que o cliente quer",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "preferencia do cliente",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "editar perfil da lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "atualizar dados da lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "mudar bairro da lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "corrigir dados da lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "mover lead no kanban",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "mudar status da lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "classificar lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "categorizar lead",
+      "r": "detalhe_lead"
+    },
+    {
+      "p": "lead organica",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "lead importada",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "o que e lead organica",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "lead do whatsapp",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "lead do portal",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "origem da lead",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "fonte da lead",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "de onde veio a lead",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "lead manual",
+      "r": "cadastrar_lead"
+    },
+    {
+      "p": "cadastro manual",
+      "r": "cadastrar_lead"
+    },
+    {
+      "p": "adicionar manualmente",
+      "r": "cadastrar_lead"
+    },
+    {
+      "p": "como marco notificacao como lida",
+      "r": "notificacao_lida"
+    },
+    {
+      "p": "limpar notificacoes",
+      "r": "notificacao_lida"
+    },
+    {
+      "p": "marcar todas como lidas",
+      "r": "notificacao_lida"
+    },
+    {
+      "p": "notificacao de match",
+      "r": "conceito_notificacao"
+    },
+    {
+      "p": "notificacao de visita",
+      "r": "conceito_notificacao"
+    },
+    {
+      "p": "notificacao de sistema",
+      "r": "conceito_notificacao"
+    },
+    {
+      "p": "por que nao recebi notificacao",
+      "r": "erro_notificacao"
+    },
+    {
+      "p": "notificacao nao chegou",
+      "r": "erro_notificacao"
+    },
+    {
+      "p": "nao recebi o aviso",
+      "r": "erro_notificacao"
+    },
+    {
+      "p": "sistema nao me avisou",
+      "r": "erro_notificacao"
+    },
+    {
+      "p": "sistema esta lento",
+      "r": "diagnostico"
+    },
+    {
+      "p": "sistema travou",
+      "r": "diagnostico"
+    },
+    {
+      "p": "pagina nao carrega",
+      "r": "diagnostico"
+    },
+    {
+      "p": "erro no sistema",
+      "r": "diagnostico"
+    },
+    {
+      "p": "bug no sistema",
+      "r": "diagnostico"
+    },
+    {
+      "p": "sistema com problema",
+      "r": "diagnostico"
+    },
+    {
+      "p": "sessao expirou",
+      "r": "diagnostico"
+    },
+    {
+      "p": "saiu da conta",
+      "r": "diagnostico"
+    },
+    {
+      "p": "deslogou sozinho",
+      "r": "diagnostico"
+    },
+    {
+      "p": "cache do navegador",
+      "r": "diagnostico"
+    },
+    {
+      "p": "limpar cache",
+      "r": "diagnostico"
+    },
+    {
+      "p": "tentar em outro navegador",
+      "r": "diagnostico"
+    },
+    {
+      "p": "qual e o plano",
+      "r": "conceito_plano"
+    },
+    {
+      "p": "planos disponiveis",
+      "r": "conceito_plano"
+    },
+    {
+      "p": "quanto custa o sistema",
+      "r": "conceito_plano"
+    },
+    {
+      "p": "preco do matchimoveis",
+      "r": "conceito_plano"
+    },
+    {
+      "p": "assinatura",
+      "r": "conceito_plano"
+    },
+    {
+      "p": "mensalidade",
+      "r": "conceito_plano"
+    },
+    {
+      "p": "cancelar conta",
+      "r": "conceito_plano"
+    },
+    {
+      "p": "encerrar conta",
+      "r": "conceito_plano"
+    },
+    {
+      "p": "pausar conta",
+      "r": "conceito_plano"
+    },
+    {
+      "p": "meus dados sao seguros",
+      "r": "conceito_privacidade"
+    },
+    {
+      "p": "quem ve meus imoveis",
+      "r": "conceito_privacidade"
+    },
+    {
+      "p": "outras imobiliarias veem",
+      "r": "conceito_privacidade"
+    },
+    {
+      "p": "isolamento de dados",
+      "r": "conceito_privacidade"
+    },
+    {
+      "p": "minha conta e privada",
+      "r": "conceito_privacidade"
+    },
+    {
+      "p": "outros corretores veem",
+      "r": "conceito_privacidade"
+    },
+    {
+      "p": "preciso de creci",
+      "r": "conceito_creci"
+    },
+    {
+      "p": "creci obrigatorio",
+      "r": "conceito_creci"
+    },
+    {
+      "p": "posso usar sem creci",
+      "r": "conceito_creci"
+    },
+    {
+      "p": "como coloco meu creci",
+      "r": "conceito_creci"
+    },
+    {
+      "p": "onde coloco o creci",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "mudar tipo de conta",
+      "r": "conceito_conta"
+    },
+    {
+      "p": "de corretor para imobiliaria",
+      "r": "conceito_conta"
+    },
+    {
+      "p": "criar conta imobiliaria",
+      "r": "conceito_conta"
+    },
+    {
+      "p": "conta para construtora",
+      "r": "conceito_conta"
+    },
+    {
+      "p": "diferenca corretor imobiliaria",
+      "r": "conceito_conta"
+    },
+    {
+      "p": "qual conta escolher",
+      "r": "conceito_conta"
+    },
+    {
+      "p": "atualizar minha localizacao",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "onde estou",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "como o sistema sabe minha localizacao",
+      "r": "conceito_localizacao"
+    },
+    {
+      "p": "por que precisa da localizacao",
+      "r": "conceito_localizacao"
+    },
+    {
+      "p": "localizacao errada",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "localizacao desatualizada",
+      "r": "navegar_perfil"
+    },
+    {
+      "p": "mercado aquecido",
+      "r": "conceito_mercado"
+    },
+    {
+      "p": "como esta o mercado",
+      "r": "conceito_mercado"
+    },
+    {
+      "p": "demanda de imoveis",
+      "r": "dados_bairros"
+    },
+    {
+      "p": "o que o mercado pede",
+      "r": "dados_tipo"
+    },
+    {
+      "p": "bairro em alta",
+      "r": "dados_bairros"
+    },
+    {
+      "p": "regiao mais valorizada",
+      "r": "dados_bairros"
+    },
+    {
+      "p": "tipo de imovel em alta",
+      "r": "dados_tipo"
+    },
+    {
+      "p": "o que esta vendendo mais",
+      "r": "dados_tipo"
+    },
+    {
+      "p": "ticket medio",
+      "r": "conceito_mercado"
+    },
+    {
+      "p": "valor medio dos imoveis",
+      "r": "conceito_mercado"
+    },
+    {
+      "p": "lead quer imovel que nao tenho",
+      "r": "conceito_match"
+    },
+    {
+      "p": "nao tenho imovel para essa lead",
+      "r": "conceito_match"
+    },
+    {
+      "p": "lead quer bairro que nao atendo",
+      "r": "conceito_match"
+    },
+    {
+      "p": "bairro fora da minha area",
+      "r": "conceito_match"
+    },
+    {
+      "p": "lead quer tipo que nao tenho",
+      "r": "conceito_match"
+    },
+    {
+      "p": "nao tenho o tipo que ela quer",
+      "r": "conceito_match"
+    },
+    {
+      "p": "lead quer algo muito caro",
+      "r": "conceito_match"
+    },
+    {
+      "p": "valor acima do meu estoque",
+      "r": "conceito_match"
+    },
+    {
+      "p": "imovel sem lead interessada",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "imovel nao tem match",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "qual imovel tem mais match",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "imovel mais procurado",
+      "r": "dados_imoveis"
+    },
+    {
+      "p": "exportar imoveis para excel",
+      "r": "exportar"
+    },
+    {
+      "p": "baixar lista de imoveis",
+      "r": "exportar"
+    },
+    {
+      "p": "relatorio em excel",
+      "r": "exportar"
+    },
+    {
+      "p": "como exporto leads",
+      "r": "exportar"
+    },
+    {
+      "p": "exportar base de clientes",
+      "r": "exportar"
+    },
+    {
+      "p": "historico de conversas",
+      "r": "historico_chat"
+    },
+    {
+      "p": "ver conversas antigas",
+      "r": "historico_chat"
+    },
+    {
+      "p": "o que eu perguntei antes",
+      "r": "historico_chat"
+    },
+    {
+      "p": "historico do assistente",
+      "r": "historico_chat"
+    },
+    {
+      "p": "minha conversa anterior",
+      "r": "historico_chat"
+    },
+    {
+      "p": "continuar conversa",
+      "r": "historico_chat"
+    },
+    {
+      "p": "falar com suporte",
+      "r": "conceito_suporte"
+    },
+    {
+      "p": "suporte tecnico",
+      "r": "conceito_suporte"
+    },
+    {
+      "p": "contato do matchimoveis",
+      "r": "conceito_suporte"
+    },
+    {
+      "p": "falar com alguem",
+      "r": "conceito_suporte"
+    },
+    {
+      "p": "atendimento humano",
+      "r": "conceito_suporte"
+    },
+    {
+      "p": "abrir chamado",
+      "r": "conceito_suporte"
+    },
+    {
+      "p": "reportar bug",
+      "r": "conceito_suporte"
+    },
+    {
+      "p": "reportar erro",
+      "r": "conceito_suporte"
+    },
+    {
+      "p": "problema no sistema",
+      "r": "conceito_suporte"
+    },
+    {
+      "p": "integrar com tecimob",
+      "r": "importar_xml"
+    },
+    {
+      "p": "integrar com rankim",
+      "r": "importar_xml"
+    },
+    {
+      "p": "integrar com vista",
+      "r": "importar_xml"
+    },
+    {
+      "p": "integrar com cv crm",
+      "r": "importar_xml"
+    },
+    {
+      "p": "integrar com jetimob",
+      "r": "importar_xml"
+    },
+    {
+      "p": "integrar com another",
+      "r": "importar_xml"
+    },
+    {
+      "p": "meu crm exporta xml",
+      "r": "importar_xml"
+    },
+    {
+      "p": "meu sistema tem feed",
+      "r": "importar_xml"
+    },
+    {
+      "p": "como funciona o follow up automatico",
+      "r": "conceito_followup"
+    },
+    {
+      "p": "follow up automatico",
+      "r": "conceito_followup"
+    },
+    {
+      "p": "o sistema manda mensagem automatica",
+      "r": "conceito_followup"
+    },
+    {
+      "p": "mensagem automatica para lead",
+      "r": "conceito_followup"
+    },
+    {
+      "p": "ia responde pelo whatsapp",
+      "r": "conceito_ia_wa"
+    },
+    {
+      "p": "robô responde o whatsapp",
+      "r": "conceito_ia_wa"
+    },
+    {
+      "p": "resposta automatica whatsapp",
+      "r": "conceito_ia_wa"
+    },
+    {
+      "p": "bot do whatsapp",
+      "r": "conceito_ia_wa"
+    },
+    {
+      "p": "como a ia responde",
+      "r": "conceito_ia_wa"
+    },
+    {
+      "p": "a ia fala com o cliente",
+      "r": "conceito_ia_wa"
+    },
+    {
+      "p": "o que a ia responde",
+      "r": "conceito_ia_wa"
+    },
+    {
+      "p": "a ia agenda visita",
+      "r": "conceito_ia_wa"
+    },
+    {
+      "p": "por que esse imovel esta em primeiro",
+      "r": "conceito_score"
+    },
+    {
+      "p": "ordem dos imoveis na vitrine",
+      "r": "conceito_score"
+    },
+    {
+      "p": "imovel mais barato aparece primeiro",
+      "r": "conceito_score"
+    },
+    {
+      "p": "maior area aparece primeiro",
+      "r": "conceito_score"
+    },
+    {
+      "p": "como melhorar posicao na vitrine",
+      "r": "conceito_score"
+    },
+    {
+      "p": "imovel nao aparece na vitrine",
+      "r": "conceito_score"
+    },
+    {
+      "p": "o que significa lead",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "o que e lead imobiliaria",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "lead e cliente",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "diferenca lead cliente",
+      "r": "conceito_lead"
+    },
+    {
+      "p": "o que e kanban",
+      "r": "conceito_kanban"
+    },
+    {
+      "p": "como funciona o kanban",
+      "r": "conceito_kanban"
+    },
+    {
+      "p": "mover card no kanban",
+      "r": "conceito_kanban"
+    },
+    {
+      "p": "coluna do kanban",
+      "r": "conceito_kanban"
+    },
+    {
+      "p": "status do kanban",
+      "r": "conceito_kanban"
+    },
+    {
+      "p": "etapas do kanban",
+      "r": "conceito_kanban"
+    },
+    {
+      "p": "o que e crm",
+      "r": "conceito_crm"
+    },
+    {
+      "p": "matchimoveis e um crm",
+      "r": "conceito_crm"
+    },
+    {
+      "p": "como usar como crm",
+      "r": "conceito_crm"
+    },
+    {
+      "p": "sistema de gestao",
+      "r": "conceito_crm"
+    },
+    {
+      "p": "quando atualiza o xml",
+      "r": "conceito_xml"
+    },
+    {
+      "p": "de quanto em quanto tempo atualiza",
+      "r": "conceito_xml"
+    },
+    {
+      "p": "xml atualiza automaticamente",
+      "r": "conceito_xml"
+    },
+    {
+      "p": "preciso gerar xml toda vez",
+      "r": "conceito_xml"
+    },
+    {
+      "p": "quantas fotos posso subir",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "limite de fotos",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "tamanho maximo da foto",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "formato de foto aceito",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "como descrevo o imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "descricao do imovel",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "campo de observacao",
+      "r": "editar_imovel"
+    },
+    {
+      "p": "campo de descricao",
+      "r": "editar_imovel"
     }
   ]
 }

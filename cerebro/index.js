@@ -29,6 +29,7 @@ const contextEngineering = require('./context-engineering');
 const notasUsuario = require('./notas-usuario');
 const compactador = require('./compactador');
 const tfidf = require('./tfidf');
+const buscaConhecimento = require('./busca-conhecimento');
 const feedbackLoop = require('./feedback-loop');
 const verificador = require('./verificador');
 const decompositor = require('./decompositor');
@@ -376,6 +377,22 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
       if (acao === 'imovel_parado') return finalizar('📦 <strong>Imóvel sem visitas?</strong><br><br>• Verifique se está publicado nos portais<br>• Revise as fotos e o preço<br>• Compare com a demanda do bairro<br><br>' + btn('Ver Imóveis','/app/imoveis') + ' ' + chip('Demanda por bairro','demanda por bairro'));
     }
   }
+
+    // -- PRIORIDADE 0.26: casos especiais antes dos módulos
+  if (/onde vejo.*mensagen|ver.*mensagen|inbox|minhas mensagen|mensagen recebida/.test(mNorm))
+    return finalizar('📱 Suas mensagens ficam no WhatsApp do sistema.<br><br>' + btn('Ver WhatsApp','/app/whatsapp'));
+  if (/bot.*whatsapp|robo.*whatsapp|ia.*responde|resposta automatica|whatsapp.*automatico|conceito_ia_wa/.test(mNorm) || /^bot|bot (do|no|pelo)|robo|ia responde|resposta automatica/i.test(mensagem.trim()))
+    return finalizar('🤖 Sim! A IA do MatchImóveis responde mensagens WhatsApp automaticamente — qualifica leads, faz match e agenda visitas.<br><br>' + btn('Ver WhatsApp','/app/whatsapp'));
+  if (/negocio fechado|fechou.*negocio|venda concluida|proposta aceita|contrato assinado/.test(mNorm))
+    return finalizar('🤝 <strong>Negócio fechado!</strong><br><br>Registre a visita como realizada e mova a lead para <strong>Fechado</strong> no kanban.<br><br>' + btn('Ver Visitas','/app/visitas') + ' ' + btn('Ver Leads','/app/leads'));
+  if (/selecionar.*lote|lote.*selecionar|varios imoveis|multiplos imoveis|em lote/.test(mNorm) || /selecionar.*(lote|varios|multiplos)|em lote|varios imoveis/i.test(mensagem))
+    return finalizar('☑️ Em Meus Imóveis, use os <strong>checkboxes</strong> para selecionar vários imóveis. A barra flutuante aparece com ações em lote: publicar em portais, inativar, etc.<br><br>' + btn('Ver Imóveis','/app/imoveis'));
+  if (/quero ver.*agenda|minha agenda|agenda do dia|ver agenda|compromisso/.test(mNorm) || /minha agenda|ver.*agenda|agenda do dia/i.test(mensagem) || /listar.*visitas/.test(mNorm))
+    return finalizar('📅 Sua agenda de visitas está em Visitas.<br><br>' + btn('Ver Visitas','/app/visitas'));
+  if (/marcar.*notificacao.*lida|notificacao.*lida|limpar notificacao|todas.*lidas/.test(mNorm))
+    return finalizar('🔔 Em Notificações, clique em <strong>Marcar todas como lidas</strong>.<br><br>' + btn('Ver Notificações','/app/notificacoes'));
+  if (/nao tenho saldo|sem saldo|acabou.*coins|acabou.*credito|preciso.*coins/.test(mNorm))
+    return finalizar('🪙 Seus coins acabaram! Recarregue para continuar usando o sistema.<br><br>💰 R$20 = 1.000 coins via Mercado Pago<br><br>' + btn('Comprar Coins','/app/coins'));
 
     // -- PRIORIDADE 0.25: situações do corretor — linguagem natural
   if (/ja enviei.*vitrine|mandei.*vitrine|enviei.*link/.test(mNorm)) {
@@ -870,6 +887,100 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
       if (int === 'dados_leads_quentes') return finalizar((d.leadsQuentes&&d.leadsQuentes.length)?'🔥 <strong>Leads quentes:</strong><br><br>'+(d.leadsQuentes||[]).map(function(l){return '• <strong>'+(l.nome||'Lead')+'</strong> — '+(l.faseFunil||'-');}).join('<br>')+'<br><br>'+btn('Ver Leads','/app/leads'):'Nenhuma lead quente ainda.<br><br>'+chip('Fazer match','fazer match agora'));
     }
   } catch(e) { console.error('[tfidf]', e.message); }
+
+  // ── 10.8. BUSCA NA BASE DE CONHECIMENTO (933 pares)
+  try {
+    const buscaRes = buscaConhecimento.buscar(mensagem, 0.25);
+    if (buscaRes && buscaRes.item) {
+      const intBusca = buscaRes.item.r;
+      // Mapear intenção para resposta
+      const mapaRespostas = {
+        navegar_imoveis: function(){ return btn('Ver Imóveis','/app/imoveis'); },
+        navegar_leads: function(){ return btn('Ver Leads','/app/leads'); },
+        navegar_visitas: function(){ return btn('Ver Visitas','/app/visitas'); },
+        navegar_whatsapp: function(){ return btn('Ver WhatsApp','/app/whatsapp'); },
+        navegar_perfil: function(){ return btn('Ver Perfil','/app/perfil'); },
+        navegar_portais: function(){ return btn('Ver Portais','/app/portais'); },
+        navegar_dashboard: function(){ return btn('Ver Dashboard','/app-home'); },
+        navegar_coins: function(){ return btn('Ver Coins','/app/coins'); },
+        navegar_mapa: function(){ return btn('Ver Mapa','/app/mapa'); },
+        navegar_feed: function(){ return btn('Ver Feed','/app/feed'); },
+        navegar_notificacoes: function(){ return btn('Ver Notificações','/app/notificacoes'); },
+        navegar_parceiros: function(){ return btn('Ver Parceiros','/app/parceiros'); },
+        navegar_central: function(){ return btn('Ver Central','/app/central'); },
+        comprar_coins: function(){ return '🪙 Para comprar coins acesse a página de Coins.<br><br>'+btn('Ver Coins','/app/coins'); },
+        funil_fechado: function(){ return '🤝 <strong>Negócio fechado!</strong><br><br>Registre a visita como realizada e mova a lead para <strong>Fechado</strong> no kanban.<br><br>'+btn('Ver Visitas','/app/visitas')+' '+btn('Ver Leads','/app/leads'); },
+        funil_negociacao: function(){ return '💬 Lead em negociação! Registre a proposta em Visitas.<br><br>'+btn('Ver Visitas','/app/visitas'); },
+        exportar: function(){ return '📊 Para exportar imóveis em Excel:<br><br>'+btn('Exportar Excel','/app/imoveis/exportar-excel'); },
+        editar_imovel: function(){ return '✏️ Para editar um imóvel, acesse Meus Imóveis e clique em Editar.<br><br>'+btn('Ver Imóveis','/app/imoveis'); },
+        detalhe_lead: function(){ return '👤 Para ver o perfil completo da lead, abra-a em Leads.<br><br>'+btn('Ver Leads','/app/leads'); },
+        acao_lote: function(){ return '☑️ Em Meus Imóveis, use os checkboxes para selecionar vários imóveis e a barra flutuante para ações em lote.<br><br>'+btn('Ver Imóveis','/app/imoveis'); },
+        notificacao_lida: function(){ return '🔔 Em Notificações, clique em <strong>Marcar todas como lidas</strong>.<br><br>'+btn('Ver Notificações','/app/notificacoes'); },
+        historico_chat: function(){ return '💬 O histórico de conversa fica salvo automaticamente. Role para cima para ver mensagens anteriores.'; },
+        conceito_suporte: function(){ return '🆘 Para suporte, entre em contato com a equipe MatchImóveis pelo WhatsApp. O assistente está aqui para resolver a maioria das dúvidas!<br><br>'+chip('O que posso perguntar','o que voce sabe responder'); },
+        conceito_kanban: function(){ return '📋 <strong>Kanban</strong> é a visualização em colunas das suas leads e visitas. Cada coluna representa uma etapa do funil.<br><br>'+btn('Ver Leads','/app/leads')+' '+btn('Ver Visitas','/app/visitas'); },
+        conceito_crm: function(){ return '💼 O MatchImóveis funciona como um CRM imobiliário — centralizando leads, imóveis, visitas e match em um só lugar.'; },
+        conceito_copiloto: function(){ return '🤖 <strong>Copiloto</strong> é o assistente que sugere respostas para enviar ao lead pelo WhatsApp. Aparece no inbox de mensagens.<br><br>'+btn('Ver WhatsApp','/app/whatsapp'); },
+        conceito_followup: function(){ return '📱 O sistema faz follow-up automático com leads via WhatsApp quando configurado. A IA responde e qualifica automaticamente.'; },
+        conceito_ia_wa: function(){ return '🤖 Sim! A IA do MatchImóveis responde mensagens WhatsApp dos leads automaticamente — qualifica, faz match e agenda visitas.'; },
+        acesso_mobile: function(){ return '📱 O MatchImóveis funciona pelo navegador do celular. Acesse matchimoveis.ia.br pelo Chrome ou Safari e adicione à tela inicial.'; },
+      };
+      
+      if (mapaRespostas[intBusca]) {
+        const respBusca = mapaRespostas[intBusca]();
+        if (respBusca) return finalizar(respBusca + sugestoes(dominio, d));
+      }
+      
+      // Intenções que já têm tratamento nos módulos — redireciona
+      const redirecionamentos = {
+        importar_xml: 'como importo imoveis via xml',
+        importar_leads: 'como importo leads',
+        gerar_xml: 'como publico no vivareal',
+        conectar_whatsapp: 'como conectar whatsapp',
+        enviar_vitrine: 'como envio vitrine',
+        cadastrar_lead: 'cadastrar lead manual',
+        confirmar_visita: 'como confirmar visita',
+        remarcar_visita: 'como remarcar visita',
+        fazer_match: 'como fazer match',
+        quintoandar: 'como ativo quintoandar',
+        erro_whatsapp: 'whatsapp desconectou',
+        erro_xml: 'xml nao atualizou',
+        erro_match: 'por que nao deu match',
+        erro_vitrine: 'vitrine nao abre',
+        erro_foto: 'foto nao sobe',
+        erro_acesso: 'nao consigo entrar',
+        erro_lead: 'lead nao importou',
+        dados_leads: 'quantas leads tenho',
+        dados_imoveis: 'quantos imoveis tenho',
+        dados_visitas: 'quantas visitas tenho',
+        dados_bairros: 'qual bairro tem mais demanda',
+        dados_tipo: 'qual tipo mais buscado',
+        dados_quentes: 'leads quentes',
+        conceito_match: 'o que e match',
+        conceito_vitrine: 'o que e vitrine',
+        conceito_coins: 'quanto custa match',
+        conceito_temperatura: 'temperatura lead',
+        plano_dia: 'o que devo fazer hoje',
+        busca_barato: 'tem algo mais barato',
+        lead_sumiu: 'o cara sumiu',
+        cliente_gostou: 'cliente gostou',
+        cliente_nao_gostou: 'meu cliente nao gostou',
+        imovel_parado: 'encalhado',
+      };
+      
+      if (redirecionamentos[intBusca]) {
+        const redir = redirecionamentos[intBusca];
+        const resRedir = require('./index').responder ? null : null; // evitar circular
+        // Usa suporte/sistema/navegador diretamente
+        const resSup2 = suporte.responder(redir, btn, chip);
+        if (resSup2) return finalizar(resSup2);
+        const resSis2 = modSistema.responder(redir, d, btn, chip);
+        if (resSis2) return finalizar(resSis2);
+        const resNav2 = navegador.responder(redir, btn, chip);
+        if (resNav2) return finalizar(resNav2 + sugestoes(dominio, d));
+      }
+    }
+  } catch(e) { console.error('[busca-conhecimento]', e.message); }
 
   // ── 11. PERGUNTA DE VOLTA ────────────────────────────────────────────────────
   const pergunta = perguntarDeVolta(mNorm, intencaoObj);

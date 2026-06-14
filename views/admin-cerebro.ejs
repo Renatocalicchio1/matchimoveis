@@ -268,6 +268,29 @@ async function testar(pergunta, btn) {
   btn.disabled = false;
 }
 
+async function testarItem(idx, btn) {
+  const item = filtrado[idx];
+  if (!item) return;
+  const div = document.getElementById('tr-'+idx);
+  btn.textContent = '⏳';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/admin/cerebro/testar', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ pergunta: item.p })
+    });
+    const json = await res.json();
+    div.style.display = 'block';
+    div.innerHTML = '<strong style="color:#1d4ed8">Resposta:</strong> ' + 
+      (json.resposta||json.erro||'Sem resposta').replace(/<[^>]+>/g,'').slice(0,300);
+  } catch(e) {
+    div.style.display = 'block';
+    div.innerHTML = '<span style="color:red">Erro: ' + e.message + '</span>';
+  }
+  btn.textContent = '▶ Testar';
+  btn.disabled = false;
+}
+
 async function salvarEdicao() {
   const idOriginal = document.getElementById('edit-id-original').value;
   const novoP = document.getElementById('edit-p').value.trim();
@@ -324,6 +347,9 @@ async function salvarNovo() {
 
 document.getElementById('modal').addEventListener('click', function(e) {
   if (e.target === this) fecharModal();
+});
+document.getElementById('modal-revisao').addEventListener('click', function(e) {
+  if (e.target === this) fecharRevisao();
 });
 
 renderLista();
@@ -515,7 +541,7 @@ function fecharRevisao() {
       </div>
       <textarea id="rev-edit" style="width:100%;padding:10px;border:1px solid #FF385C;border-radius:8px;font-size:13px;min-height:80px;font-family:inherit;margin-bottom:12px;resize:vertical" placeholder="Edite a resposta correta aqui..."></textarea>
       
-      <div id="rev-modo-normal">
+      <div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" onclick="if(idxRevisao>0){idxRevisao--;mostrarRevisao()}" id="rev-btn-anterior">← Anterior</button><button class="btn" onclick="fecharRevisao()" style="margin-left:auto">✕ Fechar</button></div><div id="rev-modo-normal">
         <div style="display:flex;gap:8px">
           <button class="btn-ok" style="flex:1;padding:12px" onclick="avaliarRevisao('ok')">✅ Correto</button>
           <button class="btn-err" style="flex:1;padding:12px" onclick="avaliarRevisao('erro')">✏️ Editar</button>

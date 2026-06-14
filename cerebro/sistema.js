@@ -1,224 +1,367 @@
 'use strict';
 const fs = require('fs');
-
+const path = require('path');
 
 const EXPLICACOES = {
-  match:        'Match é quando um imóvel da sua carteira combina com o que um lead procura. O sistema cruza bairro + tipo + quartos automaticamente.',
-  vitrine:      'Vitrine é uma página exclusiva enviada ao lead com os imóveis em match. O lead escolhe e solicita visita — tudo automático!',
+  match:        'Match é quando um imóvel da sua carteira combina com o que um lead procura. O sistema cruza bairro + tipo + quartos + valor automaticamente.',
+  vitrine:      'Vitrine é uma página exclusiva enviada ao lead com os imóveis em match. O lead escolhe e solicita visita — tudo automático.',
   score:        'Score define a ordem na vitrine: valor abaixo do máximo +50pts, área maior +30pts, quartos extras +20pts, suítes +15pts, vagas +15pts.',
   lead:         'Lead é um cliente interessado em comprar ou alugar. Você importa planilhas dos portais e o sistema faz o match automático.',
   xml:          'XML é o arquivo que envia seus imóveis para portais (VivaReal, ZAP, OLX). Gere aqui e cadastre o link no portal.',
-  coins:        'Match Coins são pontos ganhos a cada match realizado. Futuramente usados para recursos premium.',
-  visita:       'Fluxo: Lead recebe vitrine → escolhe imóvel → solicita visita → proprietário confirma/recusa → lead notificado. Tudo automático!',
-  proprietario: 'Proprietário é o dono do imóvel. Vincule via Excel (padrão Tecimob) para que ele receba notificações de visitas.',
-  extracao:     'Extração é o processo que lê a planilha do portal e identifica automaticamente bairro, tipo, quartos, valor e mais.',
-  rag:          'RAG significa que o assistente busca nos seus dados reais antes de responder — nunca inventa informações.',
-  cerebro:      'O cérebro é o sistema de IA local do MatchImóveis. Tem 16 módulos especializados que trabalham juntos para responder qualquer dúvida.',
+  coins:        'Match Coins são créditos do sistema. R$20 = 1.000 coins. Cada ação consome coins: match (20), vitrine WA (30), resposta IA (30).',
+  visita:       'Fluxo: Lead recebe vitrine → escolhe imóvel → solicita visita → proprietário confirma → lead notificado. Tudo automático.',
+  proprietario: 'Proprietário é o dono do imóvel. Vincule nome + celular no imóvel para que ele receba notificações de visitas via WhatsApp.',
+  cerebro:      'O cérebro é o sistema de IA do MatchImóveis com 50+ módulos. Aprende com as perguntas e busca nos seus dados reais.',
+  temperatura:  'Temperatura mostra o engajamento do lead: frio → qualificando → morno → match → quente (visita solicitada) → super quente (visita confirmada).',
+  funil:        'Funil de leads: novo → qualificando → match → vitrine → visita → proposta → fechado.',
+  instancia:    'Instância é a conexão do seu número WhatsApp com o sistema via Evolution API. Cada conta tem a sua própria instância.',
+  quintoandar:  'QuintoAndar tem fluxo separado. Ative no Perfil, garanta CEP + endereço + número + proprietário nos imóveis e o XML é gerado automaticamente.',
 };
 
-const AJUDA = [
-  {emoji:'👥', label:'Leads',        msg:'minhas leads'},
-  {emoji:'🏠', label:'Imóveis',      msg:'meus imoveis'},
-  {emoji:'📅', label:'Visitas',      msg:'minhas visitas'},
-  {emoji:'🎯', label:'Match',        msg:'ver match'},
-  {emoji:'🔗', label:'Portais',      msg:'ver portais'},
-  {emoji:'🪙', label:'Coins',        msg:'meus coins'},
-  {emoji:'🔔', label:'Notificações', msg:'minhas notificacoes'},
-  {emoji:'📊', label:'Resumo',       msg:'resumo geral'},
-  {emoji:'🧠', label:'Plano do dia', msg:'o que devo fazer hoje'},
-  {emoji:'📈', label:'Relatório',    msg:'relatorio semanal'},
-  {emoji:'📍', label:'Demanda',      msg:'demanda por bairro'},
-  {emoji:'🚀', label:'Onboarding',   msg:'primeiros passos'},
-];
-
 function responder(mNorm, d, btn, chip) {
-  if (/primeiros passos|como comecar|por onde comecar|primeiro passo|nao sei comecar/.test(mNorm))
-    return '🚀 <strong>Primeiros passos:</strong><br><br>1. Importe imóveis via XML<br>2. Importe leads da planilha<br>3. Faça o match<br>4. Envie a vitrine<br>5. Aguarde a visita<br><br>'+btn('Cadastrar imóvel','/app/cadastro')+btn('Importar leads','/app-importar-leads');
 
-  // PÁGINA DE PERFIL
-  if (/pagina perfil|app perfil|meu perfil|dados da conta|o que tem no perfil/.test(mNorm))
-    return '👤 <strong>Meu Perfil (/app/perfil):</strong><br><br>' +
-      '<strong>Dados da conta:</strong><br>' +
+  // PRIMEIROS PASSOS
+  if (/primeiros passos|como comecar|por onde comecar|primeiro passo|nao sei comecar|como uso|tutorial/.test(mNorm))
+    return '🚀 <strong>Primeiros passos no MatchImóveis:</strong><br><br>' +
+      '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">1</span><span>Importe seus imóveis via XML do seu CRM</span></div>' +
+      '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">2</span><span>Importe leads da planilha dos portais</span></div>' +
+      '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">3</span><span>O match é feito automaticamente</span></div>' +
+      '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">4</span><span>Envie a vitrine para o lead via WhatsApp</span></div>' +
+      '<div style="display:flex;gap:10px;margin:6px 0"><span style="background:#ff385c;color:white;border-radius:50%;width:22px;height:22px;min-width:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">5</span><span>Aguarde a solicitação de visita e confirme</span></div>' +
+      '<br>'+btn('Cadastrar imóvel','/app/cadastro')+' '+btn('Importar leads','/app/importar-leads');
+
+  // MENU / NAVEGAÇÃO GERAL
+  if (/menu|navegacao|onde encontro|onde fica|onde acho|paginas do sistema|o que tem no menu/.test(mNorm))
+    return '📋 <strong>Menu do MatchImóveis:</strong><br><br>' +
+      '🏠 <a href="/app-home" style="color:#ff385c;font-weight:700">Dashboard</a> — métricas e resumo<br>' +
+      '🏢 <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Meus Imóveis</a> — carteira completa<br>' +
+      '👥 <a href="/app/leads" style="color:#ff385c;font-weight:700">Leads</a> — kanban de clientes<br>' +
+      '📅 <a href="/app/visitas" style="color:#ff385c;font-weight:700">Visitas</a> — agendamentos<br>' +
+      '🗺️ <a href="/app/mapa" style="color:#ff385c;font-weight:700">Mapa</a> — imóveis e visitas no mapa<br>' +
+      '📱 <a href="/app/whatsapp" style="color:#ff385c;font-weight:700">WhatsApp</a> — inbox de mensagens<br>' +
+      '🔗 <a href="/app/portais" style="color:#ff385c;font-weight:700">Portais</a> — XML para portais<br>' +
+      '🪙 <a href="/app/coins" style="color:#ff385c;font-weight:700">Coins</a> — saldo e histórico<br>' +
+      '👤 <a href="/app/perfil" style="color:#ff385c;font-weight:700">Perfil</a> — dados da conta<br>' +
+      '🤖 <a href="/app/assistente" style="color:#ff385c;font-weight:700">Assistente</a> — aqui!';
+
+  // DASHBOARD
+  if (/dashboard|painel|painel de controle|o que tem no dashboard|tela inicial|home/.test(mNorm))
+    return '📊 <strong>Dashboard (/app-home):</strong><br><br>' +
+      '• Ticker: total de imóveis ativos<br>' +
+      '• Ticker: total de leads<br>' +
+      '• Ticker: visitas pendentes<br>' +
+      '• Ticker: taxa de match<br>' +
+      '• Gráfico funil de leads por status<br>' +
+      '• Heatmap de demanda por bairro<br>' +
+      '• Gauge de temperatura das leads<br>' +
+      '• Botões de ação rápida<br><br>' +
+      btn('Ir ao Dashboard','/app-home');
+
+  // PERFIL
+  if (/pagina perfil|app perfil|meu perfil|dados da conta|o que tem no perfil|o que tem em perfil/.test(mNorm))
+    return '👤 <strong>Perfil (/app/perfil):</strong><br><br>' +
       '• Nome da conta<br>' +
       '• Celular<br>' +
       '• CRECI<br>' +
       '• CPF<br>' +
-      '• Tipo de conta (Corretor · Imobiliária · Construtora)<br>' +
-      '• Código do usuário (ex: R-088)<br><br>' +
-      '<strong>Minha localização:</strong><br>' +
-      '• Clique em <strong>Atualizar Localização</strong><br>' +
-      '• O sistema detecta automaticamente onde você está<br><br>' +
-      btn('Ver perfil','/app/perfil');
+      '• Tipo de conta: Corretor, Imobiliária ou Construtora<br>' +
+      '• Código do usuário (ex: REN-HUH6)<br>' +
+      '• Toggle QuintoAndar + contador elegíveis<br>' +
+      '• Conectar WhatsApp via QR code<br>' +
+      '• Atualizar localização automática<br>' +
+      '• Alterar senha<br><br>' +
+      btn('Ver Perfil','/app/perfil');
+
+  // IMÓVEIS
+  if (/o que tem.*imoveis|pagina.*imoveis|tela.*imoveis|imoveis.*o que tem/.test(mNorm))
+    return '🏢 <strong>Meus Imóveis (/app/imoveis):</strong><br><br>' +
+      '• Cards com foto, tipo, bairro, valor e status<br>' +
+      '• Badge VENDA / ALUGUEL em cada card<br>' +
+      '• Ícones dos portais ativos por imóvel<br>' +
+      '• Seleção em lote para publicar em portais<br>' +
+      '• Busca por texto, ID interno ou ID externo<br>' +
+      '• Filtros: tipo, transação, bairro, valor, status, proprietário, fotos, portal<br>' +
+      '• Botão imóveis incompletos para QuintoAndar<br><br>' +
+      btn('Ver Imóveis','/app/imoveis');
+
+  // LEADS
+  if (/o que tem.*leads|pagina.*leads|tela.*leads|leads.*o que tem/.test(mNorm))
+    return '👥 <strong>Leads (/app/leads):</strong><br><br>' +
+      '• Kanban: novo → qualificando → match → vitrine → visita → proposta → fechado<br>' +
+      '• Cards com nome, bairro, tipo, temperatura e score<br>' +
+      '• Badge de temperatura: frio, morno, quente, super quente<br>' +
+      '• Botão Nova Lead para cadastro manual<br>' +
+      '• Filtros por status, fonte e bairro<br><br>' +
+      btn('Ver Leads','/app/leads');
+
+  // VISITAS
+  if (/o que tem.*visitas|pagina.*visitas|tela.*visitas|visitas.*o que tem/.test(mNorm))
+    return '📅 <strong>Visitas (/app/visitas):</strong><br><br>' +
+      '• Kanban: solicitada → aguard. cliente → remarcação → confirmada → realizada → cancelada<br>' +
+      '• Card com lead, imóvel, data e status<br>' +
+      '• Botão Realizada nas colunas aguardando e confirmada<br>' +
+      '• Notificação automática ao proprietário via WhatsApp<br>' +
+      '• Botões: Confirmar, Remarcar, Cancelar<br><br>' +
+      btn('Ver Visitas','/app/visitas');
+
+  // WHATSAPP
+  if (/o que tem.*whatsapp|pagina.*whatsapp|tela.*whatsapp|whatsapp.*o que tem|inbox whatsapp/.test(mNorm))
+    return '📱 <strong>WhatsApp (/app/whatsapp):</strong><br><br>' +
+      '• Inbox de mensagens recebidas dos leads<br>' +
+      '• Conversa organizada por lead<br>' +
+      '• Copiloto com sugestões de resposta<br>' +
+      '• Badge com não lidas no menu<br>' +
+      '• Enviar mensagem direta pelo sistema<br><br>' +
+      btn('Ver WhatsApp','/app/whatsapp');
+
+  // COINS
+  if (/o que tem.*coins|pagina.*coins|tela.*coins|coins.*o que tem|match coins/.test(mNorm))
+    return '🪙 <strong>Match Coins (/app/coins):</strong><br><br>' +
+      '• Saldo atual de Match Coins<br>' +
+      '• Histórico de débitos e créditos<br>' +
+      '• Tabela de custos: match (20), vitrine WA (30), resposta IA (30), importar XML (2/imóvel)<br>' +
+      '• Comprar via Mercado Pago: R$20 = 1.000 coins<br><br>' +
+      btn('Ver Coins','/app/coins');
+
+  // PORTAIS
+  if (/o que tem.*portais|pagina.*portais|tela.*portais|portais.*o que tem/.test(mNorm))
+    return '🔗 <strong>Portais (/app/portais):</strong><br><br>' +
+      '• VivaReal, ZAP Imóveis, OLX, Chaves na Mão, ImovelWeb, 123i<br>' +
+      '• Link XML por portal para cadastrar no portal parceiro<br>' +
+      '• QuintoAndar tem fluxo separado via toggle no Perfil<br>' +
+      '• Status e data da última geração<br><br>' +
+      btn('Ver Portais','/app/portais');
 
   // CRECI
   if (/creci|registro creci|numero creci/.test(mNorm))
-    return '📋 O <strong>CRECI</strong> é o registro profissional do corretor.<br>' +
-      'Fica salvo no seu perfil em <a href="/app/perfil" style="color:#ff385c;font-weight:700">Perfil →</a>';
+    return '📋 O <strong>CRECI</strong> é o registro profissional do corretor. Fica salvo no seu perfil em ' +
+      btn('Perfil','/app/perfil');
 
   // CÓDIGO DO USUÁRIO
   if (/codigo usuario|id usuario|meu codigo|codigo da conta/.test(mNorm))
-    return '🔑 O <strong>código do usuário</strong> é seu ID único na plataforma (ex: R-088).<br>' +
-      'Aparece no menu e no perfil. Cada conta tem o seu próprio código.<br><br>' +
-      btn('Ver perfil','/app/perfil');
+    return '🔑 O <strong>código do usuário</strong> é seu ID único na plataforma (ex: REN-HUH6). ' +
+      'Aparece no menu e no perfil.<br><br>' + btn('Ver Perfil','/app/perfil');
 
   // LOCALIZAÇÃO
-  if (/localizacao|atualizar localizacao|minha localizacao|onde estou/.test(mNorm))
+  if (/localizacao|atualizar localizacao|minha localizacao/.test(mNorm))
     return '📍 <strong>Atualizar localização:</strong><br><br>' +
-      '1. Acesse <a href="/app/perfil" style="color:#ff385c;font-weight:700">Perfil →</a><br>' +
-      '2. Clique em <strong>Atualizar Localização</strong><br>' +
-      '3. O sistema detecta automaticamente onde você está<br><br>' +
-      'A localização é usada para personalizar resultados e demanda por região.<br><br>' +
-      btn('Ver perfil','/app/perfil');
+      '1. Acesse Perfil<br>2. Clique em <strong>Atualizar Localização</strong><br>' +
+      '3. O sistema detecta automaticamente<br><br>' + btn('Ver Perfil','/app/perfil');
 
-  // SALVAR PERFIL
-  if (/salvar perfil|alterar dados|atualizar dados|editar perfil/.test(mNorm))
-    return '💾 Para atualizar seus dados, acesse <a href="/app/perfil" style="color:#ff385c;font-weight:700">Perfil →</a>, edite as informações e clique em <strong>Salvar</strong>.';
+  // ALTERAR SENHA
+  if (/alterar senha|trocar senha|mudar senha|esqueci senha/.test(mNorm))
+    return '🔒 <strong>Alterar senha:</strong><br><br>' +
+      '• Logado: Perfil → Alterar Senha<br>' +
+      '• Esqueceu: tela de login → "Esqueci minha senha" → nova senha chega via WhatsApp<br><br>' +
+      btn('Ver Perfil','/app/perfil');
 
-  // DASHBOARD
-  if (/dashboard|painel|painel de controle/.test(mNorm))
-    return '📊 <strong>Dashboard — o que tem:</strong><br><br>' +
-      '🏠 <strong>Imóveis na carteira</strong> — total cadastrado<br>' +
-      '🎯 <strong>Matches gerados</strong> — total e por lead<br>' +
-      '👥 <strong>Total de leads</strong><br>' +
-      '📊 <strong>Taxa de match</strong> — % de leads com match<br>' +
-      '📅 <strong>Visitas agendadas</strong><br>' +
-      '📋 <strong>Atividades recentes</strong><br>' +
-      '📈 Gráficos: imóveis por tipo, por bairro, leads por bairro, visitas por estado<br><br>' +
-      btn('Ir para dashboard','/app-home');
+  // WHATSAPP — CONECTAR
+  if (/como conectar whatsapp|integrar whatsapp|conectar whatsapp|ligar whatsapp|qr code/.test(mNorm))
+    return '📱 <strong>Conectar WhatsApp:</strong><br><br>' +
+      '1. Vá em Perfil → Conectar WhatsApp<br>' +
+      '2. Clique em Gerar QR code<br>' +
+      '3. Abra o WhatsApp no celular → Dispositivos conectados → Conectar dispositivo<br>' +
+      '4. Escaneie o QR code<br>' +
+      '5. Pronto — leads que mandarem mensagem entram automaticamente no sistema<br><br>' +
+      btn('Conectar WhatsApp','/app/whatsapp/qrcode');
 
-  // MENU
-  if (/menu|navegacao|onde encontro|onde fica|onde acho/.test(mNorm))
-    return '📋 <strong>Menu da plataforma:</strong><br><br>' +
-      '• 📊 Dashboard<br>' +
-      '• 🏠 Meus Imóveis<br>' +
-      '• 👥 Leads<br>' +
-      '• 📅 Visitas<br>' +
-      '• 🔔 Notificações<br>' +
-      '• ➕ Cadastrar Imóveis<br>' +
-      '• 🔗 Portais<br>' +
-      '• 👤 Perfil<br>' +
-      '• 🪙 MatchCoins<br>' +
-      '• 🤖 Assistente<br><br>' +
-      'Cada usuário tem ID único (ex: R-088) e vê apenas seus próprios dados.';
+  // WHATSAPP — DESCONECTOU
+  if (/whatsapp desconectou|perdeu conexao|whatsapp caiu|reconectar whatsapp/.test(mNorm))
+    return '⚠️ <strong>WhatsApp desconectado:</strong><br><br>' +
+      '1. Vá em Perfil → Conectar WhatsApp<br>' +
+      '2. Gere um novo QR code<br>' +
+      '3. Escaneie com o celular<br><br>' +
+      '💡 Dica: mantenha o celular conectado à internet para evitar desconexões.<br><br>' +
+      btn('Reconectar','/app/whatsapp/qrcode');
+
+  // INATIVAR IMÓVEL
+  if (/como inativar|desativar imovel|inativar imovel|tirar do ar/.test(mNorm))
+    return '🔴 <strong>Inativar imóvel:</strong><br><br>' +
+      '1. Vá em Meus Imóveis<br>' +
+      '2. Abra o imóvel e clique em Editar<br>' +
+      '3. Mude o status para <strong>Inativo</strong><br>' +
+      '4. Salve — o imóvel sai do match e dos portais automaticamente<br><br>' +
+      btn('Ver Imóveis','/app/imoveis');
+
+  // ADICIONAR FOTO
+  if (/como cadastro foto|adicionar foto|subir foto|como adiciono foto|foto imovel/.test(mNorm))
+    return '📸 <strong>Adicionar fotos ao imóvel:</strong><br><br>' +
+      '1. Vá em Meus Imóveis → abra o imóvel → Editar<br>' +
+      '2. Clique em <strong>Adicionar Foto</strong><br>' +
+      '3. Arraste para reordenar — a primeira é a capa<br>' +
+      '4. Formatos aceitos: JPG, PNG<br><br>' +
+      btn('Ver Imóveis','/app/imoveis');
+
+  // MATCH — COMO FUNCIONA
+  if (/como funciona.*match|como funciona o match|como o match funciona/.test(mNorm))
+    return '🎯 <strong>Como funciona o Match:</strong><br><br>' +
+      '<strong>Caso 1 — Lead clicou em um imóvel (portal):</strong><br>' +
+      '• Esse imóvel é a âncora (score 100)<br>' +
+      '• Busca até 30 similares: mesmo tipo + cidade + bairro (score 90) + valor ±30%/+20% + área ±20%<br><br>' +
+      '<strong>Caso 2 — Lead com perfil de busca:</strong><br>' +
+      '• Precisa de: tipo + transação + cidade + bairro + valor + quartos (residencial)<br>' +
+      '• Valor: -30% / +20% do valorMax da lead<br><br>' +
+      btn('Ver Leads','/app/leads') + ' ' + chip('Leads com match','leads com match');
+
+  // VITRINE
+  if (/o que e vitrine|como funciona vitrine|como envio vitrine|enviar vitrine/.test(mNorm))
+    return '✨ <strong>Vitrine:</strong><br><br>' +
+      'Página exclusiva enviada ao lead com os imóveis em match.<br><br>' +
+      '1. Abra a lead com match<br>' +
+      '2. Clique em <strong>Enviar Vitrine via WhatsApp</strong><br>' +
+      '3. O lead recebe o link e pode solicitar visita diretamente<br><br>' +
+      btn('Ver Leads','/app/leads') + ' ' + chip('Minhas vitrines','minhas vitrines');
+
+  // COINS — CUSTOS
+  if (/quanto custa|tabela coins|custo.*coins|coins.*custo|quanto gasta/.test(mNorm))
+    return '🪙 <strong>Tabela de custos (Match Coins):</strong><br><br>' +
+      '• Cadastrar imóvel: 15 coins<br>' +
+      '• Importar XML: 2 coins/imóvel<br>' +
+      '• Match encontrado: 20 coins<br>' +
+      '• Vitrine WhatsApp: 30 coins<br>' +
+      '• IA responde WhatsApp: 30 coins<br>' +
+      '• Follow-up automático: 25 coins<br>' +
+      '• Visita agendada IA: 40 coins<br>' +
+      '• Nova lead portal (webhook): 20 coins<br>' +
+      '• Importar lead planilha: 10 coins/lead<br><br>' +
+      '💰 R$20 = 1.000 coins<br><br>' +
+      btn('Ver Coins','/app/coins');
+
+  // QUINTOANDAR
+  if (/quintoandar|quinto andar|como ativo quintoandar|publicar quintoandar/.test(mNorm))
+    return '🏠 <strong>QuintoAndar:</strong><br><br>' +
+      '1. Vá em Perfil → ative o toggle <strong>QuintoAndar</strong><br>' +
+      '2. Imóveis elegíveis precisam ter: CEP + endereço + número + proprietário (nome + celular)<br>' +
+      '3. Clique em <strong>Ver imóveis incompletos</strong> para corrigir os que faltam<br>' +
+      '4. O XML é gerado automaticamente em /xml/quintoandar-global<br><br>' +
+      '📍 Estados ativos: SP, RJ, MG, RS, PR, GO, DF, BA, PE, CE, ES, SC e mais<br><br>' +
+      btn('Ver Perfil','/app/perfil') + ' ' + btn('Ver Imóveis','/app/imoveis');
+
+  // TAXA DE MATCH
+  if (/taxa de match|taxa match|percentual match/.test(mNorm))
+    return '📊 <strong>Taxa de match</strong> = leads com match ÷ total de leads × 100%<br><br>' +
+      'Aparece no Dashboard. Se estiver baixa:<br>' +
+      '• Verifique se os leads têm bairro + tipo preenchidos<br>' +
+      '• Verifique se tem imóveis nos bairros que os leads procuram<br>' +
+      '• Use Demanda por bairro para identificar gaps<br><br>' +
+      btn('Ver Dashboard','/app-home') + ' ' + chip('Demanda por bairro','demanda por bairro');
 
   // TIPOS DE IMÓVEL
   if (/tipos de imovel|tipos imovel|quais tipos|tipo de imovel/.test(mNorm))
     return '🏠 <strong>Tipos de imóvel disponíveis:</strong><br><br>' +
-      'Apartamento · Sobrado · Estúdio · Casa · Comercial · Residencial · Outros<br><br>' +
-      btn('Ver imóveis','/app/imoveis');
+      'Residencial: Apartamento, Casa, Cobertura, Sobrado, Studio, Loft, Casa de Condomínio<br>' +
+      'Comercial: Sala, Loja, Galpão, Prédio, Escritório, Conjunto, Hotel, Pousada, Consultório, Restaurante<br>' +
+      'Terreno: Terreno, Lote, Área Rural, Chácara, Sítio, Fazenda';
 
   // TIPOS DE CONTA
-  if (/tipo de conta|tipo conta|corretor|construtor|proprietario conta/.test(mNorm))
+  if (/tipo de conta|tipo conta|corretor conta|imobiliaria conta|construtora conta/.test(mNorm))
     return '👤 <strong>Tipos de conta:</strong><br><br>' +
-      '• Corretor imobiliário<br>' +
-      '• Construtor<br>' +
-      '• Proprietário<br><br>' +
-      'Cada conta tem ID único e armazena apenas seus próprios imóveis, leads e visitas.';
+      '• <strong>Corretor</strong> — profissional autônomo<br>' +
+      '• <strong>Imobiliária</strong> — empresa com equipe<br>' +
+      '• <strong>Construtora</strong> — lançamentos e empreendimentos<br><br>' +
+      'Mude em Perfil → Tipo de conta<br><br>' + btn('Ver Perfil','/app/perfil');
 
-  // MATCHCOINS
-  if (/matchcoin|match coin|coin/.test(mNorm))
-    return '🪙 <strong>MatchCoins</strong> — sistema de recompensas.<br><br>' +
-      'Ganhe coins a cada match realizado. Futuramente usados para recursos premium.<br><br>' +
-      btn('Ver MatchCoins','/app/coins');
+  // TEMPERATURA DO LEAD
+  if (/temperatura lead|o que e temperatura|como funciona temperatura/.test(mNorm))
+    return '🌡️ <strong>Temperatura das leads:</strong><br><br>' +
+      '🔵 <strong>Frio</strong> — lead novo, sem qualificação<br>' +
+      '🔵 <strong>Frio+</strong> — qualificando<br>' +
+      '🟡 <strong>Morno</strong> — tem match<br>' +
+      '🟡 <strong>Morno+</strong> — vitrine enviada<br>' +
+      '🟠 <strong>Quente</strong> — visita solicitada<br>' +
+      '🔴 <strong>Quente+</strong> — visita confirmada<br>' +
+      '⭐ <strong>Super quente</strong> — visita realizada';
 
-  // TAXA DE MATCH
-  if (/taxa de match|taxa match|percentual match/.test(mNorm)) {
-    return '📊 <strong>Taxa de match</strong> = quantidade de leads que receberam match ÷ total de leads × 100%<br><br>' +
-      'Exemplo: 41 matches em 87 leads = 47% de taxa.<br><br>' +
-      chip('Ver meu match','ver match');
-  }
+  // IMPORTAR LEADS
+  if (/como importar lead|importar planilha|importar leads|como importo leads/.test(mNorm))
+    return '📋 <strong>Importar leads:</strong><br><br>' +
+      '1. Vá em Leads → Importar Leads<br>' +
+      '2. Baixe o modelo de planilha<br>' +
+      '3. Preencha com os leads exportados dos portais<br>' +
+      '4. Faça upload — o sistema extrai bairro, tipo, quartos e valor automaticamente<br><br>' +
+      btn('Importar Leads','/app/importar-leads');
 
-  // Respostas diretas para comandos de suporte
-  if (/como cadastro imovel|cadastrar imovel|novo imovel|cadastro imovel/.test(mNorm))
-    return '🏠 Acesse <a href="/app/imovel/cadastrar" style="color:#ff385c;font-weight:700">Cadastrar Imóvel →</a> e preencha: tipo, bairro, quartos, valor e pelo menos 1 foto.';
-  if (/como cadastro foto|adicionar foto|subir foto|como adiciono foto/.test(mNorm))
-    return '📸 Abra o imóvel em <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Imóveis →</a> e clique em <strong>Adicionar Fotos</strong>. Mínimo recomendado: 5 fotos (JPG ou PNG).';
-  if (/como conectar whatsapp|integrar whatsapp|conectar whatsapp/.test(mNorm))
-    return '📱 <strong>WhatsApp via Twilio</strong> está em desenvolvimento. Em breve você responderá clientes direto pelo chat do MatchImóveis sem sair da plataforma.';
-  if (/como inativar|desativar imovel|inativar imovel/.test(mNorm))
-    return '🔴 Acesse <a href="/app/imoveis" style="color:#ff385c;font-weight:700">Imóveis →</a>, abra o imóvel e clique em <strong>Inativar</strong>. Ele sai do match e dos portais automaticamente.';
-  if (/como importar lead|importar planilha|importar leads/.test(mNorm))
-    return '📋 Acesse <a href="/app-importar-leads" style="color:#ff385c;font-weight:700">Importar Leads →</a> e envie o CSV ou Excel exportado do portal (ImovelWeb, ZAP, VivaReal, OLX).';
-  if (/como trocar senha|alterar senha/.test(mNorm))
-    return '🔒 Acesse <a href="/app/perfil" style="color:#ff385c;font-weight:700">Perfil →</a> e use a opção <strong>Alterar Senha</strong>.';
+  // PROPRIETÁRIO
+  if (/proprietario.*imovel|vincular proprietario|cadastrar proprietario|dono.*imovel/.test(mNorm))
+    return '👤 <strong>Proprietário do imóvel:</strong><br><br>' +
+      'O proprietário recebe notificações automáticas de visitas via WhatsApp.<br><br>' +
+      'Para vincular:<br>' +
+      '1. Edite o imóvel<br>' +
+      '2. Preencha Nome e Celular do proprietário<br>' +
+      '3. Salve<br><br>' +
+      '💡 Imóveis sem proprietário: o corretor confirma a visita diretamente (Caso 2).<br><br>' +
+      btn('Ver Imóveis','/app/imoveis');
 
-  // Explicações específicas
-  // Alias para 'como funciona'
-  if (/como funciona o match|como funciona match/.test(mNorm)) {
-    return '🎯 <strong>Como funciona o Match:</strong><br><br>O sistema cruza automaticamente bairro + tipo + quartos da lead com seus imóveis.<br><br>Score na vitrine: valor abaixo do máx +50pts · área maior +30pts · quartos extras +20pts · suítes +15pts · vagas +15pts<br><br>' + chip('Ver leads com match', 'leads com match');
-  }
+  // PARCEIROS
+  if (/parceiros|corretor parceiro|comissao parceiro/.test(mNorm))
+    return '🤝 <strong>Parceiros (/app/parceiros):</strong><br><br>' +
+      '• Lista de corretores parceiros<br>' +
+      '• Defina comissão por visita<br>' +
+      '• Agende visitas com parceiro<br><br>' +
+      btn('Ver Parceiros','/app/parceiros');
+
+  // MAPA
+  if (/o que tem.*mapa|pagina.*mapa|tela.*mapa|mapa.*o que tem/.test(mNorm))
+    return '🗺️ <strong>Mapa (/app/mapa):</strong><br><br>' +
+      '• Pins dos imóveis no mapa<br>' +
+      '• Pins de visitas agendadas<br>' +
+      '• Filtro por status da visita<br>' +
+      '• Centraliza automaticamente na região de atuação<br><br>' +
+      btn('Ver Mapa','/app/mapa');
+
+  // EXPLICAÇÕES GERAIS
   for (const [key, texto] of Object.entries(EXPLICACOES)) {
-    if (mNorm.includes(key))
-      return `💡 <strong>${key.charAt(0).toUpperCase()+key.slice(1)}</strong><br><br>${texto}<br><br>${chip('❓ Mais ajuda','ajuda')}`;
+    if (mNorm.includes(key)) {
+      return '💡 <strong>' + key.charAt(0).toUpperCase() + key.slice(1) + ':</strong><br><br>' + texto;
+    }
   }
-  // Ajuda geral
-  return `🤖 <strong>Sou o Match — seu assistente imobiliário.</strong><br><br>Posso te ajudar com:<br><br>`+
-    AJUDA.map(i=>`<button onclick="enviarMsg('${i.msg}')" style="background:#f3f4f6;border:none;border-radius:20px;padding:8px 14px;margin:4px;cursor:pointer;font-weight:600;font-size:13px">${i.emoji} ${i.label}</button>`).join('');
+
+  return null;
 }
 
-
-// ── MAPA COMPLETO DO SISTEMA ──────────────────────────────────────────────────
 function responderComMapa(mNorm, btn, chip) {
   let mapa;
-  try { mapa = JSON.parse(fs.readFileSync('./cerebro/mapa-completo.json','utf8')); } catch(e) { return null; }
-
+  try { mapa = JSON.parse(fs.readFileSync(path.join(__dirname,'mapa-completo.json'),'utf8')); } catch(e) { return null; }
   const views = mapa.views || {};
-  const rotas = mapa.server?.rotas || [];
-
-  // Detectar qual view o usuario quer saber
   const mapaViews = {
-    'leads':        'app-leads',
-    'imoveis':      'app-imoveis',
-    'visitas':      'app-visitas',
-    'dashboard':    'app-home',
-    'home':         'app-home',
-    'cadastro':     'app-cadastro',
-    'portais':      'app-portais',
-    'notificacoes': 'app-notificacoes',
-    'perfil':       'app-perfil',
-    'coins':        'app-coins',
-    'assistente':   'app-assistente',
-    'editar imovel':'app-editar-imovel',
-    'lead detalhe': 'app-lead-detalhe',
+    'leads':         'app-leads',
+    'imoveis':       'app-imoveis',
+    'visitas':       'app-visitas',
+    'dashboard':     'app-home',
+    'home':          'app-home',
+    'cadastro':      'app-cadastro',
+    'portais':       'app-portais',
+    'notificacoes':  'app-notificacoes',
+    'perfil':        'app-perfil',
+    'coins':         'app-coins',
+    'assistente':    'app-assistente',
+    'whatsapp':      'app-whatsapp',
+    'mapa':          'app-mapa',
+    'feed':          'app-feed',
+    'parceiros':     'app-parceiros',
     'importar leads':'app-importar-leads',
   };
-
   const viewKey = Object.entries(mapaViews).find(([k]) => mNorm.includes(k));
   if (!viewKey) return null;
-
   const view = views[viewKey[1]];
   if (!view) return null;
+  const nome = viewKey[1].replace('app-','').replace(/-/g,' ');
 
-  const nome = viewKey[1].replace('app-','').replace('-',' ');
-
-  // "o que tem" / "me explica" / "o que fica"
   if (/o que tem|o que ha|me explica|me fala|o que fica|conteudo|pagina de/.test(mNorm)) {
     let resp = '📋 <strong>Página ' + nome + ':</strong><br><br>';
-    if (view.textos && view.textos.length) resp += '<strong>Textos e títulos:</strong><br>' + view.textos.slice(0,8).map(t=>'• '+t).join('<br>') + '<br><br>';
-    if (view.inputs && view.inputs.length) resp += '<strong>Campos disponíveis:</strong><br>' + view.inputs.slice(0,8).map(i=>'• '+i).join('<br>') + '<br><br>';
-    if (view.selects && view.selects.length) resp += '<strong>Filtros/Selects:</strong><br>' + view.selects.map(s=>'• '+s).join('<br>') + '<br><br>';
-    if (view.onclicks && view.onclicks.length) resp += '<strong>Ações/Botões:</strong><br>' + view.onclicks.slice(0,6).map(o=>'• '+o.slice(0,60)).join('<br>');
-    return resp;
+    if (view.inputs && view.inputs.length) resp += '<strong>Campos:</strong><br>' + view.inputs.slice(0,8).map(i=>'• '+i).join('<br>') + '<br><br>';
+    if (view.selects && view.selects.length) resp += '<strong>Filtros/Opções:</strong><br>' + view.selects.slice(0,8).map(s=>'• '+s).join('<br>') + '<br><br>';
+    if (view.links && view.links.length) resp += '<strong>Links internos:</strong><br>' + [...new Set(view.links)].slice(0,6).map(l=>'• '+l).join('<br>');
+    return resp || null;
   }
-
-  // "quais campos tem"
   if (/campos?|inputs?|formulario|preencher/.test(mNorm)) {
-    if (!view.inputs || !view.inputs.length) return 'Não encontrei campos de formulário nessa página.';
+    if (!view.inputs || !view.inputs.length) return 'Não encontrei campos nessa página.';
     return '📝 <strong>Campos em ' + nome + ':</strong><br><br>' + view.inputs.map(i=>'• '+i).join('<br>');
   }
-
-  // "quais botoes tem"
-  if (/bot[aã]o|bot[oõ]es|acoes|cliques|o que posso clicar/.test(mNorm)) {
-    if (!view.onclicks || !view.onclicks.length) return 'Não encontrei botões nessa página.';
-    return '⚡ <strong>Botões em ' + nome + ':</strong><br><br>' + view.onclicks.slice(0,8).map(o=>'• '+o.slice(0,60)).join('<br>');
-  }
-
-  // "quais links tem" / "para onde vai"
   if (/links?|navega|para onde|rotas?/.test(mNorm)) {
-    if (!view.links || !view.links.length) return 'Não encontrei links internos nessa página.';
+    if (!view.links || !view.links.length) return 'Não encontrei links nessa página.';
     return '🔗 <strong>Links em ' + nome + ':</strong><br><br>' + [...new Set(view.links)].slice(0,8).map(l=>'• '+l).join('<br>');
   }
-
   return null;
 }
 

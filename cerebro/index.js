@@ -183,7 +183,15 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     } catch(e) { console.error('cadastrar lead err:', e.message); }
   }
 
-  // -- PRIORIDADE 0.5: navegação explícita — antes de qualquer módulo
+  // -- PRIORIDADE 0.3: suporte direto — erros e custos antes de tudo
+  if (/vitrine nao abre|vitrine nao carrega|link.*nao funciona|nao consigo abrir vitrine/.test(mNorm)) {
+    return finalizar('🔧 <strong>Vitrine não abre?</strong><br><br>• A lead precisa ter ao menos 1 imóvel em match<br>• Imóveis inativos não aparecem na vitrine<br>• Verifique se o imóvel em match está ativo<br><br><a href="/app/leads" style="color:#ff385c;font-weight:700">Ver Leads →</a>');
+  }
+  if (/quanto custa|faixa de valor coins|faixa de valor match|tabela.*coins|custo.*coins|coins.*custo|quanto gasta|preco.*coins|valor.*coins|tabela de preco|tabela de custo/.test(mNorm)) {
+    return finalizar('🪙 <strong>Tabela de custos (Match Coins):</strong><br><br>• Cadastrar imóvel: 15 coins<br>• Importar XML: 2 coins/imóvel<br>• Match encontrado: 20 coins<br>• Vitrine WhatsApp: 30 coins<br>• IA responde WhatsApp: 30 coins<br>• Follow-up automático: 25 coins<br>• Visita agendada IA: 40 coins<br>• Nova lead portal: 20 coins<br>• Importar lead planilha: 10 coins/lead<br><br>💰 R$20 = 1.000 coins<br><br>' + btn('Ver Coins','/app/coins'));
+  }
+
+    // -- PRIORIDADE 0.5: navegação explícita — antes de qualquer módulo
   if (/como acesso|como abro|onde fica|onde acho|como entro|como chego|o que tem na pagina|o que tem no|tela de|pagina de|como uso a pagina|me leva para|ir para|abrir pagina/.test(mNorm)) {
     const resNavP05 = navegador.responder(mNorm, btn, chip);
     if (resNavP05) return finalizar(resNavP05 + sugestoes(dominio, d));
@@ -560,6 +568,12 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
 
   const resPort = portugues.interpretar(mensagem, d, imoveis, leads, visitas, btn, chip);
   if (resPort) return finalizar(resPort + sugestoes(dominio, d));
+
+  // -- PRIORIDADE COINS: custo/preço/valor de ações
+  if (/quanto custa|tabela coins|custo.*coins|coins.*custo|quanto gasta|preco.*coins|valor.*coins/.test(mNorm)) {
+    const resSis3 = modSistema.responder(mNorm, d, btn, chip);
+    if (resSis3) return finalizar(resSis3);
+  }
 
   // ── 3. SUPORTE TÉCNICO ───────────────────────────────────────────────────────
   const resSup = suporte.responder(mNorm, btn, chip);

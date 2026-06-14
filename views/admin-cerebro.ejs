@@ -186,26 +186,23 @@ function renderLista() {
   const fim = Math.min(inicio + POR_PAG, total);
   const pagina = filtrado.slice(inicio, fim);
 
-  document.getElementById('lista-base').innerHTML = pagina.map((item,i) => {
+  document.getElementById('lista-base').innerHTML = pagina.map(function(item, i) {
     const idx = inicio + i;
-    const status = item._status || '';
     return '<div class="item" id="item-'+idx+'">' +
       '<div class="item-body">' +
         (item._status ? '<span class="badge-'+(item._status==='ok'?'ok':'err')+'">'+(item._status==='ok'?'✓ Ok':'✗ Problema')+'</span> ' : '') +
         '<div class="item-p">"' + (item.p||'') + '"</div>' +
         '<div class="item-r">' + (item.r||'') + '</div>' +
-        '<div id="teste-result-'+idx+'" style="display:none;margin-top:8px;padding:10px;background:#f0f9ff;border-radius:8px;font-size:12px;color:#374151;line-height:1.5"></div>' +
+        '<div id="tr-'+idx+'" style="display:none;margin-top:8px;padding:8px;background:#eff6ff;border-radius:8px;font-size:12px;color:#374151;line-height:1.5"></div>' +
       '</div>' +
       '<div class="item-actions">' +
-        '<button class="btn btn-ok" onclick="marcar('+idx+',\'ok\')">✓</button>' +
-        '<button class="btn btn-err" onclick="marcar('+idx+',\'erro\')">✗</button>' +
-        '<button class="btn btn-edit" onclick="abrirModal('+idx+')">✎</button>' +
-        '<button class="btn btn-del" onclick="deletar('+idx+')">🗑</button>' +
+        '<button class="btn" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;font-size:11px" onclick="testarItem('+idx+', this)">▶ Testar</button>' +
+        '<button class="btn btn-edit" style="font-size:11px" onclick="abrirModal('+idx+')">✎ Editar</button>' +
+        '<button class="btn btn-del" style="font-size:11px" onclick="deletar('+idx+')">🗑</button>' +
       '</div>' +
     '</div>';
   }).join('');
 
-  // Paginação
   const totalPags = Math.ceil(total / POR_PAG);
   let pags = '<span style="font-size:12px;color:#6b7280">' + (inicio+1) + '-' + fim + ' de ' + total + '</span>';
   if (pagAtual > 0) pags += '<button onclick="irPag('+(pagAtual-1)+')">← Anterior</button>';
@@ -215,7 +212,6 @@ function renderLista() {
   if (pagAtual < totalPags-1) pags += '<button onclick="irPag('+(pagAtual+1)+')">Próximo →</button>';
   document.getElementById('paginacao').innerHTML = pags;
 }
-
 function irPag(p) { pagAtual = p; renderLista(); window.scrollTo(0,200); }
 
 function marcar(idx, status) {

@@ -189,7 +189,66 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     if (resOnb) return finalizar(resOnb);
   } catch(e) {}
 
-    // -- PRIORIDADE 0.21: perguntas sobre dados reais
+      // -- PRIORIDADE 0.20: acoes diretas
+  try {
+    const resAcao = acoesDiretas.responderAcaoDireta(mNorm, mensagem, d, leads, imoveis, visitas, uid, btn, chip);
+    if (resAcao) return finalizar(resAcao);
+  } catch(e) { console.error("[acoes-diretas]", e.message); }
+
+  // -- PRIORIDADE 0.19: busca imovel especifico
+  if (/tem.*(apartamento|apto|casa|cobertura|terreno|sobrado|studio|loft)|(apartamento|apto|casa|cobertura|terreno).*(em|no|na|por|ate)|imovel.*quarto|quarto.*imovel/.test(mNorm)) {
+    const entInfo = entidades.analisar(mensagem, (d.bairros||[]));
+    let result = (imoveis||[]).filter(function(i){ return i.status !== "inativo"; });
+    if (entInfo.tipo) result = result.filter(function(i){ return (i.tipo||"").toLowerCase().includes(entInfo.tipo); });
+    if (entInfo.bairro) result = result.filter(function(i){ return (i.bairro||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").includes(entInfo.bairro.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")); });
+    if (entInfo.quartos) result = result.filter(function(i){ return parseInt(i.quartos||0) >= entInfo.quartos; });
+    if (entInfo.valorMax) result = result.filter(function(i){ return parseFloat(i.valor||0) <= entInfo.valorMax; });
+    if (!result.length) {
+      return finalizar("😔 Nenhum imóvel encontrado" +
+        (entInfo.tipo ? " do tipo <strong>" + entInfo.tipo + "</strong>" : "") +
+        (entInfo.bairro ? " em <strong>" + entInfo.bairro + "</strong>" : "") +
+        ".<br><br>" + chip("Ver demanda","demanda por bairro") + " " + btn("Ver imóveis","/app/imoveis"));
+    }
+    return finalizar(
+      "<strong>" + result.length + " imóvel(is) encontrado(s)" +
+      (entInfo.bairro ? " em " + entInfo.bairro : "") + ":</strong><br><br>" +
+      result.slice(0,5).map(function(i){
+        return "• <strong>" + (i.tipo||"Imóvel") + "</strong>" +
+          (i.quartos ? " · " + i.quartos + "q" : "") +
+          (i.area ? " · " + i.area + "m²" : "") +
+          " em <strong>" + (i.bairro||"-") + "</strong>" +
+          (i.valor ? " · R" + String.fromCharCode(36) + Number(i.valor).toLocaleString("pt-BR") : "") +
+          " <a href=\"/app/imovel/" + (i.id||i.id_interno||"") + "\" style=\"color:#ff385c;font-size:12px\">ver →</a>";
+      }).join("<br>") +
+      (result.length > 5 ? "<br><em>...e mais " + (result.length-5) + " imóvel(is)</em>" : "") +
+      "<br><br>" + btn("Ver todos","/app/imoveis")
+    );
+  }
+
+  // -- PRIORIDADE 0.18: status de lead especifica por nome
+  if (/como esta|como vai|o que.*precisa|perfil.*lead|status.*lead|lead.*status/.test(mNorm) && leads && leads.length) {
+    const entInfo2 = entidades.analisar(mensagem, []);
+    const nomeBusca = (entInfo2.nome||"")
+        .replace(/como esta|como vai|qual o status|me fala|status da|status do|perfil da|perfil do|lead da|lead do|sobre o|sobre a/gi,'')
+        .toLowerCase().trim();
+    if (nomeBusca && nomeBusca.length > 2) {
+      const leadEnc = leads.find(function(l){ return (l.nome||l.contato||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").includes(nomeBusca.normalize("NFD").replace(/[̀-ͯ]/g,"")); });
+      if (leadEnc) {
+        const matches2 = (leadEnc.matchesBase||leadEnc.matches||[]).length;
+        return finalizar(
+          "👤 <strong>" + (leadEnc.nome||leadEnc.contato||"Lead") + "</strong><br><br>" +
+          "📍 " + (leadEnc.bairro||"-") + " · " + (leadEnc.tipo||"-") + " · " + (leadEnc.quartos||"-") + " quartos<br>" +
+          "💰 Até R" + String.fromCharCode(36) + Number(leadEnc.valorMax||leadEnc.valor||0).toLocaleString("pt-BR") + "<br>" +
+          "🌡️ Temperatura: <strong>" + (leadEnc.temperatura||"fria") + "</strong><br>" +
+          "🎯 Matches: <strong>" + matches2 + "</strong><br>" +
+          "📊 Funil: <strong>" + (leadEnc.faseFunil||"novo") + "</strong><br><br>" +
+          btn("Abrir lead", "/app/lead/" + (leadEnc.id||leadEnc._id||leadEnc.leadId||"")) +
+          (matches2 > 0 ? " " + chip("Ver vitrine","vitrine " + (leadEnc.nome||"")) : " " + chip("Fazer match","fazer match agora"))
+        );
+      }
+    }
+  }
+  // -- PRIORIDADE 0.21: perguntas sobre dados reais
   if (/quantas? leads? (tenho|tem)|total.*leads?|minhas leads?$|listar leads|resumo leads/.test(mNorm)) {
     return finalizar(
       '👥 <strong>Suas leads:</strong><br><br>' +

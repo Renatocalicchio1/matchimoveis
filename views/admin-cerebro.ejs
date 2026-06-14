@@ -188,11 +188,17 @@ function renderLista() {
 
   document.getElementById('lista-base').innerHTML = pagina.map(function(item, i) {
     const idx = inicio + i;
+    const variacoes = item.variacoes && item.variacoes.length 
+      ? '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">' +
+        item.variacoes.map(function(v){ return '<span style="background:#f3f4f6;color:#6b7280;font-size:10px;padding:2px 8px;border-radius:20px">'+v+'</span>'; }).join('') +
+        '</div>' 
+      : '';
     return '<div class="item" id="item-'+idx+'">' +
       '<div class="item-body">' +
         (item._status ? '<span class="badge-'+(item._status==='ok'?'ok':'err')+'">'+(item._status==='ok'?'✓ Ok':'✗ Problema')+'</span> ' : '') +
         '<div class="item-p">"' + (item.p||'') + '"</div>' +
         '<div class="item-r">' + (item.r||'') + '</div>' +
+        variacoes +
         '<div id="tr-'+idx+'" style="display:none;margin-top:8px;padding:8px;background:#eff6ff;border-radius:8px;font-size:12px;color:#374151;line-height:1.5"></div>' +
       '</div>' +
       '<div class="item-actions">' +
@@ -537,7 +543,7 @@ function fecharRevisao() {
       </div>
       <textarea id="rev-edit" style="width:100%;padding:10px;border:1px solid #FF385C;border-radius:8px;font-size:13px;min-height:80px;font-family:inherit;margin-bottom:12px;resize:vertical" placeholder="Edite a resposta correta aqui..."></textarea>
       
-      <div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" onclick="if(idxRevisao>0){idxRevisao--;mostrarRevisao()}" id="rev-btn-anterior">← Anterior</button><button class="btn" onclick="fecharRevisao()" style="margin-left:auto">✕ Fechar</button></div><div id="rev-modo-normal">
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center"><button class="btn" onclick="if(idxRevisao>0){idxRevisao--;mostrarRevisao()}">← Anterior</button><button class="btn" onclick="idxRevisao++;mostrarRevisao()" style="background:#111827;color:#fff;border-color:#111827">Próximo →</button><button class="btn" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe" onclick="testarRevisao()">▶ Testar</button><button class="btn" onclick="fecharRevisao()" style="margin-left:auto">✕ Fechar</button></div><div id="rev-modo-normal">
         <div style="display:flex;gap:8px">
           <button class="btn-ok" style="flex:1;padding:12px" onclick="avaliarRevisao('ok')">✅ Correto</button>
           <button class="btn-err" style="flex:1;padding:12px" onclick="avaliarRevisao('erro')">✏️ Editar</button>

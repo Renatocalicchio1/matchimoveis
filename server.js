@@ -182,8 +182,22 @@ app.get('/admin/cerebro', authAdmin, (req, res) => {
   const navegador = require('./cerebro/navegador');
   const { PAGINAS, FLUXOS } = navegador;
   
+  // Agrupar variações por intenção
+  const variacoesPorIntencao = {};
+  base.items.forEach(item => {
+    const r = item.r || 'sem_intencao';
+    if (!variacoesPorIntencao[r]) variacoesPorIntencao[r] = [];
+    variacoesPorIntencao[r].push(item.p);
+  });
+  
+  // Adicionar variações em cada item
+  const baseComVariacoes = base.items.map(item => ({
+    ...item,
+    variacoes: (variacoesPorIntencao[item.r] || []).filter(p => p !== item.p).slice(0, 5)
+  }));
+  
   const modulos = {
-    base_conhecimento: base.items,
+    base_conhecimento: baseComVariacoes,
     paginas: Object.entries(PAGINAS).map(([id,p]) => ({ id, titulo: p.titulo, rota: p.rota, keywords: p.keywords, oque_tem: p.oque_tem||[], botoes: p.botoes||[] })),
     fluxos: Object.entries(FLUXOS).map(([id,f]) => ({ id, titulo: f.titulo, rota: f.rota, passos: f.passos })),
   };

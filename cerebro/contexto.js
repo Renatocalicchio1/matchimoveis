@@ -4,7 +4,7 @@ const semAcento = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\
 const INTENCOES = {
   SAUDACAO: /^(o+i+|ol[aá]+|hey+|opa+|salve|e a[ií]+|eae|eai|oi+|hello|hi+|bom dia|boa tarde|boa noite|good morning|boa|tudo bem|tudo bom|tudo certo|tudo ok|como vai|como voce ta|como vc ta|oi sumido|ola sumido|voltei|estou aqui|to aqui|to de volta|vim aqui|preciso de ajuda|me ajuda|me ajude|pode me ajudar|ola tudo|oi tudo)[\s!?.,]*$/i,
   BUSCAR_IMOVEL:  /tenho (um )?cliente|cliente (quer|procura|busca|precisa|esta procurando)|alguem (quer|procura)|procurando (um |uma )?(apto|apartamento|casa|imovel)|tem (apto|apartamento|casa)|quero ver|mostrar imoveis|buscar imoveis|imoveis (no|na|em|do|da)/,
-  CADASTRAR_LEAD: /cadastra(r)?(\s+um?)?\s+(lead|cliente|contato|interessado)|novo\s+(lead|cliente|contato|interessado|atendimento)|adiciona(r)?(\s+um?)?\s+(lead|cliente|contato)|criar\s+(lead|cliente|contato)|anota(r)?\s+(lead|cliente|contato|esse|o)|salva(r)?\s+(lead|cliente|contato|esse|o)|novo atendimento|pode(\s+me)?\s+cadastrar|quer(o)?\s+cadastrar|preciso\s+cadastrar|registra(r)?\s+(lead|cliente|contato)|inclui(r)?\s+(lead|cliente)|lanca(r)?\s+(lead|cliente)|bota(r)?\s+(lead|cliente)|coloca(r)?\s+(lead|cliente)|tenho\s+(um\s+)?(novo\s+)?(lead|cliente|interessado|contato)|captei\s+(um\s+)?(cliente|lead)|peguei\s+(um\s+)?(cliente|lead)|tem\s+(um\s+)?(cliente|lead)\s+(novo|aqui|interessado)/i,
+  CADASTRAR_LEAD: /cadastra(r)?(\s+[oa])?\s+(lead|cliente|contato|interessado|[A-Z])|nova\s+lead:|nova\s+lead\s+[A-Z]|cadastra(r)?(\s+um?)?\s+(lead|cliente|contato|interessado)|novo\s+(lead|cliente|contato|interessado|atendimento)|adiciona(r)?(\s+um?)?\s+(lead|cliente|contato)|criar\s+(lead|cliente|contato)|anota(r)?\s+(lead|cliente|contato|esse|o)|salva(r)?\s+(lead|cliente|contato|esse|o)|novo atendimento|pode(\s+me)?\s+cadastrar|quer(o)?\s+cadastrar|preciso\s+cadastrar|registra(r)?\s+(lead|cliente|contato)|inclui(r)?\s+(lead|cliente)|lanca(r)?\s+(lead|cliente)|bota(r)?\s+(lead|cliente)|coloca(r)?\s+(lead|cliente)|tenho\s+(um\s+)?(novo\s+)?(lead|cliente|interessado|contato)|captei\s+(um\s+)?(cliente|lead)|peguei\s+(um\s+)?(cliente|lead)|tem\s+(um\s+)?(cliente|lead)\s+(novo|aqui|interessado)/i,
   CRIAR_VISITA:   /agendar visita|marcar visita|cliente quer visitar|cliente quer ver|visita para/,
   INFORMAR:       /acabei de|acabou de|ja (vendeu|vendemos|fechou|fechamos|foi vendido)|nao esta mais|imovel vendido|ja tem proposta/,
   FOLLOW_UP:      /follow.?up|retornar para|ligar para|mandar (mensagem|whatsapp|zap)|entrar em contato|cliente nao (respondeu|retornou)/,
@@ -121,9 +121,9 @@ function responder(ctx, d, user, imoveis, leads, visitas, btn, chip) {
     // Extrai nome
     const PALAVRAS_IGNORAR = ['um','uma','pra','para','mim','me','por','favor','por favor','novo','nova','agora','aqui','esse','esta','este'];
     const nomeMatch = frase.match(/(?:lead|cliente)[:\s,]+([A-ZÀ-Úa-zà-ú][a-zà-ú]+(?:\s+[A-ZÀ-Úa-zà-ú][a-zà-ú]+)*)/i)
-      || frase.match(/cadastra(?:r)?\s+(?:lead|cliente)?\s+([A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)*)/i);
+      || frase.match(/cadastra(?:r)?\s+(?:lead|cliente)?\s+([A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)*)/i)|| frase.match(/cadastra(?:r)?\s+[oa]\s+([A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)*)/i)|| frase.match(/nova\s+lead[:\s]+([A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)*)/i);
     const nomeRaw = nomeMatch ? nomeMatch[1].trim() : null;
-    const nome = nomeRaw && !PALAVRAS_IGNORAR.includes(nomeRaw.toLowerCase()) ? nomeRaw.replace(/^(cadastra?\s+)?(lead|cliente)\s+/i,'').trim() : null;
+    const nome = nomeRaw && !PALAVRAS_IGNORAR.includes(nomeRaw.toLowerCase()) ? nomeRaw.replace(/^(cadastra?\s+)?(lead|cliente)\s+/i,'').replace(/^(chamad[oa]|um novo|novo|nova|o|a)\s+/i,'').trim() : null;
     // Extrai celular
     const celularMatch = frase.match(/(\(?\d{2}\)?\s?\d{4,5}[-\s]?\d{4})/);
     const celular = celularMatch ? celularMatch[1].replace(/\D/g,'') : null;

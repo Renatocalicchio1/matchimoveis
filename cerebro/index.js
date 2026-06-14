@@ -173,7 +173,7 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
   }
 
   // Prioridade: contexto antes do intencao.detectar
-  if (/^cadastra(r)?\s/i.test(mensagem.trim()) || /importar?\s+(xml|imoveis?)|quero importar|subir xml|trazer imoveis?|puxar imoveis?|trazer do|puxar do|tenho um (xml|feed)|meu (xml|feed)/i.test(mensagem.trim()) || /gerar? xml todos|xml todos/i.test(mensagem.trim()) || /exportar para|publicar (imoveis? )?(no|em|para)|gerar? xml|gera xml|xml (para|pro|no)/i.test(mensagem.trim())) {
+  if (/^cadastra(r)?\s/i.test(mensagem.trim()) || /^nova\s+lead/i.test(mensagem.trim()) || /importar?\s+(xml|imoveis?)|quero importar|subir xml|trazer imoveis?|puxar imoveis?|trazer do|puxar do|tenho um (xml|feed)|meu (xml|feed)/i.test(mensagem.trim()) || /gerar? xml todos|xml todos/i.test(mensagem.trim()) || /exportar para|publicar (imoveis? )?(no|em|para)|gerar? xml|gera xml|xml (para|pro|no)/i.test(mensagem.trim())) {
     try {
       const ctx = contexto.analisar(mensagem, imoveis, leads, visitas);
       if (ctx && (ctx.intencao === 'CADASTRAR_LEAD' || ctx.intencao === 'IMPORTAR_XML' || ctx.intencao === 'GERAR_XML_TODOS' || ctx.intencao === 'EXPORTAR_XML' || ctx.intencao === 'GERAR_XML')) {

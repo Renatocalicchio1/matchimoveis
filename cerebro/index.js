@@ -192,7 +192,7 @@ function responder(mensagem, d, user, imoveis, leads, visitas, ctxParam) {
     // -- PRIORIDADE 0.22: gírias e expressões do corretor
   const girias = {
     'ta caro|muito caro|caro demais|acima do budget|fora do orcamento|nao cabe no bolso': 'busca_mais_barato',
-    'to travado|nao sei o que fazer|sem ideia|perdido': 'orientar',
+    'to travado|nao sei o que fazer|sem ideia|perdido|estrategia de venda': 'orientar',
     'o cara sumiu|a menina sumiu|nao da retorno|nao atende|sumiu|sumindo': 'lead_sumiu',
     'ta quente|muito interessado|quer muito|animado|animada': 'lead_quente',
     'bate o martelo|vai fechar|fechando|assinar contrato': 'fechar',

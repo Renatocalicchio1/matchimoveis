@@ -5966,7 +5966,8 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
   }
 
   if (!resposta) {
-    resposta = await Promise.resolve(cerebroApp.responder(mensagem, d, user, imoveis, leads, visitas, contexto));
+    const _resRaw = cerebroApp.responder(mensagem, d, user, imoveis, leads, visitas, contexto);
+    resposta = (_resRaw && typeof _resRaw.then === "function") ? await _resRaw : _resRaw;
   }
 
   memoria.historico.push({ userId:uid, pergunta:mensagem, resposta, data:new Date().toISOString() });

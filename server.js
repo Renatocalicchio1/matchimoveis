@@ -2562,6 +2562,35 @@ app.post('/app/perfil', auth, async (req,res)=>{
   res.redirect('/app/perfil');
 });
 
+
+
+app.post('/app/perfil/senha', auth, async (req, res) => {
+  const senha_atual = req.body.senha_atual;
+  const nova_senha = req.body.nova_senha;
+  const confirmar_senha = req.body.confirmar_senha;
+  const uid = String(req.session.user.id || req.session.user.userId || '');
+
+  if (!senha_atual || !nova_senha || !confirmar_senha)
+    return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'Preencha todos os campos.' });
+  if (nova_senha.length < 6)
+    return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'A nova senha deve ter pelo menos 6 caracteres.' });
+  if (nova_senha !== confirmar_senha)
+    return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'As senhas não coincidem.' });
+
+  try {
+    const result = await _q('SELECT senha FROM usuarios WHERE codigo_usuario = $1', [uid]);
+    if (!result.rows.length)
+      return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'Usuário não encontrado.' });
+    if (result.rows[0].senha !== senha_atual)
+      return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'Senha atual incorreta.' });
+    await _q('UPDATE usuarios SET senha = $1 WHERE codigo_usuario = $2', [nova_senha, uid]);
+    return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaSucesso: true });
+  } catch(e) {
+    console.error('[senha]', e.message);
+    return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'Erro ao alterar senha.' });
+  }
+});
+
 app.get('/app-importar-leads', auth, (req,res)=>{
   res.render('app-importar-leads', { user: req.session.user, usuario: req.session.user });
 });

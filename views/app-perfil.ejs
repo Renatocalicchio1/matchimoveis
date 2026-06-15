@@ -156,6 +156,28 @@
   </form>
 </div>
 
+
+<div class="pf-card">
+  <p class="pf-card-title">🔒 Alterar senha</p>
+  <p class="pf-card-sub">Digite sua senha atual e escolha uma nova senha.</p>
+  <form method="POST" action="/app/perfil/senha">
+    <div class="pf-field">
+      <label>Senha atual</label>
+      <input type="password" name="senha_atual" placeholder="Digite sua senha atual" required>
+    </div>
+    <div class="pf-field">
+      <label>Nova senha</label>
+      <input type="password" name="nova_senha" placeholder="Mínimo 6 caracteres" required minlength="6">
+    </div>
+    <div class="pf-field">
+      <label>Confirmar nova senha</label>
+      <input type="password" name="confirmar_senha" placeholder="Repita a nova senha" required minlength="6">
+    </div>
+    <% if(locals.senhaErro) { %><div style="color:#dc2626;font-size:12px;margin-bottom:12px">⚠️ <%= senhaErro %></div><% } %>
+    <% if(locals.senhaSucesso) { %><div style="color:#16a34a;font-size:12px;margin-bottom:12px">✅
+    <button class="pf-btn" type="submit">Alterar senha</button>
+  </form>
+</div>
 <!-- QuintoAndar -->
 <div class="pf-card">
   <p class="pf-card-title">🏢 QuintoAndar</p>

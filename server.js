@@ -6164,6 +6164,23 @@ app.post('/app/assistente/acao-direta', auth, express.json(), async (req, res) =
 
 // Feedback do assistente — positivo ou negativo
 app.post('/app/assistente/feedback', auth, express.json(), (req, res) => {
+  // Salvar no formato novo para o Groq aprender
+  try {
+    const { util, pergunta, resposta } = req.body;
+    const fbPath = path.join(__dirname, 'assistente-feedbacks.json');
+    let fb = { positivos:[], negativos:[] };
+    try { fb = JSON.parse(fs.readFileSync(fbPath,'utf8')); } catch(e) {}
+    const item = { pergunta: String(pergunta||'').slice(0,200), resposta: String(resposta||'').replace(/<[^>]+>/g,'').slice(0,300), at: new Date().toISOString() };
+    if (util) {
+      fb.positivos.push(item);
+      if (fb.positivos.length > 100) fb.positivos = fb.positivos.slice(-100);
+    } else {
+      fb.negativos.push(item);
+      if (fb.negativos.length > 100) fb.negativos = fb.negativos.slice(-100);
+    }
+    fs.writeFileSync(fbPath, JSON.stringify(fb, null, 2));
+  } catch(e) { console.error('[feedback-novo]', e.message); }
+  // Continua com o feedback antigo também
   try {
     const feedbackLoop = require('./cerebro/feedback-loop');
     const { mensagem, resposta, tipo, detalhe } = req.body || {};

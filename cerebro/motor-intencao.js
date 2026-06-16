@@ -170,7 +170,7 @@ function matchPorMapa(lead, imoveis) {
     // Bairro (15pts)
     maxPontos += 15;
     if (leadBairro && imovel.bairro === leadBairro) { pontos += 15; motivos.push(`${im.bairro}`); }
-    else if (leadBairro) { pontos += 8; motivos.push('bairro próximo'); }
+    // Bairro diferente — sem pontos
     // Valor (20pts)
     maxPontos += 20;
     if (leadValorMax > 0 && imovel.preco > 0) {

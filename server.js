@@ -2584,6 +2584,9 @@ app.post('/app/perfil/senha', auth, async (req, res) => {
     if (result.rows[0].senha !== senha_atual)
       return res.redirect('/app/perfil?senhaErro=Senha+atual+incorreta');
     await _q('UPDATE usuarios SET senha = $1 WHERE codigo_usuario = $2', [nova_senha, uid]);
+    // Atualizar cache em memória
+    if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid||u.id===uid); if(_uIdx>=0) _cacheUsuarios[_uIdx].senha = nova_senha; }
+    req.session.user.senha = nova_senha;
     return res.redirect('/app/perfil?senhaSucesso=1');
   } catch(e) {
     console.error('[senha]', e.message);

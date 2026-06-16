@@ -566,6 +566,7 @@ async function gerarXMLQuintoAndarGlobal() {
     xml += '        <Neighborhood>'+esc(i.bairro||'')+'</Neighborhood>\n';
     xml += '        <Address>'+esc(i.endereco||i.logradouro||'')+'</Address>\n';
     xml += '        <StreetNumber>'+esc(i.numero||'')+'</StreetNumber>\n';
+    xml += '        <Complement>'+esc(i.complemento||i.dados?.complemento||'')+'</Complement>\n';
     xml += '        <PostalCode>'+esc(String(i.cep||'').replace(/\D/g,''))+'</PostalCode>\n';
     xml += '        <Latitude>'+esc(i.latitude||'')+'</Latitude>\n';
     xml += '        <Longitude>'+esc(i.longitude||'')+'</Longitude>\n';
@@ -574,6 +575,7 @@ async function gerarXMLQuintoAndarGlobal() {
     xml += '        <Name>'+esc(user.nome||'')+'</Name>\n';
     xml += '        <Email>'+esc(user.email||'')+'</Email>\n';
     xml += '        <Telephone>'+esc(user.celular||user.telefone||'')+'</Telephone>\n';
+    xml += '        <BrokerName>'+esc(user.nome||'')+'</BrokerName>\n';
     xml += '        <Website>https://www.matchimoveis.ia.br</Website>\n';
     xml += '      </ContactInfo>\n';
     xml += '      <OwnerInfo>\n';

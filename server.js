@@ -2529,9 +2529,9 @@ app.get('/app/perfil', auth, async (req,res)=>{
       return !(temProp && temEnd);
     }).length;
     const _totalVenda = _imoveisUser.rows.length;
-    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos });
+    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null });
   } catch(e) {
-    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0 });
+    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null });
   }
 });
 
@@ -2571,23 +2571,23 @@ app.post('/app/perfil/senha', auth, async (req, res) => {
   const uid = String(req.session.user.id || req.session.user.userId || '');
 
   if (!senha_atual || !nova_senha || !confirmar_senha)
-    return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'Preencha todos os campos.' });
+    return res.redirect('/app/perfil?senhaErro=Preencha+todos+os+campos');
   if (nova_senha.length < 6)
-    return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'A nova senha deve ter pelo menos 6 caracteres.' });
+    return res.redirect('/app/perfil?senhaErro=A+nova+senha+deve+ter+pelo+menos+6+caracteres');
   if (nova_senha !== confirmar_senha)
-    return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'As senhas não coincidem.' });
+    return res.redirect('/app/perfil?senhaErro=As+senhas+nao+coincidem');
 
   try {
     const result = await _q('SELECT senha FROM usuarios WHERE codigo_usuario = $1', [uid]);
     if (!result.rows.length)
-      return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'Usuário não encontrado.' });
+      return res.redirect('/app/perfil?senhaErro=Usuario+nao+encontrado');
     if (result.rows[0].senha !== senha_atual)
-      return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'Senha atual incorreta.' });
+      return res.redirect('/app/perfil?senhaErro=Senha+atual+incorreta');
     await _q('UPDATE usuarios SET senha = $1 WHERE codigo_usuario = $2', [nova_senha, uid]);
-    return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaSucesso: true });
+    return res.redirect('/app/perfil?senhaSucesso=1');
   } catch(e) {
     console.error('[senha]', e.message);
-    return res.render('app-perfil', { user: req.session.user, usuario: req.session.user, senhaErro: 'Erro ao alterar senha.' });
+    return res.redirect('/app/perfil?senhaErro=Erro+ao+alterar+senha');
   }
 });
 

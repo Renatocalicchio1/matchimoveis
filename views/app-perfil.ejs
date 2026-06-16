@@ -174,7 +174,7 @@
       <input type="password" name="confirmar_senha" placeholder="Repita a nova senha" required minlength="6">
     </div>
     <% if(locals.senhaErro) { %><div style="color:#dc2626;font-size:12px;margin-bottom:12px">⚠️ <%= senhaErro %></div><% } %>
-    <% if(locals.senhaSucesso) { %><div style="color:#16a34a;font-size:12px;margin-bottom:12px">✅
+    <% if(locals.senhaSucesso) { %><div style="color:#16a34a;font-size:12px;margin-bottom:12px">✅ Senha alterada com sucesso!</div><% } %>
     <button class="pf-btn" type="submit">Alterar senha</button>
   </form>
 </div>

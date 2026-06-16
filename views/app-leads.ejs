@@ -662,7 +662,7 @@ async function salvarNovaLead(){
 
   const payload = {
     nome, telefone, email, tipo, transacao, estado, cidade, bairro,
-    valorMax: valor, valorMin: valor*0.65,
+    valorMax: valor, valorMin: 0,
     quartos, suites, vagas, banheiros, area, fase,
     origem: 'manual', origemEntrada: 'manual'
   };

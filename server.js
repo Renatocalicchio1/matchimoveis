@@ -949,7 +949,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
       const { execSync } = require('child_process');
       const userId = global.importUserId || '';
       // créditos de importar_xml são cobrados por imóvel novo dentro do importXMLCompleto.js
-      execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
+      execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit', env: { ...process.env } });
 
       const fs = require('fs');
       const imoveis = fs.existsSync(dataFile('imoveis.json'))

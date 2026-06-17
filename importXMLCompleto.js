@@ -1,4 +1,5 @@
 const fs = require('fs');
+try { require('dotenv').config(); } catch(e) {}
 const { salvarImovel } = require('./services/salvarImovel');
 const axios = require('axios');
 const XLSX = require('xlsx');

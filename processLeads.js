@@ -87,8 +87,8 @@ async function run() {
         banheiros: isComercial(row.Tipo || row.tipo) ? '' : (row.Banheiros || row.banheiros || ''),
         area_min: row.Area_min || row.area_min || '',
         area_max: row.Area_max || row.area_max || '',
-        valorMin: _limparValor(row.Valor_min || row.valor_min),
-        valorMax: _limparValor(row.Valor_max || row.valor_max),
+        valorMin: _limparValor(row.Valor_min || row.valor_min || row['Valor_min (R$)'] || row['Valor min (R$)'] || 0),
+        valorMax: _limparValor(row.Valor_max || row.valor_max || row['Valor (R$)'] || row['Valor_(R$)'] || row['Valor_max (R$)'] || row['Valor max (R$)'] || 0),
         observacoes: row.Observacoes || row.observacoes || '',
         segmento: isComercial(row.Tipo || row.tipo) ? 'comercial' : 'residencial',
         perfilIA: {

@@ -1437,11 +1437,13 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
   }
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
   salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+  const _usersMapOferta = {}; (_cacheUsuarios||[]).forEach(function(u){ _usersMapOferta[u.codigo_usuario||u.codigoUsuario||u.id] = u.nome||u.name||''; });
   res.render('cliente-oferta', {
     user: null,
     lead,
     matchesParceiro: lead.matchesQuintoAndar || [],
-    queryUserId: userIdOferta || lead.userId || lead.usuarioId || lead.corretorId || ''
+    queryUserId: userIdOferta || lead.userId || lead.usuarioId || lead.corretorId || '',
+    usersMap: _usersMapOferta
   });
 });
 

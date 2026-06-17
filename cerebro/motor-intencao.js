@@ -631,8 +631,8 @@ function _tiposCompativeis(t1, t2) {
 // Heurística simples de bairros próximos (pode ser expandida com lista real)
 function _bairrosProximos(b1, b2) {
   if (!b1 || !b2) return false;
-  // Por ora: considera próximos se as 4 primeiras letras batem (ex: "kob" → kobrasol/kobrasol norte)
-  return b1.substring(0, 4) === b2.substring(0, 4);
+  // Match exato do nome do bairro normalizado
+  return b1 === b2;
 }
 
 function _precoCompativel(preco1, preco2, tolerancia = 0.20) {

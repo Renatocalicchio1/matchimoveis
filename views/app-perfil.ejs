@@ -159,8 +159,12 @@
 
 <div class="pf-card">
   <p class="pf-card-title">🔒 Alterar senha</p>
-  <p class="pf-card-sub">Escolha uma nova senha.</p>
+  <p class="pf-card-sub">Digite sua senha atual e escolha uma nova senha.</p>
   <form method="POST" action="/app/perfil/senha">
+    <div class="pf-field">
+      <label>Senha atual</label>
+      <input type="password" name="senha_atual" placeholder="Digite sua senha atual" required>
+    </div>
     <div class="pf-field">
       <label>Nova senha</label>
       <input type="password" name="nova_senha" placeholder="Mínimo 6 caracteres" required minlength="6">

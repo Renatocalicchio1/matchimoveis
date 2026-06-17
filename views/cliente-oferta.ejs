@@ -82,7 +82,7 @@
           <% if(isVisita) { %><span class="tag-escolhido" style="background:#dbeafe;color:#1e40af">📅 Visita solicitada</span><% } %>
         </div>
         <div class="card-title"><%= m.tipo || 'Imóvel' %> em <%= m.bairro || '-' %></div>
-        <div class="card-sub"><%= m.cidade || 'São Paulo' %>/<%= m.estado || 'SP' %> · <%= (m.corretorNome || m.imovelUsuarioNome || (m.proprietario && m.proprietario.corretor) || '') %></div>
+        <div class="card-sub"><%= m.cidade || 'São Paulo' %>/<%= m.estado || 'SP' %> · <%= (usersMap && (m.user_id||m.userId) && usersMap[m.user_id||m.userId]) ? usersMap[m.user_id||m.userId] : (m.corretorNome || '') %></div>
         <div class="card-price"><%= valorFmt %></div>
         <div class="card-specs">
           <div class="spec"><span class="spec-val"><%= m.area_m2 || m.area || '-' %></span><span class="spec-label">m²</span></div>

@@ -4391,6 +4391,22 @@ try {
   if (typeof _setupDB === 'function') _setupDB().catch(e => console.error('[setupDB]', e.message));
 } catch(e) { console.error('[setupDB]', e.message); }
 
+
+// ── WA MONITOR — reconexão automática ───────────────────────────────────────
+const waMonitor = require('./cerebro/wa-monitor');
+
+// Verificar a cada 5 minutos
+setInterval(function() {
+  waMonitor.monitorar();
+}, 5 * 60 * 1000);
+
+// Primeira verificação após 2 minutos do boot
+setTimeout(function() {
+  waMonitor.monitorar();
+}, 2 * 60 * 1000);
+
+console.log('[WA-MONITOR] monitoramento iniciado — verificação a cada 5min');
+
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   // Inicia atualizacao automatica do XML a cada 12h

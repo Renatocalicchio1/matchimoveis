@@ -36,7 +36,18 @@ function normalizarTelefone(tel) {
 
 function _limparValor(v) {
   if (!v) return 0;
-  const s = String(v).replace(/[^d,.]/g, '').replace(',', '.');
+  let s = String(v).trim();
+  // Remove símbolos: R$, espaços, etc
+  s = s.replace(/[R$s]/g, '');
+  // Formato brasileiro: 540.000,00 → remove pontos de milhar, troca vírgula por ponto
+  if (s.includes(',')) {
+    s = s.replace(/./g, '').replace(',', '.');
+  } else {
+    // Formato 540.000 (ponto como milhar sem vírgula) → remove ponto
+    if ((s.match(/./g)||[]).length === 1 && s.indexOf('.') === s.length - 4) {
+      s = s.replace('.', '');
+    }
+  }
   return parseFloat(s) || 0;
 }
 

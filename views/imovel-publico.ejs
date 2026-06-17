@@ -143,6 +143,7 @@
         <% if(imovel.andar) { %><div class="info-row"><span class="info-lbl">Andar</span><span class="info-val"><%= imovel.andar %>º</span></div><% } %>
         <% if(imovel.idInterno||imovel.id_interno) { %><div class="info-row"><span class="info-lbl">Cód. Interno</span><span class="info-val" style="font-size:11px;color:#888"><%= imovel.idInterno||imovel.id_interno %></span></div><% } %>
         <% if(imovel.idExterno||imovel.id_externo) { %><div class="info-row"><span class="info-lbl">Código Externo</span><span class="info-val" style="font-size:11px;color:#888"><%= imovel.idExterno||imovel.id_externo %></span></div><% } %>
+        <% if(corretor && corretor.nome) { %><div class="info-row"><span class="info-lbl">Corretor</span><span class="info-val" style="font-weight:500"><%= corretor.nome %></span></div><% } %>
       </div>
       <div class="cta-card">
         <div style="font-size:15px;font-weight:700;margin-bottom:4px">Interessado neste imóvel?</div>

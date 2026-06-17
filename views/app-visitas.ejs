@@ -182,9 +182,15 @@ var hojeV=visitas.filter(function(v){
     var propConfirmou=v.respostaProprietario==='confirmar'||v.proprietarioConfirmou===true||v.confirmacaoProprietarioStatus==='CONFIRMADO';
     var propRespondeu=propConfirmou||v.confirmacaoProprietarioStatus==='RECUSADO'||v.proprietarioRecusou||v.respostaProprietario==='recusar';
     var mostrarBtnCliente=!propTel||propRespondeu;
-    var _hoje2=new Date();
+    var _hoje2=new Date(); _hoje2.setHours(0,0,0,0);
     var _dataV=v.dataVisita||'';
-    var _diffDias=_dataV?Math.floor((new Date(_dataV)-_hoje2)/86400000):999;
+    var _diffDias=999;
+    if(_dataV && _dataV.indexOf('-')>-1){
+      var _dp=_dataV.split('-');
+      var _dn=new Date(Number(_dp[0]),Number(_dp[1])-1,Number(_dp[2]));
+      _dn.setHours(0,0,0,0);
+      _diffDias=Math.round((_dn-_hoje2)/86400000);
+    }
     var _atrasada=_diffDias<0&&(st==='solicitada'||st==='confirmada'||st==='prop_confirmou');
     var _hojeV2=_diffDias===0;
     var _amanha2=_diffDias===1;

@@ -2575,27 +2575,21 @@ app.post('/app/perfil', auth, async (req,res)=>{
 
 
 app.post('/app/perfil/senha', auth, async (req, res) => {
-  const senha_atual = req.body.senha_atual;
-  const nova_senha = req.body.nova_senha;
-  const confirmar_senha = req.body.confirmar_senha;
-  const uid = String(req.session.user.id || req.session.user.userId || '');
-
-  if (!senha_atual || !nova_senha || !confirmar_senha)
+  const nova_senha = (req.body.nova_senha || '').trim();
+  const confirmar_senha = (req.body.confirmar_senha || '').trim();
+  const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || String(req.session.user.id || '');
+  if (!nova_senha || !confirmar_senha)
     return res.redirect('/app/perfil?senhaErro=Preencha+todos+os+campos');
   if (nova_senha.length < 6)
     return res.redirect('/app/perfil?senhaErro=A+nova+senha+deve+ter+pelo+menos+6+caracteres');
   if (nova_senha !== confirmar_senha)
     return res.redirect('/app/perfil?senhaErro=As+senhas+nao+coincidem');
-
   try {
-    const result = await _q('SELECT senha FROM usuarios WHERE codigo_usuario = $1', [uid]);
+    const result = await _q('SELECT codigo_usuario FROM usuarios WHERE codigo_usuario = $1', [uid]);
     if (!result.rows.length)
       return res.redirect('/app/perfil?senhaErro=Usuario+nao+encontrado');
-    if (result.rows[0].senha !== senha_atual)
-      return res.redirect('/app/perfil?senhaErro=Senha+atual+incorreta');
     await _q('UPDATE usuarios SET senha = $1 WHERE codigo_usuario = $2', [nova_senha, uid]);
-    // Atualizar cache em memória
-    if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid||u.id===uid); if(_uIdx>=0) _cacheUsuarios[_uIdx].senha = nova_senha; }
+    if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid); if(_uIdx>=0) _cacheUsuarios[_uIdx].senha = nova_senha; }
     req.session.user.senha = nova_senha;
     return res.redirect('/app/perfil?senhaSucesso=1');
   } catch(e) {

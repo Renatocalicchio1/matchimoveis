@@ -4943,7 +4943,8 @@ app.post('/api/lead-interesse', async (req, res) => {
               const _propWA = _propTel ? 'https://wa.me/55'+_propTel.replace(/\D/g,'').replace(/^55/,'') : ''; _contatoExtra = '\n\n🏠 *Proprietário cadastrado*\nNome: *' + _propNome + '*' + (_propWA ? '\n📲 ' + _propWA : '');
             }
             const _linkImovel = (_novaVisita.imovelId||imovelId) ? '\n🔗 '+_BASE+'/imovel/'+encodeURIComponent(_novaVisita.imovelId||imovelId)+'?userId='+encodeURIComponent(usuarioDestinoId||'') : '';
-            const _dataHora = _novaVisita.dataVisita ? '\n📅 '+_novaVisita.dataVisita+(_novaVisita.horaVisita?' às '+_novaVisita.horaVisita:'') : '';
+            const _dataVisitaBR = _novaVisita.dataVisita ? _novaVisita.dataVisita.split('-').reverse().join('/') : '';
+            const _dataHora = _dataVisitaBR ? '\n📅 '+_dataVisitaBR+(_novaVisita.horaVisita?' às '+_novaVisita.horaVisita:'') : '';
             const _avisoContato = _contatoExtra ? '\n\n⚠️ *Fale com o responsável antes de confirmar a visita.*' : '';
             const _nomeCorretor = (_corrUser?.nome || '').split(' ')[0] || 'Corretor';
             const _msg = 'Olá *' + _nomeCorretor + '*! Você recebeu uma nova solicitação de visita. 🏠'

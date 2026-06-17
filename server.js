@@ -4985,10 +4985,12 @@ app.post('/api/lead-interesse', async (req, res) => {
 app.get('/imovel/:id', (req, res) => {
   const imoveis = ((_cacheImoveis || []));
   const users = (_cacheUsuarios || []);
-  const corretor = users.find(u => u.ativo) || {};
+
 
   // Busca na base interna primeiro
   let imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
+  const _uid2 = imovel ? (imovel.user_id || imovel.userId || '') : '';
+  const corretor = users.find(function(u){ return (u.codigo_usuario||u.codigoUsuario||u.id) === _uid2; }) || users.find(function(u){ return u.ativo; }) || {};
 
   if (imovel) {
     const pub = Object.assign({}, imovel);

@@ -631,7 +631,7 @@ async function salvarNovaLead(){
   const estado   = document.getElementById('nl-estado').value.trim();
   const cidade   = document.getElementById('nl-cidade').value.trim();
   const bairro   = document.getElementById('nl-bairro').value.trim();
-  const valor    = parseFloat(document.getElementById('nl-valor').value)||0;
+  const valor    = parseFloat(String(document.getElementById('nl-valor').value).replace(/\./g,'').replace(',','.').replace(/[^0-9.]/g,''))||0;
   const quartos  = parseInt(document.getElementById('nl-quartos').value)||0;
   const suites   = parseInt(document.getElementById('nl-suites').value)||0;
   const vagas    = parseInt(document.getElementById('nl-vagas').value)||0;

@@ -4409,6 +4409,18 @@ setTimeout(function() {
 
 console.log('[WA-MONITOR] monitoramento iniciado — verificação a cada 5min');
 
+
+// Service Worker
+app.get('/sw.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.send(`
+self.addEventListener('fetch', function(event) {
+  event.respondWith(fetch(event.request));
+});
+`);
+});
+
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   // Inicia atualizacao automatica do XML a cada 12h

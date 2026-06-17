@@ -34,6 +34,12 @@ function normalizarTelefone(tel) {
   return t;
 }
 
+function _limparValor(v) {
+  if (!v) return 0;
+  const s = String(v).replace(/[^d,.]/g, '').replace(',', '.');
+  return parseFloat(s) || 0;
+}
+
 async function run() {
   try {
     const wb = XLSX.readFile(filePath);

@@ -4415,9 +4415,8 @@ app.get('/sw.js', (req, res) => {
   res.setHeader('Content-Type', 'application/javascript');
   res.setHeader('Cache-Control', 'no-cache');
   res.send(`
-self.addEventListener('fetch', function(event) {
-  event.respondWith(fetch(event.request));
-});
+self.addEventListener('install', function(e){ self.skipWaiting(); });
+self.addEventListener('activate', function(e){ e.waitUntil(self.registration.unregister()); });
 `);
 });
 

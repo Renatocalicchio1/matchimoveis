@@ -597,6 +597,7 @@ document.addEventListener('DOMContentLoaded',function(){
           try{
             const s = await (await fetch('/import-status')).json();
             if(s.status==='finalizado'){clearInterval(timer);if(el){el.innerHTML='Concluído: '+s.total+' imóveis. <a href="/app/imoveis" style="color:var(--brand);font-weight:600">Ver imóveis →</a>';}}
+            if(s.status==='finalizado_parcial'){clearInterval(timer);if(el){el.innerHTML='⚠️ '+s.mensagem+' <a href="/app/coins" style="color:var(--brand);font-weight:600">Comprar créditos →</a>';el.style.color='#92400e';el.style.background='#fffbeb';el.style.padding='8px 12px';el.style.borderRadius='8px';el.style.border='1px solid #fcd34d';}}
             if(s.status==='erro'){clearInterval(timer);if(el){el.textContent='Erro: '+(s.mensagem||'');el.style.color='#dc2626';}}
           }catch(e){}
         },1500);

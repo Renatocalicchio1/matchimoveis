@@ -949,7 +949,12 @@ app.post('/app/importar', upload.any(), async (req, res) => {
       const { execSync } = require('child_process');
       const userId = global.importUserId || '';
       // créditos de importar_xml são cobrados por imóvel novo dentro do importXMLCompleto.js
-      execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit', env: { ...process.env } });
+      const _xmlOutput = execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { encoding: 'utf8', env: { ...process.env }, stdio: ['inherit','pipe','inherit'] });
+      const _importResultLine = (_xmlOutput||'').split('\n').find(l => l.startsWith('IMPORT_RESULT:'));
+      const _importResult = _importResultLine ? JSON.parse(_importResultLine.replace('IMPORT_RESULT:','')) : null;
+      if (_importResult && _importResult.naoImportados > 0) {
+        global.importStatus = { status: 'finalizado_parcial', total: _importResult.importados, naoImportados: _importResult.naoImportados, mensagem: `${_importResult.importados} imóveis importados. ${_importResult.naoImportados} não importados por saldo insuficiente — compre mais créditos.` };
+      }
 
       const fs = require('fs');
       const imoveis = fs.existsSync(dataFile('imoveis.json'))

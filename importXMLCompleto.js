@@ -445,14 +445,25 @@ const final = [...restantes, ...novosFormatadosComStatus, ...inativos];
   const comArea = novos.filter(n => n.area_m2 > 0).length;
   const comFotos = novos.filter(n => n.fotos.length > 0).length;
 
-  // Cobra créditos apenas pelos imóveis novos
+  // Cobra créditos apenas pelos imóveis novos — limitado ao saldo disponível
   if (USER_ID && imoveisNovos.length > 0) {
     try {
-      const { consumir } = require('./services/creditos');
-      for (let _ic = 0; _ic < imoveisNovos.length; _ic++) {
+      const { consumir, saldo: getSaldo, CUSTO } = require('./services/creditos');
+      const _custoUnit = CUSTO['importar_xml'] || 2;
+      const _saldoAtual = await getSaldo(USER_ID);
+      const _maxImportavel = Math.floor(_saldoAtual / _custoUnit);
+      const _importarAte = Math.min(imoveisNovos.length, _maxImportavel);
+      const _naoImportados = imoveisNovos.length - _importarAte;
+      for (let _ic = 0; _ic < _importarAte; _ic++) {
         await consumir(USER_ID, 'importar_xml');
       }
-      console.log('[importXML] Créditos consumidos:', imoveisNovos.length * 10, '(' + imoveisNovos.length + ' imóveis novos)');
+      console.log('[importXML] Créditos consumidos:', _importarAte * _custoUnit, '(' + _importarAte + ' imóveis novos)');
+      if (_naoImportados > 0) {
+        console.log('[importXML] SALDO_INSUFICIENTE:', _naoImportados, 'imóveis não importados por falta de créditos');
+        console.log('IMPORT_RESULT:' + JSON.stringify({ importados: _importarAte, naoImportados: _naoImportados, saldoUsado: _importarAte * _custoUnit }));
+      } else {
+        console.log('IMPORT_RESULT:' + JSON.stringify({ importados: _importarAte, naoImportados: 0, saldoUsado: _importarAte * _custoUnit }));
+      }
     } catch(e) { console.error('[creditos]', e.message); }
   }
   console.log('✅ Total imóveis salvos:', novos.length);

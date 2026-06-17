@@ -390,6 +390,19 @@ function setTab(t){
   document.getElementById('tab-c').className='modal-tab'+(t==='cadastro'?' on':'');
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// Reabrir modal na aba correta se tiver erro
+(function(){
+  const _p = new URLSearchParams(window.location.search);
+  const _e = _p.get('erro');
+  if(_e === 'celular_existente' || _e === 'email_existente' || _e === 'nome_invalido' || _e === 'telefone_invalido') {
+    openModal('cadastro');
+  } else if(_e === 'telefone_nao_encontrado' || _e === 'senha_incorreta' || _e === 'nao_cadastrado') {
+    openModal('entrar');
+  } else if(_e) {
+    openModal();
+  }
+})();
 let _mdTarget=null;
 document.getElementById('modal-login').addEventListener('mousedown',e=>{_mdTarget=e.target;});
 document.getElementById('modal-login').addEventListener('mouseup',e=>{if(_mdTarget===e.target&&e.target===document.getElementById('modal-login'))closeModal();_mdTarget=null;});

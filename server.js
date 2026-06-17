@@ -575,10 +575,13 @@ async function gerarXMLQuintoAndarGlobal() {
     xml += '        <Name>'+esc(user.nome||'')+'</Name>\n';
     xml += '        <Email>'+esc(user.email||'')+'</Email>\n';
     xml += '        <Telephone>'+esc(user.celular||user.telefone||'')+'</Telephone>\n';
-    xml += '        <BrokerName>'+esc(user.nome||'')+'</BrokerName>\n';
-    xml += '        <BrokerPhone>'+esc(user.celular||user.telefone||'')+'</BrokerPhone>\n';
     xml += '        <Website>https://www.matchimoveis.ia.br</Website>\n';
     xml += '      </ContactInfo>\n';
+    xml += '      <Broker>\n';
+    xml += '        <BrokerName>'+esc(user.nome||'')+'</BrokerName>\n';
+    xml += '        <BrokerEmail>'+esc(user.email||'')+'</BrokerEmail>\n';
+    xml += '        <BrokerTelephone>'+esc(user.celular||user.telefone||'')+'</BrokerTelephone>\n';
+    xml += '      </Broker>\n';
     xml += '      <OwnerInfo>\n';
     xml += '        <Name>'+esc(propNome)+'</Name>\n';
     xml += '        <Email>'+esc(propEmail)+'</Email>\n';

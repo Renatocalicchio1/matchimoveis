@@ -2572,6 +2572,7 @@ app.post('/app/perfil', auth, async (req,res)=>{
 app.post('/app/perfil/senha', auth, async (req, res) => {
   const nova_senha = (req.body.nova_senha || '').trim();
   const confirmar_senha = (req.body.confirmar_senha || '').trim();
+  console.log('[senha debug] uid=', uid, 'session=', JSON.stringify(req.session.user));
   const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || String(req.session.user.id || '');
   if (!nova_senha || !confirmar_senha)
     return res.redirect('/app/perfil?senhaErro=Preencha+todos+os+campos');

@@ -7611,7 +7611,7 @@ app.get('/app/whatsapp/status', auth, async (req, res) => {
       const users = await _luS();
       const idx = users.findIndex(u => u.id === user.id);
       if (idx >= 0) {
-        users[idx].whatsappStatus = 'connected';
+        users[idx].whatsappStatus = 'open';
         users[idx].whatsappInstance = instanceName;
         // Pega ownerJid
         const instRes = await fetch(EVOLUTION_URL + '/instance/fetchInstances', { headers: { 'apikey': EVOLUTION_KEY } });

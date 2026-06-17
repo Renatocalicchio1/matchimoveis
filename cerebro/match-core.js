@@ -590,8 +590,8 @@ class MatchCore {
       const _estadoNome = _estadoMap[estadoLead] || estadoLead;
       if (estadoLead) {
         _resMatch2 = await _queryMatch2(
-          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2 OR estado ILIKE $3 OR estado ILIKE $4)",
-          [userId, '%'+estadoLead+'%', '%'+_estadoNome+'%', '%santa catarina%']
+          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2 OR estado ILIKE $3)",
+          [userId, '%'+estadoLead+'%', '%'+_estadoNome+'%']
         );
       } else {
         _resMatch2 = await _queryMatch2(

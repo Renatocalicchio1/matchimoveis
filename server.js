@@ -8374,6 +8374,59 @@ setInterval(async () => {
     }
   } catch(e) { console.error('[JOB VISITA REALIZADA]', e.message); }
 }, 15*60*1000);
+
+// ── JOB_LEADS_DIA — processa 20 leads de planilha por usuário às 8h ──────────
+(function _agendarLeadsDia() {
+  function _msAte8h() {
+    const agora = new Date();
+    const prox = new Date();
+    prox.setHours(8, 0, 0, 0);
+    if (prox <= agora) prox.setDate(prox.getDate() + 1);
+    return prox - agora;
+  }
+  async function _processarLeadsDia() {
+    try {
+      const { query: _qLD } = require('./services/db');
+      const matchCore = require('./cerebro/index');
+      const LIMITE = 20;
+      // Pega todos os usuários ativos
+      const _users = (_cacheUsuarios || []).filter(u => u.ativo !== false);
+      for (const user of _users) {
+        const uid = user.codigoUsuario || user.codigo_usuario || user.id;
+        if (!uid) continue;
+        try {
+          // Busca leads de planilha não processadas (sem match ainda)
+          const _res = await _qLD(
+            `SELECT * FROM leads WHERE user_id=$1 AND origem='planilha' AND (dados->>'matchProcessado') IS NULL AND deletado_por IS NULL ORDER BY criado_em ASC LIMIT $2`,
+            [uid, LIMITE]
+          );
+          const _leads = _res.rows;
+          if (!_leads.length) continue;
+          console.log(`[leads-dia] ${uid}: ${_leads.length} leads para processar`);
+          for (const row of _leads) {
+            try {
+              const _lead = { ...row, ...(row.dados || {}), id: row.id, userId: uid };
+              await matchCore.processar({ lead: _lead, mensagem: '', canal: 'importacao', userId: uid, instancia: null });
+              // Marca como processada
+              await _qLD(
+                `UPDATE leads SET dados = jsonb_set(COALESCE(dados,'{}'), '{matchProcessado}', 'true') WHERE id=$1`,
+                [row.id]
+              );
+              console.log(`[leads-dia] ✅ ${_lead.nome || row.id}`);
+            } catch(e) { console.error('[leads-dia] erro lead', row.id, e.message); }
+          }
+        } catch(e) { console.error('[leads-dia] erro usuario', uid, e.message); }
+      }
+    } catch(e) { console.error('[leads-dia] erro geral', e.message); }
+    // Agenda para o próximo dia às 8h
+    setTimeout(_processarLeadsDia, _msAte8h());
+  }
+  // Primeira execução
+  setTimeout(_processarLeadsDia, _msAte8h());
+  console.log('[leads-dia] job agendado para as 8h');
+})();
+// ── FIM JOB_LEADS_DIA ────────────────────────────────────────────────────────
+
 // ── FIM JOB_VISITA_REALIZADA ─────────────────────────────────────────────────
 
 // ── ROTAS FAVORITOS ──────────────────────────────────────────────────────────

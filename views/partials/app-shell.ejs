@@ -404,12 +404,20 @@ function toggleMaisMenu(){
 }
 </script>
 <main class="content">
-<!-- PRIMEIROS PASSOS LINK -->
-<div style="display:flex;justify-content:flex-end;padding:10px 0 0;margin-bottom:-10px">
-  <button onclick="document.getElementById('modalPrimeirosPassos').style.display='flex'" style="display:inline-flex;align-items:center;gap:6px;background:#FF385C;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(255,56,92,.3)">
+<!-- BOTÕES FIXOS TOPO DIREITO -->
+<style>
+@keyframes _pulseBtn{0%,100%{box-shadow:0 2px 8px rgba(255,56,92,.4)}50%{box-shadow:0 2px 20px rgba(255,56,92,.8),0 0 0 4px rgba(255,56,92,.2)}}
+._btn-primeiros-passos{animation:_pulseBtn 2s ease-in-out infinite}
+</style>
+<div style="position:fixed;top:12px;right:16px;z-index:9999;display:flex;align-items:center;gap:8px;">
+  <button onclick="document.getElementById('modalPrimeirosPassos').style.display='flex'" class="_btn-primeiros-passos" style="display:inline-flex;align-items:center;gap:6px;background:#FF385C;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     Primeiros Passos
   </button>
+  <a href="https://wa.me/5511956655428?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20um%20atendente!" target="_blank" style="background:#25d366;border-radius:20px;padding:6px 12px 6px 8px;display:flex;align-items:center;gap:6px;box-shadow:0 2px 12px rgba(0,0,0,.2);text-decoration:none;" title="Fale conosco">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+    <span style="color:#fff;font-size:11px;font-weight:600;">Fale conosco</span>
+  </a>
 </div>
 
 <!-- MODAL PRIMEIROS PASSOS -->
@@ -465,10 +473,13 @@ function toggleMaisMenu(){
         </div>
         <div style="font-size:12px;color:#6b7280;line-height:1.6;margin-left:38px">
           No <strong>menu esquerdo</strong>, clique em <strong>Leads</strong> e cadastre algumas leads manualmente para começar a gerar matches.<br><br>
-          Leads também chegam automaticamente por:<br>
+          Canais para receber leads:<br>
+          ✍️ <strong>Manual</strong> — cadastre diretamente no app<br>
           📱 <strong>WhatsApp</strong> — mensagem recebida vira lead<br>
           🏠 <strong>Página do imóvel</strong> — cliente clica "tenho interesse"<br>
-          🔗 <strong>Vitrine</strong> — você compartilha o link do imóvel
+          🌐 <strong>Portais</strong> — integre seus portais imobiliários<br>
+          📊 <strong>Importação de planilha</strong> — baixe o modelo e suba sua lista<br><br>
+          <span style="color:#92400e;background:#fffbeb;border-radius:6px;padding:4px 8px;display:inline-block;border:1px solid #fcd34d">⚠️ Serão processadas <strong>10 leads por dia</strong> para não travar seu WhatsApp.</span>
         </div>
         <div style="margin-left:38px;margin-top:10px">
           <a href="/app/leads" onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="display:inline-flex;align-items:center;gap:4px;background:#111;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">Ir para Leads →</a>

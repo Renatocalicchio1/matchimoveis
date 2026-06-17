@@ -404,6 +404,96 @@ function toggleMaisMenu(){
 }
 </script>
 <main class="content">
+<!-- PRIMEIROS PASSOS LINK -->
+<div style="display:flex;justify-content:flex-end;padding:10px 0 0;margin-bottom:-10px">
+  <button onclick="document.getElementById('modalPrimeirosPassos').style.display='flex'" style="display:inline-flex;align-items:center;gap:6px;background:#FF385C;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(255,56,92,.3)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Primeiros Passos
+  </button>
+</div>
+
+<!-- MODAL PRIMEIROS PASSOS -->
+<div id="modalPrimeirosPassos" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+    <div style="padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:18px;font-weight:700;color:#111">🚀 Primeiros Passos</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px">Siga esses 4 passos para começar a usar o MatchImóveis</div>
+      </div>
+      <button onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:20px;line-height:1;padding:4px">✕</button>
+    </div>
+    <div style="padding:20px 24px 24px;display:flex;flex-direction:column;gap:16px">
+
+      <!-- PASSO 1 -->
+      <div style="border:1px solid #e5e5e3;border-radius:12px;padding:16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:#FF385C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">1</div>
+          <div style="font-size:14px;font-weight:600;color:#111">Cadastre seus imóveis</div>
+        </div>
+        <div style="font-size:12px;color:#6b7280;line-height:1.6;margin-left:38px">
+          No <strong>menu esquerdo</strong>, clique em <strong>Imóveis</strong>. Você pode:<br>
+          • <strong>Cadastrar manualmente</strong> — preenche os dados de cada imóvel<br>
+          • <strong>Importar XML</strong> — sobe um arquivo XML do seu sistema
+        </div>
+        <div style="margin-left:38px;margin-top:10px">
+          <a href="/app/imoveis" onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="display:inline-flex;align-items:center;gap:4px;background:#111;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">Ir para Imóveis →</a>
+        </div>
+      </div>
+
+      <!-- PASSO 2 -->
+      <div style="border:1px solid #e5e5e3;border-radius:12px;padding:16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:#FF385C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">2</div>
+          <div style="font-size:14px;font-weight:600;color:#111">Configure seu perfil e WhatsApp</div>
+        </div>
+        <div style="font-size:12px;color:#6b7280;line-height:1.6;margin-left:38px">
+          No <strong>menu esquerdo</strong>, clique em <strong>Perfil</strong>:<br>
+          • Preencha seus dados (nome, telefone, região)<br>
+          • <strong>Conecte seu WhatsApp</strong> — escaneie o QR Code para capturar leads automaticamente<br>
+          • <strong>Ative sua localização</strong> — define sua área de atuação principal
+        </div>
+        <div style="margin-left:38px;margin-top:10px">
+          <a href="/app/perfil" onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="display:inline-flex;align-items:center;gap:4px;background:#111;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">Ir para Perfil →</a>
+        </div>
+      </div>
+
+      <!-- PASSO 3 -->
+      <div style="border:1px solid #e5e5e3;border-radius:12px;padding:16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:#FF385C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">3</div>
+          <div style="font-size:14px;font-weight:600;color:#111">Cadastre suas primeiras leads</div>
+        </div>
+        <div style="font-size:12px;color:#6b7280;line-height:1.6;margin-left:38px">
+          No <strong>menu esquerdo</strong>, clique em <strong>Leads</strong> e cadastre algumas leads manualmente para começar a gerar matches.<br><br>
+          Leads também chegam automaticamente por:<br>
+          📱 <strong>WhatsApp</strong> — mensagem recebida vira lead<br>
+          🏠 <strong>Página do imóvel</strong> — cliente clica "tenho interesse"<br>
+          🔗 <strong>Vitrine</strong> — você compartilha o link do imóvel
+        </div>
+        <div style="margin-left:38px;margin-top:10px">
+          <a href="/app/leads" onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="display:inline-flex;align-items:center;gap:4px;background:#111;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">Ir para Leads →</a>
+        </div>
+      </div>
+
+      <!-- PASSO 4 -->
+      <div style="border:1px solid #fff1f3;border-radius:12px;padding:16px;background:#fffbfb">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:#FF385C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">4</div>
+          <div style="font-size:14px;font-weight:600;color:#111">Parceria QuintoAndar 🏢</div>
+        </div>
+        <div style="font-size:12px;color:#6b7280;line-height:1.6;margin-left:38px">
+          No <strong>menu esquerdo</strong>, clique em <strong>Perfil</strong> e role até a seção <strong>QuintoAndar</strong>.<br><br>
+          Ao ativar, seus imóveis são enviados automaticamente para o XML global do QuintoAndar — aumentando sua visibilidade sem nenhum trabalho extra.<br><br>
+          <strong>Requisito:</strong> imóveis precisam ter CEP, endereço, nome e celular do proprietário.
+        </div>
+        <div style="margin-left:38px;margin-top:10px">
+          <a href="/app/perfil#secao-quintoandar" onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="display:inline-flex;align-items:center;gap:4px;background:#FF385C;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">Ativar QuintoAndar →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <%
 const _temPerfil = !!(user && user.nome && (user.celular || user.telefone));

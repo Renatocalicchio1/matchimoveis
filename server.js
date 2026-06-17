@@ -1437,13 +1437,11 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
   }
   registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
   salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
-  const _usersMapOferta = {}; (_cacheUsuarios||[]).forEach(function(u){ _usersMapOferta[u.codigo_usuario||u.codigoUsuario||u.id] = u.nome||u.name||''; });
   res.render('cliente-oferta', {
     user: null,
     lead,
     matchesParceiro: lead.matchesQuintoAndar || [],
-    queryUserId: userIdOferta || lead.userId || lead.usuarioId || lead.corretorId || '',
-    usersMap: _usersMapOferta
+    queryUserId: userIdOferta || lead.userId || lead.usuarioId || lead.corretorId || ''
   });
 });
 
@@ -4985,8 +4983,7 @@ app.post('/api/lead-interesse', async (req, res) => {
 app.get('/imovel/:id', (req, res) => {
   const imoveis = ((_cacheImoveis || []));
   const users = (_cacheUsuarios || []);
-  const _imovelUserId2 = imovel ? (imovel.user_id || imovel.userId || imovel.usuarioId || '') : '';
-  const corretor = users.find(function(u){ return (u.codigo_usuario||u.codigoUsuario||u.id) === _imovelUserId2; }) || users.find(function(u){ return u.ativo; }) || {};
+  const corretor = users.find(u => u.ativo) || {};
 
   // Busca na base interna primeiro
   let imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));

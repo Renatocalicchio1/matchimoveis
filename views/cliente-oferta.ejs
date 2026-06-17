@@ -77,12 +77,12 @@
       <% } %>
       <div class="card-body">
         <div>
-          <span class="score-badge">Score <%= m.score || '-' %></span>
+          <span class="score-badge">Score <%= m.score || '-' %></span><% if(typeof usersMap !== 'undefined' && usersMap && (m.user_id||m.userId)) { %><span style="font-size:11px;color:#6b7280;margin-left:8px">Corretor: <strong><%= usersMap[m.user_id||m.userId] || '' %></strong></span><% } %>
           <% if(isEscolhido) { %><span class="tag-escolhido">✓ Gostei</span><% } %>
           <% if(isVisita) { %><span class="tag-escolhido" style="background:#dbeafe;color:#1e40af">📅 Visita solicitada</span><% } %>
         </div>
         <div class="card-title"><%= m.tipo || 'Imóvel' %> em <%= m.bairro || '-' %></div>
-        <div class="card-sub"><%= m.cidade || 'São Paulo' %>/<%= m.estado || 'SP' %> · <%= (m.proprietario && m.proprietario.corretor) ? m.proprietario.corretor : (m.fonte || 'Rankim') %></div>
+        <div class="card-sub"><%= m.cidade || 'São Paulo' %>/<%= m.estado || 'SP' %></div>
         <div class="card-price"><%= valorFmt %></div>
         <div class="card-specs">
           <div class="spec"><span class="spec-val"><%= m.area_m2 || m.area || '-' %></span><span class="spec-label">m²</span></div>

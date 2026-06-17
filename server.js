@@ -4893,6 +4893,8 @@ app.post('/api/lead-interesse', async (req, res) => {
         leadOwnerId: usuarioDestinoId,
         imovelOwnerId,
         imovelUsuarioId: imovelRef.userId || imovelRef.codigoUsuario || imovelRef.usuarioId || imovelOwnerId || '',
+        imovelUsuarioNome: (function(){ var _oid = imovelRef.user_id||imovelRef.userId||imovelRef.usuarioId||imovelOwnerId||''; var _ou = (_cacheUsuarios||[]).find(function(u){ return (u.codigo_usuario||u.codigoUsuario||u.id)===_oid; }); return _ou ? (_ou.nome||'') : ''; })(),
+        imovelUsuarioTelefone: (function(){ var _oid = imovelRef.user_id||imovelRef.userId||imovelRef.usuarioId||imovelOwnerId||''; var _ou = (_cacheUsuarios||[]).find(function(u){ return (u.codigo_usuario||u.codigoUsuario||u.id)===_oid; }); return _ou ? ((_ou.celular||_ou.telefone||'').replace(/D/g,'')) : ''; })(),
         usuarioDestinoId,
         usuarioDestinoNome,
         usuarioDestinoPerfil,

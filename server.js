@@ -3977,6 +3977,21 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       headers: { 'apikey': _EVOLUTION_KEY }
     }).catch(() => {});
 
+    // Trata CONNECTION_UPDATE — atualiza status no banco
+    if (event === 'connection.update' || event === 'CONNECTION_UPDATE') {
+      const _connState = data?.state || data?.connection || '';
+      const _connStatus = (_connState === 'open') ? 'open' : 'close';
+      console.log('[WEBHOOK WA] CONNECTION_UPDATE | instancia:', instance, '| state:', _connState, '| status:', _connStatus);
+      try {
+        const { query: _qConn } = require('./services/db');
+        await _qConn("UPDATE usuarios SET whatsapp_status=$1 WHERE whatsapp_instance=$2", [_connStatus, instance]);
+        const _uIdx = (_cacheUsuarios||[]).findIndex(u=>u.whatsappInstance===instance||u.whatsapp_instance===instance);
+        if (_uIdx>=0) { _cacheUsuarios[_uIdx].whatsappStatus = _connStatus; _cacheUsuarios[_uIdx].whatsapp_status = _connStatus; }
+        console.log('[WEBHOOK WA] status atualizado:', instance, '->', _connStatus);
+      } catch(e) { console.error('[WEBHOOK WA] erro CONNECTION_UPDATE:', e.message); }
+      return res.status(200).json({ ok: true, connection: _connStatus });
+    }
+
     // Só processa mensagens recebidas
     if (event !== 'messages.upsert' && event !== 'MESSAGES_UPSERT') {
       return res.status(200).json({ ok: true, ignorado: event });

@@ -49,6 +49,8 @@ function rowToUser(r) {
     whatsappNumero: r.whatsapp_numero,
     bloqueados: r.bloqueados || [],
     plano: r.plano || r.dados?.plano || 'basico',
+    autorizaQuintoandar: r.autoriza_quintoandar || false,
+    autoriza_quintoandar: r.autoriza_quintoandar || false,
     lat: r.lat,
     lng: r.lng,
     endereco: r.endereco,

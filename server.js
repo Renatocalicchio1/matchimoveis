@@ -2580,8 +2580,7 @@ app.post('/app/perfil', auth, async (req,res)=>{
 app.post('/app/perfil/senha', auth, async (req, res) => {
   const nova_senha = (req.body.nova_senha || '').trim();
   const confirmar_senha = (req.body.confirmar_senha || '').trim();
-  const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.codigo || String(req.session.user.id || '');
-  console.log('[senha] uid=', uid, '| session keys=', Object.keys(req.session.user||{}));
+  const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || String(req.session.user.id || '');
   if (!nova_senha || !confirmar_senha)
     return res.redirect('/app/perfil?senhaErro=Preencha+todos+os+campos');
   if (nova_senha.length < 6)
@@ -2589,10 +2588,11 @@ app.post('/app/perfil/senha', auth, async (req, res) => {
   if (nova_senha !== confirmar_senha)
     return res.redirect('/app/perfil?senhaErro=As+senhas+nao+coincidem');
   try {
-    const result = await _q('SELECT codigo_usuario FROM usuarios WHERE codigo_usuario = $1', [uid]);
+    const { query: _qSenha } = require('./services/db');
+    const result = await _qSenha('SELECT codigo_usuario FROM usuarios WHERE codigo_usuario = $1', [uid]);
     if (!result.rows.length)
       return res.redirect('/app/perfil?senhaErro=Usuario+nao+encontrado');
-    await _q('UPDATE usuarios SET senha = $1 WHERE codigo_usuario = $2', [nova_senha, uid]);
+    await _qSenha('UPDATE usuarios SET senha = $1 WHERE codigo_usuario = $2', [nova_senha, uid]);
     if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid); if(_uIdx>=0) _cacheUsuarios[_uIdx].senha = nova_senha; }
     req.session.user.senha = nova_senha;
     return res.redirect('/app/perfil?senhaSucesso=1');

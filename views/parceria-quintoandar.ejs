@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parceria QuintoAndar · MatchImóveis</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#FF385C;--brand-dark:#e0314f;--brand-light:#fff1f3;--dark:#111111;--text:#1a1a1a;--muted:#6b7280;--light:#f8f8f7;--white:#fff;--border:#e5e5e3}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--text);background:var(--white);-webkit-font-smoothing:antialiased}
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-logo{font-size:16px;font-weight:700;color:var(--dark);text-decoration:none}
+.nav-logo span{color:var(--brand)}
+.nav-cta{background:var(--brand);color:#fff;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:background .2s}
+.nav-cta:hover{background:var(--brand-dark)}
+.hero{background:var(--dark);padding:80px 24px 72px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:5px 14px;margin-bottom:28px;font-size:12px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.4px}
+.hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);display:inline-block}
+.hero h1{font-size:clamp(32px,5vw,52px);font-weight:700;color:#fff;line-height:1.1;letter-spacing:-.8px;max-width:680px;margin:0 auto 20px}
+.hero h1 em{font-style:normal;color:var(--brand)}
+.hero p{font-size:17px;color:rgba(255,255,255,.6);max-width:520px;margin:0 auto 36px;line-height:1.7}
+.hero-cta{display:inline-block;background:var(--brand);color:#fff;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;transition:background .2s}
+.hero-cta:hover{background:var(--brand-dark)}
+.hero-stats{display:flex;justify-content:center;gap:48px;margin-top:56px;border-top:1px solid rgba(255,255,255,.08);padding-top:40px;flex-wrap:wrap}
+.stat-num{font-size:28px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.stat-label{font-size:12px;color:rgba(255,255,255,.45);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.wrap{max-width:960px;margin:0 auto;padding:72px 24px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--brand);margin-bottom:12px}
+.sec-title{font-size:clamp(24px,3.5vw,36px);font-weight:700;letter-spacing:-.4px;line-height:1.2;margin-bottom:16px}
+.sec-sub{font-size:16px;color:var(--muted);line-height:1.7;max-width:560px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:48px}
+.step{background:var(--light);border-radius:14px;padding:28px 24px;border:1px solid var(--border)}
+.step-num{width:36px;height:36px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-bottom:16px}
+.step h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.step p{font-size:13px;color:var(--muted);line-height:1.6}
+.req-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:40px}
+.req-item{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid var(--border);border-radius:10px}
+.req-icon{width:32px;height:32px;border-radius:8px;background:var(--brand-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.req-text{font-size:13px;color:var(--text);line-height:1.5;font-weight:500}
+.benefits-strip{background:var(--light);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.benefits-inner{max-width:960px;margin:0 auto;padding:56px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px}
+.benefit{text-align:center}
+.benefit-icon{font-size:28px;margin-bottom:12px}
+.benefit h3{font-size:15px;font-weight:600;margin-bottom:6px}
+.benefit p{font-size:13px;color:var(--muted);line-height:1.6}
+.acesso-section{background:var(--brand-light);border-top:1px solid #ffd6dc;border-bottom:1px solid #ffd6dc}
+.acesso-inner{max-width:760px;margin:0 auto;padding:64px 24px;text-align:center}
+.acesso-card{background:var(--white);border:1px solid #ffd6dc;border-radius:16px;padding:32px;text-align:left;max-width:560px;margin:0 auto}
+.acesso-card ul{list-style:none;margin:16px 0 28px;display:flex;flex-direction:column;gap:10px}
+.acesso-card ul li{font-size:14px;color:var(--text);display:flex;align-items:center;gap:10px}
+.acesso-card ul li::before{content:'✓';color:var(--brand);font-weight:700;flex-shrink:0}
+.btn-solicitar{display:block;width:100%;background:var(--brand);color:#fff;padding:14px;border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;border:none;cursor:pointer;transition:background .2s}
+.btn-solicitar:hover{background:var(--brand-dark)}
+.btn-solicitar:disabled{background:#ccc;cursor:not-allowed}
+.sucesso-msg{display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;text-align:center;color:#15803d;font-size:14px;font-weight:500;margin-top:16px}
+.faq-wrap{max-width:680px;margin:40px auto 0}
+.faq-item{border-bottom:1px solid var(--border);padding:20px 0}
+.faq-item:last-child{border-bottom:none}
+.faq-q{font-size:15px;font-weight:600;margin-bottom:8px}
+.faq-a{font-size:14px;color:var(--muted);line-height:1.7}
+.cta-final{background:var(--brand);text-align:center;padding:72px 24px}
+.cta-final h2{font-size:clamp(24px,3vw,36px);font-weight:700;color:#fff;margin-bottom:12px;letter-spacing:-.4px}
+.cta-final p{font-size:16px;color:rgba(255,255,255,.8);margin-bottom:32px}
+.cta-final a{display:inline-block;background:#fff;color:var(--brand);padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none}
+hr.div{border:none;border-top:1px solid var(--border);margin:0}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/app-home">Match<span>Imóveis</span></a>
+  <a class="nav-cta" href="/app/perfil#secao-quintoandar">Ativar parceria</a>
+</nav>
+<div class="hero">
+  <div class="hero-badge"><span class="dot"></span> Parceria · QuintoAndar</div>
+  <h1>Seus imóveis no QuintoAndar,<br><em>sem esforço extra</em></h1>
+  <p>Com um clique no seu perfil, o MatchImóveis envia automaticamente seus imóveis elegíveis ao maior marketplace imobiliário do Brasil.</p>
+  <a class="hero-cta" href="/app/perfil#secao-quintoandar">Ativar agora no meu perfil</a>
+  <div class="hero-stats">
+    <div><div class="stat-num">+40M</div><div class="stat-label">Usuários ativos</div></div>
+    <div><div class="stat-num">50+</div><div class="stat-label">Cidades no Brasil</div></div>
+    <div><div class="stat-num">100%</div><div class="stat-label">Automático</div></div>
+    <div><div class="stat-num">R$0</div><div class="stat-label">Custo adicional</div></div>
+  </div>
+</div>
+<div class="wrap">
+  <p class="eyebrow">Como funciona</p>
+  <h2 class="sec-title">Três passos para ampliar sua vitrine</h2>
+  <p class="sec-sub">O MatchImóveis cuida de tudo. Você só precisa manter seus dados atualizados.</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><h3>Ative no seu perfil</h3><p>Vá em Perfil → QuintoAndar e marque a opção de autorização.</p></div>
+    <div class="step"><div class="step-num">2</div><h3>Nós geramos o XML</h3><p>O MatchImóveis cria automaticamente um XML no padrão exigido pelo QuintoAndar.</p></div>
+    <div class="step"><div class="step-num">3</div><h3>QuintoAndar exibe seus imóveis</h3><p>O QuintoAndar publica seus imóveis para milhões de compradores.</p></div>
+    <div class="step"><div class="step-num">4</div><h3>Atualização contínua</h3><p>Alterações são refletidas automaticamente no próximo ciclo de sincronização.</p></div>
+  </div>
+</div>
+<hr class="div">
+<div class="wrap">
+  <p class="eyebrow">Requisitos</p>
+  <h2 class="sec-title">O que cada imóvel precisa ter</h2>
+  <p class="sec-sub">Para ser incluído no XML, o imóvel precisa ter os seguintes dados preenchidos.</p>
+  <div class="req-grid">
+    <div class="req-item"><div class="req-icon">📍</div><div class="req-text">CEP, endereço, número e complemento</div></div>
+    <div class="req-item"><div class="req-icon">🏙</div><div class="req-text">Cidade em uma das 50+ cidades onde o QuintoAndar atua</div></div>
+    <div class="req-item"><div class="req-icon">💰</div><div class="req-text">Valor de venda preenchido</div></div>
+    <div class="req-item"><div class="req-icon">👤</div><div class="req-text">Nome e celular do proprietário</div></div>
+    <div class="req-item"><div class="req-icon">🏠</div><div class="req-text">Imóvel residencial à venda</div></div>
+    <div class="req-item"><div class="req-icon">✅</div><div class="req-text">Status ativo na sua carteira</div></div>
+  </div>
+</div>
+<div class="benefits-strip">
+  <div class="benefits-inner">
+    <div class="benefit"><div class="benefit-icon">🚀</div><h3>Mais visibilidade</h3><p>Milhões de compradores ativos sem custo extra.</p></div>
+    <div class="benefit"><div class="benefit-icon">⚡</div><h3>Zero trabalho manual</h3><p>Sem reimportação. O MatchImóveis sincroniza tudo.</p></div>
+    <div class="benefit"><div class="benefit-icon">🔄</div><h3>Sempre atualizado</h3><p>Alterações refletidas automaticamente.</p></div>
+    <div class="benefit"><div class="benefit-icon">🔒</div><h3>Você no controle</h3><p>Ative ou desative com um clique.</p></div>
+  </div>
+</div>
+<div class="acesso-section">
+  <div class="acesso-inner">
+    <p class="eyebrow">Acesso à carteira</p>
+    <h2 class="sec-title">Quer acessar os imóveis do QuintoAndar?</h2>
+    <p class="sec-sub" style="margin:0 auto 36px">Solicite acesso à carteira de imóveis do QuintoAndar e amplie suas opções para oferecer aos seus clientes.</p>
+    <div class="acesso-card">
+      <p style="font-size:14px;font-weight:600;margin-bottom:4px">O que você terá acesso:</p>
+      <ul>
+        <li>Carteira de imóveis disponíveis do QuintoAndar</li>
+        <li>Imóveis nas principais cidades do Brasil</li>
+        <li>Dados completos para apresentar aos seus clientes</li>
+        <li>Integração direta com o sistema de match do MatchImóveis</li>
+      </ul>
+      <button class="btn-solicitar" id="btnSolicitar" onclick="solicitarAcesso()">Solicitar acesso aos imóveis do QuintoAndar</button>
+      <div class="sucesso-msg" id="sucessoMsg">✅ Solicitação enviada! Nossa equipe entrará em contato em breve.</div>
+    </div>
+  </div>
+</div>
+<div class="wrap">
+  <p class="eyebrow">Dúvidas frequentes</p>
+  <h2 class="sec-title">Perguntas e respostas</h2>
+  <div class="faq-wrap">
+    <div class="faq-item"><p class="faq-q">Quanto custa ativar a parceria?</p><p class="faq-a">Nada. A integração está incluída no MatchImóveis sem custo adicional.</p></div>
+    <div class="faq-item"><p class="faq-q">Todos os meus imóveis serão enviados?</p><p class="faq-a">Não — apenas imóveis residenciais à venda, com dados completos e nas cidades onde o QuintoAndar opera.</p></div>
+    <div class="faq-item"><p class="faq-q">Como sei quantos imóveis foram incluídos?</p><p class="faq-a">No seu perfil, na seção QuintoAndar, você vê em tempo real quantos imóveis são elegíveis.</p></div>
+    <div class="faq-item"><p class="faq-q">Posso desativar quando quiser?</p><p class="faq-a">Sim. Basta desmarcar a opção no seu perfil e salvar.</p></div>
+    <div class="faq-item"><p class="faq-q">Em quais cidades o QuintoAndar atua?</p><p class="faq-a">São Paulo, Rio de Janeiro, Belo Horizonte, Curitiba, Porto Alegre, Florianópolis, Campinas, Goiânia, Brasília, Salvador, Recife, Fortaleza e outras.</p></div>
+  </div>
+</div>
+<div class="cta-final">
+  <h2>Pronto para ampliar sua vitrine?</h2>
+  <p>Ative agora no seu perfil e seus imóveis elegíveis já entram no próximo ciclo.</p>
+  <a href="/app/perfil#secao-quintoandar">Ativar parceria QuintoAndar</a>
+</div>
+<script>
+async function solicitarAcesso(){
+  const btn=document.getElementById('btnSolicitar');
+  const msg=document.getElementById('sucessoMsg');
+  btn.disabled=true;btn.textContent='Enviando...';
+  try{
+    const r=await fetch('/app/quintoandar/solicitar-acesso',{method:'POST',headers:{'Content-Type':'application/json'}});
+    const d=await r.json();
+    if(d.ok){btn.style.display='none';msg.style.display='block';}
+    else{btn.disabled=false;btn.textContent='Solicitar acesso aos imóveis do QuintoAndar';alert(d.erro||'Erro ao enviar.');}
+  }catch(e){btn.disabled=false;btn.textContent='Solicitar acesso aos imóveis do QuintoAndar';alert('Erro ao enviar. Tente novamente.');}
+}
+</script>
+</body>
+</html>

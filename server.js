@@ -594,6 +594,55 @@ async function gerarXMLQuintoAndarGlobal() {
 }
 
 // Rota admin (autenticada)
+// Página explicativa parceria QuintoAndar
+app.get('/app/parceria-quintoandar', auth, (req, res) => {
+  res.render('parceria-quintoandar', { user: req.session.user });
+});
+
+// Solicitação de acesso aos imóveis do QuintoAndar
+app.post('/app/quintoandar/solicitar-acesso', auth, async (req, res) => {
+  try {
+    const user = req.session.user;
+    const { query: _qQA } = require('./services/db');
+    const jaExiste = await _qQA("SELECT id FROM solicitacoes_quintoandar WHERE user_id=$1", [user.codigoUsuario||user.id]);
+    if (jaExiste.rows.length) return res.json({ ok: true, jaEnviado: true });
+    await _qQA("INSERT INTO solicitacoes_quintoandar (user_id, nome, telefone, email, criado_em) VALUES ($1,$2,$3,$4,NOW()) ON CONFLICT DO NOTHING",
+      [user.codigoUsuario||user.id, user.nome||'', user.celular||user.telefone||'', user.email||'']);
+    // Notifica admin via WhatsApp
+    const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+    const msg = `🏢 *Nova solicitação QuintoAndar*\n\n👤 *Nome:* ${user.nome||''}\n📱 *Telefone:* ${user.celular||user.telefone||''}\n📧 *Email:* ${user.email||''}\n🔑 *Código:* ${user.codigoUsuario||user.id}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
+    fetch(`${EU}/message/sendText/match-suporte`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': EK },
+      body: JSON.stringify({ number: '5511956655428', text: msg })
+    }).catch(()=>{});
+    res.json({ ok: true });
+  } catch(e) {
+    console.error('[quintoandar-solicitacao]', e.message);
+    res.json({ ok: false, erro: 'Erro ao registrar solicitação.' });
+  }
+});
+
+// Admin: ver solicitações QuintoAndar
+app.get('/admin/quintoandar-solicitacoes', authAdmin, async (req, res) => {
+  try {
+    const { query: _qQAS } = require('./services/db');
+    await _qQAS(`CREATE TABLE IF NOT EXISTS solicitacoes_quintoandar (
+      id SERIAL PRIMARY KEY, user_id TEXT, nome TEXT, telefone TEXT, email TEXT,
+      criado_em TIMESTAMPTZ DEFAULT NOW(), atendido BOOLEAN DEFAULT FALSE)`);
+    const r = await _qQAS("SELECT * FROM solicitacoes_quintoandar ORDER BY criado_em DESC");
+    let html = `<html><head><meta charset="UTF-8"><title>Solicitações QuintoAndar</title>
+    <style>body{font-family:Arial;padding:20px;max-width:900px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
+    <body><h2 style="margin-bottom:16px">Solicitações de acesso QuintoAndar (${r.rows.length})</h2>
+    <table><tr><th>Data</th><th>Nome</th><th>Telefone</th><th>Email</th><th>Código</th><th>Atendido</th></tr>`;
+    r.rows.forEach(row => {
+      html += `<tr><td>${new Date(row.criado_em).toLocaleString('pt-BR')}</td><td>${row.nome||''}</td><td>${row.telefone||''}</td><td>${row.email||''}</td><td>${row.user_id||''}</td><td>${row.atendido?'✅':'⏳'}</td></tr>`;
+    });
+    html += '</table></body></html>';
+    res.send(html);
+  } catch(e) { res.send('Erro: ' + e.message); }
+});
+
 app.get('/admin/xml/quintoandar-global', authAdmin, async (req, res) => {
   try {
     const result = await gerarXMLQuintoAndarGlobal();

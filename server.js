@@ -645,6 +645,12 @@ app.get('/app/parceria-quintoandar', auth, async (req, res) => {
       return !(temProp && temEnd);
     }).length;
     const _totalVenda = _imoveisUser.rows.length;
+    // Atualiza sessão com valor atual do banco
+    const _qaUserRow = await _qQAP('SELECT autoriza_quintoandar FROM usuarios WHERE codigo_usuario=$1', [uid]);
+    if (_qaUserRow.rows.length) {
+      req.session.user.autoriza_quintoandar = _qaUserRow.rows[0].autoriza_quintoandar;
+      req.session.user.autorizaQuintoandar = _qaUserRow.rows[0].autoriza_quintoandar;
+    }
     res.render('parceria-quintoandar', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos });
   } catch(e) {
     console.error('[parceria-qa]', e.message);
@@ -2665,7 +2671,9 @@ app.post('/app/perfil/quintoandar', auth, async (req, res) => {
     const { query: _qQA } = require('./services/db');
     const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
     const autoriza = req.body.autoriza_quintoandar === '1';
-    await _qQA('UPDATE usuarios SET autoriza_quintoandar=$1 WHERE codigo_usuario=$2', [autoriza, uid]);
+    console.log('[QA] uid:', uid, '| autoriza:', autoriza, '| body:', req.body.autoriza_quintoandar);
+    const _rQA = await _qQA('UPDATE usuarios SET autoriza_quintoandar=$1 WHERE codigo_usuario=$2', [autoriza, uid]);
+    console.log('[QA] rows updated:', _rQA.rowCount);
     req.session.user.autoriza_quintoandar = autoriza;
     if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid); if(_uIdx>=0) _cacheUsuarios[_uIdx].autoriza_quintoandar = autoriza; }
     const _referer = req.headers.referer || '';

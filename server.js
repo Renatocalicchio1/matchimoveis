@@ -599,30 +599,47 @@ app.get('/app/parceria-quintoandar', auth, async (req, res) => {
   try {
     const { query: _qQAP } = require('./services/db');
     const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
-    const _normP = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+    const _normP = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+    const _siglaParaNome = {'ac':'acre','al':'alagoas','ap':'amapa','am':'amazonas','ba':'bahia','ce':'ceara','df':'distrito federal','es':'espirito santo','go':'goias','ma':'maranhao','mt':'mato grosso','ms':'mato grosso do sul','mg':'minas gerais','pa':'para','pb':'paraiba','pr':'parana','pe':'pernambuco','pi':'piaui','rj':'rio de janeiro','rn':'rio grande do norte','rs':'rio grande do sul','ro':'rondonia','rr':'roraima','sc':'santa catarina','sp':'sao paulo','se':'sergipe','to':'tocantins'};
+    const _normEstadoP = s => { const n=_normP(s); return _siglaParaNome[n]||n; };
     const _cidadesQAp = [
       {e:'santa catarina',c:'florianopolis'},{e:'santa catarina',c:'joinville'},{e:'santa catarina',c:'blumenau'},
-      {e:'santa catarina',c:'balneario camboriu'},{e:'sao paulo',c:'sao paulo'},{e:'sao paulo',c:'guarulhos'},
-      {e:'sao paulo',c:'campinas'},{e:'sao paulo',c:'sao bernardo do campo'},{e:'sao paulo',c:'santo andre'},
-      {e:'rio de janeiro',c:'rio de janeiro'},{e:'rio de janeiro',c:'niteroi'},{e:'minas gerais',c:'belo horizonte'},
-      {e:'minas gerais',c:'contagem'},{e:'rio grande do sul',c:'porto alegre'},{e:'parana',c:'curitiba'},
-      {e:'goias',c:'goiania'},{e:'distrito federal',c:'brasilia'},{e:'bahia',c:'salvador'},
-      {e:'pernambuco',c:'recife'},{e:'ceara',c:'fortaleza'}
+      {e:'santa catarina',c:'balneario camboriu'},{e:'santa catarina',c:'itajai'},{e:'santa catarina',c:'sao jose'},
+      {e:'santa catarina',c:'palhoca'},{e:'santa catarina',c:'biguacu'},{e:'santa catarina',c:'criciuma'},{e:'santa catarina',c:'chapeco'},
+      {e:'sao paulo',c:'sao paulo'},{e:'sao paulo',c:'guarulhos'},{e:'sao paulo',c:'osasco'},{e:'sao paulo',c:'santo andre'},
+      {e:'sao paulo',c:'campinas'},{e:'sao paulo',c:'sao bernardo do campo'},{e:'sao paulo',c:'sao caetano do sul'},
+      {e:'sao paulo',c:'diadema'},{e:'sao paulo',c:'maua'},{e:'sao paulo',c:'ribeirao preto'},{e:'sao paulo',c:'sorocaba'},
+      {e:'sao paulo',c:'sao jose dos campos'},{e:'sao paulo',c:'taubate'},{e:'sao paulo',c:'americana'},{e:'sao paulo',c:'sumare'},
+      {e:'rio de janeiro',c:'rio de janeiro'},{e:'rio de janeiro',c:'niteroi'},{e:'rio de janeiro',c:'duque de caxias'},
+      {e:'rio de janeiro',c:'nova iguacu'},{e:'rio de janeiro',c:'sao goncalo'},{e:'rio de janeiro',c:'petropolis'},
+      {e:'minas gerais',c:'belo horizonte'},{e:'minas gerais',c:'contagem'},{e:'minas gerais',c:'nova lima'},
+      {e:'minas gerais',c:'betim'},{e:'minas gerais',c:'uberlandia'},{e:'minas gerais',c:'juiz de fora'},
+      {e:'rio grande do sul',c:'porto alegre'},{e:'rio grande do sul',c:'canoas'},{e:'rio grande do sul',c:'novo hamburgo'},
+      {e:'parana',c:'curitiba'},{e:'parana',c:'londrina'},{e:'parana',c:'maringa'},
+      {e:'goias',c:'goiania'},{e:'distrito federal',c:'brasilia'},
+      {e:'bahia',c:'salvador'},{e:'pernambuco',c:'recife'},{e:'ceara',c:'fortaleza'},
+      {e:'espirito santo',c:'vitoria'},{e:'espirito santo',c:'vila velha'},
+      {e:'para',c:'belem'},{e:'amazonas',c:'manaus'}
     ];
-    const _isQAp = (e,c) => _cidadesQAp.some(x => x.e===_normP(e) && x.c===_normP(c));
+    const _isQAp = (e,c) => _cidadesQAp.some(x => x.e===_normEstadoP(e) && x.c===_normP(c));
     const _imoveisUser = await _qQAP("SELECT estado, cidade, cep, endereco, numero, proprietario FROM imoveis WHERE user_id=$1 AND status='ativo' AND transacao='venda'", [uid]);
     const _emCidadeQA = _imoveisUser.rows.filter(r => _isQAp(r.estado||'', r.cidade||''));
     const _totalQA = _emCidadeQA.filter(r => {
       const prop = r.proprietario || {};
-      return (prop.nome||'') !== '' && ((prop.celular||prop.telefone||'') !== '') && (r.cep||'') !== '' && (r.endereco||'') !== '' && (r.numero||'') !== '';
+      const temProp = (prop.nome||'') !== '' && ((prop.celular||prop.telefone||'') !== '');
+      const temEnd = (r.cep||'') !== '' && (r.endereco||'') !== '' && (r.numero||'') !== '';
+      return temProp && temEnd;
     }).length;
     const _totalIncompletos = _emCidadeQA.filter(r => {
       const prop = r.proprietario || {};
-      return !((prop.nome||'') !== '' && ((prop.celular||prop.telefone||'') !== '') && (r.cep||'') !== '' && (r.endereco||'') !== '' && (r.numero||'') !== '');
+      const temProp = (prop.nome||'') !== '' && ((prop.celular||prop.telefone||'') !== '');
+      const temEnd = (r.cep||'') !== '' && (r.endereco||'') !== '' && (r.numero||'') !== '';
+      return !(temProp && temEnd);
     }).length;
     const _totalVenda = _imoveisUser.rows.length;
     res.render('parceria-quintoandar', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos });
   } catch(e) {
+    console.error('[parceria-qa]', e.message);
     res.render('parceria-quintoandar', { user: req.session.user, qaCount: 0, vendaCount: 0, qaIncompletos: 0 });
   }
 });

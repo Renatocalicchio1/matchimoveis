@@ -594,10 +594,18 @@ class MatchCore {
       };
       const _estadoNome = _estadoMap[estadoLead] || estadoLead;
       const _estadoSigla = _estadoNomeInverso[estadoLead] || estadoLead.toUpperCase();
+      const _estadoAcento = {
+        'sao paulo':'São Paulo','rio de janeiro':'Rio de Janeiro','minas gerais':'Minas Gerais',
+        'santa catarina':'Santa Catarina','rio grande do sul':'Rio Grande do Sul','parana':'Paraná',
+        'bahia':'Bahia','goias':'Goiás','distrito federal':'Distrito Federal',
+        'espirito santo':'Espírito Santo','pernambuco':'Pernambuco','ceara':'Ceará',
+        'amazonas':'Amazonas','para':'Pará'
+      };
+      const _estadoComAcento = _estadoAcento[estadoLead] || _estadoNome;
       if (estadoLead) {
         _resMatch2 = await _queryMatch2(
           "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2 OR estado ILIKE $3 OR estado=$4)",
-          [userId, '%'+estadoLead+'%', '%'+_estadoNome+'%', _estadoSigla]
+          [userId, '%'+estadoLead+'%', '%'+_estadoComAcento+'%', _estadoSigla]
         );
       } else {
         _resMatch2 = await _queryMatch2(

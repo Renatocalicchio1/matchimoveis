@@ -328,7 +328,9 @@ app.get('/admin/logout', (req, res) => {
 app.get('/admin', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    const usuarios = await _q('SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status, ultimo_acesso, match_coins FROM usuarios ORDER BY criado_em DESC');
+    const usuarios = await _q('SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status, ultimo_acesso, match_coins, autoriza_quintoandar FROM usuarios ORDER BY criado_em DESC');
+    const solQA = await _q('SELECT user_id, atendido FROM solicitacoes_quintoandar').catch(()=>({rows:[]}));
+    const solQAMap = {}; solQA.rows.forEach(r => solQAMap[r.user_id] = r.atendido);
     const counts = await _q('SELECT user_id, COUNT(*) as total FROM imoveis GROUP BY user_id');
     const leads = await _q('SELECT user_id, COUNT(*) as total FROM leads GROUP BY user_id');
     const visitas = await _q('SELECT user_id, COUNT(*) as total FROM visitas GROUP BY user_id');
@@ -345,6 +347,7 @@ app.get('/admin', authAdmin, async (req, res) => {
         <td style="text-align:center">${leadsMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${visitasMap[u.codigo_usuario]||0}</td>
         <td><span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:${u.whatsapp_status==='open'?'#f0fdf4':'#f9fafb'};color:${u.whatsapp_status==='open'?'#16a34a':'#888'}">${u.whatsapp_status||'desconectado'}</span></td>
+        <td style="text-align:center">${solQAMap[u.codigo_usuario]!==undefined?(solQAMap[u.codigo_usuario]?'<span style="color:#16a34a;font-size:11px;font-weight:600">✅ Liberado</span>':'<span style="color:#f59e0b;font-size:11px;font-weight:600">⏳ Solicitado</span>'):(u.autoriza_quintoandar?'<span style="color:#2563eb;font-size:11px">Ativo</span>':'-')}</td>
         <td>${u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '-'}</td>
         <td>${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
         <td style="text-align:center">
@@ -366,6 +369,7 @@ app.get('/admin', authAdmin, async (req, res) => {
           <a href="/admin/regenerar-xml/${u.codigo_usuario}" style="font-size:11px;color:#16a34a;text-decoration:none;">XML</a>
           &nbsp;|&nbsp;
           <a href="/admin/deletar/${u.codigo_usuario}" onclick="return confirm('Deletar ${u.nome}?')" style="font-size:11px;color:#e8404a;text-decoration:none;">Deletar</a>
+          ${solQAMap[u.codigo_usuario]!==undefined&&!solQAMap[u.codigo_usuario]?'&nbsp;|&nbsp;<a href="/admin/quintoandar-liberar/'+u.codigo_usuario+'" style="font-size:11px;color:#00a86b;font-weight:600;text-decoration:none;">Liberar QA</a>':''}
         </td>
       </tr>`).join('');
     res.send(`<!DOCTYPE html>
@@ -394,6 +398,7 @@ tr:hover td{background:#fafafa;}
   <h1>Admin · MatchImóveis</h1>
   <div style="display:flex;gap:16px;align-items:center">
     <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
+    <a href="/admin/quintoandar-solicitacoes" style="font-size:12px;background:#00a86b;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏢 Solicitações QA</a>
     <a href="/admin/logout" style="font-size:12px;color:#888;text-decoration:none">Sair</a>
   </div>
 </div>
@@ -411,6 +416,7 @@ tr:hover td{background:#fafafa;}
     <table>
       <thead><tr>
         <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>Último acesso</th><th>Cadastro</th><th>Coins</th><th>Créditos</th><th>Ações</th>
+        <th>QA</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -669,6 +675,16 @@ app.post('/app/quintoandar/solicitar-acesso', auth, async (req, res) => {
 });
 
 // Admin: ver solicitações QuintoAndar
+app.get('/admin/quintoandar-liberar/:codigo', authAdmin, async (req, res) => {
+  try {
+    const { query: _qQL } = require('./services/db');
+    await _qQL("UPDATE solicitacoes_quintoandar SET atendido=TRUE WHERE user_id=$1", [req.params.codigo]);
+    await _qQL("UPDATE usuarios SET autoriza_quintoandar=TRUE WHERE codigo_usuario=$1", [req.params.codigo]);
+    if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===req.params.codigo||u.codigo_usuario===req.params.codigo); if(_uIdx>=0) _cacheUsuarios[_uIdx].autoriza_quintoandar = true; }
+    res.redirect('/admin?qa_liberado=1');
+  } catch(e) { res.redirect('/admin?err='+encodeURIComponent(e.message)); }
+});
+
 app.get('/admin/quintoandar-solicitacoes', authAdmin, async (req, res) => {
   try {
     const { query: _qQAS } = require('./services/db');

@@ -387,10 +387,9 @@ body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px
 .top a{font-size:12px;color:#888;text-decoration:none;}
 .wrap{padding:24px;}
 .card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;overflow:hidden;}
-table{width:100%;border-collapse:collapse;}
-th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #f0f0ee;background:#fafafa;}
-td{padding:11px 14px;border-bottom:1px solid #f0f0ee;border-right:1px solid #f0f0ee;vertical-align:middle;}
-th{border-right:1px solid #e5e5e3;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:7px 8px;font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid #f0f0ee;border-right:1px solid #e5e5e3;background:#fafafa;white-space:nowrap;}
+td{padding:7px 8px;border-bottom:1px solid #f0f0ee;border-right:1px solid #f0f0ee;vertical-align:middle;white-space:nowrap;}
 td:last-child,th:last-child{border-right:none;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:#fafafa;}

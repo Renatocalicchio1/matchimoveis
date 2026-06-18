@@ -41,6 +41,15 @@ const DATA_DIR = process.env.RENDER
   ? '/opt/render/project/src/data'
   : __dirname;
 
+// Normaliza telefone — sempre com 55 na frente
+function _normTel(t) {
+  if (!t) return '';
+  let _t = String(t).replace(/D/g, '');
+  if (_t.startsWith('55') && _t.length >= 12) return _t;
+  if (_t.length === 10 || _t.length === 11) return '55' + _t;
+  return _t;
+}
+
 const BASE_URL = process.env.RENDER
   ? 'https://matchimoveis.ia.br'
   : 'http://localhost:3000';
@@ -1252,9 +1261,9 @@ const data = (_cacheLeads || []);
 const userId = req.session.user.id;
 const novoLead = {
 nome: nome.trim(),
-contato: (()=>{ let _t=String(contato).replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
-telefone: (()=>{ let _t=String(contato).replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
-whatsapp: (()=>{ let _t=String(contato).replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
+contato: _normTel(contato),
+telefone: _normTel(contato),
+whatsapp: _normTel(contato),
 tipo: tipo || "",
 tipo_operacao: tipo_operacao || "",
 bairro: bairro || "",
@@ -7899,9 +7908,9 @@ app.post('/app/lead/manual', auth, async (req, res) => {
 
     const lead = {
       id, nome: nome||'',
-      telefone: (()=>{ let _t=String(telefone||'').replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
-      whatsapp: (()=>{ let _t=String(telefone||'').replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
-      contato: (()=>{ let _t=String(telefone||'').replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
+      telefone: _normTel(telefone),
+      whatsapp: _normTel(telefone),
+      contato: _normTel(telefone),
       email: email||'', origem: origem||'manual',
       origemEntrada: origemEntrada||'manual',
       status: 'novo', faseFunil: 'novo', temperatura: 'frio', score: 0,

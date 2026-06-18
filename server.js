@@ -1253,6 +1253,8 @@ const userId = req.session.user.id;
 const novoLead = {
 nome: nome.trim(),
 contato: (()=>{ let _t=String(contato).replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
+telefone: (()=>{ let _t=String(contato).replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
+whatsapp: (()=>{ let _t=String(contato).replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
 tipo: tipo || "",
 tipo_operacao: tipo_operacao || "",
 bairro: bairro || "",

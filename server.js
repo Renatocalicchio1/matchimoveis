@@ -2649,8 +2649,21 @@ app.post('/app/perfil/quintoandar', auth, async (req, res) => {
     const autoriza = req.body.autoriza_quintoandar === '1';
     await _qQA('UPDATE usuarios SET autoriza_quintoandar=$1 WHERE codigo_usuario=$2', [autoriza, uid]);
     req.session.user.autoriza_quintoandar = autoriza;
-    res.redirect('/app/perfil?msg=quintoandar_salvo');
-  } catch(e) { res.redirect('/app/perfil?err='+encodeURIComponent(e.message)); }
+    if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid); if(_uIdx>=0) _cacheUsuarios[_uIdx].autoriza_quintoandar = autoriza; }
+    const _referer = req.headers.referer || '';
+    if (_referer.includes('parceria-quintoandar')) {
+      res.redirect('/app/parceria-quintoandar#secao-quintoandar');
+    } else {
+      res.redirect('/app/perfil?msg=quintoandar_salvo');
+    }
+  } catch(e) {
+    const _referer = req.headers.referer || '';
+    if (_referer.includes('parceria-quintoandar')) {
+      res.redirect('/app/parceria-quintoandar#secao-quintoandar');
+    } else {
+      res.redirect('/app/perfil?err='+encodeURIComponent(e.message));
+    }
+  }
 });
 
 app.post('/app/perfil', auth, async (req,res)=>{

@@ -229,7 +229,20 @@ function matchPorMapa(lead, imoveis) {
   }
 
   resultados.sort((a, b) => b.scoreMatch - a.scoreMatch);
-  console.log('[MOTOR] pool:', imoveis.length, '| matches antes dedup:', resultados.length, '| leadEstado:', leadEstado, '| leadBairro:', leadBairro, '| leadCidade:', leadCidade);
+  // Conta eliminados por critério
+  let _cEst=0,_cCid=0,_cBai=0,_cVal=0,_cTip=0,_cTra=0,_cQua=0;
+  for(const _im of imoveis){
+    if(_im.status==='inativo') continue;
+    const _e=_normalizarEstado(_im.estado||'');
+    const _c=_normalizar(_im.cidade||'');
+    const _b=_normalizar(_im.bairro||'');
+    const _p=Number(_im.valor_imovel||0);
+    if(leadEstado&&_e!==leadEstado) { _cEst++; continue; }
+    if(leadCidade&&_c!==_normalizar(leadCidade)) { _cCid++; continue; }
+    if(leadBairro&&_b!==leadBairro) { _cBai++; continue; }
+    if(leadValorMax>0&&_p>0&&(_p>leadValorMax*1.20||_p<leadValorMax*0.70)) { _cVal++; continue; }
+  }
+  console.log('[MOTOR] pool:', imoveis.length, '| elim.estado:', _cEst, '| elim.cidade:', _cCid, '| elim.bairro:', _cBai, '| elim.valor:', _cVal, '| matches:', resultados.length);
   // Deduplica por id_externo ou id — resolve imóveis duplicados no banco
   const _vistos = new Set();
   const _dedup = [];

@@ -595,6 +595,7 @@ class MatchCore {
       const _estadoNome = _estadoMap[estadoLead] || estadoLead;
       const _estadoSigla = _estadoNomeInverso[estadoLead] || estadoLead.toUpperCase();
       if (estadoLead) {
+        console.log('[MATCH-CORE SQL] params:', userId, '%'+estadoLead+'%', '%'+_estadoNome+'%', _estadoSigla);
         _resMatch2 = await _queryMatch2(
           "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR estado ILIKE $2 OR estado ILIKE $3 OR estado=$4)",
           [userId, '%'+estadoLead+'%', '%'+_estadoNome+'%', _estadoSigla]

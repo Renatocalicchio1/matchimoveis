@@ -7898,9 +7898,10 @@ app.post('/app/lead/manual', auth, async (req, res) => {
     };
 
     const lead = {
-      id, nome: nome||'', telefone: String(telefone||'').replace(/\D/g,''),
-      whatsapp: String(telefone||'').replace(/\D/g,''),
-      contato: String(telefone||'').replace(/\D/g,''),
+      id, nome: nome||'',
+      telefone: (()=>{ let _t=String(telefone||'').replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
+      whatsapp: (()=>{ let _t=String(telefone||'').replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
+      contato: (()=>{ let _t=String(telefone||'').replace(/\D/g,''); if(_t.length===10||_t.length===11) _t='55'+_t; return _t; })(),
       email: email||'', origem: origem||'manual',
       origemEntrada: origemEntrada||'manual',
       status: 'novo', faseFunil: 'novo', temperatura: 'frio', score: 0,

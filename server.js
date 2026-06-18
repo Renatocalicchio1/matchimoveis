@@ -3966,6 +3966,7 @@ setInterval(async () => {
             + _link + '\n\n' + (_user?.nome || 'Seu corretor') + ' - MatchImóveis';
           await _enviarWA(_instancia, _contato, _msg);
           _leads[i].vitrineEnviada = true;
+          _leads[i].faseFunil = 'vitrine_enviada';
           consumir(_leads[i].userId || _leads[i].corretorId, 'vitrine_whatsapp').catch(()=>{});
           _leads[i].vitrineEnviadaEm = new Date().toISOString();
           _leads[i].vitrineLink = _link;

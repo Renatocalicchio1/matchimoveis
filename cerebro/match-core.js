@@ -596,8 +596,8 @@ class MatchCore {
       const _estadoSigla = _estadoNomeInverso[estadoLead] || estadoLead.toUpperCase();
       if (estadoLead) {
         _resMatch2 = await _queryMatch2(
-          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR LOWER(REGEXP_REPLACE(estado, '[^a-zA-Z0-9 ]', '', 'g')) ILIKE $2 OR estado=$3)",
-          [userId, '%'+estadoLead+'%', _estadoSigla]
+          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR LOWER(REGEXP_REPLACE(estado, '[^a-zA-Z0-9 ]', '', 'g')) ILIKE $2 OR estado ILIKE $3 OR estado=$4)",
+          [userId, '%'+estadoLead+'%', '%'+_estadoNome+'%', _estadoSigla]
         );
       } else {
         _resMatch2 = await _queryMatch2(

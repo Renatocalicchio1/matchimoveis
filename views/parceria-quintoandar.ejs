@@ -150,6 +150,51 @@ hr.div{border:none;border-top:1px solid var(--border);margin:0}
   <p>Ative agora no seu perfil e seus imóveis elegíveis já entram no próximo ciclo.</p>
   <a href="/app/perfil#secao-quintoandar">Ativar parceria QuintoAndar</a>
 </div>
+
+<!-- ATIVAR PARCERIA -->
+<div style="background:#f8f8f7;border-top:1px solid #e5e5e3;border-bottom:1px solid #e5e5e3">
+<div style="max-width:760px;margin:0 auto;padding:56px 24px" id="secao-quintoandar">
+  <p style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#FF385C;margin-bottom:12px">Configuração</p>
+  <h2 style="font-size:28px;font-weight:700;letter-spacing:-.4px;margin-bottom:8px">Ativar envio dos seus imóveis</h2>
+  <p style="font-size:15px;color:#6b7280;margin-bottom:24px">Autorize o envio dos seus imóveis para o XML global do QuintoAndar. Apenas imóveis com dados do proprietário serão incluídos.</p>
+  <div style="background:#fffbeb;border:1px solid #f59e0b;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#92400e;line-height:1.6">
+    <strong>⚠️ Para que seus imóveis apareçam no QuintoAndar, certifique-se de preencher:</strong><br>
+    CEP · Endereço · Número · Complemento · Nome e celular do proprietário · Cidade e estado · Valor de venda
+  </div>
+  <div style="background:#fff;border:1px solid #e5e5e3;border-radius:14px;padding:28px">
+    <form method="POST" action="/app/perfil/quintoandar">
+      <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer">
+        <input type="checkbox" name="autoriza_quintoandar" value="1" <%= (user.autoriza_quintoandar||user.autorizaQuintoandar) ? 'checked' : '' %> style="width:20px;height:20px;cursor:pointer;margin-top:2px;flex-shrink:0">
+        <div>
+          <div style="font-size:15px;font-weight:600;margin-bottom:4px">Autorizar envio dos meus imóveis ao QuintoAndar</div>
+          <div style="font-size:13px;color:#6b7280;line-height:1.6">
+            Ao autorizar, seus imóveis elegíveis serão incluídos automaticamente no XML global do QuintoAndar.<br>
+            Para remover, basta desmarcar e salvar. Os dados são atualizados automaticamente.
+          </div>
+        </div>
+      </label>
+      <button type="submit" style="margin-top:20px;background:#FF385C;color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:600;cursor:pointer">Salvar configuração</button>
+    </form>
+    <% if(typeof qaCount !== 'undefined' && (user.autoriza_quintoandar || user.autorizaQuintoandar)) { %>
+    <div style="margin-top:20px;padding:14px 16px;border-radius:10px;background:<%= qaCount>0?'#f0fdf4':'#fef9ec' %>;border:1px solid <%= qaCount>0?'#bbf7d0':'#fde68a' %>">
+      <% if(qaCount > 0) { %>
+        <span style="color:#15803d;font-size:14px;font-weight:600">✅ <%= qaCount %> imóvel(is) elegível(is) para o QuintoAndar</span>
+        <div style="font-size:12px;color:#166534;margin-top:4px">Apenas imóveis à venda nas cidades onde o QuintoAndar atua serão incluídos no XML global.</div>
+        <% if (qaIncompletos > 0) { %>
+        <div style="margin-top:10px;background:#fff7ed;border:1px solid #f97316;border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span style="font-size:13px;color:#c2410c;font-weight:600">⚠️ <%= qaIncompletos %> imóvel(is) com dados incompletos</span>
+          <a href="/app/imoveis?qa_incompleto=1" style="font-size:12px;background:#f97316;color:#fff;padding:5px 12px;border-radius:6px;text-decoration:none;white-space:nowrap">Ver imóveis</a>
+        </div>
+        <% } %>
+      <% } else { %>
+        <span style="color:#92400e;font-size:14px;font-weight:600">⚠️ Nenhum imóvel elegível para o QuintoAndar</span>
+        <div style="font-size:12px;color:#92400e;margin-top:4px">O QuintoAndar atua em cidades específicas. Seus imóveis à venda (<%= vendaCount %>) não estão nas cidades onde o QuintoAndar opera.</div>
+      <% } %>
+    </div>
+    <% } %>
+  </div>
+</div>
+</div>
 <script>
 async function solicitarAcesso(){
   const btn=document.getElementById('btnSolicitar');

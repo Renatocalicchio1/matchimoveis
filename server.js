@@ -595,8 +595,36 @@ async function gerarXMLQuintoAndarGlobal() {
 
 // Rota admin (autenticada)
 // Página explicativa parceria QuintoAndar
-app.get('/app/parceria-quintoandar', auth, (req, res) => {
-  res.render('parceria-quintoandar', { user: req.session.user });
+app.get('/app/parceria-quintoandar', auth, async (req, res) => {
+  try {
+    const { query: _qQAP } = require('./services/db');
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const _normP = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+    const _cidadesQAp = [
+      {e:'santa catarina',c:'florianopolis'},{e:'santa catarina',c:'joinville'},{e:'santa catarina',c:'blumenau'},
+      {e:'santa catarina',c:'balneario camboriu'},{e:'sao paulo',c:'sao paulo'},{e:'sao paulo',c:'guarulhos'},
+      {e:'sao paulo',c:'campinas'},{e:'sao paulo',c:'sao bernardo do campo'},{e:'sao paulo',c:'santo andre'},
+      {e:'rio de janeiro',c:'rio de janeiro'},{e:'rio de janeiro',c:'niteroi'},{e:'minas gerais',c:'belo horizonte'},
+      {e:'minas gerais',c:'contagem'},{e:'rio grande do sul',c:'porto alegre'},{e:'parana',c:'curitiba'},
+      {e:'goias',c:'goiania'},{e:'distrito federal',c:'brasilia'},{e:'bahia',c:'salvador'},
+      {e:'pernambuco',c:'recife'},{e:'ceara',c:'fortaleza'}
+    ];
+    const _isQAp = (e,c) => _cidadesQAp.some(x => x.e===_normP(e) && x.c===_normP(c));
+    const _imoveisUser = await _qQAP("SELECT estado, cidade, cep, endereco, numero, proprietario FROM imoveis WHERE user_id=$1 AND status='ativo' AND transacao='venda'", [uid]);
+    const _emCidadeQA = _imoveisUser.rows.filter(r => _isQAp(r.estado||'', r.cidade||''));
+    const _totalQA = _emCidadeQA.filter(r => {
+      const prop = r.proprietario || {};
+      return (prop.nome||'') !== '' && ((prop.celular||prop.telefone||'') !== '') && (r.cep||'') !== '' && (r.endereco||'') !== '' && (r.numero||'') !== '';
+    }).length;
+    const _totalIncompletos = _emCidadeQA.filter(r => {
+      const prop = r.proprietario || {};
+      return !((prop.nome||'') !== '' && ((prop.celular||prop.telefone||'') !== '') && (r.cep||'') !== '' && (r.endereco||'') !== '' && (r.numero||'') !== '');
+    }).length;
+    const _totalVenda = _imoveisUser.rows.length;
+    res.render('parceria-quintoandar', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos });
+  } catch(e) {
+    res.render('parceria-quintoandar', { user: req.session.user, qaCount: 0, vendaCount: 0, qaIncompletos: 0 });
+  }
 });
 
 // Solicitação de acesso aos imóveis do QuintoAndar

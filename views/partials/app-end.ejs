@@ -47,11 +47,15 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('scroll', function(){
     const _ppBtn = document.querySelector('._btn-primeiros-passos');
     if(window.scrollY > 50) {
+      const _waDescon = document.querySelector('a[href*="secao-whatsapp"]');
       _waBtn.style.opacity='0'; _waBtn.style.pointerEvents='none';
       if(_ppBtn){_ppBtn.style.opacity='0';_ppBtn.style.pointerEvents='none';}
+      if(_waDescon){_waDescon.style.opacity='0';_waDescon.style.pointerEvents='none';}
     } else {
+      const _waDescon = document.querySelector('a[href*="secao-whatsapp"]');
       _waBtn.style.opacity='1'; _waBtn.style.pointerEvents='auto';
       if(_ppBtn){_ppBtn.style.opacity='1';_ppBtn.style.pointerEvents='auto';}
+      if(_waDescon){_waDescon.style.opacity='1';_waDescon.style.pointerEvents='auto';}
     }
   }, {passive:true});
 })();

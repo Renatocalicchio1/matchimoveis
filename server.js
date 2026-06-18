@@ -417,7 +417,7 @@ tr:hover td{background:#fafafa;}
   <div class="card">
     <table>
       <thead><tr>
-        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>XML QA</th><th>Carteira QA</th><th>Último acesso</th><th>Cadastro</th><th>Coins</th><th>Créditos</th><th>Ações</th>
+        <th>Cód.</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóv.</th><th>Leads</th><th>Visit.</th><th>WA</th><th>XML QA</th><th>Cart. QA</th><th>Último acesso</th><th>Cadastro</th><th>Coins</th><th>Créd.</th><th>Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>

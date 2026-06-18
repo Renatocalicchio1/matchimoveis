@@ -388,7 +388,9 @@ body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px
 .card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;overflow:hidden;}
 table{width:100%;border-collapse:collapse;}
 th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid #f0f0ee;background:#fafafa;}
-td{padding:11px 14px;border-bottom:1px solid #f0f0ee;vertical-align:middle;}
+td{padding:11px 14px;border-bottom:1px solid #f0f0ee;border-right:1px solid #f0f0ee;vertical-align:middle;}
+th{border-right:1px solid #e5e5e3;}
+td:last-child,th:last-child{border-right:none;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:#fafafa;}
 </style>
@@ -415,8 +417,7 @@ tr:hover td{background:#fafafa;}
   <div class="card">
     <table>
       <thead><tr>
-        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>Último acesso</th><th>Cadastro</th><th>Coins</th><th>Créditos</th><th>Ações</th>
-        <th>QA</th>
+        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>QA</th><th>Último acesso</th><th>Cadastro</th><th>Coins</th><th>Créditos</th><th>Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>

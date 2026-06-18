@@ -347,7 +347,8 @@ app.get('/admin', authAdmin, async (req, res) => {
         <td style="text-align:center">${leadsMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${visitasMap[u.codigo_usuario]||0}</td>
         <td><span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:${u.whatsapp_status==='open'?'#f0fdf4':'#f9fafb'};color:${u.whatsapp_status==='open'?'#16a34a':'#888'}">${u.whatsapp_status||'desconectado'}</span></td>
-        <td style="text-align:center">${solQAMap[u.codigo_usuario]!==undefined?(solQAMap[u.codigo_usuario]?'<span style="color:#16a34a;font-size:11px;font-weight:600">✅ Liberado</span>':'<span style="color:#f59e0b;font-size:11px;font-weight:600">⏳ Solicitado</span>'):(u.autoriza_quintoandar?'<span style="color:#2563eb;font-size:11px">Ativo</span>':'-')}</td>
+        <td style="text-align:center">${u.autoriza_quintoandar?'<span style="color:#16a34a;font-size:11px;font-weight:600">✅ Ativo</span>':'<span style="color:#9ca3af;font-size:11px">Inativo</span>'}</td>
+        <td style="text-align:center">${solQAMap[u.codigo_usuario]!==undefined?(solQAMap[u.codigo_usuario]?'<span style="color:#16a34a;font-size:11px;font-weight:600">✅ Liberado</span>':'<span style="color:#f59e0b;font-size:11px;font-weight:600">⏳ Aguardando</span>'):'-'}</td>
         <td>${u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '-'}</td>
         <td>${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
         <td style="text-align:center">
@@ -417,7 +418,7 @@ tr:hover td{background:#fafafa;}
   <div class="card">
     <table>
       <thead><tr>
-        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>QA</th><th>Último acesso</th><th>Cadastro</th><th>Coins</th><th>Créditos</th><th>Ações</th>
+        <th>Código</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóveis</th><th>Leads</th><th>Visitas</th><th>WhatsApp</th><th>XML QA</th><th>Carteira QA</th><th>Último acesso</th><th>Cadastro</th><th>Coins</th><th>Créditos</th><th>Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>

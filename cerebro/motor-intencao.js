@@ -229,6 +229,7 @@ function matchPorMapa(lead, imoveis) {
   }
 
   resultados.sort((a, b) => b.scoreMatch - a.scoreMatch);
+  console.log('[MOTOR] pool:', imoveis.length, '| matches antes dedup:', resultados.length, '| leadEstado:', leadEstado, '| leadBairro:', leadBairro, '| leadCidade:', leadCidade);
   // Deduplica por id_externo ou id — resolve imóveis duplicados no banco
   const _vistos = new Set();
   const _dedup = [];

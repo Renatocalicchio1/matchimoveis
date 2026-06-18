@@ -1,19 +1,14 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parceria QuintoAndar · MatchImóveis</title>
+<%- include('partials/app-shell', {active:'quintoandar', title:'', user:user}) %>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--brand:#FF385C;--brand-dark:#e0314f;--brand-light:#fff1f3;--dark:#111111;--text:#1a1a1a;--muted:#6b7280;--light:#f8f8f7;--white:#fff;--border:#e5e5e3}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--text);background:var(--white);-webkit-font-smoothing:antialiased}
-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.nav-logo{font-size:16px;font-weight:700;color:var(--dark);text-decoration:none}
-.nav-logo span{color:var(--brand)}
-.nav-cta{background:var(--brand);color:#fff;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;transition:background .2s}
-.nav-cta:hover{background:var(--brand-dark)}
+
+
+
+
+
 .hero{background:var(--dark);padding:80px 24px 72px;text-align:center}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:5px 14px;margin-bottom:28px;font-size:12px;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.4px}
 .hero-badge .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);display:inline-block}
@@ -65,17 +60,13 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 3
 .cta-final a{display:inline-block;background:#fff;color:var(--brand);padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none}
 hr.div{border:none;border-top:1px solid var(--border);margin:0}
 </style>
-</head>
-<body>
-<nav>
-  <a class="nav-logo" href="/app-home">Match<span>Imóveis</span></a>
-  <a class="nav-cta" href="/app/perfil#secao-quintoandar">Ativar parceria</a>
-</nav>
+<div style="margin:-20px -20px 0">
+<div style="margin:-20px -20px 0"><!-- conteúdo sem padding do shell -->
 <div class="hero">
   <div class="hero-badge"><span class="dot"></span> Parceria · QuintoAndar</div>
   <h1>Seus imóveis no QuintoAndar,<br><em>sem esforço extra</em></h1>
   <p>Com um clique no seu perfil, o MatchImóveis envia automaticamente seus imóveis elegíveis ao maior marketplace imobiliário do Brasil.</p>
-  <a class="hero-cta" href="/app/perfil#secao-quintoandar">Ativar agora no meu perfil</a>
+  <a class="hero-cta" href="#secao-quintoandar">Ativar agora no meu perfil</a>
   <div class="hero-stats">
     <div><div class="stat-num">+40M</div><div class="stat-label">Usuários ativos</div></div>
     <div><div class="stat-num">50+</div><div class="stat-label">Cidades no Brasil</div></div>
@@ -148,7 +139,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:0}
 <div class="cta-final">
   <h2>Pronto para ampliar sua vitrine?</h2>
   <p>Ative agora no seu perfil e seus imóveis elegíveis já entram no próximo ciclo.</p>
-  <a href="/app/perfil#secao-quintoandar">Ativar parceria QuintoAndar</a>
+  <a href="#secao-quintoandar">Ativar parceria QuintoAndar</a>
 </div>
 
 <!-- ATIVAR PARCERIA -->
@@ -208,5 +199,5 @@ async function solicitarAcesso(){
   }catch(e){btn.disabled=false;btn.textContent='Solicitar acesso aos imóveis do QuintoAndar';alert('Erro ao enviar. Tente novamente.');}
 }
 </script>
-</body>
-</html>
+</div>
+<%- include('partials/app-end') %>

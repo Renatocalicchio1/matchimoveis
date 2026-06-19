@@ -1,0 +1,41 @@
+name: Backup PostgreSQL
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Instalar PostgreSQL client
+        run: sudo apt-get install -y postgresql-client
+
+      - name: Fazer dump do banco
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          mkdir -p backups
+          TIMESTAMP=$(date +%Y-%m-%d_%H-%M)
+          pg_dump "$DATABASE_URL" --no-password -F p > backups/backup-$TIMESTAMP.sql
+          echo "Backup criado: backup-$TIMESTAMP.sql"
+
+      - name: Manter só últimos 48 backups
+        run: |
+          cd backups
+          ls -t *.sql 2>/dev/null | tail -n +49 | xargs -r rm
+          echo "Backups mantidos: $(ls *.sql 2>/dev/null | wc -l)"
+
+      - name: Commit e push do backup
+        run: |
+          git config user.name "backup-bot"
+          git config user.email "backup@matchimoveis.ia.br"
+          git add backups/
+          git diff --staged --quiet || git commit -m "backup: $(date '+%d/%m/%Y %H:%M')"
+          git push

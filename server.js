@@ -1162,20 +1162,22 @@ app.post('/app/importar', upload.any(), async (req, res) => {
     return res.json({ ok:false, erro:'Informe a URL do XML' });
   }
 
+  const _importUserId = req.body.userId || req.query.userId || (req.session.user ? req.session.user.id : '');
+  const _importXmlUrl = xmlUrl;
   global.importStatus = {
     status: 'rodando',
     total: 0,
     mensagem: 'Importando XML...'
   };
-  global.importUserId = req.body.userId || req.query.userId || (req.session.user ? req.session.user.id : '');
-  global.importXmlUrl = xmlUrl;
+  global.importUserId = _importUserId;
+  global.importXmlUrl = _importXmlUrl;
 
   res.json({ ok:true, status:'rodando' });
 
   setTimeout(() => {
     try {
       const { execSync } = require('child_process');
-      const userId = global.importUserId || '';
+      const userId = _importUserId || '';
       // créditos de importar_xml são cobrados por imóvel novo dentro do importXMLCompleto.js
       const _xmlOutput = execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { encoding: 'utf8', env: { ...process.env }, stdio: ['inherit','pipe','inherit'] });
       const _importResultLine = (_xmlOutput||'').split('\n').find(l => l.startsWith('IMPORT_RESULT:'));
@@ -1196,14 +1198,14 @@ app.post('/app/importar', upload.any(), async (req, res) => {
       };
       try {
         const users = (_cacheUsuarios || []);
-        const idx = users.findIndex(u => u.id === global.importUserId);
+        const idx = users.findIndex(u => u.id === _importUserId);
         if (idx >= 0) {
-          users[idx].xmlUrl = global.importXmlUrl || users[idx].xmlUrl || '';
+          users[idx].xmlUrl = _importXmlUrl || users[idx].xmlUrl || '';
       // Adiciona ao xml-feeds.json se não existir
       try {
         const _fp = dataPath('xml-feeds.json');
         const _feeds = fs.existsSync(_fp) ? JSON.parse(fs.readFileSync(_fp,'utf8')) : [];
-        const _url = global.importXmlUrl;
+        const _url = _importXmlUrl;
         const _uid = users[idx].id;
         const _feedTotal = typeof _totalIm !== 'undefined' ? _totalIm : 0;
         salvarFeedService({ userId: _uid, url: _url, lastSyncAt: new Date().toISOString(), total: _feedTotal, tipo: 'importado' }).then(() => console.log('[xml-feed] salvo:', _uid, _feedTotal)).catch(e=>console.error('[xml-feed]', e.message));

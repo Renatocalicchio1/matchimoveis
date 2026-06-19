@@ -8231,10 +8231,17 @@ app.get('/app/feed', auth, async (req, res) => {
     const _carteiraMax = Math.max(...Object.values(_carteiraMap), 1);
     const _carteiraScore = (key) => Math.round(((_carteiraMap[key]||0) / _carteiraMax) * 100);
 
-    // extrai estado do endereco do usuario
-    const _endUser = req.session.user?.endereco || '';
-    const _estadoUser = (/Santa Catarina/.test(_endUser) ? 'santa catarina' : /São Paulo|Sao Paulo/.test(_endUser) ? 'são paulo' : '').toLowerCase();
-    const _cidadeUser = (req.session.user?.cidade || '').toLowerCase().trim();
+    // extrai cidade/estado dominante da CARTEIRA do corretor (mais preciso que o endereço do perfil)
+    const _cidadesCarteira = {};
+    const _estadosCarteira = {};
+    _meusImoveis.forEach(im => {
+      const _c = (im.cidade||'').toLowerCase().trim();
+      const _e = (im.estado||'').toLowerCase().trim();
+      if(_c) _cidadesCarteira[_c] = (_cidadesCarteira[_c]||0) + 1;
+      if(_e) _estadosCarteira[_e] = (_estadosCarteira[_e]||0) + 1;
+    });
+    const _cidadeUser = Object.entries(_cidadesCarteira).sort((a,b)=>b[1]-a[1])[0]?.[0] || (req.session.user?.cidade||'').toLowerCase().trim();
+    const _estadoUser = Object.entries(_estadosCarteira).sort((a,b)=>b[1]-a[1])[0]?.[0] || '';
 
     const { query: _qVF } = require('./services/db');
     const _vistosRow2 = await (async()=>{ try{ const rv=await _qVF('SELECT feed_vistos FROM usuarios WHERE id=$1',[req.session.user.id]); return rv.rows[0]?.feed_vistos||[]; }catch(e){return[];} })();
@@ -8260,8 +8267,8 @@ app.get('/app/feed', auth, async (req, res) => {
       const _demanda = (demandaMap[_cidade]||0) + (demandaMap[_bairro]||0) + (demandaMap[_tipo]||0);
       // proximidade
       const _imEstado = (im.estado||'').toLowerCase().trim();
-      const _proxEstado = _estadoUser && _imEstado && (_imEstado.includes(_estadoUser) || _estadoUser.includes(_imEstado)) ? 50 : 0;
-      const _proxCidade = _cidadeUser && _cidade && _cidade.includes(_cidadeUser) ? 30 : 0;
+      const _proxEstado = _estadoUser && _imEstado && (_imEstado.includes(_estadoUser) || _estadoUser.includes(_imEstado)) ? 80 : 0;
+      const _proxCidade = _cidadeUser && _cidade && _cidade.includes(_cidadeUser) ? 120 : 0;
       // recencia (dias desde criacao, max 30 pontos)
       const _criado = im.criado_em ? new Date(im.criado_em).getTime() : 0;
       const _diasAtras = _criado ? Math.max(0, (Date.now() - _criado) / 86400000) : 999;

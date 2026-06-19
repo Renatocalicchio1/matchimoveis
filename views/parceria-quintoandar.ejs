@@ -120,8 +120,23 @@ hr.div{border:none;border-top:1px solid var(--border);margin:0}
         <li>Dados completos para apresentar aos seus clientes</li>
         <li>Integração direta com o sistema de match do MatchImóveis</li>
       </ul>
+      <% if(typeof qaLiberado !== 'undefined' && qaLiberado) { %>
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:20px;text-align:center">
+        <div style="font-size:22px;margin-bottom:8px">🎉</div>
+        <div style="font-size:15px;font-weight:700;color:#15803d;margin-bottom:6px">Sua conta foi liberada!</div>
+        <div style="font-size:13px;color:#166534;margin-bottom:16px">Verifique seu email ou celular para finalizar seu cadastro ou clique no link abaixo:</div>
+        <a href="https://listings.quintoandar.com.br" target="_blank" style="display:inline-block;background:#00a86b;color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none">Acessar QuintoAndar →</a>
+      </div>
+      <% } else if(typeof solicitouQA !== 'undefined' && solicitouQA) { %>
+      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:20px;text-align:center">
+        <div style="font-size:22px;margin-bottom:8px">⏳</div>
+        <div style="font-size:15px;font-weight:600;color:#92400e;margin-bottom-4px">Solicitação enviada!</div>
+        <div style="font-size:13px;color:#92400e;margin-top:4px">Nossa equipe entrará em contato em breve.</div>
+      </div>
+      <% } else { %>
       <button class="btn-solicitar" id="btnSolicitar" onclick="solicitarAcesso()">Solicitar acesso aos imóveis do QuintoAndar</button>
       <div class="sucesso-msg" id="sucessoMsg">✅ Solicitação enviada! Nossa equipe entrará em contato em breve.</div>
+      <% } %>
     </div>
   </div>
 </div>

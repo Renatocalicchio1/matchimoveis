@@ -659,10 +659,14 @@ app.get('/app/parceria-quintoandar', auth, async (req, res) => {
       req.session.user.autoriza_quintoandar = _qaUserRow.rows[0].autoriza_quintoandar;
       req.session.user.autorizaQuintoandar = _qaUserRow.rows[0].autoriza_quintoandar;
     }
-    res.render('parceria-quintoandar', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos });
+    // Status da solicitação de acesso à carteira QA
+    const _solQA = await _qQAP('SELECT atendido FROM solicitacoes_quintoandar WHERE user_id=$1', [uid]).catch(()=>({rows:[]}));
+    const _solicitouQA = _solQA.rows.length > 0;
+    const _qaLiberado = _solQA.rows[0]?.atendido || false;
+    res.render('parceria-quintoandar', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, solicitouQA: _solicitouQA, qaLiberado: _qaLiberado });
   } catch(e) {
     console.error('[parceria-qa]', e.message);
-    res.render('parceria-quintoandar', { user: req.session.user, qaCount: 0, vendaCount: 0, qaIncompletos: 0 });
+    res.render('parceria-quintoandar', { user: req.session.user, qaCount: 0, vendaCount: 0, qaIncompletos: 0, solicitouQA: false, qaLiberado: false });
   }
 });
 

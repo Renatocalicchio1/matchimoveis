@@ -26,7 +26,8 @@ jobs:
         run: |
           mkdir -p backups
           TIMESTAMP=$(date +%Y-%m-%d_%H-%M)
-          pg_dump "$DATABASE_URL" --no-password -F p > backups/backup-$TIMESTAMP.sql
+          PGPASSWORD=$(echo $DATABASE_URL | sed 's/.*:\(.*\)@.*/\1/') \
+          pg_dump "${DATABASE_URL}?sslmode=require" --no-password -F p > backups/backup-$TIMESTAMP.sql
           echo "Backup criado: backup-$TIMESTAMP.sql"
 
       - name: Manter só últimos 48 backups

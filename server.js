@@ -1491,7 +1491,10 @@ app.post('/login', async (req,res)=>{
   const _senhaInformada = (req.body.senha || '').trim();
   if (_senhaSalva) {
     const _senhaValida = _senhaSalva.startsWith('$2b$') ? await bcrypt.compare(_senhaInformada, _senhaSalva) : _senhaInformada === _senhaSalva;
-    if (!_senhaValida) return res.redirect('/?erro=senha_incorreta');
+    if (!_senhaValida) {
+      try { const { registrarLoginFalho } = require('./services/monitor'); registrarLoginFalho(req.ip); } catch(e) {}
+      return res.redirect('/?erro=senha_incorreta');
+    }
   }
 
   req.session.user = user;

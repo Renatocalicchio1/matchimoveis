@@ -1,6 +1,5 @@
 # backups
 *.backup*
-backups/
 
 # dados locais (não versionar)
 
@@ -43,4 +42,3 @@ notificacoes.json
 *.bak7
 uploads/
 xml-feeds.json
-backups/*.sql

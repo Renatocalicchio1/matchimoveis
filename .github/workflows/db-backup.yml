@@ -26,7 +26,6 @@ jobs:
           sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
           sudo apt-get update
           sudo apt-get install -y postgresql-client-18
-          /usr/lib/postgresql/18/bin/pg_dump --version
 
       - name: Fazer dump do banco
         env:
@@ -35,14 +34,15 @@ jobs:
           mkdir -p backups
           TIMESTAMP=$(date +%Y-%m-%d_%H-%M)
           CLEAN_URL=$(echo -n "$DATABASE_URL" | tr -d '\n\r ')
-          /usr/lib/postgresql/18/bin/pg_dump "$CLEAN_URL" --no-password -F p > backups/backup-$TIMESTAMP.sql
-          echo "Backup criado: backup-$TIMESTAMP.sql"
+          /usr/lib/postgresql/18/bin/pg_dump "$CLEAN_URL" --no-password -F p | gzip > backups/backup-$TIMESTAMP.sql.gz
+          echo "Backup criado: backup-$TIMESTAMP.sql.gz"
+          ls -lh backups/
 
       - name: Manter só últimos 48 backups
         run: |
           cd backups
-          ls -t *.sql 2>/dev/null | tail -n +49 | xargs -r rm
-          echo "Backups mantidos: $(ls *.sql 2>/dev/null | wc -l)"
+          ls -t *.sql.gz 2>/dev/null | tail -n +49 | xargs -r rm
+          echo "Backups mantidos: $(ls *.sql.gz 2>/dev/null | wc -l)"
 
       - name: Commit e push do backup
         run: |

@@ -26,6 +26,7 @@ jobs:
           sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
           sudo apt-get update
           sudo apt-get install -y postgresql-client-18
+          /usr/lib/postgresql/18/bin/pg_dump --version
 
       - name: Fazer dump do banco
         env:
@@ -34,7 +35,7 @@ jobs:
           mkdir -p backups
           TIMESTAMP=$(date +%Y-%m-%d_%H-%M)
           CLEAN_URL=$(echo -n "$DATABASE_URL" | tr -d '\n\r ')
-          pg_dump "$CLEAN_URL" --no-password -F p > backups/backup-$TIMESTAMP.sql
+          /usr/lib/postgresql/18/bin/pg_dump "$CLEAN_URL" --no-password -F p > backups/backup-$TIMESTAMP.sql
           echo "Backup criado: backup-$TIMESTAMP.sql"
 
       - name: Manter só últimos 48 backups

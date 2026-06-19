@@ -1244,7 +1244,13 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
               const _nomeOrig = _lead.nome || '';
               const _telOrig = _lead.telefone || _lead.contato || '';
               // Setar fase/temperatura antes de processar
-              _lead.faseFunil = _mapa.fase || 'qualificando';
+              // Não regride fase do funil
+              const _ordemFases = ['novo','qualificando','match','vitrine_enviada','visitou','proposta','fechado'];
+              const _faseAtual = _lead.faseFunil || 'novo';
+              const _faseNova = _mapa.fase || 'qualificando';
+              const _iAtual = _ordemFases.indexOf(_faseAtual);
+              const _iNova = _ordemFases.indexOf(_faseNova);
+              _lead.faseFunil = _iNova > _iAtual ? _faseNova : _faseAtual;
               _lead.temperatura = _mapa.temperatura || 'morno';
               _lead.mapaIntencao = _mapa;
               await atualizarLead(_lead.id, { mapaIntencao: _mapa, faseFunil: _lead.faseFunil, temperatura: _lead.temperatura });

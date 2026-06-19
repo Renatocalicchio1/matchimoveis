@@ -711,9 +711,9 @@ app.get('/admin/quintoandar-solicitacoes', authAdmin, async (req, res) => {
     let html = `<html><head><meta charset="UTF-8"><title>Solicitações QuintoAndar</title>
     <style>body{font-family:Arial;padding:20px;max-width:900px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
     <body><h2 style="margin-bottom:16px">Solicitações de acesso QuintoAndar (${r.rows.length})</h2>
-    <table><tr><th>Data</th><th>Nome</th><th>Telefone</th><th>Email</th><th>Código</th><th>Atendido</th></tr>`;
+    <table><tr><th>Data</th><th>Nome</th><th>Telefone</th><th>Email</th><th>Código</th><th>Status</th><th>Ação</th></tr>`;
     r.rows.forEach(row => {
-      html += `<tr><td>${new Date(row.criado_em).toLocaleString('pt-BR')}</td><td>${row.nome||''}</td><td>${row.telefone||''}</td><td>${row.email||''}</td><td>${row.user_id||''}</td><td>${row.atendido?'✅':'⏳'}</td></tr>`;
+      html += `<tr><td>${new Date(row.criado_em).toLocaleString('pt-BR')}</td><td>${row.nome||''}</td><td>${row.telefone||''}</td><td>${row.email||''}</td><td>${row.user_id||''}</td><td>${row.atendido?'<span style="color:#16a34a;font-weight:600">✅ Liberado</span>':'<span style="color:#f59e0b;font-weight:600">⏳ Aguardando</span>'}</td><td>${!row.atendido?'<a href="/admin/quintoandar-liberar/'+row.user_id+'" style="background:#00a86b;color:#fff;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Liberar</a>':'<span style="color:#9ca3af;font-size:12px">Já liberado</span>'}</td></tr>`;
     });
     html += '</table></body></html>';
     res.send(html);

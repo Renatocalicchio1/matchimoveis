@@ -132,13 +132,14 @@ const _pgPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { re
 app.set('trust proxy', 1);
 app.use(session({
   store: new pgSession({ pool: _pgPool, tableName: 'session', createTableIfMissing: true }),
-  secret: process.env.SESSION_SECRET || 'matchimoveis',
+  secret: process.env.SESSION_SECRET || require('crypto').randomBytes(64).toString('hex'),
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: process.env.RENDER ? true : false,
     sameSite: process.env.RENDER ? 'none' : 'lax',
-    maxAge: 30 * 24 * 60 * 60 * 1000
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000
   }
 }));
 const navegacao = require("./cerebro/navegacao");
@@ -159,17 +160,14 @@ const UPLOADS_STATIC_DIR = process.env.RENDER
   ? '/opt/render/project/src/data/uploads/imoveis'
   : path.join(__dirname, 'public', 'uploads', 'imoveis');
 app.use('/data-uploads', express.static(UPLOADS_STATIC_DIR));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-app.use(express.json({ limit: "50mb" }));
+
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-
 // ── SEGURANÇA: HELMET (headers HTTP) ─────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: false, // desabilita CSP para não quebrar EJS inline
   crossOriginEmbedderPolicy: false
 }));
-
 // ── SEGURANÇA: RATE LIMIT GERAL ──────────────────────────────────────────────
 const limiterGeral = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
@@ -179,7 +177,6 @@ const limiterGeral = rateLimit({
   message: { erro: 'Muitas requisições. Tente novamente em 15 minutos.' }
 });
 app.use(limiterGeral);
-
 // ── SEGURANÇA: RATE LIMIT LOGIN (anti brute force) ───────────────────────────
 const limiterLogin = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
@@ -190,7 +187,8 @@ const limiterLogin = rateLimit({
 });
 app.use('/login', limiterLogin);
 app.use('/api/login', limiterLogin);
-
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json({ limit: "50mb" }));
 // ── SEGURANÇA: SANITIZAÇÃO DE INPUTS ─────────────────────────────────────────
 app.use((req, res, next) => {
   const sanitize = (obj) => {

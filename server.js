@@ -3,6 +3,7 @@
 const _qrCache = {};
 require("dotenv").config();
 const express = require('express');
+const bcrypt = require('bcrypt');
 const cerebroApp = require("./cerebro/index");
 const cerebroNLP = require("./services/cerebro-nlp");
 
@@ -131,7 +132,7 @@ const _pgPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { re
 app.set('trust proxy', 1);
 app.use(session({
   store: new pgSession({ pool: _pgPool, tableName: 'session', createTableIfMissing: true }),
-  secret: 'matchimoveis',
+  secret: process.env.SESSION_SECRET || 'matchimoveis',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -1034,7 +1035,8 @@ input:focus{border-color:#111;}button{background:#111;color:#fff;border:none;bor
 app.post('/admin/usuario/:codigo/senha', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q('UPDATE usuarios SET senha=$1 WHERE codigo_usuario=$2', [req.body.senha, req.params.codigo]);
+    const _hashAdmin = await bcrypt.hash(req.body.senha, 10);
+    await _q('UPDATE usuarios SET senha=$1 WHERE codigo_usuario=$2', [_hashAdmin, req.params.codigo]);
     res.redirect('/admin');
   } catch(e) { res.send('Erro: ' + e.message); }
 });
@@ -1485,10 +1487,11 @@ app.post('/login', async (req,res)=>{
 
   if(!user) return res.redirect('/?error=nao_cadastrado');
 
-  const _senhaInformada = (req.body.senha || '').trim();
   const _senhaSalva = (user.senha || '').trim();
-  if (_senhaSalva && _senhaInformada !== _senhaSalva) {
-    return res.redirect('/?erro=senha_incorreta');
+  const _senhaInformada = (req.body.senha || '').trim();
+  if (_senhaSalva) {
+    const _senhaValida = _senhaSalva.startsWith('$2b$') ? await bcrypt.compare(_senhaInformada, _senhaSalva) : _senhaInformada === _senhaSalva;
+    if (!_senhaValida) return res.redirect('/?erro=senha_incorreta');
   }
 
   req.session.user = user;
@@ -2799,9 +2802,10 @@ app.post('/app/perfil/senha', auth, async (req, res) => {
     const result = await _qSenha('SELECT codigo_usuario FROM usuarios WHERE codigo_usuario = $1', [uid]);
     if (!result.rows.length)
       return res.redirect('/app/perfil?senhaErro=Usuario+nao+encontrado');
-    await _qSenha('UPDATE usuarios SET senha = $1 WHERE codigo_usuario = $2', [nova_senha, uid]);
-    if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid); if(_uIdx>=0) _cacheUsuarios[_uIdx].senha = nova_senha; }
-    req.session.user.senha = nova_senha;
+    const _hashNova = await bcrypt.hash(nova_senha, 10);
+    await _qSenha('UPDATE usuarios SET senha = $1 WHERE codigo_usuario = $2', [_hashNova, uid]);
+    if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid); if(_uIdx>=0) _cacheUsuarios[_uIdx].senha = _hashNova; }
+    req.session.user.senha = _hashNova;
     return res.redirect('/app/perfil?senhaSucesso=1');
   } catch(e) {
     console.error('[senha]', e.message);
@@ -8816,4 +8820,714 @@ app.post('/visita/:id/lead-nao-gostou', async (req, res) => {
     res.render('visita-realizada-lead', { visita, respondido: true });
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
-// ── FIM ROTAS VISITA REALIZADA ────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+
+
+// ===== ROTAS APP UX NOVO =====
+
+
+
+
+// rota importar leads removida para correção
+
+
+
+// ===== REGRA PRIVACIDADE PROPRIETARIO =====
+// IMPORTANTE:
+// proprietario_nome, proprietario_whatsapp, proprietario_email e proprietario_doc
+// só podem ser exibidos quando imovel.corretorId === usuarioLogado.id.
+// Em carteiras compartilhadas, matches, outros corretores e usuários externos,
+// esses campos devem ser ocultados.
+
+
+// ===== LEADS + MATCH + OFERTA CLIENTE =====
+async function carregarLeads(){
+  try { const r = await _qL('SELECT dados FROM leads ORDER BY criado_em DESC'); return r.rows.map(r=>r.dados); } catch(e) { console.error('[carregarLeads]',e.message); return []; }
+}
+
+async function salvarLeads(leads){
+  const fs = require('fs');
+  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+}
+
+// ── HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────────
+async function lerLeadsData() {
+  try { const { query: _qLD } = require('./services/db'); const r = await _qLD('SELECT *, dados, follow_ups, vitrine_enviada, vitrine_enviada_em, matches, matches_auto, id, nome, telefone, whatsapp, contato, user_id, codigo_usuario, score, temperatura, fase_funil, perfil_ia, status, tipo_lead, historico, timeline, eventos, comportamento, mapa_intencao FROM leads ORDER BY criado_em DESC'); return r.rows.map(r=>({ ...(r.dados||{}), id: r.id, nome: r.nome, telefone: r.telefone, whatsapp: r.whatsapp, contato: r.contato, userId: r.user_id, codigoUsuario: r.codigo_usuario, followUps: r.follow_ups||[], vitrineEnviada: r.vitrine_enviada, vitrineEnviadaEm: r.vitrine_enviada_em, matches: r.matches||[], matchesAuto: r.matches_auto||[], score: r.score || (r.dados||{}).score || 0, temperatura: r.temperatura || (r.dados||{}).temperatura || 'frio', faseFunil: r.fase_funil || (r.dados||{}).faseFunil || 'novo', status: r.status || (r.dados||{}).status || 'novo', perfilIA: r.perfil_ia || (r.dados||{}).perfilIA || {}, mapaIntencao: r.mapa_intencao || (r.dados||{}).mapaIntencao || null, comportamento: r.comportamento || (r.dados||{}).comportamento || null, historico: r.historico || (r.dados||{}).historico || [], timeline: r.timeline || (r.dados||{}).timeline || [], eventos: r.eventos || (r.dados||{}).eventos || [] })); } catch(e) { console.error('[lerLeadsData]',e.message); return []; }
+}
+
+async function salvarLeadsData(leads) {
+  try {
+    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+  } catch(e) { console.error('[salvarLeadsData]', e.message); }
+}
+
+async function lerVisitasData() {
+  try { const r = await _qV('SELECT dados, imovel_id, imovel_bairro, status, data_visita FROM visitas ORDER BY criado_em DESC'); return r.rows.map(r=>({...r.dados, imovelId: r.dados.imovelId||r.imovel_id, imovelBairro: r.dados.imovelBairro||r.imovel_bairro, status: r.dados.status||r.status, dataVisita: r.dados.dataVisita||r.data_visita})); } catch(e) { console.error('[lerVisitasData]',e.message); return []; }
+}
+
+async function salvarVisitasData(visitas) {
+  try {
+    salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  } catch(e) { console.error('[salvarVisitasData]', e.message); }
+}
+
+async function atualizarLead(id, campos) {
+  const leads = await lerLeadsData();
+  const idx = leads.findIndex(l => String(l.id) === String(id));
+  if (idx < 0) return null;
+  leads[idx] = { ...leads[idx], ...campos };
+  salvarLeadsData(leads);
+  return leads[idx];
+}
+
+async function atualizarVisita(id, campos) {
+  const visitas = await lerVisitasData();
+  const idx = visitas.findIndex(v => String(v.id) === String(id));
+  if (idx < 0) return null;
+  visitas[idx] = { ...visitas[idx], ...campos };
+  salvarVisitasData(visitas);
+  return visitas[idx];
+}
+
+async function criarLead(payload) {
+  const leads = await lerLeadsData();
+  const novo = { id: Date.now().toString(), criadoEm: new Date().toISOString(), ...payload };
+  leads.push(novo);
+  salvarLeadsData(leads);
+  // Cobra 10 créditos por nova lead
+  const _userId = payload.userId || payload.corretorId || payload.usuarioDestinoId || '';
+  if (_userId) consumir(_userId, 'nova_lead').catch(()=>{});
+  return novo;
+}
+
+async function criarVisita(payload) {
+  const visitas = await lerVisitasData();
+  const nova = { id: Date.now().toString(), criadoEm: new Date().toISOString(), ...payload };
+  visitas.push(nova);
+  salvarVisitasData(visitas);
+  return nova;
+}
+// ── FIM HELPERS_CENTRALIZADOS ─────────────────────────────────────────────────
+
+function marcarEtapaLead(lead, etapa){
+  lead.etapaAtual = etapa;
+  lead.jornada = lead.jornada || [];
+  const atual = lead.jornada.find(j => j.etapa === etapa);
+  if(atual){ atual.feito = true; atual.data = new Date().toISOString(); }
+  else lead.jornada.push({ etapa, feito:true, data:new Date().toISOString() });
+}
+
+app.get('/cliente/oferta/:leadId', (req,res)=>{
+  const leads = (_cacheLeads || []);
+  const userIdOferta = req.query.userId || req.query.uid || '';
+
+  let lead = null;
+
+  if (userIdOferta) {
+    lead = leads.find(l =>
+      String(l.id || l.leadId || '') === String(req.params.leadId) &&
+      String(l.userId || l.usuarioId || l.corretorId || '') === String(userIdOferta)
+    );
+  }
+
+  if (!lead) {
+    lead = leads.find(l => String(l.id || l.leadId || '') === String(req.params.leadId));
+  }
+
+  if(!lead) return res.status(404).send('Lead não encontrado');
+
+  lead.matches = (lead.matchesBase && lead.matchesBase.length ? lead.matchesBase : null) ||
+               (lead.matchesAuto && lead.matchesAuto.length ? lead.matchesAuto : null) ||
+               (lead.matches && lead.matches.length ? lead.matches : null) || [];
+  
+  // Marca vitrine como visualizada
+  const idxLead = leads.findIndex(l => String(l.id||l.leadId||'') === String(req.params.leadId));
+  if (idxLead >= 0) {
+    leads[idxLead].vitrineVisualizada = true;
+    leads[idxLead].vitrineVisualizadaEm = new Date().toISOString();
+    if (false && !leads[idxLead].vitrineEnviada) {
+      leads[idxLead].vitrineEnviada = true;
+      leads[idxLead].vitrineEnviadaEm = new Date().toISOString();
+    }
+    lead = leads[idxLead];
+  }
+  registrarHistoricoImovelLead(lead, 'visualizou_vitrine', lead);
+  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+  const _usersMapVitrine = {}; (_cacheUsuarios||[]).forEach(function(u){ _usersMapVitrine[u.codigo_usuario||u.codigoUsuario||u.id] = u.nome||u.name||''; });
+  res.render('cliente-oferta', {
+    user: null,
+    lead,
+    matchesParceiro: lead.matchesQuintoAndar || [],
+    queryUserId: userIdOferta || lead.userId || lead.usuarioId || lead.corretorId || '',
+    usersMap: _usersMapVitrine
+  });
+});
+
+app.get('/cliente/oferta/:leadId/escolher/:idx', (req,res)=>{
+  const leads = (_cacheLeads || []);
+  const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
+  if(!lead) return res.status(404).send('Lead não encontrado');
+  const idx = Number(req.params.idx);
+  lead.imovelEscolhido = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
+  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+  res.redirect('/cliente/oferta/'+req.params.leadId);
+});
+
+app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
+  const leads = (_cacheLeads || []);
+  const lead = leads.find(l => (l.id || l.leadId) === req.params.leadId);
+  if(!lead) return res.status(404).send('Lead não encontrado');
+  const idx = Number(req.params.idx);
+  const matchesDisp = lead.matchesBase || lead.matches || [];
+  lead.imovelVisita = matchesDisp[idx] || null;
+  lead.visitaSolicitadaEm = new Date().toISOString();
+  registrarHistoricoImovelLead(lead, 'visita_solicitada', lead.imovelVisita);
+  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+
+  // Gravar em visitas.json vinculado ao dono da lead
+  const imovel = lead.imovelVisita || {};
+  // Busca proprietario no imoveis.json
+  const imoveisBase = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
+  const imovelBase = imoveisBase.find(i => String(i.idExterno||i.id) === String(imovel.idExterno||imovel.id||imovel.id_anuncio||''));
+  const proprietario = imovelBase ? (imovelBase.proprietario || {}) : (imovel.proprietario || {});
+  const userFinal = user || { id: "TESTE-LOCAL", nome: "Usuário Teste", celular: "11999999999", telefone: "11999999999" };
+
+  const novaVisita = {
+    id: Date.now().toString(),
+    leadId: lead.id || lead.leadId,
+    nome: lead.nome || lead.name || '',
+    telefone: lead.telefone || lead.phone || '',
+    contato: lead.telefone || lead.phone || '',
+    imovelId: imovel.id || imovel.codigo || '',
+    imovelTitulo: imovel.titulo || imovel.title || '',
+    imovelBairro: imovel.bairro || '',
+    imovelCidade: imovel.cidade || '',
+    imovelEstado: imovel.estado || '',
+    usuarioDestinoId: lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '',
+    userId: lead.userId || lead.codigoUsuario || '',
+    corretorId: lead.userId || lead.codigoUsuario || '',
+    proprietarioNome: proprietario.nome || '',
+    proprietarioTelefone: (proprietario.telefone || proprietario.celular || '').replace(/\D/g,''),
+    imovelUsuarioId: imovelBase ? (imovelBase.user_id || imovelBase.userId || imovelBase.usuarioId || '') : '',
+    imovelUsuarioNome: (() => {
+      const _imOwnerId = imovelBase ? (imovelBase.user_id || imovelBase.userId || imovelBase.usuarioId || '') : '';
+      const _imOwner = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _imOwnerId);
+      return _imOwner ? (_imOwner.nome||'') : (imovelBase ? (imovelBase.fonte||'') : '');
+    })(),
+    imovelUsuarioTelefone: (() => {
+      const _imOwnerId = imovelBase ? (imovelBase.user_id || imovelBase.userId || imovelBase.usuarioId || '') : '';
+      const _imOwner = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _imOwnerId);
+      return _imOwner ? ((_imOwner.celular||_imOwner.telefone||'').replace(/\D/g,'')) : '';
+    })(),
+    usuarioDestinoNome: (() => {
+      const _uid = lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '';
+      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
+      return _u ? (_u.nome||'') : '';
+    })(),
+    usuarioDestinoPerfil: '',
+    usuarioDestinoTelefone: (() => {
+      const _uid = lead.usuarioDestinoId || lead.userId || lead.codigoUsuario || '';
+      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
+      return _u ? ((_u.celular||_u.telefone||'').replace(/\D/g,'')) : '';
+    })(),
+    corretorNome: (() => {
+      const _uid = lead.userId || lead.codigoUsuario || '';
+      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
+      return _u ? (_u.nome||'') : '';
+    })(),
+    corretorTelefone: (() => {
+      const _uid = lead.userId || lead.codigoUsuario || '';
+      const _u = (_cacheUsuarios||[]).find(u => (u.codigo_usuario||u.codigoUsuario||u.codigo||u.id) === _uid);
+      return _u ? ((_u.celular||_u.telefone||'').replace(/\D/g,'')) : '';
+    })(),
+    dataVisita: lead.dataVisita || lead.dataPreferida || '',
+    horaVisita: lead.horaVisita || lead.horarioPreferido || '',
+    imovelUrl: imovel.url || '',
+    status: 'solicitada',
+    origem: 'vitrine_cliente',
+    fonte: 'MatchImóveis',
+    data: new Date().toISOString(),
+    data_br: new Date().toLocaleString('pt-BR')
+  };
+  const visitas = (_cacheVisitas || []);
+  consumir((lead && (lead.userId||lead.corretorId)) || '', 'visita_agendada_ia').catch(()=>{});
+  const visitaComWorkflow = aplicarWorkflowVisita(novaVisita);
+  visitas.push(visitaComWorkflow);
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+
+  res.redirect('/cliente/oferta/'+req.params.leadId+'?visita=ok');
+});
+
+
+// ===== REGRA DONO DO LEAD =====
+
+// Sempre que importar leads:
+function aplicarDonoLead(lead, usuario){
+  lead.corretorId = usuario.id || 'mario-11999965998';
+  lead.corretorNome = usuario.nome || 'MARIO SERGIO DE SOUZA';
+  lead.corretorCelular = usuario.celular || '11999965998';
+  return lead;
+}
+
+// Filtrar leads do corretor logado
+function filtrarLeadsPorCorretor(leads, usuario){
+  return leads.filter(l => l.corretorId === (usuario.id || 'mario-11999965998'));
+}
+
+// Quando cliente pedir visita
+function registrarVisita(lead){
+  lead.visita = {
+    status: 'solicitada',
+    data: new Date().toISOString()
+  };
+  lead.etapaAtual = 'Visita solicitada';
+  return lead;
+}
+
+
+
+
+
+
+
+
+
+
+// Página de confirmação do proprietário
+
+
+
+
+
+
+
+
+
+// Página do corretor para confirmar/recusar visita (sem login)
+app.get('/corretor/visita/:id', async (req, res) => {
+  try {
+    const { lerVisitas } = require('./services/salvarVisita');
+    const todas = await lerVisitas();
+    const visita = todas.find(v => String(v.id) === String(req.params.id));
+    if (!visita) return res.status(404).send('<h2>Visita não encontrada</h2>');
+    res.render('corretor-visita', { visita });
+  } catch(e) {
+    res.status(500).send('<h2>Erro: ' + e.message + '</h2>');
+  }
+});
+
+app.post('/corretor/visita/:id/responder', async (req, res) => {
+  try {
+    const { resposta } = req.body;
+    const { lerVisitas, salvarTodasVisitas: _salvarVisitas } = require('./services/salvarVisita');
+    const todas = await lerVisitas();
+    const idx = todas.findIndex(v => String(v.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).send('<h2>Visita não encontrada</h2>');
+
+    const _EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const _EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+    const _BASE = process.env.RENDER ? 'https://matchimoveis.ia.br' : 'http://localhost:3000';
+    const _v = todas[idx];
+    const _telCliente = String(_v.telefone || _v.contato || '').replace(/\D/g,'');
+    // Busca instância do corretor dono da visita
+    const _userId = _v.userId || _v.user_id || _v.corretorId || _v.corretor_id || '';
+    const { lerUsuarios: _luCV } = require('./services/salvarUsuario');
+    const _usersCV = await _luCV();
+    const _corrCV = _usersCV.find(u => u.id === _userId);
+    const _instancia = _corrCV?.whatsappInstance || 'match-corretor';
+    const _imovel = _v.imovelTitulo || _v.imovel_titulo || _v.imovelBairro || _v.imovel_bairro || 'imóvel';
+    const _data = (_v.dataVisita || _v.data_visita) ? ' para ' + (_v.dataVisita || _v.data_visita) + ((_v.horaVisita || _v.hora_visita) ? ' às ' + (_v.horaVisita || _v.hora_visita) : '') : '';
+
+    async function _enviarWA(numero, texto) {
+      try {
+        await fetch(_EU + '/message/sendText/' + _instancia, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': _EK },
+          body: JSON.stringify({ number: '55' + numero.replace(/^55/,''), text: texto })
+        });
+      } catch(e) { console.error('[WA corretor-visita]', e.message); }
+    }
+
+    if (resposta === 'confirmar') {
+      todas[idx].status = 'confirmada';
+      todas[idx].respostaCorretor = 'confirmar';
+      todas[idx].corretorConfirmouEm = new Date().toISOString();
+      // WA para o cliente confirmar presença
+      if (_telCliente) {
+        const _linkConfirmar = _BASE + '/cliente/visita/' + _v.id + '/confirmar';
+        const _linkRecusar = _BASE + '/cliente/visita/' + _v.id + '/recusar';
+        const _msg = 'Olá *' + (_v.nome||'') + '*! Sua visita ao imóvel *' + _imovel + '*' + _data + ' foi confirmada!\n\nConfirme sua presença:\n✅ Confirmar: ' + _linkConfirmar + '\n❌ Não posso ir: ' + _linkRecusar;
+        await _enviarWA(_telCliente, _msg);
+      }
+    } else if (resposta === 'indisponivel') {
+      todas[idx].status = 'imovel_indisponivel';
+      todas[idx].respostaCorretor = 'indisponivel';
+      todas[idx].corretorRecusouEm = new Date().toISOString();
+      // Inativa o imóvel no PG
+      try {
+        const { query: _qInat } = require('./services/db');
+        const _agora = new Date().toISOString();
+        await _qInat("UPDATE imoveis SET status='inativo', dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','corretor') WHERE id=$1 OR id_externo=$1 OR id_interno=$1", [_v.imovelId, _agora]);
+        console.log('[corretor] Imóvel inativado:', _v.imovelId);
+      } catch(_e) { console.error('[inativar]', _e.message); }
+      // WA para o cliente com link da vitrine
+      if (_telCliente) {
+        const _leadId = _v.leadId || '';
+        const _linkVitrine = _leadId ? _BASE + '/cliente/oferta/' + _leadId : _BASE;
+        const _msg = 'Olá *' + (_v.nome||'') + '*! Infelizmente o imóvel *' + _imovel + '* não está mais disponível.\n\nAcesse a vitrine e escolha outra opção: ' + _linkVitrine;
+        await _enviarWA(_telCliente, _msg);
+      }
+    } else if (resposta === 'remarcar') {
+      todas[idx].status = 'pendente_remarcar';
+      todas[idx].respostaCorretor = 'remarcar';
+      todas[idx].corretorRemarcarEm = new Date().toISOString();
+      // WA para o cliente remarcar
+      if (_telCliente) {
+        const _leadId = _v.leadId || '';
+        const _imovelIdEnc = encodeURIComponent(_v.imovelId || '');
+        const _linkRemarcar = _BASE + '/cliente/visita/' + _v.id + '/remarcar';
+        const _msgRemarcar = 'Olá *' + (_v.nome||'') + '*! O corretor solicitou uma remarcação da visita ao imóvel *' + _imovel + '*.\n\nEscolha uma nova data: ' + _linkRemarcar;
+        await _enviarWA(_telCliente, _msgRemarcar);
+      }
+    }
+
+    await _salvarVisitas(todas);
+    res.render('corretor-visita', { visita: todas[idx] });
+  } catch(e) {
+    console.error('[corretor-visita]', e.message);
+    res.status(500).send('<h2>Erro: ' + e.message + '</h2>');
+  }
+});
+
+app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
+  const visitas = (_cacheVisitas || []);
+  const idx = visitas.findIndex(v => v.id === req.params.visitaId);
+  if (idx === -1) return res.status(404).send('Visita não encontrada');
+  
+  const { resposta } = req.body;
+  consumir(visita?.ownerUserId || visita?.corretorId, 'confirmacao_auto').catch(()=>{});
+    respostaProprietario = resposta;
+  visitas[idx].respostaEm = new Date().toISOString();
+
+  if (resposta === 'confirmar') {
+    visitas[idx].status = 'confirmada';
+    const telCliente = String(visitas[idx].telefone || visitas[idx].contato || '').replace(/\D/g,'');
+    const dataVisita = visitas[idx].dataVisita || 'em breve';
+    const horaVisita = visitas[idx].horaVisita || '';
+    const imovelTitulo = visitas[idx].imovelTitulo || visitas[idx].imovelBairro || 'o imóvel';
+    const msgCliente = 'Olá ' + (visitas[idx].nome || '') + '! Sua visita ao imóvel *' + imovelTitulo + '* foi confirmada para ' + dataVisita + (horaVisita ? ' às ' + horaVisita : '') + '. Qualquer dúvida, entre em contato!';
+    visitas[idx].whatsappClienteLink = telCliente ? 'https://wa.me/55' + telCliente + '?text=' + encodeURIComponent(msgCliente) : '';
+    visitas[idx].clienteNotificado = false;
+  } else if (resposta === 'indisponivel') {
+    visitas[idx].status = 'cancelada';
+    // Marca imóvel como inativo
+    try {
+      const _iid = visitas[idx].imovelId;
+      const _agora = new Date().toISOString();
+      const _qInativar = `UPDATE imoveis SET dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','proprietario') WHERE id_externo=$1 OR id_interno=$1`;
+      await _qExcluir(_qInativar, [_iid, _agora]);
+      console.log('Imóvel inativado via PG:', _iid);
+    } catch(_e) { console.error('[inativar imovel]', _e.message); }
+  } else if (resposta === 'remarcar') {
+    visitas[idx].status = 'pendente_remarcar';
+  }
+
+  salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
+  try {
+    const _v = visitas[idx];
+    const _uid = _v.userId || _v.corretorId || '';
+    const _imovel = _v.imovelTitulo || _v.imovelBairro || 'imovel';
+    const _cliente = _v.nome || 'cliente';
+    const _data = _v.dataVisita || '';
+    const _hora = _v.horaVisita || '';
+    const _msgs = {
+      confirmar: { titulo: 'Visita confirmada pelo proprietario', msg: 'O proprietario confirmou a visita de ' + _cliente + ' ao imovel ' + _imovel + ' para ' + _data + ' as ' + _hora + '.' },
+      indisponivel: { titulo: 'Imovel indisponivel', msg: 'O proprietario informou que o imovel ' + _imovel + ' nao esta disponivel. Imovel inativado.' },
+      remarcar: { titulo: 'Proprietario pediu remarcacao', msg: 'O proprietario do imovel ' + _imovel + ' nao pode receber ' + _cliente + ' no dia ' + _data + '. Peca ao cliente uma nova data.' }
+    };
+    const _info = _msgs[resposta];
+    if (_info && _uid) {
+      // Notifica corretor dono da lead
+      criarNotificacaoService({ id: Date.now().toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _info.msg, usuarioId: _uid, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
+      // Notifica parceiro dono do imóvel (se diferente do corretor)
+      const _parcId = _v.imovelUsuarioId || '';
+      if (_parcId && _parcId !== _uid) {
+        const _msgParc = {
+          confirmar: 'Você confirmou a visita de ' + _cliente + ' ao imóvel ' + _imovel + ' para ' + _data + ' às ' + _hora + '.',
+          indisponivel: 'Você informou indisponibilidade do imóvel ' + _imovel + '. O imóvel foi inativado.',
+          remarcar: 'Você pediu remarcação da visita de ' + _cliente + ' ao imóvel ' + _imovel + '.'
+        }[resposta];
+        if (_msgParc) criarNotificacaoService({ id: (Date.now()+1).toString(), tipo: 'visita_proprietario', titulo: _info.titulo, mensagem: _msgParc, usuarioId: _parcId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
+      }
+      // notificações salvas via criarNotificacaoService (PG)
+    }
+  } catch(e) { console.log('Erro notif proprietario:', e.message); }
+  consumir(_uid || '', 'notificacao_prop').catch(()=>{});
+  res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
+})
+
+
+
+app.get('/dev/diagnostico-leads', auth, (req,res)=>{
+  const user = req.session.user;
+  const todos = (_cacheLeads || []);
+  const uid = user.id;
+  const filtrados = filtrarPorUsuario(todos, user);
+  res.json({
+    userId: uid,
+    totalNoArquivo: todos.length,
+    totalFiltrados: filtrados.length,
+    ultimas3: todos.slice(-3).map(l=>({id:l.id,nome:l.nome,userId:l.userId,codigoUsuario:l.codigoUsuario,corretorId:l.corretorId}))
+  });
+});
+
+function gerarCodigoUsuario(nome) {
+  const ini = (nome||'USR').substring(0,3).toUpperCase().replace(/[^A-Z]/g,'').padEnd(3,'X');
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let rand = '';
+  for (let i=0; i<4; i++) rand += chars[Math.floor(Math.random()*chars.length)];
+  return ini + '-' + rand;
+}
+
+
+// ===== APP ROUTES =====
+
+
+
+
+
+// ===== ROTAS APP =====
+
+
+function readJsonSafe(file, fallback){
+  try {
+    if(!fs.existsSync(file)) return fallback;
+    return JSON.parse(fs.readFileSync(file,'utf8'));
+  } catch(e) {
+    return fallback;
+  }
+}
+
+
+
+// ===== ADMIN: ACOMPANHAR LISTAS POR CORRETOR =====
+function safeReadJsonAdmin(file, fallback){
+  try {
+    if(!fs.existsSync(file)) return fallback;
+    return JSON.parse(fs.readFileSync(file,'utf8'));
+  } catch(e) {
+    return fallback;
+  }
+}
+
+function salvarHistoricoUpload(payload){
+  const file = 'uploads-admin.json';
+  const historico = safeReadJsonAdmin(file, []);
+  historico.push({
+    id: 'upload-' + Date.now(),
+    data: new Date().toISOString(),
+    ...payload
+  });
+  fs.writeFileSync(file, JSON.stringify(historico,null,2));
+}
+
+
+// ===== CORRETOR: MEUS LEADS + FAZER MATCH =====
+
+
+app.post('/app-leads/:idx/match', async (req,res)=>{
+  const usuario = req.session.user || { id:'antonio-11975720750', nome:'Antonio Eduardo', celular:'11975720750', telefone:'11975720750' };
+
+  const dataRaw = safeReadJsonAdmin(dataPath('data.json'), []);
+  const data = Array.isArray(dataRaw) ? dataRaw : (dataRaw.results || []);
+
+  const meusIndices = [];
+  data.forEach((item, index)=>{
+    const celularItem = String(item.corretorCelular || item.celularCorretor || '');
+    const idItem = String(item.corretorId || '');
+    const telUser = String(usuario.celular || usuario.telefone || '');
+    if(idItem === usuario.id || celularItem === telUser) meusIndices.push(index);
+  });
+
+  const realIndex = meusIndices[Number(req.params.idx)];
+  const item = data[realIndex];
+
+  if(!item) return res.status(404).send('Lead não encontrado para este corretor.');
+
+  try {
+    const { searchQuintoAndar } = require('./services/quintoandar');
+    const { searchRemax } = require('./services/remax');
+    const { findTopMatches } = require('./services/matcher');
+
+    const origin = item.origin || item;
+
+    if((origin.cidade || '').toLowerCase() !== 'são paulo' && (origin.cidade || '').toLowerCase() !== 'sao paulo'){
+      return res.send('Este lead não é de São Paulo/SP e não será processado para match.');
+    }
+
+    let candidatos = [];
+
+    try {
+      const qa = await searchQuintoAndar(origin);
+      candidatos = candidatos.concat(qa || []);
+    } catch(e) {
+      console.log('Erro QuintoAndar:', e.message);
+    }
+
+    try {
+      const rx = await searchRemax(origin);
+      candidatos = candidatos.concat(rx || []);
+    } catch(e) {
+      console.log('Erro REMAX:', e.message);
+    }
+
+    const matches = findTopMatches(origin, candidatos, 8);
+
+    item.matches = matches;
+    item.matchCount = matches.length;
+    item.bestScore = matches[0] ? matches[0].score : 0;
+    item.matchedAt = new Date().toISOString();
+    item.corretorId = usuario.id;
+    item.corretorNome = usuario.nome;
+    item.corretorCelular = usuario.celular || usuario.telefone;
+
+    if(!item.leadId){
+      item.leadId = 'lead-' + realIndex + '-' + Date.now();
+    }
+
+    salvarTodosLeads(data).catch(e=>console.error("[leads]",e.message));
+
+    res.redirect('/app-leads');
+  } catch(err) {
+    console.error(err);
+    res.status(500).send('Erro ao fazer match: ' + err.message);
+  }
+});
+
+app.get('/import-status',(req,res)=>{
+  res.json(global.importStatus || {status:'idle', total:0, mensagem:'Aguardando importação'});
+});
+
+app.get('/import-status',(req,res)=>{res.json({status:global.importStatus||'idle'});});
+
+app.get('/logout', (req,res)=>{
+  req.session.destroy(()=>res.redirect('/'));
+});
+
+
+// ===== ROTAS CORRETAS CORRETOR / ADMIN =====
+app.get('/logout', (req,res)=>{
+  req.session.destroy(()=>res.redirect('/'));
+});
+
+function usuarioLogado(req){
+  return req.session.user || null;
+}
+
+
+
+
+
+// Meus imóveis = carteira do corretor, NÃO match
+
+
+// Meus leads = leads/matches do corretor logado
+
+
+// Admin match = somente painel de match
+
+
+// ===== ROTAS CORRETAS CORRETOR / ADMIN =====
+app.get('/logout', (req,res)=>{
+  req.session.destroy(()=>res.redirect('/'));
+});
+
+function usuarioLogado(req){
+  return req.session.user || null;
+}
+
+app.get('/app', (req,res)=>{
+  if(!req.session.user) return res.redirect('/');
+  res.redirect('/app-home');
+});
+
+// rota app-home removida (duplicada)
+
+// Meus imóveis = carteira do corretor, NÃO match
+app.get('/app-imoveis', (req,res)=>{
+  return res.redirect('/app/imoveis');
+});
+
+////app.get('/app/portais', auth, (req,res)=>{
+//  const portais = JSON.parse(require('fs').readFileSync('portais.json','utf8'));
+//  res.render('app-portais', { user: req.session.user, portais });
+//});
+
+app.get('/app-xml', (req,res)=> res.redirect('/app-portais-xml'));
+app.get('/app-portais', (req,res)=> res.redirect('/app-portais-xml'));
+
+
+app.get('/app-perfil', (req,res)=>{
+  renderAppPage(res, 'app-perfil', { title: 'Perfil' });
+});
+
+app.get('/logout', (req,res)=> res.redirect('/'));
+
+// ===== ROTAS FINAIS LIMPAS DO APP =====
+
+function auth(req,res,next){
+  if(!req.session || !req.session.user) return res.redirect('/');
+  // rotas liberadas mesmo sem saldo
+  const _rotasLivres = ['/app/coins', '/app/perfil', '/pagamento', '/webhook', '/app/notificacoes', '/sair', '/app/whatsapp'];
+  const _isLivre = _rotasLivres.some(r => req.path.startsWith(r));
+  if(!_isLivre){
+    const _userId = req.session.user.codigoUsuario || req.session.user.codigo || req.session.user.id;
+    const _saldo = req.session.user.matchCoins || 0;
+    if(_saldo !== undefined && _saldo <= 0 && req.session.user.tipo !== 'admin'){
+      if(req.xhr || req.headers.accept?.includes('application/json')){
+        return res.status(402).json({ok:false, erro:'Saldo insuficiente', redirect:'/app/coins'});
+      }
+      return res.redirect('/app/coins?sem_saldo=1');
+    }
+  }
+  next();
+}
+
+function filtrarPorUsuario(lista, user){
+  if (!Array.isArray(lista)) return [];
+  if (user && user.tipo === 'admin') return lista;
+  const uid = String(user && user.id || '');
+  const tel = String(user && (user.celular || user.telefone) || '').replace(/\D/g,'');
+  const cod = String(user && user.codigoUsuario || '');
+  return lista.filter(item =>
+    String(item.corretorId || '') === uid ||
+    String(item.userId || '') === uid ||
+    String(item.usuarioId || '') === uid ||
+    String(item.corretorCelular || '').replace(/\D/g,'') === tel ||
+    String(item.usuarioTelefone || '').replace(/\D/g,'') === tel ||
+    (cod && String(item.codigoUsuario || '') === cod)
+  );
+}
+
+
+
+// HELPERS DE LEITURA COM FILTRO AUTOMÁTICO
+function lerImoveis(user) {
+  const todos = _cacheImoveis || [];
+  if (!user) return todos;
+  const uid = user.id || user;
+  return todos.filter(i =>
+    String(i.userId||'') === String(uid) ||
+    String(i.usuarioId||'') === String(uid) ||
+    String(i.codigoUsuario||'') === String(uid) ||
+    String(i.corretorId||'') === String(uid)
+  );
+}
+// Cache em memória — sincronizado com PostgreSQL

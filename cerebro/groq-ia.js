@@ -3,7 +3,7 @@ const https = require('https');
 const fs    = require('fs');
 const path  = require('path');
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_API_KEY = (process.env.GROQ_API_KEY||'').trim();
 const MODEL = 'llama-3.1-8b-instant';
 
 let _contextoGroq = null;

@@ -42,3 +42,4 @@ notificacoes.json
 *.bak7
 uploads/
 xml-feeds.json
+node_modules/

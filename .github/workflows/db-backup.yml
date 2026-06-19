@@ -1,6 +1,9 @@
 name: Backup PostgreSQL
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     - cron: '0 * * * *'
   workflow_dispatch:

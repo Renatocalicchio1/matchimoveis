@@ -8,6 +8,37 @@
   const msg   = pct > 40 ? null : pct > 15 ? 'Seus créditos estão acabando. Considere recarregar.' : saldo === 0 ? 'Sua conta está pausada. Adicione créditos para continuar.' : 'Créditos baixos. Recarregue para não pausar sua conta.';
 %>
 
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+
+<!-- MODAL PAGAMENTO -->
+<div id="mpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;position:relative">
+    <button onclick="fecharMP()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Adicionar créditos</h3>
+    <div id="mpBrick"></div>
+  </div>
+</div>
+
+<!-- ADICIONAR CRÉDITOS -->
+<div class="card" style="margin-bottom:16px">
+  <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Adicionar créditos</h2>
+  <p style="color:#888;font-size:13px;margin-bottom:20px">Mínimo R$20 · R$1 = 50 créditos</p>
+  <div style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="position:relative;flex:1">
+        <input type="number" id="valorInput" min="20" step="1" placeholder="20" oninput="atualizarPreview(this.value)" style="width:100%;padding:14px 16px;border:2px solid #e5e7eb;border-radius:10px;font-size:20px;font-weight:700;outline:none">
+      </div>
+      <div style="text-align:right;min-width:110px">
+        <div style="font-size:11px;color:#888">você recebe</div>
+        <div id="creditosPreview" style="font-size:22px;font-weight:800;color:#111">0 créditos</div>
+      </div>
+    </div>
+  </div>
+  <button id="btnPagar" onclick="iniciarCompra()" style="width:100%;background:#FF385C;color:#fff;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">
+    Adicionar créditos
+  </button>
+</div>
+
 <!-- SALDO -->
 <div class="card" style="margin-bottom:16px;text-align:center;padding:32px 24px">
   <div style="font-size:12px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:.08em">Seus créditos</div>
@@ -67,36 +98,7 @@
   </div>
 </div>
 
-<script src="https://sdk.mercadopago.com/js/v2"></script>
 
-<!-- MODAL PAGAMENTO -->
-<div id="mpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;position:relative">
-    <button onclick="fecharMP()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
-    <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Adicionar créditos</h3>
-    <div id="mpBrick"></div>
-  </div>
-</div>
-
-<!-- ADICIONAR CRÉDITOS -->
-<div class="card" style="margin-bottom:16px">
-  <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Adicionar créditos</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Mínimo R$20 · R$1 = 50 créditos</p>
-  <div style="margin-bottom:16px">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="position:relative;flex:1">
-        <input type="number" id="valorInput" min="20" step="1" placeholder="20" oninput="atualizarPreview(this.value)" style="width:100%;padding:14px 16px;border:2px solid #e5e7eb;border-radius:10px;font-size:20px;font-weight:700;outline:none">
-      </div>
-      <div style="text-align:right;min-width:110px">
-        <div style="font-size:11px;color:#888">você recebe</div>
-        <div id="creditosPreview" style="font-size:22px;font-weight:800;color:#111">0 créditos</div>
-      </div>
-    </div>
-  </div>
-  <button id="btnPagar" onclick="iniciarCompra()" style="width:100%;background:#FF385C;color:#fff;border:none;padding:16px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">
-    Adicionar créditos
-  </button>
-</div>
 <!-- HISTÓRICO OCULTO -->
 
 <script>

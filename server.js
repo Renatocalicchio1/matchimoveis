@@ -211,6 +211,41 @@ app.use((req, res, next) => {
 });
 
 // ── SEGURANÇA: LOG DE TENTATIVAS SUSPEITAS ────────────────────────────────────
+const _logSeguranca = async (tipo, req, dados = {}) => {
+  try {
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || 'desconhecido';
+    const user_agent = req.headers['user-agent'] || '';
+    await _pgPool.query(
+      'INSERT INTO log_seguranca (tipo, ip, user_agent, dados) VALUES ($1, $2, $3, $4)',
+      [tipo, ip, user_agent, JSON.stringify(dados)]
+    );
+  } catch(e) { /* silencioso — log não pode derrubar a app */ }
+};
+
+const _alertaWA = async (mensagem) => {
+  try {
+    const EVOLUTION_URL = process.env.EVOLUTION_URL;
+    const EVOLUTION_KEY = process.env.EVOLUTION_KEY;
+    const MEU_NUMERO = '55' + '11956655428';
+    await fetch(`${EVOLUTION_URL}/message/sendText/match-renhuh6`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
+      body: JSON.stringify({ number: MEU_NUMERO, text: mensagem })
+    });
+  } catch(e) { /* silencioso */ }
+};
+
+// Monitora tentativas de login suspeitas
+const _contadorLoginFalho = {};
+const _registrarLoginFalho = async (req, email) => {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip;
+  const chave = ip + '|' + (email || '');
+  _contadorLoginFalho[chave] = (_contadorLoginFalho[chave] || 0) + 1;
+  await _logSeguranca('login_falho', req, { email, tentativas: _contadorLoginFalho[chave] });
+  if (_contadorLoginFalho[chave] === 5) {
+    await _alertaWA(`⚠️ ALERTA MatchImóveis\n5 tentativas de login falhas\nIP: ${ip}\nEmail: ${email || 'desconhecido'}\nHorário: ${new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})}`);
+  }
+};
 app.use((req, res, next) => {
   const suspeito = ['../', 'etc/passwd', 'wp-admin', '.env', 'phpinfo', 'eval(', 'union select', 'drop table'];
   const url = req.url.toLowerCase();
@@ -1496,7 +1531,7 @@ app.post('/login', async (req,res)=>{
   if (_senhaSalva) {
     const _senhaValida = _senhaSalva.startsWith('$2b$') ? await bcrypt.compare(_senhaInformada, _senhaSalva) : _senhaInformada === _senhaSalva;
     if (!_senhaValida) {
-      try { const { registrarLoginFalho } = require('./services/monitor'); registrarLoginFalho(req.ip); } catch(e) {}
+      await _registrarLoginFalho(req, (req.body.email || req.body.usuario || '').trim());
       return res.redirect('/?erro=senha_incorreta');
     }
   }

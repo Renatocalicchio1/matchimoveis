@@ -6129,6 +6129,11 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
         },
         auto_return: 'approved',
         notification_url: BASE + '/webhook/mercadopago',
+        payment_methods: {
+          excluded_payment_types: [
+            { id: 'ticket' }
+          ]
+        },
         metadata: {
           userId: user.codigoUsuario || user.codigo || user.id,
           valor: Number(valor),

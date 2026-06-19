@@ -160,6 +160,66 @@ const UPLOADS_STATIC_DIR = process.env.RENDER
 app.use('/data-uploads', express.static(UPLOADS_STATIC_DIR));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.json({ limit: "50mb" }));
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+// ── SEGURANÇA: HELMET (headers HTTP) ─────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: false, // desabilita CSP para não quebrar EJS inline
+  crossOriginEmbedderPolicy: false
+}));
+
+// ── SEGURANÇA: RATE LIMIT GERAL ──────────────────────────────────────────────
+const limiterGeral = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 300, // máx 300 requisições por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { erro: 'Muitas requisições. Tente novamente em 15 minutos.' }
+});
+app.use(limiterGeral);
+
+// ── SEGURANÇA: RATE LIMIT LOGIN (anti brute force) ───────────────────────────
+const limiterLogin = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 10, // máx 10 tentativas de login por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { erro: 'Muitas tentativas de login. Tente novamente em 15 minutos.' }
+});
+app.use('/login', limiterLogin);
+app.use('/api/login', limiterLogin);
+
+// ── SEGURANÇA: SANITIZAÇÃO DE INPUTS ─────────────────────────────────────────
+app.use((req, res, next) => {
+  const sanitize = (obj) => {
+    if (!obj) return obj;
+    for (const key of Object.keys(obj)) {
+      if (typeof obj[key] === 'string') {
+        obj[key] = obj[key]
+          .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+          .replace(/javascript:/gi, '')
+          .replace(/on\w+\s*=/gi, '');
+      } else if (typeof obj[key] === 'object') {
+        sanitize(obj[key]);
+      }
+    }
+    return obj;
+  };
+  sanitize(req.body);
+  sanitize(req.query);
+  next();
+});
+
+// ── SEGURANÇA: LOG DE TENTATIVAS SUSPEITAS ────────────────────────────────────
+app.use((req, res, next) => {
+  const suspeito = ['../', 'etc/passwd', 'wp-admin', '.env', 'phpinfo', 'eval(', 'union select', 'drop table'];
+  const url = req.url.toLowerCase();
+  if (suspeito.some(s => url.includes(s))) {
+    console.warn(`[SEGURANÇA] ⚠️ Tentativa suspeita: IP=${req.ip} URL=${req.url}`);
+  }
+  next();
+});
 
 // ── ROTAS DE VISITA v2 ────────────────────────────────────────────────────────
 const visitasRouter = require('./routes/visitas-v2');

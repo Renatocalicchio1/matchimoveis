@@ -381,8 +381,8 @@ button{width:100%;background:#111;color:#fff;border:none;border-radius:8px;paddi
 
 app.post('/admin/login', (req, res) => {
   const { usuario, senha } = req.body;
-  const adminUser = process.env.ADMIN_USER || 'admin';
-  const adminPass = process.env.ADMIN_PASSWORD || 'match@2025';
+  const adminUser = process.env.ADMIN_USER;
+  const adminPass = process.env.ADMIN_PASSWORD;
   if (usuario === adminUser && senha === adminPass) {
     req.session.admin = true;
     return res.redirect('/admin');

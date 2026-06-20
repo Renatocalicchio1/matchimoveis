@@ -4072,10 +4072,10 @@ setInterval(async () => {
           const _matches = (_leads[i].matchesAuto || _leads[i].matches || []).length;
           if (_matches === 0) continue; // não envia vitrine vazia
           const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;
-          const _msg = 'Olá ' + (lead.nome || '') + '! Encontramos '
-            + _matches + ' imóve' + (_matches === 1 ? 'l' : 'is')
-            + ' que combinam com o seu perfil.\n\nAcesse sua seleção personalizada:\n'
-            + _link + '\n\n' + (_user?.nome || 'Seu corretor') + ' - MatchImóveis';
+          const _msg = 'Ola ' + (lead.nome || '') + '! Encontramos '
+            + _matches + ' imove' + (_matches === 1 ? 'l' : 'is')
+            + ' que combinam com o seu perfil.\n\nAcesse sua selecao personalizada:\n'
+            + _link + '\n\nEscolha o imovel que mais gostou e agende sua visita! \n\n' + ((_user && _user.nome) ? _user.nome : 'Seu corretor') + ' - MatchImoveis';
           await _enviarWA(_instancia, _contato, _msg);
           _leads[i].vitrineEnviada = true;
           consumir(_leads[i].userId || _leads[i].corretorId, 'vitrine_whatsapp').catch(()=>{});

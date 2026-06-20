@@ -178,7 +178,8 @@ var hojeV=visitas.filter(function(v){
     var horaVisita=v.horaVisita||v.horarioPreferido||'-';
     var st=v.status||'solicitada';
     var propTel=(v.proprietarioTelefone||'').replace(/[^0-9]/g,'');
-    var clienteConfirmou=v.clienteConfirmou||v.confirmacaoClienteStatus==='CONFIRMADO';
+    var clienteConfirmou=v.clienteConfirmou||v.confirmacaoClienteStatus==='CONFIRMADO'||v.confirmacao_cliente_status==='confirmado';
+    var corretorConfirmou=v.confirmacaoCorretorStatus==='confirmado'||v.confirmacao_corretor_status==='confirmado';
     var propConfirmou=v.respostaProprietario==='confirmar'||v.proprietarioConfirmou===true||v.confirmacaoProprietarioStatus==='CONFIRMADO';
     var propRespondeu=propConfirmou||v.confirmacaoProprietarioStatus==='RECUSADO'||v.proprietarioRecusou||v.respostaProprietario==='recusar';
     var mostrarBtnCliente=!propTel||propRespondeu;
@@ -247,7 +248,8 @@ var hojeV=visitas.filter(function(v){
       <div><div class="vi-label">Data</div><div class="vi-val"><%=dataVisita%></div></div>
       <div><div class="vi-label">Horario</div><div class="vi-val"><%=horaVisita&&horaVisita!=='-'?horaVisita:'---'%></div></div>
 
-      <div><div class="vi-label">Cliente</div><div class="vi-val" style="color:<%=clienteConfirmou?'#15803d':'#d97706'%>"><%=clienteConfirmou?'Confirmou':'Aguardando'%></div></div>
+      <div><div class="vi-label">Cliente</div><div class="vi-val" style="color:<%=clienteConfirmou?'#15803d':'#d97706'%>"><%=clienteConfirmou?'✅ Confirmou':'⏳ Aguardando'%></div></div>
+      <div><div class="vi-label">Corretor</div><div class="vi-val" style="color:<%=corretorConfirmou?'#15803d':'#d97706'%>"><%=corretorConfirmou?'✅ Confirmou':'⏳ Aguardando'%></div></div>
     </div>
 
     <div class="vi-actions">

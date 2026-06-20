@@ -8783,6 +8783,103 @@ setInterval(async () => {
 
 // ── FIM JOB_VISITA_REALIZADA ─────────────────────────────────────────────────
 
+// ── JOB_LEMBRETE_VISITA — 4h antes da visita confirmada ──────────────────────
+setInterval(async () => {
+  try {
+    const { query: _qLV } = require('./services/db');
+    const _agora = Date.now();
+    const _4h = 4 * 60 * 60 * 1000;
+    const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+    const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
+    async function _envWA(inst, num, txt) {
+      try { await fetch(EU+'/message/sendText/'+inst,{method:'POST',headers:{'Content-Type':'application/json','apikey':EK},body:JSON.stringify({number:num,text:txt})}); } catch(e){}
+    }
+    // Busca visitas confirmadas que ainda nao receberam lembrete
+    const _vRows = await _qLV("SELECT * FROM visitas WHERE status IN ('confirmada','confirmado','lead_confirmou') AND (lembrete_enviado IS NULL OR lembrete_enviado=false)");
+    for (const v of _vRows.rows) {
+      if (!v.data_visita || !v.hora_visita) continue;
+      const [h,m] = v.hora_visita.split(':').map(Number);
+      const dtVisita = new Date(v.data_visita);
+      dtVisita.setHours(h||0, m||0, 0, 0);
+      const _msAteVisita = dtVisita.getTime() - _agora;
+      // Só envia se faltam entre 4h e 5h para a visita
+      if (_msAteVisita > _4h + 60*60*1000 || _msAteVisita < 0) continue;
+      const _uid = v.user_id || v.corretor_id || '';
+      const _user = (_cacheUsuarios||[]).find(u => u.id === _uid);
+      const _inst = _user?.whatsappInstance || 'match-corretor';
+      const _nomeCorretor = _user?.nome || 'Seu corretor';
+      const _nomeLead = v.nome || 'cliente';
+      const _imovel = v.imovel_titulo || v.imovel_bairro || 'imovel';
+      const _hora = v.hora_visita || '';
+      const _linkConfLead = BASE_URL + '/visita/' + v.id + '/confirmar-lead';
+      const _linkConfCorretor = BASE_URL + '/visita/' + v.id + '/confirmar-corretor';
+      // WA para a LEAD
+      const _telLead = (v.telefone||v.contato||'').replace(/D/g,'');
+      if (_telLead) {
+        await _envWA(_inst, '55'+_telLead.replace(/^55/,''),
+          'Oi ' + _nomeLead + '!\n\n' +
+          'Lembrando que sua visita ao imovel *' + _imovel + '* esta confirmada para hoje as *' + _hora + '*. \n\n' +
+          'Voce vai comparecer? Confirme aqui:\n' + _linkConfLead);
+      }
+      // WA para o CORRETOR
+      const _telC = (_user?.celular||_user?.telefone||'').replace(/D/g,'');
+      if (_telC) {
+        await _envWA(_inst, '55'+_telC.replace(/^55/,''),
+          'Oi ' + _nomeCorretor + '!\n\n' +
+          'Lembrete: visita de *' + _nomeLead + '* ao imovel *' + _imovel + '* hoje as *' + _hora + '*. \n\n' +
+          'Voce vai comparecer? Confirme aqui:\n' + _linkConfCorretor);
+      }
+      // Marca lembrete enviado
+      await _qLV("UPDATE visitas SET lembrete_enviado=true WHERE id=$1", [v.id]);
+      console.log('[JOB LEMBRETE] enviado | visita:', v.id, '| lead:', _nomeLead);
+    }
+  } catch(e) { console.error('[JOB LEMBRETE VISITA]', e.message); }
+}, 15*60*1000);
+// ── FIM JOB_LEMBRETE_VISITA ───────────────────────────────────────────────────
+
+// ── ROTAS CONFIRMACAO PRE-VISITA ──────────────────────────────────────────────
+app.get('/visita/:id/confirmar-lead', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (!visita) return res.status(404).send('Visita nao encontrada');
+    const respondido = visita.confirmacao_cliente_status === 'confirmado';
+    res.render('visita-confirmar', { visita, tipo: 'lead', respondido, msg: respondido ? 'Presenca confirmada! Te esperamos.' : null });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/visita/:id/confirmar-lead', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    await _q("UPDATE visitas SET confirmacao_cliente_status='confirmado', dados=jsonb_set(COALESCE(dados,'{}'),'{confirmacaoLeadEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0){ _cacheVisitas[_ci].confirmacao_cliente_status='confirmado'; _cacheVisitas[_ci].confirmacaoClienteStatus='confirmado'; } }
+    res.render('visita-confirmar', { visita, tipo: 'lead', respondido: true, msg: 'Presenca confirmada! Te esperamos.' });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.get('/visita/:id/confirmar-corretor', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (!visita) return res.status(404).send('Visita nao encontrada');
+    const respondido = visita.confirmacao_corretor_status === 'confirmado';
+    res.render('visita-confirmar', { visita, tipo: 'corretor', respondido, msg: respondido ? 'Presenca confirmada!' : null });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/visita/:id/confirmar-corretor', async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    await _q("UPDATE visitas SET confirmacao_corretor_status='confirmado', dados=jsonb_set(COALESCE(dados,'{}'),'{confirmacaoCorretorEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
+    if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0){ _cacheVisitas[_ci].confirmacao_corretor_status='confirmado'; _cacheVisitas[_ci].confirmacaoCorretorStatus='confirmado'; } }
+    res.render('visita-confirmar', { visita, tipo: 'corretor', respondido: true, msg: 'Presenca confirmada!' });
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+// ── FIM ROTAS CONFIRMACAO PRE-VISITA ─────────────────────────────────────────
+
 // ── ROTAS FAVORITOS ──────────────────────────────────────────────────────────
 app.get('/api/favoritos', auth, async (req, res) => {
   try {

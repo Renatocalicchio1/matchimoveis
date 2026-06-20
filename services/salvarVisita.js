@@ -62,6 +62,8 @@ function visitaToRow(v) {
     proprietario_telefone: (v.proprietarioTelefone||'').replace(/\D/g,''),
     resposta_proprietario: v.respostaProprietario || null,
     confirmacao_cliente_status: v.confirmacaoClienteStatus || null,
+    confirmacao_corretor_status: v.confirmacaoCorretorStatus || null,
+    lembrete_enviado: v.lembreteEnviado || false,
     obs: v.obs || '',
     dados: JSON.stringify(dados)
   };
@@ -95,15 +97,17 @@ async function salvarVisita(visita) {
     try {
       const r = visitaToRow(visita);
       await query(`
-        INSERT INTO visitas (id,lead_id,nome,telefone,contato,imovel_id,imovel_titulo,imovel_bairro,data_visita,hora_visita,status,origem,user_id,corretor_id,owner_user_id,imovel_usuario_id,proprietario_nome,proprietario_telefone,resposta_proprietario,confirmacao_cliente_status,obs,dados)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+        INSERT INTO visitas (id,lead_id,nome,telefone,contato,imovel_id,imovel_titulo,imovel_bairro,data_visita,hora_visita,status,origem,user_id,corretor_id,owner_user_id,imovel_usuario_id,proprietario_nome,proprietario_telefone,resposta_proprietario,confirmacao_cliente_status,confirmacao_corretor_status,lembrete_enviado,obs,dados)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
         ON CONFLICT (id) DO UPDATE SET
           lead_id=EXCLUDED.lead_id, nome=EXCLUDED.nome, telefone=EXCLUDED.telefone,
           status=EXCLUDED.status, data_visita=EXCLUDED.data_visita, hora_visita=EXCLUDED.hora_visita,
           resposta_proprietario=EXCLUDED.resposta_proprietario,
           confirmacao_cliente_status=EXCLUDED.confirmacao_cliente_status,
+          confirmacao_corretor_status=EXCLUDED.confirmacao_corretor_status,
+          lembrete_enviado=EXCLUDED.lembrete_enviado,
           obs=EXCLUDED.obs, dados=EXCLUDED.dados, atualizado_em=NOW()
-      `, [r.id,r.lead_id,r.nome,r.telefone,r.contato,r.imovel_id,r.imovel_titulo,r.imovel_bairro,r.data_visita,r.hora_visita,r.status,r.origem,r.user_id,r.corretor_id,r.owner_user_id,r.imovel_usuario_id,r.proprietario_nome,r.proprietario_telefone,r.resposta_proprietario,r.confirmacao_cliente_status,r.obs,r.dados]);
+      `, [r.id,r.lead_id,r.nome,r.telefone,r.contato,r.imovel_id,r.imovel_titulo,r.imovel_bairro,r.data_visita,r.hora_visita,r.status,r.origem,r.user_id,r.corretor_id,r.owner_user_id,r.imovel_usuario_id,r.proprietario_nome,r.proprietario_telefone,r.resposta_proprietario,r.confirmacao_cliente_status,r.confirmacao_corretor_status,r.lembrete_enviado,r.obs,r.dados]);
       return visita;
     } catch(e) {
       console.error('[salvarVisita PG]', e.message);

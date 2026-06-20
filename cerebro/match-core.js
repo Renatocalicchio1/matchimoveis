@@ -683,7 +683,7 @@ class MatchCore {
     if (temp==='quente' && fase==='interessado')          add('agendar_visita', 24);
     if (temp==='quente' && fase==='decidido')             add('proposta_negocio', 12);
     if (temp==='morno'  && msgs>=3)                       add('enviar_vitrine', 0.017);
-    if (msgs===1 && temp==='frio')                        add('qualificar_lead', 72);
+    if (msgs===1 && temp==='frio')                        add('qualificar_lead', 0.083);
     if (total>0 && !lead.vitrineEnviada)                  add('enviar_vitrine', 0.017);
     if (lead.vitrineEnviada && !lead.visitaSolicitada)    add('followup_vitrine', 72);
     return lead;

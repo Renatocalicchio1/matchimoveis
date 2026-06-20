@@ -4537,6 +4537,70 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       }
     }
 
+    // ── QUALIFICAÇÃO IMEDIATA — envia msg assim que lead chega sem perfil ──────
+    try {
+      const _pf = novoLead && novoLead.perfilIA ? novoLead.perfilIA : {};
+      const _temPerfilMinimo = !!(_pf.intencao) && !!(_pf.tipo) && !!(_pf.bairro || _pf.cidade) && !!(_pf.valorMax);
+      if (!_temPerfilMinimo && _webhookUserId && telefone) {
+        const _userCorretor = (_cacheUsuarios||[]).find(function(u){ return u.id === _webhookUserId; });
+        const _nomeCorretor = (_userCorretor && _userCorretor.nome) ? _userCorretor.nome : 'MatchImoveis';
+        const _instanciaCorretor = (_userCorretor && _userCorretor.whatsappInstance) ? _userCorretor.whatsappInstance : instance;
+        const _txtNorm = texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+        const _ehComercial = /sala|loja|galpao|comercial|predio|escritorio/.test(_txtNorm);
+        const _ehTerreno = /terreno|lote|chacara|sitio|fazenda/.test(_txtNorm);
+        const _ehResidencial = /apartamento|apto|casa|sobrado|cobertura|kitnet|studio|flat|loft/.test(_txtNorm);
+        const _nomeLead = (novoLead.nome && novoLead.nome !== telefone) ? novoLead.nome.split(' ')[0] : '';
+        const _ola = 'Ola' + (_nomeLead ? ' ' + _nomeLead : '') + '! \nSou assistente de *' + _nomeCorretor + '* - MatchImoveis.\n\n';
+        let _msgQ = '';
+        if (_ehComercial) {
+          _msgQ = _ola + 'Para encontrar o imovel comercial ideal, me conta:\n\n' +
+            '1 - Transacao: compra ou aluguel?\n' +
+            '2 - Tipo: sala, loja, galpao ou escritorio?\n' +
+            '3 - Tamanho: quantos m2?\n' +
+            '4 - Localizacao: qual bairro ou regiao?\n' +
+            '5 - Orcamento: qual valor maximo?\n\n' +
+            'Exemplo: Quero alugar sala comercial no Itaim, 80m2, ate R$ 5.000/mes';
+        } else if (_ehTerreno) {
+          _msgQ = _ola + 'Para encontrar o terreno ideal, me conta:\n\n' +
+            '1 - Transacao: compra ou locacao?\n' +
+            '2 - Tipo: terreno, lote ou chacara?\n' +
+            '3 - Tamanho: quantos m2?\n' +
+            '4 - Localizacao: qual bairro ou regiao?\n' +
+            '5 - Orcamento: qual valor maximo?\n\n' +
+            'Exemplo: Quero comprar terreno em Alphaville, 500m2, ate R$ 400.000';
+        } else if (_ehResidencial) {
+          _msgQ = _ola + 'Para encontrar o imovel ideal, me conta:\n\n' +
+            '1 - Transacao: compra ou aluguel?\n' +
+            '2 - Quantos quartos?\n' +
+            '3 - Localizacao: qual bairro ou regiao?\n' +
+            '4 - Orcamento: qual valor maximo?\n\n' +
+            'Exemplo: Quero comprar apartamento em Moema, 2 quartos, ate R$ 780.000';
+        } else {
+          _msgQ = _ola + 'Para encontrar o imovel ideal para voce, me conta:\n\n' +
+            '1 - Transacao: compra ou aluguel?\n' +
+            '2 - Tipo: apartamento, casa, terreno ou comercial?\n' +
+            '3 - Localizacao: qual bairro ou regiao?\n' +
+            '4 - Tamanho:\n' +
+            '   Residencial: quantos quartos?\n' +
+            '   Comercial ou Terreno: quantos m2?\n' +
+            '5 - Orcamento: qual valor maximo?\n\n' +
+            'Exemplos:\n' +
+            'Quero comprar apartamento em Moema, 2 quartos, ate R$ 780.000\n' +
+            'Quero alugar sala comercial no Itaim, 80m2, ate R$ 5.000/mes\n' +
+            'Quero comprar terreno em Alphaville, 500m2, ate R$ 400.000';
+        }
+        const _EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+        const _EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+        await fetch(_EU + '/message/sendText/' + _instanciaCorretor, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': _EK },
+          body: JSON.stringify({ number: '55' + telefone, text: _msgQ })
+        });
+        consumir(_webhookUserId, 'ia_qualifica_lead').catch(function(){});
+        console.log('[QUALIF IMEDIATA] msg enviada:', telefone, _ehComercial ? 'comercial' : _ehTerreno ? 'terreno' : _ehResidencial ? 'residencial' : 'generico');
+      }
+    } catch(e) { console.error('[QUALIF IMEDIATA] erro:', e.message); }
+
     // ── MATCH-CORE: 10 CAMADAS EM BACKGROUND ─────────────────
     setImmediate(async () => {
       try {

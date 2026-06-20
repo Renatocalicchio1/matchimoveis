@@ -4083,10 +4083,18 @@ setInterval(async () => {
           _leads[i].vitrineLink = _link;
 
         } else if (fu.tipo === 'followup_vitrine') {
+          // Proteção — não envia se já tem visita agendada
+          const _jaTemVisita = _leads[i].visitaSolicitada || (_leads[i].visitaStatus && !['cancelada','recusada'].includes(_leads[i].visitaStatus||''));
+          if (_jaTemVisita) { console.log('[JOB FU] followup_vitrine ignorado — visita ja agendada:', lead.nome); continue; }
           _leads[i].waFollowupVitrineEnviadoEm = new Date().toISOString();
           const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;
-          const _msg = 'Olá ' + (lead.nome || '') + '! Você chegou a ver os imóveis que separamos para você?\n\n'
-            + _link + '\n\nFicou alguma dúvida? Estou à disposição! 😊';
+          const _nomeCorretor = _user && _user.nome ? _user.nome : 'Seu corretor';
+          const _qtdMatches = (_leads[i].matchesAuto || _leads[i].matches || []).length;
+          const _msg = 'Oi ' + (lead.nome || '') + '! Vi que ainda nao agendou uma visita.\n\n'
+            + 'Separamos ' + _qtdMatches + ' imovel(is) para voce. Entre no link, escolha o que mais gostou e solicite a visita:\n\n'
+            + _link + '\n\n'
+            + 'Caso ja esteja conversando com ' + _nomeCorretor + ', pode desconsiderar esta mensagem. '
+            + 'Mas se quiser, pode entrar no link e agendar diretamente por la! 😊';
           await _enviarWA(_instancia, _contato, _msg);
 
         } else if (fu.tipo === 'qualificar_lead') {

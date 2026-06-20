@@ -8838,6 +8838,52 @@ setInterval(async () => {
 }, 15*60*1000);
 // ── FIM JOB_LEMBRETE_VISITA ───────────────────────────────────────────────────
 
+// ── JOB_VISITA_ATRASADA — cancela visitas atrasadas e notifica lead ──────────
+setInterval(async () => {
+  try {
+    const { query: _qAT } = require('./services/db');
+    const _agora = new Date();
+    const EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+    const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
+    async function _envWA(inst, num, txt) {
+      try { await fetch(EU+'/message/sendText/'+inst,{method:'POST',headers:{'Content-Type':'application/json','apikey':EK},body:JSON.stringify({number:num,text:txt})}); } catch(e){}
+    }
+    // Busca visitas atrasadas que ainda nao foram canceladas/realizadas
+    const _vRows = await _qAT("SELECT * FROM visitas WHERE status NOT IN ('cancelada','realizada','nao_realizada') AND data_visita IS NOT NULL AND (dados->>'atrasadaNotificada') IS NULL");
+    for (const v of _vRows.rows) {
+      if (!v.data_visita || !v.hora_visita) continue;
+      const [h,m] = v.hora_visita.split(':').map(Number);
+      const dtVisita = new Date(v.data_visita);
+      dtVisita.setHours(h||0, m||0, 0, 0);
+      // Só processa se já passou da data/hora da visita
+      if (_agora <= dtVisita) continue;
+      const _uid = v.user_id || v.corretor_id || '';
+      const _user = (_cacheUsuarios||[]).find(u => u.id === _uid);
+      const _inst = _user?.whatsappInstance || 'match-corretor';
+      const _nomeCorretor = _user?.nome || 'Seu corretor';
+      const _nomeLead = v.nome || '';
+      const _imovel = v.imovel_titulo || v.imovel_bairro || 'imovel';
+      const _telLead = (v.telefone||v.contato||'').replace(/D/g,'');
+      const _linkVitrine = BASE_URL + '/cliente/oferta/' + (v.lead_id||'') + '?userId=' + _uid;
+      // Cancela a visita
+      await _qAT("UPDATE visitas SET status='cancelada', dados=jsonb_set(COALESCE(dados,'{}'),'{atrasadaNotificada}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), v.id]);
+      if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(vv=>String(vv.id)===String(v.id)); if(_ci>=0) _cacheVisitas[_ci].status='cancelada'; }
+      // Manda msg para a lead
+      if (_telLead) {
+        await _envWA(_inst, '55'+_telLead.replace(/^55/,''),
+          'Oi ' + _nomeLead + '!\n\n' +
+          'Sua visita ao imovel *' + _imovel + '* nao foi confirmada e acabou expirando.\n\n' +
+          'Mas nao se preocupe! Acesse sua selecao de imoveis e agende uma nova visita quando quiser:\n' +
+          _linkVitrine + '\n\n' +
+          _nomeCorretor + ' - MatchImoveis');
+      }
+      console.log('[JOB ATRASADA] visita cancelada + lead notificada | visita:', v.id, '| lead:', _nomeLead);
+    }
+  } catch(e) { console.error('[JOB VISITA ATRASADA]', e.message); }
+}, 30*60*1000);
+// ── FIM JOB_VISITA_ATRASADA ──────────────────────────────────────────────────
+
 // ── ROTAS CONFIRMACAO PRE-VISITA ──────────────────────────────────────────────
 app.get('/visita/:id/confirmar-lead', async (req, res) => {
   try {

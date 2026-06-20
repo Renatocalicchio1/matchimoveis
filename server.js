@@ -8856,10 +8856,38 @@ app.post('/visita/:id/marcar-realizada', async (req, res) => {
 app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET status='nao_realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    // Move para cancelada
+    await _q("UPDATE visitas SET status='cancelada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
-    if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0) _cacheVisitas[_ci].status='nao_realizada'; }
-    res.render('visita-realizada-corretor', { visita, respondido: true, msg: '❌ Visita marcada como não realizada.' });
+    if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0) _cacheVisitas[_ci].status='cancelada'; }
+    // Manda msg para a lead com link da vitrine para reagendar
+    try {
+      const _BASE = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
+      const _EU = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+      const _EK = process.env.EVOLUTION_KEY || 'match2025evolution';
+      const _uid = visita.user_id || visita.corretor_id || '';
+      const _userV = (_cacheUsuarios||[]).find(u => u.id === _uid);
+      const _inst = _userV?.whatsappInstance || 'match-corretor';
+      const _telLead = (visita.telefone_lead || visita.contato_lead || '').replace(/D/g,'');
+      const _nomeLead = visita.nome || '';
+      const _linkVitrine = _BASE + '/cliente/oferta/' + (visita.lead_id||'') + '?userId=' + _uid;
+      const _nomeCorretor = _userV?.nome || 'Seu corretor';
+      if (_telLead) {
+        const _msgLead = 'Oi ' + _nomeLead + '!\n\n'
+          + 'Que pena que nao conseguimos nos encontrar para a visita. \n\n'
+          + 'Mas nao desanime! Acesse sua selecao de imoveis e escolha um novo horario:\n'
+          + _linkVitrine + '\n\n'
+          + 'Estamos a disposicao para te ajudar!\n\n'
+          + _nomeCorretor + ' - MatchImoveis';
+        await fetch(_EU + '/message/sendText/' + _inst, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': _EK },
+          body: JSON.stringify({ number: '55' + _telLead.replace(/^55/,''), text: _msgLead })
+        });
+        console.log('[marcar-nao-realizada] msg enviada para lead:', _telLead);
+      }
+    } catch(e) { console.error('[marcar-nao-realizada] erro msg lead:', e.message); }
+    res.render('visita-realizada-corretor', { visita, respondido: true, msg: '❌ Visita cancelada. Lead notificada para reagendar.' });
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 // ── FIM ROTAS VISITA REALIZADA ────────────────────────────────────────────────
@@ -8889,9 +8917,10 @@ app.post('/visita/:id/marcar-realizada', async (req, res) => {
 app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET status='nao_realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    await _q("UPDATE visitas SET status='cancelada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
-    res.render('visita-realizada-corretor', { visita, respondido: true, msg: '❌ Visita marcada como não realizada.' });
+    if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0) _cacheVisitas[_ci].status='cancelada'; }
+    res.render('visita-realizada-corretor', { visita, respondido: true, msg: '❌ Visita cancelada. Lead notificada para reagendar.' });
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 

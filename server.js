@@ -4098,15 +4098,8 @@ setInterval(async () => {
           await _enviarWA(_instancia, _contato, _msg);
 
         } else if (fu.tipo === 'qualificar_lead') {
-          _leads[i].waQualificacaoEnviadoEm = new Date().toISOString();
-          const _msg = 'Olá ' + (lead.nome || '') + '! Tudo bem? 😊\n\n'
-            + 'Para encontrar o imóvel ideal para você, me conta:\n'
-            + '1. Que tipo de imóvel você procura? (casa, apartamento...)\n'
-            + '2. Quantos quartos precisa?\n'
-            + '3. Qual bairro ou região prefere?\n'
-            + '4. Qual é o seu orçamento?';
-          await _enviarWA(_instancia, _contato, _msg);
-          consumir(_userId, 'ia_qualifica_lead').catch(()=>{});
+          // DESATIVADO — qualificação agora é imediata no webhook
+          console.log('[JOB FU] qualificar_lead ignorado — já enviado pelo webhook:', lead.nome);
 
         } else if (fu.tipo === 'agendar_visita') {
           _leads[i].waAgendarVisitaEnviadoEm = new Date().toISOString();

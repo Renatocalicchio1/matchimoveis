@@ -133,8 +133,7 @@ async function salvarUsuario(user) {
           xml_url=EXCLUDED.xml_url, xml_total=EXCLUDED.xml_total,
           historico_assistente=EXCLUDED.historico_assistente,
           dados=EXCLUDED.dados,
-          match_coins=EXCLUDED.match_coins,
-          match_coins_total=EXCLUDED.match_coins_total,
+          -- match_coins NAO atualizado no upsert para nao sobrescrever saldo real
           atualizado_em=NOW()
       `, [r.id,r.nome,r.email,r.senha,r.telefone,r.celular,r.tipo,r.ativo,r.codigo_usuario,
           r.creci,r.cpf,r.match_coins,r.match_coins_total,r.whatsapp_instance,r.whatsapp_status,

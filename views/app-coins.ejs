@@ -22,11 +22,11 @@
 <!-- ADICIONAR CRÉDITOS -->
 <div class="card" style="margin-bottom:16px">
   <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Adicionar créditos</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:20px">Mínimo R$20 · R$1 = 50 créditos</p>
+  <p style="color:#888;font-size:13px;margin-bottom:20px">Mínimo R$50 · R$1 = 50 créditos</p>
   <div style="margin-bottom:16px">
     <div style="display:flex;align-items:center;gap:12px">
       <div style="position:relative;flex:1">
-        <input type="number" id="valorInput" min="20" step="1" placeholder="20" oninput="atualizarPreview(this.value)" style="width:100%;padding:14px 16px;border:2px solid #e5e7eb;border-radius:10px;font-size:20px;font-weight:700;outline:none">
+        <input type="number" id="valorInput" min="50" step="1" placeholder="50" oninput="atualizarPreview(this.value)" style="width:100%;padding:14px 16px;border:2px solid #e5e7eb;border-radius:10px;font-size:20px;font-weight:700;outline:none">
       </div>
       <div style="text-align:right;min-width:110px">
         <div style="font-size:11px;color:#888">você recebe</div>
@@ -108,7 +108,7 @@ function atualizarPreview(v){
   document.getElementById("creditosPreview").innerText = Math.floor(valorSelecionado*50).toLocaleString("pt-BR")+" créditos";
 }
 async function iniciarCompra(){
-  if(!valorSelecionado || valorSelecionado < 20){ alert("Valor mínimo é R$20."); return; }
+  if(!valorSelecionado || valorSelecionado < 50){ alert("Valor mínimo é R$50."); return; }
   const btn = document.getElementById("btnPagar");
   btn.disabled = true; btn.textContent = "Aguarde...";
   try{

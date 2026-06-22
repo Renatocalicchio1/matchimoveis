@@ -6196,7 +6196,7 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
   try {
     const { valor } = req.body;
     const user = req.session.user;
-    if(!valor || Number(valor) < 5) return res.json({ok:false, erro:'Valor mínimo R$ 5'});
+    if(!valor || Number(valor) < 50) return res.json({ok:false, erro:'Valor mínimo R$ 50'});
 
     const preference = new Preference(_mpClient);
     const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';

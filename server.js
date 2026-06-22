@@ -8152,6 +8152,7 @@ app.post('/app/lead/manual', auth, async (req, res) => {
     };
 
     await salvarLead(lead);
+    consumir(uid, 'nova_lead').catch(e => console.error('[nova_lead]', e.message));
 
     // Roda match via import-processor
     setTimeout(async () => {

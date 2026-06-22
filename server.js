@@ -1441,6 +1441,7 @@ status: "novo"
 };
 data.push(novoLead);
 salvarTodosLeads(data).catch(e=>console.error("[leads]",e.message));
+consumir(userId, 'nova_lead').catch(()=>{});
 res.json({ ok: true, lead: novoLead });
 } catch(e) {
 res.json({ ok: false, erro: e.message });

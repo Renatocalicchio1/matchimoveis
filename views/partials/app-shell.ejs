@@ -268,6 +268,10 @@
   <!-- Nav slim -->
   <nav class="menu" style="padding:4px 6px;display:flex;flex-direction:column;gap:2px">
 
+    <a onclick="document.getElementById('modalPrimeirosPassos').style.display='flex'" href="#" title="Primeiros Passos" style="cursor:pointer">
+      <span class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span><span style="font-size:12px">Primeiros Passos</span>
+    </a>
+
     <a class="<%= active==='home'?'active':'' %>" href="/app-home" title="Dashboard">
       <span class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span style="font-size:12px">Dashboard</span>
     </a>
@@ -327,10 +331,6 @@
     </a>
 
     <div class="menu-div"></div>
-
-    <a onclick="document.getElementById('modalPrimeirosPassos').style.display='flex'" href="#" title="Primeiros Passos" style="cursor:pointer">
-      <span class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span><span style="font-size:12px">Primeiros Passos</span>
-    </a>
 
     <a href="https://wa.me/5511956655428?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20um%20atendente!" target="_blank" title="Fale Conosco">
       <span class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span><span style="font-size:12px">Fale Conosco</span>

@@ -76,7 +76,8 @@ REGRAS:
 - Use • para listas
 - Nunca invente dados — use apenas os dados acima
 - Se perguntarem sobre uma lead específica que não está nos dados, diga que não tem esse detalhe disponível aqui
-- Quando sugerir uma ação, indique a página onde fazer`;
+- NUNCA mencione caminhos de URL como /app/leads ou /app/imoveis — use sempre linguagem natural como "no menu clique em Leads", "acesse Imóveis no menu", "vá em Visitas"
+- Quando sugerir uma ação, use o nome do menu, não o caminho técnico`;
 
     const messages = [{ role: 'system', content: systemPrompt }];
 

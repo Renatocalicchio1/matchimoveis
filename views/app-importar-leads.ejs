@@ -198,11 +198,19 @@ label{font-weight:800;font-size:13px;color:#FF385C}
 
 </div>
 
-<form action="/process" method="post" enctype="multipart/form-data">
+<div style="background:#fff8f0;border:1px solid #fed7aa;border-radius:12px;padding:16px;margin-bottom:20px">
+    <div style="font-size:14px;font-weight:700;color:#9a3412;margin-bottom:6px">⚠️ Limite diário: 30 leads por dia</div>
+    <div style="font-size:13px;color:#7c2d12">
+      Para proteger seu WhatsApp de bloqueio por spam, o sistema permite importar no máximo <strong>30 leads por dia</strong>.
+      Leads em excesso serão bloqueadas automaticamente. Distribua suas importações ao longo dos dias.
+    </div>
+  </div>
+
+  <form action="/app/leads" method="post" enctype="multipart/form-data">
     <label>Arquivo CSV, Excel ou Numbers</label><br><br>
     <input type="file" name="file" accept=".csv,.xlsx,.xls,.numbers" required>
     <br><br>
-    <button class="btn" type="submit">Importar e processar</button>
+    <button class="btn" style="background:#FF385C" type="submit">Importar e processar</button>
   </form>
 </div>
 

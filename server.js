@@ -1366,16 +1366,16 @@ app.post('/app/leads', upload.any(), async (req, res) => {
     const { execSync } = require("child_process");
 
     const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio: "inherit", cwd: __dirname });
-    // Cobra importar_lead por lead importada
+    // Cobra importar_lead por lead importada — conta pelo arquivo
     try {
-      const _hoje2 = new Date().toISOString().split('T')[0];
-      const { query: _qCnt } = require('./services/db');
-      const _rCnt = await _qCnt("SELECT COUNT(*) as total FROM leads WHERE user_id=$1 AND DATE(criado_em)=$2 AND origem IN ('planilha','manual','importacao')", [_userId, _hoje2]);
-      const _totalHoje2 = parseInt(_rCnt.rows[0]?.total || 0);
-      const _novasAgora = _totalHoje2; // cobra todas as leads importadas hoje
+      const XLSX = require('xlsx');
+      const _wb = XLSX.readFile(file.path);
+      const _ws = _wb.Sheets[_wb.SheetNames[0]];
+      const _rows = XLSX.utils.sheet_to_json(_ws);
+      const _qtdLeads = Math.max(0, _rows.length);
       const { consumir: _consumirImp } = require('./services/creditos');
-      for (let _ii = 0; _ii < _novasAgora; _ii++) { await _consumirImp(_userId, 'importar_lead'); }
-      console.log('[creditos] importar_lead:', _novasAgora, 'leads debitadas');
+      for (let _ii = 0; _ii < _qtdLeads; _ii++) { await _consumirImp(_userId, 'importar_lead'); }
+      console.log('[creditos] importar_lead:', _qtdLeads, 'leads debitadas');
     } catch(e) { console.error('[creditos-import]', e.message); }
 
     // Reprocessar match — igual à rota /app/lead/:id/perfil

@@ -53,6 +53,40 @@
   <p>Selecionamos <%= (lead.matches||[]).length %> imóve<%= (lead.matches||[]).length !== 1 ? 'is' : 'l' %> parecido<%= (lead.matches||[]).length !== 1 ? 's' : '' %> com o que você busca.<br>Escolha os que gostou e solicite uma visita.</p>
 </div>
 
+<!-- ALERTA MOBILE SCROLL -->
+<div id="scrollAlert" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;background:#111;color:#fff;padding:12px 20px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.3);animation:fadeIn .3s ease;white-space:nowrap">
+  👇 Role para ver todos os imóveis
+</div>
+<style>
+@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+</style>
+<script>
+(function(){
+  function isMobile(){ return window.innerWidth <= 768; }
+  if(!isMobile()) return;
+  var shown = false;
+  var dismissed = false;
+  var alert = document.getElementById('scrollAlert');
+  setTimeout(function(){
+    if(!dismissed){ alert.style.display='block'; shown=true; }
+  }, 1500);
+  setTimeout(function(){
+    if(shown && !dismissed){ alert.style.display='none'; }
+  }, 5000);
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 150 && shown && !dismissed){
+      dismissed = true;
+      alert.style.animation = 'fadeOut .3s ease forwards';
+      setTimeout(function(){ alert.style.display='none'; }, 300);
+    }
+  });
+  if(alert) alert.addEventListener('click', function(){
+    dismissed=true; alert.style.display='none';
+  });
+})();
+</script>
+
 <div class="container">
   <% if(!lead.matches || !lead.matches.length) { %>
     <div class="empty">

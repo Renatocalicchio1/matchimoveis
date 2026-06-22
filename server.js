@@ -1372,10 +1372,10 @@ app.post('/app/leads', upload.any(), async (req, res) => {
       const { query: _qCnt } = require('./services/db');
       const _rCnt = await _qCnt("SELECT COUNT(*) as total FROM leads WHERE user_id=$1 AND DATE(criado_em)=$2 AND origem='planilha'", [_userId, _hoje2]);
       const _totalHoje2 = parseInt(_rCnt.rows[0]?.total || 0);
-      const _novasAgora = Math.max(0, _totalHoje2 - (_jaImportadas || 0));
+      const _novasAgora = _totalHoje2; // cobra todas as leads importadas hoje
       const { consumir: _consumirImp } = require('./services/creditos');
-      for (let _ii = 0; _ii < _novasAgora; _ii++) _consumirImp(_userId, 'importar_lead').catch(()=>{});
-      console.log('[creditos] importar_lead:', _novasAgora, 'leads');
+      for (let _ii = 0; _ii < _novasAgora; _ii++) { await _consumirImp(_userId, 'importar_lead'); }
+      console.log('[creditos] importar_lead:', _novasAgora, 'leads debitadas');
     } catch(e) { console.error('[creditos-import]', e.message); }
 
     // Reprocessar match — igual à rota /app/lead/:id/perfil

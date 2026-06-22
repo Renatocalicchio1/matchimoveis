@@ -1354,7 +1354,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
     try {
       const { query: _qLim } = require('./services/db');
       const _r = await _qLim(
-        "SELECT COUNT(*) as total FROM leads WHERE user_id=$1 AND DATE(criado_em)=$2 AND origem='planilha'",
+        "SELECT COUNT(*) as total FROM leads WHERE user_id=$1 AND DATE(criado_em)=$2 AND origem IN ('planilha','manual','importacao')",
         [_userId, _hoje]
       );
       const _jaImportadas = parseInt(_r.rows[0]?.total || 0);
@@ -1370,7 +1370,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
     try {
       const _hoje2 = new Date().toISOString().split('T')[0];
       const { query: _qCnt } = require('./services/db');
-      const _rCnt = await _qCnt("SELECT COUNT(*) as total FROM leads WHERE user_id=$1 AND DATE(criado_em)=$2 AND origem='planilha'", [_userId, _hoje2]);
+      const _rCnt = await _qCnt("SELECT COUNT(*) as total FROM leads WHERE user_id=$1 AND DATE(criado_em)=$2 AND origem IN ('planilha','manual','importacao')", [_userId, _hoje2]);
       const _totalHoje2 = parseInt(_rCnt.rows[0]?.total || 0);
       const _novasAgora = _totalHoje2; // cobra todas as leads importadas hoje
       const { consumir: _consumirImp } = require('./services/creditos');

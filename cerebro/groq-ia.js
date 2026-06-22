@@ -50,36 +50,11 @@ ${ctxGroq ? ctxGroq.slice(0,2000) : ''}
 
 ${ctx.feedbacks ? ctx.feedbacks.slice(0,500) : ''}
 
-PÁGINAS DO SISTEMA (use para dar links):
-- /app-home → Dashboard
-- /app/imoveis → Carteira de imóveis
-- /app/leads → Kanban de leads
-- /app/visitas → Kanban de visitas
-- /app/mapa → Mapa interativo
-- /app/portais → URLs XML para portais
-- /app/perfil → Dados da conta e WhatsApp
-- /app/coins → Saldo de créditos
-- /app/feed → Feed de imóveis
-- /app/parceria-quintoandar → Integração QuintoAndar
+MENUS: Dashboard, Leads, Imóveis, Visitas, Mapa, Portais, Perfil, Créditos, Feed, QuintoAndar.
+CONCEITOS: Match=cruzar lead+imóvel. Vitrine=link WA com imóveis. Coins=créditos(R$1=50coins). Temperatura:fria>morna>quente. Funil:novo>contato>visita>proposta>fechado.
+REGRAS: Português BR. MUITO direto, máx 2 linhas. Negrito para números. Nunca invente dados. Nunca cite URLs técnicas, use nome do menu. Sem enrolação.`;
 
-CONCEITOS:
-- Match = cruzar lead com imóvel por bairro+tipo+quartos+valor
-- Vitrine = página exclusiva enviada ao lead via WhatsApp com imóveis em match
-- Match Coins = créditos da plataforma (R$1 = 50 coins)
-- Temperatura lead: fria → morna → quente → super quente
-- fase_funil: novo → contato → visita → proposta → fechado
-
-REGRAS:
-- Responda SEMPRE em português brasileiro
-- Seja MUITO direto — máximo 2 linhas por resposta, sem enrolação
-- Use **negrito** para destacar números e termos importantes
-- Use • para listas
-- Nunca invente dados — use apenas os dados acima
-- Se perguntarem sobre uma lead específica que não está nos dados, diga que não tem esse detalhe disponível aqui
-- NUNCA mencione caminhos de URL como /app/leads ou /app/imoveis — use sempre linguagem natural como "no menu clique em Leads", "acesse Imóveis no menu", "vá em Visitas"
-- Quando sugerir uma ação, use o nome do menu, não o caminho técnico`;
-
-    const messages = [{ role: 'system', content: systemPrompt }];
+    const messages = [{ role: 'system', content: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }] }];
 
     if (historico && historico.length) {
       historico.slice(-4).forEach(function(h) {

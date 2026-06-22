@@ -189,6 +189,27 @@ app.use('/login', limiterLogin);
 app.use('/api/login', limiterLogin);
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.json({ limit: "50mb" }));
+// ── SEGURANÇA: BLOQUEIA ACOES QUANDO SALDO ZERADO ───────────────────────────
+const _rotasLivresSaldo = ['/app/perfil', '/app/perfil/senha', '/app/coins', '/app/notificacoes', '/pagamento', '/sair', '/logout', '/app/assistente'];
+app.use('/app', async (req, res, next) => {
+  if (req.method !== 'POST') return next();
+  if (!req.session || !req.session.user) return next();
+  const _rota = req.path;
+  if (_rotasLivresSaldo.some(r => _rota.startsWith(r.replace('/app','')))) return next();
+  try {
+    const { saldo: _getSaldo } = require('./services/creditos');
+    const _uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const _saldo = await _getSaldo(_uid);
+    if (_saldo <= 0) {
+      if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+        return res.status(402).json({ ok: false, erro: 'Conta pausada. Adicione créditos para continuar.', pausada: true });
+      }
+      return res.redirect('/app/coins?erro=saldo_zerado');
+    }
+  } catch(e) { /* silencioso — não bloqueia em caso de erro */ }
+  next();
+});
+
 // ── SEGURANÇA: SANITIZAÇÃO DE INPUTS ─────────────────────────────────────────
 app.use((req, res, next) => {
   const sanitize = (obj) => {

@@ -1345,6 +1345,17 @@ app.post('/app/leads', upload.any(), async (req, res) => {
     const { execSync } = require("child_process");
 
     const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio: "inherit", cwd: __dirname });
+    // Cobra importar_lead por lead importada
+    try {
+      const _hoje2 = new Date().toISOString().split('T')[0];
+      const { query: _qCnt } = require('./services/db');
+      const _rCnt = await _qCnt("SELECT COUNT(*) as total FROM leads WHERE user_id=$1 AND DATE(criado_em)=$2 AND origem='planilha'", [_userId, _hoje2]);
+      const _totalHoje2 = parseInt(_rCnt.rows[0]?.total || 0);
+      const _novasAgora = Math.max(0, _totalHoje2 - (_jaImportadas || 0));
+      const { consumir: _consumirImp } = require('./services/creditos');
+      for (let _ii = 0; _ii < _novasAgora; _ii++) _consumirImp(_userId, 'importar_lead').catch(()=>{});
+      console.log('[creditos] importar_lead:', _novasAgora, 'leads');
+    } catch(e) { console.error('[creditos-import]', e.message); }
 
     // Reprocessar match — igual à rota /app/lead/:id/perfil
     setImmediate(async () => {
@@ -8774,6 +8785,8 @@ setInterval(async () => {
                 `UPDATE leads SET dados = jsonb_set(COALESCE(dados,'{}'), '{matchProcessado}', 'true') WHERE id=$1`,
                 [row.id]
               );
+              // Cobra lead_ativo_dia por lead processada
+              try { const { consumir: _cLD } = require('./services/creditos'); _cLD(uid, 'lead_ativo_dia').catch(()=>{}); } catch(e) {}
               console.log(`[leads-dia] ✅ ${_lead.nome || row.id}`);
             } catch(e) { console.error('[leads-dia] erro lead', row.id, e.message); }
           }

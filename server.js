@@ -1441,6 +1441,7 @@ status: "novo"
 };
 data.push(novoLead);
 salvarTodosLeads(data).catch(e=>console.error("[leads]",e.message));
+console.log('[lead-manual] userId para consumir:', userId, '| session.user:', JSON.stringify(req.session.user?.id), req.session.user?.codigoUsuario);
 consumir(userId, 'nova_lead').catch(()=>{});
 res.json({ ok: true, lead: novoLead });
 } catch(e) {

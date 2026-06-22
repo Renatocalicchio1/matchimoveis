@@ -81,9 +81,7 @@ main{padding:0!important;height:calc(100vh - 60px);display:flex;flex-direction:c
       </div>
     </div>
     <div class="chat-header-actions">
-      <button class="header-chip" onclick="enviarMsg('o que devo fazer hoje')">Plano do dia</button>
-      <button class="header-chip" onclick="enviarMsg('resumo geral')">Resumo</button>
-      <button class="header-chip" onclick="enviarMsg('leads com match')">Match</button>
+
     </div>
   </div>
 
@@ -93,7 +91,7 @@ main{padding:0!important;height:calc(100vh - 60px);display:flex;flex-direction:c
       <h2>Olá, <%= user.nome||user.name||'corretor' %> 👋</h2>
       <p>Pergunte qualquer coisa sobre seus imóveis, leads e visitas.</p>
     </div>
-    <div class="quick-chips" style="justify-content:center">
+    <div class="quick-chips" style="display:none">
       <button class="quick-chip" onclick="enviarMsg('o que devo fazer hoje')">O que fazer hoje</button>
       <button class="quick-chip" onclick="enviarMsg('leads com match')">Leads com match</button>
       <button class="quick-chip" onclick="enviarMsg('visitas hoje')">Visitas hoje</button>
@@ -337,7 +335,7 @@ async function enviarMsg(texto){
     streamMsg(respostaFinal);
     setTimeout(()=>addFeedback(msg,data.resposta),200);
 
-    if(data.chips&&data.chips.length){
+    if(false&&data.chips&&data.chips.length){
       const c=document.getElementById('chat-messages');
       const row=document.createElement('div');
       row.className='quick-chips';

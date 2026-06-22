@@ -6326,9 +6326,7 @@ app.get('/app/coins', auth, (req, res) => {
 // DEBUG LEADS
 // TEMP - Substituir data.json pelo do repositório
 app.get('/app/assistente', auth, (req, res) => {
-  // Beta: apenas REN-HUH6
-  const _betaUser = req.session.user && (req.session.user.id || req.session.user.userId || req.session.user.codigoUsuario);
-  if (_betaUser !== 'REN-HUH6') return res.redirect('/app-home');
+  // Assistente liberado para todos os usuários
 
   const imoveis = (_cacheImoveis || []).filter(i => i.userId === req.session.user.userId);
   const leads = (_cacheLeads || []).filter(l => l.userId === req.session.user.userId);

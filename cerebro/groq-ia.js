@@ -75,7 +75,7 @@ REGRAS: Português BR. MUITO direto, máx 2 linhas. Negrito para números. Nunca
     const body = JSON.stringify({
       model: MODEL,
       messages,
-      max_tokens: 250,
+      max_tokens: 500,
       temperature: 0.3,
     });
 

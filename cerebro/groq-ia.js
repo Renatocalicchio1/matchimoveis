@@ -71,7 +71,7 @@ CONCEITOS:
 
 REGRAS:
 - Responda SEMPRE em português brasileiro
-- Seja direto — máximo 3 parágrafos curtos
+- Seja MUITO direto — máximo 2 linhas por resposta, sem enrolação
 - Use **negrito** para destacar números e termos importantes
 - Use • para listas
 - Nunca invente dados — use apenas os dados acima
@@ -93,7 +93,7 @@ REGRAS:
     const body = JSON.stringify({
       model: MODEL,
       messages,
-      max_tokens: 500,
+      max_tokens: 250,
       temperature: 0.3,
     });
 

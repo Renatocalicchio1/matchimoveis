@@ -1179,7 +1179,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
       const { execSync } = require('child_process');
       const userId = _importUserId || '';
       // créditos de importar_xml são cobrados por imóvel novo dentro do importXMLCompleto.js
-      const _xmlOutput = execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { encoding: 'utf8', env: { ...process.env }, stdio: ['inherit','pipe','inherit'] });
+      const _xmlOutput = execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { encoding: 'utf8', timeout: 240000, env: { ...process.env }, stdio: ['inherit','pipe','inherit'] });
       const _importResultLine = (_xmlOutput||'').split('\n').find(l => l.startsWith('IMPORT_RESULT:'));
       const _importResult = _importResultLine ? JSON.parse(_importResultLine.replace('IMPORT_RESULT:','')) : null;
       if (_importResult && _importResult.naoImportados > 0) {
@@ -2705,7 +2705,7 @@ app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req,
   try {
     const { execSync } = require('child_process');
     const path = require('path');
-    execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit' });
+    execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit', timeout: 240000 });
     _cacheImoveis = null;
     await _recarregarImoveis();
     const total = (_cacheImoveis || []).filter(im => (im.userId||im.usuarioId) === userId).length;
@@ -6152,7 +6152,7 @@ app.post('/app/importar-xml-upload', async (req, res) => {
     const { execSync } = require('child_process');
     try {
       const xmlPath = req.file.path;
-      execSync('node '+path.join(__dirname,'importXMLCompleto.js')+' "'+xmlPath+'" "'+userId+'"', { stdio: 'inherit' });
+      execSync('node '+path.join(__dirname,'importXMLCompleto.js')+' "'+xmlPath+'" "'+userId+'"', { stdio: 'inherit', timeout: 240000 });
       fs.unlinkSync(xmlPath);
       res.json({ ok: true, mensagem: 'XML importado com sucesso!' });
     } catch(e) {

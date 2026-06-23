@@ -2,10 +2,10 @@
 
 <%
   const saldo = user.matchCoins || 0;
-  const total = Math.max(user.matchCoinsTotal || 200, saldo, 1);
+  const total = 10000;
   const pct   = Math.min(100, Math.round((saldo / total) * 100));
-  const cor   = pct > 40 ? '#22c55e' : pct > 15 ? '#f59e0b' : '#ef4444';
-  const msg   = pct > 40 ? null : pct > 15 ? 'Seus créditos estão acabando. Considere recarregar.' : saldo === 0 ? 'Sua conta está pausada. Adicione créditos para continuar.' : 'Créditos baixos. Recarregue para não pausar sua conta.';
+  const cor   = saldo > 2000 ? '#22c55e' : saldo > 500 ? '#f59e0b' : '#ef4444';
+  const msg   = saldo > 2000 ? null : saldo > 500 ? 'Seus créditos estão acabando. Considere recarregar.' : saldo === 0 ? 'Sua conta está pausada. Adicione créditos para continuar.' : 'Créditos baixos. Recarregue para não pausar sua conta.';
 %>
 
 <script src="https://sdk.mercadopago.com/js/v2"></script>

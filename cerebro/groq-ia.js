@@ -28,10 +28,12 @@ function chamarGroq(mensagem, ctx, historico) {
     const systemPrompt = `Você é o assistente inteligente do MatchImóveis, CRM imobiliário brasileiro.
 
 DADOS REAIS DO CORRETOR (${ctx.corretor}):
-- Imóveis ativos: ${ctx.ativos} | Inativos: ${ctx.inativos} | Sem foto: ${ctx.semFoto} | Sem proprietário: ${ctx.semProprietario}
-- Leads: ${ctx.leads} total | Com match: ${ctx.comMatch} | Sem match: ${ctx.semMatch}
-- Leads quentes: ${ctx.quentes} | Frias: ${ctx.frias} | Com visita: ${ctx.comVisita} | Fechadas: ${ctx.fechadas}
-- Visitas: ${ctx.visitas} total | Hoje: ${ctx.visitasHoje} | Pendentes: ${ctx.pendentes} | Confirmadas: ${ctx.confirmadas} | Realizadas: ${ctx.realizadas}
+- Imóveis: ${ctx.ativos} ativos | ${ctx.inativos} inativos | ${ctx.semFoto} sem foto | ${ctx.semProprietario} sem proprietário
+- Leads: ${ctx.leads} total | ${ctx.comMatch} com match | ${ctx.semMatch} sem match | ${ctx.importadas||0} importadas | ${ctx.organicas||0} orgânicas
+- Leads por temperatura: ${ctx.quentes} quentes | ${ctx.mornos||0} mornas | ${ctx.frias} frias
+- Leads por funil: ${ctx.comVisita} em visita | ${ctx.comProposta||0} em proposta | ${ctx.fechadas} fechadas
+- Leads por status: ${ctx.vitrine_enviada||0} com vitrine enviada | ${ctx.comPerfilIA||0} com perfil IA | ${ctx.comMensagensWA||0} com mensagens WA
+- Visitas: ${ctx.visitas} total | ${ctx.visitasHoje} hoje | ${ctx.pendentes} solicitadas | ${ctx.confirmadas} confirmadas | ${ctx.realizadas} realizadas | ${ctx.canceladas||0} canceladas
 - Bairros na carteira: ${ctx.bairrosCarteira||'nenhum'}
 
 LEADS QUENTES:

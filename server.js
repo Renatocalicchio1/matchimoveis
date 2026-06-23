@@ -247,7 +247,7 @@ const _alertaWA = async (mensagem) => {
   try {
     const EVOLUTION_URL = process.env.EVOLUTION_URL;
     const EVOLUTION_KEY = process.env.EVOLUTION_KEY;
-    const MEU_NUMERO = '55' + '11956655428';
+    const MEU_NUMERO = '55' + '11951131609';
     await fetch(`${EVOLUTION_URL}/message/sendText/match-renhuh6`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
@@ -800,7 +800,7 @@ app.post('/app/quintoandar/solicitar-acesso', auth, async (req, res) => {
     const msg = `🏢 *Nova solicitação QuintoAndar*\n\n👤 *Nome:* ${user.nome||''}\n📱 *Telefone:* ${user.celular||user.telefone||''}\n📧 *Email:* ${user.email||''}\n🔑 *Código:* ${user.codigoUsuario||user.id}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
     fetch(`${EU}/message/sendText/match-suporte`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': EK },
-      body: JSON.stringify({ number: '5511956655428', text: msg })
+      body: JSON.stringify({ number: '5511951131609', text: msg })
     }).catch(()=>{});
     res.json({ ok: true });
   } catch(e) {
@@ -1543,7 +1543,7 @@ app.post('/login', async (req,res)=>{
         await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
-          body: JSON.stringify({ number: '5511956655428', text: _msgAdmin })
+          body: JSON.stringify({ number: '5511951131609', text: _msgAdmin })
         }).catch(()=>{});
 
         // Onboarding — 3 mensagens para o novo corretor

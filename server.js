@@ -1548,9 +1548,9 @@ app.post('/login', async (req,res)=>{
 
         // Onboarding — 3 mensagens para o novo corretor
         const _telCorretor = '55' + (novo.telefone||novo.celular||'').replace(/\D/g,'');
-        const _passo1 = `Olá, ${novo.nome}! 👋 Seja bem-vindo ao *MatchImóveis*!\n\n*📋 Passo 1 — Cadastre seus imóveis*\n\nVá em *Menu → Cadastrar* e importe um XML padrão VivaReal/ZAP ou cadastre seus imóveis manualmente.\n\nQuanto mais imóveis cadastrados, mais matches você gera! 🏠`;
-        const _passo2 = `*📱 Passo 2 — Ative seu WhatsApp*\n\nVá em *Menu → Perfil* e conecte seu número do WhatsApp.\n\nO MatchImóveis usa seu WhatsApp para enviar vitrines, confirmar visitas e se comunicar com seus leads automaticamente. ⚡`;
-        const _passo3 = `*🎯 Passo 3 — Adicione seus leads*\n\nVá em *Menu → Leads* e importe sua planilha de leads, cadastre manualmente ou ative os portais para receber leads automaticamente.\n\nPronto! O sistema começa a gerar matches e enviar vitrines para você. 🚀\n\nQualquer dúvida, fale com a gente aqui mesmo!`;
+        const _passo1 = `Olá, ${novo.nome}! 👋 Seja bem-vindo ao *MatchImóveis*!\n\n*📋 Passo 1 — Cadastre seus imóveis*\n\nVá em *Menu → Cadastrar* e importe um XML padrão VivaReal/ZAP ou cadastre seus imóveis manualmente.\n\nQuanto mais imóveis cadastrados, mais matches você gera! 🏠\n\n🔗 Acesse o sistema: https://matchimoveis.ia.br`;
+        const _passo2 = `*📱 Passo 2 — Ative seu WhatsApp*\n\nVá em *Menu → Perfil* e conecte seu número do WhatsApp.\n\nO MatchImóveis usa seu WhatsApp para enviar vitrines, confirmar visitas e se comunicar com seus leads automaticamente. ⚡\n\n💡 Dica: no menu do sistema você encontra o *Assistente IA* — ele responde qualquer dúvida sobre a plataforma na hora!\n\n🔗 https://matchimoveis.ia.br`;
+        const _passo3 = `*🎯 Passo 3 — Adicione seus leads*\n\nVá em *Menu → Leads* e importe sua planilha de leads, cadastre manualmente ou ative os portais para receber leads automaticamente.\n\nPronto! O sistema começa a gerar matches e enviar vitrines para você. 🚀\n\n🤖 Tem dúvidas? Use o *Assistente* no menu do sistema — ele está disponível 24h para te ajudar!\n\n🔗 https://matchimoveis.ia.br`;
 
         for(const _msg of [_passo1, _passo2, _passo3]){
           await new Promise(r => setTimeout(r, 2000));

@@ -5376,6 +5376,8 @@ app.post('/api/lead-interesse', async (req, res) => {
       }
 
       console.log('📅 Visita criada para o dono da lead/vitrine:', usuarioDestinoNome || usuarioDestinoId || 'sem dono');
+      console.log('[visita-debito] querVisita:', querVisita, '| usuarioDestinoId:', usuarioDestinoId);
+      if(querVisita && usuarioDestinoId) { try { const { consumir: _cV } = require('./services/creditos'); _cV(usuarioDestinoId, 'visita_agendada_ia').then(()=>console.log('[visita-debito] OK')).catch(e=>console.error('[visita-debito] ERRO:', e.message)); } catch(e) { console.error('[visita-debito] catch:', e.message); } }
     }
 
     return res.json({ ok: true, leadId, visitaCriada: querVisita });

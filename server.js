@@ -1042,7 +1042,7 @@ app.get('/admin/xml/imovelweb-global', async (req, res) => {
 });
 
 // ── XML IMOVELWEB PÚBLICO ────────────────────────────────────────────────────
-app.get('/xml/imovelweb-global', (req, res) => res.redirect('/admin/xml/imovelweb-global'));
+app.get('/xml/imovelweb-global', (req, res) => { req.url = '/admin/xml/imovelweb-global'; app.handle(req, res); });
 
 // ── WEBHOOK IMOVELWEB GLOBAL ──────────────────────────────────────────────────
 app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {

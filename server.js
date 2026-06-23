@@ -453,47 +453,134 @@ app.get('/admin/status', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
     const os = require('os');
+
+    // ── BANCO ─────────────────────────────────────────────
     const _pingStart = Date.now();
-    const _totUsu = await _q('SELECT COUNT(*) as total FROM usuarios');
+    await _q('SELECT 1');
     const _pingPG = Date.now() - _pingStart;
-    const _totLead = await _q('SELECT COUNT(*) as total FROM leads');
-    const _totImo = await _q('SELECT COUNT(*) as total FROM imoveis');
-    const _totVis = await _q('SELECT COUNT(*) as total FROM visitas');
+    const _totUsu   = await _q('SELECT COUNT(*) as total FROM usuarios');
+    const _totLead  = await _q('SELECT COUNT(*) as total FROM leads');
+    const _totImo   = await _q('SELECT COUNT(*) as total FROM imoveis');
+    const _totVis   = await _q('SELECT COUNT(*) as total FROM visitas');
     const _semSaldo = await _q('SELECT COUNT(*) as total FROM usuarios WHERE match_coins <= 0');
-    const _uptimeStr = Math.floor(process.uptime()/3600) + 'h ' + Math.floor((process.uptime()%3600)/60) + 'm';
-    const _memUsed = Math.round(process.memoryUsage().heapUsed/1024/1024);
-    const _memTotal = Math.round(process.memoryUsage().heapTotal/1024/1024);
+    const _dbSize   = await _q("SELECT pg_size_pretty(pg_database_size(current_database())) as size, pg_database_size(current_database()) as bytes");
+    const _conns    = await _q("SELECT count(*) as total FROM pg_stat_activity WHERE state='active'");
+    const _dbMB     = Math.round(parseInt(_dbSize.rows[0].bytes) / 1024 / 1024);
+
+    // ── SERVIDOR ──────────────────────────────────────────
+    const _uptimeSec = process.uptime();
+    const _uptimeStr = Math.floor(_uptimeSec/3600) + 'h ' + Math.floor((_uptimeSec%3600)/60) + 'm';
+    const _memUsed   = Math.round(process.memoryUsage().heapUsed/1024/1024);
+    const _memTotal  = Math.round(process.memoryUsage().heapTotal/1024/1024);
+    const _memRSS    = Math.round(process.memoryUsage().rss/1024/1024);
+    const _loadAvg   = os.loadavg()[0].toFixed(2);
+    const _freeMem   = Math.round(os.freemem()/1024/1024);
+    const _totalMem  = Math.round(os.totalmem()/1024/1024);
+    const _memPct    = Math.round((_memRSS/_totalMem)*100);
+
+    // ── EVOLUTION API ─────────────────────────────────────
     let _waInstancias = [];
-    try { const _rWA = await fetch('https://match-evolution-api.onrender.com/instance/fetchInstances',{headers:{apikey:'match2025evolution'}}); _waInstancias = await _rWA.json(); } catch(e) {}
-    const _waOpen = _waInstancias.filter(i=>i.connectionStatus==='open').length;
+    let _waPing = 0;
+    let _waOk = false;
+    try {
+      const _waStart = Date.now();
+      const _rWA = await fetch('https://match-evolution-api.onrender.com/instance/fetchInstances', { headers: { apikey: 'match2025evolution' } });
+      _waPing = Date.now() - _waStart;
+      _waInstancias = await _rWA.json();
+      _waOk = true;
+    } catch(e) { _waOk = false; }
+    const _waOpen  = _waInstancias.filter(i=>i.connectionStatus==='open').length;
     const _waClose = _waInstancias.filter(i=>i.connectionStatus==='close').length;
-    const _waConn = _waInstancias.filter(i=>i.connectionStatus==='connecting').length;
+    const _waConn  = _waInstancias.filter(i=>i.connectionStatus==='connecting').length;
+
+    // ── SEMÁFOROS ─────────────────────────────────────────
+    const _okPG     = _pingPG < 300;
+    const _okMem    = _memPct < 80;
+    const _okWA     = _waOk && _waOpen > 0;
+    const _okDB     = _dbMB < 900;
+    const _tudo_ok  = _okPG && _okMem && _okWA && _okDB;
+
+    const _semaforo = (ok) => ok ? '🟢' : '🔴';
+    const _badge = (ok, sim, nao) => '<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;background:' + (ok?'#f0fdf4':'#fef2f2') + ';color:' + (ok?'#16a34a':'#ef4444') + '">' + (ok?sim:nao) + '</span>';
     const _cor = s => s==='open'?'#16a34a':s==='connecting'?'#f59e0b':'#ef4444';
-    const _bg = s => s==='open'?'#f0fdf4':s==='connecting'?'#fefce8':'#fef2f2';
+    const _bg  = s => s==='open'?'#f0fdf4':s==='connecting'?'#fefce8':'#fef2f2';
+
     const _waRows = _waInstancias.map(i =>
-      '<tr>' +
-      '<td style="padding:8px 12px;font-size:13px;font-weight:600">' + i.name + '</td>' +
-      '<td style="padding:8px 12px"><span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:' + _bg(i.connectionStatus) + ';color:' + _cor(i.connectionStatus) + '">' + i.connectionStatus + '</span></td>' +
-      '<td style="padding:8px 12px;font-size:12px;color:#888">' + (i.ownerJid?i.ownerJid.replace('@s.whatsapp.net',''):'-') + '</td>' +
-      '<td style="padding:8px 12px;font-size:12px;color:#888">' + ((i._count&&i._count.Message)||0).toLocaleString('pt-BR') + ' msgs</td>' +
+      '<tr style="border-bottom:1px solid #f3f4f6">' +
+      '<td style="padding:10px 12px;font-size:13px;font-weight:600">' + i.name + '</td>' +
+      '<td style="padding:10px 12px"><span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:' + _bg(i.connectionStatus) + ';color:' + _cor(i.connectionStatus) + '">' + i.connectionStatus + '</span></td>' +
+      '<td style="padding:10px 12px;font-size:12px;color:#888">' + (i.ownerJid?i.ownerJid.replace('@s.whatsapp.net',''):'-') + '</td>' +
+      '<td style="padding:10px 12px;font-size:12px;color:#888">' + ((i._count&&i._count.Message)||0).toLocaleString('pt-BR') + ' msgs</td>' +
       '</tr>'
     ).join('');
-    const _html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Status</title><meta http-equiv="refresh" content="30"><style>body{font-family:Arial,sans-serif;background:#f9fafb;margin:0;padding:20px;color:#111}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}.card h3{font-size:11px;color:#888;text-transform:uppercase;margin:0 0 8px}.val{font-size:30px;font-weight:800}.sub2{font-size:11px;color:#aaa;margin-top:4px}.section{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:16px}table{width:100%;border-collapse:collapse}tr:nth-child(even){background:#f9fafb}a.back{display:inline-block;margin-bottom:20px;color:#FF385C;font-weight:700;text-decoration:none}</style></head><body>' +
+
+    const _html =
+      '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Status — MatchImóveis</title>' +
+      '<meta http-equiv="refresh" content="30">' +
+      '<style>body{font-family:Arial,sans-serif;background:#f9fafb;margin:0;padding:20px;color:#111;max-width:1100px}' +
+      '.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}' +
+      '.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.06)}' +
+      '.card h3{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px}' +
+      '.val{font-size:28px;font-weight:800;color:#111}.sub2{font-size:11px;color:#aaa;margin-top:4px}' +
+      '.section{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:16px}' +
+      '.section h2{font-size:15px;font-weight:700;margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid #f3f4f6}' +
+      'table{width:100%;border-collapse:collapse}' +
+      '.row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f3f4f6}' +
+      '.row:last-child{border-bottom:none}' +
+      '.lbl{font-size:13px;color:#555}.rval{font-size:13px;font-weight:700}' +
+      'a.back{display:inline-block;margin-bottom:20px;color:#FF385C;font-weight:700;text-decoration:none;font-size:14px}' +
+      '.alerta{border-radius:14px;padding:16px 20px;margin-bottom:20px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px}' +
+      '</style></head><body>' +
       '<a href="/admin" class="back">← Voltar ao Admin</a>' +
-      '<h1 style="font-size:22px;font-weight:800;margin-bottom:4px">🖥️ Status do Sistema</h1>' +
-      '<p style="color:#888;font-size:13px;margin-bottom:24px">Atualiza a cada 30s · ' + new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) + '</p>' +
-      '<div class="grid">' +
-      '<div class="card"><h3>Usuários</h3><div class="val">' + _totUsu.rows[0].total + '</div><div class="sub2">cadastrados</div></div>' +
-      '<div class="card"><h3>Leads</h3><div class="val">' + parseInt(_totLead.rows[0].total).toLocaleString('pt-BR') + '</div><div class="sub2">no banco</div></div>' +
-      '<div class="card"><h3>Imóveis</h3><div class="val">' + parseInt(_totImo.rows[0].total).toLocaleString('pt-BR') + '</div><div class="sub2">no banco</div></div>' +
-      '<div class="card"><h3>Visitas</h3><div class="val">' + parseInt(_totVis.rows[0].total).toLocaleString('pt-BR') + '</div><div class="sub2">agendadas</div></div>' +
-      '<div class="card"><h3>Sem saldo</h3><div class="val" style="color:' + (_semSaldo.rows[0].total>0?'#ef4444':'#16a34a') + '">' + _semSaldo.rows[0].total + '</div><div class="sub2">usuários com 0 coins</div></div>' +
-      '<div class="card"><h3>Ping PG</h3><div class="val" style="color:' + (_pingPG<200?'#16a34a':_pingPG<500?'#f59e0b':'#ef4444') + '">' + _pingPG + 'ms</div><div class="sub2">PostgreSQL</div></div>' +
-      '<div class="card"><h3>Uptime</h3><div class="val" style="font-size:20px">' + _uptimeStr + '</div><div class="sub2">servidor no ar</div></div>' +
-      '<div class="card"><h3>Memória</h3><div class="val" style="font-size:20px">' + _memUsed + 'MB</div><div class="sub2">de ' + _memTotal + 'MB heap</div></div>' +
+      '<h1 style="font-size:22px;font-weight:800;margin-bottom:4px">🖥️ Diagnóstico de Capacidade</h1>' +
+      '<p style="color:#888;font-size:13px;margin-bottom:20px">Atualiza a cada 30s · ' + new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) + '</p>' +
+
+      // ALERTA GERAL
+      '<div class="alerta" style="background:' + (_tudo_ok?'#f0fdf4':'#fef2f2') + ';color:' + (_tudo_ok?'#15803d':'#b91c1c') + '">' +
+      (_tudo_ok ? '🟢 Sistema saudável — pronto para receber novos usuários' : '🔴 Atenção — verifique os itens abaixo antes de liberar novos usuários') +
       '</div>' +
-      '<div class="section"><h2 style="font-size:15px;font-weight:700;margin:0 0 16px">📱 WhatsApp (' + _waInstancias.length + ' instâncias · <span style="color:#16a34a">' + _waOpen + ' open</span> · <span style="color:#f59e0b">' + _waConn + ' connecting</span> · <span style="color:#ef4444">' + _waClose + ' close</span>)</h2><table>' + _waRows + '</table></div>' +
+
+      // RESUMO SEMÁFOROS
+      '<div class="section">' +
+      '<h2>🚦 Resumo Geral</h2>' +
+      '<div class="row"><span class="lbl">Banco de dados (PostgreSQL)</span><span class="rval">' + _semaforo(_okPG) + ' ' + _badge(_okPG, 'Saudável', 'Lento') + ' ' + _pingPG + 'ms</span></div>' +
+      '<div class="row"><span class="lbl">Servidor web (Render)</span><span class="rval">' + _semaforo(_okMem) + ' ' + _badge(_okMem, 'OK', 'Memória alta') + ' ' + _memPct + '% RAM</span></div>' +
+      '<div class="row"><span class="lbl">Evolution API (WhatsApp)</span><span class="rval">' + _semaforo(_okWA) + ' ' + _badge(_okWA, 'Online', 'Offline') + ' ' + (_waOk?_waPing+'ms':'sem resposta') + '</span></div>' +
+      '<div class="row"><span class="lbl">Banco de dados (tamanho)</span><span class="rval">' + _semaforo(_okDB) + ' ' + _badge(_okDB, 'OK', 'Próximo do limite') + ' ' + _dbMB + 'MB</span></div>' +
+      '</div>' +
+
+      // SERVIDOR
+      '<div class="section">' +
+      '<h2>⚙️ Servidor Web (Render)</h2>' +
+      '<div class="row"><span class="lbl">Uptime</span><span class="rval">' + _uptimeStr + '</span></div>' +
+      '<div class="row"><span class="lbl">Memória RSS (processo)</span><span class="rval" style="color:' + (_memPct>80?'#ef4444':_memPct>60?'#f59e0b':'#16a34a') + '">' + _memRSS + 'MB (' + _memPct + '%)</span></div>' +
+      '<div class="row"><span class="lbl">Heap usado / total</span><span class="rval">' + _memUsed + 'MB / ' + _memTotal + 'MB</span></div>' +
+      '<div class="row"><span class="lbl">Load average (1min)</span><span class="rval">' + _loadAvg + '</span></div>' +
+      '<div class="row"><span class="lbl">RAM livre no servidor</span><span class="rval">' + _freeMem + 'MB de ' + _totalMem + 'MB</span></div>' +
+      '</div>' +
+
+      // BANCO
+      '<div class="section">' +
+      '<h2>🗄️ Banco de Dados (PostgreSQL)</h2>' +
+      '<div class="row"><span class="lbl">Ping</span><span class="rval" style="color:' + (_pingPG<200?'#16a34a':_pingPG<500?'#f59e0b':'#ef4444') + '">' + _pingPG + 'ms</span></div>' +
+      '<div class="row"><span class="lbl">Tamanho do banco</span><span class="rval">' + _dbSize.rows[0].size + ' (' + _dbMB + 'MB)</span></div>' +
+      '<div class="row"><span class="lbl">Conexões ativas</span><span class="rval">' + _conns.rows[0].total + '</span></div>' +
+      '<div class="row"><span class="lbl">Usuários</span><span class="rval">' + _totUsu.rows[0].total + '</span></div>' +
+      '<div class="row"><span class="lbl">Leads</span><span class="rval">' + parseInt(_totLead.rows[0].total).toLocaleString('pt-BR') + '</span></div>' +
+      '<div class="row"><span class="lbl">Imóveis</span><span class="rval">' + parseInt(_totImo.rows[0].total).toLocaleString('pt-BR') + '</span></div>' +
+      '<div class="row"><span class="lbl">Visitas</span><span class="rval">' + parseInt(_totVis.rows[0].total).toLocaleString('pt-BR') + '</span></div>' +
+      '<div class="row"><span class="lbl">Usuários sem saldo</span><span class="rval" style="color:' + (_semSaldo.rows[0].total>0?'#ef4444':'#16a34a') + '">' + _semSaldo.rows[0].total + '</span></div>' +
+      '</div>' +
+
+      // EVOLUTION
+      '<div class="section">' +
+      '<h2>📱 Evolution API — WhatsApp (' + _waInstancias.length + ' instâncias · <span style="color:#16a34a">' + _waOpen + ' open</span> · <span style="color:#f59e0b">' + _waConn + ' connecting</span> · <span style="color:#ef4444">' + _waClose + ' close</span>)</h2>' +
+      '<table>' + _waRows + '</table>' +
+      '<div style="margin-top:12px"><a href="https://match-evolution-api.onrender.com/manager" target="_blank" style="color:#25D366;font-weight:700;font-size:13px;text-decoration:none">📱 Abrir painel Evolution →</a></div>' +
+      '</div>' +
+
       '</body></html>';
+
     res.send(_html);
   } catch(e) { res.send('Erro: ' + e.message); }
 });

@@ -1832,18 +1832,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   };
   const visitas = (_cacheVisitas || []);
   // Busca userId no banco se não estiver no cache
-  const _uidVisitaCache = (lead && (lead.userId||lead.codigoUsuario||lead.corretorId)) || '';
-  if (_uidVisitaCache) {
-    consumir(_uidVisitaCache, 'visita_agendada_ia').catch(()=>{});
-  } else {
-    try {
-      const { query: _qVAI } = require('./services/db');
-      _qVAI('SELECT user_id FROM leads WHERE id=$1', [lead?.id||'']).then(r => {
-        const _uidVAI = r.rows[0]?.user_id || '';
-        if (_uidVAI) consumir(_uidVAI, 'visita_agendada_ia').catch(()=>{});
-      }).catch(()=>{});
-    } catch(e) {}
-  }
+  try { const { query: _qVAI } = require('./services/db'); _qVAI('SELECT user_id FROM leads WHERE id=$1', [lead?.id||'']).then(r => { const _uid = r.rows[0]?.user_id || (lead&&(lead.userId||lead.codigoUsuario||lead.corretorId)) || ''; if(_uid) consumir(_uid,'visita_agendada_ia').catch(()=>{}); }).catch(()=>{}); } catch(e) {}
   const visitaComWorkflow = aplicarWorkflowVisita(novaVisita);
   visitas.push(visitaComWorkflow);
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));
@@ -9414,18 +9403,7 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     data_br: new Date().toLocaleString('pt-BR')
   };
   const visitas = (_cacheVisitas || []);
-  const _uidV2 = (lead && (lead.userId||lead.codigoUsuario||lead.corretorId)) || '';
-  if (_uidV2) {
-    consumir(_uidV2, 'visita_agendada_ia').catch(()=>{});
-  } else {
-    try {
-      const { query: _qV2 } = require('./services/db');
-      _qV2('SELECT user_id FROM leads WHERE id=$1', [lead?.id||'']).then(r => {
-        const _uid2 = r.rows[0]?.user_id || '';
-        if (_uid2) consumir(_uid2, 'visita_agendada_ia').catch(()=>{});
-      }).catch(()=>{});
-    } catch(e) {}
-  }
+  try { const { query: _qV2 } = require('./services/db'); _qV2('SELECT user_id FROM leads WHERE id=$1', [lead?.id||'']).then(r => { const _uid2 = r.rows[0]?.user_id || (lead&&(lead.userId||lead.codigoUsuario||lead.corretorId)) || ''; if(_uid2) consumir(_uid2,'visita_agendada_ia').catch(()=>{}); }).catch(()=>{}); } catch(e) {}
   const visitaComWorkflow = aplicarWorkflowVisita(novaVisita);
   visitas.push(visitaComWorkflow);
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));

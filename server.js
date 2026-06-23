@@ -449,6 +449,56 @@ app.get('/admin/logout', (req, res) => {
   res.redirect('/admin/login');
 });
 
+app.get('/admin/status', authAdmin, async (req, res) => {
+  try {
+    const { query: _q } = require('./services/db');
+    const os = require('os');
+    const _pingStart = Date.now();
+    const _totUsu = await _q('SELECT COUNT(*) as total FROM usuarios');
+    const _pingPG = Date.now() - _pingStart;
+    const _totLead = await _q('SELECT COUNT(*) as total FROM leads');
+    const _totImo = await _q('SELECT COUNT(*) as total FROM imoveis');
+    const _totVis = await _q('SELECT COUNT(*) as total FROM visitas');
+    const _semSaldo = await _q('SELECT COUNT(*) as total FROM usuarios WHERE match_coins <= 0');
+    const _uptimeStr = Math.floor(process.uptime()/3600) + 'h ' + Math.floor((process.uptime()%3600)/60) + 'm';
+    const _memUsed = Math.round(process.memoryUsage().heapUsed/1024/1024);
+    const _memTotal = Math.round(process.memoryUsage().heapTotal/1024/1024);
+    let _waInstancias = [];
+    try { const _rWA = await fetch('https://match-evolution-api.onrender.com/instance/fetchInstances',{headers:{apikey:'match2025evolution'}}); _waInstancias = await _rWA.json(); } catch(e) {}
+    const _waOpen = _waInstancias.filter(i=>i.connectionStatus==='open').length;
+    const _waClose = _waInstancias.filter(i=>i.connectionStatus==='close').length;
+    const _waConn = _waInstancias.filter(i=>i.connectionStatus==='connecting').length;
+    const _cor = s => s==='open'?'#16a34a':s==='connecting'?'#f59e0b':'#ef4444';
+    const _bg = s => s==='open'?'#f0fdf4':s==='connecting'?'#fefce8':'#fef2f2';
+    const _waRows = _waInstancias.map(i =>
+      '<tr>' +
+      '<td style="padding:8px 12px;font-size:13px;font-weight:600">' + i.name + '</td>' +
+      '<td style="padding:8px 12px"><span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:' + _bg(i.connectionStatus) + ';color:' + _cor(i.connectionStatus) + '">' + i.connectionStatus + '</span></td>' +
+      '<td style="padding:8px 12px;font-size:12px;color:#888">' + (i.ownerJid?i.ownerJid.replace('@s.whatsapp.net',''):'-') + '</td>' +
+      '<td style="padding:8px 12px;font-size:12px;color:#888">' + ((i._count&&i._count.Message)||0).toLocaleString('pt-BR') + ' msgs</td>' +
+      '</tr>'
+    ).join('');
+    const _html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Status</title><meta http-equiv="refresh" content="30"><style>body{font-family:Arial,sans-serif;background:#f9fafb;margin:0;padding:20px;color:#111}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}.card h3{font-size:11px;color:#888;text-transform:uppercase;margin:0 0 8px}.val{font-size:30px;font-weight:800}.sub2{font-size:11px;color:#aaa;margin-top:4px}.section{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:16px}table{width:100%;border-collapse:collapse}tr:nth-child(even){background:#f9fafb}a.back{display:inline-block;margin-bottom:20px;color:#FF385C;font-weight:700;text-decoration:none}</style></head><body>' +
+      '<a href="/admin" class="back">← Voltar ao Admin</a>' +
+      '<h1 style="font-size:22px;font-weight:800;margin-bottom:4px">🖥️ Status do Sistema</h1>' +
+      '<p style="color:#888;font-size:13px;margin-bottom:24px">Atualiza a cada 30s · ' + new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) + '</p>' +
+      '<div class="grid">' +
+      '<div class="card"><h3>Usuários</h3><div class="val">' + _totUsu.rows[0].total + '</div><div class="sub2">cadastrados</div></div>' +
+      '<div class="card"><h3>Leads</h3><div class="val">' + parseInt(_totLead.rows[0].total).toLocaleString('pt-BR') + '</div><div class="sub2">no banco</div></div>' +
+      '<div class="card"><h3>Imóveis</h3><div class="val">' + parseInt(_totImo.rows[0].total).toLocaleString('pt-BR') + '</div><div class="sub2">no banco</div></div>' +
+      '<div class="card"><h3>Visitas</h3><div class="val">' + parseInt(_totVis.rows[0].total).toLocaleString('pt-BR') + '</div><div class="sub2">agendadas</div></div>' +
+      '<div class="card"><h3>Sem saldo</h3><div class="val" style="color:' + (_semSaldo.rows[0].total>0?'#ef4444':'#16a34a') + '">' + _semSaldo.rows[0].total + '</div><div class="sub2">usuários com 0 coins</div></div>' +
+      '<div class="card"><h3>Ping PG</h3><div class="val" style="color:' + (_pingPG<200?'#16a34a':_pingPG<500?'#f59e0b':'#ef4444') + '">' + _pingPG + 'ms</div><div class="sub2">PostgreSQL</div></div>' +
+      '<div class="card"><h3>Uptime</h3><div class="val" style="font-size:20px">' + _uptimeStr + '</div><div class="sub2">servidor no ar</div></div>' +
+      '<div class="card"><h3>Memória</h3><div class="val" style="font-size:20px">' + _memUsed + 'MB</div><div class="sub2">de ' + _memTotal + 'MB heap</div></div>' +
+      '</div>' +
+      '<div class="section"><h2 style="font-size:15px;font-weight:700;margin:0 0 16px">📱 WhatsApp (' + _waInstancias.length + ' instâncias · <span style="color:#16a34a">' + _waOpen + ' open</span> · <span style="color:#f59e0b">' + _waConn + ' connecting</span> · <span style="color:#ef4444">' + _waClose + ' close</span>)</h2><table>' + _waRows + '</table></div>' +
+      '</body></html>';
+    res.send(_html);
+  } catch(e) { res.send('Erro: ' + e.message); }
+});
+
+
 app.get('/admin', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
@@ -523,6 +573,7 @@ tr:hover td{background:#fafafa;}
 <div class="top">
   <h1>Admin · MatchImóveis</h1>
   <div style="display:flex;gap:16px;align-items:center">
+    <a href="/admin/status" style="font-size:12px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🖥️ Status do Sistema</a>
     <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
     <a href="/admin/quintoandar-solicitacoes" style="font-size:12px;background:#00a86b;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏢 Solicitações QA</a>
     <a href="/admin/logout" style="font-size:12px;color:#888;text-decoration:none">Sair</a>

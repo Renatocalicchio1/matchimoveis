@@ -379,7 +379,13 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
         <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#f0fdf4;border-radius:8px;margin-bottom:8px">
           <span style="font-size:11px;color:#16a34a;font-weight:700">👤 <%= _ownerRede.nome %></span>
           <% const _telOwner = (_ownerRede.celular||_ownerRede.telefone||'').replace(/D/g,''); %>
-          <% if(_telOwner) { %><a href="https://wa.me/55<%= _telOwner %>" target="_blank" style="font-size:11px;color:#16a34a;text-decoration:none;font-weight:600">📲 Falar</a><% } %>
+          <% if(_telOwner) {
+            const _nomeLogado = user.nome || 'Corretor';
+            const _linkImovel = 'https://www.matchimoveis.ia.br/imovel/' + (item.idInterno||item.id_interno||item.id||'');
+            const _tipoImo = item.tipo || 'Imóvel';
+            const _bairroImo = item.bairro || item.cidade || '';
+            const _msgWA = 'Olá! Sou o corretor ' + _nomeLogado + ' e gostaria de mais informações sobre este imóvel da sua carteira:%0A%0A*' + _tipoImo + (_bairroImo?' em '+_bairroImo:'') + '*%0AR$ ' + (item.valor_imovel ? Number(item.valor_imovel).toLocaleString('pt-BR') : '—') + '%0A%0A' + encodeURIComponent(_linkImovel);
+          %><a href="https://wa.me/55<%= _telOwner %>?text=<%= _msgWA %>" target="_blank" style="font-size:11px;color:#16a34a;text-decoration:none;font-weight:600">📲 Falar</a><% } %>
         </div>
       <% } } %>
       <div class="im-tags">

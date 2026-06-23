@@ -99,7 +99,54 @@
 </div>
 
 
-<!-- HISTÓRICO OCULTO -->
+<!-- HISTÓRICO DE CONSUMO -->
+<div class="card" style="margin-bottom:16px">
+  <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Histórico de uso</h2>
+  <p style="color:#888;font-size:13px;margin-bottom:16px">Últimas 50 movimentações da sua conta.</p>
+
+  <% if (!historico || historico.length === 0) { %>
+    <div style="text-align:center;padding:32px;color:#aaa;font-size:14px">Nenhuma movimentação ainda.</div>
+  <% } else { %>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <% historico.forEach(function(t){ %>
+        <%
+          const _eh_credito = t.quantidade > 0;
+          const _valor = Math.abs(t.quantidade);
+          const _cor = _eh_credito ? '#22c55e' : '#ef4444';
+          const _sinal = _eh_credito ? '+' : '-';
+          const _data = new Date(t.data).toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo', day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'});
+          const _labels = {
+            cadastrar_imovel: '🏠 Cadastro de imóvel',
+            importar_xml: '📥 Importação XML',
+            importar_lead: '👤 Importação de lead',
+            nova_lead: '👤 Nova lead manual',
+            match_encontrado: '🎯 Match encontrado',
+            vitrine_whatsapp: '📲 Vitrine enviada',
+            followup_auto: '🔄 Follow-up automático',
+            confirmacao_auto: '✅ Confirmação automática',
+            notificacao_prop: '🔔 Notificação proprietário',
+            ia_qualifica_lead: '🤖 IA qualificou lead',
+            ia_responde_whatsapp: '🤖 IA respondeu WhatsApp',
+            gerar_xml_portal: '📤 XML para portal',
+            lead_ativo_dia: '📊 Lead ativo (dia)',
+            visita_agendada_ia: '📅 Visita agendada pela IA',
+            sync_xml_24h: '🔁 Sync XML 24h',
+            recarga: '💳 Recarga',
+            'recarga manual': '💳 Recarga manual',
+          };
+          const _label = _labels[t.motivo] || t.motivo;
+        %>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f9fafb;border-radius:10px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%= _label %></div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px"><%= _data %> · saldo: <%= t.saldoApos %></div>
+          </div>
+          <div style="font-size:15px;font-weight:800;color:<%= _cor %>;margin-left:12px;white-space:nowrap"><%= _sinal %><%= _valor %></div>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</div>
 
 <script>
 let valorSelecionado = 0;

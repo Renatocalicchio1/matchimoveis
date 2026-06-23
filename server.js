@@ -6322,8 +6322,9 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
 
 app.get('/app/coins', auth, (req, res) => {
   const users = (_cacheUsuarios || []);
-  const user = users.find(u => u.id === req.session.user.id);
-  res.render('app-coins', { user: user || req.session.user, mpPublicKey: process.env.MP_PUBLIC_KEY || '' });
+  const user = users.find(u => u.id === req.session.user.id) || req.session.user;
+  const historico = (user.matchCoinsTransacoes || []).slice().reverse().slice(0, 50);
+  res.render('app-coins', { user, mpPublicKey: process.env.MP_PUBLIC_KEY || '', historico });
 });
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====

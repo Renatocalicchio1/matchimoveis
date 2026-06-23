@@ -1348,20 +1348,6 @@ app.post('/app/leads', upload.any(), async (req, res) => {
     const file = (req.files && req.files[0]) || req.file;
     if (!file) return res.send("Envie o arquivo");
 
-    // ── LIMITE 30 LEADS POR DIA ──────────────────────────────
-    const _userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : '';
-    const _hoje = new Date().toISOString().split('T')[0];
-    try {
-      const { query: _qLim } = require('./services/db');
-      const _r = await _qLim(
-        "SELECT COUNT(*) as total FROM leads WHERE user_id=$1 AND DATE(criado_em)=$2 AND origem IN ('planilha','manual','importacao')",
-        [_userId, _hoje]
-      );
-      const _jaImportadas = parseInt(_r.rows[0]?.total || 0);
-      if (_jaImportadas >= 30) {
-        return res.send('<div style="font-family:Arial;padding:40px;text-align:center"><h2 style="color:#FF385C">Limite diário atingido</h2><p>Você já importou <strong>' + _jaImportadas + ' leads</strong> hoje.<br>O limite é de <strong>30 leads por dia</strong> para proteger seu WhatsApp de bloqueio.</p><p>Volte amanhã para importar mais.</p><a href="/app-importar-leads" style="background:#FF385C;color:#fff;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:700">Voltar</a></div>');
-      }
-    } catch(e) { console.error('[limite-import]', e.message); }
 
     const { execSync } = require("child_process");
 

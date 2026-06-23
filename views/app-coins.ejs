@@ -99,15 +99,126 @@
 </div>
 
 
-<!-- HISTÓRICO DE CONSUMO -->
+<%
+  // ── cálculos do painel ──────────────────────────────────────
+  const _agora = new Date();
+  const _hoje = _agora.toISOString().split('T')[0];
+  const _inicioSemana = new Date(_agora); _inicioSemana.setDate(_agora.getDate() - _agora.getDay());
+  const _inicioMes = new Date(_agora.getFullYear(), _agora.getMonth(), 1);
+
+  const _debitos = (historico || []).filter(t => t.quantidade < 0);
+  const _recargas = (historico || []).filter(t => t.quantidade > 0);
+
+  const _somaHoje    = _debitos.filter(t => t.data.startsWith(_hoje)).reduce((s,t) => s + Math.abs(t.quantidade), 0);
+  const _somaSemana  = _debitos.filter(t => new Date(t.data) >= _inicioSemana).reduce((s,t) => s + Math.abs(t.quantidade), 0);
+  const _somaMes     = _debitos.filter(t => new Date(t.data) >= _inicioMes).reduce((s,t) => s + Math.abs(t.quantidade), 0);
+
+  const _categorias = {
+    'Leads':    ['importar_lead','nova_lead','match_encontrado','ia_qualifica_lead','lead_ativo_dia'],
+    'IA':       ['ia_responde_whatsapp','followup_auto','visita_agendada_ia'],
+    'WhatsApp': ['vitrine_whatsapp','confirmacao_auto','notificacao_prop'],
+    'Imóveis':  ['cadastrar_imovel','importar_xml','gerar_xml_portal','sync_xml_24h'],
+  };
+  const _gastoCat = {};
+  Object.keys(_categorias).forEach(cat => {
+    _gastoCat[cat] = _debitos.reduce((s,t) => _categorias[cat].includes(t.motivo) ? s + Math.abs(t.quantidade) : s, 0);
+  });
+  const _maxCat = Math.max(...Object.values(_gastoCat), 1);
+  const _topCat = Object.entries(_gastoCat).sort((a,b) => b[1]-a[1])[0];
+
+  const _topAcao = Object.entries(
+    _debitos.reduce((acc,t) => { acc[t.motivo] = (acc[t.motivo]||0) + Math.abs(t.quantidade); return acc; }, {})
+  ).sort((a,b) => b[1]-a[1])[0];
+
+  const _labels = {
+    cadastrar_imovel: '🏠 Cadastro de imóvel',
+    importar_xml: '📥 Importação XML',
+    importar_lead: '👤 Importação de lead',
+    nova_lead: '👤 Nova lead manual',
+    match_encontrado: '🎯 Match encontrado',
+    vitrine_whatsapp: '📲 Vitrine enviada',
+    followup_auto: '🔄 Follow-up automático',
+    confirmacao_auto: '✅ Confirmação automática',
+    notificacao_prop: '🔔 Notif. proprietário',
+    ia_qualifica_lead: '🤖 IA qualificou lead',
+    ia_responde_whatsapp: '🤖 IA respondeu WA',
+    gerar_xml_portal: '📤 XML para portal',
+    lead_ativo_dia: '📊 Lead ativo (dia)',
+    visita_agendada_ia: '📅 Visita agendada IA',
+    sync_xml_24h: '🔁 Sync XML 24h',
+    recarga: '💳 Recarga',
+    'recarga manual': '💳 Recarga manual',
+  };
+
+  const _corCat = { 'Leads':'#6366f1', 'IA':'#f59e0b', 'WhatsApp':'#22c55e', 'Imóveis':'#FF385C' };
+  let _filtro = 'todos';
+%>
+
+<!-- RESUMO DO PERÍODO -->
 <div class="card" style="margin-bottom:16px">
-  <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Histórico de uso</h2>
-  <p style="color:#888;font-size:13px;margin-bottom:16px">Últimas 50 movimentações da sua conta.</p>
+  <h2 style="font-size:15px;font-weight:700;margin-bottom:16px">Resumo de consumo</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+    <div style="background:#fff5f5;border-radius:12px;padding:14px;text-align:center">
+      <div style="font-size:11px;color:#888;margin-bottom:4px">Hoje</div>
+      <div style="font-size:22px;font-weight:800;color:#ef4444"><%= _somaHoje %></div>
+      <div style="font-size:10px;color:#aaa">coins</div>
+    </div>
+    <div style="background:#fefce8;border-radius:12px;padding:14px;text-align:center">
+      <div style="font-size:11px;color:#888;margin-bottom:4px">Semana</div>
+      <div style="font-size:22px;font-weight:800;color:#f59e0b"><%= _somaSemana %></div>
+      <div style="font-size:10px;color:#aaa">coins</div>
+    </div>
+    <div style="background:#f0fdf4;border-radius:12px;padding:14px;text-align:center">
+      <div style="font-size:11px;color:#888;margin-bottom:4px">Mês</div>
+      <div style="font-size:22px;font-weight:800;color:#22c55e"><%= _somaMes %></div>
+      <div style="font-size:10px;color:#aaa">coins</div>
+    </div>
+  </div>
+  <% if (_topAcao) { %>
+  <div style="background:#f9fafb;border-radius:10px;padding:12px;font-size:13px;color:#555">
+    🏆 Maior gasto: <strong><%= _labels[_topAcao[0]] || _topAcao[0] %></strong> — <strong><%= _topAcao[1] %> coins</strong>
+  </div>
+  <% } %>
+</div>
+
+<!-- GRÁFICO POR CATEGORIA -->
+<div class="card" style="margin-bottom:16px">
+  <h2 style="font-size:15px;font-weight:700;margin-bottom:16px">Consumo por categoria</h2>
+  <% if (_somaMes === 0) { %>
+    <div style="text-align:center;padding:24px;color:#aaa;font-size:13px">Nenhum consumo registrado ainda.</div>
+  <% } else { %>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <% Object.entries(_gastoCat).sort((a,b)=>b[1]-a[1]).forEach(function(entry){ %>
+        <% const _cat = entry[0]; const _val = entry[1]; const _pct = Math.round((_val/_maxCat)*100); %>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span style="font-size:13px;font-weight:600;color:#111"><%= _cat %></span>
+            <span style="font-size:13px;font-weight:700;color:<%= _corCat[_cat] %>"><%= _val %> coins</span>
+          </div>
+          <div style="background:#f3f4f6;border-radius:99px;height:8px;overflow:hidden">
+            <div style="height:100%;width:<%= _pct %>%;background:<%= _corCat[_cat] %>;border-radius:99px;transition:width .6s"></div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } %>
+</div>
+
+<!-- HISTÓRICO COM FILTRO -->
+<div class="card" style="margin-bottom:16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <h2 style="font-size:15px;font-weight:700;margin:0">Histórico</h2>
+    <div style="display:flex;gap:6px">
+      <button onclick="filtrarHistorico('todos',this)" id="btn-todos" style="padding:6px 12px;border-radius:20px;border:none;background:#111;color:#fff;font-size:12px;font-weight:600;cursor:pointer">Todos</button>
+      <button onclick="filtrarHistorico('debito',this)" id="btn-debito" style="padding:6px 12px;border-radius:20px;border:1px solid #e5e7eb;background:#fff;color:#555;font-size:12px;font-weight:600;cursor:pointer">Débitos</button>
+      <button onclick="filtrarHistorico('recarga',this)" id="btn-recarga" style="padding:6px 12px;border-radius:20px;border:1px solid #e5e7eb;background:#fff;color:#555;font-size:12px;font-weight:600;cursor:pointer">Recargas</button>
+    </div>
+  </div>
 
   <% if (!historico || historico.length === 0) { %>
     <div style="text-align:center;padding:32px;color:#aaa;font-size:14px">Nenhuma movimentação ainda.</div>
   <% } else { %>
-    <div style="display:flex;flex-direction:column;gap:8px">
+    <div id="lista-historico" style="display:flex;flex-direction:column;gap:8px">
       <% historico.forEach(function(t){ %>
         <%
           const _eh_credito = t.quantidade > 0;
@@ -115,28 +226,10 @@
           const _cor = _eh_credito ? '#22c55e' : '#ef4444';
           const _sinal = _eh_credito ? '+' : '-';
           const _data = new Date(t.data).toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo', day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'});
-          const _labels = {
-            cadastrar_imovel: '🏠 Cadastro de imóvel',
-            importar_xml: '📥 Importação XML',
-            importar_lead: '👤 Importação de lead',
-            nova_lead: '👤 Nova lead manual',
-            match_encontrado: '🎯 Match encontrado',
-            vitrine_whatsapp: '📲 Vitrine enviada',
-            followup_auto: '🔄 Follow-up automático',
-            confirmacao_auto: '✅ Confirmação automática',
-            notificacao_prop: '🔔 Notificação proprietário',
-            ia_qualifica_lead: '🤖 IA qualificou lead',
-            ia_responde_whatsapp: '🤖 IA respondeu WhatsApp',
-            gerar_xml_portal: '📤 XML para portal',
-            lead_ativo_dia: '📊 Lead ativo (dia)',
-            visita_agendada_ia: '📅 Visita agendada pela IA',
-            sync_xml_24h: '🔁 Sync XML 24h',
-            recarga: '💳 Recarga',
-            'recarga manual': '💳 Recarga manual',
-          };
           const _label = _labels[t.motivo] || t.motivo;
+          const _tipo = _eh_credito ? 'recarga' : 'debito';
         %>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f9fafb;border-radius:10px">
+        <div class="item-historico" data-tipo="<%= _tipo %>" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f9fafb;border-radius:10px">
           <div style="flex:1;min-width:0">
             <div style="font-size:13px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><%= _label %></div>
             <div style="font-size:11px;color:#aaa;margin-top:2px"><%= _data %> · saldo: <%= t.saldoApos %></div>
@@ -147,6 +240,18 @@
     </div>
   <% } %>
 </div>
+
+<script>
+function filtrarHistorico(tipo, btn) {
+  document.querySelectorAll('#lista-historico .item-historico').forEach(el => {
+    el.style.display = (tipo === 'todos' || el.dataset.tipo === tipo) ? 'flex' : 'none';
+  });
+  document.querySelectorAll('[id^="btn-"]').forEach(b => {
+    b.style.background = '#fff'; b.style.color = '#555'; b.style.border = '1px solid #e5e7eb';
+  });
+  btn.style.background = '#111'; btn.style.color = '#fff'; btn.style.border = 'none';
+}
+</script>
 
 <script>
 let valorSelecionado = 0;

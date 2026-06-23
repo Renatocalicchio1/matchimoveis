@@ -347,7 +347,7 @@ app.post('/admin/cerebro/testar', authAdmin, express.json(), async (req, res) =>
       semMatch: leads.filter(l=>!l.matchesBase||!l.matchesBase.length).length,
       quentes: leads.filter(l=>l.temperatura==='quente').length,
       visitas: visitas.length, pendentes: visitas.filter(v=>v.status==='solicitada').length,
-      confirmadas: visitas.filter(v=>v.status==='confirmada').length,
+      confirmadas: visitas.filter(v=>v.status==='confirmada'||v.status==='lead_confirmou').length,
       topBairrosDemanda:[], topTiposDemanda:[], leadsQuentes:[], leadsRecentes:[],
     };
     const user = { id: uid, nome: 'Admin Teste' };
@@ -6396,8 +6396,8 @@ app.get('/api/assistente/dados', auth, (req, res) => {
       total: visitas.length,
       hoje: visitas.filter(v=>v.dataVisita===hoje).length,
       pendentes: visitas.filter(v=>v.status==='solicitada').length,
-      confirmadas: visitas.filter(v=>v.status==='confirmada').length,
-      proximas: visitas.filter(v=>v.status==='confirmada').slice(-3).map(v=>({
+      confirmadas: visitas.filter(v=>v.status==='confirmada'||v.status==='lead_confirmou').length,
+      proximas: visitas.filter(v=>v.status==='confirmada'||v.status==='lead_confirmou').slice(-3).map(v=>({
         imovel:v.imovelTitulo||v.imovelId,
         data:v.dataVisita,
         hora:v.horaVisita,
@@ -6449,7 +6449,7 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
     visitas:     visitas.length,
     hoje:        visitas.filter(v=>v.dataVisita===hoje).length,
     pendentes:   visitas.filter(v=>v.status==='solicitada').length,
-    confirmadas:    visitas.filter(v=>v.status==='confirmada').length,
+    confirmadas:    visitas.filter(v=>v.status==='confirmada'||v.status==='lead_confirmou').length,
     realizadas:     visitas.filter(v=>v.status==='realizada').length,
     canceladas:     visitas.filter(v=>v.status==='cancelada').length,
     // Leads detalhes

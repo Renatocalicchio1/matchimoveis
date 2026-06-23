@@ -996,7 +996,16 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
     const _novoSaldo = (await _q('SELECT match_coins FROM usuarios WHERE codigo_usuario=$1', [cod])).rows[0]?.match_coins || 0;
     if (_cacheUsuarios) {
       const _ci = _cacheUsuarios.findIndex(u => u.codigoUsuario === cod || u.codigo_usuario === cod);
-      if (_ci >= 0) _cacheUsuarios[_ci].matchCoins = _novoSaldo;
+      if (_ci >= 0) {
+        _cacheUsuarios[_ci].matchCoins = _novoSaldo;
+        if (!_cacheUsuarios[_ci].matchCoinsTransacoes) _cacheUsuarios[_ci].matchCoinsTransacoes = [];
+        _cacheUsuarios[_ci].matchCoinsTransacoes.push({
+          data: new Date().toISOString(),
+          motivo: op === 'adicionar' ? 'recarga manual' : 'debito manual',
+          quantidade: op === 'adicionar' ? qtd : -qtd,
+          saldoApos: _novoSaldo
+        });
+      }
     }
     res.redirect('/admin');
   } catch(e) { res.send('Erro: ' + e.message); }

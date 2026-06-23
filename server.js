@@ -9414,7 +9414,18 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
     data_br: new Date().toLocaleString('pt-BR')
   };
   const visitas = (_cacheVisitas || []);
-  consumir((lead && (lead.userId||lead.corretorId)) || '', 'visita_agendada_ia').catch(()=>{});
+  const _uidV2 = (lead && (lead.userId||lead.codigoUsuario||lead.corretorId)) || '';
+  if (_uidV2) {
+    consumir(_uidV2, 'visita_agendada_ia').catch(()=>{});
+  } else {
+    try {
+      const { query: _qV2 } = require('./services/db');
+      _qV2('SELECT user_id FROM leads WHERE id=$1', [lead?.id||'']).then(r => {
+        const _uid2 = r.rows[0]?.user_id || '';
+        if (_uid2) consumir(_uid2, 'visita_agendada_ia').catch(()=>{});
+      }).catch(()=>{});
+    } catch(e) {}
+  }
   const visitaComWorkflow = aplicarWorkflowVisita(novaVisita);
   visitas.push(visitaComWorkflow);
   salvarTodasVisitas(visitas).catch(e=>console.error("[visitas]",e.message));

@@ -1940,6 +1940,7 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
         const _linkRecusar = _BASE + '/cliente/visita/' + _v.id + '/recusar';
         const _msg = 'Olá *' + (_v.nome||'') + '*! Sua visita ao imóvel *' + _imovel + '*' + _data + ' foi confirmada!\n\nConfirme sua presença:\n✅ Confirmar: ' + _linkConfirmar + '\n❌ Não posso ir: ' + _linkRecusar;
         await _enviarWA(_telCliente, _msg);
+        consumir(_v.userId || _v.corretorId || '', 'confirmacao_auto').catch(()=>{});
       }
     } else if (resposta === 'indisponivel') {
       todas[idx].status = 'imovel_indisponivel';
@@ -1958,6 +1959,7 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
         const _linkVitrine = _leadId ? _BASE + '/cliente/oferta/' + _leadId : _BASE;
         const _msg = 'Olá *' + (_v.nome||'') + '*! Infelizmente o imóvel *' + _imovel + '* não está mais disponível.\n\nAcesse a vitrine e escolha outra opção: ' + _linkVitrine;
         await _enviarWA(_telCliente, _msg);
+        consumir(_v.userId || _v.corretorId || '', 'notificacao_prop').catch(()=>{});
       }
     } else if (resposta === 'remarcar') {
       todas[idx].status = 'pendente_remarcar';

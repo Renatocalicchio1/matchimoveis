@@ -279,6 +279,7 @@ leads.forEach(item => {
       const _temBusca = item.mapaIntencao && (item.mapaIntencao.tipo_imovel||[]).length > 0;
       const _temVenda = item.tipoLead === 'vendedor' || item.tipoLead === 'cliente_vendedor';
       const _eCorretor = item.tipoLead === 'corretor';
+      if(_eCorretor) return '';
     %>
     <% if(_eCorretor){ %>
       <span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#ede9fe;color:#6d28d9">🤝 Corretor Parceiro</span>
@@ -681,7 +682,7 @@ function confirmarExcluir(id) {
 }
 async function excluirLead(id){const r=await fetch('/app/lead/'+id,{method:'DELETE'});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
 function abrirClassificar(id){document.querySelectorAll('.confirm-box').forEach(el=>el.style.display='none');document.getElementById('classificar-'+id).style.display='block';}
-async function classificarLead(id,tipo){const r=await fetch('/app/lead/'+id+'/classificar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipoLead:tipo})});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
+async function classificarLead(id,tipo){const r=await fetch('/app/lead/'+id+'/classificar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipoLead:tipo})});const d=await r.json();if(d.ok){ if(tipo==='corretor') window.location.href='/app/parceiros'; else location.reload(); }else alert('Erro: '+d.erro);}
 async function bloquearLead(id){const r=await fetch('/app/lead/'+id+'/bloquear',{method:'POST'});const d=await r.json();if(d.ok)location.reload();else alert('Erro: '+d.erro);}
 
 window.addEventListener('DOMContentLoaded', aplicarFiltros);

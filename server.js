@@ -688,6 +688,7 @@ tr:hover td{background:#fafafa;}
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 24px;">
     <div style="font-weight:700;margin-bottom:12px;font-size:13px;">🌐 XML Global & Webhook ImovelWeb</div>
     <div style="margin-bottom:8px;font-size:12px;"><strong>XML Global:</strong><a href="/admin/xml/imovelweb-global" target="_blank" style="color:#2563eb;margin-left:8px;">/admin/xml/imovelweb-global</a><span style="color:#888;margin-left:8px;">— todos os imóveis da plataforma</span></div>
+    <div style="margin-bottom:8px;font-size:12px;"><strong>URL Pública:</strong><span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">https://www.matchimoveis.ia.br/xml/imovelweb-global</span><a href="/xml/imovelweb-global" target="_blank" style="color:#2563eb;margin-left:8px;font-size:11px;">Abrir →</a></div>
     <div style="font-size:12px;"><strong>Webhook Global:</strong><span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">POST https://www.matchimoveis.ia.br/webhook/imovelweb-global</span></div>
   </div>
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:0 24px 16px;">
@@ -1040,6 +1041,9 @@ app.get('/admin/xml/imovelweb-global', async (req, res) => {
     res.send(linhas.join('\n'));
   } catch(e) { res.status(500).send('Erro: '+e.message); }
 });
+
+// ── XML IMOVELWEB PÚBLICO ────────────────────────────────────────────────────
+app.get('/xml/imovelweb-global', (req, res) => res.redirect('/admin/xml/imovelweb-global'));
 
 // ── WEBHOOK IMOVELWEB GLOBAL ──────────────────────────────────────────────────
 app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {

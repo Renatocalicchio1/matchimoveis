@@ -646,6 +646,10 @@ class MatchCore {
         lead.matches     = matchesNovos;
         lead.matchesBase = matchesNovos;
         lead.matchAutoEm = new Date().toISOString();
+        // Debita match_encontrado
+        if (matchesNovos.length > 0 && matchesNovos.length > matchesAntes.length) {
+          try { const { consumir: _cMatch } = require('../services/creditos'); _cMatch(lead.userId || lead.codigoUsuario || '', 'match_encontrado').catch(()=>{}); } catch(e) {}
+        }
       }
       console.log(`[MATCH CORE] caso2 matches final: ${matchesNovos.length}`);
     } catch(e) {

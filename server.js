@@ -574,6 +574,7 @@ tr:hover td{background:#fafafa;}
   <h1>Admin · MatchImóveis</h1>
   <div style="display:flex;gap:16px;align-items:center">
     <a href="/admin/status" style="font-size:12px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🖥️ Status do Sistema</a>
+    <a href="https://match-evolution-api.onrender.com/manager" target="_blank" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📱 Painel WhatsApp</a>
     <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
     <a href="/admin/quintoandar-solicitacoes" style="font-size:12px;background:#00a86b;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏢 Solicitações QA</a>
     <a href="/admin/logout" style="font-size:12px;color:#888;text-decoration:none">Sair</a>

@@ -2826,6 +2826,7 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
 app.get('/app/imoveis', auth, async (req,res)=>{
   const _rede = req.query.rede === '1';
   let imoveis = await lerImoveis(_rede ? null : req.session.user.id);
+  const _usersRede = _rede ? (_cacheUsuarios || []) : [];
   const qaIncompleto = req.query.qa_incompleto === '1';
   if (qaIncompleto) {
     const _nQA = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
@@ -2860,7 +2861,7 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   Object.keys(cidadesPorEstado).forEach(e => { cidades[e] = [...cidadesPorEstado[e]].sort(); });
   const bairros = {};
   Object.keys(bairrosPorCidade).forEach(ci => { bairros[ci] = [...bairrosPorCidade[ci]].sort(); });
-  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto, rede: _rede });
+  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto, rede: _rede, usersRede: _usersRede });
 });
 
 app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req, res) => {

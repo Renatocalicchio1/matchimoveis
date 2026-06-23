@@ -373,6 +373,15 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
       </div>
       <% } %>
 
+      <% if(typeof rede!=='undefined'&&rede) {
+        const _ownerRede = (typeof usersRede!=='undefined'?usersRede:[]).find(u => u.id===(item.userId||item.user_id||item.usuarioId) || u.codigoUsuario===(item.userId||item.user_id||item.usuarioId));
+        if(_ownerRede) { %>
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#f0fdf4;border-radius:8px;margin-bottom:8px">
+          <span style="font-size:11px;color:#16a34a;font-weight:700">👤 <%= _ownerRede.nome %></span>
+          <% const _telOwner = (_ownerRede.celular||_ownerRede.telefone||'').replace(/D/g,''); %>
+          <% if(_telOwner) { %><a href="https://wa.me/55<%= _telOwner %>" target="_blank" style="font-size:11px;color:#16a34a;text-decoration:none;font-weight:600">📲 Falar</a><% } %>
+        </div>
+      <% } } %>
       <div class="im-tags">
         <% if(item.area_m2) { %><span class="im-tag"><%= item.area_m2 %>m²</span><% } %>
         <% if(item.quartos) { %><span class="im-tag"><%= item.quartos %>q</span><% } %>
@@ -402,7 +411,7 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
           WA
         </button>
         <% if(!rede || (item.userId||item.user_id||item.usuarioId) === (user.id||user.codigoUsuario)) { %><a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a><% } %>
-        <form method="POST" action="/app/imovel/<%= (item.idExterno && item.idExterno.trim()) ? item.idExterno : (item.idInterno || item.id) %>/excluir" style="display:inline" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" class="im-btn" style="background:#fef2f2;color:#b91c1c;border-color:#fca5a5" onclick="event.stopPropagation()">Excluir</button></form>
+        <% if(!rede || (item.userId||item.user_id||item.usuarioId) === (user.id||user.codigoUsuario)) { %><form method="POST" action="/app/imovel/<%= (item.idExterno && item.idExterno.trim()) ? item.idExterno : (item.idInterno || item.id) %>/excluir" style="display:inline" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" class="im-btn" style="background:#fef2f2;color:#b91c1c;border-color:#fca5a5" onclick="event.stopPropagation()">Excluir</button></form><% } %>
       </div>
     </div>
   </div>

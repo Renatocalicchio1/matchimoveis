@@ -2858,53 +2858,13 @@ app.get('/app/imoveis', auth, async (req,res)=>{
     });
   }
   // Monta dados para filtros em cascata
-  const _normEstado = (s) => {
-    const _mapa = {
-      'SAO PAULO':'SP','SÃO PAULO':'SP','S.PAULO':'SP','S. PAULO':'SP',
-      'RIO DE JANEIRO':'RJ','RIO':'RJ',
-      'MINAS GERAIS':'MG','MINAS':'MG',
-      'BAHIA':'BA',
-      'PARANA':'PR','PARANÁ':'PR',
-      'RIO GRANDE DO SUL':'RS',
-      'SANTA CATARINA':'SC',
-      'GOIAS':'GO','GOIÁS':'GO',
-      'PERNAMBUCO':'PE',
-      'CEARA':'CE','CEARÁ':'CE',
-      'ESPIRITO SANTO':'ES','ESPÍRITO SANTO':'ES',
-      'PARA':'PA','PARÁ':'PA',
-      'AMAZONAS':'AM',
-      'MARANHAO':'MA','MARANHÃO':'MA',
-      'MATO GROSSO':'MT',
-      'MATO GROSSO DO SUL':'MS',
-      'RIO GRANDE DO NORTE':'RN',
-      'PARAIBA':'PB','PARAÍBA':'PB',
-      'ALAGOAS':'AL',
-      'PIAUI':'PI','PIAUÍ':'PI',
-      'SERGIPE':'SE',
-      'RONDONIA':'RO','RONDÔNIA':'RO',
-      'TOCANTINS':'TO',
-      'ACRE':'AC',
-      'AMAPA':'AP','AMAPÁ':'AP',
-      'RORAIMA':'RR',
-      'DISTRITO FEDERAL':'DF',
-    };
-    const u = (s||'').toUpperCase().trim().normalize('NFD').replace(/[̀-ͯ]/g,'');
-    if (u.length === 2) return u;
-    return _mapa[u] || _mapa[(s||'').toUpperCase().trim()] || (s||'').toUpperCase().trim();
-  };
-  const _normCidade = (s) => {
-    return (s||'').trim().toLowerCase().split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
-  };
-  const _normBairro = (s) => {
-    return (s||'').trim().toLowerCase().split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
-  };
   const estadosSet = new Set();
   const cidadesPorEstado = {};
   const bairrosPorCidade = {};
   imoveis.forEach(i => {
-    const est = _normEstado(i.estado);
-    const cid = _normCidade(i.cidade);
-    const bai = _normBairro(i.bairro);
+    const est = (i.estado||'').toUpperCase().trim();
+    const cid = (i.cidade||'').trim();
+    const bai = (i.bairro||'').trim();
     if (est) estadosSet.add(est);
     if (est && cid) {
       if (!cidadesPorEstado[est]) cidadesPorEstado[est] = new Set();

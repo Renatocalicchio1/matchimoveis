@@ -2089,6 +2089,11 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
         const _agora = new Date().toISOString();
         await _qInat("UPDATE imoveis SET status='inativo', dados = dados || jsonb_build_object('status','inativo','inativadoEm',$2,'inativadoPor','corretor') WHERE id=$1 OR id_externo=$1 OR id_interno=$1", [_v.imovelId, _agora]);
         console.log('[corretor] Imóvel inativado:', _v.imovelId);
+        // Invalida cache para não entrar na vitrine
+        if (_cacheImoveis) {
+          const _ci = _cacheImoveis.findIndex(i => i.id === _v.imovelId || i.idExterno === _v.imovelId || i.idInterno === _v.imovelId);
+          if (_ci >= 0) _cacheImoveis[_ci].status = 'inativo';
+        }
       } catch(_e) { console.error('[inativar]', _e.message); }
       // WA para o cliente com link da vitrine
       if (_telCliente) {

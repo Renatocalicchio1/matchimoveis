@@ -2826,6 +2826,10 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
 app.get('/app/imoveis', auth, async (req,res)=>{
   const _rede = req.query.rede === '1';
   let imoveis = await lerImoveis(_rede ? null : req.session.user.id);
+  const _perPage = 60;
+  const _page = Math.max(1, parseInt(req.query.page) || 1);
+  const _totalImoveis = imoveis.length;
+  const _totalPages = Math.ceil(_totalImoveis / _perPage);
   const _usersRede = _rede ? (_cacheUsuarios || []) : [];
   const qaIncompleto = req.query.qa_incompleto === '1';
   if (qaIncompleto) {
@@ -2861,7 +2865,8 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   Object.keys(cidadesPorEstado).forEach(e => { cidades[e] = [...cidadesPorEstado[e]].sort(); });
   const bairros = {};
   Object.keys(bairrosPorCidade).forEach(ci => { bairros[ci] = [...bairrosPorCidade[ci]].sort(); });
-  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto, rede: _rede, usersRede: _usersRede });
+  if (_rede) imoveis = imoveis.slice((_page-1)*_perPage, _page*_perPage);
+  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto, rede: _rede, usersRede: _usersRede, page: _page, totalPages: _totalPages, totalImoveis: _totalImoveis });
 });
 
 app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req, res) => {

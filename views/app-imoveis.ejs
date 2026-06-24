@@ -1,5 +1,8 @@
 <%- include('partials/app-shell',{active:'imoveis',title:'Meus Imóveis',subtitle:'Base indexada pela IA — pronta para match com leads.',user:user}) %>
 <!-- TOGGLE REDE -->
+<% if(typeof rede!=='undefined'&&rede && typeof totalImoveis!=='undefined') { %>
+<div style="font-size:13px;color:#888;margin-bottom:8px"><%= totalImoveis.toLocaleString('pt-BR') %> imóveis na rede · página <%= page %> de <%= totalPages %></div>
+<% } %>
 <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
   <a href="/app/imoveis" style="padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;<%= typeof rede==='undefined'||!rede ? 'background:#111;color:#fff' : 'background:#f3f4f6;color:#555;border:1px solid #e5e7eb' %>">🏠 Meus Imóveis</a>
   <a href="/app/imoveis?rede=1" style="padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;<%= typeof rede!=='undefined'&&rede ? 'background:#FF385C;color:#fff' : 'background:#f3f4f6;color:#555;border:1px solid #e5e7eb' %>">🌐 Rede Completa</a>
@@ -675,4 +678,13 @@ function atualizarStats() {
 window.addEventListener('DOMContentLoaded', atualizarStats);
 </script>
 
+<% if(typeof rede!=='undefined'&&rede && typeof totalPages!=='undefined' && totalPages > 1) { %>
+<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:24px 0;flex-wrap:wrap">
+  <% if(page > 1) { %><a href="/app/imoveis?rede=1&page=<%= page-1 %>" style="padding:8px 16px;border-radius:8px;background:#f3f4f6;color:#111;text-decoration:none;font-weight:600;font-size:13px">← Anterior</a><% } %>
+  <% for(let _p=Math.max(1,page-2); _p<=Math.min(totalPages,page+2); _p++) { %>
+    <a href="/app/imoveis?rede=1&page=<%= _p %>" style="padding:8px 14px;border-radius:8px;background:<%= _p===page?'#111':'#f3f4f6' %>;color:<%= _p===page?'#fff':'#111' %>;text-decoration:none;font-weight:600;font-size:13px"><%= _p %></a>
+  <% } %>
+  <% if(page < totalPages) { %><a href="/app/imoveis?rede=1&page=<%= page+1 %>" style="padding:8px 16px;border-radius:8px;background:#f3f4f6;color:#111;text-decoration:none;font-weight:600;font-size:13px">Próxima →</a><% } %>
+</div>
+<% } %>
 <%- include('partials/app-end') %>

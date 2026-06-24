@@ -2113,7 +2113,8 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
     }
 
     await _salvarVisitas(todas);
-    res.render('corretor-visita', { visita: todas[idx] });
+    const _msgSucesso = resposta === 'remarcar' ? '✅ Solicitação de remarcação enviada ao cliente!' : '';
+    res.render('corretor-visita', { visita: todas[idx], sucesso: _msgSucesso });
   } catch(e) {
     console.error('[corretor-visita]', e.message);
     res.status(500).send('<h2>Erro: ' + e.message + '</h2>');

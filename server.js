@@ -2825,7 +2825,16 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
 
 app.get('/app/imoveis', auth, async (req,res)=>{
   const _rede = req.query.rede === '1';
-  let imoveis = await lerImoveis(_rede ? null : req.session.user.id);
+  let imoveis;
+  if (_rede) {
+    if (!global._cacheRede || !global._cacheRedeTTL || Date.now() > global._cacheRedeTTL) {
+      global._cacheRede = await lerImoveis(null);
+      global._cacheRedeTTL = Date.now() + 5 * 60 * 1000; // 5 min
+    }
+    imoveis = global._cacheRede;
+  } else {
+    imoveis = await lerImoveis(req.session.user.id);
+  }
   const _perPage = 60;
   const _page = Math.max(1, parseInt(req.query.page) || 1);
   const _totalImoveis = imoveis.length;

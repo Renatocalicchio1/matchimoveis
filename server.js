@@ -2892,12 +2892,11 @@ app.get('/app/imoveis', auth, async (req,res)=>{
     if (u.length === 2) return u;
     return _mapa[u] || _mapa[(s||'').toUpperCase().trim()] || (s||'').toUpperCase().trim();
   };
-  const _normCidade = (s) => {
-    return (s||'').trim().toLowerCase().split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+  const _normTexto = (s) => {
+    return (s||'').trim().normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/s+/g,' ').split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
   };
-  const _normBairro = (s) => {
-    return (s||'').trim().toLowerCase().split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
-  };
+  const _normCidade = (s) => _normTexto(s);
+  const _normBairro = (s) => _normTexto(s);
   const estadosSet = new Set();
   const cidadesPorEstado = {};
   const bairrosPorCidade = {};

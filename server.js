@@ -5576,8 +5576,7 @@ app.get('/imovel/:id', (req, res) => {
       if (_lead) leadDados = { nome: _lead.nome||'', telefone: (_lead.telefone||_lead.whatsapp||'').replace(/\D/g,'').replace(/^55/,'') };
     }
     const _usuarioLogado = req.session && req.session.user ? req.session.user : null;
-    const _compartilhador = _uidLead && _uidLead !== _uid2 ? (users.find(u => (u.id===_uidLead||u.codigoUsuario===_uidLead||u.codigo_usuario===_uidLead)) || null) : null;
-    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador });
+    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, usuarioLogado: _usuarioLogado, userId: _uidLead });
   }
 
   // Busca nos matches do QuintoAndar

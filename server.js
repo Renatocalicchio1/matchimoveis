@@ -647,7 +647,7 @@ body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px
 .top h1{font-size:16px;font-weight:700;}
 .top a{font-size:12px;color:#888;text-decoration:none;}
 .wrap{padding:24px;}
-.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;overflow:hidden;}
+.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;overflow:hidden;}.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{width:100%;border-collapse:collapse;font-size:12px;}
 th{text-align:left;padding:7px 8px;font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid #f0f0ee;border-right:1px solid #e5e5e3;background:#fafafa;white-space:nowrap;}
 td{padding:7px 8px;border-bottom:1px solid #f0f0ee;border-right:1px solid #f0f0ee;vertical-align:middle;white-space:nowrap;}
@@ -678,7 +678,7 @@ tr:hover td{background:#fafafa;}
     </table>
   </div>
   <div class="card">
-    <table>
+    <div class="table-wrap"><table>
       <thead><tr>
         <th>Cód.</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóv.</th><th>Leads</th><th>Visit.</th><th>WA</th><th>XML QA</th><th>Cart. QA</th><th>Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th><th>Ações</th>
       </tr></thead>

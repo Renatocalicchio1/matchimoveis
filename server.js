@@ -5557,8 +5557,10 @@ app.get('/imovel/:id', (req, res) => {
   // Busca na base interna primeiro
   let imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
   const _uidQuery = req.query.userId || '';
-  const _uid2 = _uidQuery || (imovel ? (imovel.user_id || imovel.userId || '') : '');
+  const _uid2 = imovel ? (imovel.user_id || imovel.userId || '') : '';
   const corretor = users.find(function(u){ return (u.codigo_usuario||u.codigoUsuario||u.id) === _uid2; }) || users.find(function(u){ return u.ativo; }) || {};
+  // userId da query serve só para atribuir lead — não muda o corretor exibido
+  const _uidLead = _uidQuery || _uid2;
 
   if (imovel) {
     const pub = Object.assign({}, imovel);
@@ -5573,7 +5575,8 @@ app.get('/imovel/:id', (req, res) => {
       const _lead = _leads.find(l => String(l.id) === String(_leadId));
       if (_lead) leadDados = { nome: _lead.nome||'', telefone: (_lead.telefone||_lead.whatsapp||'').replace(/\D/g,'').replace(/^55/,'') };
     }
-    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId });
+    const _usuarioLogado = req.session && req.session.user ? req.session.user : null;
+    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, usuarioLogado: _usuarioLogado, userId: _uidLead });
   }
 
   // Busca nos matches do QuintoAndar

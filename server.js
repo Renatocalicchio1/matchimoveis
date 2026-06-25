@@ -2880,7 +2880,7 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   Object.keys(cidadesPorEstado).forEach(e => { cidades[e] = [...cidadesPorEstado[e]].sort(); });
   const bairros = {};
   Object.keys(bairrosPorCidade).forEach(ci => { bairros[ci] = [...bairrosPorCidade[ci]].sort(); });
-  if (_rede) imoveis = imoveis.slice((_page-1)*_perPage, _page*_perPage);
+  imoveis = imoveis.slice((_page-1)*_perPage, _page*_perPage);
   res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto, rede: _rede, usersRede: _usersRede, page: _page, totalPages: _totalPages, totalImoveis: _totalImoveis });
 });
 

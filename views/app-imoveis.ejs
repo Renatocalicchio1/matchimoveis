@@ -130,7 +130,7 @@
 <!-- Toolbar -->
 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px">
   <div class="im-stats">
-    <span class="im-stat"><%= (typeof rede!=='undefined'&&rede&&typeof totalImoveis!=='undefined') ? totalImoveis.toLocaleString('pt-BR') : (typeof imoveis !== 'undefined' ? imoveis.length : 0) %> total</span>
+    <span class="im-stat"><%= typeof totalImoveis!=='undefined' ? totalImoveis.toLocaleString('pt-BR') : (typeof imoveis !== 'undefined' ? imoveis.length : 0) %> total</span>
     <span class="im-stat verde" id="count-ativos">—</span>
     <span class="im-stat vermelho" id="count-inativos">—</span>
     <span class="im-stat azul" id="count-sem-foto">—</span>
@@ -678,13 +678,14 @@ function atualizarStats() {
 window.addEventListener('DOMContentLoaded', atualizarStats);
 </script>
 
-<% if(typeof rede!=='undefined'&&rede && typeof totalPages!=='undefined' && totalPages > 1) { %>
+<% if(typeof totalPages!=='undefined' && totalPages > 1) { %>
+<% const _baseUrl = (typeof rede!=='undefined'&&rede) ? '/app/imoveis?rede=1' : '/app/imoveis?'; %>
 <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:24px 0;flex-wrap:wrap">
-  <% if(page > 1) { %><a href="/app/imoveis?rede=1&page=<%= page-1 %>" style="padding:8px 16px;border-radius:8px;background:#f3f4f6;color:#111;text-decoration:none;font-weight:600;font-size:13px">← Anterior</a><% } %>
+  <% if(page > 1) { %><a href="<%= _baseUrl %>&page=<%= page-1 %>" style="padding:8px 16px;border-radius:8px;background:#f3f4f6;color:#111;text-decoration:none;font-weight:600;font-size:13px">← Anterior</a><% } %>
   <% for(let _p=Math.max(1,page-2); _p<=Math.min(totalPages,page+2); _p++) { %>
-    <a href="/app/imoveis?rede=1&page=<%= _p %>" style="padding:8px 14px;border-radius:8px;background:<%= _p===page?'#111':'#f3f4f6' %>;color:<%= _p===page?'#fff':'#111' %>;text-decoration:none;font-weight:600;font-size:13px"><%= _p %></a>
+    <a href="<%= _baseUrl %>&page=<%= _p %>" style="padding:8px 14px;border-radius:8px;background:<%= _p===page?'#111':'#f3f4f6' %>;color:<%= _p===page?'#fff':'#111' %>;text-decoration:none;font-weight:600;font-size:13px"><%= _p %></a>
   <% } %>
-  <% if(page < totalPages) { %><a href="/app/imoveis?rede=1&page=<%= page+1 %>" style="padding:8px 16px;border-radius:8px;background:#f3f4f6;color:#111;text-decoration:none;font-weight:600;font-size:13px">Próxima →</a><% } %>
+  <% if(page < totalPages) { %><a href="<%= _baseUrl %>&page=<%= page+1 %>" style="padding:8px 16px;border-radius:8px;background:#f3f4f6;color:#111;text-decoration:none;font-weight:600;font-size:13px">Próxima →</a><% } %>
 </div>
 <% } %>
 <%- include('partials/app-end') %>

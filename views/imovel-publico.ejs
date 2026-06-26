@@ -126,10 +126,6 @@
         <p style="color:#444;line-height:1.8;font-size:14px;white-space:pre-line;margin:0"><%= imovel.descricao %></p>
       </div>
       <% } %>
-
-
-    </div>
-
       <% if(imovel.latitude && imovel.longitude) { %>
       <div class="card">
         <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">📍 Localização</h3>
@@ -139,6 +135,10 @@
         <div style="font-size:13px;color:#888;margin-top:8px"><%= [imovel.endereco, imovel.bairro, imovel.cidade].filter(Boolean).join(', ') %></div>
       </div>
       <% } %>
+
+
+    </div>
+
     <%# COLUNA LATERAL %>
     <div>
             <div class="card">

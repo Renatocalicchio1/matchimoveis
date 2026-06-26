@@ -1020,7 +1020,7 @@ app.get('/admin/xml/imovelweb-global', async (req, res) => {
     for (const im of ativos) {
       const uid = im.user_id || im.userId || im.codigoUsuario || '';
       const u = usuarios.find(u => u.id === uid || u.codigo_usuario === uid);
-      const _id = im.id_externo || im.id_interno || im.id || '';
+      const _id = im.id_interno || im.id_externo || im.id || '';
       const _fotos = (im.fotos||[]).slice(0,20);
       linhas.push('<Listing>');
       linhas.push('<ListingID>'+esc(_id)+'</ListingID>');

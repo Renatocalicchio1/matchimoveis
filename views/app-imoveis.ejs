@@ -556,7 +556,7 @@ function autocompleteCidade(input) {
   const cidadesDisponiveis = estado ? (_cidades[Object.keys(_cidades).find(k=>norm(k)===estado)||'']||[]) : Object.values(_cidades).flat();
   const matches = [...new Set(cidadesDisponiveis)].filter(c=>norm(c).includes(v)).slice(0,10);
   if (!matches.length) { sug.style.display='none'; return; }
-  sug.innerHTML = matches.map(c=>'<div onclick="selecionarSug('f-cidade',''+norm(c)+'')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">'+c+'</div>').join('');
+  sug.innerHTML = matches.map(c=>'<div onclick="selecionarSug(\'f-cidade\',\''+norm(c)+'\');" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background=\'#f9fafb\'" onmouseout="this.style.background=\'\'">' + c + '</div>').join('');
   sug.style.display='block';
 }
 function autocompleteBairro(input) {
@@ -568,7 +568,7 @@ function autocompleteBairro(input) {
   const bairosDisponiveis = cidKey ? _bairros[cidKey] : Object.values(_bairros).flat();
   const matches = [...new Set(bairosDisponiveis)].filter(b=>norm(b).includes(v)).slice(0,10);
   if (!matches.length) { sug.style.display='none'; return; }
-  sug.innerHTML = matches.map(b=>'<div onclick="selecionarSug('f-bairro',''+norm(b)+'')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">'+b+'</div>').join('');
+  sug.innerHTML = matches.map(b=>'<div onclick="selecionarSug(\'f-bairro\',\''+norm(b)+'\');" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background=\'#f9fafb\'" onmouseout="this.style.background=\'\'">' + b + '</div>').join('');
   sug.style.display='block';
 }
 function filtrarServidor() {

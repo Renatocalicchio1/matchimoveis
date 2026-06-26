@@ -221,15 +221,13 @@
         <% }) %>
       </select>
     </div>
-    <div class="filtro-field"><label>Cidade</label>
-      <select id="f-cidade" onchange="atualizarBairros()">
-        <option value="">Todas</option>
-      </select>
+    <div class="filtro-field" style="position:relative"><label>Cidade</label>
+      <input id="f-cidade" type="text" placeholder="Digite a cidade..." autocomplete="off" oninput="autocompleteCidade(this)" onblur="setTimeout(()=>fecharSug('sug-cidade'),200)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;outline:none;box-sizing:border-box">
+      <div id="sug-cidade" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:999;max-height:200px;overflow-y:auto"></div>
     </div>
-    <div class="filtro-field"><label>Bairro</label>
-      <select id="f-bairro" onchange="filtrarServidor()">
-        <option value="">Todos</option>
-      </select>
+    <div class="filtro-field" style="position:relative"><label>Bairro</label>
+      <input id="f-bairro" type="text" placeholder="Digite o bairro..." autocomplete="off" oninput="autocompleteBairro(this)" onblur="setTimeout(()=>fecharSug('sug-bairro'),200)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;outline:none;box-sizing:border-box">
+      <div id="sug-bairro" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:999;max-height:200px;overflow-y:auto"></div>
     </div>
     <div class="filtro-field"><label>Valor mín. R$</label>
       <input id="f-valor-min" type="text" placeholder="Ex: 500.000" oninput="fmtValor(this);filtrar()" style="ime-mode:disabled">
@@ -539,10 +537,44 @@ function atualizarBairros() {
   });
   filtrar();
 }
+function fecharSug(id) { const el=document.getElementById(id); if(el) el.style.display='none'; }
+function selecionarSug(campo, val) {
+  document.getElementById(campo).value = val;
+  fecharSug('sug-'+campo.replace('f-',''));
+  if (campo === 'f-cidade') autocompleteBairroReset();
+  filtrarServidor();
+}
+function autocompleteBairroReset() {
+  document.getElementById('f-bairro').value = '';
+  document.getElementById('sug-bairro').style.display = 'none';
+}
+function autocompleteCidade(input) {
+  const v = norm(input.value);
+  const sug = document.getElementById('sug-cidade');
+  if (!v) { sug.style.display='none'; return; }
+  const estado = norm(document.getElementById('f-estado')?.value||'');
+  const cidadesDisponiveis = estado ? (_cidades[Object.keys(_cidades).find(k=>norm(k)===estado)||'']||[]) : Object.values(_cidades).flat();
+  const matches = [...new Set(cidadesDisponiveis)].filter(c=>norm(c).includes(v)).slice(0,10);
+  if (!matches.length) { sug.style.display='none'; return; }
+  sug.innerHTML = matches.map(c=>'<div onclick="selecionarSug('f-cidade',''+norm(c)+'')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">'+c+'</div>').join('');
+  sug.style.display='block';
+}
+function autocompleteBairro(input) {
+  const v = norm(input.value);
+  const sug = document.getElementById('sug-bairro');
+  if (!v) { sug.style.display='none'; return; }
+  const cidade = norm(document.getElementById('f-cidade')?.value||'');
+  const cidKey = Object.keys(_bairros).find(k=>norm(k)===cidade);
+  const bairosDisponiveis = cidKey ? _bairros[cidKey] : Object.values(_bairros).flat();
+  const matches = [...new Set(bairosDisponiveis)].filter(b=>norm(b).includes(v)).slice(0,10);
+  if (!matches.length) { sug.style.display='none'; return; }
+  sug.innerHTML = matches.map(b=>'<div onclick="selecionarSug('f-bairro',''+norm(b)+'')" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">'+b+'</div>').join('');
+  sug.style.display='block';
+}
 function filtrarServidor() {
   const estado = document.getElementById('f-estado')?.value || '';
-  const cidade = document.getElementById('f-cidade')?.value || '';
-  const bairro = document.getElementById('f-bairro')?.value || '';
+  const cidade = norm(document.getElementById('f-cidade')?.value || '');
+  const bairro = norm(document.getElementById('f-bairro')?.value || '');
   const base = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
   params.delete('page');

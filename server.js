@@ -2841,7 +2841,7 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   } else {
     imoveis = await lerImoveis(req.session.user.id);
   }
-  const _perPage = 60;
+  const _perPage = 9999;
   const _page = Math.max(1, parseInt(req.query.page) || 1);
   const _totalImoveis = imoveis.length;
   const _totalPages = Math.ceil(_totalImoveis / _perPage);

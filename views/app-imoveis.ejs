@@ -719,7 +719,15 @@ function atualizarStats() {
   document.getElementById('count-sem-prop').textContent = semProp + ' sem prop.';
 }
 
-window.addEventListener('DOMContentLoaded', atualizarStats);
+window.addEventListener('DOMContentLoaded', function() {
+  atualizarStats();
+  // Restaura filtros da URL
+  const params = new URLSearchParams(window.location.search);
+  const cidade = params.get('cidade');
+  const bairro = params.get('bairro');
+  if (cidade) document.getElementById('f-cidade').value = cidade;
+  if (bairro) document.getElementById('f-bairro').value = bairro;
+});
 </script>
 
 <% if(typeof totalPages!=='undefined' && totalPages > 1) { %>

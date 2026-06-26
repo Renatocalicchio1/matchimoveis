@@ -227,7 +227,7 @@
       </select>
     </div>
     <div class="filtro-field"><label>Bairro</label>
-      <select id="f-bairro" onchange="filtrar()">
+      <select id="f-bairro" onchange="filtrarServidor()">
         <option value="">Todos</option>
       </select>
     </div>
@@ -538,6 +538,18 @@ function atualizarBairros() {
     selBairro.appendChild(opt);
   });
   filtrar();
+}
+function filtrarServidor() {
+  const estado = document.getElementById('f-estado')?.value || '';
+  const cidade = document.getElementById('f-cidade')?.value || '';
+  const bairro = document.getElementById('f-bairro')?.value || '';
+  const base = window.location.pathname;
+  const params = new URLSearchParams(window.location.search);
+  params.delete('page');
+  if (estado) params.set('estado', estado); else params.delete('estado');
+  if (cidade) params.set('cidade', cidade); else params.delete('cidade');
+  if (bairro) params.set('bairro', bairro); else params.delete('bairro');
+  window.location.href = base + '?' + params.toString();
 }
 
 function abrirModalPortais() {

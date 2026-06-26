@@ -2841,7 +2841,7 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   } else {
     imoveis = await lerImoveis(req.session.user.id);
   }
-  const _perPage = 9999;
+  const _perPage = 60;
   const _page = Math.max(1, parseInt(req.query.page) || 1);
   const _totalImoveis = imoveis.length;
   const _totalPages = Math.ceil(_totalImoveis / _perPage);
@@ -2880,9 +2880,21 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   Object.keys(cidadesPorEstado).forEach(e => { cidades[e] = [...cidadesPorEstado[e]].sort(); });
   const bairros = {};
   Object.keys(bairrosPorCidade).forEach(ci => { bairros[ci] = [...bairrosPorCidade[ci]].sort(); });
-  const _temFiltro = req.query.estado || req.query.cidade || req.query.bairro || req.query.busca;
-  if (!_temFiltro) imoveis = imoveis.slice((_page-1)*_perPage, _page*_perPage);
-  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto, rede: _rede, usersRede: _usersRede, page: _page, totalPages: _totalPages, totalImoveis: _totalImoveis });
+  // Filtros do servidor
+  const _fEstado = (req.query.estado||'').trim().toUpperCase();
+  const _fCidade = (req.query.cidade||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const _fBairro = (req.query.bairro||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const _fBusca  = (req.query.busca||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const _norm = s => (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+  if (_fEstado) imoveis = imoveis.filter(i => _norm(i.estado) === _norm(_fEstado) || (i.estado||'').toUpperCase() === _fEstado);
+  if (_fCidade) imoveis = imoveis.filter(i => _norm(i.cidade) === _fCidade);
+  if (_fBairro) imoveis = imoveis.filter(i => _norm(i.bairro) === _fBairro);
+  if (_fBusca)  imoveis = imoveis.filter(i => _norm(JSON.stringify(i)).includes(_fBusca));
+  const _totalImoveisFiltrado = imoveis.length;
+  const _totalPagesFiltrado = Math.ceil(_totalImoveisFiltrado / _perPage);
+  const _temFiltro = _fEstado || _fCidade || _fBairro || _fBusca;
+  imoveis = imoveis.slice((_page-1)*_perPage, _page*_perPage);
+  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto, rede: _rede, usersRede: _usersRede, page: _page, totalPages: _temFiltro ? _totalPagesFiltrado : _totalPages, totalImoveis: _temFiltro ? _totalImoveisFiltrado : _totalImoveis, filtros: { estado: _fEstado, cidade: _fCidade, bairro: _fBairro } });
 });
 
 app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req, res) => {

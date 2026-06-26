@@ -120,21 +120,6 @@
         </div>
       </div>
       <% } %>
-      <% if(imovel.latitude && imovel.longitude) { %>
-      <div style="background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06)">
-        <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">📍 Localização</h3>
-        <div style="border-radius:12px;overflow:hidden;height:280px">
-          <iframe
-            width="100%" height="280" frameborder="0" style="border:0"
-            src="https://maps.google.com/maps?q=<%= imovel.latitude %>,<%= imovel.longitude %>&z=16&output=embed"
-            allowfullscreen loading="lazy">
-          </iframe>
-        </div>
-        <div style="font-size:13px;color:#888;margin-top:8px">
-          <%= [imovel.endereco, imovel.bairro, imovel.cidade].filter(Boolean).join(', ') %>
-        </div>
-      </div>
-      <% } %>
       <% if(imovel.descricao) { %>
       <div class="card">
         <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">Descrição</h3>
@@ -145,6 +130,15 @@
 
     </div>
 
+      <% if(imovel.latitude && imovel.longitude) { %>
+      <div class="card">
+        <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">📍 Localização</h3>
+        <div style="border-radius:12px;overflow:hidden;height:280px">
+          <iframe width="100%" height="280" frameborder="0" style="border:0" src="https://www.openstreetmap.org/export/embed.html?bbox=<%= imovel.longitude-0.01 %>,<%= imovel.latitude-0.01 %>,<%= imovel.longitude+0.01 %>,<%= imovel.latitude+0.01 %>&layer=mapnik&marker=<%= imovel.latitude %>,<%= imovel.longitude %>" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div style="font-size:13px;color:#888;margin-top:8px"><%= [imovel.endereco, imovel.bairro, imovel.cidade].filter(Boolean).join(', ') %></div>
+      </div>
+      <% } %>
     <%# COLUNA LATERAL %>
     <div>
             <div class="card">

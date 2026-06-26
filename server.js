@@ -805,7 +805,7 @@ async function gerarXMLQuintoAndarGlobal() {
     const user = _usrMap[row.user_id] || {};
     const fotos = Array.isArray(i.fotos) ? i.fotos : [];
     xml += '\n    <Listing>\n';
-    xml += '      <ListingID>'+esc(row.id_externo||row.id_interno||row.id)+'</ListingID>\n';
+    xml += '      <ListingID>'+esc(row.id_interno||row.id_externo||row.id)+'</ListingID>\n';
     xml += '      <Title>'+esc(i.titulo||((i.tipo||'Imóvel')+' em '+(i.bairro||'')))+'</Title>\n';
     xml += '      <TransactionType>'+(i.transacao==='aluguel'?'For Rent':'For Sale')+'</TransactionType>\n';
     xml += '      <PublicationType>STANDARD</PublicationType>\n';
@@ -6122,7 +6122,7 @@ function gerarXMLPortal(imoveis, portal, user){
       const prop = i.proprietario || {};
       const fotos = Array.isArray(i.fotos) ? i.fotos : [];
       xml += '\n    <Listing>\n';
-      xml += '      <ListingID>'+esc(i.idExterno || i.idOriginal || i.id)+'</ListingID>\n';
+      xml += '      <ListingID>'+esc(i.id_interno || i.idExterno || i.idOriginal || i.id)+'</ListingID>\n';
       xml += '      <Title>'+esc(i.titulo || ((i.tipo || 'Imóvel')+' em '+(i.bairro || '')))+'</Title>\n';
       xml += '      <TransactionType>For Sale</TransactionType>\n';
       xml += '      <PublicationType>STANDARD</PublicationType>\n';
@@ -6228,7 +6228,7 @@ function gerarXMLPortal(imoveis, portal, user){
     const transacao = i.transacao === 'aluguel' ? 'For Rent' : 'For Sale';
     const usageType = (i.tipo||'').toLowerCase().match(/sala|loja|galpao|galpão|comercial|escritorio|escritório|ponto/) ? 'Commercial' : 'Residential';
     xml += '\n    <Listing>\n';
-    xml += '      <ListingID>'+esc(i.idExterno || i.idOriginal || i.id_interno || i.idInterno || i.id)+'</ListingID>\n';
+    xml += '      <ListingID>'+esc(i.id_interno || i.idInterno || i.idExterno || i.idOriginal || i.id)+'</ListingID>\n';
     xml += '      <Title><![CDATA['+( i.titulo || ((i.tipo||'Imóvel')+' em '+(i.bairro||'')))+']]></Title>\n';
     xml += '      <TransactionType>'+transacao+'</TransactionType>\n';
     xml += '      <PublicationType>STANDARD</PublicationType>\n';

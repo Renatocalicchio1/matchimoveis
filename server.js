@@ -10064,7 +10064,7 @@ function lerImoveis(user) {
 app.post('/admin/cruzar-proprietarios-alex', express.json({limit:'10mb'}), async (req,res)=>{
   try {
     const mapa = req.body;
-    const {rows} = await pool.query("SELECT id,dados FROM imoveis WHERE user_id='ALE-DU2K'");
+    const {rows} = await _pgPool.query("SELECT id,dados FROM imoveis WHERE user_id='ALE-DU2K'");
     let v=0,sf=0,sc=0;
     for(const im of rows){
       const fotos=(im.dados||{}).fotos||[];
@@ -10073,7 +10073,7 @@ app.post('/admin/cruzar-proprietarios-alex', express.json({limit:'10mb'}), async
       if(!m){sf++;continue;}
       const prop=mapa[m[1]];
       if(!prop){sc++;continue;}
-      await pool.query("UPDATE imoveis SET dados=dados||jsonb_build_object('proprietario',$1::jsonb) WHERE id=$2",[JSON.stringify({...prop,status:'vinculado'}),im.id]);
+      await _pgPool.query("UPDATE imoveis SET dados=dados||jsonb_build_object('proprietario',$1::jsonb) WHERE id=$2",[JSON.stringify({...prop,status:'vinculado'}),im.id]);
       v++;
     }
     res.json({ok:true,vinculados:v,semFoto:sf,semCruz:sc});

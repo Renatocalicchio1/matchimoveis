@@ -10079,3 +10079,23 @@ app.post('/admin/cruzar-proprietarios-alex', express.json({limit:'10mb'}), async
     res.json({ok:true,vinculados:v,semFoto:sf,semCruz:sc});
   } catch(e){ res.json({ok:false,erro:e.message}); }
 });
+
+// ROTA TEMP - executar cruzamento alex internamente
+app.get('/admin/executar-cruzar-alex', async (req,res)=>{
+  try {
+    const fs = require('fs');
+    // mapa embutido via require do arquivo salvo no deploy
+    const mapa = JSON.parse(fs.readFileSync(__dirname+'/mapa-alex-temp.json','utf8'));
+    const {rows}=await _pgPool.query("SELECT id,fotos FROM imoveis WHERE user_id='ALE-DU2K' AND fotos IS NOT NULL");
+    let v=0,sc=0;
+    for(const im of rows){
+      const m=im.fotos[0].match(/fotos\/(\d+)\//);
+      if(!m){continue;}
+      const prop=mapa[m[1]];
+      if(!prop){sc++;continue;}
+      await _pgPool.query("UPDATE imoveis SET proprietario=$1 WHERE id=$2",[JSON.stringify({...prop,status:'vinculado'}),im.id]);
+      v++;
+    }
+    res.json({ok:true,vinculados:v,semCruz:sc});
+  } catch(e){ res.json({ok:false,erro:e.message}); }
+});

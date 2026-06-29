@@ -10067,7 +10067,7 @@ app.post('/admin/cruzar-proprietarios-alex', express.json({limit:'10mb'}), async
     const {rows} = await _pgPool.query("SELECT id,dados FROM imoveis WHERE user_id='ALE-DU2K'");
     let v=0,sf=0,sc=0;
     for(const im of rows){
-      const fotos=(im.dados||{}).fotos||[];
+      const fotos=im.fotos||[];
       if(!fotos.length){sf++;continue;}
       const m=fotos[0].match(/fotos\/(\d+)\//);
       if(!m){sf++;continue;}

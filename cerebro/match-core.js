@@ -497,6 +497,12 @@ class MatchCore {
       // Exclui o próprio imóvel âncora
       const matchesFiltrados = resultados
         .filter(r => String(r.imovel.id) !== String(ancora.id))
+        .sort((a,b)=>{
+          const pA=String(a.imovel.user_id)===String(userId)?1:0;
+          const pB=String(b.imovel.user_id)===String(userId)?1:0;
+          if(pB!==pA)return pB-pA;
+          return b.scoreMatch-a.scoreMatch;
+        })
         .slice(0, 50)
         .map((r, i) => ({ ...r.imovel, rank: i+1, score: r.scoreMatch, motivos: r.motivos, origemMatch: 'caso1' }));
 
@@ -627,6 +633,12 @@ class MatchCore {
       // Sempre usa matchPorMapa — mesma regra para todos os casos
       let matchesNovos = [];
       const resultadosMapa = matchPorMapa(lead, imoveisDoUser);
+      resultadosMapa.sort((a,b)=>{
+        const pA=String(a.imovel.user_id)===String(userId)?1:0;
+        const pB=String(b.imovel.user_id)===String(userId)?1:0;
+        if(pB!==pA)return pB-pA;
+        return b.scoreMatch-a.scoreMatch;
+      });
       // Deduplica por id_externo
       const _idsVistos2 = new Set();
       for (const r of resultadosMapa) {

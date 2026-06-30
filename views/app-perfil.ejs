@@ -180,16 +180,16 @@
   <p class="pf-card-title">🏠 Preferências de Vitrine</p>
   <p class="pf-card-sub">Escolha quais imóveis aparecem na vitrine enviada aos seus leads.</p>
   <form method="POST" action="/app/perfil/vitrine">
-    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
-        <input type="radio" name="vitrineApenasPropriosImoveis" value="false"
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px">
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px">
+        <input type="radio" name="vitrineApenasPropriosImoveis" value="false" style="width:18px;height:18px;flex-shrink:0"
           <%= (user.vitrineApenasPropriosImoveis===true) ? '' : 'checked' %>>
-        <span>🌐 Meus imóveis + imóveis de parceiros da rede</span>
+        <span>🌐 <strong>Meus imóveis + rede</strong> — inclui imóveis de parceiros na vitrine</span>
       </label>
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
-        <input type="radio" name="vitrineApenasPropriosImoveis" value="true"
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px">
+        <input type="radio" name="vitrineApenasPropriosImoveis" value="true" style="width:18px;height:18px;flex-shrink:0"
           <%= (user.vitrineApenasPropriosImoveis===true) ? 'checked' : '' %>>
-        <span>🔒 Apenas meus imóveis</span>
+        <span>🔒 <strong>Apenas meus imóveis</strong> — somente minha carteira na vitrine</span>
       </label>
     </div>
     <button class="pf-btn" type="submit">Salvar preferência</button>

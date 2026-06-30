@@ -3056,6 +3056,15 @@ app.post('/app/perfil', auth, async (req,res)=>{
 
 
 
+app.post('/app/perfil/vitrine', auth, async (req,res)=>{
+  const { atualizarUsuario: _auVitrine } = require('./services/salvarUsuario');
+  const uid = String(req.session.user.id || '');
+  const val = req.body.vitrineApenasPropriosImoveis === 'true';
+  await _auVitrine(uid, { vitrineApenasPropriosImoveis: val }).catch(e=>console.error("[perfil/vitrine]",e.message));
+  req.session.user = { ...req.session.user, vitrineApenasPropriosImoveis: val };
+  res.redirect('/app/perfil');
+});
+
 app.post('/app/perfil/senha', auth, async (req, res) => {
   const nova_senha = (req.body.nova_senha || '').trim();
   const confirmar_senha = (req.body.confirmar_senha || '').trim();

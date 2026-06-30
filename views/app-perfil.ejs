@@ -175,6 +175,26 @@
   </form>
 </div>
 
+<!-- Vitrine -->
+<div class="pf-card">
+  <p class="pf-card-title">🏠 Preferências de Vitrine</p>
+  <p class="pf-card-sub">Escolha quais imóveis aparecem na vitrine enviada aos seus leads.</p>
+  <form method="POST" action="/app/perfil/vitrine">
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
+        <input type="radio" name="vitrineApenasPropriosImoveis" value="false"
+          <%= (user.vitrineApenasPropriosImoveis===true) ? '' : 'checked' %>>
+        <span>🌐 Meus imóveis + imóveis de parceiros da rede</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
+        <input type="radio" name="vitrineApenasPropriosImoveis" value="true"
+          <%= (user.vitrineApenasPropriosImoveis===true) ? 'checked' : '' %>>
+        <span>🔒 Apenas meus imóveis</span>
+      </label>
+    </div>
+    <button class="pf-btn" type="submit">Salvar preferência</button>
+  </form>
+</div>
 <!-- Localização -->
 <div class="pf-card">
   <p class="pf-card-title">Localização</p>

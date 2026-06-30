@@ -493,7 +493,7 @@ class MatchCore {
 
       // Match ponderado usando motor de intenção
       // Filtrar rede se usuario preferir apenas proprios
-      const _uRow1 = await query('SELECT dados FROM usuarios WHERE codigo_usuario=$1 OR id=$1 LIMIT 1',[String(userId)]);
+      const _uRow1 = await _queryMatch('SELECT dados FROM usuarios WHERE codigo_usuario=$1 OR id=$1 LIMIT 1',[String(userId)]);
       const _uDados1 = _uRow1?.rows?.[0]?.dados || {};
       const _apenasPropr1 = _uDados1.vitrineApenasPropriosImoveis === true;
       const imoveisFiltrados1 = _apenasPropr1 ? imoveis.filter(i=>String(i.user_id)===String(userId)) : imoveis;
@@ -638,7 +638,7 @@ class MatchCore {
       // Sempre usa matchPorMapa — mesma regra para todos os casos
       let matchesNovos = [];
       // Filtrar rede se usuario preferir apenas proprios
-      const _uRow2 = await query('SELECT dados FROM usuarios WHERE codigo_usuario=$1 OR id=$1 LIMIT 1',[String(userId)]);
+      const _uRow2 = await _queryMatch2('SELECT dados FROM usuarios WHERE codigo_usuario=$1 OR id=$1 LIMIT 1',[String(userId)]);
       const _uDados2 = _uRow2?.rows?.[0]?.dados || {};
       const _apenasPropr2 = _uDados2.vitrineApenasPropriosImoveis === true;
       const imoveisDoUserFiltrado = _apenasPropr2 ? imoveisDoUser.filter(i=>String(i.user_id)===String(userId)) : imoveisDoUser;

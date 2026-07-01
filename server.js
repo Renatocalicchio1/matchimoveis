@@ -1046,9 +1046,9 @@ app.get('/xml/imovelweb-global', (req, res) => { req.url = '/admin/xml/imovelweb
 
 // ── WEBHOOK IMOVELWEB GLOBAL ──────────────────────────────────────────────────
 app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
+  res.status(200).json({ ok: true });
   try {
-    res.status(200).json({ ok: true });
-    const body = req.body;
+    const body = req.body || {};
     const { query: _qWG } = require('./services/db');
     const reference = body.reference || body.listingId || body.listing_id || '';
     if (!reference) return;
@@ -1057,44 +1057,59 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
     if (!im) { console.log('[webhook-global] imovel nao encontrado:', reference); return; }
     const userId = im.user_id || im.codigo_usuario || '';
     if (!userId) return;
-    const { processarLeadPortal } = require('./cerebro/portal-processor');
-    const nome = body.name || body.clientName || '';
-    const email = body.email || body.clientEmail || '';
     const phones = (body.phone || body.clientPhone || '').split('/');
     const telefone = phones[phones.length - 1].replace(/\D/g,'');
+    const nome = body.name || body.clientName || '';
+    const email = body.email || body.clientEmail || '';
     const mensagem = body.message || body.clientMessage || '';
     if (!telefone && !email) return;
-    console.log('[webhook-global] processando lead | userId:', userId, '| tel:', telefone, '| nome:', nome);
-    const mapaIntencao = await processarLeadPortal({ nome, email, telefone, mensagem, origemEntrada: 'webhook_imovelweb_global', imovelId: reference, imovelRef: im, userId, canal: 'ImovelWeb' });
-    const _mapa = mapaIntencao || {};
-    const _extrairValor = (arr) => Array.isArray(arr) && arr[0] ? (arr[0].valor || arr[0]) : '';
-    await salvarLead({
+    const lead = {
       id: Date.now().toString(),
-      nome, email, telefone, whatsapp: telefone,
-      mensagem, origem: 'webhook_imovelweb_global',
-      canal: 'ImovelWeb',
-      userId, user_id: userId,
-      imovelId: reference,
-      imovelTitulo: im.titulo || '',
-      tipo: _extrairValor(_mapa.tipo_imovel),
-      transacao: _extrairValor(_mapa.transacao),
-      cidade: _extrairValor(_mapa.cidade),
-      estado: _extrairValor(_mapa.estado),
-      bairro: _extrairValor(_mapa.bairro),
-      quartos: _extrairValor(_mapa.quartos) || 0,
-      suites: _extrairValor(_mapa.suites) || 0,
-      vagas: _extrairValor(_mapa.vagas) || 0,
-      banheiros: _extrairValor(_mapa.banheiros) || 0,
-      area_m2: _extrairValor(_mapa.area) || 0,
-      mapaIntencao: _mapa,
-      perfil_ia: _mapa,
-      status: 'novo',
-      temperatura: _mapa.temperatura || 'frio',
-      fase_funil: _mapa.fase || 'novo',
-      criado_em: new Date().toISOString()
-    });
-    console.log('[webhook-global] lead salva | userId:', userId, '| tel:', telefone);
-  } catch(e) { console.error('[webhook-global] ERRO:', e.message, e.stack); }
+      nome, email, telefone, whatsapp: telefone, contato: telefone,
+      mensagem,
+      idAnuncio: reference,
+      fonte: 'ImovelWeb', origem: 'ImovelWeb', origemEntrada: 'webhook_imovelweb_global',
+      userId, codigoUsuario: userId,
+      status: 'novo', score: 0, temperatura: 'frio', faseFunil: 'novo',
+      mensagens: [], matches: [], timeline: [], eventos: [], followUps: [],
+      criadoEm: new Date().toISOString(),
+    };
+    const { salvarLead: _slIWG } = require('./services/salvarLead');
+    await _cruzarImovelWebhook(lead, userId);
+    await _slIWG(lead);
+    console.log('[webhook-global] lead salva | userId:', userId, '| tel:', telefone, '| nome:', nome);
+    const _snapIWG = { id: lead.id, userId, nome: lead.nome||'', telefone: lead.telefone||'', whatsapp: lead.whatsapp||'', contato: lead.contato||'', email: lead.email||'', mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: 'webhook_imovelweb_global', origem: 'ImovelWeb' };
+    setTimeout(async () => {
+      try {
+        const { processarLeadPortal } = require('./cerebro/portal-processor');
+        const { atualizarLead: _auIWG } = require('./services/salvarLead');
+        const mapa = await processarLeadPortal(_snapIWG);
+        if (mapa) {
+          const _perfilIA = {
+            tipo: im?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
+            intencao: mapa.transacao?.[0]?.valor || '',
+            bairro: im?.bairro || mapa.bairro?.[0]?.valor || '',
+            cidade: im?.cidade || mapa.cidade?.[0]?.valor || '',
+            estado: im?.estado || mapa.estado?.[0]?.valor || '',
+            quartos: im?.quartos || mapa.quartos?.[0]?.valor || '',
+            suites: im?.suites || mapa.suites?.[0]?.valor || '',
+            vagas: im?.vagas || mapa.vagas?.[0]?.valor || '',
+            banheiros: im?.banheiros || mapa.banheiros?.[0]?.valor || '',
+            area: im?.area_m2 || (typeof mapa.area?.[0]?.valor === 'object' ? mapa.area?.[0]?.valor?.max : mapa.area?.[0]?.valor) || '',
+            valorMax: im ? parseFloat(im.valor_imovel||0) : (mapa.valor?.[0]?.valor?.max || 0),
+            valorMin: 0,
+          };
+          await _auIWG(lead.id, { mapaIntencao: mapa, perfilIA: _perfilIA, temperatura: mapa.temperatura||'frio', faseFunil: mapa.fase||'novo' });
+          console.log('[webhook-global] perfilIA atualizado | userId:', userId);
+          try {
+            const { MatchCore } = require('./cerebro/match-core');
+            const mc = new MatchCore();
+            await mc.processar({ lead: { ..._snapIWG, mapaIntencao: mapa, perfilIA: _perfilIA }, mensagem: mensagem||'', canal: 'ImovelWeb', userId });
+          } catch(e){ console.error('[webhook-global] erro match:', e.message); }
+        }
+      } catch(e){ console.error('[webhook-global] erro setTimeout:', e.message); }
+    }, 2000);
+  } catch(e) { console.error('[webhook-global] ERRO:', e.message); }
 });
 // ── FIM XML/WEBHOOK GLOBAL ────────────────────────────────────────────────────
 

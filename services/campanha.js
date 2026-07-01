@@ -59,15 +59,12 @@ async function marcarEnviado(id, erro) {
 function gerarHTML(mensagem, contato, assunto) {
   const trackPixel = `${BASE_URL}/campanha/track/open/${contato.id || 0}`;
   const trackLink = `${BASE_URL}/campanha/track/click/${contato.id || 0}`;
-  const msgComLink = mensagem.replace(
-    'https://www.matchimoveis.ia.br',
-    '<a href="'+trackLink+'">https://www.matchimoveis.ia.br</a>'
-  );
-  return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
-    <img src="https://matchimoveis.ia.br/logo.png" alt="MatchImóveis" style="height:40px;margin-bottom:24px">
-    <pre style="font-family:Arial,sans-serif;white-space:pre-wrap;font-size:15px;line-height:1.6">${msgComLink}</pre>
-    <a href="${trackLink}" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px">👉 Ative agora — 1.000 créditos grátis →</a>
-    <p style="margin-top:32px;color:#888;font-size:11px">MatchImóveis • matchimoveis.online<br>Para não receber mais emails, responda com CANCELAR.</p>
+  const msgFinal = mensagem
+    .replace(/{nome}/g, contato.nome || 'Corretor')
+    .replace('https://www.matchimoveis.ia.br', trackLink);
+  return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px;color:#222">
+    <pre style="font-family:Arial,sans-serif;white-space:pre-wrap;font-size:15px;line-height:1.7">${msgFinal}</pre>
+    <p style="margin-top:8px;font-size:13px;color:#888">Para não receber mais emails, responda com CANCELAR.</p>
     <img src="${trackPixel}" width="1" height="1" style="display:none">
   </div>`;
 }

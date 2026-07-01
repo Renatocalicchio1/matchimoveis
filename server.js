@@ -1087,7 +1087,7 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
         if (mapa) {
           const _perfilIA = {
             tipo: im?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
-            intencao: mapa.transacao?.[0]?.valor || '',
+            intencao: im?.transacao || mapa.transacao?.[0]?.valor || '',
             bairro: im?.bairro || mapa.bairro?.[0]?.valor || '',
             cidade: im?.cidade || mapa.cidade?.[0]?.valor || '',
             estado: im?.estado || mapa.estado?.[0]?.valor || '',

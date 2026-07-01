@@ -1744,6 +1744,20 @@ app.post('/login', async (req,res)=>{
       } catch(_e) { console.error('[notif-cadastro]', _e.message); }
     })();
 
+    // Email de boas-vindas
+    if (novo.email) {
+      try {
+        const { enviarEmail } = require('./services/email');
+        await enviarEmail({
+          para: novo.email,
+          assunto: '👋 Bem-vindo ao MatchImóveis!',
+          html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px"><h2 style="color:#FF385C">Olá, ${novo.nome}! 👋</h2><p>Seja bem-vindo ao <strong>MatchImóveis</strong>.</p><p>📋 <strong>Passo 1</strong> — Cadastre seus imóveis em Menu → Cadastrar</p><p>📱 <strong>Passo 2</strong> — Ative seu WhatsApp em Menu → Perfil</p><p>🎯 <strong>Passo 3</strong> — Adicione seus leads em Menu → Leads</p><a href="https://matchimoveis.ia.br" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar o sistema →</a></div>`,
+          texto: 'Bem-vindo ao MatchImóveis! Acesse: https://matchimoveis.ia.br'
+        });
+        console.log('[EMAIL] boas-vindas enviado para:', novo.email);
+      } catch(_eEmail) { console.error('[EMAIL] erro:', _eEmail.message); }
+    }
+
     req.session.user = novo;
     const _uaN = req.headers['user-agent']||'';
     return res.redirect(/Mobile|Android|iPhone|iPad/i.test(_uaN) ? '/app/feed' : '/app-home');

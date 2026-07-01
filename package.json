@@ -20,6 +20,7 @@
   "license": "ISC",
   "description": "MVP local de matching imobiliário",
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.1077.0",
     "axios": "^1.15.2",
     "bcrypt": "^6.0.0",
     "cheerio": "^1.2.0",

@@ -1066,6 +1066,8 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
     if (!telefone && !email) return;
     console.log('[webhook-global] processando lead | userId:', userId, '| tel:', telefone, '| nome:', nome);
     const mapaIntencao = await processarLeadPortal({ nome, email, telefone, mensagem, origemEntrada: 'webhook_imovelweb_global', imovelId: reference, imovelRef: im, userId, canal: 'ImovelWeb' });
+    const _mapa = mapaIntencao || {};
+    const _extrairValor = (arr) => Array.isArray(arr) && arr[0] ? (arr[0].valor || arr[0]) : '';
     await salvarLead({
       id: Date.now().toString(),
       nome, email, telefone, whatsapp: telefone,
@@ -1074,11 +1076,21 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
       userId, user_id: userId,
       imovelId: reference,
       imovelTitulo: im.titulo || '',
-      mapaIntencao: mapaIntencao || {},
-      perfilIA: mapaIntencao || {},
+      tipo: _extrairValor(_mapa.tipo_imovel),
+      transacao: _extrairValor(_mapa.transacao),
+      cidade: _extrairValor(_mapa.cidade),
+      estado: _extrairValor(_mapa.estado),
+      bairro: _extrairValor(_mapa.bairro),
+      quartos: _extrairValor(_mapa.quartos) || 0,
+      suites: _extrairValor(_mapa.suites) || 0,
+      vagas: _extrairValor(_mapa.vagas) || 0,
+      banheiros: _extrairValor(_mapa.banheiros) || 0,
+      area_m2: _extrairValor(_mapa.area) || 0,
+      mapaIntencao: _mapa,
+      perfil_ia: _mapa,
       status: 'novo',
-      temperatura: mapaIntencao?.temperatura || 'frio',
-      fase_funil: mapaIntencao?.fase || 'novo',
+      temperatura: _mapa.temperatura || 'frio',
+      fase_funil: _mapa.fase || 'novo',
       criado_em: new Date().toISOString()
     });
     console.log('[webhook-global] lead salva | userId:', userId, '| tel:', telefone);

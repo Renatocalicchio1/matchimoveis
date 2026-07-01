@@ -5610,6 +5610,14 @@ app.post('/api/lead-interesse', async (req, res) => {
             });
             console.log('[visita] WA corretor notificado:', _telCorretor);
           }
+          try {
+            const _corrUserEmail = _corrUser?.email || '';
+            if (_corrUserEmail) {
+              const { enviarEmail } = require('./services/email');
+              await enviarEmail({ para: _corrUserEmail, assunto: '📅 Nova solicitação de visita — MatchImóveis', html: '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre><br><a href="https://matchimoveis.ia.br/app/visitas" style="display:inline-block;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver no painel →</a></div>', texto: _msg });
+              console.log('[visita] email corretor:', _corrUserEmail);
+            }
+          } catch(_eVE) { console.error('[visita] erro email:', _eVE.message); }
         } catch(e) { console.error('[visita] erro WA corretor:', e.message); }
       })();
 

@@ -1102,8 +1102,7 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
           await _auIWG(lead.id, { mapaIntencao: mapa, perfilIA: _perfilIA, temperatura: mapa.temperatura||'frio', faseFunil: mapa.fase||'novo' });
           console.log('[webhook-global] perfilIA atualizado | userId:', userId);
           try {
-            const { MatchCore } = require('./cerebro/match-core');
-            const mc = new MatchCore();
+            const mc = require('./cerebro/match-core');
             await mc.processar({ lead: { ..._snapIWG, mapaIntencao: mapa, perfilIA: _perfilIA }, mensagem: mensagem||'', canal: 'ImovelWeb', userId });
           } catch(e){ console.error('[webhook-global] erro match:', e.message); }
         }

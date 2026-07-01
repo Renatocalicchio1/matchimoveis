@@ -1112,6 +1112,29 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
 });
 // ── FIM XML/WEBHOOK GLOBAL ────────────────────────────────────────────────────
 
+// Job reengajamento — roda todo dia às 10h
+const _agendarReengajamento = () => {
+  const agora = new Date();
+  const amanha10h = new Date(agora);
+  amanha10h.setDate(amanha10h.getDate() + (agora.getHours() >= 10 ? 1 : 0));
+  amanha10h.setHours(10, 0, 0, 0);
+  const msAte10h = amanha10h - agora;
+  setTimeout(async () => {
+    try {
+      const { enviarEmailReengajamento } = require('./services/emailReengajamento');
+      await enviarEmailReengajamento();
+    } catch(e) { console.error('[JOB REENGAJAMENTO]', e.message); }
+    setInterval(async () => {
+      try {
+        const { enviarEmailReengajamento } = require('./services/emailReengajamento');
+        await enviarEmailReengajamento();
+      } catch(e) { console.error('[JOB REENGAJAMENTO]', e.message); }
+    }, 24 * 3600 * 1000);
+  }, msAte10h);
+  console.log('[JOB REENGAJAMENTO] agendado para:', amanha10h.toLocaleString('pt-BR'));
+};
+_agendarReengajamento();
+
 app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');

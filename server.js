@@ -4387,6 +4387,25 @@ setInterval(async () => {
             + ' que combinam com o seu perfil.\n\nAcesse sua selecao personalizada:\n'
             + _link + '\n\nEscolha o imovel que mais gostou e agende sua visita! \n\n' + ((_user && _user.nome) ? _user.nome : 'Seu corretor') + ' - MatchImoveis';
           await _enviarWA(_instancia, _contato, _msg);
+          // Envia por email se lead tiver email
+          const _emailLead = lead.email || lead.dados?.email || '';
+          if (_emailLead) {
+            try {
+              const { enviarEmail } = require('./services/email');
+              await enviarEmail({
+                para: _emailLead,
+                assunto: '🏠 Encontramos imóveis para você!',
+                html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
+                  <h2 style="color:#FF385C">Olá, ${lead.nome||''}! 🏠</h2>
+                  <p>Encontramos <strong>${_matches} imóvel(is)</strong> que combinam com o seu perfil.</p>
+                  <a href="${_link}" style="display:inline-block;margin-top:16px;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px">Ver minha seleção personalizada →</a>
+                  <p style="margin-top:24px;color:#888;font-size:12px">Escolha o imóvel que mais gostou e agende sua visita!</p>
+                </div>`,
+                texto: _msg
+              });
+              console.log('[VITRINE EMAIL] enviado para:', _emailLead);
+            } catch(_eVit){ console.error('[VITRINE EMAIL] erro:', _eVit.message); }
+          }
           _leads[i].vitrineEnviada = true;
           consumir(_leads[i].userId || _leads[i].corretorId, 'vitrine_whatsapp').catch(()=>{});
           _leads[i].vitrineEnviadaEm = new Date().toISOString();

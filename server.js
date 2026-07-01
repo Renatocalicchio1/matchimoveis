@@ -10192,3 +10192,103 @@ app.get('/admin/executar-cruzar-alex', async (req,res)=>{
     res.json({ok:true,vinculados:v,semCruz:sc});
   } catch(e){ res.json({ok:false,erro:e.message}); }
 });
+
+// ── CAMPANHA EMAIL ────────────────────────────────────────────────────────────
+app.get('/admin/campanha', authAdmin, (req, res) => {
+  res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Campanha Email</title>
+  <style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px}
+  h1{color:#FF385C}input,textarea,select{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd;border-radius:6px;box-sizing:border-box}
+  button{background:#FF385C;color:#fff;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:15px}
+  .box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0}
+  .green{color:#16a34a}.red{color:#dc2626}.gray{color:#6b7280}</style></head>
+  <body><h1>📧 Campanha de Email</h1>
+  <div class="box">
+    <h3>1. Upload da planilha</h3>
+    <p class="gray">CSV ou Excel com colunas: nome, email, celular</p>
+    <input type="file" id="arquivo" accept=".csv,.xlsx,.xls">
+    <button onclick="analisar()">Analisar planilha</button>
+  </div>
+  <div class="box" id="preview" style="display:none">
+    <h3>2. Preview</h3>
+    <div id="stats"></div>
+    <h3 style="margin-top:16px">3. Assunto do email</h3>
+    <input type="text" id="assunto" value="🏠 Conheça o MatchImóveis — matches automáticos para seus leads">
+    <h3>4. Mensagem</h3>
+    <textarea id="mensagem" rows="8">Olá {nome}!
+
+Somos o MatchImóveis — a plataforma que conecta seus leads aos imóveis certos automaticamente via WhatsApp.
+
+✅ Match automático de leads com imóveis
+✅ Vitrine personalizada por WhatsApp
+✅ CRM integrado com kanban
+✅ Integração com ImovelWeb, ZAP, OLX e mais
+
+Acesse agora e teste grátis:
+https://matchimoveis.ia.br</textarea>
+    <button onclick="disparar()" style="margin-top:12px">🚀 Disparar campanha</button>
+  </div>
+  <div class="box" id="resultado" style="display:none"></div>
+  <script>
+  let _novos = [];
+  async function analisar(){
+    const f = document.getElementById('arquivo').files[0];
+    if(!f){ alert('Selecione um arquivo'); return; }
+    const fd = new FormData(); fd.append('arquivo', f);
+    const r = await fetch('/admin/campanha/analisar', {method:'POST', body:fd});
+    const d = await r.json();
+    if(!d.ok){ alert(d.erro); return; }
+    _novos = d.novos;
+    document.getElementById('preview').style.display='block';
+    document.getElementById('stats').innerHTML = \`
+      <p>📊 <strong>Total na planilha:</strong> \${d.total}</p>
+      <p class="green">✅ <strong>Novos para enviar:</strong> \${d.novos.length}</p>
+      <p class="red">❌ <strong>Já cadastrados (não envia):</strong> \${d.duplicados}</p>
+    \`;
+  }
+  async function disparar(){
+    if(!_novos.length){ alert('Nenhum contato novo'); return; }
+    if(!confirm(\`Enviar para \${_novos.length} contatos?\`)) return;
+    const assunto = document.getElementById('assunto').value;
+    const mensagem = document.getElementById('mensagem').value;
+    document.getElementById('resultado').style.display='block';
+    document.getElementById('resultado').innerHTML='<p>⏳ Disparando... não feche esta página.</p>';
+    const r = await fetch('/admin/campanha/disparar', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({novos:_novos, assunto, mensagem})});
+    const d = await r.json();
+    document.getElementById('resultado').innerHTML = \`<p class="green">✅ Enviados: \${d.enviados}</p><p class="red">❌ Erros: \${d.erros}</p>\`;
+  }
+  </script></body></html>`);
+});
+
+app.post('/admin/campanha/analisar', authAdmin, uploadImoveis.single('arquivo'), async (req, res) => {
+  try {
+    const XLSX = require('xlsx');
+    const wb = XLSX.readFile(req.file.path);
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const dados = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    const contatos = dados.map(r => ({
+      nome: String(r.nome || r.Nome || r.NOME || '').trim(),
+      email: String(r.email || r.Email || r.EMAIL || '').trim().toLowerCase(),
+      celular: String(r.celular || r.Celular || r.CELULAR || r.telefone || '').trim()
+    })).filter(c => c.email && c.email.includes('@'));
+
+    const { processarCampanha } = require('./services/campanha');
+    const { novos, duplicados, total } = await processarCampanha(contatos, {});
+    res.json({ ok: true, total, novos, duplicados: duplicados.length });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/campanha/disparar', authAdmin, express.json({ limit: '50mb' }), async (req, res) => {
+  try {
+    const { novos, assunto, mensagem } = req.body;
+    const { dispararCampanha } = require('./services/campanha');
+    const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
+      <h2 style="color:#FF385C">MatchImóveis 🏠</h2>
+      <pre style="font-family:Arial,sans-serif;white-space:pre-wrap">${mensagem}</pre>
+      <a href="https://matchimoveis.ia.br" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar gratuitamente →</a>
+      <p style="margin-top:32px;color:#888;font-size:11px">Para não receber mais emails, responda com CANCELAR.</p>
+    </div>`;
+    const resultado = await dispararCampanha(novos, { assunto, html });
+    res.json(resultado);
+  } catch(e) { res.json({ enviados: 0, erros: 1, erro: e.message }); }
+});
+// ── FIM CAMPANHA EMAIL ────────────────────────────────────────────────────────

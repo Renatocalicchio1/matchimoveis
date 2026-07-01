@@ -1064,9 +1064,10 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
     const telefone = phones[phones.length - 1].replace(/\D/g,'');
     const mensagem = body.message || body.clientMessage || '';
     if (!telefone && !email) return;
+    console.log('[webhook-global] processando lead | userId:', userId, '| tel:', telefone, '| nome:', nome);
     await processarLeadPortal({ nome, email, telefone, mensagem, origemEntrada: 'webhook_imovelweb_global', imovelId: reference, imovelRef: im, userId, canal: 'ImovelWeb' });
     console.log('[webhook-global] lead processada | userId:', userId, '| tel:', telefone);
-  } catch(e) { console.error('[webhook-global]', e.message); }
+  } catch(e) { console.error('[webhook-global] ERRO:', e.message, e.stack); }
 });
 // ── FIM XML/WEBHOOK GLOBAL ────────────────────────────────────────────────────
 

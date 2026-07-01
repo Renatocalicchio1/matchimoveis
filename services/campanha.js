@@ -1,6 +1,8 @@
 const { query } = require('./db');
 const { enviarEmail } = require('./email');
 
+const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : 'http://localhost:3000';
+
 async function importarContatos(contatos) {
   let importados = 0, duplicados = 0;
   for (const c of contatos) {
@@ -20,8 +22,21 @@ async function statsBase() {
   return rows;
 }
 
+async function statsTracking() {
+  const { rows } = await query(`SELECT tipo, COUNT(*) as total FROM campanha_tracking GROUP BY tipo`);
+  return rows;
+}
+
+async function statsCadastrados() {
+  const { rows } = await query(`
+    SELECT COUNT(*) as total FROM campanha_contatos cc
+    WHERE LOWER(cc.email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
+    AND cc.status = 'enviado'
+  `);
+  return rows[0]?.total || 0;
+}
+
 async function proximoLote(limite) {
-  // Filtra quem não tem cadastro no MatchImóveis e ainda não recebeu
   const { rows } = await query(`
     SELECT cc.id, cc.nome, cc.email, cc.celular
     FROM campanha_contatos cc
@@ -41,12 +56,29 @@ async function marcarEnviado(id, erro) {
   }
 }
 
-async function dispararLote(lote, { assunto, html }) {
+function gerarHTML(mensagem, contato, assunto) {
+  const trackPixel = `${BASE_URL}/campanha/track/open/${contato.id || 0}`;
+  const trackLink = `${BASE_URL}/campanha/track/click/${contato.id || 0}`;
+  const msgComLink = mensagem.replace(
+    'https://www.matchimoveis.ia.br',
+    trackLink
+  );
+  return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
+    <img src="https://matchimoveis.ia.br/logo.png" alt="MatchImóveis" style="height:40px;margin-bottom:24px">
+    <pre style="font-family:Arial,sans-serif;white-space:pre-wrap;font-size:15px;line-height:1.6">${msgComLink}</pre>
+    <a href="${trackLink}" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px">👉 Ative agora — 1.000 créditos grátis →</a>
+    <p style="margin-top:32px;color:#888;font-size:11px">MatchImóveis • matchimoveis.online<br>Para não receber mais emails, responda com CANCELAR.</p>
+    <img src="${trackPixel}" width="1" height="1" style="display:none">
+  </div>`;
+}
+
+async function dispararLote(lote, { assunto, mensagem }) {
   let enviados = 0, erros = 0;
   for (const c of lote) {
     try {
-      const htmlPersonalizado = html.replace(/\{nome\}/g, c.nome || 'Corretor');
-      await enviarEmail({ para: c.email, assunto, html: htmlPersonalizado, texto: assunto });
+      const msgPersonalizada = mensagem.replace(/\{nome\}/g, c.nome || 'Corretor');
+      const html = gerarHTML(msgPersonalizada, c, assunto);
+      await enviarEmail({ para: c.email, assunto, html, texto: assunto });
       await marcarEnviado(c.id, null);
       enviados++;
       console.log(`[CAMPANHA] enviado: ${c.email} (${enviados}/${lote.length})`);
@@ -60,4 +92,9 @@ async function dispararLote(lote, { assunto, html }) {
   return { enviados, erros };
 }
 
-module.exports = { importarContatos, statsBase, proximoLote, dispararLote };
+async function enviarTeste(emailTeste, { assunto, mensagem }) {
+  const html = gerarHTML(mensagem.replace(/\{nome\}/g, 'Corretor Teste'), { id: 'teste' }, assunto);
+  await enviarEmail({ para: emailTeste, assunto: '[TESTE] ' + assunto, html, texto: assunto });
+}
+
+module.exports = { importarContatos, statsBase, statsTracking, statsCadastrados, proximoLote, dispararLote, enviarTeste };

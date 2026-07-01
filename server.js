@@ -10194,21 +10194,40 @@ app.get('/admin/executar-cruzar-alex', async (req,res)=>{
 });
 
 // ── CAMPANHA EMAIL ────────────────────────────────────────────────────────────
+// Tracking abertura
+app.get('/campanha/track/open/:id', async (req, res) => {
+  try { await require('./services/db').query("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'abertura' FROM campanha_contatos WHERE id=$1", [req.params.id]); } catch(e){}
+  const pixel = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7','base64');
+  res.set({'Content-Type':'image/gif','Content-Length':pixel.length,'Cache-Control':'no-cache'});
+  res.end(pixel);
+});
+
+// Tracking clique
+app.get('/campanha/track/click/:id', async (req, res) => {
+  try { await require('./services/db').query("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'clique' FROM campanha_contatos WHERE id=$1", [req.params.id]); } catch(e){}
+  res.redirect('https://www.matchimoveis.ia.br');
+});
+
 app.get('/admin/campanha', authAdmin, async (req, res) => {
-  const { statsBase } = require('./services/campanha');
+  const { statsBase, statsTracking, statsCadastrados } = require('./services/campanha');
   const stats = await statsBase().catch(()=>[]);
+  const tracking = await statsTracking().catch(()=>[]);
+  const cadastrados = await statsCadastrados().catch(()=>0);
   const total = stats.reduce((a,b)=>a+parseInt(b.total),0);
   const pendentes = (stats.find(s=>s.status==='pendente')||{}).total||0;
   const enviados = (stats.find(s=>s.status==='enviado')||{}).total||0;
   const erros = (stats.find(s=>s.status==='erro')||{}).total||0;
+  const aberturas = (tracking.find(s=>s.tipo==='abertura')||{}).total||0;
+  const cliques = (tracking.find(s=>s.tipo==='clique')||{}).total||0;
   res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Campanha Email</title>
   <style>body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:20px}
-  h1{color:#FF385C}input,textarea,select{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd;border-radius:6px;box-sizing:border-box}
-  button{background:#FF385C;color:#fff;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:15px;margin:4px}
+  h1{color:#FF385C}input,textarea{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd;border-radius:6px;box-sizing:border-box}
+  button{background:#FF385C;color:#fff;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}
+  button.sec{background:#6b7280}
   .box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0}
   .green{color:#16a34a}.red{color:#dc2626}.gray{color:#6b7280}
-  .stat{display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px 24px;margin:8px;text-align:center}
-  .stat strong{display:block;font-size:24px;color:#FF385C}</style></head>
+  .stat{display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px 20px;margin:6px;text-align:center;min-width:80px}
+  .stat strong{display:block;font-size:22px;color:#FF385C}</style></head>
   <body><h1>📧 Campanha de Email</h1>
   <div class="box">
     <h3>📊 Base de contatos</h3>
@@ -10216,6 +10235,9 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
     <div class="stat"><strong style="color:#f59e0b">${pendentes}</strong>Pendentes</div>
     <div class="stat"><strong style="color:#16a34a">${enviados}</strong>Enviados</div>
     <div class="stat"><strong style="color:#dc2626">${erros}</strong>Erros</div>
+    <div class="stat"><strong style="color:#8b5cf6">${aberturas}</strong>Aberturas</div>
+    <div class="stat"><strong style="color:#2563eb">${cliques}</strong>Cliques</div>
+    <div class="stat"><strong style="color:#16a34a">${cadastrados}</strong>Cadastrados</div>
   </div>
   <div class="box">
     <h3>1. Importar contatos</h3>
@@ -10225,13 +10247,11 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
     <div id="import-resultado"></div>
   </div>
   <div class="box">
-    <h3>2. Disparar lote</h3>
-    <label>Quantidade por lote:</label>
-    <input type="number" id="limite" value="100" min="1" max="1000" style="width:120px">
+    <h3>2. Configurar e disparar</h3>
     <label>Assunto:</label>
     <input type="text" id="assunto" value="🚨 A IA já está trabalhando para corretores. E você?">
     <label>Mensagem:</label>
-    <textarea id="mensagem" rows="20">Olá {nome},
+    <textarea id="mensagem" rows="18">Olá {nome},
 
 O corretor tradicional trabalha sozinho. O corretor moderno trabalha com Inteligência Artificial.
 
@@ -10249,13 +10269,23 @@ Isso não é futuro. Isso já está acontecendo na Match Imóveis.
 
 Uma plataforma criada para corretores e imobiliárias que querem vender mais, com menos esforço, usando IA de verdade — não promessa.
 
-Você começa com 1.000 créditos gratuitos para testar tudo agora.
+Você começa com 1.000 créditos gratuitos para testar tudo agora:
+https://www.matchimoveis.ia.br
 
 O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou ficar para trás?
 
 — Equipe Match Imóveis</textarea>
-    <button onclick="disparar()">🚀 Disparar lote</button>
-    <div id="disparo-resultado"></div>
+    <div style="margin:8px 0">
+      <label>Email para teste:</label>
+      <input type="email" id="email-teste" placeholder="seu@email.com" style="width:300px;display:inline-block">
+      <button class="sec" onclick="testar()">📨 Enviar teste</button>
+    </div>
+    <div style="margin:8px 0">
+      <label>Quantidade por lote:</label>
+      <input type="number" id="limite" value="100" min="1" max="1000" style="width:100px;display:inline-block">
+      <button onclick="disparar()">🚀 Disparar lote</button>
+    </div>
+    <div id="resultado"></div>
   </div>
   <script>
   async function importar(){
@@ -10266,18 +10296,28 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
     const r = await fetch('/admin/campanha/importar', {method:'POST', body:fd});
     const d = await r.json();
     if(!d.ok){ document.getElementById('import-resultado').innerHTML='<p class=red>Erro: '+d.erro+'</p>'; return; }
-    document.getElementById('import-resultado').innerHTML='<p class=green>✅ Importados: '+d.importados+' | Duplicados ignorados: '+d.duplicados+'</p>';
+    document.getElementById('import-resultado').innerHTML='<p class=green>✅ Importados: '+d.importados+' | Duplicados: '+d.duplicados+'</p>';
     setTimeout(()=>location.reload(), 2000);
+  }
+  async function testar(){
+    const email = document.getElementById('email-teste').value;
+    if(!email){ alert('Digite o email de teste'); return; }
+    const assunto = document.getElementById('assunto').value;
+    const mensagem = document.getElementById('mensagem').value;
+    document.getElementById('resultado').innerHTML='<p>⏳ Enviando teste...</p>';
+    const r = await fetch('/admin/campanha/teste', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, assunto, mensagem})});
+    const d = await r.json();
+    document.getElementById('resultado').innerHTML = d.ok ? '<p class=green>✅ Email de teste enviado!</p>' : '<p class=red>❌ Erro: '+d.erro+'</p>';
   }
   async function disparar(){
     const limite = parseInt(document.getElementById('limite').value)||100;
     const assunto = document.getElementById('assunto').value;
     const mensagem = document.getElementById('mensagem').value;
     if(!confirm('Disparar lote de até '+limite+' emails?')) return;
-    document.getElementById('disparo-resultado').innerHTML='<p>⏳ Disparando... não feche esta página.</p>';
+    document.getElementById('resultado').innerHTML='<p>⏳ Disparando... não feche esta página.</p>';
     const r = await fetch('/admin/campanha/disparar-lote', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({limite, assunto, mensagem})});
     const d = await r.json();
-    document.getElementById('disparo-resultado').innerHTML='<p class=green>✅ Enviados: '+d.enviados+'</p><p class=red>❌ Erros: '+d.erros+'</p>';
+    document.getElementById('resultado').innerHTML='<p class=green>✅ Enviados: '+d.enviados+'</p><p class=red>❌ Erros: '+d.erros+'</p>';
     setTimeout(()=>location.reload(), 3000);
   }
   </script></body></html>`);
@@ -10300,20 +10340,22 @@ app.post('/admin/campanha/importar', authAdmin, uploadImoveis.single('arquivo'),
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
+app.post('/admin/campanha/teste', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { email, assunto, mensagem } = req.body;
+    const { enviarTeste } = require('./services/campanha');
+    await enviarTeste(email, { assunto, mensagem });
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
 app.post('/admin/campanha/disparar-lote', authAdmin, express.json(), async (req, res) => {
   try {
     const { limite, assunto, mensagem } = req.body;
     const { proximoLote, dispararLote } = require('./services/campanha');
     const lote = await proximoLote(limite || 100);
     if (!lote.length) return res.json({ enviados: 0, erros: 0, msg: 'Nenhum contato pendente' });
-    const html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
-      <img src="https://matchimoveis.ia.br/logo.png" alt="MatchImóveis" style="height:40px;margin-bottom:24px">
-      <h2 style="color:#FF385C">🚨 A IA já está trabalhando para corretores. E você?</h2>
-      <pre style="font-family:Arial,sans-serif;white-space:pre-wrap">${mensagem}</pre>
-      <a href="https://matchimoveis.ia.br" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px">👉 Ative agora — 1.000 créditos grátis →</a>
-      <p style="margin-top:32px;color:#888;font-size:11px">MatchImóveis • matchimoveis.online<br>Para não receber mais emails, responda com CANCELAR.</p>
-    </div>`;
-    const resultado = await dispararLote(lote, { assunto, html });
+    const resultado = await dispararLote(lote, { assunto, mensagem });
     res.json(resultado);
   } catch(e) { res.json({ enviados: 0, erros: 1, erro: e.message }); }
 });

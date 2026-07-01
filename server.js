@@ -10204,7 +10204,7 @@ app.get('/campanha/track/open/:id', async (req, res) => {
 
 // Tracking clique
 app.get('/campanha/track/click/:id', async (req, res) => {
-  try { await require('./services/db').query("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'clique' FROM campanha_contatos WHERE id=$1", [req.params.id]); } catch(e){}
+  try { if(req.params.id !== 'teste') await require('./services/db').query("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'clique' FROM campanha_contatos WHERE id=$1", [req.params.id]); } catch(e){}
   res.redirect('https://www.matchimoveis.ia.br');
 });
 

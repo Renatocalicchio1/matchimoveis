@@ -707,7 +707,7 @@ class MatchCore {
     const total = (lead.matches||[]).length + (lead.matchesAuto||[]).length;
 
     if (temp==='quente' && fase==='interessado')          add('agendar_visita', 24);
-    if (temp==='quente' && fase==='decidido')             add('proposta_negocio', 12);
+    // if (temp==='quente' && fase==='decidido')             add('proposta_negocio', 12); // DESATIVADO
     if (temp==='morno'  && msgs>=3)                       add('enviar_vitrine', 0.017);
     if (msgs===1 && temp==='frio')                        add('qualificar_lead', 0.083);
     if (total>0 && !lead.vitrineEnviada)                  add('enviar_vitrine', 0.017);

@@ -61,7 +61,7 @@ function gerarHTML(mensagem, contato, assunto) {
   const trackLink = `${BASE_URL}/campanha/track/click/${contato.id || 0}`;
   const msgComLink = mensagem.replace(
     'https://www.matchimoveis.ia.br',
-    trackLink
+    '<a href="'+trackLink+'">https://www.matchimoveis.ia.br</a>'
   );
   return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
     <img src="https://matchimoveis.ia.br/logo.png" alt="MatchImóveis" style="height:40px;margin-bottom:24px">

@@ -3363,7 +3363,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
           }
           const _perfilIAIW = {
             tipo: _imIW?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
-            intencao: mapa.transacao?.[0]?.valor || '',
+            intencao: _imIW?.transacao || mapa.transacao?.[0]?.valor || '',
             bairro: _imIW?.bairro || mapa.bairro?.[0]?.valor || '',
             cidade: _imIW?.cidade || mapa.cidade?.[0]?.valor || '',
             estado: _imIW?.estado || mapa.estado?.[0]?.valor || '',
@@ -3473,7 +3473,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
           }
           const _perfilIA = {
             tipo: _imPortal?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
-            intencao: mapa.transacao?.[0]?.valor || '',
+            intencao: _imPortal?.transacao || mapa.transacao?.[0]?.valor || '',
             bairro: _imPortal?.bairro || mapa.bairro?.[0]?.valor || '',
             cidade: _imPortal?.cidade || mapa.cidade?.[0]?.valor || '',
             estado: _imPortal?.estado || mapa.estado?.[0]?.valor || '',
@@ -3569,7 +3569,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
           }
           const _perfilIA = {
             tipo: _imPortal?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
-            intencao: mapa.transacao?.[0]?.valor || '',
+            intencao: _imPortal?.transacao || mapa.transacao?.[0]?.valor || '',
             bairro: _imPortal?.bairro || mapa.bairro?.[0]?.valor || '',
             cidade: _imPortal?.cidade || mapa.cidade?.[0]?.valor || '',
             estado: _imPortal?.estado || mapa.estado?.[0]?.valor || '',
@@ -3668,7 +3668,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
           }
           const _perfilIA = {
             tipo: _imPortal?.tipo || mapa.tipo_imovel?.[0]?.valor || '',
-            intencao: mapa.transacao?.[0]?.valor || '',
+            intencao: _imPortal?.transacao || mapa.transacao?.[0]?.valor || '',
             bairro: _imPortal?.bairro || mapa.bairro?.[0]?.valor || '',
             cidade: _imPortal?.cidade || mapa.cidade?.[0]?.valor || '',
             estado: _imPortal?.estado || mapa.estado?.[0]?.valor || '',

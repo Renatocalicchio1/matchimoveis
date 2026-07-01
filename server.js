@@ -1065,8 +1065,23 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
     const mensagem = body.message || body.clientMessage || '';
     if (!telefone && !email) return;
     console.log('[webhook-global] processando lead | userId:', userId, '| tel:', telefone, '| nome:', nome);
-    await processarLeadPortal({ nome, email, telefone, mensagem, origemEntrada: 'webhook_imovelweb_global', imovelId: reference, imovelRef: im, userId, canal: 'ImovelWeb' });
-    console.log('[webhook-global] lead processada | userId:', userId, '| tel:', telefone);
+    const mapaIntencao = await processarLeadPortal({ nome, email, telefone, mensagem, origemEntrada: 'webhook_imovelweb_global', imovelId: reference, imovelRef: im, userId, canal: 'ImovelWeb' });
+    await salvarLead({
+      id: Date.now().toString(),
+      nome, email, telefone, whatsapp: telefone,
+      mensagem, origem: 'webhook_imovelweb_global',
+      canal: 'ImovelWeb',
+      userId, user_id: userId,
+      imovelId: reference,
+      imovelTitulo: im.titulo || '',
+      mapaIntencao: mapaIntencao || {},
+      perfilIA: mapaIntencao || {},
+      status: 'novo',
+      temperatura: mapaIntencao?.temperatura || 'frio',
+      fase_funil: mapaIntencao?.fase || 'novo',
+      criado_em: new Date().toISOString()
+    });
+    console.log('[webhook-global] lead salva | userId:', userId, '| tel:', telefone);
   } catch(e) { console.error('[webhook-global] ERRO:', e.message, e.stack); }
 });
 // ── FIM XML/WEBHOOK GLOBAL ────────────────────────────────────────────────────

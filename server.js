@@ -2154,6 +2154,8 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
         const _msg = 'Olá *' + (_v.nome||'') + '*! Sua visita ao imóvel *' + _imovel + '*' + _data + ' foi confirmada!\n\nConfirme sua presença:\n✅ Confirmar: ' + _linkConfirmar + '\n❌ Não posso ir: ' + _linkRecusar;
         await _enviarWA(_telCliente, _msg);
         consumir(_v.userId || _v.corretorId || '', 'confirmacao_auto').catch(()=>{});
+        const _emailC1 = _v.email || _v.emailCliente || '';
+        if (_emailC1) { try { const { enviarEmail: _eE1 } = require('./services/email'); await _eE1({ para: _emailC1, assunto: '✅ Sua visita foi confirmada!', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); } catch(_e1){} }
       }
     } else if (resposta === 'indisponivel') {
       todas[idx].status = 'imovel_indisponivel';
@@ -2178,6 +2180,8 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
         const _msg = 'Olá *' + (_v.nome||'') + '*! Infelizmente o imóvel *' + _imovel + '* não está mais disponível.\n\nAcesse a vitrine e escolha outra opção: ' + _linkVitrine;
         await _enviarWA(_telCliente, _msg);
         consumir(_v.userId || _v.corretorId || '', 'notificacao_prop').catch(()=>{});
+        const _emailC2 = _v.email || _v.emailCliente || '';
+        if (_emailC2) { try { const { enviarEmail: _eE2 } = require('./services/email'); await _eE2({ para: _emailC2, assunto: '❌ Imóvel indisponível', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); } catch(_e2){} }
       }
     } else if (resposta === 'remarcar') {
       todas[idx].status = 'pendente_remarcar';
@@ -5620,7 +5624,7 @@ app.post('/api/lead-interesse', async (req, res) => {
               + _dataHora
               + _contatoExtra
               + _avisoContato
-              + '\n\n✅ Confirmar: ' + _linkConfirmar
+              + '\n\n✅ Confirmar, remarcar ou informar imóvel indisponível: ' + _linkConfirmar
               + '\n📋 Painel: ' + _BASE + '/app/visitas';
             await fetch(_EU + '/message/sendText/' + _instancia, {
               method: 'POST',

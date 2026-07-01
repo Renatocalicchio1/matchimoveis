@@ -1069,7 +1069,7 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
       mensagem,
       idAnuncio: reference,
       fonte: 'ImovelWeb', origem: 'ImovelWeb', origemEntrada: 'webhook_imovelweb_global',
-      userId, codigoUsuario: userId,
+      userId, codigoUsuario: userId, user_id: userId,
       status: 'novo', score: 0, temperatura: 'frio', faseFunil: 'novo',
       mensagens: [], matches: [], timeline: [], eventos: [], followUps: [],
       criadoEm: new Date().toISOString(),

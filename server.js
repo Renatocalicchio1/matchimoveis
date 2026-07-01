@@ -660,7 +660,7 @@ tr:hover td{background:#fafafa;}
 <div class="top">
   <h1>Admin · MatchImóveis</h1>
   <div style="display:flex;gap:16px;align-items:center">
-    <a href="/admin/status" style="font-size:12px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🖥️ Status do Sistema</a>
+    <a href="/admin/status" style="font-size:12px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🖥️ Status do Sistema</a> <a href="/admin/campanha" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📧 Campanha Email</a>
     <a href="https://match-evolution-api.onrender.com/manager" target="_blank" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📱 Painel WhatsApp</a>
     <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
     <a href="/admin/quintoandar-solicitacoes" style="font-size:12px;background:#00a86b;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏢 Solicitações QA</a>
@@ -10287,7 +10287,44 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
     </div>
     <div id="resultado"></div>
   </div>
+  <div class="box">
+    <h3>📋 Contatos importados</h3>
+    <div style="margin-bottom:8px">
+      <input type="text" id="busca" placeholder="Buscar por nome ou email..." style="width:300px;display:inline-block" oninput="buscar()">
+      <select id="filtro-status" onchange="buscar()" style="width:150px;display:inline-block;margin-left:8px">
+        <option value="">Todos os status</option>
+        <option value="pendente">Pendentes</option>
+        <option value="enviado">Enviados</option>
+        <option value="erro">Erros</option>
+      </select>
+    </div>
+    <div id="tabela-contatos">⏳ Carregando...</div>
+    <div id="paginacao" style="margin-top:8px"></div>
+  </div>
   <script>
+  let _pagina = 1;
+  async function buscar(p){
+    _pagina = p || 1;
+    const q = document.getElementById('busca').value;
+    const s = document.getElementById('filtro-status').value;
+    const r = await fetch('/admin/campanha/contatos?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+s);
+    const d = await r.json();
+    if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class=red>Erro ao carregar</p>'; return; }
+    let html = '<table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Enviado em</th></tr>';
+    for(const c of d.contatos){
+      const cor = c.status==='enviado'?'#16a34a':c.status==='erro'?'#dc2626':'#f59e0b';
+      html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px">'+c.nome+'</td><td style="padding:8px">'+c.email+'</td><td style="padding:8px">'+c.celular+'</td><td style="padding:8px;color:'+cor+'">'+c.status+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
+    }
+    html += '</table>';
+    document.getElementById('tabela-contatos').innerHTML = html;
+    // Paginação
+    let pag = '';
+    if(_pagina > 1) pag += '<button class="sec" onclick="buscar('+(_pagina-1)+')">← Anterior</button> ';
+    pag += '<span class=gray>Página '+_pagina+' — '+d.total+' contatos</span> ';
+    if(d.contatos.length === 50) pag += '<button class="sec" onclick="buscar('+(_pagina+1)+')">Próximo →</button>';
+    document.getElementById('paginacao').innerHTML = pag;
+  }
+  buscar();
   async function importar(){
     const f = document.getElementById('arquivo').files[0];
     if(!f){ alert('Selecione um arquivo'); return; }
@@ -10360,3 +10397,20 @@ app.post('/admin/campanha/disparar-lote', authAdmin, express.json(), async (req,
   } catch(e) { res.json({ enviados: 0, erros: 1, erro: e.message }); }
 });
 // ── FIM CAMPANHA EMAIL ────────────────────────────────────────────────────────
+
+app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
+  try {
+    const pagina = parseInt(req.query.pagina)||1;
+    const q = req.query.q||'';
+    const status = req.query.status||'';
+    const offset = (pagina-1)*50;
+    let where = 'WHERE 1=1';
+    const params = [];
+    if(q){ params.push('%'+q+'%'); where += ` AND (nome ILIKE $${params.length} OR email ILIKE $${params.length})`; }
+    if(status){ params.push(status); where += ` AND status=$${params.length}`; }
+    params.push(50); params.push(offset);
+    const { rows } = await require('./services/db').query(`SELECT nome,email,celular,status,enviado_em FROM campanha_contatos ${where} ORDER BY criado_em DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
+    const { rows: tot } = await require('./services/db').query(`SELECT COUNT(*) as total FROM campanha_contatos ${where}`, params.slice(0,-2));
+    res.json({ ok:true, contatos:rows, total:tot[0].total });
+  } catch(e){ res.json({ ok:false, erro:e.message }); }
+});

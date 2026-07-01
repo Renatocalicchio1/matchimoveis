@@ -1736,14 +1736,11 @@ app.post('/login', async (req,res)=>{
         const _passo2 = `*📱 Passo 2 — Ative seu WhatsApp*\n\nVá em *Menu → Perfil* e conecte seu número do WhatsApp.\n\nO MatchImóveis usa seu WhatsApp para enviar vitrines, confirmar visitas e se comunicar com seus leads automaticamente. ⚡\n\n💡 *DICA IMPORTANTE*\n👉 No *menu lateral esquerdo* da plataforma você encontra o *🤖 Assistente IA* — disponível 24h para responder qualquer dúvida sobre o sistema na hora!\n\n🔗 https://matchimoveis.ia.br`;
         const _passo3 = `*🎯 Passo 3 — Adicione seus leads*\n\nVá em *Menu → Leads* e importe sua planilha de leads, cadastre manualmente ou ative os portais para receber leads automaticamente.\n\nPronto! O sistema começa a gerar matches e enviar vitrines para você. 🚀\n\n━━━━━━━━━━━━━━━━━━\n🤖 *ASSISTENTE IA*\nNo *menu lateral esquerdo* da plataforma, clique em *Assistente* — ele tira todas as suas dúvidas em segundos, a qualquer hora!\n━━━━━━━━━━━━━━━━━━\n\n🔗 https://matchimoveis.ia.br`;
 
-        for(const _msg of [_passo1, _passo2, _passo3]){
-          await new Promise(r => setTimeout(r, 2000));
-          await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
-            body: JSON.stringify({ number: _telCorretor, text: _msg })
-          }).catch(()=>{});
-        }
+        await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
+          body: JSON.stringify({ number: _telCorretor, text: _passo1 + '\n\n' + _passo2 + '\n\n' + _passo3 })
+        }).catch(()=>{});
       } catch(_e) { console.error('[notif-cadastro]', _e.message); }
     })();
 

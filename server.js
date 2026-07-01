@@ -4429,6 +4429,8 @@ setInterval(async () => {
             + 'Caso ja esteja conversando com ' + _nomeCorretor + ', pode desconsiderar esta mensagem. '
             + 'Mas se quiser, pode entrar no link e agendar diretamente por la! 😊';
           await _enviarWA(_instancia, _contato, _msg);
+          const _emailFU = lead.email || '';
+          if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '🏠 Seus imóveis estão esperando por você!', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); } catch(_eFU){} }
 
         } else if (fu.tipo === 'qualificar_lead') {
           // DESATIVADO — qualificação agora é imediata no webhook
@@ -4441,11 +4443,15 @@ setInterval(async () => {
             + (_imovel ? 'Temos ' + _imovel.tipo + ' em ' + _imovel.bairro + ' disponível.\n\n' : '')
             + 'Qual dia e horário ficaria melhor para você?';
           await _enviarWA(_instancia, _contato, _msg);
+          const _emailFU = lead.email || '';
+          if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '📅 Que tal agendar uma visita?', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); } catch(_eFU){} }
 
         } else if (fu.tipo === 'followup_visita') {
           _leads[i].waFollowupVisitaEnviadoEm = new Date().toISOString();
           const _msg = 'Olá ' + (lead.nome || '') + '! Como foi a visita? Gostou do imóvel? 🏠\n\nPosso te ajudar com alguma dúvida ou mostrar outras opções?';
           await _enviarWA(_instancia, _contato, _msg);
+          const _emailFU = lead.email || '';
+          if (_emailFU) { try { const { enviarEmail: _eEFU } = require('./services/email'); await _eEFU({ para: _emailFU, assunto: '🏠 Como foi a visita?', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); } catch(_eFU){} }
 
         } else if (fu.tipo === 'proposta_negocio') {
           _leads[i].waPropostaEnviadoEm = new Date().toISOString();

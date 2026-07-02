@@ -1340,6 +1340,15 @@ app.get('/feed-xml/:portal/:token', async (req, res) => {
     res.send(r.rows[0].arquivo);
   } catch(e) { res.status(500).send('Erro: '+e.message); }
 });
+
+function spawnAsync(cmd, args, opts){
+  return new Promise((resolve, reject) => {
+    const { spawn } = require('child_process');
+    const p = spawn(cmd, args, { ...opts, stdio:'inherit' });
+    p.on('close', c => c === 0 ? resolve() : reject(new Error('exit ' + c)));
+    p.on('error', reject);
+  });
+}
 app.get('/', (req,res)=>{
   if (req.session && req.session.user) {
     const ua = req.headers['user-agent'] || '';
@@ -1411,12 +1420,12 @@ app.post('/app/importar', upload.any(), async (req, res) => {
 
   res.json({ ok:true, status:'rodando' });
 
-  setTimeout(() => {
+  setTimeout(async () => {
     try {
-      const { execSync } = require('child_process');
       const userId = _importUserId || '';
       // créditos de importar_xml são cobrados por imóvel novo dentro do importXMLCompleto.js
-      const _xmlOutput = execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { encoding: 'utf8', timeout: 240000, env: { ...process.env }, stdio: ['inherit','pipe','inherit'] });
+      await spawnAsync('node', [path.join(__dirname,'importXMLCompleto.js'), xmlUrl, userId], { env: { ...process.env } });
+      const _xmlOutput = '';
       const _importResultLine = (_xmlOutput||'').split('\n').find(l => l.startsWith('IMPORT_RESULT:'));
       const _importResult = _importResultLine ? JSON.parse(_importResultLine.replace('IMPORT_RESULT:','')) : null;
       if (_importResult && _importResult.naoImportados > 0) {

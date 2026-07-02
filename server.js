@@ -8495,6 +8495,11 @@ app.post('/app/lead/:id/classificar', auth, async (req, res) => {
     leads[idx].tipoLeadAtualizadoEm = new Date().toISOString();
     leads[idx].tipoLeadAtualizadoPor = uid;
     await salvarTodosLeads(leads);
+    // Salva no banco PG
+    try {
+      const { query: _qCL } = require('./services/db');
+      await _qCL('UPDATE leads SET tipo_lead=$1 WHERE id=$2', [tipoLead, String(req.params.id)]);
+    } catch(_eCL){ console.error('[LEAD] erro classificar PG:', _eCL.message); }
     console.log('[LEAD] classificada como:', tipoLead, '| id:', req.params.id);
     res.json({ ok: true });
   } catch(e) {

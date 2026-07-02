@@ -367,7 +367,7 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
         <% } %>
       </div>
 
-      <% if(item.proprietario && item.proprietario.nome && (item.user_id === user.codigo_usuario || item.userId === user.codigo_usuario || item.usuarioId === user.codigo_usuario)) { %>
+      <% const _itemOwner = (item.userId||item.user_id||item.usuarioId); const _userCod = (user.id||user.codigoUsuario||user.codigo_usuario); if(item.proprietario && item.proprietario.nome && _itemOwner === _userCod) { %>
       <div class="im-prop">
         <strong><%= item.proprietario.nome %></strong><br>
         <%= item.proprietario.telefone || item.proprietario.celular || '' %>

@@ -1111,6 +1111,17 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
   } catch(e) { console.error('[webhook-global] ERRO:', e.message); }
 });
 // ── FIM XML/WEBHOOK GLOBAL ────────────────────────────────────────────────────
+// ── IMPORT JOBS STATUS ────────────────────────────────────────────────────────
+app.get('/api/import/status/:jobId', auth, async (req, res) => {
+  try {
+    const { buscarJob } = require('./services/importJobs');
+    const job = await buscarJob(req.params.jobId);
+    if (!job) return res.json({ ok: false, erro: 'Job não encontrado' });
+    res.json({ ok: true, job });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+// ── FIM IMPORT JOBS STATUS ────────────────────────────────────────────────────
+
 
 // Job reengajamento — roda todo dia às 10h
 const _agendarReengajamento = () => {

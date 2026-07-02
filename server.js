@@ -1505,7 +1505,7 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
       const { execSync } = require('child_process');
       const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : '';
 
-      execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio:'inherit', cwd: __dirname });
+      await spawnAsync('node', [path.join(__dirname,'processLeads.js'), file.path, userId], { cwd: __dirname });
 
       // Reprocessar match para leads novas importadas — via import-processor
       setTimeout(async () => {
@@ -1576,7 +1576,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 
     const { execSync } = require("child_process");
 
-    const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${userId}"`, { stdio: "inherit", cwd: __dirname });
+    const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : ""; await spawnAsync('node', [path.join(__dirname,'processLeads.js'), file.path, userId], { cwd: __dirname });
     // Cobra importar_lead — diferenca de leads antes e depois
     try {
       const { query: _qD } = require('./services/db');
@@ -2993,7 +2993,7 @@ app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req,
   try {
     const { execSync } = require('child_process');
     const path = require('path');
-    execSync(`node ${path.join(__dirname,'importXMLCompleto.js')} "${xmlUrl}" "${userId}"`, { stdio: 'inherit', timeout: 240000 });
+    await spawnAsync('node', [path.join(__dirname,'importXMLCompleto.js'), xmlUrl, userId], {});
     _cacheImoveis = null;
     await _recarregarImoveis();
     const total = (_cacheImoveis || []).filter(im => (im.userId||im.usuarioId) === userId).length;
@@ -5126,7 +5126,7 @@ app.post('/process', upload.any(), async (req, res) => {
     if (!file) return res.send('Envie o arquivo');
 
     const { execSync } = require('child_process');
-    const uid = req.session.user ? req.session.user.id : ""; execSync(`node ${path.join(__dirname,'processLeads.js')} "${file.path}" "${uid}"`, { stdio: 'inherit', cwd: __dirname });
+    const uid = req.session.user ? req.session.user.id : ""; await spawnAsync('node', [path.join(__dirname,'processLeads.js'), file.path, uid], { cwd: __dirname });
 
     return res.redirect('/app/leads');
   } catch (err) {
@@ -6489,7 +6489,7 @@ app.post('/app/importar-xml-upload', async (req, res) => {
     const { execSync } = require('child_process');
     try {
       const xmlPath = req.file.path;
-      execSync('node '+path.join(__dirname,'importXMLCompleto.js')+' "'+xmlPath+'" "'+userId+'"', { stdio: 'inherit', timeout: 240000 });
+      await spawnAsync('node', [path.join(__dirname,'importXMLCompleto.js'), xmlPath, userId], {});
       fs.unlinkSync(xmlPath);
       res.json({ ok: true, mensagem: 'XML importado com sucesso!' });
     } catch(e) {

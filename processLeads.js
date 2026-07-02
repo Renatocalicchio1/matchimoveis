@@ -1,4 +1,9 @@
 const XLSX = require('xlsx');
+function semAcento(s){
+  if(!s) return s;
+  return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+}
+
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { salvarTodosLeads } = require('./services/salvarLead');
@@ -89,9 +94,9 @@ async function run() {
         tipoLead: 'cliente',
         tipo: row.Tipo || row.tipo || '',
         tipo_operacao: row.Transacao || row.transacao || '',
-        bairro: row.Bairro || row.bairro || '',
-        cidade: row.Cidade || row.cidade || '',
-        estado: row.Estado || row.estado || '',
+        bairro: semAcento(row.Bairro || row.bairro || ''),
+        cidade: semAcento(row.Cidade || row.cidade || ''),
+        estado: semAcento(row.Estado || row.estado || ''),
         quartos: isComercial(row.Tipo || row.tipo) ? '' : (row.Quartos || row.quartos || ''),
         suites: isComercial(row.Tipo || row.tipo) ? '' : (row.Suites || row.suites || ''),
         vagas: isComercial(row.Tipo || row.tipo) ? '' : (row.Vagas || row.vagas || ''),
@@ -105,9 +110,9 @@ async function run() {
         perfilIA: {
           tipo: row.Tipo || row.tipo || '',
           intencao: normalizarTransacao(row.Transacao || row.transacao || row['Transação'] || ''),
-          bairro: row.Bairro || row.bairro || '',
-          cidade: row.Cidade || row.cidade || '',
-          estado: row.Estado || row.estado || '',
+          bairro: semAcento(row.Bairro || row.bairro || ''),
+          cidade: semAcento(row.Cidade || row.cidade || ''),
+          estado: semAcento(row.Estado || row.estado || ''),
           quartos: isComercial(row.Tipo || row.tipo) ? '' : (row.Quartos || row.quartos || ''),
           suites: isComercial(row.Tipo || row.tipo) ? '' : (row.Suites || row.suites || row['Suítes'] || ''),
           vagas: isComercial(row.Tipo || row.tipo) ? '' : (row.Vagas || row.vagas || ''),

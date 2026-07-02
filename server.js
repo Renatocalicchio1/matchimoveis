@@ -3010,7 +3010,10 @@ app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req,
   try {
     const { execSync } = require('child_process');
     const path = require('path');
-    await spawnAsync('node', [path.join(__dirname,'importXMLCompleto.js'), xmlUrl, userId], {});
+    const { criarJob: _cjX2 } = require('./services/importJobs');
+    const { dispararWorkerXml: _dwX2 } = require('./services/workerDispatch');
+    const _jobIdX2 = await _cjX2('xml', userId, xmlUrl);
+    _dwX2(_jobIdX2, xmlUrl, userId);
     _cacheImoveis = null;
     await _recarregarImoveis();
     const total = (_cacheImoveis || []).filter(im => (im.userId||im.usuarioId) === userId).length;
@@ -6509,7 +6512,10 @@ app.post('/app/importar-xml-upload', async (req, res) => {
     const { execSync } = require('child_process');
     try {
       const xmlPath = req.file.path;
-      await spawnAsync('node', [path.join(__dirname,'importXMLCompleto.js'), xmlPath, userId], {});
+      const { criarJob: _cjX3 } = require('./services/importJobs');
+      const { dispararWorkerXml: _dwX3 } = require('./services/workerDispatch');
+      const _jobIdX3 = await _cjX3('xml', userId, xmlPath);
+      _dwX3(_jobIdX3, xmlPath, userId);
       fs.unlinkSync(xmlPath);
       res.json({ ok: true, mensagem: 'XML importado com sucesso!' });
     } catch(e) {

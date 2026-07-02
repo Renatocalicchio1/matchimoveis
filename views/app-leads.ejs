@@ -688,6 +688,36 @@ async function bloquearLead(id){const r=await fetch('/app/lead/'+id+'/bloquear',
 
 window.addEventListener('DOMContentLoaded', aplicarFiltros);
 
+// Polling de importação se tiver jobId na URL
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const jobId = params.get('jobId');
+  if(!jobId) return;
+  const bar = document.createElement('div');
+  bar.style = 'position:fixed;top:0;left:0;right:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 20px;z-index:9999;display:flex;align-items:center;gap:12px;font-size:14px';
+  bar.innerHTML = '<span id="job-status">⏳ Importando planilha de leads...</span>';
+  document.body.appendChild(bar);
+  const timer = setInterval(async()=>{
+    try{
+      const r = await fetch('/api/import/status/'+jobId);
+      const d = await r.json();
+      if(!d.ok) return;
+      const job = d.job;
+      const el = document.getElementById('job-status');
+      if(job.status==='concluido'){
+        clearInterval(timer);
+        if(el) el.innerHTML = '✅ Importação concluída! <a href="/app/leads" style="color:#FF385C;font-weight:600">Atualizar →</a>';
+        setTimeout(()=>{ window.history.replaceState({},'',' /app/leads'); bar.remove(); location.reload(); }, 3000);
+      } else if(job.status==='erro'){
+        clearInterval(timer);
+        if(el) el.innerHTML = '❌ Erro na importação: '+(job.erro||'');
+      } else if(job.status==='processando'){
+        if(el) el.textContent = '⏳ Processando leads... '+job.progresso+'%';
+      }
+    }catch(e){}
+  }, 2000);
+})();
+
 function abrirModalKanban(colKey, colLabel) {
   const col = document.querySelector('[data-col="' + colKey + '"]');
   if (!col) return;

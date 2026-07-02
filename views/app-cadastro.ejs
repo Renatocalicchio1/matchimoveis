@@ -592,12 +592,23 @@ document.addEventListener('DOMContentLoaded',function(){
       const r = await fetch('/app/importar',{method:'POST',body:new FormData(form)});
       const j = await r.json();
       if(!j.ok&&el){el.textContent='Erro: '+(j.erro||'falha');el.style.color='#dc2626';}
-      else{
+      else if(j.jobId){
+        if(el){el.textContent='⏳ Processando XML em background...';el.style.color='#d97706';}
+        const timer = setInterval(async()=>{
+          try{
+            const s = await (await fetch('/api/import/status/'+j.jobId)).json();
+            if(!s.ok) return;
+            const job = s.job;
+            if(job.status==='concluido'){clearInterval(timer);if(el){el.innerHTML='✅ Importação concluída! <a href="/app/imoveis" style="color:var(--brand);font-weight:600">Ver imóveis →</a>';el.style.color='#16a34a';}}
+            if(job.status==='erro'){clearInterval(timer);if(el){el.textContent='❌ Erro: '+(job.erro||'');el.style.color='#dc2626';}}
+            if(job.status==='processando'&&el){el.textContent='⏳ Processando... '+job.progresso+'%';}
+          }catch(e){}
+        },2000);
+      } else {
         const timer = setInterval(async()=>{
           try{
             const s = await (await fetch('/import-status')).json();
             if(s.status==='finalizado'){clearInterval(timer);if(el){el.innerHTML='Concluído: '+s.total+' imóveis. <a href="/app/imoveis" style="color:var(--brand);font-weight:600">Ver imóveis →</a>';}}
-            if(s.status==='finalizado_parcial'){clearInterval(timer);if(el){el.innerHTML='⚠️ '+s.mensagem+' <a href="/app/coins" style="color:var(--brand);font-weight:600">Comprar créditos →</a>';el.style.color='#92400e';el.style.background='#fffbeb';el.style.padding='8px 12px';el.style.borderRadius='8px';el.style.border='1px solid #fcd34d';}}
             if(s.status==='erro'){clearInterval(timer);if(el){el.textContent='Erro: '+(s.mensagem||'');el.style.color='#dc2626';}}
           }catch(e){}
         },1500);

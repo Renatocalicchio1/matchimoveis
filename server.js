@@ -1516,7 +1516,10 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
       const { execSync } = require('child_process');
       const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : '';
 
-      await spawnAsync('node', [path.join(__dirname,'processLeads.js'), file.path, userId], { cwd: __dirname });
+      const { criarJob: _cjL1 } = require('./services/importJobs');
+      const { dispararWorkerLeads: _dwL1 } = require('./services/workerDispatch');
+      const _jobIdL1 = await _cjL1('csv', userId, file.path);
+      _dwL1(_jobIdL1, file.path, userId);
 
       // Reprocessar match para leads novas importadas — via import-processor
       setTimeout(async () => {
@@ -1587,7 +1590,10 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 
     const { execSync } = require("child_process");
 
-    const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : ""; await spawnAsync('node', [path.join(__dirname,'processLeads.js'), file.path, userId], { cwd: __dirname });
+    const userId = req.session.user ? (req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id) : ""; const { criarJob: _cjL2 } = require('./services/importJobs');
+    const { dispararWorkerLeads: _dwL2 } = require('./services/workerDispatch');
+    const _jobIdL2 = await _cjL2('csv', userId, file.path);
+    _dwL2(_jobIdL2, file.path, userId);
     // Cobra importar_lead — diferenca de leads antes e depois
     try {
       const { query: _qD } = require('./services/db');
@@ -5137,7 +5143,10 @@ app.post('/process', upload.any(), async (req, res) => {
     if (!file) return res.send('Envie o arquivo');
 
     const { execSync } = require('child_process');
-    const uid = req.session.user ? req.session.user.id : ""; await spawnAsync('node', [path.join(__dirname,'processLeads.js'), file.path, uid], { cwd: __dirname });
+    const uid = req.session.user ? req.session.user.id : ""; const { criarJob: _cjL3 } = require('./services/importJobs');
+    const { dispararWorkerLeads: _dwL3 } = require('./services/workerDispatch');
+    const _jobIdL3 = await _cjL3('csv', uid, file.path);
+    _dwL3(_jobIdL3, file.path, uid);
 
     return res.redirect('/app/leads');
   } catch (err) {

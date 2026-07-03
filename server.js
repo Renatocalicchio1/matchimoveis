@@ -1625,7 +1625,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
       } catch(e) { console.error('[import-match2]', e.message); }
     });
 
-    return res.redirect("/app/leads");
+    return res.redirect("/app/leads?jobId="+_jobIdL2);
 
   } catch (err) {
     return res.send("Erro: " + err.message);
@@ -4443,6 +4443,19 @@ setInterval(async () => {
           consumir(_leads[i].userId || _leads[i].corretorId, 'vitrine_whatsapp').catch(()=>{});
           _leads[i].vitrineEnviadaEm = new Date().toISOString();
           _leads[i].vitrineLink = _link;
+          // Criar follow-up automático de 6h se não tiver visita
+          if (!_leads[i].followUps) _leads[i].followUps = [];
+          const _jaTemFUVitrine = _leads[i].followUps.some(f => f.tipo==='followup_vitrine' && f.status==='pendente');
+          if (!_jaTemFUVitrine) {
+            const _agora6h = Date.now();
+            _leads[i].followUps.push({
+              id: _agora6h.toString(),
+              tipo: 'followup_vitrine',
+              status: 'pendente',
+              criadoEm: new Date(_agora6h).toISOString(),
+              prazo: new Date(_agora6h + 6*3600*1000).toISOString()
+            });
+          }
 
         } else if (fu.tipo === 'followup_vitrine') {
           // Proteção — não envia se já tem visita agendada

@@ -10496,3 +10496,27 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     res.json({ ok:true, contatos:rows, total:tot[0].total });
   } catch(e){ res.json({ ok:false, erro:e.message }); }
 });
+
+// ── JOB_RESUMO_EMAIL — envia resumo da conta a cada 3 dias ───────────────────
+const _agendarResumoEmail = () => {
+  const agora = new Date();
+  const proximo = new Date(agora);
+  proximo.setDate(proximo.getDate() + (agora.getHours() >= 9 ? 3 : 0));
+  proximo.setHours(9, 0, 0, 0);
+  const msAte = proximo - agora;
+  setTimeout(async () => {
+    try {
+      const { enviarEmailResumo } = require('./services/emailResumo');
+      await enviarEmailResumo();
+    } catch(e) { console.error('[JOB RESUMO EMAIL]', e.message); }
+    setInterval(async () => {
+      try {
+        const { enviarEmailResumo } = require('./services/emailResumo');
+        await enviarEmailResumo();
+      } catch(e) { console.error('[JOB RESUMO EMAIL]', e.message); }
+    }, 3 * 24 * 3600 * 1000);
+  }, msAte);
+  console.log('[JOB RESUMO EMAIL] agendado para:', proximo.toLocaleString('pt-BR'));
+};
+_agendarResumoEmail();
+// ── FIM JOB_RESUMO_EMAIL ─────────────────────────────────────────────────────

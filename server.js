@@ -601,7 +601,15 @@ app.get('/admin', authAdmin, async (req, res) => {
     const rows = usuarios.rows.map(u => `
       <tr>
         <td>${u.codigo_usuario||'-'}</td>
-        <td>${u.nome||'-'}</td>
+        <td>
+          ${u.nome||'-'}
+          <div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap">
+            <a href="/admin/usuario/${u.codigo_usuario}" style="font-size:10px;color:#2563eb;text-decoration:none;background:#eff6ff;padding:2px 6px;border-radius:4px">Ver</a>
+            <a href="/admin/acessar/${u.codigo_usuario}" style="font-size:10px;color:#7c3aed;text-decoration:none;background:#f5f3ff;padding:2px 6px;border-radius:4px">Acessar</a>
+            <a href="/admin/regenerar-xml/${u.codigo_usuario}" style="font-size:10px;color:#16a34a;text-decoration:none;background:#f0fdf4;padding:2px 6px;border-radius:4px">XML</a>
+            <a href="/admin/deletar/${u.codigo_usuario}" onclick="return confirm('Deletar ${u.nome}?')" style="font-size:10px;color:#e8404a;text-decoration:none;background:#fef2f2;padding:2px 6px;border-radius:4px">Deletar</a>
+          </div>
+        </td>
         <td>${u.telefone ? `<a href="https://wa.me/55${(u.telefone||'').replace(/\D/g,'')}" target="_blank" style="color:#25D366;font-weight:600;text-decoration:none;">📱 ${u.telefone}</a>` : '-'}</td>
         <td><span title="${u.senha||''}" style="cursor:pointer;letter-spacing:2px;color:#9ca3af;" onclick="this.textContent=this.textContent==='••••••'?'${u.senha||''}':'••••••'">••••••</span></td>
         <td style="text-align:center">${countMap[u.codigo_usuario]||0}</td>

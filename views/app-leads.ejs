@@ -319,7 +319,13 @@ leads.forEach(item => {
 
     <div class="lead-btns">
       <% if(telefone){ %>
+      <% if(item.vitrineEnviada && item.vitrineLink) { %>
+      <% const _linkVitrine = item.vitrineLink || ('/cliente/oferta/'+(item.leadId||item.id)+'?userId='+encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'')); %>
+      <% const _msgVitrine = encodeURIComponent('Olá ' + (item.nome||'') + '! Segue sua seleção personalizada de imóveis: ' + _linkVitrine); %>
+      <a href="https://wa.me/<%= telefone %>?text=<%= _msgVitrine %>" target="_blank" class="lb wa">🏠 Enviar vitrine</a>
+      <% } else { %>
       <a href="https://wa.me/<%= telefone %>" target="_blank" class="lb wa">WhatsApp</a>
+      <% } %>
       <% } %>
       <% if(_mat>0){ %>
       <% if(item.vitrineEnviada && item.vitrineEnviadaEm){ %>

@@ -14,11 +14,26 @@
     <span style="font-size:13px;color:#6b7280"><%= leads.length %> lead(s) com imóvel para captar</span>
   </div>
 <script>
-async function marcarCaptado(leadId){
-  if(!confirm('Marcar como captado?')) return;
-  const imovelId = prompt('ID do imóvel cadastrado (opcional):') || 'captado';
-  await fetch('/app/captacao/marcar/'+leadId, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({imovelId})});
-  location.reload();
+async function marcarCaptado(leadId, tel, nome){
+  const r = await fetch('/app/captacao/marcar/'+leadId, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({})});
+  const d = await r.json();
+  const div = document.getElementById('imoveis-'+leadId);
+  if(!div) return location.reload();
+  if(!d.imoveis || !d.imoveis.length){
+    div.innerHTML = '<p style="font-size:12px;color:#6b7280;padding:8px">Nenhum imóvel encontrado para este contato.</p>';
+  } else {
+    div.innerHTML = '<div style="padding:8px;background:#f9fafb;border-radius:8px;margin-top:6px"><p style="font-size:11px;font-weight:600;color:#374151;margin-bottom:6px">Imóveis encontrados:</p>' +
+    d.imoveis.map(i => {
+      const link = 'https://matchimoveis.ia.br/imovel/'+(i.id_interno||i.id);
+      const msgWA = encodeURIComponent('Olá '+nome+'! Segue o link do seu imóvel cadastrado: '+link);
+      const wa = 'https://wa.me/55'+tel.replace(/\D/g,'').replace(/^55/,'')+'?text='+msgWA;
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px">' +
+        '<span>🏠 '+i.titulo+'</span>' +
+        '<a href="'+wa+'" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none">📲 Enviar</a>' +
+        '</div>';
+    }).join('') + '</div>';
+  }
+  div.style.display='block';
 }
 </script>
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
@@ -77,7 +92,7 @@ async function marcarCaptado(leadId){
           <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
             <% if(!imovelCaptado) { %>
               <a href="/app/cadastro?leadId=<%= l.id %>&nome=<%= encodeURIComponent(l.nome||'') %>&telefone=<%= encodeURIComponent(l.telefone||l.whatsapp||'') %>&email=<%= encodeURIComponent(l.email||'') %>" class="btn-cadastrar">+ Cadastrar imóvel</a>
-              <button onclick="marcarCaptado('<%= l.id %>')" style="background:#16a34a;color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer">✅ Marcar captado</button>
+              <button onclick="marcarCaptado('<%= l.id %>','<%= (l.telefone||l.whatsapp||'').replace(/\D/g,'') %>','<%= (l.nome||'').replace(/'/g,\'\') %>')" style="background:#16a34a;color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer">✅ Marcar captado</button>
             <% } else { %>
               <a href="/app/imovel/<%= imovelCaptado %>/editar" style="color:#2563eb;font-size:12px;margin-right:8px">Ver imóvel →</a>
               <% const _tel = (l.telefone||l.whatsapp||'').replace(/\D/g,'').replace(/^55/,''); %>
@@ -86,6 +101,9 @@ async function marcarCaptado(leadId){
               <a href="https://wa.me/55<%= _tel %>?text=<%= _msgWA %>" target="_blank" style="background:#25D366;color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">📲 Enviar link</a>
             <% } %>
           </td>
+        </tr>
+        <tr id="imoveis-row-<%= l.id %>" style="display:none">
+          <td colspan="7"><div id="imoveis-<%= l.id %>" style="display:none"></div></td>
         </tr>
         <% }); %>
       </tbody>

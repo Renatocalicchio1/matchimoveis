@@ -10617,11 +10617,30 @@ app.post('/captar/salvar/:userId', express.json(), async (req, res) => {
 app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) => {
   try {
     const { query: _qCM } = require('./services/db');
-    const { imovelId } = req.body;
+    const uid = req.session.user.id || req.session.user.codigoUsuario;
+    // Marcar como captado
     await _qCM(
-      `UPDATE leads SET dados = dados || $1::jsonb WHERE id=$2`,
-      [JSON.stringify({ imovelCaptadoId: imovelId, captadoEm: new Date().toISOString() }), req.params.leadId]
+      `UPDATE leads SET dados = dados || $1::jsonb, tipo_lead='cliente_vendedor' WHERE id=$2`,
+      [JSON.stringify({ imovelCaptadoId: 'captado', captadoEm: new Date().toISOString() }), req.params.leadId]
     );
-    res.json({ ok: true });
+    // Buscar imóveis do lead por telefone/email
+    const leadR = await _qCM('SELECT nome, telefone, whatsapp, email FROM leads WHERE id=$1', [req.params.leadId]);
+    const lead = leadR.rows[0];
+    if(!lead) return res.json({ ok: true, imoveis: [] });
+    const tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,'');
+    const email = (lead.email||'').toLowerCase().trim();
+    const conditions = [];
+    const params = [uid];
+    if(tel){ params.push('%'+tel+'%'); conditions.push(`proprietario->>'telefone' ILIKE ${params.length} OR proprietario->>'celular' ILIKE ${params.length}`); }
+    if(email){ params.push(email); conditions.push(`proprietario->>'email' ILIKE ${params.length}`); }
+    let imoveis = [];
+    if(conditions.length > 0){
+      const imR = await _qCM(
+        `SELECT id, id_interno, titulo, tipo, bairro, cidade, valor_imovel, transacao FROM imoveis WHERE user_id=$1 AND status='ativo' AND (${conditions.join(' OR ')}) LIMIT 10`,
+        params
+      );
+      imoveis = imR.rows;
+    }
+    res.json({ ok: true, imoveis });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });

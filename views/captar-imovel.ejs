@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tenho imóvel para captar — MatchImóveis</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f9fafb;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#fff;border-radius:16px;padding:32px;max-width:480px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.logo{color:#FF385C;font-size:22px;font-weight:800;margin-bottom:24px}
+h2{font-size:18px;font-weight:700;margin-bottom:8px}
+p{font-size:14px;color:#6b7280;margin-bottom:24px}
+.btn-group{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.btn-op{padding:16px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;font-size:15px;font-weight:600;cursor:pointer;text-align:left;transition:all .15s}
+.btn-op:hover{border-color:#FF385C;background:#fff5f6}
+.btn-op.selected{border-color:#FF385C;background:#fff5f6}
+.form-group{margin-bottom:16px}
+label{font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px}
+input,select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px}
+.btn-submit{width:100%;padding:14px;background:#FF385C;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+.sucesso{text-align:center;padding:40px 0}
+.sucesso .icon{font-size:48px;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">MatchImóveis</div>
+  <div id="step1">
+    <h2>Você tem imóvel para vender ou alugar?</h2>
+    <p>Selecione uma opção abaixo e nos conte mais sobre seu imóvel.</p>
+    <div class="btn-group">
+      <button class="btn-op" onclick="selecionar('venda')">🏠 Tenho imóvel para <strong>vender</strong></button>
+      <button class="btn-op" onclick="selecionar('aluguel')">🔑 Tenho imóvel para <strong>alugar</strong></button>
+      <button class="btn-op" onclick="selecionar('nao')">❌ Não tenho imóvel para oferecer</button>
+    </div>
+  </div>
+  <div id="step2" style="display:none">
+    <h2>Dados do seu imóvel</h2>
+    <p>Preencha as informações básicas e seu corretor entrará em contato.</p>
+    <div class="form-group">
+      <label>Tipo de imóvel</label>
+      <select id="tipo">
+        <option value="">Selecione...</option>
+        <option>Apartamento</option>
+        <option>Casa</option>
+        <option>Terreno</option>
+        <option>Sala comercial</option>
+        <option>Galpão</option>
+        <option>Outro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Endereço / Bairro / Cidade</label>
+      <input type="text" id="endereco" placeholder="Ex: Rua das Flores, 123 - Jardim Paulista, SP">
+    </div>
+    <div class="form-group">
+      <label>Valor pretendido (R$)</label>
+      <input type="text" id="valor" placeholder="Ex: 350000">
+    </div>
+    <button class="btn-submit" onclick="enviar()">Enviar informações →</button>
+  </div>
+  <div id="step3" style="display:none" class="sucesso">
+    <div class="icon">✅</div>
+    <h2>Recebemos suas informações!</h2>
+    <p style="margin-top:8px">Seu corretor entrará em contato em breve.</p>
+  </div>
+</div>
+<script>
+let _transacao = '';
+const leadId = '<%= leadId %>';
+
+function selecionar(op){
+  if(op === 'nao'){
+    fetch('/captar/nao/'+leadId, {method:'POST'}).catch(()=>{});
+    document.getElementById('step1').style.display='none';
+    document.getElementById('step3').style.display='block';
+    return;
+  }
+  _transacao = op;
+  document.querySelectorAll('.btn-op').forEach(b=>b.classList.remove('selected'));
+  event.target.closest('.btn-op').classList.add('selected');
+  setTimeout(()=>{
+    document.getElementById('step1').style.display='none';
+    document.getElementById('step2').style.display='block';
+  }, 300);
+}
+
+async function enviar(){
+  const tipo = document.getElementById('tipo').value;
+  const endereco = document.getElementById('endereco').value;
+  const valor = document.getElementById('valor').value;
+  if(!tipo || !endereco){ alert('Preencha o tipo e o endereço'); return; }
+  await fetch('/captar/salvar/'+leadId, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({transacao:_transacao, tipo, endereco, valor})
+  }).catch(()=>{});
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step3').style.display='block';
+}
+</script>
+</body>
+</html>

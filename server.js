@@ -10552,3 +10552,60 @@ app.get('/app/captacao', auth, async (req, res) => {
   }
 });
 // ── FIM CAPTACAO ──────────────────────────────────────────────────────────────
+
+// ── CAPTAÇÃO PÚBLICA ──────────────────────────────────────────────────────────
+app.get('/captar/:leadId', async (req, res) => {
+  res.render('captar-imovel', { leadId: req.params.leadId });
+});
+
+app.post('/captar/nao/:leadId', express.json(), async (req, res) => {
+  try {
+    const { query: _qCN } = require('./services/db');
+    await _qCN("UPDATE leads SET dados = dados || '{\"temImovelParaCaptar\":false}'::jsonb WHERE id=$1", [req.params.leadId]);
+  } catch(e){}
+  res.json({ ok: true });
+});
+
+app.post('/captar/salvar/:leadId', express.json(), async (req, res) => {
+  try {
+    const { query: _qCS } = require('./services/db');
+    const { transacao, tipo, endereco, valor } = req.body;
+    const dadosCaptar = JSON.stringify({
+      temImovelParaCaptar: true,
+      tipoImovelCaptar: tipo,
+      transacaoCaptar: transacao,
+      enderecoCaptar: endereco,
+      valorCaptar: valor,
+      captadoEm: new Date().toISOString()
+    });
+    await _qCS(`UPDATE leads SET dados = dados || $1::jsonb, tipo_lead='cliente_vendedor' WHERE id=$2`, [dadosCaptar, req.params.leadId]);
+    
+    // Notifica corretor
+    const { rows } = await _qCS(`
+      SELECT l.nome, l.telefone, u.nome as corretor_nome, u.whatsapp_instance, u.whatsapp_numero, u.email
+      FROM leads l JOIN usuarios u ON u.codigo_usuario=l.user_id OR u.id=l.user_id
+      WHERE l.id=$1 LIMIT 1
+    `, [req.params.leadId]);
+    
+    if (rows[0]) {
+      const r = rows[0];
+      const _msg = `📋 *Nova captação!*\n\n*${r.nome||'Lead'}* tem um imóvel para *${transacao}*!\n\n🏠 Tipo: ${tipo}\n📍 ${endereco}\n💰 R$ ${valor||'A definir'}\n\nAcesse: https://matchimoveis.ia.br/app/captacao`;
+      const _EK = process.env.EVOLUTION_API_KEY || 'match2025evolution';
+      const _EU = process.env.EVOLUTION_API_URL || 'https://match-evolution-api.onrender.com';
+      if (r.whatsapp_instance && r.whatsapp_numero) {
+        fetch(`${_EU}/message/sendText/${r.whatsapp_instance}`, {
+          method:'POST', headers:{'Content-Type':'application/json','apikey':_EK},
+          body: JSON.stringify({number:'55'+r.whatsapp_numero.replace(/\D/g,'').replace(/^55/,''), text:_msg})
+        }).catch(()=>{});
+      }
+      if (r.email) {
+        try {
+          const { enviarEmail } = require('./services/email');
+          await enviarEmail({ para: r.email, assunto: '📋 Nova captação de imóvel!', html: '<div style="font-family:Arial,sans-serif;padding:32px"><h2 style="color:#FF385C">📋 Nova captação!</h2><p><strong>'+r.nome+'</strong> tem um imóvel para '+transacao+'</p><p>🏠 '+tipo+' | 📍 '+endereco+'</p><a href="https://matchimoveis.ia.br/app/captacao" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver captação →</a></div>', texto: _msg });
+        } catch(_eC){}
+      }
+    }
+  } catch(e){ console.error('[captar]', e.message); }
+  res.json({ ok: true });
+});
+// ── FIM CAPTAÇÃO PÚBLICA ──────────────────────────────────────────────────────

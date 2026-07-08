@@ -10557,7 +10557,7 @@ app.get('/app/captacao', auth, async (req, res) => {
       ORDER BY criado_em DESC
     `, [uid]);
     // Para cada lead, buscar imóveis relacionados por telefone/email
-    const leadsComImoveis = await Promise.all(rows.map(async (l) => {
+    const leadsComImoveis = await Promise.all(rows.map(async (l) => { try {
       const tel = (l.telefone||l.whatsapp||'').replace(/\D/g,'');
       const email = (l.email||'').toLowerCase().trim();
       const conds = []; const pars = [uid];
@@ -10569,6 +10569,7 @@ app.get('/app/captacao', auth, async (req, res) => {
         imoveis = ir.rows;
       }
       return { ...l, imoveisRelacionados: imoveis };
+      } catch(_eL){ return { ...l, imoveisRelacionados: [] }; }
     }));
     res.render('app-captacao', { user: req.session.user, leads: leadsComImoveis });
   } catch(e) {

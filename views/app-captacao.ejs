@@ -14,7 +14,8 @@
     <span style="font-size:13px;color:#6b7280"><%= leads.length %> lead(s) com imóvel para captar</span>
   </div>
 <script>
-async function marcarCaptado(leadId, tel, nome){
+async function marcarCaptado(leadId, tel, nomeEnc){
+  const nome = decodeURIComponent(nomeEnc);
   const r = await fetch('/app/captacao/marcar/'+leadId, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({})});
   const d = await r.json();
   const div = document.getElementById('imoveis-'+leadId);
@@ -97,7 +98,7 @@ async function excluirCaptar(leadId){
           <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
             <% if(!imovelCaptado) { %>
               <a href="/app/cadastro?leadId=<%= l.id %>&nome=<%= encodeURIComponent(l.nome||'') %>&telefone=<%= encodeURIComponent(l.telefone||l.whatsapp||'') %>&email=<%= encodeURIComponent(l.email||'') %>" class="btn-cadastrar">+ Cadastrar imóvel</a>
-              <button onclick="marcarCaptado('<%= l.id %>','<%= (l.telefone||l.whatsapp||'').replace(/\D/g,'') %>','<%= (l.nome||'').replace(/'/g,\'\') %>')" style="background:#16a34a;color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer">✅ Marcar captado</button>
+              <button onclick="marcarCaptado('<%= l.id %>','<%= (l.telefone||l.whatsapp||'').replace(/\D/g,'') %>','<%= encodeURIComponent(l.nome||'') %>')" style="background:#16a34a;color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer">✅ Marcar captado</button>
               <button onclick="excluirCaptar('<%= l.id %>')" style="background:#fef2f2;color:#dc2626;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer">🗑️ Excluir</button>
             <% } else { %>
               <a href="/app/imovel/<%= imovelCaptado %>/editar" style="color:#2563eb;font-size:12px;margin-right:8px">Ver imóvel →</a>

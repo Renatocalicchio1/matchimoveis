@@ -10597,8 +10597,10 @@ app.post('/captar/salvar/:userId', express.json(), async (req, res) => {
     const { transacao, tipo, endereco, valor, nome, celular } = req.body;
     const userId = req.params.userId;
     const { salvarLead: _slCap } = require('./services/salvarLead');
+    console.log('[CAPTAR] salvando lead para userId:', userId);
     const novaLead = await _slCap({ id: Date.now().toString(), nome: nome||'Captação', telefone: celular||'', whatsapp: celular||'', user_id: userId, userId, codigoUsuario: userId, origem: 'captacao_link', status: 'captacao', faseFunil: 'captacao', fase_funil: 'captacao', tipoLead: 'cliente_vendedor', tipo_lead: 'cliente_vendedor', dados: { temImovelParaCaptar: true }, _lote: true });
-    const leadId = novaLead.id;
+    console.log('[CAPTAR] novaLead:', JSON.stringify(novaLead?.id));
+    const leadId = novaLead?.id || Date.now().toString();
     const dadosCaptar = JSON.stringify({
       temImovelParaCaptar: true,
       tipoImovelCaptar: tipo,

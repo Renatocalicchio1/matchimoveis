@@ -68,7 +68,7 @@
           </td>
           <td>
             <% if(!imovelCaptado) { %>
-              <a href="/app/cadastro-manual?leadId=<%= l.id %>&nome=<%= encodeURIComponent(l.nome||'') %>&telefone=<%= encodeURIComponent(l.telefone||l.whatsapp||'') %>&email=<%= encodeURIComponent(l.email||'') %>" class="btn-cadastrar">+ Cadastrar imóvel</a>
+              <a href="/app/cadastro?leadId=<%= l.id %>&nome=<%= encodeURIComponent(l.nome||'') %>&telefone=<%= encodeURIComponent(l.telefone||l.whatsapp||'') %>&email=<%= encodeURIComponent(l.email||'') %>" class="btn-cadastrar">+ Cadastrar imóvel</a>
             <% } else { %>
               <a href="/app/imovel/<%= imovelCaptado %>/editar" style="color:#2563eb;font-size:12px">Ver imóvel →</a>
             <% } %>

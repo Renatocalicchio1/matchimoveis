@@ -52,7 +52,7 @@ async function marcarEnviado(id, erro) {
   if (erro) {
     await query(`UPDATE campanha_contatos SET status='erro', erro=$1, enviado_em=NOW() WHERE id=$2`, [erro, id]);
   } else {
-    await query(`UPDATE campanha_contatos SET status='enviado', enviado_em=NOW() WHERE id=$2`, [id]);
+    await query(`UPDATE campanha_contatos SET status='enviado', enviado_em=NOW() WHERE id=$1`, [id]);
   }
 }
 

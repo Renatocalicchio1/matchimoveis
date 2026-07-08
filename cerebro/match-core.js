@@ -261,8 +261,8 @@ class MatchCore {
       if (!lead.ciclosBusca) lead.ciclosBusca = [];
       lead.ciclosBusca.push({ em: new Date().toISOString(), perfil: { ...perfilAtual }, motivo: tipoMudou ? "tipo_mudou" : "bairro_mudou" });
       lead.perfilIA = { ...perfilAtual, ...novoPerfil, bairros: undefined, tipos: undefined };
-      lead.status = "novo";
-      lead.faseFunil = "novo";
+      if(lead.faseFunil !== 'captacao') lead.status = "novo";
+      if(lead.faseFunil !== 'captacao') lead.faseFunil = "novo";
       lead.temperatura = "frio";
       lead.score = 0;
       lead.matchesAuto = [];

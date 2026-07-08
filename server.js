@@ -5834,6 +5834,18 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     String(v.userId || v.codigoUsuario || '') === uid
   );
 
+  // Imóveis relacionados por telefone/email
+  let imoveisRelacionados = [];
+  try {
+    const { query: _qIR } = require('./services/db');
+    const _tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,'');
+    const _email = (lead.email||'').toLowerCase().trim();
+    const conds = []; const pars = [uid];
+    if(_tel){ pars.push('%'+_tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
+    if(_email){ pars.push(_email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
+    if(conds.length){ const _r = await _qIR(`SELECT id,id_interno,titulo,tipo,bairro,cidade,valor_imovel,transacao,status FROM imoveis WHERE user_id=$1 AND (${conds.join(' OR ')}) LIMIT 10`, pars); imoveisRelacionados = _r.rows; }
+  } catch(_eIR){}
+
   // Se perfilIA vazio mas mapaIntencao preenchido — converte para perfilIA
   // Normalizar tipo para capitalizado
   if (lead.perfilIA && lead.perfilIA.tipo) {
@@ -5868,7 +5880,7 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     const { gerarSugestoes } = require('./cerebro/copiloto');
     sugestoesCopiloto = gerarSugestoes(lead);
   } catch(e) { console.error('copiloto erro:', e.message); }
-  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto });
+  res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados });
 });
 app.get('/app/imovel/:id', auth, (req, res) => {
   const imoveis = ((_cacheImoveis || []));

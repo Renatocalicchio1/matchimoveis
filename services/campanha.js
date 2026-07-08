@@ -62,8 +62,11 @@ function gerarHTML(mensagem, contato, assunto) {
   const msgFinal = mensagem
     .replace(/{nome}/g, contato.nome || 'Corretor')
     .replace('https://www.matchimoveis.ia.br', '<a href="' + trackLink + '" style="color:#FF385C">https://www.matchimoveis.ia.br</a>');
+  const msgHtml = msgFinal
+    .replace(/\n\n/g, '</p><p style="margin:16px 0;font-size:15px;line-height:1.7;color:#222">')
+    .replace(/\n/g, '<br>');
   return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px;color:#222">
-    <div style="font-family:Arial,sans-serif;white-space:pre-wrap;font-size:15px;line-height:1.7">${msgFinal}</div>
+    <p style="margin:0 0 16px 0;font-size:15px;line-height:1.7;color:#222">${msgHtml}</p>
     <p style="margin-top:8px;font-size:13px;color:#888">Para não receber mais emails, responda com CANCELAR.</p>
     <img src="${trackPixel}" width="1" height="1" style="display:none">
   </div>`;

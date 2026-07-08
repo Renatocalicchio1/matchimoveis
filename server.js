@@ -10545,7 +10545,7 @@ _agendarResumoEmail();
 app.get('/app/captacao', auth, async (req, res) => {
   try {
     const { query: _qCap } = require('./services/db');
-    const uid = req.session.user.id || req.session.user.codigoUsuario;
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
     const { rows } = await _qCap(`
       SELECT id, nome, telefone, whatsapp, email, dados, perfil_ia, criado_em
       FROM leads 
@@ -10642,7 +10642,7 @@ app.post('/captar/salvar/:userId', express.json(), async (req, res) => {
 app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) => {
   try {
     const { query: _qCM } = require('./services/db');
-    const uid = req.session.user.id || req.session.user.codigoUsuario;
+    const uid = req.session.user.codigoUsuario || req.session.user.id;
     // Marcar como captado
     await _qCM(
       `UPDATE leads SET dados = dados || $1::jsonb, tipo_lead='cliente_vendedor' WHERE id=$2`,

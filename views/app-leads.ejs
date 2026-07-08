@@ -143,6 +143,7 @@ const colunas = [
 ];
 
 function getColuna(item) {
+  if(item.faseFunil === 'captacao' || item.origem === 'captacao_link') return null;
   const fase = item.faseFunil || 'novo';
   const mat = (item.matchesAuto||item.matches||[]).length;
   const vitrine = !!item.vitrineEnviada;

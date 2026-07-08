@@ -10644,3 +10644,11 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
     res.json({ ok: true, imoveis });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
+
+app.post('/app/lead/:id/excluir-captacao', auth, async (req, res) => {
+  try {
+    const { query: _qEC } = require('./services/db');
+    await _qEC("DELETE FROM leads WHERE id=$1 AND user_id=$2", [req.params.id, req.session.user.id||req.session.user.codigoUsuario]);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});

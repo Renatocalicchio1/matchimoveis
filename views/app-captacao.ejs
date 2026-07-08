@@ -35,6 +35,11 @@ async function marcarCaptado(leadId, tel, nome){
   }
   div.style.display='block';
 }
+async function excluirCaptar(leadId){
+  if(!confirm('Excluir esta captação?')) return;
+  await fetch('/app/lead/'+leadId+'/excluir-captacao', {method:'POST'});
+  location.reload();
+}
 </script>
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
     <div style="flex:1">
@@ -93,6 +98,7 @@ async function marcarCaptado(leadId, tel, nome){
             <% if(!imovelCaptado) { %>
               <a href="/app/cadastro?leadId=<%= l.id %>&nome=<%= encodeURIComponent(l.nome||'') %>&telefone=<%= encodeURIComponent(l.telefone||l.whatsapp||'') %>&email=<%= encodeURIComponent(l.email||'') %>" class="btn-cadastrar">+ Cadastrar imóvel</a>
               <button onclick="marcarCaptado('<%= l.id %>','<%= (l.telefone||l.whatsapp||'').replace(/\D/g,'') %>','<%= (l.nome||'').replace(/'/g,\'\') %>')" style="background:#16a34a;color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer">✅ Marcar captado</button>
+              <button onclick="excluirCaptar('<%= l.id %>')" style="background:#fef2f2;color:#dc2626;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer">🗑️ Excluir</button>
             <% } else { %>
               <a href="/app/imovel/<%= imovelCaptado %>/editar" style="color:#2563eb;font-size:12px;margin-right:8px">Ver imóvel →</a>
               <% const _tel = (l.telefone||l.whatsapp||'').replace(/\D/g,'').replace(/^55/,''); %>

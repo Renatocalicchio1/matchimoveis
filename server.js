@@ -10551,9 +10551,8 @@ app.get('/app/captacao', auth, async (req, res) => {
       FROM leads 
       WHERE user_id=$1 
       AND (
-        dados->>'temImovelParaCaptar' = 'true' 
+        (dados IS NOT NULL AND dados->>'temImovelParaCaptar' = 'true')
         OR tipo_lead = 'cliente_vendedor'
-        OR dados->>'tipoLead' = 'cliente_vendedor'
       )
       ORDER BY criado_em DESC
     `, [uid]);

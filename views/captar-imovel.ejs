@@ -79,10 +79,12 @@ input,select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radi
 <script>
 let _transacao = '';
 const leadId = '<%= leadId %>';
+const userId = '<%= userId %>';
+const _destino = leadId && leadId !== userId ? leadId : userId;
 
 function selecionar(op){
   if(op === 'nao'){
-    fetch('/captar/nao/'+leadId, {method:'POST'}).catch(()=>{});
+    fetch('/captar/nao/'+_destino, {method:'POST'}).catch(()=>{});
     document.getElementById('step1').style.display='none';
     document.getElementById('step3').style.display='block';
     return;
@@ -101,10 +103,10 @@ async function enviar(){
   const endereco = document.getElementById('endereco').value;
   const valor = document.getElementById('valor').value;
   if(!tipo || !endereco){ alert('Preencha o tipo e o endereço'); return; }
-  await fetch('/captar/salvar/'+leadId, {
+  await fetch('/captar/salvar/'+_destino, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({transacao:_transacao, tipo, endereco, valor})
+    body: JSON.stringify({transacao:_transacao, tipo, endereco, valor, nome: document.getElementById('nome')?.value||'', celular: document.getElementById('celular')?.value||''})
   }).catch(()=>{});
   document.getElementById('step2').style.display='none';
   document.getElementById('step3').style.display='block';

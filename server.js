@@ -10554,8 +10554,8 @@ app.get('/app/captacao', auth, async (req, res) => {
 // ── FIM CAPTACAO ──────────────────────────────────────────────────────────────
 
 // ── CAPTAÇÃO PÚBLICA ──────────────────────────────────────────────────────────
-app.get('/captar/:leadId', async (req, res) => {
-  res.render('captar-imovel', { leadId: req.params.leadId });
+app.get('/captar/:userId', async (req, res) => {
+  res.render('captar-imovel', { leadId: '', userId: req.params.userId });
 });
 
 app.post('/captar/nao/:leadId', express.json(), async (req, res) => {
@@ -10566,10 +10566,14 @@ app.post('/captar/nao/:leadId', express.json(), async (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/captar/salvar/:leadId', express.json(), async (req, res) => {
+app.post('/captar/salvar/:userId', express.json(), async (req, res) => {
   try {
     const { query: _qCS } = require('./services/db');
-    const { transacao, tipo, endereco, valor } = req.body;
+    const { transacao, tipo, endereco, valor, nome, celular } = req.body;
+    const userId = req.params.userId;
+    const { salvarLead: _slCap } = require('./services/salvarLead');
+    const novaLead = await _slCap({ id: Date.now().toString(), nome: nome||'Captação', telefone: celular||'', whatsapp: celular||'', user_id: userId, userId, origem: 'captacao_link', status: 'novo', tipo_lead: 'cliente_vendedor', _lote: true });
+    const leadId = novaLead.id;
     const dadosCaptar = JSON.stringify({
       temImovelParaCaptar: true,
       tipoImovelCaptar: tipo,
@@ -10578,7 +10582,7 @@ app.post('/captar/salvar/:leadId', express.json(), async (req, res) => {
       valorCaptar: valor,
       captadoEm: new Date().toISOString()
     });
-    await _qCS(`UPDATE leads SET dados = dados || $1::jsonb, tipo_lead='cliente_vendedor' WHERE id=$2`, [dadosCaptar, req.params.leadId]);
+    await _qCS(`UPDATE leads SET dados = dados || $1::jsonb, tipo_lead='cliente_vendedor' WHERE id=$2`, [dadosCaptar, leadId]);
     
     // Notifica corretor
     const { rows } = await _qCS(`

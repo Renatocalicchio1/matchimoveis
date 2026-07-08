@@ -10556,7 +10556,21 @@ app.get('/app/captacao', auth, async (req, res) => {
       )
       ORDER BY criado_em DESC
     `, [uid]);
-    res.render('app-captacao', { user: req.session.user, leads: rows });
+    // Para cada lead, buscar imóveis relacionados por telefone/email
+    const leadsComImoveis = await Promise.all(rows.map(async (l) => {
+      const tel = (l.telefone||l.whatsapp||'').replace(/\D/g,'');
+      const email = (l.email||'').toLowerCase().trim();
+      const conds = []; const pars = [uid];
+      if(tel){ pars.push('%'+tel+'%'); conds.push(`proprietario->>'telefone' ILIKE ${pars.length} OR proprietario->>'celular' ILIKE ${pars.length}`); }
+      if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE ${pars.length}`); }
+      let imoveis = [];
+      if(conds.length){
+        const ir = await require('./services/db').query(`SELECT id,id_interno,titulo,tipo,bairro,cidade,valor_imovel,transacao FROM imoveis WHERE user_id=$1 AND (${conds.join(' OR ')}) LIMIT 5`, pars);
+        imoveis = ir.rows;
+      }
+      return { ...l, imoveisRelacionados: imoveis };
+    }));
+    res.render('app-captacao', { user: req.session.user, leads: leadsComImoveis });
   } catch(e) {
     console.error('[captacao]', e.message);
     res.render('app-captacao', { user: req.session.user, leads: [] });

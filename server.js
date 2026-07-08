@@ -10613,3 +10613,15 @@ app.post('/captar/salvar/:userId', express.json(), async (req, res) => {
   res.json({ ok: true });
 });
 // ── FIM CAPTAÇÃO PÚBLICA ──────────────────────────────────────────────────────
+
+app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) => {
+  try {
+    const { query: _qCM } = require('./services/db');
+    const { imovelId } = req.body;
+    await _qCM(
+      `UPDATE leads SET dados = dados || $1::jsonb WHERE id=$2`,
+      [JSON.stringify({ imovelCaptadoId: imovelId, captadoEm: new Date().toISOString() }), req.params.leadId]
+    );
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});

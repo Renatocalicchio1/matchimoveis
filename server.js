@@ -10528,3 +10528,27 @@ const _agendarResumoEmail = () => {
 };
 _agendarResumoEmail();
 // ── FIM JOB_RESUMO_EMAIL ─────────────────────────────────────────────────────
+
+// ── CAPTAÇÃO ─────────────────────────────────────────────────────────────────
+app.get('/app/captacao', auth, async (req, res) => {
+  try {
+    const { query: _qCap } = require('./services/db');
+    const uid = req.session.user.id || req.session.user.codigoUsuario;
+    const { rows } = await _qCap(`
+      SELECT id, nome, telefone, whatsapp, email, dados, perfil_ia, criado_em
+      FROM leads 
+      WHERE user_id=$1 
+      AND (
+        dados->>'temImovelParaCaptar' = 'true' 
+        OR tipo_lead = 'cliente_vendedor'
+        OR dados->>'tipoLead' = 'cliente_vendedor'
+      )
+      ORDER BY criado_em DESC
+    `, [uid]);
+    res.render('app-captacao', { user: req.session.user, leads: rows });
+  } catch(e) {
+    console.error('[captacao]', e.message);
+    res.render('app-captacao', { user: req.session.user, leads: [] });
+  }
+});
+// ── FIM CAPTACAO ──────────────────────────────────────────────────────────────

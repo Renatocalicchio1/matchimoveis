@@ -1,0 +1,68 @@
+<%- include("partials/app-shell",{active:"captacao",user:user}) %>
+<style>
+.cap-table{width:100%;border-collapse:collapse;font-size:13px}
+.cap-table th{background:#f9fafb;padding:10px 12px;text-align:left;border-bottom:2px solid #e5e7eb;font-weight:600;color:#374151}
+.cap-table td{padding:10px 12px;border-bottom:1px solid #f3f4f6;color:#111}
+.cap-table tr:hover{background:#fafafa}
+.badge-captado{background:#f0fdf4;color:#16a34a;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-pendente{background:#fffbeb;color:#92400e;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.btn-cadastrar{background:#FF385C;color:#fff;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
+</style>
+<div style="max-width:1200px;margin:0 auto;padding:24px 16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <h1 style="font-size:20px;font-weight:700;margin:0">📋 Captação de Imóveis</h1>
+    <span style="font-size:13px;color:#6b7280"><%= leads.length %> lead(s) com imóvel para captar</span>
+  </div>
+  <% if(leads.length === 0) { %>
+    <div style="text-align:center;padding:60px;color:#9ca3af">
+      <div style="font-size:40px;margin-bottom:12px">📋</div>
+      <p>Nenhuma lead sinalizou imóvel para captar ainda.</p>
+      <p style="font-size:12px">Quando um lead informar que tem imóvel para vender ou alugar, aparecerá aqui.</p>
+    </div>
+  <% } else { %>
+  <div style="overflow-x:auto;background:#fff;border-radius:12px;border:1px solid #e5e7eb">
+    <table class="cap-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Celular</th>
+          <th>Tipo imóvel</th>
+          <th>Transação</th>
+          <th>Status</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% leads.forEach(function(l){ 
+          const dados = l.dados || {};
+          const perfil = l.perfil_ia || {};
+          const imovelCaptado = dados.imovelCaptadoId;
+        %>
+        <tr>
+          <td><strong><%= l.nome||'Sem nome' %></strong></td>
+          <td><%= l.email||'-' %></td>
+          <td><%= l.telefone||l.whatsapp||'-' %></td>
+          <td><%= dados.tipoImovelCaptar||perfil.tipo||'-' %></td>
+          <td><%= dados.transacaoCaptar||'-' %></td>
+          <td>
+            <% if(imovelCaptado) { %>
+              <span class="badge-captado">✅ Captado</span>
+            <% } else { %>
+              <span class="badge-pendente">⏳ Pendente</span>
+            <% } %>
+          </td>
+          <td>
+            <% if(!imovelCaptado) { %>
+              <a href="/app/cadastro-manual?leadId=<%= l.id %>&nome=<%= encodeURIComponent(l.nome||'') %>&telefone=<%= encodeURIComponent(l.telefone||l.whatsapp||'') %>&email=<%= encodeURIComponent(l.email||'') %>" class="btn-cadastrar">+ Cadastrar imóvel</a>
+            <% } else { %>
+              <a href="/app/imovel/<%= imovelCaptado %>/editar" style="color:#2563eb;font-size:12px">Ver imóvel →</a>
+            <% } %>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</div>

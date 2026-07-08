@@ -10646,7 +10646,7 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
     // Marcar como captado
     await _qCM(
       `UPDATE leads SET dados = dados || $1::jsonb, tipo_lead='cliente_vendedor' WHERE id=$2`,
-      [JSON.stringify({ imovelCaptadoId: 'captado', captadoEm: new Date().toISOString() }), req.params.leadId]
+      [JSON.stringify({ imovelCaptadoId: 'captado', captadoEm: new Date().toISOString(), temImovelParaCaptar: true }), req.params.leadId]
     );
     // Buscar imóveis do lead por telefone/email
     const leadR = await _qCM('SELECT nome, telefone, whatsapp, email FROM leads WHERE id=$1', [req.params.leadId]);

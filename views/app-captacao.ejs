@@ -13,6 +13,20 @@
     <h1 style="font-size:20px;font-weight:700;margin:0">📋 Captação de Imóveis</h1>
     <span style="font-size:13px;color:#6b7280"><%= leads.length %> lead(s) com imóvel para captar</span>
   </div>
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+    <div style="flex:1">
+      <p style="font-size:13px;font-weight:600;margin-bottom:4px">🔗 Link de captação para enviar aos seus leads</p>
+      <p style="font-size:12px;color:#6b7280">Envie este link para leads que possam ter imóvel para vender ou alugar</p>
+    </div>
+    <button onclick="copiarLink()" style="background:#FF385C;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer">📋 Copiar link</button>
+  </div>
+  <script>
+  function copiarLink(){
+    const link = 'https://matchimoveis.ia.br/captar/<%= user.id||user.codigoUsuario %>';
+    navigator.clipboard.writeText(link);
+    alert('Link copiado!');
+  }
+  </script>
   <% if(leads.length === 0) { %>
     <div style="text-align:center;padding:60px;color:#9ca3af">
       <div style="font-size:40px;margin-bottom:12px">📋</div>

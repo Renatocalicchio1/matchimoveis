@@ -97,7 +97,7 @@ async function excluirCaptar(leadId){
           </td>
           <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
             <% if(!imovelCaptado) { %>
-              <a href="/app/cadastro?leadId=<%= l.id %>&nome=<%= encodeURIComponent(l.nome||'') %>&telefone=<%= encodeURIComponent(l.telefone||l.whatsapp||'') %>&email=<%= encodeURIComponent(l.email||'') %>" class="btn-cadastrar">+ Cadastrar imóvel</a>
+              <a href="https://matchimoveis.onrender.com/app/cadastro" class="btn-cadastrar">+ Cadastrar imóvel</a>
               <button onclick="marcarCaptado('<%= l.id %>','<%= (l.telefone||l.whatsapp||'').replace(/\D/g,'') %>','<%= encodeURIComponent(l.nome||'') %>')" style="background:#16a34a;color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer">✅ Marcar captado</button>
               <button onclick="excluirCaptar('<%= l.id %>')" style="background:#fef2f2;color:#dc2626;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer">🗑️ Excluir</button>
             <% } else { %>
@@ -121,6 +121,7 @@ async function excluirCaptar(leadId){
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px">
               <span style="flex:1">🏠 <%= im.titulo||im.tipo %> · <%= im.bairro||'' %> · R$ <%= im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'—' %></span>
               <a href="https://wa.me/55<%= _tel2 %>?text=<%= _msg2 %>" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📲 Enviar link</a>
+              <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="color:#2563eb;font-size:11px;font-weight:600;white-space:nowrap">Editar →</a>
               <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link →</a>
             </div>
             <% }); %>

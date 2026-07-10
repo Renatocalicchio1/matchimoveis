@@ -5838,7 +5838,7 @@ app.get('/app/lead/:id', auth, async (req, res) => {
   let imoveisRelacionados = [];
   try {
     const { query: _qIR } = require('./services/db');
-    const _tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,'');
+    let _tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,''); if(_tel.startsWith('55') && _tel.length>=12) _tel = _tel.slice(2);
     const _email = (lead.email||'').toLowerCase().trim();
     const conds = []; const pars = [uid];
     if(_tel){ pars.push('%'+_tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
@@ -10558,7 +10558,7 @@ app.get('/app/captacao', auth, async (req, res) => {
     `, [uid]);
     // Para cada lead, buscar imóveis relacionados por telefone/email
     const leadsComImoveis = await Promise.all(rows.map(async (l) => { try {
-      const tel = (l.telefone||l.whatsapp||'').replace(/\D/g,'');
+      let tel = (l.telefone||l.whatsapp||'').replace(/\D/g,''); if(tel.startsWith('55') && tel.length>=12) tel = tel.slice(2);
       const email = (l.email||'').toLowerCase().trim();
       const conds = []; const pars = [uid];
       if(tel){ pars.push('%'+tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
@@ -10655,7 +10655,7 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
     const leadR = await _qCM('SELECT nome, telefone, whatsapp, email FROM leads WHERE id=$1', [req.params.leadId]);
     const lead = leadR.rows[0];
     if(!lead) return res.json({ ok: true, imoveis: [] });
-    const tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,'');
+    let tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,''); if(tel.startsWith('55') && tel.length>=12) tel = tel.slice(2);
     const email = (lead.email||'').toLowerCase().trim();
     const conditions = [];
     const params = [uid];

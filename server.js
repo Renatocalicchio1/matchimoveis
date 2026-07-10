@@ -10561,8 +10561,8 @@ app.get('/app/captacao', auth, async (req, res) => {
       const tel = (l.telefone||l.whatsapp||'').replace(/\D/g,'');
       const email = (l.email||'').toLowerCase().trim();
       const conds = []; const pars = [uid];
-      if(tel){ pars.push('%'+tel+'%'); conds.push(`proprietario->>'telefone' ILIKE ${pars.length} OR proprietario->>'celular' ILIKE ${pars.length}`); }
-      if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE ${pars.length}`); }
+      if(tel){ pars.push('%'+tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
+      if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
       let imoveis = [];
       if(conds.length){
         const ir = await require('./services/db').query(`SELECT id,id_interno,titulo,tipo,bairro,cidade,valor_imovel,transacao FROM imoveis WHERE user_id=$1 AND (${conds.join(' OR ')}) LIMIT 5`, pars);
@@ -10659,8 +10659,8 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
     const email = (lead.email||'').toLowerCase().trim();
     const conditions = [];
     const params = [uid];
-    if(tel){ params.push('%'+tel+'%'); conditions.push(`proprietario->>'telefone' ILIKE ${params.length} OR proprietario->>'celular' ILIKE ${params.length}`); }
-    if(email){ params.push(email); conditions.push(`proprietario->>'email' ILIKE ${params.length}`); }
+    if(tel){ params.push('%'+tel+'%'); conditions.push(`proprietario->>'telefone' ILIKE $${params.length} OR proprietario->>'celular' ILIKE $${params.length}`); }
+    if(email){ params.push(email); conditions.push(`proprietario->>'email' ILIKE $${params.length}`); }
     let imoveis = [];
     if(conditions.length > 0){
       const imR = await _qCM(

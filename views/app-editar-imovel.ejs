@@ -26,6 +26,7 @@
 
 <%
 const _pid = (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || imovel.id || '');
+const _pidUrl = encodeURIComponent(_pid);
 const _portaisRaw = imovel.portais || [];
 const _portaisArr = Array.isArray(_portaisRaw) ? _portaisRaw : Object.keys(_portaisRaw).filter(k=>_portaisRaw[k]);
 const _difsRaw = imovel.diferenciais || (imovel.dados && imovel.dados.diferenciais) || [];
@@ -49,7 +50,7 @@ const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !
     <a href="/app/imoveis" class="btn btn-outline btn-sm">← Voltar</a>
   </div>
 
-  <form method="POST" action="/app/imovel/<%= _pid %>/editar">
+  <form method="POST" action="/app/imovel/<%= _pidUrl %>/editar">
 
     <!-- TÍTULO E STATUS -->
     <div class="fm-card">
@@ -382,7 +383,7 @@ const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !
   </form>
 
   <!-- EXCLUIR fora do form principal -->
-  <form method="POST" action="/app/imovel/<%= _pid %>/excluir" style="margin-bottom:24px" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')">
+  <form method="POST" action="/app/imovel/<%= _pidUrl %>/excluir" style="margin-bottom:24px" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')">
     <button type="submit" style="background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">Excluir imóvel</button>
   </form>
 
@@ -398,11 +399,11 @@ const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !
       <div class="foto-thumb">
         <img src="<%= foto %>" alt="foto">
         <div style="position:absolute;bottom:0;left:0;right:0;display:flex;gap:2px;padding:4px;background:rgba(0,0,0,.4)">
-          <form method="POST" action="/app/imovel/<%= _pid %>/capa-foto" style="flex:1">
+          <form method="POST" action="/app/imovel/<%= _pidUrl %>/capa-foto" style="flex:1">
             <input type="hidden" name="foto" value="<%= foto %>">
             <button type="submit" style="width:100%;font-size:10px;padding:3px;border-radius:4px;border:none;background:#fff;cursor:pointer;font-weight:500;color:#374151">Capa</button>
           </form>
-          <form method="POST" action="/app/imovel/<%= _pid %>/excluir-foto" style="flex:1">
+          <form method="POST" action="/app/imovel/<%= _pidUrl %>/excluir-foto" style="flex:1">
             <input type="hidden" name="foto" value="<%= foto %>">
             <button type="submit" style="width:100%;font-size:10px;padding:3px;border-radius:4px;border:none;background:#fef2f2;cursor:pointer;font-weight:500;color:#b91c1c">Excluir</button>
           </form>
@@ -411,7 +412,7 @@ const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !
       <% }) %>
     </div>
     <% } %>
-    <form method="POST" action="/app/imovel/<%= _pid %>/upload-foto" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;margin-top:8px">
+    <form method="POST" action="/app/imovel/<%= _pidUrl %>/upload-foto" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;margin-top:8px">
       <input type="file" name="foto" accept="image/*" required style="flex:1;min-width:180px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:13px">
       <button type="submit" class="btn btn-primary">Subir foto</button>
     </form>

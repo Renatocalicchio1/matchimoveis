@@ -510,7 +510,8 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
           <p style="font-size:11px;color:#6b7280"><%= im.bairro||'' %><%= im.cidade?', '+im.cidade:'' %> · R$ <%= im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'—' %></p>
         </div>
         <span style="font-size:10px;padding:2px 6px;border-radius:10px;background:<%= im.status==='ativo'?'#f0fdf4':'#f9fafb' %>;color:<%= im.status==='ativo'?'#16a34a':'#6b7280' %>"><%= im.status %></span>
-        <a href="/app/imovel/<%= im.id %>/editar" style="font-size:11px;color:#FF385C;font-weight:600;text-decoration:none">Ver →</a>
+        <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="font-size:11px;color:#2563eb;font-weight:600;text-decoration:none;margin-right:8px">Editar →</a>
+        <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>" target="_blank" style="font-size:11px;color:#16a34a;font-weight:600;text-decoration:none">🔗 Link público</a>
       </div>
       <% }); %>
     </div>

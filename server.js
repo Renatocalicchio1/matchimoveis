@@ -3004,6 +3004,47 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   if (_fCidade) imoveis = imoveis.filter(i => _norm(i.cidade) === _fCidade);
   if (_fBairro) imoveis = imoveis.filter(i => _norm(i.bairro) === _fBairro);
   if (_fBusca)  imoveis = imoveis.filter(i => _norm(JSON.stringify(i)).includes(_fBusca));
+
+  const _fTipo = _norm(req.query.tipo||'');
+  const _fOperacao = _norm(req.query.operacao||'');
+  const _fStatus = _norm(req.query.status||'');
+  const _fCondicao = _norm(req.query.condicao||'');
+  const _fFase = _norm(req.query.fase||'');
+  const _fProprietario = (req.query.proprietario||'').trim();
+  const _fFotos = (req.query.fotos||'').trim();
+  const _fValorMin = Number((req.query.valorMin||'').toString().replace(/\./g,'').replace(',','.'))||0;
+  const _fValorMax = Number((req.query.valorMax||'').toString().replace(/\./g,'').replace(',','.'))||0;
+  const _fAreaMin = Number(req.query.areaMin)||0;
+  const _fAreaMax = Number(req.query.areaMax)||0;
+  const _fQuartosMin = Number(req.query.quartosMin)||0;
+  const _fQuartosMax = Number(req.query.quartosMax)||0;
+  const _fSuitesMin = Number(req.query.suitesMin)||0;
+  const _fSuitesMax = Number(req.query.suitesMax)||0;
+  const _fBanheiros = Number(req.query.banheiros)||0;
+  const _fVagasMin = Number(req.query.vagasMin)||0;
+  const _fVagasMax = Number(req.query.vagasMax)||0;
+
+  if (_fTipo) imoveis = imoveis.filter(i => _norm(i.tipo) === _fTipo);
+  if (_fOperacao) imoveis = imoveis.filter(i => _norm(i.transacao||i.operacao).includes(_fOperacao));
+  if (_fStatus) imoveis = imoveis.filter(i => _norm(i.status||'ativo') === _fStatus);
+  if (_fCondicao) imoveis = imoveis.filter(i => _norm(i.condicao).includes(_fCondicao));
+  if (_fFase) imoveis = imoveis.filter(i => _norm(i.fase || (i.dados && i.dados.fase)).includes(_fFase));
+  if (_fValorMin) imoveis = imoveis.filter(i => Number(i.valor_imovel||0) >= _fValorMin);
+  if (_fValorMax) imoveis = imoveis.filter(i => Number(i.valor_imovel||0) <= _fValorMax);
+  if (_fAreaMin) imoveis = imoveis.filter(i => Number(i.area_m2||0) >= _fAreaMin);
+  if (_fAreaMax) imoveis = imoveis.filter(i => Number(i.area_m2||0) <= _fAreaMax);
+  if (_fQuartosMin) imoveis = imoveis.filter(i => Number(i.quartos||0) >= _fQuartosMin);
+  if (_fQuartosMax) imoveis = imoveis.filter(i => Number(i.quartos||0) <= _fQuartosMax);
+  if (_fSuitesMin) imoveis = imoveis.filter(i => Number(i.suites||0) >= _fSuitesMin);
+  if (_fSuitesMax) imoveis = imoveis.filter(i => Number(i.suites||0) <= _fSuitesMax);
+  if (_fBanheiros) imoveis = imoveis.filter(i => Number(i.banheiros||0) >= _fBanheiros);
+  if (_fVagasMin) imoveis = imoveis.filter(i => Number(i.vagas||0) >= _fVagasMin);
+  if (_fVagasMax) imoveis = imoveis.filter(i => Number(i.vagas||0) <= _fVagasMax);
+  if (_fProprietario === 'sim') imoveis = imoveis.filter(i => i.proprietario && i.proprietario.nome);
+  if (_fProprietario === 'nao') imoveis = imoveis.filter(i => !(i.proprietario && i.proprietario.nome));
+  if (_fFotos === 'sim') imoveis = imoveis.filter(i => i.fotos && i.fotos.length > 0);
+  if (_fFotos === 'nao') imoveis = imoveis.filter(i => !(i.fotos && i.fotos.length > 0));
+
   const _totalImoveisFiltrado = imoveis.length;
   const _totalPagesFiltrado = Math.ceil(_totalImoveisFiltrado / _perPage);
   const _temFiltro = _fEstado || _fCidade || _fBairro || _fBusca;

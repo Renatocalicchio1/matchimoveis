@@ -281,11 +281,12 @@
       </select>
     </div>
     <div class="filtro-field"><label>🔍 Busca geral</label>
-      <input id="busca" placeholder="ID interno ou externo..." oninput="filtrar()">
+      <input id="busca" placeholder="ID interno ou externo... (Enter busca em toda a carteira)" oninput="filtrar()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarNoServidor();}">
     </div>
   </div>
   <div class="filtro-rodape">
     <span id="nf-count" style="font-size:11px;color:var(--text-ter)"></span>
+    <button onclick="buscarTudoNoServidor()" class="btn btn-sm" style="background:#FF385C;color:#fff;border:none">🔍 Buscar em toda a carteira</button>
     <button onclick="limpar()" class="btn btn-outline btn-sm">↺ Limpar filtros</button>
     <a href="/app/imoveis?qa_incompleto=1" class="btn btn-sm" style="background:#fff7ed;border:1px solid #f97316;color:#c2410c;text-decoration:none;<%= (typeof qaIncompleto !== 'undefined' && qaIncompleto) ? 'display:none' : '' %>">⚠️ Ver imóveis incompletos</a>
     <% if (typeof qaIncompleto !== 'undefined' && qaIncompleto) { %>
@@ -627,6 +628,55 @@ document.querySelectorAll('.portal-lote-label').forEach(l => {
     l.style.background = this.checked ? '#fff0f3' : 'var(--bg)';
   });
 });
+
+function buscarTudoNoServidor() {
+  const params = new URLSearchParams();
+  const campo = (id) => document.getElementById(id)?.value || '';
+  const mapa = {
+    'f-tipo':'tipo', 'f-operacao':'operacao', 'f-status':'status', 'f-condicao':'condicao', 'f-fase':'fase',
+    'f-estado':'estado', 'f-cidade':'cidade', 'f-bairro':'bairro',
+    'f-valor-min':'valorMin', 'f-valor-max':'valorMax',
+    'f-area-min':'areaMin', 'f-area-max':'areaMax',
+    'f-quartos':'quartosMin', 'f-quartos-max':'quartosMax',
+    'f-suites':'suitesMin', 'f-suites-max':'suitesMax',
+    'f-banheiros':'banheiros',
+    'f-vagas':'vagasMin', 'f-vagas-max':'vagasMax',
+    'f-proprietario':'proprietario', 'f-fotos':'fotos',
+    'busca':'busca'
+  };
+  Object.keys(mapa).forEach(idCampo => {
+    const v = campo(idCampo);
+    if (v) params.set(mapa[idCampo], v);
+  });
+  window.location.href = '/app/imoveis?' + params.toString();
+}
+
+(function preencherFiltrosDaURL(){
+  const params = new URLSearchParams(window.location.search);
+  const mapa = {
+    tipo:'f-tipo', operacao:'f-operacao', status:'f-status', condicao:'f-condicao', fase:'f-fase',
+    estado:'f-estado', cidade:'f-cidade', bairro:'f-bairro',
+    valorMin:'f-valor-min', valorMax:'f-valor-max',
+    areaMin:'f-area-min', areaMax:'f-area-max',
+    quartosMin:'f-quartos', quartosMax:'f-quartos-max',
+    suitesMin:'f-suites', suitesMax:'f-suites-max',
+    banheiros:'f-banheiros',
+    vagasMin:'f-vagas', vagasMax:'f-vagas-max',
+    proprietario:'f-proprietario', fotos:'f-fotos', busca:'busca'
+  };
+  Object.keys(mapa).forEach(k => {
+    const v = params.get(k);
+    if (v) { const el = document.getElementById(mapa[k]); if (el) el.value = v; }
+  });
+})();
+
+function buscarNoServidor() {
+  const valor = document.getElementById('busca')?.value || '';
+  const params = new URLSearchParams(window.location.search);
+  if (valor) params.set('busca', valor); else params.delete('busca');
+  params.delete('page');
+  window.location.href = '/app/imoveis?' + params.toString();
+}
 
 function filtrar() {
   const busca = norm(document.getElementById('busca')?.value||'');

@@ -147,7 +147,7 @@
 <div class="filtro-box">
   <div class="filtro-grid">
     <div class="filtro-field"><label>Status</label>
-      <select id="f-status" onchange="filtrar()">
+      <select id="f-status" onchange="autoFiltrarDebounce()">
         <option value="">Todos</option>
         <option value="ativo">Ativo</option>
         <option value="inativo">Inativo</option>
@@ -155,7 +155,7 @@
       </select>
     </div>
     <div class="filtro-field"><label>Transação</label>
-      <select id="f-operacao" onchange="filtrar()">
+      <select id="f-operacao" onchange="autoFiltrarDebounce()">
         <option value="">Todas</option>
         <option value="venda">Venda</option>
         <option value="aluguel">Aluguel</option>
@@ -164,7 +164,7 @@
       </select>
     </div>
     <div class="filtro-field"><label>Tipo</label>
-      <select id="f-tipo" onchange="filtrar()">
+      <select id="f-tipo" onchange="autoFiltrarDebounce()">
         <option value="">Todos</option>
         <optgroup label="Residencial">
           <option value="apartamento">Apartamento</option>
@@ -195,7 +195,7 @@
       </select>
     </div>
     <div class="filtro-field"><label>Condição</label>
-      <select id="f-condicao" onchange="filtrar()">
+      <select id="f-condicao" onchange="autoFiltrarDebounce()">
         <option value="">Todas</option>
         <option value="usado">Usado</option>
         <option value="novo">Novo</option>
@@ -203,7 +203,7 @@
       </select>
     </div>
     <div class="filtro-field" style="display:none"><label>Fase</label>
-      <select id="f-fase" onchange="filtrar()">
+      <select id="f-fase" onchange="autoFiltrarDebounce()">
         <option value="">Todas</option>
         <option value="pronto">Pronto</option>
         <option value="lancamento">Lançamento</option>
@@ -214,7 +214,7 @@
   </div>
   <div class="filtro-grid2" style="margin-top:10px">
     <div class="filtro-field"><label>Estado</label>
-      <select id="f-estado" onchange="atualizarCidades()">
+      <select id="f-estado" onchange="atualizarCidades();autoFiltrarDebounce()">
         <option value="">Todos</option>
         <% (typeof estados !== 'undefined' ? estados : []).forEach(e => { %>
         <option value="<%= e.toLowerCase() %>"><%= e %></option>
@@ -222,71 +222,70 @@
       </select>
     </div>
     <div class="filtro-field" style="position:relative"><label>Cidade</label>
-      <input id="f-cidade" type="text" placeholder="Digite a cidade..." autocomplete="off" oninput="autocompleteCidade(this)" onblur="setTimeout(()=>fecharSug('sug-cidade'),200)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;outline:none;box-sizing:border-box">
+      <input id="f-cidade" type="text" placeholder="Digite a cidade..." autocomplete="off" oninput="autocompleteCidade(this);autoFiltrarDebounce()" onblur="setTimeout(()=>fecharSug('sug-cidade'),200)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;outline:none;box-sizing:border-box">
       <div id="sug-cidade" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:999;max-height:200px;overflow-y:auto"></div>
     </div>
     <div class="filtro-field" style="position:relative"><label>Bairro</label>
-      <input id="f-bairro" type="text" placeholder="Digite o bairro..." autocomplete="off" oninput="autocompleteBairro(this)" onblur="setTimeout(()=>fecharSug('sug-bairro'),200)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;outline:none;box-sizing:border-box">
+      <input id="f-bairro" type="text" placeholder="Digite o bairro..." autocomplete="off" oninput="autocompleteBairro(this);autoFiltrarDebounce()" onblur="setTimeout(()=>fecharSug('sug-bairro'),200)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;outline:none;box-sizing:border-box">
       <div id="sug-bairro" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:999;max-height:200px;overflow-y:auto"></div>
     </div>
     <div class="filtro-field"><label>Valor mín. R$</label>
-      <input id="f-valor-min" type="text" placeholder="Ex: 500.000" oninput="fmtValor(this);filtrar()" style="ime-mode:disabled">
+      <input id="f-valor-min" type="text" placeholder="Ex: 500.000" oninput="fmtValor(this);autoFiltrarDebounce()" style="ime-mode:disabled">
     </div>
     <div class="filtro-field"><label>Valor máx. R$</label>
-      <input id="f-valor-max" type="text" placeholder="Ex: 2.000.000" oninput="fmtValor(this);filtrar()" style="ime-mode:disabled">
+      <input id="f-valor-max" type="text" placeholder="Ex: 2.000.000" oninput="fmtValor(this);autoFiltrarDebounce()" style="ime-mode:disabled">
     </div>
     <div class="filtro-field"><label>Área mín. m²</label>
-      <input id="f-area-min" type="number" placeholder="0" oninput="filtrar()">
+      <input id="f-area-min" type="number" placeholder="0" oninput="autoFiltrarDebounce()">
     </div>
   </div>
   <div class="filtro-grid2" style="margin-top:10px">
     <div class="filtro-field"><label>Área máx. m²</label>
-      <input id="f-area-max" type="number" placeholder="∞" oninput="filtrar()">
+      <input id="f-area-max" type="number" placeholder="∞" oninput="autoFiltrarDebounce()">
     </div>
     <div class="filtro-field"><label>Quartos mín.</label>
-      <input id="f-quartos" type="number" min="0" placeholder="0" oninput="filtrar()">
+      <input id="f-quartos" type="number" min="0" placeholder="0" oninput="autoFiltrarDebounce()">
     </div>
     <div class="filtro-field"><label>Quartos máx.</label>
-      <input id="f-quartos-max" type="number" min="0" placeholder="∞" oninput="filtrar()">
+      <input id="f-quartos-max" type="number" min="0" placeholder="∞" oninput="autoFiltrarDebounce()">
     </div>
     <div class="filtro-field"><label>Suítes mín.</label>
-      <input id="f-suites" type="number" min="0" placeholder="0" oninput="filtrar()">
+      <input id="f-suites" type="number" min="0" placeholder="0" oninput="autoFiltrarDebounce()">
     </div>
     <div class="filtro-field"><label>Suítes máx.</label>
-      <input id="f-suites-max" type="number" min="0" placeholder="∞" oninput="filtrar()">
+      <input id="f-suites-max" type="number" min="0" placeholder="∞" oninput="autoFiltrarDebounce()">
     </div>
     <div class="filtro-field"><label>Banheiros mín.</label>
-      <input id="f-banheiros" type="number" min="0" placeholder="0" oninput="filtrar()">
+      <input id="f-banheiros" type="number" min="0" placeholder="0" oninput="autoFiltrarDebounce()">
     </div>
   </div>
   <div class="filtro-grid2" style="margin-top:10px">
     <div class="filtro-field"><label>Vagas mín.</label>
-      <input id="f-vagas" type="number" min="0" placeholder="0" oninput="filtrar()">
+      <input id="f-vagas" type="number" min="0" placeholder="0" oninput="autoFiltrarDebounce()">
     </div>
     <div class="filtro-field"><label>Vagas máx.</label>
-      <input id="f-vagas-max" type="number" min="0" placeholder="∞" oninput="filtrar()">
+      <input id="f-vagas-max" type="number" min="0" placeholder="∞" oninput="autoFiltrarDebounce()">
     </div>
     <div class="filtro-field"><label>Proprietário</label>
-      <select id="f-proprietario" onchange="filtrar()">
+      <select id="f-proprietario" onchange="autoFiltrarDebounce()">
         <option value="">Todos</option>
         <option value="sim">Com proprietário</option>
         <option value="nao">Sem proprietário</option>
       </select>
     </div>
     <div class="filtro-field"><label>Fotos</label>
-      <select id="f-fotos" onchange="filtrar()">
+      <select id="f-fotos" onchange="autoFiltrarDebounce()">
         <option value="">Todos</option>
         <option value="sim">Com fotos</option>
         <option value="nao">Sem fotos</option>
       </select>
     </div>
     <div class="filtro-field"><label>🔍 Busca geral</label>
-      <input id="busca" placeholder="ID interno ou externo... (Enter busca em toda a carteira)" oninput="filtrar()" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarNoServidor();}">
+      <input id="busca" placeholder="ID interno ou externo..." oninput="autoFiltrarDebounce()">
     </div>
   </div>
   <div class="filtro-rodape">
     <span id="nf-count" style="font-size:11px;color:var(--text-ter)"></span>
-    <button onclick="buscarTudoNoServidor()" class="btn btn-sm" style="background:#FF385C;color:#fff;border:none">🔍 Buscar em toda a carteira</button>
     <button onclick="limpar()" class="btn btn-outline btn-sm">↺ Limpar filtros</button>
     <a href="/app/imoveis?qa_incompleto=1" class="btn btn-sm" style="background:#fff7ed;border:1px solid #f97316;color:#c2410c;text-decoration:none;<%= (typeof qaIncompleto !== 'undefined' && qaIncompleto) ? 'display:none' : '' %>">⚠️ Ver imóveis incompletos</a>
     <% if (typeof qaIncompleto !== 'undefined' && qaIncompleto) { %>
@@ -628,6 +627,12 @@ document.querySelectorAll('.portal-lote-label').forEach(l => {
     l.style.background = this.checked ? '#fff0f3' : 'var(--bg)';
   });
 });
+
+let _debounceFiltro = null;
+function autoFiltrarDebounce() {
+  clearTimeout(_debounceFiltro);
+  _debounceFiltro = setTimeout(buscarTudoNoServidor, 700);
+}
 
 function buscarTudoNoServidor() {
   const params = new URLSearchParams();

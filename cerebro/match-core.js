@@ -671,6 +671,11 @@ class MatchCore {
         // Debita match_encontrado
         if (matchesNovos.length > 0 && matchesNovos.length > matchesAntes.length) {
           try { const { consumir: _cMatch } = require('../services/creditos'); _cMatch(lead.userId || lead.codigoUsuario || '', 'match_encontrado').catch(()=>{}); } catch(e) {}
+          // Revela lead oculta (criada via WhatsApp sem perfil minimo) assim que gerar o primeiro match
+          if (lead.leadOculta === true) {
+            lead.leadOculta = false;
+            console.log('[MATCH CORE] lead revelada apos gerar match:', lead.id);
+          }
         }
       }
       console.log(`[MATCH CORE] caso2 matches final: ${matchesNovos.length}`);

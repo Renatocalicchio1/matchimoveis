@@ -4865,9 +4865,6 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     });
 
     if (!leadEncontrado) {
-      // ── BLOQUEIO TEMPORARIO: criacao automatica de lead via WhatsApp desativada (jul/2026) ──
-      console.log('[WEBHOOK WA] criacao automatica de lead via WhatsApp esta bloqueada temporariamente:', telefone);
-      return;
       // ── FILTRO_CAPTURA_LEADS — só captura se mensagem tem palavras imobiliárias
       const _palavrasImoveis = [
         // Tipos de imóvel
@@ -4914,8 +4911,8 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         console.log('[WEBHOOK WA] mensagem de portal detectada — ignorando criação de lead pelo WA:', telefone);
         return;
       }
-      console.log('[WEBHOOK WA] lead nao encontrado — criando novo lead automatico:', telefone);
-      // Cria lead novo automaticamente a partir do WhatsApp
+      console.log('[WEBHOOK WA] lead nao encontrado — criando novo lead automatico (oculta ate ter match):', telefone);
+      // Cria lead novo automaticamente a partir do WhatsApp — fica oculta ate gerar match
       const novoLead = {
         id: Date.now().toString(),
         nome: pushName || telefone,
@@ -4933,7 +4930,8 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         temperatura: 'frio',
         timeline: [],
         eventos: [],
-        followUps: []
+        followUps: [],
+        leadOculta: true
       };
       // Salva no PostgreSQL
       try {

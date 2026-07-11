@@ -22,6 +22,8 @@ async function rodarExtracao() {
     let ex = {};
     if (url && url.includes('imovelweb')) {
       ex = await extractProperty({ url }, {});
+      const _pausa = 2000 + Math.floor(Math.random() * 3000);
+      await new Promise(r => setTimeout(r, _pausa));
     }
 
     if (ex.indisponivel || ex.extractionStatus === 'indisponivel') {
@@ -36,7 +38,10 @@ async function rodarExtracao() {
       progresso[i].status = 'ok';
       progresso[i].quartos = ex.quartos;
       progresso[i].area = ex.area_m2;
-      console.log('  ✅ q:'+ex.quartos+' area:'+ex.area_m2+'m²');
+      progresso[i].bairro = ex.bairro || '';
+      progresso[i].cidade = ex.cidade || '';
+      progresso[i].valor = ex.valor_imovel || 0;
+      console.log('  ✅ q:'+ex.quartos+' area:'+ex.area_m2+'m² bairro:'+(ex.bairro||'-'));
     }
 
     const tel = (r['Telefone'] || '').toString().replace(/\D/g,'');
@@ -107,12 +112,13 @@ tr:hover td{background:#fafafa}
 <div class="upload" id="upload" onclick="document.getElementById('file').click()">
   <div style="font-size:36px">📂</div>
   <div id="upload-label" style="font-weight:600;margin-top:8px;color:#111">Clique para selecionar a planilha (.xlsx)</div>
-  <div style="font-size:12px;color:#aaa;margin-top:4px">Exportada do ImovelWeb</div>
+  <div style="font-size:12px;color:#aaa;margin-top:4px">Exportada do ImovelWeb (.xlsx, .xls ou .csv)</div>
 </div>
-<input type="file" id="file" style="display:none" accept=".xlsx,.xls" onchange="carregar(this)">
+<input type="file" id="file" style="display:none" accept=".xlsx,.xls,.csv" onchange="carregar(this)">
 
 <div id="acoes" style="display:none;margin-bottom:16px">
   <button class="btn btn-red" id="btn-extrair" onclick="extrair()">🚀 Extrair e gerar planilha</button>
+  <button class="btn" id="btn-teste" onclick="extrair(30)" style="background:#f3f4f6;color:#111">🧪 Testar 30 primeiros</button>
   <span id="info" style="font-size:13px;color:#888"></span>
 </div>
 
@@ -121,8 +127,8 @@ tr:hover td{background:#fafafa}
     <span id="prog-txt">Extraindo...</span><span id="prog-pct">0%</span>
   </div>
   <div class="bar"><div class="fill" id="fill" style="width:0%"></div></div>
-  <div id="prog-tabela" style="max-height:300px;overflow-y:auto;margin-top:8px">
-    <table><thead><tr><th>#</th><th>Nome</th><th>Status</th><th>Quartos</th><th>Área</th></tr></thead>
+  <div id="prog-tabela" style="max-height:300px;overflow-y:auto;overflow-x:auto;margin-top:8px;white-space:nowrap">
+    <table><thead><tr><th>#</th><th>Nome</th><th>Status</th><th>Bairro</th><th>Cidade</th><th>Quartos</th><th>Área</th><th>Valor</th></tr></thead>
     <tbody id="prog-tbody"></tbody></table>
   </div>
 </div>
@@ -145,6 +151,7 @@ tr:hover td{background:#fafafa}
 <script>
 const OCULTAR = ['telefone 2','sucursal','mensagem','data','id anúncio','código'];
 let arquivo = null;
+let _ehCsv = false;
 
 function carregar(input) {
   arquivo = input.files[0];
@@ -152,9 +159,17 @@ function carregar(input) {
   document.getElementById('upload-label').textContent = '✅ ' + arquivo.name;
   document.getElementById('upload').classList.add('ok');
   const reader = new FileReader();
+  _ehCsv = arquivo.name.toLowerCase().endsWith('.csv');
   reader.onload = function(e) {
-    const data = new Uint8Array(e.target.result);
-    const wb = XLSX.read(data, { type: 'array' });
+    let wb;
+    if (_ehCsv) {
+      const bytes = new Uint8Array(e.target.result);
+      const texto = new TextDecoder('utf-8').decode(bytes);
+      wb = XLSX.read(texto, { type: 'string' });
+    } else {
+      const data = new Uint8Array(e.target.result);
+      wb = XLSX.read(data, { type: 'array' });
+    }
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
     if (!rows.length) return alert('Planilha vazia');
@@ -171,13 +186,16 @@ function carregar(input) {
   reader.readAsArrayBuffer(arquivo);
 }
 
-async function extrair() {
+async function extrair(limite) {
   if (!arquivo) return;
   document.getElementById('btn-extrair').disabled = true;
+  document.getElementById('btn-teste').disabled = true;
   document.getElementById('prog-area').style.display = 'block';
   document.getElementById('download-area').style.display = 'none';
   const buf = await arquivo.arrayBuffer();
-  await fetch('/extrair', { method: 'POST', body: buf, headers: { 'Content-Type': 'application/octet-stream' } });
+  let _urlExtrair = _ehCsv ? '/extrair?csv=1' : '/extrair?x=1';
+  if (limite) _urlExtrair += '&limite=' + limite;
+  await fetch(_urlExtrair, { method: 'POST', body: buf, headers: { 'Content-Type': 'application/octet-stream' } });
   const poll = setInterval(async () => {
     const r = await fetch('/status');
     const d = await r.json();
@@ -189,13 +207,14 @@ async function extrair() {
     document.getElementById('prog-pct').textContent = pct + '%';
     document.getElementById('prog-txt').textContent = 'Extraindo ' + feitos + ' de ' + total + '...';
     document.getElementById('prog-tbody').innerHTML = prog.map(p =>
-      '<tr><td>'+p.i+'</td><td>'+p.nome+'</td><td>'+(p.status==='ok'?'✅':p.status==='indisponivel'?'⚠️ Indispon.':p.status==='extraindo'?'⏳':'❌')+'</td><td>'+(p.quartos||'—')+'</td><td>'+(p.area?p.area+'m²':'—')+'</td></tr>'
+      '<tr><td>'+p.i+'</td><td>'+p.nome+'</td><td>'+(p.status==='ok'?'✅':p.status==='indisponivel'?'⚠️ Indispon.':p.status==='extraindo'?'⏳':'❌')+'</td><td>'+(p.bairro||'—')+'</td><td>'+(p.cidade||'—')+'</td><td>'+(p.quartos||'—')+'</td><td>'+(p.area?p.area+'m²':'—')+'</td><td>'+(p.valor?'R$ '+Number(p.valor).toLocaleString('pt-BR'):'—')+'</td></tr>'
     ).join('');
     if (d.status === 'concluido' || d.status === 'erro') {
       clearInterval(poll);
       document.getElementById('prog-txt').textContent = '✅ Concluído!';
       document.getElementById('download-area').style.display = 'block';
       document.getElementById('btn-extrair').disabled = false;
+      document.getElementById('btn-teste').disabled = false;
     }
   }, 2000);
 }
@@ -221,16 +240,21 @@ const server = http.createServer((req, res) => {
     res.end(resultadoFinal);
     return;
   }
-  if (req.method === 'POST' && req.url === '/extrair') {
+  if (req.method === 'POST' && req.url.startsWith('/extrair')) {
     if (status === 'rodando') { res.writeHead(400); res.end('Em andamento'); return; }
     let body = [];
     req.on('data', chunk => body.push(chunk));
     req.on('end', () => {
       try {
         const buf = Buffer.concat(body);
-        const wb = XLSX.read(buf, { type: 'buffer' });
+        const _ehCsvServer = req.url.includes('csv=1');
+        const wb = _ehCsvServer ? XLSX.read(buf.toString('utf-8'), { type: 'string' }) : XLSX.read(buf, { type: 'buffer' });
         const ws = wb.Sheets[wb.SheetNames[0]];
         rowsGlobal = XLSX.utils.sheet_to_json(ws);
+        if (rowsGlobal[0]) console.log('📑 Colunas encontradas:', Object.keys(rowsGlobal[0]).join(' | '));
+        const _urlParams = new URLSearchParams(req.url.split('?')[1] || '');
+        const _limite = parseInt(_urlParams.get('limite') || '0');
+        if (_limite > 0) rowsGlobal = rowsGlobal.slice(0, _limite);
         console.log('📋', rowsGlobal.length, 'leads — iniciando extração...');
         rodarExtracao().catch(e => { status = 'erro'; console.error(e); });
         res.writeHead(200, { 'Content-Type': 'application/json' });

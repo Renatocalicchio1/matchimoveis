@@ -3235,9 +3235,7 @@ app.get('/app/modelo-leads.xlsx', auth, (req, res) => {
     Suites: 1,
     Vagas: 1,
     Banheiros: 2,
-    Area_min: 60,
     Area_max: 100,
-    Valor_min: 300000,
     Valor_max: 500000,
     Observacoes: 'Prefere andar alto'
   }];

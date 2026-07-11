@@ -3045,6 +3045,7 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   if (_fFotos === 'sim') imoveis = imoveis.filter(i => i.fotos && i.fotos.length > 0);
   if (_fFotos === 'nao') imoveis = imoveis.filter(i => !(i.fotos && i.fotos.length > 0));
 
+  imoveis.sort((a, b) => (Number(a.valor_imovel)||0) - (Number(b.valor_imovel)||0));
   const _totalImoveisFiltrado = imoveis.length;
   const _totalPagesFiltrado = Math.ceil(_totalImoveisFiltrado / _perPage);
   const _temFiltro = _fEstado || _fCidade || _fBairro || _fBusca;

@@ -4865,6 +4865,9 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     });
 
     if (!leadEncontrado) {
+      // ── BLOQUEIO TEMPORARIO: criacao automatica de lead via WhatsApp desativada (jul/2026) ──
+      console.log('[WEBHOOK WA] criacao automatica de lead via WhatsApp esta bloqueada temporariamente:', telefone);
+      return;
       // ── FILTRO_CAPTURA_LEADS — só captura se mensagem tem palavras imobiliárias
       const _palavrasImoveis = [
         // Tipos de imóvel

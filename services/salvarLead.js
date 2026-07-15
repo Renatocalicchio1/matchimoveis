@@ -156,12 +156,13 @@ async function salvarLead(lead) {
           intencoes_ocultas=EXCLUDED.intencoes_ocultas,
           dados=EXCLUDED.dados, atualizado_em=NOW()
       `, [r.id,r.nome,r.telefone,r.whatsapp,r.contato,r.origem,r.status,r.fase_funil,r.temperatura,r.score,r.user_id,r.codigo_usuario,r.tipo_lead,r.perfil_ia,r.mensagens,r.matches,r.matches_auto,r.matches_base,r.historico,r.timeline,r.eventos,r.follow_ups,r.deletado_por,r.vitrine_enviada,r.vitrine_enviada_em,r.visita_agendada,r.visita_agendada_em,r.imovel_vendedor,r.comissao_parceiro,r.ciclo_anterior,r.ciclo_seguinte,r.mapa_intencao,r.comportamento,r.intencoes_ocultas,r.dados]);
-      // Email alerta nova lead individual (não lote)
+      // Email alerta nova lead individual (não lote) — vai pro corretor
       if (!lead._lote) {
         try {
           const _existeR = await query('SELECT 1 FROM leads WHERE id=$1', [r.id]);
-          if (!_existeR.rows.length && lead.user_id) {
-            const _userR = await query('SELECT nome, email FROM usuarios WHERE codigo_usuario=$1 OR id=$1 LIMIT 1', [lead.user_id]);
+          const _leadUserId = lead.user_id || lead.userId || lead.codigoUsuario || null;
+          if (!_existeR.rows.length && _leadUserId) {
+            const _userR = await query('SELECT nome, email FROM usuarios WHERE codigo_usuario=$1 OR id=$1 LIMIT 1', [_leadUserId]);
             const _user = _userR.rows[0];
             if (_user && _user.email) {
               const { enviarEmail } = require('./email');
@@ -173,22 +174,24 @@ async function salvarLead(lead) {
                 texto: 'Nova lead: ' + (lead.nome||'Sem nome') + ' | ' + (lead.telefone||'-')
               }).catch(()=>{});
             }
-            // Email de captacao para a propria lead, se tiver email cadastrado
-            if (lead.email) {
-              try {
-                const { enviarEmail: _envCap } = require('./email');
-                const _linkCap = 'https://matchimoveis.ia.br/captar/' + lead.user_id;
-                _envCap({
-                  para: lead.email,
-                  assunto: 'Cadastre seu imóvel — MatchImóveis',
-                  html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + (lead.nome||'') + '!</h2><p>Se você tiver um imóvel para venda ou locação, você pode cadastrar as informações básicas do seu imóvel que nosso time entrará em contato.</p><p>Clique no botão abaixo — o processo é simples e rápido.</p><a href="' + _linkCap + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Cadastrar meu imóvel →</a></div>',
-                  texto: 'Cadastre seu imovel: ' + _linkCap
-                }).then(()=>console.log('[EMAIL CAPTACAO] enviado para:', lead.email)).catch((e)=>console.error('[EMAIL CAPTACAO] falhou:', e.message));
-              } catch(_eCap){}
-            }
           }
         } catch(_eNL){}
       }
+      // Email de captacao para a propria lead — roda sempre (manual, planilha, webhook), independente de lote
+      try {
+        const _existeR2 = await query('SELECT 1 FROM leads WHERE id=$1', [r.id]);
+        const _leadUserId2 = lead.user_id || lead.userId || lead.codigoUsuario || null;
+        if (!_existeR2.rows.length && lead.email) {
+          const { enviarEmail: _envCap } = require('./email');
+          const _linkCap = 'https://matchimoveis.ia.br/captar/' + _leadUserId2;
+          _envCap({
+            para: lead.email,
+            assunto: 'Cadastre seu imóvel — MatchImóveis',
+            html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + (lead.nome||'') + '!</h2><p>Se você tiver um imóvel para venda ou locação, você pode cadastrar as informações básicas do seu imóvel que nosso time entrará em contato.</p><p>Clique no botão abaixo — o processo é simples e rápido.</p><a href="' + _linkCap + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Cadastrar meu imóvel →</a></div>',
+            texto: 'Cadastre seu imovel: ' + _linkCap
+          }).then(()=>console.log('[EMAIL CAPTACAO] enviado para:', lead.email)).catch((e)=>console.error('[EMAIL CAPTACAO] falhou:', e.message));
+        }
+      } catch(_eCap){}
       return lead;
     } catch(e) {
       console.error('[salvarLead PG]', e.message);

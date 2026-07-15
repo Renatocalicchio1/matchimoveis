@@ -52,7 +52,7 @@
     </div>
     <div style="display:flex;gap:10px;margin-top:10px">
       <% if (p.telefone) { %><a href="https://wa.me/55<%= p.telefone %>" target="_blank" style="font-size:11px;color:#16a34a;text-decoration:none;font-weight:500">📱 WhatsApp</a><% } %>
-      <a href="/app/imoveis?rede=1&corretor=<%= p.id %>" style="font-size:11px;color:#6366f1;text-decoration:none;font-weight:500">🏠 Ver carteira</a>
+      <a href="#" onclick="abrirCarteira('<%= p.id %>','<%= (p.nome||'').replace(/'/g, "\\'") %>');return false;" style="font-size:11px;color:#6366f1;text-decoration:none;font-weight:500">🏠 Ver carteira</a>
     </div>
   </div>
   <% }) %>
@@ -76,4 +76,24 @@ function filtrarParceiros(){
 }
 </script>
 
+<div id="modal-carteira" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)fecharCarteira()">
+  <div style="background:#fff;border-radius:14px;width:100%;max-width:1200px;height:90vh;display:flex;flex-direction:column;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #f0f0f0">
+      <span id="modal-carteira-titulo" style="font-size:14px;font-weight:600;color:#111"></span>
+      <button onclick="fecharCarteira()" style="background:none;border:none;cursor:pointer;font-size:22px;color:#9ca3af;line-height:1">×</button>
+    </div>
+    <iframe id="modal-carteira-iframe" src="" style="flex:1;border:none;width:100%"></iframe>
+  </div>
+</div>
+<script>
+function abrirCarteira(id, nome){
+  document.getElementById('modal-carteira-titulo').textContent = 'Carteira de ' + nome;
+  document.getElementById('modal-carteira-iframe').src = '/app/imoveis?rede=1&corretor=' + id;
+  document.getElementById('modal-carteira').style.display = 'flex';
+}
+function fecharCarteira(){
+  document.getElementById('modal-carteira').style.display = 'none';
+  document.getElementById('modal-carteira-iframe').src = '';
+}
+</script>
 <%- include('partials/app-end') %>

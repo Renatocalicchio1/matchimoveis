@@ -9074,12 +9074,18 @@ app.get('/app/parceiros', auth, async (req, res) => {
     [uid]
   );
   const lista = _resParc.rows.map(function(u) {
+    var partes = (u.endereco || '').split(',').map(function(s){return s.trim();});
+    var bairro = partes.length >= 5 ? partes[partes.length-5] : '';
+    var cidade = partes.length >= 4 ? partes[partes.length-4] : '';
+    var estado = partes.length >= 3 ? partes[partes.length-3] : '';
     return {
       id: u.codigo_usuario,
       nome: u.nome || u.codigo_usuario,
       email: u.email || '',
       telefone: (u.celular || u.telefone || '').replace(/\D/g,''),
-      endereco: u.endereco || '',
+      bairro: bairro,
+      cidade: cidade,
+      estado: estado,
       totalImoveis: Number(u.total_imoveis) || 0
     };
   });

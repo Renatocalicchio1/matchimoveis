@@ -43,7 +43,7 @@
     <div class="parc-nome"><%= p.nome %></div>
     <% if (p.email) { %><div class="parc-tel">✉️ <%= p.email %></div><% } %>
     <% if (p.telefone) { %><div class="parc-tel">📱 <%= p.telefone %></div><% } %>
-    <% if (p.endereco) { %><div class="parc-tel">📍 <%= p.endereco %></div><% } %>
+    <% if (p.bairro || p.cidade || p.estado) { %><div class="parc-tel">📍 <%= [p.bairro, p.cidade, p.estado].filter(Boolean).join(', ') %></div><% } %>
     <div class="parc-stats">
       <div class="parc-stat">
         <div class="parc-stat-val"><%= p.totalImoveis %></div>

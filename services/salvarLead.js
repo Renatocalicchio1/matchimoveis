@@ -135,6 +135,8 @@ async function salvarLead(lead) {
   if (await dbOk()) {
     try {
       const r = leadToRow(lead);
+      const _jaExistiaAntes = await query('SELECT 1 FROM leads WHERE id=$1', [r.id]);
+      const _eraNova = !_jaExistiaAntes.rows.length;
       await query(`
         INSERT INTO leads (id,nome,telefone,whatsapp,contato,origem,status,fase_funil,temperatura,score,user_id,codigo_usuario,tipo_lead,perfil_ia,mensagens,matches,matches_auto,matches_base,historico,timeline,eventos,follow_ups,deletado_por,vitrine_enviada,vitrine_enviada_em,visita_agendada,visita_agendada_em,imovel_vendedor,comissao_parceiro,ciclo_anterior,ciclo_seguinte,mapa_intencao,comportamento,intencoes_ocultas,dados)
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35)
@@ -159,9 +161,8 @@ async function salvarLead(lead) {
       // Email alerta nova lead individual (não lote) — vai pro corretor
       if (!lead._lote) {
         try {
-          const _existeR = await query('SELECT 1 FROM leads WHERE id=$1', [r.id]);
           const _leadUserId = lead.user_id || lead.userId || lead.codigoUsuario || null;
-          if (!_existeR.rows.length && _leadUserId) {
+          if (_eraNova && _leadUserId) {
             const _userR = await query('SELECT nome, email FROM usuarios WHERE codigo_usuario=$1 OR id=$1 LIMIT 1', [_leadUserId]);
             const _user = _userR.rows[0];
             if (_user && _user.email) {
@@ -179,9 +180,8 @@ async function salvarLead(lead) {
       }
       // Email de captacao para a propria lead — roda sempre (manual, planilha, webhook), independente de lote
       try {
-        const _existeR2 = await query('SELECT 1 FROM leads WHERE id=$1', [r.id]);
         const _leadUserId2 = lead.user_id || lead.userId || lead.codigoUsuario || null;
-        if (!_existeR2.rows.length && lead.email) {
+        if (_eraNova && lead.email) {
           const { enviarEmail: _envCap } = require('./email');
           const _linkCap = 'https://matchimoveis.ia.br/captar/' + _leadUserId2;
           _envCap({

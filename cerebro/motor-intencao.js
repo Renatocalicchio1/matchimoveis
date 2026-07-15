@@ -115,10 +115,10 @@ function matchPorMapa(lead, imoveis) {
       if (imovel.bairro !== leadBairro && !_bairrosProximos(imovel.bairro, leadBairro)) eliminado = true;
     }
 
-    // 6. VALOR — entre -15% e +10%
+    // 6. VALOR — entre -30% e +20%
     if (!eliminado && leadValorMax > 0 && imovel.preco > 0) {
-      const vmin = leadValorMax * 0.85; // -15%
-      const vmax = leadValorMax * 1.10; // +10%
+      const vmin = leadValorMax * 0.70; // -30%
+      const vmax = leadValorMax * 1.20; // +20%
       if (imovel.preco > vmax || imovel.preco < vmin) eliminado = true;
     }
 
@@ -133,10 +133,10 @@ function matchPorMapa(lead, imoveis) {
       if (imovel.area < areaMin || imovel.area > areaMax) eliminado = true;
     }
 
-    // 7. QUARTOS = pedido exato (nem mais, nem menos) — ignorado para terreno e comercial
+    // 7. QUARTOS >= pedido (nunca menos) — ignorado para terreno e comercial
     const leadQuartos = Number(mapa.quartos?.[0]?.valor || 0);
     if (!eliminado && leadQuartos > 0 && !_ehTerrenoMotor && !_ehComercialMotor) {
-      if (imovel.quartos !== leadQuartos) eliminado = true;
+      if (imovel.quartos < leadQuartos) eliminado = true;
     }
 
     // 8. SUÍTES >= pedido -1 (aceita 1 a menos) — ignorado para terreno e comercial

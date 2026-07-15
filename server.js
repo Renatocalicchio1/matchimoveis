@@ -3024,6 +3024,8 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   if (_fCidade) imoveis = imoveis.filter(i => _norm(i.cidade) === _fCidade);
   if (_fBairro) imoveis = imoveis.filter(i => _norm(i.bairro) === _fBairro);
   if (_fBusca)  imoveis = imoveis.filter(i => _norm(JSON.stringify(i)).includes(_fBusca));
+  const _fCorretor = (req.query.corretor||'').trim();
+  if (_fCorretor) imoveis = imoveis.filter(i => String(i.user_id) === _fCorretor);
 
   const _fTipo = _norm(req.query.tipo||'');
   const _fOperacao = _norm(req.query.operacao||'');
@@ -9066,24 +9068,22 @@ app.get('/api/feed/novos', auth, async (req, res) => {
 });
 
 app.get('/app/parceiros', auth, async (req, res) => {
-  const uid = req.session.user.id;
-  const raw = await lerLeads(uid);
-  const parceiros = raw.filter(l => l.tipoLead === 'corretor');
-  // Agrupa por telefone do parceiro
-  const mapa = {};
-  parceiros.forEach(l => {
-    const tel = String(l.telefone || l.whatsapp || l.contato || '').replace(/\D/g,'');
-    if (!mapa[tel]) mapa[tel] = {
-      id: l.id,
-      nome: l.nome || tel,
-      telefone: tel,
-      comissao: l.comissaoParceiro || '',
-      leads: [],
-      criadoEm: l.criadoEm
+  const uid = req.session.user.id || req.session.user.codigoUsuario;
+  const { query: _qParc } = require('./services/db');
+  const _resParc = await _qParc(
+    "SELECT u.codigo_usuario, u.nome, u.email, u.celular, u.telefone, u.endereco, (SELECT COUNT(*) FROM imoveis i WHERE i.user_id=u.codigo_usuario) as total_imoveis FROM usuarios u WHERE u.codigo_usuario != $1 ORDER BY u.nome ASC",
+    [uid]
+  );
+  const lista = _resParc.rows.map(function(u) {
+    return {
+      id: u.codigo_usuario,
+      nome: u.nome || u.codigo_usuario,
+      email: u.email || '',
+      telefone: (u.celular || u.telefone || '').replace(/\D/g,''),
+      endereco: u.endereco || '',
+      totalImoveis: Number(u.total_imoveis) || 0
     };
-    mapa[tel].leads.push(l);
   });
-  const lista = Object.values(mapa).sort((a,b) => b.leads.length - a.leads.length);
   res.render('app-parceiros', { user: req.session.user, parceiros: lista });
 });
 

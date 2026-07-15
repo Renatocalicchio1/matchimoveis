@@ -41,23 +41,18 @@
   <div class="parc-card" data-nome="<%= (p.nome||'').toLowerCase() %>">
     <div class="parc-avatar">🤝</div>
     <div class="parc-nome"><%= p.nome %></div>
-    <div class="parc-tel"><%= p.telefone %></div>
+    <% if (p.email) { %><div class="parc-tel">✉️ <%= p.email %></div><% } %>
+    <% if (p.telefone) { %><div class="parc-tel">📱 <%= p.telefone %></div><% } %>
+    <% if (p.endereco) { %><div class="parc-tel">📍 <%= p.endereco %></div><% } %>
     <div class="parc-stats">
       <div class="parc-stat">
-        <div class="parc-stat-val"><%= p.leads.length %></div>
-        <div class="parc-stat-lbl">Indicações</div>
-      </div>
-      <div class="parc-stat">
-        <div class="parc-stat-val"><%= p.comissao || '—' %></div>
-        <div class="parc-stat-lbl">Comissão</div>
+        <div class="parc-stat-val"><%= p.totalImoveis %></div>
+        <div class="parc-stat-lbl">Imóveis</div>
       </div>
     </div>
-    <div class="parc-comissao">
-      <input type="text" id="com-<%= p.id %>" value="<%= p.comissao %>" placeholder="Ex: 30% ou R$5.000">
-      <button onclick="salvarComissao('<%= p.id %>')">Salvar</button>
-    </div>
-    <div style="margin-top:10px">
-      <a href="https://wa.me/<%= p.telefone %>" target="_blank" style="font-size:11px;color:#16a34a;text-decoration:none;font-weight:500">📱 WhatsApp</a>
+    <div style="display:flex;gap:10px;margin-top:10px">
+      <% if (p.telefone) { %><a href="https://wa.me/55<%= p.telefone %>" target="_blank" style="font-size:11px;color:#16a34a;text-decoration:none;font-weight:500">📱 WhatsApp</a><% } %>
+      <a href="/app/imoveis?rede=1&corretor=<%= p.id %>" style="font-size:11px;color:#6366f1;text-decoration:none;font-weight:500">🏠 Ver carteira</a>
     </div>
   </div>
   <% }) %>

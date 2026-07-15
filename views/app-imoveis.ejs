@@ -3,11 +3,13 @@
 <% if(typeof rede!=='undefined'&&rede && typeof totalImoveis!=='undefined') { %>
 <div style="font-size:13px;color:#888;margin-bottom:8px"><%= totalImoveis.toLocaleString('pt-BR') %> imóveis na rede · página <%= page %> de <%= totalPages %></div>
 <% } %>
+<% if (typeof embed === 'undefined' || !embed) { %>
 <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
   <a href="/app/imoveis" style="padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;<%= typeof rede==='undefined'||!rede ? 'background:#111;color:#fff' : 'background:#f3f4f6;color:#555;border:1px solid #e5e7eb' %>">🏠 Meus Imóveis</a>
   <a href="/app/imoveis?rede=1" style="padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;<%= typeof rede!=='undefined'&&rede ? 'background:#FF385C;color:#fff' : 'background:#f3f4f6;color:#555;border:1px solid #e5e7eb' %>">🌐 Rede Completa</a>
   <% if(typeof rede!=='undefined'&&rede){ %><span style="font-size:12px;color:#888">Links com seu ID — leads geradas ficam com você</span><% } %>
 </div>
+<% } %>
 
 <% if (typeof qaIncompleto !== 'undefined' && qaIncompleto) { %>
 <div style="background:#fff7ed;border:1px solid #f97316;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">

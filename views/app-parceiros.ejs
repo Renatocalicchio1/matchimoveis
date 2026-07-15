@@ -88,7 +88,7 @@ function filtrarParceiros(){
 <script>
 function abrirCarteira(id, nome){
   document.getElementById('modal-carteira-titulo').textContent = 'Carteira de ' + nome;
-  document.getElementById('modal-carteira-iframe').src = '/app/imoveis?rede=1&corretor=' + id;
+  document.getElementById('modal-carteira-iframe').src = '/app/imoveis?rede=1&embed=1&corretor=' + id;
   document.getElementById('modal-carteira').style.display = 'flex';
 }
 function fecharCarteira(){

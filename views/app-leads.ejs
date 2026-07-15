@@ -734,8 +734,8 @@ function abrirModalKanban(colKey, colLabel) {
   body.innerHTML = '';
 
   const header = document.createElement('div');
-  header.style.cssText = 'display:grid;grid-template-columns:150px 110px 80px 55px 70px 140px 1fr 110px;gap:8px;padding:6px 10px;border-bottom:1px solid #f0f0f0;margin-bottom:4px';
-  header.innerHTML = '<span style="font-size:10px;font-weight:600;color:#9ca3af">NOME</span><span style="font-size:10px;font-weight:600;color:#9ca3af">TELEFONE</span><span style="font-size:10px;font-weight:600;color:#9ca3af">TEMP</span><span style="font-size:10px;font-weight:600;color:#9ca3af">SCORE</span><span style="font-size:10px;font-weight:600;color:#9ca3af">MATCHES</span><span style="font-size:10px;font-weight:600;color:#9ca3af">PERFIL</span><span style="font-size:10px;font-weight:600;color:#9ca3af">ÚLT. MENSAGEM</span><span style="font-size:10px;font-weight:600;color:#9ca3af">AÇÕES</span>';
+  header.style.cssText = 'display:grid;grid-template-columns:150px 110px 80px 55px 70px 1fr 110px;gap:8px;padding:6px 10px;border-bottom:1px solid #f0f0f0;margin-bottom:4px';
+  header.innerHTML = '<span style="font-size:10px;font-weight:600;color:#9ca3af">NOME</span><span style="font-size:10px;font-weight:600;color:#9ca3af">TELEFONE</span><span style="font-size:10px;font-weight:600;color:#9ca3af">TEMP</span><span style="font-size:10px;font-weight:600;color:#9ca3af">SCORE</span><span style="font-size:10px;font-weight:600;color:#9ca3af">MATCHES</span><span style="font-size:10px;font-weight:600;color:#9ca3af">PERFIL</span><span style="font-size:10px;font-weight:600;color:#9ca3af">AÇÕES</span>';
   body.appendChild(header);
 
   cards.forEach(function(card) {
@@ -746,12 +746,12 @@ function abrirModalKanban(colKey, colLabel) {
     var temp = card.querySelector('.temp-pill') ? card.querySelector('.temp-pill').textContent.trim() : '—';
     var matches = card.querySelector('.match-pill') ? card.querySelector('.match-pill').textContent.trim() : '—';
     var perfil = Array.from(card.querySelectorAll('.perfil-tag')).map(function(t){return t.textContent.trim();}).join(' · ') || '—';
-    var msg = card.querySelector('[style*="border-left:2px"]') ? card.querySelector('[style*="border-left:2px"]').textContent.trim() : '—';
+
     var scoreNum = parseInt(score);
     var scoreCor = scoreNum>=70?'#16a34a':scoreNum>=40?'#d97706':'#9ca3af';
 
     var row = document.createElement('div');
-    row.style.cssText = 'display:grid;grid-template-columns:150px 110px 80px 55px 70px 140px 1fr 110px;gap:8px;padding:8px 10px;border-radius:8px;align-items:center;border:0.5px solid rgba(0,0,0,.06);background:#fff;margin-bottom:4px';
+    row.style.cssText = 'display:grid;grid-template-columns:150px 110px 80px 55px 70px 1fr 110px;gap:8px;padding:8px 10px;border-radius:8px;align-items:center;border:0.5px solid rgba(0,0,0,.06);background:#fff;margin-bottom:4px';
     row.onmouseenter = function(){ this.style.background='#f9fafb'; };
     row.onmouseleave = function(){ this.style.background='#fff'; };
 
@@ -762,8 +762,7 @@ function abrirModalKanban(colKey, colLabel) {
       '<span style="font-size:11px">'+temp+'</span>',
       '<span style="font-size:11px;font-weight:600;color:'+scoreCor+'">'+score+'</span>',
       '<span style="font-size:11px;color:#7c3aed">'+matches+'</span>',
-      '<span style="font-size:11px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+perfil+'</span>',
-      '<span style="font-size:11px;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic">'+msg+'</span>'
+      '<span style="font-size:11px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+perfil+'</span>'
     ];
     row.innerHTML = cols.join('');
 

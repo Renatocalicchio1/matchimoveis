@@ -788,7 +788,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <% if(typeof totalPages!=='undefined' && totalPages > 1) { %>
-<% const _baseUrl = (typeof rede!=='undefined'&&rede) ? '/app/imoveis?rede=1' : '/app/imoveis?'; %>
+<% const _baseUrl = '/app/imoveis?' + (typeof queryPagina !== 'undefined' && queryPagina ? queryPagina + '&' : ''); %>
 <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:24px 0;flex-wrap:wrap">
   <% if(page > 1) { %><a href="<%= _baseUrl %>&page=<%= page-1 %>" style="padding:8px 16px;border-radius:8px;background:#f3f4f6;color:#111;text-decoration:none;font-weight:600;font-size:13px">← Anterior</a><% } %>
   <% for(let _p=Math.max(1,page-2); _p<=Math.min(totalPages,page+2); _p++) { %>

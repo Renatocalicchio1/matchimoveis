@@ -3050,7 +3050,9 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   const _totalPagesFiltrado = Math.ceil(_totalImoveisFiltrado / _perPage);
   const _temFiltro = _fEstado || _fCidade || _fBairro || _fBusca;
   imoveis = imoveis.slice((_page-1)*_perPage, _page*_perPage);
-  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto, rede: _rede, usersRede: _usersRede, page: _page, totalPages: _temFiltro ? _totalPagesFiltrado : _totalPages, totalImoveis: _temFiltro ? _totalImoveisFiltrado : _totalImoveis, filtros: { estado: _fEstado, cidade: _fCidade, bairro: _fBairro } });
+  const _queryPagina = new URLSearchParams(req.query);
+  _queryPagina.delete('page');
+  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto, rede: _rede, usersRede: _usersRede, page: _page, totalPages: _temFiltro ? _totalPagesFiltrado : _totalPages, totalImoveis: _temFiltro ? _totalImoveisFiltrado : _totalImoveis, filtros: { estado: _fEstado, cidade: _fCidade, bairro: _fBairro }, queryPagina: _queryPagina.toString() });
 });
 
 app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req, res) => {

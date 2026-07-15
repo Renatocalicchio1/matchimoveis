@@ -481,7 +481,7 @@ class MatchCore {
         suites:      ancora.suites  ? [{ valor: Number(ancora.suites),  score: 80, confianca: 80, scoreEfetivo: 80 }] : [],
         vagas:       ancora.vagas   ? [{ valor: Number(ancora.vagas),   score: 80, confianca: 80, scoreEfetivo: 80 }] : [],
         area:        (() => { const _a = Number(ancora.area_m2||ancora.area_total||0); return _a ? [{ valor: { min: _a*0.80, max: _a*1.20 }, score: 70, confianca: 70, scoreEfetivo: 70 }] : []; })(),
-        valor:       precoAncora    ? [{ valor: { min: precoAncora*0.70, max: precoAncora*1.20 }, score: 90, confianca: 90, scoreEfetivo: 90 }] : [],
+        valor:       precoAncora    ? [{ valor: { min: precoAncora*0.85, max: precoAncora*1.10 }, score: 90, confianca: 90, scoreEfetivo: 90 }] : [],
         urgencia: 0, fase: 'interesse', temperatura: 'morno'
       };
 

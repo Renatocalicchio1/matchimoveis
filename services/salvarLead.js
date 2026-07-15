@@ -173,6 +173,19 @@ async function salvarLead(lead) {
                 texto: 'Nova lead: ' + (lead.nome||'Sem nome') + ' | ' + (lead.telefone||'-')
               }).catch(()=>{});
             }
+            // Email de captacao para a propria lead, se tiver email cadastrado
+            if (lead.email) {
+              try {
+                const { enviarEmail: _envCap } = require('./email');
+                const _linkCap = 'https://matchimoveis.ia.br/captar/' + lead.user_id;
+                _envCap({
+                  para: lead.email,
+                  assunto: 'Cadastre seu imóvel — MatchImóveis',
+                  html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + (lead.nome||'') + '!</h2><p>Você pode cadastrar as informações do seu imóvel diretamente por aqui:</p><a href="' + _linkCap + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Cadastrar meu imóvel →</a></div>',
+                  texto: 'Cadastre seu imovel: ' + _linkCap
+                }).catch(()=>{});
+              } catch(_eCap){}
+            }
           }
         } catch(_eNL){}
       }

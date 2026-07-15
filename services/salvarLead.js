@@ -181,7 +181,7 @@ async function salvarLead(lead) {
                 _envCap({
                   para: lead.email,
                   assunto: 'Cadastre seu imóvel — MatchImóveis',
-                  html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + (lead.nome||'') + '!</h2><p>Você pode cadastrar as informações do seu imóvel diretamente por aqui:</p><a href="' + _linkCap + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Cadastrar meu imóvel →</a></div>',
+                  html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + (lead.nome||'') + '!</h2><p>Se você tiver um imóvel para venda ou locação, você pode cadastrar as informações básicas do seu imóvel que nosso time entrará em contato.</p><p>Clique no botão abaixo — o processo é simples e rápido.</p><a href="' + _linkCap + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Cadastrar meu imóvel →</a></div>',
                   texto: 'Cadastre seu imovel: ' + _linkCap
                 }).catch(()=>{});
               } catch(_eCap){}

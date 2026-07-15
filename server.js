@@ -586,6 +586,25 @@ app.get('/admin/status', authAdmin, async (req, res) => {
 });
 
 
+app.get('/admin/leads-auditoria', authAdmin, async (req, res) => {
+  try {
+    var qAud = require('./services/db').query;
+    var fUser = (req.query.user_id || '').trim();
+    var fAcao = (req.query.acao || '').trim();
+    var sql = 'SELECT * FROM leads_auditoria WHERE 1=1';
+    var pars = [];
+    var ph;
+    if (fUser) { pars.push(fUser); ph = pars.length; sql = sql + ' AND user_id='; sql = sql + ph; }
+    if (fAcao) { pars.push(fAcao); ph = pars.length; sql = sql + ' AND acao='; sql = sql + ph; }
+    sql = sql + ' ORDER BY criado_em DESC LIMIT 500';
+    var resultado = await qAud(sql, pars);
+    var html = '<html><head><meta charset=UTF-8><title>Auditoria de Leads</title></head><body style=font-family:Arial;padding:20px>';
+    html = html + '<a href=/admin>Voltar</a><h1>Auditoria de Leads</h1>';
+    html = html + 'Total: ' + resultado.rows.length;
+    res.send(html);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
 app.get('/admin', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
@@ -672,6 +691,7 @@ tr:hover td{background:#fafafa;}
     <a href="https://match-evolution-api.onrender.com/manager" target="_blank" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📱 Painel WhatsApp</a>
     <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
     <a href="/admin/quintoandar-solicitacoes" style="font-size:12px;background:#00a86b;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏢 Solicitações QA</a>
+    <a href="/admin/leads-auditoria" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🗑️ Auditoria de Leads</a>
     <a href="/admin/logout" style="font-size:12px;color:#888;text-decoration:none">Sair</a>
   </div>
 </div>
@@ -8476,6 +8496,12 @@ app.delete('/app/lead/:id', auth, async (req, res) => {
     // Deleta a lead do banco
     await deletarLead(req.params.id, uid);
     console.log('[LEAD] deletada:', req.params.id, '| userId:', uid);
+    try {
+      var aud1 = require('./services/db').query;
+      var D1 = String.fromCharCode(36);
+      var sqlIns1 = 'INSERT INTO leads_auditoria (lead_id, nome, telefone, user_id, acao) VALUES (' + D1 + '1,' + D1 + '2,' + D1 + '3,' + D1 + '4,' + D1 + '5)';
+      await aud1(sqlIns1, [req.params.id, lead.nome||'', telefone, uid, 'excluir']);
+    } catch(e1) { console.error('[AUDITORIA]', e1.message); }
     // Histórico WhatsApp: não deletar na Evolution para não bloquear novas mensagens
     res.json({ ok: true });
   } catch(e) {
@@ -8504,6 +8530,12 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
     // Remove a lead do banco
     await deletarLead(req.params.id, uid);
     console.log('[LEAD] bloqueada:', telefone, 'por:', uid);
+    try {
+      var aud2 = require('./services/db').query;
+      var D2 = String.fromCharCode(36);
+      var sqlIns2 = 'INSERT INTO leads_auditoria (lead_id, nome, telefone, user_id, acao) VALUES (' + D2 + '1,' + D2 + '2,' + D2 + '3,' + D2 + '4,' + D2 + '5)';
+      await aud2(sqlIns2, [req.params.id, lead.nome||'', telefone, uid, 'excluir_bloquear']);
+    } catch(e2) { console.error('[AUDITORIA]', e2.message); }
     res.json({ ok: true, bloqueado: telefone });
   } catch(e) {
     res.status(500).json({ erro: e.message });

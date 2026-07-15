@@ -3025,7 +3025,7 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   if (_fBairro) imoveis = imoveis.filter(i => _norm(i.bairro) === _fBairro);
   if (_fBusca)  imoveis = imoveis.filter(i => _norm(JSON.stringify(i)).includes(_fBusca));
   const _fCorretor = (req.query.corretor||'').trim();
-  if (_fCorretor) imoveis = imoveis.filter(i => String(i.user_id) === _fCorretor);
+  if (_fCorretor) imoveis = imoveis.filter(i => String(i.userId||i.user_id) === _fCorretor);
 
   const _fTipo = _norm(req.query.tipo||'');
   const _fOperacao = _norm(req.query.operacao||'');
@@ -3070,7 +3070,7 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   imoveis.sort((a, b) => (Number(a.valor_imovel)||0) - (Number(b.valor_imovel)||0));
   const _totalImoveisFiltrado = imoveis.length;
   const _totalPagesFiltrado = Math.ceil(_totalImoveisFiltrado / _perPage);
-  const _temFiltro = _fEstado || _fCidade || _fBairro || _fBusca;
+  const _temFiltro = _fEstado || _fCidade || _fBairro || _fBusca || _fCorretor;
   imoveis = imoveis.slice((_page-1)*_perPage, _page*_perPage);
   const _queryPagina = new URLSearchParams(req.query);
   _queryPagina.delete('page');

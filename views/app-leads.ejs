@@ -843,7 +843,7 @@ function fecharMiniModal() {
   document.getElementById('mini-modal-acoes').style.display = 'none';
 }
 document.addEventListener('DOMContentLoaded', function() {
-  const _miniModalAcoes = document.getElementById('mini-modal-acoes');
+  const _miniModalAcoes = document.getElementById('mini-modal-body');
   if (!_miniModalAcoes) return;
   _miniModalAcoes.addEventListener('click', function(e) {
     const btn = e.target.closest('[data-action]');

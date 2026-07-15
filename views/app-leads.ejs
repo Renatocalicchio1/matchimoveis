@@ -842,16 +842,20 @@ function abrirMiniModalExcluir(id, nome) {
 function fecharMiniModal() {
   document.getElementById('mini-modal-acoes').style.display = 'none';
 }
-document.getElementById('mini-modal-acoes').addEventListener('click', function(e) {
-  const btn = e.target.closest('[data-action]');
-  if (!btn) return;
-  const action = btn.dataset.action;
-  const id = btn.dataset.id;
-  const tipo = btn.dataset.tipo;
-  if (action === 'classificar') classificarLead(id, tipo);
-  else if (action === 'excluir') excluirLead(id);
-  else if (action === 'bloquear') bloquearLead(id);
-  else if (action === 'fechar') fecharMiniModal();
+document.addEventListener('DOMContentLoaded', function() {
+  const _miniModalAcoes = document.getElementById('mini-modal-acoes');
+  if (!_miniModalAcoes) return;
+  _miniModalAcoes.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const id = btn.dataset.id;
+    const tipo = btn.dataset.tipo;
+    if (action === 'classificar') classificarLead(id, tipo);
+    else if (action === 'excluir') excluirLead(id);
+    else if (action === 'bloquear') bloquearLead(id);
+    else if (action === 'fechar') fecharMiniModal();
+  });
 });
 </script>
 

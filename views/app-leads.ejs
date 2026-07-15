@@ -888,8 +888,15 @@ document.getElementById('mini-modal-acoes').addEventListener('click', function(e
       const d = await r.json();
       if (d.hash && d.hash !== _ultimoHash) {
         if (_ultimoHash !== '') {
-          // Tem atualização — recarrega silenciosamente
-          window.location.reload();
+          // Nao recarrega se algum modal estiver aberto (evita fechar formulario no meio do preenchimento)
+          const _modalNovaLead = document.getElementById('modal-nova-lead');
+          const _modalAberto = (_modalNovaLead && _modalNovaLead.style.display === 'flex')
+            || (document.getElementById('mini-modal-acoes')?.style.display === 'flex');
+          if (!_modalAberto) {
+            window.location.reload();
+          } else {
+            return; // adia a atualizacao do hash, tenta de novo no proximo ciclo
+          }
         }
         _ultimoHash = d.hash;
       }

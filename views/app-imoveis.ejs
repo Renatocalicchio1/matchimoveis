@@ -636,6 +636,8 @@ function autoFiltrarDebounce() {
 
 function buscarTudoNoServidor() {
   const params = new URLSearchParams();
+  const _redeAtual = new URLSearchParams(window.location.search).get('rede');
+  if (_redeAtual) params.set('rede', _redeAtual);
   const campo = (id) => document.getElementById(id)?.value || '';
   const mapa = {
     'f-tipo':'tipo', 'f-operacao':'operacao', 'f-status':'status', 'f-condicao':'condicao', 'f-fase':'fase',

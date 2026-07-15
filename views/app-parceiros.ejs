@@ -26,6 +26,7 @@
     </div>
     <a href="/app/leads" style="font-size:12px;color:#6b7280;text-decoration:none;padding:6px 12px;border-radius:8px;border:1px solid #e5e5e3">← Leads</a>
   </div>
+  <input id="busca-parceiro" type="text" placeholder="🔍 Buscar parceiro pelo nome..." oninput="filtrarParceiros()" style="width:100%;margin-top:14px;padding:10px 14px;border-radius:10px;border:1px solid #e5e5e3;font-size:13px;outline:none;box-sizing:border-box">
 </div>
 
 <% if(!parceiros || parceiros.length === 0) { %>
@@ -37,7 +38,7 @@
 <% } else { %>
 <div class="parc-grid">
   <% parceiros.forEach(p => { %>
-  <div class="parc-card">
+  <div class="parc-card" data-nome="<%= (p.nome||'').toLowerCase() %>">
     <div class="parc-avatar">🤝</div>
     <div class="parc-nome"><%= p.nome %></div>
     <div class="parc-tel"><%= p.telefone %></div>
@@ -70,6 +71,13 @@ async function salvarComissao(id){
   const d = await r.json();
   if(d.ok) alert('Comissão salva!');
   else alert('Erro: '+d.erro);
+}
+function filtrarParceiros(){
+  const termo = (document.getElementById('busca-parceiro').value||'').toLowerCase().trim();
+  document.querySelectorAll('.parc-card').forEach(function(card){
+    const nome = card.dataset.nome || '';
+    card.style.display = nome.includes(termo) ? '' : 'none';
+  });
 }
 </script>
 

@@ -4668,7 +4668,7 @@ async function _enviarFollowupSemImoveis() {
       "SELECT codigo_usuario, nome, email, telefone, celular, dados FROM usuarios WHERE NOT EXISTS (SELECT 1 FROM imoveis i WHERE i.user_id = usuarios.codigo_usuario)"
     );
     const agora = Date.now();
-    const tresDias = 3 * 24 * 60 * 60 * 1000;
+    const tresDias = 7 * 24 * 60 * 60 * 1000;
     for (const u of usuariosSemImovel.rows) {
       const dados = u.dados || {};
       const ultimoEnvio = dados.ultimoFollowupSemImovel ? new Date(dados.ultimoFollowupSemImovel).getTime() : 0;

@@ -3321,6 +3321,7 @@ app.get('/app/leads', auth, async (req,res)=>{
   const _todasVisitas = (_cacheVisitas || []);
   const leads = filtrarPorUsuario(data, req.session.user)
     .filter(l => l.tipoLead !== 'corretor')
+    .filter(l => !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length)))
     .filter(l => {
       // Se tem qualquer visita → some do kanban de leads
       const temVisita = _todasVisitas.some(v =>

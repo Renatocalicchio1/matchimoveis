@@ -4661,6 +4661,50 @@ app.post('/app/lead/:id/whatsapp/enviar', auth, checarSaldo('Enviar vitrine What
 const _msgCache = new Set();
 setInterval(() => { if (_msgCache.size > 500) _msgCache.clear(); }, 60000);
 
+async function _enviarFollowupSemImoveis() {
+  try {
+    const { query: _qFU } = require('./services/db');
+    const usuariosSemImovel = await _qFU(
+      "SELECT codigo_usuario, nome, email, telefone, celular, dados FROM usuarios WHERE NOT EXISTS (SELECT 1 FROM imoveis i WHERE i.user_id = usuarios.codigo_usuario)"
+    );
+    const agora = Date.now();
+    const tresDias = 3 * 24 * 60 * 60 * 1000;
+    for (const u of usuariosSemImovel.rows) {
+      const dados = u.dados || {};
+      const ultimoEnvio = dados.ultimoFollowupSemImovel ? new Date(dados.ultimoFollowupSemImovel).getTime() : 0;
+      if (agora - ultimoEnvio < tresDias) continue;
+      const tel = (u.celular || u.telefone || '').replace(/\D/g, '');
+      const msgWA = 'Ola, ' + (u.nome||'') + '! ' + String.fromCodePoint(128640) + '\n\nCadastre seus imoveis e deixe a IA trabalhar por voce!\n\nFortaleca suas vendas com os parceiros da rede — o MatchImoveis e a unica plataforma inteligente do mercado imobiliario que une tudo que ha de melhor e mais avancado em tecnologia.\n\nAcesse o sistema e cadastre seu XML agora, ou cadastre manualmente.\n\nwww.matchimoveis.ia.br';
+      if (tel) {
+        try {
+          await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
+            body: JSON.stringify({ number: '55' + tel, text: msgWA })
+          });
+        } catch(e) { console.error('[followup-sem-imovel] erro WA:', e.message); }
+      }
+      if (u.email) {
+        try {
+          const { enviarEmail } = require('./services/email');
+          await enviarEmail({
+            para: u.email,
+            assunto: 'Cadastre seus imoveis e deixe a IA trabalhar por voce — MatchImoveis',
+            html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Ola, ' + (u.nome||'') + '!</h2><p>Cadastre seus imoveis e deixe a IA trabalhar por voce.</p><p>Fortaleca suas vendas com os parceiros da rede — o MatchImoveis e a unica plataforma inteligente do mercado imobiliario que une tudo que ha de melhor e mais avancado em tecnologia.</p><p>Acesse o sistema e cadastre seu XML agora, ou cadastre manualmente.</p><a href="https://www.matchimoveis.ia.br" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar o sistema →</a></div>',
+            texto: msgWA
+          });
+        } catch(e) { console.error('[followup-sem-imovel] erro email:', e.message); }
+      }
+      try {
+        await _qFU("UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'), '{ultimoFollowupSemImovel}', $1::jsonb) WHERE codigo_usuario=$2", [JSON.stringify(new Date().toISOString()), u.codigo_usuario]);
+      } catch(e) {}
+      console.log('[followup-sem-imovel] enviado para:', u.codigo_usuario);
+    }
+  } catch(e) { console.error('[followup-sem-imovel] erro geral:', e.message); }
+}
+setInterval(_enviarFollowupSemImoveis, 6 * 60 * 60 * 1000);
+_enviarFollowupSemImoveis();
+
 app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
   try {
     const body = req.body;

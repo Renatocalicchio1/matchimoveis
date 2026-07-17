@@ -2596,8 +2596,7 @@ async function _recarregarLeads() {
     if (!_cacheLeads) _cacheLeads = (_cacheLeads || []);
   }
 }
-_recarregarLeads();
-setInterval(_recarregarLeads, 15000);
+setTimeout(() => { _recarregarLeads(); setInterval(_recarregarLeads, 15000); }, 0);
 
 
 // Cache imóveis em memória
@@ -2609,8 +2608,7 @@ async function _recarregarImoveis() {
     if (!_cacheImoveis) _cacheImoveis = (_cacheImoveis || []);
   }
 }
-_recarregarImoveis();
-setInterval(_recarregarImoveis, 15000);
+setTimeout(() => { _recarregarImoveis(); setInterval(_recarregarImoveis, 15000); }, 3000);
 // Cache usuários
 let _cacheUsuarios = null;
 async function _recarregarUsuarios() {
@@ -2621,8 +2619,7 @@ async function _recarregarUsuarios() {
     if (!_cacheUsuarios) _cacheUsuarios = fs.existsSync(dataPath('users.json')) ? (_cacheUsuarios || []) : [];
   }
 }
-_recarregarUsuarios();
-setInterval(_recarregarUsuarios, 15000); // atualiza a cada 15s
+setTimeout(() => { _recarregarUsuarios(); setInterval(_recarregarUsuarios, 15000); }, 6000);
 
 function lerLeads(user) {
   const uid = user && (user.id || user);
@@ -2640,8 +2637,7 @@ async function _recarregarVisitas() {
     if (!_cacheVisitas) _cacheVisitas = (_cacheVisitas || []);
   }
 }
-_recarregarVisitas();
-setInterval(_recarregarVisitas, 15000);
+setTimeout(() => { _recarregarVisitas(); setInterval(_recarregarVisitas, 15000); }, 9000);
 
 function lerVisitas(user) {
   const todos = _cacheVisitas || ((_cacheVisitas || []));

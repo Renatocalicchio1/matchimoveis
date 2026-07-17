@@ -4699,8 +4699,7 @@ async function _enviarFollowupSemImoveis() {
     }
   } catch(e) { console.error('[followup-sem-imovel] erro geral:', e.message); }
 }
-setInterval(_enviarFollowupSemImoveis, 6 * 60 * 60 * 1000);
-_enviarFollowupSemImoveis();
+setTimeout(() => { _enviarFollowupSemImoveis(); setInterval(_enviarFollowupSemImoveis, 6 * 60 * 60 * 1000); }, 30000);
 
 app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
   try {

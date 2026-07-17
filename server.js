@@ -5255,6 +5255,18 @@ self.addEventListener('activate', function(e){ e.waitUntil(self.registration.unr
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
+  // Roda cerebro-scanner.js e cerebro.js em background, sem bloquear o boot
+  setTimeout(() => {
+    try {
+      const { spawn: _spawnCerebro } = require('child_process');
+      const _pScanner = _spawnCerebro('node', ['cerebro-scanner.js'], { stdio: 'inherit', env: { ...process.env } });
+      _pScanner.on('close', () => {
+        const _pCerebro = _spawnCerebro('node', ['cerebro.js'], { stdio: 'inherit', env: { ...process.env } });
+        _pCerebro.on('error', (e) => console.error('[cerebro.js background]', e.message));
+      });
+      _pScanner.on('error', (e) => console.error('[cerebro-scanner.js background]', e.message));
+    } catch(e) { console.error('[cerebro background]', e.message); }
+  }, 20000);
   // Inicia atualizacao automatica do XML a cada 12h
   try {
     const { iniciarScheduler } = require('./services/xmlScheduler'); iniciarScheduler();

@@ -12,7 +12,7 @@ async function run() {
     
     execSync(
       `node ${path.join(__dirname, '../importXMLCompleto.js')} "${xmlUrl}" "${userId}"`,
-      { stdio: 'inherit', timeout: 300000, env: { ...process.env } }
+      { stdio: 'inherit', timeout: 900000, env: { ...process.env } }
     );
 
     await atualizarJob(jobId, { status: 'concluido', progresso: 100 });

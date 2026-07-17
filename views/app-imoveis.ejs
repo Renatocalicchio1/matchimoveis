@@ -638,8 +638,13 @@ function autoFiltrarDebounce() {
 
 function buscarTudoNoServidor() {
   const params = new URLSearchParams();
-  const _redeAtual = new URLSearchParams(window.location.search).get('rede');
+  const _paramsAtuais = new URLSearchParams(window.location.search);
+  const _redeAtual = _paramsAtuais.get('rede');
+  const _corretorAtual = _paramsAtuais.get('corretor');
+  const _embedAtual = _paramsAtuais.get('embed');
   if (_redeAtual) params.set('rede', _redeAtual);
+  if (_corretorAtual) params.set('corretor', _corretorAtual);
+  if (_embedAtual) params.set('embed', _embedAtual);
   const campo = (id) => document.getElementById(id)?.value || '';
   const mapa = {
     'f-tipo':'tipo', 'f-operacao':'operacao', 'f-status':'status', 'f-condicao':'condicao', 'f-fase':'fase',

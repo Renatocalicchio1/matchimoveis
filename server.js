@@ -2608,7 +2608,34 @@ async function _recarregarImoveis() {
     if (!_cacheImoveis) _cacheImoveis = (_cacheImoveis || []);
   }
 }
-setTimeout(() => { _recarregarImoveis(); setInterval(_recarregarImoveis, 15000); }, 3000);
+let _cacheImoveisAt = null;
+async function _recarregarImoveisIncremental() {
+  try {
+    if (!_cacheImoveis || !_cacheImoveisAt) { await _recarregarImoveis(); return; }
+    const { query: _qInc } = require('./services/db');
+    const { rowToImovel: _rtiInc } = require('./services/salvarImovel');
+    const desde = _cacheImoveisAt;
+    const res = await _qInc('SELECT * FROM imoveis WHERE atualizado_em > $1', [desde]);
+    _cacheImoveisAt = new Date();
+    if (!res.rows.length) return;
+    const mapa = new Map(_cacheImoveis.map(i => [String(i.id), i]));
+    res.rows.forEach(r => { mapa.set(String(r.id), _rtiInc(r)); });
+    _cacheImoveis = Array.from(mapa.values());
+    console.log('[cache imoveis] incremental:', res.rows.length, 'atualizados');
+  } catch(e) { console.error('[cache imoveis incremental]', e.message); }
+}
+(function _agendarRecargaCompletaImoveis() {
+  const agora = new Date();
+  const proxima = new Date(agora);
+  proxima.setHours(3, 30, 0, 0);
+  if (proxima <= agora) proxima.setDate(proxima.getDate() + 1);
+  const ms = proxima - agora;
+  setTimeout(() => {
+    _recarregarImoveis();
+    setInterval(_recarregarImoveis, 24 * 60 * 60 * 1000);
+  }, ms);
+})();
+setTimeout(() => { _recarregarImoveis(); _cacheImoveisAt = new Date(); setInterval(_recarregarImoveisIncremental, 15000); }, 3000);
 // Cache usuários
 let _cacheUsuarios = null;
 async function _recarregarUsuarios() {

@@ -335,4 +335,4 @@ async function salvarTodosImoveis(imoveis) {
   return imoveis;
 }
 
-module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis };
+module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel };

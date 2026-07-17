@@ -1370,6 +1370,8 @@ app.use('/feed-xml', (req, res, next) => {
 });
 
 app.get('/feed-xml/:portal/:token', async (req, res) => {
+  req.setTimeout(900000);
+  res.setTimeout(900000);
   try {
     const { query: _qfx } = require('./services/db');
     const userId = req.params.token.replace(/-/g, match => match);

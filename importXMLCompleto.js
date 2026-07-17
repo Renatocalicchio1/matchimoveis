@@ -283,7 +283,7 @@ async function run() {
   let xml;
   if(XML_URL.startsWith('http://') || XML_URL.startsWith('https://')){
     console.log('⬇️  Baixando XML da URL...');
-    const res = await axios.get(XML_URL, { headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" }, timeout: 300000 });
+    const res = await axios.get(XML_URL, { headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" }, timeout: 900000 });
     xml = res.data;
   } else {
     console.log('📂 Lendo XML do arquivo local:', XML_URL);

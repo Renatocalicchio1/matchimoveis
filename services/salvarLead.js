@@ -162,7 +162,7 @@ async function salvarLead(lead) {
       if (!lead._lote) {
         try {
           const _leadUserId = lead.user_id || lead.userId || lead.codigoUsuario || null;
-          if (_eraNova && _leadUserId) {
+          if (_eraNova && _leadUserId && lead.leadOculta !== true) {
             const _userR = await query('SELECT nome, email FROM usuarios WHERE codigo_usuario=$1 OR id=$1 LIMIT 1', [_leadUserId]);
             const _user = _userR.rows[0];
             if (_user && _user.email) {

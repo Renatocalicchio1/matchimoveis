@@ -675,6 +675,25 @@ class MatchCore {
           if (lead.leadOculta === true) {
             lead.leadOculta = false;
             console.log('[MATCH CORE] lead revelada apos gerar match:', lead.id);
+            (async () => {
+              try {
+                const _dEmail = String.fromCharCode(36);
+                const { query: _qRev } = require('../services/db');
+                const _uidRev = lead.userId || lead.codigoUsuario || '';
+                const _userR = await _qRev('SELECT nome, email FROM usuarios WHERE codigo_usuario=' + _dEmail + '1 OR id=' + _dEmail + '1 LIMIT 1', [_uidRev]);
+                const _user = _userR.rows[0];
+                if (_user && _user.email) {
+                  const { enviarEmail } = require('../services/email');
+                  await enviarEmail({
+                    para: _user.email,
+                    assunto: 'Nova lead recebida - MatchImoveis',
+                    html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Nova lead!</h2><p><strong>Nome:</strong> ' + (lead.nome||'Sem nome') + '</p><p><strong>Telefone:</strong> ' + (lead.telefone||'-') + '</p><p><strong>Origem:</strong> WhatsApp</p><a href="https://matchimoveis.ia.br/app/leads" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver leads -></a></div>',
+                    texto: 'Nova lead: ' + (lead.nome||'Sem nome') + ' | ' + (lead.telefone||'-')
+                  });
+                  console.log('[MATCH CORE] email nova lead enviado apos revelar:', lead.id);
+                }
+              } catch(e) { console.error('[MATCH CORE] erro email ao revelar:', e.message); }
+            })();
           }
         }
       }

@@ -2624,6 +2624,18 @@ async function _recarregarImoveisIncremental() {
     console.log('[cache imoveis] incremental:', res.rows.length, 'atualizados');
   } catch(e) { console.error('[cache imoveis incremental]', e.message); }
 }
+async function _detectarExclusoesImoveis() {
+  try {
+    if (!_cacheImoveis) return;
+    const { query: _qDel } = require('./services/db');
+    const res = await _qDel('SELECT id FROM imoveis');
+    const idsAtuais = new Set(res.rows.map(r => String(r.id)));
+    const antes = _cacheImoveis.length;
+    _cacheImoveis = _cacheImoveis.filter(i => idsAtuais.has(String(i.id)));
+    const removidos = antes - _cacheImoveis.length;
+    if (removidos > 0) console.log('[cache imoveis] exclusoes detectadas:', removidos);
+  } catch(e) { console.error('[cache imoveis exclusoes]', e.message); }
+}
 (function _agendarRecargaCompletaImoveis() {
   const agora = new Date();
   const proxima = new Date(agora);
@@ -2635,7 +2647,14 @@ async function _recarregarImoveisIncremental() {
     setInterval(_recarregarImoveis, 24 * 60 * 60 * 1000);
   }, ms);
 })();
-setTimeout(() => { _recarregarImoveis(); _cacheImoveisAt = new Date(); setInterval(_recarregarImoveisIncremental, 15000); }, 3000);
+setTimeout(() => {
+  _recarregarImoveis();
+  _cacheImoveisAt = new Date();
+  setInterval(async () => {
+    await _recarregarImoveisIncremental();
+    await _detectarExclusoesImoveis();
+  }, 15000);
+}, 3000);
 // Cache usuários
 let _cacheUsuarios = null;
 async function _recarregarUsuarios() {

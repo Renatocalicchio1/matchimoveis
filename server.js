@@ -1136,6 +1136,61 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
         }
       } catch(e){ console.error('[webhook-global] erro setTimeout:', e.message); }
     }, 2000);
+
+    // Mesmo imovel (id_externo) cadastrado em outras contas — duplica a lead pra cada uma
+    try {
+      const _dupRows = await _qWG('SELECT * FROM imoveis WHERE id_externo=$1 AND user_id != $2', [String(reference), userId]);
+      for (const imDup of _dupRows.rows) {
+        const userIdDup = imDup.user_id || imDup.codigo_usuario || '';
+        if (!userIdDup) continue;
+        const leadDup = {
+          id: Date.now().toString() + Math.random().toString(36).substr(2,5),
+          nome, email, telefone, whatsapp: telefone, contato: telefone,
+          mensagem,
+          idAnuncio: reference,
+          fonte: 'ImovelWeb', origem: 'ImovelWeb', origemEntrada: 'webhook_imovelweb_global',
+          userId: userIdDup, codigoUsuario: userIdDup, user_id: userIdDup,
+          status: 'novo', score: 0, temperatura: 'frio', faseFunil: 'novo',
+          mensagens: [], matches: [], timeline: [], eventos: [], followUps: [],
+          criadoEm: new Date().toISOString(),
+        };
+        const { salvarLead: _slIWGDup } = require('./services/salvarLead');
+        await _cruzarImovelWebhook(leadDup, userIdDup);
+        await _slIWGDup(leadDup);
+        console.log('[webhook-global] lead DUPLICADA salva | userId:', userIdDup, '| tel:', telefone, '| nome:', nome);
+        const _snapDup = { id: leadDup.id, userId: userIdDup, nome: leadDup.nome||'', telefone: leadDup.telefone||'', whatsapp: leadDup.whatsapp||'', contato: leadDup.contato||'', email: leadDup.email||'', mensagem: leadDup.mensagem||'', idAnuncio: leadDup.idAnuncio||'', perfilIA: leadDup.perfilIA||{}, origemEntrada: 'webhook_imovelweb_global', origem: 'ImovelWeb' };
+        setTimeout(async () => {
+          try {
+            const { processarLeadPortal } = require('./cerebro/portal-processor');
+            const { atualizarLead: _auDup } = require('./services/salvarLead');
+            const mapaDup = await processarLeadPortal(_snapDup);
+            if (mapaDup) {
+              const _perfilIADup = {
+                tipo: imDup?.tipo || mapaDup.tipo_imovel?.[0]?.valor || '',
+                intencao: (imDup?.transacao==='venda'?'comprar':imDup?.transacao==='aluguel'?'alugar':imDup?.transacao) || (mapaDup.transacao?.[0]?.valor==='venda'?'comprar':mapaDup.transacao?.[0]?.valor==='aluguel'?'alugar':mapaDup.transacao?.[0]?.valor) || '',
+                bairro: imDup?.bairro || mapaDup.bairro?.[0]?.valor || '',
+                cidade: imDup?.cidade || mapaDup.cidade?.[0]?.valor || '',
+                estado: imDup?.estado || mapaDup.estado?.[0]?.valor || '',
+                quartos: imDup?.quartos || mapaDup.quartos?.[0]?.valor || '',
+                suites: imDup?.suites || mapaDup.suites?.[0]?.valor || '',
+                vagas: imDup?.vagas || mapaDup.vagas?.[0]?.valor || '',
+                banheiros: imDup?.banheiros || mapaDup.banheiros?.[0]?.valor || '',
+                area: imDup?.area_m2 || (typeof mapaDup.area?.[0]?.valor === 'object' ? mapaDup.area?.[0]?.valor?.max : mapaDup.area?.[0]?.valor) || '',
+                valorMax: imDup ? parseFloat(imDup.valor_imovel||0) : (mapaDup.valor?.[0]?.valor?.max || 0),
+                valorMin: 0,
+              };
+              await _auDup(leadDup.id, { mapaIntencao: mapaDup, perfilIA: _perfilIADup, temperatura: mapaDup.temperatura||'frio', faseFunil: mapaDup.fase||'novo' });
+              console.log('[webhook-global] perfilIA DUPLICADA atualizado | userId:', userIdDup);
+              try {
+                const mcDup = require('./cerebro/match-core');
+                await mcDup.processar({ lead: { ..._snapDup, mapaIntencao: mapaDup, perfilIA: _perfilIADup }, mensagem: mensagem||'', canal: 'ImovelWeb', userId: userIdDup });
+              } catch(e){ console.error('[webhook-global] erro match duplicata:', e.message); }
+            }
+          } catch(e){ console.error('[webhook-global] erro setTimeout duplicata:', e.message); }
+        }, 2000);
+      }
+    } catch(e) { console.error('[webhook-global] erro ao buscar duplicatas:', e.message); }
+
   } catch(e) { console.error('[webhook-global] ERRO:', e.message); }
 });
 // ── FIM XML/WEBHOOK GLOBAL ────────────────────────────────────────────────────

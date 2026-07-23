@@ -1478,6 +1478,10 @@ app.get('/politica-privacidade', (req,res)=>{
   res.render('politica-privacidade');
 });
 
+app.get('/termos-de-uso', (req,res)=>{
+  res.render('termos-de-uso');
+});
+
 
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });

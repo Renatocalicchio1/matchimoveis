@@ -422,6 +422,9 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.858L0 24l6.335-1.51A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.371l-.36-.214-3.724.888.936-3.617-.235-.372A9.818 9.818 0 1112 21.818z"/></svg>
           Compartilhar
         </button>
+        <% if(_isOwner) { %>
+        <button onclick="event.stopPropagation();abrirModalInstagram('<%= _idVer %>')" style="background:#fdf2f8;color:#c026d3;border:0.5px solid #f5d0fe;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer" title="Postar no Instagram">📸 Instagram</button>
+        <% } %>
         <% if(!rede || (item.userId||item.user_id||item.usuarioId) === (user.id||user.codigoUsuario)) { %><a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a><% } %>
         <% if(!rede || (item.userId||item.user_id||item.usuarioId) === (user.id||user.codigoUsuario)) { %><form method="POST" action="/app/imovel/<%= (item.idExterno && item.idExterno.trim()) ? item.idExterno : (item.idInterno || item.id) %>/excluir" style="display:inline" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" class="im-btn" style="background:#fef2f2;color:#b91c1c;border-color:#fca5a5" onclick="event.stopPropagation()">Excluir</button></form><% } %>
       </div>
@@ -792,6 +795,81 @@ window.addEventListener('DOMContentLoaded', function() {
   if (cidade) document.getElementById('f-cidade').value = cidade;
   if (bairro) document.getElementById('f-bairro').value = bairro;
 });
+</script>
+
+<!-- Modal Instagram -->
+<div id="modal-instagram" style="display:none;position:fixed;inset:0;z-index:10000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5)" onclick="if(event.target===this)fecharModalInstagram()">
+  <div style="background:#fff;border-radius:14px;width:90%;max-width:360px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <span style="font-size:14px;font-weight:600;color:#111">📸 Postar no Instagram</span>
+      <button onclick="fecharModalInstagram()" style="background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">×</button>
+    </div>
+    <div id="ig-modal-body"></div>
+  </div>
+</div>
+<script>
+var IG_CONECTADO = <%- user.instagramContaId ? 'true' : 'false' %>;
+var _igImovelId = null;
+
+function abrirModalInstagram(imovelId) {
+  _igImovelId = imovelId;
+  var body = document.getElementById('ig-modal-body');
+  if (!IG_CONECTADO) {
+    body.innerHTML = '<p style="font-size:13px;color:#6b7280;margin-bottom:14px">Conecte sua conta do Instagram antes de publicar.</p>' +
+      '<a href="/app/perfil" style="display:inline-flex;padding:9px 18px;border-radius:8px;background:#111827;color:#fff;font-size:13px;font-weight:500;text-decoration:none">Conectar Instagram</a>';
+  } else {
+    body.innerHTML =
+      '<p style="font-size:12px;color:#6b7280;margin-bottom:12px">Onde deseja publicar?</p>' +
+      '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">' +
+      '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px"><input type="radio" name="ig-destino" value="feed" checked style="width:16px;height:16px"> Feed</label>' +
+      '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px"><input type="radio" name="ig-destino" value="story" style="width:16px;height:16px"> Story</label>' +
+      '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px"><input type="radio" name="ig-destino" value="ambos" style="width:16px;height:16px"> Feed + Story</label>' +
+      '</div>' +
+      '<div id="ig-modal-msg" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:8px;font-size:12px"></div>' +
+      '<button id="ig-btn-postar" onclick="postarInstagram()" class="pf-btn" style="width:100%;justify-content:center;margin-top:0;background:#111827;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">Postar</button>';
+  }
+  document.getElementById('modal-instagram').style.display = 'flex';
+}
+
+function fecharModalInstagram() {
+  document.getElementById('modal-instagram').style.display = 'none';
+  _igImovelId = null;
+}
+
+async function postarInstagram() {
+  var destino = document.querySelector('input[name="ig-destino"]:checked');
+  destino = destino ? destino.value : 'feed';
+  var btn = document.getElementById('ig-btn-postar');
+  var msg = document.getElementById('ig-modal-msg');
+  btn.disabled = true;
+  btn.textContent = 'Publicando...';
+  try {
+    const r = await fetch('/app/instagram/postar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imovelId: _igImovelId, destino: destino })
+    });
+    const d = await r.json();
+    msg.style.display = 'block';
+    if (d.ok) {
+      msg.style.background = '#f0fdf4'; msg.style.color = '#16a34a'; msg.style.border = '1px solid #bbf7d0';
+      msg.textContent = '✅ Publicado com sucesso!';
+      btn.textContent = 'Postar';
+      btn.disabled = false;
+    } else {
+      msg.style.background = '#fef2f2'; msg.style.color = '#dc2626'; msg.style.border = '1px solid #fecaca';
+      msg.textContent = '⚠️ ' + (d.erro || 'Erro ao publicar.');
+      btn.textContent = 'Postar';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    msg.style.display = 'block';
+    msg.style.background = '#fef2f2'; msg.style.color = '#dc2626'; msg.style.border = '1px solid #fecaca';
+    msg.textContent = '⚠️ Falha de conexão. Tente novamente.';
+    btn.textContent = 'Postar';
+    btn.disabled = false;
+  }
+}
 </script>
 
 <% if(typeof totalPages!=='undefined' && totalPages > 1) { %>

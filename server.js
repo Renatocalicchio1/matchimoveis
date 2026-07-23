@@ -3347,6 +3347,105 @@ app.post('/app/perfil/vitrine', auth, async (req,res)=>{
   res.redirect('/app/perfil');
 });
 
+app.get('/app/instagram/conectar', auth, (req,res)=>{
+  const { getAuthUrl } = require('./services/instagram');
+  const crypto = require('crypto');
+  const state = crypto.randomBytes(16).toString('hex');
+  req.session.igOAuthState = state;
+  res.redirect(getAuthUrl(state));
+});
+
+app.get('/app/instagram/callback', auth, async (req,res)=>{
+  try {
+    if (req.query.error) {
+      return res.redirect('/app/perfil?err=' + encodeURIComponent('Autorização do Instagram cancelada.'));
+    }
+    if (!req.query.state || req.query.state !== req.session.igOAuthState) {
+      return res.redirect('/app/perfil?err=' + encodeURIComponent('Sessão de autorização inválida, tente novamente.'));
+    }
+    delete req.session.igOAuthState;
+    const code = req.query.code;
+    if (!code) return res.redirect('/app/perfil?err=' + encodeURIComponent('Código de autorização não recebido.'));
+
+    const { trocarCodePorToken, obterTokenLongoPrazo, obterPaginaComInstagram } = require('./services/instagram');
+    const { atualizarUsuario: _auInstaOn } = require('./services/salvarUsuario');
+    const uid = String(req.session.user.id || '');
+
+    const shortToken = await trocarCodePorToken(code);
+    const longToken = await obterTokenLongoPrazo(shortToken);
+    const conta = await obterPaginaComInstagram(longToken);
+    if (!conta) {
+      return res.redirect('/app/perfil?err=' + encodeURIComponent('Nenhuma Página do Facebook com Instagram Business vinculado foi encontrada nessa conta.'));
+    }
+
+    const dadosInsta = {
+      instagramToken: conta.pageAccessToken,
+      instagramContaId: conta.igUserId,
+      instagramUsername: conta.igUsername
+    };
+    await _auInstaOn(uid, dadosInsta);
+    req.session.user = { ...req.session.user, ...dadosInsta };
+    if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid||u.id===uid); if(_uIdx>=0) Object.assign(_cacheUsuarios[_uIdx], dadosInsta); }
+    res.redirect('/app/perfil?msg=' + encodeURIComponent('Instagram conectado com sucesso!'));
+  } catch(e) {
+    console.error('[instagram/callback]', e.message);
+    res.redirect('/app/perfil?err=' + encodeURIComponent('Erro ao conectar Instagram: ' + e.message));
+  }
+});
+
+app.post('/app/instagram/desconectar', auth, async (req,res)=>{
+  const { atualizarUsuario: _auInstaOff } = require('./services/salvarUsuario');
+  const uid = String(req.session.user.id || '');
+  const dadosInsta = { instagramToken: null, instagramContaId: null, instagramUsername: null };
+  await _auInstaOff(uid, dadosInsta).catch(e=>console.error("[instagram/desconectar]",e.message));
+  req.session.user = { ...req.session.user, ...dadosInsta };
+  if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid||u.id===uid); if(_uIdx>=0) Object.assign(_cacheUsuarios[_uIdx], dadosInsta); }
+  res.redirect('/app/perfil');
+});
+
+app.post('/app/instagram/postar', auth, async (req,res)=>{
+  try {
+    const { publicarFeed, publicarStory, montarLegenda } = require('./services/instagram');
+    const user = req.session.user;
+    if (!user.instagramToken || !user.instagramContaId) {
+      return res.status(400).json({ ok:false, erro: 'Instagram não conectado. Conecte sua conta em /app/perfil.' });
+    }
+    const imovelId = req.body.imovelId;
+    const destino = req.body.destino;
+    const imoveis = (_cacheImoveis || []);
+    const imovel = imoveis.find(i => String(i.id)===String(imovelId) || String(i.idExterno)===String(imovelId) || String(i.idInterno)===String(imovelId) || String(i.codigoImovel)===String(imovelId));
+    if (!imovel) return res.status(404).json({ ok:false, erro: 'Imóvel não encontrado.' });
+
+    const uidLogado = user.id || user.codigoUsuario || user.codigo_usuario;
+    const ownerImovel = imovel.userId || imovel.user_id || imovel.usuarioId;
+    if (String(ownerImovel) !== String(uidLogado)) {
+      return res.status(403).json({ ok:false, erro: 'Você só pode publicar imóveis da sua própria carteira.' });
+    }
+
+    const fotos = Array.isArray(imovel.fotos) ? imovel.fotos : [];
+    if (!fotos.length) return res.status(400).json({ ok:false, erro: 'Este imóvel não tem fotos cadastradas.' });
+
+    const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
+    const imageUrl = fotos[0].startsWith('http') ? fotos[0] : (BASE_URL + fotos[0]);
+    const legenda = montarLegenda(imovel, uidLogado, BASE_URL);
+
+    const resultados = {};
+    if (destino === 'feed' || destino === 'ambos') {
+      resultados.feed = await publicarFeed(user.instagramContaId, user.instagramToken, imageUrl, legenda);
+    }
+    if (destino === 'story' || destino === 'ambos') {
+      resultados.story = await publicarStory(user.instagramContaId, user.instagramToken, imageUrl);
+    }
+    if (!resultados.feed && !resultados.story) {
+      return res.status(400).json({ ok:false, erro: 'Destino de publicação inválido.' });
+    }
+    res.json({ ok:true, resultados });
+  } catch(e) {
+    console.error('[instagram/postar]', e.message);
+    res.status(500).json({ ok:false, erro: e.message || 'Erro ao publicar no Instagram.' });
+  }
+});
+
 app.post('/app/perfil/senha', auth, async (req, res) => {
   const nova_senha = (req.body.nova_senha || '').trim();
   const confirmar_senha = (req.body.confirmar_senha || '').trim();

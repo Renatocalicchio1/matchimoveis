@@ -242,6 +242,49 @@
   </div>
 </div>
 
+<!-- Instagram -->
+<div class="pf-card" id="secao-instagram">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+    <div>
+      <p class="pf-card-title">📸 Conectar Instagram</p>
+      <p class="pf-card-sub" style="margin-bottom:0">Publique seus imóveis direto no feed ou nos stories da sua conta comercial.</p>
+    </div>
+    <% if(user.instagramContaId){ %>
+      <span class="wa-badge" style="background:#dcfce7;color:#15803d">Conectado</span>
+    <% } else { %>
+      <span class="wa-badge" style="background:#fee2e2;color:#b91c1c">Desconectado</span>
+    <% } %>
+  </div>
+
+  <div id="ig-msg" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:8px;font-size:12px"></div>
+
+  <% if(user.instagramContaId){ %>
+    <p style="font-size:14px;color:#111827;margin-bottom:14px">@<%= user.instagramUsername || user.instagramContaId %></p>
+    <form method="POST" action="/app/instagram/desconectar">
+      <button type="submit" class="pf-btn pf-btn-red" style="margin-top:0">Desconectar</button>
+    </form>
+  <% } else { %>
+    <a href="/app/instagram/conectar" class="pf-btn pf-btn-green" style="margin-top:0;text-decoration:none">Conectar Instagram</a>
+  <% } %>
+</div>
+
+<script>
+(function(){
+  var p = new URLSearchParams(window.location.search);
+  var msg = p.get('msg'), err = p.get('err');
+  if (msg || err) {
+    var box = document.getElementById('ig-msg');
+    if (box) {
+      box.style.display = 'block';
+      box.style.background = err ? '#fef2f2' : '#f0fdf4';
+      box.style.color = err ? '#dc2626' : '#16a34a';
+      box.style.border = '1px solid ' + (err ? '#fecaca' : '#bbf7d0');
+      box.textContent = (err ? '⚠️ ' : '✅ ') + (err || msg);
+    }
+  }
+})();
+</script>
+
 <script>
 function pegarLocalizacao() {
   const btn = document.getElementById('btn-loc');

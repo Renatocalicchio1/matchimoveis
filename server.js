@@ -124,6 +124,23 @@ if (process.env.RENDER) {
 
 const app = express();
 
+// ── Domínio canônico: garante que a sessão sempre viva em www.matchimoveis.ia.br ──
+// Quem acessa via matchimoveis.onrender.com (ou outro host) fica com o cookie
+// de sessão preso naquele domínio e chega "deslogado" em fluxos que dependem
+// do domínio certo (ex: callback OAuth do Instagram, cadastrado na Meta como
+// www.matchimoveis.ia.br). Webhooks externos (Meta, Evolution API, portais,
+// MercadoPago) e o health check do Render ficam de fora do redirect, pois
+// podem ser chamados direto via onrender.com.
+const CANONICAL_HOST = 'www.matchimoveis.ia.br';
+const ROTAS_SEM_REDIRECT_CANONICO = ['/webhook', '/health'];
+app.use((req, res, next) => {
+  if (!process.env.RENDER) return next();
+  const host = (req.headers.host || '').split(':')[0].toLowerCase();
+  if (host === CANONICAL_HOST) return next();
+  if (ROTAS_SEM_REDIRECT_CANONICO.some(r => req.path.startsWith(r))) return next();
+  return res.redirect(301, 'https://' + CANONICAL_HOST + req.originalUrl);
+});
+
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
 const { Pool } = require('pg');
@@ -3352,15 +3369,10 @@ app.get('/app/instagram/conectar', auth, (req,res)=>{
   const crypto = require('crypto');
   const state = crypto.randomBytes(16).toString('hex');
   req.session.igOAuthState = state;
-  const _urlAuth = getAuthUrl(state);
-  console.log('[instagram/conectar][DEBUG] URL de autorização gerada:', _urlAuth); // TEMP - remover após diagnóstico
-  res.redirect(_urlAuth);
+  res.redirect(getAuthUrl(state));
 });
 
-app.get('/app/instagram/callback', (req,res,next)=>{
-  console.log('[instagram/callback][DEBUG] rota alcançada | req.query=', JSON.stringify(req.query), '| temSessao=', !!(req.session && req.session.user), '| cookie header presente=', !!req.headers.cookie); // TEMP - remover após diagnóstico
-  next();
-}, auth, async (req,res)=>{
+app.get('/app/instagram/callback', auth, async (req,res)=>{
   try {
     if (req.query.error) {
       return res.redirect('/app/perfil?err=' + encodeURIComponent('Autorização do Instagram cancelada.'));

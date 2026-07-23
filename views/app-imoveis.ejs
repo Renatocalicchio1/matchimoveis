@@ -70,12 +70,18 @@
 .im-prop{font-size:11px;color:var(--text-sec);background:var(--bg);border:1px solid var(--border-light);border-radius:7px;padding:6px 8px;margin-bottom:8px;line-height:1.4}
 .im-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
 .im-tag{font-size:10px;color:var(--text-sec);background:var(--bg);border:1px solid var(--border-light);border-radius:5px;padding:2px 7px}
-.im-actions{display:flex;gap:6px;margin-top:auto}
-.im-btn{flex:1;text-align:center;font-size:11px;font-weight:600;padding:7px 8px;border-radius:7px;text-decoration:none;border:none;cursor:pointer;transition:all .1s}
-.im-btn.ver{background:var(--bg);color:var(--text);border:1px solid var(--border)}
+.im-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;margin-top:auto}
+.im-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;text-align:center;font-size:11px;font-weight:600;padding:7px 6px;border-radius:7px;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:all .1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.im-btn.ver{background:var(--bg);color:var(--text);border-color:var(--border)}
 .im-btn.ver:hover{background:#f0f0ee}
 .im-btn.edit{background:var(--brand);color:#fff}
 .im-btn.edit:hover{background:var(--brand-dark)}
+.im-btn.whats{background:#25D366;color:#fff}
+.im-btn.whats:hover{background:#1ebe57}
+.im-btn.instagram{background:#fdf2f8;color:#c026d3;border-color:#f5d0fe}
+.im-btn.instagram:hover{background:#fce7f3}
+.im-btn.del{background:#fef2f2;color:#b91c1c;border-color:#fca5a5}
+.im-btn.del:hover{background:#fee2e2}
 .im-empty{text-align:center;padding:60px 20px;color:var(--text-ter)}
 .modal-xml{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:20px}
 .modal-xml-box{background:#fff;border-radius:var(--radius-lg);padding:28px;max-width:480px;width:100%;text-align:center}
@@ -418,15 +424,15 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
         <% const _idVer = item.id || item.idExterno || item.idInterno || item.codigoImovel; %>
         <% const _uidParam = '?userId=' + encodeURIComponent(user.id||user.codigoUsuario||''); %>
         <a href="<%= _isOwner ? '/app/imovel/'+_idVer : '/imovel/'+_idVer+_uidParam %>" target="<%= _isOwner ? '_self' : '_blank' %>" class="im-btn ver" onclick="event.stopPropagation()">Ver</a>
-        <button onclick="event.stopPropagation();(() => { const id='<%= item.idInterno||item.id_interno||item.id %>'; const titulo=encodeURIComponent('<%= (item.titulo||(item.tipo+' em '+(item.bairro||item.cidade||''))).replace(/'/g,'') %>'); const link='https://www.matchimoveis.ia.br/imovel/'+id+'?userId=<%= encodeURIComponent(user.id||user.codigoUsuario||'') %>'; const msg='Olá! Segue o link de um imóvel que pode te interessar:%0A%0A*<%= (item.tipo||'Imóvel') %> em <%= (item.bairro||item.cidade||'') %>*%0AR$ <%= item.valor_imovel ? Number(item.valor_imovel).toLocaleString('pt-BR') : '—' %>%0A%0A'+encodeURIComponent(link); window.open('https://wa.me/?text='+msg,'_blank'); })()" style="background:#25D366;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px" title="Compartilhar via WhatsApp">
+        <button class="im-btn whats" onclick="event.stopPropagation();(() => { const id='<%= item.idInterno||item.id_interno||item.id %>'; const titulo=encodeURIComponent('<%= (item.titulo||(item.tipo+' em '+(item.bairro||item.cidade||''))).replace(/'/g,'') %>'); const link='https://www.matchimoveis.ia.br/imovel/'+id+'?userId=<%= encodeURIComponent(user.id||user.codigoUsuario||'') %>'; const msg='Olá! Segue o link de um imóvel que pode te interessar:%0A%0A*<%= (item.tipo||'Imóvel') %> em <%= (item.bairro||item.cidade||'') %>*%0AR$ <%= item.valor_imovel ? Number(item.valor_imovel).toLocaleString('pt-BR') : '—' %>%0A%0A'+encodeURIComponent(link); window.open('https://wa.me/?text='+msg,'_blank'); })()" title="Compartilhar via WhatsApp">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.858L0 24l6.335-1.51A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.371l-.36-.214-3.724.888.936-3.617-.235-.372A9.818 9.818 0 1112 21.818z"/></svg>
           Compartilhar
         </button>
         <% if(_isOwner && (user.codigoUsuario||user.codigo_usuario||user.id) === 'REN-G9K6') { %>
-        <button onclick="event.stopPropagation();abrirModalInstagram('<%= _idVer %>')" style="background:#fdf2f8;color:#c026d3;border:0.5px solid #f5d0fe;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer" title="Postar no Instagram">📸 Instagram</button>
+        <button class="im-btn instagram" onclick="event.stopPropagation();abrirModalInstagram('<%= _idVer %>')" title="Postar no Instagram">📸 Instagram</button>
         <% } %>
         <% if(!rede || (item.userId||item.user_id||item.usuarioId) === (user.id||user.codigoUsuario)) { %><a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a><% } %>
-        <% if(!rede || (item.userId||item.user_id||item.usuarioId) === (user.id||user.codigoUsuario)) { %><form method="POST" action="/app/imovel/<%= (item.idExterno && item.idExterno.trim()) ? item.idExterno : (item.idInterno || item.id) %>/excluir" style="display:inline" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" class="im-btn" style="background:#fef2f2;color:#b91c1c;border-color:#fca5a5" onclick="event.stopPropagation()">Excluir</button></form><% } %>
+        <% if(!rede || (item.userId||item.user_id||item.usuarioId) === (user.id||user.codigoUsuario)) { %><form method="POST" action="/app/imovel/<%= (item.idExterno && item.idExterno.trim()) ? item.idExterno : (item.idInterno || item.id) %>/excluir" style="display:contents" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" class="im-btn del" onclick="event.stopPropagation()">Excluir</button></form><% } %>
       </div>
     </div>
   </div>

@@ -3,7 +3,7 @@ const axios = require('axios');
 const GRAPH_VERSION = 'v21.0';
 const GRAPH_URL = `https://graph.facebook.com/${GRAPH_VERSION}`;
 const OAUTH_DIALOG_URL = `https://www.facebook.com/${GRAPH_VERSION}/dialog/oauth`;
-const SCOPES = 'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement';
+const SCOPES = 'instagram_business_basic,instagram_business_content_publish,pages_show_list,pages_read_engagement';
 
 function baseUrl() {
   return process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');

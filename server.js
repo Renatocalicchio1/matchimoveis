@@ -3443,15 +3443,15 @@ app.post('/app/instagram/postar', auth, async (req,res)=>{
     if (!fotos.length) return res.status(400).json({ ok:false, erro: 'Este imóvel não tem fotos cadastradas.' });
 
     const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
-    const imageUrl = fotos[0].startsWith('http') ? fotos[0] : (BASE_URL + fotos[0]);
+    const imageUrls = fotos.slice(0, 10).map(f => f.startsWith('http') ? f : (BASE_URL + f));
     const legenda = montarLegenda(imovel, uidLogado, BASE_URL);
 
     const resultados = {};
     if (destino === 'feed' || destino === 'ambos') {
-      resultados.feed = await publicarFeed(user.instagramContaId, user.instagramToken, imageUrl, legenda);
+      resultados.feed = await publicarFeed(user.instagramContaId, user.instagramToken, imageUrls, legenda);
     }
     if (destino === 'story' || destino === 'ambos') {
-      resultados.story = await publicarStory(user.instagramContaId, user.instagramToken, imageUrl);
+      resultados.story = await publicarStory(user.instagramContaId, user.instagramToken, imageUrls[0]);
     }
     if (!resultados.feed && !resultados.story) {
       return res.status(400).json({ ok:false, erro: 'Destino de publicação inválido.' });

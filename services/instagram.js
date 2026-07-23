@@ -95,16 +95,24 @@ async function obterUsername(igUserId, token) {
 }
 
 function montarLegenda(imovel, uidLogado, base) {
-  const tipo = imovel.tipo || 'Imóvel';
   const local = imovel.bairro || imovel.cidade || '';
+  const titulo = imovel.titulo || `${imovel.tipo || 'Imóvel'}${local ? ' em ' + local : ''}`;
   const valor = imovel.valor_imovel ? Number(imovel.valor_imovel).toLocaleString('pt-BR') : null;
+  const area = imovel.area_m2 ? `${imovel.area_m2}m²` : null;
   const quartos = imovel.quartos ? `${imovel.quartos} quarto${imovel.quartos > 1 ? 's' : ''}` : null;
+  const suites = imovel.suites ? `${imovel.suites} suíte${imovel.suites > 1 ? 's' : ''}` : null;
+  const banheiros = imovel.banheiros ? `${imovel.banheiros} banheiro${imovel.banheiros > 1 ? 's' : ''}` : null;
+  const vagas = imovel.vagas ? `${imovel.vagas} vaga${imovel.vagas > 1 ? 's' : ''} de garagem` : null;
   const idPublico = imovel.idInterno || imovel.id_interno || imovel.id;
   const link = `${base}/imovel/${idPublico}?userId=${encodeURIComponent(uidLogado || '')}`;
 
-  const linhas = [`${tipo}${local ? ' em ' + local : ''}`];
+  const linhas = [titulo];
   if (valor) linhas.push(`💰 R$ ${valor}`);
+  if (area) linhas.push(`📐 ${area}`);
   if (quartos) linhas.push(`🛏 ${quartos}`);
+  if (suites) linhas.push(`🛁 ${suites}`);
+  if (banheiros) linhas.push(`🚿 ${banheiros}`);
+  if (vagas) linhas.push(`🚗 ${vagas}`);
   linhas.push('');
   linhas.push(link);
   return linhas.join('\n');
@@ -122,19 +130,19 @@ async function _aguardarContainerPronto(containerId, token, tentativas = 10, int
   return true; // segue tentando publicar mesmo sem confirmação — imagens costumam ficar prontas quase na hora
 }
 
-async function _publicar(igUserId, token, containerParams) {
-  let containerId;
+async function _criarContainer(igUserId, token, containerParams) {
   try {
     const { data } = await axios.post(`${GRAPH_URL}/${igUserId}/media`, null, {
       params: { ...containerParams, access_token: token }
     });
-    containerId = data.id;
+    return data.id;
   } catch (e) {
     throw _erroGraph(e, 'Falha ao criar a publicação no Instagram. Verifique se a conta ainda está conectada.');
   }
+}
 
+async function _publicarContainer(igUserId, token, containerId) {
   await _aguardarContainerPronto(containerId, token);
-
   try {
     const { data } = await axios.post(`${GRAPH_URL}/${igUserId}/media_publish`, null, {
       params: { creation_id: containerId, access_token: token }
@@ -145,12 +153,33 @@ async function _publicar(igUserId, token, containerParams) {
   }
 }
 
-async function publicarFeed(igUserId, token, imageUrl, caption) {
-  return _publicar(igUserId, token, { image_url: imageUrl, caption });
+// imageUrls pode ser uma string (1 foto) ou array (carrossel, até 10 fotos —
+// limite do Instagram). Com mais de 1 foto, cria um container por item
+// (is_carousel_item, sem legenda) e depois o container pai CAROUSEL com a
+// legenda e os children.
+async function publicarFeed(igUserId, token, imageUrls, caption) {
+  const urls = (Array.isArray(imageUrls) ? imageUrls : [imageUrls]).filter(Boolean).slice(0, 10);
+  if (urls.length <= 1) {
+    const containerId = await _criarContainer(igUserId, token, { image_url: urls[0], caption });
+    return _publicarContainer(igUserId, token, containerId);
+  }
+  const childrenIds = [];
+  for (const url of urls) {
+    childrenIds.push(await _criarContainer(igUserId, token, { image_url: url, is_carousel_item: true }));
+  }
+  const containerId = await _criarContainer(igUserId, token, {
+    media_type: 'CAROUSEL',
+    children: childrenIds.join(','),
+    caption
+  });
+  return _publicarContainer(igUserId, token, containerId);
 }
 
+// Stories não suportam carrossel — sempre uma única imagem.
 async function publicarStory(igUserId, token, imageUrl) {
-  return _publicar(igUserId, token, { image_url: imageUrl, media_type: 'STORIES' });
+  const url = Array.isArray(imageUrl) ? imageUrl[0] : imageUrl;
+  const containerId = await _criarContainer(igUserId, token, { image_url: url, media_type: 'STORIES' });
+  return _publicarContainer(igUserId, token, containerId);
 }
 
 module.exports = {

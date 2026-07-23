@@ -1,9 +1,16 @@
 const axios = require('axios');
 
+// Fluxo "Instagram API with Instagram Login" (Business Login for Instagram) —
+// substitui o antigo "Facebook Login for Business": a autorização e a troca de
+// tokens acontecem direto com o domínio instagram.com/graph.instagram.com, e o
+// user_id retornado já é o Instagram-scoped User ID (não precisa localizar
+// Página do Facebook nem instagram_business_account vinculada).
 const GRAPH_VERSION = 'v21.0';
-const GRAPH_URL = `https://graph.facebook.com/${GRAPH_VERSION}`;
-const OAUTH_DIALOG_URL = `https://www.facebook.com/${GRAPH_VERSION}/dialog/oauth`;
-const SCOPES = 'instagram_business_basic,instagram_business_content_publish,pages_show_list,pages_read_engagement';
+const AUTHORIZE_URL = 'https://www.instagram.com/oauth/authorize';
+const TOKEN_URL = 'https://api.instagram.com/oauth/access_token';
+const LONG_TOKEN_URL = 'https://graph.instagram.com/access_token';
+const GRAPH_URL = `https://graph.instagram.com/${GRAPH_VERSION}`;
+const SCOPES = 'instagram_business_basic,instagram_business_content_publish';
 
 function baseUrl() {
   return process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
@@ -14,7 +21,7 @@ function redirectUri() {
 }
 
 function _erroGraph(e, fallback) {
-  const msg = e?.response?.data?.error?.message;
+  const msg = e?.response?.data?.error_message || e?.response?.data?.error?.message;
   return new Error(msg || fallback || e.message);
 }
 
@@ -26,20 +33,23 @@ function getAuthUrl(state) {
     response_type: 'code',
     state: state || ''
   });
-  return `${OAUTH_DIALOG_URL}?${params.toString()}`;
+  return `${AUTHORIZE_URL}?${params.toString()}`;
 }
 
+// Troca o code pelo token de curta duração. A resposta já traz o
+// Instagram-scoped User ID (user_id) — é o ig-user-id usado em todas as
+// chamadas seguintes, sem precisar de Página do Facebook.
 async function trocarCodePorToken(code) {
   try {
-    const { data } = await axios.get(`${GRAPH_URL}/oauth/access_token`, {
-      params: {
-        client_id: process.env.FACEBOOK_APP_ID || '',
-        client_secret: process.env.FACEBOOK_APP_SECRET || '',
-        redirect_uri: redirectUri(),
-        code
-      }
+    const params = new URLSearchParams({
+      client_id: process.env.FACEBOOK_APP_ID || '',
+      client_secret: process.env.FACEBOOK_APP_SECRET || '',
+      grant_type: 'authorization_code',
+      redirect_uri: redirectUri(),
+      code
     });
-    return data.access_token;
+    const { data } = await axios.post(TOKEN_URL, params);
+    return { accessToken: data.access_token, igUserId: data.user_id };
   } catch (e) {
     throw _erroGraph(e, 'Falha ao trocar o código de autorização pelo token de acesso.');
   }
@@ -47,12 +57,11 @@ async function trocarCodePorToken(code) {
 
 async function obterTokenLongoPrazo(shortToken) {
   try {
-    const { data } = await axios.get(`${GRAPH_URL}/oauth/access_token`, {
+    const { data } = await axios.get(LONG_TOKEN_URL, {
       params: {
-        grant_type: 'fb_exchange_token',
-        client_id: process.env.FACEBOOK_APP_ID || '',
+        grant_type: 'ig_exchange_token',
         client_secret: process.env.FACEBOOK_APP_SECRET || '',
-        fb_exchange_token: shortToken
+        access_token: shortToken
       }
     });
     return data.access_token;
@@ -61,27 +70,14 @@ async function obterTokenLongoPrazo(shortToken) {
   }
 }
 
-// Procura, entre as Páginas do Facebook administradas pelo usuário, a primeira
-// que tenha uma Conta Comercial do Instagram vinculada.
-async function obterPaginaComInstagram(userToken) {
+async function obterUsername(igUserId, token) {
   try {
-    const { data } = await axios.get(`${GRAPH_URL}/me/accounts`, {
-      params: {
-        fields: 'id,name,access_token,instagram_business_account{id,username}',
-        access_token: userToken
-      }
+    const { data } = await axios.get(`${GRAPH_URL}/${igUserId}`, {
+      params: { fields: 'username', access_token: token }
     });
-    const paginas = data.data || [];
-    const pagina = paginas.find(p => p.instagram_business_account && p.instagram_business_account.id);
-    if (!pagina) return null;
-    return {
-      pageId: pagina.id,
-      pageAccessToken: pagina.access_token,
-      igUserId: pagina.instagram_business_account.id,
-      igUsername: pagina.instagram_business_account.username || ''
-    };
+    return data.username || '';
   } catch (e) {
-    throw _erroGraph(e, 'Falha ao buscar as Páginas do Facebook do usuário.');
+    return '';
   }
 }
 
@@ -148,7 +144,7 @@ module.exports = {
   getAuthUrl,
   trocarCodePorToken,
   obterTokenLongoPrazo,
-  obterPaginaComInstagram,
+  obterUsername,
   montarLegenda,
   publicarFeed,
   publicarStory

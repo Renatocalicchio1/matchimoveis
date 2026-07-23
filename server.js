@@ -3367,21 +3367,21 @@ app.get('/app/instagram/callback', auth, async (req,res)=>{
     const code = req.query.code;
     if (!code) return res.redirect('/app/perfil?err=' + encodeURIComponent('Código de autorização não recebido.'));
 
-    const { trocarCodePorToken, obterTokenLongoPrazo, obterPaginaComInstagram } = require('./services/instagram');
+    const { trocarCodePorToken, obterTokenLongoPrazo, obterUsername } = require('./services/instagram');
     const { atualizarUsuario: _auInstaOn } = require('./services/salvarUsuario');
     const uid = String(req.session.user.id || '');
 
-    const shortToken = await trocarCodePorToken(code);
-    const longToken = await obterTokenLongoPrazo(shortToken);
-    const conta = await obterPaginaComInstagram(longToken);
-    if (!conta) {
-      return res.redirect('/app/perfil?err=' + encodeURIComponent('Nenhuma Página do Facebook com Instagram Business vinculado foi encontrada nessa conta.'));
+    const { accessToken: shortToken, igUserId } = await trocarCodePorToken(code);
+    if (!igUserId) {
+      return res.redirect('/app/perfil?err=' + encodeURIComponent('Não foi possível identificar a conta Instagram Business. Verifique se a conta é comercial/criador.'));
     }
+    const longToken = await obterTokenLongoPrazo(shortToken);
+    const igUsername = await obterUsername(igUserId, longToken);
 
     const dadosInsta = {
-      instagramToken: conta.pageAccessToken,
-      instagramContaId: conta.igUserId,
-      instagramUsername: conta.igUsername
+      instagramToken: longToken,
+      instagramContaId: igUserId,
+      instagramUsername: igUsername
     };
     await _auInstaOn(uid, dadosInsta);
     req.session.user = { ...req.session.user, ...dadosInsta };

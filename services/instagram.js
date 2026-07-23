@@ -19,9 +19,20 @@ function redirectUri() {
   return baseUrl() + '/app/instagram/callback';
 }
 
+const ERROS_CONHECIDOS = [
+  { padrao: /aspect ratio/i, msg: 'Foto com proporção não aceita pelo Instagram (precisa ficar entre 4:5 retrato e 1.91:1 paisagem).' },
+  { padrao: /media.*type.*not.*support|unsupported.*format/i, msg: 'Formato de foto não suportado pelo Instagram (use JPEG).' },
+  { padrao: /could not download|failed to download|url.*not.*(valid|accessible)/i, msg: 'O Instagram não conseguiu baixar a foto — verifique se a URL é pública.' }
+];
+
+function _traduzErro(msg) {
+  const achado = ERROS_CONHECIDOS.find(e => e.padrao.test(msg || ''));
+  return achado ? achado.msg : msg;
+}
+
 function _erroGraph(e, fallback) {
   const msg = e?.response?.data?.error_message || e?.response?.data?.error?.message;
-  return new Error(msg || fallback || e.message);
+  return new Error(_traduzErro(msg) || fallback || e.message);
 }
 
 function getAuthUrl(state) {
@@ -156,23 +167,43 @@ async function _publicarContainer(igUserId, token, containerId) {
 // imageUrls pode ser uma string (1 foto) ou array (carrossel, até 10 fotos —
 // limite do Instagram). Com mais de 1 foto, cria um container por item
 // (is_carousel_item, sem legenda) e depois o container pai CAROUSEL com a
-// legenda e os children.
+// legenda e os children. Foto que falhar (ex: proporção não aceita pelo
+// Instagram) é ignorada em vez de derrubar o post inteiro.
 async function publicarFeed(igUserId, token, imageUrls, caption) {
   const urls = (Array.isArray(imageUrls) ? imageUrls : [imageUrls]).filter(Boolean).slice(0, 10);
   if (urls.length <= 1) {
     const containerId = await _criarContainer(igUserId, token, { image_url: urls[0], caption });
     return _publicarContainer(igUserId, token, containerId);
   }
-  const childrenIds = [];
+
+  const validas = [];
+  const falhas = [];
   for (const url of urls) {
-    childrenIds.push(await _criarContainer(igUserId, token, { image_url: url, is_carousel_item: true }));
+    try {
+      const containerId = await _criarContainer(igUserId, token, { image_url: url, is_carousel_item: true });
+      validas.push({ url, containerId });
+    } catch (e) {
+      falhas.push(e.message);
+    }
   }
+
+  if (validas.length === 0) {
+    throw new Error('Nenhuma foto pôde ser publicada — ' + falhas[0]);
+  }
+  // Instagram exige 2+ itens pra carrossel — com só 1 foto válida, publica como post simples
+  if (validas.length === 1) {
+    const containerId = await _criarContainer(igUserId, token, { image_url: validas[0].url, caption });
+    const resultado = await _publicarContainer(igUserId, token, containerId);
+    return { ...resultado, fotosIgnoradas: falhas };
+  }
+
   const containerId = await _criarContainer(igUserId, token, {
     media_type: 'CAROUSEL',
-    children: childrenIds.join(','),
+    children: validas.map(v => v.containerId).join(','),
     caption
   });
-  return _publicarContainer(igUserId, token, containerId);
+  const resultado = await _publicarContainer(igUserId, token, containerId);
+  return falhas.length ? { ...resultado, fotosIgnoradas: falhas } : resultado;
 }
 
 // Stories não suportam carrossel — sempre uma única imagem.

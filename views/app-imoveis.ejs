@@ -852,8 +852,11 @@ async function postarInstagram() {
     const d = await r.json();
     msg.style.display = 'block';
     if (d.ok) {
+      var ignoradas = (d.resultados && d.resultados.feed && d.resultados.feed.fotosIgnoradas) || [];
       msg.style.background = '#f0fdf4'; msg.style.color = '#16a34a'; msg.style.border = '1px solid #bbf7d0';
-      msg.textContent = '✅ Publicado com sucesso!';
+      msg.textContent = ignoradas.length
+        ? '✅ Publicado! ' + ignoradas.length + ' foto(s) ignorada(s): ' + ignoradas[0]
+        : '✅ Publicado com sucesso!';
       btn.textContent = 'Postar';
       btn.disabled = false;
     } else {

@@ -3352,10 +3352,15 @@ app.get('/app/instagram/conectar', auth, (req,res)=>{
   const crypto = require('crypto');
   const state = crypto.randomBytes(16).toString('hex');
   req.session.igOAuthState = state;
-  res.redirect(getAuthUrl(state));
+  const _urlAuth = getAuthUrl(state);
+  console.log('[instagram/conectar][DEBUG] URL de autorização gerada:', _urlAuth); // TEMP - remover após diagnóstico
+  res.redirect(_urlAuth);
 });
 
-app.get('/app/instagram/callback', auth, async (req,res)=>{
+app.get('/app/instagram/callback', (req,res,next)=>{
+  console.log('[instagram/callback][DEBUG] rota alcançada | req.query=', JSON.stringify(req.query), '| temSessao=', !!(req.session && req.session.user), '| cookie header presente=', !!req.headers.cookie); // TEMP - remover após diagnóstico
+  next();
+}, auth, async (req,res)=>{
   try {
     if (req.query.error) {
       return res.redirect('/app/perfil?err=' + encodeURIComponent('Autorização do Instagram cancelada.'));

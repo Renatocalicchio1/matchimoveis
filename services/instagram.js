@@ -5,11 +5,10 @@ const axios = require('axios');
 // tokens acontecem direto com o domínio instagram.com/graph.instagram.com, e o
 // user_id retornado já é o Instagram-scoped User ID (não precisa localizar
 // Página do Facebook nem instagram_business_account vinculada).
-const GRAPH_VERSION = 'v21.0';
 const AUTHORIZE_URL = 'https://www.instagram.com/oauth/authorize';
 const TOKEN_URL = 'https://api.instagram.com/oauth/access_token';
 const LONG_TOKEN_URL = 'https://graph.instagram.com/access_token';
-const GRAPH_URL = `https://graph.instagram.com/${GRAPH_VERSION}`;
+const GRAPH_URL = 'https://graph.instagram.com';
 const SCOPES = 'instagram_business_basic,instagram_business_content_publish';
 
 function baseUrl() {
@@ -48,8 +47,22 @@ async function trocarCodePorToken(code) {
       redirect_uri: redirectUri(),
       code
     });
-    const { data } = await axios.post(TOKEN_URL, params);
-    return { accessToken: data.access_token, igUserId: data.user_id };
+    // api.instagram.com/oauth/access_token devolve user_id como NUMBER no
+    // JSON (diferente do resto da Graph API, que sempre usa string pra IDs).
+    // IDs do Instagram têm 17+ dígitos, acima de Number.MAX_SAFE_INTEGER —
+    // o JSON.parse padrão arredonda silenciosamente e corrompe o ID, fazendo
+    // toda chamada seguinte (obterUsername, publicarFeed/Story) apontar pra
+    // um ID que não existe. Extrai o valor exato como string do texto bruto
+    // antes do parse.
+    const { data } = await axios.post(TOKEN_URL, params, {
+      transformResponse: [(raw) => {
+        const parsed = JSON.parse(raw);
+        const m = String(raw).match(/"user_id"\s*:\s*"?(\d+)"?/);
+        if (m) parsed.user_id = m[1];
+        return parsed;
+      }]
+    });
+    return { accessToken: data.access_token, igUserId: data.user_id ? String(data.user_id) : null };
   } catch (e) {
     throw _erroGraph(e, 'Falha ao trocar o código de autorização pelo token de acesso.');
   }

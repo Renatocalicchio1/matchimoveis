@@ -1474,6 +1474,10 @@ app.get('/', (req,res)=>{
 app.get('/entrar', (req,res)=>{ res.redirect('/'); //
 });
 
+app.get('/politica-privacidade', (req,res)=>{
+  res.render('politica-privacidade');
+});
+
 
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });

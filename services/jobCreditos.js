@@ -1,13 +1,14 @@
 /**
  * services/jobCreditos.js
- * Job diário: debita 10 créditos por lead ativo + alertas de saldo baixo.
+ * Job diário: debita créditos por lead ativo (lead_ativo_dia) + alertas de saldo baixo.
  */
 
 const { lerUsuarios, salvarTodosUsuarios } = require('./salvarUsuario');
 const { lerLeads } = require('./salvarLead');
 const { criarNotificacao } = require('./salvarNotificacao');
+const { CUSTO } = require('./creditos');
 
-const CUSTO_LEAD_DIA = 10;
+const CUSTO_LEAD_DIA = CUSTO.lead_ativo_dia;
 
 async function debitarLeadsAtivos() {
   try {

@@ -62,12 +62,20 @@ Jane: JAN-MGF9 (~1.700 imóveis) | Mauricio: MAU-EHAM (~432) | Alexandre: ALE-DU
 - [ ] Captação: badge/botões do topo da linha da lead ainda usam campo morto `imovelCaptadoId` — trocar fonte pra `l.imoveisRelacionados[0]`
 - [ ] Toggle vitrineApenasPropriosImoveis: já tentado 2x, quebrou envio de vitrine WA, revertido — permanece pendente
 
+## Bugs encontrados (auditoria jul/2026) — confirmados, aguardando correção
+- **`GET /app/notificacoes` mostra vazio/desatualizado**: `services/salvarNotificacao.js` → `lerNotificacoes()` faz `SELECT ... ORDER BY criado_em` mas a coluna real da tabela (criada por `setupDB.js`, que roda no boot) é `criada_em`. A query PG falha, cai no catch, e o fallback silencioso lê `notificacoes.json` (arquivo local, desatualizado/vazio) em vez do banco. O `criarNotificacao()` (INSERT) usa `criada_em` corretamente — só a leitura está quebrada. Fix: trocar `criado_em`→`criada_em` nas 2 ocorrências de `SELECT`/`ORDER BY` em `lerNotificacoes()`.
+- **Webhook Mercado Pago sem proteção contra replay** (`POST /webhook/mercadopago`, server.js ~7026): credita `adicionarCreditos()` toda vez que recebe evento `payment` aprovado, sem checar se aquele `data.id` já foi processado. MP reenvia webhook (retry/duplicata é comportamento normal deles) — usuário pode ser creditado 2x pelo mesmo pagamento. Fix: guardar `payment.id` processado (tabela ou coluna) e checar antes de creditar.
+- **`match_coins_total` nunca atualiza após o cadastro do usuário**: mesma causa raiz do bug já corrigido em `jobCreditos.js` (upsert de `salvarUsuario()` exclui a coluna do UPDATE). `adicionarCreditos()` em `creditos.js` incrementa `matchCoinsTotal` em memória mas o UPDATE direto no PG só grava `match_coins`. Efeito: % de saldo baixo usado nos alertas fica cada vez mais impreciso conforme o usuário recarrega. Fix: incluir `match_coins_total` no mesmo UPDATE direto que já existe pro `match_coins`.
+- **Segundo sistema de notificação com colunas que talvez não existam**: `services/notificacoes/criarNotificacao.js` (usado só por `services/workflow/atualizarWorkflowVisita.js`) grava/lê colunas (`prioridade`,`status`,`acao`,`link`,`created_at`) que não estão na `CREATE TABLE notificacoes` de `setupDB.js` — não confirmado contra o banco de produção (sem acesso a partir daqui), mas se as colunas não existem, toda notificação de transição de workflow de visita falha silenciosamente. Verificar contra o banco real (`\d notificacoes`) antes de mexer.
+- **Confirmado, sem ação necessária**: `services/matcher.js` tem bug de sintaxe (chave sobrando) mas não é importado em lugar nenhum — código morto de fato.
+
 ## Bugs recentes corrigidos (referência — não repetir a causa)
 - Email de nova lead/captação não disparava: checagem de "lead já existia" rodava depois do INSERT, sempre achava a própria lead — movida pra antes do INSERT
 - Índice único `idx_imoveis_externo_user (id_externo, user_id)` bloqueava 2º imóvel manual (id_externo vazio tratado como duplicata) — recriado como índice parcial `WHERE id_externo IS NOT NULL AND id_externo != ''`
 - Busca por ID em /app/imoveis era só client-side (não achava fora da página atual) — Enter agora navega usando busca server-side
 - Filtros de /app/imoveis (tipo, valor, quartos etc.) eram só client-side — estendidos pro servidor via query string
 - ILIKE com placeholder posicional sem `$` (`ILIKE 2` em vez de `ILIKE $2`) no matching de captação por telefone/email
+- `jobCreditos.js`: custo hardcoded em 10/dia (divergente do `lead_ativo_dia=0.2`) — agora importa `CUSTO.lead_ativo_dia` de `creditos.js`; e o débito nunca persistia no PG (upsert de `salvarUsuario()` exclui `match_coins` do SET) — adicionado `UPDATE` direto
 
 ## Padrão de comunicação do usuário (Renato)
 - Português, direto, abreviado, às vezes com typos

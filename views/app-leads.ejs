@@ -312,6 +312,10 @@ leads.forEach(item => {
     </div>
     <% } %>
 
+    <% if(item.idAnuncio){ %>
+    <a href="/app/imovel/<%= item.idAnuncio %>" target="_blank" style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#fff7ed;color:#c2410c;text-decoration:none;margin-bottom:4px">🏠 Ver imóvel de referência</a>
+    <% } %>
+
 
     <div style="font-size:10px;color:#d1d5db;display:flex;gap:8px;margin-bottom:4px">
       <% if(item.criadoEm||item.data_cadastro){ %><span>📅 <%= new Date(item.criadoEm||item.data_cadastro).toLocaleDateString('pt-BR') %></span><% } %>

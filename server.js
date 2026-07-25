@@ -2118,6 +2118,28 @@ function marcarEtapaLead(lead, etapa){
   else lead.jornada.push({ etapa, feito:true, data:new Date().toISOString() });
 }
 
+// Acumula (sem duplicar) os imóveis que a lead clicou "Gostei" — usado tanto
+// pela vitrine (/cliente/oferta) quanto pela página pública do imóvel (/imovel/:id)
+function _registrarGostei(lead, imovelObj) {
+  if (!imovelObj) return;
+  const chave = String(imovelObj.idExterno || imovelObj.idInterno || imovelObj.id || '');
+  if (!chave) return;
+  if (!lead.imoveisGostei) lead.imoveisGostei = [];
+  const jaTem = lead.imoveisGostei.some(g => String(g.idExterno||g.idInterno||g.id||'') === chave);
+  if (jaTem) return;
+  lead.imoveisGostei.push({
+    id: imovelObj.id || imovelObj.idInterno || imovelObj.idExterno || '',
+    idExterno: imovelObj.idExterno || '',
+    idInterno: imovelObj.idInterno || '',
+    titulo: imovelObj.titulo || imovelObj.tipo || 'Imóvel',
+    bairro: imovelObj.bairro || '',
+    cidade: imovelObj.cidade || '',
+    valor_imovel: imovelObj.valor_imovel || imovelObj.valor || 0,
+    foto: (imovelObj.fotos && imovelObj.fotos[0]) || '',
+    clicadoEm: new Date().toISOString()
+  });
+}
+
 app.get('/cliente/oferta/:leadId', (req,res)=>{
   const leads = (_cacheLeads || []);
   const userIdOferta = req.query.userId || req.query.uid || '';
@@ -2170,8 +2192,28 @@ app.get('/cliente/oferta/:leadId/escolher/:idx', (req,res)=>{
   if(!lead) return res.status(404).send('Lead não encontrado');
   const idx = Number(req.params.idx);
   lead.imovelEscolhido = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
+  _registrarGostei(lead, lead.imovelEscolhido);
   salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   res.redirect('/cliente/oferta/'+req.params.leadId);
+});
+
+// "Gostei" clicado na página pública do imóvel (/imovel/:id) — usa o mesmo
+// acumulador da vitrine. imovelId aceita id/idExterno/idInterno/codigoImovel.
+app.get('/cliente/gostei/:leadId/:imovelId', (req,res)=>{
+  const leads = (_cacheLeads || []);
+  const lead = leads.find(l => String(l.id||l.leadId||'') === String(req.params.leadId));
+  if (lead) {
+    const pid = req.params.imovelId;
+    const imoveis = (_cacheImoveis || []);
+    let imovelObj = imoveis.find(i => String(i.idExterno)===pid || String(i.idInterno)===pid || String(i.id)===pid || String(i.codigoImovel)===pid);
+    if (!imovelObj) {
+      const todosMatches = [...(lead.matches||[]), ...(lead.matchesBase||[]), ...(lead.matchesAuto||[])];
+      imovelObj = todosMatches.find(m => String(m.idExterno)===pid || String(m.idInterno)===pid || String(m.id)===pid) || null;
+    }
+    _registrarGostei(lead, imovelObj);
+    salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+  }
+  res.redirect(req.query.voltar || ('/cliente/oferta/'+req.params.leadId));
 });
 
 app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
@@ -6180,7 +6222,7 @@ app.get('/imovel/:id', (req, res) => {
     }
     const _usuarioLogado = req.session && req.session.user ? req.session.user : null;
     const _compartilhador = (_uidLead && _uidLead !== _uid2) ? ((_cacheUsuarios||[]).find(u=>(u.id===_uidLead||u.codigoUsuario===_uidLead||u.codigo_usuario===_uidLead)) || null) : null;
-    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador });
+    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, leadId: _leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador });
   }
 
   // Busca nos matches do QuintoAndar
@@ -10130,6 +10172,7 @@ app.get('/cliente/oferta/:leadId/escolher/:idx', (req,res)=>{
   if(!lead) return res.status(404).send('Lead não encontrado');
   const idx = Number(req.params.idx);
   lead.imovelEscolhido = lead.matches && lead.matches[idx] ? lead.matches[idx] : null;
+  _registrarGostei(lead, lead.imovelEscolhido);
   salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
   res.redirect('/cliente/oferta/'+req.params.leadId);
 });

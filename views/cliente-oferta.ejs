@@ -100,7 +100,7 @@
       const foto = (m.fotos && m.fotos[0]) ? m.fotos[0] : null;
       const valor = m.valor_imovel || m.valor || 0;
       const valorFmt = valor ? 'R$ ' + Number(valor).toLocaleString('pt-BR') : '-';
-      const isEscolhido = lead.imovelEscolhido && lead.imovelEscolhido.idExterno === m.idExterno;
+      const isEscolhido = (lead.imoveisGostei||[]).some(g => String(g.idExterno||g.idInterno||g.id||'') === String(m.idExterno||m.idInterno||m.id||''));
       const isVisita = lead.imovelVisita && lead.imovelVisita.idExterno === m.idExterno;
     %>
     <div class="card <%= isVisita ? 'visitado' : '' %>">
@@ -132,7 +132,7 @@
         <div class="card-actions" style="flex-direction:column;gap:8px">
           <a href="/imovel/<%= m.idExterno || m.id_anuncio || m.id_anuncio_quintoandar || m.id %>?leadId=<%= lead.id || lead.leadId %><%= typeof queryUserId !== 'undefined' && queryUserId ? '&userId=' + queryUserId : '' %>" target="_blank" style="display:block;text-align:center;padding:11px;background:#f3f4f6;color:#111;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none">🔍 Ver detalhes do imóvel</a>
           <div style="display:flex;gap:8px">
-            <a href="/cliente/oferta/<%= lead.id || lead.leadId %>/escolher/<%= idx %><%= typeof queryUserId !== 'undefined' && queryUserId ? '?userId=' + queryUserId : '' %>" class="btn-like">❤️ Gostei</a>
+            <a href="/cliente/oferta/<%= lead.id || lead.leadId %>/escolher/<%= idx %><%= typeof queryUserId !== 'undefined' && queryUserId ? '?userId=' + queryUserId : '' %>" class="btn-like">❤️ Clique aqui - Gostei</a>
             <a href="#" onclick="abrirModalOferta(this)" class="btn-visit">📅 Quero visitar</a>
           </div>
         </div>

@@ -325,6 +325,23 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
     </div>
     <% } %>
 
+    <!-- Imóveis que o cliente curtiu (Gostei) -->
+    <% if((lead.imoveisGostei||[]).length) { %>
+    <div class="ld-card">
+      <div class="ld-title">❤️ Imóveis que o cliente curtiu (<%= lead.imoveisGostei.length %>)</div>
+      <% lead.imoveisGostei.forEach(g => { %>
+      <a href="/imovel/<%= g.idExterno||g.idInterno||g.id||'' %>?userId=<%= encodeURIComponent(lead.userId||lead.usuarioId||lead.corretorId||'') %>" target="_blank" class="match-card">
+        <% if(g.foto) { %><img class="match-foto" src="<%= g.foto %>" onerror="this.style.display='none'"><% } else { %><div class="match-ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div><% } %>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--dark)"><%= g.titulo||'Imóvel' %> · <%= g.bairro||'-' %></div>
+          <div style="font-size:11px;color:var(--text-sec);margin-top:2px"><%= g.cidade||'' %><% if(g.clicadoEm) { %> · <%= new Date(g.clicadoEm).toLocaleDateString('pt-BR') %><% } %></div>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--brand);white-space:nowrap">R$ <%= Number(g.valor_imovel||0).toLocaleString('pt-BR') %></div>
+      </a>
+      <% }) %>
+    </div>
+    <% } %>
+
     <!-- Timeline -->
     <div class="ld-card">
       <div class="ld-title">Timeline de eventos</div>

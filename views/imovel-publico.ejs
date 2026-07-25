@@ -167,7 +167,12 @@
         <a href="#" onclick="abrirModal(this.dataset.href);return false;" data-href="https://wa.me/55<%= _telContato %>?text=<%= encodeURIComponent('Olá! Gostaria de solicitar uma visita para o imóvel: ' + (imovel.titulo || imovel.tipo + ' em ' + imovel.bairro) + ' - R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR')) %>" class="btn-cta btn-visita">
           📅 Solicitar visita
         </a>
-        
+        <% if (temLeadId) { %>
+        <a href="/cliente/gostei/<%= leadId %>/<%= imovel.idExterno || imovel.idInterno || imovel.id %>?voltar=<%= encodeURIComponent('/imovel/' + (imovel.idExterno||imovel.idInterno||imovel.id) + '?leadId=' + leadId) %>" class="btn-cta" style="background:#f3f4f6;color:#111">
+          ❤️ Clique aqui - Gostei
+        </a>
+        <% } %>
+
         <div style="font-size:11px;color:#999;text-align:center;margin-top:8px">MatchImóveis · Consultoria Imobiliária</div>
       </div>
     </div>

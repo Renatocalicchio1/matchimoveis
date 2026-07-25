@@ -274,6 +274,10 @@ var hojeV=visitas.filter(function(v){
         <span class="vi-btn" style="background:#f0fdf4;color:#15803d;border-color:#86efac">✓ Parceiro confirmou</span>
         <% } %>
       <% } %>
+      <% if(v.leadId){ %>
+        <a href="/app/lead/<%=v.leadId%>" class="vi-btn vi-btn-gray">👤 Ver detalhes da lead</a>
+      <% } %>
+
       <% if(st!=='cancelada'&&st!=='CANCELADA'&&st!=='realizada'&&st!=='CONCLUIDA'){ %>
       <form method="POST" action="/app/visitas/cancelar/<%=v.id%>" style="margin:0">
         <button type="submit" class="vi-btn vi-btn-red" onclick="return confirm('Cancelar esta visita?')">X</button>

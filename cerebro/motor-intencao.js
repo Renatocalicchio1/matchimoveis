@@ -115,9 +115,9 @@ function matchPorMapa(lead, imoveis) {
       if (imovel.bairro !== leadBairro && !_bairrosProximos(imovel.bairro, leadBairro)) eliminado = true;
     }
 
-    // 6. VALOR — entre -30% e +20%
+    // 6. VALOR — entre -20% e +20%
     if (!eliminado && leadValorMax > 0 && imovel.preco > 0) {
-      const vmin = leadValorMax * 0.70; // -30%
+      const vmin = leadValorMax * 0.80; // -20%
       const vmax = leadValorMax * 1.20; // +20%
       if (imovel.preco > vmax || imovel.preco < vmin) eliminado = true;
     }
@@ -133,10 +133,10 @@ function matchPorMapa(lead, imoveis) {
       if (imovel.area < areaMin || imovel.area > areaMax) eliminado = true;
     }
 
-    // 7. QUARTOS >= pedido (nunca menos) — ignorado para terreno e comercial
+    // 7. QUARTOS exato — ignorado para terreno e comercial
     const leadQuartos = Number(mapa.quartos?.[0]?.valor || 0);
     if (!eliminado && leadQuartos > 0 && !_ehTerrenoMotor && !_ehComercialMotor) {
-      if (imovel.quartos < leadQuartos) eliminado = true;
+      if (imovel.quartos !== leadQuartos) eliminado = true;
     }
 
     // 8. SUÍTES >= pedido -1 (aceita 1 a menos) — ignorado para terreno e comercial
@@ -180,13 +180,10 @@ function matchPorMapa(lead, imoveis) {
       else if (diff <= 0.20) { pontos += 12; motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')}`); }
       else                   { pontos += 8;  motivos.push(`R$${imovel.preco.toLocaleString('pt-BR')}`); }
     }
-    // Quartos (15pts) — ignorado para terreno e comercial
+    // Quartos (15pts) — ignorado para terreno e comercial (critério eliminatório já garante exato)
     if (!_ehTerrenoMotor && !_ehComercialMotor) {
       maxPontos += 15;
-      if (leadQuartos > 0) {
-        if (imovel.quartos === leadQuartos) { pontos += 15; motivos.push(`${imovel.quartos}q ✓`); }
-        else { pontos += 8; motivos.push(`${imovel.quartos}q`); }
-      }
+      if (leadQuartos > 0) { pontos += 15; motivos.push(`${imovel.quartos}q ✓`); }
     }
     // Suítes (10pts) — ignorado para terreno e comercial
     if (!_ehTerrenoMotor && !_ehComercialMotor) {

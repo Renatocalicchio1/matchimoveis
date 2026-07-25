@@ -32,8 +32,8 @@ R$50 mínimo = 2.500 coins (R$1 = 50 coins). Sem limite de importação.
 
 ## Regras de match atuais
 - Critérios mínimos obrigatórios: tipo transação, tipo imóvel, estado, cidade, bairro, valor
-- Tolerância de valor: -30%/+20% (foi testado -15%/+10%, revertido a pedido do usuário)
-- Quartos: imóvel precisa ter igual ou mais quartos que o pedido (ignorado pra terreno/comercial)
+- Tolerância de valor: -20%/+20% (histórico: -30%/+20%, antes disso -15%/+10% testado e revertido — jul/2026 ajustado pra -20%/+20%)
+- Quartos: exato (histórico: aceitava igual ou mais que o pedido — jul/2026 mudado pra exigir exato)
 - Prioriza imóveis próprios do corretor antes dos da rede
 
 ## Leads

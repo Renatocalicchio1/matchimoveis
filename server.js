@@ -2137,9 +2137,9 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
 
   if(!lead) return res.status(404).send('Lead não encontrado');
 
-  lead.matches = (lead.matchesBase && lead.matchesBase.length ? lead.matchesBase : null) ||
+  lead.matches = ((lead.matchesBase && lead.matchesBase.length ? lead.matchesBase : null) ||
                (lead.matchesAuto && lead.matchesAuto.length ? lead.matchesAuto : null) ||
-               (lead.matches && lead.matches.length ? lead.matches : null) || [];
+               (lead.matches && lead.matches.length ? lead.matches : null) || []).slice(0, 9); // vitrine: máximo de 9 imóveis (já vêm ordenados por score)
   
   // Marca vitrine como visualizada
   const idxLead = leads.findIndex(l => String(l.id||l.leadId||'') === String(req.params.leadId));
@@ -10097,9 +10097,9 @@ app.get('/cliente/oferta/:leadId', (req,res)=>{
 
   if(!lead) return res.status(404).send('Lead não encontrado');
 
-  lead.matches = (lead.matchesBase && lead.matchesBase.length ? lead.matchesBase : null) ||
+  lead.matches = ((lead.matchesBase && lead.matchesBase.length ? lead.matchesBase : null) ||
                (lead.matchesAuto && lead.matchesAuto.length ? lead.matchesAuto : null) ||
-               (lead.matches && lead.matches.length ? lead.matches : null) || [];
+               (lead.matches && lead.matches.length ? lead.matches : null) || []).slice(0, 9); // vitrine: máximo de 9 imóveis (já vêm ordenados por score)
   
   // Marca vitrine como visualizada
   const idxLead = leads.findIndex(l => String(l.id||l.leadId||'') === String(req.params.leadId));

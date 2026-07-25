@@ -1464,6 +1464,9 @@ function spawnAsync(cmd, args, opts){
 }
 // Download de arquivos .xlsx gerados na raiz do app por scripts manuais
 // (ex: exportar-vitrines-enviadas.js) - protegido por login de admin.
+// OBS: o Render Shell roda numa instância separada da que serve o site,
+// então um arquivo gerado lá não fica visível aqui - preferir a rota
+// /admin/export-vitrines/:userId abaixo, que gera tudo na própria requisição.
 app.get('/admin/download-arquivo/:nome', authAdmin, (req, res) => {
   const nome = req.params.nome;
   if (!/^[\w.-]+\.xlsx$/.test(nome)) return res.status(400).send('Nome de arquivo inválido');
@@ -1472,6 +1475,62 @@ app.get('/admin/download-arquivo/:nome', authAdmin, (req, res) => {
     return res.status(404).send('Arquivo não encontrado');
   }
   res.download(caminho);
+});
+
+// Gera e baixa, na própria requisição (sem depender de arquivo em disco),
+// a planilha de leads com vitrine enviada de uma conta - mesma logica de
+// exportar-vitrines-enviadas.js e mesmas colunas do modelo de
+// /app/modelo-leads.xlsx.
+app.get('/admin/export-vitrines/:userId', authAdmin, async (req, res) => {
+  try {
+    const XLSX = require('xlsx');
+    const { query: _qExpVit } = require('./services/db');
+    const USER_ID = req.params.userId;
+
+    const { rows } = await _qExpVit(
+      `SELECT * FROM leads
+       WHERE (user_id=$1 OR codigo_usuario=$1)
+         AND vitrine_enviada = true
+         AND NOT (deletado_por @> to_jsonb($1::text))
+       ORDER BY vitrine_enviada_em DESC NULLS LAST, criado_em DESC`,
+      [USER_ID]
+    );
+
+    const linhas = rows.map(r => {
+      const perfil = r.perfil_ia || {};
+      const dados = r.dados || {};
+      return {
+        Nome: r.nome || '',
+        Telefone: r.telefone || r.whatsapp || r.contato || '',
+        Email: dados.email || '',
+        Origem: r.origem || '',
+        Tipo: perfil.tipo || '',
+        Transacao: perfil.intencao || '',
+        Condicao: perfil.condicao || '',
+        Bairro: perfil.bairro || '',
+        Cidade: perfil.cidade || '',
+        Estado: perfil.estado || '',
+        Quartos: perfil.quartos || '',
+        Suites: perfil.suites || '',
+        Vagas: perfil.vagas || '',
+        Banheiros: perfil.banheiros || '',
+        Area_max: perfil.area || '',
+        Valor_max: perfil.valorMax || '',
+        Observacoes: ''
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(linhas);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Leads');
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Disposition', `attachment; filename="vitrines-enviadas-${USER_ID}.xlsx"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buf);
+  } catch (e) {
+    res.status(500).send('Erro ao gerar planilha: ' + e.message);
+  }
 });
 
 app.get('/', (req,res)=>{

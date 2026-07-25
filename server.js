@@ -1462,6 +1462,18 @@ function spawnAsync(cmd, args, opts){
     p.on('error', reject);
   });
 }
+// Download de arquivos .xlsx gerados na raiz do app por scripts manuais
+// (ex: exportar-vitrines-enviadas.js) - protegido por login de admin.
+app.get('/admin/download-arquivo/:nome', authAdmin, (req, res) => {
+  const nome = req.params.nome;
+  if (!/^[\w.-]+\.xlsx$/.test(nome)) return res.status(400).send('Nome de arquivo inválido');
+  const caminho = path.join(__dirname, nome);
+  if (path.dirname(caminho) !== __dirname || !fs.existsSync(caminho)) {
+    return res.status(404).send('Arquivo não encontrado');
+  }
+  res.download(caminho);
+});
+
 app.get('/', (req,res)=>{
   if (req.session && req.session.user) {
     const ua = req.headers['user-agent'] || '';

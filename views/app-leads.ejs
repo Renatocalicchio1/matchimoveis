@@ -343,7 +343,7 @@ leads.forEach(item => {
       <a href="/cliente/oferta/<%= item.leadId||item.id %>?userId=<%= encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'') %>" class="lb prim" target="_blank">Vitrine</a>
       <% } %>
       <% } %>
-      <a href="/app/lead/<%= item.id %>" class="lb dark lb-ver-pisca">Ver →</a>
+      <a href="/app/lead/<%= item.id %>" class="lb dark lb-ver-pisca">Ver detalhes da lead →</a>
       <% if(!item.tipoLead || item.tipoLead==='cliente'){ %>
       <button onclick="abrirClassificar('<%= item.id %>')" class="lb btn-classificar-flag" title="Classificar esta lead">🚩</button>
       <% } %>

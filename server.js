@@ -2912,7 +2912,8 @@ app.get('/app-home', auth, async (req,res)=>{
   const todasVisitas = await lerVisitas(req.session.user.id);
   const notificacoes = await lerNotificacoes(req.session.user);
   const imoveis = filtrarPorUsuario(todosImoveis, user);
-  const leadsArr = filtrarPorUsuario(Array.isArray(todosLeads) ? todosLeads : (todosLeads.results || []), user);
+  const leadsArr = filtrarPorUsuario(Array.isArray(todosLeads) ? todosLeads : (todosLeads.results || []), user)
+    .filter(l => !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length)));
   const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
     String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
     String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
@@ -5343,29 +5344,8 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         await _salvarLeadPG(novoLead);
         leadEncontrado = novoLead;
         console.log('[WEBHOOK WA] novo lead criado no PG:', telefone, '| id:', novoLead.id);
-        // notificação sino — novo lead (conta quantas vezes o mesmo número entrou)
-        try {
-          const { lerLeads: _llNotif } = require('./services/salvarLead');
-          const _todasLeads = await _llNotif();
-          const _vezesEntrou = _todasLeads.filter(l => {
-            const fone = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,'');
-            return fone.slice(-8) === telefone.slice(-8) && (l.userId||l.codigoUsuario) === _webhookUserId;
-          }).length;
-          const _titulo = _vezesEntrou > 1 ? 'Lead retornou (' + _vezesEntrou + 'ª vez)' : 'Novo lead chegou';
-          const _msg = _vezesEntrou > 1
-            ? (novoLead.nome||telefone) + ' entrou em contato novamente — é a ' + _vezesEntrou + 'ª vez que busca imóvel'
-            : (novoLead.nome||telefone) + ' entrou em contato via WhatsApp';
-          criarNotificacaoService({
-            id: Date.now().toString(),
-            tipo: 'novo_lead',
-            titulo: _titulo,
-            mensagem: _msg,
-            usuarioId: _webhookUserId,
-            leadId: novoLead.id,
-            lida: false,
-            criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
-          });
-        } catch(e) { console.error('[notif lead]', e.message); }
+        // Lead fica oculta (leadOculta:true) até gerar o 1º match — notificação
+        // de "novo lead" só é criada quando a lead é revelada (cerebro/match-core.js)
       } catch(e) {
         console.error('[WEBHOOK WA] erro ao criar lead no PG:', e.message);
         return;

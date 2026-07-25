@@ -13,11 +13,11 @@ async function lerNotificacoes(userId) {
     try {
       let sql, params;
       if (!userId) {
-        sql = `SELECT * FROM notificacoes ORDER BY criado_em DESC`;
+        sql = `SELECT * FROM notificacoes ORDER BY criada_em DESC`;
         params = [];
       } else {
         const uid = userId.id || userId;
-        sql = `SELECT * FROM notificacoes WHERE usuario_id=$1 ORDER BY criado_em DESC`;
+        sql = `SELECT * FROM notificacoes WHERE usuario_id=$1 ORDER BY criada_em DESC`;
         params = [uid];
       }
       const res = await query(sql, params);
@@ -25,7 +25,7 @@ async function lerNotificacoes(userId) {
         id: r.id, tipo: r.tipo, titulo: r.titulo, mensagem: r.mensagem,
         usuarioId: r.usuario_id, lida: r.lida,
         leadId: r.lead_id, imovelId: r.imovel_id, visitaId: r.visita_id,
-        criadaEm: r.criado_em, ...(r.dados || {})
+        criadaEm: r.criada_em, ...(r.dados || {})
       }));
     } catch(e) { console.error('[lerNotificacoes PG]', e.message); }
   }

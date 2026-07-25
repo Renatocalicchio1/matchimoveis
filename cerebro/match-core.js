@@ -677,6 +677,20 @@ class MatchCore {
             console.log('[MATCH CORE] lead revelada apos gerar match:', lead.id);
             (async () => {
               try {
+                const { criarNotificacao: _criarNotifRevela } = require('../services/salvarNotificacao');
+                const _uidRevelaNotif = lead.userId || lead.codigoUsuario || '';
+                await _criarNotifRevela({
+                  id: Date.now().toString(),
+                  tipo: 'novo_lead',
+                  titulo: 'Novo lead chegou',
+                  mensagem: (lead.nome||lead.telefone||'Lead') + ' entrou em contato via WhatsApp e já tem imóveis compatíveis',
+                  usuarioId: _uidRevelaNotif,
+                  leadId: lead.id,
+                  lida: false,
+                  criadaEm: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
+                });
+              } catch(e) { console.error('[MATCH CORE] erro notificacao ao revelar:', e.message); }
+              try {
                 const _dEmail = String.fromCharCode(36);
                 const { query: _qRev } = require('../services/db');
                 const _uidRev = lead.userId || lead.codigoUsuario || '';

@@ -24,7 +24,8 @@ async function debitarLeadsAtivos() {
       const ativos = leads.filter(l =>
         l.status !== 'arquivado' &&
         l.status !== 'fechado' &&
-        l.status !== 'perdido'
+        l.status !== 'perdido' &&
+        !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length))
       );
 
       if (ativos.length === 0) continue;
@@ -72,14 +73,32 @@ async function verificarAlertas() {
       const pct = Math.round((saldo / total) * 100);
 
       if (saldo === 0) {
-        await criarNotificacao(uid, 'conta_pausada',
-          '⛔ Seus créditos acabaram. Adicione créditos para reativar sua conta.', { pct });
+        await criarNotificacao({
+          id: Date.now().toString() + '_' + uid,
+          tipo: 'conta_pausada',
+          titulo: 'Conta pausada',
+          mensagem: '⛔ Seus créditos acabaram. Adicione créditos para reativar sua conta.',
+          usuarioId: uid, lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
+        });
       } else if (pct <= 10) {
-        await criarNotificacao(uid, 'creditos_criticos',
-          '🔴 Créditos quase zerados! Recarregue agora para não pausar sua conta.', { pct });
+        await criarNotificacao({
+          id: Date.now().toString() + '_' + uid,
+          tipo: 'creditos_criticos',
+          titulo: 'Créditos quase zerados',
+          mensagem: '🔴 Créditos quase zerados! Recarregue agora para não pausar sua conta.',
+          usuarioId: uid, lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
+        });
       } else if (pct <= 30) {
-        await criarNotificacao(uid, 'creditos_baixos',
-          '⚠️ Seus créditos estão acabando. Considere recarregar.', { pct });
+        await criarNotificacao({
+          id: Date.now().toString() + '_' + uid,
+          tipo: 'creditos_baixos',
+          titulo: 'Créditos acabando',
+          mensagem: '⚠️ Seus créditos estão acabando. Considere recarregar.',
+          usuarioId: uid, lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
+        });
       }
     }
   } catch(e) {

@@ -176,7 +176,7 @@ As seções abaixo documentam o estado real do código (server.js, services/, ce
 - `GET/POST /app/perfil` — dados do corretor
 - `POST /app/perfil/senha`, `/vitrine`, `/localizacao`, `/quintoandar` — sub-formulários (senha, config de vitrine, geolocalização do escritório, autorização QuintoAndar)
 - `GET /app/instagram/conectar`, `/callback`; `POST /desconectar`, `/postar` — fluxo OAuth "Instagram API with Instagram Login" (`graph.instagram.com`, sem Página do Facebook) + publicação de posts/stories de imóveis (integração adicionada recentemente, ver `services/instagram.js`)
-  - ⚠️ **Temporário**: enquanto o app aguarda aprovação da Meta, liberado só pra conta `REN-G9K6` (`_instagramLiberado()` em server.js, checado nas 4 rotas + escondido nas views `app-perfil.ejs`/`app-imoveis.ejs`) — remover a checagem quando aprovar
+  - Liberado pra todas as contas desde jul/2026 (a restrição temporária a `REN-G9K6`, usada enquanto o app aguardava aprovação da Meta, foi removida de server.js e das views `app-perfil.ejs`/`app-imoveis.ejs`)
 
 ### WhatsApp / Evolution API
 - `GET /app/whatsapp`, `/app/whatsapp/qrcode` (+ versão `_old_disabled`), `/app/whatsapp/status` — conexão da instância WhatsApp do corretor

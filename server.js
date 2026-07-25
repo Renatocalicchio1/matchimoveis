@@ -3443,15 +3443,7 @@ app.post('/app/perfil/vitrine', auth, async (req,res)=>{
   res.redirect('/app/perfil');
 });
 
-// Enquanto o app do Instagram não é aprovado pela Meta, a funcionalidade
-// fica visível só pra essa conta de teste.
-function _instagramLiberado(user) {
-  const uid = (user && (user.codigoUsuario || user.codigo_usuario || user.id)) || '';
-  return uid === 'REN-G9K6';
-}
-
 app.get('/app/instagram/conectar', auth, (req,res)=>{
-  if (!_instagramLiberado(req.session.user)) return res.redirect('/app/perfil');
   const { getAuthUrl } = require('./services/instagram');
   const crypto = require('crypto');
   const state = crypto.randomBytes(16).toString('hex');
@@ -3460,7 +3452,6 @@ app.get('/app/instagram/conectar', auth, (req,res)=>{
 });
 
 app.get('/app/instagram/callback', auth, async (req,res)=>{
-  if (!_instagramLiberado(req.session.user)) return res.redirect('/app/perfil');
   try {
     if (req.query.error) {
       return res.redirect('/app/perfil?err=' + encodeURIComponent('Autorização do Instagram cancelada.'));
@@ -3499,7 +3490,6 @@ app.get('/app/instagram/callback', auth, async (req,res)=>{
 });
 
 app.post('/app/instagram/desconectar', auth, async (req,res)=>{
-  if (!_instagramLiberado(req.session.user)) return res.redirect('/app/perfil');
   const { atualizarUsuario: _auInstaOff } = require('./services/salvarUsuario');
   const uid = String(req.session.user.id || '');
   const dadosInsta = { instagramToken: null, instagramContaId: null, instagramUsername: null };
@@ -3510,9 +3500,6 @@ app.post('/app/instagram/desconectar', auth, async (req,res)=>{
 });
 
 app.post('/app/instagram/postar', auth, async (req,res)=>{
-  if (!_instagramLiberado(req.session.user)) {
-    return res.status(403).json({ ok:false, erro: 'Funcionalidade ainda não liberada.' });
-  }
   try {
     const { publicarFeed, publicarStory, montarLegenda } = require('./services/instagram');
     const user = req.session.user;

@@ -243,11 +243,11 @@ text-align:center;
 margin-bottom:8px;
 padding:8px;
 border-radius:8px;
-background:#eef2ff;
-border:1px solid #c7d2fe;
+background:#fff1e8;
+border:1px solid #fff1e8;
 font-size:12px;
 font-weight:700;
-color:#4338ca;
+color:#b8460e;
 ">
 <%= v.pipelineStatus %>
 </div>
@@ -291,7 +291,7 @@ margin-top:10px;
 
 <% if(status === 'CONFIRMADA' || status === 'AGUARDANDO') { %>
 <form method="POST" action="/app/visitas/concluir/<%= v.id %>">
-<button type="submit" style="width:100%;background:#6366f1;color:white;border:none;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+<button type="submit" style="width:100%;background:#FC642D;color:white;border:none;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
 ✅ Realizada
 </button>
 </form>
@@ -319,7 +319,7 @@ cursor:pointer;
 type="submit"
 style="
 width:100%;
-background:#2563eb;
+background:#00847a;
 color:white;
 border:none;
 padding:8px;
@@ -373,7 +373,7 @@ cursor:pointer;
 type="submit"
 style="
 width:100%;
-background:#7c3aed;
+background:#FC642D;
 color:white;
 border:none;
 padding:8px;

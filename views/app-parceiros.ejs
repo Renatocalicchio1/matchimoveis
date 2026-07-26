@@ -52,7 +52,7 @@
     </div>
     <div style="display:flex;gap:10px;margin-top:10px">
       <% if (p.telefone) { %><a href="https://wa.me/55<%= p.telefone %>" target="_blank" style="font-size:11px;color:#16a34a;text-decoration:none;font-weight:500">📱 WhatsApp</a><% } %>
-      <a href="#" onclick="abrirCarteira('<%= p.id %>','<%= (p.nome||'').replace(/'/g, "\\'") %>');return false;" style="font-size:11px;color:#6366f1;text-decoration:none;font-weight:500">🏠 Ver carteira</a>
+      <a href="#" onclick="abrirCarteira('<%= p.id %>','<%= (p.nome||'').replace(/'/g, "\\'") %>');return false;" style="font-size:11px;color:#FC642D;text-decoration:none;font-weight:500">🏠 Ver carteira</a>
     </div>
   </div>
   <% }) %>

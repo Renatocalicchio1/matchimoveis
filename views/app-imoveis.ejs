@@ -47,7 +47,7 @@
 .im-stat{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:var(--bg);border:1px solid var(--border);color:var(--text-sec)}
 .im-stat.verde{background:#f0fdf4;color:#16a34a;border-color:#bbf7d0}
 .im-stat.vermelho{background:#fef2f2;color:#dc2626;border-color:#fecaca}
-.im-stat.azul{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}
+.im-stat.azul{background:#e6f7f5;color:#00847a;border-color:#99d9d1}
 
 .barra-sel{display:none;position:sticky;top:0;z-index:50;background:var(--dark);color:#fff;padding:12px 16px;border-radius:10px;margin-bottom:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .barra-portais{display:flex;gap:6px;flex-wrap:wrap}
@@ -55,7 +55,7 @@
 .portal-btn-sel:hover{background:rgba(255,255,255,.2)}
 .im-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .im-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:all .15s}
-.im-card:hover{border-color:#c4b5fd;box-shadow:var(--shadow-md)}
+.im-card:hover{border-color:#ffcbb5;box-shadow:var(--shadow-md)}
 .im-card.sel{border-color:#FF385C;box-shadow:0 0 0 2px #FF385C33}
 .im-img{position:relative;width:100%;height:130px;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .im-img img{width:100%;height:100%;object-fit:cover}
@@ -355,9 +355,9 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
     <!-- Body -->
     <div class="im-body" onclick="event.stopPropagation()">
       <span class="im-tipo"><%= item.tipo || 'Imóvel' %></span>
-      <% const _trans = (item.transacao||item.operacao||'').toLowerCase(); if(_trans==='aluguel'||_trans==='venda'){ %><span style="display:inline-block;background:<%= _trans==='aluguel'?'#2563eb':'#FF385C' %>;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px"><%= _trans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>
+      <% const _trans = (item.transacao||item.operacao||'').toLowerCase(); if(_trans==='aluguel'||_trans==='venda'){ %><span style="display:inline-block;background:<%= _trans==='aluguel'?'#00847a':'#FF385C' %>;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px"><%= _trans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>
       <% const _faseMapI = {pronto:'✅ Pronto',lancamento:'🚀 Lançamento',na_planta:'📐 Na planta',em_construcao:'🏗 Em construção',planta:'📐 Na planta',construcao:'🏗 Em construção'}; const _faseLabelI = _faseMapI[(item.fase||'').toLowerCase().replace(/\s/g,'_')]; %>
-      <% if(_faseLabelI){ %><span style="display:inline-block;background:#1D9E75;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px"><%=_faseLabelI%></span><% } %>
+      <% if(_faseLabelI){ %><span style="display:inline-block;background:#00A699;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px"><%=_faseLabelI%></span><% } %>
       <div class="im-valor">R$ <%= item.valor_imovel ? Number(item.valor_imovel).toLocaleString('pt-BR') : '—' %></div>
       <div class="im-end"><%= [item.bairro, item.cidade].filter(Boolean).join(', ') || '—' %></div>
       <div style="font-size:9px;color:var(--text-sec);margin-bottom:4px;display:flex;gap:6px;flex-wrap:wrap">

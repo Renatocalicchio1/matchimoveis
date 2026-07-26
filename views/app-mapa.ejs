@@ -3,7 +3,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 .tbtn{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
-.map-fab{position:absolute;right:14px;bottom:240px;width:52px;height:52px;border-radius:50%;background:#1D9E75;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;flex-direction:column;gap:1px;}
+.map-fab{position:absolute;right:14px;bottom:240px;width:52px;height:52px;border-radius:50%;background:#00A699;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:1000;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;flex-direction:column;gap:1px;}
 .map-fab-badge{position:absolute;top:-4px;right:-4px;background:#FF385C;color:#fff;font-size:10px;font-weight:700;border-radius:20px;padding:1px 5px;min-width:18px;text-align:center;display:none;}
 .map-drawer{position:absolute;right:12px;bottom:240px;width:260px;background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1001;overflow:hidden;max-height:50vh;display:none;flex-direction:column;}
 .map-panel-head{padding:12px 14px;border-bottom:1px solid #f3f4f6;font-size:12px;font-weight:600;color:#111;display:flex;align-items:center;justify-content:space-between;}
@@ -14,7 +14,7 @@
 }
 .vcard{padding:10px 14px;border-bottom:1px solid #f9fafb;border-left:3px solid transparent;cursor:pointer}
 .vcard:hover{background:#f9fafb}
-.vcard.proxima{border-left-color:#1D9E75;background:#f0fdf4}
+.vcard.proxima{border-left-color:#00A699;background:#f0fdf4}
 .vstatus{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin-bottom:4px}
 .eta-box{position:absolute;left:12px;bottom:20px;z-index:1000;background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.15);padding:10px 16px;display:flex;align-items:center;gap:12px}
 .leg{position:absolute;left:12px;top:62px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.1);font-size:11px}
@@ -31,16 +31,16 @@
 
 <div style="position:relative;margin:-20px;height:calc(100vh - 60px)">
   <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;border-radius:12px;padding:5px;box-shadow:0 2px 12px rgba(0,0,0,.12);display:flex;gap:4px">
-    <button class="tbtn" id="btn-visitas" onclick="toggle('visitas')" style="background:#1D9E75;color:#fff">📅 Visitas</button>
+    <button class="tbtn" id="btn-visitas" onclick="toggle('visitas')" style="background:#00A699;color:#fff">📅 Visitas</button>
     <button class="tbtn" id="btn-interesse" onclick="toggle('interesse')" style="background:#f3f4f6;color:#666">🔥 Interesse</button>
     <button class="tbtn" id="btn-leads" onclick="toggle('leads')" style="background:#f3f4f6;color:#666">👤 Leads</button>
   </div>
 
   <div class="leg" id="legenda">
-    <div class="leg-i"><div class="leg-d" style="background:#1D9E75"></div>Confirmada</div>
+    <div class="leg-i"><div class="leg-d" style="background:#00A699"></div>Confirmada</div>
     <div class="leg-i"><div class="leg-d" style="background:#f59e0b"></div>Solicitada</div>
     <div class="leg-i"><div class="leg-d" style="background:#ef4444"></div>Interesse quente</div>
-    <div class="leg-i"><div class="leg-d" style="background:#6366f1"></div>Sem match</div>
+    <div class="leg-i"><div class="leg-d" style="background:#FC642D"></div>Sem match</div>
     <div class="leg-i" style="margin-bottom:0"><div class="leg-d" style="background:#94a3b8"></div>Lead frio</div>
   </div>
 
@@ -58,11 +58,11 @@
   </div>
 
   <div class="eta-box" id="etaBox" style="display:none">
-    <div style="font-size:26px;font-weight:600;color:#1D9E75;line-height:1" id="etaMin">--</div>
+    <div style="font-size:26px;font-weight:600;color:#00A699;line-height:1" id="etaMin">--</div>
     <div>
       <div style="font-size:12px;font-weight:600;color:#111" id="etaNome">--</div>
       <div style="font-size:11px;color:#888" id="etaEnd">--</div>
-      <div style="font-size:10px;color:#1D9E75;margin-top:2px">Próxima visita</div>
+      <div style="font-size:10px;color:#00A699;margin-top:2px">Próxima visita</div>
     </div>
   </div>
 
@@ -119,7 +119,7 @@ if(navigator.geolocation){
         });
     }
     if(window._pinVoce){ _map.removeLayer(window._pinVoce); }
-    window._pinVoce = L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#1D9E75',null,true)})
+    window._pinVoce = L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#00A699',null,true)})
       .addTo(_map).bindPopup('<div style="padding:8px"><b>Você está aqui</b><br><small style="color:#888">Posição em tempo real</small></div>');
   };
   const _onErr = () => { /* sem permissão — mantém coords salvas/fallback */ };
@@ -142,7 +142,7 @@ st.textContent = '@keyframes pulse{0%,100%{transform:scale(1);opacity:.2}50%{tra
 document.head.appendChild(st);
 
 // Pin corretor — pulsa
-window._pinVoce = L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#1D9E75',null,true)}).addTo(_map).bindPopup('<div style="padding:8px"><b>Você está aqui</b><br><small style="color:#888">Posição atual</small></div>');
+window._pinVoce = L.marker([_uLat,_uLng],{zIndexOffset:2000,icon:_pin('📍','#00A699',null,true)}).addTo(_map).bindPopup('<div style="padding:8px"><b>Você está aqui</b><br><small style="color:#888">Posição atual</small></div>');
 
 const _layers = {visitas:L.layerGroup(),interesse:L.layerGroup(),leads:L.layerGroup()};
 const _ativos = {visitas:true,interesse:false,leads:false};
@@ -167,7 +167,7 @@ _visitas.forEach((v,i) => {
     lat = base.lat + off.dlat; lng = base.lng + off.dlng;
   }
   const confirmada = v.status === 'confirmada';
-  const cor = confirmada ? '#1D9E75' : '#f59e0b';
+  const cor = confirmada ? '#00A699' : '#f59e0b';
   const isAmanha = v.dataVisita && v.dataVisita !== _hoje;
   const mk = L.marker([lat,lng],{icon:_pin('📅',cor,i+1,false),zIndexOffset:900});
   mk.bindPopup(`<div style="padding:8px;min-width:220px">
@@ -176,14 +176,14 @@ _visitas.forEach((v,i) => {
     <div style="font-size:11px;color:#888">${v.imovelBairro||''} ${v.imovelCidade?'· '+v.imovelCidade:''}</div>
     <div style="font-size:12px;margin-top:6px"><b>Lead:</b> ${v.nome||v.leadNome||v.telefone||'-'}</div>
     <div style="margin-top:6px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:${cor}20;color:${cor}">${v.status}</div>
-    ${v.parceiro?`<div style="font-size:11px;margin-top:4px;color:#6366f1">Parceiro: ${v.parceiro}</div>`:''}
+    ${v.parceiro?`<div style="font-size:11px;margin-top:4px;color:#FC642D">Parceiro: ${v.parceiro}</div>`:''}
   </div>`,{maxWidth:280});
   _layers.visitas.addLayer(mk);
 });
 
 // INTERESSE DE LEADS
 _imInt.forEach(im => {
-  const cor = im.leadTemp==='quente'?'#ef4444':im.leadTemp==='morno'?'#f59e0b':'#6366f1';
+  const cor = im.leadTemp==='quente'?'#ef4444':im.leadTemp==='morno'?'#f59e0b':'#FC642D';
   const mk = L.marker([im.lat,im.lng],{icon:_pin('🔥',cor,null,false),zIndexOffset:500});
   mk.bindPopup(`<div style="padding:8px;min-width:200px">
     <b>${im.titulo}</b>
@@ -202,13 +202,13 @@ _leads.forEach(l => {
   const key = _norm(l.cidade||'')+l.bairro;
   const off = _offset(key);
   const semMatch = l.matchCount === 0;
-  const cor = semMatch?'#6366f1':l.temperatura==='quente'?'#ef4444':l.temperatura==='morno'?'#f59e0b':'#94a3b8';
+  const cor = semMatch?'#FC642D':l.temperatura==='quente'?'#ef4444':l.temperatura==='morno'?'#f59e0b':'#94a3b8';
   const mk = L.marker([base.lat+off.dlat,base.lng+off.dlng],{icon:_pin(semMatch?'❓':'👤',cor,null,false)});
   mk.bindPopup(`<div style="padding:8px;min-width:180px">
     <b>${l.nome||l.telefone}</b>
     <div style="font-size:12px;color:#666;margin:4px 0">${l.bairro?l.bairro+' · ':''}${l.cidade}</div>
     <div style="font-size:12px">Score: <b>${l.score}</b> · ${l.matchCount} matches</div>
-    ${semMatch?'<div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:#ede9fe;color:#6366f1">Sem match ainda</div>':''}
+    ${semMatch?'<div style="margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block;font-size:10px;font-weight:600;background:#ede9fe;color:#FC642D">Sem match ainda</div>':''}
   </div>`,{maxWidth:220});
   _layers.leads.addLayer(mk);
 });
@@ -218,9 +218,9 @@ if(_proxima) {
   const imV = _imVisita.find(im => im.visita && im.visita.id === _proxima.id);
   const dest = imV ? {lat:imV.lat,lng:imV.lng} : _coords(_proxima.imovelBairro||'', _proxima.imovelCidade||'Itajaí');
   if(dest) {
-    L.polyline([[_uLat,_uLng],[dest.lat,dest.lng]],{color:'#1D9E75',weight:4,dashArray:'10,6',opacity:.85}).addTo(_map);
+    L.polyline([[_uLat,_uLng],[dest.lat,dest.lng]],{color:'#00A699',weight:4,dashArray:'10,6',opacity:.85}).addTo(_map);
     // Seta no destino
-    L.marker([dest.lat,dest.lng],{icon:L.divIcon({className:'',html:'<div style="background:#1D9E75;color:#fff;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 3px 12px rgba(0,0,0,.3);border:3px solid #fff">🏠</div>',iconSize:[44,44],iconAnchor:[22,22]}),zIndexOffset:1500}).addTo(_map);
+    L.marker([dest.lat,dest.lng],{icon:L.divIcon({className:'',html:'<div style="background:#00A699;color:#fff;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 3px 12px rgba(0,0,0,.3);border:3px solid #fff">🏠</div>',iconSize:[44,44],iconAnchor:[22,22]}),zIndexOffset:1500}).addTo(_map);
     const R=6371, dLat=(dest.lat-_uLat)*Math.PI/180, dLng=(dest.lng-_uLng)*Math.PI/180;
     const a=Math.sin(dLat/2)**2+Math.cos(_uLat*Math.PI/180)*Math.cos(dest.lat*Math.PI/180)*Math.sin(dLng/2)**2;
     const dist=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
@@ -238,19 +238,19 @@ if(_visitas.length>0){const b=document.getElementById('agendaBadge');b.style.dis
 document.getElementById('listaVisitas').innerHTML = _visitas.length
   ? _visitas.map((v,i) => {
     const proxima = _proxima && _proxima.id===v.id;
-    const cor = v.status==='confirmada'?'#1D9E75':'#f59e0b';
+    const cor = v.status==='confirmada'?'#00A699':'#f59e0b';
     const isAmanha = v.dataVisita && v.dataVisita !== _hoje;
     return `<div class="vcard${proxima?' proxima':''}">
       <div class="vstatus" style="background:${cor}20;color:${cor}">${v.status}</div>
       <div style="font-size:12px;font-weight:600;color:#111">${v.nome||v.leadNome||v.telefone||'Lead'}</div>
       <div style="font-size:11px;color:#888;margin-top:2px">${isAmanha?'Amanhã ':''}${v.horaVisita||''}${v.imovelBairro?' · '+v.imovelBairro:''}</div>
-      ${proxima?'<div style="font-size:10px;color:#1D9E75;font-weight:600;margin-top:3px">Próxima → rota ativa</div>':''}
+      ${proxima?'<div style="font-size:10px;color:#00A699;font-weight:600;margin-top:3px">Próxima → rota ativa</div>':''}
     </div>`;
   }).join('')
   : '<div style="padding:16px;text-align:center;font-size:12px;color:#888">Nenhuma visita agendada</div>';
 
 // Toggle
-const _cores={visitas:'#1D9E75',interesse:'#ef4444',leads:'#6366f1'};
+const _cores={visitas:'#00A699',interesse:'#ef4444',leads:'#FC642D'};
 function toggleAgendaDrawer(){
   const d=document.getElementById('painelVisitas');
   const open=d.style.display==='flex';

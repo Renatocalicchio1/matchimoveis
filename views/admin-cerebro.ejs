@@ -29,7 +29,7 @@ header .badge{background:#FF385C;color:#fff;font-size:11px;padding:2px 8px;borde
 .btn:hover{background:#f9f9f7}
 .btn-ok{background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
 .btn-err{background:#fef2f2;color:#dc2626;border-color:#fecaca}
-.btn-edit{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.btn-edit{background:#e6f7f5;color:#00695c;border-color:#99d9d1}
 .btn-del{background:#fef2f2;color:#dc2626;border-color:#fecaca}
 .btn-save{background:#FF385C;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}
@@ -199,10 +199,10 @@ function renderLista() {
         '<div class="item-p">"' + (item.p||'') + '"</div>' +
         '<div class="item-r">' + (item.r||'') + '</div>' +
         variacoes +
-        '<div id="tr-'+idx+'" style="display:none;margin-top:8px;padding:8px;background:#eff6ff;border-radius:8px;font-size:12px;color:#374151;line-height:1.5"></div>' +
+        '<div id="tr-'+idx+'" style="display:none;margin-top:8px;padding:8px;background:#e6f7f5;border-radius:8px;font-size:12px;color:#374151;line-height:1.5"></div>' +
       '</div>' +
       '<div class="item-actions">' +
-        '<button class="btn" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;font-size:11px" onclick="testarItem('+idx+', this)">▶ Testar</button>' +
+        '<button class="btn" style="background:#e6f7f5;color:#00695c;border-color:#99d9d1;font-size:11px" onclick="testarItem('+idx+', this)">▶ Testar</button>' +
         '<button class="btn btn-edit" style="font-size:11px" onclick="abrirModal('+idx+')">✎ Editar</button>' +
         '<button class="btn btn-del" style="font-size:11px" onclick="deletar('+idx+')">🗑</button>' +
       '</div>' +
@@ -259,7 +259,7 @@ async function testar(pergunta, btn) {
     });
     const json = await res.json();
     resultDiv.style.display = 'block';
-    resultDiv.innerHTML = '<strong style="color:#1d4ed8">Resposta do assistente:</strong><br>' + 
+    resultDiv.innerHTML = '<strong style="color:#00695c">Resposta do assistente:</strong><br>' + 
       (json.resposta || json.erro || 'Sem resposta').replace(/<[^>]+>/g,'').slice(0,300);
   } catch(e) {
     resultDiv.style.display = 'block';
@@ -283,7 +283,7 @@ async function testarItem(idx, btn) {
     });
     const json = await res.json();
     div.style.display = 'block';
-    div.innerHTML = '<strong style="color:#1d4ed8">Resposta:</strong> ' + 
+    div.innerHTML = '<strong style="color:#00695c">Resposta:</strong> ' + 
       (json.resposta||json.erro||'Sem resposta').replace(/<[^>]+>/g,'').slice(0,300);
   } catch(e) {
     div.style.display = 'block';
@@ -503,7 +503,7 @@ async function testarRevisao() {
     });
     const json = await res.json();
     div.style.display = 'block';
-    div.innerHTML = '<strong style="color:#1d4ed8">Resposta ao vivo:</strong><br>' + 
+    div.innerHTML = '<strong style="color:#00695c">Resposta ao vivo:</strong><br>' + 
       (json.resposta||'').replace(/<[^>]+>/g,'').slice(0,400);
   } catch(e) {
     div.style.display = 'block';
@@ -543,7 +543,7 @@ function fecharRevisao() {
       </div>
       <textarea id="rev-edit" style="width:100%;padding:10px;border:1px solid #FF385C;border-radius:8px;font-size:13px;min-height:80px;font-family:inherit;margin-bottom:12px;resize:vertical" placeholder="Edite a resposta correta aqui..."></textarea>
       
-      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center"><button class="btn" onclick="if(idxRevisao>0){idxRevisao--;mostrarRevisao()}">← Anterior</button><button class="btn" onclick="idxRevisao++;mostrarRevisao()" style="background:#111827;color:#fff;border-color:#111827">Próximo →</button><button class="btn" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe" onclick="testarRevisao()">▶ Testar</button><button class="btn" onclick="fecharRevisao()" style="margin-left:auto">✕ Fechar</button></div><div id="rev-modo-normal">
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center"><button class="btn" onclick="if(idxRevisao>0){idxRevisao--;mostrarRevisao()}">← Anterior</button><button class="btn" onclick="idxRevisao++;mostrarRevisao()" style="background:#111827;color:#fff;border-color:#111827">Próximo →</button><button class="btn" style="background:#e6f7f5;color:#00695c;border-color:#99d9d1" onclick="testarRevisao()">▶ Testar</button><button class="btn" onclick="fecharRevisao()" style="margin-left:auto">✕ Fechar</button></div><div id="rev-modo-normal">
         <div style="display:flex;gap:8px">
           <button class="btn-ok" style="flex:1;padding:12px" onclick="avaliarRevisao('ok')">✅ Correto</button>
           <button class="btn-err" style="flex:1;padding:12px" onclick="avaliarRevisao('erro')">✏️ Editar</button>

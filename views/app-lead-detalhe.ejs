@@ -26,7 +26,7 @@
 .perfil-item-lbl{font-size:10px;color:var(--text-ter);margin-bottom:2px}
 .perfil-item-val{font-size:13px;font-weight:600;color:var(--dark)}
 .perfil-input{font-size:13px;font-weight:600;color:var(--dark);background:transparent;border:none;border-bottom:1.5px solid #e5e7eb;outline:none;width:100%;padding:2px 0;border-radius:0;transition:border-color .2s}
-.perfil-input:focus{border-bottom-color:#7c3aed}
+.perfil-input:focus{border-bottom-color:#FC642D}
 .perfil-input[type=number]{-moz-appearance:textfield}
 .perfil-input select{font-size:13px}
 .copiloto{border-radius:var(--radius);padding:16px;margin-bottom:14px}
@@ -100,7 +100,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <% if(_p.tipo||_p.quartos||_p.bairro||_p.valorMax) { %>
       <div style="background:var(--white);border-radius:8px;padding:8px 12px;margin-bottom:10px;border:1px solid <%=_tbor%>;display:flex;flex-wrap:wrap;gap:5px;align-items:center">
         <span style="font-size:10px;font-weight:600;color:var(--text-ter)">Perfil:</span>
-        <% if(_p.intencao){%><span class="tag-pill" style="background:#eff6ff;color:#1d4ed8"><%=_p.intencao%></span><%}%>
+        <% if(_p.intencao){%><span class="tag-pill" style="background:#e6f7f5;color:#00695c"><%=_p.intencao%></span><%}%>
         <% if(_p.tipo){%><span class="tag-pill" style="background:var(--bg);color:var(--text)"><%=_p.tipo%></span><%}%>
         <% if(_p.quartos){%><span class="tag-pill" style="background:var(--bg);color:var(--text)"><%=_p.quartos%>q</span><%}%>
         <% if(_p.bairro){%><span class="tag-pill" style="background:#f0fdf4;color:#15803d"><%=_p.bairro%></span><%}%>
@@ -114,7 +114,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
       <div style="display:flex;gap:8px;flex-wrap:wrap">
 
         <% if(_copAcoes.includes('visita')) { %>
-        <button onclick="abrirModalAgendarVisita()" style="background:#7c3aed;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;border:none;cursor:pointer">Agendar visita</button>
+        <button onclick="abrirModalAgendarVisita()" style="background:#FC642D;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;border:none;cursor:pointer">Agendar visita</button>
         <% } %>
         <% if(_copAcoes.includes('whatsapp')&&_fone) { %>
         <a href="https://wa.me/<%=_fone%>" target="_blank" style="background:var(--dark);color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none">WhatsApp</a>
@@ -131,7 +131,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
           <div style="font-size:16px;font-weight:600;color:var(--dark)"><%= lead.nome||'Lead sem nome' %></div>
           <div style="font-size:12px;color:var(--text-sec);margin-top:2px"><%= [lead.contato||lead.telefone, lead.email].filter(Boolean).join(' · ') %></div>
           <div style="margin-top:4px">
-            <% if(lead.fonte){%><span class="tag-pill" style="background:#eff6ff;color:#2563eb"><%=lead.fonte%></span><%}%>
+            <% if(lead.fonte){%><span class="tag-pill" style="background:#e6f7f5;color:#00847a"><%=lead.fonte%></span><%}%>
             <% if(lead.canal){%><span class="tag-pill" style="background:#f0fdf4;color:#16a34a"><%=lead.canal%></span><%}%>
             <% if(lead.origem){%><span class="tag-pill" style="background:var(--bg);color:var(--text-sec)"><%=String(lead.origem).replace(/_/g,' ')%></span><%}%>
             <% 
@@ -293,7 +293,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
           <div>
             <div style="font-size:12px;font-weight:600;color:var(--dark)"><%= m.tipo||'Imóvel' %> · <%= m.bairro||'-' %></div>
             <div style="font-size:11px;color:var(--text-sec);margin-top:2px"><%= [m.area_m2?m.area_m2+'m²':null, m.quartos?m.quartos+'q':null, m.vagas?m.vagas+'vg':null].filter(Boolean).join(' · ') %></div>
-            <% if(m.score){%><div style="font-size:10px;color:#7c3aed;font-weight:600;margin-top:2px">Score <%=m.score%></div><%}%>
+            <% if(m.score){%><div style="font-size:10px;color:#FC642D;font-weight:600;margin-top:2px">Score <%=m.score%></div><%}%>
           </div>
           <div style="font-size:13px;font-weight:700;color:var(--brand);white-space:nowrap">R$ <%= Number(m.valor_imovel||m.valor||0).toLocaleString('pt-BR') %></div>
         </a>
@@ -314,7 +314,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
         <div>
           <div style="font-size:12px;font-weight:600;color:var(--dark)"><%= m.tipo||'Imóvel' %> · <%= m.bairro||'' %></div>
           <div style="font-size:11px;color:var(--text-sec);margin-top:2px"><%= [m.area_m2?m.area_m2+'m²':null, m.quartos?m.quartos+'q':null, m.suites?m.suites+'st':null, m.vagas?m.vagas+'vg':null].filter(Boolean).join(' · ') %></div>
-          <% if(m.motivos&&m.motivos.length){%><div style="font-size:10px;color:#7c3aed;margin-top:2px"><%=m.motivos.slice(0,2).join(' · ')%></div><%}%>
+          <% if(m.motivos&&m.motivos.length){%><div style="font-size:10px;color:#FC642D;margin-top:2px"><%=m.motivos.slice(0,2).join(' · ')%></div><%}%>
         </div>
         <div style="text-align:right">
           <div style="font-size:12px;font-weight:700;color:var(--brand)">Score <%= m.score||0 %></div>
@@ -527,7 +527,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
           <p style="font-size:11px;color:#6b7280"><%= im.bairro||'' %><%= im.cidade?', '+im.cidade:'' %> · R$ <%= im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'—' %></p>
         </div>
         <span style="font-size:10px;padding:2px 6px;border-radius:10px;background:<%= im.status==='ativo'?'#f0fdf4':'#f9fafb' %>;color:<%= im.status==='ativo'?'#16a34a':'#6b7280' %>"><%= im.status %></span>
-        <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="font-size:11px;color:#2563eb;font-weight:600;text-decoration:none;margin-right:8px">Editar →</a>
+        <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="font-size:11px;color:#00847a;font-weight:600;text-decoration:none;margin-right:8px">Editar →</a>
         <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>" target="_blank" style="font-size:11px;color:#16a34a;font-weight:600;text-decoration:none">🔗 Link público</a>
       </div>
       <% }); %>
@@ -588,7 +588,7 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
     </div>
 
     <div style="display:flex;gap:8px">
-      <button onclick="confirmarAgendarVisita('<%= lead.id %>','<%= lead.nome||lead.telefone %>','<%= (lead.telefone||lead.whatsapp||'').replace(/\D/g,'') %>')" style="flex:1;padding:10px;border-radius:8px;background:#7c3aed;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer">Agendar</button>
+      <button onclick="confirmarAgendarVisita('<%= lead.id %>','<%= lead.nome||lead.telefone %>','<%= (lead.telefone||lead.whatsapp||'').replace(/\D/g,'') %>')" style="flex:1;padding:10px;border-radius:8px;background:#FC642D;color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer">Agendar</button>
       <button onclick="fecharModalAgendarVisita()" style="padding:10px 16px;border-radius:8px;background:#f9fafb;color:#6b7280;border:1px solid #e5e5e3;font-size:13px;cursor:pointer">Cancelar</button>
     </div>
   </div>

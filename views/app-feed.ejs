@@ -36,8 +36,8 @@ body{overscroll-behavior-y:contain;}
 .fp-ia{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
 .fp-ia-lbl{font-size:9px;color:var(--text-ter);display:flex;align-items:center;gap:3px;white-space:nowrap;}
 .fp-ia-bg{flex:1;height:4px;background:var(--border-light);border-radius:2px;overflow:hidden;}
-.fp-ia-fill{height:100%;background:#1D9E75;border-radius:2px;width:0;}
-.fp-ia-pct{font-size:10px;font-weight:700;color:#1D9E75;min-width:28px;text-align:right;}
+.fp-ia-fill{height:100%;background:#00A699;border-radius:2px;width:0;}
+.fp-ia-pct{font-size:10px;font-weight:700;color:#00A699;min-width:28px;text-align:right;}
 .fp-actions{display:flex;align-items:center;gap:14px;padding:0 0 2px;}
 .fp-btn{background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;transition:transform .1s;color:var(--dark);}
 .fp-btn:active{transform:scale(1.2);}
@@ -145,7 +145,7 @@ function _renderPost(im, idx) {
 
   const _faseMap = {pronto:'✅ Pronto',lancamento:'🚀 Lançamento',na_planta:'📐 Na planta',em_construcao:'🏗 Em construção',planta:'📐 Na planta',construcao:'🏗 Em construção'};
   const _faseLabel = _faseMap[(im.fase||'').toLowerCase().replace(/\s/g,'_')] || null;
-  const badgeFase = _faseLabel ? `<span style="position:absolute;top:10px;left:10px;z-index:6;background:#1D9E75;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;box-shadow:0 2px 6px rgba(0,0,0,.2)">${_faseLabel}</span>` : '';
+  const badgeFase = _faseLabel ? `<span style="position:absolute;top:10px;left:10px;z-index:6;background:#00A699;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;box-shadow:0 2px 6px rgba(0,0,0,.2)">${_faseLabel}</span>` : '';
   const badgeVideo = tourUrl ? `<a href="${tourUrl}" target="_blank" style="position:absolute;top:10px;right:48px;z-index:6;background:rgba(0,0,0,.7);color:#fff;font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;text-decoration:none;display:flex;align-items:center;gap:4px;backdrop-filter:blur(4px)">▶ Tour 360°</a>` : '';
   const badgeLeads = im._leadsCompativeis > 0
     ? `<div style="position:absolute;top:10px;left:10px;z-index:6;background:#E8404A;color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;box-shadow:0 2px 6px rgba(232,64,74,.4);display:flex;align-items:center;gap:4px">
@@ -181,7 +181,7 @@ function _renderPost(im, idx) {
   <div style="flex:1;min-width:0">
     <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:4px">
       <span class="fp-tipo">${im.tipo||'Imóvel'}</span>
-      ${(()=>{ const t=(im.transacao||im.operacao||'').toLowerCase(); return t==='aluguel'?'<span style="display:inline-block;background:#2563eb;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">ALUGUEL</span>':t==='venda'?'<span style="display:inline-block;background:#FF385C;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">VENDA</span>':''; })()}
+      ${(()=>{ const t=(im.transacao||im.operacao||'').toLowerCase(); return t==='aluguel'?'<span style="display:inline-block;background:#00847a;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">ALUGUEL</span>':t==='venda'?'<span style="display:inline-block;background:#FF385C;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px">VENDA</span>':''; })()}
       <span style="font-size:16px;font-weight:700;color:var(--dark)">${preco}</span>
       <span style="font-size:11px;color:var(--text-ter)">${addr}</span>
     </div>
@@ -310,7 +310,7 @@ function _initMaps(list) {
     const center = _uLat&&_uLng ? [(_uLat+iLat)/2,(_uLng+iLng)/2] : [iLat,iLng];
     const map = L.map(el,{zoomControl:false,attributionControl:false,dragging:true,scrollWheelZoom:true,doubleClickZoom:true,touchZoom:true}).setView(center,15);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
-    L.marker([iLat,iLng],{icon:L.divIcon({className:'',html:'<div style="background:#1D9E75;border:2px solid #fff;border-radius:50%;width:10px;height:10px;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[10,10],iconAnchor:[5,5]})}).addTo(map);
+    L.marker([iLat,iLng],{icon:L.divIcon({className:'',html:'<div style="background:#00A699;border:2px solid #fff;border-radius:50%;width:10px;height:10px;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[10,10],iconAnchor:[5,5]})}).addTo(map);
     if(_uLat&&_uLng){
       L.marker([_uLat,_uLng],{icon:L.divIcon({className:'',html:'<div style="background:#E8404A;border:2px solid #fff;border-radius:50%;width:9px;height:9px;box-shadow:0 1px 4px rgba(0,0,0,.3)"></div>',iconSize:[9,9],iconAnchor:[4,4]})}).addTo(map);
       L.polyline([[_uLat,_uLng],[iLat,iLng]],{color:'#E8404A',weight:1.5,dashArray:'4,3',opacity:.7}).addTo(map);

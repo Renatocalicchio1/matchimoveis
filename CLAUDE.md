@@ -53,6 +53,13 @@ R$50 mínimo = 2.500 coins (R$1 = 50 coins). Sem limite de importação.
 - AWS SES: domínio matchimoveis.online, produção liberada, ~118k contatos em /admin/campanha
 - Backup: GitHub Actions pg_dump horário + on push
 
+## Paleta de cores — padronização Airbnb (jul/2026)
+- Auditoria em todas as 57 views ativas (`views/*.ejs` + `views/partials/*.ejs`, excluindo os `*.backup-*.ejs` que são só histórico/ignorados): dezenas de tons de azul/índigo/violeta (Tailwind blue/indigo/violet — `#3b82f6`, `#2563eb`, `#1d4ed8`, `#6366f1`, `#4f46e5`, `#7c3aed`, `#8b5cf6` etc, ~130 ocorrências em 23 arquivos) usados como cor decorativa/categórica sem nenhum motivo — trocados por teal Babu `#00A699` (família azul) e laranja Arches `#FC642D` (família índigo/violeta), consistente com a paleta já usada no dashboard.
+- `#1D9E75` (um teal "quase certo" mas fora do padrão, usado em ~7 arquivos — mapa, feed reels, cards de imóvel) unificado pro teal oficial `#00A699`.
+- Mantidas como exceção justificada (não são "bagunça", representam a marca real de terceiros): azul da OLX em `app-portais.ejs` (`cores.olx`), magenta/roxo do Instagram no botão `.im-btn.instagram` de `app-imoveis.ejs`, verde do WhatsApp (`#25D366`), e o gradiente escuro decorativo de fundo em `feed-reels.ejs` (não é cor de marca, é só backdrop antes do vídeo carregar).
+- `mapa.ejs`: marcador/legenda "Venda" era azul (`#185FA5`), virou vermelho da marca `#FF385C`; "Aluguel" já era teal-based, mantido.
+- Não mexido: grays (`#6b7280`/`#9ca3af`/`#e5e7eb` etc — já é a mesma escala usada nas variáveis `--text-sec`/`--text-ter`/`--border` do `app-shell.ejs`) nem as cores semânticas de status (verde=sucesso, âmbar=aviso, vermelho=erro/crítico) — são papéis diferentes de "categórica decorativa" e universalmente entendidos, trocar tudo pra vermelho/teal/laranja reduziria clareza.
+
 ## Dashboard `/app-home` (refeito jul/2026)
 - Paleta Airbnb fixa (categórica, nunca ciclada): vermelho Rausch `#FF385C` (marca), teal Babu `#00A699`, laranja Arches `#FC642D` — validada contra CVD (script `validate_palette.js` do skill dataviz, PASS em modo claro). Cores de status (visitas por status) usam paleta semântica separada (verde/âmbar/vermelho), não a categórica.
 - Antes disso, o dashboard tinha 2 gráficos com **dado 100% inventado** hardcoded no JS ("Leads por canal" com números fixos tipo `[3,5,4,6,4,2,1]`, "Tipos de imóvel" com `tipoData=[45,25,12,8,6,4]`) — removidos. Todo gráfico agora usa campo real já calculado em `stats`/`locals` no route `/app-home` (server.js)

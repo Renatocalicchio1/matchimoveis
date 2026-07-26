@@ -10,7 +10,7 @@
 
   <div class="xml-list">
     <% const nomes = {olx:'OLX', zap:'ZAP Imóveis', vivareal:'VivaReal', chaves:'Chaves na Mão', imovelweb:'ImovelWeb', '123i':'123i'}; %>
-    <% const cores = {olx:'#0284c7', zap:'#ea580c', vivareal:'#7c3aed', chaves:'#059669', imovelweb:'#d97706', '123i':'#be185d'}; %>
+    <% const cores = {olx:'#0284c7', zap:'#ea580c', vivareal:'#FC642D', chaves:'#059669', imovelweb:'#d97706', '123i':'#be185d'}; %>
     <% xmlFeeds.filter(f => f.portal !== 'quintoandar').forEach(feed => { %>
       <div class="xml-item">
         <div style="display:flex;align-items:center;gap:12px">
@@ -25,11 +25,11 @@
               <div style="font-size:12px;color:#999;margin-top:2px">Nenhum XML gerado ainda</div>
             <% } %>
             <% if(['imovelweb','zap','vivareal','olx','chaves','123i'].includes(feed.portal)) { %>
-              <div style="margin-top:8px;padding:8px 10px;background:#f0f9ff;border:1px dashed #93c5fd;border-radius:8px">
-                <div style="font-size:11px;font-weight:600;color:#1d4ed8;margin-bottom:3px">🔗 URL para receber leads do portal</div>
+              <div style="margin-top:8px;padding:8px 10px;background:#f0f9ff;border:1px dashed #66c7ba;border-radius:8px">
+                <div style="font-size:11px;font-weight:600;color:#00695c;margin-bottom:3px">🔗 URL para receber leads do portal</div>
                 <% const _wh = ['zap','vivareal','olx'].includes(feed.portal) ? 'grupoolx' : feed.portal; %>
                 <div style="font-size:11px;color:#374151;word-break:break-all;font-family:monospace">https://matchimoveis.ia.br/webhook/<%= _wh %>/<%= user.id %></div>
-                <button onclick="copiarWebhook('https://matchimoveis.ia.br/webhook/<%= _wh %>/<%= user.id %>',this)" style="margin-top:5px;font-size:11px;padding:3px 10px;background:#1d4ed8;color:#fff;border:none;border-radius:5px;cursor:pointer">📋 Copiar</button>
+                <button onclick="copiarWebhook('https://matchimoveis.ia.br/webhook/<%= _wh %>/<%= user.id %>',this)" style="margin-top:5px;font-size:11px;padding:3px 10px;background:#00695c;color:#fff;border:none;border-radius:5px;cursor:pointer">📋 Copiar</button>
               </div>
             <% } %>
           </div>

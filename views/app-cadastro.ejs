@@ -95,7 +95,7 @@
             <div><strong style="color:var(--dark)">Imóveis:</strong> <%= feed.total || 0 %></div>
           </div>
           <div style="margin-top:8px;display:flex;gap:8px">
-            <button type="button" onclick="atualizarXML('<%= encodeURIComponent(feed.url) %>', this)" class="btn btn-sm" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe">🔄 Atualizar</button>
+            <button type="button" onclick="atualizarXML('<%= encodeURIComponent(feed.url) %>', this)" class="btn btn-sm" style="background:#e6f7f5;color:#00695c;border:1px solid #99d9d1">🔄 Atualizar</button>
             <button type="button" onclick="abrirModalExcluirXml('<%= encodeURIComponent(feed.url) %>')" class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Excluir XML</button>
           </div>
           <% }) %>

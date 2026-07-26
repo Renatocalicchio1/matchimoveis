@@ -12,22 +12,22 @@ body{font-family:-apple-system,sans-serif;background:#f5f5f5}
 .app{display:flex;height:100vh}
 .sidebar{width:320px;min-width:320px;background:#fff;border-right:1px solid #e8e8e8;display:flex;flex-direction:column}
 .logo{padding:14px 16px;font-size:18px;font-weight:600;border-bottom:1px solid #e8e8e8}
-.logo span{color:#1D9E75}
+.logo span{color:#00A699}
 .filtros{padding:10px 16px;display:flex;gap:6px;border-bottom:1px solid #e8e8e8}
 .chip{padding:5px 12px;font-size:12px;border-radius:20px;border:1px solid #ddd;background:#fafafa;color:#555;cursor:pointer}
-.chip.ativo{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.chip.ativo{background:#00A699;color:#fff;border-color:#00A699}
 .contador{padding:8px 16px;font-size:12px;color:#888;border-bottom:1px solid #f0f0f0}
-.contador strong{color:#1D9E75}
+.contador strong{color:#00A699}
 .feed{flex:1;overflow-y:auto}
 .card{padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;border-left:3px solid transparent}
 .card:hover{background:#f9fffe}
-.card.sel{background:#f0fdf8;border-left-color:#1D9E75}
+.card.sel{background:#f0fdf8;border-left-color:#00A699}
 .card-img{width:100%;height:80px;border-radius:8px;background:#e8f5f0;margin-bottom:8px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .card-img img{width:100%;height:100%;object-fit:cover;border-radius:8px}
-.badge{position:absolute;top:6px;right:6px;background:#1D9E75;color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px}
+.badge{position:absolute;top:6px;right:6px;background:#00A699;color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px}
 .tbadge{position:absolute;top:6px;left:6px;font-size:10px;font-weight:500;padding:2px 8px;border-radius:12px}
 .al{background:#e8f5f0;color:#0F6E56}
-.ve{background:#e8f0fb;color:#185FA5}
+.ve{background:#fff1f3;color:#FF385C}
 .preco{font-size:15px;font-weight:600;color:#111}
 .info{font-size:12px;color:#666;margin-top:2px}
 .det{font-size:12px;color:#888;margin-top:4px}
@@ -37,7 +37,7 @@ body{font-family:-apple-system,sans-serif;background:#f5f5f5}
 .mo{font-size:11px;color:#BA7517;font-weight:600}
 .tabs{display:flex;border-top:1px solid #e8e8e8}
 .tab{flex:1;padding:10px 4px;font-size:11px;text-align:center;color:#aaa;cursor:pointer}
-.tab.ativo{color:#1D9E75;font-weight:600;border-top:2px solid #1D9E75}
+.tab.ativo{color:#00A699;font-weight:600;border-top:2px solid #00A699}
 #mapa{flex:1}
 .legenda{position:absolute;bottom:30px;left:330px;z-index:1000;background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:10px 14px;font-size:12px;color:#555;box-shadow:0 2px 10px rgba(0,0,0,.1)}
 .lr{display:flex;align-items:center;gap:8px;margin-bottom:4px}
@@ -52,7 +52,7 @@ body{font-family:-apple-system,sans-serif;background:#f5f5f5}
 .psv{font-size:14px;font-weight:600;color:#111}
 .psl{font-size:10px;color:#aaa}
 .pm{display:inline-block;background:#e8f5f0;color:#0F6E56;font-size:12px;font-weight:600;padding:3px 10px;border-radius:12px;margin-top:8px}
-.pb{display:block;width:100%;margin-top:10px;padding:9px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none}
+.pb{display:block;width:100%;margin-top:10px;padding:9px;background:#00A699;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;text-align:center;text-decoration:none}
 .pb:hover{background:#0F6E56}
 </style>
 </head>
@@ -77,8 +77,8 @@ body{font-family:-apple-system,sans-serif;background:#f5f5f5}
 <div style="flex:1;position:relative">
   <div id="mapa"></div>
   <div class="legenda">
-    <div class="lr"><div class="lc" style="background:#1D9E75"></div>Aluguel</div>
-    <div class="lr"><div class="lc" style="background:#185FA5"></div>Venda</div>
+    <div class="lr"><div class="lc" style="background:#00A699"></div>Aluguel</div>
+    <div class="lr"><div class="lc" style="background:#FF385C"></div>Venda</div>
     <div class="lr"><div class="lc" style="background:#D85A30"></div>Você</div>
   </div>
 </div>
@@ -105,7 +105,7 @@ function render(lista){
     const match=mc();
     const preco=fp(im.preco||im.valor||im.ListPrice||0,im.transacao||im.tipo||'Aluguel');
     const isV=(im.tipo||im.TransactionType||'')===('Venda');
-    const cor=isV?'#185FA5':'#1D9E75';
+    const cor=isV?'#FF385C':'#00A699';
     const bairro=im.bairro||im.Bairro||im.City||'';
     const end=im.endereco||im.Address||'';
     const area=im.area||im.areaUtil||im.LivingArea||0;

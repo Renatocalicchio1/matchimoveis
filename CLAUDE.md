@@ -53,6 +53,11 @@ R$50 mínimo = 2.500 coins (R$1 = 50 coins). Sem limite de importação.
 - AWS SES: domínio matchimoveis.online, produção liberada, ~118k contatos em /admin/campanha
 - Backup: GitHub Actions pg_dump horário + on push
 
+## Onboarding inteligente (jul/2026)
+- `GET /api/onboarding/status` (server.js) — calcula ao vivo os 6 passos de onboarding a partir do estado real da conta: XML importado (`user.xmlUrl`), WhatsApp conectado (`whatsappStatus==='open'`), Instagram conectado (`instagramContaId`), cadastrou lead manual (`filtrarPorUsuario(leads)` com `origemEntrada==='manual'`), já conversou com o assistente (`historicoAssistente.length>0`), conheceu a área de perfil (flag `onboardingPerfilVisto`, setada na 1ª visita a `/app/perfil`, persistida em `dados` JSONB via `atualizarUsuario`)
+- Modal "Primeiros Passos" (`views/partials/app-shell.ejs`) consome esse endpoint via fetch em qualquer página — mostra só os passos pendentes (os concluídos somem da lista, não ficam só marcados) e um badge com a contagem de pendentes no botão do menu (desktop + mobile)
+- Substituiu 2 mecanismos antigos que não funcionavam: o modal estático anterior (4 passos, só texto informativo, sem checagem real) e um widget de progresso que já tinha sido construído mas ficou desativado (`if(false && ...)`) e só funcionaria certo em `/app/imoveis` (dependia de `totalImoveis`, variável que só essa rota passava pro render) — ambos removidos
+
 ## Usuários/contas de referência
 Jane: JAN-MGF9 (~1.700 imóveis) | Mauricio: MAU-EHAM (~432) | Alexandre: ALE-DU2K (~845, enriquecido via CADIMO/CADCLI) | Barros: BAR-GALN | Valdete: VAL-9PCH | Rodrigo: ROD-AFQ4
 

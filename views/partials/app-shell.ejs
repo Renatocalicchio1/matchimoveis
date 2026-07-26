@@ -275,7 +275,7 @@
   <!-- Nav slim -->
   <nav class="menu" style="padding:4px 6px;display:flex;flex-direction:column;gap:2px">
 
-    <a onclick="document.getElementById('modalPrimeirosPassos').style.display='flex'" href="#" title="Primeiros Passos" style="cursor:pointer">
+    <a class="onb-nav-link" onclick="onbAbrirModal()" href="#" title="Primeiros Passos" style="cursor:pointer;position:relative">
       <span class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span><span style="font-size:12px;font-weight:700;color:#111">Primeiros Passos</span>
     </a>
 
@@ -418,7 +418,7 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
       <span style="font-size:10px;color:#6b7280;font-weight:500;">Créditos</span>
     </a>
-    <a onclick="toggleMaisMenu();document.getElementById('modalPrimeirosPassos').style.display='flex'" href="#" style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:10px;background:#f8f8f7;text-decoration:none;">
+    <a class="onb-nav-link" onclick="toggleMaisMenu();onbAbrirModal()" href="#" style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:10px;background:#f8f8f7;text-decoration:none;position:relative">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span style="font-size:10px;color:#111;font-weight:700;">Primeiros Passos</span>
     </a>
@@ -457,135 +457,94 @@ function toggleMaisMenu(){
 
 </div>
 
-<!-- MODAL PRIMEIROS PASSOS -->
+<!-- MODAL PRIMEIROS PASSOS — onboarding inteligente, guiado pelo estado real da conta -->
 <div id="modalPrimeirosPassos" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)">
     <div style="padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between">
       <div>
         <div style="font-size:18px;font-weight:700;color:#111">🚀 Primeiros Passos</div>
-        <div style="font-size:12px;color:#6b7280;margin-top:2px">Siga esses 4 passos para começar a usar o MatchImóveis</div>
+        <div id="onb-subtitulo" style="font-size:12px;color:#6b7280;margin-top:2px">Carregando...</div>
       </div>
       <button onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:20px;line-height:1;padding:4px">✕</button>
     </div>
-    <div style="padding:20px 24px 24px;display:flex;flex-direction:column;gap:16px">
-
-      <!-- PASSO 1 -->
-      <div style="border:1px solid #e5e5e3;border-radius:12px;padding:16px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <div style="width:28px;height:28px;border-radius:50%;background:#FF385C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">1</div>
-          <div style="font-size:14px;font-weight:600;color:#111">Cadastre seus imóveis</div>
-        </div>
-        <div style="font-size:12px;color:#6b7280;line-height:1.6;margin-left:38px">
-          No <strong>menu esquerdo</strong>, clique em <strong>Imóveis</strong>. Você pode:<br>
-          • <strong>Cadastrar manualmente</strong> — preenche os dados de cada imóvel<br>
-          • <strong>Importar XML</strong> — sobe um arquivo XML do seu sistema
-        </div>
-        <div style="margin-left:38px;margin-top:10px">
-          <a href="/app/imoveis" onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="display:inline-flex;align-items:center;gap:4px;background:#111;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">Ir para Imóveis →</a>
-        </div>
-      </div>
-
-      <!-- PASSO 2 -->
-      <div style="border:1px solid #e5e5e3;border-radius:12px;padding:16px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <div style="width:28px;height:28px;border-radius:50%;background:#FF385C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">2</div>
-          <div style="font-size:14px;font-weight:600;color:#111">Configure seu perfil e WhatsApp</div>
-        </div>
-        <div style="font-size:12px;color:#6b7280;line-height:1.6;margin-left:38px">
-          No <strong>menu esquerdo</strong>, clique em <strong>Perfil</strong>:<br>
-          • Preencha seus dados (nome, telefone, região)<br>
-          • <strong>Conecte seu WhatsApp</strong> — escaneie o QR Code para capturar leads automaticamente<br>
-          • <strong>Ative sua localização</strong> — define sua área de atuação principal
-        </div>
-        <div style="margin-left:38px;margin-top:10px">
-          <a href="/app/perfil" onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="display:inline-flex;align-items:center;gap:4px;background:#111;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">Ir para Perfil →</a>
-        </div>
-      </div>
-
-      <!-- PASSO 3 -->
-      <div style="border:1px solid #e5e5e3;border-radius:12px;padding:16px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <div style="width:28px;height:28px;border-radius:50%;background:#FF385C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">3</div>
-          <div style="font-size:14px;font-weight:600;color:#111">Cadastre suas primeiras leads</div>
-        </div>
-        <div style="font-size:12px;color:#6b7280;line-height:1.6;margin-left:38px">
-          No <strong>menu esquerdo</strong>, clique em <strong>Leads</strong> e cadastre algumas leads manualmente para começar a gerar matches.<br><br>
-          Canais para receber leads:<br>
-          ✍️ <strong>Manual</strong> — cadastre diretamente no app<br>
-          📱 <strong>WhatsApp</strong> — mensagem recebida vira lead<br>
-          🏠 <strong>Página do imóvel</strong> — cliente clica "tenho interesse"<br>
-          🌐 <strong>Portais</strong> — integre seus portais imobiliários<br>
-          📊 <strong>Importação de planilha</strong> — baixe o modelo e suba sua lista<br><br>
-          <span style="color:#92400e;background:#fffbeb;border-radius:6px;padding:4px 8px;display:inline-block;border:1px solid #fcd34d">⚠️ Serão processadas <strong>30 leads por dia</strong> para não travar seu WhatsApp.</span>
-        </div>
-        <div style="margin-left:38px;margin-top:10px">
-          <a href="/app/leads" onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="display:inline-flex;align-items:center;gap:4px;background:#111;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">Ir para Leads →</a>
-        </div>
-      </div>
-
-      <!-- PASSO 4 -->
-      <div style="border:1px solid #fff1f3;border-radius:12px;padding:16px;background:#fffbfb">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <div style="width:28px;height:28px;border-radius:50%;background:#FF385C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">4</div>
-          <div style="font-size:14px;font-weight:600;color:#111">Parceria QuintoAndar 🏢</div>
-        </div>
-        <div style="font-size:12px;color:#6b7280;line-height:1.6;margin-left:38px">
-          No <strong>menu esquerdo</strong>, clique em <strong>Perfil</strong> e role até a seção <strong>QuintoAndar</strong>.<br><br>
-          Ao ativar, seus imóveis são enviados automaticamente para o XML global do QuintoAndar — aumentando sua visibilidade sem nenhum trabalho extra.<br><br>
-          <strong>Requisito:</strong> imóveis precisam ter CEP, endereço, nome e celular do proprietário.
-        </div>
-        <div style="margin-left:38px;margin-top:10px">
-          <a href="/app/perfil#secao-quintoandar" onclick="document.getElementById('modalPrimeirosPassos').style.display='none'" style="display:inline-flex;align-items:center;gap:4px;background:#FF385C;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">Ativar QuintoAndar →</a>
-        </div>
-      </div>
-
-    </div>
+    <div id="onb-lista" style="padding:20px 24px 24px;display:flex;flex-direction:column;gap:16px"></div>
   </div>
 </div>
 
-<%
-const _temPerfil = !!(user && user.nome && (user.celular || user.telefone));
-const _temWA = !!(user && user.whatsappStatus === 'open');
-const _temImoveis = typeof totalImoveis !== 'undefined' ? totalImoveis > 0 : false;
-const _onboardingCompleto = _temPerfil && _temWA && _temImoveis;
-const _passos = [
-  { key:'perfil', label:'Perfil', feito:_temPerfil, titulo:'Complete seu perfil', motivo:'Sem isso o sistema não sabe quem você é e não consegue personalizar as mensagens para seus clientes.', acao:'Completar perfil', link:'/app/perfil' },
-  { key:'whatsapp', label:'WhatsApp', feito:_temWA, titulo:'Conecte seu WhatsApp', motivo:'Sem isso leads não são capturadas, a vitrine não é enviada e as visitas não são confirmadas automaticamente.', acao:'Conectar agora', link:'/app/perfil#secao-whatsapp' },
-  { key:'imoveis', label:'Imóveis', feito:_temImoveis, titulo:'Adicione seus imóveis', motivo:'Sem imóveis o sistema não faz match e não tem o que mostrar na vitrine para seus clientes.', acao:'Adicionar imóveis', link:'/app/imoveis' }
-];
-const _prox = _passos.find(p => !p.feito);
-%>
+<script>
+(function(){
+  var _onbCache = null;
 
+  function onbRenderPasso(p, i){
+    return '<div style="border:1px solid #e5e5e3;border-radius:12px;padding:16px">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'
+      + '<div style="width:28px;height:28px;border-radius:50%;background:#FF385C;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">' + (i+1) + '</div>'
+      + '<div style="font-size:14px;font-weight:600;color:#111">' + p.label + '</div>'
+      + '</div>'
+      + '<div style="font-size:12px;color:#6b7280;line-height:1.6;margin-left:38px">' + p.desc + '</div>'
+      + '<div style="margin-left:38px;margin-top:10px">'
+      + '<a href="' + p.link + '" onclick="document.getElementById(\'modalPrimeirosPassos\').style.display=\'none\'" style="display:inline-flex;align-items:center;gap:4px;background:#111;color:#fff;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">' + p.acao + ' →</a>'
+      + '</div></div>';
+  }
 
-  
+  function onbRenderTudoPronto(){
+    return '<div style="text-align:center;padding:20px 0">'
+      + '<div style="font-size:36px;margin-bottom:8px">🎉</div>'
+      + '<div style="font-size:14px;font-weight:600;color:#111">Você já conhece tudo!</div>'
+      + '<div style="font-size:12px;color:#6b7280;margin-top:4px">Completou os primeiros passos do MatchImóveis.</div>'
+      + '</div>';
+  }
+
+  function onbAtualizarBotaoMenu(pendentes){
+    document.querySelectorAll('.onb-nav-link').forEach(function(el){
+      var badge = el.querySelector('.onb-badge');
+      if (pendentes > 0){
+        el.classList.add('_btn-primeiros-passos');
+        if (!badge){
+          badge = document.createElement('span');
+          badge.className = 'onb-badge nav-badge';
+          badge.style.position = 'absolute';
+          badge.style.top = '4px';
+          badge.style.right = '4px';
+          el.appendChild(badge);
+        }
+        badge.textContent = pendentes;
+        badge.style.display = '';
+      } else {
+        el.classList.remove('_btn-primeiros-passos');
+        if (badge) badge.style.display = 'none';
+      }
+    });
+  }
+
+  function onbCarregar(cb){
+    fetch('/api/onboarding/status').then(function(r){ return r.json(); }).then(function(data){
+      _onbCache = data;
+      onbAtualizarBotaoMenu(data.total - data.feitos);
+      if (cb) cb(data);
+    }).catch(function(){});
+  }
+
+  window.onbAbrirModal = function(){
+    document.getElementById('modalPrimeirosPassos').style.display = 'flex';
+    onbCarregar(function(data){
+      var pendentes = (data.passos || []).filter(function(p){ return !p.feito; });
+      document.getElementById('onb-subtitulo').textContent = data.completo
+        ? 'Você concluiu todos os passos! 🎉'
+        : pendentes.length + ' de ' + data.total + ' passos restantes';
+      document.getElementById('onb-lista').innerHTML = data.completo
+        ? onbRenderTudoPronto()
+        : pendentes.map(onbRenderPasso).join('');
+    });
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){ onbCarregar(); });
+})();
+</script>
 
 <% if(typeof title!=='undefined'&&title){ %>
   <div class="page-head">
     <h1><%= title %></h1>
     <% if(typeof subtitle!=='undefined'&&subtitle){ %><p><%= subtitle %></p><% } %>
-  </div>
-  <% } %>
-
-  <% if(false && !_onboardingCompleto){ %>
-  <div style="margin:0 0 20px;background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px 20px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div style="font-size:13px;font-weight:600;color:#111">Configure sua conta <span style="font-size:11px;font-weight:400;color:#9ca3af;margin-left:6px"><%= _passos.filter(p=>p.feito).length %> de <%= _passos.length %> concluídos</span></div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <% _passos.forEach((p,i) => { %>
-      <a href="<%= p.feito ? '#' : p.link %>" style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;border:1px solid <%= p.feito ? '#d1fae5' : p===_prox ? '#111' : '#e5e5e3' %>;background:<%= p.feito ? '#f0fdf4' : p===_prox ? '#111' : '#f9fafb' %>;text-decoration:none;flex:1;min-width:160px">
-        <div style="width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:<%= p.feito ? '#16a34a' : p===_prox ? '#fff' : '#e5e7eb' %>;flex-shrink:0;font-size:11px;font-weight:700;color:<%= p.feito ? '#fff' : p===_prox ? '#111' : '#9ca3af' %>"><%= p.feito ? '✓' : i+1 %></div>
-        <div>
-          <div style="font-size:12px;font-weight:600;color:<%= p.feito ? '#16a34a' : p===_prox ? '#fff' : '#6b7280' %>"><%= p.label %></div>
-          <div style="font-size:10px;color:<%= p.feito ? '#16a34a' : p===_prox ? '#d1d5db' : '#9ca3af' %>"><%= p.feito ? 'Concluído' : p===_prox ? p.acao : 'Pendente' %></div>
-        </div>
-      </a>
-      <% }) %>
-    </div>
-    <% if(_prox){ %>
-    <div style="margin-top:12px;padding:10px 14px;background:#fffbeb;border-radius:8px;border:1px solid #fcd34d;font-size:12px;color:#92400e">
-      <strong><%= _prox.titulo %>:</strong> <%= _prox.motivo %>
-    </div>
-    <% } %>
   </div>
   <% } %>

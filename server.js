@@ -3438,10 +3438,40 @@ app.get('/app/cadastro', auth, async (req,res)=>{
 //  res.render('app-portais', { user: req.session.user, portais });
 //});
 
+// Onboarding inteligente — status ao vivo dos 6 passos, consultado em
+// qualquer página (evita depender de cada rota passar dado pro shell)
+app.get('/api/onboarding/status', auth, (req,res) => {
+  try {
+    const user = req.session.user;
+    const leadsDoUser = filtrarPorUsuario(_cacheLeads || [], user);
+    const temLeadManual = leadsDoUser.some(l => (l.origemEntrada || l.origem || '') === 'manual');
+    const passos = [
+      { key: 'xml', label: 'Importar XML de imóveis', desc: 'Suba um arquivo XML padrão do seu sistema pra trazer sua carteira de uma vez.', feito: !!user.xmlUrl, acao: 'Ir para Imóveis', link: '/app/imoveis' },
+      { key: 'whatsapp', label: 'Conectar WhatsApp', desc: 'Escaneie o QR Code pra capturar leads e enviar vitrines automaticamente.', feito: user.whatsappStatus === 'open', acao: 'Conectar agora', link: '/app/perfil#secao-whatsapp' },
+      { key: 'instagram', label: 'Conectar Instagram', desc: 'Publique seus imóveis direto no feed/stories do Instagram.', feito: !!user.instagramContaId, acao: 'Conectar agora', link: '/app/perfil#secao-instagram' },
+      { key: 'leadManual', label: 'Cadastrar uma lead manual', desc: 'Cadastre uma lead direto no app pra ver o match acontecendo.', feito: temLeadManual, acao: 'Ir para Leads', link: '/app/leads' },
+      { key: 'assistente', label: 'Tirar uma dúvida com o assistente', desc: 'Pergunte qualquer coisa sobre o sistema — ele responde na hora.', feito: (user.historicoAssistente||[]).length > 0, acao: 'Abrir assistente', link: '/app/assistente' },
+      { key: 'perfil', label: 'Conhecer sua área de perfil', desc: 'Veja onde configurar seus dados, WhatsApp, Instagram e mais.', feito: !!user.onboardingPerfilVisto, acao: 'Ir para Perfil', link: '/app/perfil' },
+    ];
+    const feitos = passos.filter(p => p.feito).length;
+    res.json({ passos, total: passos.length, feitos, completo: feitos === passos.length });
+  } catch(e) {
+    console.error('[onboarding-status]', e.message);
+    res.json({ passos: [], total: 0, feitos: 0, completo: false });
+  }
+});
+
 app.get('/app/perfil', auth, async (req,res)=>{
   try {
     const { query: _qPerfil } = require('./services/db');
     const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+
+    // Onboarding — marca "conheceu a área de perfil" na 1ª visita
+    if (!req.session.user.onboardingPerfilVisto) {
+      req.session.user.onboardingPerfilVisto = true;
+      const { atualizarUsuario: _auOnb } = require('./services/salvarUsuario');
+      _auOnb(uid, { onboardingPerfilVisto: true }).catch(e => console.error('[onboarding-perfil]', e.message));
+    }
     const _normP = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
     const _siglaParaNome = {'ac':'acre','al':'alagoas','ap':'amapa','am':'amazonas','ba':'bahia','ce':'ceara','df':'distrito federal','es':'espirito santo','go':'goias','ma':'maranhao','mt':'mato grosso','ms':'mato grosso do sul','mg':'minas gerais','pa':'para','pb':'paraiba','pr':'parana','pe':'pernambuco','pi':'piaui','rj':'rio de janeiro','rn':'rio grande do norte','rs':'rio grande do sul','ro':'rondonia','rr':'roraima','sc':'santa catarina','sp':'sao paulo','se':'sergipe','to':'tocantins'};
     const _normEstadoP = s => { const n=_normP(s); return _siglaParaNome[n]||n; };

@@ -37,6 +37,12 @@
     .hero-mais-overlay{position:absolute;inset:0;background:rgba(20,18,14,.55);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700}
     .hero-vazio{border-radius:var(--radius);height:340px;margin-bottom:28px;background:linear-gradient(135deg, var(--sand), var(--line));display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;font-weight:500}
 
+    .hero-carousel-wrap{display:none;position:relative;margin-bottom:28px}
+    .hero-carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:var(--radius);background:var(--sand)}
+    .hero-carousel::-webkit-scrollbar{display:none}
+    .hero-carousel img{flex:0 0 100%;scroll-snap-align:start;height:280px;object-fit:cover;cursor:pointer;display:block}
+    .hc-counter{position:absolute;bottom:12px;right:12px;background:rgba(20,18,14,.65);color:#fff;font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;backdrop-filter:blur(4px);z-index:2;font-variant-numeric:tabular-nums}
+
     .layout{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start}
     .card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:var(--shadow)}
     .card h3.card-h{margin:0 0 14px;font-size:13.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
@@ -107,8 +113,8 @@
 
     @media(max-width:760px){
       .layout{grid-template-columns:1fr}
-      .detalhe-hero{grid-template-columns:1fr;grid-template-rows:240px}
-      .detalhe-hero img:not(:first-child){display:none}
+      .detalhe-hero{display:none}
+      .hero-carousel-wrap{display:block}
       .cta-card{position:static}
       header{padding:14px 18px}
       .container{padding:20px 16px 40px}
@@ -137,6 +143,17 @@
     <div class="hero-mais-overlay">+<%= imovel.fotos.length - 5 %> fotos</div>
     <% } %>
   </div>
+  <% } %>
+</div>
+
+<div class="hero-carousel-wrap">
+  <div class="hero-carousel" id="hero-carousel">
+    <% imovel.fotos.forEach(function(foto, i){ %>
+    <img src="<%= foto %>" onclick="abrirGaleria(<%= i %>)">
+    <% }) %>
+  </div>
+  <% if(imovel.fotos.length > 1) { %>
+  <div class="hc-counter" id="hc-counter">1 / <%= imovel.fotos.length %></div>
   <% } %>
 </div>
 <% } else { %>
@@ -443,6 +460,16 @@ function navFoto(dir) { fotoAtual=(fotoAtual+dir+fotos.length)%fotos.length; atu
 function atualizarLb() { document.getElementById('lb-img').src=fotos[fotoAtual]; document.getElementById('lb-counter').textContent=(fotoAtual+1)+' / '+fotos.length; }
 document.getElementById('lightbox').addEventListener('click',e=>{ if(e.target===document.getElementById('lightbox')) fecharLightbox(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') fecharLightbox(); if(e.key==='ArrowLeft') navFoto(-1); if(e.key==='ArrowRight') navFoto(1); });
+
+// Carrossel de fotos (mobile) — atualiza o contador ao arrastar
+const heroCarousel = document.getElementById('hero-carousel');
+const hcCounter = document.getElementById('hc-counter');
+if (heroCarousel && hcCounter) {
+  heroCarousel.addEventListener('scroll', () => {
+    const idx = Math.round(heroCarousel.scrollLeft / heroCarousel.clientWidth);
+    hcCounter.textContent = (idx + 1) + ' / ' + fotos.length;
+  }, { passive: true });
+}
 
 // Bloqueia datas passadas
 document.addEventListener('DOMContentLoaded', () => {

@@ -50,42 +50,53 @@
 .kanban-col-count{font-size:11px;font-weight:500;color:#9ca3af;background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:999px;padding:2px 8px}
 .kanban-col-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
-/* ── Cards ── */
-@keyframes flagPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.7}}
-.btn-classificar-flag{background:#fff8f0!important;color:#f97316!important;border-color:#fed7aa!important;animation:flagPulse 2s infinite;font-size:13px!important;padding:3px 7px!important}
-.btn-classificar-flag:hover{animation:none;transform:scale(1.1)}
-.lead-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;transition:box-shadow .15s;position:relative}
-.lead-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+/* ── Cards (reorganizados jul/2026 — mesmos campos, mais clean) ── */
+.btn-classificar-flag{background:none!important;color:#c2410c!important;border:none!important;font-size:11px!important;font-weight:600!important;padding:0!important}
+.lead-card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:box-shadow .15s;position:relative}
+.lead-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
 .lead-card.urg-alta{border-left:2px solid #ef4444}
 .lead-card.urg-media{border-left:2px solid #f59e0b}
-@keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.2)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
-.lead-card.urg-alta{animation:pulso 2.5s infinite}
 
-.acao-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:500;margin-bottom:8px;border:0.5px solid transparent}
-.lead-nome{font-size:13px;font-weight:500;color:#111827;text-decoration:none;display:block;margin-bottom:2px}
+.lc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
+.acao-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:600;border:none}
+.lc-vez{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;background:#f3f4f6;color:#6b7280;margin-left:5px;white-space:nowrap}
+.temp-pill{font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;background:none!important;padding:0!important;border-radius:0!important}
+
+.lead-nome{font-size:14.5px;font-weight:600;color:#111827;text-decoration:none;display:block;margin-bottom:1px}
 .lead-nome:hover{color:#FC642D}
-.lead-tel{font-size:11px;color:#9ca3af;margin-bottom:6px}
+.lead-tel{font-size:12px;color:#6b7280;margin-bottom:10px}
 
-.score-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
-.score-bar{width:40px;height:3px;background:#f3f4f6;border-radius:3px;overflow:hidden}
-.score-fill{height:3px;border-radius:3px}
-.temp-pill{padding:2px 8px;border-radius:999px;font-size:10px;font-weight:500}
-.match-pill{font-size:10px;font-weight:500;color:#15803d;background:#f0fdf4;border-radius:5px;padding:2px 7px}
+.lc-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.lc-chip{font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:999px;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:3px}
+.lc-chip.origem{background:#f3f4f6;color:#6b7280}
+.lc-chip.parceiro{background:#fff1e8;color:#b8460e}
+.lc-chip.buscando{background:#e6f7f5;color:#004d47}
+.lc-chip.temimovel{background:#f0fdf4;color:#166534}
+.lc-chip.ref{background:#f3f4f6;color:#6b7280}
 
-.perfil-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
-.perfil-tag{font-size:10px;color:#6b7280;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:5px;padding:1px 6px}
+.lc-divider{height:1px;background:#f0f0ee;margin:10px 0}
 
-.lead-btns{display:flex;gap:5px;padding-top:8px;border-top:0.5px solid rgba(0,0,0,.06);flex-wrap:wrap}
-.lb{font-size:11px;padding:5px 10px;border-radius:7px;text-decoration:none;font-weight:500;border:0.5px solid rgba(0,0,0,.1);color:#374151;background:#fff;cursor:pointer;transition:all .1s}
-.lb:hover{background:#f9fafb}
-.lb.wa{color:#15803d;border-color:#86efac}
-.lb.wa:hover{background:#f0fdf4}
-.lb.prim{color:#FC642D;border-color:#fff1e8}
-.lb.prim:hover{background:#fff1e8}
-.lb.dark{background:#111827;color:#fff;border-color:#111827}
-.lb.dark:hover{background:#1f2937}
-.lb.danger{color:#dc2626;border-color:#fca5a5}
-.confirm-box{display:none;padding:8px 10px;background:#fef2f2;border-radius:8px;border:0.5px solid #fca5a5;margin-top:6px}
+.score-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.score-mini{display:flex;align-items:center;gap:7px}
+.score-bar{width:46px;height:3px;background:#f0f0ee;border-radius:2px;overflow:hidden}
+.score-fill{height:3px;border-radius:2px}
+.score-num{font-size:11px;color:#6b7280;font-variant-numeric:tabular-nums}
+.match-pill{font-size:10.5px;font-weight:600;color:#166534;background:none;border-radius:0;padding:0}
+
+.perfil-row{display:flex;flex-wrap:wrap;font-size:12px;color:#6b7280;margin-bottom:8px}
+.perfil-tag{font-size:12px;color:#6b7280;background:none;border:none;padding:0}
+.perfil-tag:not(:last-child)::after{content:' · ';color:#d1d5db;margin:0 1px}
+
+.lc-daterow{display:flex;gap:14px;font-size:11px;color:#9ca3af;margin-bottom:2px}
+
+.lead-btns{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:10px;border-top:1px solid #f0f0ee;margin-top:2px}
+.lb{font-size:12px;padding:0;border-radius:0;text-decoration:none;font-weight:600;border:none;color:#6b7280;background:none;cursor:pointer;transition:color .1s;display:inline-flex;align-items:center;gap:5px}
+.lb:hover{color:#111827}
+.lb.wa{color:#0E7268}
+.lb.prim{color:#b8460e}
+.lb.dark{background:none;color:#111827;margin-left:auto}
+.lb.danger{color:#FF385C}
+.confirm-box{display:none;padding:10px 12px;background:#fef2f2;border-radius:10px;border:1px solid #fca5a5;margin-top:8px}
 
 .empty-col{text-align:center;padding:24px 12px;color:#d1d5db;font-size:12px}
 </style>
@@ -238,19 +249,7 @@ leads.forEach(item => {
     data-search="<%= [item.nome,item.contato,item.telefone,item.bairro,_perfil.bairro].filter(Boolean).join(' ').toLowerCase() %>"
     data-tel="<%= item.contato||item.telefone||'' %>">
 
-    <% if(_acao){ %>
-    <div class="acao-badge" style="<%= _acaoCor %>"><%= _acao %></div>
-    <% } %>
-
-    <a href="/app/lead/<%= item.id %>" class="lead-nome"><%= item.nome||telefone||'Lead' %></a>
-    <% if(item._vezesEntrou > 1){ %>
-    <span style="display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:#fef3c7;color:#92400e;margin-left:4px;">↩ <%= item._vezesEntrou %>ª vez</span>
-    <% } %>
-
-
-
-    <div class="lead-tel"><%= telefone||'—' %></div>
-    <% 
+    <%
       const _origemLabel = {
         'webhook_imovelweb': 'ImovelWeb',
         'webhook_imovelweb_global': 'MatchImóveis',
@@ -263,43 +262,40 @@ leads.forEach(item => {
       };
       const _origemEntrada = (item.dados && item.dados.origemEntrada) || item.origemEntrada || item.origem || '';
       const _origemNome = _origemLabel[_origemEntrada] || _origemEntrada || '';
-      const _origemCor = {
-        'webhook_imovelweb': '#fef3c7;color:#92400e',
-        'webhook_grupoolx': '#fee2e2;color:#991b1b',
-        'webhook_123i': '#fff1e8;color:#b8460e',
-        'webhook_chaves': '#dcfce7;color:#166534',
-        'whatsapp': '#d1fae5;color:#065f46',
-        'manual': '#f3f4f6;color:#374151',
-        'pagina_externa_imovel': '#e6f7f5;color:#004d47'
-      }[_origemEntrada] || '#f3f4f6;color:#374151';
-    %>
-    <% if(_origemNome){ %>
-    <span style="display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:<%= _origemCor %>;margin-bottom:4px"><%= _origemNome %></span>
-    <% } %>
-<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px">
-    <%
       const _temBusca = item.mapaIntencao && (item.mapaIntencao.tipo_imovel||[]).length > 0;
       const _temVenda = item.tipoLead === 'vendedor' || item.tipoLead === 'cliente_vendedor';
       const _eCorretor = item.tipoLead === 'corretor';
-      if(_eCorretor) return '';
     %>
-    <% if(_eCorretor){ %>
-      <span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#fff1e8;color:#b8460e">🤝 Corretor Parceiro</span>
+
+    <% if(_acao || item.temperatura){ %>
+    <div class="lc-head">
+      <% if(_acao){ %><span class="acao-badge" style="<%= _acaoCor %>"><%= _acao %></span><% } %>
+      <% if(item.temperatura){ %>
+      <span class="temp-pill" style="color:<%= item.temperatura==='quente'?'#dc2626':item.temperatura==='morno'?'#b8860b':'#9ca3af' %>"><%= item.temperatura==='quente'?'🔥':item.temperatura==='morno'?'🌡':'❄️' %> <%= item.temperatura %></span>
+      <% } %>
+    </div>
     <% } %>
-    <% if(_temBusca && !_eCorretor){ %>
-      <span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#e6f7f5;color:#004d47">🔍 Buscando imóvel</span>
+
+    <a href="/app/lead/<%= item.id %>" class="lead-nome"><%= item.nome||telefone||'Lead' %><% if(item._vezesEntrou > 1){ %><span class="lc-vez">↩ <%= item._vezesEntrou %>ª vez</span><% } %></a>
+    <div class="lead-tel"><%= telefone||'—' %></div>
+
+    <% if(_origemNome || (!_eCorretor && _temBusca) || _temVenda || _eCorretor || item.idAnuncio){ %>
+    <div class="lc-chips">
+      <% if(_origemNome){ %><span class="lc-chip origem"><%= _origemNome %></span><% } %>
+      <% if(_eCorretor){ %><span class="lc-chip parceiro">🤝 Corretor Parceiro</span><% } %>
+      <% if(_temBusca && !_eCorretor){ %><span class="lc-chip buscando">🔍 Buscando imóvel</span><% } %>
+      <% if(_temVenda){ %><span class="lc-chip temimovel">🏠 Tem imóvel</span><% } %>
+      <% if(item.idAnuncio){ %><a href="/app/imovel/<%= item.idAnuncio %>" target="_blank" class="lc-chip ref">🏠 Imóvel de referência</a><% } %>
+    </div>
     <% } %>
-    <% if(_temVenda){ %>
-      <span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#dcfce7;color:#166534">🏠 Tem imóvel</span>
-    <% } %>
-  </div>
+
+    <div class="lc-divider"></div>
 
     <div class="score-row">
-      <div class="score-bar"><div class="score-fill" style="width:<%= _sj %>%;background:<%= _sjCor %>"></div></div>
-      <span style="font-size:10px;font-weight:500;color:<%= _sjCor %>"><%= _sj %></span>
-      <% if(item.temperatura){ %>
-      <span class="temp-pill" style="background:<%= item.temperatura==='quente'?'#fee2e2':item.temperatura==='morno'?'#fef3c7':'#e6f7f5' %>;color:<%= item.temperatura==='quente'?'#991b1b':item.temperatura==='morno'?'#92400e':'#004d47' %>"><%= item.temperatura==='quente'?'🔥':item.temperatura==='morno'?'🌡':'❄️' %> <%= item.temperatura %></span>
-      <% } %>
+      <div class="score-mini">
+        <div class="score-bar"><div class="score-fill" style="width:<%= _sj %>%;background:<%= _sjCor %>"></div></div>
+        <span class="score-num"><%= _sj %></span>
+      </div>
       <% if(_mat>0){ %><span class="match-pill"><%= _mat %> match<%= _mat>1?'es':'' %></span><% } %>
     </div>
 
@@ -312,15 +308,12 @@ leads.forEach(item => {
     </div>
     <% } %>
 
-    <% if(item.idAnuncio){ %>
-    <a href="/app/imovel/<%= item.idAnuncio %>" target="_blank" style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#fff7ed;color:#c2410c;text-decoration:none;margin-bottom:4px">🏠 Ver imóvel de referência</a>
-    <% } %>
-
-
-    <div style="font-size:10px;color:#d1d5db;display:flex;gap:8px;margin-bottom:4px">
+    <% if(item.criadoEm||item.data_cadastro||item.ultimaMensagemEm){ %>
+    <div class="lc-daterow">
       <% if(item.criadoEm||item.data_cadastro){ %><span>📅 <%= new Date(item.criadoEm||item.data_cadastro).toLocaleDateString('pt-BR') %></span><% } %>
       <% if(item.ultimaMensagemEm){ %><span>💬 <%= new Date(item.ultimaMensagemEm).toLocaleDateString('pt-BR') %></span><% } %>
     </div>
+    <% } %>
 
     <div class="lead-btns">
       <% if(telefone){ %>
@@ -335,7 +328,7 @@ leads.forEach(item => {
       <% if(_mat>0){ %>
       <% if(item.vitrineEnviada && item.vitrineEnviadaEm){ %>
       <a href="/cliente/oferta/<%= item.leadId||item.id %>?userId=<%= encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'') %>" target="_blank"
-         class="lb" style="background:#f9fafb;color:#6b7280;border-color:rgba(0,0,0,.1)"
+         class="lb"
          title="Vitrine enviada pelo sistema — clique para abrir">
         ✓ Vitrine <%= new Date(item.vitrineEnviadaEm).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) %>
       </a>
@@ -343,11 +336,11 @@ leads.forEach(item => {
       <a href="/cliente/oferta/<%= item.leadId||item.id %>?userId=<%= encodeURIComponent(item.userId||item.usuarioId||item.corretorId||'') %>" class="lb prim" target="_blank">Vitrine</a>
       <% } %>
       <% } %>
-      <a href="/app/lead/<%= item.id %>" class="lb dark lb-ver-pisca">Ver detalhes da lead →</a>
       <% if(!item.tipoLead || item.tipoLead==='cliente'){ %>
-      <button onclick="abrirClassificar('<%= item.id %>')" class="lb btn-classificar-flag" title="Classificar esta lead">🚩</button>
+      <button onclick="abrirClassificar('<%= item.id %>')" class="lb btn-classificar-flag" title="Classificar esta lead">🚩 Classificar</button>
       <% } %>
-      <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">×</button>
+      <button onclick="confirmarExcluir('<%= item.id %>')" class="lb danger">Excluir</button>
+      <a href="/app/lead/<%= item.id %>" class="lb dark">Ver detalhes →</a>
     </div>
     <div class="confirm-box" id="confirm-<%= item.id %>">
       <div style="font-size:11px;color:#991b1b;margin-bottom:6px;font-weight:500">Excluir esta lead?</div>
@@ -360,9 +353,9 @@ leads.forEach(item => {
     <div class="confirm-box" id="classificar-<%= item.id %>" style="display:none">
       <div style="font-size:11px;color:#374151;margin-bottom:6px;font-weight:500">Classificar lead:</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap">
-        <button onclick="classificarLead('<%= item.id %>','cliente')" class="lb" style="font-size:10px;background:#e6f7f5;color:#004d47">👤 Buscando</button>
-        <button onclick="classificarLead('<%= item.id %>','vendedor')" class="lb" style="font-size:10px;background:#dcfce7;color:#166534">🏠 Tem Imóvel</button>
-        <button onclick="classificarLead('<%= item.id %>','corretor')" class="lb" style="font-size:10px;background:#fff1e8;color:#b8460e">🤝 Corretor</button>
+        <button onclick="classificarLead('<%= item.id %>','cliente')" class="lb" style="font-size:10px">👤 Buscando</button>
+        <button onclick="classificarLead('<%= item.id %>','vendedor')" class="lb" style="font-size:10px">🏠 Tem Imóvel</button>
+        <button onclick="classificarLead('<%= item.id %>','corretor')" class="lb" style="font-size:10px">🤝 Corretor</button>
         <button onclick="document.getElementById('classificar-<%= item.id %>').style.display='none'" class="lb" style="font-size:10px">Cancelar</button>
       </div>
     </div>

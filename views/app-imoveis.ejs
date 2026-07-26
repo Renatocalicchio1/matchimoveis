@@ -54,34 +54,38 @@
 .portal-btn-sel{background:rgba(255,255,255,.12);border:none;color:#fff;padding:7px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:600;transition:background .1s}
 .portal-btn-sel:hover{background:rgba(255,255,255,.2)}
 .im-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.im-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:all .15s}
-.im-card:hover{border-color:#ffcbb5;box-shadow:var(--shadow-md)}
+.im-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:all .15s}
+.im-card:hover{box-shadow:var(--shadow-md)}
 .im-card.sel{border-color:#FF385C;box-shadow:0 0 0 2px #FF385C33}
-.im-img{position:relative;width:100%;height:130px;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.im-img{position:relative;width:100%;height:140px;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .im-img img{width:100%;height:100%;object-fit:cover}
 .im-img-ic{font-size:28px;opacity:.25}
 .im-check{position:absolute;top:8px;left:8px;width:20px;height:20px;border-radius:5px;border:2px solid rgba(255,255,255,.8);background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center}
 .im-check.on{background:#FF385C;border-color:#FF385C}
-.im-badge-status{position:absolute;top:8px;right:8px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px}
-.im-body{padding:12px;display:flex;flex-direction:column;flex:1}
-.im-tipo{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;background:var(--brand-light);color:var(--brand);margin-bottom:6px}
-.im-valor{font-size:16px;font-weight:700;color:var(--dark);letter-spacing:-.3px;margin-bottom:3px}
-.im-end{font-size:11px;color:var(--text-ter);margin-bottom:8px}
-.im-prop{font-size:11px;color:var(--text-sec);background:var(--bg);border:1px solid var(--border-light);border-radius:7px;padding:6px 8px;margin-bottom:8px;line-height:1.4}
-.im-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
-.im-tag{font-size:10px;color:var(--text-sec);background:var(--bg);border:1px solid var(--border-light);border-radius:5px;padding:2px 7px}
-.im-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;margin-top:auto}
-.im-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;text-align:center;font-size:11px;font-weight:600;padding:7px 6px;border-radius:7px;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:all .1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.im-btn.ver{background:var(--bg);color:var(--text);border-color:var(--border)}
-.im-btn.ver:hover{background:#f0f0ee}
-.im-btn.edit{background:var(--brand);color:#fff}
-.im-btn.edit:hover{background:var(--brand-dark)}
-.im-btn.whats{background:#25D366;color:#fff}
-.im-btn.whats:hover{background:#1ebe57}
-.im-btn.instagram{background:#fdf2f8;color:#c026d3;border-color:#f5d0fe}
-.im-btn.instagram:hover{background:#fce7f3}
-.im-btn.del{background:#fef2f2;color:#b91c1c;border-color:#fca5a5}
-.im-btn.del:hover{background:#fee2e2}
+.im-badge-status{position:absolute;top:8px;right:8px;background:rgba(17,24,39,.6);backdrop-filter:blur(4px);color:#fff;font-size:9.5px;font-weight:600;padding:3px 9px;border-radius:999px}
+.im-body{padding:14px;display:flex;flex-direction:column;flex:1}
+.im-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.im-chip{font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:999px}
+.im-chip.tipo{background:var(--bg);color:var(--text-sec)}
+.im-chip.trans{background:var(--brand-light);color:var(--brand)}
+.im-chip.fase{background:#e6f7f5;color:#0E7268}
+.im-valor{font-size:16.5px;font-weight:700;color:var(--dark);letter-spacing:-.3px;margin-bottom:2px}
+.im-end{font-size:12px;color:var(--text-sec);margin-bottom:8px}
+.im-ids{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.im-id{font-size:10px;color:var(--text-ter);background:var(--bg);border:1px solid var(--border-light);border-radius:5px;padding:2px 8px;display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
+.im-id button{background:none;border:none;cursor:pointer;font-size:10px;padding:0;color:var(--text-ter)}
+.im-prop{font-size:11.5px;color:var(--text-sec);background:var(--bg);border:1px solid var(--border-light);border-radius:9px;padding:8px 10px;margin-bottom:9px;line-height:1.5}
+.im-tags{font-size:12px;color:var(--text-sec);margin-bottom:8px}
+.im-tag{font-size:12px;color:var(--text-sec);background:none;border:none;padding:0}
+.im-tag:not(:last-child)::after{content:' · ';color:var(--border);margin:0 1px}
+.im-actions{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-top:auto;padding-top:11px;border-top:1px solid var(--border-light)}
+.im-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;text-align:center;font-size:12px;font-weight:600;padding:0;border-radius:0;text-decoration:none;border:none;background:none;cursor:pointer;transition:color .1s;white-space:nowrap}
+.im-btn.ver{color:var(--text-sec)}
+.im-btn.ver:hover{color:var(--text)}
+.im-btn.edit{color:var(--text)}
+.im-btn.whats{color:#0E7268}
+.im-btn.instagram{color:#c026d3}
+.im-btn.del{color:var(--brand);margin-left:auto}
 .im-empty{text-align:center;padding:60px 20px;color:var(--text-ter)}
 .modal-xml{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:20px}
 .modal-xml-box{background:#fff;border-radius:var(--radius-lg);padding:28px;max-width:480px;width:100%;text-align:center}
@@ -344,36 +348,40 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
       <div class="im-check" id="chk-<%= item.id || idx %>"></div>
       <% if((item.status||'ativo').toLowerCase() !== 'ativo') { %>
         <div class="im-badge-status"><%= (item.status||'inativo').toUpperCase() %></div>
-        <% if(item.condicao && item.condicao !== 'usado') { %>
-        <div style="position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;<%=item.condicao==='lancamento'?'background:#FF385C;color:#fff':item.condicao==='novo'?'background:#059669;color:#fff':''%>">
+      <% } %>
+      <% if(item.condicao && item.condicao !== 'usado') { %>
+        <div style="position:absolute;bottom:8px;left:8px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;<%=item.condicao==='lancamento'?'background:#FF385C;color:#fff':item.condicao==='novo'?'background:#059669;color:#fff':''%>">
           <%=item.condicao==='lancamento'?'LANÇAMENTO':'NOVO'%>
         </div>
-        <% } %>
       <% } %>
     </div>
 
     <!-- Body -->
     <div class="im-body" onclick="event.stopPropagation()">
-      <span class="im-tipo"><%= item.tipo || 'Imóvel' %></span>
-      <% const _trans = (item.transacao||item.operacao||'').toLowerCase(); if(_trans==='aluguel'||_trans==='venda'){ %><span style="display:inline-block;background:<%= _trans==='aluguel'?'#00847a':'#FF385C' %>;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px"><%= _trans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>
+      <% const _trans = (item.transacao||item.operacao||'').toLowerCase(); %>
       <% const _faseMapI = {pronto:'✅ Pronto',lancamento:'🚀 Lançamento',na_planta:'📐 Na planta',em_construcao:'🏗 Em construção',planta:'📐 Na planta',construcao:'🏗 Em construção'}; const _faseLabelI = _faseMapI[(item.fase||'').toLowerCase().replace(/\s/g,'_')]; %>
-      <% if(_faseLabelI){ %><span style="display:inline-block;background:#00A699;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px"><%=_faseLabelI%></span><% } %>
+      <div class="im-chips">
+        <span class="im-chip tipo"><%= item.tipo || 'Imóvel' %></span>
+        <% if(_trans==='aluguel'||_trans==='venda'){ %><span class="im-chip trans"><%= _trans==='aluguel'?'Aluguel':'Venda' %></span><% } %>
+        <% if(_faseLabelI){ %><span class="im-chip fase"><%=_faseLabelI%></span><% } %>
+      </div>
       <div class="im-valor">R$ <%= item.valor_imovel ? Number(item.valor_imovel).toLocaleString('pt-BR') : '—' %></div>
       <div class="im-end"><%= [item.bairro, item.cidade].filter(Boolean).join(', ') || '—' %></div>
-      <div style="font-size:9px;color:var(--text-sec);margin-bottom:4px;display:flex;gap:6px;flex-wrap:wrap">
+
+      <% if(item.idInterno||item.id_interno||item.idExterno||item.id_externo){ %>
+      <div class="im-ids">
         <% if(item.idInterno||item.id_interno){ %>
-        <span style="background:#e8e8e6;border:1px solid #ccc;border-radius:4px;padding:2px 7px;display:flex;align-items:center;gap:4px">
-          INT: <%= item.idInterno||item.id_interno %>
-          <button onclick="event.stopPropagation();navigator.clipboard.writeText('<%= item.idInterno||item.id_interno %>');this.textContent='✓';setTimeout(()=>this.textContent='⎘',1000)" style="background:none;border:none;cursor:pointer;font-size:10px;padding:0;color:#555">⎘</button>
+        <span class="im-id">INT <%= item.idInterno||item.id_interno %>
+          <button onclick="event.stopPropagation();navigator.clipboard.writeText('<%= item.idInterno||item.id_interno %>');this.textContent='✓';setTimeout(()=>this.textContent='⎘',1000)">⎘</button>
         </span>
         <% } %>
         <% if(item.idExterno||item.id_externo){ %>
-        <span style="background:#e8e8e6;border:1px solid #ccc;border-radius:4px;padding:2px 7px;display:flex;align-items:center;gap:4px">
-          EXT: <%= item.idExterno||item.id_externo %>
-          <button onclick="event.stopPropagation();navigator.clipboard.writeText('<%= item.idExterno||item.id_externo %>');this.textContent='✓';setTimeout(()=>this.textContent='⎘',1000)" style="background:none;border:none;cursor:pointer;font-size:10px;padding:0;color:#555">⎘</button>
+        <span class="im-id">EXT <%= item.idExterno||item.id_externo %>
+          <button onclick="event.stopPropagation();navigator.clipboard.writeText('<%= item.idExterno||item.id_externo %>');this.textContent='✓';setTimeout(()=>this.textContent='⎘',1000)">⎘</button>
         </span>
         <% } %>
       </div>
+      <% } %>
 
       <% const _itemOwner = (item.userId||item.user_id||item.usuarioId); const _userCod = (user.id||user.codigoUsuario||user.codigo_usuario); if(item.proprietario && item.proprietario.nome && _itemOwner === _userCod) { %>
       <div class="im-prop">
@@ -397,6 +405,7 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
           %><a href="https://wa.me/55<%= _telOwner %>?text=<%= _msgWA %>" target="_blank" style="font-size:11px;color:#16a34a;text-decoration:none;font-weight:600">📲 Falar</a><% } %>
         </div>
       <% } } %>
+      <% if(item.area_m2||item.quartos||item.suites||item.vagas||item.banheiros||item.andar){ %>
       <div class="im-tags">
         <% if(item.area_m2) { %><span class="im-tag"><%= item.area_m2 %>m²</span><% } %>
         <% if(item.quartos) { %><span class="im-tag"><%= item.quartos %>q</span><% } %>
@@ -405,13 +414,14 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
         <% if(item.banheiros) { %><span class="im-tag"><%= item.banheiros %>bnh</span><% } %>
         <% if(item.andar) { %><span class="im-tag"><%= item.andar %>º andar</span><% } %>
       </div>
+      <% } %>
 
       <% const _portaisCard = Array.isArray(item.portais) ? item.portais : (item.portais && typeof item.portais==='object' ? Object.keys(item.portais).filter(k=>item.portais[k]) : []); %>
       <% if(_portaisCard.length > 0){ %>
       <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
         <% const _labelPortal={vivareal:'VR',zap:'ZAP',olx:'OLX',chaves:'CHV',imovelweb:'IW','123i':'123',quintoandar:'QA'}; %>
         <% _portaisCard.forEach(p=>{ %>
-        <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:#fff0f3;color:#FF385C"><%=_labelPortal[p]||p.toUpperCase()%></span>
+        <span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--bg);border:1px solid var(--border-light);color:var(--text-sec)"><%=_labelPortal[p]||p.toUpperCase()%></span>
         <% }) %>
       </div>
       <% } %>

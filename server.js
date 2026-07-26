@@ -1677,15 +1677,15 @@ app.post('/app/importar', upload.any(), async (req, res) => {
         const idx = users.findIndex(u => u.id === _importUserId);
         if (idx >= 0) {
           users[idx].xmlUrl = _importXmlUrl || users[idx].xmlUrl || '';
-      // Adiciona ao xml-feeds.json se não existir
+      // Adiciona/atualiza no xml_feeds — total = imóveis de fato dessa fonte (não do portfólio todo)
       try {
-        const _fp = dataPath('xml-feeds.json');
-        const _feeds = fs.existsSync(_fp) ? JSON.parse(fs.readFileSync(_fp,'utf8')) : [];
         const _url = _importXmlUrl;
         const _uid = users[idx].id;
-        const _feedTotal = typeof _totalIm !== 'undefined' ? _totalIm : 0;
+        const { query: _qFeedTotal } = require('./services/db');
+        const _rFeedTotal = await _qFeedTotal('SELECT COUNT(*) as n FROM imoveis WHERE user_id=$1 AND xml_url=$2', [_uid, _url]);
+        const _feedTotal = parseInt(_rFeedTotal.rows[0]?.n) || 0;
         salvarFeedService({ userId: _uid, url: _url, lastSyncAt: new Date().toISOString(), total: _feedTotal, tipo: 'importado' }).then(() => console.log('[xml-feed] salvo:', _uid, _feedTotal)).catch(e=>console.error('[xml-feed]', e.message));
-      } catch(e) {}
+      } catch(e) { console.error('[xml-feed-total]', e.message); }
           users[idx].xmlAtualizadoEm = new Date().toISOString();
           users[idx].xmlTotal = imoveis.length;
           salvarTodosUsuarios(users).catch(e => console.log("Erro salvar users:", e.message));

@@ -1452,7 +1452,24 @@ function _temPerfilMinimoLead(l) {
          !!(pf.bairro||d.bairro||l.bairro||(m.bairro||[]).length) &&
          !!(pf.valorMax||d.valorMax||l.valorMax||(m.valor||[]).length);
 }
-app.get('/health',(req,res)=>res.json({ok:true,ts:new Date().toISOString()}));
+// Readiness check — usado pelo Render pra saber se pode trocar o tráfego
+// pra essa instância no deploy. Checa o banco (cache de 5s pra não bater
+// SELECT 1 a cada poll do Render).
+let _healthDbOk = false;
+let _healthCheckedAt = 0;
+app.get('/health', async (req,res) => {
+  try {
+    if (Date.now() - _healthCheckedAt > 5000) {
+      const { dbOk } = require('./services/db');
+      _healthDbOk = await dbOk();
+      _healthCheckedAt = Date.now();
+    }
+    if (!_healthDbOk) return res.status(503).json({ok:false, db:false, ts:new Date().toISOString()});
+    res.json({ok:true, db:true, ts:new Date().toISOString()});
+  } catch(e) {
+    res.status(503).json({ok:false, erro:e.message});
+  }
+});
 // Redirect onrender.com -> matchimoveis.ia.br para feeds XML
 app.use('/feed-xml', (req, res, next) => {
   const host = req.headers.host || '';
@@ -5628,7 +5645,7 @@ self.addEventListener('activate', function(e){ e.waitUntil(self.registration.unr
 `);
 });
 
-app.listen(process.env.PORT || 3000, () => {
+const _httpServer = app.listen(process.env.PORT || 3000, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
   // Roda cerebro-scanner.js e cerebro.js em background, sem bloquear o boot
   setTimeout(() => {
@@ -5652,6 +5669,33 @@ app.listen(process.env.PORT || 3000, () => {
     console.error('[server] Erro ao iniciar autoUpdateXML:', e.message);
   }
 });
+
+// Graceful shutdown — no deploy o Render manda SIGTERM na instância antiga
+// depois de trocar o tráfego. Sem isso, requisições em andamento são
+// cortadas na marra. Aqui: para de aceitar conexão nova, espera as em
+// andamento terminarem, fecha o pool do banco e só então sai do processo.
+let _encerrando = false;
+function _shutdownGracioso(sinal) {
+  if (_encerrando) return;
+  _encerrando = true;
+  console.log(`[shutdown] ${sinal} recebido — encerrando graciosamente...`);
+  _httpServer.close(() => {
+    console.log('[shutdown] servidor HTTP fechado, sem conexões pendentes');
+    try {
+      const { getPool } = require('./services/db');
+      const _pool = getPool();
+      if (_pool) _pool.end().catch(() => {});
+    } catch(e) {}
+    process.exit(0);
+  });
+  // Failsafe — força saída se alguma conexão não fechar a tempo
+  setTimeout(() => {
+    console.error('[shutdown] timeout — forçando saída');
+    process.exit(1);
+  }, 10000).unref();
+}
+process.on('SIGTERM', () => _shutdownGracioso('SIGTERM'));
+process.on('SIGINT', () => _shutdownGracioso('SIGINT'));
 
 // ROTA DA TELA IMPORTAR LEADS
 app.post('/process', upload.any(), async (req, res) => {

@@ -80,6 +80,7 @@ async function run() {
 
       const lead = {
         id: uuidv4(),
+        _lote: true, // suprime o email individual "Nova lead recebida" — importação em lote já dispara o email de resumo
         nome: nome.trim(),
         telefone,
         contato: telefone,

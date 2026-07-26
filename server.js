@@ -1167,6 +1167,7 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
             const mc = require('./cerebro/match-core');
             await mc.processar({ lead: { ..._snapIWG, mapaIntencao: mapa, perfilIA: _perfilIA }, mensagem: mensagem||'', canal: 'ImovelWeb', userId });
           } catch(e){ console.error('[webhook-global] erro match:', e.message); }
+          await _duplicarLeadSaoPauloTIA({ ..._snapIWG, mapaIntencao: mapa, perfilIA: _perfilIA }, _perfilIA.cidade, mensagem);
         }
       } catch(e){ console.error('[webhook-global] erro setTimeout:', e.message); }
     }, 2000);
@@ -3864,6 +3865,35 @@ async function _cruzarImovelWebhook(lead, userId) {
   } catch(e) { console.error('[WEBHOOK] erro cruzar imóvel:', e.message); }
 }
 
+// Toda lead de webhook de portal com cidade = São Paulo também vira uma lead na conta TIA-A6PG
+// (perfil de busca — não amarrada ao anúncio original, que é de outra conta)
+async function _duplicarLeadSaoPauloTIA(leadOriginal, cidade, mensagem) {
+  try {
+    const TIA = 'TIA-A6PG';
+    const donoOriginal = String(leadOriginal.userId || leadOriginal.codigoUsuario || leadOriginal.user_id || '');
+    if (!donoOriginal || donoOriginal === TIA) return;
+    const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+    if (norm(cidade) !== 'sao paulo') return;
+
+    const { salvarLead: _slDupTIA } = require('./services/salvarLead');
+    const leadDup = {
+      ...leadOriginal,
+      id: Date.now().toString() + Math.random().toString(36).substr(2,5),
+      userId: TIA, codigoUsuario: TIA, user_id: TIA,
+      criadoEm: new Date().toISOString(),
+      matches: [], matchesAuto: [], matchesBase: [],
+      idAnuncio: '', imovelInteresse: '', imovelId: '',
+    };
+    await _slDupTIA(leadDup);
+    console.log('[DUP-SP-TIA] lead duplicada p/ TIA-A6PG | origem:', donoOriginal, '| tel:', leadDup.telefone);
+    _notificarNovaLead(TIA, leadDup.id, leadDup.nome, leadDup.origem || 'Portal');
+    try {
+      const matchCore = require('./cerebro/match-core');
+      await matchCore.processar({ lead: { ...leadDup }, mensagem: mensagem || '', canal: 'portal', userId: TIA });
+    } catch(e) { console.error('[DUP-SP-TIA] erro match:', e.message); }
+  } catch(e) { console.error('[DUP-SP-TIA] erro:', e.message); }
+}
+
 app.post('/webhook/imovelweb/:userId', async (req, res) => {
   res.status(200).send('OK');
   try {
@@ -3970,6 +4000,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
           delete _perfilFinalIW.area_min;
           await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalIW, bairro: _perfilFinalIW.bairro||'', cidade: _perfilFinalIW.cidade||'', estado: _perfilFinalIW.estado||'', tipo: _perfilFinalIW.tipo||'', tipo_operacao: _perfilFinalIW.intencao||'' });
           console.log('[WEBHOOK IMOVELWEB] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
+          await _duplicarLeadSaoPauloTIA({ ..._snapIW, mapaIntencao: mapa, perfilIA: _perfilFinalIW }, _perfilFinalIW.cidade, _snapIW.mensagem);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
           if (temMinimo) {
@@ -4069,6 +4100,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
           delete _perfilFinalOLX.area_max; delete _perfilFinalOLX.area_min;
           await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalOLX, bairro: _perfilFinalOLX.bairro||'', cidade: _perfilFinalOLX.cidade||'', estado: _perfilFinalOLX.estado||'', tipo: _perfilFinalOLX.tipo||'', tipo_operacao: _perfilFinalOLX.intencao||'' });
           console.log('[WEBHOOK GRUPOOLX] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
+          await _duplicarLeadSaoPauloTIA({ ..._leadSnapshotGRUPOOLX, mapaIntencao: mapa, perfilIA: _perfilFinalOLX }, _perfilFinalOLX.cidade, _leadSnapshotGRUPOOLX.mensagem);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
           if (temMinimo) {
@@ -4166,6 +4198,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
           delete _perfilFinal123.area_max; delete _perfilFinal123.area_min;
           await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinal123, bairro: _perfilFinal123.bairro||'', cidade: _perfilFinal123.cidade||'', estado: _perfilFinal123.estado||'', tipo: _perfilFinal123.tipo||'', tipo_operacao: _perfilFinal123.intencao||'' });
           console.log('[WEBHOOK 123i] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
+          await _duplicarLeadSaoPauloTIA({ ..._leadSnapshot123i, mapaIntencao: mapa, perfilIA: _perfilFinal123 }, _perfilFinal123.cidade, _leadSnapshot123i.mensagem);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
           if (temMinimo) {
@@ -4266,6 +4299,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
           delete _perfilFinalCH.area_max; delete _perfilFinalCH.area_min;
           await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalCH, bairro: _perfilFinalCH.bairro||'', cidade: _perfilFinalCH.cidade||'', estado: _perfilFinalCH.estado||'', tipo: _perfilFinalCH.tipo||'', tipo_operacao: _perfilFinalCH.intencao||'' });
           console.log('[WEBHOOK CHAVES] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
+          await _duplicarLeadSaoPauloTIA({ ..._leadSnapshotCHAVES, mapaIntencao: mapa, perfilIA: _perfilFinalCH }, _perfilFinalCH.cidade, _leadSnapshotCHAVES.mensagem);
           // Roda match se perfil suficiente
           const temMinimo = mapa.transacao.length && mapa.tipo_imovel.length && mapa.cidade.length && mapa.bairro.length && mapa.valor.length;
           if (temMinimo) {

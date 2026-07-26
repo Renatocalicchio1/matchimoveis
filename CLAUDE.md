@@ -53,6 +53,12 @@ R$50 mínimo = 2.500 coins (R$1 = 50 coins). Sem limite de importação.
 - AWS SES: domínio matchimoveis.online, produção liberada, ~118k contatos em /admin/campanha
 - Backup: GitHub Actions pg_dump horário + on push
 
+## Dashboard `/app-home` (refeito jul/2026)
+- Paleta Airbnb fixa (categórica, nunca ciclada): vermelho Rausch `#FF385C` (marca), teal Babu `#00A699`, laranja Arches `#FC642D` — validada contra CVD (script `validate_palette.js` do skill dataviz, PASS em modo claro). Cores de status (visitas por status) usam paleta semântica separada (verde/âmbar/vermelho), não a categórica.
+- Antes disso, o dashboard tinha 2 gráficos com **dado 100% inventado** hardcoded no JS ("Leads por canal" com números fixos tipo `[3,5,4,6,4,2,1]`, "Tipos de imóvel" com `tipoData=[45,25,12,8,6,4]`) — removidos. Todo gráfico agora usa campo real já calculado em `stats`/`locals` no route `/app-home` (server.js)
+- Novo campo `graficoLeadsOrigem` (server.js, rota `/app-home`) — agrupa `leadsArr` por `origem`/`origemEntrada` com rótulos amigáveis, substitui o gráfico de canal fake
+- Cards novos usando dados que já eram calculados no backend mas nunca apareciam na tela: Demanda×Oferta por bairro (`graficoLeadsBairro` x `graficoImoveisBairro`), Confirmação & tendência mensal (`visitasTaxaConfirmacao`, `visitasRealizadasMes` vs `visitasRealizadasMesPassado`), Próximas visitas (`stats.proximasVisitas`), imóvel mais visitado e lead mais antiga sem visita (dentro do card Saúde da carteira)
+
 ## Onboarding inteligente (jul/2026)
 - `GET /api/onboarding/status` (server.js) — calcula ao vivo os 6 passos de onboarding a partir do estado real da conta: XML importado (`user.xmlUrl`), WhatsApp conectado (`whatsappStatus==='open'`), Instagram conectado (`instagramContaId`), cadastrou lead manual (`filtrarPorUsuario(leads)` com `origemEntrada==='manual'`), já conversou com o assistente (`historicoAssistente.length>0`), conheceu a área de perfil (flag `onboardingPerfilVisto`, setada na 1ª visita a `/app/perfil`, persistida em `dados` JSONB via `atualizarUsuario`)
 - Modal "Primeiros Passos" (`views/partials/app-shell.ejs`) consome esse endpoint via fetch em qualquer página — mostra só os passos pendentes (os concluídos somem da lista, não ficam só marcados) e um badge com a contagem de pendentes no botão do menu (desktop + mobile)

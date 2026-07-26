@@ -3188,6 +3188,22 @@ app.get('/app-home', auth, async (req,res)=>{
       leadsArr.forEach(l => { const b=l.bairro||'Outro'; map[b]=(map[b]||0)+1; });
       const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,8);
       return JSON.stringify(Object.fromEntries(sorted));
+    })(),
+    graficoLeadsOrigem: (() => {
+      const rotulos = {
+        manual: 'Manual', whatsapp: 'WhatsApp',
+        webhook_imovelweb_global: 'ImovelWeb', webhook_imovelweb: 'ImovelWeb',
+        webhook_grupoolx: 'ZAP/OLX/VivaReal', webhook_123i: '123i', webhook_chaves: 'Chaves na Mão',
+        captacao_link: 'Captação', importado: 'Planilha'
+      };
+      const map = {};
+      leadsArr.forEach(l => {
+        const key = l.origem || l.origemEntrada || 'outro';
+        const label = rotulos[key] || (key.charAt(0).toUpperCase()+key.slice(1));
+        map[label] = (map[label]||0) + 1;
+      });
+      const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+      return JSON.stringify(Object.fromEntries(sorted));
     })()
   });
 });

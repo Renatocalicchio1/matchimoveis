@@ -1,47 +1,57 @@
 <%- include('partials/app-shell', {active:'home',title:'Dashboard',subtitle:'',user:user}) %>
 <style>
+/* Paleta Airbnb — vermelho Rausch (marca), teal Babu, laranja Arches.
+   3 cores categóricas fixas (nunca cicladas) + cinza neutro pra "Outros". */
+:root{
+  --air-red:#FF385C; --air-red-dark:#C1284A; --air-red-bg:#fff1f3; --air-red-text:#c81e4a;
+  --air-teal:#00A699; --air-teal-dark:#00655c; --air-teal-bg:#e6f7f5; --air-teal-text:#00695c;
+  --air-orange:#FC642D; --air-orange-dark:#b8460e; --air-orange-bg:#fff1e8; --air-orange-text:#b8460e;
+  --air-gray:#B0B0B0;
+  --air-good:#16a34a; --air-warn:#d97706; --air-crit:#dc2626;
+}
 .ticker-bar{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .ticker-bar::-webkit-scrollbar{display:none}
 .tkr{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 15px;min-width:130px;flex-shrink:0;position:relative;overflow:hidden;cursor:default;transition:box-shadow .2s}
 .tkr:hover{box-shadow:var(--shadow-md)}
 .tkr::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.tkr.g::before{background:#10b981}.tkr.b::before{background:#3b82f6}.tkr.a::before{background:#f59e0b}.tkr.p::before{background:#8b5cf6}.tkr.t::before{background:#14b8a6}.tkr.r::before{background:#ef4444}
+.tkr.red::before{background:var(--air-red)}.tkr.teal::before{background:var(--air-teal)}.tkr.orange::before{background:var(--air-orange)}.tkr.good::before{background:var(--air-good)}.tkr.crit::before{background:var(--air-crit)}
 .tkr-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-ter);margin-bottom:5px}
-.tkr-val{font-size:22px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.tkr-val{font-size:22px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px;color:var(--dark)}
 .tkr-delta{font-size:10px;margin-top:3px}
-.tkr-delta.up{color:#10b981}.tkr-delta.dn{color:#ef4444}.tkr-delta.n{color:var(--text-ter)}
+.tkr-delta.up{color:var(--air-good)}.tkr-delta.dn{color:var(--air-crit)}.tkr-delta.n{color:var(--text-ter)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
 .dc{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
 .dc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .dc-t{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-sec);font-weight:600}
-.dc-t a{font-size:10px;color:var(--brand);text-decoration:none;font-weight:400;text-transform:none;letter-spacing:0}
-.badge-xs{font-size:9px;padding:2px 6px;border-radius:20px;font-weight:500}
-.bxg{background:#d1fae5;color:#065f46}.bxb{background:#dbeafe;color:#1d4ed8}.bxa{background:#fef3c7;color:#92400e}.bxr{background:#fee2e2;color:#991b1b}
+.dc-t a{font-size:10px;color:var(--air-red);text-decoration:none;font-weight:400;text-transform:none;letter-spacing:0}
+.badge-xs{font-size:9px;padding:2px 6px;border-radius:20px;font-weight:600}
+.bx-red{background:var(--air-red-bg);color:var(--air-red-text)}.bx-teal{background:var(--air-teal-bg);color:var(--air-teal-text)}.bx-orange{background:var(--air-orange-bg);color:var(--air-orange-text)}
 .funil-vis{display:flex;flex-direction:column;gap:6px}
 .fv-row{display:flex;align-items:center;gap:8px}
-.fv-lbl{font-size:10px;color:var(--text-sec);width:80px;flex-shrink:0;text-align:right}
+.fv-lbl{font-size:10px;color:var(--text-sec);width:76px;flex-shrink:0;text-align:right}
 .fv-bar{flex:1;position:relative;height:28px;border-radius:6px;overflow:hidden;background:rgba(0,0,0,.04)}
 .fv-bar-inner{position:absolute;left:0;top:0;bottom:0;border-radius:6px;transition:width 1.4s cubic-bezier(.16,1,.3,1)}
 .fv-num{font-size:11px;font-weight:600;position:relative;z-index:1;color:#fff;padding:0 8px;line-height:28px}
 .fv-pct{font-size:9px;color:var(--text-ter);width:32px;text-align:right;flex-shrink:0}
-.bairro-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.bairro-row:last-child{margin-bottom:0}
-.bairro-nome{font-size:11px;color:var(--text-sec);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bairro-track{flex:1;height:10px;background:var(--border-light);border-radius:3px;overflow:hidden}
-.bairro-fill{height:100%;border-radius:3px}
-.bairro-cnt{font-size:10px;font-weight:600;width:20px;text-align:right;flex-shrink:0;color:var(--text-sec)}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bar-row:last-child{margin-bottom:0}
+.bar-nome{font-size:11px;color:var(--text-sec);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:10px;background:var(--border-light);border-radius:3px;overflow:hidden;position:relative;display:flex;gap:1px}
+.bar-fill{height:100%;border-radius:3px}
+.bar-cnt{font-size:10px;font-weight:600;width:20px;text-align:right;flex-shrink:0;color:var(--text-sec)}
 .lead-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border-light)}
 .lead-row:last-child{border-bottom:none}
 .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
 .ln{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ls{font-size:10px;color:var(--text-ter)}
-.top-im{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light)}
+.top-im{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border-light)}
 .top-im:last-child{border-bottom:none}
 .top-rk{font-size:10px;color:var(--text-ter);width:14px;flex-shrink:0}
+.top-thumb{width:32px;height:32px;border-radius:7px;object-fit:cover;flex-shrink:0;background:var(--border-light)}
 .top-tipo{font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .top-loc{font-size:9px;color:var(--text-ter)}
-.top-cnt{font-size:12px;font-weight:700;color:#10b981;flex-shrink:0}
+.top-cnt{font-size:12px;font-weight:700;color:var(--air-teal);flex-shrink:0}
 .gauge-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0}
 .gauge-big{font-size:30px;font-weight:700;line-height:1;margin-top:-6px;letter-spacing:-1px}
 .gauge-sub{font-size:10px;color:var(--text-ter);margin-top:3px}
@@ -53,12 +63,18 @@
 .score-lbl{font-size:10px;color:var(--text-ter);margin-bottom:6px}
 .score-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
 .score-fill{height:100%;border-radius:4px;transition:width 1.5s cubic-bezier(.16,1,.3,1)}
-.tipo-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:500;margin:2px}
 .clk-badge{font-size:10px;color:var(--text-ter);background:var(--border-light);padding:3px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
-.pdot{width:5px;height:5px;border-radius:50%;background:#10b981;animation:pd 2s infinite}
+.pdot{width:5px;height:5px;border-radius:50%;background:var(--air-good);animation:pd 2s infinite}
 @keyframes pd{0%,100%{opacity:1}50%{opacity:.2}}
-.evol-num{font-size:16px;font-weight:700;line-height:1}
-.evol-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.trend-tile{padding:12px;border-radius:10px;text-align:center}
+.trend-num{font-size:20px;font-weight:700;line-height:1}
+.trend-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.4px;margin-top:4px;color:var(--text-ter)}
+.trend-delta{font-size:10px;font-weight:600;margin-top:3px}
+.visita-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border-light)}
+.visita-row:last-child{border-bottom:none}
+.visita-dia{width:34px;height:34px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:700}
+.visita-dia .d{font-size:12px;line-height:1}
+.visita-dia .m{font-size:7px;text-transform:uppercase;letter-spacing:.3px}
 @media(max-width:1100px){.g3{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
 </style>
@@ -72,120 +88,167 @@
 </div>
 
 <div class="ticker-bar">
-  <div class="tkr g"><div class="tkr-lbl">Imóveis</div><div class="tkr-val" id="ki"><%= stats.imoveisAtivos %></div><div class="tkr-delta up">↑ carteira</div></div>
-  <div class="tkr b"><div class="tkr-lbl">Leads</div><div class="tkr-val" id="kl"><%= stats.leadsNovos %></div><div class="tkr-delta n">pipeline</div></div>
-  <div class="tkr a"><div class="tkr-lbl">Com match</div><div class="tkr-val" id="km"><%= stats.comMatch %></div><div class="tkr-delta up">↑ <%= stats.taxaMatch %>% taxa</div></div>
-  <div class="tkr t"><div class="tkr-lbl">Visitas</div><div class="tkr-val" id="kv"><%= stats.visitasAgendadas %></div><div class="tkr-delta n">agendadas</div></div>
-  <div class="tkr p"><div class="tkr-lbl">Hoje</div><div class="tkr-val" id="kh"><%= stats.visitasHoje %></div><div class="tkr-delta n">visitas hoje</div></div>
-  <div class="tkr r"><div class="tkr-lbl">Pendentes</div><div class="tkr-val"><%= stats.leadsNovos - stats.comMatch %></div><div class="tkr-delta dn">↓ sem match</div></div>
-  <div class="tkr g"><div class="tkr-lbl">Score</div><div class="tkr-val"><%= stats.scoreCarteira||0 %></div><div class="tkr-delta up">carteira</div></div>
+  <div class="tkr red"><div class="tkr-lbl">Imóveis</div><div class="tkr-val" id="ki"><%= stats.imoveisAtivos %></div><div class="tkr-delta n">carteira ativa</div></div>
+  <div class="tkr red"><div class="tkr-lbl">Leads</div><div class="tkr-val" id="kl"><%= stats.leadsNovos %></div><div class="tkr-delta n">pipeline</div></div>
+  <div class="tkr teal"><div class="tkr-lbl">Com match</div><div class="tkr-val" id="km"><%= stats.comMatch %></div><div class="tkr-delta up">↑ <%= stats.taxaMatch %>% taxa</div></div>
+  <div class="tkr orange"><div class="tkr-lbl">Visitas</div><div class="tkr-val" id="kv"><%= stats.visitasAgendadas %></div><div class="tkr-delta n">agendadas</div></div>
+  <div class="tkr orange"><div class="tkr-lbl">Hoje</div><div class="tkr-val" id="kh"><%= stats.visitasHoje %></div><div class="tkr-delta n">visitas hoje</div></div>
+  <div class="tkr crit"><div class="tkr-lbl">Pendentes</div><div class="tkr-val"><%= Math.max(stats.leadsNovos - stats.comMatch, 0) %></div><div class="tkr-delta dn">sem match</div></div>
+  <div class="tkr good"><div class="tkr-lbl">Score</div><div class="tkr-val"><%= stats.scoreCarteira||0 %></div><div class="tkr-delta n">saúde carteira</div></div>
 </div>
 
 <div class="g3">
   <div class="dc">
-    <div class="dc-hd"><span class="dc-t">Funil de conversão</span><span class="badge-xs bxb">ao vivo</span></div>
-    <% var ft=Math.max(stats.funnelLeads||1,1);var funnelRows=[{l:'Leads',v:stats.funnelLeads,c:'#3b82f6',p:100},{l:'Qualific.',v:Math.round(ft*.55),c:'#8b5cf6',p:55},{l:'Match',v:stats.funnelMatch,c:'#f59e0b',p:Math.round((stats.funnelMatch/ft)*100)},{l:'Vitrine',v:stats.funnelVitrine||0,c:'#10b981',p:Math.round(((stats.funnelVitrine||0)/ft)*100)},{l:'Visita',v:stats.visitasAgendadas,c:'#14b8a6',p:Math.round((stats.visitasAgendadas/ft)*100)}]; %>
+    <div class="dc-hd"><span class="dc-t">Funil de conversão</span><span class="badge-xs bx-red">ao vivo</span></div>
+    <% var ft=Math.max(stats.funnelLeads||1,1);
+       var funnelRows=[
+         {l:'Leads',v:stats.funnelLeads||0,c:'#ffd7de',p:100},
+         {l:'Match',v:stats.funnelMatch||0,c:'#ff8fa3',p:stats.funnelPctMatch||0},
+         {l:'Visita',v:stats.funnelVisitaAgendada||0,p:Math.round(((stats.funnelVisitaAgendada||0)/ft)*100),c:'#ff5c7a'},
+         {l:'Confirmada',v:stats.funnelVisitaConfirmada||0,p:Math.round(((stats.funnelVisitaConfirmada||0)/ft)*100),c:'var(--air-red)'}
+       ]; %>
     <div class="funil-vis">
     <% funnelRows.forEach(function(f){ %>
-    <div class="fv-row"><span class="fv-lbl"><%= f.l %></span><div class="fv-bar"><div class="fv-bar-inner" style="width:<%= f.p %>%;background:<%= f.c %>"></div><span class="fv-num"><%= f.v %></span></div><span class="fv-pct"><%= f.p %>%</span></div>
+    <div class="fv-row"><span class="fv-lbl"><%= f.l %></span><div class="fv-bar"><div class="fv-bar-inner" style="width:<%= f.p %>%;background:<%= f.c %>"></div><span class="fv-num" style="color:<%= f.l==='Leads'?'#7a1230':'#fff' %>"><%= f.v %></span></div><span class="fv-pct"><%= f.p %>%</span></div>
     <% }); %>
     </div>
   </div>
 
   <div class="dc">
-    <div class="dc-hd"><span class="dc-t">Evolução semanal</span><span class="badge-xs bxg">4 semanas</span></div>
-    <% var evol=JSON.parse(stats.evolucaoSemanal||'[0,0,0,0]');var semLabels=['Sem -3','Sem -2','Sem -1','Esta sem'];var semCores=['#e0e7ff','#c7d2fe','#818cf8','#4f46e5']; %>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-    <% evol.forEach(function(v,i){ %>
-    <div style="background:<%= semCores[i] %>;border-radius:8px;padding:9px 11px">
-      <div class="evol-num" style="color:<%= i>=2?'#fff':'#4f46e5' %>"><%= v %></div>
-      <div class="evol-lbl" style="color:<%= i>=2?'rgba(255,255,255,.7)':'#6366f1' %>"><%= semLabels[i] %></div>
-    </div>
-    <% }); %>
-    </div>
-    <div style="position:relative;height:80px"><canvas id="cevol" role="img" aria-label="Evolução de leads"></canvas></div>
+    <div class="dc-hd"><span class="dc-t">Evolução semanal de leads</span><span class="badge-xs bx-red">4 semanas</span></div>
+    <% var evol=JSON.parse(stats.evolucaoSemanal||'[0,0,0,0]');var semLabels=['Sem -3','Sem -2','Sem -1','Esta sem']; %>
+    <div style="position:relative;height:150px"><canvas id="cevol" role="img" aria-label="Evolução de leads"></canvas></div>
   </div>
 
   <div class="dc">
-    <div class="dc-hd"><span class="dc-t">Taxa de match</span></div>
-    <% var tp=stats.taxaMatch||0;var gc=tp>60?'#10b981':tp>30?'#f59e0b':'#ef4444';var tr2=(tp/100)*180;var trad=(tr2-180)*Math.PI/180;var tx=(70+50*Math.cos(trad)).toFixed(1);var ty=(70+50*Math.sin(trad)).toFixed(1); %>
-    <div class="gauge-wrap">
-      <svg width="130" height="75" viewBox="0 0 140 80">
-        <path d="M 20 70 A 50 50 0 0 1 120 70" fill="none" stroke="var(--border-light)" stroke-width="12" stroke-linecap="round"/>
-        <path d="M 20 70 A 50 50 0 0 1 <%= tx %> <%= ty %>" fill="none" stroke="<%= gc %>" stroke-width="12" stroke-linecap="round"/>
-        <circle cx="<%= tx %>" cy="<%= ty %>" r="4" fill="<%= gc %>"/>
-      </svg>
-      <div class="gauge-big" style="color:<%= gc %>"><%= tp %>%</div>
-      <div class="gauge-sub">leads com match</div>
-    </div>
+    <div class="dc-hd"><span class="dc-t">Temperatura das leads</span></div>
+    <div style="position:relative;height:110px"><canvas id="ctemp" role="img" aria-label="Temperatura das leads"></canvas></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:10px">
-      <div style="padding:7px;background:#fee2e2;border-radius:7px;text-align:center"><div style="font-size:14px;font-weight:700;color:#991b1b"><%= stats.leadsFrias||0 %></div><div style="font-size:9px;color:#991b1b">Frias</div></div>
-      <div style="padding:7px;background:#fef3c7;border-radius:7px;text-align:center"><div style="font-size:14px;font-weight:700;color:#92400e"><%= stats.leadsMornas||0 %></div><div style="font-size:9px;color:#92400e">Mornas</div></div>
-      <div style="padding:7px;background:#d1fae5;border-radius:7px;text-align:center"><div style="font-size:14px;font-weight:700;color:#065f46"><%= stats.leadsQuentes||0 %></div><div style="font-size:9px;color:#065f46">Quentes</div></div>
+      <div style="padding:7px;background:var(--air-teal-bg);border-radius:7px;text-align:center"><div style="font-size:14px;font-weight:700;color:var(--air-teal-text)"><%= stats.leadsFrias||0 %></div><div style="font-size:9px;color:var(--air-teal-text)">Frias</div></div>
+      <div style="padding:7px;background:var(--air-orange-bg);border-radius:7px;text-align:center"><div style="font-size:14px;font-weight:700;color:var(--air-orange-text)"><%= stats.leadsMornas||0 %></div><div style="font-size:9px;color:var(--air-orange-text)">Mornas</div></div>
+      <div style="padding:7px;background:var(--air-red-bg);border-radius:7px;text-align:center"><div style="font-size:14px;font-weight:700;color:var(--air-red-text)"><%= stats.leadsQuentes||0 %></div><div style="font-size:9px;color:var(--air-red-text)">Quentes</div></div>
     </div>
   </div>
 </div>
 
 <div class="g3">
   <div class="dc">
-    <div class="dc-hd"><span class="dc-t">Regiões mais buscadas</span><span class="badge-xs bxa">demanda</span></div>
-    <div id="bairros-grid"></div>
+    <div class="dc-hd"><span class="dc-t">Demanda × Oferta por bairro</span><span class="badge-xs bx-red">leads vs imóveis</span></div>
+    <div style="position:relative;height:190px"><canvas id="cdemanda" role="img" aria-label="Demanda e oferta por bairro"></canvas></div>
   </div>
 
   <div class="dc">
-    <div class="dc-hd"><span class="dc-t">Leads por canal — 7d</span></div>
-    <div style="position:relative;height:160px"><canvas id="cc" role="img" aria-label="Leads por canal"></canvas></div>
-  </div>
-
-  <div class="dc">
-    <div class="dc-hd"><span class="dc-t">Tipos de imóvel</span><span class="badge-xs bxb">oferta</span></div>
+    <div class="dc-hd"><span class="dc-t">Tipos de imóvel</span><span class="badge-xs bx-teal">oferta real</span></div>
     <div style="position:relative;height:120px"><canvas id="ctipo" role="img" aria-label="Tipos de imóvel"></canvas></div>
     <div id="tipo-pills" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:3px"></div>
   </div>
+
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Leads por origem</span><span class="badge-xs bx-orange">canal</span></div>
+    <div style="position:relative;height:120px"><canvas id="corigem" role="img" aria-label="Leads por origem"></canvas></div>
+    <div id="origem-pills" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:3px"></div>
+  </div>
 </div>
 
 <div class="g3">
   <div class="dc">
-    <div class="dc-hd"><span class="dc-t">Leads recentes</span><a href="/app/leads">ver todos →</a></div>
-    <% var avCores=[['#dbeafe','#1d4ed8'],['#d1fae5','#065f46'],['#ede9fe','#5b21b6'],['#fef3c7','#92400e'],['#fee2e2','#991b1b']];var rec=locals.recentes||[]; %>
-    <% if(!rec.length){ %><div style="text-align:center;padding:20px;color:var(--text-ter);font-size:11px">Nenhum lead ainda</div><% } %>
-    <% rec.slice(0,5).forEach(function(l,i){var tm=(l.matches&&l.matches.length>0)||(l.matchesAuto&&l.matchesAuto.length>0);var c=avCores[i%5]; %>
-    <div class="lead-row">
-      <div class="av" style="background:<%= c[0] %>;color:<%= c[1] %>"><%= (l.nome||'?').charAt(0).toUpperCase() %></div>
-      <div style="flex:1;min-width:0"><div class="ln"><%= l.nome||l.telefone||'Lead' %></div><div class="ls"><%= l.origem||'WhatsApp' %> · <%= (l.perfilIA&&l.perfilIA.cidade)||l.cidade||'—' %></div></div>
-      <% if(tm){ %><span class="badge-xs bxg">match</span><% }else{ %><span class="badge-xs" style="background:var(--border-light);color:var(--text-ter)">novo</span><% } %>
-    </div>
-    <% }); %>
+    <div class="dc-hd"><span class="dc-t">Visitas por status</span></div>
+    <div style="position:relative;height:150px"><canvas id="cvisitas" role="img" aria-label="Visitas por status"></canvas></div>
   </div>
 
   <div class="dc">
-    <div class="dc-hd"><span class="dc-t">Top imóveis</span><a href="/app/imoveis">ver todos →</a></div>
-    <% var top=locals.topImoveis||[]; %>
-    <% if(!top.length){ %><div style="text-align:center;padding:20px;color:var(--text-ter);font-size:11px">Sem dados ainda</div><% } %>
-    <% top.slice(0,5).forEach(function(im,i){ %>
-    <div class="top-im"><span class="top-rk">#<%= i+1 %></span><div class="top-info" style="flex:1;min-width:0"><div class="top-tipo"><%= im.titulo||im.tipo||'Imóvel' %></div><div class="top-loc"><%= im.bairro||'' %><%= im.cidade?', '+im.cidade:'' %></div></div><span class="top-cnt"><%= im.cnt||0 %></span></div>
-    <% }); %>
-    <div style="margin-top:10px;position:relative;height:70px"><canvas id="ctopim" role="img" aria-label="Top imóveis"></canvas></div>
+    <div class="dc-hd"><span class="dc-t">Confirmação & tendência mensal</span></div>
+    <div class="gauge-wrap" style="margin-bottom:10px">
+      <% var vtc=stats.visitasTaxaConfirmacao||0;var gc=vtc>60?'var(--air-good)':vtc>30?'var(--air-warn)':'var(--air-crit)'; %>
+      <div class="gauge-big" style="color:<%= gc %>"><%= vtc %>%</div>
+      <div class="gauge-sub">taxa de confirmação de visitas</div>
+    </div>
+    <% var mesAtual=stats.visitasRealizadasMes||0, mesPassado=stats.visitasRealizadasMesPassado||0;
+       var deltaM = mesPassado>0 ? Math.round(((mesAtual-mesPassado)/mesPassado)*100) : (mesAtual>0?100:0);
+       var deltaUp = mesAtual >= mesPassado; %>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <div class="trend-tile" style="background:var(--border-light)"><div class="trend-num" style="color:var(--dark)"><%= mesAtual %></div><div class="trend-lbl">Realizadas este mês</div></div>
+      <div class="trend-tile" style="background:var(--border-light)">
+        <div class="trend-num" style="color:var(--dark)"><%= mesPassado %></div>
+        <div class="trend-lbl">Mês passado</div>
+        <div class="trend-delta" style="color:<%= deltaUp?'var(--air-good)':'var(--air-crit)' %>"><%= deltaUp?'↑':'↓' %> <%= Math.abs(deltaM) %>%</div>
+      </div>
+    </div>
   </div>
 
   <div class="dc">
     <div class="dc-hd"><span class="dc-t">Saúde da carteira</span></div>
     <div class="score-wrap">
       <div class="score-lbl">Score — <strong><%= stats.scoreCarteira||0 %>/100</strong></div>
-      <div class="score-bar"><div class="score-fill" id="score-fill" style="width:0%;background:<%= (stats.scoreCarteira||0)>70?'#10b981':(stats.scoreCarteira||0)>40?'#f59e0b':'#ef4444' %>"></div></div>
+      <div class="score-bar"><div class="score-fill" id="score-fill" style="width:0%;background:<%= (stats.scoreCarteira||0)>70?'var(--air-good)':(stats.scoreCarteira||0)>40?'var(--air-warn)':'var(--air-crit)' %>"></div></div>
     </div>
-    <div class="ins" style="background:<%= stats.imoveisSemFoto>0?'#fef3c7':'#d1fae5' %>">
-      <span class="ins-txt" style="color:<%= stats.imoveisSemFoto>0?'#92400e':'#065f46' %>"><%= stats.imoveisSemFoto>0?'⚠️ '+stats.imoveisSemFoto+' sem foto':'✅ Fotos ok' %></span>
-      <% if(stats.imoveisSemFoto>0){ %><a href="/app/imoveis" class="ins-lnk" style="color:#92400e">corrigir</a><% } %>
+    <div class="ins" style="background:<%= stats.imoveisSemFoto>0?'var(--air-orange-bg)':'var(--air-teal-bg)' %>">
+      <span class="ins-txt" style="color:<%= stats.imoveisSemFoto>0?'var(--air-orange-text)':'var(--air-teal-text)' %>"><%= stats.imoveisSemFoto>0?'⚠️ '+stats.imoveisSemFoto+' sem foto':'✅ Fotos ok' %></span>
+      <% if(stats.imoveisSemFoto>0){ %><a href="/app/imoveis" class="ins-lnk" style="color:var(--air-orange-text)">corrigir</a><% } %>
     </div>
-    <div class="ins" style="background:<%= stats.leadsQuentesSemVisita>0?'#fee2e2':'#d1fae5' %>">
-      <span class="ins-txt" style="color:<%= stats.leadsQuentesSemVisita>0?'#991b1b':'#065f46' %>"><%= stats.leadsQuentesSemVisita>0?'🔥 '+stats.leadsQuentesSemVisita+' quentes s/ visita':'✅ Sem pendências' %></span>
-      <% if(stats.leadsQuentesSemVisita>0){ %><a href="/app/leads" class="ins-lnk" style="color:#991b1b">ver</a><% } %>
+    <div class="ins" style="background:<%= stats.leadsQuentesSemVisita>0?'var(--air-red-bg)':'var(--air-teal-bg)' %>">
+      <span class="ins-txt" style="color:<%= stats.leadsQuentesSemVisita>0?'var(--air-red-text)':'var(--air-teal-text)' %>"><%= stats.leadsQuentesSemVisita>0?'🔥 '+stats.leadsQuentesSemVisita+' quentes s/ visita':'✅ Sem pendências' %></span>
+      <% if(stats.leadsQuentesSemVisita>0){ %><a href="/app/leads" class="ins-lnk" style="color:var(--air-red-text)">ver</a><% } %>
     </div>
+    <% if(stats.imovelMaisVisitado){ %>
+    <div class="ins" style="background:var(--border-light)">
+      <span class="ins-txt" style="color:var(--dark)">🏆 + visitado: <%= stats.imovelMaisVisitado.titulo %> (<%= stats.imovelMaisVisitado.cnt %>x)</span>
+    </div>
+    <% } %>
+    <% if(stats.leadMaisAntigaSemVisita){ %>
+    <div class="ins" style="background:var(--air-orange-bg)">
+      <span class="ins-txt" style="color:var(--air-orange-text)">⏳ <%= stats.leadMaisAntigaSemVisita.nome %> — <%= stats.leadMaisAntigaSemVisita.dias %>d sem visita</span>
+    </div>
+    <% } %>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
       <div style="padding:8px 10px;background:var(--border-light);border-radius:7px"><div style="font-size:9px;color:var(--text-ter);margin-bottom:2px">+ buscado</div><div style="font-size:12px;font-weight:600;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= stats.bairroMaisDemandado||'—' %></div></div>
       <div style="padding:8px 10px;background:var(--border-light);border-radius:7px"><div style="font-size:9px;color:var(--text-ter);margin-bottom:2px">+ oferta</div><div style="font-size:12px;font-weight:600;color:var(--dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= stats.bairroMaisOferta||'—' %></div></div>
     </div>
+  </div>
+</div>
+
+<div class="g3">
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Leads recentes</span><a href="/app/leads">ver todos →</a></div>
+    <% var avCores=[['var(--air-red-bg)','var(--air-red-text)'],['var(--air-teal-bg)','var(--air-teal-text)'],['var(--air-orange-bg)','var(--air-orange-text)']];var rec=locals.recentes||[]; %>
+    <% if(!rec.length){ %><div style="text-align:center;padding:20px;color:var(--text-ter);font-size:11px">Nenhum lead ainda</div><% } %>
+    <% rec.slice(0,5).forEach(function(l,i){var tm=(l.matches&&l.matches.length>0)||(l.matchesAuto&&l.matchesAuto.length>0);var c=avCores[i%3]; %>
+    <div class="lead-row">
+      <div class="av" style="background:<%= c[0] %>;color:<%= c[1] %>"><%= (l.nome||'?').charAt(0).toUpperCase() %></div>
+      <div style="flex:1;min-width:0"><div class="ln"><%= l.nome||l.telefone||'Lead' %></div><div class="ls"><%= l.origem||'WhatsApp' %> · <%= (l.perfilIA&&l.perfilIA.cidade)||l.cidade||'—' %></div></div>
+      <% if(tm){ %><span class="badge-xs bx-teal">match</span><% }else{ %><span class="badge-xs" style="background:var(--border-light);color:var(--text-ter)">novo</span><% } %>
+    </div>
+    <% }); %>
+  </div>
+
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Top imóveis mais matcheados</span><a href="/app/imoveis">ver todos →</a></div>
+    <% var rank=stats.rankingImoveis||[]; %>
+    <% if(!rank.length){ %><div style="text-align:center;padding:20px;color:var(--text-ter);font-size:11px">Sem dados ainda</div><% } %>
+    <% rank.forEach(function(im,i){ %>
+    <div class="top-im">
+      <span class="top-rk">#<%= i+1 %></span>
+      <% if(im.foto){ %><img class="top-thumb" src="<%= im.foto %>" onerror="this.style.display='none'"><% } %>
+      <div style="flex:1;min-width:0"><div class="top-tipo"><%= im.titulo||'Imóvel' %></div><div class="top-loc"><%= im.bairro||'' %><%= im.valor?' · R$ '+Number(im.valor).toLocaleString('pt-BR'):'' %></div></div>
+      <span class="top-cnt"><%= im.cnt||0 %>×</span>
+    </div>
+    <% }); %>
+  </div>
+
+  <div class="dc">
+    <div class="dc-hd"><span class="dc-t">Próximas visitas</span><a href="/app/visitas">ver todas →</a></div>
+    <% var prox=stats.proximasVisitas||[]; %>
+    <% if(!prox.length){ %><div style="text-align:center;padding:20px;color:var(--text-ter);font-size:11px">Nenhuma visita agendada</div><% } %>
+    <% prox.forEach(function(v){ var dt=v.data?new Date(v.data):null; %>
+    <div class="visita-row">
+      <div class="visita-dia" style="background:<%= v.hoje?'var(--air-red-bg)':'var(--border-light)' %>;color:<%= v.hoje?'var(--air-red-text)':'var(--text-sec)' %>">
+        <div class="d"><%= dt?dt.getDate():'-' %></div>
+        <div class="m"><%= dt?dt.toLocaleDateString('pt-BR',{month:'short'}).replace('.',''):'' %></div>
+      </div>
+      <div style="flex:1;min-width:0"><div class="ln"><%= v.nome %></div><div class="ls"><%= v.titulo %><%= v.bairro?' · '+v.bairro:'' %><%= v.hora?' · '+v.hora:'' %></div></div>
+      <% if(v.hoje){ %><span class="badge-xs bx-red">hoje</span><% } %>
+    </div>
+    <% }); %>
   </div>
 </div>
 
@@ -196,22 +259,72 @@ function anim(id,final){var el=document.getElementById(id);if(!el)return;var s=D
 anim('ki',<%=stats.imoveisAtivos%>);anim('kl',<%=stats.leadsNovos%>);anim('km',<%=stats.comMatch%>);anim('kv',<%=stats.visitasAgendadas%>);anim('kh',<%=stats.visitasHoje%>);
 setTimeout(function(){var el=document.getElementById('score-fill');if(el)el.style.width='<%=stats.scoreCarteira||0%>%';},300);
 
-var bairroData=<%- JSON.stringify((function(){var map={};(locals.topImoveis||[]).forEach(function(im){if(im.bairro)map[im.bairro]=(map[im.bairro]||0)+im.cnt;});return Object.entries(map).sort(function(a,b){return b[1]-a[1];}).slice(0,7).map(function(e){return{nome:e[0],cnt:e[1]};});})()) %>;
-var maxB=bairroData.reduce(function(m,b){return Math.max(m,b.cnt);},1);
-var bCores=['#4f46e5','#7c3aed','#2563eb','#0891b2','#059669','#d97706','#dc2626'];
-var bg=document.getElementById('bairros-grid');
-if(bairroData.length){bairroData.forEach(function(b,i){bg.innerHTML+='<div class="bairro-row"><span class="bairro-nome">'+b.nome+'</span><div class="bairro-track"><div class="bairro-fill" style="width:'+Math.round((b.cnt/maxB)*100)+'%;background:'+bCores[i%7]+'"></div></div><span class="bairro-cnt">'+b.cnt+'</span></div>';});}else{bg.innerHTML='<div style="text-align:center;padding:16px;color:var(--text-ter);font-size:11px">Dados insuficientes</div>';}
+Chart.defaults.font.family="'Inter',sans-serif";
+Chart.defaults.color='#9ca3af';
 
-new Chart(document.getElementById('cc'),{type:'bar',data:{labels:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],datasets:[{label:'WhatsApp',data:[3,5,4,6,4,2,1],backgroundColor:'rgba(59,130,246,.75)',borderRadius:3},{label:'VivaReal',data:[1,2,3,2,3,1,0],backgroundColor:'rgba(16,185,129,.75)',borderRadius:3},{label:'ZAP',data:[2,1,2,3,2,0,0],backgroundColor:'rgba(245,158,11,.75)',borderRadius:3},{label:'ImovelWeb',data:[1,1,1,2,1,0,0],backgroundColor:'rgba(139,92,246,.75)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:9},color:'#9ca3af'}},y:{stacked:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#9ca3af'}}}}});
+// Evolução semanal — série única (vermelho da marca)
+new Chart(document.getElementById('cevol'),{
+  type:'bar',
+  data:{labels:['S-3','S-2','S-1','Atual'],datasets:[{data:<%- stats.evolucaoSemanal||'[0,0,0,0]' %>,backgroundColor:'#FF385C',borderRadius:4,maxBarThickness:36}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:function(){return '';}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},precision:0},beginAtZero:true}}}
+});
 
-var tipoLabels=['Apart.','Casa','Cobert.','Terreno','Sala','Outros'];var tipoData=[45,25,12,8,6,4];var tipoCores=['#4f46e5','#7c3aed','#2563eb','#0891b2','#059669','#9ca3af'];
-new Chart(document.getElementById('ctipo'),{type:'doughnut',data:{labels:tipoLabels,datasets:[{data:tipoData,backgroundColor:tipoCores,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}});
-var pp=document.getElementById('tipo-pills');tipoLabels.forEach(function(l,i){pp.innerHTML+='<span class="tipo-pill" style="background:'+tipoCores[i]+'15;color:'+tipoCores[i]+'"><span style="width:5px;height:5px;border-radius:50%;background:'+tipoCores[i]+';display:inline-block"></span>'+l+'</span>';});
+// Temperatura das leads — quente(vermelho) / morno(laranja) / frio(teal)
+new Chart(document.getElementById('ctemp'),{
+  type:'doughnut',
+  data:{labels:['Quentes','Mornas','Frias'],datasets:[{data:[<%=stats.leadsQuentes||0%>,<%=stats.leadsMornas||0%>,<%=stats.leadsFrias||0%>],backgroundColor:['#FF385C','#FC642D','#00A699'],borderWidth:2,borderColor:'#fff',hoverOffset:4}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}
+});
 
-var evolData=<%- stats.evolucaoSemanal||'[0,0,0,0]' %>;
-new Chart(document.getElementById('cevol'),{type:'line',data:{labels:['S-3','S-2','S-1','Atual'],datasets:[{data:evolData,borderColor:'#4f46e5',backgroundColor:'rgba(79,70,229,.1)',fill:true,tension:.4,pointBackgroundColor:'#4f46e5',pointRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9},color:'#9ca3af'}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},color:'#9ca3af'},beginAtZero:true}}}});
+// Demanda (leads) x Oferta (imóveis) por bairro
+var demandaMap=<%- locals.graficoLeadsBairro||'{}' %>;
+var ofertaMap=<%- locals.graficoImoveisBairro||'{}' %>;
+var bairrosSet=Object.keys(demandaMap).slice(0,6);
+Object.keys(ofertaMap).forEach(function(b){ if(bairrosSet.indexOf(b)===-1 && bairrosSet.length<6) bairrosSet.push(b); });
+new Chart(document.getElementById('cdemanda'),{
+  type:'bar',
+  data:{labels:bairrosSet,datasets:[
+    {label:'Leads (demanda)',data:bairrosSet.map(function(b){return demandaMap[b]||0;}),backgroundColor:'#FF385C',borderRadius:3,maxBarThickness:18},
+    {label:'Imóveis (oferta)',data:bairrosSet.map(function(b){return ofertaMap[b]||0;}),backgroundColor:'#00A699',borderRadius:3,maxBarThickness:18}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:bairrosSet.length>0,position:'bottom',labels:{boxWidth:8,font:{size:9}}}},scales:{x:{grid:{display:false},ticks:{font:{size:8}}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},precision:0},beginAtZero:true}}}
+});
 
-var topData=<%- JSON.stringify((locals.topImoveis||[]).slice(0,5).map(function(im){return im.cnt||0;})) %>;var topLabels=<%- JSON.stringify((locals.topImoveis||[]).slice(0,5).map(function(im,i){return '#'+(i+1);})) %>;
-new Chart(document.getElementById('ctopim'),{type:'bar',data:{labels:topLabels,datasets:[{data:topData,backgroundColor:'rgba(16,185,129,.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9},color:'#9ca3af'}},y:{grid:{display:false},ticks:{font:{size:9},color:'#9ca3af'},beginAtZero:true}}}});
+// Tipos de imóvel — dado real (graficoImoveisTipo), sem inventar número
+var tipoMap=<%- locals.graficoImoveisTipo||'{}' %>;
+var tipoLabels=Object.keys(tipoMap);
+var tipoData=Object.values(tipoMap);
+var tipoCores=['#FF385C','#00A699','#FC642D','#C1284A','#00655C','#B0B0B0'];
+if(tipoLabels.length){
+  new Chart(document.getElementById('ctipo'),{type:'doughnut',data:{labels:tipoLabels,datasets:[{data:tipoData,backgroundColor:tipoCores,borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}});
+  var pp=document.getElementById('tipo-pills');
+  tipoLabels.forEach(function(l,i){pp.innerHTML+='<span class="badge-xs" style="background:'+tipoCores[i%6]+'18;color:'+tipoCores[i%6]+'"><span style="width:5px;height:5px;border-radius:50%;background:'+tipoCores[i%6]+';display:inline-block;margin-right:4px"></span>'+l+' ('+tipoData[i]+')</span>';});
+} else {
+  document.getElementById('ctipo').parentElement.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--text-ter);font-size:11px">Sem imóveis cadastrados ainda</div>';
+}
+
+// Leads por origem — dado real (graficoLeadsOrigem)
+var origemMap=<%- locals.graficoLeadsOrigem||'{}' %>;
+var origemLabels=Object.keys(origemMap);
+var origemData=Object.values(origemMap);
+var origemCores=['#FC642D','#FF385C','#00A699','#C1284A','#00655C','#B0B0B0'];
+if(origemLabels.length){
+  new Chart(document.getElementById('corigem'),{type:'doughnut',data:{labels:origemLabels,datasets:[{data:origemData,backgroundColor:origemCores,borderWidth:2,borderColor:'#fff',hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}});
+  var po=document.getElementById('origem-pills');
+  origemLabels.forEach(function(l,i){po.innerHTML+='<span class="badge-xs" style="background:'+origemCores[i%6]+'18;color:'+origemCores[i%6]+'"><span style="width:5px;height:5px;border-radius:50%;background:'+origemCores[i%6]+';display:inline-block;margin-right:4px"></span>'+l+' ('+origemData[i]+')</span>';});
+} else {
+  document.getElementById('corigem').parentElement.innerHTML='<div style="text-align:center;padding:30px 0;color:var(--text-ter);font-size:11px">Sem leads ainda</div>';
+}
+
+// Visitas por status — paleta de estado (não categórica)
+var visitasMap=<%- stats.visitasPorStatus||'{}' %>;
+var visitasOrdem=['solicitada','confirmada','realizada','cancelada'];
+var visitasLabels={solicitada:'Solicitada',confirmada:'Confirmada',realizada:'Realizada',cancelada:'Cancelada'};
+var visitasCores={solicitada:'#d97706',confirmada:'#00A699',realizada:'#16a34a',cancelada:'#dc2626'};
+new Chart(document.getElementById('cvisitas'),{
+  type:'bar',
+  data:{labels:visitasOrdem.map(function(k){return visitasLabels[k];}),datasets:[{data:visitasOrdem.map(function(k){return visitasMap[k]||0;}),backgroundColor:visitasOrdem.map(function(k){return visitasCores[k];}),borderRadius:4,maxBarThickness:40}]},
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:9},precision:0},beginAtZero:true},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+});
 </script>
 <%- include('partials/app-end') %>

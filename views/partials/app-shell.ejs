@@ -96,6 +96,11 @@
     .menu a.active .menu-ic{opacity:1}
     .menu a:hover .menu-ic{opacity:1}
     .menu-div{height:1px;background:var(--border-light);margin:6px 0}
+    .menu-sub{margin:0 0 4px 29px;padding-left:10px;border-left:1.5px solid var(--border-light)}
+    .menu-sub a{padding:6px 10px;font-size:11.5px}
+    .menu-sub a.active{background:#fff1f1;color:var(--brand);font-weight:600}
+    .menu-sub a.active::after{display:none}
+    .menu-tag-new{font-size:8.5px;font-weight:700;background:var(--brand);color:#fff;padding:1px 5px;border-radius:8px;margin-left:auto;letter-spacing:.2px}
     .menu a[title]{position:relative}
 
     /* BADGES NAV */
@@ -290,6 +295,9 @@
     <a class="<%= active==='leads'?'active':'' %>" href="/app/leads" title="Leads">
       <span class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><span style="font-size:12px">Leads</span>
     </a>
+    <div class="menu-sub">
+      <a class="<%= active==='leads-planilha'?'active':'' %>" href="/app/leads/planilha" title="Planilha de Leads">📊 Planilha de Leads</a>
+    </div>
 
     <a class="<%= active==='visitas'?'active':'' %>" href="/app/visitas" title="Visitas">
       <span class="menu-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span style="font-size:12px">Visitas</span>
@@ -401,6 +409,10 @@
     <a href="/app/parceiros" onclick="toggleMaisMenu()" style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:10px;background:#f8f8f7;text-decoration:none;">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
       <span style="font-size:10px;color:#6b7280;font-weight:500;">Parceiros</span>
+    </a>
+    <a href="/app/leads/planilha" onclick="toggleMaisMenu()" style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:10px;background:#f8f8f7;text-decoration:none;">
+      <span style="font-size:18px;line-height:1">📊</span>
+      <span style="font-size:10px;color:#6b7280;font-weight:500;">Planilha</span>
     </a>
     <a href="/app/notificacoes" onclick="toggleMaisMenu()" style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:10px;background:#f8f8f7;text-decoration:none;">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>

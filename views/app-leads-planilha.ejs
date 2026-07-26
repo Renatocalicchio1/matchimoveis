@@ -1,0 +1,114 @@
+<%- include('partials/app-shell',{active:'leads-planilha',title:'📊 Planilha de Leads',subtitle:'Todas as leads em formato de tabela — data, dados, perfil de busca e status.',user:user}) %>
+
+<style>
+.pl-toolbar{display:flex;justify-content:flex-end;margin-bottom:14px}
+.pl-filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.pl-filtros select,.pl-filtros input{width:auto;min-width:140px}
+.pl-filtros input[type="search"]{flex:1;min-width:200px}
+.pl-tablewrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:auto}
+.pl-tablewrap table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:940px}
+.pl-tablewrap th{text-align:left;padding:10px 14px;font-size:10.5px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border-light);background:var(--bg);white-space:nowrap;position:sticky;top:0}
+.pl-tablewrap td{padding:11px 14px;border-bottom:1px solid var(--border-light);color:var(--text);vertical-align:middle}
+.pl-tablewrap tr:last-child td{border-bottom:none}
+.pl-tablewrap tr:hover td{background:var(--bg)}
+.pl-data{color:var(--text-sec);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pl-data b{display:block;color:var(--text);font-weight:600;font-size:12.5px}
+.pl-nome{font-weight:600;color:var(--text);text-decoration:none}
+.pl-nome:hover{color:var(--brand)}
+.pl-tel{color:var(--text-sec);font-size:11.5px;font-variant-numeric:tabular-nums}
+.pl-chip{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:500;white-space:nowrap;background:var(--border-light);color:var(--text-sec)}
+.pl-perfil{display:flex;flex-direction:column;gap:2px}
+.pl-perfil-tipo{font-weight:500;color:var(--text)}
+.pl-perfil-loc{color:var(--text-sec);font-size:11.5px}
+.pl-perfil-meta{color:var(--text-ter);font-size:11px;font-variant-numeric:tabular-nums}
+.pl-perfil-valor{color:#00847a;font-weight:600;font-variant-numeric:tabular-nums}
+.pl-status{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.pl-fase{font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--border-light);color:var(--text-sec)}
+.pl-temp{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px}
+.pl-ver{padding:6px 12px;border-radius:7px;font-size:11.5px;font-weight:600;background:var(--white);color:var(--brand);border:1px solid #fff1f3;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
+.pl-ver:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+.pl-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;color:var(--text-ter);font-size:11.5px}
+@media(max-width:700px){ .pl-filtros input,.pl-filtros select{min-width:0;flex:1} }
+</style>
+
+<div class="pl-toolbar">
+  <a href="/app/leads/planilha/exportar-excel<%= filtrosQS ? ('?'+filtrosQS) : '' %>" class="btn btn-outline btn-sm">⬇ Exportar Excel</a>
+</div>
+
+<form method="GET" action="/app/leads/planilha" class="pl-filtros">
+  <input type="search" name="busca" placeholder="Buscar por nome, telefone ou bairro..." value="<%= filtros.busca %>">
+  <select name="origem" onchange="this.form.submit()">
+    <option value="">Todos os canais</option>
+    <% canaisDisponiveis.forEach(function(c){ %>
+      <option value="<%= c %>" <%= filtros.origem===c?'selected':'' %>><%= c %></option>
+    <% }); %>
+  </select>
+  <select name="status" onchange="this.form.submit()">
+    <option value="">Todos os status</option>
+    <option value="novo" <%= filtros.status==='novo'?'selected':'' %>>Novo</option>
+    <option value="qualificando" <%= filtros.status==='qualificando'?'selected':'' %>>Qualificando</option>
+    <option value="captacao" <%= filtros.status==='captacao'?'selected':'' %>>Captação</option>
+  </select>
+  <input type="date" name="de" value="<%= filtros.de %>" title="De">
+  <input type="date" name="ate" value="<%= filtros.ate %>" title="Até">
+  <button type="submit" class="btn btn-dark btn-sm">Filtrar</button>
+  <% if(filtros.origem||filtros.status||filtros.busca||filtros.de||filtros.ate){ %>
+    <a href="/app/leads/planilha" class="btn btn-outline btn-sm">Limpar</a>
+  <% } %>
+</form>
+
+<div class="pl-tablewrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Lead</th>
+        <th>Origem</th>
+        <th>Perfil do imóvel</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if(!leads.length){ %>
+        <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-ter)">Nenhuma lead encontrada com esses filtros.</td></tr>
+      <% } %>
+      <% leads.forEach(function(l){ %>
+        <% const p = l.perfilIA || {}; %>
+        <% const d = new Date(l.criadoEm || l.data_cadastro || Date.now()); %>
+        <% const transacaoLabel = p.intencao==='comprar'?'Comprar':p.intencao==='alugar'?'Alugar':p.intencao||''; %>
+        <tr>
+          <td class="pl-data"><b><%= d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}) %></b><%= d.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}) %></td>
+          <td>
+            <a href="/app/lead/<%= l.id %>" class="pl-nome"><%= l.nome || 'Sem nome' %></a><br>
+            <span class="pl-tel"><%= l.telefone || l.whatsapp || l.contato || '-' %></span>
+          </td>
+          <td><span class="pl-chip"><%= l.origem || l.origemEntrada || '-' %></span></td>
+          <td class="pl-perfil">
+            <% if(p.tipo || transacaoLabel){ %>
+              <span class="pl-perfil-tipo"><%= [p.tipo, transacaoLabel].filter(Boolean).join(' · ') %></span>
+            <% } %>
+            <% if(p.bairro || p.cidade){ %>
+              <span class="pl-perfil-loc"><%= [p.bairro, [p.cidade,p.estado].filter(Boolean).join('/')].filter(Boolean).join(', ') %></span>
+            <% } %>
+            <% if(p.quartos || p.valorMax){ %>
+              <span class="pl-perfil-meta"><%= p.quartos ? (p.quartos+' qtos') : '' %><%= (p.quartos && p.valorMax) ? ' · ' : '' %><% if(p.valorMax){ %><span class="pl-perfil-valor">R$ <%= Number(p.valorMax).toLocaleString('pt-BR') %></span><% } %></span>
+            <% } %>
+            <% if(!p.tipo && !p.bairro && !p.valorMax){ %><span style="color:var(--text-ter)">Perfil incompleto</span><% } %>
+          </td>
+          <td class="pl-status">
+            <span class="pl-fase"><%= (l.faseFunil||'novo').charAt(0).toUpperCase()+(l.faseFunil||'novo').slice(1) %></span>
+            <span class="pl-temp" style="background:<%= l.temperatura==='quente'?'#fee2e2':l.temperatura==='morno'?'#fef3c7':'#e6f7f5' %>;color:<%= l.temperatura==='quente'?'#991b1b':l.temperatura==='morno'?'#92400e':'#004d47' %>"><%= l.temperatura==='quente'?'🔥':l.temperatura==='morno'?'🌡':'❄️' %> <%= l.temperatura||'frio' %></span>
+          </td>
+          <td><a href="/app/lead/<%= l.id %>" class="pl-ver">Ver detalhes</a></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+
+<div class="pl-foot">
+  <span>Mostrando <%= leads.length %> lead<%= leads.length===1?'':'s' %></span>
+</div>
+
+<%- include('partials/app-end') %>

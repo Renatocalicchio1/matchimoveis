@@ -3804,6 +3804,90 @@ app.get('/app/leads', auth, async (req,res)=>{
   });
 });
 
+// Helper compartilhado: monta a lista de leads da planilha já filtrada/ordenada
+async function _leadsParaPlanilha(user, query) {
+  const { lerLeads: _lerLeadsPlan } = require('./services/salvarLead');
+  const raw = await _lerLeadsPlan(user.id);
+  const data = Array.isArray(raw) ? raw : (raw.results || []);
+  const base = filtrarPorUsuario(data, user)
+    .filter(l => l.tipoLead !== 'corretor')
+    .filter(l => !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length)));
+
+  const { origem, status, busca, de, ate } = query || {};
+  let leads = base;
+  if (origem) leads = leads.filter(l => (l.origem || l.origemEntrada || '') === origem);
+  if (status) leads = leads.filter(l => (l.faseFunil || 'novo') === status);
+  if (busca) {
+    const b = busca.toLowerCase();
+    const bNum = busca.replace(/\D/g,'');
+    leads = leads.filter(l =>
+      (l.nome||'').toLowerCase().includes(b) ||
+      (bNum && (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,'').includes(bNum)) ||
+      ((l.perfilIA||{}).bairro||l.bairro||'').toLowerCase().includes(b)
+    );
+  }
+  if (de) leads = leads.filter(l => new Date(l.criadoEm||l.data_cadastro||0) >= new Date(de+'T00:00:00'));
+  if (ate) leads = leads.filter(l => new Date(l.criadoEm||l.data_cadastro||0) <= new Date(ate+'T23:59:59'));
+
+  leads = leads.slice().sort((a,b) => new Date(b.criadoEm||b.data_cadastro||0) - new Date(a.criadoEm||a.data_cadastro||0));
+
+  const canaisDisponiveis = [...new Set(base.map(l => l.origem || l.origemEntrada || 'outro'))].sort();
+
+  return { leads, canaisDisponiveis };
+}
+
+app.get('/app/leads/planilha', auth, async (req,res)=>{
+  const { origem, status, busca, de, ate } = req.query;
+  const { leads, canaisDisponiveis } = await _leadsParaPlanilha(req.session.user, req.query);
+  const filtros = { origem: origem||'', status: status||'', busca: busca||'', de: de||'', ate: ate||'' };
+  const filtrosQS = new URLSearchParams(Object.fromEntries(Object.entries(filtros).filter(([,v]) => v))).toString();
+  res.render('app-leads-planilha', {
+    user: req.session.user,
+    active: 'leads-planilha',
+    leads,
+    filtros,
+    filtrosQS,
+    canaisDisponiveis
+  });
+});
+
+app.get('/app/leads/planilha/exportar-excel', auth, async (req,res)=>{
+  try {
+    const XLSX = require('xlsx');
+    const { leads } = await _leadsParaPlanilha(req.session.user, req.query);
+    const linhas = leads.map(l => {
+      const p = l.perfilIA || {};
+      const d = l.criadoEm ? new Date(l.criadoEm) : null;
+      return {
+        Data: d ? d.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '',
+        Nome: l.nome || '',
+        Telefone: l.telefone || l.whatsapp || l.contato || '',
+        Email: l.email || '',
+        Origem: l.origem || l.origemEntrada || '',
+        Tipo: p.tipo || '',
+        Transacao: p.intencao || '',
+        Bairro: p.bairro || '',
+        Cidade: p.cidade || '',
+        Estado: p.estado || '',
+        Quartos: p.quartos || '',
+        Valor_max: p.valorMax || '',
+        Status: l.faseFunil || '',
+        Temperatura: l.temperatura || ''
+      };
+    });
+    const ws = XLSX.utils.json_to_sheet(linhas);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Leads');
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Disposition', 'attachment; filename="planilha-leads.xlsx"');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buf);
+  } catch(e) {
+    console.error('[exportar planilha leads]', e.message);
+    res.status(500).send('Erro ao exportar leads.');
+  }
+});
+
 
 
 app.get('/app/visitas', auth, async (req,res)=>{

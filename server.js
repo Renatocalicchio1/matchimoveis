@@ -7262,8 +7262,8 @@ app.get('/app/coins', auth, (req, res) => {
 app.get('/app/assistente', auth, (req, res) => {
   // Assistente liberado para todos os usuários
 
-  const imoveis = (_cacheImoveis || []).filter(i => i.userId === req.session.user.userId);
-  const leads = (_cacheLeads || []).filter(l => l.userId === req.session.user.userId);
+  const imoveis = filtrarPorUsuario(_cacheImoveis || [], req.session.user);
+  const leads = filtrarPorUsuario(_cacheLeads || [], req.session.user);
   const stats = { imoveis: imoveis.length, ativos: imoveis.filter(i => i.status !== 'inativo').length, leads: leads.length };
   res.render('app-assistente', { user: req.session.user, stats });
 });
@@ -7273,11 +7273,13 @@ app.get('/app/assistente', auth, (req, res) => {
 
 // ─── API interna do Assistente — dados reais ─────────────────────────────────
 app.get('/api/assistente/dados', auth, (req, res) => {
-  const uid = req.session.user.userId;
-  const imoveis = (_cacheImoveis || []).filter(i=>i.userId===uid);
-  const leads   = (_cacheLeads || []).filter(l=>l.userId===uid);
-  const visitas = fs.existsSync(dataPath('visitas.json'))
-    ? (_cacheVisitas || []).filter(v=>v.userId===uid) : [];
+  const user = req.session.user;
+  const imoveis = filtrarPorUsuario(_cacheImoveis || [], user);
+  const leads   = filtrarPorUsuario(_cacheLeads || [], user);
+  const visitas = (_cacheVisitas || []).filter(v =>
+    String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || v.userId || '') === String(user.id || '') ||
+    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
+  );
 
   const hoje = new Date().toLocaleDateString('pt-BR');
 
@@ -7314,8 +7316,8 @@ app.get('/api/assistente/dados', auth, (req, res) => {
 
 // ─── ASSISTENTE ───────────────────────────────────────────────────────────────
 app.get('/app/assistente', auth, (req, res) => {
-  const imoveis = (_cacheImoveis || []).filter(i => i.userId === req.session.user.userId);
-  const leads = (_cacheLeads || []).filter(l => l.userId === req.session.user.userId);
+  const imoveis = filtrarPorUsuario(_cacheImoveis || [], req.session.user);
+  const leads = filtrarPorUsuario(_cacheLeads || [], req.session.user);
   const stats = { imoveis: imoveis.length, ativos: imoveis.filter(i => i.status !== 'inativo').length, leads: leads.length, comMatch: leads.filter(l=>l.matchesBase&&l.matchesBase.length>0).length, visitas: 0, visitasHoje: 0 };
   res.render('app-assistente', { user: req.session.user, stats });
 });
@@ -7329,11 +7331,12 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
   const uid  = req.session.user.id || req.session.user.userId;
   const user = req.session.user;
 
-  const imoveis = (_cacheImoveis || []).filter(i=>i.userId===uid);
-  const leads   = (_cacheLeads || []).filter(l=>l.userId===uid);
-  const visitas = fs.existsSync(dataPath('visitas.json'))
-    ? (_cacheVisitas || []).filter(v=>v.userId===uid)
-    : [];
+  const imoveis = filtrarPorUsuario(_cacheImoveis || [], user);
+  const leads   = filtrarPorUsuario(_cacheLeads || [], user);
+  const visitas = (_cacheVisitas || []).filter(v =>
+    String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || v.userId || '') === String(user.id || '') ||
+    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
+  );
 
   const hoje = new Date().toLocaleDateString('pt-BR');
   const d = {
@@ -7458,7 +7461,7 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
 
 // ─── Histórico do assistente por usuário ─────────────────────────────────────
 app.get('/app/assistente/historico', auth, (req, res) => {
-  const uid = req.session.user.userId;
+  const uid = req.session.user.id || req.session.user.userId;
   let historico = [];
   // Tentar users.json primeiro (persiste no Render)
   try {

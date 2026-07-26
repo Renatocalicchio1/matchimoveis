@@ -243,7 +243,10 @@
       </select>
     </div>
   </div>
-  <button type="button" class="pf-btn" style="white-space:nowrap" onclick="salvarEnderecoCep()">Salvar endereço</button>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+    <button type="button" id="btn-loc" class="pf-btn" style="margin-top:0;white-space:nowrap;background:#f3f4f6;color:#111827" onclick="pegarLocalizacao()">📍 Usar minha localização atual</button>
+    <button type="button" class="pf-btn" style="margin-top:0;white-space:nowrap" onclick="salvarEnderecoCep()">Salvar endereço</button>
+  </div>
   <div id="cep-resultado-perfil" style="display:none;margin-top:8px;font-size:12px;padding:8px 12px;border-radius:8px"></div>
   <form id="form-loc" method="POST" action="/app/perfil/localizacao" style="display:none">
     <input type="hidden" name="lat" id="inp-lat">
@@ -411,19 +414,28 @@ function pegarLocalizacao() {
   navigator.geolocation.getCurrentPosition(async (pos) => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
-    let endereco = lat + ', ' + lng;
+    _cepPerfilLat = lat;
+    _cepPerfilLng = lng;
     try {
       const r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng);
       const d = await r.json();
-      endereco = d.display_name || endereco;
-    } catch(e) {}
-    document.getElementById('inp-lat').value = lat;
-    document.getElementById('inp-lng').value = lng;
-    document.getElementById('inp-endereco').value = endereco;
-    document.getElementById('form-loc').submit();
+      const a = d.address || {};
+      document.getElementById('rua-input').value = a.road || a.pedestrian || a.residential || '';
+      document.getElementById('numero-input').value = a.house_number || '';
+      document.getElementById('bairro-input').value = a.suburb || a.neighbourhood || a.city_district || '';
+      document.getElementById('cidade-input').value = a.city || a.town || a.municipality || a.village || '';
+      if (a.postcode) document.getElementById('cep-input').value = a.postcode;
+      const sel = document.getElementById('estado-input');
+      for (let i=0;i<sel.options.length;i++) if (sel.options[i].text === a.state) { sel.selectedIndex = i; break; }
+      status.innerHTML = '<span style="color:#15803d">●</span> <span style="font-size:13px">Localização obtida — revise os campos e clique em Salvar</span>';
+    } catch(e) {
+      status.innerHTML = '<span style="color:#b91c1c">● Localização obtida, mas não foi possível identificar o endereço.</span>';
+    }
+    btn.textContent = '📍 Usar minha localização atual';
+    btn.disabled = false;
   }, () => {
     status.innerHTML = '<span style="color:#b91c1c">● Não foi possível obter localização. Verifique as permissões do navegador.</span>';
-    btn.textContent = 'Atualizar localização';
+    btn.textContent = '📍 Usar minha localização atual';
     btn.disabled = false;
   }, { enableHighAccuracy: true, timeout: 10000 });
 }

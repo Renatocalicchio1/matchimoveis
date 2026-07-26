@@ -4282,7 +4282,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
 const PORT = process.env.PORT || port || 3000;
 
 app.post('/app/perfil/localizacao', auth, express.json(), async (req,res)=>{
-  const { lat, lng, endereco, cep } = req.body;
+  const { lat, lng, endereco, cep, rua, numero, bairro, cidade, estado } = req.body;
   const isJson = (req.headers['content-type']||'').includes('application/json');
   try {
     const { query: _qLoc } = require('./services/db');
@@ -4291,9 +4291,16 @@ app.post('/app/perfil/localizacao', auth, express.json(), async (req,res)=>{
       'UPDATE usuarios SET lat=COALESCE(' + String.fromCharCode(36) + '1,lat), lng=COALESCE(' + String.fromCharCode(36) + '2,lng), endereco=' + String.fromCharCode(36) + '3 WHERE id=' + String.fromCharCode(36) + '4 RETURNING lat,lng,endereco',
       [Number.isFinite(latNum)?latNum:null, Number.isFinite(lngNum)?lngNum:null, endereco||'', req.session.user.id]
     );
-    if (cep) {
+    const extras = {};
+    if (cep !== undefined) extras.cep = cep;
+    if (rua !== undefined) extras.rua = rua;
+    if (numero !== undefined) extras.numero = numero;
+    if (bairro !== undefined) extras.bairro = bairro;
+    if (cidade !== undefined) extras.cidade = cidade;
+    if (estado !== undefined) extras.estado = estado;
+    if (Object.keys(extras).length) {
       const { atualizarUsuario } = require('./services/salvarUsuario');
-      await atualizarUsuario(req.session.user.id, { cep });
+      await atualizarUsuario(req.session.user.id, extras);
     }
     const row = r.rows[0] || {};
     const users = (_cacheUsuarios || []);
@@ -4302,7 +4309,7 @@ app.post('/app/perfil/localizacao', auth, express.json(), async (req,res)=>{
       users[idx].lat = row.lat;
       users[idx].lng = row.lng;
       users[idx].endereco = row.endereco;
-      if (cep) users[idx].cep = cep;
+      Object.assign(users[idx], extras);
       req.session.user = { ...req.session.user, ...users[idx] };
     }
   } catch(e) { console.error('[localizacao]', e.message); }

@@ -55,6 +55,25 @@ const BASE_URL = process.env.RENDER
   ? 'https://matchimoveis.ia.br'
   : 'http://localhost:3000';
 
+// Notificação sino "novo lead" — usada por todos os pontos de entrada de lead
+// VISÍVEL de cara (portal, manual, planilha, captação). Leads do WhatsApp
+// (leadOculta:true) NÃO usam isso — só notificam quando reveladas, ver match-core.js
+function _notificarNovaLead(userId, leadId, nome, origemLabel){
+  try {
+    if (!userId) return;
+    criarNotificacaoService({
+      id: Date.now().toString() + '_' + Math.random().toString(36).slice(2,7),
+      tipo: 'novo_lead',
+      titulo: 'Novo lead chegou',
+      mensagem: (nome || 'Lead') + ' entrou em contato via ' + origemLabel,
+      usuarioId: userId,
+      leadId: leadId || '',
+      lida: false,
+      criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+    });
+  } catch(e) { console.error('[notif nova lead]', e.message); }
+}
+
 function dataFile(name){
   return path.join(DATA_DIR, name);
 }
@@ -1123,6 +1142,7 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
     await _cruzarImovelWebhook(lead, userId);
     await _slIWG(lead);
     console.log('[webhook-global] lead salva | userId:', userId, '| tel:', telefone, '| nome:', nome);
+    _notificarNovaLead(userId, lead.id, nome, 'ImovelWeb');
     const _snapIWG = { id: lead.id, userId, nome: lead.nome||'', telefone: lead.telefone||'', whatsapp: lead.whatsapp||'', contato: lead.contato||'', email: lead.email||'', mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: 'webhook_imovelweb_global', origem: 'ImovelWeb' };
     setTimeout(async () => {
       try {
@@ -1175,6 +1195,7 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
         await _cruzarImovelWebhook(leadDup, userIdDup);
         await _slIWGDup(leadDup);
         console.log('[webhook-global] lead DUPLICADA salva | userId:', userIdDup, '| tel:', telefone, '| nome:', nome);
+        _notificarNovaLead(userIdDup, leadDup.id, nome, 'ImovelWeb');
         const _snapDup = { id: leadDup.id, userId: userIdDup, nome: leadDup.nome||'', telefone: leadDup.telefone||'', whatsapp: leadDup.whatsapp||'', contato: leadDup.contato||'', email: leadDup.email||'', mensagem: leadDup.mensagem||'', idAnuncio: leadDup.idAnuncio||'', perfilIA: leadDup.perfilIA||{}, origemEntrada: 'webhook_imovelweb_global', origem: 'ImovelWeb' };
         setTimeout(async () => {
           try {
@@ -2138,6 +2159,21 @@ function _registrarGostei(lead, imovelObj) {
     foto: (imovelObj.fotos && imovelObj.fotos[0]) || '',
     clicadoEm: new Date().toISOString()
   });
+  const _uidGostei = lead.userId || lead.codigoUsuario || lead.user_id || '';
+  const _tituloGostei = imovelObj.titulo || imovelObj.tipo || 'imóvel';
+  try {
+    criarNotificacaoService({
+      id: Date.now().toString() + '_gostei',
+      tipo: 'lead_gostei',
+      titulo: 'Lead curtiu um imóvel',
+      mensagem: (lead.nome || 'Lead') + ' clicou "Gostei" em ' + _tituloGostei,
+      usuarioId: _uidGostei,
+      leadId: lead.id || lead.leadId || '',
+      imovelId: chave,
+      lida: false,
+      criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+    });
+  } catch(e) { console.error('[notif gostei]', e.message); }
 }
 
 app.get('/cliente/oferta/:leadId', (req,res)=>{
@@ -3808,9 +3844,10 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
       (telefone && String(l.telefone||'').replace(/\D/g,'').slice(-8) === telefone.slice(-8) && l.userId === userId) ||
       (lead.idAnuncio && String(l.idAnuncio||'') === String(lead.idAnuncio) && l.userId === userId)
     );
-    if (_dup && _temPerfilMinimoLead(_dup)) { 
-      console.log('[WEBHOOK IMOVELWEB] perfil minimo — cria nova lead:', telefone); 
-      lead.id = Date.now().toString(); 
+    const _ehNovaLeadIW = !_dup || _temPerfilMinimoLead(_dup);
+    if (_dup && _temPerfilMinimoLead(_dup)) {
+      console.log('[WEBHOOK IMOVELWEB] perfil minimo — cria nova lead:', telefone);
+      lead.id = Date.now().toString();
     } else if (_dup) {
       // Atualiza lead existente com dados do webhook
       console.log('[WEBHOOK IMOVELWEB] lead existente — atualizando dados:', _dup.id);
@@ -3820,6 +3857,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     console.log('[WEBHOOK IMOVELWEB] antes salvar | nome:', lead.nome, '| tel:', lead.telefone, '| origem:', lead.origem);
     await _slIW(lead);
     console.log('[WEBHOOK IMOVELWEB] lead salva:', nome, '|', telefone, '| userId:', userId);
+    if (_ehNovaLeadIW) _notificarNovaLead(userId, lead.id, nome, 'ImovelWeb');
     const _snapIW = { id: lead.id, userId, nome: lead.nome||'', telefone: lead.telefone||'', whatsapp: lead.whatsapp||'', contato: lead.contato||'', email: lead.email||'', mensagem: lead.mensagem||'', idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: lead.origemEntrada||'webhook_imovelweb', origem: lead.origem||'ImovelWeb' };
     console.log('[SNAPIW] mensagem:', (_snapIW.mensagem||'').substring(0,60), '| idAnuncio:', _snapIW.idAnuncio);
 
@@ -3929,6 +3967,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     await _cruzarImovelWebhook(lead, userId);
     await _slOLX(lead);
     console.log('[WEBHOOK GRUPOOLX] lead salva:', lead.nome, '|', telefone, '| portal:', portal);
+    _notificarNovaLead(userId, lead.id, lead.nome, portal);
 
     const _msgOLX = body.message || body.mensagem || lead.mensagem || '';
     const _leadSnapshotGRUPOOLX = { id: lead.id, userId: lead.userId||lead.codigoUsuario||userId||'', mensagem: _msgOLX, idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: lead.origemEntrada||'webhook_grupoolx', origem: lead.origem||portal };
@@ -4025,6 +4064,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
     await _cruzarImovelWebhook(lead, userId);
     await _sl123(lead);
     console.log('[WEBHOOK 123i] lead salva:', lead.nome, '|', telefone);
+    _notificarNovaLead(userId, lead.id, lead.nome, '123i');
 
     const _msg123 = body.message || body.mensagem || lead.mensagem || '';
     const _leadSnapshot123i = { id: lead.id, userId: lead.userId||lead.codigoUsuario||userId||'', mensagem: _msg123, idAnuncio: lead.idAnuncio||'', perfilIA: lead.perfilIA||{}, origemEntrada: lead.origemEntrada||'webhook_123i', origem: lead.origem||'123i' };
@@ -4113,6 +4153,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     await _cruzarImovelWebhook(lead, userId);
     await _slCH(lead);
     console.log('[WEBHOOK CHAVES] lead salva:', lead.nome, '|', telefone);
+    _notificarNovaLead(userId, lead.id, lead.nome, 'Chaves na Mão');
 
     const _msgCH = String(body.message || body.mensagem || lead.mensagem || '');
     const _refCH = String(body.reference || lead.idAnuncio || '');
@@ -5459,6 +5500,21 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
               criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
             });
           } catch(e) { console.error('[notif match]', e.message); }
+          // notificação sino — lead ficou quente (só depois de revelada, com match)
+          if (leadEncontrado.temperatura !== 'quente' && leadAtualizado.temperatura === 'quente' && leadAtualizado.leadOculta !== true) {
+            try {
+              criarNotificacaoService({
+                id: (Date.now()+3).toString(),
+                tipo: 'lead_quente',
+                titulo: 'Lead ficou quente',
+                mensagem: (leadAtualizado.nome||'Lead') + ' está com alto interesse — vale a pena priorizar',
+                usuarioId: _webhookUserId,
+                leadId: leadAtualizado.id,
+                lida: false,
+                criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+              });
+            } catch(e) { console.error('[notif quente]', e.message); }
+          }
         }
         // Salva perfil, score e temperatura no lead via PostgreSQL
         try {
@@ -11071,8 +11127,8 @@ app.post('/captar/salvar/:userId', express.json(), async (req, res) => {
       SELECT l.nome, l.telefone, u.nome as corretor_nome, u.whatsapp_instance, u.whatsapp_numero, u.email
       FROM leads l JOIN usuarios u ON u.codigo_usuario=l.user_id OR u.id=l.user_id
       WHERE l.id=$1 LIMIT 1
-    `, [req.params.leadId]);
-    
+    `, [leadId]);
+
     if (rows[0]) {
       const r = rows[0];
       const _msg = `📋 *Nova captação!*\n\n*${r.nome||'Lead'}* tem um imóvel para *${transacao}*!\n\n🏠 Tipo: ${tipo}\n📍 ${endereco}\n💰 R$ ${valor||'A definir'}\n\nAcesse: https://matchimoveis.ia.br/app/captacao`;
@@ -11090,6 +11146,18 @@ app.post('/captar/salvar/:userId', express.json(), async (req, res) => {
           await enviarEmail({ para: r.email, assunto: '📋 Nova captação de imóvel!', html: '<div style="font-family:Arial,sans-serif;padding:32px"><h2 style="color:#FF385C">📋 Nova captação!</h2><p><strong>'+r.nome+'</strong> tem um imóvel para '+transacao+'</p><p>🏠 '+tipo+' | 📍 '+endereco+'</p><a href="https://matchimoveis.ia.br/app/captacao" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver captação →</a></div>', texto: _msg });
         } catch(_eC){}
       }
+      try {
+        criarNotificacaoService({
+          id: Date.now().toString() + '_captacao',
+          tipo: 'captacao',
+          titulo: 'Nova captação de imóvel',
+          mensagem: (r.nome||'Lead') + ' tem um imóvel para ' + transacao + ' (' + tipo + ' — ' + (endereco||'sem endereço') + ')',
+          usuarioId: userId,
+          leadId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+      } catch(e) { console.error('[notif captacao]', e.message); }
     }
   } catch(e){ console.error('[captar]', e.message); }
   res.json({ ok: true });

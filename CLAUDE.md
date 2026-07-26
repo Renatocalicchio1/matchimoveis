@@ -42,6 +42,7 @@ R$50 mínimo = 2.500 coins (R$1 = 50 coins). Sem limite de importação.
 - Esse comportamento só se aplica ao fluxo automático de WhatsApp — leads de planilha/manual/webhook de portal aparecem direto
 - Lead oculta (sem match ainda) também não gera notificação sino, não é contada em `/app-home` (KPI `leadsNovos`) e não é cobrada em `lead_ativo_dia` (jobCreditos.js) — só passa a valer como lead de fato quando `leadOculta` vira `false`. Filtro padrão: `!(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length))` — mesmo filtro usado em `/app/leads`, `/app-home` e `jobCreditos.debitarLeadsAtivos()`
 - Webhook global ImovelWeb: `/webhook/imovelweb-global` — atribui lead ao dono do imóvel via `id_externo`/`id_interno`/`id`
+- Notificações sino (tabela `notificacoes`, tipos): `novo_lead` (lead visível chegou — todos os webhooks de portal + captação; NÃO dispara pro fluxo WhatsApp até a lead ser revelada, ver `_notificarNovaLead()` em server.js), `lead_quente` (transição pra temperatura quente, só depois de revelada), `lead_gostei` (clicou "Gostei" em algum imóvel, ver `_registrarGostei()`), `captacao` (proprietário se cadastrou via `/captar/:userId`), `match_gerado`, `nova_visita`/`visita_proprietario`, `recarga`, `saldo_zerado`/`saldo_baixo`/`saldo_medio` (consumir), `conta_pausada`/`creditos_criticos`/`creditos_baixos` (job diário)
 - Email de captação automático pra toda lead nova com email cadastrado (services/salvarLead.js)
 
 ## Infra

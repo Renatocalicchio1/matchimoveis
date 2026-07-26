@@ -46,12 +46,14 @@
       const tipo = n.tipo || '';
       const lida = n.lida;
       const ic = tipo.includes('visita') ? '📅' :
+                 tipo.includes('quente') ? '🔥' :
+                 tipo.includes('gostei') || tipo.includes('like') ? '❤️' :
+                 tipo.includes('captacao') ? '🏠' :
                  tipo.includes('match') || tipo.includes('vitrine') ? '🎯' :
                  tipo.includes('lead') ? '👤' :
                  tipo.includes('proposta') ? '💰' :
-                 tipo.includes('like') ? '❤️' :
-                 tipo.includes('saldo_zerado') ? '🚫' :
-                 tipo.includes('saldo_baixo') ? '⚠️' :
+                 tipo.includes('conta_pausada') || tipo.includes('saldo_zerado') || tipo.includes('creditos_criticos') ? '🚫' :
+                 tipo.includes('saldo_baixo') || tipo.includes('creditos_baixos') ? '⚠️' :
                  tipo.includes('saldo_medio') ? '💛' :
                  tipo.includes('recarga') ? '✅' :
                  tipo.includes('sistema') ? '⚙️' : '🔔';

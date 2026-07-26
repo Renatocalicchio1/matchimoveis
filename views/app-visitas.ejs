@@ -104,8 +104,10 @@ var confirmadasV=visitas.filter(function(v){return v.status==='confirmada'||v.st
 var realizadasV=visitas.filter(function(v){return v.status==='realizada'||v.status==='CONCLUIDA';}).length;
 var hoje=new Date(); hoje.setHours(0,0,0,0);
 var hojeV=visitas.filter(function(v){
-  if(!v.dataVisita) return false;
-  var d=new Date(v.dataVisita); d.setHours(0,0,0,0);
+  if(!v.dataVisita || v.dataVisita.indexOf('-')===-1) return false;
+  // parse manual (evita new Date('YYYY-MM-DD') cair em UTC e desalinhar com "hoje" local)
+  var _p=v.dataVisita.split('-');
+  var d=new Date(Number(_p[0]),Number(_p[1])-1,Number(_p[2])); d.setHours(0,0,0,0);
   return d.getTime()===hoje.getTime();
 }).length;
 %>
@@ -306,7 +308,14 @@ function filtrarVisitas(){
   var cards=document.querySelectorAll('.vi-card[data-visita-id]');
   var total=0;var counts={};
   cards.forEach(function(card){
-    var dataVisita=card.dataset.dataVisita?new Date(card.dataset.dataVisita):null;
+    // new Date('YYYY-MM-DD') interpreta como UTC meia-noite — em fuso negativo
+    // (Brasil) isso vira o dia anterior às 21h, e o setHours(0,0,0,0) local
+    // subsequente jogava a visita pro dia errado. Parse manual evita o bug.
+    var dataVisita=null;
+    if(card.dataset.dataVisita){
+      var _dvp=card.dataset.dataVisita.split('-');
+      dataVisita=_dvp.length===3?new Date(parseInt(_dvp[0]),parseInt(_dvp[1])-1,parseInt(_dvp[2])):new Date(card.dataset.dataVisita);
+    }
     var searchStr=(card.dataset.search||'').toLowerCase();
     var bairroCard=(card.dataset.bairro||'').toLowerCase();
     var ok=true;

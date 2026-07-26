@@ -775,7 +775,14 @@ function limpar() {
   });
   document.getElementById('f-cidade').innerHTML = '<option value="">Todas</option>';
   document.getElementById('f-bairro').innerHTML = '<option value="">Todos</option>';
-  filtrar();
+  // Recarrega do servidor sem filtros (preserva só rede/corretor/embed) — limpar os
+  // campos visualmente não bastava, a página continuava mostrando só o subconjunto
+  // já filtrado que tinha vindo do servidor antes
+  const params = new URLSearchParams(window.location.search);
+  const preservar = ['rede','corretor','embed'];
+  const novosParams = new URLSearchParams();
+  preservar.forEach(k => { const v = params.get(k); if (v) novosParams.set(k, v); });
+  window.location.href = '/app/imoveis' + (novosParams.toString() ? '?' + novosParams.toString() : '');
 }
 
 function atualizarStats() {

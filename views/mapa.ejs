@@ -104,7 +104,7 @@ function render(lista){
   lista.forEach(im=>{
     const match=mc();
     const preco=fp(im.preco||im.valor||im.ListPrice||0,im.transacao||im.tipo||'Aluguel');
-    const isV=(im.tipo||im.TransactionType||'')===('Venda');
+    const isV=(im.transacao||im.TransactionType||'').toLowerCase()==='venda';
     const cor=isV?'#FF385C':'#00A699';
     const bairro=im.bairro||im.Bairro||im.City||'';
     const end=im.endereco||im.Address||'';
@@ -138,7 +138,7 @@ function sel(id,lat,lng,pin){
 function ft(el,t){
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('ativo'));
   el.classList.add('ativo');tipo=t;
-  render(t?DATA.filter(i=>(i.tipo||i.TransactionType||'')=== t):DATA);
+  render(t?DATA.filter(i=>(i.transacao||i.TransactionType||'').toLowerCase()===t.toLowerCase()):DATA);
 }
 render(DATA);
 </script>

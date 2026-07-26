@@ -322,9 +322,6 @@ app.use(visitasRouter);
 
 function loadImoveis() {
   try {
-
-    console.log('BODY LEAD INTERESSE =>');
-    console.log(JSON.stringify(req.body,null,2));
     return ((_cacheImoveis || []));
   } catch {
     return [];

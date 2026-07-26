@@ -4282,17 +4282,27 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
 const PORT = process.env.PORT || port || 3000;
 
 app.post('/app/perfil/localizacao', auth, express.json(), async (req,res)=>{
-  const { lat, lng, endereco } = req.body;
+  const { lat, lng, endereco, cep } = req.body;
   const isJson = (req.headers['content-type']||'').includes('application/json');
   try {
     const { query: _qLoc } = require('./services/db');
-    await _qLoc('UPDATE usuarios SET lat=$1, lng=$2, endereco=$3 WHERE id=$4', [parseFloat(lat), parseFloat(lng), endereco||'', req.session.user.id]);
+    const latNum = parseFloat(lat), lngNum = parseFloat(lng);
+    const r = await _qLoc(
+      'UPDATE usuarios SET lat=COALESCE(' + String.fromCharCode(36) + '1,lat), lng=COALESCE(' + String.fromCharCode(36) + '2,lng), endereco=' + String.fromCharCode(36) + '3 WHERE id=' + String.fromCharCode(36) + '4 RETURNING lat,lng,endereco',
+      [Number.isFinite(latNum)?latNum:null, Number.isFinite(lngNum)?lngNum:null, endereco||'', req.session.user.id]
+    );
+    if (cep) {
+      const { atualizarUsuario } = require('./services/salvarUsuario');
+      await atualizarUsuario(req.session.user.id, { cep });
+    }
+    const row = r.rows[0] || {};
     const users = (_cacheUsuarios || []);
     const idx = users.findIndex(u => u.id === req.session.user.id);
     if(idx >= 0) {
-      users[idx].lat = parseFloat(lat);
-      users[idx].lng = parseFloat(lng);
-      users[idx].endereco = endereco || '';
+      users[idx].lat = row.lat;
+      users[idx].lng = row.lng;
+      users[idx].endereco = row.endereco;
+      if (cep) users[idx].cep = cep;
       req.session.user = { ...req.session.user, ...users[idx] };
     }
   } catch(e) { console.error('[localizacao]', e.message); }

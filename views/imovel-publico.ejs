@@ -4,52 +4,125 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= imovel.titulo || imovel.tipo + ' em ' + imovel.bairro %> • MatchImóveis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#222}
-    header{background:#fff;border-bottom:1px solid #e5e7eb;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-    .logo{font-weight:900;font-size:20px;color:#FF385C;letter-spacing:-0.5px}
-    .container{max-width:980px;margin:0 auto;padding:24px 16px}
-    .detalhe-hero{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:240px 240px;gap:4px;border-radius:16px;overflow:hidden;margin-bottom:28px;cursor:pointer}
-    .detalhe-hero img{width:100%;height:100%;object-fit:cover;transition:opacity .2s}
+    :root{
+      --brand:#FF385C; --brand-ink:#C22C46;
+      --teal:#00A699; --teal-ink:#0E7268;
+      --ink:#16181A; --paper:#FBF9F6;
+      --sand:#F1EBE1; --line:#E2DBCC;
+      --muted:#716C61; --muted-2:#948E80;
+      --white:#FFFFFF;
+      --shadow:0 1px 2px rgba(22,20,14,.04), 0 12px 32px -12px rgba(22,20,14,.18);
+      --radius:18px;
+    }
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+    a{color:inherit}
+
+    header{background:color-mix(in srgb, var(--paper) 90%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px;letter-spacing:-.4px}
+    .logo .dot{width:8px;height:8px;border-radius:50%;background:var(--brand)}
+    .logo em{font-style:normal;color:var(--brand)}
+    .ref{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+    .container{max-width:1080px;margin:0 auto;padding:28px 24px 60px}
+
+    .detalhe-hero{display:grid;grid-template-columns:1.6fr 1fr 1fr;grid-template-rows:190px 190px;gap:5px;border-radius:var(--radius);overflow:hidden;margin-bottom:28px;background:var(--sand)}
+    .detalhe-hero img{width:100%;height:100%;object-fit:cover;transition:opacity .2s;cursor:pointer;display:block}
     .detalhe-hero img:hover{opacity:.92}
     .detalhe-hero img:first-child{grid-row:1/3}
-    .hero-mais{position:relative}
+    .hero-mais{position:relative;cursor:pointer}
     .hero-mais img{width:100%;height:100%;object-fit:cover}
-    .hero-mais-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700}
-    .layout{display:grid;grid-template-columns:1fr 320px;gap:24px}
-    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:16px}
-    .badge-tipo{display:inline-block;background:#fee2e2;color:#dc2626;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px}
-    .spec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:12px;margin-top:16px}
-    .spec-item{background:#f5f5f5;border-radius:12px;padding:14px 10px;text-align:center}
-    .spec-icon{font-size:22px;margin-bottom:4px}
-    .spec-val{font-weight:700;font-size:16px;color:#222}
-    .spec-lbl{font-size:11px;color:#717171;margin-top:2px}
-    .info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
-    .info-row:last-child{border:none}
-    .info-lbl{color:#717171}
-    .info-val{font-weight:600;color:#222}
-    .cta-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;position:sticky;top:80px}
-    .btn-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:12px;font-weight:700;font-size:15px;text-align:center;text-decoration:none;margin-bottom:10px;border:none;cursor:pointer;transition:opacity .2s}
-    .btn-cta:hover{opacity:.88}
+    .hero-mais-overlay{position:absolute;inset:0;background:rgba(20,18,14,.55);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700}
+    .hero-vazio{border-radius:var(--radius);height:340px;margin-bottom:28px;background:linear-gradient(135deg, var(--sand), var(--line));display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;font-weight:500}
+
+    .layout{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start}
+    .card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:var(--shadow)}
+    .card h3.card-h{margin:0 0 14px;font-size:13.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+
+    .badge-tipo{display:inline-flex;align-items:center;background:var(--sand);color:var(--muted);font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;margin-right:6px;margin-bottom:10px}
+    .badge-trans{display:inline-flex;align-items:center;color:#fff;font-size:10.5px;font-weight:700;padding:4px 12px;border-radius:999px;margin-right:6px;margin-bottom:10px;letter-spacing:.03em}
+    .badge-fase{display:inline-flex;align-items:center;background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;margin-bottom:10px}
+
+    .pd-title{font-size:24px;font-weight:800;letter-spacing:-.6px;margin:0 0 6px;line-height:1.25}
+    .pd-addr{color:var(--muted);font-size:14px;margin:0}
+    .pd-price-top{font-size:27px;font-weight:800;letter-spacing:-.6px;color:var(--brand);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+    .pd-specs{display:flex;flex-wrap:wrap;gap:26px;padding-top:2px}
+    .pd-spec{min-width:64px}
+    .pd-spec b{display:block;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2}
+    .pd-spec span{font-size:11.5px;color:var(--muted)}
+
+    .tag-chip{background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:12px;color:var(--ink);font-weight:500}
+
+    .info-row{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+    .info-row:last-child{border:none;padding-bottom:0}
+    .info-row:first-child{padding-top:0}
+    .info-lbl{color:var(--muted)}
+    .info-val{font-weight:600;color:var(--ink);text-align:right}
+
+    .cta-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:24px;position:sticky;top:88px;box-shadow:var(--shadow)}
+    .cta-price{font-size:25px;font-weight:800;letter-spacing:-.5px;color:var(--ink);font-variant-numeric:tabular-nums}
+    .cta-price small{display:block;font-size:11.5px;font-weight:500;color:var(--muted);margin-top:2px}
+
+    .corretor-row{display:flex;align-items:center;gap:11px;padding:16px 0;margin:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .corretor-av{width:40px;height:40px;border-radius:50%;background:var(--teal);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .corretor-nome{font-weight:700;font-size:13.5px}
+    .corretor-role{font-size:11.5px;color:var(--muted)}
+
+    .btn-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:12px;font-weight:700;font-size:14.5px;text-align:center;text-decoration:none;margin-bottom:10px;border:none;cursor:pointer;transition:filter .15s, background .15s}
+    .btn-cta:hover{filter:brightness(.94)}
     .btn-wpp{background:#25D366;color:#fff}
-    .btn-tel{background:#f0f0f0;color:#222}
-    .btn-visita{background:#FF385C;color:#fff}
+    .btn-visita{background:var(--brand);color:#fff}
+    .btn-gostei{background:var(--sand);color:var(--ink)}
+
+    .interesse-box{margin-top:4px}
+    .interesse-label{font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+    .interesse-label::after{content:'';flex:1;height:1px;background:var(--line)}
+    .formf{margin-bottom:9px}
+    .formf input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;font-family:inherit;background:var(--paper);color:var(--ink);outline:none;transition:border-color .12s}
+    .formf input:focus{border-color:var(--brand)}
+    #interesse-msg{font-size:12px;margin-top:8px;display:none}
+
+    .footer-note{font-size:11px;color:var(--muted-2);text-align:center;margin-top:10px}
+
     /* Lightbox */
-    #lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center}
+    #lightbox{display:none;position:fixed;inset:0;background:rgba(14,12,9,.94);z-index:9999;align-items:center;justify-content:center}
     #lightbox.open{display:flex}
-    #lb-img{max-width:90vw;max-height:88vh;object-fit:contain;border-radius:8px}
-    .lb-btn{position:absolute;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:28px;width:48px;height:48px;border-radius:50%;cursor:pointer;transition:background .2s}
-    .lb-btn:hover{background:rgba(255,255,255,.25)}
-    @media(max-width:700px){.layout{grid-template-columns:1fr}.detalhe-hero{grid-template-columns:1fr;grid-template-rows:260px}.detalhe-hero img:not(:first-child){display:none}}
+    #lb-img{max-width:90vw;max-height:88vh;object-fit:contain;border-radius:10px}
+    .lb-btn{position:absolute;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:26px;width:46px;height:46px;border-radius:50%;cursor:pointer;transition:background .2s}
+    .lb-btn:hover{background:rgba(255,255,255,.26)}
+
+    /* Modal */
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(14,12,9,.6);z-index:9998;align-items:center;justify-content:center;padding:16px}
+    .modal-box{background:var(--white);border-radius:20px;padding:30px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+    .modal-box h3{font-size:19px;font-weight:800;margin-bottom:6px}
+    .modal-box p.sub{color:var(--muted);font-size:13.5px;margin-bottom:20px}
+    .modal-box label{font-size:12.5px;font-weight:600;color:var(--ink);display:block;margin-bottom:6px}
+    .modal-box input, .modal-box select{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;outline:none;font-family:inherit;margin-bottom:14px;background:var(--paper);color:var(--ink)}
+    .modal-box input:focus, .modal-box select:focus{border-color:var(--brand)}
+    .modal-btn-primary{width:100%;padding:13px;background:var(--brand);color:#fff;border:none;border-radius:12px;font-size:14.5px;font-weight:700;cursor:pointer;margin-bottom:9px}
+    .modal-btn-sec{width:100%;padding:10px;background:var(--sand);color:var(--muted);border:none;border-radius:12px;font-size:13.5px;cursor:pointer}
+
+    @media(max-width:760px){
+      .layout{grid-template-columns:1fr}
+      .detalhe-hero{grid-template-columns:1fr;grid-template-rows:240px}
+      .detalhe-hero img:not(:first-child){display:none}
+      .cta-card{position:static}
+      header{padding:14px 18px}
+      .container{padding:20px 16px 40px}
+    }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">MatchImóveis</div>
-  <div style="font-size:13px;color:#717171">Ref. #<%= imovel.idExterno %></div>
+  <div class="logo"><span class="dot"></span>Match<em>Imóveis</em></div>
+  <div class="ref">Ref. #<%= imovel.idExterno %></div>
 </header>
+
+<div class="container">
 
 <% if(imovel.fotos && imovel.fotos.length > 0) { %>
 <div class="detalhe-hero" id="hero-fotos">
@@ -58,7 +131,7 @@
   <% if(imovel.fotos[2]) { %><img src="<%= imovel.fotos[2] %>" onclick="abrirGaleria(2)"><% } %>
   <% if(imovel.fotos[3]) { %><img src="<%= imovel.fotos[3] %>" onclick="abrirGaleria(3)"><% } %>
   <% if(imovel.fotos[4]) { %>
-  <div class="hero-mais" onclick="abrirGaleria(4)" style="cursor:pointer">
+  <div class="hero-mais" onclick="abrirGaleria(4)">
     <img src="<%= imovel.fotos[4] %>">
     <% if(imovel.fotos.length > 5) { %>
     <div class="hero-mais-overlay">+<%= imovel.fotos.length - 5 %> fotos</div>
@@ -66,6 +139,8 @@
   </div>
   <% } %>
 </div>
+<% } else { %>
+<div class="hero-vazio">📷 Sem fotos cadastradas</div>
 <% } %>
 
 <!-- LIGHTBOX -->
@@ -77,149 +152,160 @@
   <div id="lb-counter" style="position:absolute;bottom:16px;color:#fff;font-size:14px;opacity:.7"></div>
 </div>
 
-<div class="container">
-  <div class="layout">
+<div class="layout">
 
-    <%# COLUNA PRINCIPAL %>
-    <div>
-      <div class="card">
+  <%# COLUNA PRINCIPAL %>
+  <div>
+    <div class="card">
+      <div>
         <span class="badge-tipo"><%= imovel.tipo %></span>
-        <% const _trans = (imovel.transacao||imovel.operacao||'').toLowerCase(); if(_trans==='aluguel'||_trans==='venda'){ %><span style="display:inline-block;background:<%= _trans==='aluguel'?'#00847a':'#FF385C' %>;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:4px"><%= _trans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>
+        <% const _trans = (imovel.transacao||imovel.operacao||'').toLowerCase(); if(_trans==='aluguel'||_trans==='venda'){ %><span class="badge-trans" style="background:<%= _trans==='aluguel'?'var(--teal)':'var(--brand)' %>"><%= _trans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>
         <% const _faseMapP = {pronto:'✅ Pronto',lancamento:'🚀 Lançamento',na_planta:'📐 Na planta',em_construcao:'🏗 Em construção',planta:'📐 Na planta',construcao:'🏗 Em construção'}; const _faseLabelP = _faseMapP[(imovel.fase||'').toLowerCase().replace(/\s/g,'_')]; %>
-        <% if(_faseLabelP){ %><span style="display:inline-block;background:#00A699;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:10px;margin-left:6px"><%=_faseLabelP%></span><% } %>
-        <div style="display:flex;justify-content:space-between;align-items:start;gap:16px">
-          <div>
-            <h1 style="font-size:22px;font-weight:800;margin:0 0 6px;line-height:1.3"><%= imovel.titulo || (imovel.tipo + ' em ' + imovel.bairro) %></h1>
-            <p style="color:#717171;font-size:14px;margin:0"><% if(imovel.endereco) { %><%= imovel.endereco %> · <% } %><%= imovel.bairro %><% if(imovel.cidade) { %>, <%= imovel.cidade %><% } %></p>
-          </div>
-          <div style="text-align:right;flex-shrink:0">
-            <div style="font-size:26px;font-weight:800;color:#FF385C">R$ <%= Number(imovel.valor_imovel||0).toLocaleString('pt-BR') %></div>
-          </div>
+        <% if(_faseLabelP){ %><span class="badge-fase"><%=_faseLabelP%></span><% } %>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:16px;margin-top:6px">
+        <div>
+          <h1 class="pd-title"><%= imovel.titulo || (imovel.tipo + ' em ' + imovel.bairro) %></h1>
+          <p class="pd-addr"><% if(imovel.endereco) { %><%= imovel.endereco %> · <% } %><%= imovel.bairro %><% if(imovel.cidade) { %>, <%= imovel.cidade %><% } %></p>
         </div>
+        <div class="pd-price-top">R$ <%= Number(imovel.valor_imovel||0).toLocaleString('pt-BR') %></div>
       </div>
-
-      <div class="card">
-        <h3 style="margin:0 0 4px;font-size:15px;font-weight:700">Características</h3>
-        <div class="spec-grid">
-          <% if(imovel.area_m2) { %><div class="spec-item"><div class="spec-icon">📐</div><div class="spec-val"><%= imovel.area_m2 %>m²</div><div class="spec-lbl">Área</div></div><% } %>
-                    <% if(imovel.quartos) { %><div class="spec-item"><div class="spec-icon">🛏</div><div class="spec-val"><%= imovel.quartos %></div><div class="spec-lbl">Quartos</div></div><% } %>
-          <% if(imovel.suites) { %><div class="spec-item"><div class="spec-icon">⭐</div><div class="spec-val"><%= imovel.suites %></div><div class="spec-lbl">Suítes</div></div><% } %>
-          <% if(imovel.banheiros) { %><div class="spec-item"><div class="spec-icon">🚿</div><div class="spec-val"><%= imovel.banheiros %></div><div class="spec-lbl">Banheiros</div></div><% } %>
-          <% if(imovel.vagas) { %><div class="spec-item"><div class="spec-icon">🚗</div><div class="spec-val"><%= imovel.vagas %></div><div class="spec-lbl">Vagas</div></div><% } %>
-        </div>
-      </div>
-
-      <% const _difsP = Array.isArray(imovel.diferenciais) ? imovel.diferenciais : (imovel.dados&&imovel.dados.diferenciais ? imovel.dados.diferenciais : Object.keys(imovel.diferenciais||{}).filter(k=>imovel.diferenciais[k])); %>
-      <% if(_difsP && _difsP.length > 0){ %>
-      <div class="card" style="margin-top:12px">
-        <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">Diferenciais</h3>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-          <% _difsP.forEach(k=>{ %>
-          <span style="background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:999px;padding:5px 12px;font-size:12px;color:#374151"><%= k.replace(/_/g,' ') %></span>
-          <% }) %>
-        </div>
-      </div>
-      <% } %>
-      <% if(imovel.descricao) { %>
-      <div class="card">
-        <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">Descrição</h3>
-        <p style="color:#444;line-height:1.8;font-size:14px;white-space:pre-line;margin:0"><%= imovel.descricao %></p>
-      </div>
-      <% } %>
-      <% if(imovel.latitude && imovel.longitude) { %>
-      <div class="card">
-        <h3 style="margin:0 0 12px;font-size:15px;font-weight:700">📍 Localização</h3>
-        <div style="border-radius:12px;overflow:hidden;height:280px">
-          <iframe width="100%" height="280" frameborder="0" style="border:0" src="https://www.openstreetmap.org/export/embed.html?bbox=<%= imovel.longitude-0.01 %>,<%= imovel.latitude-0.01 %>,<%= imovel.longitude+0.01 %>,<%= imovel.latitude+0.01 %>&layer=mapnik&marker=<%= imovel.latitude %>,<%= imovel.longitude %>" allowfullscreen loading="lazy"></iframe>
-        </div>
-        <div style="font-size:13px;color:#888;margin-top:8px"><%= [imovel.endereco, imovel.bairro, imovel.cidade].filter(Boolean).join(', ') %></div>
-      </div>
-      <% } %>
-
-
-    </div>
-
-    <%# COLUNA LATERAL %>
-    <div>
-            <div class="card">
-        <div style="font-size:11px;font-weight:700;color:#717171;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">Informações</div>
-        <div class="info-row"><span class="info-lbl">Valor</span><span class="info-val" style="color:#FF385C;font-size:15px">R$ <%= Number(imovel.valor_imovel||0).toLocaleString('pt-BR') %></span></div>
-        <% if(imovel.condominio > 0) { %><div class="info-row"><span class="info-lbl">Condomínio</span><span class="info-val">R$ <%= Number(imovel.condominio).toLocaleString('pt-BR') %>/mês</span></div><% } %>
-        <% if(imovel.transacao) { %><div class="info-row"><span class="info-lbl">Operação</span><span class="info-val"><%= imovel.transacao %></span></div><% } %>
-        <% if(imovel.condicao){ %><div class="info-row"><span class="info-lbl">Condição</span><span class="info-val" style="<%=imovel.condicao==="lancamento"?"color:#FC642D;font-weight:600":imovel.condicao==="novo"?"color:#059669;font-weight:600":""%>"><%=imovel.condicao==="lancamento"?"Lançamento":imovel.condicao==="novo"?"Novo / Pronto":"Usado"%></span></div><% } %>
-        <% if(imovel.cep) { %><div class="info-row"><span class="info-lbl">CEP</span><span class="info-val"><%= imovel.cep %></span></div><% } %>
-        <% if(imovel.iptu > 0) { %><div class="info-row"><span class="info-lbl">IPTU</span><span class="info-val">R$ <%= Number(imovel.iptu).toLocaleString('pt-BR') %>/ano</span></div><% } %>
-        <% if(imovel.andar) { %><div class="info-row"><span class="info-lbl">Andar</span><span class="info-val"><%= imovel.andar %>º</span></div><% } %>
-        <% if(imovel.idInterno||imovel.id_interno) { %><div class="info-row"><span class="info-lbl">Cód. Interno</span><span class="info-val" style="font-size:11px;color:#888"><%= imovel.idInterno||imovel.id_interno %></span></div><% } %>
-        <% if(imovel.idExterno||imovel.id_externo) { %><div class="info-row"><span class="info-lbl">Código Externo</span><span class="info-val" style="font-size:11px;color:#888"><%= imovel.idExterno||imovel.id_externo %></span></div><% } %>
-        <% if(corretor && corretor.nome) { %><div class="info-row"><span class="info-lbl">Corretor</span><span class="info-val" style="font-weight:500"><%= corretor.nome %></span></div><% } %>
-      </div>
-      <div class="cta-card">
-        <div style="font-size:15px;font-weight:700;margin-bottom:4px">Interessado neste imóvel?</div>
-        <div style="font-size:13px;color:#717171;margin-bottom:20px">Fale com um de nossos consultores</div>
-        <% const _telContato = (typeof compartilhador!=='undefined'&&compartilhador&&(compartilhador.celular||compartilhador.telefone)) ? (compartilhador.celular||compartilhador.telefone||'').replace(/\D/g,'') : (corretor.celular||corretor.telefone||'').replace(/\D/g,''); %>
-        <% if (!temLeadId) { %>
-        <a href="#" onclick="abrirModal(this.dataset.href,'whatsapp');return false;" data-href="https://wa.me/55<%= _telContato %>?text=<%= encodeURIComponent('Olá! Tenho interesse no imóvel: ' + (imovel.titulo || imovel.tipo + ' em ' + imovel.bairro) + ' - R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR') + '\n\n' + 'https://www.matchimoveis.ia.br/imovel/' + (imovel.idInterno||imovel.idExterno||imovel.id||'') + (typeof userId!=='undefined'&&userId?'?userId='+userId:'')) %>" class="btn-cta btn-wpp">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          Falar pelo WhatsApp
-        </a>
-        <% } %>
-        <a href="#" onclick="abrirModal(this.dataset.href);return false;" data-href="https://wa.me/55<%= _telContato %>?text=<%= encodeURIComponent('Olá! Gostaria de solicitar uma visita para o imóvel: ' + (imovel.titulo || imovel.tipo + ' em ' + imovel.bairro) + ' - R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR')) %>" class="btn-cta btn-visita">
-          📅 Solicitar visita
-        </a>
-        <% if (temLeadId) { %>
-        <a href="/cliente/gostei/<%= leadId %>/<%= imovel.idExterno || imovel.idInterno || imovel.id %>?voltar=<%= encodeURIComponent('/imovel/' + (imovel.idExterno||imovel.idInterno||imovel.id) + '?leadId=' + leadId) %>" class="btn-cta" style="background:#f3f4f6;color:#111">
-          ❤️ Clique aqui - Gostei
-        </a>
-        <% } %>
-
-        <div style="font-size:11px;color:#999;text-align:center;margin-top:8px">MatchImóveis · Consultoria Imobiliária</div>
+      <div class="pd-specs" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--line)">
+        <% if(imovel.area_m2) { %><div class="pd-spec"><b><%= imovel.area_m2 %>m²</b><span>Área</span></div><% } %>
+        <% if(imovel.quartos) { %><div class="pd-spec"><b><%= imovel.quartos %></b><span>Quartos</span></div><% } %>
+        <% if(imovel.suites) { %><div class="pd-spec"><b><%= imovel.suites %></b><span>Suítes</span></div><% } %>
+        <% if(imovel.banheiros) { %><div class="pd-spec"><b><%= imovel.banheiros %></b><span>Banheiros</span></div><% } %>
+        <% if(imovel.vagas) { %><div class="pd-spec"><b><%= imovel.vagas %></b><span>Vagas</span></div><% } %>
       </div>
     </div>
 
+    <% const _difsP = Array.isArray(imovel.diferenciais) ? imovel.diferenciais : (imovel.dados&&imovel.dados.diferenciais ? imovel.dados.diferenciais : Object.keys(imovel.diferenciais||{}).filter(k=>imovel.diferenciais[k])); %>
+    <% if(_difsP && _difsP.length > 0){ %>
+    <div class="card">
+      <h3 class="card-h">Diferenciais</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <% _difsP.forEach(k=>{ %>
+        <span class="tag-chip"><%= k.replace(/_/g,' ') %></span>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+
+    <% if(imovel.descricao) { %>
+    <div class="card">
+      <h3 class="card-h">Descrição</h3>
+      <p style="color:var(--ink);line-height:1.8;font-size:14.5px;white-space:pre-line;margin:0;max-width:64ch"><%= imovel.descricao %></p>
+    </div>
+    <% } %>
+
+    <% if(imovel.latitude && imovel.longitude) { %>
+    <div class="card">
+      <h3 class="card-h">📍 Localização</h3>
+      <div style="border-radius:14px;overflow:hidden;height:280px">
+        <iframe width="100%" height="280" frameborder="0" style="border:0" src="https://www.openstreetmap.org/export/embed.html?bbox=<%= imovel.longitude-0.01 %>,<%= imovel.latitude-0.01 %>,<%= imovel.longitude+0.01 %>,<%= imovel.latitude+0.01 %>&layer=mapnik&marker=<%= imovel.latitude %>,<%= imovel.longitude %>" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-top:10px"><%= [imovel.endereco, imovel.bairro, imovel.cidade].filter(Boolean).join(', ') %></div>
+    </div>
+    <% } %>
+
+    <% if(imovel.dataCadastro||imovel.data_cadastro){ %>
+    <div style="font-size:11.5px;color:var(--muted-2);margin-top:4px;padding-left:4px">📅 Cadastrado: <%= new Date(imovel.dataCadastro||imovel.data_cadastro).toLocaleDateString('pt-BR') %><% if(imovel.dataAtualizacao||imovel.updatedAt){ %> · 🔄 Atualizado: <%= new Date(imovel.dataAtualizacao||imovel.updatedAt).toLocaleDateString('pt-BR') %><% } %></div>
+    <% } %>
   </div>
+
+  <%# COLUNA LATERAL %>
+  <div>
+    <div class="card">
+      <h3 class="card-h">Informações</h3>
+      <div class="info-row"><span class="info-lbl">Valor</span><span class="info-val" style="color:var(--brand);font-size:15px">R$ <%= Number(imovel.valor_imovel||0).toLocaleString('pt-BR') %></span></div>
+      <% if(imovel.condominio > 0) { %><div class="info-row"><span class="info-lbl">Condomínio</span><span class="info-val">R$ <%= Number(imovel.condominio).toLocaleString('pt-BR') %>/mês</span></div><% } %>
+      <% if(imovel.transacao) { %><div class="info-row"><span class="info-lbl">Operação</span><span class="info-val"><%= imovel.transacao %></span></div><% } %>
+      <% if(imovel.condicao){ %><div class="info-row"><span class="info-lbl">Condição</span><span class="info-val" style="<%=imovel.condicao==='lancamento'?'color:var(--brand)':imovel.condicao==='novo'?'color:var(--teal-ink)':''%>"><%=imovel.condicao==='lancamento'?'Lançamento':imovel.condicao==='novo'?'Novo / Pronto':'Usado'%></span></div><% } %>
+      <% if(imovel.cep) { %><div class="info-row"><span class="info-lbl">CEP</span><span class="info-val"><%= imovel.cep %></span></div><% } %>
+      <% if(imovel.iptu > 0) { %><div class="info-row"><span class="info-lbl">IPTU</span><span class="info-val">R$ <%= Number(imovel.iptu).toLocaleString('pt-BR') %>/ano</span></div><% } %>
+      <% if(imovel.andar) { %><div class="info-row"><span class="info-lbl">Andar</span><span class="info-val"><%= imovel.andar %>º</span></div><% } %>
+      <% if(imovel.idInterno||imovel.id_interno) { %><div class="info-row"><span class="info-lbl">Cód. Interno</span><span class="info-val" style="font-size:11px;color:var(--muted-2)"><%= imovel.idInterno||imovel.id_interno %></span></div><% } %>
+      <% if(imovel.idExterno||imovel.id_externo) { %><div class="info-row"><span class="info-lbl">Código Externo</span><span class="info-val" style="font-size:11px;color:var(--muted-2)"><%= imovel.idExterno||imovel.id_externo %></span></div><% } %>
+    </div>
+
+    <div class="cta-card">
+      <div class="cta-price">R$ <%= Number(imovel.valor_imovel||0).toLocaleString('pt-BR') %><% if(_trans==='aluguel'){ %><small>por mês</small><% } %></div>
+
+      <% if(corretor && corretor.nome) { %>
+      <div class="corretor-row">
+        <div class="corretor-av"><%= corretor.nome.trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase() %></div>
+        <div>
+          <div class="corretor-nome"><%= corretor.nome %></div>
+          <div class="corretor-role">Corretor<% if(corretor.creci){ %> · CRECI <%= corretor.creci %><% } %></div>
+        </div>
+      </div>
+      <% } %>
+
+      <% const _telContato = (typeof compartilhador!=='undefined'&&compartilhador&&(compartilhador.celular||compartilhador.telefone)) ? (compartilhador.celular||compartilhador.telefone||'').replace(/\D/g,'') : (corretor.celular||corretor.telefone||'').replace(/\D/g,''); %>
+      <% if (!temLeadId) { %>
+      <a href="#" onclick="abrirModal(this.dataset.href,'whatsapp');return false;" data-href="https://wa.me/55<%= _telContato %>?text=<%= encodeURIComponent('Olá! Tenho interesse no imóvel: ' + (imovel.titulo || imovel.tipo + ' em ' + imovel.bairro) + ' - R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR') + '\n\n' + 'https://www.matchimoveis.ia.br/imovel/' + (imovel.idInterno||imovel.idExterno||imovel.id||'') + (typeof userId!=='undefined'&&userId?'?userId='+userId:'')) %>" class="btn-cta btn-wpp">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Falar pelo WhatsApp
+      </a>
+      <% } %>
+      <a href="#" onclick="abrirModal(this.dataset.href);return false;" data-href="https://wa.me/55<%= _telContato %>?text=<%= encodeURIComponent('Olá! Gostaria de solicitar uma visita para o imóvel: ' + (imovel.titulo || imovel.tipo + ' em ' + imovel.bairro) + ' - R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR')) %>" class="btn-cta btn-visita">
+        📅 Solicitar visita
+      </a>
+      <% if (temLeadId) { %>
+      <a href="/cliente/gostei/<%= leadId %>/<%= imovel.idExterno || imovel.idInterno || imovel.id %>?voltar=<%= encodeURIComponent('/imovel/' + (imovel.idExterno||imovel.idInterno||imovel.id) + '?leadId=' + leadId) %>" class="btn-cta btn-gostei">
+        ❤️ Clique aqui - Gostei
+      </a>
+      <% } %>
+
+      <div class="interesse-label">ou deixe seu interesse</div>
+      <div class="interesse-box">
+        <div class="formf"><input id="int-nome" placeholder="Seu nome" value="<%= typeof leadDados !== 'undefined' ? leadDados.nome : '' %>"></div>
+        <div class="formf"><input id="int-celular" type="tel" placeholder="Seu WhatsApp" value="<%= typeof leadDados !== 'undefined' ? leadDados.telefone : '' %>"></div>
+        <button onclick="enviarInteresse()" class="btn-cta" style="background:var(--teal);color:#fff;margin-bottom:0">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          Tenho interesse
+        </button>
+        <div id="interesse-msg"></div>
+      </div>
+
+      <div class="footer-note">MatchImóveis · Consultoria Imobiliária</div>
+    </div>
+  </div>
+
+</div>
 </div>
 
-
 <!-- MODAL CONTATO -->
-<div id="modal-contato" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:20px;padding:32px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+<div id="modal-contato" class="modal-bg">
+  <div class="modal-box">
 
     <div id="modal-step-contato">
-      <h3 style="font-size:20px;font-weight:800;margin-bottom:6px">Quase lá! 👋</h3>
-      <p style="color:#717171;font-size:14px;margin-bottom:20px">Nos informe seus dados para continuar</p>
+      <h3>Quase lá! 👋</h3>
+      <p class="sub">Nos informe seus dados para continuar</p>
 
-      <div style="margin-bottom:14px">
-        <label style="font-size:13px;font-weight:600;color:#222;display:block;margin-bottom:6px">Seu nome</label>
-        <input id="modal-nome" type="text" placeholder="Nome completo" value="<%= typeof leadDados !== 'undefined' ? leadDados.nome : '' %>" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none">
-      </div>
+      <label>Seu nome</label>
+      <input id="modal-nome" type="text" placeholder="Nome completo" value="<%= typeof leadDados !== 'undefined' ? leadDados.nome : '' %>">
 
-      <div style="margin-bottom:20px">
-        <label style="font-size:13px;font-weight:600;color:#222;display:block;margin-bottom:6px">Seu celular</label>
-        <input id="modal-celular" type="tel" placeholder="(11) 99999-9999" value="<%= typeof leadDados !== 'undefined' ? leadDados.telefone : '' %>" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none">
-        <input id="modal-email" type="email" placeholder="Email (opcional)" value="<%= typeof leadDados !== 'undefined' ? leadDados.email||'' : '' %>" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;margin-top:10px">
-      </div>
+      <label>Seu celular</label>
+      <input id="modal-celular" type="tel" placeholder="(11) 99999-9999" value="<%= typeof leadDados !== 'undefined' ? leadDados.telefone : '' %>">
+      <input id="modal-email" type="email" placeholder="Email (opcional)" value="<%= typeof leadDados !== 'undefined' ? leadDados.email||'' : '' %>">
 
-      <button onclick="confirmarContato()" style="width:100%;padding:14px;background:#FF385C;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Continuar →</button>
-      <button onclick="fecharModal()" style="width:100%;padding:10px;background:#f5f5f5;color:#717171;border:none;border-radius:12px;font-size:14px;cursor:pointer">Cancelar</button>
+      <button onclick="confirmarContato()" class="modal-btn-primary">Continuar →</button>
+      <button onclick="fecharModal()" class="modal-btn-sec">Cancelar</button>
     </div>
 
     <div id="modal-step-horario" style="display:none">
-      <h3 style="font-size:20px;font-weight:800;margin-bottom:6px">Escolha sua visita 📅</h3>
-      <p style="color:#717171;font-size:14px;margin-bottom:20px">Selecione a data e o horário que você pode visitar.</p>
+      <h3>Escolha sua visita 📅</h3>
+      <p class="sub">Selecione a data e o horário que você pode visitar.</p>
 
-      <div style="margin-bottom:14px">
-        <label style="font-size:13px;font-weight:600;color:#222;display:block;margin-bottom:6px">Data da visita</label>
-        <input id="modal-data" type="date" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none">
-      </div>
+      <label>Data da visita</label>
+      <input id="modal-data" type="date">
 
-      <div style="margin-bottom:20px">
-        <label style="font-size:13px;font-weight:600;color:#222;display:block;margin-bottom:6px">Horário</label>
-        <select id="modal-hora" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none"><option value="06:00">06:00</option><option value="06:30">06:30</option><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00">09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option><option value="19:30">19:30</option><option value="20:00">20:00</option><option value="20:30">20:30</option><option value="21:00">21:00</option></select>
-      </div>
+      <label>Horário</label>
+      <select id="modal-hora"><option value="06:00">06:00</option><option value="06:30">06:30</option><option value="07:00">07:00</option><option value="07:30">07:30</option><option value="08:00">08:00</option><option value="08:30">08:30</option><option value="09:00">09:00</option><option value="09:30">09:30</option><option value="10:00">10:00</option><option value="10:30">10:30</option><option value="11:00">11:00</option><option value="11:30">11:30</option><option value="12:00">12:00</option><option value="12:30">12:30</option><option value="13:00">13:00</option><option value="13:30">13:30</option><option value="14:00">14:00</option><option value="14:30">14:30</option><option value="15:00">15:00</option><option value="15:30">15:30</option><option value="16:00">16:00</option><option value="16:30">16:30</option><option value="17:00">17:00</option><option value="17:30">17:30</option><option value="18:00">18:00</option><option value="18:30">18:30</option><option value="19:00">19:00</option><option value="19:30">19:30</option><option value="20:00">20:00</option><option value="20:30">20:30</option><option value="21:00">21:00</option></select>
 
-      <button onclick="confirmarVisita()" style="width:100%;padding:14px;background:#FF385C;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">Confirmar visita</button>
-      <button onclick="voltarContato()" style="width:100%;padding:10px;background:#f5f5f5;color:#717171;border:none;border-radius:12px;font-size:14px;cursor:pointer">Voltar</button>
+      <button onclick="confirmarVisita()" class="modal-btn-primary">Confirmar visita</button>
+      <button onclick="voltarContato()" class="modal-btn-sec">Voltar</button>
     </div>
 
   </div>
@@ -253,7 +339,7 @@ function confirmarContato() {
 
   const celularLimpo = (celular||'').replace(/\D/g,'');
   if (!nome || nome.length < 3) { alert('Digite seu nome completo'); return; }
-  if (!celular || celularLimpo.length < 10 || celularLimpo.length > 11) { alert('Celular inválido. Use o formato: 47992010888 ou 4792010888'); 
+  if (!celular || celularLimpo.length < 10 || celularLimpo.length > 11) { alert('Celular inválido. Use o formato: 47992010888 ou 4792010888');
     return;
   }
 
@@ -316,6 +402,40 @@ function confirmarVisita() {
   alert('Visita solicitada com sucesso!');
   fecharModal();
 }
+
+function enviarInteresse() {
+  const nome = document.getElementById('int-nome').value.trim();
+  const celular = document.getElementById('int-celular').value.trim();
+  const celularLimpo = (celular||'').replace(/\D/g,'');
+  const msg = document.getElementById('interesse-msg');
+
+  if (!nome || nome.length < 3) { alert('Digite seu nome completo'); return; }
+  if (!celular || celularLimpo.length < 10 || celularLimpo.length > 11) { alert('Celular inválido. Use o formato: 47992010888 ou 4792010888'); return; }
+
+  const params = new URLSearchParams(window.location.search);
+  const leadIdOrigem = params.get('leadId') || params.get('lid') || '';
+  const userIdOrigem = params.get('userId') || params.get('uid') || '';
+
+  fetch('/api/lead-interesse', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem || imovelUserId, canal: 'Site' })
+  }).then(r => r.json()).then(d => {
+    msg.style.display = 'block';
+    if (d.ok !== false) {
+      msg.style.color = 'var(--teal-ink)';
+      msg.textContent = '✅ Recebemos seu interesse! O corretor vai te chamar em breve.';
+    } else {
+      msg.style.color = '#dc2626';
+      msg.textContent = '❌ ' + (d.error || 'Erro ao enviar. Tente novamente.');
+    }
+  }).catch(() => {
+    msg.style.display = 'block';
+    msg.style.color = '#dc2626';
+    msg.textContent = '❌ Erro ao enviar. Tente novamente.';
+  });
+}
+
 let fotoAtual = 0;
 function abrirGaleria(idx) { fotoAtual=idx; document.getElementById('lightbox').classList.add('open'); atualizarLb(); }
 function fecharLightbox() { document.getElementById('lightbox').classList.remove('open'); }
@@ -323,7 +443,6 @@ function navFoto(dir) { fotoAtual=(fotoAtual+dir+fotos.length)%fotos.length; atu
 function atualizarLb() { document.getElementById('lb-img').src=fotos[fotoAtual]; document.getElementById('lb-counter').textContent=(fotoAtual+1)+' / '+fotos.length; }
 document.getElementById('lightbox').addEventListener('click',e=>{ if(e.target===document.getElementById('lightbox')) fecharLightbox(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') fecharLightbox(); if(e.key==='ArrowLeft') navFoto(-1); if(e.key==='ArrowRight') navFoto(1); });
-
 
 // Bloqueia datas passadas
 document.addEventListener('DOMContentLoaded', () => {
@@ -402,10 +521,6 @@ document.addEventListener('DOMContentLoaded', () => {
     validarHorario();
   }
 });
-
 </script>
-<% if(imovel.dataCadastro||imovel.data_cadastro){ %>
-<div style="font-size:11px;color:#9ca3af;margin-top:4px">📅 Cadastrado: <%= new Date(imovel.dataCadastro||imovel.data_cadastro).toLocaleDateString('pt-BR') %> <% if(imovel.dataAtualizacao||imovel.updatedAt){ %> · 🔄 Atualizado: <%= new Date(imovel.dataAtualizacao||imovel.updatedAt).toLocaleDateString('pt-BR') %><% } %></div>
-<% } %>
 </body>
 </html>

@@ -22,14 +22,21 @@
 .leg-d{width:11px;height:11px;border-radius:50%;flex-shrink:0}
 </style>
 <style>
+#mapaWrap{position:relative;margin:-20px;height:calc(100vh - 60px)}
+@media(max-width:900px){
+  /* .content no mobile usa padding:16px 12px 80px (não 20px) — a margem
+     negativa precisa bater com isso, senão o mapa vaza 8px de cada lado
+     e gera scroll horizontal. Também desconta a bottom-nav fixa (64px)
+     da altura, senão o rodapé do mapa fica escondido atrás dela. */
+  #mapaWrap{margin:-16px -12px -80px;height:calc(100vh - 60px - 64px)}
+}
 @media(max-width:768px){
-
   .eta-box{left:50%!important;transform:translateX(-50%)!important;bottom:10px!important;width:90%!important}
   .leg{display:none!important}
 }
 </style>
 
-<div style="position:relative;margin:-20px;height:calc(100vh - 60px)">
+<div id="mapaWrap">
   <div style="position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:1000;background:#fff;border-radius:12px;padding:5px;box-shadow:0 2px 12px rgba(0,0,0,.12);display:flex;gap:4px">
     <button class="tbtn" id="btn-visitas" onclick="toggle('visitas')" style="background:#00A699;color:#fff">📅 Visitas</button>
     <button class="tbtn" id="btn-interesse" onclick="toggle('interesse')" style="background:#f3f4f6;color:#666">🔥 Interesse</button>

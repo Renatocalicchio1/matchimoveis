@@ -20,7 +20,8 @@ const CUSTO = {
   notificacao_prop:       15,
   confirmacao_auto:       15,
   nova_lead:              20,
-  importar_lead:          10
+  importar_lead:          10,
+  imovel_divulgado:        2
 };
 
 async function consumir(userId, acao) {

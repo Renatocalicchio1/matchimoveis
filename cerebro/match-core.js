@@ -436,6 +436,27 @@ class MatchCore {
   // 6a. MATCH CASO 1 — Lead com imóvel de interesse
   // Busca imóveis SIMILARES ao que a lead clicou
   // ============================================================
+  // Debita 2 coins (imovel_divulgado) do DONO de cada imóvel que entra na
+  // vitrine pública (top 9, mesmo corte de /cliente/oferta) por ter gerado
+  // match — cobra do dono do imóvel, mesmo que seja da rede (outro corretor),
+  // já que o imóvel dele está sendo divulgado pra lead de outra conta.
+  // 1x por par imóvel+lead — dedup via lead.imoveisDivulgados.
+  async _debitarDivulgacaoVitrine(lead, topMatches) {
+    try {
+      const { consumir: _cDivulga } = require('../services/creditos');
+      if (!lead.imoveisDivulgados) lead.imoveisDivulgados = [];
+      for (const im of (topMatches||[])) {
+        if (im.imovelInteresse) continue; // âncora do Caso 1 não conta — já é o imóvel que a lead buscou
+        const chave = String(im.id_externo || im.idExterno || im.id_interno || im.idInterno || im.id || '');
+        if (!chave || lead.imoveisDivulgados.includes(chave)) continue;
+        const donoId = im.user_id || im.userId || im.codigo_usuario || im.codigoUsuario || '';
+        if (!donoId) continue;
+        lead.imoveisDivulgados.push(chave);
+        _cDivulga(donoId, 'imovel_divulgado').catch(()=>{});
+      }
+    } catch(e) { console.error('[MATCH CORE] erro debito divulgacao:', e.message); }
+  }
+
   async _matchCaso1(lead, userId) {
     try {
       const { query: _queryMatch } = require('../services/db');
@@ -518,6 +539,7 @@ class MatchCore {
       lead.matchesAuto = matchesFiltrados;
       lead.matchAutoEm = new Date().toISOString();
       if (lead.temperatura === 'frio') lead.temperatura = 'morno';
+      await this._debitarDivulgacaoVitrine(lead, matchesFiltrados.slice(0, 9));
 
       console.log(`[MATCH CORE] caso1 matches: ${matchesFiltrados.length} | top score: ${matchesFiltrados[1]?.score||0}`);
     } catch(e) {
@@ -668,6 +690,7 @@ class MatchCore {
         lead.matches     = matchesNovos;
         lead.matchesBase = matchesNovos;
         lead.matchAutoEm = new Date().toISOString();
+        await this._debitarDivulgacaoVitrine(lead, matchesNovos.slice(0, 9));
         // Debita match_encontrado
         if (matchesNovos.length > 0 && matchesNovos.length > matchesAntes.length) {
           try { const { consumir: _cMatch } = require('../services/creditos'); _cMatch(lead.userId || lead.codigoUsuario || '', 'match_encontrado').catch(()=>{}); } catch(e) {}

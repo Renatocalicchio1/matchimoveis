@@ -27,8 +27,9 @@ Plataforma de match imobiliário para corretores/imobiliárias brasileiras. Node
 - Deploy Mac: `cd ~/Downloads/matchimoveis\  && git add -A && git commit -m "..." && git pull origin main --rebase && git push origin main`
 
 ## Sistema de coins (services/creditos.js)
-cadastrar_imovel=15, editar_imovel=0, importar_xml=2, gerar_xml_portal=10, sync_xml_24h=5, lead_ativo_dia=0.2, ia_qualifica_lead=30, match_encontrado=20, vitrine_whatsapp=30, ia_responde_whatsapp=30, followup_auto=25, visita_agendada_ia=40, notificacao_prop=15, confirmacao_auto=15, nova_lead=20, importar_lead=10.
+cadastrar_imovel=15, editar_imovel=0, importar_xml=2, gerar_xml_portal=10, sync_xml_24h=5, lead_ativo_dia=0.2, ia_qualifica_lead=30, match_encontrado=20, vitrine_whatsapp=30, ia_responde_whatsapp=30, followup_auto=25, visita_agendada_ia=40, notificacao_prop=15, confirmacao_auto=15, nova_lead=20, importar_lead=10, imovel_divulgado=2.
 R$50 mínimo = 2.500 coins (R$1 = 50 coins). Sem limite de importação.
+- `imovel_divulgado` (2 coins, jul/2026): debitado do **dono do imóvel** — não do dono da lead — toda vez que o imóvel entra no top 9 da vitrine pública (`/cliente/oferta/:leadId`) por ter gerado match, mesmo que o imóvel seja da rede (outro corretor). Cobrado 1x por par imóvel+lead (dedup via `lead.imoveisDivulgados`), disparado em `cerebro/match-core.js` (`_debitarDivulgacaoVitrine`, chamado no Caso 1 e Caso 2). O imóvel âncora do Caso 1 (o que a lead já clicou/buscou) NÃO é cobrado — só os demais sugeridos por match.
 
 ## Regras de match atuais
 - Critérios mínimos obrigatórios: tipo transação, tipo imóvel, estado, cidade, bairro, valor

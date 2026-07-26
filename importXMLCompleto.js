@@ -385,11 +385,14 @@ const antigosDoUsuario = atuais.filter(i => {
   return dono === String(USER_ID);
 });
 
-// Marca como inativo quem não veio no XML (só se USER_ID válido e mesma fonte/xml_url)
+// Marca como inativo quem não veio no XML — só imóveis que vieram DESSA MESMA
+// fonte/xml_url. Protege imóveis manuais (xml_url vazio) e de outros feeds
+// XML da conta (múltiplos feeds por usuário são suportados) de serem
+// desativados à toa quando um XML diferente é importado.
 const inativos = USER_ID ? antigosDoUsuario
   .filter(i => {
     if(idsNovos.has(String(i.idExterno))) return false; // ainda existe no XML
-    if(XML_URL && i.xml_url && String(i.xml_url).trim() !== String(XML_URL).trim()) return false; // veio de outra fonte
+    if(String(i.xml_url || i.xmlUrl || '').trim() !== String(XML_URL || '').trim()) return false; // veio de outra fonte (ou é manual)
     return true;
   })
   .map(i => ({

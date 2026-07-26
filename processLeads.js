@@ -58,7 +58,7 @@ function _limparValor(v) {
 
 async function run() {
   try {
-    const wb = XLSX.readFile(filePath);
+    const wb = XLSX.readFile(filePath, { codepage: 65001 });
     const ws = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
 

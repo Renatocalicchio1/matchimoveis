@@ -1599,7 +1599,7 @@ app.get('/', (req,res)=>{
     const isMobile = /Mobile|Android|iPhone|iPad/i.test(ua);
     return res.redirect(isMobile ? '/app/feed' : '/app/leads');
   }
-  res.render('landing', { error: req.query.erro || req.query.error || null });
+  res.render('landing', { error: req.query.erro || req.query.error || null, ref: (req.query.ref || '').trim() });
 });
 
 app.get('/entrar', (req,res)=>{ res.redirect('/'); //
@@ -1991,6 +1991,11 @@ app.post('/login', async (req,res)=>{
     const prefixo = req.body.tipoConta === 'imobiliaria' ? 'imob' : req.body.tipoConta === 'corretor' ? 'cor' : 'usr';
     const uid = prefixo + '_' + Math.random().toString(36).substring(2,8) + Date.now().toString(36).slice(-4);
     const _codigoNovo = gerarCodigoUsuario(req.body.nome);
+
+    // Indicação — grava só se o código informado corresponder a uma conta real existente
+    const _refCode = String(req.body.indicadoPor || '').trim();
+    const _indicador = _refCode ? users.find(u => (u.codigoUsuario || u.id) === _refCode) : null;
+
     const novo = {
       id: _codigoNovo,
       nome: req.body.nome,
@@ -2003,7 +2008,8 @@ app.post('/login', async (req,res)=>{
       senha: req.body.senha || '',
       matchCoins: 1000,
       matchCoinsTotal: 1000,
-      matchCoinsBonusInicial: 1000
+      matchCoinsBonusInicial: 1000,
+      indicadoPor: _indicador ? (_indicador.codigoUsuario || _indicador.id) : ''
     };
 
     users.push(novo);
@@ -3727,6 +3733,25 @@ app.post('/app/meu-site/dominio/remover', auth, async (req, res) => {
 
 // (rota /app/meu-site/logo fica registrada mais abaixo, junto de uploadImoveis)
 // ── FIM MEU SITE ────────────────────────────────────────────────────────────
+
+// ── INDICAÇÕES (programa de indicação de parceiros) ───────────────────────────
+app.get('/app/indicacoes', auth, async (req, res) => {
+  const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+  try {
+    const indicados = (_cacheUsuarios || [])
+      .filter(u => u.indicadoPor === uid)
+      .map(u => ({ nome: u.nome || '-', telefone: u.celular || u.telefone || '', criadoEm: u.criadoEm, ativo: u.ativo !== false }))
+      .sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0));
+    const { listarBonusPorIndicador, totalBonusPorIndicador } = require('./services/salvarIndicacao');
+    const bonusHistorico = await listarBonusPorIndicador(uid).catch(() => []);
+    const totalGanho = await totalBonusPorIndicador(uid).catch(() => 0);
+    res.render('app-indicacoes', { user: req.session.user, codigoUsuario: uid, indicados, bonusHistorico, totalGanho });
+  } catch(e) {
+    console.error('[indicacoes]', e.message);
+    res.render('app-indicacoes', { user: req.session.user, codigoUsuario: uid, indicados: [], bonusHistorico: [], totalGanho: 0 });
+  }
+});
+// ── FIM INDICAÇÕES ─────────────────────────────────────────────────────────────
 
 app.post('/app/perfil/vitrine', auth, async (req,res)=>{
   const { atualizarUsuario: _auVitrine } = require('./services/salvarUsuario');
@@ -7642,16 +7667,23 @@ app.post('/pagamento/processar', auth, express.json(), async (req, res) => {
     const valor = result.transaction_amount || 0;
     const creditos = Math.floor(valor * 50);
     if(result.status === 'approved' && creditos > 0){
-      await adicionarCreditos(userId, creditos, 'recarga_mp');
-      criarNotificacaoService({
-        id: Date.now().toString(),
-        tipo: 'recarga',
-        titulo: 'Recarga aprovada',
-        mensagem: creditos + ' créditos adicionados',
-        usuarioId: userId,
-        lida: false,
-        criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
-      });
+      const { tentarMarcarProcessado } = require('./services/salvarPagamentoMP');
+      const _primeiraVez = await tentarMarcarProcessado(result.id);
+      if(_primeiraVez){
+        await adicionarCreditos(userId, creditos, 'recarga_mp');
+        criarNotificacaoService({
+          id: Date.now().toString(),
+          tipo: 'recarga',
+          titulo: 'Recarga aprovada',
+          mensagem: creditos + ' créditos adicionados',
+          usuarioId: userId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+        await _processarBonusIndicacao(userId, creditos);
+      } else {
+        console.log('[MP] pagamento já processado antes, ignorando duplicata:', result.id);
+      }
     }
     res.json({ status: result.status, id: result.id });
   } catch(e) {
@@ -7664,6 +7696,31 @@ app.get('/pagamento/sucesso', auth, async (req, res) => {
   res.redirect('/app/coins?sucesso=1');
 });
 
+// Bônus de indicação: 10% dos créditos comprados vão pro indicador, sempre que o indicado recarrega
+async function _processarBonusIndicacao(userId, creditosComprados) {
+  try {
+    const comprador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === userId);
+    if (!comprador || !comprador.indicadoPor) return;
+    const indicadorCodigo = comprador.indicadoPor;
+    const indicador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === indicadorCodigo);
+    if (!indicador) return;
+    const bonus = Math.floor(creditosComprados * 0.10);
+    if (bonus <= 0) return;
+    await adicionarCreditos(indicadorCodigo, bonus, 'bonus_indicacao');
+    const { registrarBonus } = require('./services/salvarIndicacao');
+    await registrarBonus({ indicadorCodigo, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: bonus });
+    criarNotificacaoService({
+      id: Date.now().toString(),
+      tipo: 'indicacao_bonus',
+      titulo: '🎁 Bônus de indicação!',
+      mensagem: (comprador.nome || 'Seu indicado') + ' comprou ' + creditosComprados + ' créditos — você ganhou ' + bonus + ' de bônus!',
+      usuarioId: indicadorCodigo,
+      lida: false,
+      criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+    });
+  } catch(e) { console.error('[bonus-indicacao]', e.message); }
+}
+
 app.post('/webhook/mercadopago', express.json(), async (req, res) => {
   try {
     const { type, data } = req.body;
@@ -7673,6 +7730,13 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
     const pagamento = await payment.get({ id: data.id });
 
     if(pagamento.status !== 'approved') return res.sendStatus(200);
+
+    const { tentarMarcarProcessado } = require('./services/salvarPagamentoMP');
+    const _primeiraVez = await tentarMarcarProcessado(data.id);
+    if(!_primeiraVez){
+      console.log('[MP webhook] pagamento já processado antes, ignorando reenvio:', data.id);
+      return res.sendStatus(200);
+    }
 
     const meta = pagamento.metadata || {};
     console.log('[MP webhook] metadata:', JSON.stringify(meta), '| status:', pagamento.status, '| valor:', pagamento.transaction_amount);
@@ -7691,6 +7755,7 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
         lida: false,
         criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
       });
+      await _processarBonusIndicacao(userId, creditos);
     }
     res.sendStatus(200);
   } catch(e) {

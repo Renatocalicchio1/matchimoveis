@@ -1,0 +1,107 @@
+<%- include('partials/app-shell',{active:'indicacoes',title:'Indicar Parceiro',subtitle:'Indique corretores e ganhe créditos quando eles recarregarem.',perfil:(user && user.tipo)||'corretor',user:user}) %>
+
+<style>
+.pf-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:16px;padding:20px;margin-bottom:12px}
+.pf-card-title{font-size:15px;font-weight:500;color:#111827;margin:0 0 4px}
+.pf-card-sub{font-size:13px;color:#9ca3af;margin:0 0 16px}
+.pf-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid rgba(0,0,0,.12);background:#111827;color:#fff;margin-top:14px}
+.pf-btn:hover{background:#1f2937}
+.pf-btn-outline{background:#fff;color:#374151;border-color:rgba(0,0,0,.12)}
+.pf-btn-outline:hover{background:#f9fafb}
+
+.ind-link-box{display:flex;align-items:center;gap:8px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:10px 14px;font-size:12.5px;color:#374151;font-family:monospace;flex-wrap:wrap}
+.ind-link-box span{word-break:break-all}
+
+.ind-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:480px){.ind-stats{grid-template-columns:1fr}}
+.ind-stat{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:16px;padding:18px}
+.ind-stat b{display:block;font-size:26px;font-weight:700;color:#111827}
+.ind-stat span{font-size:12px;color:#9ca3af;text-transform:uppercase;letter-spacing:.03em}
+
+table.ind-table{width:100%;border-collapse:collapse;font-size:13px}
+table.ind-table th{text-align:left;padding:8px 10px;font-size:10.5px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid rgba(0,0,0,.08)}
+table.ind-table td{padding:10px;border-bottom:1px solid rgba(0,0,0,.06);color:#111827}
+table.ind-table tr:last-child td{border-bottom:none}
+.ind-vazio{text-align:center;padding:30px;color:#9ca3af;font-size:13px}
+.ind-badge{display:inline-flex;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.ind-badge.ativo{background:#f0fdf4;color:#16a34a}
+.ind-badge.inativo{background:#f3f4f6;color:#6b7280}
+</style>
+
+<div class="pf-card">
+  <div class="pf-card-title">🔗 Seu link de indicação</div>
+  <div class="pf-card-sub">Compartilhe com outros corretores — quando alguém se cadastra pelo seu link, fica vinculado a você pra sempre.</div>
+  <div class="ind-link-box">
+    <span id="link-indicacao">https://www.matchimoveis.ia.br/?ref=<%= codigoUsuario %></span>
+  </div>
+  <button type="button" class="pf-btn pf-btn-outline" onclick="copiarLink()" id="btn-copiar">📋 Copiar link</button>
+</div>
+
+<div class="ind-stats">
+  <div class="ind-stat">
+    <b><%= indicados.length %></b>
+    <span>Corretores indicados</span>
+  </div>
+  <div class="ind-stat">
+    <b><%= totalGanho.toLocaleString('pt-BR') %></b>
+    <span>Créditos ganhos em bônus</span>
+  </div>
+</div>
+
+<div class="pf-card">
+  <div class="pf-card-title">Seus indicados</div>
+  <div class="pf-card-sub">Só visualização — os dados de cadastro do parceiro não podem ser editados por aqui.</div>
+  <% if(!indicados.length){ %>
+  <div class="ind-vazio">Você ainda não indicou ninguém. Compartilhe seu link acima!</div>
+  <% } else { %>
+  <table class="ind-table">
+    <thead><tr><th>Nome</th><th>Telefone</th><th>Cadastrado em</th><th>Status</th></tr></thead>
+    <tbody>
+      <% indicados.forEach(function(i){ %>
+      <tr>
+        <td><%= i.nome %></td>
+        <td><%= i.telefone||'-' %></td>
+        <td><%= i.criadoEm ? new Date(i.criadoEm).toLocaleDateString('pt-BR') : '-' %></td>
+        <td><span class="ind-badge <%= i.ativo?'ativo':'inativo' %>"><%= i.ativo?'Ativo':'Inativo' %></span></td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+  <% } %>
+</div>
+
+<div class="pf-card">
+  <div class="pf-card-title">Histórico de bônus</div>
+  <div class="pf-card-sub">10% em créditos toda vez que um indicado recarrega créditos de verdade.</div>
+  <% if(!bonusHistorico.length){ %>
+  <div class="ind-vazio">Nenhum bônus recebido ainda.</div>
+  <% } else { %>
+  <table class="ind-table">
+    <thead><tr><th>Data</th><th>Indicado</th><th>Compra</th><th>Seu bônus</th></tr></thead>
+    <tbody>
+      <% bonusHistorico.forEach(function(b){ %>
+      <tr>
+        <td><%= new Date(b.criado_em).toLocaleDateString('pt-BR') %></td>
+        <td><%= b.indicado_codigo %></td>
+        <td><%= Number(b.valor_compra_coins).toLocaleString('pt-BR') %> créditos</td>
+        <td style="color:#16a34a;font-weight:600">+<%= Number(b.bonus_coins).toLocaleString('pt-BR') %></td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+  <% } %>
+</div>
+
+<script>
+function copiarLink(){
+  const link = document.getElementById('link-indicacao').textContent;
+  navigator.clipboard.writeText(link).then(() => {
+    const btn = document.getElementById('btn-copiar');
+    const original = btn.textContent;
+    btn.textContent = '✅ Copiado!';
+    setTimeout(() => { btn.textContent = original; }, 2000);
+  });
+}
+</script>
+
+<%- include('partials/app-end') %>

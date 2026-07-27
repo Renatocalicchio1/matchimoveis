@@ -368,6 +368,10 @@
     </div>
     <div id="form-cadastro" style="display:none">
       <form method="POST" action="/login">
+        <input type="hidden" name="indicadoPor" value="<%= typeof ref !== 'undefined' ? ref : '' %>">
+        <% if(typeof ref !== 'undefined' && ref){ %>
+        <div style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px">🎉 Você foi indicado por um parceiro MatchImóveis!</div>
+        <% } %>
         <div class="m-field"><label>Nome completo</label><input name="nome" placeholder="Seu nome" required></div>
         <div class="m-field"><label>E-mail</label><input name="email" type="email" placeholder="seu@email.com" required></div>
         <div class="m-field"><label>Celular</label><input name="telefone" placeholder="47999999999" required></div>
@@ -411,6 +415,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
     openModal('entrar');
   } else if(_e) {
     openModal();
+  } else if(_p.get('ref')) {
+    openModal('cadastro');
   }
 })();
 let _mdTarget=null;

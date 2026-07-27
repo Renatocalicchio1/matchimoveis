@@ -100,7 +100,7 @@
             <% if(!p.tipo && !p.bairro && !p.valorMax){ %><span style="color:var(--text-ter)">Perfil incompleto</span><% } %>
           </td>
           <td><% if(_vitrineLinkPl){ %><a href="<%= _vitrineLinkPl %>" target="_blank" class="pl-ver">Ver vitrine</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
-          <td><% if(l.idAnuncio){ %><a href="/app/imovel/<%= l.idAnuncio %>" target="_blank" class="pl-ver">Ver detalhes do imóvel</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
+          <td><% if(l.idAnuncio){ %><a href="/app/imovel/<%= l.idAnuncio %>" target="_blank" class="pl-ver">Ver detalhes do imóvel</a><% } else if((l.origem||l.origemEntrada)==='captacao_link'){ %><a href="/app/cadastro" class="pl-ver">+ Cadastrar imóvel</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
           <td class="pl-acoes">
             <a href="/app/lead/<%= l.id %>" class="pl-ver">Ver detalhes</a><button type="button" class="pl-excluir" onclick="plExcluirLead('<%= l.id %>')">Excluir</button>
           </td>

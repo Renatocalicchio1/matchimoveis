@@ -95,6 +95,13 @@
         <div style="font-size:12px;color:#888">Mensagens enviadas, vitrines e confirmações via WhatsApp</div>
       </div>
     </div>
+    <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+      <div style="font-size:22px">📢</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#111">Divulgação</div>
+        <div style="font-size:12px;color:#888">Imóvel divulgado na vitrine de outra lead e publicações no Instagram</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -117,7 +124,8 @@
     'Leads':    ['importar_lead','nova_lead','match_encontrado','ia_qualifica_lead','lead_ativo_dia'],
     'IA':       ['ia_responde_whatsapp','followup_auto','visita_agendada_ia'],
     'WhatsApp': ['vitrine_whatsapp','confirmacao_auto','notificacao_prop'],
-    'Imóveis':  ['cadastrar_imovel','importar_xml','gerar_xml_portal','sync_xml_24h'],
+    'Imóveis':  ['cadastrar_imovel','importar_xml','gerar_xml_portal','sync_xml_24h','imovel_divulgado'],
+    'Divulgação': ['postar_instagram'],
   };
   const _gastoCat = {};
   Object.keys(_categorias).forEach(cat => {
@@ -146,11 +154,14 @@
     lead_ativo_dia: '📊 Lead ativo (dia)',
     visita_agendada_ia: '📅 Visita agendada IA',
     sync_xml_24h: '🔁 Sync XML 24h',
+    imovel_divulgado: '📢 Imóvel divulgado na vitrine',
+    postar_instagram: '📸 Publicação no Instagram',
     recarga: '💳 Recarga',
     'recarga manual': '💳 Recarga manual',
+    'debito manual': '⚙️ Ajuste manual (suporte)',
   };
 
-  const _corCat = { 'Leads':'#FC642D', 'IA':'#f59e0b', 'WhatsApp':'#22c55e', 'Imóveis':'#FF385C' };
+  const _corCat = { 'Leads':'#FC642D', 'IA':'#f59e0b', 'WhatsApp':'#22c55e', 'Imóveis':'#FF385C', 'Divulgação':'#00A699' };
   let _filtro = 'todos';
 %>
 

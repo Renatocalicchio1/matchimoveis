@@ -1885,7 +1885,7 @@ app.post('/app/leads', upload.any(), async (req, res) => {
 });
 
 // CADASTRAR LEAD MANUAL (pelo chat ou formulário)
-app.post("/app/leads/manual", auth, checarSaldo("Cadastrar lead manual", 10), async (req, res) => {
+app.post("/app/leads/manual", auth, checarSaldo("Cadastrar lead manual", 20), async (req, res) => {
 try {
 const fs = require("fs");
 const { resolverUsuario } = require("./services/usuarios/resolverUsuario");
@@ -5383,7 +5383,7 @@ app.get('/app/whatsapp', auth, async (req, res) => {
 
 
 // ENVIAR MENSAGEM WHATSAPP pelo corretor
-app.post('/app/lead/:id/whatsapp/enviar', auth, checarSaldo('Enviar vitrine WhatsApp', 20), async (req, res) => {
+app.post('/app/lead/:id/whatsapp/enviar', auth, checarSaldo('Enviar vitrine WhatsApp', 30), async (req, res) => {
   try {
     const { texto } = req.body;
     if (!texto) return res.status(400).json({ erro: 'texto obrigatorio' });
@@ -5427,6 +5427,7 @@ app.post('/app/lead/:id/whatsapp/enviar', auth, checarSaldo('Enviar vitrine What
     leads[idx].ultimaMensagem = texto;
     leads[idx].ultimaMensagemEm = new Date().toISOString();
     salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+    consumir(req.session.user.id, 'vitrine_whatsapp').catch(()=>{}); // 30 créditos por envio manual de WhatsApp pro lead
 
     console.log('[ENVIAR WA] mensagem enviada para:', telefone);
     return res.json({ ok: true, telefone, texto });
@@ -7403,6 +7404,7 @@ app.post('/app/gerar-xml', auth, checarSaldo('Gerar XML para portais', 10), asyn
 
   const xml = gerarXMLPortal(selecionadosComCorretor, portal);
   fs.writeFileSync(dataPath(filename), xml, 'utf8');
+  consumir(req.session.user.id, 'gerar_xml_portal').catch(()=>{}); // 10 créditos por geração de XML
   res.json({ url: '/'+filename, total: selecionados.length });
 });
 

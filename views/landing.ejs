@@ -100,13 +100,15 @@
     .btn-cta:hover{opacity:.88}
     .cta-note{font-size:12px;color:rgba(255,255,255,.3);margin-top:14px}
 
-    footer{background:#0a0a0a;padding:28px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid rgba(255,255,255,.06)}
+    footer{background:#0a0a0a;padding:28px 48px;display:flex;flex-direction:column;gap:16px;border-top:1px solid rgba(255,255,255,.06)}
+    .footer-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
     .footer-logo{font-size:14px;font-weight:600;color:rgba(255,255,255,.6)}
     .footer-logo span{color:var(--rosa)}
-    .footer-links{display:flex;gap:24px}
+    .footer-links{display:flex;gap:24px;flex-wrap:wrap}
     .footer-links a{font-size:12px;color:rgba(255,255,255,.3);transition:color .15s}
     .footer-links a:hover{color:rgba(255,255,255,.6)}
-    .footer-note{font-size:11px;color:rgba(255,255,255,.2)}
+    .footer-empresa{font-size:13px;color:rgba(255,255,255,.55);padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
+    .footer-note{font-size:12px;color:rgba(255,255,255,.35);margin-top:4px}
 
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;align-items:center;justify-content:center}
     .modal-box{background:#fff;border-radius:14px;padding:28px;width:340px;max-width:92vw;position:relative}
@@ -332,15 +334,21 @@
 </section>
 
 <footer>
-  <span class="footer-logo">Match<span>Imóveis</span></span>
-  <div class="footer-links">
-    <a href="#como-funciona">Como funciona</a>
-    <a href="#depoimentos">Depoimentos</a>
-    <a href="#preco">Preço</a>
-    <a href="/politica-privacidade">Política de Privacidade</a>
-    <a href="/termos-de-uso">Termos de Uso</a>
+  <div class="footer-top">
+    <span class="footer-logo">Match<span>Imóveis</span></span>
+    <div class="footer-links">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#depoimentos">Depoimentos</a>
+      <a href="#preco">Preço</a>
+      <a href="https://wa.me/5511951131609?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20MatchIm%C3%B3veis." target="_blank">Fale Conosco</a>
+      <a href="/politica-privacidade">Política de Privacidade</a>
+      <a href="/termos-de-uso">Termos de Uso</a>
+    </div>
   </div>
-  <span class="footer-note">© 2025 MatchImóveis · LGPD · Dados protegidos</span>
+  <div>
+    <div class="footer-empresa">Match Imóveis é uma plataforma do Grupo Rankim.</div>
+    <div class="footer-note">© 2026 Match Imóveis — Grupo Rankim. Todos os direitos reservados.</div>
+  </div>
 </footer>
 
 <div class="modal-overlay" id="modal-login">

@@ -3268,34 +3268,13 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
   }
 });
 
-app.get('/app/imoveis', auth, async (req,res)=>{
-  const _rede = req.query.rede === '1';
-  let imoveis;
-  if (_rede) {
-    if (!global._cacheRede || !global._cacheRedeTTL || Date.now() > global._cacheRedeTTL) {
-      global._cacheRede = await lerImoveis(null);
-      global._cacheRedeTTL = Date.now() + 5 * 60 * 1000; // 5 min
-    }
-    imoveis = global._cacheRede;
-  } else {
-    imoveis = await lerImoveis(req.session.user.id);
-  }
-  const _perPage = 60;
-  const _page = Math.max(1, parseInt(req.query.page) || 1);
+// Filtra + ordena + pagina uma lista de imoveis a partir de query params.
+// Usado por /app/imoveis (dashboard) e pelas rotas publicas /site/:codigoUsuario.
+function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
+  let imoveis = imoveisBase;
+  const _page = Math.max(1, parseInt(q.page) || 1);
   const _totalImoveis = imoveis.length;
-  const _totalPages = Math.ceil(_totalImoveis / _perPage);
-  const _usersRede = _rede ? (_cacheUsuarios || []) : [];
-  const qaIncompleto = req.query.qa_incompleto === '1';
-  if (qaIncompleto) {
-    const _nQA = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-    const _cQA = [{e:'santa catarina',c:'florianopolis'},{e:'santa catarina',c:'joinville'},{e:'santa catarina',c:'blumenau'},{e:'santa catarina',c:'balneario camboriu'},{e:'santa catarina',c:'itajai'},{e:'santa catarina',c:'sao jose'},{e:'santa catarina',c:'palhoca'},{e:'santa catarina',c:'biguacu'},{e:'santa catarina',c:'criciuma'},{e:'santa catarina',c:'chapeco'},{e:'sao paulo',c:'sao paulo'},{e:'sao paulo',c:'guarulhos'},{e:'sao paulo',c:'osasco'},{e:'sao paulo',c:'santo andre'},{e:'sao paulo',c:'campinas'},{e:'sao paulo',c:'sao bernardo do campo'},{e:'sao paulo',c:'sao caetano do sul'},{e:'sao paulo',c:'diadema'},{e:'sao paulo',c:'maua'},{e:'sao paulo',c:'ribeirao preto'},{e:'sao paulo',c:'sorocaba'},{e:'sao paulo',c:'sao jose dos campos'},{e:'sao paulo',c:'taubate'},{e:'sao paulo',c:'americana'},{e:'sao paulo',c:'sumare'},{e:'rio de janeiro',c:'rio de janeiro'},{e:'rio de janeiro',c:'niteroi'},{e:'rio de janeiro',c:'duque de caxias'},{e:'rio de janeiro',c:'nova iguacu'},{e:'rio de janeiro',c:'sao goncalo'},{e:'rio de janeiro',c:'petropolis'},{e:'minas gerais',c:'belo horizonte'},{e:'minas gerais',c:'contagem'},{e:'minas gerais',c:'nova lima'},{e:'minas gerais',c:'betim'},{e:'minas gerais',c:'uberlandia'},{e:'minas gerais',c:'juiz de fora'},{e:'rio grande do sul',c:'porto alegre'},{e:'rio grande do sul',c:'canoas'},{e:'rio grande do sul',c:'novo hamburgo'},{e:'parana',c:'curitiba'},{e:'parana',c:'londrina'},{e:'parana',c:'maringa'},{e:'goias',c:'goiania'},{e:'distrito federal',c:'brasilia'},{e:'bahia',c:'salvador'},{e:'pernambuco',c:'recife'},{e:'ceara',c:'fortaleza'},{e:'espirito santo',c:'vitoria'},{e:'espirito santo',c:'vila velha'},{e:'para',c:'belem'},{e:'amazonas',c:'manaus'}];
-    imoveis = imoveis.filter(i => {
-      const prop = (typeof i.proprietario === 'string' ? JSON.parse(i.proprietario||'{}') : i.proprietario) || {};
-      const temProp = (prop.nome||'').trim() !== '' && ((prop.celular||prop.telefone||'').trim() !== '');
-      const temEnd = (i.cep||'').trim() !== '' && (i.endereco||'').trim() !== '' && (i.numero||'').trim() !== '';
-      return !(temProp && temEnd);
-    });
-  }
+  const _totalPages = Math.ceil(_totalImoveis / perPage);
   // Monta dados para filtros em cascata
   const estadosSet = new Set();
   const cidadesPorEstado = {};
@@ -3320,36 +3299,36 @@ app.get('/app/imoveis', auth, async (req,res)=>{
   const bairros = {};
   Object.keys(bairrosPorCidade).forEach(ci => { bairros[ci] = [...bairrosPorCidade[ci]].sort(); });
   // Filtros do servidor
-  const _fEstado = (req.query.estado||'').trim().toUpperCase();
-  const _fCidade = (req.query.cidade||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-  const _fBairro = (req.query.bairro||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-  const _fBusca  = (req.query.busca||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const _fEstado = (q.estado||'').trim().toUpperCase();
+  const _fCidade = (q.cidade||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const _fBairro = (q.bairro||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const _fBusca  = (q.busca||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const _norm = s => (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
   if (_fEstado) imoveis = imoveis.filter(i => _norm(i.estado) === _norm(_fEstado) || (i.estado||'').toUpperCase() === _fEstado);
   if (_fCidade) imoveis = imoveis.filter(i => _norm(i.cidade) === _fCidade);
   if (_fBairro) imoveis = imoveis.filter(i => _norm(i.bairro) === _fBairro);
   if (_fBusca)  imoveis = imoveis.filter(i => _norm(JSON.stringify(i)).includes(_fBusca));
-  const _fCorretor = (req.query.corretor||'').trim();
+  const _fCorretor = (q.corretor||'').trim();
   if (_fCorretor) imoveis = imoveis.filter(i => String(i.userId||i.user_id) === _fCorretor);
 
-  const _fTipo = _norm(req.query.tipo||'');
-  const _fOperacao = _norm(req.query.operacao||'');
-  const _fStatus = _norm(req.query.status||'');
-  const _fCondicao = _norm(req.query.condicao||'');
-  const _fFase = _norm(req.query.fase||'');
-  const _fProprietario = (req.query.proprietario||'').trim();
-  const _fFotos = (req.query.fotos||'').trim();
-  const _fValorMin = Number((req.query.valorMin||'').toString().replace(/\./g,'').replace(',','.'))||0;
-  const _fValorMax = Number((req.query.valorMax||'').toString().replace(/\./g,'').replace(',','.'))||0;
-  const _fAreaMin = Number(req.query.areaMin)||0;
-  const _fAreaMax = Number(req.query.areaMax)||0;
-  const _fQuartosMin = Number(req.query.quartosMin)||0;
-  const _fQuartosMax = Number(req.query.quartosMax)||0;
-  const _fSuitesMin = Number(req.query.suitesMin)||0;
-  const _fSuitesMax = Number(req.query.suitesMax)||0;
-  const _fBanheiros = Number(req.query.banheiros)||0;
-  const _fVagasMin = Number(req.query.vagasMin)||0;
-  const _fVagasMax = Number(req.query.vagasMax)||0;
+  const _fTipo = _norm(q.tipo||'');
+  const _fOperacao = _norm(q.operacao||'');
+  const _fStatus = _norm(q.status||'');
+  const _fCondicao = _norm(q.condicao||'');
+  const _fFase = _norm(q.fase||'');
+  const _fProprietario = (q.proprietario||'').trim();
+  const _fFotos = (q.fotos||'').trim();
+  const _fValorMin = Number((q.valorMin||'').toString().replace(/\./g,'').replace(',','.'))||0;
+  const _fValorMax = Number((q.valorMax||'').toString().replace(/\./g,'').replace(',','.'))||0;
+  const _fAreaMin = Number(q.areaMin)||0;
+  const _fAreaMax = Number(q.areaMax)||0;
+  const _fQuartosMin = Number(q.quartosMin)||0;
+  const _fQuartosMax = Number(q.quartosMax)||0;
+  const _fSuitesMin = Number(q.suitesMin)||0;
+  const _fSuitesMax = Number(q.suitesMax)||0;
+  const _fBanheiros = Number(q.banheiros)||0;
+  const _fVagasMin = Number(q.vagasMin)||0;
+  const _fVagasMax = Number(q.vagasMax)||0;
 
   if (_fTipo) imoveis = imoveis.filter(i => _norm(i.tipo) === _fTipo);
   if (_fOperacao) imoveis = imoveis.filter(i => _norm(i.transacao||i.operacao).includes(_fOperacao));
@@ -3374,12 +3353,46 @@ app.get('/app/imoveis', auth, async (req,res)=>{
 
   imoveis.sort((a, b) => (Number(a.valor_imovel)||0) - (Number(b.valor_imovel)||0));
   const _totalImoveisFiltrado = imoveis.length;
-  const _totalPagesFiltrado = Math.ceil(_totalImoveisFiltrado / _perPage);
+  const _totalPagesFiltrado = Math.ceil(_totalImoveisFiltrado / perPage);
   const _temFiltro = _fEstado || _fCidade || _fBairro || _fBusca || _fCorretor;
-  imoveis = imoveis.slice((_page-1)*_perPage, _page*_perPage);
-  const _queryPagina = new URLSearchParams(req.query);
+  imoveis = imoveis.slice((_page-1)*perPage, _page*perPage);
+  const _queryPagina = new URLSearchParams(q);
   _queryPagina.delete('page');
-  res.render('app-imoveis', { user: req.session.user, imoveis, estados, cidades, bairros, qaIncompleto, rede: _rede, usersRede: _usersRede, page: _page, totalPages: _temFiltro ? _totalPagesFiltrado : _totalPages, totalImoveis: _temFiltro ? _totalImoveisFiltrado : _totalImoveis, filtros: { estado: _fEstado, cidade: _fCidade, bairro: _fBairro }, queryPagina: _queryPagina.toString(), embed: req.query.embed === '1' });
+  return {
+    imoveisPagina: imoveis, estados, cidades, bairros, page: _page,
+    totalPages: _temFiltro ? _totalPagesFiltrado : _totalPages,
+    totalImoveis: _temFiltro ? _totalImoveisFiltrado : _totalImoveis,
+    filtros: { estado: _fEstado, cidade: _fCidade, bairro: _fBairro },
+    queryPagina: _queryPagina.toString()
+  };
+}
+
+app.get('/app/imoveis', auth, async (req,res)=>{
+  const _rede = req.query.rede === '1';
+  let imoveis;
+  if (_rede) {
+    if (!global._cacheRede || !global._cacheRedeTTL || Date.now() > global._cacheRedeTTL) {
+      global._cacheRede = await lerImoveis(null);
+      global._cacheRedeTTL = Date.now() + 5 * 60 * 1000; // 5 min
+    }
+    imoveis = global._cacheRede;
+  } else {
+    imoveis = await lerImoveis(req.session.user.id);
+  }
+  const _usersRede = _rede ? (_cacheUsuarios || []) : [];
+  const qaIncompleto = req.query.qa_incompleto === '1';
+  if (qaIncompleto) {
+    const _nQA = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+    const _cQA = [{e:'santa catarina',c:'florianopolis'},{e:'santa catarina',c:'joinville'},{e:'santa catarina',c:'blumenau'},{e:'santa catarina',c:'balneario camboriu'},{e:'santa catarina',c:'itajai'},{e:'santa catarina',c:'sao jose'},{e:'santa catarina',c:'palhoca'},{e:'santa catarina',c:'biguacu'},{e:'santa catarina',c:'criciuma'},{e:'santa catarina',c:'chapeco'},{e:'sao paulo',c:'sao paulo'},{e:'sao paulo',c:'guarulhos'},{e:'sao paulo',c:'osasco'},{e:'sao paulo',c:'santo andre'},{e:'sao paulo',c:'campinas'},{e:'sao paulo',c:'sao bernardo do campo'},{e:'sao paulo',c:'sao caetano do sul'},{e:'sao paulo',c:'diadema'},{e:'sao paulo',c:'maua'},{e:'sao paulo',c:'ribeirao preto'},{e:'sao paulo',c:'sorocaba'},{e:'sao paulo',c:'sao jose dos campos'},{e:'sao paulo',c:'taubate'},{e:'sao paulo',c:'americana'},{e:'sao paulo',c:'sumare'},{e:'rio de janeiro',c:'rio de janeiro'},{e:'rio de janeiro',c:'niteroi'},{e:'rio de janeiro',c:'duque de caxias'},{e:'rio de janeiro',c:'nova iguacu'},{e:'rio de janeiro',c:'sao goncalo'},{e:'rio de janeiro',c:'petropolis'},{e:'minas gerais',c:'belo horizonte'},{e:'minas gerais',c:'contagem'},{e:'minas gerais',c:'nova lima'},{e:'minas gerais',c:'betim'},{e:'minas gerais',c:'uberlandia'},{e:'minas gerais',c:'juiz de fora'},{e:'rio grande do sul',c:'porto alegre'},{e:'rio grande do sul',c:'canoas'},{e:'rio grande do sul',c:'novo hamburgo'},{e:'parana',c:'curitiba'},{e:'parana',c:'londrina'},{e:'parana',c:'maringa'},{e:'goias',c:'goiania'},{e:'distrito federal',c:'brasilia'},{e:'bahia',c:'salvador'},{e:'pernambuco',c:'recife'},{e:'ceara',c:'fortaleza'},{e:'espirito santo',c:'vitoria'},{e:'espirito santo',c:'vila velha'},{e:'para',c:'belem'},{e:'amazonas',c:'manaus'}];
+    imoveis = imoveis.filter(i => {
+      const prop = (typeof i.proprietario === 'string' ? JSON.parse(i.proprietario||'{}') : i.proprietario) || {};
+      const temProp = (prop.nome||'').trim() !== '' && ((prop.celular||prop.telefone||'').trim() !== '');
+      const temEnd = (i.cep||'').trim() !== '' && (i.endereco||'').trim() !== '' && (i.numero||'').trim() !== '';
+      return !(temProp && temEnd);
+    });
+  }
+  const _r = _filtrarEPaginarImoveis(imoveis, req.query, 60);
+  res.render('app-imoveis', { user: req.session.user, imoveis: _r.imoveisPagina, estados: _r.estados, cidades: _r.cidades, bairros: _r.bairros, qaIncompleto, rede: _rede, usersRede: _usersRede, page: _r.page, totalPages: _r.totalPages, totalImoveis: _r.totalImoveis, filtros: _r.filtros, queryPagina: _r.queryPagina, embed: req.query.embed === '1' });
 });
 
 app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req, res) => {
@@ -3572,7 +3585,43 @@ app.post('/app/perfil', auth, async (req,res)=>{
   res.redirect('/app/perfil');
 });
 
+// ── MEU SITE (white-label público) ────────────────────────────────────────────
+app.get('/app/meu-site', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const { buscarConfig } = require('./services/salvarSiteConfig');
+    const configSalva = await buscarConfig(uid).catch(() => null);
+    const siteConfig = configSalva || { cor_primaria: '#FF385C', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true };
+    res.render('app-meu-site', { user: req.session.user, siteConfig, codigoUsuario: uid, msg: req.query.msg || null });
+  } catch(e) {
+    console.error('[meu-site]', e.message);
+    res.render('app-meu-site', { user: req.session.user, siteConfig: { cor_primaria: '#FF385C', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true }, codigoUsuario: req.session.user.codigoUsuario || req.session.user.id, msg: null });
+  }
+});
 
+app.post('/app/meu-site', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const { salvarConfig } = require('./services/salvarSiteConfig');
+    await salvarConfig(uid, {
+      cor_primaria: req.body.cor_primaria || '#FF385C',
+      rodape_nome: req.body.rodape_nome || '',
+      rodape_telefone: req.body.rodape_telefone || '',
+      rodape_endereco: req.body.rodape_endereco || '',
+      rodape_texto: req.body.rodape_texto || '',
+      rodape_instagram: req.body.rodape_instagram || '',
+      rodape_facebook: req.body.rodape_facebook || '',
+      site_ativo: req.body.site_ativo === '1'
+    });
+    res.redirect('/app/meu-site?msg=salvo');
+  } catch(e) {
+    console.error('[meu-site/salvar]', e.message);
+    res.redirect('/app/meu-site?msg=erro');
+  }
+});
+
+// (rota /app/meu-site/logo fica registrada mais abaixo, junto de uploadImoveis)
+// ── FIM MEU SITE ────────────────────────────────────────────────────────────
 
 app.post('/app/perfil/vitrine', auth, async (req,res)=>{
   const { atualizarUsuario: _auVitrine } = require('./services/salvarUsuario');
@@ -6029,6 +6078,20 @@ const storageImoveis = multer.diskStorage({
 });
 const uploadImoveis = multer({ storage: storageImoveis });
 
+app.post('/app/meu-site/logo', auth, uploadImoveis.single('logo'), async (req, res) => {
+  try {
+    if (!req.file) return res.redirect('/app/meu-site?msg=erro');
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const { salvarConfig } = require('./services/salvarSiteConfig');
+    const url = '/data-uploads/' + req.file.filename;
+    await salvarConfig(uid, { logo_url: url });
+    res.redirect('/app/meu-site?msg=salvo');
+  } catch(e) {
+    console.error('[meu-site/logo]', e.message);
+    res.redirect('/app/meu-site?msg=erro');
+  }
+});
+
 app.post('/app/imoveis/portais-lote', auth, async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -6454,6 +6517,102 @@ app.post('/api/lead-interesse', async (req, res) => {
     return res.json({ ok: false, error: e.message });
   }
 });
+
+// ── SITE PÚBLICO WHITE-LABEL POR USUÁRIO ──────────────────────────────────────
+function _paginaManutencaoSite(res, corretor) {
+  res.status(503).send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site em manutenção</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',-apple-system,sans-serif;background:#FBF9F6;color:#16181A;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
+  .box{max-width:420px}.ico{font-size:44px;margin-bottom:16px}h1{font-size:20px;margin-bottom:8px}p{color:#716C61;font-size:14px;line-height:1.6}</style></head>
+  <body><div class="box"><div class="ico">🛠️</div><h1>Site temporariamente indisponível</h1><p>${corretor && corretor.nome ? 'O site de ' + corretor.nome : 'Este site'} está em manutenção no momento. Volte em breve.</p></div></body></html>`);
+}
+
+function _resolverCorretorPublico(codigoUsuario) {
+  const users = (_cacheUsuarios || []);
+  return users.find(u => (u.codigoUsuario || u.id) === codigoUsuario) || null;
+}
+
+app.get('/site/:codigoUsuario', async (req, res) => {
+  try {
+    const codigoUsuario = req.params.codigoUsuario;
+    const corretor = _resolverCorretorPublico(codigoUsuario);
+    if (!corretor) return res.status(404).send('Site não encontrado');
+
+    const { buscarConfig } = require('./services/salvarSiteConfig');
+    const configSalva = await buscarConfig(codigoUsuario).catch(() => null);
+    const siteConfig = {
+      corPrimaria: (configSalva && configSalva.cor_primaria) || '#FF385C',
+      logoUrl: (configSalva && configSalva.logo_url) || '',
+      rodapeNome: (configSalva && configSalva.rodape_nome) || corretor.nome || '',
+      rodapeTelefone: (configSalva && configSalva.rodape_telefone) || corretor.celular || corretor.telefone || '',
+      rodapeEndereco: (configSalva && configSalva.rodape_endereco) || '',
+      rodapeTexto: (configSalva && configSalva.rodape_texto) || '',
+      rodapeInstagram: (configSalva && configSalva.rodape_instagram) || '',
+      rodapeFacebook: (configSalva && configSalva.rodape_facebook) || '',
+      siteAtivo: configSalva ? configSalva.site_ativo !== false : true
+    };
+
+    if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, corretor);
+
+    // Hard-filter: só imóveis deste codigoUsuario, nunca confiar em parâmetro do client
+    const imoveisDoUsuario = lerImoveis(codigoUsuario).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
+    const _r = _filtrarEPaginarImoveis(imoveisDoUsuario, req.query, 24);
+
+    res.render('site-publico', {
+      corretor, siteConfig, codigoUsuario,
+      imoveis: _r.imoveisPagina, estados: _r.estados, cidades: _r.cidades, bairros: _r.bairros,
+      page: _r.page, totalPages: _r.totalPages, totalImoveis: _r.totalImoveis,
+      filtros: req.query, queryPagina: _r.queryPagina
+    });
+  } catch(e) {
+    console.error('[site-publico]', e.message);
+    res.status(500).send('Erro ao carregar site');
+  }
+});
+
+app.get('/site/:codigoUsuario/imovel/:id', async (req, res) => {
+  try {
+    const codigoUsuario = req.params.codigoUsuario;
+    const corretor = _resolverCorretorPublico(codigoUsuario);
+    if (!corretor) return res.status(404).send('Site não encontrado');
+
+    const { buscarConfig } = require('./services/salvarSiteConfig');
+    const configSalva = await buscarConfig(codigoUsuario).catch(() => null);
+    const siteConfig = {
+      corPrimaria: (configSalva && configSalva.cor_primaria) || '#FF385C',
+      logoUrl: (configSalva && configSalva.logo_url) || '',
+      rodapeNome: (configSalva && configSalva.rodape_nome) || corretor.nome || '',
+      rodapeTelefone: (configSalva && configSalva.rodape_telefone) || corretor.celular || corretor.telefone || '',
+      rodapeEndereco: (configSalva && configSalva.rodape_endereco) || '',
+      rodapeTexto: (configSalva && configSalva.rodape_texto) || '',
+      rodapeInstagram: (configSalva && configSalva.rodape_instagram) || '',
+      rodapeFacebook: (configSalva && configSalva.rodape_facebook) || '',
+      siteAtivo: configSalva ? configSalva.site_ativo !== false : true
+    };
+    if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, corretor);
+
+    // Hard-filter: o imóvel só é exibido se pertencer a este codigoUsuario — nunca cruzar carteiras
+    const imoveisDoUsuario = lerImoveis(codigoUsuario);
+    const imovel = imoveisDoUsuario.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
+    if (!imovel) return res.status(404).send('Imóvel não encontrado');
+
+    const pub = Object.assign({}, imovel);
+    delete pub.proprietario;
+    delete pub.proprietario_celular;
+    delete pub.proprietario_email;
+
+    res.render('imovel-publico', {
+      imovel: pub, corretor, leadDados: { nome: '', telefone: '' }, temLeadId: false, leadId: '',
+      usuarioLogado: req.session && req.session.user ? req.session.user : null,
+      userId: codigoUsuario, compartilhador: null, siteConfig, siteVoltarUrl: '/site/' + codigoUsuario
+    });
+  } catch(e) {
+    console.error('[site-publico-imovel]', e.message);
+    res.status(500).send('Erro ao carregar imóvel');
+  }
+});
+// ── FIM SITE PÚBLICO ───────────────────────────────────────────────────────────
 
 // Página pública do imóvel — sem login
 app.get('/imovel/:id', (req, res) => {

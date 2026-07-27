@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= siteConfig.rodapeNome || corretor.nome %> · Imóveis</title>
+  <meta name="description" content="Imóveis de <%= siteConfig.rodapeNome || corretor.nome %>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --brand:<%= siteConfig.corPrimaria || '#FF385C' %>;
+      --teal:#00A699; --teal-ink:#0E7268;
+      --ink:#16181A; --paper:#FBF9F6;
+      --sand:#F1EBE1; --line:#E2DBCC;
+      --muted:#716C61; --muted-2:#948E80;
+      --white:#FFFFFF;
+      --shadow:0 1px 2px rgba(22,20,14,.04), 0 12px 32px -12px rgba(22,20,14,.18);
+      --radius:16px;
+    }
+    body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+    a{color:inherit}
+
+    header{background:color-mix(in srgb, var(--paper) 90%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.4px;text-decoration:none;color:var(--ink)}
+    .logo .dot{width:8px;height:8px;border-radius:50%;background:var(--brand)}
+    .logo img{height:32px;max-width:190px;object-fit:contain;display:block}
+    .btn-wpp-header{display:flex;align-items:center;gap:7px;background:#25D366;color:#fff;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none}
+
+    .hero{padding:40px 24px 8px;max-width:1200px;margin:0 auto}
+    .hero h1{font-size:26px;font-weight:800;letter-spacing:-.6px;margin-bottom:4px}
+    .hero p{color:var(--muted);font-size:14px}
+
+    .filtros{max-width:1200px;margin:20px auto 0;padding:0 24px}
+    .filtros-box{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+    .ffield{display:flex;flex-direction:column;gap:5px;min-width:120px;flex:1}
+    .ffield label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+    .ffield select,.ffield input{border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:13.5px;font-family:inherit;background:var(--paper);color:var(--ink);outline:none}
+    .ffield select:focus,.ffield input:focus{border-color:var(--brand)}
+    .faixa{display:flex;gap:6px}
+    .faixa input{width:100%}
+    .btn-filtrar{background:var(--brand);color:#fff;border:none;border-radius:9px;padding:10px 22px;font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+    .btn-limpar{color:var(--muted);font-size:12.5px;text-decoration:none;padding:10px 4px;white-space:nowrap}
+
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    .contagem{color:var(--muted);font-size:13px;margin-bottom:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(270px, 1fr));gap:18px}
+
+    .card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:transform .15s, box-shadow .15s}
+    .card:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(22,20,14,.08), 0 16px 36px -12px rgba(22,20,14,.22)}
+    .card-img{position:relative;height:190px;background:var(--sand)}
+    .card-img img{width:100%;height:100%;object-fit:cover;display:block}
+    .card-badge{position:absolute;top:10px;left:10px;color:#fff;font-size:10.5px;font-weight:700;padding:4px 11px;border-radius:999px;letter-spacing:.03em}
+    .card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+    .card-price{font-size:18px;font-weight:800;letter-spacing:-.4px;color:var(--brand);font-variant-numeric:tabular-nums}
+    .card-title{font-size:13.5px;font-weight:600;color:var(--ink)}
+    .card-loc{font-size:12px;color:var(--muted)}
+    .card-specs{display:flex;gap:12px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted)}
+    .card-specs b{color:var(--ink);font-weight:700}
+
+    .vazio{text-align:center;padding:60px 20px;color:var(--muted)}
+    .vazio .ico{font-size:36px;margin-bottom:10px}
+
+    .paginacao{display:flex;justify-content:center;gap:6px;margin-top:28px;flex-wrap:wrap}
+    .pg-link{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0 10px;border-radius:9px;border:1px solid var(--line);background:var(--white);color:var(--ink);text-decoration:none;font-size:13px;font-weight:600}
+    .pg-link.atual{background:var(--brand);border-color:var(--brand);color:#fff}
+    .pg-link.desabilitado{opacity:.4;pointer-events:none}
+
+    .site-footer{border-top:1px solid var(--line);margin-top:40px;padding:32px 24px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.9}
+    .site-footer b{color:var(--ink);display:block;font-size:14px;margin-bottom:4px}
+    .site-footer a{color:var(--muted);text-decoration:none}
+    .site-footer a:hover{color:var(--brand)}
+
+    @media(max-width:640px){
+      header{padding:14px 16px}
+      .hero{padding:28px 16px 4px}
+      .hero h1{font-size:21px}
+      .filtros{padding:0 16px}
+      .container{padding:16px}
+      .ffield{min-width:100%}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="/site/<%= codigoUsuario %>" class="logo">
+    <% if(siteConfig.logoUrl){ %><img src="<%= siteConfig.logoUrl %>" alt="<%= siteConfig.rodapeNome %>">
+    <% } else { %><span class="dot"></span><%= siteConfig.rodapeNome || corretor.nome %><% } %>
+  </a>
+  <% const _telHeader = (siteConfig.rodapeTelefone || corretor.celular || corretor.telefone || '').replace(/\D/g,''); %>
+  <% if(_telHeader){ %>
+  <a href="https://wa.me/55<%= _telHeader %>?text=<%= encodeURIComponent('Olá! Vi seu site e gostaria de mais informações.') %>" target="_blank" class="btn-wpp-header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.858L0 24l6.335-1.51A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.371l-.36-.214-3.724.888.936-3.617-.235-.372A9.818 9.818 0 1112 21.818z"/></svg>
+    Fale conosco
+  </a>
+  <% } %>
+</header>
+
+<div class="hero">
+  <h1><%= siteConfig.rodapeNome || corretor.nome %></h1>
+  <p><%= totalImoveis %> imóve<%= totalImoveis===1?'l':'is' %> disponí<%= totalImoveis===1?'vel':'veis' %><% if(siteConfig.rodapeTexto){ %> · <%= siteConfig.rodapeTexto %><% } %></p>
+</div>
+
+<div class="filtros">
+  <form class="filtros-box" method="GET" action="/site/<%= codigoUsuario %>">
+    <div class="ffield">
+      <label>Cidade</label>
+      <select name="cidade" onchange="this.form.submit()">
+        <option value="">Todas</option>
+        <% Object.keys(cidades).forEach(function(est){ (cidades[est]||[]).forEach(function(c){ %>
+        <option value="<%= c %>" <%= filtros.cidade===c?'selected':'' %>><%= c %></option>
+        <% }); }); %>
+      </select>
+    </div>
+    <div class="ffield">
+      <label>Bairro</label>
+      <select name="bairro" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        <% Object.keys(bairros).forEach(function(cid){ (bairros[cid]||[]).forEach(function(b){ %>
+        <option value="<%= b %>" <%= filtros.bairro===b?'selected':'' %>><%= b %></option>
+        <% }); }); %>
+      </select>
+    </div>
+    <div class="ffield">
+      <label>Tipo</label>
+      <select name="tipo" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        <% ['Apartamento','Casa','Cobertura','Sobrado','Studio / Flat','Terreno','Sala Comercial','Loja'].forEach(function(t){ %>
+        <option value="<%= t %>" <%= filtros.tipo===t?'selected':'' %>><%= t %></option>
+        <% }); %>
+      </select>
+    </div>
+    <div class="ffield">
+      <label>Operação</label>
+      <select name="operacao" onchange="this.form.submit()">
+        <option value="">Todas</option>
+        <option value="venda" <%= filtros.operacao==='venda'?'selected':'' %>>Venda</option>
+        <option value="aluguel" <%= filtros.operacao==='aluguel'?'selected':'' %>>Aluguel</option>
+      </select>
+    </div>
+    <div class="ffield">
+      <label>Quartos</label>
+      <select name="quartosMin" onchange="this.form.submit()">
+        <option value="">Qualquer</option>
+        <% [1,2,3,4].forEach(function(n){ %>
+        <option value="<%= n %>" <%= String(filtros.quartosMin)===String(n)?'selected':'' %>><%= n %>+</option>
+        <% }); %>
+      </select>
+    </div>
+    <div class="ffield" style="min-width:200px">
+      <label>Faixa de valor</label>
+      <div class="faixa">
+        <input type="text" name="valorMin" placeholder="Mín." value="<%= filtros.valorMin||'' %>">
+        <input type="text" name="valorMax" placeholder="Máx." value="<%= filtros.valorMax||'' %>">
+      </div>
+    </div>
+    <button type="submit" class="btn-filtrar">Buscar</button>
+    <% if(filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.quartosMin||filtros.valorMin||filtros.valorMax){ %>
+    <a href="/site/<%= codigoUsuario %>" class="btn-limpar">Limpar filtros</a>
+    <% } %>
+  </form>
+</div>
+
+<div class="container">
+  <% if(!imoveis.length){ %>
+  <div class="vazio">
+    <div class="ico">🏠</div>
+    <p>Nenhum imóvel encontrado com esses filtros.</p>
+  </div>
+  <% } else { %>
+  <div class="grid">
+    <% imoveis.forEach(function(im){ %>
+    <% const _idLink = im.idExterno || im.idInterno || im.id; %>
+    <% const _trans = (im.transacao||'').toLowerCase(); %>
+    <a href="/site/<%= codigoUsuario %>/imovel/<%= _idLink %>" class="card">
+      <div class="card-img">
+        <% if(im.fotos && im.fotos.length){ %><img src="<%= im.fotos[0] %>" loading="lazy">
+        <% } else { %><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:13px">Sem foto</div><% } %>
+        <% if(_trans==='venda'||_trans==='aluguel'){ %><span class="card-badge" style="background:<%= _trans==='aluguel'?'var(--teal)':'var(--brand)' %>"><%= _trans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>
+      </div>
+      <div class="card-body">
+        <div class="card-price">R$ <%= Number(im.valor_imovel||0).toLocaleString('pt-BR') %></div>
+        <div class="card-title"><%= im.titulo || (im.tipo + ' em ' + im.bairro) %></div>
+        <div class="card-loc"><%= [im.bairro, im.cidade].filter(Boolean).join(', ') %></div>
+        <div class="card-specs">
+          <% if(im.area_m2){ %><span><b><%= im.area_m2 %></b>m²</span><% } %>
+          <% if(im.quartos){ %><span><b><%= im.quartos %></b> qto<%= im.quartos>1?'s':'' %></span><% } %>
+          <% if(im.banheiros){ %><span><b><%= im.banheiros %></b> banh.</span><% } %>
+          <% if(im.vagas){ %><span><b><%= im.vagas %></b> vaga<%= im.vagas>1?'s':'' %></span><% } %>
+        </div>
+      </div>
+    </a>
+    <% }); %>
+  </div>
+  <% } %>
+
+  <% if(totalPages > 1){ %>
+  <div class="paginacao">
+    <a class="pg-link <%= page<=1?'desabilitado':'' %>" href="/site/<%= codigoUsuario %>?page=<%= page-1 %>&<%= queryPagina %>">‹</a>
+    <% for(let p=1; p<=totalPages; p++){ %>
+    <a class="pg-link <%= p===page?'atual':'' %>" href="/site/<%= codigoUsuario %>?page=<%= p %>&<%= queryPagina %>"><%= p %></a>
+    <% } %>
+    <a class="pg-link <%= page>=totalPages?'desabilitado':'' %>" href="/site/<%= codigoUsuario %>?page=<%= page+1 %>&<%= queryPagina %>">›</a>
+  </div>
+  <% } %>
+</div>
+
+<footer class="site-footer">
+  <% if(siteConfig.rodapeNome){ %><b><%= siteConfig.rodapeNome %></b><% } %>
+  <% if(siteConfig.rodapeEndereco){ %><%= siteConfig.rodapeEndereco %><br><% } %>
+  <% if(siteConfig.rodapeTelefone){ %><%= siteConfig.rodapeTelefone %><% } %>
+  <% if(siteConfig.rodapeInstagram || siteConfig.rodapeFacebook){ %>
+    <div style="margin-top:8px">
+      <% if(siteConfig.rodapeInstagram){ %><a href="<%= siteConfig.rodapeInstagram %>" target="_blank">Instagram</a><% } %>
+      <% if(siteConfig.rodapeInstagram && siteConfig.rodapeFacebook){ %> · <% } %>
+      <% if(siteConfig.rodapeFacebook){ %><a href="<%= siteConfig.rodapeFacebook %>" target="_blank">Facebook</a><% } %>
+    </div>
+  <% } %>
+  <% if(siteConfig.rodapeTexto){ %><div style="margin-top:10px;max-width:52ch;margin-left:auto;margin-right:auto"><%= siteConfig.rodapeTexto %></div><% } %>
+  <div style="margin-top:14px;font-size:11px;color:var(--muted-2)">Site por <a href="https://www.matchimoveis.ia.br" target="_blank">MatchImóveis</a></div>
+</footer>
+
+</body>
+</html>

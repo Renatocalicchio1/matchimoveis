@@ -1,0 +1,148 @@
+<%- include('partials/app-shell',{active:'meu-site',title:'Meu Site',subtitle:'Site público com os seus imóveis, sua marca.',perfil:(user && user.tipo)||'corretor',user:user}) %>
+
+<style>
+.pf-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:16px;padding:20px;margin-bottom:12px}
+.pf-card-title{font-size:15px;font-weight:500;color:#111827;margin:0 0 4px}
+.pf-card-sub{font-size:13px;color:#9ca3af;margin:0 0 16px}
+.pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.pf-grid{grid-template-columns:1fr}}
+.pf-field label{display:block;font-size:11px;font-weight:500;color:#6b7280;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
+.pf-field input,.pf-field textarea{width:100%;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:14px;color:#111827;background:#fff;box-sizing:border-box;outline:none;font-family:inherit}
+.pf-field input:focus,.pf-field textarea:focus{border-color:rgba(0,0,0,.3)}
+.pf-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid rgba(0,0,0,.12);background:#111827;color:#fff;margin-top:14px}
+.pf-btn:hover{background:#1f2937}
+.pf-btn-outline{background:#fff;color:#374151;border-color:rgba(0,0,0,.12)}
+.pf-btn-outline:hover{background:#f9fafb}
+
+.ms-cor-row{display:flex;align-items:center;gap:12px}
+.ms-cor-row input[type=color]{width:52px;height:40px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;padding:2px;cursor:pointer;background:#fff}
+.ms-cor-row input[type=text]{max-width:140px}
+
+.ms-logo-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.ms-logo-preview{width:72px;height:72px;border-radius:12px;border:0.5px solid rgba(0,0,0,.1);background:#f9fafb;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.ms-logo-preview img{width:100%;height:100%;object-fit:contain}
+
+.ms-toggle-row{display:flex;gap:10px}
+.ms-toggle-opt{flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid rgba(0,0,0,.1);cursor:pointer}
+.ms-toggle-opt.on{border-color:#16a34a;background:#f0fdf4}
+.ms-toggle-opt.off{border-color:rgba(0,0,0,.1)}
+.ms-toggle-opt input{width:16px;height:16px;flex-shrink:0}
+.ms-toggle-opt span{font-size:13px;color:#374151}
+
+.ms-msg{font-size:12px;margin-bottom:12px}
+.ms-msg.ok{color:#16a34a}
+.ms-msg.err{color:#dc2626}
+
+.ms-link-box{display:flex;align-items:center;gap:8px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:10px 14px;font-size:12.5px;color:#374151;font-family:monospace}
+</style>
+
+<% if(locals.msg==='salvo') { %><div class="ms-msg ok">✅ Configurações salvas!</div><% } %>
+<% if(locals.msg==='erro') { %><div class="ms-msg err">❌ Erro ao salvar. Tente novamente.</div><% } %>
+
+<div class="pf-card">
+  <div class="pf-card-title">🔗 Seu site</div>
+  <div class="pf-card-sub">Compartilhe este link — mostra só os seus imóveis, com a sua marca.</div>
+  <div class="ms-link-box">
+    <span>matchimoveis.ia.br/site/<%= codigoUsuario %></span>
+  </div>
+  <a href="/site/<%= codigoUsuario %>" target="_blank" class="pf-btn pf-btn-outline">↗ Ver meu site</a>
+</div>
+
+<div class="pf-card">
+  <div class="pf-card-title">Status do site</div>
+  <div class="pf-card-sub">Desativado, o link mostra uma página de manutenção — os imóveis continuam normais no resto da plataforma.</div>
+  <form method="POST" action="/app/meu-site" id="form-toggle">
+    <input type="hidden" name="cor_primaria" value="<%= siteConfig.cor_primaria %>">
+    <input type="hidden" name="rodape_nome" value="<%= siteConfig.rodape_nome %>">
+    <input type="hidden" name="rodape_telefone" value="<%= siteConfig.rodape_telefone %>">
+    <input type="hidden" name="rodape_endereco" value="<%= siteConfig.rodape_endereco %>">
+    <input type="hidden" name="rodape_texto" value="<%= siteConfig.rodape_texto %>">
+    <input type="hidden" name="rodape_instagram" value="<%= siteConfig.rodape_instagram %>">
+    <input type="hidden" name="rodape_facebook" value="<%= siteConfig.rodape_facebook %>">
+    <div class="ms-toggle-row">
+      <label class="ms-toggle-opt <%= siteConfig.site_ativo!==false?'on':'' %>">
+        <input type="radio" name="site_ativo" value="1" <%= siteConfig.site_ativo!==false?'checked':'' %> onchange="this.form.submit()">
+        <span>✅ Ativo</span>
+      </label>
+      <label class="ms-toggle-opt <%= siteConfig.site_ativo===false?'off':'' %>">
+        <input type="radio" name="site_ativo" value="0" <%= siteConfig.site_ativo===false?'checked':'' %> onchange="this.form.submit()">
+        <span>⏸ Desativado</span>
+      </label>
+    </div>
+  </form>
+</div>
+
+<div class="pf-card">
+  <div class="pf-card-title">Identidade visual</div>
+  <div class="pf-card-sub">Cor de destaque e logo aplicados em todo o site.</div>
+
+  <div class="pf-field" style="margin-bottom:16px">
+    <label>Cor principal</label>
+    <form method="POST" action="/app/meu-site" id="form-cor">
+      <input type="hidden" name="rodape_nome" value="<%= siteConfig.rodape_nome %>">
+      <input type="hidden" name="rodape_telefone" value="<%= siteConfig.rodape_telefone %>">
+      <input type="hidden" name="rodape_endereco" value="<%= siteConfig.rodape_endereco %>">
+      <input type="hidden" name="rodape_texto" value="<%= siteConfig.rodape_texto %>">
+      <input type="hidden" name="rodape_instagram" value="<%= siteConfig.rodape_instagram %>">
+      <input type="hidden" name="rodape_facebook" value="<%= siteConfig.rodape_facebook %>">
+      <input type="hidden" name="site_ativo" value="<%= siteConfig.site_ativo!==false?'1':'0' %>">
+      <div class="ms-cor-row">
+        <input type="color" name="cor_primaria" id="cor-picker" value="<%= siteConfig.cor_primaria || '#FF385C' %>" onchange="document.getElementById('cor-texto').value=this.value">
+        <input type="text" id="cor-texto" value="<%= siteConfig.cor_primaria || '#FF385C' %>" oninput="document.getElementById('cor-picker').value=this.value" readonly>
+        <button type="submit" class="pf-btn">Salvar cor</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="pf-field">
+    <label>Logo</label>
+    <div class="ms-logo-row">
+      <div class="ms-logo-preview">
+        <% if(siteConfig.logo_url){ %><img src="<%= siteConfig.logo_url %>"><% } else { %><span style="font-size:10px;color:#9ca3af">sem logo</span><% } %>
+      </div>
+      <form method="POST" action="/app/meu-site/logo" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input type="file" name="logo" accept="image/*" required style="max-width:220px">
+        <button type="submit" class="pf-btn">Enviar logo</button>
+      </form>
+    </div>
+    <div style="font-size:11px;color:#9ca3af;margin-top:6px">Sem logo, o nome do rodapé aparece no lugar.</div>
+  </div>
+</div>
+
+<div class="pf-card">
+  <div class="pf-card-title">Rodapé</div>
+  <div class="pf-card-sub">Aparece no fim de todas as páginas do site.</div>
+  <form method="POST" action="/app/meu-site">
+    <input type="hidden" name="cor_primaria" value="<%= siteConfig.cor_primaria %>">
+    <input type="hidden" name="site_ativo" value="<%= siteConfig.site_ativo!==false?'1':'0' %>">
+    <div class="pf-grid">
+      <div class="pf-field">
+        <label>Nome / Razão social</label>
+        <input type="text" name="rodape_nome" value="<%= siteConfig.rodape_nome||'' %>" placeholder="<%= user.nome||'' %>">
+      </div>
+      <div class="pf-field">
+        <label>Telefone</label>
+        <input type="text" name="rodape_telefone" value="<%= siteConfig.rodape_telefone||'' %>" placeholder="(11) 99999-9999">
+      </div>
+      <div class="pf-field">
+        <label>Endereço</label>
+        <input type="text" name="rodape_endereco" value="<%= siteConfig.rodape_endereco||'' %>" placeholder="Rua, número - Cidade/UF">
+      </div>
+      <div class="pf-field">
+        <label>Instagram (link)</label>
+        <input type="text" name="rodape_instagram" value="<%= siteConfig.rodape_instagram||'' %>" placeholder="https://instagram.com/...">
+      </div>
+      <div class="pf-field">
+        <label>Facebook (link)</label>
+        <input type="text" name="rodape_facebook" value="<%= siteConfig.rodape_facebook||'' %>" placeholder="https://facebook.com/...">
+      </div>
+    </div>
+    <div class="pf-field" style="margin-top:12px">
+      <label>Texto livre</label>
+      <textarea name="rodape_texto" rows="3" placeholder="Ex: Atendimento personalizado há 15 anos."><%= siteConfig.rodape_texto||'' %></textarea>
+    </div>
+    <button type="submit" class="pf-btn">Salvar rodapé</button>
+  </form>
+</div>
+
+<%- include('partials/app-end') %>

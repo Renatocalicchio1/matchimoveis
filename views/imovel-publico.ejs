@@ -119,12 +119,29 @@
       header{padding:14px 18px}
       .container{padding:20px 16px 40px}
     }
+
+    .site-footer{border-top:1px solid var(--line);margin-top:20px;padding:28px 24px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.9}
+    .site-footer b{color:var(--ink);display:block;font-size:13.5px;margin-bottom:4px}
+    .site-footer a{color:var(--muted);text-decoration:none}
+    .site-footer a:hover{color:var(--brand)}
   </style>
 </head>
 <body>
 
+<% const _siteCfg = (typeof siteConfig !== 'undefined' && siteConfig) ? siteConfig : null; %>
+<% if(_siteCfg){ %>
+<style>:root{--brand:<%= _siteCfg.corPrimaria || '#FF385C' %>;}</style>
+<% } %>
+
 <header>
+  <% if(_siteCfg && typeof siteVoltarUrl !== 'undefined'){ %>
+  <a href="<%= siteVoltarUrl %>" class="logo" style="text-decoration:none">
+    <% if(_siteCfg.logoUrl){ %><img src="<%= _siteCfg.logoUrl %>" alt="<%= _siteCfg.rodapeNome %>" style="height:28px;max-width:180px;object-fit:contain">
+    <% } else { %><span class="dot"></span><%= _siteCfg.rodapeNome || 'Imóveis' %><% } %>
+  </a>
+  <% } else { %>
   <div class="logo"><span class="dot"></span>Match<em>Imóveis</em></div>
+  <% } %>
   <div class="ref">Ref. #<%= imovel.idExterno %></div>
 </header>
 
@@ -285,11 +302,27 @@
         <div id="interesse-msg"></div>
       </div>
 
-      <div class="footer-note">MatchImóveis · Consultoria Imobiliária</div>
+      <div class="footer-note"><% if(_siteCfg){ %><%= _siteCfg.rodapeNome || 'Consultoria Imobiliária' %><% } else { %>MatchImóveis · Consultoria Imobiliária<% } %></div>
     </div>
   </div>
 
 </div>
+
+<% if(_siteCfg){ %>
+<footer class="site-footer">
+  <% if(_siteCfg.rodapeNome){ %><b><%= _siteCfg.rodapeNome %></b><% } %>
+  <% if(_siteCfg.rodapeEndereco){ %><%= _siteCfg.rodapeEndereco %><br><% } %>
+  <% if(_siteCfg.rodapeTelefone){ %><%= _siteCfg.rodapeTelefone %><% } %>
+  <% if(_siteCfg.rodapeInstagram || _siteCfg.rodapeFacebook){ %>
+    <div style="margin-top:8px">
+      <% if(_siteCfg.rodapeInstagram){ %><a href="<%= _siteCfg.rodapeInstagram %>" target="_blank">Instagram</a><% } %>
+      <% if(_siteCfg.rodapeInstagram && _siteCfg.rodapeFacebook){ %> · <% } %>
+      <% if(_siteCfg.rodapeFacebook){ %><a href="<%= _siteCfg.rodapeFacebook %>" target="_blank">Facebook</a><% } %>
+    </div>
+  <% } %>
+  <% if(_siteCfg.rodapeTexto){ %><div style="margin-top:10px;max-width:52ch;margin-left:auto;margin-right:auto"><%= _siteCfg.rodapeTexto %></div><% } %>
+</footer>
+<% } %>
 </div>
 
 <!-- MODAL CONTATO -->

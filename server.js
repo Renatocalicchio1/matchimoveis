@@ -12268,6 +12268,30 @@ const _agendarResumoEmail = () => {
 _agendarResumoEmail();
 // ── FIM JOB_RESUMO_EMAIL ─────────────────────────────────────────────────────
 
+// ── JOB_EMAIL_INDICACAO — envia link de indicação a cada 7 dias ──────────────
+const _agendarEmailIndicacao = () => {
+  const agora = new Date();
+  const proximo = new Date(agora);
+  proximo.setDate(proximo.getDate() + (agora.getHours() >= 9 ? 7 : 0));
+  proximo.setHours(9, 0, 0, 0);
+  const msAte = proximo - agora;
+  setTimeout(async () => {
+    try {
+      const { enviarEmailIndicacao } = require('./services/emailIndicacao');
+      await enviarEmailIndicacao();
+    } catch(e) { console.error('[JOB EMAIL INDICACAO]', e.message); }
+    setInterval(async () => {
+      try {
+        const { enviarEmailIndicacao } = require('./services/emailIndicacao');
+        await enviarEmailIndicacao();
+      } catch(e) { console.error('[JOB EMAIL INDICACAO]', e.message); }
+    }, 7 * 24 * 3600 * 1000);
+  }, msAte);
+  console.log('[JOB EMAIL INDICACAO] agendado para:', proximo.toLocaleString('pt-BR'));
+};
+_agendarEmailIndicacao();
+// ── FIM JOB_EMAIL_INDICACAO ───────────────────────────────────────────────────
+
 // ── CAPTAÇÃO ─────────────────────────────────────────────────────────────────
 app.get('/app/captacao', auth, async (req, res) => {
   try {

@@ -264,5 +264,19 @@
   <div style="margin-top:14px;font-size:11px;color:var(--muted-2)">Site por <a href="https://www.matchimoveis.ia.br" target="_blank">MatchImóveis</a></div>
 </footer>
 
+<script>
+(function(){
+  var form = document.querySelector('.filtros-box');
+  if(!form) return;
+  var timers = {};
+  form.querySelectorAll('input[type="text"]').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      clearTimeout(timers[inp.name]);
+      timers[inp.name] = setTimeout(function(){ form.submit(); }, 800);
+    });
+  });
+})();
+</script>
+
 </body>
 </html>

@@ -8,6 +8,8 @@
 .pf-btn:hover{background:#1f2937}
 .pf-btn-outline{background:#fff;color:#374151;border-color:rgba(0,0,0,.12)}
 .pf-btn-outline:hover{background:#f9fafb}
+.pf-btn-wa{background:#25D366;color:#fff;border-color:#25D366}
+.pf-btn-wa:hover{background:#1fb959}
 
 .ind-link-box{display:flex;align-items:center;gap:8px;background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:10px;padding:10px 14px;font-size:12.5px;color:#374151;font-family:monospace;flex-wrap:wrap}
 .ind-link-box span{word-break:break-all}
@@ -35,6 +37,7 @@ table.ind-table tr:last-child td{border-bottom:none}
     <span id="link-indicacao">https://www.matchimoveis.ia.br/?ref=<%= codigoUsuario %></span>
   </div>
   <button type="button" class="pf-btn pf-btn-outline" onclick="copiarLink()" id="btn-copiar">📋 Copiar link</button>
+  <a href="#" id="btn-wa-convite" target="_blank" class="pf-btn pf-btn-wa">💬 Convidar pelo WhatsApp</a>
 </div>
 
 <div class="ind-stats">
@@ -102,6 +105,12 @@ function copiarLink(){
     setTimeout(() => { btn.textContent = original; }, 2000);
   });
 }
+
+(function(){
+  const link = document.getElementById('link-indicacao').textContent;
+  const msg = 'Você é meu convidado para conhecer a MatchImóveis! 🏠\n\n' + link;
+  document.getElementById('btn-wa-convite').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+})();
 </script>
 
 <%- include('partials/app-end') %>

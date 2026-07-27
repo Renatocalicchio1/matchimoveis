@@ -39,6 +39,13 @@ function normTexto(s) {
 function normDigitos(s) {
   return String(s || '').replace(/\D/g, '');
 }
+// "apto"/"ap"/"apartamento" sozinho não é complemento de verdade (não diz nada que já não
+// se saiba) — trata como vazio pra poder ser completado com o dado real do CRM.
+function complementoVazio(s) {
+  const t = normTexto(s).replace(/\.$/, '');
+  return !t || t === 'apto' || t === 'ap' || t === 'apartamento';
+}
+
 function normTransacao(s) {
   const t = normTexto(s);
   if (t.includes('aluguel') || t.includes('locacao')) return 'locacao';
@@ -243,7 +250,7 @@ async function run() {
     if (!enderecoNorm && c.logradouroOriginal) campos.endereco = c.logradouroOriginal;
     if (!numeroNorm && c.numeroOriginal) campos.numero = c.numeroOriginal;
     if (!cepNorm && c.cepOriginal) campos.cep = c.cepOriginal;
-    if (!normTexto(im.complemento) && c.complemento) campos.complemento = c.complemento;
+    if (complementoVazio(im.complemento) && c.complemento) campos.complemento = c.complemento;
 
     if (!Object.keys(campos).length) continue; // já estava tudo preenchido e batendo, nada a fazer
 

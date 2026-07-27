@@ -84,11 +84,33 @@ function enderecoCorrobora(enderecoNorm, logradouroNorm) {
   return enderecoNorm.includes(logradouroNorm) || logradouroNorm.includes(enderecoNorm);
 }
 
+// quando não tem endereço nenhum pra comparar, usa quartos/suítes/vagas/área como sinais
+// independentes de confirmação — quartos precisa bater exato (é o critério mais discreto/confiável),
+// e todo outro sinal disponível dos dois lados também precisa concordar (nenhum pode contradizer).
+function estruturaCorrobora(im, c) {
+  const imQuartos = Number(im.quartos) || 0;
+  const cQuartos = Number(c.quartos) || 0;
+  if (!imQuartos || !cQuartos) return false;
+  if (imQuartos !== cQuartos) return false;
+
+  let disponiveis = 0, concordantes = 0;
+  const imSuites = Number(im.suites) || 0, cSuites = Number(c.suites) || 0;
+  if (imSuites && cSuites) { disponiveis++; if (Math.abs(imSuites - cSuites) <= 1) concordantes++; }
+  const imVagas = Number(im.vagas) || 0, cVagas = Number(c.vagas) || 0;
+  if (imVagas && cVagas) { disponiveis++; if (Math.abs(imVagas - cVagas) <= 1) concordantes++; }
+  const imArea = Number(im.area_m2) || Number(im.area_total) || Number(im.area_construida) || 0;
+  const cArea = Number(c.area) || 0;
+  if (imArea && cArea) { disponiveis++; if (Math.abs(imArea - cArea) / Math.max(imArea, cArea) <= 0.15) concordantes++; }
+
+  return disponiveis > 0 && concordantes === disponiveis;
+}
+
 async function run() {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
   const { rows: imoveis } = await pool.query(
-    `SELECT id, endereco, numero, complemento, cep, bairro, cidade, estado, transacao, valor_imovel, titulo
+    `SELECT id, endereco, numero, complemento, cep, bairro, cidade, estado, transacao, valor_imovel, titulo,
+            quartos, suites, vagas, area_m2, area_total, area_construida
      FROM imoveis WHERE user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1`,
     [USER_ID]
   );
@@ -141,12 +163,21 @@ async function run() {
           const confirmados = comDiff.filter(x => enderecoCorrobora(enderecoNorm, x.c.logradouroNorm));
           if (confirmados.length === 1) resultado = { status: 'ok', candidato: confirmados[0].c, tier: 'B_confirmado' };
           else resultado = { status: comDiff.length ? 'ambiguo' : 'sem_correspondencia', candidatos: comDiff.map(x => x.c) };
-        } else if (comDiff.length === 1) {
-          // banco não tem NENHUM endereço ainda — só valor+bairro+cidade batendo não é prova o
-          // suficiente pra gravar sozinho; manda pra revisão manual do corretor (ele reconhece a rua na hora)
-          resultado = { status: 'revisar', candidato: comDiff[0].c };
         } else {
-          resultado = { status: comDiff.length ? 'ambiguo' : 'sem_correspondencia', candidatos: comDiff.map(x => x.c) };
+          // banco não tem NENHUM endereço ainda — valor+bairro+cidade sozinho não é prova o
+          // suficiente. Tenta confirmar por quartos/suítes/vagas/área (sinais independentes);
+          // só se sobrar exatamente 1 candidato depois disso é que aplica sozinho.
+          const candidatosEstrutura = comDiff.filter(x => estruturaCorrobora(im, x.c));
+          if (candidatosEstrutura.length === 1) {
+            resultado = { status: 'ok', candidato: candidatosEstrutura[0].c, tier: 'B_estrutura' };
+          } else if (candidatosEstrutura.length > 1) {
+            resultado = { status: 'ambiguo', candidatos: candidatosEstrutura.map(x => x.c) };
+          } else if (comDiff.length === 1) {
+            // nenhum sinal de estrutura disponível/decisivo — manda pra revisão manual (corretor reconhece a rua na hora)
+            resultado = { status: 'revisar', candidato: comDiff[0].c };
+          } else {
+            resultado = { status: comDiff.length ? 'ambiguo' : 'sem_correspondencia', candidatos: comDiff.map(x => x.c) };
+          }
         }
       } else {
         resultado = { status: 'sem_correspondencia' };

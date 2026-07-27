@@ -21,4 +21,14 @@ function dispararWorkerLeads(jobId, filePath, userId) {
   return worker;
 }
 
-module.exports = { dispararWorkerXml, dispararWorkerLeads };
+function dispararWorkerDisparo(campanhaId) {
+  const worker = new Worker(path.join(__dirname, '../workers/disparoWhatsappWorker.js'), {
+    workerData: { campanhaId }
+  });
+  worker.on('message', msg => console.log('[WORKER DISPARO]', msg));
+  worker.on('error', e => console.error('[WORKER DISPARO] erro:', e.message));
+  worker.on('exit', code => console.log('[WORKER DISPARO] exit:', code));
+  return worker;
+}
+
+module.exports = { dispararWorkerXml, dispararWorkerLeads, dispararWorkerDisparo };

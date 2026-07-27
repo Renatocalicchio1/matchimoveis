@@ -720,7 +720,7 @@ tr:hover td{background:#fafafa;}
 <div class="top">
   <h1>Admin · MatchImóveis</h1>
   <div style="display:flex;gap:16px;align-items:center">
-    <a href="/admin/status" style="font-size:12px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🖥️ Status do Sistema</a> <a href="/admin/campanha" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📧 Campanha Email</a>
+    <a href="/admin/status" style="font-size:12px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🖥️ Status do Sistema</a> <a href="/admin/campanha" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📧 Campanha Email</a> <a href="/admin/disparos" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📲 Disparos WhatsApp</a>
     <a href="https://match-evolution-api.onrender.com/manager" target="_blank" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📱 Painel WhatsApp</a>
     <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
     <a href="/admin/quintoandar-solicitacoes" style="font-size:12px;background:#00a86b;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏢 Solicitações QA</a>
@@ -11255,6 +11255,384 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     res.json({ ok:true, contatos:rows, total:tot[0].total });
   } catch(e){ res.json({ ok:false, erro:e.message }); }
 });
+
+// ── DISPAROS WHATSAPP (Meta Cloud API) ────────────────────────────────────────
+// Sistema separado do Evolution API (usado pra vitrine/assistente) e da Campanha Email.
+// Usa exclusivamente a WhatsApp Cloud API oficial da Meta (services/metaWhatsapp.js).
+function _lerPlanilhaDisparo(filePath) {
+  const XLSX = require('xlsx');
+  const wb = XLSX.readFile(filePath);
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const linhas = XLSX.utils.sheet_to_json(ws, { defval: '' });
+  const colunas = linhas.length ? Object.keys(linhas[0]) : [];
+  return { colunas, linhas };
+}
+
+app.get('/admin/disparos', authAdmin, async (req, res) => {
+  try {
+    const { listarCampanhas } = require('./services/salvarDisparo');
+    const campanhas = await listarCampanhas().catch(()=>[]);
+    const _corStatus = s => s==='concluido'?'#16a34a':s==='erro'?'#dc2626':s==='pausado'?'#f59e0b':s==='enviando'?'#2563eb':'#6b7280';
+    const linhasHist = campanhas.map(c => `
+      <tr style="border-bottom:1px solid #e5e7eb">
+        <td style="padding:8px"><a href="/admin/disparos/${c.id}" style="color:#FF385C;font-weight:600;text-decoration:none">${c.nome_campanha}</a></td>
+        <td style="padding:8px;font-size:12px;color:#6b7280">${c.template_nome} (${c.template_idioma})</td>
+        <td style="padding:8px">${c.total_contatos}</td>
+        <td style="padding:8px;color:#16a34a">${c.enviados}</td>
+        <td style="padding:8px;color:#dc2626">${c.erros}</td>
+        <td style="padding:8px"><span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;background:${_corStatus(c.status)}">${c.status}</span></td>
+        <td style="padding:8px;font-size:11px;color:#6b7280">${new Date(c.criado_em).toLocaleString('pt-BR')}</td>
+      </tr>`).join('');
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Disparos WhatsApp</title>
+    <style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;padding:20px}
+    h1{color:#FF385C}input,select,textarea{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd;border-radius:6px;box-sizing:border-box}
+    button{background:#FF385C;color:#fff;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}
+    button.sec{background:#6b7280}button:disabled{opacity:.5;cursor:not-allowed}
+    .box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0}
+    .green{color:#16a34a}.red{color:#dc2626}.gray{color:#6b7280}
+    label{font-size:12px;font-weight:600;color:#374151;display:block;margin-top:10px}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{text-align:left;padding:8px;background:#f3f4f6;font-size:11px;text-transform:uppercase;color:#6b7280}
+    .varrow{display:flex;gap:8px;align-items:center;margin:4px 0}
+    .varrow span{font-size:12px;color:#6b7280;min-width:36px}
+    .varrow select{margin:0}
+    a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
+    </style></head>
+    <body>
+    <a href="/admin" class="voltar">← Painel Admin</a>
+    <h1>📲 Disparos WhatsApp <span style="font-size:13px;color:#6b7280;font-weight:400">(Cloud API oficial da Meta)</span></h1>
+
+    <div class="box">
+      <h3>1. Importar planilha de contatos</h3>
+      <p class="gray">Colunas livres: nome, telefone e quaisquer outras (ex: cidade, nome_imobiliaria) pra usar como variável do template.</p>
+      <input type="file" id="arquivo" accept=".csv,.xlsx,.xls">
+      <button onclick="prever()">📥 Carregar planilha</button>
+      <div id="preview-resultado"></div>
+    </div>
+
+    <div class="box" id="config-box" style="display:none">
+      <h3>2. Template e mapeamento</h3>
+      <label>Nome da campanha</label>
+      <input type="text" id="nomeCampanha" placeholder="Ex: Reengajamento julho/2026">
+      <label>Nome do template (igual ao cadastrado no WhatsApp Manager)</label>
+      <input type="text" id="templateNome" placeholder="Ex: promo_julho">
+      <label>Idioma do template</label>
+      <input type="text" id="templateIdioma" value="pt_BR" placeholder="pt_BR">
+      <label>Coluna com o telefone</label>
+      <select id="colTelefone"></select>
+      <label>Coluna com o nome (opcional, só exibição)</label>
+      <select id="colNome"></select>
+      <label>Quantidade de variáveis no corpo do template ({{1}}, {{2}}...)</label>
+      <input type="number" id="qtdVariaveis" min="0" max="10" value="0" onchange="montarVariaveis()">
+      <div id="variaveis-map"></div>
+      <label>Delay entre envios (ms)</label>
+      <input type="number" id="delayMs" value="2500" min="500" max="30000">
+      <div class="box" style="background:#fff">
+        <label>Números para teste (1 a 3, separados por vírgula)</label>
+        <input type="text" id="numerosTeste" placeholder="11999998888, 11999997777">
+        <button class="sec" onclick="testar()">📨 Testar envio</button>
+        <div id="teste-resultado"></div>
+      </div>
+      <button onclick="iniciar()">🚀 Iniciar campanha</button>
+      <div id="resultado"></div>
+    </div>
+
+    <div class="box">
+      <h3>📋 Histórico de campanhas</h3>
+      <table>
+        <thead><tr><th>Campanha</th><th>Template</th><th>Contatos</th><th>Enviados</th><th>Erros</th><th>Status</th><th>Criada em</th></tr></thead>
+        <tbody>${linhasHist || '<tr><td colspan="7" style="padding:16px;color:#9ca3af">Nenhuma campanha ainda.</td></tr>'}</tbody>
+      </table>
+    </div>
+
+    <script>
+    let _colunas = [];
+    let _amostra = [];
+    let _arquivoPath = '';
+
+    async function prever(){
+      const f = document.getElementById('arquivo').files[0];
+      if(!f){ alert('Selecione um arquivo'); return; }
+      document.getElementById('preview-resultado').innerHTML = '<p>⏳ Lendo planilha...</p>';
+      const fd = new FormData(); fd.append('arquivo', f);
+      const r = await fetch('/admin/disparos/preview-planilha', { method:'POST', body: fd });
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('preview-resultado').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
+      _colunas = d.colunas; _amostra = d.amostra; _arquivoPath = d.arquivo;
+      document.getElementById('preview-resultado').innerHTML = '<p class="green">✅ '+d.totalLinhas+' linhas encontradas. Colunas: '+_colunas.join(', ')+'</p>';
+      const selTel = document.getElementById('colTelefone');
+      const selNome = document.getElementById('colNome');
+      selTel.innerHTML = _colunas.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+      selNome.innerHTML = '<option value="">—</option>' + _colunas.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+      document.getElementById('config-box').style.display = 'block';
+      montarVariaveis();
+    }
+
+    function montarVariaveis(){
+      const qtd = parseInt(document.getElementById('qtdVariaveis').value)||0;
+      let html = '';
+      for(let i=1;i<=qtd;i++){
+        html += '<div class="varrow"><span>{{'+i+'}}</span><select id="var-'+i+'">'+_colunas.map(c=>'<option value="'+c+'">'+c+'</option>').join('')+'</select></div>';
+      }
+      document.getElementById('variaveis-map').innerHTML = html;
+    }
+
+    function _mapeamentoAtual(){
+      const qtd = parseInt(document.getElementById('qtdVariaveis').value)||0;
+      const variaveisOrdem = [];
+      for(let i=1;i<=qtd;i++) variaveisOrdem.push(document.getElementById('var-'+i).value);
+      return { telefone: document.getElementById('colTelefone').value, nome: document.getElementById('colNome').value, variaveisOrdem };
+    }
+
+    async function testar(){
+      const numeros = document.getElementById('numerosTeste').value.split(',').map(s=>s.trim()).filter(Boolean).slice(0,3);
+      if(!numeros.length){ alert('Informe ao menos 1 número'); return; }
+      if(!_arquivoPath){ alert('Carregue a planilha primeiro'); return; }
+      document.getElementById('teste-resultado').innerHTML = '<p>⏳ Enviando teste...</p>';
+      const body = {
+        arquivo: _arquivoPath,
+        templateNome: document.getElementById('templateNome').value,
+        templateIdioma: document.getElementById('templateIdioma').value,
+        mapeamento: _mapeamentoAtual(),
+        numeros
+      };
+      const r = await fetch('/admin/disparos/teste', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('teste-resultado').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
+      document.getElementById('teste-resultado').innerHTML = d.resultados.map(x=>'<p class="'+(x.ok?'green':'red')+'">'+x.numero+': '+(x.ok?'✅ enviado':'❌ '+x.erro)+'</p>').join('');
+    }
+
+    async function iniciar(){
+      if(!_arquivoPath){ alert('Carregue a planilha primeiro'); return; }
+      const nomeCampanha = document.getElementById('nomeCampanha').value.trim();
+      if(!nomeCampanha){ alert('Dê um nome pra campanha'); return; }
+      if(!confirm('Iniciar disparo pra '+_amostra.length+'+ contatos da planilha? Essa ação não pode ser desfeita.')) return;
+      document.getElementById('resultado').innerHTML = '<p>⏳ Criando campanha...</p>';
+      const body = {
+        nomeCampanha,
+        arquivo: _arquivoPath,
+        templateNome: document.getElementById('templateNome').value,
+        templateIdioma: document.getElementById('templateIdioma').value,
+        mapeamento: _mapeamentoAtual(),
+        delayMs: parseInt(document.getElementById('delayMs').value)||2500
+      };
+      const r = await fetch('/admin/disparos/criar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('resultado').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
+      window.location = '/admin/disparos/'+d.campanhaId;
+    }
+    </script>
+    </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/admin/disparos/preview-planilha', authAdmin, upload.single('arquivo'), async (req, res) => {
+  try {
+    if (!req.file) return res.json({ ok: false, erro: 'Nenhum arquivo enviado' });
+    const { colunas, linhas } = _lerPlanilhaDisparo(req.file.path);
+    res.json({ ok: true, colunas, amostra: linhas.slice(0, 3), totalLinhas: linhas.length, arquivo: req.file.path });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { arquivo, templateNome, templateIdioma, mapeamento, numeros } = req.body;
+    if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
+    if (!numeros || !numeros.length) return res.json({ ok: false, erro: 'Informe ao menos 1 número' });
+    const { linhas } = _lerPlanilhaDisparo(arquivo);
+    const primeira = linhas[0] || {};
+    const { enviarTemplate } = require('./services/metaWhatsapp');
+    const parametros = (mapeamento.variaveisOrdem || []).map(c => primeira[c] ?? '');
+    const resultados = [];
+    for (const numero of numeros.slice(0, 3)) {
+      try {
+        await enviarTemplate({ telefone: numero, templateNome, templateIdioma: templateIdioma || 'pt_BR', parametros });
+        resultados.push({ numero, ok: true });
+      } catch(e) {
+        resultados.push({ numero, ok: false, erro: e.message });
+      }
+    }
+    res.json({ ok: true, resultados });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs } = req.body;
+    if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
+    if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
+    if (!mapeamento || !mapeamento.telefone) return res.json({ ok: false, erro: 'Mapeie a coluna de telefone' });
+
+    const { linhas } = _lerPlanilhaDisparo(arquivo);
+    const contatos = linhas
+      .map(l => ({
+        nome: mapeamento.nome ? String(l[mapeamento.nome] || '') : '',
+        telefone: String(l[mapeamento.telefone] || '').trim(),
+        variaveis: l
+      }))
+      .filter(c => c.telefone);
+    if (!contatos.length) return res.json({ ok: false, erro: 'Nenhum contato com telefone válido na planilha' });
+
+    const { criarCampanha, inserirContatos } = require('./services/salvarDisparo');
+    const campanhaId = await criarCampanha({
+      nomeCampanha,
+      templateNome,
+      templateIdioma: templateIdioma || 'pt_BR',
+      mapeamentoVariaveis: mapeamento.variaveisOrdem || [],
+      delayMs: delayMs || 2500,
+      criadoPor: 'admin'
+    });
+    await inserirContatos(campanhaId, contatos);
+
+    const { dispararWorkerDisparo } = require('./services/workerDispatch');
+    dispararWorkerDisparo(campanhaId);
+
+    res.json({ ok: true, campanhaId });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
+  try {
+    const { buscarCampanha } = require('./services/salvarDisparo');
+    const c = await buscarCampanha(req.params.id);
+    if (!c) return res.status(404).send('Campanha não encontrada');
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${c.nome_campanha} — Disparos WhatsApp</title>
+    <style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;padding:20px}
+    h1{color:#FF385C;font-size:20px}
+    button{background:#FF385C;color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin:4px 4px 4px 0}
+    button.sec{background:#6b7280}
+    .box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0}
+    .green{color:#16a34a}.red{color:#dc2626}.gray{color:#6b7280}
+    .stat{display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px 20px;margin:6px 6px 6px 0;text-align:center;min-width:80px}
+    .stat strong{display:block;font-size:22px;color:#FF385C}
+    .barra-wrap{background:#e5e7eb;border-radius:20px;height:16px;overflow:hidden;margin:10px 0}
+    .barra{background:#16a34a;height:100%;transition:width .3s}
+    table{width:100%;border-collapse:collapse;font-size:12.5px}
+    th{text-align:left;padding:8px;background:#f3f4f6;font-size:11px;text-transform:uppercase;color:#6b7280}
+    td{padding:8px;border-bottom:1px solid #f3f4f6}
+    a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
+    input,select{padding:6px;border:1px solid #ddd;border-radius:6px}
+    </style></head>
+    <body>
+    <a href="/admin/disparos" class="voltar">← Disparos WhatsApp</a>
+    <h1>${c.nome_campanha}</h1>
+    <p class="gray">Template: <b>${c.template_nome}</b> (${c.template_idioma}) — criada em ${new Date(c.criado_em).toLocaleString('pt-BR')}</p>
+
+    <div class="box">
+      <div id="stats">⏳ Carregando...</div>
+      <div class="barra-wrap"><div class="barra" id="barra" style="width:0%"></div></div>
+      <div id="statusTxt" class="gray"></div>
+      <button class="sec" id="btnPausar" onclick="pausar()" style="display:none">⏸ Pausar</button>
+      <button id="btnRetomar" onclick="retomar()" style="display:none">▶ Retomar</button>
+    </div>
+
+    <div class="box">
+      <h3>📋 Contatos</h3>
+      <div style="margin-bottom:8px">
+        <input type="text" id="busca" placeholder="Buscar por nome ou telefone..." style="width:260px;display:inline-block" oninput="buscar()">
+        <select id="filtro-status" onchange="buscar()" style="width:150px;display:inline-block;margin-left:8px">
+          <option value="">Todos os status</option>
+          <option value="pendente">Pendentes</option>
+          <option value="enviado">Enviados</option>
+          <option value="erro">Erros</option>
+        </select>
+      </div>
+      <div id="tabela-contatos">⏳ Carregando...</div>
+      <div id="paginacao" style="margin-top:8px"></div>
+    </div>
+
+    <script>
+    const campanhaId = '${c.id}';
+    let _pagina = 1;
+
+    async function atualizarStatus(){
+      const r = await fetch('/admin/disparos/'+campanhaId+'/status');
+      const d = await r.json();
+      if(!d.ok) return;
+      const camp = d.campanha;
+      const pct = camp.total_contatos>0 ? Math.round(((camp.enviados+camp.erros)/camp.total_contatos)*100) : 0;
+      document.getElementById('stats').innerHTML =
+        '<div class="stat"><strong>'+camp.total_contatos+'</strong>Total</div>' +
+        '<div class="stat"><strong class="green">'+camp.enviados+'</strong>Enviados</div>' +
+        '<div class="stat"><strong class="red">'+camp.erros+'</strong>Erros</div>' +
+        '<div class="stat"><strong>'+pct+'%</strong>Progresso</div>';
+      document.getElementById('barra').style.width = pct+'%';
+      document.getElementById('statusTxt').textContent = 'Status: ' + camp.status + (camp.erro_geral ? ' — ' + camp.erro_geral : '');
+      document.getElementById('btnPausar').style.display = camp.status==='enviando' ? 'inline-block' : 'none';
+      document.getElementById('btnRetomar').style.display = camp.status==='pausado' ? 'inline-block' : 'none';
+      if(camp.status==='enviando' || camp.status==='pendente') setTimeout(atualizarStatus, 2500);
+    }
+    atualizarStatus();
+
+    async function pausar(){
+      await fetch('/admin/disparos/'+campanhaId+'/pausar', { method:'POST' });
+      setTimeout(atualizarStatus, 500);
+    }
+    async function retomar(){
+      await fetch('/admin/disparos/'+campanhaId+'/retomar', { method:'POST' });
+      setTimeout(atualizarStatus, 500);
+    }
+
+    async function buscar(p){
+      _pagina = p || 1;
+      const q = document.getElementById('busca').value;
+      const s = document.getElementById('filtro-status').value;
+      const r = await fetch('/admin/disparos/'+campanhaId+'/contatos?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+s);
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class="red">Erro ao carregar</p>'; return; }
+      let html = '<table><tr><th>Nome</th><th>Telefone</th><th>Status</th><th>Erro</th><th>Enviado em</th></tr>';
+      for(const ct of d.contatos){
+        const cor = ct.status==='enviado'?'#16a34a':ct.status==='erro'?'#dc2626':'#f59e0b';
+        html += '<tr><td>'+(ct.nome||'—')+'</td><td>'+ct.telefone+'</td><td style="color:'+cor+'">'+ct.status+'</td><td style="color:#dc2626;font-size:11px">'+(ct.erro||'')+'</td><td style="color:#6b7280;font-size:11px">'+(ct.enviado_em?new Date(ct.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
+      }
+      html += '</table>';
+      document.getElementById('tabela-contatos').innerHTML = html;
+      let pag = '';
+      if(_pagina > 1) pag += '<button class="sec" onclick="buscar('+(_pagina-1)+')">← Anterior</button> ';
+      pag += '<span class="gray">Página '+_pagina+' — '+d.total+' contatos</span> ';
+      if(d.contatos.length === 50) pag += '<button class="sec" onclick="buscar('+(_pagina+1)+')">Próximo →</button>';
+      document.getElementById('paginacao').innerHTML = pag;
+    }
+    buscar();
+    </script>
+    </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.get('/admin/disparos/:id/status', authAdmin, async (req, res) => {
+  try {
+    const { buscarCampanha } = require('./services/salvarDisparo');
+    const campanha = await buscarCampanha(req.params.id);
+    if (!campanha) return res.json({ ok: false, erro: 'Campanha não encontrada' });
+    res.json({ ok: true, campanha });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/disparos/:id/pausar', authAdmin, async (req, res) => {
+  try {
+    const { atualizarCampanha } = require('./services/salvarDisparo');
+    await atualizarCampanha(req.params.id, { pausado: true });
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/disparos/:id/retomar', authAdmin, async (req, res) => {
+  try {
+    const { atualizarCampanha } = require('./services/salvarDisparo');
+    const { dispararWorkerDisparo } = require('./services/workerDispatch');
+    await atualizarCampanha(req.params.id, { pausado: false, status: 'enviando' });
+    dispararWorkerDisparo(req.params.id);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.get('/admin/disparos/:id/contatos', authAdmin, async (req, res) => {
+  try {
+    const { listarContatos } = require('./services/salvarDisparo');
+    const pagina = parseInt(req.query.pagina) || 1;
+    const { contatos, total } = await listarContatos(req.params.id, { pagina, status: req.query.status || '', q: req.query.q || '' });
+    res.json({ ok: true, contatos, total });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+// ── FIM DISPAROS WHATSAPP ──────────────────────────────────────────────────────
 
 // ── JOB_RESUMO_EMAIL — envia resumo da conta a cada 3 dias ───────────────────
 const _agendarResumoEmail = () => {

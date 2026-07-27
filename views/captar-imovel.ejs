@@ -78,11 +78,12 @@ input,select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radi
 </div>
 <script>
 let _transacao = '';
+let _leadIdCriado = '';
 const leadId = '<%= leadId %>';
 const userId = '<%= userId %>';
 const _destino = leadId && leadId !== userId ? leadId : userId;
 
-function selecionar(op){
+async function selecionar(op){
   if(op === 'nao'){
     fetch('/captar/nao/'+_destino, {method:'POST'}).catch(()=>{});
     document.getElementById('step1').style.display='none';
@@ -92,6 +93,17 @@ function selecionar(op){
   _transacao = op;
   document.querySelectorAll('.btn-op').forEach(b=>b.classList.remove('selected'));
   event.target.closest('.btn-op').classList.add('selected');
+  // Já gera a lead aqui — se o cliente abandonar antes de terminar o formulário,
+  // o corretor ainda vê que alguém demonstrou interesse em vender/alugar.
+  try {
+    const r = await fetch('/captar/iniciar/'+_destino, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({transacao: op})
+    });
+    const d = await r.json();
+    if(d.ok && d.leadId) _leadIdCriado = d.leadId;
+  } catch(e) {}
   setTimeout(()=>{
     document.getElementById('step1').style.display='none';
     document.getElementById('step2').style.display='block';
@@ -106,7 +118,7 @@ async function enviar(){
   await fetch('/captar/salvar/'+_destino, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({transacao:_transacao, tipo, endereco, valor, nome: document.getElementById('nome')?.value||'', celular: document.getElementById('celular')?.value||''})
+    body: JSON.stringify({transacao:_transacao, tipo, endereco, valor, nome: document.getElementById('nome')?.value||'', celular: document.getElementById('celular')?.value||'', leadId: _leadIdCriado})
   }).catch(()=>{});
   document.getElementById('step2').style.display='none';
   document.getElementById('step3').style.display='block';

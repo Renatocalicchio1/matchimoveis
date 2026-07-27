@@ -12078,6 +12078,36 @@ app.get('/captar/:userId', async (req, res) => {
   res.render('captar-imovel', { leadId: '', userId: req.params.userId });
 });
 
+app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
+  try {
+    const { transacao } = req.body;
+    const userId = req.params.userId;
+    const { salvarLead: _slIni } = require('./services/salvarLead');
+    const { query: _qCI } = require('./services/db');
+    const leadId = Date.now().toString();
+    await _slIni({
+      id: leadId,
+      nome: 'Captação (em andamento)',
+      telefone: '', whatsapp: '',
+      user_id: userId, userId, codigoUsuario: userId,
+      origem: 'captacao_link',
+      status: 'captacao',
+      faseFunil: 'captacao', fase_funil: 'captacao',
+      tipoLead: 'cliente_vendedor', tipo_lead: 'cliente_vendedor',
+      dados: { temImovelParaCaptar: true, transacaoCaptar: transacao, iniciadoEm: new Date().toISOString() },
+      _lote: true
+    });
+    // Coloca temImovelParaCaptar/transacaoCaptar no nível certo do JSONB
+    // (salvarLead() aninha o objeto "dados" passado dentro da própria coluna dados)
+    const _dadosIniciar = JSON.stringify({ temImovelParaCaptar: true, transacaoCaptar: transacao, iniciadoEm: new Date().toISOString() });
+    await _qCI(`UPDATE leads SET dados = dados || $1::jsonb WHERE id=$2`, [_dadosIniciar, leadId]);
+    res.json({ ok: true, leadId });
+  } catch(e) {
+    console.error('[captar/iniciar]', e.message);
+    res.status(500).json({ ok: false });
+  }
+});
+
 app.post('/captar/nao/:leadId', express.json(), async (req, res) => {
   try {
     const { query: _qCN } = require('./services/db');
@@ -12089,13 +12119,14 @@ app.post('/captar/nao/:leadId', express.json(), async (req, res) => {
 app.post('/captar/salvar/:userId', express.json(), async (req, res) => {
   try {
     const { query: _qCS } = require('./services/db');
-    const { transacao, tipo, endereco, valor, nome, celular } = req.body;
+    const { transacao, tipo, endereco, valor, nome, celular, leadId: leadIdExistente } = req.body;
     const userId = req.params.userId;
     const { salvarLead: _slCap } = require('./services/salvarLead');
-    console.log('[CAPTAR] salvando lead para userId:', userId);
-    const novaLead = await _slCap({ id: Date.now().toString(), nome: nome||'Captação', telefone: celular||'', whatsapp: celular||'', user_id: userId, userId, codigoUsuario: userId, origem: 'captacao_link', status: 'captacao', faseFunil: 'captacao', fase_funil: 'captacao', tipoLead: 'cliente_vendedor', tipo_lead: 'cliente_vendedor', dados: { temImovelParaCaptar: true }, _lote: true });
+    const idParaSalvar = leadIdExistente || Date.now().toString();
+    console.log('[CAPTAR] salvando lead para userId:', userId, 'leadId:', idParaSalvar);
+    const novaLead = await _slCap({ id: idParaSalvar, nome: nome||'Captação', telefone: celular||'', whatsapp: celular||'', user_id: userId, userId, codigoUsuario: userId, origem: 'captacao_link', status: 'captacao', faseFunil: 'captacao', fase_funil: 'captacao', tipoLead: 'cliente_vendedor', tipo_lead: 'cliente_vendedor', dados: { temImovelParaCaptar: true, transacaoCaptar: transacao }, _lote: true });
     console.log('[CAPTAR] novaLead:', JSON.stringify(novaLead?.id));
-    const leadId = novaLead?.id || Date.now().toString();
+    const leadId = novaLead?.id || idParaSalvar;
     const dadosCaptar = JSON.stringify({
       temImovelParaCaptar: true,
       tipoImovelCaptar: tipo,

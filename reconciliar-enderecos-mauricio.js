@@ -105,11 +105,20 @@ function estruturaCorrobora(im, c) {
   return disponiveis > 0 && concordantes === disponiveis;
 }
 
+// título/descrição do imóvel (texto livre) menciona a rua ou o nome do condomínio do candidato?
+// só considera strings com tamanho mínimo pra evitar bater com token curto/genérico à toa.
+function textoCorrobora(textoNorm, c) {
+  if (!textoNorm) return false;
+  if (c.logradouroNorm && c.logradouroNorm.length >= 8 && textoNorm.includes(c.logradouroNorm)) return true;
+  if (c.condominioNorm && c.condominioNorm.length >= 6 && textoNorm.includes(c.condominioNorm)) return true;
+  return false;
+}
+
 async function run() {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
   const { rows: imoveis } = await pool.query(
-    `SELECT id, endereco, numero, complemento, cep, bairro, cidade, estado, transacao, valor_imovel, titulo,
+    `SELECT id, endereco, numero, complemento, cep, bairro, cidade, estado, transacao, valor_imovel, titulo, descricao,
             quartos, suites, vagas, area_m2, area_total, area_construida
      FROM imoveis WHERE user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1`,
     [USER_ID]
@@ -131,6 +140,7 @@ async function run() {
     const cepNorm = normDigitos(im.cep);
     const numeroNorm = normDigitos(im.numero);
     const enderecoNorm = normTexto(im.endereco);
+    const textoNorm = normTexto((im.titulo || '') + ' ' + (im.descricao || ''));
     const valor = Number(im.valor_imovel) || 0;
     const transacaoNorm = normTransacao(im.transacao);
 
@@ -165,15 +175,26 @@ async function run() {
           else resultado = { status: comDiff.length ? 'ambiguo' : 'sem_correspondencia', candidatos: comDiff.map(x => x.c) };
         } else {
           // banco não tem NENHUM endereço ainda — valor+bairro+cidade sozinho não é prova o
-          // suficiente. Tenta confirmar por quartos/suítes/vagas/área (sinais independentes);
-          // só se sobrar exatamente 1 candidato depois disso é que aplica sozinho.
+          // suficiente. Tenta confirmar por dois sinais independentes: (1) quartos/suítes/vagas/área
+          // batendo, (2) rua ou nome do condomínio do CRM aparecendo no título/descrição do imóvel.
+          // Só aplica sozinho se um dos dois achar candidato único e o outro não contradizer.
           const candidatosEstrutura = comDiff.filter(x => estruturaCorrobora(im, x.c));
-          if (candidatosEstrutura.length === 1) {
-            resultado = { status: 'ok', candidato: candidatosEstrutura[0].c, tier: 'B_estrutura' };
-          } else if (candidatosEstrutura.length > 1) {
-            resultado = { status: 'ambiguo', candidatos: candidatosEstrutura.map(x => x.c) };
+          const candidatosTexto = comDiff.filter(x => textoCorrobora(textoNorm, x.c));
+          const unicoEstrutura = candidatosEstrutura.length === 1 ? candidatosEstrutura[0].c : null;
+          const unicoTexto = candidatosTexto.length === 1 ? candidatosTexto[0].c : null;
+
+          if (unicoEstrutura && (!unicoTexto || unicoTexto === unicoEstrutura)) {
+            resultado = { status: 'ok', candidato: unicoEstrutura, tier: 'B_estrutura' };
+          } else if (unicoTexto && !unicoEstrutura) {
+            resultado = { status: 'ok', candidato: unicoTexto, tier: 'B_texto' };
+          } else if (unicoEstrutura && unicoTexto && unicoEstrutura !== unicoTexto) {
+            // sinais discordando entre si — não arrisca escolher um dos dois
+            resultado = { status: 'ambiguo', candidatos: [unicoEstrutura, unicoTexto] };
+          } else if (candidatosEstrutura.length > 1 || candidatosTexto.length > 1) {
+            const poolAmb = candidatosEstrutura.length > 1 ? candidatosEstrutura : candidatosTexto;
+            resultado = { status: 'ambiguo', candidatos: poolAmb.map(x => x.c) };
           } else if (comDiff.length === 1) {
-            // nenhum sinal de estrutura disponível/decisivo — manda pra revisão manual (corretor reconhece a rua na hora)
+            // nenhum sinal extra disponível/decisivo — manda pra revisão manual (corretor reconhece a rua na hora)
             resultado = { status: 'revisar', candidato: comDiff[0].c };
           } else {
             resultado = { status: comDiff.length ? 'ambiguo' : 'sem_correspondencia', candidatos: comDiff.map(x => x.c) };

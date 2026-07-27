@@ -111,6 +111,20 @@
     .lb-btn{position:absolute;background:rgba(255,255,255,.14);border:none;color:#fff;font-size:26px;width:46px;height:46px;border-radius:50%;cursor:pointer;transition:background .2s}
     .lb-btn:hover{background:rgba(255,255,255,.26)}
 
+    .wa-float{display:none;position:fixed;bottom:20px;right:20px;width:56px;height:56px;border-radius:50%;background:#25D366;color:#fff;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:500;border:none;cursor:pointer}
+    @media(max-width:760px){ .wa-float{display:flex} }
+
+    .fav-btn{background:var(--white);border:1px solid var(--line);border-radius:50%;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;transition:transform .12s}
+    .fav-btn:active{transform:scale(.88)}
+    .fav-btn.ativo{color:var(--brand)}
+
+    .card-parecidos{display:grid;grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:12px}
+    .cp-item{text-decoration:none;color:inherit;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--white)}
+    .cp-item img{width:100%;height:100px;object-fit:cover;display:block;background:var(--sand)}
+    .cp-item .cp-body{padding:9px 10px}
+    .cp-item .cp-preco{font-size:13px;font-weight:800;color:var(--brand)}
+    .cp-item .cp-loc{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
     /* Modal */
     .modal-bg{display:none;position:fixed;inset:0;background:rgba(14,12,9,.6);z-index:9998;align-items:center;justify-content:center;padding:16px}
     .modal-box{background:var(--white);border-radius:20px;padding:30px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -213,7 +227,10 @@
           <h1 class="pd-title"><%= imovel.titulo || (imovel.tipo + ' em ' + imovel.bairro) %></h1>
           <p class="pd-addr"><% if(imovel.endereco) { %><%= imovel.endereco %> · <% } %><%= imovel.bairro %><% if(imovel.cidade) { %>, <%= imovel.cidade %><% } %></p>
         </div>
-        <div class="pd-price-top">R$ <%= Number(imovel.valor_imovel||0).toLocaleString('pt-BR') %></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button type="button" id="btn-favoritar" class="fav-btn" onclick="toggleFavoritoDetalhe()" aria-label="Favoritar">♡</button>
+          <div class="pd-price-top">R$ <%= Number(imovel.valor_imovel||0).toLocaleString('pt-BR') %></div>
+        </div>
       </div>
       <div class="pd-specs" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--line)">
         <% if(imovel.area_m2) { %><div class="pd-spec"><b><%= imovel.area_m2 %>m²</b><span>Área</span></div><% } %>
@@ -253,6 +270,23 @@
     </div>
     <% } %>
 
+    <% if(typeof parecidos !== 'undefined' && parecidos && parecidos.length){ %>
+    <div class="card">
+      <h3 class="card-h">Imóveis parecidos</h3>
+      <div class="card-parecidos">
+        <% parecidos.forEach(function(p){ %>
+        <a href="<%= (typeof siteVoltarUrl!=='undefined'&&siteVoltarUrl&&siteVoltarUrl!=='/' ? siteVoltarUrl+'/imovel/' : '/imovel/') %><%= p.idExterno||p.idInterno||p.id %>" class="cp-item">
+          <% if(p.fotos && p.fotos[0]){ %><img src="<%= p.fotos[0] %>" loading="lazy"><% } else { %><div style="width:100%;height:100px;background:var(--sand)"></div><% } %>
+          <div class="cp-body">
+            <div class="cp-preco">R$ <%= Number(p.valor_imovel||0).toLocaleString('pt-BR') %></div>
+            <div class="cp-loc"><%= [p.bairro, p.cidade].filter(Boolean).join(', ') %></div>
+          </div>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+
     <% if(imovel.dataCadastro||imovel.data_cadastro){ %>
     <div style="font-size:11.5px;color:var(--muted-2);margin-top:4px;padding-left:4px">📅 Cadastrado: <%= new Date(imovel.dataCadastro||imovel.data_cadastro).toLocaleDateString('pt-BR') %><% if(imovel.dataAtualizacao||imovel.updatedAt){ %> · 🔄 Atualizado: <%= new Date(imovel.dataAtualizacao||imovel.updatedAt).toLocaleDateString('pt-BR') %><% } %></div>
     <% } %>
@@ -288,10 +322,13 @@
 
       <% const _telContato = (typeof compartilhador!=='undefined'&&compartilhador&&(compartilhador.celular||compartilhador.telefone)) ? (compartilhador.celular||compartilhador.telefone||'').replace(/\D/g,'') : (corretor.celular||corretor.telefone||'').replace(/\D/g,''); %>
       <% if (!temLeadId) { %>
-      <a href="#" onclick="abrirModal(this.dataset.href,'whatsapp');return false;" data-href="https://wa.me/55<%= _telContato %>?text=<%= encodeURIComponent('Olá! Tenho interesse no imóvel: ' + (imovel.titulo || imovel.tipo + ' em ' + imovel.bairro) + ' - R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR') + '\n\n' + 'https://www.matchimoveis.ia.br/imovel/' + (imovel.idInterno||imovel.idExterno||imovel.id||'') + (typeof userId!=='undefined'&&userId?'?userId='+userId:'')) %>" class="btn-cta btn-wpp">
+      <a href="#" id="btn-wa-principal" onclick="abrirModal(this.dataset.href,'whatsapp');return false;" data-href="https://wa.me/55<%= _telContato %>?text=<%= encodeURIComponent('Olá! Tenho interesse no imóvel: ' + (imovel.titulo || imovel.tipo + ' em ' + imovel.bairro) + ' - R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR') + '\n\n' + 'https://www.matchimoveis.ia.br/imovel/' + (imovel.idInterno||imovel.idExterno||imovel.id||'') + (typeof userId!=='undefined'&&userId?'?userId='+userId:'')) %>" class="btn-cta btn-wpp">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Falar pelo WhatsApp
       </a>
+      <button type="button" class="wa-float" onclick="abrirWhatsAppFlutuante()" aria-label="Falar pelo WhatsApp">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </button>
       <% } %>
       <a href="#" onclick="abrirModal(this.dataset.href);return false;" data-href="https://wa.me/55<%= _telContato %>?text=<%= encodeURIComponent('Olá! Gostaria de solicitar uma visita para o imóvel: ' + (imovel.titulo || imovel.tipo + ' em ' + imovel.bairro) + ' - R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR')) %>" class="btn-cta btn-visita">
         📅 Solicitar visita
@@ -328,6 +365,7 @@
   <% if(_siteCfg.rodapeNome){ %><b><%= _siteCfg.rodapeNome %></b><% } %>
   <% if(_siteCfg.rodapeEndereco){ %><%= _siteCfg.rodapeEndereco %><br><% } %>
   <% if(_siteCfg.rodapeTelefone){ %><%= _siteCfg.rodapeTelefone %><% } %>
+  <% if(corretor && corretor.creci){ %><div>CRECI <%= corretor.creci %></div><% } %>
   <% if(_siteCfg.rodapeInstagram || _siteCfg.rodapeFacebook){ %>
     <div style="margin-top:8px">
       <% if(_siteCfg.rodapeInstagram){ %><a href="<%= _siteCfg.rodapeInstagram %>" target="_blank">Instagram</a><% } %>
@@ -395,6 +433,32 @@ function compartilharImovel(btn){
     setTimeout(() => { btn.innerHTML = original; }, 2000);
   });
 }
+
+function abrirWhatsAppFlutuante(){
+  const principal = document.getElementById('btn-wa-principal');
+  if(principal) abrirModal(principal.dataset.href, 'whatsapp');
+}
+
+const FAV_KEY = 'mi_favoritos';
+function _lerFavoritos(){
+  try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch(e) { return []; }
+}
+function toggleFavoritoDetalhe(){
+  let favs = _lerFavoritos();
+  const btn = document.getElementById('btn-favoritar');
+  if(favs.includes(imovelId)){
+    favs = favs.filter(id => id !== imovelId);
+    btn.classList.remove('ativo'); btn.textContent = '♡';
+  } else {
+    favs.push(imovelId);
+    btn.classList.add('ativo'); btn.textContent = '♥';
+  }
+  localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+}
+(function(){
+  const btn = document.getElementById('btn-favoritar');
+  if(btn && _lerFavoritos().includes(imovelId)){ btn.classList.add('ativo'); btn.textContent = '♥'; }
+})();
 
 function abrirModal(link, tipo = 'visita') {
   linkDestino = link;

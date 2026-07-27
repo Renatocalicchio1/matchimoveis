@@ -64,6 +64,9 @@
     .card-img{position:relative;height:190px;background:var(--sand)}
     .card-img img{width:100%;height:100%;object-fit:cover;display:block}
     .card-badge{position:absolute;top:10px;left:10px;color:#fff;font-size:10.5px;font-weight:700;padding:4px 11px;border-radius:999px;letter-spacing:.03em}
+    .card-fav{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--muted);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s}
+    .card-fav:active{transform:scale(.88)}
+    .card-fav.ativo{color:var(--brand)}
     .card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
     .card-price{font-size:18px;font-weight:800;letter-spacing:-.4px;color:var(--brand);font-variant-numeric:tabular-nums}
     .card-title{font-size:13.5px;font-weight:600;color:var(--ink)}
@@ -242,6 +245,7 @@
         <% if(im.fotos && im.fotos.length){ %><img src="<%= im.fotos[0] %>" loading="lazy">
         <% } else { %><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:13px">Sem foto</div><% } %>
         <% if(_trans==='venda'||_trans==='aluguel'){ %><span class="card-badge" style="background:<%= _trans==='aluguel'?'var(--teal)':'var(--brand)' %>"><%= _trans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>
+        <button type="button" class="card-fav" data-id="<%= _idLink %>" onclick="event.preventDefault();event.stopPropagation();toggleFavoritoCard(this)" aria-label="Favoritar">♡</button>
       </div>
       <div class="card-body">
         <div class="card-price">R$ <%= Number(im.valor_imovel||0).toLocaleString('pt-BR') %></div>
@@ -274,6 +278,7 @@
   <% if(siteConfig.rodapeNome){ %><b><%= siteConfig.rodapeNome %></b><% } %>
   <% if(siteConfig.rodapeEndereco){ %><%= siteConfig.rodapeEndereco %><br><% } %>
   <% if(siteConfig.rodapeTelefone){ %><%= siteConfig.rodapeTelefone %><% } %>
+  <% if(corretor.creci){ %><div>CRECI <%= corretor.creci %></div><% } %>
   <% if(siteConfig.rodapeInstagram || siteConfig.rodapeFacebook){ %>
     <div style="margin-top:8px">
       <% if(siteConfig.rodapeInstagram){ %><a href="<%= siteConfig.rodapeInstagram %>" target="_blank">Instagram</a><% } %>
@@ -295,6 +300,29 @@
       clearTimeout(timers[inp.name]);
       timers[inp.name] = setTimeout(function(){ form.submit(); }, 800);
     });
+  });
+})();
+
+var FAV_KEY = 'mi_favoritos';
+function _lerFavoritos(){
+  try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch(e) { return []; }
+}
+function toggleFavoritoCard(btn){
+  var id = btn.dataset.id;
+  var favs = _lerFavoritos();
+  if(favs.includes(id)){
+    favs = favs.filter(function(f){ return f !== id; });
+    btn.classList.remove('ativo'); btn.textContent = '♡';
+  } else {
+    favs.push(id);
+    btn.classList.add('ativo'); btn.textContent = '♥';
+  }
+  localStorage.setItem(FAV_KEY, JSON.stringify(favs));
+}
+(function(){
+  var favs = _lerFavoritos();
+  document.querySelectorAll('.card-fav').forEach(function(btn){
+    if(favs.includes(btn.dataset.id)){ btn.classList.add('ativo'); btn.textContent = '♥'; }
   });
 })();
 </script>

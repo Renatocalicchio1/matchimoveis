@@ -6767,11 +6767,15 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
     delete pub.proprietario_celular;
     delete pub.proprietario_email;
 
+    const parecidos = imoveisDoUsuario
+      .filter(i => i.status !== 'inativo' && i.status !== 'excluido' && String(i.id) !== String(imovel.id) && (i.bairro === imovel.bairro || i.tipo === imovel.tipo))
+      .slice(0, 4);
+
     res.render('imovel-publico', {
       imovel: pub, corretor, leadDados: { nome: '', telefone: '' }, temLeadId: false, leadId: '',
       usuarioLogado: req.session && req.session.user ? req.session.user : null,
       userId: codigoUsuario, compartilhador: null, siteConfig, siteVoltarUrl: siteBasePath || '/',
-      siteOrigin: req.protocol + '://' + req.get('host')
+      siteOrigin: req.protocol + '://' + req.get('host'), parecidos
     });
   } catch(e) {
     console.error('[site-publico-imovel]', e.message);
@@ -6812,7 +6816,10 @@ app.get('/imovel/:id', (req, res) => {
     }
     const _usuarioLogado = req.session && req.session.user ? req.session.user : null;
     const _compartilhador = (_uidLead && _uidLead !== _uid2) ? ((_cacheUsuarios||[]).find(u=>(u.id===_uidLead||u.codigoUsuario===_uidLead||u.codigo_usuario===_uidLead)) || null) : null;
-    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, leadId: _leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador, siteOrigin: req.protocol + '://' + req.get('host') });
+    const _parecidos = imoveis
+      .filter(i => i.status !== 'inativo' && i.status !== 'excluido' && String(i.id) !== String(imovel.id) && String(i.userId||i.user_id) === String(_uid2) && (i.bairro === imovel.bairro || i.tipo === imovel.tipo))
+      .slice(0, 4);
+    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, leadId: _leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador, siteOrigin: req.protocol + '://' + req.get('host'), parecidos: _parecidos });
   }
 
   // Busca nos matches do QuintoAndar

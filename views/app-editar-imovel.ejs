@@ -35,6 +35,11 @@ const _temDif = (k) => _difsArr.includes(k);
 const _temPortal = (k) => _portaisArr.includes(k);
 const _dados = imovel.dados || {};
 const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !== null ? imovel[campo] : (_dados[campo] !== undefined ? _dados[campo] : (fallback || ''));
+// estado às vezes vem salvo como nome completo (ex: "São Paulo") em vez da sigla — normaliza pra sigla
+// só pra decidir qual <option> marcar como selected, sem alterar o dado salvo no banco.
+const _nomeParaSigla = {'acre':'AC','alagoas':'AL','amapa':'AP','amazonas':'AM','bahia':'BA','ceara':'CE','distrito federal':'DF','espirito santo':'ES','goias':'GO','maranhao':'MA','mato grosso':'MT','mato grosso do sul':'MS','minas gerais':'MG','para':'PA','paraiba':'PB','parana':'PR','pernambuco':'PE','piaui':'PI','rio de janeiro':'RJ','rio grande do norte':'RN','rio grande do sul':'RS','rondonia':'RO','roraima':'RR','santa catarina':'SC','sao paulo':'SP','sergipe':'SE','tocantins':'TO'};
+const _norm = (s) => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+const _estadoSigla = (() => { const v = _val('estado'); const n = _norm(v); return _nomeParaSigla[n] || v; })();
 %>
 
 <% if(salvo){ %>
@@ -174,33 +179,33 @@ const _val = (campo, fallback) => imovel[campo] !== undefined && imovel[campo] !
           <label>Estado</label>
           <select name="estado">
             <option value="">Selecione</option>
-            <option value="AC" <%=_val('estado')==='AC'?'selected':''%>>Acre</option>
-            <option value="AL" <%=_val('estado')==='AL'?'selected':''%>>Alagoas</option>
-            <option value="AP" <%=_val('estado')==='AP'?'selected':''%>>Amapá</option>
-            <option value="AM" <%=_val('estado')==='AM'?'selected':''%>>Amazonas</option>
-            <option value="BA" <%=_val('estado')==='BA'?'selected':''%>>Bahia</option>
-            <option value="CE" <%=_val('estado')==='CE'?'selected':''%>>Ceará</option>
-            <option value="DF" <%=_val('estado')==='DF'?'selected':''%>>Distrito Federal</option>
-            <option value="ES" <%=_val('estado')==='ES'?'selected':''%>>Espírito Santo</option>
-            <option value="GO" <%=_val('estado')==='GO'?'selected':''%>>Goiás</option>
-            <option value="MA" <%=_val('estado')==='MA'?'selected':''%>>Maranhão</option>
-            <option value="MT" <%=_val('estado')==='MT'?'selected':''%>>Mato Grosso</option>
-            <option value="MS" <%=_val('estado')==='MS'?'selected':''%>>Mato Grosso do Sul</option>
-            <option value="MG" <%=_val('estado')==='MG'?'selected':''%>>Minas Gerais</option>
-            <option value="PA" <%=_val('estado')==='PA'?'selected':''%>>Pará</option>
-            <option value="PB" <%=_val('estado')==='PB'?'selected':''%>>Paraíba</option>
-            <option value="PR" <%=_val('estado')==='PR'?'selected':''%>>Paraná</option>
-            <option value="PE" <%=_val('estado')==='PE'?'selected':''%>>Pernambuco</option>
-            <option value="PI" <%=_val('estado')==='PI'?'selected':''%>>Piauí</option>
-            <option value="RJ" <%=_val('estado')==='RJ'?'selected':''%>>Rio de Janeiro</option>
-            <option value="RN" <%=_val('estado')==='RN'?'selected':''%>>Rio Grande do Norte</option>
-            <option value="RS" <%=_val('estado')==='RS'?'selected':''%>>Rio Grande do Sul</option>
-            <option value="RO" <%=_val('estado')==='RO'?'selected':''%>>Rondônia</option>
-            <option value="RR" <%=_val('estado')==='RR'?'selected':''%>>Roraima</option>
-            <option value="SC" <%=_val('estado')==='SC'?'selected':''%>>Santa Catarina</option>
-            <option value="SP" <%=_val('estado')==='SP'?'selected':''%>>São Paulo</option>
-            <option value="SE" <%=_val('estado')==='SE'?'selected':''%>>Sergipe</option>
-            <option value="TO" <%=_val('estado')==='TO'?'selected':''%>>Tocantins</option>
+            <option value="AC" <%=_estadoSigla==='AC'?'selected':''%>>Acre</option>
+            <option value="AL" <%=_estadoSigla==='AL'?'selected':''%>>Alagoas</option>
+            <option value="AP" <%=_estadoSigla==='AP'?'selected':''%>>Amapá</option>
+            <option value="AM" <%=_estadoSigla==='AM'?'selected':''%>>Amazonas</option>
+            <option value="BA" <%=_estadoSigla==='BA'?'selected':''%>>Bahia</option>
+            <option value="CE" <%=_estadoSigla==='CE'?'selected':''%>>Ceará</option>
+            <option value="DF" <%=_estadoSigla==='DF'?'selected':''%>>Distrito Federal</option>
+            <option value="ES" <%=_estadoSigla==='ES'?'selected':''%>>Espírito Santo</option>
+            <option value="GO" <%=_estadoSigla==='GO'?'selected':''%>>Goiás</option>
+            <option value="MA" <%=_estadoSigla==='MA'?'selected':''%>>Maranhão</option>
+            <option value="MT" <%=_estadoSigla==='MT'?'selected':''%>>Mato Grosso</option>
+            <option value="MS" <%=_estadoSigla==='MS'?'selected':''%>>Mato Grosso do Sul</option>
+            <option value="MG" <%=_estadoSigla==='MG'?'selected':''%>>Minas Gerais</option>
+            <option value="PA" <%=_estadoSigla==='PA'?'selected':''%>>Pará</option>
+            <option value="PB" <%=_estadoSigla==='PB'?'selected':''%>>Paraíba</option>
+            <option value="PR" <%=_estadoSigla==='PR'?'selected':''%>>Paraná</option>
+            <option value="PE" <%=_estadoSigla==='PE'?'selected':''%>>Pernambuco</option>
+            <option value="PI" <%=_estadoSigla==='PI'?'selected':''%>>Piauí</option>
+            <option value="RJ" <%=_estadoSigla==='RJ'?'selected':''%>>Rio de Janeiro</option>
+            <option value="RN" <%=_estadoSigla==='RN'?'selected':''%>>Rio Grande do Norte</option>
+            <option value="RS" <%=_estadoSigla==='RS'?'selected':''%>>Rio Grande do Sul</option>
+            <option value="RO" <%=_estadoSigla==='RO'?'selected':''%>>Rondônia</option>
+            <option value="RR" <%=_estadoSigla==='RR'?'selected':''%>>Roraima</option>
+            <option value="SC" <%=_estadoSigla==='SC'?'selected':''%>>Santa Catarina</option>
+            <option value="SP" <%=_estadoSigla==='SP'?'selected':''%>>São Paulo</option>
+            <option value="SE" <%=_estadoSigla==='SE'?'selected':''%>>Sergipe</option>
+            <option value="TO" <%=_estadoSigla==='TO'?'selected':''%>>Tocantins</option>
           </select>
         </div>
         <div class="campo"><label>Cidade</label><input name="cidade" value="<%= _val('cidade') %>" placeholder="Cidade"></div>

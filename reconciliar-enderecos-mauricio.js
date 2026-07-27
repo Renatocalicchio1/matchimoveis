@@ -211,6 +211,23 @@ async function run() {
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'relatorio.json'), JSON.stringify(relatorio, null, 2));
 
+  function csvCell(v) {
+    const s = String(v == null ? '' : v);
+    return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  function escreverCsv(nomeArquivo, colunas, linhas) {
+    const txt = [colunas.join(';')].concat(linhas.map(l => colunas.map(c => csvCell(l[c])).join(';'))).join('\n');
+    fs.writeFileSync(path.join(dir, nomeArquivo), '﻿' + txt); // BOM pra abrir certo no Excel
+  }
+
+  escreverCsv('conflitos.csv', ['id', 'titulo', 'referenciaCrm', 'conflitos'],
+    relatorio.conflitos.map(x => ({ ...x, conflitos: x.conflitos.join(' | ') })));
+
+  escreverCsv('ambiguos.csv', ['id', 'titulo', 'bairro', 'cidade', 'valorAtual', 'candidatos'],
+    relatorio.ambiguos.map(x => ({ ...x, candidatos: x.candidatos.map(c => `${c.referencia}: ${c.endereco} ${c.numero} (CEP ${c.cep}, R$ ${c.valor})`).join(' | ') })));
+
+  escreverCsv('sem-correspondencia.csv', ['id', 'titulo', 'bairro', 'cidade', 'cep', 'numero', 'valor'], relatorio.semCorrespondencia);
+
   const resumo = `
 RECONCILIAÇÃO DE ENDEREÇOS — MAU-EHAM
 Modo: ${APLICAR ? 'APLICADO (gravou no banco)' : 'RELATÓRIO (nada foi gravado — rode com --aplicar pra gravar)'}
@@ -223,6 +240,7 @@ Total imóveis analisados: ${imoveis.length}
 ❌ Sem correspondência no CRM: ${relatorio.semCorrespondencia.length}
 
 Detalhes completos em: relatorio-mauricio/relatorio.json
+Planilhas pra revisar com o corretor: relatorio-mauricio/conflitos.csv, ambiguos.csv, sem-correspondencia.csv
 `.trim();
 
   fs.writeFileSync(path.join(dir, 'RESUMO.txt'), resumo);

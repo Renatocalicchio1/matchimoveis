@@ -503,6 +503,58 @@ function toggleMaisMenu(){
   </div>
 </div>
 
+<% if(active !== 'assistente'){ %>
+<!-- MASCOTE DO ASSISTENTE — aparece de tempos em tempos convidando pro chat com IA -->
+<style>
+  #robo-wrap{position:fixed;right:20px;bottom:24px;z-index:9500;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+  @media(max-width:900px){ #robo-wrap{bottom:84px;right:14px} }
+  #robo-bolha{display:none;max-width:220px;background:#fff;border:0.5px solid rgba(0,0,0,.1);border-radius:14px 14px 4px 14px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.14);font-size:13px;color:#111;line-height:1.4;position:relative;animation:robo-pop .25s ease}
+  #robo-bolha b{display:block;font-size:11px;color:var(--brand,#FF385C);font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em}
+  #robo-fechar{position:absolute;top:4px;right:6px;background:none;border:none;cursor:pointer;color:#9ca3af;font-size:13px;padding:2px}
+  #robo-btn{width:56px;height:56px;border-radius:50%;background:var(--brand,#FF385C);border:none;cursor:pointer;font-size:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.22);animation:robo-flutua 2.6s ease-in-out infinite}
+  #robo-btn:hover{filter:brightness(1.06)}
+  @keyframes robo-flutua{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes robo-pop{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+</style>
+<div id="robo-wrap">
+  <div id="robo-bolha">
+    <button id="robo-fechar" onclick="event.stopPropagation();document.getElementById('robo-bolha').style.display='none'">✕</button>
+    <b>Assistente MatchImóveis</b>
+    <span id="robo-msg"></span>
+  </div>
+  <button id="robo-btn" onclick="window.location.href='/app/assistente'" aria-label="Falar com o assistente" title="Falar com o assistente">🤖</button>
+</div>
+<script>
+(function(){
+  var MSGS = [
+    'Precisa de ajuda? Pergunta pra mim, resolvo na hora! 👋',
+    'Quer saber como funciona o match automático? Me chama!',
+    'Posso te ajudar a configurar alguma coisa agora?',
+    'Dúvida em qualquer tela? Clica aqui, eu te explico.',
+    'Quer importar imóveis ou leads? Eu te guio passo a passo.'
+  ];
+  var INTERVALO = 3 * 60 * 1000;
+  function mostrar(){
+    var bolha = document.getElementById('robo-bolha');
+    var msg = document.getElementById('robo-msg');
+    if(!bolha || !msg) return;
+    msg.textContent = MSGS[Math.floor(Math.random()*MSGS.length)];
+    bolha.style.display = 'block';
+    sessionStorage.setItem('mi_robo_ultimo', String(Date.now()));
+    setTimeout(function(){ bolha.style.display = 'none'; }, 9000);
+  }
+  var ultimo = parseInt(sessionStorage.getItem('mi_robo_ultimo')||'0', 10);
+  var agora = Date.now();
+  if(!ultimo){
+    setTimeout(mostrar, 6000);
+  } else if(agora - ultimo > INTERVALO){
+    setTimeout(mostrar, 4000);
+  }
+  setInterval(mostrar, INTERVALO);
+})();
+</script>
+<% } %>
+
 <script>
 (function(){
   var _onbCache = null;

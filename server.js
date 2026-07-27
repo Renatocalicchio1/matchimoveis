@@ -1291,6 +1291,21 @@ const _agendarReengajamento = () => {
 };
 _agendarReengajamento();
 
+// Job onboarding — verifica a cada 30min se algum usuário completou um dos 3 passos
+// (cadastrar imóvel / ativar WhatsApp / adicionar lead) e manda o email de parabéns
+setTimeout(async () => {
+  try {
+    const { verificarOnboardingPassos } = require('./services/emailOnboardingPassos');
+    await verificarOnboardingPassos();
+  } catch(e) { console.error('[JOB ONBOARDING EMAIL]', e.message); }
+  setInterval(async () => {
+    try {
+      const { verificarOnboardingPassos } = require('./services/emailOnboardingPassos');
+      await verificarOnboardingPassos();
+    } catch(e) { console.error('[JOB ONBOARDING EMAIL]', e.message); }
+  }, 30 * 60 * 1000);
+}, 60 * 1000);
+
 app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
@@ -2037,16 +2052,14 @@ app.post('/login', async (req,res)=>{
           body: JSON.stringify({ number: '5511951131609', text: _msgAdmin })
         }).catch(()=>{});
 
-        // Onboarding — 3 mensagens para o novo corretor
+        // Onboarding — 6 passos reais (mesmos do GET /api/onboarding/status)
         const _telCorretor = '55' + (novo.telefone||novo.celular||'').replace(/\D/g,'');
-        const _passo1 = `Olá, ${novo.nome}! 👋 Seja bem-vindo ao *MatchImóveis*!\n\n*📋 Passo 1 — Cadastre seus imóveis*\n\nVá em *Menu → Cadastrar* e importe um XML padrão VivaReal/ZAP ou cadastre seus imóveis manualmente.\n\nQuanto mais imóveis cadastrados, mais matches você gera! 🏠\n\n🔗 Acesse o sistema: https://matchimoveis.ia.br`;
-        const _passo2 = `*📱 Passo 2 — Ative seu WhatsApp*\n\nVá em *Menu → Perfil* e conecte seu número do WhatsApp.\n\nO MatchImóveis usa seu WhatsApp para enviar vitrines, confirmar visitas e se comunicar com seus leads automaticamente. ⚡\n\n💡 *DICA IMPORTANTE*\n👉 No *menu lateral esquerdo* da plataforma você encontra o *🤖 Assistente IA* — disponível 24h para responder qualquer dúvida sobre o sistema na hora!\n\n🔗 https://matchimoveis.ia.br`;
-        const _passo3 = `*🎯 Passo 3 — Adicione seus leads*\n\nVá em *Menu → Leads* e importe sua planilha de leads, cadastre manualmente ou ative os portais para receber leads automaticamente.\n\nPronto! O sistema começa a gerar matches e enviar vitrines para você. 🚀\n\n━━━━━━━━━━━━━━━━━━\n🤖 *ASSISTENTE IA*\nNo *menu lateral esquerdo* da plataforma, clique em *Assistente* — ele tira todas as suas dúvidas em segundos, a qualquer hora!\n━━━━━━━━━━━━━━━━━━\n\n🔗 https://matchimoveis.ia.br`;
+        const _msgOnboarding = `Olá, ${novo.nome}! 👋 Seja bem-vindo ao *MatchImóveis*!\n\nSeus primeiros passos:\n\n📋 Importar XML de imóveis (ou cadastrar manualmente) — Menu → Imóveis\n📱 Conectar seu WhatsApp — Menu → Perfil\n📸 Conectar seu Instagram — Menu → Perfil\n🎯 Cadastrar uma lead manual — Menu → Leads\n🤖 Tirar uma dúvida com o Assistente IA — Menu → Assistente\n👤 Conhecer sua área de Perfil\n\nQuanto mais passos completos, mais o sistema trabalha por você — matches e vitrines automáticas!\n\n💡 Qualquer dúvida, é só abrir o *Assistente* no menu lateral, ele responde na hora.\n\n🔗 Acesse o sistema: https://matchimoveis.ia.br`;
 
         await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
-          body: JSON.stringify({ number: _telCorretor, text: _passo1 + '\n\n' + _passo2 + '\n\n' + _passo3 })
+          body: JSON.stringify({ number: _telCorretor, text: _msgOnboarding })
         }).catch(()=>{});
       } catch(_e) { console.error('[notif-cadastro]', _e.message); }
     })();
@@ -2058,7 +2071,7 @@ app.post('/login', async (req,res)=>{
         await enviarEmail({
           para: novo.email,
           assunto: '👋 Bem-vindo ao MatchImóveis!',
-          html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px"><h2 style="color:#FF385C">Olá, ${novo.nome}! 👋</h2><p>Seja bem-vindo ao <strong>MatchImóveis</strong>.</p><p>📋 <strong>Passo 1</strong> — Cadastre seus imóveis em Menu → Cadastrar</p><p>📱 <strong>Passo 2</strong> — Ative seu WhatsApp em Menu → Perfil</p><p>🎯 <strong>Passo 3</strong> — Adicione seus leads em Menu → Leads</p><a href="https://matchimoveis.ia.br" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar o sistema →</a></div>`,
+          html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px"><h2 style="color:#FF385C">Olá, ${novo.nome}! 👋</h2><p>Seja bem-vindo ao <strong>MatchImóveis</strong>. Seus primeiros passos:</p><ul style="padding-left:20px;line-height:1.9"><li>📋 Importar XML de imóveis (ou cadastrar manualmente) — Menu → Imóveis</li><li>📱 Conectar seu WhatsApp — Menu → Perfil</li><li>📸 Conectar seu Instagram — Menu → Perfil</li><li>🎯 Cadastrar uma lead manual — Menu → Leads</li><li>🤖 Tirar uma dúvida com o Assistente IA — Menu → Assistente</li><li>👤 Conhecer sua área de Perfil</li></ul><p>Você recebe um email a cada passo concluído, com o que ainda falta.</p><a href="https://matchimoveis.ia.br" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar o sistema →</a></div>`,
           texto: 'Bem-vindo ao MatchImóveis! Acesse: https://matchimoveis.ia.br'
         });
         console.log('[EMAIL] boas-vindas enviado para:', novo.email);

@@ -1353,19 +1353,28 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
     } else {
       await _q('UPDATE usuarios SET match_coins=GREATEST(0,COALESCE(match_coins,0)-$1) WHERE codigo_usuario=$2', [qtd, cod]);
     }
-    // Atualizar cache e sessão
     const _novoSaldo = (await _q('SELECT match_coins FROM usuarios WHERE codigo_usuario=$1', [cod])).rows[0]?.match_coins || 0;
+
+    // Persiste a transação no histórico (coluna dados) — senão some do /app/coins
+    // assim que o _cacheUsuarios atualizar de novo (a cada 15s)
+    const _rowDados = (await _q('SELECT dados FROM usuarios WHERE codigo_usuario=$1', [cod])).rows[0];
+    const _dadosAtual = (_rowDados && _rowDados.dados) || {};
+    const _transacoes = Array.isArray(_dadosAtual.matchCoinsTransacoes) ? _dadosAtual.matchCoinsTransacoes : [];
+    _transacoes.push({
+      data: new Date().toISOString(),
+      motivo: op === 'adicionar' ? 'recarga manual' : 'debito manual',
+      quantidade: op === 'adicionar' ? qtd : -qtd,
+      saldoApos: _novoSaldo
+    });
+    _dadosAtual.matchCoinsTransacoes = _transacoes;
+    await _q('UPDATE usuarios SET dados=$1 WHERE codigo_usuario=$2', [JSON.stringify(_dadosAtual), cod]);
+
+    // Atualizar cache pra refletir na hora, sem esperar o próximo refresh de 15s
     if (_cacheUsuarios) {
       const _ci = _cacheUsuarios.findIndex(u => u.codigoUsuario === cod || u.codigo_usuario === cod);
       if (_ci >= 0) {
         _cacheUsuarios[_ci].matchCoins = _novoSaldo;
-        if (!_cacheUsuarios[_ci].matchCoinsTransacoes) _cacheUsuarios[_ci].matchCoinsTransacoes = [];
-        _cacheUsuarios[_ci].matchCoinsTransacoes.push({
-          data: new Date().toISOString(),
-          motivo: op === 'adicionar' ? 'recarga manual' : 'debito manual',
-          quantidade: op === 'adicionar' ? qtd : -qtd,
-          saldoApos: _novoSaldo
-        });
+        _cacheUsuarios[_ci].matchCoinsTransacoes = _transacoes;
       }
     }
     res.redirect('/admin');

@@ -59,7 +59,7 @@ async function consumir(userId, acao) {
       const { query: _qCred } = require('./db');
       await _qCred(
         "UPDATE usuarios SET match_coins = $1 WHERE codigo_usuario = $2",
-        [users[idx].matchCoins, userId]
+        [users[idx].matchCoins, _resolvedId]
       );
     } catch(e2) { console.error('[creditos] erro PG consumir:', e2.message); }
 

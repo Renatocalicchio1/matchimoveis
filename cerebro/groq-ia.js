@@ -48,18 +48,21 @@ ${ctx.topBairros||'sem dados'}
 TIPOS MAIS BUSCADOS:
 ${ctx.topTipos||'sem dados'}
 
-${ctxGroq ? ctxGroq.slice(0,2000) : ''}
+${ctxGroq ? ctxGroq.slice(0,4200) : ''}
 
 ${ctx.feedbacks ? ctx.feedbacks.slice(0,500) : ''}
 
-MENUS: Dashboard, Leads, Imóveis, Visitas, Mapa, Portais, Perfil, Créditos, Feed, QuintoAndar.
-PORTAIS DISPONÍVEIS (apenas estes 6): ZAP Imóveis, VivaReal, OLX, Chaves na Mão, 123i, ImovelWeb. O XML é gerado automaticamente — o corretor só precisa cadastrar a URL do feed no portal desejado. Acesse em Portais no menu.
+MENUS: Dashboard, Meus Imóveis, Leads (+ Planilha de Leads), Visitas, Captação, Parceiros, Notificações, Cadastrar Imóvel, Portais, Assistente, Mapa, Perfil, Créditos, Indicar Parceiro, Parceria QuintoAndar, Feed.
+PORTAIS DISPONÍVEIS (apenas estes 6): ZAP Imóveis, VivaReal, OLX, Chaves na Mão, 123i, ImovelWeb. Acesse em Portais no menu.
 QUINTOANDAR — 2 tipos de parceria:
 1) ENVIAR IMÓVEIS: corretor ativa o toggle no Perfil e seus imóveis elegíveis são enviados ao feed XML do QuintoAndar. Se o QuintoAndar vender, corretor recebe até 25% da comissão.
-2) CARTEIRA QUINTOANDAR: corretor solicita acesso à carteira de imóveis do QuintoAndar. O MatchImóveis faz o match dos leads do corretor com os imóveis do QuintoAndar. Se o corretor vender, recebe 50% da comissão — os outros 50% ficam com o QuintoAndar. Acesse em QuintoAndar no menu.
-IMPORTAR IMÓVEIS: Acesse Imóveis no menu → clique em Cadastrar Imóvel → cole a URL do XML (padrão VRSync do VivaReal) → clique em Importar. Não existe botão Testar nem Gerar XML.
+2) CARTEIRA QUINTOANDAR: corretor solicita acesso à carteira de imóveis do QuintoAndar. O MatchImóveis faz o match dos leads do corretor com os imóveis do QuintoAndar. Se o corretor vender, recebe 50% da comissão — os outros 50% ficam com o QuintoAndar. Acesse em Parceria QuintoAndar no menu.
+IMPORTAR IMÓVEIS: Acesse Cadastrar Imóvel no menu → cole a URL do XML (padrão VRSync do VivaReal) → clique em Testar (valida o feed) → clique em Importar. O botão Testar existe sim, assim como Gerar XML (na página Portais).
 EXPORTAR IMÓVEIS PARA PORTAIS PARCEIROS: Na página de Imóveis, selecione os imóveis desejados clicando neles (ou edite um por vez na página de edição) → use a opção Exportar XML. O XML gerado pode ser levado para portais parceiros.
-CONCEITOS: Match=cruzar lead+imóvel. Vitrine=link WA com imóveis. Temperatura:fria>morna>quente. Funil:novo>contato>visita>proposta>fechado.
+CAPTAÇÃO: página que lista leads que indicaram ter um imóvel próprio pra anunciar, vindas do link público de captação do corretor (compartilhável via WhatsApp).
+PLANILHA DE LEADS: dentro de Leads, visão em formato de tabela com filtros por origem/status/data e exportação para Excel — separada do kanban.
+INDICAR PARCEIRO: cada corretor tem um link próprio (com ?ref=código). Corretor indicado que se cadastra por esse link fica vinculado pra sempre. O indicador ganha 10% de bônus em créditos toda vez que o indicado faz uma recarga real.
+CONCEITOS: Match=cruzar lead+imóvel por transação+tipo+estado+cidade+bairro+valor(-20%/+20%)+quartos(exato). Vitrine=link WA com imóveis. Temperatura:frio>morno>quente. Funil:novo>contato>visita>proposta>fechado.
 STATUS DE LEADS: novo, qualificando, vitrine_enviada, visita_agendada, proposta, fechado, arquivado.
 STATUS DE VISITAS: solicitada (lead pediu), lead_confirmou (lead confirmou presença), aguard_cliente (corretor confirmou, aguarda lead), remarcacao (remarcando data), realizada, cancelada, imovel_indisponivel.
 STATUS DE IMÓVEIS: ativo, inativo, pendente.

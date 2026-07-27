@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-06-14T22:18:05.516Z",
+  "geradoEm": "2026-07-27T04:34:59.357Z",
   "paginas": [
     {
       "rota": "/app-home",
@@ -14,7 +14,7 @@
     {
       "rota": "/app/cadastro",
       "label": "Cadastrar Imóvel",
-      "descricao": "Formulário para cadastrar novo imóvel manualmente"
+      "descricao": "Formulário manual ou importar via XML (com botão Testar antes de Importar)"
     },
     {
       "rota": "/app/imovel/:id/editar",
@@ -27,9 +27,24 @@
       "descricao": "Kanban de leads com filtros por status, match e temperatura"
     },
     {
+      "rota": "/app/leads/planilha",
+      "label": "Planilha de Leads",
+      "descricao": "Leads em formato de tabela com filtros por origem/status/data e exportação Excel"
+    },
+    {
       "rota": "/app/lead/:id",
       "label": "Detalhe da Lead",
       "descricao": "Página completa da lead com perfil IA, match, visitas e histórico"
+    },
+    {
+      "rota": "/app/importar-leads",
+      "label": "Importar Leads",
+      "descricao": "Importar leads via planilha Excel dos portais"
+    },
+    {
+      "rota": "/app/captacao",
+      "label": "Captação",
+      "descricao": "Leads que indicaram ter imóvel próprio para anunciar, vindas do link público de captação"
     },
     {
       "rota": "/app/visitas",
@@ -54,12 +69,12 @@
     {
       "rota": "/app/portais",
       "label": "Portais",
-      "descricao": "Gerenciar publicação de imóveis nos portais"
+      "descricao": "Ativar portais (ZAP, VivaReal, OLX, Chaves na Mão, 123i, ImovelWeb) e gerar XML"
     },
     {
       "rota": "/app/perfil",
       "label": "Perfil",
-      "descricao": "Dados da conta: nome, celular, CRECI, CPF, código do usuário"
+      "descricao": "Dados da conta: nome, celular, CRECI, CPF, código do usuário, WhatsApp, QuintoAndar"
     },
     {
       "rota": "/app/whatsapp",
@@ -99,17 +114,17 @@
     {
       "rota": "/app/parceiros",
       "label": "Parceiros",
-      "descricao": "Corretores parceiros e comissões"
+      "descricao": "Corretores parceiros na rede e % de comissão"
     },
     {
-      "rota": "/app/importar-leads",
-      "label": "Importar Leads",
-      "descricao": "Importar leads via planilha Excel dos portais"
+      "rota": "/app/indicacoes",
+      "label": "Indicar Parceiro",
+      "descricao": "Link de indicação — ganha 10% de bônus em créditos toda vez que o corretor indicado recarrega"
     },
     {
-      "rota": "/app/gerar-xml",
-      "label": "Gerar XML",
-      "descricao": "Gerar XML dos imóveis para portais (VivaReal, ZAP, OLX etc)"
+      "rota": "/app/parceria-quintoandar",
+      "label": "Parceria QuintoAndar",
+      "descricao": "Autorizar envio de imóveis ao QuintoAndar ou solicitar acesso à carteira deles"
     },
     {
       "rota": "/app/imoveis/exportar-excel",
@@ -121,7 +136,7 @@
     {
       "titulo": "Importar imóveis via XML",
       "passos": [
-        "Vá em Cadastrar → cole URL XML → Testar → Importar"
+        "Cadastrar Imóvel → cole a URL do XML → Testar (valida antes) → Importar"
       ]
     },
     {
@@ -131,9 +146,15 @@
       ]
     },
     {
+      "titulo": "Ver leads em planilha",
+      "passos": [
+        "Leads → Planilha de Leads → filtrar por origem/status/data → Exportar Excel"
+      ]
+    },
+    {
       "titulo": "Publicar nos portais",
       "passos": [
-        "Imóveis → checkbox → barra flutuante → portal → copiar URL em Portais"
+        "Portais → ativar o portal desejado → XML é gerado e enviado automaticamente"
       ]
     },
     {
@@ -159,14 +180,26 @@
       "passos": [
         "Perfil → toggle QA → verificar elegíveis → XML gerado automaticamente"
       ]
+    },
+    {
+      "titulo": "Captar imóvel de proprietário",
+      "passos": [
+        "Captação → copiar link público → proprietário preenche dados do imóvel → aparece em Captação para revisar"
+      ]
+    },
+    {
+      "titulo": "Indicar outro corretor",
+      "passos": [
+        "Indicar Parceiro → copiar link → corretor indicado se cadastra → você ganha 10% de bônus em créditos a cada recarga dele"
+      ]
     }
   ],
   "conceitos": {
-    "match": "Cruzamento automático lead × imóvel por bairro + tipo + quartos + valor (-30%/+20%)",
+    "match": "Cruzamento automático lead × imóvel por transação + tipo + estado + cidade + bairro + valor (-20%/+20%) + quartos (exato)",
     "vitrine": "Página exclusiva enviada ao lead com imóveis em match",
-    "coins": "Créditos: match=20, vitrine WA=30, IA WA=30, XML=2/imóvel. R$20=1.000 coins",
-    "temperatura": "frio → morno → quente → super quente (conforme engajamento)",
-    "caso1": "Imóvel com proprietário WA → notifica automaticamente",
-    "caso2": "Sem proprietário → corretor confirma direto"
+    "coins": "Créditos: cadastrar imóvel=15, match encontrado=20, vitrine WA=30, IA responde WA=30, importar XML=2/imóvel. R$1=50 coins, mínimo R$50",
+    "temperatura": "frio → morno → quente (conforme engajamento)",
+    "caso1": "Lead clicou num imóvel específico (imóvel âncora) → busca imóveis parecidos, âncora sempre no topo",
+    "caso2": "Lead com perfil de busca (sem imóvel específico) → busca por perfil completo (transação+tipo+cidade+bairro+valor+quartos)"
   }
 }

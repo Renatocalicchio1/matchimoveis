@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-06-14T22:18:05.500Z",
+  "geradoEm": "2026-07-27T04:34:59.355Z",
   "versao": "3.0",
   "rotas": [
     {
@@ -15,7 +15,7 @@
     {
       "rota": "/app/cadastro",
       "label": "Cadastrar Imóvel",
-      "descricao": "Formulário para cadastrar novo imóvel manualmente"
+      "descricao": "Formulário manual ou importar via XML (com botão Testar antes de Importar)"
     },
     {
       "rota": "/app/imovel/:id/editar",
@@ -28,9 +28,24 @@
       "descricao": "Kanban de leads com filtros por status, match e temperatura"
     },
     {
+      "rota": "/app/leads/planilha",
+      "label": "Planilha de Leads",
+      "descricao": "Leads em formato de tabela com filtros por origem/status/data e exportação Excel"
+    },
+    {
       "rota": "/app/lead/:id",
       "label": "Detalhe da Lead",
       "descricao": "Página completa da lead com perfil IA, match, visitas e histórico"
+    },
+    {
+      "rota": "/app/importar-leads",
+      "label": "Importar Leads",
+      "descricao": "Importar leads via planilha Excel dos portais"
+    },
+    {
+      "rota": "/app/captacao",
+      "label": "Captação",
+      "descricao": "Leads que indicaram ter imóvel próprio para anunciar, vindas do link público de captação"
     },
     {
       "rota": "/app/visitas",
@@ -55,12 +70,12 @@
     {
       "rota": "/app/portais",
       "label": "Portais",
-      "descricao": "Gerenciar publicação de imóveis nos portais"
+      "descricao": "Ativar portais (ZAP, VivaReal, OLX, Chaves na Mão, 123i, ImovelWeb) e gerar XML"
     },
     {
       "rota": "/app/perfil",
       "label": "Perfil",
-      "descricao": "Dados da conta: nome, celular, CRECI, CPF, código do usuário"
+      "descricao": "Dados da conta: nome, celular, CRECI, CPF, código do usuário, WhatsApp, QuintoAndar"
     },
     {
       "rota": "/app/whatsapp",
@@ -100,17 +115,17 @@
     {
       "rota": "/app/parceiros",
       "label": "Parceiros",
-      "descricao": "Corretores parceiros e comissões"
+      "descricao": "Corretores parceiros na rede e % de comissão"
     },
     {
-      "rota": "/app/importar-leads",
-      "label": "Importar Leads",
-      "descricao": "Importar leads via planilha Excel dos portais"
+      "rota": "/app/indicacoes",
+      "label": "Indicar Parceiro",
+      "descricao": "Link de indicação — ganha 10% de bônus em créditos toda vez que o corretor indicado recarrega"
     },
     {
-      "rota": "/app/gerar-xml",
-      "label": "Gerar XML",
-      "descricao": "Gerar XML dos imóveis para portais (VivaReal, ZAP, OLX etc)"
+      "rota": "/app/parceria-quintoandar",
+      "label": "Parceria QuintoAndar",
+      "descricao": "Autorizar envio de imóveis ao QuintoAndar ou solicitar acesso à carteira deles"
     },
     {
       "rota": "/app/imoveis/exportar-excel",
@@ -521,6 +536,6 @@
       "Explica o passo a passo numerado quando a ação tiver mais de 2 etapas"
     ]
   },
-  "totalRotas": 23,
+  "totalRotas": 26,
   "totalIntents": 44
 }

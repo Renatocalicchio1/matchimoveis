@@ -251,6 +251,33 @@ app.use(async (req, res, next) => {
 });
 // ── FIM ROTEAMENTO POR DOMÍNIO PRÓPRIO ───────────────────────────────────────
 
+// ── PRESENÇA ONLINE (pra /admin/online) ──────────────────────────────────────
+// Registra em memória, a cada navegação de página, quem está usando o sistema
+// agora e em qual tela — dado efêmero, não é persistido em banco.
+app.use((req, res, next) => {
+  if (req.method === 'GET' && req.session && req.session.user && req.path.startsWith('/app')) {
+    try {
+      const { registrar, rotaParaLabel } = require('./services/presencaOnline');
+      const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+      registrar(uid, { nome: req.session.user.nome || '', codigoUsuario: uid, rota: req.path, rotaLabel: rotaParaLabel(req.path) });
+    } catch(e) {}
+  }
+  next();
+});
+
+app.post('/api/presenca/heartbeat', (req, res) => {
+  try {
+    if (req.session && req.session.user) {
+      const { registrar, rotaParaLabel } = require('./services/presencaOnline');
+      const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+      const rota = (req.body && req.body.rota) || '/app-home';
+      registrar(uid, { nome: req.session.user.nome || '', codigoUsuario: uid, rota, rotaLabel: rotaParaLabel(rota) });
+    }
+  } catch(e) {}
+  res.sendStatus(204);
+});
+// ── FIM PRESENÇA ONLINE ───────────────────────────────────────────────────────
+
 // ── SEGURANÇA: BLOQUEIA ACOES QUANDO SALDO ZERADO ───────────────────────────
 const _rotasLivresSaldo = ['/app/perfil', '/app/perfil/senha', '/app/coins', '/app/notificacoes', '/pagamento', '/sair', '/logout', '/app/assistente'];
 app.use('/app', async (req, res, next) => {
@@ -746,6 +773,7 @@ tr:hover td{background:#fafafa;}
 <div class="top">
   <h1>Admin · MatchImóveis</h1>
   <div style="display:flex;gap:16px;align-items:center">
+    <a href="/admin/online" style="font-size:12px;background:#16a34a;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🟢 Usuários Online</a>
     <a href="/admin/status" style="font-size:12px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🖥️ Status do Sistema</a> <a href="/admin/campanha" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📧 Campanha Email</a> <a href="/admin/disparos" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📲 Disparos WhatsApp</a>
     <a href="https://match-evolution-api.onrender.com/manager" target="_blank" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📱 Painel WhatsApp</a>
     <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
@@ -791,6 +819,117 @@ tr:hover td{background:#fafafa;}
   }
 });
 
+// ── USUÁRIOS ONLINE (tempo real) ─────────────────────────────────────────────
+app.get('/admin/online/dados', authAdmin, (req, res) => {
+  try {
+    const { listarOnline } = require('./services/presencaOnline');
+    const online = listarOnline();
+    const porFuncionalidade = {};
+    online.forEach(u => { porFuncionalidade[u.rotaLabel] = (porFuncionalidade[u.rotaLabel]||0) + 1; });
+    const ranking = Object.entries(porFuncionalidade).sort((a,b) => b[1]-a[1]).map(([label, total]) => ({ label, total }));
+    res.json({ total: online.length, usuarios: online, ranking });
+  } catch(e) {
+    res.json({ total: 0, usuarios: [], ranking: [] });
+  }
+});
+
+app.get('/admin/online', authAdmin, (req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Usuários Online · MatchImóveis</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px}
+.top{background:#fff;border-bottom:1px solid #e5e5e3;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.top h1{font-size:16px;font-weight:700}
+.top a{font-size:12px;color:#888;text-decoration:none}
+.wrap{padding:24px;display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start}
+@media(max-width:820px){.wrap{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:20px}
+.card h2{font-size:14px;font-weight:700;margin-bottom:4px}
+.card .sub{font-size:12px;color:#888;margin-bottom:16px}
+.total-num{font-size:40px;font-weight:800;color:#16a34a;line-height:1}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px;font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid #f0f0ee}
+td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#16a34a;margin-right:6px;flex-shrink:0}
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;background:#f0fdf4;color:#16a34a;font-weight:600}
+.vazio{padding:30px;text-align:center;color:#9ca3af}
+.rank-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0ee}
+.rank-row:last-child{border-bottom:none}
+.rank-barra{background:#f3f4f6;border-radius:99px;height:6px;overflow:hidden;margin-top:4px}
+.rank-fill{height:100%;background:#16a34a;border-radius:99px}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>🟢 Usuários Online</h1>
+  <a href="/admin">← Voltar pro Admin</a>
+</div>
+<div class="wrap">
+  <div class="card">
+    <h2>Quem está no sistema agora</h2>
+    <div class="sub">Atualiza sozinho a cada 10s · considerado "online" quem teve atividade nos últimos 3 minutos</div>
+    <div id="lista-usuarios"><div class="vazio">Carregando...</div></div>
+  </div>
+  <div>
+    <div class="card" style="margin-bottom:20px;text-align:center">
+      <div class="sub" style="margin-bottom:8px">Online agora</div>
+      <div class="total-num" id="total-online">–</div>
+    </div>
+    <div class="card">
+      <h2>Mais usado agora</h2>
+      <div class="sub">Onde estão os usuários online neste momento</div>
+      <div id="ranking-func"><div class="vazio">Carregando...</div></div>
+    </div>
+  </div>
+</div>
+<script>
+function _tempoAtras(s){
+  if(s < 60) return s + 's atrás';
+  var m = Math.floor(s/60);
+  return m + 'min atrás';
+}
+async function atualizar(){
+  try{
+    const r = await fetch('/admin/online/dados');
+    const d = await r.json();
+    document.getElementById('total-online').textContent = d.total;
+
+    const listaEl = document.getElementById('lista-usuarios');
+    if(!d.usuarios.length){
+      listaEl.innerHTML = '<div class="vazio">Ninguém online no momento.</div>';
+    } else {
+      let html = '<table><thead><tr><th></th><th>Corretor</th><th>Tela atual</th><th>Última atividade</th></tr></thead><tbody>';
+      d.usuarios.forEach(function(u){
+        html += '<tr><td><span class="dot"></span></td><td>'+(u.nome||u.codigoUsuario||'-')+' <span style="color:#9ca3af;font-size:11px">('+u.codigoUsuario+')</span></td><td><span class="pill">'+u.rotaLabel+'</span></td><td>'+_tempoAtras(u.segundosAtras)+'</td></tr>';
+      });
+      html += '</tbody></table>';
+      listaEl.innerHTML = html;
+    }
+
+    const rankEl = document.getElementById('ranking-func');
+    if(!d.ranking.length){
+      rankEl.innerHTML = '<div class="vazio">Sem dados.</div>';
+    } else {
+      const max = d.ranking[0].total;
+      rankEl.innerHTML = d.ranking.map(function(r){
+        const pct = Math.round((r.total/max)*100);
+        return '<div class="rank-row" style="display:block"><div style="display:flex;justify-content:space-between"><span>'+r.label+'</span><strong>'+r.total+'</strong></div><div class="rank-barra"><div class="rank-fill" style="width:'+pct+'%"></div></div></div>';
+      }).join('');
+    }
+  } catch(e) { console.error(e); }
+}
+atualizar();
+setInterval(atualizar, 10000);
+</script>
+</body>
+</html>`);
+});
+// ── FIM USUÁRIOS ONLINE ───────────────────────────────────────────────────────
 
 // ── XML GLOBAL QUINTOANDAR ──────────────────────────────────────────────────
 const QA_GLOBAL_TOKEN = process.env.QA_GLOBAL_TOKEN || 'match-qa-global-2025';

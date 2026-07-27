@@ -571,6 +571,16 @@ function toggleMaisMenu(){
 
 <script>
 (function(){
+  function _batePresenca(){
+    fetch('/api/presenca/heartbeat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ rota: window.location.pathname }) }).catch(function(){});
+  }
+  _batePresenca();
+  setInterval(_batePresenca, 45000);
+})();
+</script>
+
+<script>
+(function(){
   var _onbCache = null;
 
   function onbRenderPasso(p, i){

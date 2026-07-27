@@ -3390,7 +3390,14 @@ function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
   if (_fFotos === 'sim') imoveis = imoveis.filter(i => i.fotos && i.fotos.length > 0);
   if (_fFotos === 'nao') imoveis = imoveis.filter(i => !(i.fotos && i.fotos.length > 0));
 
-  imoveis.sort((a, b) => (Number(a.valor_imovel)||0) - (Number(b.valor_imovel)||0));
+  const _fOrdenar = (q.ordenar || 'menor-preco').trim();
+  if (_fOrdenar === 'maior-preco') {
+    imoveis.sort((a, b) => (Number(b.valor_imovel)||0) - (Number(a.valor_imovel)||0));
+  } else if (_fOrdenar === 'recentes') {
+    imoveis.sort((a, b) => new Date(b.criadoEm||b.dataCadastro||b.data_cadastro||0) - new Date(a.criadoEm||a.dataCadastro||a.data_cadastro||0));
+  } else {
+    imoveis.sort((a, b) => (Number(a.valor_imovel)||0) - (Number(b.valor_imovel)||0));
+  }
   const _totalImoveisFiltrado = imoveis.length;
   const _totalPagesFiltrado = Math.ceil(_totalImoveisFiltrado / perPage);
   const _temFiltro = _fEstado || _fCidade || _fBairro || _fBusca || _fCorretor;
@@ -6729,6 +6736,7 @@ async function _handlerSitePublico(req, res, codigoUsuario, siteBasePath) {
 
     res.render('site-publico', {
       corretor, siteConfig, codigoUsuario, siteBasePath,
+      siteOrigin: req.protocol + '://' + req.get('host'),
       imoveis: _r.imoveisPagina, estados: _r.estados, cidades: _r.cidades, bairros: _r.bairros,
       page: _r.page, totalPages: _r.totalPages, totalImoveis: _r.totalImoveis,
       filtros: req.query, queryPagina: _r.queryPagina
@@ -6762,7 +6770,8 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
     res.render('imovel-publico', {
       imovel: pub, corretor, leadDados: { nome: '', telefone: '' }, temLeadId: false, leadId: '',
       usuarioLogado: req.session && req.session.user ? req.session.user : null,
-      userId: codigoUsuario, compartilhador: null, siteConfig, siteVoltarUrl: siteBasePath || '/'
+      userId: codigoUsuario, compartilhador: null, siteConfig, siteVoltarUrl: siteBasePath || '/',
+      siteOrigin: req.protocol + '://' + req.get('host')
     });
   } catch(e) {
     console.error('[site-publico-imovel]', e.message);
@@ -6803,7 +6812,7 @@ app.get('/imovel/:id', (req, res) => {
     }
     const _usuarioLogado = req.session && req.session.user ? req.session.user : null;
     const _compartilhador = (_uidLead && _uidLead !== _uid2) ? ((_cacheUsuarios||[]).find(u=>(u.id===_uidLead||u.codigoUsuario===_uidLead||u.codigo_usuario===_uidLead)) || null) : null;
-    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, leadId: _leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador });
+    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, leadId: _leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador, siteOrigin: req.protocol + '://' + req.get('host') });
   }
 
   // Busca nos matches do QuintoAndar
@@ -6837,7 +6846,7 @@ app.get('/imovel/:id', (req, res) => {
     url: qaImovel.url || ''
   };
 
-  res.render('imovel-publico', { imovel: pub, corretor });
+  res.render('imovel-publico', { imovel: pub, corretor, siteOrigin: req.protocol + '://' + req.get('host') });
 });
 
 

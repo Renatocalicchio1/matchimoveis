@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= siteConfig.rodapeNome || corretor.nome %> · Imóveis</title>
   <meta name="description" content="Imóveis de <%= siteConfig.rodapeNome || corretor.nome %>">
+  <% const _ogDescricaoSite = totalImoveis + ' imóve' + (totalImoveis===1?'l':'is') + ' disponí' + (totalImoveis===1?'vel':'veis') + (siteConfig.rodapeTexto ? ' · ' + siteConfig.rodapeTexto : ''); %>
+  <% const _ogUrlSite = (typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin + (siteBasePath || '/') : ''; %>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="<%= siteConfig.rodapeNome || corretor.nome %> · Imóveis">
+  <meta property="og:description" content="<%= _ogDescricaoSite %>">
+  <% if(siteConfig.logoUrl){ %><meta property="og:image" content="<%= siteConfig.logoUrl %>"><% } %>
+  <% if(_ogUrlSite){ %><meta property="og:url" content="<%= _ogUrlSite %>"><% } %>
+  <meta name="twitter:card" content="<%= siteConfig.logoUrl ? 'summary_large_image' : 'summary' %>">
+  <% if(siteConfig.logoUrl){ %><link rel="icon" href="<%= siteConfig.logoUrl %>"><% } %>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -108,6 +117,10 @@
 
 <div class="filtros">
   <form class="filtros-box" method="GET" action="<%= siteBasePath || '/' %>">
+    <div class="ffield" style="min-width:200px;flex:2">
+      <label>Buscar</label>
+      <input type="text" name="busca" placeholder="Bairro, título..." value="<%= filtros.busca||'' %>">
+    </div>
     <div class="ffield">
       <label>Cidade</label>
       <select name="cidade" onchange="this.form.submit()">
@@ -159,10 +172,18 @@
         <input type="text" name="valorMax" placeholder="Máx." value="<%= filtros.valorMax||'' %>">
       </div>
     </div>
+    <div class="ffield">
+      <label>Ordenar por</label>
+      <select name="ordenar" onchange="this.form.submit()">
+        <option value="menor-preco" <%= (!filtros.ordenar||filtros.ordenar==='menor-preco')?'selected':'' %>>Menor preço</option>
+        <option value="maior-preco" <%= filtros.ordenar==='maior-preco'?'selected':'' %>>Maior preço</option>
+        <option value="recentes" <%= filtros.ordenar==='recentes'?'selected':'' %>>Mais recentes</option>
+      </select>
+    </div>
     <button type="submit" class="btn-filtrar">Buscar</button>
     <button type="button" class="btn-mais-opcoes" onclick="document.getElementById('mais-opcoes').classList.toggle('aberto');this.classList.toggle('ativo')">⚙ Mais opções</button>
     <% const _temFiltroAvancado = filtros.banheiros||filtros.vagasMin||filtros.suitesMin||filtros.areaMin||filtros.areaMax; %>
-    <% if(filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||_temFiltroAvancado){ %>
+    <% if(filtros.busca||filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||(filtros.ordenar&&filtros.ordenar!=='menor-preco')||_temFiltroAvancado){ %>
     <a href="<%= siteBasePath || '/' %>" class="btn-limpar">Limpar filtros</a>
     <% } %>
 

@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= imovel.titulo || imovel.tipo + ' em ' + imovel.bairro %> • MatchImóveis</title>
+  <% const _ogTitulo = imovel.titulo || (imovel.tipo + ' em ' + imovel.bairro); %>
+  <% const _ogDescricao = [[imovel.quartos?imovel.quartos+' quartos':'', imovel.area_m2?imovel.area_m2+'m²':''].filter(Boolean).join(' · '), [imovel.bairro, imovel.cidade].filter(Boolean).join(', ')].filter(Boolean).join(' — ') + ' · R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR'); %>
+  <% const _ogImagem = (imovel.fotos && imovel.fotos[0]) || ''; %>
+  <% const _ogUrl = (typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin + (typeof siteVoltarUrl !== 'undefined' && siteVoltarUrl !== '/' ? siteVoltarUrl + '/imovel/' : '/imovel/') + (imovel.idExterno||imovel.idInterno||imovel.id||'') : ''; %>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="<%= _ogTitulo %>">
+  <meta property="og:description" content="<%= _ogDescricao %>">
+  <% if(_ogImagem){ %><meta property="og:image" content="<%= _ogImagem %>"><% } %>
+  <% if(_ogUrl){ %><meta property="og:url" content="<%= _ogUrl %>"><% } %>
+  <meta name="twitter:card" content="<%= _ogImagem ? 'summary_large_image' : 'summary' %>">
+  <% if(typeof siteConfig !== 'undefined' && siteConfig && siteConfig.logoUrl){ %><link rel="icon" href="<%= siteConfig.logoUrl %>"><% } %>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -291,6 +302,10 @@
       </a>
       <% } %>
 
+      <button type="button" onclick="compartilharImovel(this)" class="btn-cta" style="background:var(--sand);color:var(--ink);border:1px solid var(--line)">
+        🔗 Compartilhar
+      </button>
+
       <div class="interesse-label">ou deixe seu interesse</div>
       <div class="interesse-box">
         <div class="formf"><input id="int-nome" placeholder="Seu nome" value="<%= typeof leadDados !== 'undefined' ? leadDados.nome : '' %>"></div>
@@ -367,6 +382,19 @@ const imovelId = '<%= imovel.idExterno || imovel.id || imovel.codigoImovel || ""
 const imovelTitulo = '<%= (imovel.titulo || imovel.tipo + " em " + imovel.bairro).replace(/'/g, "") %>';
 let linkDestino = '';
 let modalTipo = 'visita';
+
+function compartilharImovel(btn){
+  const url = window.location.href;
+  if(navigator.share){
+    navigator.share({ title: imovelTitulo, text: imovelTitulo, url: url }).catch(()=>{});
+    return;
+  }
+  navigator.clipboard.writeText(url).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '✅ Link copiado!';
+    setTimeout(() => { btn.innerHTML = original; }, 2000);
+  });
+}
 
 function abrirModal(link, tipo = 'visita') {
   linkDestino = link;

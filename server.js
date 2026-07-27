@@ -241,6 +241,8 @@ app.use(async (req, res, next) => {
     const matchImovel = req.path.match(/^\/imovel\/([^/]+)\/?$/);
     if (matchImovel) return _handlerSiteImovelPublico(req, res, codigoUsuario, matchImovel[1], '');
     if (req.path === '/' || req.path === '') return _handlerSitePublico(req, res, codigoUsuario, '');
+    if (req.path === '/sitemap.xml') return _handlerSiteSitemap(req, res, codigoUsuario, req.protocol + '://' + host);
+    if (req.path === '/robots.txt') return _handlerSiteRobots(req, res, req.protocol + '://' + host);
     return next();
   } catch(e) {
     console.error('[roteamento-dominio]', e.message);
@@ -3632,7 +3634,7 @@ app.post('/app/perfil', auth, async (req,res)=>{
 });
 
 // ── MEU SITE (white-label público) ────────────────────────────────────────────
-const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado' };
+const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '' };
 const _DOMINIO_REGEX = /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
 
 // TEMP (jul/2026): Meu Site liberado só pra REN-G9K6 até ajustar Cloudflare/domínio próprio.
@@ -3669,6 +3671,8 @@ app.post('/app/meu-site', auth, async (req, res) => {
       rodape_texto: req.body.rodape_texto || '',
       rodape_instagram: req.body.rodape_instagram || '',
       rodape_facebook: req.body.rodape_facebook || '',
+      meta_pixel_id: /^\d{10,20}$/.test((req.body.meta_pixel_id||'').trim()) ? req.body.meta_pixel_id.trim() : '',
+      google_analytics_id: /^G-[A-Z0-9]{6,12}$/i.test((req.body.google_analytics_id||'').trim()) ? req.body.google_analytics_id.trim() : '',
       site_ativo: req.body.site_ativo === '1'
     });
     res.redirect('/app/meu-site?msg=salvo');
@@ -6715,17 +6719,23 @@ async function _carregarSiteConfigPublico(codigoUsuario, corretor) {
     rodapeTexto: (configSalva && configSalva.rodape_texto) || '',
     rodapeInstagram: (configSalva && configSalva.rodape_instagram) || '',
     rodapeFacebook: (configSalva && configSalva.rodape_facebook) || '',
+    metaPixelId: (configSalva && configSalva.meta_pixel_id) || '',
+    googleAnalyticsId: (configSalva && configSalva.google_analytics_id) || '',
     siteAtivo: configSalva ? configSalva.site_ativo !== false : true
   };
+}
+
+function _pagina404Site(res, opts) {
+  return res.status(404).render('site-404', Object.assign({ titulo: 'Página não encontrada', mensagem: 'O link que você acessou não existe ou não está mais disponível.', siteConfig: null, siteBasePath: null }, opts || {}));
 }
 
 // siteBasePath: '' quando servido por domínio próprio (raiz), '/site/:codigoUsuario' quando servido pelo path da plataforma
 async function _handlerSitePublico(req, res, codigoUsuario, siteBasePath) {
   try {
     // TEMP (jul/2026): ver _MEU_SITE_LIBERADO_PARA — remover junto quando liberar geral
-    if (codigoUsuario !== _MEU_SITE_LIBERADO_PARA) return res.status(404).send('Site não encontrado');
+    if (codigoUsuario !== _MEU_SITE_LIBERADO_PARA) return _pagina404Site(res, { titulo: 'Site não encontrado', mensagem: 'Este site não existe ou não está mais disponível.' });
     const corretor = _resolverCorretorPublico(codigoUsuario);
-    if (!corretor) return res.status(404).send('Site não encontrado');
+    if (!corretor) return _pagina404Site(res, { titulo: 'Site não encontrado', mensagem: 'Este site não existe ou não está mais disponível.' });
 
     const siteConfig = await _carregarSiteConfigPublico(codigoUsuario, corretor);
     if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, corretor);
@@ -6750,9 +6760,9 @@ async function _handlerSitePublico(req, res, codigoUsuario, siteBasePath) {
 async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, siteBasePath) {
   try {
     // TEMP (jul/2026): ver _MEU_SITE_LIBERADO_PARA — remover junto quando liberar geral
-    if (codigoUsuario !== _MEU_SITE_LIBERADO_PARA) return res.status(404).send('Site não encontrado');
+    if (codigoUsuario !== _MEU_SITE_LIBERADO_PARA) return _pagina404Site(res, { titulo: 'Site não encontrado', mensagem: 'Este site não existe ou não está mais disponível.' });
     const corretor = _resolverCorretorPublico(codigoUsuario);
-    if (!corretor) return res.status(404).send('Site não encontrado');
+    if (!corretor) return _pagina404Site(res, { titulo: 'Site não encontrado', mensagem: 'Este site não existe ou não está mais disponível.' });
 
     const siteConfig = await _carregarSiteConfigPublico(codigoUsuario, corretor);
     if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, corretor);
@@ -6760,7 +6770,7 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
     // Hard-filter: o imóvel só é exibido se pertencer a este codigoUsuario — nunca cruzar carteiras
     const imoveisDoUsuario = lerImoveis(codigoUsuario);
     const imovel = imoveisDoUsuario.find(i => String(i.idExterno) === String(imovelId) || String(i.idInterno) === String(imovelId) || String(i.codigoImovel) === String(imovelId) || String(i.id) === String(imovelId));
-    if (!imovel) return res.status(404).send('Imóvel não encontrado');
+    if (!imovel) return _pagina404Site(res, { titulo: 'Imóvel não encontrado', mensagem: 'Este imóvel não existe mais ou foi removido.', siteConfig, siteBasePath });
 
     const pub = Object.assign({}, imovel);
     delete pub.proprietario;
@@ -6783,8 +6793,33 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
   }
 }
 
+async function _handlerSiteSitemap(req, res, codigoUsuario, origem) {
+  try {
+    if (codigoUsuario !== _MEU_SITE_LIBERADO_PARA) return res.status(404).send('Site não encontrado');
+    const corretor = _resolverCorretorPublico(codigoUsuario);
+    if (!corretor) return res.status(404).send('Site não encontrado');
+    const base = origem.replace(/\/$/, '');
+    const imoveisDoUsuario = lerImoveis(codigoUsuario).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
+    const urls = [base + '/'].concat(imoveisDoUsuario.map(i => base + '/imovel/' + (i.idExterno || i.idInterno || i.id)));
+    const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+      urls.map(u => '  <url><loc>' + u.replace(/&/g,'&amp;') + '</loc></url>').join('\n') +
+      '\n</urlset>';
+    res.set('Content-Type', 'application/xml').send(xml);
+  } catch(e) {
+    console.error('[site-sitemap]', e.message);
+    res.status(500).send('Erro ao gerar sitemap');
+  }
+}
+
+function _handlerSiteRobots(req, res, origem) {
+  const base = origem.replace(/\/$/, '');
+  res.set('Content-Type', 'text/plain').send('User-agent: *\nAllow: /\nSitemap: ' + base + '/sitemap.xml\n');
+}
+
 app.get('/site/:codigoUsuario', (req, res) => _handlerSitePublico(req, res, req.params.codigoUsuario, '/site/' + req.params.codigoUsuario));
 app.get('/site/:codigoUsuario/imovel/:id', (req, res) => _handlerSiteImovelPublico(req, res, req.params.codigoUsuario, req.params.id, '/site/' + req.params.codigoUsuario));
+app.get('/site/:codigoUsuario/sitemap.xml', (req, res) => _handlerSiteSitemap(req, res, req.params.codigoUsuario, req.protocol + '://' + req.get('host') + '/site/' + req.params.codigoUsuario));
+app.get('/site/:codigoUsuario/robots.txt', (req, res) => _handlerSiteRobots(req, res, req.protocol + '://' + req.get('host') + '/site/' + req.params.codigoUsuario));
 // ── FIM SITE PÚBLICO ───────────────────────────────────────────────────────────
 
 // Página pública do imóvel — sem login
@@ -6831,7 +6866,7 @@ app.get('/imovel/:id', (req, res) => {
     if (m) { qaImovel = m; break; }
   }
 
-  if (!qaImovel) return res.status(404).send('Imóvel não encontrado');
+  if (!qaImovel) return _pagina404Site(res, { titulo: 'Imóvel não encontrado', mensagem: 'Este imóvel não existe mais ou foi removido.' });
 
   // Monta objeto compatível com imovel-publico
   const pub = {

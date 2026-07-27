@@ -202,7 +202,21 @@
       <label>Texto livre</label>
       <textarea name="rodape_texto" rows="3" placeholder="Ex: Atendimento personalizado há 15 anos."><%= siteConfig.rodape_texto||'' %></textarea>
     </div>
-    <button type="submit" class="pf-btn">Salvar rodapé</button>
+
+    <div class="pf-card-title" style="margin-top:24px">Métricas e Anúncios</div>
+    <div class="pf-card-sub">Cole os IDs pra rastrear conversões dos seus próprios anúncios (Facebook/Instagram Ads, Google Ads) apontando pro seu site.</div>
+    <div class="pf-grid">
+      <div class="pf-field">
+        <label>Meta Pixel ID</label>
+        <input type="text" name="meta_pixel_id" value="<%= siteConfig.meta_pixel_id||'' %>" placeholder="Ex: 1234567890123">
+      </div>
+      <div class="pf-field">
+        <label>Google Analytics (GA4)</label>
+        <input type="text" name="google_analytics_id" value="<%= siteConfig.google_analytics_id||'' %>" placeholder="Ex: G-ABC1234XYZ">
+      </div>
+    </div>
+
+    <button type="submit" class="pf-btn" style="margin-top:16px">Salvar configurações</button>
   </form>
 </div>
 

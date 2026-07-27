@@ -84,7 +84,7 @@
 <body>
 
 <header>
-  <a href="/site/<%= codigoUsuario %>" class="logo">
+  <a href="<%= siteBasePath || '/' %>" class="logo">
     <% if(siteConfig.logoUrl){ %><img src="<%= siteConfig.logoUrl %>" alt="<%= siteConfig.rodapeNome %>">
     <% } else { %><span class="dot"></span><%= siteConfig.rodapeNome || corretor.nome %><% } %>
   </a>
@@ -103,7 +103,7 @@
 </div>
 
 <div class="filtros">
-  <form class="filtros-box" method="GET" action="/site/<%= codigoUsuario %>">
+  <form class="filtros-box" method="GET" action="<%= siteBasePath || '/' %>">
     <div class="ffield">
       <label>Cidade</label>
       <select name="cidade" onchange="this.form.submit()">
@@ -157,7 +157,7 @@
     </div>
     <button type="submit" class="btn-filtrar">Buscar</button>
     <% if(filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.quartosMin||filtros.valorMin||filtros.valorMax){ %>
-    <a href="/site/<%= codigoUsuario %>" class="btn-limpar">Limpar filtros</a>
+    <a href="<%= siteBasePath || '/' %>" class="btn-limpar">Limpar filtros</a>
     <% } %>
   </form>
 </div>
@@ -173,7 +173,7 @@
     <% imoveis.forEach(function(im){ %>
     <% const _idLink = im.idExterno || im.idInterno || im.id; %>
     <% const _trans = (im.transacao||'').toLowerCase(); %>
-    <a href="/site/<%= codigoUsuario %>/imovel/<%= _idLink %>" class="card">
+    <a href="<%= siteBasePath %>/imovel/<%= _idLink %>" class="card">
       <div class="card-img">
         <% if(im.fotos && im.fotos.length){ %><img src="<%= im.fotos[0] %>" loading="lazy">
         <% } else { %><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:13px">Sem foto</div><% } %>
@@ -197,11 +197,11 @@
 
   <% if(totalPages > 1){ %>
   <div class="paginacao">
-    <a class="pg-link <%= page<=1?'desabilitado':'' %>" href="/site/<%= codigoUsuario %>?page=<%= page-1 %>&<%= queryPagina %>">‹</a>
+    <a class="pg-link <%= page<=1?'desabilitado':'' %>" href="<%= siteBasePath || '/' %>?page=<%= page-1 %>&<%= queryPagina %>">‹</a>
     <% for(let p=1; p<=totalPages; p++){ %>
-    <a class="pg-link <%= p===page?'atual':'' %>" href="/site/<%= codigoUsuario %>?page=<%= p %>&<%= queryPagina %>"><%= p %></a>
+    <a class="pg-link <%= p===page?'atual':'' %>" href="<%= siteBasePath || '/' %>?page=<%= p %>&<%= queryPagina %>"><%= p %></a>
     <% } %>
-    <a class="pg-link <%= page>=totalPages?'desabilitado':'' %>" href="/site/<%= codigoUsuario %>?page=<%= page+1 %>&<%= queryPagina %>">›</a>
+    <a class="pg-link <%= page>=totalPages?'desabilitado':'' %>" href="<%= siteBasePath || '/' %>?page=<%= page+1 %>&<%= queryPagina %>">›</a>
   </div>
   <% } %>
 </div>

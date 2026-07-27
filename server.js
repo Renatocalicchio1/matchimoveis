@@ -225,6 +225,30 @@ app.use('/login', limiterLogin);
 app.use('/api/login', limiterLogin);
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.json({ limit: "50mb" }));
+
+// ── ROTEAMENTO POR DOMÍNIO PRÓPRIO (site white-label) ────────────────────────
+// Requisição chegando por um domínio diferente do nosso: resolve o dono pelo
+// hostname (nunca por parâmetro do client) e serve a mesma view do site público.
+const _HOSTS_PLATAFORMA = new Set(['matchimoveis.ia.br', 'www.matchimoveis.ia.br', 'localhost']);
+app.use(async (req, res, next) => {
+  try {
+    const host = (req.hostname || '').toLowerCase();
+    if (!host || _HOSTS_PLATAFORMA.has(host) || host.endsWith('.onrender.com')) return next();
+    const { buscarConfigPorDominio } = require('./services/salvarSiteConfig');
+    const config = await buscarConfigPorDominio(host).catch(() => null);
+    if (!config) return next();
+    const codigoUsuario = config.user_id;
+    const matchImovel = req.path.match(/^\/imovel\/([^/]+)\/?$/);
+    if (matchImovel) return _handlerSiteImovelPublico(req, res, codigoUsuario, matchImovel[1], '');
+    if (req.path === '/' || req.path === '') return _handlerSitePublico(req, res, codigoUsuario, '');
+    return next();
+  } catch(e) {
+    console.error('[roteamento-dominio]', e.message);
+    return next();
+  }
+});
+// ── FIM ROTEAMENTO POR DOMÍNIO PRÓPRIO ───────────────────────────────────────
+
 // ── SEGURANÇA: BLOQUEIA ACOES QUANDO SALDO ZERADO ───────────────────────────
 const _rotasLivresSaldo = ['/app/perfil', '/app/perfil/senha', '/app/coins', '/app/notificacoes', '/pagamento', '/sair', '/logout', '/app/assistente'];
 app.use('/app', async (req, res, next) => {
@@ -3586,16 +3610,19 @@ app.post('/app/perfil', auth, async (req,res)=>{
 });
 
 // ── MEU SITE (white-label público) ────────────────────────────────────────────
+const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado' };
+const _DOMINIO_REGEX = /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
+
 app.get('/app/meu-site', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
     const { buscarConfig } = require('./services/salvarSiteConfig');
     const configSalva = await buscarConfig(uid).catch(() => null);
-    const siteConfig = configSalva || { cor_primaria: '#FF385C', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true };
-    res.render('app-meu-site', { user: req.session.user, siteConfig, codigoUsuario: uid, msg: req.query.msg || null });
+    const siteConfig = configSalva || _SITE_CONFIG_PADRAO;
+    res.render('app-meu-site', { user: req.session.user, siteConfig, codigoUsuario: uid, msg: req.query.msg || null, fallbackOrigin: process.env.CLOUDFLARE_FALLBACK_ORIGIN || '' });
   } catch(e) {
     console.error('[meu-site]', e.message);
-    res.render('app-meu-site', { user: req.session.user, siteConfig: { cor_primaria: '#FF385C', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true }, codigoUsuario: req.session.user.codigoUsuario || req.session.user.id, msg: null });
+    res.render('app-meu-site', { user: req.session.user, siteConfig: _SITE_CONFIG_PADRAO, codigoUsuario: req.session.user.codigoUsuario || req.session.user.id, msg: null, fallbackOrigin: process.env.CLOUDFLARE_FALLBACK_ORIGIN || '' });
   }
 });
 
@@ -3617,6 +3644,75 @@ app.post('/app/meu-site', auth, async (req, res) => {
   } catch(e) {
     console.error('[meu-site/salvar]', e.message);
     res.redirect('/app/meu-site?msg=erro');
+  }
+});
+
+app.post('/app/meu-site/dominio', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const dominio = String(req.body.dominio || '').toLowerCase().trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+    if (!_DOMINIO_REGEX.test(dominio)) return res.redirect('/app/meu-site?msg=dominio_invalido');
+
+    const { salvarConfig, buscarConfig } = require('./services/salvarSiteConfig');
+    const { criarCustomHostname, deletarCustomHostname } = require('./services/cloudflareDominio');
+
+    // Se já tinha um domínio diferente configurado, remove o hostname antigo da Cloudflare antes de trocar
+    const atual = await buscarConfig(uid).catch(() => null);
+    if (atual && atual.cloudflare_hostname_id && atual.dominio_personalizado !== dominio) {
+      await deletarCustomHostname(atual.cloudflare_hostname_id);
+    }
+
+    const hostnameCf = await criarCustomHostname(dominio);
+    await salvarConfig(uid, {
+      dominio_personalizado: dominio,
+      dominio_status: 'aguardando_dns',
+      dominio_verificado_em: null,
+      cloudflare_hostname_id: hostnameCf.id
+    });
+    res.redirect('/app/meu-site?msg=dominio_salvo');
+  } catch(e) {
+    console.error('[meu-site/dominio]', e.message);
+    res.redirect('/app/meu-site?msg=dominio_erro&erro=' + encodeURIComponent(e.message));
+  }
+});
+
+app.post('/app/meu-site/dominio/verificar', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const { salvarConfig, buscarConfig } = require('./services/salvarSiteConfig');
+    const { buscarCustomHostname, interpretarStatus } = require('./services/cloudflareDominio');
+
+    const atual = await buscarConfig(uid).catch(() => null);
+    if (!atual || !atual.cloudflare_hostname_id) return res.redirect('/app/meu-site?msg=dominio_erro');
+
+    const hostnameCf = await buscarCustomHostname(atual.cloudflare_hostname_id);
+    const { dominioStatus } = interpretarStatus(hostnameCf);
+    await salvarConfig(uid, {
+      dominio_status: dominioStatus,
+      dominio_verificado_em: dominioStatus === 'verificado' ? new Date() : atual.dominio_verificado_em
+    });
+    res.redirect('/app/meu-site?msg=dominio_verificado');
+  } catch(e) {
+    console.error('[meu-site/dominio/verificar]', e.message);
+    res.redirect('/app/meu-site?msg=dominio_erro&erro=' + encodeURIComponent(e.message));
+  }
+});
+
+app.post('/app/meu-site/dominio/remover', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const { salvarConfig, buscarConfig } = require('./services/salvarSiteConfig');
+    const { deletarCustomHostname } = require('./services/cloudflareDominio');
+
+    const atual = await buscarConfig(uid).catch(() => null);
+    if (atual && atual.cloudflare_hostname_id) {
+      await deletarCustomHostname(atual.cloudflare_hostname_id);
+    }
+    await salvarConfig(uid, { dominio_personalizado: '', dominio_status: 'nao_configurado', dominio_verificado_em: null, cloudflare_hostname_id: '' });
+    res.redirect('/app/meu-site?msg=dominio_removido');
+  } catch(e) {
+    console.error('[meu-site/dominio/remover]', e.message);
+    res.redirect('/app/meu-site?msg=dominio_erro');
   }
 });
 
@@ -6533,26 +6629,29 @@ function _resolverCorretorPublico(codigoUsuario) {
   return users.find(u => (u.codigoUsuario || u.id) === codigoUsuario) || null;
 }
 
-app.get('/site/:codigoUsuario', async (req, res) => {
+async function _carregarSiteConfigPublico(codigoUsuario, corretor) {
+  const { buscarConfig } = require('./services/salvarSiteConfig');
+  const configSalva = await buscarConfig(codigoUsuario).catch(() => null);
+  return {
+    corPrimaria: (configSalva && configSalva.cor_primaria) || '#FF385C',
+    logoUrl: (configSalva && configSalva.logo_url) || '',
+    rodapeNome: (configSalva && configSalva.rodape_nome) || corretor.nome || '',
+    rodapeTelefone: (configSalva && configSalva.rodape_telefone) || corretor.celular || corretor.telefone || '',
+    rodapeEndereco: (configSalva && configSalva.rodape_endereco) || '',
+    rodapeTexto: (configSalva && configSalva.rodape_texto) || '',
+    rodapeInstagram: (configSalva && configSalva.rodape_instagram) || '',
+    rodapeFacebook: (configSalva && configSalva.rodape_facebook) || '',
+    siteAtivo: configSalva ? configSalva.site_ativo !== false : true
+  };
+}
+
+// siteBasePath: '' quando servido por domínio próprio (raiz), '/site/:codigoUsuario' quando servido pelo path da plataforma
+async function _handlerSitePublico(req, res, codigoUsuario, siteBasePath) {
   try {
-    const codigoUsuario = req.params.codigoUsuario;
     const corretor = _resolverCorretorPublico(codigoUsuario);
     if (!corretor) return res.status(404).send('Site não encontrado');
 
-    const { buscarConfig } = require('./services/salvarSiteConfig');
-    const configSalva = await buscarConfig(codigoUsuario).catch(() => null);
-    const siteConfig = {
-      corPrimaria: (configSalva && configSalva.cor_primaria) || '#FF385C',
-      logoUrl: (configSalva && configSalva.logo_url) || '',
-      rodapeNome: (configSalva && configSalva.rodape_nome) || corretor.nome || '',
-      rodapeTelefone: (configSalva && configSalva.rodape_telefone) || corretor.celular || corretor.telefone || '',
-      rodapeEndereco: (configSalva && configSalva.rodape_endereco) || '',
-      rodapeTexto: (configSalva && configSalva.rodape_texto) || '',
-      rodapeInstagram: (configSalva && configSalva.rodape_instagram) || '',
-      rodapeFacebook: (configSalva && configSalva.rodape_facebook) || '',
-      siteAtivo: configSalva ? configSalva.site_ativo !== false : true
-    };
-
+    const siteConfig = await _carregarSiteConfigPublico(codigoUsuario, corretor);
     if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, corretor);
 
     // Hard-filter: só imóveis deste codigoUsuario, nunca confiar em parâmetro do client
@@ -6560,7 +6659,7 @@ app.get('/site/:codigoUsuario', async (req, res) => {
     const _r = _filtrarEPaginarImoveis(imoveisDoUsuario, req.query, 24);
 
     res.render('site-publico', {
-      corretor, siteConfig, codigoUsuario,
+      corretor, siteConfig, codigoUsuario, siteBasePath,
       imoveis: _r.imoveisPagina, estados: _r.estados, cidades: _r.cidades, bairros: _r.bairros,
       page: _r.page, totalPages: _r.totalPages, totalImoveis: _r.totalImoveis,
       filtros: req.query, queryPagina: _r.queryPagina
@@ -6569,32 +6668,19 @@ app.get('/site/:codigoUsuario', async (req, res) => {
     console.error('[site-publico]', e.message);
     res.status(500).send('Erro ao carregar site');
   }
-});
+}
 
-app.get('/site/:codigoUsuario/imovel/:id', async (req, res) => {
+async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, siteBasePath) {
   try {
-    const codigoUsuario = req.params.codigoUsuario;
     const corretor = _resolverCorretorPublico(codigoUsuario);
     if (!corretor) return res.status(404).send('Site não encontrado');
 
-    const { buscarConfig } = require('./services/salvarSiteConfig');
-    const configSalva = await buscarConfig(codigoUsuario).catch(() => null);
-    const siteConfig = {
-      corPrimaria: (configSalva && configSalva.cor_primaria) || '#FF385C',
-      logoUrl: (configSalva && configSalva.logo_url) || '',
-      rodapeNome: (configSalva && configSalva.rodape_nome) || corretor.nome || '',
-      rodapeTelefone: (configSalva && configSalva.rodape_telefone) || corretor.celular || corretor.telefone || '',
-      rodapeEndereco: (configSalva && configSalva.rodape_endereco) || '',
-      rodapeTexto: (configSalva && configSalva.rodape_texto) || '',
-      rodapeInstagram: (configSalva && configSalva.rodape_instagram) || '',
-      rodapeFacebook: (configSalva && configSalva.rodape_facebook) || '',
-      siteAtivo: configSalva ? configSalva.site_ativo !== false : true
-    };
+    const siteConfig = await _carregarSiteConfigPublico(codigoUsuario, corretor);
     if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, corretor);
 
     // Hard-filter: o imóvel só é exibido se pertencer a este codigoUsuario — nunca cruzar carteiras
     const imoveisDoUsuario = lerImoveis(codigoUsuario);
-    const imovel = imoveisDoUsuario.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
+    const imovel = imoveisDoUsuario.find(i => String(i.idExterno) === String(imovelId) || String(i.idInterno) === String(imovelId) || String(i.codigoImovel) === String(imovelId) || String(i.id) === String(imovelId));
     if (!imovel) return res.status(404).send('Imóvel não encontrado');
 
     const pub = Object.assign({}, imovel);
@@ -6605,13 +6691,16 @@ app.get('/site/:codigoUsuario/imovel/:id', async (req, res) => {
     res.render('imovel-publico', {
       imovel: pub, corretor, leadDados: { nome: '', telefone: '' }, temLeadId: false, leadId: '',
       usuarioLogado: req.session && req.session.user ? req.session.user : null,
-      userId: codigoUsuario, compartilhador: null, siteConfig, siteVoltarUrl: '/site/' + codigoUsuario
+      userId: codigoUsuario, compartilhador: null, siteConfig, siteVoltarUrl: siteBasePath || '/'
     });
   } catch(e) {
     console.error('[site-publico-imovel]', e.message);
     res.status(500).send('Erro ao carregar imóvel');
   }
-});
+}
+
+app.get('/site/:codigoUsuario', (req, res) => _handlerSitePublico(req, res, req.params.codigoUsuario, '/site/' + req.params.codigoUsuario));
+app.get('/site/:codigoUsuario/imovel/:id', (req, res) => _handlerSiteImovelPublico(req, res, req.params.codigoUsuario, req.params.id, '/site/' + req.params.codigoUsuario));
 // ── FIM SITE PÚBLICO ───────────────────────────────────────────────────────────
 
 // Página pública do imóvel — sem login

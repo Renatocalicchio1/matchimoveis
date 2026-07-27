@@ -3858,6 +3858,8 @@ app.get('/app/leads/planilha/exportar-excel', auth, async (req,res)=>{
     const linhas = leads.map(l => {
       const p = l.perfilIA || {};
       const d = l.criadoEm ? new Date(l.criadoEm) : null;
+      const _mat = (l.matchesAuto||l.matches||[]).length;
+      const _vitrineLink = _mat>0 ? (l.vitrineLink || (BASE_URL+'/cliente/oferta/'+(l.leadId||l.id)+'?userId='+encodeURIComponent(l.userId||l.usuarioId||l.corretorId||''))) : '';
       return {
         Data: d ? d.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '',
         Nome: l.nome || '',
@@ -3872,7 +3874,9 @@ app.get('/app/leads/planilha/exportar-excel', auth, async (req,res)=>{
         Quartos: p.quartos || '',
         Valor_max: p.valorMax || '',
         Status: l.faseFunil || '',
-        Temperatura: l.temperatura || ''
+        Temperatura: l.temperatura || '',
+        Link_vitrine: _vitrineLink,
+        Link_imovel_referencia: l.idAnuncio ? (BASE_URL+'/app/imovel/'+l.idAnuncio) : ''
       };
     });
     const ws = XLSX.utils.json_to_sheet(linhas);

@@ -66,17 +66,21 @@
         <th>Origem</th>
         <th>Perfil do imóvel</th>
         <th>Status</th>
+        <th>Vitrine</th>
+        <th>Imóvel de referência</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
       <% if(!leads.length){ %>
-        <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-ter)">Nenhuma lead encontrada com esses filtros.</td></tr>
+        <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-ter)">Nenhuma lead encontrada com esses filtros.</td></tr>
       <% } %>
       <% leads.forEach(function(l){ %>
         <% const p = l.perfilIA || {}; %>
         <% const d = new Date(l.criadoEm || l.data_cadastro || Date.now()); %>
         <% const transacaoLabel = p.intencao==='comprar'?'Comprar':p.intencao==='alugar'?'Alugar':p.intencao||''; %>
+        <% const _matPl = (l.matchesAuto||l.matches||[]).length; %>
+        <% const _vitrineLinkPl = _matPl>0 ? (l.vitrineLink || ('/cliente/oferta/'+(l.leadId||l.id)+'?userId='+encodeURIComponent(l.userId||l.usuarioId||l.corretorId||''))) : ''; %>
         <tr>
           <td class="pl-data"><b><%= d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}) %></b><%= d.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}) %></td>
           <td>
@@ -100,6 +104,8 @@
             <span class="pl-fase"><%= (l.faseFunil||'novo').charAt(0).toUpperCase()+(l.faseFunil||'novo').slice(1) %></span>
             <span class="pl-temp" style="background:<%= l.temperatura==='quente'?'#fee2e2':l.temperatura==='morno'?'#fef3c7':'#e6f7f5' %>;color:<%= l.temperatura==='quente'?'#991b1b':l.temperatura==='morno'?'#92400e':'#004d47' %>"><%= l.temperatura==='quente'?'🔥':l.temperatura==='morno'?'🌡':'❄️' %> <%= l.temperatura||'frio' %></span>
           </td>
+          <td><% if(_vitrineLinkPl){ %><a href="<%= _vitrineLinkPl %>" target="_blank" class="pl-ver">Ver vitrine</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
+          <td><% if(l.idAnuncio){ %><a href="/app/imovel/<%= l.idAnuncio %>" target="_blank" class="pl-ver">Ver imóvel</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
           <td><a href="/app/lead/<%= l.id %>" class="pl-ver">Ver detalhes</a></td>
         </tr>
       <% }); %>

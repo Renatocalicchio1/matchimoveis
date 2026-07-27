@@ -41,6 +41,10 @@
     .faixa input{width:100%}
     .btn-filtrar{background:var(--brand);color:#fff;border:none;border-radius:9px;padding:10px 22px;font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap}
     .btn-limpar{color:var(--muted);font-size:12.5px;text-decoration:none;padding:10px 4px;white-space:nowrap}
+    .btn-mais-opcoes{background:var(--paper);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+    .btn-mais-opcoes.ativo{background:var(--sand);border-color:var(--muted-2)}
+    .mais-opcoes{display:none;width:100%;flex-wrap:wrap;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+    .mais-opcoes.aberto{display:flex}
 
     .container{max-width:1200px;margin:0 auto;padding:24px}
     .contagem{color:var(--muted);font-size:13px;margin-bottom:16px}
@@ -156,9 +160,48 @@
       </div>
     </div>
     <button type="submit" class="btn-filtrar">Buscar</button>
-    <% if(filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.quartosMin||filtros.valorMin||filtros.valorMax){ %>
+    <button type="button" class="btn-mais-opcoes" onclick="document.getElementById('mais-opcoes').classList.toggle('aberto');this.classList.toggle('ativo')">⚙ Mais opções</button>
+    <% const _temFiltroAvancado = filtros.banheiros||filtros.vagasMin||filtros.suitesMin||filtros.areaMin||filtros.areaMax; %>
+    <% if(filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||_temFiltroAvancado){ %>
     <a href="<%= siteBasePath || '/' %>" class="btn-limpar">Limpar filtros</a>
     <% } %>
+
+    <div id="mais-opcoes" class="mais-opcoes <%= _temFiltroAvancado ? 'aberto' : '' %>">
+      <div class="ffield">
+        <label>Banheiros</label>
+        <select name="banheiros" onchange="this.form.submit()">
+          <option value="">Qualquer</option>
+          <% [1,2,3].forEach(function(n){ %>
+          <option value="<%= n %>" <%= String(filtros.banheiros)===String(n)?'selected':'' %>><%= n %>+</option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="ffield">
+        <label>Vagas</label>
+        <select name="vagasMin" onchange="this.form.submit()">
+          <option value="">Qualquer</option>
+          <% [1,2,3].forEach(function(n){ %>
+          <option value="<%= n %>" <%= String(filtros.vagasMin)===String(n)?'selected':'' %>><%= n %>+</option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="ffield">
+        <label>Suítes</label>
+        <select name="suitesMin" onchange="this.form.submit()">
+          <option value="">Qualquer</option>
+          <% [1,2].forEach(function(n){ %>
+          <option value="<%= n %>" <%= String(filtros.suitesMin)===String(n)?'selected':'' %>><%= n %>+</option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="ffield" style="min-width:200px">
+        <label>Área (m²)</label>
+        <div class="faixa">
+          <input type="text" name="areaMin" placeholder="Mín." value="<%= filtros.areaMin||'' %>">
+          <input type="text" name="areaMax" placeholder="Máx." value="<%= filtros.areaMax||'' %>">
+        </div>
+      </div>
+    </div>
   </form>
 </div>
 

@@ -6862,22 +6862,37 @@ app.get('/app/lead/:id', auth, async (req, res) => {
   } catch(e) { console.error('copiloto erro:', e.message); }
   res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados });
 });
+// Dono real do imóvel = mesmo critério usado em lerImoveis()/salvarImovel.js — userId/usuarioId/codigoUsuario/corretorId
+function _ehDonoDoImovel(imovel, user) {
+  const uid = String(user.codigoUsuario || user.codigo_usuario || user.id || '');
+  return String(imovel.userId||'') === uid ||
+    String(imovel.usuarioId||'') === uid ||
+    String(imovel.codigoUsuario||'') === uid ||
+    String(imovel.corretorId||'') === uid;
+}
+
 app.get('/app/imovel/:id', auth, (req, res) => {
   const imoveis = ((_cacheImoveis || []));
   const user = req.session.user;
   const imovel = imoveis.find(i => String(i.id) === String(req.params.id) || String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if (!imovel) return res.status(404).send('Imóvel não encontrado');
-  
-  // Oculta proprietário se não for admin nem corretor do imóvel
-  const isAdmin = user.tipo === 'admin';
-  const isCorretor = imovel.corretor && (
-    imovel.corretor.email === user.email ||
-    imovel.corretor.telefone === user.telefone ||
-    imovel.corretorId === user.id
-  );
-  const verProprietario = isAdmin || isCorretor;
 
-  res.render('app-imovel-detalhe', { user, imovel, verProprietario });
+  const isAdmin = user.tipo === 'admin';
+  const isDono = _ehDonoDoImovel(imovel, user);
+  const verProprietario = isAdmin || isDono;
+
+  // Se não for o dono, resolve o contato do corretor responsável (conta dona do imóvel na rede)
+  // pra permitir contato de parceria — nunca expõe o proprietário/dono real (esse fica preso ao verProprietario)
+  let donoContato = null;
+  if (!isDono) {
+    const donoUid = imovel.userId || imovel.usuarioId || imovel.codigoUsuario || imovel.corretorId || '';
+    const donoUser = (_cacheUsuarios || []).find(u => String(u.codigoUsuario || u.id) === String(donoUid));
+    if (donoUser && (donoUser.celular || donoUser.telefone)) {
+      donoContato = { nome: donoUser.nome || 'Corretor parceiro', celular: donoUser.celular || donoUser.telefone, codigoUsuario: donoUser.codigoUsuario || donoUser.id };
+    }
+  }
+
+  res.render('app-imovel-detalhe', { user, imovel, verProprietario, isDono, donoContato });
 });
 
 // Editar imóvel - tela
@@ -6888,6 +6903,9 @@ app.get('/app/imovel/:id/editar', auth, (req,res)=>{
 
   if(!imovel){
     return res.send('Imóvel não encontrado. <a href="/app/imoveis">Voltar</a>');
+  }
+  if(!_ehDonoDoImovel(imovel, req.session.user) && req.session.user.tipo !== 'admin'){
+    return res.status(403).send('Você não tem permissão pra editar esse imóvel. <a href="/app/imovel/'+req.params.id+'">Voltar</a>');
   }
 
   const idImovelEdit = (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || String(imovel.id) || ''); res.render('app-editar-imovel', { user: req.session.user, imovel, salvo: req.query.salvo === '1', idImovel: idImovelEdit });

@@ -519,31 +519,44 @@ function toggleMaisMenu(){
 <div id="robo-wrap">
   <div id="robo-bolha">
     <button id="robo-fechar" onclick="event.stopPropagation();document.getElementById('robo-bolha').style.display='none'">✕</button>
-    <b>Assistente MatchImóveis</b>
+    <b id="robo-titulo">Assistente MatchImóveis</b>
     <span id="robo-msg"></span>
+    <div id="robo-cta" style="display:none;margin-top:8px;font-size:12px;font-weight:700;color:var(--brand,#FF385C)">Ver agora →</div>
   </div>
-  <button id="robo-btn" onclick="window.location.href='/app/assistente'" aria-label="Falar com o assistente" title="Falar com o assistente">🤖</button>
+  <button id="robo-btn" aria-label="Falar com o assistente" title="Falar com o assistente">🤖</button>
 </div>
 <script>
 (function(){
   var MSGS = [
-    'Oi! Eu sou o seu suporte aqui na MatchImóveis. Qualquer dúvida, é só me chamar! 👋',
-    'Precisa de ajuda? Sou o suporte automático — pergunta pra mim, resolvo na hora!',
-    'Ficou com dúvida em alguma tela? Fala comigo, eu resolvo — não precisa esperar suporte humano.',
-    'Quer saber como funciona o match automático? Eu te explico agora.',
-    'Posso te ajudar a configurar alguma coisa? É só clicar aqui.',
-    'Quer importar imóveis ou leads? Eu te guio passo a passo, na hora.'
+    { titulo: 'Assistente MatchImóveis', texto: 'Oi! Eu sou o seu suporte aqui na MatchImóveis. Qualquer dúvida, é só me chamar! 👋', link: '/app/assistente', cta: false },
+    { titulo: 'Assistente MatchImóveis', texto: 'Precisa de ajuda? Sou o suporte automático — pergunta pra mim, resolvo na hora!', link: '/app/assistente', cta: false },
+    { titulo: 'Assistente MatchImóveis', texto: 'Ficou com dúvida em alguma tela? Fala comigo, eu resolvo — não precisa esperar suporte humano.', link: '/app/assistente', cta: false },
+    { titulo: 'Assistente MatchImóveis', texto: 'Quer saber como funciona o match automático? Eu te explico agora.', link: '/app/assistente', cta: false },
+    { titulo: 'Assistente MatchImóveis', texto: 'Posso te ajudar a configurar alguma coisa? É só clicar aqui.', link: '/app/assistente', cta: false },
+    { titulo: 'Assistente MatchImóveis', texto: 'Quer importar imóveis ou leads? Eu te guio passo a passo, na hora.', link: '/app/assistente', cta: false },
+    { titulo: 'Novidade 📸', texto: 'Sabia que dá pra postar seus imóveis no Instagram com 1 clique, direto da plataforma?', link: '/app/imoveis', cta: true },
+    { titulo: 'Parceria QuintoAndar 🤝', texto: 'Você pode enviar seus imóveis pro QuintoAndar vender, ou ter acesso à carteira deles pra fazer match com seus leads. Vem ver como funciona!', link: '/app/parceria-quintoandar', cta: true }
   ];
   var INTERVALO = 1 * 60 * 1000;
   function mostrar(){
     var bolha = document.getElementById('robo-bolha');
     var msg = document.getElementById('robo-msg');
+    var titulo = document.getElementById('robo-titulo');
+    var cta = document.getElementById('robo-cta');
+    var btn = document.getElementById('robo-btn');
     if(!bolha || !msg) return;
-    msg.textContent = MSGS[Math.floor(Math.random()*MSGS.length)];
+    var escolhida = MSGS[Math.floor(Math.random()*MSGS.length)];
+    titulo.textContent = escolhida.titulo;
+    msg.textContent = escolhida.texto;
+    cta.style.display = escolhida.cta ? 'block' : 'none';
+    btn.onclick = function(){ window.location.href = escolhida.link; };
+    bolha.onclick = function(){ window.location.href = escolhida.link; };
+    bolha.style.cursor = 'pointer';
     bolha.style.display = 'block';
     sessionStorage.setItem('mi_robo_ultimo', String(Date.now()));
     setTimeout(function(){ bolha.style.display = 'none'; }, 9000);
   }
+  document.getElementById('robo-btn').onclick = function(){ window.location.href = '/app/assistente'; };
   var ultimo = parseInt(sessionStorage.getItem('mi_robo_ultimo')||'0', 10);
   var agora = Date.now();
   if(!ultimo){

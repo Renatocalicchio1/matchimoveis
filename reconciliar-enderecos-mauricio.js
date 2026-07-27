@@ -61,7 +61,7 @@ function candidatosBairroCidade(cidadeNorm, bairroNorm) {
 function escolherPorCepNumero(candidatos, cepNorm, numeroNorm, valorRef) {
   const bateChave = candidatos.filter(c => c.cepNorm === cepNorm && c.numeroNorm === numeroNorm);
   if (bateChave.length === 0) return { status: 'sem_correspondencia' };
-  if (bateChave.length === 1) return { status: 'ok', candidato: bateChave[0] };
+  if (bateChave.length === 1) return { status: 'ok', candidato: bateChave[0], tier: 'A' };
 
   // múltiplos registros no CRM com mesmo CEP+número (ex: apto no mesmo prédio) — desempata por valor
   if (!valorRef) return { status: 'ambiguo', candidatos: bateChave };
@@ -75,7 +75,13 @@ function escolherPorCepNumero(candidatos, cepNorm, numeroNorm, valorRef) {
   if (comDiff.length >= 2 && Math.abs(comDiff[0].diff - comDiff[1].diff) < 0.001) {
     return { status: 'ambiguo', candidatos: bateChave }; // empate técnico, não arrisca
   }
-  return { status: 'ok', candidato: comDiff[0].c };
+  return { status: 'ok', candidato: comDiff[0].c, tier: 'A' };
+}
+
+// endereço já existente no banco bate (por substring, normalizado) com o logradouro do CRM?
+function enderecoCorrobora(enderecoNorm, logradouroNorm) {
+  if (!enderecoNorm || !logradouroNorm) return false;
+  return enderecoNorm.includes(logradouroNorm) || logradouroNorm.includes(enderecoNorm);
 }
 
 async function run() {
@@ -94,6 +100,7 @@ async function run() {
     conflitos: [],
     ambiguos: [],
     semCorrespondencia: [],
+    revisarManual: [], // candidato único só por bairro+cidade+valor, sem confirmação de rua — NUNCA aplicado automaticamente
   };
 
   for (const im of imoveis) {
@@ -116,7 +123,10 @@ async function run() {
     if (cepNorm && numeroNorm) {
       resultado = escolherPorCepNumero(candidatos, cepNorm, numeroNorm, valor);
     } else {
-      // sem CEP+número ainda — tenta achar candidato único cruzando bairro+cidade+transação+valor (tolerância mais apertada)
+      // sem CEP+número ainda — cruza bairro+cidade+transação+valor, mas só aceita um candidato
+      // como aplicável de fato se o endereço JÁ EXISTENTE no banco confirmar o logradouro do CRM.
+      // Valor batendo sozinho (sem confirmação de rua) NÃO é confiável o bastante — testado e
+      // comprovado: em bairros com muitos imóveis de valor parecido, dá match errado (rua diferente).
       let pool2 = candidatos;
       if (transacaoNorm) pool2 = pool2.filter(c => !c.transacao || normTransacao(c.transacao) === transacaoNorm);
       if (valor) {
@@ -125,9 +135,19 @@ async function run() {
           .map(c => ({ c, diff: Math.abs(c.valor - valor) / valor }))
           .filter(x => x.diff <= TOLERANCIA_VALOR)
           .sort((a, b) => a.diff - b.diff);
-        if (comDiff.length === 1) resultado = { status: 'ok', candidato: comDiff[0].c };
-        else if (comDiff.length > 1 && Math.abs(comDiff[0].diff - comDiff[1].diff) >= 0.001) resultado = { status: 'ok', candidato: comDiff[0].c };
-        else resultado = { status: comDiff.length ? 'ambiguo' : 'sem_correspondencia', candidatos: comDiff.map(x => x.c) };
+
+        if (enderecoNorm) {
+          // banco já tem uma rua cadastrada — exige que ela bata com o candidato pra valer
+          const confirmados = comDiff.filter(x => enderecoCorrobora(enderecoNorm, x.c.logradouroNorm));
+          if (confirmados.length === 1) resultado = { status: 'ok', candidato: confirmados[0].c, tier: 'B_confirmado' };
+          else resultado = { status: comDiff.length ? 'ambiguo' : 'sem_correspondencia', candidatos: comDiff.map(x => x.c) };
+        } else if (comDiff.length === 1) {
+          // banco não tem NENHUM endereço ainda — só valor+bairro+cidade batendo não é prova o
+          // suficiente pra gravar sozinho; manda pra revisão manual do corretor (ele reconhece a rua na hora)
+          resultado = { status: 'revisar', candidato: comDiff[0].c };
+        } else {
+          resultado = { status: comDiff.length ? 'ambiguo' : 'sem_correspondencia', candidatos: comDiff.map(x => x.c) };
+        }
       } else {
         resultado = { status: 'sem_correspondencia' };
       }
@@ -141,6 +161,14 @@ async function run() {
       relatorio.ambiguos.push({
         id: im.id, titulo: im.titulo, bairro: im.bairro, cidade: im.cidade, valorAtual: valor,
         candidatos: resultado.candidatos.map(c => ({ referencia: c.referencia, endereco: c.logradouroOriginal, numero: c.numeroOriginal, cep: c.cepOriginal, valor: c.valor })),
+      });
+      continue;
+    }
+    if (resultado.status === 'revisar') {
+      const c = resultado.candidato;
+      relatorio.revisarManual.push({
+        id: im.id, titulo: im.titulo, bairro: im.bairro, cidade: im.cidade, valorAtual: valor,
+        candidato: { referencia: c.referencia, endereco: c.logradouroOriginal, numero: c.numeroOriginal, complemento: c.complemento, cep: c.cepOriginal, valor: c.valor },
       });
       continue;
     }
@@ -189,6 +217,7 @@ Modo: ${APLICAR ? 'APLICADO (gravou no banco)' : 'RELATÓRIO (nada foi gravado �
 
 Total imóveis analisados: ${imoveis.length}
 ✅ ${APLICAR ? 'Aplicados' : 'Prontos pra aplicar (alta confiança)'}: ${(APLICAR ? relatorio.aplicados : relatorio.prontosParaAplicar).length}
+👀 Revisar manualmente (só valor bateu, sem rua confirmada — corretor decide, nunca aplicado sozinho): ${relatorio.revisarManual.length}
 ⚠️  Conflito (CRM diverge de dado já preenchido — NÃO sobrescrito): ${relatorio.conflitos.length}
 ❓ Ambíguo (mais de 1 candidato no CRM, sem desempate confiável): ${relatorio.ambiguos.length}
 ❌ Sem correspondência no CRM: ${relatorio.semCorrespondencia.length}

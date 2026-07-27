@@ -21,7 +21,8 @@ const CUSTO = {
   confirmacao_auto:       15,
   nova_lead:              20,
   importar_lead:          10,
-  imovel_divulgado:        2
+  imovel_divulgado:        2,
+  postar_instagram:       30
 };
 
 async function consumir(userId, acao) {

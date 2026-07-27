@@ -11,7 +11,7 @@ const cerebroNLP = require("./services/cerebro-nlp");
 
 const fs = require('fs');
 const centralOperacional = require("./services/centralOperacional");
-const { consumir, adicionarCreditos, temSaldo, saldo: saldoCreditos } = require("./services/creditos");
+const { consumir, adicionarCreditos, temSaldo, saldo: saldoCreditos, CUSTO } = require("./services/creditos");
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 const _mpClient = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || '' });
 
@@ -3837,6 +3837,12 @@ app.post('/app/instagram/postar', auth, async (req,res)=>{
       return res.status(403).json({ ok:false, erro: 'Você só pode publicar imóveis da sua própria carteira.' });
     }
 
+    const _custoInsta = CUSTO.postar_instagram;
+    const _saldoInsta = await saldoCreditos(uidLogado);
+    if (_saldoInsta < _custoInsta) {
+      return res.status(400).json({ ok:false, erro: `Saldo insuficiente para publicar no Instagram. Você tem ${_saldoInsta} coins e precisa de ${_custoInsta}.` });
+    }
+
     const fotos = Array.isArray(imovel.fotos) ? imovel.fotos : [];
     if (!fotos.length) return res.status(400).json({ ok:false, erro: 'Este imóvel não tem fotos cadastradas.' });
 
@@ -3854,6 +3860,7 @@ app.post('/app/instagram/postar', auth, async (req,res)=>{
     if (!resultados.feed && !resultados.story) {
       return res.status(400).json({ ok:false, erro: 'Destino de publicação inválido.' });
     }
+    consumir(uidLogado, 'postar_instagram').catch(()=>{}); // 30 créditos por publicação no Instagram
     res.json({ ok:true, resultados });
   } catch(e) {
     console.error('[instagram/postar]', e.message);

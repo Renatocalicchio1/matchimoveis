@@ -6222,6 +6222,23 @@ app.post('/app/meu-site/logo', auth, uploadImoveis.single('logo'), async (req, r
   }
 });
 
+app.post('/app/meu-site/logo/excluir', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const { buscarConfig, salvarConfig } = require('./services/salvarSiteConfig');
+    const config = await buscarConfig(uid);
+    if (config && config.logo_url && config.logo_url.startsWith('/data-uploads/')) {
+      const arquivoPath = path.join(UPLOADS_IMOVEIS_DIR, path.basename(config.logo_url));
+      fs.unlink(arquivoPath, () => {});
+    }
+    await salvarConfig(uid, { logo_url: '' });
+    res.redirect('/app/meu-site?msg=salvo');
+  } catch(e) {
+    console.error('[meu-site/logo/excluir]', e.message);
+    res.redirect('/app/meu-site?msg=erro');
+  }
+});
+
 app.post('/app/imoveis/portais-lote', auth, async (req, res) => {
   try {
     const userId = req.session.user.id;

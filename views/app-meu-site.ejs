@@ -158,8 +158,13 @@
       </div>
       <form method="POST" action="/app/meu-site/logo" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <input type="file" name="logo" accept="image/*" required style="max-width:220px">
-        <button type="submit" class="pf-btn">Enviar logo</button>
+        <button type="submit" class="pf-btn"><%= siteConfig.logo_url ? 'Trocar logo' : 'Enviar logo' %></button>
       </form>
+      <% if(siteConfig.logo_url){ %>
+      <form method="POST" action="/app/meu-site/logo/excluir" onsubmit="return confirm('Excluir a logo atual?')">
+        <button type="submit" class="pf-btn pf-btn-outline">Excluir logo</button>
+      </form>
+      <% } %>
     </div>
     <div style="font-size:11px;color:#9ca3af;margin-top:6px">Sem logo, o nome do rodapé aparece no lugar.</div>
   </div>

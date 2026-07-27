@@ -12013,6 +12013,29 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 
+// Upload temporário do mapa-mauricio.json (reconciliação de endereços MAU-EHAM) — grava
+// na raiz do projeto pra o script reconciliar-enderecos-mauricio.js ler direto no Render Shell.
+app.get('/admin/upload-mauricio-mapa', authAdmin, (req, res) => {
+  res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+  <title>Upload mapa Mauricio</title></head>
+  <body style="font-family:sans-serif;max-width:480px;margin:60px auto">
+    <h3>Upload mapa-mauricio.json</h3>
+    <form method="POST" action="/admin/upload-mauricio-mapa" enctype="multipart/form-data">
+      <input type="file" name="arquivo" accept=".json" required>
+      <button type="submit">Enviar</button>
+    </form>
+  </body></html>`);
+});
+app.post('/admin/upload-mauricio-mapa', authAdmin, upload.single('arquivo'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).send('Nenhum arquivo enviado');
+    const destino = path.join(__dirname, 'mapa-mauricio.json');
+    await fs.promises.copyFile(req.file.path, destino);
+    await fs.promises.unlink(req.file.path).catch(()=>{});
+    res.send(`✅ Salvo em ${destino}.<br>Agora no Render Shell rode: <code>node reconciliar-enderecos-mauricio.js</code>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
 app.post('/admin/disparos/preview-planilha', authAdmin, upload.single('arquivo'), async (req, res) => {
   try {
     if (!req.file) return res.json({ ok: false, erro: 'Nenhum arquivo enviado' });

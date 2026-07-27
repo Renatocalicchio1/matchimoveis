@@ -448,15 +448,8 @@ let modalTipo = 'visita';
 
 function compartilharImovel(btn){
   const url = window.location.href;
-  if(navigator.share){
-    navigator.share({ title: imovelTitulo, text: imovelTitulo, url: url }).catch(()=>{});
-    return;
-  }
-  navigator.clipboard.writeText(url).then(() => {
-    const original = btn.innerHTML;
-    btn.innerHTML = '✅ Link copiado!';
-    setTimeout(() => { btn.innerHTML = original; }, 2000);
-  });
+  const texto = encodeURIComponent(imovelTitulo + ' - ' + url);
+  window.open('https://wa.me/?text=' + texto, '_blank');
 }
 
 function abrirWhatsAppFlutuante(){

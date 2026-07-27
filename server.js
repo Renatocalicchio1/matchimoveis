@@ -11792,6 +11792,11 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       const selNome = document.getElementById('colNome');
       selTel.innerHTML = _colunas.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
       selNome.innerHTML = '<option value="">—</option>' + _colunas.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+      const _achar = (padroes) => _colunas.find(c => padroes.some(p => c.toLowerCase().includes(p)));
+      const _colTelSugerida = _achar(['telefone','celular','whatsapp','fone','phone']);
+      const _colNomeSugerida = _achar(['nome','razao','razão','empresa','name']);
+      if(_colTelSugerida) selTel.value = _colTelSugerida;
+      if(_colNomeSugerida) selNome.value = _colNomeSugerida;
       document.getElementById('config-box').style.display = 'block';
       montarVariaveis();
     }

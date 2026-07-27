@@ -1,4 +1,4 @@
-<%- include('partials/app-shell',{active:'leads-planilha',title:'📊 Planilha de Leads',subtitle:'Todas as leads em formato de tabela — data, dados, perfil de busca e status.',user:user}) %>
+<%- include('partials/app-shell',{active:'leads-planilha',title:'📊 Planilha de Leads',subtitle:'Todas as leads em formato de tabela — data, dados, perfil de busca, vitrine e imóvel de referência.',user:user}) %>
 
 <style>
 .pl-toolbar{display:flex;justify-content:flex-end;margin-bottom:14px}
@@ -22,11 +22,8 @@
 .pl-perfil-loc{color:var(--text-sec);font-size:11.5px}
 .pl-perfil-meta{color:var(--text-ter);font-size:11px;font-variant-numeric:tabular-nums}
 .pl-perfil-valor{color:#00847a;font-weight:600;font-variant-numeric:tabular-nums}
-.pl-status{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
-.pl-fase{font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--border-light);color:var(--text-sec)}
-.pl-temp{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px}
-.pl-ver{padding:6px 12px;border-radius:7px;font-size:11.5px;font-weight:600;background:var(--white);color:var(--brand);border:1px solid #fff1f3;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
-.pl-ver:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+.pl-ver{padding:0;font-size:11.5px;font-weight:600;background:none;color:var(--brand);border:none;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
+.pl-ver:hover{text-decoration:underline}
 .pl-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;color:var(--text-ter);font-size:11.5px}
 @media(max-width:700px){ .pl-filtros input,.pl-filtros select{min-width:0;flex:1} }
 </style>
@@ -65,7 +62,6 @@
         <th>Lead</th>
         <th>Origem</th>
         <th>Perfil do imóvel</th>
-        <th>Status</th>
         <th>Vitrine</th>
         <th>Imóvel de referência</th>
         <th></th>
@@ -73,7 +69,7 @@
     </thead>
     <tbody>
       <% if(!leads.length){ %>
-        <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-ter)">Nenhuma lead encontrada com esses filtros.</td></tr>
+        <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-ter)">Nenhuma lead encontrada com esses filtros.</td></tr>
       <% } %>
       <% leads.forEach(function(l){ %>
         <% const p = l.perfilIA || {}; %>
@@ -100,12 +96,8 @@
             <% } %>
             <% if(!p.tipo && !p.bairro && !p.valorMax){ %><span style="color:var(--text-ter)">Perfil incompleto</span><% } %>
           </td>
-          <td class="pl-status">
-            <span class="pl-fase"><%= (l.faseFunil||'novo').charAt(0).toUpperCase()+(l.faseFunil||'novo').slice(1) %></span>
-            <span class="pl-temp" style="background:<%= l.temperatura==='quente'?'#fee2e2':l.temperatura==='morno'?'#fef3c7':'#e6f7f5' %>;color:<%= l.temperatura==='quente'?'#991b1b':l.temperatura==='morno'?'#92400e':'#004d47' %>"><%= l.temperatura==='quente'?'🔥':l.temperatura==='morno'?'🌡':'❄️' %> <%= l.temperatura||'frio' %></span>
-          </td>
           <td><% if(_vitrineLinkPl){ %><a href="<%= _vitrineLinkPl %>" target="_blank" class="pl-ver">Ver vitrine</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
-          <td><% if(l.idAnuncio){ %><a href="/app/imovel/<%= l.idAnuncio %>" target="_blank" class="pl-ver">Ver imóvel</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
+          <td><% if(l.idAnuncio){ %><a href="/app/imovel/<%= l.idAnuncio %>" target="_blank" class="pl-ver">Ver detalhes do imóvel</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
           <td><a href="/app/lead/<%= l.id %>" class="pl-ver">Ver detalhes</a></td>
         </tr>
       <% }); %>

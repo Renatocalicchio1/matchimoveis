@@ -3421,7 +3421,7 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
 
       const id = i.id || i.idExterno || i.idOriginal || i.codigo || '';
       const _baseExp = process.env.RENDER ? 'https://matchimoveis.ia.br' : 'http://localhost:3000';
-      const urlPublica = i.urlPublica || i.url || i.link || (id ? `${_baseExp}/imovel/${id}` : '');
+      const urlPublica = id ? `${_baseExp}/imovel/${id}` : '';
 
       return {
         'ID imóvel': id,

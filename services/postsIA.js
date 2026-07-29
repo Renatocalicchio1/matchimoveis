@@ -115,29 +115,24 @@ function _chamarGroq(systemPrompt, userPrompt) {
 }
 
 // Cada tipo de site tem detalhes diferentes (imóvel tem m²/quartos, veículo tem km/ano,
-// serviço tem outra coisa) — em vez de campos fixos, pede pra IA extrair o que fizer
-// sentido pro conteúdo encontrado e devolver junto com a legenda, tudo numa única chamada.
+// serviço tem outra coisa) — em vez de campos fixos, pede pra IA extrair o que existir
+// e escrever direto no corpo da legenda, em tópicos. Texto puro (não JSON): já tentamos
+// pedir JSON estruturado pro modelo e ele quebrava o formato com frequência.
 async function gerarLegenda({ titulo, descricao, valor, textoBruto }) {
   const systemPrompt = `Você é um redator de posts de Instagram para negócios locais brasileiros (imobiliárias, concessionárias, lojas, prestadores de serviço etc).
-Analise o conteúdo do site (título, descrição e texto da página) e identifique do que se trata (imóvel, veículo, serviço, produto etc) — cada tipo de site tem detalhes diferentes, extraia só o que existir e fizer sentido pro caso (ex: imóvel → valor, área, quartos, vagas; veículo → valor, ano, km, modelo; serviço → valor, o que está incluso).
+Analise o conteúdo do site e identifique do que se trata (imóvel, veículo, serviço, produto etc) — cada tipo de site tem detalhes diferentes.
 
-Responda SOMENTE com um JSON válido, sem texto antes ou depois, no formato:
-{"detalhes":[{"label":"Valor","valor":"R$ 450.000"},{"label":"Área","valor":"75m²"}],"legenda":"texto da legenda aqui"}
+Estrutura da legenda, nessa ordem:
+1. Uma linha de abertura chamativa sobre o que está sendo anunciado.
+2. Tópicos curtos, um por linha, cada um com um emoji na frente, só com informações que realmente aparecem no conteúdo (nunca invente número) — ex: imóvel → 💰 valor, 📐 área, 🛏 quartos, 🚗 vagas; veículo → 💰 valor, 📅 ano, 🛣 km, ⚙️ modelo; serviço → 💰 valor, o que está incluso. Pule qualquer tópico cuja informação não exista no conteúdo.
+3. Uma linha em branco.
+4. Uma chamada pra ação convidando a pessoa a chamar no direct pra saber mais.
+5. Até 3 hashtags relevantes ao assunto.
 
-Regras dos "detalhes": no máximo 5 itens, só inclua o que realmente aparece no conteúdo (nunca invente número), "label" curto (1-2 palavras).
-Regras da "legenda": português do Brasil, tom profissional e comercial, pronta pra publicar, entre 2 e 5 linhas curtas, emojis com moderação (no máximo 4), termine com uma chamada pra ação convidando a pessoa a chamar no direct pra saber mais, inclua no fim até 3 hashtags relevantes ao assunto.`;
+Responda SOMENTE com o texto final da legenda, pronta pra publicar, em português do Brasil, sem explicações, sem aspas, sem markdown.`;
   const userPrompt = `Título: ${titulo || '(sem título)'}\nDescrição: ${descricao || '(sem descrição)'}${valor ? '\nValor detectado: ' + valor : ''}\n\nTexto da página:\n${(textoBruto || '').slice(0, 2000)}`;
-  const resposta = await _chamarGroq(systemPrompt, userPrompt);
-  try {
-    const limpo = resposta.replace(/^```json\s*|\s*```$/g, '').trim();
-    const json = JSON.parse(limpo);
-    return {
-      legenda: String(json.legenda || '').trim(),
-      detalhes: Array.isArray(json.detalhes) ? json.detalhes.slice(0, 5).filter(d => d && d.label && d.valor) : []
-    };
-  } catch (e) {
-    return { legenda: resposta, detalhes: [] };
-  }
+  const legenda = await _chamarGroq(systemPrompt, userPrompt);
+  return { legenda: legenda.trim() };
 }
 
 module.exports = { analisarSite, gerarLegenda };

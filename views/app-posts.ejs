@@ -38,9 +38,6 @@
 .ig-toolbar button:disabled{opacity:.4;cursor:not-allowed}
 .ig-toolbar button.publicar{color:#FF385C}
 
-.pt-detalhes-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px;max-width:280px}
-.pt-chip{background:#f9fafb;border:0.5px solid rgba(0,0,0,.08);border-radius:20px;padding:4px 10px;font-size:11px;color:#374151}
-.pt-chip b{color:#111827;font-weight:600;margin-right:3px}
 .pt-msg-resultado{margin-top:10px;text-align:center}
 </style>
 
@@ -77,13 +74,12 @@
         <button type="button" onclick="ignorar()">🗑️<span>Ignorar</span></button>
       </div>
     </div>
-    <div class="pt-detalhes-chips" id="pt-detalhes-chips"></div>
     <div id="pt-msg-resultado" class="pt-msg pt-msg-resultado"></div>
   </div>
 </div>
 
 <script>
-let _estado = { titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'', detalhes:[] };
+let _estado = { titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'' };
 
 function _msg(id, texto, tipo){
   const el = document.getElementById(id);
@@ -93,9 +89,6 @@ function _msg(id, texto, tipo){
 
 function _atualizarPreview(){
   document.getElementById('pt-legenda-preview').textContent = ' ' + (_estado.legenda || '');
-
-  const chips = document.getElementById('pt-detalhes-chips');
-  chips.innerHTML = _estado.detalhes.map(d => '<span class="pt-chip"><b>'+d.label+':</b>'+d.valor+'</span>').join('');
 
   const wrap = document.getElementById('pt-img-wrap');
   const total = _estado.imagens.length;
@@ -128,7 +121,7 @@ async function analisarSite(){
     const r = await fetch('/app/posts/analisar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
     const d = await r.json();
     if(!d.ok){ _msg('pt-msg-inicial', d.erro || 'Não foi possível analisar esse site.', 'err'); return; }
-    _estado = { titulo:d.titulo||'', descricao:d.descricao||'', valor:d.valor||'', textoBruto:d.textoBruto||'', imagens:d.imagens||[], indiceImagem:0, legenda:d.legenda||'', detalhes:d.detalhes||[] };
+    _estado = { titulo:d.titulo||'', descricao:d.descricao||'', valor:d.valor||'', textoBruto:d.textoBruto||'', imagens:d.imagens||[], indiceImagem:0, legenda:d.legenda||'' };
     _atualizarPreview();
     document.getElementById('pt-resultado').style.display = 'block';
   } catch(e) {
@@ -147,7 +140,6 @@ async function novaLegenda(){
     const d = await r.json();
     if(!d.ok){ _msg('pt-msg-resultado', d.erro || 'Não foi possível gerar nova legenda.', 'err'); return; }
     _estado.legenda = d.legenda;
-    _estado.detalhes = d.detalhes || [];
     _atualizarPreview();
   } catch(e) {
     _msg('pt-msg-resultado','Erro ao gerar nova legenda.','err');
@@ -182,7 +174,7 @@ async function publicar(){
 function ignorar(){
   document.getElementById('pt-resultado').style.display = 'none';
   document.getElementById('pt-url').value = '';
-  _estado = { titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'', detalhes:[] };
+  _estado = { titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'' };
 }
 </script>
 

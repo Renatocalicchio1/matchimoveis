@@ -1236,7 +1236,10 @@ app.get('/admin/xml/imovelweb-global', async (req, res) => {
     const { lerUsuarios: _lerUXG } = require('./services/salvarUsuario');
     const todos = await _lerXG();
     const usuarios = await _lerUXG();
-    const ativos = todos.filter(im => im.status !== 'inativo' && im.status !== 'excluido' && im.fotos && im.fotos.length > 0);
+    // Só publica o que o corretor marcou como "Publicado" (status='ativo'). Antes o filtro
+    // era negativo (excluía só inativo/excluído), então rascunhos de captação com
+    // status='nao_publicado' — ainda não revisados pelo corretor — vazavam pro feed público.
+    const ativos = todos.filter(im => im.status === 'ativo' && im.fotos && im.fotos.length > 0);
     const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     const linhas = [];
     linhas.push('<?xml version="1.0" encoding="UTF-8"?>');

@@ -7,6 +7,13 @@
 .badge-captado{background:#f0fdf4;color:#16a34a;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
 .badge-pendente{background:#fffbeb;color:#92400e;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
 .btn-cadastrar{background:#FF385C;color:#fff;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
+@media(max-width:640px){
+  .cap-linkbox{flex-wrap:wrap}
+  .cap-linkbox-actions{align-items:stretch;width:100%}
+  .cap-linkbox-btns{width:100%}
+  .cap-linkbox-btns button{flex:1}
+  .cap-linkbox-actions span{white-space:normal;text-align:right}
+}
 </style>
 <div style="max-width:1200px;margin:0 auto;padding:24px 16px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
@@ -42,14 +49,14 @@ async function excluirCaptar(leadId){
   location.reload();
 }
 </script>
-  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
-    <div style="flex:1">
+  <div class="cap-linkbox" style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+    <div style="flex:1;min-width:0">
       <p style="font-size:13px;font-weight:600;margin-bottom:4px">🔗 Link de captação para enviar aos seus leads</p>
       <p style="font-size:12px;color:#6b7280">Envie este link para leads que possam ter imóvel para vender ou alugar</p>
       <p style="font-size:11px;color:#9ca3af;margin-top:4px">💡 Leads que tiverem email cadastrado já recebem este link automaticamente por email assim que entram no sistema, seja qual for o canal (WhatsApp, planilha, portal ou manual) — não precisa reenviar pra elas.</p>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-      <div style="display:flex;gap:8px">
+    <div class="cap-linkbox-actions" style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div class="cap-linkbox-btns" style="display:flex;gap:8px">
         <button onclick="copiarLink()" style="background:#fff;color:#374151;border:1px solid #e5e7eb;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">📋 Copiar link</button>
         <button onclick="compartilharLink()" style="background:#FF385C;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">📤 Compartilhar link</button>
       </div>

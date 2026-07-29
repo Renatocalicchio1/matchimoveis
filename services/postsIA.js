@@ -46,7 +46,7 @@ async function analisarSite(url) {
   if (ogImage) { const abs = _absoluta(ogImage, alvo.href); if (abs) imagens.push(abs); }
 
   $('img').each((_, el) => {
-    if (imagens.length >= 8) return;
+    if (imagens.length >= 20) return;
     const src = $(el).attr('src') || $(el).attr('data-src');
     if (!src) return;
     if (/logo|icon|sprite|pixel|blank\.gif|spacer/i.test(src)) return;
@@ -57,7 +57,8 @@ async function analisarSite(url) {
     if (abs && !imagens.includes(abs)) imagens.push(abs);
   });
 
-  const textoBruto = $('body').text();
+  $('script, style, nav, footer, header, noscript').remove();
+  const textoBruto = $('body').text().replace(/\s+/g, ' ').trim().slice(0, 3000);
   const matchValor = textoBruto.match(/R\$\s?[\d.,]{4,}/);
   const valor = matchValor ? matchValor[0].trim() : '';
 
@@ -65,7 +66,8 @@ async function analisarSite(url) {
     titulo: titulo.slice(0, 200),
     descricao: descricao.slice(0, 500),
     valor,
-    imagens: imagens.slice(0, 8),
+    textoBruto,
+    imagens: imagens.slice(0, 20),
     url: alvo.href
   };
 }
@@ -112,13 +114,30 @@ function _chamarGroq(systemPrompt, userPrompt) {
   });
 }
 
-async function gerarLegenda({ titulo, descricao, valor }) {
+// Cada tipo de site tem detalhes diferentes (imóvel tem m²/quartos, veículo tem km/ano,
+// serviço tem outra coisa) — em vez de campos fixos, pede pra IA extrair o que fizer
+// sentido pro conteúdo encontrado e devolver junto com a legenda, tudo numa única chamada.
+async function gerarLegenda({ titulo, descricao, valor, textoBruto }) {
   const systemPrompt = `Você é um redator de posts de Instagram para negócios locais brasileiros (imobiliárias, concessionárias, lojas, prestadores de serviço etc).
-Escreva SEMPRE em português do Brasil, com tom profissional e comercial, adaptando o assunto ao que for descrito (imóvel, veículo, serviço, produto).
-Regras: legenda pronta pra publicar, entre 2 e 5 linhas curtas, emojis com moderação (no máximo 4), termine com uma chamada pra ação, e inclua no fim até 3 hashtags relevantes ao assunto.
-Responda APENAS com o texto da legenda, sem explicações, sem aspas.`;
-  const userPrompt = `Título: ${titulo || '(sem título)'}\nDescrição: ${descricao || '(sem descrição)'}${valor ? '\nValor: ' + valor : ''}`;
-  return _chamarGroq(systemPrompt, userPrompt);
+Analise o conteúdo do site (título, descrição e texto da página) e identifique do que se trata (imóvel, veículo, serviço, produto etc) — cada tipo de site tem detalhes diferentes, extraia só o que existir e fizer sentido pro caso (ex: imóvel → valor, área, quartos, vagas; veículo → valor, ano, km, modelo; serviço → valor, o que está incluso).
+
+Responda SOMENTE com um JSON válido, sem texto antes ou depois, no formato:
+{"detalhes":[{"label":"Valor","valor":"R$ 450.000"},{"label":"Área","valor":"75m²"}],"legenda":"texto da legenda aqui"}
+
+Regras dos "detalhes": no máximo 5 itens, só inclua o que realmente aparece no conteúdo (nunca invente número), "label" curto (1-2 palavras).
+Regras da "legenda": português do Brasil, tom profissional e comercial, pronta pra publicar, entre 2 e 5 linhas curtas, emojis com moderação (no máximo 4), termine com uma chamada pra ação convidando a pessoa a chamar no direct pra saber mais, inclua no fim até 3 hashtags relevantes ao assunto.`;
+  const userPrompt = `Título: ${titulo || '(sem título)'}\nDescrição: ${descricao || '(sem descrição)'}${valor ? '\nValor detectado: ' + valor : ''}\n\nTexto da página:\n${(textoBruto || '').slice(0, 2000)}`;
+  const resposta = await _chamarGroq(systemPrompt, userPrompt);
+  try {
+    const limpo = resposta.replace(/^```json\s*|\s*```$/g, '').trim();
+    const json = JSON.parse(limpo);
+    return {
+      legenda: String(json.legenda || '').trim(),
+      detalhes: Array.isArray(json.detalhes) ? json.detalhes.slice(0, 5).filter(d => d && d.label && d.valor) : []
+    };
+  } catch (e) {
+    return { legenda: resposta, detalhes: [] };
+  }
 }
 
 module.exports = { analisarSite, gerarLegenda };

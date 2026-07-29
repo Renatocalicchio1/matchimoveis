@@ -4050,10 +4050,13 @@ app.post('/app/posts/analisar', auth, express.json(), async (req, res) => {
     const url = String(req.body.url || '').trim();
     if (!url) return res.json({ ok: false, erro: 'Informe a URL do site.' });
     const dados = await analisarSite(url);
-    let legenda = '';
-    try { legenda = await gerarLegenda(dados); }
-    catch (e) { legenda = [dados.titulo, dados.descricao, dados.valor].filter(Boolean).join('\n'); }
-    res.json({ ok: true, ...dados, legenda });
+    let legenda = '', detalhes = [];
+    try {
+      const gerado = await gerarLegenda(dados);
+      legenda = gerado.legenda;
+      detalhes = gerado.detalhes;
+    } catch (e) { legenda = [dados.titulo, dados.descricao, dados.valor].filter(Boolean).join('\n'); }
+    res.json({ ok: true, titulo: dados.titulo, descricao: dados.descricao, valor: dados.valor, textoBruto: dados.textoBruto, imagens: dados.imagens, legenda, detalhes });
   } catch (e) {
     console.error('[posts/analisar]', e.message);
     res.json({ ok: false, erro: e.message || 'Não foi possível analisar esse site.' });
@@ -4064,9 +4067,9 @@ app.post('/app/posts/legenda', auth, express.json(), async (req, res) => {
   if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
   try {
     const { gerarLegenda } = require('./services/postsIA');
-    const { titulo, descricao, valor } = req.body;
-    const legenda = await gerarLegenda({ titulo, descricao, valor });
-    res.json({ ok: true, legenda });
+    const { titulo, descricao, valor, textoBruto } = req.body;
+    const { legenda, detalhes } = await gerarLegenda({ titulo, descricao, valor, textoBruto });
+    res.json({ ok: true, legenda, detalhes });
   } catch (e) {
     console.error('[posts/legenda]', e.message);
     res.json({ ok: false, erro: e.message || 'Não foi possível gerar a legenda.' });

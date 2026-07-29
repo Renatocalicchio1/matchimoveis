@@ -72,8 +72,9 @@ async function rodarSync() {
 function iniciarScheduler() {
   console.log('[xmlScheduler] ⏱️ XML 24h scheduler iniciado');
 
-  // roda imediatamente na inicialização
-  rodarSync();
+  // espera o servidor estabilizar (health-check responder) antes do 1º sync,
+  // em vez de rodar na hora — evita empilhar imports pesados logo após boot/restart
+  setTimeout(rodarSync, 2 * 60 * 1000);
 
   // verifica a cada 1h
   setInterval(rodarSync, 60 * 60 * 1000);

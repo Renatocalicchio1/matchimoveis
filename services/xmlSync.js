@@ -1,6 +1,23 @@
 const path = require('path');
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { execFile } = require('child_process');
+
+function rodarImportXml(url) {
+  return new Promise((resolve) => {
+    // execFile roda o import como processo filho de forma assíncrona (não trava
+    // a thread principal do servidor/health-check, diferente de execSync)
+    execFile('node', ['importXMLCompleto.js', url], {
+      cwd: path.join(__dirname, '..'),
+      timeout: 3 * 60 * 1000,
+      maxBuffer: 20 * 1024 * 1024
+    }, (err, stdout, stderr) => {
+      if (stdout) console.log(stdout.toString());
+      if (stderr) console.error(stderr.toString());
+      if (err) console.error('[xmlSync] erro ao importar', url, ':', err.message);
+      resolve();
+    });
+  });
+}
 function getDataDir() {
   return process.env.RENDER ? '/opt/render/project/src/data' : path.join(__dirname, '..');
 }
@@ -101,7 +118,7 @@ async function syncXmlFeeds() {
 
     console.log('🔄 Sincronizando XML:', feed.url);
 
-    execSync(`node importXMLCompleto.js "${feed.url}"`, { stdio: 'inherit' });
+    await rodarImportXml(feed.url);
 
     let importados = [];
     if (await dbOk()) {

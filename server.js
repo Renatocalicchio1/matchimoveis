@@ -4040,6 +4040,75 @@ app.post('/app/instagram/postar', auth, async (req,res)=>{
   }
 });
 
+// ── POSTS (MVP) ────────────────────────────────────────────────────────────
+// TEMP (jul/2026): liberado só pra REN-G9K6 pra teste — mesmo padrão usado
+// antes pro Meu Site/Instagram. Remover o gate quando liberar geral.
+function _podeUsarPosts(user) {
+  return !!user && (user.codigoUsuario || user.id) === 'REN-G9K6';
+}
+
+app.get('/app/posts', auth, (req, res) => {
+  if (!_podeUsarPosts(req.session.user)) return res.redirect('/app-home');
+  res.render('app-posts', { user: req.session.user, active: 'posts' });
+});
+
+app.post('/app/posts/analisar', auth, express.json(), async (req, res) => {
+  if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
+  try {
+    const { analisarSite, gerarLegenda } = require('./services/postsIA');
+    const url = String(req.body.url || '').trim();
+    if (!url) return res.json({ ok: false, erro: 'Informe a URL do site.' });
+    const dados = await analisarSite(url);
+    let legenda = '';
+    try { legenda = await gerarLegenda(dados); }
+    catch (e) { legenda = [dados.titulo, dados.descricao, dados.valor].filter(Boolean).join('\n'); }
+    res.json({ ok: true, ...dados, legenda });
+  } catch (e) {
+    console.error('[posts/analisar]', e.message);
+    res.json({ ok: false, erro: e.message || 'Não foi possível analisar esse site.' });
+  }
+});
+
+app.post('/app/posts/legenda', auth, express.json(), async (req, res) => {
+  if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
+  try {
+    const { gerarLegenda } = require('./services/postsIA');
+    const { titulo, descricao, valor } = req.body;
+    const legenda = await gerarLegenda({ titulo, descricao, valor });
+    res.json({ ok: true, legenda });
+  } catch (e) {
+    console.error('[posts/legenda]', e.message);
+    res.json({ ok: false, erro: e.message || 'Não foi possível gerar a legenda.' });
+  }
+});
+
+app.post('/app/posts/publicar', auth, express.json(), async (req, res) => {
+  if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
+  try {
+    const user = req.session.user;
+    if (!user.instagramToken || !user.instagramContaId) {
+      return res.status(400).json({ ok: false, erro: 'Instagram não conectado. Conecte sua conta em /app/perfil.' });
+    }
+    const { imagemUrl, legenda } = req.body;
+    if (!imagemUrl) return res.json({ ok: false, erro: 'Selecione uma imagem antes de publicar.' });
+
+    const uidLogado = user.id || user.codigoUsuario || user.codigo_usuario;
+    const _saldoPost = await saldoCreditos(uidLogado);
+    if (_saldoPost < CUSTO.postar_instagram) {
+      return res.status(400).json({ ok: false, erro: `Saldo insuficiente. Você tem ${_saldoPost} coins e precisa de ${CUSTO.postar_instagram}.` });
+    }
+
+    const { publicarFeed } = require('./services/instagram');
+    const resultado = await publicarFeed(user.instagramContaId, user.instagramToken, imagemUrl, legenda || '');
+    consumir(uidLogado, 'postar_instagram').catch(() => {});
+    res.json({ ok: true, resultado });
+  } catch (e) {
+    console.error('[posts/publicar]', e.message);
+    res.status(500).json({ ok: false, erro: e.message || 'Erro ao publicar no Instagram.' });
+  }
+});
+// ── FIM POSTS ──────────────────────────────────────────────────────────────
+
 app.post('/app/perfil/senha', auth, async (req, res) => {
   const nova_senha = (req.body.nova_senha || '').trim();
   const confirmar_senha = (req.body.confirmar_senha || '').trim();

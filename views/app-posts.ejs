@@ -1,0 +1,185 @@
+<%- include('partials/app-shell',{active:'posts',title:'Posts',subtitle:'Gere publicações para Instagram a partir do conteúdo de qualquer site.',perfil:(user && user.tipo)||'corretor',user:user}) %>
+
+<style>
+.pf-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:16px;padding:20px;margin-bottom:12px}
+.pf-card-title{font-size:15px;font-weight:500;color:#111827;margin:0 0 4px}
+.pf-card-sub{font-size:13px;color:#9ca3af;margin:0 0 16px}
+.pt-form{display:flex;gap:8px;flex-wrap:wrap}
+.pt-form input{flex:1;min-width:220px;padding:10px 14px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:14px}
+.pt-btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#FF385C;color:#fff}
+.pt-btn:hover{background:#e31c46}
+.pt-btn:disabled{opacity:.5;cursor:not-allowed}
+.pt-btn-outline{background:#fff;color:#374151;border:0.5px solid rgba(0,0,0,.12)}
+.pt-btn-outline:hover{background:#f9fafb}
+.pt-btn-teal{background:#00A699;color:#fff}
+.pt-btn-teal:hover{background:#00867d}
+.pt-msg{font-size:12.5px;margin-top:10px}
+.pt-msg.err{color:#dc2626}
+.pt-msg.ok{color:#16a34a}
+
+.pt-layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+@media(max-width:760px){.pt-layout{grid-template-columns:1fr}}
+
+.ig-preview{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff;max-width:340px}
+.ig-head{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.ig-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(45deg,#FF385C,#FC642D);flex-shrink:0}
+.ig-username{font-size:13px;font-weight:600;color:#111827}
+.ig-img-wrap{width:100%;aspect-ratio:1;background:#f3f4f6;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.ig-img-wrap img{width:100%;height:100%;object-fit:cover}
+.ig-img-empty{font-size:12px;color:#9ca3af;text-align:center;padding:20px}
+.ig-actions{display:flex;gap:14px;padding:10px 12px;color:#111827}
+.ig-caption{padding:0 12px 14px;font-size:13px;color:#111827;line-height:1.5;white-space:pre-wrap}
+.ig-caption b{font-weight:600;margin-right:4px}
+
+.pt-detalhes{font-size:12.5px;color:#6b7280;line-height:1.7}
+.pt-detalhes b{color:#111827;font-weight:600}
+.pt-acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pt-loading{display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;padding:20px 0}
+.pt-spin{width:16px;height:16px;border:2px solid #e5e7eb;border-top-color:#FF385C;border-radius:50%;animation:pt-spin .7s linear infinite}
+@keyframes pt-spin{to{transform:rotate(360deg)}}
+</style>
+
+<div class="pf-card">
+  <div class="pf-card-title">🌐 Analisar site</div>
+  <div class="pf-card-sub">Cole a URL de um site (imobiliária, concessionária, prestador de serviço etc) — a IA lê o conteúdo e monta uma sugestão de post pronta pro Instagram.</div>
+  <div class="pt-form">
+    <input type="url" id="pt-url" placeholder="https://www.exemplo.com.br" required>
+    <button type="button" class="pt-btn" id="pt-btn-analisar" onclick="analisarSite()">Analisar Site</button>
+  </div>
+  <div id="pt-msg-inicial" class="pt-msg"></div>
+</div>
+
+<div id="pt-loading" class="pf-card pt-loading" style="display:none">
+  <div class="pt-spin"></div>
+  <span id="pt-loading-txt">Lendo o site e gerando a legenda...</span>
+</div>
+
+<div id="pt-resultado" style="display:none">
+  <div class="pf-card">
+    <div class="pf-card-title">📱 Sugestão de post</div>
+    <div class="pf-card-sub">Preview aproximado de como vai ficar no Instagram.</div>
+    <div class="pt-layout">
+      <div>
+        <div class="ig-preview">
+          <div class="ig-head">
+            <div class="ig-avatar"></div>
+            <span class="ig-username"><%= (user && user.instagramUsername) ? '@'+user.instagramUsername : 'sua_conta' %></span>
+          </div>
+          <div class="ig-img-wrap" id="pt-img-wrap">
+            <div class="ig-img-empty">Nenhuma imagem encontrada nesse site.</div>
+          </div>
+          <div class="ig-actions">❤️ 💬 📤</div>
+          <div class="ig-caption"><b><%= (user && user.instagramUsername) ? user.instagramUsername : 'sua_conta' %></b><span id="pt-legenda-preview"></span></div>
+        </div>
+      </div>
+      <div>
+        <div class="pt-detalhes">
+          <div><b>Título detectado:</b> <span id="pt-titulo">—</span></div>
+          <div><b>Valor detectado:</b> <span id="pt-valor">—</span></div>
+          <div><b>Imagens encontradas:</b> <span id="pt-total-imagens">0</span></div>
+        </div>
+        <div class="pt-acoes">
+          <button type="button" class="pt-btn" onclick="publicar()" id="pt-btn-publicar">✅ Publicar</button>
+          <button type="button" class="pt-btn-outline pt-btn" onclick="novaLegenda()" id="pt-btn-legenda">✏️ Gerar nova legenda</button>
+          <button type="button" class="pt-btn-outline pt-btn" onclick="novaImagem()" id="pt-btn-imagem">🖼️ Gerar nova imagem</button>
+          <button type="button" class="pt-btn-outline pt-btn" onclick="ignorar()">🗑️ Ignorar</button>
+        </div>
+        <div id="pt-msg-resultado" class="pt-msg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let _estado = { titulo:'', descricao:'', valor:'', imagens:[], indiceImagem:0, legenda:'' };
+
+function _msg(id, texto, tipo){
+  const el = document.getElementById(id);
+  el.className = 'pt-msg' + (tipo ? ' '+tipo : '');
+  el.textContent = texto || '';
+}
+
+function _atualizarPreview(){
+  document.getElementById('pt-titulo').textContent = _estado.titulo || '—';
+  document.getElementById('pt-valor').textContent = _estado.valor || '—';
+  document.getElementById('pt-total-imagens').textContent = _estado.imagens.length;
+  document.getElementById('pt-legenda-preview').textContent = ' ' + (_estado.legenda || '');
+
+  const wrap = document.getElementById('pt-img-wrap');
+  const imgUrl = _estado.imagens[_estado.indiceImagem];
+  wrap.innerHTML = imgUrl
+    ? '<img src="'+imgUrl+'" alt="">'
+    : '<div class="ig-img-empty">Nenhuma imagem encontrada nesse site.</div>';
+}
+
+async function analisarSite(){
+  const url = document.getElementById('pt-url').value.trim();
+  if(!url){ _msg('pt-msg-inicial','Informe a URL do site.','err'); return; }
+  _msg('pt-msg-inicial','');
+  document.getElementById('pt-resultado').style.display = 'none';
+  document.getElementById('pt-loading-txt').textContent = 'Lendo o site e gerando a legenda...';
+  document.getElementById('pt-loading').style.display = 'flex';
+  document.getElementById('pt-btn-analisar').disabled = true;
+  try {
+    const r = await fetch('/app/posts/analisar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
+    const d = await r.json();
+    if(!d.ok){ _msg('pt-msg-inicial', d.erro || 'Não foi possível analisar esse site.', 'err'); return; }
+    _estado = { titulo:d.titulo||'', descricao:d.descricao||'', valor:d.valor||'', imagens:d.imagens||[], indiceImagem:0, legenda:d.legenda||'' };
+    _atualizarPreview();
+    document.getElementById('pt-resultado').style.display = 'block';
+  } catch(e) {
+    _msg('pt-msg-inicial','Erro ao analisar o site. Tente novamente.','err');
+  } finally {
+    document.getElementById('pt-loading').style.display = 'none';
+    document.getElementById('pt-btn-analisar').disabled = false;
+  }
+}
+
+async function novaLegenda(){
+  _msg('pt-msg-resultado','');
+  document.getElementById('pt-btn-legenda').disabled = true;
+  try {
+    const r = await fetch('/app/posts/legenda', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ titulo:_estado.titulo, descricao:_estado.descricao, valor:_estado.valor }) });
+    const d = await r.json();
+    if(!d.ok){ _msg('pt-msg-resultado', d.erro || 'Não foi possível gerar nova legenda.', 'err'); return; }
+    _estado.legenda = d.legenda;
+    _atualizarPreview();
+  } catch(e) {
+    _msg('pt-msg-resultado','Erro ao gerar nova legenda.','err');
+  } finally {
+    document.getElementById('pt-btn-legenda').disabled = false;
+  }
+}
+
+function novaImagem(){
+  if(!_estado.imagens.length) { _msg('pt-msg-resultado','Nenhuma outra imagem encontrada nesse site.','err'); return; }
+  _estado.indiceImagem = (_estado.indiceImagem + 1) % _estado.imagens.length;
+  _atualizarPreview();
+}
+
+async function publicar(){
+  const imagemUrl = _estado.imagens[_estado.indiceImagem];
+  if(!imagemUrl){ _msg('pt-msg-resultado','Esse post não tem imagem — não é possível publicar no Instagram.','err'); return; }
+  if(!confirm('Publicar esse post no seu Instagram agora?')) return;
+  _msg('pt-msg-resultado','');
+  document.getElementById('pt-btn-publicar').disabled = true;
+  try {
+    const r = await fetch('/app/posts/publicar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ imagemUrl, legenda:_estado.legenda }) });
+    const d = await r.json();
+    if(!d.ok){ _msg('pt-msg-resultado', d.erro || 'Não foi possível publicar.', 'err'); return; }
+    _msg('pt-msg-resultado','✅ Publicado no Instagram!','ok');
+  } catch(e) {
+    _msg('pt-msg-resultado','Erro ao publicar no Instagram.','err');
+  } finally {
+    document.getElementById('pt-btn-publicar').disabled = false;
+  }
+}
+
+function ignorar(){
+  document.getElementById('pt-resultado').style.display = 'none';
+  document.getElementById('pt-url').value = '';
+  _estado = { titulo:'', descricao:'', valor:'', imagens:[], indiceImagem:0, legenda:'' };
+}
+</script>
+
+<%- include('partials/app-end') %>

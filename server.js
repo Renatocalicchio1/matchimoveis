@@ -3426,6 +3426,7 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
       return {
         'ID imóvel': id,
         'Tipo': i.tipo || '',
+        'Transação': i.transacao || '',
         'Bairro': i.bairro || '',
         'Cidade': i.cidade || '',
         'Estado': estado,

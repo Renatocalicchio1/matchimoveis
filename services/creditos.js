@@ -124,24 +124,16 @@ async function adicionarCreditos(userId, quantidade, motivo = 'recarga') {
     });
     await salvarTodosUsuarios(users);
 
-    // salva no PostgreSQL também
+    // salva no PostgreSQL também (match_coins_total precisa ir junto, senão o %
+    // usado nos alertas de saldo fica cada vez mais impreciso conforme recarrega)
     try {
       const { query: _qCredA } = require('./db');
       await _qCredA(
-        "UPDATE usuarios SET match_coins = $1 WHERE codigo_usuario = $2",
-        [users[idx].matchCoins, userId]
+        "UPDATE usuarios SET match_coins = $1, match_coins_total = $2 WHERE codigo_usuario = $3",
+        [users[idx].matchCoins, users[idx].matchCoinsTotal, userId]
       );
       console.log('[creditos] PG adicionarCreditos:', userId, users[idx].matchCoins);
     } catch(e2) { console.error('[creditos] erro PG adicionar:', e2.message); }
-
-    // salva no PostgreSQL também
-    try {
-      const { query: _qCred } = require('./db');
-      await _qCred(
-        "UPDATE usuarios SET match_coins = $1 WHERE codigo_usuario = $2",
-        [users[idx].matchCoins, userId]
-      );
-    } catch(e2) { console.error('[creditos] erro PG consumir:', e2.message); }
 
     return true;
   } catch(e) {

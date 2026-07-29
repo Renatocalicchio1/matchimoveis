@@ -10589,8 +10589,8 @@ setInterval(async () => {
                 `UPDATE leads SET dados = jsonb_set(COALESCE(dados,'{}'), '{matchProcessado}', 'true') WHERE id=$1`,
                 [row.id]
               );
-              // Cobra lead_ativo_dia por lead processada
-              try { const { consumir: _cLD } = require('./services/creditos'); _cLD(uid, 'lead_ativo_dia').catch(()=>{}); } catch(e) {}
+              // lead_ativo_dia já é cobrado uma vez por dia por lead ativa no job
+              // dedicado (services/jobCreditos.js) — cobrar aqui também duplicava o débito.
               console.log(`[leads-dia] ✅ ${_lead.nome || row.id}`);
             } catch(e) { console.error('[leads-dia] erro lead', row.id, e.message); }
           }

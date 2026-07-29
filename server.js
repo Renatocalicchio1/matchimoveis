@@ -12356,15 +12356,17 @@ app.get('/captar/:userId', async (req, res) => {
 
 app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
   try {
-    const { transacao } = req.body;
+    const { transacao, nome, celular, email } = req.body;
     const userId = req.params.userId;
     const { salvarLead: _slIni } = require('./services/salvarLead');
+    const { salvarImovel: _siIni } = require('./services/salvarImovel');
     const { query: _qCI } = require('./services/db');
     const leadId = Date.now().toString();
     await _slIni({
       id: leadId,
-      nome: 'Captação (em andamento)',
-      telefone: '', whatsapp: '',
+      nome: nome || 'Captação (em andamento)',
+      telefone: celular || '', whatsapp: celular || '',
+      email: email || '',
       user_id: userId, userId, codigoUsuario: userId,
       origem: 'captacao_link',
       status: 'captacao',
@@ -12377,10 +12379,111 @@ app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
     // (salvarLead() aninha o objeto "dados" passado dentro da própria coluna dados)
     const _dadosIniciar = JSON.stringify({ temImovelParaCaptar: true, transacaoCaptar: transacao, iniciadoEm: new Date().toISOString() });
     await _qCI(`UPDATE leads SET dados = dados || $1::jsonb WHERE id=$2`, [_dadosIniciar, leadId]);
-    res.json({ ok: true, leadId });
+
+    // Já cadastra o imóvel automaticamente — mesmo registro que o corretor criaria manualmente
+    // em /app/cadastro, só que preenchido aos poucos pelo próprio proprietário aqui na captação.
+    // Fica como "nao_publicado" (mesmo status inicial do cadastro manual) até o corretor revisar.
+    let imovelId = '';
+    if (transacao === 'venda' || transacao === 'aluguel') {
+      const _corretorCap = (_cacheUsuarios || []).find(u => (u.codigoUsuario||u.codigo_usuario||u.id) === userId) || {};
+      imovelId = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
+      await _siIni({
+        id: imovelId,
+        idInterno: imovelId,
+        codigoImovel: imovelId,
+        transacao,
+        status: 'nao_publicado',
+        proprietario: { nome: nome||'', telefone: celular||'', celular: celular||'', email: email||'', status: 'vinculado' },
+        user_id: userId, userId, usuarioId: userId, codigoUsuario: userId,
+        usuarioNome: _corretorCap.nome || '',
+        corretorId: userId, corretorNome: _corretorCap.nome || '', corretorEmail: _corretorCap.email || '', corretorTelefone: _corretorCap.celular || _corretorCap.telefone || '',
+        source: 'captacao_publica', fonte: 'captacao_publica',
+        urlPublica: '/imovel/' + imovelId,
+        leadOrigemId: leadId
+      });
+      if (_cacheImoveis) _cacheImoveis.push({ id: imovelId, idInterno: imovelId, userId, usuarioId: userId, codigoUsuario: userId, transacao, status: 'nao_publicado' });
+    }
+
+    res.json({ ok: true, leadId, imovelId });
   } catch(e) {
     console.error('[captar/iniciar]', e.message);
     res.status(500).json({ ok: false });
+  }
+});
+
+// Salva progressivamente os dados do imóvel conforme o proprietário avança nas telas
+// da captação pública — cada tela manda o acumulado até ali, então não corre risco de
+// zerar campo já preenchido em tela anterior.
+app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
+  try {
+    const { query: _qCIS } = require('./services/db');
+    const { salvarImovel: _siSalvar, rowToImovel: _rtiSalvar, _geocodificarCep: _geoSalvar } = require('./services/salvarImovel');
+    const imovelId = req.params.imovelId;
+    const { tipo, cep, endereco, numero, complemento, bairro, cidade, estado, quartos, suites, banheiros, vagas, area_m2, valor_imovel, finalizar } = req.body;
+
+    const { rows } = await _qCIS('SELECT * FROM imoveis WHERE id=$1 LIMIT 1', [imovelId]);
+    if (!rows[0]) return res.json({ ok: false, error: 'Imóvel não encontrado' });
+    const atual = _rtiSalvar(rows[0]);
+
+    const atualizado = {
+      ...atual,
+      tipo: tipo || atual.tipo,
+      cep: cep || atual.cep,
+      endereco: endereco || atual.endereco,
+      numero: numero || atual.numero,
+      complemento: complemento || atual.complemento,
+      bairro: bairro || atual.bairro,
+      cidade: cidade || atual.cidade,
+      estado: estado || atual.estado,
+      quartos: quartos !== undefined ? (parseInt(quartos)||0) : atual.quartos,
+      suites: suites !== undefined ? (parseInt(suites)||0) : atual.suites,
+      banheiros: banheiros !== undefined ? (parseInt(banheiros)||0) : atual.banheiros,
+      vagas: vagas !== undefined ? (parseInt(vagas)||0) : atual.vagas,
+      area_m2: area_m2 !== undefined ? (parseFloat(area_m2)||0) : atual.area_m2,
+      valor_imovel: valor_imovel !== undefined ? (parseFloat(valor_imovel)||0) : atual.valor_imovel,
+    };
+    atualizado.titulo = atualizado.titulo || [atualizado.tipo, atualizado.bairro].filter(Boolean).join(' em ');
+    await _siSalvar(atualizado);
+    if (cep) _geoSalvar(cep, imovelId).catch(()=>{});
+
+    if (finalizar) {
+      try {
+        const { consumir: _consumirCad } = require('./services/creditos');
+        _consumirCad(atualizado.userId || atualizado.user_id, 'cadastrar_imovel').catch(()=>{});
+      } catch(e) {}
+      try {
+        const _corretorFin = (_cacheUsuarios || []).find(u => (u.codigoUsuario||u.codigo_usuario||u.id) === (atualizado.userId||atualizado.user_id)) || {};
+        const _nomeProp = (atualizado.proprietario && atualizado.proprietario.nome) || 'Proprietário';
+        const _msgFin = `📋 *Novo imóvel captado!*\n\n*${_nomeProp}* cadastrou um imóvel para *${atualizado.transacao}*!\n\n🏠 ${atualizado.tipo||''} — ${atualizado.bairro||''}, ${atualizado.cidade||''}\n💰 R$ ${atualizado.valor_imovel||'A definir'}\n\nComplete fotos e descrição: https://matchimoveis.ia.br/app/imovel/${imovelId}/editar`;
+        const _EK = process.env.EVOLUTION_API_KEY || 'match2025evolution';
+        const _EU = process.env.EVOLUTION_API_URL || 'https://match-evolution-api.onrender.com';
+        if (_corretorFin.whatsappInstance && (_corretorFin.whatsappNumero||_corretorFin.celular||_corretorFin.telefone)) {
+          fetch(`${_EU}/message/sendText/${_corretorFin.whatsappInstance}`, {
+            method:'POST', headers:{'Content-Type':'application/json','apikey':_EK},
+            body: JSON.stringify({ number: '55'+(_corretorFin.whatsappNumero||_corretorFin.celular||_corretorFin.telefone||'').replace(/\D/g,'').replace(/^55/,''), text:_msgFin })
+          }).catch(()=>{});
+        }
+        if (_corretorFin.email) {
+          const { enviarEmail } = require('./services/email');
+          enviarEmail({ para: _corretorFin.email, assunto: '📋 Novo imóvel captado — MatchImóveis', html: '<div style="font-family:Arial,sans-serif;padding:32px"><h2 style="color:#FF385C">📋 Novo imóvel captado!</h2><p><strong>'+_nomeProp+'</strong> cadastrou um imóvel para '+atualizado.transacao+'</p><p>🏠 '+(atualizado.tipo||'')+' | 📍 '+(atualizado.bairro||'')+', '+(atualizado.cidade||'')+'</p><a href="https://matchimoveis.ia.br/app/imovel/'+imovelId+'/editar" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Completar cadastro →</a></div>', texto: _msgFin }).catch(()=>{});
+        }
+        criarNotificacaoService({
+          id: Date.now().toString() + '_captacao_imovel',
+          tipo: 'captacao',
+          titulo: 'Novo imóvel captado',
+          mensagem: _nomeProp + ' cadastrou um imóvel para ' + atualizado.transacao + ' (' + (atualizado.tipo||'') + ' — ' + (atualizado.bairro||'sem bairro') + ')',
+          usuarioId: atualizado.userId || atualizado.user_id,
+          imovelId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+      } catch(e) { console.error('[captar/imovel] notificação:', e.message); }
+    }
+
+    res.json({ ok: true });
+  } catch(e) {
+    console.error('[captar/imovel]', e.message);
+    res.json({ ok: false, error: e.message });
   }
 });
 

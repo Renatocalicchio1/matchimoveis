@@ -8,49 +8,71 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#f9fafb;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
 .card{background:#fff;border-radius:16px;padding:32px;max-width:480px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08)}
-.logo{color:#FF385C;font-size:22px;font-weight:800;margin-bottom:24px}
+.top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.logo{color:#FF385C;font-size:22px;font-weight:800}
+.dots{display:flex;gap:6px}
+.dots span{width:7px;height:7px;border-radius:50%;background:#e5e7eb}
+.dots span.on{background:#FF385C}
+.dots span.done{background:#00A699}
 h2{font-size:18px;font-weight:700;margin-bottom:8px}
-p{font-size:14px;color:#6b7280;margin-bottom:24px}
-.btn-group{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+p.sub{font-size:14px;color:#6b7280;margin-bottom:24px}
+.btn-group{display:flex;flex-direction:column;gap:12px;margin-bottom:8px}
 .btn-op{padding:16px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;font-size:15px;font-weight:600;cursor:pointer;text-align:left;transition:all .15s}
 .btn-op:hover{border-color:#FF385C;background:#fff5f6}
 .btn-op.selected{border-color:#FF385C;background:#fff5f6}
+.btn-op[disabled]{opacity:.45;cursor:not-allowed}
 .form-group{margin-bottom:16px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row.cep-row{grid-template-columns:1fr auto}
 label{font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:6px}
-input,select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px}
+input,select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit}
+input:focus,select:focus{outline:none;border-color:#FF385C}
+.btn-cep{padding:0 16px;border-radius:8px;border:1.5px solid #e5e7eb;background:#f9fafb;font-size:13px;font-weight:700;color:#374151;cursor:pointer;white-space:nowrap}
+.btn-cep:hover{border-color:#FF385C;color:#FF385C}
+.btn-cep[disabled]{opacity:.5;cursor:not-allowed}
+.cep-msg{font-size:12px;margin-top:-10px;margin-bottom:14px}
+.cep-msg.err{color:#dc2626}
+.cep-msg.ok{color:#00847a}
+.hint{font-size:12px;color:#9ca3af;margin-top:-10px;margin-bottom:16px}
 .btn-submit{width:100%;padding:14px;background:#FF385C;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+.btn-submit[disabled]{opacity:.5;cursor:not-allowed}
+.btn-voltar{width:100%;padding:10px;background:transparent;color:#6b7280;border:none;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px}
 .sucesso{text-align:center;padding:40px 0}
 .sucesso .icon{font-size:48px;margin-bottom:16px}
 </style>
 </head>
 <body>
 <div class="card">
-  <div class="logo">MatchImóveis</div>
+
+  <!-- TELA 1 — identificação + intenção -->
   <div id="step1">
+    <div class="top-row"><div class="logo">MatchImóveis</div></div>
     <h2>Você tem imóvel para vender ou alugar?</h2>
-    <p>Selecione uma opção abaixo e nos conte mais sobre seu imóvel.</p>
-    <div class="btn-group">
-      <button class="btn-op" onclick="selecionar('venda')">🏠 Tenho imóvel para <strong>vender</strong></button>
-      <button class="btn-op" onclick="selecionar('aluguel')">🔑 Tenho imóvel para <strong>alugar</strong></button>
-      <button class="btn-op" onclick="selecionar('nao')">❌ Não tenho imóvel para oferecer</button>
-    </div>
-  </div>
-  <div id="step2" style="display:none">
-    <h2>Dados do seu imóvel</h2>
-    <p>Preencha as informações básicas e seu corretor entrará em contato.</p>
-    <% if(!leadId || leadId === userId) { %>
+    <p class="sub">Conta pra gente quem é você e o que você tem — seu corretor recebe na hora.</p>
     <div class="form-group">
       <label>Seu nome</label>
-      <input type="text" id="nome" placeholder="Nome completo">
+      <input type="text" id="s1-nome" placeholder="Nome completo">
     </div>
-    <div class="form-group">
-      <label>Seu celular</label>
-      <input type="text" id="celular" placeholder="Ex: 11999999999">
+    <div class="form-row">
+      <div class="form-group"><label>Seu celular</label><input type="text" id="s1-celular" placeholder="Ex: 11999999999"></div>
+      <div class="form-group"><label>Email (opcional)</label><input type="email" id="s1-email" placeholder="voce@email.com"></div>
     </div>
-    <% } %>
+    <div class="btn-group">
+      <button class="btn-op" id="btn-venda" onclick="selecionar('venda')">🏠 Tenho imóvel para <strong>vender</strong></button>
+      <button class="btn-op" id="btn-aluguel" onclick="selecionar('aluguel')">🔑 Tenho imóvel para <strong>alugar</strong></button>
+      <button class="btn-op" id="btn-nao" onclick="selecionar('nao')">❌ Não tenho imóvel para oferecer</button>
+    </div>
+    <div id="step1-msg" class="cep-msg err"></div>
+  </div>
+
+  <!-- TELA 2 — tipo + endereço via CEP -->
+  <div id="step2" style="display:none">
+    <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="on"></span><span></span><span></span></div></div>
+    <h2>Onde fica o imóvel?</h2>
+    <p class="sub">Preenchemos o endereço automático a partir do CEP.</p>
     <div class="form-group">
       <label>Tipo de imóvel</label>
-      <select id="tipo">
+      <select id="s2-tipo">
         <option value="">Selecione...</option>
         <option>Apartamento</option>
         <option>Casa</option>
@@ -60,68 +82,189 @@ input,select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radi
         <option>Outro</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>Endereço / Bairro / Cidade</label>
-      <input type="text" id="endereco" placeholder="Ex: Rua das Flores, 123 - Jardim Paulista, SP">
+    <div class="form-row cep-row">
+      <div class="form-group"><label>CEP</label><input type="text" id="s2-cep" placeholder="00000-000" maxlength="9"></div>
+      <button type="button" class="btn-cep" id="btn-buscar-cep" onclick="buscarCep()" style="margin-top:22px">🔍 Buscar</button>
     </div>
-    <div class="form-group">
-      <label>Valor pretendido (R$)</label>
-      <input type="text" id="valor" placeholder="Ex: 350000">
+    <div id="cep-msg" class="cep-msg"></div>
+    <div id="cep-resultado" style="display:none">
+      <div class="form-group"><label>Rua</label><input type="text" id="s2-rua"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Bairro</label><input type="text" id="s2-bairro"></div>
+        <div class="form-group"><label>Cidade / UF</label><input type="text" id="s2-cidade-uf"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Número</label><input type="text" id="s2-numero" placeholder="Ex: 123"></div>
+        <div class="form-group"><label>Complemento</label><input type="text" id="s2-complemento" placeholder="Opcional"></div>
+      </div>
     </div>
-    <button class="btn-submit" onclick="enviar()">Enviar informações →</button>
+    <button class="btn-submit" id="btn-step2-continuar" onclick="continuarStep2()" disabled>Continuar →</button>
   </div>
-  <div id="step3" style="display:none" class="sucesso">
+
+  <!-- TELA 3 — cômodos e área -->
+  <div id="step3" style="display:none">
+    <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="done"></span><span class="on"></span><span></span></div></div>
+    <h2>Um pouco mais sobre o imóvel</h2>
+    <p class="sub">Se não souber algum número exato, pode deixar em branco.</p>
+    <div class="form-row">
+      <div class="form-group"><label>Quartos</label><input type="number" id="s3-quartos" min="0" placeholder="0"></div>
+      <div class="form-group"><label>Suítes</label><input type="number" id="s3-suites" min="0" placeholder="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Banheiros</label><input type="number" id="s3-banheiros" min="0" placeholder="0"></div>
+      <div class="form-group"><label>Vagas</label><input type="number" id="s3-vagas" min="0" placeholder="0"></div>
+    </div>
+    <div class="form-group"><label>Área (m²)</label><input type="number" id="s3-area" min="0" placeholder="Ex: 80"></div>
+    <button class="btn-submit" onclick="continuarStep3()">Continuar →</button>
+  </div>
+
+  <!-- TELA 4 — valor -->
+  <div id="step4" style="display:none">
+    <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="on"></span></div></div>
+    <h2>Qual o valor pretendido?</h2>
+    <p class="sub">Última etapa — seu corretor entrará em contato pra completar fotos e detalhes.</p>
+    <div class="form-group"><label>Valor pretendido (R$)</label><input type="text" id="s4-valor" placeholder="Ex: 350000"></div>
+    <button class="btn-submit" onclick="enviarFinal()">Enviar informações →</button>
+  </div>
+
+  <!-- TELA 5 — sucesso -->
+  <div id="step5" style="display:none" class="sucesso">
     <div class="icon">✅</div>
     <h2>Recebemos suas informações!</h2>
-    <p style="margin-top:8px">Seu corretor entrará em contato em breve.</p>
+    <p style="margin-top:8px;color:#6b7280">Seu corretor já recebeu seu imóvel e entrará em contato em breve pra completar o cadastro.</p>
   </div>
+
 </div>
 <script>
-let _transacao = '';
-let _leadIdCriado = '';
-const leadId = '<%= leadId %>';
 const userId = '<%= userId %>';
-const _destino = leadId && leadId !== userId ? leadId : userId;
+const leadIdInicial = '<%= leadId %>';
+const _destino = leadIdInicial && leadIdInicial !== userId ? leadIdInicial : userId;
+
+let _transacao = '';
+let _leadId = '';
+let _imovelId = '';
+
+function mostrar(id){
+  ['step1','step2','step3','step4','step5'].forEach(s => document.getElementById(s).style.display = (s===id ? 'block' : 'none'));
+}
 
 async function selecionar(op){
+  const nome = document.getElementById('s1-nome').value.trim();
+  const celular = document.getElementById('s1-celular').value.trim();
+  const email = document.getElementById('s1-email').value.trim();
+  const celularLimpo = celular.replace(/\D/g,'');
+  const msg = document.getElementById('step1-msg');
+  msg.textContent = '';
+
   if(op === 'nao'){
     fetch('/captar/nao/'+_destino, {method:'POST'}).catch(()=>{});
-    document.getElementById('step1').style.display='none';
-    document.getElementById('step3').style.display='block';
+    mostrar('step5');
+    document.querySelector('#step5 h2').textContent = 'Tudo bem!';
+    document.querySelector('#step5 p').textContent = 'Obrigado por avisar. Se mudar de ideia, é só voltar nesse link.';
     return;
   }
+
+  if(!nome || nome.length < 3){ msg.textContent = 'Digite seu nome completo'; return; }
+  if(!celular || celularLimpo.length < 10 || celularLimpo.length > 11){ msg.textContent = 'Celular inválido. Use o formato: 11999999999'; return; }
+
   _transacao = op;
-  document.querySelectorAll('.btn-op').forEach(b=>b.classList.remove('selected'));
-  event.target.closest('.btn-op').classList.add('selected');
-  // Já gera a lead aqui — se o cliente abandonar antes de terminar o formulário,
-  // o corretor ainda vê que alguém demonstrou interesse em vender/alugar.
+  document.querySelectorAll('.btn-op').forEach(b=>b.setAttribute('disabled','disabled'));
+
   try {
     const r = await fetch('/captar/iniciar/'+_destino, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({transacao: op})
+      body: JSON.stringify({ transacao: op, nome, celular, email })
     });
     const d = await r.json();
-    if(d.ok && d.leadId) _leadIdCriado = d.leadId;
-  } catch(e) {}
-  setTimeout(()=>{
-    document.getElementById('step1').style.display='none';
-    document.getElementById('step2').style.display='block';
-  }, 300);
+    if(!d.ok){ msg.textContent = 'Erro ao enviar, tenta de novo.'; document.querySelectorAll('.btn-op').forEach(b=>b.removeAttribute('disabled')); return; }
+    _leadId = d.leadId;
+    _imovelId = d.imovelId;
+    mostrar('step2');
+  } catch(e) {
+    msg.textContent = 'Erro ao enviar, tenta de novo.';
+    document.querySelectorAll('.btn-op').forEach(b=>b.removeAttribute('disabled'));
+  }
 }
 
-async function enviar(){
-  const tipo = document.getElementById('tipo').value;
-  const endereco = document.getElementById('endereco').value;
-  const valor = document.getElementById('valor').value;
-  if(!tipo || !endereco){ alert('Preencha o tipo e o endereço'); return; }
-  await fetch('/captar/salvar/'+_destino, {
+document.getElementById('s2-cep').addEventListener('input', function(){
+  this.value = this.value.replace(/\D/g,'').replace(/^(\d{5})(\d)/,'$1-$2').slice(0,9);
+});
+
+async function buscarCep(){
+  const cepLimpo = document.getElementById('s2-cep').value.replace(/\D/g,'');
+  const cepMsg = document.getElementById('cep-msg');
+  const btn = document.getElementById('btn-buscar-cep');
+  cepMsg.className = 'cep-msg';
+  cepMsg.textContent = '';
+  if(cepLimpo.length !== 8){ cepMsg.className = 'cep-msg err'; cepMsg.textContent = 'CEP inválido'; return; }
+  btn.setAttribute('disabled','disabled');
+  btn.textContent = 'Buscando...';
+  try {
+    const r = await fetch('https://viacep.com.br/ws/'+cepLimpo+'/json/');
+    const d = await r.json();
+    if(d.erro){ cepMsg.className = 'cep-msg err'; cepMsg.textContent = 'CEP não encontrado — confira e tente de novo.'; return; }
+    document.getElementById('s2-rua').value = d.logradouro || '';
+    document.getElementById('s2-bairro').value = d.bairro || '';
+    document.getElementById('s2-cidade-uf').value = (d.localidade||'') + (d.uf ? ' / '+d.uf : '');
+    document.getElementById('cep-resultado').style.display = 'block';
+    cepMsg.className = 'cep-msg ok';
+    cepMsg.textContent = '✓ Endereço encontrado — confira e complete o número.';
+    document.getElementById('btn-step2-continuar').removeAttribute('disabled');
+  } catch(e) {
+    cepMsg.className = 'cep-msg err';
+    cepMsg.textContent = 'Não conseguimos buscar o CEP agora. Tente de novo.';
+  } finally {
+    btn.removeAttribute('disabled');
+    btn.textContent = '🔍 Buscar';
+  }
+}
+
+async function continuarStep2(){
+  const tipo = document.getElementById('s2-tipo').value;
+  const cep = document.getElementById('s2-cep').value.replace(/\D/g,'');
+  const endereco = document.getElementById('s2-rua').value.trim();
+  const bairro = document.getElementById('s2-bairro').value.trim();
+  const cidadeUf = document.getElementById('s2-cidade-uf').value.split('/');
+  const cidade = (cidadeUf[0]||'').trim();
+  const estado = (cidadeUf[1]||'').trim();
+  const numero = document.getElementById('s2-numero').value.trim();
+  const complemento = document.getElementById('s2-complemento').value.trim();
+
+  if(!tipo){ alert('Selecione o tipo de imóvel'); return; }
+  if(!numero){ alert('Preencha o número'); return; }
+
+  await fetch('/captar/imovel/'+_imovelId, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({transacao:_transacao, tipo, endereco, valor, nome: document.getElementById('nome')?.value||'', celular: document.getElementById('celular')?.value||'', leadId: _leadIdCriado})
+    body: JSON.stringify({ userId, tipo, cep, endereco, numero, complemento, bairro, cidade, estado })
   }).catch(()=>{});
-  document.getElementById('step2').style.display='none';
-  document.getElementById('step3').style.display='block';
+  mostrar('step3');
+}
+
+async function continuarStep3(){
+  const quartos = document.getElementById('s3-quartos').value;
+  const suites = document.getElementById('s3-suites').value;
+  const banheiros = document.getElementById('s3-banheiros').value;
+  const vagas = document.getElementById('s3-vagas').value;
+  const area_m2 = document.getElementById('s3-area').value;
+
+  await fetch('/captar/imovel/'+_imovelId, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ userId, quartos, suites, banheiros, vagas, area_m2 })
+  }).catch(()=>{});
+  mostrar('step4');
+}
+
+async function enviarFinal(){
+  const valor_imovel = document.getElementById('s4-valor').value.replace(/\D/g,'');
+  await fetch('/captar/imovel/'+_imovelId, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ userId, valor_imovel, finalizar: true })
+  }).catch(()=>{});
+  mostrar('step5');
 }
 </script>
 </body>

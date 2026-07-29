@@ -63,7 +63,7 @@ async function run() {
     const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
 
     // Buscar leads existentes do usuário
-    const res = await _q('SELECT dados FROM leads WHERE user_id = $1', [userId]);
+    const res = await _q('SELECT dados FROM leads WHERE user_id = $1 OR codigo_usuario = $1', [userId]);
     const existentes = res.rows.map(r => r.dados);
 
     const novas = [];

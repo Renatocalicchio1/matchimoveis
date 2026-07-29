@@ -2000,18 +2000,8 @@ app.post('/app/leads', upload.any(), async (req, res) => {
     const { dispararWorkerLeads: _dwL2 } = require('./services/workerDispatch');
     const _jobIdL2 = await _cjL2('csv', userId, file.path);
     _dwL2(_jobIdL2, file.path, userId);
-    // Cobra importar_lead — diferenca de leads antes e depois
-    try {
-      const { query: _qD } = require('./services/db');
-      const _antesR = await _qD('SELECT COUNT(*) as total FROM leads WHERE user_id=$1', [_userId]);
-      const _antes = parseInt(_antesR.rows[0]?.total || 0);
-      const _depoisR = await _qD('SELECT COUNT(*) as total FROM leads WHERE user_id=$1', [_userId]);
-      const _depois = parseInt(_depoisR.rows[0]?.total || 0);
-      const _novas = Math.max(0, _depois - _antes);
-      const { consumir: _consumirImp } = require('./services/creditos');
-      for (let _ii = 0; _ii < _novas; _ii++) { await _consumirImp(_userId, 'importar_lead'); }
-      console.log('[creditos] importar_lead:', _novas, 'leads novas debitadas');
-    } catch(e) { console.error('[creditos-import]', e.message); }
+    // Nota: importar_lead já é cobrado dentro de processLeads.js (uma vez por lead
+    // nova de verdade, deduplicada) — o worker roda esse script via execSync.
 
     // Reprocessar match — igual à rota /app/lead/:id/perfil
     setImmediate(async () => {

@@ -6632,14 +6632,18 @@ app.post('/api/lead-interesse', async (req, res) => {
       String(l.imovel_interesse || '') === String(imovelId)
     );
 
+    const _baseLI = process.env.RENDER ? 'https://matchimoveis.ia.br' : 'http://localhost:3000';
+    const _intencaoLI = imovelRef.transacao === 'venda' ? 'comprar' : imovelRef.transacao === 'aluguel' ? 'alugar' : '';
+
     const leadPayload = {
       nome,
       contato: celular,
       telefone: celular,
       fonte: 'MatchImóveis',
-      origem: 'pagina_externa_imovel', extractionStatus: 'ok',
+      origem: 'MatchImóveis', extractionStatus: 'ok',
       canal: 'WhatsApp',
       imovel_interesse: imovelId,
+      idAnuncio: imovelId,
       titulo_interesse: imovelTitulo || imovelRef.titulo || '',
       tipo: imovelRef.tipo || '',
       bairro: imovelRef.bairro || '',
@@ -6651,7 +6655,21 @@ app.post('/api/lead-interesse', async (req, res) => {
       suites: imovelRef.suites || 0,
       banheiros: imovelRef.banheiros || 0,
       vagas: imovelRef.vagas || 0,
-      url: 'http://localhost:3000/imovel/' + imovelId,
+      perfilIA: {
+        tipo: imovelRef.tipo || '',
+        intencao: _intencaoLI,
+        bairro: imovelRef.bairro || '',
+        cidade: imovelRef.cidade || 'São Paulo',
+        estado: imovelRef.estado || 'SP',
+        quartos: imovelRef.quartos || '',
+        suites: imovelRef.suites || '',
+        vagas: imovelRef.vagas || '',
+        banheiros: imovelRef.banheiros || '',
+        area: imovelRef.area_m2 || '',
+        valorMax: imovelRef.valor_imovel || 0,
+        valorMin: 0,
+      },
+      url: _baseLI + '/imovel/' + imovelId,
 
       // Lead pertence ao dono do imóvel
       usuarioId: usuarioDestinoId,

@@ -3024,6 +3024,10 @@ function lerImoveis(user) {
   );
 }
 // Cache em memória — sincronizado com PostgreSQL
+// Full reload (não incremental): leads tem ~20 pontos no server.js que fazem
+// UPDATE direto na tabela sem tocar em atualizado_em (ex: workflow de visita,
+// captação, tipo_lead) — um cache incremental baseado nesse campo ficaria
+// desatualizado nesses casos. Intervalo alongado pra reduzir carga no PG.
 let _cacheLeads = null;
 let _cacheLeadsAt = 0;
 async function _recarregarLeads() {
@@ -3035,7 +3039,7 @@ async function _recarregarLeads() {
     if (!_cacheLeads) _cacheLeads = (_cacheLeads || []);
   }
 }
-setTimeout(() => { _recarregarLeads(); setInterval(_recarregarLeads, 15000); }, 0);
+setTimeout(() => { _recarregarLeads(); setInterval(_recarregarLeads, 30000); }, 0);
 
 
 // Cache imóveis em memória

@@ -6976,8 +6976,6 @@ function _pagina404Site(res, opts) {
 // siteBasePath: '' quando servido por domínio próprio (raiz), '/site/:codigoUsuario' quando servido pelo path da plataforma
 async function _handlerSitePublico(req, res, codigoUsuario, siteBasePath) {
   try {
-    // TEMP (jul/2026): ver _MEU_SITE_LIBERADO_PARA — remover junto quando liberar geral
-    if (codigoUsuario !== _MEU_SITE_LIBERADO_PARA) return _pagina404Site(res, { titulo: 'Site não encontrado', mensagem: 'Este site não existe ou não está mais disponível.' });
     const corretor = _resolverCorretorPublico(codigoUsuario);
     if (!corretor) return _pagina404Site(res, { titulo: 'Site não encontrado', mensagem: 'Este site não existe ou não está mais disponível.' });
 
@@ -7003,8 +7001,6 @@ async function _handlerSitePublico(req, res, codigoUsuario, siteBasePath) {
 
 async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, siteBasePath) {
   try {
-    // TEMP (jul/2026): ver _MEU_SITE_LIBERADO_PARA — remover junto quando liberar geral
-    if (codigoUsuario !== _MEU_SITE_LIBERADO_PARA) return _pagina404Site(res, { titulo: 'Site não encontrado', mensagem: 'Este site não existe ou não está mais disponível.' });
     const corretor = _resolverCorretorPublico(codigoUsuario);
     if (!corretor) return _pagina404Site(res, { titulo: 'Site não encontrado', mensagem: 'Este site não existe ou não está mais disponível.' });
 
@@ -7039,7 +7035,6 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
 
 async function _handlerSiteSitemap(req, res, codigoUsuario, origem) {
   try {
-    if (codigoUsuario !== _MEU_SITE_LIBERADO_PARA) return res.status(404).send('Site não encontrado');
     const corretor = _resolverCorretorPublico(codigoUsuario);
     if (!corretor) return res.status(404).send('Site não encontrado');
     const base = origem.replace(/\/$/, '');

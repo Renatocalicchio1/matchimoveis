@@ -1,12 +1,15 @@
 const { enviarEmail } = require('./email');
 const { query } = require('./db');
+const { lerImoveis } = require('./salvarImovel');
+const { lerLeads } = require('./salvarLead');
+const { lerVisitas } = require('./salvarVisita');
 
 const BASE_URL = 'https://matchimoveis.ia.br';
 
 async function enviarEmailResumo() {
   try {
     const { rows: usuarios } = await query(
-      `SELECT codigo_usuario, nome, email, whatsapp_status, whatsapp_instance 
+      `SELECT codigo_usuario, nome, email, whatsapp_status, whatsapp_instance
        FROM usuarios WHERE email IS NOT NULL AND email != '' AND ativo = true`
     );
 
@@ -15,31 +18,29 @@ async function enviarEmailResumo() {
     for (const u of usuarios) {
       try {
         const uid = u.codigo_usuario;
+        const tresDiasAtras = Date.now() - 3 * 24 * 60 * 60 * 1000;
 
-        // Imóveis
-        const { rows: imoveis } = await query(
-          `SELECT status, COUNT(*) as total FROM imoveis WHERE user_id=$1 GROUP BY status`, [uid]
-        );
-        const ativos = parseInt((imoveis.find(i=>i.status==='ativo')||{}).total||0);
-        const inativos = parseInt((imoveis.find(i=>i.status==='inativo')||{}).total||0);
+        // Imóveis — mesmo fallback de dono (user_id/usuario_id/codigo_usuario/corretor_id)
+        // usado em todo o resto da plataforma (lerImoveis), não só user_id
+        const imoveisDoUsuario = await lerImoveis(uid);
+        const ativos = imoveisDoUsuario.filter(i => i.status === 'ativo').length;
+        const inativos = imoveisDoUsuario.length - ativos; // qualquer status != ativo (inativo, nao_publicado, etc)
 
-        // Leads últimos 3 dias
-        const { rows: leadsR } = await query(
-          `SELECT COUNT(*) as total FROM leads WHERE user_id=$1 AND criado_em > NOW() - INTERVAL '3 days'`, [uid]
-        );
-        const leads = parseInt(leadsR[0]?.total||0);
+        // Leads — mesma regra do /app-home e /app/leads: lead oculta de WhatsApp sem
+        // match ainda não conta (ainda não foi revelada pro corretor no sistema)
+        const leadsDoUsuario = await lerLeads(uid);
+        const leadsVisiveis = leadsDoUsuario.filter(l => !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length)));
+        const leads = leadsVisiveis.filter(l => new Date(l.criadoEm || l.data_cadastro || 0).getTime() >= tresDiasAtras).length;
 
-        // Matches últimos 3 dias
-        const { rows: matchesR } = await query(
-          `SELECT COUNT(*) as total FROM leads WHERE user_id=$1 AND matches_auto IS NOT NULL AND array_length(matches_auto::json::text::varchar[], 1) > 0 AND atualizado_em > NOW() - INTERVAL '3 days'`, [uid]
-        ).catch(()=>({rows:[{total:0}]}));
-        const matches = parseInt(matchesR[0]?.total||0);
+        // Matches — mesma definição do /app-home (matches + matchesBase), não matches_auto
+        const matches = leadsVisiveis.filter(l => {
+          const temMatch = (l.matches && l.matches.length > 0) || (l.matchesBase && l.matchesBase.length > 0);
+          return temMatch && new Date(l.criadoEm || l.data_cadastro || 0).getTime() >= tresDiasAtras;
+        }).length;
 
-        // Visitas últimos 3 dias
-        const { rows: visitasR } = await query(
-          `SELECT COUNT(*) as total FROM visitas WHERE user_id=$1 AND criado_em > NOW() - INTERVAL '3 days'`, [uid]
-        );
-        const visitas = parseInt(visitasR[0]?.total||0);
+        // Visitas — mesmo fallback de dono usado em lerVisitas (user_id/owner_user_id/corretor_id)
+        const visitasDoUsuario = await lerVisitas(uid);
+        const visitas = visitasDoUsuario.filter(v => new Date(v.data || v.createdAt || 0).getTime() >= tresDiasAtras).length;
 
         const waStatus = u.whatsapp_status === 'open' ? '✅ Conectado' : '❌ Desconectado';
         const waAlerta = u.whatsapp_status !== 'open' ? `<p style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px;color:#dc2626">⚠️ Seu WhatsApp está desconectado! <a href="${BASE_URL}/app/perfil" style="color:#dc2626;font-weight:bold">Reconectar →</a></p>` : '';

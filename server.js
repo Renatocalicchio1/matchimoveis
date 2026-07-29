@@ -1118,7 +1118,7 @@ app.get('/app/parceria-quintoandar', auth, async (req, res) => {
       {e:'para',c:'belem'},{e:'amazonas',c:'manaus'}
     ];
     const _isQAp = (e,c) => _cidadesQAp.some(x => x.e===_normEstadoP(e) && x.c===_normP(c));
-    const _imoveisUser = await _qQAP("SELECT estado, cidade, cep, endereco, numero, proprietario FROM imoveis WHERE user_id=$1 AND status='ativo' AND transacao='venda'", [uid]);
+    const _imoveisUser = await _qQAP("SELECT estado, cidade, cep, endereco, numero, proprietario FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND status='ativo' AND transacao='venda'", [uid]);
     const _emCidadeQA = _imoveisUser.rows.filter(r => _isQAp(r.estado||'', r.cidade||''));
     const _totalQA = _emCidadeQA.filter(r => {
       const prop = r.proprietario || {};
@@ -3728,7 +3728,7 @@ app.get('/app/perfil', auth, async (req,res)=>{
       {e:'para',c:'belem'},{e:'amazonas',c:'manaus'}
     ];
     const _isQAp = (e,c) => _cidadesQAp.some(x => x.e===_normEstadoP(e) && x.c===_normP(c));
-    const _imoveisUser = await _qPerfil("SELECT estado, cidade, cep, endereco, numero, proprietario FROM imoveis WHERE user_id=$1 AND status='ativo' AND transacao='venda'", [uid]);
+    const _imoveisUser = await _qPerfil("SELECT estado, cidade, cep, endereco, numero, proprietario FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND status='ativo' AND transacao='venda'", [uid]);
     const _emCidadeQA = _imoveisUser.rows.filter(r => _isQAp(r.estado||'', r.cidade||''));
     const _totalQA = _emCidadeQA.filter(r => {
       const prop = r.proprietario || {};
@@ -7175,7 +7175,7 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     const conds = []; const pars = [uid];
     if(_tel){ pars.push('%'+_tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
     if(_email){ pars.push(_email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
-    if(conds.length){ const _r = await _qIR(`SELECT id,id_interno,titulo,tipo,bairro,cidade,valor_imovel,transacao,status FROM imoveis WHERE user_id=$1 AND (${conds.join(' OR ')}) LIMIT 10`, pars); imoveisRelacionados = _r.rows; }
+    if(conds.length){ const _r = await _qIR(`SELECT id,id_interno,titulo,tipo,bairro,cidade,valor_imovel,transacao,status FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')}) LIMIT 10`, pars); imoveisRelacionados = _r.rows; }
   } catch(_eIR){}
 
   // Se perfilIA vazio mas mapaIntencao preenchido — converte para perfilIA
@@ -10069,7 +10069,7 @@ app.get('/api/leads/status-hash', auth, async (req, res) => {
   try {
     const { query: _qHash } = require('./services/db');
     const r = await _qHash(
-      "SELECT COUNT(*) as total, MAX(atualizado_em) as ultima FROM leads WHERE user_id=$1",
+      "SELECT COUNT(*) as total, MAX(atualizado_em) as ultima FROM leads WHERE user_id=$1 OR codigo_usuario=$1",
       [req.session.user.id]
     );
     const { total, ultima } = r.rows[0];
@@ -12406,7 +12406,7 @@ app.get('/app/captacao', auth, async (req, res) => {
       if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
       let imoveis = [];
       if(conds.length){
-        const ir = await require('./services/db').query(`SELECT id,id_interno,titulo,tipo,bairro,cidade,valor_imovel,transacao FROM imoveis WHERE user_id=$1 AND (${conds.join(' OR ')}) LIMIT 5`, pars);
+        const ir = await require('./services/db').query(`SELECT id,id_interno,titulo,tipo,bairro,cidade,valor_imovel,transacao FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')}) LIMIT 5`, pars);
         imoveis = ir.rows;
       }
       return { ...l, imoveisRelacionados: imoveis };
@@ -12651,7 +12651,7 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
     let imoveis = [];
     if(conditions.length > 0){
       const imR = await _qCM(
-        `SELECT id, id_interno, titulo, tipo, bairro, cidade, valor_imovel, transacao FROM imoveis WHERE user_id=$1 AND status='ativo' AND (${conditions.join(' OR ')}) LIMIT 10`,
+        `SELECT id, id_interno, titulo, tipo, bairro, cidade, valor_imovel, transacao FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND status='ativo' AND (${conditions.join(' OR ')}) LIMIT 10`,
         params
       );
       imoveis = imR.rows;

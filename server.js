@@ -6268,7 +6268,15 @@ const _httpServer = app.listen(process.env.PORT || 3000, () => {
   try {
     const { iniciarScheduler } = require('./services/xmlScheduler'); iniciarScheduler();
     const { iniciarJobCreditos } = require('./services/jobCreditos'); iniciarJobCreditos();
-    const { iniciarBackup } = require('./services/backup'); iniciarBackup();
+    // DESATIVADO (jul/2026): fazerBackup() faz "SELECT *" de leads/visitas/usuarios/
+    // imoveis/notificacoes inteiros a cada 1 minuto e monta tudo num JSON.stringify só
+    // — com a base atual isso estoura o heap do processo (FATAL ERROR: JavaScript heap
+    // out of memory, visto nos logs do Render). listarBackups()/restaurarBackup() não
+    // são chamados por nenhuma rota hoje (não tem UI usando isso), e já existe backup
+    // de verdade via pg_dump horário + on push (GitHub Actions) — reativar isso exige
+    // antes reescrever fazerBackup() pra não segurar as 5 tabelas inteiras em memória
+    // de uma vez, e rodar bem menos que 1x/min.
+    // const { iniciarBackup } = require('./services/backup'); iniciarBackup();
     const { iniciarMonitor } = require('./services/monitor'); iniciarMonitor();
   } catch(e) {
     console.error('[server] Erro ao iniciar autoUpdateXML:', e.message);

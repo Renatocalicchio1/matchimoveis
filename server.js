@@ -3789,15 +3789,6 @@ app.post('/app/perfil', auth, async (req,res)=>{
 const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '' };
 const _DOMINIO_REGEX = /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
 
-// TEMP (jul/2026): Meu Site liberado só pra REN-G9K6 até ajustar Cloudflare/domínio próprio.
-// Remover esse middleware (e o if equivalente em views/partials/app-shell.ejs) quando liberar geral.
-const _MEU_SITE_LIBERADO_PARA = 'REN-G9K6';
-app.use('/app/meu-site', auth, (req, res, next) => {
-  const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
-  if (uid !== _MEU_SITE_LIBERADO_PARA) return res.redirect('/app-home');
-  next();
-});
-
 app.get('/app/meu-site', auth, async (req, res) => {
   try {
     const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;

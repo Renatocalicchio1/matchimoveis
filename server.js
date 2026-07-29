@@ -3420,7 +3420,8 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
       const estado = typeof i.estado === 'object' ? (i.estado['#text'] || i.estado.abbreviation || i.estado.uf || '') : (i.estado || '');
 
       const id = i.id || i.idExterno || i.idOriginal || i.codigo || '';
-      const urlPublica = i.urlPublica || i.url || i.link || (id ? `http://localhost:3000/imovel/${id}` : '');
+      const _baseExp = process.env.RENDER ? 'https://matchimoveis.ia.br' : 'http://localhost:3000';
+      const urlPublica = i.urlPublica || i.url || i.link || (id ? `${_baseExp}/imovel/${id}` : '');
 
       return {
         'ID imóvel': id,

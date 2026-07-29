@@ -8,6 +8,7 @@
   <a href="/app/imoveis" style="padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;<%= typeof rede==='undefined'||!rede ? 'background:#111;color:#fff' : 'background:#f3f4f6;color:#555;border:1px solid #e5e7eb' %>">🏠 Meus Imóveis</a>
   <a href="/app/imoveis?rede=1" style="padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;<%= typeof rede!=='undefined'&&rede ? 'background:#FF385C;color:#fff' : 'background:#f3f4f6;color:#555;border:1px solid #e5e7eb' %>">🌐 Rede Completa</a>
   <% if(typeof rede!=='undefined'&&rede){ %><span style="font-size:12px;color:#888">Links com seu ID — leads geradas ficam com você</span><% } %>
+  <a href="/app/imoveis/exportar-excel" style="margin-left:auto;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;text-decoration:none;background:#fff;color:#374151;border:1px solid #e5e7eb">⬇ Exportar Excel</a>
 </div>
 <% } %>
 

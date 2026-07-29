@@ -372,6 +372,7 @@
       <div class="interesse-box">
         <div class="formf"><input id="int-nome" placeholder="Seu nome" value="<%= typeof leadDados !== 'undefined' ? leadDados.nome : '' %>"></div>
         <div class="formf"><input id="int-celular" type="tel" placeholder="Seu WhatsApp" value="<%= typeof leadDados !== 'undefined' ? leadDados.telefone : '' %>"></div>
+        <div class="formf"><input id="int-email" type="email" placeholder="Seu email (opcional)" value="<%= typeof leadDados !== 'undefined' ? leadDados.email||'' : '' %>"></div>
         <button onclick="enviarInteresse()" class="btn-cta" style="background:var(--teal);color:#fff;margin-bottom:0">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
           Tenho interesse
@@ -511,7 +512,7 @@ function confirmarContato() {
     fetch('/api/lead-interesse', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem || imovelUserId, canal: 'WhatsApp' })
+      body: JSON.stringify({ nome, celular, email, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem || imovelUserId, canal: 'WhatsApp' })
     }).catch(() => {});
 
     window.open(linkDestino, '_blank');
@@ -556,7 +557,7 @@ function confirmarVisita() {
   fetch('/api/lead-interesse', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem || imovelUserId, dataVisita: data, horaVisita: hora, acao: 'solicitar_visita', visita: 'true', querVisita: 'true' })
+    body: JSON.stringify({ nome, celular, email, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem || imovelUserId, dataVisita: data, horaVisita: hora, acao: 'solicitar_visita', visita: 'true', querVisita: 'true' })
   }).catch(() => {});
 
   alert('Visita solicitada com sucesso!');
@@ -566,6 +567,7 @@ function confirmarVisita() {
 function enviarInteresse() {
   const nome = document.getElementById('int-nome').value.trim();
   const celular = document.getElementById('int-celular').value.trim();
+  const email = document.getElementById('int-email').value.trim();
   const celularLimpo = (celular||'').replace(/\D/g,'');
   const msg = document.getElementById('interesse-msg');
 
@@ -579,7 +581,7 @@ function enviarInteresse() {
   fetch('/api/lead-interesse', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem || imovelUserId, canal: 'Site' })
+    body: JSON.stringify({ nome, celular, email, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem || imovelUserId, canal: 'Site' })
   }).then(r => r.json()).then(d => {
     msg.style.display = 'block';
     if (d.ok !== false) {

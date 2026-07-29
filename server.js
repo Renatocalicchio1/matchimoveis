@@ -6571,7 +6571,7 @@ app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async 
 // Salva lead vindo da página pública do imóvel
 app.post('/api/lead-interesse', async (req, res) => {
   try {
-    const { nome, celular, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem } = req.body;
+    const { nome, celular, email, imovelId, imovelTitulo, leadId: leadIdOrigem, userId: userIdOrigem } = req.body;
 
     if (!nome || !celular || !imovelId) {
       return res.json({ ok: false, error: 'Dados obrigatórios ausentes' });
@@ -6639,6 +6639,7 @@ app.post('/api/lead-interesse', async (req, res) => {
       nome,
       contato: celular,
       telefone: celular,
+      email: email || '',
       fonte: 'MatchImóveis',
       origem: 'MatchImóveis', extractionStatus: 'ok',
       canal: 'WhatsApp',
@@ -7013,12 +7014,12 @@ app.get('/imovel/:id', (req, res) => {
     delete pub.proprietario_celular;
     delete pub.proprietario_email;
     // Busca dados da lead para preencher formulário
-    let leadDados = { nome: '', telefone: '' };
+    let leadDados = { nome: '', telefone: '', email: '' };
     const _leadId = req.query.leadId || req.query.lid || '';
     if (_leadId) {
       const _leads = (_cacheLeads || []);
       const _lead = _leads.find(l => String(l.id) === String(_leadId));
-      if (_lead) leadDados = { nome: _lead.nome||'', telefone: (_lead.telefone||_lead.whatsapp||'').replace(/\D/g,'').replace(/^55/,'') };
+      if (_lead) leadDados = { nome: _lead.nome||'', telefone: (_lead.telefone||_lead.whatsapp||'').replace(/\D/g,'').replace(/^55/,''), email: _lead.email||'' };
     }
     const _usuarioLogado = req.session && req.session.user ? req.session.user : null;
     const _compartilhador = (_uidLead && _uidLead !== _uid2) ? ((_cacheUsuarios||[]).find(u=>(u.id===_uidLead||u.codigoUsuario===_uidLead||u.codigo_usuario===_uidLead)) || null) : null;

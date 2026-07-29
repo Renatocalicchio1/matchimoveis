@@ -81,7 +81,8 @@ async function excluirCaptar(leadId){
         <% leads.forEach(function(l){ 
           const dados = l.dados || {};
           const perfil = l.perfil_ia || {};
-          const imovelCaptado = dados.imovelCaptadoId;
+          const _primeiroVinculado = (l.imoveisRelacionados && l.imoveisRelacionados[0]) || null;
+          const imovelCaptado = dados.imovelCaptadoId || (_primeiroVinculado && (_primeiroVinculado.id_interno||_primeiroVinculado.id));
         %>
         <tr>
           <td><strong><%= l.nome||'Sem nome' %></strong></td>
@@ -102,7 +103,7 @@ async function excluirCaptar(leadId){
               
               <button onclick="excluirCaptar('<%= l.id %>')" style="background:#fef2f2;color:#dc2626;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer">🗑️ Excluir</button>
             <% } else { %>
-              <a href="https://matchimoveis.onrender.com/app/imovel/<%= imovelCaptado %>/editar" style="color:#00847a;font-size:12px;margin-right:8px">Editar →</a>
+              <a href="https://matchimoveis.onrender.com/app/imovel/<%= imovelCaptado %>/editar" style="background:#00A699;color:#fff;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">✏️ Editar para completar os dados</a>
               <a href="https://www.matchimoveis.ia.br/imovel/<%= imovelCaptado %>?userId=<%= user.codigoUsuario||user.id %>" target="_blank" style="color:#16a34a;font-size:12px;font-weight:600">🔗 Link público</a>
               <% const _tel = (l.telefone||l.whatsapp||'').replace(/\D/g,'').replace(/^55/,''); %>
               <% const _linkImovel = 'https://matchimoveis.ia.br/imovel/'+imovelCaptado; %>
@@ -122,7 +123,7 @@ async function excluirCaptar(leadId){
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px">
               <span style="flex:1">🏠 <%= im.titulo||im.tipo %> · <%= im.bairro||'' %> · R$ <%= im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'—' %></span>
               <a href="https://wa.me/55<%= _tel2 %>?text=<%= _msg2 %>" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📲 Enviar link</a>
-              <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="color:#00847a;font-size:11px;font-weight:600;white-space:nowrap">Editar →</a>
+              <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="background:#00A699;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap">✏️ Editar para completar</a>
               <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link →</a>
             </div>
             <% }); %>

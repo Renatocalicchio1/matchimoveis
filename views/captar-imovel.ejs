@@ -74,12 +74,37 @@ input:focus,select:focus{outline:none;border-color:#FF385C}
       <label>Tipo de imóvel</label>
       <select id="s2-tipo">
         <option value="">Selecione...</option>
-        <option>Apartamento</option>
-        <option>Casa</option>
-        <option>Terreno</option>
-        <option>Sala comercial</option>
-        <option>Galpão</option>
-        <option>Outro</option>
+        <optgroup label="Residencial">
+          <option value="Apartamento">Apartamento</option>
+          <option value="Casa">Casa</option>
+          <option value="Cobertura">Cobertura</option>
+          <option value="Sobrado">Sobrado</option>
+          <option value="Loft">Loft</option>
+          <option value="Studio">Studio / Flat</option>
+          <option value="Kitnet">Kitnet / Conjugado</option>
+          <option value="Duplex">Duplex</option>
+          <option value="Mansão">Mansão</option>
+          <option value="Chácara">Chácara</option>
+          <option value="Sítio">Sítio</option>
+          <option value="Fazenda">Fazenda</option>
+          <option value="Casa de Condomínio">Casa de Condomínio</option>
+          <option value="Flat">Flat / Apart Hotel</option>
+        </optgroup>
+        <optgroup label="Comercial">
+          <option value="Sala Comercial">Sala Comercial</option>
+          <option value="Loja">Loja</option>
+          <option value="Conjunto Comercial">Conjunto Comercial</option>
+          <option value="Galpão">Galpão / Depósito</option>
+          <option value="Prédio Comercial">Prédio Comercial</option>
+          <option value="Hotel">Hotel / Pousada</option>
+          <option value="Consultório">Consultório</option>
+          <option value="Restaurante">Restaurante / Bar</option>
+        </optgroup>
+        <optgroup label="Terrenos">
+          <option value="Terreno">Terreno / Lote</option>
+          <option value="Terreno Comercial">Terreno Comercial</option>
+          <option value="Área Rural">Área Rural</option>
+        </optgroup>
       </select>
     </div>
     <div class="form-row cep-row">
@@ -104,8 +129,9 @@ input:focus,select:focus{outline:none;border-color:#FF385C}
   <!-- TELA 3 — cômodos e área -->
   <div id="step3" style="display:none">
     <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="done"></span><span class="on"></span><span></span></div></div>
-    <h2>Um pouco mais sobre o imóvel</h2>
+    <h2 id="step3-titulo">Um pouco mais sobre o imóvel</h2>
     <p class="sub">Se não souber algum número exato, pode deixar em branco.</p>
+    <div id="campos-comodos">
     <div class="form-row">
       <div class="form-group"><label>Quartos</label><input type="number" id="s3-quartos" min="0" placeholder="0"></div>
       <div class="form-group"><label>Suítes</label><input type="number" id="s3-suites" min="0" placeholder="0"></div>
@@ -113,6 +139,7 @@ input:focus,select:focus{outline:none;border-color:#FF385C}
     <div class="form-row">
       <div class="form-group"><label>Banheiros</label><input type="number" id="s3-banheiros" min="0" placeholder="0"></div>
       <div class="form-group"><label>Vagas</label><input type="number" id="s3-vagas" min="0" placeholder="0"></div>
+    </div>
     </div>
     <div class="form-group"><label>Área (m²)</label><input type="number" id="s3-area" min="0" placeholder="Ex: 80"></div>
     <button class="btn-submit" onclick="continuarStep3()">Continuar →</button>
@@ -233,6 +260,11 @@ async function continuarStep2(){
 
   if(!tipo){ alert('Selecione o tipo de imóvel'); return; }
   if(!numero){ alert('Preencha o número'); return; }
+
+  // Mesma regra do cadastro manual (toggleCampos em app-cadastro.ejs): terreno não tem cômodos.
+  const isTerreno = tipo.toLowerCase().includes('terreno') || tipo.toLowerCase().includes('área rural');
+  document.getElementById('campos-comodos').style.display = isTerreno ? 'none' : 'block';
+  document.getElementById('step3-titulo').textContent = isTerreno ? 'Só falta a área do terreno' : 'Um pouco mais sobre o imóvel';
 
   await fetch('/captar/imovel/'+_imovelId, {
     method:'POST',

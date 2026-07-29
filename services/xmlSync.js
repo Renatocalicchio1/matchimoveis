@@ -105,7 +105,7 @@ async function syncXmlFeeds() {
 
     let importados = [];
     if (await dbOk()) {
-      try { const r2 = await query('SELECT dados FROM imoveis WHERE dados->>'userId'=$1', [feed.userId||'default']); importados = r2.rows.map(r=>r.dados); } catch(e) { console.error('[xmlSync] erro lendo importados PG:', e.message); }
+      try { const r2 = await query("SELECT dados FROM imoveis WHERE dados->>'userId'=$1", [feed.userId||'default']); importados = r2.rows.map(r=>r.dados); } catch(e) { console.error('[xmlSync] erro lendo importados PG:', e.message); }
     }
     const mapaImportados = new Map();
 

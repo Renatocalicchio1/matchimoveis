@@ -63,45 +63,11 @@
   <a href="/site/<%= codigoUsuario %>" target="_blank" class="pf-btn pf-btn-outline">↗ Ver meu site</a>
 </div>
 
-<div class="pf-card">
+<div class="pf-card" style="opacity:.6">
   <div class="pf-card-title">Domínio próprio</div>
   <div class="pf-card-sub">Use um domínio seu (ex: seusite.com.br) no lugar do link acima.</div>
-
-  <% const _domStatus = siteConfig.dominio_status || 'nao_configurado'; %>
-  <% const _domBadge = {nao_configurado:{cls:'nc',txt:'○ Não configurado'}, aguardando_dns:{cls:'aguardando',txt:'⏳ Aguardando DNS'}, verificado:{cls:'verificado',txt:'✅ Verificado e ativo'}, erro:{cls:'erro',txt:'❌ Erro'}}[_domStatus] || {cls:'nc',txt:_domStatus}; %>
-  <div class="ms-dom-badge <%= _domBadge.cls %>"><%= _domBadge.txt %></div>
-
-  <% if(_domStatus==='nao_configurado'){ %>
-  <form method="POST" action="/app/meu-site/dominio" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <input type="text" name="dominio" placeholder="seusite.com.br" style="flex:1;min-width:220px;padding:9px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:14px" required>
-    <button type="submit" class="pf-btn" style="margin-top:0">Configurar</button>
-  </form>
-  <% } else { %>
-  <div class="ms-link-box" style="margin-bottom:0"><span><%= siteConfig.dominio_personalizado %></span></div>
-
-  <% if(_domStatus==='aguardando_dns' || _domStatus==='erro'){ %>
-  <div class="ms-dns-box">
-    <b>Configure o DNS do seu domínio</b> — no painel onde você registrou <%= siteConfig.dominio_personalizado %>, crie um registro:
-    <table>
-      <tr><td>Tipo</td><td>CNAME</td></tr>
-      <tr><td>Nome</td><td><%= siteConfig.dominio_personalizado %></td></tr>
-      <tr><td>Valor</td><td><%= fallbackOrigin || '(peça esse valor pro suporte MatchImóveis)' %></td></tr>
-    </table>
-    <div style="margin-top:8px;color:#9ca3af">Pode levar de alguns minutos a algumas horas pra propagar. Clique em "Verificar" depois de configurar.</div>
-  </div>
-  <% } %>
-
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-    <% if(_domStatus!=='verificado'){ %>
-    <form method="POST" action="/app/meu-site/dominio/verificar"><button type="submit" class="pf-btn" style="margin-top:0">🔄 Verificar configuração</button></form>
-    <% } else { %>
-    <a href="https://<%= siteConfig.dominio_personalizado %>" target="_blank" class="pf-btn" style="margin-top:0">↗ Abrir <%= siteConfig.dominio_personalizado %></a>
-    <% } %>
-    <form method="POST" action="/app/meu-site/dominio/remover" onsubmit="return confirm('Remover este domínio? O site volta a ficar só no link matchimoveis.ia.br/site/<%= codigoUsuario %>.')">
-      <button type="submit" class="pf-btn pf-btn-outline" style="margin-top:0">Remover domínio</button>
-    </form>
-  </div>
-  <% } %>
+  <div class="ms-dom-badge nc">🚧 Em breve</div>
+  <div class="ms-msg" style="color:#6b7280">Essa função está passando por ajustes e será liberada em breve.</div>
 </div>
 
 <div class="pf-card">

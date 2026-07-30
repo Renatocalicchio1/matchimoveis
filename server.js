@@ -5794,10 +5794,17 @@ setTimeout(() => { _enviarFollowupSemImoveis(); setInterval(_enviarFollowupSemIm
 app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
   try {
     const body = req.body;
-    console.log('[WEBHOOK WA] body completo:', JSON.stringify(body).substring(0, 500));
     const event = body.event;
     const instance = body.instance;
     const data = body.data;
+    // JSON.stringify do body inteiro só pra eventos que de fato processamos --
+    // contacts.update/chats.update de um grupo movimentado geravam dezenas
+    // desses por segundo, cada um serializando o payload inteiro à toa
+    if (event === 'messages.upsert' || event === 'MESSAGES_UPSERT') {
+      console.log('[WEBHOOK WA] body completo:', JSON.stringify(body).substring(0, 500));
+    } else {
+      console.log('[WEBHOOK WA] evento ignorado (sem log completo):', event, '| instancia:', instance);
+    }
 
     
       // Captura QR code enviado via webhook (Evolution v2.2.3)
@@ -5810,14 +5817,6 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       if (body.event === 'qrcode.updated' || body.event === 'QRCODE_UPDATED' || body.data?.qrcode) {
         console.log('[QR_DEBUG] evento qrcode:', JSON.stringify(body.data).substring(0, 300));
       }
-      console.log('[WEBHOOK WA] evento:', event, '| instancia:', instance);
-
-    // Pré-aquece Evolution API em background
-    const _EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
-    const _EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
-    fetch(`${_EVOLUTION_URL}/instance/fetchInstances`, {
-      headers: { 'apikey': _EVOLUTION_KEY }
-    }).catch(() => {});
 
     // Trata CONNECTION_UPDATE — atualiza status no banco
     if (event === 'connection.update' || event === 'CONNECTION_UPDATE') {
@@ -5854,10 +5853,6 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     if (msgId) _msgCache.add(msgId);
     const timestamp = data.messageTimestamp ? new Date(data.messageTimestamp * 1000).toISOString() : new Date().toISOString();
 
-    // Ignorar mensagens de grupos
-    if (fromJid.includes('@g.us') || fromJid.includes('@broadcast')) {
-      return res.status(200).json({ ok: true, ignorado: 'grupo' });
-    }
     // Ignorar mensagens de grupos e broadcast
     if (fromJid.includes('@g.us') || fromJid.includes('@broadcast') || fromJid.includes('@newsletter')) {
       return res.status(200).json({ ok: true, ignorado: 'grupo' });
@@ -5865,6 +5860,16 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     if (fromMe) return res.status(200).json({ ok: true, ignorado: 'fromMe' });
     if (!telefone || !texto) return res.status(200).json({ ok: true, ignorado: 'sem_telefone_ou_texto' });
 
+    // Pré-aquece Evolution API em background -- só quando a mensagem vai ser
+    // processada de verdade (não em todo evento recebido: contacts.update,
+    // chats.update, duplicata, mensagem de grupo etc). Um grupo movimentado
+    // gera dezenas de eventos por segundo; disparar isso pra cada um deles
+    // empilhava requests em memória e contribuiu pro heap out of memory.
+    const _EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const _EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+    fetch(`${_EVOLUTION_URL}/instance/fetchInstances`, {
+      headers: { 'apikey': _EVOLUTION_KEY }
+    }).catch(() => {});
 
     // ── VERIFICAR BLOQUEADOS ─────────────────────────────────
     try {

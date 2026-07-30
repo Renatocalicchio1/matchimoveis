@@ -4022,7 +4022,10 @@ app.post('/app/instagram/postar', auth, async (req,res)=>{
     if (!resultados.feed && !resultados.story) {
       return res.status(400).json({ ok:false, erro: 'Destino de publicação inválido.' });
     }
-    consumir(uidLogado, 'postar_instagram').catch(()=>{}); // 30 créditos por publicação no Instagram
+    // 30 créditos por publicação no Instagram — espera terminar antes de responder,
+    // pra não perder a cobrança se o processo reiniciar logo em seguida
+    const _debitouInsta = await consumir(uidLogado, 'postar_instagram').catch(e => { console.error('[instagram/postar] erro ao debitar:', e.message); return false; });
+    if (!_debitouInsta) console.error('[instagram/postar] cobranca nao efetivada:', uidLogado);
     res.json({ ok:true, resultados });
   } catch(e) {
     console.error('[instagram/postar]', e.message);
@@ -4092,7 +4095,9 @@ app.post('/app/posts/publicar', auth, express.json(), async (req, res) => {
 
     const { publicarFeed } = require('./services/instagram');
     const resultado = await publicarFeed(user.instagramContaId, user.instagramToken, imagemUrl, legenda || '');
-    consumir(uidLogado, 'postar_instagram').catch(() => {});
+    // espera terminar antes de responder, pra não perder a cobrança se o processo reiniciar logo em seguida
+    const _debitouPost = await consumir(uidLogado, 'postar_instagram').catch(e => { console.error('[posts/publicar] erro ao debitar:', e.message); return false; });
+    if (!_debitouPost) console.error('[posts/publicar] cobranca nao efetivada:', uidLogado);
     res.json({ ok: true, resultado });
   } catch (e) {
     console.error('[posts/publicar]', e.message);

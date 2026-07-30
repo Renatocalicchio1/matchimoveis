@@ -16,6 +16,12 @@
 .pt-spin{width:16px;height:16px;border:2px solid #e5e7eb;border-top-color:#FF385C;border-radius:50%;animation:pt-spin .7s linear infinite}
 @keyframes pt-spin{to{transform:rotate(360deg)}}
 
+.pt-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid #e5e7eb;overflow-x:auto}
+.pt-tab{padding:10px 14px;font-size:13px;font-weight:600;color:#6b7280;background:none;border:none;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+.pt-tab.on{color:#FF385C;border-bottom-color:#FF385C}
+.pt-tabpane{display:none}
+.pt-tabpane.on{display:block}
+
 .pt-wrap{display:flex;flex-direction:column;align-items:center}
 .ig-card{width:100%;max-width:280px;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff}
 .ig-head{display:flex;align-items:center;gap:7px;padding:8px 10px}
@@ -32,54 +38,156 @@
 .ig-img-dots span.on{background:#fff}
 .ig-caption{padding:8px 10px 0;font-size:11.5px;color:#111827;line-height:1.45;white-space:pre-wrap}
 .ig-caption b{font-weight:600;margin-right:4px}
-.ig-toolbar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#e5e7eb;margin-top:10px;border-top:1px solid #e5e7eb}
-.ig-toolbar button{background:#fff;border:none;padding:9px 4px;font-size:10.5px;font-weight:600;color:#374151;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2}
+.ig-toolbar{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#e5e7eb;margin-top:10px;border-top:1px solid #e5e7eb}
+.ig-toolbar button{background:#fff;border:none;padding:9px 3px;font-size:9.5px;font-weight:600;color:#374151;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2}
 .ig-toolbar button:hover{background:#f9fafb}
 .ig-toolbar button:disabled{opacity:.4;cursor:not-allowed}
 .ig-toolbar button.publicar{color:#FF385C}
 
 .pt-msg-resultado{margin-top:10px;text-align:center}
+.pt-agendar-box{width:100%;max-width:280px;margin-top:8px;padding:12px;background:#f9fafb;border-radius:10px;display:none}
+.pt-agendar-box.on{display:block}
+.pt-agendar-box input{width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:13px;margin-bottom:8px}
+.pt-agendar-box .row{display:flex;gap:8px}
+.pt-agendar-box button{flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none}
+.pt-agendar-box .confirmar{background:#FF385C;color:#fff}
+.pt-agendar-box .cancelar{background:#fff;border:1px solid #e5e7eb;color:#6b7280}
+
+.pt-lista{display:flex;flex-direction:column;gap:10px}
+.pt-item{display:flex;gap:10px;padding:10px;border:1px solid #f0f0ef;border-radius:10px;align-items:center}
+.pt-item-img{width:52px;height:52px;border-radius:8px;object-fit:cover;background:#f3f4f6;flex-shrink:0}
+.pt-item-info{flex:1;min-width:0}
+.pt-item-legenda{font-size:12.5px;color:#111827;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pt-item-datas{font-size:11px;color:#9ca3af;margin-top:3px}
+.pt-vazio{font-size:13px;color:#9ca3af;text-align:center;padding:24px 0}
 </style>
 
-<div class="pf-card">
-  <div class="pf-card-title">🌐 Analisar site</div>
-  <div class="pf-card-sub">Cole a URL de um site (imobiliária, concessionária, prestador de serviço etc) — a IA lê o conteúdo e monta uma sugestão de post pronta pro Instagram.</div>
-  <div class="pt-form">
-    <input type="url" id="pt-url" placeholder="https://www.exemplo.com.br" required>
-    <button type="button" class="pt-btn" id="pt-btn-analisar" onclick="analisarSite()">Analisar Site</button>
-  </div>
-  <div id="pt-msg-inicial" class="pt-msg"></div>
+<div class="pt-tabs">
+  <button type="button" class="pt-tab on" onclick="mudarAba('novo',this)">Novo post</button>
+  <button type="button" class="pt-tab" onclick="mudarAba('agendados',this)">Agendados (<%= agendados.length %>)</button>
+  <button type="button" class="pt-tab" onclick="mudarAba('postados',this)">Postados (<%= postados.length %>)</button>
+  <button type="button" class="pt-tab" onclick="mudarAba('ignorados',this)">Ignorados (<%= ignorados.length %>)</button>
 </div>
 
-<div id="pt-loading" class="pf-card pt-loading" style="display:none">
-  <div class="pt-spin"></div>
-  <span>Lendo o site e gerando a legenda...</span>
-</div>
-
-<div id="pt-resultado" class="pf-card" style="display:none">
-  <div class="pt-wrap">
-    <div class="ig-card">
-      <div class="ig-head">
-        <div class="ig-avatar"></div>
-        <span class="ig-username"><%= (user && user.instagramUsername) ? '@'+user.instagramUsername : 'sua_conta' %></span>
-      </div>
-      <div class="ig-img-wrap" id="pt-img-wrap">
-        <div class="ig-img-empty">Nenhuma imagem encontrada nesse site.</div>
-      </div>
-      <div class="ig-caption"><b><%= (user && user.instagramUsername) ? user.instagramUsername : 'sua_conta' %></b><span id="pt-legenda-preview"></span></div>
-      <div class="ig-toolbar">
-        <button type="button" class="publicar" onclick="publicar()" id="pt-btn-publicar">✅<span>Publicar</span></button>
-        <button type="button" onclick="novaLegenda()" id="pt-btn-legenda">✏️<span>Nova legenda</span></button>
-        <button type="button" onclick="novaImagem()" id="pt-btn-imagem">🖼️<span>Nova imagem</span></button>
-        <button type="button" onclick="ignorar()">🗑️<span>Ignorar</span></button>
-      </div>
+<div id="aba-novo" class="pt-tabpane on">
+  <div class="pf-card">
+    <div class="pf-card-title">🌐 Analisar site</div>
+    <div class="pf-card-sub">Cole a URL de um site (imobiliária, concessionária, prestador de serviço etc) — a IA lê o conteúdo e monta uma sugestão de post pronta pro Instagram.</div>
+    <div class="pt-form">
+      <input type="url" id="pt-url" placeholder="https://www.exemplo.com.br" required>
+      <button type="button" class="pt-btn" id="pt-btn-analisar" onclick="analisarSite()">Analisar Site</button>
     </div>
-    <div id="pt-msg-resultado" class="pt-msg pt-msg-resultado"></div>
+    <div id="pt-msg-inicial" class="pt-msg"></div>
+  </div>
+
+  <div id="pt-loading" class="pf-card pt-loading" style="display:none">
+    <div class="pt-spin"></div>
+    <span>Lendo o site e gerando a legenda...</span>
+  </div>
+
+  <div id="pt-resultado" class="pf-card" style="display:none">
+    <div class="pt-wrap">
+      <div class="ig-card">
+        <div class="ig-head">
+          <div class="ig-avatar"></div>
+          <span class="ig-username"><%= (user && user.instagramUsername) ? '@'+user.instagramUsername : 'sua_conta' %></span>
+        </div>
+        <div class="ig-img-wrap" id="pt-img-wrap">
+          <div class="ig-img-empty">Nenhuma imagem encontrada nesse site.</div>
+        </div>
+        <div class="ig-caption"><b><%= (user && user.instagramUsername) ? user.instagramUsername : 'sua_conta' %></b><span id="pt-legenda-preview"></span></div>
+        <div class="ig-toolbar">
+          <button type="button" class="publicar" onclick="publicar()" id="pt-btn-publicar">✅<span>Publicar</span></button>
+          <button type="button" onclick="abrirAgendar()" id="pt-btn-agendar">🕒<span>Agendar</span></button>
+          <button type="button" onclick="novaLegenda()" id="pt-btn-legenda">✏️<span>Legenda</span></button>
+          <button type="button" onclick="novaImagem()" id="pt-btn-imagem">🖼️<span>Imagem</span></button>
+          <button type="button" onclick="ignorar()">🗑️<span>Ignorar</span></button>
+        </div>
+      </div>
+      <div id="pt-agendar-box" class="pt-agendar-box">
+        <input type="datetime-local" id="pt-data-agendada">
+        <div class="row">
+          <button type="button" class="cancelar" onclick="fecharAgendar()">Cancelar</button>
+          <button type="button" class="confirmar" onclick="confirmarAgendar()" id="pt-btn-confirmar-agendar">Confirmar agendamento</button>
+        </div>
+      </div>
+      <div id="pt-msg-resultado" class="pt-msg pt-msg-resultado"></div>
+    </div>
+  </div>
+</div>
+
+<div id="aba-agendados" class="pt-tabpane">
+  <div class="pf-card">
+    <div class="pf-card-title">🕒 Agendados</div>
+    <% if(!agendados.length){ %>
+      <div class="pt-vazio">Nenhum post agendado.</div>
+    <% } else { %>
+      <div class="pt-lista">
+        <% agendados.forEach(function(p){ %>
+          <div class="pt-item">
+            <% if(p.imagemEscolhida){ %><img class="pt-item-img" src="<%= p.imagemEscolhida %>" alt=""><% } %>
+            <div class="pt-item-info">
+              <div class="pt-item-legenda"><%= (p.legenda||'').slice(0,120) %></div>
+              <div class="pt-item-datas">Gerado em <%= new Date(p.dataGerado).toLocaleString('pt-BR') %> · Agendado para <%= new Date(p.dataAgendada).toLocaleString('pt-BR') %></div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<div id="aba-postados" class="pt-tabpane">
+  <div class="pf-card">
+    <div class="pf-card-title">✅ Postados</div>
+    <% if(!postados.length){ %>
+      <div class="pt-vazio">Nenhum post publicado ainda.</div>
+    <% } else { %>
+      <div class="pt-lista">
+        <% postados.forEach(function(p){ %>
+          <div class="pt-item">
+            <% if(p.imagemEscolhida){ %><img class="pt-item-img" src="<%= p.imagemEscolhida %>" alt=""><% } %>
+            <div class="pt-item-info">
+              <div class="pt-item-legenda"><%= (p.legenda||'').slice(0,120) %></div>
+              <div class="pt-item-datas">Gerado em <%= new Date(p.dataGerado).toLocaleString('pt-BR') %> · Postado em <%= new Date(p.dataPublicado).toLocaleString('pt-BR') %></div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<div id="aba-ignorados" class="pt-tabpane">
+  <div class="pf-card">
+    <div class="pf-card-title">🗑️ Ignorados</div>
+    <% if(!ignorados.length){ %>
+      <div class="pt-vazio">Nenhum post ignorado.</div>
+    <% } else { %>
+      <div class="pt-lista">
+        <% ignorados.forEach(function(p){ %>
+          <div class="pt-item">
+            <% if(p.imagemEscolhida || (p.imagens&&p.imagens[0])){ %><img class="pt-item-img" src="<%= p.imagemEscolhida||p.imagens[0] %>" alt=""><% } %>
+            <div class="pt-item-info">
+              <div class="pt-item-legenda"><%= (p.legenda||'').slice(0,120) %></div>
+              <div class="pt-item-datas">Gerado em <%= new Date(p.dataGerado).toLocaleString('pt-BR') %> · Ignorado em <%= new Date(p.dataIgnorado).toLocaleString('pt-BR') %></div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
   </div>
 </div>
 
 <script>
-let _estado = { titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'' };
+let _estado = { postId:null, titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'' };
+
+function mudarAba(nome, btn){
+  document.querySelectorAll('.pt-tabpane').forEach(function(el){ el.classList.remove('on'); });
+  document.querySelectorAll('.pt-tab').forEach(function(el){ el.classList.remove('on'); });
+  document.getElementById('aba-'+nome).classList.add('on');
+  btn.classList.add('on');
+}
 
 function _msg(id, texto, tipo){
   const el = document.getElementById(id);
@@ -121,8 +229,9 @@ async function analisarSite(){
     const r = await fetch('/app/posts/analisar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
     const d = await r.json();
     if(!d.ok){ _msg('pt-msg-inicial', d.erro || 'Não foi possível analisar esse site.', 'err'); return; }
-    _estado = { titulo:d.titulo||'', descricao:d.descricao||'', valor:d.valor||'', textoBruto:d.textoBruto||'', imagens:d.imagens||[], indiceImagem:0, legenda:d.legenda||'' };
+    _estado = { postId:d.postId||null, titulo:d.titulo||'', descricao:d.descricao||'', valor:d.valor||'', textoBruto:d.textoBruto||'', imagens:d.imagens||[], indiceImagem:0, legenda:d.legenda||'' };
     _atualizarPreview();
+    fecharAgendar();
     document.getElementById('pt-resultado').style.display = 'block';
   } catch(e) {
     _msg('pt-msg-inicial','Erro ao analisar o site. Tente novamente.','err');
@@ -136,7 +245,7 @@ async function novaLegenda(){
   _msg('pt-msg-resultado','');
   document.getElementById('pt-btn-legenda').disabled = true;
   try {
-    const r = await fetch('/app/posts/legenda', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ titulo:_estado.titulo, descricao:_estado.descricao, valor:_estado.valor, textoBruto:_estado.textoBruto }) });
+    const r = await fetch('/app/posts/legenda', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ postId:_estado.postId, titulo:_estado.titulo, descricao:_estado.descricao, valor:_estado.valor, textoBruto:_estado.textoBruto }) });
     const d = await r.json();
     if(!d.ok){ _msg('pt-msg-resultado', d.erro || 'Não foi possível gerar nova legenda.', 'err'); return; }
     _estado.legenda = d.legenda;
@@ -160,10 +269,11 @@ async function publicar(){
   _msg('pt-msg-resultado','');
   document.getElementById('pt-btn-publicar').disabled = true;
   try {
-    const r = await fetch('/app/posts/publicar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ imagemUrl, legenda:_estado.legenda }) });
+    const r = await fetch('/app/posts/publicar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ postId:_estado.postId, imagemUrl, legenda:_estado.legenda }) });
     const d = await r.json();
     if(!d.ok){ _msg('pt-msg-resultado', d.erro || 'Não foi possível publicar.', 'err'); return; }
     _msg('pt-msg-resultado','✅ Publicado no Instagram!','ok');
+    setTimeout(function(){ location.reload(); }, 1200);
   } catch(e) {
     _msg('pt-msg-resultado','Erro ao publicar no Instagram.','err');
   } finally {
@@ -171,10 +281,45 @@ async function publicar(){
   }
 }
 
-function ignorar(){
+function abrirAgendar(){
+  const imagemUrl = _estado.imagens[_estado.indiceImagem];
+  if(!imagemUrl){ _msg('pt-msg-resultado','Esse post não tem imagem — não é possível agendar.','err'); return; }
+  document.getElementById('pt-agendar-box').classList.add('on');
+}
+
+function fecharAgendar(){
+  document.getElementById('pt-agendar-box').classList.remove('on');
+  document.getElementById('pt-data-agendada').value = '';
+}
+
+async function confirmarAgendar(){
+  const imagemUrl = _estado.imagens[_estado.indiceImagem];
+  const dataAgendada = document.getElementById('pt-data-agendada').value;
+  if(!dataAgendada){ _msg('pt-msg-resultado','Escolha data e hora do agendamento.','err'); return; }
+  _msg('pt-msg-resultado','');
+  document.getElementById('pt-btn-confirmar-agendar').disabled = true;
+  try {
+    const r = await fetch('/app/posts/agendar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ postId:_estado.postId, imagemUrl, legenda:_estado.legenda, dataAgendada }) });
+    const d = await r.json();
+    if(!d.ok){ _msg('pt-msg-resultado', d.erro || 'Não foi possível agendar.', 'err'); return; }
+    _msg('pt-msg-resultado','✅ Post agendado!','ok');
+    setTimeout(function(){ location.reload(); }, 1200);
+  } catch(e) {
+    _msg('pt-msg-resultado','Erro ao agendar o post.','err');
+  } finally {
+    document.getElementById('pt-btn-confirmar-agendar').disabled = false;
+  }
+}
+
+async function ignorar(){
+  if(_estado.postId){
+    try { await fetch('/app/posts/ignorar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ postId:_estado.postId }) }); } catch(e) {}
+  }
   document.getElementById('pt-resultado').style.display = 'none';
   document.getElementById('pt-url').value = '';
-  _estado = { titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'' };
+  fecharAgendar();
+  _estado = { postId:null, titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'' };
+  location.reload();
 }
 </script>
 

@@ -4040,15 +4040,28 @@ function _podeUsarPosts(user) {
   return !!user && (user.codigoUsuario || user.id) === 'REN-G9K6';
 }
 
-app.get('/app/posts', auth, (req, res) => {
+app.get('/app/posts', auth, async (req, res) => {
   if (!_podeUsarPosts(req.session.user)) return res.redirect('/app-home');
-  res.render('app-posts', { user: req.session.user, active: 'posts' });
+  try {
+    const { listarPosts } = require('./services/salvarPost');
+    const uidLogado = req.session.user.id || req.session.user.codigoUsuario || req.session.user.codigo_usuario;
+    const [agendados, postados, ignorados] = await Promise.all([
+      listarPosts(uidLogado, 'agendado'),
+      listarPosts(uidLogado, 'postado'),
+      listarPosts(uidLogado, 'ignorado')
+    ]);
+    res.render('app-posts', { user: req.session.user, active: 'posts', agendados, postados, ignorados });
+  } catch (e) {
+    console.error('[app/posts]', e.message);
+    res.render('app-posts', { user: req.session.user, active: 'posts', agendados: [], postados: [], ignorados: [] });
+  }
 });
 
 app.post('/app/posts/analisar', auth, express.json(), async (req, res) => {
   if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
   try {
     const { analisarSite, gerarLegenda } = require('./services/postsIA');
+    const { criarPost } = require('./services/salvarPost');
     const url = String(req.body.url || '').trim();
     if (!url) return res.json({ ok: false, erro: 'Informe a URL do site.' });
     const dados = await analisarSite(url);
@@ -4057,7 +4070,9 @@ app.post('/app/posts/analisar', auth, express.json(), async (req, res) => {
       const gerado = await gerarLegenda(dados);
       legenda = gerado.legenda;
     } catch (e) { legenda = [dados.titulo, dados.descricao, dados.valor].filter(Boolean).join('\n'); }
-    res.json({ ok: true, titulo: dados.titulo, descricao: dados.descricao, valor: dados.valor, textoBruto: dados.textoBruto, imagens: dados.imagens, legenda });
+    const uidLogado = req.session.user.id || req.session.user.codigoUsuario || req.session.user.codigo_usuario;
+    const post = await criarPost({ userId: uidLogado, url, titulo: dados.titulo, descricao: dados.descricao, valor: dados.valor, textoBruto: dados.textoBruto, imagens: dados.imagens, legenda });
+    res.json({ ok: true, postId: post.id, titulo: dados.titulo, descricao: dados.descricao, valor: dados.valor, textoBruto: dados.textoBruto, imagens: dados.imagens, legenda });
   } catch (e) {
     console.error('[posts/analisar]', e.message);
     res.json({ ok: false, erro: e.message || 'Não foi possível analisar esse site.' });
@@ -4068,12 +4083,48 @@ app.post('/app/posts/legenda', auth, express.json(), async (req, res) => {
   if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
   try {
     const { gerarLegenda } = require('./services/postsIA');
-    const { titulo, descricao, valor, textoBruto } = req.body;
+    const { atualizarPost } = require('./services/salvarPost');
+    const { postId, titulo, descricao, valor, textoBruto } = req.body;
     const { legenda } = await gerarLegenda({ titulo, descricao, valor, textoBruto });
+    if (postId) await atualizarPost(postId, { legenda }).catch(()=>{});
     res.json({ ok: true, legenda });
   } catch (e) {
     console.error('[posts/legenda]', e.message);
     res.json({ ok: false, erro: e.message || 'Não foi possível gerar a legenda.' });
+  }
+});
+
+app.post('/app/posts/ignorar', auth, express.json(), async (req, res) => {
+  if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
+  try {
+    const { postId } = req.body;
+    if (!postId) return res.json({ ok: false, erro: 'Post não encontrado.' });
+    const { atualizarPost } = require('./services/salvarPost');
+    await atualizarPost(postId, { status: 'ignorado', dataIgnorado: new Date().toISOString() });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[posts/ignorar]', e.message);
+    res.json({ ok: false, erro: e.message || 'Não foi possível ignorar o post.' });
+  }
+});
+
+app.post('/app/posts/agendar', auth, express.json(), async (req, res) => {
+  if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
+  try {
+    const { postId, imagemUrl, legenda, dataAgendada } = req.body;
+    if (!postId) return res.json({ ok: false, erro: 'Post não encontrado.' });
+    if (!imagemUrl) return res.json({ ok: false, erro: 'Selecione uma imagem antes de agendar.' });
+    if (!dataAgendada) return res.json({ ok: false, erro: 'Escolha data e hora do agendamento.' });
+    const dataObj = new Date(dataAgendada);
+    if (isNaN(dataObj.getTime()) || dataObj <= new Date()) {
+      return res.json({ ok: false, erro: 'Escolha uma data e hora no futuro.' });
+    }
+    const { atualizarPost } = require('./services/salvarPost');
+    await atualizarPost(postId, { imagemEscolhida: imagemUrl, legenda: legenda || '', status: 'agendado', dataAgendada: dataObj.toISOString() });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[posts/agendar]', e.message);
+    res.json({ ok: false, erro: e.message || 'Não foi possível agendar o post.' });
   }
 });
 
@@ -4084,7 +4135,7 @@ app.post('/app/posts/publicar', auth, express.json(), async (req, res) => {
     if (!user.instagramToken || !user.instagramContaId) {
       return res.status(400).json({ ok: false, erro: 'Instagram não conectado. Conecte sua conta em /app/perfil.' });
     }
-    const { imagemUrl, legenda } = req.body;
+    const { postId, imagemUrl, legenda } = req.body;
     if (!imagemUrl) return res.json({ ok: false, erro: 'Selecione uma imagem antes de publicar.' });
 
     const uidLogado = user.id || user.codigoUsuario || user.codigo_usuario;
@@ -4098,6 +4149,10 @@ app.post('/app/posts/publicar', auth, express.json(), async (req, res) => {
     // espera terminar antes de responder, pra não perder a cobrança se o processo reiniciar logo em seguida
     const _debitouPost = await consumir(uidLogado, 'postar_instagram').catch(e => { console.error('[posts/publicar] erro ao debitar:', e.message); return false; });
     if (!_debitouPost) console.error('[posts/publicar] cobranca nao efetivada:', uidLogado);
+    if (postId) {
+      const { atualizarPost } = require('./services/salvarPost');
+      await atualizarPost(postId, { imagemEscolhida: imagemUrl, legenda: legenda || '', status: 'postado', dataPublicado: new Date().toISOString(), resultado }).catch(()=>{});
+    }
     res.json({ ok: true, resultado });
   } catch (e) {
     console.error('[posts/publicar]', e.message);
@@ -6283,6 +6338,7 @@ const _httpServer = app.listen(process.env.PORT || 3000, () => {
     // de uma vez, e rodar bem menos que 1x/min.
     // const { iniciarBackup } = require('./services/backup'); iniciarBackup();
     const { iniciarMonitor } = require('./services/monitor'); iniciarMonitor();
+    const { iniciarPostsScheduler } = require('./services/postsScheduler'); iniciarPostsScheduler();
   } catch(e) {
     console.error('[server] Erro ao iniciar autoUpdateXML:', e.message);
   }

@@ -54,16 +54,19 @@
 .pt-agendar-box .cancelar{background:#fff;border:1px solid #e5e7eb;color:#6b7280}
 
 .pt-lista{display:flex;flex-direction:column;gap:10px}
-.pt-item{display:flex;gap:10px;padding:10px;border:1px solid #f0f0ef;border-radius:10px;align-items:center}
+.pt-item{display:flex;gap:10px;padding:10px;border:1px solid #f0f0ef;border-radius:10px;align-items:center;flex-wrap:wrap}
 .pt-item-img{width:52px;height:52px;border-radius:8px;object-fit:cover;background:#f3f4f6;flex-shrink:0}
-.pt-item-info{flex:1;min-width:0}
+.pt-item-info{flex:1;min-width:120px}
 .pt-item-legenda{font-size:12.5px;color:#111827;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .pt-item-datas{font-size:11px;color:#9ca3af;margin-top:3px}
+.pt-item-acoes{display:flex;gap:6px;flex-shrink:0}
+.pt-item-acoes button{padding:6px 10px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #e5e7eb;background:#fff;color:#374151;white-space:nowrap}
+.pt-item-acoes button:hover{background:#f9fafb}
 .pt-vazio{font-size:13px;color:#9ca3af;text-align:center;padding:24px 0}
 </style>
 
 <div class="pt-tabs">
-  <button type="button" class="pt-tab on" onclick="mudarAba('novo',this)">Novo post</button>
+  <button type="button" class="pt-tab on" id="pt-tab-novo" onclick="mudarAba('novo',this)">Novo post</button>
   <button type="button" class="pt-tab" onclick="mudarAba('agendados',this)">Agendados (<%= agendados.length %>)</button>
   <button type="button" class="pt-tab" onclick="mudarAba('postados',this)">Postados (<%= postados.length %>)</button>
   <button type="button" class="pt-tab" onclick="mudarAba('ignorados',this)">Ignorados (<%= ignorados.length %>)</button>
@@ -130,6 +133,10 @@
               <div class="pt-item-legenda"><%= (p.legenda||'').slice(0,120) %></div>
               <div class="pt-item-datas">Gerado em <%= new Date(p.dataGerado).toLocaleString('pt-BR') %> · Agendado para <%= new Date(p.dataAgendada).toLocaleString('pt-BR') %></div>
             </div>
+            <div class="pt-item-acoes">
+              <button type="button" onclick="abrirPost('<%= p.id %>')">✏️ Abrir</button>
+              <button type="button" onclick="excluirPost('<%= p.id %>')">🗑️ Excluir</button>
+            </div>
           </div>
         <% }); %>
       </div>
@@ -151,6 +158,10 @@
               <div class="pt-item-legenda"><%= (p.legenda||'').slice(0,120) %></div>
               <div class="pt-item-datas">Gerado em <%= new Date(p.dataGerado).toLocaleString('pt-BR') %> · Postado em <%= new Date(p.dataPublicado).toLocaleString('pt-BR') %></div>
             </div>
+            <div class="pt-item-acoes">
+              <button type="button" onclick="abrirPost('<%= p.id %>')">✏️ Abrir</button>
+              <button type="button" onclick="excluirPost('<%= p.id %>')">🗑️ Excluir</button>
+            </div>
           </div>
         <% }); %>
       </div>
@@ -171,6 +182,10 @@
             <div class="pt-item-info">
               <div class="pt-item-legenda"><%= (p.legenda||'').slice(0,120) %></div>
               <div class="pt-item-datas">Gerado em <%= new Date(p.dataGerado).toLocaleString('pt-BR') %> · Ignorado em <%= new Date(p.dataIgnorado).toLocaleString('pt-BR') %></div>
+            </div>
+            <div class="pt-item-acoes">
+              <button type="button" onclick="abrirPost('<%= p.id %>')">✏️ Abrir</button>
+              <button type="button" onclick="excluirPost('<%= p.id %>')">🗑️ Excluir</button>
             </div>
           </div>
         <% }); %>
@@ -320,6 +335,41 @@ async function ignorar(){
   fecharAgendar();
   _estado = { postId:null, titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'' };
   location.reload();
+}
+
+// Reabre um post de qualquer aba (Agendados/Postados/Ignorados) no card
+// editável, com todas as opções (legenda, imagem, agendar, publicar, excluir)
+async function abrirPost(id){
+  try {
+    const r = await fetch('/app/posts/'+id);
+    const d = await r.json();
+    if(!d.ok || !d.post){ alert('Não foi possível abrir esse post.'); return; }
+    const p = d.post;
+    const imagens = (p.imagens && p.imagens.length) ? p.imagens : (p.imagemEscolhida ? [p.imagemEscolhida] : []);
+    let indice = 0;
+    if(p.imagemEscolhida){ const i = imagens.indexOf(p.imagemEscolhida); if(i >= 0) indice = i; }
+    _estado = { postId:p.id, titulo:p.titulo||'', descricao:p.descricao||'', valor:p.valor||'', textoBruto:p.textoBruto||'', imagens, indiceImagem:indice, legenda:p.legenda||'' };
+    mudarAba('novo', document.getElementById('pt-tab-novo'));
+    _atualizarPreview();
+    fecharAgendar();
+    document.getElementById('pt-resultado').style.display = 'block';
+    _msg('pt-msg-resultado','');
+    window.scrollTo({ top:0, behavior:'smooth' });
+  } catch(e) {
+    alert('Erro ao abrir o post.');
+  }
+}
+
+async function excluirPost(id){
+  if(!confirm('Excluir esse post do histórico? Essa ação não pode ser desfeita.')) return;
+  try {
+    const r = await fetch('/app/posts/excluir', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ postId:id }) });
+    const d = await r.json();
+    if(!d.ok){ alert(d.erro || 'Não foi possível excluir.'); return; }
+    location.reload();
+  } catch(e) {
+    alert('Erro ao excluir o post.');
+  }
 }
 </script>
 

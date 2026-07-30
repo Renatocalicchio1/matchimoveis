@@ -4108,6 +4108,35 @@ app.post('/app/posts/ignorar', auth, express.json(), async (req, res) => {
   }
 });
 
+app.get('/app/posts/:id', auth, async (req, res) => {
+  if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
+  try {
+    const { buscarPost } = require('./services/salvarPost');
+    const uidLogado = req.session.user.id || req.session.user.codigoUsuario || req.session.user.codigo_usuario;
+    const post = await buscarPost(req.params.id, uidLogado);
+    if (!post) return res.status(404).json({ ok: false, erro: 'Post não encontrado.' });
+    res.json({ ok: true, post });
+  } catch (e) {
+    console.error('[posts/:id]', e.message);
+    res.status(500).json({ ok: false, erro: e.message || 'Erro ao buscar post.' });
+  }
+});
+
+app.post('/app/posts/excluir', auth, express.json(), async (req, res) => {
+  if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
+  try {
+    const { postId } = req.body;
+    if (!postId) return res.json({ ok: false, erro: 'Post não encontrado.' });
+    const { excluirPost } = require('./services/salvarPost');
+    const uidLogado = req.session.user.id || req.session.user.codigoUsuario || req.session.user.codigo_usuario;
+    await excluirPost(postId, uidLogado);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[posts/excluir]', e.message);
+    res.json({ ok: false, erro: e.message || 'Não foi possível excluir o post.' });
+  }
+});
+
 app.post('/app/posts/agendar', auth, express.json(), async (req, res) => {
   if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
   try {

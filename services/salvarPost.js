@@ -97,4 +97,8 @@ async function listarPostsAgendadosVencidos() {
   return r.rows.map(rowToPost);
 }
 
-module.exports = { criarPost, buscarPost, atualizarPost, listarPosts, listarPostsAgendadosVencidos };
+async function excluirPost(id, userId) {
+  await query('DELETE FROM posts WHERE id=$1 AND user_id=$2', [id, userId]);
+}
+
+module.exports = { criarPost, buscarPost, atualizarPost, listarPosts, listarPostsAgendadosVencidos, excluirPost };

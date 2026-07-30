@@ -2639,7 +2639,7 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
         const _linkRecusar = _BASE + '/cliente/visita/' + _v.id + '/recusar';
         const _msg = 'Olá *' + (_v.nome||'') + '*! Sua visita ao imóvel *' + _imovel + '*' + _data + ' foi confirmada!\n\nConfirme sua presença:\n✅ Confirmar: ' + _linkConfirmar + '\n❌ Não posso ir: ' + _linkRecusar;
         await _enviarWA(_telCliente, _msg);
-        consumir(_v.userId || _v.corretorId || '', 'confirmacao_auto').catch(()=>{});
+        consumir(_v.userId || _v.corretorId || '', 'confirmacao_auto').catch(e=>console.error('[creditos] confirmacao_auto falhou:', e.message));
         const _emailC1 = _v.email || _v.emailCliente || '';
         if (_emailC1) { try { const { enviarEmail: _eE1 } = require('./services/email'); await _eE1({ para: _emailC1, assunto: '✅ Sua visita foi confirmada!', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); } catch(_e1){} }
       }
@@ -2665,7 +2665,7 @@ app.post('/corretor/visita/:id/responder', async (req, res) => {
         const _linkVitrine = _leadId ? _BASE + '/cliente/oferta/' + _leadId : _BASE;
         const _msg = 'Olá *' + (_v.nome||'') + '*! Infelizmente o imóvel *' + _imovel + '* não está mais disponível.\n\nAcesse a vitrine e escolha outra opção: ' + _linkVitrine;
         await _enviarWA(_telCliente, _msg);
-        consumir(_v.userId || _v.corretorId || '', 'notificacao_prop').catch(()=>{});
+        consumir(_v.userId || _v.corretorId || '', 'notificacao_prop').catch(e=>console.error('[creditos] notificacao_prop falhou:', e.message));
         const _emailC2 = _v.email || _v.emailCliente || '';
         if (_emailC2) { try { const { enviarEmail: _eE2 } = require('./services/email'); await _eE2({ para: _emailC2, assunto: '❌ Imóvel indisponível', html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre></div>', texto: _msg }); } catch(_e2){} }
       }
@@ -2698,8 +2698,8 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
   if (idx === -1) return res.status(404).send('Visita não encontrada');
   
   const { resposta } = req.body;
-  consumir(visita?.ownerUserId || visita?.corretorId, 'confirmacao_auto').catch(()=>{});
-    respostaProprietario = resposta;
+  consumir(visitas[idx]?.ownerUserId || visitas[idx]?.corretorId, 'confirmacao_auto').catch(e=>console.error('[creditos] confirmacao_auto falhou:', e.message));
+  visitas[idx].respostaProprietario = resposta;
   visitas[idx].respostaEm = new Date().toISOString();
 
   if (resposta === 'confirmar') {
@@ -2755,7 +2755,7 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
       // notificações salvas via criarNotificacaoService (PG)
     }
   } catch(e) { console.log('Erro notif proprietario:', e.message); }
-  consumir(_uid || '', 'notificacao_prop').catch(()=>{});
+  consumir(_uid || '', 'notificacao_prop').catch(e=>console.error('[creditos] notificacao_prop falhou:', e.message));
   res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
 })
 
@@ -6131,7 +6131,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           headers: { 'Content-Type': 'application/json', 'apikey': _EK },
           body: JSON.stringify({ number: '55' + telefone, text: _msgQ })
         });
-        consumir(_webhookUserId, 'ia_qualifica_lead').catch(function(){});
+        consumir(_webhookUserId, 'ia_qualifica_lead').catch(function(e){console.error('[creditos] ia_qualifica_lead falhou:', e.message);});
         console.log('[QUALIF IMEDIATA] msg enviada:', telefone, _ehComercial ? 'comercial' : _ehTerreno ? 'terreno' : _ehResidencial ? 'residencial' : 'generico');
       }
     } catch(e) { console.error('[QUALIF IMEDIATA] erro:', e.message); }
@@ -6164,7 +6164,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         // Só cobra ia_responde_whatsapp a partir do momento em que a lead já tem match
         // gerado — antes disso (qualificação inicial) não cobra
         const _jaTemMatchWA = ((leadAtualizado.matchesAuto||[]).length || (leadAtualizado.matches||[]).length || (leadAtualizado.matchesBase||[]).length) > 0;
-        if (_jaTemMatchWA) consumir(leadAtualizado.userId || leadAtualizado.codigoUsuario, 'ia_responde_whatsapp').catch(()=>{});
+        if (_jaTemMatchWA) consumir(leadAtualizado.userId || leadAtualizado.codigoUsuario, 'ia_responde_whatsapp').catch(e=>console.error('[creditos] ia_responde_whatsapp falhou:', e.message));
 
         console.log('[WEBHOOK WA] match-core concluido | score:', leadAtualizado.score, '| temperatura:', leadAtualizado.temperatura, '| matches:', (leadAtualizado.matchesAuto || []).length);
         // notificação sino — match gerado
@@ -6218,7 +6218,8 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           });
           console.log('[WEBHOOK WA] perfil salvo no PG:', leadAtualizado.nome, '| score:', leadAtualizado.score, '| temp:', leadAtualizado.temperatura);
         } catch(e) { console.error('[WEBHOOK WA] erro salvar perfil PG:', e.message); }
-        if((leadAtualizado.matchesAuto||[]).length>0) consumir(leadAtualizado.userId||leadAtualizado.corretorId, 'match_encontrado').catch(()=>{});
+        // match_encontrado já é cobrado dentro de cerebro/match-core.js (só quando o
+        // número de matches realmente aumenta) -- cobrar de novo aqui duplicava o débito
 
 
       } catch(e) {
@@ -11460,7 +11461,7 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
       // notificações salvas via criarNotificacaoService (PG)
     }
   } catch(e) { console.log('Erro notif proprietario:', e.message); }
-  consumir(_uid || '', 'notificacao_prop').catch(()=>{});
+  consumir(_uid || '', 'notificacao_prop').catch(e=>console.error('[creditos] notificacao_prop falhou:', e.message));
   res.render('proprietario-confirmado', { resposta, visita: visitas[idx] });
 })
 

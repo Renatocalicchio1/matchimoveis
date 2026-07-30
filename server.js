@@ -6106,7 +6106,10 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
           instancia: INSTANCE
         });
         const leadAtualizado = _resultado?.lead || leadEncontrado;
-        consumir(leadAtualizado.userId || leadAtualizado.codigoUsuario, 'ia_responde_whatsapp').catch(()=>{});
+        // Só cobra ia_responde_whatsapp a partir do momento em que a lead já tem match
+        // gerado — antes disso (qualificação inicial) não cobra
+        const _jaTemMatchWA = ((leadAtualizado.matchesAuto||[]).length || (leadAtualizado.matches||[]).length || (leadAtualizado.matchesBase||[]).length) > 0;
+        if (_jaTemMatchWA) consumir(leadAtualizado.userId || leadAtualizado.codigoUsuario, 'ia_responde_whatsapp').catch(()=>{});
 
         console.log('[WEBHOOK WA] match-core concluido | score:', leadAtualizado.score, '| temperatura:', leadAtualizado.temperatura, '| matches:', (leadAtualizado.matchesAuto || []).length);
         // notificação sino — match gerado

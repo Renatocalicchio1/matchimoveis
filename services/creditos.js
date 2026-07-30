@@ -10,7 +10,7 @@ const CUSTO = {
   importar_xml:            2,
   gerar_xml_portal:       10,
   sync_xml_24h:            5,
-  lead_ativo_dia:        0.2,
+  lead_ativo_dia:          5,
   ia_qualifica_lead:      30,
   match_encontrado:       20,
   vitrine_whatsapp:       30,

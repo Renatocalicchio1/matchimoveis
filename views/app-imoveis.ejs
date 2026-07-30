@@ -431,7 +431,7 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
         <% if(item.dataAtualizacao||item.updatedAt){ %><span>🔄 <%= new Date(item.dataAtualizacao||item.updatedAt).toLocaleDateString('pt-BR') %></span><% } %>
       </div>
       <div class="im-actions">
-        <% const _isOwner = !rede || (item.userId||item.user_id||item.usuarioId) === (user.id||user.codigoUsuario); %>
+        <% const _donoItem = String(item.userId||item.user_id||item.usuarioId||item.codigoUsuario||''); const _isOwner = !!_donoItem && (_donoItem === String(user.id||'') || _donoItem === String(user.codigoUsuario||'')); %>
         <% const _idVer = item.id || item.idExterno || item.idInterno || item.codigoImovel; %>
         <% const _uidParam = '?userId=' + encodeURIComponent(user.id||user.codigoUsuario||''); %>
         <a href="<%= _isOwner ? '/app/imovel/'+_idVer : '/imovel/'+_idVer+_uidParam %>" target="<%= _isOwner ? '_self' : '_blank' %>" class="im-btn ver" onclick="event.stopPropagation()">Ver</a>
@@ -442,8 +442,8 @@ const _bairros = <%- JSON.stringify(typeof bairros !== 'undefined' ? bairros : {
         <% if(_isOwner) { %>
         <button class="im-btn instagram" onclick="event.stopPropagation();abrirModalInstagram('<%= _idVer %>')" title="Postar no Instagram">📸 Instagram</button>
         <% } %>
-        <% if(!rede || (item.userId||item.user_id||item.usuarioId) === (user.id||user.codigoUsuario)) { %><a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a><% } %>
-        <% if(!rede || (item.userId||item.user_id||item.usuarioId) === (user.id||user.codigoUsuario)) { %><form method="POST" action="/app/imovel/<%= (item.idExterno && item.idExterno.trim()) ? item.idExterno : (item.idInterno || item.id) %>/excluir" style="display:contents" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" class="im-btn del" onclick="event.stopPropagation()">Excluir</button></form><% } %>
+        <% if(_isOwner) { %><a href="/app/imovel/<%= item.id || item.idExterno || item.idInterno || item.codigoImovel %>/editar" class="im-btn edit" onclick="event.stopPropagation()">Editar</a><% } %>
+        <% if(_isOwner) { %><form method="POST" action="/app/imovel/<%= (item.idExterno && item.idExterno.trim()) ? item.idExterno : (item.idInterno || item.id) %>/excluir" style="display:contents" onsubmit="return confirm('Excluir este imóvel? Esta ação não pode ser desfeita.')"><button type="submit" class="im-btn del" onclick="event.stopPropagation()">Excluir</button></form><% } %>
       </div>
     </div>
   </div>

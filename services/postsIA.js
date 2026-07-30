@@ -26,8 +26,10 @@ function _absoluta(src, base) {
 }
 
 async function analisarSite(url) {
+  let urlCompleta = String(url || '').trim();
+  if (urlCompleta && !/^https?:\/\//i.test(urlCompleta)) urlCompleta = 'https://' + urlCompleta;
   let alvo;
-  try { alvo = new URL(url); } catch (e) { throw new Error('URL inválida.'); }
+  try { alvo = new URL(urlCompleta); } catch (e) { throw new Error('URL inválida.'); }
   if (!/^https?:$/.test(alvo.protocol)) throw new Error('A URL precisa começar com http:// ou https://');
   if (_hostBloqueado(alvo.hostname)) throw new Error('Esse endereço não pode ser analisado.');
 

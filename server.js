@@ -8182,8 +8182,12 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
 app.get('/app/coins', auth, (req, res) => {
   const users = (_cacheUsuarios || []);
   const user = users.find(u => u.id === req.session.user.id) || req.session.user;
-  const historico = (user.matchCoinsTransacoes || []).slice().reverse().slice(0, 50);
-  res.render('app-coins', { user, mpPublicKey: process.env.MP_PUBLIC_KEY || '', historico });
+  // historicoCompleto (sem corte) alimenta os totais de Hoje/Semana/Mês e por
+  // categoria -- limitar a 50 ali sub-contava contas com mais atividade que isso.
+  // historico (só os 50 mais recentes) continua sendo o usado pra lista visível.
+  const historicoCompleto = (user.matchCoinsTransacoes || []).slice().reverse();
+  const historico = historicoCompleto.slice(0, 50);
+  res.render('app-coins', { user, mpPublicKey: process.env.MP_PUBLIC_KEY || '', historico, historicoCompleto });
 });
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====

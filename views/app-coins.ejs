@@ -113,8 +113,8 @@
   const _inicioSemana = new Date(_agora); _inicioSemana.setDate(_agora.getDate() - _agora.getDay());
   const _inicioMes = new Date(_agora.getFullYear(), _agora.getMonth(), 1);
 
-  const _debitos = (historico || []).filter(t => t.quantidade < 0);
-  const _recargas = (historico || []).filter(t => t.quantidade > 0);
+  const _debitos = (historicoCompleto || historico || []).filter(t => t.quantidade < 0);
+  const _recargas = (historicoCompleto || historico || []).filter(t => t.quantidade > 0);
 
   const _somaHoje    = _debitos.filter(t => t.data.startsWith(_hoje)).reduce((s,t) => s + Math.abs(t.quantidade), 0);
   const _somaSemana  = _debitos.filter(t => new Date(t.data) >= _inicioSemana).reduce((s,t) => s + Math.abs(t.quantidade), 0);

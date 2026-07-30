@@ -71,43 +71,47 @@ async function debitarLeadsAtivos() {
 
 async function verificarAlertas() {
   try {
+    const hoje = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
     const users = await lerUsuarios();
+    let alterou = false;
 
-    for (const u of users) {
+    for (let i = 0; i < users.length; i++) {
+      const u = users[i];
       const uid = u.id || u.userId;
       const saldo = u.matchCoins || 0;
-      const total = Math.max(u.matchCoinsTotal || 1000, saldo, 1);
-      const pct = Math.round((saldo / total) * 100);
 
+      // Idempotência: não repete o mesmo alerta mais de 1x por dia (evita spam
+      // se o servidor reiniciar varias vezes, e nao faz sentido lembrar de hora em hora)
+      if (u.ultimoAlertaSaldoEm === hoje) continue;
+
+      // Limiar por saldo absoluto, não percentual do total historico comprado
+      // (matchCoinsTotal cresce pra sempre a cada recarga -- usar % dele fazia
+      // contas antigas com muitas recargas disparar "acabando" com saldo alto)
+      let alerta = null;
       if (saldo === 0) {
-        await criarNotificacao({
-          id: Date.now().toString() + '_' + uid,
-          tipo: 'conta_pausada',
-          titulo: 'Conta pausada',
-          mensagem: '⛔ Seus créditos acabaram. Adicione créditos para reativar sua conta.',
-          usuarioId: uid, lida: false,
-          criadaEm: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
-        });
-      } else if (pct <= 10) {
-        await criarNotificacao({
-          id: Date.now().toString() + '_' + uid,
-          tipo: 'creditos_criticos',
-          titulo: 'Créditos quase zerados',
-          mensagem: '🔴 Créditos quase zerados! Recarregue agora para não pausar sua conta.',
-          usuarioId: uid, lida: false,
-          criadaEm: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
-        });
-      } else if (pct <= 30) {
-        await criarNotificacao({
-          id: Date.now().toString() + '_' + uid,
-          tipo: 'creditos_baixos',
-          titulo: 'Créditos acabando',
-          mensagem: '⚠️ Seus créditos estão acabando. Considere recarregar.',
-          usuarioId: uid, lida: false,
-          criadaEm: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
-        });
+        alerta = { tipo: 'conta_pausada', titulo: 'Conta pausada', mensagem: '⛔ Seus créditos acabaram. Adicione créditos para reativar sua conta.' };
+      } else if (saldo <= 200) {
+        alerta = { tipo: 'creditos_criticos', titulo: 'Créditos quase zerados', mensagem: '🔴 Créditos quase zerados! Recarregue agora para não pausar sua conta.' };
+      } else if (saldo <= 1000) {
+        alerta = { tipo: 'creditos_baixos', titulo: 'Créditos acabando', mensagem: '⚠️ Seus créditos estão acabando. Considere recarregar.' };
       }
+
+      if (!alerta) continue;
+
+      users[i].ultimoAlertaSaldoEm = hoje;
+      alterou = true;
+
+      await criarNotificacao({
+        id: Date.now().toString() + '_' + uid,
+        tipo: alerta.tipo,
+        titulo: alerta.titulo,
+        mensagem: alerta.mensagem,
+        usuarioId: uid, lida: false,
+        criadaEm: new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})
+      });
     }
+
+    if (alterou) await salvarTodosUsuarios(users);
   } catch(e) {
     console.error('[jobCreditos] Erro alertas:', e.message);
   }

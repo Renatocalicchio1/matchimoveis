@@ -5813,12 +5813,11 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     const event = body.event;
     const instance = body.instance;
     const data = body.data;
-    // JSON.stringify do body inteiro só pra eventos que de fato processamos --
-    // contacts.update/chats.update de um grupo movimentado geravam dezenas
-    // desses por segundo, cada um serializando o payload inteiro à toa
-    if (event === 'messages.upsert' || event === 'MESSAGES_UPSERT') {
-      console.log('[WEBHOOK WA] body completo:', JSON.stringify(body).substring(0, 500));
-    } else {
+    // JSON.stringify do body inteiro só roda depois de passar pelos filtros de
+    // grupo/duplicata/fromMe, mais abaixo — um grupo movimentado gera dezenas de
+    // messages.upsert por segundo (inclusive duplicados), e serializar o payload
+    // inteiro de cada um antes de descartar foi o que causou o OOM de novo
+    if (event !== 'messages.upsert' && event !== 'MESSAGES_UPSERT') {
       console.log('[WEBHOOK WA] evento ignorado (sem log completo):', event, '| instancia:', instance);
     }
 
@@ -5875,6 +5874,10 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     }
     if (fromMe) return res.status(200).json({ ok: true, ignorado: 'fromMe' });
     if (!telefone || !texto) return res.status(200).json({ ok: true, ignorado: 'sem_telefone_ou_texto' });
+
+    // Só chega aqui — e só agora serializa o body inteiro — mensagem individual,
+    // não-duplicada, que vai ser processada de verdade
+    console.log('[WEBHOOK WA] body completo:', JSON.stringify(body).substring(0, 500));
 
     // Pré-aquece Evolution API em background -- só quando a mensagem vai ser
     // processada de verdade (não em todo evento recebido: contacts.update,

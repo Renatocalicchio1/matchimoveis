@@ -859,7 +859,8 @@ var IG_USERNAME = '<%- (user.instagramUsername||"sua_conta").replace(/'/g,"") %>
 var _igImovelId = null;
 var _igFotos = [];
 var _igFotoIdx = 0;
-var _igFotosOff = {};
+var _igFotosOff = {}; // chave = url da foto (nao index — precisa sobreviver ao arrastar/reordenar)
+var _igDragUrl = null;
 
 function abrirModalInstagram(imovelId) {
   _igImovelId = imovelId;
@@ -892,7 +893,7 @@ function abrirModalInstagram(imovelId) {
           '</div>' +
           '<div class="ig-thumbs" id="ig-thumbs"></div>' +
         '</div>' +
-        '<p style="font-size:11.5px;color:#9ca3af;margin:0 0 6px">Clique numa foto pra ver, clique de novo na bolinha pra tirar do post</p>' +
+        '<p style="font-size:11.5px;color:#9ca3af;margin:0 0 6px">Clique numa foto pra ver, na bolinha pra tirar do post, ou arraste pra reordenar</p>' +
         '<textarea id="ig-legenda" class="ig-legenda-box">' + d.legenda.replace(/</g,'&lt;') + '</textarea>' +
         '<p style="font-size:12px;color:#6b7280;margin-bottom:8px">Onde deseja publicar?</p>' +
         '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">' +
@@ -912,12 +913,16 @@ function abrirModalInstagram(imovelId) {
 function igRenderThumbs() {
   var wrap = document.getElementById('ig-thumbs');
   if (!wrap) return;
-  wrap.innerHTML = _igFotos.map(function(url, i){
-    var off = !!_igFotosOff[i];
-    var atual = i === _igFotoIdx ? ' atual' : '';
-    return '<div class="ig-thumb' + (off?' off':'') + atual + '" onclick="igClicouThumb(' + i + ', event)">' +
+  var urlAtual = _igFotos[_igFotoIdx];
+  wrap.innerHTML = _igFotos.map(function(url){
+    var off = !!_igFotosOff[url];
+    var atual = url === urlAtual ? ' atual' : '';
+    var urlAttr = url.replace(/'/g, '&#39;');
+    return '<div class="ig-thumb' + (off?' off':'') + atual + '" draggable="true" ' +
+      'ondragstart="igDragStart(event,\'' + urlAttr + '\')" ondragover="event.preventDefault()" ondrop="igDrop(event,\'' + urlAttr + '\')" ' +
+      'onclick="igClicouThumb(\'' + urlAttr + '\', event)">' +
       '<img src="' + url + '">' +
-      '<div class="ig-thumb-check" onclick="igToggleFoto(' + i + ', event)">' + (off ? '' : '✓') + '</div>' +
+      '<div class="ig-thumb-check" onclick="igToggleFoto(\'' + urlAttr + '\', event)">' + (off ? '' : '✓') + '</div>' +
     '</div>';
   }).join('');
 }
@@ -930,19 +935,39 @@ function igNavFoto(delta) {
   igRenderThumbs();
 }
 
-function igClicouThumb(i, ev) {
+function igClicouThumb(url, ev) {
   ev.stopPropagation();
-  _igFotoIdx = i;
-  document.getElementById('ig-prev-img').src = _igFotos[i];
+  _igFotoIdx = _igFotos.indexOf(url);
+  document.getElementById('ig-prev-img').src = url;
   igRenderThumbs();
 }
 
-function igToggleFoto(i, ev) {
+function igToggleFoto(url, ev) {
   ev.stopPropagation();
-  var selecionadas = _igFotos.filter(function(_, idx){ return !_igFotosOff[idx]; });
+  var selecionadas = _igFotos.filter(function(u){ return !_igFotosOff[u]; });
   // Não deixa tirar a última foto selecionada — precisa de pelo menos 1
-  if (!_igFotosOff[i] && selecionadas.length <= 1) return;
-  _igFotosOff[i] = !_igFotosOff[i];
+  if (!_igFotosOff[url] && selecionadas.length <= 1) return;
+  _igFotosOff[url] = !_igFotosOff[url];
+  igRenderThumbs();
+}
+
+function igDragStart(ev, url) {
+  _igDragUrl = url;
+  ev.dataTransfer.effectAllowed = 'move';
+}
+
+function igDrop(ev, targetUrl) {
+  ev.preventDefault();
+  ev.stopPropagation();
+  if (!_igDragUrl || _igDragUrl === targetUrl) return;
+  var urlAtual = _igFotos[_igFotoIdx];
+  var origem = _igFotos.indexOf(_igDragUrl);
+  var destino = _igFotos.indexOf(targetUrl);
+  if (origem < 0 || destino < 0) return;
+  _igFotos.splice(origem, 1);
+  _igFotos.splice(destino, 0, _igDragUrl);
+  _igFotoIdx = _igFotos.indexOf(urlAtual);
+  _igDragUrl = null;
   igRenderThumbs();
 }
 
@@ -956,7 +981,7 @@ function fecharModalInstagram() {
 async function postarInstagram() {
   var destino = document.querySelector('input[name="ig-destino"]:checked');
   destino = destino ? destino.value : 'feed';
-  var fotosEscolhidas = _igFotos.filter(function(_, idx){ return !_igFotosOff[idx]; });
+  var fotosEscolhidas = _igFotos.filter(function(u){ return !_igFotosOff[u]; });
   var legendaEl = document.getElementById('ig-legenda');
   var legenda = legendaEl ? legendaEl.value : '';
   var btn = document.getElementById('ig-btn-postar');

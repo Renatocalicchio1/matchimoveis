@@ -4050,10 +4050,11 @@ app.post('/app/instagram/postar', auth, async (req,res)=>{
 });
 
 // ── POSTS (MVP) ────────────────────────────────────────────────────────────
-// TEMP (jul/2026): liberado só pra REN-G9K6 pra teste — mesmo padrão usado
-// antes pro Meu Site/Instagram. Remover o gate quando liberar geral.
+// TEMP (jul/2026): liberado só pras contas da lista pra teste — mesmo padrão
+// usado antes pro Meu Site/Instagram. Remover o gate quando liberar geral.
+const _CONTAS_POSTS_LIBERADAS = ['REN-G9K6', 'ROD-P3V3'];
 function _podeUsarPosts(user) {
-  return !!user && (user.codigoUsuario || user.id) === 'REN-G9K6';
+  return !!user && _CONTAS_POSTS_LIBERADAS.includes(user.codigoUsuario || user.id);
 }
 
 app.get('/app/posts', auth, async (req, res) => {

@@ -278,12 +278,33 @@
   </div>
   <% } %>
 
-  <% if(totalPages > 1){ %>
+  <% if(totalPages > 1){
+    const _maxVisiveis = 20;
+    let _paginas = [];
+    if (totalPages <= _maxVisiveis) {
+      for (let p=1; p<=totalPages; p++) _paginas.push(p);
+    } else {
+      const _lado = Math.floor((_maxVisiveis - 3) / 2);
+      let _inicio = Math.max(2, page - _lado);
+      let _fim = Math.min(totalPages - 1, page + _lado);
+      if (page - _lado < 2) _fim = Math.min(totalPages - 1, _fim + (2 - (page - _lado)));
+      if (page + _lado > totalPages - 1) _inicio = Math.max(2, _inicio - ((page + _lado) - (totalPages - 1)));
+      _paginas.push(1);
+      if (_inicio > 2) _paginas.push('...');
+      for (let p=_inicio; p<=_fim; p++) _paginas.push(p);
+      if (_fim < totalPages - 1) _paginas.push('...');
+      _paginas.push(totalPages);
+    }
+  %>
   <div class="paginacao">
     <a class="pg-link <%= page<=1?'desabilitado':'' %>" href="<%= siteBasePath || '/' %>?page=<%= page-1 %>&<%= queryPagina %>">‹</a>
-    <% for(let p=1; p<=totalPages; p++){ %>
-    <a class="pg-link <%= p===page?'atual':'' %>" href="<%= siteBasePath || '/' %>?page=<%= p %>&<%= queryPagina %>"><%= p %></a>
-    <% } %>
+    <% _paginas.forEach(p => { %>
+      <% if(p==='...'){ %>
+      <span class="pg-link desabilitado" style="border:none;background:transparent">…</span>
+      <% } else { %>
+      <a class="pg-link <%= p===page?'atual':'' %>" href="<%= siteBasePath || '/' %>?page=<%= p %>&<%= queryPagina %>"><%= p %></a>
+      <% } %>
+    <% }) %>
     <a class="pg-link <%= page>=totalPages?'desabilitado':'' %>" href="<%= siteBasePath || '/' %>?page=<%= page+1 %>&<%= queryPagina %>">›</a>
   </div>
   <% } %>

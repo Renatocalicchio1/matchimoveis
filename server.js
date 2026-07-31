@@ -7751,10 +7751,11 @@ function gerarXMLPortal(imoveis, portal, user){
     imoveis.forEach(i => {
       const prop = i.proprietario || {};
       const fotos = Array.isArray(i.fotos) ? i.fotos : [];
+      const transacaoQA = i.transacao === 'aluguel' ? 'For Rent' : 'For Sale';
       xml += '\n    <Listing>\n';
       xml += '      <ListingID>'+esc(i.id_interno || i.idExterno || i.idOriginal || i.id)+'</ListingID>\n';
       xml += '      <Title>'+esc(i.titulo || ((i.tipo || 'Imóvel')+' em '+(i.bairro || '')))+'</Title>\n';
-      xml += '      <TransactionType>For Sale</TransactionType>\n';
+      xml += '      <TransactionType>'+transacaoQA+'</TransactionType>\n';
       xml += '      <PublicationType>STANDARD</PublicationType>\n';
       xml += '      <Created_at>'+esc(i.createdAt || i.dataCadastro || '')+'</Created_at>\n';
       xml += '      <Updated_at>'+esc(i.lastUpdate || i.updatedAt || i.ultimaAtualizacao || '')+'</Updated_at>\n';

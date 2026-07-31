@@ -4,6 +4,11 @@ const path = require('path');
 function esc(v=''){return String(v??'').replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));}
 function money(v){return String(v||'').replace(/\D/g,'') || '0';}
 function get(i,k){return i?.[k] ?? i?.origin?.[k] ?? '';}
+function transactionType(i){
+  const t = String(get(i,'transacao') || '').toLowerCase();
+  if (t.includes('aluguel') || t.includes('locacao') || t.includes('locação') || t.includes('alugar') || t.includes('rent')) return 'For Rent';
+  return 'For Sale';
+}
 
 function buildVivaRealXML(items, portal='canalpro'){
   const listings = items.map((i,idx)=>{
@@ -12,7 +17,7 @@ function buildVivaRealXML(items, portal='canalpro'){
     <Listing>
       <ListingID>${esc(id)}</ListingID>
       <Title>${esc(get(i,'titulo') || get(i,'title') || 'Imóvel Mario Sergio')}</Title>
-      <TransactionType>For Sale</TransactionType>
+      <TransactionType>${transactionType(i)}</TransactionType>
       <PublicationType>STANDARD</PublicationType>
       <DetailViewUrl>${esc(get(i,'url') || get(i,'url_anuncio'))}</DetailViewUrl>
       <PropertyType>${esc(get(i,'tipo') || 'Residential / Apartment')}</PropertyType>

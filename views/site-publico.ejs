@@ -38,7 +38,7 @@
     body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
     a{color:inherit}
 
-    header{background:color-mix(in srgb, var(--paper) 90%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    header{background:<%= siteConfig.corCabecalho ? siteConfig.corCabecalho : 'color-mix(in srgb, var(--paper) 90%, transparent)' %>;<% if(!siteConfig.corCabecalho){ %>backdrop-filter:blur(10px);<% } %>border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
     .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.4px;text-decoration:none;color:var(--ink)}
     .logo .dot{width:8px;height:8px;border-radius:50%;background:var(--brand)}
     .logo img{height:32px;max-width:190px;object-fit:contain;display:block}
@@ -92,7 +92,7 @@
     .pg-link.atual{background:var(--brand);border-color:var(--brand);color:#fff}
     .pg-link.desabilitado{opacity:.4;pointer-events:none}
 
-    .site-footer{border-top:1px solid var(--line);margin-top:40px;padding:32px 24px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.9}
+    .site-footer{background:<%= siteConfig.corRodape ? siteConfig.corRodape : 'transparent' %>;border-top:1px solid var(--line);margin-top:40px;padding:32px 24px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.9}
     .site-footer b{color:var(--ink);display:block;font-size:14px;margin-bottom:4px}
     .site-footer a{color:var(--muted);text-decoration:none}
     .site-footer a:hover{color:var(--brand)}

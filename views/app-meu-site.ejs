@@ -75,6 +75,8 @@
   <div class="pf-card-sub">Desativado, o link mostra uma página de manutenção — os imóveis continuam normais no resto da plataforma.</div>
   <form method="POST" action="/app/meu-site" id="form-toggle">
     <input type="hidden" name="cor_primaria" value="<%= siteConfig.cor_primaria %>">
+    <input type="hidden" name="cor_cabecalho" value="<%= siteConfig.cor_cabecalho||'' %>">
+    <input type="hidden" name="cor_rodape" value="<%= siteConfig.cor_rodape||'' %>">
     <input type="hidden" name="rodape_nome" value="<%= siteConfig.rodape_nome %>">
     <input type="hidden" name="rodape_telefone" value="<%= siteConfig.rodape_telefone %>">
     <input type="hidden" name="rodape_endereco" value="<%= siteConfig.rodape_endereco %>">
@@ -99,7 +101,7 @@
   <div class="pf-card-sub">Cor de destaque e logo aplicados em todo o site.</div>
 
   <div class="pf-field" style="margin-bottom:16px">
-    <label>Cor principal</label>
+    <label>Cores</label>
     <form method="POST" action="/app/meu-site" id="form-cor">
       <input type="hidden" name="rodape_nome" value="<%= siteConfig.rodape_nome %>">
       <input type="hidden" name="rodape_telefone" value="<%= siteConfig.rodape_telefone %>">
@@ -108,11 +110,22 @@
       <input type="hidden" name="rodape_instagram" value="<%= siteConfig.rodape_instagram %>">
       <input type="hidden" name="rodape_facebook" value="<%= siteConfig.rodape_facebook %>">
       <input type="hidden" name="site_ativo" value="<%= siteConfig.site_ativo!==false?'1':'0' %>">
-      <div class="ms-cor-row">
+      <div class="ms-cor-row" style="margin-bottom:10px">
         <input type="color" name="cor_primaria" id="cor-picker" value="<%= siteConfig.cor_primaria || '#FF385C' %>" onchange="document.getElementById('cor-texto').value=this.value">
         <input type="text" id="cor-texto" value="<%= siteConfig.cor_primaria || '#FF385C' %>" oninput="document.getElementById('cor-picker').value=this.value" readonly>
-        <button type="submit" class="pf-btn">Salvar cor</button>
+        <span style="font-size:12px;color:#6b7280">Cor principal (botões, preços, links)</span>
       </div>
+      <div class="ms-cor-row" style="margin-bottom:10px">
+        <input type="color" name="cor_cabecalho" id="cor-cabecalho-picker" value="<%= siteConfig.cor_cabecalho || '#FBF9F6' %>" onchange="document.getElementById('cor-cabecalho-texto').value=this.value">
+        <input type="text" id="cor-cabecalho-texto" value="<%= siteConfig.cor_cabecalho || '#FBF9F6' %>" oninput="document.getElementById('cor-cabecalho-picker').value=this.value" readonly>
+        <span style="font-size:12px;color:#6b7280">Fundo do cabeçalho</span>
+      </div>
+      <div class="ms-cor-row" style="margin-bottom:10px">
+        <input type="color" name="cor_rodape" id="cor-rodape-picker" value="<%= siteConfig.cor_rodape || '#FBF9F6' %>" onchange="document.getElementById('cor-rodape-texto').value=this.value">
+        <input type="text" id="cor-rodape-texto" value="<%= siteConfig.cor_rodape || '#FBF9F6' %>" oninput="document.getElementById('cor-rodape-picker').value=this.value" readonly>
+        <span style="font-size:12px;color:#6b7280">Fundo do rodapé</span>
+      </div>
+      <button type="submit" class="pf-btn">Salvar cores</button>
     </form>
   </div>
 
@@ -141,6 +154,8 @@
   <div class="pf-card-sub">Aparece no fim de todas as páginas do site.</div>
   <form method="POST" action="/app/meu-site">
     <input type="hidden" name="cor_primaria" value="<%= siteConfig.cor_primaria %>">
+    <input type="hidden" name="cor_cabecalho" value="<%= siteConfig.cor_cabecalho||'' %>">
+    <input type="hidden" name="cor_rodape" value="<%= siteConfig.cor_rodape||'' %>">
     <input type="hidden" name="site_ativo" value="<%= siteConfig.site_ativo!==false?'1':'0' %>">
     <div class="pf-grid">
       <div class="pf-field">

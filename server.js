@@ -1191,13 +1191,27 @@ app.get('/admin/quintoandar-solicitacoes', authAdmin, async (req, res) => {
     await _qQAS(`CREATE TABLE IF NOT EXISTS solicitacoes_quintoandar (
       id SERIAL PRIMARY KEY, user_id TEXT, nome TEXT, telefone TEXT, email TEXT,
       criado_em TIMESTAMPTZ DEFAULT NOW(), atendido BOOLEAN DEFAULT FALSE)`);
-    const r = await _qQAS("SELECT * FROM solicitacoes_quintoandar ORDER BY criado_em DESC");
+    // Combina solicitações de acesso à carteira (tabela solicitacoes_quintoandar) com
+    // quem autorizou o envio dos próprios imóveis (usuarios.autoriza_quintoandar) —
+    // um corretor pode ter feito só uma das duas coisas, nunca ambas, ou as duas
+    const r = await _qQAS(`
+      SELECT COALESCE(s.user_id, u.codigo_usuario) AS user_id,
+             COALESCE(s.nome, u.nome) AS nome,
+             COALESCE(s.telefone, u.telefone, u.celular) AS telefone,
+             COALESCE(s.email, u.email) AS email,
+             s.criado_em, s.atendido,
+             COALESCE(u.autoriza_quintoandar, FALSE) AS autoriza_quintoandar
+      FROM solicitacoes_quintoandar s
+      FULL OUTER JOIN usuarios u ON u.codigo_usuario = s.user_id
+      WHERE s.id IS NOT NULL OR u.autoriza_quintoandar = TRUE
+      ORDER BY s.criado_em DESC NULLS LAST
+    `);
     let html = `<html><head><meta charset="UTF-8"><title>Solicitações QuintoAndar</title>
-    <style>body{font-family:Arial;padding:20px;max-width:900px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
+    <style>body{font-family:Arial;padding:20px;max-width:1000px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
     <body><h2 style="margin-bottom:16px">Solicitações de acesso QuintoAndar (${r.rows.length})</h2>
-    <table><tr><th>Data</th><th>Nome</th><th>Telefone</th><th>Email</th><th>Código</th><th>Status</th><th>Ação</th></tr>`;
+    <table><tr><th>Data</th><th>Nome</th><th>Telefone</th><th>Email</th><th>Código</th><th>Acesso à carteira</th><th>Autorizou envio</th><th>Ação</th></tr>`;
     r.rows.forEach(row => {
-      html += `<tr><td>${new Date(row.criado_em).toLocaleString('pt-BR')}</td><td>${row.nome||''}</td><td>${row.telefone||''}</td><td>${row.email||''}</td><td>${row.user_id||''}</td><td>${row.atendido?'<span style="color:#16a34a;font-weight:600">✅ Liberado</span>':'<span style="color:#f59e0b;font-weight:600">⏳ Aguardando</span>'}</td><td>${!row.atendido?'<a href="/admin/quintoandar-liberar/'+row.user_id+'" style="background:#00a86b;color:#fff;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Liberar</a>':'<span style="color:#9ca3af;font-size:12px">Já liberado</span>'}</td></tr>`;
+      html += `<tr><td>${row.criado_em ? new Date(row.criado_em).toLocaleString('pt-BR') : '-'}</td><td>${row.nome||''}</td><td>${row.telefone||''}</td><td>${row.email||''}</td><td>${row.user_id||''}</td><td>${row.criado_em === null ? '<span style="color:#9ca3af;font-size:12px">Não solicitou</span>' : (row.atendido?'<span style="color:#16a34a;font-weight:600">✅ Liberado</span>':'<span style="color:#f59e0b;font-weight:600">⏳ Aguardando</span>')}</td><td>${row.autoriza_quintoandar?'<span style="color:#16a34a;font-weight:600">✅ Autorizou</span>':'<span style="color:#9ca3af;font-size:12px">Não autorizou</span>'}</td><td>${(row.criado_em!==null && !row.atendido)?'<a href="/admin/quintoandar-liberar/'+row.user_id+'" style="background:#00a86b;color:#fff;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Liberar</a>':'<span style="color:#9ca3af;font-size:12px">-</span>'}</td></tr>`;
     });
     html += '</table></body></html>';
     res.send(html);

@@ -4168,6 +4168,43 @@ app.get('/app/instagram/preview/:imovelId', auth, (req,res)=>{
   }
 });
 
+// Gera uma legenda alternativa via IA (Groq) pro imóvel, pro botão "Gerar
+// legenda com IA" no modal — separado do texto padrão de montarLegenda()
+app.post('/app/instagram/legenda-ia', auth, express.json(), async (req,res)=>{
+  try {
+    const { gerarLegenda } = require('./services/postsIA');
+    const user = req.session.user;
+    const imovelId = String(req.body.imovelId || '').trim();
+    const imoveis = (_cacheImoveis || []);
+    const imovel = imoveis.find(i => String(i.id)===String(imovelId) || String(i.idExterno)===String(imovelId) || String(i.idInterno)===String(imovelId) || String(i.codigoImovel)===String(imovelId));
+    if (!imovel) return res.status(404).json({ ok:false, erro: 'Imóvel não encontrado.' });
+
+    const uidLogado = user.id || user.codigoUsuario || user.codigo_usuario;
+    const ownerImovel = imovel.userId || imovel.user_id || imovel.usuarioId;
+    if (String(ownerImovel) !== String(uidLogado)) {
+      return res.status(403).json({ ok:false, erro: 'Você só pode publicar imóveis da sua própria carteira.' });
+    }
+
+    const local = imovel.bairro || imovel.cidade || '';
+    const titulo = imovel.titulo || `${imovel.tipo || 'Imóvel'}${local ? ' em ' + local : ''}`;
+    const valorFmt = imovel.valor_imovel ? `R$ ${Number(imovel.valor_imovel).toLocaleString('pt-BR')}` : '';
+    const partes = [
+      titulo,
+      imovel.quartos ? `${imovel.quartos} quarto(s)` : '',
+      imovel.suites ? `${imovel.suites} suíte(s)` : '',
+      imovel.vagas ? `${imovel.vagas} vaga(s)` : '',
+      imovel.area_m2 ? `${imovel.area_m2}m²` : '',
+      imovel.descricao || ''
+    ].filter(Boolean);
+    const dados = { titulo, descricao: imovel.descricao || partes.join(' · '), valor: valorFmt, textoBruto: partes.join('\n') };
+    const { legenda } = await gerarLegenda(dados);
+    res.json({ ok:true, legenda });
+  } catch(e) {
+    console.error('[instagram/legenda-ia]', e.message);
+    res.status(500).json({ ok:false, erro: e.message || 'Não foi possível gerar a legenda.' });
+  }
+});
+
 app.post('/app/instagram/postar', auth, async (req,res)=>{
   try {
     const { publicarFeed, publicarStory, montarLegenda } = require('./services/instagram');

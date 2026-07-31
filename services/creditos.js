@@ -22,7 +22,9 @@ const CUSTO = {
   nova_lead:              20,
   importar_lead:          10,
   imovel_divulgado:        2,
-  postar_instagram:       30
+  postar_instagram:       30,
+  campanha_meta_criada:   20,
+  lead_meta_recebido:     20
 };
 
 async function consumir(userId, acao) {

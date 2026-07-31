@@ -1,0 +1,265 @@
+<%- include('partials/app-shell',{active:'meta-campanha',title:'Criar Campanha',subtitle:'Escolha um imóvel da sua carteira e crie uma campanha paga no Meta (Facebook/Instagram) — você define público e orçamento.',perfil:(user && user.tipo)||'corretor',user:user}) %>
+
+<style>
+.mc-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:16px;padding:20px;margin-bottom:16px}
+.mc-card-title{font-size:15px;font-weight:600;color:#111827;margin:0 0 4px}
+.mc-card-sub{font-size:13px;color:#9ca3af;margin:0 0 16px}
+.mc-msg{font-size:13px;padding:10px 14px;border-radius:10px;margin-bottom:16px}
+.mc-msg.ok{background:#f0fdf4;color:#16a34a}
+.mc-msg.err{background:#fef2f2;color:#dc2626}
+.mc-btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:#FF385C;color:#fff}
+.mc-btn:hover{background:#e31c46}
+.mc-btn:disabled{opacity:.5;cursor:not-allowed}
+.mc-btn-sec{background:#fff;border:1px solid #e5e7eb;color:#374151}
+.mc-field{margin-bottom:16px}
+.mc-label{font-size:12.5px;font-weight:600;color:#374151;margin-bottom:6px;display:block}
+.mc-input,.mc-select{width:100%;padding:10px 12px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:14px;box-sizing:border-box}
+.mc-row{display:flex;gap:12px;flex-wrap:wrap}
+.mc-row .mc-field{flex:1;min-width:140px}
+
+.mc-imoveis-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;max-height:360px;overflow-y:auto;padding:2px}
+.mc-imovel-card{border:2px solid #e5e7eb;border-radius:12px;overflow:hidden;cursor:pointer;background:#fff;text-align:left}
+.mc-imovel-card.on{border-color:#FF385C}
+.mc-imovel-card img{width:100%;height:100px;object-fit:cover;display:block;background:#f3f4f6}
+.mc-imovel-info{padding:8px}
+.mc-imovel-titulo{font-size:12px;font-weight:600;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-imovel-valor{font-size:11.5px;color:#6b7280;margin-top:2px}
+
+.mc-obj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.mc-obj-card{border:2px solid #e5e7eb;border-radius:12px;padding:14px;cursor:pointer;background:#fff}
+.mc-obj-card.on{border-color:#FF385C;background:#fff5f6}
+.mc-obj-emoji{font-size:20px;margin-bottom:6px}
+.mc-obj-nome{font-size:13px;font-weight:600;color:#111827;margin-bottom:4px}
+.mc-obj-desc{font-size:11.5px;color:#6b7280;line-height:1.4}
+
+.mc-lista{display:flex;flex-direction:column;gap:10px}
+.mc-item{display:flex;gap:10px;padding:10px;border:1px solid #f0f0ef;border-radius:10px;align-items:center;flex-wrap:wrap}
+.mc-item-img{width:52px;height:52px;border-radius:8px;object-fit:cover;background:#f3f4f6;flex-shrink:0}
+.mc-item-info{flex:1;min-width:140px}
+.mc-item-titulo{font-size:12.5px;font-weight:600;color:#111827}
+.mc-item-sub{font-size:11px;color:#9ca3af;margin-top:2px}
+.mc-badge{font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.mc-badge.pausada{background:#f3f4f6;color:#6b7280}
+.mc-badge.ativa{background:#f0fdf4;color:#16a34a}
+.mc-vazio{font-size:13px;color:#9ca3af;text-align:center;padding:24px 0}
+</style>
+
+<% if(msg){ %><div class="mc-msg ok"><%= msg %></div><% } %>
+<% if(err){ %><div class="mc-msg err"><%= err %></div><% } %>
+
+<% if(!user.metaAdsToken){ %>
+<div class="mc-card">
+  <div class="mc-card-title">📢 Conecte sua conta do Meta</div>
+  <div class="mc-card-sub">Pra criar campanha, você precisa ter uma Conta de Anúncios (com forma de pagamento cadastrada) e uma Página do Facebook — ambas do seu Business Manager. O MatchImóveis não cria nem paga a campanha por você: você escolhe tudo, inclusive o valor investido.</div>
+  <a href="/app/meta-ads/conectar" class="mc-btn" style="text-decoration:none;display:inline-block">Conectar conta do Meta</a>
+</div>
+<% } else { %>
+<div class="mc-card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <div class="mc-card-title" style="margin-bottom:0">✅ Conta do Meta conectada</div>
+    <form method="POST" action="/app/meta-ads/desconectar" onsubmit="return confirm('Desconectar a conta do Meta?')">
+      <button type="submit" class="mc-btn mc-btn-sec" style="font-size:11px;padding:6px 12px">Desconectar</button>
+    </form>
+  </div>
+</div>
+
+<div class="mc-card">
+  <div class="mc-card-title">1. Escolha o imóvel</div>
+  <div class="mc-card-sub">Só aparecem imóveis com pelo menos 1 foto — é obrigatório pra criar o anúncio.</div>
+  <% if(!imoveis.length){ %>
+  <div class="mc-vazio">Nenhum imóvel com foto na sua carteira ainda.</div>
+  <% } else { %>
+  <div class="mc-imoveis-grid" id="mc-imoveis-grid">
+    <% imoveis.forEach(function(i){ %>
+    <button type="button" class="mc-imovel-card" data-id="<%= i.id %>" onclick="escolherImovel(this)">
+      <img src="<%= i.foto %>" loading="lazy">
+      <div class="mc-imovel-info">
+        <div class="mc-imovel-titulo"><%= i.titulo %></div>
+        <div class="mc-imovel-valor">R$ <%= Number(i.valorImovel||0).toLocaleString('pt-BR') %></div>
+      </div>
+    </button>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+
+<div class="mc-card">
+  <div class="mc-card-title">2. Objetivo — como você quer receber o lead</div>
+  <div class="mc-obj-grid">
+    <div class="mc-obj-card" data-obj="lead_form" onclick="escolherObjetivo(this)">
+      <div class="mc-obj-emoji">📝</div>
+      <div class="mc-obj-nome">Formulário no Meta</div>
+      <div class="mc-obj-desc">A pessoa preenche nome/telefone/email direto no Facebook/Instagram, sem sair do app.</div>
+    </div>
+    <div class="mc-obj-card" data-obj="trafego" onclick="escolherObjetivo(this)">
+      <div class="mc-obj-emoji">🔗</div>
+      <div class="mc-obj-nome">Página do imóvel</div>
+      <div class="mc-obj-desc">Leva a pessoa até a página pública do imóvel, com o formulário de interesse.</div>
+    </div>
+    <div class="mc-obj-card" data-obj="whatsapp" onclick="escolherObjetivo(this)">
+      <div class="mc-obj-emoji">💬</div>
+      <div class="mc-obj-nome">Clique para WhatsApp</div>
+      <div class="mc-obj-desc">Abre uma conversa direto no seu WhatsApp conectado.</div>
+    </div>
+  </div>
+  <div class="mc-field" id="mc-campo-whatsapp" style="display:none;margin-top:14px">
+    <label class="mc-label">Número de WhatsApp que vai receber os leads</label>
+    <input type="text" class="mc-input" id="mc-whatsapp" placeholder="Ex: 47999999999" value="<%= (user.whatsappNumero||user.celular||user.telefone||'').replace(/\D/g,'') %>">
+  </div>
+</div>
+
+<div class="mc-card">
+  <div class="mc-card-title">3. Conta de anúncios e Página</div>
+  <div class="mc-row">
+    <div class="mc-field">
+      <label class="mc-label">Conta de Anúncios</label>
+      <select class="mc-select" id="mc-conta"><option value="">Carregando...</option></select>
+    </div>
+    <div class="mc-field">
+      <label class="mc-label">Página do Facebook</label>
+      <select class="mc-select" id="mc-pagina"><option value="">Carregando...</option></select>
+    </div>
+  </div>
+</div>
+
+<div class="mc-card">
+  <div class="mc-card-title">4. Orçamento e público</div>
+  <div class="mc-row">
+    <div class="mc-field">
+      <label class="mc-label">Orçamento diário (R$)</label>
+      <input type="number" class="mc-input" id="mc-orcamento" min="1" step="1" placeholder="Ex: 20">
+    </div>
+    <div class="mc-field">
+      <label class="mc-label">Raio a partir do imóvel (km)</label>
+      <input type="number" class="mc-input" id="mc-raio" min="1" step="1" value="10">
+    </div>
+  </div>
+  <div class="mc-row">
+    <div class="mc-field">
+      <label class="mc-label">Idade mínima</label>
+      <input type="number" class="mc-input" id="mc-idade-min" min="18" max="65" value="25">
+    </div>
+    <div class="mc-field">
+      <label class="mc-label">Idade máxima</label>
+      <input type="number" class="mc-input" id="mc-idade-max" min="18" max="65" value="55">
+    </div>
+    <div class="mc-field">
+      <label class="mc-label">Gênero</label>
+      <select class="mc-select" id="mc-genero">
+        <option value="todos">Todos</option>
+        <option value="homens">Homens</option>
+        <option value="mulheres">Mulheres</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="mc-card">
+  <button type="button" class="mc-btn" id="mc-btn-criar" onclick="criarCampanha()">Criar campanha (fica pausada — você revisa e ativa no Gerenciador de Anúncios)</button>
+  <div id="mc-msg-criar" class="mc-msg" style="display:none;margin-top:12px;margin-bottom:0"></div>
+</div>
+<% } %>
+
+<div class="mc-card">
+  <div class="mc-card-title">Campanhas criadas</div>
+  <% if(!campanhas.length){ %>
+  <div class="mc-vazio">Nenhuma campanha criada ainda.</div>
+  <% } else { %>
+  <div class="mc-lista">
+    <% campanhas.forEach(function(c){ %>
+    <div class="mc-item">
+      <div class="mc-item-info">
+        <div class="mc-item-titulo">Imóvel <%= c.imovelId %> · <%= c.objetivo==='lead_form'?'Formulário no Meta':c.objetivo==='whatsapp'?'Clique para WhatsApp':'Página do imóvel' %></div>
+        <div class="mc-item-sub">R$ <%= (c.orcamentoDiarioCentavos/100).toFixed(2) %>/dia · <%= c.leadsRecebidos||0 %> lead(s) recebido(s) · criada em <%= new Date(c.criadoEm).toLocaleDateString('pt-BR') %></div>
+      </div>
+      <span class="mc-badge <%= c.status %>"><%= c.status==='ativa'?'Ativa':'Pausada' %></span>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</div>
+
+<script>
+var _imovelEscolhido = null;
+var _objetivoEscolhido = null;
+
+function escolherImovel(btn){
+  document.querySelectorAll('.mc-imovel-card').forEach(function(el){ el.classList.remove('on'); });
+  btn.classList.add('on');
+  _imovelEscolhido = btn.dataset.id;
+}
+function escolherObjetivo(el){
+  document.querySelectorAll('.mc-obj-card').forEach(function(c){ c.classList.remove('on'); });
+  el.classList.add('on');
+  _objetivoEscolhido = el.dataset.obj;
+  document.getElementById('mc-campo-whatsapp').style.display = (_objetivoEscolhido === 'whatsapp') ? 'block' : 'none';
+}
+
+<% if(user.metaAdsToken){ %>
+(function carregarContas(){
+  fetch('/app/meta-ads/contas').then(function(r){ return r.json(); }).then(function(d){
+    var selConta = document.getElementById('mc-conta');
+    var selPagina = document.getElementById('mc-pagina');
+    if(!d.ok){
+      selConta.innerHTML = '<option value="">Erro ao carregar</option>';
+      selPagina.innerHTML = '<option value="">Erro ao carregar</option>';
+      return;
+    }
+    selConta.innerHTML = d.contas.length ? d.contas.map(function(c){ return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('') : '<option value="">Nenhuma conta encontrada</option>';
+    selPagina.innerHTML = d.paginas.length ? d.paginas.map(function(p){ return '<option value="'+p.id+'">'+p.name+'</option>'; }).join('') : '<option value="">Nenhuma página encontrada</option>';
+  }).catch(function(){
+    document.getElementById('mc-conta').innerHTML = '<option value="">Erro ao carregar</option>';
+    document.getElementById('mc-pagina').innerHTML = '<option value="">Erro ao carregar</option>';
+  });
+})();
+
+function criarCampanha(){
+  var msgEl = document.getElementById('mc-msg-criar');
+  msgEl.style.display = 'none';
+  if(!_imovelEscolhido){ msgEl.className='mc-msg err'; msgEl.textContent='Escolha um imóvel.'; msgEl.style.display='block'; return; }
+  if(!_objetivoEscolhido){ msgEl.className='mc-msg err'; msgEl.textContent='Escolha o objetivo da campanha.'; msgEl.style.display='block'; return; }
+  var contaAnuncioId = document.getElementById('mc-conta').value;
+  var pageId = document.getElementById('mc-pagina').value;
+  var orcamento = document.getElementById('mc-orcamento').value;
+  if(!contaAnuncioId || !pageId){ msgEl.className='mc-msg err'; msgEl.textContent='Escolha a Conta de Anúncios e a Página.'; msgEl.style.display='block'; return; }
+  if(!orcamento || Number(orcamento) < 1){ msgEl.className='mc-msg err'; msgEl.textContent='Informe o orçamento diário.'; msgEl.style.display='block'; return; }
+
+  var genero = document.getElementById('mc-genero').value;
+  var body = {
+    imovelId: _imovelEscolhido,
+    objetivo: _objetivoEscolhido,
+    contaAnuncioId: contaAnuncioId,
+    pageId: pageId,
+    orcamentoDiario: orcamento,
+    whatsappNumero: document.getElementById('mc-whatsapp') ? document.getElementById('mc-whatsapp').value.replace(/\D/g,'') : '',
+    publico: {
+      raioKm: Number(document.getElementById('mc-raio').value) || 10,
+      idadeMin: Number(document.getElementById('mc-idade-min').value) || 18,
+      idadeMax: Number(document.getElementById('mc-idade-max').value) || 65,
+      genero: genero
+    }
+  };
+
+  var btn = document.getElementById('mc-btn-criar');
+  btn.disabled = true;
+  btn.textContent = 'Criando...';
+  fetch('/app/meta-ads/campanha', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      btn.textContent = 'Criar campanha (fica pausada — você revisa e ativa no Gerenciador de Anúncios)';
+      if(d.ok){
+        location.reload();
+      } else {
+        msgEl.className='mc-msg err'; msgEl.textContent = d.erro || 'Erro ao criar campanha.'; msgEl.style.display='block';
+      }
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = 'Criar campanha (fica pausada — você revisa e ativa no Gerenciador de Anúncios)';
+      msgEl.className='mc-msg err'; msgEl.textContent='Erro de conexão.'; msgEl.style.display='block';
+    });
+}
+<% } %>
+</script>
+
+<%- include('partials/app-end') %>

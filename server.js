@@ -3996,6 +3996,148 @@ app.post('/app/instagram/desconectar', auth, async (req,res)=>{
   res.redirect('/app/perfil');
 });
 
+// ── META ADS (campanha de anúncio pago) — OAuth padrão do Facebook, precisa
+// de Conta de Anúncios + Página do próprio corretor (com pagamento configurado
+// do lado dele). Reusa FACEBOOK_APP_ID/SECRET do Instagram, mas pedindo
+// permissões extras que exigem aprovação separada do Meta (App Review):
+// ads_management, pages_manage_ads, leads_retrieval, business_management ──
+app.get('/app/meta-ads/conectar', auth, (req,res)=>{
+  const { getAuthUrl } = require('./services/metaAds');
+  const crypto = require('crypto');
+  const state = crypto.randomBytes(16).toString('hex');
+  req.session.metaAdsOAuthState = state;
+  res.redirect(getAuthUrl(state));
+});
+
+app.get('/app/meta-ads/callback', auth, async (req,res)=>{
+  try {
+    if (req.query.error) {
+      return res.redirect('/app/redes-sociais/campanha?err=' + encodeURIComponent('Autorização do Meta cancelada.'));
+    }
+    if (!req.query.state || req.query.state !== req.session.metaAdsOAuthState) {
+      return res.redirect('/app/redes-sociais/campanha?err=' + encodeURIComponent('Sessão de autorização inválida, tente novamente.'));
+    }
+    delete req.session.metaAdsOAuthState;
+    const code = req.query.code;
+    if (!code) return res.redirect('/app/redes-sociais/campanha?err=' + encodeURIComponent('Código de autorização não recebido.'));
+
+    const { trocarCodePorToken, obterTokenLongoPrazo } = require('./services/metaAds');
+    const { atualizarUsuario: _auMetaOn } = require('./services/salvarUsuario');
+    const uid = String(req.session.user.id || '');
+
+    const shortToken = await trocarCodePorToken(code);
+    const longToken = await obterTokenLongoPrazo(shortToken);
+
+    const dadosMeta = { metaAdsToken: longToken };
+    await _auMetaOn(uid, dadosMeta);
+    req.session.user = { ...req.session.user, ...dadosMeta };
+    if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid||u.id===uid); if(_uIdx>=0) Object.assign(_cacheUsuarios[_uIdx], dadosMeta); }
+    res.redirect('/app/redes-sociais/campanha?msg=' + encodeURIComponent('Conta do Meta conectada! Escolha a Conta de Anúncios e a Página.'));
+  } catch(e) {
+    console.error('[meta-ads/callback]', e.message);
+    res.redirect('/app/redes-sociais/campanha?err=' + encodeURIComponent('Erro ao conectar com o Meta: ' + e.message));
+  }
+});
+
+app.post('/app/meta-ads/desconectar', auth, async (req,res)=>{
+  const { atualizarUsuario: _auMetaOff } = require('./services/salvarUsuario');
+  const uid = String(req.session.user.id || '');
+  const dadosMeta = { metaAdsToken: null };
+  await _auMetaOff(uid, dadosMeta).catch(e=>console.error("[meta-ads/desconectar]",e.message));
+  req.session.user = { ...req.session.user, ...dadosMeta };
+  if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid||u.id===uid); if(_uIdx>=0) Object.assign(_cacheUsuarios[_uIdx], dadosMeta); }
+  res.redirect('/app/redes-sociais/campanha');
+});
+
+// Lista as Contas de Anúncio e Páginas do corretor logado — usado pelos
+// selects da tela de criação de campanha
+app.get('/app/meta-ads/contas', auth, async (req,res)=>{
+  try {
+    const user = req.session.user;
+    if (!user.metaAdsToken) return res.status(400).json({ ok:false, erro:'Conta do Meta não conectada.' });
+    const { listarContasAnuncio, listarPaginas } = require('./services/metaAds');
+    const [contas, paginas] = await Promise.all([
+      listarContasAnuncio(user.metaAdsToken),
+      listarPaginas(user.metaAdsToken)
+    ]);
+    res.json({ ok:true, contas, paginas: paginas.map(p=>({id:p.id, name:p.name})) });
+  } catch(e) {
+    res.status(500).json({ ok:false, erro: e.message });
+  }
+});
+
+app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
+  try {
+    if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok:false, erro:'Sem acesso.' });
+    const user = req.session.user;
+    const uid = String(user.id || user.codigoUsuario || '');
+    if (!user.metaAdsToken) return res.status(400).json({ ok:false, erro:'Conecte sua conta do Meta primeiro.' });
+
+    const { imovelId, objetivo, contaAnuncioId, pageId, orcamentoDiario, publico, whatsappNumero } = req.body;
+    if (!imovelId || !objetivo || !contaAnuncioId || !pageId || !orcamentoDiario) {
+      return res.status(400).json({ ok:false, erro:'Imóvel, objetivo, conta de anúncio, página e orçamento são obrigatórios.' });
+    }
+    if (!['lead_form','trafego','whatsapp'].includes(objetivo)) {
+      return res.status(400).json({ ok:false, erro:'Objetivo inválido.' });
+    }
+
+    const imoveis = lerImoveis(user);
+    const imovel = imoveis.find(i => String(i.idExterno)===String(imovelId) || String(i.idInterno)===String(imovelId) || String(i.id)===String(imovelId));
+    if (!imovel) return res.status(404).json({ ok:false, erro:'Imóvel não encontrado na sua carteira.' });
+    if (!(imovel.fotos||[]).length) return res.status(400).json({ ok:false, erro:'O imóvel precisa ter pelo menos 1 foto pra criar o anúncio.' });
+
+    const { listarPaginas, criarCampanhaCompleta } = require('./services/metaAds');
+    const paginas = await listarPaginas(user.metaAdsToken);
+    const pagina = paginas.find(p => String(p.id) === String(pageId));
+    if (!pagina) return res.status(400).json({ ok:false, erro:'Página não encontrada ou sem permissão.' });
+
+    let numeroWA = whatsappNumero;
+    if (objetivo === 'whatsapp' && !numeroWA) {
+      numeroWA = (user.whatsappNumero || user.celular || user.telefone || '').replace(/\D/g,'');
+    }
+    if (objetivo === 'whatsapp' && !numeroWA) {
+      return res.status(400).json({ ok:false, erro:'Não encontramos um número de WhatsApp pra receber os leads. Conecte o WhatsApp em Perfil ou informe um número.' });
+    }
+
+    const orcamentoDiarioCentavos = Math.round(Number(orcamentoDiario) * 100);
+    if (!orcamentoDiarioCentavos || orcamentoDiarioCentavos < 100) {
+      return res.status(400).json({ ok:false, erro:'Orçamento diário mínimo é R$1.' });
+    }
+
+    // Centro do raio de público = localização do próprio imóvel (geocodifica
+    // na hora se ainda não tiver, mesmo fallback usado na página pública)
+    const publicoFinal = { ...(publico || {}) };
+    if (publicoFinal.raioKm && (!imovel.latitude || !imovel.longitude)) {
+      const { _geocodificarEndereco } = require('./services/salvarImovel');
+      const geo = await _geocodificarEndereco(imovel);
+      if (geo) { imovel.latitude = geo.latitude; imovel.longitude = geo.longitude; }
+    }
+    if (publicoFinal.raioKm && imovel.latitude && imovel.longitude) {
+      publicoFinal.latitude = imovel.latitude;
+      publicoFinal.longitude = imovel.longitude;
+    }
+
+    const resultado = await criarCampanhaCompleta({
+      contaAnuncioId, pageId, pageToken: pagina.access_token, token: user.metaAdsToken,
+      imovel, objetivo, orcamentoDiarioCentavos, publico: publicoFinal, whatsappNumero: numeroWA
+    });
+
+    const { criarCampanhaRegistro } = require('./services/salvarCampanhaMeta');
+    const registro = await criarCampanhaRegistro({
+      userId: uid, imovelId: String(imovelId), objetivo, orcamentoDiarioCentavos, publico: publicoFinal,
+      contaAnuncioId, pageId, campaignId: resultado.campaignId, adsetId: resultado.adsetId,
+      creativeId: resultado.creativeId, adId: resultado.adId, leadformId: resultado.leadFormId, status: 'pausada'
+    });
+
+    consumir(uid, 'campanha_meta_criada').catch(e=>console.error('[creditos] campanha_meta_criada falhou:', e.message));
+
+    res.json({ ok:true, campanha: registro });
+  } catch(e) {
+    console.error('[meta-ads/campanha]', e.message);
+    res.status(500).json({ ok:false, erro: e.message });
+  }
+});
+
 app.post('/app/instagram/postar', auth, async (req,res)=>{
   try {
     const { publicarFeed, publicarStory, montarLegenda } = require('./services/instagram');
@@ -4056,6 +4198,28 @@ const _CONTAS_POSTS_LIBERADAS = ['REN-G9K6', 'ROD-P3V3'];
 function _podeUsarPosts(user) {
   return !!user && _CONTAS_POSTS_LIBERADAS.includes(user.codigoUsuario || user.id);
 }
+
+app.get('/app/redes-sociais/campanha', auth, async (req, res) => {
+  if (!_podeUsarPosts(req.session.user)) return res.redirect('/app-home');
+  try {
+    const user = req.session.user;
+    const { listarCampanhas } = require('./services/salvarCampanhaMeta');
+    const uidLogado = user.id || user.codigoUsuario || user.codigo_usuario;
+    const imoveisComFoto = lerImoveis(user)
+      .filter(i => i.status !== 'inativo' && i.status !== 'excluido' && (i.fotos||[]).length)
+      .map(i => ({
+        id: i.idExterno || i.idInterno || i.id,
+        titulo: i.titulo || [i.tipo, i.bairro].filter(Boolean).join(' em '),
+        tipo: i.tipo, bairro: i.bairro, cidade: i.cidade,
+        valorImovel: i.valor_imovel, foto: (i.fotos||[])[0]
+      }));
+    const campanhas = await listarCampanhas(String(uidLogado));
+    res.render('app-meta-campanha', { user, active: 'meta-campanha', imoveis: imoveisComFoto, campanhas, msg: req.query.msg||'', err: req.query.err||'' });
+  } catch(e) {
+    console.error('[app/redes-sociais/campanha]', e.message);
+    res.render('app-meta-campanha', { user: req.session.user, active: 'meta-campanha', imoveis: [], campanhas: [], msg:'', err: e.message });
+  }
+});
 
 app.get('/app/posts', auth, async (req, res) => {
   if (!_podeUsarPosts(req.session.user)) return res.redirect('/app-home');
@@ -6044,6 +6208,25 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
     });
 
     if (!leadEncontrado) {
+      // ── ANÚNCIO CLIQUE-PARA-WHATSAPP (Meta Ads) — a 1ª mensagem de uma
+      // conversa iniciada por um anúncio desse tipo carrega o ID do anúncio
+      // em contextInfo.externalAdReplyInfo (Baileys/Evolution). Se bater com
+      // uma campanha nossa, pula o filtro de palavra-chave (pode vir com
+      // mensagem pré-preenchida genérica) e atribui a lead à campanha.
+      // NOTA: não testado contra um clique real ainda — validar o campo
+      // exato assim que a 1ª campanha desse tipo rodar de verdade.
+      let _campanhaMetaWA = null;
+      try {
+        const _adRef = msg?.extendedTextMessage?.contextInfo?.externalAdReplyInfo
+          || msg?.contextInfo?.externalAdReplyInfo
+          || data?.contextInfo?.externalAdReplyInfo || null;
+        const _adSourceId = _adRef?.sourceId || _adRef?.source_id;
+        if (_adSourceId) {
+          const { buscarCampanhaPorAdId } = require('./services/salvarCampanhaMeta');
+          _campanhaMetaWA = await buscarCampanhaPorAdId(_adSourceId);
+        }
+      } catch(e) { console.error('[WEBHOOK WA] erro detectar anuncio meta:', e.message); }
+
       // ── FILTRO_CAPTURA_LEADS — só captura se mensagem tem palavras imobiliárias
       const _palavrasImoveis = [
         // Tipos de imóvel
@@ -6081,23 +6264,26 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       ];
       const _textoNorm = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
       const _temPalavraImovel = _palavrasImoveis.some(p => _textoNorm.includes(p));
-      if (!_temPalavraImovel) {
+      if (!_temPalavraImovel && !_campanhaMetaWA) {
         console.log('[WEBHOOK WA] filtro: mensagem sem palavras imobiliárias — ignorando:', telefone, '|', texto.substring(0,50));
         return;
       }
       // Não criar lead pelo WhatsApp se mensagem veio de portal
-      if (texto.includes('imovelweb.com.br') || texto.includes('Quero ser contatado sobre este imóvel') || texto.includes('vivareal.com') || texto.includes('zapimoveis.com')) {
+      if (!_campanhaMetaWA && (texto.includes('imovelweb.com.br') || texto.includes('Quero ser contatado sobre este imóvel') || texto.includes('vivareal.com') || texto.includes('zapimoveis.com'))) {
         console.log('[WEBHOOK WA] mensagem de portal detectada — ignorando criação de lead pelo WA:', telefone);
         return;
       }
-      console.log('[WEBHOOK WA] lead nao encontrado — criando novo lead automatico (oculta ate ter match):', telefone);
+      console.log('[WEBHOOK WA] lead nao encontrado — criando novo lead automatico (oculta ate ter match):', telefone, _campanhaMetaWA ? '| via campanha Meta Ads #'+_campanhaMetaWA.id : '');
       // Cria lead novo automaticamente a partir do WhatsApp — fica oculta ate gerar match
       const novoLead = {
         id: Date.now().toString(),
         nome: pushName || telefone,
         telefone,
         whatsapp: telefone,
-        origem: 'whatsapp',
+        origem: _campanhaMetaWA ? 'Meta Ads' : 'whatsapp',
+        origemEntrada: _campanhaMetaWA ? 'meta_ads_whatsapp' : undefined,
+        imovel_interesse: _campanhaMetaWA ? _campanhaMetaWA.imovelId : undefined,
+        imovelId: _campanhaMetaWA ? _campanhaMetaWA.imovelId : undefined,
         status: 'novo',
         userId: _webhookUserId || '',
         codigoUsuario: _webhookUserId || '',
@@ -6120,6 +6306,11 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         console.log('[WEBHOOK WA] novo lead criado no PG:', telefone, '| id:', novoLead.id);
         // Lead fica oculta (leadOculta:true) até gerar o 1º match — notificação
         // de "novo lead" só é criada quando a lead é revelada (cerebro/match-core.js)
+        if (_campanhaMetaWA) {
+          const { incrementarLeadsRecebidos } = require('./services/salvarCampanhaMeta');
+          incrementarLeadsRecebidos(_campanhaMetaWA.id).catch(()=>{});
+          consumir(_campanhaMetaWA.userId, 'lead_meta_recebido').catch(e=>console.error('[creditos] lead_meta_recebido (whatsapp) falhou:', e.message));
+        }
       } catch(e) {
         console.error('[WEBHOOK WA] erro ao criar lead no PG:', e.message);
         return;
@@ -8220,6 +8411,73 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
     console.error('[MP] webhook erro:', e.message);
     res.sendStatus(200);
   }
+});
+
+// ── WEBHOOK META LEADS — leadgen de campanha Lead Ads nativa ────────────────
+// GET: handshake de verificação exigido pelo Meta ao configurar o webhook no
+// App Dashboard. POST: evento real toda vez que alguém preenche o formulário.
+app.get('/webhook/meta-leads', (req, res) => {
+  const verifyToken = process.env.META_ADS_WEBHOOK_VERIFY_TOKEN || 'matchimoveis-meta-leads';
+  if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === verifyToken) {
+    return res.status(200).send(req.query['hub.challenge']);
+  }
+  res.sendStatus(403);
+});
+
+async function _processarLeadMeta({ leadgenId, formId, adId }) {
+  try {
+    const { buscarCampanhaPorLeadformId, buscarCampanhaPorAdId, incrementarLeadsRecebidos } = require('./services/salvarCampanhaMeta');
+    let campanha = formId ? await buscarCampanhaPorLeadformId(formId) : null;
+    if (!campanha && adId) campanha = await buscarCampanhaPorAdId(adId);
+    if (!campanha) { console.warn('[meta-leads] campanha não encontrada pra leadform/ad:', formId, adId); return; }
+
+    const users = (_cacheUsuarios || []);
+    const dono = users.find(u => (u.codigoUsuario||u.codigo_usuario||u.id) === campanha.userId);
+    if (!dono || !dono.metaAdsToken) { console.warn('[meta-leads] dono da campanha sem token Meta:', campanha.userId); return; }
+
+    const { listarPaginas, buscarDadosLead } = require('./services/metaAds');
+    const paginas = await listarPaginas(dono.metaAdsToken);
+    const pagina = paginas.find(p => String(p.id) === String(campanha.pageId));
+    if (!pagina) { console.warn('[meta-leads] página não encontrada:', campanha.pageId); return; }
+
+    const dadosLead = await buscarDadosLead(leadgenId, pagina.access_token);
+
+    const { salvarLead } = require('./services/salvarLead');
+    const id = Date.now().toString();
+    const lead = {
+      id, nome: dadosLead.nome || '',
+      telefone: _normTel(dadosLead.telefone), whatsapp: _normTel(dadosLead.telefone), contato: _normTel(dadosLead.telefone),
+      email: dadosLead.email || '', origem: 'Meta Ads', origemEntrada: 'meta_ads_leadform',
+      status: 'novo', faseFunil: 'novo', temperatura: 'frio', score: 0,
+      userId: campanha.userId, codigoUsuario: campanha.userId,
+      imovel_interesse: campanha.imovelId, imovelId: campanha.imovelId,
+      perfilIA: {}, mensagens: [], matches: [], matchesAuto: [],
+      timeline: [], eventos: [], followUps: [],
+      criadoEm: new Date().toISOString(),
+      dados: { origemEntrada: 'meta_ads_leadform', campanhaMetaId: campanha.id }
+    };
+    await salvarLead(lead);
+    await incrementarLeadsRecebidos(campanha.id);
+    consumir(campanha.userId, 'lead_meta_recebido').catch(e=>console.error('[creditos] lead_meta_recebido falhou:', e.message));
+
+    const matchCore = require('./cerebro/match-core');
+    await matchCore.processar({ lead, mensagem: '', canal: 'meta_ads', userId: campanha.userId });
+    console.log('[meta-leads] lead criada + match rodado:', id, '| campanha:', campanha.id);
+  } catch(e) { console.error('[meta-leads] erro ao processar lead:', e.message); }
+}
+
+app.post('/webhook/meta-leads', express.json(), async (req, res) => {
+  res.sendStatus(200); // responde rápido — Meta reenvia se demorar ou der erro
+  try {
+    const entries = req.body.entry || [];
+    for (const entry of entries) {
+      for (const change of (entry.changes || [])) {
+        if (change.field !== 'leadgen') continue;
+        const { leadgen_id, form_id, ad_id } = change.value || {};
+        if (leadgen_id) setImmediate(() => _processarLeadMeta({ leadgenId: leadgen_id, formId: form_id, adId: ad_id }));
+      }
+    }
+  } catch(e) { console.error('[webhook meta-leads]', e.message); }
 });
 
 app.get('/app/coins', auth, (req, res) => {

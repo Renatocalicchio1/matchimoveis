@@ -3801,7 +3801,7 @@ app.post('/app/perfil', auth, async (req,res)=>{
 });
 
 // ── MEU SITE (white-label público) ────────────────────────────────────────────
-const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', cor_cabecalho: '', cor_rodape: '', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '' };
+const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', cor_cabecalho: '', cor_rodape: '', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_cep: '', rodape_rua: '', rodape_numero: '', rodape_complemento: '', rodape_cidade: '', rodape_estado: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '' };
 const _DOMINIO_REGEX = /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
 
 app.get('/app/meu-site', auth, async (req, res) => {
@@ -3827,7 +3827,16 @@ app.post('/app/meu-site', auth, async (req, res) => {
       cor_rodape: /^#[0-9a-f]{6}$/i.test(req.body.cor_rodape||'') ? req.body.cor_rodape : '',
       rodape_nome: req.body.rodape_nome || '',
       rodape_telefone: req.body.rodape_telefone || '',
-      rodape_endereco: req.body.rodape_endereco || '',
+      rodape_cep: req.body.rodape_cep || '',
+      rodape_rua: req.body.rodape_rua || '',
+      rodape_numero: req.body.rodape_numero || '',
+      rodape_complemento: req.body.rodape_complemento || '',
+      rodape_cidade: req.body.rodape_cidade || '',
+      rodape_estado: req.body.rodape_estado || '',
+      rodape_endereco: [
+        [req.body.rodape_rua||'', req.body.rodape_numero||'', req.body.rodape_complemento||''].filter(Boolean).join(', '),
+        [req.body.rodape_cidade||'', req.body.rodape_estado||''].filter(Boolean).join('/')
+      ].filter(Boolean).join(' - '),
       rodape_texto: req.body.rodape_texto || '',
       rodape_instagram: req.body.rodape_instagram || '',
       rodape_facebook: req.body.rodape_facebook || '',

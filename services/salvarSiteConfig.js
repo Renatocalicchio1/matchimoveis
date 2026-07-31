@@ -32,6 +32,12 @@ async function _inicializar() {
   await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS google_analytics_id TEXT`);
   await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS cor_cabecalho TEXT`);
   await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS cor_rodape TEXT`);
+  await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS rodape_cep TEXT`);
+  await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS rodape_rua TEXT`);
+  await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS rodape_numero TEXT`);
+  await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS rodape_complemento TEXT`);
+  await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS rodape_cidade TEXT`);
+  await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS rodape_estado TEXT`);
   await query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_site_config_dominio ON site_config(dominio_personalizado) WHERE dominio_personalizado IS NOT NULL AND dominio_personalizado != ''`);
 }
 
@@ -49,7 +55,7 @@ async function buscarConfigPorDominio(dominio) {
 
 async function salvarConfig(userId, dados) {
   await _inicializar();
-  const campos = ['cor_primaria', 'cor_cabecalho', 'cor_rodape', 'logo_url', 'rodape_nome', 'rodape_telefone', 'rodape_endereco', 'rodape_texto', 'rodape_instagram', 'rodape_facebook', 'site_ativo', 'dominio_personalizado', 'dominio_status', 'dominio_verificado_em', 'cloudflare_hostname_id', 'meta_pixel_id', 'google_analytics_id'];
+  const campos = ['cor_primaria', 'cor_cabecalho', 'cor_rodape', 'logo_url', 'rodape_nome', 'rodape_telefone', 'rodape_endereco', 'rodape_cep', 'rodape_rua', 'rodape_numero', 'rodape_complemento', 'rodape_cidade', 'rodape_estado', 'rodape_texto', 'rodape_instagram', 'rodape_facebook', 'site_ativo', 'dominio_personalizado', 'dominio_status', 'dominio_verificado_em', 'cloudflare_hostname_id', 'meta_pixel_id', 'google_analytics_id'];
   const padroes = { cor_primaria: '#FF385C', site_ativo: true, dominio_status: 'nao_configurado' };
   const existente = await buscarConfig(userId);
   const valores = {};

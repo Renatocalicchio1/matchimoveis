@@ -44,6 +44,14 @@
 .ms-dns-box table{width:100%;border-collapse:collapse;margin-top:8px}
 .ms-dns-box td{padding:6px 8px;font-family:monospace;font-size:12px;border-bottom:1px solid rgba(0,0,0,.06)}
 .ms-dns-box td:first-child{color:#9ca3af;width:70px}
+
+.ms-cep-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:12px}
+.ms-cep-row .pf-field{flex:0 0 160px;margin-bottom:0}
+.ms-cep-btn{background:#111827;color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;height:38px}
+.ms-cep-msg{font-size:12px;margin:-4px 0 12px;padding:7px 12px;border-radius:7px;display:none}
+.ms-addr-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.ms-addr-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.ms-addr-grid,.ms-addr-grid2{grid-template-columns:1fr}}
 </style>
 
 <% if(locals.msg==='salvo') { %><div class="ms-msg ok">✅ Configurações salvas!</div><% } %>
@@ -79,7 +87,12 @@
     <input type="hidden" name="cor_rodape" value="<%= siteConfig.cor_rodape||'' %>">
     <input type="hidden" name="rodape_nome" value="<%= siteConfig.rodape_nome %>">
     <input type="hidden" name="rodape_telefone" value="<%= siteConfig.rodape_telefone %>">
-    <input type="hidden" name="rodape_endereco" value="<%= siteConfig.rodape_endereco %>">
+    <input type="hidden" name="rodape_cep" value="<%= siteConfig.rodape_cep||'' %>">
+    <input type="hidden" name="rodape_rua" value="<%= siteConfig.rodape_rua||'' %>">
+    <input type="hidden" name="rodape_numero" value="<%= siteConfig.rodape_numero||'' %>">
+    <input type="hidden" name="rodape_complemento" value="<%= siteConfig.rodape_complemento||'' %>">
+    <input type="hidden" name="rodape_cidade" value="<%= siteConfig.rodape_cidade||'' %>">
+    <input type="hidden" name="rodape_estado" value="<%= siteConfig.rodape_estado||'' %>">
     <input type="hidden" name="rodape_texto" value="<%= siteConfig.rodape_texto %>">
     <input type="hidden" name="rodape_instagram" value="<%= siteConfig.rodape_instagram %>">
     <input type="hidden" name="rodape_facebook" value="<%= siteConfig.rodape_facebook %>">
@@ -105,7 +118,12 @@
     <form method="POST" action="/app/meu-site" id="form-cor">
       <input type="hidden" name="rodape_nome" value="<%= siteConfig.rodape_nome %>">
       <input type="hidden" name="rodape_telefone" value="<%= siteConfig.rodape_telefone %>">
-      <input type="hidden" name="rodape_endereco" value="<%= siteConfig.rodape_endereco %>">
+      <input type="hidden" name="rodape_cep" value="<%= siteConfig.rodape_cep||'' %>">
+      <input type="hidden" name="rodape_rua" value="<%= siteConfig.rodape_rua||'' %>">
+      <input type="hidden" name="rodape_numero" value="<%= siteConfig.rodape_numero||'' %>">
+      <input type="hidden" name="rodape_complemento" value="<%= siteConfig.rodape_complemento||'' %>">
+      <input type="hidden" name="rodape_cidade" value="<%= siteConfig.rodape_cidade||'' %>">
+      <input type="hidden" name="rodape_estado" value="<%= siteConfig.rodape_estado||'' %>">
       <input type="hidden" name="rodape_texto" value="<%= siteConfig.rodape_texto %>">
       <input type="hidden" name="rodape_instagram" value="<%= siteConfig.rodape_instagram %>">
       <input type="hidden" name="rodape_facebook" value="<%= siteConfig.rodape_facebook %>">
@@ -166,10 +184,47 @@
         <label>Telefone</label>
         <input type="text" name="rodape_telefone" value="<%= siteConfig.rodape_telefone||'' %>" placeholder="(11) 99999-9999">
       </div>
+    </div>
+
+    <div class="ms-cep-row">
       <div class="pf-field">
-        <label>Endereço</label>
-        <input type="text" name="rodape_endereco" value="<%= siteConfig.rodape_endereco||'' %>" placeholder="Rua, número - Cidade/UF">
+        <label>CEP</label>
+        <input type="text" id="ms-cep" name="rodape_cep" value="<%= siteConfig.rodape_cep||'' %>" placeholder="00000-000" maxlength="9" oninput="msFmtCEP(this)">
       </div>
+      <button type="button" class="ms-cep-btn" onclick="msBuscarCEP()">Buscar</button>
+    </div>
+    <div id="ms-cep-msg" class="ms-cep-msg"></div>
+
+    <div class="ms-addr-grid">
+      <div class="pf-field">
+        <label>Rua / Avenida</label>
+        <input type="text" id="ms-rua" name="rodape_rua" value="<%= siteConfig.rodape_rua||'' %>" placeholder="Rua das Flores">
+      </div>
+      <div class="pf-field">
+        <label>Número</label>
+        <input type="text" name="rodape_numero" value="<%= siteConfig.rodape_numero||'' %>" placeholder="123">
+      </div>
+      <div class="pf-field">
+        <label>Complemento</label>
+        <input type="text" name="rodape_complemento" value="<%= siteConfig.rodape_complemento||'' %>" placeholder="Sala 2">
+      </div>
+    </div>
+
+    <div class="ms-addr-grid2">
+      <div class="pf-field">
+        <label>Cidade</label>
+        <input type="text" id="ms-cidade" name="rodape_cidade" value="<%= siteConfig.rodape_cidade||'' %>" placeholder="Cidade">
+      </div>
+      <div class="pf-field">
+        <label>Estado</label>
+        <select id="ms-estado" name="rodape_estado">
+          <option value="">Selecione</option>
+          <option value="AC">Acre</option><option value="AL">Alagoas</option><option value="AP">Amapá</option><option value="AM">Amazonas</option><option value="BA">Bahia</option><option value="CE">Ceará</option><option value="DF">Distrito Federal</option><option value="ES">Espírito Santo</option><option value="GO">Goiás</option><option value="MA">Maranhão</option><option value="MT">Mato Grosso</option><option value="MS">Mato Grosso do Sul</option><option value="MG">Minas Gerais</option><option value="PA">Pará</option><option value="PB">Paraíba</option><option value="PR">Paraná</option><option value="PE">Pernambuco</option><option value="PI">Piauí</option><option value="RJ">Rio de Janeiro</option><option value="RN">Rio Grande do Norte</option><option value="RS">Rio Grande do Sul</option><option value="RO">Rondônia</option><option value="RR">Roraima</option><option value="SC">Santa Catarina</option><option value="SP">São Paulo</option><option value="SE">Sergipe</option><option value="TO">Tocantins</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="pf-grid">
       <div class="pf-field">
         <label>Instagram (link)</label>
         <input type="text" name="rodape_instagram" value="<%= siteConfig.rodape_instagram||'' %>" placeholder="https://instagram.com/...">
@@ -200,5 +255,35 @@
     <button type="submit" class="pf-btn" style="margin-top:16px">Salvar configurações</button>
   </form>
 </div>
+
+<script>
+document.getElementById('ms-estado').value = <%- JSON.stringify(siteConfig.rodape_estado||'') %>;
+
+function msFmtCEP(input) {
+  let v = input.value.replace(/\D/g,'');
+  if (v.length>5) v = v.slice(0,5)+'-'+v.slice(5,8);
+  input.value = v;
+  if (v.replace(/\D/g,'').length===8) msBuscarCEP();
+}
+
+async function msBuscarCEP() {
+  const cep = document.getElementById('ms-cep').value.replace(/\D/g,'');
+  if (cep.length !== 8) { alert('CEP inválido'); return; }
+  const msg = document.getElementById('ms-cep-msg');
+  msg.style.display = 'block';
+  msg.style.background = '#f9fafb'; msg.style.color = '#6b7280';
+  msg.textContent = 'Buscando...';
+  try {
+    const d = await (await fetch('https://viacep.com.br/ws/'+cep+'/json/')).json();
+    if (d.erro) { msg.style.background='#fef2f2'; msg.style.color='#dc2626'; msg.textContent='CEP não encontrado'; return; }
+    document.getElementById('ms-rua').value = d.logradouro||'';
+    document.getElementById('ms-cidade').value = d.localidade||'';
+    const sel = document.getElementById('ms-estado');
+    for(let i=0;i<sel.options.length;i++) if(sel.options[i].value===d.uf){sel.selectedIndex=i;break;}
+    msg.style.background='#f0fdf4'; msg.style.color='#166534';
+    msg.textContent = '✅ '+(d.logradouro?d.logradouro+', ':'')+d.localidade+'/'+d.uf;
+  } catch(e) { msg.style.background='#fef2f2'; msg.style.color='#dc2626'; msg.textContent='Erro ao buscar CEP'; }
+}
+</script>
 
 <%- include('partials/app-end') %>

@@ -120,7 +120,10 @@ async function obterTokenLongoPrazo(shortToken) {
     } catch (e2) {
       const errData2 = e2?.response?.data?.error || e2?.response?.data || {};
       console.error('[instagram] obterTokenLongoPrazo POST (corpo) também falhou:', JSON.stringify(errData2));
-      const diag = `shortToken:${!!shortToken}(${(shortToken||'').length}) secret:${!!process.env.FACEBOOK_APP_SECRET}(${(process.env.FACEBOOK_APP_SECRET||'').length}) client_id:${process.env.FACEBOOK_APP_ID||'(vazio)'}`;
+      // TEMP debug — expõe o short token pra testar a chamada manualmente fora
+      // do servidor (via curl) e isolar se é algo do nosso código ou da conta
+      // no lado do Meta. Token de curta duração, expira em ~1h. Remover depois.
+      const diag = `client_id:${process.env.FACEBOOK_APP_ID||'(vazio)'} shortToken:${shortToken}`;
       const base = _erroGraph(e2, 'Falha ao gerar o token de longa duração.', 'obterTokenLongoPrazo');
       throw new Error(base.message + ' | Diag: ' + diag);
     }

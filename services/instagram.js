@@ -88,22 +88,33 @@ async function trocarCodePorToken(code) {
 }
 
 async function obterTokenLongoPrazo(shortToken) {
-  // Documentação oficial atual do Meta confirma GET com esses parâmetros —
-  // o erro "Unsupported request - method type" bateu igual em GET e POST,
-  // então não é o verbo HTTP o problema real. Loga o erro completo (código,
-  // tipo, fbtrace_id) pra diagnosticar de verdade em vez de adivinhar.
-  const params = {
+  // Documentação oficial descreve GET com query params, mas na prática o
+  // Meta devolve "Unsupported request - method type: get" (erro genérico
+  // #100) pra esse endpoint às vezes. A 1ª tentativa de POST tinha o mesmo
+  // problema de fundo: mandava os parâmetros na query string igual ao GET,
+  // só trocando o verbo — não é um POST de verdade. Agora tenta GET
+  // (conforme doc) e, se falhar, tenta um POST de verdade com os parâmetros
+  // no corpo como x-www-form-urlencoded — igual ao passo anterior
+  // (trocarCodePorToken), que funciona.
+  const paramsObj = {
     grant_type: 'ig_exchange_token',
     client_secret: process.env.FACEBOOK_APP_SECRET || '',
     access_token: shortToken
   };
   try {
-    const { data } = await axios.get(LONG_TOKEN_URL, { params });
+    const { data } = await axios.get(LONG_TOKEN_URL, { params: paramsObj });
     return data.access_token;
   } catch (e) {
-    const errData = e?.response?.data?.error || e?.response?.data || {};
-    console.error('[instagram] obterTokenLongoPrazo falhou — resposta completa:', JSON.stringify(errData));
-    throw _erroGraph(e, 'Falha ao gerar o token de longa duração.', 'obterTokenLongoPrazo');
+    const errData1 = e?.response?.data?.error || e?.response?.data || {};
+    console.error('[instagram] obterTokenLongoPrazo GET falhou:', JSON.stringify(errData1));
+    try {
+      const { data } = await axios.post(LONG_TOKEN_URL, new URLSearchParams(paramsObj));
+      return data.access_token;
+    } catch (e2) {
+      const errData2 = e2?.response?.data?.error || e2?.response?.data || {};
+      console.error('[instagram] obterTokenLongoPrazo POST (corpo) também falhou:', JSON.stringify(errData2));
+      throw _erroGraph(e2, 'Falha ao gerar o token de longa duração.', 'obterTokenLongoPrazo');
+    }
   }
 }
 

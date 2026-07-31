@@ -43,17 +43,57 @@ async function analisarSite(url) {
   const titulo = $('meta[property="og:title"]').attr('content') || $('title').text().trim() || '';
   const descricao = $('meta[property="og:description"]').attr('content') || $('meta[name="description"]').attr('content') || '';
 
-  const imagens = [];
-  const ogImage = $('meta[property="og:image"]').attr('content');
-  if (ogImage) { const abs = _absoluta(ogImage, alvo.href); if (abs) imagens.push(abs); }
+  // Padrão mais amplo de imagem que não é foto de verdade — logo, banner de
+  // marca, capa genérica, placeholder etc. Sites grandes (construtoras,
+  // portais) costumam reusar a mesma imagem de marca em og:image em todas
+  // as páginas, então isso sozinho não identifica a foto do imóvel.
+  const PADRAO_LIXO = /logo|[ií]cone?|icon|sprite|pixel|blank\.gif|spacer|banner|capa-padrao|cover|placeholder|avatar|favicon|og-image|share-image|social-image|watermark/i;
 
+  const imagens = [];
+
+  // 1) JSON-LD (schema.org) — muitos sites com galeria carregada via JS ainda
+  // embutem os dados estruturados da página (inclusive fotos reais) no HTML
+  // estático, só pra SEO/crawlers — mais confiável que raspar <img> nesses casos
+  $('script[type="application/ld+json"]').each((_, el) => {
+    try {
+      const json = JSON.parse($(el).contents().text());
+      const itens = Array.isArray(json) ? json : [json];
+      itens.forEach(item => {
+        let imgs = item && item.image;
+        if (!imgs) return;
+        if (typeof imgs === 'string') imgs = [imgs];
+        if (imgs && !Array.isArray(imgs) && imgs.url) imgs = [imgs.url];
+        if (!Array.isArray(imgs)) return;
+        imgs.forEach(im => {
+          const src = typeof im === 'string' ? im : (im && im.url);
+          if (!src || PADRAO_LIXO.test(src)) return;
+          const abs = _absoluta(src, alvo.href);
+          if (abs && !imagens.includes(abs)) imagens.push(abs);
+        });
+      });
+    } catch (e) { /* JSON-LD malformado ou sem campo image — ignora */ }
+  });
+
+  // 2) og:image — pega todas as ocorrências (alguns sites têm mais de uma),
+  // mas agora filtrada pelo mesmo padrão de lixo (antes entrava sem checar nada)
+  $('meta[property="og:image"], meta[property="og:image:secure_url"]').each((_, el) => {
+    const src = $(el).attr('content');
+    if (!src || PADRAO_LIXO.test(src)) return;
+    const abs = _absoluta(src, alvo.href);
+    if (abs && !imagens.includes(abs)) imagens.push(abs);
+  });
+
+  // 3) <img> da página — fallback, checando também atributos comuns de
+  // lazy-load (data-src já existia, adicionado data-lazy-src/data-original/srcset)
   $('img').each((_, el) => {
     if (imagens.length >= 20) return;
-    const src = $(el).attr('src') || $(el).attr('data-src');
+    const $el = $(el);
+    const srcsetPrimeiro = ($el.attr('srcset') || '').split(',')[0].trim().split(' ')[0];
+    const src = $el.attr('src') || $el.attr('data-src') || $el.attr('data-lazy-src') || $el.attr('data-original') || srcsetPrimeiro;
     if (!src) return;
-    if (/logo|icon|sprite|pixel|blank\.gif|spacer/i.test(src)) return;
-    const w = parseInt($(el).attr('width') || '0');
-    const h = parseInt($(el).attr('height') || '0');
+    if (PADRAO_LIXO.test(src)) return;
+    const w = parseInt($el.attr('width') || '0');
+    const h = parseInt($el.attr('height') || '0');
     if ((w && w < 100) || (h && h < 100)) return;
     const abs = _absoluta(src, alvo.href);
     if (abs && !imagens.includes(abs)) imagens.push(abs);

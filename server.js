@@ -1178,9 +1178,9 @@ app.post('/app/quintoandar/solicitar-acesso', auth, async (req, res) => {
 app.get('/admin/quintoandar-liberar/:codigo', authAdmin, async (req, res) => {
   try {
     const { query: _qQL } = require('./services/db');
+    // Libera só o acesso à carteira do QuintoAndar (busca de matches) — autoriza_quintoandar
+    // (envio dos próprios imóveis) é uma autorização separada, dada pelo corretor no perfil dele
     await _qQL("UPDATE solicitacoes_quintoandar SET atendido=TRUE WHERE user_id=$1", [req.params.codigo]);
-    await _qQL("UPDATE usuarios SET autoriza_quintoandar=TRUE WHERE codigo_usuario=$1", [req.params.codigo]);
-    if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===req.params.codigo||u.codigo_usuario===req.params.codigo); if(_uIdx>=0) _cacheUsuarios[_uIdx].autoriza_quintoandar = true; }
     res.redirect('/admin?qa_liberado=1');
   } catch(e) { res.redirect('/admin?err='+encodeURIComponent(e.message)); }
 });

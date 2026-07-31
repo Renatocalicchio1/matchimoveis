@@ -24,7 +24,10 @@ async function _criarTabelaCampanhasMeta() {
     )`);
   } catch(e) { console.error('[campanhas_meta boot]', e.message); }
 }
-_criarTabelaCampanhasMeta();
+// Guardado pra ser aguardado em toda função exportada — sem isso, a 1ª
+// chamada logo após o require() podia rodar a query antes do CREATE TABLE
+// IF NOT EXISTS terminar ("relation campanhas_meta does not exist")
+const _tabelaPronta = _criarTabelaCampanhasMeta();
 
 function rowToCampanha(r) {
   return {
@@ -49,6 +52,7 @@ function rowToCampanha(r) {
 }
 
 async function criarCampanhaRegistro(c) {
+  await _tabelaPronta;
   const r = await query(
     `INSERT INTO campanhas_meta (user_id, imovel_id, objetivo, orcamento_diario_centavos, publico,
        conta_anuncio_id, page_id, campaign_id, adset_id, creative_id, ad_id, leadform_id, status)
@@ -60,30 +64,36 @@ async function criarCampanhaRegistro(c) {
 }
 
 async function listarCampanhas(userId) {
+  await _tabelaPronta;
   const r = await query('SELECT * FROM campanhas_meta WHERE user_id=$1 ORDER BY id DESC', [userId]);
   return r.rows.map(rowToCampanha);
 }
 
 async function buscarCampanha(id, userId) {
+  await _tabelaPronta;
   const r = await query('SELECT * FROM campanhas_meta WHERE id=$1 AND user_id=$2', [id, userId]);
   return r.rows[0] ? rowToCampanha(r.rows[0]) : null;
 }
 
 async function buscarCampanhaPorAdId(adId) {
+  await _tabelaPronta;
   const r = await query('SELECT * FROM campanhas_meta WHERE ad_id=$1', [adId]);
   return r.rows[0] ? rowToCampanha(r.rows[0]) : null;
 }
 
 async function buscarCampanhaPorLeadformId(leadformId) {
+  await _tabelaPronta;
   const r = await query('SELECT * FROM campanhas_meta WHERE leadform_id=$1', [leadformId]);
   return r.rows[0] ? rowToCampanha(r.rows[0]) : null;
 }
 
 async function atualizarStatusCampanha(id, status) {
+  await _tabelaPronta;
   await query('UPDATE campanhas_meta SET status=$1 WHERE id=$2', [status, id]);
 }
 
 async function incrementarLeadsRecebidos(id) {
+  await _tabelaPronta;
   await query('UPDATE campanhas_meta SET leads_recebidos = leads_recebidos + 1 WHERE id=$1', [id]);
 }
 

@@ -7,7 +7,13 @@ function getPool() {
     if (process.env.DATABASE_URL) {
       pool = new Pool({
         connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
+        ssl: { rejectUnauthorized: false },
+        // Sem timeout, uma conexão que não completa (comum logo após um
+        // restart, antes da rede estabilizar) fica pendurada pra sempre e
+        // vai comendo as conexões do pool até travar o resto do app
+        connectionTimeoutMillis: 10000,
+        idleTimeoutMillis: 30000,
+        max: 20
       });
     } else {
       // Sem banco configurado — retorna null (usa JSON como fallback)

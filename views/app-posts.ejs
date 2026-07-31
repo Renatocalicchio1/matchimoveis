@@ -103,16 +103,6 @@ function _primeiraFoto(p){
       <input type="url" id="pt-url" placeholder="https://www.exemplo.com.br" required>
       <button type="button" class="pt-btn" id="pt-btn-analisar" onclick="analisarSite()">Analisar Site</button>
     </div>
-    <% if(typeof imoveis!=='undefined' && imoveis.length){ %>
-    <div class="pt-ou">ou</div>
-    <div class="pt-select-imovel">
-      <select id="pt-imovel-select">
-        <option value="">Escolha um imóvel da sua carteira</option>
-        <% imoveis.forEach(function(i){ %><option value="<%= i.id %>"><%= i.titulo %></option><% }) %>
-      </select>
-      <button type="button" class="pt-btn" id="pt-btn-imovel" onclick="analisarImovel()">Usar este imóvel</button>
-    </div>
-    <% } %>
     <div id="pt-msg-inicial" class="pt-msg"></div>
   </div>
 

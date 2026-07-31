@@ -9787,6 +9787,7 @@ app.get('/app/whatsapp/qrcode_old_disabled', auth, async (req, res) => {
         webhook: {
           url: (process.env.BASE_URL || 'https://matchimoveis.onrender.com') + '/webhook/whatsapp',
           enabled: true,
+          byEvents: true,
           events: ['MESSAGES_UPSERT', 'CONNECTION_UPDATE']
         }
       })
@@ -9817,7 +9818,7 @@ app.get('/app/whatsapp/qrcode_old_disabled', auth, async (req, res) => {
       await fetch(EVOLUTION_URL + '/instance/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': EVOLUTION_KEY },
-        body: JSON.stringify({ instanceName: novoNome, integration: 'WHATSAPP-BAILEYS', webhook: { url: (process.env.BASE_URL || 'https://matchimoveis.onrender.com') + '/webhook/whatsapp', enabled: true, events: ['MESSAGES_UPSERT','CONNECTION_UPDATE'] } })
+        body: JSON.stringify({ instanceName: novoNome, integration: 'WHATSAPP-BAILEYS', webhook: { url: (process.env.BASE_URL || 'https://matchimoveis.onrender.com') + '/webhook/whatsapp', enabled: true, byEvents: true, events: ['MESSAGES_UPSERT','CONNECTION_UPDATE'] } })
       }).catch(()=>{});
       await new Promise(r => setTimeout(r, 2000));
       const qrRes2 = await fetch(EVOLUTION_URL + '/instance/connect/' + novoNome, { headers: { 'apikey': EVOLUTION_KEY } });

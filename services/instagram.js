@@ -104,6 +104,10 @@ async function obterTokenLongoPrazo(shortToken) {
     client_secret: process.env.FACEBOOK_APP_SECRET || '',
     access_token: shortToken
   };
+  console.log('[instagram] obterTokenLongoPrazo — diagnóstico:',
+    'shortToken presente:', !!shortToken, '| tamanho:', (shortToken||'').length,
+    '| client_secret presente:', !!process.env.FACEBOOK_APP_SECRET, '| tamanho:', (process.env.FACEBOOK_APP_SECRET||'').length,
+    '| client_id (FACEBOOK_APP_ID):', process.env.FACEBOOK_APP_ID || '(vazio)');
   try {
     const { data } = await axios.get(LONG_TOKEN_URL, { params: paramsObj });
     return data.access_token;
@@ -116,7 +120,9 @@ async function obterTokenLongoPrazo(shortToken) {
     } catch (e2) {
       const errData2 = e2?.response?.data?.error || e2?.response?.data || {};
       console.error('[instagram] obterTokenLongoPrazo POST (corpo) também falhou:', JSON.stringify(errData2));
-      throw _erroGraph(e2, 'Falha ao gerar o token de longa duração.', 'obterTokenLongoPrazo');
+      const diag = `shortToken:${!!shortToken}(${(shortToken||'').length}) secret:${!!process.env.FACEBOOK_APP_SECRET}(${(process.env.FACEBOOK_APP_SECRET||'').length}) client_id:${process.env.FACEBOOK_APP_ID||'(vazio)'}`;
+      const base = _erroGraph(e2, 'Falha ao gerar o token de longa duração.', 'obterTokenLongoPrazo');
+      throw new Error(base.message + ' | Diag: ' + diag);
     }
   }
 }

@@ -7,9 +7,6 @@ const axios = require('axios');
 // Página do Facebook nem instagram_business_account vinculada).
 const AUTHORIZE_URL = 'https://www.instagram.com/oauth/authorize';
 const TOKEN_URL = 'https://api.instagram.com/oauth/access_token';
-// Sem versão no path, o Meta às vezes devolve "Unsupported request - method
-// type" (erro genérico #100) pra esse endpoint em vez do erro real —
-// adicionando a versão o roteamento da API fica explícito
 const LONG_TOKEN_URL = 'https://graph.instagram.com/v21.0/access_token';
 const GRAPH_URL = 'https://graph.instagram.com';
 const SCOPES = 'instagram_business_basic,instagram_business_content_publish';
@@ -36,12 +33,7 @@ function _traduzErro(msg) {
 function _erroGraph(e, fallback, etapa) {
   const msg = e?.response?.data?.error_message || e?.response?.data?.error?.message;
   const texto = _traduzErro(msg) || fallback || e.message;
-  // Enquanto o erro "Unsupported request - method type" não for diagnosticado
-  // de vez, anexa a resposta bruta do Meta na mensagem — não dá acesso aos
-  // logs do Render daqui, então isso é o jeito de ver o payload completo
-  // (código, tipo, fbtrace_id) a partir do próprio print de erro na tela.
-  const detalhe = e?.response?.data ? ' | raw: ' + JSON.stringify(e.response.data) : '';
-  return new Error((etapa ? `[${etapa}] ` : '') + texto + detalhe);
+  return new Error((etapa ? `[${etapa}] ` : '') + texto);
 }
 
 function getAuthUrl(state) {
@@ -84,49 +76,27 @@ async function trocarCodePorToken(code) {
     });
     return { accessToken: data.access_token, igUserId: data.user_id ? String(data.user_id) : null };
   } catch (e) {
-    const errData = e?.response?.data?.error || e?.response?.data || {};
-    console.error('[instagram] trocarCodePorToken falhou — resposta completa:', JSON.stringify(errData));
     throw _erroGraph(e, 'Falha ao trocar o código de autorização pelo token de acesso.', 'trocarCodePorToken');
   }
 }
 
+// Confirmado via curl direto (fora do servidor, credenciais corretas) que o
+// erro "Unsupported request - method type" nesse endpoint não é bug de
+// código — reproduz idêntico com GET e POST. A causa real: a conta do
+// Instagram conectada precisa ser Profissional (Empresa ou Criador de
+// conteúdo) — conta pessoal comum não passa dessa etapa.
 async function obterTokenLongoPrazo(shortToken) {
-  // Documentação oficial descreve GET com query params, mas na prática o
-  // Meta devolve "Unsupported request - method type: get" (erro genérico
-  // #100) pra esse endpoint às vezes. A 1ª tentativa de POST tinha o mesmo
-  // problema de fundo: mandava os parâmetros na query string igual ao GET,
-  // só trocando o verbo — não é um POST de verdade. Agora tenta GET
-  // (conforme doc) e, se falhar, tenta um POST de verdade com os parâmetros
-  // no corpo como x-www-form-urlencoded — igual ao passo anterior
-  // (trocarCodePorToken), que funciona.
-  const paramsObj = {
-    grant_type: 'ig_exchange_token',
-    client_secret: process.env.FACEBOOK_APP_SECRET || '',
-    access_token: shortToken
-  };
-  console.log('[instagram] obterTokenLongoPrazo — diagnóstico:',
-    'shortToken presente:', !!shortToken, '| tamanho:', (shortToken||'').length,
-    '| client_secret presente:', !!process.env.FACEBOOK_APP_SECRET, '| tamanho:', (process.env.FACEBOOK_APP_SECRET||'').length,
-    '| client_id (FACEBOOK_APP_ID):', process.env.FACEBOOK_APP_ID || '(vazio)');
   try {
-    const { data } = await axios.get(LONG_TOKEN_URL, { params: paramsObj });
+    const { data } = await axios.get(LONG_TOKEN_URL, {
+      params: {
+        grant_type: 'ig_exchange_token',
+        client_secret: process.env.FACEBOOK_APP_SECRET || '',
+        access_token: shortToken
+      }
+    });
     return data.access_token;
   } catch (e) {
-    const errData1 = e?.response?.data?.error || e?.response?.data || {};
-    console.error('[instagram] obterTokenLongoPrazo GET falhou:', JSON.stringify(errData1));
-    try {
-      const { data } = await axios.post(LONG_TOKEN_URL, new URLSearchParams(paramsObj));
-      return data.access_token;
-    } catch (e2) {
-      const errData2 = e2?.response?.data?.error || e2?.response?.data || {};
-      console.error('[instagram] obterTokenLongoPrazo POST (corpo) também falhou:', JSON.stringify(errData2));
-      // TEMP debug — expõe o short token pra testar a chamada manualmente fora
-      // do servidor (via curl) e isolar se é algo do nosso código ou da conta
-      // no lado do Meta. Token de curta duração, expira em ~1h. Remover depois.
-      const diag = `client_id:${process.env.FACEBOOK_APP_ID||'(vazio)'} shortToken:${shortToken}`;
-      const base = _erroGraph(e2, 'Falha ao gerar o token de longa duração.', 'obterTokenLongoPrazo');
-      throw new Error(base.message + ' | Diag: ' + diag);
-    }
+    throw _erroGraph(e, 'Falha ao gerar o token de longa duração. Verifique se a conta do Instagram é Profissional (Empresa ou Criador de conteúdo).', 'obterTokenLongoPrazo');
   }
 }
 

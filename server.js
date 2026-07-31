@@ -7115,6 +7115,12 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
     delete pub.proprietario_celular;
     delete pub.proprietario_email;
 
+    if (!pub.latitude || !pub.longitude) {
+      const { _geocodificarEndereco } = require('./services/salvarImovel');
+      const _geo = await _geocodificarEndereco(pub);
+      if (_geo) { pub.latitude = _geo.latitude; pub.longitude = _geo.longitude; }
+    }
+
     const parecidos = imoveisDoUsuario
       .filter(i => i.status !== 'inativo' && i.status !== 'excluido' && String(i.id) !== String(imovel.id) && (i.bairro === imovel.bairro || i.tipo === imovel.tipo))
       .slice(0, 4);
@@ -7160,7 +7166,7 @@ app.get('/site/:codigoUsuario/robots.txt', (req, res) => _handlerSiteRobots(req,
 // ── FIM SITE PÚBLICO ───────────────────────────────────────────────────────────
 
 // Página pública do imóvel — sem login
-app.get('/imovel/:id', (req, res) => {
+app.get('/imovel/:id', async (req, res) => {
   const imoveis = ((_cacheImoveis || []));
   const users = (_cacheUsuarios || []);
 
@@ -7178,6 +7184,11 @@ app.get('/imovel/:id', (req, res) => {
     delete pub.proprietario;
     delete pub.proprietario_celular;
     delete pub.proprietario_email;
+    if (!pub.latitude || !pub.longitude) {
+      const { _geocodificarEndereco } = require('./services/salvarImovel');
+      const _geo = await _geocodificarEndereco(pub);
+      if (_geo) { pub.latitude = _geo.latitude; pub.longitude = _geo.longitude; }
+    }
     // Busca dados da lead para preencher formulário
     let leadDados = { nome: '', telefone: '', email: '' };
     const _leadId = req.query.leadId || req.query.lid || '';
@@ -7224,6 +7235,12 @@ app.get('/imovel/:id', (req, res) => {
     fonte: 'QuintoAndar',
     url: qaImovel.url || ''
   };
+
+  if (!pub.latitude || !pub.longitude) {
+    const { _geocodificarEndereco } = require('./services/salvarImovel');
+    const _geo = await _geocodificarEndereco(pub);
+    if (_geo) { pub.latitude = _geo.latitude; pub.longitude = _geo.longitude; }
+  }
 
   res.render('imovel-publico', { imovel: pub, corretor, siteOrigin: req.protocol + '://' + req.get('host') });
 });

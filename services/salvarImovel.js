@@ -284,6 +284,23 @@ async function _geocodificarCep(cep, id) {
   } catch(e) { console.error('[geocode]', e.message); }
 }
 
+async function _geocodificarEndereco(imovel) {
+  try {
+    if (imovel.latitude && imovel.longitude) return { latitude: imovel.latitude, longitude: imovel.longitude };
+    if (!imovel.bairro && !imovel.cidade && !imovel.endereco) return null;
+    const partes = [imovel.endereco, imovel.bairro, imovel.cidade, imovel.estado, 'Brasil'].filter(Boolean).join(', ');
+    const _r = await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(partes)+'&format=json&limit=1', { headers: { 'User-Agent': 'MatchImoveis/1.0' } });
+    const _d = await _r.json();
+    if (_d && _d[0]) {
+      const lat = parseFloat(_d[0].lat);
+      const lng = parseFloat(_d[0].lon);
+      if (imovel.id) query('UPDATE imoveis SET latitude=$1, longitude=$2 WHERE id=$3', [lat, lng, imovel.id]).catch(()=>{});
+      return { latitude: lat, longitude: lng };
+    }
+  } catch(e) { console.error('[geocode-endereco]', e.message); }
+  return null;
+}
+
 async function salvarImovel(imovel) {
   if (await dbOk()) {
     try {
@@ -335,4 +352,4 @@ async function salvarTodosImoveis(imoveis) {
   return imoveis;
 }
 
-module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, _geocodificarCep };
+module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, _geocodificarCep, _geocodificarEndereco };

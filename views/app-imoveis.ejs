@@ -822,8 +822,30 @@ window.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- Modal Instagram -->
+<style>
+.ig-modal-box{background:#fff;border-radius:14px;width:92%;max-width:400px;max-height:88vh;overflow-y:auto;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.ig-prev-card{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;background:#fff;margin-bottom:14px}
+.ig-prev-head{display:flex;align-items:center;gap:7px;padding:8px 10px}
+.ig-prev-avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(45deg,#FF385C,#FC642D);flex-shrink:0}
+.ig-prev-username{font-size:12px;font-weight:600;color:#111827}
+.ig-prev-img-wrap{width:100%;aspect-ratio:1;background:#f3f4f6;position:relative;overflow:hidden}
+.ig-prev-img-wrap img{width:100%;height:100%;object-fit:cover}
+.ig-prev-nav{position:absolute;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.85);border:none;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#111827}
+.ig-prev-nav.prev{left:6px}
+.ig-prev-nav.next{right:6px}
+.ig-prev-nav:disabled{opacity:.3;cursor:not-allowed}
+.ig-thumbs{display:flex;gap:6px;padding:8px 10px;overflow-x:auto}
+.ig-thumb{position:relative;flex-shrink:0;width:48px;height:48px;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent}
+.ig-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.ig-thumb.off img{opacity:.3}
+.ig-thumb.atual{border-color:#111827}
+.ig-thumb-check{position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:#fff;border:1px solid #d1d5db;display:flex;align-items:center;justify-content:center;font-size:9px}
+.ig-thumb.off .ig-thumb-check{background:#fff}
+.ig-thumb:not(.off) .ig-thumb-check{background:#16a34a;color:#fff;border-color:#16a34a}
+.ig-legenda-box{width:100%;box-sizing:border-box;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;padding:10px 12px;font-size:12.5px;font-family:inherit;line-height:1.5;resize:vertical;min-height:80px;margin-bottom:14px}
+</style>
 <div id="modal-instagram" style="display:none;position:fixed;inset:0;z-index:10000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5)" onclick="if(event.target===this)fecharModalInstagram()">
-  <div style="background:#fff;border-radius:14px;width:90%;max-width:360px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)" onclick="event.stopPropagation()">
+  <div class="ig-modal-box" onclick="event.stopPropagation()">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
       <span style="font-size:14px;font-weight:600;color:#111">📸 Postar no Instagram</span>
       <button onclick="fecharModalInstagram()" style="background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">×</button>
@@ -833,7 +855,11 @@ window.addEventListener('DOMContentLoaded', function() {
 </div>
 <script>
 var IG_CONECTADO = <%- user.instagramContaId ? 'true' : 'false' %>;
+var IG_USERNAME = '<%- (user.instagramUsername||"sua_conta").replace(/'/g,"") %>';
 var _igImovelId = null;
+var _igFotos = [];
+var _igFotoIdx = 0;
+var _igFotosOff = {};
 
 function abrirModalInstagram(imovelId) {
   _igImovelId = imovelId;
@@ -841,28 +867,98 @@ function abrirModalInstagram(imovelId) {
   if (!IG_CONECTADO) {
     body.innerHTML = '<p style="font-size:13px;color:#6b7280;margin-bottom:14px">Conecte sua conta do Instagram antes de publicar.</p>' +
       '<a href="/app/perfil" style="display:inline-flex;padding:9px 18px;border-radius:8px;background:#111827;color:#fff;font-size:13px;font-weight:500;text-decoration:none">Conectar Instagram</a>';
-  } else {
-    body.innerHTML =
-      '<p style="font-size:12px;color:#6b7280;margin-bottom:12px">Onde deseja publicar?</p>' +
-      '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">' +
-      '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px"><input type="radio" name="ig-destino" value="feed" checked style="width:16px;height:16px"> Feed</label>' +
-      '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px"><input type="radio" name="ig-destino" value="story" style="width:16px;height:16px"> Story</label>' +
-      '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px"><input type="radio" name="ig-destino" value="ambos" style="width:16px;height:16px"> Feed + Story</label>' +
-      '</div>' +
-      '<div id="ig-modal-msg" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:8px;font-size:12px"></div>' +
-      '<button id="ig-btn-postar" onclick="postarInstagram()" class="pf-btn" style="width:100%;justify-content:center;margin-top:0;background:#111827;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">Postar</button>';
+    document.getElementById('modal-instagram').style.display = 'flex';
+    return;
   }
+  body.innerHTML = '<div style="text-align:center;padding:30px 0;color:#9ca3af;font-size:13px">Carregando prévia...</div>';
   document.getElementById('modal-instagram').style.display = 'flex';
+  fetch('/app/instagram/preview/' + encodeURIComponent(imovelId))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d.ok) {
+        body.innerHTML = '<p style="font-size:13px;color:#dc2626">⚠️ ' + (d.erro||'Erro ao carregar prévia.') + '</p>';
+        return;
+      }
+      _igFotos = d.fotos;
+      _igFotoIdx = 0;
+      _igFotosOff = {};
+      body.innerHTML =
+        '<div class="ig-prev-card">' +
+          '<div class="ig-prev-head"><div class="ig-prev-avatar"></div><div class="ig-prev-username">' + IG_USERNAME + '</div></div>' +
+          '<div class="ig-prev-img-wrap">' +
+            '<img id="ig-prev-img" src="' + _igFotos[0] + '">' +
+            '<button type="button" class="ig-prev-nav prev" onclick="igNavFoto(-1)">‹</button>' +
+            '<button type="button" class="ig-prev-nav next" onclick="igNavFoto(1)">›</button>' +
+          '</div>' +
+          '<div class="ig-thumbs" id="ig-thumbs"></div>' +
+        '</div>' +
+        '<p style="font-size:11.5px;color:#9ca3af;margin:0 0 6px">Clique numa foto pra ver, clique de novo na bolinha pra tirar do post</p>' +
+        '<textarea id="ig-legenda" class="ig-legenda-box">' + d.legenda.replace(/</g,'&lt;') + '</textarea>' +
+        '<p style="font-size:12px;color:#6b7280;margin-bottom:8px">Onde deseja publicar?</p>' +
+        '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">' +
+        '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px"><input type="radio" name="ig-destino" value="feed" checked style="width:16px;height:16px"> Feed</label>' +
+        '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px"><input type="radio" name="ig-destino" value="story" style="width:16px;height:16px"> Story</label>' +
+        '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px"><input type="radio" name="ig-destino" value="ambos" style="width:16px;height:16px"> Feed + Story</label>' +
+        '</div>' +
+        '<div id="ig-modal-msg" style="display:none;margin-bottom:12px;padding:10px 14px;border-radius:8px;font-size:12px"></div>' +
+        '<button id="ig-btn-postar" onclick="postarInstagram()" class="pf-btn" style="width:100%;justify-content:center;margin-top:0;background:#111827;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer">Postar</button>';
+      igRenderThumbs();
+    })
+    .catch(function(){
+      body.innerHTML = '<p style="font-size:13px;color:#dc2626">⚠️ Falha de conexão ao carregar prévia.</p>';
+    });
+}
+
+function igRenderThumbs() {
+  var wrap = document.getElementById('ig-thumbs');
+  if (!wrap) return;
+  wrap.innerHTML = _igFotos.map(function(url, i){
+    var off = !!_igFotosOff[i];
+    var atual = i === _igFotoIdx ? ' atual' : '';
+    return '<div class="ig-thumb' + (off?' off':'') + atual + '" onclick="igClicouThumb(' + i + ', event)">' +
+      '<img src="' + url + '">' +
+      '<div class="ig-thumb-check" onclick="igToggleFoto(' + i + ', event)">' + (off ? '' : '✓') + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function igNavFoto(delta) {
+  var novo = _igFotoIdx + delta;
+  if (novo < 0 || novo >= _igFotos.length) return;
+  _igFotoIdx = novo;
+  document.getElementById('ig-prev-img').src = _igFotos[_igFotoIdx];
+  igRenderThumbs();
+}
+
+function igClicouThumb(i, ev) {
+  ev.stopPropagation();
+  _igFotoIdx = i;
+  document.getElementById('ig-prev-img').src = _igFotos[i];
+  igRenderThumbs();
+}
+
+function igToggleFoto(i, ev) {
+  ev.stopPropagation();
+  var selecionadas = _igFotos.filter(function(_, idx){ return !_igFotosOff[idx]; });
+  // Não deixa tirar a última foto selecionada — precisa de pelo menos 1
+  if (!_igFotosOff[i] && selecionadas.length <= 1) return;
+  _igFotosOff[i] = !_igFotosOff[i];
+  igRenderThumbs();
 }
 
 function fecharModalInstagram() {
   document.getElementById('modal-instagram').style.display = 'none';
   _igImovelId = null;
+  _igFotos = [];
+  _igFotosOff = {};
 }
 
 async function postarInstagram() {
   var destino = document.querySelector('input[name="ig-destino"]:checked');
   destino = destino ? destino.value : 'feed';
+  var fotosEscolhidas = _igFotos.filter(function(_, idx){ return !_igFotosOff[idx]; });
+  var legendaEl = document.getElementById('ig-legenda');
+  var legenda = legendaEl ? legendaEl.value : '';
   var btn = document.getElementById('ig-btn-postar');
   var msg = document.getElementById('ig-modal-msg');
   btn.disabled = true;
@@ -871,7 +967,7 @@ async function postarInstagram() {
     const r = await fetch('/app/instagram/postar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ imovelId: _igImovelId, destino: destino })
+      body: JSON.stringify({ imovelId: _igImovelId, destino: destino, fotos: fotosEscolhidas, legenda: legenda })
     });
     const d = await r.json();
     msg.style.display = 'block';

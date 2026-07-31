@@ -4138,6 +4138,36 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
   }
 });
 
+// Dados pra montar o preview no modal antes de publicar (fotos + legenda sugerida)
+app.get('/app/instagram/preview/:imovelId', auth, (req,res)=>{
+  try {
+    const { montarLegenda } = require('./services/instagram');
+    const user = req.session.user;
+    const imovelId = req.params.imovelId;
+    const imoveis = (_cacheImoveis || []);
+    const imovel = imoveis.find(i => String(i.id)===String(imovelId) || String(i.idExterno)===String(imovelId) || String(i.idInterno)===String(imovelId) || String(i.codigoImovel)===String(imovelId));
+    if (!imovel) return res.status(404).json({ ok:false, erro: 'Imóvel não encontrado.' });
+
+    const uidLogado = user.id || user.codigoUsuario || user.codigo_usuario;
+    const ownerImovel = imovel.userId || imovel.user_id || imovel.usuarioId;
+    if (String(ownerImovel) !== String(uidLogado)) {
+      return res.status(403).json({ ok:false, erro: 'Você só pode publicar imóveis da sua própria carteira.' });
+    }
+
+    const fotos = Array.isArray(imovel.fotos) ? imovel.fotos : [];
+    if (!fotos.length) return res.status(400).json({ ok:false, erro: 'Este imóvel não tem fotos cadastradas.' });
+
+    const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
+    const imageUrls = fotos.slice(0, 10).map(f => f.startsWith('http') ? f : (BASE_URL + f));
+    const legenda = montarLegenda(imovel, uidLogado, BASE_URL);
+
+    res.json({ ok:true, fotos: imageUrls, legenda, username: user.instagramUsername || '' });
+  } catch(e) {
+    console.error('[instagram/preview]', e.message);
+    res.status(500).json({ ok:false, erro: e.message });
+  }
+});
+
 app.post('/app/instagram/postar', auth, async (req,res)=>{
   try {
     const { publicarFeed, publicarStory, montarLegenda } = require('./services/instagram');
@@ -4167,8 +4197,13 @@ app.post('/app/instagram/postar', auth, async (req,res)=>{
     if (!fotos.length) return res.status(400).json({ ok:false, erro: 'Este imóvel não tem fotos cadastradas.' });
 
     const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
-    const imageUrls = fotos.slice(0, 10).map(f => f.startsWith('http') ? f : (BASE_URL + f));
-    const legenda = montarLegenda(imovel, uidLogado, BASE_URL);
+    const fotosOriginais = fotos.slice(0, 10).map(f => f.startsWith('http') ? f : (BASE_URL + f));
+    // Modal deixa o corretor escolher quais fotos entram e editar a legenda —
+    // se vier do body, usa; senão cai no padrão (todas as fotos + legenda auto)
+    const fotosEscolhidas = Array.isArray(req.body.fotos) ? req.body.fotos.filter(f => fotosOriginais.includes(f)) : null;
+    const imageUrls = (fotosEscolhidas && fotosEscolhidas.length) ? fotosEscolhidas : fotosOriginais;
+    const legendaCustom = typeof req.body.legenda === 'string' ? req.body.legenda.trim() : '';
+    const legenda = legendaCustom || montarLegenda(imovel, uidLogado, BASE_URL);
 
     const resultados = {};
     if (destino === 'feed' || destino === 'ambos') {

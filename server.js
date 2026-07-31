@@ -4266,10 +4266,17 @@ app.get('/app/posts', auth, async (req, res) => {
       listarPosts(uidLogado, 'postado'),
       listarPosts(uidLogado, 'ignorado')
     ]);
-    res.render('app-posts', { user: req.session.user, active: 'posts', agendados, postados, ignorados });
+    const imoveis = lerImoveis(req.session.user)
+      .filter(i => i.status !== 'inativo' && i.status !== 'excluido' && (i.fotos||[]).length)
+      .map(i => ({
+        id: i.idExterno || i.idInterno || i.id,
+        titulo: i.titulo || [i.tipo, i.bairro].filter(Boolean).join(' em '),
+        foto: (i.fotos||[])[0]
+      }));
+    res.render('app-posts', { user: req.session.user, active: 'posts', agendados, postados, ignorados, imoveis });
   } catch (e) {
     console.error('[app/posts]', e.message);
-    res.render('app-posts', { user: req.session.user, active: 'posts', agendados: [], postados: [], ignorados: [] });
+    res.render('app-posts', { user: req.session.user, active: 'posts', agendados: [], postados: [], ignorados: [], imoveis: [] });
   }
 });
 
@@ -4279,8 +4286,35 @@ app.post('/app/posts/analisar', auth, express.json(), async (req, res) => {
     const { analisarSite, gerarLegenda } = require('./services/postsIA');
     const { criarPost } = require('./services/salvarPost');
     const url = String(req.body.url || '').trim();
-    if (!url) return res.json({ ok: false, erro: 'Informe a URL do site.' });
-    const dados = await analisarSite(url);
+    const imovelId = String(req.body.imovelId || '').trim();
+    if (!url && !imovelId) return res.json({ ok: false, erro: 'Informe a URL do site ou escolha um imóvel.' });
+
+    let dados;
+    if (imovelId) {
+      const imoveis = lerImoveis(req.session.user);
+      const imovel = imoveis.find(i => String(i.idExterno)===String(imovelId) || String(i.idInterno)===String(imovelId) || String(i.id)===String(imovelId));
+      if (!imovel) return res.json({ ok: false, erro: 'Imóvel não encontrado na sua carteira.' });
+      if (!(imovel.fotos||[]).length) return res.json({ ok: false, erro: 'Esse imóvel não tem fotos cadastradas.' });
+      const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');
+      const local = imovel.bairro || imovel.cidade || '';
+      const titulo = imovel.titulo || `${imovel.tipo || 'Imóvel'}${local ? ' em ' + local : ''}`;
+      const valorFmt = imovel.valor_imovel ? `R$ ${Number(imovel.valor_imovel).toLocaleString('pt-BR')}` : '';
+      const partes = [
+        titulo,
+        imovel.quartos ? `${imovel.quartos} quarto(s)` : '',
+        imovel.area_m2 ? `${imovel.area_m2}m²` : '',
+        imovel.descricao || ''
+      ].filter(Boolean);
+      dados = {
+        titulo,
+        descricao: imovel.descricao || partes.join(' · '),
+        valor: valorFmt,
+        textoBruto: partes.join('\n'),
+        imagens: imovel.fotos.slice(0, 10).map(f => f.startsWith('http') ? f : (BASE_URL + f))
+      };
+    } else {
+      dados = await analisarSite(url);
+    }
     let legenda = '';
     try {
       const gerado = await gerarLegenda(dados);
@@ -4353,19 +4387,26 @@ app.post('/app/posts/excluir', auth, express.json(), async (req, res) => {
   }
 });
 
+// imagemEscolhida é TEXT — grava plain url (1 foto) ou JSON de array (carrossel)
+function _codificarImagemEscolhida(imagens) {
+  if (!Array.isArray(imagens)) return imagens || '';
+  return imagens.length === 1 ? imagens[0] : JSON.stringify(imagens);
+}
+
 app.post('/app/posts/agendar', auth, express.json(), async (req, res) => {
   if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok: false, erro: 'Sem acesso.' });
   try {
-    const { postId, imagemUrl, legenda, dataAgendada } = req.body;
+    const { postId, imagemUrl, imagens, legenda, dataAgendada } = req.body;
+    const listaImagens = Array.isArray(imagens) ? imagens.filter(Boolean) : (imagemUrl ? [imagemUrl] : []);
     if (!postId) return res.json({ ok: false, erro: 'Post não encontrado.' });
-    if (!imagemUrl) return res.json({ ok: false, erro: 'Selecione uma imagem antes de agendar.' });
+    if (!listaImagens.length) return res.json({ ok: false, erro: 'Selecione ao menos uma imagem antes de agendar.' });
     if (!dataAgendada) return res.json({ ok: false, erro: 'Escolha data e hora do agendamento.' });
     const dataObj = new Date(dataAgendada);
     if (isNaN(dataObj.getTime()) || dataObj <= new Date()) {
       return res.json({ ok: false, erro: 'Escolha uma data e hora no futuro.' });
     }
     const { atualizarPost } = require('./services/salvarPost');
-    await atualizarPost(postId, { imagemEscolhida: imagemUrl, legenda: legenda || '', status: 'agendado', dataAgendada: dataObj.toISOString() });
+    await atualizarPost(postId, { imagemEscolhida: _codificarImagemEscolhida(listaImagens), legenda: legenda || '', status: 'agendado', dataAgendada: dataObj.toISOString() });
     res.json({ ok: true });
   } catch (e) {
     console.error('[posts/agendar]', e.message);
@@ -4380,8 +4421,9 @@ app.post('/app/posts/publicar', auth, express.json(), async (req, res) => {
     if (!user.instagramToken || !user.instagramContaId) {
       return res.status(400).json({ ok: false, erro: 'Instagram não conectado. Conecte sua conta em /app/perfil.' });
     }
-    const { postId, imagemUrl, legenda } = req.body;
-    if (!imagemUrl) return res.json({ ok: false, erro: 'Selecione uma imagem antes de publicar.' });
+    const { postId, imagemUrl, imagens, legenda } = req.body;
+    const listaImagens = Array.isArray(imagens) ? imagens.filter(Boolean) : (imagemUrl ? [imagemUrl] : []);
+    if (!listaImagens.length) return res.json({ ok: false, erro: 'Selecione ao menos uma imagem antes de publicar.' });
 
     const uidLogado = user.id || user.codigoUsuario || user.codigo_usuario;
     const _saldoPost = await saldoCreditos(uidLogado);
@@ -4390,13 +4432,13 @@ app.post('/app/posts/publicar', auth, express.json(), async (req, res) => {
     }
 
     const { publicarFeed } = require('./services/instagram');
-    const resultado = await publicarFeed(user.instagramContaId, user.instagramToken, imagemUrl, legenda || '');
+    const resultado = await publicarFeed(user.instagramContaId, user.instagramToken, listaImagens, legenda || '');
     // espera terminar antes de responder, pra não perder a cobrança se o processo reiniciar logo em seguida
     const _debitouPost = await consumir(uidLogado, 'postar_instagram').catch(e => { console.error('[posts/publicar] erro ao debitar:', e.message); return false; });
     if (!_debitouPost) console.error('[posts/publicar] cobranca nao efetivada:', uidLogado);
     if (postId) {
       const { atualizarPost } = require('./services/salvarPost');
-      await atualizarPost(postId, { imagemEscolhida: imagemUrl, legenda: legenda || '', status: 'postado', dataPublicado: new Date().toISOString(), resultado }).catch(()=>{});
+      await atualizarPost(postId, { imagemEscolhida: _codificarImagemEscolhida(listaImagens), legenda: legenda || '', status: 'postado', dataPublicado: new Date().toISOString(), resultado }).catch(()=>{});
     }
     res.json({ ok: true, resultado });
   } catch (e) {

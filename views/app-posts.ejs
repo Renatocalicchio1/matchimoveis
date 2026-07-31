@@ -53,6 +53,19 @@
 .pt-agendar-box .confirmar{background:#FF385C;color:#fff}
 .pt-agendar-box .cancelar{background:#fff;border:1px solid #e5e7eb;color:#6b7280}
 
+.pt-ou{display:flex;align-items:center;gap:10px;margin:14px 0;color:#9ca3af;font-size:12px}
+.pt-ou::before,.pt-ou::after{content:'';flex:1;height:1px;background:#e5e7eb}
+.pt-select-imovel{display:flex;gap:8px;flex-wrap:wrap}
+.pt-select-imovel select{flex:1;min-width:220px;padding:10px 14px;border:0.5px solid rgba(0,0,0,.12);border-radius:8px;font-size:14px}
+
+.ig-thumbs{display:flex;gap:6px;padding:8px 10px;overflow-x:auto}
+.ig-thumb{position:relative;flex-shrink:0;width:44px;height:44px;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent}
+.ig-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.ig-thumb.off img{opacity:.3}
+.ig-thumb.atual{border-color:#111827}
+.ig-thumb-check{position:absolute;top:2px;right:2px;width:13px;height:13px;border-radius:50%;background:#fff;border:1px solid #d1d5db;display:flex;align-items:center;justify-content:center;font-size:8px}
+.ig-thumb:not(.off) .ig-thumb-check{background:#16a34a;color:#fff;border-color:#16a34a}
+
 .pt-lista{display:flex;flex-direction:column;gap:10px}
 .pt-item{display:flex;gap:10px;padding:10px;border:1px solid #f0f0ef;border-radius:10px;align-items:center;flex-wrap:wrap}
 .pt-item-img{width:52px;height:52px;border-radius:8px;object-fit:cover;background:#f3f4f6;flex-shrink:0}
@@ -64,6 +77,16 @@
 .pt-item-acoes button:hover{background:#f9fafb}
 .pt-vazio{font-size:13px;color:#9ca3af;text-align:center;padding:24px 0}
 </style>
+
+<%
+// imagemEscolhida agora pode ser uma url unica (posts antigos) ou um JSON de
+// array (carrossel, posts novos) — pega a 1a foto pra usar de miniatura
+function _primeiraFoto(p){
+  if(!p.imagemEscolhida) return (p.imagens && p.imagens[0]) || '';
+  try { const a = JSON.parse(p.imagemEscolhida); return Array.isArray(a) ? (a[0]||'') : p.imagemEscolhida; }
+  catch(e){ return p.imagemEscolhida; }
+}
+%>
 
 <div class="pt-tabs">
   <button type="button" class="pt-tab on" id="pt-tab-novo" onclick="mudarAba('novo',this)">Novo post</button>
@@ -80,6 +103,16 @@
       <input type="url" id="pt-url" placeholder="https://www.exemplo.com.br" required>
       <button type="button" class="pt-btn" id="pt-btn-analisar" onclick="analisarSite()">Analisar Site</button>
     </div>
+    <% if(typeof imoveis!=='undefined' && imoveis.length){ %>
+    <div class="pt-ou">ou</div>
+    <div class="pt-select-imovel">
+      <select id="pt-imovel-select">
+        <option value="">Escolha um imóvel da sua carteira</option>
+        <% imoveis.forEach(function(i){ %><option value="<%= i.id %>"><%= i.titulo %></option><% }) %>
+      </select>
+      <button type="button" class="pt-btn" id="pt-btn-imovel" onclick="analisarImovel()">Usar este imóvel</button>
+    </div>
+    <% } %>
     <div id="pt-msg-inicial" class="pt-msg"></div>
   </div>
 
@@ -98,6 +131,8 @@
         <div class="ig-img-wrap" id="pt-img-wrap">
           <div class="ig-img-empty">Nenhuma imagem encontrada nesse site.</div>
         </div>
+        <div class="ig-thumbs" id="pt-thumbs"></div>
+        <p id="pt-thumbs-dica" style="font-size:10.5px;color:#9ca3af;margin:0 10px 6px;display:none">Clique na bolinha pra tirar do post, arraste pra reordenar</p>
         <div class="ig-caption"><b><%= (user && user.instagramUsername) ? user.instagramUsername : 'sua_conta' %></b><span id="pt-legenda-preview"></span></div>
         <div class="ig-toolbar">
           <button type="button" class="publicar" onclick="publicar()" id="pt-btn-publicar">✅<span>Publicar</span></button>
@@ -128,7 +163,8 @@
       <div class="pt-lista">
         <% agendados.forEach(function(p){ %>
           <div class="pt-item">
-            <% if(p.imagemEscolhida){ %><img class="pt-item-img" src="<%= p.imagemEscolhida %>" alt=""><% } %>
+            <% var _fotoAg = _primeiraFoto(p); %>
+            <% if(_fotoAg){ %><img class="pt-item-img" src="<%= _fotoAg %>" alt=""><% } %>
             <div class="pt-item-info">
               <div class="pt-item-legenda"><%= (p.legenda||'').slice(0,120) %></div>
               <div class="pt-item-datas">Gerado em <%= new Date(p.dataGerado).toLocaleString('pt-BR') %> · Agendado para <%= new Date(p.dataAgendada).toLocaleString('pt-BR') %></div>
@@ -153,7 +189,8 @@
       <div class="pt-lista">
         <% postados.forEach(function(p){ %>
           <div class="pt-item">
-            <% if(p.imagemEscolhida){ %><img class="pt-item-img" src="<%= p.imagemEscolhida %>" alt=""><% } %>
+            <% var _fotoPo = _primeiraFoto(p); %>
+            <% if(_fotoPo){ %><img class="pt-item-img" src="<%= _fotoPo %>" alt=""><% } %>
             <div class="pt-item-info">
               <div class="pt-item-legenda"><%= (p.legenda||'').slice(0,120) %></div>
               <div class="pt-item-datas">Gerado em <%= new Date(p.dataGerado).toLocaleString('pt-BR') %> · Postado em <%= new Date(p.dataPublicado).toLocaleString('pt-BR') %></div>
@@ -178,7 +215,8 @@
       <div class="pt-lista">
         <% ignorados.forEach(function(p){ %>
           <div class="pt-item">
-            <% if(p.imagemEscolhida || (p.imagens&&p.imagens[0])){ %><img class="pt-item-img" src="<%= p.imagemEscolhida||p.imagens[0] %>" alt=""><% } %>
+            <% var _fotoIg = _primeiraFoto(p); %>
+            <% if(_fotoIg){ %><img class="pt-item-img" src="<%= _fotoIg %>" alt=""><% } %>
             <div class="pt-item-info">
               <div class="pt-item-legenda"><%= (p.legenda||'').slice(0,120) %></div>
               <div class="pt-item-datas">Gerado em <%= new Date(p.dataGerado).toLocaleString('pt-BR') %> · Ignorado em <%= new Date(p.dataIgnorado).toLocaleString('pt-BR') %></div>
@@ -195,7 +233,8 @@
 </div>
 
 <script>
-let _estado = { postId:null, titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'' };
+let _estado = { postId:null, titulo:'', descricao:'', valor:'', textoBruto:'', imagens:[], indiceImagem:0, legenda:'', imagensOff:{} };
+let _ptDragUrl = null;
 
 function mudarAba(nome, btn){
   document.querySelectorAll('.pt-tabpane').forEach(function(el){ el.classList.remove('on'); });
@@ -210,20 +249,84 @@ function _msg(id, texto, tipo){
   el.textContent = texto || '';
 }
 
+function _fotosSelecionadas(){
+  return _estado.imagens.filter(function(u){ return !_estado.imagensOff[u]; });
+}
+
 function _atualizarPreview(){
   document.getElementById('pt-legenda-preview').textContent = ' ' + (_estado.legenda || '');
 
   const wrap = document.getElementById('pt-img-wrap');
   const total = _estado.imagens.length;
   const imgUrl = _estado.imagens[_estado.indiceImagem];
-  if(!imgUrl){ wrap.innerHTML = '<div class="ig-img-empty">Nenhuma imagem encontrada nesse site.</div>'; return; }
+  if(!imgUrl){
+    wrap.innerHTML = '<div class="ig-img-empty">Nenhuma imagem encontrada nesse site.</div>';
+    document.getElementById('pt-thumbs').innerHTML = '';
+    document.getElementById('pt-thumbs-dica').style.display = 'none';
+    return;
+  }
   let html = '<img src="'+imgUrl+'" alt="">';
   if(total > 1){
     html += '<button type="button" class="ig-img-nav prev" onclick="trocarImagem(-1)">‹</button>';
     html += '<button type="button" class="ig-img-nav next" onclick="trocarImagem(1)">›</button>';
-    html += '<div class="ig-img-dots">' + _estado.imagens.map((_,i)=>'<span class="'+(i===_estado.indiceImagem?'on':'')+'"></span>').join('') + '</div>';
   }
   wrap.innerHTML = html;
+  document.getElementById('pt-thumbs-dica').style.display = total > 1 ? 'block' : 'none';
+  _renderThumbs();
+}
+
+function _renderThumbs(){
+  const wrap = document.getElementById('pt-thumbs');
+  if(!wrap) return;
+  const urlAtual = _estado.imagens[_estado.indiceImagem];
+  wrap.innerHTML = _estado.imagens.map(function(url){
+    const off = !!_estado.imagensOff[url];
+    const atual = url === urlAtual ? ' atual' : '';
+    const urlAttr = url.replace(/'/g, '&#39;');
+    return '<div class="ig-thumb' + (off?' off':'') + atual + '" draggable="true" ' +
+      'ondragstart="_ptDragStart(event,\'' + urlAttr + '\')" ondragover="event.preventDefault()" ondrop="_ptDrop(event,\'' + urlAttr + '\')" ' +
+      'onclick="_ptClicouThumb(\'' + urlAttr + '\', event)">' +
+      '<img src="' + url + '">' +
+      '<div class="ig-thumb-check" onclick="_ptToggleFoto(\'' + urlAttr + '\', event)">' + (off ? '' : '✓') + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function _ptClicouThumb(url, ev){
+  ev.stopPropagation();
+  const i = _estado.imagens.indexOf(url);
+  if(i < 0) return;
+  _estado.indiceImagem = i;
+  document.querySelector('#pt-img-wrap img').src = url;
+  _renderThumbs();
+}
+
+function _ptToggleFoto(url, ev){
+  ev.stopPropagation();
+  const selecionadas = _fotosSelecionadas();
+  if(!_estado.imagensOff[url] && selecionadas.length <= 1) return; // precisa sobrar ao menos 1
+  _estado.imagensOff[url] = !_estado.imagensOff[url];
+  _renderThumbs();
+}
+
+function _ptDragStart(ev, url){
+  _ptDragUrl = url;
+  ev.dataTransfer.effectAllowed = 'move';
+}
+
+function _ptDrop(ev, targetUrl){
+  ev.preventDefault();
+  ev.stopPropagation();
+  if(!_ptDragUrl || _ptDragUrl === targetUrl) return;
+  const urlAtual = _estado.imagens[_estado.indiceImagem];
+  const origem = _estado.imagens.indexOf(_ptDragUrl);
+  const destino = _estado.imagens.indexOf(targetUrl);
+  if(origem < 0 || destino < 0) return;
+  _estado.imagens.splice(origem, 1);
+  _estado.imagens.splice(destino, 0, _ptDragUrl);
+  _estado.indiceImagem = _estado.imagens.indexOf(urlAtual);
+  _ptDragUrl = null;
+  _renderThumbs();
 }
 
 function trocarImagem(dir){
@@ -233,27 +336,40 @@ function trocarImagem(dir){
   _atualizarPreview();
 }
 
-async function analisarSite(){
-  const url = document.getElementById('pt-url').value.trim();
-  if(!url){ _msg('pt-msg-inicial','Informe a URL do site.','err'); return; }
+async function _analisar(body){
   _msg('pt-msg-inicial','');
   document.getElementById('pt-resultado').style.display = 'none';
   document.getElementById('pt-loading').style.display = 'flex';
   document.getElementById('pt-btn-analisar').disabled = true;
+  if(document.getElementById('pt-btn-imovel')) document.getElementById('pt-btn-imovel').disabled = true;
   try {
-    const r = await fetch('/app/posts/analisar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
+    const r = await fetch('/app/posts/analisar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
     const d = await r.json();
-    if(!d.ok){ _msg('pt-msg-inicial', d.erro || 'Não foi possível analisar esse site.', 'err'); return; }
-    _estado = { postId:d.postId||null, titulo:d.titulo||'', descricao:d.descricao||'', valor:d.valor||'', textoBruto:d.textoBruto||'', imagens:d.imagens||[], indiceImagem:0, legenda:d.legenda||'' };
+    if(!d.ok){ _msg('pt-msg-inicial', d.erro || 'Não foi possível analisar.', 'err'); return; }
+    _estado = { postId:d.postId||null, titulo:d.titulo||'', descricao:d.descricao||'', valor:d.valor||'', textoBruto:d.textoBruto||'', imagens:d.imagens||[], indiceImagem:0, legenda:d.legenda||'', imagensOff:{} };
     _atualizarPreview();
     fecharAgendar();
     document.getElementById('pt-resultado').style.display = 'block';
   } catch(e) {
-    _msg('pt-msg-inicial','Erro ao analisar o site. Tente novamente.','err');
+    _msg('pt-msg-inicial','Erro ao analisar. Tente novamente.','err');
   } finally {
     document.getElementById('pt-loading').style.display = 'none';
     document.getElementById('pt-btn-analisar').disabled = false;
+    if(document.getElementById('pt-btn-imovel')) document.getElementById('pt-btn-imovel').disabled = false;
   }
+}
+
+async function analisarSite(){
+  const url = document.getElementById('pt-url').value.trim();
+  if(!url){ _msg('pt-msg-inicial','Informe a URL do site.','err'); return; }
+  await _analisar({ url });
+}
+
+async function analisarImovel(){
+  const sel = document.getElementById('pt-imovel-select');
+  const imovelId = sel ? sel.value : '';
+  if(!imovelId){ _msg('pt-msg-inicial','Escolha um imóvel da lista.','err'); return; }
+  await _analisar({ imovelId });
 }
 
 async function novaLegenda(){
@@ -278,13 +394,13 @@ function novaImagem(){
 }
 
 async function publicar(){
-  const imagemUrl = _estado.imagens[_estado.indiceImagem];
-  if(!imagemUrl){ _msg('pt-msg-resultado','Esse post não tem imagem — não é possível publicar no Instagram.','err'); return; }
+  const imagens = _fotosSelecionadas();
+  if(!imagens.length){ _msg('pt-msg-resultado','Esse post não tem imagem — não é possível publicar no Instagram.','err'); return; }
   if(!confirm('Publicar esse post no seu Instagram agora?')) return;
   _msg('pt-msg-resultado','');
   document.getElementById('pt-btn-publicar').disabled = true;
   try {
-    const r = await fetch('/app/posts/publicar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ postId:_estado.postId, imagemUrl, legenda:_estado.legenda }) });
+    const r = await fetch('/app/posts/publicar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ postId:_estado.postId, imagens, legenda:_estado.legenda }) });
     const d = await r.json();
     if(!d.ok){ _msg('pt-msg-resultado', d.erro || 'Não foi possível publicar.', 'err'); return; }
     _msg('pt-msg-resultado','✅ Publicado no Instagram!','ok');
@@ -297,8 +413,7 @@ async function publicar(){
 }
 
 function abrirAgendar(){
-  const imagemUrl = _estado.imagens[_estado.indiceImagem];
-  if(!imagemUrl){ _msg('pt-msg-resultado','Esse post não tem imagem — não é possível agendar.','err'); return; }
+  if(!_fotosSelecionadas().length){ _msg('pt-msg-resultado','Esse post não tem imagem — não é possível agendar.','err'); return; }
   document.getElementById('pt-agendar-box').classList.add('on');
 }
 
@@ -308,13 +423,13 @@ function fecharAgendar(){
 }
 
 async function confirmarAgendar(){
-  const imagemUrl = _estado.imagens[_estado.indiceImagem];
+  const imagens = _fotosSelecionadas();
   const dataAgendada = document.getElementById('pt-data-agendada').value;
   if(!dataAgendada){ _msg('pt-msg-resultado','Escolha data e hora do agendamento.','err'); return; }
   _msg('pt-msg-resultado','');
   document.getElementById('pt-btn-confirmar-agendar').disabled = true;
   try {
-    const r = await fetch('/app/posts/agendar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ postId:_estado.postId, imagemUrl, legenda:_estado.legenda, dataAgendada }) });
+    const r = await fetch('/app/posts/agendar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ postId:_estado.postId, imagens, legenda:_estado.legenda, dataAgendada }) });
     const d = await r.json();
     if(!d.ok){ _msg('pt-msg-resultado', d.erro || 'Não foi possível agendar.', 'err'); return; }
     _msg('pt-msg-resultado','✅ Post agendado!','ok');
@@ -345,10 +460,21 @@ async function abrirPost(id){
     const d = await r.json();
     if(!d.ok || !d.post){ alert('Não foi possível abrir esse post.'); return; }
     const p = d.post;
-    const imagens = (p.imagens && p.imagens.length) ? p.imagens : (p.imagemEscolhida ? [p.imagemEscolhida] : []);
-    let indice = 0;
-    if(p.imagemEscolhida){ const i = imagens.indexOf(p.imagemEscolhida); if(i >= 0) indice = i; }
-    _estado = { postId:p.id, titulo:p.titulo||'', descricao:p.descricao||'', valor:p.valor||'', textoBruto:p.textoBruto||'', imagens, indiceImagem:indice, legenda:p.legenda||'' };
+    // imagemEscolhida pode ser: null (nunca escolhida), uma url unica (posts
+    // antigos, pre-carrossel) ou um JSON de array (a selecao+ordem escolhida)
+    let escolhidas = [];
+    if(p.imagemEscolhida){
+      try { const parsed = JSON.parse(p.imagemEscolhida); escolhidas = Array.isArray(parsed) ? parsed : [p.imagemEscolhida]; }
+      catch(e){ escolhidas = [p.imagemEscolhida]; }
+    }
+    const todasFotos = (p.imagens && p.imagens.length) ? p.imagens : escolhidas;
+    // ordem final = escolhidas primeiro (na ordem salva), depois as demais fotos disponiveis
+    const imagens = escolhidas.concat(todasFotos.filter(function(u){ return escolhidas.indexOf(u) < 0; }));
+    const imagensOff = {};
+    if(escolhidas.length){
+      todasFotos.forEach(function(u){ if(escolhidas.indexOf(u) < 0) imagensOff[u] = true; });
+    }
+    _estado = { postId:p.id, titulo:p.titulo||'', descricao:p.descricao||'', valor:p.valor||'', textoBruto:p.textoBruto||'', imagens, indiceImagem:0, legenda:p.legenda||'', imagensOff };
     mudarAba('novo', document.getElementById('pt-tab-novo'));
     _atualizarPreview();
     fecharAgendar();

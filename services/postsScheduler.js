@@ -1,3 +1,11 @@
+// imagemEscolhida é TEXT — pode ser url unica (posts antigos, sem carrossel)
+// ou JSON de array (selecao+ordem de fotos escolhida no card de preview)
+function _decodificarImagemEscolhida(v) {
+  if (!v) return [];
+  try { const a = JSON.parse(v); return Array.isArray(a) ? a : [v]; }
+  catch(e) { return [v]; }
+}
+
 // Roda a cada 1 minuto: publica no Instagram os posts com status='agendado'
 // cuja data_agendada já chegou.
 async function processarPostsAgendados() {
@@ -24,7 +32,8 @@ async function processarPostsAgendados() {
           await atualizarPost(post.id, { status: 'erro', erro: 'Saldo insuficiente no momento da publicação.' });
           continue;
         }
-        const resultado = await publicarFeed(user.instagramContaId, user.instagramToken, post.imagemEscolhida, post.legenda || '');
+        const imagens = _decodificarImagemEscolhida(post.imagemEscolhida);
+        const resultado = await publicarFeed(user.instagramContaId, user.instagramToken, imagens, post.legenda || '');
         await consumir(post.userId, 'postar_instagram').catch(()=>{});
         await atualizarPost(post.id, { status: 'postado', dataPublicado: new Date().toISOString(), resultado });
         console.log('[postsScheduler] publicado:', post.id, post.userId);

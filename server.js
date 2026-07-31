@@ -1256,6 +1256,8 @@ app.get('/admin/xml/imovelweb-global', async (req, res) => {
       linhas.push('<Title><![CDATA['+esc(im.titulo||im.tipo||'Imovel')+']]></Title>');
       linhas.push('<Description><![CDATA['+esc(im.descricao||'')+']]></Description>');
       linhas.push('<ContactInfo><Name>'+esc(u?.nome||'MatchImoveis')+'</Name><Email>'+esc(u?.email||'contato@matchimoveis.ia.br')+'</Email><Telephone>'+esc((u?.celular||u?.telefone||'').replace(/\D/g,''))+'</Telephone><Website>https://www.matchimoveis.ia.br</Website></ContactInfo>');
+      const _transacaoIWG = im.transacao === 'aluguel' ? 'For Rent' : 'For Sale';
+      linhas.push('<TransactionType>'+_transacaoIWG+'</TransactionType>');
       linhas.push('<Details><PropertyType>'+esc(im.tipo||'Apartamento')+'</PropertyType><ListPrice currency="BRL">'+(im.valor_imovel||0)+'</ListPrice><Bedrooms>'+esc(im.quartos||0)+'</Bedrooms><Suites>'+esc(im.suites||0)+'</Suites><Bathrooms>'+esc(im.banheiros||0)+'</Bathrooms><Garage>'+esc(im.vagas||0)+'</Garage><LivingArea>'+esc(im.area_m2||0)+'</LivingArea><Phase>'+esc(im.fase||'')+'</Phase></Details>');
       linhas.push('<Location><Country>Brasil</Country><State>'+esc(im.estado||'')+'</State><City>'+esc(im.cidade||'')+'</City><Neighborhood>'+esc(im.bairro||'')+'</Neighborhood><Address>'+esc(im.endereco||'')+'</Address>'+(im.latitude&&im.longitude?'<Latitude>'+im.latitude+'</Latitude><Longitude>'+im.longitude+'</Longitude>':'')+'</Location>');
       linhas.push('<Media>');

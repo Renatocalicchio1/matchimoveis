@@ -4194,7 +4194,7 @@ app.post('/app/instagram/postar', auth, async (req,res)=>{
 // ── POSTS (MVP) ────────────────────────────────────────────────────────────
 // TEMP (jul/2026): liberado só pras contas da lista pra teste — mesmo padrão
 // usado antes pro Meu Site/Instagram. Remover o gate quando liberar geral.
-const _CONTAS_POSTS_LIBERADAS = ['REN-G9K6', 'ROD-P3V3'];
+const _CONTAS_POSTS_LIBERADAS = ['REN-G9K6', 'ROD-P3V3', 'MAU-EHAM'];
 function _podeUsarPosts(user) {
   return !!user && _CONTAS_POSTS_LIBERADAS.includes(user.codigoUsuario || user.id);
 }

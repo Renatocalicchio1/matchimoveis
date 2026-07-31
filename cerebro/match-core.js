@@ -280,22 +280,26 @@ class MatchCore {
   // ============================================================
   _atualizarMemoria(lead, mensagem) {
     try {
-      const { extrairPerfil } = require('./extrator-perfil');
       const todasMsgs = (lead.mensagens || []).filter(m => m.de === 'cliente');
-      // Garante que a mensagem atual está incluída mesmo se ainda não persistida
-      const msgAtualIncluida = mensagem && !todasMsgs.find(m => m.texto === mensagem);
-      const msgsParaExtrar = msgAtualIncluida ? [...todasMsgs, { de: 'cliente', texto: mensagem }] : todasMsgs;
-      const novoPerfil = extrairPerfil(msgsParaExtrar);
-
-      // Merge inteligente — nunca perde dado já capturado
       const perfilAtual = lead.perfilIA || {};
-      const merged = { ...perfilAtual };
-      const _ehPortal = (lead.origemEntrada||'').includes('webhook_') || ['ImovelWeb','ZAP Imóveis','VivaReal','Grupo OLX','123i','Chaves na Mão'].includes(lead.origem||'');
-      for (const [k, v] of Object.entries(novoPerfil)) {
-        if (v !== undefined && v !== null && v !== '') {
-          // Se é portal e já tem dado do imóvel, não sobrescrever campos de localização/tipo
-          if (_ehPortal && perfilAtual[k] && ['bairro','cidade','estado','tipo','quartos','suites','vagas','banheiros','area','valorMax','valorMin'].includes(k)) continue;
-          merged[k] = v;
+      // Sem mensagem nova (ex: edição manual do perfil na tela da lead) — não reprocessa
+      // o histórico, senão sobrescreve a edição manual com dado extraído de mensagem antiga
+      let merged = { ...perfilAtual };
+      if (mensagem && mensagem.trim()) {
+        const { extrairPerfil } = require('./extrator-perfil');
+        // Garante que a mensagem atual está incluída mesmo se ainda não persistida
+        const msgAtualIncluida = !todasMsgs.find(m => m.texto === mensagem);
+        const msgsParaExtrar = msgAtualIncluida ? [...todasMsgs, { de: 'cliente', texto: mensagem }] : todasMsgs;
+        const novoPerfil = extrairPerfil(msgsParaExtrar);
+
+        // Merge inteligente — nunca perde dado já capturado
+        const _ehPortal = (lead.origemEntrada||'').includes('webhook_') || ['ImovelWeb','ZAP Imóveis','VivaReal','Grupo OLX','123i','Chaves na Mão'].includes(lead.origem||'');
+        for (const [k, v] of Object.entries(novoPerfil)) {
+          if (v !== undefined && v !== null && v !== '') {
+            // Se é portal e já tem dado do imóvel, não sobrescrever campos de localização/tipo
+            if (_ehPortal && perfilAtual[k] && ['bairro','cidade','estado','tipo','quartos','suites','vagas','banheiros','area','valorMax','valorMin'].includes(k)) continue;
+            merged[k] = v;
+          }
         }
       }
 

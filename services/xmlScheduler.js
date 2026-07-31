@@ -70,14 +70,27 @@ async function rodarSync() {
 }
 
 function iniciarScheduler() {
-  console.log('[xmlScheduler] ⏱️ XML 24h scheduler iniciado');
+  console.log('[xmlScheduler] ⏱️ XML scheduler iniciado — sync pesado (reimporta XML) travado pra rodar só de madrugada, às 3h (horário de Brasília)');
 
-  // espera o servidor estabilizar (health-check responder) antes do 1º sync,
-  // em vez de rodar na hora — evita empilhar imports pesados logo após boot/restart
-  setTimeout(rodarSync, 2 * 60 * 1000);
-
-  // verifica a cada 1h
-  setInterval(rodarSync, 60 * 60 * 1000);
+  // O sync reimporta o XML inteiro de cada feed vencido (pode ser 1000+ imóveis)
+  // e le a tabela imoveis inteira pra memoria — pesado o suficiente pra evitar
+  // rodar em horario de pico. Antes rodava a cada 1h, o dia todo, espalhado
+  // conforme o horario que cada corretor cadastrou o feed originalmente.
+  function _proximo3hBR(agora) {
+    const hojeSP = agora.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+    let alvo = new Date(hojeSP + 'T03:00:00-03:00');
+    if (alvo <= agora) {
+      const amanhaSP = new Date(alvo.getTime() + 24*60*60*1000).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+      alvo = new Date(amanhaSP + 'T03:00:00-03:00');
+    }
+    return alvo;
+  }
+  const _agora = new Date();
+  const _msAte3h = _proximo3hBR(_agora) - _agora;
+  setTimeout(() => {
+    rodarSync();
+    setInterval(rodarSync, 24 * 60 * 60 * 1000);
+  }, _msAte3h);
 }
 
 module.exports = { iniciarScheduler, sincronizarFeedsComUsers, rodarSync };

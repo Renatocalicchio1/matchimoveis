@@ -7,7 +7,10 @@ const axios = require('axios');
 // Página do Facebook nem instagram_business_account vinculada).
 const AUTHORIZE_URL = 'https://www.instagram.com/oauth/authorize';
 const TOKEN_URL = 'https://api.instagram.com/oauth/access_token';
-const LONG_TOKEN_URL = 'https://graph.instagram.com/access_token';
+// Sem versão no path, o Meta às vezes devolve "Unsupported request - method
+// type" (erro genérico #100) pra esse endpoint em vez do erro real —
+// adicionando a versão o roteamento da API fica explícito
+const LONG_TOKEN_URL = 'https://graph.instagram.com/v21.0/access_token';
 const GRAPH_URL = 'https://graph.instagram.com';
 const SCOPES = 'instagram_business_basic,instagram_business_content_publish';
 

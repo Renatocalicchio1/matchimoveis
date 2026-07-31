@@ -30,9 +30,15 @@ function _traduzErro(msg) {
   return achado ? achado.msg : msg;
 }
 
-function _erroGraph(e, fallback) {
+function _erroGraph(e, fallback, etapa) {
   const msg = e?.response?.data?.error_message || e?.response?.data?.error?.message;
-  return new Error(_traduzErro(msg) || fallback || e.message);
+  const texto = _traduzErro(msg) || fallback || e.message;
+  // Enquanto o erro "Unsupported request - method type" não for diagnosticado
+  // de vez, anexa a resposta bruta do Meta na mensagem — não dá acesso aos
+  // logs do Render daqui, então isso é o jeito de ver o payload completo
+  // (código, tipo, fbtrace_id) a partir do próprio print de erro na tela.
+  const detalhe = e?.response?.data ? ' | raw: ' + JSON.stringify(e.response.data) : '';
+  return new Error((etapa ? `[${etapa}] ` : '') + texto + detalhe);
 }
 
 function getAuthUrl(state) {
@@ -75,31 +81,29 @@ async function trocarCodePorToken(code) {
     });
     return { accessToken: data.access_token, igUserId: data.user_id ? String(data.user_id) : null };
   } catch (e) {
-    throw _erroGraph(e, 'Falha ao trocar o código de autorização pelo token de acesso.');
+    const errData = e?.response?.data?.error || e?.response?.data || {};
+    console.error('[instagram] trocarCodePorToken falhou — resposta completa:', JSON.stringify(errData));
+    throw _erroGraph(e, 'Falha ao trocar o código de autorização pelo token de acesso.', 'trocarCodePorToken');
   }
 }
 
 async function obterTokenLongoPrazo(shortToken) {
+  // Documentação oficial atual do Meta confirma GET com esses parâmetros —
+  // o erro "Unsupported request - method type" bateu igual em GET e POST,
+  // então não é o verbo HTTP o problema real. Loga o erro completo (código,
+  // tipo, fbtrace_id) pra diagnosticar de verdade em vez de adivinhar.
   const params = {
     grant_type: 'ig_exchange_token',
     client_secret: process.env.FACEBOOK_APP_SECRET || '',
     access_token: shortToken
   };
-  // O Meta passou a rejeitar GET nesse endpoint em alguns casos ("Unsupported
-  // request - method type: get") — tenta GET (comportamento documentado) e,
-  // se cair nesse erro específico, tenta de novo via POST antes de desistir.
   try {
     const { data } = await axios.get(LONG_TOKEN_URL, { params });
     return data.access_token;
   } catch (e) {
-    const msg = e?.response?.data?.error?.message || e?.response?.data?.error_message || '';
-    if (!/method type/i.test(msg)) throw _erroGraph(e, 'Falha ao gerar o token de longa duração.');
-    try {
-      const { data } = await axios.post(LONG_TOKEN_URL, null, { params });
-      return data.access_token;
-    } catch (e2) {
-      throw _erroGraph(e2, 'Falha ao gerar o token de longa duração.');
-    }
+    const errData = e?.response?.data?.error || e?.response?.data || {};
+    console.error('[instagram] obterTokenLongoPrazo falhou — resposta completa:', JSON.stringify(errData));
+    throw _erroGraph(e, 'Falha ao gerar o token de longa duração.', 'obterTokenLongoPrazo');
   }
 }
 

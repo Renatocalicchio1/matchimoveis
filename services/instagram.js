@@ -80,17 +80,26 @@ async function trocarCodePorToken(code) {
 }
 
 async function obterTokenLongoPrazo(shortToken) {
+  const params = {
+    grant_type: 'ig_exchange_token',
+    client_secret: process.env.FACEBOOK_APP_SECRET || '',
+    access_token: shortToken
+  };
+  // O Meta passou a rejeitar GET nesse endpoint em alguns casos ("Unsupported
+  // request - method type: get") — tenta GET (comportamento documentado) e,
+  // se cair nesse erro específico, tenta de novo via POST antes de desistir.
   try {
-    const { data } = await axios.get(LONG_TOKEN_URL, {
-      params: {
-        grant_type: 'ig_exchange_token',
-        client_secret: process.env.FACEBOOK_APP_SECRET || '',
-        access_token: shortToken
-      }
-    });
+    const { data } = await axios.get(LONG_TOKEN_URL, { params });
     return data.access_token;
   } catch (e) {
-    throw _erroGraph(e, 'Falha ao gerar o token de longa duração.');
+    const msg = e?.response?.data?.error?.message || e?.response?.data?.error_message || '';
+    if (!/method type/i.test(msg)) throw _erroGraph(e, 'Falha ao gerar o token de longa duração.');
+    try {
+      const { data } = await axios.post(LONG_TOKEN_URL, null, { params });
+      return data.access_token;
+    } catch (e2) {
+      throw _erroGraph(e2, 'Falha ao gerar o token de longa duração.');
+    }
   }
 }
 

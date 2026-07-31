@@ -36,8 +36,10 @@
 .ig-img-dots{position:absolute;bottom:6px;left:0;right:0;display:flex;justify-content:center;gap:3px}
 .ig-img-dots span{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.6)}
 .ig-img-dots span.on{background:#fff}
-.ig-caption{padding:8px 10px 0;font-size:11.5px;color:#111827;line-height:1.45;white-space:pre-wrap}
-.ig-caption b{font-weight:600;margin-right:4px}
+.ig-caption{padding:8px 10px 0;font-size:11.5px;color:#111827;line-height:1.45}
+.ig-caption b{font-weight:600;margin-right:4px;display:block;margin-bottom:4px}
+.pt-legenda-edit{width:100%;box-sizing:border-box;border:1px solid transparent;border-radius:6px;padding:4px 6px;margin:-4px -6px;font:inherit;color:inherit;line-height:inherit;white-space:pre-wrap;resize:vertical;min-height:70px}
+.pt-legenda-edit:hover,.pt-legenda-edit:focus{border-color:#e5e7eb;outline:none;background:#fafafa}
 .ig-toolbar{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#e5e7eb;margin-top:10px;border-top:1px solid #e5e7eb}
 .ig-toolbar button{background:#fff;border:none;padding:9px 3px;font-size:9.5px;font-weight:600;color:#374151;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2}
 .ig-toolbar button:hover{background:#f9fafb}
@@ -123,7 +125,10 @@ function _primeiraFoto(p){
         </div>
         <div class="ig-thumbs" id="pt-thumbs"></div>
         <p id="pt-thumbs-dica" style="font-size:10.5px;color:#9ca3af;margin:0 10px 6px;display:none">Clique na bolinha pra tirar do post, arraste pra reordenar</p>
-        <div class="ig-caption"><b><%= (user && user.instagramUsername) ? user.instagramUsername : 'sua_conta' %></b><span id="pt-legenda-preview"></span></div>
+        <div class="ig-caption">
+          <b><%= (user && user.instagramUsername) ? user.instagramUsername : 'sua_conta' %></b>
+          <textarea id="pt-legenda-preview" class="pt-legenda-edit" oninput="_estado.legenda=this.value"></textarea>
+        </div>
         <div class="ig-toolbar">
           <button type="button" class="publicar" onclick="publicar()" id="pt-btn-publicar">✅<span>Publicar</span></button>
           <button type="button" onclick="abrirAgendar()" id="pt-btn-agendar">🕒<span>Agendar</span></button>
@@ -244,7 +249,7 @@ function _fotosSelecionadas(){
 }
 
 function _atualizarPreview(){
-  document.getElementById('pt-legenda-preview').textContent = ' ' + (_estado.legenda || '');
+  document.getElementById('pt-legenda-preview').value = _estado.legenda || '';
 
   const wrap = document.getElementById('pt-img-wrap');
   const total = _estado.imagens.length;

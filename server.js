@@ -12873,11 +12873,11 @@ app.get('/admin/disparos/:id/contatos', authAdmin, async (req, res) => {
 });
 // ── FIM DISPAROS WHATSAPP ──────────────────────────────────────────────────────
 
-// ── JOB_RESUMO_EMAIL — envia resumo da conta a cada 3 dias ───────────────────
+// ── JOB_RESUMO_EMAIL — envia resumo da conta a cada 15 dias ──────────────────
 const _agendarResumoEmail = () => {
   const agora = new Date();
   const proximo = new Date(agora);
-  proximo.setDate(proximo.getDate() + (agora.getHours() >= 9 ? 3 : 0));
+  proximo.setDate(proximo.getDate() + (agora.getHours() >= 9 ? 15 : 0));
   proximo.setHours(9, 0, 0, 0);
   const msAte = proximo - agora;
   setTimeout(async () => {
@@ -12890,18 +12890,18 @@ const _agendarResumoEmail = () => {
         const { enviarEmailResumo } = require('./services/emailResumo');
         await enviarEmailResumo();
       } catch(e) { console.error('[JOB RESUMO EMAIL]', e.message); }
-    }, 3 * 24 * 3600 * 1000);
+    }, 15 * 24 * 3600 * 1000);
   }, msAte);
   console.log('[JOB RESUMO EMAIL] agendado para:', proximo.toLocaleString('pt-BR'));
 };
 _agendarResumoEmail();
 // ── FIM JOB_RESUMO_EMAIL ─────────────────────────────────────────────────────
 
-// ── JOB_EMAIL_INDICACAO — envia link de indicação a cada 7 dias ──────────────
+// ── JOB_EMAIL_INDICACAO — envia link de indicação a cada 15 dias ─────────────
 const _agendarEmailIndicacao = () => {
   const agora = new Date();
   const proximo = new Date(agora);
-  proximo.setDate(proximo.getDate() + (agora.getHours() >= 9 ? 7 : 0));
+  proximo.setDate(proximo.getDate() + (agora.getHours() >= 9 ? 15 : 0));
   proximo.setHours(9, 0, 0, 0);
   const msAte = proximo - agora;
   setTimeout(async () => {
@@ -12914,7 +12914,7 @@ const _agendarEmailIndicacao = () => {
         const { enviarEmailIndicacao } = require('./services/emailIndicacao');
         await enviarEmailIndicacao();
       } catch(e) { console.error('[JOB EMAIL INDICACAO]', e.message); }
-    }, 7 * 24 * 3600 * 1000);
+    }, 15 * 24 * 3600 * 1000);
   }, msAte);
   console.log('[JOB EMAIL INDICACAO] agendado para:', proximo.toLocaleString('pt-BR'));
 };

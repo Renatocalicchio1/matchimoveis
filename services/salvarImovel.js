@@ -3,6 +3,41 @@ const path = require('path');
 const { lerJSON, salvarJSON } = require('./storage');
 const { query, dbOk } = require('./db');
 
+// Normalização de estado/cidade/bairro — feeds de XML e cadastro manual mandam
+// a mesma localidade escrita de formas diferentes (maiúscula, sem acento, com
+// hífen no lugar de espaço etc), o que gera entradas duplicadas nos filtros
+// (ex: "SANTA CATARINA" e "SANTA-CATARINA" como se fossem estados diferentes).
+const _ESTADOS_BR = [
+  ['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],
+  ['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],
+  ['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],
+  ['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],
+  ['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']
+];
+function _chaveLocalidade(s) {
+  return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+const _ESTADOS_POR_CHAVE = {};
+_ESTADOS_BR.forEach(([sigla, nome]) => {
+  _ESTADOS_POR_CHAVE[_chaveLocalidade(sigla)] = nome;
+  _ESTADOS_POR_CHAVE[_chaveLocalidade(nome)] = nome;
+});
+function normalizarEstadoBR(valor) {
+  const bruto = typeof valor === 'object' ? (valor?.abbreviation || valor?.['#text'] || '') : (valor || '');
+  if (!bruto) return '';
+  return _ESTADOS_POR_CHAVE[_chaveLocalidade(bruto)] || bruto.toString().trim();
+}
+const _CONECTIVOS_LOCALIDADE = new Set(['de','da','do','das','dos','e']);
+function normalizarNomeLocalidade(valor) {
+  const bruto = (valor || '').toString().replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!bruto) return '';
+  return bruto.toLowerCase().split(' ').map((palavra, idx) => {
+    if (!palavra) return palavra;
+    if (idx > 0 && _CONECTIVOS_LOCALIDADE.has(palavra)) return palavra;
+    return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+  }).join(' ');
+}
+
 function dataPath() {
   const DIR = process.env.RENDER ? '/opt/render/project/src/data' : path.join(__dirname, '..');
   return path.join(DIR, 'imoveis.json');
@@ -182,13 +217,9 @@ function imovelToRow(i) {
     transacao: i.transacao || 'venda',
     condicao: i.condicao || '',
     status: i.status || 'ativo',
-    bairro: i.bairro || '',
-    cidade: i.cidade || '',
-    estado: (() => {
-      const _map = {'SP':'São Paulo','SC':'Santa Catarina','BA':'Bahia','RJ':'Rio de Janeiro','MG':'Minas Gerais','PR':'Paraná','RS':'Rio Grande do Sul','GO':'Goiás','DF':'Distrito Federal','PE':'Pernambuco','CE':'Ceará','AM':'Amazonas','PA':'Pará','MT':'Mato Grosso','MS':'Mato Grosso do Sul','ES':'Espírito Santo','RN':'Rio Grande do Norte','PB':'Paraíba','AL':'Alagoas','PI':'Piauí','MA':'Maranhão','SE':'Sergipe','TO':'Tocantins','RO':'Rondônia','AC':'Acre','RR':'Roraima','AP':'Amapá'};
-      const _e = typeof i.estado === 'object' ? (i.estado?.abbreviation || i.estado?.['#text'] || '') : (i.estado || '');
-      return _map[_e.trim().toUpperCase()] || _e;
-    })(),
+    bairro: normalizarNomeLocalidade(i.bairro),
+    cidade: normalizarNomeLocalidade(i.cidade),
+    estado: normalizarEstadoBR(i.estado),
     endereco: i.endereco || '',
     numero: i.numero || '',
     complemento: i.complemento || '',
@@ -352,4 +383,4 @@ async function salvarTodosImoveis(imoveis) {
   return imoveis;
 }
 
-module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, _geocodificarCep, _geocodificarEndereco };
+module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade };

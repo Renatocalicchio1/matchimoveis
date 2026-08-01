@@ -3483,38 +3483,55 @@ function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
   const _page = Math.max(1, parseInt(q.page) || 1);
   const _totalImoveis = imoveis.length;
   const _totalPages = Math.ceil(_totalImoveis / perPage);
-  // Monta dados para filtros em cascata
-  const estadosSet = new Set();
+  // Chave accent/hífen/case-insensitive — usada só pra comparar (agrupar e
+  // filtrar), nunca pra exibir. Garante que "SANTA-CATARINA" e "Santa Catarina"
+  // caem na mesma chave mesmo em imóveis antigos ainda não regravados com a
+  // normalização de services/salvarImovel.js (normalizarEstadoBR/normalizarNomeLocalidade).
+  const _chaveLoc = s => (s||'').toString().normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim();
+  const { normalizarEstadoBR: _normEstadoDisp, normalizarNomeLocalidade: _normLocDisp } = require('./services/salvarImovel');
+  // Monta dados para filtros em cascata — agrupa por chave normalizada, mas
+  // exibe o nome canônico (evita "SANTA CATARINA" e "SANTA-CATARINA" como
+  // opções separadas no dropdown)
+  const estadosPorChave = {};
   const cidadesPorEstado = {};
   const bairrosPorCidade = {};
   imoveis.forEach(i => {
-    const est = (i.estado||'').toUpperCase().trim();
-    const cid = (i.cidade||'').trim();
-    const bai = (i.bairro||'').trim();
-    if (est) estadosSet.add(est);
-    if (est && cid) {
-      if (!cidadesPorEstado[est]) cidadesPorEstado[est] = new Set();
-      cidadesPorEstado[est].add(cid);
+    const estDisp = _normEstadoDisp(i.estado);
+    const cidDisp = _normLocDisp(i.cidade);
+    const baiDisp = _normLocDisp(i.bairro);
+    const estChave = _chaveLoc(estDisp);
+    const cidChave = _chaveLoc(cidDisp);
+    if (estChave) estadosPorChave[estChave] = estDisp;
+    if (estChave && cidChave) {
+      if (!cidadesPorEstado[estChave]) cidadesPorEstado[estChave] = {};
+      cidadesPorEstado[estChave][cidChave] = cidDisp;
     }
-    if (cid && bai) {
-      if (!bairrosPorCidade[cid]) bairrosPorCidade[cid] = new Set();
-      bairrosPorCidade[cid].add(bai);
+    if (cidChave && baiDisp) {
+      if (!bairrosPorCidade[cidChave]) bairrosPorCidade[cidChave] = new Set();
+      bairrosPorCidade[cidChave].add(baiDisp);
     }
   });
-  const estados = [...estadosSet].sort();
+  const estados = Object.values(estadosPorChave).sort();
   const cidades = {};
-  Object.keys(cidadesPorEstado).forEach(e => { cidades[e] = [...cidadesPorEstado[e]].sort(); });
+  Object.keys(cidadesPorEstado).forEach(chaveEst => {
+    cidades[estadosPorChave[chaveEst]] = Object.values(cidadesPorEstado[chaveEst]).sort();
+  });
   const bairros = {};
-  Object.keys(bairrosPorCidade).forEach(ci => { bairros[ci] = [...bairrosPorCidade[ci]].sort(); });
+  Object.keys(bairrosPorCidade).forEach(chaveCid => {
+    // acha o nome de exibição da cidade a partir de qualquer entrada com essa chave
+    let nomeCidade = chaveCid;
+    Object.values(cidadesPorEstado).forEach(mapa => { if (mapa[chaveCid]) nomeCidade = mapa[chaveCid]; });
+    bairros[nomeCidade] = [...bairrosPorCidade[chaveCid]].sort();
+  });
   // Filtros do servidor
-  const _fEstado = (q.estado||'').trim().toUpperCase();
-  const _fCidade = (q.cidade||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-  const _fBairro = (q.bairro||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const _fEstado = (q.estado||'').trim();
+  const _fCidade = (q.cidade||'').trim();
+  const _fBairro = (q.bairro||'').trim();
   const _fBusca  = (q.busca||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const _norm = s => (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
-  if (_fEstado) imoveis = imoveis.filter(i => _norm(i.estado) === _norm(_fEstado) || (i.estado||'').toUpperCase() === _fEstado);
-  if (_fCidade) imoveis = imoveis.filter(i => _norm(i.cidade) === _fCidade);
-  if (_fBairro) imoveis = imoveis.filter(i => _norm(i.bairro) === _fBairro);
+  if (_fEstado) imoveis = imoveis.filter(i => _chaveLoc(i.estado) === _chaveLoc(_fEstado));
+  if (_fCidade) imoveis = imoveis.filter(i => _chaveLoc(i.cidade) === _chaveLoc(_fCidade));
+  if (_fBairro) imoveis = imoveis.filter(i => _chaveLoc(i.bairro) === _chaveLoc(_fBairro));
   if (_fBusca)  imoveis = imoveis.filter(i => _norm(JSON.stringify(i)).includes(_fBusca));
   const _fCorretor = (q.corretor||'').trim();
   if (_fCorretor) imoveis = imoveis.filter(i => String(i.userId||i.user_id) === _fCorretor);

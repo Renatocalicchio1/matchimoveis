@@ -3,10 +3,11 @@ const axios = require('axios');
 // Marketing API do Meta — diferente do "Instagram Login" usado em
 // services/instagram.js (esse aqui é OAuth padrão do Facebook, porque
 // campanha paga exige Conta de Anúncios + Página, coisas que só existem
-// no lado do Facebook/Business Manager). Reusa FACEBOOK_APP_ID/SECRET —
-// mesmo app do Instagram, só que pedindo permissões extras (ads_management,
-// pages_manage_ads, leads_retrieval), que exigem aprovação separada do
-// Meta (App Review) antes de funcionar em produção.
+// no lado do Facebook/Business Manager). Usa META_ADS_APP_ID/SECRET —
+// PROPOSITALMENTE diferente de FACEBOOK_APP_ID/SECRET (que é o app
+// específico do Instagram Login): Marketing API exige o App ID do topo
+// do Meta App Dashboard (Configurações > Básico), não o do Instagram —
+// reusar o mesmo par de env vars aqui já causou erro PLATFORM__INVALID_APP_ID.
 const API_VERSION = 'v21.0';
 const GRAPH_URL = `https://graph.facebook.com/${API_VERSION}`;
 const AUTHORIZE_URL = 'https://www.facebook.com/' + API_VERSION + '/dialog/oauth';
@@ -27,7 +28,7 @@ function _erroGraph(e, fallback) {
 
 function getAuthUrl(state) {
   const params = new URLSearchParams({
-    client_id: process.env.FACEBOOK_APP_ID || '',
+    client_id: process.env.META_ADS_APP_ID || '',
     redirect_uri: redirectUri(),
     scope: SCOPES,
     response_type: 'code',
@@ -40,8 +41,8 @@ async function trocarCodePorToken(code) {
   try {
     const { data } = await axios.get(`${GRAPH_URL}/oauth/access_token`, {
       params: {
-        client_id: process.env.FACEBOOK_APP_ID || '',
-        client_secret: process.env.FACEBOOK_APP_SECRET || '',
+        client_id: process.env.META_ADS_APP_ID || '',
+        client_secret: process.env.META_ADS_APP_SECRET || '',
         redirect_uri: redirectUri(),
         code
       }
@@ -58,8 +59,8 @@ async function obterTokenLongoPrazo(shortToken) {
     const { data } = await axios.get(`${GRAPH_URL}/oauth/access_token`, {
       params: {
         grant_type: 'fb_exchange_token',
-        client_id: process.env.FACEBOOK_APP_ID || '',
-        client_secret: process.env.FACEBOOK_APP_SECRET || '',
+        client_id: process.env.META_ADS_APP_ID || '',
+        client_secret: process.env.META_ADS_APP_SECRET || '',
         fb_exchange_token: shortToken
       }
     });

@@ -4027,7 +4027,8 @@ app.post('/app/instagram/desconectar', auth, async (req,res)=>{
 
 // ── META ADS (campanha de anúncio pago) — OAuth padrão do Facebook, precisa
 // de Conta de Anúncios + Página do próprio corretor (com pagamento configurado
-// do lado dele). Reusa FACEBOOK_APP_ID/SECRET do Instagram, mas pedindo
+// do lado dele). Usa META_ADS_APP_ID/SECRET (env vars próprias — diferente do
+// FACEBOOK_APP_ID/SECRET do Instagram Login, são apps distintos no Meta), pedindo
 // permissões extras que exigem aprovação separada do Meta (App Review):
 // ads_management, pages_manage_ads, leads_retrieval, business_management ──
 app.get('/app/meta-ads/conectar', auth, (req,res)=>{

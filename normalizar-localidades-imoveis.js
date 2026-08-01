@@ -2,17 +2,20 @@
 // cadastrados/importados antes da normalização entrar em services/salvarImovel.js)
 // Rodar uma vez no Render Shell: node normalizar-localidades-imoveis.js
 const { query } = require('./services/db');
-const { normalizarEstadoBR, normalizarNomeLocalidade } = require('./services/salvarImovel');
+const { normalizarEstadoBR, normalizarCidadeBR, normalizarBairroBR } = require('./services/salvarImovel');
 
 async function main() {
+  // Dá 1.5s pro cache de localidades (IBGE/OSM) carregar do PG antes de usar
+  await new Promise(r => setTimeout(r, 1500));
+
   const { rows } = await query('SELECT id, estado, cidade, bairro FROM imoveis');
   console.log('Total de imóveis:', rows.length);
 
   let alterados = 0;
   for (const r of rows) {
     const estadoNovo = normalizarEstadoBR(r.estado);
-    const cidadeNova = normalizarNomeLocalidade(r.cidade);
-    const bairroNovo = normalizarNomeLocalidade(r.bairro);
+    const cidadeNova = normalizarCidadeBR(estadoNovo, r.cidade);
+    const bairroNovo = normalizarBairroBR(cidadeNova, r.bairro);
     if (estadoNovo === (r.estado || '') && cidadeNova === (r.cidade || '') && bairroNovo === (r.bairro || '')) continue;
     await query('UPDATE imoveis SET estado=$1, cidade=$2, bairro=$3 WHERE id=$4', [estadoNovo, cidadeNova, bairroNovo, r.id]);
     alterados++;

@@ -38,6 +38,58 @@ function normalizarNomeLocalidade(valor) {
   }).join(' ');
 }
 
+// Cruza cidade/bairro contra a tabela `localidades` (IBGE municípios + bairros
+// OSM, já populada por popular-brasil-tudo.js) — resolve casos que o cleanup
+// puramente formatação não resolve, tipo acento faltando ("ITAJAI" -> "Itajaí").
+// Cache em memória, recarrega do PG a cada 1h (mesmo padrão de cerebro/extrator-perfil.js).
+let _dicIBGE = null;
+let _dicIBGEAt = 0;
+async function _carregarDicIBGE() {
+  const agora = Date.now();
+  if (_dicIBGE && agora - _dicIBGEAt < 3600000) return;
+  try {
+    const r = await query('SELECT bairro, cidade, estado FROM localidades WHERE cidade IS NOT NULL');
+    const cidadesPorEstado = {};
+    const bairrosPorCidade = {};
+    for (const row of r.rows) {
+      if (!row.cidade || !row.estado) continue;
+      const chaveEstado = _chaveLocalidade(normalizarEstadoBR(row.estado));
+      const chaveCidade = _chaveLocalidade(row.cidade);
+      if (!cidadesPorEstado[chaveEstado]) cidadesPorEstado[chaveEstado] = {};
+      if (!cidadesPorEstado[chaveEstado][chaveCidade]) cidadesPorEstado[chaveEstado][chaveCidade] = row.cidade;
+      if (row.bairro) {
+        if (!bairrosPorCidade[chaveCidade]) bairrosPorCidade[chaveCidade] = {};
+        const chaveBairro = _chaveLocalidade(row.bairro);
+        if (!bairrosPorCidade[chaveCidade][chaveBairro]) bairrosPorCidade[chaveCidade][chaveBairro] = row.bairro;
+      }
+    }
+    _dicIBGE = { cidadesPorEstado, bairrosPorCidade };
+    _dicIBGEAt = agora;
+    console.log('[LOCALIDADES IBGE] cache carregado — estados:', Object.keys(cidadesPorEstado).length);
+  } catch(e) {
+    console.error('[LOCALIDADES IBGE] erro ao carregar:', e.message);
+    if (!_dicIBGE) _dicIBGE = { cidadesPorEstado: {}, bairrosPorCidade: {} };
+  }
+}
+_carregarDicIBGE();
+setInterval(_carregarDicIBGE, 3600000);
+
+// estadoCanonico: já deve vir de normalizarEstadoBR(). Sem cache pronto ou sem
+// correspondência na tabela, cai pro cleanup só de formatação (normalizarNomeLocalidade).
+function normalizarCidadeBR(estadoCanonico, cidadeBruta) {
+  const fallback = normalizarNomeLocalidade(cidadeBruta);
+  if (!fallback || !_dicIBGE) return fallback;
+  const mapa = _dicIBGE.cidadesPorEstado[_chaveLocalidade(estadoCanonico)];
+  return (mapa && mapa[_chaveLocalidade(fallback)]) || fallback;
+}
+// cidadeCanonica: já deve vir de normalizarCidadeBR().
+function normalizarBairroBR(cidadeCanonica, bairroBruto) {
+  const fallback = normalizarNomeLocalidade(bairroBruto);
+  if (!fallback || !_dicIBGE) return fallback;
+  const mapa = _dicIBGE.bairrosPorCidade[_chaveLocalidade(cidadeCanonica)];
+  return (mapa && mapa[_chaveLocalidade(fallback)]) || fallback;
+}
+
 function dataPath() {
   const DIR = process.env.RENDER ? '/opt/render/project/src/data' : path.join(__dirname, '..');
   return path.join(DIR, 'imoveis.json');
@@ -217,9 +269,12 @@ function imovelToRow(i) {
     transacao: i.transacao || 'venda',
     condicao: i.condicao || '',
     status: i.status || 'ativo',
-    bairro: normalizarNomeLocalidade(i.bairro),
-    cidade: normalizarNomeLocalidade(i.cidade),
-    estado: normalizarEstadoBR(i.estado),
+    ...(() => {
+      const estado = normalizarEstadoBR(i.estado);
+      const cidade = normalizarCidadeBR(estado, i.cidade);
+      const bairro = normalizarBairroBR(cidade, i.bairro);
+      return { estado, cidade, bairro };
+    })(),
     endereco: i.endereco || '',
     numero: i.numero || '',
     complemento: i.complemento || '',
@@ -383,4 +438,4 @@ async function salvarTodosImoveis(imoveis) {
   return imoveis;
 }
 
-module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade };
+module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR };

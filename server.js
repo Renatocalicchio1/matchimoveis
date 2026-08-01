@@ -3486,9 +3486,10 @@ function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
   // Chave accent/hífen/case-insensitive — usada só pra comparar (agrupar e
   // filtrar), nunca pra exibir. Garante que "SANTA-CATARINA" e "Santa Catarina"
   // caem na mesma chave mesmo em imóveis antigos ainda não regravados com a
-  // normalização de services/salvarImovel.js (normalizarEstadoBR/normalizarNomeLocalidade).
+  // normalização de services/salvarImovel.js (normalizarEstadoBR/normalizarCidadeBR/normalizarBairroBR,
+  // que cruzam contra a tabela `localidades` IBGE/OSM pra recuperar até acento faltando).
   const _chaveLoc = s => (s||'').toString().normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim();
-  const { normalizarEstadoBR: _normEstadoDisp, normalizarNomeLocalidade: _normLocDisp } = require('./services/salvarImovel');
+  const { normalizarEstadoBR: _normEstadoDisp, normalizarCidadeBR: _normCidadeDisp, normalizarBairroBR: _normBairroDisp } = require('./services/salvarImovel');
   // Monta dados para filtros em cascata — agrupa por chave normalizada, mas
   // exibe o nome canônico (evita "SANTA CATARINA" e "SANTA-CATARINA" como
   // opções separadas no dropdown)
@@ -3497,8 +3498,8 @@ function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
   const bairrosPorCidade = {};
   imoveis.forEach(i => {
     const estDisp = _normEstadoDisp(i.estado);
-    const cidDisp = _normLocDisp(i.cidade);
-    const baiDisp = _normLocDisp(i.bairro);
+    const cidDisp = _normCidadeDisp(estDisp, i.cidade);
+    const baiDisp = _normBairroDisp(cidDisp, i.bairro);
     const estChave = _chaveLoc(estDisp);
     const cidChave = _chaveLoc(cidDisp);
     if (estChave) estadosPorChave[estChave] = estDisp;

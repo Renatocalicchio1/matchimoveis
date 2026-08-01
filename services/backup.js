@@ -14,7 +14,10 @@ async function _criarTabelaBackup() {
 }
 _criarTabelaBackup();
 
+let _backupEmExecucao = false;
 async function fazerBackup() {
+  if (_backupEmExecucao) { console.log('[BACKUP] execução anterior ainda rodando, pulando esta'); return; }
+  _backupEmExecucao = true;
   try {
     if (!await dbOk()) { console.log('[BACKUP] banco offline, pulando'); return; }
 
@@ -46,6 +49,8 @@ async function fazerBackup() {
     console.log('[BACKUP] ✅ ' + ts + ' | leads:' + totais.leads + ' | imoveis:' + totais.imoveis + ' | users:' + totais.usuarios);
   } catch(e) {
     console.error('[BACKUP] erro:', e.message);
+  } finally {
+    _backupEmExecucao = false;
   }
 }
 
@@ -61,9 +66,9 @@ async function restaurarBackup(id) {
 }
 
 function iniciarBackup() {
-  console.log('[BACKUP] Backup automatico iniciado — a cada 1 minuto, mantendo 3 copias');
-  setTimeout(fazerBackup, 60 * 1000);
-  setInterval(fazerBackup, 60 * 1000);
+  console.log('[BACKUP] Backup automatico iniciado — a cada 5 minutos, mantendo 3 copias');
+  setTimeout(fazerBackup, 5 * 60 * 1000);
+  setInterval(fazerBackup, 5 * 60 * 1000);
 }
 
 module.exports = { fazerBackup, iniciarBackup, listarBackups, restaurarBackup };

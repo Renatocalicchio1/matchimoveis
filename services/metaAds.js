@@ -122,6 +122,27 @@ function montarTargeting(publico) {
   if (publico?.interesses?.length) {
     t.flexible_spec = [{ interests: publico.interesses.map(id => ({ id })) }];
   }
+  // Corretor escolhe onde o anúncio aparece (Facebook / Instagram / Rede de
+  // Audiência + Messenger) — sem isso o Meta usa posicionamento automático
+  // (Advantage+ Placements), que já é o padrão quando plataformas vem vazio
+  if (publico?.plataformas?.length) {
+    t.publisher_platforms = publico.plataformas;
+    // Meta exige as posições explícitas quando publisher_platforms é manual —
+    // sem isso a API rejeita o adset. "todas as posições" de cada plataforma
+    // escolhida é o comportamento equivalente ao que o corretor esperaria
+    if (t.publisher_platforms.includes('facebook')) {
+      t.facebook_positions = ['feed', 'right_hand_column', 'marketplace', 'video_feeds', 'story', 'search', 'facebook_reels'];
+    }
+    if (t.publisher_platforms.includes('instagram')) {
+      t.instagram_positions = ['stream', 'story', 'explore', 'reels', 'explore_home'];
+    }
+    if (t.publisher_platforms.includes('audience_network')) {
+      t.audience_network_positions = ['classic', 'rewarded_video'];
+    }
+    if (t.publisher_platforms.includes('messenger')) {
+      t.messenger_positions = ['messenger_home'];
+    }
+  }
   // Exigido pelo Meta desde 2025 — desliga a expansão automática de público
   // (Advantage Audience) pra respeitar exatamente o raio/idade/gênero/interesses
   // configurados pelo corretor, sem o Meta ampliar por conta própria

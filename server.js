@@ -4224,6 +4224,15 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
     // Centro do raio de público = localização do próprio imóvel (geocodifica
     // na hora se ainda não tiver, mesmo fallback usado na página pública)
     const publicoFinal = { ...(publico || {}) };
+    // "outros" (checkbox do corretor) vira Rede de Audiência + Messenger pro
+    // Meta — as únicas 4 plataformas de publisher_platforms que existem
+    const PLATAFORMAS_VALIDAS = { facebook: ['facebook'], instagram: ['instagram'], outros: ['audience_network', 'messenger'] };
+    if (Array.isArray(publicoFinal.plataformas)) {
+      publicoFinal.plataformas = [...new Set(publicoFinal.plataformas.flatMap(p => PLATAFORMAS_VALIDAS[p] || []))];
+      if (!publicoFinal.plataformas.length) delete publicoFinal.plataformas;
+    } else {
+      delete publicoFinal.plataformas;
+    }
     if (publicoFinal.raioKm && (!imovel.latitude || !imovel.longitude)) {
       const { _geocodificarEndereco } = require('./services/salvarImovel');
       const geo = await _geocodificarEndereco(imovel);

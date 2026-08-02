@@ -82,6 +82,9 @@
 .mc-char-count.perto{color:#d97706}
 .mc-item-editar{width:100%;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0ef}
 .mc-item-actions{display:flex;gap:6px}
+.mc-plataformas{display:flex;flex-wrap:wrap;gap:14px;margin-top:6px}
+.mc-plataforma-item{display:flex;align-items:center;gap:6px;font-size:13px;color:#374151;cursor:pointer}
+.mc-plataforma-item input{width:auto;cursor:pointer}
 </style>
 
 <% if(msg){ %><div class="mc-msg ok"><%= msg %></div><% } %>
@@ -203,6 +206,14 @@
         <option value="homens">Homens</option>
         <option value="mulheres">Mulheres</option>
       </select>
+    </div>
+  </div>
+  <div class="mc-field" style="margin-bottom:0">
+    <label class="mc-label">Onde anunciar</label>
+    <div class="mc-plataformas">
+      <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="facebook" checked> Facebook</label>
+      <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="instagram" checked> Instagram</label>
+      <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="outros"> Outros locais (Rede de Audiência e Messenger)</label>
     </div>
   </div>
 </div>
@@ -522,6 +533,9 @@ function criarCampanha(){
   if(!contaAnuncioId || !pageId){ msgEl.className='mc-msg err'; msgEl.textContent='Escolha a Conta de Anúncios e a Página.'; msgEl.style.display='block'; return; }
   if(!orcamento || Number(orcamento) < 1){ msgEl.className='mc-msg err'; msgEl.textContent='Informe o orçamento diário.'; msgEl.style.display='block'; return; }
 
+  var plataformas = Array.prototype.slice.call(document.querySelectorAll('.mc-plataforma:checked')).map(function(el){ return el.value; });
+  if(!plataformas.length){ msgEl.className='mc-msg err'; msgEl.textContent='Escolha ao menos um local pra anunciar.'; msgEl.style.display='block'; return; }
+
   var genero = document.getElementById('mc-genero').value;
   var body = {
     imovelId: _imovelEscolhido,
@@ -538,7 +552,8 @@ function criarCampanha(){
       raioKm: Number(document.getElementById('mc-raio').value) || 10,
       idadeMin: Number(document.getElementById('mc-idade-min').value) || 18,
       idadeMax: Number(document.getElementById('mc-idade-max').value) || 65,
-      genero: genero
+      genero: genero,
+      plataformas: plataformas
     }
   };
 

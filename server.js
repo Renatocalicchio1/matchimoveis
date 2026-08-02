@@ -778,6 +778,7 @@ tr:hover td{background:#fafafa;}
     <a href="https://match-evolution-api.onrender.com/manager" target="_blank" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📱 Painel WhatsApp</a>
     <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
     <a href="/admin/quintoandar-solicitacoes" style="font-size:12px;background:#00a86b;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏢 Solicitações QA</a>
+    <a href="/admin/exclusao-solicitacoes" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🗑️ Exclusão de Conta</a>
     <a href="/admin/leads-auditoria" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🗑️ Auditoria de Leads</a>
     <a href="/admin/logout" style="font-size:12px;color:#888;text-decoration:none">Sair</a>
   </div>
@@ -1218,6 +1219,25 @@ app.get('/admin/quintoandar-solicitacoes', authAdmin, async (req, res) => {
   } catch(e) { res.send('Erro: ' + e.message); }
 });
 
+app.get('/admin/exclusao-solicitacoes', authAdmin, async (req, res) => {
+  try {
+    const { query: _qExcA } = require('./services/db');
+    await _qExcA(`CREATE TABLE IF NOT EXISTS solicitacoes_exclusao_conta (
+      id SERIAL PRIMARY KEY, user_id TEXT, nome TEXT, email TEXT,
+      criado_em TIMESTAMPTZ DEFAULT NOW(), atendido BOOLEAN DEFAULT FALSE)`);
+    const r = await _qExcA('SELECT * FROM solicitacoes_exclusao_conta ORDER BY atendido ASC, criado_em DESC');
+    let html = `<html><head><meta charset="UTF-8"><title>Solicitações de exclusão de conta</title>
+    <style>body{font-family:Arial;padding:20px;max-width:1000px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
+    <body><h2 style="margin-bottom:16px">Solicitações de exclusão de conta (${r.rows.length})</h2>
+    <table><tr><th>Data</th><th>Nome</th><th>Email</th><th>Código</th><th>Status</th><th>Ação</th></tr>`;
+    r.rows.forEach(row => {
+      html += `<tr><td>${new Date(row.criado_em).toLocaleString('pt-BR')}</td><td>${row.nome||''}</td><td>${row.email||''}</td><td>${row.user_id||''}</td><td>${row.atendido?'<span style="color:#16a34a;font-weight:600">✅ Excluída</span>':'<span style="color:#f59e0b;font-weight:600">⏳ Aguardando</span>'}</td><td>${row.atendido?'<span style="color:#9ca3af;font-size:12px">-</span>':'<a href="/admin/deletar/'+row.user_id+'" onclick="return confirm(\'Excluir de vez a conta e todos os dados de '+(row.nome||row.user_id)+'? Não pode ser desfeito.\')" style="background:#dc2626;color:#fff;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Excluir conta</a>'}</td></tr>`;
+    });
+    html += '</table></body></html>';
+    res.send(html);
+  } catch(e) { res.send('Erro: ' + e.message); }
+});
+
 app.get('/admin/xml/quintoandar-global', authAdmin, async (req, res) => {
   try {
     const result = await gerarXMLQuintoAndarGlobal();
@@ -1565,6 +1585,7 @@ app.get('/admin/deletar/:codigo', authAdmin, async (req, res) => {
     await _q('DELETE FROM leads WHERE user_id=$1', [cod]);
     await _q('DELETE FROM visitas WHERE user_id=$1', [cod]);
     await _q('DELETE FROM notificacoes WHERE user_id=$1', [cod]);
+    await _q('UPDATE solicitacoes_exclusao_conta SET atendido=TRUE WHERE user_id=$1', [cod]).catch(()=>{});
     res.redirect('/admin');
   } catch(e) { res.send('Erro: ' + e.message); }
 });
@@ -1795,6 +1816,72 @@ app.get('/politica-privacidade', (req,res)=>{
 
 app.get('/termos-de-uso', (req,res)=>{
   res.render('termos-de-uso');
+});
+
+// ── OPT-OUT DE E-MAIL — link no rodapé dos e-mails periódicos (resumo,
+// indicação, reengajamento). Não fica em coluna própria — vai em
+// usuarios.dados (JSONB) via atualizarUsuario, igual outras flags avulsas
+// do sistema (ex: onboardingPerfilVisto) ──────────────────────────────────
+function _paginaSimples(titulo, corpo) {
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${titulo}</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',-apple-system,sans-serif;background:#FBF9F6;color:#16181A;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
+  .box{max-width:440px}.ico{font-size:44px;margin-bottom:16px}h1{font-size:20px;margin-bottom:12px}p{color:#716C61;font-size:14px;line-height:1.6;margin-bottom:20px}
+  .btn{display:inline-block;padding:11px 22px;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none}
+  .btn-perigo{background:#FF385C;color:#fff}.btn-outline{background:#fff;border:1px solid #E2DBCC;color:#16181A}</style></head>
+  <body><div class="box">${corpo}</div></body></html>`;
+}
+
+app.get('/email/cancelar', async (req, res) => {
+  try {
+    const uid = (req.query.u || '').trim();
+    const user = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.codigo_usuario || u.id) === uid);
+    if (!uid || !user) return res.status(404).send(_paginaSimples('Link inválido', '<div class="ico">🔗</div><h1>Link inválido</h1><p>Esse link de cancelamento não é válido ou já expirou.</p>'));
+
+    const { atualizarUsuario } = require('./services/salvarUsuario');
+    await atualizarUsuario(user.id, { emailOptOut: true });
+    if (_cacheUsuarios) { const idx = _cacheUsuarios.findIndex(u => u.id === user.id); if (idx >= 0) _cacheUsuarios[idx].emailOptOut = true; }
+
+    res.send(_paginaSimples('E-mails cancelados', '<div class="ico">✅</div><h1>Pronto, ' + (user.nome || '') + '!</h1><p>Você não vai mais receber os e-mails periódicos do MatchImóveis (resumo da conta, indicação de parceiros e lembretes). Notificações importantes sobre a sua conta continuam chegando no sistema normalmente.</p>'));
+  } catch (e) {
+    console.error('[email/cancelar]', e.message);
+    res.status(500).send(_paginaSimples('Erro', '<div class="ico">⚠️</div><h1>Erro</h1><p>Não conseguimos processar agora. Tenta de novo em alguns minutos.</p>'));
+  }
+});
+
+// ── EXCLUSÃO DE CONTA — fluxo em 2 cliques (evita disparo por pré-fetch de
+// e-mail): 1º link mostra confirmação, 2º de fato cria a solicitação e
+// avisa o admin. A exclusão em si (services/salvarImovel etc) só acontece
+// quando o admin aprovar manualmente em /admin/exclusao-solicitacoes ──────
+app.get('/conta/excluir', async (req, res) => {
+  const uid = (req.query.u || '').trim();
+  const user = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.codigo_usuario || u.id) === uid);
+  if (!uid || !user) return res.status(404).send(_paginaSimples('Link inválido', '<div class="ico">🔗</div><h1>Link inválido</h1><p>Esse link não é válido ou já expirou.</p>'));
+  res.send(_paginaSimples('Excluir conta', '<div class="ico">⚠️</div><h1>Excluir sua conta, ' + (user.nome || '') + '?</h1><p>Isso vai apagar seu cadastro, seus imóveis, leads e visitas do MatchImóveis. <strong>Não pode ser desfeito.</strong> Sua solicitação vai passar por uma confirmação da nossa equipe antes de ser executada.</p><a class="btn btn-perigo" href="/conta/excluir/confirmar?u=' + encodeURIComponent(uid) + '">Sim, quero excluir minha conta</a>'));
+});
+
+app.get('/conta/excluir/confirmar', async (req, res) => {
+  try {
+    const uid = (req.query.u || '').trim();
+    const user = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.codigo_usuario || u.id) === uid);
+    if (!uid || !user) return res.status(404).send(_paginaSimples('Link inválido', '<div class="ico">🔗</div><h1>Link inválido</h1><p>Esse link não é válido ou já expirou.</p>'));
+
+    const { query: _qExc } = require('./services/db');
+    await _qExc(`CREATE TABLE IF NOT EXISTS solicitacoes_exclusao_conta (
+      id SERIAL PRIMARY KEY, user_id TEXT, nome TEXT, email TEXT,
+      criado_em TIMESTAMPTZ DEFAULT NOW(), atendido BOOLEAN DEFAULT FALSE)`);
+    const jaExiste = await _qExc('SELECT id FROM solicitacoes_exclusao_conta WHERE user_id=$1 AND atendido=FALSE', [uid]);
+    if (!jaExiste.rows.length) {
+      await _qExc('INSERT INTO solicitacoes_exclusao_conta (user_id, nome, email, criado_em) VALUES ($1,$2,$3,NOW())', [uid, user.nome || '', user.email || '']);
+      try { require('./services/monitor').enviarAlerta('🗑️ Pedido de exclusão de conta\nCorretor: ' + (user.nome || '') + '\nCódigo: ' + uid + '\nEmail: ' + (user.email || '') + '\n\nRevisar em /admin/exclusao-solicitacoes'); } catch(_) {}
+    }
+
+    res.send(_paginaSimples('Solicitação recebida', '<div class="ico">📩</div><h1>Recebemos seu pedido</h1><p>Sua solicitação de exclusão de conta foi registrada. Nossa equipe vai analisar e concluir a exclusão em breve.</p>'));
+  } catch (e) {
+    console.error('[conta/excluir/confirmar]', e.message);
+    res.status(500).send(_paginaSimples('Erro', '<div class="ico">⚠️</div><h1>Erro</h1><p>Não conseguimos registrar seu pedido agora. Tenta de novo em alguns minutos.</p>'));
+  }
 });
 
 

@@ -5,11 +5,12 @@ async function enviarEmailReengajamento() {
   try {
     const sete_dias_atras = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
     const { rows } = await query(`
-      SELECT codigo_usuario, nome, email, ultimo_acesso 
-      FROM usuarios 
+      SELECT codigo_usuario, nome, email, ultimo_acesso
+      FROM usuarios
       WHERE email IS NOT NULL AND email != ''
       AND ultimo_acesso < $1
       AND ativo = true
+      AND COALESCE((dados->>'emailOptOut')::boolean, false) = false
     `, [sete_dias_atras]);
 
     console.log('[REENGAJAMENTO] usuarios inativos:', rows.length);
@@ -31,7 +32,8 @@ async function enviarEmailReengajamento() {
               <li>📅 Solicitações de visita pendentes</li>
             </ul>
             <a href="https://matchimoveis.ia.br" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Voltar ao sistema →</a>
-            <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.online<br>Para não receber mais estes emails, acesse seu perfil e desative as notificações.</p>
+            <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.online</p>
+            <p style="margin-top:8px;color:#9ca3af;font-size:11px;line-height:1.6">Não quer mais receber estes e-mails? <a href="https://matchimoveis.ia.br/email/cancelar?u=${u.codigo_usuario}" style="color:#9ca3af">Cancelar recebimento</a> · <a href="https://matchimoveis.ia.br/conta/excluir?u=${u.codigo_usuario}" style="color:#9ca3af">Excluir minha conta</a></p>
           </div>`,
           texto: `Olá ${u.nome}! Faz ${diasSemAcesso} dias que você não acessa o MatchImóveis. Volte agora: https://matchimoveis.ia.br`
         });

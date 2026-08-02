@@ -6,7 +6,8 @@ const BASE_URL = 'https://www.matchimoveis.ia.br';
 async function enviarEmailIndicacao() {
   try {
     const { rows: usuarios } = await query(
-      `SELECT codigo_usuario, nome, email FROM usuarios WHERE email IS NOT NULL AND email != '' AND ativo = true`
+      `SELECT codigo_usuario, nome, email FROM usuarios WHERE email IS NOT NULL AND email != '' AND ativo = true
+       AND COALESCE((dados->>'emailOptOut')::boolean, false) = false`
     );
 
     console.log('[EMAIL INDICACAO] usuarios:', usuarios.length);
@@ -25,6 +26,7 @@ async function enviarEmailIndicacao() {
           <a href="${linkWa}" style="display:inline-block;padding:12px 24px;background:#25D366;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">💬 Convidar pelo WhatsApp</a>
           <p style="margin-top:24px"><a href="${BASE_URL}/app/indicacoes" style="color:#FF385C;font-weight:bold">Ver meus indicados e bônus →</a></p>
           <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.online</p>
+          <p style="margin-top:8px;color:#9ca3af;font-size:11px;line-height:1.6">Não quer mais receber estes e-mails? <a href="${BASE_URL}/email/cancelar?u=${u.codigo_usuario}" style="color:#9ca3af">Cancelar recebimento</a> · <a href="${BASE_URL}/conta/excluir?u=${u.codigo_usuario}" style="color:#9ca3af">Excluir minha conta</a></p>
         </div>`;
 
         await enviarEmail({

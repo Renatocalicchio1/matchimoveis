@@ -42,6 +42,19 @@
 .mc-badge.pausada{background:#f3f4f6;color:#6b7280}
 .mc-badge.ativa{background:#f0fdf4;color:#16a34a}
 .mc-vazio{font-size:13px;color:#9ca3af;text-align:center;padding:24px 0}
+
+.mc-preview{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;max-width:360px;background:#fff;font-family:Helvetica,Arial,sans-serif}
+.mc-preview-head{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.mc-preview-avatar{width:32px;height:32px;border-radius:50%;background:#e5e7eb;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.mc-preview-pagina{font-size:13px;font-weight:600;color:#111827;line-height:1.3}
+.mc-preview-patrocinado{font-size:11px;color:#9ca3af;line-height:1.3}
+.mc-preview-texto{padding:0 12px 10px;font-size:13px;color:#111827;white-space:pre-wrap;line-height:1.4}
+.mc-preview-img{width:100%;height:220px;object-fit:cover;background:#f3f4f6;display:block}
+.mc-preview-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f0f2f5;gap:8px}
+.mc-preview-info{flex:1;min-width:0}
+.mc-preview-dominio{font-size:10.5px;color:#65676b;text-transform:uppercase;letter-spacing:.02em}
+.mc-preview-titulo{font-size:14px;font-weight:600;color:#050505;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-preview-cta{background:#e4e6eb;color:#050505;font-size:13px;font-weight:600;padding:8px 14px;border-radius:6px;white-space:nowrap;flex-shrink:0}
 </style>
 
 <% if(msg){ %><div class="mc-msg ok"><%= msg %></div><% } %>
@@ -71,7 +84,7 @@
   <% } else { %>
   <div class="mc-imoveis-grid" id="mc-imoveis-grid">
     <% imoveis.forEach(function(i){ %>
-    <button type="button" class="mc-imovel-card" data-id="<%= i.id %>" onclick="escolherImovel(this)">
+    <button type="button" class="mc-imovel-card" data-id="<%= i.id %>" data-titulo="<%= i.titulo %>" data-valor="<%= i.valorImovel||0 %>" data-quartos="<%= i.quartos||0 %>" data-foto="<%= i.foto %>" onclick="escolherImovel(this)">
       <img src="<%= i.foto %>" loading="lazy">
       <div class="mc-imovel-info">
         <div class="mc-imovel-titulo"><%= i.titulo %></div>
@@ -117,7 +130,7 @@
     </div>
     <div class="mc-field">
       <label class="mc-label">Página do Facebook</label>
-      <select class="mc-select" id="mc-pagina"><option value="">Carregando...</option></select>
+      <select class="mc-select" id="mc-pagina" onchange="atualizarPreview()"><option value="">Carregando...</option></select>
     </div>
   </div>
 </div>
@@ -155,6 +168,30 @@
 </div>
 
 <div class="mc-card">
+  <div class="mc-card-title">5. Prévia do anúncio</div>
+  <div class="mc-card-sub">Assim (aproximadamente) o anúncio vai aparecer no feed — confere antes de criar.</div>
+  <div id="mc-preview-vazio" class="mc-vazio">Escolha o imóvel, o objetivo e a Página pra ver a prévia.</div>
+  <div id="mc-preview" class="mc-preview" style="display:none">
+    <div class="mc-preview-head">
+      <div class="mc-preview-avatar">📷</div>
+      <div>
+        <div class="mc-preview-pagina" id="mc-preview-pagina">Sua Página</div>
+        <div class="mc-preview-patrocinado">Patrocinado · <span id="mc-preview-cta-label"></span></div>
+      </div>
+    </div>
+    <div class="mc-preview-texto" id="mc-preview-texto"></div>
+    <img class="mc-preview-img" id="mc-preview-img" src="">
+    <div class="mc-preview-footer">
+      <div class="mc-preview-info">
+        <div class="mc-preview-dominio">matchimoveis.ia.br</div>
+        <div class="mc-preview-titulo" id="mc-preview-titulo"></div>
+      </div>
+      <div class="mc-preview-cta" id="mc-preview-cta">Saiba mais</div>
+    </div>
+  </div>
+</div>
+
+<div class="mc-card">
   <button type="button" class="mc-btn" id="mc-btn-criar" onclick="criarCampanha()">Criar campanha (fica pausada — você revisa e ativa no Gerenciador de Anúncios)</button>
   <div id="mc-msg-criar" class="mc-msg" style="display:none;margin-top:12px;margin-bottom:0"></div>
 </div>
@@ -187,12 +224,46 @@ function escolherImovel(btn){
   document.querySelectorAll('.mc-imovel-card').forEach(function(el){ el.classList.remove('on'); });
   btn.classList.add('on');
   _imovelEscolhido = btn.dataset.id;
+  atualizarPreview();
 }
 function escolherObjetivo(el){
   document.querySelectorAll('.mc-obj-card').forEach(function(c){ c.classList.remove('on'); });
   el.classList.add('on');
   _objetivoEscolhido = el.dataset.obj;
   document.getElementById('mc-campo-whatsapp').style.display = (_objetivoEscolhido === 'whatsapp') ? 'block' : 'none';
+  atualizarPreview();
+}
+
+// Prévia do anúncio — mesma composição de texto usada em services/metaAds.js
+// (_textoAnuncio: valor + quartos), só que calculada no client com os dados
+// que já estão nos data-attributes do card do imóvel, sem round-trip ao servidor
+function atualizarPreview(){
+  var previewEl = document.getElementById('mc-preview');
+  var vazioEl = document.getElementById('mc-preview-vazio');
+  var btnImovel = document.querySelector('.mc-imovel-card.on');
+  if(!btnImovel || !_objetivoEscolhido){ previewEl.style.display = 'none'; vazioEl.style.display = 'block'; return; }
+
+  var titulo = btnImovel.dataset.titulo;
+  var valor = Number(btnImovel.dataset.valor) || 0;
+  var quartos = Number(btnImovel.dataset.quartos) || 0;
+  var foto = btnImovel.dataset.foto;
+  var partes = [];
+  if(valor) partes.push('R$ ' + valor.toLocaleString('pt-BR'));
+  if(quartos) partes.push(quartos + ' quarto' + (quartos>1?'s':''));
+
+  var ctaLabel = _objetivoEscolhido==='lead_form' ? 'Cadastre-se' : _objetivoEscolhido==='whatsapp' ? 'Enviar mensagem' : 'Saiba mais';
+  var selPagina = document.getElementById('mc-pagina');
+  var nomePagina = (selPagina && selPagina.selectedIndex >= 0 && selPagina.options[selPagina.selectedIndex]) ? selPagina.options[selPagina.selectedIndex].text : 'Sua Página';
+
+  document.getElementById('mc-preview-pagina').textContent = nomePagina;
+  document.getElementById('mc-preview-cta-label').textContent = ctaLabel;
+  document.getElementById('mc-preview-texto').textContent = partes.join(' · ') + '\n' + titulo;
+  document.getElementById('mc-preview-img').src = foto;
+  document.getElementById('mc-preview-titulo').textContent = titulo;
+  document.getElementById('mc-preview-cta').textContent = ctaLabel;
+
+  previewEl.style.display = 'block';
+  vazioEl.style.display = 'none';
 }
 
 <% if(user.metaAdsToken){ %>
@@ -207,6 +278,7 @@ function escolherObjetivo(el){
     }
     selConta.innerHTML = d.contas.length ? d.contas.map(function(c){ return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('') : '<option value="">Nenhuma conta encontrada</option>';
     selPagina.innerHTML = d.paginas.length ? d.paginas.map(function(p){ return '<option value="'+p.id+'">'+p.name+'</option>'; }).join('') : '<option value="">Nenhuma página encontrada</option>';
+    atualizarPreview();
   }).catch(function(){
     document.getElementById('mc-conta').innerHTML = '<option value="">Erro ao carregar</option>';
     document.getElementById('mc-pagina').innerHTML = '<option value="">Erro ao carregar</option>';

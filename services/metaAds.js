@@ -122,6 +122,10 @@ function montarTargeting(publico) {
   if (publico?.interesses?.length) {
     t.flexible_spec = [{ interests: publico.interesses.map(id => ({ id })) }];
   }
+  // Exigido pelo Meta desde 2025 — desliga a expansão automática de público
+  // (Advantage Audience) pra respeitar exatamente o raio/idade/gênero/interesses
+  // configurados pelo corretor, sem o Meta ampliar por conta própria
+  t.targeting_automation = { advantage_audience: 0 };
   return t;
 }
 

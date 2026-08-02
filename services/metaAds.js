@@ -11,12 +11,11 @@ const axios = require('axios');
 const API_VERSION = 'v21.0';
 const GRAPH_URL = `https://graph.facebook.com/${API_VERSION}`;
 const AUTHORIZE_URL = 'https://www.facebook.com/' + API_VERSION + '/dialog/oauth';
-// leads_retrieval removido por ora — não está entre as permissões adicionadas
-// no Meta App Dashboard ainda (causava "Invalid Scopes" e travava a conexão
-// inteira, mesmo pros objetivos que não dependem dela). Necessária só pro
-// objetivo de formulário nativo de leads (Lead Ads) — adicionar de volta
-// depois de cadastrar a permissão no Dashboard.
-const SCOPES = 'ads_management,pages_show_list,pages_manage_ads,pages_read_engagement,business_management';
+// leads_retrieval precisou do caso de uso próprio "Capturar e gerenciar leads
+// de anúncios com a API de Marketing" no Meta App Dashboard (Casos de uso →
+// Adicionar mais casos de uso) — não vem junto do caso de uso genérico de
+// Marketing API, por isso sumia da lista de permissões antes de adicionar esse.
+const SCOPES = 'ads_management,pages_show_list,pages_manage_ads,pages_read_engagement,leads_retrieval,business_management';
 
 function baseUrl() {
   return process.env.RENDER ? 'https://www.matchimoveis.ia.br' : (process.env.BASE_URL || 'http://localhost:3000');

@@ -137,6 +137,10 @@ async function criarCampanha({ contaAnuncioId, token, nome, objetivo }) {
         objective: objetivoMeta,
         status: 'PAUSED',
         special_ad_categories: JSON.stringify([]),
+        // orçamento fica no adset (não é CBO), então o Meta exige esse campo
+        // explícito na campanha — false porque não tem orçamento compartilhado
+        // entre adsets pra otimizar
+        is_adset_budget_sharing_enabled: false,
         access_token: token
       }
     });

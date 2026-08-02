@@ -224,10 +224,15 @@ async function criarCreative({ contaAnuncioId, token, pageId, nome, imovel, obje
   try {
     const { titulo, texto } = _textoAnuncio(imovel);
     const foto = (imovel.fotos || [])[0];
+    const idPublico = imovel.idInterno || imovel.id_interno || imovel.id;
+    // Meta exige "link" no link_data mesmo quando o clique real é tratado pelo
+    // call_to_action (LEAD_GENERATION/WHATSAPP_MESSAGE) — usa a página do
+    // imóvel como destino de fallback nesses casos
     const linkData = {
       picture: foto,
       message: texto,
-      name: titulo
+      name: titulo,
+      link: `${baseUrl()}/imovel/${idPublico}`
     };
     if (objetivo === 'lead_form') {
       linkData.call_to_action = { type: 'LEAD_GENERATION', value: { lead_gen_form_id: leadFormId } };
@@ -237,8 +242,6 @@ async function criarCreative({ contaAnuncioId, token, pageId, nome, imovel, obje
         value: { app_destination: 'WHATSAPP', whatsapp_number: whatsappNumero }
       };
     } else {
-      const idPublico = imovel.idInterno || imovel.id_interno || imovel.id;
-      linkData.link = `${baseUrl()}/imovel/${idPublico}`;
       linkData.call_to_action = { type: 'LEARN_MORE' };
     }
     const { data } = await axios.post(`${GRAPH_URL}/act_${contaAnuncioId}/adcreatives`, null, {

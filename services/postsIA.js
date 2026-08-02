@@ -177,4 +177,27 @@ Responda SOMENTE com o texto final da legenda, pronta pra publicar, em portuguê
   return { legenda: legenda.trim() };
 }
 
-module.exports = { analisarSite, gerarLegenda };
+// Título + descrição pro criativo de um anúncio pago do Meta (Facebook/Instagram
+// Ads) — diferente da legenda de post (services/postsIA.js gerarLegenda): aqui é
+// só 2 campos curtos e objetivos, o formato que a Marketing API espera
+// (link_data.name = título principal, link_data.message = descrição/texto do corpo).
+async function gerarTextoAnuncio({ titulo, tipo, bairro, cidade, valor, quartos }) {
+  const systemPrompt = `Você é um redator de anúncios pagos (Facebook/Instagram Ads) para o mercado imobiliário brasileiro.
+A partir dos dados do imóvel, escreva:
+1. Um TÍTULO curto e chamativo (até 40 caracteres), sem emoji, sem aspas.
+2. Uma DESCRIÇÃO de 1 a 2 frases (até 125 caracteres), destacando valor/quartos/localização quando existirem, terminando com uma chamada pra ação (ex: "Fale agora!", "Agende sua visita").
+
+Nunca invente informação que não foi passada. Responda EXATAMENTE neste formato, sem mais nada:
+TITULO: <texto>
+DESCRICAO: <texto>`;
+  const userPrompt = `Título do imóvel: ${titulo || '(sem título)'}\nTipo: ${tipo || ''}\nBairro: ${bairro || ''}\nCidade: ${cidade || ''}\nValor: ${valor ? 'R$ ' + Number(valor).toLocaleString('pt-BR') : '(não informado)'}\nQuartos: ${quartos || '(não informado)'}`;
+  const resposta = await _chamarGroq(systemPrompt, userPrompt);
+  const mTitulo = resposta.match(/TITULO:\s*(.+)/i);
+  const mDescricao = resposta.match(/DESCRICAO:\s*(.+)/i);
+  return {
+    titulo: (mTitulo ? mTitulo[1] : resposta.split('\n')[0]).trim().replace(/^["']|["']$/g, ''),
+    descricao: (mDescricao ? mDescricao[1] : resposta.split('\n').slice(1).join(' ')).trim().replace(/^["']|["']$/g, '')
+  };
+}
+
+module.exports = { analisarSite, gerarLegenda, gerarTextoAnuncio };

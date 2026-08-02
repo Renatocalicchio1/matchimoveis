@@ -220,9 +220,13 @@ function _textoAnuncio(imovel) {
   return { titulo, texto: [valor, quartos].filter(Boolean).join(' · ') };
 }
 
-async function criarCreative({ contaAnuncioId, token, pageId, nome, imovel, objetivo, leadFormId, whatsappNumero }) {
+async function criarCreative({ contaAnuncioId, token, pageId, nome, imovel, objetivo, leadFormId, whatsappNumero, tituloAnuncio, descricaoAnuncio }) {
   try {
-    const { titulo, texto } = _textoAnuncio(imovel);
+    // Corretor pode editar (ou gerar com IA) o título/descrição na tela de
+    // criação — só cai no texto automático se ele deixar em branco
+    const _auto = _textoAnuncio(imovel);
+    const titulo = (tituloAnuncio || '').trim() || _auto.titulo;
+    const texto = (descricaoAnuncio || '').trim() || _auto.texto;
     const foto = (imovel.fotos || [])[0];
     const idPublico = imovel.idInterno || imovel.id_interno || imovel.id;
     // Meta exige "link" no link_data mesmo quando o clique real é tratado pelo
@@ -281,7 +285,7 @@ async function criarAd({ contaAnuncioId, token, nome, adsetId, creativeId }) {
 // revisa e ativa manualmente (ou a rota que chama isso já ativa em seguida,
 // dependendo do que o app pedir). Retorna todos os IDs pra salvar na tabela
 // campanhas_meta.
-async function criarCampanhaCompleta({ contaAnuncioId, pageId, pageToken, token, imovel, objetivo, orcamentoDiarioCentavos, publico, whatsappNumero }) {
+async function criarCampanhaCompleta({ contaAnuncioId, pageId, pageToken, token, imovel, objetivo, orcamentoDiarioCentavos, publico, whatsappNumero, tituloAnuncio, descricaoAnuncio }) {
   // /me/adaccounts já devolve o id com o prefixo "act_" (ex: act_1112726172242956) —
   // as funções abaixo (criarCampanha, criarAdSet etc) montam "act_${contaAnuncioId}"
   // sozinhas, então remove o prefixo aqui pra não duplicar (act_act_... = ID inválido)
@@ -300,7 +304,7 @@ async function criarCampanhaCompleta({ contaAnuncioId, pageId, pageToken, token,
   }
 
   const adsetId = await criarAdSet({ contaAnuncioId, pageId, token, campaignId, nome: nomeBase, orcamentoDiarioCentavos, objetivo, publico });
-  const creativeId = await criarCreative({ contaAnuncioId, token, pageId, nome: nomeBase, imovel, objetivo, leadFormId, whatsappNumero });
+  const creativeId = await criarCreative({ contaAnuncioId, token, pageId, nome: nomeBase, imovel, objetivo, leadFormId, whatsappNumero, tituloAnuncio, descricaoAnuncio });
   const adId = await criarAd({ contaAnuncioId, token, nome: nomeBase, adsetId, creativeId });
 
   return { campaignId, adsetId, creativeId, adId, leadFormId };

@@ -4190,7 +4190,7 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
     const uid = String(user.id || user.codigoUsuario || '');
     if (!user.metaAdsToken) return res.status(400).json({ ok:false, erro:'Conecte sua conta do Meta primeiro.' });
 
-    const { imovelId, objetivo, contaAnuncioId, pageId, orcamentoDiario, publico, whatsappNumero } = req.body;
+    const { imovelId, objetivo, contaAnuncioId, pageId, orcamentoDiario, publico, whatsappNumero, tituloAnuncio, descricaoAnuncio } = req.body;
     if (!imovelId || !objetivo || !contaAnuncioId || !pageId || !orcamentoDiario) {
       return res.status(400).json({ ok:false, erro:'Imóvel, objetivo, conta de anúncio, página e orçamento são obrigatórios.' });
     }
@@ -4236,7 +4236,8 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
 
     const resultado = await criarCampanhaCompleta({
       contaAnuncioId, pageId, pageToken: pagina.access_token, token: user.metaAdsToken,
-      imovel, objetivo, orcamentoDiarioCentavos, publico: publicoFinal, whatsappNumero: numeroWA
+      imovel, objetivo, orcamentoDiarioCentavos, publico: publicoFinal, whatsappNumero: numeroWA,
+      tituloAnuncio: (tituloAnuncio||'').trim(), descricaoAnuncio: (descricaoAnuncio||'').trim()
     });
 
     const { criarCampanhaRegistro } = require('./services/salvarCampanhaMeta');
@@ -4252,6 +4253,27 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
   } catch(e) {
     console.error('[meta-ads/campanha]', e.message);
     res.status(500).json({ ok:false, erro: e.message });
+  }
+});
+
+// Gera título + descrição do anúncio via IA — corretor pode usar direto ou editar depois
+app.post('/app/meta-ads/gerar-texto', auth, async (req,res)=>{
+  try {
+    if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok:false, erro:'Sem acesso.' });
+    const { imovelId } = req.body;
+    const imoveis = lerImoveis(req.session.user);
+    const imovel = imoveis.find(i => String(i.idExterno)===String(imovelId) || String(i.idInterno)===String(imovelId) || String(i.id)===String(imovelId));
+    if (!imovel) return res.status(404).json({ ok:false, erro:'Imóvel não encontrado.' });
+
+    const { gerarTextoAnuncio } = require('./services/postsIA');
+    const { titulo, descricao } = await gerarTextoAnuncio({
+      titulo: imovel.titulo, tipo: imovel.tipo, bairro: imovel.bairro, cidade: imovel.cidade,
+      valor: imovel.valor_imovel, quartos: imovel.quartos
+    });
+    res.json({ ok:true, titulo, descricao });
+  } catch(e) {
+    console.error('[meta-ads/gerar-texto]', e.message);
+    res.status(500).json({ ok:false, erro: e.message || 'Falha ao gerar texto com IA.' });
   }
 });
 

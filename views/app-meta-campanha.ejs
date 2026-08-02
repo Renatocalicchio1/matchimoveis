@@ -55,6 +55,15 @@
 .mc-preview-dominio{font-size:10.5px;color:#65676b;text-transform:uppercase;letter-spacing:.02em}
 .mc-preview-titulo{font-size:14px;font-weight:600;color:#050505;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mc-preview-cta{background:#e4e6eb;color:#050505;font-size:13px;font-weight:600;padding:8px 14px;border-radius:6px;white-space:nowrap;flex-shrink:0}
+
+.mc-selo{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.mc-selo-1{background:#00A699}
+.mc-selo-2{background:#FC642D}
+.mc-campo-label{display:flex;align-items:center;gap:6px}
+.mc-preview-texto .mc-selo,.mc-preview-titulo-wrap .mc-selo{margin-right:4px}
+.mc-preview-titulo-wrap{display:flex;align-items:center;gap:4px;overflow:hidden}
+.mc-btn-ia{font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#374151;cursor:pointer;white-space:nowrap}
+.mc-btn-ia:disabled{opacity:.5;cursor:not-allowed}
 </style>
 
 <% if(msg){ %><div class="mc-msg ok"><%= msg %></div><% } %>
@@ -168,7 +177,21 @@
 </div>
 
 <div class="mc-card">
-  <div class="mc-card-title">5. Prévia do anúncio</div>
+  <div class="mc-card-title">5. Título e descrição do anúncio</div>
+  <div class="mc-card-sub">Preenche sozinho quando você escolhe o imóvel — edita à vontade, ou gera de novo com IA. Os selos <span class="mc-selo mc-selo-1">1</span> e <span class="mc-selo mc-selo-2">2</span> mostram onde cada campo aparece na prévia abaixo.</div>
+  <div class="mc-field">
+    <div class="mc-campo-label"><span class="mc-selo mc-selo-1">1</span><label class="mc-label" style="margin-bottom:0">Descrição (texto acima da foto)</label></div>
+    <textarea class="mc-input" id="mc-descricao" rows="2" style="resize:vertical;margin-top:6px" oninput="atualizarPreview()"></textarea>
+  </div>
+  <div class="mc-field" style="margin-bottom:8px">
+    <div class="mc-campo-label"><span class="mc-selo mc-selo-2">2</span><label class="mc-label" style="margin-bottom:0">Título principal (abaixo da foto)</label></div>
+    <input type="text" class="mc-input" id="mc-titulo-principal" style="margin-top:6px" oninput="atualizarPreview()">
+  </div>
+  <button type="button" class="mc-btn-ia" id="mc-btn-ia" onclick="gerarTextoIA()">🤖 Gerar com IA</button>
+</div>
+
+<div class="mc-card">
+  <div class="mc-card-title">6. Prévia do anúncio</div>
   <div class="mc-card-sub">Assim (aproximadamente) o anúncio vai aparecer no feed — confere antes de criar.</div>
   <div id="mc-preview-vazio" class="mc-vazio">Escolha o imóvel, o objetivo e a Página pra ver a prévia.</div>
   <div id="mc-preview" class="mc-preview" style="display:none">
@@ -179,12 +202,12 @@
         <div class="mc-preview-patrocinado">Patrocinado · <span id="mc-preview-cta-label"></span></div>
       </div>
     </div>
-    <div class="mc-preview-texto" id="mc-preview-texto"></div>
+    <div class="mc-preview-texto"><span class="mc-selo mc-selo-1">1</span><span id="mc-preview-texto"></span></div>
     <img class="mc-preview-img" id="mc-preview-img" src="">
     <div class="mc-preview-footer">
       <div class="mc-preview-info">
         <div class="mc-preview-dominio">matchimoveis.ia.br</div>
-        <div class="mc-preview-titulo" id="mc-preview-titulo"></div>
+        <div class="mc-preview-titulo-wrap"><span class="mc-selo mc-selo-2">2</span><div class="mc-preview-titulo" id="mc-preview-titulo"></div></div>
       </div>
       <div class="mc-preview-cta" id="mc-preview-cta">Saiba mais</div>
     </div>
@@ -224,6 +247,15 @@ function escolherImovel(btn){
   document.querySelectorAll('.mc-imovel-card').forEach(function(el){ el.classList.remove('on'); });
   btn.classList.add('on');
   _imovelEscolhido = btn.dataset.id;
+  // Troca de imóvel reseta título/descrição pro padrão desse imóvel (texto
+  // customizado do imóvel anterior não faz sentido pra um imóvel diferente)
+  var valor = Number(btn.dataset.valor) || 0;
+  var quartos = Number(btn.dataset.quartos) || 0;
+  var partes = [];
+  if(valor) partes.push('R$ ' + valor.toLocaleString('pt-BR'));
+  if(quartos) partes.push(quartos + ' quarto' + (quartos>1?'s':''));
+  document.getElementById('mc-titulo-principal').value = btn.dataset.titulo;
+  document.getElementById('mc-descricao').value = partes.join(' · ');
   atualizarPreview();
 }
 function escolherObjetivo(el){
@@ -234,22 +266,41 @@ function escolherObjetivo(el){
   atualizarPreview();
 }
 
-// Prévia do anúncio — mesma composição de texto usada em services/metaAds.js
-// (_textoAnuncio: valor + quartos), só que calculada no client com os dados
-// que já estão nos data-attributes do card do imóvel, sem round-trip ao servidor
+function gerarTextoIA(){
+  if(!_imovelEscolhido){ alert('Escolhe um imóvel primeiro.'); return; }
+  var btn = document.getElementById('mc-btn-ia');
+  btn.disabled = true;
+  btn.textContent = 'Gerando...';
+  fetch('/app/meta-ads/gerar-texto', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ imovelId: _imovelEscolhido }) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      btn.textContent = '🤖 Gerar com IA';
+      if(d.ok){
+        document.getElementById('mc-titulo-principal').value = d.titulo;
+        document.getElementById('mc-descricao').value = d.descricao;
+        atualizarPreview();
+      } else {
+        alert(d.erro || 'Erro ao gerar com IA.');
+      }
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = '🤖 Gerar com IA';
+      alert('Erro de conexão.');
+    });
+}
+
+// Prévia do anúncio — lê direto dos campos editáveis (título/descrição),
+// que o corretor pode ajustar à mão ou gerar com IA
 function atualizarPreview(){
   var previewEl = document.getElementById('mc-preview');
   var vazioEl = document.getElementById('mc-preview-vazio');
   var btnImovel = document.querySelector('.mc-imovel-card.on');
   if(!btnImovel || !_objetivoEscolhido){ previewEl.style.display = 'none'; vazioEl.style.display = 'block'; return; }
 
-  var titulo = btnImovel.dataset.titulo;
-  var valor = Number(btnImovel.dataset.valor) || 0;
-  var quartos = Number(btnImovel.dataset.quartos) || 0;
+  var titulo = document.getElementById('mc-titulo-principal').value || btnImovel.dataset.titulo;
+  var descricao = document.getElementById('mc-descricao').value;
   var foto = btnImovel.dataset.foto;
-  var partes = [];
-  if(valor) partes.push('R$ ' + valor.toLocaleString('pt-BR'));
-  if(quartos) partes.push(quartos + ' quarto' + (quartos>1?'s':''));
 
   var ctaLabel = _objetivoEscolhido==='lead_form' ? 'Cadastre-se' : _objetivoEscolhido==='whatsapp' ? 'Enviar mensagem' : 'Saiba mais';
   var selPagina = document.getElementById('mc-pagina');
@@ -257,7 +308,7 @@ function atualizarPreview(){
 
   document.getElementById('mc-preview-pagina').textContent = nomePagina;
   document.getElementById('mc-preview-cta-label').textContent = ctaLabel;
-  document.getElementById('mc-preview-texto').textContent = partes.join(' · ') + '\n' + titulo;
+  document.getElementById('mc-preview-texto').textContent = descricao;
   document.getElementById('mc-preview-img').src = foto;
   document.getElementById('mc-preview-titulo').textContent = titulo;
   document.getElementById('mc-preview-cta').textContent = ctaLabel;
@@ -303,6 +354,8 @@ function criarCampanha(){
     contaAnuncioId: contaAnuncioId,
     pageId: pageId,
     orcamentoDiario: orcamento,
+    tituloAnuncio: document.getElementById('mc-titulo-principal').value,
+    descricaoAnuncio: document.getElementById('mc-descricao').value,
     whatsappNumero: document.getElementById('mc-whatsapp') ? document.getElementById('mc-whatsapp').value.replace(/\D/g,'') : '',
     publico: {
       raioKm: Number(document.getElementById('mc-raio').value) || 10,

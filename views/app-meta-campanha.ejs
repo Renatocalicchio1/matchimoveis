@@ -43,13 +43,24 @@
 .mc-badge.ativa{background:#f0fdf4;color:#16a34a}
 .mc-vazio{font-size:13px;color:#9ca3af;text-align:center;padding:24px 0}
 
+.mc-duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media(max-width:900px){.mc-duo{grid-template-columns:1fr}}
+.mc-duo .mc-card{margin-bottom:0}
+
 .mc-preview{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;max-width:360px;background:#fff;font-family:Helvetica,Arial,sans-serif}
 .mc-preview-head{display:flex;align-items:center;gap:8px;padding:10px 12px}
 .mc-preview-avatar{width:32px;height:32px;border-radius:50%;background:#e5e7eb;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
 .mc-preview-pagina{font-size:13px;font-weight:600;color:#111827;line-height:1.3}
 .mc-preview-patrocinado{font-size:11px;color:#9ca3af;line-height:1.3}
 .mc-preview-texto{padding:0 12px 10px;font-size:13px;color:#111827;white-space:pre-wrap;line-height:1.4}
+.mc-preview-img-wrap{position:relative;background:#f3f4f6}
 .mc-preview-img{width:100%;height:220px;object-fit:cover;background:#f3f4f6;display:block}
+.mc-preview-seta{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;border:none;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;line-height:1;padding:0}
+.mc-preview-seta-prev{left:8px}
+.mc-preview-seta-next{right:8px}
+.mc-preview-dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:2}
+.mc-preview-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6)}
+.mc-preview-dot.on{background:#fff}
 .mc-preview-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f0f2f5;gap:8px}
 .mc-preview-info{flex:1;min-width:0}
 .mc-preview-dominio{font-size:10.5px;color:#65676b;text-transform:uppercase;letter-spacing:.02em}
@@ -65,8 +76,12 @@
 .mc-preview-titulo-wrap{display:flex;align-items:center;gap:4px;overflow:hidden}
 .mc-preview-secundario-wrap{display:flex;align-items:center;gap:4px;overflow:hidden;margin-top:1px}
 .mc-preview-secundario{font-size:11.5px;color:#65676b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mc-btn-ia{font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#374151;cursor:pointer;white-space:nowrap}
+.mc-btn-ia{font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#374151;cursor:pointer;white-space:nowrap;margin-top:6px}
 .mc-btn-ia:disabled{opacity:.5;cursor:not-allowed}
+.mc-char-count{font-size:11px;color:#9ca3af;text-align:right;margin-top:4px}
+.mc-char-count.perto{color:#d97706}
+.mc-item-editar{width:100%;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0ef}
+.mc-item-actions{display:flex;gap:6px}
 </style>
 
 <% if(msg){ %><div class="mc-msg ok"><%= msg %></div><% } %>
@@ -192,22 +207,27 @@
   </div>
 </div>
 
+<div class="mc-duo">
 <div class="mc-card">
   <div class="mc-card-title">5. Título e descrição do anúncio</div>
-  <div class="mc-card-sub">Preenche sozinho quando você escolhe o imóvel — edita à vontade, ou gera de novo com IA. Os selos <span class="mc-selo mc-selo-1">1</span>, <span class="mc-selo mc-selo-2">2</span> e <span class="mc-selo mc-selo-3">3</span> mostram onde cada campo aparece na prévia abaixo.</div>
+  <div class="mc-card-sub">Preenche sozinho quando você escolhe o imóvel — edita à vontade, ou gera de novo com IA em cada campo. Os selos <span class="mc-selo mc-selo-1">1</span>, <span class="mc-selo mc-selo-2">2</span> e <span class="mc-selo mc-selo-3">3</span> mostram onde cada campo aparece na prévia ao lado.</div>
   <div class="mc-field">
     <div class="mc-campo-label"><span class="mc-selo mc-selo-1">1</span><label class="mc-label" style="margin-bottom:0">Descrição (texto acima da foto)</label></div>
     <textarea class="mc-input" id="mc-descricao" rows="2" style="resize:vertical;margin-top:6px" oninput="atualizarPreview()"></textarea>
+    <button type="button" class="mc-btn-ia" onclick="gerarTextoIA('descricao', this)">🤖 Gerar com IA</button>
   </div>
   <div class="mc-field">
     <div class="mc-campo-label"><span class="mc-selo mc-selo-2">2</span><label class="mc-label" style="margin-bottom:0">Título principal (abaixo da foto)</label></div>
-    <input type="text" class="mc-input" id="mc-titulo-principal" style="margin-top:6px" oninput="atualizarPreview()">
+    <input type="text" class="mc-input" id="mc-titulo-principal" maxlength="27" style="margin-top:6px" oninput="atualizarContador('mc-titulo-principal','mc-titulo-principal-count');atualizarPreview()">
+    <div class="mc-char-count" id="mc-titulo-principal-count">0/27</div>
+    <button type="button" class="mc-btn-ia" onclick="gerarTextoIA('titulo', this)">🤖 Gerar com IA</button>
   </div>
-  <div class="mc-field" style="margin-bottom:8px">
-    <div class="mc-campo-label"><span class="mc-selo mc-selo-3">3</span><label class="mc-label" style="margin-bottom:0">Título secundário (texto pequeno, ao lado do botão — opcional)</label></div>
-    <input type="text" class="mc-input" id="mc-titulo-secundario" style="margin-top:6px" oninput="atualizarPreview()">
+  <div class="mc-field" style="margin-bottom:0">
+    <div class="mc-campo-label"><span class="mc-selo mc-selo-3">3</span><label class="mc-label" style="margin-bottom:0">Título secundário (texto pequeno, ao lado do botão)</label></div>
+    <input type="text" class="mc-input" id="mc-titulo-secundario" maxlength="30" style="margin-top:6px" oninput="atualizarContador('mc-titulo-secundario','mc-titulo-secundario-count');atualizarPreview()">
+    <div class="mc-char-count" id="mc-titulo-secundario-count">0/30</div>
+    <button type="button" class="mc-btn-ia" onclick="gerarTextoIA('secundario', this)">🤖 Gerar com IA</button>
   </div>
-  <button type="button" class="mc-btn-ia" id="mc-btn-ia" onclick="gerarTextoIA()">🤖 Gerar com IA</button>
 </div>
 
 <div class="mc-card">
@@ -223,7 +243,12 @@
       </div>
     </div>
     <div class="mc-preview-texto"><span class="mc-selo mc-selo-1">1</span><span id="mc-preview-texto"></span></div>
-    <img class="mc-preview-img" id="mc-preview-img" src="">
+    <div class="mc-preview-img-wrap">
+      <img class="mc-preview-img" id="mc-preview-img" src="">
+      <button type="button" class="mc-preview-seta mc-preview-seta-prev" id="mc-preview-seta-prev" onclick="previewFoto(-1)" style="display:none">‹</button>
+      <button type="button" class="mc-preview-seta mc-preview-seta-next" id="mc-preview-seta-next" onclick="previewFoto(1)" style="display:none">›</button>
+      <div class="mc-preview-dots" id="mc-preview-dots"></div>
+    </div>
     <div class="mc-preview-footer">
       <div class="mc-preview-info">
         <div class="mc-preview-dominio"><%= dominioAnuncio %></div>
@@ -233,6 +258,7 @@
       <div class="mc-preview-cta" id="mc-preview-cta">Saiba mais</div>
     </div>
   </div>
+</div>
 </div>
 
 <div class="mc-card">
@@ -251,9 +277,30 @@
     <div class="mc-item">
       <div class="mc-item-info">
         <div class="mc-item-titulo">Imóvel <%= c.imovelId %> · <%= c.objetivo==='lead_form'?'Formulário no Meta':c.objetivo==='whatsapp'?'Clique para WhatsApp':'Página do imóvel' %></div>
-        <div class="mc-item-sub">R$ <%= (c.orcamentoDiarioCentavos/100).toFixed(2) %>/dia · <%= c.leadsRecebidos||0 %> lead(s) recebido(s) · criada em <%= new Date(c.criadoEm).toLocaleDateString('pt-BR') %></div>
+        <div class="mc-item-sub">R$ <span id="mc-item-orcamento-<%= c.id %>"><%= (c.orcamentoDiarioCentavos/100).toFixed(2) %></span>/dia · <%= c.leadsRecebidos||0 %> lead(s) recebido(s) · criada em <%= new Date(c.criadoEm).toLocaleDateString('pt-BR') %></div>
       </div>
-      <span class="mc-badge <%= c.status %>"><%= c.status==='ativa'?'Ativa':'Pausada' %></span>
+      <span class="mc-badge <%= c.status %>" id="mc-item-badge-<%= c.id %>"><%= c.status==='ativa'?'Ativa':'Pausada' %></span>
+      <div class="mc-item-actions">
+        <button type="button" class="mc-btn mc-btn-sec" style="font-size:11px;padding:6px 10px" onclick="toggleEditarCampanha(<%= c.id %>)">Editar</button>
+        <button type="button" class="mc-btn mc-btn-sec" style="font-size:11px;padding:6px 10px;color:#dc2626" onclick="excluirCampanha(<%= c.id %>)">Excluir</button>
+      </div>
+      <div class="mc-item-editar" id="mc-editar-<%= c.id %>" style="display:none">
+        <div class="mc-row">
+          <div class="mc-field" style="margin-bottom:0">
+            <label class="mc-label">Orçamento diário (R$)</label>
+            <input type="number" class="mc-input" id="mc-editar-orcamento-<%= c.id %>" min="1" step="1" value="<%= (c.orcamentoDiarioCentavos/100).toFixed(2) %>">
+          </div>
+          <div class="mc-field" style="margin-bottom:0">
+            <label class="mc-label">Status</label>
+            <select class="mc-select" id="mc-editar-status-<%= c.id %>">
+              <option value="pausada" <%= c.status==='pausada'?'selected':'' %>>Pausada</option>
+              <option value="ativa" <%= c.status==='ativa'?'selected':'' %>>Ativa</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="mc-btn" style="margin-top:10px;font-size:12px;padding:8px 16px" onclick="salvarEdicaoCampanha(<%= c.id %>)">Salvar</button>
+        <span id="mc-editar-msg-<%= c.id %>" style="font-size:12px;margin-left:10px"></span>
+      </div>
     </div>
     <% }) %>
   </div>
@@ -261,20 +308,61 @@
 </div>
 
 <script>
+<% var _imoveisFotos = {}; imoveis.forEach(function(i){ _imoveisFotos[i.id] = (i.fotos && i.fotos.length ? i.fotos : (i.foto ? [i.foto] : [])); }); %>
+var IMOVEIS_FOTOS = <%- JSON.stringify(_imoveisFotos) %>;
+var LIMITE_TITULO = 27;
+var LIMITE_SECUNDARIO = 30;
 var _imovelEscolhido = null;
 var _objetivoEscolhido = null;
+var _previewFotos = [];
+var _previewFotoIdx = 0;
+
+function atualizarContador(inputId, countId){
+  var el = document.getElementById(inputId);
+  var cEl = document.getElementById(countId);
+  if(!el || !cEl) return;
+  var max = Number(el.getAttribute('maxlength')) || 0;
+  cEl.textContent = el.value.length + '/' + max;
+  cEl.classList.toggle('perto', max && el.value.length >= max);
+}
+
+function carregarFotosPreview(btn){
+  var id = btn.dataset.id;
+  _previewFotos = (IMOVEIS_FOTOS[id] && IMOVEIS_FOTOS[id].length) ? IMOVEIS_FOTOS[id] : (btn.dataset.foto ? [btn.dataset.foto] : []);
+  _previewFotoIdx = 0;
+  renderPreviewFoto();
+}
+function previewFoto(delta){
+  if(!_previewFotos.length) return;
+  _previewFotoIdx = (_previewFotoIdx + delta + _previewFotos.length) % _previewFotos.length;
+  renderPreviewFoto();
+}
+function renderPreviewFoto(){
+  document.getElementById('mc-preview-img').src = _previewFotos[_previewFotoIdx] || '';
+  var multi = _previewFotos.length > 1;
+  document.getElementById('mc-preview-seta-prev').style.display = multi ? 'flex' : 'none';
+  document.getElementById('mc-preview-seta-next').style.display = multi ? 'flex' : 'none';
+  var dotsEl = document.getElementById('mc-preview-dots');
+  dotsEl.innerHTML = multi ? _previewFotos.map(function(_,i){ return '<span class="mc-preview-dot'+(i===_previewFotoIdx?' on':'')+'"></span>'; }).join('') : '';
+}
 
 function escolherImovel(btn){
   document.querySelectorAll('.mc-imovel-card').forEach(function(el){ el.classList.remove('on'); });
   btn.classList.add('on');
   _imovelEscolhido = btn.dataset.id;
+  carregarFotosPreview(btn);
   // Troca de imóvel reseta título/descrição pro padrão desse imóvel (texto
   // customizado do imóvel anterior não faz sentido pra um imóvel diferente).
-  // Descrição usa a mesma legenda já gerada pra compartilhar no Instagram
-  // (GET /app/instagram/preview) — mesmo texto, mesmo padrão em todo canal.
-  document.getElementById('mc-titulo-principal').value = btn.dataset.titulo;
+  // Título principal e secundário partem do título do imóvel, cada um
+  // truncado no limite recomendado pelo Meta pra não ficar cortado no feed
+  // (27 caracteres no título, 30 no texto secundário). Descrição usa a
+  // mesma legenda já gerada pra compartilhar no Instagram (GET
+  // /app/instagram/preview) — mesmo texto, mesmo padrão em todo canal.
+  document.getElementById('mc-titulo-principal').value = (btn.dataset.titulo||'').slice(0, LIMITE_TITULO);
+  document.getElementById('mc-titulo-secundario').value = (btn.dataset.titulo||'').slice(0, LIMITE_SECUNDARIO);
   document.getElementById('mc-descricao').value = 'Carregando...';
-  document.getElementById('mc-titulo-secundario').value = '';
+  atualizarContador('mc-titulo-principal','mc-titulo-principal-count');
+  atualizarContador('mc-titulo-secundario','mc-titulo-secundario-count');
   atualizarPreview();
   fetch('/app/instagram/preview/' + encodeURIComponent(_imovelEscolhido))
     .then(function(r){ return r.json(); })
@@ -297,26 +385,33 @@ function escolherObjetivo(el){
   atualizarPreview();
 }
 
-function gerarTextoIA(){
+// campo: 'descricao' | 'titulo' | 'secundario' — cada botão fica embaixo do
+// seu próprio campo e só atualiza aquele campo (os outros dois ficam como
+// o corretor deixou, sem sobrescrever à toa)
+function gerarTextoIA(campo, btn){
   if(!_imovelEscolhido){ alert('Escolhe um imóvel primeiro.'); return; }
-  var btn = document.getElementById('mc-btn-ia');
+  var textoOriginal = btn.textContent;
   btn.disabled = true;
   btn.textContent = 'Gerando...';
   fetch('/app/meta-ads/gerar-texto', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ imovelId: _imovelEscolhido }) })
     .then(function(r){ return r.json(); })
     .then(function(d){
       btn.disabled = false;
-      btn.textContent = '🤖 Gerar com IA';
-      if(d.ok){
-        document.getElementById('mc-titulo-principal').value = d.titulo;
-        document.getElementById('mc-descricao').value = d.descricao;
-        atualizarPreview();
-      } else {
-        alert(d.erro || 'Erro ao gerar com IA.');
+      btn.textContent = textoOriginal;
+      if(!d.ok){ alert(d.erro || 'Erro ao gerar com IA.'); return; }
+      if(campo === 'descricao'){
+        document.getElementById('mc-descricao').value = d.descricao || '';
+      } else if(campo === 'titulo'){
+        document.getElementById('mc-titulo-principal').value = (d.titulo||'').slice(0, LIMITE_TITULO);
+        atualizarContador('mc-titulo-principal','mc-titulo-principal-count');
+      } else if(campo === 'secundario'){
+        document.getElementById('mc-titulo-secundario').value = (d.titulo||'').slice(0, LIMITE_SECUNDARIO);
+        atualizarContador('mc-titulo-secundario','mc-titulo-secundario-count');
       }
+      atualizarPreview();
     }).catch(function(){
       btn.disabled = false;
-      btn.textContent = '🤖 Gerar com IA';
+      btn.textContent = textoOriginal;
       alert('Erro de conexão.');
     });
 }
@@ -332,10 +427,9 @@ function atualizarPreview(){
   // o que de fato é criado, que exige os dois antes de "Criar campanha")
   if(!btnImovel){ previewEl.style.display = 'none'; vazioEl.style.display = 'block'; return; }
 
-  var titulo = document.getElementById('mc-titulo-principal').value || btnImovel.dataset.titulo;
+  var titulo = document.getElementById('mc-titulo-principal').value || btnImovel.dataset.titulo.slice(0, LIMITE_TITULO);
   var descricao = document.getElementById('mc-descricao').value;
   var tituloSecundario = document.getElementById('mc-titulo-secundario').value;
-  var foto = btnImovel.dataset.foto;
 
   var CTA_LABELS = { SIGN_UP:'Cadastre-se', LEARN_MORE:'Saiba mais', CONTACT_US:'Fale conosco', GET_QUOTE:'Peça um orçamento', APPLY_NOW:'Candidate-se', REGISTER_NOW:'Registre-se', MAKE_AN_APPOINTMENT:'Marque uma consulta', GET_IN_TOUCH:'Entre em contato' };
   var ctaLabel;
@@ -353,7 +447,6 @@ function atualizarPreview(){
   document.getElementById('mc-preview-pagina').textContent = nomePagina;
   document.getElementById('mc-preview-cta-label').textContent = ctaLabel;
   document.getElementById('mc-preview-texto').textContent = descricao;
-  document.getElementById('mc-preview-img').src = foto;
   document.getElementById('mc-preview-titulo').textContent = titulo;
   document.getElementById('mc-preview-cta').textContent = ctaLabel;
 
@@ -367,6 +460,36 @@ function atualizarPreview(){
 
   previewEl.style.display = 'block';
   vazioEl.style.display = 'none';
+}
+
+// Editar/excluir campanhas já criadas — botões ficam sempre visíveis na
+// lista de "Campanhas criadas" (mesmo se a conta do Meta foi desconectada
+// depois; nesse caso a rota do servidor retorna erro pedindo pra reconectar)
+function toggleEditarCampanha(id){
+  var el = document.getElementById('mc-editar-'+id);
+  el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+}
+function salvarEdicaoCampanha(id){
+  var orcamento = document.getElementById('mc-editar-orcamento-'+id).value;
+  var status = document.getElementById('mc-editar-status-'+id).value;
+  var msgEl = document.getElementById('mc-editar-msg-'+id);
+  msgEl.textContent = 'Salvando...';
+  msgEl.style.color = '#9ca3af';
+  fetch('/app/meta-ads/campanha/'+id+'/editar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ orcamentoDiario: orcamento, status: status }) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.ok){ location.reload(); }
+      else { msgEl.textContent = d.erro || 'Erro ao salvar.'; msgEl.style.color = '#dc2626'; }
+    }).catch(function(){ msgEl.textContent = 'Erro de conexão.'; msgEl.style.color = '#dc2626'; });
+}
+function excluirCampanha(id){
+  if(!confirm('Excluir esta campanha? Ela é removida do Meta também (não só daqui).')) return;
+  fetch('/app/meta-ads/campanha/'+id+'/excluir', { method:'POST' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.ok){ location.reload(); }
+      else { alert(d.erro || 'Erro ao excluir.'); }
+    }).catch(function(){ alert('Erro de conexão.'); });
 }
 
 <% if(user.metaAdsToken){ %>

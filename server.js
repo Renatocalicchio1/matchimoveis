@@ -4273,6 +4273,62 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
   }
 });
 
+// Edita uma campanha já criada — só orçamento diário (adset) e status
+// (ativar/pausar) são editáveis de fato na API do Meta depois de criado;
+// texto/imagem do criativo exigiriam criar um criativo novo, fora de escopo aqui
+app.post('/app/meta-ads/campanha/:id/editar', auth, async (req,res)=>{
+  try {
+    if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok:false, erro:'Sem acesso.' });
+    const user = req.session.user;
+    const uid = String(user.id || user.codigoUsuario || '');
+    if (!user.metaAdsToken) return res.status(400).json({ ok:false, erro:'Conecte sua conta do Meta primeiro.' });
+
+    const { buscarCampanha, atualizarOrcamentoCampanha, atualizarStatusCampanha } = require('./services/salvarCampanhaMeta');
+    const { atualizarOrcamentoAdset, ativarCampanha, pausarCampanha } = require('./services/metaAds');
+    const campanha = await buscarCampanha(req.params.id, uid);
+    if (!campanha) return res.status(404).json({ ok:false, erro:'Campanha não encontrada.' });
+
+    const { orcamentoDiario, status } = req.body;
+    if (orcamentoDiario) {
+      const centavos = Math.round(Number(orcamentoDiario) * 100);
+      if (!centavos || centavos < 100) return res.status(400).json({ ok:false, erro:'Orçamento diário mínimo é R$1.' });
+      await atualizarOrcamentoAdset({ adsetId: campanha.adsetId, token: user.metaAdsToken, orcamentoDiarioCentavos: centavos });
+      await atualizarOrcamentoCampanha(campanha.id, centavos);
+    }
+    if (status === 'ativa' || status === 'pausada') {
+      if (status === 'ativa') await ativarCampanha({ campaignId: campanha.campaignId, token: user.metaAdsToken });
+      else await pausarCampanha({ campaignId: campanha.campaignId, token: user.metaAdsToken });
+      await atualizarStatusCampanha(campanha.id, status);
+    }
+    res.json({ ok:true });
+  } catch(e) {
+    console.error('[meta-ads/campanha/editar]', e.message);
+    res.status(500).json({ ok:false, erro: e.message });
+  }
+});
+
+// Exclui a campanha de verdade no Meta (não só o registro local) — senão
+// ela continuaria pausada no Gerenciador de Anúncios do corretor
+app.post('/app/meta-ads/campanha/:id/excluir', auth, async (req,res)=>{
+  try {
+    if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok:false, erro:'Sem acesso.' });
+    const user = req.session.user;
+    const uid = String(user.id || user.codigoUsuario || '');
+    if (!user.metaAdsToken) return res.status(400).json({ ok:false, erro:'Conecte sua conta do Meta primeiro.' });
+
+    const { buscarCampanha, excluirCampanhaRegistro } = require('./services/salvarCampanhaMeta');
+    const { excluirCampanha } = require('./services/metaAds');
+    const campanha = await buscarCampanha(req.params.id, uid);
+    if (!campanha) return res.status(404).json({ ok:false, erro:'Campanha não encontrada.' });
+    await excluirCampanha({ campaignId: campanha.campaignId, token: user.metaAdsToken });
+    await excluirCampanhaRegistro(campanha.id, uid);
+    res.json({ ok:true });
+  } catch(e) {
+    console.error('[meta-ads/campanha/excluir]', e.message);
+    res.status(500).json({ ok:false, erro: e.message });
+  }
+});
+
 // Gera título + descrição do anúncio via IA — corretor pode usar direto ou editar depois
 app.post('/app/meta-ads/gerar-texto', auth, async (req,res)=>{
   try {
@@ -4439,7 +4495,8 @@ app.get('/app/redes-sociais/campanha', auth, async (req, res) => {
         id: i.idExterno || i.idInterno || i.id,
         titulo: i.titulo || [i.tipo, i.bairro].filter(Boolean).join(' em '),
         tipo: i.tipo, bairro: i.bairro, cidade: i.cidade,
-        valorImovel: i.valor_imovel, foto: (i.fotos||[])[0]
+        valorImovel: i.valor_imovel, foto: (i.fotos||[])[0],
+        fotos: (i.fotos||[]).filter(Boolean).slice(0, 10)
       }));
     const campanhas = await listarCampanhas(String(uidLogado));
     // Domínio que vai aparecer no link do anúncio (site próprio quando

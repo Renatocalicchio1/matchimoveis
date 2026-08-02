@@ -340,6 +340,31 @@ async function pausarCampanha({ campaignId, token }) {
   }
 }
 
+// Orçamento diário fica no adset (a campanha em si não tem budget nesse
+// desenho) — editar depois de criada só precisa atualizar esse valor, o
+// resto (texto/imagem do criativo) não é editável in-place na API do Meta
+async function atualizarOrcamentoAdset({ adsetId, token, orcamentoDiarioCentavos }) {
+  try {
+    await axios.post(`${GRAPH_URL}/${adsetId}`, null, {
+      params: { daily_budget: orcamentoDiarioCentavos, access_token: token }
+    });
+    return true;
+  } catch (e) {
+    throw _erroGraph(e, 'Falha ao atualizar o orçamento da campanha.');
+  }
+}
+
+// Exclui a campanha de verdade no Meta (não só localmente) — sem isso ela
+// continuaria existindo (pausada) no Gerenciador de Anúncios do corretor
+async function excluirCampanha({ campaignId, token }) {
+  try {
+    await axios.delete(`${GRAPH_URL}/${campaignId}`, { params: { access_token: token } });
+    return true;
+  } catch (e) {
+    throw _erroGraph(e, 'Falha ao excluir a campanha no Meta.');
+  }
+}
+
 // Busca os dados completos de um lead a partir do leadgen_id recebido no
 // webhook — o Meta manda só o ID no evento, os dados de verdade (nome,
 // telefone, email) só vêm nessa chamada separada
@@ -372,5 +397,7 @@ module.exports = {
   criarCampanhaCompleta,
   ativarCampanha,
   pausarCampanha,
+  atualizarOrcamentoAdset,
+  excluirCampanha,
   buscarDadosLead
 };

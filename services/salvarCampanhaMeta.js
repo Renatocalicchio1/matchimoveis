@@ -92,6 +92,16 @@ async function atualizarStatusCampanha(id, status) {
   await query('UPDATE campanhas_meta SET status=$1 WHERE id=$2', [status, id]);
 }
 
+async function atualizarOrcamentoCampanha(id, orcamentoDiarioCentavos) {
+  await _tabelaPronta;
+  await query('UPDATE campanhas_meta SET orcamento_diario_centavos=$1 WHERE id=$2', [orcamentoDiarioCentavos, id]);
+}
+
+async function excluirCampanhaRegistro(id, userId) {
+  await _tabelaPronta;
+  await query('DELETE FROM campanhas_meta WHERE id=$1 AND user_id=$2', [id, userId]);
+}
+
 async function incrementarLeadsRecebidos(id) {
   await _tabelaPronta;
   await query('UPDATE campanhas_meta SET leads_recebidos = leads_recebidos + 1 WHERE id=$1', [id]);
@@ -104,5 +114,7 @@ module.exports = {
   buscarCampanhaPorAdId,
   buscarCampanhaPorLeadformId,
   atualizarStatusCampanha,
+  atualizarOrcamentoCampanha,
+  excluirCampanhaRegistro,
   incrementarLeadsRecebidos
 };

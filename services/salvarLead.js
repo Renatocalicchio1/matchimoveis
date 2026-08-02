@@ -168,11 +168,12 @@ async function salvarLead(lead) {
             if (_user && _user.email) {
               const { enviarEmail } = require('./email');
               const _origem = lead.origem || lead.origemEntrada || 'sistema';
+              const _linkLead = 'https://matchimoveis.ia.br/app/lead/' + r.id;
               enviarEmail({
                 para: _user.email,
                 assunto: '🔔 Nova lead recebida — MatchImóveis',
-                html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">🔔 Nova lead!</h2><p><strong>Nome:</strong> ' + (lead.nome||'Sem nome') + '</p><p><strong>Telefone:</strong> ' + (lead.telefone||'-') + '</p><p><strong>Origem:</strong> ' + _origem + '</p><a href="https://matchimoveis.ia.br/app/leads" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver leads →</a></div>',
-                texto: 'Nova lead: ' + (lead.nome||'Sem nome') + ' | ' + (lead.telefone||'-')
+                html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">🔔 Nova lead!</h2><p><strong>Nome:</strong> ' + (lead.nome||'Sem nome') + '</p><p><strong>Origem:</strong> ' + _origem + '</p><a href="' + _linkLead + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Nova Lead →</a></div>',
+                texto: 'Nova lead: ' + (lead.nome||'Sem nome') + ' | ' + _linkLead
               }).catch(()=>{});
             }
           }

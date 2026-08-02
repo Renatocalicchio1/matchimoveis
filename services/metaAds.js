@@ -155,7 +155,7 @@ async function criarLeadForm({ pageId, pageToken, nome, imovel }) {
     const { data } = await axios.post(`${GRAPH_URL}/${pageId}/leadgen_forms`, null, {
       params: {
         name: nome,
-        privacy_policy_url: baseUrl() + '/politica-privacidade',
+        privacy_policy: JSON.stringify({ url: baseUrl() + '/politica-privacidade', link_text: 'Política de Privacidade' }),
         questions: JSON.stringify([
           { type: 'FULL_NAME' },
           { type: 'PHONE' },

@@ -253,6 +253,10 @@ async function criarAd({ contaAnuncioId, token, nome, adsetId, creativeId }) {
 // dependendo do que o app pedir). Retorna todos os IDs pra salvar na tabela
 // campanhas_meta.
 async function criarCampanhaCompleta({ contaAnuncioId, pageId, pageToken, token, imovel, objetivo, orcamentoDiarioCentavos, publico, whatsappNumero }) {
+  // /me/adaccounts já devolve o id com o prefixo "act_" (ex: act_1112726172242956) —
+  // as funções abaixo (criarCampanha, criarAdSet etc) montam "act_${contaAnuncioId}"
+  // sozinhas, então remove o prefixo aqui pra não duplicar (act_act_... = ID inválido)
+  contaAnuncioId = String(contaAnuncioId || '').replace(/^act_/, '');
   const { titulo } = _textoAnuncio(imovel);
   const nomeBase = `MatchImoveis - ${titulo}`.slice(0, 100);
 

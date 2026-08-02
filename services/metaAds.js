@@ -99,6 +99,32 @@ async function listarPaginas(token) {
   }
 }
 
+// Públicos salvos (Saved Audiences) que o corretor já configurou na Conta de
+// Anúncios pelo próprio Gerenciador de Anúncios do Meta — deixa escolher um
+// desses em vez de montar o público na mão toda vez
+async function listarPublicosSalvos(contaAnuncioId, token) {
+  try {
+    contaAnuncioId = String(contaAnuncioId || '').replace(/^act_/, '');
+    const { data } = await axios.get(`${GRAPH_URL}/act_${contaAnuncioId}/saved_audiences`, {
+      params: { fields: 'id,name,targeting', access_token: token }
+    });
+    return data.data || [];
+  } catch (e) {
+    throw _erroGraph(e, 'Falha ao buscar os públicos salvos.');
+  }
+}
+
+async function buscarPublicoSalvo(id, token) {
+  try {
+    const { data } = await axios.get(`${GRAPH_URL}/${id}`, {
+      params: { fields: 'id,name,targeting', access_token: token }
+    });
+    return data;
+  } catch (e) {
+    throw _erroGraph(e, 'Falha ao buscar o público salvo escolhido.');
+  }
+}
+
 function montarTargeting(publico) {
   const t = {
     geo_locations: { location_types: ['home', 'recent'] }
@@ -219,7 +245,10 @@ async function criarAdSet({ contaAnuncioId, pageId, token, campaignId, nome, orc
       optimization_goal: otimizacao,
       bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
       destination_type: destino,
-      targeting: JSON.stringify(montarTargeting(publico)),
+      // Público salvo (Saved Audience) que o corretor já tinha configurado no
+      // Gerenciador de Anúncios substitui o targeting montado na mão — o
+      // targeting spec devolvido pela API já vem pronto pra reusar direto
+      targeting: JSON.stringify(publico?.targetingSalvo || montarTargeting(publico)),
       status: 'PAUSED',
       access_token: token
     };
@@ -415,6 +444,8 @@ module.exports = {
   obterTokenLongoPrazo,
   listarContasAnuncio,
   listarPaginas,
+  listarPublicosSalvos,
+  buscarPublicoSalvo,
   criarCampanhaCompleta,
   ativarCampanha,
   pausarCampanha,

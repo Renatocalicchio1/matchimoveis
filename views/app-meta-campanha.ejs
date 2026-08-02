@@ -169,7 +169,7 @@
   <div class="mc-row">
     <div class="mc-field">
       <label class="mc-label">Conta de Anúncios</label>
-      <select class="mc-select" id="mc-conta"><option value="">Carregando...</option></select>
+      <select class="mc-select" id="mc-conta" onchange="carregarPublicosSalvos()"><option value="">Carregando...</option></select>
     </div>
     <div class="mc-field">
       <label class="mc-label">Página do Facebook</label>
@@ -180,40 +180,45 @@
 
 <div class="mc-card">
   <div class="mc-card-title">4. Orçamento e público</div>
-  <div class="mc-row">
-    <div class="mc-field">
-      <label class="mc-label">Orçamento diário (R$)</label>
-      <input type="number" class="mc-input" id="mc-orcamento" min="1" step="1" placeholder="Ex: 20">
-    </div>
-    <div class="mc-field">
-      <label class="mc-label">Raio a partir do imóvel (km)</label>
-      <input type="number" class="mc-input" id="mc-raio" min="1" step="1" value="10">
-    </div>
+  <div class="mc-field">
+    <label class="mc-label">Orçamento diário (R$)</label>
+    <input type="number" class="mc-input" id="mc-orcamento" min="1" step="1" placeholder="Ex: 20" style="max-width:220px">
   </div>
-  <div class="mc-row">
-    <div class="mc-field">
-      <label class="mc-label">Idade mínima</label>
-      <input type="number" class="mc-input" id="mc-idade-min" min="18" max="65" value="25">
-    </div>
-    <div class="mc-field">
-      <label class="mc-label">Idade máxima</label>
-      <input type="number" class="mc-input" id="mc-idade-max" min="18" max="65" value="55">
-    </div>
-    <div class="mc-field">
-      <label class="mc-label">Gênero</label>
-      <select class="mc-select" id="mc-genero">
-        <option value="todos">Todos</option>
-        <option value="homens">Homens</option>
-        <option value="mulheres">Mulheres</option>
-      </select>
-    </div>
+  <div class="mc-field">
+    <label class="mc-label">Público salvo (opcional)</label>
+    <select class="mc-select" id="mc-publico-salvo" onchange="alternarCamposPublico()"><option value="">Personalizar abaixo</option></select>
+    <div class="mc-card-sub" style="margin:6px 0 0">Se você já tem um público salvo no Gerenciador de Anúncios do Meta, escolhe aqui — ele substitui o raio/idade/gênero/locais de baixo.</div>
   </div>
-  <div class="mc-field" style="margin-bottom:0">
-    <label class="mc-label">Onde anunciar</label>
-    <div class="mc-plataformas">
-      <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="facebook" checked> Facebook</label>
-      <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="instagram" checked> Instagram</label>
-      <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="outros"> Outros locais (Rede de Audiência e Messenger)</label>
+  <div id="mc-publico-manual">
+    <div class="mc-row">
+      <div class="mc-field">
+        <label class="mc-label">Raio a partir do imóvel (km)</label>
+        <input type="number" class="mc-input" id="mc-raio" min="1" step="1" value="10">
+      </div>
+      <div class="mc-field">
+        <label class="mc-label">Idade mínima</label>
+        <input type="number" class="mc-input" id="mc-idade-min" min="18" max="65" value="25">
+      </div>
+      <div class="mc-field">
+        <label class="mc-label">Idade máxima</label>
+        <input type="number" class="mc-input" id="mc-idade-max" min="18" max="65" value="55">
+      </div>
+      <div class="mc-field">
+        <label class="mc-label">Gênero</label>
+        <select class="mc-select" id="mc-genero">
+          <option value="todos">Todos</option>
+          <option value="homens">Homens</option>
+          <option value="mulheres">Mulheres</option>
+        </select>
+      </div>
+    </div>
+    <div class="mc-field" style="margin-bottom:0">
+      <label class="mc-label">Onde anunciar</label>
+      <div class="mc-plataformas">
+        <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="facebook" checked> Facebook</label>
+        <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="instagram" checked> Instagram</label>
+        <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="outros"> Outros locais (Rede de Audiência e Messenger)</label>
+      </div>
     </div>
   </div>
 </div>
@@ -516,11 +521,32 @@ function excluirCampanha(id){
     selConta.innerHTML = d.contas.length ? d.contas.map(function(c){ return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('') : '<option value="">Nenhuma conta encontrada</option>';
     selPagina.innerHTML = d.paginas.length ? d.paginas.map(function(p){ return '<option value="'+p.id+'">'+p.name+'</option>'; }).join('') : '<option value="">Nenhuma página encontrada</option>';
     atualizarPreview();
+    carregarPublicosSalvos();
   }).catch(function(){
     document.getElementById('mc-conta').innerHTML = '<option value="">Erro ao carregar</option>';
     document.getElementById('mc-pagina').innerHTML = '<option value="">Erro ao carregar</option>';
   });
 })();
+
+// Públicos salvos dependem da Conta de Anúncios escolhida — recarrega
+// sempre que ela muda (inclusive na 1ª carga, disparado por carregarContas)
+function carregarPublicosSalvos(){
+  var contaAnuncioId = document.getElementById('mc-conta').value;
+  var sel = document.getElementById('mc-publico-salvo');
+  if(!contaAnuncioId){ sel.innerHTML = '<option value="">Personalizar abaixo</option>'; alternarCamposPublico(); return; }
+  sel.innerHTML = '<option value="">Carregando...</option>';
+  fetch('/app/meta-ads/publicos-salvos?contaAnuncioId=' + encodeURIComponent(contaAnuncioId))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d.ok || !d.publicos.length){ sel.innerHTML = '<option value="">Personalizar abaixo</option>'; alternarCamposPublico(); return; }
+      sel.innerHTML = '<option value="">Personalizar abaixo</option>' + d.publicos.map(function(p){ return '<option value="'+p.id+'">'+p.name+'</option>'; }).join('');
+      alternarCamposPublico();
+    }).catch(function(){ sel.innerHTML = '<option value="">Personalizar abaixo</option>'; alternarCamposPublico(); });
+}
+function alternarCamposPublico(){
+  var salvo = document.getElementById('mc-publico-salvo').value;
+  document.getElementById('mc-publico-manual').style.display = salvo ? 'none' : 'block';
+}
 
 function criarCampanha(){
   var msgEl = document.getElementById('mc-msg-criar');
@@ -533,10 +559,15 @@ function criarCampanha(){
   if(!contaAnuncioId || !pageId){ msgEl.className='mc-msg err'; msgEl.textContent='Escolha a Conta de Anúncios e a Página.'; msgEl.style.display='block'; return; }
   if(!orcamento || Number(orcamento) < 1){ msgEl.className='mc-msg err'; msgEl.textContent='Informe o orçamento diário.'; msgEl.style.display='block'; return; }
 
-  var plataformas = Array.prototype.slice.call(document.querySelectorAll('.mc-plataforma:checked')).map(function(el){ return el.value; });
-  if(!plataformas.length){ msgEl.className='mc-msg err'; msgEl.textContent='Escolha ao menos um local pra anunciar.'; msgEl.style.display='block'; return; }
-
+  var publicoSalvoId = document.getElementById('mc-publico-salvo').value;
   var genero = document.getElementById('mc-genero').value;
+  var publico = { raioKm: Number(document.getElementById('mc-raio').value) || 10, idadeMin: Number(document.getElementById('mc-idade-min').value) || 18, idadeMax: Number(document.getElementById('mc-idade-max').value) || 65, genero: genero };
+  if(!publicoSalvoId){
+    var plataformas = Array.prototype.slice.call(document.querySelectorAll('.mc-plataforma:checked')).map(function(el){ return el.value; });
+    if(!plataformas.length){ msgEl.className='mc-msg err'; msgEl.textContent='Escolha ao menos um local pra anunciar.'; msgEl.style.display='block'; return; }
+    publico.plataformas = plataformas;
+  }
+
   var body = {
     imovelId: _imovelEscolhido,
     objetivo: _objetivoEscolhido,
@@ -548,13 +579,8 @@ function criarCampanha(){
     tituloSecundario: document.getElementById('mc-titulo-secundario').value,
     ctaLeadForm: document.getElementById('mc-cta') ? document.getElementById('mc-cta').value : '',
     whatsappNumero: document.getElementById('mc-whatsapp') ? document.getElementById('mc-whatsapp').value.replace(/\D/g,'') : '',
-    publico: {
-      raioKm: Number(document.getElementById('mc-raio').value) || 10,
-      idadeMin: Number(document.getElementById('mc-idade-min').value) || 18,
-      idadeMax: Number(document.getElementById('mc-idade-max').value) || 65,
-      genero: genero,
-      plataformas: plataformas
-    }
+    publicoSalvoId: publicoSalvoId,
+    publico: publico
   };
 
   var btn = document.getElementById('mc-btn-criar');

@@ -4183,6 +4183,24 @@ app.get('/app/meta-ads/contas', auth, async (req,res)=>{
   }
 });
 
+// Públicos salvos (Saved Audiences) que o corretor já configurou na Conta de
+// Anúncios pelo próprio Gerenciador de Anúncios — pra escolher em vez de
+// montar público na mão toda vez que cria uma campanha
+app.get('/app/meta-ads/publicos-salvos', auth, async (req,res)=>{
+  try {
+    if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok:false, erro:'Sem acesso.' });
+    const user = req.session.user;
+    if (!user.metaAdsToken) return res.status(400).json({ ok:false, erro:'Conta do Meta não conectada.' });
+    const { contaAnuncioId } = req.query;
+    if (!contaAnuncioId) return res.status(400).json({ ok:false, erro:'Informe a conta de anúncios.' });
+    const { listarPublicosSalvos } = require('./services/metaAds');
+    const publicos = await listarPublicosSalvos(contaAnuncioId, user.metaAdsToken);
+    res.json({ ok:true, publicos: publicos.map(p=>({id:p.id, name:p.name})) });
+  } catch(e) {
+    res.status(500).json({ ok:false, erro: e.message });
+  }
+});
+
 app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
   try {
     if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok:false, erro:'Sem acesso.' });
@@ -4190,7 +4208,7 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
     const uid = String(user.id || user.codigoUsuario || '');
     if (!user.metaAdsToken) return res.status(400).json({ ok:false, erro:'Conecte sua conta do Meta primeiro.' });
 
-    const { imovelId, objetivo, contaAnuncioId, pageId, orcamentoDiario, publico, whatsappNumero, tituloAnuncio, descricaoAnuncio, tituloSecundario, ctaLeadForm } = req.body;
+    const { imovelId, objetivo, contaAnuncioId, pageId, orcamentoDiario, publico, publicoSalvoId, whatsappNumero, tituloAnuncio, descricaoAnuncio, tituloSecundario, ctaLeadForm } = req.body;
     if (!imovelId || !objetivo || !contaAnuncioId || !pageId || !orcamentoDiario) {
       return res.status(400).json({ ok:false, erro:'Imóvel, objetivo, conta de anúncio, página e orçamento são obrigatórios.' });
     }
@@ -4233,14 +4251,25 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
     } else {
       delete publicoFinal.plataformas;
     }
-    if (publicoFinal.raioKm && (!imovel.latitude || !imovel.longitude)) {
-      const { _geocodificarEndereco } = require('./services/salvarImovel');
-      const geo = await _geocodificarEndereco(imovel);
-      if (geo) { imovel.latitude = geo.latitude; imovel.longitude = geo.longitude; }
-    }
-    if (publicoFinal.raioKm && imovel.latitude && imovel.longitude) {
-      publicoFinal.latitude = imovel.latitude;
-      publicoFinal.longitude = imovel.longitude;
+
+    // Público salvo (Saved Audience) que o corretor já configurou no
+    // Gerenciador de Anúncios do Meta substitui o público montado na mão
+    // (raio/idade/gênero/locais) — usa o targeting spec dele direto
+    if (publicoSalvoId) {
+      const { buscarPublicoSalvo } = require('./services/metaAds');
+      const salvo = await buscarPublicoSalvo(publicoSalvoId, user.metaAdsToken);
+      if (!salvo || !salvo.targeting) return res.status(400).json({ ok:false, erro:'Público salvo não encontrado ou sem permissão.' });
+      publicoFinal.targetingSalvo = salvo.targeting;
+    } else {
+      if (publicoFinal.raioKm && (!imovel.latitude || !imovel.longitude)) {
+        const { _geocodificarEndereco } = require('./services/salvarImovel');
+        const geo = await _geocodificarEndereco(imovel);
+        if (geo) { imovel.latitude = geo.latitude; imovel.longitude = geo.longitude; }
+      }
+      if (publicoFinal.raioKm && imovel.latitude && imovel.longitude) {
+        publicoFinal.latitude = imovel.latitude;
+        publicoFinal.longitude = imovel.longitude;
+      }
     }
 
     // Link do anúncio prioriza o domínio próprio do corretor (feature "Meu Site")

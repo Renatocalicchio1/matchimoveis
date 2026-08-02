@@ -8529,7 +8529,7 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
         metadata: {
           userId: user.codigoUsuario || user.codigo || user.id,
           valor: Number(valor),
-          creditos: Math.floor(Number(valor) * 50)
+          creditos: Math.floor(Number(valor) * 20)
         }
       }
     });
@@ -8547,7 +8547,7 @@ app.post('/pagamento/processar', auth, express.json(), async (req, res) => {
     const result = await payment.create({ body: req.body });
     const userId = req.session.user?.codigoUsuario || req.session.user?.codigo;
     const valor = result.transaction_amount || 0;
-    const creditos = Math.floor(valor * 50);
+    const creditos = Math.floor(valor * 20);
     if(result.status === 'approved' && creditos > 0){
       const { tentarMarcarProcessado } = require('./services/salvarPagamentoMP');
       const _primeiraVez = await tentarMarcarProcessado(result.id);
@@ -8623,7 +8623,7 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
     const meta = pagamento.metadata || {};
     console.log('[MP webhook] metadata:', JSON.stringify(meta), '| status:', pagamento.status, '| valor:', pagamento.transaction_amount);
     const userId = meta.user_id || meta.userId || '';
-    const creditos = parseInt(meta.creditos) || Math.floor((pagamento.transaction_amount||0) * 50);
+    const creditos = parseInt(meta.creditos) || Math.floor((pagamento.transaction_amount||0) * 20);
 
     if(userId && creditos > 0){
       await adicionarCreditos(userId, creditos, 'recarga_mp');

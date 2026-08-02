@@ -180,7 +180,7 @@ async function criarLeadForm({ pageId, pageToken, nome, imovel }) {
   }
 }
 
-async function criarAdSet({ contaAnuncioId, token, campaignId, nome, orcamentoDiarioCentavos, objetivo, publico }) {
+async function criarAdSet({ contaAnuncioId, pageId, token, campaignId, nome, orcamentoDiarioCentavos, objetivo, publico }) {
   try {
     const destino = objetivo === 'whatsapp' ? 'WHATSAPP' : objetivo === 'trafego' ? 'WEBSITE' : 'ON_AD';
     const otimizacao = objetivo === 'whatsapp' ? 'CONVERSATIONS' : objetivo === 'trafego' ? 'LINK_CLICKS' : 'LEAD_GENERATION';
@@ -196,6 +196,11 @@ async function criarAdSet({ contaAnuncioId, token, campaignId, nome, orcamentoDi
       status: 'PAUSED',
       access_token: token
     };
+    // Meta exige promoted_object pra otimização de leads (formulário nativo) e
+    // de conversas (WhatsApp) — sem isso dá erro "Selecione um objeto promovido"
+    if (objetivo === 'lead_form' || objetivo === 'whatsapp') {
+      params.promoted_object = JSON.stringify({ page_id: pageId });
+    }
     const { data } = await axios.post(`${GRAPH_URL}/act_${contaAnuncioId}/adsets`, null, { params });
     return data.id;
   } catch (e) {
@@ -281,7 +286,7 @@ async function criarCampanhaCompleta({ contaAnuncioId, pageId, pageToken, token,
     leadFormId = await criarLeadForm({ pageId, pageToken, nome: nomeBase, imovel });
   }
 
-  const adsetId = await criarAdSet({ contaAnuncioId, token, campaignId, nome: nomeBase, orcamentoDiarioCentavos, objetivo, publico });
+  const adsetId = await criarAdSet({ contaAnuncioId, pageId, token, campaignId, nome: nomeBase, orcamentoDiarioCentavos, objetivo, publico });
   const creativeId = await criarCreative({ contaAnuncioId, token, pageId, nome: nomeBase, imovel, objetivo, leadFormId, whatsappNumero });
   const adId = await criarAd({ contaAnuncioId, token, nome: nomeBase, adsetId, creativeId });
 

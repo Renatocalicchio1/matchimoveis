@@ -235,7 +235,10 @@ async function criarCreative({ contaAnuncioId, token, pageId, nome, imovel, obje
       link: `${baseUrl()}/imovel/${idPublico}`
     };
     if (objetivo === 'lead_form') {
-      linkData.call_to_action = { type: 'LEAD_GENERATION', value: { lead_gen_form_id: leadFormId } };
+      // "LEAD_GENERATION" não é um call_to_action[type] válido na API (apesar do
+      // nome sugestivo) — o tipo aceito é SIGN_UP, e o formulário é associado
+      // via value.lead_gen_form_id
+      linkData.call_to_action = { type: 'SIGN_UP', value: { lead_gen_form_id: leadFormId } };
     } else if (objetivo === 'whatsapp') {
       linkData.call_to_action = {
         type: 'WHATSAPP_MESSAGE',

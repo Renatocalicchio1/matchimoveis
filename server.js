@@ -7386,6 +7386,15 @@ app.post('/api/lead-interesse', async (req, res) => {
       String(l.imovel_interesse || '') === String(imovelId)
     );
 
+    // Atribuição ao objetivo "Página do imóvel" do Meta Ads — sem parâmetro de
+    // rastreio na URL, casa pelo próprio imóvel: se existe campanha de tráfego
+    // pra esse imóvel, a lead conta como vinda do Facebook (ver decisão do Renato)
+    let _campanhaMetaTrafego = null;
+    try {
+      const { buscarCampanhaAtivaPorImovel } = require('./services/salvarCampanhaMeta');
+      _campanhaMetaTrafego = await buscarCampanhaAtivaPorImovel(imovelId, 'trafego');
+    } catch(e) { console.error('[lead-interesse] erro ao buscar campanha meta:', e.message); }
+
     const _baseLI = process.env.RENDER ? 'https://matchimoveis.ia.br' : 'http://localhost:3000';
     const _intencaoLI = imovelRef.transacao === 'venda' ? 'comprar' : imovelRef.transacao === 'aluguel' ? 'alugar' : '';
 
@@ -7394,8 +7403,10 @@ app.post('/api/lead-interesse', async (req, res) => {
       contato: celular,
       telefone: celular,
       email: email || '',
-      fonte: 'MatchImóveis',
-      origem: 'MatchImóveis', extractionStatus: 'ok',
+      fonte: _campanhaMetaTrafego ? 'Meta Ads' : 'MatchImóveis',
+      origem: _campanhaMetaTrafego ? 'Meta Ads' : 'MatchImóveis',
+      origemEntrada: _campanhaMetaTrafego ? 'meta_ads_trafego' : undefined,
+      extractionStatus: 'ok',
       canal: 'WhatsApp',
       imovel_interesse: imovelId,
       idAnuncio: imovelId,
@@ -7467,6 +7478,24 @@ app.post('/api/lead-interesse', async (req, res) => {
     }
 
     salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+
+    // Lead atribuída a uma campanha de tráfego do Meta Ads — credita a campanha
+    // (mesmo padrão do Formulário e do WhatsApp) e roda o match automático.
+    // leadPayload já tem imovel_interesse/idAnuncio setado, então match-core
+    // detecta Caso 1 sozinho e monta o mapaIntencao a partir do próprio imóvel
+    // âncora (funciona igual pra residencial/comercial/terreno, sem distinção
+    // aqui — quem decide quais campos usar é o _matchCaso1)
+    if (_campanhaMetaTrafego) {
+      try {
+        const { incrementarLeadsRecebidos } = require('./services/salvarCampanhaMeta');
+        incrementarLeadsRecebidos(_campanhaMetaTrafego.id).catch(()=>{});
+        consumir(_campanhaMetaTrafego.userId, 'lead_meta_recebido').catch(e=>console.error('[creditos] lead_meta_recebido (trafego) falhou:', e.message));
+        const matchCore = require('./cerebro/match-core');
+        const leadParaMatch = { id: leadId, ...leadPayload };
+        matchCore.processar({ lead: leadParaMatch, mensagem: '', canal: 'meta_ads_trafego', userId: _campanhaMetaTrafego.userId })
+          .catch(e => console.error('[meta-ads-trafego] erro ao rodar match:', e.message));
+      } catch(e) { console.error('[lead-interesse] erro ao processar campanha meta:', e.message); }
+    }
 
     // Só cria visita quando a ação for solicitação de visita
     const querVisita =

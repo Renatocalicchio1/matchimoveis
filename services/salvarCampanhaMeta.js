@@ -87,6 +87,17 @@ async function buscarCampanhaPorLeadformId(leadformId) {
   return r.rows[0] ? rowToCampanha(r.rows[0]) : null;
 }
 
+// Atribuição do objetivo "Página do imóvel" (trafego) — não tem leadform_id/ad_id
+// pra casar como os outros 2 objetivos, então usa o imóvel em si: pega a
+// campanha de tráfego mais recente pra esse imóvel, sem filtrar por status local
+// (a campanha pode ter sido ativada direto no Gerenciador de Anúncios do Meta,
+// não só pelo botão "Editar" daqui — o status local nem sempre reflete a realidade)
+async function buscarCampanhaAtivaPorImovel(imovelId, objetivo) {
+  await _tabelaPronta;
+  const r = await query('SELECT * FROM campanhas_meta WHERE imovel_id=$1 AND objetivo=$2 ORDER BY id DESC LIMIT 1', [String(imovelId), objetivo]);
+  return r.rows[0] ? rowToCampanha(r.rows[0]) : null;
+}
+
 async function atualizarStatusCampanha(id, status) {
   await _tabelaPronta;
   await query('UPDATE campanhas_meta SET status=$1 WHERE id=$2', [status, id]);
@@ -113,6 +124,7 @@ module.exports = {
   buscarCampanha,
   buscarCampanhaPorAdId,
   buscarCampanhaPorLeadformId,
+  buscarCampanhaAtivaPorImovel,
   atualizarStatusCampanha,
   atualizarOrcamentoCampanha,
   excluirCampanhaRegistro,

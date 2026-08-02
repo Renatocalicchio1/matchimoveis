@@ -392,17 +392,32 @@ async function pausarCampanha({ campaignId, token }) {
   }
 }
 
-// Orçamento diário fica no adset (a campanha em si não tem budget nesse
-// desenho) — editar depois de criada só precisa atualizar esse valor, o
-// resto (texto/imagem do criativo) não é editável in-place na API do Meta
-async function atualizarOrcamentoAdset({ adsetId, token, orcamentoDiarioCentavos }) {
+// Orçamento e público (targeting) ficam no adset — são as 2 coisas que dá pra
+// editar de fato depois de criado; o texto/imagem do criativo é imutável (ver
+// atualizarAdCreative abaixo, que troca o criativo do anúncio inteiro)
+async function atualizarAdSet({ adsetId, token, orcamentoDiarioCentavos, targeting }) {
   try {
-    await axios.post(`${GRAPH_URL}/${adsetId}`, null, {
-      params: { daily_budget: orcamentoDiarioCentavos, access_token: token }
+    const params = { access_token: token };
+    if (orcamentoDiarioCentavos) params.daily_budget = orcamentoDiarioCentavos;
+    if (targeting) params.targeting = JSON.stringify(targeting);
+    await axios.post(`${GRAPH_URL}/${adsetId}`, null, { params });
+    return true;
+  } catch (e) {
+    throw _erroGraph(e, 'Falha ao atualizar o conjunto de anúncios.');
+  }
+}
+
+// Criativo é imutável no Meta — "editar" o texto/CTA do anúncio na prática
+// cria um criativo novo (criarCreative) e troca o anúncio existente pra
+// apontar pra ele; a campanha/adset/leadform continuam os mesmos
+async function atualizarAdCreative({ adId, token, creativeId }) {
+  try {
+    await axios.post(`${GRAPH_URL}/${adId}`, null, {
+      params: { creative: JSON.stringify({ creative_id: creativeId }), access_token: token }
     });
     return true;
   } catch (e) {
-    throw _erroGraph(e, 'Falha ao atualizar o orçamento da campanha.');
+    throw _erroGraph(e, 'Falha ao atualizar o criativo do anúncio.');
   }
 }
 
@@ -448,10 +463,13 @@ module.exports = {
   listarPaginas,
   listarPublicosSalvos,
   buscarPublicoSalvo,
+  montarTargeting,
   criarCampanhaCompleta,
+  criarCreative,
   ativarCampanha,
   pausarCampanha,
-  atualizarOrcamentoAdset,
+  atualizarAdSet,
+  atualizarAdCreative,
   excluirCampanha,
   buscarDadosLead
 };

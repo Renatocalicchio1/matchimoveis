@@ -4260,6 +4260,9 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
       const salvo = await buscarPublicoSalvo(publicoSalvoId, user.metaAdsToken);
       if (!salvo || !salvo.targeting) return res.status(400).json({ ok:false, erro:'Público salvo não encontrado ou sem permissão.' });
       publicoFinal.targetingSalvo = salvo.targeting;
+      // Guarda o ID separado (não só o targeting resolvido) pra pré-selecionar
+      // o mesmo público salvo no dropdown quando o corretor for editar depois
+      publicoFinal.publicoSalvoId = publicoSalvoId;
     } else {
       if (publicoFinal.raioKm && (!imovel.latitude || !imovel.longitude)) {
         const { _geocodificarEndereco } = require('./services/salvarImovel');
@@ -4299,7 +4302,10 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
     const registro = await criarCampanhaRegistro({
       userId: uid, imovelId: String(imovelId), objetivo, orcamentoDiarioCentavos, publico: publicoFinal,
       contaAnuncioId, pageId, campaignId: resultado.campaignId, adsetId: resultado.adsetId,
-      creativeId: resultado.creativeId, adId: resultado.adId, leadformId: resultado.leadFormId, status: 'pausada'
+      creativeId: resultado.creativeId, adId: resultado.adId, leadformId: resultado.leadFormId, status: 'pausada',
+      tituloAnuncio: (tituloAnuncio||'').trim(), descricaoAnuncio: (descricaoAnuncio||'').trim(),
+      tituloSecundario: (tituloSecundario||'').trim(),
+      ctaLeadForm: CTAS_LEAD_VALIDOS.includes(ctaLeadForm) ? ctaLeadForm : 'SIGN_UP'
     });
 
     consumir(uid, 'campanha_meta_criada').catch(e=>console.error('[creditos] campanha_meta_criada falhou:', e.message));
@@ -4311,9 +4317,12 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
   }
 });
 
-// Edita uma campanha já criada — só orçamento diário (adset) e status
-// (ativar/pausar) são editáveis de fato na API do Meta depois de criado;
-// texto/imagem do criativo exigiriam criar um criativo novo, fora de escopo aqui
+// Edita uma campanha já criada. Orçamento e público (targeting) são editáveis
+// de verdade no adset. Status ativa/pausa a campanha. Título/descrição/título
+// secundário/CTA do anúncio — o criativo é imutável no Meta, então "editar"
+// texto na prática cria um criativo novo (mesmo leadform/link/objetivo) e
+// troca o anúncio existente pra apontar pra ele; campanha/adset continuam os
+// mesmos, só o creative_id do anúncio muda.
 app.post('/app/meta-ads/campanha/:id/editar', auth, async (req,res)=>{
   try {
     if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok:false, erro:'Sem acesso.' });
@@ -4321,18 +4330,85 @@ app.post('/app/meta-ads/campanha/:id/editar', auth, async (req,res)=>{
     const uid = String(user.id || user.codigoUsuario || '');
     if (!user.metaAdsToken) return res.status(400).json({ ok:false, erro:'Conecte sua conta do Meta primeiro.' });
 
-    const { buscarCampanha, atualizarOrcamentoCampanha, atualizarStatusCampanha } = require('./services/salvarCampanhaMeta');
-    const { atualizarOrcamentoAdset, ativarCampanha, pausarCampanha } = require('./services/metaAds');
+    const { buscarCampanha, atualizarOrcamentoCampanha, atualizarPublicoCampanha, atualizarStatusCampanha, atualizarCreativeCampanha } = require('./services/salvarCampanhaMeta');
+    const { atualizarAdSet, atualizarAdCreative, criarCreative, buscarPublicoSalvo, montarTargeting, listarPaginas, ativarCampanha, pausarCampanha } = require('./services/metaAds');
     const campanha = await buscarCampanha(req.params.id, uid);
     if (!campanha) return res.status(404).json({ ok:false, erro:'Campanha não encontrada.' });
 
-    const { orcamentoDiario, status } = req.body;
+    const { orcamentoDiario, status, publico, publicoSalvoId, tituloAnuncio, descricaoAnuncio, tituloSecundario, ctaLeadForm } = req.body;
+
+    // Orçamento e/ou público (targeting) — os 2 vivem no adset, dá pra
+    // atualizar num só POST se os dois mudaram
+    let centavos = null;
     if (orcamentoDiario) {
-      const centavos = Math.round(Number(orcamentoDiario) * 100);
+      centavos = Math.round(Number(orcamentoDiario) * 100);
       if (!centavos || centavos < 100) return res.status(400).json({ ok:false, erro:'Orçamento diário mínimo é R$1.' });
-      await atualizarOrcamentoAdset({ adsetId: campanha.adsetId, token: user.metaAdsToken, orcamentoDiarioCentavos: centavos });
-      await atualizarOrcamentoCampanha(campanha.id, centavos);
     }
+    let publicoFinal = null;
+    if (publico || publicoSalvoId) {
+      publicoFinal = { ...(publico || {}) };
+      const PLATAFORMAS_VALIDAS = { facebook: ['facebook'], instagram: ['instagram'], outros: ['audience_network', 'messenger'] };
+      if (Array.isArray(publicoFinal.plataformas)) {
+        publicoFinal.plataformas = [...new Set(publicoFinal.plataformas.flatMap(p => PLATAFORMAS_VALIDAS[p] || []))];
+        if (!publicoFinal.plataformas.length) delete publicoFinal.plataformas;
+      } else {
+        delete publicoFinal.plataformas;
+      }
+      if (publicoSalvoId) {
+        const salvo = await buscarPublicoSalvo(publicoSalvoId, user.metaAdsToken);
+        if (!salvo || !salvo.targeting) return res.status(400).json({ ok:false, erro:'Público salvo não encontrado ou sem permissão.' });
+        publicoFinal.targetingSalvo = salvo.targeting;
+        publicoFinal.publicoSalvoId = publicoSalvoId;
+      }
+    }
+    if (centavos || publicoFinal) {
+      const targeting = publicoFinal ? (publicoFinal.targetingSalvo || montarTargeting(publicoFinal)) : undefined;
+      await atualizarAdSet({ adsetId: campanha.adsetId, token: user.metaAdsToken, orcamentoDiarioCentavos: centavos || undefined, targeting });
+      if (centavos) await atualizarOrcamentoCampanha(campanha.id, centavos);
+      if (publicoFinal) await atualizarPublicoCampanha(campanha.id, publicoFinal);
+    }
+
+    // Texto/CTA do anúncio — cria criativo novo e troca no anúncio existente
+    if (tituloAnuncio !== undefined || descricaoAnuncio !== undefined || tituloSecundario !== undefined || ctaLeadForm !== undefined) {
+      const imoveis = lerImoveis(user);
+      const imovel = imoveis.find(i => String(i.idExterno)===String(campanha.imovelId) || String(i.idInterno)===String(campanha.imovelId) || String(i.id)===String(campanha.imovelId));
+      if (!imovel) return res.status(404).json({ ok:false, erro:'Imóvel da campanha não encontrado na sua carteira.' });
+
+      const paginas = await listarPaginas(user.metaAdsToken);
+      const pagina = paginas.find(p => String(p.id) === String(campanha.pageId));
+      if (!pagina) return res.status(400).json({ ok:false, erro:'Página não encontrada ou sem permissão.' });
+
+      const idPublicoImovel = imovel.idInterno || imovel.id_interno || imovel.id;
+      let linkAnuncio = null;
+      try {
+        const { buscarConfig } = require('./services/salvarSiteConfig');
+        const siteConfig = await buscarConfig(uid);
+        if (siteConfig && siteConfig.dominio_personalizado && siteConfig.dominio_status === 'verificado') {
+          linkAnuncio = `https://${siteConfig.dominio_personalizado}/imovel/${idPublicoImovel}`;
+        }
+      } catch (e) {}
+
+      const CTAS_LEAD_VALIDOS = ['SIGN_UP','LEARN_MORE','CONTACT_US','GET_QUOTE','APPLY_NOW','REGISTER_NOW','MAKE_AN_APPOINTMENT','GET_IN_TOUCH'];
+      const tituloFinal = (tituloAnuncio !== undefined ? tituloAnuncio : campanha.tituloAnuncio) || '';
+      const descricaoFinal = (descricaoAnuncio !== undefined ? descricaoAnuncio : campanha.descricaoAnuncio) || '';
+      const secundarioFinal = (tituloSecundario !== undefined ? tituloSecundario : campanha.tituloSecundario) || '';
+      const ctaFinal = CTAS_LEAD_VALIDOS.includes(ctaLeadForm) ? ctaLeadForm : (campanha.ctaLeadForm || 'SIGN_UP');
+      const nomeBase = `MatchImoveis - ${imovel.titulo || 'Imovel'}`.slice(0, 100);
+
+      const novoCreativeId = await criarCreative({
+        contaAnuncioId: campanha.contaAnuncioId, token: user.metaAdsToken, pageId: campanha.pageId,
+        nome: nomeBase + ' - ' + Date.now(), imovel, objetivo: campanha.objetivo,
+        leadFormId: campanha.leadformId, whatsappNumero: (user.whatsappNumero||user.celular||user.telefone||'').replace(/\D/g,''),
+        tituloAnuncio: tituloFinal.trim(), descricaoAnuncio: descricaoFinal.trim(), tituloSecundario: secundarioFinal.trim(),
+        ctaLeadForm: ctaFinal, link: linkAnuncio
+      });
+      await atualizarAdCreative({ adId: campanha.adId, token: user.metaAdsToken, creativeId: novoCreativeId });
+      await atualizarCreativeCampanha(campanha.id, {
+        creativeId: novoCreativeId, tituloAnuncio: tituloFinal.trim(), descricaoAnuncio: descricaoFinal.trim(),
+        tituloSecundario: secundarioFinal.trim(), ctaLeadForm: ctaFinal
+      });
+    }
+
     if (status === 'ativa' || status === 'pausada') {
       if (status === 'ativa') await ativarCampanha({ campaignId: campanha.campaignId, token: user.metaAdsToken });
       else await pausarCampanha({ campaignId: campanha.campaignId, token: user.metaAdsToken });

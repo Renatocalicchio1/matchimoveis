@@ -22,6 +22,13 @@ async function _criarTabelaCampanhasMeta() {
       erro TEXT,
       criado_em TIMESTAMPTZ DEFAULT NOW()
     )`);
+    // Texto do anúncio (título/descrição/título secundário/CTA) — guardado pra
+    // reaparecer nos campos quando o corretor clica em "Editar" (o criativo no
+    // Meta é imutável, editar de verdade cria um criativo novo por trás)
+    await query(`ALTER TABLE campanhas_meta ADD COLUMN IF NOT EXISTS titulo_anuncio TEXT`);
+    await query(`ALTER TABLE campanhas_meta ADD COLUMN IF NOT EXISTS descricao_anuncio TEXT`);
+    await query(`ALTER TABLE campanhas_meta ADD COLUMN IF NOT EXISTS titulo_secundario TEXT`);
+    await query(`ALTER TABLE campanhas_meta ADD COLUMN IF NOT EXISTS cta_lead_form TEXT`);
   } catch(e) { console.error('[campanhas_meta boot]', e.message); }
 }
 // Guardado pra ser aguardado em toda função exportada — sem isso, a 1ª
@@ -47,7 +54,11 @@ function rowToCampanha(r) {
     status: r.status,
     leadsRecebidos: r.leads_recebidos,
     erro: r.erro,
-    criadoEm: r.criado_em
+    criadoEm: r.criado_em,
+    tituloAnuncio: r.titulo_anuncio || '',
+    descricaoAnuncio: r.descricao_anuncio || '',
+    tituloSecundario: r.titulo_secundario || '',
+    ctaLeadForm: r.cta_lead_form || ''
   };
 }
 
@@ -55,10 +66,12 @@ async function criarCampanhaRegistro(c) {
   await _tabelaPronta;
   const r = await query(
     `INSERT INTO campanhas_meta (user_id, imovel_id, objetivo, orcamento_diario_centavos, publico,
-       conta_anuncio_id, page_id, campaign_id, adset_id, creative_id, ad_id, leadform_id, status)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+       conta_anuncio_id, page_id, campaign_id, adset_id, creative_id, ad_id, leadform_id, status,
+       titulo_anuncio, descricao_anuncio, titulo_secundario, cta_lead_form)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *`,
     [c.userId, c.imovelId, c.objetivo, c.orcamentoDiarioCentavos || 0, JSON.stringify(c.publico || {}),
-     c.contaAnuncioId, c.pageId, c.campaignId, c.adsetId, c.creativeId, c.adId, c.leadformId || null, c.status || 'pausada']
+     c.contaAnuncioId, c.pageId, c.campaignId, c.adsetId, c.creativeId, c.adId, c.leadformId || null, c.status || 'pausada',
+     c.tituloAnuncio || null, c.descricaoAnuncio || null, c.tituloSecundario || null, c.ctaLeadForm || null]
   );
   return rowToCampanha(r.rows[0]);
 }
@@ -108,6 +121,22 @@ async function atualizarOrcamentoCampanha(id, orcamentoDiarioCentavos) {
   await query('UPDATE campanhas_meta SET orcamento_diario_centavos=$1 WHERE id=$2', [orcamentoDiarioCentavos, id]);
 }
 
+async function atualizarPublicoCampanha(id, publico) {
+  await _tabelaPronta;
+  await query('UPDATE campanhas_meta SET publico=$1 WHERE id=$2', [JSON.stringify(publico || {}), id]);
+}
+
+// Criativo é imutável no Meta — "editar" de verdade cria um criativo novo e
+// troca o anúncio pra apontar pra ele; aqui só grava o resultado pra reaparecer
+// nos campos da próxima vez que o corretor clicar em Editar
+async function atualizarCreativeCampanha(id, { creativeId, tituloAnuncio, descricaoAnuncio, tituloSecundario, ctaLeadForm }) {
+  await _tabelaPronta;
+  await query(
+    `UPDATE campanhas_meta SET creative_id=$1, titulo_anuncio=$2, descricao_anuncio=$3, titulo_secundario=$4, cta_lead_form=$5 WHERE id=$6`,
+    [creativeId, tituloAnuncio || null, descricaoAnuncio || null, tituloSecundario || null, ctaLeadForm || null, id]
+  );
+}
+
 async function excluirCampanhaRegistro(id, userId) {
   await _tabelaPronta;
   await query('DELETE FROM campanhas_meta WHERE id=$1 AND user_id=$2', [id, userId]);
@@ -127,6 +156,8 @@ module.exports = {
   buscarCampanhaAtivaPorImovel,
   atualizarStatusCampanha,
   atualizarOrcamentoCampanha,
+  atualizarPublicoCampanha,
+  atualizarCreativeCampanha,
   excluirCampanhaRegistro,
   incrementarLeadsRecebidos
 };

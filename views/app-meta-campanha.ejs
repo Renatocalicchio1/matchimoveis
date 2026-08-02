@@ -300,8 +300,72 @@
         <button type="button" class="mc-btn mc-btn-sec" style="font-size:11px;padding:6px 10px" onclick="toggleEditarCampanha(<%= c.id %>)">Editar</button>
         <button type="button" class="mc-btn mc-btn-sec" style="font-size:11px;padding:6px 10px;color:#dc2626" onclick="excluirCampanha(<%= c.id %>)">Excluir</button>
       </div>
-      <div class="mc-item-editar" id="mc-editar-<%= c.id %>" style="display:none">
-        <div class="mc-row">
+      <div class="mc-item-editar" id="mc-editar-<%= c.id %>" style="display:none" data-loaded="0" data-imovel="<%= c.imovelId %>" data-conta="<%= c.contaAnuncioId %>">
+        <div class="mc-duo" style="margin-top:4px">
+          <div>
+            <div class="mc-field">
+              <div class="mc-campo-label"><span class="mc-selo mc-selo-1">1</span><label class="mc-label" style="margin-bottom:0">Descrição</label></div>
+              <textarea class="mc-input" id="mc-editar-descricao-<%= c.id %>" rows="2" style="resize:vertical;margin-top:6px" oninput="atualizarPreviewEdicao(<%= c.id %>)"><%= c.descricaoAnuncio %></textarea>
+              <button type="button" class="mc-btn-ia" onclick="gerarTextoIAEdicao(<%= c.id %>,'descricao', this)">🤖 Gerar com IA</button>
+            </div>
+            <div class="mc-field">
+              <div class="mc-campo-label"><span class="mc-selo mc-selo-2">2</span><label class="mc-label" style="margin-bottom:0">Título principal</label></div>
+              <input type="text" class="mc-input" id="mc-editar-titulo-<%= c.id %>" maxlength="27" value="<%= c.tituloAnuncio %>" style="margin-top:6px" oninput="atualizarContador('mc-editar-titulo-<%= c.id %>','mc-editar-titulo-count-<%= c.id %>');atualizarPreviewEdicao(<%= c.id %>)">
+              <div class="mc-char-count" id="mc-editar-titulo-count-<%= c.id %>"><%= (c.tituloAnuncio||'').length %>/27</div>
+              <button type="button" class="mc-btn-ia" onclick="gerarTextoIAEdicao(<%= c.id %>,'titulo', this)">🤖 Gerar com IA</button>
+            </div>
+            <div class="mc-field" style="<%= c.objetivo==='lead_form' ? '' : 'margin-bottom:0' %>">
+              <div class="mc-campo-label"><span class="mc-selo mc-selo-3">3</span><label class="mc-label" style="margin-bottom:0">Título secundário</label></div>
+              <input type="text" class="mc-input" id="mc-editar-secundario-<%= c.id %>" maxlength="30" value="<%= c.tituloSecundario %>" style="margin-top:6px" oninput="atualizarContador('mc-editar-secundario-<%= c.id %>','mc-editar-secundario-count-<%= c.id %>');atualizarPreviewEdicao(<%= c.id %>)">
+              <div class="mc-char-count" id="mc-editar-secundario-count-<%= c.id %>"><%= (c.tituloSecundario||'').length %>/30</div>
+              <button type="button" class="mc-btn-ia" onclick="gerarTextoIAEdicao(<%= c.id %>,'secundario', this)">🤖 Gerar com IA</button>
+            </div>
+            <% if(c.objetivo === 'lead_form'){ %>
+            <div class="mc-field" style="margin-bottom:0">
+              <label class="mc-label">Texto do botão</label>
+              <select class="mc-select" id="mc-editar-cta-<%= c.id %>" onchange="atualizarPreviewEdicao(<%= c.id %>)">
+                <option value="SIGN_UP" <%= c.ctaLeadForm==='SIGN_UP'?'selected':'' %>>Cadastre-se</option>
+                <option value="LEARN_MORE" <%= c.ctaLeadForm==='LEARN_MORE'?'selected':'' %>>Saiba mais</option>
+                <option value="CONTACT_US" <%= c.ctaLeadForm==='CONTACT_US'?'selected':'' %>>Fale conosco</option>
+                <option value="GET_QUOTE" <%= c.ctaLeadForm==='GET_QUOTE'?'selected':'' %>>Peça um orçamento</option>
+                <option value="APPLY_NOW" <%= c.ctaLeadForm==='APPLY_NOW'?'selected':'' %>>Candidate-se</option>
+                <option value="REGISTER_NOW" <%= c.ctaLeadForm==='REGISTER_NOW'?'selected':'' %>>Registre-se</option>
+                <option value="MAKE_AN_APPOINTMENT" <%= c.ctaLeadForm==='MAKE_AN_APPOINTMENT'?'selected':'' %>>Marque uma consulta</option>
+                <option value="GET_IN_TOUCH" <%= c.ctaLeadForm==='GET_IN_TOUCH'?'selected':'' %>>Entre em contato</option>
+              </select>
+            </div>
+            <% } %>
+          </div>
+          <div>
+            <div id="mc-editar-preview-vazio-<%= c.id %>" class="mc-vazio" style="display:none">Sem prévia disponível (imóvel sem foto na carteira ativa).</div>
+            <div id="mc-editar-preview-<%= c.id %>" class="mc-preview">
+              <div class="mc-preview-head">
+                <div class="mc-preview-avatar">📷</div>
+                <div>
+                  <div class="mc-preview-pagina">Sua Página</div>
+                  <div class="mc-preview-patrocinado">Patrocinado · <span id="mc-editar-preview-cta-label-<%= c.id %>"></span></div>
+                </div>
+              </div>
+              <div class="mc-preview-texto"><span class="mc-selo mc-selo-1">1</span><span id="mc-editar-preview-texto-<%= c.id %>"></span></div>
+              <div class="mc-preview-img-wrap">
+                <img class="mc-preview-img" id="mc-editar-preview-img-<%= c.id %>" src="">
+                <button type="button" class="mc-preview-seta mc-preview-seta-prev" id="mc-editar-preview-seta-prev-<%= c.id %>" onclick="previewFotoEdicao(<%= c.id %>,-1)" style="display:none">‹</button>
+                <button type="button" class="mc-preview-seta mc-preview-seta-next" id="mc-editar-preview-seta-next-<%= c.id %>" onclick="previewFotoEdicao(<%= c.id %>,1)" style="display:none">›</button>
+                <div class="mc-preview-dots" id="mc-editar-preview-dots-<%= c.id %>"></div>
+              </div>
+              <div class="mc-preview-footer">
+                <div class="mc-preview-info">
+                  <div class="mc-preview-dominio"><%= dominioAnuncio %></div>
+                  <div class="mc-preview-titulo-wrap"><span class="mc-selo mc-selo-2">2</span><div class="mc-preview-titulo" id="mc-editar-preview-titulo-<%= c.id %>"></div></div>
+                  <div class="mc-preview-secundario-wrap" id="mc-editar-preview-secundario-wrap-<%= c.id %>" style="display:none"><span class="mc-selo mc-selo-3">3</span><div class="mc-preview-secundario" id="mc-editar-preview-secundario-<%= c.id %>"></div></div>
+                </div>
+                <div class="mc-preview-cta" id="mc-editar-preview-cta-<%= c.id %>">Saiba mais</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mc-row" style="margin-top:8px">
           <div class="mc-field" style="margin-bottom:0">
             <label class="mc-label">Orçamento diário (R$)</label>
             <input type="number" class="mc-input" id="mc-editar-orcamento-<%= c.id %>" min="1" step="1" value="<%= (c.orcamentoDiarioCentavos/100).toFixed(2) %>">
@@ -314,7 +378,45 @@
             </select>
           </div>
         </div>
-        <button type="button" class="mc-btn" style="margin-top:10px;font-size:12px;padding:8px 16px" onclick="salvarEdicaoCampanha(<%= c.id %>)">Salvar</button>
+
+        <div class="mc-field" style="margin-top:12px">
+          <label class="mc-label">Público salvo (opcional)</label>
+          <select class="mc-select" id="mc-editar-publico-salvo-<%= c.id %>" onchange="alternarCamposPublicoEdicao(<%= c.id %>)" data-atual="<%= c.publico.publicoSalvoId || '' %>"><option value="">Personalizar abaixo</option></select>
+        </div>
+        <div id="mc-editar-publico-manual-<%= c.id %>" <%- c.publico.publicoSalvoId ? 'style="display:none"' : '' %>>
+          <div class="mc-row">
+            <div class="mc-field">
+              <label class="mc-label">Raio a partir do imóvel (km)</label>
+              <input type="number" class="mc-input" id="mc-editar-raio-<%= c.id %>" min="1" step="1" value="<%= c.publico.raioKm || 10 %>">
+            </div>
+            <div class="mc-field">
+              <label class="mc-label">Idade mínima</label>
+              <input type="number" class="mc-input" id="mc-editar-idade-min-<%= c.id %>" min="18" max="65" value="<%= c.publico.idadeMin || 25 %>">
+            </div>
+            <div class="mc-field">
+              <label class="mc-label">Idade máxima</label>
+              <input type="number" class="mc-input" id="mc-editar-idade-max-<%= c.id %>" min="18" max="65" value="<%= c.publico.idadeMax || 55 %>">
+            </div>
+            <div class="mc-field">
+              <label class="mc-label">Gênero</label>
+              <select class="mc-select" id="mc-editar-genero-<%= c.id %>">
+                <option value="todos" <%= (!c.publico.genero || c.publico.genero==='todos')?'selected':'' %>>Todos</option>
+                <option value="homens" <%= c.publico.genero==='homens'?'selected':'' %>>Homens</option>
+                <option value="mulheres" <%= c.publico.genero==='mulheres'?'selected':'' %>>Mulheres</option>
+              </select>
+            </div>
+          </div>
+          <div class="mc-field" style="margin-bottom:0">
+            <label class="mc-label">Onde anunciar</label>
+            <div class="mc-plataformas">
+              <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma-edit" data-campanha="<%= c.id %>" value="facebook" <%= (!c.publico.plataformas || c.publico.plataformas.includes('facebook')) ? 'checked':'' %>> Facebook</label>
+              <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma-edit" data-campanha="<%= c.id %>" value="instagram" <%= (!c.publico.plataformas || c.publico.plataformas.includes('instagram')) ? 'checked':'' %>> Instagram</label>
+              <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma-edit" data-campanha="<%= c.id %>" value="outros" <%= (c.publico.plataformas && (c.publico.plataformas.includes('audience_network')||c.publico.plataformas.includes('messenger'))) ? 'checked':'' %>> Outros locais (Rede de Audiência e Messenger)</label>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="mc-btn" style="margin-top:12px;font-size:12px;padding:8px 16px" onclick="salvarEdicaoCampanha(<%= c.id %>)">Salvar alterações</button>
         <span id="mc-editar-msg-<%= c.id %>" style="font-size:12px;margin-left:10px"></span>
       </div>
     </div>
@@ -480,18 +582,149 @@ function atualizarPreview(){
 
 // Editar/excluir campanhas já criadas — botões ficam sempre visíveis na
 // lista de "Campanhas criadas" (mesmo se a conta do Meta foi desconectada
-// depois; nesse caso a rota do servidor retorna erro pedindo pra reconectar)
+// depois; nesse caso a rota do servidor retorna erro pedindo pra reconectar).
+// O painel de edição só carrega a prévia/públicos salvos na 1ª vez que abre
+// (data-loaded), pra não disparar fetch à toa em toda campanha da lista.
+var CTA_LABELS_EDICAO = { SIGN_UP:'Cadastre-se', LEARN_MORE:'Saiba mais', CONTACT_US:'Fale conosco', GET_QUOTE:'Peça um orçamento', APPLY_NOW:'Candidate-se', REGISTER_NOW:'Registre-se', MAKE_AN_APPOINTMENT:'Marque uma consulta', GET_IN_TOUCH:'Entre em contato' };
+var _previewFotosEdicao = {};
+var _previewFotoIdxEdicao = {};
+
 function toggleEditarCampanha(id){
   var el = document.getElementById('mc-editar-'+id);
-  el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+  var abrir = (el.style.display === 'none');
+  el.style.display = abrir ? 'block' : 'none';
+  if(abrir && el.dataset.loaded !== '1'){
+    el.dataset.loaded = '1';
+    carregarFotosPreviewEdicao(id);
+    carregarPublicosSalvosEdicao(id);
+    atualizarPreviewEdicao(id);
+  }
 }
+
+function carregarFotosPreviewEdicao(id){
+  var imovelId = document.getElementById('mc-editar-'+id).dataset.imovel;
+  _previewFotosEdicao[id] = IMOVEIS_FOTOS[imovelId] || [];
+  _previewFotoIdxEdicao[id] = 0;
+  renderPreviewFotoEdicao(id);
+}
+function previewFotoEdicao(id, delta){
+  var fotos = _previewFotosEdicao[id] || [];
+  if(!fotos.length) return;
+  _previewFotoIdxEdicao[id] = ((_previewFotoIdxEdicao[id]||0) + delta + fotos.length) % fotos.length;
+  renderPreviewFotoEdicao(id);
+}
+function renderPreviewFotoEdicao(id){
+  var fotos = _previewFotosEdicao[id] || [];
+  var idx = _previewFotoIdxEdicao[id] || 0;
+  var previewEl = document.getElementById('mc-editar-preview-'+id);
+  var vazioEl = document.getElementById('mc-editar-preview-vazio-'+id);
+  if(!fotos.length){ previewEl.style.display = 'none'; vazioEl.style.display = 'block'; return; }
+  previewEl.style.display = 'block';
+  vazioEl.style.display = 'none';
+  document.getElementById('mc-editar-preview-img-'+id).src = fotos[idx] || '';
+  var multi = fotos.length > 1;
+  document.getElementById('mc-editar-preview-seta-prev-'+id).style.display = multi ? 'flex' : 'none';
+  document.getElementById('mc-editar-preview-seta-next-'+id).style.display = multi ? 'flex' : 'none';
+  var dotsEl = document.getElementById('mc-editar-preview-dots-'+id);
+  dotsEl.innerHTML = multi ? fotos.map(function(_,i){ return '<span class="mc-preview-dot'+(i===idx?' on':'')+'"></span>'; }).join('') : '';
+}
+
+function gerarTextoIAEdicao(id, campo, btn){
+  var imovelId = document.getElementById('mc-editar-'+id).dataset.imovel;
+  var textoOriginal = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Gerando...';
+  fetch('/app/meta-ads/gerar-texto', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ imovelId: imovelId }) })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      btn.textContent = textoOriginal;
+      if(!d.ok){ alert(d.erro || 'Erro ao gerar com IA.'); return; }
+      if(campo === 'descricao'){
+        document.getElementById('mc-editar-descricao-'+id).value = d.descricao || '';
+      } else if(campo === 'titulo'){
+        document.getElementById('mc-editar-titulo-'+id).value = (d.titulo||'').slice(0, LIMITE_TITULO);
+        atualizarContador('mc-editar-titulo-'+id, 'mc-editar-titulo-count-'+id);
+      } else if(campo === 'secundario'){
+        document.getElementById('mc-editar-secundario-'+id).value = (d.titulo||'').slice(0, LIMITE_SECUNDARIO);
+        atualizarContador('mc-editar-secundario-'+id, 'mc-editar-secundario-count-'+id);
+      }
+      atualizarPreviewEdicao(id);
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = textoOriginal;
+      alert('Erro de conexão.');
+    });
+}
+
+function atualizarPreviewEdicao(id){
+  var titulo = document.getElementById('mc-editar-titulo-'+id).value;
+  var descricao = document.getElementById('mc-editar-descricao-'+id).value;
+  var secundario = document.getElementById('mc-editar-secundario-'+id).value;
+  var ctaEl = document.getElementById('mc-editar-cta-'+id);
+  var ctaLabel = ctaEl ? (CTA_LABELS_EDICAO[ctaEl.value] || 'Cadastre-se') : 'Saiba mais';
+  document.getElementById('mc-editar-preview-cta-label-'+id).textContent = ctaLabel;
+  document.getElementById('mc-editar-preview-texto-'+id).textContent = descricao;
+  document.getElementById('mc-editar-preview-titulo-'+id).textContent = titulo;
+  document.getElementById('mc-editar-preview-cta-'+id).textContent = ctaLabel;
+  var secWrap = document.getElementById('mc-editar-preview-secundario-wrap-'+id);
+  if(secundario){
+    document.getElementById('mc-editar-preview-secundario-'+id).textContent = secundario;
+    secWrap.style.display = 'flex';
+  } else {
+    secWrap.style.display = 'none';
+  }
+}
+
+function carregarPublicosSalvosEdicao(id){
+  var contaAnuncioId = document.getElementById('mc-editar-'+id).dataset.conta;
+  var sel = document.getElementById('mc-editar-publico-salvo-'+id);
+  var atual = sel.dataset.atual || '';
+  if(!contaAnuncioId){ return; }
+  sel.innerHTML = '<option value="">Carregando...</option>';
+  fetch('/app/meta-ads/publicos-salvos?contaAnuncioId=' + encodeURIComponent(contaAnuncioId))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d.ok || !d.publicos.length){ sel.innerHTML = '<option value="">Personalizar abaixo</option>'; return; }
+      sel.innerHTML = '<option value="">Personalizar abaixo</option>' + d.publicos.map(function(p){ return '<option value="'+p.id+'"'+(p.id===atual?' selected':'')+'>'+p.name+'</option>'; }).join('');
+    }).catch(function(){ sel.innerHTML = '<option value="">Personalizar abaixo</option>'; });
+}
+function alternarCamposPublicoEdicao(id){
+  var salvo = document.getElementById('mc-editar-publico-salvo-'+id).value;
+  document.getElementById('mc-editar-publico-manual-'+id).style.display = salvo ? 'none' : 'block';
+}
+
 function salvarEdicaoCampanha(id){
-  var orcamento = document.getElementById('mc-editar-orcamento-'+id).value;
-  var status = document.getElementById('mc-editar-status-'+id).value;
   var msgEl = document.getElementById('mc-editar-msg-'+id);
   msgEl.textContent = 'Salvando...';
   msgEl.style.color = '#9ca3af';
-  fetch('/app/meta-ads/campanha/'+id+'/editar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ orcamentoDiario: orcamento, status: status }) })
+
+  var publicoSalvoId = document.getElementById('mc-editar-publico-salvo-'+id).value;
+  var publico = {
+    raioKm: Number(document.getElementById('mc-editar-raio-'+id).value) || 10,
+    idadeMin: Number(document.getElementById('mc-editar-idade-min-'+id).value) || 18,
+    idadeMax: Number(document.getElementById('mc-editar-idade-max-'+id).value) || 65,
+    genero: document.getElementById('mc-editar-genero-'+id).value
+  };
+  if(!publicoSalvoId){
+    var plataformas = Array.prototype.slice.call(document.querySelectorAll('.mc-plataforma-edit[data-campanha="'+id+'"]:checked')).map(function(el){ return el.value; });
+    if(!plataformas.length){ msgEl.textContent = 'Escolha ao menos um local pra anunciar.'; msgEl.style.color = '#dc2626'; return; }
+    publico.plataformas = plataformas;
+  }
+
+  var ctaEl = document.getElementById('mc-editar-cta-'+id);
+  var body = {
+    orcamentoDiario: document.getElementById('mc-editar-orcamento-'+id).value,
+    status: document.getElementById('mc-editar-status-'+id).value,
+    tituloAnuncio: document.getElementById('mc-editar-titulo-'+id).value,
+    descricaoAnuncio: document.getElementById('mc-editar-descricao-'+id).value,
+    tituloSecundario: document.getElementById('mc-editar-secundario-'+id).value,
+    ctaLeadForm: ctaEl ? ctaEl.value : '',
+    publicoSalvoId: publicoSalvoId,
+    publico: publico
+  };
+
+  fetch('/app/meta-ads/campanha/'+id+'/editar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
     .then(function(r){ return r.json(); })
     .then(function(d){
       if(d.ok){ location.reload(); }

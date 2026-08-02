@@ -283,7 +283,10 @@ async function criarCampanhaCompleta({ contaAnuncioId, pageId, pageToken, token,
 
   let leadFormId = null;
   if (objetivo === 'lead_form') {
-    leadFormId = await criarLeadForm({ pageId, pageToken, nome: nomeBase, imovel });
+    // Nome do formulário precisa ser único na Página (campanha/adset/ad não têm
+    // essa exigência) — sufixo evita "O nome do formulário já existe" em
+    // tentativas repetidas pro mesmo imóvel
+    leadFormId = await criarLeadForm({ pageId, pageToken, nome: (nomeBase.slice(0, 80) + ' - ' + Date.now()), imovel });
   }
 
   const adsetId = await criarAdSet({ contaAnuncioId, pageId, token, campaignId, nome: nomeBase, orcamentoDiarioCentavos, objetivo, publico });

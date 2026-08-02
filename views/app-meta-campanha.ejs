@@ -59,9 +59,12 @@
 .mc-selo{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
 .mc-selo-1{background:#00A699}
 .mc-selo-2{background:#FC642D}
+.mc-selo-3{background:#FF385C}
 .mc-campo-label{display:flex;align-items:center;gap:6px}
-.mc-preview-texto .mc-selo,.mc-preview-titulo-wrap .mc-selo{margin-right:4px}
+.mc-preview-texto .mc-selo,.mc-preview-titulo-wrap .mc-selo,.mc-preview-secundario-wrap .mc-selo{margin-right:4px}
 .mc-preview-titulo-wrap{display:flex;align-items:center;gap:4px;overflow:hidden}
+.mc-preview-secundario-wrap{display:flex;align-items:center;gap:4px;overflow:hidden;margin-top:1px}
+.mc-preview-secundario{font-size:11.5px;color:#65676b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mc-btn-ia{font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#374151;cursor:pointer;white-space:nowrap}
 .mc-btn-ia:disabled{opacity:.5;cursor:not-allowed}
 </style>
@@ -128,6 +131,19 @@
     <label class="mc-label">Número de WhatsApp que vai receber os leads</label>
     <input type="text" class="mc-input" id="mc-whatsapp" placeholder="Ex: 47999999999" value="<%= (user.whatsappNumero||user.celular||user.telefone||'').replace(/\D/g,'') %>">
   </div>
+  <div class="mc-field" id="mc-campo-cta" style="display:none;margin-top:14px">
+    <label class="mc-label">Texto do botão</label>
+    <select class="mc-select" id="mc-cta" onchange="atualizarPreview()">
+      <option value="SIGN_UP">Cadastre-se</option>
+      <option value="LEARN_MORE">Saiba mais</option>
+      <option value="CONTACT_US">Fale conosco</option>
+      <option value="GET_QUOTE">Peça um orçamento</option>
+      <option value="APPLY_NOW">Candidate-se</option>
+      <option value="REGISTER_NOW">Registre-se</option>
+      <option value="MAKE_AN_APPOINTMENT">Marque uma consulta</option>
+      <option value="GET_IN_TOUCH">Entre em contato</option>
+    </select>
+  </div>
 </div>
 
 <div class="mc-card">
@@ -178,14 +194,18 @@
 
 <div class="mc-card">
   <div class="mc-card-title">5. Título e descrição do anúncio</div>
-  <div class="mc-card-sub">Preenche sozinho quando você escolhe o imóvel — edita à vontade, ou gera de novo com IA. Os selos <span class="mc-selo mc-selo-1">1</span> e <span class="mc-selo mc-selo-2">2</span> mostram onde cada campo aparece na prévia abaixo.</div>
+  <div class="mc-card-sub">Preenche sozinho quando você escolhe o imóvel — edita à vontade, ou gera de novo com IA. Os selos <span class="mc-selo mc-selo-1">1</span>, <span class="mc-selo mc-selo-2">2</span> e <span class="mc-selo mc-selo-3">3</span> mostram onde cada campo aparece na prévia abaixo.</div>
   <div class="mc-field">
     <div class="mc-campo-label"><span class="mc-selo mc-selo-1">1</span><label class="mc-label" style="margin-bottom:0">Descrição (texto acima da foto)</label></div>
     <textarea class="mc-input" id="mc-descricao" rows="2" style="resize:vertical;margin-top:6px" oninput="atualizarPreview()"></textarea>
   </div>
-  <div class="mc-field" style="margin-bottom:8px">
+  <div class="mc-field">
     <div class="mc-campo-label"><span class="mc-selo mc-selo-2">2</span><label class="mc-label" style="margin-bottom:0">Título principal (abaixo da foto)</label></div>
     <input type="text" class="mc-input" id="mc-titulo-principal" style="margin-top:6px" oninput="atualizarPreview()">
+  </div>
+  <div class="mc-field" style="margin-bottom:8px">
+    <div class="mc-campo-label"><span class="mc-selo mc-selo-3">3</span><label class="mc-label" style="margin-bottom:0">Título secundário (texto pequeno, ao lado do botão — opcional)</label></div>
+    <input type="text" class="mc-input" id="mc-titulo-secundario" style="margin-top:6px" oninput="atualizarPreview()">
   </div>
   <button type="button" class="mc-btn-ia" id="mc-btn-ia" onclick="gerarTextoIA()">🤖 Gerar com IA</button>
 </div>
@@ -206,8 +226,9 @@
     <img class="mc-preview-img" id="mc-preview-img" src="">
     <div class="mc-preview-footer">
       <div class="mc-preview-info">
-        <div class="mc-preview-dominio">matchimoveis.ia.br</div>
+        <div class="mc-preview-dominio"><%= dominioAnuncio %></div>
         <div class="mc-preview-titulo-wrap"><span class="mc-selo mc-selo-2">2</span><div class="mc-preview-titulo" id="mc-preview-titulo"></div></div>
+        <div class="mc-preview-secundario-wrap" id="mc-preview-secundario-wrap" style="display:none"><span class="mc-selo mc-selo-3">3</span><div class="mc-preview-secundario" id="mc-preview-secundario"></div></div>
       </div>
       <div class="mc-preview-cta" id="mc-preview-cta">Saiba mais</div>
     </div>
@@ -253,6 +274,7 @@ function escolherImovel(btn){
   // (GET /app/instagram/preview) — mesmo texto, mesmo padrão em todo canal.
   document.getElementById('mc-titulo-principal').value = btn.dataset.titulo;
   document.getElementById('mc-descricao').value = 'Carregando...';
+  document.getElementById('mc-titulo-secundario').value = '';
   atualizarPreview();
   fetch('/app/instagram/preview/' + encodeURIComponent(_imovelEscolhido))
     .then(function(r){ return r.json(); })
@@ -271,6 +293,7 @@ function escolherObjetivo(el){
   el.classList.add('on');
   _objetivoEscolhido = el.dataset.obj;
   document.getElementById('mc-campo-whatsapp').style.display = (_objetivoEscolhido === 'whatsapp') ? 'block' : 'none';
+  document.getElementById('mc-campo-cta').style.display = (_objetivoEscolhido === 'lead_form') ? 'block' : 'none';
   atualizarPreview();
 }
 
@@ -311,9 +334,19 @@ function atualizarPreview(){
 
   var titulo = document.getElementById('mc-titulo-principal').value || btnImovel.dataset.titulo;
   var descricao = document.getElementById('mc-descricao').value;
+  var tituloSecundario = document.getElementById('mc-titulo-secundario').value;
   var foto = btnImovel.dataset.foto;
 
-  var ctaLabel = _objetivoEscolhido==='lead_form' ? 'Cadastre-se' : _objetivoEscolhido==='whatsapp' ? 'Enviar mensagem' : 'Saiba mais';
+  var CTA_LABELS = { SIGN_UP:'Cadastre-se', LEARN_MORE:'Saiba mais', CONTACT_US:'Fale conosco', GET_QUOTE:'Peça um orçamento', APPLY_NOW:'Candidate-se', REGISTER_NOW:'Registre-se', MAKE_AN_APPOINTMENT:'Marque uma consulta', GET_IN_TOUCH:'Entre em contato' };
+  var ctaLabel;
+  if(_objetivoEscolhido === 'lead_form'){
+    var selCta = document.getElementById('mc-cta');
+    ctaLabel = CTA_LABELS[selCta.value] || 'Cadastre-se';
+  } else if(_objetivoEscolhido === 'whatsapp'){
+    ctaLabel = 'Enviar mensagem';
+  } else {
+    ctaLabel = 'Saiba mais';
+  }
   var selPagina = document.getElementById('mc-pagina');
   var nomePagina = (selPagina && selPagina.selectedIndex >= 0 && selPagina.options[selPagina.selectedIndex]) ? selPagina.options[selPagina.selectedIndex].text : 'Sua Página';
 
@@ -323,6 +356,14 @@ function atualizarPreview(){
   document.getElementById('mc-preview-img').src = foto;
   document.getElementById('mc-preview-titulo').textContent = titulo;
   document.getElementById('mc-preview-cta').textContent = ctaLabel;
+
+  var secWrap = document.getElementById('mc-preview-secundario-wrap');
+  if(tituloSecundario){
+    document.getElementById('mc-preview-secundario').textContent = tituloSecundario;
+    secWrap.style.display = 'flex';
+  } else {
+    secWrap.style.display = 'none';
+  }
 
   previewEl.style.display = 'block';
   vazioEl.style.display = 'none';
@@ -367,6 +408,8 @@ function criarCampanha(){
     orcamentoDiario: orcamento,
     tituloAnuncio: document.getElementById('mc-titulo-principal').value,
     descricaoAnuncio: document.getElementById('mc-descricao').value,
+    tituloSecundario: document.getElementById('mc-titulo-secundario').value,
+    ctaLeadForm: document.getElementById('mc-cta') ? document.getElementById('mc-cta').value : '',
     whatsappNumero: document.getElementById('mc-whatsapp') ? document.getElementById('mc-whatsapp').value.replace(/\D/g,'') : '',
     publico: {
       raioKm: Number(document.getElementById('mc-raio').value) || 10,

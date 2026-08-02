@@ -4190,7 +4190,7 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
     const uid = String(user.id || user.codigoUsuario || '');
     if (!user.metaAdsToken) return res.status(400).json({ ok:false, erro:'Conecte sua conta do Meta primeiro.' });
 
-    const { imovelId, objetivo, contaAnuncioId, pageId, orcamentoDiario, publico, whatsappNumero, tituloAnuncio, descricaoAnuncio } = req.body;
+    const { imovelId, objetivo, contaAnuncioId, pageId, orcamentoDiario, publico, whatsappNumero, tituloAnuncio, descricaoAnuncio, tituloSecundario, ctaLeadForm } = req.body;
     if (!imovelId || !objetivo || !contaAnuncioId || !pageId || !orcamentoDiario) {
       return res.status(400).json({ ok:false, erro:'Imóvel, objetivo, conta de anúncio, página e orçamento são obrigatórios.' });
     }
@@ -4234,10 +4234,27 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
       publicoFinal.longitude = imovel.longitude;
     }
 
+    // Link do anúncio prioriza o domínio próprio do corretor (feature "Meu Site")
+    // quando ele já tiver um domínio configurado e verificado — senão cai no
+    // matchimoveis.ia.br (comportamento padrão já tratado dentro de metaAds.js)
+    const idPublicoImovel = imovel.idInterno || imovel.id_interno || imovel.id;
+    let linkAnuncio = null;
+    try {
+      const { buscarConfig } = require('./services/salvarSiteConfig');
+      const siteConfig = await buscarConfig(uid);
+      if (siteConfig && siteConfig.dominio_personalizado && siteConfig.dominio_status === 'verificado') {
+        linkAnuncio = `https://${siteConfig.dominio_personalizado}/imovel/${idPublicoImovel}`;
+      }
+    } catch (e) { console.error('[meta-ads/campanha] falha ao resolver domínio próprio:', e.message); }
+
+    const CTAS_LEAD_VALIDOS = ['SIGN_UP','LEARN_MORE','CONTACT_US','GET_QUOTE','APPLY_NOW','REGISTER_NOW','MAKE_AN_APPOINTMENT','GET_IN_TOUCH'];
     const resultado = await criarCampanhaCompleta({
       contaAnuncioId, pageId, pageToken: pagina.access_token, token: user.metaAdsToken,
       imovel, objetivo, orcamentoDiarioCentavos, publico: publicoFinal, whatsappNumero: numeroWA,
-      tituloAnuncio: (tituloAnuncio||'').trim(), descricaoAnuncio: (descricaoAnuncio||'').trim()
+      tituloAnuncio: (tituloAnuncio||'').trim(), descricaoAnuncio: (descricaoAnuncio||'').trim(),
+      tituloSecundario: (tituloSecundario||'').trim(),
+      ctaLeadForm: CTAS_LEAD_VALIDOS.includes(ctaLeadForm) ? ctaLeadForm : 'SIGN_UP',
+      linkAnuncio
     });
 
     const { criarCampanhaRegistro } = require('./services/salvarCampanhaMeta');
@@ -4425,10 +4442,20 @@ app.get('/app/redes-sociais/campanha', auth, async (req, res) => {
         valorImovel: i.valor_imovel, foto: (i.fotos||[])[0]
       }));
     const campanhas = await listarCampanhas(String(uidLogado));
-    res.render('app-meta-campanha', { user, active: 'meta-campanha', imoveis: imoveisComFoto, campanhas, msg: req.query.msg||'', err: req.query.err||'' });
+    // Domínio que vai aparecer no link do anúncio (site próprio quando
+    // configurado e verificado, senão a plataforma) — só pra exibir na prévia
+    let dominioAnuncio = 'matchimoveis.ia.br';
+    try {
+      const { buscarConfig } = require('./services/salvarSiteConfig');
+      const siteConfig = await buscarConfig(String(uidLogado));
+      if (siteConfig && siteConfig.dominio_personalizado && siteConfig.dominio_status === 'verificado') {
+        dominioAnuncio = siteConfig.dominio_personalizado;
+      }
+    } catch (e) {}
+    res.render('app-meta-campanha', { user, active: 'meta-campanha', imoveis: imoveisComFoto, campanhas, msg: req.query.msg||'', err: req.query.err||'', dominioAnuncio });
   } catch(e) {
     console.error('[app/redes-sociais/campanha]', e.message);
-    res.render('app-meta-campanha', { user: req.session.user, active: 'meta-campanha', imoveis: [], campanhas: [], msg:'', err: e.message });
+    res.render('app-meta-campanha', { user: req.session.user, active: 'meta-campanha', imoveis: [], campanhas: [], msg:'', err: e.message, dominioAnuncio: 'matchimoveis.ia.br' });
   }
 });
 

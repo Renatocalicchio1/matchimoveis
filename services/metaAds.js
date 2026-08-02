@@ -154,9 +154,10 @@ async function criarCampanha({ contaAnuncioId, token, nome, objetivo }) {
   }
 }
 
-async function criarLeadForm({ pageId, pageToken, nome, imovel }) {
+async function criarLeadForm({ pageId, pageToken, nome, imovel, link }) {
   try {
     const idPublico = imovel.idInterno || imovel.id_interno || imovel.id;
+    const destino = link || (baseUrl() + '/imovel/' + idPublico);
     const { data } = await axios.post(`${GRAPH_URL}/${pageId}/leadgen_forms`, null, {
       params: {
         name: nome,
@@ -166,15 +167,16 @@ async function criarLeadForm({ pageId, pageToken, nome, imovel }) {
           { type: 'PHONE' },
           { type: 'EMAIL' }
         ]),
-        // Tela de agradecimento — botão leva pra página do imóvel anunciado
+        // Tela de agradecimento — botão leva pro destino do anúncio (site
+        // próprio do corretor quando configurado, senão a página do imóvel)
         thank_you_page: JSON.stringify({
           title: 'Recebemos seu contato!',
           body: 'Em breve um corretor vai falar com você sobre este imóvel.',
           button_type: 'VIEW_WEBSITE',
           button_text: 'Ver o imóvel',
-          website_url: baseUrl() + '/imovel/' + idPublico
+          website_url: destino
         }),
-        follow_up_action_url: baseUrl() + '/imovel/' + idPublico,
+        follow_up_action_url: destino,
         access_token: pageToken
       }
     });
@@ -220,29 +222,34 @@ function _textoAnuncio(imovel) {
   return { titulo, texto: [valor, quartos].filter(Boolean).join(' · ') };
 }
 
-async function criarCreative({ contaAnuncioId, token, pageId, nome, imovel, objetivo, leadFormId, whatsappNumero, tituloAnuncio, descricaoAnuncio }) {
+async function criarCreative({ contaAnuncioId, token, pageId, nome, imovel, objetivo, leadFormId, whatsappNumero, tituloAnuncio, descricaoAnuncio, tituloSecundario, ctaLeadForm, link }) {
   try {
-    // Corretor pode editar (ou gerar com IA) o título/descrição na tela de
-    // criação — só cai no texto automático se ele deixar em branco
+    // Corretor pode editar (ou gerar com IA) os 3 campos de texto do anúncio
+    // que o Meta suporta — só cai no automático se deixar em branco:
+    // message = texto de cima (acima da foto), name = título principal
+    // (negrito, abaixo da foto), description = título secundário (texto
+    // pequeno ao lado do botão, opcional)
     const _auto = _textoAnuncio(imovel);
     const titulo = (tituloAnuncio || '').trim() || _auto.titulo;
     const texto = (descricaoAnuncio || '').trim() || _auto.texto;
     const foto = (imovel.fotos || [])[0];
     const idPublico = imovel.idInterno || imovel.id_interno || imovel.id;
     // Meta exige "link" no link_data mesmo quando o clique real é tratado pelo
-    // call_to_action (LEAD_GENERATION/WHATSAPP_MESSAGE) — usa a página do
-    // imóvel como destino de fallback nesses casos
+    // call_to_action (LEAD_GENERATION/WHATSAPP_MESSAGE) — usa o link resolvido
+    // (site próprio do corretor quando configurado) como destino de fallback
     const linkData = {
       picture: foto,
       message: texto,
       name: titulo,
-      link: `${baseUrl()}/imovel/${idPublico}`
+      link: link || `${baseUrl()}/imovel/${idPublico}`
     };
+    if ((tituloSecundario || '').trim()) linkData.description = tituloSecundario.trim();
     if (objetivo === 'lead_form') {
       // "LEAD_GENERATION" não é um call_to_action[type] válido na API (apesar do
-      // nome sugestivo) — o tipo aceito é SIGN_UP, e o formulário é associado
-      // via value.lead_gen_form_id
-      linkData.call_to_action = { type: 'SIGN_UP', value: { lead_gen_form_id: leadFormId } };
+      // nome sugestivo) — o corretor escolhe entre um subconjunto de botões
+      // válidos pra esse tipo de anúncio (SIGN_UP é o padrão), e o formulário
+      // é associado via value.lead_gen_form_id em qualquer um deles
+      linkData.call_to_action = { type: ctaLeadForm || 'SIGN_UP', value: { lead_gen_form_id: leadFormId } };
     } else if (objetivo === 'whatsapp') {
       linkData.call_to_action = {
         type: 'WHATSAPP_MESSAGE',
@@ -285,13 +292,18 @@ async function criarAd({ contaAnuncioId, token, nome, adsetId, creativeId }) {
 // revisa e ativa manualmente (ou a rota que chama isso já ativa em seguida,
 // dependendo do que o app pedir). Retorna todos os IDs pra salvar na tabela
 // campanhas_meta.
-async function criarCampanhaCompleta({ contaAnuncioId, pageId, pageToken, token, imovel, objetivo, orcamentoDiarioCentavos, publico, whatsappNumero, tituloAnuncio, descricaoAnuncio }) {
+async function criarCampanhaCompleta({ contaAnuncioId, pageId, pageToken, token, imovel, objetivo, orcamentoDiarioCentavos, publico, whatsappNumero, tituloAnuncio, descricaoAnuncio, tituloSecundario, ctaLeadForm, linkAnuncio }) {
   // /me/adaccounts já devolve o id com o prefixo "act_" (ex: act_1112726172242956) —
   // as funções abaixo (criarCampanha, criarAdSet etc) montam "act_${contaAnuncioId}"
   // sozinhas, então remove o prefixo aqui pra não duplicar (act_act_... = ID inválido)
   contaAnuncioId = String(contaAnuncioId || '').replace(/^act_/, '');
   const { titulo } = _textoAnuncio(imovel);
   const nomeBase = `MatchImoveis - ${titulo}`.slice(0, 100);
+  // Link do anúncio já vem resolvido de fora (server.js) — prioriza o domínio
+  // próprio do corretor quando ele tiver um configurado e verificado, senão
+  // cai no matchimoveis.ia.br
+  const idPublico = imovel.idInterno || imovel.id_interno || imovel.id;
+  const link = linkAnuncio || `${baseUrl()}/imovel/${idPublico}`;
 
   const campaignId = await criarCampanha({ contaAnuncioId, token, nome: nomeBase, objetivo });
 
@@ -300,11 +312,11 @@ async function criarCampanhaCompleta({ contaAnuncioId, pageId, pageToken, token,
     // Nome do formulário precisa ser único na Página (campanha/adset/ad não têm
     // essa exigência) — sufixo evita "O nome do formulário já existe" em
     // tentativas repetidas pro mesmo imóvel
-    leadFormId = await criarLeadForm({ pageId, pageToken, nome: (nomeBase.slice(0, 80) + ' - ' + Date.now()), imovel });
+    leadFormId = await criarLeadForm({ pageId, pageToken, nome: (nomeBase.slice(0, 80) + ' - ' + Date.now()), imovel, link });
   }
 
   const adsetId = await criarAdSet({ contaAnuncioId, pageId, token, campaignId, nome: nomeBase, orcamentoDiarioCentavos, objetivo, publico });
-  const creativeId = await criarCreative({ contaAnuncioId, token, pageId, nome: nomeBase, imovel, objetivo, leadFormId, whatsappNumero, tituloAnuncio, descricaoAnuncio });
+  const creativeId = await criarCreative({ contaAnuncioId, token, pageId, nome: nomeBase, imovel, objetivo, leadFormId, whatsappNumero, tituloAnuncio, descricaoAnuncio, tituloSecundario, ctaLeadForm, link });
   const adId = await criarAd({ contaAnuncioId, token, nome: nomeBase, adsetId, creativeId });
 
   return { campaignId, adsetId, creativeId, adId, leadFormId };

@@ -93,7 +93,7 @@
   <% } else { %>
   <div class="mc-imoveis-grid" id="mc-imoveis-grid">
     <% imoveis.forEach(function(i){ %>
-    <button type="button" class="mc-imovel-card" data-id="<%= i.id %>" data-titulo="<%= i.titulo %>" data-valor="<%= i.valorImovel||0 %>" data-quartos="<%= i.quartos||0 %>" data-foto="<%= i.foto %>" onclick="escolherImovel(this)">
+    <button type="button" class="mc-imovel-card" data-id="<%= i.id %>" data-titulo="<%= i.titulo %>" data-foto="<%= i.foto %>" onclick="escolherImovel(this)">
       <img src="<%= i.foto %>" loading="lazy">
       <div class="mc-imovel-info">
         <div class="mc-imovel-titulo"><%= i.titulo %></div>
@@ -248,15 +248,23 @@ function escolherImovel(btn){
   btn.classList.add('on');
   _imovelEscolhido = btn.dataset.id;
   // Troca de imóvel reseta título/descrição pro padrão desse imóvel (texto
-  // customizado do imóvel anterior não faz sentido pra um imóvel diferente)
-  var valor = Number(btn.dataset.valor) || 0;
-  var quartos = Number(btn.dataset.quartos) || 0;
-  var partes = [];
-  if(valor) partes.push('R$ ' + valor.toLocaleString('pt-BR'));
-  if(quartos) partes.push(quartos + ' quarto' + (quartos>1?'s':''));
+  // customizado do imóvel anterior não faz sentido pra um imóvel diferente).
+  // Descrição usa a mesma legenda já gerada pra compartilhar no Instagram
+  // (GET /app/instagram/preview) — mesmo texto, mesmo padrão em todo canal.
   document.getElementById('mc-titulo-principal').value = btn.dataset.titulo;
-  document.getElementById('mc-descricao').value = partes.join(' · ');
+  document.getElementById('mc-descricao').value = 'Carregando...';
   atualizarPreview();
+  fetch('/app/instagram/preview/' + encodeURIComponent(_imovelEscolhido))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(_imovelEscolhido !== btn.dataset.id) return; // usuário já trocou de imóvel de novo
+      document.getElementById('mc-descricao').value = d.ok ? d.legenda : '';
+      atualizarPreview();
+    }).catch(function(){
+      if(_imovelEscolhido !== btn.dataset.id) return;
+      document.getElementById('mc-descricao').value = '';
+      atualizarPreview();
+    });
 }
 function escolherObjetivo(el){
   document.querySelectorAll('.mc-obj-card').forEach(function(c){ c.classList.remove('on'); });
@@ -296,7 +304,10 @@ function atualizarPreview(){
   var previewEl = document.getElementById('mc-preview');
   var vazioEl = document.getElementById('mc-preview-vazio');
   var btnImovel = document.querySelector('.mc-imovel-card.on');
-  if(!btnImovel || !_objetivoEscolhido){ previewEl.style.display = 'none'; vazioEl.style.display = 'block'; return; }
+  // Só o imóvel já é suficiente pra mostrar a prévia — objetivo/página, quando
+  // ainda não escolhidos, entram com um valor padrão só na prévia (não afeta
+  // o que de fato é criado, que exige os dois antes de "Criar campanha")
+  if(!btnImovel){ previewEl.style.display = 'none'; vazioEl.style.display = 'block'; return; }
 
   var titulo = document.getElementById('mc-titulo-principal').value || btnImovel.dataset.titulo;
   var descricao = document.getElementById('mc-descricao').value;

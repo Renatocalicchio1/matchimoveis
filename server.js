@@ -4422,7 +4422,7 @@ app.get('/app/redes-sociais/campanha', auth, async (req, res) => {
         id: i.idExterno || i.idInterno || i.id,
         titulo: i.titulo || [i.tipo, i.bairro].filter(Boolean).join(' em '),
         tipo: i.tipo, bairro: i.bairro, cidade: i.cidade,
-        valorImovel: i.valor_imovel, quartos: i.quartos, foto: (i.fotos||[])[0]
+        valorImovel: i.valor_imovel, foto: (i.fotos||[])[0]
       }));
     const campanhas = await listarCampanhas(String(uidLogado));
     res.render('app-meta-campanha', { user, active: 'meta-campanha', imoveis: imoveisComFoto, campanhas, msg: req.query.msg||'', err: req.query.err||'' });

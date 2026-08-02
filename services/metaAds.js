@@ -157,7 +157,9 @@ function montarTargeting(publico) {
     // sem isso a API rejeita o adset. "todas as posições" de cada plataforma
     // escolhida é o comportamento equivalente ao que o corretor esperaria
     if (t.publisher_platforms.includes('facebook')) {
-      t.facebook_positions = ['feed', 'right_hand_column', 'marketplace', 'video_feeds', 'story', 'search', 'facebook_reels'];
+      // video_feeds foi descontinuado pro Meta nessa versão da API — Meta
+      // rejeita a criação do adset se vier na lista ("não pode ser selecionado")
+      t.facebook_positions = ['feed', 'right_hand_column', 'marketplace', 'story', 'search', 'facebook_reels'];
     }
     if (t.publisher_platforms.includes('instagram')) {
       t.instagram_positions = ['stream', 'story', 'explore', 'reels', 'explore_home'];

@@ -152,6 +152,7 @@ async function criarCampanha({ contaAnuncioId, token, nome, objetivo }) {
 
 async function criarLeadForm({ pageId, pageToken, nome, imovel }) {
   try {
+    const idPublico = imovel.idInterno || imovel.id_interno || imovel.id;
     const { data } = await axios.post(`${GRAPH_URL}/${pageId}/leadgen_forms`, null, {
       params: {
         name: nome,
@@ -161,6 +162,15 @@ async function criarLeadForm({ pageId, pageToken, nome, imovel }) {
           { type: 'PHONE' },
           { type: 'EMAIL' }
         ]),
+        // Tela de agradecimento — botão leva pra página do imóvel anunciado
+        thank_you_page: JSON.stringify({
+          title: 'Recebemos seu contato!',
+          body: 'Em breve um corretor vai falar com você sobre este imóvel.',
+          button_type: 'VIEW_WEBSITE',
+          button_text: 'Ver o imóvel',
+          website_url: baseUrl() + '/imovel/' + idPublico
+        }),
+        follow_up_action_url: baseUrl() + '/imovel/' + idPublico,
         access_token: pageToken
       }
     });

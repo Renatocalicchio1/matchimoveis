@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-07-27T04:34:59.357Z",
+  "geradoEm": "2026-08-03T01:00:07.188Z",
   "paginas": [
     {
       "rota": "/app-home",
@@ -130,6 +130,21 @@
       "rota": "/app/imoveis/exportar-excel",
       "label": "Exportar Excel",
       "descricao": "Exportar lista de imóveis em planilha Excel"
+    },
+    {
+      "rota": "/app/posts",
+      "label": "Redes Sociais — Posts",
+      "descricao": "Publicar post/story de um imóvel no Instagram — escolhe o imóvel da carteira (ou várias fotos, arrasta pra reordenar), gera legenda com IA, publica na hora ou agenda"
+    },
+    {
+      "rota": "/app/redes-sociais/campanha",
+      "label": "Criar Campanha",
+      "descricao": "Criar campanha paga no Meta Ads (Facebook/Instagram) a partir de um imóvel da carteira — formulário de leads, tráfego pro site ou clique-para-WhatsApp"
+    },
+    {
+      "rota": "/app/meu-site",
+      "label": "Meu Site",
+      "descricao": "Site público white-label com os imóveis do corretor, cor/logo personalizáveis e opção de domínio próprio"
     }
   ],
   "fluxos": [
@@ -192,14 +207,34 @@
       "passos": [
         "Indicar Parceiro → copiar link → corretor indicado se cadastra → você ganha 10% de bônus em créditos a cada recarga dele"
       ]
+    },
+    {
+      "titulo": "Publicar imóvel no Instagram",
+      "passos": [
+        "Perfil → Conectar Instagram (só na 1ª vez, autoriza a conta) → Redes Sociais (Posts) → escolher o imóvel da carteira (ou selecionar várias fotos) → gerar legenda com IA ou escrever a sua → Publicar agora ou Agendar"
+      ]
+    },
+    {
+      "titulo": "Criar campanha paga (Meta Ads)",
+      "passos": [
+        "Perfil → Conectar conta do Meta (só na 1ª vez) → Redes Sociais → Criar Campanha → escolher imóvel, objetivo (formulário de leads, tráfego pro site ou WhatsApp), orçamento e público → Criar campanha (fica pausada, você revisa e ativa no Gerenciador de Anúncios do Meta)"
+      ]
+    },
+    {
+      "titulo": "Configurar domínio próprio (Meu Site)",
+      "passos": [
+        "Meu Site → personalizar cores/logo → seção de domínio próprio → seguir as instruções de DNS mostradas na tela"
+      ]
     }
   ],
   "conceitos": {
     "match": "Cruzamento automático lead × imóvel por transação + tipo + estado + cidade + bairro + valor (-20%/+20%) + quartos (exato)",
     "vitrine": "Página exclusiva enviada ao lead com imóveis em match",
-    "coins": "Créditos: cadastrar imóvel=15, match encontrado=20, vitrine WA=30, IA responde WA=30, importar XML=2/imóvel. R$1=50 coins, mínimo R$50",
+    "coins": "Créditos: cadastrar imóvel=15, match encontrado=20, vitrine WA=30, IA responde WA=30, importar XML=2/imóvel. R$1=20 coins, mínimo R$50 (=1.000 coins)",
     "temperatura": "frio → morno → quente (conforme engajamento)",
     "caso1": "Lead clicou num imóvel específico (imóvel âncora) → busca imóveis parecidos, âncora sempre no topo",
-    "caso2": "Lead com perfil de busca (sem imóvel específico) → busca por perfil completo (transação+tipo+cidade+bairro+valor+quartos)"
+    "caso2": "Lead com perfil de busca (sem imóvel específico) → busca por perfil completo (transação+tipo+cidade+bairro+valor+quartos)",
+    "instagram": "Publicação no Instagram é feita pelo próprio MatchImóveis (Redes Sociais → Posts) — não precisa exportar XML nem usar ferramenta externa. Corretor conecta a conta uma vez no Perfil.",
+    "meta_ads": "Campanha paga no Facebook/Instagram criada direto no MatchImóveis (Redes Sociais → Criar Campanha), sempre criada pausada pro corretor revisar antes de ativar."
   }
 }

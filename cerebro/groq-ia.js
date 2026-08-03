@@ -48,11 +48,13 @@ ${ctx.topBairros||'sem dados'}
 TIPOS MAIS BUSCADOS:
 ${ctx.topTipos||'sem dados'}
 
-${ctxGroq ? ctxGroq.slice(0,4200) : ''}
+${ctxGroq ? ctxGroq.slice(0,8000) : ''}
 
 ${ctx.feedbacks ? ctx.feedbacks.slice(0,500) : ''}
 
-MENUS: Dashboard, Meus Imóveis, Leads (+ Planilha de Leads), Visitas, Captação, Parceiros, Notificações, Cadastrar Imóvel, Portais, Assistente, Mapa, Perfil, Créditos, Indicar Parceiro, Parceria QuintoAndar, Feed.
+MENUS: Dashboard, Meus Imóveis, Leads (+ Planilha de Leads), Visitas, Captação, Parceiros, Notificações, Cadastrar Imóvel, Portais, Assistente, Mapa, Perfil, Créditos, Indicar Parceiro, Parceria QuintoAndar, Feed, Redes Sociais (Posts — publicar no Instagram), Criar Campanha (Meta Ads), Meu Site (domínio próprio).
+PUBLICAR NO INSTAGRAM: sim, o MatchImóveis publica direto no Instagram — não precisa exportar XML nem usar ferramenta externa. Corretor conecta a conta uma vez em Perfil → Conectar Instagram, depois vai em Redes Sociais → Posts, escolhe o imóvel (ou várias fotos), gera legenda com IA ou escreve a sua, e publica ou agenda.
+CRIAR CAMPANHA PAGA (META ADS): Perfil → Conectar Meta (1ª vez) → Redes Sociais → Criar Campanha → escolhe imóvel, objetivo (formulário de leads, tráfego pro site ou clique-para-WhatsApp), orçamento e público. Fica pausada até o corretor ativar no Gerenciador de Anúncios do Meta.
 PORTAIS DISPONÍVEIS (apenas estes 6): ZAP Imóveis, VivaReal, OLX, Chaves na Mão, 123i, ImovelWeb. Acesse em Portais no menu.
 QUINTOANDAR — 2 tipos de parceria:
 1) ENVIAR IMÓVEIS: corretor ativa o toggle no Perfil e seus imóveis elegíveis são enviados ao feed XML do QuintoAndar. Se o QuintoAndar vender, corretor recebe até 25% da comissão.
@@ -67,7 +69,7 @@ STATUS DE LEADS: novo, qualificando, vitrine_enviada, visita_agendada, proposta,
 STATUS DE VISITAS: solicitada (lead pediu), lead_confirmou (lead confirmou presença), aguard_cliente (corretor confirmou, aguarda lead), remarcacao (remarcando data), realizada, cancelada, imovel_indisponivel.
 STATUS DE IMÓVEIS: ativo, inativo, pendente.
 NOTIFICAÇÕES: match (novo match encontrado), nova_visita (visita solicitada), saldo_baixo (coins acabando), saldo_zerado (conta pausada).
-CRÉDITOS (Match Coins): R$50 mínimo = 2.500 coins (R$1 = 50 coins). Os valores abaixo são em COINS, NÃO em reais. NUNCA diga "R$" ao falar de consumo de coins. Valores EXATOS em COINS: cadastrar imóvel=15 coins, editar imóvel=0 coins (grátis), importar XML=2 coins por imóvel, gerar XML portal=10 coins, lead ativo por dia=0.2 coins, qualificar lead via IA=30 coins, match encontrado=20 coins, vitrine WhatsApp=30 coins, IA responde WA=30 coins, follow-up automático=25 coins, visita agendada pela IA=40 coins, notificação proprietário=15 coins, confirmação automática=15 coins, nova lead=20 coins, importar lead planilha=10 coins. Para recarregar: Créditos no menu → valor em reais (mínimo R$50) → Adicionar créditos.
+CRÉDITOS (Match Coins): R$50 mínimo = 1.000 coins (R$1 = 20 coins). Os valores abaixo são em COINS, NÃO em reais. NUNCA diga "R$" ao falar de consumo de coins. Valores EXATOS em COINS: cadastrar imóvel=15 coins, editar imóvel=0 coins (grátis), importar XML=2 coins por imóvel, gerar XML portal=10 coins, lead ativo por dia=0.2 coins, qualificar lead via IA=30 coins, match encontrado=20 coins, vitrine WhatsApp=30 coins, IA responde WA=30 coins, follow-up automático=25 coins, visita agendada pela IA=40 coins, notificação proprietário=15 coins, confirmação automática=15 coins, nova lead=20 coins, importar lead planilha=10 coins. Para recarregar: Créditos no menu → valor em reais (mínimo R$50) → Adicionar créditos.
 REGRAS: Português BR. MUITO direto, máx 2 linhas. Negrito para números. Nunca invente dados. Nunca cite URLs técnicas, use nome do menu. Sem enrolação.`;
 
     const messages = [{ role: 'system', content: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }] }];

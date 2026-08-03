@@ -33,6 +33,9 @@ const rotas = [
   { rota:'/app/indicacoes',      label:'Indicar Parceiro',       descricao:'Link de indicação — ganha 10% de bônus em créditos toda vez que o corretor indicado recarrega' },
   { rota:'/app/parceria-quintoandar', label:'Parceria QuintoAndar', descricao:'Autorizar envio de imóveis ao QuintoAndar ou solicitar acesso à carteira deles' },
   { rota:'/app/imoveis/exportar-excel', label:'Exportar Excel',  descricao:'Exportar lista de imóveis em planilha Excel' },
+  { rota:'/app/posts',           label:'Redes Sociais — Posts',  descricao:'Publicar post/story de um imóvel no Instagram — escolhe o imóvel da carteira (ou várias fotos, arrasta pra reordenar), gera legenda com IA, publica na hora ou agenda' },
+  { rota:'/app/redes-sociais/campanha', label:'Criar Campanha',  descricao:'Criar campanha paga no Meta Ads (Facebook/Instagram) a partir de um imóvel da carteira — formulário de leads, tráfego pro site ou clique-para-WhatsApp' },
+  { rota:'/app/meu-site',        label:'Meu Site',               descricao:'Site público white-label com os imóveis do corretor, cor/logo personalizáveis e opção de domínio próprio' },
 ];
 
 // ── PÁGINAS — O QUE TEM EM CADA UMA ──────────────────────────────────────────
@@ -218,6 +221,11 @@ const intents = [
   { pergunta:'como trocar senha',              resposta:'Vá em <strong>Perfil → Alterar Senha</strong>. Se esqueceu, use <strong>Esqueci minha senha</strong> na tela de login — você recebe a nova senha via WhatsApp.' },
   { pergunta:'o que e codigo usuario',         resposta:'É seu ID único na plataforma (ex: REN-HUH6). Aparece no menu e no perfil. Cada conta tem o seu próprio código.' },
   { pergunta:'como funciona cerebro',          resposta:'O cérebro é o sistema de IA do MatchImóveis com 50+ módulos. Ele aprende com as perguntas, busca nos seus dados reais e nunca inventa informações.' },
+
+  // REDES SOCIAIS
+  { pergunta:'como publicar instagram',        resposta:'Primeiro conecte sua conta em <strong>Perfil → Conectar Instagram</strong> (só na 1ª vez). Depois vá em <a href="/app/posts">Redes Sociais → Posts</a>, escolha o imóvel da carteira, gere a legenda com IA (ou escreva a sua) e clique em <strong>Publicar</strong> ou <strong>Agendar</strong>.' },
+  { pergunta:'como conectar instagram',        resposta:'Vá em <strong>Perfil</strong> e clique em <strong>Conectar Instagram</strong>. Autorize sua conta profissional do Instagram — é só uma vez.' },
+  { pergunta:'como criar campanha meta ads',   resposta:'Primeiro conecte sua conta em <strong>Perfil → Conectar Meta</strong> (só na 1ª vez). Depois vá em <a href="/app/redes-sociais/campanha">Redes Sociais → Criar Campanha</a>, escolha o imóvel, o objetivo (formulário de leads, tráfego pro site ou WhatsApp), orçamento e público. A campanha é criada pausada pra você revisar antes de ativar.' },
 ];
 
 // ── SINÔNIMOS ─────────────────────────────────────────────────────────────────
@@ -288,14 +296,19 @@ const contextoGroq = {
     { titulo: 'QuintoAndar', passos: ['Perfil → toggle QA → verificar elegíveis → XML gerado automaticamente'] },
     { titulo: 'Captar imóvel de proprietário', passos: ['Captação → copiar link público → proprietário preenche dados do imóvel → aparece em Captação para revisar'] },
     { titulo: 'Indicar outro corretor', passos: ['Indicar Parceiro → copiar link → corretor indicado se cadastra → você ganha 10% de bônus em créditos a cada recarga dele'] },
+    { titulo: 'Publicar imóvel no Instagram', passos: ['Perfil → Conectar Instagram (só na 1ª vez, autoriza a conta) → Redes Sociais (Posts) → escolher o imóvel da carteira (ou selecionar várias fotos) → gerar legenda com IA ou escrever a sua → Publicar agora ou Agendar'] },
+    { titulo: 'Criar campanha paga (Meta Ads)', passos: ['Perfil → Conectar conta do Meta (só na 1ª vez) → Redes Sociais → Criar Campanha → escolher imóvel, objetivo (formulário de leads, tráfego pro site ou WhatsApp), orçamento e público → Criar campanha (fica pausada, você revisa e ativa no Gerenciador de Anúncios do Meta)'] },
+    { titulo: 'Configurar domínio próprio (Meu Site)', passos: ['Meu Site → personalizar cores/logo → seção de domínio próprio → seguir as instruções de DNS mostradas na tela'] },
   ],
   conceitos: {
     match: 'Cruzamento automático lead × imóvel por transação + tipo + estado + cidade + bairro + valor (-20%/+20%) + quartos (exato)',
     vitrine: 'Página exclusiva enviada ao lead com imóveis em match',
-    coins: 'Créditos: cadastrar imóvel=15, match encontrado=20, vitrine WA=30, IA responde WA=30, importar XML=2/imóvel. R$1=50 coins, mínimo R$50',
+    coins: 'Créditos: cadastrar imóvel=15, match encontrado=20, vitrine WA=30, IA responde WA=30, importar XML=2/imóvel. R$1=20 coins, mínimo R$50 (=1.000 coins)',
     temperatura: 'frio → morno → quente (conforme engajamento)',
     caso1: 'Lead clicou num imóvel específico (imóvel âncora) → busca imóveis parecidos, âncora sempre no topo',
     caso2: 'Lead com perfil de busca (sem imóvel específico) → busca por perfil completo (transação+tipo+cidade+bairro+valor+quartos)',
+    instagram: 'Publicação no Instagram é feita pelo próprio MatchImóveis (Redes Sociais → Posts) — não precisa exportar XML nem usar ferramenta externa. Corretor conecta a conta uma vez no Perfil.',
+    meta_ads: 'Campanha paga no Facebook/Instagram criada direto no MatchImóveis (Redes Sociais → Criar Campanha), sempre criada pausada pro corretor revisar antes de ativar.',
   }
 };
 

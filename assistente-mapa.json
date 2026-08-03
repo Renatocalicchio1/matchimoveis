@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-07-27T04:34:59.355Z",
+  "geradoEm": "2026-08-03T01:00:07.184Z",
   "versao": "3.0",
   "rotas": [
     {
@@ -131,6 +131,21 @@
       "rota": "/app/imoveis/exportar-excel",
       "label": "Exportar Excel",
       "descricao": "Exportar lista de imóveis em planilha Excel"
+    },
+    {
+      "rota": "/app/posts",
+      "label": "Redes Sociais — Posts",
+      "descricao": "Publicar post/story de um imóvel no Instagram — escolhe o imóvel da carteira (ou várias fotos, arrasta pra reordenar), gera legenda com IA, publica na hora ou agenda"
+    },
+    {
+      "rota": "/app/redes-sociais/campanha",
+      "label": "Criar Campanha",
+      "descricao": "Criar campanha paga no Meta Ads (Facebook/Instagram) a partir de um imóvel da carteira — formulário de leads, tráfego pro site ou clique-para-WhatsApp"
+    },
+    {
+      "rota": "/app/meu-site",
+      "label": "Meu Site",
+      "descricao": "Site público white-label com os imóveis do corretor, cor/logo personalizáveis e opção de domínio próprio"
     }
   ],
   "paginas": {
@@ -427,6 +442,18 @@
     {
       "pergunta": "como funciona cerebro",
       "resposta": "O cérebro é o sistema de IA do MatchImóveis com 50+ módulos. Ele aprende com as perguntas, busca nos seus dados reais e nunca inventa informações."
+    },
+    {
+      "pergunta": "como publicar instagram",
+      "resposta": "Primeiro conecte sua conta em <strong>Perfil → Conectar Instagram</strong> (só na 1ª vez). Depois vá em <a href=\"/app/posts\">Redes Sociais → Posts</a>, escolha o imóvel da carteira, gere a legenda com IA (ou escreva a sua) e clique em <strong>Publicar</strong> ou <strong>Agendar</strong>."
+    },
+    {
+      "pergunta": "como conectar instagram",
+      "resposta": "Vá em <strong>Perfil</strong> e clique em <strong>Conectar Instagram</strong>. Autorize sua conta profissional do Instagram — é só uma vez."
+    },
+    {
+      "pergunta": "como criar campanha meta ads",
+      "resposta": "Primeiro conecte sua conta em <strong>Perfil → Conectar Meta</strong> (só na 1ª vez). Depois vá em <a href=\"/app/redes-sociais/campanha\">Redes Sociais → Criar Campanha</a>, escolha o imóvel, o objetivo (formulário de leads, tráfego pro site ou WhatsApp), orçamento e público. A campanha é criada pausada pra você revisar antes de ativar."
     }
   ],
   "sinonimos": {
@@ -536,6 +563,6 @@
       "Explica o passo a passo numerado quando a ação tiver mais de 2 etapas"
     ]
   },
-  "totalRotas": 26,
-  "totalIntents": 44
+  "totalRotas": 29,
+  "totalIntents": 47
 }

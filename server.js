@@ -5157,6 +5157,10 @@ async function _duplicarLeadSaoPauloTIA(leadOriginal, cidade, mensagem) {
     const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
     if (norm(cidade) !== 'sao paulo') return;
 
+    // Lead de aluguel não duplica pra TIA-A6PG/ALE-ZVA9 — só venda
+    const _ehAluguel = leadOriginal.perfilIA?.intencao === 'alugar' || norm(leadOriginal.mapaIntencao?.transacao?.[0]?.valor||'') === 'aluguel';
+    if (_ehAluguel) return;
+
     const { salvarLead: _slDupTIA } = require('./services/salvarLead');
     const _duplicarPara = async (destino) => {
       const leadDup = {

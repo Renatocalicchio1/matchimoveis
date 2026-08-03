@@ -3126,13 +3126,18 @@ function lerImoveis(user) {
 // desatualizado nesses casos. Intervalo alongado pra reduzir carga no PG.
 let _cacheLeads = null;
 let _cacheLeadsAt = 0;
+let _leadsEmExecucao = false;
 async function _recarregarLeads() {
+  if (_leadsEmExecucao) { console.log('[cache leads] execução anterior ainda rodando, pulando esta'); return; }
+  _leadsEmExecucao = true;
   try {
     const { lerLeads: _llSvc } = require('./services/salvarLead');
     _cacheLeads = await _llSvc();
     _cacheLeadsAt = Date.now();
   } catch(e) {
     if (!_cacheLeads) _cacheLeads = (_cacheLeads || []);
+  } finally {
+    _leadsEmExecucao = false;
   }
 }
 setTimeout(() => { _recarregarLeads(); setInterval(_recarregarLeads, 30000); }, 0);
@@ -3140,15 +3145,23 @@ setTimeout(() => { _recarregarLeads(); setInterval(_recarregarLeads, 30000); }, 
 
 // Cache imóveis em memória
 let _cacheImoveis = null;
+let _imoveisEmExecucao = false;
 async function _recarregarImoveis() {
+  if (_imoveisEmExecucao) { console.log('[cache imoveis] execução anterior ainda rodando, pulando esta'); return; }
+  _imoveisEmExecucao = true;
   try {
     _cacheImoveis = await lerImoveisService();
   } catch(e) {
     if (!_cacheImoveis) _cacheImoveis = (_cacheImoveis || []);
+  } finally {
+    _imoveisEmExecucao = false;
   }
 }
 let _cacheImoveisAt = null;
+let _imoveisIncrementalEmExecucao = false;
 async function _recarregarImoveisIncremental() {
+  if (_imoveisIncrementalEmExecucao) { console.log('[cache imoveis] incremental anterior ainda rodando, pulando esta'); return; }
+  _imoveisIncrementalEmExecucao = true;
   try {
     if (!_cacheImoveis || !_cacheImoveisAt) { await _recarregarImoveis(); return; }
     const { query: _qInc } = require('./services/db');
@@ -3161,9 +3174,14 @@ async function _recarregarImoveisIncremental() {
     res.rows.forEach(r => { mapa.set(String(r.id), _rtiInc(r)); });
     _cacheImoveis = Array.from(mapa.values());
     console.log('[cache imoveis] incremental:', res.rows.length, 'atualizados');
-  } catch(e) { console.error('[cache imoveis incremental]', e.message); }
+  } catch(e) { console.error('[cache imoveis incremental]', e.message); } finally {
+    _imoveisIncrementalEmExecucao = false;
+  }
 }
+let _exclusoesImoveisEmExecucao = false;
 async function _detectarExclusoesImoveis() {
+  if (_exclusoesImoveisEmExecucao) { console.log('[cache imoveis] checagem de exclusões anterior ainda rodando, pulando esta'); return; }
+  _exclusoesImoveisEmExecucao = true;
   try {
     if (!_cacheImoveis) return;
     const { query: _qDel } = require('./services/db');
@@ -3173,7 +3191,9 @@ async function _detectarExclusoesImoveis() {
     _cacheImoveis = _cacheImoveis.filter(i => idsAtuais.has(String(i.id)));
     const removidos = antes - _cacheImoveis.length;
     if (removidos > 0) console.log('[cache imoveis] exclusoes detectadas:', removidos);
-  } catch(e) { console.error('[cache imoveis exclusoes]', e.message); }
+  } catch(e) { console.error('[cache imoveis exclusoes]', e.message); } finally {
+    _exclusoesImoveisEmExecucao = false;
+  }
 }
 (function _agendarRecargaCompletaImoveis() {
   const agora = new Date();
@@ -3196,12 +3216,17 @@ setTimeout(() => {
 }, 3000);
 // Cache usuários
 let _cacheUsuarios = null;
+let _usuariosEmExecucao = false;
 async function _recarregarUsuarios() {
+  if (_usuariosEmExecucao) { console.log('[cache usuarios] execução anterior ainda rodando, pulando esta'); return; }
+  _usuariosEmExecucao = true;
   try {
     const { lerUsuarios: _luSvc } = require('./services/salvarUsuario');
     _cacheUsuarios = await _luSvc();
   } catch(e) {
     if (!_cacheUsuarios) _cacheUsuarios = fs.existsSync(dataPath('users.json')) ? (_cacheUsuarios || []) : [];
+  } finally {
+    _usuariosEmExecucao = false;
   }
 }
 setTimeout(() => { _recarregarUsuarios(); setInterval(_recarregarUsuarios, 15000); }, 6000);
@@ -3214,12 +3239,17 @@ function lerLeads(user) {
   return filtradas.filter(l => !(l.deletadoPor && l.deletadoPor.includes(uid)));
 }
 let _cacheVisitas = null;
+let _visitasEmExecucao = false;
 async function _recarregarVisitas() {
+  if (_visitasEmExecucao) { console.log('[cache visitas] execução anterior ainda rodando, pulando esta'); return; }
+  _visitasEmExecucao = true;
   try {
     const { lerVisitas: _lvSvc } = require('./services/salvarVisita');
     _cacheVisitas = await _lvSvc();
   } catch(e) {
     if (!_cacheVisitas) _cacheVisitas = (_cacheVisitas || []);
+  } finally {
+    _visitasEmExecucao = false;
   }
 }
 setTimeout(() => { _recarregarVisitas(); setInterval(_recarregarVisitas, 15000); }, 9000);

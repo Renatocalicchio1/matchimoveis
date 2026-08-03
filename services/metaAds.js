@@ -170,13 +170,15 @@ function montarTargeting(publico) {
     if (t.publisher_platforms.includes('messenger')) {
       t.messenger_positions = ['messenger_home'];
     }
+    // Só é exigido pelo Meta quando o posicionamento é manual (publisher_platforms
+    // setado) — nesse caso a API pede pra explicitar a sinalização do público
+    // Advantage ("defina advantage_audience como 1 ou 0 no campo
+    // targeting_automation"). Sem posicionamento manual, o Meta rejeita esse
+    // mesmo campo dizendo que foi removido e é aplicado automaticamente — por
+    // isso só entra dentro desse if. Corretor escolhe 0 (usa só o público
+    // configurado) ou 1 (Meta pode expandir automaticamente) na tela de criação.
+    t.targeting_automation = { advantage_audience: publico?.advantageAudience === 1 ? 1 : 0 };
   }
-  // targeting_automation/advantage_audience foi removido do campo pela Meta —
-  // erro real da API: "Não é necessário definir um valor para o campo
-  // targeting_optimization porque ele foi removido. O direcionamento
-  // detalhado Advantage será aplicado ao seu conjunto de anúncios." Meta
-  // aplica Advantage+ Detailed Targeting automaticamente agora, sem opção
-  // de desligar via API.
   return t;
 }
 

@@ -212,13 +212,20 @@
         </select>
       </div>
     </div>
-    <div class="mc-field" style="margin-bottom:0">
+    <div class="mc-field">
       <label class="mc-label">Onde anunciar</label>
       <div class="mc-plataformas">
         <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="facebook" checked> Facebook</label>
         <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="instagram" checked> Instagram</label>
         <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma" value="outros"> Outros locais (Rede de Audiência e Messenger)</label>
       </div>
+    </div>
+    <div class="mc-field" style="margin-bottom:0">
+      <label class="mc-label">Público Advantage</label>
+      <select class="mc-select" id="mc-advantage-audience" style="max-width:320px">
+        <option value="0" selected>Desativado — usa só o público configurado acima</option>
+        <option value="1">Ativado — Meta pode expandir o público automaticamente</option>
+      </select>
     </div>
   </div>
 </div>
@@ -406,13 +413,20 @@
               </select>
             </div>
           </div>
-          <div class="mc-field" style="margin-bottom:0">
+          <div class="mc-field">
             <label class="mc-label">Onde anunciar</label>
             <div class="mc-plataformas">
               <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma-edit" data-campanha="<%= c.id %>" value="facebook" <%= (!c.publico.plataformas || c.publico.plataformas.includes('facebook')) ? 'checked':'' %>> Facebook</label>
               <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma-edit" data-campanha="<%= c.id %>" value="instagram" <%= (!c.publico.plataformas || c.publico.plataformas.includes('instagram')) ? 'checked':'' %>> Instagram</label>
               <label class="mc-plataforma-item"><input type="checkbox" class="mc-plataforma-edit" data-campanha="<%= c.id %>" value="outros" <%= (c.publico.plataformas && (c.publico.plataformas.includes('audience_network')||c.publico.plataformas.includes('messenger'))) ? 'checked':'' %>> Outros locais (Rede de Audiência e Messenger)</label>
             </div>
+          </div>
+          <div class="mc-field" style="margin-bottom:0">
+            <label class="mc-label">Público Advantage</label>
+            <select class="mc-select" id="mc-editar-advantage-<%= c.id %>" style="max-width:320px">
+              <option value="0" <%= c.publico.advantageAudience===1?'':'selected' %>>Desativado — usa só o público configurado acima</option>
+              <option value="1" <%= c.publico.advantageAudience===1?'selected':'' %>>Ativado — Meta pode expandir o público automaticamente</option>
+            </select>
           </div>
         </div>
 
@@ -710,6 +724,7 @@ function salvarEdicaoCampanha(id){
     var plataformas = Array.prototype.slice.call(document.querySelectorAll('.mc-plataforma-edit[data-campanha="'+id+'"]:checked')).map(function(el){ return el.value; });
     if(!plataformas.length){ msgEl.textContent = 'Escolha ao menos um local pra anunciar.'; msgEl.style.color = '#dc2626'; return; }
     publico.plataformas = plataformas;
+    publico.advantageAudience = Number(document.getElementById('mc-editar-advantage-'+id).value) || 0;
   }
 
   var ctaEl = document.getElementById('mc-editar-cta-'+id);
@@ -799,6 +814,7 @@ function criarCampanha(){
     var plataformas = Array.prototype.slice.call(document.querySelectorAll('.mc-plataforma:checked')).map(function(el){ return el.value; });
     if(!plataformas.length){ msgEl.className='mc-msg err'; msgEl.textContent='Escolha ao menos um local pra anunciar.'; msgEl.style.display='block'; return; }
     publico.plataformas = plataformas;
+    publico.advantageAudience = Number(document.getElementById('mc-advantage-audience').value) || 0;
   }
 
   var body = {

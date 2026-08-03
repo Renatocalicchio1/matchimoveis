@@ -297,6 +297,14 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
           </div>
           <div style="font-size:13px;font-weight:700;color:var(--brand);white-space:nowrap">R$ <%= Number(m.valor_imovel||m.valor||0).toLocaleString('pt-BR') %></div>
         </a>
+        <% if(m.donoContato) { %>
+        <% const _linkDc1 = 'https://www.matchimoveis.ia.br/imovel/' + (m.idExterno||m.id||'') + '?userId=' + encodeURIComponent(m.donoContato.codigoUsuario||''); %>
+        <% const _msgDc1 = encodeURIComponent('Olá! Sou o corretor ' + (user.nome||'') + ', da MatchImóveis, tenho um cliente interessado neste imóvel: ' + _linkDc1 + '. Quero mais informações.'); %>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;margin:-6px 0 8px;background:#f0fdfa;border:1px solid #ccfbf1;border-radius:8px;font-size:11px">
+          <div style="color:#0f766e;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>Imóvel da rede</b> · <%= m.donoContato.nome %> · <%= m.donoContato.celular %></div>
+          <a href="https://wa.me/55<%= (m.donoContato.celular||'').replace(/\D/g,'') %>?text=<%= _msgDc1 %>" target="_blank" style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:#25D366;color:#fff;font-weight:600;text-decoration:none">WhatsApp</a>
+        </div>
+        <% } %>
         <% }) %>
       <% } %>
     </div>
@@ -321,6 +329,14 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
           <div style="font-size:11px;color:var(--text-sec)">R$ <%= Number(m.valor_imovel||m.valor||0).toLocaleString('pt-BR') %></div>
         </div>
       </a>
+      <% if(m.donoContato) { %>
+      <% const _linkDc2 = 'https://www.matchimoveis.ia.br/imovel/' + (m.id_interno||m.id_externo||m.idInterno||m.id||'') + '?userId=' + encodeURIComponent(m.donoContato.codigoUsuario||''); %>
+      <% const _msgDc2 = encodeURIComponent('Olá! Sou o corretor ' + (user.nome||'') + ', da MatchImóveis, tenho um cliente interessado neste imóvel: ' + _linkDc2 + '. Quero mais informações.'); %>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;margin:-6px 0 8px;background:#f0fdfa;border:1px solid #ccfbf1;border-radius:8px;font-size:11px">
+        <div style="color:#0f766e;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>Imóvel da rede</b> · <%= m.donoContato.nome %> · <%= m.donoContato.celular %></div>
+        <a href="https://wa.me/55<%= (m.donoContato.celular||'').replace(/\D/g,'') %>?text=<%= _msgDc2 %>" target="_blank" style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:#25D366;color:#fff;font-weight:600;text-decoration:none">WhatsApp</a>
+      </div>
+      <% } %>
       <% }) %>
     </div>
     <% } %>
@@ -338,6 +354,14 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
         </div>
         <div style="font-size:13px;font-weight:700;color:var(--brand);white-space:nowrap">R$ <%= Number(g.valor_imovel||0).toLocaleString('pt-BR') %></div>
       </a>
+      <% if(g.donoContato) { %>
+      <% const _linkDc3 = 'https://www.matchimoveis.ia.br/imovel/' + (g.idExterno||g.idInterno||g.id||'') + '?userId=' + encodeURIComponent(g.donoContato.codigoUsuario||''); %>
+      <% const _msgDc3 = encodeURIComponent('Olá! Sou o corretor ' + (user.nome||'') + ', da MatchImóveis, tenho um cliente interessado neste imóvel: ' + _linkDc3 + '. Quero mais informações.'); %>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;margin:-6px 0 8px;background:#f0fdfa;border:1px solid #ccfbf1;border-radius:8px;font-size:11px">
+        <div style="color:#0f766e;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>Imóvel da rede</b> · <%= g.donoContato.nome %> · <%= g.donoContato.celular %></div>
+        <a href="https://wa.me/55<%= (g.donoContato.celular||'').replace(/\D/g,'') %>?text=<%= _msgDc3 %>" target="_blank" style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:#25D366;color:#fff;font-weight:600;text-decoration:none">WhatsApp</a>
+      </div>
+      <% } %>
       <% }) %>
     </div>
     <% } %>

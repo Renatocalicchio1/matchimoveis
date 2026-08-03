@@ -2461,6 +2461,7 @@ function _registrarGostei(lead, imovelObj) {
     cidade: imovelObj.cidade || '',
     valor_imovel: imovelObj.valor_imovel || imovelObj.valor || 0,
     foto: (imovelObj.fotos && imovelObj.fotos[0]) || '',
+    userId: imovelObj.userId || imovelObj.user_id || imovelObj.usuarioId || imovelObj.codigoUsuario || '',
     clicadoEm: new Date().toISOString()
   });
   const _uidGostei = lead.userId || lead.codigoUsuario || lead.user_id || '';
@@ -8076,6 +8077,15 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     const { gerarSugestoes } = require('./cerebro/copiloto');
     sugestoesCopiloto = gerarSugestoes(lead);
   } catch(e) { console.error('copiloto erro:', e.message); }
+
+  // Contato do corretor responsável (imóvel da rede) — pros cards de match/gostei
+  const _uidLogadoLead = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+  const _donoUidDe = (o) => o.userId || o.user_id || o.usuarioId || o.codigoUsuario || o.codigo_usuario || o.corretorId || '';
+  [lead.matches, lead.matchesAuto, lead.imoveisGostei].forEach(arr => {
+    if (!Array.isArray(arr)) return;
+    arr.forEach(item => { item.donoContato = _resolverDonoContato(_donoUidDe(item), _uidLogadoLead); });
+  });
+
   res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados });
 });
 // Dono real do imóvel = mesmo critério usado em lerImoveis()/salvarImovel.js — userId/usuarioId/codigoUsuario/corretorId
@@ -8085,6 +8095,16 @@ function _ehDonoDoImovel(imovel, user) {
     String(imovel.usuarioId||'') === uid ||
     String(imovel.codigoUsuario||'') === uid ||
     String(imovel.corretorId||'') === uid;
+}
+
+// Contato do corretor responsável por um imóvel que não é do usuário logado (imóvel da rede) —
+// mesmo critério usado em /app/imovel/:id (donoContato); reaproveitado nos cards de match/gostei
+// da tela de detalhe da lead.
+function _resolverDonoContato(donoUid, uidLogado) {
+  if (!donoUid || String(donoUid) === String(uidLogado)) return null;
+  const donoUser = (_cacheUsuarios || []).find(u => String(u.codigoUsuario || u.id) === String(donoUid));
+  if (!donoUser || !(donoUser.celular || donoUser.telefone)) return null;
+  return { nome: donoUser.nome || 'Corretor parceiro', celular: donoUser.celular || donoUser.telefone, codigoUsuario: donoUser.codigoUsuario || donoUser.id };
 }
 
 app.get('/app/imovel/:id', auth, (req, res) => {

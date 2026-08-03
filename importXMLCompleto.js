@@ -283,7 +283,22 @@ async function run() {
   let xml;
   if(XML_URL.startsWith('http://') || XML_URL.startsWith('https://')){
     console.log('⬇️  Baixando XML da URL...');
-    const res = await axios.get(XML_URL, { headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" }, timeout: 120000 });
+    const _origemUrl = new URL(XML_URL).origin;
+    const res = await axios.get(XML_URL, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/xml,text/xml,*/*",
+        "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+        "Referer": _origemUrl + "/",
+      },
+      timeout: 120000,
+      validateStatus: () => true,
+    });
+    console.log('[importXML] HTTP status:', res.status, '| content-type:', res.headers['content-type'], '| tamanho:', String(res.data||'').length);
+    if (res.status !== 200) {
+      console.error('[importXML] Resposta não-200 ao baixar XML — provável bloqueio (bot/WAF) do servidor de origem.');
+      console.log('[importXML] Trecho da resposta:', String(res.data||'').slice(0, 500));
+    }
     xml = res.data;
   } else {
     console.log('📂 Lendo XML do arquivo local:', XML_URL);
@@ -311,8 +326,14 @@ async function run() {
     json?.Listings?.Listing ||
     [];
 
-  const arr = Array.isArray(listings) ? listings : [listings];
+  const arr = Array.isArray(listings) ? listings : (listings ? [listings] : []);
   console.log('🏠 Imóveis no XML:', arr.length);
+  if (arr.length === 0) {
+    console.error('[importXML] Nenhum <Listing> encontrado. Estrutura raiz do XML recebido:', JSON.stringify(Object.keys(json||{})));
+    const _raizChave = Object.keys(json||{})[0];
+    if (_raizChave) console.error('[importXML] Chaves dentro de <' + _raizChave + '>:', JSON.stringify(Object.keys(json[_raizChave]||{})));
+    console.error('[importXML] Trecho bruto do XML recebido:', String(xml||'').slice(0, 500));
+  }
 
   const novos = arr.map(parseListing).filter(Boolean);
 

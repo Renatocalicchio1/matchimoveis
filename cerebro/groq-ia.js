@@ -48,29 +48,13 @@ ${ctx.topBairros||'sem dados'}
 TIPOS MAIS BUSCADOS:
 ${ctx.topTipos||'sem dados'}
 
-${ctxGroq ? ctxGroq.slice(0,8000) : ''}
+${/* limite bem folgado (~20k chars = ~5k tokens) pro modelo llama-3.1-8b-instant,
+   que suporta contexto bem maior — cerebro.js é a fonte única de conhecimento
+   da plataforma, não duplicar texto aqui nunca mais */ ''}${ctxGroq ? ctxGroq.slice(0,20000) : ''}
 
 ${ctx.feedbacks ? ctx.feedbacks.slice(0,500) : ''}
 
-MENUS: Dashboard, Meus Imóveis, Leads (+ Planilha de Leads), Visitas, Captação, Parceiros, Notificações, Cadastrar Imóvel, Portais, Assistente, Mapa, Perfil, Créditos, Indicar Parceiro, Parceria QuintoAndar, Feed, Redes Sociais (Posts — publicar no Instagram), Criar Campanha (Meta Ads), Meu Site (domínio próprio).
-PUBLICAR NO INSTAGRAM: sim, o MatchImóveis publica direto no Instagram — não precisa exportar XML nem usar ferramenta externa. Corretor conecta a conta uma vez em Perfil → Conectar Instagram, depois vai em Redes Sociais → Posts, escolhe o imóvel (ou várias fotos), gera legenda com IA ou escreve a sua, e publica ou agenda.
-CRIAR CAMPANHA PAGA (META ADS): Perfil → Conectar Meta (1ª vez) → Redes Sociais → Criar Campanha → escolhe imóvel, objetivo (formulário de leads, tráfego pro site ou clique-para-WhatsApp), orçamento e público. Fica pausada até o corretor ativar no Gerenciador de Anúncios do Meta.
-PORTAIS DISPONÍVEIS (apenas estes 6): ZAP Imóveis, VivaReal, OLX, Chaves na Mão, 123i, ImovelWeb. Acesse em Portais no menu.
-QUINTOANDAR — 2 tipos de parceria:
-1) ENVIAR IMÓVEIS: corretor ativa o toggle no Perfil e seus imóveis elegíveis são enviados ao feed XML do QuintoAndar. Se o QuintoAndar vender, corretor recebe até 25% da comissão.
-2) CARTEIRA QUINTOANDAR: corretor solicita acesso à carteira de imóveis do QuintoAndar. O MatchImóveis faz o match dos leads do corretor com os imóveis do QuintoAndar. Se o corretor vender, recebe 50% da comissão — os outros 50% ficam com o QuintoAndar. Acesse em Parceria QuintoAndar no menu.
-IMPORTAR IMÓVEIS: Acesse Cadastrar Imóvel no menu → cole a URL do XML (padrão VRSync do VivaReal) → clique em Testar (valida o feed) → clique em Importar. O botão Testar existe sim, assim como Gerar XML (na página Portais).
-EXPORTAR IMÓVEIS PARA PORTAIS PARCEIROS: Na página de Imóveis, selecione os imóveis desejados clicando neles (ou edite um por vez na página de edição) → use a opção Exportar XML. O XML gerado pode ser levado para portais parceiros.
-CAPTAÇÃO: página que lista leads que indicaram ter um imóvel próprio pra anunciar, vindas do link público de captação do corretor (compartilhável via WhatsApp).
-PLANILHA DE LEADS: dentro de Leads, visão em formato de tabela com filtros por origem/status/data e exportação para Excel — separada do kanban.
-INDICAR PARCEIRO: cada corretor tem um link próprio (com ?ref=código). Corretor indicado que se cadastra por esse link fica vinculado pra sempre. O indicador ganha 10% de bônus em créditos toda vez que o indicado faz uma recarga real.
-CONCEITOS: Match=cruzar lead+imóvel por transação+tipo+estado+cidade+bairro+valor(-20%/+20%)+quartos(exato). Vitrine=link WA com imóveis. Temperatura:frio>morno>quente. Funil:novo>contato>visita>proposta>fechado.
-STATUS DE LEADS: novo, qualificando, vitrine_enviada, visita_agendada, proposta, fechado, arquivado.
-STATUS DE VISITAS: solicitada (lead pediu), lead_confirmou (lead confirmou presença), aguard_cliente (corretor confirmou, aguarda lead), remarcacao (remarcando data), realizada, cancelada, imovel_indisponivel.
-STATUS DE IMÓVEIS: ativo, inativo, pendente.
-NOTIFICAÇÕES: match (novo match encontrado), nova_visita (visita solicitada), saldo_baixo (coins acabando), saldo_zerado (conta pausada).
-CRÉDITOS (Match Coins): R$50 mínimo = 1.000 coins (R$1 = 20 coins). Os valores abaixo são em COINS, NÃO em reais. NUNCA diga "R$" ao falar de consumo de coins. Valores EXATOS em COINS: cadastrar imóvel=15 coins, editar imóvel=0 coins (grátis), importar XML=2 coins por imóvel, gerar XML portal=10 coins, lead ativo por dia=0.2 coins, qualificar lead via IA=30 coins, match encontrado=20 coins, vitrine WhatsApp=30 coins, IA responde WA=30 coins, follow-up automático=25 coins, visita agendada pela IA=40 coins, notificação proprietário=15 coins, confirmação automática=15 coins, nova lead=20 coins, importar lead planilha=10 coins. Para recarregar: Créditos no menu → valor em reais (mínimo R$50) → Adicionar créditos.
-REGRAS: Português BR. MUITO direto, máx 2 linhas. Negrito para números. Nunca invente dados. Nunca cite URLs técnicas, use nome do menu. Sem enrolação.`;
+REGRAS: Português BR. MUITO direto, máx 2 linhas. Negrito para números. Nunca invente dados — se a página/fluxo não estiver nas seções acima, diga que não sabe em vez de inventar. Nunca cite URLs técnicas, use nome do menu. Sem enrolação. Nunca diga "R$" ao falar de consumo de coins — coins e reais são unidades diferentes.`;
 
     const messages = [{ role: 'system', content: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }] }];
 

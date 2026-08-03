@@ -300,15 +300,31 @@ const contextoGroq = {
     { titulo: 'Criar campanha paga (Meta Ads)', passos: ['Perfil → Conectar conta do Meta (só na 1ª vez) → Redes Sociais → Criar Campanha → escolher imóvel, objetivo (formulário de leads, tráfego pro site ou WhatsApp), orçamento e público → Criar campanha (fica pausada, você revisa e ativa no Gerenciador de Anúncios do Meta)'] },
     { titulo: 'Configurar domínio próprio (Meu Site)', passos: ['Meu Site → personalizar cores/logo → seção de domínio próprio → seguir as instruções de DNS mostradas na tela'] },
   ],
+  // Fonte única de conhecimento do assistente sobre a plataforma — groq-ia.js
+  // NÃO duplica nada disso no system prompt, só injeta esse objeto inteiro via
+  // contexto-groq.json. Toda vez que uma rota/feature nova entrar pro corretor,
+  // atualizar aqui (rotas + fluxos + conceitos) e rodar `node cerebro.js`.
   conceitos: {
     match: 'Cruzamento automático lead × imóvel por transação + tipo + estado + cidade + bairro + valor (-20%/+20%) + quartos (exato)',
     vitrine: 'Página exclusiva enviada ao lead com imóveis em match',
-    coins: 'Créditos: cadastrar imóvel=15, match encontrado=20, vitrine WA=30, IA responde WA=30, importar XML=2/imóvel. R$1=20 coins, mínimo R$50 (=1.000 coins)',
     temperatura: 'frio → morno → quente (conforme engajamento)',
     caso1: 'Lead clicou num imóvel específico (imóvel âncora) → busca imóveis parecidos, âncora sempre no topo',
     caso2: 'Lead com perfil de busca (sem imóvel específico) → busca por perfil completo (transação+tipo+cidade+bairro+valor+quartos)',
-    instagram: 'Publicação no Instagram é feita pelo próprio MatchImóveis (Redes Sociais → Posts) — não precisa exportar XML nem usar ferramenta externa. Corretor conecta a conta uma vez no Perfil.',
-    meta_ads: 'Campanha paga no Facebook/Instagram criada direto no MatchImóveis (Redes Sociais → Criar Campanha), sempre criada pausada pro corretor revisar antes de ativar.',
+    instagram: 'Publicação no Instagram é feita pelo próprio MatchImóveis (Redes Sociais → Posts) — não precisa exportar XML nem usar ferramenta externa. Corretor conecta a conta uma vez no Perfil → Conectar Instagram, depois escolhe o imóvel (ou várias fotos), gera legenda com IA ou escreve a sua, e publica ou agenda.',
+    meta_ads: 'Campanha paga no Facebook/Instagram criada direto no MatchImóveis (Redes Sociais → Criar Campanha) — corretor conecta a conta do Meta uma vez, escolhe imóvel, objetivo (formulário de leads, tráfego pro site ou clique-para-WhatsApp), orçamento e público. Sempre criada pausada pro corretor revisar e ativar no Gerenciador de Anúncios do Meta.',
+    menus: 'Dashboard, Meus Imóveis, Leads (+ Planilha de Leads), Visitas, Captação, Parceiros, Notificações, Cadastrar Imóvel, Portais, Assistente, Mapa, Perfil, Créditos, Indicar Parceiro, Parceria QuintoAndar, Feed, Redes Sociais (Posts — publicar no Instagram), Criar Campanha (Meta Ads), Meu Site (domínio próprio)',
+    portais_disponiveis: 'Apenas estes 6: ZAP Imóveis, VivaReal, OLX, Chaves na Mão, 123i, ImovelWeb. Acesse em Portais no menu.',
+    quintoandar_parceria: '2 tipos: 1) ENVIAR IMÓVEIS — corretor ativa o toggle no Perfil e seus imóveis elegíveis são enviados ao feed XML do QuintoAndar; se o QuintoAndar vender, corretor recebe até 25% da comissão. 2) CARTEIRA QUINTOANDAR — corretor solicita acesso à carteira de imóveis do QuintoAndar, o MatchImóveis faz o match dos leads do corretor com os imóveis do QuintoAndar; se o corretor vender, recebe 50% da comissão (os outros 50% ficam com o QuintoAndar). Acesse em Parceria QuintoAndar no menu.',
+    importar_imoveis: 'Acesse Cadastrar Imóvel no menu → cole a URL do XML (padrão VRSync do VivaReal) → clique em Testar (valida o feed) → clique em Importar. O botão Testar existe sim, assim como Gerar XML (na página Portais).',
+    exportar_portais: 'Na página de Imóveis, selecione os imóveis desejados clicando neles (ou edite um por vez na página de edição) → use a opção Exportar XML. O XML gerado pode ser levado para portais parceiros.',
+    captacao: 'Página que lista leads que indicaram ter um imóvel próprio pra anunciar, vindas do link público de captação do corretor (compartilhável via WhatsApp).',
+    planilha_leads: 'Dentro de Leads, visão em formato de tabela com filtros por origem/status/data e exportação para Excel — separada do kanban.',
+    indicar_parceiro: 'Cada corretor tem um link próprio (com ?ref=código). Corretor indicado que se cadastra por esse link fica vinculado pra sempre. O indicador ganha 10% de bônus em créditos toda vez que o indicado faz uma recarga real.',
+    status_leads: 'novo, qualificando, vitrine_enviada, visita_agendada, proposta, fechado, arquivado',
+    status_visitas: 'solicitada (lead pediu), lead_confirmou (lead confirmou presença), aguard_cliente (corretor confirmou, aguarda lead), remarcacao (remarcando data), realizada, cancelada, imovel_indisponivel',
+    status_imoveis: 'ativo, inativo, pendente',
+    notificacoes: 'match (novo match encontrado), nova_visita (visita solicitada), saldo_baixo (coins acabando), saldo_zerado (conta pausada)',
+    coins: 'CRÉDITOS (Match Coins) — R$50 mínimo = 1.000 coins (R$1 = 20 coins). Valores em COINS, NÃO em reais — nunca diga "R$" ao falar de consumo de coins. Valores exatos em coins: cadastrar imóvel=15, editar imóvel=0 (grátis), importar XML=2/imóvel, gerar XML portal=10, lead ativo/dia=0.2, qualificar lead via IA=30, match encontrado=20, vitrine WhatsApp=30, IA responde WA=30, follow-up automático=25, visita agendada pela IA=40, notificação proprietário=15, confirmação automática=15, nova lead=20, importar lead planilha=10. Para recarregar: Créditos no menu → valor em reais (mínimo R$50) → Adicionar créditos.',
   }
 };
 

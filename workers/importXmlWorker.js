@@ -20,6 +20,12 @@ async function run() {
   } catch(e) {
     await atualizarJob(jobId, { status: 'erro', erro: e.message });
     parentPort.postMessage({ tipo: 'erro', msg: e.message });
+  } finally {
+    // Limpa o arquivo temporário de upload (só se for um caminho local, não uma URL)
+    try {
+      const fs = require('fs');
+      if (!/^https?:\/\//.test(xmlUrl) && fs.existsSync(xmlUrl)) fs.unlinkSync(xmlUrl);
+    } catch(e) {}
   }
 }
 

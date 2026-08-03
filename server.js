@@ -8796,7 +8796,10 @@ app.post('/app/importar-xml-upload', async (req, res) => {
       const { dispararWorkerXml: _dwX3 } = require('./services/workerDispatch');
       const _jobIdX3 = await _cjX3('xml', userId, xmlPath);
       _dwX3(_jobIdX3, xmlPath, userId);
-      fs.unlinkSync(xmlPath);
+      // Não apagar o arquivo aqui — o worker roda em background e ainda vai lê-lo;
+      // apagar na hora causava "Arquivo não encontrado" dentro do worker (import
+      // falhava silenciosamente mesmo com essa resposta dizendo sucesso). A limpeza
+      // agora é feita pelo próprio worker depois que termina de importar.
       res.json({ ok: true, mensagem: 'XML importado com sucesso!' });
     } catch(e) {
       res.json({ ok: false, erro: e.message });

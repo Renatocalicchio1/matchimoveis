@@ -8081,9 +8081,15 @@ app.get('/app/lead/:id', auth, async (req, res) => {
   // Contato do corretor responsável (imóvel da rede) — pros cards de match/gostei
   const _uidLogadoLead = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
   const _donoUidDe = (o) => o.userId || o.user_id || o.usuarioId || o.codigoUsuario || o.codigo_usuario || o.corretorId || '';
-  [lead.matches, lead.matchesAuto, lead.imoveisGostei].forEach(arr => {
+  [['matches',lead.matches], ['matchesAuto',lead.matchesAuto], ['imoveisGostei',lead.imoveisGostei]].forEach(([label, arr]) => {
     if (!Array.isArray(arr)) return;
-    arr.forEach(item => { item.donoContato = _resolverDonoContato(_donoUidDe(item), _uidLogadoLead); });
+    arr.forEach(item => {
+      const donoUid = _donoUidDe(item);
+      item.donoContato = _resolverDonoContato(donoUid, _uidLogadoLead);
+      if (!item.donoContato && donoUid && String(donoUid) !== String(_uidLogadoLead)) {
+        console.log(`[donoContato] ${label} | imovel:${item.id||item.idExterno||''} | donoUid:${donoUid} | uidLogado:${_uidLogadoLead} | usuarioEncontrado:${(_cacheUsuarios||[]).some(u=>String(u.codigoUsuario||u.id)===String(donoUid))}`);
+      }
+    });
   });
 
   res.render('app-lead-detalhe', { user: req.session.user, lead, visitasDaLead, matchesInternos, sugestoesCopiloto, imoveisRelacionados });
@@ -8103,8 +8109,8 @@ function _ehDonoDoImovel(imovel, user) {
 function _resolverDonoContato(donoUid, uidLogado) {
   if (!donoUid || String(donoUid) === String(uidLogado)) return null;
   const donoUser = (_cacheUsuarios || []).find(u => String(u.codigoUsuario || u.id) === String(donoUid));
-  if (!donoUser || !(donoUser.celular || donoUser.telefone)) return null;
-  return { nome: donoUser.nome || 'Corretor parceiro', celular: donoUser.celular || donoUser.telefone, codigoUsuario: donoUser.codigoUsuario || donoUser.id };
+  if (!donoUser) return null;
+  return { nome: donoUser.nome || 'Corretor parceiro', celular: donoUser.celular || donoUser.telefone || '', codigoUsuario: donoUser.codigoUsuario || donoUser.id };
 }
 
 app.get('/app/imovel/:id', auth, (req, res) => {

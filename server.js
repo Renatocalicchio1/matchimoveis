@@ -5095,30 +5095,62 @@ async function _cruzarImovelWebhook(lead, userId) {
 
 // Toda lead de webhook de portal com cidade = São Paulo também vira uma lead na conta TIA-A6PG
 // (perfil de busca — não amarrada ao anúncio original, que é de outra conta)
+// Contador persistente genérico (sobrevive restart do processo) — usado pra
+// controlar proporções tipo "a cada N eventos, faz 1 ação". UPSERT atômico via
+// ON CONFLICT, sem race condition entre chamadas concorrentes.
+let _contadorTabelaPronta = false;
+async function _proximoContador(chave) {
+  const { query } = require('./services/db');
+  if (!_contadorTabelaPronta) {
+    await query(`CREATE TABLE IF NOT EXISTS contadores_sistema (chave TEXT PRIMARY KEY, valor INTEGER NOT NULL DEFAULT 0)`);
+    _contadorTabelaPronta = true;
+  }
+  const r = await query(
+    `INSERT INTO contadores_sistema (chave, valor) VALUES ($1, 1)
+     ON CONFLICT (chave) DO UPDATE SET valor = contadores_sistema.valor + 1
+     RETURNING valor`,
+    [chave]
+  );
+  return r.rows[0].valor;
+}
+
+// Duplica leads de São Paulo pra 2 contas: TIA-A6PG recebe cópia de TODAS,
+// ALE-ZVA9 recebe cópia de 1 a cada 2 (contador persistente controla a
+// proporção). Chamado pelos 5 webhooks de portal.
 async function _duplicarLeadSaoPauloTIA(leadOriginal, cidade, mensagem) {
   try {
     const TIA = 'TIA-A6PG';
+    const ALE = 'ALE-ZVA9';
     const donoOriginal = String(leadOriginal.userId || leadOriginal.codigoUsuario || leadOriginal.user_id || '');
-    if (!donoOriginal || donoOriginal === TIA) return;
+    if (!donoOriginal) return;
     const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
     if (norm(cidade) !== 'sao paulo') return;
 
     const { salvarLead: _slDupTIA } = require('./services/salvarLead');
-    const leadDup = {
-      ...leadOriginal,
-      id: Date.now().toString() + Math.random().toString(36).substr(2,5),
-      userId: TIA, codigoUsuario: TIA, user_id: TIA,
-      criadoEm: new Date().toISOString(),
-      matches: [], matchesAuto: [], matchesBase: [],
-      idAnuncio: '', imovelInteresse: '', imovelId: '',
+    const _duplicarPara = async (destino) => {
+      const leadDup = {
+        ...leadOriginal,
+        id: Date.now().toString() + Math.random().toString(36).substr(2,5),
+        userId: destino, codigoUsuario: destino, user_id: destino,
+        criadoEm: new Date().toISOString(),
+        matches: [], matchesAuto: [], matchesBase: [],
+        idAnuncio: '', imovelInteresse: '', imovelId: '',
+      };
+      await _slDupTIA(leadDup);
+      console.log('[DUP-SP] lead duplicada p/', destino, '| origem:', donoOriginal, '| tel:', leadDup.telefone);
+      _notificarNovaLead(destino, leadDup.id, leadDup.nome, leadDup.origem || 'Portal');
+      try {
+        const matchCore = require('./cerebro/match-core');
+        await matchCore.processar({ lead: { ...leadDup }, mensagem: mensagem || '', canal: 'portal', userId: destino });
+      } catch(e) { console.error('[DUP-SP] erro match', destino, ':', e.message); }
     };
-    await _slDupTIA(leadDup);
-    console.log('[DUP-SP-TIA] lead duplicada p/ TIA-A6PG | origem:', donoOriginal, '| tel:', leadDup.telefone);
-    _notificarNovaLead(TIA, leadDup.id, leadDup.nome, leadDup.origem || 'Portal');
-    try {
-      const matchCore = require('./cerebro/match-core');
-      await matchCore.processar({ lead: { ...leadDup }, mensagem: mensagem || '', canal: 'portal', userId: TIA });
-    } catch(e) { console.error('[DUP-SP-TIA] erro match:', e.message); }
+
+    if (donoOriginal !== TIA) await _duplicarPara(TIA);
+
+    if (donoOriginal !== ALE) {
+      const n = await _proximoContador('dup_sp_ale_zva9');
+      if (n % 2 === 0) await _duplicarPara(ALE); // a cada 2 leads de SP geradas, 1 vai pra ALE-ZVA9
+    }
   } catch(e) { console.error('[DUP-SP-TIA] erro:', e.message); }
 }
 

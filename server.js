@@ -8085,8 +8085,9 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     if (!Array.isArray(arr)) return;
     arr.forEach(item => {
       const donoUid = _donoUidDe(item);
+      item.imovelProprio = !!donoUid && String(donoUid) === String(_uidLogadoLead);
       item.donoContato = _resolverDonoContato(donoUid, _uidLogadoLead);
-      if (!item.donoContato && donoUid && String(donoUid) !== String(_uidLogadoLead)) {
+      if (!item.donoContato && donoUid && !item.imovelProprio) {
         console.log(`[donoContato] ${label} | imovel:${item.id||item.idExterno||''} | donoUid:${donoUid} | uidLogado:${_uidLogadoLead} | usuarioEncontrado:${(_cacheUsuarios||[]).some(u=>String(u.codigoUsuario||u.id)===String(donoUid))}`);
       }
     });

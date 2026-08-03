@@ -304,6 +304,8 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
           <div style="color:#0f766e;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>Imóvel da rede</b> · <%= m.donoContato.nome %><%= m.donoContato.celular ? (' · '+m.donoContato.celular) : ' · sem celular cadastrado' %></div>
           <% if(m.donoContato.celular) { %><a href="https://wa.me/55<%= m.donoContato.celular.replace(/\D/g,'') %>?text=<%= _msgDc1 %>" target="_blank" style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:#25D366;color:#fff;font-weight:600;text-decoration:none">WhatsApp</a><% } %>
         </div>
+        <% } else if(m.imovelProprio) { %>
+        <div style="padding:6px 10px;margin:-6px 0 8px;background:#f9fafb;border:1px solid var(--border-light);border-radius:8px;font-size:11px;color:var(--text-sec)"><b>Imóvel da sua conta</b></div>
         <% } %>
         <% }) %>
       <% } %>
@@ -336,6 +338,8 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
         <div style="color:#0f766e;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>Imóvel da rede</b> · <%= m.donoContato.nome %><%= m.donoContato.celular ? (' · '+m.donoContato.celular) : ' · sem celular cadastrado' %></div>
         <% if(m.donoContato.celular) { %><a href="https://wa.me/55<%= m.donoContato.celular.replace(/\D/g,'') %>?text=<%= _msgDc2 %>" target="_blank" style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:#25D366;color:#fff;font-weight:600;text-decoration:none">WhatsApp</a><% } %>
       </div>
+      <% } else if(m.imovelProprio) { %>
+      <div style="padding:6px 10px;margin:-6px 0 8px;background:#f9fafb;border:1px solid var(--border-light);border-radius:8px;font-size:11px;color:var(--text-sec)"><b>Imóvel da sua conta</b></div>
       <% } %>
       <% }) %>
     </div>
@@ -361,6 +365,8 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
         <div style="color:#0f766e;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>Imóvel da rede</b> · <%= g.donoContato.nome %><%= g.donoContato.celular ? (' · '+g.donoContato.celular) : ' · sem celular cadastrado' %></div>
         <% if(g.donoContato.celular) { %><a href="https://wa.me/55<%= g.donoContato.celular.replace(/\D/g,'') %>?text=<%= _msgDc3 %>" target="_blank" style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:#25D366;color:#fff;font-weight:600;text-decoration:none">WhatsApp</a><% } %>
       </div>
+      <% } else if(g.imovelProprio) { %>
+      <div style="padding:6px 10px;margin:-6px 0 8px;background:#f9fafb;border:1px solid var(--border-light);border-radius:8px;font-size:11px;color:var(--text-sec)"><b>Imóvel da sua conta</b></div>
       <% } %>
       <% }) %>
     </div>

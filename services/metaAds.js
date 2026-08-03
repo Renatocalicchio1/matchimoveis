@@ -171,10 +171,12 @@ function montarTargeting(publico) {
       t.messenger_positions = ['messenger_home'];
     }
   }
-  // Exigido pelo Meta desde 2025 — desliga a expansão automática de público
-  // (Advantage Audience) pra respeitar exatamente o raio/idade/gênero/interesses
-  // configurados pelo corretor, sem o Meta ampliar por conta própria
-  t.targeting_automation = { advantage_audience: 0 };
+  // targeting_automation/advantage_audience foi removido do campo pela Meta —
+  // erro real da API: "Não é necessário definir um valor para o campo
+  // targeting_optimization porque ele foi removido. O direcionamento
+  // detalhado Advantage será aplicado ao seu conjunto de anúncios." Meta
+  // aplica Advantage+ Detailed Targeting automaticamente agora, sem opção
+  // de desligar via API.
   return t;
 }
 

@@ -40,34 +40,67 @@ async function _inicializar() {
   `);
   await query(`CREATE INDEX IF NOT EXISTS idx_disparos_contatos_campanha ON disparos_contatos(campanha_id)`);
   await query(`CREATE INDEX IF NOT EXISTS idx_disparos_contatos_status ON disparos_contatos(campanha_id, status)`);
+  // corretor_user_id: pra quem os botões de link "Sim, eu tenho!"/"Quero ajuda pra
+  // cadastrar!" apontam (/captar/{corretor_user_id}?tel={telefone}) — nulo pra
+  // campanhas sem botão de URL dinâmica (só corpo de texto).
+  await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS corretor_user_id TEXT`);
+  // Telefones que clicaram "Não tenho imóvel" (resposta rápida) no webhook do Cloud
+  // API — opt-out global, não fica preso a campanha/corretor específico porque a
+  // planilha de disparo não tem dono.
+  await query(`
+    CREATE TABLE IF NOT EXISTS disparos_optout (
+      telefone TEXT PRIMARY KEY,
+      origem TEXT,
+      criado_em TIMESTAMP DEFAULT NOW()
+    )
+  `);
 }
 
-async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapeamentoVariaveis, delayMs, criadoPor }) {
+async function marcarOptout(telefone, origem) {
+  await _inicializar();
+  await query(
+    `INSERT INTO disparos_optout (telefone, origem) VALUES ($1,$2) ON CONFLICT (telefone) DO NOTHING`,
+    [telefone, origem || '']
+  );
+}
+
+async function listarOptout(telefones) {
+  await _inicializar();
+  if (!telefones || !telefones.length) return [];
+  const { rows } = await query(`SELECT telefone FROM disparos_optout WHERE telefone = ANY($1)`, [telefones]);
+  return rows.map(r => r.telefone);
+}
+
+async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId }) {
   await _inicializar();
   const id = uuidv4();
   await query(
-    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, mapeamento_variaveis, delay_ms, criado_por)
-     VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-    [id, nomeCampanha, templateNome, templateIdioma, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '']
+    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+    [id, nomeCampanha, templateNome, templateIdioma, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null]
   );
   return id;
 }
 
 async function inserirContatos(campanhaId, contatos) {
   await _inicializar();
-  let inseridos = 0;
+  const telefones = [...new Set(contatos.map(c => c.telefone).filter(Boolean))];
+  const optados = new Set(await listarOptout(telefones));
+  let inseridos = 0, optout = 0;
   for (const c of contatos) {
     if (!c.telefone) continue;
+    const emOptout = optados.has(c.telefone);
     await query(
-      `INSERT INTO disparos_contatos (id, campanha_id, nome, telefone, variaveis) VALUES ($1,$2,$3,$4,$5)`,
-      [uuidv4(), campanhaId, c.nome || '', c.telefone, JSON.stringify(c.variaveis || {})]
+      `INSERT INTO disparos_contatos (id, campanha_id, nome, telefone, variaveis, status) VALUES ($1,$2,$3,$4,$5,$6)`,
+      [uuidv4(), campanhaId, c.nome || '', c.telefone, JSON.stringify(c.variaveis || {}), emOptout ? 'optout' : 'pendente']
     );
     inseridos++;
+    if (emOptout) optout++;
   }
   if (inseridos > 0) {
     await query(`UPDATE disparos_campanhas SET total_contatos = total_contatos + $1 WHERE id=$2`, [inseridos, campanhaId]);
   }
-  return inseridos;
+  return { inseridos, optout };
 }
 
 async function atualizarCampanha(id, dados) {
@@ -159,5 +192,7 @@ module.exports = {
   listarContatos,
   proximoLotePendente,
   marcarContato,
-  statsCampanha
+  statsCampanha,
+  marcarOptout,
+  listarOptout
 };

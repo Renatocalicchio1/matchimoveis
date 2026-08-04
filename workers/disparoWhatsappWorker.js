@@ -1,6 +1,6 @@
 const { workerData, parentPort } = require('worker_threads');
 const { buscarCampanha, atualizarCampanha, incrementarContador, proximoLotePendente, marcarContato } = require('../services/salvarDisparo');
-const { enviarTemplate } = require('../services/metaWhatsapp');
+const { enviarTemplate, _normalizarTelefone } = require('../services/metaWhatsapp');
 
 const MAX_TENTATIVAS = 3;
 
@@ -11,13 +11,21 @@ async function enviarComRetry(contato, campanha) {
     const v = contato.variaveis ? contato.variaveis[campo] : '';
     return v == null ? '' : v;
   });
+  // Os dois botões de link do template ("Sim, eu tenho!" e "Quero ajuda pra
+  // cadastrar!") apontam pro mesmo lugar: /captar/{corretor}?tel={telefone}. O Meta
+  // só recebe o trecho DINÂMICO (o resto da URL já está fixo no template, configurado
+  // direto no WhatsApp Manager) — index 0 e 1 são a posição de cada botão no template.
+  const botoesUrl = campanha.corretor_user_id
+    ? [0, 1].map(index => ({ index, valor: `${campanha.corretor_user_id}?tel=${_normalizarTelefone(contato.telefone)}` }))
+    : undefined;
   for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
     try {
       await enviarTemplate({
         telefone: contato.telefone,
         templateNome: campanha.template_nome,
         templateIdioma: campanha.template_idioma,
-        parametros
+        parametros,
+        botoesUrl
       });
       return { ok: true };
     } catch (e) {

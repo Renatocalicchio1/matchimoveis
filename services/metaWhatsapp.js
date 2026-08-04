@@ -17,14 +17,28 @@ function _normalizarTelefone(telefone) {
   return t;
 }
 
-async function enviarTemplate({ telefone, templateNome, templateIdioma, parametros }) {
+async function enviarTemplate({ telefone, templateNome, templateIdioma, parametros, botoesUrl }) {
   const { token, phoneNumberId } = _config();
   const numero = _normalizarTelefone(telefone);
   if (!numero) throw new Error('Telefone inválido');
 
-  const components = (parametros && parametros.length)
-    ? [{ type: 'body', parameters: parametros.map(p => ({ type: 'text', text: String(p == null ? '' : p) })) }]
-    : [];
+  const components = [];
+  if (parametros && parametros.length) {
+    components.push({ type: 'body', parameters: parametros.map(p => ({ type: 'text', text: String(p == null ? '' : p) })) });
+  }
+  // botoesUrl: array de { index, valor } — valor é o texto dinâmico que o Meta
+  // concatena depois do prefixo fixo configurado no botão do template (ex: prefixo
+  // "https://matchimoveis.ia.br/captar/" + valor "REN-G9K6?tel=5511999999999").
+  if (botoesUrl && botoesUrl.length) {
+    for (const b of botoesUrl) {
+      components.push({
+        type: 'button',
+        sub_type: 'url',
+        index: String(b.index),
+        parameters: [{ type: 'text', text: String(b.valor == null ? '' : b.valor) }]
+      });
+    }
+  }
 
   try {
     const { data } = await axios.post(

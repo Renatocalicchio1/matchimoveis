@@ -9072,6 +9072,43 @@ app.post('/webhook/meta-leads', express.json(), async (req, res) => {
   } catch(e) { console.error('[webhook meta-leads]', e.message); }
 });
 
+// Webhook do número Cloud API oficial (usado pelos disparos em /admin/disparos) —
+// só trata resposta rápida "Não tenho imóvel" pra marcar opt-out. Endpoint novo,
+// não existia nenhum recebendo mensagem desse número antes (diferente do
+// /webhook/whatsapp, que é da Evolution API/WhatsApp pessoal dos corretores).
+app.get('/webhook/whatsapp-cloud', (req, res) => {
+  const verifyToken = process.env.META_WA_WEBHOOK_VERIFY_TOKEN || 'matchimoveis-wa-cloud';
+  if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === verifyToken) {
+    return res.status(200).send(req.query['hub.challenge']);
+  }
+  res.sendStatus(403);
+});
+
+app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
+  res.sendStatus(200); // responde rápido — Meta reenvia se demorar ou der erro
+  try {
+    const { marcarOptout } = require('./services/salvarDisparo');
+    const { _normalizarTelefone } = require('./services/metaWhatsapp');
+    const entries = req.body.entry || [];
+    for (const entry of entries) {
+      for (const change of (entry.changes || [])) {
+        const mensagens = change.value?.messages || [];
+        for (const msg of mensagens) {
+          if (msg.type !== 'button') continue;
+          const texto = (msg.button?.text || '').trim().toLowerCase();
+          const telefone = _normalizarTelefone(msg.from);
+          if (texto === 'não tenho imóvel' || texto === 'nao tenho imovel') {
+            await marcarOptout(telefone, 'whatsapp_botao_nao_tenho');
+            console.log('[whatsapp-cloud] opt-out registrado:', telefone);
+          } else {
+            console.log('[whatsapp-cloud] botão não reconhecido pra opt-out:', JSON.stringify(msg.button), '| telefone:', telefone);
+          }
+        }
+      }
+    }
+  } catch(e) { console.error('[webhook whatsapp-cloud]', e.message); }
+});
+
 app.get('/app/coins', auth, (req, res) => {
   const users = (_cacheUsuarios || []);
   const user = users.find(u => u.id === req.session.user.id) || req.session.user;
@@ -12929,6 +12966,10 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
   try {
     const { listarCampanhas } = require('./services/salvarDisparo');
     const campanhas = await listarCampanhas().catch(()=>[]);
+    const _corretoresOpts = (_cacheUsuarios || [])
+      .filter(u => u.tipo !== 'admin' && (u.codigoUsuario || u.id))
+      .sort((a,b) => (a.nome||'').localeCompare(b.nome||''))
+      .map(u => `<option value="${u.codigoUsuario||u.id}">${u.nome||u.codigoUsuario||u.id} (${u.codigoUsuario||u.id})</option>`).join('');
     const _corStatus = s => s==='concluido'?'#16a34a':s==='erro'?'#dc2626':s==='pausado'?'#f59e0b':s==='enviando'?'#2563eb':'#6b7280';
     const linhasHist = campanhas.map(c => `
       <tr style="border-bottom:1px solid #e5e7eb">
@@ -12975,6 +13016,8 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       <input type="text" id="templateNome" placeholder="Ex: promo_julho">
       <label>Idioma do template</label>
       <input type="text" id="templateIdioma" value="pt_BR" placeholder="pt_BR">
+      <label>Corretor dos botões de link (só se o template tiver botão de URL "Sim, eu tenho!"/"Quero ajuda pra cadastrar!" apontando pra /captar) — opcional</label>
+      <select id="corretorUserId"><option value="">— nenhum (template só com texto/resposta rápida) —</option>${_corretoresOpts}</select>
       <label>Coluna com o telefone</label>
       <select id="colTelefone"></select>
       <label>Coluna com o nome (opcional, só exibição)</label>
@@ -13056,6 +13099,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         templateNome: document.getElementById('templateNome').value,
         templateIdioma: document.getElementById('templateIdioma').value,
         mapeamento: _mapeamentoAtual(),
+        corretorUserId: document.getElementById('corretorUserId').value,
         numeros
       };
       const r = await fetch('/admin/disparos/teste', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -13076,11 +13120,13 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         templateNome: document.getElementById('templateNome').value,
         templateIdioma: document.getElementById('templateIdioma').value,
         mapeamento: _mapeamentoAtual(),
+        corretorUserId: document.getElementById('corretorUserId').value,
         delayMs: parseInt(document.getElementById('delayMs').value)||2500
       };
       const r = await fetch('/admin/disparos/criar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
       const d = await r.json();
       if(!d.ok){ document.getElementById('resultado').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
+      if(d.optout > 0){ document.getElementById('resultado').innerHTML = '<p class="gray">⚠️ '+d.optout+' telefone(s) pulado(s) por já terem pedido opt-out. Redirecionando...</p>'; await new Promise(r=>setTimeout(r,1800)); }
       window.location = '/admin/disparos/'+d.campanhaId;
     }
     </script>
@@ -13120,17 +13166,20 @@ app.post('/admin/disparos/preview-planilha', authAdmin, upload.single('arquivo')
 });
 app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) => {
   try {
-    const { arquivo, templateNome, templateIdioma, mapeamento, numeros } = req.body;
+    const { arquivo, templateNome, templateIdioma, mapeamento, numeros, corretorUserId } = req.body;
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!numeros || !numeros.length) return res.json({ ok: false, erro: 'Informe ao menos 1 número' });
     const { linhas } = _lerPlanilhaDisparo(arquivo);
     const primeira = linhas[0] || {};
-    const { enviarTemplate } = require('./services/metaWhatsapp');
+    const { enviarTemplate, _normalizarTelefone } = require('./services/metaWhatsapp');
     const parametros = (mapeamento.variaveisOrdem || []).map(c => primeira[c] ?? '');
     const resultados = [];
     for (const numero of numeros.slice(0, 3)) {
       try {
-        await enviarTemplate({ telefone: numero, templateNome, templateIdioma: templateIdioma || 'pt_BR', parametros });
+        const botoesUrl = corretorUserId
+          ? [0, 1].map(index => ({ index, valor: `${corretorUserId}?tel=${_normalizarTelefone(numero)}` }))
+          : undefined;
+        await enviarTemplate({ telefone: numero, templateNome, templateIdioma: templateIdioma || 'pt_BR', parametros, botoesUrl });
         resultados.push({ numero, ok: true });
       } catch(e) {
         resultados.push({ numero, ok: false, erro: e.message });
@@ -13142,16 +13191,17 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
 
 app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) => {
   try {
-    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs } = req.body;
+    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId } = req.body;
     if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!mapeamento || !mapeamento.telefone) return res.json({ ok: false, erro: 'Mapeie a coluna de telefone' });
 
+    const { _normalizarTelefone } = require('./services/metaWhatsapp');
     const { linhas } = _lerPlanilhaDisparo(arquivo);
     const contatos = linhas
       .map(l => ({
         nome: mapeamento.nome ? String(l[mapeamento.nome] || '') : '',
-        telefone: String(l[mapeamento.telefone] || '').trim(),
+        telefone: _normalizarTelefone(l[mapeamento.telefone]),
         variaveis: l
       }))
       .filter(c => c.telefone);
@@ -13164,14 +13214,15 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
       templateIdioma: templateIdioma || 'pt_BR',
       mapeamentoVariaveis: mapeamento.variaveisOrdem || [],
       delayMs: delayMs || 2500,
-      criadoPor: 'admin'
+      criadoPor: 'admin',
+      corretorUserId: corretorUserId || null
     });
-    await inserirContatos(campanhaId, contatos);
+    const { optout } = await inserirContatos(campanhaId, contatos);
 
     const { dispararWorkerDisparo } = require('./services/workerDispatch');
     dispararWorkerDisparo(campanhaId);
 
-    res.json({ ok: true, campanhaId });
+    res.json({ ok: true, campanhaId, optout });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
@@ -13218,6 +13269,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
           <option value="pendente">Pendentes</option>
           <option value="enviado">Enviados</option>
           <option value="erro">Erros</option>
+          <option value="optout">Opt-out</option>
         </select>
       </div>
       <div id="tabela-contatos">⏳ Carregando...</div>

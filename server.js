@@ -5326,7 +5326,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
           // Remover area_max/area_min — usar só area
           delete _perfilFinalIW.area_max;
           delete _perfilFinalIW.area_min;
-          await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalIW, bairro: _perfilFinalIW.bairro||'', cidade: _perfilFinalIW.cidade||'', estado: _perfilFinalIW.estado||'', tipo: _perfilFinalIW.tipo||'', tipo_operacao: _perfilFinalIW.intencao||'' });
+          await _atualizarIMOVELWEB(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalIW, bairro: _perfilFinalIW.bairro||'', cidade: _perfilFinalIW.cidade||'', estado: _perfilFinalIW.estado||'', tipo: _perfilFinalIW.tipo||'', tipo_operacao: _perfilFinalIW.intencao||'', idAnuncio: _snapIW.idAnuncio||'' });
           console.log('[WEBHOOK IMOVELWEB] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           await _duplicarLeadSaoPauloTIA({ ..._snapIW, mapaIntencao: mapa, perfilIA: _perfilFinalIW }, _perfilFinalIW.cidade, _snapIW.mensagem);
           // Roda match se perfil suficiente
@@ -5426,7 +5426,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
           Object.keys(_perfilFinalOLX).forEach(k => { if(!_perfilFinalOLX[k] && _perfilAtualOLX[k]) _perfilFinalOLX[k] = _perfilAtualOLX[k]; });
           if (_perfilIA.area) _perfilFinalOLX.area = parseFloat(_perfilIA.area) || _perfilIA.area;
           delete _perfilFinalOLX.area_max; delete _perfilFinalOLX.area_min;
-          await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalOLX, bairro: _perfilFinalOLX.bairro||'', cidade: _perfilFinalOLX.cidade||'', estado: _perfilFinalOLX.estado||'', tipo: _perfilFinalOLX.tipo||'', tipo_operacao: _perfilFinalOLX.intencao||'' });
+          await _atualizarGRUPOOLX(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalOLX, bairro: _perfilFinalOLX.bairro||'', cidade: _perfilFinalOLX.cidade||'', estado: _perfilFinalOLX.estado||'', tipo: _perfilFinalOLX.tipo||'', tipo_operacao: _perfilFinalOLX.intencao||'', idAnuncio: _leadSnapshotGRUPOOLX.idAnuncio||'' });
           console.log('[WEBHOOK GRUPOOLX] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           await _duplicarLeadSaoPauloTIA({ ..._leadSnapshotGRUPOOLX, mapaIntencao: mapa, perfilIA: _perfilFinalOLX }, _perfilFinalOLX.cidade, _leadSnapshotGRUPOOLX.mensagem);
           // Roda match se perfil suficiente
@@ -5524,7 +5524,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
           Object.keys(_perfilFinal123).forEach(k => { if(!_perfilFinal123[k] && _perfilAtual123[k]) _perfilFinal123[k] = _perfilAtual123[k]; });
           if (_perfilIA.area) _perfilFinal123.area = parseFloat(_perfilIA.area) || _perfilIA.area;
           delete _perfilFinal123.area_max; delete _perfilFinal123.area_min;
-          await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinal123, bairro: _perfilFinal123.bairro||'', cidade: _perfilFinal123.cidade||'', estado: _perfilFinal123.estado||'', tipo: _perfilFinal123.tipo||'', tipo_operacao: _perfilFinal123.intencao||'' });
+          await _atualizar123i(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinal123, bairro: _perfilFinal123.bairro||'', cidade: _perfilFinal123.cidade||'', estado: _perfilFinal123.estado||'', tipo: _perfilFinal123.tipo||'', tipo_operacao: _perfilFinal123.intencao||'', idAnuncio: _leadSnapshot123i.idAnuncio||'' });
           console.log('[WEBHOOK 123i] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           await _duplicarLeadSaoPauloTIA({ ..._leadSnapshot123i, mapaIntencao: mapa, perfilIA: _perfilFinal123 }, _perfilFinal123.cidade, _leadSnapshot123i.mensagem);
           // Roda match se perfil suficiente
@@ -5625,7 +5625,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
           Object.keys(_perfilFinalCH).forEach(k => { if(!_perfilFinalCH[k] && _perfilAtualCH[k]) _perfilFinalCH[k] = _perfilAtualCH[k]; });
           if (_perfilIA.area) _perfilFinalCH.area = parseFloat(_perfilIA.area) || _perfilIA.area;
           delete _perfilFinalCH.area_max; delete _perfilFinalCH.area_min;
-          await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalCH, bairro: _perfilFinalCH.bairro||'', cidade: _perfilFinalCH.cidade||'', estado: _perfilFinalCH.estado||'', tipo: _perfilFinalCH.tipo||'', tipo_operacao: _perfilFinalCH.intencao||'' });
+          await _atualizarCHAVES(lead.id, { mapaIntencao: mapa, faseFunil: mapa.fase, temperatura: mapa.temperatura, perfilIA: _perfilFinalCH, bairro: _perfilFinalCH.bairro||'', cidade: _perfilFinalCH.cidade||'', estado: _perfilFinalCH.estado||'', tipo: _perfilFinalCH.tipo||'', tipo_operacao: _perfilFinalCH.intencao||'', idAnuncio: _leadSnapshotCHAVES.idAnuncio||'' });
           console.log('[WEBHOOK CHAVES] mapa salvo | fase:', mapa.fase, '| temp:', mapa.temperatura);
           await _duplicarLeadSaoPauloTIA({ ..._leadSnapshotCHAVES, mapaIntencao: mapa, perfilIA: _perfilFinalCH }, _perfilFinalCH.cidade, _leadSnapshotCHAVES.mensagem);
           // Roda match se perfil suficiente

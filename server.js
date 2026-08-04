@@ -7258,37 +7258,27 @@ app.get('/mapa', (req, res) => {
 
 app.get('/api/imoveis', auth, async (req, res) => {
   const imoveis = await lerImoveis(req.session.user.id);
+  res.json(imoveis.slice(0, 50));
+});
 
+// Antes essas duas rotas ficavam registradas DENTRO do handler acima (chave
+// nunca fechada) — cada chamada a /api/imoveis cadastrava 2 handlers novos de
+// /imovel/:id/status no Express, sem nunca remover os antigos (vazamento de
+// memória sem limite, cresce a cada request). Também trocado salvarTodosImoveis
+// (regravava os 62 mil imóveis do banco inteiro a cada clique) por salvarImovel
+// (grava só o imóvel editado).
 app.post('/imovel/:id/status', (req,res)=>{
-  const fs=require('fs');
-  const imoveis=((_cacheImoveis || []));
+  const imoveis = (_cacheImoveis || []);
   const { status } = req.body;
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
   if(idx>=0){
     imoveis[idx].status = status;
-    salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
-  gerarXMLPortais();
-  gerarXMLPortais();
+    salvarImovel(imoveis[idx]).catch(e=>console.error("[imoveis]",e.message));
+    gerarXMLPortais();
   }
 
   res.json({ok:true});
-});
-
-app.post('/imovel/:id/status', (req,res)=>{
-  const fs=require('fs');
-  const imoveis=((_cacheImoveis || []));
-  const { status } = req.body;
-
-  const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
-  if(idx>=0){
-    imoveis[idx].status = status;
-    salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
-  }
-
-  res.json({ok:true});
-});
-  res.json(imoveis.slice(0, 50));
 });
 
 
@@ -8327,7 +8317,7 @@ app.post('/app/imovel/:id/excluir-foto', auth, async (req,res)=>{
 
   if(idx >= 0){
     imoveis[idx].fotos = (imoveis[idx].fotos || []).filter(f => f !== foto);
-    salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
+    salvarImovel(imoveis[idx]).catch(e=>console.error("[imoveis]",e.message));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -8346,7 +8336,7 @@ app.post('/app/imovel/:id/capa-foto', auth, async (req,res)=>{
     fotos = fotos.filter(f => f !== foto);
     fotos.unshift(foto);
     imoveis[idx].fotos = fotos;
-    salvarTodosImoveis(imoveis).catch(e=>console.error("[imoveis]",e.message));
+    salvarImovel(imoveis[idx]).catch(e=>console.error("[imoveis]",e.message));
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');

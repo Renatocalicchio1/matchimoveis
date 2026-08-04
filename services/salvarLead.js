@@ -26,9 +26,14 @@ function rowToLead(r) {
     tipoLead: r.tipo_lead,
     perfilIA: r.perfil_ia || {},
     mensagens: r.mensagens || [],
+    // matches_auto/matches_base costumam ser idênticos a matches (o motor de match
+    // grava os 3 com o mesmo resultado) — quando a coluna vem vazia, reaproveita a
+    // MESMA referência de r.matches em vez de duplicar o array na memória. Isso não
+    // muda nada pra quem lê lead.matchesBase/matchesAuto, só evita 3x o consumo de
+    // RAM por lead (cada imóvel do match carrega fotos/descrição inteiras).
     matches: r.matches || [],
-    matchesAuto: r.matches_auto || [],
-    matchesBase: r.matches_base || [],
+    matchesAuto: (r.matches_auto && r.matches_auto.length) ? r.matches_auto : (r.matches || []),
+    matchesBase: (r.matches_base && r.matches_base.length) ? r.matches_base : (r.matches || []),
     historico: r.historico || [],
     timeline: r.timeline || [],
     eventos: r.eventos || [],
@@ -53,6 +58,14 @@ function rowToLead(r) {
   };
 }
 
+// Compara por referência primeiro (caso comum: match-core.js atribui o mesmo
+// array a matches/matchesAuto/matchesBase) e só faz o JSON.stringify caro se
+// as referências forem diferentes.
+function _diferente(a, b) {
+  if (a === b) return false;
+  return JSON.stringify(a || []) !== JSON.stringify(b || []);
+}
+
 // Converte objeto lead para colunas do banco
 function leadToRow(lead) {
   const dados = { ...lead };
@@ -74,9 +87,12 @@ function leadToRow(lead) {
     tipo_lead: lead.tipoLead || 'cliente',
     perfil_ia: JSON.stringify(lead.perfilIA || {}),
     mensagens: JSON.stringify(lead.mensagens || []),
+    // Evita gravar 3x o mesmo conteúdo — matches_auto/matches_base só ocupam a
+    // coluna própria quando realmente diferem de matches; senão gravam vazio e a
+    // leitura (rowToLead) reaproveita matches automaticamente.
     matches: JSON.stringify(lead.matches || []),
-    matches_auto: JSON.stringify(lead.matchesAuto || []),
-    matches_base: JSON.stringify(lead.matchesBase || []),
+    matches_auto: JSON.stringify(_diferente(lead.matchesAuto, lead.matches) ? (lead.matchesAuto || []) : []),
+    matches_base: JSON.stringify(_diferente(lead.matchesBase, lead.matches) ? (lead.matchesBase || []) : []),
     historico: JSON.stringify(lead.historico || []),
     timeline: JSON.stringify(lead.timeline || []),
     eventos: JSON.stringify(lead.eventos || []),

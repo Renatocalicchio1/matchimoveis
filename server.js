@@ -535,6 +535,25 @@ app.get('/admin/logout', (req, res) => {
   res.redirect('/admin/login');
 });
 
+// os.totalmem()/os.freemem() reportam a RAM do HOST físico (o Render roda em host
+// compartilhado) — num container isso mostra dezenas de GB mesmo com o processo
+// perto do limite real de memória do plano, mascarando o risco. Lê o limite real
+// do cgroup (Linux/Render) quando disponível; local (Mac/dev) cai no os.totalmem().
+function _limiteMemoriaContainer() {
+  try {
+    const fs = require('fs');
+    if (fs.existsSync('/sys/fs/cgroup/memory.max')) {
+      const v = fs.readFileSync('/sys/fs/cgroup/memory.max', 'utf8').trim();
+      if (v !== 'max') { const n = parseInt(v); if (n > 0 && n < 1e15) return n; }
+    }
+    if (fs.existsSync('/sys/fs/cgroup/memory/memory.limit_in_bytes')) {
+      const n = parseInt(fs.readFileSync('/sys/fs/cgroup/memory/memory.limit_in_bytes', 'utf8').trim());
+      if (n > 0 && n < 1e15) return n; // valor gigante (~9223372036854771712) = sem limite, ignora
+    }
+  } catch(e) {}
+  return null;
+}
+
 app.get('/admin/status', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
@@ -560,8 +579,9 @@ app.get('/admin/status', authAdmin, async (req, res) => {
     const _memTotal  = Math.round(process.memoryUsage().heapTotal/1024/1024);
     const _memRSS    = Math.round(process.memoryUsage().rss/1024/1024);
     const _loadAvg   = os.loadavg()[0].toFixed(2);
-    const _freeMem   = Math.round(os.freemem()/1024/1024);
-    const _totalMem  = Math.round(os.totalmem()/1024/1024);
+    const _limiteContainer = _limiteMemoriaContainer();
+    const _totalMem  = _limiteContainer ? Math.round(_limiteContainer/1024/1024) : Math.round(os.totalmem()/1024/1024);
+    const _freeMem   = Math.max(0, _totalMem - _memRSS);
     const _memPct    = Math.round((_memRSS/_totalMem)*100);
 
     // ── EVOLUTION API ─────────────────────────────────────

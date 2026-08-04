@@ -3171,11 +3171,20 @@ setTimeout(() => { _recarregarLeads(); setInterval(_recarregarLeads, 30000); }, 
 // Cache imóveis em memória
 let _cacheImoveis = null;
 let _imoveisEmExecucao = false;
+// O cache em RAM guarda no máximo 20 fotos por imóvel (cobre listagem, mapa, feed,
+// matches, WhatsApp, Instagram — nenhum desses mostra mais que isso). Quem precisa
+// do array completo (editar imóvel, página pública, gerar XML manual, upload/excluir/
+// capa de foto) busca a linha inteira direto do banco — ver _buscarImovelCompleto.
+const _MAX_FOTOS_CACHE = 20;
+function _capFotosCache(im) {
+  if (im && Array.isArray(im.fotos) && im.fotos.length > _MAX_FOTOS_CACHE) im.fotos = im.fotos.slice(0, _MAX_FOTOS_CACHE);
+  return im;
+}
 async function _recarregarImoveis() {
   if (_imoveisEmExecucao) { console.log('[cache imoveis] execução anterior ainda rodando, pulando esta'); return; }
   _imoveisEmExecucao = true;
   try {
-    _cacheImoveis = await lerImoveisService();
+    _cacheImoveis = (await lerImoveisService()).map(_capFotosCache);
   } catch(e) {
     if (!_cacheImoveis) _cacheImoveis = (_cacheImoveis || []);
   } finally {
@@ -3196,7 +3205,7 @@ async function _recarregarImoveisIncremental() {
     _cacheImoveisAt = new Date();
     if (!res.rows.length) return;
     const mapa = new Map(_cacheImoveis.map(i => [String(i.id), i]));
-    res.rows.forEach(r => { mapa.set(String(r.id), _rtiInc(r)); });
+    res.rows.forEach(r => { mapa.set(String(r.id), _capFotosCache(_rtiInc(r))); });
     _cacheImoveis = Array.from(mapa.values());
     console.log('[cache imoveis] incremental:', res.rows.length, 'atualizados');
   } catch(e) { console.error('[cache imoveis incremental]', e.message); } finally {
@@ -7952,6 +7961,9 @@ app.get('/imovel/:id', async (req, res) => {
   const _uidLead = _uidQuery || _uid2;
 
   if (imovel) {
+    // Cache guarda só as 20 primeiras fotos — busca a linha completa pra mostrar todas
+    const _completoPub = await _buscarImovelCompleto(imovel.id);
+    if (_completoPub) imovel = { ...imovel, ...(_completoPub.fotos ? { fotos: _completoPub.fotos } : {}), descricao: _completoPub.descricao };
     const pub = Object.assign({}, imovel);
     delete pub.proprietario;
     delete pub.proprietario_celular;
@@ -8132,11 +8144,27 @@ function _resolverDonoContato(donoUid, uidLogado) {
   return { nome: donoUser.nome || 'Corretor parceiro', celular: donoUser.celular || donoUser.telefone || '', codigoUsuario: donoUser.codigoUsuario || donoUser.id };
 }
 
-app.get('/app/imovel/:id', auth, (req, res) => {
+// Busca a linha COMPLETA do imóvel direto do banco (fotos sem o corte de 20 que o
+// cache em RAM aplica) — usar nas telas que precisam mostrar/editar todas as fotos:
+// página pública, detalhe interno, editar, upload/excluir/capa de foto, gerar XML manual.
+async function _buscarImovelCompleto(id) {
+  try {
+    const { query: _qBIC } = require('./services/db');
+    const { rowToImovel: _rtiBIC } = require('./services/salvarImovel');
+    const idStr = String(id);
+    const r = await _qBIC('SELECT * FROM imoveis WHERE id=$1 OR id_externo=$1 OR id_interno=$1 OR codigo_imovel=$1 LIMIT 1', [idStr]);
+    return r.rows[0] ? _rtiBIC(r.rows[0]) : null;
+  } catch(e) { console.error('[_buscarImovelCompleto]', e.message); return null; }
+}
+
+app.get('/app/imovel/:id', auth, async (req, res) => {
   const imoveis = ((_cacheImoveis || []));
   const user = req.session.user;
-  const imovel = imoveis.find(i => String(i.id) === String(req.params.id) || String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
+  let imovel = imoveis.find(i => String(i.id) === String(req.params.id) || String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
   if (!imovel) return res.status(404).send('Imóvel não encontrado');
+  // Cache guarda só as 20 primeiras fotos — busca a linha completa pra mostrar todas
+  const _completo1 = await _buscarImovelCompleto(imovel.id);
+  if (_completo1) imovel = { ...imovel, ...(_completo1.fotos ? { fotos: _completo1.fotos } : {}), descricao: _completo1.descricao };
 
   const isAdmin = user.tipo === 'admin';
   const isDono = _ehDonoDoImovel(imovel, user);
@@ -8157,10 +8185,10 @@ app.get('/app/imovel/:id', auth, (req, res) => {
 });
 
 // Editar imóvel - tela
-app.get('/app/imovel/:id/editar', auth, (req,res)=>{
+app.get('/app/imovel/:id/editar', auth, async (req,res)=>{
   const fs = require('fs');
   const imoveis = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
-  const imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
+  let imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
 
   if(!imovel){
     return res.send('Imóvel não encontrado. <a href="/app/imoveis">Voltar</a>');
@@ -8168,6 +8196,9 @@ app.get('/app/imovel/:id/editar', auth, (req,res)=>{
   if(!_ehDonoDoImovel(imovel, req.session.user) && req.session.user.tipo !== 'admin'){
     return res.status(403).send('Você não tem permissão pra editar esse imóvel. <a href="/app/imovel/'+req.params.id+'">Voltar</a>');
   }
+  // Cache guarda só as 20 primeiras fotos — busca a linha completa pra poder editar todas
+  const _completo2 = await _buscarImovelCompleto(imovel.id);
+  if (_completo2) imovel = { ...imovel, ...(_completo2.fotos ? { fotos: _completo2.fotos } : {}), descricao: _completo2.descricao };
 
   const idImovelEdit = (imovel.idExterno && imovel.idExterno.trim()) ? imovel.idExterno : (imovel.idInterno || String(imovel.id) || ''); res.render('app-editar-imovel', { user: req.session.user, imovel, salvo: req.query.salvo === '1', idImovel: idImovelEdit });
 });
@@ -8184,6 +8215,11 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
     String(i.id) === _pid
   );
   if(idx < 0) return res.send('Imóvel não encontrado. <a href="/app/imoveis">Voltar</a>');
+
+  // Essa tela não mexe em fotos, mas o cache só guarda as 20 primeiras — busca a base
+  // completa antes de sobrescrever, senão o save apagaria as fotos além da 20ª.
+  const _baseCompletaEdit = await _buscarImovelCompleto(imoveis[idx].id);
+  if (_baseCompletaEdit && _baseCompletaEdit.fotos) imoveis[idx] = { ...imoveis[idx], fotos: _baseCompletaEdit.fotos };
 
   const b = req.body;
   const difs = Object.keys(b).filter(k => k.startsWith('dif_') && b[k]==='on').map(k => k.replace('dif_',''));
@@ -8252,7 +8288,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   };
 
   await salvarImovel(imoveis[idx]);
-  if(_cacheImoveis) { const _ci = _cacheImoveis.findIndex(i => i.id === imoveis[idx].id); if(_ci >= 0) _cacheImoveis[_ci] = imoveis[idx]; }
+  if(_cacheImoveis) { const _ci = _cacheImoveis.findIndex(i => i.id === imoveis[idx].id); if(_ci >= 0) _cacheImoveis[_ci] = _capFotosCache({ ...imoveis[idx] }); }
   setTimeout(() => regenerarXMLUsuario(userId).catch(e => console.error('[xml-editar]', e.message)), 1000);
   // Renderiza direto sem redirect para evitar problema de sessao
   const idImovelEdit = (imoveis[idx].idExterno&&imoveis[idx].idExterno.trim())?imoveis[idx].idExterno:(imoveis[idx].idInterno||String(imoveis[idx].id)||'');
@@ -8268,11 +8304,13 @@ app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), asyn
     const imoveis = (_cacheImoveis || []);
     const idx = imoveis.findIndex(i => String(i.idExterno)===pid || String(i.idInterno)===pid || String(i.codigoImovel)===pid || String(i.id)===pid);
     if(idx >= 0){
+      // Cache só guarda as 20 primeiras fotos — busca a lista completa antes de adicionar
+      const _completoUp = await _buscarImovelCompleto(imoveis[idx].id);
       const url = '/data-uploads/' + req.file.filename;
-      imoveis[idx].fotos = imoveis[idx].fotos || [];
-      imoveis[idx].fotos.push(url);
-      await salvarImovel(imoveis[idx]);
-      if(_cacheImoveis) { const _ci = _cacheImoveis.findIndex(i => i.id === imoveis[idx].id); if(_ci >= 0) _cacheImoveis[_ci] = imoveis[idx]; }
+      const _imovelCompletoUp = { ...imoveis[idx], fotos: (_completoUp?.fotos || imoveis[idx].fotos || []) };
+      _imovelCompletoUp.fotos = [..._imovelCompletoUp.fotos, url];
+      await salvarImovel(_imovelCompletoUp);
+      if(_cacheImoveis) { const _ci = _cacheImoveis.findIndex(i => i.id === imoveis[idx].id); if(_ci >= 0) _cacheImoveis[_ci] = _capFotosCache({ ..._imovelCompletoUp }); }
     }
     res.redirect('/app/imovel/' + pid + '/editar?salvo=1');
   } catch(e) {
@@ -8316,8 +8354,12 @@ app.post('/app/imovel/:id/excluir-foto', auth, async (req,res)=>{
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
 
   if(idx >= 0){
-    imoveis[idx].fotos = (imoveis[idx].fotos || []).filter(f => f !== foto);
-    salvarImovel(imoveis[idx]).catch(e=>console.error("[imoveis]",e.message));
+    // Cache só guarda as 20 primeiras fotos — busca a lista completa antes de excluir
+    const _completoDel = await _buscarImovelCompleto(imoveis[idx].id);
+    const _imovelCompletoDel = { ...imoveis[idx], fotos: (_completoDel?.fotos || imoveis[idx].fotos || []) };
+    _imovelCompletoDel.fotos = _imovelCompletoDel.fotos.filter(f => f !== foto);
+    await salvarImovel(_imovelCompletoDel).catch(e=>console.error("[imoveis]",e.message));
+    if(_cacheImoveis) { const _ci = _cacheImoveis.findIndex(i => i.id === imoveis[idx].id); if(_ci >= 0) _cacheImoveis[_ci] = _capFotosCache({ ..._imovelCompletoDel }); }
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -8332,11 +8374,14 @@ app.post('/app/imovel/:id/capa-foto', auth, async (req,res)=>{
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
 
   if(idx >= 0){
-    let fotos = imoveis[idx].fotos || [];
+    // Cache só guarda as 20 primeiras fotos — busca a lista completa antes de reordenar
+    const _completoCapa = await _buscarImovelCompleto(imoveis[idx].id);
+    let fotos = _completoCapa?.fotos || imoveis[idx].fotos || [];
     fotos = fotos.filter(f => f !== foto);
     fotos.unshift(foto);
-    imoveis[idx].fotos = fotos;
-    salvarImovel(imoveis[idx]).catch(e=>console.error("[imoveis]",e.message));
+    const _imovelCompletoCapa = { ...imoveis[idx], fotos };
+    await salvarImovel(_imovelCompletoCapa).catch(e=>console.error("[imoveis]",e.message));
+    if(_cacheImoveis) { const _ci = _cacheImoveis.findIndex(i => i.id === imoveis[idx].id); if(_ci >= 0) _cacheImoveis[_ci] = _capFotosCache({ ..._imovelCompletoCapa }); }
   }
 
   res.redirect('/app/imovel/' + req.params.id + '/editar');
@@ -8546,8 +8591,12 @@ app.post('/app/gerar-xml', auth, checarSaldo('Gerar XML para portais', 10), asyn
   const selecionados = imoveis.filter(i => ids.includes(String(i.id)) || ids.includes(String(i.idExterno)) || ids.includes(String(i.idOriginal)));
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');
   const filename = 'feed-'+portal+'-'+token+'.xml';
-  const selecionadosComCorretor = selecionados.map(i => ({
+  // Cache só guarda as 20 primeiras fotos — busca a lista completa de cada selecionado
+  // pra não publicar o feed do portal com menos fotos do que o imóvel realmente tem.
+  const _fotosCompletas = await Promise.all(selecionados.map(i => _buscarImovelCompleto(i.id)));
+  const selecionadosComCorretor = selecionados.map((i, idx) => ({
     ...i,
+    fotos: _fotosCompletas[idx]?.fotos || i.fotos,
     corretorNome: req.session.user.nome || req.session.user.name || '',
     corretorEmail: req.session.user.email || '',
     corretorTelefone: req.session.user.celular || req.session.user.telefone || ''

@@ -13407,7 +13407,11 @@ app.get('/app/captacao', auth, async (req, res) => {
 
 // ── CAPTAÇÃO PÚBLICA ──────────────────────────────────────────────────────────
 app.get('/captar/:userId', async (req, res) => {
-  res.render('captar-imovel', { leadId: '', userId: req.params.userId });
+  // ?tel= vem do botão de link do disparo (planilha só tem telefone) — aceita com ou
+  // sem DDI 55 e pré-preenche o campo "Seu celular" já no formato local que o form usa.
+  let telPreenchido = String(req.query.tel || '').replace(/\D/g, '');
+  if (telPreenchido.length >= 12 && telPreenchido.startsWith('55')) telPreenchido = telPreenchido.slice(2);
+  res.render('captar-imovel', { leadId: '', userId: req.params.userId, telPreenchido });
 });
 
 app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {

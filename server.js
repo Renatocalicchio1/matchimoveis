@@ -643,6 +643,10 @@ app.get('/admin/status', authAdmin, async (req, res) => {
       '<div class="row"><span class="lbl">Heap usado / total</span><span class="rval">' + _memUsed + 'MB / ' + _memTotal + 'MB</span></div>' +
       '<div class="row"><span class="lbl">Load average (1min)</span><span class="rval">' + _loadAvg + '</span></div>' +
       '<div class="row"><span class="lbl">RAM livre no servidor</span><span class="rval">' + _freeMem + 'MB de ' + _totalMem + 'MB</span></div>' +
+      '<div class="row"><span class="lbl">Cache imóveis (em RAM)</span><span class="rval">' + ((_cacheImoveis||[]).length).toLocaleString('pt-BR') + ' registros</span></div>' +
+      '<div class="row"><span class="lbl">Cache leads (em RAM)</span><span class="rval">' + ((_cacheLeads||[]).length).toLocaleString('pt-BR') + ' registros</span></div>' +
+      '<div class="row"><span class="lbl">Cache usuários (em RAM)</span><span class="rval">' + ((_cacheUsuarios||[]).length).toLocaleString('pt-BR') + ' registros</span></div>' +
+      '<div class="row"><span class="lbl">Cache visitas (em RAM)</span><span class="rval">' + ((_cacheVisitas||[]).length).toLocaleString('pt-BR') + ' registros</span></div>' +
       '</div>' +
 
       // BANCO

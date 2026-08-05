@@ -13347,7 +13347,13 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       const r = await fetch('/admin/disparos/criar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
       const d = await r.json();
       if(!d.ok){ document.getElementById('resultado').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
-      if(d.optout > 0){ document.getElementById('resultado').innerHTML = '<p class="gray">⚠️ '+d.optout+' telefone(s) pulado(s) por já terem pedido opt-out. Redirecionando...</p>'; await new Promise(r=>setTimeout(r,1800)); }
+      if(d.optout > 0 || d.jaEnviados > 0){
+        let avisos = [];
+        if(d.optout > 0) avisos.push(d.optout+' pulado(s) por opt-out');
+        if(d.jaEnviados > 0) avisos.push(d.jaEnviados+' pulado(s) por já terem recebido esse disparo antes');
+        document.getElementById('resultado').innerHTML = '<p class="gray">⚠️ '+avisos.join(', ')+'. Redirecionando...</p>';
+        await new Promise(r=>setTimeout(r,1800));
+      }
       window.location = '/admin/disparos/'+d.campanhaId;
     }
     </script>
@@ -13438,12 +13444,12 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
       criadoPor: 'admin',
       corretorUserId: corretorUserId || null
     });
-    const { optout } = await inserirContatos(campanhaId, contatos);
+    const { optout, jaEnviados } = await inserirContatos(campanhaId, contatos);
 
     const { dispararWorkerDisparo } = require('./services/workerDispatch');
     dispararWorkerDisparo(campanhaId);
 
-    res.json({ ok: true, campanhaId, optout });
+    res.json({ ok: true, campanhaId, optout, jaEnviados });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
@@ -13491,6 +13497,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
           <option value="enviado">Enviados</option>
           <option value="erro">Erros</option>
           <option value="optout">Opt-out</option>
+          <option value="ja_enviado">Já enviado antes</option>
         </select>
       </div>
       <div id="tabela-contatos">⏳ Carregando...</div>
@@ -13538,7 +13545,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
       if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class="red">Erro ao carregar</p>'; return; }
       let html = '<table><tr><th>Nome</th><th>Telefone</th><th>Status</th><th>Erro</th><th>Enviado em</th></tr>';
       for(const ct of d.contatos){
-        const cor = ct.status==='enviado'?'#16a34a':ct.status==='erro'?'#dc2626':'#f59e0b';
+        const cor = ct.status==='enviado'?'#16a34a':ct.status==='erro'?'#dc2626':ct.status==='ja_enviado'?'#6b7280':'#f59e0b';
         html += '<tr><td>'+(ct.nome||'—')+'</td><td>'+ct.telefone+'</td><td style="color:'+cor+'">'+ct.status+'</td><td style="color:#dc2626;font-size:11px">'+(ct.erro||'')+'</td><td style="color:#6b7280;font-size:11px">'+(ct.enviado_em?new Date(ct.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
       }
       html += '</table>';

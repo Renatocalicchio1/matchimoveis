@@ -71,6 +71,19 @@ async function listarOptout(telefones) {
   return rows.map(r => r.telefone);
 }
 
+// Telefones que já receberam disparo com sucesso em QUALQUER campanha anterior —
+// evita reenvio duplicado quando os 50k contatos são subidos em lotes/planilhas
+// separadas ao longo do tempo (inserirContatos só olhava optout antes disso).
+async function listarJaEnviados(telefones) {
+  await _inicializar();
+  if (!telefones || !telefones.length) return [];
+  const { rows } = await query(
+    `SELECT DISTINCT telefone FROM disparos_contatos WHERE telefone = ANY($1) AND status='enviado'`,
+    [telefones]
+  );
+  return rows.map(r => r.telefone);
+}
+
 async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId }) {
   await _inicializar();
   const id = uuidv4();
@@ -86,21 +99,25 @@ async function inserirContatos(campanhaId, contatos) {
   await _inicializar();
   const telefones = [...new Set(contatos.map(c => c.telefone).filter(Boolean))];
   const optados = new Set(await listarOptout(telefones));
-  let inseridos = 0, optout = 0;
+  const jaEnviadosSet = new Set(await listarJaEnviados(telefones));
+  let inseridos = 0, optout = 0, jaEnviados = 0;
   for (const c of contatos) {
     if (!c.telefone) continue;
     const emOptout = optados.has(c.telefone);
+    const jaFoiEnviado = !emOptout && jaEnviadosSet.has(c.telefone);
+    const status = emOptout ? 'optout' : jaFoiEnviado ? 'ja_enviado' : 'pendente';
     await query(
       `INSERT INTO disparos_contatos (id, campanha_id, nome, telefone, variaveis, status) VALUES ($1,$2,$3,$4,$5,$6)`,
-      [uuidv4(), campanhaId, c.nome || '', c.telefone, JSON.stringify(c.variaveis || {}), emOptout ? 'optout' : 'pendente']
+      [uuidv4(), campanhaId, c.nome || '', c.telefone, JSON.stringify(c.variaveis || {}), status]
     );
     inseridos++;
     if (emOptout) optout++;
+    if (jaFoiEnviado) jaEnviados++;
   }
   if (inseridos > 0) {
     await query(`UPDATE disparos_campanhas SET total_contatos = total_contatos + $1 WHERE id=$2`, [inseridos, campanhaId]);
   }
-  return { inseridos, optout };
+  return { inseridos, optout, jaEnviados };
 }
 
 async function atualizarCampanha(id, dados) {
@@ -194,5 +211,6 @@ module.exports = {
   marcarContato,
   statsCampanha,
   marcarOptout,
-  listarOptout
+  listarOptout,
+  listarJaEnviados
 };

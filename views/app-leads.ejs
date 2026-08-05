@@ -56,6 +56,7 @@
 .lead-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
 .lead-card.urg-alta{border-left:2px solid #ef4444}
 .lead-card.urg-media{border-left:2px solid #f59e0b}
+.lead-card.lc-atendida{background:#fef2f2}
 
 .lc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
 .acao-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:600;border:none}
@@ -238,7 +239,7 @@ leads.forEach(item => {
     else if(col.key==='qualificando'){_acao='Qualificar';_acaoCor='background:#fffbeb;color:#92400e;border-color:#fcd34d';_urg='media';}
     else if(col.key==='novo'){_acao='Iniciar contato';_acaoCor='background:#f9fafb;color:#6b7280;border-color:#e5e7eb';_urg='';}
   %>
-  <div class="lead-card <%= _urg==='alta'?'urg-alta':_urg==='media'?'urg-media':'' %>"
+  <div class="lead-card <%= _urg==='alta'?'urg-alta':_urg==='media'?'urg-media':'' %> <%= item.emAtendimento?'lc-atendida':'' %>"
     data-id="<%= item.id %>"
     data-col="<%= col.key %>"
     data-temperatura="<%= item.temperatura||'frio' %>"

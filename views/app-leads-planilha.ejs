@@ -11,6 +11,7 @@
 .pl-tablewrap td{padding:11px 14px;border-bottom:1px solid var(--border-light);color:var(--text);vertical-align:middle}
 .pl-tablewrap tr:last-child td{border-bottom:none}
 .pl-tablewrap tr:hover td{background:var(--bg)}
+.pl-tablewrap tr.pl-atendida td{background:#fef2f2}
 .pl-data{color:var(--text-sec);white-space:nowrap;font-variant-numeric:tabular-nums}
 .pl-data b{display:block;color:var(--text);font-weight:600;font-size:12.5px}
 .pl-nome{font-weight:600;color:var(--text);text-decoration:none}
@@ -80,7 +81,7 @@
         <% const transacaoLabel = p.intencao==='comprar'?'Comprar':p.intencao==='alugar'?'Alugar':p.intencao||''; %>
         <% const _matPl = (l.matchesAuto||l.matches||[]).length; %>
         <% const _vitrineLinkPl = _matPl>0 ? (l.vitrineLink || ('/cliente/oferta/'+(l.leadId||l.id)+'?userId='+encodeURIComponent(l.userId||l.usuarioId||l.corretorId||''))) : ''; %>
-        <tr>
+        <tr class="<%= l.emAtendimento?'pl-atendida':'' %>">
           <td class="pl-data"><b><%= d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}) %></b><%= d.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}) %></td>
           <td>
             <a href="/app/lead/<%= l.id %>" class="pl-nome"><%= l.nome || 'Sem nome' %></a><br>

@@ -8052,7 +8052,12 @@ app.get('/app/lead/:id', auth, async (req, res) => {
     }));
   }
 
-  salvarTodosLeads(leads).catch(e=>console.error("[leads]",e.message));
+  // Marca como "em atendimento" — o corretor abriu os detalhes ao menos uma vez.
+  // Card/linha da planilha ficam com fundo vermelho claro pra sinalizar isso.
+  lead.emAtendimento = true;
+  lead.atendidoEm = lead.atendidoEm || new Date().toISOString();
+
+  atualizarLeadService(lead.id, { historico: lead.historico, mensagens: lead.mensagens, emAtendimento: true, atendidoEm: lead.atendidoEm }).catch(e=>console.error("[leads]",e.message));
 
   const visitas = (_cacheVisitas || []);
 

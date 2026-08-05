@@ -5178,13 +5178,14 @@ async function _proximoContador(chave) {
   return r.rows[0].valor;
 }
 
-// Duplica leads de São Paulo pra 2 contas: TIA-A6PG recebe cópia de TODAS,
-// ALE-ZVA9 recebe cópia de 1 a cada 2 (contador persistente controla a
-// proporção). Chamado pelos 5 webhooks de portal.
+// Duplica leads de São Paulo pra 3 contas: TIA-A6PG recebe cópia de TODAS,
+// ALE-ZVA9 e GAB-3NVV recebem cópia de 1 a cada 2 (contador persistente
+// próprio pra cada uma controla a proporção). Chamado pelos 5 webhooks de portal.
 async function _duplicarLeadSaoPauloTIA(leadOriginal, cidade, mensagem) {
   try {
     const TIA = 'TIA-A6PG';
     const ALE = 'ALE-ZVA9';
+    const GAB = 'GAB-3NVV';
     const donoOriginal = String(leadOriginal.userId || leadOriginal.codigoUsuario || leadOriginal.user_id || '');
     if (!donoOriginal) return;
     const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
@@ -5218,6 +5219,11 @@ async function _duplicarLeadSaoPauloTIA(leadOriginal, cidade, mensagem) {
     if (donoOriginal !== ALE) {
       const n = await _proximoContador('dup_sp_ale_zva9');
       if (n % 2 === 0) await _duplicarPara(ALE); // a cada 2 leads de SP geradas, 1 vai pra ALE-ZVA9
+    }
+
+    if (donoOriginal !== GAB) {
+      const nGab = await _proximoContador('dup_sp_gab_3nvv');
+      if (nGab % 2 === 0) await _duplicarPara(GAB); // a cada 2 leads de SP geradas, 1 vai pra GAB-3NVV
     }
   } catch(e) { console.error('[DUP-SP-TIA] erro:', e.message); }
 }

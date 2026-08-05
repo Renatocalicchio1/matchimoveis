@@ -715,6 +715,151 @@ app.get('/admin/leads-auditoria', authAdmin, async (req, res) => {
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 
+// ── BUSCAR / EXCLUIR IMÓVEL (de todas as contas) ────────────────────────────
+function _adminNavTop(tituloAtivo) {
+  return `<div class="top">
+  <h1>Admin · MatchImóveis</h1>
+  <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+    <a href="/admin" style="font-size:12px;color:#888;text-decoration:none;">← Painel</a>
+    <a href="/admin/buscar-imovel" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏠 Buscar/Excluir Imóvel</a>
+    <a href="/admin/logout" style="font-size:12px;color:#888;text-decoration:none">Sair</a>
+  </div>
+</div>`;
+}
+
+app.get('/admin/buscar-imovel', authAdmin, async (req, res) => {
+  try {
+    const { query: _qBI } = require('./services/db');
+    const nomeT = (req.query.nome || '').trim();
+    const celularT = (req.query.celular || '').trim();
+    const codigoT = (req.query.codigo || '').trim();
+    const enderecoT = (req.query.endereco || '').trim();
+    const temFiltro = !!(nomeT || celularT || codigoT || enderecoT);
+    let imoveis = [];
+    if (temFiltro) {
+      const conds = [];
+      const pars = [];
+      if (nomeT) { pars.push('%' + nomeT + '%'); conds.push(`proprietario->>'nome' ILIKE $${pars.length}`); }
+      if (celularT) {
+        const celDigits = celularT.replace(/\D/g, '');
+        pars.push('%' + celDigits + '%');
+        conds.push(`(regexp_replace(COALESCE(proprietario->>'celular',''),'\\D','','g') ILIKE $${pars.length} OR regexp_replace(COALESCE(proprietario->>'telefone',''),'\\D','','g') ILIKE $${pars.length})`);
+      }
+      if (codigoT) { pars.push(codigoT); conds.push(`(id=$${pars.length} OR id_externo=$${pars.length} OR id_interno=$${pars.length} OR codigo_imovel=$${pars.length})`); }
+      if (enderecoT) { pars.push('%' + enderecoT + '%'); conds.push(`endereco ILIKE $${pars.length}`); }
+      const sql = `SELECT id,id_externo,id_interno,codigo_imovel,endereco,numero,complemento,bairro,cidade,estado,proprietario,user_id
+                   FROM imoveis WHERE ${conds.join(' AND ')} ORDER BY endereco LIMIT 300`;
+      const r = await _qBI(sql, pars);
+      const userIds = [...new Set(r.rows.map(row => row.user_id).filter(Boolean))];
+      let usersMap = {};
+      if (userIds.length) {
+        const ru = await _qBI('SELECT codigo_usuario, id, nome FROM usuarios WHERE codigo_usuario = ANY($1) OR id = ANY($1)', [userIds]);
+        ru.rows.forEach(u => { usersMap[u.codigo_usuario] = u.nome; usersMap[u.id] = u.nome; });
+      }
+      imoveis = r.rows.map(row => ({ ...row, corretorNome: usersMap[row.user_id] || row.user_id || '-' }));
+    }
+    const linhas = imoveis.map(im => {
+      const p = im.proprietario || {};
+      const cod = im.id_externo || im.id_interno || im.codigo_imovel || im.id;
+      return `<tr>
+        <td><input type="checkbox" name="ids" value="${im.id}"></td>
+        <td style="font-family:monospace;font-size:11px">${cod}</td>
+        <td>${im.endereco || ''} ${im.numero || ''} ${im.complemento ? '- ' + im.complemento : ''}</td>
+        <td>${im.bairro || ''} / ${im.cidade || ''}</td>
+        <td>${p.nome || '-'}</td>
+        <td>${p.celular || p.telefone || '-'}</td>
+        <td>${im.corretorNome} <span style="color:#9ca3af">(${im.user_id || ''})</span></td>
+      </tr>`;
+    }).join('');
+    const msg = req.query.msg ? `<div style="background:#f0fdf4;color:#16a34a;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-weight:600;font-size:13px">${req.query.msg}</div>` : '';
+    res.send(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buscar/Excluir Imóvel · Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px;}
+.top{background:#fff;border-bottom:1px solid #e5e5e3;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.top h1{font-size:16px;font-weight:700;}
+.wrap{padding:24px;max-width:1200px;margin:0 auto}
+.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;margin-bottom:16px}
+.campo{display:flex;flex-direction:column;gap:4px}
+.campo label{font-size:11px;font-weight:600;color:#666}
+.campo input{padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:8px;font-size:10px;font-weight:600;color:#888;text-transform:uppercase;border-bottom:1px solid #f0f0ee;background:#fafafa;white-space:nowrap}
+td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
+.table-wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+${_adminNavTop()}
+<div class="wrap">
+  ${msg}
+  <div class="card">
+    <form method="GET" action="/admin/buscar-imovel">
+      <div class="grid">
+        <div class="campo"><label>Nome do proprietário</label><input type="text" name="nome" value="${nomeT}" placeholder="Ex: João Silva"></div>
+        <div class="campo"><label>Celular</label><input type="text" name="celular" value="${celularT}" placeholder="Ex: 11999999999"></div>
+        <div class="campo"><label>Código do imóvel</label><input type="text" name="codigo" value="${codigoT}" placeholder="Ex: CAPRAFA001"></div>
+        <div class="campo"><label>Endereço</label><input type="text" name="endereco" value="${enderecoT}" placeholder="Ex: Rua Augusta"></div>
+      </div>
+      <button type="submit" style="background:#111;color:#fff;padding:9px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px">🔍 Buscar</button>
+      ${temFiltro ? '<a href="/admin/buscar-imovel" style="margin-left:10px;font-size:12px;color:#888">Limpar</a>' : ''}
+    </form>
+  </div>
+  ${temFiltro ? `
+  <form method="POST" action="/admin/buscar-imovel/excluir" onsubmit="return _confirmarExclusao(this)">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-weight:700">${imoveis.length} imóvel(is) encontrado(s)</div>
+        ${imoveis.length ? `<button type="submit" style="background:#dc2626;color:#fff;padding:8px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px">🗑️ Excluir selecionados (de todas as contas)</button>` : ''}
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th><input type="checkbox" onclick="document.querySelectorAll('input[name=ids]').forEach(c=>c.checked=this.checked)"></th>
+          <th>Código</th><th>Endereço</th><th>Bairro/Cidade</th><th>Proprietário</th><th>Celular</th><th>Conta</th>
+        </tr></thead>
+        <tbody>${linhas || '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">Nenhum imóvel encontrado.</td></tr>'}</tbody>
+      </table></div>
+    </div>
+  </form>
+  ` : ''}
+</div>
+<script>
+function _confirmarExclusao(form){
+  const marcados = form.querySelectorAll('input[name=ids]:checked').length;
+  if(marcados === 0){ alert('Marque pelo menos um imóvel.'); return false; }
+  return confirm('Excluir ' + marcados + ' imóvel(is) de TODAS as contas que tiverem? Essa ação não pode ser desfeita.');
+}
+</script>
+</body>
+</html>`);
+  } catch(e) {
+    res.status(500).send('Erro: ' + e.message);
+  }
+});
+
+app.post('/admin/buscar-imovel/excluir', authAdmin, async (req, res) => {
+  try {
+    const { query: _qBIExc } = require('./services/db');
+    let ids = req.body.ids || [];
+    if (!Array.isArray(ids)) ids = [ids];
+    ids = ids.filter(Boolean);
+    let excluidos = 0;
+    if (ids.length) {
+      const del = await _qBIExc('DELETE FROM imoveis WHERE id = ANY($1)', [ids]);
+      excluidos = del.rowCount;
+    }
+    res.redirect('/admin/buscar-imovel?msg=' + encodeURIComponent(excluidos + ' imóvel(is) excluído(s) com sucesso.'));
+  } catch(e) {
+    res.status(500).send('Erro: ' + e.message);
+  }
+});
+
 app.get('/admin', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
@@ -804,6 +949,7 @@ tr:hover td{background:#fafafa;}
     <a href="/admin/quintoandar-solicitacoes" style="font-size:12px;background:#00a86b;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏢 Solicitações QA</a>
     <a href="/admin/exclusao-solicitacoes" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🗑️ Exclusão de Conta</a>
     <a href="/admin/leads-auditoria" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🗑️ Auditoria de Leads</a>
+    <a href="/admin/buscar-imovel" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏠 Buscar/Excluir Imóvel</a>
     <a href="/admin/logout" style="font-size:12px;color:#888;text-decoration:none">Sair</a>
   </div>
 </div>

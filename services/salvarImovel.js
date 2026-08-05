@@ -253,6 +253,37 @@ function rowToImovel(r) {
   };
 }
 
+// % de preenchimento do perfil do imóvel — mesma sequência de campos do cadastro
+// manual (/app/cadastro), usado no card de captação pra mostrar o quanto falta o
+// proprietário completar. Diferenciais fica de fora (dezenas de checkboxes,
+// contar 1 a 1 nunca deixaria o % subir de forma significativa).
+function calcularPercentualPerfil(im) {
+  if (!im) return 0;
+  const prop = im.proprietario || {};
+  const checks = [
+    !!im.tipo,
+    !!im.transacao,
+    !!(im.cep || im.endereco),
+    !!im.bairro,
+    !!im.cidade,
+    !!im.estado,
+    parseFloat(im.valor_imovel) > 0,
+    parseFloat(im.condominio) > 0,
+    parseFloat(im.iptu) > 0,
+    parseFloat(im.area_m2) > 0,
+    parseInt(im.quartos) > 0,
+    parseInt(im.suites) > 0,
+    parseInt(im.banheiros) > 0,
+    parseInt(im.vagas) > 0,
+    !!(im.descricao && im.descricao.trim()),
+    !!(im.fotos && im.fotos.length > 0),
+    !!(prop.nome && prop.nome.trim()),
+    !!(prop.celular || prop.telefone),
+  ];
+  const preenchidos = checks.filter(Boolean).length;
+  return Math.round((preenchidos / checks.length) * 100);
+}
+
 function imovelToRow(i) {
   const dados = { ...i };
   const campos = ['id','idExterno','idOriginal','idInterno','codigoImovel','titulo','tipo','categoria','transacao','condicao','status','bairro','cidade','estado','endereco','numero','complemento','cep','latitude','longitude','andar','torre','unidade','condominioNome','valor_imovel','condominio','iptu','area_m2','area_total','area_construida','quartos','suites','banheiros','vagas','salas','descricao','descricaoEditada','fotos','proprietario','portais','diferenciais','corretor','fonte','source','fase','anoConstrucao','posicaoSolar','totalAndares','unidadesPorAndar','aceitaFinanciamento','aceitaPermuta','userId','usuarioId','codigoUsuario','usuarioNome','usuarioPerfil','usuarioTelefone','corretorId','corretorNome','corretorEmail','corretorTelefone','url','urlPublica','tourVirtual','inativadoEm','inativadoPor','xmlUrl','lastUpdate','criadoEm'];
@@ -438,4 +469,4 @@ async function salvarTodosImoveis(imoveis) {
   return imoveis;
 }
 
-module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR };
+module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, calcularPercentualPerfil, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR };

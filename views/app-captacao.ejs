@@ -7,6 +7,10 @@
 .badge-captado{background:#f0fdf4;color:#16a34a;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
 .badge-pendente{background:#fffbeb;color:#92400e;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
 .btn-cadastrar{background:#FF385C;color:#fff;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap}
+.pct-badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;display:inline-block}
+.pct-low{background:#fef2f2;color:#dc2626}
+.pct-mid{background:#fffbeb;color:#92400e}
+.pct-high{background:#f0fdf4;color:#16a34a}
 @media(max-width:640px){
   .cap-linkbox{flex-wrap:wrap}
   .cap-linkbox-actions{align-items:stretch;width:100%}
@@ -21,6 +25,7 @@
     <span style="font-size:13px;color:#6b7280"><%= leads.length %> lead(s) com imóvel para captar</span>
   </div>
 <script>
+function pctClasseJS(p){ return p>=67 ? 'pct-high' : p>=34 ? 'pct-mid' : 'pct-low'; }
 async function marcarCaptado(leadId, tel, nomeEnc){
   const nome = decodeURIComponent(nomeEnc);
   const r = await fetch('/app/captacao/marcar/'+leadId, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({})});
@@ -37,6 +42,7 @@ async function marcarCaptado(leadId, tel, nomeEnc){
       const wa = 'https://wa.me/55'+tel.replace(/\D/g,'').replace(/^55/,'')+'?text='+msgWA;
       return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px">' +
         '<span>🏠 '+i.titulo+'</span>' +
+        '<span class="pct-badge '+pctClasseJS(i.percentual)+'">'+i.percentual+'%</span>' +
         '<a href="'+wa+'" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none">📲 Enviar</a>' +
         '</div>';
     }).join('') + '</div>';
@@ -91,12 +97,14 @@ async function excluirCaptar(leadId){
           <th>Celular</th>
           <th>Tipo imóvel</th>
           <th>Transação</th>
+          <th>Perfil</th>
           <th>Status</th>
           <th>Ação</th>
         </tr>
       </thead>
       <tbody>
-        <% leads.forEach(function(l){ 
+        <% function pctClasse(p){ return p>=67 ? 'pct-high' : p>=34 ? 'pct-mid' : 'pct-low'; } %>
+        <% leads.forEach(function(l){
           const dados = l.dados || {};
           const perfil = l.perfil_ia || {};
           const _primeiroVinculado = (l.imoveisRelacionados && l.imoveisRelacionados[0]) || null;
@@ -113,6 +121,11 @@ async function excluirCaptar(leadId){
           <td><% if(_telCel){ %><a href="https://wa.me/55<%= _telCel %>?text=<%= _msgContato %>" target="_blank" style="color:#16a34a;font-weight:600;text-decoration:none;white-space:nowrap">📱 Solicite mais dados dos imóveis</a><% } else { %>-<% } %></td>
           <td><%= dados.tipoImovelCaptar||perfil.tipo||(_primeiroVinculado&&_primeiroVinculado.tipo)||'-' %></td>
           <td><%= dados.transacaoCaptar||'-' %></td>
+          <td>
+            <% if(_primeiroVinculado) { %>
+              <span class="pct-badge <%= pctClasse(_primeiroVinculado.percentual) %>"><%= _primeiroVinculado.percentual %>% preenchido</span>
+            <% } else { %>-<% } %>
+          </td>
           <td>
             <% if(imovelCaptado) { %>
               <span class="badge-captado">✅ Captado</span>
@@ -134,7 +147,7 @@ async function excluirCaptar(leadId){
         </tr>
         <% if(l.imoveisRelacionados && l.imoveisRelacionados.length > 0) { %>
         <tr style="background:#f9fafb">
-          <td colspan="7" style="padding:8px 12px">
+          <td colspan="8" style="padding:8px 12px">
             <p style="font-size:11px;font-weight:600;color:#374151;margin-bottom:6px">🏠 Imóveis vinculados:</p>
             <% l.imoveisRelacionados.forEach(function(im){ %>
             <% const _tel2 = (l.telefone||l.whatsapp||'').replace(/\D/g,'').replace(/^55/,''); %>
@@ -142,6 +155,7 @@ async function excluirCaptar(leadId){
             <% const _msg2 = encodeURIComponent('Olá '+(l.nome||'')+'! Seu imóvel foi cadastrado. Acesse: '+_link2); %>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px">
               <span style="flex:1">🏠 <%= im.titulo||im.tipo %> · <%= im.bairro||'' %> · R$ <%= im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'—' %></span>
+              <span class="pct-badge <%= pctClasse(im.percentual) %>"><%= im.percentual %>%</span>
               <a href="https://wa.me/55<%= _tel2 %>?text=<%= _msg2 %>" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📲 Enviar link</a>
               <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="background:#00A699;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap">✏️ Editar para completar</a>
               <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link público</a>

@@ -13492,8 +13492,9 @@ app.get('/app/captacao', auth, async (req, res) => {
       if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
       let imoveis = [];
       if(conds.length){
-        const ir = await require('./services/db').query(`SELECT id,id_interno,titulo,tipo,bairro,cidade,valor_imovel,transacao FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')}) LIMIT 5`, pars);
-        imoveis = ir.rows;
+        const { calcularPercentualPerfil: _cppCap } = require('./services/salvarImovel');
+        const ir = await require('./services/db').query(`SELECT id,id_interno,titulo,tipo,bairro,cidade,estado,cep,endereco,valor_imovel,condominio,iptu,area_m2,quartos,suites,banheiros,vagas,descricao,fotos,proprietario,transacao FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')}) LIMIT 5`, pars);
+        imoveis = ir.rows.map(im => ({ ...im, percentual: _cppCap(im) }));
       }
       return { ...l, imoveisRelacionados: imoveis };
       } catch(_eL){ return { ...l, imoveisRelacionados: [] }; }
@@ -13740,11 +13741,12 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
     if(email){ params.push(email); conditions.push(`proprietario->>'email' ILIKE $${params.length}`); }
     let imoveis = [];
     if(conditions.length > 0){
+      const { calcularPercentualPerfil: _cppMarcar } = require('./services/salvarImovel');
       const imR = await _qCM(
-        `SELECT id, id_interno, titulo, tipo, bairro, cidade, valor_imovel, transacao FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND status='ativo' AND (${conditions.join(' OR ')}) LIMIT 10`,
+        `SELECT id, id_interno, titulo, tipo, bairro, cidade, estado, cep, endereco, valor_imovel, condominio, iptu, area_m2, quartos, suites, banheiros, vagas, descricao, fotos, proprietario, transacao FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND status='ativo' AND (${conditions.join(' OR ')}) LIMIT 10`,
         params
       );
-      imoveis = imR.rows;
+      imoveis = imR.rows.map(im => ({ ...im, percentual: _cppMarcar(im) }));
     }
     res.json({ ok: true, imoveis });
   } catch(e) { res.json({ ok: false, erro: e.message }); }

@@ -13403,8 +13403,11 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
     const resultados = [];
     for (const numero of numeros.slice(0, 3)) {
       try {
+        // Só o botão de índice 0 ("Sim, eu tenho!") é do tipo URL dinâmica no
+        // template — o índice 1 ("Não tenho imóvel") é resposta rápida (quick
+        // reply) e não aceita parâmetro de URL (mandar os dois dava erro 132018).
         const botoesUrl = corretorUserId
-          ? [0, 1].map(index => ({ index, valor: `${corretorUserId}?tel=${_normalizarTelefone(numero)}` }))
+          ? [{ index: 0, valor: `${corretorUserId}?tel=${_normalizarTelefone(numero)}` }]
           : undefined;
         await enviarTemplate({ telefone: numero, templateNome, templateIdioma: templateIdioma || 'pt_BR', parametros, botoesUrl });
         resultados.push({ numero, ok: true });

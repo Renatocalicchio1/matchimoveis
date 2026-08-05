@@ -11,12 +11,13 @@ async function enviarComRetry(contato, campanha) {
     const v = contato.variaveis ? contato.variaveis[campo] : '';
     return v == null ? '' : v;
   });
-  // Os dois botões de link do template ("Sim, eu tenho!" e "Quero ajuda pra
-  // cadastrar!") apontam pro mesmo lugar: /captar/{corretor}?tel={telefone}. O Meta
-  // só recebe o trecho DINÂMICO (o resto da URL já está fixo no template, configurado
-  // direto no WhatsApp Manager) — index 0 e 1 são a posição de cada botão no template.
+  // Só o botão de índice 0 ("Sim, eu tenho!") é do tipo URL dinâmica no template
+  // — aponta pra /captar/{corretor}?tel={telefone} (Meta só recebe o trecho
+  // DINÂMICO, o resto da URL já está fixo no template). O botão de índice 1
+  // ("Não tenho imóvel") é resposta rápida (quick reply), não aceita parâmetro
+  // de URL — mandar os dois dava erro 132018 (parâmetro de template inválido).
   const botoesUrl = campanha.corretor_user_id
-    ? [0, 1].map(index => ({ index, valor: `${campanha.corretor_user_id}?tel=${_normalizarTelefone(contato.telefone)}` }))
+    ? [{ index: 0, valor: `${campanha.corretor_user_id}?tel=${_normalizarTelefone(contato.telefone)}` }]
     : undefined;
   for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
     try {

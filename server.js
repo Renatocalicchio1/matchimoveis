@@ -9325,6 +9325,17 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
             console.log('[whatsapp-cloud] botão não reconhecido pra opt-out:', JSON.stringify(msg.button), '| telefone:', telefone);
           }
         }
+        // Status de entrega (sent/delivered/read/failed) — só log por enquanto,
+        // pra dar visibilidade de falha de entrega que a API de envio não mostra
+        // (o POST /messages só confirma que a Meta aceitou o pedido, não que chegou).
+        const statuses = change.value?.statuses || [];
+        for (const st of statuses) {
+          if (st.status === 'failed') {
+            console.error('[whatsapp-cloud] FALHA DE ENTREGA:', JSON.stringify({ telefone: st.recipient_id, messageId: st.id, erros: st.errors }));
+          } else {
+            console.log('[whatsapp-cloud] status:', st.status, '| telefone:', st.recipient_id, '| messageId:', st.id);
+          }
+        }
       }
     }
   } catch(e) { console.error('[webhook whatsapp-cloud]', e.message); }

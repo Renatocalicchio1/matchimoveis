@@ -1352,6 +1352,9 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
     const email = body.email || body.clientEmail || '';
     const mensagem = body.message || body.clientMessage || '';
     if (!telefone && !email) return;
+    if (telefone && (_cacheUsuarios || []).some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
+      console.log('[webhook-global] numero bloqueado:', telefone); return;
+    }
     const lead = {
       id: Date.now().toString(),
       nome, email, telefone, whatsapp: telefone, contato: telefone,
@@ -5244,6 +5247,9 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     const mensagemLimpa = _msgRaw.replace(/https?:\/\/[^\s]+/g, '').replace(/¡[^!]+!/g, '').trim();
     const _phones = (body.phone || '').split('/');
     const telefone = (body.telefone || body.phoneNumber || _phones[_phones.length - 1] || body.txtTelefone || '').replace(/\D/g,'');
+    if (telefone && _users.some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
+      console.log('[WEBHOOK IMOVELWEB] numero bloqueado:', telefone); return;
+    }
     const nome = body.nome || body.name || body.txtNome || body.firstName || telefone || '';
     const email = body.email || body.txtEmail || '';
     const lead = {
@@ -5362,6 +5368,9 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK GRUPOOLX] userId nao encontrado:', userId); return; }
     const telefone = (body.phoneNumber || (body.ddd||'') + (body.phone||'')).replace(/\D/g,'');
+    if (telefone && _users.some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
+      console.log('[WEBHOOK GRUPOOLX] numero bloqueado:', telefone); return;
+    }
     const originLeadId = body.originLeadId || body.originListingId || '';
     const lead = {
       id: Date.now().toString(),
@@ -5465,6 +5474,9 @@ app.post('/webhook/123i/:userId', async (req, res) => {
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK 123i] userId nao encontrado:', userId); return; }
     const telefone = (body.phoneNumber || (body.ddd||'') + (body.phone||'')).replace(/\D/g,'');
+    if (telefone && _users.some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
+      console.log('[WEBHOOK 123i] numero bloqueado:', telefone); return;
+    }
     const originLeadId = body.originLeadId || body.originListingId || '';
     const lead = {
       id: Date.now().toString(),
@@ -5557,6 +5569,9 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK CHAVES] userId nao encontrado:', userId); return; }
     const telefone = (body.phone || '').replace(/\D/g,'');
+    if (telefone && _users.some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
+      console.log('[WEBHOOK CHAVES] numero bloqueado:', telefone); return;
+    }
     const lead = {
       id: Date.now().toString(),
       nome: body.name || telefone || '',

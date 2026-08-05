@@ -81,7 +81,7 @@
         <% const transacaoLabel = p.intencao==='comprar'?'Comprar':p.intencao==='alugar'?'Alugar':p.intencao||''; %>
         <% const _matPl = (l.matchesAuto||l.matches||[]).length; %>
         <% const _vitrineLinkPl = _matPl>0 ? (l.vitrineLink || ('/cliente/oferta/'+(l.leadId||l.id)+'?userId='+encodeURIComponent(l.userId||l.usuarioId||l.corretorId||''))) : ''; %>
-        <tr class="<%= l.emAtendimento?'pl-atendida':'' %>">
+        <tr class="<%= l.emAtendimento?'pl-atendida':'' %>" title="<%= l.emAtendimento?'Lead em atendimento (já viu detalhes)':'Clique em ver detalhes' %>">
           <td class="pl-data"><b><%= d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'}) %></b><%= d.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'}) %></td>
           <td>
             <a href="/app/lead/<%= l.id %>" class="pl-nome"><%= l.nome || 'Sem nome' %></a><br>

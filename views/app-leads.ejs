@@ -240,6 +240,7 @@ leads.forEach(item => {
     else if(col.key==='novo'){_acao='Iniciar contato';_acaoCor='background:#f9fafb;color:#6b7280;border-color:#e5e7eb';_urg='';}
   %>
   <div class="lead-card <%= _urg==='alta'?'urg-alta':_urg==='media'?'urg-media':'' %> <%= item.emAtendimento?'lc-atendida':'' %>"
+    title="<%= item.emAtendimento?'Lead em atendimento (já viu detalhes)':'Clique em ver detalhes' %>"
     data-id="<%= item.id %>"
     data-col="<%= col.key %>"
     data-temperatura="<%= item.temperatura||'frio' %>"

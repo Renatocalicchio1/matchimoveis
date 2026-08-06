@@ -14212,6 +14212,28 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
   }
 });
 
+// Upload de fotos pelo próprio proprietário, última etapa da captação pública —
+// reaproveita o multer/whitelist de extensão já usado em /app/imovel/:id/upload-foto
+// (uploadImoveis, definido mais acima). Sem auth (é o fluxo público), mas escopado
+// ao imovelId gerado em /captar/iniciar (timestamp+random, não sequencial).
+app.post('/captar/foto/:imovelId', uploadImoveis.array('fotos', 10), async (req, res) => {
+  try {
+    const imovelId = req.params.imovelId;
+    const files = req.files || [];
+    if (!files.length) return res.json({ ok: false, erro: 'Nenhuma foto enviada' });
+    const _completoCapFoto = await _buscarImovelCompleto(imovelId);
+    if (!_completoCapFoto) return res.json({ ok: false, erro: 'Imóvel não encontrado' });
+    const novasUrls = files.map(f => '/data-uploads/' + f.filename);
+    const _imovelCompletoCapFoto = { ..._completoCapFoto, fotos: [...(_completoCapFoto.fotos || []), ...novasUrls] };
+    await salvarImovel(_imovelCompletoCapFoto);
+    if (_cacheImoveis) { const _ci = _cacheImoveis.findIndex(i => i.id === imovelId); if (_ci >= 0) _cacheImoveis[_ci] = _capFotosCache({ ..._imovelCompletoCapFoto }); }
+    res.json({ ok: true, total: _imovelCompletoCapFoto.fotos.length });
+  } catch(e) {
+    console.error('[captar/foto]', e.message);
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
 app.post('/captar/nao/:leadId', express.json(), async (req, res) => {
   try {
     const { query: _qCN } = require('./services/db');

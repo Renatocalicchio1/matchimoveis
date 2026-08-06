@@ -67,7 +67,7 @@ input:focus,select:focus{outline:none;border-color:#FF385C}
 
   <!-- TELA 2 — tipo + endereço via CEP -->
   <div id="step2" style="display:none">
-    <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="on"></span><span></span><span></span></div></div>
+    <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="on"></span><span></span><span></span><span></span></div></div>
     <h2>Onde fica o imóvel?</h2>
     <p class="sub">Preenchemos o endereço automático a partir do CEP.</p>
     <div class="form-group">
@@ -128,7 +128,7 @@ input:focus,select:focus{outline:none;border-color:#FF385C}
 
   <!-- TELA 3 — cômodos e área -->
   <div id="step3" style="display:none">
-    <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="done"></span><span class="on"></span><span></span></div></div>
+    <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="done"></span><span class="on"></span><span></span><span></span></div></div>
     <h2 id="step3-titulo">Um pouco mais sobre o imóvel</h2>
     <p class="sub">Se não souber algum número exato, pode deixar em branco.</p>
     <div id="campos-comodos">
@@ -147,15 +147,29 @@ input:focus,select:focus{outline:none;border-color:#FF385C}
 
   <!-- TELA 4 — valor -->
   <div id="step4" style="display:none">
-    <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="on"></span></div></div>
+    <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="on"></span><span></span></div></div>
     <h2>Qual o valor pretendido?</h2>
-    <p class="sub">Última etapa — seu corretor entrará em contato pra completar fotos e detalhes.</p>
+    <p class="sub">Falta só uma etapa.</p>
     <div class="form-group"><label>Valor pretendido (R$)</label><input type="text" id="s4-valor" placeholder="Ex: 350000"></div>
-    <button class="btn-submit" onclick="enviarFinal()">Enviar informações →</button>
+    <button class="btn-submit" onclick="continuarStep4()">Continuar →</button>
   </div>
 
-  <!-- TELA 5 — sucesso -->
-  <div id="step5" style="display:none" class="sucesso">
+  <!-- TELA 5 — fotos -->
+  <div id="step5" style="display:none">
+    <div class="top-row"><div class="logo">MatchImóveis</div><div class="dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="on"></span></div></div>
+    <h2>Tem foto do imóvel?</h2>
+    <p class="sub">Última etapa — imóvel com foto recebe muito mais interesse. Se não tiver agora, pode enviar depois pro seu corretor.</p>
+    <div class="form-group">
+      <label>Fotos do imóvel</label>
+      <input type="file" id="s5-fotos" accept="image/*" multiple>
+    </div>
+    <div id="s5-msg" class="cep-msg err"></div>
+    <button class="btn-submit" id="btn-step5-enviar" onclick="enviarFotos()">Enviar fotos e concluir →</button>
+    <button class="btn-voltar" onclick="pularFotos()">Não tenho fotos agora, pular esta etapa</button>
+  </div>
+
+  <!-- TELA 6 — sucesso -->
+  <div id="step6" style="display:none" class="sucesso">
     <div class="icon">✅</div>
     <h2>Recebemos suas informações!</h2>
     <p style="margin-top:8px;color:#6b7280">Seu corretor já recebeu seu imóvel e entrará em contato em breve pra completar o cadastro.</p>
@@ -172,7 +186,7 @@ let _leadId = '';
 let _imovelId = '';
 
 function mostrar(id){
-  ['step1','step2','step3','step4','step5'].forEach(s => document.getElementById(s).style.display = (s===id ? 'block' : 'none'));
+  ['step1','step2','step3','step4','step5','step6'].forEach(s => document.getElementById(s).style.display = (s===id ? 'block' : 'none'));
 }
 
 async function selecionar(op){
@@ -185,9 +199,9 @@ async function selecionar(op){
 
   if(op === 'nao'){
     fetch('/captar/nao/'+_destino, {method:'POST'}).catch(()=>{});
-    mostrar('step5');
-    document.querySelector('#step5 h2').textContent = 'Tudo bem!';
-    document.querySelector('#step5 p').textContent = 'Obrigado por avisar. Se mudar de ideia, é só voltar nesse link.';
+    mostrar('step6');
+    document.querySelector('#step6 h2').textContent = 'Tudo bem!';
+    document.querySelector('#step6 p').textContent = 'Obrigado por avisar. Se mudar de ideia, é só voltar nesse link.';
     return;
   }
 
@@ -289,14 +303,51 @@ async function continuarStep3(){
   mostrar('step4');
 }
 
-async function enviarFinal(){
+async function continuarStep4(){
   const valor_imovel = document.getElementById('s4-valor').value.replace(/\D/g,'');
   await fetch('/captar/imovel/'+_imovelId, {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ userId, valor_imovel, finalizar: true })
+    body: JSON.stringify({ userId, valor_imovel })
   }).catch(()=>{});
   mostrar('step5');
+}
+
+async function _finalizarCaptacao(){
+  await fetch('/captar/imovel/'+_imovelId, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ userId, finalizar: true })
+  }).catch(()=>{});
+  mostrar('step6');
+}
+
+async function enviarFotos(){
+  const input = document.getElementById('s5-fotos');
+  const msg = document.getElementById('s5-msg');
+  msg.textContent = '';
+  const arquivos = input.files;
+  if(!arquivos || !arquivos.length){ return pularFotos(); }
+  const btn = document.getElementById('btn-step5-enviar');
+  btn.setAttribute('disabled','disabled');
+  btn.textContent = 'Enviando fotos...';
+  try {
+    const fd = new FormData();
+    for(const f of arquivos) fd.append('fotos', f);
+    const r = await fetch('/captar/foto/'+_imovelId, { method:'POST', body: fd });
+    const d = await r.json();
+    if(!d.ok){ msg.textContent = d.erro || 'Erro ao enviar fotos.'; btn.removeAttribute('disabled'); btn.textContent = 'Enviar fotos e concluir →'; return; }
+  } catch(e) {
+    msg.textContent = 'Erro ao enviar fotos, tenta de novo.';
+    btn.removeAttribute('disabled');
+    btn.textContent = 'Enviar fotos e concluir →';
+    return;
+  }
+  await _finalizarCaptacao();
+}
+
+async function pularFotos(){
+  await _finalizarCaptacao();
 }
 </script>
 </body>

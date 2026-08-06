@@ -204,6 +204,7 @@
       <button class="pf-btn" style="width:100%;margin-top:0" onclick="contratarPlano('300')">Contratar</button>
     </div>
   </div>
+  <p style="margin:14px 0 0;font-size:12px;color:#b45309;background:#fffbeb;border:0.5px solid #fde68a;border-radius:8px;padding:8px 12px">⚠️ Quando os créditos acabam, a plataforma bloqueia o acesso até uma nova recarga.</p>
   <% if (user.planoLeadsAtivo) { %>
     <p style="margin:14px 0 0;font-size:12px;color:#15803d">✅ Último combo contratado: <%= user.planoLeadsQtd %> leads/mês (<%= user.planoLeadsCreditos %> créditos)</p>
   <% } %>

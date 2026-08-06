@@ -6695,6 +6695,47 @@ setInterval(async () => {
 }, 5 * 60 * 1000); // roda a cada 5 minutos
 // ── FIM JOB_FOLLOWUPS ────────────────────────────────────────────────────────
 
+// ── JOB_JOBS_TRAVADOS — relança import de XML/leads e disparos WhatsApp que ──
+// ficaram presos em "processando"/"enviando" (worker_thread morto no meio de um
+// deploy — o Render manda SIGTERM na instância antiga, mas worker_threads não
+// recebem esse sinal e são encerrados abruptamente junto do processo pai,
+// deixando o job/campanha "travado" pra sempre sem essa checagem). Roda a cada
+// 5 min (mesma cadência do JOB_FOLLOWUPS), só mexe em quem está sem atualização
+// há 10+ min e ainda não foi relançado 2x (evita loop em job com causa real de
+// erro, ex.: arquivo/URL que não existe mais).
+setInterval(async () => {
+  try {
+    const { listarJobsTravados, atualizarJob } = require('./services/importJobs');
+    const { dispararWorkerXml, dispararWorkerLeads } = require('./services/workerDispatch');
+    const _jobsTravados = await listarJobsTravados(10, 2);
+    for (const job of _jobsTravados) {
+      console.log('[JOB TRAVADOS] relançando import job:', job.id, '| tipo:', job.tipo, '| relancamentos:', job.relancamentos || 0);
+      await atualizarJob(job.id, { relancamentos: (job.relancamentos || 0) + 1 });
+      if (job.tipo === 'xml') {
+        dispararWorkerXml(job.id, job.arquivo, job.usuario_id);
+      } else if (job.tipo === 'csv') {
+        dispararWorkerLeads(job.id, job.arquivo, job.usuario_id);
+      }
+    }
+  } catch(e) {
+    console.error('[JOB TRAVADOS] erro import_jobs:', e.message);
+  }
+
+  try {
+    const { listarCampanhasTravadas, atualizarCampanha } = require('./services/salvarDisparo');
+    const { dispararWorkerDisparo } = require('./services/workerDispatch');
+    const _campanhasTravadas = await listarCampanhasTravadas(10, 2);
+    for (const campanha of _campanhasTravadas) {
+      console.log('[JOB TRAVADOS] relançando disparo:', campanha.id, '| nome:', campanha.nome_campanha, '| relancamentos:', campanha.relancamentos || 0);
+      await atualizarCampanha(campanha.id, { relancamentos: (campanha.relancamentos || 0) + 1 });
+      dispararWorkerDisparo(campanha.id);
+    }
+  } catch(e) {
+    console.error('[JOB TRAVADOS] erro disparos_campanhas:', e.message);
+  }
+}, 5 * 60 * 1000); // roda a cada 5 minutos
+// ── FIM JOB_JOBS_TRAVADOS ─────────────────────────────────────────────────────
+
 // INBOX WHATSAPP
 app.get('/app/whatsapp', auth, async (req, res) => {
   const user = req.session.user;

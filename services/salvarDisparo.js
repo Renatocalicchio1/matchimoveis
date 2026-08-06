@@ -54,6 +54,7 @@ async function _inicializar() {
       criado_em TIMESTAMP DEFAULT NOW()
     )
   `);
+  await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS relancamentos INT DEFAULT 0`);
 }
 
 async function marcarOptout(telefone, origem) {
@@ -193,6 +194,18 @@ async function marcarContato(id, { status, erro, incrementarTentativa }) {
   }
 }
 
+// Campanhas presas em "enviando" sem atualização há X minutos — indica worker_thread
+// morto abruptamente (ex.: deploy no meio do disparo). Limita relançamentos pra não
+// tentar pra sempre uma campanha que trava por outro motivo (ex.: token expirado).
+async function listarCampanhasTravadas(minutos = 10, maxRelancamentos = 2) {
+  await _inicializar();
+  const { rows } = await query(
+    `SELECT * FROM disparos_campanhas WHERE status='enviando' AND pausado=false AND atualizado_em < NOW() - ($1 || ' minutes')::interval AND COALESCE(relancamentos,0) < $2`,
+    [minutos, maxRelancamentos]
+  );
+  return rows;
+}
+
 async function statsCampanha(campanhaId) {
   await _inicializar();
   const { rows } = await query(`SELECT status, COUNT(*) as total FROM disparos_contatos WHERE campanha_id=$1 GROUP BY status`, [campanhaId]);
@@ -212,5 +225,6 @@ module.exports = {
   statsCampanha,
   marcarOptout,
   listarOptout,
-  listarJaEnviados
+  listarJaEnviados,
+  listarCampanhasTravadas
 };

@@ -85,6 +85,7 @@
     <input type="hidden" name="cor_primaria" value="<%= siteConfig.cor_primaria %>">
     <input type="hidden" name="cor_cabecalho" value="<%= siteConfig.cor_cabecalho||'' %>">
     <input type="hidden" name="cor_rodape" value="<%= siteConfig.cor_rodape||'' %>">
+    <input type="hidden" name="cor_texto_rodape" value="<%= siteConfig.cor_texto_rodape||'' %>">
     <input type="hidden" name="rodape_nome" value="<%= siteConfig.rodape_nome %>">
     <input type="hidden" name="rodape_telefone" value="<%= siteConfig.rodape_telefone %>">
     <input type="hidden" name="rodape_cep" value="<%= siteConfig.rodape_cep||'' %>">
@@ -143,6 +144,11 @@
         <input type="text" id="cor-rodape-texto" value="<%= siteConfig.cor_rodape || '#FBF9F6' %>" oninput="document.getElementById('cor-rodape-picker').value=this.value" readonly>
         <span style="font-size:12px;color:#6b7280">Fundo do rodapé</span>
       </div>
+      <div class="ms-cor-row" style="margin-bottom:10px">
+        <input type="color" name="cor_texto_rodape" id="cor-texto-rodape-picker" value="<%= siteConfig.cor_texto_rodape || '#716C61' %>" onchange="document.getElementById('cor-texto-rodape-texto').value=this.value">
+        <input type="text" id="cor-texto-rodape-texto" value="<%= siteConfig.cor_texto_rodape || '#716C61' %>" oninput="document.getElementById('cor-texto-rodape-picker').value=this.value" readonly>
+        <span style="font-size:12px;color:#6b7280">Cor do texto do rodapé</span>
+      </div>
       <button type="submit" class="pf-btn">Salvar cores</button>
     </form>
   </div>
@@ -174,6 +180,7 @@
     <input type="hidden" name="cor_primaria" value="<%= siteConfig.cor_primaria %>">
     <input type="hidden" name="cor_cabecalho" value="<%= siteConfig.cor_cabecalho||'' %>">
     <input type="hidden" name="cor_rodape" value="<%= siteConfig.cor_rodape||'' %>">
+    <input type="hidden" name="cor_texto_rodape" value="<%= siteConfig.cor_texto_rodape||'' %>">
     <input type="hidden" name="site_ativo" value="<%= siteConfig.site_ativo!==false?'1':'0' %>">
     <div class="pf-grid">
       <div class="pf-field">

@@ -4119,7 +4119,7 @@ app.post('/app/perfil', auth, async (req,res)=>{
 });
 
 // ── MEU SITE (white-label público) ────────────────────────────────────────────
-const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', cor_cabecalho: '', cor_rodape: '', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_cep: '', rodape_rua: '', rodape_numero: '', rodape_complemento: '', rodape_cidade: '', rodape_estado: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '' };
+const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', cor_cabecalho: '', cor_rodape: '', cor_texto_rodape: '', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_cep: '', rodape_rua: '', rodape_numero: '', rodape_complemento: '', rodape_cidade: '', rodape_estado: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '' };
 const _DOMINIO_REGEX = /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
 
 app.get('/app/meu-site', auth, async (req, res) => {
@@ -4143,6 +4143,7 @@ app.post('/app/meu-site', auth, async (req, res) => {
       cor_primaria: req.body.cor_primaria || '#FF385C',
       cor_cabecalho: /^#[0-9a-f]{6}$/i.test(req.body.cor_cabecalho||'') ? req.body.cor_cabecalho : '',
       cor_rodape: /^#[0-9a-f]{6}$/i.test(req.body.cor_rodape||'') ? req.body.cor_rodape : '',
+      cor_texto_rodape: /^#[0-9a-f]{6}$/i.test(req.body.cor_texto_rodape||'') ? req.body.cor_texto_rodape : '',
       rodape_nome: req.body.rodape_nome || '',
       rodape_telefone: req.body.rodape_telefone || '',
       rodape_cep: req.body.rodape_cep || '',
@@ -8002,6 +8003,7 @@ async function _carregarSiteConfigPublico(codigoUsuario, corretor) {
     corPrimaria: (configSalva && configSalva.cor_primaria) || '#FF385C',
     corCabecalho: (configSalva && configSalva.cor_cabecalho) || '',
     corRodape: (configSalva && configSalva.cor_rodape) || '',
+    corTextoRodape: (configSalva && configSalva.cor_texto_rodape) || '',
     logoUrl: (configSalva && configSalva.logo_url) || '',
     rodapeNome: (configSalva && configSalva.rodape_nome) || corretor.nome || '',
     rodapeTelefone: (configSalva && configSalva.rodape_telefone) || corretor.celular || corretor.telefone || '',

@@ -91,9 +91,9 @@
     .pg-link.atual{background:var(--brand);border-color:var(--brand);color:#fff}
     .pg-link.desabilitado{opacity:.4;pointer-events:none}
 
-    .site-footer{background:<%= siteConfig.corRodape ? siteConfig.corRodape : 'transparent' %>;border-top:1px solid var(--line);margin-top:40px;padding:32px 24px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.9}
-    .site-footer b{color:var(--ink);display:block;font-size:14px;margin-bottom:4px}
-    .site-footer a{color:var(--muted);text-decoration:none}
+    .site-footer{background:<%= siteConfig.corRodape ? siteConfig.corRodape : 'transparent' %>;border-top:1px solid var(--line);margin-top:40px;padding:32px 24px;text-align:center;color:<%= siteConfig.corTextoRodape ? siteConfig.corTextoRodape : 'var(--muted)' %>;font-size:14.5px;line-height:1.9}
+    .site-footer b{color:<%= siteConfig.corTextoRodape ? siteConfig.corTextoRodape : 'var(--ink)' %>;display:block;font-size:16px;margin-bottom:4px}
+    .site-footer a{color:<%= siteConfig.corTextoRodape ? siteConfig.corTextoRodape : 'var(--muted)' %>;text-decoration:none}
     .site-footer a:hover{color:var(--brand)}
 
     @media(max-width:640px){

@@ -161,9 +161,10 @@
     }
 
     <% const _corRodape = (typeof siteConfig !== 'undefined' && siteConfig && siteConfig.corRodape) || ''; %>
-    .site-footer{background:<%= _corRodape ? _corRodape : 'transparent' %>;border-top:1px solid var(--line);margin-top:20px;padding:28px 24px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.9}
-    .site-footer b{color:var(--ink);display:block;font-size:13.5px;margin-bottom:4px}
-    .site-footer a{color:var(--muted);text-decoration:none}
+    <% const _corTextoRodape = (typeof siteConfig !== 'undefined' && siteConfig && siteConfig.corTextoRodape) || ''; %>
+    .site-footer{background:<%= _corRodape ? _corRodape : 'transparent' %>;border-top:1px solid var(--line);margin-top:20px;padding:28px 24px;text-align:center;color:<%= _corTextoRodape ? _corTextoRodape : 'var(--muted)' %>;font-size:14.5px;line-height:1.9}
+    .site-footer b{color:<%= _corTextoRodape ? _corTextoRodape : 'var(--ink)' %>;display:block;font-size:15.5px;margin-bottom:4px}
+    .site-footer a{color:<%= _corTextoRodape ? _corTextoRodape : 'var(--muted)' %>;text-decoration:none}
     .site-footer a:hover{color:var(--brand)}
   </style>
 </head>

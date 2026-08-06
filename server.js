@@ -2500,6 +2500,62 @@ app.post('/cadastro-secreto', async (req,res)=>{ return res.redirect('/'); // CA
 
 // rota /login removida
 
+// Botão de URL do template de disparo "leads garantidos" — clicou, já cria a
+// conta (ou loga se já existir pelo telefone) e manda direto pro perfil
+// completar os dados. contatoId é o uuid da linha em disparos_contatos (não
+// usa telefone cru na URL, cada link só serve pra quem recebeu aquele disparo).
+app.get('/entrar/:contatoId', async (req, res) => {
+  try {
+    const { buscarContato, marcarContato } = require('./services/salvarDisparo');
+    const contato = await buscarContato(req.params.contatoId);
+    if (!contato) return res.redirect('/');
+
+    const telefone = String(contato.telefone || '').replace(/\D/g,'');
+    const { lerUsuarios: _luEntrar, salvarUsuario: _salvarEntrar } = require('./services/salvarUsuario');
+    const users = await _luEntrar();
+    let user = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);
+
+    if (!user) {
+      const codigo = gerarCodigoUsuario(contato.nome || 'USR');
+      const _charsSenha = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let senhaGerada = '';
+      for (let i=0; i<6; i++) senhaGerada += _charsSenha[Math.floor(Math.random()*_charsSenha.length)];
+      const senhaHash = await bcrypt.hash(senhaGerada, 10);
+      user = {
+        id: codigo,
+        nome: contato.nome || '',
+        telefone, celular: telefone,
+        email: '', tipo: 'corretor', ativo: true,
+        codigoUsuario: codigo, senha: senhaHash,
+        matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
+        origemCadastro: 'campanha_leads_garantidos'
+      };
+      await _salvarEntrar(user);
+      req.session.senhaInicialTemp = senhaGerada;
+      console.log('[ENTRAR] conta criada via campanha de leads garantidos:', codigo, '| tel:', telefone);
+      (async () => {
+        try {
+          const _msgAdmin = `🆕 *Novo usuário via campanha de leads garantidos!*\n\n👤 *Nome:* ${user.nome}\n📱 *Telefone:* ${telefone}\n🔑 *Código:* ${codigo}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
+          await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
+            body: JSON.stringify({ number: '5511951131609', text: _msgAdmin })
+          });
+        } catch(e) { console.error('[ENTRAR] erro notif admin:', e.message); }
+      })();
+      marcarContato(contato.id, { status: 'convertido' }).catch(()=>{});
+    } else {
+      marcarContato(contato.id, { status: 'convertido' }).catch(()=>{});
+    }
+
+    req.session.user = user;
+    res.redirect('/app/perfil?bemvindo=1');
+  } catch(e) {
+    console.error('[ENTRAR] erro:', e.message);
+    res.redirect('/');
+  }
+});
+
 app.post('/login', async (req,res)=>{
   const { lerUsuarios: _luLogin } = require('./services/salvarUsuario');
   const users = await _luLogin();
@@ -4184,9 +4240,11 @@ app.get('/app/perfil', auth, async (req,res)=>{
       return !(temProp && temEnd);
     }).length;
     const _totalVenda = _imoveisUser.rows.length;
-    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null });
+    const _senhaInicial = req.session.senhaInicialTemp || null;
+    delete req.session.senhaInicialTemp;
+    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1' });
   } catch(e) {
-    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null });
+    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false });
   }
 });
 
@@ -9308,6 +9366,59 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
   }
 });
 
+// Planos de leads garantidos (100/200/300 por mês) — preço fixo por pacote,
+// diferente da recarga de coins avulsa acima. Metadata.tipo='plano_leads' é o
+// que o webhook usa pra saber que não é pra creditar coins e sim gravar o
+// plano contratado no usuário.
+const PLANOS_LEADS = {
+  '100': { qtd: 100, valor: 400 },
+  '200': { qtd: 200, valor: 700 },
+  '300': { qtd: 300, valor: 1000 }
+};
+
+app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
+  try {
+    const plano = String(req.body.plano || '');
+    const pacote = PLANOS_LEADS[plano];
+    if (!pacote) return res.json({ ok: false, erro: 'Plano inválido' });
+    const user = req.session.user;
+    const userId = user.codigoUsuario || user.codigo || user.id;
+
+    const preference = new Preference(_mpClient);
+    const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';
+
+    const result = await preference.create({
+      body: {
+        items: [{
+          title: `Plano ${pacote.qtd} leads/mês — MatchImóveis`,
+          quantity: 1,
+          unit_price: pacote.valor,
+          currency_id: 'BRL'
+        }],
+        payer: { name: user.nome || '', email: user.email || '' },
+        back_urls: {
+          success: BASE + '/pagamento/sucesso-plano',
+          failure: BASE + '/app/perfil',
+          pending: BASE + '/app/perfil'
+        },
+        auto_return: 'approved',
+        notification_url: BASE + '/webhook/mercadopago',
+        payment_methods: { excluded_payment_types: [{ id: 'ticket' }] },
+        metadata: { userId, tipo: 'plano_leads', plano, qtd: pacote.qtd, valor: pacote.valor }
+      }
+    });
+
+    res.json({ ok: true, url: result.init_point, id: result.id });
+  } catch(e) {
+    console.error('[MP] erro criar preferencia plano_leads:', e.message);
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
+app.get('/pagamento/sucesso-plano', auth, async (req, res) => {
+  res.redirect('/app/perfil?planoSucesso=1');
+});
+
 app.post('/pagamento/processar', auth, express.json(), async (req, res) => {
   try {
     const payment = new Payment(_mpClient);
@@ -9390,6 +9501,43 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
     const meta = pagamento.metadata || {};
     console.log('[MP webhook] metadata:', JSON.stringify(meta), '| status:', pagamento.status, '| valor:', pagamento.transaction_amount);
     const userId = meta.user_id || meta.userId || '';
+
+    if (meta.tipo === 'plano_leads') {
+      const qtd = parseInt(meta.qtd) || 0;
+      const valor = parseFloat(meta.valor) || pagamento.transaction_amount || 0;
+      if (userId && qtd > 0) {
+        const { atualizarUsuario: _auPlano } = require('./services/salvarUsuario');
+        const _expiraEm = new Date(Date.now() + 30*24*3600*1000).toISOString();
+        await _auPlano(userId, {
+          planoLeadsAtivo: meta.plano || '',
+          planoLeadsQtd: qtd,
+          planoLeadsValor: valor,
+          planoLeadsComprasEm: new Date().toISOString(),
+          planoLeadsExpiraEm: _expiraEm
+        });
+        console.log('[MP] plano de leads ativado:', userId, '| qtd:', qtd, '| valor:', valor);
+        criarNotificacaoService({
+          id: Date.now().toString(),
+          tipo: 'recarga',
+          titulo: 'Plano de leads ativado! 🎉',
+          mensagem: `Seu plano de ${qtd} leads/mês foi ativado com sucesso.`,
+          usuarioId: userId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+        (async () => {
+          try {
+            const _msgAdmin = `💰 *Plano de leads contratado!*\n\n👤 *Usuário:* ${userId}\n📦 *Plano:* ${qtd} leads/mês\n💵 *Valor:* R$ ${valor}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
+            await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
+              method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
+              body: JSON.stringify({ number: '5511951131609', text: _msgAdmin })
+            });
+          } catch(e) { console.error('[MP] erro notif admin plano_leads:', e.message); }
+        })();
+      }
+      return res.sendStatus(200);
+    }
+
     const creditos = parseInt(meta.creditos) || Math.floor((pagamento.transaction_amount||0) * 20);
 
     if(userId && creditos > 0){
@@ -9508,6 +9656,9 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
           if (texto === 'não tenho imóvel' || texto === 'nao tenho imovel') {
             await marcarOptout(telefone, 'whatsapp_botao_nao_tenho');
             console.log('[whatsapp-cloud] opt-out registrado:', telefone);
+          } else if (texto === 'não tenho interesse' || texto === 'nao tenho interesse') {
+            await marcarOptout(telefone, 'whatsapp_botao_nao_interesse');
+            console.log('[whatsapp-cloud] opt-out registrado (leads garantidos):', telefone);
           } else {
             console.log('[whatsapp-cloud] botão não reconhecido pra opt-out:', JSON.stringify(msg.button), '| telefone:', telefone);
           }
@@ -13446,6 +13597,10 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       <input type="text" id="templateIdioma" value="pt_BR" placeholder="pt_BR">
       <label>Corretor dos botões de link (só se o template tiver botão de URL "Sim, eu tenho!"/"Quero ajuda pra cadastrar!" apontando pra /captar) — opcional</label>
       <select id="corretorUserId"><option value="">— nenhum (template só com texto/resposta rápida) —</option>${_corretoresOpts}</select>
+      <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:10px">
+        <input type="checkbox" id="usarContatoIdBotao" style="width:auto">
+        Botão de URL cria conta automaticamente (campanha de aquisição, ex: "leads garantidos" — aponta pra /entrar/{id})
+      </label>
       <label>Coluna com o telefone</label>
       <select id="colTelefone"></select>
       <label>Coluna com o nome (opcional, só exibição)</label>
@@ -13528,6 +13683,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         templateIdioma: document.getElementById('templateIdioma').value,
         mapeamento: _mapeamentoAtual(),
         corretorUserId: document.getElementById('corretorUserId').value,
+        usarContatoIdBotao: document.getElementById('usarContatoIdBotao').checked,
         numeros
       };
       const r = await fetch('/admin/disparos/teste', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -13549,6 +13705,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         templateIdioma: document.getElementById('templateIdioma').value,
         mapeamento: _mapeamentoAtual(),
         corretorUserId: document.getElementById('corretorUserId').value,
+        usarContatoIdBotao: document.getElementById('usarContatoIdBotao').checked,
         delayMs: parseInt(document.getElementById('delayMs').value)||2500
       };
       const r = await fetch('/admin/disparos/criar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -13600,7 +13757,7 @@ app.post('/admin/disparos/preview-planilha', authAdmin, upload.single('arquivo')
 });
 app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) => {
   try {
-    const { arquivo, templateNome, templateIdioma, mapeamento, numeros, corretorUserId } = req.body;
+    const { arquivo, templateNome, templateIdioma, mapeamento, numeros, corretorUserId, usarContatoIdBotao } = req.body;
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!numeros || !numeros.length) return res.json({ ok: false, erro: 'Informe ao menos 1 número' });
     const { linhas } = _lerPlanilhaDisparo(arquivo);
@@ -13615,7 +13772,9 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
         // reply) e não aceita parâmetro de URL (mandar os dois dava erro 132018).
         const botoesUrl = corretorUserId
           ? [{ index: 0, valor: `${corretorUserId}?tel=${_normalizarTelefone(numero)}` }]
-          : undefined;
+          : usarContatoIdBotao
+            ? [{ index: 0, valor: 'teste-' + Date.now() }] // teste não tem linha real em disparos_contatos
+            : undefined;
         await enviarTemplate({ telefone: numero, templateNome, templateIdioma: templateIdioma || 'pt_BR', parametros, botoesUrl });
         resultados.push({ numero, ok: true });
       } catch(e) {
@@ -13628,7 +13787,7 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
 
 app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) => {
   try {
-    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId } = req.body;
+    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId, usarContatoIdBotao } = req.body;
     if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!mapeamento || !mapeamento.telefone) return res.json({ ok: false, erro: 'Mapeie a coluna de telefone' });
@@ -13652,7 +13811,8 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
       mapeamentoVariaveis: mapeamento.variaveisOrdem || [],
       delayMs: delayMs || 2500,
       criadoPor: 'admin',
-      corretorUserId: corretorUserId || null
+      corretorUserId: corretorUserId || null,
+      usarContatoIdBotao: !!usarContatoIdBotao
     });
     const { optout, jaEnviados } = await inserirContatos(campanhaId, contatos);
 

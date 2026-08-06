@@ -117,6 +117,31 @@
 }
 </style>
 
+<% if (locals.bemvindo) { %>
+<div class="pf-card" style="background:#111827;color:#fff;border:none">
+  <p class="pf-card-title" style="color:#fff">👋 Bem-vindo(a) à MatchImóveis!</p>
+  <p class="pf-card-sub" style="color:#d1d5db">Sua conta já foi criada. Complete seu e-mail e dados abaixo pra não perder nenhuma notificação.</p>
+  <% if (locals.senhaInicial) { %>
+    <div style="background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.2);border-radius:8px;padding:12px 14px;margin-top:8px">
+      <p style="margin:0 0 4px;font-size:12px;color:#d1d5db">Sua senha inicial de acesso (anote ou troque abaixo):</p>
+      <p style="margin:0;font-size:20px;font-weight:700;letter-spacing:.05em"><%= senhaInicial %></p>
+    </div>
+  <% } %>
+</div>
+<% } else if (!user.email) { %>
+<div class="pf-card" style="background:#fffbeb;border-color:#fde68a">
+  <p class="pf-card-title" style="color:#92400e">⚠️ Falta seu e-mail</p>
+  <p class="pf-card-sub" style="color:#b45309">Complete seu e-mail abaixo pra receber notificações de leads e visitas.</p>
+</div>
+<% } %>
+
+<% if (locals.planoSucesso) { %>
+<div class="pf-card" style="background:#f0fdf4;border-color:#86efac">
+  <p class="pf-card-title" style="color:#15803d">✅ Plano ativado com sucesso!</p>
+  <p class="pf-card-sub" style="color:#166534">Sua contratação foi confirmada. Nossa equipe vai entrar em contato pra alinhar os detalhes.</p>
+</div>
+<% } %>
+
 <!-- Dados do usuário -->
 <div class="pf-card">
   <p class="pf-card-title">Dados do usuário</p>
@@ -156,6 +181,44 @@
   </form>
 </div>
 
+<div class="pf-card">
+  <p class="pf-card-title">📦 Planos de leads garantidos</p>
+  <p class="pf-card-sub">Quantidade de leads qualificados garantida todo mês, direto na sua carteira.</p>
+  <div class="pf-grid" style="grid-template-columns:repeat(3,1fr)">
+    <div style="border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px;text-align:center">
+      <p style="margin:0 0 4px;font-size:13px;color:#6b7280">100 leads/mês</p>
+      <p style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827">R$ 400</p>
+      <button class="pf-btn" style="width:100%;margin-top:0" onclick="contratarPlano('100')">Contratar</button>
+    </div>
+    <div style="border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px;text-align:center">
+      <p style="margin:0 0 4px;font-size:13px;color:#6b7280">200 leads/mês</p>
+      <p style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827">R$ 700</p>
+      <button class="pf-btn" style="width:100%;margin-top:0" onclick="contratarPlano('200')">Contratar</button>
+    </div>
+    <div style="border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px;text-align:center">
+      <p style="margin:0 0 4px;font-size:13px;color:#6b7280">300 leads/mês</p>
+      <p style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827">R$ 1.000</p>
+      <button class="pf-btn" style="width:100%;margin-top:0" onclick="contratarPlano('300')">Contratar</button>
+    </div>
+  </div>
+  <% if (user.planoLeadsAtivo) { %>
+    <p style="margin:14px 0 0;font-size:12px;color:#15803d">✅ Plano ativo: <%= user.planoLeadsQtd %> leads/mês</p>
+  <% } %>
+</div>
+<script>
+async function contratarPlano(plano){
+  try{
+    const r = await fetch('/pagamento/criar-plano', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ plano })
+    });
+    const d = await r.json();
+    if(d.ok && d.url){ window.location.href = d.url; }
+    else{ alert(d.erro || 'Erro ao gerar pagamento. Tente novamente.'); }
+  }catch(e){ alert('Erro ao gerar pagamento. Tente novamente.'); }
+}
+</script>
 
 <div class="pf-card">
   <p class="pf-card-title">🔒 Alterar senha</p>

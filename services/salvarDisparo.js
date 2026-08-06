@@ -44,6 +44,11 @@ async function _inicializar() {
   // cadastrar!" apontam (/captar/{corretor_user_id}?tel={telefone}) — nulo pra
   // campanhas sem botão de URL dinâmica (só corpo de texto).
   await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS corretor_user_id TEXT`);
+  // Campanhas de aquisição de conta nova (ex: "leads garantidos") não apontam pra
+  // um corretor existente — o botão de URL dinâmica usa o id da própria linha de
+  // disparos_contatos como parâmetro (ex: /entrar/{id}), pra criar a conta na hora
+  // que a pessoa clica. Fica desligado por padrão pra não afetar campanhas antigas.
+  await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS usar_contato_id_botao BOOLEAN DEFAULT false`);
   // Telefones que clicaram "Não tenho imóvel" (resposta rápida) no webhook do Cloud
   // API — opt-out global, não fica preso a campanha/corretor específico porque a
   // planilha de disparo não tem dono.
@@ -85,13 +90,13 @@ async function listarJaEnviados(telefones) {
   return rows.map(r => r.telefone);
 }
 
-async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId }) {
+async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId, usarContatoIdBotao }) {
   await _inicializar();
   const id = uuidv4();
   await query(
-    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-    [id, nomeCampanha, templateNome, templateIdioma, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null]
+    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id, usar_contato_id_botao)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+    [id, nomeCampanha, templateNome, templateIdioma, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null, !!usarContatoIdBotao]
   );
   return id;
 }
@@ -145,6 +150,12 @@ async function incrementarContador(id, campo) {
 async function buscarCampanha(id) {
   await _inicializar();
   const { rows } = await query(`SELECT * FROM disparos_campanhas WHERE id=$1`, [id]);
+  return rows[0] || null;
+}
+
+async function buscarContato(id) {
+  await _inicializar();
+  const { rows } = await query(`SELECT * FROM disparos_contatos WHERE id=$1`, [id]);
   return rows[0] || null;
 }
 
@@ -218,6 +229,7 @@ module.exports = {
   atualizarCampanha,
   incrementarContador,
   buscarCampanha,
+  buscarContato,
   listarCampanhas,
   listarContatos,
   proximoLotePendente,

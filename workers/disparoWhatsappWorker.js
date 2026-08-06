@@ -11,14 +11,17 @@ async function enviarComRetry(contato, campanha) {
     const v = contato.variaveis ? contato.variaveis[campo] : '';
     return v == null ? '' : v;
   });
-  // Só o botão de índice 0 ("Sim, eu tenho!") é do tipo URL dinâmica no template
-  // — aponta pra /captar/{corretor}?tel={telefone} (Meta só recebe o trecho
-  // DINÂMICO, o resto da URL já está fixo no template). O botão de índice 1
-  // ("Não tenho imóvel") é resposta rápida (quick reply), não aceita parâmetro
-  // de URL — mandar os dois dava erro 132018 (parâmetro de template inválido).
+  // Só o botão de índice 0 é do tipo URL dinâmica no template — o índice 1
+  // (resposta rápida) não aceita parâmetro de URL — mandar os dois dava erro
+  // 132018 (parâmetro de template inválido). Duas campanhas usam esse botão de
+  // formas diferentes: captação de imóvel aponta pra /captar/{corretor}?tel=...;
+  // aquisição de conta nova (usar_contato_id_botao) aponta pra /entrar/{id da
+  // linha de disparos_contatos}, que cria a conta na hora do clique.
   const botoesUrl = campanha.corretor_user_id
     ? [{ index: 0, valor: `${campanha.corretor_user_id}?tel=${_normalizarTelefone(contato.telefone)}` }]
-    : undefined;
+    : campanha.usar_contato_id_botao
+      ? [{ index: 0, valor: contato.id }]
+      : undefined;
   for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
     try {
       await enviarTemplate({

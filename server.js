@@ -357,10 +357,15 @@ app.post('/api/presenca/heartbeat', (req, res) => {
 });
 // ── FIM PRESENÇA ONLINE ───────────────────────────────────────────────────────
 
-// ── SEGURANÇA: BLOQUEIA ACOES QUANDO SALDO ZERADO ───────────────────────────
-const _rotasLivresSaldo = ['/app/perfil', '/app/perfil/senha', '/app/coins', '/app/notificacoes', '/pagamento', '/sair', '/logout', '/app/assistente'];
+// ── SEGURANÇA: BLOQUEIA TUDO QUANDO SALDO ZERADO ────────────────────────────
+// Antes só bloqueava POST (ações que mudam estado); leitura (GET) continuava
+// livre com saldo zerado. Agora bloqueia navegação inteira sob /app — a única
+// rota que continua acessível é /app/coins (senão a pessoa fica sem como
+// comprar mais créditos). Login/logout não são afetados por não estarem sob
+// /app. Isso vale pra QUALQUER usuário que zere o saldo, não só quem entrou
+// pela campanha de leads garantidos.
+const _rotasLivresSaldo = ['/app/coins'];
 app.use('/app', async (req, res, next) => {
-  if (req.method !== 'POST') return next();
   if (!req.session || !req.session.user) return next();
   const _rota = req.path;
   if (_rotasLivresSaldo.some(r => _rota.startsWith(r.replace('/app','')))) return next();
@@ -369,7 +374,10 @@ app.use('/app', async (req, res, next) => {
     const _uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
     const _saldo = await _getSaldo(_uid);
     if (_saldo <= 0) {
-      if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+      const _querJson = (req.headers['content-type']||'').includes('application/json')
+        || (req.headers['accept']||'').includes('application/json')
+        || req.xhr;
+      if (_querJson) {
         return res.status(402).json({ ok: false, erro: 'Conta pausada. Adicione créditos para continuar.', pausada: true });
       }
       return res.redirect('/app/coins?erro=saldo_zerado');

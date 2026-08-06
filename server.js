@@ -82,6 +82,46 @@ function dataPath(file){
   return dataFile(file);
 }
 
+// Verificação opcional de segredo nos webhooks de portal (ImovelWeb, GrupoOLX,
+// 123i, Chaves). Hoje a única "credencial" desses webhooks é o userId na URL,
+// que também aparece em /captar/:userId e /site/:codigoUsuario — quem descobre
+// um código consegue injetar lead falsa em conta alheia. Não dá pra EXIGIR o
+// token sem quebrar as integrações já configuradas em produção nos portais
+// (o corretor precisaria voltar em cada portal e adicionar ?token=... na URL
+// já cadastrada) — então a verificação é aceita se enviada (?token=), mas
+// não obrigatória ainda. Pra reforçar uma conta específica, adiciona
+// "?token=<valor>" na URL do webhook configurada naquele portal, usando o
+// valor retornado por _webhookTokenEsperado(userId).
+function _webhookTokenEsperado(userId) {
+  const crypto = require('crypto');
+  const segredo = process.env.WEBHOOK_PORTAL_SECRET || 'matchimoveis-webhook-default';
+  return crypto.createHmac('sha256', segredo).update(String(userId)).digest('hex').slice(0, 16);
+}
+function _webhookTokenValido(userId, req) {
+  const tokenRecebido = req.query.token || req.query.secret || '';
+  if (!tokenRecebido) return true; // compatibilidade com integrações já configuradas sem token
+  return tokenRecebido === _webhookTokenEsperado(userId);
+}
+
+// JSON.stringify() não escapa "</script>" — se um valor (ex: nome de lead
+// vindo de webhook público) contiver isso, quebra a tag <script> e injeta JS
+// arbitrário na página (stored XSS). Usar sempre que for injetar JSON direto
+// dentro de <script> via <%- %> no EJS (não precisa nos <%= %>, que já escapa).
+function _jsonScript(obj){
+  return JSON.stringify(obj).replace(/</g, '\\u003c');
+}
+
+// Escapa HTML pra uso nos poucos lugares onde a página é montada como
+// template string em vez de EJS (que já escapa por padrão com <%= %>).
+function _escapeHtml(str){
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function ensureDataFiles(){
   try{
     if(!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive:true });
@@ -223,6 +263,45 @@ const limiterLogin = rateLimit({
 });
 app.use('/login', limiterLogin);
 app.use('/api/login', limiterLogin);
+app.use('/admin/login', limiterLogin);
+// ── SEGURANÇA: MITIGAÇÃO DE CSRF NAS AÇÕES ADMIN ────────────────────────────
+// O painel /admin não tem token CSRF por formulário (implementar isso em
+// todo formulário HTML montado como template string, espalhado por dezenas
+// de rotas, é mudança grande demais pra fazer com segurança de uma vez).
+// Como mitigação equivalente e de baixo risco: em toda ação que muda estado
+// (POST/PUT/PATCH/DELETE) sob /admin, confere que o Origin (ou Referer, como
+// fallback) bate com o próprio host — barra o caso clássico de CSRF (site
+// malicioso induzindo o navegador do admin logado a submeter uma ação daqui).
+// Requisição sem esses headers (chamada direta via script/curl com o cookie
+// de sessão) não é bloqueada por esse checker — não é o vetor de CSRF (que
+// depende do NAVEGADOR da vítima mandar o header de origem automaticamente).
+function _checarOrigemAdmin(req, res, next) {
+  if (['GET','HEAD','OPTIONS'].includes(req.method)) return next();
+  const origem = req.headers.origin || req.headers.referer || '';
+  if (!origem) return next();
+  try {
+    if (new URL(origem).host !== req.headers.host) {
+      console.warn('[CSRF] origem suspeita bloqueada em /admin:', origem, '| host esperado:', req.headers.host);
+      return res.status(403).send('Origem inválida.');
+    }
+  } catch(e) {}
+  next();
+}
+app.use('/admin', _checarOrigemAdmin);
+// ── SEGURANÇA: RATE LIMIT VITRINE PÚBLICA (mitiga IDOR de leadId previsível) ──
+// leadId é Date.now().toString() (timestamp em ms) — não dá pra exigir o
+// userId da URL como segredo obrigatório sem quebrar o fluxo real de
+// compartilhamento manual (app-lead-detalhe.ejs manda o link SEM userId no
+// texto de WhatsApp que o corretor reenvia). O limiter não fecha o IDOR de
+// vez, mas torna inviável varrer a faixa de timestamps por scraping.
+const limiterVitrine = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { erro: 'Muitas requisições. Tente novamente em alguns minutos.' }
+});
+app.use('/cliente/oferta', limiterVitrine);
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(express.json({ limit: "50mb" }));
 
@@ -881,7 +960,9 @@ app.get('/admin', authAdmin, async (req, res) => {
             <a href="/admin/usuario/${u.codigo_usuario}" style="font-size:10px;color:#2563eb;text-decoration:none;background:#eff6ff;padding:2px 6px;border-radius:4px">Ver</a>
             <a href="/admin/acessar/${u.codigo_usuario}" style="font-size:10px;color:#7c3aed;text-decoration:none;background:#f5f3ff;padding:2px 6px;border-radius:4px">Acessar</a>
             <a href="/admin/regenerar-xml/${u.codigo_usuario}" style="font-size:10px;color:#16a34a;text-decoration:none;background:#f0fdf4;padding:2px 6px;border-radius:4px">XML</a>
-            <a href="/admin/deletar/${u.codigo_usuario}" onclick="return confirm('Deletar ${u.nome}?')" style="font-size:10px;color:#e8404a;text-decoration:none;background:#fef2f2;padding:2px 6px;border-radius:4px">Deletar</a>
+            <form method="POST" action="/admin/deletar/${u.codigo_usuario}" onsubmit="return confirm('Deletar ${u.nome}?')" style="display:inline">
+              <button type="submit" style="font:inherit;font-size:10px;color:#e8404a;background:#fef2f2;padding:2px 6px;border-radius:4px;border:none;cursor:pointer">Deletar</button>
+            </form>
           </div>
         </td>
         <td>${u.telefone ? `<a href="https://wa.me/55${(u.telefone||'').replace(/\D/g,'')}" target="_blank" style="color:#25D366;font-weight:600;text-decoration:none;">📱 ${u.telefone}</a>` : '-'}</td>
@@ -912,7 +993,9 @@ app.get('/admin', authAdmin, async (req, res) => {
           &nbsp;|&nbsp;
           <a href="/admin/regenerar-xml/${u.codigo_usuario}" style="font-size:11px;color:#16a34a;text-decoration:none;">XML</a>
           &nbsp;|&nbsp;
-          <a href="/admin/deletar/${u.codigo_usuario}" onclick="return confirm('Deletar ${u.nome}?')" style="font-size:11px;color:#e8404a;text-decoration:none;">Deletar</a>
+          <form method="POST" action="/admin/deletar/${u.codigo_usuario}" onsubmit="return confirm('Deletar ${u.nome}?')" style="display:inline">
+            <button type="submit" style="font:inherit;font-size:11px;color:#e8404a;background:none;border:none;text-decoration:underline;cursor:pointer;padding:0">Deletar</button>
+          </form>
           ${solQAMap[u.codigo_usuario]!==undefined&&!solQAMap[u.codigo_usuario]?'&nbsp;|&nbsp;<a href="/admin/quintoandar-liberar/'+u.codigo_usuario+'" style="font-size:11px;color:#00a86b;font-weight:600;text-decoration:none;">Liberar QA</a>':''}
         </td>
       </tr>`).join('');
@@ -1401,7 +1484,7 @@ app.get('/admin/exclusao-solicitacoes', authAdmin, async (req, res) => {
     <body><h2 style="margin-bottom:16px">Solicitações de exclusão de conta (${r.rows.length})</h2>
     <table><tr><th>Data</th><th>Nome</th><th>Email</th><th>Código</th><th>Status</th><th>Ação</th></tr>`;
     r.rows.forEach(row => {
-      html += `<tr><td>${new Date(row.criado_em).toLocaleString('pt-BR')}</td><td>${row.nome||''}</td><td>${row.email||''}</td><td>${row.user_id||''}</td><td>${row.atendido?'<span style="color:#16a34a;font-weight:600">✅ Excluída</span>':'<span style="color:#f59e0b;font-weight:600">⏳ Aguardando</span>'}</td><td>${row.atendido?'<span style="color:#9ca3af;font-size:12px">-</span>':'<a href="/admin/deletar/'+row.user_id+'" onclick="return confirm(\'Excluir de vez a conta e todos os dados de '+(row.nome||row.user_id)+'? Não pode ser desfeito.\')" style="background:#dc2626;color:#fff;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Excluir conta</a>'}</td></tr>`;
+      html += `<tr><td>${new Date(row.criado_em).toLocaleString('pt-BR')}</td><td>${row.nome||''}</td><td>${row.email||''}</td><td>${row.user_id||''}</td><td>${row.atendido?'<span style="color:#16a34a;font-weight:600">✅ Excluída</span>':'<span style="color:#f59e0b;font-weight:600">⏳ Aguardando</span>'}</td><td>${row.atendido?'<span style="color:#9ca3af;font-size:12px">-</span>':'<form method="POST" action="/admin/deletar/'+row.user_id+'" onsubmit="return confirm(\'Excluir de vez a conta e todos os dados de '+(row.nome||row.user_id)+'? Não pode ser desfeito.\')" style="display:inline"><button type="submit" style="background:#dc2626;color:#fff;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer">Excluir conta</button></form>'}</td></tr>`;
     });
     html += '</table></body></html>';
     res.send(html);
@@ -1749,7 +1832,10 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
   } catch(e) { res.send('Erro: ' + e.message); }
 });
 
-app.get('/admin/deletar/:codigo', authAdmin, async (req, res) => {
+// Era GET: ação destrutiva disparável por link/preview de email/scanner
+// automático sem interação real (o confirm() do onclick só roda em clique de
+// verdade num navegador, não protege contra fetch automático de link).
+app.post('/admin/deletar/:codigo', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
     const cod = req.params.codigo;
@@ -2097,14 +2183,18 @@ app.get('/api/testar-xml', async (req, res) => {
 
 
 
-app.post('/app/importar', upload.any(), async (req, res) => {
+app.post('/app/importar', auth, upload.any(), async (req, res) => {
   const xmlUrl = req.body.xmlUrl;
 
   if (!xmlUrl) {
     return res.json({ ok:false, erro:'Informe a URL do XML' });
   }
 
-  const _importUserId = req.body.userId || req.query.userId || (req.session.user ? req.session.user.id : '');
+  // userId só da sessão — antes aceitava req.body.userId/req.query.userId,
+  // permitindo importar XML arbitrário pra dentro da conta de QUALQUER
+  // corretor sem autenticação nenhuma. Nenhuma chamada legítima no código
+  // (app-cadastro.ejs, app-assistente.ejs) manda userId — sempre veio da sessão.
+  const _importUserId = req.session.user.id;
   const _importXmlUrl = xmlUrl;
   global.importStatus = {
     status: 'rodando',
@@ -2171,7 +2261,7 @@ app.post('/app/importar', upload.any(), async (req, res) => {
 });
 
 
-app.post('/app/importar-proprietarios', upload.any(), async (req, res) => {
+app.post('/app/importar-proprietarios', auth, upload.any(), async (req, res) => {
   try {
     const file = (req.files && req.files[0]) || req.file;
     const { execSync } = require('child_process');
@@ -2267,7 +2357,7 @@ app.post('/app/assistente/upload', auth, upload.any(), async (req,res)=>{
   }
 });
 
-app.post('/app/leads', upload.any(), async (req, res) => {
+app.post('/app/leads', auth, upload.any(), async (req, res) => {
   try {
     const file = (req.files && req.files[0]) || req.file;
     if (!file) return res.send("Envie o arquivo");
@@ -2359,7 +2449,10 @@ res.json({ ok: false, erro: e.message });
 //  res.render('app-portais', { user: req.session.user,  portais });
 //});
 
-app.post('/app/portais', async (req,res)=>{
+// Rota legada — o /app/portais real (GET, linha ~9106) usa xml_feeds no PG,
+// nem lê esse portais.json. Mantida (não removida) por precaução, mas sem
+// auth qualquer requisição reescrevia esse arquivo único compartilhado.
+app.post('/app/portais', auth, async (req,res)=>{
   const ativos = [].concat(req.body.portais || []);
   const all = ['zap','vivareal','olx','imovelweb','chavesnamao','123i'];
 
@@ -2374,12 +2467,17 @@ app.post('/app/portais', async (req,res)=>{
 });
 
 app.get('/feed/:portal', (req,res)=>{
+  // Antes rodava `execSync('node exportXML.js ' + portal)` com o valor da URL
+  // direto no shell — command injection não autenticado (o script nem existe
+  // mais no repo, mas o injection continuava válido). O arquivo já é gerado
+  // por /app/gerar-xml; aqui só serve o que já existe em disco, igual a
+  // /feed-:portal.xml (rota irmã, mesmo propósito, já sem exec).
   const portal = req.params.portal;
-  const { execSync } = require('child_process');
-
-  execSync(`node exportXML.js ${portal}`);
-
-  res.sendFile(dataPath(`feed-${portal}.xml`));
+  if (!/^[a-z0-9_-]+$/i.test(portal)) return res.status(400).send('Portal inválido');
+  const file = dataPath(`feed-${portal}.xml`);
+  if (!fs.existsSync(file)) return res.status(404).send('XML não encontrado');
+  res.set('Content-Type', 'application/xml');
+  res.send(fs.readFileSync(file, 'utf8'));
 });
 
 
@@ -2430,6 +2528,13 @@ app.post('/login', async (req,res)=>{
     const _refCode = String(req.body.indicadoPor || '').trim();
     const _indicador = _refCode ? users.find(u => (u.codigoUsuario || u.id) === _refCode) : null;
 
+    // Hash da senha no cadastro — antes gravava em texto puro (só virava bcrypt
+    // se o usuário trocasse a senha depois em /app/perfil/senha). Vazio fica
+    // vazio de propósito: mantém o fluxo de "login sem senha" (telefone só)
+    // pra quem se cadastra sem definir uma.
+    const _senhaCadastro = (req.body.senha || '').trim();
+    const _senhaCadastroHash = _senhaCadastro ? await bcrypt.hash(_senhaCadastro, 10) : '';
+
     const novo = {
       id: _codigoNovo,
       nome: req.body.nome,
@@ -2439,7 +2544,7 @@ app.post('/login', async (req,res)=>{
       tipo: req.body.tipoConta,
       ativo: true,
       codigoUsuario: _codigoNovo,
-      senha: req.body.senha || '',
+      senha: _senhaCadastroHash,
       matchCoins: 1000,
       matchCoinsTotal: 1000,
       matchCoinsBonusInicial: 1000,
@@ -3038,11 +3143,17 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
 
 
 
-app.get('/dev/diagnostico-leads', auth, (req,res)=>{
-  const user = req.session.user;
+// Antes com auth (qualquer corretor logado): a resposta usava `todos` (base
+// inteira, sem filtrar por dono) em "ultimas3" — vazava nome/id/dono das 3
+// leads mais recentes de QUALQUER corretor pra qualquer um autenticado.
+app.get('/dev/diagnostico-leads', authAdmin, (req,res)=>{
+  // authAdmin garante session.admin, não session.user (só existe se o admin
+  // também tiver entrado como um corretor via /admin/acessar/:codigo) — trata
+  // os dois casos em vez de assumir que user sempre existe.
+  const user = req.session.user || null;
   const todos = (_cacheLeads || []);
-  const uid = user.id;
-  const filtrados = filtrarPorUsuario(todos, user);
+  const uid = user ? user.id : null;
+  const filtrados = user ? filtrarPorUsuario(todos, user) : todos;
   res.json({
     userId: uid,
     totalNoArquivo: todos.length,
@@ -3105,8 +3216,11 @@ function salvarHistoricoUpload(payload){
 // ===== CORRETOR: MEUS LEADS + FAZER MATCH =====
 
 
-app.post('/app-leads/:idx/match', async (req,res)=>{
-  const usuario = req.session.user || { id:'antonio-11975720750', nome:'Antonio Eduardo', celular:'11975720750', telefone:'11975720750' };
+// Antes sem auth: sem sessão, o código assumia a identidade de uma pessoa
+// real (nome/telefone hardcoded) — parecia leftover de debug, mas ficava
+// acessível em produção e vazava PII de terceiro no próprio código-fonte.
+app.post('/app-leads/:idx/match', auth, async (req,res)=>{
+  const usuario = req.session.user;
 
   const dataRaw = safeReadJsonAdmin(dataPath('data.json'), []);
   const data = Array.isArray(dataRaw) ? dataRaw : (dataRaw.results || []);
@@ -5391,6 +5505,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     const _users = await _luIW();
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK IMOVELWEB] userId nao encontrado:', userId); return; }
+    if (!_webhookTokenValido(userId, req)) { console.warn('[WEBHOOK IMOVELWEB] token invalido para', userId); return; }
     const eventId = body.idEvento || body.eventId || body.eventoId || body.id || '';
     const _msgRaw = body.mensagem || body.message || body.txtMensagem || '';
     const mensagemLimpa = _msgRaw.replace(/https?:\/\/[^\s]+/g, '').replace(/¡[^!]+!/g, '').trim();
@@ -5516,6 +5631,7 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     const _users = await _luOLX();
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK GRUPOOLX] userId nao encontrado:', userId); return; }
+    if (!_webhookTokenValido(userId, req)) { console.warn('[WEBHOOK GRUPOOLX] token invalido para', userId); return; }
     const telefone = (body.phoneNumber || (body.ddd||'') + (body.phone||'')).replace(/\D/g,'');
     if (telefone && _users.some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
       console.log('[WEBHOOK GRUPOOLX] numero bloqueado:', telefone); return;
@@ -5622,6 +5738,7 @@ app.post('/webhook/123i/:userId', async (req, res) => {
     const _users = await _lu123();
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK 123i] userId nao encontrado:', userId); return; }
+    if (!_webhookTokenValido(userId, req)) { console.warn('[WEBHOOK 123i] token invalido para', userId); return; }
     const telefone = (body.phoneNumber || (body.ddd||'') + (body.phone||'')).replace(/\D/g,'');
     if (telefone && _users.some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
       console.log('[WEBHOOK 123i] numero bloqueado:', telefone); return;
@@ -5717,6 +5834,7 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     const _users = await _luCH();
     const _user = _users.find(u => u.id === userId);
     if (!_user) { console.warn('[WEBHOOK CHAVES] userId nao encontrado:', userId); return; }
+    if (!_webhookTokenValido(userId, req)) { console.warn('[WEBHOOK CHAVES] token invalido para', userId); return; }
     const telefone = (body.phone || '').replace(/\D/g,'');
     if (telefone && _users.some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
       console.log('[WEBHOOK CHAVES] numero bloqueado:', telefone); return;
@@ -7339,7 +7457,7 @@ process.on('SIGTERM', () => _shutdownGracioso('SIGTERM'));
 process.on('SIGINT', () => _shutdownGracioso('SIGINT'));
 
 // ROTA DA TELA IMPORTAR LEADS
-app.post('/process', upload.any(), async (req, res) => {
+app.post('/process', auth, upload.any(), async (req, res) => {
   try {
     const file = (req.files && req.files[0]) || req.file;
     if (!file) return res.send('Envie o arquivo');
@@ -7410,11 +7528,11 @@ app.get('/app/mapa', auth, async (req, res) => {
   const proximaVisita = visitasHoje.find(v => v.status!=='realizada'&&v.status!=='cancelada')||null;
   res.render('app-mapa', {
     user: req.session.user,
-    visitasJSON: JSON.stringify(visitasHoje),
-    leadsJSON: JSON.stringify(leadsAtivas),
-    imoveisVisitaJSON: JSON.stringify(imoveisVisita),
-    imoveisInteresseJSON: JSON.stringify(imoveisInteresse),
-    proximaVisitaJSON: JSON.stringify(proximaVisita),
+    visitasJSON: _jsonScript(visitasHoje),
+    leadsJSON: _jsonScript(leadsAtivas),
+    imoveisVisitaJSON: _jsonScript(imoveisVisita),
+    imoveisInteresseJSON: _jsonScript(imoveisInteresse),
+    proximaVisitaJSON: _jsonScript(proximaVisita),
     total: imoveis.length,
     hoje
   });
@@ -7427,7 +7545,7 @@ app.get('/mapa', (req, res) => {
   if (tipo) filtrados = filtrados.filter(i => i.tipo === tipo);
   res.render('mapa', {
     user: req.session.user,
-    imoveisJSON: JSON.stringify(filtrados),
+    imoveisJSON: _jsonScript(filtrados),
     total: filtrados.length
   });
 });
@@ -7446,16 +7564,20 @@ app.get('/api/imoveis', auth, async (req, res) => {
 // memória sem limite, cresce a cada request). Também trocado salvarTodosImoveis
 // (regravava os 62 mil imóveis do banco inteiro a cada clique) por salvarImovel
 // (grava só o imóvel editado).
-app.post('/imovel/:id/status', (req,res)=>{
-  const imoveis = (_cacheImoveis || []);
+// Antes sem auth: qualquer um mudava status de qualquer imóvel de qualquer
+// corretor sabendo/tentando um id. Agora exige sessão e só acha o imóvel
+// dentro da lista já filtrada pro dono logado (mesmo padrão de lerImoveis()
+// usado em /app/imovel/:id/editar).
+app.post('/imovel/:id/status', auth, (req,res)=>{
+  const imoveis = lerImoveis(req.session.user);
   const { status } = req.body;
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
-  if(idx>=0){
-    imoveis[idx].status = status;
-    salvarImovel(imoveis[idx]).catch(e=>console.error("[imoveis]",e.message));
-    gerarXMLPortais();
-  }
+  if(idx<0) return res.status(404).json({ok:false, erro:'Imóvel não encontrado'});
+
+  imoveis[idx].status = status;
+  salvarImovel(imoveis[idx]).catch(e=>console.error("[imoveis]",e.message));
+  gerarXMLPortais();
 
   res.json({ok:true});
 });
@@ -7467,16 +7589,31 @@ const UPLOADS_IMOVEIS_DIR = process.env.RENDER
   : path.join(__dirname, 'public', 'uploads', 'imoveis');
 if (!fs.existsSync(UPLOADS_IMOVEIS_DIR)) fs.mkdirSync(UPLOADS_IMOVEIS_DIR, { recursive: true });
 
+// Antes aceitava qualquer extensão do nome original do arquivo (controlado
+// pelo atacante) e servia o resultado publicamente em /data-uploads — dava
+// pra subir um .html/.svg com <script> como "foto" e ele ficar acessível na
+// origem confiável do site (XSS armazenado). Agora só aceita as extensões
+// realmente usadas por essas rotas (fotos de imóvel/logo + planilha de
+// contatos da campanha em /admin/campanha/importar).
+const _EXTENSOES_PERMITIDAS_IMOVEIS = ['jpg','jpeg','png','gif','webp','xlsx','xls','csv'];
 const storageImoveis = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, UPLOADS_IMOVEIS_DIR);
   },
   filename: function (req, file, cb) {
-    const ext = file.originalname.split('.').pop();
+    const ext = (file.originalname.split('.').pop() || '').toLowerCase().replace(/[^a-z0-9]/g, '');
     cb(null, Date.now() + '-' + Math.floor(Math.random()*1000) + '.' + ext);
   }
 });
-const uploadImoveis = multer({ storage: storageImoveis });
+const uploadImoveis = multer({
+  storage: storageImoveis,
+  limits: { fileSize: 15 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const ext = (file.originalname.split('.').pop() || '').toLowerCase();
+    if (!_EXTENSOES_PERMITIDAS_IMOVEIS.includes(ext)) return cb(new Error('Tipo de arquivo não permitido: ' + ext));
+    cb(null, true);
+  }
+});
 
 app.post('/app/meu-site/logo', auth, uploadImoveis.single('logo'), async (req, res) => {
   try {
@@ -8995,15 +9132,20 @@ app.get('/app/portais', auth, async (req,res)=>{
 // Backup leads por conta
 // Backup de imóveis por conta
 // Página de upload XML
-app.get('/app/importar-xml-upload', (req, res) => {
-  const userId = req.query.userId || '';
+// Antes sem auth: userId vinha de ?userId= na URL (controlado pelo visitante,
+// sem checar sessão) — dava pra importar/sobrescrever XML na conta de
+// QUALQUER corretor, e o mesmo valor ainda era refletido sem escapar no HTML
+// (XSS). Agora exige sessão e usa só o usuário logado.
+app.get('/app/importar-xml-upload', auth, (req, res) => {
+  const userId = req.session.user.codigoUsuario || req.session.user.id;
+  const nomeExibicao = req.session.user.nome || userId;
   res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Importar XML</title>
   <style>body{font-family:Arial;max-width:500px;margin:60px auto;padding:20px}
   h2{color:#ff385c}input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #ddd;font-size:15px}
   button{background:#ff385c;color:white;border:none;cursor:pointer;font-weight:700}
   .msg{padding:12px;border-radius:8px;margin-top:12px}</style></head>
   <body><h2>📥 Importar XML</h2>
-  <p>Conta: <strong>${userId}</strong></p>
+  <p>Conta: <strong>${_escapeHtml(nomeExibicao)}</strong></p>
   <form id="f" enctype="multipart/form-data">
     <input type="file" name="arquivo" accept=".xml" required>
     <button type="submit">Importar XML</button>
@@ -9014,7 +9156,7 @@ app.get('/app/importar-xml-upload', (req, res) => {
       e.preventDefault();
       document.getElementById('msg').innerHTML = '<div class="msg" style="background:#fff3cd">⏳ Importando, aguarde...</div>';
       const fd = new FormData(this);
-      const r = await fetch('/app/importar-xml-upload?userId=${userId}', {method:'POST',body:fd});
+      const r = await fetch('/app/importar-xml-upload', {method:'POST',body:fd});
       const d = await r.json();
       document.getElementById('msg').innerHTML = d.ok
         ? '<div class="msg" style="background:#d4edda">✅ '+d.mensagem+'</div>'
@@ -9024,13 +9166,12 @@ app.get('/app/importar-xml-upload', (req, res) => {
 });
 
 // Upload de XML local
-app.post('/app/importar-xml-upload', async (req, res) => {
+app.post('/app/importar-xml-upload', auth, async (req, res) => {
   const upload2 = require('multer')({ dest: dataPath('uploads/') });
   upload2.single('arquivo')(req, res, async (err) => {
     if(err) return res.json({ ok: false, erro: err.message });
     if(!req.file) return res.json({ ok: false, erro: 'Nenhum arquivo enviado' });
-    const userId = req.query.userId || '';
-    const { execSync } = require('child_process');
+    const userId = req.session.user.codigoUsuario || req.session.user.id;
     try {
       const xmlPath = req.file.path;
       const { criarJob: _cjX3 } = require('./services/importJobs');
@@ -9048,17 +9189,16 @@ app.post('/app/importar-xml-upload', async (req, res) => {
   });
 });
 
-// AUTO LOGIN ADMIN (somente para admin/leads)
-app.use('/admin', (req, res, next) => {
-  if (!req.session.user) {
-    req.session.user = {
-      id: 'admin',
-      nome: 'Admin',
-      tipo: 'admin'
-    };
-  }
-  next();
-});
+// Removido middleware "AUTO LOGIN ADMIN": criava req.session.user fake
+// (tipo:'admin') pra QUALQUER request sem sessão que batesse em /admin/*,
+// mesmo uma rota inexistente (404). Esse session.user fake passava livre
+// pelo middleware `auth` (só checa se session.user existe) e fazia
+// filtrarPorUsuario() devolver a base inteira sem filtro (user.tipo==='admin'
+// → bypass). Resultado: 1 request anônima a qualquer /admin/... e navegação
+// normal em /app/* vazava leads/imóveis/visitas de TODOS os corretores.
+// A autenticação real de admin é via authAdmin (req.session.admin), que
+// nunca dependeu desse middleware — nenhuma rota legítima usava session.user
+// aqui (confirmado: tipo:'admin' só era atribuído neste bloco removido).
 
 
 // ROTA TEMPORÁRIA — zerar visitas e notificações
@@ -12669,11 +12809,17 @@ app.post('/proprietario/visita/:visitaId/responder', async (req, res) => {
 
 
 
-app.get('/dev/diagnostico-leads', auth, (req,res)=>{
-  const user = req.session.user;
+// Antes com auth (qualquer corretor logado): a resposta usava `todos` (base
+// inteira, sem filtrar por dono) em "ultimas3" — vazava nome/id/dono das 3
+// leads mais recentes de QUALQUER corretor pra qualquer um autenticado.
+app.get('/dev/diagnostico-leads', authAdmin, (req,res)=>{
+  // authAdmin garante session.admin, não session.user (só existe se o admin
+  // também tiver entrado como um corretor via /admin/acessar/:codigo) — trata
+  // os dois casos em vez de assumir que user sempre existe.
+  const user = req.session.user || null;
   const todos = (_cacheLeads || []);
-  const uid = user.id;
-  const filtrados = filtrarPorUsuario(todos, user);
+  const uid = user ? user.id : null;
+  const filtrados = user ? filtrarPorUsuario(todos, user) : todos;
   res.json({
     userId: uid,
     totalNoArquivo: todos.length,
@@ -12736,8 +12882,11 @@ function salvarHistoricoUpload(payload){
 // ===== CORRETOR: MEUS LEADS + FAZER MATCH =====
 
 
-app.post('/app-leads/:idx/match', async (req,res)=>{
-  const usuario = req.session.user || { id:'antonio-11975720750', nome:'Antonio Eduardo', celular:'11975720750', telefone:'11975720750' };
+// Antes sem auth: sem sessão, o código assumia a identidade de uma pessoa
+// real (nome/telefone hardcoded) — parecia leftover de debug, mas ficava
+// acessível em produção e vazava PII de terceiro no próprio código-fonte.
+app.post('/app-leads/:idx/match', auth, async (req,res)=>{
+  const usuario = req.session.user;
 
   const dataRaw = safeReadJsonAdmin(dataPath('data.json'), []);
   const data = Array.isArray(dataRaw) ? dataRaw : (dataRaw.results || []);
@@ -12927,7 +13076,7 @@ function lerImoveis(user) {
 // Cache em memória — sincronizado com PostgreSQL
 
 // ROTA TEMPORARIA - cruzar proprietarios alex
-app.post('/admin/cruzar-proprietarios-alex', express.json({limit:'10mb'}), async (req,res)=>{
+app.post('/admin/cruzar-proprietarios-alex', authAdmin, express.json({limit:'10mb'}), async (req,res)=>{
   try {
     const mapa = req.body;
     const {rows} = await _pgPool.query("SELECT id,dados FROM imoveis WHERE user_id='ALE-DU2K'");
@@ -12947,7 +13096,7 @@ app.post('/admin/cruzar-proprietarios-alex', express.json({limit:'10mb'}), async
 });
 
 // ROTA TEMP - executar cruzamento alex internamente
-app.get('/admin/executar-cruzar-alex', async (req,res)=>{
+app.get('/admin/executar-cruzar-alex', authAdmin, async (req,res)=>{
   try {
     const fs = require('fs');
     // mapa embutido via require do arquivo salvo no deploy

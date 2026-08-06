@@ -360,7 +360,7 @@ const _estadoSigla = (() => { const v = _val('estado'); const n = _norm(v); retu
     <div class="fm-card">
       <div class="fm-title">Descrição</div>
       <div class="campo">
-        <textarea name="descricao" rows="5" placeholder="Descreva o imóvel..."><%- (_val('descricao')||''). replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&') %></textarea>
+        <textarea name="descricao" rows="5" placeholder="Descreva o imóvel..."><%= _val('descricao')||'' %></textarea>
       </div>
       <button type="button" onclick="gerarDescricaoIA()" class="btn btn-primary btn-sm" style="margin-top:8px">✨ Gerar com IA</button>
     </div>

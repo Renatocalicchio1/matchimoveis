@@ -4119,7 +4119,7 @@ app.post('/app/perfil', auth, async (req,res)=>{
 });
 
 // ── MEU SITE (white-label público) ────────────────────────────────────────────
-const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', cor_cabecalho: '', cor_rodape: '', cor_texto_rodape: '', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_cep: '', rodape_rua: '', rodape_numero: '', rodape_complemento: '', rodape_cidade: '', rodape_estado: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '' };
+const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', cor_cabecalho: '', cor_rodape: '', cor_texto_rodape: '', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_cep: '', rodape_rua: '', rodape_numero: '', rodape_complemento: '', rodape_cidade: '', rodape_estado: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '', financiamento_url: '', financiamento_ativo: false };
 const _DOMINIO_REGEX = /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
 
 app.get('/app/meu-site', auth, async (req, res) => {
@@ -4161,6 +4161,8 @@ app.post('/app/meu-site', auth, async (req, res) => {
       rodape_facebook: req.body.rodape_facebook || '',
       meta_pixel_id: /^\d{10,20}$/.test((req.body.meta_pixel_id||'').trim()) ? req.body.meta_pixel_id.trim() : '',
       google_analytics_id: /^G-[A-Z0-9]{6,12}$/i.test((req.body.google_analytics_id||'').trim()) ? req.body.google_analytics_id.trim() : '',
+      financiamento_url: /^https?:\/\/.+/i.test((req.body.financiamento_url||'').trim()) ? req.body.financiamento_url.trim() : '',
+      financiamento_ativo: req.body.financiamento_ativo === '1',
       site_ativo: req.body.site_ativo === '1'
     });
     res.redirect('/app/meu-site?msg=salvo');
@@ -8013,6 +8015,8 @@ async function _carregarSiteConfigPublico(codigoUsuario, corretor) {
     rodapeFacebook: (configSalva && configSalva.rodape_facebook) || '',
     metaPixelId: (configSalva && configSalva.meta_pixel_id) || '',
     googleAnalyticsId: (configSalva && configSalva.google_analytics_id) || '',
+    financiamentoUrl: (configSalva && configSalva.financiamento_url) || '',
+    financiamentoAtivo: !!(configSalva && configSalva.financiamento_ativo),
     siteAtivo: configSalva ? configSalva.site_ativo !== false : true
   };
 }

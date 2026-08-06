@@ -246,6 +246,23 @@
       <textarea name="rodape_texto" rows="3" placeholder="Ex: Atendimento personalizado há 15 anos."><%= siteConfig.rodape_texto||'' %></textarea>
     </div>
 
+    <div class="pf-card-title" style="margin-top:24px">Botão de Simulação de Financiamento</div>
+    <div class="pf-card-sub">Mostra um botão "Simular Financiamento" na página de cada imóvel, apontando pro link do seu simulador (banco parceiro, correspondente etc).</div>
+    <div class="ms-toggle-row" style="margin-bottom:12px">
+      <label class="ms-toggle-opt <%= siteConfig.financiamento_ativo?'on':'' %>">
+        <input type="radio" name="financiamento_ativo" value="1" <%= siteConfig.financiamento_ativo?'checked':'' %>>
+        <span>✅ Habilitado</span>
+      </label>
+      <label class="ms-toggle-opt <%= !siteConfig.financiamento_ativo?'off':'' %>">
+        <input type="radio" name="financiamento_ativo" value="0" <%= !siteConfig.financiamento_ativo?'checked':'' %>>
+        <span>⏸ Desabilitado</span>
+      </label>
+    </div>
+    <div class="pf-field">
+      <label>Link do simulador</label>
+      <input type="text" name="financiamento_url" value="<%= siteConfig.financiamento_url||'' %>" placeholder="https://...">
+    </div>
+
     <div class="pf-card-title" style="margin-top:24px">Métricas e Anúncios</div>
     <div class="pf-card-sub">Cole os IDs pra rastrear conversões dos seus próprios anúncios (Facebook/Instagram Ads, Google Ads) apontando pro seu site.</div>
     <div class="pf-grid">

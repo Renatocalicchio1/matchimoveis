@@ -178,7 +178,7 @@
 <header>
   <% if(_siteCfg && typeof siteVoltarUrl !== 'undefined'){ %>
   <a href="<%= siteVoltarUrl %>" class="logo" style="text-decoration:none">
-    <% if(_siteCfg.logoUrl){ %><img src="<%= _siteCfg.logoUrl %>" alt="<%= _siteCfg.rodapeNome %>" style="height:28px;max-width:180px;object-fit:contain">
+    <% if(_siteCfg.logoUrl){ %><img src="<%= _siteCfg.logoUrl %>" alt="<%= _siteCfg.rodapeNome %>" style="height:36px;max-width:210px;object-fit:contain">
     <% } else { %><span class="dot"></span><%= _siteCfg.rodapeNome || 'Imóveis' %><% } %>
   </a>
   <% } else { %>
@@ -361,6 +361,11 @@
       <a href="#" onclick="abrirModal(this.dataset.href);return false;" data-href="https://wa.me/55<%= _telContato %>?text=<%= encodeURIComponent('Olá! Gostaria de solicitar uma visita para o imóvel: ' + (imovel.titulo || imovel.tipo + ' em ' + imovel.bairro) + ' - R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR')) %>" class="btn-cta btn-visita">
         📅 Solicitar visita
       </a>
+      <% if (_siteCfg && _siteCfg.financiamentoAtivo && _siteCfg.financiamentoUrl) { %>
+      <a href="<%= _siteCfg.financiamentoUrl %>" target="_blank" rel="noopener" class="btn-cta" style="background:var(--sand);color:var(--ink);border:1px solid var(--line)">
+        🏦 Simular Financiamento
+      </a>
+      <% } %>
       <% if (temLeadId) { %>
       <a href="/cliente/gostei/<%= leadId %>/<%= imovel.idExterno || imovel.idInterno || imovel.id %>?voltar=<%= encodeURIComponent('/imovel/' + (imovel.idExterno||imovel.idInterno||imovel.id) + '?leadId=' + leadId) %>" class="btn-cta btn-gostei">
         ❤️ Clique aqui - Gostei

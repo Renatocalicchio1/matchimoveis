@@ -9387,6 +9387,8 @@ app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
 
     const preference = new Preference(_mpClient);
     const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';
+    const _origemCoins = (req.headers.referer || '').includes('/app/coins');
+    const _voltaPara = _origemCoins ? '/app/coins' : '/app/perfil';
 
     const result = await preference.create({
       body: {
@@ -9398,9 +9400,9 @@ app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
         }],
         payer: { name: user.nome || '', email: user.email || '' },
         back_urls: {
-          success: BASE + '/pagamento/sucesso-plano',
-          failure: BASE + '/app/perfil',
-          pending: BASE + '/app/perfil'
+          success: BASE + '/pagamento/sucesso-plano?voltar=' + encodeURIComponent(_voltaPara),
+          failure: BASE + _voltaPara,
+          pending: BASE + _voltaPara
         },
         auto_return: 'approved',
         notification_url: BASE + '/webhook/mercadopago',
@@ -9417,7 +9419,8 @@ app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
 });
 
 app.get('/pagamento/sucesso-plano', auth, async (req, res) => {
-  res.redirect('/app/perfil?planoSucesso=1');
+  const _destino = req.query.voltar === '/app/coins' ? '/app/coins' : '/app/perfil';
+  res.redirect(_destino + '?planoSucesso=1');
 });
 
 app.post('/pagamento/processar', auth, express.json(), async (req, res) => {
@@ -9690,7 +9693,7 @@ app.get('/app/coins', auth, (req, res) => {
   // historico (só os 50 mais recentes) continua sendo o usado pra lista visível.
   const historicoCompleto = (user.matchCoinsTransacoes || []).slice().reverse();
   const historico = historicoCompleto.slice(0, 50);
-  res.render('app-coins', { user, mpPublicKey: process.env.MP_PUBLIC_KEY || '', historico, historicoCompleto });
+  res.render('app-coins', { user, mpPublicKey: process.env.MP_PUBLIC_KEY || '', historico, historicoCompleto, planoSucesso: req.query.planoSucesso === '1' });
 });
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====

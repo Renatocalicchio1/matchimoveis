@@ -9366,14 +9366,15 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
   }
 });
 
-// Planos de leads garantidos (100/200/300 por mês) — preço fixo por pacote,
-// diferente da recarga de coins avulsa acima. Metadata.tipo='plano_leads' é o
-// que o webhook usa pra saber que não é pra creditar coins e sim gravar o
-// plano contratado no usuário.
+// Combos "leads garantidos" (100/200/300) — na prática é recarga de coins com
+// bônus: mesma taxa da recarga avulsa (valor×20, igual /pagamento/criar) mais
+// 35% de bônus. Ex: R$400 → 400×20=8.000 base ×1,35 = 10.800 coins. Não é uma
+// entrega de lead de verdade — é crédito suficiente pra cobrir ações da
+// plataforma (match, qualificação IA, vitrine etc) na faixa de cada combo.
 const PLANOS_LEADS = {
-  '100': { qtd: 100, valor: 400 },
-  '200': { qtd: 200, valor: 700 },
-  '300': { qtd: 300, valor: 1000 }
+  '100': { qtd: 100, valor: 400, creditos: 10800 },
+  '200': { qtd: 200, valor: 700, creditos: 18900 },
+  '300': { qtd: 300, valor: 1000, creditos: 27000 }
 };
 
 app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
@@ -9390,7 +9391,7 @@ app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
     const result = await preference.create({
       body: {
         items: [{
-          title: `Plano ${pacote.qtd} leads/mês — MatchImóveis`,
+          title: `Combo ${pacote.qtd} leads/mês (${pacote.creditos} créditos) — MatchImóveis`,
           quantity: 1,
           unit_price: pacote.valor,
           currency_id: 'BRL'
@@ -9404,7 +9405,7 @@ app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
         auto_return: 'approved',
         notification_url: BASE + '/webhook/mercadopago',
         payment_methods: { excluded_payment_types: [{ id: 'ticket' }] },
-        metadata: { userId, tipo: 'plano_leads', plano, qtd: pacote.qtd, valor: pacote.valor }
+        metadata: { userId, tipo: 'plano_leads', plano, qtd: pacote.qtd, valor: pacote.valor, creditos: pacote.creditos }
       }
     });
 
@@ -9505,29 +9506,31 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
     if (meta.tipo === 'plano_leads') {
       const qtd = parseInt(meta.qtd) || 0;
       const valor = parseFloat(meta.valor) || pagamento.transaction_amount || 0;
-      if (userId && qtd > 0) {
+      const creditos = parseInt(meta.creditos) || 0;
+      if (userId && creditos > 0) {
+        await adicionarCreditos(userId, creditos, 'combo_leads_promo');
         const { atualizarUsuario: _auPlano } = require('./services/salvarUsuario');
-        const _expiraEm = new Date(Date.now() + 30*24*3600*1000).toISOString();
         await _auPlano(userId, {
           planoLeadsAtivo: meta.plano || '',
           planoLeadsQtd: qtd,
           planoLeadsValor: valor,
-          planoLeadsComprasEm: new Date().toISOString(),
-          planoLeadsExpiraEm: _expiraEm
+          planoLeadsCreditos: creditos,
+          planoLeadsComprasEm: new Date().toISOString()
         });
-        console.log('[MP] plano de leads ativado:', userId, '| qtd:', qtd, '| valor:', valor);
+        console.log('[MP] combo leads garantidos — creditos adicionados:', userId, '| creditos:', creditos, '| qtd:', qtd, '| valor:', valor);
         criarNotificacaoService({
           id: Date.now().toString(),
           tipo: 'recarga',
-          titulo: 'Plano de leads ativado! 🎉',
-          mensagem: `Seu plano de ${qtd} leads/mês foi ativado com sucesso.`,
+          titulo: 'Combo de leads ativado! 🎉',
+          mensagem: `${creditos} créditos adicionados (combo ${qtd} leads/mês).`,
           usuarioId: userId,
           lida: false,
           criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
         });
+        await _processarBonusIndicacao(userId, creditos);
         (async () => {
           try {
-            const _msgAdmin = `💰 *Plano de leads contratado!*\n\n👤 *Usuário:* ${userId}\n📦 *Plano:* ${qtd} leads/mês\n💵 *Valor:* R$ ${valor}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
+            const _msgAdmin = `💰 *Combo de leads garantidos contratado!*\n\n👤 *Usuário:* ${userId}\n📦 *Combo:* ${qtd} leads/mês\n🪙 *Créditos:* ${creditos}\n💵 *Valor:* R$ ${valor}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
             await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
               method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
               body: JSON.stringify({ number: '5511951131609', text: _msgAdmin })

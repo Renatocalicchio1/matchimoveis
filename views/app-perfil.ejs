@@ -137,8 +137,8 @@
 
 <% if (locals.planoSucesso) { %>
 <div class="pf-card" style="background:#f0fdf4;border-color:#86efac">
-  <p class="pf-card-title" style="color:#15803d">✅ Plano ativado com sucesso!</p>
-  <p class="pf-card-sub" style="color:#166534">Sua contratação foi confirmada. Nossa equipe vai entrar em contato pra alinhar os detalhes.</p>
+  <p class="pf-card-title" style="color:#15803d">✅ Combo contratado com sucesso!</p>
+  <p class="pf-card-sub" style="color:#166534">Seus créditos já foram adicionados à sua conta.</p>
 </div>
 <% } %>
 
@@ -182,27 +182,30 @@
 </div>
 
 <div class="pf-card">
-  <p class="pf-card-title">📦 Planos de leads garantidos</p>
-  <p class="pf-card-sub">Quantidade de leads qualificados garantida todo mês, direto na sua carteira.</p>
+  <p class="pf-card-title">📦 Combos de créditos — leads garantidos</p>
+  <p class="pf-card-sub">Créditos com 35% de bônus, na faixa de cada combo de leads/mês.</p>
   <div class="pf-grid" style="grid-template-columns:repeat(3,1fr)">
     <div style="border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px;text-align:center">
       <p style="margin:0 0 4px;font-size:13px;color:#6b7280">100 leads/mês</p>
-      <p style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827">R$ 400</p>
+      <p style="margin:0 0 4px;font-size:22px;font-weight:700;color:#111827">R$ 400</p>
+      <p style="margin:0 0 12px;font-size:12px;color:#15803d">10.800 créditos (+35%)</p>
       <button class="pf-btn" style="width:100%;margin-top:0" onclick="contratarPlano('100')">Contratar</button>
     </div>
     <div style="border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px;text-align:center">
       <p style="margin:0 0 4px;font-size:13px;color:#6b7280">200 leads/mês</p>
-      <p style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827">R$ 700</p>
+      <p style="margin:0 0 4px;font-size:22px;font-weight:700;color:#111827">R$ 700</p>
+      <p style="margin:0 0 12px;font-size:12px;color:#15803d">18.900 créditos (+35%)</p>
       <button class="pf-btn" style="width:100%;margin-top:0" onclick="contratarPlano('200')">Contratar</button>
     </div>
     <div style="border:0.5px solid rgba(0,0,0,.1);border-radius:12px;padding:16px;text-align:center">
       <p style="margin:0 0 4px;font-size:13px;color:#6b7280">300 leads/mês</p>
-      <p style="margin:0 0 12px;font-size:22px;font-weight:700;color:#111827">R$ 1.000</p>
+      <p style="margin:0 0 4px;font-size:22px;font-weight:700;color:#111827">R$ 1.000</p>
+      <p style="margin:0 0 12px;font-size:12px;color:#15803d">27.000 créditos (+35%)</p>
       <button class="pf-btn" style="width:100%;margin-top:0" onclick="contratarPlano('300')">Contratar</button>
     </div>
   </div>
   <% if (user.planoLeadsAtivo) { %>
-    <p style="margin:14px 0 0;font-size:12px;color:#15803d">✅ Plano ativo: <%= user.planoLeadsQtd %> leads/mês</p>
+    <p style="margin:14px 0 0;font-size:12px;color:#15803d">✅ Último combo contratado: <%= user.planoLeadsQtd %> leads/mês (<%= user.planoLeadsCreditos %> créditos)</p>
   <% } %>
 </div>
 <script>

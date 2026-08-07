@@ -1086,7 +1086,7 @@ tr:hover td{background:#fafafa;}
   <h1>Admin · MatchImóveis</h1>
   <div style="display:flex;gap:16px;align-items:center">
     <a href="/admin/online" style="font-size:12px;background:#16a34a;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🟢 Usuários Online</a>
-    <a href="/admin/status" style="font-size:12px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🖥️ Status do Sistema</a> <a href="/admin/campanha" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📧 Campanha Email</a> <a href="/admin/disparos" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📲 Disparos WhatsApp</a>
+    <a href="/admin/status" style="font-size:12px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🖥️ Status do Sistema</a> <a href="/admin/campanha" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📧 Campanha Email</a> <a href="/admin/disparos" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📲 Disparos WhatsApp</a> <a href="/admin/whatsapp-cloud" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">💬 Inbox WhatsApp</a>
     <a href="https://match-evolution-api.onrender.com/manager" target="_blank" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📱 Painel WhatsApp</a>
     <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
     <a href="/admin/quintoandar-solicitacoes" style="font-size:12px;background:#00a86b;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏢 Solicitações QA</a>
@@ -9838,15 +9838,29 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
   try {
     const { marcarOptout } = require('./services/salvarDisparo');
     const { _normalizarTelefone } = require('./services/metaWhatsapp');
+    const { salvarMensagem: _salvarMsgCloud } = require('./services/salvarWhatsappCloudMsg');
     const entries = req.body.entry || [];
     for (const entry of entries) {
       for (const change of (entry.changes || [])) {
         const mensagens = change.value?.messages || [];
         const phoneNumberId = change.value?.metadata?.phone_number_id || null;
+        const _contatosMap = {};
+        (change.value?.contacts || []).forEach(c => { _contatosMap[c.wa_id] = c.profile?.name || ''; });
         for (const msg of mensagens) {
+          const telefone = _normalizarTelefone(msg.from);
+          const nomeContato = _contatosMap[msg.from] || null;
+          // Grava TODA mensagem recebida (texto livre, botão, mídia etc) na
+          // caixa de entrada do admin (/admin/whatsapp-cloud) — não só os
+          // cliques de botão tratados abaixo.
+          if (msg.type === 'text') {
+            await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: 'texto', texto: msg.text?.body || '', messageId: msg.id }).catch(()=>{});
+          } else if (msg.type === 'button') {
+            await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: 'botao', texto: msg.button?.text || '', messageId: msg.id }).catch(()=>{});
+          } else {
+            await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: msg.type || 'outro', texto: `[${msg.type || 'mídia'}]`, messageId: msg.id }).catch(()=>{});
+          }
           if (msg.type !== 'button') continue;
           const texto = (msg.button?.text || '').trim().toLowerCase();
-          const telefone = _normalizarTelefone(msg.from);
           if (texto === 'não tenho imóvel' || texto === 'nao tenho imovel') {
             await marcarOptout(telefone, 'whatsapp_botao_nao_tenho');
             console.log('[whatsapp-cloud] opt-out registrado:', telefone);
@@ -9870,8 +9884,10 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
                 });
               } catch(e) { console.error('[whatsapp-cloud] erro notif suporte:', e.message); }
               try {
+                const _msgAutoResposta = 'Recebemos seu pedido! Um atendente da MatchImóveis vai te chamar aqui mesmo em instantes. 🙂';
                 const { enviarTexto } = require('./services/metaWhatsapp');
-                await enviarTexto({ telefone, texto: 'Recebemos seu pedido! Um atendente da MatchImóveis vai te chamar aqui mesmo em instantes. 🙂', phoneNumberId });
+                await enviarTexto({ telefone, texto: _msgAutoResposta, phoneNumberId });
+                await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'saida', tipo: 'texto', texto: _msgAutoResposta }).catch(()=>{});
               } catch(e) { console.error('[whatsapp-cloud] erro auto-resposta humano:', e.message); }
             })();
           } else {
@@ -9892,6 +9908,120 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
       }
     }
   } catch(e) { console.error('[webhook whatsapp-cloud]', e.message); }
+});
+
+// ─── INBOX ADMIN — responder conversas dos números Cloud API (campanha) ────
+// Os 2 números da campanha (+55 11 97860-0214 e +55 11 95665-5428) não têm
+// inbox própria dentro da plataforma — antes só dava pra ver pelo WhatsApp
+// Manager da Meta. Aqui lê/responde direto usando os mesmos serviços do
+// disparo (services/metaWhatsapp.js enviarTexto, dentro da janela de 24h).
+app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
+  try {
+    const { listarConversas } = require('./services/salvarWhatsappCloudMsg');
+    const _escHtml = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const conversas = await listarConversas().catch(()=>[]);
+    const linhas = conversas.map(c => {
+      const prevista = _escHtml((c.tipo === 'botao' ? '🔘 ' : '') + (c.direcao === 'saida' ? 'Você: ' : '') + (c.texto || '').slice(0, 60));
+      return `
+      <a href="/admin/whatsapp-cloud/${encodeURIComponent(c.contato_telefone)}" style="display:block;text-decoration:none;color:inherit">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #e5e7eb;${c.naoLidas > 0 ? 'background:#fff7f0' : ''}">
+          <div>
+            <p style="margin:0;font-weight:700;font-size:14px;color:#111">${_escHtml(c.contato_nome || c.contato_telefone)} ${c.naoLidas > 0 ? `<span style="background:#FF385C;color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;margin-left:6px">${c.naoLidas}</span>` : ''}</p>
+            <p style="margin:2px 0 0;font-size:12px;color:#6b7280">${_escHtml(c.contato_telefone)} · ${prevista}</p>
+          </div>
+          <span style="font-size:11px;color:#9ca3af;white-space:nowrap">${new Date(c.criado_em).toLocaleString('pt-BR')}</span>
+        </div>
+      </a>`;
+    }).join('') || '<p style="padding:20px;color:#6b7280">Nenhuma conversa ainda.</p>';
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Inbox WhatsApp Cloud</title>
+    <style>body{font-family:Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 20px}
+    h1{color:#FF385C;font-size:20px}
+    a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
+    .box{border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-top:16px}
+    </style></head><body>
+    <a href="/admin" class="voltar">← Painel Admin</a>
+    <h1>💬 Inbox WhatsApp Cloud <span style="font-size:13px;color:#6b7280;font-weight:400">(campanha — Meta Cloud API)</span></h1>
+    <div class="box">${linhas}</div>
+    </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
+  try {
+    const telefone = req.params.telefone;
+    const _escHtml = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const { listarMensagens, marcarLidas } = require('./services/salvarWhatsappCloudMsg');
+    const mensagens = await listarMensagens(telefone).catch(()=>[]);
+    await marcarLidas(telefone).catch(()=>{});
+    const ultimoRecebido = [...mensagens].reverse().find(m => m.direcao === 'entrada');
+    const phoneNumberId = ultimoRecebido?.phone_number_id || (mensagens[mensagens.length-1] || {}).phone_number_id || '';
+    const nome = _escHtml(mensagens.find(m => m.contato_nome)?.contato_nome || telefone);
+    const bolhas = mensagens.map(m => {
+      const minha = m.direcao === 'saida';
+      return `<div style="display:flex;justify-content:${minha?'flex-end':'flex-start'};margin:6px 0">
+        <div style="max-width:70%;padding:10px 14px;border-radius:14px;background:${minha?'#FF385C':'#f3f4f6'};color:${minha?'#fff':'#111'};font-size:14px">
+          ${m.tipo === 'botao' ? '<span style="opacity:.8;font-size:12px">🔘 clicou:</span><br>' : ''}
+          ${_escHtml(m.texto||'')}
+          <div style="font-size:10px;opacity:.7;margin-top:4px">${new Date(m.criado_em).toLocaleString('pt-BR')}</div>
+        </div>
+      </div>`;
+    }).join('');
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Conversa — ${nome}</title>
+    <style>body{font-family:Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 20px}
+    h1{color:#FF385C;font-size:18px;margin-bottom:4px}
+    a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
+    #chat{border:1px solid #e5e7eb;border-radius:10px;padding:16px;height:420px;overflow-y:auto;margin-top:12px;background:#fff}
+    textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;margin-top:10px}
+    button{background:#FF385C;color:#fff;padding:10px 22px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-top:8px}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .aviso{font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;margin-top:10px}
+    </style></head><body>
+    <a href="/admin/whatsapp-cloud" class="voltar">← Inbox</a>
+    <h1>${nome}</h1>
+    <p style="font-size:12px;color:#6b7280;margin:0">${_escHtml(telefone)}</p>
+    <div id="chat">${bolhas}</div>
+    <textarea id="msgTexto" rows="3" placeholder="Escreva a resposta..."></textarea>
+    <button id="btnEnviar" onclick="enviar()">Enviar</button>
+    <p class="aviso">⚠️ Só funciona dentro da janela de 24h desde a última mensagem do contato. Depois disso, só reabre com um template aprovado.</p>
+    <script>
+    document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+    async function enviar(){
+      const texto = document.getElementById('msgTexto').value.trim();
+      if(!texto) return;
+      const btn = document.getElementById('btnEnviar');
+      btn.disabled = true; btn.textContent = 'Enviando...';
+      try {
+        const r = await fetch(window.location.pathname + '/responder', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ texto })
+        });
+        const d = await r.json();
+        if(d.ok){ window.location.reload(); }
+        else { alert(d.erro || 'Erro ao enviar'); btn.disabled=false; btn.textContent='Enviar'; }
+      } catch(e){ alert('Erro ao enviar'); btn.disabled=false; btn.textContent='Enviar'; }
+    }
+    </script>
+    </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/admin/whatsapp-cloud/:telefone/responder', authAdmin, express.json(), async (req, res) => {
+  try {
+    const telefone = req.params.telefone;
+    const texto = (req.body.texto || '').trim();
+    if (!texto) return res.status(400).json({ ok:false, erro:'Mensagem vazia' });
+    const { listarMensagens, salvarMensagem } = require('./services/salvarWhatsappCloudMsg');
+    const mensagens = await listarMensagens(telefone).catch(()=>[]);
+    const ultimoRecebido = [...mensagens].reverse().find(m => m.direcao === 'entrada');
+    const phoneNumberId = ultimoRecebido?.phone_number_id || null;
+    if (!phoneNumberId) return res.status(400).json({ ok:false, erro:'Não achei por qual número esse contato falou com a gente.' });
+    const { enviarTexto } = require('./services/metaWhatsapp');
+    await enviarTexto({ telefone, texto, phoneNumberId });
+    await salvarMensagem({ phoneNumberId, telefone, nome: ultimoRecebido?.contato_nome, direcao: 'saida', tipo: 'texto', texto });
+    res.json({ ok:true });
+  } catch(e) {
+    res.status(500).json({ ok:false, erro: e.message });
+  }
 });
 
 app.get('/app/coins', auth, (req, res) => {

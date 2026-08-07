@@ -48,6 +48,8 @@ async function enviarTemplate({ telefone, templateNome, templateIdioma, parametr
     }
   }
 
+  console.log('[enviarTemplate] phoneNumberId:', phoneNumberId, '| template:', templateNome, '| components:', JSON.stringify(components));
+
   try {
     const { data } = await axios.post(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,

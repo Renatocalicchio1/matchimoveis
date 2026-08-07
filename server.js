@@ -2624,7 +2624,12 @@ app.get('/entrar/:contatoId', async (req, res) => {
       return res.redirect('/');
     }
 
-    const telefone = String(contato.telefone || '').replace(/\D/g,'');
+    // contato.telefone vem normalizado com "55" na frente (formato de envio do
+    // WhatsApp) — mas o resto da plataforma guarda telefone/celular sem DDI,
+    // então tira aqui antes de comparar/gravar (senão nunca acha usuário já
+    // cadastrado, e conta nova salva com o 55 grudado no número).
+    let telefone = String(contato.telefone || '').replace(/\D/g,'');
+    if (telefone.startsWith('55') && telefone.length >= 12) telefone = telefone.slice(2);
     const { lerUsuarios: _luEntrar, salvarUsuario: _salvarEntrar } = require('./services/salvarUsuario');
     const users = await _luEntrar();
     let user = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);

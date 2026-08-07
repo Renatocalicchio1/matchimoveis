@@ -9571,9 +9571,9 @@ const PLANOS_LEADS = {
   '100': { qtd: 100, valor: 400, creditos: 10800, label: '100 leads/mês' },
   '200': { qtd: 200, valor: 700, creditos: 18900, label: '200 leads/mês' },
   '300': { qtd: 300, valor: 1000, creditos: 27000, label: '300 leads/mês' },
-  // Combo de entrada, sem vínculo com quantidade de leads (bônus menor: 25% em
-  // vez dos 35% dos combos acima). R$200×20=4.000 base ×1,25 = 5.000 coins.
-  'r200': { valor: 200, creditos: 5000, label: 'Combo R$200' }
+  // Combo de entrada (bônus menor: 25% em vez dos 35% dos combos acima).
+  // R$200×20=4.000 base ×1,25 = 5.000 coins.
+  'r200': { qtd: 50, valor: 200, creditos: 5000, label: '50 leads/mês' }
 };
 
 app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {

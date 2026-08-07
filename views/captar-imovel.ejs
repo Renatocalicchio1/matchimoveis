@@ -111,6 +111,7 @@ input:focus,select:focus{outline:none;border-color:#FF385C}
       <div class="form-group"><label>CEP</label><input type="text" id="s2-cep" placeholder="00000-000" maxlength="9"></div>
       <button type="button" class="btn-cep" id="btn-buscar-cep" onclick="buscarCep()" style="margin-top:22px">🔍 Buscar</button>
     </div>
+    <p class="cep-msg" style="margin:4px 0 0"><a href="#" onclick="naoSeiCep();return false" style="color:#00A699;text-decoration:underline">Não sei o CEP — quero preencher o endereço na mão</a></p>
     <div id="cep-msg" class="cep-msg"></div>
     <div id="cep-resultado" style="display:none">
       <div class="form-group"><label>Rua</label><input type="text" id="s2-rua"></div>
@@ -231,6 +232,15 @@ async function selecionar(op){
 document.getElementById('s2-cep').addEventListener('input', function(){
   this.value = this.value.replace(/\D/g,'').replace(/^(\d{5})(\d)/,'$1-$2').slice(0,9);
 });
+
+function naoSeiCep(){
+  document.getElementById('cep-resultado').style.display = 'block';
+  const cepMsg = document.getElementById('cep-msg');
+  cepMsg.className = 'cep-msg';
+  cepMsg.textContent = '';
+  document.getElementById('btn-step2-continuar').removeAttribute('disabled');
+  document.getElementById('s2-rua').focus();
+}
 
 async function buscarCep(){
   const cepLimpo = document.getElementById('s2-cep').value.replace(/\D/g,'');

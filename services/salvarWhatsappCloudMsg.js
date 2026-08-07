@@ -20,15 +20,20 @@ async function _inicializar() {
     )
   `);
   await query(`CREATE INDEX IF NOT EXISTS idx_wa_cloud_msg_telefone ON whatsapp_cloud_mensagens(contato_telefone, criado_em)`);
+  // Áudio (recebido do lead ou enviado pelo admin) — guarda uma cópia local
+  // servida por /data-uploads pra tocar no navegador (mídia da Meta expira e
+  // exige token pra baixar, não dá pra apontar direto pro id/link deles).
+  await query(`ALTER TABLE whatsapp_cloud_mensagens ADD COLUMN IF NOT EXISTS midia_url TEXT`);
+  await query(`ALTER TABLE whatsapp_cloud_mensagens ADD COLUMN IF NOT EXISTS midia_mime TEXT`);
 }
 
 // direcao: 'entrada' (do lead pra gente) ou 'saida' (nossa resposta)
-async function salvarMensagem({ phoneNumberId, telefone, nome, direcao, tipo, texto, messageId }) {
+async function salvarMensagem({ phoneNumberId, telefone, nome, direcao, tipo, texto, messageId, midiaUrl, midiaMime }) {
   await _inicializar();
   await query(
-    `INSERT INTO whatsapp_cloud_mensagens (id, phone_number_id, contato_telefone, contato_nome, direcao, tipo, texto, message_id, lida)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-    [uuidv4(), phoneNumberId || null, telefone, nome || null, direcao, tipo || 'texto', texto || '', messageId || null, direcao === 'saida']
+    `INSERT INTO whatsapp_cloud_mensagens (id, phone_number_id, contato_telefone, contato_nome, direcao, tipo, texto, message_id, lida, midia_url, midia_mime)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+    [uuidv4(), phoneNumberId || null, telefone, nome || null, direcao, tipo || 'texto', texto || '', messageId || null, direcao === 'saida', midiaUrl || null, midiaMime || null]
   );
 }
 
@@ -68,4 +73,16 @@ async function marcarLidas(telefone) {
   await query(`UPDATE whatsapp_cloud_mensagens SET lida=true WHERE contato_telefone=$1 AND direcao='entrada'`, [telefone]);
 }
 
-module.exports = { salvarMensagem, listarConversas, listarMensagens, marcarLidas };
+// Usado pelo polling da tela de conversa — só as mensagens depois do horário
+// que o navegador já tem renderizado, pra não reconstruir o chat inteiro a
+// cada atualização.
+async function listarMensagensApos(telefone, desde) {
+  await _inicializar();
+  const { rows } = await query(
+    `SELECT * FROM whatsapp_cloud_mensagens WHERE contato_telefone=$1 AND criado_em > $2 ORDER BY criado_em ASC`,
+    [telefone, desde]
+  );
+  return rows;
+}
+
+module.exports = { salvarMensagem, listarConversas, listarMensagens, listarMensagensApos, marcarLidas };

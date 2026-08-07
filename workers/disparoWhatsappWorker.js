@@ -1,12 +1,18 @@
 const { workerData, parentPort } = require('worker_threads');
 const { buscarCampanha, atualizarCampanha, incrementarContador, proximoLotePendente, marcarContato } = require('../services/salvarDisparo');
-const { enviarTemplate, _normalizarTelefone } = require('../services/metaWhatsapp');
+const { enviarTemplate, _normalizarTelefone, _telefoneValido } = require('../services/metaWhatsapp');
 
 const MAX_TENTATIVAS = 3;
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function enviarComRetry(contato, campanha) {
+  // Rede de segurança pra campanhas criadas antes da validação de telefone
+  // existir (ou qualquer linha que tenha entrado torta na tabela) — barra
+  // aqui em vez de gastar uma tentativa de verdade contra a API da Meta.
+  if (!_telefoneValido(contato.telefone)) {
+    return { ok: false, erro: 'Número de telefone inválido' };
+  }
   const parametros = (campanha.mapeamento_variaveis || []).map(campo => {
     const v = contato.variaveis ? contato.variaveis[campo] : '';
     return v == null ? '' : v;

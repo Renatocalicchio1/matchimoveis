@@ -237,6 +237,15 @@ const UPLOADS_STATIC_DIR = process.env.RENDER
   : path.join(__dirname, 'public', 'uploads', 'imoveis');
 app.use('/data-uploads', express.static(UPLOADS_STATIC_DIR));
 
+// Áudios de WhatsApp (recebidos do lead ou gravados/enviados pelo admin na
+// inbox de /admin/whatsapp-cloud) — mesmo disco persistente do Render usado
+// pelas fotos de imóvel, só que numa subpasta própria.
+const UPLOADS_AUDIO_DIR = process.env.RENDER
+  ? '/opt/render/project/src/data/uploads/whatsapp-audio'
+  : path.join(__dirname, 'public', 'uploads', 'whatsapp-audio');
+fs.mkdirSync(UPLOADS_AUDIO_DIR, { recursive: true });
+app.use('/data-uploads-audio', express.static(UPLOADS_AUDIO_DIR));
+
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 // ── SEGURANÇA: HELMET (headers HTTP) ─────────────────────────────────────────
@@ -9866,6 +9875,23 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
             await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: 'texto', texto: msg.text?.body || '', messageId: msg.id }).catch(()=>{});
           } else if (msg.type === 'button') {
             await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: 'botao', texto: msg.button?.text || '', messageId: msg.id }).catch(()=>{});
+          } else if (msg.type === 'audio') {
+            // Baixa o áudio da Meta (a URL deles expira e exige token, não dá
+            // pra tocar direto no navegador) e guarda uma cópia local servida
+            // por /data-uploads-audio.
+            (async () => {
+              try {
+                const { baixarMedia } = require('./services/metaWhatsapp');
+                const { buffer, mimeType } = await baixarMedia(msg.audio.id, phoneNumberId);
+                const ext = mimeType.includes('ogg') ? 'ogg' : mimeType.includes('mpeg') ? 'mp3' : mimeType.includes('mp4') || mimeType.includes('m4a') ? 'm4a' : 'audio';
+                const nomeArq = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+                fs.writeFileSync(path.join(UPLOADS_AUDIO_DIR, nomeArq), buffer);
+                await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: 'audio', texto: '[áudio]', messageId: msg.id, midiaUrl: '/data-uploads-audio/' + nomeArq, midiaMime: mimeType }).catch(()=>{});
+              } catch(e) {
+                console.error('[whatsapp-cloud] erro baixando audio:', e.message);
+                await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: 'audio', texto: '[áudio — falha ao baixar]', messageId: msg.id }).catch(()=>{});
+              }
+            })();
           } else {
             await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: msg.type || 'outro', texto: `[${msg.type || 'mídia'}]`, messageId: msg.id }).catch(()=>{});
           }
@@ -9924,58 +9950,75 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
 // Os 2 números da campanha (+55 11 97860-0214 e +55 11 95665-5428) não têm
 // inbox própria dentro da plataforma — antes só dava pra ver pelo WhatsApp
 // Manager da Meta. Aqui lê/responde direto usando os mesmos serviços do
-// disparo (services/metaWhatsapp.js enviarTexto, dentro da janela de 24h).
+// disparo (services/metaWhatsapp.js enviarTexto/enviarAudio, dentro da
+// janela de 24h). Lista e conversa fazem polling (5-6s) pra atualizar sozinho.
+const _escHtmlWaCloud = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const _uploadAudioMem = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
+
 app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
   try {
-    const { listarConversas } = require('./services/salvarWhatsappCloudMsg');
-    const _escHtml = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const conversas = await listarConversas().catch(()=>[]);
-    const linhas = conversas.map(c => {
-      const prevista = _escHtml((c.tipo === 'botao' ? '🔘 ' : '') + (c.direcao === 'saida' ? 'Você: ' : '') + (c.texto || '').slice(0, 60));
-      return `
-      <a href="/admin/whatsapp-cloud/${encodeURIComponent(c.contato_telefone)}" style="display:block;text-decoration:none;color:inherit">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #e5e7eb;${c.naoLidas > 0 ? 'background:#fff7f0' : ''}">
-          <div>
-            <p style="margin:0;font-weight:700;font-size:14px;color:#111">${_escHtml(c.contato_nome || c.contato_telefone)} ${c.naoLidas > 0 ? `<span style="background:#FF385C;color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;margin-left:6px">${c.naoLidas}</span>` : ''}</p>
-            <p style="margin:2px 0 0;font-size:12px;color:#6b7280">${_escHtml(c.contato_telefone)} · ${prevista}</p>
-          </div>
-          <span style="font-size:11px;color:#9ca3af;white-space:nowrap">${new Date(c.criado_em).toLocaleString('pt-BR')}</span>
-        </div>
-      </a>`;
-    }).join('') || '<p style="padding:20px;color:#6b7280">Nenhuma conversa ainda.</p>';
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Inbox WhatsApp Cloud</title>
     <style>body{font-family:Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 20px}
     h1{color:#FF385C;font-size:20px}
     a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
     .box{border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-top:16px}
+    .linha{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #e5e7eb;text-decoration:none;color:inherit}
     </style></head><body>
     <a href="/admin" class="voltar">← Painel Admin</a>
     <h1>💬 Inbox WhatsApp Cloud <span style="font-size:13px;color:#6b7280;font-weight:400">(campanha — Meta Cloud API)</span></h1>
-    <div class="box">${linhas}</div>
+    <div class="box" id="lista"><p style="padding:20px;color:#6b7280">Carregando...</p></div>
+    <script>
+    function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    async function carregar(){
+      try {
+        const r = await fetch('/admin/whatsapp-cloud/lista.json');
+        const conversas = await r.json();
+        const box = document.getElementById('lista');
+        if(!conversas.length){ box.innerHTML = '<p style="padding:20px;color:#6b7280">Nenhuma conversa ainda.</p>'; return; }
+        box.innerHTML = conversas.map(c => {
+          const prevista = escHtml((c.tipo==='botao'?'🔘 ':c.tipo==='audio'?'🎤 ':'') + (c.direcao==='saida'?'Você: ':'') + (c.texto||'').slice(0,60));
+          return '<a class="linha" href="/admin/whatsapp-cloud/'+encodeURIComponent(c.contato_telefone)+'"' + (c.naoLidas>0?' style="background:#fff7f0"':'') + '>' +
+            '<div><p style="margin:0;font-weight:700;font-size:14px;color:#111">'+escHtml(c.contato_nome||c.contato_telefone)+(c.naoLidas>0?' <span style="background:#FF385C;color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;margin-left:6px">'+c.naoLidas+'</span>':'')+'</p>' +
+            '<p style="margin:2px 0 0;font-size:12px;color:#6b7280">'+escHtml(c.contato_telefone)+' · '+prevista+'</p></div>' +
+            '<span style="font-size:11px;color:#9ca3af;white-space:nowrap">'+new Date(c.criado_em).toLocaleString('pt-BR')+'</span></a>';
+        }).join('');
+      } catch(e) {}
+    }
+    carregar();
+    setInterval(carregar, 6000);
+    </script>
     </body></html>`);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.get('/admin/whatsapp-cloud/lista.json', authAdmin, async (req, res) => {
+  try {
+    const { listarConversas } = require('./services/salvarWhatsappCloudMsg');
+    res.json(await listarConversas().catch(()=>[]));
+  } catch(e) { res.status(500).json([]); }
 });
 
 app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
   try {
     const telefone = req.params.telefone;
-    const _escHtml = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     const { listarMensagens, marcarLidas } = require('./services/salvarWhatsappCloudMsg');
     const mensagens = await listarMensagens(telefone).catch(()=>[]);
     await marcarLidas(telefone).catch(()=>{});
-    const ultimoRecebido = [...mensagens].reverse().find(m => m.direcao === 'entrada');
-    const phoneNumberId = ultimoRecebido?.phone_number_id || (mensagens[mensagens.length-1] || {}).phone_number_id || '';
-    const nome = _escHtml(mensagens.find(m => m.contato_nome)?.contato_nome || telefone);
-    const bolhas = mensagens.map(m => {
+    const nome = _escHtmlWaCloud(mensagens.find(m => m.contato_nome)?.contato_nome || telefone);
+    const _bolha = m => {
       const minha = m.direcao === 'saida';
-      return `<div style="display:flex;justify-content:${minha?'flex-end':'flex-start'};margin:6px 0">
+      const corpo = m.tipo === 'audio' && m.midia_url
+        ? `<audio controls preload="none" src="${m.midia_url}" style="max-width:220px"></audio>`
+        : (m.tipo === 'botao' ? '<span style="opacity:.8;font-size:12px">🔘 clicou:</span><br>' : '') + _escHtmlWaCloud(m.texto||'');
+      return `<div class="bolha-wrap" data-id="${m.id}" style="display:flex;justify-content:${minha?'flex-end':'flex-start'};margin:6px 0">
         <div style="max-width:70%;padding:10px 14px;border-radius:14px;background:${minha?'#FF385C':'#f3f4f6'};color:${minha?'#fff':'#111'};font-size:14px">
-          ${m.tipo === 'botao' ? '<span style="opacity:.8;font-size:12px">🔘 clicou:</span><br>' : ''}
-          ${_escHtml(m.texto||'')}
+          ${corpo}
           <div style="font-size:10px;opacity:.7;margin-top:4px">${new Date(m.criado_em).toLocaleString('pt-BR')}</div>
         </div>
       </div>`;
-    }).join('');
+    };
+    const bolhas = mensagens.map(_bolha).join('');
+    const _ultimaData = mensagens.length ? mensagens[mensagens.length-1].criado_em : new Date(0).toISOString();
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Conversa — ${nome}</title>
     <style>body{font-family:Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 20px}
     h1{color:#FF385C;font-size:18px;margin-bottom:4px}
@@ -9984,17 +10027,54 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;margin-top:10px}
     button{background:#FF385C;color:#fff;padding:10px 22px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-top:8px}
     button:disabled{opacity:.5;cursor:not-allowed}
+    button.sec{background:#111827}
+    button.rec{background:#dc2626}
+    .barra{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .aviso{font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;margin-top:10px}
     </style></head><body>
     <a href="/admin/whatsapp-cloud" class="voltar">← Inbox</a>
     <h1>${nome}</h1>
-    <p style="font-size:12px;color:#6b7280;margin:0">${_escHtml(telefone)}</p>
+    <p style="font-size:12px;color:#6b7280;margin:0">${_escHtmlWaCloud(telefone)}</p>
     <div id="chat">${bolhas}</div>
     <textarea id="msgTexto" rows="3" placeholder="Escreva a resposta..."></textarea>
-    <button id="btnEnviar" onclick="enviar()">Enviar</button>
+    <div class="barra">
+      <button id="btnEnviar" onclick="enviar()">Enviar</button>
+      <button id="btnGravar" class="sec" onclick="alternarGravacao()">🎤 Gravar áudio</button>
+      <button class="sec" onclick="document.getElementById('arquivoAudio').click()">📎 Enviar arquivo de áudio</button>
+      <input type="file" id="arquivoAudio" accept="audio/*" style="display:none" onchange="enviarArquivoAudio(this.files[0])">
+      <span id="statusAudio" style="font-size:12px;color:#6b7280"></span>
+    </div>
     <p class="aviso">⚠️ Só funciona dentro da janela de 24h desde a última mensagem do contato. Depois disso, só reabre com um template aprovado.</p>
     <script>
-    document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+    const _telefone = ${JSON.stringify(telefone)};
+    let _ultimaData = ${JSON.stringify(_ultimaData)};
+    const chat = document.getElementById('chat');
+    chat.scrollTop = chat.scrollHeight;
+    function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function montarBolha(m){
+      const minha = m.direcao === 'saida';
+      const corpo = (m.tipo === 'audio' && m.midia_url)
+        ? '<audio controls preload="none" src="'+m.midia_url+'" style="max-width:220px"></audio>'
+        : (m.tipo === 'botao' ? '<span style="opacity:.8;font-size:12px">🔘 clicou:</span><br>' : '') + escHtml(m.texto||'');
+      const div = document.createElement('div');
+      div.style.cssText = 'display:flex;justify-content:'+(minha?'flex-end':'flex-start')+';margin:6px 0';
+      div.setAttribute('data-id', m.id);
+      div.innerHTML = '<div style="max-width:70%;padding:10px 14px;border-radius:14px;background:'+(minha?'#FF385C':'#f3f4f6')+';color:'+(minha?'#fff':'#111')+';font-size:14px">'+corpo+
+        '<div style="font-size:10px;opacity:.7;margin-top:4px">'+new Date(m.criado_em).toLocaleString('pt-BR')+'</div></div>';
+      return div;
+    }
+    async function verificarNovas(){
+      try {
+        const r = await fetch('/admin/whatsapp-cloud/'+encodeURIComponent(_telefone)+'/novas?apos='+encodeURIComponent(_ultimaData));
+        const novas = await r.json();
+        if(!novas.length) return;
+        const pertoDoFim = chat.scrollTop + chat.clientHeight >= chat.scrollHeight - 60;
+        novas.forEach(m => { chat.appendChild(montarBolha(m)); _ultimaData = m.criado_em; });
+        if(pertoDoFim) chat.scrollTop = chat.scrollHeight;
+      } catch(e) {}
+    }
+    setInterval(verificarNovas, 5000);
+
     async function enviar(){
       const texto = document.getElementById('msgTexto').value.trim();
       if(!texto) return;
@@ -10006,13 +10086,68 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
           body: JSON.stringify({ texto })
         });
         const d = await r.json();
-        if(d.ok){ window.location.reload(); }
+        if(d.ok){ document.getElementById('msgTexto').value=''; btn.disabled=false; btn.textContent='Enviar'; verificarNovas(); }
         else { alert(d.erro || 'Erro ao enviar'); btn.disabled=false; btn.textContent='Enviar'; }
       } catch(e){ alert('Erro ao enviar'); btn.disabled=false; btn.textContent='Enviar'; }
+    }
+
+    async function enviarBlobAudio(blob, nomeArquivo){
+      const status = document.getElementById('statusAudio');
+      status.textContent = 'Enviando áudio...';
+      try {
+        const fd = new FormData();
+        fd.append('audio', blob, nomeArquivo || 'audio.webm');
+        const r = await fetch(window.location.pathname + '/responder-audio', { method:'POST', body: fd });
+        const d = await r.json();
+        if(d.ok){ status.textContent = ''; verificarNovas(); }
+        else { status.textContent = ''; alert(d.erro || 'Erro ao enviar áudio'); }
+      } catch(e){ status.textContent = ''; alert('Erro ao enviar áudio'); }
+    }
+    function enviarArquivoAudio(file){
+      if(!file) return;
+      enviarBlobAudio(file, file.name);
+    }
+
+    let _gravador = null, _chunks = [];
+    async function alternarGravacao(){
+      const btn = document.getElementById('btnGravar');
+      if(_gravador && _gravador.state === 'recording'){
+        _gravador.stop();
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mime = MediaRecorder.isTypeSupported('audio/ogg;codecs=opus') ? 'audio/ogg;codecs=opus'
+          : MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : '';
+        _gravador = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+        _chunks = [];
+        _gravador.ondataavailable = e => { if(e.data.size>0) _chunks.push(e.data); };
+        _gravador.onstop = () => {
+          stream.getTracks().forEach(t => t.stop());
+          btn.textContent = '🎤 Gravar áudio'; btn.classList.remove('rec');
+          const blob = new Blob(_chunks, { type: _gravador.mimeType || 'audio/webm' });
+          if(blob.size > 500) enviarBlobAudio(blob, 'gravacao.' + (blob.type.includes('ogg')?'ogg':'webm'));
+        };
+        _gravador.start();
+        btn.textContent = '⏹ Parar (gravando...)'; btn.classList.add('rec');
+      } catch(e) {
+        alert('Não consegui acessar o microfone: ' + e.message);
+      }
     }
     </script>
     </body></html>`);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.get('/admin/whatsapp-cloud/:telefone/novas', authAdmin, async (req, res) => {
+  try {
+    const telefone = req.params.telefone;
+    const apos = req.query.apos || new Date(0).toISOString();
+    const { listarMensagensApos, marcarLidas } = require('./services/salvarWhatsappCloudMsg');
+    const novas = await listarMensagensApos(telefone, apos).catch(()=>[]);
+    if (novas.some(m => m.direcao === 'entrada')) marcarLidas(telefone).catch(()=>{});
+    res.json(novas);
+  } catch(e) { res.status(500).json([]); }
 });
 
 app.post('/admin/whatsapp-cloud/:telefone/responder', authAdmin, express.json(), async (req, res) => {
@@ -10028,6 +10163,32 @@ app.post('/admin/whatsapp-cloud/:telefone/responder', authAdmin, express.json(),
     const { enviarTexto } = require('./services/metaWhatsapp');
     await enviarTexto({ telefone, texto, phoneNumberId });
     await salvarMensagem({ phoneNumberId, telefone, nome: ultimoRecebido?.contato_nome, direcao: 'saida', tipo: 'texto', texto });
+    res.json({ ok:true });
+  } catch(e) {
+    res.status(500).json({ ok:false, erro: e.message });
+  }
+});
+
+app.post('/admin/whatsapp-cloud/:telefone/responder-audio', authAdmin, _uploadAudioMem.single('audio'), async (req, res) => {
+  try {
+    const telefone = req.params.telefone;
+    if (!req.file) return res.status(400).json({ ok:false, erro:'Nenhum áudio recebido' });
+    const { listarMensagens, salvarMensagem } = require('./services/salvarWhatsappCloudMsg');
+    const mensagens = await listarMensagens(telefone).catch(()=>[]);
+    const ultimoRecebido = [...mensagens].reverse().find(m => m.direcao === 'entrada');
+    const phoneNumberId = ultimoRecebido?.phone_number_id || null;
+    if (!phoneNumberId) return res.status(400).json({ ok:false, erro:'Não achei por qual número esse contato falou com a gente.' });
+
+    const { enviarAudio } = require('./services/metaWhatsapp');
+    const mimeType = req.file.mimetype || 'audio/ogg';
+    await enviarAudio({ telefone, buffer: req.file.buffer, mimeType, nomeArquivo: req.file.originalname, phoneNumberId });
+
+    // Guarda cópia local pra tocar de volta na inbox (mídia da Meta expira).
+    const ext = mimeType.includes('ogg') ? 'ogg' : mimeType.includes('webm') ? 'webm' : mimeType.includes('mpeg') ? 'mp3' : mimeType.includes('mp4')||mimeType.includes('m4a') ? 'm4a' : 'audio';
+    const nomeArq = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+    fs.writeFileSync(path.join(UPLOADS_AUDIO_DIR, nomeArq), req.file.buffer);
+
+    await salvarMensagem({ phoneNumberId, telefone, nome: ultimoRecebido?.contato_nome, direcao: 'saida', tipo: 'audio', texto: '[áudio]', midiaUrl: '/data-uploads-audio/' + nomeArq, midiaMime: mimeType });
     res.json({ ok:true });
   } catch(e) {
     res.status(500).json({ ok:false, erro: e.message });
@@ -13899,6 +14060,27 @@ function _lerPlanilhaDisparo(filePath) {
   return { colunas, linhas };
 }
 
+// Monta a lista de contatos a partir das linhas da planilha já mapeadas,
+// barrando telefone inválido (célula vazia, texto lixo, número incompleto)
+// antes de gastar tentativa de envio — usado tanto na criação da campanha
+// quanto ao subir mais planilha numa campanha já existente.
+function _prepararContatosDisparo(linhas, mapeamento) {
+  const { _normalizarTelefone, _telefoneValido } = require('./services/metaWhatsapp');
+  let numerosInvalidos = 0;
+  const contatos = linhas
+    .map(l => ({
+      nome: mapeamento.nome ? String(l[mapeamento.nome] || '') : '',
+      telefone: _normalizarTelefone(l[mapeamento.telefone]),
+      variaveis: l
+    }))
+    .filter(c => {
+      if (!c.telefone) return false;
+      if (!_telefoneValido(c.telefone)) { numerosInvalidos++; return false; }
+      return true;
+    });
+  return { contatos, numerosInvalidos };
+}
+
 app.get('/admin/disparos', authAdmin, async (req, res) => {
   try {
     const { listarCampanhas } = require('./services/salvarDisparo');
@@ -14077,8 +14259,9 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       const r = await fetch('/admin/disparos/criar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
       const d = await r.json();
       if(!d.ok){ document.getElementById('resultado').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
-      if(d.optout > 0 || d.jaEnviados > 0 || d.jaCadastrados > 0){
+      if(d.optout > 0 || d.jaEnviados > 0 || d.jaCadastrados > 0 || d.numerosInvalidos > 0){
         let avisos = [];
+        if(d.numerosInvalidos > 0) avisos.push(d.numerosInvalidos+' removido(s) da lista por número inválido');
         if(d.optout > 0) avisos.push(d.optout+' pulado(s) por opt-out');
         if(d.jaEnviados > 0) avisos.push(d.jaEnviados+' pulado(s) por já terem recebido esse disparo antes');
         if(d.jaCadastrados > 0) avisos.push(d.jaCadastrados+' pulado(s) por já ter conta no sistema');
@@ -14183,15 +14366,8 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!mapeamento || !mapeamento.telefone) return res.json({ ok: false, erro: 'Mapeie a coluna de telefone' });
 
-    const { _normalizarTelefone } = require('./services/metaWhatsapp');
     const { linhas } = _lerPlanilhaDisparo(arquivo);
-    const contatos = linhas
-      .map(l => ({
-        nome: mapeamento.nome ? String(l[mapeamento.nome] || '') : '',
-        telefone: _normalizarTelefone(l[mapeamento.telefone]),
-        variaveis: l
-      }))
-      .filter(c => c.telefone);
+    const { contatos, numerosInvalidos } = _prepararContatosDisparo(linhas, mapeamento);
     if (!contatos.length) return res.json({ ok: false, erro: 'Nenhum contato com telefone válido na planilha' });
 
     const { criarCampanha, inserirContatos } = require('./services/salvarDisparo');
@@ -14226,7 +14402,7 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
     const { dispararWorkerDisparo } = require('./services/workerDispatch');
     dispararWorkerDisparo(campanhaId);
 
-    res.json({ ok: true, campanhaId, optout, jaEnviados, jaCadastrados });
+    res.json({ ok: true, campanhaId, optout, jaEnviados, jaCadastrados, numerosInvalidos });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
@@ -14262,6 +14438,21 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
       <div id="statusTxt" class="gray"></div>
       <button class="sec" id="btnPausar" onclick="pausar()" style="display:none">⏸ Pausar</button>
       <button id="btnRetomar" onclick="retomar()" style="display:none">▶ Retomar</button>
+    </div>
+
+    <div class="box">
+      <h3>➕ Adicionar mais contatos a essa campanha</h3>
+      <p class="gray">Sobe outra planilha (não precisa ser a mesma coluna de telefone) — os contatos novos entram na fila dessa campanha e o disparo continua de onde parou.</p>
+      <input type="file" id="arquivoMais" accept=".csv,.xlsx,.xls">
+      <button onclick="carregarMais()">📥 Carregar planilha</button>
+      <div id="config-mais" style="display:none;margin-top:10px">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-top:6px">Coluna com o telefone</label>
+        <select id="colTelefoneMais"></select>
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-top:6px">Coluna com o nome (opcional)</label>
+        <select id="colNomeMais"><option value="">—</option></select>
+        <button onclick="confirmarMais()" style="margin-top:8px">Adicionar à campanha</button>
+      </div>
+      <div id="resultado-mais" style="margin-top:8px"></div>
     </div>
 
     <div class="box">
@@ -14314,6 +14505,46 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
       setTimeout(atualizarStatus, 500);
     }
 
+    let _arquivoMaisPath = '', _colunasMais = [];
+    async function carregarMais(){
+      const f = document.getElementById('arquivoMais').files[0];
+      if(!f){ alert('Selecione um arquivo'); return; }
+      document.getElementById('resultado-mais').innerHTML = '<p>⏳ Lendo planilha...</p>';
+      const fd = new FormData(); fd.append('arquivo', f);
+      const r = await fetch('/admin/disparos/preview-planilha', { method:'POST', body: fd });
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('resultado-mais').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
+      _colunasMais = d.colunas; _arquivoMaisPath = d.arquivo;
+      document.getElementById('resultado-mais').innerHTML = '<p class="green">✅ '+d.totalLinhas+' linhas encontradas.</p>';
+      const selTel = document.getElementById('colTelefoneMais');
+      const selNome = document.getElementById('colNomeMais');
+      selTel.innerHTML = _colunasMais.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+      selNome.innerHTML = '<option value="">—</option>' + _colunasMais.map(c=>'<option value="'+c+'">'+c+'</option>').join('');
+      const achar = (padroes) => _colunasMais.find(c => padroes.some(p => c.toLowerCase().includes(p)));
+      const colTelSugerida = achar(['telefone','celular','whatsapp','fone','phone']);
+      const colNomeSugerida = achar(['nome','razao','razão','empresa','name']);
+      if(colTelSugerida) selTel.value = colTelSugerida;
+      if(colNomeSugerida) selNome.value = colNomeSugerida;
+      document.getElementById('config-mais').style.display = 'block';
+    }
+    async function confirmarMais(){
+      if(!_arquivoMaisPath) return;
+      const body = { arquivo: _arquivoMaisPath, mapeamento: { telefone: document.getElementById('colTelefoneMais').value, nome: document.getElementById('colNomeMais').value } };
+      document.getElementById('resultado-mais').innerHTML = '<p>⏳ Adicionando...</p>';
+      const r = await fetch('/admin/disparos/'+campanhaId+'/adicionar-contatos', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('resultado-mais').innerHTML = '<p class="red">Erro: '+(d.erro||'')+(d.numerosInvalidos?' ('+d.numerosInvalidos+' inválido(s))':'')+'</p>'; return; }
+      let avisos = [d.inseridos+' contato(s) adicionado(s)'];
+      if(d.numerosInvalidos) avisos.push(d.numerosInvalidos+' removido(s) por número inválido');
+      if(d.optout) avisos.push(d.optout+' pulado(s) por opt-out');
+      if(d.jaEnviados) avisos.push(d.jaEnviados+' pulado(s) por já terem recebido antes');
+      if(d.jaCadastrados) avisos.push(d.jaCadastrados+' pulado(s) por já ter conta');
+      document.getElementById('resultado-mais').innerHTML = '<p class="green">✅ '+avisos.join(', ')+'</p>';
+      document.getElementById('config-mais').style.display = 'none';
+      document.getElementById('arquivoMais').value = '';
+      atualizarStatus(); buscar();
+    }
+
     async function buscar(p){
       _pagina = p || 1;
       const q = document.getElementById('busca').value;
@@ -14338,6 +14569,42 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
     </script>
     </body></html>`);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/admin/disparos/:id/adicionar-contatos', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { arquivo, mapeamento } = req.body;
+    if (!mapeamento || !mapeamento.telefone) return res.json({ ok: false, erro: 'Mapeie a coluna de telefone' });
+    const { buscarCampanha, inserirContatos, atualizarCampanha } = require('./services/salvarDisparo');
+    const campanha = await buscarCampanha(req.params.id);
+    if (!campanha) return res.json({ ok: false, erro: 'Campanha não encontrada' });
+
+    const { linhas } = _lerPlanilhaDisparo(arquivo);
+    const { contatos, numerosInvalidos } = _prepararContatosDisparo(linhas, mapeamento);
+    if (!contatos.length) return res.json({ ok: false, erro: 'Nenhum contato com telefone válido na planilha', numerosInvalidos });
+
+    const _telsCadastrados = new Set();
+    (_cacheUsuarios || []).forEach(u => {
+      const t1 = String(u.telefone || '').replace(/\D/g, '').slice(-8);
+      const t2 = String(u.celular || '').replace(/\D/g, '').slice(-8);
+      if (t1) _telsCadastrados.add(t1);
+      if (t2) _telsCadastrados.add(t2);
+    });
+    const jaCadastradosSet = new Set(contatos.filter(c => _telsCadastrados.has(c.telefone.slice(-8))).map(c => c.telefone));
+
+    const { inseridos, optout, jaEnviados, jaCadastrados } = await inserirContatos(req.params.id, contatos, jaCadastradosSet);
+
+    // Se a campanha já tinha parado (concluída, pausada ou com erro geral),
+    // relança o worker — senão os contatos novos ficam pendentes pra sempre
+    // sem ninguém processando a fila.
+    if (['concluido', 'pausado', 'erro'].includes(campanha.status)) {
+      const { dispararWorkerDisparo } = require('./services/workerDispatch');
+      await atualizarCampanha(req.params.id, { pausado: false, status: 'enviando', erro_geral: null });
+      dispararWorkerDisparo(req.params.id);
+    }
+
+    res.json({ ok: true, inseridos, optout, jaEnviados, jaCadastrados, numerosInvalidos });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
 app.get('/admin/disparos/:id/status', authAdmin, async (req, res) => {

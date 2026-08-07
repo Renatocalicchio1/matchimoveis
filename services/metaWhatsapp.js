@@ -25,6 +25,14 @@ function _normalizarTelefone(telefone) {
   return t;
 }
 
+// 55 + DDD (2) + número (8 ou 9 dígitos) = 12 ou 13 dígitos no total. Qualquer
+// coisa fora disso (célula vazia, texto lixo, número faltando dígito etc) não
+// é um telefone de verdade — usado pra barrar antes de gastar tentativa de
+// envio (e limpar a lista já na hora de criar a campanha).
+function _telefoneValido(telefone) {
+  return /^55\d{10,11}$/.test(_normalizarTelefone(telefone));
+}
+
 async function enviarTemplate({ telefone, templateNome, templateIdioma, parametros, botoesUrl, phoneNumberId: phoneNumberIdOverride }) {
   const { token, phoneNumberId } = _config(phoneNumberIdOverride);
   const numero = _normalizarTelefone(telefone);
@@ -102,4 +110,52 @@ async function enviarTexto({ telefone, texto, phoneNumberId: phoneNumberIdOverri
   }
 }
 
-module.exports = { enviarTemplate, enviarTexto, _normalizarTelefone, NUMEROS_DISPARO };
+// Baixa um áudio (ou qualquer mídia) recebido no webhook — a Meta só manda o
+// ID da mídia na mensagem, é preciso resolver a URL temporária e baixar com o
+// mesmo token de acesso (a URL sozinha não é pública).
+async function baixarMedia(mediaId, phoneNumberIdOverride) {
+  const { token } = _config(phoneNumberIdOverride);
+  const { data: meta } = await axios.get(
+    `https://graph.facebook.com/${API_VERSION}/${mediaId}`,
+    { headers: { Authorization: `Bearer ${token}` }, timeout: 15000 }
+  );
+  const { data: buffer } = await axios.get(meta.url, {
+    headers: { Authorization: `Bearer ${token}` },
+    responseType: 'arraybuffer',
+    timeout: 30000
+  });
+  return { buffer: Buffer.from(buffer), mimeType: meta.mime_type || 'application/octet-stream' };
+}
+
+// Envia áudio: primeiro sobe o binário pro "media library" da própria Meta
+// (obrigatório pra mensagem de mídia — não dá pra mandar por link externo
+// direto no /messages), depois manda a mensagem referenciando o id retornado.
+async function enviarAudio({ telefone, buffer, mimeType, nomeArquivo, phoneNumberId: phoneNumberIdOverride }) {
+  const { token, phoneNumberId } = _config(phoneNumberIdOverride);
+  const numero = _normalizarTelefone(telefone);
+  if (!numero) throw new Error('Telefone inválido');
+  const FormData = require('form-data');
+  const form = new FormData();
+  form.append('messaging_product', 'whatsapp');
+  form.append('type', mimeType || 'audio/ogg');
+  form.append('file', buffer, { filename: nomeArquivo || 'audio.ogg', contentType: mimeType || 'audio/ogg' });
+  try {
+    const { data: up } = await axios.post(
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
+      form,
+      { headers: { Authorization: `Bearer ${token}`, ...form.getHeaders() }, timeout: 30000 }
+    );
+    const mediaId = up.id;
+    const { data } = await axios.post(
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
+      { messaging_product: 'whatsapp', to: numero, type: 'audio', audio: { id: mediaId } },
+      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, timeout: 15000 }
+    );
+    return { ok: true, messageId: data?.messages?.[0]?.id || null };
+  } catch (e) {
+    const corpo = e.response?.data?.error || {};
+    throw new Error(corpo.message || e.message);
+  }
+}
+
+module.exports = { enviarTemplate, enviarTexto, enviarAudio, baixarMedia, _normalizarTelefone, _telefoneValido, NUMEROS_DISPARO };

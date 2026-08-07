@@ -120,7 +120,7 @@
 <% if (locals.bemvindo) { %>
 <div class="pf-card" style="background:#111827;color:#fff;border:none">
   <p class="pf-card-title" style="color:#fff">👋 Bem-vindo(a) à MatchImóveis!</p>
-  <p class="pf-card-sub" style="color:#d1d5db">Sua conta já foi criada. Complete seu e-mail e dados abaixo pra não perder nenhuma notificação.</p>
+  <p class="pf-card-sub" style="color:#d1d5db">Sua conta já foi criada com um nome provisório. Atualize seu <strong>nome</strong>, defina uma <strong>nova senha</strong> e complete seu <strong>e-mail</strong> abaixo pra não perder nenhuma notificação.</p>
   <% if (locals.senhaInicial) { %>
     <div style="background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.2);border-radius:8px;padding:12px 14px;margin-top:8px">
       <p style="margin:0 0 4px;font-size:12px;color:#d1d5db">Sua senha inicial de acesso (anote ou troque abaixo):</p>
@@ -509,6 +509,52 @@ function pegarLocalizacao() {
     btn.disabled = false;
   }, { enableHighAccuracy: true, timeout: 10000 });
 }
+
+// Primeiro acesso (via botão do disparo) — captura e salva a localização
+// sozinho, sem esperar clique. Falha silenciosa (sem geolocalização, sem
+// permissão etc): o botão manual "Usar minha localização atual" continua
+// disponível pra tentar depois.
+<% if (locals.bemvindo && !(user.lat && user.lng)) { %>
+function _pegarLocalizacaoAutomatico() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    let a = {};
+    try {
+      const r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng);
+      const d = await r.json();
+      a = d.address || {};
+    } catch(e) {}
+    const rua = a.road || a.pedestrian || a.residential || '';
+    const numero = a.house_number || '';
+    const bairro = a.suburb || a.neighbourhood || a.city_district || '';
+    const cidade = a.city || a.town || a.municipality || a.village || '';
+    const cep = a.postcode || '';
+    const sel = document.getElementById('estado-input');
+    let estado = '';
+    if (sel) for (let i=0;i<sel.options.length;i++) if (sel.options[i].text === a.state) { estado = sel.options[i].value; break; }
+    const enderecoCompleto = [rua && numero ? rua+', '+numero : rua, bairro, cidade && estado ? cidade+'/'+estado : cidade].filter(Boolean).join(' - ');
+    try {
+      await fetch('/app/perfil/localizacao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lat, lng, endereco: enderecoCompleto, cep, rua, numero, bairro, cidade, estado })
+      });
+      // Reflete na tela sem precisar recarregar (recarregar perderia o banner de boas-vindas)
+      if (document.getElementById('cep-input')) document.getElementById('cep-input').value = cep;
+      if (document.getElementById('rua-input')) document.getElementById('rua-input').value = rua;
+      if (document.getElementById('numero-input')) document.getElementById('numero-input').value = numero;
+      if (document.getElementById('bairro-input')) document.getElementById('bairro-input').value = bairro;
+      if (document.getElementById('cidade-input')) document.getElementById('cidade-input').value = cidade;
+      if (sel) sel.value = estado;
+      const status = document.getElementById('loc-status');
+      if (status) status.innerHTML = '<span style="color:#15803d">●</span> <span style="font-size:13px">'+(enderecoCompleto||(lat+', '+lng))+'</span>';
+    } catch(e) {}
+  }, () => {}, { enableHighAccuracy: true, timeout: 10000 });
+}
+_pegarLocalizacaoAutomatico();
+<% } %>
 
 
 

@@ -231,6 +231,7 @@ async function selecionar(op){
 
 document.getElementById('s2-cep').addEventListener('input', function(){
   this.value = this.value.replace(/\D/g,'').replace(/^(\d{5})(\d)/,'$1-$2').slice(0,9);
+  if(this.value.replace(/\D/g,'').length === 8) buscarCep();
 });
 
 function naoSeiCep(){

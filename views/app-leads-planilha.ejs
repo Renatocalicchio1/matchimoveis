@@ -29,6 +29,10 @@
 .pl-excluir:hover{text-decoration:underline}
 .pl-acoes{display:flex;align-items:center;white-space:nowrap}
 .pl-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;color:var(--text-ter);font-size:11.5px}
+.pct-badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;display:inline-block}
+.pct-low{background:#fef2f2;color:#dc2626}
+.pct-mid{background:#fffbeb;color:#92400e}
+.pct-high{background:#f0fdf4;color:#16a34a}
 @media(max-width:700px){ .pl-filtros input,.pl-filtros select{min-width:0;flex:1} }
 </style>
 
@@ -101,7 +105,15 @@
             <% if(!p.tipo && !p.bairro && !p.valorMax){ %><span style="color:var(--text-ter)">Perfil incompleto</span><% } %>
           </td>
           <td><% if(_vitrineLinkPl){ %><a href="<%= _vitrineLinkPl %>" target="_blank" class="pl-ver">Ver vitrine</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
-          <td><% if(l.idAnuncio){ %><a href="/app/imovel/<%= l.idAnuncio %>" target="_blank" class="pl-ver">Ver detalhes do imóvel</a><% } else if((l.origem||l.origemEntrada)==='captacao_link'){ %><a href="/app/cadastro" class="pl-ver">+ Cadastrar imóvel</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
+          <td>
+            <% function pctClassePl(p){ return p>=67 ? 'pct-high' : p>=34 ? 'pct-mid' : 'pct-low'; } %>
+            <% if(l.idAnuncio){ %><a href="/app/imovel/<%= l.idAnuncio %>" target="_blank" class="pl-ver">Ver detalhes do imóvel</a>
+            <% } else if(l.imovelParcial){ %>
+              <span class="pct-badge <%= pctClassePl(l.imovelParcial.percentual) %>"><%= l.imovelParcial.percentual %>%</span>
+              <a href="/app/imovel/<%= l.imovelParcial.id_interno||l.imovelParcial.id %>/editar" target="_blank" class="pl-ver" style="margin-left:6px">✏️ Editar para completar</a>
+            <% } else if((l.origem||l.origemEntrada)==='captacao_link'){ %><a href="/app/cadastro" class="pl-ver">+ Cadastrar imóvel</a>
+            <% } else { %><span style="color:var(--text-ter)">—</span><% } %>
+          </td>
           <td class="pl-acoes">
             <a href="/app/lead/<%= l.id %>" class="pl-ver">Ver detalhes</a><button type="button" class="pl-excluir" onclick="plExcluirLead('<%= l.id %>')">Excluir</button>
           </td>

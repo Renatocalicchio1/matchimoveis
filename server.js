@@ -5553,6 +5553,27 @@ async function _leadsParaPlanilha(user, query) {
 
   const canaisDisponiveis = [...new Set(base.map(l => l.origem || l.origemEntrada || 'outro'))].sort();
 
+  // Pra leads sem imóvel de referência já vinculado (idAnuncio), tenta achar um
+  // imóvel parcialmente cadastrado do mesmo dono (telefone/email) — mesmo padrão
+  // usado em /app/captacao — pra oferecer "editar para completar" com o % já preenchido.
+  const uid = user.codigoUsuario || user.id;
+  const { query: _qPlanIm } = require('./services/db');
+  const { calcularPercentualPerfil: _cppPlan } = require('./services/salvarImovel');
+  leads = await Promise.all(leads.map(async (l) => {
+    if (l.idAnuncio) return l;
+    try {
+      let tel = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,''); if(tel.startsWith('55') && tel.length>=12) tel = tel.slice(2);
+      const email = (l.email||'').toLowerCase().trim();
+      const conds = []; const pars = [uid];
+      if(tel){ pars.push('%'+tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
+      if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
+      if(!conds.length) return l;
+      const ir = await _qPlanIm(`SELECT id,id_interno,titulo,tipo,bairro,cidade,estado,cep,endereco,valor_imovel,condominio,iptu,area_m2,quartos,suites,banheiros,vagas,descricao,fotos,proprietario,transacao,criado_em FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')}) LIMIT 1`, pars);
+      if(!ir.rows.length) return l;
+      return { ...l, imovelParcial: { ...ir.rows[0], percentual: _cppPlan(ir.rows[0]) } };
+    } catch(_eIm){ return l; }
+  }));
+
   return { leads, canaisDisponiveis };
 }
 

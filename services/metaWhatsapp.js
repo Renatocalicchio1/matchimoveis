@@ -82,4 +82,24 @@ async function enviarTemplate({ telefone, templateNome, templateIdioma, parametr
   }
 }
 
-module.exports = { enviarTemplate, _normalizarTelefone, NUMEROS_DISPARO };
+// Texto livre — só funciona dentro da janela de 24h aberta por uma mensagem
+// do próprio contato (ex: clique de botão), diferente de enviarTemplate que
+// pode iniciar conversa fora da janela.
+async function enviarTexto({ telefone, texto, phoneNumberId: phoneNumberIdOverride }) {
+  const { token, phoneNumberId } = _config(phoneNumberIdOverride);
+  const numero = _normalizarTelefone(telefone);
+  if (!numero) throw new Error('Telefone inválido');
+  try {
+    const { data } = await axios.post(
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`,
+      { messaging_product: 'whatsapp', to: numero, type: 'text', text: { body: texto } },
+      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, timeout: 15000 }
+    );
+    return { ok: true, messageId: data?.messages?.[0]?.id || null };
+  } catch (e) {
+    const corpo = e.response?.data?.error || {};
+    throw new Error(corpo.message || e.message);
+  }
+}
+
+module.exports = { enviarTemplate, enviarTexto, _normalizarTelefone, NUMEROS_DISPARO };

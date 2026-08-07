@@ -9842,6 +9842,7 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
     for (const entry of entries) {
       for (const change of (entry.changes || [])) {
         const mensagens = change.value?.messages || [];
+        const phoneNumberId = change.value?.metadata?.phone_number_id || null;
         for (const msg of mensagens) {
           if (msg.type !== 'button') continue;
           const texto = (msg.button?.text || '').trim().toLowerCase();
@@ -9852,6 +9853,27 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
           } else if (texto === 'não tenho interesse' || texto === 'nao tenho interesse') {
             await marcarOptout(telefone, 'whatsapp_botao_nao_interesse');
             console.log('[whatsapp-cloud] opt-out registrado (leads garantidos):', telefone);
+          } else if (texto === 'falar com humano') {
+            console.log('[whatsapp-cloud] pedido de atendimento humano:', telefone);
+            // Não dá pra usar botão de URL/call pro WhatsApp de suporte (Meta
+            // bloqueia wa.me em botão de URL, e call button pede Calling API,
+            // ver incidente anterior) — em vez disso o clique é resposta rápida,
+            // chega aqui no webhook, e a gente avisa o suporte pra ligar/chamar
+            // esse telefone e confirma pro lead que alguém vai chamar.
+            (async () => {
+              try {
+                const _msgSuporte = `🆘 *Pedido de atendimento humano (campanha WhatsApp)*\n\n📱 *Telefone:* ${telefone}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}\n\nChama esse número direto no WhatsApp.`;
+                await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
+                  body: JSON.stringify({ number: '5511951131609', text: _msgSuporte })
+                });
+              } catch(e) { console.error('[whatsapp-cloud] erro notif suporte:', e.message); }
+              try {
+                const { enviarTexto } = require('./services/metaWhatsapp');
+                await enviarTexto({ telefone, texto: 'Recebemos seu pedido! Um atendente da MatchImóveis vai te chamar aqui mesmo em instantes. 🙂', phoneNumberId });
+              } catch(e) { console.error('[whatsapp-cloud] erro auto-resposta humano:', e.message); }
+            })();
           } else {
             console.log('[whatsapp-cloud] botão não reconhecido pra opt-out:', JSON.stringify(msg.button), '| telefone:', telefone);
           }

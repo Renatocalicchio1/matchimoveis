@@ -14421,13 +14421,50 @@ app.get('/app/captacao', auth, async (req, res) => {
       let imoveis = [];
       if(conds.length){
         const { calcularPercentualPerfil: _cppCap } = require('./services/salvarImovel');
-        const ir = await require('./services/db').query(`SELECT id,id_interno,titulo,tipo,bairro,cidade,estado,cep,endereco,valor_imovel,condominio,iptu,area_m2,quartos,suites,banheiros,vagas,descricao,fotos,proprietario,transacao FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')}) LIMIT 5`, pars);
+        const ir = await require('./services/db').query(`SELECT id,id_interno,titulo,tipo,bairro,cidade,estado,cep,endereco,valor_imovel,condominio,iptu,area_m2,quartos,suites,banheiros,vagas,descricao,fotos,proprietario,transacao,criado_em FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')}) LIMIT 5`, pars);
         imoveis = ir.rows.map(im => ({ ...im, percentual: _cppCap(im) }));
       }
       return { ...l, imoveisRelacionados: imoveis };
       } catch(_eL){ return { ...l, imoveisRelacionados: [] }; }
     }));
-    res.render('app-captacao', { user: req.session.user, leads: leadsComImoveis });
+
+    // Agrupa leads duplicadas (mesmo telefone) num card só — junta os imóveis
+    // vinculados de todas elas e mantém os ids originais em leadIdsGrupo pra
+    // excluir todas de uma vez. Não deduplica no banco, só na tela: cobre tanto
+    // as duplicatas antigas (de antes do fix em /captar/iniciar) quanto
+    // qualquer edge case futuro sem depender de limpeza manual.
+    const _gruposTel = {};
+    const _semTelGrupo = [];
+    for (const l of leadsComImoveis) {
+      let tel = (l.telefone||l.whatsapp||'').replace(/\D/g,''); if(tel.startsWith('55') && tel.length>=12) tel = tel.slice(2);
+      if (!tel) { _semTelGrupo.push(l); continue; }
+      if (!_gruposTel[tel]) _gruposTel[tel] = [];
+      _gruposTel[tel].push(l);
+    }
+    const _nomeValido = n => !!(n && n.trim() && n.trim() !== 'Captação (em andamento)');
+    const leadsAgrupados = [
+      ...Object.values(_gruposTel).map(grupo => {
+        const principal = grupo.reduce((melhor, atual) => {
+          if (!melhor) return atual;
+          if (_nomeValido(atual.nome) && !_nomeValido(melhor.nome)) return atual;
+          if (_nomeValido(melhor.nome) && !_nomeValido(atual.nome)) return melhor;
+          return new Date(atual.criado_em) > new Date(melhor.criado_em) ? atual : melhor;
+        }, null);
+        const emailMerge = principal.email || (grupo.find(g => g.email) || {}).email || '';
+        const vistos = new Set();
+        const imoveisUnicos = [];
+        for (const g of grupo) {
+          for (const im of (g.imoveisRelacionados || [])) {
+            const idIm = im.id_interno || im.id;
+            if (!vistos.has(idIm)) { vistos.add(idIm); imoveisUnicos.push(im); }
+          }
+        }
+        return { ...principal, email: emailMerge, imoveisRelacionados: imoveisUnicos, leadIdsGrupo: grupo.map(g => g.id) };
+      }),
+      ..._semTelGrupo.map(l => ({ ...l, leadIdsGrupo: [l.id] }))
+    ].sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
+
+    res.render('app-captacao', { user: req.session.user, leads: leadsAgrupados });
   } catch(e) {
     console.error('[captacao]', e.message);
     res.render('app-captacao', { user: req.session.user, leads: [] });
@@ -14730,22 +14767,28 @@ app.post('/app/lead/:id/excluir-captacao', auth, async (req, res) => {
   try {
     const { query: _qEC } = require('./services/db');
     const uid = req.session.user.id || req.session.user.codigoUsuario;
-    // Apaga junto os imóveis vinculados (mesma regra de match por telefone/email
-    // usada pra MOSTRAR "Imóveis vinculados" em /app/captacao) — excluir a
-    // captação não pode deixar o imóvel duplicado/vazio pra trás.
-    const leadR = await _qEC('SELECT telefone, whatsapp, email FROM leads WHERE id=$1 AND user_id=$2', [req.params.id, uid]);
-    const lead = leadR.rows[0];
-    if (lead) {
-      let tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,''); if(tel.startsWith('55') && tel.length>=12) tel = tel.slice(2);
-      const email = (lead.email||'').toLowerCase().trim();
-      const conds = []; const pars = [uid];
-      if(tel){ pars.push('%'+tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
-      if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
-      if(conds.length){
-        await _qEC(`DELETE FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')})`, pars);
+    // :id pode vir com vários ids separados por vírgula — a tela de captação
+    // agrupa leads duplicadas (mesmo telefone) num card só, e excluir precisa
+    // apagar todas elas de uma vez, não só a que virou a "principal" do grupo.
+    const ids = String(req.params.id || '').split(',').map(s => s.trim()).filter(Boolean);
+    for (const id of ids) {
+      // Apaga junto os imóveis vinculados (mesma regra de match por telefone/email
+      // usada pra MOSTRAR "Imóveis vinculados" em /app/captacao) — excluir a
+      // captação não pode deixar o imóvel duplicado/vazio pra trás.
+      const leadR = await _qEC('SELECT telefone, whatsapp, email FROM leads WHERE id=$1 AND user_id=$2', [id, uid]);
+      const lead = leadR.rows[0];
+      if (lead) {
+        let tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,''); if(tel.startsWith('55') && tel.length>=12) tel = tel.slice(2);
+        const email = (lead.email||'').toLowerCase().trim();
+        const conds = []; const pars = [uid];
+        if(tel){ pars.push('%'+tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
+        if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
+        if(conds.length){
+          await _qEC(`DELETE FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')})`, pars);
+        }
       }
+      await _qEC("DELETE FROM leads WHERE id=$1 AND user_id=$2", [id, uid]);
     }
-    await _qEC("DELETE FROM leads WHERE id=$1 AND user_id=$2", [req.params.id, uid]);
     res.json({ ok: true });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });

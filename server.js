@@ -10185,12 +10185,14 @@ app.post('/admin/whatsapp-cloud/:telefone/responder', authAdmin, express.json(),
     if (!texto) return res.status(400).json({ ok:false, erro:'Mensagem vazia' });
     const { listarMensagens, salvarMensagem } = require('./services/salvarWhatsappCloudMsg');
     const mensagens = await listarMensagens(telefone).catch(()=>[]);
-    // Trava de duplo-clique/reenvio manual (ex: admin clica de novo achando que
-    // não foi, ou o Render reinicia bem na hora e a resposta HTTP nunca chega
-    // no navegador) — se o mesmo texto pro mesmo contato já foi mandado nos
-    // últimos 20s, não manda de novo pra Meta.
-    const ultimaSaida = [...mensagens].reverse().find(m => m.direcao === 'saida');
-    if (ultimaSaida && ultimaSaida.texto === texto && (Date.now() - new Date(ultimaSaida.criado_em).getTime()) < 20000) {
+    // Trava de reenvio duplicado (duplo-clique, reinício do Render bem na hora,
+    // ou reenvio de origem desconhecida horas depois — já visto acontecer) —
+    // se a ÚLTIMA mensagem da conversa (qualquer direção, não importa há
+    // quanto tempo) já for exatamente esse mesmo texto nosso, não manda de
+    // novo. Só libera repetir o mesmo texto se o lead tiver escrito algo depois
+    // (aí a última mensagem já não é mais 'saida' com esse texto).
+    const ultimaMsg = mensagens[mensagens.length - 1];
+    if (ultimaMsg && ultimaMsg.direcao === 'saida' && ultimaMsg.tipo === 'texto' && ultimaMsg.texto === texto) {
       return res.json({ ok:true, duplicado: true });
     }
     const ultimoRecebido = [...mensagens].reverse().find(m => m.direcao === 'entrada');

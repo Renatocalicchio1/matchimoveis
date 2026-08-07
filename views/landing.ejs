@@ -416,8 +416,8 @@
     <% if(typeof error !== 'undefined' && error && _erroMap[error]){ %>
     <div style="background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px"><%= _erroMap[error] %></div>
     <% } %>
-    <% if(typeof error !== 'undefined' && error === 'senha_enviada'){ %>
-    <div style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px">Nova senha enviada via WhatsApp!</div>
+    <% if(typeof msg !== 'undefined' && msg === 'senha_email_enviado'){ %>
+    <div style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px">Se esse celular tiver conta com e-mail cadastrado, uma nova senha foi enviada. Verifique também a pasta de spam.</div>
     <% } %>
     <div class="modal-tabs">
       <button class="modal-tab on" id="tab-e" onclick="setTab('entrar')">Entrar</button>
@@ -429,6 +429,15 @@
         <div class="m-field"><label>Senha</label><input name="senha" type="password" placeholder="••••••" autocomplete="current-password"></div>
         <button type="submit" class="m-btn">Entrar →</button>
       </form>
+      <p class="m-note"><a href="#" onclick="setTab('esqueci');return false" style="color:#FF385C;text-decoration:none">Esqueci minha senha</a></p>
+    </div>
+    <div id="form-esqueci" style="display:none">
+      <p style="font-size:13px;color:#6b7280;margin-bottom:12px">Informe o celular da sua conta — enviamos uma nova senha pro e-mail cadastrado.</p>
+      <form method="POST" action="/esqueci-senha">
+        <div class="m-field"><label>Celular</label><input name="telefone" placeholder="47999999999" required></div>
+        <button type="submit" class="m-btn">Enviar nova senha por e-mail</button>
+      </form>
+      <p class="m-note"><a href="#" onclick="setTab('entrar');return false" style="color:#FF385C;text-decoration:none">← Voltar pro login</a></p>
     </div>
     <div id="form-cadastro" style="display:none">
       <form method="POST" action="/login">
@@ -464,7 +473,8 @@ function closeModal(){
 function setTab(t){
   document.getElementById('form-entrar').style.display=t==='entrar'?'block':'none';
   document.getElementById('form-cadastro').style.display=t==='cadastro'?'block':'none';
-  document.getElementById('tab-e').className='modal-tab'+(t==='entrar'?' on':'');
+  document.getElementById('form-esqueci').style.display=t==='esqueci'?'block':'none';
+  document.getElementById('tab-e').className='modal-tab'+(t==='entrar'||t==='esqueci'?' on':'');
   document.getElementById('tab-c').className='modal-tab'+(t==='cadastro'?' on':'');
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
@@ -479,6 +489,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
     openModal('entrar');
   } else if(_e) {
     openModal();
+  } else if(_p.get('msg') === 'senha_email_enviado') {
+    openModal('entrar');
   } else if(_p.get('ref')) {
     openModal('cadastro');
   }

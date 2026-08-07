@@ -386,6 +386,27 @@ app.use('/app', async (req, res, next) => {
   next();
 });
 
+// ── PERFIL OBRIGATÓRIO PRA CONTAS CRIADAS VIA CAMPANHA DE AQUISIÇÃO ─────────
+// Quem entra pelo botão do disparo ganha conta com nome provisório (da
+// planilha) e sem e-mail/localização. Antes de liberar o resto da
+// plataforma, obriga trocar nome, e-mail e localização (flag
+// precisaCompletarPerfil, desligada em _verificarPerfilCompleto assim que os
+// 3 requisitos forem cumpridos). Só afeta quem tem essa flag — usuários
+// normais não são tocados.
+const _rotasLivresPerfil = ['/app/perfil'];
+app.use('/app', (req, res, next) => {
+  if (!req.session || !req.session.user || !req.session.user.precisaCompletarPerfil) return next();
+  const _rota = req.path;
+  if (_rotasLivresPerfil.some(r => _rota.startsWith(r.replace('/app','')))) return next();
+  const _querJson = (req.headers['content-type']||'').includes('application/json')
+    || (req.headers['accept']||'').includes('application/json')
+    || req.xhr;
+  if (_querJson) {
+    return res.status(403).json({ ok: false, erro: 'Complete seu nome, e-mail e localização no perfil para continuar.', perfilIncompleto: true });
+  }
+  return res.redirect('/app/perfil?completarPerfil=1');
+});
+
 // ── SEGURANÇA: SANITIZAÇÃO DE INPUTS ─────────────────────────────────────────
 app.use((req, res, next) => {
   const sanitize = (obj) => {
@@ -2071,7 +2092,46 @@ app.get('/', (req,res)=>{
     const isMobile = /Mobile|Android|iPhone|iPad/i.test(ua);
     return res.redirect(isMobile ? '/app/feed' : '/app/leads');
   }
-  res.render('landing', { error: req.query.erro || req.query.error || null, ref: (req.query.ref || '').trim() });
+  res.render('landing', { error: req.query.erro || req.query.error || null, ref: (req.query.ref || '').trim(), msg: req.query.msg || null });
+});
+
+// Esqueci minha senha — gera senha nova e manda por e-mail. Resposta é sempre
+// a mesma independente do telefone existir ou não (evita confirmar pra quem
+// tenta adivinhar se um número está cadastrado).
+app.post('/esqueci-senha', async (req, res) => {
+  try {
+    const telefone = String(req.body.telefone || '').replace(/\D/g, '');
+    if (telefone) {
+      const { lerUsuarios: _luEsq, atualizarUsuario: _auEsq } = require('./services/salvarUsuario');
+      const users = await _luEsq();
+      const user = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g, '') === telefone);
+      if (user && user.email) {
+        const _chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let novaSenha = '';
+        for (let i = 0; i < 8; i++) novaSenha += _chars[Math.floor(Math.random() * _chars.length)];
+        const hash = await bcrypt.hash(novaSenha, 10);
+        const uidEsq = user.codigoUsuario || user.id;
+        await _auEsq(uidEsq, { senha: hash });
+        if (_cacheUsuarios) { const idx = _cacheUsuarios.findIndex(u => u.id === uidEsq); if (idx >= 0) _cacheUsuarios[idx].senha = hash; }
+        const { enviarEmail } = require('./services/email');
+        await enviarEmail({
+          para: user.email,
+          assunto: '🔑 Redefinição de senha — MatchImóveis',
+          html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
+            <h2 style="color:#FF385C">Sua nova senha</h2>
+            <p>Você solicitou a redefinição de senha da sua conta MatchImóveis.</p>
+            <p style="font-size:24px;font-weight:bold;background:#f3f4f6;padding:16px;border-radius:8px;text-align:center;letter-spacing:2px">${novaSenha}</p>
+            <p>Use essa senha pra entrar e depois troque por uma de sua preferência em <strong>Perfil → Alterar senha</strong>.</p>
+            <p style="color:#b45309;background:#fffbeb;padding:12px 16px;border-radius:8px;margin-top:16px">⚠️ Não encontrou esse e-mail na caixa de entrada? Confira a pasta de <strong>spam / lixo eletrônico</strong>.</p>
+          </div>`,
+          texto: `Sua nova senha: ${novaSenha}. Se não encontrar este email na caixa de entrada, verifique a pasta de spam.`
+        }).catch(e => console.error('[esqueci-senha] erro ao enviar email:', e.message));
+      }
+    }
+  } catch (e) {
+    console.error('[esqueci-senha]', e.message);
+  }
+  res.redirect('/?msg=senha_email_enviado');
 });
 
 app.get('/entrar', (req,res)=>{ res.redirect('/'); //
@@ -2551,7 +2611,12 @@ app.get('/entrar/:contatoId', async (req, res) => {
         email: '', tipo: 'corretor', ativo: true,
         codigoUsuario: codigo, senha: senhaHash,
         matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
-        origemCadastro: 'campanha_leads_garantidos'
+        origemCadastro: 'campanha_leads_garantidos',
+        // Nome vindo da planilha é só provisório (ex: "Teste 1") — obriga
+        // trocar por um nome de verdade, junto com e-mail e localização,
+        // antes de liberar o resto da plataforma (ver middleware mais abaixo).
+        precisaCompletarPerfil: true,
+        nomeImportado: contato.nome || ''
       };
       await _salvarEntrar(user);
       req.session.senhaInicialTemp = senhaGerada;
@@ -4265,9 +4330,9 @@ app.get('/app/perfil', auth, async (req,res)=>{
     const _totalVenda = _imoveisUser.rows.length;
     const _senhaInicial = req.session.senhaInicialTemp || null;
     delete req.session.senhaInicialTemp;
-    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1' });
+    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1', completarPerfil: !!req.session.user.precisaCompletarPerfil });
   } catch(e) {
-    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false });
+    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false, completarPerfil: !!req.session.user.precisaCompletarPerfil });
   }
 });
 
@@ -4297,9 +4362,49 @@ app.post('/app/perfil/quintoandar', auth, async (req, res) => {
   }
 });
 
+// Confere se a conta criada via campanha de aquisição já cumpriu os 3
+// requisitos obrigatórios (nome trocado do provisório da planilha, e-mail e
+// localização) e libera o resto da plataforma (desliga precisaCompletarPerfil)
+// quando completar. Retorna null se a conta não estava nessa pendência.
+async function _verificarPerfilCompleto(uid) {
+  try {
+    const { lerUsuarios: _luVpc, atualizarUsuario: _auVpc } = require('./services/salvarUsuario');
+    const users = await _luVpc();
+    const u = users.find(x => x.id === uid);
+    if (!u || !u.precisaCompletarPerfil) return null;
+    const nomeTrocado = !!(u.nome && u.nome.trim() && u.nome.trim() !== (u.nomeImportado || '').trim());
+    const completo = !!(nomeTrocado && u.email && u.lat && u.lng);
+    if (completo) {
+      await _auVpc(uid, { precisaCompletarPerfil: false });
+      if (_cacheUsuarios) { const idx = _cacheUsuarios.findIndex(x => x.id === uid); if (idx >= 0) _cacheUsuarios[idx].precisaCompletarPerfil = false; }
+    }
+    return completo;
+  } catch(e) { console.error('[perfil-completo]', e.message); return null; }
+}
+
 app.post('/app/perfil', auth, async (req,res)=>{
   const { atualizarUsuario: _auPerfil } = require('./services/salvarUsuario');
-  const uid = String(req.session.user.id || '');
+  let uid = String(req.session.user.id || '');
+  const novoNome = (req.body.nome || '').trim();
+
+  // Renomeação obrigatória de conta criada via campanha: troca o código de
+  // usuário pra refletir o nome real (mesmo padrão gerarCodigoUsuario do
+  // cadastro normal), só nessa janela de "precisa completar perfil" — antes
+  // do usuário ter qualquer imóvel/lead vinculado. Depois de completar, o
+  // código nunca mais muda (trocar depois quebraria os vínculos existentes).
+  if (req.session.user.precisaCompletarPerfil && novoNome && novoNome !== (req.session.user.nomeImportado || '') && novoNome.length >= 3) {
+    const novoCodigo = gerarCodigoUsuario(novoNome);
+    try {
+      const { query: _qRename } = require('./services/db');
+      await _qRename('UPDATE usuarios SET id=$1, codigo_usuario=$1 WHERE id=$2', [novoCodigo, uid]);
+      if (_cacheUsuarios) { const idx = _cacheUsuarios.findIndex(u => u.id === uid); if (idx >= 0) { _cacheUsuarios[idx].id = novoCodigo; _cacheUsuarios[idx].codigoUsuario = novoCodigo; } }
+      req.session.user.id = novoCodigo;
+      req.session.user.codigoUsuario = novoCodigo;
+      uid = novoCodigo;
+      console.log('[perfil] código de usuário atualizado pro novo nome:', novoCodigo);
+    } catch(e) { console.error('[perfil] erro ao renomear código:', e.message); }
+  }
+
   const dados = {
     nome: req.body.nome || '',
     creci: req.body.creci || '',
@@ -4310,7 +4415,13 @@ app.post('/app/perfil', auth, async (req,res)=>{
   };
   await _auPerfil(uid, dados).catch(e=>console.error("[perfil]",e.message));
   req.session.user = { ...req.session.user, ...dados };
-  res.redirect('/app/perfil');
+
+  if (req.session.user.precisaCompletarPerfil) {
+    const completo = await _verificarPerfilCompleto(uid);
+    if (completo) req.session.user.precisaCompletarPerfil = false;
+  }
+
+  res.redirect('/app/perfil' + (req.session.user.precisaCompletarPerfil ? '?completarPerfil=1' : ''));
 });
 
 // ── MEU SITE (white-label público) ────────────────────────────────────────────
@@ -6043,8 +6154,12 @@ app.post('/app/perfil/localizacao', auth, express.json(), async (req,res)=>{
       Object.assign(users[idx], extras);
       req.session.user = { ...req.session.user, ...users[idx] };
     }
+    if (req.session.user.precisaCompletarPerfil) {
+      const completo = await _verificarPerfilCompleto(req.session.user.id);
+      if (completo) req.session.user.precisaCompletarPerfil = false;
+    }
   } catch(e) { console.error('[localizacao]', e.message); }
-  if(isJson) return res.json({ok:true});
+  if(isJson) return res.json({ok:true, perfilCompleto: !req.session.user.precisaCompletarPerfil});
   res.redirect('/app/perfil');
 });
 

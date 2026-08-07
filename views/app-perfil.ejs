@@ -117,10 +117,21 @@
 }
 </style>
 
-<% if (locals.bemvindo) { %>
+<% if (locals.completarPerfil) {
+  const _faltando = [];
+  if (!user.nome || user.nome.trim() === (user.nomeImportado||'').trim()) _faltando.push('nome');
+  if (!user.email) _faltando.push('e-mail');
+  if (!user.lat || !user.lng) _faltando.push('localização');
+%>
 <div class="pf-card" style="background:#111827;color:#fff;border:none">
-  <p class="pf-card-title" style="color:#fff">👋 Bem-vindo(a) à MatchImóveis!</p>
-  <p class="pf-card-sub" style="color:#d1d5db">Sua conta já foi criada com um nome provisório. Atualize seu <strong>nome</strong>, defina uma <strong>nova senha</strong> e complete seu <strong>e-mail</strong> abaixo pra não perder nenhuma notificação.</p>
+  <p class="pf-card-title" style="color:#fff">👋 <%= locals.bemvindo ? 'Bem-vindo(a) à MatchImóveis!' : 'Complete seu perfil pra continuar' %></p>
+  <p class="pf-card-sub" style="color:#d1d5db">
+    <% if (_faltando.length) { %>
+      Falta preencher: <strong><%= _faltando.join(', ') %></strong>. Você só consegue usar o restante da plataforma depois de completar esses itens.
+    <% } else { %>
+      Quase lá — salve as alterações abaixo pra liberar o restante da plataforma.
+    <% } %>
+  </p>
   <% if (locals.senhaInicial) { %>
     <div style="background:rgba(255,255,255,.1);border:0.5px solid rgba(255,255,255,.2);border-radius:8px;padding:12px 14px;margin-top:8px">
       <p style="margin:0 0 4px;font-size:12px;color:#d1d5db">Sua senha inicial de acesso (anote ou troque abaixo):</p>
@@ -514,7 +525,7 @@ function pegarLocalizacao() {
 // sozinho, sem esperar clique. Falha silenciosa (sem geolocalização, sem
 // permissão etc): o botão manual "Usar minha localização atual" continua
 // disponível pra tentar depois.
-<% if (locals.bemvindo && !(user.lat && user.lng)) { %>
+<% if ((locals.bemvindo || locals.completarPerfil) && !(user.lat && user.lng)) { %>
 function _pegarLocalizacaoAutomatico() {
   if (!navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(async (pos) => {

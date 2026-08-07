@@ -135,11 +135,15 @@ async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapea
   return id;
 }
 
-async function inserirContatos(campanhaId, contatos, jaCadastradosSet) {
+// ignorarHistorico: pra campanhas de remarketing de propósito (template novo
+// pra quem já recebeu mensagem antes) — ainda respeita opt-out (quem pediu
+// pra não receber mais continua bloqueado), só pula a checagem de "já
+// enviado antes".
+async function inserirContatos(campanhaId, contatos, jaCadastradosSet, ignorarHistorico) {
   await _inicializar();
   const telefones = [...new Set(contatos.map(c => c.telefone).filter(Boolean))];
   const optados = new Set(await listarOptout(telefones));
-  const jaEnviadosSet = new Set(await listarJaEnviados(telefones));
+  const jaEnviadosSet = ignorarHistorico ? new Set() : new Set(await listarJaEnviados(telefones));
   const _jaCadSet = jaCadastradosSet || new Set();
   let inseridos = 0, optout = 0, jaEnviados = 0, jaCadastrados = 0;
   for (const c of contatos) {

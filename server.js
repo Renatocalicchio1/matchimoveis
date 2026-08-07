@@ -9972,6 +9972,7 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
     </style></head><body>
     <a href="/admin" class="voltar">← Painel Admin</a>
     <h1>💬 Inbox WhatsApp Cloud <span style="font-size:13px;color:#6b7280;font-weight:400">(campanha — Meta Cloud API)</span></h1>
+    <p><a href="/admin/whatsapp-cloud/exportar.csv" style="font-size:12px;color:#6b7280;text-decoration:underline">📥 Exportar contatos da inbox (.csv) — pra usar num disparo novo</a></p>
     <div class="box" id="lista"><p style="padding:20px;color:#6b7280">Carregando...</p></div>
     <script>
     function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -9994,6 +9995,23 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
     setInterval(carregar, 6000);
     </script>
     </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+// CSV com telefone/nome de todo contato que já apareceu na inbox — pronto
+// pra subir direto em /admin/disparos e criar uma campanha de remarketing
+// (junto com o checkbox "Ignorar histórico", já que essas pessoas já
+// receberam mensagem antes).
+app.get('/admin/whatsapp-cloud/exportar.csv', authAdmin, async (req, res) => {
+  try {
+    const { listarConversas } = require('./services/salvarWhatsappCloudMsg');
+    const conversas = await listarConversas().catch(()=>[]);
+    const _csvEsc = s => '"' + String(s == null ? '' : s).replace(/"/g,'""') + '"';
+    const linhas = ['Telefone,Nome']
+      .concat(conversas.map(c => `${_csvEsc(c.contato_telefone)},${_csvEsc(c.contato_nome || '')}`));
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="contatos-inbox.csv"');
+    res.send(linhas.join('\n'));
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 
@@ -14154,6 +14172,10 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         <input type="checkbox" id="usarContatoIdBotao" style="width:auto">
         Botão de URL cria conta automaticamente (campanha de aquisição, ex: "leads garantidos" — aponta pra /entrar/{id})
       </label>
+      <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px">
+        <input type="checkbox" id="ignorarHistorico" style="width:auto">
+        Ignorar histórico — enviar mesmo pra quem já recebeu disparo antes (remarketing com template novo pros mesmos contatos)
+      </label>
       <label>Coluna com o telefone</label>
       <select id="colTelefone"></select>
       <label>Coluna com o nome (opcional, só exibição)</label>
@@ -14260,6 +14282,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         mapeamento: _mapeamentoAtual(),
         corretorUserId: document.getElementById('corretorUserId').value,
         usarContatoIdBotao: document.getElementById('usarContatoIdBotao').checked,
+        ignorarHistorico: document.getElementById('ignorarHistorico').checked,
         phoneNumberId: document.getElementById('phoneNumberId').value,
         delayMs: parseInt(document.getElementById('delayMs').value)||2500
       };
@@ -14368,7 +14391,7 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
 
 app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) => {
   try {
-    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId, usarContatoIdBotao, phoneNumberId } = req.body;
+    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId, usarContatoIdBotao, phoneNumberId, ignorarHistorico } = req.body;
     if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!mapeamento || !mapeamento.telefone) return res.json({ ok: false, erro: 'Mapeie a coluna de telefone' });
@@ -14404,7 +14427,7 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
     });
     const jaCadastradosSet = new Set(contatos.filter(c => _telsCadastrados.has(c.telefone.slice(-8))).map(c => c.telefone));
 
-    const { optout, jaEnviados, jaCadastrados } = await inserirContatos(campanhaId, contatos, jaCadastradosSet);
+    const { optout, jaEnviados, jaCadastrados } = await inserirContatos(campanhaId, contatos, jaCadastradosSet, !!ignorarHistorico);
 
     const { dispararWorkerDisparo } = require('./services/workerDispatch');
     dispararWorkerDisparo(campanhaId);

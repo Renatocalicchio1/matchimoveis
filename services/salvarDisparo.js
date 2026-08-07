@@ -106,17 +106,20 @@ async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapea
   return id;
 }
 
-async function inserirContatos(campanhaId, contatos) {
+async function inserirContatos(campanhaId, contatos, jaCadastradosSet) {
   await _inicializar();
   const telefones = [...new Set(contatos.map(c => c.telefone).filter(Boolean))];
   const optados = new Set(await listarOptout(telefones));
   const jaEnviadosSet = new Set(await listarJaEnviados(telefones));
-  let inseridos = 0, optout = 0, jaEnviados = 0;
+  const _jaCadSet = jaCadastradosSet || new Set();
+  let inseridos = 0, optout = 0, jaEnviados = 0, jaCadastrados = 0;
   for (const c of contatos) {
     if (!c.telefone) continue;
     const emOptout = optados.has(c.telefone);
     const jaFoiEnviado = !emOptout && jaEnviadosSet.has(c.telefone);
-    const status = emOptout ? 'optout' : jaFoiEnviado ? 'ja_enviado' : 'pendente';
+    const jaTemConta = !emOptout && !jaFoiEnviado && _jaCadSet.has(c.telefone);
+    const status = emOptout ? 'optout' : jaFoiEnviado ? 'ja_enviado' : jaTemConta ? 'ja_cadastrado' : 'pendente';
+    if (jaTemConta) jaCadastrados++;
     await query(
       `INSERT INTO disparos_contatos (id, campanha_id, nome, telefone, variaveis, status) VALUES ($1,$2,$3,$4,$5,$6)`,
       [uuidv4(), campanhaId, c.nome || '', c.telefone, JSON.stringify(c.variaveis || {}), status]
@@ -128,7 +131,7 @@ async function inserirContatos(campanhaId, contatos) {
   if (inseridos > 0) {
     await query(`UPDATE disparos_campanhas SET total_contatos = total_contatos + $1 WHERE id=$2`, [inseridos, campanhaId]);
   }
-  return { inseridos, optout, jaEnviados };
+  return { inseridos, optout, jaEnviados, jaCadastrados };
 }
 
 async function atualizarCampanha(id, dados) {

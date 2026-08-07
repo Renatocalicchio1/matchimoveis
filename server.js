@@ -13748,10 +13748,11 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       const r = await fetch('/admin/disparos/criar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
       const d = await r.json();
       if(!d.ok){ document.getElementById('resultado').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
-      if(d.optout > 0 || d.jaEnviados > 0){
+      if(d.optout > 0 || d.jaEnviados > 0 || d.jaCadastrados > 0){
         let avisos = [];
         if(d.optout > 0) avisos.push(d.optout+' pulado(s) por opt-out');
         if(d.jaEnviados > 0) avisos.push(d.jaEnviados+' pulado(s) por já terem recebido esse disparo antes');
+        if(d.jaCadastrados > 0) avisos.push(d.jaCadastrados+' pulado(s) por já ter conta no sistema');
         document.getElementById('resultado').innerHTML = '<p class="gray">⚠️ '+avisos.join(', ')+'. Redirecionando...</p>';
         await new Promise(r=>setTimeout(r,1800));
       }
@@ -13852,12 +13853,27 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
       usarContatoIdBotao: !!usarContatoIdBotao,
       phoneNumberId: phoneNumberId || null
     });
-    const { optout, jaEnviados } = await inserirContatos(campanhaId, contatos);
+
+    // Contato cujo telefone já tem conta cadastrada na plataforma — não faz
+    // sentido mandar campanha de aquisição de conta pra quem já é usuário.
+    // Comparação por sufixo de 8 dígitos (mesmo padrão já usado no checkPro
+    // de bloqueados), já que telefone/celular de usuarios nem sempre tem o
+    // DDI 55 salvo do mesmo jeito que a planilha normalizada.
+    const _telsCadastrados = new Set();
+    (_cacheUsuarios || []).forEach(u => {
+      const t1 = String(u.telefone || '').replace(/\D/g, '').slice(-8);
+      const t2 = String(u.celular || '').replace(/\D/g, '').slice(-8);
+      if (t1) _telsCadastrados.add(t1);
+      if (t2) _telsCadastrados.add(t2);
+    });
+    const jaCadastradosSet = new Set(contatos.filter(c => _telsCadastrados.has(c.telefone.slice(-8))).map(c => c.telefone));
+
+    const { optout, jaEnviados, jaCadastrados } = await inserirContatos(campanhaId, contatos, jaCadastradosSet);
 
     const { dispararWorkerDisparo } = require('./services/workerDispatch');
     dispararWorkerDisparo(campanhaId);
 
-    res.json({ ok: true, campanhaId, optout, jaEnviados });
+    res.json({ ok: true, campanhaId, optout, jaEnviados, jaCadastrados });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
@@ -13906,6 +13922,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
           <option value="erro">Erros</option>
           <option value="optout">Opt-out</option>
           <option value="ja_enviado">Já enviado antes</option>
+          <option value="ja_cadastrado">Já tem conta</option>
         </select>
       </div>
       <div id="tabela-contatos">⏳ Carregando...</div>
@@ -13953,7 +13970,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
       if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class="red">Erro ao carregar</p>'; return; }
       let html = '<table><tr><th>Nome</th><th>Telefone</th><th>Status</th><th>Erro</th><th>Enviado em</th></tr>';
       for(const ct of d.contatos){
-        const cor = ct.status==='enviado'?'#16a34a':ct.status==='erro'?'#dc2626':ct.status==='ja_enviado'?'#6b7280':'#f59e0b';
+        const cor = ct.status==='enviado'?'#16a34a':ct.status==='erro'?'#dc2626':(ct.status==='ja_enviado'||ct.status==='ja_cadastrado')?'#6b7280':'#f59e0b';
         html += '<tr><td>'+(ct.nome||'—')+'</td><td>'+ct.telefone+'</td><td style="color:'+cor+'">'+ct.status+'</td><td style="color:#dc2626;font-size:11px">'+(ct.erro||'')+'</td><td style="color:#6b7280;font-size:11px">'+(ct.enviado_em?new Date(ct.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
       }
       html += '</table>';

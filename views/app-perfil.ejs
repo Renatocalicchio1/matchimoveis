@@ -141,8 +141,8 @@
 </div>
 <% } else if (locals.comprarPlano) { %>
 <div class="pf-card" style="background:#111827;color:#fff;border:none">
-  <p class="pf-card-title" style="color:#fff">🔒 Contrate um combo pra continuar</p>
-  <p class="pf-card-sub" style="color:#d1d5db">Os 1.000 créditos de bônus são só pra você testar a plataforma — pra liberar o resto, escolha um dos combos de leads garantidos abaixo.</p>
+  <p class="pf-card-title" style="color:#fff">🚀 Contrate um combo e comece a vender</p>
+  <p class="pf-card-sub" style="color:#d1d5db">Escolha um dos combos abaixo pra liberar sua conta: cadastre seus imóveis, conecte seu WhatsApp e comece a receber leads qualificados automaticamente hoje mesmo.</p>
 </div>
 <% } else if (!user.email) { %>
 <div class="pf-card" style="background:#fffbeb;border-color:#fde68a">
@@ -161,8 +161,8 @@
 <!-- Dados do usuário -->
 <div class="pf-card">
   <p class="pf-card-title">Dados do usuário</p>
-  <p class="pf-card-sub">Informações da sua conta no MatchImóveis.</p>
-  <form method="POST" action="/app/perfil">
+  <p class="pf-card-sub">Informações da sua conta no MatchImóveis. <span id="pf-autosave-status" style="color:#15803d;font-weight:600"></span></p>
+  <form method="POST" action="/app/perfil" id="formDadosUsuario">
     <div class="pf-grid">
       <div class="pf-field">
         <label>Nome</label>
@@ -196,6 +196,45 @@
     <button class="pf-btn" type="submit">Salvar perfil</button>
   </form>
 </div>
+<script>
+(function(){
+  const form = document.getElementById('formDadosUsuario');
+  const status = document.getElementById('pf-autosave-status');
+  const _perfilCompletoAntes = <%- JSON.stringify(!locals.completarPerfil) %>;
+  const _nomeImportado = <%- JSON.stringify(user.nomeImportado||'') %>;
+  const _temLocalizacao = <%- JSON.stringify(!!(user.lat && user.lng)) %>;
+  let timer;
+  // Salva automaticamente enquanto o usuário preenche — sem precisar clicar
+  // em "Salvar perfil". Se isso completar os requisitos obrigatórios (nome
+  // trocado + e-mail + localização) de uma conta ainda em onboarding, recarrega
+  // a página pra liberar o próximo passo (contratar combo).
+  form.querySelectorAll('input:not([readonly])').forEach(inp => {
+    inp.addEventListener('input', () => {
+      clearTimeout(timer);
+      status.textContent = '';
+      timer = setTimeout(async () => {
+        status.textContent = 'Salvando...';
+        status.style.color = '#6b7280';
+        try {
+          const params = new URLSearchParams(new FormData(form));
+          await fetch('/app/perfil', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+          status.textContent = '✓ Salvo automaticamente';
+          status.style.color = '#15803d';
+          if (!_perfilCompletoAntes) {
+            const nomeAgora = form.querySelector('[name="nome"]').value.trim();
+            const emailAgora = form.querySelector('[name="email"]').value.trim();
+            if (nomeAgora && nomeAgora !== _nomeImportado && nomeAgora.length >= 3 && emailAgora && _temLocalizacao) {
+              location.reload();
+            }
+          }
+        } catch(e) {
+          status.textContent = '';
+        }
+      }, 900);
+    });
+  });
+})();
+</script>
 
 <div class="pf-card">
   <p class="pf-card-title">📦 Combos de créditos — leads garantidos</p>

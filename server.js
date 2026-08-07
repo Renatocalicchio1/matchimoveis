@@ -9930,15 +9930,21 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
             console.log('[whatsapp-cloud] botão não reconhecido pra opt-out:', JSON.stringify(msg.button), '| telefone:', telefone);
           }
         }
-        // Status de entrega (sent/delivered/read/failed) — só log por enquanto,
-        // pra dar visibilidade de falha de entrega que a API de envio não mostra
-        // (o POST /messages só confirma que a Meta aceitou o pedido, não que chegou).
+        // Status de entrega (sent/delivered/read/failed) — o POST /messages só
+        // confirma que a Meta aceitou o pedido, não que chegou de verdade no
+        // aparelho. Esses eventos assíncronos são a única forma real de saber
+        // — casados pelo message_id com a linha do contato em disparos_contatos
+        // (visível na tela da campanha, coluna "Entrega").
         const statuses = change.value?.statuses || [];
         for (const st of statuses) {
+          const { marcarEntregaPorMessageId } = require('./services/salvarDisparo');
           if (st.status === 'failed') {
+            const msgErro = (st.errors && st.errors[0] && st.errors[0].title) || 'Falha na entrega';
             console.error('[whatsapp-cloud] FALHA DE ENTREGA:', JSON.stringify({ telefone: st.recipient_id, messageId: st.id, erros: st.errors }));
+            marcarEntregaPorMessageId(st.id, 'failed', msgErro).catch(()=>{});
           } else {
             console.log('[whatsapp-cloud] status:', st.status, '| telefone:', st.recipient_id, '| messageId:', st.id);
+            marcarEntregaPorMessageId(st.id, st.status, null).catch(()=>{});
           }
         }
       }
@@ -14482,17 +14488,22 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
       const d = await r.json();
       if(!d.ok) return;
       const camp = d.campanha;
+      const ent = d.entrega || {};
       const pct = camp.total_contatos>0 ? Math.round(((camp.enviados+camp.erros)/camp.total_contatos)*100) : 0;
       document.getElementById('stats').innerHTML =
         '<div class="stat"><strong>'+camp.total_contatos+'</strong>Total</div>' +
-        '<div class="stat"><strong class="green">'+camp.enviados+'</strong>Enviados</div>' +
+        '<div class="stat"><strong class="green">'+camp.enviados+'</strong>Aceitos pela Meta</div>' +
         '<div class="stat"><strong class="red">'+camp.erros+'</strong>Erros</div>' +
-        '<div class="stat"><strong>'+pct+'%</strong>Progresso</div>';
+        '<div class="stat"><strong>'+pct+'%</strong>Progresso</div>' +
+        '<div class="stat"><strong class="green">'+(ent.delivered||0)+'</strong>Entregues</div>' +
+        '<div class="stat"><strong class="green">'+(ent.read||0)+'</strong>Lidos</div>' +
+        '<div class="stat"><strong class="red">'+(ent.failed||0)+'</strong>Falharam de vdd</div>';
       document.getElementById('barra').style.width = pct+'%';
-      document.getElementById('statusTxt').textContent = 'Status: ' + camp.status + (camp.erro_geral ? ' — ' + camp.erro_geral : '');
+      document.getElementById('statusTxt').innerHTML = 'Status: ' + camp.status + (camp.erro_geral ? ' — ' + camp.erro_geral : '') +
+        '<br><span style="font-size:11px">⚠️ "Aceitos pela Meta" só confirma que a Meta recebeu o pedido de envio — "Entregues"/"Lidos" é que confirmam que chegou de verdade (chega com alguns segundos/minutos de atraso).</span>';
       document.getElementById('btnPausar').style.display = camp.status==='enviando' ? 'inline-block' : 'none';
       document.getElementById('btnRetomar').style.display = camp.status==='pausado' ? 'inline-block' : 'none';
-      if(camp.status==='enviando' || camp.status==='pendente') setTimeout(atualizarStatus, 2500);
+      setTimeout(atualizarStatus, 4000);
     }
     atualizarStatus();
 
@@ -14552,10 +14563,12 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
       const r = await fetch('/admin/disparos/'+campanhaId+'/contatos?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+s);
       const d = await r.json();
       if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class="red">Erro ao carregar</p>'; return; }
-      let html = '<table><tr><th>Nome</th><th>Telefone</th><th>Status</th><th>Erro</th><th>Enviado em</th></tr>';
+      const entregaLabel = { sent:'✈️ enviado', delivered:'✅ entregue', read:'👁️ lido', failed:'❌ falhou' };
+      let html = '<table><tr><th>Nome</th><th>Telefone</th><th>Status</th><th>Entrega</th><th>Erro</th><th>Enviado em</th></tr>';
       for(const ct of d.contatos){
         const cor = ct.status==='enviado'?'#16a34a':ct.status==='erro'?'#dc2626':(ct.status==='ja_enviado'||ct.status==='ja_cadastrado')?'#6b7280':'#f59e0b';
-        html += '<tr><td>'+(ct.nome||'—')+'</td><td>'+ct.telefone+'</td><td style="color:'+cor+'">'+ct.status+'</td><td style="color:#dc2626;font-size:11px">'+(ct.erro||'')+'</td><td style="color:#6b7280;font-size:11px">'+(ct.enviado_em?new Date(ct.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
+        const entregaTxt = ct.status!=='enviado' ? '—' : (entregaLabel[ct.status_entrega] || '⏳ aguardando');
+        html += '<tr><td>'+(ct.nome||'—')+'</td><td>'+ct.telefone+'</td><td style="color:'+cor+'">'+ct.status+'</td><td style="font-size:11px">'+entregaTxt+'</td><td style="color:#dc2626;font-size:11px">'+(ct.erro||'')+'</td><td style="color:#6b7280;font-size:11px">'+(ct.enviado_em?new Date(ct.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
       }
       html += '</table>';
       document.getElementById('tabela-contatos').innerHTML = html;
@@ -14566,6 +14579,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
       document.getElementById('paginacao').innerHTML = pag;
     }
     buscar();
+    setInterval(() => buscar(_pagina), 8000);
     </script>
     </body></html>`);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
@@ -14609,10 +14623,11 @@ app.post('/admin/disparos/:id/adicionar-contatos', authAdmin, express.json(), as
 
 app.get('/admin/disparos/:id/status', authAdmin, async (req, res) => {
   try {
-    const { buscarCampanha } = require('./services/salvarDisparo');
+    const { buscarCampanha, statsEntrega } = require('./services/salvarDisparo');
     const campanha = await buscarCampanha(req.params.id);
     if (!campanha) return res.json({ ok: false, erro: 'Campanha não encontrada' });
-    res.json({ ok: true, campanha });
+    const entrega = await statsEntrega(req.params.id).catch(()=>({}));
+    res.json({ ok: true, campanha, entrega });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 

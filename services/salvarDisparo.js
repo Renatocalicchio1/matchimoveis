@@ -65,6 +65,14 @@ async function _inicializar() {
     )
   `);
   await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS relancamentos INT DEFAULT 0`);
+  // "enviado" só quer dizer que a Meta aceitou o pedido — não confirma que
+  // chegou no aparelho da pessoa. O status de entrega de verdade (sent →
+  // delivered → read, ou failed) chega depois via webhook (POST /messages
+  // não devolve isso na hora) e é casado com o contato pelo message_id.
+  await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS message_id TEXT`);
+  await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS status_entrega TEXT`);
+  await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS status_entrega_em TIMESTAMP`);
+  await query(`CREATE INDEX IF NOT EXISTS idx_disparos_contatos_message_id ON disparos_contatos(message_id)`);
 }
 
 async function marcarOptout(telefone, origem) {
@@ -182,7 +190,7 @@ async function listarContatos(campanhaId, { pagina = 1, status = '', q = '' } = 
   if (q) { params.push('%' + q + '%'); where += ` AND (nome ILIKE $${params.length} OR telefone ILIKE $${params.length})`; }
   params.push(50); params.push(offset);
   const { rows } = await query(
-    `SELECT id, nome, telefone, status, erro, enviado_em FROM disparos_contatos ${where} ORDER BY criado_em ASC LIMIT $${params.length - 1} OFFSET $${params.length}`,
+    `SELECT id, nome, telefone, status, erro, enviado_em, status_entrega, status_entrega_em FROM disparos_contatos ${where} ORDER BY criado_em ASC LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );
   const { rows: tot } = await query(`SELECT COUNT(*) as total FROM disparos_contatos ${where}`, params.slice(0, -2));
@@ -198,17 +206,40 @@ async function proximoLotePendente(campanhaId, limite) {
   return rows;
 }
 
-async function marcarContato(id, { status, erro, incrementarTentativa }) {
+async function marcarContato(id, { status, erro, incrementarTentativa, messageId }) {
   await _inicializar();
   if (incrementarTentativa) {
     await query(
-      `UPDATE disparos_contatos SET status=$1, erro=$2, tentativas=tentativas+1, enviado_em=CASE WHEN $1='enviado' THEN NOW() ELSE enviado_em END WHERE id=$3`,
-      [status, erro || null, id]
+      `UPDATE disparos_contatos SET status=$1, erro=$2, tentativas=tentativas+1, enviado_em=CASE WHEN $1='enviado' THEN NOW() ELSE enviado_em END, message_id=COALESCE($4,message_id) WHERE id=$3`,
+      [status, erro || null, id, messageId || null]
     );
   } else {
     await query(
-      `UPDATE disparos_contatos SET status=$1, erro=$2, enviado_em=CASE WHEN $1='enviado' THEN NOW() ELSE enviado_em END WHERE id=$3`,
-      [status, erro || null, id]
+      `UPDATE disparos_contatos SET status=$1, erro=$2, enviado_em=CASE WHEN $1='enviado' THEN NOW() ELSE enviado_em END, message_id=COALESCE($4,message_id) WHERE id=$3`,
+      [status, erro || null, id, messageId || null]
+    );
+  }
+}
+
+// Casa o evento de status (sent/delivered/read/failed) que chega no webhook
+// da Meta com o contato que recebeu aquele message_id. failed atualiza o
+// status principal pra 'erro' também (a mensagem foi aceita mas não chegou).
+async function marcarEntregaPorMessageId(messageId, statusEntrega, erro) {
+  await _inicializar();
+  if (statusEntrega === 'failed') {
+    await query(
+      `UPDATE disparos_contatos SET status_entrega=$1, status_entrega_em=NOW(), status='erro', erro=COALESCE($2,erro) WHERE message_id=$3`,
+      [statusEntrega, erro || null, messageId]
+    );
+  } else {
+    // Não regride (ex: 'read' chegando antes de um 'delivered' atrasado, ou
+    // reentrega do mesmo evento) — só avança sent < delivered < read.
+    await query(
+      `UPDATE disparos_contatos SET status_entrega=$1, status_entrega_em=NOW()
+       WHERE message_id=$2 AND (status_entrega IS NULL
+         OR (status_entrega='sent' AND $1 IN ('delivered','read'))
+         OR (status_entrega='delivered' AND $1='read'))`,
+      [statusEntrega, messageId]
     );
   }
 }
@@ -231,6 +262,19 @@ async function statsCampanha(campanhaId) {
   return rows;
 }
 
+// Quebra por status_entrega real (sent/delivered/read/failed) — diferente de
+// statsCampanha, que só reflete se a Meta aceitou o pedido (status='enviado').
+async function statsEntrega(campanhaId) {
+  await _inicializar();
+  const { rows } = await query(
+    `SELECT status_entrega, COUNT(*) as total FROM disparos_contatos WHERE campanha_id=$1 AND status_entrega IS NOT NULL GROUP BY status_entrega`,
+    [campanhaId]
+  );
+  const mapa = {};
+  rows.forEach(r => { mapa[r.status_entrega] = parseInt(r.total); });
+  return mapa;
+}
+
 module.exports = {
   criarCampanha,
   inserirContatos,
@@ -242,7 +286,9 @@ module.exports = {
   listarContatos,
   proximoLotePendente,
   marcarContato,
+  marcarEntregaPorMessageId,
   statsCampanha,
+  statsEntrega,
   marcarOptout,
   listarOptout,
   listarJaEnviados,

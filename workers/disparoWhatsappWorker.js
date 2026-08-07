@@ -30,7 +30,7 @@ async function enviarComRetry(contato, campanha) {
       : undefined;
   for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
     try {
-      await enviarTemplate({
+      const resultado = await enviarTemplate({
         telefone: contato.telefone,
         templateNome: campanha.template_nome,
         templateIdioma: campanha.template_idioma,
@@ -38,7 +38,7 @@ async function enviarComRetry(contato, campanha) {
         botoesUrl,
         phoneNumberId: campanha.phone_number_id || undefined
       });
-      return { ok: true };
+      return { ok: true, messageId: resultado.messageId };
     } catch (e) {
       if (!e.transitorio || tentativa === MAX_TENTATIVAS) {
         return { ok: false, erro: e.message };
@@ -71,7 +71,7 @@ async function run() {
 
       const resultado = await enviarComRetry(contato, campanha);
       if (resultado.ok) {
-        await marcarContato(contato.id, { status: 'enviado' });
+        await marcarContato(contato.id, { status: 'enviado', messageId: resultado.messageId });
         await incrementarContador(campanhaId, 'enviados');
         enviadosLote++;
       } else {

@@ -2512,10 +2512,22 @@ app.post('/cadastro-secreto', async (req,res)=>{ return res.redirect('/'); // CA
 // conta (ou loga se já existir pelo telefone) e manda direto pro perfil
 // completar os dados. contatoId é o uuid da linha em disparos_contatos (não
 // usa telefone cru na URL, cada link só serve pra quem recebeu aquele disparo).
+// Botão de URL dinâmica de template do WhatsApp: em vez de substituir o
+// "{{1}}" configurado no botão pelo valor mandado na API, a Meta mantém o
+// "{{1}}" literal e cola o valor logo em seguida (ex: "{{1}}abc123") — bug/
+// comportamento observado na prática, contrário ao que a doc sugere. Em vez
+// de reeditar o template (perde a aprovação, entra na fila de novo), o
+// servidor já tolera esse prefixo em qualquer rota alimentada por botão
+// dinâmico.
+function _limparParamBotaoUrl(valor) {
+  const v = String(valor || '');
+  return v.startsWith('{{1}}') ? v.slice(5) : v;
+}
+
 app.get('/entrar/:contatoId', async (req, res) => {
   try {
     const { buscarContato, marcarContato } = require('./services/salvarDisparo');
-    const contato = await buscarContato(req.params.contatoId);
+    const contato = await buscarContato(_limparParamBotaoUrl(req.params.contatoId));
     if (!contato) {
       console.warn('[ENTRAR] contatoId não encontrado:', JSON.stringify(req.params.contatoId));
       return res.redirect('/');
@@ -14088,7 +14100,8 @@ app.get('/captar/:userId', async (req, res) => {
   // sem DDI 55 e pré-preenche o campo "Seu celular" já no formato local que o form usa.
   let telPreenchido = String(req.query.tel || '').replace(/\D/g, '');
   if (telPreenchido.length >= 12 && telPreenchido.startsWith('55')) telPreenchido = telPreenchido.slice(2);
-  res.render('captar-imovel', { leadId: '', userId: req.params.userId, telPreenchido });
+  const userId = _limparParamBotaoUrl(req.params.userId);
+  res.render('captar-imovel', { leadId: '', userId, telPreenchido });
 });
 
 app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {

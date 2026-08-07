@@ -2516,7 +2516,10 @@ app.get('/entrar/:contatoId', async (req, res) => {
   try {
     const { buscarContato, marcarContato } = require('./services/salvarDisparo');
     const contato = await buscarContato(req.params.contatoId);
-    if (!contato) return res.redirect('/');
+    if (!contato) {
+      console.warn('[ENTRAR] contatoId não encontrado:', JSON.stringify(req.params.contatoId));
+      return res.redirect('/');
+    }
 
     const telefone = String(contato.telefone || '').replace(/\D/g,'');
     const { lerUsuarios: _luEntrar, salvarUsuario: _salvarEntrar } = require('./services/salvarUsuario');

@@ -25,6 +25,12 @@ async function _inicializar() {
   // exige token pra baixar, não dá pra apontar direto pro id/link deles).
   await query(`ALTER TABLE whatsapp_cloud_mensagens ADD COLUMN IF NOT EXISTS midia_url TEXT`);
   await query(`ALTER TABLE whatsapp_cloud_mensagens ADD COLUMN IF NOT EXISTS midia_mime TEXT`);
+  // A Meta reenvia o mesmo evento de webhook às vezes (entrega "pelo menos uma
+  // vez") — sem isso, cada reenvio virava uma mensagem duplicada na conversa.
+  // Índice parcial (só quando tem message_id) porque as mensagens que a gente
+  // manda de saída ainda não guardam um id pra comparar, e não podem colidir
+  // umas com as outras por serem todas NULL.
+  await query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_wa_cloud_msg_id_unico ON whatsapp_cloud_mensagens(message_id) WHERE message_id IS NOT NULL`);
 }
 
 // direcao: 'entrada' (do lead pra gente) ou 'saida' (nossa resposta)
@@ -32,7 +38,8 @@ async function salvarMensagem({ phoneNumberId, telefone, nome, direcao, tipo, te
   await _inicializar();
   await query(
     `INSERT INTO whatsapp_cloud_mensagens (id, phone_number_id, contato_telefone, contato_nome, direcao, tipo, texto, message_id, lida, midia_url, midia_mime)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+     ON CONFLICT (message_id) WHERE message_id IS NOT NULL DO NOTHING`,
     [uuidv4(), phoneNumberId || null, telefone, nome || null, direcao, tipo || 'texto', texto || '', messageId || null, direcao === 'saida', midiaUrl || null, midiaMime || null]
   );
 }

@@ -10005,10 +10005,15 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
         if(!conversas.length){ box.innerHTML = '<p style="padding:20px;color:#6b7280">Nenhuma conversa ainda.</p>'; return; }
         box.innerHTML = conversas.map(c => {
           const prevista = escHtml((c.tipo==='botao'?'🔘 ':c.tipo==='audio'?'🎤 ':'') + (c.direcao==='saida'?'Você: ':'') + (c.texto||'').slice(0,60));
-          return '<a class="linha" href="/admin/whatsapp-cloud/'+encodeURIComponent(c.contato_telefone)+'"' + (c.naoLidas>0?' style="background:#fff7f0"':'') + '>' +
+          const telLimpo = String(c.contato_telefone||'').replace(/\D/g,'');
+          const waLink = 'https://wa.me/'+telLimpo+'?text='+encodeURIComponent('Olá! Somos do suporte da MatchImóveis e vamos te ajudar!');
+          return '<div class="linha" style="cursor:pointer" onclick="location.href=\'/admin/whatsapp-cloud/'+encodeURIComponent(c.contato_telefone)+'\'"' + (c.naoLidas>0?' style="background:#fff7f0;cursor:pointer"':'') + '>' +
             '<div><p style="margin:0;font-weight:700;font-size:14px;color:#111">'+escHtml(c.contato_nome||c.contato_telefone)+(c.naoLidas>0?' <span style="background:#FF385C;color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;margin-left:6px">'+c.naoLidas+'</span>':'')+'</p>' +
             '<p style="margin:2px 0 0;font-size:12px;color:#6b7280">'+escHtml(c.contato_telefone)+' · '+prevista+'</p></div>' +
-            '<span style="font-size:11px;color:#9ca3af;white-space:nowrap">'+new Date(c.criado_em).toLocaleString('pt-BR')+'</span></a>';
+            '<div style="display:flex;align-items:center;gap:10px">' +
+            '<a href="'+waLink+'" target="_blank" onclick="event.stopPropagation()" style="background:#25D366;color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">💬 WhatsApp</a>' +
+            '<span style="font-size:11px;color:#9ca3af;white-space:nowrap">'+new Date(c.criado_em).toLocaleString('pt-BR')+'</span>' +
+            '</div></div>';
         }).join('');
       } catch(e) {}
     }

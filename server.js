@@ -10099,9 +10099,12 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     }
     setInterval(verificarNovas, 5000);
 
+    let _enviandoAgora = false;
     async function enviar(){
+      if(_enviandoAgora) return;
       const texto = document.getElementById('msgTexto').value.trim();
       if(!texto) return;
+      _enviandoAgora = true;
       const btn = document.getElementById('btnEnviar');
       btn.disabled = true; btn.textContent = 'Enviando...';
       try {
@@ -10110,9 +10113,10 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
           body: JSON.stringify({ texto })
         });
         const d = await r.json();
-        if(d.ok){ document.getElementById('msgTexto').value=''; btn.disabled=false; btn.textContent='Enviar'; verificarNovas(); }
-        else { alert(d.erro || 'Erro ao enviar'); btn.disabled=false; btn.textContent='Enviar'; }
-      } catch(e){ alert('Erro ao enviar'); btn.disabled=false; btn.textContent='Enviar'; }
+        if(d.ok){ document.getElementById('msgTexto').value=''; verificarNovas(); }
+        else { alert(d.erro || 'Erro ao enviar'); }
+      } catch(e){ alert('Erro ao enviar — se realmente falhou, tenta de novo; se já tinha ido, o sistema evita duplicar.'); }
+      finally { _enviandoAgora = false; btn.disabled = false; btn.textContent = 'Enviar'; }
     }
 
     async function enviarBlobAudio(blob, nomeArquivo){
@@ -10181,6 +10185,14 @@ app.post('/admin/whatsapp-cloud/:telefone/responder', authAdmin, express.json(),
     if (!texto) return res.status(400).json({ ok:false, erro:'Mensagem vazia' });
     const { listarMensagens, salvarMensagem } = require('./services/salvarWhatsappCloudMsg');
     const mensagens = await listarMensagens(telefone).catch(()=>[]);
+    // Trava de duplo-clique/reenvio manual (ex: admin clica de novo achando que
+    // não foi, ou o Render reinicia bem na hora e a resposta HTTP nunca chega
+    // no navegador) — se o mesmo texto pro mesmo contato já foi mandado nos
+    // últimos 20s, não manda de novo pra Meta.
+    const ultimaSaida = [...mensagens].reverse().find(m => m.direcao === 'saida');
+    if (ultimaSaida && ultimaSaida.texto === texto && (Date.now() - new Date(ultimaSaida.criado_em).getTime()) < 20000) {
+      return res.json({ ok:true, duplicado: true });
+    }
     const ultimoRecebido = [...mensagens].reverse().find(m => m.direcao === 'entrada');
     const phoneNumberId = ultimoRecebido?.phone_number_id || null;
     if (!phoneNumberId) return res.status(400).json({ ok:false, erro:'Não achei por qual número esse contato falou com a gente.' });

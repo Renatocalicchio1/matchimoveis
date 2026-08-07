@@ -8,6 +8,11 @@
   const msg   = saldo > 2000 ? null : saldo > 500 ? 'Seus créditos estão acabando. Considere recarregar.' : saldo === 0 ? 'Sua conta está pausada. Adicione créditos para continuar.' : 'Créditos baixos. Recarregue para não pausar sua conta.';
 %>
 
+<style>
+.coins-grid-combos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:640px){.coins-grid-combos{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:380px){.coins-grid-combos{grid-template-columns:1fr}}
+</style>
 <script src="https://sdk.mercadopago.com/js/v2"></script>
 
 <% if (locals.planoSucesso) { %>
@@ -19,6 +24,7 @@
 <div class="card" style="margin-bottom:16px;background:#111827;border-color:#111827">
   <p style="margin:0 0 4px;font-size:15px;font-weight:700;color:#fff">🚀 Contrate um combo e comece a vender</p>
   <p style="margin:0;font-size:13px;color:#d1d5db">Escolha um dos combos abaixo pra liberar sua conta: cadastre seus imóveis, conecte seu WhatsApp e comece a receber leads qualificados automaticamente hoje mesmo.</p>
+  <p style="margin:8px 0 0;font-size:13px;color:#fff;font-weight:700">👇 Role a página pra baixo e contrate agora seu plano</p>
 </div>
 <% } %>
 
@@ -55,7 +61,7 @@
 <div class="card" style="margin-bottom:16px">
   <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">📦 Combos com bônus</h2>
   <p style="color:#888;font-size:13px;margin-bottom:20px">Créditos com bônus sobre a recarga normal — combos na faixa de cada quantidade de leads/mês.</p>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+  <div class="coins-grid-combos">
     <div style="border:2px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center">
       <p style="margin:0 0 4px;font-size:13px;color:#6b7280">Combo R$200</p>
       <p style="margin:0 0 4px;font-size:20px;font-weight:800;color:#111">R$ 200</p>

@@ -14124,6 +14124,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
     <body>
     <a href="/admin" class="voltar">← Painel Admin</a>
     <h1>📲 Disparos WhatsApp <span style="font-size:13px;color:#6b7280;font-weight:400">(Cloud API oficial da Meta)</span></h1>
+    <p><a href="/admin/disparos/optout" style="font-size:12px;color:#6b7280;text-decoration:underline">🚫 Ver quem descadastrou (não tenho interesse / não tenho imóvel)</a></p>
 
     <div class="box">
       <h3>1. Importar planilha de contatos</h3>
@@ -14411,6 +14412,37 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
     res.json({ ok: true, campanhaId, optout, jaEnviados, jaCadastrados, numerosInvalidos });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
+// Precisa vir ANTES de /admin/disparos/:id, senão o Express trata "optout"
+// como se fosse o :id da campanha.
+app.get('/admin/disparos/optout', authAdmin, async (req, res) => {
+  try {
+    const { listarOptoutCompleto } = require('./services/salvarDisparo');
+    const lista = await listarOptoutCompleto().catch(()=>[]);
+    const _escHtmlOpt = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const _origemLabel = { whatsapp_botao_nao_interesse: 'Clicou "Não tenho interesse"', whatsapp_botao_nao_tenho: 'Clicou "Não tenho imóvel"' };
+    const linhas = lista.map(o => `
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:8px">${_escHtmlOpt(o.nome || '—')}</td>
+        <td style="padding:8px">${_escHtmlOpt(o.telefone)}</td>
+        <td style="padding:8px;font-size:12px;color:#6b7280">${_escHtmlOpt(_origemLabel[o.origem] || o.origem || '—')}</td>
+        <td style="padding:8px;font-size:11px;color:#6b7280">${new Date(o.criado_em).toLocaleString('pt-BR')}</td>
+      </tr>`).join('') || '<tr><td colspan="4" style="padding:20px;text-align:center;color:#6b7280">Ninguém descadastrou ainda.</td></tr>';
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Opt-out — Disparos WhatsApp</title>
+    <style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px}
+    h1{color:#FF385C;font-size:20px}
+    a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
+    table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px}
+    th{text-align:left;padding:8px;background:#f3f4f6;font-size:11px;text-transform:uppercase;color:#6b7280}
+    .aviso{font-size:12px;color:#6b7280;margin-top:8px}
+    </style></head><body>
+    <a href="/admin/disparos" class="voltar">← Disparos WhatsApp</a>
+    <h1>🚫 Quem descadastrou (${lista.length})</h1>
+    <p class="aviso">Esses telefones são pulados automaticamente em qualquer campanha nova, e qualquer envio pendente que ainda existisse pra eles em campanha já criada foi cancelado na hora do clique.</p>
+    <table><tr><th>Nome</th><th>Telefone</th><th>Como descadastrou</th><th>Quando</th></tr>${linhas}</table>
+    </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
 app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
   try {
     const { buscarCampanha } = require('./services/salvarDisparo');

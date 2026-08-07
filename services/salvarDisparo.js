@@ -81,6 +81,14 @@ async function marcarOptout(telefone, origem) {
     `INSERT INTO disparos_optout (telefone, origem) VALUES ($1,$2) ON CONFLICT (telefone) DO NOTHING`,
     [telefone, origem || '']
   );
+  // Além de bloquear campanhas futuras (checado em inserirContatos), cancela
+  // na hora qualquer envio ainda pendente desse telefone em campanhas já
+  // existentes (pausada, ou fila ainda não chegou nele) — clicar "não tenho
+  // interesse" tem que parar de verdade, não só valer pra próxima campanha.
+  await query(
+    `UPDATE disparos_contatos SET status='optout' WHERE telefone=$1 AND status='pendente'`,
+    [telefone]
+  );
 }
 
 async function listarOptout(telefones) {
@@ -88,6 +96,19 @@ async function listarOptout(telefones) {
   if (!telefones || !telefones.length) return [];
   const { rows } = await query(`SELECT telefone FROM disparos_optout WHERE telefone = ANY($1)`, [telefones]);
   return rows.map(r => r.telefone);
+}
+
+// Lista completa (nome vem de qualquer contato de disparo que já teve esse
+// telefone, se existir) — pra tela de admin ver quem descadastrou e quando.
+async function listarOptoutCompleto() {
+  await _inicializar();
+  const { rows } = await query(`
+    SELECT o.telefone, o.origem, o.criado_em,
+      (SELECT dc.nome FROM disparos_contatos dc WHERE dc.telefone = o.telefone AND dc.nome != '' ORDER BY dc.criado_em DESC LIMIT 1) as nome
+    FROM disparos_optout o
+    ORDER BY o.criado_em DESC
+  `);
+  return rows;
 }
 
 // Telefones que já receberam disparo com sucesso em QUALQUER campanha anterior —
@@ -291,6 +312,7 @@ module.exports = {
   statsEntrega,
   marcarOptout,
   listarOptout,
+  listarOptoutCompleto,
   listarJaEnviados,
   listarCampanhasTravadas
 };

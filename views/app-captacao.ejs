@@ -49,11 +49,8 @@ async function marcarCaptado(leadId, tel, nomeEnc){
   }
   div.style.display='block';
 }
-async function excluirCaptar(leadId){
-  if(!confirm('Excluir esta captação? Isso apaga a lead e o(s) imóvel(is) vinculados a ela.')) return;
-  await fetch('/app/lead/'+leadId+'/excluir-captacao', {method:'POST'});
-  location.reload();
-}
+// Exclusão é sempre por imóvel — a lead nunca é apagada por aqui, mesmo que
+// tenha mais de um imóvel vinculado (exclui só o que o corretor escolher).
 async function excluirImovelCap(imovelId){
   if(!confirm('Excluir só este imóvel? A lead continua.')) return;
   await fetch('/app/captacao/imovel/'+imovelId+'/excluir', {method:'POST'});
@@ -147,7 +144,6 @@ async function excluirImovelCap(imovelId){
             <% } else { %>
               <span style="color:#9ca3af;font-size:11px">Ações abaixo ↓</span>
             <% } %>
-            <button onclick="excluirCaptar('<%= (l.leadIdsGrupo||[l.id]).join(',') %>')" style="background:#fef2f2;color:#dc2626;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🗑️ Excluir captação</button>
           </td>
         </tr>
         <% if(l.imoveisRelacionados && l.imoveisRelacionados.length > 0) { %>

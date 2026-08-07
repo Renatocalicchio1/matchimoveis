@@ -14429,8 +14429,7 @@ app.get('/app/captacao', auth, async (req, res) => {
     }));
 
     // Agrupa leads duplicadas (mesmo telefone) num card só — junta os imóveis
-    // vinculados de todas elas e mantém os ids originais em leadIdsGrupo pra
-    // excluir todas de uma vez. Não deduplica no banco, só na tela: cobre tanto
+    // vinculados de todas elas. Não deduplica no banco, só na tela: cobre tanto
     // as duplicatas antigas (de antes do fix em /captar/iniciar) quanto
     // qualquer edge case futuro sem depender de limpeza manual.
     const _gruposTel = {};
@@ -14459,9 +14458,9 @@ app.get('/app/captacao', auth, async (req, res) => {
             if (!vistos.has(idIm)) { vistos.add(idIm); imoveisUnicos.push(im); }
           }
         }
-        return { ...principal, email: emailMerge, imoveisRelacionados: imoveisUnicos, leadIdsGrupo: grupo.map(g => g.id) };
+        return { ...principal, email: emailMerge, imoveisRelacionados: imoveisUnicos };
       }),
-      ..._semTelGrupo.map(l => ({ ...l, leadIdsGrupo: [l.id] }))
+      ..._semTelGrupo
     ].sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
 
     res.render('app-captacao', { user: req.session.user, leads: leadsAgrupados });
@@ -14763,39 +14762,9 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
-app.post('/app/lead/:id/excluir-captacao', auth, async (req, res) => {
-  try {
-    const { query: _qEC } = require('./services/db');
-    const uid = req.session.user.id || req.session.user.codigoUsuario;
-    // :id pode vir com vários ids separados por vírgula — a tela de captação
-    // agrupa leads duplicadas (mesmo telefone) num card só, e excluir precisa
-    // apagar todas elas de uma vez, não só a que virou a "principal" do grupo.
-    const ids = String(req.params.id || '').split(',').map(s => s.trim()).filter(Boolean);
-    for (const id of ids) {
-      // Apaga junto os imóveis vinculados (mesma regra de match por telefone/email
-      // usada pra MOSTRAR "Imóveis vinculados" em /app/captacao) — excluir a
-      // captação não pode deixar o imóvel duplicado/vazio pra trás.
-      const leadR = await _qEC('SELECT telefone, whatsapp, email FROM leads WHERE id=$1 AND user_id=$2', [id, uid]);
-      const lead = leadR.rows[0];
-      if (lead) {
-        let tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,''); if(tel.startsWith('55') && tel.length>=12) tel = tel.slice(2);
-        const email = (lead.email||'').toLowerCase().trim();
-        const conds = []; const pars = [uid];
-        if(tel){ pars.push('%'+tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
-        if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
-        if(conds.length){
-          await _qEC(`DELETE FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')})`, pars);
-        }
-      }
-      await _qEC("DELETE FROM leads WHERE id=$1 AND user_id=$2", [id, uid]);
-    }
-    res.json({ ok: true });
-  } catch(e) { res.json({ ok: false, erro: e.message }); }
-});
-
-// Exclui só um imóvel vinculado específico (ex: duplicata vazia), sem apagar a
-// lead nem os outros imóveis dela — complementa o excluir-captacao acima, que
-// apaga tudo de uma vez.
+// Exclusão em /app/captacao é sempre por imóvel — a lead nunca é apagada por
+// aqui, mesmo com mais de um imóvel vinculado (exclui só o escolhido, a lead
+// sempre permanece).
 app.post('/app/captacao/imovel/:imovelId/excluir', auth, async (req, res) => {
   try {
     const { query: _qEI } = require('./services/db');

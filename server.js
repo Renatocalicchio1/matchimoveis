@@ -10093,7 +10093,13 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
         const novas = await r.json();
         if(!novas.length) return;
         const pertoDoFim = chat.scrollTop + chat.clientHeight >= chat.scrollHeight - 60;
-        novas.forEach(m => { chat.appendChild(montarBolha(m)); _ultimaData = m.criado_em; });
+        novas.forEach(m => {
+          // O filtro "criado_em > apos" já devolveu essa mensagem antes por
+          // algum motivo (fuso, corrida entre polls) — não duplica na tela
+          // mesmo que o backend tenha mandado ela de novo.
+          if (!chat.querySelector('[data-id="'+m.id+'"]')) chat.appendChild(montarBolha(m));
+          _ultimaData = m.criado_em;
+        });
         if(pertoDoFim) chat.scrollTop = chat.scrollHeight;
       } catch(e) {}
     }

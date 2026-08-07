@@ -14127,16 +14127,40 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
     const { enviarTemplate, _normalizarTelefone } = require('./services/metaWhatsapp');
     const parametros = (mapeamento.variaveisOrdem || []).map(c => primeira[c] ?? '');
     const resultados = [];
+
+    // Botão de URL dinâmica com criação de conta (/entrar/:id) precisa de uma
+    // linha REAL em disparos_contatos — sem isso o teste manda a mensagem
+    // certinho mas o botão sempre cai na home porque o id não existe na
+    // tabela. Cria uma campanha de teste descartável só pra isso.
+    let _campanhaTesteId = null;
+    if (usarContatoIdBotao) {
+      const { criarCampanha } = require('./services/salvarDisparo');
+      _campanhaTesteId = await criarCampanha({
+        nomeCampanha: `[teste] ${templateNome} — ${new Date().toLocaleString('pt-BR')}`,
+        templateNome, templateIdioma: templateIdioma || 'pt_BR',
+        mapeamentoVariaveis: mapeamento.variaveisOrdem || [],
+        criadoPor: 'teste', usarContatoIdBotao: true, phoneNumberId: phoneNumberId || null
+      });
+    }
+
     for (const numero of numeros.slice(0, 3)) {
       try {
         // Só o botão de índice 0 ("Sim, eu tenho!") é do tipo URL dinâmica no
         // template — o índice 1 ("Não tenho imóvel") é resposta rápida (quick
         // reply) e não aceita parâmetro de URL (mandar os dois dava erro 132018).
-        const botoesUrl = corretorUserId
-          ? [{ index: 0, valor: `${corretorUserId}?tel=${_normalizarTelefone(numero)}` }]
-          : usarContatoIdBotao
-            ? [{ index: 0, valor: 'teste-' + Date.now() }] // teste não tem linha real em disparos_contatos
-            : undefined;
+        let botoesUrl;
+        if (corretorUserId) {
+          botoesUrl = [{ index: 0, valor: `${corretorUserId}?tel=${_normalizarTelefone(numero)}` }];
+        } else if (usarContatoIdBotao) {
+          const { v4: uuidv4Teste } = require('uuid');
+          const { query: _qContatoTeste } = require('./services/db');
+          const contatoIdTeste = uuidv4Teste();
+          await _qContatoTeste(
+            `INSERT INTO disparos_contatos (id, campanha_id, nome, telefone, variaveis, status) VALUES ($1,$2,$3,$4,$5,'enviado')`,
+            [contatoIdTeste, _campanhaTesteId, (mapeamento.nome ? primeira[mapeamento.nome] : '') || '', _normalizarTelefone(numero), JSON.stringify(primeira)]
+          );
+          botoesUrl = [{ index: 0, valor: contatoIdTeste }];
+        }
         await enviarTemplate({ telefone: numero, templateNome, templateIdioma: templateIdioma || 'pt_BR', parametros, botoesUrl, phoneNumberId: phoneNumberId || undefined });
         resultados.push({ numero, ok: true });
       } catch(e) {

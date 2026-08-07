@@ -407,6 +407,37 @@ app.use('/app', (req, res, next) => {
   return res.redirect('/app/perfil?completarPerfil=1');
 });
 
+// ── COMBO OBRIGATÓRIO PRA CONTAS CRIADAS VIA CAMPANHA DE LEADS GARANTIDOS ───
+// Os 1.000 créditos de bônus que essa conta ganha na hora do cadastro são só
+// pra poder mexer no sistema e ver o valor — não substituem a compra. Depois
+// de completar o perfil, ainda obriga contratar um dos combos (flag
+// precisaComprarPlano) antes de liberar o resto. A confirmação de pagamento
+// chega via webhook assíncrono do Mercado Pago (sem sessão), então não dá pra
+// confiar só na flag em memória da sessão — reconsulta o banco enquanto ela
+// estiver ligada, pra pegar a baixa assim que o pagamento cair.
+const _rotasLivresPlano = ['/app/perfil', '/app/coins'];
+app.use('/app', async (req, res, next) => {
+  if (!req.session || !req.session.user || !req.session.user.precisaComprarPlano) return next();
+  const _rota = req.path;
+  if (_rotasLivresPlano.some(r => _rota.startsWith(r.replace('/app','')))) return next();
+  try {
+    const { lerUsuarios: _luPlano } = require('./services/salvarUsuario');
+    const users = await _luPlano();
+    const u = users.find(x => x.id === req.session.user.id);
+    if (u && !u.precisaComprarPlano) {
+      req.session.user.precisaComprarPlano = false;
+      return next();
+    }
+  } catch(e) {}
+  const _querJson2 = (req.headers['content-type']||'').includes('application/json')
+    || (req.headers['accept']||'').includes('application/json')
+    || req.xhr;
+  if (_querJson2) {
+    return res.status(403).json({ ok: false, erro: 'Contrate um dos combos de leads garantidos para continuar.', precisaComprarPlano: true });
+  }
+  return res.redirect('/app/perfil?comprarPlano=1');
+});
+
 // ── SEGURANÇA: SANITIZAÇÃO DE INPUTS ─────────────────────────────────────────
 app.use((req, res, next) => {
   const sanitize = (obj) => {
@@ -2616,7 +2647,11 @@ app.get('/entrar/:contatoId', async (req, res) => {
         // trocar por um nome de verdade, junto com e-mail e localização,
         // antes de liberar o resto da plataforma (ver middleware mais abaixo).
         precisaCompletarPerfil: true,
-        nomeImportado: contato.nome || ''
+        nomeImportado: contato.nome || '',
+        // Os 1.000 créditos de bônus são só pra poder mexer no sistema e ver
+        // o valor — não substituem a compra. Só libera o resto da plataforma
+        // depois de contratar um dos combos (ver middleware precisaComprarPlano).
+        precisaComprarPlano: true
       };
       await _salvarEntrar(user);
       req.session.senhaInicialTemp = senhaGerada;
@@ -4284,6 +4319,15 @@ app.get('/app/perfil', auth, async (req,res)=>{
     const { query: _qPerfil } = require('./services/db');
     const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
 
+    // A baixa de precisaComprarPlano acontece via webhook do Mercado Pago (sem
+    // sessão) — reconsulta o banco aqui pra tirar o banner assim que o pagamento
+    // cair, mesmo que o usuário nunca tenha saído dessa página.
+    if (req.session.user.precisaComprarPlano) {
+      const { lerUsuarios: _luPerfilPlano } = require('./services/salvarUsuario');
+      const _uPlano = (await _luPerfilPlano()).find(x => x.id === uid);
+      if (_uPlano && !_uPlano.precisaComprarPlano) req.session.user.precisaComprarPlano = false;
+    }
+
     // Onboarding — marca "conheceu a área de perfil" na 1ª visita
     if (!req.session.user.onboardingPerfilVisto) {
       req.session.user.onboardingPerfilVisto = true;
@@ -4330,9 +4374,9 @@ app.get('/app/perfil', auth, async (req,res)=>{
     const _totalVenda = _imoveisUser.rows.length;
     const _senhaInicial = req.session.senhaInicialTemp || null;
     delete req.session.senhaInicialTemp;
-    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1', completarPerfil: !!req.session.user.precisaCompletarPerfil });
+    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1', completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano });
   } catch(e) {
-    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false, completarPerfil: !!req.session.user.precisaCompletarPerfil });
+    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false, completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano });
   }
 });
 
@@ -9656,8 +9700,13 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
           planoLeadsQtd: qtd,
           planoLeadsValor: valor,
           planoLeadsCreditos: creditos,
-          planoLeadsComprasEm: new Date().toISOString()
+          planoLeadsComprasEm: new Date().toISOString(),
+          // Libera o resto da plataforma pra contas que ainda estavam presas no
+          // gate obrigatório de compra (campanha de leads garantidos) — não
+          // afeta quem não tinha essa pendência (fica undefined/ignorado).
+          precisaComprarPlano: false
         });
+        if (_cacheUsuarios) { const _uIdxPlano = _cacheUsuarios.findIndex(u => u.id === userId); if (_uIdxPlano >= 0) _cacheUsuarios[_uIdxPlano].precisaComprarPlano = false; }
         console.log('[MP] combo leads garantidos — creditos adicionados:', userId, '| creditos:', creditos, '| qtd:', qtd, '| valor:', valor);
         criarNotificacaoService({
           id: Date.now().toString(),
@@ -9831,7 +9880,10 @@ app.get('/app/coins', auth, (req, res) => {
   // historico (só os 50 mais recentes) continua sendo o usado pra lista visível.
   const historicoCompleto = (user.matchCoinsTransacoes || []).slice().reverse();
   const historico = historicoCompleto.slice(0, 50);
-  res.render('app-coins', { user, mpPublicKey: process.env.MP_PUBLIC_KEY || '', historico, historicoCompleto, planoSucesso: req.query.planoSucesso === '1' });
+  // Reflete a baixa vinda do webhook do Mercado Pago (sem sessão) — ver
+  // comprarPlano em /app/perfil pro mesmo motivo.
+  if (req.session.user.precisaComprarPlano && user && !user.precisaComprarPlano) req.session.user.precisaComprarPlano = false;
+  res.render('app-coins', { user, mpPublicKey: process.env.MP_PUBLIC_KEY || '', historico, historicoCompleto, planoSucesso: req.query.planoSucesso === '1', comprarPlano: !!req.session.user.precisaComprarPlano });
 });
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====

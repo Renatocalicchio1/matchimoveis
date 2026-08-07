@@ -139,6 +139,11 @@
     </div>
   <% } %>
 </div>
+<% } else if (locals.comprarPlano) { %>
+<div class="pf-card" style="background:#111827;color:#fff;border:none">
+  <p class="pf-card-title" style="color:#fff">🔒 Contrate um combo pra continuar</p>
+  <p class="pf-card-sub" style="color:#d1d5db">Os 1.000 créditos de bônus são só pra você testar a plataforma — pra liberar o resto, escolha um dos combos de leads garantidos abaixo.</p>
+</div>
 <% } else if (!user.email) { %>
 <div class="pf-card" style="background:#fffbeb;border-color:#fde68a">
   <p class="pf-card-title" style="color:#92400e">⚠️ Falta seu e-mail</p>

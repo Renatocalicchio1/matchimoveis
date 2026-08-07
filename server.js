@@ -13609,6 +13609,12 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       <input type="text" id="templateNome" placeholder="Ex: promo_julho">
       <label>Idioma do template</label>
       <input type="text" id="templateIdioma" value="pt_BR" placeholder="pt_BR">
+      <label>Número de envio</label>
+      <select id="phoneNumberId">
+        <option value="">— padrão (variável de ambiente) —</option>
+        <option value="1210590465475893">+55 11 97860-0214 — Usuários do sistema</option>
+        <option value="1234898449710364">+55 11 95665-5428 — Captação de proprietários</option>
+      </select>
       <label>Corretor dos botões de link (só se o template tiver botão de URL "Sim, eu tenho!"/"Quero ajuda pra cadastrar!" apontando pra /captar) — opcional</label>
       <select id="corretorUserId"><option value="">— nenhum (template só com texto/resposta rápida) —</option>${_corretoresOpts}</select>
       <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:10px">
@@ -13698,6 +13704,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         mapeamento: _mapeamentoAtual(),
         corretorUserId: document.getElementById('corretorUserId').value,
         usarContatoIdBotao: document.getElementById('usarContatoIdBotao').checked,
+        phoneNumberId: document.getElementById('phoneNumberId').value,
         numeros
       };
       const r = await fetch('/admin/disparos/teste', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -13720,6 +13727,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         mapeamento: _mapeamentoAtual(),
         corretorUserId: document.getElementById('corretorUserId').value,
         usarContatoIdBotao: document.getElementById('usarContatoIdBotao').checked,
+        phoneNumberId: document.getElementById('phoneNumberId').value,
         delayMs: parseInt(document.getElementById('delayMs').value)||2500
       };
       const r = await fetch('/admin/disparos/criar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -13771,7 +13779,7 @@ app.post('/admin/disparos/preview-planilha', authAdmin, upload.single('arquivo')
 });
 app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) => {
   try {
-    const { arquivo, templateNome, templateIdioma, mapeamento, numeros, corretorUserId, usarContatoIdBotao } = req.body;
+    const { arquivo, templateNome, templateIdioma, mapeamento, numeros, corretorUserId, usarContatoIdBotao, phoneNumberId } = req.body;
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!numeros || !numeros.length) return res.json({ ok: false, erro: 'Informe ao menos 1 número' });
     const { linhas } = _lerPlanilhaDisparo(arquivo);
@@ -13789,7 +13797,7 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
           : usarContatoIdBotao
             ? [{ index: 0, valor: 'teste-' + Date.now() }] // teste não tem linha real em disparos_contatos
             : undefined;
-        await enviarTemplate({ telefone: numero, templateNome, templateIdioma: templateIdioma || 'pt_BR', parametros, botoesUrl });
+        await enviarTemplate({ telefone: numero, templateNome, templateIdioma: templateIdioma || 'pt_BR', parametros, botoesUrl, phoneNumberId: phoneNumberId || undefined });
         resultados.push({ numero, ok: true });
       } catch(e) {
         resultados.push({ numero, ok: false, erro: e.message });
@@ -13801,7 +13809,7 @@ app.post('/admin/disparos/teste', authAdmin, express.json(), async (req, res) =>
 
 app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) => {
   try {
-    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId, usarContatoIdBotao } = req.body;
+    const { nomeCampanha, arquivo, templateNome, templateIdioma, mapeamento, delayMs, corretorUserId, usarContatoIdBotao, phoneNumberId } = req.body;
     if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
     if (!mapeamento || !mapeamento.telefone) return res.json({ ok: false, erro: 'Mapeie a coluna de telefone' });
@@ -13826,7 +13834,8 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
       delayMs: delayMs || 2500,
       criadoPor: 'admin',
       corretorUserId: corretorUserId || null,
-      usarContatoIdBotao: !!usarContatoIdBotao
+      usarContatoIdBotao: !!usarContatoIdBotao,
+      phoneNumberId: phoneNumberId || null
     });
     const { optout, jaEnviados } = await inserirContatos(campanhaId, contatos);
 

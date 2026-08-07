@@ -2,14 +2,22 @@ const axios = require('axios');
 
 const API_VERSION = 'v21.0';
 
-function _config() {
+function _config(phoneNumberIdOverride) {
   const token = process.env.META_WA_TOKEN || '';
-  const phoneNumberId = process.env.META_WA_PHONE_NUMBER_ID || '';
+  const phoneNumberId = phoneNumberIdOverride || process.env.META_WA_PHONE_NUMBER_ID || '';
   if (!token || !phoneNumberId) {
     throw new Error('META_WA_TOKEN / META_WA_PHONE_NUMBER_ID não configurados no ambiente');
   }
   return { token, phoneNumberId };
 }
+
+// Números conhecidos da WABA 1788702312291804 — usados pra escolher de qual
+// número uma campanha de disparo envia (cadastro de conta vs. captação de
+// proprietário são públicos-alvo diferentes, cada um com seu próprio número).
+const NUMEROS_DISPARO = {
+  usuarios_sistema: { id: '1210590465475893', label: '+55 11 97860-0214 — Usuários do sistema' },
+  captacao_proprietarios: { id: '1234898449710364', label: '+55 11 95665-5428 — Captação de proprietários' }
+};
 
 function _normalizarTelefone(telefone) {
   let t = String(telefone || '').replace(/\D/g, '');
@@ -17,8 +25,8 @@ function _normalizarTelefone(telefone) {
   return t;
 }
 
-async function enviarTemplate({ telefone, templateNome, templateIdioma, parametros, botoesUrl }) {
-  const { token, phoneNumberId } = _config();
+async function enviarTemplate({ telefone, templateNome, templateIdioma, parametros, botoesUrl, phoneNumberId: phoneNumberIdOverride }) {
+  const { token, phoneNumberId } = _config(phoneNumberIdOverride);
   const numero = _normalizarTelefone(telefone);
   if (!numero) throw new Error('Telefone inválido');
 
@@ -72,4 +80,4 @@ async function enviarTemplate({ telefone, templateNome, templateIdioma, parametr
   }
 }
 
-module.exports = { enviarTemplate, _normalizarTelefone };
+module.exports = { enviarTemplate, _normalizarTelefone, NUMEROS_DISPARO };

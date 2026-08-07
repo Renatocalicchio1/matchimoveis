@@ -49,6 +49,11 @@ async function _inicializar() {
   // disparos_contatos como parâmetro (ex: /entrar/{id}), pra criar a conta na hora
   // que a pessoa clica. Fica desligado por padrão pra não afetar campanhas antigas.
   await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS usar_contato_id_botao BOOLEAN DEFAULT false`);
+  // Qual número da WABA envia essa campanha — desde que passamos a ter mais de
+  // um número ativo (usuários do sistema vs. captação de proprietários), cada
+  // campanha precisa saber o phone_number_id certo pra não tentar enviar
+  // template de uma audiência pelo número da outra.
+  await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS phone_number_id TEXT`);
   // Telefones que clicaram "Não tenho imóvel" (resposta rápida) no webhook do Cloud
   // API — opt-out global, não fica preso a campanha/corretor específico porque a
   // planilha de disparo não tem dono.
@@ -90,13 +95,13 @@ async function listarJaEnviados(telefones) {
   return rows.map(r => r.telefone);
 }
 
-async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId, usarContatoIdBotao }) {
+async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId, usarContatoIdBotao, phoneNumberId }) {
   await _inicializar();
   const id = uuidv4();
   await query(
-    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id, usar_contato_id_botao)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-    [id, nomeCampanha, templateNome, templateIdioma, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null, !!usarContatoIdBotao]
+    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id, usar_contato_id_botao, phone_number_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+    [id, nomeCampanha, templateNome, templateIdioma, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null, !!usarContatoIdBotao, phoneNumberId || null]
   );
   return id;
 }

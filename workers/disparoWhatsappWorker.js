@@ -29,7 +29,8 @@ async function enviarComRetry(contato, campanha) {
         templateNome: campanha.template_nome,
         templateIdioma: campanha.template_idioma,
         parametros,
-        botoesUrl
+        botoesUrl,
+        phoneNumberId: campanha.phone_number_id || undefined
       });
       return { ok: true };
     } catch (e) {

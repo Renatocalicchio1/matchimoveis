@@ -14523,6 +14523,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
         <select id="filtro-status" onchange="buscar()" style="width:150px;display:inline-block;margin-left:8px">
           <option value="">Todos os status</option>
           <option value="pendente">Pendentes</option>
+          <option value="enviando">Travado em envio (revisar)</option>
           <option value="enviado">Enviados</option>
           <option value="erro">Erros</option>
           <option value="optout">Opt-out</option>
@@ -14621,7 +14622,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
       const entregaLabel = { sent:'✈️ enviado', delivered:'✅ entregue', read:'👁️ lido', failed:'❌ falhou' };
       let html = '<table><tr><th>Nome</th><th>Telefone</th><th>Status</th><th>Entrega</th><th>Erro</th><th>Enviado em</th></tr>';
       for(const ct of d.contatos){
-        const cor = ct.status==='enviado'?'#16a34a':ct.status==='erro'?'#dc2626':(ct.status==='ja_enviado'||ct.status==='ja_cadastrado')?'#6b7280':'#f59e0b';
+        const cor = ct.status==='enviado'?'#16a34a':ct.status==='erro'?'#dc2626':ct.status==='enviando'?'#dc2626':(ct.status==='ja_enviado'||ct.status==='ja_cadastrado')?'#6b7280':'#f59e0b';
         const entregaTxt = ct.status!=='enviado' ? '—' : (entregaLabel[ct.status_entrega] || '⏳ aguardando');
         html += '<tr><td>'+(ct.nome||'—')+'</td><td>'+ct.telefone+'</td><td style="color:'+cor+'">'+ct.status+'</td><td style="font-size:11px">'+entregaTxt+'</td><td style="color:#dc2626;font-size:11px">'+(ct.erro||'')+'</td><td style="color:#6b7280;font-size:11px">'+(ct.enviado_em?new Date(ct.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
       }

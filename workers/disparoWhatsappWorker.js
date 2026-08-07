@@ -69,6 +69,14 @@ async function run() {
       const [contato] = await proximoLotePendente(campanhaId, 1);
       if (!contato) break;
 
+      // "Reivindica" o contato ANTES de mandar pra Meta — se o processo morrer
+      // logo depois do envio (ex: Render reinicia o container no meio, o que
+      // acontece toda vez que uma env var muda) mas antes de marcar 'enviado',
+      // o job que relança campanha travada não pode achar esse contato como
+      // 'pendente' de novo, senão manda a mesma mensagem pro lead outra vez.
+      // Fica em 'enviando' esperando revisão manual em vez de arriscar duplicar.
+      await marcarContato(contato.id, { status: 'enviando' });
+
       const resultado = await enviarComRetry(contato, campanha);
       if (resultado.ok) {
         await marcarContato(contato.id, { status: 'enviado', messageId: resultado.messageId });

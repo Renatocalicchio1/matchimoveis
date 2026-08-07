@@ -14452,6 +14452,29 @@ app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
     const { salvarLead: _slIni } = require('./services/salvarLead');
     const { salvarImovel: _siIni } = require('./services/salvarImovel');
     const { query: _qCI } = require('./services/db');
+
+    // Evita duplicar lead+imóvel quando a mesma pessoa reabre o link de captação
+    // (reclique no WhatsApp, F5 no meio do fluxo etc) — reaproveita o par
+    // lead+imóvel já existente pro mesmo corretor+telefone+transação em vez de
+    // criar outro do zero. Sem isso, cada reabertura virava uma linha nova em
+    // /app/captacao com imóvel vazio duplicado (bug reportado ago/2026).
+    const _tel8Ini = String(celular || '').replace(/\D/g, '').slice(-8);
+    if (_tel8Ini) {
+      const { rows: _leadExistente } = await _qCI(
+        `SELECT id FROM leads WHERE user_id=$1 AND tipo_lead='cliente_vendedor' AND (telefone LIKE $2 OR whatsapp LIKE $2) AND dados->>'transacaoCaptar' = $3 ORDER BY criado_em DESC LIMIT 1`,
+        [userId, '%'+_tel8Ini, transacao || '']
+      );
+      if (_leadExistente[0]) {
+        const _leadIdReuso = _leadExistente[0].id;
+        const { rows: _imovelExistente } = await _qCI(
+          `SELECT id FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND dados->>'leadOrigemId' = $2 ORDER BY criado_em DESC LIMIT 1`,
+          [userId, _leadIdReuso]
+        );
+        await _qCI(`UPDATE leads SET nome=COALESCE(NULLIF($1,''),nome), email=COALESCE(NULLIF($2,''),email) WHERE id=$3`, [nome || '', email || '', _leadIdReuso]);
+        return res.json({ ok: true, leadId: _leadIdReuso, imovelId: _imovelExistente[0]?.id || '' });
+      }
+    }
+
     const leadId = Date.now().toString();
     await _slIni({
       id: leadId,
@@ -14706,7 +14729,38 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
 app.post('/app/lead/:id/excluir-captacao', auth, async (req, res) => {
   try {
     const { query: _qEC } = require('./services/db');
-    await _qEC("DELETE FROM leads WHERE id=$1 AND user_id=$2", [req.params.id, req.session.user.id||req.session.user.codigoUsuario]);
+    const uid = req.session.user.id || req.session.user.codigoUsuario;
+    // Apaga junto os imóveis vinculados (mesma regra de match por telefone/email
+    // usada pra MOSTRAR "Imóveis vinculados" em /app/captacao) — excluir a
+    // captação não pode deixar o imóvel duplicado/vazio pra trás.
+    const leadR = await _qEC('SELECT telefone, whatsapp, email FROM leads WHERE id=$1 AND user_id=$2', [req.params.id, uid]);
+    const lead = leadR.rows[0];
+    if (lead) {
+      let tel = (lead.telefone||lead.whatsapp||'').replace(/\D/g,''); if(tel.startsWith('55') && tel.length>=12) tel = tel.slice(2);
+      const email = (lead.email||'').toLowerCase().trim();
+      const conds = []; const pars = [uid];
+      if(tel){ pars.push('%'+tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
+      if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
+      if(conds.length){
+        await _qEC(`DELETE FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')})`, pars);
+      }
+    }
+    await _qEC("DELETE FROM leads WHERE id=$1 AND user_id=$2", [req.params.id, uid]);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// Exclui só um imóvel vinculado específico (ex: duplicata vazia), sem apagar a
+// lead nem os outros imóveis dela — complementa o excluir-captacao acima, que
+// apaga tudo de uma vez.
+app.post('/app/captacao/imovel/:imovelId/excluir', auth, async (req, res) => {
+  try {
+    const { query: _qEI } = require('./services/db');
+    const uid = req.session.user.id || req.session.user.codigoUsuario;
+    await _qEI(
+      `DELETE FROM imoveis WHERE id=$1 AND (user_id=$2 OR usuario_id=$2 OR codigo_usuario=$2 OR corretor_id=$2)`,
+      [req.params.imovelId, uid]
+    );
     res.json({ ok: true });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });

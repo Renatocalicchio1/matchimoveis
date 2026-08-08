@@ -10211,7 +10211,10 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
       try {
         const r = await fetch('/admin/whatsapp-cloud/'+encodeURIComponent(tel)+'/excluir-lista', { method:'POST' });
         const d = await r.json();
-        if(d.ok){ btnEl.textContent = '✓ Excluído'; btnEl.closest('.linha').style.opacity = '0.45'; }
+        if(d.ok){
+          const linha = btnEl.closest('.linha');
+          if(linha){ linha.style.opacity = '0.45'; setTimeout(() => linha.remove(), 400); }
+        }
         else { alert(d.erro || 'Erro ao excluir'); btnEl.disabled = false; }
       } catch(e){ alert('Erro ao excluir'); btnEl.disabled = false; }
     }
@@ -10255,7 +10258,14 @@ app.post('/admin/whatsapp-cloud/:telefone/excluir-lista', authAdmin, async (req,
 app.get('/admin/whatsapp-cloud/lista.json', authAdmin, async (req, res) => {
   try {
     const { listarConversas } = require('./services/salvarWhatsappCloudMsg');
-    res.json(await listarConversas().catch(()=>[]));
+    const { query: _qListaExcl } = require('./services/db');
+    const conversas = await listarConversas().catch(()=>[]);
+    // "Excluir da lista" (botão manual, diferente do opt-out por clique de botão
+    // do lead) grava em disparos_optout com origem própria — filtra aqui pra
+    // sumir de fato da inbox, não só bloquear campanha futura.
+    const excluidos = await _qListaExcl(`SELECT telefone FROM disparos_optout WHERE origem='exclusao_manual_admin'`).catch(()=>({rows:[]}));
+    const excluidosSet = new Set(excluidos.rows.map(r => r.telefone));
+    res.json(conversas.filter(c => !excluidosSet.has(c.contato_telefone)));
   } catch(e) { res.status(500).json([]); }
 });
 
@@ -15281,6 +15291,28 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
           criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
         });
       } catch(e) { console.error('[captar/imovel] notificação:', e.message); }
+
+      // Email pro proprietário (a própria lead) com o link público do anúncio já
+      // criado + link pra revisar/completar caso tenha faltado algum campo — troca
+      // o email genérico de convite ("cadastre seu imóvel") que não fazia sentido
+      // depois que ela já está cadastrando de verdade.
+      try {
+        const _emailProp = (atualizado.proprietario && atualizado.proprietario.email) || '';
+        if (_emailProp) {
+          const { enviarEmail: _envRevisao } = require('./services/email');
+          const _uidCap = atualizado.userId || atualizado.user_id;
+          const _telProp = (atualizado.proprietario && (atualizado.proprietario.celular || atualizado.proprietario.telefone)) || '';
+          const _linkVerAnuncio = 'https://matchimoveis.ia.br/imovel/' + imovelId;
+          const _linkEditar = 'https://matchimoveis.ia.br/captar/' + _uidCap + (_telProp ? ('?tel=' + encodeURIComponent(_telProp)) : '');
+          const _nomePropEmail = (atualizado.proprietario && atualizado.proprietario.nome) || '';
+          _envRevisao({
+            para: _emailProp,
+            assunto: '📋 Seu anúncio está pronto — dá uma olhada',
+            html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + _nomePropEmail + '!</h2><p>Recebemos os dados do seu imóvel e o anúncio já está no ar. Dá uma olhada em como ficou:</p><a href="' + _linkVerAnuncio + '" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver meu anúncio →</a><p style="margin-top:20px">Se faltou alguma informação ou você quiser completar/corrigir algo, é só continuar o cadastro por aqui:</p><a href="' + _linkEditar + '" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#111827;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Revisar / completar cadastro →</a></div>',
+            texto: 'Seu anúncio: ' + _linkVerAnuncio + ' | Revisar/completar: ' + _linkEditar
+          }).then(()=>console.log('[EMAIL REVISAO ANUNCIO] enviado para:', _emailProp)).catch((e)=>console.error('[EMAIL REVISAO ANUNCIO] falhou:', e.message));
+        }
+      } catch(e) { console.error('[captar/imovel] email revisao:', e.message); }
     }
 
     res.json({ ok: true });

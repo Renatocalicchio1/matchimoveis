@@ -195,10 +195,15 @@ async function salvarLead(lead) {
           }
         } catch(_eNL){}
       }
-      // Email de captacao para a propria lead — roda sempre (manual, planilha, webhook), independente de lote
+      // Email de captacao para a propria lead — roda sempre (manual, planilha, webhook), independente de lote.
+      // Não dispara pra quem já é lead de captação (tipo_lead cliente_vendedor ou
+      // origem captacao_link) — ela já está no meio do fluxo de cadastrar o imóvel,
+      // convidar de novo é redundante. Essa lead recebe o email de revisão do
+      // próprio anúncio em POST /captar/imovel/:imovelId (finalizar=true).
       try {
         const _leadUserId2 = lead.user_id || lead.userId || lead.codigoUsuario || null;
-        if (_eraNova && lead.email) {
+        const _jaECaptacao = lead.tipoLead === 'cliente_vendedor' || lead.tipo_lead === 'cliente_vendedor' || lead.origem === 'captacao_link';
+        if (_eraNova && lead.email && !_jaECaptacao) {
           const { enviarEmail: _envCap } = require('./email');
           const _linkCap = 'https://matchimoveis.ia.br/captar/' + _leadUserId2;
           _envCap({

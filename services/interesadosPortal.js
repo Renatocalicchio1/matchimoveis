@@ -207,7 +207,7 @@ function _rowDBParaLinha(r) {
     Quartos: r.quartos || '', Suites: r.suites || '', Vagas: r.vagas || '', Banheiros: r.banheiros || '', Area_max: r.area_max || '', Valor_max: r.valor_max || '',
     Observacoes: r.observacoes,
     categoria: r.categoria, sucursal: r.sucursal, idAnuncio: r.id_anuncio, codigo: r.codigo, data: r.data_original,
-    dataLead: r.data_lead,
+    dataLead: r.data_lead, criadoEm: r.criado_em,
     Completude: r.completude, CompletudeTotal: r.completude_total,
     corretores: r.corretores || [],
     importado: !!r.importado_em

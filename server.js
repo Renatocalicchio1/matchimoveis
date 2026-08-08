@@ -14222,7 +14222,7 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
     <div id="resumo"></div>
     <button id="btnImportar" class="sec" onclick="importar()" style="display:none">🚀 Distribuir leads pras contas</button>
     <div id="import-status"></div>
-    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Observações</th><th>Corretores (até 3)</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Observações</th><th>Data no portal</th><th>Minerado em</th><th>Corretores (até 3)</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
   </div>
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -14262,7 +14262,10 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
       const cols = [l.Telefone, l.Email, l.Origem, l.Tipo, l.Transacao, l.Condicao, l.Bairro, l.Cidade, l.Estado, l.Quartos, l.Suites, l.Vagas, l.Banheiros, l.Area_max, l.Valor_max];
       const tds = cols.map(function(v){ return '<td>'+(v===''||v==null?'<span class="gray">—</span>':escHtml(v))+'</td>'; }).join('');
       const tdObs = '<td class="wrap">'+(l.Observacoes?escHtml(l.Observacoes):'<span class="gray">—</span>')+'</td>';
-      return '<tr class="'+(temMatch&&!l.importado?'':'sem-match')+'"><td>'+nomeTd+'</td>' + tds + tdObs + '<td class="wrap">'+corretoresTxt+'</td></tr>';
+      const dataPortalTxt = l.dataLead ? new Date(l.dataLead).toLocaleString('pt-BR') : (l.data ? escHtml(l.data) : '<span class="gray">—</span>');
+      const minaradoEmTxt = l.criadoEm ? new Date(l.criadoEm).toLocaleString('pt-BR') : '<span class="gray">—</span>';
+      const tdDatas = '<td>'+dataPortalTxt+'</td><td>'+minaradoEmTxt+'</td>';
+      return '<tr class="'+(temMatch&&!l.importado?'':'sem-match')+'"><td>'+nomeTd+'</td>' + tds + tdObs + tdDatas + '<td class="wrap">'+corretoresTxt+'</td></tr>';
     }).join('');
     document.getElementById('resultado-box').style.display = 'block';
     document.getElementById('btnImportar').style.display = comMatch>0 ? 'inline-block' : 'none';

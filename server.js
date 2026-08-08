@@ -534,6 +534,80 @@ function loadImoveis() {
 
 // ═══════════════════════════════════════════════════════
 
+// ── ADMIN SHELL — menu lateral padrão do painel admin, mesmo estilo visual do
+// app do corretor (sidebar fixa + seções + item ativo destacado), trocando o
+// header antigo de botões coloridos empilhados. Reaproveitado por todas as
+// páginas HTML do admin via _adminShellCss()/_adminSidebarHtml(activeKey).
+const _ADMIN_NAV = [
+  { sec: 'Principal', items: [
+    { key: 'dashboard', href: '/admin', icon: '📊', label: 'Dashboard' },
+    { key: 'online', href: '/admin/online', icon: '🟢', label: 'Usuários Online' },
+    { key: 'status', href: '/admin/status', icon: '🖥️', label: 'Status do Sistema' },
+    { key: 'leads-auditoria', href: '/admin/leads-auditoria', icon: '🕵️', label: 'Auditoria de Leads' },
+    { key: 'buscar-imovel', href: '/admin/buscar-imovel', icon: '🔍', label: 'Buscar/Excluir Imóvel' }
+  ]},
+  { sec: 'Comunicação', items: [
+    { key: 'campanha', href: '/admin/campanha', icon: '📧', label: 'Campanha Email' },
+    { key: 'disparos', href: '/admin/disparos', icon: '📲', label: 'Disparos WhatsApp' },
+    { key: 'optout', href: '/admin/disparos/optout', icon: '🚫', label: 'Opt-out' },
+    { key: 'whatsapp-cloud', href: '/admin/whatsapp-cloud', icon: '💬', label: 'Inbox WhatsApp' },
+    { key: 'painel-whatsapp', href: 'https://match-evolution-api.onrender.com/manager', icon: '📱', label: 'Painel WhatsApp', externo: true }
+  ]},
+  { sec: 'Ferramentas', items: [
+    { key: 'cerebro', href: '/admin/cerebro', icon: '🧠', label: 'Cérebro do Assistente' },
+    { key: 'quintoandar', href: '/admin/quintoandar-solicitacoes', icon: '🏢', label: 'Solicitações QuintoAndar' },
+    { key: 'exclusao', href: '/admin/exclusao-solicitacoes', icon: '🗑️', label: 'Exclusão de Conta' }
+  ]}
+];
+
+function _adminShellCss() {
+  return `
+    :root{--brand:#FF385C;--dark:#111111;--text:#1a1a1a;--text-sec:#6b7280;--text-ter:#9ca3af;--bg:#f8f8f7;--white:#ffffff;--border:#e5e5e3;--border-light:#f0f0ee;--sidebar-w:190px}
+    .admin-app{min-height:100vh;background:var(--bg)}
+    .admin-sidebar{width:var(--sidebar-w);background:var(--white);border-right:0.5px solid var(--border);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:200;overflow-y:auto}
+    .admin-logo{display:flex;align-items:center;gap:6px;padding:14px 16px;border-bottom:0.5px solid var(--border-light);text-decoration:none}
+    .admin-logo .sq{width:24px;height:24px;background:var(--brand);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+    .admin-logo .tx{font-size:13px;font-weight:700;color:var(--dark)}
+    .admin-logo .tx span{color:var(--brand)}
+    .admin-menu{padding:8px 6px;flex:1}
+    .admin-sec{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-ter);padding:14px 12px 6px}
+    .admin-sec:first-child{padding-top:6px}
+    .admin-menu a{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;color:var(--text-sec);text-decoration:none;font-size:12px;transition:all .1s;margin-bottom:2px}
+    .admin-menu a:hover{background:var(--bg);color:var(--text)}
+    .admin-menu a.active{background:#fff1f1;color:var(--brand);font-weight:600}
+    .admin-menu .ic{width:18px;text-align:center;flex-shrink:0}
+    .admin-foot{border-top:0.5px solid var(--border-light);padding:10px}
+    .admin-foot a{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;color:var(--text-sec);text-decoration:none;font-size:12px}
+    .admin-foot a:hover{background:var(--bg);color:var(--text)}
+    .admin-content{margin-left:var(--sidebar-w);flex:1;min-width:0;padding:24px}
+    .admin-mob-btn{display:none}
+    @media(max-width:900px){
+      .admin-sidebar{transform:translateX(-100%);transition:transform .2s;box-shadow:0 0 30px rgba(0,0,0,.15)}
+      .admin-sidebar.open{transform:translateX(0)}
+      .admin-content{margin-left:0;padding:56px 14px 24px}
+      .admin-mob-btn{display:flex!important}
+    }
+  `;
+}
+
+function _adminSidebarHtml(activeKey) {
+  const secoes = _ADMIN_NAV.map(sec => {
+    const itens = sec.items.map(it => {
+      const ativo = it.key === activeKey ? ' active' : '';
+      const alvo = it.externo ? ' target="_blank"' : '';
+      return `<a class="${ativo.trim()}" href="${it.href}"${alvo}><span class="ic">${it.icon}</span>${it.label}</a>`;
+    }).join('');
+    return `<div class="admin-sec">${sec.sec}</div>${itens}`;
+  }).join('');
+  return `<button class="admin-mob-btn" onclick="document.querySelector('.admin-sidebar').classList.toggle('open')" style="position:fixed;top:12px;left:12px;z-index:250;background:#fff;border:1px solid #e5e5e3;border-radius:8px;padding:8px 10px;cursor:pointer;flex-direction:column;gap:4px;box-shadow:0 2px 8px rgba(0,0,0,.1)"><div style="width:18px;height:2px;background:#374151"></div><div style="width:18px;height:2px;background:#374151"></div><div style="width:18px;height:2px;background:#374151"></div></button>
+  <aside class="admin-sidebar">
+    <a class="admin-logo" href="/admin"><span class="sq">M</span><span class="tx">Match<span>Imóveis</span> <span style="font-weight:400;color:var(--text-ter)">admin</span></span></a>
+    <nav class="admin-menu">${secoes}</nav>
+    <div class="admin-foot"><a href="/admin/logout">🚪 Sair</a></div>
+  </aside>`;
+}
+// ── FIM ADMIN SHELL ──────────────────────────────────────────────────────────
+
 // ── ADMIN CÉREBRO ────────────────────────────────────────────────────────────
 app.get('/admin/cerebro', authAdmin, (req, res) => {
   const base = JSON.parse(fs.readFileSync(path.join(__dirname,'cerebro','base-conhecimento-expandida.json'),'utf8'));
@@ -562,7 +636,7 @@ app.get('/admin/cerebro', authAdmin, (req, res) => {
     fluxos: Object.entries(FLUXOS).map(([id,f]) => ({ id, titulo: f.titulo, rota: f.rota, passos: f.passos })),
   };
   
-  res.render('admin-cerebro', { modulos, totalBase: base.total });
+  res.render('admin-cerebro', { modulos, totalBase: base.total, adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('cerebro') });
 });
 
 
@@ -771,7 +845,9 @@ app.get('/admin/status', authAdmin, async (req, res) => {
     const _html =
       '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Status — MatchImóveis</title>' +
       '<meta http-equiv="refresh" content="30">' +
-      '<style>body{font-family:Arial,sans-serif;background:#f9fafb;margin:0;padding:20px;color:#111;max-width:1100px}' +
+      '<style>body{font-family:Arial,sans-serif;background:#f9fafb;margin:0;padding:0;color:#111}' +
+      _adminShellCss() +
+      '.admin-content{max-width:1100px}' +
       '.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}' +
       '.card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.06)}' +
       '.card h3{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px}' +
@@ -782,10 +858,9 @@ app.get('/admin/status', authAdmin, async (req, res) => {
       '.row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f3f4f6}' +
       '.row:last-child{border-bottom:none}' +
       '.lbl{font-size:13px;color:#555}.rval{font-size:13px;font-weight:700}' +
-      'a.back{display:inline-block;margin-bottom:20px;color:#FF385C;font-weight:700;text-decoration:none;font-size:14px}' +
       '.alerta{border-radius:14px;padding:16px 20px;margin-bottom:20px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px}' +
       '</style></head><body>' +
-      '<a href="/admin" class="back">← Voltar ao Admin</a>' +
+      '<div class="admin-app">' + _adminSidebarHtml('status') + '<main class="admin-content">' +
       '<h1 style="font-size:22px;font-weight:800;margin-bottom:4px">🖥️ Diagnóstico de Capacidade</h1>' +
       '<p style="color:#888;font-size:13px;margin-bottom:20px">Atualiza a cada 30s · ' + new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) + '</p>' +
 
@@ -837,7 +912,7 @@ app.get('/admin/status', authAdmin, async (req, res) => {
       '<div style="margin-top:12px"><a href="https://match-evolution-api.onrender.com/manager" target="_blank" style="color:#25D366;font-weight:700;font-size:13px;text-decoration:none">📱 Abrir painel Evolution →</a></div>' +
       '</div>' +
 
-      '</body></html>';
+      '</main></div></body></html>';
 
     res.send(_html);
   } catch(e) { res.send('Erro: ' + e.message); }
@@ -856,24 +931,16 @@ app.get('/admin/leads-auditoria', authAdmin, async (req, res) => {
     if (fAcao) { pars.push(fAcao); ph = pars.length; sql = sql + ' AND acao='; sql = sql + ph; }
     sql = sql + ' ORDER BY criado_em DESC LIMIT 500';
     var resultado = await qAud(sql, pars);
-    var html = '<html><head><meta charset=UTF-8><title>Auditoria de Leads</title></head><body style=font-family:Arial;padding:20px>';
-    html = html + '<a href=/admin>Voltar</a><h1>Auditoria de Leads</h1>';
+    var html = '<html><head><meta charset=UTF-8><title>Auditoria de Leads</title><style>body{font-family:Arial,sans-serif;margin:0;padding:0}' + _adminShellCss() + '</style></head><body>';
+    html = html + '<div class="admin-app">' + _adminSidebarHtml('leads-auditoria') + '<main class="admin-content">';
+    html = html + '<h1>Auditoria de Leads</h1>';
     html = html + 'Total: ' + resultado.rows.length;
+    html = html + '</main></div></body></html>';
     res.send(html);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 
 // ── BUSCAR / EXCLUIR IMÓVEL (de todas as contas) ────────────────────────────
-function _adminNavTop(tituloAtivo) {
-  return `<div class="top">
-  <h1>Admin · MatchImóveis</h1>
-  <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-    <a href="/admin" style="font-size:12px;color:#888;text-decoration:none;">← Painel</a>
-    <a href="/admin/buscar-imovel" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏠 Buscar/Excluir Imóvel</a>
-    <a href="/admin/logout" style="font-size:12px;color:#888;text-decoration:none">Sair</a>
-  </div>
-</div>`;
-}
 
 app.get('/admin/buscar-imovel', authAdmin, async (req, res) => {
   try {
@@ -929,9 +996,8 @@ app.get('/admin/buscar-imovel', authAdmin, async (req, res) => {
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px;}
-.top{background:#fff;border-bottom:1px solid #e5e5e3;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.top h1{font-size:16px;font-weight:700;}
-.wrap{padding:24px;max-width:1200px;margin:0 auto}
+${_adminShellCss()}
+.admin-content{max-width:1200px}
 .card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;margin-bottom:16px}
 .campo{display:flex;flex-direction:column;gap:4px}
 .campo label{font-size:11px;font-weight:600;color:#666}
@@ -944,8 +1010,9 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
 </style>
 </head>
 <body>
-${_adminNavTop()}
-<div class="wrap">
+<div class="admin-app">
+${_adminSidebarHtml('buscar-imovel')}
+<main class="admin-content">
   ${msg}
   <div class="card">
     <form method="GET" action="/admin/buscar-imovel">
@@ -976,6 +1043,7 @@ ${_adminNavTop()}
     </div>
   </form>
   ` : ''}
+</main>
 </div>
 <script>
 function _confirmarExclusao(form){
@@ -1077,10 +1145,7 @@ app.get('/admin', authAdmin, async (req, res) => {
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px;}
-.top{background:#fff;border-bottom:1px solid #e5e5e3;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
-.top h1{font-size:16px;font-weight:700;}
-.top a{font-size:12px;color:#888;text-decoration:none;}
-.wrap{padding:24px;}
+${_adminShellCss()}
 .card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;overflow:hidden;}.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{width:100%;border-collapse:collapse;font-size:12px;}
 th{text-align:left;padding:7px 8px;font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid #f0f0ee;border-right:1px solid #e5e5e3;background:#fafafa;white-space:nowrap;}
@@ -1091,21 +1156,9 @@ tr:hover td{background:#fafafa;}
 </style>
 </head>
 <body>
-<div class="top">
-  <h1>Admin · MatchImóveis</h1>
-  <div style="display:flex;gap:16px;align-items:center">
-    <a href="/admin/online" style="font-size:12px;background:#16a34a;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🟢 Usuários Online</a>
-    <a href="/admin/status" style="font-size:12px;background:#6366f1;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🖥️ Status do Sistema</a> <a href="/admin/campanha" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📧 Campanha Email</a> <a href="/admin/disparos" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📲 Disparos WhatsApp</a> <a href="/admin/whatsapp-cloud" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">💬 Inbox WhatsApp</a>
-    <a href="https://match-evolution-api.onrender.com/manager" target="_blank" style="font-size:12px;background:#25D366;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">📱 Painel WhatsApp</a>
-    <a href="/admin/cerebro" style="font-size:12px;background:#FF385C;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🧠 Cérebro do Assistente</a>
-    <a href="/admin/quintoandar-solicitacoes" style="font-size:12px;background:#00a86b;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏢 Solicitações QA</a>
-    <a href="/admin/exclusao-solicitacoes" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🗑️ Exclusão de Conta</a>
-    <a href="/admin/leads-auditoria" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🗑️ Auditoria de Leads</a>
-    <a href="/admin/buscar-imovel" style="font-size:12px;background:#dc2626;color:#fff;padding:6px 14px;border-radius:8px;text-decoration:none;font-weight:600">🏠 Buscar/Excluir Imóvel</a>
-    <a href="/admin/logout" style="font-size:12px;color:#888;text-decoration:none">Sair</a>
-  </div>
-</div>
-<div class="wrap">
+<div class="admin-app">
+${_adminSidebarHtml('dashboard')}
+<main class="admin-content">
   <div class="card" style="margin-bottom:16px;">
     <table>
       <thead><tr><th>Ação</th><th>Rota</th><th>Descrição</th></tr></thead>
@@ -1134,6 +1187,7 @@ tr:hover td{background:#fafafa;}
     <div style="margin-bottom:8px;font-size:12px;"><strong>Baixar XML:</strong><a href="/admin/xml/quintoandar-global?download=1" style="background:#1D9E75;color:#fff;padding:4px 12px;border-radius:6px;text-decoration:none;font-size:11px;margin-left:8px;">⬇ Download XML</a></div>
     <div style="font-size:12px;"><strong>URL Pública:</strong><span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">https://www.matchimoveis.ia.br/xml/quintoandar-global?token=match-qa-global-2025</span></div>
   </div>
+</main>
 </div>
 </body>
 </html>`);
@@ -1166,10 +1220,8 @@ app.get('/admin/online', authAdmin, (req, res) => {
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px}
-.top{background:#fff;border-bottom:1px solid #e5e5e3;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
-.top h1{font-size:16px;font-weight:700}
-.top a{font-size:12px;color:#888;text-decoration:none}
-.wrap{padding:24px;display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start}
+${_adminShellCss()}
+.wrap{display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start}
 @media(max-width:820px){.wrap{grid-template-columns:1fr}}
 .card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:20px}
 .card h2{font-size:14px;font-weight:700;margin-bottom:4px}
@@ -1188,10 +1240,9 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
 </style>
 </head>
 <body>
-<div class="top">
-  <h1>🟢 Usuários Online</h1>
-  <a href="/admin">← Voltar pro Admin</a>
-</div>
+<div class="admin-app">
+${_adminSidebarHtml('online')}
+<main class="admin-content">
 <div class="wrap">
   <div class="card">
     <h2>Quem está no sistema agora</h2>
@@ -1249,6 +1300,8 @@ async function atualizar(){
 atualizar();
 setInterval(atualizar, 10000);
 </script>
+</main>
+</div>
 </body>
 </html>`);
 });
@@ -1530,13 +1583,14 @@ app.get('/admin/quintoandar-solicitacoes', authAdmin, async (req, res) => {
       ORDER BY s.criado_em DESC NULLS LAST
     `);
     let html = `<html><head><meta charset="UTF-8"><title>Solicitações QuintoAndar</title>
-    <style>body{font-family:Arial;padding:20px;max-width:1000px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
-    <body><h2 style="margin-bottom:16px">Solicitações de acesso QuintoAndar (${r.rows.length})</h2>
+    <style>body{font-family:Arial;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:1000px}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
+    <body><div class="admin-app">${_adminSidebarHtml('quintoandar')}<main class="admin-content">
+    <h2 style="margin-bottom:16px">Solicitações de acesso QuintoAndar (${r.rows.length})</h2>
     <table><tr><th>Data</th><th>Nome</th><th>Telefone</th><th>Email</th><th>Código</th><th>Acesso à carteira</th><th>Autorizou envio</th><th>Ação</th></tr>`;
     r.rows.forEach(row => {
       html += `<tr><td>${row.criado_em ? new Date(row.criado_em).toLocaleString('pt-BR') : '-'}</td><td>${row.nome||''}</td><td>${row.telefone||''}</td><td>${row.email||''}</td><td>${row.user_id||''}</td><td>${row.criado_em === null ? '<span style="color:#9ca3af;font-size:12px">Não solicitou</span>' : (row.atendido?'<span style="color:#16a34a;font-weight:600">✅ Liberado</span>':'<span style="color:#f59e0b;font-weight:600">⏳ Aguardando</span>')}</td><td>${row.autoriza_quintoandar?'<span style="color:#16a34a;font-weight:600">✅ Autorizou</span>':'<span style="color:#9ca3af;font-size:12px">Não autorizou</span>'}</td><td>${(row.criado_em!==null && !row.atendido)?'<a href="/admin/quintoandar-liberar/'+row.user_id+'" style="background:#00a86b;color:#fff;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Liberar</a>':'<span style="color:#9ca3af;font-size:12px">-</span>'}</td></tr>`;
     });
-    html += '</table></body></html>';
+    html += '</table></main></div></body></html>';
     res.send(html);
   } catch(e) { res.send('Erro: ' + e.message); }
 });
@@ -1549,13 +1603,14 @@ app.get('/admin/exclusao-solicitacoes', authAdmin, async (req, res) => {
       criado_em TIMESTAMPTZ DEFAULT NOW(), atendido BOOLEAN DEFAULT FALSE)`);
     const r = await _qExcA('SELECT * FROM solicitacoes_exclusao_conta ORDER BY atendido ASC, criado_em DESC');
     let html = `<html><head><meta charset="UTF-8"><title>Solicitações de exclusão de conta</title>
-    <style>body{font-family:Arial;padding:20px;max-width:1000px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
-    <body><h2 style="margin-bottom:16px">Solicitações de exclusão de conta (${r.rows.length})</h2>
+    <style>body{font-family:Arial;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:1000px}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
+    <body><div class="admin-app">${_adminSidebarHtml('exclusao')}<main class="admin-content">
+    <h2 style="margin-bottom:16px">Solicitações de exclusão de conta (${r.rows.length})</h2>
     <table><tr><th>Data</th><th>Nome</th><th>Email</th><th>Código</th><th>Status</th><th>Ação</th></tr>`;
     r.rows.forEach(row => {
       html += `<tr><td>${new Date(row.criado_em).toLocaleString('pt-BR')}</td><td>${row.nome||''}</td><td>${row.email||''}</td><td>${row.user_id||''}</td><td>${row.atendido?'<span style="color:#16a34a;font-weight:600">✅ Excluída</span>':'<span style="color:#f59e0b;font-weight:600">⏳ Aguardando</span>'}</td><td>${row.atendido?'<span style="color:#9ca3af;font-size:12px">-</span>':'<form method="POST" action="/admin/deletar/'+row.user_id+'" onsubmit="return confirm(\'Excluir de vez a conta e todos os dados de '+(row.nome||row.user_id)+'? Não pode ser desfeito.\')" style="display:inline"><button type="submit" style="background:#dc2626;color:#fff;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer">Excluir conta</button></form>'}</td></tr>`;
     });
-    html += '</table></body></html>';
+    html += '</table></main></div></body></html>';
     res.send(html);
   } catch(e) { res.send('Erro: ' + e.message); }
 });
@@ -1928,16 +1983,17 @@ app.get('/admin/usuario/:codigo', authAdmin, async (req, res) => {
 <html lang="pt-BR">
 <head><meta charset="utf-8"><title>${u.nome} · Admin</title>
 <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:#f8f8f7;font-size:13px;}
-.top{background:#fff;border-bottom:1px solid #e5e5e3;padding:14px 24px;display:flex;align-items:center;gap:16px;}
-.top a{font-size:12px;color:#888;text-decoration:none;}.top h1{font-size:16px;font-weight:700;}
-.wrap{padding:24px;max-width:600px;}.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:20px;margin-bottom:16px;}
+${_adminShellCss()}
+.admin-content{max-width:600px}.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:20px;margin-bottom:16px;}
 h2{font-size:14px;font-weight:600;margin-bottom:14px;}label{display:block;font-size:11px;font-weight:500;color:#888;margin-bottom:4px;}
 input{width:100%;border:1px solid #e5e5e3;border-radius:8px;padding:9px 12px;font-size:13px;margin-bottom:12px;outline:none;}
 input:focus{border-color:#111;}button{background:#111;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;}
 </style></head>
 <body>
-<div class="top"><a href="/admin">← Voltar</a><h1>${u.nome}</h1></div>
-<div class="wrap">
+<div class="admin-app">
+${_adminSidebarHtml('dashboard')}
+<main class="admin-content">
+  <h1 style="font-size:18px;font-weight:700;margin-bottom:16px">${u.nome}</h1>
   <div class="card">
     <h2>Dados</h2>
     <label>Código</label><input value="${u.codigo_usuario||''}" readonly>
@@ -1984,6 +2040,7 @@ input:focus{border-color:#111;}button{background:#111;color:#fff;border:none;bor
     }
     </script>
   </div>
+</main>
 </div>
 </body></html>`);
   } catch(e) { res.send('Erro: ' + e.message); }
@@ -10071,13 +10128,16 @@ app.post('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', authAdmin, async (
 app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
   try {
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Inbox WhatsApp Cloud</title>
-    <style>body{font-family:Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 20px}
+    <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
+    ${_adminShellCss()}
+    .admin-content{max-width:720px}
     h1{color:#FF385C;font-size:20px}
-    a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
     .box{border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-top:16px}
     .linha{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #e5e7eb;text-decoration:none;color:inherit}
     </style></head><body>
-    <a href="/admin" class="voltar">← Painel Admin</a>
+    <div class="admin-app">
+    ${_adminSidebarHtml('whatsapp-cloud')}
+    <main class="admin-content">
     <h1>💬 Inbox WhatsApp Cloud <span style="font-size:13px;color:#6b7280;font-weight:400">(campanha — Meta Cloud API)</span></h1>
     <p><a href="/admin/whatsapp-cloud/exportar.csv" style="font-size:12px;color:#6b7280;text-decoration:underline">📥 Exportar contatos da inbox (.csv) — pra usar num disparo novo</a></p>
     <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px 16px;margin-top:12px">
@@ -10152,6 +10212,8 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
     carregar();
     setInterval(carregar, 6000);
     </script>
+    </main>
+    </div>
     </body></html>`);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
@@ -10213,9 +10275,10 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     const bolhas = mensagens.map(_bolha).join('');
     const _ultimaData = mensagens.length ? mensagens[mensagens.length-1].criado_em : new Date(0).toISOString();
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Conversa — ${nome}</title>
-    <style>body{font-family:Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 20px}
+    <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
+    ${_adminShellCss()}
+    .admin-content{max-width:720px}
     h1{color:#FF385C;font-size:18px;margin-bottom:4px}
-    a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
     #chat{border:1px solid #e5e7eb;border-radius:10px;padding:16px;height:420px;overflow-y:auto;margin-top:12px;background:#fff}
     textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;font-size:14px;margin-top:10px}
     button{background:#FF385C;color:#fff;padding:10px 22px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-top:8px}
@@ -10225,7 +10288,10 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     .barra{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .aviso{font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;margin-top:10px}
     </style></head><body>
-    <a href="/admin/whatsapp-cloud" class="voltar">← Inbox</a>
+    <div class="admin-app">
+    ${_adminSidebarHtml('whatsapp-cloud')}
+    <main class="admin-content">
+    <a href="/admin/whatsapp-cloud" style="color:#6b7280;text-decoration:none;font-size:12px">← Inbox</a>
     <h1>${nome}</h1>
     <p style="font-size:12px;color:#6b7280;margin:0">${_escHtmlWaCloud(telefone)}</p>
     <div id="chat">${bolhas}</div>
@@ -10244,7 +10310,7 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     const chat = document.getElementById('chat');
     chat.scrollTop = chat.scrollHeight;
     function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    function linkify(s){ return s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:inherit;text-decoration:underline">$1</a>'); }
+    function linkify(s){ return s.replace(/(https?:\\/\\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:inherit;text-decoration:underline">$1</a>'); }
     function montarBolha(m){
       const minha = m.direcao === 'saida';
       const corpo = (m.tipo === 'audio' && m.midia_url)
@@ -10339,6 +10405,8 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
       }
     }
     </script>
+    </main>
+    </div>
     </body></html>`);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });

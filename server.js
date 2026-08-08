@@ -14468,7 +14468,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   </style></head><body>
   ${bodyOpen}
   <h1>📍 Buscar Demanda por Região</h1>
-  <p class="gray">Escolhe um recorte geográfico e vê quantos interessados a IA já minerou/extraiu do portal com esse perfil recentemente. Telefone e email ficam ocultos — em breve dá pra desbloquear comprando a lead.</p>
+  <p class="gray">Escolhe um recorte geográfico e vê quantos interessados a IA MatchImóveis já identificou com esse perfil recentemente. Telefone e email ficam ocultos — em breve dá pra desbloquear comprando a lead.</p>
   <div class="box">
     <label>Estado</label>
     <select id="estado"><option value="">Selecione...</option>${optionsEstados}</select>
@@ -14500,7 +14500,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   </div>
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
-    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
   </div>
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -14695,7 +14695,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       // dá pra sentir que ela está de fato cruzando as fontes antes de responder.
       const etapas = [
         '🤖 Entendendo o perfil buscado ('+pares.length+' bairro'+(pares.length>1?'s':'')+' em '+_cidadesSelecionadas.length+' cidade'+(_cidadesSelecionadas.length>1?'s':'')+', '+transacoes.join(' + ')+')...',
-        '📥 Cruzando com a planilha de Interessados de Portal...',
+        '📥 Cruzando com a base de interessados MatchImóveis...',
         '🧠 Calculando compatibilidade dos últimos '+dias+' dia'+(dias>1?'s':'')+'...'
       ];
       for(let i=0;i<etapas.length;i++){
@@ -14711,7 +14711,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região nos últimos '+labelPeriodo+'.'
         : '🤖 A IA não encontrou interessados com esse perfil nos últimos '+labelPeriodo+'.';
       document.getElementById('tabela-body').innerHTML = d.leads.map(function(l){
-        return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>'+escHtml(l.Origem)+'</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Condicao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Quartos?escHtml(l.Quartos):'<span class="gray">—</span>')+'</td><td>'+(l.Suites?escHtml(l.Suites):'<span class="gray">—</span>')+'</td><td>'+(l.Vagas?escHtml(l.Vagas):'<span class="gray">—</span>')+'</td><td>'+(l.Banheiros?escHtml(l.Banheiros):'<span class="gray">—</span>')+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td></tr>';
+        const dataTxt = l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR') : '<span class="gray">—</span>';
+        return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>MatchImóveis</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Condicao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Quartos?escHtml(l.Quartos):'<span class="gray">—</span>')+'</td><td>'+(l.Suites?escHtml(l.Suites):'<span class="gray">—</span>')+'</td><td>'+(l.Vagas?escHtml(l.Vagas):'<span class="gray">—</span>')+'</td><td>'+(l.Banheiros?escHtml(l.Banheiros):'<span class="gray">—</span>')+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td><td>'+dataTxt+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
     } catch(e){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; document.getElementById('btnBuscar').disabled = false; }

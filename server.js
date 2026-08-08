@@ -14173,9 +14173,7 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
   <div class="box">
     <input type="file" id="arquivo" accept=".xlsx,.xls,.csv">
     <button onclick="preview()">👁️ Analisar planilha</button>
-    <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#374151;margin-left:10px">
-      <input type="checkbox" id="chkEnriquecer"> 🔍 Buscar dados completos no anúncio (só as 10 primeiras — mais lento, abre a página de cada uma)
-    </label>
+    <p class="gray" style="font-size:11px;margin:8px 0 0">Preenchimento vem só do título/mensagem da própria planilha — abrir o link do anúncio pra buscar mais dados foi desativado (o portal bloqueia acesso automatizado via Cloudflare, não dá pra contornar de forma confiável).</p>
     <div id="preview-status"></div>
   </div>
   <div class="box">
@@ -14203,12 +14201,8 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
   async function preview(){
     const f = document.getElementById('arquivo').files[0];
     if(!f){ alert('Selecione um arquivo'); return; }
-    const enriquecer = document.getElementById('chkEnriquecer').checked;
-    document.getElementById('preview-status').innerHTML = enriquecer
-      ? '<p>⏳ Analisando e buscando dados no anúncio das 10 primeiras (pode levar 1-2 min)...</p>'
-      : '<p>⏳ Analisando...</p>';
+    document.getElementById('preview-status').innerHTML = '<p>⏳ Analisando...</p>';
     const fd = new FormData(); fd.append('arquivo', f);
-    if(enriquecer) fd.append('enriquecerLimite', '10');
     try {
       const r = await fetch('/admin/interesados/preview', { method:'POST', body:fd });
       const d = await r.json();
@@ -14217,17 +14211,29 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
       _arquivoPath = d.arquivo;
       const comMatch = d.linhas.filter(l => l.corretores.length > 0).length;
       const semMatch = d.linhas.length - comMatch;
+      // Quantas linhas conseguimos preencher em cada campo (só por texto,
+      // nunca abrindo o link) e a completude média — pra saber o quanto a
+      // extração por título/mensagem está de fato rendendo.
+      const comBairro = d.linhas.filter(l => l.Bairro).length;
+      const comQuartos = d.linhas.filter(l => l.Quartos).length;
+      const comValor = d.linhas.filter(l => l.Valor_max).length;
+      const completudeMedia = d.linhas.length ? Math.round(100 * d.linhas.reduce(function(s,l){ return s + (l.Completude||0)/(l.CompletudeTotal||1); }, 0) / d.linhas.length) : 0;
       document.getElementById('resumo').innerHTML =
         '<div class="stat"><strong>'+d.totalLinhasArquivo+'</strong>Na planilha</div>'+
         '<div class="stat"><strong>'+d.linhas.length+'</strong>Processadas (fora Rankim)</div>'+
         '<div class="stat green"><strong>'+comMatch+'</strong>Com corretor</div>'+
-        '<div class="stat red"><strong>'+semMatch+'</strong>Sem match</div>';
-      // Com corretor primeiro, sem match depois — ordem estável dentro de cada grupo
-      const linhasOrdenadas = d.linhas.slice().sort(function(a, b){ return (b.corretores.length>0) - (a.corretores.length>0); });
+        '<div class="stat red"><strong>'+semMatch+'</strong>Sem match</div>'+
+        '<div class="stat"><strong>'+comBairro+'</strong>Com bairro</div>'+
+        '<div class="stat"><strong>'+comQuartos+'</strong>Com quartos</div>'+
+        '<div class="stat"><strong>'+comValor+'</strong>Com valor</div>'+
+        '<div class="stat"><strong>'+completudeMedia+'%</strong>Completude média</div>';
+      // Já vem ordenado por completude (mais completa primeiro) do servidor —
+      // só reordena aqui de novo pra garantir, caso a lista seja re-renderizada
+      const linhasOrdenadas = d.linhas.slice().sort(function(a, b){ return (b.Completude||0) - (a.Completude||0); });
       document.getElementById('tabela-body').innerHTML = linhasOrdenadas.map(function(l){
         const temMatch = l.corretores.length > 0;
         const corretoresTxt = temMatch ? l.corretores.map(function(c){ return escHtml(c.nome)+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>';
-        const nomeTd = escHtml(l.Nome) + (l.enriquecidoPeloPortal ? ' <span title="Dados completados direto do anúncio" style="color:#16a34a">🔍</span>' : (l.erroEnriquecimento ? ' <span style="color:#dc2626">⚠️</span><br><span style="font-size:10px;color:#dc2626">'+escHtml(l.erroEnriquecimento)+'</span>' : ''));
+        const nomeTd = escHtml(l.Nome) + ' <span class="gray" style="font-size:10px">('+l.Completude+'/'+l.CompletudeTotal+')</span>';
         const cols = [l.Telefone, l.Email, l.Origem, l.Tipo, l.Transacao, l.Condicao, l.Bairro, l.Cidade, l.Estado, l.Quartos, l.Suites, l.Vagas, l.Banheiros, l.Area_max, l.Valor_max];
         const tds = cols.map(function(v){ return '<td>'+(v===''||v==null?'<span class="gray">—</span>':escHtml(v))+'</td>'; }).join('');
         const tdObs = '<td class="wrap">'+(l.Observacoes?escHtml(l.Observacoes):'<span class="gray">—</span>')+'</td>';
@@ -14307,8 +14313,7 @@ app.post('/admin/interesados/preview', authAdmin, upload.single('arquivo'), asyn
     const XLSX = require('xlsx');
     const wb = XLSX.readFile(req.file.path);
     const totalLinhasArquivo = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' }).length;
-    const enriquecerLimite = parseInt(req.body.enriquecerLimite) || 0;
-    const linhas = await processarInteresados(req.file.path, { enriquecerLimite });
+    const linhas = await processarInteresados(req.file.path);
     res.json({ ok: true, linhas, totalLinhasArquivo, arquivo: req.file.path });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });

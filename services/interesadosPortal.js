@@ -138,110 +138,71 @@ function _buscarCorretoresCandidatos(indiceImoveis, estado, cidade, bairro, cate
   return [...porBairro, ...porCidade].slice(0, 3);
 }
 
-// opts.enriquecerLimite: quantas linhas (no máximo) tentam buscar dados
-// direto no anúncio do portal (Playwright) além do título/mensagem — cada
-// uma abre a página de verdade, é lento (alguns segundos por linha) e só
-// funciona em ambiente que consiga baixar o Chromium do Playwright, por
-// isso fica limitado e é opt-in (nunca roda sozinho, só quando pedido).
-async function processarInteresados(filePath, opts = {}) {
-  const enriquecerLimite = Math.min(opts.enriquecerLimite || 0, 30);
+// Campos que vêm de extração por texto (título/mensagem) e não de coluna
+// própria do portal — usados só pra medir o quanto cada linha ficou completa,
+// não têm relação com match/critério mínimo.
+const _CAMPOS_COMPLETUDE = ['Bairro', 'Quartos', 'Suites', 'Banheiros', 'Vagas', 'Area_max', 'Valor_max'];
+function _calcularCompletude(linha) {
+  return _CAMPOS_COMPLETUDE.reduce((n, campo) => n + (linha[campo] ? 1 : 0), 0);
+}
+
+// Nunca depende de abrir o link do anúncio (o portal usa Cloudflare pra
+// bloquear acesso automatizado — confirmado, não dá pra contornar de forma
+// confiável/legítima) — todo o preenchimento vem só do que a própria
+// planilha traz (colunas + regex em cima do título/mensagem).
+async function processarInteresados(filePath) {
   const linhasBrutas = _lerPlanilha(filePath);
   const { rows: usuarios } = await query('SELECT codigo_usuario, id, nome FROM usuarios');
   const nomePorId = {};
   usuarios.forEach(u => { nomePorId[u.codigo_usuario] = u.nome; nomePorId[u.id] = u.nome; });
   const indiceImoveis = await _carregarIndiceImoveis();
 
-  // Linhas válidas (fora Rankim) primeiro, pra poder decidir quais das
-  // primeiras N vão ser enriquecidas e buscar todas EM PARALELO (com um
-  // limite de páginas simultâneas) — sequencial (1 por vez, com retry)
-  // deixava 10 linhas levarem minutos; em paralelo cai bastante.
   const linhasValidas = linhasBrutas.filter(l => !_chave(l['Sucursal'] || '').includes('rankim'));
-  const CONCORRENCIA = 3;
-  const extraidosPorIndice = new Map();
-  if (enriquecerLimite > 0) {
-    const { extrairDadosAnuncio } = require('./extratorPortal');
-    const alvos = [];
-    for (let i = 0; i < linhasValidas.length && alvos.length < enriquecerLimite; i++) {
-      if (linhasValidas[i]['Url anúncio']) alvos.push(i);
-    }
-    let cursor = 0;
-    async function worker() {
-      while (cursor < alvos.length) {
-        const idx = alvos[cursor++];
-        const r = await extrairDadosAnuncio(linhasValidas[idx]['Url anúncio']);
-        extraidosPorIndice.set(idx, r);
-      }
-    }
-    await Promise.all(Array.from({ length: Math.min(CONCORRENCIA, alvos.length) }, worker));
-  }
 
   const resultado = [];
-  for (let i = 0; i < linhasValidas.length; i++) {
-    const l = linhasValidas[i];
-    const r = extraidosPorIndice.get(i);
-    let extraido = null, extraidoErro = '', extraidoOk = false;
-    if (r) {
-      if (r.ok && r.fonte === 'avisoInfo') {
-        extraido = r; extraidoOk = true;
-      } else if (r.ok) {
-        // página abriu mas não achou os dados estruturados (avisoInfo) —
-        // ainda aproveita o texto da página pro fallback por regex, mas não
-        // marca como "enriquecido com sucesso" (senão o ⚠️ vira 🔍 mentiroso)
-        extraido = r;
-        extraidoErro = r.bloqueado ? 'página bloqueou o acesso (anti-bot) — título: ' + (r.titulo || '?')
-          : 'anúncio abriu mas sem dados estruturados (avisoInfo não encontrado) — título: ' + (r.titulo || '?');
-      } else {
-        extraidoErro = r.erro || 'falhou';
-      }
-    }
-
+  for (const l of linhasValidas) {
     const sucursal = l['Sucursal'] || '';
-    const estado = normalizarEstadoBR((extraido && extraido.estado) || l['Estado'] || '');
-    const cidade = normalizarCidadeBR(estado, (extraido && extraido.cidade) || l['Cidade'] || '');
-    const textoLivre = [l['Título'], l['Mensagem'], extraido && extraido.textoPagina].filter(Boolean).join(' — ');
-    // Bairro: prioriza o que o extrator achou na página real; senão a coluna
-    // da planilha; senão tenta achar um bairro conhecido dentro do texto
-    // (título/mensagem/página) — URL do ImovelWeb é só um id numérico, não ajuda.
-    const bairroBruto = (extraido && extraido.bairro) || l['Bairro'] || '';
+    const estado = normalizarEstadoBR(l['Estado'] || '');
+    const cidade = normalizarCidadeBR(estado, l['Cidade'] || '');
+    const textoLivre = [l['Título'], l['Mensagem']].filter(Boolean).join(' — ');
+    // Bairro: coluna da planilha; senão tenta achar um bairro conhecido
+    // dentro do texto (título/mensagem) — URL do ImovelWeb é só um id
+    // numérico, não ajuda, e abrir a página é bloqueado pelo Cloudflare.
+    const bairroBruto = l['Bairro'] || '';
     const bairro = bairroBruto ? normalizarBairroBR(cidade, bairroBruto) : (cidade ? buscarBairroEmTexto(cidade, textoLivre) : '');
-    const categoria = classificarCategoria((extraido && extraido.tipo) || l['Tipo de imóvel'] || '');
+    const categoria = classificarCategoria(l['Tipo de imóvel'] || '');
     const transacao = normalizarTransacao(l['Tipo de operação'] || '');
     const atributosTexto = extrairAtributosTexto(textoLivre);
-    const atributos = {
-      quartos: (extraido && extraido.quartos) || atributosTexto.quartos,
-      suites: (extraido && extraido.suites) || atributosTexto.suites,
-      banheiros: (extraido && extraido.banheiros) || atributosTexto.banheiros,
-      vagas: (extraido && extraido.vagas) || atributosTexto.vagas,
-      area: (extraido && extraido.area_m2) || atributosTexto.area
-    };
-    const valorExtraido = extraido && extraido.valor_imovel ? extraido.valor_imovel : 0;
 
     const candidatos = cidade ? _buscarCorretoresCandidatos(indiceImoveis, estado, cidade, bairro, categoria) : [];
 
     // Campos no mesmo formato/nome do modelo de importação de leads (GET
     // /app/modelo-leads.xlsx) — quartos/suítes/vagas/banheiros/área não vêm
     // como coluna própria do portal, então tenta extrair do título/mensagem
-    // (ex: "Apartamento 2 Quartos na Graça: 78m², 2 banheiros, 1 vaga") ou,
-    // quando pedido, direto da página do anúncio.
-    resultado.push({
+    // (ex: "Apartamento 2 Quartos na Graça: 78m², 2 banheiros, 1 vaga").
+    const linha = {
       Nome: l['Nome'] || '',
       Telefone: normalizarTelefone(l['Telefone'] || l['Telefone 2'] || ''),
       Email: l['E-mail usuário'] || '',
       Origem: 'portal_imovelweb',
-      Tipo: (extraido && extraido.tipo) || l['Tipo de imóvel'] || '',
+      Tipo: l['Tipo de imóvel'] || '',
       Transacao: transacao === 'aluguel' ? 'aluguel' : 'compra',
       Condicao: '',
       Bairro: bairro, Cidade: cidade, Estado: estado,
-      Quartos: atributos.quartos, Suites: atributos.suites, Vagas: atributos.vagas,
-      Banheiros: atributos.banheiros, Area_max: atributos.area,
-      Valor_max: valorExtraido || parsePreco(l['Preço']) || '',
+      Quartos: atributosTexto.quartos, Suites: atributosTexto.suites, Vagas: atributosTexto.vagas,
+      Banheiros: atributosTexto.banheiros, Area_max: atributosTexto.area,
+      Valor_max: parsePreco(l['Preço']) || '',
       Observacoes: [l['Mensagem'], l['Título'], l['Url anúncio']].filter(Boolean).join(' | '),
       // campos extras (não fazem parte do modelo, mas são úteis pra revisar o match)
       categoria, sucursal, idAnuncio: l['Id anúncio'] || '', codigo: l['Código'] || '', data: l['Data'] || '',
-      enriquecidoPeloPortal: extraidoOk, erroEnriquecimento: extraidoErro,
       corretores: candidatos.map(c => ({ userId: c.userId, nome: nomePorId[c.userId] || c.userId, totalImoveis: c.total, nivel: c.nivel }))
-    });
+    };
+    linha.Completude = _calcularCompletude(linha);
+    linha.CompletudeTotal = _CAMPOS_COMPLETUDE.length;
+    resultado.push(linha);
   }
+  // Mais completas primeiro
+  resultado.sort((a, b) => b.Completude - a.Completude);
   return resultado;
 }
 

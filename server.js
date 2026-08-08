@@ -14534,6 +14534,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   h1{color:var(--rausch);font-size:20px}
   h2.secao{font-size:16px;color:var(--ink);margin:28px 0 4px}
   .box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0}
+  .campos-geo{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+  .campo select,.campo input[type=text]{max-width:none}
+  .campo label{margin-top:0}
   label{display:block;font-size:12px;font-weight:bold;color:#374151;margin:12px 0 4px}
   select,input[type=text],input[type=email],input[type=password]{width:100%;max-width:360px;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px}
   button{background:var(--rausch);color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-top:14px;font-weight:bold}
@@ -14584,6 +14587,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     .hero h1{font-size:19px}
     .hero p{font-size:13px}
     .passos{grid-template-columns:1fr;gap:10px}
+    .campos-geo{grid-template-columns:1fr;gap:0}
     select,input[type=text],input[type=email],input[type=password]{max-width:100%}
     .chips{max-width:100%}
     #bairros-lista{max-width:100%}
@@ -14591,8 +14595,13 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     .signup-box{max-width:100%}
     #btnBuscar,.combo button,#btnComprar{width:100%}
   }
+  .topbar-logo{display:flex;align-items:center;gap:8px;padding:16px 0 0}
+  .topbar-logo .mark{width:28px;height:28px;background:var(--rausch);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+  .topbar-logo .nome{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
+  .topbar-logo .nome span{color:var(--rausch)}
   </style></head><body>
   ${bodyOpen}
+  ${isAdmin ? '' : '<div class="topbar-logo"><div class="mark">M</div><div class="nome">Match<span>Imóveis</span></div></div>'}
   <div class="hero">
     <h1>📍 Buscar Demanda por Região</h1>
     <p>Descubra agora quantos clientes reais a IA MatchImóveis já encontrou na sua região — e leve esses leads pra sua conta hoje mesmo.</p>
@@ -14631,20 +14640,28 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     </ul></div>
   </div>
   <div class="box">
-    <label>Estado</label>
-    <select id="estado"><option value="">Selecione...</option>${optionsEstados}</select>
+    <div class="campos-geo">
+      <div class="campo">
+        <label>Estado</label>
+        <select id="estado"><option value="">Selecione...</option>${optionsEstados}</select>
+      </div>
 
-    <label>Cidades (escolha quantas quiser)</label>
-    <div style="position:relative;max-width:360px">
-      <input type="text" id="cidadeInput" placeholder="Selecione o estado primeiro..." disabled autocomplete="off" style="width:100%">
-      <div id="cidade-sugestoes" class="sugestoes-dropdown" style="display:none"></div>
+      <div class="campo">
+        <label>Cidades (escolha quantas quiser)</label>
+        <div style="position:relative">
+          <input type="text" id="cidadeInput" placeholder="Selecione o estado primeiro..." disabled autocomplete="off" style="width:100%">
+          <div id="cidade-sugestoes" class="sugestoes-dropdown" style="display:none"></div>
+        </div>
+        <div id="cidades-chips" class="chips"></div>
+      </div>
+
+      <div class="campo">
+        <label>Bairros (escolha quantos quiser)</label>
+        <input type="text" id="filtroBairro" placeholder="Selecione ao menos 1 cidade primeiro..." disabled>
+        <div id="bairros-lista"><span class="gray" style="font-size:12px">Selecione ao menos 1 cidade primeiro...</span></div>
+        <div id="bairros-chips" class="chips"></div>
+      </div>
     </div>
-    <div id="cidades-chips" class="chips"></div>
-
-    <label>Bairros (escolha quantos quiser)</label>
-    <input type="text" id="filtroBairro" placeholder="Selecione ao menos 1 cidade primeiro..." disabled>
-    <div id="bairros-lista"><span class="gray" style="font-size:12px">Selecione ao menos 1 cidade primeiro...</span></div>
-    <div id="bairros-chips" class="chips"></div>
 
     <label>Transação</label>
     <div class="chk-transacao">

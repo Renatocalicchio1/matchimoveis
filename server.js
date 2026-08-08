@@ -14704,7 +14704,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     <div class="feature"><div class="feature-ic">📸</div><h3>Posts automáticos pro Instagram</h3><p>A IA gera os posts dos seus imóveis prontos — é só revisar e publicar.</p></div>
     <div class="feature"><div class="feature-ic">🎁</div><h3>Indique e ganhe bônus</h3><p>Seu link de indicação te dá créditos de bônus toda vez que quem você indicou recarrega.</p></div>
     <div class="feature"><div class="feature-ic">💰</div><h3>Você não paga comissão na venda</h3><p>O que você vende é 100% seu — a MatchImóveis não fica com parte da sua comissão.</p></div>
-    <div class="feature"><div class="feature-ic">🤝</div><h3>Rede de parceria</h3><p>Mais de 70.000 imóveis de outros corretores em São Paulo pra você também oferecer.</p></div>
+    <div class="feature"><div class="feature-ic">🤝</div><h3>Rede de parceria</h3><p>Mais de 300.000 imóveis de outros corretores em todo o Brasil pra você também oferecer.</p></div>
+    <div class="feature"><div class="feature-ic">🖼️</div><h3>Vitrine automática</h3><p>A IA monta uma vitrine com os imóveis mais compatíveis pra cada lead, sem você montar nada na mão.</p></div>
+    <div class="feature"><div class="feature-ic">📲</div><h3>Disparo de vitrine no WhatsApp</h3><p>A vitrine vai direto pro WhatsApp do cliente, pronta pra ele escolher e agendar a visita.</p></div>
   </div>
 
   <h2 class="secao">Como funciona</h2>

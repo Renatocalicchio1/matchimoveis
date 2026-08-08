@@ -9980,6 +9980,7 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
 // disparo (services/metaWhatsapp.js enviarTexto/enviarAudio, dentro da
 // janela de 24h). Lista e conversa fazem polling (5-6s) pra atualizar sozinho.
 const _escHtmlWaCloud = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const _linkifyWaCloud = s => s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:inherit;text-decoration:underline">$1</a>');
 const _uploadAudioMem = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
 
 app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
@@ -10012,10 +10013,24 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
             '<p style="margin:2px 0 0;font-size:12px;color:#6b7280">'+escHtml(c.contato_telefone)+' · '+prevista+'</p></div>' +
             '<div style="display:flex;align-items:center;gap:10px">' +
             '<a href="'+waLink+'" target="_blank" onclick="event.stopPropagation()" style="background:#25D366;color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">💬 WhatsApp</a>' +
+            '<button type="button" class="btn-excluir-lista" data-tel="'+escHtml(c.contato_telefone)+'" style="background:#fef2f2;color:#dc2626;padding:5px 8px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🚫 Excluir da lista</button>' +
             '<span style="font-size:11px;color:#9ca3af;white-space:nowrap">'+new Date(c.criado_em).toLocaleString('pt-BR')+'</span>' +
             '</div></div>';
         }).join('');
+        box.querySelectorAll('.btn-excluir-lista').forEach(btn => {
+          btn.addEventListener('click', e => { e.stopPropagation(); excluirDaLista(btn.dataset.tel, btn); });
+        });
       } catch(e) {}
+    }
+    async function excluirDaLista(tel, btnEl){
+      if(!confirm('Excluir esse contato da lista? Ele não vai mais receber campanhas nem a mensagem automática.')) return;
+      btnEl.disabled = true;
+      try {
+        const r = await fetch('/admin/whatsapp-cloud/'+encodeURIComponent(tel)+'/excluir-lista', { method:'POST' });
+        const d = await r.json();
+        if(d.ok){ btnEl.textContent = '✓ Excluído'; btnEl.closest('.linha').style.opacity = '0.45'; }
+        else { alert(d.erro || 'Erro ao excluir'); btnEl.disabled = false; }
+      } catch(e){ alert('Erro ao excluir'); btnEl.disabled = false; }
     }
     carregar();
     setInterval(carregar, 6000);
@@ -10041,6 +10056,17 @@ app.get('/admin/whatsapp-cloud/exportar.csv', authAdmin, async (req, res) => {
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 
+// Exclusão manual de um contato da inbox — usa o mesmo opt-out global já
+// respeitado em qualquer campanha nova (services/salvarDisparo.js) e em
+// qualquer envio manual/automático que checar listarOptout().
+app.post('/admin/whatsapp-cloud/:telefone/excluir-lista', authAdmin, async (req, res) => {
+  try {
+    const { marcarOptout } = require('./services/salvarDisparo');
+    await marcarOptout(req.params.telefone, 'exclusao_manual_admin');
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ ok:false, erro: e.message }); }
+});
+
 app.get('/admin/whatsapp-cloud/lista.json', authAdmin, async (req, res) => {
   try {
     const { listarConversas } = require('./services/salvarWhatsappCloudMsg');
@@ -10059,7 +10085,7 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
       const minha = m.direcao === 'saida';
       const corpo = m.tipo === 'audio' && m.midia_url
         ? `<audio controls preload="none" src="${m.midia_url}" style="max-width:220px"></audio>`
-        : (m.tipo === 'botao' ? '<span style="opacity:.8;font-size:12px">🔘 clicou:</span><br>' : '') + _escHtmlWaCloud(m.texto||'');
+        : (m.tipo === 'botao' ? '<span style="opacity:.8;font-size:12px">🔘 clicou:</span><br>' : '') + _linkifyWaCloud(_escHtmlWaCloud(m.texto||''));
       return `<div class="bolha-wrap" data-id="${m.id}" style="display:flex;justify-content:${minha?'flex-end':'flex-start'};margin:6px 0">
         <div style="max-width:70%;padding:10px 14px;border-radius:14px;background:${minha?'#FF385C':'#f3f4f6'};color:${minha?'#fff':'#111'};font-size:14px">
           ${corpo}
@@ -10101,11 +10127,12 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     const chat = document.getElementById('chat');
     chat.scrollTop = chat.scrollHeight;
     function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function linkify(s){ return s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:inherit;text-decoration:underline">$1</a>'); }
     function montarBolha(m){
       const minha = m.direcao === 'saida';
       const corpo = (m.tipo === 'audio' && m.midia_url)
         ? '<audio controls preload="none" src="'+m.midia_url+'" style="max-width:220px"></audio>'
-        : (m.tipo === 'botao' ? '<span style="opacity:.8;font-size:12px">🔘 clicou:</span><br>' : '') + escHtml(m.texto||'');
+        : (m.tipo === 'botao' ? '<span style="opacity:.8;font-size:12px">🔘 clicou:</span><br>' : '') + linkify(escHtml(m.texto||''));
       const div = document.createElement('div');
       div.style.cssText = 'display:flex;justify-content:'+(minha?'flex-end':'flex-start')+';margin:6px 0';
       div.setAttribute('data-id', m.id);

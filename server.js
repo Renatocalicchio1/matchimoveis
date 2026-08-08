@@ -14504,6 +14504,10 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   </div>
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  // Busca sem se importar com acento — digitar "sao paulo" tem que achar
+  // "São Paulo" e vice-versa, já que os dados vêm de fontes diferentes
+  // (umas com acento, outras sem).
+  function _normTexto(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
   let _cidadesNomes = [];
   let _cidadesSelecionadas = [];
   let _bairrosPorCidade = {};
@@ -14543,10 +14547,10 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   }
 
   function renderSugestoesCidade(){
-    const termo = document.getElementById('cidadeInput').value.toLowerCase().trim();
+    const termo = _normTexto(document.getElementById('cidadeInput').value.trim());
     const box = document.getElementById('cidade-sugestoes');
     if(!termo){ box.style.display = 'none'; return; }
-    const visiveis = _cidadesNomes.filter(function(c){ return c.toLowerCase().includes(termo) && _cidadesSelecionadas.indexOf(c) === -1; }).slice(0, 30);
+    const visiveis = _cidadesNomes.filter(function(c){ return _normTexto(c).includes(termo) && _cidadesSelecionadas.indexOf(c) === -1; }).slice(0, 30);
     if(!visiveis.length){ box.innerHTML = '<div class="sugestao-item gray">Nenhuma cidade encontrada</div>'; box.style.display = 'block'; return; }
     box.innerHTML = visiveis.map(function(c){ return '<div class="sugestao-item" data-cidade="'+escHtml(c)+'">'+escHtml(c)+'</div>'; }).join('');
     box.style.display = 'block';
@@ -14624,8 +14628,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       lista.innerHTML = '<span class="gray" style="font-size:12px">Selecione ao menos 1 cidade primeiro...</span>';
       return;
     }
-    const filtro = document.getElementById('filtroBairro').value.toLowerCase();
-    const visiveis = _paresDisponiveis.filter(function(p){ return p.bairro.toLowerCase().includes(filtro); });
+    const filtro = _normTexto(document.getElementById('filtroBairro').value);
+    const visiveis = _paresDisponiveis.filter(function(p){ return _normTexto(p.bairro).includes(filtro); });
     if(!visiveis.length){ lista.innerHTML = '<span class="gray" style="font-size:12px">Nenhum bairro encontrado.</span>'; return; }
     const marcadasChaves = _paresMarcados.map(_parChave);
     const multiplasCidades = _cidadesSelecionadas.length > 1;

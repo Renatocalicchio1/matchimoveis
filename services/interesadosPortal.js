@@ -6,7 +6,7 @@
 // (têm imóvel cadastrado ali, do mesmo tipo/operação) — sem "área de atuação"
 // própria ainda (isso vem depois, numa tela de cadastro dedicada).
 const { query } = require('./db');
-const { normalizarEstadoBR, normalizarCidadeBR, normalizarBairroBR } = require('./salvarImovel');
+const { normalizarEstadoBR, normalizarCidadeBR, normalizarBairroBR, buscarBairroEmTexto } = require('./salvarImovel');
 
 function _chave(s) {
   return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
@@ -53,10 +53,33 @@ function normalizarTelefone(v) {
   return d;
 }
 
+// Preço brasileiro sem vírgula ("R$ 240.000") não tem parte decimal — o ponto
+// é só separador de milhar. Só existe parte decimal quando tem vírgula
+// ("R$ 1.234,56"). A versão antiga assumia sempre vírgula presente pra decidir
+// se o ponto era milhar, e sem vírgula tratava "240.000" como 240 (bug real).
 function parsePreco(v) {
-  const n = (v || '').toString().replace(/[^\d,.]/g, '').replace(/\.(?=\d{3},)/g, '').replace(',', '.');
-  const f = parseFloat(n);
+  let s = (v || '').toString().replace(/[^\d,.]/g, '');
+  if (!s) return 0;
+  s = s.includes(',') ? s.replace(/\./g, '').replace(',', '.') : s.replace(/\./g, '');
+  const f = parseFloat(s);
   return isFinite(f) ? f : 0;
+}
+
+// Título e mensagem do portal costumam trazer o que o anúncio "de verdade" tem
+// (ex: "Apartamento 2 Quartos na Graça, Salvador-BA: 78m², 2 banheiros, 1
+// vaga") mesmo quando as colunas estruturadas da planilha vêm em branco —
+// varre esse texto livre atrás de quartos/suítes/banheiros/vagas/área.
+function extrairAtributosTexto(texto) {
+  const t = (texto || '').toString();
+  const num = (re) => { const m = t.match(re); return m ? parseInt(m[1], 10) : ''; };
+  const areaM = t.match(/(\d+(?:[.,]\d+)?)\s*m[²2]/i);
+  return {
+    quartos: num(/(\d+)\s*(?:quartos?|dorm[ií]t[óo]rios?)/i),
+    suites: num(/(\d+)\s*su[íi]tes?/i),
+    banheiros: num(/(\d+)\s*banheiros?/i),
+    vagas: num(/(\d+)\s*vagas?/i),
+    area: areaM ? parseFloat(areaM[1].replace(',', '.')) : ''
+  };
 }
 
 function _lerPlanilha(filePath) {
@@ -105,19 +128,24 @@ async function processarInteresados(filePath) {
 
     const estado = normalizarEstadoBR(l['Estado'] || '');
     const cidade = normalizarCidadeBR(estado, l['Cidade'] || '');
-    const bairro = l['Bairro'] ? normalizarBairroBR(cidade, l['Bairro']) : '';
+    const textoLivre = [l['Título'], l['Mensagem']].filter(Boolean).join(' — ');
+    // Bairro: usa o da coluna se veio preenchido; senão tenta achar um bairro
+    // conhecido daquela cidade dentro do título/mensagem (URL do ImovelWeb é só
+    // um id numérico, não ajuda nisso).
+    const bairro = l['Bairro'] ? normalizarBairroBR(cidade, l['Bairro']) : (cidade ? buscarBairroEmTexto(cidade, textoLivre) : '');
     const categoria = classificarCategoria(l['Tipo de imóvel'] || '');
     const transacao = normalizarTransacao(l['Tipo de operação'] || '');
+    const atributos = extrairAtributosTexto(textoLivre);
 
     let candidatos = [];
     if (cidade) {
       candidatos = await _buscarCorretoresCandidatos(estado, cidade, bairro, categoria, transacao);
     }
 
-    // Campos no mesmo formato/nome do modelo de importação de leads
-    // (GET /app/modelo-leads.xlsx) — o portal não manda quartos/suítes/vagas/
-    // banheiros/área (isso é preferência do comprador, o anúncio não informa),
-    // ficam em branco de propósito.
+    // Campos no mesmo formato/nome do modelo de importação de leads (GET
+    // /app/modelo-leads.xlsx) — quartos/suítes/vagas/banheiros/área não vêm
+    // como coluna própria do portal, então tenta extrair do título/mensagem
+    // (ex: "Apartamento 2 Quartos na Graça: 78m², 2 banheiros, 1 vaga").
     resultado.push({
       Nome: l['Nome'] || '',
       Telefone: normalizarTelefone(l['Telefone'] || l['Telefone 2'] || ''),
@@ -127,7 +155,8 @@ async function processarInteresados(filePath) {
       Transacao: transacao === 'aluguel' ? 'aluguel' : 'compra',
       Condicao: '',
       Bairro: bairro, Cidade: cidade, Estado: estado,
-      Quartos: '', Suites: '', Vagas: '', Banheiros: '', Area_max: '',
+      Quartos: atributos.quartos, Suites: atributos.suites, Vagas: atributos.vagas,
+      Banheiros: atributos.banheiros, Area_max: atributos.area,
       Valor_max: parsePreco(l['Preço']) || '',
       Observacoes: [l['Mensagem'], l['Título'], l['Url anúncio']].filter(Boolean).join(' | '),
       // campos extras (não fazem parte do modelo, mas são úteis pra revisar o match)

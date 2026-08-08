@@ -90,6 +90,24 @@ function normalizarBairroBR(cidadeCanonica, bairroBruto) {
   return (mapa && mapa[_chaveLocalidade(fallback)]) || fallback;
 }
 
+// Fallback pra quando a fonte não manda bairro separado (ex: planilha de
+// interessados de portal só tem título/mensagem livre) — varre os bairros
+// conhecidos da cidade (mesmo dicionário IBGE/OSM) procurando qual aparece
+// como substring no texto, pegando o de nome mais longo/específico encontrado
+// (evita bairro curto demais dar falso positivo dentro de outra palavra).
+function buscarBairroEmTexto(cidadeCanonica, texto) {
+  if (!texto || !cidadeCanonica || !_dicIBGE) return '';
+  const mapa = _dicIBGE.bairrosPorCidade[_chaveLocalidade(cidadeCanonica)];
+  if (!mapa) return '';
+  const textoChave = _chaveLocalidade(texto);
+  let melhorChave = '';
+  for (const chaveBairro in mapa) {
+    if (chaveBairro.length < 4) continue;
+    if (textoChave.includes(chaveBairro) && chaveBairro.length > melhorChave.length) melhorChave = chaveBairro;
+  }
+  return melhorChave ? mapa[melhorChave] : '';
+}
+
 function dataPath() {
   const DIR = process.env.RENDER ? '/opt/render/project/src/data' : path.join(__dirname, '..');
   return path.join(DIR, 'imoveis.json');
@@ -469,4 +487,4 @@ async function salvarTodosImoveis(imoveis) {
   return imoveis;
 }
 
-module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, calcularPercentualPerfil, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR };
+module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, calcularPercentualPerfil, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR, buscarBairroEmTexto };

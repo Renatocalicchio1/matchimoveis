@@ -114,19 +114,24 @@ async function processarInteresados(filePath) {
       candidatos = await _buscarCorretoresCandidatos(estado, cidade, bairro, categoria, transacao);
     }
 
+    // Campos no mesmo formato/nome do modelo de importação de leads
+    // (GET /app/modelo-leads.xlsx) — o portal não manda quartos/suítes/vagas/
+    // banheiros/área (isso é preferência do comprador, o anúncio não informa),
+    // ficam em branco de propósito.
     resultado.push({
-      nome: l['Nome'] || '',
-      email: l['E-mail usuário'] || '',
-      telefone: normalizarTelefone(l['Telefone'] || l['Telefone 2'] || ''),
-      mensagem: l['Mensagem'] || '',
-      data: l['Data'] || '',
-      idAnuncio: l['Id anúncio'] || '',
-      codigo: l['Código'] || '',
-      estado, cidade, bairro, categoria, transacao,
-      valor: parsePreco(l['Preço']),
-      titulo: l['Título'] || '',
-      urlAnuncio: l['Url anúncio'] || '',
-      sucursal,
+      Nome: l['Nome'] || '',
+      Telefone: normalizarTelefone(l['Telefone'] || l['Telefone 2'] || ''),
+      Email: l['E-mail usuário'] || '',
+      Origem: 'portal_imovelweb',
+      Tipo: l['Tipo de imóvel'] || '',
+      Transacao: transacao === 'aluguel' ? 'aluguel' : 'compra',
+      Condicao: '',
+      Bairro: bairro, Cidade: cidade, Estado: estado,
+      Quartos: '', Suites: '', Vagas: '', Banheiros: '', Area_max: '',
+      Valor_max: parsePreco(l['Preço']) || '',
+      Observacoes: [l['Mensagem'], l['Título'], l['Url anúncio']].filter(Boolean).join(' | '),
+      // campos extras (não fazem parte do modelo, mas são úteis pra revisar o match)
+      categoria, sucursal, idAnuncio: l['Id anúncio'] || '', codigo: l['Código'] || '', data: l['Data'] || '',
       corretores: candidatos.map(c => ({ userId: c.userId, nome: nomePorId[c.userId] || c.userId, totalImoveis: c.total, nivel: c.nivel }))
     });
   }
@@ -146,19 +151,19 @@ async function importarInteresados(filePath) {
       try {
         await salvarLead({
           id: idLead,
-          nome: p.nome || 'Interessado',
-          telefone: p.telefone, whatsapp: p.telefone, email: p.email,
+          nome: p.Nome || 'Interessado',
+          telefone: p.Telefone, whatsapp: p.Telefone, email: p.Email,
           user_id: c.userId, userId: c.userId, codigoUsuario: c.userId,
           origem: 'interesados_portal', status: 'novo', faseFunil: 'novo', fase_funil: 'novo',
           perfilIA: {
-            tipo: p.categoria === 'terreno' ? 'Terreno' : (p.categoria === 'comercial' ? 'Sala Comercial' : ''),
-            intencao: p.transacao === 'aluguel' ? 'alugar' : 'comprar',
-            cidade: p.cidade, estado: p.estado, bairro: p.bairro,
-            valorMax: p.valor || undefined
+            tipo: p.Tipo || '',
+            intencao: p.Transacao === 'aluguel' ? 'alugar' : 'comprar',
+            cidade: p.Cidade, estado: p.Estado, bairro: p.Bairro,
+            valorMax: p.Valor_max || undefined
           },
           dados: {
-            interesadosMensagem: p.mensagem, interesadosTitulo: p.titulo, interesadosUrl: p.urlAnuncio,
-            interesadosSucursalOriginal: p.sucursal, interesadosDataOriginal: p.data
+            interesadosObservacoes: p.Observacoes, interesadosSucursalOriginal: p.sucursal,
+            interesadosDataOriginal: p.data, interesadosCodigoAnuncio: p.codigo
           },
           _lote: true
         });

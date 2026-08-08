@@ -14177,9 +14177,10 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
     <div id="resumo"></div>
     <button id="btnImportar" class="sec" onclick="importar()" style="display:none">🚀 Distribuir leads pras contas</button>
     <div id="import-status"></div>
-    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Local</th><th>Categoria</th><th>Corretores (até 3)</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Observações</th><th>Corretores (até 3)</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
   </div>
   <script>
+  function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   let _arquivoPath = '';
   async function preview(){
     const f = document.getElementById('arquivo').files[0];
@@ -14200,8 +14201,9 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
         '<div class="stat green"><strong>'+comMatch+'</strong>Com corretor</div>'+
         '<div class="stat red"><strong>'+semMatch+'</strong>Sem match</div>';
       document.getElementById('tabela-body').innerHTML = d.linhas.map(function(l){
-        const corretoresTxt = l.corretores.length ? l.corretores.map(function(c){ return c.nome+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>';
-        return '<tr><td>'+(l.nome||'-')+'<br><span class="gray">'+(l.telefone||'')+'</span></td><td>'+(l.bairro?l.bairro+', ':'')+(l.cidade||'-')+'/'+(l.estado||'')+'</td><td>'+l.categoria+' · '+l.transacao+'</td><td>'+corretoresTxt+'</td></tr>';
+        const corretoresTxt = l.corretores.length ? l.corretores.map(function(c){ return escHtml(c.nome)+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>';
+        const cols = [l.Nome, l.Telefone, l.Email, l.Origem, l.Tipo, l.Transacao, l.Condicao, l.Bairro, l.Cidade, l.Estado, l.Quartos, l.Suites, l.Vagas, l.Banheiros, l.Area_max, l.Valor_max, l.Observacoes];
+        return '<tr>' + cols.map(function(v){ return '<td>'+(v===''||v==null?'<span class="gray">—</span>':escHtml(v))+'</td>'; }).join('') + '<td>'+corretoresTxt+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
       document.getElementById('btnImportar').style.display = comMatch>0 ? 'inline-block' : 'none';

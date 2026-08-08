@@ -32,11 +32,15 @@ function _sigla(s) {
 // Estado/cidade/bairro do seletor só mostram onde tem demanda de verdade
 // minerada do portal (Interessados de Portal, últimos 30 dias — mesmo teto
 // da própria busca) — lista de todo o Brasil só teria opção vazia na
-// esmagadora maioria dos casos.
+// esmagadora maioria dos casos. vendido_em IS NULL: mesmo filtro da busca —
+// senão um estado/cidade/bairro que só tem interessado já vendido continua
+// aparecendo pra escolher e a busca depois volta vazia (o "lead" mostrado
+// já foi entregue pra outro comprador).
 async function _coletarSinaisRecentes() {
+  await _garantirColunasVenda();
   try {
     const { rows } = await query(
-      `SELECT estado, cidade, bairro FROM interessados_portal WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30)`
+      `SELECT estado, cidade, bairro FROM interessados_portal WHERE vendido_em IS NULL AND COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30)`
     );
     return rows.map(r => ({ estado: r.estado || '', cidade: r.cidade || '', bairro: r.bairro || '' }));
   } catch (e) {

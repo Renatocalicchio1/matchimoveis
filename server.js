@@ -14584,8 +14584,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .combo .preco span{font-size:11px;color:var(--sec);font-weight:normal}
   .combo button{width:100%;margin-top:12px}
   .combo.combo-recomendado button{background:var(--rausch)}
-  .signup-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:14px;max-width:420px}
+  .modal-overlay{position:fixed;inset:0;background:rgba(17,24,39,.6);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
+  .signup-box{background:#fff;border-radius:14px;padding:24px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.25)}
   .signup-box .combo-escolhido{background:var(--bg);border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+  .modal-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:999px;background:var(--bg);border:none;font-size:16px;color:var(--sec);cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+  .modal-close:hover{background:#fee2e2;color:var(--rausch)}
   @media (max-width:1100px){
     .campos-geo{grid-template-columns:1fr 1fr}
   }
@@ -14675,20 +14678,23 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       <div class="combos" id="combos-lista"></div>
     </div>
 
-    <div id="signup-box" style="display:none" class="signup-box">
-      <div class="combo-escolhido" id="combo-escolhido-resumo"></div>
-      <h2 class="secao" style="margin-top:0">Criar conta e finalizar</h2>
-      <label>Nome completo</label>
-      <input type="text" id="suNome" placeholder="Seu nome completo">
-      <label>Email</label>
-      <input type="email" id="suEmail" placeholder="voce@email.com">
-      <label>Celular (WhatsApp)</label>
-      <input type="text" id="suCelular" placeholder="47999999999">
-      <label>Senha</label>
-      <input type="password" id="suSenha" placeholder="Crie uma senha">
-      <div id="signup-status"></div>
-      <button id="btnComprar" onclick="finalizarCompra()">Ir para pagamento →</button>
-      <p class="gray" style="font-size:11px;margin-top:10px">🔒 Pagamento seguro pelo Mercado Pago • Compra única, sem mensalidade automática. Sua conta MatchImóveis é criada agora e os leads da sua busca são entregues assim que o pagamento for aprovado — <strong>mas ficam disponíveis pra qualquer corretor até lá.</strong></p>
+    <div id="signup-modal-overlay" class="modal-overlay" style="display:none">
+      <div id="signup-box" class="signup-box">
+        <button type="button" class="modal-close" onclick="fecharModalCompra()">×</button>
+        <div class="combo-escolhido" id="combo-escolhido-resumo"></div>
+        <h2 class="secao" style="margin-top:0">Criar conta e finalizar</h2>
+        <label>Nome completo</label>
+        <input type="text" id="suNome" placeholder="Seu nome completo">
+        <label>Email</label>
+        <input type="email" id="suEmail" placeholder="voce@email.com">
+        <label>Celular (WhatsApp)</label>
+        <input type="text" id="suCelular" placeholder="47999999999">
+        <label>Senha</label>
+        <input type="password" id="suSenha" placeholder="Crie uma senha">
+        <div id="signup-status"></div>
+        <button id="btnComprar" onclick="finalizarCompra()">Ir para pagamento →</button>
+        <p class="gray" style="font-size:11px;margin-top:10px">🔒 Pagamento seguro pelo Mercado Pago • Compra única, sem mensalidade automática. Sua conta MatchImóveis é criada agora e os leads da sua busca são entregues assim que o pagamento for aprovado — <strong>mas ficam disponíveis pra qualquer corretor até lá.</strong></p>
+      </div>
     </div>
   </div>
 
@@ -14907,7 +14913,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     if(!transacoes.length){ alert('Marca Venda, Aluguel ou os dois.'); return; }
     document.getElementById('resultado-box').style.display = 'none';
     document.getElementById('combos-box').style.display = 'none';
-    document.getElementById('signup-box').style.display = 'none';
+    fecharModalCompra();
     _comboEscolhido = null;
     document.getElementById('btnBuscar').disabled = true;
     try {
@@ -14953,7 +14959,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
 
   function renderCombos(total){
     const box = document.getElementById('combos-box');
-    if(total <= 0){ box.style.display = 'none'; document.getElementById('signup-box').style.display = 'none'; return; }
+    if(total <= 0){ box.style.display = 'none'; fecharModalCompra(); return; }
     // Combo recomendado: o menor combo fechado cuja quantidade cobre o total
     // encontrado (ex: até 50 → combo de 50; de 51 a 100 → combo de 100...).
     // Passou do maior combo fechado (300)? Só o ilimitado cobre.
@@ -14984,9 +14990,22 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     _comboEscolhido = plano;
     const p = PLANOS[plano];
     document.getElementById('combo-escolhido-resumo').innerHTML = '<strong>'+escHtml(p.label)+'</strong> — R$ '+p.valor+'<br><span class="gray">Os leads encontrados na sua busca vão pra sua conta assim que o pagamento for aprovado.</span>';
-    const signupBox = document.getElementById('signup-box');
-    signupBox.style.display = 'block';
-    signupBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    abrirModalCompra();
+  });
+
+  function abrirModalCompra(){
+    document.getElementById('signup-modal-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  function fecharModalCompra(){
+    document.getElementById('signup-modal-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  document.getElementById('signup-modal-overlay').addEventListener('click', function(e){
+    if(e.target.id === 'signup-modal-overlay') fecharModalCompra();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') fecharModalCompra();
   });
 
   async function finalizarCompra(){

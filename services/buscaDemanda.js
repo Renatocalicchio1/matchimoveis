@@ -72,20 +72,27 @@ function _normTransacao(v) {
   return '';
 }
 
+// Formato de saída = exatamente as colunas do modelo padrão de leads (GET
+// /app/modelo-leads.xlsx): Nome, Telefone, Email, Origem, Tipo, Transacao,
+// Condicao, Bairro, Cidade, Estado, Quartos, Suites, Vagas, Banheiros,
+// Area_max, Valor_max — id/criadoEm/fonte ficam só pra ordenar/rastrear,
+// não fazem parte do modelo.
+
 // Além dos leads "de verdade" da plataforma (mapaIntencao), também busca na
 // planilha acumulada de Interessados de Portal (services/interesadosPortal.js)
 // — lá o bairro/cidade/transação já vêm em coluna própria (Bairro/Cidade/
 // Estado/Transacao), sem depender do motor de match ter processado nada.
-async function _buscarNosLeadsPlataforma(siglaAlvo, cidadeAlvo, bairrosAlvo, transacoesAlvo, dias) {
+async function _buscarNosLeadsPlataforma(siglaAlvo, chavesAlvo, transacoesAlvo, horas) {
   const { rows } = await query(
-    `SELECT id, nome, telefone, whatsapp, origem, status, temperatura, criado_em, mapa_intencao, perfil_ia
-     FROM leads WHERE criado_em >= NOW() - make_interval(days => $1::int) ORDER BY criado_em DESC`,
-    [dias]
+    `SELECT id, nome, telefone, whatsapp, origem, status, temperatura, criado_em, mapa_intencao, perfil_ia, dados
+     FROM leads WHERE criado_em >= NOW() - make_interval(hours => $1::int) ORDER BY criado_em DESC`,
+    [horas]
   );
   const encontrados = [];
   for (const r of rows) {
     const mi = r.mapa_intencao || {};
     const pi = r.perfil_ia || {};
+    const dd = r.dados || {};
     const estadoLead = _valorMapa(mi, 'estado') || pi.estado || '';
     const cidadeLead = _valorMapa(mi, 'cidade') || pi.cidade || '';
     const bairroLead = _valorMapa(mi, 'bairro') || pi.bairro || '';
@@ -95,26 +102,32 @@ async function _buscarNosLeadsPlataforma(siglaAlvo, cidadeAlvo, bairrosAlvo, tra
     const valorMax = (valorObj && valorObj.max) || pi.valorMax || '';
 
     if (!estadoLead || _sigla(estadoLead) !== siglaAlvo) continue;
-    if (!cidadeLead || _norm(cidadeLead) !== cidadeAlvo) continue;
-    if (!bairroLead || !bairrosAlvo.has(_norm(bairroLead))) continue;
+    if (!cidadeLead || !bairroLead) continue;
+    if (!chavesAlvo.has(_norm(cidadeLead) + '|||' + _norm(bairroLead))) continue;
     if (!transacaoLead || !transacoesAlvo.has(transacaoLead)) continue;
 
     encontrados.push({
-      id: 'lead-' + r.id, nome: r.nome || 'Sem nome', telefone: r.telefone || r.whatsapp || '',
-      origem: r.origem || '', status: r.status || '', temperatura: r.temperatura || '',
-      criadoEm: r.criado_em, tipo: tipoLead, bairro: bairroLead, transacao: transacaoLead, valorMax,
-      fonte: 'leads_plataforma'
+      id: 'lead-' + r.id, criadoEm: r.criado_em, fonte: 'leads_plataforma',
+      Nome: r.nome || 'Sem nome', Telefone: r.telefone || r.whatsapp || '', Email: pi.email || dd.email || '',
+      Origem: r.origem || '', Tipo: tipoLead, Transacao: transacaoLead, Condicao: '',
+      Bairro: bairroLead, Cidade: cidadeLead, Estado: estadoLead,
+      Quartos: _valorMapa(mi, 'quartos') || pi.quartos || '', Suites: _valorMapa(mi, 'suites') || pi.suites || '',
+      Vagas: _valorMapa(mi, 'vagas') || pi.vagas || '', Banheiros: _valorMapa(mi, 'banheiros') || pi.banheiros || '',
+      Area_max: _valorMapa(mi, 'area') || pi.area || '', Valor_max: valorMax
     });
   }
   return encontrados;
 }
 
-async function _buscarNosInteresadosPortal(siglaAlvo, cidadeAlvo, bairrosAlvo, transacoesAlvo, dias) {
+async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas) {
   let rows;
   try {
     ({ rows } = await query(
-      `SELECT * FROM interessados_portal WHERE criado_em >= NOW() - make_interval(days => $1::int) ORDER BY criado_em DESC`,
-      [dias]
+      // COALESCE(data_lead, criado_em): data_lead é a data real do interessado
+      // no portal (coluna "Data" da planilha) — usa criado_em (data do upload)
+      // só como fallback pra linhas antigas onde a data não deu pra parsear.
+      `SELECT * FROM interessados_portal WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(hours => $1::int) ORDER BY COALESCE(data_lead, criado_em) DESC`,
+      [horas]
     ));
   } catch (e) {
     return []; // tabela pode nem existir ainda se nunca subiu planilha nenhuma
@@ -123,32 +136,36 @@ async function _buscarNosInteresadosPortal(siglaAlvo, cidadeAlvo, bairrosAlvo, t
   for (const r of rows) {
     const transacaoLead = _normTransacao(r.transacao || '');
     if (!r.estado || _sigla(r.estado) !== siglaAlvo) continue;
-    if (!r.cidade || _norm(r.cidade) !== cidadeAlvo) continue;
-    if (!r.bairro || !bairrosAlvo.has(_norm(r.bairro))) continue;
+    if (!r.cidade || !r.bairro) continue;
+    if (!chavesAlvo.has(_norm(r.cidade) + '|||' + _norm(r.bairro))) continue;
     if (!transacaoLead || !transacoesAlvo.has(transacaoLead)) continue;
 
     encontrados.push({
-      id: 'interessado-' + r.id, nome: r.nome || 'Sem nome', telefone: r.telefone || '',
-      origem: r.origem || 'portal_imovelweb', status: r.importado_em ? 'ja_distribuida' : 'novo', temperatura: '',
-      criadoEm: r.criado_em, tipo: r.tipo || '', bairro: r.bairro, transacao: transacaoLead, valorMax: r.valor_max || '',
-      fonte: 'interessados_portal'
+      id: 'interessado-' + r.id, criadoEm: r.data_lead || r.criado_em, fonte: 'interessados_portal',
+      Nome: r.nome || 'Sem nome', Telefone: r.telefone || '', Email: r.email || '',
+      Origem: r.origem || 'portal_imovelweb', Tipo: r.tipo || '', Transacao: transacaoLead, Condicao: r.condicao || '',
+      Bairro: r.bairro, Cidade: r.cidade, Estado: r.estado,
+      Quartos: r.quartos || '', Suites: r.suites || '', Vagas: r.vagas || '', Banheiros: r.banheiros || '',
+      Area_max: r.area_max || '', Valor_max: r.valor_max || ''
     });
   }
   return encontrados;
 }
 
-// dias: janela de tempo — padrão 2 dias (radar de demanda recente/"quente",
-// não é pra puxar o histórico inteiro). Busca em 2 fontes: leads reais da
-// plataforma (mapaIntencao) + planilha acumulada de Interessados de Portal.
-async function buscarDemanda({ estado, cidade, bairros = [], transacoes = [], dias = 2 }) {
+// horas: janela de tempo (24 / 72 / 168 / 720 = 24h, 3d, 7d, 30d — escolhida
+// na tela, não é fixo). Busca em 2 fontes: leads reais da plataforma
+// (mapaIntencao) + planilha acumulada de Interessados de Portal.
+// pares: [{cidade, bairro}] — sem limite de quantidade nem de quantas
+// cidades diferentes; casa por par exato (evita, ex., "Centro" de uma
+// cidade bater com "Centro" de outra quando o usuário só marcou uma delas).
+async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 72 }) {
   const siglaAlvo = _sigla(estado);
-  const cidadeAlvo = _norm(cidade);
-  const bairrosAlvo = new Set(bairros.map(_norm).filter(Boolean));
+  const chavesAlvo = new Set(pares.map(p => _norm(p.cidade) + '|||' + _norm(p.bairro)).filter(k => k !== '|||'));
   const transacoesAlvo = new Set((transacoes.length ? transacoes : ['venda', 'aluguel']).map(_norm));
 
   const [doLeads, doPortal] = await Promise.all([
-    _buscarNosLeadsPlataforma(siglaAlvo, cidadeAlvo, bairrosAlvo, transacoesAlvo, dias),
-    _buscarNosInteresadosPortal(siglaAlvo, cidadeAlvo, bairrosAlvo, transacoesAlvo, dias)
+    _buscarNosLeadsPlataforma(siglaAlvo, chavesAlvo, transacoesAlvo, horas),
+    _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas)
   ]);
   return [...doLeads, ...doPortal].sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
 }

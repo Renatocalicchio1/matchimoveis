@@ -65,6 +65,19 @@ function parsePreco(v) {
   return isFinite(f) ? f : 0;
 }
 
+// Coluna "Data" do export do ImovelWeb vem tipo "2026/08/08 00:30" — é a
+// data/hora real em que o interessado apareceu no portal, não quando a
+// gente subiu a planilha (isso pode ser dias depois). Usada pro filtro de
+// "últimas 24h/3d/7d/30d" da busca de demanda bater com a data de verdade.
+function _parseDataPortal(s) {
+  if (!s) return null;
+  const m = String(s).match(/^(\d{4})[\/\-](\d{2})[\/\-](\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  if (!m) return null;
+  const [, ano, mes, dia, hh, mm, ss] = m;
+  const d = new Date(Number(ano), Number(mes) - 1, Number(dia), Number(hh || 0), Number(mm || 0), Number(ss || 0));
+  return isNaN(d.getTime()) ? null : d;
+}
+
 // Título e mensagem do portal costumam trazer o que o anúncio "de verdade" tem
 // (ex: "Apartamento 2 Quartos na Graça, Salvador-BA: 78m², 2 banheiros, 1
 // vaga") mesmo quando as colunas estruturadas da planilha vêm em branco —
@@ -164,12 +177,14 @@ async function _garantirTabelaInteresados() {
     bairro TEXT, cidade TEXT, estado TEXT,
     quartos INT, suites INT, vagas INT, banheiros INT, area_max NUMERIC, valor_max NUMERIC,
     observacoes TEXT,
-    categoria TEXT, sucursal TEXT, id_anuncio TEXT, codigo TEXT, data_original TEXT,
+    categoria TEXT, sucursal TEXT, id_anuncio TEXT, codigo TEXT, data_original TEXT, data_lead TIMESTAMP,
     completude INT, completude_total INT,
     corretores JSONB,
     importado_em TIMESTAMP,
     criado_em TIMESTAMP DEFAULT NOW()
   )`);
+  // data_lead foi adicionada depois — tabela já existe em produção sem essa coluna
+  await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS data_lead TIMESTAMP').catch(() => {});
 }
 
 function _linhaParaRowDB(l) {
@@ -178,7 +193,7 @@ function _linhaParaRowDB(l) {
     l.Bairro || '', l.Cidade || '', l.Estado || '',
     l.Quartos || null, l.Suites || null, l.Vagas || null, l.Banheiros || null, l.Area_max || null, l.Valor_max || null,
     l.Observacoes || '',
-    l.categoria || '', l.sucursal || '', l.idAnuncio || '', l.codigo || '', l.data || '',
+    l.categoria || '', l.sucursal || '', l.idAnuncio || '', l.codigo || '', l.data || '', l.dataLead || null,
     l.Completude || 0, l.CompletudeTotal || _CAMPOS_COMPLETUDE.length,
     JSON.stringify(l.corretores || [])
   ];
@@ -192,6 +207,7 @@ function _rowDBParaLinha(r) {
     Quartos: r.quartos || '', Suites: r.suites || '', Vagas: r.vagas || '', Banheiros: r.banheiros || '', Area_max: r.area_max || '', Valor_max: r.valor_max || '',
     Observacoes: r.observacoes,
     categoria: r.categoria, sucursal: r.sucursal, idAnuncio: r.id_anuncio, codigo: r.codigo, data: r.data_original,
+    dataLead: r.data_lead,
     Completude: r.completude, CompletudeTotal: r.completude_total,
     corretores: r.corretores || [],
     importado: !!r.importado_em
@@ -210,8 +226,8 @@ async function _salvarLinhasNovas(linhas) {
       `INSERT INTO interessados_portal
         (chave_dedup, nome, telefone, email, origem, tipo, transacao, condicao, bairro, cidade, estado,
          quartos, suites, vagas, banheiros, area_max, valor_max, observacoes,
-         categoria, sucursal, id_anuncio, codigo, data_original, completude, completude_total, corretores)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)
+         categoria, sucursal, id_anuncio, codigo, data_original, data_lead, completude, completude_total, corretores)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27)
        ON CONFLICT (chave_dedup) DO NOTHING RETURNING id`,
       vals
     );
@@ -284,6 +300,7 @@ async function processarInteresados(filePath) {
       Observacoes: [l['Mensagem'], l['Título'], l['Url anúncio']].filter(Boolean).join(' | '),
       // campos extras (não fazem parte do modelo, mas são úteis pra revisar o match)
       categoria, sucursal, idAnuncio: l['Id anúncio'] || '', codigo: l['Código'] || '', data: l['Data'] || '',
+      dataLead: _parseDataPortal(l['Data']),
       corretores: candidatos.map(c => ({ userId: c.userId, nome: nomePorId[c.userId] || c.userId, totalImoveis: c.total, nivel: c.nivel }))
     };
     linha.Completude = _calcularCompletude(linha);

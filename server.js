@@ -14369,9 +14369,10 @@ app.post('/admin/interesados/importar', authAdmin, express.json(), async (req, r
 // ── FIM INTERESSADOS DE PORTAL ────────────────────────────────────────────────
 
 // ── BUSCAR DEMANDA POR REGIÃO ──────────────────────────────────────────────
-// Ferramenta de demonstração: escolhe estado + cidade + até 8 bairros +
-// venda/aluguel e mostra quantos leads reais da plataforma (mapaIntencao,
-// o mesmo que o motor de match usa) bateram esse perfil nos últimos 2 dias.
+// Ferramenta de demonstração: escolhe estado + quantas cidades/bairros
+// quiser + venda/aluguel e mostra quantos leads reais da plataforma
+// (mapaIntencao, o mesmo que o motor de match usa) bateram esse perfil nos
+// últimos 2 dias.
 app.get('/admin/demanda', authAdmin, (req, res) => {
   const { listarEstados } = require('./services/buscaDemanda');
   const optionsEstados = listarEstados().map(e => '<option value="'+e.sigla+'">'+e.sigla+' — '+e.nome+'</option>').join('');
@@ -14391,10 +14392,13 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
   .chk-transacao label{display:flex;align-items:center;gap:6px;font-weight:normal;font-size:13px;color:#111827;margin:0}
   #bairros-lista{max-width:420px;max-height:220px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px;padding:8px;background:#fff;margin-top:6px}
   #bairros-lista label{display:flex;align-items:center;gap:6px;font-weight:normal;font-size:13px;color:#111827;margin:2px 0;padding:2px}
-  #bairros-lista label.desabilitado{opacity:.35}
   .sugestoes-dropdown{position:absolute;top:100%;left:0;right:0;z-index:10;background:#fff;border:1px solid #d1d5db;border-top:none;max-height:220px;overflow-y:auto;border-radius:0 0 6px 6px;box-shadow:0 4px 10px rgba(0,0,0,.08)}
   .sugestao-item{padding:8px 10px;cursor:pointer;font-size:13px}
   .sugestao-item:hover{background:#f3f4f6}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;max-width:600px}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:#eef2ff;color:#111827;border:1px solid #c7d2fe;border-radius:999px;padding:4px 6px 4px 12px;font-size:12px}
+  .chip button{all:unset;cursor:pointer;color:#6b7280;font-weight:bold;padding:0 6px;line-height:1}
+  .chip button:hover{color:#dc2626}
   .gray{color:#6b7280}.green{color:#16a34a}.red{color:#dc2626}
   table{border-collapse:collapse;font-size:12px;margin-top:12px;min-width:100%}
   th{text-align:left;padding:6px;background:#f3f4f6;font-size:10px;text-transform:uppercase;color:#6b7280;white-space:nowrap}
@@ -14409,15 +14413,17 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
     <label>Estado</label>
     <select id="estado"><option value="">Selecione...</option>${optionsEstados}</select>
 
-    <label>Cidade</label>
+    <label>Cidades (escolha quantas quiser)</label>
     <div style="position:relative;max-width:360px">
       <input type="text" id="cidadeInput" placeholder="Selecione o estado primeiro..." disabled autocomplete="off" style="width:100%">
       <div id="cidade-sugestoes" class="sugestoes-dropdown" style="display:none"></div>
     </div>
+    <div id="cidades-chips" class="chips"></div>
 
-    <label>Bairros (marque até 8)</label>
-    <input type="text" id="filtroBairro" placeholder="Digite pra filtrar os bairros..." disabled>
-    <div id="bairros-lista"><span class="gray" style="font-size:12px">Selecione a cidade primeiro...</span></div>
+    <label>Bairros (escolha quantos quiser)</label>
+    <input type="text" id="filtroBairro" placeholder="Selecione ao menos 1 cidade primeiro..." disabled>
+    <div id="bairros-lista"><span class="gray" style="font-size:12px">Selecione ao menos 1 cidade primeiro...</span></div>
+    <div id="bairros-chips" class="chips"></div>
 
     <label>Transação</label>
     <div class="chk-transacao">
@@ -14425,29 +14431,47 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
       <label><input type="checkbox" id="chkAluguel" checked> Aluguel</label>
     </div>
 
+    <label>Período</label>
+    <div class="chk-transacao">
+      <label><input type="radio" name="periodo" value="24"> Últimas 24h</label>
+      <label><input type="radio" name="periodo" value="72" checked> Últimos 3 dias</label>
+      <label><input type="radio" name="periodo" value="168"> Últimos 7 dias</label>
+      <label><input type="radio" name="periodo" value="720"> Últimos 30 dias</label>
+    </div>
+
     <button id="btnBuscar" onclick="buscarDemanda()" disabled>🔎 Buscar Demanda</button>
     <div id="busca-status"></div>
   </div>
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
-    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Fonte</th><th>Origem</th><th>Status</th><th>Temperatura</th><th>Tipo</th><th>Bairro</th><th>Transação</th><th>Valor máx.</th><th>Criado em</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
   </div>
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  const MAX_BAIRROS = 8;
-  let _bairrosNomes = [];
   let _cidadesNomes = [];
-  let _cidadeSelecionada = '';
+  let _cidadesSelecionadas = [];
+  let _bairrosPorCidade = {};
+  let _paresDisponiveis = [];
+  let _paresMarcados = [];
+
+  function _parChave(p){ return p.cidade + '|||' + p.bairro; }
 
   document.getElementById('estado').addEventListener('change', async function(){
     const estado = this.value;
     const cidadeInput = document.getElementById('cidadeInput');
     _cidadesNomes = [];
-    _cidadeSelecionada = '';
+    _cidadesSelecionadas = [];
+    _bairrosPorCidade = {};
+    _paresDisponiveis = [];
+    _paresMarcados = [];
+    renderCidadesChips();
+    renderBairros();
+    renderBairrosChips();
     cidadeInput.value = '';
     cidadeInput.disabled = true;
     esconderSugestoesCidade();
-    resetBairros();
+    document.getElementById('filtroBairro').disabled = true;
+    document.getElementById('filtroBairro').value = '';
     document.getElementById('btnBuscar').disabled = true;
     if(!estado) { cidadeInput.placeholder = 'Selecione o estado primeiro...'; return; }
     cidadeInput.placeholder = 'Carregando...';
@@ -14466,64 +14490,103 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
     const termo = document.getElementById('cidadeInput').value.toLowerCase().trim();
     const box = document.getElementById('cidade-sugestoes');
     if(!termo){ box.style.display = 'none'; return; }
-    const visiveis = _cidadesNomes.filter(function(c){ return c.toLowerCase().includes(termo); }).slice(0, 30);
+    const visiveis = _cidadesNomes.filter(function(c){ return c.toLowerCase().includes(termo) && _cidadesSelecionadas.indexOf(c) === -1; }).slice(0, 30);
     if(!visiveis.length){ box.innerHTML = '<div class="sugestao-item gray">Nenhuma cidade encontrada</div>'; box.style.display = 'block'; return; }
     box.innerHTML = visiveis.map(function(c){ return '<div class="sugestao-item" data-cidade="'+escHtml(c)+'">'+escHtml(c)+'</div>'; }).join('');
     box.style.display = 'block';
   }
 
-  document.getElementById('cidadeInput').addEventListener('input', function(){
-    if(this.value !== _cidadeSelecionada){
-      _cidadeSelecionada = '';
-      resetBairros();
-      document.getElementById('btnBuscar').disabled = true;
-    }
-    renderSugestoesCidade();
-  });
+  document.getElementById('cidadeInput').addEventListener('input', renderSugestoesCidade);
 
   document.getElementById('cidade-sugestoes').addEventListener('click', async function(e){
     const item = e.target.closest('[data-cidade]');
     if(!item) return;
     const cidade = item.getAttribute('data-cidade');
-    const estado = document.getElementById('estado').value;
-    document.getElementById('cidadeInput').value = cidade;
-    _cidadeSelecionada = cidade;
+    document.getElementById('cidadeInput').value = '';
     esconderSugestoesCidade();
-    document.getElementById('bairros-lista').innerHTML = '<span class="gray" style="font-size:12px">Carregando...</span>';
-    const r = await fetch('/admin/demanda/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
-    const d = await r.json();
-    _bairrosNomes = d.bairros || [];
-    renderBairros();
-    document.getElementById('filtroBairro').disabled = false;
+    if(_cidadesSelecionadas.indexOf(cidade) > -1) return;
+    _cidadesSelecionadas.push(cidade);
+    renderCidadesChips();
+    await carregarBairrosDaCidade(cidade);
   });
 
   document.addEventListener('click', function(e){
     if(!e.target.closest('#cidadeInput') && !e.target.closest('#cidade-sugestoes')) esconderSugestoesCidade();
   });
 
-  let _marcadosPersistidos = [];
-
-  function resetBairros(){
-    _bairrosNomes = [];
-    _marcadosPersistidos = [];
-    document.getElementById('bairros-lista').innerHTML = '<span class="gray" style="font-size:12px">Selecione a cidade primeiro...</span>';
-    document.getElementById('filtroBairro').disabled = true;
-    document.getElementById('filtroBairro').value = '';
-    document.getElementById('btnBuscar').disabled = true;
+  function renderCidadesChips(){
+    const box = document.getElementById('cidades-chips');
+    box.innerHTML = _cidadesSelecionadas.map(function(c){
+      return '<span class="chip">'+escHtml(c)+'<button type="button" data-remover-cidade="'+escHtml(c)+'">×</button></span>';
+    }).join('');
   }
 
-  // Estado de seleção (_marcadosPersistidos) fica separado da renderização —
+  document.getElementById('cidades-chips').addEventListener('click', function(e){
+    const btn = e.target.closest('[data-remover-cidade]');
+    if(!btn) return;
+    const cidade = btn.getAttribute('data-remover-cidade');
+    _cidadesSelecionadas = _cidadesSelecionadas.filter(function(c){ return c !== cidade; });
+    _paresMarcados = _paresMarcados.filter(function(p){ return p.cidade !== cidade; });
+    renderCidadesChips();
+    reconstruirParesDisponiveis();
+    renderBairros();
+    renderBairrosChips();
+    document.getElementById('btnBuscar').disabled = _paresMarcados.length === 0;
+    if(!_cidadesSelecionadas.length){
+      document.getElementById('filtroBairro').disabled = true;
+      document.getElementById('filtroBairro').value = '';
+    }
+  });
+
+  async function carregarBairrosDaCidade(cidade){
+    const estado = document.getElementById('estado').value;
+    if(!_bairrosPorCidade[cidade]){
+      document.getElementById('bairros-lista').innerHTML = '<span class="gray" style="font-size:12px">Carregando bairros de '+escHtml(cidade)+'...</span>';
+      const r = await fetch('/admin/demanda/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
+      const d = await r.json();
+      _bairrosPorCidade[cidade] = d.bairros || [];
+    }
+    reconstruirParesDisponiveis();
+    renderBairros();
+    document.getElementById('filtroBairro').disabled = false;
+    document.getElementById('filtroBairro').placeholder = 'Digite pra filtrar os bairros...';
+  }
+
+  function reconstruirParesDisponiveis(){
+    _paresDisponiveis = [];
+    _cidadesSelecionadas.forEach(function(cid){
+      (_bairrosPorCidade[cid] || []).forEach(function(b){ _paresDisponiveis.push({ cidade: cid, bairro: b }); });
+    });
+  }
+
+  // Estado de seleção (_paresMarcados) fica separado da renderização —
   // filtrar a lista some com checkboxes fora do filtro, então não dá pra
   // reconstruir a seleção lendo só o que está no DOM no momento.
   function renderBairros(){
-    const filtro = document.getElementById('filtroBairro').value.toLowerCase();
     const lista = document.getElementById('bairros-lista');
-    const visiveis = _bairrosNomes.filter(function(b){ return b.toLowerCase().includes(filtro); });
+    if(!_paresDisponiveis.length){
+      lista.innerHTML = '<span class="gray" style="font-size:12px">Selecione ao menos 1 cidade primeiro...</span>';
+      return;
+    }
+    const filtro = document.getElementById('filtroBairro').value.toLowerCase();
+    const visiveis = _paresDisponiveis.filter(function(p){ return p.bairro.toLowerCase().includes(filtro); });
     if(!visiveis.length){ lista.innerHTML = '<span class="gray" style="font-size:12px">Nenhum bairro encontrado.</span>'; return; }
-    lista.innerHTML = visiveis.map(function(b){
-      const marcado = _marcadosPersistidos.indexOf(b) > -1;
-      const desabilita = !marcado && _marcadosPersistidos.length >= MAX_BAIRROS;
-      return '<label class="'+(desabilita?'desabilitado':'')+'"><input type="checkbox" data-bairro="'+escHtml(b)+'" '+(marcado?'checked':'')+' '+(desabilita?'disabled':'')+'> '+escHtml(b)+'</label>';
+    const marcadasChaves = _paresMarcados.map(_parChave);
+    const multiplasCidades = _cidadesSelecionadas.length > 1;
+    lista.innerHTML = visiveis.map(function(p){
+      const chave = _parChave(p);
+      const marcado = marcadasChaves.indexOf(chave) > -1;
+      const label = multiplasCidades ? (p.bairro + ' (' + p.cidade + ')') : p.bairro;
+      return '<label><input type="checkbox" data-chave="'+escHtml(chave)+'" data-cidade="'+escHtml(p.cidade)+'" data-bairro="'+escHtml(p.bairro)+'" '+(marcado?'checked':'')+'> '+escHtml(label)+'</label>';
+    }).join('');
+  }
+
+  function renderBairrosChips(){
+    const box = document.getElementById('bairros-chips');
+    const multiplasCidades = _cidadesSelecionadas.length > 1;
+    box.innerHTML = _paresMarcados.map(function(p){
+      const label = multiplasCidades ? (p.bairro + ' (' + p.cidade + ')') : p.bairro;
+      return '<span class="chip">'+escHtml(label)+'<button type="button" data-remover-bairro="'+escHtml(_parChave(p))+'">×</button></span>';
     }).join('');
   }
 
@@ -14532,40 +14595,49 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
   document.getElementById('bairros-lista').addEventListener('change', function(e){
     const el = e.target;
     if(!el || el.type !== 'checkbox') return;
-    const nome = el.getAttribute('data-bairro');
-    const idx = _marcadosPersistidos.indexOf(nome);
-    if(el.checked && idx === -1){
-      if(_marcadosPersistidos.length >= MAX_BAIRROS){ el.checked = false; return; }
-      _marcadosPersistidos.push(nome);
-    } else if(!el.checked && idx > -1){
-      _marcadosPersistidos.splice(idx, 1);
-    }
+    const par = { cidade: el.getAttribute('data-cidade'), bairro: el.getAttribute('data-bairro') };
+    const chave = _parChave(par);
+    const idx = _paresMarcados.findIndex(function(p){ return _parChave(p) === chave; });
+    if(el.checked && idx === -1) _paresMarcados.push(par);
+    else if(!el.checked && idx > -1) _paresMarcados.splice(idx, 1);
+    renderBairrosChips();
+    document.getElementById('btnBuscar').disabled = _paresMarcados.length === 0;
+  });
+
+  document.getElementById('bairros-chips').addEventListener('click', function(e){
+    const btn = e.target.closest('[data-remover-bairro]');
+    if(!btn) return;
+    const chave = btn.getAttribute('data-remover-bairro');
+    _paresMarcados = _paresMarcados.filter(function(p){ return _parChave(p) !== chave; });
     renderBairros();
-    document.getElementById('btnBuscar').disabled = _marcadosPersistidos.length === 0;
+    renderBairrosChips();
+    document.getElementById('btnBuscar').disabled = _paresMarcados.length === 0;
   });
 
   document.getElementById('filtroBairro').addEventListener('input', renderBairros);
 
+  const LABEL_PERIODO = { '24': '24 horas', '72': '3 dias', '168': '7 dias', '720': '30 dias' };
+
   async function buscarDemanda(){
     const estado = document.getElementById('estado').value;
-    const cidade = _cidadeSelecionada;
-    const bairros = _marcadosPersistidos;
+    const pares = _paresMarcados;
     const transacoes = [];
     if(document.getElementById('chkVenda').checked) transacoes.push('venda');
     if(document.getElementById('chkAluguel').checked) transacoes.push('aluguel');
-    if(!estado || !cidade || !bairros.length){ alert('Escolhe estado, cidade e pelo menos 1 bairro.'); return; }
+    const horas = document.querySelector('input[name=periodo]:checked').value;
+    if(!estado || !pares.length){ alert('Escolhe estado e pelo menos 1 bairro.'); return; }
     if(!transacoes.length){ alert('Marca Venda, Aluguel ou os dois.'); return; }
     document.getElementById('resultado-box').style.display = 'none';
     document.getElementById('btnBuscar').disabled = true;
     try {
-      const fetchPromise = fetch('/admin/demanda/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, cidade, bairros, transacoes }) }).then(function(r){ return r.json(); });
+      const fetchPromise = fetch('/admin/demanda/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, horas }) }).then(function(r){ return r.json(); });
       // Não estoura o resultado na hora — mostra a IA "pensando" em etapas,
       // dá pra sentir que ela está de fato cruzando as fontes antes de responder.
       const etapas = [
-        '🤖 Entendendo o perfil buscado ('+bairros.length+' bairro'+(bairros.length>1?'s':'')+', '+transacoes.join(' + ')+')...',
+        '🤖 Entendendo o perfil buscado ('+pares.length+' bairro'+(pares.length>1?'s':'')+' em '+_cidadesSelecionadas.length+' cidade'+(_cidadesSelecionadas.length>1?'s':'')+', '+transacoes.join(' + ')+')...',
         '🔎 Cruzando com os leads reais da plataforma...',
         '📥 Cruzando com a planilha de Interessados de Portal...',
-        '🧠 Calculando compatibilidade...'
+        '🧠 Calculando compatibilidade dos últimos '+LABEL_PERIODO[horas]+'...'
       ];
       for(let i=0;i<etapas.length;i++){
         document.getElementById('busca-status').innerHTML = '<p class="gray">'+etapas[i]+'</p>';
@@ -14575,13 +14647,12 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
       document.getElementById('btnBuscar').disabled = false;
       document.getElementById('busca-status').innerHTML = '';
       if(!d.ok){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro: '+escHtml(d.erro)+'</p>'; return; }
+      const labelPeriodo = LABEL_PERIODO[String(d.horas)] || (d.horas + 'h');
       document.getElementById('banner-resultado').innerHTML = d.total > 0
-        ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região nos últimos '+d.dias+' dias.'
-        : '🤖 A IA não encontrou interessados com esse perfil nos últimos '+d.dias+' dias.';
+        ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região nos últimos '+labelPeriodo+'.'
+        : '🤖 A IA não encontrou interessados com esse perfil nos últimos '+labelPeriodo+'.';
       document.getElementById('tabela-body').innerHTML = d.leads.map(function(l){
-        const data = l.criadoEm ? new Date(l.criadoEm).toLocaleString('pt-BR') : '—';
-        const fonteTxt = l.fonte === 'interessados_portal' ? '📥 Interessados' : '🟢 Plataforma';
-        return '<tr><td>'+escHtml(l.nome)+'</td><td>'+escHtml(l.telefone)+'</td><td>'+fonteTxt+'</td><td>'+escHtml(l.origem)+'</td><td>'+escHtml(l.status)+'</td><td>'+escHtml(l.temperatura)+'</td><td>'+escHtml(l.tipo)+'</td><td>'+escHtml(l.bairro)+'</td><td>'+escHtml(l.transacao)+'</td><td>'+(l.valorMax?escHtml(l.valorMax):'<span class="gray">—</span>')+'</td><td>'+data+'</td></tr>';
+        return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>'+escHtml(l.Origem)+'</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Condicao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Quartos?escHtml(l.Quartos):'<span class="gray">—</span>')+'</td><td>'+(l.Suites?escHtml(l.Suites):'<span class="gray">—</span>')+'</td><td>'+(l.Vagas?escHtml(l.Vagas):'<span class="gray">—</span>')+'</td><td>'+(l.Banheiros?escHtml(l.Banheiros):'<span class="gray">—</span>')+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
     } catch(e){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; document.getElementById('btnBuscar').disabled = false; }
@@ -14606,16 +14677,17 @@ app.get('/admin/demanda/bairros', authAdmin, async (req, res) => {
   } catch(e) { res.json({ ok: false, erro: e.message, bairros: [] }); }
 });
 
+const _HORAS_PERMITIDAS = [24, 72, 168, 720]; // 24h, 3d, 7d, 30d — únicas opções da tela
 app.post('/admin/demanda/buscar', authAdmin, express.json(), async (req, res) => {
   try {
-    const { estado, cidade, bairros, transacoes } = req.body;
-    if (!estado || !cidade || !Array.isArray(bairros) || !bairros.length) {
-      return res.json({ ok: false, erro: 'Informe estado, cidade e ao menos 1 bairro' });
+    const { estado, pares, transacoes, horas } = req.body;
+    if (!estado || !Array.isArray(pares) || !pares.length) {
+      return res.json({ ok: false, erro: 'Informe estado e ao menos 1 bairro' });
     }
+    const horasFinal = _HORAS_PERMITIDAS.includes(Number(horas)) ? Number(horas) : 72;
     const { buscarDemanda } = require('./services/buscaDemanda');
-    const dias = 2;
-    const leads = await buscarDemanda({ estado, cidade, bairros: bairros.slice(0, 8), transacoes: transacoes || [], dias });
-    res.json({ ok: true, total: leads.length, dias, leads });
+    const leads = await buscarDemanda({ estado, pares, transacoes: transacoes || [], horas: horasFinal });
+    res.json({ ok: true, total: leads.length, horas: horasFinal, leads });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 // ── FIM BUSCAR DEMANDA POR REGIÃO ──────────────────────────────────────────

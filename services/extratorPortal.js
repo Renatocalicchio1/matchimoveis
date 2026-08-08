@@ -83,8 +83,10 @@ async function extrairDadosAnuncio(url) {
       }
 
       const text = document.body.innerText;
+      const titulo = document.title || '';
       const indisponivel = /não está mais publicado|nao esta mais publicado|foi finalizado pelo anunciante|indispon[ií]vel|removido|não encontrado|nao encontrado|despublicado|encerrado/i.test(text);
-      return { bairro: '', cidade: '', estado: '', tipo: '', area_m2: 0, quartos: 0, suites: 0, banheiros: 0, vagas: 0, valor_imovel: 0, indisponivel, fonte: 'texto_bruto', textoPagina: text.slice(0, 2000) };
+      const bloqueado = /access denied|attention required|are you a human|verifique que voc[eê] [eé] humano|too many requests|just a moment|checking your browser|captcha/i.test(text + ' ' + titulo);
+      return { bairro: '', cidade: '', estado: '', tipo: '', area_m2: 0, quartos: 0, suites: 0, banheiros: 0, vagas: 0, valor_imovel: 0, indisponivel, bloqueado, titulo, fonte: 'texto_bruto', textoPagina: text.slice(0, 2000) };
     });
 
     await page.close();

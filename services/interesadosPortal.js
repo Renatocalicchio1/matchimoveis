@@ -158,12 +158,23 @@ async function processarInteresados(filePath, opts = {}) {
     if (_chave(sucursal).includes('rankim')) continue; // já entra pelo webhook global
 
     const urlAnuncio = l['Url anúncio'] || '';
-    let extraido = null, extraidoErro = '';
+    let extraido = null, extraidoErro = '', extraidoOk = false;
     if (enriquecerLimite > 0 && enriquecidos < enriquecerLimite && urlAnuncio) {
       const { extrairDadosAnuncio } = require('./extratorPortal');
       const r = await extrairDadosAnuncio(urlAnuncio);
       enriquecidos++;
-      if (r.ok) extraido = r; else extraidoErro = r.erro || 'falhou';
+      if (r.ok && r.fonte === 'avisoInfo') {
+        extraido = r; extraidoOk = true;
+      } else if (r.ok) {
+        // página abriu mas não achou os dados estruturados (avisoInfo) —
+        // ainda aproveita o texto da página pro fallback por regex, mas não
+        // marca como "enriquecido com sucesso" (senão o ⚠️ vira 🔍 mentiroso)
+        extraido = r;
+        extraidoErro = r.bloqueado ? 'página bloqueou o acesso (anti-bot) — título: ' + (r.titulo || '?')
+          : 'anúncio abriu mas sem dados estruturados (avisoInfo não encontrado) — título: ' + (r.titulo || '?');
+      } else {
+        extraidoErro = r.erro || 'falhou';
+      }
     }
 
     const estado = normalizarEstadoBR((extraido && extraido.estado) || l['Estado'] || '');
@@ -208,7 +219,7 @@ async function processarInteresados(filePath, opts = {}) {
       Observacoes: [l['Mensagem'], l['Título'], l['Url anúncio']].filter(Boolean).join(' | '),
       // campos extras (não fazem parte do modelo, mas são úteis pra revisar o match)
       categoria, sucursal, idAnuncio: l['Id anúncio'] || '', codigo: l['Código'] || '', data: l['Data'] || '',
-      enriquecidoPeloPortal: !!extraido, erroEnriquecimento: extraidoErro,
+      enriquecidoPeloPortal: extraidoOk, erroEnriquecimento: extraidoErro,
       corretores: candidatos.map(c => ({ userId: c.userId, nome: nomePorId[c.userId] || c.userId, totalImoveis: c.total, nivel: c.nivel }))
     });
   }

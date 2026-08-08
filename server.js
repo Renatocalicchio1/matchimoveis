@@ -14577,6 +14577,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .passo ul{list-style:none;margin:0;padding:0}
   .passo ul li{font-size:12px;color:var(--sec);line-height:1.6;padding-left:14px;position:relative}
   .passo ul li::before{content:'•';position:absolute;left:0;color:var(--babu);font-weight:bold}
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:12px 0 8px}
+  .feature{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;border-left:3px solid var(--babu)}
+  .feature-ic{font-size:22px;margin-bottom:8px}
+  .feature h3{font-size:13px;margin:0 0 4px;color:var(--ink)}
+  .feature p{font-size:12px;color:var(--sec);margin:0;line-height:1.5}
   .combos{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:14px 0}
   .combo{background:#fff;border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s,transform .15s}
   .combo:hover{border-color:var(--babu);transform:translateY(-2px)}
@@ -14690,6 +14695,16 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       <button id="btnComprar" onclick="finalizarCompra()">Ir para pagamento →</button>
       <p class="gray" style="font-size:11px;margin-top:10px">🔒 Pagamento seguro pelo Mercado Pago • Compra única, sem mensalidade automática. Sua conta MatchImóveis é criada agora e os leads da sua busca são entregues assim que o pagamento for aprovado — <strong>mas ficam disponíveis pra qualquer corretor até lá.</strong></p>
     </div>
+  </div>
+
+  <h2 class="secao">Tudo que vem junto com sua conta — não é só as leads</h2>
+  <div class="features-grid">
+    <div class="feature"><div class="feature-ic">🏠</div><h3>Match automático</h3><p>A IA cruza cada lead nova com a sua carteira e já indica o imóvel certo pra oferecer.</p></div>
+    <div class="feature"><div class="feature-ic">📅</div><h3>Agenda a visita pra você</h3><p>A IA ajuda a marcar e confirmar a visita com o cliente, sem trocar 20 mensagens no WhatsApp.</p></div>
+    <div class="feature"><div class="feature-ic">📸</div><h3>Posts automáticos pro Instagram</h3><p>A IA gera os posts dos seus imóveis prontos — é só revisar e publicar.</p></div>
+    <div class="feature"><div class="feature-ic">🎁</div><h3>Indique e ganhe bônus</h3><p>Seu link de indicação te dá créditos de bônus toda vez que quem você indicou recarrega.</p></div>
+    <div class="feature"><div class="feature-ic">💰</div><h3>Você não paga comissão na venda</h3><p>O que você vende é 100% seu — a MatchImóveis não fica com parte da sua comissão.</p></div>
+    <div class="feature"><div class="feature-ic">🤝</div><h3>Rede de parceria</h3><p>Mais de 70.000 imóveis de outros corretores em São Paulo pra você também oferecer.</p></div>
   </div>
 
   <h2 class="secao">Como funciona</h2>

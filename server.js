@@ -14533,8 +14533,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .hero{background:linear-gradient(135deg,var(--rausch),var(--arches));border-radius:14px;padding:28px 24px;margin:16px 0;color:#fff}
   .hero h1{margin:0 0 8px;font-size:24px;color:#fff}
   .hero p{margin:0;font-size:14px;opacity:.95;max-width:820px;line-height:1.5}
-  .hero-bullets{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 24px}
-  .hero-bullets li{font-size:13px;font-weight:600;line-height:1.4}
   h1{color:var(--rausch);font-size:20px}
   h2.secao{font-size:16px;color:var(--ink);margin:28px 0 4px}
   .box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0}
@@ -14571,19 +14569,10 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .proof-bar strong{color:var(--rausch)}
   .trust-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin:24px 0 12px;padding:14px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--sec);font-weight:600;text-align:center}
   .por-lead{font-size:11px;color:var(--sec);margin-top:2px}
-  .passos{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:12px 0 8px}
-  .passo{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px}
-  .passo .num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:999px;background:var(--babu);color:#fff;font-weight:bold;font-size:11px;margin-bottom:6px}
-  .passo h3{font-size:11.5px;margin:0 0 5px;line-height:1.25}
-  .passo p{font-size:11px;color:var(--sec);margin:0;line-height:1.4}
-  .passo ul{list-style:none;margin:0;padding:0}
-  .passo ul li{font-size:10.5px;color:var(--sec);line-height:1.45;padding-left:12px;position:relative}
-  .passo ul li::before{content:'•';position:absolute;left:0;color:var(--babu);font-weight:bold}
-  .features-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin:12px 0 8px}
-  .feature{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;border-left:3px solid var(--babu)}
-  .feature-ic{font-size:17px;margin-bottom:5px}
-  .feature h3{font-size:11.5px;margin:0 0 4px;color:var(--ink);line-height:1.25}
-  .feature p{font-size:10.5px;color:var(--sec);margin:0;line-height:1.4}
+  .hero-tags{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px}
+  .hero-tags span{font-size:12px;font-weight:600}
+  .features-strip{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 12px;margin:28px 0 0}
+  .features-strip span{background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap}
   .combos{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:14px 0}
   .combo{background:#fff;border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s,transform .15s}
   .combo:hover{border-color:var(--babu);transform:translateY(-2px)}
@@ -14598,13 +14587,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .signup-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:14px;max-width:420px}
   .signup-box .combo-escolhido{background:var(--bg);border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px}
   @media (max-width:1100px){
-    .passos{grid-template-columns:repeat(3,1fr)}
-    .features-grid{grid-template-columns:repeat(4,1fr)}
     .campos-geo{grid-template-columns:1fr 1fr}
   }
   @media (max-width:760px){
-    .passos{grid-template-columns:repeat(2,1fr)}
-    .features-grid{grid-template-columns:repeat(2,1fr)}
     .campos-geo{grid-template-columns:1fr;gap:0}
   }
   @media (max-width:600px){
@@ -14613,8 +14598,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     .hero{padding:18px 16px;border-radius:10px}
     .hero h1{font-size:19px}
     .hero p{font-size:13px}
-    .passos{grid-template-columns:1fr;gap:10px}
-    .features-grid{grid-template-columns:1fr}
     .campos-geo{grid-template-columns:1fr;gap:0}
     select,input[type=text],input[type=email],input[type=password]{max-width:100%}
     .chips{max-width:100%}
@@ -14631,50 +14614,16 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   ${bodyOpen}
   ${isAdmin ? '' : '<div class="topbar-logo"><div class="mark">M</div><div class="nome">Match<span>Imóveis</span></div></div>'}
   <div class="hero">
-    <h1>📍 Buscar Demanda por Região</h1>
-    <p>Descubra agora quantos clientes reais a IA MatchImóveis já encontrou na sua região — e leve esses leads pra sua conta hoje mesmo.</p>
-    <ul class="hero-bullets">
-      <li>✅ Leads reais entregues direto na sua conta — não é só crédito</li>
-      <li>✅ Suba sua carteira via XML (ou cadastro manual) em minutos</li>
-      <li>✅ A IA direciona automaticamente cada lead pro seu imóvel certo</li>
-      <li>✅ Acesso completo: assistente IA, agendamento de visitas e gestão de leads</li>
-    </ul>
+    <h1>📍 Quantos clientes reais tem na sua região agora?</h1>
+    <p>Busque abaixo, veja o número na hora e leve os leads pra sua conta hoje.</p>
+    <div class="hero-tags"><span>✅ Leads reais, não é crédito</span><span>✅ Sem comissão</span><span>✅ Acesso completo à plataforma</span></div>
   </div>
   ${disponiveis.total > 0 ? `<div class="proof-bar">
-    <span>🔥 <strong>${disponiveis.total.toLocaleString('pt-BR')}</strong> leads reais disponíveis agora na base</span>
+    <span>🔥 <strong>${disponiveis.total.toLocaleString('pt-BR')}</strong> disponíveis agora</span>
     ${disponiveis.recentes24h > 0 ? `<span>⏱ <strong>${disponiveis.recentes24h.toLocaleString('pt-BR')}</strong> chegaram nas últimas 24h</span>` : ''}
-    <span>⚡ saem da lista assim que outro corretor compra</span>
+    <span>⚡ somem da lista assim que alguém compra</span>
   </div>` : ''}
 
-  <h2 class="secao" style="margin-top:18px">Como funciona</h2>
-  <div class="passos">
-    <div class="passo"><span class="num">1</span><h3>Busque sua região</h3><ul>
-      <li>Escolha estado, cidades e bairros</li>
-      <li>A IA cruza com a base MatchImóveis na hora</li>
-    </ul></div>
-    <div class="passo"><span class="num">2</span><h3>Escolha um combo</h3><ul>
-      <li>Já indicamos o ideal pra quantidade encontrada</li>
-      <li>Passou do tamanho? Sobe pro próximo sozinho</li>
-    </ul></div>
-    <div class="passo"><span class="num">3</span><h3>Crie sua conta e pague</h3><ul>
-      <li>Nome, email, celular e senha</li>
-      <li>Checkout seguro pelo Mercado Pago</li>
-    </ul></div>
-    <div class="passo"><span class="num">4</span><h3>Já entra com leads na sua conta</h3><ul>
-      <li>Pagamento aprovado, leads aparecem na hora</li>
-      <li>Prontos pra trabalhar, sem espera</li>
-    </ul></div>
-    <div class="passo"><span class="num">5</span><h3>Suba seus imóveis via XML</h3><ul>
-      <li>Importe seu feed de portal (ou cadastre manual)</li>
-      <li>Carteira pronta pra receber leads</li>
-    </ul></div>
-    <div class="passo"><span class="num">6</span><h3>A IA direciona pro seu imóvel</h3><ul>
-      <li>Toda lead nova é cruzada com sua carteira</li>
-      <li>Match aponta o imóvel certo automaticamente</li>
-    </ul></div>
-  </div>
-
-  <h2 class="secao" style="margin-top:8px">👇 Veja quantos tem na sua região agora</h2>
   <div class="box">
     <div class="campos-geo">
       <div class="campo">
@@ -14743,16 +14692,15 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     </div>
   </div>
 
-  <h2 class="secao">Tudo que vem junto com sua conta — não é só as leads</h2>
-  <div class="features-grid">
-    <div class="feature"><div class="feature-ic">🏠</div><h3>Match automático</h3><p>A IA cruza cada lead nova com a sua carteira e já indica o imóvel certo pra oferecer.</p></div>
-    <div class="feature"><div class="feature-ic">📅</div><h3>Agenda a visita pra você</h3><p>A IA ajuda a marcar e confirmar a visita com o cliente, sem trocar 20 mensagens no WhatsApp.</p></div>
-    <div class="feature"><div class="feature-ic">📸</div><h3>Posts automáticos pro Instagram</h3><p>A IA gera os posts dos seus imóveis prontos — é só revisar e publicar.</p></div>
-    <div class="feature"><div class="feature-ic">🎁</div><h3>Indique e ganhe bônus</h3><p>Seu link de indicação te dá créditos de bônus toda vez que quem você indicou recarrega.</p></div>
-    <div class="feature"><div class="feature-ic">💰</div><h3>Você não paga comissão na venda</h3><p>O que você vende é 100% seu — a MatchImóveis não fica com parte da sua comissão.</p></div>
-    <div class="feature"><div class="feature-ic">🤝</div><h3>Rede de parceria</h3><p>Mais de 300.000 imóveis de outros corretores em todo o Brasil pra você também oferecer.</p></div>
-    <div class="feature"><div class="feature-ic">🖼️</div><h3>Vitrine automática</h3><p>A IA monta uma vitrine com os imóveis mais compatíveis pra cada lead, sem você montar nada na mão.</p></div>
-    <div class="feature"><div class="feature-ic">📲</div><h3>Disparo de vitrine no WhatsApp</h3><p>A vitrine vai direto pro WhatsApp do cliente, pronta pra ele escolher e agendar a visita.</p></div>
+  <div class="features-strip">
+    <span>🏠 Match automático</span>
+    <span>📅 Agenda visita</span>
+    <span>📸 Posts pro Instagram</span>
+    <span>🎁 Indicação com bônus</span>
+    <span>💰 Sem comissão</span>
+    <span>🤝 +300 mil imóveis no Brasil</span>
+    <span>🖼️ Vitrine automática</span>
+    <span>📲 Disparo por WhatsApp</span>
   </div>
 
   <div class="trust-bar">

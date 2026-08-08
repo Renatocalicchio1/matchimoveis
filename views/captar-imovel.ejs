@@ -181,6 +181,7 @@ input:focus,select:focus{outline:none;border-color:#FF385C}
 const userId = '<%= userId %>';
 const leadIdInicial = '<%= leadId %>';
 const _destino = leadIdInicial && leadIdInicial !== userId ? leadIdInicial : userId;
+const _imovelExistente = <%- imovelExistente ? JSON.stringify(imovelExistente).replace(/</g, '\\u003c') : 'null' %>;
 
 let _transacao = '';
 let _leadId = '';
@@ -188,6 +189,46 @@ let _imovelId = '';
 
 function mostrar(id){
   ['step1','step2','step3','step4','step5','step6'].forEach(s => document.getElementById(s).style.display = (s===id ? 'block' : 'none'));
+}
+
+// Veio do email "seu anúncio está pronto, revise" — já sabemos quem é e o que
+// já foi respondido, então pula a tela 1 e pré-preenche o resto: o
+// proprietário só completa o que ainda está faltando, não digita tudo de novo.
+if (_imovelExistente) {
+  _leadId = _imovelExistente.leadOrigemId || '';
+  _imovelId = _imovelExistente.id || '';
+  _transacao = _imovelExistente.transacao || '';
+
+  const _propExist = _imovelExistente.proprietario || {};
+  document.getElementById('s1-nome').value = _propExist.nome || '';
+  if (_propExist.celular || _propExist.telefone) document.getElementById('s1-celular').value = _propExist.celular || _propExist.telefone;
+  document.getElementById('s1-email').value = _propExist.email || '';
+
+  document.getElementById('s2-tipo').value = _imovelExistente.tipo || '';
+  document.getElementById('s2-cep').value = _imovelExistente.cep || '';
+  document.getElementById('s2-rua').value = _imovelExistente.endereco || '';
+  document.getElementById('s2-bairro').value = _imovelExistente.bairro || '';
+  document.getElementById('s2-cidade-uf').value = [_imovelExistente.cidade, _imovelExistente.estado].filter(Boolean).join(' / ');
+  document.getElementById('s2-numero').value = _imovelExistente.numero || '';
+  document.getElementById('s2-complemento').value = _imovelExistente.complemento || '';
+  if (_imovelExistente.bairro || _imovelExistente.endereco) {
+    document.getElementById('cep-resultado').style.display = 'block';
+    document.getElementById('btn-step2-continuar').removeAttribute('disabled');
+  }
+
+  const _tipoExist = (_imovelExistente.tipo || '').toLowerCase();
+  const _isTerrenoExist = _tipoExist.includes('terreno') || _tipoExist.includes('área rural') || _tipoExist.includes('area rural');
+  document.getElementById('campos-comodos').style.display = _isTerrenoExist ? 'none' : 'block';
+  document.getElementById('step3-titulo').textContent = _isTerrenoExist ? 'Só falta a área do terreno' : 'Um pouco mais sobre o imóvel';
+  document.getElementById('s3-quartos').value = _imovelExistente.quartos || '';
+  document.getElementById('s3-suites').value = _imovelExistente.suites || '';
+  document.getElementById('s3-banheiros').value = _imovelExistente.banheiros || '';
+  document.getElementById('s3-vagas').value = _imovelExistente.vagas || '';
+  document.getElementById('s3-area').value = _imovelExistente.area_m2 || '';
+
+  document.getElementById('s4-valor').value = _imovelExistente.valor_imovel || '';
+
+  mostrar('step2');
 }
 
 async function selecionar(op){

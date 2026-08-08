@@ -2240,6 +2240,32 @@ app.get('/politica-privacidade', (req,res)=>{
   res.render('politica-privacidade');
 });
 
+// Descadastro de email — link no rodapé de todo email da plataforma (lead,
+// cliente/proprietário e corretor). Um clique já processa (padrão de
+// unsubscribe de 1 clique), sem exigir login.
+app.get('/email/descadastrar', async (req, res) => {
+  try {
+    const email = String(req.query.email || '').trim();
+    if (email) {
+      const { descadastrarEmail } = require('./services/email');
+      await descadastrarEmail(email);
+    }
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Descadastro de email — MatchImóveis</title>
+    <style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#f9fafb;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;margin:0}
+    .card{background:#fff;border-radius:16px;padding:32px;max-width:420px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+    .icon{font-size:40px;margin-bottom:12px}
+    h2{color:#111827;font-size:18px;margin:0 0 8px}
+    p{color:#6b7280;font-size:14px;margin:0}</style></head><body>
+    <div class="card"><div class="icon">✅</div><h2>Pronto!</h2><p>Você não vai mais receber emails da MatchImóveis neste endereço.</p></div>
+    </body></html>`);
+  } catch(e) {
+    console.error('[email/descadastrar]', e.message);
+    res.status(500).send('Erro ao processar. Tente novamente em instantes.');
+  }
+});
+
 app.get('/termos-de-uso', (req,res)=>{
   res.render('termos-de-uso');
 });
@@ -15733,7 +15759,27 @@ app.get('/captar/:userId', async (req, res) => {
   let telPreenchido = String(req.query.tel || '').replace(/\D/g, '');
   if (telPreenchido.length >= 12 && telPreenchido.startsWith('55')) telPreenchido = telPreenchido.slice(2);
   const userId = _limparParamBotaoUrl(req.params.userId);
-  res.render('captar-imovel', { leadId: '', userId, telPreenchido });
+
+  // ?imovelId= vem do email "seu anúncio está pronto, revise" — carrega o imóvel
+  // já cadastrado (e o dono é o mesmo userId da URL, senão ignora) pra pular a
+  // tela 1 (já sabemos quem é/o que quer) e pré-preencher as telas seguintes com
+  // o que já foi respondido, em vez do proprietário ter que digitar tudo de novo.
+  let imovelExistente = null;
+  const imovelIdQuery = String(req.query.imovelId || '').trim();
+  if (imovelIdQuery) {
+    try {
+      const { query: _qCapExist } = require('./services/db');
+      const { rowToImovel: _rtiCapExist } = require('./services/salvarImovel');
+      const { rows } = await _qCapExist('SELECT * FROM imoveis WHERE id=$1 LIMIT 1', [imovelIdQuery]);
+      if (rows[0]) {
+        const im = _rtiCapExist(rows[0]);
+        const donoImovel = im.userId || im.user_id || im.usuarioId || im.codigoUsuario;
+        if (donoImovel === userId) imovelExistente = im;
+      }
+    } catch (e) { console.error('[captar imovelExistente]', e.message); }
+  }
+
+  res.render('captar-imovel', { leadId: '', userId, telPreenchido, imovelExistente });
 });
 
 app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
@@ -15896,7 +15942,7 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
           const _uidCap = atualizado.userId || atualizado.user_id;
           const _telProp = (atualizado.proprietario && (atualizado.proprietario.celular || atualizado.proprietario.telefone)) || '';
           const _linkVerAnuncio = 'https://matchimoveis.ia.br/imovel/' + imovelId;
-          const _linkEditar = 'https://matchimoveis.ia.br/captar/' + _uidCap + (_telProp ? ('?tel=' + encodeURIComponent(_telProp)) : '');
+          const _linkEditar = 'https://matchimoveis.ia.br/captar/' + _uidCap + '?imovelId=' + encodeURIComponent(imovelId) + (_telProp ? ('&tel=' + encodeURIComponent(_telProp)) : '');
           const _nomePropEmail = (atualizado.proprietario && atualizado.proprietario.nome) || '';
           const _pctRevisao = _cppRevisao(atualizado);
           const _corPct = _pctRevisao >= 67 ? '#16a34a' : _pctRevisao >= 34 ? '#f59e0b' : '#dc2626';

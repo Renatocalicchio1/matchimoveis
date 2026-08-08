@@ -14468,7 +14468,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   </style></head><body>
   ${bodyOpen}
   <h1>📍 Buscar Demanda por Região</h1>
-  <p class="gray">Escolhe um recorte geográfico e vê quantos interessados a IA MatchImóveis já identificou com esse perfil recentemente. Telefone e email ficam ocultos — em breve dá pra desbloquear comprando a lead.</p>
+  <p class="gray">Escolhe um recorte geográfico e vê quantos interessados a IA MatchImóveis já identificou com esse perfil recentemente. Telefone e email ficam ocultos — em breve dá pra desbloquear comprando as leads. E não é só isso: ao comprar, sua conta vem com acesso completo à plataforma MatchImóveis — carteira de imóveis, gestão de leads, assistente com IA, agendamento de visitas e todas as outras funcionalidades, não é só a entrega das leads.</p>
   <div class="box">
     <label>Estado</label>
     <select id="estado"><option value="">Selecione...</option>${optionsEstados}</select>

@@ -362,4 +362,13 @@ async function importarInteresados() {
   return { linhasDistribuidas: idsImportados.length, leadsGerenciadas, linhasSemMatch };
 }
 
-module.exports = { processarInteresados, processarEArmazenar, listarLinhasSalvas, importarInteresados, classificarCategoria, normalizarTransacao };
+// Apaga tudo que já foi acumulado — usado antes de recomeçar do zero com
+// uma planilha nova (senão o dedup por linha idêntica trataria os dados
+// antigos como já vistos e a tela ficaria misturando leitura velha com nova).
+async function limparTudo() {
+  await _garantirTabelaInteresados();
+  const r = await query('DELETE FROM interessados_portal');
+  return { apagadas: r.rowCount || 0 };
+}
+
+module.exports = { processarInteresados, processarEArmazenar, listarLinhasSalvas, importarInteresados, limparTudo, classificarCategoria, normalizarTransacao };

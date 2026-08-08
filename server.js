@@ -14175,6 +14175,7 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
   <div class="box">
     <input type="file" id="arquivo" accept=".xlsx,.xls,.csv">
     <button onclick="preview()">👁️ Analisar planilha</button>
+    <button class="sec" onclick="limparTudo()" style="background:#dc2626">🗑️ Limpar tudo (começar do zero)</button>
     <p class="gray" style="font-size:11px;margin:8px 0 0">Preenchimento vem só do título/mensagem da própria planilha — abrir o link do anúncio pra buscar mais dados foi desativado (o portal bloqueia acesso automatizado via Cloudflare, não dá pra contornar de forma confiável).</p>
     <div id="preview-status"></div>
   </div>
@@ -14249,6 +14250,18 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
     } catch(e){}
   }
   carregarAcumulado();
+
+  async function limparTudo(){
+    if(!confirm('Apaga TODO o acumulado de Interessados de Portal (não afeta leads já distribuídas pras contas). Confirma?')) return;
+    try {
+      const r = await fetch('/admin/interesados/limpar', { method:'POST' });
+      const d = await r.json();
+      if(!d.ok){ alert('Erro: '+d.erro); return; }
+      alert(d.apagadas+' linha(s) apagada(s). Pode subir a planilha nova.');
+      document.getElementById('resultado-box').style.display = 'none';
+      document.getElementById('tabela-body').innerHTML = '';
+    } catch(e){ alert('Erro ao limpar.'); }
+  }
 
   async function preview(){
     const f = document.getElementById('arquivo').files[0];
@@ -14366,6 +14379,14 @@ app.post('/admin/interesados/importar', authAdmin, express.json(), async (req, r
     res.json({ ok: true, ...resultado });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
+
+app.post('/admin/interesados/limpar', authAdmin, async (req, res) => {
+  try {
+    const { limparTudo } = require('./services/interesadosPortal');
+    const resultado = await limparTudo();
+    res.json({ ok: true, ...resultado });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
 // ── FIM INTERESSADOS DE PORTAL ────────────────────────────────────────────────
 
 // ── BUSCAR DEMANDA POR REGIÃO ──────────────────────────────────────────────
@@ -14373,15 +14394,22 @@ app.post('/admin/interesados/importar', authAdmin, express.json(), async (req, r
 // quiser + venda/aluguel e mostra quantos leads reais da plataforma
 // (mapaIntencao, o mesmo que o motor de match usa) bateram esse perfil nos
 // últimos 2 dias.
-app.get('/admin/demanda', authAdmin, (req, res) => {
+// Página compartilhada por /admin/demanda (com login) e /demanda (pública,
+// pra mandar link pra fora) — mesma tela, só muda o prefixo das chamadas de
+// API e se vem com a moldura do admin (sidebar) ou uma moldura simples.
+function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   const { listarEstados } = require('./services/buscaDemanda');
   const optionsEstados = listarEstados().map(e => '<option value="'+e.sigla+'">'+e.sigla+' — '+e.nome+'</option>').join('');
-  res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
+  const shellCss = isAdmin ? _adminShellCss() : '';
+  const contentCss = isAdmin ? '.admin-content{max-width:960px}' : '.public-content{max-width:960px;margin:0 auto;padding:24px 16px}';
+  const bodyOpen = isAdmin ? `<div class="admin-app">${_adminSidebarHtml('demanda')}<main class="admin-content">` : '<div class="public-content">';
+  const bodyClose = isAdmin ? '</main></div>' : '</div>';
+  return `<!DOCTYPE html><html><head><meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Buscar Demanda por Região</title>
   <style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;padding:0}
-  ${_adminShellCss()}
-  .admin-content{max-width:960px}
+  ${shellCss}
+  ${contentCss}
   h1{color:#FF385C;font-size:20px}
   .box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0}
   label{display:block;font-size:12px;font-weight:bold;color:#374151;margin:12px 0 4px}
@@ -14406,9 +14434,9 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
   .banner-ia{background:#111827;color:#fff;border-radius:8px;padding:16px 20px;margin:16px 0;font-size:15px}
   .banner-ia strong{color:#4ade80}
   </style></head><body>
-  <div class="admin-app">${_adminSidebarHtml('demanda')}<main class="admin-content">
+  ${bodyOpen}
   <h1>📍 Buscar Demanda por Região</h1>
-  <p class="gray">Escolhe um recorte geográfico e vê quantos leads reais da plataforma (qualquer origem) a IA já identificou com esse perfil nos últimos 2 dias — usa o mesmo mapa de intenção que o motor de match de verdade usa.</p>
+  <p class="gray">Escolhe um recorte geográfico e vê quantos interessados reais a IA já identificou com esse perfil recentemente. Telefone e email ficam ocultos — em breve dá pra desbloquear comprando a lead.</p>
   <div class="box">
     <label>Estado</label>
     <select id="estado"><option value="">Selecione...</option>${optionsEstados}</select>
@@ -14431,13 +14459,9 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
       <label><input type="checkbox" id="chkAluguel" checked> Aluguel</label>
     </div>
 
-    <label>Período</label>
-    <div class="chk-transacao">
-      <label><input type="radio" name="periodo" value="24"> Últimas 24h</label>
-      <label><input type="radio" name="periodo" value="72" checked> Últimos 3 dias</label>
-      <label><input type="radio" name="periodo" value="168"> Últimos 7 dias</label>
-      <label><input type="radio" name="periodo" value="720"> Últimos 30 dias</label>
-    </div>
+    <label>Período (dias atrás, até hoje)</label>
+    <input type="number" id="periodoDias" min="1" max="30" value="7" style="max-width:100px">
+    <span class="gray" style="font-size:11px">máx. 30 dias</span>
 
     <button id="btnBuscar" onclick="buscarDemanda()" disabled>🔎 Buscar Demanda</button>
     <div id="busca-status"></div>
@@ -14475,7 +14499,7 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
     document.getElementById('btnBuscar').disabled = true;
     if(!estado) { cidadeInput.placeholder = 'Selecione o estado primeiro...'; return; }
     cidadeInput.placeholder = 'Carregando...';
-    const r = await fetch('/admin/demanda/cidades?estado='+encodeURIComponent(estado));
+    const r = await fetch('${apiPrefix}/cidades?estado='+encodeURIComponent(estado));
     const d = await r.json();
     _cidadesNomes = d.cidades || [];
     cidadeInput.placeholder = 'Digite pra buscar a cidade (' + _cidadesNomes.length + ')...';
@@ -14542,7 +14566,7 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
     const estado = document.getElementById('estado').value;
     if(!_bairrosPorCidade[cidade]){
       document.getElementById('bairros-lista').innerHTML = '<span class="gray" style="font-size:12px">Carregando bairros de '+escHtml(cidade)+'...</span>';
-      const r = await fetch('/admin/demanda/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
+      const r = await fetch('${apiPrefix}/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
       const d = await r.json();
       _bairrosPorCidade[cidade] = d.bairros || [];
     }
@@ -14616,28 +14640,28 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
 
   document.getElementById('filtroBairro').addEventListener('input', renderBairros);
 
-  const LABEL_PERIODO = { '24': '24 horas', '72': '3 dias', '168': '7 dias', '720': '30 dias' };
-
   async function buscarDemanda(){
     const estado = document.getElementById('estado').value;
     const pares = _paresMarcados;
     const transacoes = [];
     if(document.getElementById('chkVenda').checked) transacoes.push('venda');
     if(document.getElementById('chkAluguel').checked) transacoes.push('aluguel');
-    const horas = document.querySelector('input[name=periodo]:checked').value;
+    let dias = parseInt(document.getElementById('periodoDias').value, 10) || 7;
+    dias = Math.min(30, Math.max(1, dias));
+    document.getElementById('periodoDias').value = dias;
     if(!estado || !pares.length){ alert('Escolhe estado e pelo menos 1 bairro.'); return; }
     if(!transacoes.length){ alert('Marca Venda, Aluguel ou os dois.'); return; }
     document.getElementById('resultado-box').style.display = 'none';
     document.getElementById('btnBuscar').disabled = true;
     try {
-      const fetchPromise = fetch('/admin/demanda/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, horas }) }).then(function(r){ return r.json(); });
+      const fetchPromise = fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias }) }).then(function(r){ return r.json(); });
       // Não estoura o resultado na hora — mostra a IA "pensando" em etapas,
       // dá pra sentir que ela está de fato cruzando as fontes antes de responder.
       const etapas = [
         '🤖 Entendendo o perfil buscado ('+pares.length+' bairro'+(pares.length>1?'s':'')+' em '+_cidadesSelecionadas.length+' cidade'+(_cidadesSelecionadas.length>1?'s':'')+', '+transacoes.join(' + ')+')...',
         '🔎 Cruzando com os leads reais da plataforma...',
         '📥 Cruzando com a planilha de Interessados de Portal...',
-        '🧠 Calculando compatibilidade dos últimos '+LABEL_PERIODO[horas]+'...'
+        '🧠 Calculando compatibilidade dos últimos '+dias+' dia'+(dias>1?'s':'')+'...'
       ];
       for(let i=0;i<etapas.length;i++){
         document.getElementById('busca-status').innerHTML = '<p class="gray">'+etapas[i]+'</p>';
@@ -14647,7 +14671,7 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
       document.getElementById('btnBuscar').disabled = false;
       document.getElementById('busca-status').innerHTML = '';
       if(!d.ok){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro: '+escHtml(d.erro)+'</p>'; return; }
-      const labelPeriodo = LABEL_PERIODO[String(d.horas)] || (d.horas + 'h');
+      const labelPeriodo = d.dias+' dia'+(d.dias>1?'s':'');
       document.getElementById('banner-resultado').innerHTML = d.total > 0
         ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região nos últimos '+labelPeriodo+'.'
         : '🤖 A IA não encontrou interessados com esse perfil nos últimos '+labelPeriodo+'.';
@@ -14658,38 +14682,53 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
     } catch(e){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; document.getElementById('btnBuscar').disabled = false; }
   }
   </script>
-  </main></div></body></html>`);
+  ${bodyClose}</body></html>`;
+}
+
+app.get('/admin/demanda', authAdmin, (req, res) => {
+  res.send(_paginaBuscaDemanda({ apiPrefix: '/admin/demanda', isAdmin: true }));
+});
+// Versão pública — sem login, pra mandar o link pra fora. Telefone/email
+// já vêm mascarados de buscarDemanda() independente de quem chama, então
+// não tem PII de verdade exposta aqui.
+app.get('/demanda', (req, res) => {
+  res.send(_paginaBuscaDemanda({ apiPrefix: '/demanda', isAdmin: false }));
 });
 
-app.get('/admin/demanda/cidades', authAdmin, async (req, res) => {
+async function _handlerDemandaCidades(req, res) {
   try {
     const { listarCidades } = require('./services/buscaDemanda');
     const cidades = await listarCidades(req.query.estado || '');
     res.json({ ok: true, cidades });
   } catch(e) { res.json({ ok: false, erro: e.message, cidades: [] }); }
-});
+}
+app.get('/admin/demanda/cidades', authAdmin, _handlerDemandaCidades);
+app.get('/demanda/cidades', _handlerDemandaCidades);
 
-app.get('/admin/demanda/bairros', authAdmin, async (req, res) => {
+async function _handlerDemandaBairros(req, res) {
   try {
     const { listarBairros } = require('./services/buscaDemanda');
     const bairros = await listarBairros(req.query.estado || '', req.query.cidade || '');
     res.json({ ok: true, bairros });
   } catch(e) { res.json({ ok: false, erro: e.message, bairros: [] }); }
-});
+}
+app.get('/admin/demanda/bairros', authAdmin, _handlerDemandaBairros);
+app.get('/demanda/bairros', _handlerDemandaBairros);
 
-const _HORAS_PERMITIDAS = [24, 72, 168, 720]; // 24h, 3d, 7d, 30d — únicas opções da tela
-app.post('/admin/demanda/buscar', authAdmin, express.json(), async (req, res) => {
+async function _handlerDemandaBuscar(req, res) {
   try {
-    const { estado, pares, transacoes, horas } = req.body;
+    const { estado, pares, transacoes, dias } = req.body;
     if (!estado || !Array.isArray(pares) || !pares.length) {
       return res.json({ ok: false, erro: 'Informe estado e ao menos 1 bairro' });
     }
-    const horasFinal = _HORAS_PERMITIDAS.includes(Number(horas)) ? Number(horas) : 72;
+    const diasFinal = Math.min(30, Math.max(1, parseInt(dias, 10) || 7));
     const { buscarDemanda } = require('./services/buscaDemanda');
-    const leads = await buscarDemanda({ estado, pares, transacoes: transacoes || [], horas: horasFinal });
-    res.json({ ok: true, total: leads.length, horas: horasFinal, leads });
+    const leads = await buscarDemanda({ estado, pares, transacoes: transacoes || [], horas: diasFinal * 24 });
+    res.json({ ok: true, total: leads.length, dias: diasFinal, leads });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
-});
+}
+app.post('/admin/demanda/buscar', authAdmin, express.json(), _handlerDemandaBuscar);
+app.post('/demanda/buscar', express.json(), _handlerDemandaBuscar);
 // ── FIM BUSCAR DEMANDA POR REGIÃO ──────────────────────────────────────────
 
 app.get('/admin/campanha', authAdmin, async (req, res) => {

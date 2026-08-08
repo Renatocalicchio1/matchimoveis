@@ -152,13 +152,32 @@ async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo
   return encontrados;
 }
 
-// horas: janela de tempo (24 / 72 / 168 / 720 = 24h, 3d, 7d, 30d — escolhida
-// na tela, não é fixo). Busca em 2 fontes: leads reais da plataforma
-// (mapaIntencao) + planilha acumulada de Interessados de Portal.
+// Contato mascarado — a lead é um "achado" da busca, mas telefone/email só
+// aparecem de verdade depois que existir o fluxo de compra de leads (ainda
+// não construído). Mostra o suficiente pra provar que o dado existe, sem
+// vazar o contato de verdade — inclusive na versão pública da tela.
+function _mascararTelefone(v) {
+  const s = String(v || '').replace(/\D/g, '');
+  if (!s) return '';
+  if (s.length <= 4) return '••••';
+  return s.slice(0, 2) + '•'.repeat(Math.max(3, s.length - 4)) + s.slice(-2);
+}
+function _mascararEmail(v) {
+  const s = String(v || '');
+  const at = s.indexOf('@');
+  if (at < 1) return s ? '••••' : '';
+  const nome = s.slice(0, at);
+  const dominio = s.slice(at);
+  return nome.slice(0, 1) + '•'.repeat(Math.max(3, nome.length - 1)) + dominio;
+}
+
+// horas: janela de tempo em horas (dias escolhidos na tela × 24, máx. 30
+// dias = 720h). Busca em 2 fontes: leads reais da plataforma (mapaIntencao)
+// + planilha acumulada de Interessados de Portal.
 // pares: [{cidade, bairro}] — sem limite de quantidade nem de quantas
 // cidades diferentes; casa por par exato (evita, ex., "Centro" de uma
 // cidade bater com "Centro" de outra quando o usuário só marcou uma delas).
-async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 72 }) {
+async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 168 }) {
   const siglaAlvo = _sigla(estado);
   const chavesAlvo = new Set(pares.map(p => _norm(p.cidade) + '|||' + _norm(p.bairro)).filter(k => k !== '|||'));
   const transacoesAlvo = new Set((transacoes.length ? transacoes : ['venda', 'aluguel']).map(_norm));
@@ -167,7 +186,9 @@ async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 72 }
     _buscarNosLeadsPlataforma(siglaAlvo, chavesAlvo, transacoesAlvo, horas),
     _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas)
   ]);
-  return [...doLeads, ...doPortal].sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+  return [...doLeads, ...doPortal]
+    .sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm))
+    .map(l => ({ ...l, Telefone: _mascararTelefone(l.Telefone), Email: _mascararEmail(l.Email) }));
 }
 
 module.exports = { listarEstados, listarCidades, listarBairros, buscarDemanda };

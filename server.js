@@ -544,7 +544,8 @@ const _ADMIN_NAV = [
     { key: 'online', href: '/admin/online', icon: '🟢', label: 'Usuários Online' },
     { key: 'status', href: '/admin/status', icon: '🖥️', label: 'Status do Sistema' },
     { key: 'leads-auditoria', href: '/admin/leads-auditoria', icon: '🕵️', label: 'Auditoria de Leads' },
-    { key: 'buscar-imovel', href: '/admin/buscar-imovel', icon: '🔍', label: 'Buscar/Excluir Imóvel' }
+    { key: 'buscar-imovel', href: '/admin/buscar-imovel', icon: '🔍', label: 'Buscar/Excluir Imóvel' },
+    { key: 'interesados', href: '/admin/interesados', icon: '📥', label: 'Interessados de Portal' }
   ]},
   { sec: 'Comunicação', items: [
     { key: 'campanha', href: '/admin/campanha', icon: '📧', label: 'Campanha Email' },
@@ -14138,6 +14139,112 @@ app.get('/campanha/track/click/:id', async (req, res) => {
   try { if(req.params.id !== 'teste') await require('./services/db').query("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'clique' FROM campanha_contatos WHERE id=$1", [req.params.id]); } catch(e){}
   res.redirect('https://www.matchimoveis.ia.br');
 });
+
+// ── INTERESSADOS DE PORTAL (ImovelWeb) — distribuição pra contas de corretores ──
+// Planilha bruta de "interessados" do portal (todas as imobiliárias, não só a
+// MatchImóveis). A Sucursal "Rankim" é ignorada aqui (já entra pelo webhook
+// global). As demais linhas são casadas por bairro/cidade+categoria+operação
+// contra os imóveis já cadastrados dos corretores, até 3 contas por lead —
+// sem match nenhum, a linha fica de fora (ver services/interesadosPortal.js).
+app.get('/admin/interesados', authAdmin, (req, res) => {
+  res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Interessados de Portal</title>
+  <style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;padding:0}
+  ${_adminShellCss()}
+  .admin-content{max-width:960px}
+  h1{color:#FF385C;font-size:20px}
+  .box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0}
+  button{background:#FF385C;color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin:4px 4px 4px 0}
+  button.sec{background:#111827}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+  th{text-align:left;padding:6px;background:#f3f4f6;font-size:10px;text-transform:uppercase;color:#6b7280}
+  td{padding:6px;border-bottom:1px solid #f3f4f6;vertical-align:top}
+  .gray{color:#6b7280}.green{color:#16a34a}.red{color:#dc2626}
+  .stat{display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 16px;margin:4px 6px 4px 0;text-align:center;min-width:70px}
+  .stat strong{display:block;font-size:20px;color:#FF385C}
+  </style></head><body>
+  <div class="admin-app">${_adminSidebarHtml('interesados')}<main class="admin-content">
+  <h1>📥 Interessados de Portal</h1>
+  <p class="gray">Sobe a planilha de "interessados" exportada do portal (ImovelWeb) — a linha da Sucursal Rankim é ignorada (já entra pelo webhook global). As outras são distribuídas pra até 3 corretores que já atuam no bairro/cidade daquele interesse.</p>
+  <div class="box">
+    <input type="file" id="arquivo" accept=".xlsx,.xls,.csv">
+    <button onclick="preview()">👁️ Analisar planilha</button>
+    <div id="preview-status"></div>
+  </div>
+  <div class="box" id="resultado-box" style="display:none">
+    <div id="resumo"></div>
+    <button id="btnImportar" class="sec" onclick="importar()" style="display:none">🚀 Distribuir leads pras contas</button>
+    <div id="import-status"></div>
+    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Local</th><th>Categoria</th><th>Corretores (até 3)</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+  </div>
+  <script>
+  let _arquivoPath = '';
+  async function preview(){
+    const f = document.getElementById('arquivo').files[0];
+    if(!f){ alert('Selecione um arquivo'); return; }
+    document.getElementById('preview-status').innerHTML = '<p>⏳ Analisando...</p>';
+    const fd = new FormData(); fd.append('arquivo', f);
+    try {
+      const r = await fetch('/admin/interesados/preview', { method:'POST', body:fd });
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('preview-status').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
+      document.getElementById('preview-status').innerHTML = '';
+      _arquivoPath = d.arquivo;
+      const comMatch = d.linhas.filter(l => l.corretores.length > 0).length;
+      const semMatch = d.linhas.length - comMatch;
+      document.getElementById('resumo').innerHTML =
+        '<div class="stat"><strong>'+d.totalLinhasArquivo+'</strong>Na planilha</div>'+
+        '<div class="stat"><strong>'+d.linhas.length+'</strong>Processadas (fora Rankim)</div>'+
+        '<div class="stat green"><strong>'+comMatch+'</strong>Com corretor</div>'+
+        '<div class="stat red"><strong>'+semMatch+'</strong>Sem match</div>';
+      document.getElementById('tabela-body').innerHTML = d.linhas.map(function(l){
+        const corretoresTxt = l.corretores.length ? l.corretores.map(function(c){ return c.nome+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>';
+        return '<tr><td>'+(l.nome||'-')+'<br><span class="gray">'+(l.telefone||'')+'</span></td><td>'+(l.bairro?l.bairro+', ':'')+(l.cidade||'-')+'/'+(l.estado||'')+'</td><td>'+l.categoria+' · '+l.transacao+'</td><td>'+corretoresTxt+'</td></tr>';
+      }).join('');
+      document.getElementById('resultado-box').style.display = 'block';
+      document.getElementById('btnImportar').style.display = comMatch>0 ? 'inline-block' : 'none';
+    } catch(e){ document.getElementById('preview-status').innerHTML = '<p class="red">Erro ao analisar.</p>'; }
+  }
+  async function importar(){
+    if(!confirm('Confirma distribuir essas leads pras contas dos corretores? Isso cria leads de verdade.')) return;
+    const btn = document.getElementById('btnImportar');
+    btn.disabled = true;
+    document.getElementById('import-status').innerHTML = '<p>⏳ Distribuindo...</p>';
+    try {
+      const r = await fetch('/admin/interesados/importar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ arquivo: _arquivoPath }) });
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('import-status').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; btn.disabled=false; return; }
+      document.getElementById('import-status').innerHTML = '<p class="green">✅ '+d.leadsGerenciadas+' leads criadas em contas de corretores. ('+d.linhasSemMatch+' linhas sem match, '+d.linhasIgnoradasRankim+' ignoradas da Rankim)</p>';
+    } catch(e){ document.getElementById('import-status').innerHTML = '<p class="red">Erro ao distribuir.</p>'; btn.disabled=false; }
+  }
+  </script>
+  </main></div></body></html>`);
+});
+
+app.post('/admin/interesados/preview', authAdmin, upload.single('arquivo'), async (req, res) => {
+  try {
+    if (!req.file) return res.json({ ok: false, erro: 'Nenhum arquivo enviado' });
+    const { processarInteresados } = require('./services/interesadosPortal');
+    const XLSX = require('xlsx');
+    const wb = XLSX.readFile(req.file.path);
+    const totalLinhasArquivo = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' }).length;
+    const linhas = await processarInteresados(req.file.path);
+    res.json({ ok: true, linhas, totalLinhasArquivo, arquivo: req.file.path });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/interesados/importar', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { arquivo } = req.body;
+    if (!arquivo) return res.json({ ok: false, erro: 'Arquivo não informado — refaça o preview' });
+    const { importarInteresados } = require('./services/interesadosPortal');
+    const resultado = await importarInteresados(arquivo);
+    res.json({ ok: true, ...resultado });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+// ── FIM INTERESSADOS DE PORTAL ────────────────────────────────────────────────
 
 app.get('/admin/campanha', authAdmin, async (req, res) => {
   const { statsBase, statsTracking, statsCadastrados } = require('./services/campanha');

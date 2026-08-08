@@ -14632,6 +14632,35 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     ${disponiveis.recentes24h > 0 ? `<span>⏱ <strong>${disponiveis.recentes24h.toLocaleString('pt-BR')}</strong> chegaram nas últimas 24h</span>` : ''}
     <span>⚡ saem da lista assim que outro corretor compra</span>
   </div>` : ''}
+
+  <h2 class="secao" style="margin-top:18px">Como funciona</h2>
+  <div class="passos">
+    <div class="passo"><span class="num">1</span><h3>Busque sua região</h3><ul>
+      <li>Escolha estado, cidades e bairros</li>
+      <li>A IA cruza com a base MatchImóveis na hora</li>
+    </ul></div>
+    <div class="passo"><span class="num">2</span><h3>Escolha um combo</h3><ul>
+      <li>Já indicamos o ideal pra quantidade encontrada</li>
+      <li>Passou do tamanho? Sobe pro próximo sozinho</li>
+    </ul></div>
+    <div class="passo"><span class="num">3</span><h3>Crie sua conta e pague</h3><ul>
+      <li>Nome, email, celular e senha</li>
+      <li>Checkout seguro pelo Mercado Pago</li>
+    </ul></div>
+    <div class="passo"><span class="num">4</span><h3>Já entra com leads na sua conta</h3><ul>
+      <li>Pagamento aprovado, leads aparecem na hora</li>
+      <li>Prontos pra trabalhar, sem espera</li>
+    </ul></div>
+    <div class="passo"><span class="num">5</span><h3>Suba seus imóveis via XML</h3><ul>
+      <li>Importe seu feed de portal (ou cadastre manual)</li>
+      <li>Carteira pronta pra receber leads</li>
+    </ul></div>
+    <div class="passo"><span class="num">6</span><h3>A IA direciona pro seu imóvel</h3><ul>
+      <li>Toda lead nova é cruzada com sua carteira</li>
+      <li>Match aponta o imóvel certo automaticamente</li>
+    </ul></div>
+  </div>
+
   <h2 class="secao" style="margin-top:8px">👇 Veja quantos tem na sua região agora</h2>
   <div class="box">
     <div class="campos-geo">
@@ -14709,33 +14738,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     <div class="feature"><div class="feature-ic">📲</div><h3>Disparo de vitrine no WhatsApp</h3><p>A vitrine vai direto pro WhatsApp do cliente, pronta pra ele escolher e agendar a visita.</p></div>
   </div>
 
-  <h2 class="secao">Como funciona</h2>
-  <div class="passos">
-    <div class="passo"><span class="num">1</span><h3>Busque sua região</h3><ul>
-      <li>Escolha estado, cidades e bairros</li>
-      <li>A IA cruza com a base MatchImóveis na hora</li>
-    </ul></div>
-    <div class="passo"><span class="num">2</span><h3>Escolha um combo</h3><ul>
-      <li>Já indicamos o ideal pra quantidade encontrada</li>
-      <li>Passou do tamanho? Sobe pro próximo sozinho</li>
-    </ul></div>
-    <div class="passo"><span class="num">3</span><h3>Crie sua conta e pague</h3><ul>
-      <li>Nome, email, celular e senha</li>
-      <li>Checkout seguro pelo Mercado Pago</li>
-    </ul></div>
-    <div class="passo"><span class="num">4</span><h3>Já entra com leads na sua conta</h3><ul>
-      <li>Pagamento aprovado, leads aparecem na hora</li>
-      <li>Prontos pra trabalhar, sem espera</li>
-    </ul></div>
-    <div class="passo"><span class="num">5</span><h3>Suba seus imóveis via XML</h3><ul>
-      <li>Importe seu feed de portal (ou cadastre manual)</li>
-      <li>Carteira pronta pra receber leads</li>
-    </ul></div>
-    <div class="passo"><span class="num">6</span><h3>A IA direciona pro seu imóvel</h3><ul>
-      <li>Toda lead nova é cruzada com sua carteira</li>
-      <li>Match aponta o imóvel certo automaticamente</li>
-    </ul></div>
-  </div>
   <div class="trust-bar">
     <span>🔒 Pagamento seguro Mercado Pago</span>
     <span>🙈 Dados ocultos até a compra</span>

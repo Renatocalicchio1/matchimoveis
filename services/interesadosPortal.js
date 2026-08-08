@@ -138,50 +138,77 @@ function _buscarCorretoresCandidatos(indiceImoveis, estado, cidade, bairro, cate
   return [...porBairro, ...porCidade].slice(0, 3);
 }
 
-async function processarInteresados(filePath) {
+// opts.enriquecerLimite: quantas linhas (no máximo) tentam buscar dados
+// direto no anúncio do portal (Playwright) além do título/mensagem — cada
+// uma abre a página de verdade, é lento (alguns segundos por linha) e só
+// funciona em ambiente que consiga baixar o Chromium do Playwright, por
+// isso fica limitado e é opt-in (nunca roda sozinho, só quando pedido).
+async function processarInteresados(filePath, opts = {}) {
+  const enriquecerLimite = Math.min(opts.enriquecerLimite || 0, 30);
   const linhasBrutas = _lerPlanilha(filePath);
   const { rows: usuarios } = await query('SELECT codigo_usuario, id, nome FROM usuarios');
   const nomePorId = {};
   usuarios.forEach(u => { nomePorId[u.codigo_usuario] = u.nome; nomePorId[u.id] = u.nome; });
   const indiceImoveis = await _carregarIndiceImoveis();
 
+  let enriquecidos = 0;
   const resultado = [];
   for (const l of linhasBrutas) {
     const sucursal = l['Sucursal'] || '';
     if (_chave(sucursal).includes('rankim')) continue; // já entra pelo webhook global
 
-    const estado = normalizarEstadoBR(l['Estado'] || '');
-    const cidade = normalizarCidadeBR(estado, l['Cidade'] || '');
-    const textoLivre = [l['Título'], l['Mensagem']].filter(Boolean).join(' — ');
-    // Bairro: usa o da coluna se veio preenchido; senão tenta achar um bairro
-    // conhecido daquela cidade dentro do título/mensagem (URL do ImovelWeb é só
-    // um id numérico, não ajuda nisso).
-    const bairro = l['Bairro'] ? normalizarBairroBR(cidade, l['Bairro']) : (cidade ? buscarBairroEmTexto(cidade, textoLivre) : '');
-    const categoria = classificarCategoria(l['Tipo de imóvel'] || '');
+    const urlAnuncio = l['Url anúncio'] || '';
+    let extraido = null, extraidoErro = '';
+    if (enriquecerLimite > 0 && enriquecidos < enriquecerLimite && urlAnuncio) {
+      const { extrairDadosAnuncio } = require('./extratorPortal');
+      const r = await extrairDadosAnuncio(urlAnuncio);
+      enriquecidos++;
+      if (r.ok) extraido = r; else extraidoErro = r.erro || 'falhou';
+    }
+
+    const estado = normalizarEstadoBR((extraido && extraido.estado) || l['Estado'] || '');
+    const cidade = normalizarCidadeBR(estado, (extraido && extraido.cidade) || l['Cidade'] || '');
+    const textoLivre = [l['Título'], l['Mensagem'], extraido && extraido.textoPagina].filter(Boolean).join(' — ');
+    // Bairro: prioriza o que o extrator achou na página real; senão a coluna
+    // da planilha; senão tenta achar um bairro conhecido dentro do texto
+    // (título/mensagem/página) — URL do ImovelWeb é só um id numérico, não ajuda.
+    const bairroBruto = (extraido && extraido.bairro) || l['Bairro'] || '';
+    const bairro = bairroBruto ? normalizarBairroBR(cidade, bairroBruto) : (cidade ? buscarBairroEmTexto(cidade, textoLivre) : '');
+    const categoria = classificarCategoria((extraido && extraido.tipo) || l['Tipo de imóvel'] || '');
     const transacao = normalizarTransacao(l['Tipo de operação'] || '');
-    const atributos = extrairAtributosTexto(textoLivre);
+    const atributosTexto = extrairAtributosTexto(textoLivre);
+    const atributos = {
+      quartos: (extraido && extraido.quartos) || atributosTexto.quartos,
+      suites: (extraido && extraido.suites) || atributosTexto.suites,
+      banheiros: (extraido && extraido.banheiros) || atributosTexto.banheiros,
+      vagas: (extraido && extraido.vagas) || atributosTexto.vagas,
+      area: (extraido && extraido.area_m2) || atributosTexto.area
+    };
+    const valorExtraido = extraido && extraido.valor_imovel ? extraido.valor_imovel : 0;
 
     const candidatos = cidade ? _buscarCorretoresCandidatos(indiceImoveis, estado, cidade, bairro, categoria) : [];
 
     // Campos no mesmo formato/nome do modelo de importação de leads (GET
     // /app/modelo-leads.xlsx) — quartos/suítes/vagas/banheiros/área não vêm
     // como coluna própria do portal, então tenta extrair do título/mensagem
-    // (ex: "Apartamento 2 Quartos na Graça: 78m², 2 banheiros, 1 vaga").
+    // (ex: "Apartamento 2 Quartos na Graça: 78m², 2 banheiros, 1 vaga") ou,
+    // quando pedido, direto da página do anúncio.
     resultado.push({
       Nome: l['Nome'] || '',
       Telefone: normalizarTelefone(l['Telefone'] || l['Telefone 2'] || ''),
       Email: l['E-mail usuário'] || '',
       Origem: 'portal_imovelweb',
-      Tipo: l['Tipo de imóvel'] || '',
+      Tipo: (extraido && extraido.tipo) || l['Tipo de imóvel'] || '',
       Transacao: transacao === 'aluguel' ? 'aluguel' : 'compra',
       Condicao: '',
       Bairro: bairro, Cidade: cidade, Estado: estado,
       Quartos: atributos.quartos, Suites: atributos.suites, Vagas: atributos.vagas,
       Banheiros: atributos.banheiros, Area_max: atributos.area,
-      Valor_max: parsePreco(l['Preço']) || '',
+      Valor_max: valorExtraido || parsePreco(l['Preço']) || '',
       Observacoes: [l['Mensagem'], l['Título'], l['Url anúncio']].filter(Boolean).join(' | '),
       // campos extras (não fazem parte do modelo, mas são úteis pra revisar o match)
       categoria, sucursal, idAnuncio: l['Id anúncio'] || '', codigo: l['Código'] || '', data: l['Data'] || '',
+      enriquecidoPeloPortal: !!extraido, erroEnriquecimento: extraidoErro,
       corretores: candidatos.map(c => ({ userId: c.userId, nome: nomePorId[c.userId] || c.userId, totalImoveis: c.total, nivel: c.nivel }))
     });
   }

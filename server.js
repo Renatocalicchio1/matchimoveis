@@ -14173,6 +14173,9 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
   <div class="box">
     <input type="file" id="arquivo" accept=".xlsx,.xls,.csv">
     <button onclick="preview()">👁️ Analisar planilha</button>
+    <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#374151;margin-left:10px">
+      <input type="checkbox" id="chkEnriquecer"> 🔍 Buscar dados completos no anúncio (só as 10 primeiras — mais lento, abre a página de cada uma)
+    </label>
     <div id="preview-status"></div>
   </div>
   <div class="box" id="resultado-box" style="display:none">
@@ -14187,8 +14190,12 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
   async function preview(){
     const f = document.getElementById('arquivo').files[0];
     if(!f){ alert('Selecione um arquivo'); return; }
-    document.getElementById('preview-status').innerHTML = '<p>⏳ Analisando...</p>';
+    const enriquecer = document.getElementById('chkEnriquecer').checked;
+    document.getElementById('preview-status').innerHTML = enriquecer
+      ? '<p>⏳ Analisando e buscando dados no anúncio das 10 primeiras (pode levar 1-2 min)...</p>'
+      : '<p>⏳ Analisando...</p>';
     const fd = new FormData(); fd.append('arquivo', f);
+    if(enriquecer) fd.append('enriquecerLimite', '10');
     try {
       const r = await fetch('/admin/interesados/preview', { method:'POST', body:fd });
       const d = await r.json();
@@ -14207,10 +14214,11 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
       document.getElementById('tabela-body').innerHTML = linhasOrdenadas.map(function(l){
         const temMatch = l.corretores.length > 0;
         const corretoresTxt = temMatch ? l.corretores.map(function(c){ return escHtml(c.nome)+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>';
-        const cols = [l.Nome, l.Telefone, l.Email, l.Origem, l.Tipo, l.Transacao, l.Condicao, l.Bairro, l.Cidade, l.Estado, l.Quartos, l.Suites, l.Vagas, l.Banheiros, l.Area_max, l.Valor_max];
+        const nomeTd = escHtml(l.Nome) + (l.enriquecidoPeloPortal ? ' <span title="Dados completados direto do anúncio" style="color:#16a34a">🔍</span>' : (l.erroEnriquecimento ? ' <span title="Erro ao buscar no anúncio: '+escHtml(l.erroEnriquecimento)+'" style="color:#dc2626">⚠️</span>' : ''));
+        const cols = [l.Telefone, l.Email, l.Origem, l.Tipo, l.Transacao, l.Condicao, l.Bairro, l.Cidade, l.Estado, l.Quartos, l.Suites, l.Vagas, l.Banheiros, l.Area_max, l.Valor_max];
         const tds = cols.map(function(v){ return '<td>'+(v===''||v==null?'<span class="gray">—</span>':escHtml(v))+'</td>'; }).join('');
         const tdObs = '<td class="wrap">'+(l.Observacoes?escHtml(l.Observacoes):'<span class="gray">—</span>')+'</td>';
-        return '<tr class="'+(temMatch?'':'sem-match')+'">' + tds + tdObs + '<td class="wrap">'+corretoresTxt+'</td></tr>';
+        return '<tr class="'+(temMatch?'':'sem-match')+'"><td>'+nomeTd+'</td>' + tds + tdObs + '<td class="wrap">'+corretoresTxt+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
       document.getElementById('btnImportar').style.display = comMatch>0 ? 'inline-block' : 'none';
@@ -14239,7 +14247,8 @@ app.post('/admin/interesados/preview', authAdmin, upload.single('arquivo'), asyn
     const XLSX = require('xlsx');
     const wb = XLSX.readFile(req.file.path);
     const totalLinhasArquivo = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' }).length;
-    const linhas = await processarInteresados(req.file.path);
+    const enriquecerLimite = parseInt(req.body.enriquecerLimite) || 0;
+    const linhas = await processarInteresados(req.file.path, { enriquecerLimite });
     res.json({ ok: true, linhas, totalLinhasArquivo, arquivo: req.file.path });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });

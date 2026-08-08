@@ -14166,10 +14166,11 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
   .gray{color:#6b7280}.green{color:#16a34a}.red{color:#dc2626}
   .stat{display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 16px;margin:4px 6px 4px 0;text-align:center;min-width:70px}
   .stat strong{display:block;font-size:20px;color:#FF385C}
+  .stat.green strong{color:#16a34a}.stat.red strong{color:#dc2626}.stat.gray strong{color:#6b7280}
   </style></head><body>
   <div class="admin-app">${_adminSidebarHtml('interesados')}<main class="admin-content">
   <h1>📥 Interessados de Portal</h1>
-  <p class="gray">Sobe a planilha de "interessados" exportada do portal (ImovelWeb) — a linha da Sucursal Rankim é ignorada (já entra pelo webhook global). As outras são distribuídas pra até 3 corretores que já atuam no bairro/cidade daquele interesse.</p>
+  <p class="gray">Sobe a planilha de "interessados" exportada do portal (ImovelWeb) — a linha da Sucursal Rankim é ignorada (já entra pelo webhook global). As outras são distribuídas pra até 3 corretores que já atuam no bairro/cidade daquele interesse. A tela acumula: pode subir planilhas novas todo dia — linha idêntica em todas as colunas a uma já lida antes é descartada (dedup), diferente em qualquer coisa entra como nova.</p>
   <div class="box">
     <input type="file" id="arquivo" accept=".xlsx,.xls,.csv">
     <button onclick="preview()">👁️ Analisar planilha</button>
@@ -14197,7 +14198,57 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
   </div>
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  let _arquivoPath = '';
+
+  // Renderiza a tela acumulada (todas as leituras já feitas, persistidas no
+  // banco) — usada tanto no carregamento da página quanto depois de subir
+  // uma planilha nova ou distribuir leads.
+  function renderTabela(linhas, extraStats){
+    const comMatch = linhas.filter(l => l.corretores.length > 0 && !l.importado).length;
+    const semMatch = linhas.filter(l => l.corretores.length === 0).length;
+    const jaImportadas = linhas.filter(l => l.importado).length;
+    const comBairro = linhas.filter(l => l.Bairro).length;
+    const comQuartos = linhas.filter(l => l.Quartos).length;
+    const comBairroEQuartos = linhas.filter(l => l.Bairro && l.Quartos).length;
+    const comValor = linhas.filter(l => l.Valor_max).length;
+    const completudeMedia = linhas.length ? Math.round(100 * linhas.reduce(function(s,l){ return s + (l.Completude||0)/(l.CompletudeTotal||1); }, 0) / linhas.length) : 0;
+    document.getElementById('resumo').innerHTML =
+      (extraStats || '') +
+      '<div class="stat"><strong>'+linhas.length+'</strong>Total acumulado</div>'+
+      '<div class="stat green"><strong>'+comMatch+'</strong>Com corretor (a distribuir)</div>'+
+      '<div class="stat red"><strong>'+semMatch+'</strong>Sem match</div>'+
+      '<div class="stat gray"><strong>'+jaImportadas+'</strong>Já distribuídas</div>'+
+      '<div class="stat"><strong>'+comBairro+'</strong>Com bairro</div>'+
+      '<div class="stat"><strong>'+comQuartos+'</strong>Com quartos</div>'+
+      '<div class="stat"><strong>'+comBairroEQuartos+'</strong>Com bairro + quartos</div>'+
+      '<div class="stat"><strong>'+comValor+'</strong>Com valor</div>'+
+      '<div class="stat"><strong>'+completudeMedia+'%</strong>Completude média</div>';
+    // Mais completas primeiro; entre as com mesma completude, com corretor primeiro
+    const linhasOrdenadas = linhas.slice().sort(function(a, b){
+      return (b.Completude||0) - (a.Completude||0) || ((b.corretores.length>0) - (a.corretores.length>0));
+    });
+    document.getElementById('tabela-body').innerHTML = linhasOrdenadas.map(function(l){
+      const temMatch = l.corretores.length > 0;
+      const corretoresTxt = l.importado ? '<span class="gray">✅ já distribuída</span>'
+        : (temMatch ? l.corretores.map(function(c){ return escHtml(c.nome)+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>');
+      const nomeTd = escHtml(l.Nome) + ' <span class="gray" style="font-size:10px">('+l.Completude+'/'+l.CompletudeTotal+')</span>';
+      const cols = [l.Telefone, l.Email, l.Origem, l.Tipo, l.Transacao, l.Condicao, l.Bairro, l.Cidade, l.Estado, l.Quartos, l.Suites, l.Vagas, l.Banheiros, l.Area_max, l.Valor_max];
+      const tds = cols.map(function(v){ return '<td>'+(v===''||v==null?'<span class="gray">—</span>':escHtml(v))+'</td>'; }).join('');
+      const tdObs = '<td class="wrap">'+(l.Observacoes?escHtml(l.Observacoes):'<span class="gray">—</span>')+'</td>';
+      return '<tr class="'+(temMatch&&!l.importado?'':'sem-match')+'"><td>'+nomeTd+'</td>' + tds + tdObs + '<td class="wrap">'+corretoresTxt+'</td></tr>';
+    }).join('');
+    document.getElementById('resultado-box').style.display = 'block';
+    document.getElementById('btnImportar').style.display = comMatch>0 ? 'inline-block' : 'none';
+  }
+
+  async function carregarAcumulado(){
+    try {
+      const r = await fetch('/admin/interesados/lista');
+      const d = await r.json();
+      if(d.ok && d.linhas.length) renderTabela(d.linhas);
+    } catch(e){}
+  }
+  carregarAcumulado();
+
   async function preview(){
     const f = document.getElementById('arquivo').files[0];
     if(!f){ alert('Selecione um arquivo'); return; }
@@ -14207,42 +14258,9 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
       const r = await fetch('/admin/interesados/preview', { method:'POST', body:fd });
       const d = await r.json();
       if(!d.ok){ document.getElementById('preview-status').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
-      document.getElementById('preview-status').innerHTML = '';
-      _arquivoPath = d.arquivo;
-      const comMatch = d.linhas.filter(l => l.corretores.length > 0).length;
-      const semMatch = d.linhas.length - comMatch;
-      // Quantas linhas conseguimos preencher em cada campo (só por texto,
-      // nunca abrindo o link) e a completude média — pra saber o quanto a
-      // extração por título/mensagem está de fato rendendo.
-      const comBairro = d.linhas.filter(l => l.Bairro).length;
-      const comQuartos = d.linhas.filter(l => l.Quartos).length;
-      const comBairroEQuartos = d.linhas.filter(l => l.Bairro && l.Quartos).length;
-      const comValor = d.linhas.filter(l => l.Valor_max).length;
-      const completudeMedia = d.linhas.length ? Math.round(100 * d.linhas.reduce(function(s,l){ return s + (l.Completude||0)/(l.CompletudeTotal||1); }, 0) / d.linhas.length) : 0;
-      document.getElementById('resumo').innerHTML =
-        '<div class="stat"><strong>'+d.totalLinhasArquivo+'</strong>Na planilha</div>'+
-        '<div class="stat"><strong>'+d.linhas.length+'</strong>Processadas (fora Rankim)</div>'+
-        '<div class="stat green"><strong>'+comMatch+'</strong>Com corretor</div>'+
-        '<div class="stat red"><strong>'+semMatch+'</strong>Sem match</div>'+
-        '<div class="stat"><strong>'+comBairro+'</strong>Com bairro</div>'+
-        '<div class="stat"><strong>'+comQuartos+'</strong>Com quartos</div>'+
-        '<div class="stat"><strong>'+comBairroEQuartos+'</strong>Com bairro + quartos</div>'+
-        '<div class="stat"><strong>'+comValor+'</strong>Com valor</div>'+
-        '<div class="stat"><strong>'+completudeMedia+'%</strong>Completude média</div>';
-      // Já vem ordenado por completude (mais completa primeiro) do servidor —
-      // só reordena aqui de novo pra garantir, caso a lista seja re-renderizada
-      const linhasOrdenadas = d.linhas.slice().sort(function(a, b){ return (b.Completude||0) - (a.Completude||0); });
-      document.getElementById('tabela-body').innerHTML = linhasOrdenadas.map(function(l){
-        const temMatch = l.corretores.length > 0;
-        const corretoresTxt = temMatch ? l.corretores.map(function(c){ return escHtml(c.nome)+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>';
-        const nomeTd = escHtml(l.Nome) + ' <span class="gray" style="font-size:10px">('+l.Completude+'/'+l.CompletudeTotal+')</span>';
-        const cols = [l.Telefone, l.Email, l.Origem, l.Tipo, l.Transacao, l.Condicao, l.Bairro, l.Cidade, l.Estado, l.Quartos, l.Suites, l.Vagas, l.Banheiros, l.Area_max, l.Valor_max];
-        const tds = cols.map(function(v){ return '<td>'+(v===''||v==null?'<span class="gray">—</span>':escHtml(v))+'</td>'; }).join('');
-        const tdObs = '<td class="wrap">'+(l.Observacoes?escHtml(l.Observacoes):'<span class="gray">—</span>')+'</td>';
-        return '<tr class="'+(temMatch?'':'sem-match')+'"><td>'+nomeTd+'</td>' + tds + tdObs + '<td class="wrap">'+corretoresTxt+'</td></tr>';
-      }).join('');
-      document.getElementById('resultado-box').style.display = 'block';
-      document.getElementById('btnImportar').style.display = comMatch>0 ? 'inline-block' : 'none';
+      document.getElementById('preview-status').innerHTML =
+        '<p class="green">✅ Planilha lida: '+d.totalLinhasArquivo+' linhas, '+d.linhasNestaLeitura+' processadas (fora Rankim) — <strong>'+d.novas+' novas</strong> adicionadas ao acumulado, '+d.duplicadas+' já existiam (descartadas, linha idêntica em todas as colunas) e não entraram de novo.</p>';
+      renderTabela(d.linhas);
     } catch(e){ document.getElementById('preview-status').innerHTML = '<p class="red">Erro ao analisar.</p>'; }
   }
   async function testarUrl(){
@@ -14293,30 +14311,40 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
     } catch(e){ document.getElementById('teste-status').innerHTML = '<p class="red">Erro ao testar.</p>'; }
   }
   async function importar(){
-    if(!confirm('Confirma distribuir essas leads pras contas dos corretores? Isso cria leads de verdade.')) return;
+    if(!confirm('Confirma distribuir as leads (ainda não distribuídas) do acumulado pras contas dos corretores? Isso cria leads de verdade.')) return;
     const btn = document.getElementById('btnImportar');
     btn.disabled = true;
     document.getElementById('import-status').innerHTML = '<p>⏳ Distribuindo...</p>';
     try {
-      const r = await fetch('/admin/interesados/importar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ arquivo: _arquivoPath }) });
+      const r = await fetch('/admin/interesados/importar', { method:'POST', headers:{'Content-Type':'application/json'}, body: '{}' });
       const d = await r.json();
-      if(!d.ok){ document.getElementById('import-status').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; btn.disabled=false; return; }
-      document.getElementById('import-status').innerHTML = '<p class="green">✅ '+d.leadsGerenciadas+' leads criadas em contas de corretores. ('+d.linhasSemMatch+' linhas sem match, '+d.linhasIgnoradasRankim+' ignoradas da Rankim)</p>';
+      btn.disabled = false;
+      if(!d.ok){ document.getElementById('import-status').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
+      document.getElementById('import-status').innerHTML = '<p class="green">✅ '+d.leadsGerenciadas+' leads criadas em contas de corretores ('+d.linhasDistribuidas+' linhas distribuídas, '+d.linhasSemMatch+' seguem sem match).</p>';
+      carregarAcumulado();
     } catch(e){ document.getElementById('import-status').innerHTML = '<p class="red">Erro ao distribuir.</p>'; btn.disabled=false; }
   }
   </script>
   </main></div></body></html>`);
 });
 
+app.get('/admin/interesados/lista', authAdmin, async (req, res) => {
+  try {
+    const { listarLinhasSalvas } = require('./services/interesadosPortal');
+    const linhas = await listarLinhasSalvas();
+    res.json({ ok: true, linhas });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
 app.post('/admin/interesados/preview', authAdmin, upload.single('arquivo'), async (req, res) => {
   try {
     if (!req.file) return res.json({ ok: false, erro: 'Nenhum arquivo enviado' });
-    const { processarInteresados } = require('./services/interesadosPortal');
+    const { processarEArmazenar } = require('./services/interesadosPortal');
     const XLSX = require('xlsx');
     const wb = XLSX.readFile(req.file.path);
     const totalLinhasArquivo = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' }).length;
-    const linhas = await processarInteresados(req.file.path);
-    res.json({ ok: true, linhas, totalLinhasArquivo, arquivo: req.file.path });
+    const { novas, duplicadas, linhasNestaLeitura, linhas } = await processarEArmazenar(req.file.path);
+    res.json({ ok: true, linhas, totalLinhasArquivo, linhasNestaLeitura, novas, duplicadas });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
@@ -14332,10 +14360,8 @@ app.post('/admin/interesados/testar-url', authAdmin, express.json(), async (req,
 
 app.post('/admin/interesados/importar', authAdmin, express.json(), async (req, res) => {
   try {
-    const { arquivo } = req.body;
-    if (!arquivo) return res.json({ ok: false, erro: 'Arquivo não informado — refaça o preview' });
     const { importarInteresados } = require('./services/interesadosPortal');
-    const resultado = await importarInteresados(arquivo);
+    const resultado = await importarInteresados();
     res.json({ ok: true, ...resultado });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });

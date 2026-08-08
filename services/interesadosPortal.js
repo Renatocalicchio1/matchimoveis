@@ -146,6 +146,95 @@ function _calcularCompletude(linha) {
   return _CAMPOS_COMPLETUDE.reduce((n, campo) => n + (linha[campo] ? 1 : 0), 0);
 }
 
+// Armazenamento persistente: a tela fica acumulando o que já foi lido —
+// planilhas novas são "mineradas" diariamente e só o que for REALMENTE novo
+// entra. Dedup NÃO é por nome/telefone (a mesma pessoa pode se interessar
+// por 2 imóveis diferentes = 2 leads de verdade) — é por TODAS as colunas
+// da linha: só descarta se vier uma linha idêntica em tudo à que já existe.
+const _CAMPOS_DEDUP = ['Nome', 'Telefone', 'Email', 'Origem', 'Tipo', 'Transacao', 'Condicao', 'Bairro', 'Cidade', 'Estado', 'Quartos', 'Suites', 'Vagas', 'Banheiros', 'Area_max', 'Valor_max', 'Observacoes'];
+function _chaveDedup(linha) {
+  return _CAMPOS_DEDUP.map(c => _chave(String(linha[c] == null ? '' : linha[c]))).join('|~|');
+}
+
+async function _garantirTabelaInteresados() {
+  await query(`CREATE TABLE IF NOT EXISTS interessados_portal (
+    id SERIAL PRIMARY KEY,
+    chave_dedup TEXT UNIQUE NOT NULL,
+    nome TEXT, telefone TEXT, email TEXT, origem TEXT, tipo TEXT, transacao TEXT, condicao TEXT,
+    bairro TEXT, cidade TEXT, estado TEXT,
+    quartos INT, suites INT, vagas INT, banheiros INT, area_max NUMERIC, valor_max NUMERIC,
+    observacoes TEXT,
+    categoria TEXT, sucursal TEXT, id_anuncio TEXT, codigo TEXT, data_original TEXT,
+    completude INT, completude_total INT,
+    corretores JSONB,
+    importado_em TIMESTAMP,
+    criado_em TIMESTAMP DEFAULT NOW()
+  )`);
+}
+
+function _linhaParaRowDB(l) {
+  return [
+    _chaveDedup(l), l.Nome || '', l.Telefone || '', l.Email || '', l.Origem || '', l.Tipo || '', l.Transacao || '', l.Condicao || '',
+    l.Bairro || '', l.Cidade || '', l.Estado || '',
+    l.Quartos || null, l.Suites || null, l.Vagas || null, l.Banheiros || null, l.Area_max || null, l.Valor_max || null,
+    l.Observacoes || '',
+    l.categoria || '', l.sucursal || '', l.idAnuncio || '', l.codigo || '', l.data || '',
+    l.Completude || 0, l.CompletudeTotal || _CAMPOS_COMPLETUDE.length,
+    JSON.stringify(l.corretores || [])
+  ];
+}
+
+function _rowDBParaLinha(r) {
+  return {
+    id: r.id,
+    Nome: r.nome, Telefone: r.telefone, Email: r.email, Origem: r.origem, Tipo: r.tipo, Transacao: r.transacao, Condicao: r.condicao,
+    Bairro: r.bairro, Cidade: r.cidade, Estado: r.estado,
+    Quartos: r.quartos || '', Suites: r.suites || '', Vagas: r.vagas || '', Banheiros: r.banheiros || '', Area_max: r.area_max || '', Valor_max: r.valor_max || '',
+    Observacoes: r.observacoes,
+    categoria: r.categoria, sucursal: r.sucursal, idAnuncio: r.id_anuncio, codigo: r.codigo, data: r.data_original,
+    Completude: r.completude, CompletudeTotal: r.completude_total,
+    corretores: r.corretores || [],
+    importado: !!r.importado_em
+  };
+}
+
+// Insere só as linhas que ainda não existem (chave_dedup = todas as
+// colunas da linha) — ON CONFLICT DO NOTHING resolve isso atomicamente,
+// sem precisar comparar linha a linha em JS antes.
+async function _salvarLinhasNovas(linhas) {
+  await _garantirTabelaInteresados();
+  let novas = 0, duplicadas = 0;
+  for (const l of linhas) {
+    const vals = _linhaParaRowDB(l);
+    const r = await query(
+      `INSERT INTO interessados_portal
+        (chave_dedup, nome, telefone, email, origem, tipo, transacao, condicao, bairro, cidade, estado,
+         quartos, suites, vagas, banheiros, area_max, valor_max, observacoes,
+         categoria, sucursal, id_anuncio, codigo, data_original, completude, completude_total, corretores)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)
+       ON CONFLICT (chave_dedup) DO NOTHING RETURNING id`,
+      vals
+    );
+    if (r.rows.length) novas++; else duplicadas++;
+  }
+  return { novas, duplicadas };
+}
+
+async function listarLinhasSalvas() {
+  await _garantirTabelaInteresados();
+  const { rows } = await query('SELECT * FROM interessados_portal ORDER BY completude DESC, id DESC');
+  return rows.map(_rowDBParaLinha);
+}
+
+// Processa 1 upload + salva no acumulado (dedup) + devolve a TELA inteira
+// já acumulada (todas as leituras anteriores + o que entrou de novo agora).
+async function processarEArmazenar(filePath) {
+  const processadas = await processarInteresados(filePath);
+  const { novas, duplicadas } = await _salvarLinhasNovas(processadas);
+  const linhas = await listarLinhasSalvas();
+  return { novas, duplicadas, linhasNestaLeitura: processadas.length, linhas };
+}
+
 // Nunca depende de abrir o link do anúncio (o portal usa Cloudflare pra
 // bloquear acesso automatizado — confirmado, não dá pra contornar de forma
 // confiável/legítima) — todo o preenchimento vem só do que a própria
@@ -206,16 +295,23 @@ async function processarInteresados(filePath) {
   return resultado;
 }
 
-async function importarInteresados(filePath) {
+// Distribui as linhas acumuladas (de todas as leituras já feitas) que AINDA
+// não foram importadas — importado_em marca o que já virou lead, pra rodar
+// de novo depois (com mais planilhas somadas) nunca duplicar quem já foi.
+async function importarInteresados() {
   const { salvarLead } = require('./salvarLead');
-  const processadas = await processarInteresados(filePath);
-  let leadsGerenciadas = 0, linhasSemMatch = 0, linhasIgnoradasRankim = 0;
-  const totalLinhasArquivo = _lerPlanilha(filePath).length;
+  await _garantirTabelaInteresados();
+  const { rows } = await query(
+    `SELECT * FROM interessados_portal WHERE importado_em IS NULL AND jsonb_array_length(COALESCE(corretores, '[]'::jsonb)) > 0`
+  );
+  const pendentes = rows.map(_rowDBParaLinha);
+  let leadsGerenciadas = 0;
+  const idsImportados = [];
 
-  for (const p of processadas) {
-    if (!p.corretores.length) { linhasSemMatch++; continue; }
+  for (const p of pendentes) {
+    let algumSalvo = false;
     for (const c of p.corretores) {
-      const idLead = 'INT-' + (p.idAnuncio || Date.now()) + '-' + c.userId;
+      const idLead = 'INT-' + (p.idAnuncio || p.id) + '-' + c.userId;
       try {
         await salvarLead({
           id: idLead,
@@ -235,12 +331,18 @@ async function importarInteresados(filePath) {
           },
           _lote: true
         });
-        leadsGerenciadas++;
+        leadsGerenciadas++; algumSalvo = true;
       } catch (e) { console.error('[interesadosPortal] erro ao salvar lead', idLead, e.message); }
     }
+    if (algumSalvo) idsImportados.push(p.id);
   }
-  linhasIgnoradasRankim = totalLinhasArquivo - processadas.length;
-  return { totalLinhasArquivo, linhasProcessadas: processadas.length, linhasIgnoradasRankim, linhasSemMatch, leadsGerenciadas };
+  if (idsImportados.length) {
+    await query('UPDATE interessados_portal SET importado_em = NOW() WHERE id = ANY($1)', [idsImportados]);
+  }
+  const linhasSemMatch = (await query(
+    `SELECT COUNT(*)::int AS n FROM interessados_portal WHERE importado_em IS NULL AND jsonb_array_length(COALESCE(corretores, '[]'::jsonb)) = 0`
+  )).rows[0].n;
+  return { linhasDistribuidas: idsImportados.length, leadsGerenciadas, linhasSemMatch };
 }
 
-module.exports = { processarInteresados, importarInteresados, classificarCategoria, normalizarTransacao };
+module.exports = { processarInteresados, processarEArmazenar, listarLinhasSalvas, importarInteresados, classificarCategoria, normalizarTransacao };

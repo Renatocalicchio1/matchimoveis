@@ -6,40 +6,69 @@
 // cai pra regex no texto senão). Usado por services/interesadosPortal.js
 // pra completar bairro/quartos/suítes/banheiros/área/valor a partir da URL
 // do anúncio quando a planilha não trouxer isso pronto.
-// Fixa o navegador dentro de node_modules (mesmo caminho usado no
-// postinstall com PLAYWRIGHT_BROWSERS_PATH=0) — no Render o build e o
-// runtime podem resolver $HOME/.cache de forma diferente, então sem isso
-// o navegador baixado no build "some" em produção.
+//
+// Diferença importante do script local: aqui o navegador roda num IP de
+// datacenter (Render), que portais como ImovelWeb costumam bloquear/desafiar
+// com proteção anti-bot — headless puro é detectável (navigator.webdriver,
+// falta de plugins, etc). Por isso: contexto com fingerprint de navegador
+// normal (UA, idioma, plugins fake), espera ativa pelo avisoInfo em vez de
+// timeout fixo, e 1 retry automático se a 1ª tentativa não achar os dados.
 process.env.PLAYWRIGHT_BROWSERS_PATH = process.env.PLAYWRIGHT_BROWSERS_PATH || '0';
 
+const _USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36';
+
 let _browserPromise = null;
-async function _getBrowser() {
+let _contextPromise = null;
+
+async function _getContext() {
   if (!_browserPromise) {
     const playwright = require('playwright');
     _browserPromise = playwright.chromium.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled']
     }).catch(e => { _browserPromise = null; throw e; });
   }
-  return _browserPromise;
+  if (!_contextPromise) {
+    _contextPromise = (async () => {
+      const browser = await _browserPromise;
+      const context = await browser.newContext({
+        userAgent: _USER_AGENT,
+        locale: 'pt-BR',
+        viewport: { width: 1366, height: 768 },
+        extraHTTPHeaders: { 'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8' }
+      });
+      await context.addInitScript(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+        Object.defineProperty(navigator, 'languages', { get: () => ['pt-BR', 'pt'] });
+        Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+        window.chrome = window.chrome || { runtime: {} };
+      });
+      return context;
+    })().catch(e => { _contextPromise = null; throw e; });
+  }
+  return _contextPromise;
 }
 
 async function fecharBrowser() {
   if (_browserPromise) {
     try { const b = await _browserPromise; await b.close(); } catch (e) {}
-    _browserPromise = null;
   }
+  _browserPromise = null;
+  _contextPromise = null;
 }
 
-async function extrairDadosAnuncio(url) {
-  if (!url) return { ok: false, erro: 'sem url' };
-  let browser, page;
+async function _tentarExtrair(url) {
+  let page;
   try {
-    browser = await _getBrowser();
-    page = await browser.newPage();
+    const context = await _getContext();
+    page = await context.newPage();
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
-    await page.waitForSelector('body', { timeout: 12000 });
-    await page.waitForTimeout(2500);
+    try {
+      await page.waitForFunction(() => typeof avisoInfo !== 'undefined' && !!avisoInfo, { timeout: 8000 });
+    } catch (e) {
+      // avisoInfo não apareceu a tempo — segue e tenta aproveitar o texto da página
+    }
+    await page.waitForTimeout(500);
 
     const data = await page.evaluate(() => {
       const clean = (v = '') => String(v).replace(/\s+/g, ' ').trim();
@@ -95,6 +124,21 @@ async function extrairDadosAnuncio(url) {
     try { if (page) await page.close(); } catch (_) {}
     return { ok: false, erro: e.message };
   }
+}
+
+async function extrairDadosAnuncio(url) {
+  if (!url) return { ok: false, erro: 'sem url' };
+  let r = await _tentarExtrair(url);
+  if (!(r.ok && r.fonte === 'avisoInfo')) {
+    // 1 retry — pode ter sido só timing de hidratação da página, ou a 1ª
+    // tentativa caiu numa checagem anti-bot que a 2ª (mesmo contexto, já
+    // com cookies) passa direto
+    await new Promise(res => setTimeout(res, 1500));
+    const r2 = await _tentarExtrair(url);
+    if (r2.ok && r2.fonte === 'avisoInfo') return r2;
+    if (!r.ok && r2.ok) return r2;
+  }
+  return r;
 }
 
 module.exports = { extrairDadosAnuncio, fecharBrowser };

@@ -170,6 +170,14 @@ function _mascararEmail(v) {
   const dominio = s.slice(at);
   return nome.slice(0, 1) + '•'.repeat(Math.max(3, nome.length - 1)) + dominio;
 }
+// Mantém o primeiro nome + inicial do sobrenome (ex: "Maria S.") — dá pra
+// reconhecer que é uma pessoa de verdade sem expor o nome completo.
+function _mascararNome(v) {
+  const partes = String(v || '').trim().split(/\s+/).filter(Boolean);
+  if (!partes.length) return 'Sem nome';
+  if (partes.length === 1) return partes[0];
+  return partes[0] + ' ' + partes[partes.length - 1].slice(0, 1) + '.';
+}
 
 // horas: janela de tempo em horas (dias escolhidos na tela × 24, máx. 30
 // dias = 720h). Busca em 2 fontes: leads reais da plataforma (mapaIntencao)
@@ -188,7 +196,7 @@ async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 168 
   ]);
   return [...doLeads, ...doPortal]
     .sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm))
-    .map(l => ({ ...l, Telefone: _mascararTelefone(l.Telefone), Email: _mascararEmail(l.Email) }));
+    .map(l => ({ ...l, Nome: _mascararNome(l.Nome), Telefone: _mascararTelefone(l.Telefone), Email: _mascararEmail(l.Email) }));
 }
 
 module.exports = { listarEstados, listarCidades, listarBairros, buscarDemanda };

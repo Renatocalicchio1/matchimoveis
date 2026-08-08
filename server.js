@@ -14511,9 +14511,13 @@ app.post('/admin/interesados/limpar', authAdmin, async (req, res) => {
 // pra mandar link pra fora) — mesma tela, só muda o prefixo das chamadas de
 // API e se vem com a moldura do admin (sidebar) ou uma moldura simples.
 async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
-  const { listarEstadosComLead } = require('./services/buscaDemanda');
+  const { listarEstadosComLead, contarDisponiveis } = require('./services/buscaDemanda');
   const estados = await listarEstadosComLead();
   const optionsEstados = estados.map(e => '<option value="'+e.sigla+'">'+e.sigla+' — '+e.nome+'</option>').join('');
+  // Prova/urgência real (não inventada) — total disponível agora e quantos
+  // chegaram nas últimas 24h, nacional. Se vier 0 (base vazia/erro), a barra
+  // some em vez de mostrar número falso.
+  const disponiveis = await contarDisponiveis();
   const shellCss = isAdmin ? _adminShellCss() : '';
   const contentCss = isAdmin ? '.admin-content{max-width:960px}' : '.public-content{max-width:960px;margin:0 auto;padding:24px 16px}';
   const bodyOpen = isAdmin ? `<div class="admin-app">${_adminSidebarHtml('demanda')}<main class="admin-content">` : '<div class="public-content">';
@@ -14554,11 +14558,17 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .chip button{all:unset;cursor:pointer;color:#6b7280;font-weight:bold;padding:0 6px;line-height:1;margin-top:0}
   .chip button:hover{color:var(--rausch)}
   .gray{color:var(--sec)}.green{color:#16a34a}.red{color:#dc2626}
+  .confirm-check{color:#16a34a;font-weight:bold;text-transform:none;font-size:11px}
+  select.ok,input.ok{border-color:#16a34a!important;background:#f0fdf4}
   table{border-collapse:collapse;font-size:12px;margin-top:12px;min-width:100%}
   th{text-align:left;padding:6px;background:#f3f4f6;font-size:10px;text-transform:uppercase;color:#6b7280;white-space:nowrap}
   td{padding:6px;border-bottom:1px solid #f3f4f6;vertical-align:top;white-space:nowrap}
   .banner-ia{background:var(--ink);color:#fff;border-radius:8px;padding:16px 20px;margin:16px 0;font-size:15px}
   .banner-ia strong{color:#4ade80}
+  .proof-bar{display:flex;flex-wrap:wrap;gap:8px 18px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 16px;margin:14px 0;font-size:12px;font-weight:600;color:#9a3412}
+  .proof-bar strong{color:var(--rausch)}
+  .trust-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin:24px 0 12px;padding:14px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--sec);font-weight:600;text-align:center}
+  .por-lead{font-size:11px;color:var(--sec);margin-top:2px}
   .passos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:12px 0 8px}
   .passo{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px}
   .passo .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;background:var(--babu);color:#fff;font-weight:bold;font-size:13px;margin-bottom:8px}
@@ -14612,42 +14622,21 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       <li>✅ Acesso completo: assistente IA, agendamento de visitas e gestão de leads</li>
     </ul>
   </div>
-  <h2 class="secao" style="margin-top:22px">Como funciona</h2>
-  <div class="passos">
-    <div class="passo"><span class="num">1</span><h3>Busque sua região</h3><ul>
-      <li>Escolha estado, cidades e bairros</li>
-      <li>A IA cruza com a base MatchImóveis na hora</li>
-    </ul></div>
-    <div class="passo"><span class="num">2</span><h3>Escolha um combo</h3><ul>
-      <li>Já indicamos o ideal pra quantidade encontrada</li>
-      <li>Passou do tamanho? Sobe pro próximo sozinho</li>
-    </ul></div>
-    <div class="passo"><span class="num">3</span><h3>Crie sua conta e pague</h3><ul>
-      <li>Nome, email, celular e senha</li>
-      <li>Checkout seguro pelo Mercado Pago</li>
-    </ul></div>
-    <div class="passo"><span class="num">4</span><h3>Já entra com leads na sua conta</h3><ul>
-      <li>Pagamento aprovado, leads aparecem na hora</li>
-      <li>Prontos pra trabalhar, sem espera</li>
-    </ul></div>
-    <div class="passo"><span class="num">5</span><h3>Suba seus imóveis via XML</h3><ul>
-      <li>Importe seu feed de portal (ou cadastre manual)</li>
-      <li>Carteira pronta pra receber leads</li>
-    </ul></div>
-    <div class="passo"><span class="num">6</span><h3>A IA direciona pro seu imóvel</h3><ul>
-      <li>Toda lead nova é cruzada com sua carteira</li>
-      <li>Match aponta o imóvel certo automaticamente</li>
-    </ul></div>
-  </div>
+  ${disponiveis.total > 0 ? `<div class="proof-bar">
+    <span>🔥 <strong>${disponiveis.total.toLocaleString('pt-BR')}</strong> leads reais disponíveis agora na base</span>
+    ${disponiveis.recentes24h > 0 ? `<span>⏱ <strong>${disponiveis.recentes24h.toLocaleString('pt-BR')}</strong> chegaram nas últimas 24h</span>` : ''}
+    <span>⚡ saem da lista assim que outro corretor compra</span>
+  </div>` : ''}
+  <h2 class="secao" style="margin-top:8px">👇 Veja quantos tem na sua região agora</h2>
   <div class="box">
     <div class="campos-geo">
       <div class="campo">
-        <label>Estado</label>
+        <label>Estado <span id="estado-check" class="confirm-check" style="display:none">✓ selecionado</span></label>
         <select id="estado"><option value="">Selecione...</option>${optionsEstados}</select>
       </div>
 
       <div class="campo">
-        <label>Cidades (escolha quantas quiser)</label>
+        <label>Cidades (escolha quantas quiser) <span id="cidade-check" class="confirm-check" style="display:none">✓ selecionada</span></label>
         <div style="position:relative">
           <input type="text" id="cidadeInput" placeholder="Selecione o estado primeiro..." disabled autocomplete="off" style="width:100%">
           <div id="cidade-sugestoes" class="sugestoes-dropdown" style="display:none"></div>
@@ -14699,8 +14688,42 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       <input type="password" id="suSenha" placeholder="Crie uma senha">
       <div id="signup-status"></div>
       <button id="btnComprar" onclick="finalizarCompra()">Ir para pagamento →</button>
-      <p class="gray" style="font-size:11px;margin-top:10px">Ao continuar, sua conta MatchImóveis é criada e você é levado ao checkout seguro do Mercado Pago. Os leads da sua busca são entregues na sua conta assim que o pagamento for aprovado.</p>
+      <p class="gray" style="font-size:11px;margin-top:10px">🔒 Pagamento seguro pelo Mercado Pago • Compra única, sem mensalidade automática. Sua conta MatchImóveis é criada agora e os leads da sua busca são entregues assim que o pagamento for aprovado — <strong>mas ficam disponíveis pra qualquer corretor até lá.</strong></p>
     </div>
+  </div>
+
+  <h2 class="secao">Como funciona</h2>
+  <div class="passos">
+    <div class="passo"><span class="num">1</span><h3>Busque sua região</h3><ul>
+      <li>Escolha estado, cidades e bairros</li>
+      <li>A IA cruza com a base MatchImóveis na hora</li>
+    </ul></div>
+    <div class="passo"><span class="num">2</span><h3>Escolha um combo</h3><ul>
+      <li>Já indicamos o ideal pra quantidade encontrada</li>
+      <li>Passou do tamanho? Sobe pro próximo sozinho</li>
+    </ul></div>
+    <div class="passo"><span class="num">3</span><h3>Crie sua conta e pague</h3><ul>
+      <li>Nome, email, celular e senha</li>
+      <li>Checkout seguro pelo Mercado Pago</li>
+    </ul></div>
+    <div class="passo"><span class="num">4</span><h3>Já entra com leads na sua conta</h3><ul>
+      <li>Pagamento aprovado, leads aparecem na hora</li>
+      <li>Prontos pra trabalhar, sem espera</li>
+    </ul></div>
+    <div class="passo"><span class="num">5</span><h3>Suba seus imóveis via XML</h3><ul>
+      <li>Importe seu feed de portal (ou cadastre manual)</li>
+      <li>Carteira pronta pra receber leads</li>
+    </ul></div>
+    <div class="passo"><span class="num">6</span><h3>A IA direciona pro seu imóvel</h3><ul>
+      <li>Toda lead nova é cruzada com sua carteira</li>
+      <li>Match aponta o imóvel certo automaticamente</li>
+    </ul></div>
+  </div>
+  <div class="trust-bar">
+    <span>🔒 Pagamento seguro Mercado Pago</span>
+    <span>🙈 Dados ocultos até a compra</span>
+    <span>🚫 Sem mensalidade automática</span>
+    <span>🏠 Acesso completo à plataforma</span>
   </div>
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -14733,6 +14756,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     document.getElementById('filtroBairro').disabled = true;
     document.getElementById('filtroBairro').value = '';
     document.getElementById('btnBuscar').disabled = true;
+    document.getElementById('estado').classList.toggle('ok', !!estado);
+    document.getElementById('estado-check').style.display = estado ? 'inline' : 'none';
     if(!estado) { cidadeInput.placeholder = 'Selecione o estado primeiro...'; return; }
     cidadeInput.placeholder = 'Carregando...';
     const r = await fetch('${apiPrefix}/cidades?estado='+encodeURIComponent(estado));
@@ -14746,17 +14771,23 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     document.getElementById('cidade-sugestoes').style.display = 'none';
   }
 
+  // Sem termo digitado ainda: mostra logo as cidades com lead disponível
+  // (não precisa digitar pra ver as opções) — só filtra de verdade quando
+  // o usuário começa a digitar.
   function renderSugestoesCidade(){
     const termo = _normTexto(document.getElementById('cidadeInput').value.trim());
     const box = document.getElementById('cidade-sugestoes');
-    if(!termo){ box.style.display = 'none'; return; }
-    const visiveis = _cidadesNomes.filter(function(c){ return _normTexto(c).includes(termo) && _cidadesSelecionadas.indexOf(c) === -1; }).slice(0, 30);
+    const disponiveis = _cidadesNomes.filter(function(c){ return _cidadesSelecionadas.indexOf(c) === -1; });
+    if(!disponiveis.length){ box.style.display = 'none'; return; }
+    const visiveis = (termo ? disponiveis.filter(function(c){ return _normTexto(c).includes(termo); }) : disponiveis).slice(0, 30);
     if(!visiveis.length){ box.innerHTML = '<div class="sugestao-item gray">⚠️ Não temos interessados minerados dessa cidade ainda</div>'; box.style.display = 'block'; return; }
     box.innerHTML = visiveis.map(function(c){ return '<div class="sugestao-item" data-cidade="'+escHtml(c)+'">'+escHtml(c)+'</div>'; }).join('');
     box.style.display = 'block';
   }
 
   document.getElementById('cidadeInput').addEventListener('input', renderSugestoesCidade);
+  document.getElementById('cidadeInput').addEventListener('focus', renderSugestoesCidade);
+  document.getElementById('cidadeInput').addEventListener('click', renderSugestoesCidade);
 
   document.getElementById('cidade-sugestoes').addEventListener('click', async function(e){
     const item = e.target.closest('[data-cidade]');
@@ -14779,6 +14810,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     box.innerHTML = _cidadesSelecionadas.map(function(c){
       return '<span class="chip">'+escHtml(c)+'<button type="button" data-remover-cidade="'+escHtml(c)+'">×</button></span>';
     }).join('');
+    const temCidade = _cidadesSelecionadas.length > 0;
+    document.getElementById('cidadeInput').classList.toggle('ok', temCidade);
+    document.getElementById('cidade-check').style.display = temCidade ? 'inline' : 'none';
   }
 
   document.getElementById('cidades-chips').addEventListener('click', function(e){
@@ -14911,8 +14945,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       if(!d.ok){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro: '+escHtml(d.erro)+'</p>'; return; }
       const labelPeriodo = d.dias+' dia'+(d.dias>1?'s':'');
       document.getElementById('banner-resultado').innerHTML = d.total > 0
-        ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região nos últimos '+labelPeriodo+'.'
-        : '🤖 A IA não encontrou interessados com esse perfil nos últimos '+labelPeriodo+'.';
+        ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região nos últimos '+labelPeriodo+'. <span style="color:#fca5a5">⚡ Nenhum deles foi vendido ainda — o primeiro corretor que pagar leva todos.</span>'
+        : '🤖 A IA não encontrou interessados com esse perfil nos últimos '+labelPeriodo+'. Tenta ampliar o período ou escolher outro bairro.';
       document.getElementById('tabela-body').innerHTML = d.leads.map(function(l){
         const dataTxt = l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR') : '<span class="gray">—</span>';
         return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>MatchImóveis</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Condicao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Quartos?escHtml(l.Quartos):'<span class="gray">—</span>')+'</td><td>'+(l.Suites?escHtml(l.Suites):'<span class="gray">—</span>')+'</td><td>'+(l.Vagas?escHtml(l.Vagas):'<span class="gray">—</span>')+'</td><td>'+(l.Banheiros?escHtml(l.Banheiros):'<span class="gray">—</span>')+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td><td>'+dataTxt+'</td></tr>';
@@ -14947,11 +14981,13 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       const rec = k === recomendado;
       const qtdTxt = p.ilimitado ? '∞' : p.qtd;
       const unidade = p.ilimitado ? ' /mês' : ' /combo';
+      const porLead = p.ilimitado ? '' : '<div class="por-lead">R$ '+(p.valor/p.qtd).toFixed(2).replace('.',',')+' por lead</div>';
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
-        + (rec ? '<span class="badge">✓ Ideal pra você</span>' : '')
+        + (rec ? '<span class="badge">🔥 Recomendado pra você</span>' : '')
         + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'
         + '<div class="preco">R$ '+p.valor+'<span>'+unidade+'</span></div>'
-        + '<button type="button" data-escolher="'+k+'">Escolher</button>'
+        + porLead
+        + '<button type="button" data-escolher="'+k+'">Quero esse →</button>'
         + '</div>';
     }).join('');
     box.style.display = 'block';

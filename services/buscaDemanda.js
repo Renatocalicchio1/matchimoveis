@@ -223,4 +223,22 @@ async function marcarVendidos(rowIds, userId) {
   await query('UPDATE interessados_portal SET vendido_em = NOW(), vendido_para = $1 WHERE id = ANY($2)', [userId, rowIds]);
 }
 
-module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, marcarVendidos };
+// Estatística real (não inventada) pra barra de prova social/urgência da
+// tela — total de interessados disponíveis agora (não vendidos ainda) e
+// quantos chegaram nas últimas 24h, nacional, últimos 30 dias.
+async function contarDisponiveis() {
+  await _garantirColunasVenda();
+  try {
+    const { rows } = await query(
+      `SELECT COUNT(*)::int AS total,
+              COUNT(*) FILTER (WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(hours => 24))::int AS recentes24h
+       FROM interessados_portal
+       WHERE vendido_em IS NULL AND COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30)`
+    );
+    return { total: rows[0]?.total || 0, recentes24h: rows[0]?.recentes24h || 0 };
+  } catch (e) {
+    return { total: 0, recentes24h: 0 };
+  }
+}
+
+module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, marcarVendidos, contarDisponiveis };

@@ -185,6 +185,11 @@ async function _garantirTabelaInteresados() {
   )`);
   // data_lead foi adicionada depois — tabela já existe em produção sem essa coluna
   await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS data_lead TIMESTAMP').catch(() => {});
+  // vendido_em/vendido_para — marca quando um interessado foi entregue pra
+  // conta de quem comprou um combo em /demanda, pra nunca vender a mesma
+  // lead pra 2 compradores diferentes (some da busca pública depois de vendida).
+  await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS vendido_em TIMESTAMP').catch(() => {});
+  await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS vendido_para TEXT').catch(() => {});
 }
 
 function _linhaParaRowDB(l) {

@@ -110,7 +110,9 @@ async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo
       // COALESCE(data_lead, criado_em): data_lead é a data real do interessado
       // no portal (coluna "Data" da planilha) — usa criado_em (data do upload)
       // só como fallback pra linhas antigas onde a data não deu pra parsear.
-      `SELECT * FROM interessados_portal WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(hours => $1::int) ORDER BY COALESCE(data_lead, criado_em) DESC`,
+      // vendido_em IS NULL: some da busca (e não pode ser entregue de novo)
+      // depois que já foi vendido pra algum comprador do combo em /demanda.
+      `SELECT * FROM interessados_portal WHERE vendido_em IS NULL AND COALESCE(data_lead, criado_em) >= NOW() - make_interval(hours => $1::int) ORDER BY COALESCE(data_lead, criado_em) DESC`,
       [horas]
     ));
   } catch (e) {
@@ -125,7 +127,7 @@ async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo
     if (!transacaoLead || !transacoesAlvo.has(transacaoLead)) continue;
 
     encontrados.push({
-      id: 'interessado-' + r.id, criadoEm: r.data_lead || r.criado_em, fonte: 'interessados_portal',
+      id: 'interessado-' + r.id, _rowId: r.id, criadoEm: r.data_lead || r.criado_em, fonte: 'interessados_portal',
       Nome: r.nome || 'Sem nome', Telefone: r.telefone || '', Email: r.email || '',
       Origem: r.origem || 'portal_imovelweb', Tipo: r.tipo || '', Transacao: transacaoLead, Condicao: r.condicao || '',
       Bairro: r.bairro, Cidade: r.cidade, Estado: r.estado,
@@ -179,4 +181,25 @@ async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 168 
     .map(l => ({ ...l, Nome: _mascararNome(l.Nome), Telefone: _mascararTelefone(l.Telefone), Email: _mascararEmail(l.Email) }));
 }
 
-module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda };
+// Usado só internamente (webhook de pagamento) pra ENTREGAR de verdade —
+// nome/telefone/email não mascarados, e limitado a `limite` (a quantidade
+// do combo comprado). Mesmo critério/ordenação de buscarDemanda() (mais
+// caro primeiro), pra entregar exatamente o que o comprador viu na tela.
+async function buscarDemandaParaEntrega({ estado, pares = [], transacoes = [], horas = 168, limite = 0 }) {
+  const siglaAlvo = _sigla(estado);
+  const chavesAlvo = new Set(pares.map(p => _norm(p.cidade) + '|||' + _norm(p.bairro)).filter(k => k !== '|||'));
+  const transacoesAlvo = new Set((transacoes.length ? transacoes : ['venda', 'aluguel']).map(_norm));
+
+  const encontrados = await _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas);
+  encontrados.sort((a, b) => (parseFloat(b.Valor_max) || 0) - (parseFloat(a.Valor_max) || 0));
+  return limite > 0 ? encontrados.slice(0, limite) : encontrados;
+}
+
+// Marca as linhas entregues como vendidas — some da busca pública e nunca
+// mais é entregue de novo pra outro comprador.
+async function marcarVendidos(rowIds, userId) {
+  if (!rowIds || !rowIds.length) return;
+  await query('UPDATE interessados_portal SET vendido_em = NOW(), vendido_para = $1 WHERE id = ANY($2)', [userId, rowIds]);
+}
+
+module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, marcarVendidos };

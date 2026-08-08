@@ -9858,6 +9858,81 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
       return res.sendStatus(200);
     }
 
+    // Combo comprado a partir de /demanda (POST /demanda/comprar) — além dos
+    // créditos (igual plano_leads), entrega de verdade até `qtd` interessados
+    // reais (nome/telefone/email sem máscara) achados com os critérios da
+    // busca direto na conta recém-criada do comprador — "quando ele comprar
+    // as leads já vão para a conta dele".
+    if (meta.tipo === 'combo_demanda') {
+      const qtd = parseInt(meta.qtd) || 0;
+      const label = meta.label || (qtd ? `${qtd} leads/mês` : 'Combo de créditos');
+      const valor = parseFloat(meta.valor) || pagamento.transaction_amount || 0;
+      const creditos = parseInt(meta.creditos) || 0;
+      let entreguesQtd = 0;
+      if (userId) {
+        try {
+          const { buscarDemandaParaEntrega, marcarVendidos } = require('./services/buscaDemanda');
+          const { salvarLead: _salvarLeadDemanda } = require('./services/salvarLead');
+          let pares = [], transacoes = [];
+          try { pares = JSON.parse(meta.pares || '[]'); } catch(e2) {}
+          try { transacoes = JSON.parse(meta.transacoes || '[]'); } catch(e2) {}
+          const horas = parseInt(meta.horas) || 720;
+          const encontrados = await buscarDemandaParaEntrega({ estado: meta.estado || '', pares, transacoes, horas, limite: qtd });
+
+          for (const l of encontrados) {
+            try {
+              await _salvarLeadDemanda({
+                id: 'DEMANDA-' + l._rowId + '-' + userId,
+                nome: l.Nome || 'Interessado', telefone: l.Telefone, whatsapp: l.Telefone, email: l.Email,
+                user_id: userId, userId, codigoUsuario: userId,
+                origem: 'compra_demanda', status: 'novo', faseFunil: 'novo', fase_funil: 'novo',
+                perfilIA: {
+                  tipo: l.Tipo || '', intencao: l.Transacao === 'aluguel' ? 'alugar' : 'comprar',
+                  cidade: l.Cidade, estado: l.Estado, bairro: l.Bairro, valorMax: l.Valor_max || undefined
+                },
+                dados: { origemCompraDemanda: true, dataOriginalPortal: l.criadoEm },
+                _lote: true
+              });
+              entreguesQtd++;
+            } catch (eLead) { console.error('[MP] erro ao entregar lead combo_demanda:', eLead.message); }
+          }
+          const rowIds = encontrados.map(l => l._rowId).filter(Boolean);
+          if (rowIds.length) await marcarVendidos(rowIds, userId);
+        } catch (eDem) { console.error('[MP] erro ao entregar leads combo_demanda:', eDem.message); }
+
+        if (creditos > 0) {
+          await adicionarCreditos(userId, creditos, 'combo_demanda');
+          const { atualizarUsuario: _auDemanda } = require('./services/salvarUsuario');
+          await _auDemanda(userId, {
+            planoLeadsAtivo: meta.plano || '', planoLeadsQtd: qtd, planoLeadsLabel: label,
+            planoLeadsValor: valor, planoLeadsCreditos: creditos, planoLeadsComprasEm: new Date().toISOString(),
+            precisaComprarPlano: false
+          });
+          if (_cacheUsuarios) { const _uIdxDem = _cacheUsuarios.findIndex(u => u.id === userId); if (_uIdxDem >= 0) _cacheUsuarios[_uIdxDem].precisaComprarPlano = false; }
+        }
+        console.log('[MP] combo demanda — leads entregues:', userId, '| entregues:', entreguesQtd, '/', qtd, '| creditos:', creditos);
+        criarNotificacaoService({
+          id: Date.now().toString(),
+          tipo: 'recarga',
+          titulo: 'Combo comprado! 🎉',
+          mensagem: `${entreguesQtd} lead${entreguesQtd===1?'':'s'} da sua busca já ${entreguesQtd===1?'está':'estão'} na sua conta, mais ${creditos} créditos (${label}).`,
+          usuarioId: userId,
+          lida: false,
+          criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+        });
+        (async () => {
+          try {
+            const _msgAdmin = `💰 *Combo comprado via /demanda!*\n\n👤 *Usuário:* ${userId}\n📦 *Combo:* ${label}\n📇 *Leads entregues:* ${entreguesQtd}/${qtd}\n🪙 *Créditos:* ${creditos}\n💵 *Valor:* R$ ${valor}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
+            await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
+              method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
+              body: JSON.stringify({ number: '5511951131609', text: _msgAdmin })
+            });
+          } catch(e) { console.error('[MP] erro notif admin combo_demanda:', e.message); }
+        })();
+      }
+      return res.sendStatus(200);
+    }
+
     const creditos = parseInt(meta.creditos) || Math.floor((pagamento.transaction_amount||0) * 20);
 
     if(userId && creditos > 0){
@@ -14439,14 +14514,21 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   return `<!DOCTYPE html><html><head><meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Buscar Demanda por Região</title>
-  <style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;padding:0}
+  <style>*{box-sizing:border-box}
+  :root{--rausch:#FF385C;--babu:#00A699;--arches:#FC642D;--ink:#111827;--sec:#6b7280;--border:#e5e7eb;--bg:#f9fafb}
+  body{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;margin:0;padding:0;color:var(--ink)}
   ${shellCss}
   ${contentCss}
-  h1{color:#FF385C;font-size:20px}
-  .box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0}
+  .hero{background:linear-gradient(135deg,var(--rausch),var(--arches));border-radius:14px;padding:28px 24px;margin:16px 0;color:#fff}
+  .hero h1{margin:0 0 8px;font-size:24px;color:#fff}
+  .hero p{margin:0;font-size:14px;opacity:.95;max-width:680px;line-height:1.5}
+  h1{color:var(--rausch);font-size:20px}
+  h2.secao{font-size:16px;color:var(--ink);margin:28px 0 4px}
+  .box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0}
   label{display:block;font-size:12px;font-weight:bold;color:#374151;margin:12px 0 4px}
-  select,input[type=text]{width:100%;max-width:360px;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px}
-  button{background:#FF385C;color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-top:14px}
+  select,input[type=text],input[type=email],input[type=password]{width:100%;max-width:360px;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px}
+  button{background:var(--rausch);color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-top:14px;font-weight:bold}
+  button:hover{filter:brightness(.95)}
   button:disabled{opacity:.5;cursor:not-allowed}
   .chk-transacao{display:flex;gap:16px;margin-top:6px}
   .chk-transacao label{display:flex;align-items:center;gap:6px;font-weight:normal;font-size:13px;color:#111827;margin:0}
@@ -14456,19 +14538,45 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .sugestao-item{padding:8px 10px;cursor:pointer;font-size:13px}
   .sugestao-item:hover{background:#f3f4f6}
   .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;max-width:600px}
-  .chip{display:inline-flex;align-items:center;gap:6px;background:#eef2ff;color:#111827;border:1px solid #c7d2fe;border-radius:999px;padding:4px 6px 4px 12px;font-size:12px}
-  .chip button{all:unset;cursor:pointer;color:#6b7280;font-weight:bold;padding:0 6px;line-height:1}
-  .chip button:hover{color:#dc2626}
-  .gray{color:#6b7280}.green{color:#16a34a}.red{color:#dc2626}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:#fff1f2;color:#111827;border:1px solid #fecdd3;border-radius:999px;padding:4px 6px 4px 12px;font-size:12px}
+  .chip button{all:unset;cursor:pointer;color:#6b7280;font-weight:bold;padding:0 6px;line-height:1;margin-top:0}
+  .chip button:hover{color:var(--rausch)}
+  .gray{color:var(--sec)}.green{color:#16a34a}.red{color:#dc2626}
   table{border-collapse:collapse;font-size:12px;margin-top:12px;min-width:100%}
   th{text-align:left;padding:6px;background:#f3f4f6;font-size:10px;text-transform:uppercase;color:#6b7280;white-space:nowrap}
   td{padding:6px;border-bottom:1px solid #f3f4f6;vertical-align:top;white-space:nowrap}
-  .banner-ia{background:#111827;color:#fff;border-radius:8px;padding:16px 20px;margin:16px 0;font-size:15px}
+  .banner-ia{background:var(--ink);color:#fff;border-radius:8px;padding:16px 20px;margin:16px 0;font-size:15px}
   .banner-ia strong{color:#4ade80}
+  .passos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:12px 0 8px}
+  .passo{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px}
+  .passo .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;background:var(--babu);color:#fff;font-weight:bold;font-size:13px;margin-bottom:8px}
+  .passo h3{font-size:13px;margin:0 0 4px}
+  .passo p{font-size:12px;color:var(--sec);margin:0;line-height:1.5}
+  .combos{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:14px 0}
+  .combo{background:#fff;border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s,transform .15s}
+  .combo:hover{border-color:var(--babu);transform:translateY(-2px)}
+  .combo.combo-recomendado{border-color:var(--rausch);box-shadow:0 4px 16px rgba(255,56,92,.15)}
+  .combo .badge{display:inline-block;background:var(--rausch);color:#fff;font-size:10px;font-weight:bold;padding:3px 10px;border-radius:999px;margin-bottom:8px}
+  .combo .qtd{font-size:22px;font-weight:bold;color:var(--ink)}
+  .combo .label{font-size:12px;color:var(--sec);margin:2px 0 10px}
+  .combo .preco{font-size:18px;font-weight:bold;color:var(--babu)}
+  .combo .preco span{font-size:11px;color:var(--sec);font-weight:normal}
+  .combo button{width:100%;margin-top:12px}
+  .combo.combo-recomendado button{background:var(--rausch)}
+  .signup-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:14px;max-width:420px}
+  .signup-box .combo-escolhido{background:var(--bg);border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px}
   </style></head><body>
   ${bodyOpen}
-  <h1>📍 Buscar Demanda por Região</h1>
-  <p class="gray">Escolhe um recorte geográfico e vê quantos interessados a IA MatchImóveis já identificou com esse perfil recentemente. Telefone e email ficam ocultos — em breve dá pra desbloquear comprando as leads. E não é só isso: ao comprar, sua conta vem com acesso completo à plataforma MatchImóveis — carteira de imóveis, gestão de leads, assistente com IA, agendamento de visitas e todas as outras funcionalidades, não é só a entrega das leads.</p>
+  <div class="hero">
+    <h1>📍 Buscar Demanda por Região</h1>
+    <p>Escolhe um recorte geográfico e vê quantos interessados a IA MatchImóveis já identificou com esse perfil recentemente. Nome, telefone e email ficam ocultos até você comprar — depois da compra, os leads encontrados na sua busca vão direto pra sua conta. E não é só isso: ao comprar, sua conta vem com acesso completo à plataforma MatchImóveis — carteira de imóveis, gestão de leads, assistente com IA, agendamento de visitas e todas as outras funcionalidades.</p>
+  </div>
+  <div class="passos">
+    <div class="passo"><span class="num">1</span><h3>Busque sua região</h3><p>Escolha estado, cidades e bairros. A IA cruza com a base de interessados MatchImóveis e mostra quantos encontrou.</p></div>
+    <div class="passo"><span class="num">2</span><h3>Escolha um combo</h3><p>A gente já indica o combo que cabe na quantidade encontrada — se passar do tamanho, sobe pro próximo.</p></div>
+    <div class="passo"><span class="num">3</span><h3>Crie sua conta e pague</h3><p>Nome, email, celular e senha. Depois só finalizar o pagamento com segurança pelo Mercado Pago.</p></div>
+    <div class="passo"><span class="num">4</span><h3>Leads na sua conta</h3><p>Pagamento aprovado, os leads da sua busca já aparecem na sua carteira — junto com acesso completo à plataforma.</p></div>
+  </div>
   <div class="box">
     <label>Estado</label>
     <select id="estado"><option value="">Selecione...</option>${optionsEstados}</select>
@@ -14501,6 +14609,28 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
     <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+
+    <div id="combos-box" style="display:none">
+      <h2 class="secao">📦 Escolha seu combo</h2>
+      <p class="gray" style="font-size:13px">Combos de leads mineradas por mês — já indicamos qual cabe na quantidade que a IA encontrou.</p>
+      <div class="combos" id="combos-lista"></div>
+    </div>
+
+    <div id="signup-box" style="display:none" class="signup-box">
+      <div class="combo-escolhido" id="combo-escolhido-resumo"></div>
+      <h2 class="secao" style="margin-top:0">Criar conta e finalizar</h2>
+      <label>Nome completo</label>
+      <input type="text" id="suNome" placeholder="Seu nome completo">
+      <label>Email</label>
+      <input type="email" id="suEmail" placeholder="voce@email.com">
+      <label>Celular (WhatsApp)</label>
+      <input type="text" id="suCelular" placeholder="47999999999">
+      <label>Senha</label>
+      <input type="password" id="suSenha" placeholder="Crie uma senha">
+      <div id="signup-status"></div>
+      <button id="btnComprar" onclick="finalizarCompra()">Ir para pagamento →</button>
+      <p class="gray" style="font-size:11px;margin-top:10px">Ao continuar, sua conta MatchImóveis é criada e você é levado ao checkout seguro do Mercado Pago. Os leads da sua busca são entregues na sua conta assim que o pagamento for aprovado.</p>
+    </div>
   </div>
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -14688,6 +14818,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     if(!estado || !pares.length){ alert('Escolhe estado e pelo menos 1 bairro.'); return; }
     if(!transacoes.length){ alert('Marca Venda, Aluguel ou os dois.'); return; }
     document.getElementById('resultado-box').style.display = 'none';
+    document.getElementById('combos-box').style.display = 'none';
+    document.getElementById('signup-box').style.display = 'none';
+    _comboEscolhido = null;
     document.getElementById('btnBuscar').disabled = true;
     try {
       const fetchPromise = fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias }) }).then(function(r){ return r.json(); });
@@ -14715,7 +14848,69 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>MatchImóveis</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Condicao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Quartos?escHtml(l.Quartos):'<span class="gray">—</span>')+'</td><td>'+(l.Suites?escHtml(l.Suites):'<span class="gray">—</span>')+'</td><td>'+(l.Vagas?escHtml(l.Vagas):'<span class="gray">—</span>')+'</td><td>'+(l.Banheiros?escHtml(l.Banheiros):'<span class="gray">—</span>')+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td><td>'+dataTxt+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
+      _ultimaBusca = { estado, pares, transacoes, dias: d.dias };
+      renderCombos(d.total);
     } catch(e){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; document.getElementById('btnBuscar').disabled = false; }
+  }
+
+  // ── Combos + criação de conta + pagamento ──────────────────────────────
+  const PLANOS = ${JSON.stringify(PLANOS_LEADS)};
+  const PLANOS_ORDEM = ['r200','100','200','300'];
+  let _ultimaBusca = null;
+  let _comboEscolhido = null;
+
+  function renderCombos(total){
+    const box = document.getElementById('combos-box');
+    if(total <= 0){ box.style.display = 'none'; document.getElementById('signup-box').style.display = 'none'; return; }
+    // Combo recomendado: o menor cuja quantidade cobre o total encontrado —
+    // se passar do maior combo, sobe pro topo (300) mesmo assim.
+    let recomendado = PLANOS_ORDEM.find(function(k){ return PLANOS[k].qtd >= total; });
+    if(!recomendado) recomendado = PLANOS_ORDEM[PLANOS_ORDEM.length - 1];
+    document.getElementById('combos-lista').innerHTML = PLANOS_ORDEM.map(function(k){
+      const p = PLANOS[k];
+      const rec = k === recomendado;
+      return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
+        + (rec ? '<span class="badge">✓ Ideal pra você</span>' : '')
+        + '<div class="qtd">'+p.qtd+'</div><div class="label">'+escHtml(p.label)+'</div>'
+        + '<div class="preco">R$ '+p.valor+'<span> /combo</span></div>'
+        + '<button type="button" data-escolher="'+k+'">Escolher</button>'
+        + '</div>';
+    }).join('');
+    box.style.display = 'block';
+  }
+
+  document.getElementById('combos-lista').addEventListener('click', function(e){
+    const btn = e.target.closest('[data-escolher]');
+    if(!btn) return;
+    const plano = btn.getAttribute('data-escolher');
+    _comboEscolhido = plano;
+    const p = PLANOS[plano];
+    document.getElementById('combo-escolhido-resumo').innerHTML = '<strong>'+escHtml(p.label)+'</strong> — R$ '+p.valor+'<br><span class="gray">Os leads encontrados na sua busca vão pra sua conta assim que o pagamento for aprovado.</span>';
+    const signupBox = document.getElementById('signup-box');
+    signupBox.style.display = 'block';
+    signupBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  async function finalizarCompra(){
+    if(!_comboEscolhido || !_ultimaBusca){ alert('Escolha um combo primeiro.'); return; }
+    const nome = document.getElementById('suNome').value.trim();
+    const email = document.getElementById('suEmail').value.trim();
+    const celular = document.getElementById('suCelular').value.trim();
+    const senha = document.getElementById('suSenha').value;
+    const statusEl = document.getElementById('signup-status');
+    statusEl.innerHTML = '';
+    const btn = document.getElementById('btnComprar');
+    btn.disabled = true;
+    try {
+      const r = await fetch('/demanda/comprar', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, email, celular, senha, plano: _comboEscolhido, criterios: _ultimaBusca })
+      });
+      const d = await r.json();
+      if(!d.ok){ btn.disabled = false; statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
+      statusEl.innerHTML = '<p class="green">Conta criada! Levando pro pagamento...</p>';
+      window.location.href = d.url;
+    } catch(e){ btn.disabled = false; statusEl.innerHTML = '<p class="red">Erro ao criar conta/pagamento.</p>'; }
   }
   </script>
   ${bodyClose}</body></html>`;
@@ -14765,6 +14960,88 @@ async function _handlerDemandaBuscar(req, res) {
 }
 app.post('/admin/demanda/buscar', authAdmin, express.json(), _handlerDemandaBuscar);
 app.post('/demanda/buscar', express.json(), _handlerDemandaBuscar);
+
+// Compra de combo a partir do resultado de /demanda — cria a conta (nome/
+// email/celular/senha) e já manda pro checkout Mercado Pago. Os critérios da
+// busca (estado/pares/transações/período) vão junto na metadata da
+// preferência pra, no webhook (pagamento aprovado), entregar de verdade os
+// leads encontrados na conta recém-criada — ver branch `combo_demanda` em
+// POST /webhook/mercadopago.
+app.post('/demanda/comprar', express.json(), async (req, res) => {
+  try {
+    const { nome, email, celular, senha, plano, criterios } = req.body;
+    const pacote = PLANOS_LEADS[plano];
+    if (!pacote) return res.json({ ok: false, erro: 'Combo inválido' });
+
+    const nomeVal = (nome || '').trim();
+    if (!nomeVal || nomeVal.length < 3) return res.json({ ok: false, erro: 'Nome inválido. Digite seu nome completo.' });
+    const telefone = String(celular || '').replace(/\D/g, '');
+    if (!telefone || telefone.length < 10 || telefone.length > 13) return res.json({ ok: false, erro: 'Celular inválido. Use o formato: 47999999999' });
+    const emailVal = (email || '').trim().toLowerCase();
+    if (!emailVal || !emailVal.includes('@')) return res.json({ ok: false, erro: 'Email inválido.' });
+    const senhaVal = (senha || '').trim();
+    if (!senhaVal || senhaVal.length < 4) return res.json({ ok: false, erro: 'Senha muito curta (mínimo 4 caracteres).' });
+
+    if (!criterios || !criterios.estado || !Array.isArray(criterios.pares) || !criterios.pares.length) {
+      return res.json({ ok: false, erro: 'Critérios de busca inválidos — refaça a busca.' });
+    }
+
+    const { lerUsuarios: _luDemanda } = require('./services/salvarUsuario');
+    const users = await _luDemanda();
+    if (users.find(u => String(u.telefone || u.celular || '').replace(/\D/g, '') === telefone)) {
+      return res.json({ ok: false, erro: 'Já existe uma conta com esse celular. Faça login em /entrar.' });
+    }
+    if (users.find(u => (u.email || '').trim().toLowerCase() === emailVal)) {
+      return res.json({ ok: false, erro: 'Já existe uma conta com esse email. Faça login em /entrar.' });
+    }
+
+    const codigoNovo = gerarCodigoUsuario(nomeVal);
+    const senhaHash = await bcrypt.hash(senhaVal, 10);
+    const novo = {
+      id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal,
+      tipo: 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
+      matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000
+    };
+    users.push(novo);
+    await salvarTodosUsuarios(users);
+    req.session.user = novo;
+
+    const diasFinal = Math.min(30, Math.max(1, parseInt(criterios.dias, 10) || 7));
+    const preference = new Preference(_mpClient);
+    const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';
+
+    const result = await preference.create({
+      body: {
+        items: [{
+          title: `${pacote.label} — MatchImóveis`,
+          quantity: 1,
+          unit_price: pacote.valor,
+          currency_id: 'BRL'
+        }],
+        payer: { name: nomeVal, email: emailVal },
+        back_urls: {
+          success: BASE + '/pagamento/sucesso-plano?voltar=' + encodeURIComponent('/app-home'),
+          failure: BASE + '/demanda',
+          pending: BASE + '/demanda'
+        },
+        auto_return: 'approved',
+        notification_url: BASE + '/webhook/mercadopago',
+        payment_methods: { excluded_payment_types: [{ id: 'ticket' }] },
+        metadata: {
+          userId: codigoNovo, tipo: 'combo_demanda', plano, qtd: pacote.qtd || 0, label: pacote.label,
+          valor: pacote.valor, creditos: pacote.creditos,
+          estado: criterios.estado, pares: JSON.stringify(criterios.pares),
+          transacoes: JSON.stringify(criterios.transacoes || []), horas: diasFinal * 24
+        }
+      }
+    });
+
+    res.json({ ok: true, url: result.init_point });
+  } catch (e) {
+    console.error('[demanda/comprar] erro:', e.message);
+    res.json({ ok: false, erro: 'Erro ao criar conta/pagamento: ' + e.message });
+  }
+});
 // ── FIM BUSCAR DEMANDA POR REGIÃO ──────────────────────────────────────────
 
 app.get('/admin/campanha', authAdmin, async (req, res) => {

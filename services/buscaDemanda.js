@@ -72,20 +72,16 @@ function _normTransacao(v) {
   return '';
 }
 
-// dias: janela de tempo — padrão 2 dias (radar de demanda recente/"quente",
-// não é pra puxar o histórico inteiro de leads da plataforma).
-async function buscarDemanda({ estado, cidade, bairros = [], transacoes = [], dias = 2 }) {
-  const siglaAlvo = _sigla(estado);
-  const cidadeAlvo = _norm(cidade);
-  const bairrosAlvo = new Set(bairros.map(_norm).filter(Boolean));
-  const transacoesAlvo = new Set((transacoes.length ? transacoes : ['venda', 'aluguel']).map(_norm));
-
+// Além dos leads "de verdade" da plataforma (mapaIntencao), também busca na
+// planilha acumulada de Interessados de Portal (services/interesadosPortal.js)
+// — lá o bairro/cidade/transação já vêm em coluna própria (Bairro/Cidade/
+// Estado/Transacao), sem depender do motor de match ter processado nada.
+async function _buscarNosLeadsPlataforma(siglaAlvo, cidadeAlvo, bairrosAlvo, transacoesAlvo, dias) {
   const { rows } = await query(
     `SELECT id, nome, telefone, whatsapp, origem, status, temperatura, criado_em, mapa_intencao, perfil_ia
      FROM leads WHERE criado_em >= NOW() - make_interval(days => $1::int) ORDER BY criado_em DESC`,
     [dias]
   );
-
   const encontrados = [];
   for (const r of rows) {
     const mi = r.mapa_intencao || {};
@@ -104,12 +100,57 @@ async function buscarDemanda({ estado, cidade, bairros = [], transacoes = [], di
     if (!transacaoLead || !transacoesAlvo.has(transacaoLead)) continue;
 
     encontrados.push({
-      id: r.id, nome: r.nome || 'Sem nome', telefone: r.telefone || r.whatsapp || '',
+      id: 'lead-' + r.id, nome: r.nome || 'Sem nome', telefone: r.telefone || r.whatsapp || '',
       origem: r.origem || '', status: r.status || '', temperatura: r.temperatura || '',
-      criadoEm: r.criado_em, tipo: tipoLead, bairro: bairroLead, transacao: transacaoLead, valorMax
+      criadoEm: r.criado_em, tipo: tipoLead, bairro: bairroLead, transacao: transacaoLead, valorMax,
+      fonte: 'leads_plataforma'
     });
   }
   return encontrados;
+}
+
+async function _buscarNosInteresadosPortal(siglaAlvo, cidadeAlvo, bairrosAlvo, transacoesAlvo, dias) {
+  let rows;
+  try {
+    ({ rows } = await query(
+      `SELECT * FROM interessados_portal WHERE criado_em >= NOW() - make_interval(days => $1::int) ORDER BY criado_em DESC`,
+      [dias]
+    ));
+  } catch (e) {
+    return []; // tabela pode nem existir ainda se nunca subiu planilha nenhuma
+  }
+  const encontrados = [];
+  for (const r of rows) {
+    const transacaoLead = _normTransacao(r.transacao || '');
+    if (!r.estado || _sigla(r.estado) !== siglaAlvo) continue;
+    if (!r.cidade || _norm(r.cidade) !== cidadeAlvo) continue;
+    if (!r.bairro || !bairrosAlvo.has(_norm(r.bairro))) continue;
+    if (!transacaoLead || !transacoesAlvo.has(transacaoLead)) continue;
+
+    encontrados.push({
+      id: 'interessado-' + r.id, nome: r.nome || 'Sem nome', telefone: r.telefone || '',
+      origem: r.origem || 'portal_imovelweb', status: r.importado_em ? 'ja_distribuida' : 'novo', temperatura: '',
+      criadoEm: r.criado_em, tipo: r.tipo || '', bairro: r.bairro, transacao: transacaoLead, valorMax: r.valor_max || '',
+      fonte: 'interessados_portal'
+    });
+  }
+  return encontrados;
+}
+
+// dias: janela de tempo — padrão 2 dias (radar de demanda recente/"quente",
+// não é pra puxar o histórico inteiro). Busca em 2 fontes: leads reais da
+// plataforma (mapaIntencao) + planilha acumulada de Interessados de Portal.
+async function buscarDemanda({ estado, cidade, bairros = [], transacoes = [], dias = 2 }) {
+  const siglaAlvo = _sigla(estado);
+  const cidadeAlvo = _norm(cidade);
+  const bairrosAlvo = new Set(bairros.map(_norm).filter(Boolean));
+  const transacoesAlvo = new Set((transacoes.length ? transacoes : ['venda', 'aluguel']).map(_norm));
+
+  const [doLeads, doPortal] = await Promise.all([
+    _buscarNosLeadsPlataforma(siglaAlvo, cidadeAlvo, bairrosAlvo, transacoesAlvo, dias),
+    _buscarNosInteresadosPortal(siglaAlvo, cidadeAlvo, bairrosAlvo, transacoesAlvo, dias)
+  ]);
+  return [...doLeads, ...doPortal].sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
 }
 
 module.exports = { listarEstados, listarCidades, listarBairros, buscarDemanda };

@@ -14424,7 +14424,7 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
   </div>
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
-    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Origem</th><th>Status</th><th>Temperatura</th><th>Tipo</th><th>Bairro</th><th>Transação</th><th>Valor máx.</th><th>Criado em</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Fonte</th><th>Origem</th><th>Status</th><th>Temperatura</th><th>Tipo</th><th>Bairro</th><th>Transação</th><th>Valor máx.</th><th>Criado em</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
   </div>
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -14524,7 +14524,8 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
         : '🤖 A IA não encontrou interessados com esse perfil nos últimos '+d.dias+' dias.';
       document.getElementById('tabela-body').innerHTML = d.leads.map(function(l){
         const data = l.criadoEm ? new Date(l.criadoEm).toLocaleString('pt-BR') : '—';
-        return '<tr><td>'+escHtml(l.nome)+'</td><td>'+escHtml(l.telefone)+'</td><td>'+escHtml(l.origem)+'</td><td>'+escHtml(l.status)+'</td><td>'+escHtml(l.temperatura)+'</td><td>'+escHtml(l.tipo)+'</td><td>'+escHtml(l.bairro)+'</td><td>'+escHtml(l.transacao)+'</td><td>'+(l.valorMax?escHtml(l.valorMax):'<span class="gray">—</span>')+'</td><td>'+data+'</td></tr>';
+        const fonteTxt = l.fonte === 'interessados_portal' ? '📥 Interessados' : '🟢 Plataforma';
+        return '<tr><td>'+escHtml(l.nome)+'</td><td>'+escHtml(l.telefone)+'</td><td>'+fonteTxt+'</td><td>'+escHtml(l.origem)+'</td><td>'+escHtml(l.status)+'</td><td>'+escHtml(l.temperatura)+'</td><td>'+escHtml(l.tipo)+'</td><td>'+escHtml(l.bairro)+'</td><td>'+escHtml(l.transacao)+'</td><td>'+(l.valorMax?escHtml(l.valorMax):'<span class="gray">—</span>')+'</td><td>'+data+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
     } catch(e){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; }

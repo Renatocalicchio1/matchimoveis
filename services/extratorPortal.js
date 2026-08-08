@@ -6,6 +6,12 @@
 // cai pra regex no texto senão). Usado por services/interesadosPortal.js
 // pra completar bairro/quartos/suítes/banheiros/área/valor a partir da URL
 // do anúncio quando a planilha não trouxer isso pronto.
+// Fixa o navegador dentro de node_modules (mesmo caminho usado no
+// postinstall com PLAYWRIGHT_BROWSERS_PATH=0) — no Render o build e o
+// runtime podem resolver $HOME/.cache de forma diferente, então sem isso
+// o navegador baixado no build "some" em produção.
+process.env.PLAYWRIGHT_BROWSERS_PATH = process.env.PLAYWRIGHT_BROWSERS_PATH || '0';
+
 let _browserPromise = null;
 async function _getBrowser() {
   if (!_browserPromise) {

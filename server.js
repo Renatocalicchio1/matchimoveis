@@ -14214,7 +14214,7 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
       document.getElementById('tabela-body').innerHTML = linhasOrdenadas.map(function(l){
         const temMatch = l.corretores.length > 0;
         const corretoresTxt = temMatch ? l.corretores.map(function(c){ return escHtml(c.nome)+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>';
-        const nomeTd = escHtml(l.Nome) + (l.enriquecidoPeloPortal ? ' <span title="Dados completados direto do anúncio" style="color:#16a34a">🔍</span>' : (l.erroEnriquecimento ? ' <span title="Erro ao buscar no anúncio: '+escHtml(l.erroEnriquecimento)+'" style="color:#dc2626">⚠️</span>' : ''));
+        const nomeTd = escHtml(l.Nome) + (l.enriquecidoPeloPortal ? ' <span title="Dados completados direto do anúncio" style="color:#16a34a">🔍</span>' : (l.erroEnriquecimento ? ' <span style="color:#dc2626">⚠️</span><br><span style="font-size:10px;color:#dc2626">'+escHtml(l.erroEnriquecimento)+'</span>' : ''));
         const cols = [l.Telefone, l.Email, l.Origem, l.Tipo, l.Transacao, l.Condicao, l.Bairro, l.Cidade, l.Estado, l.Quartos, l.Suites, l.Vagas, l.Banheiros, l.Area_max, l.Valor_max];
         const tds = cols.map(function(v){ return '<td>'+(v===''||v==null?'<span class="gray">—</span>':escHtml(v))+'</td>'; }).join('');
         const tdObs = '<td class="wrap">'+(l.Observacoes?escHtml(l.Observacoes):'<span class="gray">—</span>')+'</td>';

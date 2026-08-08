@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "playwright install chromium || true",
+    "postinstall": "PLAYWRIGHT_BROWSERS_PATH=0 playwright install --with-deps chromium || PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium || true",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "cerebro": "node cerebro-scanner.js && node cerebro.js",

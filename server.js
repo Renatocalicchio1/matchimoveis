@@ -15300,16 +15300,19 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
         const _emailProp = (atualizado.proprietario && atualizado.proprietario.email) || '';
         if (_emailProp) {
           const { enviarEmail: _envRevisao } = require('./services/email');
+          const { calcularPercentualPerfil: _cppRevisao } = require('./services/salvarImovel');
           const _uidCap = atualizado.userId || atualizado.user_id;
           const _telProp = (atualizado.proprietario && (atualizado.proprietario.celular || atualizado.proprietario.telefone)) || '';
           const _linkVerAnuncio = 'https://matchimoveis.ia.br/imovel/' + imovelId;
           const _linkEditar = 'https://matchimoveis.ia.br/captar/' + _uidCap + (_telProp ? ('?tel=' + encodeURIComponent(_telProp)) : '');
           const _nomePropEmail = (atualizado.proprietario && atualizado.proprietario.nome) || '';
+          const _pctRevisao = _cppRevisao(atualizado);
+          const _corPct = _pctRevisao >= 67 ? '#16a34a' : _pctRevisao >= 34 ? '#f59e0b' : '#dc2626';
           _envRevisao({
             para: _emailProp,
-            assunto: '📋 Seu anúncio está pronto — dá uma olhada',
-            html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + _nomePropEmail + '!</h2><p>Recebemos os dados do seu imóvel e o anúncio já está no ar. Dá uma olhada em como ficou:</p><a href="' + _linkVerAnuncio + '" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver meu anúncio →</a><p style="margin-top:20px">Se faltou alguma informação ou você quiser completar/corrigir algo, é só continuar o cadastro por aqui:</p><a href="' + _linkEditar + '" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#111827;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Revisar / completar cadastro →</a></div>',
-            texto: 'Seu anúncio: ' + _linkVerAnuncio + ' | Revisar/completar: ' + _linkEditar
+            assunto: '📋 Seu anúncio está pronto (' + _pctRevisao + '% preenchido) — dá uma olhada',
+            html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + _nomePropEmail + '!</h2><p>Recebemos os dados do seu imóvel e o anúncio já está no ar. Dá uma olhada em como ficou:</p><p style="margin:16px 0"><span style="display:inline-block;background:' + _corPct + ';color:#fff;padding:6px 14px;border-radius:20px;font-weight:bold;font-size:14px">Seu imóvel está ' + _pctRevisao + '% preenchido</span></p><a href="' + _linkVerAnuncio + '" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver meu anúncio →</a><p style="margin-top:20px">Se faltou alguma informação ou você quiser completar/corrigir algo, é só continuar o cadastro por aqui:</p><a href="' + _linkEditar + '" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#111827;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Revisar / completar cadastro →</a></div>',
+            texto: 'Seu imóvel está ' + _pctRevisao + '% preenchido. Seu anúncio: ' + _linkVerAnuncio + ' | Revisar/completar: ' + _linkEditar
           }).then(()=>console.log('[EMAIL REVISAO ANUNCIO] enviado para:', _emailProp)).catch((e)=>console.error('[EMAIL REVISAO ANUNCIO] falhou:', e.message));
         }
       } catch(e) { console.error('[captar/imovel] email revisao:', e.message); }

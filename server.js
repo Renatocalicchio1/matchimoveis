@@ -14555,11 +14555,24 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
     if(document.getElementById('chkAluguel').checked) transacoes.push('aluguel');
     if(!estado || !cidade || !bairros.length){ alert('Escolhe estado, cidade e pelo menos 1 bairro.'); return; }
     if(!transacoes.length){ alert('Marca Venda, Aluguel ou os dois.'); return; }
-    document.getElementById('busca-status').innerHTML = '<p>⏳ Buscando...</p>';
     document.getElementById('resultado-box').style.display = 'none';
+    document.getElementById('btnBuscar').disabled = true;
     try {
-      const r = await fetch('/admin/demanda/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, cidade, bairros, transacoes }) });
-      const d = await r.json();
+      const fetchPromise = fetch('/admin/demanda/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, cidade, bairros, transacoes }) }).then(function(r){ return r.json(); });
+      // Não estoura o resultado na hora — mostra a IA "pensando" em etapas,
+      // dá pra sentir que ela está de fato cruzando as fontes antes de responder.
+      const etapas = [
+        '🤖 Entendendo o perfil buscado ('+bairros.length+' bairro'+(bairros.length>1?'s':'')+', '+transacoes.join(' + ')+')...',
+        '🔎 Cruzando com os leads reais da plataforma...',
+        '📥 Cruzando com a planilha de Interessados de Portal...',
+        '🧠 Calculando compatibilidade...'
+      ];
+      for(let i=0;i<etapas.length;i++){
+        document.getElementById('busca-status').innerHTML = '<p class="gray">'+etapas[i]+'</p>';
+        await new Promise(function(res){ setTimeout(res, 600); });
+      }
+      const d = await fetchPromise;
+      document.getElementById('btnBuscar').disabled = false;
       document.getElementById('busca-status').innerHTML = '';
       if(!d.ok){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro: '+escHtml(d.erro)+'</p>'; return; }
       document.getElementById('banner-resultado').innerHTML = d.total > 0
@@ -14571,7 +14584,7 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
         return '<tr><td>'+escHtml(l.nome)+'</td><td>'+escHtml(l.telefone)+'</td><td>'+fonteTxt+'</td><td>'+escHtml(l.origem)+'</td><td>'+escHtml(l.status)+'</td><td>'+escHtml(l.temperatura)+'</td><td>'+escHtml(l.tipo)+'</td><td>'+escHtml(l.bairro)+'</td><td>'+escHtml(l.transacao)+'</td><td>'+(l.valorMax?escHtml(l.valorMax):'<span class="gray">—</span>')+'</td><td>'+data+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
-    } catch(e){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; }
+    } catch(e){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; document.getElementById('btnBuscar').disabled = false; }
   }
   </script>
   </main></div></body></html>`);

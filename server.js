@@ -14590,13 +14590,15 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   ${bodyOpen}
   <div class="hero">
     <h1>📍 Buscar Demanda por Região</h1>
-    <p>Escolhe um recorte geográfico e vê quantos interessados a IA MatchImóveis já identificou com esse perfil recentemente. Nome, telefone e email ficam ocultos até você comprar — depois da compra, os leads encontrados na sua busca vão direto pra sua conta. E não é só isso: ao comprar, sua conta vem com acesso completo à plataforma MatchImóveis — carteira de imóveis, gestão de leads, assistente com IA, agendamento de visitas e todas as outras funcionalidades.</p>
+    <p>Escolhe um recorte geográfico e vê quantos interessados a IA MatchImóveis já identificou com esse perfil recentemente. Nome, telefone e email ficam ocultos até você comprar — depois da compra, os leads encontrados na sua busca vão direto pra sua conta. E não é só isso: ao comprar, sua conta vem com acesso completo à plataforma MatchImóveis — suba seus imóveis via XML (ou cadastre manualmente), e a IA já direciona automaticamente cada lead nova pro imóvel certo da sua carteira, junto com gestão de leads, assistente com IA, agendamento de visitas e todas as outras funcionalidades.</p>
   </div>
   <div class="passos">
     <div class="passo"><span class="num">1</span><h3>Busque sua região</h3><p>Escolha estado, cidades e bairros. A IA cruza com a base de interessados MatchImóveis e mostra quantos encontrou.</p></div>
     <div class="passo"><span class="num">2</span><h3>Escolha um combo</h3><p>A gente já indica o combo que cabe na quantidade encontrada — se passar do tamanho, sobe pro próximo.</p></div>
     <div class="passo"><span class="num">3</span><h3>Crie sua conta e pague</h3><p>Nome, email, celular e senha. Depois só finalizar o pagamento com segurança pelo Mercado Pago.</p></div>
-    <div class="passo"><span class="num">4</span><h3>Leads na sua conta</h3><p>Pagamento aprovado, os leads da sua busca já aparecem na sua carteira — junto com acesso completo à plataforma.</p></div>
+    <div class="passo"><span class="num">4</span><h3>Leads na sua conta</h3><p>Pagamento aprovado, os leads da sua busca já aparecem na sua carteira, prontos pra trabalhar.</p></div>
+    <div class="passo"><span class="num">5</span><h3>Suba seus imóveis via XML</h3><p>Importe seu feed de portal (ou cadastre manualmente) — a plataforma já entra com sua carteira pronta pra receber leads.</p></div>
+    <div class="passo"><span class="num">6</span><h3>A IA direciona pro seu imóvel</h3><p>Toda lead nova (das que você comprou e das que forem chegando depois) é cruzada automaticamente com a sua carteira — o match já aponta direto qual dos seus imóveis casa com aquele interessado, e suas leads só crescem a partir daí.</p></div>
   </div>
   <div class="box">
     <label>Estado</label>

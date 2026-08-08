@@ -14572,6 +14572,20 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .combo.combo-recomendado button{background:var(--rausch)}
   .signup-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:14px;max-width:420px}
   .signup-box .combo-escolhido{background:var(--bg);border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+  @media (max-width:600px){
+    body{overflow-x:hidden}
+    .public-content,.admin-content{padding-left:12px;padding-right:12px}
+    .hero{padding:18px 16px;border-radius:10px}
+    .hero h1{font-size:19px}
+    .hero p{font-size:13px}
+    .passos{grid-template-columns:1fr;gap:10px}
+    select,input[type=text],input[type=email],input[type=password]{max-width:100%}
+    .chips{max-width:100%}
+    #bairros-lista{max-width:100%}
+    .combos{grid-template-columns:1fr}
+    .signup-box{max-width:100%}
+    #btnBuscar,.combo button,#btnComprar{width:100%}
+  }
   </style></head><body>
   ${bodyOpen}
   <div class="hero">

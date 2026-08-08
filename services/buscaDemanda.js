@@ -100,10 +100,26 @@ function _normTransacao(v) {
 // Area_max, Valor_max — id/criadoEm/fonte ficam só pra ordenar/rastrear,
 // não fazem parte do modelo.
 
+// Garante vendido_em/vendido_para sem depender de interesadosPortal.js já
+// ter rodado sua própria migração (ela só roda quando alguém abre a tela de
+// Interessados de Portal) — sem isso a query abaixo falha com "coluna não
+// existe" logo após o deploy, o catch engole o erro e a busca fica sempre
+// vazia mesmo com bairro selecionado direto da lista de quem tem demanda.
+let _colunasVendaOk = false;
+async function _garantirColunasVenda() {
+  if (_colunasVendaOk) return;
+  try {
+    await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS vendido_em TIMESTAMP');
+    await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS vendido_para TEXT');
+    _colunasVendaOk = true;
+  } catch (e) { /* tabela pode nem existir ainda — segue e deixa a query de baixo tratar */ }
+}
+
 // Única fonte: planilha acumulada de Interessados de Portal
 // (services/interesadosPortal.js) — bairro/cidade/transação já vêm em
 // coluna própria (Bairro/Cidade/Estado/Transacao).
 async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas) {
+  await _garantirColunasVenda();
   let rows;
   try {
     ({ rows } = await query(
@@ -199,6 +215,7 @@ async function buscarDemandaParaEntrega({ estado, pares = [], transacoes = [], h
 // mais é entregue de novo pra outro comprador.
 async function marcarVendidos(rowIds, userId) {
   if (!rowIds || !rowIds.length) return;
+  await _garantirColunasVenda();
   await query('UPDATE interessados_portal SET vendido_em = NOW(), vendido_para = $1 WHERE id = ANY($2)', [userId, rowIds]);
 }
 

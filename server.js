@@ -8083,6 +8083,7 @@ app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async 
   const _userCad = (_cacheUsuarios||[]).find(u => u.id === req.session.user?.id || u.codigoUsuario === req.session.user?.codigoUsuario);
   const _saldoCad = _userCad?.matchCoins || req.session.user?.matchCoins || 0;
   if(_saldoCad < 15) return res.redirect('/app/coins?erro=saldo_insuficiente');
+  if(!req.body.numero || !req.body.numero.trim()) return res.status(400).send('Número do endereço é obrigatório. Volte e preencha o número do imóvel.');
   const idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
   const imoveis = (_cacheImoveis || []);
   const b = req.body;
@@ -8931,6 +8932,7 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
     String(i.id) === _pid
   );
   if(idx < 0) return res.send('Imóvel não encontrado. <a href="/app/imoveis">Voltar</a>');
+  if(!req.body.numero || !req.body.numero.trim()) return res.status(400).send('Número do endereço é obrigatório. <a href="javascript:history.back()">Voltar</a>');
 
   // Essa tela não mexe em fotos, mas o cache só guarda as 20 primeiras — busca a base
   // completa antes de sobrescrever, senão o save apagaria as fotos além da 20ª.

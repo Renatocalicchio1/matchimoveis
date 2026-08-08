@@ -14158,9 +14158,11 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
   button{background:#FF385C;color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin:4px 4px 4px 0}
   button.sec{background:#111827}
   button:disabled{opacity:.5;cursor:not-allowed}
-  table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
-  th{text-align:left;padding:6px;background:#f3f4f6;font-size:10px;text-transform:uppercase;color:#6b7280}
-  td{padding:6px;border-bottom:1px solid #f3f4f6;vertical-align:top}
+  table{border-collapse:collapse;font-size:12px;margin-top:12px;min-width:100%}
+  th{text-align:left;padding:6px;background:#f3f4f6;font-size:10px;text-transform:uppercase;color:#6b7280;white-space:nowrap}
+  td{padding:6px;border-bottom:1px solid #f3f4f6;vertical-align:top;white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+  td.wrap{white-space:normal}
+  tr.sem-match{background:#fef2f2}
   .gray{color:#6b7280}.green{color:#16a34a}.red{color:#dc2626}
   .stat{display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 16px;margin:4px 6px 4px 0;text-align:center;min-width:70px}
   .stat strong{display:block;font-size:20px;color:#FF385C}
@@ -14200,10 +14202,15 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
         '<div class="stat"><strong>'+d.linhas.length+'</strong>Processadas (fora Rankim)</div>'+
         '<div class="stat green"><strong>'+comMatch+'</strong>Com corretor</div>'+
         '<div class="stat red"><strong>'+semMatch+'</strong>Sem match</div>';
-      document.getElementById('tabela-body').innerHTML = d.linhas.map(function(l){
-        const corretoresTxt = l.corretores.length ? l.corretores.map(function(c){ return escHtml(c.nome)+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>';
-        const cols = [l.Nome, l.Telefone, l.Email, l.Origem, l.Tipo, l.Transacao, l.Condicao, l.Bairro, l.Cidade, l.Estado, l.Quartos, l.Suites, l.Vagas, l.Banheiros, l.Area_max, l.Valor_max, l.Observacoes];
-        return '<tr>' + cols.map(function(v){ return '<td>'+(v===''||v==null?'<span class="gray">—</span>':escHtml(v))+'</td>'; }).join('') + '<td>'+corretoresTxt+'</td></tr>';
+      // Com corretor primeiro, sem match depois — ordem estável dentro de cada grupo
+      const linhasOrdenadas = d.linhas.slice().sort(function(a, b){ return (b.corretores.length>0) - (a.corretores.length>0); });
+      document.getElementById('tabela-body').innerHTML = linhasOrdenadas.map(function(l){
+        const temMatch = l.corretores.length > 0;
+        const corretoresTxt = temMatch ? l.corretores.map(function(c){ return escHtml(c.nome)+' ('+c.nivel+', '+c.totalImoveis+' im.)'; }).join('<br>') : '<span class="red">sem match</span>';
+        const cols = [l.Nome, l.Telefone, l.Email, l.Origem, l.Tipo, l.Transacao, l.Condicao, l.Bairro, l.Cidade, l.Estado, l.Quartos, l.Suites, l.Vagas, l.Banheiros, l.Area_max, l.Valor_max];
+        const tds = cols.map(function(v){ return '<td>'+(v===''||v==null?'<span class="gray">—</span>':escHtml(v))+'</td>'; }).join('');
+        const tdObs = '<td class="wrap">'+(l.Observacoes?escHtml(l.Observacoes):'<span class="gray">—</span>')+'</td>';
+        return '<tr class="'+(temMatch?'':'sem-match')+'">' + tds + tdObs + '<td class="wrap">'+corretoresTxt+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
       document.getElementById('btnImportar').style.display = comMatch>0 ? 'inline-block' : 'none';

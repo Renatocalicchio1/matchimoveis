@@ -14538,7 +14538,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   h1{color:var(--rausch);font-size:20px}
   h2.secao{font-size:16px;color:var(--ink);margin:28px 0 4px}
   .box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0}
-  .campos-geo{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+  .campos-geo{display:grid;grid-template-columns:repeat(3,1fr) 1.1fr;gap:16px;align-items:start}
+  .campo-filtros-finais{display:flex;flex-direction:column}
+  .campo-filtros-finais button{margin-top:auto}
   .campo select,.campo input[type=text]{max-width:none}
   .campo label{margin-top:0}
   label{display:block;font-size:12px;font-weight:bold;color:#374151;margin:12px 0 4px}
@@ -14569,19 +14571,19 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .proof-bar strong{color:var(--rausch)}
   .trust-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin:24px 0 12px;padding:14px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--sec);font-weight:600;text-align:center}
   .por-lead{font-size:11px;color:var(--sec);margin-top:2px}
-  .passos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:12px 0 8px}
-  .passo{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px}
-  .passo .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;background:var(--babu);color:#fff;font-weight:bold;font-size:13px;margin-bottom:8px}
-  .passo h3{font-size:13px;margin:0 0 6px}
-  .passo p{font-size:12px;color:var(--sec);margin:0;line-height:1.5}
+  .passos{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:12px 0 8px}
+  .passo{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px}
+  .passo .num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:999px;background:var(--babu);color:#fff;font-weight:bold;font-size:11px;margin-bottom:6px}
+  .passo h3{font-size:11.5px;margin:0 0 5px;line-height:1.25}
+  .passo p{font-size:11px;color:var(--sec);margin:0;line-height:1.4}
   .passo ul{list-style:none;margin:0;padding:0}
-  .passo ul li{font-size:12px;color:var(--sec);line-height:1.6;padding-left:14px;position:relative}
+  .passo ul li{font-size:10.5px;color:var(--sec);line-height:1.45;padding-left:12px;position:relative}
   .passo ul li::before{content:'•';position:absolute;left:0;color:var(--babu);font-weight:bold}
-  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:12px 0 8px}
-  .feature{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;border-left:3px solid var(--babu)}
-  .feature-ic{font-size:22px;margin-bottom:8px}
-  .feature h3{font-size:13px;margin:0 0 4px;color:var(--ink)}
-  .feature p{font-size:12px;color:var(--sec);margin:0;line-height:1.5}
+  .features-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin:12px 0 8px}
+  .feature{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;border-left:3px solid var(--babu)}
+  .feature-ic{font-size:17px;margin-bottom:5px}
+  .feature h3{font-size:11.5px;margin:0 0 4px;color:var(--ink);line-height:1.25}
+  .feature p{font-size:10.5px;color:var(--sec);margin:0;line-height:1.4}
   .combos{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:14px 0}
   .combo{background:#fff;border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s,transform .15s}
   .combo:hover{border-color:var(--babu);transform:translateY(-2px)}
@@ -14595,6 +14597,16 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .combo.combo-recomendado button{background:var(--rausch)}
   .signup-box{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:14px;max-width:420px}
   .signup-box .combo-escolhido{background:var(--bg);border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+  @media (max-width:1100px){
+    .passos{grid-template-columns:repeat(3,1fr)}
+    .features-grid{grid-template-columns:repeat(4,1fr)}
+    .campos-geo{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:760px){
+    .passos{grid-template-columns:repeat(2,1fr)}
+    .features-grid{grid-template-columns:repeat(2,1fr)}
+    .campos-geo{grid-template-columns:1fr;gap:0}
+  }
   @media (max-width:600px){
     body{overflow-x:hidden}
     .public-content,.admin-content{padding-left:12px;padding-right:12px}
@@ -14602,6 +14614,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     .hero h1{font-size:19px}
     .hero p{font-size:13px}
     .passos{grid-template-columns:1fr;gap:10px}
+    .features-grid{grid-template-columns:1fr}
     .campos-geo{grid-template-columns:1fr;gap:0}
     select,input[type=text],input[type=email],input[type=password]{max-width:100%}
     .chips{max-width:100%}
@@ -14684,19 +14697,23 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         <div id="bairros-lista"><span class="gray" style="font-size:12px">Selecione ao menos 1 cidade primeiro...</span></div>
         <div id="bairros-chips" class="chips"></div>
       </div>
+
+      <div class="campo campo-filtros-finais">
+        <label>Transação</label>
+        <div class="chk-transacao">
+          <label><input type="checkbox" id="chkVenda" checked> Venda</label>
+          <label><input type="checkbox" id="chkAluguel" checked> Aluguel</label>
+        </div>
+
+        <label>Período (dias atrás)</label>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" id="periodoDias" min="1" max="30" value="7" style="max-width:70px">
+          <span class="gray" style="font-size:11px">máx. 30 dias</span>
+        </div>
+
+        <button id="btnBuscar" onclick="buscarDemanda()" disabled>🔎 Buscar Demanda</button>
+      </div>
     </div>
-
-    <label>Transação</label>
-    <div class="chk-transacao">
-      <label><input type="checkbox" id="chkVenda" checked> Venda</label>
-      <label><input type="checkbox" id="chkAluguel" checked> Aluguel</label>
-    </div>
-
-    <label>Período (dias atrás, até hoje)</label>
-    <input type="number" id="periodoDias" min="1" max="30" value="7" style="max-width:100px">
-    <span class="gray" style="font-size:11px">máx. 30 dias</span>
-
-    <button id="btnBuscar" onclick="buscarDemanda()" disabled>🔎 Buscar Demanda</button>
     <div id="busca-status"></div>
   </div>
   <div id="resultado-box" style="display:none">

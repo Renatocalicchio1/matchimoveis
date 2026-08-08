@@ -9681,7 +9681,14 @@ const PLANOS_LEADS = {
   '300': { qtd: 300, valor: 1000, creditos: 27000, label: '300 leads/mês' },
   // Combo de entrada (bônus menor: 25% em vez dos 35% dos combos acima).
   // R$200×20=4.000 base ×1,25 = 5.000 coins.
-  'r200': { qtd: 50, valor: 200, creditos: 5000, label: '50 leads/mês' }
+  'r200': { qtd: 50, valor: 200, creditos: 5000, label: '50 leads/mês' },
+  // Plano ilimitado — quando a busca em /demanda encontra mais que o topo
+  // dos combos fechados (300), não faz sentido oferecer um combo fixo que
+  // não cobre tudo; qtd:0 aqui tem o mesmo significado usado em
+  // buscarDemandaParaEntrega (limite<=0 = sem limite) — entrega TODOS os
+  // leads encontrados na busca, não só até 300.
+  // R$2.000×20=40.000 base ×1,35 = 54.000 coins (mesmo bônus dos combos 100/200/300).
+  'ilimitado': { qtd: 0, ilimitado: true, valor: 2000, creditos: 54000, label: 'Leads ilimitados/mês' }
 };
 
 app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
@@ -9922,7 +9929,7 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
         });
         (async () => {
           try {
-            const _msgAdmin = `💰 *Combo comprado via /demanda!*\n\n👤 *Usuário:* ${userId}\n📦 *Combo:* ${label}\n📇 *Leads entregues:* ${entreguesQtd}/${qtd}\n🪙 *Créditos:* ${creditos}\n💵 *Valor:* R$ ${valor}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
+            const _msgAdmin = `💰 *Combo comprado via /demanda!*\n\n👤 *Usuário:* ${userId}\n📦 *Combo:* ${label}\n📇 *Leads entregues:* ${entreguesQtd}${qtd ? '/' + qtd : ' (ilimitado)'}\n🪙 *Créditos:* ${creditos}\n💵 *Valor:* R$ ${valor}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
             await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
               method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
               body: JSON.stringify({ number: '5511951131609', text: _msgAdmin })
@@ -14855,24 +14862,32 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
 
   // ── Combos + criação de conta + pagamento ──────────────────────────────
   const PLANOS = ${JSON.stringify(PLANOS_LEADS)};
+  // Combos fechados em ordem crescente de quantidade — o ilimitado fica de
+  // fora dessa lista porque não compete por "cabe no total", ele é o
+  // fallback quando NENHUM combo fechado cobre a quantidade encontrada.
   const PLANOS_ORDEM = ['r200','100','200','300'];
+  const PLANO_ILIMITADO = 'ilimitado';
   let _ultimaBusca = null;
   let _comboEscolhido = null;
 
   function renderCombos(total){
     const box = document.getElementById('combos-box');
     if(total <= 0){ box.style.display = 'none'; document.getElementById('signup-box').style.display = 'none'; return; }
-    // Combo recomendado: o menor cuja quantidade cobre o total encontrado —
-    // se passar do maior combo, sobe pro topo (300) mesmo assim.
+    // Combo recomendado: o menor combo fechado cuja quantidade cobre o total
+    // encontrado (ex: até 50 → combo de 50; de 51 a 100 → combo de 100...).
+    // Passou do maior combo fechado (300)? Só o ilimitado cobre.
     let recomendado = PLANOS_ORDEM.find(function(k){ return PLANOS[k].qtd >= total; });
-    if(!recomendado) recomendado = PLANOS_ORDEM[PLANOS_ORDEM.length - 1];
-    document.getElementById('combos-lista').innerHTML = PLANOS_ORDEM.map(function(k){
+    if(!recomendado) recomendado = PLANO_ILIMITADO;
+    const ordemExibida = PLANOS_ORDEM.concat([PLANO_ILIMITADO]);
+    document.getElementById('combos-lista').innerHTML = ordemExibida.map(function(k){
       const p = PLANOS[k];
       const rec = k === recomendado;
+      const qtdTxt = p.ilimitado ? '∞' : p.qtd;
+      const unidade = p.ilimitado ? ' /mês' : ' /combo';
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
         + (rec ? '<span class="badge">✓ Ideal pra você</span>' : '')
-        + '<div class="qtd">'+p.qtd+'</div><div class="label">'+escHtml(p.label)+'</div>'
-        + '<div class="preco">R$ '+p.valor+'<span> /combo</span></div>'
+        + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'
+        + '<div class="preco">R$ '+p.valor+'<span>'+unidade+'</span></div>'
         + '<button type="button" data-escolher="'+k+'">Escolher</button>'
         + '</div>';
     }).join('');

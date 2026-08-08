@@ -843,7 +843,7 @@ app.get('/admin/status', authAdmin, async (req, res) => {
     ).join('');
 
     const _html =
-      '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Status — MatchImóveis</title>' +
+      '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Status — MatchImóveis</title>' +
       '<meta http-equiv="refresh" content="30">' +
       '<style>body{font-family:Arial,sans-serif;background:#f9fafb;margin:0;padding:0;color:#111}' +
       _adminShellCss() +
@@ -931,7 +931,7 @@ app.get('/admin/leads-auditoria', authAdmin, async (req, res) => {
     if (fAcao) { pars.push(fAcao); ph = pars.length; sql = sql + ' AND acao='; sql = sql + ph; }
     sql = sql + ' ORDER BY criado_em DESC LIMIT 500';
     var resultado = await qAud(sql, pars);
-    var html = '<html><head><meta charset=UTF-8><title>Auditoria de Leads</title><style>body{font-family:Arial,sans-serif;margin:0;padding:0}' + _adminShellCss() + '</style></head><body>';
+    var html = '<html><head><meta charset=UTF-8><meta name="viewport" content="width=device-width,initial-scale=1"><title>Auditoria de Leads</title><style>body{font-family:Arial,sans-serif;margin:0;padding:0}' + _adminShellCss() + '</style></head><body>';
     html = html + '<div class="admin-app">' + _adminSidebarHtml('leads-auditoria') + '<main class="admin-content">';
     html = html + '<h1>Auditoria de Leads</h1>';
     html = html + 'Total: ' + resultado.rows.length;
@@ -1582,7 +1582,7 @@ app.get('/admin/quintoandar-solicitacoes', authAdmin, async (req, res) => {
       WHERE s.id IS NOT NULL OR u.autoriza_quintoandar = TRUE
       ORDER BY s.criado_em DESC NULLS LAST
     `);
-    let html = `<html><head><meta charset="UTF-8"><title>Solicitações QuintoAndar</title>
+    let html = `<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Solicitações QuintoAndar</title>
     <style>body{font-family:Arial;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:1000px}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
     <body><div class="admin-app">${_adminSidebarHtml('quintoandar')}<main class="admin-content">
     <h2 style="margin-bottom:16px">Solicitações de acesso QuintoAndar (${r.rows.length})</h2>
@@ -1602,7 +1602,7 @@ app.get('/admin/exclusao-solicitacoes', authAdmin, async (req, res) => {
       id SERIAL PRIMARY KEY, user_id TEXT, nome TEXT, email TEXT,
       criado_em TIMESTAMPTZ DEFAULT NOW(), atendido BOOLEAN DEFAULT FALSE)`);
     const r = await _qExcA('SELECT * FROM solicitacoes_exclusao_conta ORDER BY atendido ASC, criado_em DESC');
-    let html = `<html><head><meta charset="UTF-8"><title>Solicitações de exclusão de conta</title>
+    let html = `<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Solicitações de exclusão de conta</title>
     <style>body{font-family:Arial;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:1000px}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
     <body><div class="admin-app">${_adminSidebarHtml('exclusao')}<main class="admin-content">
     <h2 style="margin-bottom:16px">Solicitações de exclusão de conta (${r.rows.length})</h2>
@@ -1981,7 +1981,7 @@ app.get('/admin/usuario/:codigo', authAdmin, async (req, res) => {
     if(!u) return res.redirect('/admin');
     res.send(`<!DOCTYPE html>
 <html lang="pt-BR">
-<head><meta charset="utf-8"><title>${u.nome} · Admin</title>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${u.nome} · Admin</title>
 <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',sans-serif;background:#f8f8f7;font-size:13px;}
 ${_adminShellCss()}
 .admin-content{max-width:600px}.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:20px;margin-bottom:16px;}
@@ -10127,13 +10127,19 @@ app.post('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', authAdmin, async (
 
 app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
   try {
-    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Inbox WhatsApp Cloud</title>
-    <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Inbox WhatsApp Cloud</title>
+    <style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;padding:0;overflow-x:hidden}
     ${_adminShellCss()}
     .admin-content{max-width:720px}
     h1{color:#FF385C;font-size:20px}
     .box{border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-top:16px}
-    .linha{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #e5e7eb;text-decoration:none;color:inherit}
+    .linha{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #e5e7eb;text-decoration:none;color:inherit;flex-wrap:wrap}
+    @media(max-width:520px){
+      .linha{flex-direction:column;align-items:stretch}
+      .linha > div:last-child{width:100%;justify-content:flex-start;flex-wrap:wrap!important}
+    }
     </style></head><body>
     <div class="admin-app">
     ${_adminSidebarHtml('whatsapp-cloud')}
@@ -10274,7 +10280,7 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     };
     const bolhas = mensagens.map(_bolha).join('');
     const _ultimaData = mensagens.length ? mensagens[mensagens.length-1].criado_em : new Date(0).toISOString();
-    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Conversa — ${nome}</title>
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Conversa — ${nome}</title>
     <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
     ${_adminShellCss()}
     .admin-content{max-width:720px}
@@ -14134,7 +14140,7 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   const erros = (stats.find(s=>s.status==='erro')||{}).total||0;
   const aberturas = (tracking.find(s=>s.tipo==='abertura')||{}).total||0;
   const cliques = (tracking.find(s=>s.tipo==='clique')||{}).total||0;
-  res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Campanha Email</title>
+  res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Campanha Email</title>
   <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
   ${_adminShellCss()}
   .admin-content{max-width:900px}
@@ -14385,7 +14391,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         <td style="padding:8px"><span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;background:${_corStatus(c.status)}">${c.status}</span></td>
         <td style="padding:8px;font-size:11px;color:#6b7280">${new Date(c.criado_em).toLocaleString('pt-BR')}</td>
       </tr>`).join('');
-    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Disparos WhatsApp</title>
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Disparos WhatsApp</title>
     <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
     ${_adminShellCss()}
     .admin-content{max-width:960px}
@@ -14575,6 +14581,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
 // na raiz do projeto pra o script reconciliar-enderecos-mauricio.js ler direto no Render Shell.
 app.get('/admin/upload-mauricio-mapa', authAdmin, (req, res) => {
   res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Upload mapa Mauricio</title>
   <style>body{font-family:sans-serif;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:480px}</style>
   </head>
@@ -14718,7 +14725,7 @@ app.get('/admin/disparos/optout', authAdmin, async (req, res) => {
         <td style="padding:8px;font-size:12px;color:#6b7280">${_escHtmlOpt(_origemLabel[o.origem] || o.origem || '—')}</td>
         <td style="padding:8px;font-size:11px;color:#6b7280">${new Date(o.criado_em).toLocaleString('pt-BR')}</td>
       </tr>`).join('') || '<tr><td colspan="4" style="padding:20px;text-align:center;color:#6b7280">Ninguém descadastrou ainda.</td></tr>';
-    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Opt-out — Disparos WhatsApp</title>
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Opt-out — Disparos WhatsApp</title>
     <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
     ${_adminShellCss()}
     .admin-content{max-width:800px}
@@ -14744,7 +14751,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
     const { buscarCampanha } = require('./services/salvarDisparo');
     const c = await buscarCampanha(req.params.id);
     if (!c) return res.status(404).send('Campanha não encontrada');
-    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${c.nome_campanha} — Disparos WhatsApp</title>
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${c.nome_campanha} — Disparos WhatsApp</title>
     <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
     ${_adminShellCss()}
     .admin-content{max-width:960px}

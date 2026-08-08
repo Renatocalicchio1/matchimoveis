@@ -14216,6 +14216,7 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
       // extração por título/mensagem está de fato rendendo.
       const comBairro = d.linhas.filter(l => l.Bairro).length;
       const comQuartos = d.linhas.filter(l => l.Quartos).length;
+      const comBairroEQuartos = d.linhas.filter(l => l.Bairro && l.Quartos).length;
       const comValor = d.linhas.filter(l => l.Valor_max).length;
       const completudeMedia = d.linhas.length ? Math.round(100 * d.linhas.reduce(function(s,l){ return s + (l.Completude||0)/(l.CompletudeTotal||1); }, 0) / d.linhas.length) : 0;
       document.getElementById('resumo').innerHTML =
@@ -14225,6 +14226,7 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
         '<div class="stat red"><strong>'+semMatch+'</strong>Sem match</div>'+
         '<div class="stat"><strong>'+comBairro+'</strong>Com bairro</div>'+
         '<div class="stat"><strong>'+comQuartos+'</strong>Com quartos</div>'+
+        '<div class="stat"><strong>'+comBairroEQuartos+'</strong>Com bairro + quartos</div>'+
         '<div class="stat"><strong>'+comValor+'</strong>Com valor</div>'+
         '<div class="stat"><strong>'+completudeMedia+'%</strong>Completude média</div>';
       // Já vem ordenado por completude (mais completa primeiro) do servidor —

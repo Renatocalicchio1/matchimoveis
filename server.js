@@ -14519,7 +14519,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   // some em vez de mostrar número falso.
   const disponiveis = await contarDisponiveis();
   const shellCss = isAdmin ? _adminShellCss() : '';
-  const contentCss = isAdmin ? '.admin-content{max-width:960px}' : '.public-content{max-width:960px;margin:0 auto;padding:24px 16px}';
+  const contentCss = isAdmin ? '.admin-content{max-width:960px}' : '.public-content{max-width:1280px;margin:0 auto;padding:24px 32px}';
   const bodyOpen = isAdmin ? `<div class="admin-app">${_adminSidebarHtml('demanda')}<main class="admin-content">` : '<div class="public-content">';
   const bodyClose = isAdmin ? '</main></div>' : '</div>';
   return `<!DOCTYPE html><html><head><meta charset="utf-8">
@@ -14532,7 +14532,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   ${contentCss}
   .hero{background:linear-gradient(135deg,var(--rausch),var(--arches));border-radius:14px;padding:28px 24px;margin:16px 0;color:#fff}
   .hero h1{margin:0 0 8px;font-size:24px;color:#fff}
-  .hero p{margin:0;font-size:14px;opacity:.95;max-width:680px;line-height:1.5}
+  .hero p{margin:0;font-size:14px;opacity:.95;max-width:820px;line-height:1.5}
   .hero-bullets{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 24px}
   .hero-bullets li{font-size:13px;font-weight:600;line-height:1.4}
   h1{color:var(--rausch);font-size:20px}

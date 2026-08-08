@@ -89,22 +89,45 @@ function _lerPlanilha(filePath) {
   return XLSX.utils.sheet_to_json(ws, { defval: '' });
 }
 
-// Pra cada linha, busca (no máx 3) corretores que já têm imóvel na mesma
-// combinação bairro+categoria+transação; se não achar 3 assim, completa com
-// corretores que têm imóvel na cidade (mesmo estado); sem nenhum match, a
-// linha fica de fora (nenhuma conta recebe).
-async function _buscarCorretoresCandidatos(estado, cidade, bairro, categoria, transacao) {
+// Mesmo tipo de comparação usada de verdade no motor de match (cerebro/
+// motor-intencao.js: minúsculo + sem acento) — NUNCA comparar cidade/bairro
+// por igualdade exata de string: cada corretor digitou/importou a
+// localidade de um jeito (maiúscula, sem acento, espaço a mais etc), então
+// um WHERE cidade=$1 exato só bate com quem por acaso já está no formato
+// "canônico" — foi o bug real que fazia só 1 conta aparecer sempre.
+function _norm(s) {
+  return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+}
+
+// Carrega TODOS os imóveis ativos uma vez só (reaproveitado por todas as
+// linhas da planilha, em vez de 1 query por linha) e indexa por estado+cidade
+// normalizados, pra cada linha só filtrar o balde certo em memória.
+async function _carregarIndiceImoveis() {
   const { rows } = await query(
-    `SELECT user_id, tipo, bairro, cidade FROM imoveis
-     WHERE estado = $1 AND cidade = $2 AND status != 'inativo' AND user_id IS NOT NULL`,
-    [estado, cidade]
+    `SELECT user_id, tipo, bairro, cidade, estado FROM imoveis WHERE status != 'inativo' AND user_id IS NOT NULL`
   );
+  const indice = {};
+  for (const r of rows) {
+    const chave = _norm(r.estado) + '|' + _norm(r.cidade);
+    if (!indice[chave]) indice[chave] = [];
+    indice[chave].push({ userId: r.user_id, bairroNorm: _norm(r.bairro), categoria: categoriaDoImovelCadastrado(r.tipo) });
+  }
+  return indice;
+}
+
+// Pra cada linha, busca (no máx 3) corretores que já têm imóvel na mesma
+// combinação bairro+categoria; se não achar 3 assim, completa com corretores
+// que têm imóvel na cidade (mesmo estado); sem nenhum match, a linha fica de
+// fora (nenhuma conta recebe).
+function _buscarCorretoresCandidatos(indiceImoveis, estado, cidade, bairro, categoria) {
+  const candidatosCidade = indiceImoveis[_norm(estado) + '|' + _norm(cidade)] || [];
+  const bairroNorm = _norm(bairro);
   const contPorBairro = {};
   const contPorCidade = {};
-  for (const r of rows) {
-    if (categoriaDoImovelCadastrado(r.tipo) !== categoria) continue;
-    contPorCidade[r.user_id] = (contPorCidade[r.user_id] || 0) + 1;
-    if (bairro && r.bairro === bairro) contPorBairro[r.user_id] = (contPorBairro[r.user_id] || 0) + 1;
+  for (const im of candidatosCidade) {
+    if (im.categoria !== categoria) continue;
+    contPorCidade[im.userId] = (contPorCidade[im.userId] || 0) + 1;
+    if (bairroNorm && im.bairroNorm === bairroNorm) contPorBairro[im.userId] = (contPorBairro[im.userId] || 0) + 1;
   }
   const porBairro = Object.entries(contPorBairro).sort((a, b) => b[1] - a[1]).map(([userId, total]) => ({ userId, total, nivel: 'bairro' }));
   const usadosSet = new Set(porBairro.map(c => c.userId));
@@ -120,6 +143,7 @@ async function processarInteresados(filePath) {
   const { rows: usuarios } = await query('SELECT codigo_usuario, id, nome FROM usuarios');
   const nomePorId = {};
   usuarios.forEach(u => { nomePorId[u.codigo_usuario] = u.nome; nomePorId[u.id] = u.nome; });
+  const indiceImoveis = await _carregarIndiceImoveis();
 
   const resultado = [];
   for (const l of linhasBrutas) {
@@ -137,10 +161,7 @@ async function processarInteresados(filePath) {
     const transacao = normalizarTransacao(l['Tipo de operação'] || '');
     const atributos = extrairAtributosTexto(textoLivre);
 
-    let candidatos = [];
-    if (cidade) {
-      candidatos = await _buscarCorretoresCandidatos(estado, cidade, bairro, categoria, transacao);
-    }
+    const candidatos = cidade ? _buscarCorretoresCandidatos(indiceImoveis, estado, cidade, bairro, categoria) : [];
 
     // Campos no mesmo formato/nome do modelo de importação de leads (GET
     // /app/modelo-leads.xlsx) — quartos/suítes/vagas/banheiros/área não vêm

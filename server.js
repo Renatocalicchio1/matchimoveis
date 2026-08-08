@@ -14738,8 +14738,8 @@ app.get('/demanda/cidades', _handlerDemandaCidades);
 
 async function _handlerDemandaBairros(req, res) {
   try {
-    const { listarBairros } = require('./services/buscaDemanda');
-    const bairros = await listarBairros(req.query.estado || '', req.query.cidade || '');
+    const { listarBairrosComLead } = require('./services/buscaDemanda');
+    const bairros = await listarBairrosComLead(req.query.estado || '', req.query.cidade || '');
     res.json({ ok: true, bairros });
   } catch(e) { res.json({ ok: false, erro: e.message, bairros: [] }); }
 }

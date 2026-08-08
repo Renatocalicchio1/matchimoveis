@@ -46,15 +46,45 @@ async function listarCidades(estado) {
   return rows.map(r => _tituloCase(r.cidade));
 }
 
-async function listarBairros(estado, cidade) {
-  const sigla = _sigla(estado);
-  const cidadeNorm = _norm(cidade);
-  if (!sigla || !cidadeNorm) return [];
-  const { rows } = await query(
-    "SELECT DISTINCT bairro FROM localidades WHERE estado = $1 AND cidade = $2 AND bairro IS NOT NULL AND bairro != '' ORDER BY bairro",
-    [sigla, cidadeNorm]
+// Diferente de listarCidades (usa o dicionário IBGE/OSM inteiro), aqui só
+// interessa mostrar bairro que TEM demanda de verdade — senão a lista fica
+// com centenas de bairros sem nenhum lead, a maioria inútil pra escolher.
+// Mesma janela de 30 dias (o máximo que a busca em si permite).
+async function listarBairrosComLead(estado, cidade) {
+  const siglaAlvo = _sigla(estado);
+  const cidadeAlvo = _norm(cidade);
+  if (!siglaAlvo || !cidadeAlvo) return [];
+
+  const bairros = new Map(); // chave normalizada -> nome de exibição
+
+  const { rows: leadsRows } = await query(
+    `SELECT mapa_intencao, perfil_ia FROM leads WHERE criado_em >= NOW() - make_interval(days => 30)`
   );
-  return rows.map(r => _tituloCase(r.bairro));
+  for (const r of leadsRows) {
+    const mi = r.mapa_intencao || {};
+    const pi = r.perfil_ia || {};
+    const estadoLead = _valorMapa(mi, 'estado') || pi.estado || '';
+    const cidadeLead = _valorMapa(mi, 'cidade') || pi.cidade || '';
+    const bairroLead = _valorMapa(mi, 'bairro') || pi.bairro || '';
+    if (!bairroLead || !cidadeLead) continue;
+    if (_sigla(estadoLead) !== siglaAlvo || _norm(cidadeLead) !== cidadeAlvo) continue;
+    const chave = _norm(bairroLead);
+    if (!bairros.has(chave)) bairros.set(chave, bairroLead);
+  }
+
+  try {
+    const { rows: portalRows } = await query(
+      `SELECT DISTINCT bairro, estado, cidade FROM interessados_portal
+       WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30) AND bairro IS NOT NULL AND bairro != ''`
+    );
+    for (const r of portalRows) {
+      if (_sigla(r.estado) !== siglaAlvo || _norm(r.cidade) !== cidadeAlvo) continue;
+      const chave = _norm(r.bairro);
+      if (!bairros.has(chave)) bairros.set(chave, r.bairro);
+    }
+  } catch (e) {} // tabela pode nem existir ainda
+
+  return Array.from(bairros.values()).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 }
 
 // mapaIntencao guarda cada campo como array de sinais ({valor, confiança,
@@ -195,8 +225,8 @@ async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 168 
     _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas)
   ]);
   return [...doLeads, ...doPortal]
-    .sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm))
+    .sort((a, b) => (parseFloat(b.Valor_max) || 0) - (parseFloat(a.Valor_max) || 0))
     .map(l => ({ ...l, Nome: _mascararNome(l.Nome), Telefone: _mascararTelefone(l.Telefone), Email: _mascararEmail(l.Email) }));
 }
 
-module.exports = { listarEstados, listarCidades, listarBairros, buscarDemanda };
+module.exports = { listarEstados, listarCidades, listarBairrosComLead, buscarDemanda };

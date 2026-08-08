@@ -14183,7 +14183,13 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
     <input type="text" id="urlTeste" placeholder="https://www.imovelweb.com.br/propriedades/..." style="width:420px;max-width:80%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;margin-top:8px">
     <button onclick="testarUrl()">🔍 Testar</button>
     <div id="teste-status"></div>
-    <pre id="teste-resultado" style="display:none;background:#111827;color:#d1fae5;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;white-space:pre-wrap"></pre>
+    <div id="teste-tabela-wrap" style="display:none;overflow-x:auto">
+      <table><tbody id="teste-tabela-body"></tbody></table>
+    </div>
+    <details id="teste-json-wrap" style="display:none;margin-top:10px">
+      <summary style="cursor:pointer;font-size:11px;color:#6b7280">Ver dados brutos (JSON)</summary>
+      <pre id="teste-json" style="background:#111827;color:#d1fae5;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;white-space:pre-wrap"></pre>
+    </details>
   </div>
   <div class="box" id="resultado-box" style="display:none">
     <div id="resumo"></div>
@@ -14235,13 +14241,47 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
     const url = document.getElementById('urlTeste').value.trim();
     if(!url){ alert('Cola a URL do anúncio'); return; }
     document.getElementById('teste-status').innerHTML = '<p>⏳ Abrindo a página (pode levar até 30s)...</p>';
-    document.getElementById('teste-resultado').style.display = 'none';
+    document.getElementById('teste-tabela-wrap').style.display = 'none';
+    document.getElementById('teste-json-wrap').style.display = 'none';
     try {
       const r = await fetch('/admin/interesados/testar-url', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
       const d = await r.json();
-      document.getElementById('teste-status').innerHTML = '';
-      document.getElementById('teste-resultado').style.display = 'block';
-      document.getElementById('teste-resultado').textContent = JSON.stringify(d, null, 2);
+      document.getElementById('teste-json').textContent = JSON.stringify(d, null, 2);
+      document.getElementById('teste-json-wrap').style.display = 'block';
+      if(!d.ok){
+        document.getElementById('teste-status').innerHTML = '<p class="red">❌ Não conseguiu extrair: '+escHtml(d.erro||'erro desconhecido')+'</p>';
+        return;
+      }
+      const achouEstruturado = d.fonte === 'avisoInfo';
+      document.getElementById('teste-status').innerHTML = achouEstruturado
+        ? '<p class="green">✅ Achou os dados estruturados do anúncio.</p>'
+        : (d.bloqueado
+            ? '<p class="red">⚠️ Página bloqueou o acesso (proteção anti-bot) — título: '+escHtml(d.titulo||'?')+'</p>'
+            : '<p class="red">⚠️ Abriu a página mas não achou os dados estruturados — título: '+escHtml(d.titulo||'?')+'</p>');
+      const fmt = v => (v===''||v==null||v===0) ? '<span class="gray">—</span>' : escHtml(v);
+      const linhas = [
+        ['Título', d.titulo],
+        ['Tipo', d.tipo],
+        ['Bairro', d.bairro],
+        ['Cidade', d.cidade],
+        ['Estado', d.estado],
+        ['Quartos', d.quartos],
+        ['Suítes', d.suites],
+        ['Banheiros', d.banheiros],
+        ['Vagas', d.vagas],
+        ['Área (m²)', d.area_m2],
+        ['Condomínio', d.condominio],
+        ['IPTU', d.iptu],
+        ['Valor', d.valor_imovel],
+        ['Disponível?', d.indisponivel ? 'Não (anúncio indisponível)' : 'Sim'],
+        ['Diferenciais', d.diferenciais && d.diferenciais.length ? d.diferenciais.join(', ') : ''],
+        ['Descrição', d.descricao || d.textoPagina || ''],
+        ['Fonte dos dados', d.fonte]
+      ];
+      document.getElementById('teste-tabela-body').innerHTML = linhas.map(function(l){
+        return '<tr><td style="white-space:nowrap;font-weight:bold;background:#f9fafb">'+escHtml(l[0])+'</td><td class="wrap">'+fmt(l[1])+'</td></tr>';
+      }).join('');
+      document.getElementById('teste-tabela-wrap').style.display = 'block';
     } catch(e){ document.getElementById('teste-status').innerHTML = '<p class="red">Erro ao testar.</p>'; }
   }
   async function importar(){

@@ -98,6 +98,8 @@ async function _tentarExtrair(url) {
         const banheiros = acharFeature(['banheiro']);
         const suites = acharFeature(['suíte', 'suite']);
         const vagas = acharFeature(['vaga', 'garagem']);
+        const condominio = acharFeature(['condom']);
+        const iptu = acharFeature(['iptu']);
         let valor_imovel = 0;
         try {
           const precos = info.pricesData || [];
@@ -108,7 +110,30 @@ async function _tentarExtrair(url) {
         const tipo = clean((info.realEstateType && info.realEstateType.name) || '');
         const status = clean(info.status || '');
         const indisponivel = !!(status && status !== 'ONLINE');
-        return { bairro, cidade, estado, tipo, area_m2, quartos, suites, banheiros, vagas, valor_imovel, indisponivel, fonte: 'avisoInfo' };
+        const titulo = clean(info.title || document.title || '');
+
+        // Descrição e diferenciais: nomes de campo variam/mudam sem aviso no
+        // JSON do portal, então tenta os nomes mais prováveis e, se não achar
+        // nada estruturado, cai pro texto visível da página como aproximação.
+        let descricao = '';
+        try { descricao = clean(info.description || (info.publisherInfo && info.publisherInfo.description) || ''); } catch (e) {}
+        if (!descricao) descricao = clean(document.body.innerText).slice(0, 1500);
+
+        let diferenciais = [];
+        try {
+          const gf = info.generalFeatures || info.amenities || info.features || [];
+          if (Array.isArray(gf)) {
+            diferenciais = gf.map(x => typeof x === 'string' ? x : (x && (x.name || x.label || x.value))).filter(Boolean).map(clean);
+          }
+        } catch (e) {}
+
+        return {
+          bairro, cidade, estado, tipo, titulo, descricao, diferenciais,
+          area_m2, quartos, suites, banheiros, vagas, condominio, iptu, valor_imovel,
+          indisponivel, fonte: 'avisoInfo',
+          // pra ajustar os nomes acima caso o portal use campos diferentes do esperado
+          _camposDisponiveisNaPagina: Object.keys(info)
+        };
       }
 
       const text = document.body.innerText;

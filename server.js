@@ -14135,7 +14135,9 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   const aberturas = (tracking.find(s=>s.tipo==='abertura')||{}).total||0;
   const cliques = (tracking.find(s=>s.tipo==='clique')||{}).total||0;
   res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Campanha Email</title>
-  <style>body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:20px}
+  <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
+  ${_adminShellCss()}
+  .admin-content{max-width:900px}
   h1{color:#FF385C}input,textarea{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd;border-radius:6px;box-sizing:border-box}
   button{background:#FF385C;color:#fff;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}
   button.sec{background:#6b7280}
@@ -14143,7 +14145,8 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   .green{color:#16a34a}.red{color:#dc2626}.gray{color:#6b7280}
   .stat{display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px 20px;margin:6px;text-align:center;min-width:80px}
   .stat strong{display:block;font-size:22px;color:#FF385C}</style></head>
-  <body><h1>📧 Campanha de Email</h1>
+  <body><div class="admin-app">${_adminSidebarHtml('campanha')}<main class="admin-content">
+  <h1>📧 Campanha de Email</h1>
   <div class="box">
     <h3>📊 Base de contatos</h3>
     <div class="stat"><strong>${total}</strong>Total</div>
@@ -14272,7 +14275,7 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
     document.getElementById('resultado').innerHTML='<p class=green>✅ Enviados: '+d.enviados+'</p><p class=red>❌ Erros: '+d.erros+'</p>';
     setTimeout(()=>location.reload(), 3000);
   }
-  </script></body></html>`);
+  </script></main></div></body></html>`);
 });
 
 app.post('/admin/campanha/importar', authAdmin, uploadImoveis.single('arquivo'), async (req, res) => {
@@ -14383,7 +14386,9 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         <td style="padding:8px;font-size:11px;color:#6b7280">${new Date(c.criado_em).toLocaleString('pt-BR')}</td>
       </tr>`).join('');
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Disparos WhatsApp</title>
-    <style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;padding:20px}
+    <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
+    ${_adminShellCss()}
+    .admin-content{max-width:960px}
     h1{color:#FF385C}input,select,textarea{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd;border-radius:6px;box-sizing:border-box}
     button{background:#FF385C;color:#fff;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}
     button.sec{background:#6b7280}button:disabled{opacity:.5;cursor:not-allowed}
@@ -14395,10 +14400,11 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
     .varrow{display:flex;gap:8px;align-items:center;margin:4px 0}
     .varrow span{font-size:12px;color:#6b7280;min-width:36px}
     .varrow select{margin:0}
-    a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
     </style></head>
     <body>
-    <a href="/admin" class="voltar">← Painel Admin</a>
+    <div class="admin-app">
+    ${_adminSidebarHtml('disparos')}
+    <main class="admin-content">
     <h1>📲 Disparos WhatsApp <span style="font-size:13px;color:#6b7280;font-weight:400">(Cloud API oficial da Meta)</span></h1>
     <p><a href="/admin/disparos/optout" style="font-size:12px;color:#6b7280;text-decoration:underline">🚫 Ver quem descadastrou (não tenho interesse / não tenho imóvel)</a></p>
 
@@ -14559,6 +14565,8 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       window.location = '/admin/disparos/'+d.campanhaId;
     }
     </script>
+    </main>
+    </div>
     </body></html>`);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
@@ -14709,17 +14717,22 @@ app.get('/admin/disparos/optout', authAdmin, async (req, res) => {
         <td style="padding:8px;font-size:11px;color:#6b7280">${new Date(o.criado_em).toLocaleString('pt-BR')}</td>
       </tr>`).join('') || '<tr><td colspan="4" style="padding:20px;text-align:center;color:#6b7280">Ninguém descadastrou ainda.</td></tr>';
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Opt-out — Disparos WhatsApp</title>
-    <style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px}
+    <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
+    ${_adminShellCss()}
+    .admin-content{max-width:800px}
     h1{color:#FF385C;font-size:20px}
-    a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
     table{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px}
     th{text-align:left;padding:8px;background:#f3f4f6;font-size:11px;text-transform:uppercase;color:#6b7280}
     .aviso{font-size:12px;color:#6b7280;margin-top:8px}
     </style></head><body>
-    <a href="/admin/disparos" class="voltar">← Disparos WhatsApp</a>
+    <div class="admin-app">
+    ${_adminSidebarHtml('optout')}
+    <main class="admin-content">
     <h1>🚫 Quem descadastrou (${lista.length})</h1>
     <p class="aviso">Esses telefones são pulados automaticamente em qualquer campanha nova, e qualquer envio pendente que ainda existisse pra eles em campanha já criada foi cancelado na hora do clique.</p>
     <table><tr><th>Nome</th><th>Telefone</th><th>Como descadastrou</th><th>Quando</th></tr>${linhas}</table>
+    </main>
+    </div>
     </body></html>`);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
@@ -14730,7 +14743,9 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
     const c = await buscarCampanha(req.params.id);
     if (!c) return res.status(404).send('Campanha não encontrada');
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${c.nome_campanha} — Disparos WhatsApp</title>
-    <style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;padding:20px}
+    <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
+    ${_adminShellCss()}
+    .admin-content{max-width:960px}
     h1{color:#FF385C;font-size:20px}
     button{background:#FF385C;color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin:4px 4px 4px 0}
     button.sec{background:#6b7280}
@@ -14743,11 +14758,13 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
     table{width:100%;border-collapse:collapse;font-size:12.5px}
     th{text-align:left;padding:8px;background:#f3f4f6;font-size:11px;text-transform:uppercase;color:#6b7280}
     td{padding:8px;border-bottom:1px solid #f3f4f6}
-    a.voltar{color:#6b7280;text-decoration:none;font-size:12px}
     input,select{padding:6px;border:1px solid #ddd;border-radius:6px}
     </style></head>
     <body>
-    <a href="/admin/disparos" class="voltar">← Disparos WhatsApp</a>
+    <div class="admin-app">
+    ${_adminSidebarHtml('disparos')}
+    <main class="admin-content">
+    <a href="/admin/disparos" style="color:#6b7280;text-decoration:none;font-size:12px">← Disparos WhatsApp</a>
     <h1>${c.nome_campanha}</h1>
     <p class="gray">Template: <b>${c.template_nome}</b> (${c.template_idioma}) — criada em ${new Date(c.criado_em).toLocaleString('pt-BR')}</p>
 
@@ -14895,6 +14912,8 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
     buscar();
     setInterval(() => buscar(_pagina), 8000);
     </script>
+    </main>
+    </div>
     </body></html>`);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });

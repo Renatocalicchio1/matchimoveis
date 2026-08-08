@@ -10086,7 +10086,7 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     <h1>${nome}</h1>
     <p style="font-size:12px;color:#6b7280;margin:0">${_escHtmlWaCloud(telefone)}</p>
     <div id="chat">${bolhas}</div>
-    <textarea id="msgTexto" rows="3" placeholder="Escreva a resposta..."></textarea>
+    <textarea id="msgTexto" rows="3" placeholder="Escreva a resposta... (Enter envia, Shift+Enter quebra linha)" onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();enviar();}"></textarea>
     <div class="barra">
       <button id="btnEnviar" onclick="enviar()">Enviar</button>
       <button id="btnGravar" class="sec" onclick="alternarGravacao()">🎤 Gravar áudio</button>

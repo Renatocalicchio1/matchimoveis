@@ -14178,6 +14178,13 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
     </label>
     <div id="preview-status"></div>
   </div>
+  <div class="box">
+    <strong style="font-size:13px">🔬 Testar 1 URL de anúncio direto (diagnóstico)</strong><br>
+    <input type="text" id="urlTeste" placeholder="https://www.imovelweb.com.br/propriedades/..." style="width:420px;max-width:80%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;margin-top:8px">
+    <button onclick="testarUrl()">🔍 Testar</button>
+    <div id="teste-status"></div>
+    <pre id="teste-resultado" style="display:none;background:#111827;color:#d1fae5;padding:12px;border-radius:6px;font-size:11px;overflow-x:auto;white-space:pre-wrap"></pre>
+  </div>
   <div class="box" id="resultado-box" style="display:none">
     <div id="resumo"></div>
     <button id="btnImportar" class="sec" onclick="importar()" style="display:none">🚀 Distribuir leads pras contas</button>
@@ -14224,6 +14231,19 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
       document.getElementById('btnImportar').style.display = comMatch>0 ? 'inline-block' : 'none';
     } catch(e){ document.getElementById('preview-status').innerHTML = '<p class="red">Erro ao analisar.</p>'; }
   }
+  async function testarUrl(){
+    const url = document.getElementById('urlTeste').value.trim();
+    if(!url){ alert('Cola a URL do anúncio'); return; }
+    document.getElementById('teste-status').innerHTML = '<p>⏳ Abrindo a página (pode levar até 30s)...</p>';
+    document.getElementById('teste-resultado').style.display = 'none';
+    try {
+      const r = await fetch('/admin/interesados/testar-url', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
+      const d = await r.json();
+      document.getElementById('teste-status').innerHTML = '';
+      document.getElementById('teste-resultado').style.display = 'block';
+      document.getElementById('teste-resultado').textContent = JSON.stringify(d, null, 2);
+    } catch(e){ document.getElementById('teste-status').innerHTML = '<p class="red">Erro ao testar.</p>'; }
+  }
   async function importar(){
     if(!confirm('Confirma distribuir essas leads pras contas dos corretores? Isso cria leads de verdade.')) return;
     const btn = document.getElementById('btnImportar');
@@ -14250,6 +14270,16 @@ app.post('/admin/interesados/preview', authAdmin, upload.single('arquivo'), asyn
     const enriquecerLimite = parseInt(req.body.enriquecerLimite) || 0;
     const linhas = await processarInteresados(req.file.path, { enriquecerLimite });
     res.json({ ok: true, linhas, totalLinhasArquivo, arquivo: req.file.path });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/interesados/testar-url', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { url } = req.body;
+    if (!url) return res.json({ ok: false, erro: 'URL não informada' });
+    const { extrairDadosAnuncio } = require('./services/extratorPortal');
+    const resultado = await extrairDadosAnuncio(url);
+    res.json(resultado);
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 

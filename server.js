@@ -14575,14 +14575,16 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
 // na raiz do projeto pra o script reconciliar-enderecos-mauricio.js ler direto no Render Shell.
 app.get('/admin/upload-mauricio-mapa', authAdmin, (req, res) => {
   res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
-  <title>Upload mapa Mauricio</title></head>
-  <body style="font-family:sans-serif;max-width:480px;margin:60px auto">
+  <title>Upload mapa Mauricio</title>
+  <style>body{font-family:sans-serif;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:480px}</style>
+  </head>
+  <body><div class="admin-app">${_adminSidebarHtml('dashboard')}<main class="admin-content">
     <h3>Upload mapa-mauricio.json</h3>
     <form method="POST" action="/admin/upload-mauricio-mapa" enctype="multipart/form-data">
       <input type="file" name="arquivo" accept=".json" required>
       <button type="submit">Enviar</button>
     </form>
-  </body></html>`);
+  </main></div></body></html>`);
 });
 app.post('/admin/upload-mauricio-mapa', authAdmin, upload.single('arquivo'), async (req, res) => {
   try {

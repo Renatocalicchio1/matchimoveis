@@ -14422,9 +14422,9 @@ app.post('/admin/interesados/limpar', authAdmin, async (req, res) => {
 
 // ── BUSCAR DEMANDA POR REGIÃO ──────────────────────────────────────────────
 // Ferramenta de demonstração: escolhe estado + quantas cidades/bairros
-// quiser + venda/aluguel e mostra quantos leads reais da plataforma
-// (mapaIntencao, o mesmo que o motor de match usa) bateram esse perfil nos
-// últimos 2 dias.
+// quiser + venda/aluguel e mostra quantos interessados foram minerados/
+// extraídos do portal (Interessados de Portal) nesse perfil. NÃO usa leads
+// reais da plataforma (WhatsApp/manual/webhook) — só o que veio do portal.
 // Página compartilhada por /admin/demanda (com login) e /demanda (pública,
 // pra mandar link pra fora) — mesma tela, só muda o prefixo das chamadas de
 // API e se vem com a moldura do admin (sidebar) ou uma moldura simples.
@@ -14468,7 +14468,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   </style></head><body>
   ${bodyOpen}
   <h1>📍 Buscar Demanda por Região</h1>
-  <p class="gray">Escolhe um recorte geográfico e vê quantos interessados reais a IA já identificou com esse perfil recentemente. Telefone e email ficam ocultos — em breve dá pra desbloquear comprando a lead.</p>
+  <p class="gray">Escolhe um recorte geográfico e vê quantos interessados a IA já minerou/extraiu do portal com esse perfil recentemente. Telefone e email ficam ocultos — em breve dá pra desbloquear comprando a lead.</p>
   <div class="box">
     <label>Estado</label>
     <select id="estado"><option value="">Selecione...</option>${optionsEstados}</select>
@@ -14551,7 +14551,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     const box = document.getElementById('cidade-sugestoes');
     if(!termo){ box.style.display = 'none'; return; }
     const visiveis = _cidadesNomes.filter(function(c){ return _normTexto(c).includes(termo) && _cidadesSelecionadas.indexOf(c) === -1; }).slice(0, 30);
-    if(!visiveis.length){ box.innerHTML = '<div class="sugestao-item gray">Nenhuma cidade encontrada</div>'; box.style.display = 'block'; return; }
+    if(!visiveis.length){ box.innerHTML = '<div class="sugestao-item gray">⚠️ Não temos interessados minerados dessa cidade ainda</div>'; box.style.display = 'block'; return; }
     box.innerHTML = visiveis.map(function(c){ return '<div class="sugestao-item" data-cidade="'+escHtml(c)+'">'+escHtml(c)+'</div>'; }).join('');
     box.style.display = 'block';
   }
@@ -14630,7 +14630,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     }
     const filtro = _normTexto(document.getElementById('filtroBairro').value);
     const visiveis = _paresDisponiveis.filter(function(p){ return _normTexto(p.bairro).includes(filtro); });
-    if(!visiveis.length){ lista.innerHTML = '<span class="gray" style="font-size:12px">Nenhum bairro encontrado.</span>'; return; }
+    if(!visiveis.length){ lista.innerHTML = '<span class="gray" style="font-size:12px">⚠️ Não temos interessados minerados desse bairro ainda.</span>'; return; }
     const marcadasChaves = _paresMarcados.map(_parChave);
     const multiplasCidades = _cidadesSelecionadas.length > 1;
     lista.innerHTML = visiveis.map(function(p){
@@ -14695,7 +14695,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       // dá pra sentir que ela está de fato cruzando as fontes antes de responder.
       const etapas = [
         '🤖 Entendendo o perfil buscado ('+pares.length+' bairro'+(pares.length>1?'s':'')+' em '+_cidadesSelecionadas.length+' cidade'+(_cidadesSelecionadas.length>1?'s':'')+', '+transacoes.join(' + ')+')...',
-        '🔎 Cruzando com os leads reais da plataforma...',
         '📥 Cruzando com a planilha de Interessados de Portal...',
         '🧠 Calculando compatibilidade dos últimos '+dias+' dia'+(dias>1?'s':'')+'...'
       ];

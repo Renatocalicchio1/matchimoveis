@@ -1,9 +1,10 @@
 // Ferramenta de demonstração: dado um recorte geográfico (estado + cidade +
-// até 8 bairros) e transação (venda/aluguel/ambos), mostra quantos leads
-// REAIS da plataforma (qualquer origem — portal, whatsapp, manual) bateram
-// esse perfil nos últimos N dias. Usa o mesmo `mapaIntencao` que o motor de
-// match de verdade usa (cerebro/motor-intencao.js) — não é uma tabela nova,
-// é uma busca em cima do que a IA já vem calculando pra cada lead.
+// bairros) e transação (venda/aluguel/ambos), mostra quantos interessados
+// foram minerados/extraídos do portal (planilha acumulada de Interessados
+// de Portal, services/interesadosPortal.js) nos últimos N dias. NÃO usa a
+// tabela `leads` da plataforma (leads reais de WhatsApp/manual/webhook) —
+// só o que veio da mineração do portal, por pedido explícito (não misturar
+// as duas fontes).
 const { query } = require('./db');
 
 const _ESTADOS_BR = [
@@ -29,32 +30,18 @@ function _sigla(s) {
 }
 
 // Estado/cidade/bairro do seletor só mostram onde tem demanda de verdade
-// (leads da plataforma + Interessados de Portal, últimos 30 dias — mesmo
-// teto da própria busca) — lista de todo o Brasil só teria opção vazia na
+// minerada do portal (Interessados de Portal, últimos 30 dias — mesmo teto
+// da própria busca) — lista de todo o Brasil só teria opção vazia na
 // esmagadora maioria dos casos.
 async function _coletarSinaisRecentes() {
-  const { rows: leadsRows } = await query(
-    `SELECT mapa_intencao, perfil_ia FROM leads WHERE criado_em >= NOW() - make_interval(days => 30)`
-  );
-  const sinaisLeads = leadsRows.map(r => {
-    const mi = r.mapa_intencao || {};
-    const pi = r.perfil_ia || {};
-    return {
-      estado: _valorMapa(mi, 'estado') || pi.estado || '',
-      cidade: _valorMapa(mi, 'cidade') || pi.cidade || '',
-      bairro: _valorMapa(mi, 'bairro') || pi.bairro || ''
-    };
-  });
-
-  let sinaisPortal = [];
   try {
-    const { rows: portalRows } = await query(
+    const { rows } = await query(
       `SELECT estado, cidade, bairro FROM interessados_portal WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30)`
     );
-    sinaisPortal = portalRows.map(r => ({ estado: r.estado || '', cidade: r.cidade || '', bairro: r.bairro || '' }));
-  } catch (e) {} // tabela pode nem existir ainda
-
-  return [...sinaisLeads, ...sinaisPortal];
+    return rows.map(r => ({ estado: r.estado || '', cidade: r.cidade || '', bairro: r.bairro || '' }));
+  } catch (e) {
+    return []; // tabela pode nem existir ainda
+  }
 }
 
 async function listarEstadosComLead() {
@@ -99,13 +86,6 @@ async function listarBairrosComLead(estado, cidade) {
   return Array.from(bairros.values()).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 }
 
-// mapaIntencao guarda cada campo como array de sinais ({valor, confiança,
-// score, origem}) — o [0] é o sinal mais forte (mesma leitura que
-// cerebro/motor-intencao.js faz em matchPorMapa()).
-function _valorMapa(mapa, campo) {
-  try { return mapa && mapa[campo] && mapa[campo][0] ? mapa[campo][0].valor : undefined; } catch (e) { return undefined; }
-}
-
 function _normTransacao(v) {
   const n = _norm(v);
   if (!n) return '';
@@ -120,47 +100,9 @@ function _normTransacao(v) {
 // Area_max, Valor_max — id/criadoEm/fonte ficam só pra ordenar/rastrear,
 // não fazem parte do modelo.
 
-// Além dos leads "de verdade" da plataforma (mapaIntencao), também busca na
-// planilha acumulada de Interessados de Portal (services/interesadosPortal.js)
-// — lá o bairro/cidade/transação já vêm em coluna própria (Bairro/Cidade/
-// Estado/Transacao), sem depender do motor de match ter processado nada.
-async function _buscarNosLeadsPlataforma(siglaAlvo, chavesAlvo, transacoesAlvo, horas) {
-  const { rows } = await query(
-    `SELECT id, nome, telefone, whatsapp, origem, status, temperatura, criado_em, mapa_intencao, perfil_ia, dados
-     FROM leads WHERE criado_em >= NOW() - make_interval(hours => $1::int) ORDER BY criado_em DESC`,
-    [horas]
-  );
-  const encontrados = [];
-  for (const r of rows) {
-    const mi = r.mapa_intencao || {};
-    const pi = r.perfil_ia || {};
-    const dd = r.dados || {};
-    const estadoLead = _valorMapa(mi, 'estado') || pi.estado || '';
-    const cidadeLead = _valorMapa(mi, 'cidade') || pi.cidade || '';
-    const bairroLead = _valorMapa(mi, 'bairro') || pi.bairro || '';
-    const transacaoLead = _normTransacao(_valorMapa(mi, 'transacao') || pi.intencao || pi.transacao || '');
-    const tipoLead = _valorMapa(mi, 'tipo_imovel') || pi.tipo || '';
-    const valorObj = _valorMapa(mi, 'valor');
-    const valorMax = (valorObj && valorObj.max) || pi.valorMax || '';
-
-    if (!estadoLead || _sigla(estadoLead) !== siglaAlvo) continue;
-    if (!cidadeLead || !bairroLead) continue;
-    if (!chavesAlvo.has(_norm(cidadeLead) + '|||' + _norm(bairroLead))) continue;
-    if (!transacaoLead || !transacoesAlvo.has(transacaoLead)) continue;
-
-    encontrados.push({
-      id: 'lead-' + r.id, criadoEm: r.criado_em, fonte: 'leads_plataforma',
-      Nome: r.nome || 'Sem nome', Telefone: r.telefone || r.whatsapp || '', Email: pi.email || dd.email || '',
-      Origem: r.origem || '', Tipo: tipoLead, Transacao: transacaoLead, Condicao: '',
-      Bairro: bairroLead, Cidade: cidadeLead, Estado: estadoLead,
-      Quartos: _valorMapa(mi, 'quartos') || pi.quartos || '', Suites: _valorMapa(mi, 'suites') || pi.suites || '',
-      Vagas: _valorMapa(mi, 'vagas') || pi.vagas || '', Banheiros: _valorMapa(mi, 'banheiros') || pi.banheiros || '',
-      Area_max: _valorMapa(mi, 'area') || pi.area || '', Valor_max: valorMax
-    });
-  }
-  return encontrados;
-}
-
+// Única fonte: planilha acumulada de Interessados de Portal
+// (services/interesadosPortal.js) — bairro/cidade/transação já vêm em
+// coluna própria (Bairro/Cidade/Estado/Transacao).
 async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas) {
   let rows;
   try {
@@ -222,8 +164,7 @@ function _mascararNome(v) {
 }
 
 // horas: janela de tempo em horas (dias escolhidos na tela × 24, máx. 30
-// dias = 720h). Busca em 2 fontes: leads reais da plataforma (mapaIntencao)
-// + planilha acumulada de Interessados de Portal.
+// dias = 720h). Fonte única: Interessados de Portal.
 // pares: [{cidade, bairro}] — sem limite de quantidade nem de quantas
 // cidades diferentes; casa por par exato (evita, ex., "Centro" de uma
 // cidade bater com "Centro" de outra quando o usuário só marcou uma delas).
@@ -232,11 +173,8 @@ async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 168 
   const chavesAlvo = new Set(pares.map(p => _norm(p.cidade) + '|||' + _norm(p.bairro)).filter(k => k !== '|||'));
   const transacoesAlvo = new Set((transacoes.length ? transacoes : ['venda', 'aluguel']).map(_norm));
 
-  const [doLeads, doPortal] = await Promise.all([
-    _buscarNosLeadsPlataforma(siglaAlvo, chavesAlvo, transacoesAlvo, horas),
-    _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas)
-  ]);
-  return [...doLeads, ...doPortal]
+  const encontrados = await _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas);
+  return encontrados
     .sort((a, b) => (parseFloat(b.Valor_max) || 0) - (parseFloat(a.Valor_max) || 0))
     .map(l => ({ ...l, Nome: _mascararNome(l.Nome), Telefone: _mascararTelefone(l.Telefone), Email: _mascararEmail(l.Email) }));
 }

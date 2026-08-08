@@ -62,9 +62,9 @@ async function _tentarExtrair(url) {
   try {
     const context = await _getContext();
     page = await context.newPage();
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 25000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
     try {
-      await page.waitForFunction(() => typeof avisoInfo !== 'undefined' && !!avisoInfo, { timeout: 8000 });
+      await page.waitForFunction(() => typeof avisoInfo !== 'undefined' && !!avisoInfo, { timeout: 6000 });
     } catch (e) {
       // avisoInfo não apareceu a tempo — segue e tenta aproveitar o texto da página
     }

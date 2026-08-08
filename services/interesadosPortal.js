@@ -151,18 +151,36 @@ async function processarInteresados(filePath, opts = {}) {
   usuarios.forEach(u => { nomePorId[u.codigo_usuario] = u.nome; nomePorId[u.id] = u.nome; });
   const indiceImoveis = await _carregarIndiceImoveis();
 
-  let enriquecidos = 0;
-  const resultado = [];
-  for (const l of linhasBrutas) {
-    const sucursal = l['Sucursal'] || '';
-    if (_chave(sucursal).includes('rankim')) continue; // já entra pelo webhook global
+  // Linhas válidas (fora Rankim) primeiro, pra poder decidir quais das
+  // primeiras N vão ser enriquecidas e buscar todas EM PARALELO (com um
+  // limite de páginas simultâneas) — sequencial (1 por vez, com retry)
+  // deixava 10 linhas levarem minutos; em paralelo cai bastante.
+  const linhasValidas = linhasBrutas.filter(l => !_chave(l['Sucursal'] || '').includes('rankim'));
+  const CONCORRENCIA = 3;
+  const extraidosPorIndice = new Map();
+  if (enriquecerLimite > 0) {
+    const { extrairDadosAnuncio } = require('./extratorPortal');
+    const alvos = [];
+    for (let i = 0; i < linhasValidas.length && alvos.length < enriquecerLimite; i++) {
+      if (linhasValidas[i]['Url anúncio']) alvos.push(i);
+    }
+    let cursor = 0;
+    async function worker() {
+      while (cursor < alvos.length) {
+        const idx = alvos[cursor++];
+        const r = await extrairDadosAnuncio(linhasValidas[idx]['Url anúncio']);
+        extraidosPorIndice.set(idx, r);
+      }
+    }
+    await Promise.all(Array.from({ length: Math.min(CONCORRENCIA, alvos.length) }, worker));
+  }
 
-    const urlAnuncio = l['Url anúncio'] || '';
+  const resultado = [];
+  for (let i = 0; i < linhasValidas.length; i++) {
+    const l = linhasValidas[i];
+    const r = extraidosPorIndice.get(i);
     let extraido = null, extraidoErro = '', extraidoOk = false;
-    if (enriquecerLimite > 0 && enriquecidos < enriquecerLimite && urlAnuncio) {
-      const { extrairDadosAnuncio } = require('./extratorPortal');
-      const r = await extrairDadosAnuncio(urlAnuncio);
-      enriquecidos++;
+    if (r) {
       if (r.ok && r.fonte === 'avisoInfo') {
         extraido = r; extraidoOk = true;
       } else if (r.ok) {
@@ -177,6 +195,7 @@ async function processarInteresados(filePath, opts = {}) {
       }
     }
 
+    const sucursal = l['Sucursal'] || '';
     const estado = normalizarEstadoBR((extraido && extraido.estado) || l['Estado'] || '');
     const cidade = normalizarCidadeBR(estado, (extraido && extraido.cidade) || l['Cidade'] || '');
     const textoLivre = [l['Título'], l['Mensagem'], extraido && extraido.textoPagina].filter(Boolean).join(' — ');

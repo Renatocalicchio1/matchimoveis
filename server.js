@@ -14428,9 +14428,10 @@ app.post('/admin/interesados/limpar', authAdmin, async (req, res) => {
 // Página compartilhada por /admin/demanda (com login) e /demanda (pública,
 // pra mandar link pra fora) — mesma tela, só muda o prefixo das chamadas de
 // API e se vem com a moldura do admin (sidebar) ou uma moldura simples.
-function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
-  const { listarEstados } = require('./services/buscaDemanda');
-  const optionsEstados = listarEstados().map(e => '<option value="'+e.sigla+'">'+e.sigla+' — '+e.nome+'</option>').join('');
+async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
+  const { listarEstadosComLead } = require('./services/buscaDemanda');
+  const estados = await listarEstadosComLead();
+  const optionsEstados = estados.map(e => '<option value="'+e.sigla+'">'+e.sigla+' — '+e.nome+'</option>').join('');
   const shellCss = isAdmin ? _adminShellCss() : '';
   const contentCss = isAdmin ? '.admin-content{max-width:960px}' : '.public-content{max-width:960px;margin:0 auto;padding:24px 16px}';
   const bodyOpen = isAdmin ? `<div class="admin-app">${_adminSidebarHtml('demanda')}<main class="admin-content">` : '<div class="public-content">';
@@ -14716,20 +14717,20 @@ function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   ${bodyClose}</body></html>`;
 }
 
-app.get('/admin/demanda', authAdmin, (req, res) => {
-  res.send(_paginaBuscaDemanda({ apiPrefix: '/admin/demanda', isAdmin: true }));
+app.get('/admin/demanda', authAdmin, async (req, res) => {
+  res.send(await _paginaBuscaDemanda({ apiPrefix: '/admin/demanda', isAdmin: true }));
 });
 // Versão pública — sem login, pra mandar o link pra fora. Telefone/email
 // já vêm mascarados de buscarDemanda() independente de quem chama, então
 // não tem PII de verdade exposta aqui.
-app.get('/demanda', (req, res) => {
-  res.send(_paginaBuscaDemanda({ apiPrefix: '/demanda', isAdmin: false }));
+app.get('/demanda', async (req, res) => {
+  res.send(await _paginaBuscaDemanda({ apiPrefix: '/demanda', isAdmin: false }));
 });
 
 async function _handlerDemandaCidades(req, res) {
   try {
-    const { listarCidades } = require('./services/buscaDemanda');
-    const cidades = await listarCidades(req.query.estado || '');
+    const { listarCidadesComLead } = require('./services/buscaDemanda');
+    const cidades = await listarCidadesComLead(req.query.estado || '');
     res.json({ ok: true, cidades });
   } catch(e) { res.json({ ok: false, erro: e.message, cidades: [] }); }
 }

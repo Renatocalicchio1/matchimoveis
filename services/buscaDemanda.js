@@ -28,61 +28,73 @@ function _sigla(s) {
   return _SIGLA_POR_CHAVE[n] || n;
 }
 
-function _tituloCase(s) {
-  return (s || '').toString().split(' ').filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-}
-
-function listarEstados() {
-  return _ESTADOS_BR.map(([sigla, nome]) => ({ sigla, nome }));
-}
-
-async function listarCidades(estado) {
-  const sigla = _sigla(estado);
-  if (!sigla) return [];
-  const { rows } = await query(
-    "SELECT DISTINCT cidade FROM localidades WHERE estado = $1 AND cidade IS NOT NULL AND cidade != '' ORDER BY cidade",
-    [sigla]
+// Estado/cidade/bairro do seletor só mostram onde tem demanda de verdade
+// (leads da plataforma + Interessados de Portal, últimos 30 dias — mesmo
+// teto da própria busca) — lista de todo o Brasil só teria opção vazia na
+// esmagadora maioria dos casos.
+async function _coletarSinaisRecentes() {
+  const { rows: leadsRows } = await query(
+    `SELECT mapa_intencao, perfil_ia FROM leads WHERE criado_em >= NOW() - make_interval(days => 30)`
   );
-  return rows.map(r => _tituloCase(r.cidade));
+  const sinaisLeads = leadsRows.map(r => {
+    const mi = r.mapa_intencao || {};
+    const pi = r.perfil_ia || {};
+    return {
+      estado: _valorMapa(mi, 'estado') || pi.estado || '',
+      cidade: _valorMapa(mi, 'cidade') || pi.cidade || '',
+      bairro: _valorMapa(mi, 'bairro') || pi.bairro || ''
+    };
+  });
+
+  let sinaisPortal = [];
+  try {
+    const { rows: portalRows } = await query(
+      `SELECT estado, cidade, bairro FROM interessados_portal WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30)`
+    );
+    sinaisPortal = portalRows.map(r => ({ estado: r.estado || '', cidade: r.cidade || '', bairro: r.bairro || '' }));
+  } catch (e) {} // tabela pode nem existir ainda
+
+  return [...sinaisLeads, ...sinaisPortal];
 }
 
-// Diferente de listarCidades (usa o dicionário IBGE/OSM inteiro), aqui só
-// interessa mostrar bairro que TEM demanda de verdade — senão a lista fica
-// com centenas de bairros sem nenhum lead, a maioria inútil pra escolher.
-// Mesma janela de 30 dias (o máximo que a busca em si permite).
+async function listarEstadosComLead() {
+  const sinais = await _coletarSinaisRecentes();
+  const siglas = new Set();
+  for (const s of sinais) {
+    const sigla = _sigla(s.estado);
+    if (sigla) siglas.add(sigla);
+  }
+  return _ESTADOS_BR.filter(([sigla]) => siglas.has(sigla.toLowerCase())).map(([sigla, nome]) => ({ sigla, nome }));
+}
+
+async function listarCidadesComLead(estado) {
+  const siglaAlvo = _sigla(estado);
+  if (!siglaAlvo) return [];
+  const sinais = await _coletarSinaisRecentes();
+  const cidades = new Map();
+  for (const s of sinais) {
+    if (!s.cidade || _sigla(s.estado) !== siglaAlvo) continue;
+    const chave = _norm(s.cidade);
+    if (!cidades.has(chave)) cidades.set(chave, s.cidade);
+  }
+  return Array.from(cidades.values()).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
+
+// Só mostra bairro que TEM demanda de verdade — senão a lista fica com
+// centenas de bairros sem nenhum lead, a maioria inútil pra escolher.
 async function listarBairrosComLead(estado, cidade) {
   const siglaAlvo = _sigla(estado);
   const cidadeAlvo = _norm(cidade);
   if (!siglaAlvo || !cidadeAlvo) return [];
 
+  const sinais = await _coletarSinaisRecentes();
   const bairros = new Map(); // chave normalizada -> nome de exibição
-
-  const { rows: leadsRows } = await query(
-    `SELECT mapa_intencao, perfil_ia FROM leads WHERE criado_em >= NOW() - make_interval(days => 30)`
-  );
-  for (const r of leadsRows) {
-    const mi = r.mapa_intencao || {};
-    const pi = r.perfil_ia || {};
-    const estadoLead = _valorMapa(mi, 'estado') || pi.estado || '';
-    const cidadeLead = _valorMapa(mi, 'cidade') || pi.cidade || '';
-    const bairroLead = _valorMapa(mi, 'bairro') || pi.bairro || '';
-    if (!bairroLead || !cidadeLead) continue;
-    if (_sigla(estadoLead) !== siglaAlvo || _norm(cidadeLead) !== cidadeAlvo) continue;
-    const chave = _norm(bairroLead);
-    if (!bairros.has(chave)) bairros.set(chave, bairroLead);
+  for (const s of sinais) {
+    if (!s.bairro || !s.cidade) continue;
+    if (_sigla(s.estado) !== siglaAlvo || _norm(s.cidade) !== cidadeAlvo) continue;
+    const chave = _norm(s.bairro);
+    if (!bairros.has(chave)) bairros.set(chave, s.bairro);
   }
-
-  try {
-    const { rows: portalRows } = await query(
-      `SELECT DISTINCT bairro, estado, cidade FROM interessados_portal
-       WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30) AND bairro IS NOT NULL AND bairro != ''`
-    );
-    for (const r of portalRows) {
-      if (_sigla(r.estado) !== siglaAlvo || _norm(r.cidade) !== cidadeAlvo) continue;
-      const chave = _norm(r.bairro);
-      if (!bairros.has(chave)) bairros.set(chave, r.bairro);
-    }
-  } catch (e) {} // tabela pode nem existir ainda
 
   return Array.from(bairros.values()).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 }
@@ -229,4 +241,4 @@ async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 168 
     .map(l => ({ ...l, Nome: _mascararNome(l.Nome), Telefone: _mascararTelefone(l.Telefone), Email: _mascararEmail(l.Email) }));
 }
 
-module.exports = { listarEstados, listarCidades, listarBairrosComLead, buscarDemanda };
+module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda };

@@ -14392,6 +14392,9 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
   #bairros-lista{max-width:420px;max-height:220px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px;padding:8px;background:#fff;margin-top:6px}
   #bairros-lista label{display:flex;align-items:center;gap:6px;font-weight:normal;font-size:13px;color:#111827;margin:2px 0;padding:2px}
   #bairros-lista label.desabilitado{opacity:.35}
+  .sugestoes-dropdown{position:absolute;top:100%;left:0;right:0;z-index:10;background:#fff;border:1px solid #d1d5db;border-top:none;max-height:220px;overflow-y:auto;border-radius:0 0 6px 6px;box-shadow:0 4px 10px rgba(0,0,0,.08)}
+  .sugestao-item{padding:8px 10px;cursor:pointer;font-size:13px}
+  .sugestao-item:hover{background:#f3f4f6}
   .gray{color:#6b7280}.green{color:#16a34a}.red{color:#dc2626}
   table{border-collapse:collapse;font-size:12px;margin-top:12px;min-width:100%}
   th{text-align:left;padding:6px;background:#f3f4f6;font-size:10px;text-transform:uppercase;color:#6b7280;white-space:nowrap}
@@ -14407,7 +14410,10 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
     <select id="estado"><option value="">Selecione...</option>${optionsEstados}</select>
 
     <label>Cidade</label>
-    <select id="cidade" disabled><option value="">Selecione o estado primeiro...</option></select>
+    <div style="position:relative;max-width:360px">
+      <input type="text" id="cidadeInput" placeholder="Selecione o estado primeiro..." disabled autocomplete="off" style="width:100%">
+      <div id="cidade-sugestoes" class="sugestoes-dropdown" style="display:none"></div>
+    </div>
 
     <label>Bairros (marque até 8)</label>
     <input type="text" id="filtroBairro" placeholder="Digite pra filtrar os bairros..." disabled>
@@ -14430,32 +14436,69 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   const MAX_BAIRROS = 8;
   let _bairrosNomes = [];
+  let _cidadesNomes = [];
+  let _cidadeSelecionada = '';
 
   document.getElementById('estado').addEventListener('change', async function(){
     const estado = this.value;
-    const cidadeSel = document.getElementById('cidade');
-    cidadeSel.innerHTML = '<option value="">Carregando...</option>';
-    cidadeSel.disabled = true;
+    const cidadeInput = document.getElementById('cidadeInput');
+    _cidadesNomes = [];
+    _cidadeSelecionada = '';
+    cidadeInput.value = '';
+    cidadeInput.disabled = true;
+    esconderSugestoesCidade();
     resetBairros();
     document.getElementById('btnBuscar').disabled = true;
-    if(!estado) { cidadeSel.innerHTML = '<option value="">Selecione o estado primeiro...</option>'; return; }
+    if(!estado) { cidadeInput.placeholder = 'Selecione o estado primeiro...'; return; }
+    cidadeInput.placeholder = 'Carregando...';
     const r = await fetch('/admin/demanda/cidades?estado='+encodeURIComponent(estado));
     const d = await r.json();
-    cidadeSel.innerHTML = '<option value="">Selecione...</option>' + (d.cidades||[]).map(function(c){ return '<option value="'+escHtml(c)+'">'+escHtml(c)+'</option>'; }).join('');
-    cidadeSel.disabled = false;
+    _cidadesNomes = d.cidades || [];
+    cidadeInput.placeholder = 'Digite pra buscar a cidade (' + _cidadesNomes.length + ')...';
+    cidadeInput.disabled = false;
   });
 
-  document.getElementById('cidade').addEventListener('change', async function(){
+  function esconderSugestoesCidade(){
+    document.getElementById('cidade-sugestoes').style.display = 'none';
+  }
+
+  function renderSugestoesCidade(){
+    const termo = document.getElementById('cidadeInput').value.toLowerCase().trim();
+    const box = document.getElementById('cidade-sugestoes');
+    if(!termo){ box.style.display = 'none'; return; }
+    const visiveis = _cidadesNomes.filter(function(c){ return c.toLowerCase().includes(termo); }).slice(0, 30);
+    if(!visiveis.length){ box.innerHTML = '<div class="sugestao-item gray">Nenhuma cidade encontrada</div>'; box.style.display = 'block'; return; }
+    box.innerHTML = visiveis.map(function(c){ return '<div class="sugestao-item" data-cidade="'+escHtml(c)+'">'+escHtml(c)+'</div>'; }).join('');
+    box.style.display = 'block';
+  }
+
+  document.getElementById('cidadeInput').addEventListener('input', function(){
+    if(this.value !== _cidadeSelecionada){
+      _cidadeSelecionada = '';
+      resetBairros();
+      document.getElementById('btnBuscar').disabled = true;
+    }
+    renderSugestoesCidade();
+  });
+
+  document.getElementById('cidade-sugestoes').addEventListener('click', async function(e){
+    const item = e.target.closest('[data-cidade]');
+    if(!item) return;
+    const cidade = item.getAttribute('data-cidade');
     const estado = document.getElementById('estado').value;
-    const cidade = this.value;
-    resetBairros();
-    if(!cidade) return;
+    document.getElementById('cidadeInput').value = cidade;
+    _cidadeSelecionada = cidade;
+    esconderSugestoesCidade();
     document.getElementById('bairros-lista').innerHTML = '<span class="gray" style="font-size:12px">Carregando...</span>';
     const r = await fetch('/admin/demanda/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
     const d = await r.json();
     _bairrosNomes = d.bairros || [];
     renderBairros();
     document.getElementById('filtroBairro').disabled = false;
+  });
+
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#cidadeInput') && !e.target.closest('#cidade-sugestoes')) esconderSugestoesCidade();
   });
 
   let _marcadosPersistidos = [];
@@ -14505,7 +14548,7 @@ app.get('/admin/demanda', authAdmin, (req, res) => {
 
   async function buscarDemanda(){
     const estado = document.getElementById('estado').value;
-    const cidade = document.getElementById('cidade').value;
+    const cidade = _cidadeSelecionada;
     const bairros = _marcadosPersistidos;
     const transacoes = [];
     if(document.getElementById('chkVenda').checked) transacoes.push('venda');

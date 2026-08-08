@@ -14529,6 +14529,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .hero{background:linear-gradient(135deg,var(--rausch),var(--arches));border-radius:14px;padding:28px 24px;margin:16px 0;color:#fff}
   .hero h1{margin:0 0 8px;font-size:24px;color:#fff}
   .hero p{margin:0;font-size:14px;opacity:.95;max-width:680px;line-height:1.5}
+  .hero-bullets{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 24px}
+  .hero-bullets li{font-size:13px;font-weight:600;line-height:1.4}
   h1{color:var(--rausch);font-size:20px}
   h2.secao{font-size:16px;color:var(--ink);margin:28px 0 4px}
   .box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0}
@@ -14557,8 +14559,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .passos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:12px 0 8px}
   .passo{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px}
   .passo .num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:999px;background:var(--babu);color:#fff;font-weight:bold;font-size:13px;margin-bottom:8px}
-  .passo h3{font-size:13px;margin:0 0 4px}
+  .passo h3{font-size:13px;margin:0 0 6px}
   .passo p{font-size:12px;color:var(--sec);margin:0;line-height:1.5}
+  .passo ul{list-style:none;margin:0;padding:0}
+  .passo ul li{font-size:12px;color:var(--sec);line-height:1.6;padding-left:14px;position:relative}
+  .passo ul li::before{content:'•';position:absolute;left:0;color:var(--babu);font-weight:bold}
   .combos{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:14px 0}
   .combo{background:#fff;border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s,transform .15s}
   .combo:hover{border-color:var(--babu);transform:translateY(-2px)}
@@ -14590,15 +14595,40 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   ${bodyOpen}
   <div class="hero">
     <h1>📍 Buscar Demanda por Região</h1>
-    <p>Escolhe um recorte geográfico e vê quantos interessados a IA MatchImóveis já identificou com esse perfil recentemente. Nome, telefone e email ficam ocultos até você comprar — depois da compra, os leads encontrados na sua busca vão direto pra sua conta. E não é só isso: ao comprar, sua conta vem com acesso completo à plataforma MatchImóveis — suba seus imóveis via XML (ou cadastre manualmente), e a IA já direciona automaticamente cada lead nova pro imóvel certo da sua carteira, junto com gestão de leads, assistente com IA, agendamento de visitas e todas as outras funcionalidades.</p>
+    <p>Descubra agora quantos clientes reais a IA MatchImóveis já encontrou na sua região — e leve esses leads pra sua conta hoje mesmo.</p>
+    <ul class="hero-bullets">
+      <li>✅ Leads reais entregues direto na sua conta — não é só crédito</li>
+      <li>✅ Suba sua carteira via XML (ou cadastro manual) em minutos</li>
+      <li>✅ A IA direciona automaticamente cada lead pro seu imóvel certo</li>
+      <li>✅ Acesso completo: assistente IA, agendamento de visitas e gestão de leads</li>
+    </ul>
   </div>
+  <h2 class="secao" style="margin-top:22px">Como funciona</h2>
   <div class="passos">
-    <div class="passo"><span class="num">1</span><h3>Busque sua região</h3><p>Escolha estado, cidades e bairros. A IA cruza com a base de interessados MatchImóveis e mostra quantos encontrou.</p></div>
-    <div class="passo"><span class="num">2</span><h3>Escolha um combo</h3><p>A gente já indica o combo que cabe na quantidade encontrada — se passar do tamanho, sobe pro próximo.</p></div>
-    <div class="passo"><span class="num">3</span><h3>Crie sua conta e pague</h3><p>Nome, email, celular e senha. Depois só finalizar o pagamento com segurança pelo Mercado Pago.</p></div>
-    <div class="passo"><span class="num">4</span><h3>Leads na sua conta</h3><p>Pagamento aprovado, os leads da sua busca já aparecem na sua carteira, prontos pra trabalhar.</p></div>
-    <div class="passo"><span class="num">5</span><h3>Suba seus imóveis via XML</h3><p>Importe seu feed de portal (ou cadastre manualmente) — a plataforma já entra com sua carteira pronta pra receber leads.</p></div>
-    <div class="passo"><span class="num">6</span><h3>A IA direciona pro seu imóvel</h3><p>Toda lead nova (das que você comprou e das que forem chegando depois) é cruzada automaticamente com a sua carteira — o match já aponta direto qual dos seus imóveis casa com aquele interessado, e suas leads só crescem a partir daí.</p></div>
+    <div class="passo"><span class="num">1</span><h3>Busque sua região</h3><ul>
+      <li>Escolha estado, cidades e bairros</li>
+      <li>A IA cruza com a base MatchImóveis na hora</li>
+    </ul></div>
+    <div class="passo"><span class="num">2</span><h3>Escolha um combo</h3><ul>
+      <li>Já indicamos o ideal pra quantidade encontrada</li>
+      <li>Passou do tamanho? Sobe pro próximo sozinho</li>
+    </ul></div>
+    <div class="passo"><span class="num">3</span><h3>Crie sua conta e pague</h3><ul>
+      <li>Nome, email, celular e senha</li>
+      <li>Checkout seguro pelo Mercado Pago</li>
+    </ul></div>
+    <div class="passo"><span class="num">4</span><h3>Já entra com leads na sua conta</h3><ul>
+      <li>Pagamento aprovado, leads aparecem na hora</li>
+      <li>Prontos pra trabalhar, sem espera</li>
+    </ul></div>
+    <div class="passo"><span class="num">5</span><h3>Suba seus imóveis via XML</h3><ul>
+      <li>Importe seu feed de portal (ou cadastre manual)</li>
+      <li>Carteira pronta pra receber leads</li>
+    </ul></div>
+    <div class="passo"><span class="num">6</span><h3>A IA direciona pro seu imóvel</h3><ul>
+      <li>Toda lead nova é cruzada com sua carteira</li>
+      <li>Match aponta o imóvel certo automaticamente</li>
+    </ul></div>
   </div>
   <div class="box">
     <label>Estado</label>

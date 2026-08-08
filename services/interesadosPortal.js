@@ -273,8 +273,14 @@ async function processarInteresados(filePath) {
     // Bairro: coluna da planilha; senão tenta achar um bairro conhecido
     // dentro do texto (título/mensagem) — URL do ImovelWeb é só um id
     // numérico, não ajuda, e abrir a página é bloqueado pelo Cloudflare.
-    const bairroBruto = l['Bairro'] || '';
-    const bairro = bairroBruto ? normalizarBairroBR(cidade, bairroBruto) : (cidade ? buscarBairroEmTexto(cidade, textoLivre) : '');
+    // Quando a coluna "Bairro" vem igual à "Cidade" (ex: as duas "Praia
+    // Grande") é sinal de dado inválido/duplicado do portal, não um bairro
+    // real chamado igual à cidade — trata como se não tivesse vindo e cai
+    // pro texto, que costuma ter o bairro certo (ex: "...- Aviação, Praia
+    // Grande" no título).
+    const bairroBrutoPlanilha = l['Bairro'] || '';
+    const bairroBrutoValido = bairroBrutoPlanilha && _chave(bairroBrutoPlanilha) !== _chave(cidade);
+    const bairro = bairroBrutoValido ? normalizarBairroBR(cidade, bairroBrutoPlanilha) : (cidade ? buscarBairroEmTexto(cidade, textoLivre) : '');
     const categoria = classificarCategoria(l['Tipo de imóvel'] || '');
     const transacao = normalizarTransacao(l['Tipo de operação'] || '');
     const atributosTexto = extrairAtributosTexto(textoLivre);

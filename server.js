@@ -14536,9 +14536,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   h1{color:var(--rausch);font-size:20px}
   h2.secao{font-size:16px;color:var(--ink);margin:28px 0 4px}
   .box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0}
-  .campos-geo{display:grid;grid-template-columns:repeat(3,1fr) 1.1fr;gap:16px;align-items:start}
-  .campo-filtros-finais{display:flex;flex-direction:column}
-  .campo-filtros-finais button{margin-top:auto}
+  .campos-geo{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
   .campo select,.campo input[type=text]{max-width:none}
   .campo label{margin-top:0}
   label{display:block;font-size:12px;font-weight:bold;color:#374151;margin:12px 0 4px}
@@ -14565,6 +14563,16 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   td{padding:6px;border-bottom:1px solid #f3f4f6;vertical-align:top;white-space:nowrap}
   .banner-ia{background:var(--ink);color:#fff;border-radius:8px;padding:16px 20px;margin:16px 0;font-size:15px}
   .banner-ia strong{color:#4ade80}
+  .leads-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:14px}
+  .lead-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;opacity:0;animation:leadCardIn .4s ease forwards}
+  @keyframes leadCardIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .lead-card-topo{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .lead-card-nome{font-size:13px;font-weight:700;color:var(--ink)}
+  .lead-card-valor{font-size:13px;font-weight:700;color:var(--babu);white-space:nowrap}
+  .lead-card-tags{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+  .lead-card-tags span{background:var(--bg);border-radius:999px;padding:3px 9px;font-size:10.5px;font-weight:600;color:var(--sec)}
+  .lead-card-loc{font-size:11.5px;color:var(--sec)}
+  .lead-card-rodape{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--bg);font-size:10.5px;color:var(--sec)}
   .proof-bar{display:flex;flex-wrap:wrap;gap:8px 18px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 16px;margin:14px 0;font-size:12px;font-weight:600;color:#9a3412}
   .proof-bar strong{color:var(--rausch)}
   .trust-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin:24px 0 12px;padding:14px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--sec);font-weight:600;text-align:center}
@@ -14616,7 +14624,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     #bairros-lista{max-width:100%}
     .combos{grid-template-columns:1fr}
     .signup-box{max-width:100%}
-    #btnBuscar,.combo button,#btnComprar{width:100%}
+    .combo button,#btnComprar{width:100%}
   }
   .topbar-logo{display:flex;align-items:center;gap:8px;padding:16px 0 0}
   .topbar-logo .mark{width:28px;height:28px;background:var(--rausch);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
@@ -14669,28 +14677,12 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         <div id="bairros-lista"><span class="gray" style="font-size:12px">Selecione ao menos 1 cidade primeiro...</span></div>
         <div id="bairros-chips" class="chips"></div>
       </div>
-
-      <div class="campo campo-filtros-finais">
-        <label>Transação</label>
-        <div class="chk-transacao">
-          <label><input type="checkbox" id="chkVenda" checked> Venda</label>
-          <label><input type="checkbox" id="chkAluguel" checked> Aluguel</label>
-        </div>
-
-        <label>Período (dias atrás)</label>
-        <div style="display:flex;align-items:center;gap:6px">
-          <input type="number" id="periodoDias" min="1" max="30" value="7" style="max-width:70px">
-          <span class="gray" style="font-size:11px">máx. 30 dias</span>
-        </div>
-
-        <button id="btnBuscar" onclick="buscarDemanda()" disabled>🔎 Buscar Demanda</button>
-      </div>
     </div>
     <div id="busca-status"></div>
   </div>
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
-    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div id="leads-cards" class="leads-cards"></div>
 
     <div id="combos-box" style="display:none">
       <h2 class="secao">📦 Escolha seu combo</h2>
@@ -14767,7 +14759,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     esconderSugestoesCidade();
     document.getElementById('filtroBairro').disabled = true;
     document.getElementById('filtroBairro').value = '';
-    document.getElementById('btnBuscar').disabled = true;
     document.getElementById('estado').classList.toggle('ok', !!estado);
     document.getElementById('estado-check').style.display = estado ? 'inline' : 'none';
     if(!estado) { cidadeInput.placeholder = 'Selecione o estado primeiro...'; return; }
@@ -14837,7 +14828,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     reconstruirParesDisponiveis();
     renderBairros();
     renderBairrosChips();
-    document.getElementById('btnBuscar').disabled = _paresMarcados.length === 0;
+    _agendarBusca();
     if(!_cidadesSelecionadas.length){
       document.getElementById('filtroBairro').disabled = true;
       document.getElementById('filtroBairro').value = '';
@@ -14907,7 +14898,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     if(el.checked && idx === -1) _paresMarcados.push(par);
     else if(!el.checked && idx > -1) _paresMarcados.splice(idx, 1);
     renderBairrosChips();
-    document.getElementById('btnBuscar').disabled = _paresMarcados.length === 0;
+    _agendarBusca();
   });
 
   document.getElementById('bairros-chips').addEventListener('click', function(e){
@@ -14917,56 +14908,75 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     _paresMarcados = _paresMarcados.filter(function(p){ return _parChave(p) !== chave; });
     renderBairros();
     renderBairrosChips();
-    document.getElementById('btnBuscar').disabled = _paresMarcados.length === 0;
+    _agendarBusca();
   });
 
   document.getElementById('filtroBairro').addEventListener('input', renderBairros);
 
+  // Não precisa clicar em nenhum botão — assim que estado + pelo menos 1
+  // bairro estão marcados, a busca dispara sozinha (com um pequeno atraso
+  // pra não disparar 1x por clique se o usuário estiver marcando vários
+  // bairros em sequência).
+  let _buscaDebounceId = null;
+  function _agendarBusca(){
+    if(_buscaDebounceId) clearTimeout(_buscaDebounceId);
+    if(!document.getElementById('estado').value || !_paresMarcados.length){
+      document.getElementById('resultado-box').style.display = 'none';
+      document.getElementById('combos-box').style.display = 'none';
+      document.getElementById('busca-status').innerHTML = '';
+      return;
+    }
+    _buscaDebounceId = setTimeout(buscarDemanda, 700);
+  }
+
   async function buscarDemanda(){
     const estado = document.getElementById('estado').value;
     const pares = _paresMarcados;
-    const transacoes = [];
-    if(document.getElementById('chkVenda').checked) transacoes.push('venda');
-    if(document.getElementById('chkAluguel').checked) transacoes.push('aluguel');
-    let dias = parseInt(document.getElementById('periodoDias').value, 10) || 7;
-    dias = Math.min(30, Math.max(1, dias));
-    document.getElementById('periodoDias').value = dias;
-    if(!estado || !pares.length){ alert('Escolhe estado e pelo menos 1 bairro.'); return; }
-    if(!transacoes.length){ alert('Marca Venda, Aluguel ou os dois.'); return; }
+    if(!estado || !pares.length) return;
+    const transacoes = ['venda', 'aluguel'];
+    const dias = 30;
     document.getElementById('resultado-box').style.display = 'none';
     document.getElementById('combos-box').style.display = 'none';
     fecharModalCompra();
     _comboEscolhido = null;
-    document.getElementById('btnBuscar').disabled = true;
     try {
       const fetchPromise = fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias }) }).then(function(r){ return r.json(); });
       // Não estoura o resultado na hora — mostra a IA "pensando" em etapas,
       // dá pra sentir que ela está de fato cruzando as fontes antes de responder.
       const etapas = [
-        '🤖 Entendendo o perfil buscado ('+pares.length+' bairro'+(pares.length>1?'s':'')+' em '+_cidadesSelecionadas.length+' cidade'+(_cidadesSelecionadas.length>1?'s':'')+', '+transacoes.join(' + ')+')...',
+        '🤖 Entendendo o perfil buscado ('+pares.length+' bairro'+(pares.length>1?'s':'')+' em '+_cidadesSelecionadas.length+' cidade'+(_cidadesSelecionadas.length>1?'s':'')+')...',
         '📥 Cruzando com a base de interessados MatchImóveis...',
-        '🧠 Calculando compatibilidade dos últimos '+dias+' dia'+(dias>1?'s':'')+'...'
+        '🧠 Calculando compatibilidade...'
       ];
       for(let i=0;i<etapas.length;i++){
         document.getElementById('busca-status').innerHTML = '<p class="gray">'+etapas[i]+'</p>';
-        await new Promise(function(res){ setTimeout(res, 600); });
+        await new Promise(function(res){ setTimeout(res, 550); });
       }
       const d = await fetchPromise;
-      document.getElementById('btnBuscar').disabled = false;
       document.getElementById('busca-status').innerHTML = '';
       if(!d.ok){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro: '+escHtml(d.erro)+'</p>'; return; }
-      const labelPeriodo = d.dias+' dia'+(d.dias>1?'s':'');
       document.getElementById('banner-resultado').innerHTML = d.total > 0
-        ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região nos últimos '+labelPeriodo+'. <span style="color:#fca5a5">⚡ Nenhum deles foi vendido ainda — o primeiro corretor que pagar leva todos.</span>'
-        : '🤖 A IA não encontrou interessados com esse perfil nos últimos '+labelPeriodo+'. Tenta ampliar o período ou escolher outro bairro.';
-      document.getElementById('tabela-body').innerHTML = d.leads.map(function(l){
-        const dataTxt = l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR') : '<span class="gray">—</span>';
-        return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>MatchImóveis</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Condicao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Quartos?escHtml(l.Quartos):'<span class="gray">—</span>')+'</td><td>'+(l.Suites?escHtml(l.Suites):'<span class="gray">—</span>')+'</td><td>'+(l.Vagas?escHtml(l.Vagas):'<span class="gray">—</span>')+'</td><td>'+(l.Banheiros?escHtml(l.Banheiros):'<span class="gray">—</span>')+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td><td>'+dataTxt+'</td></tr>';
+        ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região.<br><span style="color:#fca5a5">⚡ Nenhum deles foi vendido ainda — o primeiro corretor que pagar leva todos.</span>'
+        : '🤖 A IA não encontrou interessados com esse perfil ainda. Tenta outro bairro.';
+      document.getElementById('leads-cards').innerHTML = d.leads.map(function(l, i){
+        const dataTxt = l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR') : '';
+        return '<div class="lead-card" style="animation-delay:'+Math.min(i*70,900)+'ms">'
+          + '<div class="lead-card-topo"><span class="lead-card-nome">'+escHtml(l.Nome)+'</span>'
+          + (l.Valor_max ? '<span class="lead-card-valor">R$ '+escHtml(l.Valor_max)+'</span>' : '')
+          + '</div>'
+          + '<div class="lead-card-tags">'
+          + (l.Tipo ? '<span>🏠 '+escHtml(l.Tipo)+'</span>' : '')
+          + '<span>'+(l.Transacao === 'aluguel' ? '🔑 Aluguel' : '🛒 Venda')+'</span>'
+          + (l.Quartos ? '<span>🛏️ '+escHtml(l.Quartos)+' qts</span>' : '')
+          + '</div>'
+          + '<div class="lead-card-loc">📍 '+escHtml(l.Bairro)+', '+escHtml(l.Cidade)+'</div>'
+          + '<div class="lead-card-rodape"><span>MatchImóveis</span>'+(dataTxt ? '<span>'+dataTxt+'</span>' : '')+'</div>'
+          + '</div>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
       _ultimaBusca = { estado, pares, transacoes, dias: d.dias };
       renderCombos(d.total);
-    } catch(e){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; document.getElementById('btnBuscar').disabled = false; }
+    } catch(e){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; }
   }
 
   // ── Combos + criação de conta + pagamento ──────────────────────────────

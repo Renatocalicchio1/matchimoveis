@@ -15885,7 +15885,11 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
     try {
       const r = await fetch('/admin/campanha/preview/'+id);
       const d = await r.json();
-      if(!d.ok){ document.getElementById('preview-assunto').textContent = 'Erro ao carregar'; return; }
+      if(!d.ok){
+        document.getElementById('preview-assunto').textContent = 'Preview indisponível';
+        document.getElementById('preview-corpo').innerHTML = '<p style="padding:20px;color:#6b7280;font-size:13px">'+escHtml(d.erro||'Erro ao carregar')+'</p>';
+        return;
+      }
       document.getElementById('preview-assunto').textContent = d.assunto || '(sem assunto)';
       document.getElementById('preview-meta').textContent = 'Modelo: ' + (d.modelo || '—') + ' · Para: ' + d.email;
       document.getElementById('preview-corpo').innerHTML = d.html;
@@ -16044,6 +16048,9 @@ app.get('/admin/campanha/preview/:id', authAdmin, async (req, res) => {
     const { buscarEnvioParaPreview } = require('./services/campanha');
     const envio = await buscarEnvioParaPreview(req.params.id);
     if (!envio) return res.json({ ok: false, erro: 'Envio não encontrado' });
+    if (!envio.corpo_usado) {
+      return res.json({ ok: false, erro: 'Esse email foi enviado antes desse recurso de preview existir — o texto exato não ficou salvo.' });
+    }
     res.json({ ok: true, assunto: envio.titulo_usado, modelo: envio.modelo_usado, email: envio.email, html: envio.html });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
@@ -16062,7 +16069,7 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     params.push(50); params.push(offset);
     const { rows } = await require('./services/db').query(`SELECT id,nome,email,celular,status,modelo_usado,aberto_em,clicado_em,enviado_em,erro,
       (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou
-      FROM campanha_contatos ${where} ORDER BY criado_em DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
+      FROM campanha_contatos ${where} ORDER BY COALESCE(enviado_em, criado_em) DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
     const { rows: tot } = await require('./services/db').query(`SELECT COUNT(*) as total FROM campanha_contatos ${where}`, params.slice(0,-2));
     res.json({ ok:true, contatos:rows, total:tot[0].total });
   } catch(e){ res.json({ ok:false, erro:e.message }); }

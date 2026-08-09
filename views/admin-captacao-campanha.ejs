@@ -65,14 +65,14 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
     <div class="aviso">⚠️ Erro ao carregar status da campanha.</div>
   <% } else { %>
     <div class="aviso">
-      Dispara 1 e-mail por minuto pra todas as leads do sistema sem imóvel captado ainda, convidando a cadastrar via <strong>matchimoveis.ia.br/captar/REN-G9K6</strong>. Título e corpo alternam entre várias variações pra não cair em spam. Não mexe no e-mail individual que já dispara quando uma lead nova entra (esse continua igual, com o link do corretor dono dela).
+      Dispara e-mails com intervalo aleatório de 1 a 3 minutos (nunca fixo, pra não parecer robô pros provedores de email) pra todas as leads do sistema sem imóvel captado ainda, convidando a cadastrar via <strong>matchimoveis.ia.br/captar/REN-G9K6</strong>. Título e corpo também alternam entre várias variações pra não cair em spam. Não mexe no e-mail individual que já dispara quando uma lead nova entra (esse continua igual, com o link do corretor dono dela).
     </div>
 
     <div class="status-box">
       <span class="status-dot <%= status.ativo ? 'rodando' : (status.pendentes===0 ? 'concluida' : 'parada') %>" id="statusDot"></span>
       <div>
         <div class="status-txt" id="statusTxt"><%= status.ativo ? '🟢 Rodando' : (status.pendentes===0 && status.enviados>0 ? '✓ Concluída' : '⏸ Parada') %></div>
-        <div class="status-sub" id="statusSub"><%= status.pendentes %> pendente<%= status.pendentes===1?'':'s' %> — estimativa de <strong><%= status.minutosRestantes %></strong> min restantes no ritmo de 1/min</div>
+        <div class="status-sub" id="statusSub"><%= status.pendentes %> pendente<%= status.pendentes===1?'':'s' %> — estimativa de <strong>~<%= status.minutosRestantes %></strong> min restantes (intervalo de 1 a 3 min por envio)</div>
       </div>
       <div class="actions">
         <button class="btn btn-iniciar" id="btnIniciar" onclick="iniciarCampanha()" <%= status.ativo || status.pendentes===0 ? 'disabled' : '' %>>▶ Iniciar</button>
@@ -130,12 +130,12 @@ function _atualizarTela(s){
   const concluida = s.pendentes === 0 && s.enviados > 0;
   dot.className = 'status-dot ' + (s.ativo ? 'rodando' : (concluida ? 'concluida' : 'parada'));
   txt.textContent = s.ativo ? '🟢 Rodando' : (concluida ? '✓ Concluída' : '⏸ Parada');
-  sub.innerHTML = s.pendentes + ' pendente' + (s.pendentes===1?'':'s') + ' — estimativa de <strong>' + s.minutosRestantes + '</strong> min restantes no ritmo de 1/min';
+  sub.innerHTML = s.pendentes + ' pendente' + (s.pendentes===1?'':'s') + ' — estimativa de <strong>~' + s.minutosRestantes + '</strong> min restantes (intervalo de 1 a 3 min por envio)';
   document.getElementById('btnIniciar').disabled = s.ativo || s.pendentes === 0;
   document.getElementById('btnPausar').disabled = !s.ativo;
 }
 async function iniciarCampanha(){
-  if(!confirm('Iniciar o disparo? Vai mandar 1 email por minuto até esgotar as leads elegíveis.')) return;
+  if(!confirm('Iniciar o disparo? Vai mandar os emails com intervalo aleatório de 1 a 3 minutos até esgotar as leads elegíveis.')) return;
   const d = await _post('/admin/captacao-campanha/iniciar');
   if(d.ok) _atualizarTela(d.status);
 }

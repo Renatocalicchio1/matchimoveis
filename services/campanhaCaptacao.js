@@ -131,7 +131,9 @@ async function contarStatus() {
     pctAbertura: enviados ? Math.round((abertos / enviados) * 1000) / 10 : 0,
     pctClique: enviados ? Math.round((clicados / enviados) * 1000) / 10 : 0,
     pctIniciaram: enviados ? Math.round((iniciaram / enviados) * 1000) / 10 : 0,
-    minutosRestantes: pendentes,
+    // Intervalo entre envios é aleatório de 1 a 3 min (média 2) — ver
+    // _agendarProximoEnvioCampanha em server.js.
+    minutosRestantes: pendentes * 2,
   };
 }
 

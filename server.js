@@ -1878,15 +1878,23 @@ const _agendarMatchPendentes = () => {
 };
 _agendarMatchPendentes();
 
-// Job da campanha global de captação (services/campanhaCaptacao.js) — 1
-// envio por minuto, só quando o admin ativa em /admin/captacao-campanha
+// Job da campanha global de captação (services/campanhaCaptacao.js) — só
+// dispara de fato quando o admin ativa em /admin/captacao-campanha
 // (enviarProximoEmail() já checa o flag "ativo" e não faz nada se pausada).
-setInterval(async () => {
-  try {
-    const { enviarProximoEmail } = require('./services/campanhaCaptacao');
-    await enviarProximoEmail();
-  } catch (e) { console.error('[JOB CAMPANHA CAPTACAO]', e.message); }
-}, 60 * 1000);
+// Intervalo entre envios é ALEATÓRIO (1 a 3 min), nunca fixo — um padrão
+// robótico de "exatamente a cada X segundos" é um sinal clássico de spam
+// pros provedores de email.
+function _agendarProximoEnvioCampanha() {
+  const delayMs = (60 + Math.random() * 120) * 1000; // 60s a 180s
+  setTimeout(async () => {
+    try {
+      const { enviarProximoEmail } = require('./services/campanhaCaptacao');
+      await enviarProximoEmail();
+    } catch (e) { console.error('[JOB CAMPANHA CAPTACAO]', e.message); }
+    _agendarProximoEnvioCampanha();
+  }, delayMs);
+}
+_agendarProximoEnvioCampanha();
 
 // Job onboarding — verifica a cada 30min se algum usuário completou um dos 3 passos
 // (cadastrar imóvel / ativar WhatsApp / adicionar lead) e manda o email de parabéns

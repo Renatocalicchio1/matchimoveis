@@ -1851,6 +1851,31 @@ const _agendarReengajamento = () => {
 };
 _agendarReengajamento();
 
+// Job reenvio convite de captação — roda todo dia às 11h (ver
+// services/emailCaptacaoResend.js pra cadência: 15 dias nos 2 primeiros
+// reenvios, depois 30 dias, até a lead cadastrar o imóvel).
+const _agendarCaptacaoResend = () => {
+  const agora = new Date();
+  const amanha11h = new Date(agora);
+  amanha11h.setDate(amanha11h.getDate() + (agora.getHours() >= 11 ? 1 : 0));
+  amanha11h.setHours(11, 0, 0, 0);
+  const msAte11h = amanha11h - agora;
+  setTimeout(async () => {
+    try {
+      const { enviarEmailsCaptacaoResend } = require('./services/emailCaptacaoResend');
+      await enviarEmailsCaptacaoResend();
+    } catch(e) { console.error('[JOB CAPTACAO RESEND]', e.message); }
+    setInterval(async () => {
+      try {
+        const { enviarEmailsCaptacaoResend } = require('./services/emailCaptacaoResend');
+        await enviarEmailsCaptacaoResend();
+      } catch(e) { console.error('[JOB CAPTACAO RESEND]', e.message); }
+    }, 24 * 3600 * 1000);
+  }, msAte11h);
+  console.log('[JOB CAPTACAO RESEND] agendado para:', amanha11h.toLocaleString('pt-BR'));
+};
+_agendarCaptacaoResend();
+
 // Job onboarding — verifica a cada 30min se algum usuário completou um dos 3 passos
 // (cadastrar imóvel / ativar WhatsApp / adicionar lead) e manda o email de parabéns
 setTimeout(async () => {

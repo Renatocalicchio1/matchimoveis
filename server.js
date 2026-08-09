@@ -15703,35 +15703,6 @@ app.get('/admin/captacao-campanha/preview/:id', authAdmin, async (req, res) => {
     </body></html>`);
   } catch (e) { res.status(500).send('Erro ao carregar preview.'); }
 });
-app.get('/admin/captacao-campanha/exportar-excel', authAdmin, async (req, res) => {
-  try {
-    const XLSX = require('xlsx');
-    const { listarEnvios } = require('./services/campanhaCaptacao');
-    const envios = await listarEnvios({ limite: 100000 });
-    const linhas = envios.map(e => ({
-      Nome: e.nome || '',
-      Email: e.email || '',
-      Celular: e.telefone || '',
-      Data_enviado: e.enviado_em ? new Date(e.enviado_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '',
-      Titulo: e.titulo_usado || '',
-      Abriu: e.aberto_em ? 'Sim' : 'Não',
-      Clicou: e.clicado_em ? 'Sim' : 'Não',
-      Iniciou_cadastro: e.iniciou_cadastro_em ? 'Sim' : 'Não',
-      Erro: e.erro || '',
-      Link_preview: 'https://matchimoveis.ia.br/admin/captacao-campanha/preview/' + e.id
-    }));
-    const ws = XLSX.utils.json_to_sheet(linhas);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Campanha Captação');
-    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-    res.setHeader('Content-Disposition', 'attachment; filename="campanha-captacao.xlsx"');
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.send(buf);
-  } catch (e) {
-    console.error('[exportar campanha captacao]', e.message);
-    res.status(500).send('Erro ao exportar planilha.');
-  }
-});
 // ── FIM CAMPANHA GLOBAL DE CAPTAÇÃO ─────────────────────────────────────────
 
 app.get('/admin/campanha', authAdmin, async (req, res) => {

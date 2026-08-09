@@ -5553,6 +5553,16 @@ app.get('/app/modelo-leads.xlsx', auth, (req, res) => {
   res.send(buf);
 });
 
+// Lead de captação (proprietário que se auto-cadastrou pra anunciar o
+// imóvel, via /captar/:userId) é um tipo diferente de "lead" — não é quem
+// tá procurando comprar/alugar, é quem quer vender/alugar o próprio
+// imóvel. Tem tela própria (/app/captacao) desde antes; esse helper
+// garante que ela não apareça duplicada na Planilha de Leads/kanban geral.
+// Mesmos 3 campos já checados em services/salvarLead.js (linha ~205).
+function _ehLeadCaptacao(l) {
+  return l.tipoLead === 'cliente_vendedor' || l.tipo_lead === 'cliente_vendedor' || l.origem === 'captacao_link' || (l.dados && l.dados.temImovelParaCaptar === true);
+}
+
 app.get('/app/leads', auth, async (req,res)=>{
   const { lerLeads: _lerLeadsService } = require('./services/salvarLead');
   const raw = await _lerLeadsService(req.session.user.id);
@@ -5560,6 +5570,7 @@ app.get('/app/leads', auth, async (req,res)=>{
   const _todasVisitas = (_cacheVisitas || []);
   const leads = filtrarPorUsuario(data, req.session.user)
     .filter(l => l.tipoLead !== 'corretor')
+    .filter(l => !_ehLeadCaptacao(l))
     .filter(l => !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length)))
     .filter(l => {
       // Se tem qualquer visita → some do kanban de leads
@@ -5616,6 +5627,7 @@ async function _leadsParaPlanilha(user, query) {
   const data = Array.isArray(raw) ? raw : (raw.results || []);
   const base = filtrarPorUsuario(data, user)
     .filter(l => l.tipoLead !== 'corretor')
+    .filter(l => !_ehLeadCaptacao(l))
     .filter(l => !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length)));
 
   const { origem, status, busca, de, ate } = query || {};

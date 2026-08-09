@@ -1877,6 +1877,9 @@ const _agendarCaptacaoResend = () => {
 _agendarCaptacaoResend();
 
 // Job rematch de leads sem match — roda todo dia às 6h (services/matchPendentes.js).
+// Restrito às leads criadas nos últimos 2 dias pra não pesar no servidor
+// reprocessando a base toda todo dia (backfill de leads mais antigas é
+// manual: node rodarMatchLeadsSemMatch.js no Render Shell).
 const _agendarMatchPendentes = () => {
   const agora = new Date();
   const amanha6h = new Date(agora);
@@ -1886,12 +1889,12 @@ const _agendarMatchPendentes = () => {
   setTimeout(async () => {
     try {
       const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
-      await rodarMatchLeadsSemMatch();
+      await rodarMatchLeadsSemMatch({ diasAtras: 2 });
     } catch(e) { console.error('[JOB MATCH PENDENTES]', e.message); }
     setInterval(async () => {
       try {
         const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
-        await rodarMatchLeadsSemMatch();
+        await rodarMatchLeadsSemMatch({ diasAtras: 2 });
       } catch(e) { console.error('[JOB MATCH PENDENTES]', e.message); }
     }, 24 * 3600 * 1000);
   }, msAte6h);

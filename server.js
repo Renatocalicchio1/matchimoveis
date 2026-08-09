@@ -14691,7 +14691,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
 
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
-    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
 
     <div id="combos-box" style="display:none">
       <h2 class="secao">📦 Escolha seu combo</h2>
@@ -15016,7 +15016,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         : '🤖 A IA não encontrou interessados com esse perfil ainda. Tenta outro bairro.';
       document.getElementById('tabela-body').innerHTML = d.leads.map(function(l){
         const dataTxt = l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR') : '<span class="gray">—</span>';
-        return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>MatchImóveis</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Condicao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Quartos?escHtml(l.Quartos):'<span class="gray">—</span>')+'</td><td>'+(l.Suites?escHtml(l.Suites):'<span class="gray">—</span>')+'</td><td>'+(l.Vagas?escHtml(l.Vagas):'<span class="gray">—</span>')+'</td><td>'+(l.Banheiros?escHtml(l.Banheiros):'<span class="gray">—</span>')+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td><td>'+dataTxt+'</td></tr>';
+        return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>MatchImóveis</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Quartos?escHtml(l.Quartos):'<span class="gray">—</span>')+'</td><td>'+(l.Suites?escHtml(l.Suites):'<span class="gray">—</span>')+'</td><td>'+(l.Vagas?escHtml(l.Vagas):'<span class="gray">—</span>')+'</td><td>'+(l.Banheiros?escHtml(l.Banheiros):'<span class="gray">—</span>')+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td><td>'+dataTxt+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
       document.getElementById('resultado-box').scrollIntoView({ behavior: 'smooth', block: 'start' });

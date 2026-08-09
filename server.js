@@ -15780,14 +15780,14 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   <body><div class="admin-app">${_adminSidebarHtml('campanha')}<main class="admin-content">
   <h1>📧 Campanha de Email</h1>
   <div class="box">
-    <h3>📊 Base de contatos</h3>
-    <div class="stat"><strong>${total}</strong>Total</div>
-    <div class="stat"><strong style="color:#f59e0b">${pendentes}</strong>Pendentes</div>
-    <div class="stat"><strong style="color:#16a34a">${enviados}</strong>Enviados</div>
-    <div class="stat"><strong style="color:#dc2626">${erros}</strong>Erros</div>
-    <div class="stat"><strong style="color:#8b5cf6">${aberturas}</strong>Aberturas</div>
-    <div class="stat"><strong style="color:#2563eb">${cliques}</strong>Cliques</div>
-    <div class="stat"><strong style="color:#16a34a">${cadastrados}</strong>Cadastrados</div>
+    <h3>📊 Base de contatos <span class="gray" style="font-size:11px;font-weight:normal">(atualiza sozinho a cada 15s)</span></h3>
+    <div class="stat"><strong id="statTotal">${total}</strong>Total</div>
+    <div class="stat"><strong style="color:#f59e0b" id="statPendentes">${pendentes}</strong>Pendentes</div>
+    <div class="stat"><strong style="color:#16a34a" id="statEnviados">${enviados}</strong>Enviados</div>
+    <div class="stat"><strong style="color:#dc2626" id="statErros">${erros}</strong>Erros</div>
+    <div class="stat"><strong style="color:#8b5cf6" id="statAberturas">${aberturas}</strong>Aberturas</div>
+    <div class="stat"><strong style="color:#2563eb" id="statCliques">${cliques}</strong>Cliques</div>
+    <div class="stat"><strong style="color:#16a34a" id="statCadastrados">${cadastrados}</strong>Cadastrados</div>
   </div>
   <div class="box">
     <h3>✅ Validação de email (formato + MX do domínio)</h3>
@@ -15798,7 +15798,7 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   </div>
   <div class="box">
     <h3>🤖 Disparo automático</h3>
-    <p class="gray">Intervalo aleatório de 1 a 3 min por envio. Alterna sozinho entre 2 modelos (página inicial / demanda), cada um com várias variações de assunto e texto. Ordem de disparo: primeiro toda a região de São Paulo (dentro dela, quem parece corretor/imobiliária/broker no nome ou email primeiro, depois o resto de SP) — só depois de esgotar SP passa pro Rio de Janeiro (mesma lógica), depois Santa Catarina, depois o restante do Brasil. Pula quem já tem conta (email ou celular batendo).</p>
+    <p class="gray">Intervalo aleatório de 30s a 5min por envio (varia sempre, nunca fixo). Alterna sozinho entre 2 modelos (página inicial / demanda), cada um com várias variações de assunto e texto. Ordem de disparo: primeiro toda a região de São Paulo (dentro dela, quem parece corretor/imobiliária/broker no nome ou email primeiro, depois o resto de SP) — só depois de esgotar SP passa pro Rio de Janeiro (mesma lógica), depois Santa Catarina, depois o restante do Brasil. Pula quem já tem conta (email ou celular batendo).</p>
     <p>Status: <strong id="statusAutomatico">${ativo ? '🟢 Rodando' : '⏸ Parado'}</strong></p>
     <button class="ok" id="btnIniciarAuto" onclick="iniciarAutomatico()" ${ativo?'disabled':''}>▶ Iniciar automático</button>
     <button class="no" id="btnPausarAuto" onclick="pausarAutomatico()" ${!ativo?'disabled':''}>⏸ Pausar</button>
@@ -15903,7 +15903,7 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
   function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function _tag(cond){ return cond ? '<span class="tag tag-sim">Sim</span>' : '<span class="tag tag-nao">Não</span>'; }
   async function iniciarAutomatico(){
-    if(!confirm('Iniciar disparo automático? Vai mandar emails com intervalo de 1 a 3 min até esgotar os contatos válidos.')) return;
+    if(!confirm('Iniciar disparo automático? Vai mandar emails com intervalo de 30s a 5min até esgotar os contatos válidos.')) return;
     await fetch('/admin/campanha/iniciar', {method:'POST'});
     document.getElementById('statusAutomatico').textContent = '🟢 Rodando';
     document.getElementById('btnIniciarAuto').disabled = true;
@@ -15926,7 +15926,15 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
       document.getElementById('statusAutomatico').textContent = d.ativo ? '🟢 Rodando' : '⏸ Parado';
       document.getElementById('btnIniciarAuto').disabled = d.ativo;
       document.getElementById('btnPausarAuto').disabled = !d.ativo;
+      document.getElementById('statTotal').textContent = d.base.total;
+      document.getElementById('statPendentes').textContent = d.base.pendentes;
+      document.getElementById('statEnviados').textContent = d.base.enviados;
+      document.getElementById('statErros').textContent = d.base.erros;
+      document.getElementById('statAberturas').textContent = d.base.aberturas;
+      document.getElementById('statCliques').textContent = d.base.cliques;
+      document.getElementById('statCadastrados').textContent = d.base.cadastrados;
     } catch(e){}
+    buscar(_pagina);
   }, 15000);
   let _pagina = 1;
   async function buscar(p){
@@ -16026,8 +16034,17 @@ app.post('/admin/campanha/disparar-lote', authAdmin, express.json(), async (req,
 });
 app.get('/admin/campanha/status', authAdmin, async (req, res) => {
   try {
-    const { estaAtiva, statsValidacao } = require('./services/campanha');
-    res.json({ ok: true, ativo: await estaAtiva(), validacao: await statsValidacao() });
+    const { estaAtiva, statsValidacao, statsBase, statsTracking, statsCadastrados } = require('./services/campanha');
+    const [ativo, validacao, stats, tracking, cadastrados] = await Promise.all([
+      estaAtiva(), statsValidacao(), statsBase(), statsTracking(), statsCadastrados()
+    ]);
+    const total = stats.reduce((a,b)=>a+parseInt(b.total),0);
+    const pendentes = (stats.find(s=>s.status==='pendente')||{}).total||0;
+    const enviados = (stats.find(s=>s.status==='enviado')||{}).total||0;
+    const erros = (stats.find(s=>s.status==='erro')||{}).total||0;
+    const aberturas = (tracking.find(s=>s.tipo==='abertura')||{}).total||0;
+    const cliques = (tracking.find(s=>s.tipo==='clique')||{}).total||0;
+    res.json({ ok: true, ativo, validacao, base: { total, pendentes, enviados, erros, aberturas, cliques, cadastrados } });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 app.post('/admin/campanha/iniciar', authAdmin, async (req, res) => {

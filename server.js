@@ -14568,6 +14568,15 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .proof-bar{display:flex;flex-wrap:wrap;gap:8px 18px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 16px;margin:14px 0;font-size:12px;font-weight:600;color:#9a3412}
   .proof-bar strong{color:var(--rausch)}
   .trust-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin:24px 0 12px;padding:14px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--sec);font-weight:600;text-align:center}
+  .pagina-footer{margin:32px 0 16px;padding-top:20px;border-top:1px solid var(--border)}
+  .pagina-footer .footer-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px}
+  .pagina-footer .footer-logo{font-size:14px;font-weight:700;color:var(--ink)}
+  .pagina-footer .footer-logo span{color:var(--rausch)}
+  .pagina-footer .footer-links{display:flex;flex-wrap:wrap;gap:16px}
+  .pagina-footer .footer-links a{font-size:12px;color:var(--sec);text-decoration:none}
+  .pagina-footer .footer-links a:hover{color:var(--rausch);text-decoration:underline}
+  .pagina-footer .footer-empresa{font-size:11px;color:var(--sec);margin-top:14px}
+  .pagina-footer .footer-note{font-size:11px;color:var(--sec);opacity:.8;margin-top:2px}
   .por-lead{font-size:11px;color:var(--sec);margin-top:2px}
   .hero-tags{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px}
   .hero-tags span{font-size:12px;font-weight:600}
@@ -14626,6 +14635,17 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     ${disponiveis.recentes24h > 0 ? `<span>⏱ <strong>${disponiveis.recentes24h.toLocaleString('pt-BR')}</strong> chegaram nas últimas 24h</span>` : ''}
     <span>⚡ somem da lista assim que alguém compra</span>
   </div>` : ''}
+
+  <div class="features-strip">
+    <span>🏠 Match automático</span>
+    <span>📅 Agenda visita</span>
+    <span>📸 Posts pro Instagram</span>
+    <span>🎁 Indicação com bônus</span>
+    <span>💰 Sem comissão</span>
+    <span>🤝 +300 mil imóveis no Brasil</span>
+    <span>🖼️ Vitrine automática</span>
+    <span>📲 Disparo por WhatsApp</span>
+  </div>
 
   <div class="box">
     <div class="campos-geo">
@@ -14698,23 +14718,25 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     </div>
   </div>
 
-  <div class="features-strip">
-    <span>🏠 Match automático</span>
-    <span>📅 Agenda visita</span>
-    <span>📸 Posts pro Instagram</span>
-    <span>🎁 Indicação com bônus</span>
-    <span>💰 Sem comissão</span>
-    <span>🤝 +300 mil imóveis no Brasil</span>
-    <span>🖼️ Vitrine automática</span>
-    <span>📲 Disparo por WhatsApp</span>
-  </div>
-
   <div class="trust-bar">
     <span>🔒 Pagamento seguro Mercado Pago</span>
     <span>🙈 Dados ocultos até a compra</span>
     <span>🚫 Sem mensalidade automática</span>
     <span>🏠 Acesso completo à plataforma</span>
   </div>
+  ${isAdmin ? '' : `<footer class="pagina-footer">
+    <div class="footer-top">
+      <span class="footer-logo">Match<span>Imóveis</span></span>
+      <div class="footer-links">
+        <a href="https://wa.me/5511951131609?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20MatchIm%C3%B3veis." target="_blank">Fale Conosco</a>
+        <a href="/politica-privacidade">Política de Privacidade</a>
+        <a href="/termos-de-uso">Termos de Uso</a>
+        <a href="/entrar">Já tenho conta</a>
+      </div>
+    </div>
+    <div class="footer-empresa">Match Imóveis é uma plataforma do Grupo Rankim.</div>
+    <div class="footer-note">© 2026 Match Imóveis — Grupo Rankim. Todos os direitos reservados.</div>
+  </footer>`}
   <script>
   function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   // Busca sem se importar com acento — digitar "sao paulo" tem que achar

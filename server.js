@@ -14770,9 +14770,10 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   h1{color:var(--rausch);font-size:20px}
   h2.secao{font-size:16px;color:var(--ink);margin:28px 0 4px}
   .box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0}
-  .campos-geo{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+  .campos-geo{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:16px;align-items:start}
   .campo select,.campo input[type=text]{max-width:none}
   .campo label{margin-top:0}
+  .campo-buscar button{margin-top:0;white-space:nowrap}
   label{display:block;font-size:12px;font-weight:bold;color:#374151;margin:12px 0 4px}
   select,input[type=text],input[type=email],input[type=password]{width:100%;max-width:360px;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:16px}
   button{background:var(--rausch);color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-top:14px;font-weight:bold}
@@ -14780,8 +14781,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   button:disabled{opacity:.5;cursor:not-allowed}
   .chk-transacao{display:flex;gap:16px;margin-top:6px}
   .chk-transacao label{display:flex;align-items:center;gap:6px;font-weight:normal;font-size:13px;color:#111827;margin:0}
-  #bairros-lista{max-width:420px;max-height:220px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px;padding:8px;background:#fff;margin-top:6px}
-  #bairros-lista label{display:flex;align-items:center;gap:6px;font-weight:normal;font-size:13px;color:#111827;margin:2px 0;padding:2px}
   .sugestoes-dropdown{position:absolute;top:100%;left:0;right:0;z-index:10;background:#fff;border:1px solid #d1d5db;border-top:none;max-height:220px;overflow-y:auto;border-radius:0 0 6px 6px;box-shadow:0 4px 10px rgba(0,0,0,.08)}
   .sugestao-item{padding:8px 10px;cursor:pointer;font-size:13px}
   .sugestao-item:hover{background:#f3f4f6}
@@ -14863,7 +14862,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     .campos-geo{grid-template-columns:1fr;gap:0}
     select,input[type=text],input[type=email],input[type=password]{max-width:100%}
     .chips{max-width:100%}
-    #bairros-lista{max-width:100%}
     .combos{grid-template-columns:1fr}
     .signup-box{max-width:100%}
     .combo button,#btnComprar,#btnBuscarDemanda{width:100%}
@@ -14914,10 +14912,17 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       </div>
 
       <div class="campo">
-        <label>Bairros (escolha quantos quiser)</label>
-        <input type="text" id="filtroBairro" placeholder="Selecione ao menos 1 cidade primeiro..." disabled>
-        <div id="bairros-lista"><span class="gray" style="font-size:12px">Selecione ao menos 1 cidade primeiro...</span></div>
+        <label>Bairros (escolha quantos quiser) <span id="bairro-check" class="confirm-check" style="display:none">✓ selecionado</span></label>
+        <div style="position:relative">
+          <input type="text" id="filtroBairro" placeholder="Selecione ao menos 1 cidade primeiro..." disabled autocomplete="off" style="width:100%">
+          <div id="bairro-sugestoes" class="sugestoes-dropdown" style="display:none"></div>
+        </div>
         <div id="bairros-chips" class="chips"></div>
+      </div>
+
+      <div class="campo campo-buscar">
+        <label style="visibility:hidden">Buscar</label>
+        <button type="button" id="btnBuscarDemanda" onclick="buscarDemanda()" disabled>🔍 Buscar</button>
       </div>
     </div>
     ${isAdmin ? `<div class="campo" style="max-width:220px;margin-top:10px">
@@ -14929,7 +14934,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       </select>
     </div>` : ''}
     <div id="busca-status"></div>
-    <button type="button" id="btnBuscarDemanda" onclick="buscarDemanda()" disabled>🔍 Buscar</button>
   </div>
 
   <div id="pensando-modal-overlay" class="modal-overlay" style="display:none">
@@ -15025,7 +15029,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     _paresDisponiveis = [];
     _paresMarcados = [];
     renderCidadesChips();
-    renderBairros();
+    esconderSugestoesBairro();
     renderBairrosChips();
     cidadeInput.value = '';
     cidadeInput.disabled = true;
@@ -15099,7 +15103,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     _paresMarcados = _paresMarcados.filter(function(p){ return p.cidade !== cidade; });
     renderCidadesChips();
     reconstruirParesDisponiveis();
-    renderBairros();
+    esconderSugestoesBairro();
     renderBairrosChips();
     _agendarBusca();
     if(!_cidadesSelecionadas.length){
@@ -15111,15 +15115,14 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   async function carregarBairrosDaCidade(cidade){
     const estado = document.getElementById('estado').value;
     if(!_bairrosPorCidade[cidade]){
-      document.getElementById('bairros-lista').innerHTML = '<span class="gray" style="font-size:12px">Carregando bairros de '+escHtml(cidade)+'...</span>';
+      document.getElementById('filtroBairro').placeholder = 'Carregando bairros de '+cidade+'...';
       const r = await fetch('${apiPrefix}/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
       const d = await r.json();
       _bairrosPorCidade[cidade] = d.bairros || [];
     }
     reconstruirParesDisponiveis();
-    renderBairros();
     document.getElementById('filtroBairro').disabled = false;
-    document.getElementById('filtroBairro').placeholder = 'Digite pra filtrar os bairros...';
+    document.getElementById('filtroBairro').placeholder = 'Digite pra buscar o bairro...';
   }
 
   function reconstruirParesDisponiveis(){
@@ -15129,27 +15132,50 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     });
   }
 
-  // Estado de seleção (_paresMarcados) fica separado da renderização —
-  // filtrar a lista some com checkboxes fora do filtro, então não dá pra
-  // reconstruir a seleção lendo só o que está no DOM no momento.
-  function renderBairros(){
-    const lista = document.getElementById('bairros-lista');
-    if(!_paresDisponiveis.length){
-      lista.innerHTML = '<span class="gray" style="font-size:12px">Selecione ao menos 1 cidade primeiro...</span>';
-      return;
-    }
-    const filtro = _normTexto(document.getElementById('filtroBairro').value);
-    const visiveis = _paresDisponiveis.filter(function(p){ return _normTexto(p.bairro).includes(filtro); });
-    if(!visiveis.length){ lista.innerHTML = '<span class="gray" style="font-size:12px">⚠️ Não temos interessados minerados desse bairro ainda.</span>'; return; }
-    const marcadasChaves = _paresMarcados.map(_parChave);
-    const multiplasCidades = _cidadesSelecionadas.length > 1;
-    lista.innerHTML = visiveis.map(function(p){
-      const chave = _parChave(p);
-      const marcado = marcadasChaves.indexOf(chave) > -1;
-      const label = multiplasCidades ? (p.bairro + ' (' + p.cidade + ')') : p.bairro;
-      return '<label><input type="checkbox" data-chave="'+escHtml(chave)+'" data-cidade="'+escHtml(p.cidade)+'" data-bairro="'+escHtml(p.bairro)+'" '+(marcado?'checked':'')+'> '+escHtml(label)+'</label>';
-    }).join('');
+  function esconderSugestoesBairro(){
+    document.getElementById('bairro-sugestoes').style.display = 'none';
   }
+
+  // Mesmo padrão da cidade: sem termo digitado já mostra as opções
+  // disponíveis (as já marcadas somem da lista), só filtra de verdade
+  // quando o usuário começa a digitar.
+  function renderSugestoesBairro(){
+    const box = document.getElementById('bairro-sugestoes');
+    if(!_paresDisponiveis.length){ box.style.display = 'none'; return; }
+    const termo = _normTexto(document.getElementById('filtroBairro').value.trim());
+    const marcadasChaves = _paresMarcados.map(_parChave);
+    const disponiveis = _paresDisponiveis.filter(function(p){ return marcadasChaves.indexOf(_parChave(p)) === -1; });
+    const visiveis = (termo ? disponiveis.filter(function(p){ return _normTexto(p.bairro).includes(termo); }) : disponiveis).slice(0, 30);
+    if(!visiveis.length){ box.innerHTML = '<div class="sugestao-item gray">⚠️ Não temos interessados minerados desse bairro ainda</div>'; box.style.display = 'block'; return; }
+    const multiplasCidades = _cidadesSelecionadas.length > 1;
+    box.innerHTML = visiveis.map(function(p){
+      const label = multiplasCidades ? (p.bairro + ' (' + p.cidade + ')') : p.bairro;
+      return '<div class="sugestao-item" data-chave="'+escHtml(_parChave(p))+'" data-cidade="'+escHtml(p.cidade)+'" data-bairro="'+escHtml(p.bairro)+'">'+escHtml(label)+'</div>';
+    }).join('');
+    box.style.display = 'block';
+  }
+
+  document.getElementById('filtroBairro').addEventListener('input', renderSugestoesBairro);
+  document.getElementById('filtroBairro').addEventListener('focus', renderSugestoesBairro);
+  document.getElementById('filtroBairro').addEventListener('click', renderSugestoesBairro);
+
+  document.getElementById('bairro-sugestoes').addEventListener('click', function(e){
+    const item = e.target.closest('[data-chave]');
+    if(!item) return;
+    const par = { cidade: item.getAttribute('data-cidade'), bairro: item.getAttribute('data-bairro') };
+    const chave = _parChave(par);
+    if(_paresMarcados.findIndex(function(p){ return _parChave(p) === chave; }) === -1){
+      _paresMarcados.push(par);
+    }
+    document.getElementById('filtroBairro').value = '';
+    esconderSugestoesBairro();
+    renderBairrosChips();
+    _agendarBusca();
+  });
+
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#filtroBairro') && !e.target.closest('#bairro-sugestoes')) esconderSugestoesBairro();
+  });
 
   function renderBairrosChips(){
     const box = document.getElementById('bairros-chips');
@@ -15158,33 +15184,19 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       const label = multiplasCidades ? (p.bairro + ' (' + p.cidade + ')') : p.bairro;
       return '<span class="chip">'+escHtml(label)+'<button type="button" data-remover-bairro="'+escHtml(_parChave(p))+'">×</button></span>';
     }).join('');
+    const temBairro = _paresMarcados.length > 0;
+    document.getElementById('filtroBairro').classList.toggle('ok', temBairro);
+    document.getElementById('bairro-check').style.display = temBairro ? 'inline' : 'none';
   }
-
-  // Listener delegado no container (não em cada checkbox individual) —
-  // sobrevive ao innerHTML ser reconstruído a cada renderBairros().
-  document.getElementById('bairros-lista').addEventListener('change', function(e){
-    const el = e.target;
-    if(!el || el.type !== 'checkbox') return;
-    const par = { cidade: el.getAttribute('data-cidade'), bairro: el.getAttribute('data-bairro') };
-    const chave = _parChave(par);
-    const idx = _paresMarcados.findIndex(function(p){ return _parChave(p) === chave; });
-    if(el.checked && idx === -1) _paresMarcados.push(par);
-    else if(!el.checked && idx > -1) _paresMarcados.splice(idx, 1);
-    renderBairrosChips();
-    _agendarBusca();
-  });
 
   document.getElementById('bairros-chips').addEventListener('click', function(e){
     const btn = e.target.closest('[data-remover-bairro]');
     if(!btn) return;
     const chave = btn.getAttribute('data-remover-bairro');
     _paresMarcados = _paresMarcados.filter(function(p){ return _parChave(p) !== chave; });
-    renderBairros();
     renderBairrosChips();
     _agendarBusca();
   });
-
-  document.getElementById('filtroBairro').addEventListener('input', renderBairros);
 
   // Só dispara a busca quando o usuário clica em "Buscar" (botão fica
   // desabilitado até ter estado + pelo menos 1 bairro marcado) — dá tempo

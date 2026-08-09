@@ -37,6 +37,17 @@ const CORPOS = [
   'Cadastro rápido, sem burocracia. Em poucos minutos seu imóvel já está pronto pra ser encontrado por quem procura.'
 ];
 
+// Gancho inicial — lembra a pessoa que ela já buscou um imóvel (comprar ou
+// alugar) na plataforma, e sugere que ela também pode ter um pra vender.
+// Sorteado à parte do corpo, pra multiplicar as combinações possíveis.
+const GANCHOS = [
+  'Vimos que você já buscou um imóvel para comprar ou alugar por aqui. E se você também tiver um imóvel seu pra vender ou alugar?',
+  'Notamos que você esteve procurando um imóvel pra comprar ou alugar. Se por acaso você também tem um imóvel seu pra vender ou alugar, a gente pode ajudar a divulgar.',
+  'Você já usou a Match Imóveis pra buscar um imóvel — pra comprar ou alugar. Aproveitando, você também tem algum imóvel seu pra vender ou alugar?',
+  'Sabemos que você esteve em busca de um imóvel recentemente (comprar ou alugar). Se você também tem um imóvel seu pra vender ou alugar, cadastre com a gente.',
+  'Você buscou um imóvel pra comprar ou alugar aqui na plataforma. Talvez você também tenha um imóvel pra vender ou alugar — é rápido cadastrar.'
+];
+
 function _sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
 
 function _montarHtml(nome, corpo, linkRastreado, pixelUrl) {
@@ -193,7 +204,7 @@ async function enviarProximoEmail() {
   } catch (e) { return { enviado: false, motivo: 'erro_reserva', erro: e.message }; }
 
   const titulo = _sorteia(TITULOS);
-  const corpo = _sorteia(CORPOS);
+  const corpo = _sorteia(GANCHOS) + ' ' + _sorteia(CORPOS);
   const linkRastreado = BASE_URL + '/captacao-campanha/click/' + envioId;
   const pixelUrl = BASE_URL + '/captacao-campanha/open/' + envioId;
 

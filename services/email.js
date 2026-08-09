@@ -47,13 +47,22 @@ async function descadastrarEmail(email) {
 
 // Identificação da empresa — exigida em todo email comercial, vale pra
 // QUALQUER envio da plataforma (junto do rodapé de descadastro acima).
-const IDENTIFICACAO_EMPRESA = 'MatchImóveis é uma captadora de imóveis do Grupo Rankim (CNPJ 23.186.832/0001-40). Para corretores e imobiliárias, é uma plataforma completa com várias funcionalidades, incluindo captação de leads.';
+// Várias redações fixas, sorteada uma por envio (mesmo princípio dos
+// textos de campanha: nunca repetir literalmente a mesma frase toda vez).
+const IDENTIFICACOES_EMPRESA = [
+  'MatchImóveis é uma captadora de imóveis do Grupo Rankim (CNPJ 23.186.832/0001-40). Para corretores e imobiliárias, é uma plataforma completa com várias funcionalidades, incluindo captação de leads.',
+  'MatchImóveis, do Grupo Rankim (CNPJ 23.186.832/0001-40), é uma plataforma de captação de imóveis. Pra corretores e imobiliárias, oferece uma plataforma completa com diversas funcionalidades, entre elas a captação de leads.',
+  'A MatchImóveis (Grupo Rankim, CNPJ 23.186.832/0001-40) atua na captação de imóveis. Corretores e imobiliárias encontram aqui uma plataforma completa, com várias funcionalidades e captação de leads.',
+  'MatchImóveis é uma empresa do Grupo Rankim (CNPJ 23.186.832/0001-40) especializada em captação de imóveis, e também é uma plataforma completa pra corretores e imobiliárias, com várias funcionalidades e captação de leads.'
+];
+function _sortearIdentificacao() { return IDENTIFICACOES_EMPRESA[Math.floor(Math.random() * IDENTIFICACOES_EMPRESA.length)]; }
 
 function _rodapeDescadastro(email) {
   const link = BASE_URL + '/email/descadastrar?email=' + encodeURIComponent(email);
+  const identificacao = _sortearIdentificacao();
   return {
-    html: '<div style="margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;font-family:Arial,sans-serif;font-size:11px;color:#9ca3af">' + IDENTIFICACAO_EMPRESA + '<br><br>Você recebeu este email da MatchImóveis. <a href="' + link + '" style="color:#9ca3af;text-decoration:underline">Não quero mais receber email desta empresa</a></div>',
-    texto: '\n\n---\n' + IDENTIFICACAO_EMPRESA + '\nVocê recebeu este email da MatchImóveis. Não quer mais receber? ' + link
+    html: '<div style="margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;font-family:Arial,sans-serif;font-size:11px;color:#9ca3af">' + identificacao + '<br><br>Você recebeu este email da MatchImóveis. <a href="' + link + '" style="color:#9ca3af;text-decoration:underline">Não quero mais receber email desta empresa</a></div>',
+    texto: '\n\n---\n' + identificacao + '\nVocê recebeu este email da MatchImóveis. Não quer mais receber? ' + link
   };
 }
 

@@ -10166,7 +10166,11 @@ Depois é só colocar seus imóveis na plataforma — pode importar tudo de uma 
 // campanhaId opcional — quando informado, só considera elegível quem faz
 // parte dessa campanha específica (disparos_contatos), em vez de qualquer
 // contato que respondeu qualquer campanha.
-async function _elegiveisBoasVindas(campanhaId) {
+// ignorarCadastrados (default true) — se false, manda pra quem já tem conta
+// na plataforma também (tem campanha que faz sentido mandar pra todo mundo,
+// cadastrado ou não; por padrão continua pulando quem já é cliente).
+async function _elegiveisBoasVindas(campanhaId, ignorarCadastrados) {
+  if (ignorarCadastrados === undefined) ignorarCadastrados = true;
   const { listarConversas, listarMensagens } = require('./services/salvarWhatsappCloudMsg');
   const { listarOptout, buscarFollowupMensagem, listarTelefonesDaCampanha } = require('./services/salvarDisparo');
   const { query: _qElegiveis } = require('./services/db');
@@ -10198,7 +10202,7 @@ async function _elegiveisBoasVindas(campanhaId) {
     const tel = c.contato_telefone;
     if (optadosSet.has(tel)) { contagem.pulados_optout++; continue; }
     const sufixo = tel.replace(/\D/g, '').slice(-8);
-    if (telsCadastrados.has(sufixo)) { contagem.pulados_ja_cadastrado++; continue; }
+    if (ignorarCadastrados && telsCadastrados.has(sufixo)) { contagem.pulados_ja_cadastrado++; continue; }
 
     const mensagens = await listarMensagens(tel);
     const ultimaMsg = mensagens[mensagens.length - 1];
@@ -10234,9 +10238,41 @@ app.post('/admin/whatsapp-cloud/followup-mensagem', authAdmin, express.json(), a
   } catch(e) { res.status(500).json({ ok:false, erro: e.message }); }
 });
 
+// Gera um texto de mensagem WhatsApp a partir do que o admin descrever —
+// reaproveita a mesma GROQ_API_KEY do assistente (cerebro/groq-ia.js), mas
+// com um prompt próprio (esse aqui não tem nada a ver com o contexto do
+// corretor, é só "escreva essa mensagem"). O texto gerado só preenche o
+// textarea — continua editável e só é usado de fato depois de "Salvar".
+app.post('/admin/whatsapp-cloud/gerar-mensagem-ia', authAdmin, express.json(), async (req, res) => {
+  try {
+    const pedido = String(req.body.pedido || '').trim();
+    if (!pedido) return res.json({ ok: false, erro: 'Descreva o que a mensagem deve dizer' });
+    const GROQ_API_KEY = (process.env.GROQ_API_KEY || '').trim();
+    if (!GROQ_API_KEY) return res.json({ ok: false, erro: 'GROQ_API_KEY não configurada' });
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + GROQ_API_KEY },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages: [
+          { role: 'system', content: 'Você escreve mensagens de WhatsApp curtas e diretas em português do Brasil pra MatchImóveis, uma plataforma de CRM imobiliário. Tom amigável, sem formalidade excessiva, pode usar 1-2 emojis. Responda só com o texto final da mensagem, sem aspas, sem explicação, sem markdown.' },
+          { role: 'user', content: pedido }
+        ],
+        max_tokens: 400,
+        temperature: 0.6
+      })
+    });
+    const json = await r.json();
+    const texto = json.choices?.[0]?.message?.content?.trim();
+    if (!texto) return res.json({ ok: false, erro: 'A IA não devolveu texto' });
+    res.json({ ok: true, texto });
+  } catch(e) { res.status(500).json({ ok:false, erro: e.message }); }
+});
+
 app.get('/admin/whatsapp-cloud/campanha-boas-vindas/preview', authAdmin, async (req, res) => {
   try {
-    const { elegiveis, contagem } = await _elegiveisBoasVindas(req.query.campanhaId || null);
+    const ignorarCadastrados = req.query.ignorarCadastrados !== 'false';
+    const { elegiveis, contagem } = await _elegiveisBoasVindas(req.query.campanhaId || null, ignorarCadastrados);
     res.json({ ok: true, elegiveis: elegiveis.length, ...contagem });
   } catch(e) { res.status(500).json({ ok:false, erro: e.message }); }
 });
@@ -10245,7 +10281,8 @@ let _envioBoasVindasEmAndamento = false;
 app.post('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', authAdmin, express.json(), async (req, res) => {
   try {
     if (_envioBoasVindasEmAndamento) return res.json({ ok:false, erro: 'Já tem um envio em andamento, aguarde terminar.' });
-    const { elegiveis, contagem, mensagem } = await _elegiveisBoasVindas(req.body.campanhaId || null);
+    const ignorarCadastrados = req.body.ignorarCadastrados !== false;
+    const { elegiveis, contagem, mensagem } = await _elegiveisBoasVindas(req.body.campanhaId || null, ignorarCadastrados);
     res.json({ ok: true, elegiveis: elegiveis.length, ...contagem });
     if (!elegiveis.length) return;
     _envioBoasVindasEmAndamento = true;
@@ -10301,13 +10338,20 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
     </div>` : ''}
     <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px 16px;margin-top:12px">
       <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#111">🎁 Mensagem de follow-up (dentro da janela de 24h) pra quem respondeu</p>
-      <p style="margin:0 0 10px;font-size:11px;color:#6b7280">Manda só pra quem: está dentro da janela de 24h, ainda não tem conta na plataforma, não foi excluído da lista e ainda não recebeu essa mesma mensagem.</p>
+      <p style="margin:0 0 10px;font-size:11px;color:#6b7280">Manda só pra quem: está dentro da janela de 24h, não foi excluído da lista e ainda não recebeu essa mesma mensagem.</p>
       <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-top:8px">Texto da mensagem (editável)</label>
       <textarea id="txtFollowup" rows="5">${_escHtmlWaCloud(mensagemSalva || _MSG_BOAS_VINDAS_PADRAO)}</textarea>
-      <button type="button" onclick="salvarFollowup()" style="background:#111827;color:#fff;padding:6px 12px;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;margin-top:6px">💾 Salvar mensagem</button>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap">
+        <input type="text" id="pedidoIA" placeholder="Descreva o que você quer que a IA escreva..." style="flex:1;min-width:200px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:11px">
+        <button type="button" onclick="gerarComIA()" id="btnGerarIA" style="background:#7c3aed;color:#fff;padding:6px 12px;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">✨ Gerar com IA</button>
+      </div>
+      <button type="button" onclick="salvarFollowup()" style="background:#111827;color:#fff;padding:6px 12px;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;margin-top:8px">💾 Salvar mensagem</button>
       <span id="statusFollowup" style="font-size:11px;color:#16a34a;margin-left:8px"></span>
       <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-top:14px">Disparar só pra quem respondeu esta campanha (opcional)</label>
       <select id="selCampanhaFollowup">${optionsCampanhas}</select>
+      <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:#374151;margin-top:10px;font-weight:normal">
+        <input type="checkbox" id="chkIgnorarCadastrados" checked> Não disparar pra quem já se cadastrou na plataforma
+      </label>
       <div style="margin-top:10px">
         <button type="button" onclick="previewBoasVindas()" style="background:#111827;color:#fff;padding:7px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">👁️ Ver quantos vão receber</button>
         <button type="button" onclick="enviarBoasVindas()" style="background:#FF385C;color:#fff;padding:7px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;margin-left:8px">🚀 Enviar agora</button>
@@ -10337,8 +10381,12 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
       const status = document.getElementById('statusBoasVindas');
       status.textContent = 'Calculando...';
       const campanhaId = document.getElementById('selCampanhaFollowup').value;
+      const ignorarCadastrados = document.getElementById('chkIgnorarCadastrados').checked;
       try {
-        const r = await fetch('/admin/whatsapp-cloud/campanha-boas-vindas/preview' + (campanhaId ? '?campanhaId='+encodeURIComponent(campanhaId) : ''));
+        const qs = new URLSearchParams();
+        if(campanhaId) qs.set('campanhaId', campanhaId);
+        qs.set('ignorarCadastrados', ignorarCadastrados ? 'true' : 'false');
+        const r = await fetch('/admin/whatsapp-cloud/campanha-boas-vindas/preview?' + qs.toString());
         const d = await r.json();
         if(!d.ok){ status.textContent = 'Erro: ' + (d.erro||''); return; }
         status.innerHTML = '<strong>'+d.elegiveis+' vão receber</strong> se você clicar em Enviar agora.<br>'+_resumoBoasVindas(d);
@@ -10349,13 +10397,27 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
       const status = document.getElementById('statusBoasVindas');
       status.textContent = 'Calculando quem vai receber...';
       const campanhaId = document.getElementById('selCampanhaFollowup').value;
+      const ignorarCadastrados = document.getElementById('chkIgnorarCadastrados').checked;
       try {
-        const r = await fetch('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ campanhaId: campanhaId || null }) });
+        const r = await fetch('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ campanhaId: campanhaId || null, ignorarCadastrados }) });
         const d = await r.json();
         if(!d.ok){ status.textContent = 'Erro: ' + (d.erro||''); return; }
         if(!d.elegiveis){ status.innerHTML = 'Ninguém elegível agora.<br>'+_resumoBoasVindas(d); return; }
         status.innerHTML = '<strong>Envio iniciado para '+d.elegiveis+' contatos</strong> (1 a cada ~2,5s, vai aparecer aos poucos na inbox de cada um).<br>'+_resumoBoasVindas(d);
       } catch(e){ status.textContent = 'Erro ao iniciar envio.'; }
+    }
+    async function gerarComIA(){
+      const pedido = document.getElementById('pedidoIA').value.trim();
+      if(!pedido){ alert('Descreve o que você quer que a IA escreva.'); return; }
+      const btn = document.getElementById('btnGerarIA');
+      btn.disabled = true; btn.textContent = '✨ Gerando...';
+      try {
+        const r = await fetch('/admin/whatsapp-cloud/gerar-mensagem-ia', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ pedido }) });
+        const d = await r.json();
+        btn.disabled = false; btn.textContent = '✨ Gerar com IA';
+        if(!d.ok){ alert('Erro: ' + (d.erro||'')); return; }
+        document.getElementById('txtFollowup').value = d.texto;
+      } catch(e){ btn.disabled = false; btn.textContent = '✨ Gerar com IA'; alert('Erro ao gerar mensagem.'); }
     }
     async function carregar(){
       try {

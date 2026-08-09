@@ -252,7 +252,7 @@ async function listarAtividadeRecente({ limite = 12 } = {}) {
   let rows;
   try {
     ({ rows } = await query(
-      `SELECT nome,
+      `SELECT nome, telefone, dados->>'email' AS email, criado_em,
               matches->0->>'tipo' AS tipo,
               matches->0->>'transacao' AS transacao,
               matches->0->>'bairro' AS bairro,
@@ -276,6 +276,9 @@ async function listarAtividadeRecente({ limite = 12 } = {}) {
     .filter(r => r.bairro && r.foto)
     .map(r => ({
       Nome: _mascararNome(r.nome || ''),
+      Telefone: _mascararTelefone(r.telefone || ''),
+      Email: _mascararEmail(r.email || ''),
+      DiasProcurando: r.criado_em ? Math.max(0, Math.floor((Date.now() - new Date(r.criado_em).getTime()) / 86400000)) : null,
       Tipo: r.tipo || 'Imóvel',
       Transacao: _normTransacao(r.transacao || '') || 'venda',
       Bairro: r.bairro, Cidade: r.cidade || '',

@@ -14719,9 +14719,12 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .pensando-card-topo{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:700;font-size:13px;color:var(--ink);min-width:0}
   .pensando-card-topo span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
   .pensando-card-valor{color:var(--babu);white-space:nowrap;flex-shrink:0}
+  .pensando-card-contato{font-size:11px;color:var(--sec);margin-top:3px}
   .pensando-card-tags{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
   .pensando-card-tags span{background:#fff;border-radius:999px;padding:3px 9px;font-size:10.5px;font-weight:600;color:var(--sec)}
   .pensando-card-loc{font-size:11.5px;color:var(--sec)}
+  .pensando-card-dias{font-size:11px;color:var(--babu);font-weight:600;margin-top:6px}
+  #btnBuscarDemanda{min-width:160px}
   .proof-bar{display:flex;flex-wrap:wrap;gap:8px 18px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 16px;margin:14px 0;font-size:12px;font-weight:600;color:#9a3412}
   .proof-bar strong{color:var(--rausch)}
   .trust-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin:24px 0 12px;padding:14px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--sec);font-weight:600;text-align:center}
@@ -14776,7 +14779,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     #bairros-lista{max-width:100%}
     .combos{grid-template-columns:1fr}
     .signup-box{max-width:100%}
-    .combo button,#btnComprar{width:100%}
+    .combo button,#btnComprar,#btnBuscarDemanda{width:100%}
   }
   .topbar-logo{display:flex;align-items:center;gap:8px;padding:16px 0 0}
   .topbar-logo .mark{width:28px;height:28px;background:var(--rausch);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
@@ -14830,7 +14833,16 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         <div id="bairros-chips" class="chips"></div>
       </div>
     </div>
+    ${isAdmin ? `<div class="campo" style="max-width:220px;margin-top:10px">
+      <label>Período da busca (admin)</label>
+      <select id="diasBusca">
+        <option value="7">Últimos 7 dias</option>
+        <option value="15">Últimos 15 dias</option>
+        <option value="30" selected>Últimos 30 dias</option>
+      </select>
+    </div>` : ''}
     <div id="busca-status"></div>
+    <button type="button" id="btnBuscarDemanda" onclick="buscarDemanda()" disabled>🔍 Buscar</button>
   </div>
 
   <div id="pensando-modal-overlay" class="modal-overlay" style="display:none">
@@ -15075,24 +15087,20 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
 
   document.getElementById('filtroBairro').addEventListener('input', renderBairros);
 
-  // Não precisa clicar em nenhum botão — assim que estado + pelo menos 1
-  // bairro estão marcados, a busca dispara sozinha (com um pequeno atraso
-  // pra não disparar 1x por clique se o usuário estiver marcando vários
-  // bairros em sequência).
-  let _buscaDebounceId = null;
-  // 2,5s sem nenhuma marcação nova antes de disparar — dá tempo real de
-  // marcar vários bairros em sequência sem a busca "roubar a tela" no
-  // primeiro clique. Toda nova marcação/desmarcação reinicia a contagem.
+  // Só dispara a busca quando o usuário clica em "Buscar" (botão fica
+  // desabilitado até ter estado + pelo menos 1 bairro marcado) — dá tempo
+  // real de marcar vários bairros antes da planilha ser gerada.
   function _agendarBusca(){
-    if(_buscaDebounceId) clearTimeout(_buscaDebounceId);
-    if(!document.getElementById('estado').value || !_paresMarcados.length){
+    const habilitado = !!(document.getElementById('estado').value && _paresMarcados.length);
+    const btn = document.getElementById('btnBuscarDemanda');
+    if(btn) btn.disabled = !habilitado;
+    if(!habilitado){
       document.getElementById('resultado-box').style.display = 'none';
       document.getElementById('combos-box').style.display = 'none';
       document.getElementById('busca-status').innerHTML = '';
       return;
     }
-    document.getElementById('busca-status').innerHTML = '<p class="gray">✓ '+_paresMarcados.length+' bairro'+(_paresMarcados.length>1?'s':'')+' marcado'+(_paresMarcados.length>1?'s':'')+' — pode escolher mais. A busca começa sozinha em alguns segundos...</p>';
-    _buscaDebounceId = setTimeout(buscarDemanda, 2500);
+    document.getElementById('busca-status').innerHTML = '<p class="gray">✓ '+_paresMarcados.length+' bairro'+(_paresMarcados.length>1?'s':'')+' marcado'+(_paresMarcados.length>1?'s':'')+' — pode escolher mais ou clicar em Buscar.</p>';
   }
 
   function _resetZoomMobile(){
@@ -15118,10 +15126,19 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   function _montarCardAtividade(a){
     const valorTxt = a.Valor ? 'R$ '+Number(a.Valor).toLocaleString('pt-BR') : '';
     const fotoHtml = a.Foto ? '<img class="pensando-card-foto" src="'+escHtml(a.Foto)+'" loading="lazy" onerror="this.remove()">' : '';
+    const contatoPartes = [];
+    if(a.Telefone) contatoPartes.push('📱 '+escHtml(a.Telefone));
+    if(a.Email) contatoPartes.push('✉️ '+escHtml(a.Email));
+    const contatoHtml = contatoPartes.length ? '<div class="pensando-card-contato">'+contatoPartes.join(' · ')+'</div>' : '';
+    const dias = a.DiasProcurando;
+    const diasTxt = (dias===null||dias===undefined) ? '' : (dias<=0 ? 'Procuro há poucas horas' : dias===1 ? 'Procuro há 1 dia' : 'Procuro há '+dias+' dias');
+    const diasHtml = diasTxt ? '<div class="pensando-card-dias">⏱️ '+diasTxt+'</div>' : '';
     return fotoHtml
-      + '<div class="pensando-card-topo"><span>👤 '+escHtml(a.Nome)+'</span>'+(valorTxt ? '<span class="pensando-card-valor">'+valorTxt+'</span>' : '')+'</div>'
+      + '<div class="pensando-card-topo"><span>👤 Lead: '+escHtml(a.Nome)+'</span>'+(valorTxt ? '<span class="pensando-card-valor">'+valorTxt+'</span>' : '')+'</div>'
+      + contatoHtml
       + '<div class="pensando-card-tags">'+(a.Tipo ? '<span>🏠 '+escHtml(a.Tipo)+'</span>' : '')+'<span>'+(a.Transacao === 'aluguel' ? '🔑 Aluguel' : '🛒 Venda')+'</span>'+(a.Quartos ? '<span>🛏️ '+escHtml(a.Quartos)+' qts</span>' : '')+'</div>'
-      + '<div class="pensando-card-loc">📍 '+escHtml(a.Bairro)+(a.Cidade ? ', '+escHtml(a.Cidade) : '')+'</div>';
+      + '<div class="pensando-card-loc">📍 '+escHtml(a.Bairro)+(a.Cidade ? ', '+escHtml(a.Cidade) : '')+'</div>'
+      + diasHtml;
   }
 
   // Cards com atividade REAL da plataforma — leads que já receberam vitrine
@@ -15139,7 +15156,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       return;
     }
     subEl.textContent = 'Atividade real na plataforma agora';
-    const porCard = 1300;
+    const porCard = 1900;
     const voltas = Math.max(1, Math.round(duracaoMs / porCard));
     for(let i=0;i<voltas;i++){
       const a = atividade[i % atividade.length];
@@ -15156,7 +15173,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     const pares = _paresMarcados;
     if(!estado || !pares.length) return;
     const transacoes = ['venda', 'aluguel'];
-    const dias = 30;
+    const diasSel = document.getElementById('diasBusca');
+    const dias = diasSel ? (parseInt(diasSel.value, 10) || 30) : 30;
     document.getElementById('resultado-box').style.display = 'none';
     document.getElementById('combos-box').style.display = 'none';
     fecharModalCompra();

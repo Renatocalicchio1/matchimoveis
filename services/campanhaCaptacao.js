@@ -13,28 +13,31 @@ const { enviarEmail } = require('./email');
 const LINK_CAMPANHA = 'https://matchimoveis.ia.br/captar/REN-G9K6';
 const BASE_URL = 'https://matchimoveis.ia.br';
 
+// Assuntos com benefício concreto e verificável (sem prazo garantido de
+// venda/aluguel — promessa desse tipo é a primeira coisa que derruba
+// credibilidade e pode até configurar propaganda enganosa).
 const TITULOS = [
-  'Vendemos ou alugamos seu imóvel em 30 dias',
-  'Venda ou alugue rapidamente',
-  'Divulgamos seu imóvel em todos os portais',
-  'Venda ou alugue: rede de 9.000 corretores',
-  'Seu imóvel pode estar rendendo mais',
-  'Cadastre seu imóvel e receba propostas',
-  'Milhares de interessados esperando por um imóvel como o seu',
+  'Você tem um imóvel disponível pra vender ou alugar?',
+  '9.000 corretores podem estar buscando um imóvel como o seu',
+  'Cadastre seu imóvel e apareça pra quem está procurando',
+  'Seu imóvel pode estar rendendo mais do que está hoje',
+  'Sem comissão pra cadastrar seu imóvel',
   'Coloque seu imóvel na vitrine certa',
-  'Sem comissão pra você cadastrar',
-  'Seu imóvel em mais de 300 mil anúncios'
+  'Milhares de interessados podem estar buscando um imóvel como o seu',
+  'Seu imóvel em centenas de milhares de anúncios, sem custo',
+  '2 minutos pra colocar seu imóvel à venda ou aluguel',
+  'Divulgamos seu imóvel automaticamente em vários portais'
 ];
 
 const CORPOS = [
-  'Temos uma rede de mais de 9.000 corretores prontos pra vender ou alugar seu imóvel. Cadastre em menos de 2 minutos e comece a receber interessados.',
-  'Seu imóvel pode ser vendido ou alugado em até 30 dias com a gente. Divulgamos automaticamente nos principais portais do Brasil, sem custo pra você cadastrar.',
+  'Temos uma rede de mais de 9.000 corretores prontos pra ajudar a vender ou alugar seu imóvel. Cadastre em menos de 2 minutos e comece a receber interessados.',
+  'Divulgamos automaticamente nos principais portais do Brasil (OLX, ZAP, VivaReal e mais), sem nenhum custo pra você cadastrar.',
   'Cadastre as informações básicas do seu imóvel — leva menos de 2 minutos — e nosso time entra em contato pra cuidar de tudo.',
-  'Temos compradores e interessados esperando por imóveis na sua região agora. Cadastre o seu e apareça pra eles.',
-  'Divulgamos seu imóvel em dezenas de portais (OLX, ZAP, VivaReal e mais) automaticamente, sem você precisar fazer nada além de cadastrar.',
+  'Temos compradores e interessados buscando imóvel na sua região agora. Cadastre o seu e apareça pra eles.',
   'Sem comissão pra cadastrar. Preencha as informações do seu imóvel e deixe o resto com a gente.',
   'Uma rede de milhares de corretores pode estar buscando exatamente um imóvel como o seu agora. Cadastre e não perca a oportunidade.',
-  'Cadastro rápido, sem burocracia. Em poucos minutos seu imóvel já está pronto pra ser encontrado por quem procura.'
+  'Cadastro rápido, sem burocracia. Em poucos minutos seu imóvel já está pronto pra ser encontrado por quem procura.',
+  'Quanto mais rápido seu imóvel aparecer pros interessados certos, mais rápido surgem as propostas. Cadastre agora — é grátis.'
 ];
 
 // Gancho inicial — lembra a pessoa que ela já buscou um imóvel (comprar ou

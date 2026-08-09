@@ -11,39 +11,36 @@ const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : 'http:/
 // dois modelos na mesma fila em vez de mandar tudo de um tipo só, e nunca
 // repete o mesmo texto/assunto sempre igual (padrão robótico = spam).
 const MODELOS = {
+  // Framework PAS (Problema → Agitação → Solução) em todas as variações:
+  // nomeia uma dor real do corretor, mostra o custo de não resolver, e só
+  // então apresenta a Match Imóveis como solução — com 1 único CTA por
+  // email. Assuntos sem emoji de alarme/caps (gatilho de spam), sem
+  // promessa não verificável (ex: prazo garantido de venda).
   pagina: [
     {
-      assunto: '🚨 A IA já está trabalhando para corretores. E você?',
+      assunto: 'Você está perdendo leads pra quem responde primeiro',
       corpo: `Olá {nome},
 
-O corretor tradicional trabalha sozinho. O corretor moderno trabalha com Inteligência Artificial.
+Todo dia, alguém procura um imóvel na sua região — e quem responde primeiro, com o imóvel certo, é quem fecha negócio.
 
-Imagine uma IA que trabalha por você, 24 horas por dia:
+O problema é que a maioria dos corretores descobre o lead horas depois: a mensagem se perde no WhatsApp, o imóvel certo estava esquecido na planilha, a visita nunca chegou a ser agendada.
 
-🤖 Encontra e minera leads automaticamente
-🎯 Faz o match perfeito entre cliente e imóvel
-📩 Envia vitrines inteligentes sem você pedir
-📅 Agenda visitas sozinha
-💬 Conversa no WhatsApp com memória inteligente
+A Match Imóveis resolve isso automaticamente: cruza cada lead com os imóveis certos da sua carteira e da rede, monta a vitrine sozinha e já envia pro cliente — 24 horas por dia, mesmo quando você está ocupado com outro atendimento.
 
-Enquanto você atende um cliente, a IA já está preparando o próximo.
-
-Isso não é futuro. Isso já está acontecendo na Match Imóveis.
-
-Você começa com 1.000 créditos gratuitos para testar tudo agora:
+Sem mensalidade fixa e sem comissão sobre venda. Teste agora com 1.000 créditos grátis:
 ${BASE_URL}
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Corretores que usam IA vendem mais — e você não está usando',
+      assunto: 'O corretor que usa IA fecha mais rápido que você',
       corpo: `Olá {nome},
 
-Enquanto você responde um cliente no WhatsApp, um corretor com IA já está atendendo três ao mesmo tempo — sem perder qualidade.
+Enquanto você responde um cliente no WhatsApp, um corretor que usa IA já está atendendo três — sem perder qualidade e sem esquecer ninguém.
 
-A Match Imóveis cruza automaticamente cada lead com os imóveis certos da sua carteira e da rede, manda a vitrine sozinha e agenda a visita.
+A diferença não é esforço, é ferramenta: a Match Imóveis cruza automaticamente cada lead com os imóveis certos, monta a vitrine e agenda a visita sozinha, pra você focar só em fechar negócio.
 
-Sem mensalidade fixa, sem comissão sobre venda. Você testa com 1.000 créditos grátis:
+Comece agora com 1.000 créditos grátis, sem compromisso:
 ${BASE_URL}
 
 — Equipe Match Imóveis`
@@ -52,24 +49,24 @@ ${BASE_URL}
       assunto: 'Sua carteira de imóveis pode estar rendendo mais',
       corpo: `Olá {nome},
 
-Cada imóvel da sua carteira pode gerar mais de um match por dia se cruzado automaticamente com os leads certos — é isso que a Match Imóveis faz sozinha, o dia inteiro.
+Todo imóvel parado na carteira é uma venda que não está acontecendo. Na maioria das vezes o problema não é o imóvel — é não cruzar ele com o lead certo, na hora certa.
 
-Sem depender de você lembrar de mandar mensagem, agendar visita ou procurar imóvel na planilha.
+A Match Imóveis faz esse cruzamento sozinha, o dia inteiro: recebe cada novo lead, encontra os imóveis compatíveis na sua carteira e na rede, e já envia a vitrine — sem você precisar lembrar de nada.
 
-1.000 créditos grátis pra testar agora:
+Teste agora com 1.000 créditos grátis, sem cartão de crédito:
 ${BASE_URL}
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Enquanto você dorme, a IA já está trabalhando pra você',
+      assunto: 'Enquanto você dorme, seus leads continuam chegando',
       corpo: `Olá {nome},
 
-A Match Imóveis não para: cruza lead com imóvel, manda vitrine, agenda visita — 24h por dia, inclusive de madrugada e fim de semana.
+Lead não escolhe horário: chega de madrugada, no fim de semana, no meio de uma visita com outro cliente. Quem demora a responder, perde pro corretor que responde primeiro.
 
-Corretores que usam já não perdem lead por demora na resposta.
+A Match Imóveis trabalha 24 horas por dia por você — recebe o lead, encontra o imóvel certo e já envia a vitrine, sem depender da sua disponibilidade.
 
-Comece grátis com 1.000 créditos:
+Comece grátis agora, com 1.000 créditos pra testar:
 ${BASE_URL}
 
 — Equipe Match Imóveis`
@@ -77,50 +74,48 @@ ${BASE_URL}
   ],
   demanda: [
     {
-      assunto: '📍 Quantos clientes reais tem na sua região agora?',
+      assunto: 'Quantas pessoas buscam imóvel na sua região agora',
       corpo: `Olá {nome},
 
-Tem gente procurando imóvel na sua cidade e bairro agora mesmo — e não é chute, é dado real minerado pela nossa IA.
+Agora mesmo, tem gente procurando imóvel na sua cidade e no seu bairro — não é estimativa, é dado real, minerado pela nossa IA todos os dias.
 
-Veja em segundos quantos interessados reais existem na sua região, sem compromisso:
+Veja em segundos quantos interessados existem na sua região, de graça e sem compromisso:
 ${BASE_URL}/demanda
 
-Leve esses leads pra sua conta hoje.
+Quem chega primeiro, atende primeiro.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Leads reais esperando por um corretor na sua região',
+      assunto: 'Tem lead esperando por um corretor na sua região',
       corpo: `Olá {nome},
 
-Não são leads de crédito nem cadastro genérico — são pessoas de verdade buscando imóvel na sua cidade agora, minerados em tempo real.
+Não são leads genéricos de cadastro — são pessoas reais buscando imóvel na sua cidade agora, identificadas em tempo real pela nossa IA.
 
-Confira quantos existem na sua região (sem custo pra ver o número):
+Veja quantos existem na sua região agora mesmo, sem custo pra consultar:
 ${BASE_URL}/demanda
-
-O primeiro corretor que pegar, leva.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Sua região tem demanda — você só não está vendo ainda',
+      assunto: 'Sua região tem demanda — você só não viu o número ainda',
       corpo: `Olá {nome},
 
-Descubra agora, de graça, quantos clientes reais estão buscando imóvel no seu bairro e cidade neste momento.
+Descubra agora, de graça, quantas pessoas estão buscando imóvel no seu bairro e na sua cidade neste momento.
 
 ${BASE_URL}/demanda
 
-Sem comissão, sem mensalidade. Você só paga se quiser levar os leads pra sua conta.
+Sem mensalidade e sem comissão pra consultar. Você só decide levar os leads pra sua conta se quiser.
 
 — Equipe Match Imóveis`
     },
     {
-      assunto: 'Alguém está procurando imóvel perto de você agora',
+      assunto: 'Alguém pode estar procurando imóvel perto de você agora',
       corpo: `Olá {nome},
 
-Enquanto você lê esse email, pode ter gente buscando um imóvel exatamente na sua região. A gente já sabe quem são.
+Enquanto você lê este email, pode ter alguém buscando exatamente um imóvel na sua região — e a gente já sabe quem é.
 
-Veja o número real (grátis, sem cadastro):
+Veja o número real, grátis e sem cadastro:
 ${BASE_URL}/demanda
 
 — Equipe Match Imóveis`

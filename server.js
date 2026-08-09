@@ -14927,6 +14927,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   // pra não disparar 1x por clique se o usuário estiver marcando vários
   // bairros em sequência).
   let _buscaDebounceId = null;
+  // 2,5s sem nenhuma marcação nova antes de disparar — dá tempo real de
+  // marcar vários bairros em sequência sem a busca "roubar a tela" no
+  // primeiro clique. Toda nova marcação/desmarcação reinicia a contagem.
   function _agendarBusca(){
     if(_buscaDebounceId) clearTimeout(_buscaDebounceId);
     if(!document.getElementById('estado').value || !_paresMarcados.length){
@@ -14935,7 +14938,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       document.getElementById('busca-status').innerHTML = '';
       return;
     }
-    _buscaDebounceId = setTimeout(buscarDemanda, 700);
+    document.getElementById('busca-status').innerHTML = '<p class="gray">✓ '+_paresMarcados.length+' bairro'+(_paresMarcados.length>1?'s':'')+' marcado'+(_paresMarcados.length>1?'s':'')+' — pode escolher mais. A busca começa sozinha em alguns segundos...</p>';
+    _buscaDebounceId = setTimeout(buscarDemanda, 2500);
   }
 
   function abrirModalPensando(){
@@ -14993,6 +14997,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       // Não estoura o resultado na hora — abre um modal e, assim que a busca
       // volta, mostra os leads reais encontrados (nome mascarado + perfil), um
       // a um. Sem pressa: ~10s no total, mesmo que a busca em si volte antes.
+      document.getElementById('busca-status').innerHTML = '';
       abrirModalPensando();
       const etapas = [
         '🤖 Entendendo o perfil buscado ('+pares.length+' bairro'+(pares.length>1?'s':'')+' em '+_cidadesSelecionadas.length+' cidade'+(_cidadesSelecionadas.length>1?'s':'')+')...',

@@ -550,6 +550,7 @@ const _ADMIN_NAV = [
   ]},
   { sec: 'Comunicação', items: [
     { key: 'campanha', href: '/admin/campanha', icon: '📧', label: 'Campanha Email' },
+    { key: 'captacao-campanha', href: '/admin/captacao-campanha', icon: '🏠', label: 'Campanha Captação' },
     { key: 'disparos', href: '/admin/disparos', icon: '📲', label: 'Disparos WhatsApp' },
     { key: 'optout', href: '/admin/disparos/optout', icon: '🚫', label: 'Opt-out' },
     { key: 'whatsapp-cloud', href: '/admin/whatsapp-cloud', icon: '💬', label: 'Inbox WhatsApp' },
@@ -1851,31 +1852,6 @@ const _agendarReengajamento = () => {
 };
 _agendarReengajamento();
 
-// Job reenvio convite de captação — roda todo dia às 11h (ver
-// services/emailCaptacaoResend.js pra cadência: 15 dias nos 2 primeiros
-// reenvios, depois 30 dias, até a lead cadastrar o imóvel).
-const _agendarCaptacaoResend = () => {
-  const agora = new Date();
-  const amanha11h = new Date(agora);
-  amanha11h.setDate(amanha11h.getDate() + (agora.getHours() >= 11 ? 1 : 0));
-  amanha11h.setHours(11, 0, 0, 0);
-  const msAte11h = amanha11h - agora;
-  setTimeout(async () => {
-    try {
-      const { enviarEmailsCaptacaoResend } = require('./services/emailCaptacaoResend');
-      await enviarEmailsCaptacaoResend();
-    } catch(e) { console.error('[JOB CAPTACAO RESEND]', e.message); }
-    setInterval(async () => {
-      try {
-        const { enviarEmailsCaptacaoResend } = require('./services/emailCaptacaoResend');
-        await enviarEmailsCaptacaoResend();
-      } catch(e) { console.error('[JOB CAPTACAO RESEND]', e.message); }
-    }, 24 * 3600 * 1000);
-  }, msAte11h);
-  console.log('[JOB CAPTACAO RESEND] agendado para:', amanha11h.toLocaleString('pt-BR'));
-};
-_agendarCaptacaoResend();
-
 // Job rematch de leads sem match — roda todo dia às 6h (services/matchPendentes.js).
 // Restrito às leads criadas nos últimos 2 dias pra não pesar no servidor
 // reprocessando a base toda todo dia (backfill de leads mais antigas é
@@ -1901,6 +1877,16 @@ const _agendarMatchPendentes = () => {
   console.log('[JOB MATCH PENDENTES] agendado para:', amanha6h.toLocaleString('pt-BR'));
 };
 _agendarMatchPendentes();
+
+// Job da campanha global de captação (services/campanhaCaptacao.js) — 1
+// envio por minuto, só quando o admin ativa em /admin/captacao-campanha
+// (enviarProximoEmail() já checa o flag "ativo" e não faz nada se pausada).
+setInterval(async () => {
+  try {
+    const { enviarProximoEmail } = require('./services/campanhaCaptacao');
+    await enviarProximoEmail();
+  } catch (e) { console.error('[JOB CAMPANHA CAPTACAO]', e.message); }
+}, 60 * 1000);
 
 // Job onboarding — verifica a cada 30min se algum usuário completou um dos 3 passos
 // (cadastrar imóvel / ativar WhatsApp / adicionar lead) e manda o email de parabéns
@@ -15657,6 +15643,40 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
 });
 // ── FIM BUSCAR DEMANDA POR REGIÃO ──────────────────────────────────────────
 
+// ── CAMPANHA GLOBAL DE CAPTAÇÃO (disparo em massa, admin) ──────────────────
+app.get('/admin/captacao-campanha', authAdmin, async (req, res) => {
+  const adminShellCss = _adminShellCss(), adminSidebar = _adminSidebarHtml('captacao-campanha');
+  try {
+    const { contarStatus } = require('./services/campanhaCaptacao');
+    const status = await contarStatus();
+    res.render('admin-captacao-campanha', { status, adminShellCss, adminSidebar });
+  } catch (e) {
+    console.error('[admin/captacao-campanha]', e.message);
+    res.render('admin-captacao-campanha', { status: null, adminShellCss, adminSidebar });
+  }
+});
+app.get('/admin/captacao-campanha/status', authAdmin, async (req, res) => {
+  try {
+    const { contarStatus } = require('./services/campanhaCaptacao');
+    res.json({ ok: true, status: await contarStatus() });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+app.post('/admin/captacao-campanha/iniciar', authAdmin, async (req, res) => {
+  try {
+    const { iniciarCampanha, contarStatus } = require('./services/campanhaCaptacao');
+    await iniciarCampanha();
+    res.json({ ok: true, status: await contarStatus() });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+app.post('/admin/captacao-campanha/pausar', authAdmin, async (req, res) => {
+  try {
+    const { pausarCampanha, contarStatus } = require('./services/campanhaCaptacao');
+    await pausarCampanha();
+    res.json({ ok: true, status: await contarStatus() });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+// ── FIM CAMPANHA GLOBAL DE CAPTAÇÃO ─────────────────────────────────────────
+
 app.get('/admin/campanha', authAdmin, async (req, res) => {
   const { statsBase, statsTracking, statsCadastrados } = require('./services/campanha');
   const stats = await statsBase().catch(()=>[]);
@@ -16654,12 +16674,32 @@ app.get('/app/captacao', auth, async (req, res) => {
 // ── FIM CAPTACAO ──────────────────────────────────────────────────────────────
 
 // ── CAPTAÇÃO PÚBLICA ──────────────────────────────────────────────────────────
+
+// Link de rastreio da campanha em massa (services/campanhaCaptacao.js) — o
+// botão do email aponta pra cá em vez de direto pro /captar/REN-G9K6, só pra
+// registrar o clique antes de redirecionar. ?ce= (campanha envio) segue até
+// /captar/iniciar/:userId pra também marcar "iniciou cadastro".
+app.get('/captacao-campanha/click/:id', async (req, res) => {
+  try {
+    const { registrarClique, LINK_CAMPANHA } = require('./services/campanhaCaptacao');
+    await registrarClique(req.params.id);
+    res.redirect(LINK_CAMPANHA + '?ce=' + encodeURIComponent(req.params.id));
+  } catch (e) {
+    console.error('[captacao-campanha click]', e.message);
+    res.redirect('https://matchimoveis.ia.br/captar/REN-G9K6');
+  }
+});
+
 app.get('/captar/:userId', async (req, res) => {
   // ?tel= vem do botão de link do disparo (planilha só tem telefone) — aceita com ou
   // sem DDI 55 e pré-preenche o campo "Seu celular" já no formato local que o form usa.
   let telPreenchido = String(req.query.tel || '').replace(/\D/g, '');
   if (telPreenchido.length >= 12 && telPreenchido.startsWith('55')) telPreenchido = telPreenchido.slice(2);
   const userId = _limparParamBotaoUrl(req.params.userId);
+
+  // ?ce= vem do clique de rastreio da campanha em massa — segue até o form
+  // pra marcar "iniciou cadastro" quando ela responder a 1ª pergunta.
+  const campanhaEnvioId = String(req.query.ce || '').trim();
 
   // ?imovelId= vem do email "seu anúncio está pronto, revise" — carrega o imóvel
   // já cadastrado (e o dono é o mesmo userId da URL, senão ignora) pra pular a
@@ -16680,16 +16720,20 @@ app.get('/captar/:userId', async (req, res) => {
     } catch (e) { console.error('[captar imovelExistente]', e.message); }
   }
 
-  res.render('captar-imovel', { leadId: '', userId, telPreenchido, imovelExistente });
+  res.render('captar-imovel', { leadId: '', userId, telPreenchido, imovelExistente, campanhaEnvioId });
 });
 
 app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
   try {
-    const { transacao, nome, celular, email } = req.body;
+    const { transacao, nome, celular, email, campanhaEnvioId } = req.body;
     const userId = req.params.userId;
     const { salvarLead: _slIni } = require('./services/salvarLead');
     const { salvarImovel: _siIni } = require('./services/salvarImovel');
     const { query: _qCI } = require('./services/db');
+
+    if (campanhaEnvioId) {
+      try { const { registrarInicioCadastro } = require('./services/campanhaCaptacao'); await registrarInicioCadastro(campanhaEnvioId); } catch (e) {}
+    }
 
     // Evita duplicar lead+imóvel quando a mesma pessoa reabre o link de captação
     // (reclique no WhatsApp, F5 no meio do fluxo etc) — reaproveita o par

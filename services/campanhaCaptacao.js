@@ -1,0 +1,191 @@
+// Campanha em massa (disparo único pelo admin) — convida TODAS as leads do
+// sistema que ainda não cadastraram um imóvel a cadastrar, usando um link
+// fixo (REN-G9K6) e rastreado (clique + início de cadastro). Separada do
+// email individual de "cadastre seu imóvel" que já dispara sozinho quando
+// uma lead nova entra (services/salvarLead.js, inalterado).
+//
+// 1 envio por minuto (ver job em server.js) — dedup por email (não por
+// lead: a mesma pessoa pode aparecer como lead em várias contas de
+// corretor, manda só 1x). enviarEmail() já cuida do rodapé de descadastro.
+const { query } = require('./db');
+const { enviarEmail } = require('./email');
+
+const LINK_CAMPANHA = 'https://matchimoveis.ia.br/captar/REN-G9K6';
+const BASE_URL = 'https://matchimoveis.ia.br';
+
+const TITULOS = [
+  'Vendemos ou alugamos seu imóvel em 30 dias',
+  'Venda ou alugue rapidamente',
+  'Divulgamos seu imóvel em todos os portais',
+  'Venda ou alugue: rede de 9.000 corretores',
+  'Seu imóvel pode estar rendendo mais',
+  'Cadastre seu imóvel e receba propostas',
+  'Milhares de interessados esperando por um imóvel como o seu',
+  'Coloque seu imóvel na vitrine certa',
+  'Sem comissão pra você cadastrar',
+  'Seu imóvel em mais de 300 mil anúncios'
+];
+
+const CORPOS = [
+  'Temos uma rede de mais de 9.000 corretores prontos pra vender ou alugar seu imóvel. Cadastre em menos de 2 minutos e comece a receber interessados.',
+  'Seu imóvel pode ser vendido ou alugado em até 30 dias com a gente. Divulgamos automaticamente nos principais portais do Brasil, sem custo pra você cadastrar.',
+  'Cadastre as informações básicas do seu imóvel — leva menos de 2 minutos — e nosso time entra em contato pra cuidar de tudo.',
+  'Temos compradores e interessados esperando por imóveis na sua região agora. Cadastre o seu e apareça pra eles.',
+  'Divulgamos seu imóvel em dezenas de portais (OLX, ZAP, VivaReal e mais) automaticamente, sem você precisar fazer nada além de cadastrar.',
+  'Sem comissão pra cadastrar. Preencha as informações do seu imóvel e deixe o resto com a gente.',
+  'Uma rede de milhares de corretores pode estar buscando exatamente um imóvel como o seu agora. Cadastre e não perca a oportunidade.',
+  'Cadastro rápido, sem burocracia. Em poucos minutos seu imóvel já está pronto pra ser encontrado por quem procura.'
+];
+
+function _sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
+
+let _tabelasProntas = false;
+async function _garantirTabelas() {
+  if (_tabelasProntas) return;
+  await query(`CREATE TABLE IF NOT EXISTS campanha_captacao_envios (
+    id SERIAL PRIMARY KEY,
+    lead_id TEXT,
+    email TEXT NOT NULL UNIQUE,
+    nome TEXT,
+    titulo_usado TEXT,
+    enviado_em TIMESTAMP DEFAULT NOW(),
+    erro TEXT,
+    clicado_em TIMESTAMP,
+    iniciou_cadastro_em TIMESTAMP
+  )`);
+  await query(`CREATE TABLE IF NOT EXISTS captacao_campanha_config (
+    id INT PRIMARY KEY DEFAULT 1,
+    ativo BOOLEAN DEFAULT false,
+    iniciado_em TIMESTAMP,
+    atualizado_em TIMESTAMP DEFAULT NOW()
+  )`);
+  await query(`INSERT INTO captacao_campanha_config (id, ativo) VALUES (1, false) ON CONFLICT (id) DO NOTHING`);
+  _tabelasProntas = true;
+}
+
+async function estaAtiva() {
+  await _garantirTabelas();
+  const { rows } = await query('SELECT ativo FROM captacao_campanha_config WHERE id=1');
+  return !!(rows[0] && rows[0].ativo);
+}
+
+async function iniciarCampanha() {
+  await _garantirTabelas();
+  await query(`UPDATE captacao_campanha_config SET ativo=true, iniciado_em=COALESCE(iniciado_em, NOW()), atualizado_em=NOW() WHERE id=1`);
+}
+
+async function pausarCampanha() {
+  await _garantirTabelas();
+  await query(`UPDATE captacao_campanha_config SET ativo=false, atualizado_em=NOW() WHERE id=1`);
+}
+
+// Critério "sem imóvel captado" — mesmo usado no resto da plataforma
+// (_ehLeadCaptacao em server.js). Assume que a tabela leads está aliasada
+// como "l" na query que usar essa constante.
+const _CRITERIO_SEM_CAPTACAO = `
+  COALESCE(l.tipo_lead, '') != 'cliente_vendedor'
+  AND COALESCE(l.origem, '') != 'captacao_link'
+  AND COALESCE(l.dados->>'temImovelParaCaptar', '') != 'true'
+`;
+
+async function contarStatus() {
+  await _garantirTabelas();
+  const { rows: [ativo] } = await query('SELECT ativo, iniciado_em FROM captacao_campanha_config WHERE id=1');
+  const { rows: [elegRow] } = await query(`
+    SELECT COUNT(DISTINCT LOWER(TRIM(l.email)))::int AS total
+    FROM leads l
+    WHERE l.email IS NOT NULL AND l.email != '' AND ${_CRITERIO_SEM_CAPTACAO}
+  `);
+  const { rows: [envRow] } = await query(`
+    SELECT
+      COUNT(*)::int AS enviados,
+      COUNT(clicado_em)::int AS clicados,
+      COUNT(iniciou_cadastro_em)::int AS iniciaram
+    FROM campanha_captacao_envios
+    WHERE erro IS NULL
+  `);
+  const elegiveis = elegRow.total || 0;
+  const enviados = envRow.enviados || 0;
+  const clicados = envRow.clicados || 0;
+  const iniciaram = envRow.iniciaram || 0;
+  const pendentes = Math.max(0, elegiveis - enviados);
+  return {
+    ativo: !!(ativo && ativo.ativo),
+    iniciadoEm: ativo && ativo.iniciado_em,
+    elegiveis, enviados, pendentes, clicados, iniciaram,
+    pctClique: enviados ? Math.round((clicados / enviados) * 1000) / 10 : 0,
+    pctIniciaram: enviados ? Math.round((iniciaram / enviados) * 1000) / 10 : 0,
+    minutosRestantes: pendentes,
+  };
+}
+
+// Roda 1 tick — manda pra UMA lead elegível ainda não contemplada. Chamado
+// pelo job de 1/min em server.js.
+async function enviarProximoEmail() {
+  await _garantirTabelas();
+  if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
+
+  const { rows } = await query(`
+    SELECT DISTINCT ON (LOWER(TRIM(l.email))) l.id, l.nome, l.email
+    FROM leads l
+    WHERE l.email IS NOT NULL AND l.email != '' AND ${_CRITERIO_SEM_CAPTACAO}
+      AND NOT EXISTS (
+        SELECT 1 FROM campanha_captacao_envios e WHERE LOWER(TRIM(e.email)) = LOWER(TRIM(l.email))
+      )
+    ORDER BY LOWER(TRIM(l.email)), l.criado_em ASC
+    LIMIT 1
+  `);
+  if (!rows.length) { await pausarCampanha(); return { enviado: false, motivo: 'concluida' }; }
+
+  const lead = rows[0];
+  const emailNorm = String(lead.email).trim();
+
+  // Reserva a linha já (protege contra o próximo tick rodar antes desse
+  // terminar de enviar, ex: envio lento na SES).
+  let envioId;
+  try {
+    const { rows: ins } = await query(
+      `INSERT INTO campanha_captacao_envios (lead_id, email, nome) VALUES ($1,$2,$3)
+       ON CONFLICT (email) DO NOTHING RETURNING id`,
+      [lead.id, emailNorm, lead.nome || '']
+    );
+    if (!ins.length) return { enviado: false, motivo: 'ja_reservado' };
+    envioId = ins[0].id;
+  } catch (e) { return { enviado: false, motivo: 'erro_reserva', erro: e.message }; }
+
+  const titulo = _sorteia(TITULOS);
+  const corpo = _sorteia(CORPOS);
+  const linkRastreado = BASE_URL + '/captacao-campanha/click/' + envioId;
+
+  try {
+    await enviarEmail({
+      para: emailNorm,
+      assunto: titulo,
+      html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + (lead.nome || '') + '!</h2><p>' + corpo + '</p><a href="' + linkRastreado + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Cadastrar meu imóvel →</a></div>',
+      texto: corpo + ' Cadastre: ' + linkRastreado
+    });
+    await query(`UPDATE campanha_captacao_envios SET titulo_usado=$1 WHERE id=$2`, [titulo, envioId]);
+    return { enviado: true, email: emailNorm, titulo };
+  } catch (e) {
+    await query(`UPDATE campanha_captacao_envios SET erro=$1 WHERE id=$2`, [e.message, envioId]);
+    return { enviado: false, motivo: 'erro_envio', erro: e.message };
+  }
+}
+
+async function registrarClique(envioId) {
+  await _garantirTabelas();
+  await query(`UPDATE campanha_captacao_envios SET clicado_em=COALESCE(clicado_em, NOW()) WHERE id=$1`, [envioId]);
+}
+
+async function registrarInicioCadastro(envioId) {
+  if (!envioId) return;
+  await _garantirTabelas();
+  await query(`UPDATE campanha_captacao_envios SET iniciou_cadastro_em=COALESCE(iniciou_cadastro_em, NOW()) WHERE id=$1`, [envioId]);
+}
+
+module.exports = {
+  LINK_CAMPANHA,
+  iniciarCampanha, pausarCampanha, estaAtiva,
+  contarStatus, enviarProximoEmail,
+  registrarClique, registrarInicioCadastro
+};

@@ -26,7 +26,7 @@ header .badge{background:#FF385C;color:#fff;font-size:11px;padding:2px 8px;borde
 .btn-iniciar{background:#16a34a;color:#fff}
 .btn-pausar{background:#dc2626;color:#fff}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.funil{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.funil{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
 .funil-card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;text-align:center}
 .funil-n{font-size:26px;font-weight:700;color:#111827}
 .funil-l{font-size:11.5px;color:#6b7280;margin-top:4px}
@@ -36,7 +36,19 @@ header .badge{background:#FF385C;color:#fff;font-size:11px;padding:2px 8px;borde
 .barra{height:10px;background:#f0f0ee;border-radius:999px;overflow:hidden}
 .barra-fill{height:100%;background:linear-gradient(90deg,#FF385C,#FC642D);transition:width .3s}
 .aviso{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:12px 16px;font-size:12.5px;margin-bottom:20px}
-@media(max-width:700px){ .funil{grid-template-columns:repeat(2,1fr)} }
+@media(max-width:700px){ .funil{grid-template-columns:repeat(2,1fr)} table{min-width:700px} }
+.tabela-box{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;overflow-x:auto}
+.tabela-titulo{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.tabela-titulo h2{font-size:14px;font-weight:600}
+.btn-export{background:#111827;color:#fff;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:600;text-decoration:none}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:820px}
+th{text-align:left;padding:8px;background:#f9f9f7;font-size:10.5px;text-transform:uppercase;color:#6b7280;white-space:nowrap;border-bottom:1px solid #e5e5e3}
+td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600}
+.tag-sim{background:#f0fdf4;color:#16a34a}
+.tag-nao{background:#f3f4f6;color:#9ca3af}
+.tag-erro{background:#fef2f2;color:#dc2626}
+.link-preview{color:#FF385C;font-weight:600;text-decoration:none}
 <%- adminShellCss %>
 </style>
 </head>
@@ -76,8 +88,20 @@ header .badge{background:#FF385C;color:#fff;font-size:11px;padding:2px 8px;borde
     <div class="funil">
       <div class="funil-card"><div class="funil-n" id="fElegiveis"><%= status.elegiveis %></div><div class="funil-l">Elegíveis</div></div>
       <div class="funil-card"><div class="funil-n" id="fEnviados"><%= status.enviados %></div><div class="funil-l">Enviados</div></div>
+      <div class="funil-card"><div class="funil-n" id="fAbertos"><%= status.abertos %></div><div class="funil-l">Abriram</div><div class="funil-pct" id="fPctAbertura"><%= status.pctAbertura %>%</div></div>
       <div class="funil-card"><div class="funil-n" id="fClicados"><%= status.clicados %></div><div class="funil-l">Clicaram no link</div><div class="funil-pct" id="fPctClique"><%= status.pctClique %>%</div></div>
       <div class="funil-card"><div class="funil-n" id="fIniciaram"><%= status.iniciaram %></div><div class="funil-l">Iniciaram cadastro</div><div class="funil-pct" id="fPctIniciaram"><%= status.pctIniciaram %>%</div></div>
+    </div>
+
+    <div class="tabela-box">
+      <div class="tabela-titulo">
+        <h2>Envios recentes</h2>
+        <a href="/admin/captacao-campanha/exportar-excel" class="btn-export">⬇ Exportar planilha</a>
+      </div>
+      <table>
+        <thead><tr><th>Nome</th><th>Email</th><th>Celular</th><th>Data enviado</th><th>Abriu</th><th>Clicou</th><th>Iniciou cadastro</th><th>E-mail</th></tr></thead>
+        <tbody id="tabelaEnvios"><tr><td colspan="8" style="text-align:center;color:#9ca3af">Carregando...</td></tr></tbody>
+      </table>
     </div>
   <% } %>
 </div>
@@ -88,9 +112,12 @@ async function _post(url){
   const r = await fetch(url, { method:'POST' });
   return r.json();
 }
+function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function _atualizarTela(s){
   document.getElementById('fElegiveis').textContent = s.elegiveis;
   document.getElementById('fEnviados').textContent = s.enviados;
+  document.getElementById('fAbertos').textContent = s.abertos;
+  document.getElementById('fPctAbertura').textContent = s.pctAbertura + '%';
   document.getElementById('fClicados').textContent = s.clicados;
   document.getElementById('fPctClique').textContent = s.pctClique + '%';
   document.getElementById('fIniciaram').textContent = s.iniciaram;
@@ -116,13 +143,30 @@ async function pausarCampanha(){
   const d = await _post('/admin/captacao-campanha/pausar');
   if(d.ok) _atualizarTela(d.status);
 }
+function _tag(cond){ return cond ? '<span class="tag tag-sim">Sim</span>' : '<span class="tag tag-nao">Não</span>'; }
+function _dataFmt(iso){ return iso ? new Date(iso).toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo' }) : ''; }
+async function carregarTabela(){
+  try {
+    const r = await fetch('/admin/captacao-campanha/lista');
+    const d = await r.json();
+    const tbody = document.getElementById('tabelaEnvios');
+    if(!tbody) return;
+    if(!d.ok || !d.envios.length){ tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af">Nenhum envio ainda.</td></tr>'; return; }
+    tbody.innerHTML = d.envios.map(function(e){
+      if(e.erro) return '<tr><td>'+escHtml(e.nome)+'</td><td>'+escHtml(e.email)+'</td><td>'+escHtml(e.telefone||'')+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td colspan="3"><span class="tag tag-erro">Erro: '+escHtml(e.erro)+'</span></td><td>—</td></tr>';
+      return '<tr><td>'+escHtml(e.nome)+'</td><td>'+escHtml(e.email)+'</td><td>'+escHtml(e.telefone||'')+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td>'+_tag(e.aberto_em)+'</td><td>'+_tag(e.clicado_em)+'</td><td>'+_tag(e.iniciou_cadastro_em)+'</td><td><a class="link-preview" href="/admin/captacao-campanha/preview/'+e.id+'" target="_blank">Ver e-mail →</a></td></tr>';
+    }).join('');
+  } catch(e){}
+}
 setInterval(async function(){
   try {
     const r = await fetch('/admin/captacao-campanha/status');
     const d = await r.json();
     if(d.ok) _atualizarTela(d.status);
   } catch(e){}
+  carregarTabela();
 }, 15000);
+carregarTabela();
 </script>
 </body>
 </html>

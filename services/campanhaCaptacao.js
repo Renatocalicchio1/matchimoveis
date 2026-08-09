@@ -1,8 +1,8 @@
 // Campanha em massa (disparo único pelo admin) — convida TODAS as leads do
 // sistema que ainda não cadastraram um imóvel a cadastrar, usando um link
-// fixo (REN-G9K6) e rastreado (clique + início de cadastro). Separada do
-// email individual de "cadastre seu imóvel" que já dispara sozinho quando
-// uma lead nova entra (services/salvarLead.js, inalterado).
+// fixo (REN-G9K6) e rastreado (abertura + clique + início de cadastro).
+// Separada do email individual de "cadastre seu imóvel" que já dispara
+// sozinho quando uma lead nova entra (services/salvarLead.js, inalterado).
 //
 // 1 envio por minuto (ver job em server.js) — dedup por email (não por
 // lead: a mesma pessoa pode aparecer como lead em várias contas de
@@ -39,6 +39,11 @@ const CORPOS = [
 
 function _sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
 
+function _montarHtml(nome, corpo, linkRastreado, pixelUrl) {
+  return '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + (nome || '') + '!</h2><p>' + corpo + '</p><a href="' + linkRastreado + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Cadastrar meu imóvel →</a></div>'
+    + (pixelUrl ? '<img src="' + pixelUrl + '" width="1" height="1" alt="" style="display:none">' : '');
+}
+
 let _tabelasProntas = false;
 async function _garantirTabelas() {
   if (_tabelasProntas) return;
@@ -47,12 +52,20 @@ async function _garantirTabelas() {
     lead_id TEXT,
     email TEXT NOT NULL UNIQUE,
     nome TEXT,
+    telefone TEXT,
     titulo_usado TEXT,
+    corpo_usado TEXT,
     enviado_em TIMESTAMP DEFAULT NOW(),
     erro TEXT,
+    aberto_em TIMESTAMP,
     clicado_em TIMESTAMP,
     iniciou_cadastro_em TIMESTAMP
   )`);
+  // Colunas adicionadas depois da criação original — ALTER seguro pra quem
+  // já tinha a tabela criada sem elas.
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS telefone TEXT`);
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS corpo_usado TEXT`);
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS aberto_em TIMESTAMP`);
   await query(`CREATE TABLE IF NOT EXISTS captacao_campanha_config (
     id INT PRIMARY KEY DEFAULT 1,
     ativo BOOLEAN DEFAULT false,
@@ -99,6 +112,7 @@ async function contarStatus() {
   const { rows: [envRow] } = await query(`
     SELECT
       COUNT(*)::int AS enviados,
+      COUNT(aberto_em)::int AS abertos,
       COUNT(clicado_em)::int AS clicados,
       COUNT(iniciou_cadastro_em)::int AS iniciaram
     FROM campanha_captacao_envios
@@ -106,13 +120,15 @@ async function contarStatus() {
   `);
   const elegiveis = elegRow.total || 0;
   const enviados = envRow.enviados || 0;
+  const abertos = envRow.abertos || 0;
   const clicados = envRow.clicados || 0;
   const iniciaram = envRow.iniciaram || 0;
   const pendentes = Math.max(0, elegiveis - enviados);
   return {
     ativo: !!(ativo && ativo.ativo),
     iniciadoEm: ativo && ativo.iniciado_em,
-    elegiveis, enviados, pendentes, clicados, iniciaram,
+    elegiveis, enviados, pendentes, abertos, clicados, iniciaram,
+    pctAbertura: enviados ? Math.round((abertos / enviados) * 1000) / 10 : 0,
     pctClique: enviados ? Math.round((clicados / enviados) * 1000) / 10 : 0,
     pctIniciaram: enviados ? Math.round((iniciaram / enviados) * 1000) / 10 : 0,
     minutosRestantes: pendentes,
@@ -126,7 +142,7 @@ async function enviarProximoEmail() {
   if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
 
   const { rows } = await query(`
-    SELECT DISTINCT ON (LOWER(TRIM(l.email))) l.id, l.nome, l.email
+    SELECT DISTINCT ON (LOWER(TRIM(l.email))) l.id, l.nome, l.email, COALESCE(l.telefone, l.whatsapp, l.contato) AS telefone
     FROM leads l
     WHERE l.email IS NOT NULL AND l.email != '' AND ${_CRITERIO_SEM_CAPTACAO}
       AND NOT EXISTS (
@@ -145,9 +161,9 @@ async function enviarProximoEmail() {
   let envioId;
   try {
     const { rows: ins } = await query(
-      `INSERT INTO campanha_captacao_envios (lead_id, email, nome) VALUES ($1,$2,$3)
+      `INSERT INTO campanha_captacao_envios (lead_id, email, nome, telefone) VALUES ($1,$2,$3,$4)
        ON CONFLICT (email) DO NOTHING RETURNING id`,
-      [lead.id, emailNorm, lead.nome || '']
+      [lead.id, emailNorm, lead.nome || '', lead.telefone || '']
     );
     if (!ins.length) return { enviado: false, motivo: 'ja_reservado' };
     envioId = ins[0].id;
@@ -156,15 +172,16 @@ async function enviarProximoEmail() {
   const titulo = _sorteia(TITULOS);
   const corpo = _sorteia(CORPOS);
   const linkRastreado = BASE_URL + '/captacao-campanha/click/' + envioId;
+  const pixelUrl = BASE_URL + '/captacao-campanha/open/' + envioId;
 
   try {
     await enviarEmail({
       para: emailNorm,
       assunto: titulo,
-      html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + (lead.nome || '') + '!</h2><p>' + corpo + '</p><a href="' + linkRastreado + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Cadastrar meu imóvel →</a></div>',
+      html: _montarHtml(lead.nome, corpo, linkRastreado, pixelUrl),
       texto: corpo + ' Cadastre: ' + linkRastreado
     });
-    await query(`UPDATE campanha_captacao_envios SET titulo_usado=$1 WHERE id=$2`, [titulo, envioId]);
+    await query(`UPDATE campanha_captacao_envios SET titulo_usado=$1, corpo_usado=$2 WHERE id=$3`, [titulo, corpo, envioId]);
     return { enviado: true, email: emailNorm, titulo };
   } catch (e) {
     await query(`UPDATE campanha_captacao_envios SET erro=$1 WHERE id=$2`, [e.message, envioId]);
@@ -172,9 +189,17 @@ async function enviarProximoEmail() {
   }
 }
 
+async function registrarAbertura(envioId) {
+  if (!envioId) return;
+  await _garantirTabelas();
+  await query(`UPDATE campanha_captacao_envios SET aberto_em=COALESCE(aberto_em, NOW()) WHERE id=$1`, [envioId]);
+}
+
 async function registrarClique(envioId) {
   await _garantirTabelas();
-  await query(`UPDATE campanha_captacao_envios SET clicado_em=COALESCE(clicado_em, NOW()) WHERE id=$1`, [envioId]);
+  // Quem clicou necessariamente abriu — marca os dois se só o clique chegou
+  // (cliente de email que bloqueia a imagem do pixel mas segue o link).
+  await query(`UPDATE campanha_captacao_envios SET clicado_em=COALESCE(clicado_em, NOW()), aberto_em=COALESCE(aberto_em, NOW()) WHERE id=$1`, [envioId]);
 }
 
 async function registrarInicioCadastro(envioId) {
@@ -183,9 +208,36 @@ async function registrarInicioCadastro(envioId) {
   await query(`UPDATE campanha_captacao_envios SET iniciou_cadastro_em=COALESCE(iniciou_cadastro_em, NOW()) WHERE id=$1`, [envioId]);
 }
 
+// Lista os envios mais recentes pra tabela do painel admin.
+async function listarEnvios({ limite = 50, offset = 0 } = {}) {
+  await _garantirTabelas();
+  const { rows } = await query(
+    `SELECT id, nome, email, telefone, titulo_usado, enviado_em, aberto_em, clicado_em, iniciou_cadastro_em, erro
+     FROM campanha_captacao_envios
+     ORDER BY enviado_em DESC
+     LIMIT $1 OFFSET $2`,
+    [limite, offset]
+  );
+  return rows;
+}
+
+// Reconstrói o HTML exatamente como foi enviado (mesmo título/corpo), pro
+// admin conferir como ficou — sem o pixel de abertura (preview não deve
+// contar como "abriu").
+async function buscarEnvioParaPreview(envioId) {
+  await _garantirTabelas();
+  const { rows } = await query(`SELECT * FROM campanha_captacao_envios WHERE id=$1`, [envioId]);
+  const envio = rows[0];
+  if (!envio) return null;
+  const linkRastreado = BASE_URL + '/captacao-campanha/click/' + envio.id;
+  const html = _montarHtml(envio.nome, envio.corpo_usado || '', linkRastreado, null);
+  return { ...envio, html };
+}
+
 module.exports = {
   LINK_CAMPANHA,
   iniciarCampanha, pausarCampanha, estaAtiva,
   contarStatus, enviarProximoEmail,
-  registrarClique, registrarInicioCadastro
+  registrarAbertura, registrarClique, registrarInicioCadastro,
+  listarEnvios, buscarEnvioParaPreview
 };

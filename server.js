@@ -15675,6 +15675,55 @@ app.post('/admin/captacao-campanha/pausar', authAdmin, async (req, res) => {
     res.json({ ok: true, status: await contarStatus() });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
+app.get('/admin/captacao-campanha/lista', authAdmin, async (req, res) => {
+  try {
+    const { listarEnvios } = require('./services/campanhaCaptacao');
+    const envios = await listarEnvios({ limite: 50 });
+    res.json({ ok: true, envios });
+  } catch (e) { res.json({ ok: false, erro: e.message, envios: [] }); }
+});
+app.get('/admin/captacao-campanha/preview/:id', authAdmin, async (req, res) => {
+  try {
+    const { buscarEnvioParaPreview } = require('./services/campanhaCaptacao');
+    const envio = await buscarEnvioParaPreview(req.params.id);
+    if (!envio) return res.status(404).send('Envio não encontrado.');
+    res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Preview — ${envio.titulo_usado || 'e-mail'}</title></head><body style="background:#f5f5f3;padding:24px">
+      <div style="max-width:640px;margin:0 auto">
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:#6b7280;margin-bottom:12px">Assunto: <strong>${envio.titulo_usado || ''}</strong> · Para: ${envio.email}</p>
+        <div style="background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e5e3">${envio.html}</div>
+      </div>
+    </body></html>`);
+  } catch (e) { res.status(500).send('Erro ao carregar preview.'); }
+});
+app.get('/admin/captacao-campanha/exportar-excel', authAdmin, async (req, res) => {
+  try {
+    const XLSX = require('xlsx');
+    const { listarEnvios } = require('./services/campanhaCaptacao');
+    const envios = await listarEnvios({ limite: 100000 });
+    const linhas = envios.map(e => ({
+      Nome: e.nome || '',
+      Email: e.email || '',
+      Celular: e.telefone || '',
+      Data_enviado: e.enviado_em ? new Date(e.enviado_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '',
+      Titulo: e.titulo_usado || '',
+      Abriu: e.aberto_em ? 'Sim' : 'Não',
+      Clicou: e.clicado_em ? 'Sim' : 'Não',
+      Iniciou_cadastro: e.iniciou_cadastro_em ? 'Sim' : 'Não',
+      Erro: e.erro || '',
+      Link_preview: 'https://matchimoveis.ia.br/admin/captacao-campanha/preview/' + e.id
+    }));
+    const ws = XLSX.utils.json_to_sheet(linhas);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Campanha Captação');
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Disposition', 'attachment; filename="campanha-captacao.xlsx"');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buf);
+  } catch (e) {
+    console.error('[exportar campanha captacao]', e.message);
+    res.status(500).send('Erro ao exportar planilha.');
+  }
+});
 // ── FIM CAMPANHA GLOBAL DE CAPTAÇÃO ─────────────────────────────────────────
 
 app.get('/admin/campanha', authAdmin, async (req, res) => {
@@ -16688,6 +16737,18 @@ app.get('/captacao-campanha/click/:id', async (req, res) => {
     console.error('[captacao-campanha click]', e.message);
     res.redirect('https://matchimoveis.ia.br/captar/REN-G9K6');
   }
+});
+
+// Pixel de abertura (1x1 transparente) — embutido no email da campanha,
+// carregado pelo cliente de email quando ela abre a mensagem.
+const _PIXEL_1X1 = Buffer.from('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==', 'base64');
+app.get('/captacao-campanha/open/:id', async (req, res) => {
+  try {
+    const { registrarAbertura } = require('./services/campanhaCaptacao');
+    await registrarAbertura(req.params.id);
+  } catch (e) { console.error('[captacao-campanha open]', e.message); }
+  res.set('Content-Type', 'image/gif');
+  res.send(_PIXEL_1X1);
 });
 
 app.get('/captar/:userId', async (req, res) => {

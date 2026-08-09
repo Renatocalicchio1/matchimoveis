@@ -15814,30 +15814,22 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
     <h3>2. Testar e-mail</h3>
     <p class="gray">O disparo real pros 118 mil contatos é só pelo automático (caixa acima) — que já roda com o intervalo variado de 30s a 5min. Aqui embaixo é só pra mandar um e-mail de teste avulso pra si mesmo, com um texto livre, sem afetar a fila de disparo.</p>
     <label>Assunto (só do teste):</label>
-    <input type="text" id="assunto" value="🚨 A IA já está trabalhando para corretores. E você?">
-    <label>Mensagem (só do teste):</label>
+    <input type="text" id="assunto" value="Você está perdendo leads pra quem responde primeiro">
+    <label>Mensagem (só do teste — linhas começando com "• " viram tópicos):</label>
     <textarea id="mensagem" rows="18">Olá {nome},
 
-O corretor tradicional trabalha sozinho. O corretor moderno trabalha com Inteligência Artificial.
+Todo dia, alguém procura um imóvel na sua região — e quem responde primeiro, com o imóvel certo, é quem fecha negócio.
 
-Imagine uma IA que trabalha por você, 24 horas por dia:
+A maioria dos corretores descobre o lead horas depois: mensagem perdida no WhatsApp, imóvel certo esquecido na planilha, visita nunca agendada.
 
-🤖 Encontra e minera leads automaticamente
-🎯 Faz o match perfeito entre cliente e imóvel
-📩 Envia vitrines inteligentes sem você pedir
-📅 Agenda visitas sozinha
-💬 Conversa no WhatsApp com memória inteligente
+A Match Imóveis resolve isso sozinha, 24 horas por dia:
 
-Enquanto você atende um cliente, a IA já está preparando o próximo.
+• Cruza cada lead com os imóveis certos da sua carteira e da rede
+• Monta a vitrine e envia pro cliente automaticamente
+• Agenda a visita sem você precisar lembrar
 
-Isso não é futuro. Isso já está acontecendo na Match Imóveis.
-
-Uma plataforma criada para corretores e imobiliárias que querem vender mais, com menos esforço, usando IA de verdade — não promessa.
-
-Você começa com 1.000 créditos gratuitos para testar tudo agora:
+Sem mensalidade fixa e sem comissão sobre venda. Teste agora com 1.000 créditos grátis:
 https://www.matchimoveis.ia.br
-
-O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou ficar para trás?
 
 — Equipe Match Imóveis</textarea>
     <div style="margin:8px 0">

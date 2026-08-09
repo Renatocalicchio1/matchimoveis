@@ -23,12 +23,15 @@ const MODELOS = {
 
 Todo dia, alguém procura um imóvel na sua região — e quem responde primeiro, com o imóvel certo, é quem fecha negócio.
 
-O problema é que a maioria dos corretores descobre o lead horas depois: a mensagem se perde no WhatsApp, o imóvel certo estava esquecido na planilha, a visita nunca chegou a ser agendada.
+A maioria dos corretores descobre o lead horas depois: mensagem perdida no WhatsApp, imóvel certo esquecido na planilha, visita nunca agendada.
 
-A Match Imóveis resolve isso automaticamente: cruza cada lead com os imóveis certos da sua carteira e da rede, monta a vitrine sozinha e já envia pro cliente — 24 horas por dia, mesmo quando você está ocupado com outro atendimento.
+A Match Imóveis resolve isso sozinha, 24 horas por dia:
 
-Sem mensalidade fixa e sem comissão sobre venda. Teste agora com 1.000 créditos grátis:
-${BASE_URL}
+• Cruza cada lead com os imóveis certos da sua carteira e da rede
+• Monta a vitrine e envia pro cliente automaticamente
+• Agenda a visita sem você precisar lembrar
+
+Sem mensalidade fixa e sem comissão sobre venda. Teste agora com 1.000 créditos grátis.
 
 — Equipe Match Imóveis`
     },
@@ -38,10 +41,13 @@ ${BASE_URL}
 
 Enquanto você responde um cliente no WhatsApp, um corretor que usa IA já está atendendo três — sem perder qualidade e sem esquecer ninguém.
 
-A diferença não é esforço, é ferramenta: a Match Imóveis cruza automaticamente cada lead com os imóveis certos, monta a vitrine e agenda a visita sozinha, pra você focar só em fechar negócio.
+A Match Imóveis faz por você:
 
-Comece agora com 1.000 créditos grátis, sem compromisso:
-${BASE_URL}
+• Cruza automaticamente cada lead com os imóveis certos
+• Monta a vitrine e agenda a visita sozinha
+• Funciona 24 horas por dia, mesmo fora do seu horário
+
+Comece agora com 1.000 créditos grátis, sem compromisso.
 
 — Equipe Match Imóveis`
     },
@@ -51,10 +57,13 @@ ${BASE_URL}
 
 Todo imóvel parado na carteira é uma venda que não está acontecendo. Na maioria das vezes o problema não é o imóvel — é não cruzar ele com o lead certo, na hora certa.
 
-A Match Imóveis faz esse cruzamento sozinha, o dia inteiro: recebe cada novo lead, encontra os imóveis compatíveis na sua carteira e na rede, e já envia a vitrine — sem você precisar lembrar de nada.
+A Match Imóveis faz esse cruzamento sozinha, o dia inteiro:
 
-Teste agora com 1.000 créditos grátis, sem cartão de crédito:
-${BASE_URL}
+• Recebe cada novo lead automaticamente
+• Encontra os imóveis compatíveis na sua carteira e na rede
+• Envia a vitrine sem você precisar lembrar
+
+Teste agora com 1.000 créditos grátis, sem cartão de crédito.
 
 — Equipe Match Imóveis`
     },
@@ -64,10 +73,13 @@ ${BASE_URL}
 
 Lead não escolhe horário: chega de madrugada, no fim de semana, no meio de uma visita com outro cliente. Quem demora a responder, perde pro corretor que responde primeiro.
 
-A Match Imóveis trabalha 24 horas por dia por você — recebe o lead, encontra o imóvel certo e já envia a vitrine, sem depender da sua disponibilidade.
+A Match Imóveis trabalha por você 24 horas por dia:
 
-Comece grátis agora, com 1.000 créditos pra testar:
-${BASE_URL}
+• Recebe o lead assim que ele chega
+• Encontra o imóvel certo automaticamente
+• Envia a vitrine sem depender da sua disponibilidade
+
+Comece grátis agora, com 1.000 créditos pra testar.
 
 — Equipe Match Imóveis`
     }
@@ -79,8 +91,11 @@ ${BASE_URL}
 
 Agora mesmo, tem gente procurando imóvel na sua cidade e no seu bairro — não é estimativa, é dado real, minerado pela nossa IA todos os dias.
 
-Veja em segundos quantos interessados existem na sua região, de graça e sem compromisso:
-${BASE_URL}/demanda
+Em segundos você descobre:
+
+• Quantos interessados reais existem na sua região
+• Em quais bairros a demanda está maior
+• Sem custo pra consultar, sem compromisso
 
 Quem chega primeiro, atende primeiro.
 
@@ -92,8 +107,9 @@ Quem chega primeiro, atende primeiro.
 
 Não são leads genéricos de cadastro — são pessoas reais buscando imóvel na sua cidade agora, identificadas em tempo real pela nossa IA.
 
-Veja quantos existem na sua região agora mesmo, sem custo pra consultar:
-${BASE_URL}/demanda
+• Veja quantos existem na sua região agora mesmo
+• Sem custo pra consultar
+• Você decide depois se quer levar pra sua conta
 
 — Equipe Match Imóveis`
     },
@@ -103,9 +119,9 @@ ${BASE_URL}/demanda
 
 Descubra agora, de graça, quantas pessoas estão buscando imóvel no seu bairro e na sua cidade neste momento.
 
-${BASE_URL}/demanda
-
-Sem mensalidade e sem comissão pra consultar. Você só decide levar os leads pra sua conta se quiser.
+• Consulta gratuita, sem cadastro
+• Sem mensalidade e sem comissão
+• Você decide levar os leads pra sua conta se quiser
 
 — Equipe Match Imóveis`
     },
@@ -115,8 +131,9 @@ Sem mensalidade e sem comissão pra consultar. Você só decide levar os leads p
 
 Enquanto você lê este email, pode ter alguém buscando exatamente um imóvel na sua região — e a gente já sabe quem é.
 
-Veja o número real, grátis e sem cadastro:
-${BASE_URL}/demanda
+• Veja o número real da sua região
+• Grátis e sem cadastro
+• Leva menos de 1 minuto pra consultar
 
 — Equipe Match Imóveis`
     }
@@ -321,22 +338,51 @@ async function marcarEnviado(id, erro, extra = {}) {
   }
 }
 
-function gerarHTML(mensagem, contato) {
+// CTA em botão de verdade (não link solto no meio do texto), separado por
+// tipo de modelo — "pagina" convida a testar a plataforma, "demanda" convida
+// a consultar a demanda da região.
+const CTA_POR_TIPO = {
+  pagina: 'Testar grátis agora →',
+  demanda: 'Ver demanda da minha região →'
+};
+
+function gerarHTML(mensagem, contato, tipo) {
   const trackPixel = `${BASE_URL}/campanha/track/open/${contato.id || 0}`;
   const trackLink = `${BASE_URL}/campanha/track/click/${contato.id || 0}`;
-  // Casa a URL base COM ou SEM /demanda atrás — sem isso, um link
-  // "matchimoveis.ia.br/demanda" ficava com só a parte base virando link
-  // clicável e "/demanda" sobrando como texto solto ao lado.
-  const _urlRegex = new RegExp(BASE_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(/demanda)?', 'g');
-  const msgFinal = mensagem
-    .replace(/{nome}/g, contato.nome || 'Corretor')
-    .replace(_urlRegex, (match) => '<a href="' + trackLink + '" style="color:#FF385C">' + match + '</a>');
-  const msgHtml = msgFinal
-    .replace(/\n\n/g, '</p><p style="margin:16px 0;font-size:15px;line-height:1.7;color:#222">')
-    .replace(/\n/g, '<br>');
+  const msg = mensagem.replace(/{nome}/g, contato.nome || 'Corretor');
+
+  // Blocos separados por linha em branco. Bloco em que TODA linha começa
+  // com "• " vira lista de tópicos; senão vira parágrafo normal.
+  const corpoHtml = msg.split(/\n\n+/).map(bloco => {
+    const linhas = bloco.split('\n').filter(l => l.trim());
+    const ehLista = linhas.length > 1 && linhas.every(l => l.trim().startsWith('•'));
+    if (ehLista) {
+      const itens = linhas.map(l =>
+        '<li style="margin:8px 0;padding-left:22px;position:relative"><span style="position:absolute;left:0;color:#00A699;font-weight:bold">✓</span>'
+        + l.trim().replace(/^•\s*/, '') + '</li>'
+      ).join('');
+      return '<ul style="list-style:none;padding:18px 22px;margin:16px 0;background:#f9fafb;border-radius:10px;font-size:14.5px;color:#374151">' + itens + '</ul>';
+    }
+    return '<p style="margin:0 0 16px 0;font-size:15px;line-height:1.7;color:#222">' + bloco.replace(/\n/g, '<br>') + '</p>';
+  }).join('');
+
+  const ctaTexto = tipo && CTA_POR_TIPO[tipo];
+  let ctaHtml = '';
+  if (ctaTexto) {
+    ctaHtml = '<a href="' + trackLink + '" style="display:inline-block;margin:8px 0 4px 0;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:15px">' + ctaTexto + '</a>';
+  }
+  // Sem tipo (ex: envio de teste com texto livre) — mantém o link clicável
+  // dentro do próprio texto, como já funcionava antes do botão existir.
+  let corpoFinal = corpoHtml;
+  if (!ctaTexto) {
+    const _urlRegex = new RegExp(BASE_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(/demanda)?', 'g');
+    corpoFinal = corpoHtml.replace(_urlRegex, (match) => '<a href="' + trackLink + '" style="color:#FF385C">' + match + '</a>');
+  }
+
   return `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px;color:#222">
-    <p style="margin:0 0 16px 0;font-size:15px;line-height:1.7;color:#222">${msgHtml}</p>
-    <p style="margin-top:8px;font-size:13px;color:#888">Para não receber mais emails, responda com CANCELAR.</p>
+    ${corpoFinal}
+    ${ctaHtml}
+    <p style="margin-top:20px;font-size:13px;color:#888">Para não receber mais emails, responda com CANCELAR.</p>
     <img src="${trackPixel}" width="1" height="1" style="display:none">
   </div>`;
 }
@@ -353,7 +399,7 @@ async function enviarProximo() {
 
   const modelo = _sortearModelo();
   const corpoPersonalizado = modelo.corpo.replace(/\{nome\}/g, contato.nome || 'Corretor');
-  const html = gerarHTML(corpoPersonalizado, contato);
+  const html = gerarHTML(corpoPersonalizado, contato, modelo.tipo);
   try {
     await enviarEmail({ para: contato.email, assunto: modelo.assunto, html, texto: modelo.assunto });
     await marcarEnviado(contato.id, null, { modelo: modelo.tipo, titulo: modelo.assunto, corpo: modelo.corpo });
@@ -391,7 +437,7 @@ async function buscarEnvioParaPreview(id) {
   const envio = rows[0];
   if (!envio) return null;
   const corpoPersonalizado = (envio.corpo_usado || '').replace(/\{nome\}/g, envio.nome || 'Corretor');
-  const html = gerarHTML(corpoPersonalizado, envio);
+  const html = gerarHTML(corpoPersonalizado, envio, envio.modelo_usado);
   return { ...envio, html };
 }
 

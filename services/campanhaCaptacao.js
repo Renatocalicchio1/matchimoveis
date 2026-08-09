@@ -53,8 +53,27 @@ const GANCHOS = [
 
 function _sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
 
+// Benefícios fixos em tópicos — sempre os mesmos, escaneáveis em 2 segundos.
+// Só o texto de abertura (gancho + corpo) varia; a estrutura visual não.
+const BENEFICIOS_CAPTACAO = [
+  'Rede de mais de 9.000 corretores em todo o Brasil',
+  'Cadastro simples, leva menos de 2 minutos',
+  'Divulgação automática em portais como OLX, ZAP e VivaReal',
+  'Sem comissão pra cadastrar'
+];
+
 function _montarHtml(nome, corpo, linkRastreado, pixelUrl) {
-  return '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + (nome || '') + '!</h2><p>' + corpo + '</p><a href="' + linkRastreado + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Cadastrar meu imóvel →</a></div>'
+  const beneficios = BENEFICIOS_CAPTACAO.map(b =>
+    '<li style="margin:8px 0;padding-left:22px;position:relative">'
+    + '<span style="position:absolute;left:0;color:#00A699;font-weight:bold">✓</span>' + b + '</li>'
+  ).join('');
+  return '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px">'
+    + '<h2 style="color:#FF385C;margin:0 0 16px 0">Olá, ' + (nome || '') + '!</h2>'
+    + '<p style="margin:0 0 20px 0;font-size:15px;line-height:1.7;color:#222">' + corpo + '</p>'
+    + '<ul style="list-style:none;padding:18px 22px;margin:0 0 24px 0;background:#f9fafb;border-radius:10px;font-size:14.5px;color:#374151">' + beneficios + '</ul>'
+    + '<a href="' + linkRastreado + '" style="display:inline-block;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:15px">Cadastrar meu imóvel →</a>'
+    + '<p style="margin-top:18px;font-size:12.5px;color:#9ca3af">Sem compromisso — você decide se aceita alguma proposta.</p>'
+    + '</div>'
     + (pixelUrl ? '<img src="' + pixelUrl + '" width="1" height="1" alt="" style="display:none">' : '');
 }
 

@@ -241,4 +241,47 @@ async function contarDisponiveis() {
   }
 }
 
-module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, marcarVendidos, contarDisponiveis };
+// Atividade REAL da plataforma (não inventada) pra alimentar a animação de
+// "IA pensando" — leads de verdade (tabela `leads`, não interessados_portal
+// — não é a mesma base vendida em /demanda) que já receberam vitrine, com
+// o imóvel real que foi enviado a elas (matches[0], já tem foto real
+// porque é o que a própria vitrine mostrou). Nome mascarado, sem telefone/
+// email. Não filtra pela região buscada de propósito — é só pra mostrar
+// atividade genuína acontecendo na plataforma, não um resultado da busca.
+async function listarAtividadeRecente({ limite = 12 } = {}) {
+  let rows;
+  try {
+    ({ rows } = await query(
+      `SELECT nome,
+              matches->0->>'tipo' AS tipo,
+              matches->0->>'transacao' AS transacao,
+              matches->0->>'bairro' AS bairro,
+              matches->0->>'cidade' AS cidade,
+              COALESCE(matches->0->>'valor_imovel', matches->0->>'valor') AS valor,
+              matches->0->>'quartos' AS quartos,
+              matches->0#>>'{fotos,0}' AS foto
+       FROM leads
+       WHERE vitrine_enviada = true
+         AND jsonb_typeof(matches) = 'array'
+         AND jsonb_array_length(matches) > 0
+         AND matches->0#>>'{fotos,0}' IS NOT NULL
+       ORDER BY RANDOM()
+       LIMIT $1`,
+      [limite]
+    ));
+  } catch (e) {
+    return [];
+  }
+  return rows
+    .filter(r => r.bairro && r.foto)
+    .map(r => ({
+      Nome: _mascararNome(r.nome || ''),
+      Tipo: r.tipo || 'Imóvel',
+      Transacao: _normTransacao(r.transacao || '') || 'venda',
+      Bairro: r.bairro, Cidade: r.cidade || '',
+      Valor: r.valor || '', Quartos: r.quartos || '',
+      Foto: r.foto
+    }));
+}
+
+module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, marcarVendidos, contarDisponiveis, listarAtividadeRecente };

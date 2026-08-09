@@ -14566,8 +14566,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .pensando-box{background:#fff;border-radius:14px;padding:28px 24px;max-width:340px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.25)}
   .pensando-legenda{text-align:center;font-size:12.5px;color:var(--sec);min-height:32px}
   .pensando-sub{text-align:center;font-size:11px;color:var(--babu);font-weight:600;margin-top:2px;min-height:14px}
-  .pensando-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:14px;min-height:88px;opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease}
+  .pensando-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:14px;min-height:88px;opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease;overflow:hidden}
   .pensando-card.mostrar{opacity:1;transform:translateY(0)}
+  .pensando-card-foto{width:calc(100% + 28px);margin:-14px -14px 10px;height:130px;object-fit:cover;display:block}
   .pensando-card-topo{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:700;font-size:13px;color:var(--ink)}
   .pensando-card-valor{color:var(--babu);white-space:nowrap}
   .pensando-card-tags{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
@@ -14951,33 +14952,37 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     document.body.style.overflow = '';
   }
 
-  function _montarCardLead(l){
-    const valorTxt = l.Valor_max ? 'R$ '+escHtml(l.Valor_max) : '';
-    return '<div class="pensando-card-topo"><span>👤 '+escHtml(l.Nome)+'</span>'+(valorTxt ? '<span class="pensando-card-valor">'+valorTxt+'</span>' : '')+'</div>'
-      + '<div class="pensando-card-tags">'+(l.Tipo ? '<span>🏠 '+escHtml(l.Tipo)+'</span>' : '')+'<span>'+(l.Transacao === 'aluguel' ? '🔑 Aluguel' : '🛒 Venda')+'</span>'+(l.Quartos ? '<span>🛏️ '+escHtml(l.Quartos)+' qts</span>' : '')+'</div>'
-      + '<div class="pensando-card-loc">📍 '+escHtml(l.Bairro)+', '+escHtml(l.Cidade)+'</div>';
+  function _montarCardAtividade(a){
+    const valorTxt = a.Valor ? 'R$ '+Number(a.Valor).toLocaleString('pt-BR') : '';
+    const fotoHtml = a.Foto ? '<img class="pensando-card-foto" src="'+escHtml(a.Foto)+'" loading="lazy" onerror="this.remove()">' : '';
+    return fotoHtml
+      + '<div class="pensando-card-topo"><span>👤 '+escHtml(a.Nome)+'</span>'+(valorTxt ? '<span class="pensando-card-valor">'+valorTxt+'</span>' : '')+'</div>'
+      + '<div class="pensando-card-tags">'+(a.Tipo ? '<span>🏠 '+escHtml(a.Tipo)+'</span>' : '')+'<span>'+(a.Transacao === 'aluguel' ? '🔑 Aluguel' : '🛒 Venda')+'</span>'+(a.Quartos ? '<span>🛏️ '+escHtml(a.Quartos)+' qts</span>' : '')+'</div>'
+      + '<div class="pensando-card-loc">📍 '+escHtml(a.Bairro)+(a.Cidade ? ', '+escHtml(a.Cidade) : '')+'</div>';
   }
 
-  // Cards com os leads REAIS já encontrados na busca (nome mascarado + o
-  // perfil que procuram), um a um — sem pressa, ~10s no total, pra dar
-  // tempo de sentir a IA "trabalhando" antes de abrir a planilha.
-  async function _animarCardsPensando(leads, duracaoMs){
+  // Cards com atividade REAL da plataforma — leads que já receberam vitrine
+  // + o imóvel de verdade (com foto de verdade) que foi enviado a elas, um
+  // a um. Não é o resultado da busca (essa é só interessados_portal) — é só
+  // pra mostrar que tem gente de verdade usando o sistema enquanto a IA
+  // cruza os dados. Sem pressa: ~10s no total.
+  async function _animarCardsPensando(atividade, duracaoMs){
     const cardEl = document.getElementById('pensando-card');
     const subEl = document.getElementById('pensando-sub');
-    if(!leads.length){
+    if(!atividade.length){
       cardEl.classList.remove('mostrar');
       subEl.textContent = '';
       await new Promise(function(res){ setTimeout(res, duracaoMs); });
       return;
     }
-    subEl.textContent = 'Leads reais encontrados na sua região';
+    subEl.textContent = 'Atividade real na plataforma agora';
     const porCard = 1300;
     const voltas = Math.max(1, Math.round(duracaoMs / porCard));
     for(let i=0;i<voltas;i++){
-      const l = leads[i % leads.length];
+      const a = atividade[i % atividade.length];
       cardEl.classList.remove('mostrar');
       await new Promise(function(res){ setTimeout(res, 180); });
-      cardEl.innerHTML = _montarCardLead(l);
+      cardEl.innerHTML = _montarCardAtividade(a);
       cardEl.classList.add('mostrar');
       await new Promise(function(res){ setTimeout(res, porCard - 180); });
     }
@@ -14994,9 +14999,10 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     fecharModalCompra();
     _comboEscolhido = null;
     try {
-      // Não estoura o resultado na hora — abre um modal e, assim que a busca
-      // volta, mostra os leads reais encontrados (nome mascarado + perfil), um
-      // a um. Sem pressa: ~10s no total, mesmo que a busca em si volte antes.
+      // Não estoura o resultado na hora — abre um modal mostrando atividade
+      // real da plataforma (leads que já receberam vitrine + foto real do
+      // imóvel), um a um, enquanto a busca roda por trás. Sem pressa: ~10s
+      // no total, mesmo que a busca em si volte antes.
       document.getElementById('busca-status').innerHTML = '';
       abrirModalPensando();
       const etapas = [
@@ -15010,9 +15016,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         document.getElementById('pensando-texto').textContent = etapas[etapaAtual];
       }, 3300);
       document.getElementById('pensando-texto').textContent = etapas[0];
-      const d = await fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias }) }).then(function(r){ return r.json(); });
-      await _animarCardsPensando(d.ok ? d.leads : [], 10000);
+      const fetchLeadsPromise = fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias }) }).then(function(r){ return r.json(); });
+      const atividadeResp = await fetch('${apiPrefix}/atividade', { method:'POST', headers:{'Content-Type':'application/json'}, body: '{}' }).then(function(r){ return r.json(); }).catch(function(){ return { ok:false, atividade:[] }; });
+      await _animarCardsPensando(atividadeResp.ok ? atividadeResp.atividade : [], 10000);
       clearInterval(trocaEtapa);
+      const d = await fetchLeadsPromise;
       fecharModalPensando();
       if(!d.ok){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro: '+escHtml(d.erro)+'</p>'; return; }
       document.getElementById('busca-status').innerHTML = '';
@@ -15160,6 +15168,21 @@ async function _handlerDemandaBuscar(req, res) {
 }
 app.post('/admin/demanda/buscar', authAdmin, express.json(), _handlerDemandaBuscar);
 app.post('/demanda/buscar', express.json(), _handlerDemandaBuscar);
+
+// Atividade real (leads que já receberam vitrine + o imóvel real que foi
+// enviado, com foto de verdade) pra alimentar a animação de "IA pensando"
+// — ver listarAtividadeRecente em services/buscaDemanda.js. Não é a base
+// vendida em /demanda (essa é só interessados_portal); aqui é só pra
+// mostrar atividade genuína da plataforma acontecendo, nome mascarado.
+async function _handlerDemandaAtividade(req, res) {
+  try {
+    const { listarAtividadeRecente } = require('./services/buscaDemanda');
+    const atividade = await listarAtividadeRecente({ limite: 12 });
+    res.json({ ok: true, atividade });
+  } catch (e) { res.json({ ok: false, erro: e.message, atividade: [] }); }
+}
+app.post('/admin/demanda/atividade', authAdmin, express.json(), _handlerDemandaAtividade);
+app.post('/demanda/atividade', express.json(), _handlerDemandaAtividade);
 
 // Compra de combo a partir do resultado de /demanda — cria a conta (nome/
 // email/celular/senha) e já manda pro checkout Mercado Pago. Os critérios da

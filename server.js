@@ -1876,6 +1876,29 @@ const _agendarCaptacaoResend = () => {
 };
 _agendarCaptacaoResend();
 
+// Job rematch de leads sem match — roda todo dia às 6h (services/matchPendentes.js).
+const _agendarMatchPendentes = () => {
+  const agora = new Date();
+  const amanha6h = new Date(agora);
+  amanha6h.setDate(amanha6h.getDate() + (agora.getHours() >= 6 ? 1 : 0));
+  amanha6h.setHours(6, 0, 0, 0);
+  const msAte6h = amanha6h - agora;
+  setTimeout(async () => {
+    try {
+      const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
+      await rodarMatchLeadsSemMatch();
+    } catch(e) { console.error('[JOB MATCH PENDENTES]', e.message); }
+    setInterval(async () => {
+      try {
+        const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
+        await rodarMatchLeadsSemMatch();
+      } catch(e) { console.error('[JOB MATCH PENDENTES]', e.message); }
+    }, 24 * 3600 * 1000);
+  }, msAte6h);
+  console.log('[JOB MATCH PENDENTES] agendado para:', amanha6h.toLocaleString('pt-BR'));
+};
+_agendarMatchPendentes();
+
 // Job onboarding — verifica a cada 30min se algum usuário completou um dos 3 passos
 // (cadastrar imóvel / ativar WhatsApp / adicionar lead) e manda o email de parabéns
 setTimeout(async () => {

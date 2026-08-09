@@ -1898,9 +1898,9 @@ _agendarProximoEnvioCampanha();
 
 // Job da campanha geral de email (services/campanha.js, base de ~118 mil
 // contatos) — mesmo princípio: só dispara quando ativa em /admin/campanha,
-// intervalo aleatório de 1 a 3 min, nunca fixo.
+// intervalo aleatório de 30s a 5min a cada envio (nunca fixo, sempre varia).
 function _agendarProximoEnvioCampanhaGeral() {
-  const delayMs = (60 + Math.random() * 120) * 1000;
+  const delayMs = (30 + Math.random() * 270) * 1000; // 30s a 300s (5min)
   setTimeout(async () => {
     try {
       const { enviarProximo } = require('./services/campanha');

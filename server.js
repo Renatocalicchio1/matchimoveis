@@ -14874,7 +14874,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   ${bodyOpen}
   ${isAdmin ? '' : '<div class="topbar-logo"><div class="mark">M</div><div class="nome">Match<span>Imóveis</span></div></div>'}
   <div class="hero">
-    <h1>📍 Quantos clientes reais tem na sua região agora?</h1>
+    <h1>📍 Quantos clientes/leads reais tem na sua região agora?</h1>
     <p>Busque abaixo, veja o número na hora e leve os leads pra sua conta hoje.</p>
     <div class="hero-tags"><span>✅ Leads reais, não é crédito</span><span>✅ Sem comissão</span><span>✅ Acesso completo à plataforma</span></div>
   </div>

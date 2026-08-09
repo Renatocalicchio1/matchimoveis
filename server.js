@@ -14947,34 +14947,33 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     document.body.style.overflow = '';
   }
 
-  function _montarCardImovel(im){
-    const valorTxt = im.Valor ? 'R$ '+Number(im.Valor).toLocaleString('pt-BR') : '';
-    return '<div class="pensando-card-topo"><span>🏠 '+escHtml(im.Tipo)+'</span>'+(valorTxt ? '<span class="pensando-card-valor">'+valorTxt+'</span>' : '')+'</div>'
-      + '<div class="pensando-card-tags"><span>'+(im.Transacao === 'aluguel' ? '🔑 Aluguel' : '🛒 Venda')+'</span>'+(im.Quartos ? '<span>🛏️ '+escHtml(im.Quartos)+' qts</span>' : '')+'</div>'
-      + '<div class="pensando-card-loc">📍 '+escHtml(im.Bairro)+', '+escHtml(im.Cidade)+'</div>';
+  function _montarCardLead(l){
+    const valorTxt = l.Valor_max ? 'R$ '+escHtml(l.Valor_max) : '';
+    return '<div class="pensando-card-topo"><span>👤 '+escHtml(l.Nome)+'</span>'+(valorTxt ? '<span class="pensando-card-valor">'+valorTxt+'</span>' : '')+'</div>'
+      + '<div class="pensando-card-tags">'+(l.Tipo ? '<span>🏠 '+escHtml(l.Tipo)+'</span>' : '')+'<span>'+(l.Transacao === 'aluguel' ? '🔑 Aluguel' : '🛒 Venda')+'</span>'+(l.Quartos ? '<span>🛏️ '+escHtml(l.Quartos)+' qts</span>' : '')+'</div>'
+      + '<div class="pensando-card-loc">📍 '+escHtml(l.Bairro)+', '+escHtml(l.Cidade)+'</div>';
   }
 
-  // Cards de imóveis REAIS da própria plataforma (services/buscaDemanda.js
-  // → listarImoveisPreview) cruzando com a região buscada, um a um, como se
-  // fossem os leads procurando aquele perfil — sem pressa, ~10s no total,
-  // pra dar tempo de sentir a IA "trabalhando" antes de abrir a planilha.
-  async function _animarCardsPensando(imoveis, duracaoMs){
+  // Cards com os leads REAIS já encontrados na busca (nome mascarado + o
+  // perfil que procuram), um a um — sem pressa, ~10s no total, pra dar
+  // tempo de sentir a IA "trabalhando" antes de abrir a planilha.
+  async function _animarCardsPensando(leads, duracaoMs){
     const cardEl = document.getElementById('pensando-card');
     const subEl = document.getElementById('pensando-sub');
-    if(!imoveis.length){
+    if(!leads.length){
       cardEl.classList.remove('mostrar');
       subEl.textContent = '';
       await new Promise(function(res){ setTimeout(res, duracaoMs); });
       return;
     }
-    subEl.textContent = 'Comparando com imóveis reais da região';
+    subEl.textContent = 'Leads reais encontrados na sua região';
     const porCard = 1300;
     const voltas = Math.max(1, Math.round(duracaoMs / porCard));
     for(let i=0;i<voltas;i++){
-      const im = imoveis[i % imoveis.length];
+      const l = leads[i % leads.length];
       cardEl.classList.remove('mostrar');
       await new Promise(function(res){ setTimeout(res, 180); });
-      cardEl.innerHTML = _montarCardImovel(im);
+      cardEl.innerHTML = _montarCardLead(l);
       cardEl.classList.add('mostrar');
       await new Promise(function(res){ setTimeout(res, porCard - 180); });
     }
@@ -14991,16 +14990,14 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     fecharModalCompra();
     _comboEscolhido = null;
     try {
-      const fetchLeadsPromise = fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias }) }).then(function(r){ return r.json(); });
-      const fetchImoveisPromise = fetch('${apiPrefix}/imoveis', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares }) }).then(function(r){ return r.json(); }).catch(function(){ return { ok:false, imoveis:[] }; });
-      // Não estoura o resultado na hora — abre um modal mostrando imóveis reais
-      // da região, um a um, como se fossem os leads procurando aquele perfil.
-      // Sem pressa: ~10s no total, mesmo que a busca em si termine antes.
+      // Não estoura o resultado na hora — abre um modal e, assim que a busca
+      // volta, mostra os leads reais encontrados (nome mascarado + perfil), um
+      // a um. Sem pressa: ~10s no total, mesmo que a busca em si volte antes.
       abrirModalPensando();
       const etapas = [
         '🤖 Entendendo o perfil buscado ('+pares.length+' bairro'+(pares.length>1?'s':'')+' em '+_cidadesSelecionadas.length+' cidade'+(_cidadesSelecionadas.length>1?'s':'')+')...',
-        '📥 Cruzando com imóveis reais da sua região...',
-        '🧠 Calculando compatibilidade com os interessados...'
+        '📥 Cruzando com a base de interessados MatchImóveis...',
+        '🧠 Calculando compatibilidade...'
       ];
       let etapaAtual = 0;
       const trocaEtapa = setInterval(function(){
@@ -15008,11 +15005,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         document.getElementById('pensando-texto').textContent = etapas[etapaAtual];
       }, 3300);
       document.getElementById('pensando-texto').textContent = etapas[0];
-      const imoveisResp = await fetchImoveisPromise;
-      const imoveis = (imoveisResp && imoveisResp.ok) ? (imoveisResp.imoveis || []) : [];
-      await _animarCardsPensando(imoveis, 10000);
+      const d = await fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias }) }).then(function(r){ return r.json(); });
+      await _animarCardsPensando(d.ok ? d.leads : [], 10000);
       clearInterval(trocaEtapa);
-      const d = await fetchLeadsPromise;
       fecharModalPensando();
       if(!d.ok){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro: '+escHtml(d.erro)+'</p>'; return; }
       document.getElementById('busca-status').innerHTML = '';
@@ -15159,21 +15154,6 @@ async function _handlerDemandaBuscar(req, res) {
 }
 app.post('/admin/demanda/buscar', authAdmin, express.json(), _handlerDemandaBuscar);
 app.post('/demanda/buscar', express.json(), _handlerDemandaBuscar);
-
-// Imóveis reais pra animação de "IA pensando" (ver listarImoveisPreview em
-// services/buscaDemanda.js) — só tipo/transação/valor/bairro/quartos, sem
-// dono/endereço/fotos.
-async function _handlerDemandaImoveis(req, res) {
-  try {
-    const { estado, pares } = req.body;
-    if (!estado || !Array.isArray(pares) || !pares.length) return res.json({ ok: true, imoveis: [] });
-    const { listarImoveisPreview } = require('./services/buscaDemanda');
-    const imoveis = await listarImoveisPreview({ estado, pares, limite: 10 });
-    res.json({ ok: true, imoveis });
-  } catch (e) { res.json({ ok: false, erro: e.message, imoveis: [] }); }
-}
-app.post('/admin/demanda/imoveis', authAdmin, express.json(), _handlerDemandaImoveis);
-app.post('/demanda/imoveis', express.json(), _handlerDemandaImoveis);
 
 // Compra de combo a partir do resultado de /demanda — cria a conta (nome/
 // email/celular/senha) e já manda pro checkout Mercado Pago. Os critérios da

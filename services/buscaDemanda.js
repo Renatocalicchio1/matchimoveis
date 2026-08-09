@@ -241,43 +241,4 @@ async function contarDisponiveis() {
   }
 }
 
-// Imóveis REAIS da plataforma (não inventados) no recorte buscado — usados
-// só pra alimentar a animação de "IA pensando" com cards de verdade em vez
-// de placeholder genérico, dando a sensação de que a região tem demanda
-// real por imóveis reais (sem expor dono/endereço/fotos, só o que já é
-// público em qualquer outra vitrine da plataforma: tipo/transação/valor/
-// bairro/quartos).
-async function listarImoveisPreview({ estado, pares = [], limite = 10 }) {
-  const siglaAlvo = _sigla(estado);
-  const chavesAlvo = new Set(pares.map(p => _norm(p.cidade) + '|||' + _norm(p.bairro)).filter(k => k !== '|||'));
-  if (!siglaAlvo || !chavesAlvo.size) return [];
-  let rows;
-  try {
-    ({ rows } = await query(
-      `SELECT tipo, transacao, valor_imovel, bairro, cidade, estado, quartos FROM imoveis
-       WHERE status = 'ativo' AND bairro IS NOT NULL AND bairro != '' AND cidade IS NOT NULL AND cidade != ''
-       LIMIT 4000`
-    ));
-  } catch (e) {
-    return [];
-  }
-  const encontrados = [];
-  for (const r of rows) {
-    if (!r.estado || _sigla(r.estado) !== siglaAlvo) continue;
-    if (!chavesAlvo.has(_norm(r.cidade) + '|||' + _norm(r.bairro))) continue;
-    encontrados.push({
-      Tipo: r.tipo || 'Imóvel',
-      Transacao: _normTransacao(r.transacao || '') || 'venda',
-      Bairro: r.bairro, Cidade: r.cidade,
-      Quartos: r.quartos || '', Valor: r.valor_imovel || ''
-    });
-  }
-  // Embaralha (Fisher-Yates) pra variar quais imóveis aparecem a cada busca.
-  for (let i = encontrados.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [encontrados[i], encontrados[j]] = [encontrados[j], encontrados[i]];
-  }
-  return encontrados.slice(0, limite);
-}
-
-module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, marcarVendidos, contarDisponiveis, listarImoveisPreview };
+module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, marcarVendidos, contarDisponiveis };

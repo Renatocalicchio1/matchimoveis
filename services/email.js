@@ -57,6 +57,26 @@ const IDENTIFICACOES_EMPRESA = [
 ];
 function _sortearIdentificacao() { return IDENTIFICACOES_EMPRESA[Math.floor(Math.random() * IDENTIFICACOES_EMPRESA.length)]; }
 
+// Abertura padrão — igual à identificação do rodapé, mas em cima (primeira
+// coisa que a pessoa vê), com link pra quem quiser conferir a empresa.
+// Várias redações fixas sorteadas por envio, mesmo princípio de sempre variar.
+const INTROS_EMPRESA = [
+  'Olá! Somos a MatchImóveis, uma empresa do segmento imobiliário que ajuda unir quem está buscando um imóvel com quem tem um imóvel pra vender ou alugar.',
+  'Olá! Aqui é a MatchImóveis — uma plataforma do mercado imobiliário feita pra conectar quem procura um imóvel com quem tem um imóvel disponível pra vender ou alugar.',
+  'Oi! Somos a MatchImóveis, empresa do segmento imobiliário que une quem está buscando um imóvel e quem tem um imóvel pra vender ou alugar.',
+  'Olá! A MatchImóveis é uma empresa voltada ao mercado imobiliário, feita pra unir quem procura um imóvel com quem tem um imóvel pra vender ou alugar.'
+];
+function _sortearIntro() { return INTROS_EMPRESA[Math.floor(Math.random() * INTROS_EMPRESA.length)]; }
+
+function _cabecalhoEmpresa() {
+  const intro = _sortearIntro();
+  const dominio = BASE_URL.replace('https://', '');
+  return {
+    html: '<div style="padding:14px 24px;background:#fff5f5;border-bottom:2px solid #FF385C;font-family:Arial,sans-serif;font-size:12.5px;color:#374151;line-height:1.5">' + intro + ' Pra conferir a empresa, acesse <a href="' + BASE_URL + '" style="color:#FF385C;font-weight:600">' + dominio + '</a>.</div>',
+    texto: intro + ' Pra conferir a empresa, acesse ' + BASE_URL + '.\n\n'
+  };
+}
+
 function _rodapeDescadastro(email) {
   const link = BASE_URL + '/email/descadastrar?email=' + encodeURIComponent(email);
   const identificacao = _sortearIdentificacao();
@@ -71,6 +91,7 @@ async function enviarEmail({ para, assunto, html, texto }) {
     console.log('[EMAIL] pulado (descadastrado):', para);
     return { skipped: true };
   }
+  const cabecalho = _cabecalhoEmpresa();
   const rodape = _rodapeDescadastro(para);
   const cmd = new SendEmailCommand({
     Source: `MatchImóveis <${FROM}>`,
@@ -78,8 +99,8 @@ async function enviarEmail({ para, assunto, html, texto }) {
     Message: {
       Subject: { Data: assunto, Charset: 'UTF-8' },
       Body: {
-        Html: { Data: html + rodape.html, Charset: 'UTF-8' },
-        Text: { Data: (texto || assunto) + rodape.texto, Charset: 'UTF-8' }
+        Html: { Data: cabecalho.html + html + rodape.html, Charset: 'UTF-8' },
+        Text: { Data: cabecalho.texto + (texto || assunto) + rodape.texto, Charset: 'UTF-8' }
       }
     }
   });

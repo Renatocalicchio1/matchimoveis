@@ -14563,16 +14563,15 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   td{padding:6px;border-bottom:1px solid #f3f4f6;vertical-align:top;white-space:nowrap}
   .banner-ia{background:var(--ink);color:#fff;border-radius:8px;padding:16px 20px;margin:16px 0;font-size:15px}
   .banner-ia strong{color:#4ade80}
-  .leads-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:14px}
-  .lead-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;opacity:0;animation:leadCardIn .4s ease forwards}
-  @keyframes leadCardIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-  .lead-card-topo{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-  .lead-card-nome{font-size:13px;font-weight:700;color:var(--ink)}
-  .lead-card-valor{font-size:13px;font-weight:700;color:var(--babu);white-space:nowrap}
-  .lead-card-tags{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
-  .lead-card-tags span{background:var(--bg);border-radius:999px;padding:3px 9px;font-size:10.5px;font-weight:600;color:var(--sec)}
-  .lead-card-loc{font-size:11.5px;color:var(--sec)}
-  .lead-card-rodape{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--bg);font-size:10.5px;color:var(--sec)}
+  .pensando-box{background:#fff;border-radius:14px;padding:28px 24px;max-width:340px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+  .pensando-cards{position:relative;height:110px}
+  .skel-card{position:absolute;left:8%;width:84%;height:30px;border-radius:8px;background:linear-gradient(90deg,var(--bg) 25%,#eef0f2 50%,var(--bg) 75%);background-size:200% 100%;opacity:0;animation:skelCiclo 2.8s ease-in-out infinite,skelShine 1.4s linear infinite}
+  .skel-card.sk1{top:0;animation-delay:0s,0s}
+  .skel-card.sk2{top:26px;animation-delay:.4s,0s}
+  .skel-card.sk3{top:52px;animation-delay:.8s,0s}
+  .skel-card.sk4{top:78px;animation-delay:1.2s,0s}
+  @keyframes skelCiclo{0%{opacity:0;transform:translateY(6px) scale(.97)}18%{opacity:1;transform:translateY(0) scale(1)}75%{opacity:1}100%{opacity:0;transform:translateY(-6px) scale(.97)}}
+  @keyframes skelShine{0%{background-position:200% 0}100%{background-position:-200% 0}}
   .proof-bar{display:flex;flex-wrap:wrap;gap:8px 18px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 16px;margin:14px 0;font-size:12px;font-weight:600;color:#9a3412}
   .proof-bar strong{color:var(--rausch)}
   .trust-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin:24px 0 12px;padding:14px;background:var(--bg);border-radius:8px;font-size:12px;color:var(--sec);font-weight:600;text-align:center}
@@ -14680,9 +14679,22 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     </div>
     <div id="busca-status"></div>
   </div>
+
+  <div id="pensando-modal-overlay" class="modal-overlay" style="display:none">
+    <div class="pensando-box">
+      <div class="pensando-cards">
+        <div class="skel-card sk1"></div>
+        <div class="skel-card sk2"></div>
+        <div class="skel-card sk3"></div>
+        <div class="skel-card sk4"></div>
+      </div>
+      <p id="pensando-texto" class="gray" style="text-align:center;margin-top:18px;font-size:13px"></p>
+    </div>
+  </div>
+
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
-    <div id="leads-cards" class="leads-cards"></div>
+    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Condição</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
 
     <div id="combos-box" style="display:none">
       <h2 class="secao">📦 Escolha seu combo</h2>
@@ -14929,6 +14941,15 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     _buscaDebounceId = setTimeout(buscarDemanda, 700);
   }
 
+  function abrirModalPensando(){
+    document.getElementById('pensando-modal-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  function fecharModalPensando(){
+    document.getElementById('pensando-modal-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
   async function buscarDemanda(){
     const estado = document.getElementById('estado').value;
     const pares = _paresMarcados;
@@ -14941,42 +14962,35 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     _comboEscolhido = null;
     try {
       const fetchPromise = fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias }) }).then(function(r){ return r.json(); });
-      // Não estoura o resultado na hora — mostra a IA "pensando" em etapas,
-      // dá pra sentir que ela está de fato cruzando as fontes antes de responder.
+      // Não estoura o resultado na hora — abre um modal com cards "escaneando"
+      // aparecendo e sumindo, dá pra sentir que a IA está de fato cruzando as
+      // fontes antes de responder. Quando termina, fecha o modal e mostra a
+      // planilha completa de leads.
+      abrirModalPensando();
       const etapas = [
         '🤖 Entendendo o perfil buscado ('+pares.length+' bairro'+(pares.length>1?'s':'')+' em '+_cidadesSelecionadas.length+' cidade'+(_cidadesSelecionadas.length>1?'s':'')+')...',
         '📥 Cruzando com a base de interessados MatchImóveis...',
         '🧠 Calculando compatibilidade...'
       ];
       for(let i=0;i<etapas.length;i++){
-        document.getElementById('busca-status').innerHTML = '<p class="gray">'+etapas[i]+'</p>';
-        await new Promise(function(res){ setTimeout(res, 550); });
+        document.getElementById('pensando-texto').textContent = etapas[i];
+        await new Promise(function(res){ setTimeout(res, 700); });
       }
       const d = await fetchPromise;
-      document.getElementById('busca-status').innerHTML = '';
+      fecharModalPensando();
       if(!d.ok){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro: '+escHtml(d.erro)+'</p>'; return; }
+      document.getElementById('busca-status').innerHTML = '';
       document.getElementById('banner-resultado').innerHTML = d.total > 0
         ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região.<br><span style="color:#fca5a5">⚡ Nenhum deles foi vendido ainda — o primeiro corretor que pagar leva todos.</span>'
         : '🤖 A IA não encontrou interessados com esse perfil ainda. Tenta outro bairro.';
-      document.getElementById('leads-cards').innerHTML = d.leads.map(function(l, i){
-        const dataTxt = l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR') : '';
-        return '<div class="lead-card" style="animation-delay:'+Math.min(i*70,900)+'ms">'
-          + '<div class="lead-card-topo"><span class="lead-card-nome">'+escHtml(l.Nome)+'</span>'
-          + (l.Valor_max ? '<span class="lead-card-valor">R$ '+escHtml(l.Valor_max)+'</span>' : '')
-          + '</div>'
-          + '<div class="lead-card-tags">'
-          + (l.Tipo ? '<span>🏠 '+escHtml(l.Tipo)+'</span>' : '')
-          + '<span>'+(l.Transacao === 'aluguel' ? '🔑 Aluguel' : '🛒 Venda')+'</span>'
-          + (l.Quartos ? '<span>🛏️ '+escHtml(l.Quartos)+' qts</span>' : '')
-          + '</div>'
-          + '<div class="lead-card-loc">📍 '+escHtml(l.Bairro)+', '+escHtml(l.Cidade)+'</div>'
-          + '<div class="lead-card-rodape"><span>MatchImóveis</span>'+(dataTxt ? '<span>'+dataTxt+'</span>' : '')+'</div>'
-          + '</div>';
+      document.getElementById('tabela-body').innerHTML = d.leads.map(function(l){
+        const dataTxt = l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR') : '<span class="gray">—</span>';
+        return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>MatchImóveis</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Condicao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Quartos?escHtml(l.Quartos):'<span class="gray">—</span>')+'</td><td>'+(l.Suites?escHtml(l.Suites):'<span class="gray">—</span>')+'</td><td>'+(l.Vagas?escHtml(l.Vagas):'<span class="gray">—</span>')+'</td><td>'+(l.Banheiros?escHtml(l.Banheiros):'<span class="gray">—</span>')+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td><td>'+dataTxt+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
       _ultimaBusca = { estado, pares, transacoes, dias: d.dias };
       renderCombos(d.total);
-    } catch(e){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; }
+    } catch(e){ fecharModalPensando(); document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; }
   }
 
   // ── Combos + criação de conta + pagamento ──────────────────────────────

@@ -92,22 +92,43 @@ async function pausarCampanha() {
   await query(`UPDATE captacao_campanha_config SET ativo=false, atualizado_em=NOW() WHERE id=1`);
 }
 
-// Critério "sem imóvel captado" — mesmo usado no resto da plataforma
-// (_ehLeadCaptacao em server.js). Assume que a tabela leads está aliasada
-// como "l" na query que usar essa constante.
-const _CRITERIO_SEM_CAPTACAO = `
-  COALESCE(l.tipo_lead, '') != 'cliente_vendedor'
-  AND COALESCE(l.origem, '') != 'captacao_link'
-  AND COALESCE(l.dados->>'temImovelParaCaptar', '') != 'true'
+// Pool unificado das leads elegíveis — duas fontes:
+// 1) `leads`: quem já buscou imóvel na plataforma (WhatsApp/manual/webhook/
+//    importação), excluindo quem já é captação (_ehLeadCaptacao em server.js).
+// 2) `interessados_portal`: a base minerada/importada (mesma usada em
+//    /demanda) — não tem tipo_lead próprio, então checa "já captou" cruzando
+//    telefone/email com uma lead de captação existente (mesmo critério do
+//    job antigo de reenvio). NÃO mexe em vendido_em/vendido_para dessa
+//    tabela — isso é de um fluxo diferente (compra paga via /demanda).
+const _POOL_CAPTACAO_CTE = `
+  WITH pool_captacao AS (
+    SELECT l.id::text AS id, l.nome, l.email, COALESCE(l.telefone, l.whatsapp, l.contato) AS telefone, l.criado_em
+    FROM leads l
+    WHERE l.email IS NOT NULL AND l.email != ''
+      AND COALESCE(l.tipo_lead, '') != 'cliente_vendedor'
+      AND COALESCE(l.origem, '') != 'captacao_link'
+      AND COALESCE(l.dados->>'temImovelParaCaptar', '') != 'true'
+    UNION ALL
+    SELECT ('interessado-' || ip.id) AS id, ip.nome, ip.email, ip.telefone, COALESCE(ip.data_lead, ip.criado_em) AS criado_em
+    FROM interessados_portal ip
+    WHERE ip.email IS NOT NULL AND ip.email != ''
+      AND NOT EXISTS (
+        SELECT 1 FROM leads lc
+        WHERE lc.tipo_lead = 'cliente_vendedor'
+          AND (
+            LOWER(lc.email) = LOWER(ip.email)
+            OR (ip.telefone IS NOT NULL AND ip.telefone != '' AND RIGHT(regexp_replace(COALESCE(lc.telefone, lc.whatsapp, ''), '\\D', '', 'g'), 8) = RIGHT(regexp_replace(ip.telefone, '\\D', '', 'g'), 8))
+          )
+      )
+  )
 `;
 
 async function contarStatus() {
   await _garantirTabelas();
   const { rows: [ativo] } = await query('SELECT ativo, iniciado_em FROM captacao_campanha_config WHERE id=1');
   const { rows: [elegRow] } = await query(`
-    SELECT COUNT(DISTINCT LOWER(TRIM(l.email)))::int AS total
-    FROM leads l
-    WHERE l.email IS NOT NULL AND l.email != '' AND ${_CRITERIO_SEM_CAPTACAO}
+    ${_POOL_CAPTACAO_CTE}
+    SELECT COUNT(DISTINCT LOWER(TRIM(email)))::int AS total FROM pool_captacao
   `);
   const { rows: [envRow] } = await query(`
     SELECT
@@ -144,13 +165,13 @@ async function enviarProximoEmail() {
   if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
 
   const { rows } = await query(`
-    SELECT DISTINCT ON (LOWER(TRIM(l.email))) l.id, l.nome, l.email, COALESCE(l.telefone, l.whatsapp, l.contato) AS telefone
-    FROM leads l
-    WHERE l.email IS NOT NULL AND l.email != '' AND ${_CRITERIO_SEM_CAPTACAO}
-      AND NOT EXISTS (
-        SELECT 1 FROM campanha_captacao_envios e WHERE LOWER(TRIM(e.email)) = LOWER(TRIM(l.email))
-      )
-    ORDER BY LOWER(TRIM(l.email)), l.criado_em ASC
+    ${_POOL_CAPTACAO_CTE}
+    SELECT DISTINCT ON (LOWER(TRIM(p.email))) p.id, p.nome, p.email, p.telefone
+    FROM pool_captacao p
+    WHERE NOT EXISTS (
+      SELECT 1 FROM campanha_captacao_envios e WHERE LOWER(TRIM(e.email)) = LOWER(TRIM(p.email))
+    )
+    ORDER BY LOWER(TRIM(p.email)), p.criado_em ASC
     LIMIT 1
   `);
   if (!rows.length) { await pausarCampanha(); return { enviado: false, motivo: 'concluida' }; }

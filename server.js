@@ -15617,6 +15617,26 @@ app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res
     const creditosDebitados = CUSTO.nova_lead * importados;
     await debitarCreditos(contaDestino, creditosDebitados, 'admin_demanda_transferencia');
 
+    // Email de resumo do lote (1 só, não 1 por lead) — mesmo padrão do
+    // importar de planilha (workers/importLeadsWorker.js): cada _slTransf()
+    // já rodou com _lote:true suprimindo o "Nova lead recebida" individual,
+    // então sem isso o corretor não ficaria sabendo de nada.
+    if (importados > 0) {
+      try {
+        const { rows: _contaEmailRows } = await _qTD('SELECT email FROM usuarios WHERE codigo_usuario=$1 LIMIT 1', [contaDestino]);
+        const _emailDestino = _contaEmailRows[0]?.email;
+        if (_emailDestino) {
+          const { enviarEmail } = require('./services/email');
+          await enviarEmail({
+            para: _emailDestino,
+            assunto: `🔔 ${importados} nova${importados > 1 ? 's' : ''} lead${importados > 1 ? 's' : ''} recebida${importados > 1 ? 's' : ''} — MatchImóveis`,
+            html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">🔔 ' + importados + ' nova' + (importados > 1 ? 's' : '') + ' lead' + (importados > 1 ? 's' : '') + '!</h2><p>Você recebeu ' + importados + ' nova' + (importados > 1 ? 's' : '') + ' lead' + (importados > 1 ? 's' : '') + ' na sua conta.</p><a href="https://matchimoveis.ia.br/app/leads" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver leads →</a></div>',
+            texto: `${importados} nova${importados > 1 ? 's' : ''} lead${importados > 1 ? 's' : ''} recebida${importados > 1 ? 's' : ''}. Acesse: https://matchimoveis.ia.br/app/leads`
+          });
+        }
+      } catch (eResumo) { console.error('[admin/demanda/transferir] erro no email de resumo:', eResumo.message); }
+    }
+
     console.log('[admin/demanda/transferir]', contaDestino, '| encontrados:', encontrados.length, '| importados:', importados, '| duplicados:', duplicados, '| creditos debitados:', creditosDebitados);
     res.json({ ok: true, total: encontrados.length, importados, duplicados, creditosDebitados, contaNome: _contaRows[0].nome });
   } catch (e) { console.error('[admin/demanda/transferir]', e.message); res.json({ ok: false, erro: e.message }); }

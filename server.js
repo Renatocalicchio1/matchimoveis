@@ -14687,7 +14687,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .campo select,.campo input[type=text]{max-width:none}
   .campo label{margin-top:0}
   label{display:block;font-size:12px;font-weight:bold;color:#374151;margin:12px 0 4px}
-  select,input[type=text],input[type=email],input[type=password]{width:100%;max-width:360px;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px}
+  select,input[type=text],input[type=email],input[type=password]{width:100%;max-width:360px;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:16px}
   button{background:var(--rausch);color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-top:14px;font-weight:bold}
   button:hover{filter:brightness(.95)}
   button:disabled{opacity:.5;cursor:not-allowed}
@@ -15095,7 +15095,18 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     _buscaDebounceId = setTimeout(buscarDemanda, 2500);
   }
 
+  function _resetZoomMobile(){
+    // Safari iOS às vezes mantém um zoom residual de quando o usuário focou
+    // um <select>/<input> (o navegador dá zoom automático se font-size < 16px).
+    // Forçar maximum-scale=1 por um instante zera esse zoom antes do modal abrir.
+    const vp = document.querySelector('meta[name="viewport"]');
+    if(!vp) return;
+    const original = vp.getAttribute('content');
+    vp.setAttribute('content', original + ', maximum-scale=1');
+    setTimeout(function(){ vp.setAttribute('content', original); }, 300);
+  }
   function abrirModalPensando(){
+    _resetZoomMobile();
     document.getElementById('pensando-modal-overlay').style.display = 'flex';
     document.body.style.overflow = 'hidden';
   }

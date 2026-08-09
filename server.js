@@ -14527,6 +14527,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   <title>Buscar Demanda por Região</title>
   <style>*{box-sizing:border-box}
   :root{--rausch:#FF385C;--babu:#00A699;--arches:#FC642D;--ink:#111827;--sec:#6b7280;--border:#e5e7eb;--bg:#f9fafb}
+  html,body{overflow-x:hidden;max-width:100%}
   body{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;margin:0;padding:0;color:var(--ink)}
   ${shellCss}
   ${contentCss}
@@ -14563,14 +14564,15 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   td{padding:6px;border-bottom:1px solid #f3f4f6;vertical-align:top;white-space:nowrap}
   .banner-ia{background:var(--ink);color:#fff;border-radius:8px;padding:16px 20px;margin:16px 0;font-size:15px}
   .banner-ia strong{color:#4ade80}
-  .pensando-box{background:#fff;border-radius:14px;padding:28px 24px;max-width:340px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+  .pensando-box{background:#fff;border-radius:14px;padding:28px 24px;max-width:340px;width:100%;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.25)}
   .pensando-legenda{text-align:center;font-size:12.5px;color:var(--sec);min-height:32px}
   .pensando-sub{text-align:center;font-size:11px;color:var(--babu);font-weight:600;margin-top:2px;min-height:14px}
   .pensando-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:14px;min-height:88px;opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease;overflow:hidden}
   .pensando-card.mostrar{opacity:1;transform:translateY(0)}
   .pensando-card-foto{width:calc(100% + 28px);margin:-14px -14px 10px;height:130px;object-fit:cover;display:block}
-  .pensando-card-topo{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:700;font-size:13px;color:var(--ink)}
-  .pensando-card-valor{color:var(--babu);white-space:nowrap}
+  .pensando-card-topo{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:700;font-size:13px;color:var(--ink);min-width:0}
+  .pensando-card-topo span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .pensando-card-valor{color:var(--babu);white-space:nowrap;flex-shrink:0}
   .pensando-card-tags{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
   .pensando-card-tags span{background:#fff;border-radius:999px;padding:3px 9px;font-size:10.5px;font-weight:600;color:var(--sec)}
   .pensando-card-loc{font-size:11.5px;color:var(--sec)}
@@ -14610,9 +14612,12 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   @media (max-width:1100px){
     .campos-geo{grid-template-columns:1fr 1fr}
   }
+  .scroll-hint{display:none}
   @media (max-width:760px){
     .campos-geo{grid-template-columns:1fr;gap:0}
+    .scroll-hint{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--rausch);margin:10px 0 4px;animation:scrollHintPulso 1.6s ease-in-out infinite}
   }
+  @keyframes scrollHintPulso{0%,100%{opacity:.6}50%{opacity:1}}
   @media (max-width:600px){
     body{overflow-x:hidden}
     .public-content,.admin-content{padding-left:12px;padding-right:12px}
@@ -14692,6 +14697,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
 
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
+    <div class="scroll-hint">👉 Arraste a tabela pro lado pra ver todas as colunas</div>
     <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
 
     <div id="combos-box" style="display:none">

@@ -104,7 +104,16 @@
             <% } %>
             <% if(!p.tipo && !p.bairro && !p.valorMax){ %><span style="color:var(--text-ter)">Perfil incompleto</span><% } %>
           </td>
-          <td><% if(_vitrineLinkPl){ %><a href="<%= _vitrineLinkPl %>" target="_blank" class="pl-ver">Ver vitrine</a><% } else { %><span style="color:var(--text-ter)">—</span><% } %></td>
+          <td>
+            <% if(_vitrineLinkPl){ %><a href="<%= _vitrineLinkPl %>" target="_blank" class="pl-ver">Ver vitrine</a>
+              <% const _telPl = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,''); %>
+              <% if(_telPl){ %>
+                <% const _linkVitrinePl = _vitrineLinkPl.startsWith('http') ? _vitrineLinkPl : ('https://www.matchimoveis.ia.br'+_vitrineLinkPl); %>
+                <% const _msgVitrinePl = encodeURIComponent('Olá ' + (l.nome||'') + '! Segue sua seleção personalizada de imóveis: ' + _linkVitrinePl); %>
+                <br><a href="https://wa.me/<%= _telPl %>?text=<%= _msgVitrinePl %>" target="_blank" class="pl-ver" style="color:#25D366">🏠 Enviar vitrine manual</a>
+              <% } %>
+            <% } else { %><span style="color:var(--text-ter)">—</span><% } %>
+          </td>
           <td>
             <% function pctClassePl(p){ return p>=67 ? 'pct-high' : p>=34 ? 'pct-mid' : 'pct-low'; } %>
             <% if(l.idAnuncio){ %><a href="/app/imovel/<%= l.idAnuncio %>" target="_blank" class="pl-ver">Ver detalhes do imóvel</a>

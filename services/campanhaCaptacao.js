@@ -9,6 +9,7 @@
 // corretor, manda só 1x). enviarEmail() já cuida do rodapé de descadastro.
 const { query } = require('./db');
 const { enviarEmail } = require('./email');
+const { emailValido } = require('./validarEmailFormato');
 
 const LINK_CAMPANHA = 'https://matchimoveis.ia.br/captar/REN-G9K6';
 const BASE_URL = 'https://matchimoveis.ia.br';
@@ -224,6 +225,14 @@ async function enviarProximoEmail() {
     if (!ins.length) return { enviado: false, motivo: 'ja_reservado' };
     envioId = ins[0].id;
   } catch (e) { return { enviado: false, motivo: 'erro_reserva', erro: e.message }; }
+
+  // Formato + MX do domínio — email que não passa nem some da fila (fica
+  // registrado com erro) nem conta como enviado. O próximo tick já pula
+  // pra próxima lead, já que essa entrou em campanha_captacao_envios.
+  if (!(await emailValido(emailNorm))) {
+    await query(`UPDATE campanha_captacao_envios SET erro=$1 WHERE id=$2`, ['email inválido (formato ou sem MX)', envioId]);
+    return { enviado: false, motivo: 'email_invalido' };
+  }
 
   const titulo = _sorteia(TITULOS);
   const corpo = _sorteia(GANCHOS) + ' ' + _sorteia(CORPOS);

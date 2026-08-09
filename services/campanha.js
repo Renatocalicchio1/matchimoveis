@@ -1,6 +1,6 @@
 const { query } = require('./db');
 const { enviarEmail } = require('./email');
-const dns = require('dns').promises;
+const { emailValido } = require('./validarEmailFormato');
 
 const BASE_URL = process.env.RENDER ? 'https://www.matchimoveis.ia.br' : 'http://localhost:3000';
 
@@ -185,6 +185,7 @@ async function _garantirColunas() {
   )`);
   await query(`INSERT INTO campanha_config (id, ativo) VALUES (1, false) ON CONFLICT (id) DO NOTHING`);
   _colunasProntas = true;
+  await _limparInvalidosAntigos();
 }
 
 // Prioridade calculada 1x no import — evita recalcular DDD/regex a cada
@@ -220,22 +221,9 @@ async function importarContatos(contatos) {
 
 // ── Validação de email (formato + MX do domínio) ────────────────────────────
 // 100k+ contatos não dá pra validar tudo de uma vez (DNS custa tempo) —
-// roda em lotes pequenos via job periódico (server.js), cacheando o
-// resultado por domínio na memória (gmail.com/hotmail.com etc se repetem
-// muito, não faz sentido consultar o MX de novo pra cada contato).
-const _REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const _cacheMx = new Map(); // domínio -> boolean (tem MX válido)
-async function _dominioTemMx(dominio) {
-  if (_cacheMx.has(dominio)) return _cacheMx.get(dominio);
-  let ok = false;
-  try {
-    const registros = await dns.resolveMx(dominio);
-    ok = Array.isArray(registros) && registros.length > 0;
-  } catch (e) { ok = false; }
-  _cacheMx.set(dominio, ok);
-  return ok;
-}
-
+// roda em lotes pequenos via job periódico (server.js). Email inválido é
+// EXCLUÍDO da tabela (não só marcado) — não faz sentido guardar um contato
+// que nunca vai poder receber nada.
 async function validarProximoLote(limite = 50) {
   await _garantirColunas();
   const { rows } = await query(
@@ -244,15 +232,26 @@ async function validarProximoLote(limite = 50) {
   );
   let validos = 0, invalidos = 0;
   for (const c of rows) {
-    const email = String(c.email || '').trim();
-    const formatoOk = _REGEX_EMAIL.test(email);
-    const dominio = formatoOk ? email.split('@')[1].toLowerCase() : '';
-    const mxOk = formatoOk && dominio ? await _dominioTemMx(dominio) : false;
-    const valido = formatoOk && mxOk;
-    if (valido) validos++; else invalidos++;
-    await query(`UPDATE campanha_contatos SET email_valido=$1 WHERE id=$2`, [valido, c.id]);
+    const valido = await emailValido(c.email);
+    if (valido) {
+      validos++;
+      await query(`UPDATE campanha_contatos SET email_valido=true WHERE id=$1`, [c.id]);
+    } else {
+      invalidos++;
+      await query(`DELETE FROM campanha_contatos WHERE id=$1`, [c.id]);
+    }
   }
   return { processados: rows.length, validos, invalidos };
+}
+
+// Limpeza única de inválidos que já tinham sido marcados email_valido=false
+// em execuções anteriores (antes da validação passar a excluir na hora).
+// Chamada só dentro de _garantirColunas(), que já roda 1x por boot.
+async function _limparInvalidosAntigos() {
+  try {
+    const { rowCount } = await query(`DELETE FROM campanha_contatos WHERE email_valido = false`);
+    if (rowCount) console.log(`[CAMPANHA] limpeza única: ${rowCount} contatos com email inválido excluídos`);
+  } catch (e) { console.error('[CAMPANHA] erro na limpeza de invalidos antigos:', e.message); }
 }
 
 async function statsBase() {

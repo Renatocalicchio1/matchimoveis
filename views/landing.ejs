@@ -46,7 +46,7 @@
     .atividade-wrap{margin-top:32px}
     .atividade-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px}
     .atividade-label::before{content:'';width:7px;height:7px;background:#16a34a;border-radius:50%;animation:piscar 1.5s infinite}
-    .atividade-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+    .atividade-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
     .atividade-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;text-align:left;min-height:230px;opacity:0;transition:opacity .4s ease}
     .atividade-card.mostrar{opacity:1}
     .atividade-card-foto{width:100%;height:88px;object-fit:cover;display:block;background:var(--light)}
@@ -158,9 +158,6 @@
       .feat{grid-template-columns:1fr}
       footer{padding:24px 20px;flex-direction:column;text-align:center}
       .atividade-grid{grid-template-columns:repeat(2,1fr)}
-    }
-    @media(max-width:1000px) and (min-width:769px){
-      .atividade-grid{grid-template-columns:repeat(3,1fr)}
     }
   @keyframes piscar{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.04)}}
 </style>
@@ -535,7 +532,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
   });
 });
 
-// Grade de 6 cards com atividade REAL da plataforma (mesma fonte de dados
+// Grade de 4 cards com atividade REAL da plataforma (mesma fonte de dados
 // do modal "pensando" em /demanda: leads que já receberam vitrine + foto
 // real do imóvel enviado). Cada card gira independente, offset diferente,
 // pra visitante ver rotatividade de cidades diferentes de cara — prova de
@@ -567,7 +564,7 @@ function _montarCardAtividadeLanding(a){
     const atividade = (d && d.ok && d.atividade) ? d.atividade : [];
     if(!atividade.length) return; // sem dado real, não mostra nada inventado
 
-    const NUM_CARDS = 6;
+    const NUM_CARDS = 4;
     const wrap = document.getElementById('atividade-wrap');
     const grid = document.getElementById('atividade-grid');
     grid.innerHTML = '';

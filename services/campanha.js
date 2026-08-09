@@ -163,6 +163,7 @@ async function _garantirColunas() {
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS email_valido BOOLEAN`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS modelo_usado TEXT`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS titulo_usado TEXT`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS corpo_usado TEXT`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS aberto_em TIMESTAMP`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS clicado_em TIMESTAMP`);
   await query(`CREATE TABLE IF NOT EXISTS campanha_config (
@@ -319,8 +320,8 @@ async function marcarEnviado(id, erro, extra = {}) {
     await query(`UPDATE campanha_contatos SET status='erro', erro=$1, enviado_em=NOW() WHERE id=$2`, [erro, id]);
   } else {
     await query(
-      `UPDATE campanha_contatos SET status='enviado', enviado_em=NOW(), modelo_usado=$1, titulo_usado=$2 WHERE id=$3`,
-      [extra.modelo || null, extra.titulo || null, id]
+      `UPDATE campanha_contatos SET status='enviado', enviado_em=NOW(), modelo_usado=$1, titulo_usado=$2, corpo_usado=$3 WHERE id=$4`,
+      [extra.modelo || null, extra.titulo || null, extra.corpo || null, id]
     );
   }
 }
@@ -360,7 +361,7 @@ async function enviarProximo() {
   const html = gerarHTML(corpoPersonalizado, contato);
   try {
     await enviarEmail({ para: contato.email, assunto: modelo.assunto, html, texto: modelo.assunto });
-    await marcarEnviado(contato.id, null, { modelo: modelo.tipo, titulo: modelo.assunto });
+    await marcarEnviado(contato.id, null, { modelo: modelo.tipo, titulo: modelo.assunto, corpo: modelo.corpo });
     return { enviado: true, email: contato.email, modelo: modelo.tipo, titulo: modelo.assunto };
   } catch (e) {
     await marcarEnviado(contato.id, e.message);
@@ -378,7 +379,7 @@ async function dispararLote(lote, { assunto, mensagem }) {
       const msgPersonalizada = mensagem.replace(/\{nome\}/g, c.nome || 'Corretor');
       const html = gerarHTML(msgPersonalizada, c);
       await enviarEmail({ para: c.email, assunto, html, texto: assunto });
-      await marcarEnviado(c.id, null, { modelo: 'manual', titulo: assunto });
+      await marcarEnviado(c.id, null, { modelo: 'manual', titulo: assunto, corpo: mensagem });
       enviados++;
       console.log(`[CAMPANHA] enviado: ${c.email} (${enviados}/${lote.length})`);
       await new Promise(r => setTimeout(r, 1100));
@@ -399,19 +400,32 @@ async function enviarTeste(emailTeste, { assunto, mensagem }) {
 async function listarEnvios({ limite = 50, offset = 0 } = {}) {
   await _garantirColunas();
   const { rows } = await query(
-    `SELECT id, nome, email, celular, status, modelo_usado, titulo_usado, enviado_em, aberto_em, clicado_em, erro
-     FROM campanha_contatos
-     WHERE status = 'enviado' OR status = 'erro'
-     ORDER BY enviado_em DESC
+    `SELECT cc.id, cc.nome, cc.email, cc.celular, cc.status, cc.modelo_usado, cc.titulo_usado, cc.enviado_em, cc.aberto_em, cc.clicado_em, cc.erro,
+            (LOWER(cc.email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou
+     FROM campanha_contatos cc
+     WHERE cc.status = 'enviado' OR cc.status = 'erro'
+     ORDER BY cc.enviado_em DESC
      LIMIT $1 OFFSET $2`,
     [limite, offset]
   );
   return rows;
 }
 
+// Reconstrói o HTML exatamente como foi enviado (mesmo assunto/corpo), pro
+// admin conferir no modal de preview.
+async function buscarEnvioParaPreview(id) {
+  await _garantirColunas();
+  const { rows } = await query(`SELECT * FROM campanha_contatos WHERE id=$1`, [id]);
+  const envio = rows[0];
+  if (!envio) return null;
+  const corpoPersonalizado = (envio.corpo_usado || '').replace(/\{nome\}/g, envio.nome || 'Corretor');
+  const html = gerarHTML(corpoPersonalizado, envio);
+  return { ...envio, html };
+}
+
 module.exports = {
   importarContatos, statsBase, statsTracking, statsCadastrados, statsValidacao,
   proximoLote, dispararLote, enviarTeste, enviarProximo,
-  iniciarCampanha, pausarCampanha, estaAtiva,
+  iniciarCampanha, pausarCampanha, estaAtiva, buscarEnvioParaPreview,
   validarProximoLote, listarEnvios
 };

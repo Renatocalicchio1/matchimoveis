@@ -15865,7 +15865,41 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
     <div id="tabela-contatos">⏳ Carregando...</div>
     <div id="paginacao" style="margin-top:8px"></div>
   </div>
+
+  <div id="modal-preview-overlay" style="display:none;position:fixed;inset:0;background:rgba(17,24,39,.6);z-index:1000;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this) fecharPreview()">
+    <div style="background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.25)">
+      <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div id="preview-assunto" style="font-weight:700;font-size:14px;color:#111827"></div>
+          <div id="preview-meta" style="font-size:11.5px;color:#6b7280;margin-top:2px"></div>
+        </div>
+        <button type="button" onclick="fecharPreview()" style="background:#f3f4f6;border:none;width:28px;height:28px;border-radius:999px;cursor:pointer;font-size:16px;color:#6b7280;margin:0;padding:0">×</button>
+      </div>
+      <div id="preview-corpo" style="padding:0"></div>
+    </div>
+  </div>
+
   <script>
+  async function abrirPreview(id){
+    document.getElementById('modal-preview-overlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('preview-assunto').textContent = 'Carregando...';
+    document.getElementById('preview-meta').textContent = '';
+    document.getElementById('preview-corpo').innerHTML = '';
+    try {
+      const r = await fetch('/admin/campanha/preview/'+id);
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('preview-assunto').textContent = 'Erro ao carregar'; return; }
+      document.getElementById('preview-assunto').textContent = d.assunto || '(sem assunto)';
+      document.getElementById('preview-meta').textContent = 'Modelo: ' + (d.modelo || '—') + ' · Para: ' + d.email;
+      document.getElementById('preview-corpo').innerHTML = d.html;
+    } catch(e){ document.getElementById('preview-assunto').textContent = 'Erro ao carregar'; }
+  }
+  function fecharPreview(){
+    document.getElementById('modal-preview-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') fecharPreview(); });
   function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function _tag(cond){ return cond ? '<span class="tag tag-sim">Sim</span>' : '<span class="tag tag-nao">Não</span>'; }
   async function iniciarAutomatico(){
@@ -15902,10 +15936,12 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
     const r = await fetch('/admin/campanha/contatos?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+s);
     const d = await r.json();
     if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class=red>Erro ao carregar</p>'; return; }
-    let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:760px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Enviado em</th></tr>';
+    let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:920px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Cadastrou</th><th style="padding:8px;text-align:left">Enviado em</th><th style="padding:8px;text-align:left">E-mail</th></tr>';
     for(const c of d.contatos){
       const cor = c.status==='enviado'?'#16a34a':c.status==='erro'?'#dc2626':'#f59e0b';
-      html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px">'+escHtml(c.nome)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px">'+escHtml(c.celular)+'</td><td style="padding:8px;color:'+cor+'">'+escHtml(c.status)+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
+      const statusTxt = c.status==='erro' ? escHtml(c.status)+' ('+escHtml(c.erro||'')+')' : escHtml(c.status);
+      const verEmail = c.status==='enviado' ? '<a href="javascript:void(0)" onclick="abrirPreview('+c.id+')" style="color:#FF385C;font-weight:600;text-decoration:none">Ver e-mail →</a>' : '—';
+      html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px">'+escHtml(c.nome)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px">'+escHtml(c.celular)+'</td><td style="padding:8px;color:'+cor+'">'+statusTxt+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px">'+_tag(c.cadastrou)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td><td style="padding:8px">'+verEmail+'</td></tr>';
     }
     html += '</table></div>';
     document.getElementById('tabela-contatos').innerHTML = html;
@@ -16008,6 +16044,17 @@ app.get('/admin/campanha/envios', authAdmin, async (req, res) => {
     res.json({ ok: true, envios: await listarEnvios({ limite: 50 }) });
   } catch(e) { res.json({ ok: false, erro: e.message, envios: [] }); }
 });
+// Preview do e-mail que foi enviado (usado pelo modal "Ver e-mail" na
+// tabela de contatos) — reconstrói com o mesmo assunto/corpo sorteados
+// naquele envio específico.
+app.get('/admin/campanha/preview/:id', authAdmin, async (req, res) => {
+  try {
+    const { buscarEnvioParaPreview } = require('./services/campanha');
+    const envio = await buscarEnvioParaPreview(req.params.id);
+    if (!envio) return res.json({ ok: false, erro: 'Envio não encontrado' });
+    res.json({ ok: true, assunto: envio.titulo_usado, modelo: envio.modelo_usado, email: envio.email, html: envio.html });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
 // ── FIM CAMPANHA EMAIL ────────────────────────────────────────────────────────
 
 app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
@@ -16021,7 +16068,9 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     if(q){ params.push('%'+q+'%'); where += ` AND (nome ILIKE $${params.length} OR email ILIKE $${params.length})`; }
     if(status){ params.push(status); where += ` AND status=$${params.length}`; }
     params.push(50); params.push(offset);
-    const { rows } = await require('./services/db').query(`SELECT nome,email,celular,status,modelo_usado,aberto_em,clicado_em,enviado_em FROM campanha_contatos ${where} ORDER BY criado_em DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
+    const { rows } = await require('./services/db').query(`SELECT id,nome,email,celular,status,modelo_usado,aberto_em,clicado_em,enviado_em,erro,
+      (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou
+      FROM campanha_contatos ${where} ORDER BY criado_em DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
     const { rows: tot } = await require('./services/db').query(`SELECT COUNT(*) as total FROM campanha_contatos ${where}`, params.slice(0,-2));
     res.json({ ok:true, contatos:rows, total:tot[0].total });
   } catch(e){ res.json({ ok:false, erro:e.message }); }

@@ -39,6 +39,32 @@ function normalizarTelefone(tel) {
   return t;
 }
 
+// Preenche quartos ausente (campo obrigatório pro perfil virar "suficiente"
+// e gerar match — ver _perfilSuficiente em cerebro/match-core.js) usando
+// outras leads já conhecidas na mesma região (bairro, com fallback pra
+// cidade) e com valor parecido (±20%, mesma tolerância do motor de match).
+// Critério: moda de quartos entre as candidatas na faixa; empate desempata
+// pela mais próxima em valor. Ex: lead de R$350.000 com 2 quartos existente
+// "empresta" o número de quartos pra uma lead de R$300-350k sem quartos.
+function _inferirQuartos(lead, pool) {
+  const valor = Number(lead.valorMax) || 0;
+  if (!valor) return null;
+  const bairro = semAcento(lead.bairro || '').toLowerCase();
+  const cidade = semAcento(lead.cidade || '').toLowerCase();
+  const min = valor * 0.8, max = valor * 1.2;
+
+  const candidatosBairro = pool.filter(p => p.bairro === bairro && p.cidade === cidade && p.valor >= min && p.valor <= max);
+  const candidatos = candidatosBairro.length ? candidatosBairro : pool.filter(p => p.cidade === cidade && p.valor >= min && p.valor <= max);
+  if (!candidatos.length) return null;
+
+  const contagem = {};
+  candidatos.forEach(c => { contagem[c.quartos] = (contagem[c.quartos] || 0) + 1; });
+  const maxContagem = Math.max(...Object.values(contagem));
+  const empatados = candidatos.filter(c => contagem[c.quartos] === maxContagem);
+  empatados.sort((a, b) => Math.abs(a.valor - valor) - Math.abs(b.valor - valor));
+  return empatados[0].quartos;
+}
+
 function _limparValor(v) {
   if (!v) return 0;
   let s = String(v).trim();
@@ -133,6 +159,29 @@ async function run() {
         criadoEm: new Date().toISOString(),
         data_cadastro: new Date().toISOString(),
       };
+      novas.push(lead);
+    }
+
+    // Preenche quartos ausente usando outras leads (já existentes + as que
+    // acabaram de ser montadas nessa mesma planilha) que tenham quartos +
+    // valor na mesma região — ver _inferirQuartos() acima.
+    const _poolQuartos = [...existentes, ...novas]
+      .filter(l => l.quartos && !isComercial(l.tipo) && Number(l.valorMax) > 0)
+      .map(l => ({ bairro: semAcento(l.bairro || '').toLowerCase(), cidade: semAcento(l.cidade || '').toLowerCase(), valor: Number(l.valorMax), quartos: parseInt(l.quartos, 10) }))
+      .filter(l => l.quartos > 0);
+
+    for (const lead of novas) {
+      if (lead.quartos || isComercial(lead.tipo) || !lead.valorMax) continue;
+      const inferido = _inferirQuartos(lead, _poolQuartos);
+      if (inferido) {
+        lead.quartos = String(inferido);
+        lead.perfilIA.quartos = String(inferido);
+        lead.perfilIA.quartosInferido = true;
+        console.log(`[import-quartos] inferido ${inferido} quartos pra "${lead.nome}" (${lead.bairro}, R$${lead.valorMax})`);
+      }
+    }
+
+    for (const lead of novas) {
       // Setar status correto baseado no perfilIA
       const _p = lead.perfilIA || {};
       const _suficiente = _p.tipo && _p.intencao && _p.cidade && _p.bairro && _p.valorMax && _p.quartos;
@@ -154,7 +203,6 @@ async function run() {
           valor: _p.valorMax ? [{ valor: _p.valorMax, max: _p.valorMax, peso: 1 }] : [],
         };
       }
-      novas.push(lead);
     }
 
     if (novas.length === 0) {

@@ -579,14 +579,39 @@ function _montarCardAtividadeLanding(a){
     return els.map((_, i) => pool[i % pool.length]);
   }
 
+  function renderCard(i){
+    els[i].innerHTML = _montarCardAtividadeLanding(atividade[indices[i]]);
+    els[i].classList.add('mostrar');
+  }
+
   function renderTudo(){
     els.forEach((el, i) => {
       el.classList.remove('mostrar');
-      setTimeout(() => {
-        el.innerHTML = _montarCardAtividadeLanding(atividade[indices[i]]);
-        el.classList.add('mostrar');
-      }, 150);
+      setTimeout(() => renderCard(i), 150);
     });
+  }
+
+  // Escolhe o próximo item pra ESSE card sem repetir o que os outros
+  // cards estão mostrando agora (se o pool for grande o bastante).
+  function proximoIndice(cardIdx){
+    const usadosPorOutros = indices.filter((_, i) => i !== cardIdx);
+    const livres = atividade.map((_, i) => i).filter(i => !usadosPorOutros.includes(i) && i !== indices[cardIdx]);
+    if(livres.length) return livres[Math.floor(Math.random()*livres.length)];
+    const alternativas = atividade.map((_, i) => i).filter(i => i !== indices[cardIdx]);
+    return alternativas.length ? alternativas[Math.floor(Math.random()*alternativas.length)] : indices[cardIdx];
+  }
+
+  // Cada card tem seu próprio ciclo (some, troca, aparece) — não troca tudo
+  // junto de uma vez, um card some e outro aparece no lugar, continuamente.
+  function iniciarCicloCard(i){
+    setInterval(() => {
+      if(!atividade.length) return;
+      els[i].classList.remove('mostrar');
+      setTimeout(() => {
+        indices[i] = proximoIndice(i);
+        renderCard(i);
+      }, 300);
+    }, 4500);
   }
 
   // Puxa um lote novo do servidor (pool de até 24 itens, aleatório a cada
@@ -604,15 +629,13 @@ function _montarCardAtividadeLanding(a){
     } catch(e) {}
   }
 
-  carregarAtividade();
-  // Gira os cards já carregados a cada 4s...
-  setInterval(() => {
-    if(!atividade.length) return;
-    indices = sortearIndices();
-    renderTudo();
-  }, 4000);
-  // ...e busca um lote novo do servidor a cada 45s, pra variar de verdade
-  // ao longo de uma visita mais longa (não só reembaralhar o mesmo lote).
+  carregarAtividade().then(() => {
+    // Ciclos independentes, com largada escalonada — cada card começa a
+    // trocar num instante diferente, dando a sensação de "um por vez".
+    els.forEach((_, i) => setTimeout(() => iniciarCicloCard(i), i * 1100));
+  });
+  // Busca um lote novo do servidor de tempos em tempos, pra variar de
+  // verdade ao longo de uma visita mais longa (não só o mesmo lote sempre).
   setInterval(carregarAtividade, 45000);
 })();
 </script>

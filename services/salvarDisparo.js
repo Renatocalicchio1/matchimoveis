@@ -73,6 +73,16 @@ async function _inicializar() {
   await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS status_entrega TEXT`);
   await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS status_entrega_em TIMESTAMP`);
   await query(`CREATE INDEX IF NOT EXISTS idx_disparos_contatos_message_id ON disparos_contatos(message_id)`);
+  // Mensagem de follow-up (dispara dentro da janela de 24h pra quem respondeu
+  // uma campanha) — linha única (id=1), editável pela tela em vez de fixa no
+  // código.
+  await query(`
+    CREATE TABLE IF NOT EXISTS whatsapp_followup_config (
+      id INT PRIMARY KEY DEFAULT 1,
+      mensagem TEXT,
+      atualizado_em TIMESTAMP DEFAULT NOW()
+    )
+  `);
 }
 
 async function marcarOptout(telefone, origem) {
@@ -300,6 +310,31 @@ async function statsEntrega(campanhaId) {
   return mapa;
 }
 
+async function buscarFollowupMensagem() {
+  await _inicializar();
+  const { rows } = await query(`SELECT mensagem FROM whatsapp_followup_config WHERE id=1`);
+  return rows[0]?.mensagem || null;
+}
+
+async function salvarFollowupMensagem(mensagem) {
+  await _inicializar();
+  await query(
+    `INSERT INTO whatsapp_followup_config (id, mensagem) VALUES (1,$1)
+     ON CONFLICT (id) DO UPDATE SET mensagem=EXCLUDED.mensagem, atualizado_em=NOW()`,
+    [mensagem]
+  );
+}
+
+// Telefones (últimos 8 dígitos, pra comparar sem se importar com DDI/formatação
+// diferente entre a planilha da campanha e o número normalizado da inbox) de
+// quem faz parte de uma campanha específica — usado pra filtrar a inbox e o
+// follow-up de 24h por campanha.
+async function listarTelefonesDaCampanha(campanhaId) {
+  await _inicializar();
+  const { rows } = await query(`SELECT telefone FROM disparos_contatos WHERE campanha_id=$1`, [campanhaId]);
+  return new Set(rows.map(r => String(r.telefone || '').replace(/\D/g, '').slice(-8)).filter(Boolean));
+}
+
 module.exports = {
   criarCampanha,
   inserirContatos,
@@ -318,5 +353,8 @@ module.exports = {
   listarOptout,
   listarOptoutCompleto,
   listarJaEnviados,
-  listarCampanhasTravadas
+  listarCampanhasTravadas,
+  buscarFollowupMensagem,
+  salvarFollowupMensagem,
+  listarTelefonesDaCampanha
 };

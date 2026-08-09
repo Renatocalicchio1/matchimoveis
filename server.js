@@ -10152,22 +10152,32 @@ const _escHtmlWaCloud = s => String(s == null ? '' : s).replace(/&/g,'&amp;').re
 const _linkifyWaCloud = s => s.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:inherit;text-decoration:underline">$1</a>');
 const _uploadAudioMem = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } });
 
-// Mensagem de boas-vindas (1.000 créditos de bônus) pros contatos da inbox
-// que ainda não têm conta na plataforma. Reaproveitada pelo preview e pelo
-// envio de verdade, pra garantir que os dois calculam a mesma lista.
-const _MSG_BOAS_VINDAS = `🎉 Você ganhou 1.000 créditos de bônus pra conhecer a MatchImóveis!
+// Mensagem de follow-up (dispara dentro da janela de 24h pra quem respondeu
+// uma campanha) — texto padrão só usado se ninguém salvou um customizado
+// ainda (services/salvarDisparo.js: buscarFollowupMensagem/salvarFollowupMensagem,
+// editável pela tela em /admin/whatsapp-cloud).
+const _MSG_BOAS_VINDAS_PADRAO = `🎉 Você ganhou 1.000 créditos de bônus pra conhecer a MatchImóveis!
 
 É rapidinho: primeiro faça seu cadastro na nossa página inicial 👇
 https://www.matchimoveis.ia.br
 
 Depois é só colocar seus imóveis na plataforma — pode importar tudo de uma vez via XML (se seu sistema atual gera um) ou cadastrar manualmente um por um. Qualquer dúvida, é só me chamar aqui!`;
 
-async function _elegiveisBoasVindas() {
+// campanhaId opcional — quando informado, só considera elegível quem faz
+// parte dessa campanha específica (disparos_contatos), em vez de qualquer
+// contato que respondeu qualquer campanha.
+async function _elegiveisBoasVindas(campanhaId) {
   const { listarConversas, listarMensagens } = require('./services/salvarWhatsappCloudMsg');
-  const { listarOptout } = require('./services/salvarDisparo');
+  const { listarOptout, buscarFollowupMensagem, listarTelefonesDaCampanha } = require('./services/salvarDisparo');
   const { query: _qElegiveis } = require('./services/db');
 
-  const conversas = await listarConversas();
+  const mensagemAtual = (await buscarFollowupMensagem()) || _MSG_BOAS_VINDAS_PADRAO;
+  const telsDaCampanhaSet = campanhaId ? await listarTelefonesDaCampanha(campanhaId) : null;
+
+  let conversas = await listarConversas();
+  if (telsDaCampanhaSet) {
+    conversas = conversas.filter(c => telsDaCampanhaSet.has(String(c.contato_telefone || '').replace(/\D/g, '').slice(-8)));
+  }
   const telefones = conversas.map(c => c.contato_telefone);
   const optadosSet = new Set(await listarOptout(telefones));
 
@@ -10192,7 +10202,7 @@ async function _elegiveisBoasVindas() {
 
     const mensagens = await listarMensagens(tel);
     const ultimaMsg = mensagens[mensagens.length - 1];
-    if (ultimaMsg && ultimaMsg.direcao === 'saida' && ultimaMsg.tipo === 'texto' && ultimaMsg.texto === _MSG_BOAS_VINDAS) { contagem.pulados_duplicado++; continue; }
+    if (ultimaMsg && ultimaMsg.direcao === 'saida' && ultimaMsg.tipo === 'texto' && ultimaMsg.texto === mensagemAtual) { contagem.pulados_duplicado++; continue; }
 
     const recebidas = mensagens.filter(m => m.direcao === 'entrada');
     const ultimoRecebido = recebidas.length ? recebidas[recebidas.length - 1] : null;
@@ -10203,21 +10213,39 @@ async function _elegiveisBoasVindas() {
     elegiveis.push({ telefone: tel, phoneNumberId: ultimoRecebido.phone_number_id, nome: ultimoRecebido.contato_nome });
   }
 
-  return { elegiveis, contagem };
+  return { elegiveis, contagem, mensagem: mensagemAtual };
 }
+
+app.get('/admin/whatsapp-cloud/followup-mensagem', authAdmin, async (req, res) => {
+  try {
+    const { buscarFollowupMensagem } = require('./services/salvarDisparo');
+    const mensagem = (await buscarFollowupMensagem()) || _MSG_BOAS_VINDAS_PADRAO;
+    res.json({ ok: true, mensagem });
+  } catch(e) { res.status(500).json({ ok:false, erro: e.message }); }
+});
+
+app.post('/admin/whatsapp-cloud/followup-mensagem', authAdmin, express.json(), async (req, res) => {
+  try {
+    const mensagem = String(req.body.mensagem || '').trim();
+    if (!mensagem) return res.json({ ok: false, erro: 'Mensagem vazia' });
+    const { salvarFollowupMensagem } = require('./services/salvarDisparo');
+    await salvarFollowupMensagem(mensagem);
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ ok:false, erro: e.message }); }
+});
 
 app.get('/admin/whatsapp-cloud/campanha-boas-vindas/preview', authAdmin, async (req, res) => {
   try {
-    const { elegiveis, contagem } = await _elegiveisBoasVindas();
+    const { elegiveis, contagem } = await _elegiveisBoasVindas(req.query.campanhaId || null);
     res.json({ ok: true, elegiveis: elegiveis.length, ...contagem });
   } catch(e) { res.status(500).json({ ok:false, erro: e.message }); }
 });
 
 let _envioBoasVindasEmAndamento = false;
-app.post('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', authAdmin, async (req, res) => {
+app.post('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', authAdmin, express.json(), async (req, res) => {
   try {
     if (_envioBoasVindasEmAndamento) return res.json({ ok:false, erro: 'Já tem um envio em andamento, aguarde terminar.' });
-    const { elegiveis, contagem } = await _elegiveisBoasVindas();
+    const { elegiveis, contagem, mensagem } = await _elegiveisBoasVindas(req.body.campanhaId || null);
     res.json({ ok: true, elegiveis: elegiveis.length, ...contagem });
     if (!elegiveis.length) return;
     _envioBoasVindasEmAndamento = true;
@@ -10226,8 +10254,8 @@ app.post('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', authAdmin, async (
     (async () => {
       for (const c of elegiveis) {
         try {
-          await enviarTexto({ telefone: c.telefone, texto: _MSG_BOAS_VINDAS, phoneNumberId: c.phoneNumberId });
-          await salvarMensagem({ phoneNumberId: c.phoneNumberId, telefone: c.telefone, nome: c.nome, direcao: 'saida', tipo: 'texto', texto: _MSG_BOAS_VINDAS });
+          await enviarTexto({ telefone: c.telefone, texto: mensagem, phoneNumberId: c.phoneNumberId });
+          await salvarMensagem({ phoneNumberId: c.phoneNumberId, telefone: c.telefone, nome: c.nome, direcao: 'saida', tipo: 'texto', texto: mensagem });
         } catch(e) { console.error('[campanha boas-vindas] erro ao enviar pra', c.telefone, e.message); }
         await new Promise(r => setTimeout(r, 2500));
       }
@@ -10239,12 +10267,22 @@ app.post('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', authAdmin, async (
 
 app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
   try {
+    const { listarCampanhas, buscarCampanha, buscarFollowupMensagem } = require('./services/salvarDisparo');
+    const campanhaIdFiltro = req.query.campanhaId ? String(req.query.campanhaId) : '';
+    const [campanhas, campanhaFiltro, mensagemSalva] = await Promise.all([
+      listarCampanhas(),
+      campanhaIdFiltro ? buscarCampanha(campanhaIdFiltro) : Promise.resolve(null),
+      buscarFollowupMensagem()
+    ]);
+    const optionsCampanhas = '<option value="">— nenhuma (não filtra por campanha) —</option>' + campanhas.map(c => '<option value="'+c.id+'"'+(c.id===campanhaIdFiltro?' selected':'')+'>'+_escHtmlWaCloud(c.nome_campanha)+'</option>').join('');
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Inbox WhatsApp Cloud</title>
     <style>*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;padding:0;overflow-x:hidden}
     ${_adminShellCss()}
     .admin-content{max-width:720px}
+    textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:inherit;margin-top:6px}
+    select{padding:6px;border:1px solid #ddd;border-radius:6px;font-size:12px}
     h1{color:#FF385C;font-size:20px}
     .box{border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-top:16px}
     .linha{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #e5e7eb;text-decoration:none;color:inherit;flex-wrap:wrap}
@@ -10258,35 +10296,61 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
     <main class="admin-content">
     <h1>💬 Inbox WhatsApp Cloud <span style="font-size:13px;color:#6b7280;font-weight:400">(campanha — Meta Cloud API)</span></h1>
     <p><a href="/admin/whatsapp-cloud/exportar.csv" style="font-size:12px;color:#6b7280;text-decoration:underline">📥 Exportar contatos da inbox (.csv) — pra usar num disparo novo</a></p>
+    ${campanhaFiltro ? `<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:12px;color:#1e3a8a">
+      🔎 Mostrando só a inbox da campanha <strong>${_escHtmlWaCloud(campanhaFiltro.nome_campanha)}</strong> — <a href="/admin/whatsapp-cloud" style="color:#1e3a8a">ver inbox completa</a>
+    </div>` : ''}
     <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px 16px;margin-top:12px">
-      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#111">🎁 Mensagem de boas-vindas (1.000 créditos) pra quem ainda não tem conta</p>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#111">🎁 Mensagem de follow-up (dentro da janela de 24h) pra quem respondeu</p>
       <p style="margin:0 0 10px;font-size:11px;color:#6b7280">Manda só pra quem: está dentro da janela de 24h, ainda não tem conta na plataforma, não foi excluído da lista e ainda não recebeu essa mesma mensagem.</p>
-      <button type="button" onclick="previewBoasVindas()" style="background:#111827;color:#fff;padding:7px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">👁️ Ver quantos vão receber</button>
-      <button type="button" onclick="enviarBoasVindas()" style="background:#FF385C;color:#fff;padding:7px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;margin-left:8px">🚀 Enviar agora</button>
+      <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-top:8px">Texto da mensagem (editável)</label>
+      <textarea id="txtFollowup" rows="5">${_escHtmlWaCloud(mensagemSalva || _MSG_BOAS_VINDAS_PADRAO)}</textarea>
+      <button type="button" onclick="salvarFollowup()" style="background:#111827;color:#fff;padding:6px 12px;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;margin-top:6px">💾 Salvar mensagem</button>
+      <span id="statusFollowup" style="font-size:11px;color:#16a34a;margin-left:8px"></span>
+      <label style="display:block;font-size:11px;font-weight:600;color:#374151;margin-top:14px">Disparar só pra quem respondeu esta campanha (opcional)</label>
+      <select id="selCampanhaFollowup">${optionsCampanhas}</select>
+      <div style="margin-top:10px">
+        <button type="button" onclick="previewBoasVindas()" style="background:#111827;color:#fff;padding:7px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">👁️ Ver quantos vão receber</button>
+        <button type="button" onclick="enviarBoasVindas()" style="background:#FF385C;color:#fff;padding:7px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;margin-left:8px">🚀 Enviar agora</button>
+      </div>
       <p id="statusBoasVindas" style="margin:10px 0 0;font-size:12px;color:#374151"></p>
     </div>
     <div class="box" id="lista"><p style="padding:20px;color:#6b7280">Carregando...</p></div>
     <script>
     function escHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    const _campanhaIdFiltro = ${JSON.stringify(campanhaIdFiltro)};
+    async function salvarFollowup(){
+      const status = document.getElementById('statusFollowup');
+      const mensagem = document.getElementById('txtFollowup').value.trim();
+      if(!mensagem){ status.style.color = '#dc2626'; status.textContent = 'Mensagem vazia'; return; }
+      status.style.color = '#6b7280'; status.textContent = 'Salvando...';
+      try {
+        const r = await fetch('/admin/whatsapp-cloud/followup-mensagem', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ mensagem }) });
+        const d = await r.json();
+        status.style.color = d.ok ? '#16a34a' : '#dc2626';
+        status.textContent = d.ok ? 'Salvo!' : ('Erro: ' + (d.erro||''));
+      } catch(e){ status.style.color = '#dc2626'; status.textContent = 'Erro ao salvar.'; }
+    }
     function _resumoBoasVindas(d){
       return 'Na inbox: '+d.total_inbox+' · pulados (já tem conta): '+d.pulados_ja_cadastrado+' · pulados (fora da janela 24h): '+d.pulados_fora_janela_24h+' · pulados (excluídos da lista): '+d.pulados_optout+' · pulados (já receberam): '+d.pulados_duplicado;
     }
     async function previewBoasVindas(){
       const status = document.getElementById('statusBoasVindas');
       status.textContent = 'Calculando...';
+      const campanhaId = document.getElementById('selCampanhaFollowup').value;
       try {
-        const r = await fetch('/admin/whatsapp-cloud/campanha-boas-vindas/preview');
+        const r = await fetch('/admin/whatsapp-cloud/campanha-boas-vindas/preview' + (campanhaId ? '?campanhaId='+encodeURIComponent(campanhaId) : ''));
         const d = await r.json();
         if(!d.ok){ status.textContent = 'Erro: ' + (d.erro||''); return; }
         status.innerHTML = '<strong>'+d.elegiveis+' vão receber</strong> se você clicar em Enviar agora.<br>'+_resumoBoasVindas(d);
       } catch(e){ status.textContent = 'Erro ao calcular.'; }
     }
     async function enviarBoasVindas(){
-      if(!confirm('Confirma o envio da mensagem de boas-vindas pra todos os elegíveis? Isso manda mensagem de verdade pelo WhatsApp, não dá pra desfazer.')) return;
+      if(!confirm('Confirma o envio da mensagem de follow-up pra todos os elegíveis? Isso manda mensagem de verdade pelo WhatsApp, não dá pra desfazer.')) return;
       const status = document.getElementById('statusBoasVindas');
       status.textContent = 'Calculando quem vai receber...';
+      const campanhaId = document.getElementById('selCampanhaFollowup').value;
       try {
-        const r = await fetch('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', { method: 'POST' });
+        const r = await fetch('/admin/whatsapp-cloud/campanha-boas-vindas/enviar', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ campanhaId: campanhaId || null }) });
         const d = await r.json();
         if(!d.ok){ status.textContent = 'Erro: ' + (d.erro||''); return; }
         if(!d.elegiveis){ status.innerHTML = 'Ninguém elegível agora.<br>'+_resumoBoasVindas(d); return; }
@@ -10295,7 +10359,7 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
     }
     async function carregar(){
       try {
-        const r = await fetch('/admin/whatsapp-cloud/lista.json');
+        const r = await fetch('/admin/whatsapp-cloud/lista.json' + (_campanhaIdFiltro ? '?campanhaId='+encodeURIComponent(_campanhaIdFiltro) : ''));
         const conversas = await r.json();
         const box = document.getElementById('lista');
         if(!conversas.length){ box.innerHTML = '<p style="padding:20px;color:#6b7280">Nenhuma conversa ainda.</p>'; return; }
@@ -10371,13 +10435,21 @@ app.get('/admin/whatsapp-cloud/lista.json', authAdmin, async (req, res) => {
   try {
     const { listarConversas } = require('./services/salvarWhatsappCloudMsg');
     const { query: _qListaExcl } = require('./services/db');
-    const conversas = await listarConversas().catch(()=>[]);
+    let conversas = await listarConversas().catch(()=>[]);
     // "Excluir da lista" (botão manual, diferente do opt-out por clique de botão
     // do lead) grava em disparos_optout com origem própria — filtra aqui pra
     // sumir de fato da inbox, não só bloquear campanha futura.
     const excluidos = await _qListaExcl(`SELECT telefone FROM disparos_optout WHERE origem='exclusao_manual_admin'`).catch(()=>({rows:[]}));
     const excluidosSet = new Set(excluidos.rows.map(r => r.telefone));
-    res.json(conversas.filter(c => !excluidosSet.has(c.contato_telefone)));
+    conversas = conversas.filter(c => !excluidosSet.has(c.contato_telefone));
+    // ?campanhaId= — inbox de uma campanha específica (link "Ver inbox dessa
+    // campanha" em /admin/disparos/:id), em vez da inbox global de sempre.
+    if (req.query.campanhaId) {
+      const { listarTelefonesDaCampanha } = require('./services/salvarDisparo');
+      const telsSet = await listarTelefonesDaCampanha(req.query.campanhaId);
+      conversas = conversas.filter(c => telsSet.has(String(c.contato_telefone || '').replace(/\D/g, '').slice(-8)));
+    }
+    res.json(conversas);
   } catch(e) { res.status(500).json([]); }
 });
 
@@ -15920,6 +15992,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
     <a href="/admin/disparos" style="color:#6b7280;text-decoration:none;font-size:12px">← Disparos WhatsApp</a>
     <h1>${c.nome_campanha}</h1>
     <p class="gray">Template: <b>${c.template_nome}</b> (${c.template_idioma}) — criada em ${new Date(c.criado_em).toLocaleString('pt-BR')}</p>
+    <p><a href="/admin/whatsapp-cloud?campanhaId=${c.id}" style="font-size:12px;color:#FF385C;font-weight:600;text-decoration:none">💬 Ver inbox dessa campanha →</a></p>
 
     <div class="box">
       <div id="stats">⏳ Carregando...</div>

@@ -545,9 +545,7 @@ function _montarCardAtividadeLanding(a){
   if(a.Telefone) contatoPartes.push('📱 '+escHtmlAtividade(a.Telefone));
   if(a.Email) contatoPartes.push('✉️ '+escHtmlAtividade(a.Email));
   const contatoHtml = contatoPartes.length ? '<div class="atividade-card-contato">'+contatoPartes.join(' · ')+'</div>' : '';
-  const dias = a.DiasProcurando;
-  const diasTxt = (dias===null||dias===undefined) ? '' : (dias<=0 ? 'Procuro há poucas horas' : dias===1 ? 'Procuro há 1 dia' : 'Procuro há '+dias+' dias');
-  const diasHtml = diasTxt ? '<div class="atividade-card-dias">⏱️ '+diasTxt+'</div>' : '';
+  const diasHtml = a.ProcurandoTexto ? '<div class="atividade-card-dias">⏱️ '+escHtmlAtividade(a.ProcurandoTexto)+'</div>' : '';
   return fotoHtml
     + '<div class="atividade-card-corpo">'
     + '<div class="atividade-card-topo"><span>👤 '+escHtmlAtividade(a.Nome)+'</span>'+(valorTxt ? '<span class="atividade-card-valor">'+valorTxt+'</span>' : '')+'</div>'
@@ -557,42 +555,65 @@ function _montarCardAtividadeLanding(a){
     + diasHtml
     + '</div>';
 }
-(async function(){
-  try {
-    const r = await fetch('/demanda/atividade', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({}) });
-    const d = await r.json();
-    const atividade = (d && d.ok && d.atividade) ? d.atividade : [];
-    if(!atividade.length) return; // sem dado real, não mostra nada inventado
+(function(){
+  const NUM_CARDS = 4;
+  const wrap = document.getElementById('atividade-wrap');
+  const grid = document.getElementById('atividade-grid');
+  const els = [];
+  for(let i=0;i<NUM_CARDS;i++){
+    const el = document.createElement('div');
+    el.className = 'atividade-card';
+    grid.appendChild(el);
+    els.push(el);
+  }
 
-    const NUM_CARDS = 4;
-    const wrap = document.getElementById('atividade-wrap');
-    const grid = document.getElementById('atividade-grid');
-    grid.innerHTML = '';
-    const els = [];
-    for(let i=0;i<NUM_CARDS;i++){
-      const el = document.createElement('div');
-      el.className = 'atividade-card';
-      grid.appendChild(el);
-      els.push(el);
-    }
-    wrap.style.display = 'block';
+  let atividade = [];
+  let indices = [];
 
-    const indices = els.map((_, i) => i % atividade.length); // offset diferente por coluna
-    function renderTudo(){
-      els.forEach((el, i) => {
-        el.classList.remove('mostrar');
-        setTimeout(() => {
-          el.innerHTML = _montarCardAtividadeLanding(atividade[indices[i]]);
-          el.classList.add('mostrar');
-        }, 150);
-      });
-    }
-    renderTudo();
-    setInterval(() => {
-      for(let i=0;i<indices.length;i++) indices[i] = (indices[i] + 1) % atividade.length;
+  // Sorteia NUM_CARDS índices diferentes entre si (sem repetir na mesma
+  // tela) — se o pool tiver menos que NUM_CARDS itens, repete só o
+  // necessário pra preencher.
+  function sortearIndices(){
+    const pool = atividade.map((_, i) => i);
+    for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+    return els.map((_, i) => pool[i % pool.length]);
+  }
+
+  function renderTudo(){
+    els.forEach((el, i) => {
+      el.classList.remove('mostrar');
+      setTimeout(() => {
+        el.innerHTML = _montarCardAtividadeLanding(atividade[indices[i]]);
+        el.classList.add('mostrar');
+      }, 150);
+    });
+  }
+
+  // Puxa um lote novo do servidor (pool de até 24 itens, aleatório a cada
+  // chamada) — evita ficar preso sempre nos mesmos poucos exemplos.
+  async function carregarAtividade(){
+    try {
+      const r = await fetch('/demanda/atividade', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({}) });
+      const d = await r.json();
+      const nova = (d && d.ok && d.atividade) ? d.atividade : [];
+      if(!nova.length){ wrap.style.display = 'none'; return; }
+      atividade = nova;
+      indices = sortearIndices();
+      wrap.style.display = 'block';
       renderTudo();
-    }, 4000);
-  } catch(e) {}
+    } catch(e) {}
+  }
+
+  carregarAtividade();
+  // Gira os cards já carregados a cada 4s...
+  setInterval(() => {
+    if(!atividade.length) return;
+    indices = sortearIndices();
+    renderTudo();
+  }, 4000);
+  // ...e busca um lote novo do servidor a cada 45s, pra variar de verdade
+  // ao longo de uma visita mais longa (não só reembaralhar o mesmo lote).
+  setInterval(carregarAtividade, 45000);
 })();
 </script>
 

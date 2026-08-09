@@ -263,9 +263,21 @@ const _BASE_SELECT_ATIVIDADE = `
     AND jsonb_typeof(matches) = 'array'
     AND jsonb_array_length(matches) > 0
     AND matches->0#>>'{fotos,0}' IS NOT NULL
+    AND criado_em >= NOW() - INTERVAL '7 days'
 `;
 
-async function listarAtividadeRecente({ limite = 12, estado = '', pares = [] } = {}) {
+// "Procurando agora" (<1h) / "há N horas" (<24h) / "há N dias" (até 7, já
+// garantido pelo filtro acima) — precisão de hora em vez de só dia inteiro.
+function _formatarTempoProcurando(criadoEm) {
+  if (!criadoEm) return '';
+  const horas = Math.max(0, Math.floor((Date.now() - new Date(criadoEm).getTime()) / 3600000));
+  if (horas < 1) return 'Procurando agora';
+  if (horas < 24) return 'Procuro há ' + horas + (horas === 1 ? ' hora' : ' horas');
+  const dias = Math.floor(horas / 24);
+  return 'Procuro há ' + dias + (dias === 1 ? ' dia' : ' dias');
+}
+
+async function listarAtividadeRecente({ limite = 24, estado = '', pares = [] } = {}) {
   const cidades = [...new Set((pares || []).map(p => _norm(p.cidade)).filter(Boolean))];
   const bairros = [...new Set((pares || []).map(p => _norm(p.bairro)).filter(Boolean))];
 
@@ -305,7 +317,7 @@ async function listarAtividadeRecente({ limite = 12, estado = '', pares = [] } =
       Nome: _mascararNome(r.nome || ''),
       Telefone: _mascararTelefone(r.telefone || ''),
       Email: _mascararEmail(r.email || ''),
-      DiasProcurando: r.criado_em ? Math.max(0, Math.floor((Date.now() - new Date(r.criado_em).getTime()) / 86400000)) : null,
+      ProcurandoTexto: _formatarTempoProcurando(r.criado_em),
       Tipo: r.tipo || 'Imóvel',
       Transacao: _normTransacao(r.transacao || '') || 'venda',
       Bairro: r.bairro, Cidade: r.cidade || '',

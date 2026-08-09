@@ -15241,9 +15241,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     if(a.Telefone) contatoPartes.push('📱 '+escHtml(a.Telefone));
     if(a.Email) contatoPartes.push('✉️ '+escHtml(a.Email));
     const contatoHtml = contatoPartes.length ? '<div class="pensando-card-contato">'+contatoPartes.join(' · ')+'</div>' : '';
-    const dias = a.DiasProcurando;
-    const diasTxt = (dias===null||dias===undefined) ? '' : (dias<=0 ? 'Procuro há poucas horas' : dias===1 ? 'Procuro há 1 dia' : 'Procuro há '+dias+' dias');
-    const diasHtml = diasTxt ? '<div class="pensando-card-dias">⏱️ '+diasTxt+'</div>' : '';
+    const diasHtml = a.ProcurandoTexto ? '<div class="pensando-card-dias">⏱️ '+escHtml(a.ProcurandoTexto)+'</div>' : '';
     return fotoHtml
       + '<div class="pensando-card-topo"><span>👤 Lead: '+escHtml(a.Nome)+'</span>'+(valorTxt ? '<span class="pensando-card-valor">'+valorTxt+'</span>' : '')+'</div>'
       + contatoHtml
@@ -15526,7 +15524,7 @@ async function _handlerDemandaAtividade(req, res) {
   try {
     const { listarAtividadeRecente } = require('./services/buscaDemanda');
     const { estado, pares } = req.body || {};
-    const atividade = await listarAtividadeRecente({ limite: 12, estado, pares });
+    const atividade = await listarAtividadeRecente({ limite: 24, estado, pares });
     res.json({ ok: true, atividade });
   } catch (e) { res.json({ ok: false, erro: e.message, atividade: [] }); }
 }

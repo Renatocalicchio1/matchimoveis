@@ -19,12 +19,12 @@ const CUSTO = {
   visita_agendada_ia:     40,
   notificacao_prop:       15,
   confirmacao_auto:       15,
-  nova_lead:              20,
-  importar_lead:          10,
+  nova_lead:              30,
+  importar_lead:          30,
   imovel_divulgado:        2,
   postar_instagram:       30,
   campanha_meta_criada:   20,
-  lead_meta_recebido:     20
+  lead_meta_recebido:     30
 };
 
 async function consumir(userId, acao) {

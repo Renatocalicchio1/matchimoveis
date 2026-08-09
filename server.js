@@ -15557,21 +15557,16 @@ app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res
     const rowIds = encontrados.map(l => l._rowId).filter(Boolean);
     if (rowIds.length) await marcarVendidos(rowIds, contaDestino);
 
-    // Combo recomendado pro total encontrado (mesmo critério do client) só pra
-    // definir a taxa de créditos por lead (creditos do combo ÷ qtd do combo)
+    // Taxa única de créditos por lead (mesma de qualquer lead entrando numa
+    // conta, seja manual ou importada — CUSTO.nova_lead em services/creditos.js)
     // — debita só pelas leads REALMENTE importadas (não pelo total encontrado
-    // nem contando as puladas por já existir na conta). Ilimitado não tem
-    // "por lead" (preço fechado mensal), usa a taxa do maior combo fechado (300).
-    const PLANOS_ORDEM_ADM = ['r200', '100', '200', '300'];
-    let planoUsado = PLANOS_ORDEM_ADM.find(k => PLANOS_LEADS[k].qtd >= encontrados.length) || 'ilimitado';
-    const planoParaTaxa = planoUsado === 'ilimitado' ? '300' : planoUsado;
-    const creditosPorLead = PLANOS_LEADS[planoParaTaxa].creditos / PLANOS_LEADS[planoParaTaxa].qtd;
-    const creditosDebitados = Math.round(creditosPorLead * importados);
-    const { debitarCreditos } = require('./services/creditos');
+    // nem contando as puladas por já existir na conta).
+    const { debitarCreditos, CUSTO } = require('./services/creditos');
+    const creditosDebitados = CUSTO.nova_lead * importados;
     await debitarCreditos(contaDestino, creditosDebitados, 'admin_demanda_transferencia');
 
     console.log('[admin/demanda/transferir]', contaDestino, '| encontrados:', encontrados.length, '| importados:', importados, '| duplicados:', duplicados, '| creditos debitados:', creditosDebitados);
-    res.json({ ok: true, total: encontrados.length, importados, duplicados, creditosDebitados, planoUsado, contaNome: _contaRows[0].nome });
+    res.json({ ok: true, total: encontrados.length, importados, duplicados, creditosDebitados, contaNome: _contaRows[0].nome });
   } catch (e) { console.error('[admin/demanda/transferir]', e.message); res.json({ ok: false, erro: e.message }); }
 });
 

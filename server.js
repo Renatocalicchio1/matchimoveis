@@ -15261,7 +15261,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       }, 3300);
       document.getElementById('pensando-texto').textContent = etapas[0];
       const fetchLeadsPromise = fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias }) }).then(function(r){ return r.json(); });
-      const atividadeResp = await fetch('${apiPrefix}/atividade', { method:'POST', headers:{'Content-Type':'application/json'}, body: '{}' }).then(function(r){ return r.json(); }).catch(function(){ return { ok:false, atividade:[] }; });
+      const atividadeResp = await fetch('${apiPrefix}/atividade', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares }) }).then(function(r){ return r.json(); }).catch(function(){ return { ok:false, atividade:[] }; });
       await _animarCardsPensando(atividadeResp.ok ? atividadeResp.atividade : [], 10000);
       clearInterval(trocaEtapa);
       const d = await fetchLeadsPromise;
@@ -15477,7 +15477,8 @@ app.post('/demanda/buscar', express.json(), _handlerDemandaBuscar);
 async function _handlerDemandaAtividade(req, res) {
   try {
     const { listarAtividadeRecente } = require('./services/buscaDemanda');
-    const atividade = await listarAtividadeRecente({ limite: 12 });
+    const { estado, pares } = req.body || {};
+    const atividade = await listarAtividadeRecente({ limite: 12, estado, pares });
     res.json({ ok: true, atividade });
   } catch (e) { res.json({ ok: false, erro: e.message, atividade: [] }); }
 }

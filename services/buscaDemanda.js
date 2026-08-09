@@ -246,33 +246,60 @@ async function contarDisponiveis() {
 // — não é a mesma base vendida em /demanda) que já receberam vitrine, com
 // o imóvel real que foi enviado a elas (matches[0], já tem foto real
 // porque é o que a própria vitrine mostrou). Nome mascarado, sem telefone/
-// email. Não filtra pela região buscada de propósito — é só pra mostrar
-// atividade genuína acontecendo na plataforma, não um resultado da busca.
-async function listarAtividadeRecente({ limite = 12 } = {}) {
-  let rows;
-  try {
-    ({ rows } = await query(
-      `SELECT nome, telefone, dados->>'email' AS email, criado_em,
-              matches->0->>'tipo' AS tipo,
-              matches->0->>'transacao' AS transacao,
-              matches->0->>'bairro' AS bairro,
-              matches->0->>'cidade' AS cidade,
-              COALESCE(matches->0->>'valor_imovel', matches->0->>'valor') AS valor,
-              matches->0->>'quartos' AS quartos,
-              matches->0#>>'{fotos,0}' AS foto
-       FROM leads
-       WHERE vitrine_enviada = true
-         AND jsonb_typeof(matches) = 'array'
-         AND jsonb_array_length(matches) > 0
-         AND matches->0#>>'{fotos,0}' IS NOT NULL
-       ORDER BY RANDOM()
-       LIMIT $1`,
-      [limite]
-    ));
-  } catch (e) {
-    return [];
+// email. Prioriza a região que o usuário selecionou (estado/cidade/bairro)
+// — se não tiver atividade suficiente ali, completa com atividade nacional
+// (senão o modal fica vazio/quebrado pra região com pouco volume ainda).
+const _BASE_SELECT_ATIVIDADE = `
+  SELECT nome, telefone, dados->>'email' AS email, criado_em,
+         matches->0->>'tipo' AS tipo,
+         matches->0->>'transacao' AS transacao,
+         matches->0->>'bairro' AS bairro,
+         matches->0->>'cidade' AS cidade,
+         COALESCE(matches->0->>'valor_imovel', matches->0->>'valor') AS valor,
+         matches->0->>'quartos' AS quartos,
+         matches->0#>>'{fotos,0}' AS foto
+  FROM leads
+  WHERE vitrine_enviada = true
+    AND jsonb_typeof(matches) = 'array'
+    AND jsonb_array_length(matches) > 0
+    AND matches->0#>>'{fotos,0}' IS NOT NULL
+`;
+
+async function listarAtividadeRecente({ limite = 12, estado = '', pares = [] } = {}) {
+  const cidades = [...new Set((pares || []).map(p => _norm(p.cidade)).filter(Boolean))];
+  const bairros = [...new Set((pares || []).map(p => _norm(p.bairro)).filter(Boolean))];
+
+  let rowsRegiao = [];
+  if (cidades.length) {
+    try {
+      const { rows } = await query(
+        `${_BASE_SELECT_ATIVIDADE}
+           AND unaccent(lower(matches->0->>'cidade')) = ANY($1::text[])
+         ORDER BY (unaccent(lower(matches->0->>'bairro')) = ANY($2::text[])) DESC, RANDOM()
+         LIMIT $3`,
+        [cidades, bairros, limite]
+      );
+      rowsRegiao = rows;
+    } catch (e) { rowsRegiao = []; }
   }
-  return rows
+
+  let rowsResto = [];
+  if (rowsRegiao.length < limite) {
+    try {
+      const idsJaUsados = rowsRegiao.map(r => r.nome + '|' + r.criado_em);
+      const { rows } = await query(
+        `${_BASE_SELECT_ATIVIDADE}
+         ORDER BY RANDOM()
+         LIMIT $1`,
+        [limite * 2]
+      );
+      rowsResto = rows
+        .filter(r => !idsJaUsados.includes(r.nome + '|' + r.criado_em))
+        .slice(0, limite - rowsRegiao.length);
+    } catch (e) { rowsResto = []; }
+  }
+
+  return [...rowsRegiao, ...rowsResto]
     .filter(r => r.bairro && r.foto)
     .map(r => ({
       Nome: _mascararNome(r.nome || ''),

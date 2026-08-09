@@ -290,7 +290,10 @@ async function pausarCampanha() {
 
 // Só considera enviável quem: está pendente, teve o email validado como
 // existente, não bate email NEM celular com conta já cadastrada (usuarios).
-// Prioridade: parece corretor > região (SP > RJ > SC > resto) > mais antigo.
+// Prioridade: região primeiro (SP > RJ > SC > resto), e DENTRO de cada
+// região quem parece corretor/imobiliária/broker vai antes do resto —
+// nunca mistura regiões (não manda um corretor do RJ antes de esgotar todo
+// mundo de SP, mesmo os que não parecem corretor).
 async function proximoLote(limite) {
   await _garantirColunas();
   const { rows } = await query(`
@@ -305,7 +308,7 @@ async function proximoLote(limite) {
           AND cc.celular IS NOT NULL AND cc.celular != ''
           AND RIGHT(regexp_replace(u.celular, '\\D', '', 'g'), 8) = RIGHT(regexp_replace(cc.celular, '\\D', '', 'g'), 8)
       )
-    ORDER BY (CASE WHEN cc.parece_corretor THEN 0 ELSE 1 END), COALESCE(cc.ddd_grupo, 3), cc.criado_em ASC
+    ORDER BY COALESCE(cc.ddd_grupo, 3), (CASE WHEN cc.parece_corretor THEN 0 ELSE 1 END), cc.criado_em ASC
     LIMIT $1
   `, [limite]);
   return rows;

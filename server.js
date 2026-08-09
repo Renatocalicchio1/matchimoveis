@@ -15798,7 +15798,7 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   </div>
   <div class="box">
     <h3>🤖 Disparo automático</h3>
-    <p class="gray">Intervalo aleatório de 1 a 3 min por envio. Alterna sozinho entre 2 modelos (página inicial / demanda), cada um com várias variações de assunto e texto. Prioriza quem parece corretor/imobiliária no nome ou email, depois DDD de SP → RJ → SC → resto. Pula quem já tem conta (email ou celular batendo).</p>
+    <p class="gray">Intervalo aleatório de 1 a 3 min por envio. Alterna sozinho entre 2 modelos (página inicial / demanda), cada um com várias variações de assunto e texto. Ordem de disparo: primeiro toda a região de São Paulo (dentro dela, quem parece corretor/imobiliária/broker no nome ou email primeiro, depois o resto de SP) — só depois de esgotar SP passa pro Rio de Janeiro (mesma lógica), depois Santa Catarina, depois o restante do Brasil. Pula quem já tem conta (email ou celular batendo).</p>
     <p>Status: <strong id="statusAutomatico">${ativo ? '🟢 Rodando' : '⏸ Parado'}</strong></p>
     <button class="ok" id="btnIniciarAuto" onclick="iniciarAutomatico()" ${ativo?'disabled':''}>▶ Iniciar automático</button>
     <button class="no" id="btnPausarAuto" onclick="pausarAutomatico()" ${!ativo?'disabled':''}>⏸ Pausar</button>

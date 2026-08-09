@@ -13,21 +13,34 @@ function ehLeadCaptacao(l) {
   return l.tipoLead === 'cliente_vendedor' || l.tipo_lead === 'cliente_vendedor' || l.origem === 'captacao_link' || (l.dados && l.dados.temImovelParaCaptar === true);
 }
 
-async function rodarMatchLeadsSemMatch({ diasAtras } = {}) {
+// `userId` — restringe a uma conta específica (bate contra user_id OU
+// codigo_usuario, mesmo fallback duplo usado no resto do projeto).
+// `semVitrine` — além de sem match, exige vitrine_enviada = false/null
+// (usado quando o objetivo é achar quem nunca recebeu nada ainda, não só
+// reprocessar quem já tem vitrine mas o match mudou).
+async function rodarMatchLeadsSemMatch({ diasAtras, userId, semVitrine } = {}) {
   const params = [];
   let filtroData = '';
   if (diasAtras) {
-    filtroData = `AND criado_em >= NOW() - make_interval(days => $1)`;
     params.push(diasAtras);
+    filtroData = `AND criado_em >= NOW() - make_interval(days => $${params.length})`;
   }
+  let filtroUsuario = '';
+  if (userId) {
+    params.push(userId);
+    filtroUsuario = `AND (user_id = $${params.length} OR codigo_usuario = $${params.length})`;
+  }
+  const filtroVitrine = semVitrine ? `AND COALESCE(vitrine_enviada, false) = false` : '';
   const { rows } = await query(`
     SELECT * FROM leads
     WHERE (matches IS NULL OR jsonb_typeof(matches) != 'array' OR jsonb_array_length(matches) = 0)
       AND (user_id IS NOT NULL OR codigo_usuario IS NOT NULL)
       ${filtroData}
+      ${filtroUsuario}
+      ${filtroVitrine}
     ORDER BY criado_em DESC
   `, params);
-  console.log(`[match-pendentes] ${rows.length} leads sem match encontradas${diasAtras ? ' (últimos ' + diasAtras + ' dias)' : ''}`);
+  console.log(`[match-pendentes] ${rows.length} leads sem match encontradas${diasAtras ? ' (últimos ' + diasAtras + ' dias)' : ''}${userId ? ' (conta ' + userId + ')' : ''}${semVitrine ? ' (sem vitrine)' : ''}`);
 
   let processadas = 0, geraramMatch = 0, puladas = 0, erros = 0;
   for (const row of rows) {

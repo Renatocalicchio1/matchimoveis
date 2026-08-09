@@ -144,6 +144,51 @@ async function adicionarCreditos(userId, quantidade, motivo = 'recarga') {
   }
 }
 
+// Débito de quantidade arbitrária (não amarrado a uma ação com custo fixo em
+// CUSTO) — usado pelo admin em /admin/demanda pra debitar da conta escolhida
+// o equivalente em créditos de um combo, quando os leads são entregues sem
+// passar pelo Mercado Pago. Não bloqueia por saldo insuficiente (é uma ação
+// de admin, não um consumo de plataforma) — só nunca deixa o saldo negativo.
+async function debitarCreditos(userId, quantidade, motivo = 'debito_admin') {
+  try {
+    const users = await lerUsuarios();
+    let _resolvedId = userId;
+    try {
+      const { query: _qResD } = require('./db');
+      const _rResD = await _qResD(
+        "SELECT codigo_usuario FROM usuarios WHERE codigo_usuario=$1 OR dados->>'user_id_legado'=$1 LIMIT 1",
+        [userId]
+      );
+      if (_rResD.rows.length > 0) _resolvedId = _rResD.rows[0].codigo_usuario;
+    } catch(e2) { /* mantém userId original */ }
+    const idx = users.findIndex(u => u.id === _resolvedId || u.codigo_usuario === _resolvedId || u.codigoUsuario === _resolvedId);
+    if (idx < 0) { console.log('[creditos] usuario nao encontrado para debitarCreditos:', userId); return false; }
+    const saldoAtual = users[idx].matchCoins || 0;
+    users[idx].matchCoins = Math.max(0, saldoAtual - quantidade);
+    if (!users[idx].matchCoinsTransacoes) users[idx].matchCoinsTransacoes = [];
+    users[idx].matchCoinsTransacoes.push({
+      data: new Date().toISOString(),
+      motivo,
+      quantidade: -(saldoAtual - users[idx].matchCoins),
+      saldoApos: users[idx].matchCoins
+    });
+    await salvarTodosUsuarios(users);
+
+    try {
+      const { query: _qCredD } = require('./db');
+      await _qCredD(
+        "UPDATE usuarios SET match_coins = $1 WHERE codigo_usuario = $2",
+        [users[idx].matchCoins, _resolvedId]
+      );
+    } catch(e2) { console.error('[creditos] erro PG debitarCreditos:', e2.message); }
+
+    return true;
+  } catch(e) {
+    console.error('[creditos] Erro debitarCreditos:', e.message);
+    return false;
+  }
+}
+
 async function temSaldo(userId) {
   try {
     const users = await lerUsuarios();
@@ -160,4 +205,4 @@ async function saldo(userId) {
   } catch(e) { return 0; }
 }
 
-module.exports = { consumir, adicionarCreditos, temSaldo, saldo, CUSTO };
+module.exports = { consumir, adicionarCreditos, debitarCreditos, temSaldo, saldo, CUSTO };

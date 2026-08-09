@@ -14858,6 +14858,18 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     <div class="scroll-hint">👉 Arraste a tabela pro lado pra ver todas as colunas</div>
     <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
 
+    ${isAdmin ? `<div class="box" id="transferir-box">
+      <h2 class="secao" style="margin-top:0">🎁 Transferir manualmente pra uma conta</h2>
+      <p class="gray" style="font-size:13px">Entrega esses leads direto na conta escolhida (sem Mercado Pago) e debita da conta o equivalente em créditos do combo correspondente à quantidade encontrada.</p>
+      <div style="position:relative;max-width:360px">
+        <input type="text" id="contaDestinoInput" placeholder="Buscar conta por nome ou código..." autocomplete="off">
+        <div id="conta-sugestoes" class="sugestoes-dropdown" style="display:none"></div>
+      </div>
+      <p id="conta-escolhida-txt" class="gray" style="font-size:12.5px;margin-top:6px"></p>
+      <button type="button" id="btnTransferirDemanda" onclick="transferirParaConta()" disabled>🎁 Transferir pra essa conta</button>
+      <p id="transferir-status" style="font-size:12.5px;margin-top:8px"></p>
+    </div>` : ''}
+
     <div id="combos-box" style="display:none">
       <h2 class="secao">📦 Escolha seu combo</h2>
       <p class="gray" style="font-size:13px">Combos de leads mineradas por mês — já indicamos qual cabe na quantidade que a IA encontrou.</p>
@@ -15301,6 +15313,62 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       window.location.href = d.url;
     } catch(e){ btn.disabled = false; statusEl.innerHTML = '<p class="red">Erro ao criar conta/pagamento.</p>'; }
   }
+
+  ${isAdmin ? `
+  // ── Transferência manual de leads pra conta escolhida (só admin) ────────
+  let _contaDestinoEscolhida = null;
+  let _contaBuscaDebounceId = null;
+  const contaDestinoInput = document.getElementById('contaDestinoInput');
+  contaDestinoInput.addEventListener('input', function(){
+    _contaDestinoEscolhida = null;
+    document.getElementById('btnTransferirDemanda').disabled = true;
+    document.getElementById('conta-escolhida-txt').textContent = '';
+    if(_contaBuscaDebounceId) clearTimeout(_contaBuscaDebounceId);
+    const q = this.value.trim();
+    if(q.length < 2){ document.getElementById('conta-sugestoes').style.display = 'none'; return; }
+    _contaBuscaDebounceId = setTimeout(async function(){
+      const r = await fetch('/admin/demanda/buscar-conta?q=' + encodeURIComponent(q));
+      const d = await r.json();
+      const box = document.getElementById('conta-sugestoes');
+      if(!d.ok || !d.contas.length){ box.style.display = 'none'; return; }
+      box.innerHTML = d.contas.map(function(c){
+        return '<div class="sugestao-item" data-codigo="'+escHtml(c.codigo_usuario)+'" data-nome="'+escHtml(c.nome||'')+'">'+escHtml(c.nome||'Sem nome')+' <span class="gray">('+escHtml(c.codigo_usuario)+')</span></div>';
+      }).join('');
+      box.style.display = 'block';
+    }, 300);
+  });
+  document.getElementById('conta-sugestoes').addEventListener('click', function(e){
+    const item = e.target.closest('[data-codigo]');
+    if(!item) return;
+    _contaDestinoEscolhida = item.getAttribute('data-codigo');
+    contaDestinoInput.value = item.getAttribute('data-nome') + ' (' + _contaDestinoEscolhida + ')';
+    document.getElementById('conta-sugestoes').style.display = 'none';
+    document.getElementById('conta-escolhida-txt').innerHTML = '<span class="green">✓ conta selecionada</span>';
+    document.getElementById('btnTransferirDemanda').disabled = false;
+  });
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#contaDestinoInput') && !e.target.closest('#conta-sugestoes')) document.getElementById('conta-sugestoes').style.display = 'none';
+  });
+
+  async function transferirParaConta(){
+    if(!_contaDestinoEscolhida || !_ultimaBusca) return;
+    if(!confirm('Transferir os leads encontrados pra essa conta e debitar os créditos equivalentes?')) return;
+    const btn = document.getElementById('btnTransferirDemanda');
+    const statusEl = document.getElementById('transferir-status');
+    btn.disabled = true;
+    statusEl.innerHTML = '<span class="gray">Transferindo...</span>';
+    try {
+      const r = await fetch('/admin/demanda/transferir', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: _ultimaBusca.estado, pares: _ultimaBusca.pares, transacoes: _ultimaBusca.transacoes, dias: _ultimaBusca.dias, contaDestino: _contaDestinoEscolhida })
+      });
+      const d = await r.json();
+      btn.disabled = false;
+      if(!d.ok){ statusEl.innerHTML = '<p class="red">Erro: '+escHtml(d.erro)+'</p>'; return; }
+      statusEl.innerHTML = '<p class="green">✓ '+d.importados+' lead'+(d.importados===1?'':'s')+' importada'+(d.importados===1?'':'s')+' pra '+escHtml(d.contaNome)+(d.duplicados ? ' ('+d.duplicados+' já existia'+(d.duplicados===1?'':'m')+' na conta, pulada'+(d.duplicados===1?'':'s')+')' : '')+' — '+d.creditosDebitados.toLocaleString('pt-BR')+' créditos debitados.</p>';
+    } catch(e){ btn.disabled = false; statusEl.innerHTML = '<p class="red">Erro ao transferir.</p>'; }
+  }
+  ` : ''}
   </script>
   ${bodyClose}</body></html>`;
 }
@@ -15364,6 +15432,95 @@ async function _handlerDemandaAtividade(req, res) {
 }
 app.post('/admin/demanda/atividade', authAdmin, express.json(), _handlerDemandaAtividade);
 app.post('/demanda/atividade', express.json(), _handlerDemandaAtividade);
+
+// Autocomplete de conta pra transferência manual em /admin/demanda — busca
+// por nome ou código de conta, só admin.
+app.get('/admin/demanda/buscar-conta', authAdmin, async (req, res) => {
+  try {
+    const q = String(req.query.q || '').trim();
+    if (q.length < 2) return res.json({ ok: true, contas: [] });
+    const { query: _qBC } = require('./services/db');
+    const { rows } = await _qBC(
+      `SELECT codigo_usuario, nome, email FROM usuarios WHERE nome ILIKE $1 OR codigo_usuario ILIKE $1 ORDER BY nome LIMIT 10`,
+      ['%' + q + '%']
+    );
+    res.json({ ok: true, contas: rows });
+  } catch (e) { res.json({ ok: false, erro: e.message, contas: [] }); }
+});
+
+// Entrega manual dos leads encontrados numa busca de /admin/demanda direto
+// pra conta escolhida pelo admin, sem passar pelo Mercado Pago — mas debita
+// da conta de destino a mesma quantidade de créditos que o combo equivalente
+// à quantidade encontrada custaria (mesmo critério de recomendação de combo
+// usado em renderCombos() no client: o menor combo fechado que cobre o
+// total, ou ilimitado se passar de 300). Pula leads que já existem na conta
+// de destino (mesmo telefone ou email) em vez de duplicar.
+app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { estado, pares, transacoes, dias, contaDestino } = req.body;
+    if (!estado || !Array.isArray(pares) || !pares.length) return res.json({ ok: false, erro: 'Informe estado e ao menos 1 bairro' });
+    if (!contaDestino) return res.json({ ok: false, erro: 'Escolha a conta de destino' });
+
+    const { query: _qTD } = require('./services/db');
+    const { rows: _contaRows } = await _qTD('SELECT codigo_usuario, nome FROM usuarios WHERE codigo_usuario=$1 LIMIT 1', [contaDestino]);
+    if (!_contaRows.length) return res.json({ ok: false, erro: 'Conta de destino não encontrada' });
+
+    const diasFinal = Math.min(30, Math.max(1, parseInt(dias, 10) || 30));
+    const { buscarDemandaParaEntrega, marcarVendidos } = require('./services/buscaDemanda');
+    const { salvarLead: _slTransf } = require('./services/salvarLead');
+    const encontrados = await buscarDemandaParaEntrega({ estado, pares, transacoes: transacoes || [], horas: diasFinal * 24, limite: 0 });
+
+    if (!encontrados.length) return res.json({ ok: true, total: 0, importados: 0, duplicados: 0, creditosDebitados: 0 });
+
+    // Dedup contra leads já existentes na conta de destino (telefone ou email).
+    const { query: _qDedup } = require('./services/db');
+    const { rows: _existentes } = await _qDedup(
+      `SELECT telefone, dados->>'email' AS email FROM leads WHERE user_id=$1 OR codigo_usuario=$1`,
+      [contaDestino]
+    );
+    const _telsExistentes = new Set(_existentes.map(r => String(r.telefone || '').replace(/\D/g, '')).filter(Boolean));
+    const _emailsExistentes = new Set(_existentes.map(r => String(r.email || '').toLowerCase().trim()).filter(Boolean));
+
+    let importados = 0, duplicados = 0;
+    for (const l of encontrados) {
+      const telNorm = String(l.Telefone || '').replace(/\D/g, '');
+      const emailNorm = String(l.Email || '').toLowerCase().trim();
+      const jaExiste = (telNorm && _telsExistentes.has(telNorm)) || (emailNorm && _emailsExistentes.has(emailNorm));
+      if (jaExiste) { duplicados++; continue; }
+      try {
+        await _slTransf({
+          id: 'DEMANDA-' + l._rowId + '-' + contaDestino,
+          nome: l.Nome || 'Interessado', telefone: l.Telefone, whatsapp: l.Telefone, email: l.Email,
+          user_id: contaDestino, userId: contaDestino, codigoUsuario: contaDestino,
+          origem: 'admin_demanda', status: 'novo', faseFunil: 'novo', fase_funil: 'novo',
+          perfilIA: {
+            tipo: l.Tipo || '', intencao: l.Transacao === 'aluguel' ? 'alugar' : 'comprar',
+            cidade: l.Cidade, estado: l.Estado, bairro: l.Bairro, valorMax: l.Valor_max || undefined
+          },
+          dados: { origemAdminDemanda: true, dataOriginalPortal: l.criadoEm },
+          _lote: true
+        });
+        if (telNorm) _telsExistentes.add(telNorm);
+        if (emailNorm) _emailsExistentes.add(emailNorm);
+        importados++;
+      } catch (eLead) { console.error('[admin/demanda/transferir] erro ao salvar lead:', eLead.message); }
+    }
+
+    const rowIds = encontrados.map(l => l._rowId).filter(Boolean);
+    if (rowIds.length) await marcarVendidos(rowIds, contaDestino);
+
+    // Combo recomendado pro total encontrado (mesmo critério do client) — debita
+    // da conta de destino a quantidade de créditos equivalente.
+    const PLANOS_ORDEM_ADM = ['r200', '100', '200', '300'];
+    let planoUsado = PLANOS_ORDEM_ADM.find(k => PLANOS_LEADS[k].qtd >= encontrados.length) || 'ilimitado';
+    const creditosDebitados = PLANOS_LEADS[planoUsado].creditos;
+    const { debitarCreditos } = require('./services/creditos');
+    await debitarCreditos(contaDestino, creditosDebitados, 'admin_demanda_transferencia');
+
+    console.log('[admin/demanda/transferir]', contaDestino, '| encontrados:', encontrados.length, '| importados:', importados, '| duplicados:', duplicados, '| creditos debitados:', creditosDebitados);
+    res.json({ ok: true, total: encontrados.length, importados, duplicados, creditosDebitados, planoUsado, contaNome: _contaRows[0].nome });
+  } catch (e) { console.error('[admin/demanda/transferir]', e.message); res.json({ ok: false, erro: e.message }); }
+});
 
 // Compra de combo a partir do resultado de /demanda — cria a conta (nome/
 // email/celular/senha) e já manda pro checkout Mercado Pago. Os critérios da

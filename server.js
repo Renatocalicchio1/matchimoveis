@@ -15557,11 +15557,16 @@ app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res
     const rowIds = encontrados.map(l => l._rowId).filter(Boolean);
     if (rowIds.length) await marcarVendidos(rowIds, contaDestino);
 
-    // Combo recomendado pro total encontrado (mesmo critério do client) — debita
-    // da conta de destino a quantidade de créditos equivalente.
+    // Combo recomendado pro total encontrado (mesmo critério do client) só pra
+    // definir a taxa de créditos por lead (creditos do combo ÷ qtd do combo)
+    // — debita só pelas leads REALMENTE importadas (não pelo total encontrado
+    // nem contando as puladas por já existir na conta). Ilimitado não tem
+    // "por lead" (preço fechado mensal), usa a taxa do maior combo fechado (300).
     const PLANOS_ORDEM_ADM = ['r200', '100', '200', '300'];
     let planoUsado = PLANOS_ORDEM_ADM.find(k => PLANOS_LEADS[k].qtd >= encontrados.length) || 'ilimitado';
-    const creditosDebitados = PLANOS_LEADS[planoUsado].creditos;
+    const planoParaTaxa = planoUsado === 'ilimitado' ? '300' : planoUsado;
+    const creditosPorLead = PLANOS_LEADS[planoParaTaxa].creditos / PLANOS_LEADS[planoParaTaxa].qtd;
+    const creditosDebitados = Math.round(creditosPorLead * importados);
     const { debitarCreditos } = require('./services/creditos');
     await debitarCreditos(contaDestino, creditosDebitados, 'admin_demanda_transferencia');
 

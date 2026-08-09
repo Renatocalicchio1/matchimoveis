@@ -15811,10 +15811,11 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
     <div id="import-resultado"></div>
   </div>
   <div class="box">
-    <h3>2. Configurar e disparar</h3>
-    <label>Assunto:</label>
+    <h3>2. Testar e-mail</h3>
+    <p class="gray">O disparo real pros 118 mil contatos é só pelo automático (caixa acima) — que já roda com o intervalo variado de 30s a 5min. Aqui embaixo é só pra mandar um e-mail de teste avulso pra si mesmo, com um texto livre, sem afetar a fila de disparo.</p>
+    <label>Assunto (só do teste):</label>
     <input type="text" id="assunto" value="🚨 A IA já está trabalhando para corretores. E você?">
-    <label>Mensagem:</label>
+    <label>Mensagem (só do teste):</label>
     <textarea id="mensagem" rows="18">Olá {nome},
 
 O corretor tradicional trabalha sozinho. O corretor moderno trabalha com Inteligência Artificial.
@@ -15843,11 +15844,6 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
       <label>Email para teste:</label>
       <input type="email" id="email-teste" placeholder="seu@email.com" style="width:300px;display:inline-block">
       <button class="sec" onclick="testar()">📨 Enviar teste</button>
-    </div>
-    <div style="margin:8px 0">
-      <label>Quantidade por lote:</label>
-      <input type="number" id="limite" value="100" min="1" max="1000" style="width:100px;display:inline-block">
-      <button onclick="disparar()">🚀 Disparar lote</button>
     </div>
     <div id="resultado"></div>
   </div>
@@ -15982,17 +15978,6 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
     const d = await r.json();
     document.getElementById('resultado').innerHTML = d.ok ? '<p class=green>✅ Email de teste enviado!</p>' : '<p class=red>❌ Erro: '+d.erro+'</p>';
   }
-  async function disparar(){
-    const limite = parseInt(document.getElementById('limite').value)||100;
-    const assunto = document.getElementById('assunto').value;
-    const mensagem = document.getElementById('mensagem').value;
-    if(!confirm('Disparar lote de até '+limite+' emails?')) return;
-    document.getElementById('resultado').innerHTML='<p>⏳ Disparando... não feche esta página.</p>';
-    const r = await fetch('/admin/campanha/disparar-lote', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({limite, assunto, mensagem})});
-    const d = await r.json();
-    document.getElementById('resultado').innerHTML='<p class=green>✅ Enviados: '+d.enviados+'</p><p class=red>❌ Erros: '+d.erros+'</p>';
-    setTimeout(()=>location.reload(), 3000);
-  }
   </script></main></div></body></html>`);
 });
 
@@ -16022,16 +16007,6 @@ app.post('/admin/campanha/teste', authAdmin, express.json(), async (req, res) =>
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
-app.post('/admin/campanha/disparar-lote', authAdmin, express.json(), async (req, res) => {
-  try {
-    const { limite, assunto, mensagem } = req.body;
-    const { proximoLote, dispararLote } = require('./services/campanha');
-    const lote = await proximoLote(limite || 100);
-    if (!lote.length) return res.json({ enviados: 0, erros: 0, msg: 'Nenhum contato pendente' });
-    const resultado = await dispararLote(lote, { assunto, mensagem });
-    res.json(resultado);
-  } catch(e) { res.json({ enviados: 0, erros: 1, erro: e.message }); }
-});
 app.get('/admin/campanha/status', authAdmin, async (req, res) => {
   try {
     const { estaAtiva, statsValidacao, statsBase, statsTracking, statsCadastrados } = require('./services/campanha');

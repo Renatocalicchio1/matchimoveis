@@ -347,7 +347,7 @@ function gerarHTML(mensagem, contato) {
 }
 
 // Um envio — chamado pelo job automático (server.js, intervalo aleatório
-// 1-3min) ou manualmente via /admin/campanha/disparar-lote.
+// de 30s a 5min entre cada chamada).
 async function enviarProximo() {
   await _garantirColunas();
   await _backfillPrioridadePendente();
@@ -367,29 +367,6 @@ async function enviarProximo() {
     await marcarEnviado(contato.id, e.message);
     return { enviado: false, motivo: 'erro_envio', erro: e.message };
   }
-}
-
-// Disparo manual em lote (mantido pra compatibilidade — usado quando o
-// admin quer forçar um envio imediato de N contatos com um texto próprio,
-// em vez de esperar o job automático).
-async function dispararLote(lote, { assunto, mensagem }) {
-  let enviados = 0, erros = 0;
-  for (const c of lote) {
-    try {
-      const msgPersonalizada = mensagem.replace(/\{nome\}/g, c.nome || 'Corretor');
-      const html = gerarHTML(msgPersonalizada, c);
-      await enviarEmail({ para: c.email, assunto, html, texto: assunto });
-      await marcarEnviado(c.id, null, { modelo: 'manual', titulo: assunto, corpo: mensagem });
-      enviados++;
-      console.log(`[CAMPANHA] enviado: ${c.email} (${enviados}/${lote.length})`);
-      await new Promise(r => setTimeout(r, 1100));
-    } catch (e) {
-      await marcarEnviado(c.id, e.message);
-      erros++;
-      console.error(`[CAMPANHA] erro: ${c.email}`, e.message);
-    }
-  }
-  return { enviados, erros };
 }
 
 async function enviarTeste(emailTeste, { assunto, mensagem }) {
@@ -425,7 +402,7 @@ async function buscarEnvioParaPreview(id) {
 
 module.exports = {
   importarContatos, statsBase, statsTracking, statsCadastrados, statsValidacao,
-  proximoLote, dispararLote, enviarTeste, enviarProximo,
+  proximoLote, enviarTeste, enviarProximo,
   iniciarCampanha, pausarCampanha, estaAtiva, buscarEnvioParaPreview,
   validarProximoLote, listarEnvios
 };

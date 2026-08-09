@@ -45,11 +45,15 @@ async function descadastrarEmail(email) {
   await query('INSERT INTO email_optout (email) VALUES ($1) ON CONFLICT DO NOTHING', [e]);
 }
 
+// Identificação da empresa — exigida em todo email comercial, vale pra
+// QUALQUER envio da plataforma (junto do rodapé de descadastro acima).
+const IDENTIFICACAO_EMPRESA = 'MatchImóveis é uma captadora de imóveis do Grupo Rankim (CNPJ 23.186.832/0001-40). Para corretores e imobiliárias, é uma plataforma completa com várias funcionalidades, incluindo captação de leads.';
+
 function _rodapeDescadastro(email) {
   const link = BASE_URL + '/email/descadastrar?email=' + encodeURIComponent(email);
   return {
-    html: '<div style="margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;font-family:Arial,sans-serif;font-size:11px;color:#9ca3af">Você recebeu este email da MatchImóveis. <a href="' + link + '" style="color:#9ca3af;text-decoration:underline">Não quero mais receber email desta empresa</a></div>',
-    texto: '\n\n---\nVocê recebeu este email da MatchImóveis. Não quer mais receber? ' + link
+    html: '<div style="margin-top:32px;padding-top:16px;border-top:1px solid #e5e7eb;font-family:Arial,sans-serif;font-size:11px;color:#9ca3af">' + IDENTIFICACAO_EMPRESA + '<br><br>Você recebeu este email da MatchImóveis. <a href="' + link + '" style="color:#9ca3af;text-decoration:underline">Não quero mais receber email desta empresa</a></div>',
+    texto: '\n\n---\n' + IDENTIFICACAO_EMPRESA + '\nVocê recebeu este email da MatchImóveis. Não quer mais receber? ' + link
   };
 }
 

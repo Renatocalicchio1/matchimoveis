@@ -43,6 +43,23 @@
     .link-demanda{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--rosa);margin-top:16px;animation:piscar 1.5s infinite}
     .link-demanda:hover{text-decoration:underline}
 
+    .atividade-wrap{margin-top:32px}
+    .atividade-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px}
+    .atividade-label::before{content:'';width:7px;height:7px;background:#16a34a;border-radius:50%;animation:piscar 1.5s infinite}
+    .atividade-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+    .atividade-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;text-align:left;min-height:230px;opacity:0;transition:opacity .4s ease}
+    .atividade-card.mostrar{opacity:1}
+    .atividade-card-foto{width:100%;height:88px;object-fit:cover;display:block;background:var(--light)}
+    .atividade-card-corpo{padding:10px}
+    .atividade-card-topo{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-weight:600;font-size:11.5px;color:var(--dark);min-width:0}
+    .atividade-card-topo span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+    .atividade-card-valor{color:var(--rosa);white-space:nowrap;flex-shrink:0;font-size:11px}
+    .atividade-card-contato{font-size:10px;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .atividade-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin:7px 0}
+    .atividade-card-tags span{background:var(--light);border-radius:999px;padding:2px 7px;font-size:9.5px;font-weight:600;color:var(--muted)}
+    .atividade-card-loc{font-size:10.5px;color:var(--muted)}
+    .atividade-card-dias{font-size:10px;color:#16a34a;font-weight:600;margin-top:5px}
+
     .numeros{background:var(--dark);padding:48px}
     .numeros-inner{max-width:800px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;text-align:center}
     .num-val{font-size:38px;font-weight:700;color:#fff;letter-spacing:-1px}
@@ -140,6 +157,10 @@
       .fluxo::after{display:none}
       .feat{grid-template-columns:1fr}
       footer{padding:24px 20px;flex-direction:column;text-align:center}
+      .atividade-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:1000px) and (min-width:769px){
+      .atividade-grid{grid-template-columns:repeat(3,1fr)}
     }
   @keyframes piscar{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.04)}}
 </style>
@@ -166,6 +187,10 @@
   </div>
   <p class="hero-note">Sem mensalidade fixa · Só pague o que usar · Cancele quando quiser</p>
   <a href="/demanda" class="link-demanda">🔍 Clique aqui e veja: quantos clientes/leads reais tem na sua região agora?</a>
+  <div class="atividade-wrap" id="atividade-wrap" style="display:none">
+    <p class="atividade-label">Acontecendo agora na plataforma</p>
+    <div class="atividade-grid" id="atividade-grid"></div>
+  </div>
 </section>
 
 <div class="numeros">
@@ -509,6 +534,69 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
     if(el)el.scrollIntoView({behavior:'smooth'});
   });
 });
+
+// Grade de 6 cards com atividade REAL da plataforma (mesma fonte de dados
+// do modal "pensando" em /demanda: leads que já receberam vitrine + foto
+// real do imóvel enviado). Cada card gira independente, offset diferente,
+// pra visitante ver rotatividade de cidades diferentes de cara — prova de
+// que tem negócio de verdade acontecendo, antes de pedir cadastro.
+function escHtmlAtividade(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function _montarCardAtividadeLanding(a){
+  const valorTxt = a.Valor ? 'R$ '+Number(a.Valor).toLocaleString('pt-BR') : '';
+  const fotoHtml = a.Foto ? '<img class="atividade-card-foto" src="'+escHtmlAtividade(a.Foto)+'" loading="lazy" onerror="this.remove()">' : '';
+  const contatoPartes = [];
+  if(a.Telefone) contatoPartes.push('📱 '+escHtmlAtividade(a.Telefone));
+  if(a.Email) contatoPartes.push('✉️ '+escHtmlAtividade(a.Email));
+  const contatoHtml = contatoPartes.length ? '<div class="atividade-card-contato">'+contatoPartes.join(' · ')+'</div>' : '';
+  const dias = a.DiasProcurando;
+  const diasTxt = (dias===null||dias===undefined) ? '' : (dias<=0 ? 'Procuro há poucas horas' : dias===1 ? 'Procuro há 1 dia' : 'Procuro há '+dias+' dias');
+  const diasHtml = diasTxt ? '<div class="atividade-card-dias">⏱️ '+diasTxt+'</div>' : '';
+  return fotoHtml
+    + '<div class="atividade-card-corpo">'
+    + '<div class="atividade-card-topo"><span>👤 '+escHtmlAtividade(a.Nome)+'</span>'+(valorTxt ? '<span class="atividade-card-valor">'+valorTxt+'</span>' : '')+'</div>'
+    + contatoHtml
+    + '<div class="atividade-card-tags">'+(a.Tipo ? '<span>🏠 '+escHtmlAtividade(a.Tipo)+'</span>' : '')+'<span>'+(a.Transacao === 'aluguel' ? '🔑 Aluguel' : '🛒 Venda')+'</span>'+(a.Quartos ? '<span>🛏️ '+escHtmlAtividade(a.Quartos)+' qts</span>' : '')+'</div>'
+    + '<div class="atividade-card-loc">📍 '+escHtmlAtividade(a.Bairro)+(a.Cidade ? ', '+escHtmlAtividade(a.Cidade) : '')+'</div>'
+    + diasHtml
+    + '</div>';
+}
+(async function(){
+  try {
+    const r = await fetch('/demanda/atividade', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({}) });
+    const d = await r.json();
+    const atividade = (d && d.ok && d.atividade) ? d.atividade : [];
+    if(!atividade.length) return; // sem dado real, não mostra nada inventado
+
+    const NUM_CARDS = 6;
+    const wrap = document.getElementById('atividade-wrap');
+    const grid = document.getElementById('atividade-grid');
+    grid.innerHTML = '';
+    const els = [];
+    for(let i=0;i<NUM_CARDS;i++){
+      const el = document.createElement('div');
+      el.className = 'atividade-card';
+      grid.appendChild(el);
+      els.push(el);
+    }
+    wrap.style.display = 'block';
+
+    const indices = els.map((_, i) => i % atividade.length); // offset diferente por coluna
+    function renderTudo(){
+      els.forEach((el, i) => {
+        el.classList.remove('mostrar');
+        setTimeout(() => {
+          el.innerHTML = _montarCardAtividadeLanding(atividade[indices[i]]);
+          el.classList.add('mostrar');
+        }, 150);
+      });
+    }
+    renderTudo();
+    setInterval(() => {
+      for(let i=0;i<indices.length;i++) indices[i] = (indices[i] + 1) % atividade.length;
+      renderTudo();
+    }, 4000);
+  } catch(e) {}
+})();
 </script>
 
 </body>

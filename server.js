@@ -1896,6 +1896,33 @@ function _agendarProximoEnvioCampanha() {
 }
 _agendarProximoEnvioCampanha();
 
+// Job da campanha geral de email (services/campanha.js, base de ~118 mil
+// contatos) — mesmo princípio: só dispara quando ativa em /admin/campanha,
+// intervalo aleatório de 1 a 3 min, nunca fixo.
+function _agendarProximoEnvioCampanhaGeral() {
+  const delayMs = (60 + Math.random() * 120) * 1000;
+  setTimeout(async () => {
+    try {
+      const { enviarProximo } = require('./services/campanha');
+      await enviarProximo();
+    } catch (e) { console.error('[JOB CAMPANHA GERAL]', e.message); }
+    _agendarProximoEnvioCampanhaGeral();
+  }, delayMs);
+}
+_agendarProximoEnvioCampanhaGeral();
+
+// Job de validação de email da campanha geral — roda em paralelo ao envio,
+// processando lotes pequenos (50 por vez, a cada 5s) pra ir verificando
+// formato + registro MX do domínio de toda a base sem travar o servidor.
+// Só quem tem email_valido=true entra na fila de envio (proximoLote em
+// services/campanha.js) — descarta quem não existe de verdade.
+setInterval(async () => {
+  try {
+    const { validarProximoLote } = require('./services/campanha');
+    await validarProximoLote(50);
+  } catch (e) { console.error('[JOB VALIDACAO EMAILS CAMPANHA]', e.message); }
+}, 5000);
+
 // Job onboarding — verifica a cada 30min se algum usuário completou um dos 3 passos
 // (cadastrar imóvel / ativar WhatsApp / adicionar lead) e manda o email de parabéns
 setTimeout(async () => {
@@ -14430,16 +14457,31 @@ app.get('/admin/executar-cruzar-alex', authAdmin, async (req,res)=>{
 // ── CAMPANHA EMAIL ────────────────────────────────────────────────────────────
 // Tracking abertura
 app.get('/campanha/track/open/:id', async (req, res) => {
-  try { await require('./services/db').query("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'abertura' FROM campanha_contatos WHERE id=$1", [req.params.id]); } catch(e){}
+  try {
+    const { query: _qOpen } = require('./services/db');
+    await _qOpen("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'abertura' FROM campanha_contatos WHERE id=$1", [req.params.id]);
+    await _qOpen("UPDATE campanha_contatos SET aberto_em=COALESCE(aberto_em, NOW()) WHERE id=$1", [req.params.id]);
+  } catch(e){}
   const pixel = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7','base64');
   res.set({'Content-Type':'image/gif','Content-Length':pixel.length,'Cache-Control':'no-cache'});
   res.end(pixel);
 });
 
-// Tracking clique
+// Tracking clique — o destino depende do modelo usado naquele envio
+// (pagina -> cadastro geral, demanda -> /demanda), senão todo mundo que
+// recebeu o modelo "demanda" cairia na home por engano.
 app.get('/campanha/track/click/:id', async (req, res) => {
-  try { if(req.params.id !== 'teste') await require('./services/db').query("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'clique' FROM campanha_contatos WHERE id=$1", [req.params.id]); } catch(e){}
-  res.redirect('https://www.matchimoveis.ia.br');
+  let destino = 'https://www.matchimoveis.ia.br';
+  try {
+    if (req.params.id !== 'teste') {
+      const { query: _qClick } = require('./services/db');
+      await _qClick("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'clique' FROM campanha_contatos WHERE id=$1", [req.params.id]);
+      await _qClick("UPDATE campanha_contatos SET aberto_em=COALESCE(aberto_em, NOW()), clicado_em=COALESCE(clicado_em, NOW()) WHERE id=$1", [req.params.id]);
+      const { rows } = await _qClick("SELECT modelo_usado FROM campanha_contatos WHERE id=$1", [req.params.id]);
+      if (rows[0] && rows[0].modelo_usado === 'demanda') destino = 'https://www.matchimoveis.ia.br/demanda';
+    }
+  } catch(e){}
+  res.redirect(destino);
 });
 
 // ── INTERESSADOS DE PORTAL (ImovelWeb) — distribuição pra contas de corretores ──
@@ -15706,10 +15748,12 @@ app.get('/admin/captacao-campanha/preview/:id', authAdmin, async (req, res) => {
 // ── FIM CAMPANHA GLOBAL DE CAPTAÇÃO ─────────────────────────────────────────
 
 app.get('/admin/campanha', authAdmin, async (req, res) => {
-  const { statsBase, statsTracking, statsCadastrados } = require('./services/campanha');
+  const { statsBase, statsTracking, statsCadastrados, statsValidacao, estaAtiva } = require('./services/campanha');
   const stats = await statsBase().catch(()=>[]);
   const tracking = await statsTracking().catch(()=>[]);
   const cadastrados = await statsCadastrados().catch(()=>0);
+  const validacao = await statsValidacao().catch(()=>({pendente_validar:0,validos:0,invalidos:0}));
+  const ativo = await estaAtiva().catch(()=>false);
   const total = stats.reduce((a,b)=>a+parseInt(b.total),0);
   const pendentes = (stats.find(s=>s.status==='pendente')||{}).total||0;
   const enviados = (stats.find(s=>s.status==='enviado')||{}).total||0;
@@ -15723,10 +15767,16 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   h1{color:#FF385C}input,textarea{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd;border-radius:6px;box-sizing:border-box}
   button{background:#FF385C;color:#fff;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}
   button.sec{background:#6b7280}
+  button.ok{background:#16a34a}
+  button.no{background:#dc2626}
+  button:disabled{opacity:.5;cursor:not-allowed}
   .box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0}
   .green{color:#16a34a}.red{color:#dc2626}.gray{color:#6b7280}
   .stat{display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px 20px;margin:6px;text-align:center;min-width:80px}
-  .stat strong{display:block;font-size:22px;color:#FF385C}</style></head>
+  .stat strong{display:block;font-size:22px;color:#FF385C}
+  .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600}
+  .tag-sim{background:#f0fdf4;color:#16a34a}
+  .tag-nao{background:#f3f4f6;color:#9ca3af}</style></head>
   <body><div class="admin-app">${_adminSidebarHtml('campanha')}<main class="admin-content">
   <h1>📧 Campanha de Email</h1>
   <div class="box">
@@ -15738,6 +15788,20 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
     <div class="stat"><strong style="color:#8b5cf6">${aberturas}</strong>Aberturas</div>
     <div class="stat"><strong style="color:#2563eb">${cliques}</strong>Cliques</div>
     <div class="stat"><strong style="color:#16a34a">${cadastrados}</strong>Cadastrados</div>
+  </div>
+  <div class="box">
+    <h3>✅ Validação de email (formato + MX do domínio)</h3>
+    <p class="gray">Roda sozinho em segundo plano (50 a cada 5s) — só quem valida entra na fila de envio.</p>
+    <div class="stat"><strong style="color:#f59e0b" id="statValidarPendente">${validacao.pendente_validar}</strong>Aguardando validar</div>
+    <div class="stat"><strong style="color:#16a34a" id="statValidos">${validacao.validos}</strong>Válidos</div>
+    <div class="stat"><strong style="color:#dc2626" id="statInvalidos">${validacao.invalidos}</strong>Inválidos (descartados)</div>
+  </div>
+  <div class="box">
+    <h3>🤖 Disparo automático</h3>
+    <p class="gray">Intervalo aleatório de 1 a 3 min por envio. Alterna sozinho entre 2 modelos (página inicial / demanda), cada um com várias variações de assunto e texto. Prioriza quem parece corretor/imobiliária no nome ou email, depois DDD de SP → RJ → SC → resto. Pula quem já tem conta (email ou celular batendo).</p>
+    <p>Status: <strong id="statusAutomatico">${ativo ? '🟢 Rodando' : '⏸ Parado'}</strong></p>
+    <button class="ok" id="btnIniciarAuto" onclick="iniciarAutomatico()" ${ativo?'disabled':''}>▶ Iniciar automático</button>
+    <button class="no" id="btnPausarAuto" onclick="pausarAutomatico()" ${!ativo?'disabled':''}>⏸ Pausar</button>
   </div>
   <div class="box">
     <h3>1. Importar contatos</h3>
@@ -15802,6 +15866,34 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
     <div id="paginacao" style="margin-top:8px"></div>
   </div>
   <script>
+  function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function _tag(cond){ return cond ? '<span class="tag tag-sim">Sim</span>' : '<span class="tag tag-nao">Não</span>'; }
+  async function iniciarAutomatico(){
+    if(!confirm('Iniciar disparo automático? Vai mandar emails com intervalo de 1 a 3 min até esgotar os contatos válidos.')) return;
+    await fetch('/admin/campanha/iniciar', {method:'POST'});
+    document.getElementById('statusAutomatico').textContent = '🟢 Rodando';
+    document.getElementById('btnIniciarAuto').disabled = true;
+    document.getElementById('btnPausarAuto').disabled = false;
+  }
+  async function pausarAutomatico(){
+    await fetch('/admin/campanha/pausar', {method:'POST'});
+    document.getElementById('statusAutomatico').textContent = '⏸ Parado';
+    document.getElementById('btnIniciarAuto').disabled = false;
+    document.getElementById('btnPausarAuto').disabled = true;
+  }
+  setInterval(async function(){
+    try {
+      const r = await fetch('/admin/campanha/status');
+      const d = await r.json();
+      if(!d.ok) return;
+      document.getElementById('statValidarPendente').textContent = d.validacao.pendente_validar;
+      document.getElementById('statValidos').textContent = d.validacao.validos;
+      document.getElementById('statInvalidos').textContent = d.validacao.invalidos;
+      document.getElementById('statusAutomatico').textContent = d.ativo ? '🟢 Rodando' : '⏸ Parado';
+      document.getElementById('btnIniciarAuto').disabled = d.ativo;
+      document.getElementById('btnPausarAuto').disabled = !d.ativo;
+    } catch(e){}
+  }, 15000);
   let _pagina = 1;
   async function buscar(p){
     _pagina = p || 1;
@@ -15810,12 +15902,12 @@ O mercado imobiliário mudou. A única pergunta é: você vai acompanhar ou fica
     const r = await fetch('/admin/campanha/contatos?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+s);
     const d = await r.json();
     if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class=red>Erro ao carregar</p>'; return; }
-    let html = '<table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Enviado em</th></tr>';
+    let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:760px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Enviado em</th></tr>';
     for(const c of d.contatos){
       const cor = c.status==='enviado'?'#16a34a':c.status==='erro'?'#dc2626':'#f59e0b';
-      html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px">'+c.nome+'</td><td style="padding:8px">'+c.email+'</td><td style="padding:8px">'+c.celular+'</td><td style="padding:8px;color:'+cor+'">'+c.status+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
+      html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px">'+escHtml(c.nome)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px">'+escHtml(c.celular)+'</td><td style="padding:8px;color:'+cor+'">'+escHtml(c.status)+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
     }
-    html += '</table>';
+    html += '</table></div>';
     document.getElementById('tabela-contatos').innerHTML = html;
     // Paginação
     let pag = '';
@@ -15896,6 +15988,26 @@ app.post('/admin/campanha/disparar-lote', authAdmin, express.json(), async (req,
     res.json(resultado);
   } catch(e) { res.json({ enviados: 0, erros: 1, erro: e.message }); }
 });
+app.get('/admin/campanha/status', authAdmin, async (req, res) => {
+  try {
+    const { estaAtiva, statsValidacao } = require('./services/campanha');
+    res.json({ ok: true, ativo: await estaAtiva(), validacao: await statsValidacao() });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+app.post('/admin/campanha/iniciar', authAdmin, async (req, res) => {
+  try { const { iniciarCampanha } = require('./services/campanha'); await iniciarCampanha(); res.json({ ok: true }); }
+  catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+app.post('/admin/campanha/pausar', authAdmin, async (req, res) => {
+  try { const { pausarCampanha } = require('./services/campanha'); await pausarCampanha(); res.json({ ok: true }); }
+  catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+app.get('/admin/campanha/envios', authAdmin, async (req, res) => {
+  try {
+    const { listarEnvios } = require('./services/campanha');
+    res.json({ ok: true, envios: await listarEnvios({ limite: 50 }) });
+  } catch(e) { res.json({ ok: false, erro: e.message, envios: [] }); }
+});
 // ── FIM CAMPANHA EMAIL ────────────────────────────────────────────────────────
 
 app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
@@ -15909,7 +16021,7 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     if(q){ params.push('%'+q+'%'); where += ` AND (nome ILIKE $${params.length} OR email ILIKE $${params.length})`; }
     if(status){ params.push(status); where += ` AND status=$${params.length}`; }
     params.push(50); params.push(offset);
-    const { rows } = await require('./services/db').query(`SELECT nome,email,celular,status,enviado_em FROM campanha_contatos ${where} ORDER BY criado_em DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
+    const { rows } = await require('./services/db').query(`SELECT nome,email,celular,status,modelo_usado,aberto_em,clicado_em,enviado_em FROM campanha_contatos ${where} ORDER BY criado_em DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
     const { rows: tot } = await require('./services/db').query(`SELECT COUNT(*) as total FROM campanha_contatos ${where}`, params.slice(0,-2));
     res.json({ ok:true, contatos:rows, total:tot[0].total });
   } catch(e){ res.json({ ok:false, erro:e.message }); }

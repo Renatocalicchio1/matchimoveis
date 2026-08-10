@@ -14967,7 +14967,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
     <div class="scroll-hint">👉 Arraste a tabela pro lado pra ver todas as colunas</div>
-    <div id="tabela-scroll" style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div id="tabela-scroll" style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
 
     <div style="text-align:center;margin:20px 0">
       <button type="button" id="btnCustoLeads" onclick="mostrarComboRecomendado()" style="display:none;animation:scrollHintPulso 1.5s infinite">💰 Quanto me custa essas leads?</button>
@@ -15366,13 +15366,13 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         : '🤖 A IA não encontrou interessados com esse perfil ainda. Tenta outro bairro.';
       document.getElementById('tabela-body').innerHTML = d.leads.map(function(l){
         const dataTxt = l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR') : '<span class="gray">—</span>';
-        return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>MatchImóveis</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Quartos?escHtml(l.Quartos):'<span class="gray">—</span>')+'</td><td>'+(l.Suites?escHtml(l.Suites):'<span class="gray">—</span>')+'</td><td>'+(l.Vagas?escHtml(l.Vagas):'<span class="gray">—</span>')+'</td><td>'+(l.Banheiros?escHtml(l.Banheiros):'<span class="gray">—</span>')+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td><td>'+dataTxt+'</td></tr>';
+        return '<tr><td>'+escHtml(l.Nome)+'</td><td>'+escHtml(l.Telefone)+'</td><td>'+escHtml(l.Email)+'</td><td>MatchImóveis</td><td>'+escHtml(l.Tipo)+'</td><td>'+escHtml(l.Transacao)+'</td><td>'+escHtml(l.Bairro)+'</td><td>'+escHtml(l.Cidade)+'</td><td>'+escHtml(l.Estado)+'</td><td>'+(l.Area_max?escHtml(l.Area_max):'<span class="gray">—</span>')+'</td><td>'+(l.Valor_max?escHtml(l.Valor_max):'<span class="gray">—</span>')+'</td><td>'+dataTxt+'</td></tr>';
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
       document.getElementById('resultado-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
       _ultimaBusca = { estado, pares, transacoes, dias: d.dias, total: d.total };
       // Monta os combos (já com o compatível marcado como recomendado) e,
-      // 10s depois de ver a planilha, leva o usuário direto pro plano
+      // 15s depois de ver a planilha, leva o usuário direto pro plano
       // certo (scroll automático até o card recomendado) — o botão
       // "Quanto me custa essas leads?" continua disponível caso ele
       // clique antes disso.
@@ -15382,7 +15382,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         _custoLeadsTimer = setTimeout(function(){
           document.getElementById('btnCustoLeads').style.display = 'inline-block';
           mostrarComboRecomendado();
-        }, 10000);
+        }, 15000);
       }
       iniciarAutoScrollTabela();
     } catch(e){ fecharModalPensando(); document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; }
@@ -15406,7 +15406,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       if(!_tabelaAutoScrollAtivo) return;
       const max = el.scrollWidth - el.clientWidth;
       if(max <= 0){ pararAutoScrollTabela(); return; }
-      el.scrollLeft += _tabelaAutoScrollDir * 4;
+      el.scrollLeft += _tabelaAutoScrollDir * 2.5;
       if(el.scrollLeft >= max) _tabelaAutoScrollDir = -1;
       else if(el.scrollLeft <= 0) _tabelaAutoScrollDir = 1;
     }, 30);

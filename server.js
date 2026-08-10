@@ -15999,9 +15999,12 @@ app.post('/admin/captacao-campanha/pausar', authAdmin, async (req, res) => {
 app.get('/admin/captacao-campanha/lista', authAdmin, async (req, res) => {
   try {
     const { listarEnvios } = require('./services/campanhaCaptacao');
-    const envios = await listarEnvios({ limite: 50 });
-    res.json({ ok: true, envios });
-  } catch (e) { res.json({ ok: false, erro: e.message, envios: [] }); }
+    const pagina = parseInt(req.query.pagina) || 1;
+    const q = req.query.q || '';
+    const filtro = req.query.filtro || '';
+    const { envios, total } = await listarEnvios({ limite: 50, offset: (pagina - 1) * 50, q, filtro });
+    res.json({ ok: true, envios, total });
+  } catch (e) { res.json({ ok: false, erro: e.message, envios: [], total: 0 }); }
 });
 app.get('/admin/captacao-campanha/preview/:id', authAdmin, async (req, res) => {
   try {
@@ -16114,11 +16117,14 @@ https://www.matchimoveis.ia.br
     <h3>📋 Contatos importados</h3>
     <div style="margin-bottom:8px">
       <input type="text" id="busca" placeholder="Buscar por nome ou email..." style="width:300px;display:inline-block" oninput="buscar()">
-      <select id="filtro-status" onchange="buscar()" style="width:150px;display:inline-block;margin-left:8px">
+      <select id="filtro-status" onchange="buscar()" style="width:180px;display:inline-block;margin-left:8px">
         <option value="">Todos os status</option>
         <option value="pendente">Pendentes</option>
         <option value="enviado">Enviados</option>
         <option value="erro">Erros</option>
+        <option value="abriu">Quem abriu</option>
+        <option value="clicou">Quem clicou</option>
+        <option value="cadastrou">Quem cadastrou</option>
       </select>
     </div>
     <div id="tabela-contatos">⏳ Carregando...</div>
@@ -16328,7 +16334,10 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     let where = 'WHERE 1=1';
     const params = [];
     if(q){ params.push('%'+q+'%'); where += ` AND (nome ILIKE $${params.length} OR email ILIKE $${params.length})`; }
-    if(status){ params.push(status); where += ` AND status=$${params.length}`; }
+    if(status === 'abriu'){ where += ` AND aberto_em IS NOT NULL`; }
+    else if(status === 'clicou'){ where += ` AND clicado_em IS NOT NULL`; }
+    else if(status === 'cadastrou'){ where += ` AND LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')`; }
+    else if(status){ params.push(status); where += ` AND status=$${params.length}`; }
     params.push(50); params.push(offset);
     const { rows } = await require('./services/db').query(`SELECT id,nome,email,celular,status,modelo_usado,aberto_em,clicado_em,enviado_em,erro,
       (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou

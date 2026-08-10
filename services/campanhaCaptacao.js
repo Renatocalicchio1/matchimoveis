@@ -273,17 +273,30 @@ async function registrarInicioCadastro(envioId) {
   await query(`UPDATE campanha_captacao_envios SET iniciou_cadastro_em=COALESCE(iniciou_cadastro_em, NOW()) WHERE id=$1`, [envioId]);
 }
 
-// Lista os envios mais recentes pra tabela do painel admin.
-async function listarEnvios({ limite = 50, offset = 0 } = {}) {
+// Lista os envios mais recentes pra tabela do painel admin — filtro opcional
+// por texto (nome/email) e por evento (abriu/clicou/cadastrou), pra achar
+// rápido quem interagiu com a campanha sem precisar rolar tudo.
+async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '' } = {}) {
   await _garantirTabelas();
+  let where = 'WHERE 1=1';
+  const params = [];
+  if (q) { params.push('%' + q + '%'); where += ` AND (nome ILIKE $${params.length} OR email ILIKE $${params.length})`; }
+  if (filtro === 'abriu') where += ' AND aberto_em IS NOT NULL';
+  else if (filtro === 'clicou') where += ' AND clicado_em IS NOT NULL';
+  else if (filtro === 'cadastrou') where += ' AND iniciou_cadastro_em IS NOT NULL';
+  else if (filtro === 'erro') where += ' AND erro IS NOT NULL';
+
+  params.push(limite); params.push(offset);
   const { rows } = await query(
     `SELECT id, nome, email, telefone, titulo_usado, enviado_em, aberto_em, clicado_em, iniciou_cadastro_em, erro
      FROM campanha_captacao_envios
+     ${where}
      ORDER BY enviado_em DESC
-     LIMIT $1 OFFSET $2`,
-    [limite, offset]
+     LIMIT $${params.length - 1} OFFSET $${params.length}`,
+    params
   );
-  return rows;
+  const { rows: totRows } = await query(`SELECT COUNT(*) AS total FROM campanha_captacao_envios ${where}`, params.slice(0, -2));
+  return { envios: rows, total: parseInt(totRows[0]?.total) || 0 };
 }
 
 // Reconstrói o HTML exatamente como foi enviado (mesmo título/corpo), pro

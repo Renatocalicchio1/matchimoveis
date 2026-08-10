@@ -14939,14 +14939,19 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         <button type="button" id="btnBuscarDemanda" onclick="buscarDemanda()" disabled>🔍 Buscar</button>
       </div>
     </div>
-    ${isAdmin ? `<div class="campo" style="max-width:220px;margin-top:10px">
-      <label>Período da busca (admin)</label>
-      <select id="diasBusca">
-        <option value="7">Últimos 7 dias</option>
-        <option value="15">Últimos 15 dias</option>
-        <option value="30" selected>Últimos 30 dias</option>
-      </select>
-    </div>` : ''}
+    <div style="display:flex;flex-wrap:wrap;gap:24px;margin-top:10px">
+      <div class="campo" style="max-width:160px">
+        <label>Data (1 a 30 dias)</label>
+        <input type="number" id="diasBusca" min="1" max="30" value="30" style="max-width:100px">
+      </div>
+      <div class="campo">
+        <label>Transação</label>
+        <div class="chk-transacao">
+          <label><input type="checkbox" id="chkVenda" checked> Venda</label>
+          <label><input type="checkbox" id="chkAluguel" checked> Aluguel</label>
+        </div>
+      </div>
+    </div>
     <div id="busca-status"></div>
   </div>
 
@@ -15295,9 +15300,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     const estado = document.getElementById('estado').value;
     const pares = _paresMarcados;
     if(!estado || !pares.length) return;
-    const transacoes = ['venda', 'aluguel'];
+    const transacoes = [];
+    if(document.getElementById('chkVenda').checked) transacoes.push('venda');
+    if(document.getElementById('chkAluguel').checked) transacoes.push('aluguel');
     const diasSel = document.getElementById('diasBusca');
-    const dias = diasSel ? (parseInt(diasSel.value, 10) || 30) : 30;
+    const dias = diasSel ? Math.min(30, Math.max(1, parseInt(diasSel.value, 10) || 30)) : 30;
     document.getElementById('resultado-box').style.display = 'none';
     document.getElementById('combos-box').style.display = 'none';
     fecharModalCompra();
@@ -15329,7 +15336,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       if(!d.ok){ document.getElementById('busca-status').innerHTML = '<p class="red">Erro: '+escHtml(d.erro)+'</p>'; return; }
       document.getElementById('busca-status').innerHTML = '';
       document.getElementById('banner-resultado').innerHTML = d.total > 0
-        ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região.<br><span style="color:#fca5a5">⚡ Nenhum deles foi vendido ainda — o primeiro corretor que pagar leva todos.</span>'
+        ? '🤖 <strong>A IA encontrou '+d.total+' interessado'+(d.total>1?'s':'')+'</strong> nessa região.'
         : '🤖 A IA não encontrou interessados com esse perfil ainda. Tenta outro bairro.';
       document.getElementById('tabela-body').innerHTML = d.leads.map(function(l){
         const dataTxt = l.criadoEm ? new Date(l.criadoEm).toLocaleDateString('pt-BR') : '<span class="gray">—</span>';

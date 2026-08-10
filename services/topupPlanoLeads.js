@@ -3,15 +3,20 @@
  *
  * Combo comprado via /demanda entrega até `qtd` leads na hora (webhook do
  * Mercado Pago). Se a busca encontrou mais leads do que o combo cobre, o
- * restante não é perdido: fica guardado nos critérios da compra
- * (planoLeadsCriterios) com prazo de 30 dias (planoLeadsExpiraEm). Esse job
- * roda 1x por dia, refaz a mesma busca pra cada conta com plano pendente e
- * entrega as leads novas que aparecerem (mesmo critério, mesma base), até
- * completar a qtd do combo ou vencer os 30 dias — o que vier primeiro.
+ * restante não fica de fora: esse job roda 1x por dia, refaz a mesma busca
+ * pra cada conta com plano pendente (planoLeadsCriterios) e entrega as leads
+ * novas que aparecerem — cobrando o custo normal de `nova_lead` em créditos
+ * por cada uma, igual qualquer outra lead nova na plataforma.
+ *
+ * Não é uma cota fixa: continua entregando enquanto a conta tiver crédito
+ * suficiente, dentro do prazo de 30 dias da compra (planoLeadsExpiraEm).
+ * Acabou o crédito, para — o corretor precisa comprar mais créditos ou
+ * outro combo pra voltar a receber. Não bloqueia a conta nem o resto da
+ * plataforma, só essa entrega extra específica.
  *
  * Idempotente: o id da lead é sempre 'DEMANDA-' + rowId + '-' + userId, e
  * salvarLead() faz UPSERT (ON CONFLICT DO UPDATE) — rodar de novo sobre uma
- * lead já entregue não duplica nem conta como nova.
+ * lead já entregue não duplica nem conta/cobra de novo.
  */
 const { query } = require('./db');
 
@@ -28,6 +33,7 @@ async function rodarTopupPlanoLeads() {
   const { lerUsuarios, atualizarUsuario } = require('./salvarUsuario');
   const { buscarDemandaParaEntrega } = require('./buscaDemanda');
   const { salvarLead } = require('./salvarLead');
+  const { consumir, temSaldo } = require('./creditos');
 
   const usuarios = await lerUsuarios();
   const agora = Date.now();
@@ -38,17 +44,15 @@ async function rodarTopupPlanoLeads() {
     if (!u.planoLeadsCriterios || !u.planoLeadsExpiraEm) continue;
     if (new Date(u.planoLeadsExpiraEm).getTime() < agora) continue; // passou dos 30 dias da compra
 
-    const qtd = parseInt(u.planoLeadsQtd) || 0; // 0 = ilimitado, sem teto
-    const entreguesAtual = parseInt(u.planoLeadsEntreguesQtd) || 0;
-    if (qtd > 0 && entreguesAtual >= qtd) continue; // combo já completo, nada a fazer
-
     const { estado, pares, transacoes } = u.planoLeadsCriterios;
     if (!estado || !Array.isArray(pares) || !pares.length) continue;
 
+    // Checagem barata antes de buscar: sem crédito nenhum, nem vale rodar a busca.
+    if (!(await temSaldo(u.id))) continue;
+
     try {
-      const restante = qtd > 0 ? (qtd - entreguesAtual) : 0;
       const encontrados = await buscarDemandaParaEntrega({
-        estado, pares, transacoes: transacoes || [], horas: 720, limite: restante
+        estado, pares, transacoes: transacoes || [], horas: 720, limite: 0 // 0 = sem teto, pega tudo que bater
       });
 
       let novos = 0;
@@ -56,6 +60,10 @@ async function rodarTopupPlanoLeads() {
         const id = 'DEMANDA-' + l._rowId + '-' + u.id;
         const jaExistia = await _leadJaExiste(id);
         if (jaExistia) continue; // já foi entregue antes (na compra ou num topup anterior)
+
+        const conseguiuDebitar = await consumir(u.id, 'nova_lead');
+        if (!conseguiuDebitar) break; // acabou o crédito — para por aqui, precisa recarregar
+
         try {
           await salvarLead({
             id,
@@ -74,9 +82,10 @@ async function rodarTopupPlanoLeads() {
       }
 
       if (novos > 0) {
+        const entreguesAtual = parseInt(u.planoLeadsEntreguesQtd) || 0;
         await atualizarUsuario(u.id, { planoLeadsEntreguesQtd: entreguesAtual + novos });
         leadsEntreguesTotal += novos;
-        console.log('[topupPlanoLeads]', u.id, '+', novos, 'lead(s) nova(s) —', entreguesAtual + novos, '/', qtd || '∞');
+        console.log('[topupPlanoLeads]', u.id, '+', novos, 'lead(s) nova(s), debitadas em créditos');
       }
       contasProcessadas++;
     } catch (e) {
@@ -89,7 +98,7 @@ async function rodarTopupPlanoLeads() {
 }
 
 function iniciarTopupPlanoLeads() {
-  console.log('[topupPlanoLeads] job diário iniciado — completa combos de /demanda que não cobriram tudo, dentro dos 30 dias da compra');
+  console.log('[topupPlanoLeads] job diário iniciado — completa leads de /demanda além do combo, cobrando em créditos, por até 30 dias da compra');
   setInterval(() => {
     rodarTopupPlanoLeads().catch(e => console.error('[topupPlanoLeads] erro na rodada:', e.message));
   }, 24 * 60 * 60 * 1000);

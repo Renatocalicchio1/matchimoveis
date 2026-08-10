@@ -9996,8 +9996,10 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
           // Guarda os critérios da busca + prazo de 30 dias da compra: se o
           // combo não cobriu tudo que foi encontrado (qtd < total), o job
           // diário de topupPlanoLeads.js continua entregando leads novas que
-          // batem com esses mesmos critérios até completar a qtd do combo ou
-          // vencer os 30 dias — o que vier primeiro. Ver services/topupPlanoLeads.js.
+          // batem com esses mesmos critérios, debitando o custo normal de
+          // nova_lead em créditos por cada uma — não é uma cota fixa, para
+          // sozinho quando o crédito acabar ou vencer os 30 dias, o que vier
+          // primeiro. Ver services/topupPlanoLeads.js.
           let _paresTopup = [], _transacoesTopup = [];
           try { _paresTopup = JSON.parse(meta.pares || '[]'); } catch(e3) {}
           try { _transacoesTopup = JSON.parse(meta.transacoes || '[]'); } catch(e3) {}
@@ -15481,9 +15483,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       const porLead = p.ilimitado ? '' : '<div class="por-lead">R$ '+(valorDesconto/p.qtd).toFixed(2).replace('.',',')+' por lead</div>';
       const entramNaConta = p.ilimitado ? total : Math.min(total, p.qtd);
       const restante = p.ilimitado ? 0 : Math.max(0, total - p.qtd);
-      const restanteHtml = restante > 0 ? ' + <strong>'+restante+'</strong> em até 30 dias' : '';
-      const entramHtml = '<div class="entram-conta">📥 Entram agora na sua conta: <strong>'+entramNaConta+' lead'+(entramNaConta===1?'':'s')+'</strong>'+restanteHtml+'</div>'
-        + (restante > 0 ? '<div class="restante-nota">O restante da sua busca ('+restante+' lead'+(restante===1?'':'s')+') continua entrando na sua conta automaticamente conforme for aparecendo, até completar 30 dias da compra.</div>' : '');
+      const entramHtml = '<div class="entram-conta">📥 Entram agora na sua conta: <strong>'+entramNaConta+' lead'+(entramNaConta===1?'':'s')+'</strong></div>'
+        + (restante > 0 ? '<div class="restante-nota">Sua busca encontrou mais '+restante+' lead'+(restante===1?'':'s')+' além desse combo. Elas continuam entrando na sua conta automaticamente por até 30 dias, enquanto você tiver créditos — acabou o crédito, é só recarregar ou comprar outro combo pra continuar recebendo.</div>' : '');
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
         + (rec ? '<span class="badge">✅ Plano compatível</span>' : '')
         + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'

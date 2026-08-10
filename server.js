@@ -1990,7 +1990,8 @@ app.get('/admin/rematch', authAdmin, async (req, res) => {
   .admin-content{max-width:640px}
   h1{color:#FF385C;font-size:20px}
   label{display:block;font-size:12px;font-weight:bold;color:#374151;margin:14px 0 4px}
-  input[type=text],input[type=number]{width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box}
+  input[type=text],input[type=number],textarea{width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box;font-family:inherit}
+  textarea{resize:vertical}
   .chk{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px}
   button{background:#FF385C;color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-top:16px;font-weight:bold}
   button:disabled{opacity:.5;cursor:not-allowed}
@@ -1998,13 +1999,16 @@ app.get('/admin/rematch', authAdmin, async (req, res) => {
   .gray{color:#6b7280;font-size:12.5px}
   #resultado{margin-top:16px;font-size:13px}
   .stat{display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 16px;margin:4px 6px 4px 0;text-align:center;min-width:70px}
-  .stat strong{display:block;font-size:18px;color:#FF385C}</style></head>
+  .stat strong{display:block;font-size:18px;color:#FF385C}
+  table{border-collapse:collapse;width:100%;margin-top:14px;font-size:12.5px}
+  th{text-align:left;padding:6px 8px;background:#f3f4f6;font-size:10.5px;text-transform:uppercase;color:#6b7280}
+  td{padding:6px 8px;border-bottom:1px solid #f3f4f6}</style></head>
   <body><div class="admin-app">${_adminSidebarHtml('rematch')}<main class="admin-content">
   <h1>🔄 Gerar Match de Conta</h1>
-  <p class="gray">Roda o motor de match pra todas as leads da conta que ainda não têm nenhum match encontrado. Útil depois de importar imóveis novos ou corrigir um bug no match, sem precisar esperar o job automático.</p>
+  <p class="gray">Roda o motor de match pra todas as leads das contas que ainda não têm nenhum match encontrado. Útil depois de importar imóveis novos ou corrigir um bug no match, sem precisar esperar o job automático.</p>
   <div class="box">
-    <label>Código da conta</label>
-    <input type="text" id="userId" placeholder="ex: TIA-A6PG">
+    <label>Código(s) da conta</label>
+    <textarea id="userIds" rows="4" placeholder="Uma conta por linha ou separadas por vírgula, ex:&#10;TIA-A6PG&#10;JAN-MGF9, MAU-EHAM"></textarea>
     <div class="chk"><input type="checkbox" id="semVitrine"><label for="semVitrine" style="margin:0;font-weight:normal">Só leads que ainda não receberam vitrine</label></div>
     <label>Limitar a leads criadas nos últimos N dias (opcional)</label>
     <input type="number" id="diasAtras" placeholder="deixe em branco pra não limitar" min="1">
@@ -2013,27 +2017,36 @@ app.get('/admin/rematch', authAdmin, async (req, res) => {
   <div id="resultado"></div>
   <script>
   async function rodar(){
-    const userId = document.getElementById('userId').value.trim();
-    if(!userId){ alert('Digite o código da conta.'); return; }
+    const userIds = document.getElementById('userIds').value.split(/[,\\n]/).map(function(s){ return s.trim(); }).filter(Boolean);
+    if(!userIds.length){ alert('Digite ao menos um código de conta.'); return; }
     const semVitrine = document.getElementById('semVitrine').checked;
     const diasAtras = document.getElementById('diasAtras').value;
     const btn = document.getElementById('btnRodar');
     btn.disabled = true; btn.textContent = '⏳ Rodando...';
-    document.getElementById('resultado').innerHTML = '<p class="gray">Processando — pode levar alguns segundos dependendo da quantidade de leads...</p>';
+    document.getElementById('resultado').innerHTML = '<p class="gray">Processando '+userIds.length+' conta'+(userIds.length>1?'s':'')+' — pode levar um tempo dependendo da quantidade de leads...</p>';
     try {
       const r = await fetch('/admin/rematch', {
         method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ userId, semVitrine, diasAtras: diasAtras || null })
+        body: JSON.stringify({ userIds, semVitrine, diasAtras: diasAtras || null })
       });
       const d = await r.json();
       if(!d.ok){ document.getElementById('resultado').innerHTML = '<p style="color:#dc2626">Erro: '+d.erro+'</p>'; return; }
-      const s = d.resumo;
-      document.getElementById('resultado').innerHTML =
+      const s = d.totais;
+      let html =
         '<div class="stat"><strong>'+s.total+'</strong>Encontradas</div>'+
         '<div class="stat"><strong>'+s.processadas+'</strong>Processadas</div>'+
         '<div class="stat" style="border-color:#16a34a"><strong style="color:#16a34a">'+s.geraramMatch+'</strong>Geraram match</div>'+
         '<div class="stat"><strong>'+s.puladas+'</strong>Puladas</div>'+
         '<div class="stat" style="border-color:#dc2626"><strong style="color:#dc2626">'+s.erros+'</strong>Erros</div>';
+      if(d.porConta.length > 1){
+        html += '<table><tr><th>Conta</th><th>Encontradas</th><th>Processadas</th><th>Geraram match</th><th>Puladas</th><th>Erros</th></tr>' +
+          d.porConta.map(function(c){
+            if(c.erro) return '<tr><td>'+c.userId+'</td><td colspan="5" style="color:#dc2626">Erro: '+c.erro+'</td></tr>';
+            const r = c.resumo;
+            return '<tr><td>'+c.userId+'</td><td>'+r.total+'</td><td>'+r.processadas+'</td><td>'+r.geraramMatch+'</td><td>'+r.puladas+'</td><td>'+r.erros+'</td></tr>';
+          }).join('') + '</table>';
+      }
+      document.getElementById('resultado').innerHTML = html;
     } catch(e){ document.getElementById('resultado').innerHTML = '<p style="color:#dc2626">Erro ao rodar.</p>'; }
     btn.disabled = false; btn.textContent = '▶ Rodar match agora';
   }
@@ -2042,13 +2055,27 @@ app.get('/admin/rematch', authAdmin, async (req, res) => {
 });
 app.post('/admin/rematch', authAdmin, express.json(), async (req, res) => {
   try {
-    const userId = String(req.body.userId || '').trim();
-    if (!userId) return res.json({ ok: false, erro: 'Informe o código da conta.' });
+    let userIds = Array.isArray(req.body.userIds) ? req.body.userIds : (req.body.userId ? [req.body.userId] : []);
+    userIds = [...new Set(userIds.map(u => String(u || '').trim()).filter(Boolean))];
+    if (!userIds.length) return res.json({ ok: false, erro: 'Informe ao menos um código de conta.' });
     const semVitrine = !!req.body.semVitrine;
     const diasAtras = req.body.diasAtras ? parseInt(req.body.diasAtras, 10) : undefined;
     const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
-    const resumo = await rodarMatchLeadsSemMatch({ userId, semVitrine, diasAtras });
-    res.json({ ok: true, resumo });
+
+    const porConta = [];
+    const totais = { total: 0, processadas: 0, geraramMatch: 0, puladas: 0, erros: 0 };
+    for (const userId of userIds) {
+      try {
+        const resumo = await rodarMatchLeadsSemMatch({ userId, semVitrine, diasAtras });
+        porConta.push({ userId, resumo });
+        totais.total += resumo.total; totais.processadas += resumo.processadas;
+        totais.geraramMatch += resumo.geraramMatch; totais.puladas += resumo.puladas; totais.erros += resumo.erros;
+      } catch (eConta) {
+        console.error('[admin/rematch] erro na conta', userId, eConta.message);
+        porConta.push({ userId, erro: eConta.message });
+      }
+    }
+    res.json({ ok: true, totais, porConta });
   } catch (e) {
     console.error('[admin/rematch]', e.message);
     res.json({ ok: false, erro: e.message });

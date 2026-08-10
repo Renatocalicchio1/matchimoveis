@@ -225,8 +225,10 @@ const port = 3000;
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-// Força no-cache em rotas autenticadas
-app.use('/app', (req, res, next) => {
+// Força no-cache em rotas autenticadas — sem isso o navegador pode servir uma
+// versão antiga de uma tela do admin (HTML gerado dinamicamente, sem esse
+// header) mesmo depois de um deploy novo, até o usuário dar refresh forçado.
+app.use(['/app', '/admin'], (req, res, next) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.set('Pragma', 'no-cache');
   res.set('Expires', '0');

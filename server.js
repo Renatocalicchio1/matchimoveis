@@ -14823,6 +14823,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .pagina-footer .footer-empresa{font-size:11px;color:var(--sec);margin-top:14px}
   .pagina-footer .footer-note{font-size:11px;color:var(--sec);opacity:.8;margin-top:2px}
   .por-lead{font-size:11px;color:var(--sec);margin-top:2px}
+  .combo-features{list-style:none;margin:10px 0 0;padding:10px 0 0;border-top:1px solid var(--border);text-align:left;display:flex;flex-direction:column;gap:5px}
+  .combo-features li{font-size:11.5px;color:var(--sec);display:flex;align-items:flex-start;gap:6px}
+  .combo-features li::before{content:'✓';color:var(--babu);font-weight:bold;flex-shrink:0}
   .hero-tags{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px}
   .hero-tags span{font-size:12px;font-weight:600}
   .combos{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:14px 0}
@@ -15425,6 +15428,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     let recomendado = PLANOS_ORDEM.find(function(k){ return PLANOS[k].qtd >= total; });
     if(!recomendado) recomendado = PLANO_ILIMITADO;
     const ordemExibida = PLANOS_ORDEM.concat([PLANO_ILIMITADO]);
+    const FEATURES_COMBO = ['Gera vitrine automática', 'Post Instagram automático', 'Site próprio', 'Imóveis ilimitado', 'Conexão com WhatsApp'];
+    const featuresHtml = '<ul class="combo-features">' + FEATURES_COMBO.map(function(f){ return '<li>'+escHtml(f)+'</li>'; }).join('') + '</ul>';
     document.getElementById('combos-lista').innerHTML = ordemExibida.map(function(k){
       const p = PLANOS[k];
       const rec = k === recomendado;
@@ -15436,6 +15441,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'
         + '<div class="preco">R$ '+p.valor+'<span>'+unidade+'</span></div>'
         + porLead
+        + featuresHtml
         + '<button type="button" data-escolher="'+k+'">Quero esse →</button>'
         + '</div>';
     }).join('');

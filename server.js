@@ -15450,7 +15450,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     let recomendado = PLANOS_ORDEM.find(function(k){ return PLANOS[k].qtd >= total; });
     if(!recomendado) recomendado = PLANO_ILIMITADO;
     const ordemExibida = PLANOS_ORDEM.concat([PLANO_ILIMITADO]);
-    const FEATURES_COMBO = ['Gera vitrine automática', 'Post Instagram automático', 'Site próprio', 'Imóveis ilimitado', 'Conexão com WhatsApp'];
+    const FEATURES_COMBO = ['Gera vitrine automática', 'Post Instagram automático', 'Site próprio', 'Imóveis ilimitado', 'Conexão com WhatsApp', 'Suba seus imóveis (XML ou manual) e comece a gerar leads pra eles também'];
     const featuresHtml = '<ul class="combo-features">' + FEATURES_COMBO.map(function(f){ return '<li>'+escHtml(f)+'</li>'; }).join('') + '</ul>';
     document.getElementById('combos-lista').innerHTML = ordemExibida.map(function(k){
       const p = PLANOS[k];

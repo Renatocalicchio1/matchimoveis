@@ -15484,7 +15484,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       const entramNaConta = p.ilimitado ? total : Math.min(total, p.qtd);
       const restante = p.ilimitado ? 0 : Math.max(0, total - p.qtd);
       const entramHtml = '<div class="entram-conta">📥 Entram agora na sua conta: <strong>'+entramNaConta+' lead'+(entramNaConta===1?'':'s')+'</strong></div>'
-        + (restante > 0 ? '<div class="restante-nota">Sua busca encontrou mais '+restante+' lead'+(restante===1?'':'s')+' além desse combo. Elas continuam entrando na sua conta automaticamente por até 30 dias, enquanto você tiver créditos — acabou o crédito, é só recarregar ou comprar outro combo pra continuar recebendo.</div>' : '');
+        + (restante > 0 ? '<div class="restante-nota">Sua busca encontrou mais '+restante+' lead'+(restante===1?'':'s')+' além desse combo. Selecione um combo maior pra levar todas agora, ou deixe a plataforma te entregar o restante diariamente enquanto você tiver créditos.</div>' : '');
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
         + (rec ? '<span class="badge">✅ Plano compatível</span>' : '')
         + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'

@@ -14838,6 +14838,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .combo .preco{font-size:18px;font-weight:bold;color:var(--babu)}
   .combo .preco span{font-size:11px;color:var(--sec);font-weight:normal}
   .combo .preco-original{font-size:13px;color:var(--sec);font-weight:normal;text-decoration:line-through;margin-right:6px}
+  .entram-conta{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:6px 10px;margin-top:10px;font-size:11.5px;color:#166534;text-align:left}
+  .entram-conta strong{color:#15803d}
   .combo button{width:100%;margin-top:12px}
   .combo.combo-recomendado button{background:var(--rausch)}
   .promo-desconto{background:linear-gradient(135deg,var(--rausch),var(--arches));color:#fff;border-radius:10px;padding:12px 16px;margin:14px 0;text-align:center;font-size:14px;font-weight:700}
@@ -15464,11 +15466,14 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       const unidade = p.ilimitado ? ' /mês' : ' /combo';
       const valorDesconto = _valorComDesconto(p.valor);
       const porLead = p.ilimitado ? '' : '<div class="por-lead">R$ '+(valorDesconto/p.qtd).toFixed(2).replace('.',',')+' por lead</div>';
+      const entramNaConta = p.ilimitado ? total : Math.min(total, p.qtd);
+      const entramHtml = '<div class="entram-conta">📥 Entram agora na sua conta: <strong>'+entramNaConta+' lead'+(entramNaConta===1?'':'s')+'</strong></div>';
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
         + (rec ? '<span class="badge">✅ Plano compatível</span>' : '')
         + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'
         + '<div class="preco"><span class="preco-original">R$ '+p.valor+'</span>R$ '+valorDesconto+'<span>'+unidade+'</span></div>'
         + porLead
+        + entramHtml
         + featuresHtml
         + '<button type="button" data-escolher="'+k+'">Quero esse →</button>'
         + '</div>';

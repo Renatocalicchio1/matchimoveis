@@ -15441,7 +15441,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       const unidade = p.ilimitado ? ' /mês' : ' /combo';
       const porLead = p.ilimitado ? '' : '<div class="por-lead">R$ '+(p.valor/p.qtd).toFixed(2).replace('.',',')+' por lead</div>';
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
-        + (rec ? '<span class="badge">🔥 Recomendado pra você</span>' : '')
+        + (rec ? '<span class="badge">✅ Plano compatível</span>' : '')
         + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'
         + '<div class="preco">R$ '+p.valor+'<span>'+unidade+'</span></div>'
         + porLead

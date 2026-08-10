@@ -436,6 +436,12 @@ async function registrarInicioCadastro(envioId) {
 // Lista os envios mais recentes pra tabela do painel admin — filtro opcional
 // por texto (nome/email) e por evento (abriu/clicou/cadastrou), pra achar
 // rápido quem interagiu com a campanha sem precisar rolar tudo.
+// "telefone": se a pessoa completou o cadastro do imóvel (virou lead
+// tipo_lead='cliente_vendedor'), mostra o telefone QUE ELA MESMA digitou
+// nesse cadastro (sempre mais atual) em vez do da planilha original de
+// origem — mesmo princípio do celular da campanha geral (services/
+// campanha.js): e-mail é o vínculo confiável, o telefone pode estar
+// desatualizado na fonte antiga.
 async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '' } = {}) {
   await _garantirTabelas();
   let where = 'WHERE 1=1';
@@ -448,9 +454,14 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '' } = {
 
   params.push(limite); params.push(offset);
   const { rows } = await query(
-    `SELECT id, nome, email, telefone, titulo_usado, enviado_em, aberto_em, clicado_em, iniciou_cadastro_em, erro,
+    `SELECT id, nome, email, titulo_usado, enviado_em, aberto_em, clicado_em, iniciou_cadastro_em, erro,
        followup1_enviado_em, followup2_enviado_em, followup3_enviado_em,
-       atendido_por, atendido_por_nome, atendido_por_cor, atendido_em
+       atendido_por, atendido_por_nome, atendido_por_cor, atendido_em,
+       COALESCE(
+         (SELECT l.telefone FROM leads l WHERE l.tipo_lead='cliente_vendedor' AND l.telefone IS NOT NULL AND l.telefone != ''
+          AND LOWER(l.email)=LOWER(campanha_captacao_envios.email) ORDER BY l.criado_em DESC LIMIT 1),
+         telefone
+       ) AS telefone
      FROM campanha_captacao_envios
      ${where}
      ORDER BY enviado_em DESC

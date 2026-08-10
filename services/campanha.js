@@ -141,6 +141,464 @@ Leva menos de 1 minuto pra consultar.
 
 — Equipe Match Imóveis`
     }
+  ],
+  // ── Follow-ups automáticos (jul/2026) ──────────────────────────────────
+  // 3 estágios do funil dessa campanha, cada um dispara 24h depois do
+  // gatilho correspondente, 1 vez só por contato (ver followup1/2/3_enviado_em
+  // e enviarProximo() — quem já recebeu não recebe de novo mesmo rodando o
+  // job todo dia). Mesmo framework PAS e esquema de HTML dos modelos acima,
+  // só o ângulo do texto muda pra soar como reengajamento, não repetição.
+
+  // Estágio 1: mandou o 1º email, não abriu em 24h — reforça a mesma
+  // proposta com um ângulo/assunto diferente (não repete o que já foi
+  // ignorado). CTA leva pra página inicial, igual ao modelo "pagina".
+  followup1: [
+    {
+      assunto: 'Você viu esse e-mail? Só reforçando',
+      corpo: `Olá {nome},
+
+Te mandei um e-mail sobre a Match Imóveis, mas imagino que deve ter passado batido na correria do dia a dia.
+
+Resumindo em 1 frase: a gente cruza cada lead com o imóvel certo da sua carteira e da rede, automaticamente, 24 horas por dia — sem você precisar ficar de olho na planilha.
+
+• Recebe o lead
+• Encontra o imóvel compatível
+• Manda a vitrine pro cliente sozinha
+
+Dá uma olhada quando puder, é grátis pra testar.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Reenviando — pode ter passado despercebido',
+      corpo: `Olá {nome},
+
+Sei que a caixa de entrada de corretor não para, então vou direto ao ponto: a Match Imóveis existe pra resolver um problema específico — lead que demora a ser atendido e acaba fechando com outro corretor.
+
+Ela faz isso sozinha:
+
+• Cruza o lead com os imóveis certos
+• Monta a vitrine automaticamente
+• Agenda a visita sem você precisar lembrar
+
+1.000 créditos grátis pra testar, sem cartão.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Um lembrete rápido sobre a Match Imóveis',
+      corpo: `Olá {nome},
+
+Passando de novo porque acho que isso pode te ajudar de verdade: enquanto você atende um cliente, outros leads continuam chegando — e quem demora a responder, perde negócio.
+
+A Match Imóveis resolve isso automaticamente:
+
+• Cruza cada lead com o imóvel certo
+• Envia a vitrine sozinha
+• Funciona mesmo fora do seu horário
+
+Teste grátis, sem compromisso.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Isso pode estar te custando vendas sem você perceber',
+      corpo: `Olá {nome},
+
+A maioria dos corretores só percebe o lead perdido quando é tarde demais — mensagem que ficou sem resposta, imóvel certo esquecido na planilha.
+
+A Match Imóveis evita isso: cruza automaticamente cada lead com o imóvel certo da sua carteira e da rede, e manda a vitrine sozinha.
+
+• Sem mensalidade fixa
+• Sem comissão sobre venda
+• 1.000 créditos grátis pra começar
+
+Dá uma conferida quando puder.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Deixei isso passar? Segue de novo',
+      corpo: `Olá {nome},
+
+Talvez esse e-mail tenha se perdido no meio de tantos outros — normal, corretor recebe muito e-mail. Mas acho que vale a pena você dar uma olhada.
+
+A Match Imóveis:
+
+• Recebe cada lead novo automaticamente
+• Cruza com os imóveis compatíveis da sua carteira e da rede
+• Envia a vitrine sem você precisar lembrar
+
+Testa grátis, com 1.000 créditos pra começar.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Corretores que usam isso fecham mais rápido',
+      corpo: `Olá {nome},
+
+Você já deve ter reparado que quem responde primeiro o lead certo, na maioria das vezes, é quem fecha o negócio.
+
+A Match Imóveis existe pra te colocar nessa posição sempre:
+
+• Cruza o lead com o imóvel certo automaticamente
+• Monta e envia a vitrine sozinha
+• Trabalha por você mesmo quando você está ocupado
+
+Comece agora, grátis, com 1.000 créditos.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Ainda dá tempo de ver como funciona',
+      corpo: `Olá {nome},
+
+Não sei se chegou a ver o e-mail anterior, então resumo rápido: a Match Imóveis cruza automaticamente cada lead que chega com os imóveis certos da sua carteira — sem você precisar procurar manualmente.
+
+• Funciona 24h por dia
+• Envia a vitrine sozinha pro cliente
+• Sem mensalidade obrigatória
+
+Vale a pena conferir, é grátis pra testar.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Sua carteira pode estar rendendo mais que isso',
+      corpo: `Olá {nome},
+
+Reforçando o que te mandei antes: a maior parte dos imóveis parados na carteira não tem problema nenhum — só não foram cruzados com o lead certo na hora certa.
+
+A Match Imóveis faz esse cruzamento sozinha, o tempo todo:
+
+• Recebe o lead
+• Encontra o imóvel compatível
+• Manda a vitrine automaticamente
+
+Teste agora, sem cartão de crédito, com 1.000 créditos grátis.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'De novo aqui — pode valer os 2 minutos',
+      corpo: `Olá {nome},
+
+Sei que sua caixa de entrada não para, mas queria te dar mais uma chance de ver isso: a Match Imóveis conecta automaticamente cada lead novo com o imóvel certo da sua carteira ou da rede.
+
+• Sem precisar cruzar manualmente
+• Vitrine enviada sozinha pro cliente
+• Funciona mesmo fora do seu horário comercial
+
+Grátis pra testar, com 1.000 créditos de bônus.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Talvez isso resolva um problema que você já tem',
+      corpo: `Olá {nome},
+
+Se você já perdeu um lead por demorar a responder, esse e-mail é pra você. A Match Imóveis cruza automaticamente cada lead com os imóveis certos e manda a vitrine sozinha — 24 horas por dia.
+
+• Sem mensalidade fixa
+• Sem comissão sobre venda
+• Comece grátis, com 1.000 créditos pra testar
+
+Dá uma olhada, é rápido.
+
+— Equipe Match Imóveis`
+    }
+  ],
+  // Estágio 2: abriu o e-mail (curiosidade real), mas não criou conta —
+  // reforça que já viu, remove fricção (é grátis/rápido), reenvia o link.
+  followup2: [
+    {
+      assunto: 'Vi que você deu uma olhada — faltou só criar a conta',
+      corpo: `Olá {nome},
+
+Notei que você abriu o e-mail sobre a Match Imóveis — só não chegou a criar a conta ainda.
+
+É rápido e sem custo pra começar:
+
+• Cadastro leva menos de 2 minutos
+• Você já sai com 1.000 créditos grátis pra testar
+• Sem cartão de crédito, sem compromisso
+
+Vale a pena finalizar — os leads da sua região não esperam.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Faltou só um passo pra você começar a usar',
+      corpo: `Olá {nome},
+
+Você chegou a ver a proposta da Match Imóveis, mas o cadastro ainda não foi feito. Fica só esse detalhe entre você e começar a receber leads cruzados automaticamente com sua carteira.
+
+• Grátis pra criar a conta
+• 1.000 créditos de bônus já na entrada
+• Leva menos tempo que ler esse e-mail
+
+Termina o cadastro quando puder.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Ainda dá tempo de finalizar seu cadastro',
+      corpo: `Olá {nome},
+
+Vi que você teve interesse na Match Imóveis, mas o cadastro ficou pela metade. Sem problema — o link continua disponível, e a conta já nasce com 1.000 créditos grátis pra você testar sem gastar nada.
+
+• Cadastro rápido, sem burocracia
+• Sem mensalidade obrigatória
+• Comece a receber leads cruzados automaticamente
+
+Fico à disposição se tiver qualquer dúvida.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Não deixa esse cadastro pela metade',
+      corpo: `Olá {nome},
+
+Você já deu uma conferida na Match Imóveis — agora é só finalizar o cadastro pra sua conta começar a funcionar de verdade.
+
+• 1.000 créditos grátis assim que você entra
+• Sem cartão, sem compromisso
+• Leva menos de 2 minutos
+
+Enquanto isso, os leads da sua região continuam passando.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'O que falta é só 1 clique',
+      corpo: `Olá {nome},
+
+Reparei que você já conferiu a Match Imóveis mas ainda não criou sua conta. É bem rápido, e você já sai com 1.000 créditos de bônus pra usar como quiser.
+
+• Sem custo pra cadastrar
+• Sem mensalidade obrigatória
+• Comece a atender lead cruzado automaticamente hoje mesmo
+
+Termina quando puder, o link continua valendo.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Você chegou perto — falta só o cadastro',
+      corpo: `Olá {nome},
+
+Vi que você teve interesse na plataforma. Pra começar a usar de verdade só falta criar a conta — é grátis e você já entra com 1.000 créditos pra testar sem compromisso.
+
+• Cadastro rápido
+• Sem cartão de crédito
+• Leads cruzados automaticamente com sua carteira
+
+Se travou em algum ponto, é só responder esse e-mail.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Ainda com aquele e-mail em aberto?',
+      corpo: `Olá {nome},
+
+Notei que você chegou a abrir a mensagem sobre a Match Imóveis. Pra aproveitar de verdade, só falta o cadastro — que é grátis e rápido.
+
+• 1.000 créditos de bônus na entrada
+• Sem mensalidade obrigatória
+• Vitrine enviada automaticamente pros seus leads
+
+Vale a pena terminar agora.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Seu cadastro na Match Imóveis está esperando',
+      corpo: `Olá {nome},
+
+Você já viu do que se trata — agora é só criar a conta pra começar a receber leads cruzados automaticamente com os imóveis da sua carteira.
+
+• Grátis pra cadastrar
+• 1.000 créditos já na entrada
+• Sem cartão, sem burocracia
+
+Fico à disposição se precisar de ajuda com o cadastro.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Poucos minutos separam você de começar',
+      corpo: `Olá {nome},
+
+Você já conferiu a proposta da Match Imóveis. O próximo passo é rápido: criar sua conta, que já vem com 1.000 créditos grátis pra testar sem gastar nada.
+
+• Sem mensalidade obrigatória
+• Sem comissão sobre venda
+• Leads cruzados automaticamente com sua carteira
+
+Termina o cadastro quando tiver um minuto.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Reforçando — o cadastro é rápido e grátis',
+      corpo: `Olá {nome},
+
+Sei que a rotina de corretor não para, mas queria reforçar: você já viu a Match Imóveis, e falta só o cadastro pra começar a usar. Não tem custo, e você já sai com 1.000 créditos de bônus.
+
+• Menos de 2 minutos pra cadastrar
+• Sem cartão de crédito
+• Comece a receber leads cruzados automaticamente
+
+Qualquer dúvida, é só responder esse e-mail.
+
+— Equipe Match Imóveis`
+    }
+  ],
+  // Estágio 3: já criou a conta, mas não comprou nenhum combo — não é
+  // "cadastre-se" (já tem conta), então o CTA leva pro login, não pra
+  // landing page (ver track/click em server.js, caso modelo_usado==='followup3').
+  // Foco: explicar o próximo passo dentro da própria plataforma.
+  followup3: [
+    {
+      assunto: 'Sua conta na Match Imóveis já está pronta pra receber leads',
+      corpo: `Olá {nome},
+
+Vi que você já criou sua conta na Match Imóveis — só falta um passo pra ela começar a te trazer leads de verdade: escolher um combo dentro da plataforma.
+
+• Você entra com o mesmo login que já criou
+• Escolhe o combo que cabe no seu momento
+• Os leads da sua região entram direto na sua carteira
+
+Entra na sua conta e dá uma olhada nos combos disponíveis.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Falta só escolher um combo pra começar de verdade',
+      corpo: `Olá {nome},
+
+Sua conta na Match Imóveis já existe — o que ainda não aconteceu foi escolher um combo de leads. É esse passo que faz os leads da sua região começarem a entrar na sua carteira.
+
+• Login com os mesmos dados do cadastro
+• Combos com preços pra cada momento
+• Sem mensalidade obrigatória, você escolhe quando quiser
+
+Entra na plataforma quando puder pra ver as opções.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Sua conta está esperando você escolher um combo',
+      corpo: `Olá {nome},
+
+Você já tem conta na Match Imóveis, então o próximo passo é simples: entrar e escolher um combo de leads pra começar a atender de verdade.
+
+• Acesso com o login que você já criou
+• Vários tamanhos de combo, pra caber no seu momento
+• Compra única, sem compromisso de recorrência
+
+Dá uma olhada nos combos direto na plataforma.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'O que falta pra sua conta começar a valer a pena',
+      corpo: `Olá {nome},
+
+Reparei que você já se cadastrou mas ainda não pegou nenhum combo. Sem o combo, a conta fica sem leads entrando de verdade — é ele que ativa isso.
+
+• Entre com o login que já tem
+• Veja os combos disponíveis pra sua região
+• Comece a receber leads assim que escolher
+
+Vale a pena conferir agora.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Sua carteira ainda está vazia de leads — resolve rápido',
+      corpo: `Olá {nome},
+
+Sua conta na Match Imóveis já existe, mas sem um combo escolhido os leads não chegam até você. É rápido de resolver:
+
+• Faça login com os dados do seu cadastro
+• Escolha o combo que faz sentido pra você agora
+• Os leads da sua região já entram assim que confirmar
+
+Entra na plataforma e dá uma olhada.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Você está a um passo de receber leads de verdade',
+      corpo: `Olá {nome},
+
+Sua conta já está pronta — o único passo que falta é escolher um combo de leads dentro da plataforma. Sem isso, a conta fica ativa mas sem leads chegando pra você.
+
+• Login com o que você já cadastrou
+• Combos pra diferentes tamanhos de carteira
+• Você escolhe quando (e se) quiser comprar mais
+
+Confere as opções quando tiver um tempo.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Ainda não escolheu um combo? Fica fácil resolver',
+      corpo: `Olá {nome},
+
+Vi que sua conta na Match Imóveis já existe, mas nenhum combo foi escolhido ainda. É esse passo que faz os leads da sua região começarem a entrar na sua carteira de verdade.
+
+• Entra com o login que já criou
+• Veja os combos e o que cada um entrega
+• Sem mensalidade obrigatória
+
+Dá uma olhada quando puder.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Seus créditos de boas-vindas ainda estão aí',
+      corpo: `Olá {nome},
+
+Você ganhou créditos de boas-vindas quando criou sua conta na Match Imóveis, mas pra receber leads de verdade da sua região é preciso escolher um combo dentro da plataforma.
+
+• Login com os dados do seu cadastro
+• Combos com preços pra cada momento do seu negócio
+• Ativa assim que você escolher
+
+Entra na conta e confere as opções.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Um lembrete sobre sua conta na Match Imóveis',
+      corpo: `Olá {nome},
+
+Sua conta já foi criada, mas ainda não tem combo ativo — e é o combo que faz os leads da sua região chegarem até você.
+
+• Faça login normalmente
+• Veja os combos disponíveis
+• Comece a atender assim que escolher um
+
+Não deixa a conta parada, vale a pena conferir.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Falta pouco pra sua conta começar a trazer resultado',
+      corpo: `Olá {nome},
+
+Reforçando: sua conta na Match Imóveis já está criada, só falta escolher um combo pra ela começar a te trazer leads de verdade.
+
+• Entre com o login que já tem
+• Escolha o combo que cabe no seu momento
+• Leads da sua região entram direto na carteira
+
+Se tiver qualquer dúvida sobre os combos, é só responder esse e-mail.
+
+— Equipe Match Imóveis`
+    }
   ]
 };
 
@@ -182,6 +640,9 @@ async function _garantirColunas() {
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS corpo_usado TEXT`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS aberto_em TIMESTAMP`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS clicado_em TIMESTAMP`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup1_enviado_em TIMESTAMP`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup2_enviado_em TIMESTAMP`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup3_enviado_em TIMESTAMP`);
   await query(`CREATE TABLE IF NOT EXISTS campanha_config (
     id INT PRIMARY KEY DEFAULT 1,
     ativo BOOLEAN DEFAULT false,
@@ -346,7 +807,13 @@ async function marcarEnviado(id, erro, extra = {}) {
 // a consultar a demanda da região.
 const CTA_POR_TIPO = {
   pagina: 'Testar grátis agora →',
-  demanda: 'Ver demanda da minha região →'
+  demanda: 'Ver demanda da minha região →',
+  followup1: 'Testar grátis agora →',
+  followup2: 'Criar minha conta grátis →',
+  // followup3 é o único cujo CTA leva pro login (não pra landing page) —
+  // esse contato já tem conta, o link de clique (track/click/:id em
+  // server.js) redireciona pra /entrar quando modelo_usado === 'followup3'.
+  followup3: 'Ver meus combos →'
 };
 
 function gerarHTML(mensagem, contato, tipo) {
@@ -390,12 +857,85 @@ function gerarHTML(mensagem, contato, tipo) {
   </div>`;
 }
 
+// ── Follow-ups automáticos ──────────────────────────────────────────────
+// Cada função abaixo acha 1 contato elegível pra aquele estágio — 24h desde
+// o gatilho (envio original / abertura / cadastro), e que ainda não recebeu
+// ESSE follow-up especificamente (followupN_enviado_em IS NULL garante que
+// só manda 1 vez por contato, mesmo o job rodando toda hora).
+async function proximoFollowup1() {
+  await _garantirColunas();
+  const { rows } = await query(`
+    SELECT id, nome, email, celular FROM campanha_contatos
+    WHERE status = 'enviado'
+      AND aberto_em IS NULL
+      AND enviado_em <= NOW() - INTERVAL '24 hours'
+      AND followup1_enviado_em IS NULL
+    ORDER BY enviado_em ASC LIMIT 1
+  `);
+  return rows[0] || null;
+}
+async function proximoFollowup2() {
+  await _garantirColunas();
+  const { rows } = await query(`
+    SELECT cc.id, cc.nome, cc.email, cc.celular FROM campanha_contatos cc
+    WHERE cc.aberto_em IS NOT NULL
+      AND cc.aberto_em <= NOW() - INTERVAL '24 hours'
+      AND cc.followup2_enviado_em IS NULL
+      AND LOWER(cc.email) NOT IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
+    ORDER BY cc.aberto_em ASC LIMIT 1
+  `);
+  return rows[0] || null;
+}
+async function proximoFollowup3() {
+  await _garantirColunas();
+  // Gatilho é o cadastro em si (usuarios.criado_em), não o e-mail original —
+  // por isso o JOIN em vez de olhar só campanha_contatos.
+  const { rows } = await query(`
+    SELECT cc.id, cc.nome, cc.email, cc.celular FROM campanha_contatos cc
+    JOIN usuarios u ON LOWER(u.email) = LOWER(cc.email)
+    WHERE u.criado_em <= NOW() - INTERVAL '24 hours'
+      AND cc.followup3_enviado_em IS NULL
+      AND COALESCE(u.match_coins_total, 0) <= 1000
+    ORDER BY u.criado_em ASC LIMIT 1
+  `);
+  return rows[0] || null;
+}
+const _FOLLOWUP_COLUNA = { 1: 'followup1_enviado_em', 2: 'followup2_enviado_em', 3: 'followup3_enviado_em' };
+async function marcarFollowupEnviado(id, numero) {
+  const coluna = _FOLLOWUP_COLUNA[numero];
+  if (!coluna) throw new Error('número de follow-up inválido: ' + numero);
+  await query(`UPDATE campanha_contatos SET ${coluna}=NOW() WHERE id=$1`, [id]);
+}
+async function _enviarFollowup(contato, tipo, numero) {
+  const variacao = _sorteia(MODELOS[tipo]);
+  const corpoPersonalizado = variacao.corpo.replace(/\{nome\}/g, contato.nome || 'Corretor');
+  const html = gerarHTML(corpoPersonalizado, contato, tipo);
+  try {
+    await enviarEmail({ para: contato.email, assunto: variacao.assunto, html, texto: variacao.assunto });
+    await marcarFollowupEnviado(contato.id, numero);
+    return { enviado: true, email: contato.email, modelo: tipo, titulo: variacao.assunto };
+  } catch (e) {
+    // não marca followupN_enviado_em em caso de erro — tenta de novo no próximo ciclo
+    return { enviado: false, motivo: 'erro_envio', erro: e.message };
+  }
+}
+
 // Um envio — chamado pelo job automático (server.js, intervalo aleatório
-// de 30s a 5min entre cada chamada).
+// de 30s a 5min entre cada chamada). Follow-ups têm prioridade sobre o
+// primeiro contato "pendente" da fila — a lista de 118k é grande e sempre
+// vai ter gente nova pra mandar, mas o follow-up tem prazo (24h desde o
+// gatilho) e precisa sair no tempo certo.
 async function enviarProximo() {
   await _garantirColunas();
   await _backfillPrioridadePendente();
   if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
+
+  const f1 = await proximoFollowup1();
+  if (f1) return _enviarFollowup(f1, 'followup1', 1);
+  const f2 = await proximoFollowup2();
+  if (f2) return _enviarFollowup(f2, 'followup2', 2);
+  const f3 = await proximoFollowup3();
+  if (f3) return _enviarFollowup(f3, 'followup3', 3);
 
   const [contato] = await proximoLote(1);
   if (!contato) return { enviado: false, motivo: 'sem_elegiveis' };

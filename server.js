@@ -15076,7 +15076,12 @@ app.get('/campanha/track/click/:id', async (req, res) => {
       await _qClick("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'clique' FROM campanha_contatos WHERE id=$1", [req.params.id]);
       await _qClick("UPDATE campanha_contatos SET aberto_em=COALESCE(aberto_em, NOW()), clicado_em=COALESCE(clicado_em, NOW()) WHERE id=$1", [req.params.id]);
       const { rows } = await _qClick("SELECT modelo_usado FROM campanha_contatos WHERE id=$1", [req.params.id]);
-      if (rows[0] && rows[0].modelo_usado === 'demanda') destino = 'https://www.matchimoveis.ia.br/demanda';
+      const modeloClick = rows[0] && rows[0].modelo_usado;
+      if (modeloClick === 'demanda') destino = 'https://www.matchimoveis.ia.br/demanda';
+      // followup3 é o único e-mail mandado pra quem JÁ tem conta (cadastrou
+      // mas não comprou combo) — não faz sentido linkar pra landing page de
+      // novo, manda direto pro login.
+      else if (modeloClick === 'followup3') destino = 'https://www.matchimoveis.ia.br/entrar';
     }
   } catch(e){}
   res.redirect(destino);
@@ -17043,12 +17048,12 @@ https://www.matchimoveis.ia.br
     const r = await fetch('/admin/campanha/contatos?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+s);
     const d = await r.json();
     if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class=red>Erro ao carregar</p>'; return; }
-    let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1080px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Cadastrou</th><th style="padding:8px;text-align:left">Comprou</th><th style="padding:8px;text-align:left">Enviado em</th><th style="padding:8px;text-align:left">E-mail</th><th style="padding:8px;text-align:left">WhatsApp</th></tr>';
+    let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1260px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Cadastrou</th><th style="padding:8px;text-align:left">Comprou</th><th style="padding:8px;text-align:left">F.up 1</th><th style="padding:8px;text-align:left">F.up 2</th><th style="padding:8px;text-align:left">F.up 3</th><th style="padding:8px;text-align:left">Enviado em</th><th style="padding:8px;text-align:left">E-mail</th><th style="padding:8px;text-align:left">WhatsApp</th></tr>';
     for(const c of d.contatos){
       const cor = c.status==='enviado'?'#16a34a':c.status==='erro'?'#dc2626':'#f59e0b';
       const statusTxt = c.status==='erro' ? escHtml(c.status)+' ('+escHtml(c.erro||'')+')' : escHtml(c.status);
       const verEmail = c.status==='enviado' ? '<a href="javascript:void(0)" onclick="abrirPreview('+c.id+')" style="color:#FF385C;font-weight:600;text-decoration:none">Ver e-mail →</a>' : '—';
-      html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px">'+escHtml(c.nome)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px">'+escHtml(c.celular)+'</td><td style="padding:8px;color:'+cor+'">'+statusTxt+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px">'+_tag(c.cadastrou)+'</td><td style="padding:8px">'+_tag(c.comprou)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td><td style="padding:8px">'+verEmail+'</td><td style="padding:8px">'+_botaoWhatsapp(c)+'</td></tr>';
+      html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px">'+escHtml(c.nome)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px">'+escHtml(c.celular)+'</td><td style="padding:8px;color:'+cor+'">'+statusTxt+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px">'+_tag(c.cadastrou)+'</td><td style="padding:8px">'+_tag(c.comprou)+'</td><td style="padding:8px">'+_tag(c.followup1_enviado_em)+'</td><td style="padding:8px">'+_tag(c.followup2_enviado_em)+'</td><td style="padding:8px">'+_tag(c.followup3_enviado_em)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td><td style="padding:8px">'+verEmail+'</td><td style="padding:8px">'+_botaoWhatsapp(c)+'</td></tr>';
     }
     html += '</table></div>';
     document.getElementById('tabela-contatos').innerHTML = html;
@@ -17174,6 +17179,7 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     // (1000) — se passou, recarregou em algum momento (ver conversa jul/2026,
     // decidido usar esse critério em vez de cruzar com Mercado Pago por ora).
     const { rows } = await require('./services/db').query(`SELECT id,nome,email,celular,status,modelo_usado,aberto_em,clicado_em,enviado_em,erro,
+      followup1_enviado_em,followup2_enviado_em,followup3_enviado_em,
       (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
       COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
       FROM campanha_contatos ${where} ORDER BY COALESCE(enviado_em, criado_em) DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);

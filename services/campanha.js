@@ -972,12 +972,29 @@ async function enviarProximo() {
   await _backfillPrioridadePendente();
   if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
 
+  // Follow-up com erro NÃO marca followupN_enviado_em (de propósito, pra
+  // tentar de novo no próximo ciclo) — mas isso significa que o MESMO
+  // contato quebrado (ex: SES rejeitando aquele endereço) volta a ser "o
+  // próximo elegível" pra sempre. Como follow-up tem prioridade sobre a
+  // fila normal, um único contato travado nunca deixava a campanha geral
+  // (118k contatos "pendente") sair do lugar — parecia campanha "parada"
+  // sem nenhum erro visível. Segue pra próxima camada (e por fim pra fila
+  // normal) sempre que o envio falha, em vez de parar o ciclo ali.
   const f1 = await proximoFollowup1();
-  if (f1) return _enviarFollowup(f1, 'followup1', 1);
+  if (f1) {
+    const r1 = await _enviarFollowup(f1, 'followup1', 1);
+    if (r1.enviado) return r1;
+  }
   const f2 = await proximoFollowup2();
-  if (f2) return _enviarFollowup(f2, 'followup2', 2);
+  if (f2) {
+    const r2 = await _enviarFollowup(f2, 'followup2', 2);
+    if (r2.enviado) return r2;
+  }
   const f3 = await proximoFollowup3();
-  if (f3) return _enviarFollowup(f3, 'followup3', 3);
+  if (f3) {
+    const r3 = await _enviarFollowup(f3, 'followup3', 3);
+    if (r3.enviado) return r3;
+  }
 
   const [contato] = await proximoLote(1);
   if (!contato) return { enviado: false, motivo: 'sem_elegiveis' };

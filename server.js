@@ -14768,10 +14768,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   h1{color:var(--rausch);font-size:20px}
   h2.secao{font-size:16px;color:var(--ink);margin:28px 0 4px}
   .box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin:16px 0}
-  .campos-geo{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:16px;align-items:start}
+  .campos-geo{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
   .campo select,.campo input[type=text]{max-width:none}
   .campo label{margin-top:0}
   .campo-buscar button{margin-top:0;white-space:nowrap}
+  input[type=range]{accent-color:var(--rausch);height:6px;cursor:pointer}
   label{display:block;font-size:12px;font-weight:bold;color:#374151;margin:12px 0 4px}
   select,input[type=text],input[type=email],input[type=password]{width:100%;max-width:360px;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:16px}
   button{background:var(--rausch);color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-top:14px;font-weight:bold}
@@ -14932,15 +14933,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         <div id="bairros-chips" class="chips"></div>
       </div>
 
-      <div class="campo campo-buscar">
-        <label style="visibility:hidden">Buscar</label>
-        <button type="button" id="btnBuscarDemanda" onclick="buscarDemanda()" disabled>🔍 Buscar</button>
-      </div>
     </div>
-    <div style="display:flex;flex-wrap:wrap;gap:24px;margin-top:10px">
-      <div class="campo" style="max-width:160px">
-        <label>Data (1 a 30 dias)</label>
-        <input type="number" id="diasBusca" min="1" max="30" value="30" style="max-width:100px">
+    <div style="display:flex;flex-wrap:wrap;gap:32px;margin-top:14px;align-items:flex-start">
+      <div class="campo" style="max-width:320px;flex:1;min-width:220px">
+        <label>Data — <span id="diasBuscaValor" style="font-size:15px;color:var(--rausch);font-weight:bold">30</span> dias</label>
+        <input type="range" id="diasBusca" min="1" max="30" value="30" step="1" style="width:100%;max-width:none" oninput="document.getElementById('diasBuscaValor').textContent = this.value">
       </div>
       <div class="campo">
         <label>Transação</label>
@@ -14949,6 +14946,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
           <label><input type="checkbox" id="chkAluguel" checked> Aluguel</label>
         </div>
       </div>
+    </div>
+    <div class="campo-buscar" style="margin-top:16px">
+      <button type="button" id="btnBuscarDemanda" onclick="buscarDemanda()" disabled style="width:100%">🔍 Buscar</button>
     </div>
     <div id="busca-status"></div>
   </div>

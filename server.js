@@ -15353,15 +15353,17 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       document.getElementById('resultado-box').style.display = 'block';
       document.getElementById('resultado-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
       _ultimaBusca = { estado, pares, transacoes, dias: d.dias, total: d.total };
-      // Monta os combos (já com o compatível marcado como recomendado), mas
-      // só mostra o box quando o usuário pedir — 10s depois de ver a
-      // planilha, aparece um botão "Quanto me custa essas leads?" que revela
-      // essa área ao ser clicado, já com o plano certo em destaque.
+      // Monta os combos (já com o compatível marcado como recomendado) e,
+      // 10s depois de ver a planilha, leva o usuário direto pro plano
+      // certo (scroll automático até o card recomendado) — o botão
+      // "Quanto me custa essas leads?" continua disponível caso ele
+      // clique antes disso.
       renderCombos(d.total);
       document.getElementById('combos-box').style.display = 'none';
       if(d.total > 0){
         _custoLeadsTimer = setTimeout(function(){
           document.getElementById('btnCustoLeads').style.display = 'inline-block';
+          mostrarComboRecomendado();
         }, 10000);
       }
       iniciarAutoScrollTabela();
@@ -15416,7 +15418,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
 
   function mostrarComboRecomendado(){
     document.getElementById('combos-box').style.display = 'block';
-    document.getElementById('combos-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const rec = document.querySelector('.combo.combo-recomendado');
+    const alvo = rec || document.getElementById('combos-box');
+    alvo.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   function renderCombos(total){

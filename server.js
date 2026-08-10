@@ -2002,13 +2002,28 @@ app.get('/admin/rematch', authAdmin, async (req, res) => {
   .stat strong{display:block;font-size:18px;color:#FF385C}
   table{border-collapse:collapse;width:100%;margin-top:14px;font-size:12.5px}
   th{text-align:left;padding:6px 8px;background:#f3f4f6;font-size:10.5px;text-transform:uppercase;color:#6b7280}
-  td{padding:6px 8px;border-bottom:1px solid #f3f4f6}</style></head>
+  td{padding:6px 8px;border-bottom:1px solid #f3f4f6}
+  .busca-wrap{position:relative}
+  .sugestoes{position:absolute;top:100%;left:0;right:0;z-index:10;background:#fff;border:1px solid #d1d5db;border-top:none;max-height:220px;overflow-y:auto;border-radius:0 0 6px 6px;box-shadow:0 4px 10px rgba(0,0,0,.08)}
+  .sugestao-item{padding:8px 10px;cursor:pointer;font-size:13px}
+  .sugestao-item:hover{background:#f3f4f6}
+  .sugestao-item .cod{color:#6b7280;font-size:11px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:#fff1f2;color:#111827;border:1px solid #fecdd3;border-radius:999px;padding:4px 6px 4px 12px;font-size:12px}
+  .chip button{all:unset;cursor:pointer;color:#6b7280;font-weight:bold;padding:0 6px;line-height:1;margin:0}
+  .chip button:hover{color:#FF385C}</style></head>
   <body><div class="admin-app">${_adminSidebarHtml('rematch')}<main class="admin-content">
   <h1>🔄 Gerar Match de Conta</h1>
   <p class="gray">Roda o motor de match pra todas as leads das contas que ainda não têm nenhum match encontrado. Útil depois de importar imóveis novos ou corrigir um bug no match, sem precisar esperar o job automático.</p>
   <div class="box">
-    <label>Código(s) da conta</label>
-    <textarea id="userIds" rows="4" placeholder="Uma conta por linha ou separadas por vírgula, ex:&#10;TIA-A6PG&#10;JAN-MGF9, MAU-EHAM"></textarea>
+    <label>Buscar conta por nome ou código</label>
+    <div class="busca-wrap">
+      <input type="text" id="buscaConta" placeholder="Digite o nome do corretor..." autocomplete="off">
+      <div id="sugestoesConta" class="sugestoes" style="display:none"></div>
+    </div>
+    <div id="contasChips" class="chips"></div>
+    <label style="margin-top:18px">Ou cole código(s) direto (opcional)</label>
+    <textarea id="userIds" rows="3" placeholder="Uma conta por linha ou separadas por vírgula, ex:&#10;TIA-A6PG&#10;JAN-MGF9, MAU-EHAM"></textarea>
     <div class="chk"><input type="checkbox" id="semVitrine"><label for="semVitrine" style="margin:0;font-weight:normal">Só leads que ainda não receberam vitrine</label></div>
     <label>Limitar a leads criadas nos últimos N dias (opcional)</label>
     <input type="number" id="diasAtras" placeholder="deixe em branco pra não limitar" min="1">
@@ -2016,9 +2031,59 @@ app.get('/admin/rematch', authAdmin, async (req, res) => {
   </div>
   <div id="resultado"></div>
   <script>
+  function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  let _contasSelecionadas = [];
+  let _buscaTimer = null;
+  document.getElementById('buscaConta').addEventListener('input', function(){
+    clearTimeout(_buscaTimer);
+    const termo = this.value.trim();
+    const box = document.getElementById('sugestoesConta');
+    if(termo.length < 2){ box.style.display = 'none'; return; }
+    _buscaTimer = setTimeout(async function(){
+      try {
+        const r = await fetch('/admin/demanda/buscar-conta?q=' + encodeURIComponent(termo));
+        const d = await r.json();
+        const disponiveis = (d.contas || []).filter(function(c){ return !_contasSelecionadas.some(function(s){ return s.codigo_usuario === c.codigo_usuario; }); });
+        if(!disponiveis.length){ box.innerHTML = '<div class="sugestao-item gray">Nenhuma conta encontrada</div>'; box.style.display = 'block'; return; }
+        box.innerHTML = disponiveis.map(function(c){
+          return '<div class="sugestao-item" data-codigo="'+escHtml(c.codigo_usuario)+'"><div>'+escHtml(c.nome)+'</div><div class="cod">'+escHtml(c.codigo_usuario)+' · '+escHtml(c.email||'')+'</div></div>';
+        }).join('');
+        box.style.display = 'block';
+      } catch(e){}
+    }, 250);
+  });
+  document.getElementById('sugestoesConta').addEventListener('click', function(e){
+    const item = e.target.closest('[data-codigo]');
+    if(!item) return;
+    const codigo = item.getAttribute('data-codigo');
+    if(!_contasSelecionadas.some(function(s){ return s.codigo_usuario === codigo; })){
+      const nome = item.querySelector('div').textContent;
+      _contasSelecionadas.push({ codigo_usuario: codigo, nome: nome });
+      renderChips();
+    }
+    document.getElementById('buscaConta').value = '';
+    document.getElementById('sugestoesConta').style.display = 'none';
+  });
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#buscaConta') && !e.target.closest('#sugestoesConta')) document.getElementById('sugestoesConta').style.display = 'none';
+  });
+  function renderChips(){
+    document.getElementById('contasChips').innerHTML = _contasSelecionadas.map(function(c){
+      return '<span class="chip">'+escHtml(c.nome)+' ('+escHtml(c.codigo_usuario)+')<button type="button" data-remover="'+escHtml(c.codigo_usuario)+'">×</button></span>';
+    }).join('');
+  }
+  document.getElementById('contasChips').addEventListener('click', function(e){
+    const btn = e.target.closest('[data-remover]');
+    if(!btn) return;
+    const codigo = btn.getAttribute('data-remover');
+    _contasSelecionadas = _contasSelecionadas.filter(function(c){ return c.codigo_usuario !== codigo; });
+    renderChips();
+  });
   async function rodar(){
-    const userIds = document.getElementById('userIds').value.split(/[,\\n]/).map(function(s){ return s.trim(); }).filter(Boolean);
-    if(!userIds.length){ alert('Digite ao menos um código de conta.'); return; }
+    const dosChips = _contasSelecionadas.map(function(c){ return c.codigo_usuario; });
+    const doTexto = document.getElementById('userIds').value.split(/[,\\n]/).map(function(s){ return s.trim(); }).filter(Boolean);
+    const userIds = [...new Set(dosChips.concat(doTexto))];
+    if(!userIds.length){ alert('Selecione ou digite ao menos uma conta.'); return; }
     const semVitrine = document.getElementById('semVitrine').checked;
     const diasAtras = document.getElementById('diasAtras').value;
     const btn = document.getElementById('btnRodar');

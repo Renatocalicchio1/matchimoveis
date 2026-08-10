@@ -17059,14 +17059,40 @@ https://www.matchimoveis.ia.br
   // contato pra tirar o número da lista (o e-mail nunca é excluído, só o
   // celular — é o e-mail que não muda e continua identificando o contato).
   const _WHATSAPP_AVISO_OPT_OUT = '\\n\\n(Se esse número não é seu ou você não quer mais receber mensagens, responde 1.)';
+  // 5 variações por estágio, sorteada uma a cada clique — mesma lógica do
+  // _sorteia() dos e-mails (services/campanha.js): manda texto repetido do
+  // mesmo número pra várias leads é caminho curto pro WhatsApp marcar como
+  // spam/banir o número do sub-admin.
+  const _WHATSAPP_VARIACOES = {
+    abriu_sem_clicar: (nome, link) => [
+      'Oi '+nome+'! Vi que você abriu o e-mail que te mandei sobre a Match Imóveis, mas ainda não deu uma olhada na plataforma. Dá uma conferida aqui: '+link,
+      'Oi '+nome+', tudo bem? Notei que você chegou a abrir o e-mail da Match Imóveis mas ainda não clicou pra ver. Vale a pena dar uma olhada: '+link,
+      'Oi '+nome+'! Passando aqui rapidinho — te mandei um e-mail sobre a Match Imóveis e vi que você abriu. Se quiser conferir é só entrar aqui: '+link,
+      'Oi '+nome+', bom dia! Vi que meu e-mail chegou até você mas acho que passou despercebido. Dá uma olhada quando puder: '+link,
+      'Oi '+nome+'! Você abriu o e-mail que mandei sobre a Match Imóveis — só reforçando o link caso queira ver: '+link,
+    ],
+    clicou_sem_cadastrar: (nome, link) => [
+      'Oi '+nome+'! Vi que você chegou a entrar na página da Match Imóveis, mas ainda não fez seu cadastro. Segue o link de novo, é rápido: '+link,
+      'Oi '+nome+', tudo certo? Vi que você entrou na Match Imóveis mas não chegou a se cadastrar. Leva menos de 1 minuto, segue o link: '+link,
+      'Oi '+nome+'! Notei que você deu uma olhada na plataforma da Match Imóveis. Se quiser continuar, é só finalizar o cadastro por aqui: '+link,
+      'Oi '+nome+', passando pra lembrar: você chegou a acessar a Match Imóveis mas o cadastro ficou pela metade. Termina aqui, é rápido: '+link,
+      'Oi '+nome+'! Vi que você visitou a Match Imóveis outro dia. Ainda dá tempo de fazer seu cadastro, é só clicar: '+link,
+    ],
+    cadastrou_sem_comprar: (nome) => [
+      'Oi '+nome+'! Vi que você já criou sua conta na Match Imóveis, mas ainda não pegou nenhum combo de leads. Posso te ajudar a escolher o melhor plano pra você — é só me chamar aqui!',
+      'Oi '+nome+', tudo bem? Vi que você já tem conta na Match Imóveis, mas ainda não ativou nenhum combo de leads. Quer que eu te mostre as opções?',
+      'Oi '+nome+'! Notei que seu cadastro na Match Imóveis já tá pronto, só falta escolher um plano de leads. Posso te ajudar a decidir qual combina mais com você.',
+      'Oi '+nome+', passando aqui rapidinho — sua conta na Match Imóveis já tá ativa, mas sem créditos ainda. Se quiser, te explico como funciona o sistema de coins.',
+      'Oi '+nome+'! Vi que você criou sua conta na Match Imóveis. Bora ativar seu primeiro combo de leads? Me chama que eu te oriento.',
+    ],
+  };
+  function _sorteiaWA(lista){ return lista[Math.floor(Math.random()*lista.length)]; }
   function _whatsappMensagem(c, estagio){
     const nome = (c.nome||'').trim().split(' ')[0] || 'tudo bem';
     const link = _LINK_POR_MODELO[c.modelo_usado] || _LINK_POR_MODELO.pagina;
-    let msg = '';
-    if(estagio === 'abriu_sem_clicar') msg = 'Oi '+nome+'! Vi que você abriu o e-mail que te mandei sobre a Match Imóveis, mas ainda não deu uma olhada na plataforma. Dá uma conferida aqui: '+link;
-    else if(estagio === 'clicou_sem_cadastrar') msg = 'Oi '+nome+'! Vi que você chegou a entrar na página da Match Imóveis, mas ainda não fez seu cadastro. Segue o link de novo, é rápido: '+link;
-    else if(estagio === 'cadastrou_sem_comprar') msg = 'Oi '+nome+'! Vi que você já criou sua conta na Match Imóveis, mas ainda não pegou nenhum combo de leads. Posso te ajudar a escolher o melhor plano pra você — é só me chamar aqui!';
-    else return '';
+    const gerador = _WHATSAPP_VARIACOES[estagio];
+    if(!gerador) return '';
+    const msg = _sorteiaWA(gerador(nome, link));
     return msg + _WHATSAPP_AVISO_OPT_OUT;
   }
   // Sob o nome do contato: se alguém já "atendeu" (clicou pra falar por

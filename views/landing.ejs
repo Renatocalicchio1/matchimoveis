@@ -157,7 +157,7 @@
       .fluxo::after{display:none}
       .feat{grid-template-columns:1fr}
       footer{padding:24px 20px;flex-direction:column;text-align:center}
-      .atividade-grid{grid-template-columns:repeat(2,1fr)}
+      .atividade-grid{grid-template-columns:1fr}
     }
   @keyframes piscar{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(1.04)}}
 </style>
@@ -556,7 +556,7 @@ function _montarCardAtividadeLanding(a){
     + '</div>';
 }
 (function(){
-  const NUM_CARDS = 4;
+  const NUM_CARDS = window.innerWidth <= 768 ? 1 : 4;
   const wrap = document.getElementById('atividade-wrap');
   const grid = document.getElementById('atividade-grid');
   const els = [];

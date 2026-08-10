@@ -14865,7 +14865,24 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     .combos{grid-template-columns:1fr}
     .signup-box{max-width:100%}
     .combo button,#btnComprar,#btnBuscarDemanda{width:100%}
+    .atividade-grid{grid-template-columns:1fr}
   }
+  .atividade-wrap{margin:16px 0}
+  .atividade-label{font-size:11px;font-weight:600;color:var(--sec);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px}
+  .atividade-label::before{content:'';width:7px;height:7px;background:#16a34a;border-radius:50%;animation:scrollHintPulso 1.5s infinite}
+  .atividade-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .atividade-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;text-align:left;min-height:230px;opacity:0;transition:opacity .4s ease}
+  .atividade-card.mostrar{opacity:1}
+  .atividade-card-foto{width:100%;height:88px;object-fit:cover;display:block;background:var(--bg)}
+  .atividade-card-corpo{padding:10px}
+  .atividade-card-topo{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-weight:600;font-size:11.5px;color:var(--ink);min-width:0}
+  .atividade-card-topo span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .atividade-card-valor{color:var(--babu);white-space:nowrap;flex-shrink:0;font-size:11px}
+  .atividade-card-contato{font-size:10px;color:var(--sec);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .atividade-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin:7px 0}
+  .atividade-card-tags span{background:var(--bg);border-radius:999px;padding:2px 7px;font-size:9.5px;font-weight:600;color:var(--sec)}
+  .atividade-card-loc{font-size:10.5px;color:var(--sec)}
+  .atividade-card-dias{font-size:10px;color:#16a34a;font-weight:600;margin-top:5px}
   .topbar-logo{display:flex;align-items:center;gap:8px;padding:16px 0 0}
   .topbar-logo .mark{width:28px;height:28px;background:var(--rausch);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
   .topbar-logo .nome{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
@@ -14883,6 +14900,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     ${disponiveis.recentes24h > 0 ? `<span>⏱ <strong>${disponiveis.recentes24h.toLocaleString('pt-BR')}</strong> chegaram nas últimas 24h</span>` : ''}
     <span>⚡ somem da lista assim que alguém compra</span>
   </div>` : ''}
+
+  <div class="atividade-wrap" id="atividade-wrap" style="display:none">
+    <p class="atividade-label">Acontecendo agora na plataforma</p>
+    <div class="atividade-grid" id="atividade-grid"></div>
+  </div>
 
   <div class="features-strip">
     <span>🏠 Match automático</span>
@@ -15410,6 +15432,101 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       window.location.href = d.url;
     } catch(e){ btn.disabled = false; statusEl.innerHTML = '<p class="red">Erro ao criar conta/pagamento.</p>'; }
   }
+
+  // ── Grade de atividade real (mesma fonte de dados do modal "pensando"
+  // acima: leads que já receberam vitrine + foto real do imóvel enviado) —
+  // fica sempre visível logo abaixo da barra de prova (🔥 disponíveis
+  // agora), não só durante uma busca. 4 cards no desktop, 1 no mobile;
+  // cada card gira sozinho no próprio lugar, um de cada vez.
+  (function(){
+    const NUM_CARDS = window.innerWidth <= 600 ? 1 : 4;
+    const wrapAt = document.getElementById('atividade-wrap');
+    const gridAt = document.getElementById('atividade-grid');
+    if(!wrapAt || !gridAt) return;
+    const elsAt = [];
+    for(let i=0;i<NUM_CARDS;i++){
+      const el = document.createElement('div');
+      el.className = 'atividade-card';
+      gridAt.appendChild(el);
+      elsAt.push(el);
+    }
+
+    let atividadeAt = [];
+    let indicesAt = [];
+
+    function _montarCardAtividadeGrid(a){
+      const valorTxt = a.Valor ? 'R$ '+Number(a.Valor).toLocaleString('pt-BR') : '';
+      const fotoHtml = a.Foto ? '<img class="atividade-card-foto" src="'+escHtml(a.Foto)+'" loading="lazy" onerror="this.remove()">' : '';
+      const contatoPartes = [];
+      if(a.Telefone) contatoPartes.push('📱 '+escHtml(a.Telefone));
+      if(a.Email) contatoPartes.push('✉️ '+escHtml(a.Email));
+      const contatoHtml = contatoPartes.length ? '<div class="atividade-card-contato">'+contatoPartes.join(' · ')+'</div>' : '';
+      const diasHtml = a.ProcurandoTexto ? '<div class="atividade-card-dias">⏱️ '+escHtml(a.ProcurandoTexto)+'</div>' : '';
+      return fotoHtml
+        + '<div class="atividade-card-corpo">'
+        + '<div class="atividade-card-topo"><span>👤 '+escHtml(a.Nome)+'</span>'+(valorTxt ? '<span class="atividade-card-valor">'+valorTxt+'</span>' : '')+'</div>'
+        + contatoHtml
+        + '<div class="atividade-card-tags">'+(a.Tipo ? '<span>🏠 '+escHtml(a.Tipo)+'</span>' : '')+'<span>'+(a.Transacao === 'aluguel' ? '🔑 Aluguel' : '🛒 Venda')+'</span>'+(a.Quartos ? '<span>🛏️ '+escHtml(a.Quartos)+' qts</span>' : '')+'</div>'
+        + '<div class="atividade-card-loc">📍 '+escHtml(a.Bairro)+(a.Cidade ? ', '+escHtml(a.Cidade) : '')+'</div>'
+        + diasHtml
+        + '</div>';
+    }
+
+    function sortearIndicesAt(){
+      const pool = atividadeAt.map((_, i) => i);
+      for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+      return elsAt.map((_, i) => pool[i % pool.length]);
+    }
+
+    function renderCardAt(i){
+      elsAt[i].innerHTML = _montarCardAtividadeGrid(atividadeAt[indicesAt[i]]);
+      elsAt[i].classList.add('mostrar');
+    }
+
+    function renderTudoAt(){
+      elsAt.forEach((el, i) => {
+        el.classList.remove('mostrar');
+        setTimeout(() => renderCardAt(i), 150);
+      });
+    }
+
+    function proximoIndiceAt(cardIdx){
+      const usadosPorOutros = indicesAt.filter((_, i) => i !== cardIdx);
+      const livres = atividadeAt.map((_, i) => i).filter(i => !usadosPorOutros.includes(i) && i !== indicesAt[cardIdx]);
+      if(livres.length) return livres[Math.floor(Math.random()*livres.length)];
+      const alternativas = atividadeAt.map((_, i) => i).filter(i => i !== indicesAt[cardIdx]);
+      return alternativas.length ? alternativas[Math.floor(Math.random()*alternativas.length)] : indicesAt[cardIdx];
+    }
+
+    function iniciarCicloCardAt(i){
+      setInterval(() => {
+        if(!atividadeAt.length) return;
+        elsAt[i].classList.remove('mostrar');
+        setTimeout(() => {
+          indicesAt[i] = proximoIndiceAt(i);
+          renderCardAt(i);
+        }, 300);
+      }, 4500);
+    }
+
+    async function carregarAtividadeAt(){
+      try {
+        const r = await fetch('${apiPrefix}/atividade', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({}) });
+        const d = await r.json();
+        const nova = (d && d.ok && d.atividade) ? d.atividade : [];
+        if(!nova.length){ wrapAt.style.display = 'none'; return; }
+        atividadeAt = nova;
+        indicesAt = sortearIndicesAt();
+        wrapAt.style.display = 'block';
+        renderTudoAt();
+      } catch(e) {}
+    }
+
+    carregarAtividadeAt().then(() => {
+      elsAt.forEach((_, i) => setTimeout(() => iniciarCicloCardAt(i), i * 1100));
+    });
+    setInterval(carregarAtividadeAt, 45000);
+  })();
 
   ${isAdmin ? `
   // ── Transferência manual de leads pra conta escolhida (só admin) ────────

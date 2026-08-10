@@ -97,6 +97,8 @@ Em segundos você descobre:
 • Em quais bairros a demanda está maior
 • Sem custo pra consultar, sem compromisso
 
+E não é só ver o número: ao criar sua conta, esses leads já entram nela — você abre o painel e já tem gente pra atender hoje mesmo, não precisa esperar chegar cliente do zero.
+
 Quem chega primeiro, atende primeiro.
 
 — Equipe Match Imóveis`
@@ -109,7 +111,7 @@ Não são leads genéricos de cadastro — são pessoas reais buscando imóvel n
 
 • Veja quantos existem na sua região agora mesmo
 • Sem custo pra consultar
-• Você decide depois se quer levar pra sua conta
+• Sua conta já nasce com esses leads dentro — comece a atender hoje, não amanhã
 
 — Equipe Match Imóveis`
     },
@@ -121,7 +123,7 @@ Descubra agora, de graça, quantas pessoas estão buscando imóvel no seu bairro
 
 • Consulta gratuita, sem cadastro
 • Sem mensalidade e sem comissão
-• Você decide levar os leads pra sua conta se quiser
+• Leve esses leads pra sua conta e comece a atender no mesmo dia — ela já abre com eles dentro
 
 — Equipe Match Imóveis`
     },
@@ -133,7 +135,9 @@ Enquanto você lê este email, pode ter alguém buscando exatamente um imóvel n
 
 • Veja o número real da sua região
 • Grátis e sem cadastro
-• Leva menos de 1 minuto pra consultar
+• Sua conta já entra com essas leads pra você atender — nada de começar do zero
+
+Leva menos de 1 minuto pra consultar.
 
 — Equipe Match Imóveis`
     }

@@ -14837,8 +14837,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .combo .label{font-size:12px;color:var(--sec);margin:2px 0 10px}
   .combo .preco{font-size:18px;font-weight:bold;color:var(--babu)}
   .combo .preco span{font-size:11px;color:var(--sec);font-weight:normal}
+  .combo .preco-original{font-size:13px;color:var(--sec);font-weight:normal;text-decoration:line-through;margin-right:6px}
   .combo button{width:100%;margin-top:12px}
   .combo.combo-recomendado button{background:var(--rausch)}
+  .promo-desconto{background:linear-gradient(135deg,var(--rausch),var(--arches));color:#fff;border-radius:10px;padding:12px 16px;margin:14px 0;text-align:center;font-size:14px;font-weight:700}
+  .promo-desconto span{display:block;font-size:12px;font-weight:600;opacity:.95;margin-top:2px}
   .modal-overlay{position:fixed;inset:0;background:rgba(17,24,39,.6);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px}
   .signup-box{background:#fff;border-radius:14px;padding:24px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 50px rgba(0,0,0,.25)}
   .signup-box .combo-escolhido{background:var(--bg);border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:14px}
@@ -14989,6 +14992,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       <h2 class="secao">📦 Escolha seu combo</h2>
       <p class="gray" style="font-size:13px">Combos de leads mineradas por mês — já indicamos qual cabe na quantidade que a IA encontrou.</p>
       <p class="gray" style="font-size:13px">Se preferir, pode escolher um combo menor — nesse caso você recebe a quantidade de leads do combo escolhido, não o total encontrado na busca. Outra opção é diminuir os dias da busca lá em cima pra encontrar menos leads e enquadrar no combo que você quer.</p>
+      <div id="promo-desconto-combo"></div>
       <div class="combos" id="combos-lista"></div>
     </div>
 
@@ -15452,23 +15456,27 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     const ordemExibida = PLANOS_ORDEM.concat([PLANO_ILIMITADO]);
     const FEATURES_COMBO = ['Gera vitrine automática', 'Post Instagram automático', 'Site próprio', 'Imóveis ilimitado', 'Conexão com WhatsApp', 'Suba seus imóveis (XML ou manual) e comece a gerar leads pra eles também'];
     const featuresHtml = '<ul class="combo-features">' + FEATURES_COMBO.map(function(f){ return '<li>'+escHtml(f)+'</li>'; }).join('') + '</ul>';
+    const promoHtml = '<div class="promo-desconto">🎉 Você acabou de ganhar 50% OFF na primeira conta!<span>Não perca essa oportunidade — preço válido só agora, na sua primeira compra.</span></div>';
     document.getElementById('combos-lista').innerHTML = ordemExibida.map(function(k){
       const p = PLANOS[k];
       const rec = k === recomendado;
       const qtdTxt = p.ilimitado ? '∞' : p.qtd;
       const unidade = p.ilimitado ? ' /mês' : ' /combo';
-      const porLead = p.ilimitado ? '' : '<div class="por-lead">R$ '+(p.valor/p.qtd).toFixed(2).replace('.',',')+' por lead</div>';
+      const valorDesconto = _valorComDesconto(p.valor);
+      const porLead = p.ilimitado ? '' : '<div class="por-lead">R$ '+(valorDesconto/p.qtd).toFixed(2).replace('.',',')+' por lead</div>';
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
         + (rec ? '<span class="badge">✅ Plano compatível</span>' : '')
         + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'
-        + '<div class="preco">R$ '+p.valor+'<span>'+unidade+'</span></div>'
+        + '<div class="preco"><span class="preco-original">R$ '+p.valor+'</span>R$ '+valorDesconto+'<span>'+unidade+'</span></div>'
         + porLead
         + featuresHtml
         + '<button type="button" data-escolher="'+k+'">Quero esse →</button>'
         + '</div>';
     }).join('');
+    document.getElementById('promo-desconto-combo').innerHTML = promoHtml;
     box.style.display = 'block';
   }
+  function _valorComDesconto(valorOriginal){ return Math.round(valorOriginal * 0.5); }
 
   document.getElementById('combos-lista').addEventListener('click', function(e){
     const btn = e.target.closest('[data-escolher]');
@@ -15481,7 +15489,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       ? 'Sua busca encontrou '+totalEncontrado+' leads, mas esse combo entrega '+p.qtd+' — as demais ficam disponíveis pra comprar depois. '
         + 'Se preferir, <a href="#" onclick="fecharModalCompra();document.getElementById(\\'diasBusca\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'});return false;">diminua os dias da busca</a> pra encontrar menos leads e enquadrar nesse combo.'
       : 'Os leads encontrados na sua busca vão pra sua conta assim que o pagamento for aprovado.';
-    document.getElementById('combo-escolhido-resumo').innerHTML = '<strong>'+escHtml(p.label)+'</strong> — R$ '+p.valor+'<br><span class="gray">'+avisoQtd+'</span>';
+    document.getElementById('combo-escolhido-resumo').innerHTML = '<strong>'+escHtml(p.label)+'</strong> — <span style="text-decoration:line-through;color:var(--sec)">R$ '+p.valor+'</span> R$ '+_valorComDesconto(p.valor)+' <span class="gray">(50% OFF primeira conta)</span><br><span class="gray">'+avisoQtd+'</span>';
     abrirModalCompra();
   });
 
@@ -15892,12 +15900,18 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
     const preference = new Preference(_mpClient);
     const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';
 
+    // Todo cadastro por essa rota é a 1ª conta do comprador (o cadastro acima
+    // já rejeita telefone/email já existente) — por isso 50% OFF aplicado
+    // sempre aqui, sem precisar checar "é a primeira compra?". Mesma qtd de
+    // leads e mesmos créditos do combo, só o valor cobrado é metade.
+    const valorComDesconto = Math.round(pacote.valor * 0.5);
+
     const result = await preference.create({
       body: {
         items: [{
-          title: `${pacote.label} — MatchImóveis`,
+          title: `${pacote.label} — 50% OFF primeira conta — MatchImóveis`,
           quantity: 1,
-          unit_price: pacote.valor,
+          unit_price: valorComDesconto,
           currency_id: 'BRL'
         }],
         payer: { name: nomeVal, email: emailVal },
@@ -15911,7 +15925,7 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
         payment_methods: { excluded_payment_types: [{ id: 'ticket' }] },
         metadata: {
           userId: codigoNovo, tipo: 'combo_demanda', plano, qtd: pacote.qtd || 0, label: pacote.label,
-          valor: pacote.valor, creditos: pacote.creditos,
+          valor: valorComDesconto, creditos: pacote.creditos,
           estado: criterios.estado, pares: JSON.stringify(criterios.pares),
           transacoes: JSON.stringify(criterios.transacoes || []), horas: diasFinal * 24
         }

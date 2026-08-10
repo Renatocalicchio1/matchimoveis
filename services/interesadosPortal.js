@@ -185,9 +185,11 @@ async function _garantirTabelaInteresados() {
   )`);
   // data_lead foi adicionada depois — tabela já existe em produção sem essa coluna
   await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS data_lead TIMESTAMP').catch(() => {});
-  // vendido_em/vendido_para — marca quando um interessado foi entregue pra
-  // conta de quem comprou um combo em /demanda, pra nunca vender a mesma
-  // lead pra 2 compradores diferentes (some da busca pública depois de vendida).
+  // vendido_em/vendido_para — colunas legadas (jul/2026 pra trás a compra em
+  // /demanda excluía a lead da busca depois de vendida; hoje não exclui mais,
+  // a mesma lead pode ser comprada por vários corretores — só some da busca
+  // quando passa do teto de dias escolhido). Mantidas só pra não quebrar
+  // upsert de linhas antigas que já tinham essas colunas preenchidas.
   await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS vendido_em TIMESTAMP').catch(() => {});
   await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS vendido_para TEXT').catch(() => {});
 }

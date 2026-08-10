@@ -9962,7 +9962,7 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
       let entreguesQtd = 0;
       if (userId) {
         try {
-          const { buscarDemandaParaEntrega, marcarVendidos } = require('./services/buscaDemanda');
+          const { buscarDemandaParaEntrega } = require('./services/buscaDemanda');
           const { salvarLead: _salvarLeadDemanda } = require('./services/salvarLead');
           let pares = [], transacoes = [];
           try { pares = JSON.parse(meta.pares || '[]'); } catch(e2) {}
@@ -9987,8 +9987,6 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
               entreguesQtd++;
             } catch (eLead) { console.error('[MP] erro ao entregar lead combo_demanda:', eLead.message); }
           }
-          const rowIds = encontrados.map(l => l._rowId).filter(Boolean);
-          if (rowIds.length) await marcarVendidos(rowIds, userId);
         } catch (eDem) { console.error('[MP] erro ao entregar leads combo_demanda:', eDem.message); }
 
         if (creditos > 0) {
@@ -15716,7 +15714,7 @@ app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res
     if (!_contaRows.length) return res.json({ ok: false, erro: 'Conta de destino não encontrada' });
 
     const diasFinal = Math.min(30, Math.max(1, parseInt(dias, 10) || 30));
-    const { buscarDemandaParaEntrega, marcarVendidos } = require('./services/buscaDemanda');
+    const { buscarDemandaParaEntrega } = require('./services/buscaDemanda');
     const { salvarLead: _slTransf } = require('./services/salvarLead');
     const encontrados = await buscarDemandaParaEntrega({ estado, pares, transacoes: transacoes || [], horas: diasFinal * 24, limite: 0 });
 
@@ -15755,9 +15753,6 @@ app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res
         importados++;
       } catch (eLead) { console.error('[admin/demanda/transferir] erro ao salvar lead:', eLead.message); }
     }
-
-    const rowIds = encontrados.map(l => l._rowId).filter(Boolean);
-    if (rowIds.length) await marcarVendidos(rowIds, contaDestino);
 
     // Taxa única de créditos por lead (mesma de qualquer lead entrando numa
     // conta, seja manual ou importada — CUSTO.nova_lead em services/creditos.js)

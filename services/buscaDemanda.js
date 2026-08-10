@@ -32,15 +32,13 @@ function _sigla(s) {
 // Estado/cidade/bairro do seletor só mostram onde tem demanda de verdade
 // minerada do portal (Interessados de Portal, últimos 30 dias — mesmo teto
 // da própria busca) — lista de todo o Brasil só teria opção vazia na
-// esmagadora maioria dos casos. vendido_em IS NULL: mesmo filtro da busca —
-// senão um estado/cidade/bairro que só tem interessado já vendido continua
-// aparecendo pra escolher e a busca depois volta vazia (o "lead" mostrado
-// já foi entregue pra outro comprador).
+// esmagadora maioria dos casos. Sem filtro de vendido: comprar uma lead não
+// tira ela da base — outro corretor pode comprar a mesma, ela só some
+// depois de passar do teto de dias (30).
 async function _coletarSinaisRecentes() {
-  await _garantirColunasVenda();
   try {
     const { rows } = await query(
-      `SELECT estado, cidade, bairro FROM interessados_portal WHERE vendido_em IS NULL AND COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30)`
+      `SELECT estado, cidade, bairro FROM interessados_portal WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30)`
     );
     return rows.map(r => ({ estado: r.estado || '', cidade: r.cidade || '', bairro: r.bairro || '' }));
   } catch (e) {
@@ -104,35 +102,20 @@ function _normTransacao(v) {
 // Area_max, Valor_max — id/criadoEm/fonte ficam só pra ordenar/rastrear,
 // não fazem parte do modelo.
 
-// Garante vendido_em/vendido_para sem depender de interesadosPortal.js já
-// ter rodado sua própria migração (ela só roda quando alguém abre a tela de
-// Interessados de Portal) — sem isso a query abaixo falha com "coluna não
-// existe" logo após o deploy, o catch engole o erro e a busca fica sempre
-// vazia mesmo com bairro selecionado direto da lista de quem tem demanda.
-let _colunasVendaOk = false;
-async function _garantirColunasVenda() {
-  if (_colunasVendaOk) return;
-  try {
-    await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS vendido_em TIMESTAMP');
-    await query('ALTER TABLE interessados_portal ADD COLUMN IF NOT EXISTS vendido_para TEXT');
-    _colunasVendaOk = true;
-  } catch (e) { /* tabela pode nem existir ainda — segue e deixa a query de baixo tratar */ }
-}
-
 // Única fonte: planilha acumulada de Interessados de Portal
 // (services/interesadosPortal.js) — bairro/cidade/transação já vêm em
 // coluna própria (Bairro/Cidade/Estado/Transacao).
 async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas) {
-  await _garantirColunasVenda();
   let rows;
   try {
     ({ rows } = await query(
       // COALESCE(data_lead, criado_em): data_lead é a data real do interessado
       // no portal (coluna "Data" da planilha) — usa criado_em (data do upload)
       // só como fallback pra linhas antigas onde a data não deu pra parsear.
-      // vendido_em IS NULL: some da busca (e não pode ser entregue de novo)
-      // depois que já foi vendido pra algum comprador do combo em /demanda.
-      `SELECT * FROM interessados_portal WHERE vendido_em IS NULL AND COALESCE(data_lead, criado_em) >= NOW() - make_interval(hours => $1::int) ORDER BY COALESCE(data_lead, criado_em) DESC`,
+      // Sem filtro de vendido: comprar não tira a lead da base, ela fica
+      // disponível pra outros corretores comprarem também — só desaparece
+      // quando passa do teto de dias escolhido na busca (até 30).
+      `SELECT * FROM interessados_portal WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(hours => $1::int) ORDER BY COALESCE(data_lead, criado_em) DESC`,
       [horas]
     ));
   } catch (e) {
@@ -215,25 +198,17 @@ async function buscarDemandaParaEntrega({ estado, pares = [], transacoes = [], h
   return limite > 0 ? encontrados.slice(0, limite) : encontrados;
 }
 
-// Marca as linhas entregues como vendidas — some da busca pública e nunca
-// mais é entregue de novo pra outro comprador.
-async function marcarVendidos(rowIds, userId) {
-  if (!rowIds || !rowIds.length) return;
-  await _garantirColunasVenda();
-  await query('UPDATE interessados_portal SET vendido_em = NOW(), vendido_para = $1 WHERE id = ANY($2)', [userId, rowIds]);
-}
-
 // Estatística real (não inventada) pra barra de prova social/urgência da
-// tela — total de interessados disponíveis agora (não vendidos ainda) e
-// quantos chegaram nas últimas 24h, nacional, últimos 30 dias.
+// tela — total de interessados disponíveis agora e quantos chegaram nas
+// últimas 24h, nacional, últimos 30 dias. Sem filtro de vendido — comprar
+// não tira ninguém da contagem, a lead continua disponível pra outros.
 async function contarDisponiveis() {
-  await _garantirColunasVenda();
   try {
     const { rows } = await query(
       `SELECT COUNT(*)::int AS total,
               COUNT(*) FILTER (WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(hours => 24))::int AS recentes24h
        FROM interessados_portal
-       WHERE vendido_em IS NULL AND COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30)`
+       WHERE COALESCE(data_lead, criado_em) >= NOW() - make_interval(days => 30)`
     );
     return { total: rows[0]?.total || 0, recentes24h: rows[0]?.recentes24h || 0 };
   } catch (e) {
@@ -326,4 +301,4 @@ async function listarAtividadeRecente({ limite = 24, estado = '', pares = [] } =
     }));
 }
 
-module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, marcarVendidos, contarDisponiveis, listarAtividadeRecente };
+module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, contarDisponiveis, listarAtividadeRecente };

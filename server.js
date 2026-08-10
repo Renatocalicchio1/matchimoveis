@@ -14826,8 +14826,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .por-lead{font-size:11px;color:var(--sec);margin-top:2px}
   .hero-tags{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px}
   .hero-tags span{font-size:12px;font-weight:600}
-  .features-strip{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 12px;margin:28px 0 0}
-  .features-strip span{background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap}
   .combos{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:14px 0}
   .combo{background:#fff;border:2px solid var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s,transform .15s}
   .combo:hover{border-color:var(--babu);transform:translateY(-2px)}
@@ -14909,17 +14907,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   <div class="atividade-wrap" id="atividade-wrap" style="display:none">
     <p class="atividade-label">Acontecendo agora na plataforma</p>
     <div class="atividade-grid" id="atividade-grid"></div>
-  </div>
-
-  <div class="features-strip">
-    <span>🏠 Match automático</span>
-    <span>📅 Agenda visita</span>
-    <span>📸 Posts pro Instagram</span>
-    <span>🎁 Indicação com bônus</span>
-    <span>💰 Sem comissão</span>
-    <span>🤝 +300 mil imóveis no Brasil</span>
-    <span>🖼️ Vitrine automática</span>
-    <span>📲 Disparo por WhatsApp</span>
   </div>
 
   <div class="box">

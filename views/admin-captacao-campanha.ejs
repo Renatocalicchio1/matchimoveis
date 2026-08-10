@@ -40,7 +40,7 @@ header .badge{background:#FF385C;color:#fff;font-size:11px;padding:2px 8px;borde
 .tabela-box{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;overflow-x:auto}
 .tabela-titulo{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .tabela-titulo h2{font-size:14px;font-weight:600}
-table{width:100%;border-collapse:collapse;font-size:12px;min-width:820px}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:1120px}
 th{text-align:left;padding:8px;background:#f9f9f7;font-size:10.5px;text-transform:uppercase;color:#6b7280;white-space:nowrap;border-bottom:1px solid #e5e5e3}
 td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
 .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600}
@@ -109,8 +109,8 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
         </select>
       </div>
       <table>
-        <thead><tr><th>Nome</th><th>Email</th><th>Celular</th><th>Data enviado</th><th>Abriu</th><th>Clicou</th><th>Iniciou cadastro</th><th>E-mail</th></tr></thead>
-        <tbody id="tabelaEnvios"><tr><td colspan="8" style="text-align:center;color:#9ca3af">Carregando...</td></tr></tbody>
+        <thead><tr><th>Nome</th><th>Email</th><th>Celular</th><th>Data enviado</th><th>Abriu</th><th>Clicou</th><th>Iniciou cadastro</th><th>F.up 1</th><th>F.up 2</th><th>F.up 3</th><th>E-mail</th></tr></thead>
+        <tbody id="tabelaEnvios"><tr><td colspan="11" style="text-align:center;color:#9ca3af">Carregando...</td></tr></tbody>
       </table>
       <div id="paginacao" style="margin-top:10px;font-size:12.5px;color:#6b7280"></div>
     </div>
@@ -165,8 +165,101 @@ async function pausarCampanha(){
 }
 function _tag(cond){ return cond ? '<span class="tag tag-sim">Sim</span>' : '<span class="tag tag-nao">Não</span>'; }
 function _dataFmt(iso){ return iso ? new Date(iso).toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo' }) : ''; }
+
+// ── WhatsApp manual + follow-up (mesmo sistema de /admin/campanha) ─────────
+const LINK_CAPTACAO = 'https://matchimoveis.ia.br/captar/REN-G9K6';
+const AVISO_OPT_OUT = '\n\n(Se esse número não é seu ou você não quer mais receber mensagens, responde 1.)';
+
+// Campo às vezes vem com mais de um número junto (fixo + celular na mesma
+// célula) — separa por vírgula/barra/ponto-e-vírgula e prioriza celular
+// (11 dígitos de DDD+número) sobre fixo (10 dígitos, que nem tem WhatsApp).
+function _celularWA(raw){
+  const candidatos = String(raw||'').split(/[,/;]+/)
+    .map(function(p){ return p.replace(/\D/g,'').replace(/^55/,''); })
+    .filter(Boolean);
+  const movel = candidatos.find(function(d){ return d.length === 11; });
+  if(movel) return '55'+movel;
+  const fixo = candidatos.find(function(d){ return d.length === 10; });
+  if(fixo) return '55'+fixo;
+  return '';
+}
+
+// Estágio por estado atual (sem prazo de 24h — isso é só pro follow-up
+// automático; o botão manual reflete o funil agora, na hora do clique).
+function _whatsappEstagio(e){
+  if(!_celularWA(e.telefone)) return null;
+  if(e.iniciou_cadastro_em) return null; // já iniciou, converteu
+  if(e.clicado_em) return 'clicou_sem_iniciar';
+  if(e.aberto_em) return 'abriu_sem_clicar';
+  if(e.enviado_em) return 'nao_abriu';
+  return null;
+}
+
+const WHATSAPP_VARIACOES = {
+  nao_abriu: function(nome, link){ return [
+    'Oi '+nome+'! Te mandei um e-mail sobre cadastrar seu imóvel com a gente, mas acho que passou despercebido. Dá uma olhada aqui: '+link,
+    'Oi '+nome+', tudo bem? Reforçando o convite pra cadastrar seu imóvel — sem custo, leva 2 minutos: '+link,
+    'Oi '+nome+'! Passando rapidinho — mandei um e-mail sobre colocar seu imóvel na nossa rede de corretores. Segue o link: '+link,
+    'Oi '+nome+', bom dia! Vi que meu e-mail sobre cadastrar seu imóvel ainda não foi aberto. Vale a pena conferir: '+link,
+    'Oi '+nome+'! Quero te ajudar a divulgar seu imóvel sem custo nenhum. Cadastra aqui quando puder: '+link,
+  ]; },
+  abriu_sem_clicar: function(nome, link){ return [
+    'Oi '+nome+'! Vi que você abriu o e-mail sobre cadastrar seu imóvel, mas ainda não deu uma olhada na página. Segue o link: '+link,
+    'Oi '+nome+', tudo certo? Notei que você abriu meu e-mail sobre o imóvel. Falta só clicar aqui pra cadastrar: '+link,
+    'Oi '+nome+'! Você chegou a ver o convite pra cadastrar seu imóvel — se quiser continuar, é só entrar aqui: '+link,
+    'Oi '+nome+', passando pra lembrar: você abriu o e-mail sobre o imóvel mas ainda não visitou a página. Segue de novo: '+link,
+    'Oi '+nome+'! Vi que você abriu o e-mail. Ainda dá tempo de cadastrar seu imóvel sem custo: '+link,
+  ]; },
+  clicou_sem_iniciar: function(nome){ return [
+    'Oi '+nome+'! Vi que você chegou a entrar na página do seu imóvel, mas não finalizou o cadastro. Posso te ajudar a terminar?',
+    'Oi '+nome+', tudo bem? Notei que você visitou a página de cadastro do imóvel, mas ficou pela metade. Quer ajuda pra finalizar?',
+    'Oi '+nome+'! Faltou só terminar o cadastro do seu imóvel. Posso te ajudar com alguma dúvida?',
+    'Oi '+nome+', passando pra lembrar: seu cadastro ficou incompleto. Se quiser, te ajudo a finalizar agora.',
+    'Oi '+nome+'! Vi que você chegou perto de cadastrar seu imóvel com a gente. Bora terminar? Me chama se tiver alguma dúvida.',
+  ]; },
+};
+function _sorteiaWA(lista){ return lista[Math.floor(Math.random()*lista.length)]; }
+function _whatsappMensagem(e, estagio){
+  const nome = (e.nome||'').trim().split(' ')[0] || 'tudo bem';
+  const gerador = WHATSAPP_VARIACOES[estagio];
+  if(!gerador) return '';
+  const msg = _sorteiaWA(gerador(nome, LINK_CAPTACAO));
+  return msg + AVISO_OPT_OUT;
+}
+// Sob o nome: quem já atendeu (clicou pra falar por WhatsApp) aparece
+// marcado — senão, mostra o botão se tiver estágio + celular válido.
+// Ninguém sobrescreve quem já atendeu.
+function _subNome(e){
+  if(e.atendido_por_nome){
+    return '<div style="font-size:11px;font-weight:600;color:'+escHtml(e.atendido_por_cor||'#6b7280')+';margin-top:2px">✅ Atendido por '+escHtml(e.atendido_por_nome)+'</div>';
+  }
+  const estagio = _whatsappEstagio(e);
+  if(!estagio) return '';
+  const rotulos = { nao_abriu: '📲 Reenviar link', abriu_sem_clicar: '📲 Lembrar cadastro', clicou_sem_iniciar: '📲 Ajudar a terminar' };
+  return '<button type="button" class="btn-atender-wa" data-id="'+e.id+'" style="margin-top:4px;background:#25D366;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotulos[estagio]+'</button>';
+}
+async function _clicarWhatsapp(e){
+  const estagio = _whatsappEstagio(e);
+  if(!estagio) return;
+  const tel = _celularWA(e.telefone);
+  if(!tel) return;
+  const link = 'https://wa.me/'+tel+'?text='+encodeURIComponent(_whatsappMensagem(e, estagio));
+  try {
+    const r = await fetch('/admin/captacao-campanha/contatos/'+e.id+'/atender', { method:'POST' });
+    const d = await r.json();
+    if(d.ok === false && d.jaAtendido){
+      alert('Esse contato já está sendo atendido por '+(d.nome||'outra pessoa')+'.');
+      carregarTabela(_paginaEnvios);
+      return;
+    }
+  } catch(err){}
+  window.open(link, '_blank');
+  carregarTabela(_paginaEnvios);
+}
+
 let _paginaEnvios = 1;
 function buscar(){ _paginaEnvios = 1; carregarTabela(); }
+let _ultimosEnvios = [];
 async function carregarTabela(pagina){
   if(pagina) _paginaEnvios = pagina;
   try {
@@ -176,11 +269,33 @@ async function carregarTabela(pagina){
     const d = await r.json();
     const tbody = document.getElementById('tabelaEnvios');
     if(!tbody) return;
-    if(!d.ok || !d.envios.length){ tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#9ca3af">Nenhum envio encontrado.</td></tr>'; document.getElementById('paginacao').innerHTML = ''; return; }
+    if(!d.ok || !d.envios.length){ tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#9ca3af">Nenhum envio encontrado.</td></tr>'; document.getElementById('paginacao').innerHTML = ''; return; }
+    _ultimosEnvios = d.envios;
     tbody.innerHTML = d.envios.map(function(e){
-      if(e.erro) return '<tr><td>'+escHtml(e.nome)+'</td><td>'+escHtml(e.email)+'</td><td>'+escHtml(e.telefone||'')+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td colspan="3"><span class="tag tag-erro">Erro: '+escHtml(e.erro)+'</span></td><td>—</td></tr>';
-      return '<tr><td>'+escHtml(e.nome)+'</td><td>'+escHtml(e.email)+'</td><td>'+escHtml(e.telefone||'')+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td>'+_tag(e.aberto_em)+'</td><td>'+_tag(e.clicado_em)+'</td><td>'+_tag(e.iniciou_cadastro_em)+'</td><td><a class="link-preview" href="/admin/captacao-campanha/preview/'+e.id+'" target="_blank">Ver e-mail →</a></td></tr>';
+      const trBg = e.atendido_por_cor ? ' style="background:'+escHtml(e.atendido_por_cor)+'1a"' : '';
+      const celularCel = e.telefone
+        ? escHtml(e.telefone)+' <button type="button" class="btn-excluir-celular" data-id="'+e.id+'" title="Excluir celular (número errado ou pediu pra não receber mais)" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;margin-left:2px">🗑️</button>'
+        : '<span style="color:#9ca3af">—</span>';
+      if(e.erro) return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td colspan="6"><span class="tag tag-erro">Erro: '+escHtml(e.erro)+'</span></td><td>—</td></tr>';
+      return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td>'+_tag(e.aberto_em)+'</td><td>'+_tag(e.clicado_em)+'</td><td>'+_tag(e.iniciou_cadastro_em)+'</td><td>'+_tag(e.followup1_enviado_em)+'</td><td>'+_tag(e.followup2_enviado_em)+'</td><td>'+_tag(e.followup3_enviado_em)+'</td><td><a class="link-preview" href="/admin/captacao-campanha/preview/'+e.id+'" target="_blank">Ver e-mail →</a></td></tr>';
     }).join('');
+    document.querySelectorAll('.btn-atender-wa').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        const id = btn.getAttribute('data-id');
+        const contato = _ultimosEnvios.find(function(e){ return String(e.id) === String(id); });
+        if(contato) _clicarWhatsapp(contato);
+      });
+    });
+    document.querySelectorAll('.btn-excluir-celular').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('Excluir o celular desse contato? O e-mail e o histórico continuam guardados, só o número some.')) return;
+        const id = btn.getAttribute('data-id');
+        const r = await fetch('/admin/captacao-campanha/contatos/'+id+'/excluir-celular', { method:'POST' });
+        const d = await r.json();
+        if(!d.ok){ alert(d.erro || 'Erro'); return; }
+        carregarTabela(_paginaEnvios);
+      });
+    });
     let pag = '';
     if(_paginaEnvios > 1) pag += '<button class="btn" style="background:#6b7280;color:#fff" onclick="carregarTabela('+(_paginaEnvios-1)+')">← Anterior</button> ';
     pag += '<span>Página '+_paginaEnvios+' — '+d.total+' envio'+(d.total===1?'':'s')+'</span> ';

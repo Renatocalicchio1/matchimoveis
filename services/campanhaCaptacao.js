@@ -54,6 +54,36 @@ const GANCHOS = [
 
 function _sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
 
+// ── Follow-ups automáticos (3 estágios, 5 variações cada) ──────────────────
+// Mesmo princípio da campanha geral (services/campanha.js): nunca manda o
+// mesmo texto sempre igual. Gatilho de cada estágio (ver proximoFollowup1/2/3
+// abaixo): 1) não abriu o e-mail original; 2) abriu mas não clicou no link;
+// 3) clicou mas não chegou a iniciar o cadastro do imóvel — 24h depois do
+// respectivo evento, 1x por contato por estágio.
+const MODELOS_FOLLOWUP = {
+  followup1: [
+    { assunto: 'Você viu o convite pra cadastrar seu imóvel?', corpo: 'Te mandei um e-mail sobre cadastrar seu imóvel na nossa rede de corretores, mas talvez tenha passado despercebido. Ainda dá tempo — leva menos de 2 minutos.' },
+    { assunto: 'Ainda dá tempo de cadastrar seu imóvel', corpo: 'Notei que você ainda não abriu o e-mail que mandei sobre colocar seu imóvel numa rede com mais de 9.000 corretores. Vale a pena dar uma olhada.' },
+    { assunto: 'Seu imóvel pode estar rendendo mais', corpo: 'Passando aqui de novo — te mandei um convite pra cadastrar seu imóvel sem custo, mas acho que ele passou batido. Confira quando puder.' },
+    { assunto: '2 minutos pra colocar seu imóvel à venda ou aluguel', corpo: 'Reforçando o convite: cadastre seu imóvel na nossa plataforma e ele passa a aparecer pra milhares de interessados, sem nenhum custo.' },
+    { assunto: 'Não quero que você perca essa oportunidade', corpo: 'Te chamei outro dia pra cadastrar seu imóvel com a gente, mas acho que o e-mail não chegou a ser aberto. Segue o convite de novo.' },
+  ],
+  followup2: [
+    { assunto: 'Vi que você abriu meu e-mail sobre o seu imóvel', corpo: 'Você chegou a abrir o e-mail sobre cadastrar seu imóvel, mas ainda não deu o próximo passo. Dá uma olhada na página, é rápido.' },
+    { assunto: 'Falta só um clique pra cadastrar seu imóvel', corpo: 'Notei que você abriu meu e-mail mas ainda não visitou a página de cadastro. Leva menos de 2 minutos, sem compromisso.' },
+    { assunto: 'Seu imóvel ainda não está na nossa rede', corpo: 'Vi que você deu uma olhada no e-mail, mas ainda falta clicar pra ver como funciona o cadastro. Vale a pena conferir.' },
+    { assunto: 'Passando pra lembrar do seu imóvel', corpo: 'Você abriu o convite que mandei, mas ainda não visitou a página de cadastro do imóvel. Sem comissão pra cadastrar, é só clicar.' },
+    { assunto: 'Ainda dá tempo de colocar seu imóvel na vitrine', corpo: 'Vi que você abriu o e-mail sobre cadastrar seu imóvel. Se quiser continuar, é só entrar na página e preencher os dados básicos.' },
+  ],
+  followup3: [
+    { assunto: 'Faltou só finalizar o cadastro do seu imóvel', corpo: 'Vi que você chegou a entrar na página pra cadastrar seu imóvel, mas não chegou a preencher os dados. Volta lá quando puder, leva menos de 2 minutos.' },
+    { assunto: 'Seu imóvel está a um passo de aparecer pra milhares de corretores', corpo: 'Notei que você visitou a página de cadastro do seu imóvel, mas o cadastro ficou pela metade. Termina quando quiser, é rápido.' },
+    { assunto: 'Não perca a chance de divulgar seu imóvel de graça', corpo: 'Você chegou a acessar a página de cadastro, mas não finalizou. Sem comissão pra cadastrar — vale a pena voltar e terminar.' },
+    { assunto: 'Faltou pouco pra colocar seu imóvel na nossa rede', corpo: 'Vi que você entrou na página de cadastro do imóvel outro dia, mas não concluiu. Se quiser, ainda dá tempo de finalizar.' },
+    { assunto: 'Seu imóvel pode estar perdendo interessados', corpo: 'Você chegou perto de cadastrar seu imóvel com a gente, mas o cadastro não foi concluído. Termina agora e comece a aparecer pra quem procura.' },
+  ],
+};
+
 // Benefícios fixos em tópicos — sempre os mesmos, escaneáveis em 2 segundos.
 // Só o texto de abertura (gancho + corpo) varia; a estrutura visual não.
 const BENEFICIOS_CAPTACAO = [
@@ -100,6 +130,17 @@ async function _garantirTabelas() {
   await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS telefone TEXT`);
   await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS corpo_usado TEXT`);
   await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS aberto_em TIMESTAMP`);
+  // Follow-up automático (mesmo mecanismo da campanha geral em services/campanha.js):
+  // 3 e-mails, 24h depois do respectivo gatilho, 1x por contato por estágio.
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS followup1_enviado_em TIMESTAMP`);
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS followup2_enviado_em TIMESTAMP`);
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS followup3_enviado_em TIMESTAMP`);
+  // "Atender" manualmente pelo WhatsApp — mesma lógica de campanha_contatos
+  // (claim por primeiro clique, cor gravada no momento do atendimento).
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS atendido_por TEXT`);
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS atendido_por_nome TEXT`);
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS atendido_por_cor TEXT`);
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS atendido_em TIMESTAMP`);
   await query(`CREATE TABLE IF NOT EXISTS captacao_campanha_config (
     id INT PRIMARY KEY DEFAULT 1,
     ativo BOOLEAN DEFAULT false,
@@ -192,11 +233,126 @@ async function contarStatus() {
   };
 }
 
+// ── Follow-ups automáticos ──────────────────────────────────────────────
+// 3 estágios, cada um só elegível 24h depois do respectivo gatilho e só 1x
+// por contato (followupN_enviado_em IS NULL). Diferente do estágio do botão
+// de WhatsApp manual (que é por estado atual, sem prazo) — aqui tem prazo
+// porque é disparo automático.
+async function proximoFollowup1() {
+  await _garantirTabelas();
+  const { rows } = await query(`
+    SELECT id, nome, email, telefone FROM campanha_captacao_envios
+    WHERE erro IS NULL
+      AND aberto_em IS NULL
+      AND enviado_em <= NOW() - INTERVAL '24 hours'
+      AND followup1_enviado_em IS NULL
+    ORDER BY enviado_em ASC LIMIT 1
+  `);
+  return rows[0] || null;
+}
+async function proximoFollowup2() {
+  await _garantirTabelas();
+  const { rows } = await query(`
+    SELECT id, nome, email, telefone FROM campanha_captacao_envios
+    WHERE erro IS NULL
+      AND aberto_em IS NOT NULL
+      AND clicado_em IS NULL
+      AND aberto_em <= NOW() - INTERVAL '24 hours'
+      AND followup2_enviado_em IS NULL
+    ORDER BY aberto_em ASC LIMIT 1
+  `);
+  return rows[0] || null;
+}
+async function proximoFollowup3() {
+  await _garantirTabelas();
+  const { rows } = await query(`
+    SELECT id, nome, email, telefone FROM campanha_captacao_envios
+    WHERE erro IS NULL
+      AND clicado_em IS NOT NULL
+      AND iniciou_cadastro_em IS NULL
+      AND clicado_em <= NOW() - INTERVAL '24 hours'
+      AND followup3_enviado_em IS NULL
+    ORDER BY clicado_em ASC LIMIT 1
+  `);
+  return rows[0] || null;
+}
+const _FOLLOWUP_COLUNA = { 1: 'followup1_enviado_em', 2: 'followup2_enviado_em', 3: 'followup3_enviado_em' };
+async function marcarFollowupEnviado(id, numero) {
+  const coluna = _FOLLOWUP_COLUNA[numero];
+  if (!coluna) throw new Error('número de follow-up inválido: ' + numero);
+  await query(`UPDATE campanha_captacao_envios SET ${coluna}=NOW() WHERE id=$1`, [id]);
+}
+async function _enviarFollowup(envio, tipo, numero) {
+  const variacao = _sorteia(MODELOS_FOLLOWUP[tipo]);
+  const linkRastreado = BASE_URL + '/captacao-campanha/click/' + envio.id;
+  const pixelUrl = BASE_URL + '/captacao-campanha/open/' + envio.id;
+  try {
+    await enviarEmail({
+      para: envio.email,
+      assunto: variacao.assunto,
+      html: _montarHtml(envio.nome, variacao.corpo, linkRastreado, pixelUrl),
+      texto: variacao.corpo + ' Cadastre: ' + linkRastreado
+    });
+    await marcarFollowupEnviado(envio.id, numero);
+    return { enviado: true, email: envio.email, modelo: tipo, titulo: variacao.assunto };
+  } catch (e) {
+    // não marca followupN_enviado_em em caso de erro — tenta de novo no
+    // próximo ciclo (ver enviarProximoEmail: quem chama isso segue pra
+    // próxima camada em vez de travar ali, mesmo fix aplicado em
+    // services/campanha.js pra campanha geral)
+    return { enviado: false, motivo: 'erro_envio', erro: e.message };
+  }
+}
+
+// Quem (admin ou conta admin secundária) clicou pra falar com esse contato
+// pelo WhatsApp — mesmo mecanismo de campanha_contatos (primeiro clique
+// ganha, cor gravada no momento do atendimento).
+async function marcarAtendido(id, { por, nome, cor }) {
+  await _garantirTabelas();
+  const { rows } = await query('SELECT atendido_por, atendido_por_nome, atendido_por_cor FROM campanha_captacao_envios WHERE id=$1', [id]);
+  if (rows[0] && rows[0].atendido_por) {
+    return { ok: false, jaAtendido: true, nome: rows[0].atendido_por_nome, cor: rows[0].atendido_por_cor };
+  }
+  await query(
+    `UPDATE campanha_captacao_envios SET atendido_por=$1, atendido_por_nome=$2, atendido_por_cor=$3, atendido_em=NOW() WHERE id=$4`,
+    [por, nome, cor, id]
+  );
+  return { ok: true, nome, cor };
+}
+
+// Número pode ter sido reciclado ou a pessoa pediu pra não receber mais —
+// só apaga o telefone, mantém nome/email/histórico (e-mail nunca muda).
+async function excluirTelefoneContato(id) {
+  await _garantirTabelas();
+  await query('UPDATE campanha_captacao_envios SET telefone=$1 WHERE id=$2', ['', id]);
+}
+
 // Roda 1 tick — manda pra UMA lead elegível ainda não contemplada. Chamado
-// pelo job de 1/min em server.js.
+// pelo job de 1/min em server.js. Follow-ups têm prioridade sobre o próximo
+// contato "novo" da pool — mesmo princípio da campanha geral: prazo (24h)
+// tem que sair no tempo certo. Follow-up com erro cai pra próxima camada
+// (e por fim pra pool normal) em vez de travar o ciclo ali — sem isso, 1
+// contato com envio sempre falhando vira "o próximo elegível" pra sempre e
+// bloqueia a campanha inteira (bug real, corrigido antes na campanha geral).
 async function enviarProximoEmail() {
   await _garantirTabelas();
   if (!(await estaAtiva())) return { enviado: false, motivo: 'pausada' };
+
+  const f1 = await proximoFollowup1();
+  if (f1) {
+    const r1 = await _enviarFollowup(f1, 'followup1', 1);
+    if (r1.enviado) return r1;
+  }
+  const f2 = await proximoFollowup2();
+  if (f2) {
+    const r2 = await _enviarFollowup(f2, 'followup2', 2);
+    if (r2.enviado) return r2;
+  }
+  const f3 = await proximoFollowup3();
+  if (f3) {
+    const r3 = await _enviarFollowup(f3, 'followup3', 3);
+    if (r3.enviado) return r3;
+  }
 
   const { rows } = await query(`
     ${_POOL_CAPTACAO_CTE}
@@ -208,7 +364,11 @@ async function enviarProximoEmail() {
     ORDER BY LOWER(TRIM(p.email)), p.criado_em ASC
     LIMIT 1
   `);
-  if (!rows.length) { await pausarCampanha(); return { enviado: false, motivo: 'concluida' }; }
+  // Antes, "acabou a pool de gente nova" pausava a campanha inteira — mas
+  // isso também impediria os follow-ups (que dependem de ativo=true) de
+  // continuarem disparando pros dias seguintes, pra quem só ainda não
+  // completou 24h de espera. Só registra "sem novo elegível" e segue ativa.
+  if (!rows.length) return { enviado: false, motivo: 'sem_elegiveis_novos' };
 
   const lead = rows[0];
   const emailNorm = String(lead.email).trim();
@@ -288,7 +448,9 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '' } = {
 
   params.push(limite); params.push(offset);
   const { rows } = await query(
-    `SELECT id, nome, email, telefone, titulo_usado, enviado_em, aberto_em, clicado_em, iniciou_cadastro_em, erro
+    `SELECT id, nome, email, telefone, titulo_usado, enviado_em, aberto_em, clicado_em, iniciou_cadastro_em, erro,
+       followup1_enviado_em, followup2_enviado_em, followup3_enviado_em,
+       atendido_por, atendido_por_nome, atendido_por_cor, atendido_em
      FROM campanha_captacao_envios
      ${where}
      ORDER BY enviado_em DESC
@@ -317,5 +479,6 @@ module.exports = {
   iniciarCampanha, pausarCampanha, estaAtiva,
   contarStatus, enviarProximoEmail,
   registrarAbertura, registrarClique, registrarInicioCadastro,
-  listarEnvios, buscarEnvioParaPreview
+  listarEnvios, buscarEnvioParaPreview,
+  marcarAtendido, excluirTelefoneContato
 };

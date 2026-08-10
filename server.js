@@ -16840,6 +16840,27 @@ app.get('/admin/captacao-campanha/preview/:id', authAdmin, async (req, res) => {
     </body></html>`);
   } catch (e) { res.status(500).send('Erro ao carregar preview.'); }
 });
+// Atender manualmente pelo WhatsApp (mesmo mecanismo de /admin/campanha/
+// contatos/:id/atender) — qualquer conta com permissão 'captacao-campanha'
+// pode, não é restrito a superadmin.
+app.post('/admin/captacao-campanha/contatos/:id/atender', authAdmin, async (req, res) => {
+  try {
+    const { marcarAtendido } = require('./services/campanhaCaptacao');
+    const resultado = await marcarAtendido(req.params.id, {
+      por: req.session.adminUsuario || '',
+      nome: req.session.adminNome || 'Admin',
+      cor: req.session.adminCor || '#6b7280'
+    });
+    res.json(resultado);
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+app.post('/admin/captacao-campanha/contatos/:id/excluir-celular', authAdmin, async (req, res) => {
+  try {
+    const { excluirTelefoneContato } = require('./services/campanhaCaptacao');
+    await excluirTelefoneContato(req.params.id);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
 // ── FIM CAMPANHA GLOBAL DE CAPTAÇÃO ─────────────────────────────────────────
 
 app.get('/admin/campanha', authAdmin, async (req, res) => {

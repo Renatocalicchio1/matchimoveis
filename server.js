@@ -15045,8 +15045,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
 
   function _parChave(p){ return p.cidade + '|||' + p.bairro; }
 
-  document.getElementById('estado').addEventListener('change', async function(){
-    const estado = this.value;
+  async function onEstadoChange(estado){
     const cidadeInput = document.getElementById('cidadeInput');
     _cidadesNomes = [];
     _cidadesSelecionadas = [];
@@ -15070,7 +15069,26 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     _cidadesNomes = d.cidades || [];
     cidadeInput.placeholder = 'Digite pra buscar a cidade (' + _cidadesNomes.length + ')...';
     cidadeInput.disabled = false;
+  }
+
+  document.getElementById('estado').addEventListener('change', function(){
+    onEstadoChange(this.value);
   });
+
+  // Mobile (Safari/Chrome) às vezes restaura o <select> de Estado já
+  // preenchido (autofill/voltar da página) sem disparar o evento 'change'
+  // — o campo de Cidades fica travado em "Selecione o estado primeiro..."
+  // mesmo com o Estado visivelmente selecionado. Confere no carregamento
+  // (e toda vez que a página volta do cache do navegador) se o select já
+  // tem valor e, nesse caso, carrega as cidades manualmente.
+  function _sincronizarEstadoJaPreenchido(){
+    const estadoAtual = document.getElementById('estado').value;
+    if(estadoAtual && document.getElementById('cidadeInput').disabled){
+      onEstadoChange(estadoAtual);
+    }
+  }
+  _sincronizarEstadoJaPreenchido();
+  window.addEventListener('pageshow', _sincronizarEstadoJaPreenchido);
 
   function esconderSugestoesCidade(){
     document.getElementById('cidade-sugestoes').style.display = 'none';

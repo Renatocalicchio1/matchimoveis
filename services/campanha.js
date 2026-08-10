@@ -643,6 +643,15 @@ async function _garantirColunas() {
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup1_enviado_em TIMESTAMP`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup2_enviado_em TIMESTAMP`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS followup3_enviado_em TIMESTAMP`);
+  // "Atender" manualmente pelo WhatsApp (jul/2026) — quem clicou (admin ou
+  // conta admin secundária), pra colorir a linha e evitar 2 pessoas
+  // chamando o mesmo lead. Cor guardada junto (não via join) porque é a cor
+  // QUE A CONTA TINHA no momento do atendimento — se o superadmin trocar a
+  // cor dela depois, atendimentos antigos mantêm a cor de quando aconteceram.
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS atendido_por TEXT`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS atendido_por_nome TEXT`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS atendido_por_cor TEXT`);
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS atendido_em TIMESTAMP`);
   await query(`CREATE TABLE IF NOT EXISTS campanha_config (
     id INT PRIMARY KEY DEFAULT 1,
     ativo BOOLEAN DEFAULT false,
@@ -913,6 +922,24 @@ async function marcarFollowupEnviado(id, numero) {
   if (!coluna) throw new Error('número de follow-up inválido: ' + numero);
   await query(`UPDATE campanha_contatos SET ${coluna}=NOW() WHERE id=$1`, [id]);
 }
+
+// Registra quem (admin ou conta admin secundária) clicou pra falar com esse
+// contato pelo WhatsApp — usado pra colorir a linha na tela e sinalizar pra
+// quem mais está vendo que já tem alguém tratando. Não sobrescreve se já
+// tiver alguém atendendo (evita 1 clique acidental de outra conta roubar a
+// atribuição de quem já estava conversando).
+async function marcarAtendido(id, { por, nome, cor }) {
+  await _garantirColunas();
+  const { rows } = await query('SELECT atendido_por, atendido_por_nome, atendido_por_cor FROM campanha_contatos WHERE id=$1', [id]);
+  if (rows[0] && rows[0].atendido_por) {
+    return { ok: false, jaAtendido: true, nome: rows[0].atendido_por_nome, cor: rows[0].atendido_por_cor };
+  }
+  await query(
+    `UPDATE campanha_contatos SET atendido_por=$1, atendido_por_nome=$2, atendido_por_cor=$3, atendido_em=NOW() WHERE id=$4`,
+    [por, nome, cor, id]
+  );
+  return { ok: true, nome, cor };
+}
 async function _enviarFollowup(contato, tipo, numero) {
   const variacao = _sorteia(MODELOS[tipo]);
   const corpoPersonalizado = variacao.corpo.replace(/\{nome\}/g, contato.nome || 'Corretor');
@@ -993,7 +1020,7 @@ async function buscarEnvioParaPreview(id) {
 
 module.exports = {
   importarContatos, statsBase, statsTracking, statsCadastrados, statsValidacao,
-  proximoLote, enviarTeste, enviarProximo,
+  proximoLote, enviarTeste, enviarProximo, marcarAtendido,
   iniciarCampanha, pausarCampanha, estaAtiva, buscarEnvioParaPreview,
   validarProximoLote, listarEnvios
 };

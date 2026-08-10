@@ -860,6 +860,7 @@ app.post('/admin/login', async (req, res) => {
       req.session.adminPermissoes = null;
       req.session.adminNome = 'Superadmin';
       req.session.adminUsuario = usuario;
+      req.session.adminCor = '#111827';
       return res.redirect('/admin');
     }
     const { buscarAdminConta, atualizarUltimoLoginAdminConta } = require('./services/salvarAdminConta');
@@ -870,6 +871,7 @@ app.post('/admin/login', async (req, res) => {
       req.session.adminPermissoes = conta.permissoes;
       req.session.adminNome = conta.nome || conta.usuario;
       req.session.adminUsuario = conta.usuario;
+      req.session.adminCor = conta.cor;
       atualizarUltimoLoginAdminConta(conta.id).catch(() => {});
       // '/admin' (dashboard) exige a permissão 'dashboard' — se essa conta
       // não tem ela marcada, manda direto pra 1ª página que ela realmente
@@ -888,6 +890,7 @@ app.get('/admin/logout', (req, res) => {
   req.session.adminPermissoes = null;
   req.session.adminNome = null;
   req.session.adminUsuario = null;
+  req.session.adminCor = null;
   res.redirect('/admin/login');
 });
 
@@ -919,12 +922,14 @@ app.get('/admin/contas-admin', authAdmin, async (req, res) => {
       <tr>
         <td>${_escAdminHtml(c.usuario)}</td>
         <td>${_escAdminHtml(c.nome || '—')}</td>
+        <td><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${_escAdminHtml(c.cor)};vertical-align:middle;margin-right:6px"></span>${_escAdminHtml(c.cor)}</td>
         <td>${(c.permissoes || []).length ? c.permissoes.map(p => `<span class="tag">${_escAdminHtml(p)}</span>`).join(' ') : '<span class="gray">nenhuma</span>'}</td>
         <td>${c.ativo ? '<span class="green">ativo</span>' : '<span class="red">desativado</span>'}</td>
         <td>${c.ultimoLogin ? new Date(c.ultimoLogin).toLocaleString('pt-BR') : '<span class="gray">nunca</span>'}</td>
-        <td style="white-space:nowrap" data-id="${c.id}" data-usuario="${_escAdminHtml(c.usuario)}" data-permissoes="${_escAdminHtml((c.permissoes || []).join(','))}" data-ativo="${c.ativo ? '1' : '0'}">
+        <td style="white-space:nowrap" data-id="${c.id}" data-usuario="${_escAdminHtml(c.usuario)}" data-permissoes="${_escAdminHtml((c.permissoes || []).join(','))}" data-ativo="${c.ativo ? '1' : '0'}" data-cor="${_escAdminHtml(c.cor)}">
           ${c.ativo ? `<a href="/admin/contas-admin/${c.id}/entrar" style="background:#111;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:11.5px;margin-right:4px;text-decoration:none;display:inline-block">🔓 Entrar</a>` : ''}
           <button type="button" class="btn-permissoes">✏️ Permissões</button>
+          <button type="button" class="btn-cor">🎨 Cor</button>
           <button type="button" class="btn-senha">🔑 Senha</button>
           <button type="button" class="btn-ativo">${c.ativo ? '⛔ Desativar' : '✅ Ativar'}</button>
           <button type="button" class="btn-deletar" style="color:#e8404a">🗑️</button>
@@ -972,7 +977,7 @@ button:hover{opacity:.85}
   <div class="card">
     <h2>👥 Contas existentes</h2>
     <table>
-      <thead><tr><th>Usuário</th><th>Nome</th><th>Permissões</th><th>Status</th><th>Último login</th><th>Ações</th></tr></thead>
+      <thead><tr><th>Usuário</th><th>Nome</th><th>Cor</th><th>Permissões</th><th>Status</th><th>Último login</th><th>Ações</th></tr></thead>
       <tbody>${linhas || '<tr><td colspan="6" class="gray">Nenhuma conta admin criada ainda.</td></tr>'}</tbody>
     </table>
   </div>
@@ -1019,6 +1024,15 @@ async function toggleAtivo(id, ativo){
   if(!d.ok){ alert(d.erro || 'Erro'); return; }
   location.reload();
 }
+async function editarCor(id, corAtual){
+  const cor = prompt('Cor dessa conta (hex, ex: #16a34a para verde, #2563eb para azul):', corAtual);
+  if(!cor) return;
+  if(!/^#[0-9a-fA-F]{6}$/.test(cor.trim())){ alert('Cor inválida — use o formato #rrggbb (ex: #16a34a).'); return; }
+  const r = await fetch('/admin/contas-admin/' + id + '/cor', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cor: cor.trim() }) });
+  const d = await r.json();
+  if(!d.ok){ alert(d.erro || 'Erro'); return; }
+  location.reload();
+}
 async function deletarConta(id, usuario){
   if(!confirm('Excluir a conta admin "' + usuario + '"? Essa ação não pode ser desfeita.')) return;
   const r = await fetch('/admin/contas-admin/' + id + '/deletar', { method:'POST' });
@@ -1031,8 +1045,11 @@ document.querySelectorAll('td[data-id]').forEach(function(td){
   const usuario = td.getAttribute('data-usuario');
   const permissoesAtuais = td.getAttribute('data-permissoes') ? td.getAttribute('data-permissoes').split(',') : [];
   const ativo = td.getAttribute('data-ativo') === '1';
+  const corAtual = td.getAttribute('data-cor') || '#6b7280';
   const btnP = td.querySelector('.btn-permissoes');
   if(btnP) btnP.addEventListener('click', function(){ editarPermissoes(id, permissoesAtuais); });
+  const btnC = td.querySelector('.btn-cor');
+  if(btnC) btnC.addEventListener('click', function(){ editarCor(id, corAtual); });
   const btnS = td.querySelector('.btn-senha');
   if(btnS) btnS.addEventListener('click', function(){ resetarSenha(id); });
   const btnA = td.querySelector('.btn-ativo');
@@ -1087,6 +1104,7 @@ app.get('/admin/contas-admin/:id/entrar', authAdmin, async (req, res) => {
     req.session.adminPermissoes = conta.permissoes;
     req.session.adminNome = conta.nome || conta.usuario;
     req.session.adminUsuario = conta.usuario;
+    req.session.adminCor = conta.cor;
     // Mesmo motivo do login em si: '/admin' exige a permissão 'dashboard',
     // que essa conta pode não ter — manda pra 1ª página que ela acessa de
     // verdade, senão o superadmin cai direto num "acesso negado" ao entrar.
@@ -1105,6 +1123,16 @@ app.post('/admin/contas-admin/:id/permissoes', authAdmin, express.json(), async 
     );
     const { atualizarPermissoesAdminConta } = require('./services/salvarAdminConta');
     await atualizarPermissoesAdminConta(req.params.id, permissoesValidas);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/contas-admin/:id/cor', authAdmin, express.json(), async (req, res) => {
+  try {
+    const cor = String(req.body.cor || '').trim();
+    if (!/^#[0-9a-fA-F]{6}$/.test(cor)) return res.json({ ok: false, erro: 'Cor inválida — use o formato #rrggbb.' });
+    const { atualizarCorAdminConta } = require('./services/salvarAdminConta');
+    await atualizarCorAdminConta(req.params.id, cor);
     res.json({ ok: true });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
@@ -17032,15 +17060,41 @@ https://www.matchimoveis.ia.br
     if(estagio === 'cadastrou_sem_comprar') return 'Oi '+nome+'! Vi que você já criou sua conta na Match Imóveis, mas ainda não pegou nenhum combo de leads. Posso te ajudar a escolher o melhor plano pra você — é só me chamar aqui!';
     return '';
   }
-  function _botaoWhatsapp(c){
+  // Sob o nome do contato: se alguém já "atendeu" (clicou pra falar por
+  // WhatsApp), mostra quem — senão, mostra o botão de WhatsApp (se o
+  // estágio pedir um). Ninguém sobrescreve quem já atendeu (ver
+  // marcarAtendido em services/campanha.js) — clique de outra conta só
+  // avisa quem já está tratando, não abre o WhatsApp.
+  function _subNome(c){
+    if(c.atendido_por_nome){
+      return '<div style="font-size:11px;font-weight:600;color:'+escHtml(c.atendido_por_cor||'#6b7280')+';margin-top:2px">✅ Atendido por '+escHtml(c.atendido_por_nome)+'</div>';
+    }
     const estagio = _whatsappEstagio(c);
-    if(!estagio) return '<span class="gray">—</span>';
+    if(!estagio) return '';
     const tel = String(c.celular||'').replace(/\D/g,'').replace(/^55/,'');
-    if(!tel) return '<span class="gray">—</span>';
+    if(!tel) return '';
     const rotulos = { abriu_sem_clicar: '📲 Reenviar link', clicou_sem_cadastrar: '📲 Lembrar cadastro', cadastrou_sem_comprar: '📲 Oferecer combo' };
-    const link = 'https://wa.me/55'+tel+'?text='+encodeURIComponent(_whatsappMensagem(c, estagio));
-    return '<a href="'+link+'" target="_blank" style="color:#25D366;font-weight:600;text-decoration:none;white-space:nowrap">'+rotulos[estagio]+'</a>';
+    return '<button type="button" class="btn-atender-wa" data-id="'+c.id+'" style="margin-top:4px;background:#25D366;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotulos[estagio]+'</button>';
   }
+  async function _clicarWhatsapp(c){
+    const estagio = _whatsappEstagio(c);
+    if(!estagio) return;
+    const tel = String(c.celular||'').replace(/\D/g,'').replace(/^55/,'');
+    if(!tel) return;
+    const link = 'https://wa.me/55'+tel+'?text='+encodeURIComponent(_whatsappMensagem(c, estagio));
+    try {
+      const r = await fetch('/admin/campanha/contatos/'+c.id+'/atender', { method:'POST' });
+      const d = await r.json();
+      if(d.ok === false && d.jaAtendido){
+        alert('Esse contato já está sendo atendido por '+(d.nome||'outra pessoa')+'.');
+        buscar(_pagina);
+        return;
+      }
+    } catch(e){}
+    window.open(link, '_blank');
+    buscar(_pagina);
+  }
+  let _ultimosContatos = [];
   async function buscar(p){
     _pagina = p || 1;
     const q = document.getElementById('busca').value;
@@ -17048,15 +17102,24 @@ https://www.matchimoveis.ia.br
     const r = await fetch('/admin/campanha/contatos?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+s);
     const d = await r.json();
     if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class=red>Erro ao carregar</p>'; return; }
-    let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1260px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Cadastrou</th><th style="padding:8px;text-align:left">Comprou</th><th style="padding:8px;text-align:left">F.up 1</th><th style="padding:8px;text-align:left">F.up 2</th><th style="padding:8px;text-align:left">F.up 3</th><th style="padding:8px;text-align:left">Enviado em</th><th style="padding:8px;text-align:left">E-mail</th><th style="padding:8px;text-align:left">WhatsApp</th></tr>';
+    _ultimosContatos = d.contatos;
+    let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1180px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Cadastrou</th><th style="padding:8px;text-align:left">Comprou</th><th style="padding:8px;text-align:left">F.up 1</th><th style="padding:8px;text-align:left">F.up 2</th><th style="padding:8px;text-align:left">F.up 3</th><th style="padding:8px;text-align:left">Enviado em</th><th style="padding:8px;text-align:left">E-mail</th></tr>';
     for(const c of d.contatos){
       const cor = c.status==='enviado'?'#16a34a':c.status==='erro'?'#dc2626':'#f59e0b';
       const statusTxt = c.status==='erro' ? escHtml(c.status)+' ('+escHtml(c.erro||'')+')' : escHtml(c.status);
       const verEmail = c.status==='enviado' ? '<a href="javascript:void(0)" onclick="abrirPreview('+c.id+')" style="color:#FF385C;font-weight:600;text-decoration:none">Ver e-mail →</a>' : '—';
-      html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px">'+escHtml(c.nome)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px">'+escHtml(c.celular)+'</td><td style="padding:8px;color:'+cor+'">'+statusTxt+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px">'+_tag(c.cadastrou)+'</td><td style="padding:8px">'+_tag(c.comprou)+'</td><td style="padding:8px">'+_tag(c.followup1_enviado_em)+'</td><td style="padding:8px">'+_tag(c.followup2_enviado_em)+'</td><td style="padding:8px">'+_tag(c.followup3_enviado_em)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td><td style="padding:8px">'+verEmail+'</td><td style="padding:8px">'+_botaoWhatsapp(c)+'</td></tr>';
+      const trBg = c.atendido_por_cor ? ' style="background:'+escHtml(c.atendido_por_cor)+'1a;border-bottom:1px solid #e5e7eb"' : ' style="border-bottom:1px solid #e5e7eb"';
+      html += '<tr'+trBg+'><td style="padding:8px">'+escHtml(c.nome)+_subNome(c)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px">'+escHtml(c.celular)+'</td><td style="padding:8px;color:'+cor+'">'+statusTxt+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px">'+_tag(c.cadastrou)+'</td><td style="padding:8px">'+_tag(c.comprou)+'</td><td style="padding:8px">'+_tag(c.followup1_enviado_em)+'</td><td style="padding:8px">'+_tag(c.followup2_enviado_em)+'</td><td style="padding:8px">'+_tag(c.followup3_enviado_em)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td><td style="padding:8px">'+verEmail+'</td></tr>';
     }
     html += '</table></div>';
     document.getElementById('tabela-contatos').innerHTML = html;
+    document.querySelectorAll('.btn-atender-wa').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        const id = btn.getAttribute('data-id');
+        const contato = _ultimosContatos.find(function(c){ return String(c.id) === String(id); });
+        if(contato) _clicarWhatsapp(contato);
+      });
+    });
     // Paginação
     let pag = '';
     if(_pagina > 1) pag += '<button class="sec" onclick="buscar('+(_pagina-1)+')">← Anterior</button> ';
@@ -17180,12 +17243,30 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     // decidido usar esse critério em vez de cruzar com Mercado Pago por ora).
     const { rows } = await require('./services/db').query(`SELECT id,nome,email,celular,status,modelo_usado,aberto_em,clicado_em,enviado_em,erro,
       followup1_enviado_em,followup2_enviado_em,followup3_enviado_em,
+      atendido_por,atendido_por_nome,atendido_por_cor,atendido_em,
       (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
       COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
       FROM campanha_contatos ${where} ORDER BY COALESCE(enviado_em, criado_em) DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
     const { rows: tot } = await require('./services/db').query(`SELECT COUNT(*) as total FROM campanha_contatos ${where}`, params.slice(0,-2));
     res.json({ ok:true, contatos:rows, total:tot[0].total });
   } catch(e){ res.json({ ok:false, erro:e.message }); }
+});
+
+// Registra quem clicou pra falar com esse contato pelo WhatsApp (colore a
+// linha na tela e evita 2 pessoas chamando o mesmo lead — ver marcarAtendido
+// em services/campanha.js). Qualquer conta com permissão 'campanha' pode
+// atender (já é o que vê o bloco "Contatos importados"), não é ação restrita
+// ao superadmin.
+app.post('/admin/campanha/contatos/:id/atender', authAdmin, async (req, res) => {
+  try {
+    const { marcarAtendido } = require('./services/campanha');
+    const resultado = await marcarAtendido(req.params.id, {
+      por: req.session.adminUsuario || '',
+      nome: req.session.adminNome || 'Admin',
+      cor: req.session.adminCor || '#6b7280'
+    });
+    res.json(resultado);
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 
 // ── DISPAROS WHATSAPP (Meta Cloud API) ────────────────────────────────────────

@@ -14961,7 +14961,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   <div id="resultado-box" style="display:none">
     <div id="banner-resultado" class="banner-ia"></div>
     <div class="scroll-hint">👉 Arraste a tabela pro lado pra ver todas as colunas</div>
-    <div style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
+    <div id="tabela-scroll" style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
 
     ${isAdmin ? `<div class="box" id="transferir-box">
       <h2 class="secao" style="margin-top:0">🎁 Transferir manualmente pra uma conta</h2>
@@ -15339,8 +15339,44 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       document.getElementById('resultado-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
       _ultimaBusca = { estado, pares, transacoes, dias: d.dias };
       renderCombos(d.total);
+      iniciarAutoScrollTabela();
     } catch(e){ fecharModalPensando(); document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; }
   }
+
+  // Arrasta a planilha sozinha, devagar, ida e volta — pro usuário ver as
+  // colunas sem precisar arrastar manualmente. No primeiro toque/clique/
+  // scroll do próprio usuário, para de vez e a partir daí é 100% manual
+  // (não retoma sozinho).
+  let _tabelaAutoScrollTimer = null;
+  let _tabelaAutoScrollDir = 1;
+  let _tabelaAutoScrollAtivo = false;
+  function iniciarAutoScrollTabela(){
+    const el = document.getElementById('tabela-scroll');
+    if(!el) return;
+    pararAutoScrollTabela();
+    _tabelaAutoScrollAtivo = true;
+    _tabelaAutoScrollDir = 1;
+    el.scrollLeft = 0;
+    _tabelaAutoScrollTimer = setInterval(function(){
+      if(!_tabelaAutoScrollAtivo) return;
+      const max = el.scrollWidth - el.clientWidth;
+      if(max <= 0){ pararAutoScrollTabela(); return; }
+      el.scrollLeft += _tabelaAutoScrollDir * 1.4;
+      if(el.scrollLeft >= max) _tabelaAutoScrollDir = -1;
+      else if(el.scrollLeft <= 0) _tabelaAutoScrollDir = 1;
+    }, 30);
+  }
+  function pararAutoScrollTabela(){
+    _tabelaAutoScrollAtivo = false;
+    if(_tabelaAutoScrollTimer){ clearInterval(_tabelaAutoScrollTimer); _tabelaAutoScrollTimer = null; }
+  }
+  (function(){
+    const el = document.getElementById('tabela-scroll');
+    if(!el) return;
+    ['pointerdown','wheel','touchstart'].forEach(function(ev){
+      el.addEventListener(ev, pararAutoScrollTabela, { passive: true });
+    });
+  })();
 
   // ── Combos + criação de conta + pagamento ──────────────────────────────
   const PLANOS = ${JSON.stringify(PLANOS_LEADS)};

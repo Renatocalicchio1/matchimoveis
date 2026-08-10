@@ -15931,11 +15931,12 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
         html: `<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px">
           <h2 style="color:#FF385C">✅ Sua conta foi criada, ${escHtml(nomeVal)}!</h2>
           <p>Você já pode entrar em <a href="https://www.matchimoveis.ia.br/entrar" style="color:#FF385C">matchimoveis.ia.br/entrar</a> com o celular ou email cadastrado.</p>
-          <p><strong>As leads da sua busca (${escHtml(pacote.label)}) ainda não estão na sua conta</strong> — elas entram automaticamente assim que o pagamento do combo for aprovado.</p>
+          <p>🎁 <strong>Você já ganhou 1.000 créditos de bônus</strong> só por criar a conta — já pode usar na plataforma agora mesmo.</p>
+          <p><strong>As leads da sua busca (${escHtml(pacote.label)}) ainda não estão na sua conta</strong> — elas entram automaticamente, junto com mais créditos do combo, assim que o pagamento for aprovado.</p>
           <p>Falta só concluir o pagamento pra começar a atender.</p>
           <a href="https://www.matchimoveis.ia.br/app-home" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver minha conta →</a>
         </div>`,
-        texto: `Sua conta foi criada, ${nomeVal}! As leads do combo (${pacote.label}) só entram depois do pagamento aprovado. Acesse: https://www.matchimoveis.ia.br/entrar`
+        texto: `Sua conta foi criada, ${nomeVal}! Você já ganhou 1.000 créditos de bônus. As leads do combo (${pacote.label}) e mais créditos só entram depois do pagamento aprovado. Acesse: https://www.matchimoveis.ia.br/entrar`
       });
     } catch (eEmail) { console.error('[demanda/comprar] erro ao enviar email de boas-vindas:', eEmail.message); }
 

@@ -14985,7 +14985,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     <div id="combos-box" style="display:none">
       <h2 class="secao">📦 Escolha seu combo</h2>
       <p class="gray" style="font-size:13px">Combos de leads mineradas por mês — já indicamos qual cabe na quantidade que a IA encontrou.</p>
-      <p class="gray" style="font-size:13px">Se preferir, pode escolher um combo menor — nesse caso você recebe a quantidade de leads do combo escolhido, não o total encontrado na busca.</p>
+      <p class="gray" style="font-size:13px">Se preferir, pode escolher um combo menor — nesse caso você recebe a quantidade de leads do combo escolhido, não o total encontrado na busca. Outra opção é diminuir os dias da busca lá em cima pra encontrar menos leads e enquadrar no combo que você quer.</p>
       <div class="combos" id="combos-lista"></div>
     </div>
 
@@ -15450,7 +15450,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     const p = PLANOS[plano];
     const totalEncontrado = (_ultimaBusca && _ultimaBusca.total) || 0;
     const avisoQtd = (!p.ilimitado && totalEncontrado > p.qtd)
-      ? 'Sua busca encontrou '+totalEncontrado+' leads, mas esse combo entrega '+p.qtd+' — as demais ficam disponíveis pra comprar depois.'
+      ? 'Sua busca encontrou '+totalEncontrado+' leads, mas esse combo entrega '+p.qtd+' — as demais ficam disponíveis pra comprar depois. '
+        + 'Se preferir, <a href="#" onclick="fecharModalCompra();document.getElementById(\'diasBusca\').scrollIntoView({behavior:\'smooth\',block:\'center\'});return false;">diminua os dias da busca</a> pra encontrar menos leads e enquadrar nesse combo.'
       : 'Os leads encontrados na sua busca vão pra sua conta assim que o pagamento for aprovado.';
     document.getElementById('combo-escolhido-resumo').innerHTML = '<strong>'+escHtml(p.label)+'</strong> — R$ '+p.valor+'<br><span class="gray">'+avisoQtd+'</span>';
     abrirModalCompra();

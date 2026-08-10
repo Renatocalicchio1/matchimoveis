@@ -14853,20 +14853,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     .scroll-hint{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--rausch);margin:10px 0 4px;animation:scrollHintPulso 1.6s ease-in-out infinite}
   }
   @keyframes scrollHintPulso{0%,100%{opacity:.6}50%{opacity:1}}
-  @media (max-width:600px){
-    body{overflow-x:hidden}
-    .public-content,.admin-content{padding-left:12px;padding-right:12px}
-    .hero{padding:18px 16px;border-radius:10px}
-    .hero h1{font-size:19px}
-    .hero p{font-size:13px}
-    .campos-geo{grid-template-columns:1fr;gap:0}
-    select,input[type=text],input[type=email],input[type=password]{max-width:100%}
-    .chips{max-width:100%}
-    .combos{grid-template-columns:1fr}
-    .signup-box{max-width:100%}
-    .combo button,#btnComprar,#btnBuscarDemanda{width:100%}
-    .atividade-grid{grid-template-columns:1fr}
-  }
   .atividade-wrap{margin:16px 0}
   .atividade-label{font-size:11px;font-weight:600;color:var(--sec);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px}
   .atividade-label::before{content:'';width:7px;height:7px;background:#16a34a;border-radius:50%;animation:scrollHintPulso 1.5s infinite}
@@ -14883,6 +14869,25 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .atividade-card-tags span{background:var(--bg);border-radius:999px;padding:2px 7px;font-size:9.5px;font-weight:600;color:var(--sec)}
   .atividade-card-loc{font-size:10.5px;color:var(--sec)}
   .atividade-card-dias{font-size:10px;color:#16a34a;font-weight:600;margin-top:5px}
+  @media (max-width:600px){
+    body{overflow-x:hidden}
+    .public-content,.admin-content{padding-left:12px;padding-right:12px}
+    .hero{padding:18px 16px;border-radius:10px}
+    .hero h1{font-size:19px}
+    .hero p{font-size:13px}
+    .campos-geo{grid-template-columns:1fr;gap:0}
+    select,input[type=text],input[type=email],input[type=password]{max-width:100%}
+    .chips{max-width:100%}
+    .combos{grid-template-columns:1fr}
+    .signup-box{max-width:100%}
+    .combo button,#btnComprar,#btnBuscarDemanda{width:100%}
+    .atividade-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+    .atividade-card{min-height:0}
+    .atividade-card-foto{height:90px}
+    .atividade-card-corpo{padding:7px}
+    .atividade-card-contato{display:none}
+    .atividade-card-tags span{padding:1px 5px}
+  }
   .topbar-logo{display:flex;align-items:center;gap:8px;padding:16px 0 0}
   .topbar-logo .mark{width:28px;height:28px;background:var(--rausch);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
   .topbar-logo .nome{font-size:16px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
@@ -15439,7 +15444,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   // agora), não só durante uma busca. 4 cards no desktop, 1 no mobile;
   // cada card gira sozinho no próprio lugar, um de cada vez.
   (function(){
-    const NUM_CARDS = window.innerWidth <= 600 ? 1 : 4;
+    const NUM_CARDS = window.innerWidth <= 600 ? 2 : 4;
     const wrapAt = document.getElementById('atividade-wrap');
     const gridAt = document.getElementById('atividade-grid');
     if(!wrapAt || !gridAt) return;

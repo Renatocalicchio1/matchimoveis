@@ -761,9 +761,23 @@ function _permissaoDaRota(caminho) {
 // logando como ele, deletar conta de corretor, e a rotina específica de
 // cruzamento de dados do Alexandre. Só o superadmin (login via
 // ADMIN_USER/ADMIN_PASSWORD) passa por aqui.
+// Dentro de /admin/campanha (permissão 'campanha'), conta admin secundária
+// só vê/usa os blocos "Base de contatos", "Validação de email" e "Contatos
+// importados" — disparar campanha (iniciar/pausar o automático), importar
+// nova planilha de contatos e mandar e-mail de teste ficam de fora, por
+// pedido explícito (jul/2026): mexem direto nos 118k contatos/reputação do
+// domínio de envio, então ficam restritas ao superadmin mesmo com a página
+// liberada. GET /admin/campanha/status, /contatos e /preview/:id continuam
+// liberados (é o que os 3 blocos permitidos usam). Mesma lógica em
+// /admin/captacao-campanha (permissão 'captacao-campanha'): só o
+// acompanhamento (progresso, funil, envios recentes) é liberado —
+// iniciar/pausar o disparo em massa fica restrito.
 const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/contas-admin', '/admin/acessar', '/admin/deletar',
-  '/admin/cruzar-proprietarios-alex', '/admin/executar-cruzar-alex'
+  '/admin/cruzar-proprietarios-alex', '/admin/executar-cruzar-alex',
+  '/admin/campanha/importar', '/admin/campanha/teste',
+  '/admin/campanha/iniciar', '/admin/campanha/pausar',
+  '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar'
 ];
 function authAdmin(req, res, next) {
   if (!(req.session && req.session.admin)) return res.redirect('/admin/login');
@@ -16687,13 +16701,18 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
 // ── CAMPANHA GLOBAL DE CAPTAÇÃO (disparo em massa, admin) ──────────────────
 app.get('/admin/captacao-campanha', authAdmin, async (req, res) => {
   const adminShellCss = _adminShellCss(), adminSidebar = _adminSidebarHtml('captacao-campanha');
+  // Conta admin secundária (permissão 'captacao-campanha') só vê o
+  // acompanhamento (progresso, funil, envios recentes) — iniciar/pausar o
+  // disparo em massa fica restrito ao superadmin, mesma lógica de
+  // /admin/campanha (ver _ADMIN_ROTAS_SUPERADMIN_ONLY).
+  const isSuper = req.session.adminSuper !== false;
   try {
     const { contarStatus } = require('./services/campanhaCaptacao');
     const status = await contarStatus();
-    res.render('admin-captacao-campanha', { status, adminShellCss, adminSidebar });
+    res.render('admin-captacao-campanha', { status, adminShellCss, adminSidebar, isSuper });
   } catch (e) {
     console.error('[admin/captacao-campanha]', e.message);
-    res.render('admin-captacao-campanha', { status: null, adminShellCss, adminSidebar });
+    res.render('admin-captacao-campanha', { status: null, adminShellCss, adminSidebar, isSuper });
   }
 });
 app.get('/admin/captacao-campanha/status', authAdmin, async (req, res) => {
@@ -16754,6 +16773,11 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   const erros = (stats.find(s=>s.status==='erro')||{}).total||0;
   const aberturas = (tracking.find(s=>s.tipo==='abertura')||{}).total||0;
   const cliques = (tracking.find(s=>s.tipo==='clique')||{}).total||0;
+  // Conta admin secundária (permissão 'campanha') só vê os blocos de
+  // monitoramento (base de contatos, validação, contatos importados) — ver
+  // nota em _ADMIN_ROTAS_SUPERADMIN_ONLY sobre por que disparar/importar/
+  // testar ficam restritos ao superadmin.
+  const isSuper = req.session.adminSuper !== false;
   res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Campanha Email</title>
   <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
   ${_adminShellCss()}
@@ -16790,7 +16814,7 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
     <div class="stat"><strong style="color:#16a34a" id="statValidos">${validacao.validos}</strong>Válidos</div>
     <div class="stat"><strong style="color:#dc2626" id="statInvalidos">${validacao.invalidos}</strong>Inválidos (descartados)</div>
   </div>
-  <div class="box">
+  ${isSuper ? `<div class="box">
     <h3>🤖 Disparo automático</h3>
     <p class="gray">Intervalo aleatório de 30s a 5min por envio (varia sempre, nunca fixo). Alterna sozinho entre 2 modelos (página inicial / demanda), cada um com várias variações de assunto e texto. Ordem de disparo: primeiro toda a região de São Paulo (dentro dela, quem parece corretor/imobiliária/broker no nome ou email primeiro, depois o resto de SP) — só depois de esgotar SP passa pro Rio de Janeiro (mesma lógica), depois Santa Catarina, depois o restante do Brasil. Pula quem já tem conta (email ou celular batendo).</p>
     <p>Status: <strong id="statusAutomatico">${ativo ? '🟢 Rodando' : '⏸ Parado'}</strong></p>
@@ -16832,7 +16856,7 @@ https://www.matchimoveis.ia.br
       <button class="sec" onclick="testar()">📨 Enviar teste</button>
     </div>
     <div id="resultado"></div>
-  </div>
+  </div>` : ''}
   <div class="box">
     <h3>📋 Contatos importados</h3>
     <div style="margin-bottom:8px">
@@ -16904,24 +16928,30 @@ https://www.matchimoveis.ia.br
     document.getElementById('btnIniciarAuto').disabled = false;
     document.getElementById('btnPausarAuto').disabled = true;
   }
+  function _setTxt(id, val){ const el = document.getElementById(id); if(el) el.textContent = val; }
+  function _setDisabled(id, val){ const el = document.getElementById(id); if(el) el.disabled = val; }
   setInterval(async function(){
     try {
       const r = await fetch('/admin/campanha/status');
       const d = await r.json();
       if(!d.ok) return;
-      document.getElementById('statValidarPendente').textContent = d.validacao.pendente_validar;
-      document.getElementById('statValidos').textContent = d.validacao.validos;
-      document.getElementById('statInvalidos').textContent = d.validacao.invalidos;
-      document.getElementById('statusAutomatico').textContent = d.ativo ? '🟢 Rodando' : '⏸ Parado';
-      document.getElementById('btnIniciarAuto').disabled = d.ativo;
-      document.getElementById('btnPausarAuto').disabled = !d.ativo;
-      document.getElementById('statTotal').textContent = d.base.total;
-      document.getElementById('statPendentes').textContent = d.base.pendentes;
-      document.getElementById('statEnviados').textContent = d.base.enviados;
-      document.getElementById('statErros').textContent = d.base.erros;
-      document.getElementById('statAberturas').textContent = d.base.aberturas;
-      document.getElementById('statCliques').textContent = d.base.cliques;
-      document.getElementById('statCadastrados').textContent = d.base.cadastrados;
+      // Elementos com _set* (null-safe): "Disparo automático" some da tela
+      // pra conta admin secundária (ver isSuper no server), então esses IDs
+      // podem não existir no DOM — sem o guard, o primeiro que não existisse
+      // travava o resto do bloco (Base de contatos nunca mais atualizava).
+      _setTxt('statValidarPendente', d.validacao.pendente_validar);
+      _setTxt('statValidos', d.validacao.validos);
+      _setTxt('statInvalidos', d.validacao.invalidos);
+      _setTxt('statusAutomatico', d.ativo ? '🟢 Rodando' : '⏸ Parado');
+      _setDisabled('btnIniciarAuto', d.ativo);
+      _setDisabled('btnPausarAuto', !d.ativo);
+      _setTxt('statTotal', d.base.total);
+      _setTxt('statPendentes', d.base.pendentes);
+      _setTxt('statEnviados', d.base.enviados);
+      _setTxt('statErros', d.base.erros);
+      _setTxt('statAberturas', d.base.aberturas);
+      _setTxt('statCliques', d.base.cliques);
+      _setTxt('statCadastrados', d.base.cadastrados);
     } catch(e){}
     buscar(_pagina);
   }, 15000);

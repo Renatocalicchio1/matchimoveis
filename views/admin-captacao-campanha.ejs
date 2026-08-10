@@ -67,6 +67,7 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
       Dispara e-mails com intervalo aleatório de 1 a 3 minutos (nunca fixo, pra não parecer robô pros provedores de email) pra leads sem imóvel captado ainda — busca em <strong>duas fontes</strong>: leads que já buscaram imóvel na plataforma (tabela leads) e a base de Interessados de Portal que você importou, sempre convidando a cadastrar via <strong>matchimoveis.ia.br/captar/REN-G9K6</strong>. Título e corpo também alternam entre várias variações pra não cair em spam. Não mexe no e-mail individual que já dispara quando uma lead nova entra (esse continua igual, com o link do corretor dono dela).
     </div>
 
+    <% if (isSuper) { %>
     <div class="status-box">
       <span class="status-dot <%= status.ativo ? 'rodando' : (status.pendentes===0 ? 'concluida' : 'parada') %>" id="statusDot"></span>
       <div>
@@ -78,6 +79,7 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
         <button class="btn btn-pausar" id="btnPausar" onclick="pausarCampanha()" <%= !status.ativo ? 'disabled' : '' %>>⏸ Pausar</button>
       </div>
     </div>
+    <% } %>
 
     <div class="barra-box">
       <div class="barra-titulo"><span>Progresso do envio</span><span id="barraTxt"><%= status.enviados %> / <%= status.elegiveis %></span></div>
@@ -122,26 +124,35 @@ async function _post(url){
   return r.json();
 }
 function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function _setTxt(id, val){ const el = document.getElementById(id); if(el) el.textContent = val; }
+// status-box (dot/texto/botões Iniciar-Pausar) some da tela pra conta admin
+// secundária (ver isSuper no server) — os ids dela podem não existir no DOM,
+// por isso os _setTxt/checks abaixo em vez de document.getElementById direto
+// (sem isso, o primeiro elemento ausente travava o resto da função e o funil/
+// tabela, que a conta secundária PODE ver, parava de atualizar sozinho).
 function _atualizarTela(s){
-  document.getElementById('fElegiveis').textContent = s.elegiveis;
-  document.getElementById('fEnviados').textContent = s.enviados;
-  document.getElementById('fAbertos').textContent = s.abertos;
-  document.getElementById('fPctAbertura').textContent = s.pctAbertura + '%';
-  document.getElementById('fClicados').textContent = s.clicados;
-  document.getElementById('fPctClique').textContent = s.pctClique + '%';
-  document.getElementById('fIniciaram').textContent = s.iniciaram;
-  document.getElementById('fPctIniciaram').textContent = s.pctIniciaram + '%';
-  document.getElementById('barraTxt').textContent = s.enviados + ' / ' + s.elegiveis;
-  document.getElementById('barraFill').style.width = (s.elegiveis ? Math.round(s.enviados/s.elegiveis*100) : 0) + '%';
+  _setTxt('fElegiveis', s.elegiveis);
+  _setTxt('fEnviados', s.enviados);
+  _setTxt('fAbertos', s.abertos);
+  _setTxt('fPctAbertura', s.pctAbertura + '%');
+  _setTxt('fClicados', s.clicados);
+  _setTxt('fPctClique', s.pctClique + '%');
+  _setTxt('fIniciaram', s.iniciaram);
+  _setTxt('fPctIniciaram', s.pctIniciaram + '%');
+  _setTxt('barraTxt', s.enviados + ' / ' + s.elegiveis);
+  const barraFill = document.getElementById('barraFill');
+  if(barraFill) barraFill.style.width = (s.elegiveis ? Math.round(s.enviados/s.elegiveis*100) : 0) + '%';
   const dot = document.getElementById('statusDot');
   const txt = document.getElementById('statusTxt');
   const sub = document.getElementById('statusSub');
   const concluida = s.pendentes === 0 && s.enviados > 0;
-  dot.className = 'status-dot ' + (s.ativo ? 'rodando' : (concluida ? 'concluida' : 'parada'));
-  txt.textContent = s.ativo ? '🟢 Rodando' : (concluida ? '✓ Concluída' : '⏸ Parada');
-  sub.innerHTML = s.pendentes + ' pendente' + (s.pendentes===1?'':'s') + ' — estimativa de <strong>~' + s.minutosRestantes + '</strong> min restantes (intervalo de 1 a 3 min por envio)';
-  document.getElementById('btnIniciar').disabled = s.ativo || s.pendentes === 0;
-  document.getElementById('btnPausar').disabled = !s.ativo;
+  if(dot) dot.className = 'status-dot ' + (s.ativo ? 'rodando' : (concluida ? 'concluida' : 'parada'));
+  if(txt) txt.textContent = s.ativo ? '🟢 Rodando' : (concluida ? '✓ Concluída' : '⏸ Parada');
+  if(sub) sub.innerHTML = s.pendentes + ' pendente' + (s.pendentes===1?'':'s') + ' — estimativa de <strong>~' + s.minutosRestantes + '</strong> min restantes (intervalo de 1 a 3 min por envio)';
+  const btnIniciar = document.getElementById('btnIniciar');
+  if(btnIniciar) btnIniciar.disabled = s.ativo || s.pendentes === 0;
+  const btnPausar = document.getElementById('btnPausar');
+  if(btnPausar) btnPausar.disabled = !s.ativo;
 }
 async function iniciarCampanha(){
   if(!confirm('Iniciar o disparo? Vai mandar os emails com intervalo aleatório de 1 a 3 minutos até esgotar as leads elegíveis.')) return;

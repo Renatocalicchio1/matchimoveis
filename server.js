@@ -7898,6 +7898,7 @@ const _httpServer = app.listen(process.env.PORT || 3000, () => {
   try {
     const { iniciarScheduler } = require('./services/xmlScheduler'); iniciarScheduler();
     const { iniciarJobCreditos } = require('./services/jobCreditos'); iniciarJobCreditos();
+    const { iniciarTopupPlanoLeads } = require('./services/topupPlanoLeads'); iniciarTopupPlanoLeads();
     // DESATIVADO (jul/2026): fazerBackup() faz "SELECT *" de leads/visitas/usuarios/
     // imoveis/notificacoes inteiros a cada 1 minuto e monta tudo num JSON.stringify só
     // — com a base atual isso estoura o heap do processo (FATAL ERROR: JavaScript heap
@@ -9992,9 +9993,20 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
         if (creditos > 0) {
           await adicionarCreditos(userId, creditos, 'combo_demanda');
           const { atualizarUsuario: _auDemanda } = require('./services/salvarUsuario');
+          // Guarda os critérios da busca + prazo de 30 dias da compra: se o
+          // combo não cobriu tudo que foi encontrado (qtd < total), o job
+          // diário de topupPlanoLeads.js continua entregando leads novas que
+          // batem com esses mesmos critérios até completar a qtd do combo ou
+          // vencer os 30 dias — o que vier primeiro. Ver services/topupPlanoLeads.js.
+          let _paresTopup = [], _transacoesTopup = [];
+          try { _paresTopup = JSON.parse(meta.pares || '[]'); } catch(e3) {}
+          try { _transacoesTopup = JSON.parse(meta.transacoes || '[]'); } catch(e3) {}
           await _auDemanda(userId, {
             planoLeadsAtivo: meta.plano || '', planoLeadsQtd: qtd, planoLeadsLabel: label,
             planoLeadsValor: valor, planoLeadsCreditos: creditos, planoLeadsComprasEm: new Date().toISOString(),
+            planoLeadsCriterios: { estado: meta.estado || '', pares: _paresTopup, transacoes: _transacoesTopup },
+            planoLeadsEntreguesQtd: entreguesQtd,
+            planoLeadsExpiraEm: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
             precisaComprarPlano: false
           });
           if (_cacheUsuarios) { const _uIdxDem = _cacheUsuarios.findIndex(u => u.id === userId); if (_uIdxDem >= 0) _cacheUsuarios[_uIdxDem].precisaComprarPlano = false; }
@@ -14840,6 +14852,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   .combo .preco-original{font-size:13px;color:var(--sec);font-weight:normal;text-decoration:line-through;margin-right:6px}
   .entram-conta{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:6px 10px;margin-top:10px;font-size:11.5px;color:#166534;text-align:left}
   .entram-conta strong{color:#15803d}
+  .restante-nota{font-size:10.5px;color:var(--sec);text-align:left;margin-top:4px;line-height:1.4}
   .combo button{width:100%;margin-top:12px}
   .combo.combo-recomendado button{background:var(--rausch)}
   .promo-desconto{background:linear-gradient(135deg,var(--rausch),var(--arches));color:#fff;border-radius:10px;padding:12px 16px;margin:14px 0;text-align:center;font-size:14px;font-weight:700}
@@ -15467,7 +15480,10 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       const valorDesconto = _valorComDesconto(p.valor);
       const porLead = p.ilimitado ? '' : '<div class="por-lead">R$ '+(valorDesconto/p.qtd).toFixed(2).replace('.',',')+' por lead</div>';
       const entramNaConta = p.ilimitado ? total : Math.min(total, p.qtd);
-      const entramHtml = '<div class="entram-conta">📥 Entram agora na sua conta: <strong>'+entramNaConta+' lead'+(entramNaConta===1?'':'s')+'</strong></div>';
+      const restante = p.ilimitado ? 0 : Math.max(0, total - p.qtd);
+      const restanteHtml = restante > 0 ? ' + <strong>'+restante+'</strong> em até 30 dias' : '';
+      const entramHtml = '<div class="entram-conta">📥 Entram agora na sua conta: <strong>'+entramNaConta+' lead'+(entramNaConta===1?'':'s')+'</strong>'+restanteHtml+'</div>'
+        + (restante > 0 ? '<div class="restante-nota">O restante da sua busca ('+restante+' lead'+(restante===1?'':'s')+') continua entrando na sua conta automaticamente conforme for aparecendo, até completar 30 dias da compra.</div>' : '');
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
         + (rec ? '<span class="badge">✅ Plano compatível</span>' : '')
         + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'

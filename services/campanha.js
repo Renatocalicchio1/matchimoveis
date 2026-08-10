@@ -864,13 +864,20 @@ function gerarHTML(mensagem, contato, tipo) {
 // só manda 1 vez por contato, mesmo o job rodando toda hora).
 async function proximoFollowup1() {
   await _garantirColunas();
+  // Não abrir o e-mail não significa que não tem conta — pode ter chegado
+  // na plataforma por outro caminho (busca orgânica, indicação) sem nunca
+  // clicar nesse e-mail específico. Confere de novo contra `usuarios` na
+  // hora de enviar, senão manda "conhece a Match Imóveis?" pra quem já é
+  // cadastrado — mesma checagem que proximoLote() e proximoFollowup2() já
+  // fazem.
   const { rows } = await query(`
-    SELECT id, nome, email, celular FROM campanha_contatos
-    WHERE status = 'enviado'
-      AND aberto_em IS NULL
-      AND enviado_em <= NOW() - INTERVAL '24 hours'
-      AND followup1_enviado_em IS NULL
-    ORDER BY enviado_em ASC LIMIT 1
+    SELECT cc.id, cc.nome, cc.email, cc.celular FROM campanha_contatos cc
+    WHERE cc.status = 'enviado'
+      AND cc.aberto_em IS NULL
+      AND cc.enviado_em <= NOW() - INTERVAL '24 hours'
+      AND cc.followup1_enviado_em IS NULL
+      AND LOWER(cc.email) NOT IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
+    ORDER BY cc.enviado_em ASC LIMIT 1
   `);
   return rows[0] || null;
 }

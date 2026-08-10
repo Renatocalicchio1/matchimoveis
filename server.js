@@ -17095,6 +17095,22 @@ https://www.matchimoveis.ia.br
     const msg = _sorteiaWA(gerador(nome, link));
     return msg + _WHATSAPP_AVISO_OPT_OUT;
   }
+  // O campo celular às vezes vem com mais de um número junto (planilha com
+  // fixo e celular na mesma célula, tipo "(11) 2042-2162, 11 94027-9581") —
+  // só tirar os não-dígitos gruda os dois números num blob gigante que o
+  // WhatsApp não resolve (erro "not_found=1" no link). Separa por vírgula/
+  // barra/ponto-e-vírgula, valida cada candidato e prioriza celular (11
+  // dígitos de DDD+número) sobre fixo (10 dígitos, que nem tem WhatsApp).
+  function _celularWA(raw){
+    const candidatos = String(raw||'').split(/[,/;]+/)
+      .map(p => p.replace(/\\D/g,'').replace(/^55/,''))
+      .filter(Boolean);
+    const movel = candidatos.find(d => d.length === 11);
+    if(movel) return '55'+movel;
+    const fixo = candidatos.find(d => d.length === 10);
+    if(fixo) return '55'+fixo;
+    return '';
+  }
   // Sob o nome do contato: se alguém já "atendeu" (clicou pra falar por
   // WhatsApp), mostra quem — senão, mostra o botão de WhatsApp (se o
   // estágio pedir um). Ninguém sobrescreve quem já atendeu (ver
@@ -17106,17 +17122,16 @@ https://www.matchimoveis.ia.br
     }
     const estagio = _whatsappEstagio(c);
     if(!estagio) return '';
-    const tel = String(c.celular||'').replace(/\D/g,'').replace(/^55/,'');
-    if(!tel) return '';
+    if(!_celularWA(c.celular)) return '';
     const rotulos = { abriu_sem_clicar: '📲 Reenviar link', clicou_sem_cadastrar: '📲 Lembrar cadastro', cadastrou_sem_comprar: '📲 Oferecer combo' };
     return '<button type="button" class="btn-atender-wa" data-id="'+c.id+'" style="margin-top:4px;background:#25D366;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotulos[estagio]+'</button>';
   }
   async function _clicarWhatsapp(c){
     const estagio = _whatsappEstagio(c);
     if(!estagio) return;
-    const tel = String(c.celular||'').replace(/\D/g,'').replace(/^55/,'');
+    const tel = _celularWA(c.celular);
     if(!tel) return;
-    const link = 'https://wa.me/55'+tel+'?text='+encodeURIComponent(_whatsappMensagem(c, estagio));
+    const link = 'https://wa.me/'+tel+'?text='+encodeURIComponent(_whatsappMensagem(c, estagio));
     try {
       const r = await fetch('/admin/campanha/contatos/'+c.id+'/atender', { method:'POST' });
       const d = await r.json();

@@ -15382,7 +15382,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       if(!_tabelaAutoScrollAtivo) return;
       const max = el.scrollWidth - el.clientWidth;
       if(max <= 0){ pararAutoScrollTabela(); return; }
-      el.scrollLeft += _tabelaAutoScrollDir * 1.4;
+      el.scrollLeft += _tabelaAutoScrollDir * 3;
       if(el.scrollLeft >= max) _tabelaAutoScrollDir = -1;
       else if(el.scrollLeft <= 0) _tabelaAutoScrollDir = 1;
     }, 30);

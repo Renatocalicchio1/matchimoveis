@@ -14959,8 +14959,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:32px;margin-top:14px;align-items:flex-start">
       <div class="campo" style="max-width:320px;flex:1;min-width:220px">
-        <label>Data — <span id="diasBuscaValor" style="font-size:15px;color:var(--rausch);font-weight:bold">30</span> dias</label>
-        <input type="range" id="diasBusca" min="1" max="30" value="30" step="1" style="width:100%;max-width:none" oninput="document.getElementById('diasBuscaValor').textContent = this.value">
+        <label>Data — <span id="diasBuscaValor" style="font-size:15px;color:var(--rausch);font-weight:bold">7</span> dias</label>
+        <input type="range" id="diasBusca" min="1" max="30" value="7" step="1" style="width:100%;max-width:none" oninput="document.getElementById('diasBuscaValor').textContent = this.value">
+        <p class="gray" style="font-size:11.5px;margin-top:4px">Quanto mais você aumenta a data, mais leads você recebe. Quanto mais diminui, menos leads.</p>
       </div>
       <div class="campo">
         <label>Transação</label>

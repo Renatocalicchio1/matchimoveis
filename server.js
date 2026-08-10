@@ -767,7 +767,12 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
 ];
 function authAdmin(req, res, next) {
   if (!(req.session && req.session.admin)) return res.redirect('/admin/login');
-  if (req.session.adminSuper) return next();
+  // !== false (não === true): sessão de admin aberta ANTES desse recurso
+  // existir tem session.admin=true mas session.adminSuper undefined — trata
+  // como superadmin (era o único tipo de sessão possível até aqui). Só uma
+  // conta secundária de fato tem adminSuper=false explícito (setado no
+  // login de /admin/contas-admin).
+  if (req.session.adminSuper !== false) return next();
   if (_ADMIN_ROTAS_SUPERADMIN_ONLY.some(p => req.path === p || req.path.startsWith(p + '/'))) {
     return res.status(403).send('Acesso negado — essa área é restrita ao administrador principal.');
   }

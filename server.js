@@ -16841,7 +16841,8 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
           <option value="erro">Erros</option>
           <option value="optout">Opt-out</option>
           <option value="ja_enviado">Já enviado antes</option>
-          <option value="ja_cadastrado">Já tem conta</option>
+          <option value="ja_cadastrado">Já tinha conta (pulado)</option>
+          <option value="cadastrou">Quem cadastrou (a qualquer momento)</option>
         </select>
       </div>
       <div id="tabela-contatos">⏳ Carregando...</div>
@@ -16933,11 +16934,12 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
       const d = await r.json();
       if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class="red">Erro ao carregar</p>'; return; }
       const entregaLabel = { sent:'✈️ enviado', delivered:'✅ entregue', read:'👁️ lido', failed:'❌ falhou' };
-      let html = '<table><tr><th>Nome</th><th>Telefone</th><th>Status</th><th>Entrega</th><th>Erro</th><th>Enviado em</th></tr>';
+      let html = '<table><tr><th>Nome</th><th>Telefone</th><th>Status</th><th>Entrega</th><th>Cadastrou</th><th>Erro</th><th>Enviado em</th></tr>';
       for(const ct of d.contatos){
         const cor = ct.status==='enviado'?'#16a34a':ct.status==='erro'?'#dc2626':ct.status==='enviando'?'#dc2626':(ct.status==='ja_enviado'||ct.status==='ja_cadastrado')?'#6b7280':'#f59e0b';
         const entregaTxt = ct.status!=='enviado' ? '—' : (entregaLabel[ct.status_entrega] || '⏳ aguardando');
-        html += '<tr><td>'+(ct.nome||'—')+'</td><td>'+ct.telefone+'</td><td style="color:'+cor+'">'+ct.status+'</td><td style="font-size:11px">'+entregaTxt+'</td><td style="color:#dc2626;font-size:11px">'+(ct.erro||'')+'</td><td style="color:#6b7280;font-size:11px">'+(ct.enviado_em?new Date(ct.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
+        const cadastrouTxt = ct.cadastrou ? '<span style="color:#16a34a;font-weight:600">Sim</span>' : '<span style="color:#9ca3af">Não</span>';
+        html += '<tr><td>'+(ct.nome||'—')+'</td><td>'+ct.telefone+'</td><td style="color:'+cor+'">'+ct.status+'</td><td style="font-size:11px">'+entregaTxt+'</td><td style="font-size:11px">'+cadastrouTxt+'</td><td style="color:#dc2626;font-size:11px">'+(ct.erro||'')+'</td><td style="color:#6b7280;font-size:11px">'+(ct.enviado_em?new Date(ct.enviado_em).toLocaleString('pt-BR'):'—')+'</td></tr>';
       }
       html += '</table>';
       document.getElementById('tabela-contatos').innerHTML = html;

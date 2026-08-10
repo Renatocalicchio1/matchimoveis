@@ -216,16 +216,29 @@ async function listarCampanhas() {
   return rows;
 }
 
+// "Cadastrou" aqui é checado ao vivo (telefone do contato bate com telefone/
+// celular de algum usuário), não o status estático "ja_cadastrado" (que só
+// marca quem já tinha conta ANTES da campanha começar) — pega também quem se
+// cadastrou depois de receber o disparo. Comparação por sufixo de 8 dígitos,
+// mesmo padrão usado no resto do sistema (telefone nem sempre salvo com DDI).
+const _CADASTROU_EXISTS = `EXISTS (
+  SELECT 1 FROM usuarios u
+  WHERE RIGHT(REGEXP_REPLACE(COALESCE(u.telefone,''), '\\D', '', 'g'), 8) = RIGHT(REGEXP_REPLACE(disparos_contatos.telefone,'\\D','','g'), 8)
+     OR RIGHT(REGEXP_REPLACE(COALESCE(u.celular,''), '\\D', '', 'g'), 8) = RIGHT(REGEXP_REPLACE(disparos_contatos.telefone,'\\D','','g'), 8)
+)`;
+
 async function listarContatos(campanhaId, { pagina = 1, status = '', q = '' } = {}) {
   await _inicializar();
   const offset = (pagina - 1) * 50;
   const params = [campanhaId];
   let where = 'WHERE campanha_id=$1';
-  if (status) { params.push(status); where += ` AND status=$${params.length}`; }
+  if (status === 'cadastrou') { where += ` AND ${_CADASTROU_EXISTS}`; }
+  else if (status) { params.push(status); where += ` AND status=$${params.length}`; }
   if (q) { params.push('%' + q + '%'); where += ` AND (nome ILIKE $${params.length} OR telefone ILIKE $${params.length})`; }
   params.push(50); params.push(offset);
   const { rows } = await query(
-    `SELECT id, nome, telefone, status, erro, enviado_em, status_entrega, status_entrega_em FROM disparos_contatos ${where} ORDER BY criado_em ASC LIMIT $${params.length - 1} OFFSET $${params.length}`,
+    `SELECT id, nome, telefone, status, erro, enviado_em, status_entrega, status_entrega_em, ${_CADASTROU_EXISTS} AS cadastrou
+     FROM disparos_contatos ${where} ORDER BY criado_em ASC LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );
   const { rows: tot } = await query(`SELECT COUNT(*) as total FROM disparos_contatos ${where}`, params.slice(0, -2));

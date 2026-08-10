@@ -17005,6 +17005,37 @@ https://www.matchimoveis.ia.br
     buscar(_pagina);
   }, 15000);
   let _pagina = 1;
+  // Mensagem de WhatsApp pra disparo MANUAL pelo próprio número do admin
+  // logado — abre um link wa.me com o texto pronto, mas quem manda de
+  // verdade é a pessoa clicando "Enviar" no WhatsApp dela. O texto muda
+  // sozinho conforme o estágio real do contato no funil desse e-mail
+  // (abriu/clicou/cadastrou/comprou, tudo já vem em cada linha de /admin/campanha/contatos).
+  const _LINK_POR_MODELO = { demanda: 'https://www.matchimoveis.ia.br/demanda', pagina: 'https://www.matchimoveis.ia.br' };
+  function _whatsappEstagio(c){
+    if(!c.celular) return null;
+    if(c.comprou) return null; // já converteu, nada a empurrar
+    if(c.cadastrou) return 'cadastrou_sem_comprar';
+    if(c.clicado_em) return 'clicou_sem_cadastrar';
+    if(c.aberto_em) return 'abriu_sem_clicar';
+    return null; // nunca abriu o e-mail ainda — sem gancho pra mensagem
+  }
+  function _whatsappMensagem(c, estagio){
+    const nome = (c.nome||'').trim().split(' ')[0] || 'tudo bem';
+    const link = _LINK_POR_MODELO[c.modelo_usado] || _LINK_POR_MODELO.pagina;
+    if(estagio === 'abriu_sem_clicar') return 'Oi '+nome+'! Vi que você abriu o e-mail que te mandei sobre a Match Imóveis, mas ainda não deu uma olhada na plataforma. Dá uma conferida aqui: '+link;
+    if(estagio === 'clicou_sem_cadastrar') return 'Oi '+nome+'! Vi que você chegou a entrar na página da Match Imóveis, mas ainda não fez seu cadastro. Segue o link de novo, é rápido: '+link;
+    if(estagio === 'cadastrou_sem_comprar') return 'Oi '+nome+'! Vi que você já criou sua conta na Match Imóveis, mas ainda não pegou nenhum combo de leads. Posso te ajudar a escolher o melhor plano pra você — é só me chamar aqui!';
+    return '';
+  }
+  function _botaoWhatsapp(c){
+    const estagio = _whatsappEstagio(c);
+    if(!estagio) return '<span class="gray">—</span>';
+    const tel = String(c.celular||'').replace(/\D/g,'').replace(/^55/,'');
+    if(!tel) return '<span class="gray">—</span>';
+    const rotulos = { abriu_sem_clicar: '📲 Reenviar link', clicou_sem_cadastrar: '📲 Lembrar cadastro', cadastrou_sem_comprar: '📲 Oferecer combo' };
+    const link = 'https://wa.me/55'+tel+'?text='+encodeURIComponent(_whatsappMensagem(c, estagio));
+    return '<a href="'+link+'" target="_blank" style="color:#25D366;font-weight:600;text-decoration:none;white-space:nowrap">'+rotulos[estagio]+'</a>';
+  }
   async function buscar(p){
     _pagina = p || 1;
     const q = document.getElementById('busca').value;
@@ -17012,12 +17043,12 @@ https://www.matchimoveis.ia.br
     const r = await fetch('/admin/campanha/contatos?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+s);
     const d = await r.json();
     if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class=red>Erro ao carregar</p>'; return; }
-    let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:920px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Cadastrou</th><th style="padding:8px;text-align:left">Enviado em</th><th style="padding:8px;text-align:left">E-mail</th></tr>';
+    let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:1020px"><tr style="background:#f3f4f6"><th style="padding:8px;text-align:left">Nome</th><th style="padding:8px;text-align:left">Email</th><th style="padding:8px;text-align:left">Celular</th><th style="padding:8px;text-align:left">Status</th><th style="padding:8px;text-align:left">Modelo</th><th style="padding:8px;text-align:left">Abriu</th><th style="padding:8px;text-align:left">Clicou</th><th style="padding:8px;text-align:left">Cadastrou</th><th style="padding:8px;text-align:left">Enviado em</th><th style="padding:8px;text-align:left">E-mail</th><th style="padding:8px;text-align:left">WhatsApp</th></tr>';
     for(const c of d.contatos){
       const cor = c.status==='enviado'?'#16a34a':c.status==='erro'?'#dc2626':'#f59e0b';
       const statusTxt = c.status==='erro' ? escHtml(c.status)+' ('+escHtml(c.erro||'')+')' : escHtml(c.status);
       const verEmail = c.status==='enviado' ? '<a href="javascript:void(0)" onclick="abrirPreview('+c.id+')" style="color:#FF385C;font-weight:600;text-decoration:none">Ver e-mail →</a>' : '—';
-      html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px">'+escHtml(c.nome)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px">'+escHtml(c.celular)+'</td><td style="padding:8px;color:'+cor+'">'+statusTxt+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px">'+_tag(c.cadastrou)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td><td style="padding:8px">'+verEmail+'</td></tr>';
+      html += '<tr style="border-bottom:1px solid #e5e7eb"><td style="padding:8px">'+escHtml(c.nome)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px">'+escHtml(c.celular)+'</td><td style="padding:8px;color:'+cor+'">'+statusTxt+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px">'+_tag(c.cadastrou)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td><td style="padding:8px">'+verEmail+'</td><td style="padding:8px">'+_botaoWhatsapp(c)+'</td></tr>';
     }
     html += '</table></div>';
     document.getElementById('tabela-contatos').innerHTML = html;
@@ -17138,8 +17169,13 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     else if(status === 'cadastrou'){ where += ` AND LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')`; }
     else if(status){ params.push(status); where += ` AND status=$${params.length}`; }
     params.push(50); params.push(offset);
+    // "comprou": não tem sinal direto de compra de combo, então usa como
+    // proxy o saldo total (match_coins_total) passar do bônus de boas-vindas
+    // (1000) — se passou, recarregou em algum momento (ver conversa jul/2026,
+    // decidido usar esse critério em vez de cruzar com Mercado Pago por ora).
     const { rows } = await require('./services/db').query(`SELECT id,nome,email,celular,status,modelo_usado,aberto_em,clicado_em,enviado_em,erro,
-      (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou
+      (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
+      COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
       FROM campanha_contatos ${where} ORDER BY COALESCE(enviado_em, criado_em) DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
     const { rows: tot } = await require('./services/db').query(`SELECT COUNT(*) as total FROM campanha_contatos ${where}`, params.slice(0,-2));
     res.json({ ok:true, contatos:rows, total:tot[0].total });

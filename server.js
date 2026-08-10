@@ -755,6 +755,21 @@ function _permissaoDaRota(caminho) {
     .sort((a, b) => b[0].length - a[0].length)[0];
   return bateu ? bateu[1] : 'dashboard';
 }
+// Login (e "Entrar" a partir de /admin/contas-admin) não pode mandar todo
+// mundo direto pra '/admin' — se a conta não tem a permissão 'dashboard'
+// marcada, ela trava com "acesso negado" na primeira tela, sem nem chegar a
+// ver o menu com o resto do que ela PODE acessar. Acha a 1ª página (na
+// mesma ordem do menu) que a lista de permissões realmente libera.
+function _primeiraPaginaPermitida(permissoes) {
+  const set = new Set(permissoes || []);
+  for (const sec of _ADMIN_NAV) {
+    if (sec.sec === 'Administração') continue;
+    for (const it of sec.items) {
+      if (!it.externo && set.has(it.key)) return it.href;
+    }
+  }
+  return null;
+}
 // Ações sensíveis demais pra depender só do checklist de páginas — mesmo uma
 // conta admin com permissão de 'dashboard' NÃO alcança essas: gerenciar
 // outras contas admin (evita auto-promoção), impersonar qualquer corretor
@@ -855,7 +870,12 @@ app.post('/admin/login', async (req, res) => {
       req.session.adminNome = conta.nome || conta.usuario;
       req.session.adminUsuario = conta.usuario;
       atualizarUltimoLoginAdminConta(conta.id).catch(() => {});
-      return res.redirect('/admin');
+      // '/admin' (dashboard) exige a permissão 'dashboard' — se essa conta
+      // não tem ela marcada, manda direto pra 1ª página que ela realmente
+      // acessa, senão ela trava em "acesso negado" na primeira tela depois
+      // de logar (bug real: aconteceu com as contas do Rafael e do Bruno,
+      // criadas sem Dashboard marcado).
+      return res.redirect(_primeiraPaginaPermitida(conta.permissoes) || '/admin');
     }
   } catch (e) { console.error('[admin/login] erro:', e.message); }
   res.redirect('/admin/login?error=1');
@@ -1066,7 +1086,10 @@ app.get('/admin/contas-admin/:id/entrar', authAdmin, async (req, res) => {
     req.session.adminPermissoes = conta.permissoes;
     req.session.adminNome = conta.nome || conta.usuario;
     req.session.adminUsuario = conta.usuario;
-    res.redirect('/admin');
+    // Mesmo motivo do login em si: '/admin' exige a permissão 'dashboard',
+    // que essa conta pode não ter — manda pra 1ª página que ela acessa de
+    // verdade, senão o superadmin cai direto num "acesso negado" ao entrar.
+    res.redirect(_primeiraPaginaPermitida(conta.permissoes) || '/admin');
   } catch (e) {
     console.error('[admin/contas-admin/entrar]', e.message);
     res.redirect('/admin/contas-admin');

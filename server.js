@@ -17052,13 +17052,22 @@ https://www.matchimoveis.ia.br
     if(c.aberto_em) return 'abriu_sem_clicar';
     return null; // nunca abriu o e-mail ainda — sem gancho pra mensagem
   }
+  // Linha fixa em toda mensagem manual — não tem como automatizar a leitura
+  // da resposta (é o sub-admin mandando do WhatsApp dele mesmo, não um bot),
+  // então é só um aviso pro lead responder; quando o sub-admin vir a
+  // resposta "1", ele usa o botão "🗑️ Excluir celular" na linha desse
+  // contato pra tirar o número da lista (o e-mail nunca é excluído, só o
+  // celular — é o e-mail que não muda e continua identificando o contato).
+  const _WHATSAPP_AVISO_OPT_OUT = '\\n\\n(Se esse número não é seu ou você não quer mais receber mensagens, responde 1.)';
   function _whatsappMensagem(c, estagio){
     const nome = (c.nome||'').trim().split(' ')[0] || 'tudo bem';
     const link = _LINK_POR_MODELO[c.modelo_usado] || _LINK_POR_MODELO.pagina;
-    if(estagio === 'abriu_sem_clicar') return 'Oi '+nome+'! Vi que você abriu o e-mail que te mandei sobre a Match Imóveis, mas ainda não deu uma olhada na plataforma. Dá uma conferida aqui: '+link;
-    if(estagio === 'clicou_sem_cadastrar') return 'Oi '+nome+'! Vi que você chegou a entrar na página da Match Imóveis, mas ainda não fez seu cadastro. Segue o link de novo, é rápido: '+link;
-    if(estagio === 'cadastrou_sem_comprar') return 'Oi '+nome+'! Vi que você já criou sua conta na Match Imóveis, mas ainda não pegou nenhum combo de leads. Posso te ajudar a escolher o melhor plano pra você — é só me chamar aqui!';
-    return '';
+    let msg = '';
+    if(estagio === 'abriu_sem_clicar') msg = 'Oi '+nome+'! Vi que você abriu o e-mail que te mandei sobre a Match Imóveis, mas ainda não deu uma olhada na plataforma. Dá uma conferida aqui: '+link;
+    else if(estagio === 'clicou_sem_cadastrar') msg = 'Oi '+nome+'! Vi que você chegou a entrar na página da Match Imóveis, mas ainda não fez seu cadastro. Segue o link de novo, é rápido: '+link;
+    else if(estagio === 'cadastrou_sem_comprar') msg = 'Oi '+nome+'! Vi que você já criou sua conta na Match Imóveis, mas ainda não pegou nenhum combo de leads. Posso te ajudar a escolher o melhor plano pra você — é só me chamar aqui!';
+    else return '';
+    return msg + _WHATSAPP_AVISO_OPT_OUT;
   }
   // Sob o nome do contato: se alguém já "atendeu" (clicou pra falar por
   // WhatsApp), mostra quem — senão, mostra o botão de WhatsApp (se o
@@ -17109,7 +17118,10 @@ https://www.matchimoveis.ia.br
       const statusTxt = c.status==='erro' ? escHtml(c.status)+' ('+escHtml(c.erro||'')+')' : escHtml(c.status);
       const verEmail = c.status==='enviado' ? '<a href="javascript:void(0)" onclick="abrirPreview('+c.id+')" style="color:#FF385C;font-weight:600;text-decoration:none">Ver e-mail →</a>' : '—';
       const trBg = c.atendido_por_cor ? ' style="background:'+escHtml(c.atendido_por_cor)+'1a;border-bottom:1px solid #e5e7eb"' : ' style="border-bottom:1px solid #e5e7eb"';
-      html += '<tr'+trBg+'><td style="padding:8px">'+escHtml(c.nome)+_subNome(c)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px">'+escHtml(c.celular)+'</td><td style="padding:8px;color:'+cor+'">'+statusTxt+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px">'+_tag(c.cadastrou)+'</td><td style="padding:8px">'+_tag(c.comprou)+'</td><td style="padding:8px">'+_tag(c.followup1_enviado_em)+'</td><td style="padding:8px">'+_tag(c.followup2_enviado_em)+'</td><td style="padding:8px">'+_tag(c.followup3_enviado_em)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td><td style="padding:8px">'+verEmail+'</td></tr>';
+      const celularCel = c.celular
+        ? escHtml(c.celular)+' <button type="button" class="btn-excluir-celular" data-id="'+c.id+'" title="Excluir celular (número errado ou pediu pra não receber mais)" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;margin-left:2px">🗑️</button>'
+        : '<span class="gray">—</span>';
+      html += '<tr'+trBg+'><td style="padding:8px">'+escHtml(c.nome)+_subNome(c)+'</td><td style="padding:8px">'+escHtml(c.email)+'</td><td style="padding:8px;white-space:nowrap">'+celularCel+'</td><td style="padding:8px;color:'+cor+'">'+statusTxt+'</td><td style="padding:8px">'+escHtml(c.modelo_usado||'—')+'</td><td style="padding:8px">'+_tag(c.aberto_em)+'</td><td style="padding:8px">'+_tag(c.clicado_em)+'</td><td style="padding:8px">'+_tag(c.cadastrou)+'</td><td style="padding:8px">'+_tag(c.comprou)+'</td><td style="padding:8px">'+_tag(c.followup1_enviado_em)+'</td><td style="padding:8px">'+_tag(c.followup2_enviado_em)+'</td><td style="padding:8px">'+_tag(c.followup3_enviado_em)+'</td><td style="padding:8px;color:#6b7280;font-size:11px">'+(c.enviado_em?new Date(c.enviado_em).toLocaleString('pt-BR'):'—')+'</td><td style="padding:8px">'+verEmail+'</td></tr>';
     }
     html += '</table></div>';
     document.getElementById('tabela-contatos').innerHTML = html;
@@ -17118,6 +17130,16 @@ https://www.matchimoveis.ia.br
         const id = btn.getAttribute('data-id');
         const contato = _ultimosContatos.find(function(c){ return String(c.id) === String(id); });
         if(contato) _clicarWhatsapp(contato);
+      });
+    });
+    document.querySelectorAll('.btn-excluir-celular').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        if(!confirm('Excluir o celular desse contato? O e-mail e o histórico continuam guardados, só o número some.')) return;
+        const id = btn.getAttribute('data-id');
+        const r = await fetch('/admin/campanha/contatos/'+id+'/excluir-celular', { method:'POST' });
+        const d = await r.json();
+        if(!d.ok){ alert(d.erro || 'Erro'); return; }
+        buscar(_pagina);
       });
     });
     // Paginação
@@ -17241,9 +17263,18 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     // proxy o saldo total (match_coins_total) passar do bônus de boas-vindas
     // (1000) — se passou, recarregou em algum momento (ver conversa jul/2026,
     // decidido usar esse critério em vez de cruzar com Mercado Pago por ora).
-    const { rows } = await require('./services/db').query(`SELECT id,nome,email,celular,status,modelo_usado,aberto_em,clicado_em,enviado_em,erro,
+    // "celular": se o contato virou usuário cadastrado, mostra o celular DA
+    // CONTA (sempre o mais atual, lido ao vivo) em vez do celular importado
+    // na planilha original — a planilha pode estar desatualizada, mas o
+    // e-mail nunca muda, então é o vínculo confiável pra achar o celular
+    // certo. Sem conta cadastrada com celular preenchido, mantém o da planilha.
+    const { rows } = await require('./services/db').query(`SELECT id,nome,email,status,modelo_usado,aberto_em,clicado_em,enviado_em,erro,
       followup1_enviado_em,followup2_enviado_em,followup3_enviado_em,
       atendido_por,atendido_por_nome,atendido_por_cor,atendido_em,
+      COALESCE(
+        (SELECT celular FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) AND celular IS NOT NULL AND celular != '' LIMIT 1),
+        celular
+      ) AS celular,
       (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
       COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
       FROM campanha_contatos ${where} ORDER BY COALESCE(enviado_em, criado_em) DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
@@ -17266,6 +17297,17 @@ app.post('/admin/campanha/contatos/:id/atender', authAdmin, async (req, res) => 
       cor: req.session.adminCor || '#6b7280'
     });
     res.json(resultado);
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// Número pode ter sido reciclado pra outra pessoa, ou o lead pediu pra não
+// receber mais WhatsApp — apaga só o celular (e-mail e histórico continuam
+// intactos). Mesma permissão do botão de atender.
+app.post('/admin/campanha/contatos/:id/excluir-celular', authAdmin, async (req, res) => {
+  try {
+    const { excluirCelularContato } = require('./services/campanha');
+    await excluirCelularContato(req.params.id);
+    res.json({ ok: true });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 

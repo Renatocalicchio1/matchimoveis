@@ -940,6 +940,14 @@ async function marcarAtendido(id, { por, nome, cor }) {
   );
   return { ok: true, nome, cor };
 }
+
+// Número pode ter sido reciclado pra outra pessoa (ou o lead simplesmente
+// não quer mais mensagem) — só apaga o celular, mantém nome/email/histórico
+// intactos (e-mail é o identificador estável, nunca muda).
+async function excluirCelularContato(id) {
+  await _garantirColunas();
+  await query('UPDATE campanha_contatos SET celular=$1 WHERE id=$2', ['', id]);
+}
 async function _enviarFollowup(contato, tipo, numero) {
   const variacao = _sorteia(MODELOS[tipo]);
   const corpoPersonalizado = variacao.corpo.replace(/\{nome\}/g, contato.nome || 'Corretor');
@@ -1020,7 +1028,7 @@ async function buscarEnvioParaPreview(id) {
 
 module.exports = {
   importarContatos, statsBase, statsTracking, statsCadastrados, statsValidacao,
-  proximoLote, enviarTeste, enviarProximo, marcarAtendido,
+  proximoLote, enviarTeste, enviarProximo, marcarAtendido, excluirCelularContato,
   iniciarCampanha, pausarCampanha, estaAtiva, buscarEnvioParaPreview,
   validarProximoLote, listarEnvios
 };

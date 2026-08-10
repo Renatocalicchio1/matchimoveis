@@ -15234,19 +15234,23 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         <div class="combo-escolhido" id="combo-escolhido-resumo" style="display:none"></div>
         <p id="signup-subtitulo" class="gray" style="font-size:12.5px;margin:0 0 10px;display:none">Sua busca já achou interessados na região — deixa seus dados que a gente guarda essa busca na sua conta. Você só paga quando (e se) quiser levar os leads pra sua carteira.</p>
         <h2 class="secao" id="signup-titulo" style="margin-top:0">Criar conta e finalizar</h2>
-        <label>Nome completo</label>
-        <input type="text" id="suNome" placeholder="Seu nome completo">
-        <label>Email</label>
-        <input type="email" id="suEmail" placeholder="voce@email.com">
-        <label>Celular (WhatsApp)</label>
-        <input type="text" id="suCelular" placeholder="47999999999">
-        <label>CPF <span class="gray" style="font-weight:normal">(exigido pra pagamento via Pix)</span></label>
-        <input type="text" id="suCpf" placeholder="000.000.000-00">
-        <label>Senha</label>
-        <input type="password" id="suSenha" placeholder="Crie uma senha">
+        <div id="campos-cadastro">
+          <label>Nome completo</label>
+          <input type="text" id="suNome" placeholder="Seu nome completo">
+          <label>Email</label>
+          <input type="email" id="suEmail" placeholder="voce@email.com">
+          <label>Celular (WhatsApp)</label>
+          <input type="text" id="suCelular" placeholder="47999999999">
+          <label>Senha</label>
+          <input type="password" id="suSenha" placeholder="Crie uma senha">
+        </div>
+        <div id="campo-cpf" style="display:none">
+          <label>CPF <span class="gray" style="font-weight:normal">(exigido pelo Mercado Pago pra gerar o Pix)</span></label>
+          <input type="text" id="suCpf" placeholder="000.000.000-00">
+        </div>
         <div id="signup-status"></div>
         <button id="btnComprar" onclick="finalizarCompra()">Ir para pagamento →</button>
-        <p class="gray" id="signup-rodape-pagamento" style="font-size:11px;margin-top:10px">🔒 Pagamento seguro pelo Mercado Pago • Compra única, sem mensalidade automática. Sua conta MatchImóveis é criada agora e os leads da sua busca são entregues assim que o pagamento for aprovado — <strong>mas ficam disponíveis pra qualquer corretor até lá.</strong></p>
+        <p class="gray" id="signup-rodape-pagamento" style="font-size:11px;margin-top:10px">🔒 Pagamento seguro pelo Mercado Pago • Compra única, sem mensalidade automática. Os leads da sua busca são entregues assim que o pagamento for aprovado — <strong>mas ficam disponíveis pra qualquer corretor até lá.</strong></p>
         <p class="gray" id="signup-rodape-cadastro" style="font-size:11px;margin-top:10px;display:none">🔒 Sem cobrança nenhuma agora — é só criar a conta. Você escolhe o combo e paga quando quiser.</p>
       </div>
     </div>
@@ -15730,28 +15734,11 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   }
   function _valorComDesconto(valorOriginal){ return Math.round(valorOriginal * 0.5); }
 
-  document.getElementById('combos-lista').addEventListener('click', async function(e){
+  document.getElementById('combos-lista').addEventListener('click', function(e){
     const btn = e.target.closest('[data-escolher]');
     if(!btn) return;
     const plano = btn.getAttribute('data-escolher');
     _comboEscolhido = plano;
-    // Conta já criada (fluxo novo, logo depois da planilha aparecer)? Pula o
-    // formulário inteiro e vai direto pro pagamento com a conta que já existe.
-    if(_contaCriada){
-      btn.disabled = true;
-      try {
-        const r = await fetch('/demanda/comprar', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plano, criterios: _ultimaBusca })
-        });
-        const d = await r.json();
-        if(!d.ok){ alert(d.erro || 'Erro ao gerar pagamento.'); btn.disabled = false; return; }
-        window.location.href = d.url;
-      } catch(e2){ alert('Erro ao gerar pagamento.'); btn.disabled = false; }
-      return;
-    }
-    // Fallback (conta ainda não criada — ex: usuário fechou o modal de
-    // cadastro inicial): formulário completo, cadastro + pagamento juntos.
     const p = PLANOS[plano];
     const totalEncontrado = (_ultimaBusca && _ultimaBusca.total) || 0;
     const avisoQtd = (!p.ilimitado && totalEncontrado > p.qtd)
@@ -15761,11 +15748,23 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     document.getElementById('combo-escolhido-resumo').innerHTML = '<strong>'+escHtml(p.label)+'</strong> — <span style="text-decoration:line-through;color:var(--sec)">R$ '+p.valor+'</span> R$ '+_valorComDesconto(p.valor)+' <span class="gray">(50% OFF primeira conta)</span><br><span class="gray">'+avisoQtd+'</span>';
     document.getElementById('combo-escolhido-resumo').style.display = 'block';
     document.getElementById('signup-subtitulo').style.display = 'none';
-    document.getElementById('signup-titulo').textContent = 'Criar conta e finalizar';
     document.getElementById('signup-rodape-pagamento').style.display = 'block';
     document.getElementById('signup-rodape-cadastro').style.display = 'none';
+    document.getElementById('campo-cpf').style.display = 'block';
     document.getElementById('btnComprar').textContent = 'Ir para pagamento →';
     document.getElementById('btnComprar').onclick = finalizarCompra;
+    // Conta já criada (fluxo novo, logo depois da planilha aparecer)? Não
+    // precisa pedir nome/email/celular/senha de novo — só o CPF, que é
+    // pedido agora (na hora de pagar), não lá no cadastro inicial.
+    if(_contaCriada){
+      document.getElementById('campos-cadastro').style.display = 'none';
+      document.getElementById('signup-titulo').textContent = 'Confirme seu CPF pra continuar';
+    } else {
+      // Fallback (conta ainda não criada — ex: usuário fechou o modal de
+      // cadastro inicial): formulário completo, cadastro + pagamento juntos.
+      document.getElementById('campos-cadastro').style.display = 'block';
+      document.getElementById('signup-titulo').textContent = 'Criar conta e finalizar';
+    }
     abrirModalCompra();
   });
 
@@ -15793,6 +15792,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     document.getElementById('combo-escolhido-resumo').style.display = 'none';
     document.getElementById('signup-subtitulo').style.display = 'block';
     document.getElementById('signup-titulo').textContent = 'Guarde sua busca — crie sua conta';
+    document.getElementById('campos-cadastro').style.display = 'block';
+    document.getElementById('campo-cpf').style.display = 'none';
     document.getElementById('signup-rodape-pagamento').style.display = 'none';
     document.getElementById('signup-rodape-cadastro').style.display = 'block';
     document.getElementById('btnComprar').textContent = 'Criar minha conta →';
@@ -15805,7 +15806,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     const nome = document.getElementById('suNome').value.trim();
     const email = document.getElementById('suEmail').value.trim();
     const celular = document.getElementById('suCelular').value.trim();
-    const cpf = document.getElementById('suCpf').value.trim();
     const senha = document.getElementById('suSenha').value;
     const statusEl = document.getElementById('signup-status');
     statusEl.innerHTML = '';
@@ -15814,7 +15814,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     try {
       const r = await fetch('/demanda/cadastrar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email, celular, cpf, senha, criterios: _ultimaBusca })
+        body: JSON.stringify({ nome, email, celular, senha, criterios: _ultimaBusca })
       });
       const d = await r.json();
       if(!d.ok){ statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
@@ -16192,10 +16192,12 @@ async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios 
   if (!telefone || telefone.length < 10 || telefone.length > 13) return { ok: false, erro: 'Celular inválido. Use o formato: 47999999999' };
   const emailVal = (email || '').trim().toLowerCase();
   if (!emailVal || !emailVal.includes('@')) return { ok: false, erro: 'Email inválido.' };
-  // CPF obrigatório aqui (conta nova, sem perfil pra puxar depois) — sem ele
-  // o Pix do Mercado Pago não gera o QR code (ver nota em _montarPayerMP).
-  if (!_cpfValido(cpf)) return { ok: false, erro: 'CPF inválido. Confira os números digitados.' };
-  const cpfVal = _limparCpf(cpf);
+  // CPF é opcional na criação da conta — só é exigido de verdade na hora de
+  // pagar (ver /demanda/comprar), não trava quem só quer criar a conta
+  // ainda. Se vier (fallback: cadastro + pagamento no mesmo passo) e for
+  // inválido, rejeita; se vier válido, já salva.
+  if (cpf && !_cpfValido(cpf)) return { ok: false, erro: 'CPF inválido. Confira os números digitados.' };
+  const cpfVal = _cpfValido(cpf) ? _limparCpf(cpf) : '';
   const senhaVal = (senha || '').trim();
   if (!senhaVal || senhaVal.length < 4) return { ok: false, erro: 'Senha muito curta (mínimo 4 caracteres).' };
   if (!criterios || !criterios.estado || !Array.isArray(criterios.pares) || !criterios.pares.length) {
@@ -16271,14 +16273,19 @@ app.post('/demanda/cadastrar', express.json(), async (req, res) => {
 // encontrados na conta — ver branch `combo_demanda` em POST /webhook/mercadopago.
 app.post('/demanda/comprar', express.json(), async (req, res) => {
   try {
-    const { plano, criterios } = req.body;
+    const { plano, criterios, cpf } = req.body;
     const pacote = PLANOS_LEADS[plano];
     if (!pacote) return res.json({ ok: false, erro: 'Combo inválido' });
     if (!criterios || !criterios.estado || !Array.isArray(criterios.pares) || !criterios.pares.length) {
       return res.json({ ok: false, erro: 'Critérios de busca inválidos — refaça a busca.' });
     }
+    // CPF é pedido aqui (na hora de escolher o plano/pagar), não lá no
+    // cadastro — obrigatório sempre nesse ponto, mesmo pra conta já criada
+    // sem CPF ainda, porque o Pix do Mercado Pago exige (ver _montarPayerMP).
+    if (!_cpfValido(cpf)) return res.json({ ok: false, erro: 'CPF inválido. Confira os números digitados.' });
+    const cpfLimpo = _limparCpf(cpf);
 
-    let codigoNovo, nomeVal, emailVal, cpfVal;
+    let codigoNovo, nomeVal, emailVal;
     // contaDemandaId (não o session.user genérico) evita que um corretor JÁ
     // logado numa conta antiga (não criada por esse fluxo) herde o 50% OFF
     // "primeira conta" só por estar navegando em /demanda com sessão ativa.
@@ -16286,17 +16293,22 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
       codigoNovo = req.session.user.codigoUsuario;
       nomeVal = req.session.user.nome;
       emailVal = req.session.user.email;
-      cpfVal = req.session.user.cpf;
+      // Conta foi criada no cadastro antecipado, sem CPF — salva agora que
+      // ele acabou de informar na hora de pagar.
+      try {
+        const { atualizarUsuario: _auCpfDemanda } = require('./services/salvarUsuario');
+        await _auCpfDemanda(codigoNovo, { cpf: cpfLimpo });
+        req.session.user.cpf = cpfLimpo;
+      } catch (eCpfSalvar) { console.error('[demanda/comprar] erro ao salvar cpf:', eCpfSalvar.message); }
     } else {
-      const { nome, email, celular, cpf, senha } = req.body;
-      const resultado = await _criarContaDemanda({ nome, email, celular, cpf, senha, criterios });
+      const { nome, email, celular, senha } = req.body;
+      const resultado = await _criarContaDemanda({ nome, email, celular, cpf: cpfLimpo, senha, criterios });
       if (!resultado.ok) return res.json(resultado);
       req.session.user = resultado.user;
       req.session.contaDemandaId = resultado.user.codigoUsuario;
       codigoNovo = resultado.user.codigoUsuario;
       nomeVal = resultado.user.nome;
       emailVal = resultado.user.email;
-      cpfVal = resultado.user.cpf;
     }
 
     const diasFinal = Math.min(30, Math.max(1, parseInt(criterios.dias, 10) || 7));
@@ -16317,7 +16329,7 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
           unit_price: valorComDesconto,
           currency_id: 'BRL'
         }],
-        payer: _montarPayerMP(nomeVal, emailVal, cpfVal),
+        payer: _montarPayerMP(nomeVal, emailVal, cpfLimpo),
         back_urls: {
           success: BASE + '/pagamento/sucesso-plano?voltar=' + encodeURIComponent('/app-home'),
           failure: BASE + '/demanda',

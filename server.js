@@ -15920,6 +15920,25 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
     await salvarTodosUsuarios(users);
     req.session.user = novo;
 
+    // Conta já existe aqui, mas as leads só entram depois que o pagamento
+    // aprovar (webhook combo_demanda) — email avisa isso pra não confundir
+    // quem criar a conta e ainda não ver nada no painel.
+    try {
+      const { enviarEmail } = require('./services/email');
+      await enviarEmail({
+        para: emailVal,
+        assunto: '✅ Conta criada na MatchImóveis — falta só o pagamento',
+        html: `<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px">
+          <h2 style="color:#FF385C">✅ Sua conta foi criada, ${escHtml(nomeVal)}!</h2>
+          <p>Você já pode entrar em <a href="https://www.matchimoveis.ia.br/entrar" style="color:#FF385C">matchimoveis.ia.br/entrar</a> com o celular ou email cadastrado.</p>
+          <p><strong>As leads da sua busca (${escHtml(pacote.label)}) ainda não estão na sua conta</strong> — elas entram automaticamente assim que o pagamento do combo for aprovado.</p>
+          <p>Falta só concluir o pagamento pra começar a atender.</p>
+          <a href="https://www.matchimoveis.ia.br/app-home" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver minha conta →</a>
+        </div>`,
+        texto: `Sua conta foi criada, ${nomeVal}! As leads do combo (${pacote.label}) só entram depois do pagamento aprovado. Acesse: https://www.matchimoveis.ia.br/entrar`
+      });
+    } catch (eEmail) { console.error('[demanda/comprar] erro ao enviar email de boas-vindas:', eEmail.message); }
+
     const diasFinal = Math.min(30, Math.max(1, parseInt(criterios.dias, 10) || 7));
     const preference = new Preference(_mpClient);
     const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';

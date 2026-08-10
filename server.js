@@ -14966,6 +14966,10 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     <div class="scroll-hint">👉 Arraste a tabela pro lado pra ver todas as colunas</div>
     <div id="tabela-scroll" style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Quartos</th><th>Suítes</th><th>Vagas</th><th>Banheiros</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
 
+    <div style="text-align:center;margin:20px 0">
+      <button type="button" id="btnCustoLeads" onclick="mostrarComboRecomendado()" style="display:none;animation:scrollHintPulso 1.5s infinite">💰 Quanto me custa essas leads?</button>
+    </div>
+
     ${isAdmin ? `<div class="box" id="transferir-box">
       <h2 class="secao" style="margin-top:0">🎁 Transferir manualmente pra uma conta</h2>
       <p class="gray" style="font-size:13px">Entrega esses leads direto na conta escolhida (sem Mercado Pago) e debita da conta o equivalente em créditos do combo correspondente à quantidade encontrada.</p>
@@ -15305,6 +15309,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     const dias = diasSel ? Math.min(30, Math.max(1, parseInt(diasSel.value, 10) || 30)) : 30;
     document.getElementById('resultado-box').style.display = 'none';
     document.getElementById('combos-box').style.display = 'none';
+    document.getElementById('btnCustoLeads').style.display = 'none';
+    clearTimeout(_custoLeadsTimer);
     fecharModalCompra();
     _comboEscolhido = null;
     try {
@@ -15343,7 +15349,17 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       document.getElementById('resultado-box').style.display = 'block';
       document.getElementById('resultado-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
       _ultimaBusca = { estado, pares, transacoes, dias: d.dias };
+      // Monta os combos (já com o compatível marcado como recomendado), mas
+      // só mostra o box quando o usuário pedir — 10s depois de ver a
+      // planilha, aparece um botão "Quanto me custa essas leads?" que revela
+      // essa área ao ser clicado, já com o plano certo em destaque.
       renderCombos(d.total);
+      document.getElementById('combos-box').style.display = 'none';
+      if(d.total > 0){
+        _custoLeadsTimer = setTimeout(function(){
+          document.getElementById('btnCustoLeads').style.display = 'inline-block';
+        }, 10000);
+      }
       iniciarAutoScrollTabela();
     } catch(e){ fecharModalPensando(); document.getElementById('busca-status').innerHTML = '<p class="red">Erro ao buscar.</p>'; }
   }
@@ -15392,6 +15408,12 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   const PLANO_ILIMITADO = 'ilimitado';
   let _ultimaBusca = null;
   let _comboEscolhido = null;
+  let _custoLeadsTimer = null;
+
+  function mostrarComboRecomendado(){
+    document.getElementById('combos-box').style.display = 'block';
+    document.getElementById('combos-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   function renderCombos(total){
     const box = document.getElementById('combos-box');

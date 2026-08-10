@@ -1473,7 +1473,7 @@ tr:hover td{background:#fafafa;}
 </head>
 <body>
 <div class="admin-app">
-${_adminSidebarHtml('dashboard', req.session.adminSuper ? true : (req.session.adminPermissoes || []))}
+${_adminSidebarHtml('dashboard', req.session.adminSuper !== false ? true : (req.session.adminPermissoes || []))}
 <main class="admin-content">
   <div class="card" style="margin-bottom:16px;">
     <table>
@@ -2547,7 +2547,7 @@ input:focus{border-color:#111;}button{background:#111;color:#fff;border:none;bor
 </style></head>
 <body>
 <div class="admin-app">
-${_adminSidebarHtml('dashboard', req.session.adminSuper ? true : (req.session.adminPermissoes || []))}
+${_adminSidebarHtml('dashboard', req.session.adminSuper !== false ? true : (req.session.adminPermissoes || []))}
 <main class="admin-content">
   <h1 style="font-size:18px;font-weight:700;margin-bottom:16px">${u.nome}</h1>
   <div class="card">
@@ -17313,7 +17313,7 @@ app.get('/admin/upload-mauricio-mapa', authAdmin, (req, res) => {
   <title>Upload mapa Mauricio</title>
   <style>body{font-family:sans-serif;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:480px}</style>
   </head>
-  <body><div class="admin-app">${_adminSidebarHtml('dashboard', req.session.adminSuper ? true : (req.session.adminPermissoes || []))}<main class="admin-content">
+  <body><div class="admin-app">${_adminSidebarHtml('dashboard', req.session.adminSuper !== false ? true : (req.session.adminPermissoes || []))}<main class="admin-content">
     <h3>Upload mapa-mauricio.json</h3>
     <form method="POST" action="/admin/upload-mauricio-mapa" enctype="multipart/form-data">
       <input type="file" name="arquivo" accept=".json" required>

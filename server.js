@@ -9879,6 +9879,33 @@ app.post('/app/importar-xml-upload', auth, async (req, res) => {
 // Match Coins
 
 // ── MERCADO PAGO ─────────────────────────────────────────────────────────────
+// Pix no Brasil exige o CPF do pagador (identificação obrigatória em
+// transações Pix) — sem `payer.identification` na preferência, o botão
+// "Criar Pix" do Checkout Pro fica travado/inativo (o campo de CPF nem
+// aparece pro comprador preencher). Helpers reaproveitados em toda criação
+// de preferência (/pagamento/criar, /pagamento/criar-plano, /demanda/comprar).
+function _limparCpf(cpf) {
+  return String(cpf || '').replace(/\D/g, '');
+}
+function _cpfValido(cpf) {
+  const c = _limparCpf(cpf);
+  if (c.length !== 11 || /^(\d)\1{10}$/.test(c)) return false;
+  let soma = 0;
+  for (let i = 0; i < 9; i++) soma += parseInt(c[i], 10) * (10 - i);
+  let resto = (soma * 10) % 11;
+  if (resto === 10) resto = 0;
+  if (resto !== parseInt(c[9], 10)) return false;
+  soma = 0;
+  for (let i = 0; i < 10; i++) soma += parseInt(c[i], 10) * (11 - i);
+  resto = (soma * 10) % 11;
+  if (resto === 10) resto = 0;
+  return resto === parseInt(c[10], 10);
+}
+function _montarPayerMP(nome, email, cpf) {
+  const payer = { name: nome || '', email: email || '' };
+  if (_cpfValido(cpf)) payer.identification = { type: 'CPF', number: _limparCpf(cpf) };
+  return payer;
+}
 app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
   try {
     const { valor } = req.body;
@@ -9888,6 +9915,16 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
     const preference = new Preference(_mpClient);
     const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';
 
+    // CPF direto do banco (não confia só na sessão, que pode estar
+    // desatualizada se o usuário preencheu o CPF no perfil depois de logar)
+    // — sem ele, o Pix do Checkout Pro fica travado (ver nota acima).
+    let _cpfAtual = user.cpf || '';
+    try {
+      const { query: _qCpf1 } = require('./services/db');
+      const _rCpf1 = await _qCpf1('SELECT cpf FROM usuarios WHERE codigo_usuario=$1', [user.codigoUsuario || user.codigo || user.id]);
+      if (_rCpf1.rows[0]?.cpf) _cpfAtual = _rCpf1.rows[0].cpf;
+    } catch (eCpf1) {}
+
     const result = await preference.create({
       body: {
         items: [{
@@ -9896,10 +9933,7 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
           unit_price: Number(valor),
           currency_id: 'BRL'
         }],
-        payer: {
-          name: user.nome || '',
-          email: user.email || ''
-        },
+        payer: _montarPayerMP(user.nome, user.email, _cpfAtual),
         back_urls: {
           success: BASE + '/pagamento/sucesso',
           failure: BASE + '/app/coins',
@@ -9961,6 +9995,13 @@ app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
     const _origemCoins = (req.headers.referer || '').includes('/app/coins');
     const _voltaPara = _origemCoins ? '/app/coins' : '/app/perfil';
 
+    let _cpfAtual2 = user.cpf || '';
+    try {
+      const { query: _qCpf2 } = require('./services/db');
+      const _rCpf2 = await _qCpf2('SELECT cpf FROM usuarios WHERE codigo_usuario=$1', [userId]);
+      if (_rCpf2.rows[0]?.cpf) _cpfAtual2 = _rCpf2.rows[0].cpf;
+    } catch (eCpf2) {}
+
     const result = await preference.create({
       body: {
         items: [{
@@ -9969,7 +10010,7 @@ app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
           unit_price: pacote.valor,
           currency_id: 'BRL'
         }],
-        payer: { name: user.nome || '', email: user.email || '' },
+        payer: _montarPayerMP(user.nome, user.email, _cpfAtual2),
         back_urls: {
           success: BASE + '/pagamento/sucesso-plano?voltar=' + encodeURIComponent(_voltaPara),
           failure: BASE + _voltaPara,
@@ -15199,6 +15240,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         <input type="email" id="suEmail" placeholder="voce@email.com">
         <label>Celular (WhatsApp)</label>
         <input type="text" id="suCelular" placeholder="47999999999">
+        <label>CPF <span class="gray" style="font-weight:normal">(exigido pra pagamento via Pix)</span></label>
+        <input type="text" id="suCpf" placeholder="000.000.000-00">
         <label>Senha</label>
         <input type="password" id="suSenha" placeholder="Crie uma senha">
         <div id="signup-status"></div>
@@ -15762,6 +15805,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     const nome = document.getElementById('suNome').value.trim();
     const email = document.getElementById('suEmail').value.trim();
     const celular = document.getElementById('suCelular').value.trim();
+    const cpf = document.getElementById('suCpf').value.trim();
     const senha = document.getElementById('suSenha').value;
     const statusEl = document.getElementById('signup-status');
     statusEl.innerHTML = '';
@@ -15770,7 +15814,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     try {
       const r = await fetch('/demanda/cadastrar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email, celular, senha, criterios: _ultimaBusca })
+        body: JSON.stringify({ nome, email, celular, cpf, senha, criterios: _ultimaBusca })
       });
       const d = await r.json();
       if(!d.ok){ statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
@@ -15786,6 +15830,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     const nome = document.getElementById('suNome').value.trim();
     const email = document.getElementById('suEmail').value.trim();
     const celular = document.getElementById('suCelular').value.trim();
+    const cpf = document.getElementById('suCpf').value.trim();
     const senha = document.getElementById('suSenha').value;
     const statusEl = document.getElementById('signup-status');
     statusEl.innerHTML = '';
@@ -15794,7 +15839,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     try {
       const r = await fetch('/demanda/comprar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email, celular, senha, plano: _comboEscolhido, criterios: _ultimaBusca })
+        body: JSON.stringify({ nome, email, celular, cpf, senha, plano: _comboEscolhido, criterios: _ultimaBusca })
       });
       const d = await r.json();
       if(!d.ok){ btn.disabled = false; statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
@@ -16140,13 +16185,17 @@ function _regiaoInteresseDeCriterios(criterios) {
 // pra quem pulou o cadastro antecipado e foi direto no combo). Guarda a
 // região buscada no perfil e manda o email de boas-vindas — não menciona
 // combo nenhum porque nesse ponto pode não ter sido escolhido ainda.
-async function _criarContaDemanda({ nome, email, celular, senha, criterios }) {
+async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios }) {
   const nomeVal = (nome || '').trim();
   if (!nomeVal || nomeVal.length < 3) return { ok: false, erro: 'Nome inválido. Digite seu nome completo.' };
   const telefone = String(celular || '').replace(/\D/g, '');
   if (!telefone || telefone.length < 10 || telefone.length > 13) return { ok: false, erro: 'Celular inválido. Use o formato: 47999999999' };
   const emailVal = (email || '').trim().toLowerCase();
   if (!emailVal || !emailVal.includes('@')) return { ok: false, erro: 'Email inválido.' };
+  // CPF obrigatório aqui (conta nova, sem perfil pra puxar depois) — sem ele
+  // o Pix do Mercado Pago não gera o QR code (ver nota em _montarPayerMP).
+  if (!_cpfValido(cpf)) return { ok: false, erro: 'CPF inválido. Confira os números digitados.' };
+  const cpfVal = _limparCpf(cpf);
   const senhaVal = (senha || '').trim();
   if (!senhaVal || senhaVal.length < 4) return { ok: false, erro: 'Senha muito curta (mínimo 4 caracteres).' };
   if (!criterios || !criterios.estado || !Array.isArray(criterios.pares) || !criterios.pares.length) {
@@ -16165,7 +16214,7 @@ async function _criarContaDemanda({ nome, email, celular, senha, criterios }) {
   const codigoNovo = gerarCodigoUsuario(nomeVal);
   const senhaHash = await bcrypt.hash(senhaVal, 10);
   const novo = {
-    id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal,
+    id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal, cpf: cpfVal,
     tipo: 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
     matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
     regiaoInteresse: _regiaoInteresseDeCriterios(criterios)
@@ -16199,8 +16248,8 @@ async function _criarContaDemanda({ nome, email, celular, senha, criterios }) {
 // essa conta foi criada por esse fluxo específico (ver uso em /demanda/comprar).
 app.post('/demanda/cadastrar', express.json(), async (req, res) => {
   try {
-    const { nome, email, celular, senha, criterios } = req.body;
-    const resultado = await _criarContaDemanda({ nome, email, celular, senha, criterios });
+    const { nome, email, celular, cpf, senha, criterios } = req.body;
+    const resultado = await _criarContaDemanda({ nome, email, celular, cpf, senha, criterios });
     if (!resultado.ok) return res.json(resultado);
     req.session.user = resultado.user;
     req.session.contaDemandaId = resultado.user.codigoUsuario;
@@ -16229,7 +16278,7 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
       return res.json({ ok: false, erro: 'Critérios de busca inválidos — refaça a busca.' });
     }
 
-    let codigoNovo, nomeVal, emailVal;
+    let codigoNovo, nomeVal, emailVal, cpfVal;
     // contaDemandaId (não o session.user genérico) evita que um corretor JÁ
     // logado numa conta antiga (não criada por esse fluxo) herde o 50% OFF
     // "primeira conta" só por estar navegando em /demanda com sessão ativa.
@@ -16237,15 +16286,17 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
       codigoNovo = req.session.user.codigoUsuario;
       nomeVal = req.session.user.nome;
       emailVal = req.session.user.email;
+      cpfVal = req.session.user.cpf;
     } else {
-      const { nome, email, celular, senha } = req.body;
-      const resultado = await _criarContaDemanda({ nome, email, celular, senha, criterios });
+      const { nome, email, celular, cpf, senha } = req.body;
+      const resultado = await _criarContaDemanda({ nome, email, celular, cpf, senha, criterios });
       if (!resultado.ok) return res.json(resultado);
       req.session.user = resultado.user;
       req.session.contaDemandaId = resultado.user.codigoUsuario;
       codigoNovo = resultado.user.codigoUsuario;
       nomeVal = resultado.user.nome;
       emailVal = resultado.user.email;
+      cpfVal = resultado.user.cpf;
     }
 
     const diasFinal = Math.min(30, Math.max(1, parseInt(criterios.dias, 10) || 7));
@@ -16266,7 +16317,7 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
           unit_price: valorComDesconto,
           currency_id: 'BRL'
         }],
-        payer: { name: nomeVal, email: emailVal },
+        payer: _montarPayerMP(nomeVal, emailVal, cpfVal),
         back_urls: {
           success: BASE + '/pagamento/sucesso-plano?voltar=' + encodeURIComponent('/app-home'),
           failure: BASE + '/demanda',

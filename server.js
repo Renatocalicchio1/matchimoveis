@@ -902,6 +902,7 @@ app.get('/admin/contas-admin', authAdmin, async (req, res) => {
         <td>${c.ativo ? '<span class="green">ativo</span>' : '<span class="red">desativado</span>'}</td>
         <td>${c.ultimoLogin ? new Date(c.ultimoLogin).toLocaleString('pt-BR') : '<span class="gray">nunca</span>'}</td>
         <td style="white-space:nowrap" data-id="${c.id}" data-usuario="${_escAdminHtml(c.usuario)}" data-permissoes="${_escAdminHtml((c.permissoes || []).join(','))}" data-ativo="${c.ativo ? '1' : '0'}">
+          ${c.ativo ? `<a href="/admin/contas-admin/${c.id}/entrar" style="background:#111;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:11.5px;margin-right:4px;text-decoration:none;display:inline-block">🔓 Entrar</a>` : ''}
           <button type="button" class="btn-permissoes">✏️ Permissões</button>
           <button type="button" class="btn-senha">🔑 Senha</button>
           <button type="button" class="btn-ativo">${c.ativo ? '⛔ Desativar' : '✅ Ativar'}</button>
@@ -1045,6 +1046,30 @@ app.post('/admin/contas-admin/criar', authAdmin, express.json(), async (req, res
   } catch (e) {
     console.error('[admin/contas-admin/criar]', e.message);
     res.json({ ok: false, erro: 'Erro ao criar conta: ' + e.message });
+  }
+});
+
+// Superadmin entra direto numa conta admin secundária (mesmo efeito de
+// logar com o usuário/senha dela, sem precisar saber a senha) — útil pra
+// conferir o que aquela conta enxerga de verdade. Rota já cai em
+// _ADMIN_ROTAS_SUPERADMIN_ONLY (prefixo /admin/contas-admin), então só o
+// superadmin chega aqui. Troca a sessão pra a identidade da conta secundária
+// (sem volta automática — pra voltar a ser superadmin, é só logar de novo
+// em /admin/login com o usuário/senha principal).
+app.get('/admin/contas-admin/:id/entrar', authAdmin, async (req, res) => {
+  try {
+    const { buscarAdminContaPorId } = require('./services/salvarAdminConta');
+    const conta = await buscarAdminContaPorId(req.params.id);
+    if (!conta) return res.redirect('/admin/contas-admin');
+    req.session.admin = true;
+    req.session.adminSuper = false;
+    req.session.adminPermissoes = conta.permissoes;
+    req.session.adminNome = conta.nome || conta.usuario;
+    req.session.adminUsuario = conta.usuario;
+    res.redirect('/admin');
+  } catch (e) {
+    console.error('[admin/contas-admin/entrar]', e.message);
+    res.redirect('/admin/contas-admin');
   }
 });
 

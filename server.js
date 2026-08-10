@@ -103,6 +103,17 @@ function _webhookTokenValido(userId, req) {
   return tokenRecebido === _webhookTokenEsperado(userId);
 }
 
+// Token assinado pro link de opt-out de WhatsApp (substitui o "responde 1" —
+// 1 clique já tira o número da lista, sem depender do sub-admin ler a
+// resposta manualmente). HMAC em vez de expor o id cru: sem isso, qualquer
+// um poderia varrer /wa-optout/campanha/1, /2, /3... e apagar o celular de
+// toda a base de ~118 mil contatos só testando IDs sequenciais.
+function _waOptOutToken(tipo, id) {
+  const crypto = require('crypto');
+  const segredo = process.env.WA_OPTOUT_SECRET || 'matchimoveis-wa-optout-default';
+  return crypto.createHmac('sha256', segredo).update(tipo + ':' + id).digest('hex').slice(0, 16);
+}
+
 // JSON.stringify() não escapa "</script>" — se um valor (ex: nome de lead
 // vindo de webhook público) contiver isso, quebra a tag <script> e injeta JS
 // arbitrário na página (stored XSS). Usar sempre que for injetar JSON direto
@@ -15115,6 +15126,38 @@ app.get('/campanha/track/click/:id', async (req, res) => {
   res.redirect(destino);
 });
 
+// Opt-out de WhatsApp de 1 clique — substitui o "responde 1" das mensagens
+// manuais (Campanha Email e Campanha de Captação): a pessoa clica e o
+// número já sai da lista sozinho, sem depender do sub-admin ler a resposta
+// e excluir manualmente. :tipo escolhe qual tabela mexer; token HMAC
+// (_waOptOutToken) impede varrer IDs sequenciais e apagar celular alheio.
+app.get('/wa-optout/:tipo/:id', async (req, res) => {
+  const { tipo, id } = req.params;
+  const token = String(req.query.t || '');
+  const _paginaOptOut = (titulo, corpo) => `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${titulo}</title></head>
+    <body style="font-family:Arial,sans-serif;text-align:center;padding:60px 20px;color:#111827;background:#f5f5f3">
+      <div style="max-width:420px;margin:0 auto;background:#fff;border-radius:16px;padding:32px;border:1px solid #e5e5e3">
+        <h2 style="margin:0 0 12px 0">${titulo}</h2>
+        <p style="color:#6b7280;font-size:14px;line-height:1.6;margin:0">${corpo}</p>
+      </div>
+    </body></html>`;
+  if (!['campanha', 'captacao'].includes(tipo) || !id || token !== _waOptOutToken(tipo, id)) {
+    return res.status(400).send(_paginaOptOut('Link inválido', 'Esse link não é válido ou já expirou.'));
+  }
+  try {
+    if (tipo === 'campanha') {
+      const { excluirCelularContato } = require('./services/campanha');
+      await excluirCelularContato(id);
+    } else {
+      const { excluirTelefoneContato } = require('./services/campanhaCaptacao');
+      await excluirTelefoneContato(id);
+    }
+    res.send(_paginaOptOut('✅ Número removido', 'Seu número foi removido da nossa lista de contatos. Você não vai mais receber mensagens por WhatsApp da Match Imóveis.'));
+  } catch (e) {
+    res.status(500).send(_paginaOptOut('Erro', 'Não deu pra processar agora. Tente de novo em alguns minutos.'));
+  }
+});
+
 // ── INTERESSADOS DE PORTAL (ImovelWeb) — distribuição pra contas de corretores ──
 // Planilha bruta de "interessados" do portal (todas as imobiliárias, não só a
 // MatchImóveis). A Sucursal "Rankim" é ignorada aqui (já entra pelo webhook
@@ -16824,7 +16867,9 @@ app.get('/admin/captacao-campanha/lista', authAdmin, async (req, res) => {
     const q = req.query.q || '';
     const filtro = req.query.filtro || '';
     const { envios, total } = await listarEnvios({ limite: 50, offset: (pagina - 1) * 50, q, filtro });
-    res.json({ ok: true, envios, total });
+    // Token do link de opt-out de WhatsApp — mesmo esquema de /admin/campanha/contatos.
+    const enviosComToken = envios.map(e => ({ ...e, optoutToken: _waOptOutToken('captacao', e.id) }));
+    res.json({ ok: true, envios: enviosComToken, total });
   } catch (e) { res.json({ ok: false, erro: e.message, envios: [], total: 0 }); }
 });
 app.get('/admin/captacao-campanha/preview/:id', authAdmin, async (req, res) => {
@@ -17073,13 +17118,16 @@ https://www.matchimoveis.ia.br
     if(c.aberto_em) return 'abriu_sem_clicar';
     return null; // nunca abriu o e-mail ainda — sem gancho pra mensagem
   }
-  // Linha fixa em toda mensagem manual — não tem como automatizar a leitura
-  // da resposta (é o sub-admin mandando do WhatsApp dele mesmo, não um bot),
-  // então é só um aviso pro lead responder; quando o sub-admin vir a
-  // resposta "1", ele usa o botão "🗑️ Excluir celular" na linha desse
-  // contato pra tirar o número da lista (o e-mail nunca é excluído, só o
-  // celular — é o e-mail que não muda e continua identificando o contato).
-  const _WHATSAPP_AVISO_OPT_OUT = '\\n\\n(Se esse número não é seu ou você não quer mais receber mensagens, responde 1.)';
+  // Linha fixa em toda mensagem manual, com link de opt-out de 1 clique
+  // (rota pública /wa-optout/campanha/:id em server.js) — o próprio lead
+  // clica e o número já sai da lista sozinho, sem depender do sub-admin ler
+  // a resposta e excluir manualmente (como era antes, com "responde 1").
+  // Token vem pronto em c.optoutToken (calculado no servidor em
+  // /admin/campanha/contatos — o cliente não pode gerar o token sozinho).
+  function _avisoOptOutWA(c){
+    const linkOptOut = 'https://www.matchimoveis.ia.br/wa-optout/campanha/'+c.id+'?t='+(c.optoutToken||'');
+    return '\\n\\n(Se esse número não é seu ou você não quer mais receber mensagens, clique aqui: '+linkOptOut+')';
+  }
   // 5 variações por estágio, sorteada uma a cada clique — mesma lógica do
   // _sorteia() dos e-mails (services/campanha.js): manda texto repetido do
   // mesmo número pra várias leads é caminho curto pro WhatsApp marcar como
@@ -17114,7 +17162,7 @@ https://www.matchimoveis.ia.br
     const gerador = _WHATSAPP_VARIACOES[estagio];
     if(!gerador) return '';
     const msg = _sorteiaWA(gerador(nome, link));
-    return msg + _WHATSAPP_AVISO_OPT_OUT;
+    return msg + _avisoOptOutWA(c);
   }
   // O campo celular às vezes vem com mais de um número junto (planilha com
   // fixo e celular na mesma célula, tipo "(11) 2042-2162, 11 94027-9581") —
@@ -17341,7 +17389,11 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
       COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
       FROM campanha_contatos ${where} ORDER BY COALESCE(enviado_em, criado_em) DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
     const { rows: tot } = await require('./services/db').query(`SELECT COUNT(*) as total FROM campanha_contatos ${where}`, params.slice(0,-2));
-    res.json({ ok:true, contatos:rows, total:tot[0].total });
+    // Token do link de opt-out de WhatsApp — gerado aqui (não no cliente,
+    // que não pode ver o segredo) e embutido na mensagem que o sub-admin
+    // manda (ver _whatsappMensagem no <script> abaixo).
+    const contatos = rows.map(c => ({ ...c, optoutToken: _waOptOutToken('campanha', c.id) }));
+    res.json({ ok:true, contatos, total:tot[0].total });
   } catch(e){ res.json({ ok:false, erro:e.message }); }
 });
 

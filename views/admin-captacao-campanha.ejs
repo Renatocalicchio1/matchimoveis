@@ -168,7 +168,13 @@ function _dataFmt(iso){ return iso ? new Date(iso).toLocaleString('pt-BR', { tim
 
 // ── WhatsApp manual + follow-up (mesmo sistema de /admin/campanha) ─────────
 const LINK_CAPTACAO = 'https://matchimoveis.ia.br/captar/REN-G9K6';
-const AVISO_OPT_OUT = '\n\n(Se esse número não é seu ou você não quer mais receber mensagens, responde 1.)';
+// Link de opt-out de 1 clique (rota pública /wa-optout/captacao/:id em
+// server.js) — token vem pronto em e.optoutToken (calculado no servidor em
+// /admin/captacao-campanha/lista, o cliente não pode gerar sozinho).
+function _avisoOptOutWA(e){
+  const linkOptOut = 'https://www.matchimoveis.ia.br/wa-optout/captacao/'+e.id+'?t='+(e.optoutToken||'');
+  return '\n\n(Se esse número não é seu ou você não quer mais receber mensagens, clique aqui: '+linkOptOut+')';
+}
 
 // Campo às vezes vem com mais de um número junto (fixo + celular na mesma
 // célula) — separa por vírgula/barra/ponto-e-vírgula e prioriza celular
@@ -224,7 +230,7 @@ function _whatsappMensagem(e, estagio){
   const gerador = WHATSAPP_VARIACOES[estagio];
   if(!gerador) return '';
   const msg = _sorteiaWA(gerador(nome, LINK_CAPTACAO));
-  return msg + AVISO_OPT_OUT;
+  return msg + _avisoOptOutWA(e);
 }
 // Sob o nome: quem já atendeu (clicou pra falar por WhatsApp) aparece
 // marcado — senão, mostra o botão se tiver estágio + celular válido.

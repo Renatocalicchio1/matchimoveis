@@ -14918,7 +14918,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   <div class="hero">
     <h1>📍 Quantos clientes/leads reais tem na sua região agora?</h1>
     <p>Busque abaixo, veja o número na hora e leve os leads pra sua conta hoje.</p>
-    <div class="hero-tags"><span>✅ Leads reais, não é crédito</span><span>✅ Sem comissão</span><span>✅ Acesso completo à plataforma</span></div>
+    <div class="hero-tags"><span>✅ Leads reais, não é crédito</span><span>✅ Sem comissão</span><span>✅ Acesso completo à plataforma</span><span>✅ Sem fidelidade — pague e use</span></div>
   </div>
   ${disponiveis.total > 0 ? `<div class="proof-bar">
     <span>🔥 <strong>${disponiveis.total.toLocaleString('pt-BR')}</strong> disponíveis agora</span>
@@ -15009,6 +15009,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       <h2 class="secao">📦 Escolha seu combo</h2>
       <p class="gray" style="font-size:13px">Combos de leads mineradas por mês — já indicamos qual cabe na quantidade que a IA encontrou.</p>
       <p class="gray" style="font-size:13px">Se preferir, pode escolher um combo menor — nesse caso você recebe a quantidade de leads do combo escolhido, não o total encontrado na busca. Outra opção é diminuir os dias da busca lá em cima pra encontrar menos leads e enquadrar no combo que você quer.</p>
+      <p class="gray" style="font-size:13px"><strong>Sem fidelidade — pague e use.</strong> Não é assinatura nem mensalidade obrigatória: você compra o combo que quiser, quando quiser, sem compromisso de recorrência.</p>
       <div id="promo-desconto-combo"></div>
       <div class="combos" id="combos-lista"></div>
     </div>

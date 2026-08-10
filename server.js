@@ -16929,7 +16929,7 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Campanha Email</title>
   <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
   ${_adminShellCss()}
-  .admin-content{max-width:900px}
+  .admin-content{max-width:1700px}
   h1{color:#FF385C}input,textarea{width:100%;padding:8px;margin:8px 0;border:1px solid #ddd;border-radius:6px;box-sizing:border-box}
   button{background:#FF385C;color:#fff;padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin:4px}
   button.sec{background:#6b7280}
@@ -17252,12 +17252,23 @@ https://www.matchimoveis.ia.br
         buscar(_pagina);
       });
     });
-    // Paginação
+    // Paginação — 200 por página (bate com _CAMPANHA_TAMANHO_PAGINA no
+    // servidor); campo "Ir pra página" pra pular direto sem clicar
+    // Próximo/Anterior várias vezes numa base de ~100 mil contatos.
+    const totalPaginas = Math.max(1, Math.ceil(d.total / 200));
     let pag = '';
     if(_pagina > 1) pag += '<button class="sec" onclick="buscar('+(_pagina-1)+')">← Anterior</button> ';
-    pag += '<span class=gray>Página '+_pagina+' — '+d.total+' contatos</span> ';
-    if(d.contatos.length === 50) pag += '<button class="sec" onclick="buscar('+(_pagina+1)+')">Próximo →</button>';
+    pag += '<span class=gray>Página '+_pagina+' de '+totalPaginas+' — '+d.total+' contatos</span> ';
+    if(d.contatos.length === 200) pag += '<button class="sec" onclick="buscar('+(_pagina+1)+')">Próximo →</button> ';
+    pag += '<span style="margin-left:12px">Ir pra página: <input type="number" id="input-ir-pagina" min="1" max="'+totalPaginas+'" value="'+_pagina+'" style="width:70px;display:inline-block;margin:0 4px;padding:6px"><button type="button" id="btn-ir-pagina" class="sec">Ir</button></span>';
     document.getElementById('paginacao').innerHTML = pag;
+    const inputIrPagina = document.getElementById('input-ir-pagina');
+    document.getElementById('btn-ir-pagina').addEventListener('click', irParaPagina);
+    inputIrPagina.addEventListener('keydown', function(ev){ if(ev.key === 'Enter') irParaPagina(); });
+  }
+  function irParaPagina(){
+    const v = parseInt(document.getElementById('input-ir-pagina').value) || 1;
+    buscar(Math.max(1, v));
   }
   buscar();
   async function importar(){
@@ -17355,12 +17366,13 @@ app.get('/admin/campanha/preview/:id', authAdmin, async (req, res) => {
 });
 // ── FIM CAMPANHA EMAIL ────────────────────────────────────────────────────────
 
+const _CAMPANHA_TAMANHO_PAGINA = 200;
 app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
   try {
     const pagina = parseInt(req.query.pagina)||1;
     const q = req.query.q||'';
     const status = req.query.status||'';
-    const offset = (pagina-1)*50;
+    const offset = (pagina-1)*_CAMPANHA_TAMANHO_PAGINA;
     let where = 'WHERE 1=1';
     const params = [];
     if(q){ params.push('%'+q+'%'); where += ` AND (nome ILIKE $${params.length} OR email ILIKE $${params.length})`; }
@@ -17368,7 +17380,7 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     else if(status === 'clicou'){ where += ` AND clicado_em IS NOT NULL`; }
     else if(status === 'cadastrou'){ where += ` AND LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')`; }
     else if(status){ params.push(status); where += ` AND status=$${params.length}`; }
-    params.push(50); params.push(offset);
+    params.push(_CAMPANHA_TAMANHO_PAGINA); params.push(offset);
     // "comprou": não tem sinal direto de compra de combo, então usa como
     // proxy o saldo total (match_coins_total) passar do bônus de boas-vindas
     // (1000) — se passou, recarregou em algum momento (ver conversa jul/2026,

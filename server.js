@@ -15623,7 +15623,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       // essas leads?" dispara o mesmo fluxo antes dos 15s, se clicado.
       renderCombos(d.total);
       document.getElementById('combos-box').style.display = 'none';
-      if(d.total > 0){
+      if(d.total > 0 && !IS_ADMIN){
         _custoLeadsTimer = setTimeout(function(){
           document.getElementById('btnCustoLeads').style.display = 'inline-block';
           avancarParaPlanos();
@@ -15669,6 +15669,12 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   })();
 
   // ── Combos + criação de conta + pagamento ──────────────────────────────
+  // Admin já tem conta e não compra nada aqui — usa direto o "Transferir pra
+  // essa conta" (transferir-box, mais abaixo). O fluxo de cadastro/CPF/
+  // Mercado Pago é só pro visitante público de /demanda, então fica
+  // desligado por completo quando IS_ADMIN pra não interromper o admin com
+  // um popup de "criar conta" irrelevante.
+  const IS_ADMIN = ${isAdmin ? 'true' : 'false'};
   const PLANOS = ${JSON.stringify(PLANOS_LEADS)};
   // Combos fechados em ordem crescente de quantidade — o ilimitado fica de
   // fora dessa lista porque não compete por "cabe no total", ele é o
@@ -15692,6 +15698,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   // com conta já criada, vai direto pros planos. Chamado tanto pelo timer
   // de 15s quanto pelo botão "Quanto me custa essas leads?".
   function avancarParaPlanos(){
+    if(IS_ADMIN) return;
     if(!_contaCriada){ abrirModalCadastroInicial(); return; }
     mostrarComboRecomendado();
   }

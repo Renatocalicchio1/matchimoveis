@@ -563,6 +563,14 @@ const _ADMIN_NAV = [
     { key: 'rematch', href: '/admin/rematch', icon: '🔄', label: 'Gerar Match de Conta' },
     { key: 'quintoandar', href: '/admin/quintoandar-solicitacoes', icon: '🏢', label: 'Solicitações QuintoAndar' },
     { key: 'exclusao', href: '/admin/exclusao-solicitacoes', icon: '🗑️', label: 'Exclusão de Conta' }
+  ]},
+  // "Contas Admin" só é utilizável pelo superadmin (ver checagem específica
+  // em authAdmin) — fica visível no menu pra todo mundo por simplicidade
+  // (evitar ter que passar sessão pra _adminSidebarHtml em todas as ~20
+  // chamadas espalhadas pelo arquivo), mas sub-admin que clicar recebe
+  // "acesso negado" — não é uma rota alcançável de outra forma.
+  { sec: 'Administração', items: [
+    { key: 'contas-admin', href: '/admin/contas-admin', icon: '👤', label: 'Contas Admin' }
   ]}
 ];
 
@@ -596,15 +604,27 @@ function _adminShellCss() {
   `;
 }
 
-function _adminSidebarHtml(activeKey) {
-  const secoes = _ADMIN_NAV.map(sec => {
-    const itens = sec.items.map(it => {
-      const ativo = it.key === activeKey ? ' active' : '';
-      const alvo = it.externo ? ' target="_blank"' : '';
-      return `<a class="${ativo.trim()}" href="${it.href}"${alvo}><span class="ic">${it.icon}</span>${it.label}</a>`;
+// segundoArg: omitido/undefined (chamada antiga, maioria das ~20 páginas
+// admin) mostra o menu completo pra manter compatibilidade; `true` (só usado
+// no dashboard e em /admin/contas-admin quando é de fato o superadmin) mostra
+// tudo incluindo a seção "Administração"; um array (permissões de uma conta
+// admin secundária) filtra o menu só pras páginas liberadas — usado hoje só
+// no dashboard, que é a página de entrada depois do login.
+function _adminSidebarHtml(activeKey, segundoArg) {
+  const restringir = Array.isArray(segundoArg);
+  const permitido = (key) => !restringir || segundoArg.includes(key);
+  const secoes = _ADMIN_NAV
+    .filter(sec => sec.sec !== 'Administração' || segundoArg === true)
+    .map(sec => {
+      const itensVisiveis = sec.items.filter(it => permitido(it.key));
+      if (!itensVisiveis.length) return '';
+      const itens = itensVisiveis.map(it => {
+        const ativo = it.key === activeKey ? ' active' : '';
+        const alvo = it.externo ? ' target="_blank"' : '';
+        return `<a class="${ativo.trim()}" href="${it.href}"${alvo}><span class="ic">${it.icon}</span>${it.label}</a>`;
+      }).join('');
+      return `<div class="admin-sec">${sec.sec}</div>${itens}`;
     }).join('');
-    return `<div class="admin-sec">${sec.sec}</div>${itens}`;
-  }).join('');
   return `<button class="admin-mob-btn" onclick="document.querySelector('.admin-sidebar').classList.toggle('open')" style="position:fixed;top:12px;left:12px;z-index:250;background:#fff;border:1px solid #e5e5e3;border-radius:8px;padding:8px 10px;cursor:pointer;flex-direction:column;gap:4px;box-shadow:0 2px 8px rgba(0,0,0,.1)"><div style="width:18px;height:2px;background:#374151"></div><div style="width:18px;height:2px;background:#374151"></div><div style="width:18px;height:2px;background:#374151"></div></button>
   <aside class="admin-sidebar">
     <a class="admin-logo" href="/admin"><span class="sq">M</span><span class="tx">Match<span>Imóveis</span> <span style="font-weight:400;color:var(--text-ter)">admin</span></span></a>
@@ -705,9 +725,56 @@ app.post('/admin/cerebro/salvar', authAdmin, express.json(), (req, res) => {
 
 // ÁREA ADMIN
 // ═══════════════════════════════════════════════════════
+// Mapeamento path-prefix → permissão (chave de _ADMIN_NAV) usado por
+// authAdmin pra decidir se uma conta admin secundária (não-superadmin) pode
+// acessar a rota pedida. Ordem não importa — _permissaoDaRota pega sempre o
+// prefixo mais específico (mais longo) que bater. Rota /admin/* que não bate
+// em nada aqui cai no fallback 'dashboard' (mesma permissão da tela
+// principal, que já concentra as ações de gestão de usuário — editar,
+// resetar senha, ajustar créditos).
+const _ADMIN_ROTA_PERMISSAO = [
+  ['/admin/disparos/optout', 'optout'],
+  ['/admin/disparos', 'disparos'],
+  ['/admin/demanda', 'demanda'],
+  ['/admin/campanha', 'campanha'],
+  ['/admin/captacao-campanha', 'captacao-campanha'],
+  ['/admin/whatsapp-cloud', 'whatsapp-cloud'],
+  ['/admin/cerebro', 'cerebro'],
+  ['/admin/rematch', 'rematch'],
+  ['/admin/quintoandar', 'quintoandar'],
+  ['/admin/exclusao-solicitacoes', 'exclusao'],
+  ['/admin/leads-auditoria', 'leads-auditoria'],
+  ['/admin/buscar-imovel', 'buscar-imovel'],
+  ['/admin/interesados', 'interesados'],
+  ['/admin/online', 'online'],
+  ['/admin/status', 'status']
+];
+function _permissaoDaRota(caminho) {
+  const bateu = _ADMIN_ROTA_PERMISSAO
+    .filter(([prefixo]) => caminho === prefixo || caminho.startsWith(prefixo + '/'))
+    .sort((a, b) => b[0].length - a[0].length)[0];
+  return bateu ? bateu[1] : 'dashboard';
+}
+// Ações sensíveis demais pra depender só do checklist de páginas — mesmo uma
+// conta admin com permissão de 'dashboard' NÃO alcança essas: gerenciar
+// outras contas admin (evita auto-promoção), impersonar qualquer corretor
+// logando como ele, deletar conta de corretor, e a rotina específica de
+// cruzamento de dados do Alexandre. Só o superadmin (login via
+// ADMIN_USER/ADMIN_PASSWORD) passa por aqui.
+const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
+  '/admin/contas-admin', '/admin/acessar', '/admin/deletar',
+  '/admin/cruzar-proprietarios-alex', '/admin/executar-cruzar-alex'
+];
 function authAdmin(req, res, next) {
-  if (req.session && req.session.admin) return next();
-  res.redirect('/admin/login');
+  if (!(req.session && req.session.admin)) return res.redirect('/admin/login');
+  if (req.session.adminSuper) return next();
+  if (_ADMIN_ROTAS_SUPERADMIN_ONLY.some(p => req.path === p || req.path.startsWith(p + '/'))) {
+    return res.status(403).send('Acesso negado — essa área é restrita ao administrador principal.');
+  }
+  const permissoes = req.session.adminPermissoes || [];
+  const chave = _permissaoDaRota(req.path);
+  if (permissoes.includes(chave)) return next();
+  res.status(403).send('Acesso negado — sua conta admin não tem permissão pra essa área. Fale com o administrador.');
 }
 
 app.get('/admin/login', (req, res) => {
@@ -747,20 +814,258 @@ button{width:100%;background:#111;color:#fff;border:none;border-radius:8px;paddi
 </html>`);
 });
 
-app.post('/admin/login', (req, res) => {
-  const { usuario, senha } = req.body;
-  const adminUser = process.env.ADMIN_USER;
-  const adminPass = process.env.ADMIN_PASSWORD;
-  if (usuario === adminUser && senha === adminPass) {
-    req.session.admin = true;
-    return res.redirect('/admin');
-  }
+app.post('/admin/login', async (req, res) => {
+  try {
+    const { usuario, senha } = req.body;
+    const adminUser = process.env.ADMIN_USER;
+    const adminPass = process.env.ADMIN_PASSWORD;
+    if (usuario === adminUser && senha === adminPass) {
+      req.session.admin = true;
+      req.session.adminSuper = true;
+      req.session.adminPermissoes = null;
+      req.session.adminNome = 'Superadmin';
+      req.session.adminUsuario = usuario;
+      return res.redirect('/admin');
+    }
+    const { buscarAdminConta, atualizarUltimoLoginAdminConta } = require('./services/salvarAdminConta');
+    const conta = await buscarAdminConta(usuario);
+    if (conta && conta.ativo && await bcrypt.compare(senha || '', conta.senhaHash)) {
+      req.session.admin = true;
+      req.session.adminSuper = false;
+      req.session.adminPermissoes = conta.permissoes;
+      req.session.adminNome = conta.nome || conta.usuario;
+      req.session.adminUsuario = conta.usuario;
+      atualizarUltimoLoginAdminConta(conta.id).catch(() => {});
+      return res.redirect('/admin');
+    }
+  } catch (e) { console.error('[admin/login] erro:', e.message); }
   res.redirect('/admin/login?error=1');
 });
 
 app.get('/admin/logout', (req, res) => {
   req.session.admin = false;
+  req.session.adminSuper = false;
+  req.session.adminPermissoes = null;
+  req.session.adminNome = null;
+  req.session.adminUsuario = null;
   res.redirect('/admin/login');
+});
+
+// ── Gestão de contas admin secundárias (só superadmin — ver
+// _ADMIN_ROTAS_SUPERADMIN_ONLY em authAdmin) ────────────────────────────────
+function _escAdminHtml(v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function _checklistPermissoesHtml(marcadas) {
+  const set = new Set(marcadas || []);
+  return _ADMIN_NAV
+    .filter(sec => sec.sec !== 'Administração')
+    .map(sec => {
+      const itens = sec.items.filter(it => !it.externo).map(it => {
+        const checked = set.has(it.key) ? ' checked' : '';
+        return `<label style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;cursor:pointer">
+          <input type="checkbox" name="permissoes" value="${it.key}"${checked}>
+          <span>${it.icon} ${_escAdminHtml(it.label)}</span>
+        </label>`;
+      }).join('');
+      if (!itens) return '';
+      return `<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-ter);margin-bottom:4px">${_escAdminHtml(sec.sec)}</div>${itens}</div>`;
+    }).join('');
+}
+
+app.get('/admin/contas-admin', authAdmin, async (req, res) => {
+  try {
+    const { listarAdminContas } = require('./services/salvarAdminConta');
+    const contas = await listarAdminContas();
+    const linhas = contas.map(c => `
+      <tr>
+        <td>${_escAdminHtml(c.usuario)}</td>
+        <td>${_escAdminHtml(c.nome || '—')}</td>
+        <td>${(c.permissoes || []).length ? c.permissoes.map(p => `<span class="tag">${_escAdminHtml(p)}</span>`).join(' ') : '<span class="gray">nenhuma</span>'}</td>
+        <td>${c.ativo ? '<span class="green">ativo</span>' : '<span class="red">desativado</span>'}</td>
+        <td>${c.ultimoLogin ? new Date(c.ultimoLogin).toLocaleString('pt-BR') : '<span class="gray">nunca</span>'}</td>
+        <td style="white-space:nowrap" data-id="${c.id}" data-usuario="${_escAdminHtml(c.usuario)}" data-permissoes="${_escAdminHtml((c.permissoes || []).join(','))}" data-ativo="${c.ativo ? '1' : '0'}">
+          <button type="button" class="btn-permissoes">✏️ Permissões</button>
+          <button type="button" class="btn-senha">🔑 Senha</button>
+          <button type="button" class="btn-ativo">${c.ativo ? '⛔ Desativar' : '✅ Ativar'}</button>
+          <button type="button" class="btn-deletar" style="color:#e8404a">🗑️</button>
+        </td>
+      </tr>`).join('');
+
+    res.send(`<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contas Admin · MatchImóveis</title>
+<style>
+*{box-sizing:border-box}body{font-family:'Inter',sans-serif;margin:0}
+${_adminShellCss()}
+.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:20px;margin-bottom:20px}
+h2{font-size:16px;margin:0 0 14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px;font-size:11px;text-transform:uppercase;color:#888;border-bottom:1px solid #e5e5e3}
+td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:top}
+.tag{display:inline-block;background:#f0f0ee;border-radius:6px;padding:2px 7px;font-size:11px;margin:1px}
+.green{color:#16a34a;font-weight:600}.red{color:#e8404a;font-weight:600}.gray{color:#9ca3af}
+input[type=text],input[type=password]{width:100%;border:1px solid #e5e5e3;border-radius:8px;padding:9px 10px;font-size:13px;margin-bottom:10px}
+button{background:#111;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:11.5px;cursor:pointer;margin-right:4px}
+button:hover{opacity:.85}
+.checklist{max-height:340px;overflow-y:auto;border:1px solid #e5e5e3;border-radius:8px;padding:12px;margin-bottom:12px}
+#status{font-size:13px;margin-top:8px}
+</style></head>
+<body>
+<div class="admin-app">${_adminSidebarHtml('contas-admin', true)}
+<main class="admin-content">
+  <div class="card">
+    <h2>➕ Nova conta admin</h2>
+    <form id="formCriar">
+      <label style="font-size:12px;color:#555">Nome</label>
+      <input type="text" id="cNome" placeholder="Ex: Mariana">
+      <label style="font-size:12px;color:#555">Usuário (login)</label>
+      <input type="text" id="cUsuario" placeholder="Ex: mariana" required>
+      <label style="font-size:12px;color:#555">Senha</label>
+      <input type="password" id="cSenha" placeholder="Senha inicial" required>
+      <div style="font-size:12px;color:#555;margin-bottom:6px">Páginas liberadas (checklist de permissões)</div>
+      <div class="checklist">${_checklistPermissoesHtml([])}</div>
+      <button type="submit">Criar conta</button>
+      <div id="status"></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>👥 Contas existentes</h2>
+    <table>
+      <thead><tr><th>Usuário</th><th>Nome</th><th>Permissões</th><th>Status</th><th>Último login</th><th>Ações</th></tr></thead>
+      <tbody>${linhas || '<tr><td colspan="6" class="gray">Nenhuma conta admin criada ainda.</td></tr>'}</tbody>
+    </table>
+  </div>
+</main>
+</div>
+<script>
+document.getElementById('formCriar').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const nome = document.getElementById('cNome').value.trim();
+  const usuario = document.getElementById('cUsuario').value.trim();
+  const senha = document.getElementById('cSenha').value;
+  const permissoes = Array.from(document.querySelectorAll('.checklist input[name=permissoes]:checked')).map(function(el){ return el.value; });
+  const statusEl = document.getElementById('status');
+  statusEl.textContent = 'Criando...';
+  try {
+    const r = await fetch('/admin/contas-admin/criar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ nome, usuario, senha, permissoes }) });
+    const d = await r.json();
+    if(!d.ok){ statusEl.innerHTML = '<span class="red">'+d.erro+'</span>'; return; }
+    location.reload();
+  } catch(e){ statusEl.innerHTML = '<span class="red">Erro ao criar conta.</span>'; }
+});
+const CHAVES_PERMISSOES = ${JSON.stringify(_ADMIN_NAV.filter(s => s.sec !== 'Administração').flatMap(s => s.items.filter(it => !it.externo).map(it => it.key + ' — ' + it.label)))};
+async function editarPermissoes(id, permissoesAtuais){
+  const atuais = permissoesAtuais.join(', ') || '(nenhuma)';
+  const txt = prompt('Permissões atuais: ' + atuais + '\\n\\nPáginas disponíveis:\\n' + CHAVES_PERMISSOES.join('\\n') + '\\n\\nDigite as chaves separadas por vírgula:', permissoesAtuais.join(','));
+  if(txt === null) return;
+  const permissoes = txt.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  const r = await fetch('/admin/contas-admin/' + id + '/permissoes', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ permissoes }) });
+  const d = await r.json();
+  if(!d.ok){ alert(d.erro || 'Erro'); return; }
+  location.reload();
+}
+async function resetarSenha(id){
+  const senha = prompt('Nova senha para essa conta:');
+  if(!senha) return;
+  const r = await fetch('/admin/contas-admin/' + id + '/senha', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ senha }) });
+  const d = await r.json();
+  if(!d.ok){ alert(d.erro || 'Erro'); return; }
+  alert('Senha atualizada.');
+}
+async function toggleAtivo(id, ativo){
+  const r = await fetch('/admin/contas-admin/' + id + '/ativo', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ ativo: ativo }) });
+  const d = await r.json();
+  if(!d.ok){ alert(d.erro || 'Erro'); return; }
+  location.reload();
+}
+async function deletarConta(id, usuario){
+  if(!confirm('Excluir a conta admin "' + usuario + '"? Essa ação não pode ser desfeita.')) return;
+  const r = await fetch('/admin/contas-admin/' + id + '/deletar', { method:'POST' });
+  const d = await r.json();
+  if(!d.ok){ alert(d.erro || 'Erro'); return; }
+  location.reload();
+}
+document.querySelectorAll('td[data-id]').forEach(function(td){
+  const id = td.getAttribute('data-id');
+  const usuario = td.getAttribute('data-usuario');
+  const permissoesAtuais = td.getAttribute('data-permissoes') ? td.getAttribute('data-permissoes').split(',') : [];
+  const ativo = td.getAttribute('data-ativo') === '1';
+  const btnP = td.querySelector('.btn-permissoes');
+  if(btnP) btnP.addEventListener('click', function(){ editarPermissoes(id, permissoesAtuais); });
+  const btnS = td.querySelector('.btn-senha');
+  if(btnS) btnS.addEventListener('click', function(){ resetarSenha(id); });
+  const btnA = td.querySelector('.btn-ativo');
+  if(btnA) btnA.addEventListener('click', function(){ toggleAtivo(id, !ativo); });
+  const btnD = td.querySelector('.btn-deletar');
+  if(btnD) btnD.addEventListener('click', function(){ deletarConta(id, usuario); });
+});
+</script>
+</body></html>`);
+  } catch (e) {
+    console.error('[admin/contas-admin]', e.message);
+    res.status(500).send('Erro ao carregar contas admin: ' + e.message);
+  }
+});
+
+app.post('/admin/contas-admin/criar', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { nome, usuario, senha, permissoes } = req.body;
+    const usuarioVal = String(usuario || '').trim();
+    if (!usuarioVal || usuarioVal.length < 3) return res.json({ ok: false, erro: 'Usuário inválido (mínimo 3 caracteres).' });
+    if (!senha || senha.length < 4) return res.json({ ok: false, erro: 'Senha muito curta (mínimo 4 caracteres).' });
+    const { buscarAdminConta, criarAdminConta } = require('./services/salvarAdminConta');
+    if (usuarioVal === process.env.ADMIN_USER || await buscarAdminConta(usuarioVal)) {
+      return res.json({ ok: false, erro: 'Já existe uma conta admin com esse usuário.' });
+    }
+    const senhaHash = await bcrypt.hash(senha, 10);
+    const permissoesValidas = (Array.isArray(permissoes) ? permissoes : []).filter(p =>
+      _ADMIN_NAV.some(sec => sec.items.some(it => it.key === p && !it.externo && sec.sec !== 'Administração'))
+    );
+    await criarAdminConta({ usuario: usuarioVal, senhaHash, nome, permissoes: permissoesValidas, criadoPor: req.session.adminUsuario || 'superadmin' });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[admin/contas-admin/criar]', e.message);
+    res.json({ ok: false, erro: 'Erro ao criar conta: ' + e.message });
+  }
+});
+
+app.post('/admin/contas-admin/:id/permissoes', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { permissoes } = req.body;
+    const permissoesValidas = (Array.isArray(permissoes) ? permissoes : []).filter(p =>
+      _ADMIN_NAV.some(sec => sec.items.some(it => it.key === p && !it.externo && sec.sec !== 'Administração'))
+    );
+    const { atualizarPermissoesAdminConta } = require('./services/salvarAdminConta');
+    await atualizarPermissoesAdminConta(req.params.id, permissoesValidas);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/contas-admin/:id/senha', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { senha } = req.body;
+    if (!senha || senha.length < 4) return res.json({ ok: false, erro: 'Senha muito curta (mínimo 4 caracteres).' });
+    const senhaHash = await bcrypt.hash(senha, 10);
+    const { atualizarSenhaAdminConta } = require('./services/salvarAdminConta');
+    await atualizarSenhaAdminConta(req.params.id, senhaHash);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/contas-admin/:id/ativo', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { atualizarAtivoAdminConta } = require('./services/salvarAdminConta');
+    await atualizarAtivoAdminConta(req.params.id, !!req.body.ativo);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/contas-admin/:id/deletar', authAdmin, async (req, res) => {
+  try {
+    const { deletarAdminConta } = require('./services/salvarAdminConta');
+    await deletarAdminConta(req.params.id);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 
 // os.totalmem()/os.freemem() reportam a RAM do HOST físico (o Render roda em host
@@ -1163,7 +1468,7 @@ tr:hover td{background:#fafafa;}
 </head>
 <body>
 <div class="admin-app">
-${_adminSidebarHtml('dashboard')}
+${_adminSidebarHtml('dashboard', req.session.adminSuper ? true : (req.session.adminPermissoes || []))}
 <main class="admin-content">
   <div class="card" style="margin-bottom:16px;">
     <table>
@@ -2237,7 +2542,7 @@ input:focus{border-color:#111;}button{background:#111;color:#fff;border:none;bor
 </style></head>
 <body>
 <div class="admin-app">
-${_adminSidebarHtml('dashboard')}
+${_adminSidebarHtml('dashboard', req.session.adminSuper ? true : (req.session.adminPermissoes || []))}
 <main class="admin-content">
   <h1 style="font-size:18px;font-weight:700;margin-bottom:16px">${u.nome}</h1>
   <div class="card">
@@ -17003,7 +17308,7 @@ app.get('/admin/upload-mauricio-mapa', authAdmin, (req, res) => {
   <title>Upload mapa Mauricio</title>
   <style>body{font-family:sans-serif;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:480px}</style>
   </head>
-  <body><div class="admin-app">${_adminSidebarHtml('dashboard')}<main class="admin-content">
+  <body><div class="admin-app">${_adminSidebarHtml('dashboard', req.session.adminSuper ? true : (req.session.adminPermissoes || []))}<main class="admin-content">
     <h3>Upload mapa-mauricio.json</h3>
     <form method="POST" action="/admin/upload-mauricio-mapa" enctype="multipart/form-data">
       <input type="file" name="arquivo" accept=".json" required>

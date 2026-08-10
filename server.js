@@ -15228,7 +15228,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       <div class="combos" id="combos-lista"></div>
     </div>
 
-    <div id="signup-modal-overlay" class="modal-overlay" style="display:none">
+    ${isAdmin ? '' : `<div id="signup-modal-overlay" class="modal-overlay" style="display:none">
       <div id="signup-box" class="signup-box">
         <button type="button" class="modal-close" onclick="fecharModalCompra()">×</button>
         <div class="combo-escolhido" id="combo-escolhido-resumo" style="display:none"></div>
@@ -15253,7 +15253,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         <p class="gray" id="signup-rodape-pagamento" style="font-size:11px;margin-top:10px">🔒 Pagamento seguro pelo Mercado Pago • Compra única, sem mensalidade automática. Os leads da sua busca são entregues assim que o pagamento for aprovado — <strong>mas ficam disponíveis pra qualquer corretor até lá.</strong></p>
         <p class="gray" id="signup-rodape-cadastro" style="font-size:11px;margin-top:10px;display:none">🔒 Sem cobrança nenhuma agora — é só criar a conta. Você escolhe o combo e paga quando quiser.</p>
       </div>
-    </div>
+    </div>`}
   </div>
 
   <div class="trust-bar">
@@ -15775,17 +15775,29 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     abrirModalCompra();
   });
 
+  // No admin, o formulário de cadastro do usuário nem é renderizado (não faz
+  // sentido: quem tá logado como admin já tem conta — usa "Transferir pra
+  // essa conta" em vez disso). abrirModalCompra/fecharModalCompra viram
+  // no-op nesse caso (getElementById retorna null pro elemento removido do
+  // HTML) — sem esse guard, fecharModalCompra() quebraria toda busca no
+  // admin, porque ela é chamada incondicionalmente no início de cada busca.
   function abrirModalCompra(){
-    document.getElementById('signup-modal-overlay').style.display = 'flex';
+    const overlay = document.getElementById('signup-modal-overlay');
+    if(!overlay) return;
+    overlay.style.display = 'flex';
     document.body.style.overflow = 'hidden';
   }
   function fecharModalCompra(){
-    document.getElementById('signup-modal-overlay').style.display = 'none';
+    const overlay = document.getElementById('signup-modal-overlay');
+    if(!overlay) return;
+    overlay.style.display = 'none';
     document.body.style.overflow = '';
   }
-  document.getElementById('signup-modal-overlay').addEventListener('click', function(e){
-    if(e.target.id === 'signup-modal-overlay') fecharModalCompra();
-  });
+  if(document.getElementById('signup-modal-overlay')){
+    document.getElementById('signup-modal-overlay').addEventListener('click', function(e){
+      if(e.target.id === 'signup-modal-overlay') fecharModalCompra();
+    });
+  }
   document.addEventListener('keydown', function(e){
     if(e.key === 'Escape') fecharModalCompra();
   });

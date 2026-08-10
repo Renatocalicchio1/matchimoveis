@@ -15163,7 +15163,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     <div id="tabela-scroll" style="overflow-x:auto"><table id="tabela"><thead><tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Origem</th><th>Tipo</th><th>Transação</th><th>Bairro</th><th>Cidade</th><th>Estado</th><th>Área_max</th><th>Valor_max</th><th>Data</th></tr></thead><tbody id="tabela-body"></tbody></table></div>
 
     <div style="text-align:center;margin:20px 0">
-      <button type="button" id="btnCustoLeads" onclick="mostrarComboRecomendado()" style="display:none;animation:scrollHintPulso 1.5s infinite">💰 Quanto me custa essas leads?</button>
+      <button type="button" id="btnCustoLeads" onclick="avancarParaPlanos()" style="display:none;animation:scrollHintPulso 1.5s infinite">💰 Quanto me custa essas leads?</button>
     </div>
 
     ${isAdmin ? `<div class="box" id="transferir-box">
@@ -15190,8 +15190,9 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
     <div id="signup-modal-overlay" class="modal-overlay" style="display:none">
       <div id="signup-box" class="signup-box">
         <button type="button" class="modal-close" onclick="fecharModalCompra()">×</button>
-        <div class="combo-escolhido" id="combo-escolhido-resumo"></div>
-        <h2 class="secao" style="margin-top:0">Criar conta e finalizar</h2>
+        <div class="combo-escolhido" id="combo-escolhido-resumo" style="display:none"></div>
+        <p id="signup-subtitulo" class="gray" style="font-size:12.5px;margin:0 0 10px;display:none">Sua busca já achou interessados na região — deixa seus dados que a gente guarda essa busca na sua conta. Você só paga quando (e se) quiser levar os leads pra sua carteira.</p>
+        <h2 class="secao" id="signup-titulo" style="margin-top:0">Criar conta e finalizar</h2>
         <label>Nome completo</label>
         <input type="text" id="suNome" placeholder="Seu nome completo">
         <label>Email</label>
@@ -15202,7 +15203,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         <input type="password" id="suSenha" placeholder="Crie uma senha">
         <div id="signup-status"></div>
         <button id="btnComprar" onclick="finalizarCompra()">Ir para pagamento →</button>
-        <p class="gray" style="font-size:11px;margin-top:10px">🔒 Pagamento seguro pelo Mercado Pago • Compra única, sem mensalidade automática. Sua conta MatchImóveis é criada agora e os leads da sua busca são entregues assim que o pagamento for aprovado — <strong>mas ficam disponíveis pra qualquer corretor até lá.</strong></p>
+        <p class="gray" id="signup-rodape-pagamento" style="font-size:11px;margin-top:10px">🔒 Pagamento seguro pelo Mercado Pago • Compra única, sem mensalidade automática. Sua conta MatchImóveis é criada agora e os leads da sua busca são entregues assim que o pagamento for aprovado — <strong>mas ficam disponíveis pra qualquer corretor até lá.</strong></p>
+        <p class="gray" id="signup-rodape-cadastro" style="font-size:11px;margin-top:10px;display:none">🔒 Sem cobrança nenhuma agora — é só criar a conta. Você escolhe o combo e paga quando quiser.</p>
       </div>
     </div>
   </div>
@@ -15566,17 +15568,18 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
       document.getElementById('resultado-box').style.display = 'block';
       document.getElementById('resultado-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
       _ultimaBusca = { estado, pares, transacoes, dias: d.dias, total: d.total };
-      // Monta os combos (já com o compatível marcado como recomendado) e,
-      // 15s depois de ver a planilha, leva o usuário direto pro plano
-      // certo (scroll automático até o card recomendado) — o botão
-      // "Quanto me custa essas leads?" continua disponível caso ele
-      // clique antes disso.
+      // Monta os combos (já com o compatível marcado como recomendado) em
+      // segundo plano. 15s depois de ver a planilha, avancarParaPlanos()
+      // decide o próximo passo: sem conta ainda, abre o cadastro primeiro
+      // (captura o corretor mesmo que ele não compre depois); com conta já
+      // criada, vai direto pro combo recomendado. O botão "Quanto me custa
+      // essas leads?" dispara o mesmo fluxo antes dos 15s, se clicado.
       renderCombos(d.total);
       document.getElementById('combos-box').style.display = 'none';
       if(d.total > 0){
         _custoLeadsTimer = setTimeout(function(){
           document.getElementById('btnCustoLeads').style.display = 'inline-block';
-          mostrarComboRecomendado();
+          avancarParaPlanos();
         }, 15000);
       }
       iniciarAutoScrollTabela();
@@ -15628,12 +15631,22 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   let _ultimaBusca = null;
   let _comboEscolhido = null;
   let _custoLeadsTimer = null;
+  let _contaCriada = false;
 
   function mostrarComboRecomendado(){
     document.getElementById('combos-box').style.display = 'block';
     const rec = document.querySelector('.combo.combo-recomendado');
     const alvo = rec || document.getElementById('combos-box');
     alvo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Ponto único que decide o próximo passo depois da planilha: sem conta
+  // ainda, pede o cadastro primeiro (só depois disso mostra os planos);
+  // com conta já criada, vai direto pros planos. Chamado tanto pelo timer
+  // de 15s quanto pelo botão "Quanto me custa essas leads?".
+  function avancarParaPlanos(){
+    if(!_contaCriada){ abrirModalCadastroInicial(); return; }
+    mostrarComboRecomendado();
   }
 
   function renderCombos(total){
@@ -15674,11 +15687,28 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   }
   function _valorComDesconto(valorOriginal){ return Math.round(valorOriginal * 0.5); }
 
-  document.getElementById('combos-lista').addEventListener('click', function(e){
+  document.getElementById('combos-lista').addEventListener('click', async function(e){
     const btn = e.target.closest('[data-escolher]');
     if(!btn) return;
     const plano = btn.getAttribute('data-escolher');
     _comboEscolhido = plano;
+    // Conta já criada (fluxo novo, logo depois da planilha aparecer)? Pula o
+    // formulário inteiro e vai direto pro pagamento com a conta que já existe.
+    if(_contaCriada){
+      btn.disabled = true;
+      try {
+        const r = await fetch('/demanda/comprar', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plano, criterios: _ultimaBusca })
+        });
+        const d = await r.json();
+        if(!d.ok){ alert(d.erro || 'Erro ao gerar pagamento.'); btn.disabled = false; return; }
+        window.location.href = d.url;
+      } catch(e2){ alert('Erro ao gerar pagamento.'); btn.disabled = false; }
+      return;
+    }
+    // Fallback (conta ainda não criada — ex: usuário fechou o modal de
+    // cadastro inicial): formulário completo, cadastro + pagamento juntos.
     const p = PLANOS[plano];
     const totalEncontrado = (_ultimaBusca && _ultimaBusca.total) || 0;
     const avisoQtd = (!p.ilimitado && totalEncontrado > p.qtd)
@@ -15686,6 +15716,13 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
         + 'Se preferir, <a href="#" onclick="fecharModalCompra();document.getElementById(\\'diasBusca\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'});return false;">diminua os dias da busca</a> pra encontrar menos leads e enquadrar nesse combo.'
       : 'Os leads encontrados na sua busca vão pra sua conta assim que o pagamento for aprovado.';
     document.getElementById('combo-escolhido-resumo').innerHTML = '<strong>'+escHtml(p.label)+'</strong> — <span style="text-decoration:line-through;color:var(--sec)">R$ '+p.valor+'</span> R$ '+_valorComDesconto(p.valor)+' <span class="gray">(50% OFF primeira conta)</span><br><span class="gray">'+avisoQtd+'</span>';
+    document.getElementById('combo-escolhido-resumo').style.display = 'block';
+    document.getElementById('signup-subtitulo').style.display = 'none';
+    document.getElementById('signup-titulo').textContent = 'Criar conta e finalizar';
+    document.getElementById('signup-rodape-pagamento').style.display = 'block';
+    document.getElementById('signup-rodape-cadastro').style.display = 'none';
+    document.getElementById('btnComprar').textContent = 'Ir para pagamento →';
+    document.getElementById('btnComprar').onclick = finalizarCompra;
     abrirModalCompra();
   });
 
@@ -15703,6 +15740,46 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin }) {
   document.addEventListener('keydown', function(e){
     if(e.key === 'Escape') fecharModalCompra();
   });
+
+  // Assim que a planilha aparece (e a conta ainda não existe), pede os dados
+  // de cadastro — cria a conta na hora (sem pagamento) pra já capturar o
+  // corretor mesmo que ele não conclua a compra de um combo depois. A região
+  // buscada (estado/cidades/bairros) fica salva no perfil dele.
+  function abrirModalCadastroInicial(){
+    if(_contaCriada) return;
+    document.getElementById('combo-escolhido-resumo').style.display = 'none';
+    document.getElementById('signup-subtitulo').style.display = 'block';
+    document.getElementById('signup-titulo').textContent = 'Guarde sua busca — crie sua conta';
+    document.getElementById('signup-rodape-pagamento').style.display = 'none';
+    document.getElementById('signup-rodape-cadastro').style.display = 'block';
+    document.getElementById('btnComprar').textContent = 'Criar minha conta →';
+    document.getElementById('btnComprar').onclick = finalizarCadastroInicial;
+    abrirModalCompra();
+  }
+
+  async function finalizarCadastroInicial(){
+    if(!_ultimaBusca){ return; }
+    const nome = document.getElementById('suNome').value.trim();
+    const email = document.getElementById('suEmail').value.trim();
+    const celular = document.getElementById('suCelular').value.trim();
+    const senha = document.getElementById('suSenha').value;
+    const statusEl = document.getElementById('signup-status');
+    statusEl.innerHTML = '';
+    const btn = document.getElementById('btnComprar');
+    btn.disabled = true;
+    try {
+      const r = await fetch('/demanda/cadastrar', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, email, celular, senha, criterios: _ultimaBusca })
+      });
+      const d = await r.json();
+      if(!d.ok){ statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
+      _contaCriada = true;
+      statusEl.innerHTML = '<p class="green">✅ Conta criada! Agora é só escolher seu combo.</p>';
+      setTimeout(function(){ fecharModalCompra(); mostrarComboRecomendado(); }, 1200);
+    } catch(e){ statusEl.innerHTML = '<p class="red">Erro ao criar conta.</p>'; }
+    finally { btn.disabled = false; }
+  }
 
   async function finalizarCompra(){
     if(!_comboEscolhido || !_ultimaBusca){ alert('Escolha um combo primeiro.'); return; }
@@ -16047,79 +16124,138 @@ app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res
   } catch (e) { console.error('[admin/demanda/transferir]', e.message); res.json({ ok: false, erro: e.message }); }
 });
 
-// Compra de combo a partir do resultado de /demanda — cria a conta (nome/
-// email/celular/senha) e já manda pro checkout Mercado Pago. Os critérios da
-// busca (estado/pares/transações/período) vão junto na metadata da
-// preferência pra, no webhook (pagamento aprovado), entregar de verdade os
-// leads encontrados na conta recém-criada — ver branch `combo_demanda` em
-// POST /webhook/mercadopago.
+// Extrai um resumo da região buscada (estado + cidades únicas + os pares
+// cidade/bairro exatos) pra guardar no perfil do corretor — mesmo que ele
+// nunca compre um combo, o admin sabe em que região ele tem interesse pra
+// mandar leads manualmente depois (ver /admin/demanda/transferir).
+function _regiaoInteresseDeCriterios(criterios) {
+  const cidades = [...new Set((criterios.pares || []).map(p => p.cidade).filter(Boolean))];
+  return { estado: criterios.estado, cidades, bairros: criterios.pares || [], atualizadaEm: new Date().toISOString() };
+}
+
+// Cria a conta a partir do formulário de /demanda (nome/email/celular/senha)
+// — usada tanto no cadastro antecipado (logo depois da planilha aparecer,
+// ANTES de escolher combo — ver /demanda/cadastrar) quanto no fluxo antigo/
+// fallback dentro de /demanda/comprar (cadastro + pagamento no mesmo passo,
+// pra quem pulou o cadastro antecipado e foi direto no combo). Guarda a
+// região buscada no perfil e manda o email de boas-vindas — não menciona
+// combo nenhum porque nesse ponto pode não ter sido escolhido ainda.
+async function _criarContaDemanda({ nome, email, celular, senha, criterios }) {
+  const nomeVal = (nome || '').trim();
+  if (!nomeVal || nomeVal.length < 3) return { ok: false, erro: 'Nome inválido. Digite seu nome completo.' };
+  const telefone = String(celular || '').replace(/\D/g, '');
+  if (!telefone || telefone.length < 10 || telefone.length > 13) return { ok: false, erro: 'Celular inválido. Use o formato: 47999999999' };
+  const emailVal = (email || '').trim().toLowerCase();
+  if (!emailVal || !emailVal.includes('@')) return { ok: false, erro: 'Email inválido.' };
+  const senhaVal = (senha || '').trim();
+  if (!senhaVal || senhaVal.length < 4) return { ok: false, erro: 'Senha muito curta (mínimo 4 caracteres).' };
+  if (!criterios || !criterios.estado || !Array.isArray(criterios.pares) || !criterios.pares.length) {
+    return { ok: false, erro: 'Critérios de busca inválidos — refaça a busca.' };
+  }
+
+  const { lerUsuarios: _luDemanda } = require('./services/salvarUsuario');
+  const users = await _luDemanda();
+  if (users.find(u => String(u.telefone || u.celular || '').replace(/\D/g, '') === telefone)) {
+    return { ok: false, erro: 'Já existe uma conta com esse celular. Faça login em /entrar.' };
+  }
+  if (users.find(u => (u.email || '').trim().toLowerCase() === emailVal)) {
+    return { ok: false, erro: 'Já existe uma conta com esse email. Faça login em /entrar.' };
+  }
+
+  const codigoNovo = gerarCodigoUsuario(nomeVal);
+  const senhaHash = await bcrypt.hash(senhaVal, 10);
+  const novo = {
+    id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal,
+    tipo: 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
+    matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
+    regiaoInteresse: _regiaoInteresseDeCriterios(criterios)
+  };
+  users.push(novo);
+  await salvarTodosUsuarios(users);
+
+  try {
+    const { enviarEmail } = require('./services/email');
+    await enviarEmail({
+      para: emailVal,
+      assunto: '✅ Conta criada na MatchImóveis',
+      html: `<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px">
+        <h2 style="color:#FF385C">✅ Sua conta foi criada, ${escHtml(nomeVal)}!</h2>
+        <p>Você já pode entrar em <a href="https://www.matchimoveis.ia.br/entrar" style="color:#FF385C">matchimoveis.ia.br/entrar</a> com o celular ou email cadastrado.</p>
+        <p>🎁 <strong>Você já ganhou 1.000 créditos de bônus</strong> só por criar a conta — já pode usar na plataforma agora mesmo.</p>
+        <p>Sua busca por leads em <strong>${escHtml(criterios.estado)}</strong> ficou salva na sua conta. Escolha um combo quando quiser pra levar esses leads pra sua carteira — eles entram automaticamente, junto com mais créditos, assim que o pagamento for aprovado.</p>
+        <a href="https://www.matchimoveis.ia.br/app-home" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver minha conta →</a>
+      </div>`,
+      texto: `Sua conta foi criada, ${nomeVal}! Você já ganhou 1.000 créditos de bônus. Sua busca em ${criterios.estado} ficou salva — escolha um combo quando quiser. Acesse: https://www.matchimoveis.ia.br/entrar`
+    });
+  } catch (eEmail) { console.error('[demanda] erro ao enviar email de boas-vindas:', eEmail.message); }
+
+  return { ok: true, user: novo };
+}
+
+// Cadastro antecipado: logo que a planilha de resultados aparece (antes de
+// escolher combo nenhum), a tela pede os dados e cria a conta na hora — o
+// corretor fica capturado (com a região de interesse salva no perfil) mesmo
+// que não conclua compra nenhuma depois. contaDemandaId marca na sessão que
+// essa conta foi criada por esse fluxo específico (ver uso em /demanda/comprar).
+app.post('/demanda/cadastrar', express.json(), async (req, res) => {
+  try {
+    const { nome, email, celular, senha, criterios } = req.body;
+    const resultado = await _criarContaDemanda({ nome, email, celular, senha, criterios });
+    if (!resultado.ok) return res.json(resultado);
+    req.session.user = resultado.user;
+    req.session.contaDemandaId = resultado.user.codigoUsuario;
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('[demanda/cadastrar] erro:', e.message);
+    res.json({ ok: false, erro: 'Erro ao criar conta: ' + e.message });
+  }
+});
+
+// Compra de combo a partir do resultado de /demanda e vai pro checkout
+// Mercado Pago. Se a conta já foi criada nessa mesma sessão via
+// /demanda/cadastrar (contaDemandaId), reaproveita ela em vez de criar outra
+// — senão (fluxo antigo/fallback: usuário pulou o cadastro antecipado e foi
+// direto no combo) cria a conta + pagamento nesse mesmo passo, com nome/
+// email/celular/senha vindos do corpo da requisição. Os critérios da busca
+// (estado/pares/transações/período) vão junto na metadata da preferência
+// pra, no webhook (pagamento aprovado), entregar de verdade os leads
+// encontrados na conta — ver branch `combo_demanda` em POST /webhook/mercadopago.
 app.post('/demanda/comprar', express.json(), async (req, res) => {
   try {
-    const { nome, email, celular, senha, plano, criterios } = req.body;
+    const { plano, criterios } = req.body;
     const pacote = PLANOS_LEADS[plano];
     if (!pacote) return res.json({ ok: false, erro: 'Combo inválido' });
-
-    const nomeVal = (nome || '').trim();
-    if (!nomeVal || nomeVal.length < 3) return res.json({ ok: false, erro: 'Nome inválido. Digite seu nome completo.' });
-    const telefone = String(celular || '').replace(/\D/g, '');
-    if (!telefone || telefone.length < 10 || telefone.length > 13) return res.json({ ok: false, erro: 'Celular inválido. Use o formato: 47999999999' });
-    const emailVal = (email || '').trim().toLowerCase();
-    if (!emailVal || !emailVal.includes('@')) return res.json({ ok: false, erro: 'Email inválido.' });
-    const senhaVal = (senha || '').trim();
-    if (!senhaVal || senhaVal.length < 4) return res.json({ ok: false, erro: 'Senha muito curta (mínimo 4 caracteres).' });
-
     if (!criterios || !criterios.estado || !Array.isArray(criterios.pares) || !criterios.pares.length) {
       return res.json({ ok: false, erro: 'Critérios de busca inválidos — refaça a busca.' });
     }
 
-    const { lerUsuarios: _luDemanda } = require('./services/salvarUsuario');
-    const users = await _luDemanda();
-    if (users.find(u => String(u.telefone || u.celular || '').replace(/\D/g, '') === telefone)) {
-      return res.json({ ok: false, erro: 'Já existe uma conta com esse celular. Faça login em /entrar.' });
+    let codigoNovo, nomeVal, emailVal;
+    // contaDemandaId (não o session.user genérico) evita que um corretor JÁ
+    // logado numa conta antiga (não criada por esse fluxo) herde o 50% OFF
+    // "primeira conta" só por estar navegando em /demanda com sessão ativa.
+    if (req.session.contaDemandaId && req.session.user && req.session.user.codigoUsuario === req.session.contaDemandaId) {
+      codigoNovo = req.session.user.codigoUsuario;
+      nomeVal = req.session.user.nome;
+      emailVal = req.session.user.email;
+    } else {
+      const { nome, email, celular, senha } = req.body;
+      const resultado = await _criarContaDemanda({ nome, email, celular, senha, criterios });
+      if (!resultado.ok) return res.json(resultado);
+      req.session.user = resultado.user;
+      req.session.contaDemandaId = resultado.user.codigoUsuario;
+      codigoNovo = resultado.user.codigoUsuario;
+      nomeVal = resultado.user.nome;
+      emailVal = resultado.user.email;
     }
-    if (users.find(u => (u.email || '').trim().toLowerCase() === emailVal)) {
-      return res.json({ ok: false, erro: 'Já existe uma conta com esse email. Faça login em /entrar.' });
-    }
-
-    const codigoNovo = gerarCodigoUsuario(nomeVal);
-    const senhaHash = await bcrypt.hash(senhaVal, 10);
-    const novo = {
-      id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal,
-      tipo: 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
-      matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000
-    };
-    users.push(novo);
-    await salvarTodosUsuarios(users);
-    req.session.user = novo;
-
-    // Conta já existe aqui, mas as leads só entram depois que o pagamento
-    // aprovar (webhook combo_demanda) — email avisa isso pra não confundir
-    // quem criar a conta e ainda não ver nada no painel.
-    try {
-      const { enviarEmail } = require('./services/email');
-      await enviarEmail({
-        para: emailVal,
-        assunto: '✅ Conta criada na MatchImóveis — falta só o pagamento',
-        html: `<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px">
-          <h2 style="color:#FF385C">✅ Sua conta foi criada, ${escHtml(nomeVal)}!</h2>
-          <p>Você já pode entrar em <a href="https://www.matchimoveis.ia.br/entrar" style="color:#FF385C">matchimoveis.ia.br/entrar</a> com o celular ou email cadastrado.</p>
-          <p>🎁 <strong>Você já ganhou 1.000 créditos de bônus</strong> só por criar a conta — já pode usar na plataforma agora mesmo.</p>
-          <p><strong>As leads da sua busca (${escHtml(pacote.label)}) ainda não estão na sua conta</strong> — elas entram automaticamente, junto com mais créditos do combo, assim que o pagamento for aprovado.</p>
-          <p>Falta só concluir o pagamento pra começar a atender.</p>
-          <a href="https://www.matchimoveis.ia.br/app-home" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver minha conta →</a>
-        </div>`,
-        texto: `Sua conta foi criada, ${nomeVal}! Você já ganhou 1.000 créditos de bônus. As leads do combo (${pacote.label}) e mais créditos só entram depois do pagamento aprovado. Acesse: https://www.matchimoveis.ia.br/entrar`
-      });
-    } catch (eEmail) { console.error('[demanda/comprar] erro ao enviar email de boas-vindas:', eEmail.message); }
 
     const diasFinal = Math.min(30, Math.max(1, parseInt(criterios.dias, 10) || 7));
     const preference = new Preference(_mpClient);
     const BASE = process.env.RENDER ? 'https://matchimoveis.onrender.com' : 'http://localhost:3000';
 
-    // Todo cadastro por essa rota é a 1ª conta do comprador (o cadastro acima
-    // já rejeita telefone/email já existente) — por isso 50% OFF aplicado
-    // sempre aqui, sem precisar checar "é a primeira compra?". Mesma qtd de
-    // leads e mesmos créditos do combo, só o valor cobrado é metade.
+    // Toda conta que chega até aqui (recém-criada agora, ou criada minutos
+    // antes via /demanda/cadastrar na mesma sessão) é a 1ª conta do
+    // comprador — por isso 50% OFF aplicado sempre. Mesma qtd de leads e
+    // mesmos créditos do combo, só o valor cobrado é metade.
     const valorComDesconto = Math.round(pacote.valor * 0.5);
 
     const result = await preference.create({

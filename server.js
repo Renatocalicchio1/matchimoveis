@@ -558,6 +558,7 @@ const _ADMIN_NAV = [
   ]},
   { sec: 'Ferramentas', items: [
     { key: 'cerebro', href: '/admin/cerebro', icon: '🧠', label: 'Cérebro do Assistente' },
+    { key: 'rematch', href: '/admin/rematch', icon: '🔄', label: 'Gerar Match de Conta' },
     { key: 'quintoandar', href: '/admin/quintoandar-solicitacoes', icon: '🏢', label: 'Solicitações QuintoAndar' },
     { key: 'exclusao', href: '/admin/exclusao-solicitacoes', icon: '🗑️', label: 'Exclusão de Conta' }
   ]}
@@ -1977,6 +1978,83 @@ app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
     res.send('Erro: '+e.message);
   }
 });
+
+// Ferramenta manual: roda o match (services/match-core.js) pra todas as
+// leads de uma conta que ainda não têm nenhum match — antes só dava pra
+// fazer isso via script no Render Shell (ver rodarMatchContaTiaA6pg.js),
+// agora dá pra rodar direto do admin digitando o código da conta.
+app.get('/admin/rematch', authAdmin, async (req, res) => {
+  res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gerar Match de Conta</title>
+  <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
+  ${_adminShellCss()}
+  .admin-content{max-width:640px}
+  h1{color:#FF385C;font-size:20px}
+  label{display:block;font-size:12px;font-weight:bold;color:#374151;margin:14px 0 4px}
+  input[type=text],input[type=number]{width:100%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;box-sizing:border-box}
+  .chk{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px}
+  button{background:#FF385C;color:#fff;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-top:16px;font-weight:bold}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 0}
+  .gray{color:#6b7280;font-size:12.5px}
+  #resultado{margin-top:16px;font-size:13px}
+  .stat{display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:10px 16px;margin:4px 6px 4px 0;text-align:center;min-width:70px}
+  .stat strong{display:block;font-size:18px;color:#FF385C}</style></head>
+  <body><div class="admin-app">${_adminSidebarHtml('rematch')}<main class="admin-content">
+  <h1>🔄 Gerar Match de Conta</h1>
+  <p class="gray">Roda o motor de match pra todas as leads da conta que ainda não têm nenhum match encontrado. Útil depois de importar imóveis novos ou corrigir um bug no match, sem precisar esperar o job automático.</p>
+  <div class="box">
+    <label>Código da conta</label>
+    <input type="text" id="userId" placeholder="ex: TIA-A6PG">
+    <div class="chk"><input type="checkbox" id="semVitrine"><label for="semVitrine" style="margin:0;font-weight:normal">Só leads que ainda não receberam vitrine</label></div>
+    <label>Limitar a leads criadas nos últimos N dias (opcional)</label>
+    <input type="number" id="diasAtras" placeholder="deixe em branco pra não limitar" min="1">
+    <button type="button" id="btnRodar" onclick="rodar()">▶ Rodar match agora</button>
+  </div>
+  <div id="resultado"></div>
+  <script>
+  async function rodar(){
+    const userId = document.getElementById('userId').value.trim();
+    if(!userId){ alert('Digite o código da conta.'); return; }
+    const semVitrine = document.getElementById('semVitrine').checked;
+    const diasAtras = document.getElementById('diasAtras').value;
+    const btn = document.getElementById('btnRodar');
+    btn.disabled = true; btn.textContent = '⏳ Rodando...';
+    document.getElementById('resultado').innerHTML = '<p class="gray">Processando — pode levar alguns segundos dependendo da quantidade de leads...</p>';
+    try {
+      const r = await fetch('/admin/rematch', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ userId, semVitrine, diasAtras: diasAtras || null })
+      });
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('resultado').innerHTML = '<p style="color:#dc2626">Erro: '+d.erro+'</p>'; return; }
+      const s = d.resumo;
+      document.getElementById('resultado').innerHTML =
+        '<div class="stat"><strong>'+s.total+'</strong>Encontradas</div>'+
+        '<div class="stat"><strong>'+s.processadas+'</strong>Processadas</div>'+
+        '<div class="stat" style="border-color:#16a34a"><strong style="color:#16a34a">'+s.geraramMatch+'</strong>Geraram match</div>'+
+        '<div class="stat"><strong>'+s.puladas+'</strong>Puladas</div>'+
+        '<div class="stat" style="border-color:#dc2626"><strong style="color:#dc2626">'+s.erros+'</strong>Erros</div>';
+    } catch(e){ document.getElementById('resultado').innerHTML = '<p style="color:#dc2626">Erro ao rodar.</p>'; }
+    btn.disabled = false; btn.textContent = '▶ Rodar match agora';
+  }
+  </script>
+  </main></div></body></html>`);
+});
+app.post('/admin/rematch', authAdmin, express.json(), async (req, res) => {
+  try {
+    const userId = String(req.body.userId || '').trim();
+    if (!userId) return res.json({ ok: false, erro: 'Informe o código da conta.' });
+    const semVitrine = !!req.body.semVitrine;
+    const diasAtras = req.body.diasAtras ? parseInt(req.body.diasAtras, 10) : undefined;
+    const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
+    const resumo = await rodarMatchLeadsSemMatch({ userId, semVitrine, diasAtras });
+    res.json({ ok: true, resumo });
+  } catch (e) {
+    console.error('[admin/rematch]', e.message);
+    res.json({ ok: false, erro: e.message });
+  }
+});
+
 app.get('/admin/acessar/:codigo', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');

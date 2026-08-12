@@ -645,8 +645,14 @@ class MatchCore {
           [userId, '%'+estadoLead+'%', '%'+_estadoComAcento+'%', _estadoSigla]
         );
       } else {
+        // Sem estado resolvido pra lead não dá pra buscar rede por região —
+        // cai pra só os imóveis do próprio corretor (bounded e correto).
+        // Antes tinha "OR TRUE" aqui, que anulava o WHERE inteiro e trazia
+        // TODOS os imóveis ativos de TODAS as contas/estados pra memória a
+        // cada chamada (rota mais quente do sistema — toda mensagem de
+        // WhatsApp cai aqui) — bug real de memória + qualidade de match.
         _resMatch2 = await _queryMatch2(
-          "SELECT * FROM imoveis WHERE status='ativo' AND (user_id=$1 OR TRUE)",
+          "SELECT * FROM imoveis WHERE status='ativo' AND user_id=$1",
           [userId]
         );
       }

@@ -558,6 +558,7 @@ const _ADMIN_NAV = [
     { key: 'status', href: '/admin/status', icon: '🖥️', label: 'Status do Sistema' },
     { key: 'leads-auditoria', href: '/admin/leads-auditoria', icon: '🕵️', label: 'Auditoria de Leads' },
     { key: 'buscar-imovel', href: '/admin/buscar-imovel', icon: '🔍', label: 'Buscar/Excluir Imóvel' },
+    { key: 'buscar-lead', href: '/admin/buscar-lead', icon: '🚫', label: 'Buscar/Excluir Lead' },
     { key: 'interesados', href: '/admin/interesados', icon: '📥', label: 'Interessados de Portal' },
     { key: 'demanda', href: '/admin/demanda', icon: '📍', label: 'Buscar Demanda por Região' }
   ]},
@@ -757,6 +758,7 @@ const _ADMIN_ROTA_PERMISSAO = [
   ['/admin/exclusao-solicitacoes', 'exclusao'],
   ['/admin/leads-auditoria', 'leads-auditoria'],
   ['/admin/buscar-imovel', 'buscar-imovel'],
+  ['/admin/buscar-lead', 'buscar-lead'],
   ['/admin/interesados', 'interesados'],
   ['/admin/online', 'online'],
   ['/admin/status', 'status']
@@ -1367,7 +1369,8 @@ app.get('/admin/buscar-imovel', authAdmin, async (req, res) => {
     const celularT = (req.query.celular || '').trim();
     const codigoT = (req.query.codigo || '').trim();
     const enderecoT = (req.query.endereco || '').trim();
-    const temFiltro = !!(nomeT || celularT || codigoT || enderecoT);
+    const linkT = (req.query.link || '').trim();
+    const temFiltro = !!(nomeT || celularT || codigoT || enderecoT || linkT);
     let imoveis = [];
     if (temFiltro) {
       const conds = [];
@@ -1380,6 +1383,20 @@ app.get('/admin/buscar-imovel', authAdmin, async (req, res) => {
       }
       if (codigoT) { pars.push(codigoT); conds.push(`(id=$${pars.length} OR id_externo=$${pars.length} OR id_interno=$${pars.length} OR codigo_imovel=$${pars.length})`); }
       if (enderecoT) { pars.push('%' + enderecoT + '%'); conds.push(`endereco ILIKE $${pars.length}`); }
+      if (linkT) {
+        // Link pode ser o compartilhável da própria plataforma (/imovel/:id —
+        // extrai o id direto do fim da URL) ou um link externo salvo em
+        // url/url_publica (portal de origem) — tenta as duas formas.
+        const idDoLink = (linkT.match(/\/imovel\/([^\/?#]+)/) || [])[1] || '';
+        pars.push('%' + linkT + '%');
+        const idxLink = pars.length;
+        if (idDoLink) {
+          pars.push(idDoLink);
+          conds.push(`(id=$${pars.length} OR id_externo=$${pars.length} OR url ILIKE $${idxLink} OR url_publica ILIKE $${idxLink})`);
+        } else {
+          conds.push(`(url ILIKE $${idxLink} OR url_publica ILIKE $${idxLink})`);
+        }
+      }
       const sql = `SELECT id,id_externo,id_interno,codigo_imovel,endereco,numero,complemento,bairro,cidade,estado,proprietario,user_id
                    FROM imoveis WHERE ${conds.join(' AND ')} ORDER BY endereco LIMIT 300`;
       const r = await _qBI(sql, pars);
@@ -1437,8 +1454,9 @@ ${_adminSidebarHtml('buscar-imovel', _sidebarPerm(req))}
       <div class="grid">
         <div class="campo"><label>Nome do proprietário</label><input type="text" name="nome" value="${nomeT}" placeholder="Ex: João Silva"></div>
         <div class="campo"><label>Celular</label><input type="text" name="celular" value="${celularT}" placeholder="Ex: 11999999999"></div>
-        <div class="campo"><label>Código do imóvel</label><input type="text" name="codigo" value="${codigoT}" placeholder="Ex: CAPRAFA001"></div>
+        <div class="campo"><label>Código do imóvel (interno ou externo)</label><input type="text" name="codigo" value="${codigoT}" placeholder="Ex: CAPRAFA001"></div>
         <div class="campo"><label>Endereço</label><input type="text" name="endereco" value="${enderecoT}" placeholder="Ex: Rua Augusta"></div>
+        <div class="campo"><label>Link do imóvel</label><input type="text" name="link" value="${linkT}" placeholder="Ex: matchimoveis.ia.br/imovel/..."></div>
       </div>
       <button type="submit" style="background:#111;color:#fff;padding:9px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px">🔍 Buscar</button>
       ${temFiltro ? '<a href="/admin/buscar-imovel" style="margin-left:10px;font-size:12px;color:#888">Limpar</a>' : ''}
@@ -1489,6 +1507,164 @@ app.post('/admin/buscar-imovel/excluir', authAdmin, async (req, res) => {
       excluidos = del.rowCount;
     }
     res.redirect('/admin/buscar-imovel?msg=' + encodeURIComponent(excluidos + ' imóvel(is) excluído(s) com sucesso.'));
+  } catch(e) {
+    res.status(500).send('Erro: ' + e.message);
+  }
+});
+
+// ── BUSCAR/EXCLUIR LEAD (de qualquer conta) ──────────────────────────────
+// Mesmo padrão de /admin/buscar-imovel. Diferença: excluir aqui bloqueia
+// telefone+email globalmente (services/bloqueiosGlobais) — exclusão feita
+// pelo próprio corretor em DELETE /app/lead/:id nunca bloqueia (só admin).
+// "Conta" sem mais nenhum outro filtro preenchido já lista TODAS as leads
+// daquela conta — marcar todas (checkbox do cabeçalho) e excluir cobre o
+// caso "excluir todas as leads da conta", sem precisar de um botão à parte.
+app.get('/admin/buscar-lead', authAdmin, async (req, res) => {
+  try {
+    const { query: _qBL } = require('./services/db');
+    const contaT = (req.query.conta || '').trim();
+    const nomeT = (req.query.nome || '').trim();
+    const celularT = (req.query.celular || '').trim();
+    const emailT = (req.query.email || '').trim();
+    const temFiltro = !!(contaT || nomeT || celularT || emailT);
+    let leads = [];
+    if (temFiltro) {
+      const conds = [];
+      const pars = [];
+      if (contaT) {
+        const ru = await _qBL(`SELECT codigo_usuario, id FROM usuarios WHERE codigo_usuario ILIKE $1 OR id ILIKE $1 OR nome ILIKE $1`, ['%' + contaT + '%']);
+        const contas = [...new Set(ru.rows.flatMap(u => [u.codigo_usuario, u.id]).filter(Boolean))];
+        pars.push(contas.length ? contas : ['__nenhuma__']);
+        conds.push(`(user_id = ANY($${pars.length}) OR codigo_usuario = ANY($${pars.length}))`);
+      }
+      if (nomeT) { pars.push('%' + nomeT + '%'); conds.push(`nome ILIKE $${pars.length}`); }
+      if (celularT) {
+        const celDigits = celularT.replace(/\D/g, '');
+        pars.push('%' + celDigits + '%');
+        conds.push(`(regexp_replace(COALESCE(telefone,''),'\\D','','g') ILIKE $${pars.length} OR regexp_replace(COALESCE(whatsapp,''),'\\D','','g') ILIKE $${pars.length} OR regexp_replace(COALESCE(contato,''),'\\D','','g') ILIKE $${pars.length})`);
+      }
+      if (emailT) { pars.push('%' + emailT.toLowerCase() + '%'); conds.push(`lower(COALESCE(dados->>'email','')) ILIKE $${pars.length}`); }
+      const sql = `SELECT id,nome,telefone,whatsapp,contato,user_id,codigo_usuario,origem,fase_funil,dados->>'email' AS email
+                   FROM leads WHERE ${conds.join(' AND ')} ORDER BY nome LIMIT 500`;
+      const r = await _qBL(sql, pars);
+      const userIds = [...new Set(r.rows.map(row => row.user_id || row.codigo_usuario).filter(Boolean))];
+      let usersMap = {};
+      if (userIds.length) {
+        const ru2 = await _qBL('SELECT codigo_usuario, id, nome FROM usuarios WHERE codigo_usuario = ANY($1) OR id = ANY($1)', [userIds]);
+        ru2.rows.forEach(u => { usersMap[u.codigo_usuario] = u.nome; usersMap[u.id] = u.nome; });
+      }
+      leads = r.rows.map(row => ({ ...row, corretorNome: usersMap[row.user_id] || usersMap[row.codigo_usuario] || row.user_id || row.codigo_usuario || '-' }));
+    }
+    const linhas = leads.map(l => `<tr>
+        <td><input type="checkbox" name="ids" value="${l.id}"></td>
+        <td>${l.nome || '-'}</td>
+        <td>${l.telefone || l.whatsapp || l.contato || '-'}</td>
+        <td>${l.email || '-'}</td>
+        <td>${l.corretorNome} <span style="color:#9ca3af">(${l.user_id || l.codigo_usuario || ''})</span></td>
+        <td>${l.origem || '-'}</td>
+        <td>${l.fase_funil || 'novo'}</td>
+      </tr>`).join('');
+    const msg = req.query.msg ? `<div style="background:#f0fdf4;color:#16a34a;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-weight:600;font-size:13px">${req.query.msg}</div>` : '';
+    res.send(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buscar/Excluir Lead · Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px;}
+${_adminShellCss()}
+.admin-content{max-width:1200px}
+.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;margin-bottom:16px}
+.campo{display:flex;flex-direction:column;gap:4px}
+.campo label{font-size:11px;font-weight:600;color:#666}
+.campo input{padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:8px;font-size:10px;font-weight:600;color:#888;text-transform:uppercase;border-bottom:1px solid #f0f0ee;background:#fafafa;white-space:nowrap}
+td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
+.table-wrap{overflow-x:auto}
+.aviso{background:#fffbeb;color:#92400e;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="admin-app">
+${_adminSidebarHtml('buscar-lead', _sidebarPerm(req))}
+<main class="admin-content">
+  ${msg}
+  <div class="aviso">⚠️ Excluir uma lead aqui também bloqueia o telefone e o email dela globalmente — nunca mais entram como lead nova em nenhuma conta (webhooks de portal e WhatsApp). Isso é diferente de excluir pelo app do corretor, que só apaga.</div>
+  <div class="card">
+    <form method="GET" action="/admin/buscar-lead">
+      <div class="grid">
+        <div class="campo"><label>Conta (código ou nome do corretor)</label><input type="text" name="conta" value="${contaT}" placeholder="Ex: JAN-MGF9 ou Jane"></div>
+        <div class="campo"><label>Nome da lead</label><input type="text" name="nome" value="${nomeT}" placeholder="Ex: Maria Silva"></div>
+        <div class="campo"><label>Telefone/Celular</label><input type="text" name="celular" value="${celularT}" placeholder="Ex: 11999999999"></div>
+        <div class="campo"><label>Email</label><input type="text" name="email" value="${emailT}" placeholder="Ex: maria@gmail.com"></div>
+      </div>
+      <button type="submit" style="background:#111;color:#fff;padding:9px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px">🔍 Buscar</button>
+      ${temFiltro ? '<a href="/admin/buscar-lead" style="margin-left:10px;font-size:12px;color:#888">Limpar</a>' : ''}
+    </form>
+  </div>
+  ${temFiltro ? `
+  <form method="POST" action="/admin/buscar-lead/excluir" onsubmit="return _confirmarExclusaoLead(this)">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-weight:700">${leads.length} lead(s) encontrada(s)${contaT && !nomeT && !celularT && !emailT ? ' — marque todas pra excluir a conta inteira' : ''}</div>
+        ${leads.length ? `<button type="submit" style="background:#dc2626;color:#fff;padding:8px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px">🗑️ Excluir selecionadas e bloquear</button>` : ''}
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th><input type="checkbox" onclick="document.querySelectorAll('input[name=ids]').forEach(c=>c.checked=this.checked)"></th>
+          <th>Nome</th><th>Telefone</th><th>Email</th><th>Conta</th><th>Origem</th><th>Fase</th>
+        </tr></thead>
+        <tbody>${linhas || '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">Nenhuma lead encontrada.</td></tr>'}</tbody>
+      </table></div>
+    </div>
+  </form>
+  ` : ''}
+</main>
+</div>
+<script>
+function _confirmarExclusaoLead(form){
+  const marcados = form.querySelectorAll('input[name=ids]:checked').length;
+  if(marcados === 0){ alert('Marque pelo menos uma lead.'); return false; }
+  return confirm('Excluir ' + marcados + ' lead(s) e BLOQUEAR telefone/email pra sempre (nunca mais entram como lead nova em nenhuma conta)? Essa ação não pode ser desfeita.');
+}
+</script>
+</body>
+</html>`);
+  } catch(e) {
+    res.status(500).send('Erro: ' + e.message);
+  }
+});
+
+app.post('/admin/buscar-lead/excluir', authAdmin, async (req, res) => {
+  try {
+    const { query: _qBLExc } = require('./services/db');
+    const { bloquearGlobal } = require('./services/bloqueiosGlobais');
+    let ids = req.body.ids || [];
+    if (!Array.isArray(ids)) ids = [ids];
+    ids = ids.filter(Boolean);
+    const bloqueadoPor = req.session.adminNome || req.session.adminUsuario || 'admin';
+    let excluidos = 0;
+    for (const id of ids) {
+      const r = await _qBLExc(`SELECT id,nome,telefone,whatsapp,contato,user_id,codigo_usuario,dados->>'email' AS email FROM leads WHERE id=$1`, [id]);
+      const lead = r.rows[0];
+      if (!lead) continue;
+      const telefone = String(lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g, '');
+      await _qBLExc('DELETE FROM leads WHERE id=$1', [id]);
+      excluidos++;
+      try {
+        await bloquearGlobal({ telefone, email: lead.email || '', nome: lead.nome || '', bloqueadoPor });
+      } catch (eBlk) { console.error('[buscar-lead/excluir] erro ao bloquear:', eBlk.message); }
+      try {
+        const D = String.fromCharCode(36);
+        await _qBLExc('INSERT INTO leads_auditoria (lead_id, nome, telefone, user_id, acao) VALUES (' + D + '1,' + D + '2,' + D + '3,' + D + '4,' + D + '5)',
+          [id, lead.nome || '', telefone, lead.user_id || lead.codigo_usuario || '', 'excluir_bloquear_admin:' + bloqueadoPor]);
+      } catch (eAud) { console.error('[buscar-lead/excluir] erro na auditoria:', eAud.message); }
+    }
+    res.redirect('/admin/buscar-lead?msg=' + encodeURIComponent(excluidos + ' lead(s) excluída(s) e bloqueada(s) globalmente com sucesso.'));
   } catch(e) {
     res.status(500).send('Erro: ' + e.message);
   }
@@ -2125,6 +2301,9 @@ app.post('/webhook/imovelweb-global', express.json(), async (req, res) => {
     if (!telefone && !email) return;
     if (telefone && (_cacheUsuarios || []).some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
       console.log('[webhook-global] numero bloqueado:', telefone); return;
+    }
+    if (await require('./services/bloqueiosGlobais').estaBloqueadoGlobal(telefone, email)) {
+      console.log('[webhook-global] contato bloqueado (admin):', telefone, email); return;
     }
     const lead = {
       id: Date.now().toString(),
@@ -6540,6 +6719,9 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
     }
     const nome = body.nome || body.name || body.txtNome || body.firstName || telefone || '';
     const email = body.email || body.txtEmail || '';
+    if (await require('./services/bloqueiosGlobais').estaBloqueadoGlobal(telefone, email)) {
+      console.log('[WEBHOOK IMOVELWEB] contato bloqueado (admin):', telefone, email); return;
+    }
     const lead = {
       id: Date.now().toString(),
       eventId,
@@ -6660,6 +6842,9 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
     if (telefone && _users.some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
       console.log('[WEBHOOK GRUPOOLX] numero bloqueado:', telefone); return;
     }
+    if (await require('./services/bloqueiosGlobais').estaBloqueadoGlobal(telefone, body.email || '')) {
+      console.log('[WEBHOOK GRUPOOLX] contato bloqueado (admin):', telefone); return;
+    }
     const originLeadId = body.originLeadId || body.originListingId || '';
     const lead = {
       id: Date.now().toString(),
@@ -6767,6 +6952,9 @@ app.post('/webhook/123i/:userId', async (req, res) => {
     if (telefone && _users.some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
       console.log('[WEBHOOK 123i] numero bloqueado:', telefone); return;
     }
+    if (await require('./services/bloqueiosGlobais').estaBloqueadoGlobal(telefone, body.email || '')) {
+      console.log('[WEBHOOK 123i] contato bloqueado (admin):', telefone); return;
+    }
     const originLeadId = body.originLeadId || body.originListingId || '';
     const lead = {
       id: Date.now().toString(),
@@ -6862,6 +7050,9 @@ app.post('/webhook/chaves/:userId', async (req, res) => {
     const telefone = (body.phone || '').replace(/\D/g,'');
     if (telefone && _users.some(u => (u.bloqueados || u.dados?.bloqueados || []).some(b => String(b).replace(/\D/g,'').slice(-8) === telefone.slice(-8)))) {
       console.log('[WEBHOOK CHAVES] numero bloqueado:', telefone); return;
+    }
+    if (await require('./services/bloqueiosGlobais').estaBloqueadoGlobal(telefone, body.email || '')) {
+      console.log('[WEBHOOK CHAVES] contato bloqueado (admin):', telefone); return;
     }
     const lead = {
       id: Date.now().toString(),
@@ -7969,6 +8160,10 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       const _bloqueado = _usersBlk.some(u => (u.bloqueados || u.dados?.bloqueados || []).includes(telefone));
       if (_bloqueado) {
         console.log('[WEBHOOK WA] numero bloqueado:', telefone);
+        return res.status(200).json({ ok: true, ignorado: 'bloqueado' });
+      }
+      if (await require('./services/bloqueiosGlobais').estaBloqueadoGlobal(telefone, '')) {
+        console.log('[WEBHOOK WA] numero bloqueado (admin):', telefone);
         return res.status(200).json({ ok: true, ignorado: 'bloqueado' });
       }
     } catch(e) {}

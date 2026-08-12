@@ -19,9 +19,19 @@ const { atualizarLead } = require('./services/salvarLead');
 const { montarPerfilEMapaDemanda } = require('./services/buscaDemanda');
 
 async function run() {
+  // Diagnóstico primeiro — ajuda a distinguir "não tem lead de /demanda
+  // nenhuma ainda" de "tem, mas já tá tudo completo" de "tem, mas o filtro
+  // de origem tava errado" (esse último era o bug real: só olhava
+  // 'compra_demanda', mas a transferência manual do admin usa
+  // 'admin_demanda' — ficava de fora).
+  const { rows: totalRows } = await query(`SELECT COUNT(*)::int AS total FROM leads WHERE id LIKE 'DEMANDA-%'`);
+  const { rows: porOrigemRows } = await query(`SELECT origem, COUNT(*)::int AS total FROM leads WHERE id LIKE 'DEMANDA-%' GROUP BY origem`);
+  console.log(`[preencher-perfil-demanda] total de leads com id DEMANDA-*: ${totalRows[0].total}`);
+  console.log(`[preencher-perfil-demanda] por origem: ${JSON.stringify(porOrigemRows)}`);
+
   const { rows } = await query(`
     SELECT id FROM leads
-    WHERE origem = 'compra_demanda'
+    WHERE origem IN ('compra_demanda', 'admin_demanda')
       AND (COALESCE(perfil_ia->>'quartos','') = '' OR mapa_intencao IS NULL)
   `);
   console.log(`[preencher-perfil-demanda] ${rows.length} lead(s) de /demanda com perfil incompleto`);

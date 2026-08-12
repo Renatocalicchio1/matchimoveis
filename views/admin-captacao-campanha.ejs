@@ -11,7 +11,7 @@ header{background:#111827;color:#fff;padding:16px 24px;display:flex;align-items:
 header h1{font-size:16px;font-weight:500}
 header .badge{background:#FF385C;color:#fff;font-size:11px;padding:2px 8px;border-radius:20px}
 @media(max-width:900px){ header{margin-left:0} }
-.content{padding:24px;max-width:900px;margin:0 auto 0 calc(var(--sidebar-w) + 24px)}
+.content{padding:24px;max-width:1700px;margin:0 auto 0 calc(var(--sidebar-w) + 24px)}
 @media(max-width:900px){ .content{margin-left:auto} }
 .status-box{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
 .status-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
@@ -265,6 +265,10 @@ async function _clicarWhatsapp(e){
 
 let _paginaEnvios = 1;
 function buscar(){ _paginaEnvios = 1; carregarTabela(); }
+function irParaPaginaCaptacao(){
+  const v = parseInt(document.getElementById('input-ir-pagina-captacao').value) || 1;
+  carregarTabela(Math.max(1, v));
+}
 let _ultimosEnvios = [];
 async function carregarTabela(pagina){
   if(pagina) _paginaEnvios = pagina;
@@ -302,11 +306,17 @@ async function carregarTabela(pagina){
         carregarTabela(_paginaEnvios);
       });
     });
+    // 200 por página (bate com _CAPTACAO_TAMANHO_PAGINA no servidor) +
+    // campo "Ir pra página" pra pular direto, mesmo padrão da Campanha Email.
+    const totalPaginas = Math.max(1, Math.ceil(d.total / 200));
     let pag = '';
     if(_paginaEnvios > 1) pag += '<button class="btn" style="background:#6b7280;color:#fff" onclick="carregarTabela('+(_paginaEnvios-1)+')">← Anterior</button> ';
-    pag += '<span>Página '+_paginaEnvios+' — '+d.total+' envio'+(d.total===1?'':'s')+'</span> ';
-    if(d.envios.length === 50) pag += ' <button class="btn" style="background:#6b7280;color:#fff" onclick="carregarTabela('+(_paginaEnvios+1)+')">Próximo →</button>';
+    pag += '<span>Página '+_paginaEnvios+' de '+totalPaginas+' — '+d.total+' envio'+(d.total===1?'':'s')+'</span> ';
+    if(d.envios.length === 200) pag += ' <button class="btn" style="background:#6b7280;color:#fff" onclick="carregarTabela('+(_paginaEnvios+1)+')">Próximo →</button>';
+    pag += ' <span style="margin-left:12px">Ir pra página: <input type="number" id="input-ir-pagina-captacao" min="1" max="'+totalPaginas+'" value="'+_paginaEnvios+'" style="width:70px;display:inline-block;padding:6px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;margin:0 4px"><button type="button" id="btn-ir-pagina-captacao" class="btn" style="background:#6b7280;color:#fff">Ir</button></span>';
     document.getElementById('paginacao').innerHTML = pag;
+    document.getElementById('btn-ir-pagina-captacao').addEventListener('click', irParaPaginaCaptacao);
+    document.getElementById('input-ir-pagina-captacao').addEventListener('keydown', function(ev){ if(ev.key === 'Enter') irParaPaginaCaptacao(); });
   } catch(e){}
 }
 setInterval(async function(){

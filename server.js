@@ -16860,13 +16860,14 @@ app.post('/admin/captacao-campanha/pausar', authAdmin, async (req, res) => {
     res.json({ ok: true, status: await contarStatus() });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
+const _CAPTACAO_TAMANHO_PAGINA = 200;
 app.get('/admin/captacao-campanha/lista', authAdmin, async (req, res) => {
   try {
     const { listarEnvios } = require('./services/campanhaCaptacao');
     const pagina = parseInt(req.query.pagina) || 1;
     const q = req.query.q || '';
     const filtro = req.query.filtro || '';
-    const { envios, total } = await listarEnvios({ limite: 50, offset: (pagina - 1) * 50, q, filtro });
+    const { envios, total } = await listarEnvios({ limite: _CAPTACAO_TAMANHO_PAGINA, offset: (pagina - 1) * _CAPTACAO_TAMANHO_PAGINA, q, filtro });
     // Token do link de opt-out de WhatsApp — mesmo esquema de /admin/campanha/contatos.
     const enviosComToken = envios.map(e => ({ ...e, optoutToken: _waOptOutToken('captacao', e.id) }));
     res.json({ ok: true, envios: enviosComToken, total });

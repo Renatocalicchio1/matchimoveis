@@ -18821,10 +18821,14 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
-// Exclusão em /app/captacao é sempre por imóvel — a lead nunca é apagada por
-// aqui, mesmo com mais de um imóvel vinculado (exclui só o escolhido, a lead
-// sempre permanece).
-app.post('/app/captacao/imovel/:imovelId/excluir', auth, async (req, res) => {
+// Exclusão em /app/captacao é por imóvel; a lead só é apagada junto quando o
+// corretor escolher explicitamente (leadId no body — botão "Excluir imóvel e
+// lead" na view), mesmo com mais de um imóvel vinculado (exclui só o imóvel
+// escolhido; a lead, se marcada, some junto independente de quantos imóveis
+// tinha). Exclusão daqui nunca bloqueia globalmente (isso é só pra exclusão
+// feita pelo admin em /admin/buscar-lead) — dono da lead confirma ownership
+// antes de apagar, igual DELETE /app/lead/:id.
+app.post('/app/captacao/imovel/:imovelId/excluir', auth, express.json(), async (req, res) => {
   try {
     const { query: _qEI } = require('./services/db');
     const uid = req.session.user.id || req.session.user.codigoUsuario;
@@ -18832,6 +18836,19 @@ app.post('/app/captacao/imovel/:imovelId/excluir', auth, async (req, res) => {
       `DELETE FROM imoveis WHERE id=$1 AND (user_id=$2 OR usuario_id=$2 OR codigo_usuario=$2 OR corretor_id=$2)`,
       [req.params.imovelId, uid]
     );
+    const leadId = (req.body && req.body.leadId) || '';
+    if (leadId) {
+      const { rows } = await _qEI('SELECT id, nome, telefone, whatsapp, contato FROM leads WHERE id=$1 AND (user_id=$2 OR codigo_usuario=$2)', [leadId, uid]);
+      const leadRow = rows[0];
+      if (leadRow) {
+        await deletarLead(leadId, uid);
+        try {
+          const D = String.fromCharCode(36);
+          await _qEI('INSERT INTO leads_auditoria (lead_id, nome, telefone, user_id, acao) VALUES (' + D + '1,' + D + '2,' + D + '3,' + D + '4,' + D + '5)',
+            [leadId, leadRow.nome || '', String(leadRow.telefone || leadRow.whatsapp || leadRow.contato || '').replace(/\D/g, ''), uid, 'excluir_via_captacao']);
+        } catch (eAud) { console.error('[captacao excluir] erro na auditoria:', eAud.message); }
+      }
+    }
     res.json({ ok: true });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });

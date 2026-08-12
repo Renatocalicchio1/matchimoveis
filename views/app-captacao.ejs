@@ -49,11 +49,17 @@ async function marcarCaptado(leadId, tel, nomeEnc){
   }
   div.style.display='block';
 }
-// Exclusão é sempre por imóvel — a lead nunca é apagada por aqui, mesmo que
-// tenha mais de um imóvel vinculado (exclui só o que o corretor escolher).
-async function excluirImovelCap(imovelId){
-  if(!confirm('Excluir só este imóvel? A lead continua.')) return;
-  await fetch('/app/captacao/imovel/'+imovelId+'/excluir', {method:'POST'});
+// Exclusão é por imóvel; a lead só some junto quando comLead=true (botão
+// "Excluir imóvel e lead"). "Excluir imóvel" sozinho nunca apaga a lead,
+// mesmo que ela tenha mais de um imóvel vinculado.
+async function excluirImovelCap(imovelId, leadId, comLead){
+  const msg = comLead ? 'Excluir este imóvel E a lead? Os dois somem e não dá pra desfazer.' : 'Excluir só este imóvel? A lead continua.';
+  if(!confirm(msg)) return;
+  await fetch('/app/captacao/imovel/'+imovelId+'/excluir', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(comLead ? {leadId} : {})
+  });
   location.reload();
 }
 </script>
@@ -165,7 +171,8 @@ async function excluirImovelCap(imovelId){
               <a href="https://wa.me/55<%= _tel2 %>?text=<%= _msg2 %>" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📲 Enviar link</a>
               <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="background:#00A699;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap">✏️ Editar para completar</a>
               <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link público</a>
-              <button onclick="excluirImovelCap('<%= im.id_interno||im.id %>')" style="background:#fef2f2;color:#dc2626;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🗑️ Excluir</button>
+              <button onclick="excluirImovelCap('<%= im.id_interno||im.id %>', '<%= l.id %>', false)" style="background:#fef2f2;color:#dc2626;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🗑️ Excluir imóvel</button>
+              <button onclick="excluirImovelCap('<%= im.id_interno||im.id %>', '<%= l.id %>', true)" style="background:#dc2626;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid #dc2626;cursor:pointer;white-space:nowrap">🗑️🚫 Excluir imóvel e lead</button>
             </div>
             <% }); %>
           </td>

@@ -8492,11 +8492,16 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
         const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
         const INSTANCE = process.env.EVOLUTION_INSTANCE || 'match-corretor';
 
-        // Recarrega lead do PG para garantir mensagens anteriores
+        // Recarrega lead do PG para garantir mensagens anteriores. Antes
+        // chamava lerLeads() (SELECT * FROM leads inteira, sem LIMIT) só pra
+        // achar 1 registro por id — trocado por busca direta desse id, que dá
+        // a mesma garantia de dado fresco (evita cache de 30s) sem carregar
+        // a tabela toda a cada mensagem de WhatsApp.
         try {
-          const { lerLeads: _llReload } = require('./services/salvarLead');
-          const _todasReload = await _llReload();
-          const _leadReload = _todasReload.find(l => String(l.id) === String(leadEncontrado.id));
+          const { query: _qLeadReload } = require('./services/db');
+          const { rowToLead: _rowToLeadReload } = require('./services/salvarLead');
+          const _rLeadReload = await _qLeadReload('SELECT * FROM leads WHERE id=$1', [leadEncontrado.id]);
+          const _leadReload = _rLeadReload.rows[0] ? _rowToLeadReload(_rLeadReload.rows[0]) : null;
           if (_leadReload) leadEncontrado = { ..._leadReload, ...{ userId: leadEncontrado.userId || _leadReload.userId } };
         } catch(e) { console.error('[WEBHOOK WA] erro reload lead:', e.message); }
         // Passa lead pelo match-core (10 camadas)
@@ -8689,33 +8694,6 @@ const _httpServer = app.listen(process.env.PORT || 3000, () => {
     // const { iniciarBackup } = require('./services/backup'); iniciarBackup();
     const { iniciarMonitor } = require('./services/monitor'); iniciarMonitor();
     const { iniciarPostsScheduler } = require('./services/postsScheduler'); iniciarPostsScheduler();
-
-    // ── REMATCH ÚNICO 6H (pedido pontual, 12/ago/2026) ──────────────────
-    // Roda o motor de match pra TODAS as leads em Novo/Qualificando (sem
-    // restrição de data/conta — diferente do job diário de 6h que só olha
-    // os últimos 2 dias), uma vez só, hoje. Checa a cada 1min; dispara na
-    // primeira checagem em que já for 6h ou mais no horário de Brasília e
-    // ainda for 12/ago/2026; a partir de 13/ago/2026 desarma sozinho. Seguro
-    // apagar esse bloco depois de confirmar que rodou (ver log
-    // "[rematch-unico-6h]" no Render).
-    let _rematchUnico6hJaRodou = false;
-    const _rematchUnico6hTimer = setInterval(async () => {
-      const agoraBR = new Date();
-      const dataBR = agoraBR.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
-      if (dataBR > '2026-08-12') { clearInterval(_rematchUnico6hTimer); return; }
-      if (dataBR !== '2026-08-12' || _rematchUnico6hJaRodou) return;
-      const horaBR = Number(agoraBR.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo', hour: '2-digit', hour12: false }));
-      if (horaBR < 6) return;
-      _rematchUnico6hJaRodou = true;
-      try {
-        console.log('[rematch-unico-6h] iniciando rematch de leads Novo/Qualificando (todas, sem restrição de data)...');
-        const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
-        const resumo = await rodarMatchLeadsSemMatch();
-        console.log('[rematch-unico-6h] concluído:', JSON.stringify(resumo));
-      } catch (e) {
-        console.error('[rematch-unico-6h] erro:', e.message);
-      }
-    }, 60 * 1000);
   } catch(e) {
     console.error('[server] Erro ao iniciar autoUpdateXML:', e.message);
   }

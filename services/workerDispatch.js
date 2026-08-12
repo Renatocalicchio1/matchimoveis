@@ -1,24 +1,50 @@
 const { Worker } = require('worker_threads');
 const path = require('path');
 
-function dispararWorkerXml(jobId, xmlUrl, userId) {
-  const worker = new Worker(path.join(__dirname, '../workers/importXmlWorker.js'), {
-    workerData: { jobId, xmlUrl, userId }
+// XML e planilha de leads sobem worker_thread + um processo Node filho
+// completo cada um (workers/importXmlWorker.js e importLeadsWorker.js
+// chamam execSync('node importXMLCompleto.js ...') / processLeads.js) — sem
+// limite, uploads simultâneos (de contas diferentes, ou o job de retry de
+// jobs travados a cada 5min, ver server.js JOB_JOBS_TRAVADOS) empilhavam N
+// processos Node completos disputando a mesma memória do container. Fila
+// simples: só MAX_IMPORTS_CONCORRENTES rodam ao mesmo tempo, o resto espera
+// a vez e dispara assim que uma vaga libera. dispararWorkerDisparo (envio de
+// WhatsApp em massa) não passa por aqui — não sobe processo filho, só faz
+// chamadas HTTP, bem mais leve.
+const MAX_IMPORTS_CONCORRENTES = 2;
+let _importsEmExecucao = 0;
+const _filaImports = [];
+
+function _processarFilaImports() {
+  if (_importsEmExecucao >= MAX_IMPORTS_CONCORRENTES || _filaImports.length === 0) return;
+  const { workerPath, workerData, tag } = _filaImports.shift();
+  _importsEmExecucao++;
+  const worker = new Worker(workerPath, { workerData });
+  worker.on('message', msg => console.log(`[${tag}]`, msg));
+  worker.on('error', e => console.error(`[${tag}] erro:`, e.message));
+  worker.on('exit', code => {
+    console.log(`[${tag}] exit:`, code);
+    _importsEmExecucao--;
+    _processarFilaImports();
   });
-  worker.on('message', msg => console.log('[WORKER XML]', msg));
-  worker.on('error', e => console.error('[WORKER XML] erro:', e.message));
-  worker.on('exit', code => console.log('[WORKER XML] exit:', code));
-  return worker;
+}
+
+function dispararWorkerXml(jobId, xmlUrl, userId) {
+  _filaImports.push({
+    workerPath: path.join(__dirname, '../workers/importXmlWorker.js'),
+    workerData: { jobId, xmlUrl, userId },
+    tag: 'WORKER XML'
+  });
+  _processarFilaImports();
 }
 
 function dispararWorkerLeads(jobId, filePath, userId) {
-  const worker = new Worker(path.join(__dirname, '../workers/importLeadsWorker.js'), {
-    workerData: { jobId, filePath, userId }
+  _filaImports.push({
+    workerPath: path.join(__dirname, '../workers/importLeadsWorker.js'),
+    workerData: { jobId, filePath, userId },
+    tag: 'WORKER LEADS'
   });
-  worker.on('message', msg => console.log('[WORKER LEADS]', msg));
-  worker.on('error', e => console.error('[WORKER LEADS] erro:', e.message));
-  worker.on('exit', code => console.log('[WORKER LEADS] exit:', code));
-  return worker;
+  _processarFilaImports();
 }
 
 function dispararWorkerDisparo(campanhaId) {

@@ -19,8 +19,28 @@ const _USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.3
 
 let _browserPromise = null;
 let _contextPromise = null;
+let _ultimoUso = 0;
+let _idleTimer = null;
+
+// O browser/context ficam vivos entre chamadas de propósito (evita o custo
+// de relançar o Chromium a cada extração) — mas fecharBrowser() nunca era
+// chamado em produção, então uma vez aberto (1ª extração) ficava residente
+// pro resto da vida do processo, mesmo ocioso. Fecha sozinho depois de 10min
+// sem uso; reabre sozinho (lazy) na próxima chamada.
+function _agendarFechamentoOcioso() {
+  if (_idleTimer) return;
+  _idleTimer = setInterval(() => {
+    if (_browserPromise && Date.now() - _ultimoUso > 10 * 60 * 1000) {
+      fecharBrowser().catch(() => {});
+    }
+    if (!_browserPromise) { clearInterval(_idleTimer); _idleTimer = null; }
+  }, 2 * 60 * 1000);
+  if (_idleTimer.unref) _idleTimer.unref();
+}
 
 async function _getContext() {
+  _ultimoUso = Date.now();
+  _agendarFechamentoOcioso();
   if (!_browserPromise) {
     const playwright = require('playwright');
     _browserPromise = playwright.chromium.launch({

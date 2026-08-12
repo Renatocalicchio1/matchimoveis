@@ -533,7 +533,7 @@ class MatchCore {
           if(pB!==pA)return pB-pA;
           return b.scoreMatch-a.scoreMatch;
         })
-        .slice(0, 50)
+        .slice(0, 9)
         .map((r, i) => ({ ...r.imovel, rank: i+1, score: r.scoreMatch, motivos: r.motivos, origemMatch: 'caso1' }));
 
       // Imóvel âncora sempre no topo com score 100
@@ -688,7 +688,7 @@ class MatchCore {
         if (_idsVistos2.has(rid)) continue;
         _idsVistos2.add(rid);
         matchesNovos.push({ ...r.imovel, rank: matchesNovos.length+1, score: r.scoreMatch, motivos: r.motivos, origemMatch: 'motor_intencao' });
-        if (matchesNovos.length >= 50) break;
+        if (matchesNovos.length >= 9) break;
       }
       lead.intencoesOcultas = inferirOcultos(lead);
       const oc = Object.entries(lead.intencoesOcultas||{}).filter(([,v])=>v.score>0).map(([k,v])=>k+':'+v.score).join(' ');

@@ -7808,9 +7808,24 @@ setInterval(async () => {
 
         consumir(_leads[i].userId || _leads[i].corretorId, 'followup_auto').catch(()=>{});
         if (fu.tipo === 'enviar_vitrine') {
-          if (_leads[i].vitrineEnviada) continue;
           const _matches = (_leads[i].matchesAuto || _leads[i].matches || []).length;
           if (_matches === 0) continue; // não envia vitrine vazia
+          // Claim atômico no banco antes de mandar — o `lead`/`_leads[i]` em
+          // memória vem de um snapshot lido no início deste tick (pode ter
+          // até 5min), então checar só `_leads[i].vitrineEnviada` não pega o
+          // caso do caminho inline (match-core.js, no meio de uma mensagem
+          // de WhatsApp em tempo real) já ter enviado nesse meio-tempo — e
+          // vice-versa. Só segue se conseguir marcar vitrine_enviada=true
+          // agora (ninguém tinha marcado ainda).
+          let _rClaimFU;
+          try {
+            const { query: _qVitrineClaimFU } = require('./services/db');
+            _rClaimFU = await _qVitrineClaimFU(
+              "UPDATE leads SET vitrine_enviada=true, vitrine_enviada_em=NOW() WHERE id=$1 AND COALESCE(vitrine_enviada,false)=false RETURNING id",
+              [lead.id]
+            );
+          } catch(e) { console.error('[JOB FU] erro claim vitrine:', e.message); continue; }
+          if (!_rClaimFU.rows.length) { console.log('[JOB FU] vitrine já enviada por outro caminho, pulando:', lead.nome || _contato); continue; }
           const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;
           const _msg = 'Ola ' + (lead.nome || '') + '! Encontramos '
             + _matches + ' imove' + (_matches === 1 ? 'l' : 'is')

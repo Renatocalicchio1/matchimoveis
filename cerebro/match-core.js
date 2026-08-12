@@ -148,22 +148,42 @@ class MatchCore {
         lead._ultimoMapaHash = _mapaHash;
 
         if ((!lead.vitrineEnviada || _mapaAtualizado) && instancia && lead.contato) {
-          const BASE_URL = process.env.RENDER
-            ? 'https://matchimoveis.onrender.com'
-            : (process.env.BASE_URL || 'http://localhost:3000');
-          const linkVitrine = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + userId;
-          const nomeCorretor = lead.corretorNome || 'Seu corretor';
-          const total = matchesDepois;
-          const msgVitrine = 'Olá ' + (lead.nome || '') + '! Encontramos '
-            + total + ' imóve' + (total === 1 ? 'l' : 'is')
-            + ' que combinam com o seu perfil.\n\nAcesse sua seleção personalizada:\n'
-            + linkVitrine
-            + '\n\n' + nomeCorretor + ' - MatchImóveis';
-          setImmediate(() => enviarWhatsApp(instancia, lead.contato, msgVitrine));
-          lead.vitrineEnviada = true;
-          lead.vitrineEnviadaEm = new Date().toISOString();
-          lead.vitrineLink = linkVitrine;
-          console.log('[MATCH CORE] vitrine enviada para', lead.contato, linkVitrine);
+          // Claim atômico no banco antes de mandar — evita disparo duplicado
+          // quando esse caminho (inline, no meio de processar()) e o
+          // JOB_FOLLOWUPS (server.js, a cada 5min) decidem "ainda não
+          // enviei" ao mesmo tempo, cada um olhando uma cópia de `lead` em
+          // memória que pode estar desatualizada. Resend intencional por
+          // mudança de perfil (_mapaAtualizado) não passa pelo claim — é
+          // sempre permitido, mesmo já tendo enviado antes.
+          let _podeEnviarVitrine = _mapaAtualizado;
+          if (!_podeEnviarVitrine) {
+            try {
+              const { query: _qVitrineClaim } = require('../services/db');
+              const _rClaim = await _qVitrineClaim(
+                "UPDATE leads SET vitrine_enviada=true, vitrine_enviada_em=NOW() WHERE id=$1 AND COALESCE(vitrine_enviada,false)=false RETURNING id",
+                [lead.id]
+              );
+              _podeEnviarVitrine = _rClaim.rows.length > 0;
+            } catch(e) { console.error('[MATCH CORE] erro claim vitrine:', e.message); }
+          }
+          if (_podeEnviarVitrine) {
+            const BASE_URL = process.env.RENDER
+              ? 'https://matchimoveis.onrender.com'
+              : (process.env.BASE_URL || 'http://localhost:3000');
+            const linkVitrine = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + userId;
+            const nomeCorretor = lead.corretorNome || 'Seu corretor';
+            const total = matchesDepois;
+            const msgVitrine = 'Olá ' + (lead.nome || '') + '! Encontramos '
+              + total + ' imóve' + (total === 1 ? 'l' : 'is')
+              + ' que combinam com o seu perfil.\n\nAcesse sua seleção personalizada:\n'
+              + linkVitrine
+              + '\n\n' + nomeCorretor + ' - MatchImóveis';
+            setImmediate(() => enviarWhatsApp(instancia, lead.contato, msgVitrine));
+            lead.vitrineEnviada = true;
+            lead.vitrineEnviadaEm = new Date().toISOString();
+            lead.vitrineLink = linkVitrine;
+            console.log('[MATCH CORE] vitrine enviada para', lead.contato, linkVitrine);
+          }
         }
       }
 
@@ -779,7 +799,7 @@ class MatchCore {
 
     if (temp==='quente' && fase==='interessado')          add('agendar_visita', 24);
     // if (temp==='quente' && fase==='decidido')             add('proposta_negocio', 12); // DESATIVADO
-    if (temp==='morno'  && msgs>=3)                       add('enviar_vitrine', 0.017);
+    if (temp==='morno'  && msgs>=3 && !lead.vitrineEnviada) add('enviar_vitrine', 0.017);
     if (msgs===1 && temp==='frio')                        add('qualificar_lead', 0.083);
     if (total>0 && !lead.vitrineEnviada)                  add('enviar_vitrine', 0.017);
     if (lead.vitrineEnviada && !lead.visitaSolicitada)    add('followup_vitrine', 6);

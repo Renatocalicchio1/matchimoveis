@@ -183,6 +183,7 @@ const leadIdInicial = '<%= leadId %>';
 const _destino = leadIdInicial && leadIdInicial !== userId ? leadIdInicial : userId;
 const _campanhaEnvioId = '<%= campanhaEnvioId || "" %>';
 const _imovelExistente = <%- imovelExistente ? JSON.stringify(imovelExistente).replace(/</g, '\\u003c') : 'null' %>;
+const _irDireto = '<%= (typeof irDireto !== "undefined" && irDireto) || "" %>';
 
 let _transacao = '';
 let _leadId = '';
@@ -229,7 +230,7 @@ if (_imovelExistente) {
 
   document.getElementById('s4-valor').value = _imovelExistente.valor_imovel || '';
 
-  mostrar('step2');
+  mostrar(_irDireto === 'fotos' ? 'step5' : 'step2');
 }
 
 async function selecionar(op){

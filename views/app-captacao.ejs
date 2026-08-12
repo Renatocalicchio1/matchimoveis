@@ -49,12 +49,11 @@ async function marcarCaptado(leadId, tel, nomeEnc){
   }
   div.style.display='block';
 }
-// Exclusão é por imóvel; a lead só some junto quando comLead=true (botão
-// "Excluir imóvel e lead"). "Excluir imóvel" sozinho nunca apaga a lead,
-// mesmo que ela tenha mais de um imóvel vinculado.
-async function excluirImovelCap(imovelId, leadId, comLead){
-  const msg = comLead ? 'Excluir este imóvel E a lead? Os dois somem e não dá pra desfazer.' : 'Excluir só este imóvel? A lead continua.';
-  if(!confirm(msg)) return;
+// 1 botão só, pergunta em 2 passos: primeiro confirma a exclusão do imóvel,
+// depois pergunta se a lead sai junto (Cancelar = só o imóvel, lead continua).
+async function excluirImovelCap(imovelId, leadId){
+  if(!confirm('Excluir este imóvel?')) return;
+  const comLead = confirm('Excluir a lead também?\n\nOK = imóvel + lead (não dá pra desfazer)\nCancelar = só o imóvel, a lead continua');
   await fetch('/app/captacao/imovel/'+imovelId+'/excluir', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -161,7 +160,8 @@ async function excluirImovelCap(imovelId, leadId, comLead){
             <% const _link2 = 'https://matchimoveis.ia.br/imovel/'+(im.id_interno||im.id); %>
             <% const _msg2 = encodeURIComponent('Olá '+(l.nome||'')+'! Seu imóvel foi cadastrado. Acesse: '+_link2); %>
             <% const _semFoto = !im.fotos || !im.fotos.length; %>
-            <% const _msgFoto = encodeURIComponent('Oi '+(l.nome||'')+'! Pra terminar o anúncio do seu imóvel, você pode me mandar algumas fotos por aqui mesmo? Isso ajuda muito a atrair interessados 📸'); %>
+            <% const _linkFotos = 'https://matchimoveis.ia.br/captar/'+(user.codigoUsuario||user.id)+'?imovelId='+im.id+'&fotos=1'; %>
+            <% const _msgFoto = encodeURIComponent('Oi '+(l.nome||'')+'! Pra terminar o anúncio do seu imóvel, falta só a foto — os outros dados já estão preenchidos. Pode enviar direto por aqui: '+_linkFotos+' 📸'); %>
             <% const _dataEntrada = im.criado_em ? new Date(im.criado_em).toLocaleDateString('pt-BR') : null; %>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px">
               <span style="flex:1">🏠 <%= im.titulo||im.tipo %> · <%= im.bairro||'' %> · R$ <%= im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'—' %><% if(_dataEntrada) { %> · <span style="color:#9ca3af">entrou em <%= _dataEntrada %></span><% } %></span>
@@ -171,8 +171,7 @@ async function excluirImovelCap(imovelId, leadId, comLead){
               <a href="https://wa.me/55<%= _tel2 %>?text=<%= _msg2 %>" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📲 Enviar link</a>
               <a href="https://matchimoveis.onrender.com/app/imovel/<%= im.id_interno||im.id %>/editar" style="background:#00A699;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap">✏️ Editar para completar</a>
               <a href="https://www.matchimoveis.ia.br/imovel/<%= im.id_interno||im.id %>?userId=<%= user.codigoUsuario||user.id %>" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link público</a>
-              <button onclick="excluirImovelCap('<%= im.id_interno||im.id %>', '<%= l.id %>', false)" style="background:#fef2f2;color:#dc2626;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🗑️ Excluir imóvel</button>
-              <button onclick="excluirImovelCap('<%= im.id_interno||im.id %>', '<%= l.id %>', true)" style="background:#dc2626;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid #dc2626;cursor:pointer;white-space:nowrap">🗑️🚫 Excluir imóvel e lead</button>
+              <button onclick="excluirImovelCap('<%= im.id_interno||im.id %>', '<%= l.id %>')" style="background:#fef2f2;color:#dc2626;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid #fca5a5;cursor:pointer;white-space:nowrap">🗑️ Excluir</button>
             </div>
             <% }); %>
           </td>

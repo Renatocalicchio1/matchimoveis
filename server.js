@@ -18591,7 +18591,11 @@ app.get('/captar/:userId', async (req, res) => {
     } catch (e) { console.error('[captar imovelExistente]', e.message); }
   }
 
-  res.render('captar-imovel', { leadId: '', userId, telPreenchido, imovelExistente, campanhaEnvioId });
+  // ?fotos=1 vem do botão "Solicitar fotos" em /app/captacao — o resto do
+  // imóvel já foi preenchido antes, só falta foto, então pula direto pra
+  // etapa 5 em vez de pedir pro proprietário passar pelas telas de novo.
+  const irDireto = req.query.fotos === '1' ? 'fotos' : '';
+  res.render('captar-imovel', { leadId: '', userId, telPreenchido, imovelExistente, campanhaEnvioId, irDireto });
 });
 
 app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {

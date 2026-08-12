@@ -446,7 +446,8 @@ async function salvarImovel(imovel) {
         ON CONFLICT (id) DO UPDATE SET
           titulo=EXCLUDED.titulo, tipo=EXCLUDED.tipo, status=EXCLUDED.status,
           bairro=EXCLUDED.bairro, cidade=EXCLUDED.cidade, estado=EXCLUDED.estado,
-          endereco=EXCLUDED.endereco, cep=EXCLUDED.cep, valor_imovel=EXCLUDED.valor_imovel,
+          endereco=EXCLUDED.endereco, numero=EXCLUDED.numero, complemento=EXCLUDED.complemento,
+          cep=EXCLUDED.cep, valor_imovel=EXCLUDED.valor_imovel,
           condominio=EXCLUDED.condominio, iptu=EXCLUDED.iptu,
           area_m2=EXCLUDED.area_m2, area_total=EXCLUDED.area_total, area_construida=EXCLUDED.area_construida,
           quartos=EXCLUDED.quartos, suites=EXCLUDED.suites,

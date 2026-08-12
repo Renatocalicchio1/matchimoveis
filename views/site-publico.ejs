@@ -39,15 +39,24 @@
     a{color:inherit}
 
     header{background:<%= siteConfig.corCabecalho ? siteConfig.corCabecalho : 'color-mix(in srgb, var(--paper) 90%, transparent)' %>;<% if(!siteConfig.corCabecalho){ %>backdrop-filter:blur(10px);<% } %>border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-    .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.4px;text-decoration:none;color:var(--ink)}
+    .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.4px;text-decoration:none;color:var(--ink)}
     .logo .dot{width:8px;height:8px;border-radius:50%;background:var(--brand)}
-    .logo img{height:42px;max-width:220px;object-fit:contain;display:block}
+    .logo img{height:56px;max-width:260px;object-fit:contain;display:block}
+
+    .banners{max-width:1200px;margin:0 auto;padding:20px 24px 0}
+    .banners-track{position:relative;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);aspect-ratio:16/5;background:var(--sand)}
+    .banners-track img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}
+    .banners-track img.ativo{opacity:1}
+    .banners-dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+    .banners-dots button{width:7px;height:7px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0}
+    .banners-dots button.ativo{background:var(--brand);width:18px;border-radius:4px;transition:width .2s}
+    @media(max-width:640px){ .banners-track{aspect-ratio:16/9} }
     .btn-wpp-header{display:flex;align-items:center;gap:7px;background:#25D366;color:#fff;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none}
     .header-acoes{display:flex;align-items:center;gap:10px}
     .btn-anuncie-header{display:flex;align-items:center;gap:7px;background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none}
 
     .hero{padding:40px 24px 8px;max-width:1200px;margin:0 auto}
-    .hero h1{font-size:26px;font-weight:800;letter-spacing:-.6px;margin-bottom:4px}
+    .hero h1{font-size:21px;font-weight:800;letter-spacing:-.6px;margin-bottom:4px}
     .hero p{color:var(--muted);font-size:14px}
 
     .filtros{max-width:1200px;margin:20px auto 0;padding:0 24px}
@@ -126,6 +135,23 @@
     <% } %>
   </div>
 </header>
+
+<% if(siteConfig.banners && siteConfig.banners.length){ %>
+<div class="banners">
+  <div class="banners-track" id="banners-track">
+    <% siteConfig.banners.forEach(function(b, i){ %>
+    <img src="<%= b %>" class="<%= i===0?'ativo':'' %>" data-i="<%= i %>" alt="">
+    <% }); %>
+  </div>
+  <% if(siteConfig.banners.length > 1){ %>
+  <div class="banners-dots" id="banners-dots">
+    <% siteConfig.banners.forEach(function(b, i){ %>
+    <button type="button" class="<%= i===0?'ativo':'' %>" data-i="<%= i %>" aria-label="Banner <%= i+1 %>"></button>
+    <% }); %>
+  </div>
+  <% } %>
+</div>
+<% } %>
 
 <div class="hero">
   <h1><%= siteConfig.rodapeNome || corretor.nome %></h1>
@@ -314,10 +340,17 @@
   <% if(siteConfig.rodapeTelefone){ %><%= siteConfig.rodapeTelefone %><% } %>
   <% if(corretor.creci){ %><div>CRECI <%= corretor.creci %></div><% } %>
   <% if(siteConfig.rodapeInstagram || siteConfig.rodapeFacebook){ %>
-    <div style="margin-top:8px">
-      <% if(siteConfig.rodapeInstagram){ %><a href="<%= siteConfig.rodapeInstagram %>" target="_blank">Instagram</a><% } %>
-      <% if(siteConfig.rodapeInstagram && siteConfig.rodapeFacebook){ %> · <% } %>
-      <% if(siteConfig.rodapeFacebook){ %><a href="<%= siteConfig.rodapeFacebook %>" target="_blank">Facebook</a><% } %>
+    <div class="social-links" style="margin-top:12px;display:flex;justify-content:center;gap:10px">
+      <% if(siteConfig.rodapeInstagram){ %>
+      <a href="<%= siteConfig.rodapeInstagram %>" target="_blank" aria-label="Instagram" style="width:36px;height:36px;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;opacity:.85">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <% } %>
+      <% if(siteConfig.rodapeFacebook){ %>
+      <a href="<%= siteConfig.rodapeFacebook %>" target="_blank" aria-label="Facebook" style="width:36px;height:36px;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;opacity:.85">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.89h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg>
+      </a>
+      <% } %>
     </div>
   <% } %>
   <% if(siteConfig.rodapeTexto){ %><div style="margin-top:10px;max-width:52ch;margin-left:auto;margin-right:auto"><%= siteConfig.rodapeTexto %></div><% } %>
@@ -325,6 +358,31 @@
 </footer>
 
 <script>
+(function(){
+  var track = document.getElementById('banners-track');
+  if(!track) return;
+  var imgs = Array.prototype.slice.call(track.querySelectorAll('img'));
+  var dots = document.querySelectorAll('#banners-dots button');
+  if(imgs.length < 2) return;
+  var atual = 0;
+  function mostrar(i){
+    imgs[atual].classList.remove('ativo');
+    if(dots[atual]) dots[atual].classList.remove('ativo');
+    atual = i;
+    imgs[atual].classList.add('ativo');
+    if(dots[atual]) dots[atual].classList.add('ativo');
+  }
+  dots.forEach(function(dot){
+    dot.addEventListener('click', function(){ mostrar(parseInt(dot.dataset.i, 10)); reiniciar(); });
+  });
+  var timer;
+  function reiniciar(){
+    clearInterval(timer);
+    timer = setInterval(function(){ mostrar((atual + 1) % imgs.length); }, 5000);
+  }
+  reiniciar();
+})();
+
 (function(){
   var form = document.querySelector('.filtros-box');
   if(!form) return;

@@ -21,6 +21,11 @@
 .ms-logo-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .ms-logo-preview{width:72px;height:72px;border-radius:12px;border:0.5px solid rgba(0,0,0,.1);background:#f9fafb;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
 .ms-logo-preview img{width:100%;height:100%;object-fit:contain}
+.ms-banners-grid{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.ms-banner-item{position:relative;width:140px;height:52px;border-radius:8px;border:0.5px solid rgba(0,0,0,.1);overflow:hidden;flex-shrink:0}
+.ms-banner-item img{width:100%;height:100%;object-fit:cover;display:block}
+.ms-banner-item form{position:absolute;top:3px;right:3px}
+.ms-banner-item button{width:20px;height:20px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 
 .ms-toggle-row{display:flex;gap:10px}
 .ms-toggle-opt{flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid rgba(0,0,0,.1);cursor:pointer}
@@ -56,6 +61,7 @@
 
 <% if(locals.msg==='salvo') { %><div class="ms-msg ok">✅ Configurações salvas!</div><% } %>
 <% if(locals.msg==='erro') { %><div class="ms-msg err">❌ Erro ao salvar. Tente novamente.</div><% } %>
+<% if(locals.msg==='banner_limite') { %><div class="ms-msg err">❌ Máximo de 8 banners. Exclua algum antes de adicionar outro.</div><% } %>
 <% if(locals.msg==='dominio_salvo') { %><div class="ms-msg ok">✅ Domínio salvo! Siga as instruções de DNS abaixo.</div><% } %>
 <% if(locals.msg==='dominio_verificado') { %><div class="ms-msg ok">🔄 Verificação atualizada.</div><% } %>
 <% if(locals.msg==='dominio_removido') { %><div class="ms-msg ok">✅ Domínio removido.</div><% } %>
@@ -170,6 +176,31 @@
       <% } %>
     </div>
     <div style="font-size:11px;color:#9ca3af;margin-top:6px">Sem logo, o nome do rodapé aparece no lugar.</div>
+  </div>
+
+  <div class="pf-field">
+    <label>Banners do topo (carrossel)</label>
+    <% const _banners = (function(){ try { return JSON.parse(siteConfig.banners||'[]'); } catch(e){ return []; } })(); %>
+    <% if(_banners.length){ %>
+    <div class="ms-banners-grid">
+      <% _banners.forEach(function(b, i){ %>
+      <div class="ms-banner-item">
+        <img src="<%= b %>">
+        <form method="POST" action="/app/meu-site/banner/excluir" onsubmit="return confirm('Excluir este banner?')">
+          <input type="hidden" name="idx" value="<%= i %>">
+          <button type="submit" title="Excluir">✕</button>
+        </form>
+      </div>
+      <% }); %>
+    </div>
+    <% } %>
+    <% if(_banners.length < 8){ %>
+    <form method="POST" action="/app/meu-site/banner" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="file" name="banner" accept="image/*" required style="max-width:220px">
+      <button type="submit" class="pf-btn">Adicionar banner</button>
+    </form>
+    <% } %>
+    <div style="font-size:11px;color:#9ca3af;margin-top:6px">Aparece em destaque entre o cabeçalho e os filtros do site. Pode adicionar até 8 — com mais de 1, passam automaticamente a cada 5 segundos. Recomendado formato bem largo (ex: 1600×500px).</div>
   </div>
 </div>
 

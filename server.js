@@ -5403,7 +5403,7 @@ app.post('/app/perfil', auth, async (req,res)=>{
 });
 
 // ── MEU SITE (white-label público) ────────────────────────────────────────────
-const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', cor_cabecalho: '', cor_rodape: '', cor_texto_rodape: '', logo_url: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_cep: '', rodape_rua: '', rodape_numero: '', rodape_complemento: '', rodape_cidade: '', rodape_estado: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '', financiamento_url: '', financiamento_ativo: false };
+const _SITE_CONFIG_PADRAO = { cor_primaria: '#FF385C', cor_cabecalho: '', cor_rodape: '', cor_texto_rodape: '', logo_url: '', banners: '', rodape_nome: '', rodape_telefone: '', rodape_endereco: '', rodape_cep: '', rodape_rua: '', rodape_numero: '', rodape_complemento: '', rodape_cidade: '', rodape_estado: '', rodape_texto: '', rodape_instagram: '', rodape_facebook: '', site_ativo: true, dominio_personalizado: '', dominio_status: 'nao_configurado', meta_pixel_id: '', google_analytics_id: '', financiamento_url: '', financiamento_ativo: false };
 const _DOMINIO_REGEX = /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
 
 app.get('/app/meu-site', auth, async (req, res) => {
@@ -8948,6 +8948,51 @@ app.post('/app/meu-site/logo/excluir', auth, async (req, res) => {
   }
 });
 
+// Banners do topo do site público (carrossel) — cada upload ACRESCENTA à
+// lista existente (não substitui, diferente da logo que é 1 arquivo só);
+// máximo 8 pra não deixar o carrossel gigante nem pesar o site do corretor.
+app.post('/app/meu-site/banner', auth, uploadImoveis.single('banner'), async (req, res) => {
+  try {
+    if (!req.file) return res.redirect('/app/meu-site?msg=erro');
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const { buscarConfig, salvarConfig } = require('./services/salvarSiteConfig');
+    const config = await buscarConfig(uid);
+    let banners = [];
+    try { banners = JSON.parse((config && config.banners) || '[]'); } catch(e) { banners = []; }
+    if (banners.length >= 8) return res.redirect('/app/meu-site?msg=banner_limite');
+    banners.push('/data-uploads/' + req.file.filename);
+    await salvarConfig(uid, { banners: JSON.stringify(banners) });
+    res.redirect('/app/meu-site?msg=salvo');
+  } catch(e) {
+    console.error('[meu-site/banner]', e.message);
+    res.redirect('/app/meu-site?msg=erro');
+  }
+});
+
+app.post('/app/meu-site/banner/excluir', auth, async (req, res) => {
+  try {
+    const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
+    const { buscarConfig, salvarConfig } = require('./services/salvarSiteConfig');
+    const config = await buscarConfig(uid);
+    let banners = [];
+    try { banners = JSON.parse((config && config.banners) || '[]'); } catch(e) { banners = []; }
+    const idx = parseInt(req.body.idx, 10);
+    if (Number.isInteger(idx) && banners[idx]) {
+      const removido = banners[idx];
+      if (removido.startsWith('/data-uploads/')) {
+        const arquivoPath = path.join(UPLOADS_IMOVEIS_DIR, path.basename(removido));
+        fs.unlink(arquivoPath, () => {});
+      }
+      banners.splice(idx, 1);
+      await salvarConfig(uid, { banners: JSON.stringify(banners) });
+    }
+    res.redirect('/app/meu-site?msg=salvo');
+  } catch(e) {
+    console.error('[meu-site/banner/excluir]', e.message);
+    res.redirect('/app/meu-site?msg=erro');
+  }
+});
+
 app.post('/app/imoveis/portais-lote', auth, async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -9447,6 +9492,7 @@ async function _carregarSiteConfigPublico(codigoUsuario, corretor) {
     corRodape: (configSalva && configSalva.cor_rodape) || '',
     corTextoRodape: (configSalva && configSalva.cor_texto_rodape) || '',
     logoUrl: (configSalva && configSalva.logo_url) || '',
+    banners: (() => { try { return JSON.parse((configSalva && configSalva.banners) || '[]'); } catch(e) { return []; } })(),
     rodapeNome: (configSalva && configSalva.rodape_nome) || corretor.nome || '',
     rodapeTelefone: (configSalva && configSalva.rodape_telefone) || corretor.celular || corretor.telefone || '',
     rodapeEndereco: (configSalva && configSalva.rodape_endereco) || '',

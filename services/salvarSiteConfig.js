@@ -41,6 +41,12 @@ async function _inicializar() {
   await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS rodape_complemento TEXT`);
   await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS rodape_cidade TEXT`);
   await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS rodape_estado TEXT`);
+  // Banners do topo do site (carrossel) — guardado como TEXT com um array
+  // JSON de URLs (["/data-uploads/x.jpg",...]), não JSONB de verdade: o
+  // resto da tabela é toda TEXT/BOOLEAN e salvarConfig() grava tudo direto
+  // sem serialização por tipo — manter TEXT evita ter que ensinar essa
+  // função a tratar um campo diferente dos outros.
+  await query(`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS banners TEXT`);
   await query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_site_config_dominio ON site_config(dominio_personalizado) WHERE dominio_personalizado IS NOT NULL AND dominio_personalizado != ''`);
 }
 
@@ -58,7 +64,7 @@ async function buscarConfigPorDominio(dominio) {
 
 async function salvarConfig(userId, dados) {
   await _inicializar();
-  const campos = ['cor_primaria', 'cor_cabecalho', 'cor_rodape', 'cor_texto_rodape', 'logo_url', 'rodape_nome', 'rodape_telefone', 'rodape_endereco', 'rodape_cep', 'rodape_rua', 'rodape_numero', 'rodape_complemento', 'rodape_cidade', 'rodape_estado', 'rodape_texto', 'rodape_instagram', 'rodape_facebook', 'site_ativo', 'dominio_personalizado', 'dominio_status', 'dominio_verificado_em', 'cloudflare_hostname_id', 'meta_pixel_id', 'google_analytics_id', 'financiamento_url', 'financiamento_ativo'];
+  const campos = ['cor_primaria', 'cor_cabecalho', 'cor_rodape', 'cor_texto_rodape', 'logo_url', 'banners', 'rodape_nome', 'rodape_telefone', 'rodape_endereco', 'rodape_cep', 'rodape_rua', 'rodape_numero', 'rodape_complemento', 'rodape_cidade', 'rodape_estado', 'rodape_texto', 'rodape_instagram', 'rodape_facebook', 'site_ativo', 'dominio_personalizado', 'dominio_status', 'dominio_verificado_em', 'cloudflare_hostname_id', 'meta_pixel_id', 'google_analytics_id', 'financiamento_url', 'financiamento_ativo'];
   const padroes = { cor_primaria: '#FF385C', site_ativo: true, dominio_status: 'nao_configurado', financiamento_ativo: false };
   const existente = await buscarConfig(userId);
   const valores = {};

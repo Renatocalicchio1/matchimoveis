@@ -34,7 +34,7 @@ async function rodarTopupPlanoLeads() {
   const { buscarDemandaParaEntrega, montarPerfilEMapaDemanda } = require('./buscaDemanda');
   const { salvarLead } = require('./salvarLead');
   const { consumir, temSaldo } = require('./creditos');
-  const { rodarMatchLeadsSemMatch } = require('./matchPendentes');
+  const matchCoreTopup = require('../cerebro/match-core');
 
   const usuarios = await lerUsuarios();
   const agora = Date.now();
@@ -67,15 +67,23 @@ async function rodarTopupPlanoLeads() {
 
         try {
           const { perfilIA, mapaIntencao } = montarPerfilEMapaDemanda(l);
-          await salvarLead({
+          const leadTopup = {
             id,
             nome: l.Nome || 'Interessado', telefone: l.Telefone, whatsapp: l.Telefone, email: l.Email,
             user_id: u.id, userId: u.id, codigoUsuario: u.id,
             origem: 'compra_demanda', status: 'novo', faseFunil: 'novo', fase_funil: 'novo',
             perfilIA, mapaIntencao,
+            matches: [], matchesAuto: [], matchesBase: [], mensagens: [],
             dados: { origemCompraDemanda: true, dataOriginalPortal: l.criadoEm, entregueViaTopup: true },
             _lote: true
-          });
+          };
+          await salvarLead(leadTopup);
+          // Match roda na hora, igual todo outro canal de entrada — não
+          // depende do job das 6h pra gerar o 1º match (esse job só tenta
+          // de novo quem ainda ficou sem nenhum).
+          try {
+            await matchCoreTopup.processar({ lead: leadTopup, mensagem: '', canal: 'compra_demanda', userId: u.id });
+          } catch (eMatch) { console.error('[topupPlanoLeads] erro ao rodar match da lead', u.id, eMatch.message); }
           novos++;
         } catch (eLead) { console.error('[topupPlanoLeads] erro ao salvar lead', u.id, eLead.message); }
       }
@@ -85,13 +93,6 @@ async function rodarTopupPlanoLeads() {
         await atualizarUsuario(u.id, { planoLeadsEntreguesQtd: entreguesAtual + novos });
         leadsEntreguesTotal += novos;
         console.log('[topupPlanoLeads]', u.id, '+', novos, 'lead(s) nova(s), debitadas em créditos');
-        // Roda o match na hora (mesmo motor do job diário de leads
-        // pendentes) em vez de esperar até 2 dias pro rematch noturno pegar
-        // — a lead acabou de chegar via crédito pago, não faz sentido ela
-        // ficar sem match visível até o dia seguinte.
-        try {
-          await rodarMatchLeadsSemMatch({ userId: u.id });
-        } catch (eMatch) { console.error('[topupPlanoLeads] erro ao rodar match imediato', u.id, eMatch.message); }
       }
       contasProcessadas++;
     } catch (e) {

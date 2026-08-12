@@ -10590,6 +10590,7 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
         try {
           const { buscarDemandaParaEntrega, montarPerfilEMapaDemanda } = require('./services/buscaDemanda');
           const { salvarLead: _salvarLeadDemanda } = require('./services/salvarLead');
+          const matchCoreDemanda = require('./cerebro/match-core');
           let pares = [], transacoes = [];
           try { pares = JSON.parse(meta.pares || '[]'); } catch(e2) {}
           try { transacoes = JSON.parse(meta.transacoes || '[]'); } catch(e2) {}
@@ -10599,26 +10600,26 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
           for (const l of encontrados) {
             try {
               const { perfilIA, mapaIntencao } = montarPerfilEMapaDemanda(l);
-              await _salvarLeadDemanda({
+              const leadDemanda = {
                 id: 'DEMANDA-' + l._rowId + '-' + userId,
                 nome: l.Nome || 'Interessado', telefone: l.Telefone, whatsapp: l.Telefone, email: l.Email,
                 user_id: userId, userId, codigoUsuario: userId,
                 origem: 'compra_demanda', status: 'novo', faseFunil: 'novo', fase_funil: 'novo',
                 perfilIA, mapaIntencao,
+                matches: [], matchesAuto: [], matchesBase: [], mensagens: [],
                 dados: { origemCompraDemanda: true, dataOriginalPortal: l.criadoEm },
                 _lote: true
-              });
+              };
+              await _salvarLeadDemanda(leadDemanda);
+              // Match roda na hora, igual todo outro canal de entrada (portal,
+              // manual, WhatsApp) — nunca depende do job das 6h pra gerar o
+              // 1º match; esse job é só pra TENTAR DE NOVO quem ainda ficou
+              // sem nenhum depois (ex: sem imóvel compatível na hora).
+              try {
+                await matchCoreDemanda.processar({ lead: leadDemanda, mensagem: '', canal: 'compra_demanda', userId });
+              } catch (eMatch) { console.error('[MP] erro ao rodar match da lead demanda:', eMatch.message); }
               entreguesQtd++;
             } catch (eLead) { console.error('[MP] erro ao entregar lead combo_demanda:', eLead.message); }
-          }
-          // Roda o match na hora — sem isso, essas leads ficariam sem
-          // nenhum match até o job noturno de leads pendentes (6h) passar,
-          // e o corretor acabou de pagar por elas agora.
-          if (entreguesQtd > 0) {
-            try {
-              const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
-              await rodarMatchLeadsSemMatch({ userId });
-            } catch (eMatch) { console.error('[MP] erro ao rodar match imediato pos-demanda:', eMatch.message); }
           }
         } catch (eDem) { console.error('[MP] erro ao entregar leads combo_demanda:', eDem.message); }
 

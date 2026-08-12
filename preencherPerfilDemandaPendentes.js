@@ -19,11 +19,13 @@ const { atualizarLead } = require('./services/salvarLead');
 const { montarPerfilEMapaDemanda } = require('./services/buscaDemanda');
 
 async function run() {
-  // Diagnóstico primeiro — ajuda a distinguir "não tem lead de /demanda
-  // nenhuma ainda" de "tem, mas já tá tudo completo" de "tem, mas o filtro
-  // de origem tava errado" (esse último era o bug real: só olhava
-  // 'compra_demanda', mas a transferência manual do admin usa
-  // 'admin_demanda' — ficava de fora).
+  // Diagnóstico primeiro. Descoberto na prática (rodada de ago/2026): o
+  // campo `origem` NÃO é confiável pra achar essas leads — 1279 leads com
+  // id "DEMANDA-*" (formato só usado por essa entrega) apareceram todas
+  // com origem='manual', não 'compra_demanda' nem 'admin_demanda' (motivo
+  // exato não investigado — talvez sobrescrito por alguma edição/rota
+  // posterior). Por isso o filtro abaixo usa o padrão do id, que é
+  // determinístico, em vez de confiar em `origem`.
   const { rows: totalRows } = await query(`SELECT COUNT(*)::int AS total FROM leads WHERE id LIKE 'DEMANDA-%'`);
   const { rows: porOrigemRows } = await query(`SELECT origem, COUNT(*)::int AS total FROM leads WHERE id LIKE 'DEMANDA-%' GROUP BY origem`);
   console.log(`[preencher-perfil-demanda] total de leads com id DEMANDA-*: ${totalRows[0].total}`);
@@ -31,7 +33,7 @@ async function run() {
 
   const { rows } = await query(`
     SELECT id FROM leads
-    WHERE origem IN ('compra_demanda', 'admin_demanda')
+    WHERE id LIKE 'DEMANDA-%'
       AND (COALESCE(perfil_ia->>'quartos','') = '' OR mapa_intencao IS NULL)
   `);
   console.log(`[preencher-perfil-demanda] ${rows.length} lead(s) de /demanda com perfil incompleto`);

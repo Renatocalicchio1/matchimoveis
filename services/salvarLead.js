@@ -44,6 +44,8 @@ function rowToLead(r) {
     deletadoPor: r.deletado_por || [],
     vitrineEnviada: r.vitrine_enviada,
     vitrineEnviadaEm: r.vitrine_enviada_em,
+    vitrineEmailEnviada: r.vitrine_email_enviada,
+    vitrineEmailEnviadaEm: r.vitrine_email_enviada_em,
     visitaAgendada: r.visita_agendada,
     visitaAgendadaEm: r.visita_agendada_em,
     imovelVendedor: r.imovel_vendedor,
@@ -69,7 +71,7 @@ function _diferente(a, b) {
 // Converte objeto lead para colunas do banco
 function leadToRow(lead) {
   const dados = { ...lead };
-  const campos = ['id','nome','telefone','whatsapp','contato','origem','status','faseFunil','temperatura','score','userId','codigoUsuario','tipoLead','perfilIA','mensagens','matches','matchesAuto','matchesBase','historico','timeline','eventos','followUps','deletadoPor','vitrineEnviada','vitrineEnviadaEm','visitaAgendada','visitaAgendadaEm','imovelVendedor','comissaoParceiro','cicloAnterior','cicloSeguinte','criadoEm','data_cadastro','mapaIntencao','comportamento','intencoesOcultas'];
+  const campos = ['id','nome','telefone','whatsapp','contato','origem','status','faseFunil','temperatura','score','userId','codigoUsuario','tipoLead','perfilIA','mensagens','matches','matchesAuto','matchesBase','historico','timeline','eventos','followUps','deletadoPor','vitrineEnviada','vitrineEnviadaEm','vitrineEmailEnviada','vitrineEmailEnviadaEm','visitaAgendada','visitaAgendadaEm','imovelVendedor','comissaoParceiro','cicloAnterior','cicloSeguinte','criadoEm','data_cadastro','mapaIntencao','comportamento','intencoesOcultas'];
   campos.forEach(k => delete dados[k]);
   return {
     id: lead.id || String(Date.now()),
@@ -100,6 +102,8 @@ function leadToRow(lead) {
     deletado_por: JSON.stringify(lead.deletadoPor || []),
     vitrine_enviada: lead.vitrineEnviada || false,
     vitrine_enviada_em: lead.vitrineEnviadaEm || null,
+    vitrine_email_enviada: lead.vitrineEmailEnviada || false,
+    vitrine_email_enviada_em: lead.vitrineEmailEnviadaEm || null,
     visita_agendada: lead.visitaAgendada || false,
     visita_agendada_em: lead.visitaAgendadaEm || null,
     imovel_vendedor: lead.imovelVendedor ? JSON.stringify(lead.imovelVendedor) : null,
@@ -143,7 +147,19 @@ async function lerLeads(userId) {
 
 // Migration automática
 async function _migrarColunaMapa() {
-  try { const { query: _q } = require('./db'); await _q('ALTER TABLE leads ADD COLUMN IF NOT EXISTS mapa_intencao JSONB DEFAULT NULL'); } catch(e) {}
+  try {
+    const { query: _q } = require('./db');
+    await _q('ALTER TABLE leads ADD COLUMN IF NOT EXISTS mapa_intencao JSONB DEFAULT NULL');
+    // vitrine_enviada/vitrine_enviada_em sempre foram o envio por WhatsApp —
+    // email é canal separado (pode ir/falhar independente do WhatsApp, e o
+    // caminho que manda WhatsApp na hora — match-core.js, dentro da própria
+    // mensagem — nunca manda email; só o JOB_FOLLOWUPS manda email, e antes
+    // dependia da MESMA flag do WhatsApp pra decidir se ainda tinha o que
+    // fazer, então o email nunca saía quando o WhatsApp já tinha ido primeiro
+    // pelo caminho rápido — ago/2026).
+    await _q('ALTER TABLE leads ADD COLUMN IF NOT EXISTS vitrine_email_enviada BOOLEAN DEFAULT false');
+    await _q('ALTER TABLE leads ADD COLUMN IF NOT EXISTS vitrine_email_enviada_em TIMESTAMP');
+  } catch(e) {}
 }
 _migrarColunaMapa();
 
@@ -154,8 +170,8 @@ async function salvarLead(lead) {
       const _jaExistiaAntes = await query('SELECT 1 FROM leads WHERE id=$1', [r.id]);
       const _eraNova = !_jaExistiaAntes.rows.length;
       await query(`
-        INSERT INTO leads (id,nome,telefone,whatsapp,contato,origem,status,fase_funil,temperatura,score,user_id,codigo_usuario,tipo_lead,perfil_ia,mensagens,matches,matches_auto,matches_base,historico,timeline,eventos,follow_ups,deletado_por,vitrine_enviada,vitrine_enviada_em,visita_agendada,visita_agendada_em,imovel_vendedor,comissao_parceiro,ciclo_anterior,ciclo_seguinte,mapa_intencao,comportamento,intencoes_ocultas,dados)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35)
+        INSERT INTO leads (id,nome,telefone,whatsapp,contato,origem,status,fase_funil,temperatura,score,user_id,codigo_usuario,tipo_lead,perfil_ia,mensagens,matches,matches_auto,matches_base,historico,timeline,eventos,follow_ups,deletado_por,vitrine_enviada,vitrine_enviada_em,vitrine_email_enviada,vitrine_email_enviada_em,visita_agendada,visita_agendada_em,imovel_vendedor,comissao_parceiro,ciclo_anterior,ciclo_seguinte,mapa_intencao,comportamento,intencoes_ocultas,dados)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37)
         ON CONFLICT (id) DO UPDATE SET
           nome=EXCLUDED.nome, telefone=EXCLUDED.telefone, whatsapp=EXCLUDED.whatsapp,
           contato=EXCLUDED.contato, origem=EXCLUDED.origem, status=EXCLUDED.status,
@@ -166,6 +182,7 @@ async function salvarLead(lead) {
           historico=EXCLUDED.historico, timeline=EXCLUDED.timeline, eventos=EXCLUDED.eventos,
           follow_ups=EXCLUDED.follow_ups, deletado_por=EXCLUDED.deletado_por,
           vitrine_enviada=EXCLUDED.vitrine_enviada, vitrine_enviada_em=EXCLUDED.vitrine_enviada_em,
+          vitrine_email_enviada=EXCLUDED.vitrine_email_enviada, vitrine_email_enviada_em=EXCLUDED.vitrine_email_enviada_em,
           visita_agendada=EXCLUDED.visita_agendada, visita_agendada_em=EXCLUDED.visita_agendada_em,
           imovel_vendedor=EXCLUDED.imovel_vendedor, comissao_parceiro=EXCLUDED.comissao_parceiro,
           ciclo_anterior=EXCLUDED.ciclo_anterior, ciclo_seguinte=EXCLUDED.ciclo_seguinte,
@@ -173,7 +190,7 @@ async function salvarLead(lead) {
           comportamento=EXCLUDED.comportamento,
           intencoes_ocultas=EXCLUDED.intencoes_ocultas,
           dados=EXCLUDED.dados, atualizado_em=NOW()
-      `, [r.id,r.nome,r.telefone,r.whatsapp,r.contato,r.origem,r.status,r.fase_funil,r.temperatura,r.score,r.user_id,r.codigo_usuario,r.tipo_lead,r.perfil_ia,r.mensagens,r.matches,r.matches_auto,r.matches_base,r.historico,r.timeline,r.eventos,r.follow_ups,r.deletado_por,r.vitrine_enviada,r.vitrine_enviada_em,r.visita_agendada,r.visita_agendada_em,r.imovel_vendedor,r.comissao_parceiro,r.ciclo_anterior,r.ciclo_seguinte,r.mapa_intencao,r.comportamento,r.intencoes_ocultas,r.dados]);
+      `, [r.id,r.nome,r.telefone,r.whatsapp,r.contato,r.origem,r.status,r.fase_funil,r.temperatura,r.score,r.user_id,r.codigo_usuario,r.tipo_lead,r.perfil_ia,r.mensagens,r.matches,r.matches_auto,r.matches_base,r.historico,r.timeline,r.eventos,r.follow_ups,r.deletado_por,r.vitrine_enviada,r.vitrine_enviada_em,r.vitrine_email_enviada,r.vitrine_email_enviada_em,r.visita_agendada,r.visita_agendada_em,r.imovel_vendedor,r.comissao_parceiro,r.ciclo_anterior,r.ciclo_seguinte,r.mapa_intencao,r.comportamento,r.intencoes_ocultas,r.dados]);
       // Email alerta nova lead individual (não lote) — vai pro corretor
       if (!lead._lote) {
         try {

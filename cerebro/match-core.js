@@ -799,9 +799,17 @@ class MatchCore {
 
     if (temp==='quente' && fase==='interessado')          add('agendar_visita', 24);
     // if (temp==='quente' && fase==='decidido')             add('proposta_negocio', 12); // DESATIVADO
-    if (temp==='morno'  && msgs>=3 && !lead.vitrineEnviada) add('enviar_vitrine', 0.017);
+    // enviar_vitrine cobre 2 canais independentes (WhatsApp e email — ver
+    // vitrineEnviada/vitrineEmailEnviada) — enfileira enquanto QUALQUER um
+    // dos dois ainda não foi feito, não só quando nenhum foi. O caminho
+    // inline (WhatsApp, aqui em match-core.js) só manda WhatsApp; quem manda
+    // email é o JOB_FOLLOWUPS (server.js), então sem isso o email nunca
+    // chegava a ser enfileirado quando o WhatsApp já tinha ido pelo caminho
+    // rápido (ago/2026).
+    const _faltaVitrine = !lead.vitrineEnviada || !lead.vitrineEmailEnviada;
+    if (temp==='morno'  && msgs>=3 && _faltaVitrine)      add('enviar_vitrine', 0.017);
     if (msgs===1 && temp==='frio')                        add('qualificar_lead', 0.083);
-    if (total>0 && !lead.vitrineEnviada)                  add('enviar_vitrine', 0.017);
+    if (total>0 && _faltaVitrine)                         add('enviar_vitrine', 0.017);
     if (lead.vitrineEnviada && !lead.visitaSolicitada)    add('followup_vitrine', 6);
     return lead;
   }

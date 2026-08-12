@@ -7810,63 +7810,80 @@ setInterval(async () => {
         if (fu.tipo === 'enviar_vitrine') {
           const _matches = (_leads[i].matchesAuto || _leads[i].matches || []).length;
           if (_matches === 0) continue; // não envia vitrine vazia
-          // Claim atômico no banco antes de mandar — o `lead`/`_leads[i]` em
-          // memória vem de um snapshot lido no início deste tick (pode ter
-          // até 5min), então checar só `_leads[i].vitrineEnviada` não pega o
-          // caso do caminho inline (match-core.js, no meio de uma mensagem
-          // de WhatsApp em tempo real) já ter enviado nesse meio-tempo — e
-          // vice-versa. Só segue se conseguir marcar vitrine_enviada=true
-          // agora (ninguém tinha marcado ainda).
-          let _rClaimFU;
+          const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;
+          const { query: _qVitrineClaimFU } = require('./services/db');
+
+          // WhatsApp e email são claims INDEPENDENTES — cada um só dispara
+          // se conseguir marcar sua própria flag no banco agora (evita
+          // corrida com o caminho inline de match-core.js, que só cobre
+          // WhatsApp, e permite mandar só o email quando o WhatsApp já foi
+          // pelo caminho rápido mas o email nunca tinha ido).
+          let _claimWA = null;
           try {
-            const { query: _qVitrineClaimFU } = require('./services/db');
-            _rClaimFU = await _qVitrineClaimFU(
+            _claimWA = await _qVitrineClaimFU(
               "UPDATE leads SET vitrine_enviada=true, vitrine_enviada_em=NOW() WHERE id=$1 AND COALESCE(vitrine_enviada,false)=false RETURNING id",
               [lead.id]
             );
-          } catch(e) { console.error('[JOB FU] erro claim vitrine:', e.message); continue; }
-          if (!_rClaimFU.rows.length) { console.log('[JOB FU] vitrine já enviada por outro caminho, pulando:', lead.nome || _contato); continue; }
-          const _link = BASE_URL + '/cliente/oferta/' + lead.id + '?userId=' + _userId;
-          const _msg = 'Ola ' + (lead.nome || '') + '! Encontramos '
-            + _matches + ' imove' + (_matches === 1 ? 'l' : 'is')
-            + ' que combinam com o seu perfil.\n\nAcesse sua selecao personalizada:\n'
-            + _link + '\n\nEscolha o imovel que mais gostou e agende sua visita! \n\n' + ((_user && _user.nome) ? _user.nome : 'Seu corretor') + ' - MatchImoveis';
-          await _enviarWA(_instancia, _contato, _msg);
-          // Envia por email se lead tiver email
+          } catch(e) { console.error('[JOB FU] erro claim vitrine WA:', e.message); }
+
+          if (_claimWA && _claimWA.rows.length) {
+            const _msg = 'Ola ' + (lead.nome || '') + '! Encontramos '
+              + _matches + ' imove' + (_matches === 1 ? 'l' : 'is')
+              + ' que combinam com o seu perfil.\n\nAcesse sua selecao personalizada:\n'
+              + _link + '\n\nEscolha o imovel que mais gostou e agende sua visita! \n\n' + ((_user && _user.nome) ? _user.nome : 'Seu corretor') + ' - MatchImoveis';
+            await _enviarWA(_instancia, _contato, _msg);
+            _leads[i].vitrineEnviada = true;
+            consumir(_leads[i].userId || _leads[i].corretorId, 'vitrine_whatsapp').catch(()=>{});
+            _leads[i].vitrineEnviadaEm = new Date().toISOString();
+            _leads[i].vitrineLink = _link;
+            // Criar follow-up automático de 6h se não tiver visita
+            if (!_leads[i].followUps) _leads[i].followUps = [];
+            const _jaTemFUVitrine = _leads[i].followUps.some(f => f.tipo==='followup_vitrine' && f.status==='pendente');
+            if (!_jaTemFUVitrine) {
+              const _agora6h = Date.now();
+              _leads[i].followUps.push({
+                id: _agora6h.toString(),
+                tipo: 'followup_vitrine',
+                status: 'pendente',
+                criadoEm: new Date(_agora6h).toISOString(),
+                prazo: new Date(_agora6h + 6*3600*1000).toISOString()
+              });
+            }
+          } else {
+            console.log('[JOB FU] vitrine WhatsApp já enviada por outro caminho, pulando:', lead.nome || _contato);
+          }
+
           const _emailLead = lead.email || lead.dados?.email || '';
           if (_emailLead) {
+            let _claimEmail = null;
             try {
-              const { enviarEmail } = require('./services/email');
-              await enviarEmail({
-                para: _emailLead,
-                assunto: '🏠 Encontramos imóveis para você!',
-                html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
-                  <h2 style="color:#FF385C">Olá, ${lead.nome||''}! 🏠</h2>
-                  <p>Encontramos <strong>${_matches} imóvel(is)</strong> que combinam com o seu perfil.</p>
-                  <a href="${_link}" style="display:inline-block;margin-top:16px;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px">Ver minha seleção personalizada →</a>
-                  <p style="margin-top:24px;color:#888;font-size:12px">Escolha o imóvel que mais gostou e agende sua visita!</p>
-                </div>`,
-                texto: _msg
-              });
-              console.log('[VITRINE EMAIL] enviado para:', _emailLead);
-            } catch(_eVit){ console.error('[VITRINE EMAIL] erro:', _eVit.message); }
-          }
-          _leads[i].vitrineEnviada = true;
-          consumir(_leads[i].userId || _leads[i].corretorId, 'vitrine_whatsapp').catch(()=>{});
-          _leads[i].vitrineEnviadaEm = new Date().toISOString();
-          _leads[i].vitrineLink = _link;
-          // Criar follow-up automático de 6h se não tiver visita
-          if (!_leads[i].followUps) _leads[i].followUps = [];
-          const _jaTemFUVitrine = _leads[i].followUps.some(f => f.tipo==='followup_vitrine' && f.status==='pendente');
-          if (!_jaTemFUVitrine) {
-            const _agora6h = Date.now();
-            _leads[i].followUps.push({
-              id: _agora6h.toString(),
-              tipo: 'followup_vitrine',
-              status: 'pendente',
-              criadoEm: new Date(_agora6h).toISOString(),
-              prazo: new Date(_agora6h + 6*3600*1000).toISOString()
-            });
+              _claimEmail = await _qVitrineClaimFU(
+                "UPDATE leads SET vitrine_email_enviada=true, vitrine_email_enviada_em=NOW() WHERE id=$1 AND COALESCE(vitrine_email_enviada,false)=false RETURNING id",
+                [lead.id]
+              );
+            } catch(e) { console.error('[JOB FU] erro claim vitrine email:', e.message); }
+            if (_claimEmail && _claimEmail.rows.length) {
+              try {
+                const _msgEmail = 'Ola ' + (lead.nome || '') + '! Encontramos '
+                  + _matches + ' imove' + (_matches === 1 ? 'l' : 'is')
+                  + ' que combinam com o seu perfil.\n\nAcesse sua selecao personalizada:\n' + _link;
+                const { enviarEmail } = require('./services/email');
+                await enviarEmail({
+                  para: _emailLead,
+                  assunto: '🏠 Encontramos imóveis para você!',
+                  html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
+                    <h2 style="color:#FF385C">Olá, ${lead.nome||''}! 🏠</h2>
+                    <p>Encontramos <strong>${_matches} imóvel(is)</strong> que combinam com o seu perfil.</p>
+                    <a href="${_link}" style="display:inline-block;margin-top:16px;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px">Ver minha seleção personalizada →</a>
+                    <p style="margin-top:24px;color:#888;font-size:12px">Escolha o imóvel que mais gostou e agende sua visita!</p>
+                  </div>`,
+                  texto: _msgEmail
+                });
+                _leads[i].vitrineEmailEnviada = true;
+                _leads[i].vitrineEmailEnviadaEm = new Date().toISOString();
+                console.log('[VITRINE EMAIL] enviado para:', _emailLead);
+              } catch(_eVit){ console.error('[VITRINE EMAIL] erro:', _eVit.message); }
+            }
           }
 
         } else if (fu.tipo === 'followup_vitrine') {

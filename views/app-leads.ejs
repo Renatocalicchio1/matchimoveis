@@ -283,14 +283,15 @@ leads.forEach(item => {
     <a href="/app/lead/<%= item.id %>" class="lead-nome"><%= item.nome||telefone||'Lead' %><% if(item._vezesEntrou > 1){ %><span class="lc-vez">↩ <%= item._vezesEntrou %>ª vez</span><% } %></a>
     <div class="lead-tel"><%= telefone||'—' %></div>
 
-    <% if(_origemNome || (!_eCorretor && _temBusca) || _temVenda || _eCorretor || item.idAnuncio || item.vitrineEnviada){ %>
+    <% if(_origemNome || (!_eCorretor && _temBusca) || _temVenda || _eCorretor || item.idAnuncio || item.vitrineEnviada || item.vitrineEmailEnviada){ %>
     <div class="lc-chips">
       <% if(_origemNome){ %><span class="lc-chip origem"><%= _origemNome %></span><% } %>
       <% if(_eCorretor){ %><span class="lc-chip parceiro">🤝 Corretor Parceiro</span><% } %>
       <% if(_temBusca && !_eCorretor){ %><span class="lc-chip buscando">🔍 Buscando imóvel</span><% } %>
       <% if(_temVenda){ %><span class="lc-chip temimovel">🏠 Tem imóvel</span><% } %>
       <% if(item.idAnuncio){ %><a href="/app/imovel/<%= item.idAnuncio %>" target="_blank" class="lc-chip ref">🏠 Imóvel de referência</a><% } %>
-      <% if(item.vitrineEnviada){ %><span class="lc-chip vitrine-ok" title="<%= item.vitrineEnviadaEm ? new Date(item.vitrineEnviadaEm).toLocaleString('pt-BR') : '' %>">✓ Vitrine enviada<%= item.vitrineEnviadaEm ? (' ' + new Date(item.vitrineEnviadaEm).toLocaleDateString('pt-BR')) : '' %></span><% } %>
+      <% if(item.vitrineEnviada){ %><span class="lc-chip vitrine-ok" title="<%= item.vitrineEnviadaEm ? new Date(item.vitrineEnviadaEm).toLocaleString('pt-BR') : '' %>">✓ WhatsApp<%= item.vitrineEnviadaEm ? (' ' + new Date(item.vitrineEnviadaEm).toLocaleDateString('pt-BR')) : '' %></span><% } %>
+      <% if(item.vitrineEmailEnviada){ %><span class="lc-chip vitrine-ok" title="<%= item.vitrineEmailEnviadaEm ? new Date(item.vitrineEmailEnviadaEm).toLocaleString('pt-BR') : '' %>">✓ Email<%= item.vitrineEmailEnviadaEm ? (' ' + new Date(item.vitrineEmailEnviadaEm).toLocaleDateString('pt-BR')) : '' %></span><% } %>
     </div>
     <% } %>
 

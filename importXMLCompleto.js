@@ -496,4 +496,9 @@ const final = [...restantes, ...novosFormatadosComStatus, ...inativos];
   console.log('📷 Com fotos:', comFotos);
 }
 
-run().catch(err => console.error('Erro:', err.message));
+// process.exit explícito nos dois caminhos — reforço além do fix em
+// salvarImovel.js (setInterval sem unref): garante que esse processo filho
+// fecha na hora certa mesmo se algo mais no futuro segurar o event loop,
+// e dá o código de saída certo (0/1) pra quem espera esse processo fechar
+// (spawnAsync em server.js, execSync em workers/importXmlWorker.js).
+run().then(() => process.exit(0)).catch(err => { console.error('Erro:', err.message); process.exit(1); });

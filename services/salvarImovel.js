@@ -72,7 +72,16 @@ async function _carregarDicIBGE() {
   }
 }
 _carregarDicIBGE();
-setInterval(_carregarDicIBGE, 3600000);
+// .unref() — sem isso, esse timer mantém o event loop vivo pra sempre.
+// No servidor principal isso não importa (o processo já fica de pé o tempo
+// todo), mas importXMLCompleto.js roda como processo filho separado
+// (spawn/execSync) e importa este mesmo módulo — sem unref, o processo
+// filho nunca fecha sozinho mesmo depois de terminar a importação de
+// verdade, deixando quem espera o "close" dele (server.js spawnAsync, ou o
+// execSync com timeout de 15min em workers/importXmlWorker.js) pendurado
+// pra sempre / até estourar timeout — causa da tela "Importando..." que
+// nunca vira "Importação finalizada" (ago/2026).
+setInterval(_carregarDicIBGE, 3600000).unref();
 
 // estadoCanonico: já deve vir de normalizarEstadoBR(). Sem cache pronto ou sem
 // correspondência na tabela, cai pro cleanup só de formatação (normalizarNomeLocalidade).

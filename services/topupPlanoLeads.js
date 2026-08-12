@@ -45,7 +45,7 @@ async function rodarTopupPlanoLeads() {
     if (!u.planoLeadsCriterios || !u.planoLeadsExpiraEm) continue;
     if (new Date(u.planoLeadsExpiraEm).getTime() < agora) continue; // passou dos 30 dias da compra
 
-    const { estado, pares, transacoes } = u.planoLeadsCriterios;
+    const { estado, pares, transacoes, valorMin, valorMax } = u.planoLeadsCriterios;
     if (!estado || !Array.isArray(pares) || !pares.length) continue;
 
     // Checagem barata antes de buscar: sem crédito nenhum, nem vale rodar a busca.
@@ -53,7 +53,8 @@ async function rodarTopupPlanoLeads() {
 
     try {
       const encontrados = await buscarDemandaParaEntrega({
-        estado, pares, transacoes: transacoes || [], horas: 720, limite: 0 // 0 = sem teto, pega tudo que bater
+        estado, pares, transacoes: transacoes || [], horas: 720, // 0 = sem teto, pega tudo que bater
+        valorMin: valorMin || 0, valorMax: valorMax || 0, limite: 0
       });
 
       let novos = 0;

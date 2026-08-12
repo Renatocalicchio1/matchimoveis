@@ -105,7 +105,7 @@ function _normTransacao(v) {
 // Única fonte: planilha acumulada de Interessados de Portal
 // (services/interesadosPortal.js) — bairro/cidade/transação já vêm em
 // coluna própria (Bairro/Cidade/Estado/Transacao).
-async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas) {
+async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas, valorMin = 0, valorMax = 0) {
   let rows;
   try {
     ({ rows } = await query(
@@ -128,6 +128,14 @@ async function _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo
     if (!r.cidade || !r.bairro) continue;
     if (!chavesAlvo.has(_norm(r.cidade) + '|||' + _norm(r.bairro))) continue;
     if (!transacaoLead || !transacoesAlvo.has(transacaoLead)) continue;
+    // Filtro de valor ("de quanto a quanto") — só entra quem tem valor_max
+    // preenchido E dentro da faixa pedida; sem faixa (min=max=0), não filtra.
+    if (valorMin > 0 || valorMax > 0) {
+      const v = parseFloat(r.valor_max) || 0;
+      if (!v) continue;
+      if (valorMin > 0 && v < valorMin) continue;
+      if (valorMax > 0 && v > valorMax) continue;
+    }
 
     encontrados.push({
       id: 'interessado-' + r.id, _rowId: r.id, criadoEm: r.data_lead || r.criado_em, fonte: 'interessados_portal',
@@ -173,12 +181,12 @@ function _mascararNome(v) {
 // pares: [{cidade, bairro}] — sem limite de quantidade nem de quantas
 // cidades diferentes; casa por par exato (evita, ex., "Centro" de uma
 // cidade bater com "Centro" de outra quando o usuário só marcou uma delas).
-async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 168 }) {
+async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 168, valorMin = 0, valorMax = 0 }) {
   const siglaAlvo = _sigla(estado);
   const chavesAlvo = new Set(pares.map(p => _norm(p.cidade) + '|||' + _norm(p.bairro)).filter(k => k !== '|||'));
   const transacoesAlvo = new Set((transacoes.length ? transacoes : ['venda', 'aluguel']).map(_norm));
 
-  const encontrados = await _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas);
+  const encontrados = await _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas, valorMin, valorMax);
   return encontrados
     .sort((a, b) => (parseFloat(b.Valor_max) || 0) - (parseFloat(a.Valor_max) || 0))
     .map(l => ({ ...l, Nome: _mascararNome(l.Nome), Telefone: _mascararTelefone(l.Telefone), Email: _mascararEmail(l.Email) }));
@@ -188,12 +196,12 @@ async function buscarDemanda({ estado, pares = [], transacoes = [], horas = 168 
 // nome/telefone/email não mascarados, e limitado a `limite` (a quantidade
 // do combo comprado). Mesmo critério/ordenação de buscarDemanda() (mais
 // caro primeiro), pra entregar exatamente o que o comprador viu na tela.
-async function buscarDemandaParaEntrega({ estado, pares = [], transacoes = [], horas = 168, limite = 0 }) {
+async function buscarDemandaParaEntrega({ estado, pares = [], transacoes = [], horas = 168, valorMin = 0, valorMax = 0, limite = 0 }) {
   const siglaAlvo = _sigla(estado);
   const chavesAlvo = new Set(pares.map(p => _norm(p.cidade) + '|||' + _norm(p.bairro)).filter(k => k !== '|||'));
   const transacoesAlvo = new Set((transacoes.length ? transacoes : ['venda', 'aluguel']).map(_norm));
 
-  const encontrados = await _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas);
+  const encontrados = await _buscarNosInteresadosPortal(siglaAlvo, chavesAlvo, transacoesAlvo, horas, valorMin, valorMax);
   encontrados.sort((a, b) => (parseFloat(b.Valor_max) || 0) - (parseFloat(a.Valor_max) || 0));
   return limite > 0 ? encontrados.slice(0, limite) : encontrados;
 }

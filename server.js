@@ -10595,7 +10595,8 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
           try { pares = JSON.parse(meta.pares || '[]'); } catch(e2) {}
           try { transacoes = JSON.parse(meta.transacoes || '[]'); } catch(e2) {}
           const horas = parseInt(meta.horas) || 720;
-          const encontrados = await buscarDemandaParaEntrega({ estado: meta.estado || '', pares, transacoes, horas, limite: qtd });
+          const valorMinMeta = parseInt(meta.valorMin) || 0, valorMaxMeta = parseInt(meta.valorMax) || 0;
+          const encontrados = await buscarDemandaParaEntrega({ estado: meta.estado || '', pares, transacoes, horas, valorMin: valorMinMeta, valorMax: valorMaxMeta, limite: qtd });
 
           for (const l of encontrados) {
             try {
@@ -10639,7 +10640,7 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
           await _auDemanda(userId, {
             planoLeadsAtivo: meta.plano || '', planoLeadsQtd: qtd, planoLeadsLabel: label,
             planoLeadsValor: valor, planoLeadsCreditos: creditos, planoLeadsComprasEm: new Date().toISOString(),
-            planoLeadsCriterios: { estado: meta.estado || '', pares: _paresTopup, transacoes: _transacoesTopup },
+            planoLeadsCriterios: { estado: meta.estado || '', pares: _paresTopup, transacoes: _transacoesTopup, valorMin: valorMinMeta, valorMax: valorMaxMeta },
             planoLeadsEntreguesQtd: entreguesQtd,
             planoLeadsExpiraEm: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
             precisaComprarPlano: false
@@ -15640,6 +15641,14 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
           <label><input type="checkbox" id="chkAluguel" checked> Aluguel</label>
         </div>
       </div>
+      <div class="campo" style="max-width:320px;flex:1;min-width:220px">
+        <label>Valor (R$) — de quanto a quanto</label>
+        <div style="display:flex;gap:10px">
+          <input type="number" id="valorMinBusca" placeholder="Mínimo" min="0" step="1000" style="max-width:none">
+          <input type="number" id="valorMaxBusca" placeholder="Máximo" min="0" step="1000" style="max-width:none">
+        </div>
+        <p class="gray" style="font-size:11.5px;margin-top:4px">Deixe em branco pra não filtrar por valor.</p>
+      </div>
     </div>
     <div class="campo-buscar" style="margin-top:16px">
       <button type="button" id="btnBuscarDemanda" onclick="buscarDemanda()" disabled style="width:100%">🔍 Buscar</button>
@@ -16030,6 +16039,8 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     if(document.getElementById('chkAluguel').checked) transacoes.push('aluguel');
     const diasSel = document.getElementById('diasBusca');
     const dias = diasSel ? Math.min(30, Math.max(1, parseInt(diasSel.value, 10) || 30)) : 30;
+    const valorMin = parseInt(document.getElementById('valorMinBusca').value, 10) || 0;
+    const valorMax = parseInt(document.getElementById('valorMaxBusca').value, 10) || 0;
     document.getElementById('resultado-box').style.display = 'none';
     document.getElementById('combos-box').style.display = 'none';
     document.getElementById('btnCustoLeads').style.display = 'none';
@@ -16054,7 +16065,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
         document.getElementById('pensando-texto').textContent = etapas[etapaAtual];
       }, 3300);
       document.getElementById('pensando-texto').textContent = etapas[0];
-      const fetchLeadsPromise = fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias }) }).then(function(r){ return r.json(); });
+      const fetchLeadsPromise = fetch('${apiPrefix}/buscar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares, transacoes, dias, valorMin, valorMax }) }).then(function(r){ return r.json(); });
       const atividadeResp = await fetch('${apiPrefix}/atividade', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ estado, pares }) }).then(function(r){ return r.json(); }).catch(function(){ return { ok:false, atividade:[] }; });
       await _animarCardsPensando(atividadeResp.ok ? atividadeResp.atividade : [], 10000);
       clearInterval(trocaEtapa);
@@ -16071,7 +16082,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
       }).join('');
       document.getElementById('resultado-box').style.display = 'block';
       document.getElementById('resultado-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      _ultimaBusca = { estado, pares, transacoes, dias: d.dias, total: d.total };
+      _ultimaBusca = { estado, pares, transacoes, dias: d.dias, total: d.total, valorMin, valorMax };
       // Monta os combos (já com o compatível marcado como recomendado) em
       // segundo plano. 15s depois de ver a planilha, avancarParaPlanos()
       // decide o próximo passo: sem conta ainda, abre o cadastro primeiro
@@ -16465,7 +16476,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     try {
       const r = await fetch('/admin/demanda/transferir', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estado: _ultimaBusca.estado, pares: _ultimaBusca.pares, transacoes: _ultimaBusca.transacoes, dias: _ultimaBusca.dias, contaDestino: _contaDestinoEscolhida })
+        body: JSON.stringify({ estado: _ultimaBusca.estado, pares: _ultimaBusca.pares, transacoes: _ultimaBusca.transacoes, dias: _ultimaBusca.dias, valorMin: _ultimaBusca.valorMin, valorMax: _ultimaBusca.valorMax, contaDestino: _contaDestinoEscolhida })
       });
       const d = await r.json();
       btn.disabled = false;
@@ -16510,13 +16521,16 @@ app.get('/demanda/bairros', _handlerDemandaBairros);
 
 async function _handlerDemandaBuscar(req, res) {
   try {
-    const { estado, pares, transacoes, dias } = req.body;
+    const { estado, pares, transacoes, dias, valorMin, valorMax } = req.body;
     if (!estado || !Array.isArray(pares) || !pares.length) {
       return res.json({ ok: false, erro: 'Informe estado e ao menos 1 bairro' });
     }
     const diasFinal = Math.min(30, Math.max(1, parseInt(dias, 10) || 7));
     const { buscarDemanda } = require('./services/buscaDemanda');
-    const leads = await buscarDemanda({ estado, pares, transacoes: transacoes || [], horas: diasFinal * 24 });
+    const leads = await buscarDemanda({
+      estado, pares, transacoes: transacoes || [], horas: diasFinal * 24,
+      valorMin: parseInt(valorMin, 10) || 0, valorMax: parseInt(valorMax, 10) || 0
+    });
     res.json({ ok: true, total: leads.length, dias: diasFinal, leads });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 }
@@ -16563,7 +16577,7 @@ app.get('/admin/demanda/buscar-conta', authAdmin, async (req, res) => {
 // de destino (mesmo telefone ou email) em vez de duplicar.
 app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res) => {
   try {
-    const { estado, pares, transacoes, dias, contaDestino } = req.body;
+    const { estado, pares, transacoes, dias, valorMin, valorMax, contaDestino } = req.body;
     if (!estado || !Array.isArray(pares) || !pares.length) return res.json({ ok: false, erro: 'Informe estado e ao menos 1 bairro' });
     if (!contaDestino) return res.json({ ok: false, erro: 'Escolha a conta de destino' });
 
@@ -16572,9 +16586,10 @@ app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res
     if (!_contaRows.length) return res.json({ ok: false, erro: 'Conta de destino não encontrada' });
 
     const diasFinal = Math.min(30, Math.max(1, parseInt(dias, 10) || 30));
-    const { buscarDemandaParaEntrega } = require('./services/buscaDemanda');
+    const { buscarDemandaParaEntrega, montarPerfilEMapaDemanda } = require('./services/buscaDemanda');
     const { salvarLead: _slTransf } = require('./services/salvarLead');
-    const encontrados = await buscarDemandaParaEntrega({ estado, pares, transacoes: transacoes || [], horas: diasFinal * 24, limite: 0 });
+    const matchCoreTransf = require('./cerebro/match-core');
+    const encontrados = await buscarDemandaParaEntrega({ estado, pares, transacoes: transacoes || [], horas: diasFinal * 24, valorMin: parseInt(valorMin, 10) || 0, valorMax: parseInt(valorMax, 10) || 0, limite: 0 });
 
     if (!encontrados.length) return res.json({ ok: true, total: 0, importados: 0, duplicados: 0, creditosDebitados: 0 });
 
@@ -16594,18 +16609,22 @@ app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res
       const jaExiste = (telNorm && _telsExistentes.has(telNorm)) || (emailNorm && _emailsExistentes.has(emailNorm));
       if (jaExiste) { duplicados++; continue; }
       try {
-        await _slTransf({
+        const { perfilIA, mapaIntencao } = montarPerfilEMapaDemanda(l);
+        const leadTransf = {
           id: 'DEMANDA-' + l._rowId + '-' + contaDestino,
           nome: l.Nome || 'Interessado', telefone: l.Telefone, whatsapp: l.Telefone, email: l.Email,
           user_id: contaDestino, userId: contaDestino, codigoUsuario: contaDestino,
           origem: 'admin_demanda', status: 'novo', faseFunil: 'novo', fase_funil: 'novo',
-          perfilIA: {
-            tipo: l.Tipo || '', intencao: l.Transacao === 'aluguel' ? 'alugar' : 'comprar',
-            cidade: l.Cidade, estado: l.Estado, bairro: l.Bairro, valorMax: l.Valor_max || undefined
-          },
+          perfilIA, mapaIntencao,
+          matches: [], matchesAuto: [], matchesBase: [], mensagens: [],
           dados: { origemAdminDemanda: true, dataOriginalPortal: l.criadoEm },
           _lote: true
-        });
+        };
+        await _slTransf(leadTransf);
+        // Match roda na hora, igual todo outro canal de entrada.
+        try {
+          await matchCoreTransf.processar({ lead: leadTransf, mensagem: '', canal: 'admin_demanda', userId: contaDestino });
+        } catch (eMatch) { console.error('[admin/demanda/transferir] erro ao rodar match da lead:', eMatch.message); }
         if (telNorm) _telsExistentes.add(telNorm);
         if (emailNorm) _emailsExistentes.add(emailNorm);
         importados++;
@@ -16818,7 +16837,8 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
           userId: codigoNovo, tipo: 'combo_demanda', plano, qtd: pacote.qtd || 0, label: pacote.label,
           valor: valorComDesconto, creditos: pacote.creditos,
           estado: criterios.estado, pares: JSON.stringify(criterios.pares),
-          transacoes: JSON.stringify(criterios.transacoes || []), horas: diasFinal * 24
+          transacoes: JSON.stringify(criterios.transacoes || []), horas: diasFinal * 24,
+          valorMin: parseInt(criterios.valorMin, 10) || 0, valorMax: parseInt(criterios.valorMax, 10) || 0
         }
       }
     });

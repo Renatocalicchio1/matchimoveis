@@ -198,6 +198,67 @@ async function buscarDemandaParaEntrega({ estado, pares = [], transacoes = [], h
   return limite > 0 ? encontrados.slice(0, limite) : encontrados;
 }
 
+// Sinal de alta confiança (mesmo formato de cerebro/portal-processor.js —
+// "monta mapaIntencao diretamente dos campos estruturados, sem extrator de
+// texto"): esse dado vem pronto da planilha de Interessados de Portal, não
+// precisa adivinhar de mensagem livre.
+function _sinalDemanda(valor, confianca) {
+  return [{ valor, confianca, score: confianca, peso: 1, timestamp: Date.now(), origem: 'compra_demanda' }];
+}
+const _TIPOS_SEM_QUARTO = ['terreno','lote','area rural','chacara','sitio','fazenda','sala','loja','galpao','predio','comercial','escritorio','conjunto','hotel','consultorio','restaurante'];
+
+// Monta o perfil de busca completo (perfilIA + mapaIntencao) de uma lead
+// vinda de /demanda, com TODOS os campos que a planilha de interessados já
+// tem — não só tipo/cidade/bairro/valor. Compartilhado entre a entrega
+// inicial (webhook Mercado Pago, combo_demanda) e o topup diário
+// (services/topupPlanoLeads.js), pra nunca divergir.
+//
+// Os dois campos importam por motivos diferentes:
+// - perfilIA: resumo simples mostrado na tela da lead, e é o que
+//   _perfilSuficiente() (cerebro/match-core.js) usa como "tem dado
+//   suficiente pra tentar match" — sem quartos aqui, o motor nem tentava.
+// - mapaIntencao: estrutura que matchPorMapa() (cerebro/motor-intencao.js)
+//   de fato lê pra filtrar/pontuar os imóveis — SEM isso preenchido,
+//   matchPorMapa() recebe lead.mapaIntencao vazio/nulo e retorna ZERO
+//   matches sempre, não importa o que tiver em perfilIA. Essa lista nunca
+//   preenchia esse campo — por isso as leads de /demanda nunca geravam
+//   match nenhum, com ou sem quartos.
+function montarPerfilEMapaDemanda(l) {
+  const quartos = parseInt(l.Quartos) || 0;
+  const suites = parseInt(l.Suites) || 0;
+  const vagas = parseInt(l.Vagas) || 0;
+  const banheiros = parseInt(l.Banheiros) || 0;
+  const area = parseFloat(l.Area_max) || 0;
+  const valorMax = parseFloat(l.Valor_max) || 0;
+  const tipoNorm = _norm(l.Tipo || '');
+  const ehTerrenoOuComercial = _TIPOS_SEM_QUARTO.some(t => tipoNorm.includes(t));
+  const intencao = l.Transacao === 'aluguel' ? 'alugar' : 'comprar';
+
+  const perfilIA = { tipo: l.Tipo || '', intencao, cidade: l.Cidade || '', estado: l.Estado || '', bairro: l.Bairro || '' };
+  if (valorMax) perfilIA.valorMax = valorMax;
+  if (quartos) perfilIA.quartos = quartos;
+  if (suites) perfilIA.suites = suites;
+  if (vagas) perfilIA.vagas = vagas;
+  if (banheiros) perfilIA.banheiros = banheiros;
+  if (area) perfilIA.area = area;
+
+  const mapaIntencao = {
+    transacao:   l.Transacao ? _sinalDemanda(l.Transacao, 90) : [],
+    tipo_imovel: l.Tipo ? _sinalDemanda(tipoNorm, 90) : [],
+    cidade:      l.Cidade ? _sinalDemanda(_norm(l.Cidade), 90) : [],
+    estado:      l.Estado ? _sinalDemanda(_norm(l.Estado), 90) : [],
+    bairro:      l.Bairro ? _sinalDemanda(_norm(l.Bairro), 90) : [],
+    valor:       valorMax ? _sinalDemanda({ min: 0, max: valorMax }, 90) : [],
+    quartos:     (quartos && !ehTerrenoOuComercial) ? _sinalDemanda(quartos, 90) : [],
+    suites:      (suites && !ehTerrenoOuComercial) ? _sinalDemanda(suites, 85) : [],
+    vagas:       vagas ? _sinalDemanda(vagas, 85) : [],
+    banheiros:   banheiros ? _sinalDemanda(banheiros, 85) : [],
+    area:        (area && ehTerrenoOuComercial) ? _sinalDemanda(area, 85) : [],
+    fase: 'novo', temperatura: 'frio'
+  };
+  return { perfilIA, mapaIntencao };
+}
+
 // Estatística real (não inventada) pra barra de prova social/urgência da
 // tela — total de interessados disponíveis agora e quantos chegaram nas
 // últimas 24h, nacional, últimos 30 dias. Sem filtro de vendido — comprar
@@ -301,4 +362,4 @@ async function listarAtividadeRecente({ limite = 24, estado = '', pares = [] } =
     }));
 }
 
-module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, contarDisponiveis, listarAtividadeRecente };
+module.exports = { listarEstadosComLead, listarCidadesComLead, listarBairrosComLead, buscarDemanda, buscarDemandaParaEntrega, contarDisponiveis, listarAtividadeRecente, montarPerfilEMapaDemanda };

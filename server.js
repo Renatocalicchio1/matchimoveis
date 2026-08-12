@@ -10588,7 +10588,7 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
       let entreguesQtd = 0;
       if (userId) {
         try {
-          const { buscarDemandaParaEntrega } = require('./services/buscaDemanda');
+          const { buscarDemandaParaEntrega, montarPerfilEMapaDemanda } = require('./services/buscaDemanda');
           const { salvarLead: _salvarLeadDemanda } = require('./services/salvarLead');
           let pares = [], transacoes = [];
           try { pares = JSON.parse(meta.pares || '[]'); } catch(e2) {}
@@ -10598,20 +10598,27 @@ app.post('/webhook/mercadopago', express.json(), async (req, res) => {
 
           for (const l of encontrados) {
             try {
+              const { perfilIA, mapaIntencao } = montarPerfilEMapaDemanda(l);
               await _salvarLeadDemanda({
                 id: 'DEMANDA-' + l._rowId + '-' + userId,
                 nome: l.Nome || 'Interessado', telefone: l.Telefone, whatsapp: l.Telefone, email: l.Email,
                 user_id: userId, userId, codigoUsuario: userId,
                 origem: 'compra_demanda', status: 'novo', faseFunil: 'novo', fase_funil: 'novo',
-                perfilIA: {
-                  tipo: l.Tipo || '', intencao: l.Transacao === 'aluguel' ? 'alugar' : 'comprar',
-                  cidade: l.Cidade, estado: l.Estado, bairro: l.Bairro, valorMax: l.Valor_max || undefined
-                },
+                perfilIA, mapaIntencao,
                 dados: { origemCompraDemanda: true, dataOriginalPortal: l.criadoEm },
                 _lote: true
               });
               entreguesQtd++;
             } catch (eLead) { console.error('[MP] erro ao entregar lead combo_demanda:', eLead.message); }
+          }
+          // Roda o match na hora — sem isso, essas leads ficariam sem
+          // nenhum match até o job noturno de leads pendentes (6h) passar,
+          // e o corretor acabou de pagar por elas agora.
+          if (entreguesQtd > 0) {
+            try {
+              const { rodarMatchLeadsSemMatch } = require('./services/matchPendentes');
+              await rodarMatchLeadsSemMatch({ userId });
+            } catch (eMatch) { console.error('[MP] erro ao rodar match imediato pos-demanda:', eMatch.message); }
           }
         } catch (eDem) { console.error('[MP] erro ao entregar leads combo_demanda:', eDem.message); }
 

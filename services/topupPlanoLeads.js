@@ -31,9 +31,10 @@ async function _leadJaExiste(id) {
 
 async function rodarTopupPlanoLeads() {
   const { lerUsuarios, atualizarUsuario } = require('./salvarUsuario');
-  const { buscarDemandaParaEntrega } = require('./buscaDemanda');
+  const { buscarDemandaParaEntrega, montarPerfilEMapaDemanda } = require('./buscaDemanda');
   const { salvarLead } = require('./salvarLead');
   const { consumir, temSaldo } = require('./creditos');
+  const { rodarMatchLeadsSemMatch } = require('./matchPendentes');
 
   const usuarios = await lerUsuarios();
   const agora = Date.now();
@@ -65,15 +66,13 @@ async function rodarTopupPlanoLeads() {
         if (!conseguiuDebitar) break; // acabou o crédito — para por aqui, precisa recarregar
 
         try {
+          const { perfilIA, mapaIntencao } = montarPerfilEMapaDemanda(l);
           await salvarLead({
             id,
             nome: l.Nome || 'Interessado', telefone: l.Telefone, whatsapp: l.Telefone, email: l.Email,
             user_id: u.id, userId: u.id, codigoUsuario: u.id,
             origem: 'compra_demanda', status: 'novo', faseFunil: 'novo', fase_funil: 'novo',
-            perfilIA: {
-              tipo: l.Tipo || '', intencao: l.Transacao === 'aluguel' ? 'alugar' : 'comprar',
-              cidade: l.Cidade, estado: l.Estado, bairro: l.Bairro, valorMax: l.Valor_max || undefined
-            },
+            perfilIA, mapaIntencao,
             dados: { origemCompraDemanda: true, dataOriginalPortal: l.criadoEm, entregueViaTopup: true },
             _lote: true
           });
@@ -86,6 +85,13 @@ async function rodarTopupPlanoLeads() {
         await atualizarUsuario(u.id, { planoLeadsEntreguesQtd: entreguesAtual + novos });
         leadsEntreguesTotal += novos;
         console.log('[topupPlanoLeads]', u.id, '+', novos, 'lead(s) nova(s), debitadas em créditos');
+        // Roda o match na hora (mesmo motor do job diário de leads
+        // pendentes) em vez de esperar até 2 dias pro rematch noturno pegar
+        // — a lead acabou de chegar via crédito pago, não faz sentido ela
+        // ficar sem match visível até o dia seguinte.
+        try {
+          await rodarMatchLeadsSemMatch({ userId: u.id });
+        } catch (eMatch) { console.error('[topupPlanoLeads] erro ao rodar match imediato', u.id, eMatch.message); }
       }
       contasProcessadas++;
     } catch (e) {

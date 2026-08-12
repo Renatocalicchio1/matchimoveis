@@ -19,6 +19,34 @@ const DATA_DIR = process.env.RENDER ? '/opt/render/project/src/data' : __dirname
 const FILE = path.join(DATA_DIR, 'imoveis.json');
 const { salvarTodosImoveis } = require('./services/salvarImovel');
 
+// Fallback pra feeds bloqueados pra requisição HTTP "crua" (mesmo com header
+// de navegador) mas que abrem normalmente no navegador de verdade — bloqueio
+// por fingerprint/anti-bot, não por IP (confirmado: sistema.rankim.com.br
+// devolve 403 pro axios mesmo com User-Agent de Chrome, mas 200 via
+// Playwright headless rodando no mesmo servidor Render — ago/2026). Usa
+// resp.text() (corpo bruto da resposta de rede), não page.content() (que
+// devolve o HTML do visualizador de XML embutido do Chrome, não o XML cru).
+async function _baixarViaNavegadorHeadless(url) {
+  const playwright = require('playwright');
+  process.env.PLAYWRIGHT_BROWSERS_PATH = process.env.PLAYWRIGHT_BROWSERS_PATH || '0';
+  const browser = await playwright.chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled']
+  });
+  try {
+    const context = await browser.newContext({
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+      locale: 'pt-BR'
+    });
+    const page = await context.newPage();
+    const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    if (!resp || resp.status() !== 200) throw new Error('bloqueado também via navegador headless (status ' + (resp && resp.status()) + ')');
+    return await resp.text();
+  } finally {
+    await browser.close();
+  }
+}
+
 function normalizeId(id) {
   return String(id || '').replace(/\D/g, '').trim();
 }
@@ -296,10 +324,18 @@ async function run() {
     });
     console.log('[importXML] HTTP status:', res.status, '| content-type:', res.headers['content-type'], '| tamanho:', String(res.data||'').length);
     if (res.status !== 200) {
-      console.error('[importXML] Resposta não-200 ao baixar XML — provável bloqueio (bot/WAF) do servidor de origem.');
-      console.log('[importXML] Trecho da resposta:', String(res.data||'').slice(0, 500));
+      console.error('[importXML] Resposta não-200 ao baixar XML — provável bloqueio (bot/WAF) do servidor de origem. Tentando via navegador headless...');
+      try {
+        xml = await _baixarViaNavegadorHeadless(XML_URL);
+        console.log('[importXML] Baixado com sucesso via navegador headless, tamanho:', xml.length);
+      } catch (eNav) {
+        console.error('[importXML] Navegador headless também não conseguiu:', eNav.message);
+        console.log('[importXML] Trecho da resposta original:', String(res.data||'').slice(0, 500));
+        xml = res.data;
+      }
+    } else {
+      xml = res.data;
     }
-    xml = res.data;
   } else {
     console.log('📂 Lendo XML do arquivo local:', XML_URL);
     if(!fs.existsSync(XML_URL)){

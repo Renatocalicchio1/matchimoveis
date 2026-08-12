@@ -3176,33 +3176,68 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
 
+function _contarListingsXml(texto) {
+  return (texto.match(/<[Ll]isting[^>]*>/g) || []).length;
+}
+
+// Requisição "crua" (http/https.get, sem header de navegador) resolve a
+// maioria dos feeds rápido. Quando ela falha ou volta vazia, cai pra um
+// navegador headless de verdade antes de reportar erro — alguns feeds
+// (confirmado: sistema.rankim.com.br) bloqueiam requisição de servidor por
+// fingerprint/anti-bot mesmo com header de navegador, mas abrem normal num
+// Chrome de verdade, headless ou não. Mesmo fallback usado na importação
+// real (importXMLCompleto.js, _baixarViaNavegadorHeadless) — ago/2026.
 app.get('/api/testar-xml', async (req, res) => {
+  const url = req.query.url;
+  if (!url) return res.json({ ok: false, erro: 'URL não informada' });
   try {
-    const url = req.query.url;
-    if (!url) return res.json({ ok: false, erro: 'URL não informada' });
-    const https = require('https');
-    const http = require('http');
-    const client = url.startsWith('https') ? https : http;
-    let total = 0, data = '', respondido = false;
-    const request = client.get(url, (response) => {
-      response.on('data', chunk => {
-        data += chunk.toString();
-        total = (data.match(/<[Ll]isting[^>]*>/g) || []).length;
-        if (total >= 5 && !respondido) {
-          respondido = true;
-          request.destroy();
-          return res.json({ ok: true, total: total + '+' });
-        }
+    const resultadoCru = await new Promise((resolve) => {
+      const https = require('https');
+      const http = require('http');
+      const client = url.startsWith('https') ? https : http;
+      let total = 0, data = '', respondido = false;
+      const request = client.get(url, (response) => {
+        response.on('data', chunk => {
+          data += chunk.toString();
+          total = _contarListingsXml(data);
+          if (total >= 5 && !respondido) {
+            respondido = true;
+            request.destroy();
+            resolve({ ok: true, total: total + '+' });
+          }
+        });
+        response.on('end', () => {
+          if (!respondido) {
+            respondido = true;
+            resolve(total > 0 ? { ok: true, total } : { ok: false, erro: 'XML sem imóveis ou formato inválido' });
+          }
+        });
       });
-      response.on('end', () => {
-        if (!respondido) {
-          if (total > 0) res.json({ ok: true, total });
-          else res.json({ ok: false, erro: 'XML sem imóveis ou formato inválido' });
-        }
-      });
+      request.on('error', err => { if (!respondido) { respondido = true; resolve({ ok: false, erro: err.message }); } });
+      request.setTimeout(15000, () => { request.destroy(); if (!respondido) { respondido = true; resolve({ ok: false, erro: 'Timeout' }); } });
     });
-    request.on('error', err => { if (!respondido) res.json({ ok: false, erro: err.message }); });
-    request.setTimeout(15000, () => { request.destroy(); if (!respondido) res.json({ ok: false, erro: 'Timeout' }); });
+
+    if (resultadoCru.ok) return res.json(resultadoCru);
+
+    try {
+      const playwright = require('playwright');
+      process.env.PLAYWRIGHT_BROWSERS_PATH = process.env.PLAYWRIGHT_BROWSERS_PATH || '0';
+      const browser = await playwright.chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-blink-features=AutomationControlled'] });
+      try {
+        const context = await browser.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36', locale: 'pt-BR' });
+        const page = await context.newPage();
+        const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        if (resp && resp.status() === 200) {
+          const texto = await resp.text();
+          const total = _contarListingsXml(texto);
+          if (total > 0) return res.json({ ok: true, total: total >= 5 ? total + '+' : total });
+        }
+      } finally {
+        await browser.close();
+      }
+    } catch (eNav) { console.error('[testar-xml] fallback navegador headless falhou:', eNav.message); }
+
+    res.json(resultadoCru);
   } catch (err) {
     res.json({ ok: false, erro: err.message });
   }

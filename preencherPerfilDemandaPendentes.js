@@ -19,24 +19,23 @@ const { atualizarLead } = require('./services/salvarLead');
 const { montarPerfilEMapaDemanda } = require('./services/buscaDemanda');
 
 async function run() {
-  // Diagnóstico primeiro. Descoberto na prática (rodada de ago/2026): o
-  // campo `origem` NÃO é confiável pra achar essas leads — 1279 leads com
-  // id "DEMANDA-*" (formato só usado por essa entrega) apareceram todas
-  // com origem='manual', não 'compra_demanda' nem 'admin_demanda' (motivo
-  // exato não investigado — talvez sobrescrito por alguma edição/rota
-  // posterior). Por isso o filtro abaixo usa o padrão do id, que é
-  // determinístico, em vez de confiar em `origem`.
-  const { rows: totalRows } = await query(`SELECT COUNT(*)::int AS total FROM leads WHERE id LIKE 'DEMANDA-%'`);
+  // Diagnóstico. Descoberto na prática (rodada de ago/2026): o campo
+  // `origem` NÃO é confiável pra achar essas leads — 1279 leads com id
+  // "DEMANDA-*" (formato só usado por essa entrega) apareceram todas com
+  // origem='manual', não 'compra_demanda' nem 'admin_demanda'. E tentar
+  // detectar "incompleta" via SQL (quartos vazio OU mapa_intencao NULL)
+  // também não funcionou — alguma tentativa de rematch anterior parece já
+  // ter gravado um mapa_intencao vazio-mas-não-nulo nessas leads (arrays
+  // sem sinal nenhum, mas não é SQL NULL), enganando esse filtro. Por
+  // isso: reprocessa TODAS as leads com id "DEMANDA-*", sem tentar
+  // adivinhar quais já estão completas — reconstruir de novo é seguro e
+  // idempotente (sempre substitui perfilIA+mapaIntencao do zero a partir
+  // da linha original de interessados_portal, não faz merge parcial).
   const { rows: porOrigemRows } = await query(`SELECT origem, COUNT(*)::int AS total FROM leads WHERE id LIKE 'DEMANDA-%' GROUP BY origem`);
-  console.log(`[preencher-perfil-demanda] total de leads com id DEMANDA-*: ${totalRows[0].total}`);
   console.log(`[preencher-perfil-demanda] por origem: ${JSON.stringify(porOrigemRows)}`);
 
-  const { rows } = await query(`
-    SELECT id FROM leads
-    WHERE id LIKE 'DEMANDA-%'
-      AND (COALESCE(perfil_ia->>'quartos','') = '' OR mapa_intencao IS NULL)
-  `);
-  console.log(`[preencher-perfil-demanda] ${rows.length} lead(s) de /demanda com perfil incompleto`);
+  const { rows } = await query(`SELECT id FROM leads WHERE id LIKE 'DEMANDA-%'`);
+  console.log(`[preencher-perfil-demanda] ${rows.length} lead(s) de /demanda encontradas (reprocessando todas)`);
 
   let atualizadas = 0, semOrigem = 0, erros = 0;
   for (const row of rows) {

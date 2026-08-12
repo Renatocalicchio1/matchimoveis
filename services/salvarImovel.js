@@ -444,22 +444,33 @@ async function salvarImovel(imovel) {
         INSERT INTO imoveis (id,id_externo,id_original,id_interno,codigo_imovel,titulo,tipo,categoria,transacao,condicao,status,bairro,cidade,estado,endereco,numero,complemento,cep,latitude,longitude,andar,torre,unidade,condominio_nome,valor_imovel,condominio,iptu,area_m2,area_total,area_construida,quartos,suites,banheiros,vagas,salas,descricao,descricao_editada,fotos,proprietario,portais,diferenciais,corretor,fonte,source,fase,ano_construcao,posicao_solar,total_andares,unidades_por_andar,aceita_financiamento,aceita_permuta,user_id,usuario_id,codigo_usuario,usuario_nome,usuario_perfil,usuario_telefone,corretor_id,corretor_nome,corretor_email,corretor_telefone,url,url_publica,tour_virtual,inativado_em,inativado_por,xml_url,last_update,dados)
         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43,$44,$45,$46,$47,$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,$62,$63,$64,$65,$66,$67,$68,$69)
         ON CONFLICT (id) DO UPDATE SET
-          titulo=EXCLUDED.titulo, tipo=EXCLUDED.tipo, status=EXCLUDED.status,
+          id_externo=EXCLUDED.id_externo, id_original=EXCLUDED.id_original, id_interno=EXCLUDED.id_interno,
+          codigo_imovel=EXCLUDED.codigo_imovel,
+          titulo=EXCLUDED.titulo, tipo=EXCLUDED.tipo, categoria=EXCLUDED.categoria,
+          transacao=EXCLUDED.transacao, condicao=EXCLUDED.condicao, status=EXCLUDED.status,
           bairro=EXCLUDED.bairro, cidade=EXCLUDED.cidade, estado=EXCLUDED.estado,
           endereco=EXCLUDED.endereco, numero=EXCLUDED.numero, complemento=EXCLUDED.complemento,
-          cep=EXCLUDED.cep, valor_imovel=EXCLUDED.valor_imovel,
+          cep=EXCLUDED.cep, andar=EXCLUDED.andar, torre=EXCLUDED.torre, unidade=EXCLUDED.unidade,
+          condominio_nome=EXCLUDED.condominio_nome, valor_imovel=EXCLUDED.valor_imovel,
           condominio=EXCLUDED.condominio, iptu=EXCLUDED.iptu,
           area_m2=EXCLUDED.area_m2, area_total=EXCLUDED.area_total, area_construida=EXCLUDED.area_construida,
           quartos=EXCLUDED.quartos, suites=EXCLUDED.suites,
-          banheiros=EXCLUDED.banheiros, vagas=EXCLUDED.vagas, descricao=EXCLUDED.descricao,
+          banheiros=EXCLUDED.banheiros, vagas=EXCLUDED.vagas, salas=EXCLUDED.salas,
+          descricao=EXCLUDED.descricao, descricao_editada=EXCLUDED.descricao_editada,
           fotos=EXCLUDED.fotos, proprietario=EXCLUDED.proprietario, portais=EXCLUDED.portais,
-          diferenciais=EXCLUDED.diferenciais, fase=EXCLUDED.fase,
+          diferenciais=EXCLUDED.diferenciais, corretor=EXCLUDED.corretor,
+          fonte=EXCLUDED.fonte, source=EXCLUDED.source, fase=EXCLUDED.fase,
           ano_construcao=EXCLUDED.ano_construcao, posicao_solar=EXCLUDED.posicao_solar,
           total_andares=EXCLUDED.total_andares, unidades_por_andar=EXCLUDED.unidades_por_andar,
           aceita_financiamento=EXCLUDED.aceita_financiamento, aceita_permuta=EXCLUDED.aceita_permuta,
-          user_id=EXCLUDED.user_id, codigo_usuario=EXCLUDED.codigo_usuario,
+          user_id=EXCLUDED.user_id, usuario_id=EXCLUDED.usuario_id, codigo_usuario=EXCLUDED.codigo_usuario,
+          usuario_nome=EXCLUDED.usuario_nome, usuario_perfil=EXCLUDED.usuario_perfil, usuario_telefone=EXCLUDED.usuario_telefone,
+          corretor_id=EXCLUDED.corretor_id, corretor_nome=EXCLUDED.corretor_nome,
+          corretor_email=EXCLUDED.corretor_email, corretor_telefone=EXCLUDED.corretor_telefone,
+          url=EXCLUDED.url, url_publica=EXCLUDED.url_publica, tour_virtual=EXCLUDED.tour_virtual,
           latitude=EXCLUDED.latitude, longitude=EXCLUDED.longitude,
           inativado_em=EXCLUDED.inativado_em, inativado_por=EXCLUDED.inativado_por,
+          xml_url=EXCLUDED.xml_url, last_update=EXCLUDED.last_update,
           dados=EXCLUDED.dados, atualizado_em=NOW()
       `, [r.id,r.id_externo,r.id_original,r.id_interno,r.codigo_imovel,r.titulo,r.tipo,r.categoria,r.transacao,r.condicao,r.status,r.bairro,r.cidade,r.estado,r.endereco,r.numero,r.complemento,r.cep,r.latitude,r.longitude,r.andar,r.torre,r.unidade,r.condominio_nome,r.valor_imovel,r.condominio,r.iptu,r.area_m2,r.area_total,r.area_construida,r.quartos,r.suites,r.banheiros,r.vagas,r.salas,r.descricao,r.descricao_editada,r.fotos,r.proprietario,r.portais,r.diferenciais,r.corretor,r.fonte,r.source,r.fase,r.ano_construcao,r.posicao_solar,r.total_andares,r.unidades_por_andar,r.aceita_financiamento,r.aceita_permuta,r.user_id,r.usuario_id,r.codigo_usuario,r.usuario_nome,r.usuario_perfil,r.usuario_telefone,r.corretor_id,r.corretor_nome,r.corretor_email,r.corretor_telefone,r.url,r.url_publica,r.tour_virtual,r.inativado_em,r.inativado_por,r.xml_url,r.last_update,r.dados]);
       return imovel;

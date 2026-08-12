@@ -39,11 +39,21 @@ async function _baixarViaNavegadorHeadless(url) {
       locale: 'pt-BR'
     });
     const page = await context.newPage();
-    const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    // 'commit' em vez de 'domcontentloaded' — feeds grandes (esse tem 38MB)
+    // fazem o Chrome tentar montar a árvore interativa do visualizador de
+    // XML do arquivo inteiro antes de considerar "carregado", o que é lento
+    // e pode estourar timeout à toa; 'commit' só espera a resposta começar
+    // a chegar, e resp.text() já lê o corpo bruto direto, sem depender do
+    // DOM/visualizador terminar de montar.
+    const resp = await page.goto(url, { waitUntil: 'commit', timeout: 120000 });
     if (!resp || resp.status() !== 200) throw new Error('bloqueado também via navegador headless (status ' + (resp && resp.status()) + ')');
     return await resp.text();
   } finally {
-    await browser.close();
+    // fire-and-forget — não espera close() terminar. É só limpeza de
+    // recurso; se ela travar (já visto acontecer com Chromium/containers
+    // sob pressão de memória), não pode segurar a função pra sempre e
+    // impedir o processo de sinalizar "terminei" lá em cima.
+    browser.close().catch(() => {});
   }
 }
 
@@ -537,4 +547,17 @@ const final = [...restantes, ...novosFormatadosComStatus, ...inativos];
 // fecha na hora certa mesmo se algo mais no futuro segurar o event loop,
 // e dá o código de saída certo (0/1) pra quem espera esse processo fechar
 // (spawnAsync em server.js, execSync em workers/importXmlWorker.js).
-run().then(() => process.exit(0)).catch(err => { console.error('Erro:', err.message); process.exit(1); });
+//
+// Watchdog geral (15min, mesmo teto do execSync em workers/importXmlWorker.js)
+// — trava de segurança final: se `run()` nunca resolver nem rejeitar por
+// algum motivo não previsto aqui (ex: alguma promise do Playwright que nunca
+// assenta), esse timer força a saída do processo de qualquer jeito, em vez
+// de deixar o import travado pra sempre e a tela nunca mostrar "finalizado".
+const _watchdog = setTimeout(() => {
+  console.error('[importXML] watchdog: processo não terminou em 15min, forçando saída.');
+  process.exit(1);
+}, 15 * 60 * 1000);
+
+run()
+  .then(() => { clearTimeout(_watchdog); process.exit(0); })
+  .catch(err => { clearTimeout(_watchdog); console.error('Erro:', err.message); process.exit(1); });

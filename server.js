@@ -559,6 +559,7 @@ const _ADMIN_NAV = [
     { key: 'leads-auditoria', href: '/admin/leads-auditoria', icon: '🕵️', label: 'Auditoria de Leads' },
     { key: 'buscar-imovel', href: '/admin/buscar-imovel', icon: '🔍', label: 'Buscar/Excluir Imóvel' },
     { key: 'buscar-lead', href: '/admin/buscar-lead', icon: '🚫', label: 'Buscar/Excluir Lead' },
+    { key: 'copiar-imoveis', href: '/admin/copiar-imoveis', icon: '📋', label: 'Copiar Imóveis' },
     { key: 'interesados', href: '/admin/interesados', icon: '📥', label: 'Interessados de Portal' },
     { key: 'demanda', href: '/admin/demanda', icon: '📍', label: 'Buscar Demanda por Região' }
   ]},
@@ -759,6 +760,7 @@ const _ADMIN_ROTA_PERMISSAO = [
   ['/admin/leads-auditoria', 'leads-auditoria'],
   ['/admin/buscar-imovel', 'buscar-imovel'],
   ['/admin/buscar-lead', 'buscar-lead'],
+  ['/admin/copiar-imoveis', 'copiar-imoveis'],
   ['/admin/interesados', 'interesados'],
   ['/admin/online', 'online'],
   ['/admin/status', 'status']
@@ -1665,6 +1667,215 @@ app.post('/admin/buscar-lead/excluir', authAdmin, async (req, res) => {
       } catch (eAud) { console.error('[buscar-lead/excluir] erro na auditoria:', eAud.message); }
     }
     res.redirect('/admin/buscar-lead?msg=' + encodeURIComponent(excluidos + ' lead(s) excluída(s) e bloqueada(s) globalmente com sucesso.'));
+  } catch(e) {
+    res.status(500).send('Erro: ' + e.message);
+  }
+});
+
+// ── COPIAR IMÓVEIS ENTRE CONTAS ──────────────────────────────────────────
+// Casos como lançamento: o mesmo empreendimento é vendido por vários
+// corretores da rede — copia os imóveis de uma conta pra outra, mantendo o
+// id_externo (referência ao mesmo anúncio/empreendimento de origem) mas
+// gerando id/id_interno novos (cada conta precisa dos seus próprios,
+// mesmo padrão MI-<timestamp>-<random> usado no resto do sistema). O
+// imóvel original continua intacto na conta de origem — é cópia, não move.
+app.get('/admin/copiar-imoveis', authAdmin, async (req, res) => {
+  try {
+    const { query: _qCI } = require('./services/db');
+    const contaOrigemT = (req.query.contaOrigem || '').trim();
+    const estadoT = (req.query.estado || '').trim();
+    const cidadeT = (req.query.cidade || '').trim();
+    const bairroT = (req.query.bairro || '').trim();
+    const tipoT = (req.query.tipo || '').trim();
+    const condicaoT = (req.query.condicao || '').trim();
+    const valorMinT = (req.query.valorMin || '').trim();
+    const valorMaxT = (req.query.valorMax || '').trim();
+    const quartosMinT = (req.query.quartosMin || '').trim();
+    const buscaT = (req.query.busca || '').trim();
+    const temFiltro = !!contaOrigemT;
+    let imoveis = [];
+    let origemNaoAchada = false;
+    if (temFiltro) {
+      const ru = await _qCI(`SELECT codigo_usuario, id, nome FROM usuarios WHERE codigo_usuario ILIKE $1 OR id ILIKE $1 OR nome ILIKE $1`, ['%' + contaOrigemT + '%']);
+      const contasOrigem = [...new Set(ru.rows.flatMap(u => [u.codigo_usuario, u.id]).filter(Boolean))];
+      if (!contasOrigem.length) {
+        origemNaoAchada = true;
+      } else {
+        const conds = [`(user_id = ANY($1) OR codigo_usuario = ANY($1))`];
+        const pars = [contasOrigem];
+        if (estadoT) { pars.push('%' + estadoT + '%'); conds.push(`estado ILIKE $${pars.length}`); }
+        if (cidadeT) { pars.push('%' + cidadeT + '%'); conds.push(`cidade ILIKE $${pars.length}`); }
+        if (bairroT) { pars.push('%' + bairroT + '%'); conds.push(`bairro ILIKE $${pars.length}`); }
+        if (tipoT) { pars.push(tipoT); conds.push(`tipo = $${pars.length}`); }
+        if (condicaoT) { pars.push(condicaoT); conds.push(`condicao = $${pars.length}`); }
+        if (valorMinT) { pars.push(parseFloat(valorMinT) || 0); conds.push(`valor_imovel >= $${pars.length}`); }
+        if (valorMaxT) { pars.push(parseFloat(valorMaxT) || 0); conds.push(`valor_imovel <= $${pars.length}`); }
+        if (quartosMinT) { pars.push(parseInt(quartosMinT) || 0); conds.push(`quartos >= $${pars.length}`); }
+        if (buscaT) { pars.push('%' + buscaT + '%'); conds.push(`(titulo ILIKE $${pars.length} OR descricao ILIKE $${pars.length})`); }
+        const sql = `SELECT id,id_externo,id_interno,codigo_imovel,titulo,tipo,condicao,transacao,bairro,cidade,estado,valor_imovel,quartos,user_id,codigo_usuario
+                     FROM imoveis WHERE ${conds.join(' AND ')} ORDER BY criado_em DESC LIMIT 500`;
+        const r = await _qCI(sql, pars);
+        imoveis = r.rows;
+      }
+    }
+    const linhas = imoveis.map(im => `<tr>
+        <td><input type="checkbox" name="ids" value="${im.id}"></td>
+        <td style="font-family:monospace;font-size:11px">${im.id_externo || im.codigo_imovel || '-'}</td>
+        <td>${im.titulo || ''}</td>
+        <td>${im.tipo || ''}${im.condicao ? ' · ' + im.condicao : ''}</td>
+        <td>${[im.bairro, im.cidade, im.estado].filter(Boolean).join(', ')}</td>
+        <td>${im.quartos || '-'}</td>
+        <td>R$ ${im.valor_imovel ? Number(im.valor_imovel).toLocaleString('pt-BR') : '-'}</td>
+      </tr>`).join('');
+    const msg = req.query.msg ? `<div style="background:#f0fdf4;color:#16a34a;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-weight:600;font-size:13px">${req.query.msg}</div>` : '';
+    res.send(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Copiar Imóveis · Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8f8f7;color:#111;font-size:13px;}
+${_adminShellCss()}
+.admin-content{max-width:1300px}
+.card{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:16px;margin-bottom:16px}
+.campo{display:flex;flex-direction:column;gap:4px}
+.campo label{font-size:11px;font-weight:600;color:#666}
+.campo input,.campo select{padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:8px;font-size:10px;font-weight:600;color:#888;text-transform:uppercase;border-bottom:1px solid #f0f0ee;background:#fafafa;white-space:nowrap}
+td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
+.table-wrap{overflow-x:auto;max-height:520px;overflow-y:auto}
+.aviso{background:#eff6ff;color:#1e40af;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:12px}
+.erro{background:#fef2f2;color:#dc2626;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="admin-app">
+${_adminSidebarHtml('copiar-imoveis', _sidebarPerm(req))}
+<main class="admin-content">
+  ${msg}
+  <div class="aviso">📋 Copia imóveis de uma conta pra outra — mantém o mesmo id externo, mas gera id/id interno novos pra conta de destino. O imóvel original continua na conta de origem.</div>
+  <div class="card">
+    <form method="GET" action="/admin/copiar-imoveis">
+      <div class="grid">
+        <div class="campo"><label>Conta de origem (código ou nome) *</label><input type="text" name="contaOrigem" value="${contaOrigemT}" placeholder="Ex: JAN-MGF9 ou Jane" required></div>
+        <div class="campo"><label>Estado</label><input type="text" name="estado" value="${estadoT}" placeholder="Ex: SP"></div>
+        <div class="campo"><label>Cidade</label><input type="text" name="cidade" value="${cidadeT}" placeholder="Ex: São Paulo"></div>
+        <div class="campo"><label>Bairro</label><input type="text" name="bairro" value="${bairroT}" placeholder="Ex: Moema"></div>
+        <div class="campo"><label>Tipo</label>
+          <select name="tipo">
+            <option value="">Todos</option>
+            ${['Apartamento','Casa','Cobertura','Sobrado','Studio / Flat','Terreno','Sala Comercial','Loja'].map(t => `<option value="${t}" ${tipoT===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div class="campo"><label>Condição</label>
+          <select name="condicao">
+            <option value="">Todas</option>
+            <option value="lancamento" ${condicaoT==='lancamento'?'selected':''}>Lançamento</option>
+            <option value="usado" ${condicaoT==='usado'?'selected':''}>Usado</option>
+            <option value="pronto" ${condicaoT==='pronto'?'selected':''}>Pronto novo</option>
+          </select>
+        </div>
+        <div class="campo"><label>Quartos (mín.)</label><input type="text" name="quartosMin" value="${quartosMinT}" placeholder="Ex: 2"></div>
+        <div class="campo"><label>Valor mín.</label><input type="text" name="valorMin" value="${valorMinT}" placeholder="Ex: 200000"></div>
+        <div class="campo"><label>Valor máx.</label><input type="text" name="valorMax" value="${valorMaxT}" placeholder="Ex: 800000"></div>
+        <div class="campo" style="min-width:220px"><label>Buscar no título/descrição</label><input type="text" name="busca" value="${buscaT}" placeholder="Ex: nome da construtora"></div>
+      </div>
+      <button type="submit" style="background:#111;color:#fff;padding:9px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px">🔍 Buscar</button>
+      ${temFiltro ? '<a href="/admin/copiar-imoveis" style="margin-left:10px;font-size:12px;color:#888">Limpar</a>' : ''}
+    </form>
+  </div>
+  ${origemNaoAchada ? '<div class="erro">Nenhuma conta encontrada com esse código/nome.</div>' : ''}
+  ${temFiltro && !origemNaoAchada ? `
+  <form method="POST" action="/admin/copiar-imoveis/copiar" onsubmit="return _confirmarCopia(this)">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+        <div style="font-weight:700">${imoveis.length} imóvel(is) encontrado(s)</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" name="contaDestino" placeholder="Conta de destino (código ou nome) *" required style="padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;min-width:220px">
+          ${imoveis.length ? `<button type="submit" style="background:#111;color:#fff;padding:8px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px">📋 Copiar selecionados</button>` : ''}
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th><input type="checkbox" onclick="document.querySelectorAll('input[name=ids]').forEach(c=>c.checked=this.checked)"></th>
+          <th>Id externo</th><th>Título</th><th>Tipo/Condição</th><th>Bairro/Cidade/UF</th><th>Qtos</th><th>Valor</th>
+        </tr></thead>
+        <tbody>${linhas || '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">Nenhum imóvel encontrado com esses filtros.</td></tr>'}</tbody>
+      </table></div>
+    </div>
+  </form>
+  ` : ''}
+</main>
+</div>
+<script>
+function _confirmarCopia(form){
+  const marcados = form.querySelectorAll('input[name=ids]:checked').length;
+  if(marcados === 0){ alert('Marque pelo menos um imóvel.'); return false; }
+  const destino = form.querySelector('input[name=contaDestino]').value.trim();
+  if(!destino){ alert('Informe a conta de destino.'); return false; }
+  return confirm('Copiar ' + marcados + ' imóvel(is) pra conta "' + destino + '"? Cria uma cópia nova — o imóvel original continua na conta de origem.');
+}
+</script>
+</body>
+</html>`);
+  } catch(e) {
+    res.status(500).send('Erro: ' + e.message);
+  }
+});
+
+app.post('/admin/copiar-imoveis/copiar', authAdmin, async (req, res) => {
+  try {
+    const { query: _qCICopiar } = require('./services/db');
+    const { rowToImovel: _rtiCopiar, salvarImovel: _siCopiar } = require('./services/salvarImovel');
+    let ids = req.body.ids || [];
+    if (!Array.isArray(ids)) ids = [ids];
+    ids = ids.filter(Boolean);
+    const contaDestinoT = (req.body.contaDestino || '').trim();
+    if (!ids.length || !contaDestinoT) return res.redirect('/admin/copiar-imoveis?msg=' + encodeURIComponent('Selecione ao menos 1 imóvel e informe a conta de destino.'));
+
+    const ruDest = await _qCICopiar(`SELECT codigo_usuario, id, nome, telefone, celular, tipo FROM usuarios WHERE codigo_usuario ILIKE $1 OR id ILIKE $1 OR nome ILIKE $1 LIMIT 1`, [contaDestinoT]);
+    const destino = ruDest.rows[0];
+    if (!destino) return res.redirect('/admin/copiar-imoveis?msg=' + encodeURIComponent('Conta de destino não encontrada.'));
+    const destinoUserId = destino.codigo_usuario || destino.id;
+
+    let copiados = 0;
+    for (const id of ids) {
+      try {
+        const r = await _qCICopiar('SELECT * FROM imoveis WHERE id=$1', [id]);
+        const original = r.rows[0];
+        if (!original) continue;
+        const imovel = _rtiCopiar(original);
+
+        imovel.id = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        imovel.idInterno = 'MI-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        // id_externo mantido de propósito — mesma referência do anúncio/
+        // empreendimento de origem, agora também na conta de destino.
+        imovel.userId = destinoUserId;
+        imovel.usuarioId = destinoUserId;
+        imovel.codigoUsuario = destinoUserId;
+        imovel.corretorId = destinoUserId;
+        imovel.usuarioNome = destino.nome || '';
+        imovel.usuarioPerfil = destino.tipo || '';
+        imovel.usuarioTelefone = destino.celular || destino.telefone || '';
+        imovel.corretorNome = destino.nome || '';
+        imovel.corretorEmail = '';
+        imovel.corretorTelefone = destino.celular || destino.telefone || '';
+        // Links/status específicos da conta de origem não fazem sentido copiados
+        imovel.url = '';
+        imovel.urlPublica = '';
+        imovel.xmlUrl = '';
+        imovel.inativadoEm = null;
+        imovel.inativadoPor = null;
+
+        await _siCopiar(imovel);
+        copiados++;
+      } catch (eCopy) { console.error('[copiar-imoveis] erro ao copiar', id, eCopy.message); }
+    }
+    res.redirect('/admin/copiar-imoveis?msg=' + encodeURIComponent(copiados + ' imóvel(is) copiado(s) com sucesso pra conta ' + (destino.nome || destinoUserId) + '.'));
   } catch(e) {
     res.status(500).send('Erro: ' + e.message);
   }
@@ -3226,14 +3437,18 @@ app.get('/api/testar-xml', async (req, res) => {
       try {
         const context = await browser.newContext({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36', locale: 'pt-BR' });
         const page = await context.newPage();
-        const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        // 'commit' em vez de 'domcontentloaded' — pra feeds grandes o Chrome
+        // tenta montar a árvore interativa do visualizador de XML do arquivo
+        // inteiro antes de considerar "carregado", lento à toa já que só
+        // precisamos do corpo bruto via resp.text().
+        const resp = await page.goto(url, { waitUntil: 'commit', timeout: 60000 });
         if (resp && resp.status() === 200) {
           const texto = await resp.text();
           const total = _contarListingsXml(texto);
           if (total > 0) return res.json({ ok: true, total: total >= 5 ? total + '+' : total });
         }
       } finally {
-        await browser.close();
+        browser.close().catch(() => {}); // fire-and-forget — não trava a resposta se close() travar
       }
     } catch (eNav) { console.error('[testar-xml] fallback navegador headless falhou:', eNav.message); }
 

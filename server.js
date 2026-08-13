@@ -18926,6 +18926,19 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     const disponivel = await totalDisponivelPorIndicador(usuarioAdmin);
     const meusLeads = await listarContatosPorRefAdmin(usuarioAdmin);
     const { envios: minhasCaptacoes } = await _listarCaptacoesSub({ refAdmin: usuarioAdmin, limite: 100 });
+    // Detalhe do imóvel captado (mesmos dados que aparecem em /app/captacao,
+    // a tela do corretor dono da conta REN-G9K6) — sem isso o sub-admin só via
+    // um status genérico de envio, sem saber tipo/bairro/valor/se falta foto.
+    const _idsImoveisCap = minhasCaptacoes.map(c => c.imovel_captado_id).filter(Boolean);
+    const _imoveisCapMap = {};
+    if (_idsImoveisCap.length) {
+      try {
+        const { query: _qImCap } = require('./services/db');
+        const { calcularPercentualPerfil: _cppMinhasCap } = require('./services/salvarImovel');
+        const { rows: _rowsImCap } = await _qImCap('SELECT id, id_interno, titulo, tipo, bairro, cidade, valor_imovel, fotos, proprietario FROM imoveis WHERE id = ANY($1)', [_idsImoveisCap]);
+        _rowsImCap.forEach(im => { _imoveisCapMap[im.id] = { ...im, percentual: _cppMinhasCap(im) }; });
+      } catch (eImCap) { console.error('[minhas-comissoes] erro ao buscar imóveis captados:', eImCap.message); }
+    }
 
     const _statusLead = l => {
       if (l.status === 'convertido') return '<span style="color:#16a34a;font-weight:700">✅ Cadastrou — feche a venda</span>';
@@ -18949,12 +18962,37 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       if (c.clicado_em) return '<span style="color:#9ca3af">👆 Clicou, ainda não iniciou</span>';
       return '<span style="color:#9ca3af">📤 E-mail enviado</span>';
     };
+    const _pctClasseCap = p => p >= 67 ? 'background:#f0fdf4;color:#16a34a' : p >= 34 ? 'background:#fffbeb;color:#92400e' : 'background:#fef2f2;color:#dc2626';
+    // Mesmo card de "imóvel vinculado" de /app/captacao (tela do corretor
+    // dono da conta) — título/bairro/valor, % preenchido, aviso de sem foto
+    // e os botões que não dependem de sessão do corretor (link público,
+    // WhatsApp com o link/pedido de foto). Editar/excluir ficam de fora —
+    // são ações da conta dona do imóvel, sub-admin não tem esse acesso.
+    const _imovelCapHtml = c => {
+      const im = _imoveisCapMap[c.imovel_captado_id];
+      if (!im) return '';
+      const tel = (c.telefone || '').replace(/\D/g, '').replace(/^55/, '');
+      const link = 'https://matchimoveis.ia.br/imovel/' + (im.id_interno || im.id);
+      const semFoto = !im.fotos || !im.fotos.length;
+      const nomePrimeiro = (c.nome || '').trim().split(' ')[0] || '';
+      const msgLink = encodeURIComponent(`Olá ${nomePrimeiro}! Seu imóvel foi cadastrado. Acesse: ${link}`);
+      const linkFotos = `https://matchimoveis.ia.br/captar/${im.user_id || 'REN-G9K6'}?imovelId=${im.id}&fotos=1`;
+      const msgFoto = encodeURIComponent(`Oi ${nomePrimeiro}! Pra terminar o anúncio do seu imóvel, falta só a foto — os outros dados já estão preenchidos. Pode enviar direto por aqui: ${linkFotos} 📸`);
+      return `<div style="margin-top:6px;padding:8px 10px;background:#f9fafb;border-radius:8px;font-size:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="flex:1;min-width:160px">🏠 ${_escC(im.titulo || im.tipo || '')} · ${_escC(im.bairro || '')} · R$ ${im.valor_imovel ? Number(im.valor_imovel).toLocaleString('pt-BR') : '—'}</span>
+        ${semFoto ? '<span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;white-space:nowrap">⚠️ Sem foto</span>' : ''}
+        <span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;${_pctClasseCap(im.percentual)}">${im.percentual}%</span>
+        ${(semFoto && tel) ? `<a href="https://wa.me/55${tel}?text=${msgFoto}" target="_blank" style="background:#f59e0b;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📸 Solicitar fotos</a>` : ''}
+        ${tel ? `<a href="https://wa.me/55${tel}?text=${msgLink}" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📲 Enviar link</a>` : ''}
+        <a href="${link}" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link público</a>
+      </div>`;
+    };
     const captacoesHtml = minhasCaptacoes.map(c => `
       <tr style="border-bottom:1px solid #f3f4f6">
-        <td style="padding:8px;font-size:12px">${new Date(c.enviado_em).toLocaleDateString('pt-BR')}</td>
-        <td style="padding:8px;font-size:12px;font-weight:600">${_escC(c.nome || '(sem nome)')}</td>
-        <td style="padding:8px;font-size:12px">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '<span style="color:#9ca3af">—</span>'}</td>
-        <td style="padding:8px;font-size:12px">${_statusCaptacao(c)}</td>
+        <td style="padding:8px;font-size:12px;vertical-align:top">${new Date(c.enviado_em).toLocaleDateString('pt-BR')}</td>
+        <td style="padding:8px;font-size:12px;font-weight:600;vertical-align:top">${_escC(c.nome || '(sem nome)')}</td>
+        <td style="padding:8px;font-size:12px;vertical-align:top">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '<span style="color:#9ca3af">—</span>'}</td>
+        <td style="padding:8px;font-size:12px;vertical-align:top">${_statusCaptacao(c)}${_imovelCapHtml(c)}</td>
       </tr>`).join('');
 
     const linhasDisponivel = historico.filter(h => h.status === 'disponivel');

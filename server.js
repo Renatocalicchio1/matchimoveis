@@ -813,6 +813,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/cruzar-proprietarios-alex', '/admin/executar-cruzar-alex',
   '/admin/campanha/importar', '/admin/campanha/teste',
   '/admin/campanha/iniciar', '/admin/campanha/pausar',
+  '/admin/campanha/distribuir-atendimentos',
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
   '/admin/comissoes-pendentes'
 ];
@@ -17688,6 +17689,12 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
     <button class="no" id="btnPausarAuto" onclick="pausarAutomatico()" ${!ativo?'disabled':''}>⏸ Pausar</button>
   </div>
   <div class="box">
+    <h3>🤝 Distribuir atendimentos abertos</h3>
+    <p class="gray">Quem clicou e ainda não tem ninguém atendendo é dividido em round-robin entre os sub-admins ativos — não mexe em quem já tem atendente. Cada sub-admin só vê os que são dele em "Contatos importados" abaixo.</p>
+    <button onclick="distribuirAtendimentos()">🔀 Distribuir agora</button>
+    <div id="distribuir-resultado"></div>
+  </div>
+  <div class="box">
     <h3>1. Importar contatos</h3>
     <p class="gray">CSV ou Excel com colunas: nome, email, celular</p>
     <input type="file" id="arquivo" accept=".csv,.xlsx,.xls">
@@ -17793,6 +17800,14 @@ https://www.matchimoveis.ia.br
     document.getElementById('statusAutomatico').textContent = '⏸ Parado';
     document.getElementById('btnIniciarAuto').disabled = false;
     document.getElementById('btnPausarAuto').disabled = true;
+  }
+  async function distribuirAtendimentos(){
+    const el = document.getElementById('distribuir-resultado');
+    el.innerHTML = '<p>⏳ Distribuindo...</p>';
+    const r = await fetch('/admin/campanha/distribuir-atendimentos', {method:'POST'});
+    const d = await r.json();
+    if(!d.ok){ el.innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
+    el.innerHTML = '<p class="green">✅ '+d.distribuidos+' contato(s) distribuído(s).</p>';
   }
   function _setTxt(id, val){ const el = document.getElementById(id); if(el) el.textContent = val; }
   function _setDisabled(id, val){ const el = document.getElementById(id); if(el) el.disabled = val; }
@@ -18093,6 +18108,13 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     const offset = (pagina-1)*_CAMPANHA_TAMANHO_PAGINA;
     let where = 'WHERE 1=1';
     const params = [];
+    // Sub-admin só vê os contatos que ele mesmo atende (manual ou distribuído
+    // em /admin/campanha/distribuir-atendimentos) — superadmin continua vendo
+    // a base inteira, sem esse filtro.
+    if (req.session.adminSuper === false) {
+      params.push(req.session.adminUsuario || '');
+      where += ` AND atendido_por = $${params.length}`;
+    }
     if(q){ params.push('%'+q+'%'); where += ` AND (nome ILIKE $${params.length} OR email ILIKE $${params.length})`; }
     if(status === 'abriu'){ where += ` AND aberto_em IS NOT NULL`; }
     else if(status === 'clicou'){ where += ` AND clicado_em IS NOT NULL`; }
@@ -18152,6 +18174,20 @@ app.post('/admin/campanha/contatos/:id/excluir-celular', authAdmin, async (req, 
     const { excluirCelularContato } = require('./services/campanha');
     await excluirCelularContato(req.params.id);
     res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// Divide os contatos que clicaram e ainda estão sem atendente entre os
+// sub-admins ativos — restrito ao superadmin (ver _ADMIN_ROTAS_SUPERADMIN_ONLY)
+// porque é uma ação em lote que muda o dono de vários contatos de uma vez.
+app.post('/admin/campanha/distribuir-atendimentos', authAdmin, async (req, res) => {
+  try {
+    const { listarAdminContas } = require('./services/salvarAdminConta');
+    const contasAtivas = (await listarAdminContas()).filter(c => c.ativo);
+    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin ativo pra distribuir' });
+    const { distribuirAtendimentosAbertos } = require('./services/campanha');
+    const resultado = await distribuirAtendimentosAbertos(contasAtivas);
+    res.json({ ok: true, ...resultado });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 
@@ -19282,7 +19318,10 @@ app.get('/admin/disparos/:id/contatos', authAdmin, async (req, res) => {
   try {
     const { listarContatos } = require('./services/salvarDisparo');
     const pagina = parseInt(req.query.pagina) || 1;
-    const { contatos, total } = await listarContatos(req.params.id, { pagina, status: req.query.status || '', q: req.query.q || '' });
+    // Sub-admin só vê os contatos atribuídos a ele no round-robin — mesma
+    // regra do lado do email (ver /admin/campanha/contatos).
+    const refAdmin = req.session.adminSuper === false ? (req.session.adminUsuario || '') : '';
+    const { contatos, total } = await listarContatos(req.params.id, { pagina, status: req.query.status || '', q: req.query.q || '', refAdmin });
     res.json({ ok: true, contatos, total });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });

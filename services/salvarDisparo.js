@@ -310,11 +310,15 @@ const _CADASTROU_EXISTS = `EXISTS (
      OR RIGHT(REGEXP_REPLACE(COALESCE(u.celular,''), '\\D', '', 'g'), 8) = RIGHT(REGEXP_REPLACE(disparos_contatos.telefone,'\\D','','g'), 8)
 )`;
 
-async function listarContatos(campanhaId, { pagina = 1, status = '', q = '' } = {}) {
+// refAdmin: quando passado (sub-admin olhando a própria lista), restringe
+// aos contatos atribuídos a ele no round-robin — mesmo campo gravado em
+// variaveis.refAdmin na criação da campanha (ver inserirContatos).
+async function listarContatos(campanhaId, { pagina = 1, status = '', q = '', refAdmin = '' } = {}) {
   await _inicializar();
   const offset = (pagina - 1) * 50;
   const params = [campanhaId];
   let where = 'WHERE campanha_id=$1';
+  if (refAdmin) { params.push(refAdmin); where += ` AND variaveis->>'refAdmin' = $${params.length}`; }
   if (status === 'cadastrou') { where += ` AND ${_CADASTROU_EXISTS}`; }
   else if (status) { params.push(status); where += ` AND status=$${params.length}`; }
   if (q) { params.push('%' + q + '%'); where += ` AND (nome ILIKE $${params.length} OR telefone ILIKE $${params.length})`; }

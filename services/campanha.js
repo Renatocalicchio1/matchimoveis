@@ -941,6 +941,30 @@ async function marcarAtendido(id, { por, nome, cor }) {
   return { ok: true, nome, cor };
 }
 
+// Contatos que clicaram (sinal de interesse de verdade) mas ninguém pegou
+// pra atender ainda ficavam soltos, visíveis pra todo mundo, primeiro que
+// clicasse "Atender" levava — agora divide em round-robin entre os
+// sub-admins ativos, do mesmo jeito que o disparo de WhatsApp já faz.
+// Idempotente: só mexe em quem tá com atendido_por vazio, pode rodar
+// quantas vezes quiser sem reatribuir quem já tem dono.
+async function distribuirAtendimentosAbertos(contasAtivas) {
+  await _garantirColunas();
+  if (!contasAtivas || !contasAtivas.length) return { distribuidos: 0 };
+  const { rows } = await query(
+    `SELECT id FROM campanha_contatos WHERE clicado_em IS NOT NULL AND (atendido_por IS NULL OR atendido_por = '') ORDER BY clicado_em ASC`
+  );
+  let distribuidos = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const conta = contasAtivas[i % contasAtivas.length];
+    await query(
+      `UPDATE campanha_contatos SET atendido_por=$1, atendido_por_nome=$2, atendido_por_cor=$3, atendido_em=NOW() WHERE id=$4`,
+      [conta.usuario, conta.nome || conta.usuario, conta.cor, rows[i].id]
+    );
+    distribuidos++;
+  }
+  return { distribuidos };
+}
+
 // Número pode ter sido reciclado pra outra pessoa (ou o lead simplesmente
 // não quer mais mensagem) — só apaga o celular, mantém nome/email/histórico
 // intactos (e-mail é o identificador estável, nunca muda).
@@ -1047,5 +1071,5 @@ module.exports = {
   importarContatos, statsBase, statsTracking, statsCadastrados, statsValidacao,
   proximoLote, enviarTeste, enviarProximo, marcarAtendido, excluirCelularContato,
   iniciarCampanha, pausarCampanha, estaAtiva, buscarEnvioParaPreview,
-  validarProximoLote, listarEnvios
+  validarProximoLote, listarEnvios, distribuirAtendimentosAbertos
 };

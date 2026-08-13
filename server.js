@@ -18601,11 +18601,11 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         <td style="padding:8px;font-size:12px">${_escC(h.status)}${h.modo_resgate ? ' (' + _escC(h.modo_resgate) + ')' : ''}</td>
       </tr>`).join('');
 
-    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Minhas comissões</title>
-    <style>body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}</style></head>
+    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Minhas comissões</title>
+    <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}</style></head>
     <body>
-      ${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req))}
-      <div class="content" style="padding:24px;max-width:960px">
+    <div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req))}
+      <main class="admin-content" style="max-width:960px">
         <h1 style="font-size:22px;margin-bottom:4px">Minhas comissões</h1>
         <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 20% sobre compras dos corretores que entraram pelo seu link.</p>
 
@@ -18639,7 +18639,8 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           <thead><tr style="background:#f9fafb;text-align:left"><th style="padding:8px"></th><th style="padding:8px;font-size:11px">Data</th><th style="padding:8px;font-size:11px">Corretor</th><th style="padding:8px;font-size:11px">Compra</th><th style="padding:8px;font-size:11px">Comissão</th><th style="padding:8px;font-size:11px">Status</th></tr></thead>
           <tbody>${linhasHtml || '<tr><td colspan="6" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma comissão ainda</td></tr>'}</tbody>
         </table>
-      </div>
+      </main>
+    </div>
       <script>
         async function resgatar(){
           const ids = [...document.querySelectorAll('.chk-resgate:checked')].map(c=>c.value);
@@ -18758,15 +18759,16 @@ app.get('/admin/comissoes-pendentes', authAdmin, async (req, res) => {
       </div>`;
     }).join('') || '<p style="color:#9ca3af">Nenhum resgate em dinheiro pendente.</p>';
 
-    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Comissões pendentes</title>
-    <style>body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}</style></head>
+    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Comissões pendentes</title>
+    <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}</style></head>
     <body>
-      ${_adminSidebarHtml('comissoes-pendentes', true)}
-      <div class="content" style="padding:24px;max-width:760px">
+    <div class="admin-app">${_adminSidebarHtml('comissoes-pendentes', true)}
+      <main class="admin-content" style="max-width:760px">
         <h1 style="font-size:22px;margin-bottom:4px">Comissões pendentes (dinheiro)</h1>
         <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Pague por fora e marque aqui como pago.</p>
         ${blocos}
-      </div>
+      </main>
+    </div>
       <script>
         async function pagarSelecionados(admin){
           const ids = [...document.querySelectorAll('.chk-pagar:checked')].filter(c=>c.dataset.admin===admin).map(c=>c.value);

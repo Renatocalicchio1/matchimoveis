@@ -8413,29 +8413,39 @@ setInterval(async () => {
     console.error('[JOB TRAVADOS] erro janela disparos:', e.message);
   }
 
-  // Distribuição automática dos atendimentos entre os sub-admins ativos —
-  // Campanha de Captação e Campanha de E-mail (corretores) — antes só rodava
-  // manual (botão "Distribuir agora" em /admin/captacao-campanha e
-  // /admin/campanha); agora roda sozinha junto desse mesmo job de 5 em 5
-  // min, então nenhum contato do backlog fica esperando um clique do
-  // superadmin pra ganhar dono. Idempotente (distribuirAtendimentosAbertos
-  // só mexe em quem tá com atendido_por vazio), então rodar toda hora é seguro.
+}, 5 * 60 * 1000); // roda a cada 5 minutos
+
+// ── JOB_DISTRIBUICAO_SUBADMIN — round-robin automático entre sub-admins ──────
+// Campanha de Captação e Campanha de E-mail (corretores) — antes só rodava
+// manual (botão "Distribuir agora"). Separado do JOB_JOBS_TRAVADOS de propósito:
+// aquele é um setInterval puro, sem primeira execução no boot — só dispara depois
+// de 5min rodando. Com deploy frequente (Render reinicia o processo a cada push),
+// o timer não dava tempo de completar o primeiro ciclo antes do próximo restart,
+// e esse job efetivamente nunca rodava (bug real: só 1 contato tinha sido
+// distribuído depois de várias horas de campanha ativa). Aqui roda 1x logo no
+// boot (15s de atraso, pra deixar o resto da inicialização assentar) + repete a
+// cada 5min. Idempotente (distribuirAtendimentosAbertos só mexe em quem tá com
+// atendido_por vazio), então rodar logo e com frequência é seguro.
+async function _rodarDistribuicaoSubAdmin() {
   try {
     const { listarAdminContas } = require('./services/salvarAdminConta');
     const _contasDistribAuto = (await listarAdminContas()).filter(c => c.ativo);
-    if (_contasDistribAuto.length) {
-      const { distribuirAtendimentosAbertos: _distribuirCaptAuto } = require('./services/campanhaCaptacao');
-      const _resultCaptAuto = await _distribuirCaptAuto(_contasDistribAuto);
-      if (_resultCaptAuto.distribuidos > 0) console.log('[JOB TRAVADOS] captação: distribuídos automaticamente ->', _resultCaptAuto.distribuidos);
+    if (!_contasDistribAuto.length) return;
 
-      const { distribuirAtendimentosAbertos: _distribuirEmailAuto } = require('./services/campanha');
-      const _resultEmailAuto = await _distribuirEmailAuto(_contasDistribAuto);
-      if (_resultEmailAuto.distribuidos > 0) console.log('[JOB TRAVADOS] campanha e-mail: distribuídos automaticamente ->', _resultEmailAuto.distribuidos);
-    }
+    const { distribuirAtendimentosAbertos: _distribuirCaptAuto } = require('./services/campanhaCaptacao');
+    const _resultCaptAuto = await _distribuirCaptAuto(_contasDistribAuto);
+    if (_resultCaptAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] captação: distribuídos automaticamente ->', _resultCaptAuto.distribuidos);
+
+    const { distribuirAtendimentosAbertos: _distribuirEmailAuto } = require('./services/campanha');
+    const _resultEmailAuto = await _distribuirEmailAuto(_contasDistribAuto);
+    if (_resultEmailAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] campanha e-mail: distribuídos automaticamente ->', _resultEmailAuto.distribuidos);
   } catch(e) {
-    console.error('[JOB TRAVADOS] erro distribuição automática:', e.message);
+    console.error('[JOB DISTRIBUICAO] erro:', e.message);
   }
-}, 5 * 60 * 1000); // roda a cada 5 minutos
+}
+setTimeout(_rodarDistribuicaoSubAdmin, 15000);
+setInterval(_rodarDistribuicaoSubAdmin, 5 * 60 * 1000);
+// ── FIM JOB_DISTRIBUICAO_SUBADMIN ────────────────────────────────────────────
 // ── FIM JOB_JOBS_TRAVADOS ─────────────────────────────────────────────────────
 
 // INBOX WHATSAPP
@@ -18997,9 +19007,19 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     const conta = await buscarAdminConta(usuarioAdmin);
     if (!conta) return res.send(_paginaSimples('Minhas comissões', '<p>Essa conta de login não tem um cadastro de sub-admin vinculado (ex: é a conta superadmin principal) — nada pra mostrar aqui.</p>'));
 
+    // Cada seção só aparece se a conta TEM a permissão da respectiva
+    // campanha marcada (mesma chave usada em /admin/campanha e
+    // /admin/captacao-campanha) — um sub-admin que só tem 'captacao-campanha'
+    // não pode ver nada do funil de corretor (Meus leads/Meus corretores),
+    // mesmo que a mesma pessoa por coincidência apareça nos dois funis (são
+    // tabelas diferentes, sem cruzamento — a separação aqui é só de exibição).
+    const _permsAtual = req.session.adminPermissoes || [];
+    const _temPermCampanha = req.session.adminSuper !== false || _permsAtual.includes('campanha');
+    const _temPermCaptacao = req.session.adminSuper !== false || _permsAtual.includes('captacao-campanha');
+
     const historico = await listarBonusPorIndicador(usuarioAdmin, 'admin');
     const disponivel = await totalDisponivelPorIndicador(usuarioAdmin);
-    const meusLeads = await listarContatosPorRefAdmin(usuarioAdmin);
+    const meusLeads = _temPermCampanha ? await listarContatosPorRefAdmin(usuarioAdmin) : [];
 
     // Corretores/imobiliárias que JÁ SE CADASTRARAM na plataforma atribuídos
     // a esse sub-admin (dados->>'atendidoPorAdmin', mesmo campo mostrado na
@@ -19009,7 +19029,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     // sem nenhuma ação de dono de conta (ver/acessar/deletar/XML) — o
     // sub-admin só acompanha.
     let meusCorretores = [];
-    try {
+    if (_temPermCampanha) try {
       const { query: _qMeusCor } = require('./services/db');
       const { rows: _rowsMeusCor } = await _qMeusCor(`
         SELECT u.codigo_usuario, u.nome, u.telefone, u.criado_em, u.match_coins, u.whatsapp_status,
@@ -19023,7 +19043,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       `, [usuarioAdmin]);
       meusCorretores = _rowsMeusCor;
     } catch (eMeusCor) { console.error('[minhas-comissoes] erro ao buscar corretores:', eMeusCor.message); }
-    const { envios: minhasCaptacoes } = await _listarCaptacoesSub({ refAdmin: usuarioAdmin, limite: 100 });
+    const minhasCaptacoes = _temPermCaptacao ? (await _listarCaptacoesSub({ refAdmin: usuarioAdmin, limite: 100 })).envios : [];
     // Detalhe do imóvel captado (mesmos dados que aparecem em /app/captacao,
     // a tela do corretor dono da conta REN-G9K6) — sem isso o sub-admin só via
     // um status genérico de envio, sem saber tipo/bairro/valor/se falta foto.
@@ -19136,6 +19156,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           </table>
         </div>
 
+        ${!_temPermCampanha ? '' : `
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 6px;font-size:14px">👤 Meus corretores cadastrados (${meusCorretores.length})</h3>
           <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Contas que já se cadastraram na plataforma atribuídas a você. Só acompanhamento — sem acessar a conta, importar XML ou excluir.</p>
@@ -19162,7 +19183,9 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
             <tbody>${leadsHtml || '<tr><td colspan="4" style="padding:16px;text-align:center;color:#9ca3af">Nenhum lead atribuído a você ainda</td></tr>'}</tbody>
           </table>
         </div>
+        `}
 
+        ${!_temPermCaptacao ? '' : `
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 6px;font-size:14px">🏠 Minhas captações (${minhasCaptacoes.length})</h3>
           <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Proprietários da Campanha de Captação atribuídos a você — chame no WhatsApp e ajude a terminar o cadastro. Cada imóvel captado até o fim vale +200 coins pra você.</p>
@@ -19171,6 +19194,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
             <tbody>${captacoesHtml || '<tr><td colspan="4" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma captação atribuída a você ainda</td></tr>'}</tbody>
           </table>
         </div>
+        `}
 
         <div style="display:flex;gap:16px;margin-bottom:24px">
           <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1">

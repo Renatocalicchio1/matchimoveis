@@ -542,7 +542,7 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
      FROM campanha_captacao_envios e
      LEFT JOIN imoveis im ON im.id = e.imovel_captado_id
      LEFT JOIN usuarios u ON u.codigo_usuario = im.user_id
-     ${where.replace(/\bfiltro\b/, '')}
+     ${where}
      ORDER BY e.enviado_em DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params

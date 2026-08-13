@@ -18041,20 +18041,23 @@ https://www.matchimoveis.ia.br
     if(fixo) return '55'+fixo;
     return '';
   }
-  // Sob o nome do contato: se alguém já "atendeu" (clicou pra falar por
-  // WhatsApp), mostra quem — senão, mostra o botão de WhatsApp (se o
-  // estágio pedir um). Ninguém sobrescreve quem já atendeu (ver
-  // marcarAtendido em services/campanha.js) — clique de outra conta só
-  // avisa quem já está tratando, não abre o WhatsApp.
+  // Sob o nome do contato: mostra quem já "atendeu" (se já tiver) E o botão
+  // de WhatsApp (se o estágio pedir um) — o botão continua disponível MESMO
+  // depois de atendido, porque a distribuição automática (a cada 5 min) já
+  // marca atendido_por pra todo o backlog sozinha; se o botão sumisse nesse
+  // momento, o sub-admin nunca conseguiria abrir o WhatsApp de quem foi
+  // atribuído a ele (mesmo bug corrigido em campanhaCaptacao.js/dc37e782).
   function _subNome(c){
+    let html = '';
     if(c.atendido_por_nome){
-      return '<div style="font-size:11px;font-weight:600;color:'+escHtml(c.atendido_por_cor||'#6b7280')+';margin-top:2px">✅ Atendido por '+escHtml(c.atendido_por_nome)+'</div>';
+      html += '<div style="font-size:11px;font-weight:600;color:'+escHtml(c.atendido_por_cor||'#6b7280')+';margin-top:2px">✅ Atendido por '+escHtml(c.atendido_por_nome)+'</div>';
     }
     const estagio = _whatsappEstagio(c);
-    if(!estagio) return '';
-    if(!_celularWA(c.celular)) return '';
-    const rotulos = { abriu_sem_clicar: '📲 Reenviar link', clicou_sem_cadastrar: '📲 Lembrar cadastro', cadastrou_sem_comprar: '📲 Oferecer combo' };
-    return '<button type="button" class="btn-atender-wa" data-id="'+c.id+'" style="margin-top:4px;background:#25D366;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotulos[estagio]+'</button>';
+    if(estagio && _celularWA(c.celular)){
+      const rotulos = { abriu_sem_clicar: '📲 Reenviar link', clicou_sem_cadastrar: '📲 Lembrar cadastro', cadastrou_sem_comprar: '📲 Oferecer combo' };
+      html += '<button type="button" class="btn-atender-wa" data-id="'+c.id+'" style="margin-top:4px;background:#25D366;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotulos[estagio]+'</button>';
+    }
+    return html;
   }
   async function _clicarWhatsapp(c){
     const estagio = _whatsappEstagio(c);
@@ -18062,15 +18065,20 @@ https://www.matchimoveis.ia.br
     const tel = _celularWA(c.celular);
     if(!tel) return;
     const link = 'https://wa.me/'+tel+'?text='+encodeURIComponent(_whatsappMensagem(c, estagio));
-    try {
-      const r = await fetch('/admin/campanha/contatos/'+c.id+'/atender', { method:'POST' });
-      const d = await r.json();
-      if(d.ok === false && d.jaAtendido){
-        alert('Esse contato já está sendo atendido por '+(d.nome||'outra pessoa')+'.');
-        buscar(_pagina);
-        return;
-      }
-    } catch(e){}
+    // Só tenta reivindicar se ainda não tem atendente — já atendido (pelo
+    // round-robin automático ou por essa mesma conta antes) só abre o link
+    // direto, sem chamar /atender de novo.
+    if(!c.atendido_por_nome){
+      try {
+        const r = await fetch('/admin/campanha/contatos/'+c.id+'/atender', { method:'POST' });
+        const d = await r.json();
+        if(d.ok === false && d.jaAtendido){
+          alert('Esse contato já está sendo atendido por '+(d.nome||'outra pessoa')+'.');
+          buscar(_pagina);
+          return;
+        }
+      } catch(e){}
+    }
     window.open(link, '_blank');
     buscar(_pagina);
   }

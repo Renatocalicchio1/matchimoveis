@@ -3990,6 +3990,16 @@ app.post('/login', async (req,res)=>{
     if (!Array.isArray(_regioesCadastro)) _regioesCadastro = [];
     _regioesCadastro = _regioesCadastro.map(r => String(r || '').trim()).filter(Boolean).slice(0, 20);
 
+    // Cidade + bairros de atuação (estruturado, escolhido a partir da tabela
+    // `localidades` via /api/localidades/*) — guardado pra mais pra frente dar
+    // pra automatizar distribuição de lead por bairro batendo com essa lista.
+    const _areaEstadoCadastro = String(req.body.areaAtuacaoEstado || '').trim();
+    const _areaCidadeCadastro = String(req.body.areaAtuacaoCidade || '').trim();
+    let _areaBairrosCadastro = [];
+    try { _areaBairrosCadastro = JSON.parse(req.body.areaAtuacaoBairros || '[]'); } catch (e) {}
+    if (!Array.isArray(_areaBairrosCadastro)) _areaBairrosCadastro = [];
+    _areaBairrosCadastro = _areaBairrosCadastro.map(r => String(r || '').trim()).filter(Boolean).slice(0, 100);
+
     const novo = {
       id: _codigoNovo,
       nome: req.body.nome,
@@ -4004,6 +4014,9 @@ app.post('/login', async (req,res)=>{
       matchCoinsTotal: 1000,
       matchCoinsBonusInicial: 1000,
       regioesAtuacao: _regioesCadastro,
+      areaAtuacaoEstado: _areaEstadoCadastro,
+      areaAtuacaoCidade: _areaCidadeCadastro,
+      areaAtuacaoBairros: _areaBairrosCadastro,
       indicadoPor: _indicador ? (_indicador.codigoUsuario || _indicador.id) : '',
       atendidoPorAdmin: _adminIndicador?.usuario || '',
       atendidoPorAdminNome: _adminIndicador?.nome || '',
@@ -5758,6 +5771,14 @@ app.post('/app/perfil', auth, async (req,res)=>{
     if (!Array.isArray(_regioesPerfil)) _regioesPerfil = [];
     _regioesPerfil = _regioesPerfil.map(r => String(r || '').trim()).filter(Boolean).slice(0, 20);
   }
+  // Cidade + bairros de atuação (estruturado) — mesmo campo do cadastro,
+  // editável depois. Só atualiza se o form mandou (evita apagar sem querer).
+  let _areaBairrosPerfil;
+  if (req.body.areaAtuacaoBairros !== undefined) {
+    try { _areaBairrosPerfil = JSON.parse(req.body.areaAtuacaoBairros || '[]'); } catch (e) { _areaBairrosPerfil = []; }
+    if (!Array.isArray(_areaBairrosPerfil)) _areaBairrosPerfil = [];
+    _areaBairrosPerfil = _areaBairrosPerfil.map(r => String(r || '').trim()).filter(Boolean).slice(0, 100);
+  }
 
   const dados = {
     nome: req.body.nome || '',
@@ -5766,7 +5787,10 @@ app.post('/app/perfil', auth, async (req,res)=>{
     email: req.body.email || '',
     celular: req.body.celular || '',
     telefone: req.body.celular || '',
-    ...(_regioesPerfil !== undefined ? { regioesAtuacao: _regioesPerfil } : {})
+    ...(_regioesPerfil !== undefined ? { regioesAtuacao: _regioesPerfil } : {}),
+    ...(req.body.areaAtuacaoEstado !== undefined ? { areaAtuacaoEstado: String(req.body.areaAtuacaoEstado || '').trim() } : {}),
+    ...(req.body.areaAtuacaoCidade !== undefined ? { areaAtuacaoCidade: String(req.body.areaAtuacaoCidade || '').trim() } : {}),
+    ...(_areaBairrosPerfil !== undefined ? { areaAtuacaoBairros: _areaBairrosPerfil } : {})
   };
   await _auPerfil(uid, dados).catch(e=>console.error("[perfil]",e.message));
   req.session.user = { ...req.session.user, ...dados };
@@ -9035,6 +9059,39 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
   }
 });
 
+
+// Autocomplete de cidade/bairro pra cadastro e perfil (regiões de atuação) —
+// usa a mesma tabela `localidades` (IBGE + bairros extraídos dos imóveis) já
+// usada pelo extrator de perfil do assistente. Sem auth: precisa funcionar
+// no form público de cadastro, antes de ter sessão.
+app.get('/api/localidades/cidades', async (req, res) => {
+  try {
+    const { query: _qLocC } = require('./services/db');
+    const estado = String(req.query.estado || '').trim();
+    const q = String(req.query.q || '').trim();
+    const params = [];
+    let sql = "SELECT DISTINCT cidade FROM localidades WHERE cidade IS NOT NULL AND cidade != ''";
+    if (estado) { params.push(estado); sql += ` AND estado ILIKE $${params.length}`; }
+    if (q) { params.push('%' + q + '%'); sql += ` AND cidade ILIKE $${params.length}`; }
+    sql += ' ORDER BY cidade LIMIT 30';
+    const { rows } = await _qLocC(sql, params);
+    res.json({ ok: true, cidades: rows.map(r => r.cidade) });
+  } catch (e) { res.json({ ok: false, cidades: [] }); }
+});
+app.get('/api/localidades/bairros', async (req, res) => {
+  try {
+    const cidade = String(req.query.cidade || '').trim();
+    if (!cidade) return res.json({ ok: true, bairros: [] });
+    const { query: _qLocB } = require('./services/db');
+    const estado = String(req.query.estado || '').trim();
+    const params = [cidade];
+    let sql = "SELECT DISTINCT bairro FROM localidades WHERE bairro IS NOT NULL AND bairro != '' AND cidade ILIKE $1";
+    if (estado) { params.push(estado); sql += ` AND estado ILIKE $${params.length}`; }
+    sql += ' ORDER BY bairro LIMIT 300';
+    const { rows } = await _qLocB(sql, params);
+    res.json({ ok: true, bairros: rows.map(r => r.bairro) });
+  } catch (e) { res.json({ ok: false, bairros: [] }); }
+});
 
 // Geocodifica bairros em background e salva cache
 app.get('/api/geocodificar-bairros', auth, async (req, res) => {

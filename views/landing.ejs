@@ -481,10 +481,20 @@
           </select>
         </div>
         <div class="m-field">
-          <label>Regiões de atuação</label>
-          <input type="text" id="regiaoInput" placeholder="Digite uma cidade/bairro e aperte Enter" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();adicionarRegiao();}">
-          <div id="regioesChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
-          <input type="hidden" name="regioesAtuacao" id="regioesAtuacaoHidden" value="[]">
+          <label>Estado de atuação</label>
+          <select id="areaEstadoInput"><option value="">Selecione...</option></select>
+        </div>
+        <div class="m-field">
+          <label>Cidade de atuação</label>
+          <input type="text" id="areaCidadeInput" list="areaCidadeLista" placeholder="Digite pra buscar a cidade" autocomplete="off" disabled>
+          <datalist id="areaCidadeLista"></datalist>
+        </div>
+        <div class="m-field" id="areaBairrosWrap" style="display:none">
+          <label>Bairros onde atua</label>
+          <div id="areaBairrosLista" style="max-height:160px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:8px;font-size:13px"></div>
+          <input type="hidden" name="areaAtuacaoEstado" id="areaAtuacaoEstadoHidden" value="">
+          <input type="hidden" name="areaAtuacaoCidade" id="areaAtuacaoCidadeHidden" value="">
+          <input type="hidden" name="areaAtuacaoBairros" id="areaAtuacaoBairrosHidden" value="[]">
         </div>
         <div class="m-field"><label>Senha</label><input name="senha" type="password" placeholder="Mínimo 4 caracteres" required minlength="4"></div>
         <button type="submit" class="m-btn">Criar conta grátis →</button>
@@ -511,31 +521,68 @@ function setTab(t){
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
-// Regiões de atuação (cadastro) — chips livres, guardados como JSON no hidden
-// input que o POST /login lê (req.body.regioesAtuacao).
-let _regioesEscolhidas = [];
-function _renderRegioes(){
-  const box = document.getElementById('regioesChips');
-  if(!box) return;
-  box.innerHTML = _regioesEscolhidas.map((r,i)=>
-    '<span style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:4px 10px;border-radius:20px;font-size:12.5px;display:inline-flex;align-items:center;gap:6px">'+
-    r.replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+
-    ' <span style="cursor:pointer;font-weight:700" onclick="removerRegiao('+i+')">×</span></span>'
-  ).join('');
-  document.getElementById('regioesAtuacaoHidden').value = JSON.stringify(_regioesEscolhidas);
+// Cidade + bairros de atuação (cadastro) — estado -> cidade (autocomplete
+// contra /api/localidades/cidades) -> bairros dessa cidade (checkbox, contra
+// /api/localidades/bairros). Guardado estruturado (não texto livre) porque a
+// ideia é depois usar isso pra rotear lead automaticamente batendo o bairro.
+const UFS_BR = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+(function(){
+  const selEstado = document.getElementById('areaEstadoInput');
+  if(!selEstado) return;
+  UFS_BR.forEach(uf => { const o = document.createElement('option'); o.value = uf; o.textContent = uf; selEstado.appendChild(o); });
+})();
+let _bairrosEscolhidos = [];
+let _debounceCidade;
+async function _buscarCidades(){
+  const estado = document.getElementById('areaEstadoInput').value;
+  const q = document.getElementById('areaCidadeInput').value.trim();
+  if(!estado || q.length < 2) return;
+  try {
+    const r = await fetch('/api/localidades/cidades?estado='+encodeURIComponent(estado)+'&q='+encodeURIComponent(q));
+    const d = await r.json();
+    const dl = document.getElementById('areaCidadeLista');
+    dl.innerHTML = (d.cidades||[]).map(c => '<option value="'+c.replace(/"/g,'')+'">').join('');
+  } catch(e){}
 }
-function adicionarRegiao(){
-  const input = document.getElementById('regiaoInput');
-  const v = (input.value||'').trim();
-  if(!v || _regioesEscolhidas.length>=20) return;
-  if(!_regioesEscolhidas.includes(v)) _regioesEscolhidas.push(v);
-  input.value='';
-  _renderRegioes();
+async function _selecionarCidade(){
+  const estado = document.getElementById('areaEstadoInput').value;
+  const cidade = document.getElementById('areaCidadeInput').value.trim();
+  _bairrosEscolhidos = [];
+  document.getElementById('areaAtuacaoEstadoHidden').value = estado;
+  document.getElementById('areaAtuacaoCidadeHidden').value = cidade;
+  document.getElementById('areaAtuacaoBairrosHidden').value = '[]';
+  const wrap = document.getElementById('areaBairrosWrap');
+  const lista = document.getElementById('areaBairrosLista');
+  if(!estado || !cidade){ wrap.style.display='none'; return; }
+  lista.innerHTML = '<span style="color:#9ca3af;font-size:12px">Carregando bairros...</span>';
+  wrap.style.display = 'block';
+  try {
+    const r = await fetch('/api/localidades/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
+    const d = await r.json();
+    if(!d.bairros || !d.bairros.length){ lista.innerHTML = '<span style="color:#9ca3af;font-size:12px">Nenhum bairro encontrado pra essa cidade.</span>'; return; }
+    lista.innerHTML = d.bairros.map(b => {
+      const id = 'bairro-'+b.replace(/[^a-zA-Z0-9]/g,'');
+      return '<label style="display:block;margin-bottom:4px;cursor:pointer"><input type="checkbox" value="'+b.replace(/"/g,'')+'" onchange="_toggleBairro(this)"> '+b+'</label>';
+    }).join('');
+  } catch(e){ lista.innerHTML = '<span style="color:#dc2626;font-size:12px">Erro ao buscar bairros.</span>'; }
 }
-function removerRegiao(i){
-  _regioesEscolhidas.splice(i,1);
-  _renderRegioes();
+function _toggleBairro(chk){
+  if(chk.checked){ if(!_bairrosEscolhidos.includes(chk.value)) _bairrosEscolhidos.push(chk.value); }
+  else { _bairrosEscolhidos = _bairrosEscolhidos.filter(b => b !== chk.value); }
+  document.getElementById('areaAtuacaoBairrosHidden').value = JSON.stringify(_bairrosEscolhidos);
 }
+(function(){
+  const selEstado = document.getElementById('areaEstadoInput');
+  const inputCidade = document.getElementById('areaCidadeInput');
+  if(!selEstado || !inputCidade) return;
+  selEstado.addEventListener('change', () => {
+    inputCidade.disabled = !selEstado.value;
+    inputCidade.value = '';
+    document.getElementById('areaBairrosWrap').style.display = 'none';
+  });
+  inputCidade.addEventListener('input', () => { clearTimeout(_debounceCidade); _debounceCidade = setTimeout(_buscarCidades, 300); });
+  inputCidade.addEventListener('change', _selecionarCidade);
+})();
 
 // Reabrir modal na aba correta se tiver erro
 (function(){

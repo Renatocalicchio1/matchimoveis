@@ -197,10 +197,20 @@
         <input value="<%= user.codigoUsuario||user.codigo||'-' %>" readonly class="strong">
       </div>
       <div class="pf-field">
-        <label>Regiões de atuação</label>
-        <input type="text" id="pfRegiaoInput" placeholder="Digite uma cidade/bairro e aperte Enter">
-        <div id="pfRegioesChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
-        <input type="hidden" name="regioesAtuacao" id="pfRegioesHidden">
+        <label>Estado de atuação</label>
+        <select id="pfAreaEstadoInput"><option value="">Selecione...</option></select>
+      </div>
+      <div class="pf-field">
+        <label>Cidade de atuação</label>
+        <input type="text" id="pfAreaCidadeInput" list="pfAreaCidadeLista" placeholder="Digite pra buscar a cidade" autocomplete="off">
+        <datalist id="pfAreaCidadeLista"></datalist>
+      </div>
+      <div class="pf-field" id="pfAreaBairrosWrap" style="display:none">
+        <label>Bairros onde atua</label>
+        <div id="pfAreaBairrosLista" style="max-height:160px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;padding:8px;font-size:13px"></div>
+        <input type="hidden" name="areaAtuacaoEstado" id="pfAreaAtuacaoEstadoHidden">
+        <input type="hidden" name="areaAtuacaoCidade" id="pfAreaAtuacaoCidadeHidden">
+        <input type="hidden" name="areaAtuacaoBairros" id="pfAreaAtuacaoBairrosHidden">
       </div>
     </div>
     <button class="pf-btn" type="submit">Salvar perfil</button>
@@ -214,31 +224,69 @@
   const _nomeImportado = <%- JSON.stringify(user.nomeImportado||'') %>;
   const _temLocalizacao = <%- JSON.stringify(!!(user.lat && user.lng)) %>;
 
-  // Regiões de atuação — mesmos chips do cadastro (landing.ejs), aqui dá pra
-  // editar depois. Dispara 'input' no hidden pra cair no mesmo autosave abaixo.
-  let _pfRegioes = <%- JSON.stringify(user.regioesAtuacao||[]) %>;
-  const pfRegioesHidden = document.getElementById('pfRegioesHidden');
-  const pfRegioesChips = document.getElementById('pfRegioesChips');
-  const pfRegiaoInput = document.getElementById('pfRegiaoInput');
-  function _pfRenderRegioes(){
-    pfRegioesChips.innerHTML = _pfRegioes.map((r,i)=>
-      '<span style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:4px 10px;border-radius:20px;font-size:12.5px;display:inline-flex;align-items:center;gap:6px">'+
-      r.replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+
-      ' <span style="cursor:pointer;font-weight:700" onclick="_pfRemoverRegiao('+i+')">×</span></span>'
-    ).join('');
-    pfRegioesHidden.value = JSON.stringify(_pfRegioes);
-    pfRegioesHidden.dispatchEvent(new Event('input', { bubbles: true }));
+  // Cidade + bairros de atuação — estruturado (estado -> cidade -> bairros
+  // reais, via /api/localidades/*), pra depois dar pra rotear lead batendo
+  // o bairro. Mesmo mecanismo do cadastro (landing.ejs). Dispara 'input' nos
+  // hidden pra cair no mesmo autosave abaixo.
+  const UFS_BR = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+  const pfSelEstado = document.getElementById('pfAreaEstadoInput');
+  const pfInputCidade = document.getElementById('pfAreaCidadeInput');
+  const pfWrapBairros = document.getElementById('pfAreaBairrosWrap');
+  const pfListaBairros = document.getElementById('pfAreaBairrosLista');
+  const pfHiddenEstado = document.getElementById('pfAreaAtuacaoEstadoHidden');
+  const pfHiddenCidade = document.getElementById('pfAreaAtuacaoCidadeHidden');
+  const pfHiddenBairros = document.getElementById('pfAreaAtuacaoBairrosHidden');
+  const _estadoAtual = <%- JSON.stringify(user.areaAtuacaoEstado||'') %>;
+  const _cidadeAtual = <%- JSON.stringify(user.areaAtuacaoCidade||'') %>;
+  let _pfBairros = <%- JSON.stringify(user.areaAtuacaoBairros||[]) %>;
+  UFS_BR.forEach(uf => { const o = document.createElement('option'); o.value = uf; o.textContent = uf; pfSelEstado.appendChild(o); });
+  pfSelEstado.value = _estadoAtual;
+  pfInputCidade.value = _cidadeAtual;
+  pfHiddenEstado.value = _estadoAtual;
+  pfHiddenCidade.value = _cidadeAtual;
+  pfHiddenBairros.value = JSON.stringify(_pfBairros);
+  let _pfDebounceCidade;
+  async function _pfBuscarCidades(){
+    const estado = pfSelEstado.value;
+    const q = pfInputCidade.value.trim();
+    if(!estado || q.length < 2) return;
+    try {
+      const r = await fetch('/api/localidades/cidades?estado='+encodeURIComponent(estado)+'&q='+encodeURIComponent(q));
+      const d = await r.json();
+      document.getElementById('pfAreaCidadeLista').innerHTML = (d.cidades||[]).map(c => '<option value="'+c.replace(/"/g,'')+'">').join('');
+    } catch(e){}
   }
-  window._pfRemoverRegiao = function(i){ _pfRegioes.splice(i,1); _pfRenderRegioes(); };
-  pfRegiaoInput.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter' && e.key !== ',') return;
-    e.preventDefault();
-    const v = pfRegiaoInput.value.trim();
-    if (v && _pfRegioes.length < 20 && !_pfRegioes.includes(v)) _pfRegioes.push(v);
-    pfRegiaoInput.value = '';
-    _pfRenderRegioes();
-  });
-  _pfRenderRegioes();
+  async function _pfSelecionarCidade(manteveBairros){
+    const estado = pfSelEstado.value;
+    const cidade = pfInputCidade.value.trim();
+    if(!manteveBairros) _pfBairros = [];
+    pfHiddenEstado.value = estado;
+    pfHiddenCidade.value = cidade;
+    pfHiddenBairros.value = JSON.stringify(_pfBairros);
+    if(!estado || !cidade){ pfWrapBairros.style.display='none'; return; }
+    pfListaBairros.innerHTML = '<span style="color:#9ca3af;font-size:12px">Carregando bairros...</span>';
+    pfWrapBairros.style.display = 'block';
+    try {
+      const r = await fetch('/api/localidades/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
+      const d = await r.json();
+      if(!d.bairros || !d.bairros.length){ pfListaBairros.innerHTML = '<span style="color:#9ca3af;font-size:12px">Nenhum bairro encontrado pra essa cidade.</span>'; return; }
+      pfListaBairros.innerHTML = d.bairros.map(b => {
+        const marcado = _pfBairros.includes(b) ? ' checked' : '';
+        return '<label style="display:block;margin-bottom:4px;cursor:pointer"><input type="checkbox" value="'+b.replace(/"/g,'')+'"'+marcado+' onchange="_pfToggleBairro(this)"> '+b+'</label>';
+      }).join('');
+    } catch(e){ pfListaBairros.innerHTML = '<span style="color:#dc2626;font-size:12px">Erro ao buscar bairros.</span>'; }
+  }
+  window._pfToggleBairro = function(chk){
+    if(chk.checked){ if(!_pfBairros.includes(chk.value)) _pfBairros.push(chk.value); }
+    else { _pfBairros = _pfBairros.filter(b => b !== chk.value); }
+    pfHiddenBairros.value = JSON.stringify(_pfBairros);
+    pfHiddenBairros.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  pfSelEstado.addEventListener('change', () => { pfInputCidade.value=''; pfWrapBairros.style.display='none'; pfHiddenEstado.value = pfSelEstado.value; pfHiddenEstado.dispatchEvent(new Event('input', { bubbles: true })); });
+  pfInputCidade.addEventListener('input', () => { clearTimeout(_pfDebounceCidade); _pfDebounceCidade = setTimeout(_pfBuscarCidades, 300); });
+  pfInputCidade.addEventListener('change', () => { _pfSelecionarCidade(false); pfHiddenCidade.dispatchEvent(new Event('input', { bubbles: true })); });
+  // Pré-carrega os bairros já salvos, mantendo os que já estavam marcados.
+  if(_estadoAtual && _cidadeAtual) _pfSelecionarCidade(true);
 
   let timer;
   // Salva automaticamente enquanto o usuário preenche — sem precisar clicar

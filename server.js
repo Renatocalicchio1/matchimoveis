@@ -18141,6 +18141,12 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
   try {
     const { listarCampanhas } = require('./services/salvarDisparo');
     const campanhas = await listarCampanhas().catch(()=>[]);
+    const { listarAdminContas } = require('./services/salvarAdminConta');
+    const _subAdminsOpts = (await listarAdminContas().catch(()=>[]))
+      .filter(c => c.ativo)
+      .map(c => `<label style="display:flex;align-items:center;gap:6px;font-weight:400;margin:4px 0">
+        <input type="checkbox" class="chk-subadmin" value="${c.usuario}" checked style="width:auto"> ${c.nome || c.usuario}
+      </label>`).join('');
     const _corretoresOpts = (_cacheUsuarios || [])
       .filter(u => u.tipo !== 'admin' && (u.codigoUsuario || u.id))
       .sort((a,b) => (a.nome||'').localeCompare(b.nome||''))
@@ -18228,6 +18234,37 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       </div>
       <button onclick="iniciar()">🚀 Iniciar campanha</button>
       <div id="resultado"></div>
+    </div>
+
+    <div class="box">
+      <h3>3. Ou: campanha pra quem já abriu o email da campanha</h3>
+      <p class="gray">Pega quem abriu o email, parece corretor e tem celular — sem planilha. Cada contato é distribuído em round-robin entre os sub-admins marcados abaixo, e ganha o botão de auto-cadastro (cria conta com 1.000 créditos ao clicar).</p>
+      <label>Nome da campanha</label>
+      <input type="text" id="emailNomeCampanha" placeholder="Ex: Cadastre seu imóvel — agosto/2026">
+      <label>Nome do template (aprovado no WhatsApp Manager)</label>
+      <input type="text" id="emailTemplateNome" placeholder="Ex: cadastre_seu_imovel">
+      <label>Idioma do template</label>
+      <input type="text" id="emailTemplateIdioma" value="pt_BR">
+      <label>Número de envio</label>
+      <select id="emailPhoneNumberId">
+        <option value="">— padrão (variável de ambiente) —</option>
+        <option value="1210590465475893">+55 11 97860-0214 — Usuários do sistema</option>
+        <option value="1234898449710364">+55 11 95665-5428 — Captação de proprietários</option>
+      </select>
+      <label>Sub-admins que entram no round-robin</label>
+      ${_subAdminsOpts || '<p class="red">Nenhum sub-admin ativo cadastrado em /admin/contas-admin.</p>'}
+      <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:10px">
+        <input type="checkbox" id="emailRestringirHorario" checked style="width:auto">
+        Só enviar entre 12h-13h e 20h-21h (horário de Brasília)
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px">
+        <input type="checkbox" id="emailIgnorarHistorico" style="width:auto">
+        Ignorar histórico — enviar mesmo pra quem já recebeu disparo antes
+      </label>
+      <label>Delay entre envios (ms)</label>
+      <input type="number" id="emailDelayMs" value="2500" min="500" max="30000">
+      <button onclick="iniciarDeEmail()">🚀 Iniciar campanha de quem abriu o email</button>
+      <div id="email-resultado"></div>
     </div>
 
     <div class="box">
@@ -18333,6 +18370,37 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
         document.getElementById('resultado').innerHTML = '<p class="gray">⚠️ '+avisos.join(', ')+'. Redirecionando...</p>';
         await new Promise(r=>setTimeout(r,1800));
       }
+      window.location = '/admin/disparos/'+d.campanhaId;
+    }
+
+    async function iniciarDeEmail(){
+      const nomeCampanha = document.getElementById('emailNomeCampanha').value.trim();
+      const templateNome = document.getElementById('emailTemplateNome').value.trim();
+      if(!nomeCampanha){ alert('Dê um nome pra campanha'); return; }
+      if(!templateNome){ alert('Informe o nome do template aprovado'); return; }
+      const subAdmins = [...document.querySelectorAll('.chk-subadmin:checked')].map(c=>c.value);
+      if(!subAdmins.length){ alert('Marque ao menos 1 sub-admin'); return; }
+      if(!confirm('Iniciar campanha pra quem já abriu o email, distribuindo entre '+subAdmins.length+' sub-admin(s)? Essa ação não pode ser desfeita.')) return;
+      document.getElementById('email-resultado').innerHTML = '<p>⏳ Criando campanha...</p>';
+      const body = {
+        nomeCampanha,
+        templateNome,
+        templateIdioma: document.getElementById('emailTemplateIdioma').value,
+        phoneNumberId: document.getElementById('emailPhoneNumberId').value,
+        subAdmins,
+        restringirHorario: document.getElementById('emailRestringirHorario').checked,
+        ignorarHistorico: document.getElementById('emailIgnorarHistorico').checked,
+        delayMs: parseInt(document.getElementById('emailDelayMs').value)||2500
+      };
+      const r = await fetch('/admin/disparos/criar-de-campanha-email', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const d = await r.json();
+      if(!d.ok){ document.getElementById('email-resultado').innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
+      let avisos = [];
+      if(d.optout > 0) avisos.push(d.optout+' pulado(s) por opt-out');
+      if(d.jaEnviados > 0) avisos.push(d.jaEnviados+' pulado(s) por já terem recebido esse disparo antes');
+      if(d.jaCadastrados > 0) avisos.push(d.jaCadastrados+' pulado(s) por já ter conta no sistema');
+      document.getElementById('email-resultado').innerHTML = '<p class="green">✅ Campanha criada com '+d.totalContatos+' contato(s).'+(avisos.length ? ' ⚠️ '+avisos.join(', ')+'.' : '')+' Redirecionando...</p>';
+      await new Promise(r=>setTimeout(r,1800));
       window.location = '/admin/disparos/'+d.campanhaId;
     }
     </script>

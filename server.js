@@ -19925,6 +19925,18 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
           await marcarBonusCaptacaoPago(_envioBonus.id);
           const { query: _qCapQA } = require('./services/db');
           await _qCapQA(`UPDATE usuarios SET autoriza_quintoandar=true WHERE codigo_usuario=$1 AND autoriza_quintoandar IS NOT TRUE`, [atualizado.userId || atualizado.user_id]);
+          // Publica sozinho (status='ativo') assim que os campos que o
+          // QuintoAndar exige já estão preenchidos (mesmo critério de
+          // gerarXMLQuintoAndarGlobal: endereço completo + proprietário com
+          // nome e telefone) — sem isso o imóvel ficava "nao_publicado"
+          // esperando alguém revisar manualmente em /app/imovel/:id/editar
+          // antes de entrar no feed, mesmo já flegado autoriza_quintoandar.
+          const _completoQA = atualizado.cep && atualizado.endereco && atualizado.numero &&
+            atualizado.proprietario && atualizado.proprietario.nome &&
+            (atualizado.proprietario.celular || atualizado.proprietario.telefone);
+          if (_completoQA) {
+            await _qCapQA(`UPDATE imoveis SET status='ativo' WHERE id=$1 AND status != 'ativo'`, [imovelId]);
+          }
         }
       } catch (e) { console.error('[captar/imovel] bonus captação:', e.message); }
       try {

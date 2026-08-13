@@ -71,6 +71,16 @@ async function _inicializar() {
   // na criação da campanha.
   await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS restringir_horario BOOLEAN DEFAULT false`);
   await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS auto_respondido_em TIMESTAMP`);
+  // Teste A/B de mensagem: quando a campanha tem mais de 1 template em
+  // `templates` (JSONB [{nome,idioma},...]), cada contato recebe um sorteado
+  // na hora de entrar na fila (inserirContatos) — fica gravado nele mesmo
+  // (template_nome_usado/idioma_usado) pra saber depois qual template levou
+  // a mais clique/cadastro/compra. Campanha com 1 template só (a maioria)
+  // usa direto template_nome/template_idioma, sem sorteio — templates fica
+  // NULL e o worker cai no fallback.
+  await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS templates JSONB`);
+  await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS template_nome_usado TEXT`);
+  await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS template_idioma_usado TEXT`);
   // "enviado" só quer dizer que a Meta aceitou o pedido — não confirma que
   // chegou no aparelho da pessoa. O status de entrega de verdade (sent →
   // delivered → read, ou failed) chega depois via webhook (POST /messages
@@ -159,13 +169,17 @@ async function listarJaEnviados(telefones) {
   return rows.map(r => r.telefone);
 }
 
-async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId, usarContatoIdBotao, phoneNumberId, restringirHorario }) {
+// templates: opcional, array [{nome,idioma}] pra teste A/B — quando tem
+// 2+ entradas, cada contato sorteia um template na hora de entrar na fila
+// (inserirContatos). templateNome/templateIdioma continuam obrigatórios
+// como fallback (campanha de 1 template só não usa o array).
+async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, templates, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId, usarContatoIdBotao, phoneNumberId, restringirHorario }) {
   await _inicializar();
   const id = uuidv4();
   await query(
-    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id, usar_contato_id_botao, phone_number_id, restringir_horario)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
-    [id, nomeCampanha, templateNome, templateIdioma, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null, !!usarContatoIdBotao, phoneNumberId || null, !!restringirHorario]
+    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, templates, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id, usar_contato_id_botao, phone_number_id, restringir_horario)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+    [id, nomeCampanha, templateNome, templateIdioma, (templates && templates.length > 1) ? JSON.stringify(templates) : null, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null, !!usarContatoIdBotao, phoneNumberId || null, !!restringirHorario]
   );
   return id;
 }
@@ -174,12 +188,18 @@ async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapea
 // pra quem já recebeu mensagem antes) — ainda respeita opt-out (quem pediu
 // pra não receber mais continua bloqueado), só pula a checagem de "já
 // enviado antes".
-async function inserirContatos(campanhaId, contatos, jaCadastradosSet, ignorarHistorico) {
+// templates: mesmo array [{nome,idioma}] passado em criarCampanha — quando
+// tem 2+, cada contato sorteia um pra virar teste A/B (ver comentário na
+// migração de template_nome_usado). Passar de novo aqui (em vez de buscar
+// a campanha dentro da função) porque quem chama já tem esse dado na mão
+// na maioria dos casos, evita 1 SELECT a mais por lote grande.
+async function inserirContatos(campanhaId, contatos, jaCadastradosSet, ignorarHistorico, templates) {
   await _inicializar();
   const telefones = [...new Set(contatos.map(c => c.telefone).filter(Boolean))];
   const optados = new Set(await listarOptout(telefones));
   const jaEnviadosSet = ignorarHistorico ? new Set() : new Set(await listarJaEnviados(telefones));
   const _jaCadSet = jaCadastradosSet || new Set();
+  const _sorteioAtivo = Array.isArray(templates) && templates.length > 1;
   let inseridos = 0, optout = 0, jaEnviados = 0, jaCadastrados = 0;
   for (const c of contatos) {
     if (!c.telefone) continue;
@@ -188,9 +208,10 @@ async function inserirContatos(campanhaId, contatos, jaCadastradosSet, ignorarHi
     const jaTemConta = !emOptout && !jaFoiEnviado && _jaCadSet.has(c.telefone);
     const status = emOptout ? 'optout' : jaFoiEnviado ? 'ja_enviado' : jaTemConta ? 'ja_cadastrado' : 'pendente';
     if (jaTemConta) jaCadastrados++;
+    const _sorteado = _sorteioAtivo ? templates[Math.floor(Math.random() * templates.length)] : null;
     await query(
-      `INSERT INTO disparos_contatos (id, campanha_id, nome, telefone, variaveis, status) VALUES ($1,$2,$3,$4,$5,$6)`,
-      [uuidv4(), campanhaId, c.nome || '', c.telefone, JSON.stringify(c.variaveis || {}), status]
+      `INSERT INTO disparos_contatos (id, campanha_id, nome, telefone, variaveis, status, template_nome_usado, template_idioma_usado) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [uuidv4(), campanhaId, c.nome || '', c.telefone, JSON.stringify(c.variaveis || {}), status, _sorteado?.nome || null, _sorteado?.idioma || null]
     );
     inseridos++;
     if (emOptout) optout++;
@@ -310,7 +331,7 @@ async function listarContatos(campanhaId, { pagina = 1, status = '', q = '' } = 
 async function proximoLotePendente(campanhaId, limite) {
   await _inicializar();
   const { rows } = await query(
-    `SELECT id, nome, telefone, variaveis FROM disparos_contatos WHERE campanha_id=$1 AND status='pendente' ORDER BY criado_em ASC LIMIT $2`,
+    `SELECT id, nome, telefone, variaveis, template_nome_usado, template_idioma_usado FROM disparos_contatos WHERE campanha_id=$1 AND status='pendente' ORDER BY criado_em ASC LIMIT $2`,
     [campanhaId, limite]
   );
   return rows;
@@ -385,6 +406,39 @@ async function statsEntrega(campanhaId) {
   return mapa;
 }
 
+// Performance por variante de template (teste A/B) — pra cada template usado
+// numa campanha, quantos foram enviados, responderam, cadastraram e (o que
+// importa de verdade) compraram. "Comprou" é lido de usuarios.dados->>'comprouEm'
+// (marcado em server.js na hora do pagamento aprovado), casado pelo telefone
+// do contato do mesmo jeito que _CADASTROU_EXISTS já faz.
+async function statsPorTemplate(campanhaId) {
+  await _inicializar();
+  const { rows } = await query(`
+    SELECT
+      COALESCE(dc.template_nome_usado, camp.template_nome) AS template,
+      COUNT(*) AS total,
+      COUNT(*) FILTER (WHERE dc.status IN ('enviado','convertido')) AS enviados,
+      COUNT(*) FILTER (WHERE dc.auto_respondido_em IS NOT NULL) AS respondeu,
+      COUNT(*) FILTER (WHERE dc.status = 'convertido') AS cadastrou,
+      COUNT(*) FILTER (WHERE EXISTS (
+        SELECT 1 FROM usuarios u
+        WHERE (RIGHT(REGEXP_REPLACE(COALESCE(u.telefone,''), '\\D', '', 'g'), 8) = RIGHT(REGEXP_REPLACE(dc.telefone,'\\D','','g'), 8)
+           OR RIGHT(REGEXP_REPLACE(COALESCE(u.celular,''), '\\D', '', 'g'), 8) = RIGHT(REGEXP_REPLACE(dc.telefone,'\\D','','g'), 8))
+          AND u.dados->>'comprouEm' IS NOT NULL
+      )) AS comprou
+    FROM disparos_contatos dc
+    JOIN disparos_campanhas camp ON camp.id = dc.campanha_id
+    WHERE dc.campanha_id = $1
+    GROUP BY COALESCE(dc.template_nome_usado, camp.template_nome)
+    ORDER BY comprou DESC, cadastrou DESC
+  `, [campanhaId]);
+  return rows.map(r => ({
+    template: r.template,
+    total: parseInt(r.total), enviados: parseInt(r.enviados), respondeu: parseInt(r.respondeu),
+    cadastrou: parseInt(r.cadastrou), comprou: parseInt(r.comprou)
+  }));
+}
+
 async function buscarFollowupMensagem() {
   await _inicializar();
   const { rows } = await query(`SELECT mensagem FROM whatsapp_followup_config WHERE id=1`);
@@ -436,5 +490,6 @@ module.exports = {
   listarCampanhasAguardandoJanela,
   buscarContatoPorTelefone,
   marcarAutoRespondido,
-  listarContatosPorRefAdmin
+  listarContatosPorRefAdmin,
+  statsPorTemplate
 };

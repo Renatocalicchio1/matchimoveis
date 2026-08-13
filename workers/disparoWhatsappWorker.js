@@ -32,12 +32,17 @@ async function enviarComRetry(contato, campanha) {
     : campanha.usar_contato_id_botao
       ? [{ index: 0, valor: _refAdmin ? `${contato.id}?ref=${_refAdmin}` : contato.id }]
       : undefined;
+  // Teste A/B: se esse contato sorteou um template na criação da campanha
+  // (inserirContatos, quando campanha.templates tem 2+), usa ele — senão
+  // cai no template único da campanha (caso normal, sem A/B).
+  const _templateNome = contato.template_nome_usado || campanha.template_nome;
+  const _templateIdioma = contato.template_idioma_usado || campanha.template_idioma;
   for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
     try {
       const resultado = await enviarTemplate({
         telefone: contato.telefone,
-        templateNome: campanha.template_nome,
-        templateIdioma: campanha.template_idioma,
+        templateNome: _templateNome,
+        templateIdioma: _templateIdioma,
         parametros,
         botoesUrl,
         phoneNumberId: campanha.phone_number_id || undefined

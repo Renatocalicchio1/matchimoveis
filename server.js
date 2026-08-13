@@ -3891,6 +3891,10 @@ app.get('/entrar/:contatoId', async (req, res) => {
         // o valor — não substituem a compra. Só libera o resto da plataforma
         // depois de contratar um dos combos (ver middleware precisaComprarPlano).
         precisaComprarPlano: true,
+        // Qual variante de template (teste A/B) trouxe essa conta — usado
+        // por statsPorTemplate() pra saber qual mensagem converte mais em
+        // cadastro/compra, não só em clique.
+        origemTemplate: contato.template_nome_usado || _campanhaEntrar?.template_nome || '',
         // Sub-admin responsável por essa conta — ganha 20% em comissão
         // sempre que ela comprar créditos (ver _processarBonusIndicacao).
         atendidoPorAdmin: _adminAtendente?.usuario || '',
@@ -11101,6 +11105,16 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
     const comprador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === userId);
     if (!comprador) return;
 
+    // Primeira compra — marca pra statsPorTemplate() conseguir medir conversão
+    // até "comprou", não só até "cadastrou". Só na 1ª vez (evita reescrever
+    // a cada recarga seguinte).
+    if (!comprador.comprouEm) {
+      const { atualizarUsuario: _auComprouEm } = require('./services/salvarUsuario');
+      const _comprouEmStamp = new Date().toISOString();
+      await _auComprouEm(userId, { comprouEm: _comprouEmStamp });
+      comprador.comprouEm = _comprouEmStamp;
+    }
+
     if (comprador.indicadoPor) {
       const indicadorCodigo = comprador.indicadoPor;
       const indicador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === indicadorCodigo);
@@ -18278,10 +18292,13 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       <p class="gray">Pega quem abriu o email, parece corretor e tem celular — sem planilha. Cada contato é distribuído em round-robin entre os sub-admins marcados abaixo, e ganha o botão de auto-cadastro (cria conta com 1.000 créditos ao clicar).</p>
       <label>Nome da campanha</label>
       <input type="text" id="emailNomeCampanha" placeholder="Ex: Cadastre seu imóvel — agosto/2026">
-      <label>Nome do template (aprovado no WhatsApp Manager)</label>
+      <label>Nome do template principal (aprovado no WhatsApp Manager)</label>
       <input type="text" id="emailTemplateNome" placeholder="Ex: cadastre_seu_imovel">
       <label>Idioma do template</label>
       <input type="text" id="emailTemplateIdioma" value="pt_BR">
+      <label>Teste A/B — outros templates pra sortear junto (opcional, 1 por linha, formato <code>nome</code> ou <code>nome|idioma</code>)</label>
+      <textarea id="emailTemplatesAB" rows="3" placeholder="cadastre_seu_imovel_v2&#10;cadastre_seu_imovel_v3|pt_BR"></textarea>
+      <p class="gray" style="margin-top:-4px">Preenchendo isso, cada contato sorteia um template (incluindo o principal) — depois dá pra ver na campanha qual gerou mais clique/cadastro/compra.</p>
       <label>Número de envio</label>
       <select id="emailPhoneNumberId">
         <option value="">— padrão (variável de ambiente) —</option>
@@ -18417,12 +18434,23 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
       if(!templateNome){ alert('Informe o nome do template aprovado'); return; }
       const subAdmins = [...document.querySelectorAll('.chk-subadmin:checked')].map(c=>c.value);
       if(!subAdmins.length){ alert('Marque ao menos 1 sub-admin'); return; }
-      if(!confirm('Iniciar campanha pra quem já abriu o email, distribuindo entre '+subAdmins.length+' sub-admin(s)? Essa ação não pode ser desfeita.')) return;
+      const templateIdioma = document.getElementById('emailTemplateIdioma').value;
+      const _abLinhas = document.getElementById('emailTemplatesAB').value.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+      let templates = null;
+      if(_abLinhas.length){
+        templates = [{ nome: templateNome, idioma: templateIdioma }];
+        _abLinhas.forEach(function(linha){
+          const partes = linha.split('|').map(function(p){return p.trim();});
+          templates.push({ nome: partes[0], idioma: partes[1] || templateIdioma });
+        });
+      }
+      if(!confirm('Iniciar campanha pra quem já abriu o email, distribuindo entre '+subAdmins.length+' sub-admin(s)'+(templates ? ' e '+templates.length+' template(s) em teste A/B' : '')+'? Essa ação não pode ser desfeita.')) return;
       document.getElementById('email-resultado').innerHTML = '<p>⏳ Criando campanha...</p>';
       const body = {
         nomeCampanha,
         templateNome,
-        templateIdioma: document.getElementById('emailTemplateIdioma').value,
+        templateIdioma,
+        templates,
         phoneNumberId: document.getElementById('emailPhoneNumberId').value,
         subAdmins,
         restringirHorario: document.getElementById('emailRestringirHorario').checked,
@@ -18634,7 +18662,7 @@ app.post('/admin/disparos/criar-de-usuarios', authAdmin, express.json(), async (
 // 20% quando essa conta comprar créditos (ver _processarBonusIndicacao).
 app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), async (req, res) => {
   try {
-    const { nomeCampanha, templateNome, templateIdioma, delayMs, phoneNumberId, restringirHorario, ignorarHistorico, subAdmins } = req.body;
+    const { nomeCampanha, templateNome, templateIdioma, templates, delayMs, phoneNumberId, restringirHorario, ignorarHistorico, subAdmins } = req.body;
     if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
     if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
 
@@ -18684,6 +18712,7 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
       nomeCampanha,
       templateNome,
       templateIdioma: templateIdioma || 'pt_BR',
+      templates: Array.isArray(templates) ? templates.filter(t => t && t.nome) : undefined,
       mapeamentoVariaveis: ['nome'],
       delayMs: delayMs || 2500,
       criadoPor: 'admin',
@@ -18692,7 +18721,7 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
       usarContatoIdBotao: true
     });
 
-    const { optout, jaEnviados, jaCadastrados } = await inserirContatos(campanhaId, contatos, jaCadastradosSet, !!ignorarHistorico);
+    const { optout, jaEnviados, jaCadastrados } = await inserirContatos(campanhaId, contatos, jaCadastradosSet, !!ignorarHistorico, templates);
 
     const { dispararWorkerDisparo } = require('./services/workerDispatch');
     dispararWorkerDisparo(campanhaId);
@@ -18983,9 +19012,20 @@ app.get('/admin/disparos/optout', authAdmin, async (req, res) => {
 
 app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
   try {
-    const { buscarCampanha } = require('./services/salvarDisparo');
+    const { buscarCampanha, statsPorTemplate } = require('./services/salvarDisparo');
     const c = await buscarCampanha(req.params.id);
     if (!c) return res.status(404).send('Campanha não encontrada');
+    const _statsTemplate = await statsPorTemplate(req.params.id).catch(() => []);
+    const _pct = (num, den) => den > 0 ? Math.round((num / den) * 100) : 0;
+    const _maiorComprou = Math.max(0, ..._statsTemplate.map(t => t.comprou));
+    const _linhasTemplate = _statsTemplate.map(t => `
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:8px;font-weight:600">${t.template || '(sem template)'}${t.comprou > 0 && t.comprou === _maiorComprou && _statsTemplate.length > 1 ? ' 🏆' : ''}</td>
+        <td style="padding:8px">${t.enviados}</td>
+        <td style="padding:8px">${t.respondeu} <span class="gray">(${_pct(t.respondeu, t.enviados)}%)</span></td>
+        <td style="padding:8px">${t.cadastrou} <span class="gray">(${_pct(t.cadastrou, t.enviados)}%)</span></td>
+        <td style="padding:8px;font-weight:700;color:#16a34a">${t.comprou} <span class="gray" style="font-weight:400">(${_pct(t.comprou, t.enviados)}%)</span></td>
+      </tr>`).join('');
     res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${c.nome_campanha} — Disparos WhatsApp</title>
     <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
     ${_adminShellCss()}
@@ -19019,6 +19059,15 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
       <div id="statusTxt" class="gray"></div>
       <button class="sec" id="btnPausar" onclick="pausar()" style="display:none">⏸ Pausar</button>
       <button id="btnRetomar" onclick="retomar()" style="display:none">▶ Retomar</button>
+    </div>
+
+    <div class="box">
+      <h3>🧪 Performance por template ${_statsTemplate.length > 1 ? '(teste A/B)' : ''}</h3>
+      <p class="gray">Do enviado até a compra de verdade — não só clique. 🏆 marca quem mais converteu em compra.</p>
+      <table>
+        <thead><tr><th>Template</th><th>Enviados</th><th>Respondeu</th><th>Cadastrou</th><th>Comprou</th></tr></thead>
+        <tbody>${_linhasTemplate || '<tr><td colspan="5" style="padding:16px;text-align:center;color:#9ca3af">Sem dados ainda</td></tr>'}</tbody>
+      </table>
     </div>
 
     <div class="box">

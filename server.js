@@ -2164,6 +2164,31 @@ app.post('/admin/copiar-imoveis/copiar', authAdmin, async (req, res) => {
 app.get('/admin', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
+    // Filtros pra achar usuário na lista (nome/código/telefone + sub-admin) —
+    // mesmo padrão de query string usado em /admin/copiar-imoveis e
+    // /admin/campanha/contatos.
+    const buscaT = (req.query.busca || '').trim();
+    const subadminT = (req.query.subadmin || '').trim();
+    const conds = [];
+    const pars = [];
+    if (buscaT) {
+      pars.push('%' + buscaT + '%');
+      const idxTexto = pars.length;
+      const digitsT = buscaT.replace(/\D/g, '');
+      if (digitsT.length >= 4) {
+        pars.push('%' + digitsT + '%');
+        conds.push(`(nome ILIKE $${idxTexto} OR codigo_usuario ILIKE $${idxTexto} OR regexp_replace(COALESCE(telefone,''),'\\D','','g') ILIKE $${pars.length})`);
+      } else {
+        conds.push(`(nome ILIKE $${idxTexto} OR codigo_usuario ILIKE $${idxTexto})`);
+      }
+    }
+    if (subadminT === '_nenhum') {
+      conds.push(`COALESCE(dados->>'atendidoPorAdmin','') = ''`);
+    } else if (subadminT) {
+      pars.push(subadminT);
+      conds.push(`dados->>'atendidoPorAdmin' = $${pars.length}`);
+    }
+    const whereUsuarios = conds.length ? ('WHERE ' + conds.join(' AND ')) : '';
     // atendidoPorAdmin* não é coluna própria — vem de dentro do JSONB `dados`
     // (userToRow() joga lá qualquer campo sem coluna dedicada, ver
     // services/salvarUsuario.js). Setado em POST /login (cadastro com ?ref=
@@ -2173,7 +2198,9 @@ app.get('/admin', authAdmin, async (req, res) => {
     // próprio sub-admin.
     const usuarios = await _q(`SELECT codigo_usuario, nome, telefone, criado_em, senha, whatsapp_status, ultimo_acesso, match_coins, autoriza_quintoandar,
       dados->>'atendidoPorAdmin' AS atendido_por_admin, dados->>'atendidoPorAdminNome' AS atendido_por_admin_nome, dados->>'atendidoPorAdminCor' AS atendido_por_admin_cor
-      FROM usuarios ORDER BY criado_em DESC`);
+      FROM usuarios ${whereUsuarios} ORDER BY criado_em DESC`, pars);
+    const { listarAdminContas: _listarContasFiltroAdmin } = require('./services/salvarAdminConta');
+    const _contasFiltroAdmin = await _listarContasFiltroAdmin().catch(() => []);
     const solQA = await _q('SELECT user_id, atendido FROM solicitacoes_quintoandar').catch(()=>({rows:[]}));
     const solQAMap = {}; solQA.rows.forEach(r => solQAMap[r.user_id] = r.atendido);
     const counts = await _q('SELECT user_id, COUNT(*) as total FROM imoveis GROUP BY user_id');
@@ -2263,7 +2290,18 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
       </tbody>
     </table>
   </div>
+  <form method="GET" action="/admin" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+    <input type="text" name="busca" value="${buscaT.replace(/"/g,'&quot;')}" placeholder="Nome, código ou telefone..." style="flex:1;min-width:220px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;">
+    <select name="subadmin" style="padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;">
+      <option value="">Todos os sub-admins</option>
+      <option value="_nenhum" ${subadminT==='_nenhum'?'selected':''}>Sem sub-admin</option>
+      ${_contasFiltroAdmin.map(c => `<option value="${c.usuario}" ${subadminT===c.usuario?'selected':''}>${(c.nome||c.usuario).replace(/"/g,'').replace(/</g,'')} (${c.usuario})</option>`).join('')}
+    </select>
+    <button type="submit" style="background:#111;color:#fff;padding:8px 18px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;">🔍 Buscar</button>
+    ${(buscaT || subadminT) ? `<a href="/admin" style="font-size:12px;color:#888;text-decoration:none;">Limpar filtros</a>` : ''}
+  </form>
   <div class="card">
+    ${(buscaT || subadminT) ? `<div style="padding:10px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee;">${usuarios.rows.length} usuário(s) encontrado(s)</div>` : ''}
     <div class="table-wrap"><table>
       <thead><tr>
         <th>Cód.</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóv.</th><th>Leads</th><th>Visit.</th><th>WA</th><th>XML QA</th><th>Cart. QA</th><th>Sub-admin</th><th>Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th><th>Ações</th>

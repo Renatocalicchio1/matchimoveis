@@ -1800,69 +1800,154 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
 <body>
 <div class="admin-app">
 ${_adminSidebarHtml('copiar-imoveis', _sidebarPerm(req))}
-<main class="admin-content">
+<main class="admin-content" style="padding-bottom:90px">
   ${msg}
-  <div class="aviso">📋 Copia imóveis de uma conta pra outra — mantém o mesmo id externo, mas gera id/id interno novos pra conta de destino. O imóvel original continua na conta de origem.</div>
+  <div class="aviso">📋 Copia imóveis de uma conta pra outra — mantém o mesmo id externo, mas gera id/id interno novos pra conta de destino. O imóvel original continua na conta de origem. Pode buscar quantas vezes quiser (trocando conta/filtro) — os imóveis marcados ficam guardados até você mandar tudo de uma vez, no final.</div>
   <div class="card">
-    <form method="GET" action="/admin/copiar-imoveis">
+    <form id="form-busca" onsubmit="return _buscar(event)">
       <div class="grid">
-        <div class="campo"><label>Conta de origem (código ou nome) *</label><input type="text" name="contaOrigem" value="${contaOrigemT}" placeholder="Ex: JAN-MGF9 ou Jane" required></div>
-        <div class="campo"><label>Estado</label><input type="text" name="estado" value="${estadoT}" placeholder="Ex: SP"></div>
-        <div class="campo"><label>Cidade</label><input type="text" name="cidade" value="${cidadeT}" placeholder="Ex: São Paulo"></div>
-        <div class="campo"><label>Bairro</label><input type="text" name="bairro" value="${bairroT}" placeholder="Ex: Moema"></div>
+        <div class="campo"><label>Conta de origem (código ou nome) *</label><input type="text" name="contaOrigem" id="f-contaOrigem" value="${contaOrigemT}" placeholder="Ex: JAN-MGF9 ou Jane" required></div>
+        <div class="campo"><label>Estado</label><input type="text" name="estado" id="f-estado" value="${estadoT}" placeholder="Ex: SP"></div>
+        <div class="campo"><label>Cidade</label><input type="text" name="cidade" id="f-cidade" value="${cidadeT}" placeholder="Ex: São Paulo"></div>
+        <div class="campo"><label>Bairro</label><input type="text" name="bairro" id="f-bairro" value="${bairroT}" placeholder="Ex: Moema"></div>
         <div class="campo"><label>Tipo</label>
-          <select name="tipo">
+          <select name="tipo" id="f-tipo">
             <option value="">Todos</option>
             ${['Apartamento','Casa','Cobertura','Sobrado','Studio / Flat','Terreno','Sala Comercial','Loja'].map(t => `<option value="${t}" ${tipoT===t?'selected':''}>${t}</option>`).join('')}
           </select>
         </div>
         <div class="campo"><label>Condição</label>
-          <select name="condicao">
+          <select name="condicao" id="f-condicao">
             <option value="">Todas</option>
             <option value="lancamento" ${condicaoT==='lancamento'?'selected':''}>Lançamento</option>
             <option value="usado" ${condicaoT==='usado'?'selected':''}>Usado</option>
             <option value="pronto" ${condicaoT==='pronto'?'selected':''}>Pronto novo</option>
           </select>
         </div>
-        <div class="campo"><label>Quartos (mín.)</label><input type="text" name="quartosMin" value="${quartosMinT}" placeholder="Ex: 2"></div>
-        <div class="campo"><label>Valor mín.</label><input type="text" name="valorMin" value="${valorMinT}" placeholder="Ex: 200000"></div>
-        <div class="campo"><label>Valor máx.</label><input type="text" name="valorMax" value="${valorMaxT}" placeholder="Ex: 800000"></div>
-        <div class="campo" style="min-width:220px"><label>Buscar no título/descrição</label><input type="text" name="busca" value="${buscaT}" placeholder="Ex: nome da construtora"></div>
+        <div class="campo"><label>Quartos (mín.)</label><input type="text" name="quartosMin" id="f-quartosMin" value="${quartosMinT}" placeholder="Ex: 2"></div>
+        <div class="campo"><label>Valor mín.</label><input type="text" name="valorMin" id="f-valorMin" value="${valorMinT}" placeholder="Ex: 200000"></div>
+        <div class="campo"><label>Valor máx.</label><input type="text" name="valorMax" id="f-valorMax" value="${valorMaxT}" placeholder="Ex: 800000"></div>
+        <div class="campo" style="min-width:220px"><label>Buscar no título/descrição</label><input type="text" name="busca" id="f-busca" value="${buscaT}" placeholder="Ex: nome da construtora"></div>
       </div>
       <button type="submit" style="background:#111;color:#fff;padding:9px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px">🔍 Buscar</button>
-      ${temFiltro ? '<a href="/admin/copiar-imoveis" style="margin-left:10px;font-size:12px;color:#888">Limpar</a>' : ''}
+      <button type="button" onclick="_limparBusca()" style="background:none;border:none;margin-left:10px;font-size:12px;color:#888;cursor:pointer">Limpar filtros</button>
     </form>
   </div>
-  ${origemNaoAchada ? '<div class="erro">Nenhuma conta encontrada com esse código/nome.</div>' : ''}
-  ${temFiltro && !origemNaoAchada ? `
-  <form method="POST" action="/admin/copiar-imoveis/copiar" onsubmit="return _confirmarCopia(this)">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
-        <div style="font-weight:700">${imoveis.length} imóvel(is) encontrado(s)</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="text" name="contaDestino" placeholder="Conta de destino (código ou nome) *" required style="padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;min-width:220px">
-          ${imoveis.length ? `<button type="submit" style="background:#111;color:#fff;padding:8px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:12px">📋 Copiar selecionados</button>` : ''}
-        </div>
-      </div>
-      <div class="table-wrap"><table>
-        <thead><tr>
-          <th><input type="checkbox" onclick="document.querySelectorAll('input[name=ids]').forEach(c=>c.checked=this.checked)"></th>
-          <th>Id externo</th><th>Título</th><th>Tipo/Condição</th><th>Bairro/Cidade/UF</th><th>Qtos</th><th>Valor</th>
-        </tr></thead>
-        <tbody>${linhas || '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">Nenhum imóvel encontrado com esses filtros.</td></tr>'}</tbody>
-      </table></div>
-    </div>
-  </form>
-  ` : ''}
+  <div id="erro-busca"></div>
+  <div class="card">
+    <div id="titulo-resultado" style="font-weight:700;margin-bottom:12px">${temFiltro && !origemNaoAchada ? imoveis.length + ' imóvel(is) encontrado(s)' : 'Busque uma conta de origem acima'}</div>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th><input type="checkbox" id="chk-todos-visiveis" onclick="_marcarTodosVisiveis(this.checked)"></th>
+        <th>Id externo</th><th>Título</th><th>Tipo/Condição</th><th>Bairro/Cidade/UF</th><th>Qtos</th><th>Valor</th>
+      </tr></thead>
+      <tbody id="tbody-imoveis">${origemNaoAchada ? '<tr><td colspan="7" style="text-align:center;color:#dc2626;padding:24px">Nenhuma conta encontrada com esse código/nome.</td></tr>' : (linhas || '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">'+(temFiltro?'Nenhum imóvel encontrado com esses filtros.':'—')+'</td></tr>')}</tbody>
+    </table></div>
+  </div>
 </main>
 </div>
+<div id="barra-selecao" style="position:fixed;left:var(--sidebar-w,0);right:0;bottom:0;background:#111;color:#fff;padding:14px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.15)">
+  <strong id="contagem-selecao">0 imóvel(is) selecionado(s)</strong>
+  <button type="button" onclick="_limparSelecao()" style="background:none;border:1px solid #555;color:#ccc;padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer">🗑️ Limpar seleção</button>
+  <div style="flex:1"></div>
+  <input type="text" id="f-contaDestino" placeholder="Conta de destino (código ou nome) *" style="padding:8px 10px;border:1px solid #444;border-radius:8px;font-size:13px;min-width:220px;background:#1a1a1a;color:#fff">
+  <button type="button" onclick="_enviarTudo()" style="background:#FF385C;color:#fff;padding:9px 18px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">📋 Copiar todos selecionados</button>
+</div>
+<form id="form-copiar" method="POST" action="/admin/copiar-imoveis/copiar" style="display:none"></form>
 <script>
-function _confirmarCopia(form){
-  const marcados = form.querySelectorAll('input[name=ids]:checked').length;
-  if(marcados === 0){ alert('Marque pelo menos um imóvel.'); return false; }
-  const destino = form.querySelector('input[name=contaDestino]').value.trim();
-  if(!destino){ alert('Informe a conta de destino.'); return false; }
-  return confirm('Copiar ' + marcados + ' imóvel(is) pra conta "' + destino + '"? Cria uma cópia nova — o imóvel original continua na conta de origem.');
+// Seleção acumula em memória (Map id->dadosPraLinha) através de várias buscas
+// — trocar conta de origem/filtro e buscar de novo NÃO desmarca o que já
+// tinha sido escolhido antes, porque a tabela inteira não recarrega a página
+// mais (busca virou fetch), só troca o conteúdo da tbody.
+let _selecionados = new Map();
+function escHtmlCI(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function _linhaImovel(im){
+  const marcado = _selecionados.has(im.id) ? 'checked' : '';
+  return '<tr>'
+    + '<td><input type="checkbox" class="chk-imovel" data-id="'+im.id+'" '+marcado+' onchange="_toggleImovel('+JSON.stringify(im).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+', this.checked)"></td>'
+    + '<td style="font-family:monospace;font-size:11px">'+escHtmlCI(im.id_externo||im.codigo_imovel||'-')+'</td>'
+    + '<td>'+escHtmlCI(im.titulo||'')+'</td>'
+    + '<td>'+escHtmlCI(im.tipo||'')+(im.condicao?' · '+escHtmlCI(im.condicao):'')+'</td>'
+    + '<td>'+escHtmlCI([im.bairro,im.cidade,im.estado].filter(Boolean).join(', '))+'</td>'
+    + '<td>'+(im.quartos||'-')+'</td>'
+    + '<td>R$ '+(im.valor_imovel?Number(im.valor_imovel).toLocaleString('pt-BR'):'-')+'</td>'
+    + '</tr>';
+}
+function _toggleImovel(im, marcado){
+  if(marcado) _selecionados.set(im.id, im);
+  else _selecionados.delete(im.id);
+  _atualizarContagem();
+}
+function _marcarTodosVisiveis(marcar){
+  _ultimoResultado.forEach(function(im){
+    const chk = document.querySelector('.chk-imovel[data-id="'+im.id+'"]');
+    if(!chk) return;
+    chk.checked = marcar;
+    if(marcar) _selecionados.set(im.id, im); else _selecionados.delete(im.id);
+  });
+  _atualizarContagem();
+}
+function _atualizarContagem(){
+  document.getElementById('contagem-selecao').textContent = _selecionados.size + ' imóvel(is) selecionado(s)';
+}
+function _limparSelecao(){
+  if(_selecionados.size && !confirm('Limpar toda a seleção (' + _selecionados.size + ' imóvel(is))?')) return;
+  _selecionados.clear();
+  document.querySelectorAll('.chk-imovel').forEach(function(c){ c.checked = false; });
+  document.getElementById('chk-todos-visiveis').checked = false;
+  _atualizarContagem();
+}
+function _limparBusca(){
+  ['f-contaOrigem','f-estado','f-cidade','f-bairro','f-quartosMin','f-valorMin','f-valorMax','f-busca'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('f-tipo').value=''; document.getElementById('f-condicao').value='';
+}
+let _ultimoResultado = ${JSON.stringify(imoveis || [])};
+async function _buscar(ev){
+  if(ev) ev.preventDefault();
+  const params = new URLSearchParams();
+  ['contaOrigem','estado','cidade','bairro','tipo','condicao','quartosMin','valorMin','valorMax','busca'].forEach(function(id){
+    const v = document.getElementById('f-'+id).value.trim();
+    if(v) params.set(id, v);
+  });
+  document.getElementById('erro-busca').innerHTML = '';
+  document.getElementById('titulo-resultado').textContent = 'Buscando...';
+  try {
+    const r = await fetch('/admin/copiar-imoveis/buscar?' + params.toString());
+    const d = await r.json();
+    if(!d.ok){
+      document.getElementById('erro-busca').innerHTML = '<div class="erro">'+escHtmlCI(d.erro||'Erro na busca')+'</div>';
+      document.getElementById('titulo-resultado').textContent = 'Busque uma conta de origem acima';
+      document.getElementById('tbody-imoveis').innerHTML = '';
+      _ultimoResultado = [];
+      return false;
+    }
+    _ultimoResultado = d.imoveis;
+    document.getElementById('titulo-resultado').textContent = d.imoveis.length + ' imóvel(is) encontrado(s)';
+    document.getElementById('tbody-imoveis').innerHTML = d.imoveis.length
+      ? d.imoveis.map(_linhaImovel).join('')
+      : '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">Nenhum imóvel encontrado com esses filtros.</td></tr>';
+    document.getElementById('chk-todos-visiveis').checked = d.imoveis.length > 0 && d.imoveis.every(function(im){ return _selecionados.has(im.id); });
+  } catch(e){
+    document.getElementById('erro-busca').innerHTML = '<div class="erro">Erro ao buscar: '+escHtmlCI(e.message)+'</div>';
+  }
+  return false;
+}
+function _enviarTudo(){
+  if(_selecionados.size === 0){ alert('Marque pelo menos um imóvel (pode ser de buscas diferentes).'); return; }
+  const destino = document.getElementById('f-contaDestino').value.trim();
+  if(!destino){ alert('Informe a conta de destino.'); return; }
+  if(!confirm('Copiar ' + _selecionados.size + ' imóvel(is) pra conta "' + destino + '"? Cria uma cópia nova — os imóveis originais continuam nas contas de origem.')) return;
+  const form = document.getElementById('form-copiar');
+  form.innerHTML = '';
+  _selecionados.forEach(function(_im, id){
+    const inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = 'ids'; inp.value = id;
+    form.appendChild(inp);
+  });
+  const inpDestino = document.createElement('input');
+  inpDestino.type = 'hidden'; inpDestino.name = 'contaDestino'; inpDestino.value = destino;
+  form.appendChild(inpDestino);
+  form.submit();
 }
 </script>
 </body>
@@ -1870,6 +1955,46 @@ function _confirmarCopia(form){
   } catch(e) {
     res.status(500).send('Erro: ' + e.message);
   }
+});
+
+// Mesma busca da tela acima, só que em JSON — usada pelo JS da página pra
+// pesquisar de novo (outro filtro, outra conta de origem) SEM perder os
+// imóveis já marcados de buscas anteriores. Antes, toda busca nova recarregava
+// a página inteira (form GET) e zerava os checkboxes marcados — não dava pra
+// juntar imóveis de buscas diferentes numa remessa só.
+app.get('/admin/copiar-imoveis/buscar', authAdmin, async (req, res) => {
+  try {
+    const { query: _qCIB } = require('./services/db');
+    const contaOrigemT = (req.query.contaOrigem || '').trim();
+    if (!contaOrigemT) return res.json({ ok: false, erro: 'Informe a conta de origem.' });
+    const ru = await _qCIB(`SELECT codigo_usuario, id, nome FROM usuarios WHERE codigo_usuario ILIKE $1 OR id ILIKE $1 OR nome ILIKE $1`, ['%' + contaOrigemT + '%']);
+    const contasOrigem = [...new Set(ru.rows.flatMap(u => [u.codigo_usuario, u.id]).filter(Boolean))];
+    if (!contasOrigem.length) return res.json({ ok: false, erro: 'Nenhuma conta encontrada com esse código/nome.' });
+    const conds = [`(user_id = ANY($1) OR codigo_usuario = ANY($1))`];
+    const pars = [contasOrigem];
+    const estadoT = (req.query.estado || '').trim();
+    const cidadeT = (req.query.cidade || '').trim();
+    const bairroT = (req.query.bairro || '').trim();
+    const tipoT = (req.query.tipo || '').trim();
+    const condicaoT = (req.query.condicao || '').trim();
+    const valorMinT = (req.query.valorMin || '').trim();
+    const valorMaxT = (req.query.valorMax || '').trim();
+    const quartosMinT = (req.query.quartosMin || '').trim();
+    const buscaT = (req.query.busca || '').trim();
+    if (estadoT) { pars.push('%' + estadoT + '%'); conds.push(`estado ILIKE $${pars.length}`); }
+    if (cidadeT) { pars.push('%' + cidadeT + '%'); conds.push(`cidade ILIKE $${pars.length}`); }
+    if (bairroT) { pars.push('%' + bairroT + '%'); conds.push(`bairro ILIKE $${pars.length}`); }
+    if (tipoT) { pars.push(tipoT); conds.push(`tipo = $${pars.length}`); }
+    if (condicaoT) { pars.push(condicaoT); conds.push(`condicao = $${pars.length}`); }
+    if (valorMinT) { pars.push(parseFloat(valorMinT) || 0); conds.push(`valor_imovel >= $${pars.length}`); }
+    if (valorMaxT) { pars.push(parseFloat(valorMaxT) || 0); conds.push(`valor_imovel <= $${pars.length}`); }
+    if (quartosMinT) { pars.push(parseInt(quartosMinT) || 0); conds.push(`quartos >= $${pars.length}`); }
+    if (buscaT) { pars.push('%' + buscaT + '%'); conds.push(`(titulo ILIKE $${pars.length} OR descricao ILIKE $${pars.length})`); }
+    const sql = `SELECT id,id_externo,id_interno,codigo_imovel,titulo,tipo,condicao,transacao,bairro,cidade,estado,valor_imovel,quartos,user_id,codigo_usuario
+                 FROM imoveis WHERE ${conds.join(' AND ')} ORDER BY criado_em DESC LIMIT 500`;
+    const r = await _qCIB(sql, pars);
+    res.json({ ok: true, imoveis: r.rows });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 
 app.post('/admin/copiar-imoveis/copiar', authAdmin, async (req, res) => {

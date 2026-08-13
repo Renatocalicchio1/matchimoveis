@@ -249,36 +249,22 @@ function _whatsappMensagem(e, estagio){
   const msg = _sorteiaWA(gerador(nome, LINK_CAPTACAO));
   return msg + _avisoOptOutWA(e);
 }
-// Texto de e-mail manual — mesmo espírito das variações de WhatsApp acima,
-// só que pra mandar pelo próprio cliente de e-mail do sub-admin (mailto:).
-// Link usa a rota de rastreio (/captacao-campanha/click/:id) igual ao e-mail
-// automático, então continua contando como clique se ela entrar por aqui.
-function _mailtoLink(e){
-  const nome = (e.nome||'').trim().split(' ')[0] || 'tudo bem';
-  const link = 'https://matchimoveis.ia.br/captacao-campanha/click/'+e.id;
-  const assunto = 'Seu imóvel pode estar rendendo mais — cadastro rápido e sem custo';
-  const corpo = 'Oi '+nome+', tudo bem?\n\nMandei um e-mail sobre cadastrar seu imóvel na nossa rede de mais de 9.000 corretores, sem nenhum custo — leva menos de 2 minutos.\n\nSegue o link direto: '+link+'\n\nQualquer dúvida, me chama por aqui mesmo.';
-  return 'mailto:'+encodeURIComponent(e.email||'')+'?subject='+encodeURIComponent(assunto)+'&body='+encodeURIComponent(corpo);
-}
-// Sob o nome: quem já atendeu aparece marcado, com um botão de e-mail manual
-// que continua disponível mesmo depois de atendido (pra mandar follow-up de
-// novo) — enquanto não integra o disparo dessa campanha com template de
-// WhatsApp da Meta, o canal manual pra reativar quem tá parado é o e-mail.
-// Botão de WhatsApp só aparece ANTES de atender (é o mesmo clique que
-// reivindica o atendimento — ver _clicarWhatsapp).
+// Sob o nome: quem já atendeu aparece marcado, e o botão de WhatsApp (com a
+// mensagem já pronta, mesmo padrão de /admin/campanha) continua disponível
+// mesmo depois de atendido — a distribuição automática já marca atendido_por
+// pra TODO o backlog (ver distribuirAtendimentosAbertos), então se o botão
+// sumisse nesse momento o sub-admin nunca conseguiria abrir o WhatsApp pra
+// falar com quem foi atribuído a ele. Isso é o canal manual até ligar o
+// disparo automático dessa campanha por template de WhatsApp da Meta.
 function _subNome(e){
   let html = '';
   if(e.atendido_por_nome){
     html += '<div style="font-size:11px;font-weight:600;color:'+escHtml(e.atendido_por_cor||'#6b7280')+';margin-top:2px">✅ Atendido por '+escHtml(e.atendido_por_nome)+'</div>';
-  } else {
-    const estagio = _whatsappEstagio(e);
-    if(estagio){
-      const rotulos = { nao_abriu: '📲 Reenviar link', abriu_sem_clicar: '📲 Lembrar cadastro', clicou_sem_iniciar: '📲 Ajudar a terminar' };
-      html += '<button type="button" class="btn-atender-wa" data-id="'+e.id+'" style="margin-top:4px;background:#25D366;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotulos[estagio]+'</button>';
-    }
   }
-  if(!e.iniciou_cadastro_em && e.email){
-    html += '<a href="'+_mailtoLink(e)+'" class="btn-mailto-atender" data-id="'+e.id+'" style="display:inline-block;margin-top:4px;margin-left:4px;background:#2563eb;color:#fff;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📧 E-mail manual</a>';
+  const estagio = _whatsappEstagio(e);
+  if(estagio){
+    const rotulos = { nao_abriu: '📲 Falar no WhatsApp', abriu_sem_clicar: '📲 Lembrar cadastro', clicou_sem_iniciar: '📲 Ajudar a terminar' };
+    html += '<button type="button" class="btn-atender-wa" data-id="'+e.id+'" style="margin-top:4px;background:#25D366;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotulos[estagio]+'</button>';
   }
   return html;
 }
@@ -288,15 +274,21 @@ async function _clicarWhatsapp(e){
   const tel = _celularWA(e.telefone);
   if(!tel) return;
   const link = 'https://wa.me/'+tel+'?text='+encodeURIComponent(_whatsappMensagem(e, estagio));
-  try {
-    const r = await fetch('/admin/captacao-campanha/contatos/'+e.id+'/atender', { method:'POST' });
-    const d = await r.json();
-    if(d.ok === false && d.jaAtendido){
-      alert('Esse contato já está sendo atendido por '+(d.nome||'outra pessoa')+'.');
-      carregarTabela(_paginaEnvios);
-      return;
-    }
-  } catch(err){}
+  // Só tenta reivindicar se ainda não tem atendente — já atendido (pelo
+  // round-robin automático ou por essa mesma conta antes) só abre o link
+  // direto, sem chamar /atender de novo (senão o servidor recusa com
+  // jaAtendido e o clique não abre nada, mesmo sendo o próprio dono do lead).
+  if(!e.atendido_por_nome){
+    try {
+      const r = await fetch('/admin/captacao-campanha/contatos/'+e.id+'/atender', { method:'POST' });
+      const d = await r.json();
+      if(d.ok === false && d.jaAtendido){
+        alert('Esse contato já está sendo atendido por '+(d.nome||'outra pessoa')+'.');
+        carregarTabela(_paginaEnvios);
+        return;
+      }
+    } catch(err){}
+  }
   window.open(link, '_blank');
   carregarTabela(_paginaEnvios);
 }
@@ -337,18 +329,6 @@ async function carregarTabela(pagina){
         const id = btn.getAttribute('data-id');
         const contato = _ultimosEnvios.find(function(e){ return String(e.id) === String(id); });
         if(contato) _clicarWhatsapp(contato);
-      });
-    });
-    // "E-mail manual" é um <a href="mailto:...">, não intercepta o clique
-    // (senão o cliente de e-mail não abre) — só dispara o "atender" em
-    // paralelo, sem esperar resposta, pra reivindicar o lead se ainda não
-    // tinha atendente. Se já tinha, o servidor ignora (marcarAtendido não
-    // sobrescreve quem já pegou).
-    document.querySelectorAll('.btn-mailto-atender').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        const id = btn.getAttribute('data-id');
-        fetch('/admin/captacao-campanha/contatos/'+id+'/atender', { method:'POST' }).catch(function(){});
-        setTimeout(function(){ carregarTabela(_paginaEnvios); }, 1000);
       });
     });
     document.querySelectorAll('.btn-excluir-celular').forEach(function(btn){

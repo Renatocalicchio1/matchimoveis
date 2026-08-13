@@ -17855,13 +17855,15 @@ app.get('/admin/captacao-campanha', authAdmin, async (req, res) => {
   // disparo em massa fica restrito ao superadmin, mesma lógica de
   // /admin/campanha (ver _ADMIN_ROTAS_SUPERADMIN_ONLY).
   const isSuper = req.session.adminSuper !== false;
+  const { listarAdminContas: _listarContasFiltroCap } = require('./services/salvarAdminConta');
+  const contasFiltro = isSuper ? (await _listarContasFiltroCap().catch(() => [])) : [];
   try {
     const { contarStatus } = require('./services/campanhaCaptacao');
     const status = await contarStatus();
-    res.render('admin-captacao-campanha', { status, adminShellCss, adminSidebar, isSuper });
+    res.render('admin-captacao-campanha', { status, adminShellCss, adminSidebar, isSuper, contasFiltro });
   } catch (e) {
     console.error('[admin/captacao-campanha]', e.message);
-    res.render('admin-captacao-campanha', { status: null, adminShellCss, adminSidebar, isSuper });
+    res.render('admin-captacao-campanha', { status: null, adminShellCss, adminSidebar, isSuper, contasFiltro });
   }
 });
 app.get('/admin/captacao-campanha/status', authAdmin, async (req, res) => {
@@ -17893,7 +17895,10 @@ app.get('/admin/captacao-campanha/lista', authAdmin, async (req, res) => {
     const filtro = req.query.filtro || '';
     // Sub-admin só vê os próprios atendimentos — cada um já tem atendimentos
     // feitos, mesma regra aplicada em /admin/campanha/contatos e /admin/disparos/:id/contatos.
-    const refAdmin = req.session.adminSuper === false ? req.session.adminUsuario : '';
+    // Pro superadmin, o filtro "subadmin" da UI vale livre (auditoria de
+    // qualquer sub-admin específico, ou "_nenhum" pra achar quem ainda não
+    // tem dono).
+    const refAdmin = req.session.adminSuper === false ? req.session.adminUsuario : String(req.query.subadmin || '');
     const { envios, total } = await listarEnvios({ limite: _CAPTACAO_TAMANHO_PAGINA, offset: (pagina - 1) * _CAPTACAO_TAMANHO_PAGINA, q, filtro, refAdmin });
     // Token do link de opt-out de WhatsApp — mesmo esquema de /admin/campanha/contatos.
     const enviosComToken = envios.map(e => ({ ...e, optoutToken: _waOptOutToken('captacao', e.id) }));
@@ -17938,6 +17943,10 @@ app.post('/admin/captacao-campanha/contatos/:id/excluir-celular', authAdmin, asy
 
 app.get('/admin/campanha', authAdmin, async (req, res) => {
   const { statsBase, statsTracking, statsCadastrados, statsValidacao, estaAtiva } = require('./services/campanha');
+  // Lista de sub-admins pro filtro "Atendido por" — só o superadmin vê/usa
+  // (conta secundária já tem o escopo forçado pro próprio código no backend).
+  const { listarAdminContas: _listarContasFiltro } = require('./services/salvarAdminConta');
+  const _contasFiltro = req.session.adminSuper !== false ? (await _listarContasFiltro().catch(() => [])) : [];
   const stats = await statsBase().catch(()=>[]);
   const tracking = await statsTracking().catch(()=>[]);
   const cadastrados = await statsCadastrados().catch(()=>0);
@@ -18042,8 +18051,8 @@ https://www.matchimoveis.ia.br
   <div class="box">
     <h3>📋 Contatos importados</h3>
     <div style="margin-bottom:8px">
-      <input type="text" id="busca" placeholder="Buscar por nome ou email..." style="width:300px;display:inline-block" oninput="buscar()">
-      <select id="filtro-status" onchange="buscar()" style="width:180px;display:inline-block;margin-left:8px">
+      <input type="text" id="busca" placeholder="Buscar por nome, email ou celular..." style="width:280px;display:inline-block" oninput="buscar()">
+      <select id="filtro-status" onchange="buscar()" style="width:170px;display:inline-block;margin-left:8px">
         <option value="">Todos os status</option>
         <option value="pendente">Pendentes</option>
         <option value="enviado">Enviados</option>
@@ -18051,7 +18060,13 @@ https://www.matchimoveis.ia.br
         <option value="abriu">Quem abriu</option>
         <option value="clicou">Quem clicou</option>
         <option value="cadastrou">Quem cadastrou</option>
+        <option value="comprou">Quem comprou</option>
       </select>
+      ${isSuper ? `<select id="filtro-subadmin" onchange="buscar()" style="width:190px;display:inline-block;margin-left:8px">
+        <option value="">Todos os sub-admins</option>
+        <option value="_nenhum">Sem sub-admin</option>
+        ${_contasFiltro.map(c => `<option value="${c.usuario}">${(c.nome||c.usuario).replace(/"/g,'')} (${c.usuario})</option>`).join('')}
+      </select>` : ''}
     </div>
     <div id="tabela-contatos">⏳ Carregando...</div>
     <div id="paginacao" style="margin-top:8px"></div>
@@ -18268,7 +18283,9 @@ https://www.matchimoveis.ia.br
     _pagina = p || 1;
     const q = document.getElementById('busca').value;
     const s = document.getElementById('filtro-status').value;
-    const r = await fetch('/admin/campanha/contatos?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+s);
+    const subEl = document.getElementById('filtro-subadmin');
+    const sub = subEl ? subEl.value : '';
+    const r = await fetch('/admin/campanha/contatos?pagina='+_pagina+'&q='+encodeURIComponent(q)+'&status='+s+'&subadmin='+encodeURIComponent(sub));
     const d = await r.json();
     if(!d.ok){ document.getElementById('tabela-contatos').innerHTML='<p class=red>Erro ao carregar</p>'; return; }
     _ultimosContatos = d.contatos;
@@ -18422,20 +18439,28 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     const pagina = parseInt(req.query.pagina)||1;
     const q = req.query.q||'';
     const status = req.query.status||'';
+    const subadmin = req.query.subadmin||'';
     const offset = (pagina-1)*_CAMPANHA_TAMANHO_PAGINA;
     let where = 'WHERE 1=1';
     const params = [];
     // Sub-admin só vê os contatos que ele mesmo atende (manual ou distribuído
     // em /admin/campanha/distribuir-atendimentos) — superadmin continua vendo
-    // a base inteira, sem esse filtro.
+    // a base inteira, sem esse filtro. O filtro "subadmin" da UI só vale pro
+    // superadmin (pra achar/auditar o que é de um sub-admin específico) — pra
+    // conta secundária, o escopo já vem forçado acima e esse filtro é ignorado.
     if (req.session.adminSuper === false) {
       params.push(req.session.adminUsuario || '');
       where += ` AND atendido_por = $${params.length}`;
+    } else if (subadmin === '_nenhum') {
+      where += ` AND (atendido_por IS NULL OR atendido_por = '')`;
+    } else if (subadmin) {
+      params.push(subadmin); where += ` AND atendido_por = $${params.length}`;
     }
-    if(q){ params.push('%'+q+'%'); where += ` AND (nome ILIKE $${params.length} OR email ILIKE $${params.length})`; }
+    if(q){ params.push('%'+q+'%'); where += ` AND (nome ILIKE $${params.length} OR email ILIKE $${params.length} OR celular ILIKE $${params.length})`; }
     if(status === 'abriu'){ where += ` AND aberto_em IS NOT NULL`; }
     else if(status === 'clicou'){ where += ` AND clicado_em IS NOT NULL`; }
     else if(status === 'cadastrou'){ where += ` AND LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')`; }
+    else if(status === 'comprou'){ where += ` AND LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE COALESCE(match_coins_total,0) > 1000)`; }
     else if(status){ params.push(status); where += ` AND status=$${params.length}`; }
     params.push(_CAMPANHA_TAMANHO_PAGINA); params.push(offset);
     // "comprou": não tem sinal direto de compra de combo, então usa como

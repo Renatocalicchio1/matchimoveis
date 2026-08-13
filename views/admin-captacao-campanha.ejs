@@ -108,14 +108,25 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
         <h2>Envios recentes</h2>
       </div>
       <div style="margin-bottom:12px">
-        <input type="text" id="busca" placeholder="Buscar por nome ou email..." style="width:260px;display:inline-block;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px" oninput="buscar()">
+        <input type="text" id="busca" placeholder="Buscar por nome, email ou celular..." style="width:260px;display:inline-block;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px" oninput="buscar()">
         <select id="filtro" onchange="buscar()" style="width:180px;display:inline-block;margin-left:8px;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
           <option value="">Todos</option>
           <option value="abriu">Quem abriu</option>
           <option value="clicou">Quem clicou</option>
           <option value="cadastrou">Quem cadastrou</option>
+          <option value="captado">Imóvel captado</option>
+          <option value="bonus_pago">Bônus pago (+200 coins)</option>
           <option value="erro">Erros</option>
         </select>
+        <% if (isSuper) { %>
+        <select id="filtro-subadmin" onchange="buscar()" style="width:190px;display:inline-block;margin-left:8px;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px">
+          <option value="">Todos os sub-admins</option>
+          <option value="_nenhum">Sem sub-admin</option>
+          <% (contasFiltro||[]).forEach(function(c){ %>
+            <option value="<%= c.usuario %>"><%= c.nome||c.usuario %> (<%= c.usuario %>)</option>
+          <% }); %>
+        </select>
+        <% } %>
       </div>
       <table>
         <thead><tr><th>Nome</th><th>Email</th><th>Celular</th><th>Data enviado</th><th>Abriu</th><th>Clicou</th><th>Iniciou cadastro</th><th>Imóvel captado</th><th>QuintoAndar</th><th>F.up 1</th><th>F.up 2</th><th>F.up 3</th><th>E-mail</th></tr></thead>
@@ -305,7 +316,9 @@ async function carregarTabela(pagina){
   try {
     const q = document.getElementById('busca').value;
     const filtro = document.getElementById('filtro').value;
-    const r = await fetch('/admin/captacao-campanha/lista?pagina='+_paginaEnvios+'&q='+encodeURIComponent(q)+'&filtro='+encodeURIComponent(filtro));
+    const subEl = document.getElementById('filtro-subadmin');
+    const sub = subEl ? subEl.value : '';
+    const r = await fetch('/admin/captacao-campanha/lista?pagina='+_paginaEnvios+'&q='+encodeURIComponent(q)+'&filtro='+encodeURIComponent(filtro)+'&subadmin='+encodeURIComponent(sub));
     const d = await r.json();
     const tbody = document.getElementById('tabelaEnvios');
     if(!tbody) return;

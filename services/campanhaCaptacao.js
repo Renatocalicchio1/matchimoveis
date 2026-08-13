@@ -511,14 +511,18 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
   // nas duas tabelas, então sem qualificar dava erro de coluna ambígua.
   let where = 'WHERE 1=1';
   const params = [];
-  if (q) { params.push('%' + q + '%'); where += ` AND (e.nome ILIKE $${params.length} OR e.email ILIKE $${params.length})`; }
+  if (q) { params.push('%' + q + '%'); where += ` AND (e.nome ILIKE $${params.length} OR e.email ILIKE $${params.length} OR e.telefone ILIKE $${params.length})`; }
   if (filtro === 'abriu') where += ' AND e.aberto_em IS NOT NULL';
   else if (filtro === 'clicou') where += ' AND e.clicado_em IS NOT NULL';
   else if (filtro === 'cadastrou') where += ' AND e.iniciou_cadastro_em IS NOT NULL';
   else if (filtro === 'erro') where += ' AND e.erro IS NOT NULL';
+  else if (filtro === 'captado') where += ' AND e.imovel_captado_id IS NOT NULL';
+  else if (filtro === 'bonus_pago') where += ' AND e.bonus_captacao_pago_em IS NOT NULL';
   // Sub-admin só vê os próprios atendimentos (cada um já tem atendimentos
-  // feitos — não faz sentido ele ver a lista inteira de todo mundo).
-  if (refAdmin) { params.push(refAdmin); where += ` AND e.atendido_por = $${params.length}`; }
+  // feitos — não faz sentido ele ver a lista inteira de todo mundo). Pro
+  // superadmin, refAdmin '_nenhum' acha quem ainda não tem sub-admin.
+  if (refAdmin === '_nenhum') where += ` AND (e.atendido_por IS NULL OR e.atendido_por = '')`;
+  else if (refAdmin) { params.push(refAdmin); where += ` AND e.atendido_por = $${params.length}`; }
 
   params.push(limite); params.push(offset);
   const { rows } = await query(

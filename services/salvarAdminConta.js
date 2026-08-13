@@ -29,6 +29,17 @@ async function _garantirTabela() {
   )`);
   await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS cor TEXT`);
   await _backfillCores();
+  // Saldo de coins do sub-admin — vem do resgate em modo "crédito" das
+  // comissões de indicação (20% do que o corretor indicado comprou) e do
+  // bônus de revenda (+10% toda vez que ele repassa parte desse saldo pra
+  // um corretor). É dinheiro dele "guardado em coins", não afeta o caixa
+  // da plataforma além da própria comissão já ter sido gerada na compra
+  // original do indicado.
+  await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS saldo_coins INTEGER DEFAULT 0`);
+  // Número pessoal do sub-admin — usado pra mandar (via WhatsApp oficial,
+  // template pré-aprovado) o aviso "mensagem enviada pro lead fulano, fala
+  // com ele" na hora do disparo de campanha (ver disparoWhatsappWorker.js).
+  await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS celular TEXT`);
   _tabelaPronta = true;
 }
 
@@ -51,6 +62,8 @@ function _rowToConta(r) {
     permissoes: Array.isArray(r.permissoes) ? r.permissoes : [],
     ativo: r.ativo,
     cor: r.cor || '#6b7280',
+    saldoCoins: r.saldo_coins || 0,
+    celular: r.celular || '',
     criadoPor: r.criado_por || '',
     criadoEm: r.criado_em,
     ultimoLogin: r.ultimo_login
@@ -111,6 +124,24 @@ async function atualizarUltimoLoginAdminConta(id) {
   await query('UPDATE admin_contas SET ultimo_login=NOW() WHERE id=$1', [id]);
 }
 
+async function atualizarCelularAdminConta(id, celular) {
+  await _garantirTabela();
+  await query('UPDATE admin_contas SET celular=$1 WHERE id=$2', [celular || null, id]);
+}
+
+// Soma (delta positivo) ou desconta (delta negativo) do saldo de coins do
+// sub-admin. Update atômico direto no banco — não lê-modifica-escreve em
+// JS, pra não perder incremento se duas requisições baterem juntas (ex:
+// resgate em crédito processando ao mesmo tempo que uma revenda).
+async function ajustarSaldoCoins(id, delta) {
+  await _garantirTabela();
+  const { rows } = await query(
+    'UPDATE admin_contas SET saldo_coins = saldo_coins + $1 WHERE id=$2 RETURNING saldo_coins',
+    [delta, id]
+  );
+  return rows[0]?.saldo_coins ?? null;
+}
+
 async function deletarAdminConta(id) {
   await _garantirTabela();
   await query('DELETE FROM admin_contas WHERE id=$1', [id]);
@@ -119,5 +150,6 @@ async function deletarAdminConta(id) {
 module.exports = {
   listarAdminContas, buscarAdminConta, buscarAdminContaPorId, criarAdminConta,
   atualizarPermissoesAdminConta, atualizarSenhaAdminConta, atualizarAtivoAdminConta,
-  atualizarCorAdminConta, atualizarUltimoLoginAdminConta, deletarAdminConta
+  atualizarCorAdminConta, atualizarUltimoLoginAdminConta, deletarAdminConta,
+  ajustarSaldoCoins, atualizarCelularAdminConta
 };

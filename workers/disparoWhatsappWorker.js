@@ -1,5 +1,5 @@
 const { workerData, parentPort } = require('worker_threads');
-const { buscarCampanha, atualizarCampanha, incrementarContador, proximoLotePendente, marcarContato } = require('../services/salvarDisparo');
+const { buscarCampanha, atualizarCampanha, incrementarContador, proximoLotePendente, marcarContato, dentroDaJanelaDisparo } = require('../services/salvarDisparo');
 const { enviarTemplate, _normalizarTelefone, _telefoneValido } = require('../services/metaWhatsapp');
 
 const MAX_TENTATIVAS = 3;
@@ -23,10 +23,14 @@ async function enviarComRetry(contato, campanha) {
   // formas diferentes: captação de imóvel aponta pra /captar/{corretor}?tel=...;
   // aquisição de conta nova (usar_contato_id_botao) aponta pra /entrar/{id da
   // linha de disparos_contatos}, que cria a conta na hora do clique.
+  // refAdmin (quando presente): sub-admin dono desse contato, atribuído em
+  // round-robin na criação da campanha — vai como querystring pra /entrar/:id
+  // marcar o atendente assim que a conta é criada (ver rota /entrar/:contatoId).
+  const _refAdmin = contato.variaveis && contato.variaveis.refAdmin;
   const botoesUrl = campanha.corretor_user_id
     ? [{ index: 0, valor: `${campanha.corretor_user_id}?tel=${_normalizarTelefone(contato.telefone)}` }]
     : campanha.usar_contato_id_botao
-      ? [{ index: 0, valor: contato.id }]
+      ? [{ index: 0, valor: _refAdmin ? `${contato.id}?ref=${_refAdmin}` : contato.id }]
       : undefined;
   for (let tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
     try {
@@ -63,6 +67,16 @@ async function run() {
       if (campanha.pausado) {
         await atualizarCampanha(campanhaId, { status: 'pausado' });
         parentPort.postMessage({ tipo: 'pausado' });
+        return;
+      }
+
+      // Campanha restrita a janela de horário (ex: só 12h-13h/20h-21h Brasília)
+      // — fora da janela, encerra o worker sem erro e deixa marcado
+      // 'aguardando_janela'; o JOB_JOBS_TRAVADOS (roda a cada 5min) relança
+      // sozinho assim que a janela abrir de novo.
+      if (campanha.restringir_horario && !dentroDaJanelaDisparo()) {
+        await atualizarCampanha(campanhaId, { status: 'aguardando_janela' });
+        parentPort.postMessage({ tipo: 'aguardando_janela' });
         return;
       }
 

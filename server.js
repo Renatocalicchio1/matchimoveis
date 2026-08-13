@@ -568,6 +568,7 @@ const _ADMIN_NAV = [
     { key: 'captacao-campanha', href: '/admin/captacao-campanha', icon: '🏠', label: 'Campanha Captação' },
     { key: 'disparos', href: '/admin/disparos', icon: '📲', label: 'Disparos WhatsApp' },
     { key: 'optout', href: '/admin/disparos/optout', icon: '🚫', label: 'Opt-out' },
+    { key: 'minhas-comissoes', href: '/admin/minhas-comissoes', icon: '💰', label: 'Minhas Comissões' },
     { key: 'whatsapp-cloud', href: '/admin/whatsapp-cloud', icon: '💬', label: 'Inbox WhatsApp' },
     { key: 'painel-whatsapp', href: 'https://match-evolution-api.onrender.com/manager', icon: '📱', label: 'Painel WhatsApp', externo: true }
   ]},
@@ -583,7 +584,8 @@ const _ADMIN_NAV = [
   // chamadas espalhadas pelo arquivo), mas sub-admin que clicar recebe
   // "acesso negado" — não é uma rota alcançável de outra forma.
   { sec: 'Administração', items: [
-    { key: 'contas-admin', href: '/admin/contas-admin', icon: '👤', label: 'Contas Admin' }
+    { key: 'contas-admin', href: '/admin/contas-admin', icon: '👤', label: 'Contas Admin' },
+    { key: 'comissoes-pendentes', href: '/admin/comissoes-pendentes', icon: '💸', label: 'Comissões Pendentes' }
   ]}
 ];
 
@@ -808,7 +810,8 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/cruzar-proprietarios-alex', '/admin/executar-cruzar-alex',
   '/admin/campanha/importar', '/admin/campanha/teste',
   '/admin/campanha/iniciar', '/admin/campanha/pausar',
-  '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar'
+  '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
+  '/admin/comissoes-pendentes'
 ];
 function authAdmin(req, res, next) {
   if (!(req.session && req.session.admin)) return res.redirect('/admin/login');
@@ -938,13 +941,15 @@ app.get('/admin/contas-admin', authAdmin, async (req, res) => {
         <td>${_escAdminHtml(c.usuario)}</td>
         <td>${_escAdminHtml(c.nome || '—')}</td>
         <td><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${_escAdminHtml(c.cor)};vertical-align:middle;margin-right:6px"></span>${_escAdminHtml(c.cor)}</td>
+        <td>${c.celular ? _escAdminHtml(c.celular) : '<span class="gray">não cadastrado</span>'}</td>
         <td>${(c.permissoes || []).length ? c.permissoes.map(p => `<span class="tag">${_escAdminHtml(p)}</span>`).join(' ') : '<span class="gray">nenhuma</span>'}</td>
         <td>${c.ativo ? '<span class="green">ativo</span>' : '<span class="red">desativado</span>'}</td>
         <td>${c.ultimoLogin ? new Date(c.ultimoLogin).toLocaleString('pt-BR') : '<span class="gray">nunca</span>'}</td>
-        <td style="white-space:nowrap" data-id="${c.id}" data-usuario="${_escAdminHtml(c.usuario)}" data-permissoes="${_escAdminHtml((c.permissoes || []).join(','))}" data-ativo="${c.ativo ? '1' : '0'}" data-cor="${_escAdminHtml(c.cor)}">
+        <td style="white-space:nowrap" data-id="${c.id}" data-usuario="${_escAdminHtml(c.usuario)}" data-permissoes="${_escAdminHtml((c.permissoes || []).join(','))}" data-ativo="${c.ativo ? '1' : '0'}" data-cor="${_escAdminHtml(c.cor)}" data-celular="${_escAdminHtml(c.celular)}">
           ${c.ativo ? `<a href="/admin/contas-admin/${c.id}/entrar" style="background:#111;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:11.5px;margin-right:4px;text-decoration:none;display:inline-block">🔓 Entrar</a>` : ''}
           <button type="button" class="btn-permissoes">✏️ Permissões</button>
           <button type="button" class="btn-cor">🎨 Cor</button>
+          <button type="button" class="btn-celular">📱 Celular</button>
           <button type="button" class="btn-senha">🔑 Senha</button>
           <button type="button" class="btn-ativo">${c.ativo ? '⛔ Desativar' : '✅ Ativar'}</button>
           <button type="button" class="btn-deletar" style="color:#e8404a">🗑️</button>
@@ -992,8 +997,8 @@ button:hover{opacity:.85}
   <div class="card">
     <h2>👥 Contas existentes</h2>
     <table>
-      <thead><tr><th>Usuário</th><th>Nome</th><th>Cor</th><th>Permissões</th><th>Status</th><th>Último login</th><th>Ações</th></tr></thead>
-      <tbody>${linhas || '<tr><td colspan="6" class="gray">Nenhuma conta admin criada ainda.</td></tr>'}</tbody>
+      <thead><tr><th>Usuário</th><th>Nome</th><th>Cor</th><th>Celular</th><th>Permissões</th><th>Status</th><th>Último login</th><th>Ações</th></tr></thead>
+      <tbody>${linhas || '<tr><td colspan="7" class="gray">Nenhuma conta admin criada ainda.</td></tr>'}</tbody>
     </table>
   </div>
 </main>
@@ -3813,12 +3818,25 @@ app.get('/entrar/:contatoId', async (req, res) => {
     const users = await _luEntrar();
     let user = users.find(u => String(u.telefone || u.celular || '').replace(/\D/g,'') === telefone);
 
+    // Sub-admin dono do contato — vem do "?ref=" que o próprio botão do
+    // WhatsApp já embute na URL (valor definido na hora de montar o disparo,
+    // ver enviarComRetry em workers/disparoWhatsappWorker.js). Só aceita se
+    // bater com uma conta de sub-admin ativa de verdade.
+    let _adminAtendente = null;
+    if (req.query.ref) {
+      const { buscarAdminConta } = require('./services/salvarAdminConta');
+      const _conta = await buscarAdminConta(String(req.query.ref).trim());
+      if (_conta && _conta.ativo) _adminAtendente = _conta;
+    }
+
     if (!user) {
       const codigo = gerarCodigoUsuario(contato.nome || 'USR');
       const _charsSenha = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       let senhaGerada = '';
       for (let i=0; i<6; i++) senhaGerada += _charsSenha[Math.floor(Math.random()*_charsSenha.length)];
       const senhaHash = await bcrypt.hash(senhaGerada, 10);
+      const { buscarCampanha: _buscarCampanhaEntrar } = require('./services/salvarDisparo');
+      const _campanhaEntrar = await _buscarCampanhaEntrar(contato.campanha_id).catch(() => null);
       user = {
         id: codigo,
         nome: contato.nome || '',
@@ -3826,7 +3844,7 @@ app.get('/entrar/:contatoId', async (req, res) => {
         email: '', tipo: 'corretor', ativo: true,
         codigoUsuario: codigo, senha: senhaHash,
         matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
-        origemCadastro: 'campanha_leads_garantidos',
+        origemCadastro: 'campanha_' + (_campanhaEntrar?.nome_campanha || 'leads_garantidos'),
         // Nome vindo da planilha é só provisório (ex: "Teste 1") — obriga
         // trocar por um nome de verdade, junto com e-mail e localização,
         // antes de liberar o resto da plataforma (ver middleware mais abaixo).
@@ -3835,14 +3853,20 @@ app.get('/entrar/:contatoId', async (req, res) => {
         // Os 1.000 créditos de bônus são só pra poder mexer no sistema e ver
         // o valor — não substituem a compra. Só libera o resto da plataforma
         // depois de contratar um dos combos (ver middleware precisaComprarPlano).
-        precisaComprarPlano: true
+        precisaComprarPlano: true,
+        // Sub-admin responsável por essa conta — ganha 20% em comissão
+        // sempre que ela comprar créditos (ver _processarBonusIndicacao).
+        atendidoPorAdmin: _adminAtendente?.usuario || '',
+        atendidoPorAdminNome: _adminAtendente?.nome || '',
+        atendidoPorAdminCor: _adminAtendente?.cor || ''
       };
       await _salvarEntrar(user);
       req.session.senhaInicialTemp = senhaGerada;
-      console.log('[ENTRAR] conta criada via campanha de leads garantidos:', codigo, '| tel:', telefone);
+      console.log('[ENTRAR] conta criada via', user.origemCadastro, ':', codigo, '| tel:', telefone, '| atendente:', _adminAtendente?.usuario || '(nenhum)');
       (async () => {
         try {
-          const _msgAdmin = `🆕 *Novo usuário via campanha de leads garantidos!*\n\n👤 *Nome:* ${user.nome}\n📱 *Telefone:* ${telefone}\n🔑 *Código:* ${codigo}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
+          const _linhaAtendente = _adminAtendente ? `\n🙋 *Atendente:* ${_adminAtendente.nome || _adminAtendente.usuario}` : '';
+          const _msgAdmin = `🆕 *Novo usuário via campanha!*\n\n👤 *Nome:* ${user.nome}\n📱 *Telefone:* ${telefone}\n🔑 *Código:* ${codigo}${_linhaAtendente}\n⏰ ${new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'})}`;
           await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
@@ -8234,6 +8258,23 @@ setInterval(async () => {
   } catch(e) {
     console.error('[JOB TRAVADOS] erro disparos_campanhas:', e.message);
   }
+
+  // Campanhas com restringir_horario=true que pararam fora da janela
+  // (12h-13h/20h-21h Brasília) — assim que a janela abrir de novo, relança
+  // o worker pra continuar de onde parou.
+  try {
+    const { listarCampanhasAguardandoJanela, dentroDaJanelaDisparo } = require('./services/salvarDisparo');
+    if (dentroDaJanelaDisparo()) {
+      const { dispararWorkerDisparo } = require('./services/workerDispatch');
+      const _aguardandoJanela = await listarCampanhasAguardandoJanela();
+      for (const campanha of _aguardandoJanela) {
+        console.log('[JOB TRAVADOS] janela aberta, relançando disparo:', campanha.id, '| nome:', campanha.nome_campanha);
+        dispararWorkerDisparo(campanha.id);
+      }
+    }
+  } catch(e) {
+    console.error('[JOB TRAVADOS] erro janela disparos:', e.message);
+  }
 }, 5 * 60 * 1000); // roda a cada 5 minutos
 // ── FIM JOB_JOBS_TRAVADOS ─────────────────────────────────────────────────────
 
@@ -11012,28 +11053,51 @@ app.get('/pagamento/sucesso', auth, async (req, res) => {
   res.redirect('/app/coins?sucesso=1');
 });
 
-// Bônus de indicação: 10% dos créditos comprados vão pro indicador, sempre que o indicado recarrega
+// Bônus de indicação: 10% dos créditos comprados vão pro indicador (corretor
+// que indicou outro corretor), sempre que o indicado recarrega. Além disso,
+// se essa conta foi criada por uma campanha de WhatsApp com sub-admin
+// responsável (atendidoPorAdmin), o sub-admin ganha 20% — mas isso fica só
+// no ledger (indicacoes_bonus, indicador_tipo='admin'), nunca em
+// usuarios.match_coins, porque sub-admin não é corretor.
 async function _processarBonusIndicacao(userId, creditosComprados) {
   try {
     const comprador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === userId);
-    if (!comprador || !comprador.indicadoPor) return;
-    const indicadorCodigo = comprador.indicadoPor;
-    const indicador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === indicadorCodigo);
-    if (!indicador) return;
-    const bonus = Math.floor(creditosComprados * 0.10);
-    if (bonus <= 0) return;
-    await adicionarCreditos(indicadorCodigo, bonus, 'bonus_indicacao');
-    const { registrarBonus } = require('./services/salvarIndicacao');
-    await registrarBonus({ indicadorCodigo, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: bonus });
-    criarNotificacaoService({
-      id: Date.now().toString(),
-      tipo: 'indicacao_bonus',
-      titulo: '🎁 Bônus de indicação!',
-      mensagem: (comprador.nome || 'Seu indicado') + ' comprou ' + creditosComprados + ' créditos — você ganhou ' + bonus + ' de bônus!',
-      usuarioId: indicadorCodigo,
-      lida: false,
-      criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
-    });
+    if (!comprador) return;
+
+    if (comprador.indicadoPor) {
+      const indicadorCodigo = comprador.indicadoPor;
+      const indicador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === indicadorCodigo);
+      if (indicador) {
+        const bonus = Math.floor(creditosComprados * 0.10);
+        if (bonus > 0) {
+          await adicionarCreditos(indicadorCodigo, bonus, 'bonus_indicacao');
+          const { registrarBonus } = require('./services/salvarIndicacao');
+          await registrarBonus({ indicadorCodigo, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: bonus, indicadorTipo: 'corretor' });
+          criarNotificacaoService({
+            id: Date.now().toString(),
+            tipo: 'indicacao_bonus',
+            titulo: '🎁 Bônus de indicação!',
+            mensagem: (comprador.nome || 'Seu indicado') + ' comprou ' + creditosComprados + ' créditos — você ganhou ' + bonus + ' de bônus!',
+            usuarioId: indicadorCodigo,
+            lida: false,
+            criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+          });
+        }
+      }
+    }
+
+    if (comprador.atendidoPorAdmin) {
+      const { buscarAdminConta } = require('./services/salvarAdminConta');
+      const conta = await buscarAdminConta(comprador.atendidoPorAdmin);
+      if (conta && conta.ativo) {
+        const bonusAdmin = Math.floor(creditosComprados * 0.20);
+        if (bonusAdmin > 0) {
+          const { registrarBonus } = require('./services/salvarIndicacao');
+          await registrarBonus({ indicadorCodigo: conta.usuario, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: bonusAdmin, indicadorTipo: 'admin' });
+          console.log('[bonus-admin] comissão registrada:', conta.usuario, '| valor:', bonusAdmin, '| indicado:', userId);
+        }
+      }
+    }
   } catch(e) { console.error('[bonus-indicacao]', e.message); }
 }
 
@@ -11321,6 +11385,30 @@ app.post('/webhook/whatsapp-cloud', express.json(), async (req, res) => {
           // cliques de botão tratados abaixo.
           if (msg.type === 'text') {
             await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: 'texto', texto: msg.text?.body || '', messageId: msg.id }).catch(()=>{});
+            // Resposta automática pro lead que respondeu a campanha — só quando
+            // dá pra identificar o sub-admin responsável (refAdmin), senão cai
+            // pra revisão manual na inbox como já era antes. Dentro da janela
+            // de 24h aberta pela mensagem dele, então é texto livre (não
+            // precisa de template aprovado).
+            (async () => {
+              try {
+                const { buscarContatoPorTelefone, marcarAutoRespondido } = require('./services/salvarDisparo');
+                const contatoCampanha = await buscarContatoPorTelefone(telefone);
+                const refAdmin = contatoCampanha?.variaveis?.refAdmin;
+                if (!contatoCampanha || !refAdmin || contatoCampanha.auto_respondido_em) return;
+                const { buscarAdminConta } = require('./services/salvarAdminConta');
+                const conta = await buscarAdminConta(refAdmin);
+                if (!conta || !conta.ativo) return;
+                const primeiroNome = (nomeContato || contatoCampanha.nome || '').split(' ')[0];
+                const _saudacao = primeiroNome ? `Oi, ${primeiroNome}! ` : 'Oi! ';
+                const _contatoSub = conta.celular ? ` (${conta.celular})` : '';
+                const _msgAuto = `${_saudacao}Que bom te ver por aqui! 🎉\n\nVocê já tem 1.000 créditos liberados pra começar na MatchImóveis — é só finalizar seu cadastro pra desbloquear tudo.\n\nQuem tá cuidando de você é o(a) *${conta.nome || conta.usuario}*${_contatoSub} — fala com ele(a) que te ajuda a fechar agora mesmo! 🚀`;
+                const { enviarTexto } = require('./services/metaWhatsapp');
+                await enviarTexto({ telefone, texto: _msgAuto, phoneNumberId });
+                await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'saida', tipo: 'texto', texto: _msgAuto }).catch(()=>{});
+                await marcarAutoRespondido(contatoCampanha.id);
+              } catch(e) { console.error('[whatsapp-cloud] erro auto-resposta campanha:', e.message); }
+            })();
           } else if (msg.type === 'button') {
             await _salvarMsgCloud({ phoneNumberId, telefone, nome: nomeContato, direcao: 'entrada', tipo: 'botao', texto: msg.button?.text || '', messageId: msg.id }).catch(()=>{});
           } else if (msg.type === 'audio') {
@@ -18365,6 +18453,344 @@ app.post('/admin/disparos/criar', authAdmin, express.json(), async (req, res) =>
     res.json({ ok: true, campanhaId, optout, jaEnviados, jaCadastrados, numerosInvalidos });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
+
+// Fonte alternativa a /admin/disparos/criar: em vez de subir planilha, monta
+// os contatos a partir da base de usuários (corretores) já cadastrados —
+// primeiro uso: campanha de reativação/recarga pro corretor que já tem
+// conta. restringirHorario=true por padrão aqui (o pedido foi não incomodar
+// o corretor fora de 12h-13h/20h-21h Brasília).
+app.post('/admin/disparos/criar-de-usuarios', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { nomeCampanha, templateNome, templateIdioma, delayMs, phoneNumberId, restringirHorario, ignorarHistorico } = req.body;
+    if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
+    if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
+
+    const { _normalizarTelefone, _telefoneValido } = require('./services/metaWhatsapp');
+    const contatosMap = new Map(); // dedup por telefone normalizado — um usuário pode ter telefone e celular iguais
+    (_cacheUsuarios || []).forEach(u => {
+      if (u.tipo === 'admin' || u.ativo === false) return;
+      const bruto = u.celular || u.telefone;
+      if (!bruto) return;
+      const telefone = _normalizarTelefone(bruto);
+      if (!_telefoneValido(telefone) || contatosMap.has(telefone)) return;
+      contatosMap.set(telefone, { nome: u.nome || '', telefone, variaveis: { nome: u.nome || '' } });
+    });
+    const contatos = [...contatosMap.values()];
+    if (!contatos.length) return res.json({ ok: false, erro: 'Nenhum corretor com telefone válido encontrado' });
+
+    const { criarCampanha, inserirContatos } = require('./services/salvarDisparo');
+    const campanhaId = await criarCampanha({
+      nomeCampanha,
+      templateNome,
+      templateIdioma: templateIdioma || 'pt_BR',
+      mapeamentoVariaveis: ['nome'],
+      delayMs: delayMs || 2500,
+      criadoPor: 'admin',
+      phoneNumberId: phoneNumberId || null,
+      restringirHorario: restringirHorario !== false
+    });
+
+    // Aqui não faz sentido "já cadastrado" (a fonte já É a base de cadastrados)
+    const { optout, jaEnviados } = await inserirContatos(campanhaId, contatos, new Set(), !!ignorarHistorico);
+
+    const { dispararWorkerDisparo } = require('./services/workerDispatch');
+    dispararWorkerDisparo(campanhaId);
+
+    res.json({ ok: true, campanhaId, totalContatos: contatos.length, optout, jaEnviados });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// Fonte 3: quem já abriu o email da campanha de aquisição (campanha_contatos),
+// parece corretor e tem celular — vira disparo de WhatsApp oficial com botão
+// de auto-cadastro (usarContatoIdBotao). Cada contato é distribuído em
+// round-robin entre os sub-admins ativos (refAdmin), pra virar comissão de
+// 20% quando essa conta comprar créditos (ver _processarBonusIndicacao).
+app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { nomeCampanha, templateNome, templateIdioma, delayMs, phoneNumberId, restringirHorario, ignorarHistorico, subAdmins } = req.body;
+    if (!nomeCampanha) return res.json({ ok: false, erro: 'Informe o nome da campanha' });
+    if (!templateNome) return res.json({ ok: false, erro: 'Informe o nome do template' });
+
+    const { listarAdminContas } = require('./services/salvarAdminConta');
+    let contasAtivas = (await listarAdminContas()).filter(c => c.ativo);
+    // subAdmins: lista opcional de usuarios (login) — restringe o round-robin
+    // a só esses, mesmo que existam outras contas ativas no sistema. Sem
+    // isso, entra todo mundo que está ativo em admin_contas.
+    if (Array.isArray(subAdmins) && subAdmins.length) {
+      const _permitidos = new Set(subAdmins.map(s => String(s).trim().toLowerCase()));
+      contasAtivas = contasAtivas.filter(c => _permitidos.has(c.usuario.toLowerCase()));
+    }
+    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin ativo encontrado pra distribuir os contatos (confira os usuários informados em subAdmins)' });
+
+    const { _normalizarTelefone, _telefoneValido } = require('./services/metaWhatsapp');
+    const { rows: linhas } = await require('./services/db').query(`
+      SELECT id, nome, email, celular FROM campanha_contatos
+      WHERE parece_corretor = true AND aberto_em IS NOT NULL
+        AND celular IS NOT NULL AND celular != ''
+    `);
+
+    const contatosMap = new Map();
+    let i = 0;
+    linhas.forEach(l => {
+      const telefone = _normalizarTelefone(l.celular);
+      if (!_telefoneValido(telefone) || contatosMap.has(telefone)) return;
+      const refAdmin = contasAtivas[i % contasAtivas.length].usuario;
+      i++;
+      contatosMap.set(telefone, { nome: l.nome || '', telefone, variaveis: { nome: l.nome || '', refAdmin } });
+    });
+    const contatos = [...contatosMap.values()];
+    if (!contatos.length) return res.json({ ok: false, erro: 'Nenhum contato de campanha (aberto + corretor + celular) encontrado' });
+
+    // Mesma checagem de "já é usuário" que /admin/disparos/criar já faz —
+    // não faz sentido mandar campanha de aquisição de conta pra quem já tem.
+    const _telsCadastrados = new Set();
+    (_cacheUsuarios || []).forEach(u => {
+      const t1 = String(u.telefone || '').replace(/\D/g, '').slice(-8);
+      const t2 = String(u.celular || '').replace(/\D/g, '').slice(-8);
+      if (t1) _telsCadastrados.add(t1);
+      if (t2) _telsCadastrados.add(t2);
+    });
+    const jaCadastradosSet = new Set(contatos.filter(c => _telsCadastrados.has(c.telefone.slice(-8))).map(c => c.telefone));
+
+    const { criarCampanha, inserirContatos } = require('./services/salvarDisparo');
+    const campanhaId = await criarCampanha({
+      nomeCampanha,
+      templateNome,
+      templateIdioma: templateIdioma || 'pt_BR',
+      mapeamentoVariaveis: ['nome'],
+      delayMs: delayMs || 2500,
+      criadoPor: 'admin',
+      phoneNumberId: phoneNumberId || null,
+      restringirHorario: restringirHorario !== false,
+      usarContatoIdBotao: true
+    });
+
+    const { optout, jaEnviados, jaCadastrados } = await inserirContatos(campanhaId, contatos, jaCadastradosSet, !!ignorarHistorico);
+
+    const { dispararWorkerDisparo } = require('./services/workerDispatch');
+    dispararWorkerDisparo(campanhaId);
+
+    res.json({ ok: true, campanhaId, totalContatos: contatos.length, optout, jaEnviados, jaCadastrados });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// ── Comissões do sub-admin (20% sobre indicação via campanha de WhatsApp) ──
+// Painel próprio: qualquer admin logado vê só a própria conta (identificada
+// por req.session.adminUsuario), sem permissão especial — é o extrato dele,
+// não uma área administrativa restrita.
+app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
+  try {
+    const _escC = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const { buscarAdminConta } = require('./services/salvarAdminConta');
+    const { listarBonusPorIndicador, totalDisponivelPorIndicador } = require('./services/salvarIndicacao');
+    const usuarioAdmin = req.session.adminUsuario;
+    const conta = await buscarAdminConta(usuarioAdmin);
+    if (!conta) return res.send(_paginaSimples('Minhas comissões', '<p>Essa conta de login não tem um cadastro de sub-admin vinculado (ex: é a conta superadmin principal) — nada pra mostrar aqui.</p>'));
+
+    const historico = await listarBonusPorIndicador(usuarioAdmin, 'admin');
+    const disponivel = await totalDisponivelPorIndicador(usuarioAdmin);
+
+    const linhasDisponivel = historico.filter(h => h.status === 'disponivel');
+    const linhasHtml = historico.map(h => `
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:8px">${h.status === 'disponivel' ? `<input type="checkbox" class="chk-resgate" value="${h.id}" data-coins="${h.bonus_coins}">` : ''}</td>
+        <td style="padding:8px;font-size:12px">${new Date(h.criado_em).toLocaleDateString('pt-BR')}</td>
+        <td style="padding:8px;font-size:12px">${_escC(h.indicado_codigo)}</td>
+        <td style="padding:8px;font-size:12px">${h.valor_compra_coins}</td>
+        <td style="padding:8px;font-size:12px;font-weight:700;color:#16a34a">+${h.bonus_coins}</td>
+        <td style="padding:8px;font-size:12px">${_escC(h.status)}${h.modo_resgate ? ' (' + _escC(h.modo_resgate) + ')' : ''}</td>
+      </tr>`).join('');
+
+    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Minhas comissões</title>
+    <style>body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}</style></head>
+    <body>
+      ${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req))}
+      <div class="content" style="padding:24px;max-width:960px">
+        <h1 style="font-size:22px;margin-bottom:4px">Minhas comissões</h1>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 20% sobre compras dos corretores que entraram pelo seu link.</p>
+
+        <div style="display:flex;gap:16px;margin-bottom:24px">
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1">
+            <div style="font-size:11px;color:#9ca3af;text-transform:uppercase;font-weight:700">Disponível pra resgatar</div>
+            <div style="font-size:26px;font-weight:800;color:#111">${disponivel} coins</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1">
+            <div style="font-size:11px;color:#9ca3af;text-transform:uppercase;font-weight:700">Saldo em coins (pra revender)</div>
+            <div style="font-size:26px;font-weight:800;color:#111">${conta.saldoCoins} coins</div>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px">
+          <h3 style="margin:0 0 10px;font-size:14px">Resgatar selecionadas</h3>
+          <label style="font-size:13px;margin-right:16px"><input type="radio" name="modoResgate" value="dinheiro" checked> Dinheiro (peço e aguardo pagamento)</label>
+          <label style="font-size:13px"><input type="radio" name="modoResgate" value="credito"> Crédito (vira saldo pra eu revender)</label>
+          <div style="margin-top:12px"><button onclick="resgatar()" style="background:#FF385C;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-weight:700;cursor:pointer">Resgatar selecionadas</button></div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:20px">
+          <h3 style="margin:0 0 10px;font-size:14px">Revender crédito pra um corretor</h3>
+          <input id="revCodigo" placeholder="Código do corretor (ex: COR-1234)" style="padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;margin-right:8px">
+          <input id="revQtd" type="number" placeholder="Quantidade de coins" style="padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;width:160px;margin-right:8px">
+          <button onclick="revender()" style="background:#00A699;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-weight:700;cursor:pointer">Revender</button>
+          <p style="font-size:11.5px;color:#9ca3af;margin-top:8px">Você ganha +10% de volta em coins toda vez que revende.</p>
+        </div>
+
+        <table style="width:100%;background:#fff;border:1px solid #e5e7eb;border-radius:12px;border-collapse:collapse;overflow:hidden">
+          <thead><tr style="background:#f9fafb;text-align:left"><th style="padding:8px"></th><th style="padding:8px;font-size:11px">Data</th><th style="padding:8px;font-size:11px">Corretor</th><th style="padding:8px;font-size:11px">Compra</th><th style="padding:8px;font-size:11px">Comissão</th><th style="padding:8px;font-size:11px">Status</th></tr></thead>
+          <tbody>${linhasHtml || '<tr><td colspan="6" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma comissão ainda</td></tr>'}</tbody>
+        </table>
+      </div>
+      <script>
+        async function resgatar(){
+          const ids = [...document.querySelectorAll('.chk-resgate:checked')].map(c=>c.value);
+          if(!ids.length) return alert('Selecione ao menos uma comissão disponível.');
+          const modo = document.querySelector('input[name="modoResgate"]:checked').value;
+          const r = await fetch('/admin/minhas-comissoes/resgatar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ids, modo})});
+          const j = await r.json();
+          if(!j.ok) return alert('Erro: ' + j.erro);
+          alert(modo === 'credito' ? 'Creditado no seu saldo!' : 'Solicitação enviada — aguarde o pagamento.');
+          location.reload();
+        }
+        async function revender(){
+          const corretorCodigo = document.getElementById('revCodigo').value.trim();
+          const quantidade = parseInt(document.getElementById('revQtd').value, 10);
+          if(!corretorCodigo || !quantidade) return alert('Preencha código do corretor e quantidade.');
+          const r = await fetch('/admin/minhas-comissoes/revender', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({corretorCodigo, quantidade})});
+          const j = await r.json();
+          if(!j.ok) return alert('Erro: ' + j.erro);
+          alert('Revendido! Você ganhou +' + j.bonus + ' coins de volta.');
+          location.reload();
+        }
+      </script>
+    </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/admin/minhas-comissoes/resgatar', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { ids, modo } = req.body;
+    if (!Array.isArray(ids) || !ids.length) return res.json({ ok: false, erro: 'Selecione ao menos uma comissão' });
+    if (modo !== 'dinheiro' && modo !== 'credito') return res.json({ ok: false, erro: 'Modo inválido' });
+
+    const { buscarAdminConta, ajustarSaldoCoins } = require('./services/salvarAdminConta');
+    const { solicitarResgate, marcarResgatePago } = require('./services/salvarIndicacao');
+    const usuarioAdmin = req.session.adminUsuario;
+    const conta = await buscarAdminConta(usuarioAdmin);
+    if (!conta) return res.json({ ok: false, erro: 'Conta de sub-admin não encontrada' });
+
+    const resultado = await solicitarResgate({ ids, indicadorCodigo: usuarioAdmin, modo });
+    if (!resultado.atualizados) return res.json({ ok: false, erro: 'Nenhuma comissão disponível encontrada nessa seleção' });
+
+    // Crédito não envolve dinheiro saindo da empresa — é só mover o próprio
+    // coin da plataforma pro saldo do sub-admin, então libera na hora, sem
+    // depender do superadmin aprovar (diferente do modo dinheiro).
+    if (modo === 'credito') {
+      await marcarResgatePago(ids);
+      await ajustarSaldoCoins(conta.id, resultado.totalCoins);
+    }
+
+    res.json({ ok: true, atualizados: resultado.atualizados, totalCoins: resultado.totalCoins });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/minhas-comissoes/revender', authAdmin, express.json(), async (req, res) => {
+  try {
+    const quantidade = parseInt(req.body.quantidade, 10);
+    const corretorCodigo = String(req.body.corretorCodigo || '').trim();
+    if (!corretorCodigo || !quantidade || quantidade <= 0) return res.json({ ok: false, erro: 'Informe corretor e quantidade válida' });
+
+    const { buscarAdminConta, ajustarSaldoCoins } = require('./services/salvarAdminConta');
+    const usuarioAdmin = req.session.adminUsuario;
+    const conta = await buscarAdminConta(usuarioAdmin);
+    if (!conta) return res.json({ ok: false, erro: 'Conta de sub-admin não encontrada' });
+    if (conta.saldoCoins < quantidade) return res.json({ ok: false, erro: 'Saldo insuficiente' });
+
+    const corretor = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === corretorCodigo);
+    if (!corretor) return res.json({ ok: false, erro: 'Corretor não encontrado — confira o código' });
+
+    await adicionarCreditos(corretorCodigo, quantidade, 'revenda_subadmin_' + usuarioAdmin);
+    await ajustarSaldoCoins(conta.id, -quantidade);
+
+    const bonus = Math.floor(quantidade * 0.10);
+    if (bonus > 0) {
+      await ajustarSaldoCoins(conta.id, bonus);
+      const { registrarBonus } = require('./services/salvarIndicacao');
+      await registrarBonus({ indicadorCodigo: usuarioAdmin, indicadoCodigo: corretorCodigo, valorCompraCoins: quantidade, bonusCoins: bonus, indicadorTipo: 'admin' });
+      // Já foi resolvido na hora (é só coin interno) — não fica pendente
+      // esperando resgate, senão contaria de novo em totalDisponivelPorIndicador.
+      // UPDATE não aceita ORDER BY/LIMIT direto no Postgres — usa subquery
+      // pra pegar só a linha que acabou de ser criada por registrarBonus.
+      await require('./services/db').query(
+        `UPDATE indicacoes_bonus SET status='pago', modo_resgate='credito'
+         WHERE id = (
+           SELECT id FROM indicacoes_bonus
+           WHERE indicador_codigo=$1 AND indicador_tipo='admin' AND indicado_codigo=$2 AND bonus_coins=$3 AND status='disponivel'
+           ORDER BY criado_em DESC LIMIT 1
+         )`,
+        [usuarioAdmin, corretorCodigo, bonus]
+      );
+    }
+
+    res.json({ ok: true, bonus, novoSaldo: conta.saldoCoins - quantidade + bonus });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// Fila de resgates em dinheiro pendentes de pagamento — só o superadmin
+// principal vê e confirma (envolve dinheiro de verdade saindo da empresa,
+// diferente do modo crédito que já se resolve sozinho).
+app.get('/admin/comissoes-pendentes', authAdmin, async (req, res) => {
+  try {
+    const _escP = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const { listarSolicitacoesResgate } = require('./services/salvarIndicacao');
+    const pendentes = await listarSolicitacoesResgate();
+    const porAdmin = {};
+    pendentes.forEach(p => {
+      if (!porAdmin[p.indicador_codigo]) porAdmin[p.indicador_codigo] = [];
+      porAdmin[p.indicador_codigo].push(p);
+    });
+    const blocos = Object.entries(porAdmin).map(([admin, itens]) => {
+      const total = itens.reduce((s, i) => s + i.bonus_coins, 0);
+      const linhas = itens.map(i => `<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:6px"><input type="checkbox" class="chk-pagar" value="${i.id}" data-admin="${_escP(admin)}"></td><td style="padding:6px;font-size:12px">${new Date(i.solicitado_em).toLocaleDateString('pt-BR')}</td><td style="padding:6px;font-size:12px;font-weight:700">${i.bonus_coins} coins</td></tr>`).join('');
+      return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:14px">
+        <h3 style="margin:0 0 8px;font-size:14px">${_escP(admin)} — total pendente: ${total} coins</h3>
+        <table style="width:100%">${linhas}</table>
+        <button onclick="pagarSelecionados('${_escP(admin)}')" style="margin-top:8px;background:#16a34a;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Marcar selecionadas como pagas</button>
+      </div>`;
+    }).join('') || '<p style="color:#9ca3af">Nenhum resgate em dinheiro pendente.</p>';
+
+    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Comissões pendentes</title>
+    <style>body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}</style></head>
+    <body>
+      ${_adminSidebarHtml('comissoes-pendentes', true)}
+      <div class="content" style="padding:24px;max-width:760px">
+        <h1 style="font-size:22px;margin-bottom:4px">Comissões pendentes (dinheiro)</h1>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Pague por fora e marque aqui como pago.</p>
+        ${blocos}
+      </div>
+      <script>
+        async function pagarSelecionados(admin){
+          const ids = [...document.querySelectorAll('.chk-pagar:checked')].filter(c=>c.dataset.admin===admin).map(c=>c.value);
+          if(!ids.length) return alert('Selecione ao menos um item.');
+          const r = await fetch('/admin/comissoes-pendentes/pagar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ids})});
+          const j = await r.json();
+          if(!j.ok) return alert('Erro: ' + j.erro);
+          location.reload();
+        }
+      </script>
+    </body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+app.post('/admin/comissoes-pendentes/pagar', authAdmin, express.json(), async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || !ids.length) return res.json({ ok: false, erro: 'Selecione ao menos um item' });
+    const { marcarResgatePago } = require('./services/salvarIndicacao');
+    await marcarResgatePago(ids);
+    res.json({ ok: true });
+  } catch(e) { res.json({ ok: false, erro: e.message }); }
+});
+
 // Precisa vir ANTES de /admin/disparos/:id, senão o Express trata "optout"
 // como se fosse o :id da campanha.
 app.get('/admin/disparos/optout', authAdmin, async (req, res) => {

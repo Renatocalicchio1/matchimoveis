@@ -65,6 +65,12 @@ async function _inicializar() {
     )
   `);
   await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS relancamentos INT DEFAULT 0`);
+  // Campanhas que só podem mandar mensagem em janelas específicas do dia
+  // (ex: horário de almoço/fim de tarde, pra não incomodar corretor em
+  // horário ruim). Desligado por padrão — só liga quem pedir explicitamente
+  // na criação da campanha.
+  await query(`ALTER TABLE disparos_campanhas ADD COLUMN IF NOT EXISTS restringir_horario BOOLEAN DEFAULT false`);
+  await query(`ALTER TABLE disparos_contatos ADD COLUMN IF NOT EXISTS auto_respondido_em TIMESTAMP`);
   // "enviado" só quer dizer que a Meta aceitou o pedido — não confirma que
   // chegou no aparelho da pessoa. O status de entrega de verdade (sent →
   // delivered → read, ou failed) chega depois via webhook (POST /messages
@@ -83,6 +89,25 @@ async function _inicializar() {
       atualizado_em TIMESTAMP DEFAULT NOW()
     )
   `);
+}
+
+// Janelas de envio em horário de Brasília (12h-13h e 20h-21h) — pedido
+// explícito pra campanhas que não devem incomodar o corretor fora desses
+// horários. Usa Intl com timeZone fixo em vez de confiar no TZ do processo
+// (Render roda em UTC), então funciona igual local e em produção.
+const JANELAS_HORARIO_BRASILIA = [12, 20];
+function dentroDaJanelaDisparo() {
+  const hora = parseInt(
+    new Intl.DateTimeFormat('en-US', { timeZone: 'America/Sao_Paulo', hour: '2-digit', hour12: false }).format(new Date()),
+    10
+  );
+  return JANELAS_HORARIO_BRASILIA.includes(hora);
+}
+
+async function listarCampanhasAguardandoJanela() {
+  await _inicializar();
+  const { rows } = await query(`SELECT * FROM disparos_campanhas WHERE status='aguardando_janela'`);
+  return rows;
 }
 
 async function marcarOptout(telefone, origem) {
@@ -134,13 +159,13 @@ async function listarJaEnviados(telefones) {
   return rows.map(r => r.telefone);
 }
 
-async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId, usarContatoIdBotao, phoneNumberId }) {
+async function criarCampanha({ nomeCampanha, templateNome, templateIdioma, mapeamentoVariaveis, delayMs, criadoPor, corretorUserId, usarContatoIdBotao, phoneNumberId, restringirHorario }) {
   await _inicializar();
   const id = uuidv4();
   await query(
-    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id, usar_contato_id_botao, phone_number_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-    [id, nomeCampanha, templateNome, templateIdioma, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null, !!usarContatoIdBotao, phoneNumberId || null]
+    `INSERT INTO disparos_campanhas (id, nome_campanha, template_nome, template_idioma, mapeamento_variaveis, delay_ms, criado_por, corretor_user_id, usar_contato_id_botao, phone_number_id, restringir_horario)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+    [id, nomeCampanha, templateNome, templateIdioma, JSON.stringify(mapeamentoVariaveis || []), delayMs || 2500, criadoPor || '', corretorUserId || null, !!usarContatoIdBotao, phoneNumberId || null, !!restringirHorario]
   );
   return id;
 }
@@ -208,6 +233,27 @@ async function buscarContato(id) {
   await _inicializar();
   const { rows } = await query(`SELECT * FROM disparos_contatos WHERE id=$1`, [id]);
   return rows[0] || null;
+}
+
+// Usado pelo webhook de mensagem recebida (/webhook/whatsapp-cloud) pra
+// achar de qual campanha/refAdmin esse telefone veio, e poder responder
+// automaticamente mencionando o sub-admin certo. Pega o envio mais recente
+// pra esse telefone (um mesmo número pode ter entrado em campanhas diferentes
+// ao longo do tempo).
+async function buscarContatoPorTelefone(telefone) {
+  await _inicializar();
+  const { rows } = await query(
+    `SELECT * FROM disparos_contatos WHERE telefone=$1 AND status IN ('enviado','convertido') ORDER BY criado_em DESC LIMIT 1`,
+    [telefone]
+  );
+  return rows[0] || null;
+}
+
+// Só manda a resposta automática 1x por contato — evita reenviar o mesmo
+// pitch toda vez que a pessoa manda outra mensagem na conversa.
+async function marcarAutoRespondido(id) {
+  await _inicializar();
+  await query(`UPDATE disparos_contatos SET auto_respondido_em=NOW() WHERE id=$1`, [id]);
 }
 
 async function listarCampanhas() {
@@ -369,5 +415,9 @@ module.exports = {
   listarCampanhasTravadas,
   buscarFollowupMensagem,
   salvarFollowupMensagem,
-  listarTelefonesDaCampanha
+  listarTelefonesDaCampanha,
+  dentroDaJanelaDisparo,
+  listarCampanhasAguardandoJanela,
+  buscarContatoPorTelefone,
+  marcarAutoRespondido
 };

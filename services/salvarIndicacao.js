@@ -16,32 +16,89 @@ async function _inicializar() {
     )
   `);
   await query(`CREATE INDEX IF NOT EXISTS idx_indicacoes_bonus_indicador ON indicacoes_bonus(indicador_codigo)`);
+  // indicador_tipo distingue corretor (ganha automaticamente em match_coins,
+  // já creditado direto na conta) de admin/sub-admin (ganha comissão de
+  // 20% que fica só nesse ledger — sub-admin não tem saldo de coins na
+  // tabela usuarios, então o "ganho" só existe aqui até virar resgate).
+  await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS indicador_tipo TEXT DEFAULT 'corretor'`);
+  // Ciclo de vida de uma comissão de admin: disponivel -> solicitado (sub-admin
+  // escolheu um lote e pediu resgate) -> pago (superadmin cumpriu por fora e
+  // marcou aqui). modo_resgate: 'dinheiro' (paga em R$ fora do sistema) ou
+  // 'credito' (vira match_coins que o sub-admin repassa/revende pra um corretor).
+  await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'disponivel'`);
+  await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS modo_resgate TEXT`);
+  await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS solicitado_em TIMESTAMP`);
+  await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS pago_em TIMESTAMP`);
+  await query(`ALTER TABLE indicacoes_bonus ADD COLUMN IF NOT EXISTS credito_destino_codigo TEXT`);
 }
 
-async function registrarBonus({ indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins }) {
+async function registrarBonus({ indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins, indicadorTipo }) {
   await _inicializar();
   await query(
-    `INSERT INTO indicacoes_bonus (id, indicador_codigo, indicado_codigo, valor_compra_coins, bonus_coins) VALUES ($1,$2,$3,$4,$5)`,
-    [uuidv4(), indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins]
+    `INSERT INTO indicacoes_bonus (id, indicador_codigo, indicado_codigo, valor_compra_coins, bonus_coins, indicador_tipo) VALUES ($1,$2,$3,$4,$5,$6)`,
+    [uuidv4(), indicadorCodigo, indicadoCodigo, valorCompraCoins, bonusCoins, indicadorTipo || 'corretor']
   );
 }
 
-async function listarBonusPorIndicador(indicadorCodigo) {
+async function listarBonusPorIndicador(indicadorCodigo, indicadorTipo) {
   await _inicializar();
-  const { rows } = await query(
-    `SELECT * FROM indicacoes_bonus WHERE indicador_codigo=$1 ORDER BY criado_em DESC`,
-    [indicadorCodigo]
-  );
+  const params = [indicadorCodigo];
+  let where = 'WHERE indicador_codigo=$1';
+  if (indicadorTipo) { params.push(indicadorTipo); where += ` AND indicador_tipo=$2`; }
+  const { rows } = await query(`SELECT * FROM indicacoes_bonus ${where} ORDER BY criado_em DESC`, params);
   return rows;
 }
 
-async function totalBonusPorIndicador(indicadorCodigo) {
+async function totalBonusPorIndicador(indicadorCodigo, indicadorTipo) {
+  await _inicializar();
+  const params = [indicadorCodigo];
+  let where = 'WHERE indicador_codigo=$1';
+  if (indicadorTipo) { params.push(indicadorTipo); where += ` AND indicador_tipo=$2`; }
+  const { rows } = await query(`SELECT COALESCE(SUM(bonus_coins),0) as total FROM indicacoes_bonus ${where}`, params);
+  return parseInt(rows[0]?.total || 0);
+}
+
+// Só soma o que ainda não foi pedido em resgate — é o número que o painel
+// do sub-admin mostra como "disponível pra resgatar".
+async function totalDisponivelPorIndicador(indicadorCodigo) {
   await _inicializar();
   const { rows } = await query(
-    `SELECT COALESCE(SUM(bonus_coins),0) as total FROM indicacoes_bonus WHERE indicador_codigo=$1`,
+    `SELECT COALESCE(SUM(bonus_coins),0) as total FROM indicacoes_bonus WHERE indicador_codigo=$1 AND indicador_tipo='admin' AND status='disponivel'`,
     [indicadorCodigo]
   );
   return parseInt(rows[0]?.total || 0);
 }
 
-module.exports = { registrarBonus, listarBonusPorIndicador, totalBonusPorIndicador };
+// Sub-admin escolhe um lote de comissões "disponivel" e pede resgate — fica
+// 'solicitado' até o superadmin cumprir por fora (dinheiro) ou creditar
+// coins pro corretor escolhido (credito) e marcar como pago.
+async function solicitarResgate({ ids, indicadorCodigo, modo, creditoDestinoCodigo }) {
+  await _inicializar();
+  if (!ids || !ids.length) return { atualizados: 0 };
+  const { rows } = await query(
+    `UPDATE indicacoes_bonus SET status='solicitado', modo_resgate=$1, solicitado_em=NOW(), credito_destino_codigo=$2
+     WHERE id = ANY($3) AND indicador_codigo=$4 AND indicador_tipo='admin' AND status='disponivel'
+     RETURNING id, bonus_coins`,
+    [modo, creditoDestinoCodigo || null, ids, indicadorCodigo]
+  );
+  return { atualizados: rows.length, totalCoins: rows.reduce((s, r) => s + r.bonus_coins, 0) };
+}
+
+async function listarSolicitacoesResgate() {
+  await _inicializar();
+  const { rows } = await query(
+    `SELECT * FROM indicacoes_bonus WHERE indicador_tipo='admin' AND status='solicitado' ORDER BY solicitado_em ASC`
+  );
+  return rows;
+}
+
+async function marcarResgatePago(ids) {
+  await _inicializar();
+  if (!ids || !ids.length) return;
+  await query(`UPDATE indicacoes_bonus SET status='pago', pago_em=NOW() WHERE id = ANY($1)`, [ids]);
+}
+
+module.exports = {
+  registrarBonus, listarBonusPorIndicador, totalBonusPorIndicador,
+  totalDisponivelPorIndicador, solicitarResgate, listarSolicitacoesResgate, marcarResgatePago
+};

@@ -627,8 +627,16 @@ function _adminShellCss() {
 // toda página admin (antes só o dashboard fazia isso, então uma conta
 // secundária via o menu inteiro mesmo sem acesso real às páginas listadas).
 function _sidebarPerm(req) { return req.session.adminSuper !== false ? true : (req.session.adminPermissoes || []); }
-function _adminSidebarHtml(activeKey, segundoArg) {
+function _adminSidebarHtml(activeKey, segundoArg, req) {
   const restringir = Array.isArray(segundoArg);
+  // "Voltar pro admin" — só aparece quando essa sessão está impersonando uma
+  // conta de sub-admin (via /admin/contas-admin/:id/entrar). Sem isso, o
+  // superadmin tinha que fazer logout e logar nas credenciais de novo toda
+  // vez que queria sair de "modo sub-admin" — a sessão original ficava
+  // sobrescrita sem nenhum jeito de restaurar.
+  const _voltarHtml = (req && req.session && req.session.adminVoltarUsuario)
+    ? `<a href="/admin/voltar-superadmin" style="background:#FF385C1a;color:#FF385C;font-weight:700">🔙 Voltar pro admin</a>`
+    : '';
   // 'minhas-comissoes' segue a mesma liberação geral de authAdmin
   // (_ADMIN_ROTAS_SEMPRE_PERMITIDAS) — sem isso o link some do menu de quem
   // não tem a permissão marcada, mesmo a página sendo acessível direto.
@@ -649,7 +657,7 @@ function _adminSidebarHtml(activeKey, segundoArg) {
   <aside class="admin-sidebar">
     <a class="admin-logo" href="/admin"><span class="sq">M</span><span class="tx">Match<span>Imóveis</span> <span style="font-weight:400;color:var(--text-ter)">admin</span></span></a>
     <nav class="admin-menu">${secoes}</nav>
-    <div class="admin-foot"><a href="/admin/logout">🚪 Sair</a></div>
+    <div class="admin-foot">${_voltarHtml}<a href="/admin/logout">🚪 Sair</a></div>
   </aside>`;
 }
 // ── FIM ADMIN SHELL ──────────────────────────────────────────────────────────
@@ -682,7 +690,7 @@ app.get('/admin/cerebro', authAdmin, (req, res) => {
     fluxos: Object.entries(FLUXOS).map(([id,f]) => ({ id, titulo: f.titulo, rota: f.rota, passos: f.passos })),
   };
   
-  res.render('admin-cerebro', { modulos, totalBase: base.total, adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('cerebro', _sidebarPerm(req)) });
+  res.render('admin-cerebro', { modulos, totalBase: base.total, adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('cerebro', _sidebarPerm(req), req) });
 });
 
 
@@ -924,6 +932,7 @@ app.get('/admin/logout', (req, res) => {
   req.session.adminNome = null;
   req.session.adminUsuario = null;
   req.session.adminCor = null;
+  delete req.session.adminVoltarUsuario;
   res.redirect('/admin/login');
 });
 
@@ -991,7 +1000,7 @@ button:hover{opacity:.85}
 #status{font-size:13px;margin-top:8px}
 </style></head>
 <body>
-<div class="admin-app">${_adminSidebarHtml('contas-admin', true)}
+<div class="admin-app">${_adminSidebarHtml('contas-admin', true, req)}
 <main class="admin-content">
   <div class="card">
     <h2>➕ Nova conta admin</h2>
@@ -1159,6 +1168,13 @@ app.get('/admin/contas-admin/:id/entrar', authAdmin, async (req, res) => {
     const { buscarAdminContaPorId } = require('./services/salvarAdminConta');
     const conta = await buscarAdminContaPorId(req.params.id);
     if (!conta) return res.redirect('/admin/contas-admin');
+    // Guarda o usuário do superadmin ANTES de sobrescrever a sessão, pra dar
+    // pra voltar sem precisar logar nas credenciais de novo (ver GET
+    // /admin/voltar-superadmin). Só grava na primeira vez que entra como
+    // sub-admin — se já tava impersonando e entrar em outra conta de novo
+    // (troca de sub-admin pra sub-admin), mantém o valor original salvo,
+    // não sobrescreve com o usuário do sub-admin anterior.
+    if (req.session.adminSuper !== false) req.session.adminVoltarUsuario = req.session.adminUsuario;
     req.session.admin = true;
     req.session.adminSuper = false;
     req.session.adminPermissoes = conta.permissoes;
@@ -1173,6 +1189,22 @@ app.get('/admin/contas-admin/:id/entrar', authAdmin, async (req, res) => {
     console.error('[admin/contas-admin/entrar]', e.message);
     res.redirect('/admin/contas-admin');
   }
+});
+
+// Sai do "modo sub-admin" (ver adminVoltarUsuario acima) sem precisar de
+// login de novo — restaura a sessão original do superadmin. Se por algum
+// motivo não tiver esse valor salvo (sessão antiga, ou acessou direto sem
+// ter entrado por /entrar), manda pro login normal em vez de virar
+// superadmin "no escuro" sem checagem nenhuma.
+app.get('/admin/voltar-superadmin', authAdmin, (req, res) => {
+  if (!req.session.adminVoltarUsuario) return res.redirect('/admin/login');
+  req.session.adminSuper = true;
+  req.session.adminUsuario = req.session.adminVoltarUsuario;
+  req.session.adminNome = 'Superadmin';
+  req.session.adminPermissoes = null;
+  req.session.adminCor = '#111827';
+  delete req.session.adminVoltarUsuario;
+  res.redirect('/admin');
 });
 
 app.post('/admin/contas-admin/:id/permissoes', authAdmin, express.json(), async (req, res) => {
@@ -1327,7 +1359,7 @@ app.get('/admin/status', authAdmin, async (req, res) => {
       '.lbl{font-size:13px;color:#555}.rval{font-size:13px;font-weight:700}' +
       '.alerta{border-radius:14px;padding:16px 20px;margin-bottom:20px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px}' +
       '</style></head><body>' +
-      '<div class="admin-app">' + _adminSidebarHtml('status', _sidebarPerm(req)) + '<main class="admin-content">' +
+      '<div class="admin-app">' + _adminSidebarHtml('status', _sidebarPerm(req), req) + '<main class="admin-content">' +
       '<h1 style="font-size:22px;font-weight:800;margin-bottom:4px">🖥️ Diagnóstico de Capacidade</h1>' +
       '<p style="color:#888;font-size:13px;margin-bottom:20px">Atualiza a cada 30s · ' + new Date().toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}) + '</p>' +
 
@@ -1399,7 +1431,7 @@ app.get('/admin/leads-auditoria', authAdmin, async (req, res) => {
     sql = sql + ' ORDER BY criado_em DESC LIMIT 500';
     var resultado = await qAud(sql, pars);
     var html = '<html><head><meta charset=UTF-8><meta name="viewport" content="width=device-width,initial-scale=1"><title>Auditoria de Leads</title><style>body{font-family:Arial,sans-serif;margin:0;padding:0}' + _adminShellCss() + '</style></head><body>';
-    html = html + '<div class="admin-app">' + _adminSidebarHtml('leads-auditoria', _sidebarPerm(req)) + '<main class="admin-content">';
+    html = html + '<div class="admin-app">' + _adminSidebarHtml('leads-auditoria', _sidebarPerm(req), req) + '<main class="admin-content">';
     html = html + '<h1>Auditoria de Leads</h1>';
     html = html + 'Total: ' + resultado.rows.length;
     html = html + '</main></div></body></html>';
@@ -1493,7 +1525,7 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
 </head>
 <body>
 <div class="admin-app">
-${_adminSidebarHtml('buscar-imovel', _sidebarPerm(req))}
+${_adminSidebarHtml('buscar-imovel', _sidebarPerm(req), req)}
 <main class="admin-content">
   ${msg}
   <div class="card">
@@ -1637,7 +1669,7 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
 </head>
 <body>
 <div class="admin-app">
-${_adminSidebarHtml('buscar-lead', _sidebarPerm(req))}
+${_adminSidebarHtml('buscar-lead', _sidebarPerm(req), req)}
 <main class="admin-content">
   ${msg}
   <div class="aviso">⚠️ Excluir uma lead aqui também bloqueia o telefone e o email dela globalmente — nunca mais entram como lead nova em nenhuma conta (webhooks de portal e WhatsApp). Isso é diferente de excluir pelo app do corretor, que só apaga.</div>
@@ -1815,7 +1847,7 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
 </head>
 <body>
 <div class="admin-app">
-${_adminSidebarHtml('copiar-imoveis', _sidebarPerm(req))}
+${_adminSidebarHtml('copiar-imoveis', _sidebarPerm(req), req)}
 <main class="admin-content" style="padding-bottom:90px">
   ${msg}
   <div class="aviso">📋 Copia imóveis de uma conta pra outra — mantém o mesmo id externo, mas gera id/id interno novos pra conta de destino. O imóvel original continua na conta de origem. Pode buscar quantas vezes quiser (trocando conta/filtro) — os imóveis marcados ficam guardados até você mandar tudo de uma vez, no final.</div>
@@ -2220,7 +2252,7 @@ tr:hover td{background:#fafafa;}
 </head>
 <body>
 <div class="admin-app">
-${_adminSidebarHtml('dashboard', _sidebarPerm(req))}
+${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
 <main class="admin-content">
   <div class="card" style="margin-bottom:16px;">
     <table>
@@ -2338,7 +2370,7 @@ app.get('/admin/atribuicoes-subadmin', authAdmin, async (req, res) => {
     <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,sans-serif;background:#f9fafb;font-size:13px}${_adminShellCss()}
     .admin-content{max-width:1100px}table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb}
     th{text-align:left;padding:8px;font-size:11px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb}</style></head>
-    <body><div class="admin-app">${_adminSidebarHtml('dashboard', _sidebarPerm(req))}
+    <body><div class="admin-app">${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
     <main class="admin-content">
       <h1 style="font-size:20px;margin-bottom:6px">Revisão de atribuições sub-admin (${rows.length})</h1>
       <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Contas com um sub-admin gravado (comissão futura). Linhas em vermelho não têm nenhum rastro de campanha achado — vale conferir antes de confiar na comissão.</p>
@@ -2409,7 +2441,7 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
 </head>
 <body>
 <div class="admin-app">
-${_adminSidebarHtml('online', _sidebarPerm(req))}
+${_adminSidebarHtml('online', _sidebarPerm(req), req)}
 <main class="admin-content">
 <div class="wrap">
   <div class="card">
@@ -2752,7 +2784,7 @@ app.get('/admin/quintoandar-solicitacoes', authAdmin, async (req, res) => {
     `);
     let html = `<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Solicitações QuintoAndar</title>
     <style>body{font-family:Arial;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:1000px}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
-    <body><div class="admin-app">${_adminSidebarHtml('quintoandar', _sidebarPerm(req))}<main class="admin-content">
+    <body><div class="admin-app">${_adminSidebarHtml('quintoandar', _sidebarPerm(req), req)}<main class="admin-content">
     <h2 style="margin-bottom:16px">Solicitações de acesso QuintoAndar (${r.rows.length})</h2>
     <table><tr><th>Data</th><th>Nome</th><th>Telefone</th><th>Email</th><th>Código</th><th>Acesso à carteira</th><th>Autorizou envio</th><th>Ação</th></tr>`;
     r.rows.forEach(row => {
@@ -2772,7 +2804,7 @@ app.get('/admin/exclusao-solicitacoes', authAdmin, async (req, res) => {
     const r = await _qExcA('SELECT * FROM solicitacoes_exclusao_conta ORDER BY atendido ASC, criado_em DESC');
     let html = `<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Solicitações de exclusão de conta</title>
     <style>body{font-family:Arial;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:1000px}table{width:100%;border-collapse:collapse}th,td{padding:8px 12px;border:1px solid #ddd;font-size:13px}th{background:#f3f4f6}tr:hover{background:#fafafa}</style></head>
-    <body><div class="admin-app">${_adminSidebarHtml('exclusao', _sidebarPerm(req))}<main class="admin-content">
+    <body><div class="admin-app">${_adminSidebarHtml('exclusao', _sidebarPerm(req), req)}<main class="admin-content">
     <h2 style="margin-bottom:16px">Solicitações de exclusão de conta (${r.rows.length})</h2>
     <table><tr><th>Data</th><th>Nome</th><th>Email</th><th>Código</th><th>Status</th><th>Ação</th></tr>`;
     r.rows.forEach(row => {
@@ -3179,7 +3211,7 @@ app.get('/admin/rematch', authAdmin, async (req, res) => {
   .chip{display:inline-flex;align-items:center;gap:6px;background:#fff1f2;color:#111827;border:1px solid #fecdd3;border-radius:999px;padding:4px 6px 4px 12px;font-size:12px}
   .chip button{all:unset;cursor:pointer;color:#6b7280;font-weight:bold;padding:0 6px;line-height:1;margin:0}
   .chip button:hover{color:#FF385C}</style></head>
-  <body><div class="admin-app">${_adminSidebarHtml('rematch', _sidebarPerm(req))}<main class="admin-content">
+  <body><div class="admin-app">${_adminSidebarHtml('rematch', _sidebarPerm(req), req)}<main class="admin-content">
   <h1>🔄 Gerar Match de Conta</h1>
   <p class="gray">Roda o motor de match pra todas as leads das contas que ainda não têm nenhum match encontrado. Útil depois de importar imóveis novos ou corrigir um bug no match, sem precisar esperar o job automático.</p>
   <div class="box">
@@ -3402,7 +3434,7 @@ input:focus{border-color:#111;}button{background:#111;color:#fff;border:none;bor
 </style></head>
 <body>
 <div class="admin-app">
-${_adminSidebarHtml('dashboard', _sidebarPerm(req))}
+${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
 <main class="admin-content">
   <h1 style="font-size:18px;font-weight:700;margin-bottom:16px">${u.nome}</h1>
   <div class="card">
@@ -12241,7 +12273,7 @@ app.get('/admin/whatsapp-cloud', authAdmin, async (req, res) => {
     }
     </style></head><body>
     <div class="admin-app">
-    ${_adminSidebarHtml('whatsapp-cloud', _sidebarPerm(req))}
+    ${_adminSidebarHtml('whatsapp-cloud', _sidebarPerm(req), req)}
     <main class="admin-content">
     <h1>💬 Inbox WhatsApp Cloud <span style="font-size:13px;color:#6b7280;font-weight:400">(campanha — Meta Cloud API)</span></h1>
     <p><a href="/admin/whatsapp-cloud/exportar.csv" style="font-size:12px;color:#6b7280;text-decoration:underline">📥 Exportar contatos da inbox (.csv) — pra usar num disparo novo</a></p>
@@ -12463,7 +12495,7 @@ app.get('/admin/whatsapp-cloud/:telefone', authAdmin, async (req, res) => {
     .aviso{font-size:12px;color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;margin-top:10px}
     </style></head><body>
     <div class="admin-app">
-    ${_adminSidebarHtml('whatsapp-cloud', _sidebarPerm(req))}
+    ${_adminSidebarHtml('whatsapp-cloud', _sidebarPerm(req), req)}
     <main class="admin-content">
     <a href="/admin/whatsapp-cloud" style="color:#6b7280;text-decoration:none;font-size:12px">← Inbox</a>
     <h1>${nome}</h1>
@@ -16400,7 +16432,7 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
   .stat strong{display:block;font-size:20px;color:#FF385C}
   .stat.green strong{color:#16a34a}.stat.red strong{color:#dc2626}.stat.gray strong{color:#6b7280}
   </style></head><body>
-  <div class="admin-app">${_adminSidebarHtml('interesados', _sidebarPerm(req))}<main class="admin-content">
+  <div class="admin-app">${_adminSidebarHtml('interesados', _sidebarPerm(req), req)}<main class="admin-content">
   <h1>📥 Interessados de Portal</h1>
   <p class="gray">Sobe a planilha de "interessados" exportada do portal (ImovelWeb) — a linha da Sucursal Rankim é ignorada (já entra pelo webhook global). As outras são distribuídas pra até 3 corretores que já atuam no bairro/cidade daquele interesse. A tela acumula: pode subir planilhas novas todo dia — linha idêntica em todas as colunas a uma já lida antes é descartada (dedup), diferente em qualquer coisa entra como nova.</p>
   <div class="box">
@@ -18076,7 +18108,7 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
 
 // ── CAMPANHA GLOBAL DE CAPTAÇÃO (disparo em massa, admin) ──────────────────
 app.get('/admin/captacao-campanha', authAdmin, async (req, res) => {
-  const adminShellCss = _adminShellCss(), adminSidebar = _adminSidebarHtml('captacao-campanha', _sidebarPerm(req));
+  const adminShellCss = _adminShellCss(), adminSidebar = _adminSidebarHtml('captacao-campanha', _sidebarPerm(req), req);
   // Conta admin secundária (permissão 'captacao-campanha') só vê o
   // acompanhamento (progresso, funil, envios recentes) — iniciar/pausar o
   // disparo em massa fica restrito ao superadmin, mesma lógica de
@@ -18207,7 +18239,7 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600}
   .tag-sim{background:#f0fdf4;color:#16a34a}
   .tag-nao{background:#f3f4f6;color:#9ca3af}</style></head>
-  <body><div class="admin-app">${_adminSidebarHtml('campanha', _sidebarPerm(req))}<main class="admin-content">
+  <body><div class="admin-app">${_adminSidebarHtml('campanha', _sidebarPerm(req), req)}<main class="admin-content">
   <h1>📧 Campanha de Email</h1>
   <div class="box">
     <h3>📊 Base de contatos <span class="gray" style="font-size:11px;font-weight:normal">(atualiza sozinho a cada 15s)</span></h3>
@@ -18849,7 +18881,7 @@ app.get('/admin/disparos', authAdmin, async (req, res) => {
     </style></head>
     <body>
     <div class="admin-app">
-    ${_adminSidebarHtml('disparos', _sidebarPerm(req))}
+    ${_adminSidebarHtml('disparos', _sidebarPerm(req), req)}
     <main class="admin-content">
     <h1>📲 Disparos WhatsApp <span style="font-size:13px;color:#6b7280;font-weight:400">(Cloud API oficial da Meta)</span></h1>
     <p><a href="/admin/disparos/optout" style="font-size:12px;color:#6b7280;text-decoration:underline">🚫 Ver quem descadastrou (não tenho interesse / não tenho imóvel)</a></p>
@@ -19101,7 +19133,7 @@ app.get('/admin/upload-mauricio-mapa', authAdmin, (req, res) => {
   <title>Upload mapa Mauricio</title>
   <style>body{font-family:sans-serif;margin:0;padding:0}${_adminShellCss()}.admin-content{max-width:480px}</style>
   </head>
-  <body><div class="admin-app">${_adminSidebarHtml('dashboard', _sidebarPerm(req))}<main class="admin-content">
+  <body><div class="admin-app">${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}<main class="admin-content">
     <h3>Upload mapa-mauricio.json</h3>
     <form method="POST" action="/admin/upload-mauricio-mapa" enctype="multipart/form-data">
       <input type="file" name="arquivo" accept=".json" required>
@@ -19483,7 +19515,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Minhas comissões</title>
     <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}</style></head>
     <body>
-    <div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req))}
+    <div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req), req)}
       <main class="admin-content" style="max-width:960px">
         <h1 style="font-size:22px;margin-bottom:4px">Minhas comissões</h1>
         <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 20% sobre compras dos corretores que entraram pelo seu link.</p>
@@ -19639,7 +19671,7 @@ app.get('/admin/meu-corretor/:codigo', authAdmin, async (req, res) => {
     .admin-content{max-width:600px}.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px}
     h2{font-size:14px;font-weight:600;margin-bottom:14px}label{display:block;font-size:11px;font-weight:500;color:#9ca3af;margin-bottom:4px}
     input{width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:13px;margin-bottom:12px;background:#f9fafb}</style></head>
-    <body><div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req))}
+    <body><div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req), req)}
     <main class="admin-content">
       <h1 style="font-size:18px;font-weight:700;margin-bottom:16px">${u.nome}</h1>
       <div class="card">
@@ -19755,7 +19787,7 @@ app.get('/admin/comissoes-pendentes', authAdmin, async (req, res) => {
     res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Comissões pendentes</title>
     <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}</style></head>
     <body>
-    <div class="admin-app">${_adminSidebarHtml('comissoes-pendentes', true)}
+    <div class="admin-app">${_adminSidebarHtml('comissoes-pendentes', true, req)}
       <main class="admin-content" style="max-width:760px">
         <h1 style="font-size:22px;margin-bottom:4px">Comissões pendentes (dinheiro)</h1>
         <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Pague por fora e marque aqui como pago.</p>
@@ -19811,7 +19843,7 @@ app.get('/admin/disparos/optout', authAdmin, async (req, res) => {
     .aviso{font-size:12px;color:#6b7280;margin-top:8px}
     </style></head><body>
     <div class="admin-app">
-    ${_adminSidebarHtml('optout', _sidebarPerm(req))}
+    ${_adminSidebarHtml('optout', _sidebarPerm(req), req)}
     <main class="admin-content">
     <h1>🚫 Quem descadastrou (${lista.length})</h1>
     <p class="aviso">Esses telefones são pulados automaticamente em qualquer campanha nova, e qualquer envio pendente que ainda existisse pra eles em campanha já criada foi cancelado na hora do clique.</p>
@@ -19858,7 +19890,7 @@ app.get('/admin/disparos/:id', authAdmin, async (req, res) => {
     </style></head>
     <body>
     <div class="admin-app">
-    ${_adminSidebarHtml('disparos', _sidebarPerm(req))}
+    ${_adminSidebarHtml('disparos', _sidebarPerm(req), req)}
     <main class="admin-content">
     <a href="/admin/disparos" style="color:#6b7280;text-decoration:none;font-size:12px">← Disparos WhatsApp</a>
     <h1>${c.nome_campanha}</h1>

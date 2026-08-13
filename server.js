@@ -5236,7 +5236,7 @@ function lerImoveis(user) {
 // captação, tipo_lead) — um cache incremental baseado nesse campo ficaria
 // desatualizado nesses casos. Intervalo alongado pra reduzir carga no PG.
 let _cacheLeads = null;
-let _cacheLeadsAt = 0;
+let _cacheLeadsAt = null;
 let _leadsEmExecucao = false;
 async function _recarregarLeads() {
   if (_leadsEmExecucao) { console.log('[cache leads] execução anterior ainda rodando, pulando esta'); return; }
@@ -5244,14 +5244,73 @@ async function _recarregarLeads() {
   try {
     const { lerLeads: _llSvc } = require('./services/salvarLead');
     _cacheLeads = await _llSvc();
-    _cacheLeadsAt = Date.now();
   } catch(e) {
     if (!_cacheLeads) _cacheLeads = (_cacheLeads || []);
   } finally {
     _leadsEmExecucao = false;
   }
 }
-setTimeout(() => { _recarregarLeads(); setInterval(_recarregarLeads, 30000); }, 0);
+// Mesmo padrão já usado pra _cacheImoveis (ver _recarregarImoveisIncremental
+// mais abaixo): recarga completa é cara (leads tem as colunas JSON mais
+// gordas do banco — mensagens, matches, historico, timeline, eventos), então
+// só roda 1x/dia; o resto do tempo é incremental por atualizado_em.
+let _leadsIncrementalEmExecucao = false;
+async function _recarregarLeadsIncremental() {
+  if (_leadsIncrementalEmExecucao) { console.log('[cache leads] incremental anterior ainda rodando, pulando esta'); return; }
+  _leadsIncrementalEmExecucao = true;
+  try {
+    if (!_cacheLeads || !_cacheLeadsAt) { await _recarregarLeads(); _cacheLeadsAt = new Date(); return; }
+    const { query: _qIncLeads } = require('./services/db');
+    const { rowToLead: _rtlInc } = require('./services/salvarLead');
+    const desde = _cacheLeadsAt;
+    const res = await _qIncLeads('SELECT * FROM leads WHERE atualizado_em > $1', [desde]);
+    _cacheLeadsAt = new Date();
+    if (!res.rows.length) return;
+    const mapa = new Map(_cacheLeads.map(l => [String(l.id), l]));
+    res.rows.forEach(r => { mapa.set(String(r.id), _rtlInc(r)); });
+    _cacheLeads = Array.from(mapa.values());
+    console.log('[cache leads] incremental:', res.rows.length, 'atualizados');
+  } catch(e) { console.error('[cache leads incremental]', e.message); } finally {
+    _leadsIncrementalEmExecucao = false;
+  }
+}
+let _exclusoesLeadsEmExecucao = false;
+async function _detectarExclusoesLeads() {
+  if (_exclusoesLeadsEmExecucao) { console.log('[cache leads] checagem de exclusões anterior ainda rodando, pulando esta'); return; }
+  _exclusoesLeadsEmExecucao = true;
+  try {
+    if (!_cacheLeads) return;
+    const { query: _qDelLeads } = require('./services/db');
+    const res = await _qDelLeads('SELECT id FROM leads');
+    const idsAtuais = new Set(res.rows.map(r => String(r.id)));
+    const antes = _cacheLeads.length;
+    _cacheLeads = _cacheLeads.filter(l => idsAtuais.has(String(l.id)));
+    const removidos = antes - _cacheLeads.length;
+    if (removidos > 0) console.log('[cache leads] exclusoes detectadas:', removidos);
+  } catch(e) { console.error('[cache leads exclusoes]', e.message); } finally {
+    _exclusoesLeadsEmExecucao = false;
+  }
+}
+(function _agendarRecargaCompletaLeads() {
+  const agora = new Date();
+  const proxima = new Date(agora);
+  proxima.setHours(3, 15, 0, 0);
+  if (proxima <= agora) proxima.setDate(proxima.getDate() + 1);
+  const ms = proxima - agora;
+  setTimeout(() => {
+    _recarregarLeads();
+    _cacheLeadsAt = new Date();
+    setInterval(() => { _recarregarLeads(); _cacheLeadsAt = new Date(); }, 24 * 60 * 60 * 1000);
+  }, ms);
+})();
+setTimeout(() => {
+  _recarregarLeads();
+  _cacheLeadsAt = new Date();
+  setInterval(async () => {
+    await _recarregarLeadsIncremental();
+    await _detectarExclusoesLeads();
+  }, 30000);
+}, 1000);
 
 
 // Cache imóveis em memória

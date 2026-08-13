@@ -15826,13 +15826,36 @@ app.get('/campanha/track/click/:id', async (req, res) => {
       const { query: _qClick } = require('./services/db');
       await _qClick("INSERT INTO campanha_tracking (contato_id,email,tipo) SELECT id,email,'clique' FROM campanha_contatos WHERE id=$1", [req.params.id]);
       await _qClick("UPDATE campanha_contatos SET aberto_em=COALESCE(aberto_em, NOW()), clicado_em=COALESCE(clicado_em, NOW()) WHERE id=$1", [req.params.id]);
-      const { rows } = await _qClick("SELECT modelo_usado FROM campanha_contatos WHERE id=$1", [req.params.id]);
-      const modeloClick = rows[0] && rows[0].modelo_usado;
+      const { rows } = await _qClick("SELECT modelo_usado, atendido_por, atendido_por_nome, atendido_por_cor FROM campanha_contatos WHERE id=$1", [req.params.id]);
+      const contatoClick = rows[0];
+      const modeloClick = contatoClick && contatoClick.modelo_usado;
       if (modeloClick === 'demanda') destino = 'https://www.matchimoveis.ia.br/demanda';
       // followup3 é o único e-mail mandado pra quem JÁ tem conta (cadastrou
       // mas não comprou combo) — não faz sentido linkar pra landing page de
       // novo, manda direto pro login.
       else if (modeloClick === 'followup3') destino = 'https://www.matchimoveis.ia.br/entrar';
+
+      // Clicou = sinal de interesse de verdade — não espera o botão manual
+      // "Distribuir agora" pra ter dono; atribui na hora (round-robin) se
+      // ainda não tinha, e carrega o ?ref= pro cadastro já saber de quem é
+      // (ver captura em landing.ejs + POST /login).
+      let _refParaClick = contatoClick && contatoClick.atendido_por;
+      if (contatoClick && !_refParaClick) {
+        try {
+          const { listarAdminContas } = require('./services/salvarAdminConta');
+          const _contasClickAtivas = (await listarAdminContas()).filter(c => c.ativo);
+          if (_contasClickAtivas.length) {
+            const { rows: _cntClick } = await _qClick("SELECT COUNT(*)::int AS total FROM campanha_contatos WHERE atendido_por IS NOT NULL AND atendido_por != ''");
+            const _escolhidoClick = _contasClickAtivas[(_cntClick[0]?.total || 0) % _contasClickAtivas.length];
+            await _qClick(
+              `UPDATE campanha_contatos SET atendido_por=$1, atendido_por_nome=$2, atendido_por_cor=$3, atendido_em=NOW() WHERE id=$4 AND (atendido_por IS NULL OR atendido_por = '')`,
+              [_escolhidoClick.usuario, _escolhidoClick.nome || _escolhidoClick.usuario, _escolhidoClick.cor, req.params.id]
+            );
+            _refParaClick = _escolhidoClick.usuario;
+          }
+        } catch(eAtrib) { console.error('[campanha/track/click] erro ao atribuir sub-admin:', eAtrib.message); }
+      }
+      if (_refParaClick) destino += (destino.includes('?') ? '&' : '?') + 'ref=' + encodeURIComponent(_refParaClick);
     }
   } catch(e){}
   res.redirect(destino);

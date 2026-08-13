@@ -3322,7 +3322,12 @@ app.post('/esqueci-senha', async (req, res) => {
   res.redirect('/?msg=senha_email_enviado');
 });
 
-app.get('/entrar', (req,res)=>{ res.redirect('/'); //
+// Preserva a query string (em especial ?ref=) — /campanha/track/click/:id
+// manda pra cá quando o e-mail é do modelo followup3, e um redirect fixo
+// pra "/" sem isso perdia a atribuição de sub-admin no meio do caminho.
+app.get('/entrar', (req,res)=>{
+  const _qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+  res.redirect('/' + _qs);
 });
 
 app.get('/politica-privacidade', (req,res)=>{
@@ -16879,6 +16884,10 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
   let _comboEscolhido = null;
   let _custoLeadsTimer = null;
   let _contaCriada = false;
+  // Sub-admin dono do clique que trouxe até aqui (ver /campanha/track/click/:id)
+  // — manda junto no cadastro pra fechar a atribuição mesmo quem cai direto
+  // em /demanda em vez da home.
+  const _refDemanda = new URLSearchParams(location.search).get('ref') || '';
 
   function mostrarComboRecomendado(){
     document.getElementById('combos-box').style.display = 'block';
@@ -17027,7 +17036,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     try {
       const r = await fetch('/demanda/cadastrar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email, celular, senha, criterios: _ultimaBusca })
+        body: JSON.stringify({ nome, email, celular, senha, criterios: _ultimaBusca, ref: _refDemanda })
       });
       const d = await r.json();
       if(!d.ok){ statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
@@ -17052,7 +17061,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     try {
       const r = await fetch('/demanda/comprar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email, celular, cpf, senha, plano: _comboEscolhido, criterios: _ultimaBusca })
+        body: JSON.stringify({ nome, email, celular, cpf, senha, plano: _comboEscolhido, criterios: _ultimaBusca, ref: _refDemanda })
       });
       const d = await r.json();
       if(!d.ok){ btn.disabled = false; statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
@@ -17406,7 +17415,7 @@ function _regiaoInteresseDeCriterios(criterios) {
 // pra quem pulou o cadastro antecipado e foi direto no combo). Guarda a
 // região buscada no perfil e manda o email de boas-vindas — não menciona
 // combo nenhum porque nesse ponto pode não ter sido escolhido ainda.
-async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios }) {
+async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios, ref }) {
   const nomeVal = (nome || '').trim();
   if (!nomeVal || nomeVal.length < 3) return { ok: false, erro: 'Nome inválido. Digite seu nome completo.' };
   const telefone = String(celular || '').replace(/\D/g, '');
@@ -17434,13 +17443,27 @@ async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios 
     return { ok: false, erro: 'Já existe uma conta com esse email. Faça login em /entrar.' };
   }
 
+  // ?ref= de um clique de campanha (ver /campanha/track/click/:id) — só
+  // sub-admin aqui (indicação corretor-a-corretor não faz sentido nesse
+  // fluxo, que é aquisição fria via busca de demanda, não convite pessoal).
+  let _adminRefDemanda = null;
+  const _refCodeDemanda = String(ref || '').trim();
+  if (_refCodeDemanda) {
+    const { buscarAdminConta: _buscarAdminContaDemanda } = require('./services/salvarAdminConta');
+    const _contaRefDemanda = await _buscarAdminContaDemanda(_refCodeDemanda).catch(() => null);
+    if (_contaRefDemanda && _contaRefDemanda.ativo) _adminRefDemanda = _contaRefDemanda;
+  }
+
   const codigoNovo = gerarCodigoUsuario(nomeVal);
   const senhaHash = await bcrypt.hash(senhaVal, 10);
   const novo = {
     id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal, cpf: cpfVal,
     tipo: 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
     matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
-    regiaoInteresse: _regiaoInteresseDeCriterios(criterios)
+    regiaoInteresse: _regiaoInteresseDeCriterios(criterios),
+    atendidoPorAdmin: _adminRefDemanda?.usuario || '',
+    atendidoPorAdminNome: _adminRefDemanda?.nome || '',
+    atendidoPorAdminCor: _adminRefDemanda?.cor || ''
   };
   users.push(novo);
   await salvarTodosUsuarios(users);
@@ -17471,8 +17494,8 @@ async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios 
 // essa conta foi criada por esse fluxo específico (ver uso em /demanda/comprar).
 app.post('/demanda/cadastrar', express.json(), async (req, res) => {
   try {
-    const { nome, email, celular, cpf, senha, criterios } = req.body;
-    const resultado = await _criarContaDemanda({ nome, email, celular, cpf, senha, criterios });
+    const { nome, email, celular, cpf, senha, criterios, ref } = req.body;
+    const resultado = await _criarContaDemanda({ nome, email, celular, cpf, senha, criterios, ref });
     if (!resultado.ok) return res.json(resultado);
     req.session.user = resultado.user;
     req.session.contaDemandaId = resultado.user.codigoUsuario;
@@ -17522,8 +17545,8 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
         req.session.user.cpf = cpfLimpo;
       } catch (eCpfSalvar) { console.error('[demanda/comprar] erro ao salvar cpf:', eCpfSalvar.message); }
     } else {
-      const { nome, email, celular, senha } = req.body;
-      const resultado = await _criarContaDemanda({ nome, email, celular, cpf: cpfLimpo, senha, criterios });
+      const { nome, email, celular, senha, ref } = req.body;
+      const resultado = await _criarContaDemanda({ nome, email, celular, cpf: cpfLimpo, senha, criterios, ref });
       if (!resultado.ok) return res.json(resultado);
       req.session.user = resultado.user;
       req.session.contaDemandaId = resultado.user.codigoUsuario;

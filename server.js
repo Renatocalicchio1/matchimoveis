@@ -5599,6 +5599,25 @@ app.get('/app/perfil', auth, async (req,res)=>{
     const { query: _qPerfil } = require('./services/db');
     const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
 
+    // ?ref= chegando aqui (ex: link do e-mail de recarga, services/jobCreditos.js
+    // enviarEmailsRecarga) — trava a atribuição pro sub-admin na hora do clique,
+    // mesmo padrão de /entrar e /demanda, só que pra conta que JÁ existe (não
+    // sobrescreve quem já tem atendidoPorAdmin).
+    const _refPerfil = String(req.query.ref || '').trim();
+    if (_refPerfil && !req.session.user.atendidoPorAdmin) {
+      try {
+        const { buscarAdminConta: _bacPerfil } = require('./services/salvarAdminConta');
+        const _contaRefPerfil = await _bacPerfil(_refPerfil);
+        if (_contaRefPerfil && _contaRefPerfil.ativo) {
+          const { atualizarUsuario: _auRefPerfil } = require('./services/salvarUsuario');
+          await _auRefPerfil(uid, { atendidoPorAdmin: _contaRefPerfil.usuario, atendidoPorAdminNome: _contaRefPerfil.nome || '', atendidoPorAdminCor: _contaRefPerfil.cor || '' });
+          req.session.user.atendidoPorAdmin = _contaRefPerfil.usuario;
+          req.session.user.atendidoPorAdminNome = _contaRefPerfil.nome || '';
+          req.session.user.atendidoPorAdminCor = _contaRefPerfil.cor || '';
+        }
+      } catch (eRefPerfil) { console.error('[app/perfil] erro ao atribuir ref:', eRefPerfil.message); }
+    }
+
     // A baixa de precisaComprarPlano acontece via webhook do Mercado Pago (sem
     // sessão) — reconsulta o banco aqui pra tirar o banner assim que o pagamento
     // cair, mesmo que o usuário nunca tenha saído dessa página.
@@ -5654,9 +5673,9 @@ app.get('/app/perfil', auth, async (req,res)=>{
     const _totalVenda = _imoveisUser.rows.length;
     const _senhaInicial = req.session.senhaInicialTemp || null;
     delete req.session.senhaInicialTemp;
-    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1', completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano });
+    res.render('app-perfil', { user: req.session.user, qaCount: _totalQA, vendaCount: _totalVenda, qaIncompletos: _totalIncompletos, senhaErro: req.query.senhaErro||null, senhaSucesso: req.query.senhaSucesso||null, bemvindo: req.query.bemvindo === '1', senhaInicial: _senhaInicial, planoSucesso: req.query.planoSucesso === '1', completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || '') });
   } catch(e) {
-    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false, completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano });
+    res.render('app-perfil', { user: req.session.user, qaCount: 0, vendaCount: 0, senhaErro: null, senhaSucesso: null, bemvindo: false, senhaInicial: null, planoSucesso: false, completarPerfil: !!req.session.user.precisaCompletarPerfil, comprarPlano: !!req.session.user.precisaComprarPlano, comboAuto: String(req.query.combo || '') });
   }
 });
 

@@ -320,6 +320,12 @@ async function contratarPlano(plano){
     else{ alert(d.erro || 'Erro ao gerar pagamento. Tente novamente.'); }
   }catch(e){ alert('Erro ao gerar pagamento. Tente novamente.'); }
 }
+// Veio direto do link "Recarregar agora" do e-mail de saldo baixo
+// (?combo=100/200/300/r200/ilimitado, ver services/jobCreditos.js) — já
+// dispara a compra sozinho, sem precisar procurar o combo na tela.
+<% if (typeof comboAuto !== 'undefined' && comboAuto) { %>
+contratarPlano(<%- JSON.stringify(comboAuto) %>);
+<% } %>
 </script>
 
 <div class="pf-card">

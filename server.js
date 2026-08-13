@@ -2074,25 +2074,49 @@ app.get('/admin/atribuicoes-subadmin', authAdmin, async (req, res) => {
     // e o que fez, sem precisar adivinhar.
     const _statusJob = await _qAtrib(`SELECT atualizado_em, detalhe FROM job_status WHERE id='distribuicao_subadmin'`).catch(() => ({ rows: [] }));
     const _ultimoStatusJob = _statusJob.rows[0];
-    const { rows } = await _qAtrib(`
-      SELECT u.codigo_usuario, u.nome, u.telefone, u.email, u.criado_em,
-        u.dados->>'atendidoPorAdmin' AS atendido_por_admin,
-        u.dados->>'atendidoPorAdminNome' AS atendido_por_admin_nome,
-        u.dados->>'indicadoPor' AS indicado_por,
-        u.dados->>'ultimoEmailRecargaEm' AS ultimo_email_recarga_em,
-        EXISTS(
-          SELECT 1 FROM campanha_contatos cc
-          WHERE cc.atendido_por = u.dados->>'atendidoPorAdmin'
-            AND (LOWER(cc.email) = LOWER(u.email) OR RIGHT(REGEXP_REPLACE(COALESCE(cc.celular,''),'\\D','','g'),8) = RIGHT(REGEXP_REPLACE(COALESCE(u.telefone,''),'\\D','','g'),8))
-        ) OR EXISTS(
-          SELECT 1 FROM campanha_captacao_envios ce
-          WHERE ce.atendido_por = u.dados->>'atendidoPorAdmin'
-            AND (LOWER(ce.email) = LOWER(u.email) OR RIGHT(REGEXP_REPLACE(COALESCE(ce.telefone,''),'\\D','','g'),8) = RIGHT(REGEXP_REPLACE(COALESCE(u.telefone,''),'\\D','','g'),8))
-        ) AS tem_rastro_campanha
-      FROM usuarios u
-      WHERE u.dados->>'atendidoPorAdmin' IS NOT NULL AND u.dados->>'atendidoPorAdmin' != ''
-      ORDER BY u.criado_em DESC
+
+    // Usuários com sub-admin gravado — normalmente um grupo pequeno, mesmo
+    // que a base de usuarios seja grande (o filtro já corta antes de trazer
+    // tudo pra memória).
+    const { rows: usuariosComRef } = await _qAtrib(`
+      SELECT codigo_usuario, nome, telefone, email, criado_em,
+        dados->>'atendidoPorAdmin' AS atendido_por_admin,
+        dados->>'atendidoPorAdminNome' AS atendido_por_admin_nome,
+        dados->>'indicadoPor' AS indicado_por,
+        dados->>'ultimoEmailRecargaEm' AS ultimo_email_recarga_em
+      FROM usuarios
+      WHERE dados->>'atendidoPorAdmin' IS NOT NULL AND dados->>'atendidoPorAdmin' != ''
+      ORDER BY criado_em DESC
     `);
+
+    // Cruzamento de rastro feito em memória (Node), não em SQL — a versão
+    // anterior fazia uma subquery correlacionada com REGEXP_REPLACE por
+    // CADA usuário, escaneando a campanha_contatos inteira (~118 mil linhas)
+    // de novo a cada linha — pesado o bastante pra contribuir com um OOM em
+    // produção (heap estourou, viu o log de crash). Aqui cada tabela de
+    // campanha é lida 1x só (já filtrada por atendido_por preenchido, que é
+    // um subconjunto bem menor que o total) e vira um Set em memória —
+    // O(1) por usuário depois disso, sem repetir varredura nenhuma.
+    const _normTel = t => String(t || '').replace(/\D/g, '').slice(-8);
+    const _rastro = new Set(); // chave: "atendido_por|email" ou "atendido_por|tel"
+    const [{ rows: ccRows }, { rows: ceRows }] = await Promise.all([
+      _qAtrib(`SELECT atendido_por, email, celular FROM campanha_contatos WHERE atendido_por IS NOT NULL AND atendido_por != ''`),
+      _qAtrib(`SELECT atendido_por, email, telefone FROM campanha_captacao_envios WHERE atendido_por IS NOT NULL AND atendido_por != ''`)
+    ]);
+    for (const c of ccRows) {
+      if (c.email) _rastro.add(c.atendido_por + '|e|' + c.email.toLowerCase());
+      if (c.celular) _rastro.add(c.atendido_por + '|t|' + _normTel(c.celular));
+    }
+    for (const c of ceRows) {
+      if (c.email) _rastro.add(c.atendido_por + '|e|' + c.email.toLowerCase());
+      if (c.telefone) _rastro.add(c.atendido_por + '|t|' + _normTel(c.telefone));
+    }
+    const rows = usuariosComRef.map(u => ({
+      ...u,
+      tem_rastro_campanha:
+        (u.email && _rastro.has(u.atendido_por_admin + '|e|' + u.email.toLowerCase())) ||
+        (u.telefone && _rastro.has(u.atendido_por_admin + '|t|' + _normTel(u.telefone)))
+    }));
     const linhas = rows.map(r => `
       <tr style="border-bottom:1px solid #f3f4f6;background:${r.tem_rastro_campanha ? '' : '#fef2f2'}">
         <td style="padding:8px;font-size:12px">${new Date(r.criado_em).toLocaleDateString('pt-BR')}</td>

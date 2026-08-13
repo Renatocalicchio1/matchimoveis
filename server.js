@@ -3956,6 +3956,16 @@ app.post('/login', async (req,res)=>{
     // Indicação — grava só se o código informado corresponder a uma conta real existente
     const _refCode = String(req.body.indicadoPor || '').trim();
     const _indicador = _refCode ? users.find(u => (u.codigoUsuario || u.id) === _refCode) : null;
+    // Link genérico de sub-admin (ex: /admin/minhas-comissoes) usa o mesmo
+    // "?ref=" — se não bateu com corretor, tenta como usuário de admin_conta
+    // ativa, e essa indicação vira comissão de 20% (atendidoPorAdmin), não os
+    // 10% em coins do fluxo corretor-indica-corretor.
+    let _adminIndicador = null;
+    if (_refCode && !_indicador) {
+      const { buscarAdminConta } = require('./services/salvarAdminConta');
+      const _conta = await buscarAdminConta(_refCode).catch(() => null);
+      if (_conta && _conta.ativo) _adminIndicador = _conta;
+    }
 
     // Hash da senha no cadastro — antes gravava em texto puro (só virava bcrypt
     // se o usuário trocasse a senha depois em /app/perfil/senha). Vazio fica
@@ -3977,7 +3987,10 @@ app.post('/login', async (req,res)=>{
       matchCoins: 1000,
       matchCoinsTotal: 1000,
       matchCoinsBonusInicial: 1000,
-      indicadoPor: _indicador ? (_indicador.codigoUsuario || _indicador.id) : ''
+      indicadoPor: _indicador ? (_indicador.codigoUsuario || _indicador.id) : '',
+      atendidoPorAdmin: _adminIndicador?.usuario || '',
+      atendidoPorAdminNome: _adminIndicador?.nome || '',
+      atendidoPorAdminCor: _adminIndicador?.cor || ''
     };
 
     users.push(novo);
@@ -18818,6 +18831,30 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         <h1 style="font-size:22px;margin-bottom:4px">Minhas comissões</h1>
         <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 20% sobre compras dos corretores que entraram pelo seu link.</p>
 
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px">
+          <h3 style="margin:0 0 6px;font-size:14px">🔗 Seu link</h3>
+          <p style="margin:0 0 10px;font-size:12.5px;color:#6b7280">Compartilhe direto — quando alguém se cadastra por esse link, fica atrelado a você pra sempre.</p>
+          <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
+            <span id="link-subadmin">https://www.matchimoveis.ia.br/?ref=${_escC(conta.usuario)}</span>
+          </div>
+          <button onclick="copiarLinkSubadmin()" style="margin-top:10px;background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 10px;font-size:14px">💳 Planos que você pode oferecer</h3>
+          <table style="width:100%">
+            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Plano</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Sua comissão (20%)</th></tr></thead>
+            <tbody>${Object.values(PLANOS_LEADS).map(p => `
+              <tr style="border-bottom:1px solid #f3f4f6">
+                <td style="padding:8px;font-size:12.5px;font-weight:600">${_escC(p.label)}</td>
+                <td style="padding:8px;font-size:12.5px">R$ ${p.valor}</td>
+                <td style="padding:8px;font-size:12.5px">${p.creditos.toLocaleString('pt-BR')}</td>
+                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.2).toLocaleString('pt-BR')} coins</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 10px;font-size:14px">Meus leads (${meusLeads.length})</h3>
           <table style="width:100%">
@@ -18859,6 +18896,10 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       </main>
     </div>
       <script>
+        function copiarLinkSubadmin(){
+          const link = document.getElementById('link-subadmin').textContent;
+          navigator.clipboard.writeText(link).then(function(){ alert('Link copiado!'); });
+        }
         async function resgatar(){
           const ids = [...document.querySelectorAll('.chk-resgate:checked')].map(c=>c.value);
           if(!ids.length) return alert('Selecione ao menos uma comissão disponível.');

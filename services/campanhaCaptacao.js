@@ -141,6 +141,12 @@ async function _garantirTabelas() {
   await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS atendido_por_nome TEXT`);
   await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS atendido_por_cor TEXT`);
   await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS atendido_em TIMESTAMP`);
+  // Vínculo com o imóvel de fato criado em /captar/iniciar (quando veio com
+  // ?ce=) — usado pra creditar o bônus de 200 coins pro sub-admin certo
+  // assim que o cadastro é finalizado (POST /captar/imovel/:id, finalizar=true)
+  // e pra evitar creditar 2x o mesmo imóvel.
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS imovel_captado_id TEXT`);
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS bonus_captacao_pago_em TIMESTAMP`);
   await query(`CREATE TABLE IF NOT EXISTS captacao_campanha_config (
     id INT PRIMARY KEY DEFAULT 1,
     ativo BOOLEAN DEFAULT false,
@@ -320,6 +326,54 @@ async function marcarAtendido(id, { por, nome, cor }) {
   return { ok: true, nome, cor };
 }
 
+// Contatos que clicaram (interesse real) mas ninguém pegou pra atender ainda
+// — mesmo mecanismo de services/campanha.js: round-robin entre os sub-admins
+// ativos, idempotente (só mexe em quem tá com atendido_por vazio).
+async function distribuirAtendimentosAbertos(contasAtivas) {
+  await _garantirTabelas();
+  if (!contasAtivas || !contasAtivas.length) return { distribuidos: 0 };
+  const { rows } = await query(
+    `SELECT id FROM campanha_captacao_envios WHERE clicado_em IS NOT NULL AND (atendido_por IS NULL OR atendido_por = '') ORDER BY clicado_em ASC`
+  );
+  let distribuidos = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const conta = contasAtivas[i % contasAtivas.length];
+    await query(
+      `UPDATE campanha_captacao_envios SET atendido_por=$1, atendido_por_nome=$2, atendido_por_cor=$3, atendido_em=NOW() WHERE id=$4`,
+      [conta.usuario, conta.nome || conta.usuario, conta.cor, rows[i].id]
+    );
+    distribuidos++;
+  }
+  return { distribuidos };
+}
+
+// Vincula o imóvel de fato criado (POST /captar/iniciar) à linha da campanha
+// que trouxe esse proprietário até aqui (?ce=) — sem isso não dá pra saber,
+// no momento de finalizar o cadastro, qual sub-admin atendeu esse contato.
+async function vincularImovelCaptado(envioId, imovelId) {
+  if (!envioId || !imovelId) return;
+  await _garantirTabelas();
+  await query(`UPDATE campanha_captacao_envios SET imovel_captado_id=$1 WHERE id=$2`, [imovelId, envioId]);
+}
+
+// Chamado quando o cadastro do imóvel é finalizado (finalizar=true) — se
+// esse imóvel veio da campanha de captação E tem um sub-admin atendendo,
+// retorna quem deve receber os 200 coins. bonus_captacao_pago_em garante que
+// só paga 1x por imóvel, mesmo se o form de finalizar for reenviado.
+async function buscarEnvioParaBonus(imovelId) {
+  await _garantirTabelas();
+  const { rows } = await query(
+    `SELECT id, atendido_por, atendido_por_nome FROM campanha_captacao_envios
+     WHERE imovel_captado_id=$1 AND atendido_por IS NOT NULL AND atendido_por != '' AND bonus_captacao_pago_em IS NULL LIMIT 1`,
+    [imovelId]
+  );
+  return rows[0] || null;
+}
+async function marcarBonusCaptacaoPago(envioId) {
+  await _garantirTabelas();
+  await query(`UPDATE campanha_captacao_envios SET bonus_captacao_pago_em=NOW() WHERE id=$1`, [envioId]);
+}
+
 // Número pode ter sido reciclado ou a pessoa pediu pra não receber mais —
 // só apaga o telefone, mantém nome/email/histórico (e-mail nunca muda).
 async function excluirTelefoneContato(id) {
@@ -442,33 +496,50 @@ async function registrarInicioCadastro(envioId) {
 // origem — mesmo princípio do celular da campanha geral (services/
 // campanha.js): e-mail é o vínculo confiável, o telefone pode estar
 // desatualizado na fonte antiga.
-async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '' } = {}) {
+async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refAdmin = '' } = {}) {
   await _garantirTabelas();
+  // Prefixo "e." em todas as colunas — a partir daqui a query ganhou JOIN
+  // com imoveis/usuarios (pro flag do QuintoAndar) e "nome"/"email" existem
+  // nas duas tabelas, então sem qualificar dava erro de coluna ambígua.
   let where = 'WHERE 1=1';
   const params = [];
-  if (q) { params.push('%' + q + '%'); where += ` AND (nome ILIKE $${params.length} OR email ILIKE $${params.length})`; }
-  if (filtro === 'abriu') where += ' AND aberto_em IS NOT NULL';
-  else if (filtro === 'clicou') where += ' AND clicado_em IS NOT NULL';
-  else if (filtro === 'cadastrou') where += ' AND iniciou_cadastro_em IS NOT NULL';
-  else if (filtro === 'erro') where += ' AND erro IS NOT NULL';
+  if (q) { params.push('%' + q + '%'); where += ` AND (e.nome ILIKE $${params.length} OR e.email ILIKE $${params.length})`; }
+  if (filtro === 'abriu') where += ' AND e.aberto_em IS NOT NULL';
+  else if (filtro === 'clicou') where += ' AND e.clicado_em IS NOT NULL';
+  else if (filtro === 'cadastrou') where += ' AND e.iniciou_cadastro_em IS NOT NULL';
+  else if (filtro === 'erro') where += ' AND e.erro IS NOT NULL';
+  // Sub-admin só vê os próprios atendimentos (cada um já tem atendimentos
+  // feitos — não faz sentido ele ver a lista inteira de todo mundo).
+  if (refAdmin) { params.push(refAdmin); where += ` AND e.atendido_por = $${params.length}`; }
 
   params.push(limite); params.push(offset);
   const { rows } = await query(
-    `SELECT id, nome, email, titulo_usado, enviado_em, aberto_em, clicado_em, iniciou_cadastro_em, erro,
-       followup1_enviado_em, followup2_enviado_em, followup3_enviado_em,
-       atendido_por, atendido_por_nome, atendido_por_cor, atendido_em,
+    `SELECT e.id, e.nome, e.email, e.titulo_usado, e.enviado_em, e.aberto_em, e.clicado_em, e.iniciou_cadastro_em, e.erro,
+       e.followup1_enviado_em, e.followup2_enviado_em, e.followup3_enviado_em,
+       e.atendido_por, e.atendido_por_nome, e.atendido_por_cor, e.atendido_em,
+       e.imovel_captado_id, e.bonus_captacao_pago_em,
        COALESCE(
          (SELECT l.telefone FROM leads l WHERE l.tipo_lead='cliente_vendedor' AND l.telefone IS NOT NULL AND l.telefone != ''
-          AND LOWER(l.email)=LOWER(campanha_captacao_envios.email) ORDER BY l.criado_em DESC LIMIT 1),
-         telefone
-       ) AS telefone
-     FROM campanha_captacao_envios
-     ${where}
-     ORDER BY enviado_em DESC
+          AND LOWER(l.email)=LOWER(e.email) ORDER BY l.criado_em DESC LIMIT 1),
+         e.telefone
+       ) AS telefone,
+       im.status AS imovel_status,
+       -- Aproximação dos critérios de services/gerarXMLQuintoAndarGlobal (server.js): endereço + proprietário
+       -- completos, transação venda, status ativo e dono autorizado — sem o filtro exato de cidade atendida
+       -- pelo QuintoAndar (lista fixa de ~90 municípios), então é "elegível", não garantia 100% de já estar no feed.
+       (im.status='ativo' AND im.transacao='venda' AND u.autoriza_quintoandar=true
+        AND COALESCE(im.cep,'')!='' AND COALESCE(im.endereco,'')!='' AND COALESCE(im.numero,'')!=''
+        AND COALESCE(im.proprietario->>'nome','')!='' AND (COALESCE(im.proprietario->>'celular','')!='' OR COALESCE(im.proprietario->>'telefone','')!='')
+       ) AS elegivel_quintoandar
+     FROM campanha_captacao_envios e
+     LEFT JOIN imoveis im ON im.id = e.imovel_captado_id
+     LEFT JOIN usuarios u ON u.codigo_usuario = im.user_id
+     ${where.replace(/\bfiltro\b/, '')}
+     ORDER BY e.enviado_em DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );
-  const { rows: totRows } = await query(`SELECT COUNT(*) AS total FROM campanha_captacao_envios ${where}`, params.slice(0, -2));
+  const { rows: totRows } = await query(`SELECT COUNT(*) AS total FROM campanha_captacao_envios e ${where}`, params.slice(0, -2));
   return { envios: rows, total: parseInt(totRows[0]?.total) || 0 };
 }
 

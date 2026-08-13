@@ -815,6 +815,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/campanha/iniciar', '/admin/campanha/pausar',
   '/admin/campanha/distribuir-atendimentos',
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
+  '/admin/captacao-campanha/distribuir-atendimentos',
   '/admin/comissoes-pendentes'
 ];
 // Sempre acessível pra qualquer conta admin logada, sem depender de
@@ -17644,7 +17645,10 @@ app.get('/admin/captacao-campanha/lista', authAdmin, async (req, res) => {
     const pagina = parseInt(req.query.pagina) || 1;
     const q = req.query.q || '';
     const filtro = req.query.filtro || '';
-    const { envios, total } = await listarEnvios({ limite: _CAPTACAO_TAMANHO_PAGINA, offset: (pagina - 1) * _CAPTACAO_TAMANHO_PAGINA, q, filtro });
+    // Sub-admin só vê os próprios atendimentos — cada um já tem atendimentos
+    // feitos, mesma regra aplicada em /admin/campanha/contatos e /admin/disparos/:id/contatos.
+    const refAdmin = req.session.adminSuper === false ? req.session.adminUsuario : '';
+    const { envios, total } = await listarEnvios({ limite: _CAPTACAO_TAMANHO_PAGINA, offset: (pagina - 1) * _CAPTACAO_TAMANHO_PAGINA, q, filtro, refAdmin });
     // Token do link de opt-out de WhatsApp — mesmo esquema de /admin/campanha/contatos.
     const enviosComToken = envios.map(e => ({ ...e, optoutToken: _waOptOutToken('captacao', e.id) }));
     res.json({ ok: true, envios: enviosComToken, total });
@@ -18250,6 +18254,19 @@ app.post('/admin/campanha/distribuir-atendimentos', authAdmin, async (req, res) 
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 
+// Mesma lógica acima, pra Campanha de Captação — restrito ao superadmin
+// (ver _ADMIN_ROTAS_SUPERADMIN_ONLY).
+app.post('/admin/captacao-campanha/distribuir-atendimentos', authAdmin, async (req, res) => {
+  try {
+    const { listarAdminContas } = require('./services/salvarAdminConta');
+    const contasAtivas = (await listarAdminContas()).filter(c => c.ativo);
+    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin ativo pra distribuir' });
+    const { distribuirAtendimentosAbertos } = require('./services/campanhaCaptacao');
+    const resultado = await distribuirAtendimentosAbertos(contasAtivas);
+    res.json({ ok: true, ...resultado });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
 // ── DISPAROS WHATSAPP (Meta Cloud API) ────────────────────────────────────────
 // Sistema separado do Evolution API (usado pra vitrine/assistente) e da Campanha Email.
 // Usa exclusivamente a WhatsApp Cloud API oficial da Meta (services/metaWhatsapp.js).
@@ -18835,6 +18852,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     const { buscarAdminConta } = require('./services/salvarAdminConta');
     const { listarBonusPorIndicador, totalDisponivelPorIndicador } = require('./services/salvarIndicacao');
     const { listarContatosPorRefAdmin } = require('./services/salvarDisparo');
+    const { listarEnvios: _listarCaptacoesSub } = require('./services/campanhaCaptacao');
     const usuarioAdmin = req.session.adminUsuario;
     const conta = await buscarAdminConta(usuarioAdmin);
     if (!conta) return res.send(_paginaSimples('Minhas comissões', '<p>Essa conta de login não tem um cadastro de sub-admin vinculado (ex: é a conta superadmin principal) — nada pra mostrar aqui.</p>'));
@@ -18842,6 +18860,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     const historico = await listarBonusPorIndicador(usuarioAdmin, 'admin');
     const disponivel = await totalDisponivelPorIndicador(usuarioAdmin);
     const meusLeads = await listarContatosPorRefAdmin(usuarioAdmin);
+    const { envios: minhasCaptacoes } = await _listarCaptacoesSub({ refAdmin: usuarioAdmin, limite: 100 });
 
     const _statusLead = l => {
       if (l.status === 'convertido') return '<span style="color:#16a34a;font-weight:700">✅ Cadastrou — feche a venda</span>';
@@ -18856,6 +18875,21 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         <td style="padding:8px;font-size:12px;font-weight:600">${_escC(l.nome || '(sem nome)')}</td>
         <td style="padding:8px;font-size:12px"><a href="https://wa.me/${_escC(l.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(l.telefone)}</a></td>
         <td style="padding:8px;font-size:12px">${_statusLead(l)}</td>
+      </tr>`).join('');
+
+    const _statusCaptacao = c => {
+      if (c.bonus_captacao_pago_em) return '<span style="color:#16a34a;font-weight:700">✅ Imóvel captado — +200 coins</span>' + (c.elegivel_quintoandar ? ' <span style="color:#00A699">🏠 QuintoAndar</span>' : '');
+      if (c.imovel_captado_id) return '<span style="color:#2563eb;font-weight:700">📝 Cadastrando imóvel</span>';
+      if (c.iniciou_cadastro_em) return '<span style="color:#2563eb">✍️ Iniciou cadastro</span>';
+      if (c.clicado_em) return '<span style="color:#9ca3af">👆 Clicou, ainda não iniciou</span>';
+      return '<span style="color:#9ca3af">📤 E-mail enviado</span>';
+    };
+    const captacoesHtml = minhasCaptacoes.map(c => `
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:8px;font-size:12px">${new Date(c.enviado_em).toLocaleDateString('pt-BR')}</td>
+        <td style="padding:8px;font-size:12px;font-weight:600">${_escC(c.nome || '(sem nome)')}</td>
+        <td style="padding:8px;font-size:12px">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '<span style="color:#9ca3af">—</span>'}</td>
+        <td style="padding:8px;font-size:12px">${_statusCaptacao(c)}</td>
       </tr>`).join('');
 
     const linhasDisponivel = historico.filter(h => h.status === 'disponivel');
@@ -18906,6 +18940,15 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           <table style="width:100%">
             <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Data</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">WhatsApp</th><th style="padding:8px;font-size:11px;color:#9ca3af">Status</th></tr></thead>
             <tbody>${leadsHtml || '<tr><td colspan="4" style="padding:16px;text-align:center;color:#9ca3af">Nenhum lead atribuído a você ainda</td></tr>'}</tbody>
+          </table>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 6px;font-size:14px">🏠 Minhas captações (${minhasCaptacoes.length})</h3>
+          <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Proprietários da Campanha de Captação atribuídos a você — chame no WhatsApp e ajude a terminar o cadastro. Cada imóvel captado até o fim vale +200 coins pra você.</p>
+          <table style="width:100%">
+            <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Data</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">WhatsApp</th><th style="padding:8px;font-size:11px;color:#9ca3af">Status</th></tr></thead>
+            <tbody>${captacoesHtml || '<tr><td colspan="4" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma captação atribuída a você ainda</td></tr>'}</tbody>
           </table>
         </div>
 
@@ -19547,6 +19590,26 @@ app.get('/captacao-campanha/click/:id', async (req, res) => {
   try {
     const { registrarClique, LINK_CAMPANHA } = require('./services/campanhaCaptacao');
     await registrarClique(req.params.id);
+    // Clicou = interesse real — atribui um sub-admin na hora (round-robin) se
+    // ainda não tinha dono, mesmo princípio de /campanha/track/click/:id.
+    // Esse "ce" segue até /captar/iniciar e é o que liga o imóvel captado ao
+    // sub-admin certo pra pagar os 200 coins quando o cadastro é finalizado.
+    try {
+      const { query: _qCapClick } = require('./services/db');
+      const { rows: _envioClick } = await _qCapClick('SELECT atendido_por FROM campanha_captacao_envios WHERE id=$1', [req.params.id]);
+      if (_envioClick[0] && !_envioClick[0].atendido_por) {
+        const { listarAdminContas } = require('./services/salvarAdminConta');
+        const _contasCapClick = (await listarAdminContas()).filter(c => c.ativo);
+        if (_contasCapClick.length) {
+          const { rows: _cntCapClick } = await _qCapClick("SELECT COUNT(*)::int AS total FROM campanha_captacao_envios WHERE atendido_por IS NOT NULL AND atendido_por != ''");
+          const _escolhidoCapClick = _contasCapClick[(_cntCapClick[0]?.total || 0) % _contasCapClick.length];
+          await _qCapClick(
+            `UPDATE campanha_captacao_envios SET atendido_por=$1, atendido_por_nome=$2, atendido_por_cor=$3, atendido_em=NOW() WHERE id=$4 AND (atendido_por IS NULL OR atendido_por = '')`,
+            [_escolhidoCapClick.usuario, _escolhidoCapClick.nome || _escolhidoCapClick.usuario, _escolhidoCapClick.cor, req.params.id]
+          );
+        }
+      }
+    } catch (eAtrib) { console.error('[captacao-campanha click] erro ao atribuir sub-admin:', eAtrib.message); }
     res.redirect(LINK_CAMPANHA + '?ce=' + encodeURIComponent(req.params.id));
   } catch (e) {
     console.error('[captacao-campanha click]', e.message);
@@ -19633,6 +19696,9 @@ app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
           [userId, _leadIdReuso]
         );
         await _qCI(`UPDATE leads SET nome=COALESCE(NULLIF($1,''),nome), email=COALESCE(NULLIF($2,''),email) WHERE id=$3`, [nome || '', email || '', _leadIdReuso]);
+        if (campanhaEnvioId && _imovelExistente[0]?.id) {
+          try { const { vincularImovelCaptado } = require('./services/campanhaCaptacao'); await vincularImovelCaptado(campanhaEnvioId, _imovelExistente[0].id); } catch (e) {}
+        }
         return res.json({ ok: true, leadId: _leadIdReuso, imovelId: _imovelExistente[0]?.id || '' });
       }
     }
@@ -19678,6 +19744,12 @@ app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
         leadOrigemId: leadId
       });
       if (_cacheImoveis) _cacheImoveis.push({ id: imovelId, idInterno: imovelId, userId, usuarioId: userId, codigoUsuario: userId, transacao, status: 'nao_publicado' });
+      // Liga esse imóvel à linha da Campanha de Captação que trouxe o
+      // proprietário até aqui — sem isso não dá pra saber, no momento de
+      // finalizar o cadastro, qual sub-admin atendeu (pra pagar os 200 coins).
+      if (campanhaEnvioId) {
+        try { const { vincularImovelCaptado } = require('./services/campanhaCaptacao'); await vincularImovelCaptado(campanhaEnvioId, imovelId); } catch (e) {}
+      }
     }
 
     res.json({ ok: true, leadId, imovelId });
@@ -19727,6 +19799,23 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
         const { consumir: _consumirCad } = require('./services/creditos');
         _consumirCad(atualizado.userId || atualizado.user_id, 'cadastrar_imovel').catch(()=>{});
       } catch(e) {}
+      // Imóvel veio da Campanha de Captação (ligado em /captar/iniciar via
+      // ?ce=) e tem um sub-admin atendendo esse proprietário? Credita 200
+      // coins pro sub-admin (mesmo ledger indicacoes_bonus da comissão de
+      // 20%, já aparece sozinho em /admin/minhas-comissoes) e garante que a
+      // conta dona do imóvel (sempre REN-G9K6 nessa campanha, ver LINK_CAMPANHA)
+      // está flegada pro XML global do QuintoAndar, sem precisar de ação manual.
+      try {
+        const { buscarEnvioParaBonus, marcarBonusCaptacaoPago } = require('./services/campanhaCaptacao');
+        const _envioBonus = await buscarEnvioParaBonus(imovelId);
+        if (_envioBonus) {
+          const { registrarBonus: _regBonusCap } = require('./services/salvarIndicacao');
+          await _regBonusCap({ indicadorCodigo: _envioBonus.atendido_por, indicadoCodigo: imovelId, valorCompraCoins: 0, bonusCoins: 200, indicadorTipo: 'admin' });
+          await marcarBonusCaptacaoPago(_envioBonus.id);
+          const { query: _qCapQA } = require('./services/db');
+          await _qCapQA(`UPDATE usuarios SET autoriza_quintoandar=true WHERE codigo_usuario=$1 AND autoriza_quintoandar IS NOT TRUE`, [atualizado.userId || atualizado.user_id]);
+        }
+      } catch (e) { console.error('[captar/imovel] bonus captação:', e.message); }
       try {
         const _corretorFin = (_cacheUsuarios || []).find(u => (u.codigoUsuario||u.codigo_usuario||u.id) === (atualizado.userId||atualizado.user_id)) || {};
         const _nomeProp = (atualizado.proprietario && atualizado.proprietario.nome) || 'Proprietário';

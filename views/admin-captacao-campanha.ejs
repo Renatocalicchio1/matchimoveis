@@ -81,6 +81,15 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
     </div>
     <% } %>
 
+    <% if (isSuper) { %>
+    <div class="status-box" style="flex-direction:column;align-items:flex-start;gap:6px">
+      <div style="font-weight:600;font-size:13.5px">🤝 Distribuir atendimentos abertos</div>
+      <div style="font-size:12px;color:#6b7280">Quem clicou e ainda não tem sub-admin atendendo é dividido em round-robin entre os sub-admins ativos — não mexe em quem já tem atendente. Cada sub-admin só vê os que são dele em "Envios recentes" abaixo.</div>
+      <button class="btn btn-iniciar" onclick="distribuirAtendimentos()">🔀 Distribuir agora</button>
+      <div id="distribuir-resultado" style="font-size:12.5px"></div>
+    </div>
+    <% } %>
+
     <div class="barra-box">
       <div class="barra-titulo"><span>Progresso do envio</span><span id="barraTxt"><%= status.enviados %> / <%= status.elegiveis %></span></div>
       <div class="barra"><div class="barra-fill" id="barraFill" style="width:<%= status.elegiveis ? Math.round(status.enviados/status.elegiveis*100) : 0 %>%"></div></div>
@@ -109,8 +118,8 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;white-space:nowrap}
         </select>
       </div>
       <table>
-        <thead><tr><th>Nome</th><th>Email</th><th>Celular</th><th>Data enviado</th><th>Abriu</th><th>Clicou</th><th>Iniciou cadastro</th><th>F.up 1</th><th>F.up 2</th><th>F.up 3</th><th>E-mail</th></tr></thead>
-        <tbody id="tabelaEnvios"><tr><td colspan="11" style="text-align:center;color:#9ca3af">Carregando...</td></tr></tbody>
+        <thead><tr><th>Nome</th><th>Email</th><th>Celular</th><th>Data enviado</th><th>Abriu</th><th>Clicou</th><th>Iniciou cadastro</th><th>Imóvel captado</th><th>QuintoAndar</th><th>F.up 1</th><th>F.up 2</th><th>F.up 3</th><th>E-mail</th></tr></thead>
+        <tbody id="tabelaEnvios"><tr><td colspan="13" style="text-align:center;color:#9ca3af">Carregando...</td></tr></tbody>
       </table>
       <div id="paginacao" style="margin-top:10px;font-size:12.5px;color:#6b7280"></div>
     </div>
@@ -162,6 +171,14 @@ async function iniciarCampanha(){
 async function pausarCampanha(){
   const d = await _post('/admin/captacao-campanha/pausar');
   if(d.ok) _atualizarTela(d.status);
+}
+async function distribuirAtendimentos(){
+  const el = document.getElementById('distribuir-resultado');
+  el.innerHTML = '<p>⏳ Distribuindo...</p>';
+  const d = await _post('/admin/captacao-campanha/distribuir-atendimentos');
+  if(!d.ok){ el.innerHTML = '<p style="color:#dc2626">Erro: '+d.erro+'</p>'; return; }
+  el.innerHTML = '<p style="color:#16a34a">✅ '+d.distribuidos+' contato(s) distribuído(s).</p>';
+  carregarTabela(_paginaEnvios);
 }
 function _tag(cond){ return cond ? '<span class="tag tag-sim">Sim</span>' : '<span class="tag tag-nao">Não</span>'; }
 function _dataFmt(iso){ return iso ? new Date(iso).toLocaleString('pt-BR', { timeZone:'America/Sao_Paulo' }) : ''; }
@@ -279,15 +296,20 @@ async function carregarTabela(pagina){
     const d = await r.json();
     const tbody = document.getElementById('tabelaEnvios');
     if(!tbody) return;
-    if(!d.ok || !d.envios.length){ tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#9ca3af">Nenhum envio encontrado.</td></tr>'; document.getElementById('paginacao').innerHTML = ''; return; }
+    if(!d.ok || !d.envios.length){ tbody.innerHTML = '<tr><td colspan="13" style="text-align:center;color:#9ca3af">Nenhum envio encontrado.</td></tr>'; document.getElementById('paginacao').innerHTML = ''; return; }
     _ultimosEnvios = d.envios;
     tbody.innerHTML = d.envios.map(function(e){
       const trBg = e.atendido_por_cor ? ' style="background:'+escHtml(e.atendido_por_cor)+'1a"' : '';
       const celularCel = e.telefone
         ? escHtml(e.telefone)+' <button type="button" class="btn-excluir-celular" data-id="'+e.id+'" title="Excluir celular (número errado ou pediu pra não receber mais)" style="background:none;border:none;cursor:pointer;font-size:11px;padding:0;margin-left:2px">🗑️</button>'
         : '<span style="color:#9ca3af">—</span>';
-      if(e.erro) return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td colspan="6"><span class="tag tag-erro">Erro: '+escHtml(e.erro)+'</span></td><td>—</td></tr>';
-      return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td>'+_tag(e.aberto_em)+'</td><td>'+_tag(e.clicado_em)+'</td><td>'+_tag(e.iniciou_cadastro_em)+'</td><td>'+_tag(e.followup1_enviado_em)+'</td><td>'+_tag(e.followup2_enviado_em)+'</td><td>'+_tag(e.followup3_enviado_em)+'</td><td><a class="link-preview" href="/admin/captacao-campanha/preview/'+e.id+'" target="_blank">Ver e-mail →</a></td></tr>';
+      // "Imóvel captado": bonus_captacao_pago_em só existe quando o cadastro foi
+      // finalizado E tinha sub-admin atendendo (creditou os 200 coins) — ver
+      // /captar/imovel/:id (finalizar=true) em server.js.
+      const captadoCel = e.bonus_captacao_pago_em ? '<span class="tag tag-sim">✅ +200 coins</span>' : (e.imovel_captado_id ? '<span class="tag tag-nao">Em cadastro</span>' : '<span style="color:#9ca3af">—</span>');
+      const qaCel = e.elegivel_quintoandar ? '<span class="tag tag-sim">🏠 Foi pro QuintoAndar</span>' : '<span style="color:#9ca3af">—</span>';
+      if(e.erro) return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td colspan="8"><span class="tag tag-erro">Erro: '+escHtml(e.erro)+'</span></td><td>—</td></tr>';
+      return '<tr'+trBg+'><td>'+escHtml(e.nome)+_subNome(e)+'</td><td>'+escHtml(e.email)+'</td><td>'+celularCel+'</td><td>'+_dataFmt(e.enviado_em)+'</td><td>'+_tag(e.aberto_em)+'</td><td>'+_tag(e.clicado_em)+'</td><td>'+_tag(e.iniciou_cadastro_em)+'</td><td>'+captadoCel+'</td><td>'+qaCel+'</td><td>'+_tag(e.followup1_enviado_em)+'</td><td>'+_tag(e.followup2_enviado_em)+'</td><td>'+_tag(e.followup3_enviado_em)+'</td><td><a class="link-preview" href="/admin/captacao-campanha/preview/'+e.id+'" target="_blank">Ver e-mail →</a></td></tr>';
     }).join('');
     document.querySelectorAll('.btn-atender-wa').forEach(function(btn){
       btn.addEventListener('click', function(){

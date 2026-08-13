@@ -11092,9 +11092,28 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
       if (conta && conta.ativo) {
         const bonusAdmin = Math.floor(creditosComprados * 0.20);
         if (bonusAdmin > 0) {
-          const { registrarBonus } = require('./services/salvarIndicacao');
+          const { registrarBonus, totalDisponivelPorIndicador } = require('./services/salvarIndicacao');
           await registrarBonus({ indicadorCodigo: conta.usuario, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: bonusAdmin, indicadorTipo: 'admin' });
           console.log('[bonus-admin] comissão registrada:', conta.usuario, '| valor:', bonusAdmin, '| indicado:', userId);
+          // Avisa o sub-admin na hora — sem isso ele só descobre entrando em
+          // /admin/minhas-comissoes por conta própria. Vai pelo WhatsApp de
+          // suporte (Evolution API) porque é texto livre, não precisa de
+          // template aprovado — diferente do número oficial da campanha.
+          if (conta.celular) {
+            (async () => {
+              try {
+                const totalDisp = await totalDisponivelPorIndicador(conta.usuario);
+                const _msgComissao = `💰 *Nova comissão!*\n\nVocê ganhou *${bonusAdmin} coins* — o lead que entrou pelo seu link acabou de comprar créditos.\n\nDisponível pra resgatar agora: *${totalDisp} coins*\nVeja em: matchimoveis.ia.br/admin/minhas-comissoes`;
+                let _telConta = conta.celular.replace(/\D/g, '');
+                if (!_telConta.startsWith('55')) _telConta = '55' + _telConta;
+                await fetch('https://match-evolution-api.onrender.com/message/sendText/match-suporte', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'apikey': 'match2025evolution' },
+                  body: JSON.stringify({ number: _telConta, text: _msgComissao })
+                });
+              } catch(e) { console.error('[bonus-admin] erro ao avisar sub-admin:', e.message); }
+            })();
+          }
         }
       }
     }

@@ -18583,12 +18583,29 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     const _escC = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const { buscarAdminConta } = require('./services/salvarAdminConta');
     const { listarBonusPorIndicador, totalDisponivelPorIndicador } = require('./services/salvarIndicacao');
+    const { listarContatosPorRefAdmin } = require('./services/salvarDisparo');
     const usuarioAdmin = req.session.adminUsuario;
     const conta = await buscarAdminConta(usuarioAdmin);
     if (!conta) return res.send(_paginaSimples('Minhas comissões', '<p>Essa conta de login não tem um cadastro de sub-admin vinculado (ex: é a conta superadmin principal) — nada pra mostrar aqui.</p>'));
 
     const historico = await listarBonusPorIndicador(usuarioAdmin, 'admin');
     const disponivel = await totalDisponivelPorIndicador(usuarioAdmin);
+    const meusLeads = await listarContatosPorRefAdmin(usuarioAdmin);
+
+    const _statusLead = l => {
+      if (l.status === 'convertido') return '<span style="color:#16a34a;font-weight:700">✅ Cadastrou — feche a venda</span>';
+      if (l.status === 'enviado' && l.auto_respondido_em) return '<span style="color:#2563eb;font-weight:700">💬 Respondeu — fala com ele</span>';
+      if (l.status === 'enviado') return '<span style="color:#9ca3af">📤 Enviado, aguardando resposta</span>';
+      if (l.status === 'optout') return '<span style="color:#9ca3af">🚫 Descadastrou</span>';
+      return `<span style="color:#9ca3af">${_escC(l.status)}</span>`;
+    };
+    const leadsHtml = meusLeads.map(l => `
+      <tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:8px;font-size:12px">${new Date(l.criado_em).toLocaleDateString('pt-BR')}</td>
+        <td style="padding:8px;font-size:12px;font-weight:600">${_escC(l.nome || '(sem nome)')}</td>
+        <td style="padding:8px;font-size:12px"><a href="https://wa.me/${_escC(l.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(l.telefone)}</a></td>
+        <td style="padding:8px;font-size:12px">${_statusLead(l)}</td>
+      </tr>`).join('');
 
     const linhasDisponivel = historico.filter(h => h.status === 'disponivel');
     const linhasHtml = historico.map(h => `
@@ -18608,6 +18625,14 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       <main class="admin-content" style="max-width:960px">
         <h1 style="font-size:22px;margin-bottom:4px">Minhas comissões</h1>
         <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 20% sobre compras dos corretores que entraram pelo seu link.</p>
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 10px;font-size:14px">Meus leads (${meusLeads.length})</h3>
+          <table style="width:100%">
+            <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Data</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">WhatsApp</th><th style="padding:8px;font-size:11px;color:#9ca3af">Status</th></tr></thead>
+            <tbody>${leadsHtml || '<tr><td colspan="4" style="padding:16px;text-align:center;color:#9ca3af">Nenhum lead atribuído a você ainda</td></tr>'}</tbody>
+          </table>
+        </div>
 
         <div style="display:flex;gap:16px;margin-bottom:24px">
           <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;flex:1">

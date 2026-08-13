@@ -235,6 +235,22 @@ async function buscarContato(id) {
   return rows[0] || null;
 }
 
+// Leads atribuídos a um sub-admin (refAdmin gravado em variaveis na hora do
+// round-robin) — é a lista que ele acompanha em /admin/minhas-comissoes pra
+// saber quem já foi avisado e quem ainda não respondeu/converteu, antes
+// mesmo de virar comissão.
+async function listarContatosPorRefAdmin(refAdmin, limite = 200) {
+  await _inicializar();
+  const { rows } = await query(
+    `SELECT id, nome, telefone, status, status_entrega, enviado_em, auto_respondido_em, criado_em
+     FROM disparos_contatos
+     WHERE variaveis->>'refAdmin' = $1
+     ORDER BY criado_em DESC LIMIT $2`,
+    [refAdmin, limite]
+  );
+  return rows;
+}
+
 // Usado pelo webhook de mensagem recebida (/webhook/whatsapp-cloud) pra
 // achar de qual campanha/refAdmin esse telefone veio, e poder responder
 // automaticamente mencionando o sub-admin certo. Pega o envio mais recente
@@ -419,5 +435,6 @@ module.exports = {
   dentroDaJanelaDisparo,
   listarCampanhasAguardandoJanela,
   buscarContatoPorTelefone,
-  marcarAutoRespondido
+  marcarAutoRespondido,
+  listarContatosPorRefAdmin
 };

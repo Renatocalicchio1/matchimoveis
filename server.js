@@ -3395,6 +3395,13 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
         _cacheUsuarios[_ci].matchCoinsTransacoes = _transacoes;
       }
     }
+    // Crédito manual pelo admin conta como recarga pra quem indicou esse
+    // usuário — mesma regra de qualquer recarga real (ver _processarBonusIndicacao):
+    // 10% pro corretor indicador, 20% (em comissão, ledger) pro sub-admin
+    // responsável (atendidoPorAdmin), se houver.
+    if (op === 'adicionar' && qtd > 0) {
+      await _processarBonusIndicacao(cod, qtd);
+    }
     res.redirect('/admin');
   } catch(e) { res.send('Erro: ' + e.message); }
 });

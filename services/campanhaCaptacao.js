@@ -574,5 +574,7 @@ module.exports = {
   contarStatus, enviarProximoEmail,
   registrarAbertura, registrarClique, registrarInicioCadastro,
   listarEnvios, buscarEnvioParaPreview,
-  marcarAtendido, excluirTelefoneContato
+  marcarAtendido, excluirTelefoneContato,
+  distribuirAtendimentosAbertos, vincularImovelCaptado,
+  buscarEnvioParaBonus, marcarBonusCaptacaoPago
 };

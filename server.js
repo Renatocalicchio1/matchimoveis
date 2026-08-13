@@ -1006,6 +1006,19 @@ button:hover{opacity:.85}
     </form>
   </div>
 
+  <div id="permTemplate" style="display:none">${_checklistPermissoesHtml([])}</div>
+  <div id="modalPerm" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;padding:20px;max-width:420px;width:90%;max-height:80vh;overflow-y:auto">
+      <h3 style="margin:0 0 4px;font-size:15px">Permissões da conta</h3>
+      <p style="margin:0 0 12px;font-size:12px;color:#9ca3af">"Minhas Comissões" não precisa marcar — toda conta já tem acesso.</p>
+      <div id="modalPermChecklist" class="checklist"></div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button onclick="salvarPermissoesModal()">Salvar</button>
+        <button style="background:#6b7280" onclick="fecharModalPerm()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <h2>👥 Contas existentes</h2>
     <table>
@@ -1031,15 +1044,27 @@ document.getElementById('formCriar').addEventListener('submit', async function(e
     location.reload();
   } catch(e){ statusEl.innerHTML = '<span class="red">Erro ao criar conta.</span>'; }
 });
-const CHAVES_PERMISSOES = ${JSON.stringify(_ADMIN_NAV.filter(s => s.sec !== 'Administração').flatMap(s => s.items.filter(it => !it.externo).map(it => it.key + ' — ' + it.label)))};
-async function editarPermissoes(id, permissoesAtuais){
-  const atuais = permissoesAtuais.join(', ') || '(nenhuma)';
-  const txt = prompt('Permissões atuais: ' + atuais + '\\n\\nPáginas disponíveis:\\n' + CHAVES_PERMISSOES.join('\\n') + '\\n\\nDigite as chaves separadas por vírgula:', permissoesAtuais.join(','));
-  if(txt === null) return;
-  const permissoes = txt.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-  const r = await fetch('/admin/contas-admin/' + id + '/permissoes', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ permissoes }) });
+let _permContaId = null;
+function editarPermissoes(id, permissoesAtuais){
+  _permContaId = id;
+  const container = document.getElementById('modalPermChecklist');
+  container.innerHTML = document.getElementById('permTemplate').innerHTML;
+  const marcadas = new Set(permissoesAtuais);
+  container.querySelectorAll('input[name=permissoes]').forEach(function(cb){
+    cb.checked = marcadas.has(cb.value);
+  });
+  document.getElementById('modalPerm').style.display = 'flex';
+}
+function fecharModalPerm(){
+  document.getElementById('modalPerm').style.display = 'none';
+  _permContaId = null;
+}
+async function salvarPermissoesModal(){
+  const permissoes = Array.from(document.querySelectorAll('#modalPermChecklist input[name=permissoes]:checked')).map(function(el){ return el.value; });
+  const r = await fetch('/admin/contas-admin/' + _permContaId + '/permissoes', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ permissoes }) });
   const d = await r.json();
   if(!d.ok){ alert(d.erro || 'Erro'); return; }
+  fecharModalPerm();
   location.reload();
 }
 async function resetarSenha(id){

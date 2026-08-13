@@ -832,7 +832,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
 // conta (req.session.adminUsuario), não dão acesso a nada de outra conta,
 // então não faz sentido travar atrás de uma permissão que o superadmin
 // pode esquecer de marcar.
-const _ADMIN_ROTAS_SEMPRE_PERMITIDAS = ['/admin/minhas-comissoes', '/admin/meu-corretor'];
+const _ADMIN_ROTAS_SEMPRE_PERMITIDAS = ['/admin/minhas-comissoes', '/admin/meu-corretor', '/admin/voltar-superadmin'];
 function authAdmin(req, res, next) {
   if (!(req.session && req.session.admin)) return res.redirect('/admin/login');
   // !== false (não === true): sessão de admin aberta ANTES desse recurso

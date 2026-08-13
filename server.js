@@ -809,7 +809,7 @@ function _primeiraPaginaPermitida(permissoes) {
 // acompanhamento (progresso, funil, envios recentes) é liberado —
 // iniciar/pausar o disparo em massa fica restrito.
 const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
-  '/admin/contas-admin', '/admin/acessar', '/admin/deletar',
+  '/admin/contas-admin', '/admin/acessar', '/admin/deletar', '/admin/usuario',
   '/admin/cruzar-proprietarios-alex', '/admin/executar-cruzar-alex',
   '/admin/campanha/importar', '/admin/campanha/teste',
   '/admin/campanha/iniciar', '/admin/campanha/pausar',
@@ -823,7 +823,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
 // conta (req.session.adminUsuario), não dão acesso a nada de outra conta,
 // então não faz sentido travar atrás de uma permissão que o superadmin
 // pode esquecer de marcar.
-const _ADMIN_ROTAS_SEMPRE_PERMITIDAS = ['/admin/minhas-comissoes'];
+const _ADMIN_ROTAS_SEMPRE_PERMITIDAS = ['/admin/minhas-comissoes', '/admin/meu-corretor'];
 function authAdmin(req, res, next) {
   if (!(req.session && req.session.admin)) return res.redirect('/admin/login');
   // !== false (não === true): sessão de admin aberta ANTES desse recurso
@@ -19000,6 +19000,29 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     const historico = await listarBonusPorIndicador(usuarioAdmin, 'admin');
     const disponivel = await totalDisponivelPorIndicador(usuarioAdmin);
     const meusLeads = await listarContatosPorRefAdmin(usuarioAdmin);
+
+    // Corretores/imobiliárias que JÁ SE CADASTRARAM na plataforma atribuídos
+    // a esse sub-admin (dados->>'atendidoPorAdmin', mesmo campo mostrado na
+    // coluna "Sub-admin" de /admin) — diferente de "Meus leads" acima, que é
+    // o funil da campanha de e-mail (quem ainda nem virou conta). Mesmas
+    // colunas informativas da tabela geral do superadmin (/admin), só que
+    // sem nenhuma ação de dono de conta (ver/acessar/deletar/XML) — o
+    // sub-admin só acompanha.
+    let meusCorretores = [];
+    try {
+      const { query: _qMeusCor } = require('./services/db');
+      const { rows: _rowsMeusCor } = await _qMeusCor(`
+        SELECT u.codigo_usuario, u.nome, u.telefone, u.criado_em, u.match_coins, u.whatsapp_status,
+          COALESCE(im.total, 0) AS total_imoveis, COALESCE(ld.total, 0) AS total_leads, COALESCE(vs.total, 0) AS total_visitas
+        FROM usuarios u
+        LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM imoveis GROUP BY user_id) im ON im.user_id = u.codigo_usuario
+        LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM leads GROUP BY user_id) ld ON ld.user_id = u.codigo_usuario
+        LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM visitas GROUP BY user_id) vs ON vs.user_id = u.codigo_usuario
+        WHERE u.dados->>'atendidoPorAdmin' = $1
+        ORDER BY u.criado_em DESC
+      `, [usuarioAdmin]);
+      meusCorretores = _rowsMeusCor;
+    } catch (eMeusCor) { console.error('[minhas-comissoes] erro ao buscar corretores:', eMeusCor.message); }
     const { envios: minhasCaptacoes } = await _listarCaptacoesSub({ refAdmin: usuarioAdmin, limite: 100 });
     // Detalhe do imóvel captado (mesmos dados que aparecem em /app/captacao,
     // a tela do corretor dono da conta REN-G9K6) — sem isso o sub-admin só via
@@ -19114,6 +19137,25 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         </div>
 
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 6px;font-size:14px">👤 Meus corretores cadastrados (${meusCorretores.length})</h3>
+          <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Contas que já se cadastraram na plataforma atribuídas a você. Só acompanhamento — sem acessar a conta, importar XML ou excluir.</p>
+          <table style="width:100%">
+            <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Cadastro</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">Telefone</th><th style="padding:8px;font-size:11px;color:#9ca3af">Imóv.</th><th style="padding:8px;font-size:11px;color:#9ca3af">Leads</th><th style="padding:8px;font-size:11px;color:#9ca3af">Visit.</th><th style="padding:8px;font-size:11px;color:#9ca3af">Coins</th><th style="padding:8px;font-size:11px;color:#9ca3af"></th></tr></thead>
+            <tbody>${meusCorretores.map(c => `
+              <tr style="border-bottom:1px solid #f3f4f6">
+                <td style="padding:8px;font-size:12px">${new Date(c.criado_em).toLocaleDateString('pt-BR')}</td>
+                <td style="padding:8px;font-size:12px;font-weight:600">${_escC(c.nome || '(sem nome)')}</td>
+                <td style="padding:8px;font-size:12px">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '-'}</td>
+                <td style="padding:8px;font-size:12px;text-align:center">${c.total_imoveis}</td>
+                <td style="padding:8px;font-size:12px;text-align:center">${c.total_leads}</td>
+                <td style="padding:8px;font-size:12px;text-align:center">${c.total_visitas}</td>
+                <td style="padding:8px;font-size:12px;text-align:center;font-weight:700;color:#FF385C">${(c.match_coins||0).toLocaleString('pt-BR')}</td>
+                <td style="padding:8px;font-size:12px"><a href="/admin/meu-corretor/${c.codigo_usuario}" style="color:#2563eb;text-decoration:none;font-weight:600">Ver</a></td>
+              </tr>`).join('') || '<tr><td colspan="8" style="padding:16px;text-align:center;color:#9ca3af">Nenhum corretor cadastrado atribuído a você ainda</td></tr>'}</tbody>
+          </table>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 10px;font-size:14px">Meus leads (${meusLeads.length})</h3>
           <table style="width:100%">
             <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Data</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">WhatsApp</th><th style="padding:8px;font-size:11px;color:#9ca3af">Status</th></tr></thead>
@@ -19190,6 +19232,52 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       </script>
     </body></html>`);
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+
+// Versão só-leitura de /admin/usuario/:codigo pro sub-admin — mostra dados
+// básicos + contagens, mas SEM alterar senha e SEM importar XML (essas duas
+// ações só existem na rota do superadmin). Só abre se o corretor for
+// atribuído a esse sub-admin (dados->>'atendidoPorAdmin'), senão 404 — não é
+// uma tela genérica de "ver qualquer usuário", é escopada.
+app.get('/admin/meu-corretor/:codigo', authAdmin, async (req, res) => {
+  try {
+    if (req.session.adminSuper !== false) return res.redirect('/admin/usuario/' + req.params.codigo);
+    const { query: _qMeuCor } = require('./services/db');
+    const { rows } = await _qMeuCor(`
+      SELECT u.codigo_usuario, u.nome, u.telefone, u.criado_em, u.match_coins, u.whatsapp_status,
+        COALESCE(im.total, 0) AS total_imoveis, COALESCE(ld.total, 0) AS total_leads, COALESCE(vs.total, 0) AS total_visitas
+      FROM usuarios u
+      LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM imoveis GROUP BY user_id) im ON im.user_id = u.codigo_usuario
+      LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM leads GROUP BY user_id) ld ON ld.user_id = u.codigo_usuario
+      LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM visitas GROUP BY user_id) vs ON vs.user_id = u.codigo_usuario
+      WHERE u.codigo_usuario=$1 AND u.dados->>'atendidoPorAdmin'=$2
+    `, [req.params.codigo, req.session.adminUsuario]);
+    const u = rows[0];
+    if (!u) return res.status(404).send(_paginaSimples('Corretor não encontrado', '<p>Esse corretor não existe ou não está atribuído a você.</p>'));
+    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${u.nome} · Meu corretor</title>
+    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,sans-serif;background:#f9fafb;font-size:13px}${_adminShellCss()}
+    .admin-content{max-width:600px}.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px}
+    h2{font-size:14px;font-weight:600;margin-bottom:14px}label{display:block;font-size:11px;font-weight:500;color:#9ca3af;margin-bottom:4px}
+    input{width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:13px;margin-bottom:12px;background:#f9fafb}</style></head>
+    <body><div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req))}
+    <main class="admin-content">
+      <h1 style="font-size:18px;font-weight:700;margin-bottom:16px">${u.nome}</h1>
+      <div class="card">
+        <h2>Dados</h2>
+        <label>Código</label><input value="${u.codigo_usuario||''}" readonly>
+        <label>Telefone</label><input value="${u.telefone||''}" readonly>
+        <label>WhatsApp</label><input value="${u.whatsapp_status||'-'}" readonly>
+        <label>Cadastro</label><input value="${new Date(u.criado_em).toLocaleDateString('pt-BR')}" readonly>
+      </div>
+      <div class="card">
+        <h2>Atividade</h2>
+        <label>Imóveis cadastrados</label><input value="${u.total_imoveis}" readonly>
+        <label>Leads</label><input value="${u.total_leads}" readonly>
+        <label>Visitas</label><input value="${u.total_visitas}" readonly>
+        <label>Saldo de coins</label><input value="${(u.match_coins||0).toLocaleString('pt-BR')}" readonly>
+      </div>
+    </main></div></body></html>`);
+  } catch (e) { res.status(500).send('Erro: ' + e.message); }
 });
 
 app.post('/admin/minhas-comissoes/resgatar', authAdmin, express.json(), async (req, res) => {

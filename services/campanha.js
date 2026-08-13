@@ -941,17 +941,24 @@ async function marcarAtendido(id, { por, nome, cor }) {
   return { ok: true, nome, cor };
 }
 
-// Contatos que clicaram (sinal de interesse de verdade) mas ninguém pegou
-// pra atender ainda ficavam soltos, visíveis pra todo mundo, primeiro que
-// clicasse "Atender" levava — agora divide em round-robin entre os
-// sub-admins ativos, do mesmo jeito que o disparo de WhatsApp já faz.
-// Idempotente: só mexe em quem tá com atendido_por vazio, pode rodar
-// quantas vezes quiser sem reatribuir quem já tem dono.
+// Contatos que interagiram (clicou ou pelo menos abriu o e-mail) e ninguém
+// pegou pra atender ainda ficavam soltos — agora divide em round-robin entre
+// os sub-admins ativos, do mesmo jeito que o disparo de WhatsApp já faz.
+// Antes só pegava quem tinha CLICADO; passou a pegar todo o backlog sem dono
+// (status='enviado' ou 'erro', que são os únicos estados finais de uma linha
+// já processada) — quem abriu o e-mail já tem que aparecer marcado dentro da
+// conta do sub-admin responsável, mesmo sem ter clicado ainda (mesmo motivo
+// da mudança equivalente em campanhaCaptacao.js: reativar quem tá parado é
+// trabalho de atendimento manual até o disparo virar 100% automático).
+// Prioriza quem clicou (interesse mais forte), depois quem abriu, depois o
+// resto. Idempotente: só mexe em quem tá com atendido_por vazio.
 async function distribuirAtendimentosAbertos(contasAtivas) {
   await _garantirColunas();
   if (!contasAtivas || !contasAtivas.length) return { distribuidos: 0 };
   const { rows } = await query(
-    `SELECT id FROM campanha_contatos WHERE clicado_em IS NOT NULL AND (atendido_por IS NULL OR atendido_por = '') ORDER BY clicado_em ASC`
+    `SELECT id FROM campanha_contatos
+     WHERE status IN ('enviado','erro') AND (atendido_por IS NULL OR atendido_por = '')
+     ORDER BY (clicado_em IS NULL), (aberto_em IS NULL), COALESCE(clicado_em, aberto_em, enviado_em) ASC`
   );
   let distribuidos = 0;
   for (let i = 0; i < rows.length; i++) {

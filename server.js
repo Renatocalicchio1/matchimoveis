@@ -585,7 +585,8 @@ const _ADMIN_NAV = [
   // "acesso negado" — não é uma rota alcançável de outra forma.
   { sec: 'Administração', items: [
     { key: 'contas-admin', href: '/admin/contas-admin', icon: '👤', label: 'Contas Admin' },
-    { key: 'comissoes-pendentes', href: '/admin/comissoes-pendentes', icon: '💸', label: 'Comissões Pendentes' }
+    { key: 'comissoes-pendentes', href: '/admin/comissoes-pendentes', icon: '💸', label: 'Comissões Pendentes' },
+    { key: 'atribuicoes-subadmin', href: '/admin/atribuicoes-subadmin', icon: '🔍', label: 'Revisar Atribuições' }
   ]}
 ];
 
@@ -816,7 +817,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/campanha/distribuir-atendimentos',
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
   '/admin/captacao-campanha/distribuir-atendimentos',
-  '/admin/comissoes-pendentes'
+  '/admin/comissoes-pendentes', '/admin/atribuicoes-subadmin'
 ];
 // Sempre acessível pra qualquer conta admin logada, sem depender de
 // permissão marcada — são telas que já filtram pelos dados da PRÓPRIA
@@ -2053,6 +2054,76 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req))}
   } catch(e) {
     res.send('Erro: ' + e.message);
   }
+});
+
+// Revisão de atribuições sub-admin (usuarios.dados->>'atendidoPorAdmin') —
+// não dá pra saber com certeza absoluta quem foi setado certo vs errado (não
+// ficou timestamp de QUANDO cada atribuição foi feita), então em vez de
+// apagar automático, mostra a lista com as pistas disponíveis pro superadmin
+// decidir caso a caso: se tem rastro real de campanha (linha em
+// campanha_contatos OU campanha_captacao_envios com atendido_por igual, achada
+// por telefone/email) é forte indício de que veio pelo link/trabalho do
+// sub-admin de verdade; se não tem NENHUM rastro, é suspeito (pode ter sido o
+// bug do e-mail de recarga, corrigido no commit 2c3fd1e0, que inventava um
+// sub-admin por rodízio pra corretor já cadastrado sem referral nenhum).
+app.get('/admin/atribuicoes-subadmin', authAdmin, async (req, res) => {
+  try {
+    const { query: _qAtrib } = require('./services/db');
+    const { rows } = await _qAtrib(`
+      SELECT u.codigo_usuario, u.nome, u.telefone, u.email, u.criado_em,
+        u.dados->>'atendidoPorAdmin' AS atendido_por_admin,
+        u.dados->>'atendidoPorAdminNome' AS atendido_por_admin_nome,
+        u.dados->>'indicadoPor' AS indicado_por,
+        u.dados->>'ultimoEmailRecargaEm' AS ultimo_email_recarga_em,
+        EXISTS(
+          SELECT 1 FROM campanha_contatos cc
+          WHERE cc.atendido_por = u.dados->>'atendidoPorAdmin'
+            AND (LOWER(cc.email) = LOWER(u.email) OR RIGHT(REGEXP_REPLACE(COALESCE(cc.celular,''),'\\D','','g'),8) = RIGHT(REGEXP_REPLACE(COALESCE(u.telefone,''),'\\D','','g'),8))
+        ) OR EXISTS(
+          SELECT 1 FROM campanha_captacao_envios ce
+          WHERE ce.atendido_por = u.dados->>'atendidoPorAdmin'
+            AND (LOWER(ce.email) = LOWER(u.email) OR RIGHT(REGEXP_REPLACE(COALESCE(ce.telefone,''),'\\D','','g'),8) = RIGHT(REGEXP_REPLACE(COALESCE(u.telefone,''),'\\D','','g'),8))
+        ) AS tem_rastro_campanha
+      FROM usuarios u
+      WHERE u.dados->>'atendidoPorAdmin' IS NOT NULL AND u.dados->>'atendidoPorAdmin' != ''
+      ORDER BY u.criado_em DESC
+    `);
+    const linhas = rows.map(r => `
+      <tr style="border-bottom:1px solid #f3f4f6;background:${r.tem_rastro_campanha ? '' : '#fef2f2'}">
+        <td style="padding:8px;font-size:12px">${new Date(r.criado_em).toLocaleDateString('pt-BR')}</td>
+        <td style="padding:8px;font-size:12px;font-weight:600">${r.nome || ''}<br><span style="color:#9ca3af;font-size:10.5px">${r.codigo_usuario}</span></td>
+        <td style="padding:8px;font-size:12px">${r.atendido_por_admin_nome || r.atendido_por_admin}</td>
+        <td style="padding:8px;font-size:12px">${r.indicado_por ? `<span style="color:#16a34a">✓ ${r.indicado_por}</span>` : '<span style="color:#9ca3af">—</span>'}</td>
+        <td style="padding:8px;font-size:12px">${r.tem_rastro_campanha ? '<span style="color:#16a34a;font-weight:600">✅ Tem rastro de campanha</span>' : '<span style="color:#dc2626;font-weight:600">⚠️ Sem rastro — suspeito</span>'}</td>
+        <td style="padding:8px;font-size:12px">${r.ultimo_email_recarga_em ? new Date(r.ultimo_email_recarga_em).toLocaleDateString('pt-BR') : '—'}</td>
+        <td style="padding:8px">
+          <form method="POST" action="/admin/atribuicoes-subadmin/${r.codigo_usuario}/remover" onsubmit="return confirm('Remover a atribuição de sub-admin de ${(r.nome||'').replace(/'/g,"")}? Ele deixa de ser contado pra comissões futuras.')" style="display:inline">
+            <button type="submit" style="font-size:11px;color:#dc2626;background:#fef2f2;border:1px solid #fca5a5;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600">Remover</button>
+          </form>
+        </td>
+      </tr>`).join('');
+    res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Atribuições sub-admin · Admin</title>
+    <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,sans-serif;background:#f9fafb;font-size:13px}${_adminShellCss()}
+    .admin-content{max-width:1100px}table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb}
+    th{text-align:left;padding:8px;font-size:11px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb}</style></head>
+    <body><div class="admin-app">${_adminSidebarHtml('dashboard', _sidebarPerm(req))}
+    <main class="admin-content">
+      <h1 style="font-size:20px;margin-bottom:6px">Revisão de atribuições sub-admin (${rows.length})</h1>
+      <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Contas com um sub-admin gravado (comissão futura). Linhas em vermelho não têm nenhum rastro de campanha achado — vale conferir antes de confiar na comissão.</p>
+      <table>
+        <thead><tr><th>Cadastro</th><th>Corretor</th><th>Sub-admin</th><th>Indicado por (corretor)</th><th>Evidência</th><th>Recebeu e-mail recarga</th><th></th></tr></thead>
+        <tbody>${linhas || '<tr><td colspan="7" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma conta com sub-admin atribuído</td></tr>'}</tbody>
+      </table>
+    </main></div></body></html>`);
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
+});
+app.post('/admin/atribuicoes-subadmin/:codigo/remover', authAdmin, async (req, res) => {
+  try {
+    const { query: _qRemAtrib } = require('./services/db');
+    await _qRemAtrib(`UPDATE usuarios SET dados = dados - 'atendidoPorAdmin' - 'atendidoPorAdminNome' - 'atendidoPorAdminCor' WHERE codigo_usuario=$1`, [req.params.codigo]);
+    if (_cacheUsuarios) { const idx = _cacheUsuarios.findIndex(u => u.codigoUsuario === req.params.codigo || u.id === req.params.codigo); if (idx >= 0) { delete _cacheUsuarios[idx].atendidoPorAdmin; delete _cacheUsuarios[idx].atendidoPorAdminNome; delete _cacheUsuarios[idx].atendidoPorAdminCor; } }
+    res.redirect('/admin/atribuicoes-subadmin');
+  } catch(e) { res.status(500).send('Erro: ' + e.message); }
 });
 
 // ── USUÁRIOS ONLINE (tempo real) ─────────────────────────────────────────────

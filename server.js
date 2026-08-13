@@ -8831,6 +8831,19 @@ setInterval(async () => {
 // fora se o job realmente tá rodando ou só "parece" que devia estar (foi
 // exatamente esse tipo de dúvida que gerou idas e voltas — agora dá pra
 // olhar direto em /admin/atribuicoes-subadmin ou consultar a tabela).
+// Solta atendido_por de contato preso numa conta que não tem (ou perdeu) a
+// permissão daquela campanha — sem isso o round-robin nunca redistribuía,
+// porque distribuirAtendimentosAbertos só mexe em quem está com atendido_por
+// vazio. tabela é sempre um literal fixo abaixo, nunca vem de request.
+async function _liberarSemPermissao(tabela, contasValidas) {
+  const { query: _qLib } = require('./services/db');
+  const usuariosValidos = new Set(contasValidas.map(c => c.usuario));
+  const { rows } = await _qLib(`SELECT id, atendido_por FROM ${tabela} WHERE atendido_por IS NOT NULL AND atendido_por != ''`);
+  const semPermissao = rows.filter(r => !usuariosValidos.has(r.atendido_por)).map(r => r.id);
+  if (!semPermissao.length) return 0;
+  await _qLib(`UPDATE ${tabela} SET atendido_por=NULL, atendido_por_nome=NULL, atendido_por_cor=NULL, atendido_em=NULL WHERE id = ANY($1)`, [semPermissao]);
+  return semPermissao.length;
+}
 async function _registrarStatusJobDistribuicao(detalhe) {
   try {
     const { query: _qJobStatus } = require('./services/db');
@@ -8845,21 +8858,38 @@ async function _registrarStatusJobDistribuicao(detalhe) {
 async function _rodarDistribuicaoSubAdmin() {
   try {
     const { listarAdminContas } = require('./services/salvarAdminConta');
-    const _contasDistribAuto = (await listarAdminContas()).filter(c => c.ativo);
-    if (!_contasDistribAuto.length) {
+    const _todasContasAtivas = (await listarAdminContas()).filter(c => c.ativo);
+    if (!_todasContasAtivas.length) {
       await _registrarStatusJobDistribuicao('rodou, mas 0 sub-admin ativo em /admin/contas-admin — nada foi distribuído');
       return;
     }
+    // Cada campanha só pode distribuir pra quem tem a permissão daquela
+    // página marcada em /admin/contas-admin — sem isso um sub-admin sem
+    // acesso a 'campanha'/'captacao-campanha' ainda recebia contato na régua
+    // (só não conseguia ver a lista, mas o round-robin não sabia disso).
+    const _contasCaptAuto = _todasContasAtivas.filter(c => (c.permissoes || []).includes('captacao-campanha'));
+    const _contasEmailAuto = _todasContasAtivas.filter(c => (c.permissoes || []).includes('campanha'));
 
-    const { distribuirAtendimentosAbertos: _distribuirCaptAuto } = require('./services/campanhaCaptacao');
-    const _resultCaptAuto = await _distribuirCaptAuto(_contasDistribAuto);
-    if (_resultCaptAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] captação: distribuídos automaticamente ->', _resultCaptAuto.distribuidos);
+    const _liberadosCaptAuto = await _liberarSemPermissao('campanha_captacao_envios', _contasCaptAuto);
+    const _liberadosEmailAuto = await _liberarSemPermissao('campanha_contatos', _contasEmailAuto);
+    if (_liberadosCaptAuto > 0) console.log('[JOB DISTRIBUICAO] captação: liberados de conta sem permissão ->', _liberadosCaptAuto);
+    if (_liberadosEmailAuto > 0) console.log('[JOB DISTRIBUICAO] campanha e-mail: liberados de conta sem permissão ->', _liberadosEmailAuto);
 
-    const { distribuirAtendimentosAbertos: _distribuirEmailAuto } = require('./services/campanha');
-    const _resultEmailAuto = await _distribuirEmailAuto(_contasDistribAuto);
-    if (_resultEmailAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] campanha e-mail: distribuídos automaticamente ->', _resultEmailAuto.distribuidos);
+    let _resultCaptAuto = { distribuidos: 0 };
+    if (_contasCaptAuto.length) {
+      const { distribuirAtendimentosAbertos: _distribuirCaptAuto } = require('./services/campanhaCaptacao');
+      _resultCaptAuto = await _distribuirCaptAuto(_contasCaptAuto);
+      if (_resultCaptAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] captação: distribuídos automaticamente ->', _resultCaptAuto.distribuidos);
+    }
 
-    await _registrarStatusJobDistribuicao(`rodou com ${_contasDistribAuto.length} sub-admin(s) ativo(s) — captação: +${_resultCaptAuto.distribuidos}, e-mail: +${_resultEmailAuto.distribuidos}`);
+    let _resultEmailAuto = { distribuidos: 0 };
+    if (_contasEmailAuto.length) {
+      const { distribuirAtendimentosAbertos: _distribuirEmailAuto } = require('./services/campanha');
+      _resultEmailAuto = await _distribuirEmailAuto(_contasEmailAuto);
+      if (_resultEmailAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] campanha e-mail: distribuídos automaticamente ->', _resultEmailAuto.distribuidos);
+    }
+
+    await _registrarStatusJobDistribuicao(`rodou com ${_todasContasAtivas.length} sub-admin(s) ativo(s) (${_contasCaptAuto.length} c/ permissão captação, ${_contasEmailAuto.length} c/ permissão e-mail) — liberados sem permissão: captação ${_liberadosCaptAuto}, e-mail ${_liberadosEmailAuto} — distribuídos: captação +${_resultCaptAuto.distribuidos}, e-mail +${_resultEmailAuto.distribuidos}`);
   } catch(e) {
     console.error('[JOB DISTRIBUICAO] erro:', e.message);
     await _registrarStatusJobDistribuicao('ERRO: ' + e.message);
@@ -18449,7 +18479,7 @@ https://www.matchimoveis.ia.br
     const r = await fetch('/admin/campanha/distribuir-atendimentos', {method:'POST'});
     const d = await r.json();
     if(!d.ok){ el.innerHTML = '<p class="red">Erro: '+d.erro+'</p>'; return; }
-    el.innerHTML = '<p class="green">✅ '+d.distribuidos+' contato(s) distribuído(s).</p>';
+    el.innerHTML = '<p class="green">✅ '+d.distribuidos+' contato(s) distribuído(s).'+(d.liberadosSemPermissao > 0 ? ' ('+d.liberadosSemPermissao+' estavam presos numa conta sem permissão e foram redistribuídos.)' : '')+'</p>';
   }
   function _setTxt(id, val){ const el = document.getElementById(id); if(el) el.textContent = val; }
   function _setDisabled(id, val){ const el = document.getElementById(id); if(el) el.disabled = val; }
@@ -18843,11 +18873,12 @@ app.post('/admin/campanha/contatos/:id/excluir-celular', authAdmin, async (req, 
 app.post('/admin/campanha/distribuir-atendimentos', authAdmin, async (req, res) => {
   try {
     const { listarAdminContas } = require('./services/salvarAdminConta');
-    const contasAtivas = (await listarAdminContas()).filter(c => c.ativo);
-    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin ativo pra distribuir' });
+    const contasAtivas = (await listarAdminContas()).filter(c => c.ativo && (c.permissoes || []).includes('campanha'));
+    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin ativo com permissão de Campanha Email pra distribuir' });
+    const liberados = await _liberarSemPermissao('campanha_contatos', contasAtivas);
     const { distribuirAtendimentosAbertos } = require('./services/campanha');
     const resultado = await distribuirAtendimentosAbertos(contasAtivas);
-    res.json({ ok: true, ...resultado });
+    res.json({ ok: true, ...resultado, liberadosSemPermissao: liberados });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 
@@ -18856,11 +18887,12 @@ app.post('/admin/campanha/distribuir-atendimentos', authAdmin, async (req, res) 
 app.post('/admin/captacao-campanha/distribuir-atendimentos', authAdmin, async (req, res) => {
   try {
     const { listarAdminContas } = require('./services/salvarAdminConta');
-    const contasAtivas = (await listarAdminContas()).filter(c => c.ativo);
-    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin ativo pra distribuir' });
+    const contasAtivas = (await listarAdminContas()).filter(c => c.ativo && (c.permissoes || []).includes('captacao-campanha'));
+    if (!contasAtivas.length) return res.json({ ok: false, erro: 'Nenhum sub-admin ativo com permissão de Campanha Captação pra distribuir' });
+    const liberados = await _liberarSemPermissao('campanha_captacao_envios', contasAtivas);
     const { distribuirAtendimentosAbertos } = require('./services/campanhaCaptacao');
     const resultado = await distribuirAtendimentosAbertos(contasAtivas);
-    res.json({ ok: true, ...resultado });
+    res.json({ ok: true, ...resultado, liberadosSemPermissao: liberados });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 

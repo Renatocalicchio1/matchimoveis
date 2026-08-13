@@ -188,7 +188,7 @@ async function distribuirAtendimentos(){
   el.innerHTML = '<p>⏳ Distribuindo...</p>';
   const d = await _post('/admin/captacao-campanha/distribuir-atendimentos');
   if(!d.ok){ el.innerHTML = '<p style="color:#dc2626">Erro: '+d.erro+'</p>'; return; }
-  el.innerHTML = '<p style="color:#16a34a">✅ '+d.distribuidos+' contato(s) distribuído(s).</p>';
+  el.innerHTML = '<p style="color:#16a34a">✅ '+d.distribuidos+' contato(s) distribuído(s).'+(d.liberadosSemPermissao > 0 ? ' ('+d.liberadosSemPermissao+' estavam presos numa conta sem permissão e foram redistribuídos.)' : '')+'</p>';
   carregarTabela(_paginaEnvios);
 }
 function _tag(cond){ return cond ? '<span class="tag tag-sim">Sim</span>' : '<span class="tag tag-nao">Não</span>'; }

@@ -18926,12 +18926,23 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       if (c.clicado_em) return '<span style="color:#9ca3af">👆 Clicou, ainda não iniciou</span>';
       return '<span style="color:#9ca3af">📤 E-mail enviado</span>';
     };
+    // Enquanto o disparo dessa campanha não integra com template de
+    // WhatsApp da Meta, mailto: é o canal manual pra reativar quem tá
+    // parado — mesmo texto/link do painel /admin/captacao-campanha.
+    const _mailtoCaptacao = c => {
+      const nome = (c.nome || '').trim().split(' ')[0] || 'tudo bem';
+      const link = 'https://matchimoveis.ia.br/captacao-campanha/click/' + c.id;
+      const assunto = 'Seu imóvel pode estar rendendo mais — cadastro rápido e sem custo';
+      const corpo = `Oi ${nome}, tudo bem?\n\nMandei um e-mail sobre cadastrar seu imóvel na nossa rede de mais de 9.000 corretores, sem nenhum custo — leva menos de 2 minutos.\n\nSegue o link direto: ${link}\n\nQualquer dúvida, me chama por aqui mesmo.`;
+      return 'mailto:' + encodeURIComponent(c.email || '') + '?subject=' + encodeURIComponent(assunto) + '&body=' + encodeURIComponent(corpo);
+    };
     const captacoesHtml = minhasCaptacoes.map(c => `
       <tr style="border-bottom:1px solid #f3f4f6">
         <td style="padding:8px;font-size:12px">${new Date(c.enviado_em).toLocaleDateString('pt-BR')}</td>
         <td style="padding:8px;font-size:12px;font-weight:600">${_escC(c.nome || '(sem nome)')}</td>
         <td style="padding:8px;font-size:12px">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '<span style="color:#9ca3af">—</span>'}</td>
         <td style="padding:8px;font-size:12px">${_statusCaptacao(c)}</td>
+        <td style="padding:8px;font-size:12px">${(!c.iniciou_cadastro_em && c.email) ? `<a href="${_mailtoCaptacao(c)}" style="background:#2563eb;color:#fff;text-decoration:none;padding:4px 10px;border-radius:6px;font-size:11.5px;font-weight:600;white-space:nowrap">📧 E-mail</a>` : ''}</td>
       </tr>`).join('');
 
     const linhasDisponivel = historico.filter(h => h.status === 'disponivel');
@@ -18987,10 +18998,10 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
 
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 6px;font-size:14px">🏠 Minhas captações (${minhasCaptacoes.length})</h3>
-          <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Proprietários da Campanha de Captação atribuídos a você — chame no WhatsApp e ajude a terminar o cadastro. Cada imóvel captado até o fim vale +200 coins pra você.</p>
+          <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Proprietários da Campanha de Captação atribuídos a você — chame no WhatsApp (se tiver celular) ou mande um e-mail manual e ajude a terminar o cadastro. Cada imóvel captado até o fim vale +200 coins pra você.</p>
           <table style="width:100%">
-            <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Data</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">WhatsApp</th><th style="padding:8px;font-size:11px;color:#9ca3af">Status</th></tr></thead>
-            <tbody>${captacoesHtml || '<tr><td colspan="4" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma captação atribuída a você ainda</td></tr>'}</tbody>
+            <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Data</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">WhatsApp</th><th style="padding:8px;font-size:11px;color:#9ca3af">Status</th><th style="padding:8px;font-size:11px;color:#9ca3af">Ação</th></tr></thead>
+            <tbody>${captacoesHtml || '<tr><td colspan="5" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma captação atribuída a você ainda</td></tr>'}</tbody>
           </table>
         </div>
 

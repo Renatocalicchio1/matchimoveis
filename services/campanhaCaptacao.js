@@ -326,14 +326,22 @@ async function marcarAtendido(id, { por, nome, cor }) {
   return { ok: true, nome, cor };
 }
 
-// Contatos que clicaram (interesse real) mas ninguém pegou pra atender ainda
-// — mesmo mecanismo de services/campanha.js: round-robin entre os sub-admins
-// ativos, idempotente (só mexe em quem tá com atendido_por vazio).
+// Divide o backlog de envios sem atendente entre os sub-admins ativos —
+// round-robin, idempotente (só mexe em quem tá com atendido_por vazio).
+// Antes só pegava quem tinha clicado (clicado_em IS NOT NULL); mudou pra
+// pegar TODO envio parado (erro IS NULL, senão inclui quem nem chegou a
+// receber o e-mail) porque agora o trabalho do sub-admin aqui é mandar
+// e-mail manual pra reativar quem tá parado, não só responder quem já
+// demonstrou interesse — enquanto o disparo dessa campanha não integra com
+// template de WhatsApp da Meta (ver /admin/disparos), esse é o canal.
+// Prioriza quem clicou (interesse mais forte) antes do resto do backlog.
 async function distribuirAtendimentosAbertos(contasAtivas) {
   await _garantirTabelas();
   if (!contasAtivas || !contasAtivas.length) return { distribuidos: 0 };
   const { rows } = await query(
-    `SELECT id FROM campanha_captacao_envios WHERE clicado_em IS NOT NULL AND (atendido_por IS NULL OR atendido_por = '') ORDER BY clicado_em ASC`
+    `SELECT id FROM campanha_captacao_envios
+     WHERE erro IS NULL AND (atendido_por IS NULL OR atendido_por = '')
+     ORDER BY (clicado_em IS NULL), COALESCE(clicado_em, enviado_em) ASC`
   );
   let distribuidos = 0;
   for (let i = 0; i < rows.length; i++) {

@@ -628,7 +628,10 @@ function _adminShellCss() {
 function _sidebarPerm(req) { return req.session.adminSuper !== false ? true : (req.session.adminPermissoes || []); }
 function _adminSidebarHtml(activeKey, segundoArg) {
   const restringir = Array.isArray(segundoArg);
-  const permitido = (key) => !restringir || segundoArg.includes(key);
+  // 'minhas-comissoes' segue a mesma liberação geral de authAdmin
+  // (_ADMIN_ROTAS_SEMPRE_PERMITIDAS) — sem isso o link some do menu de quem
+  // não tem a permissão marcada, mesmo a página sendo acessível direto.
+  const permitido = (key) => !restringir || key === 'minhas-comissoes' || segundoArg.includes(key);
   const secoes = _ADMIN_NAV
     .filter(sec => sec.sec !== 'Administração' || segundoArg === true)
     .map(sec => {
@@ -813,6 +816,12 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
   '/admin/comissoes-pendentes'
 ];
+// Sempre acessível pra qualquer conta admin logada, sem depender de
+// permissão marcada — são telas que já filtram pelos dados da PRÓPRIA
+// conta (req.session.adminUsuario), não dão acesso a nada de outra conta,
+// então não faz sentido travar atrás de uma permissão que o superadmin
+// pode esquecer de marcar.
+const _ADMIN_ROTAS_SEMPRE_PERMITIDAS = ['/admin/minhas-comissoes'];
 function authAdmin(req, res, next) {
   if (!(req.session && req.session.admin)) return res.redirect('/admin/login');
   // !== false (não === true): sessão de admin aberta ANTES desse recurso
@@ -823,6 +832,9 @@ function authAdmin(req, res, next) {
   if (req.session.adminSuper !== false) return next();
   if (_ADMIN_ROTAS_SUPERADMIN_ONLY.some(p => req.path === p || req.path.startsWith(p + '/'))) {
     return res.status(403).send('Acesso negado — essa área é restrita ao administrador principal.');
+  }
+  if (_ADMIN_ROTAS_SEMPRE_PERMITIDAS.some(p => req.path === p || req.path.startsWith(p + '/'))) {
+    return next();
   }
   const permissoes = req.session.adminPermissoes || [];
   const chave = _permissaoDaRota(req.path);

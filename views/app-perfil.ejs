@@ -196,6 +196,12 @@
         <label>Código do usuário</label>
         <input value="<%= user.codigoUsuario||user.codigo||'-' %>" readonly class="strong">
       </div>
+      <div class="pf-field">
+        <label>Regiões de atuação</label>
+        <input type="text" id="pfRegiaoInput" placeholder="Digite uma cidade/bairro e aperte Enter">
+        <div id="pfRegioesChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+        <input type="hidden" name="regioesAtuacao" id="pfRegioesHidden">
+      </div>
     </div>
     <button class="pf-btn" type="submit">Salvar perfil</button>
   </form>
@@ -207,6 +213,33 @@
   const _perfilCompletoAntes = <%- JSON.stringify(!locals.completarPerfil) %>;
   const _nomeImportado = <%- JSON.stringify(user.nomeImportado||'') %>;
   const _temLocalizacao = <%- JSON.stringify(!!(user.lat && user.lng)) %>;
+
+  // Regiões de atuação — mesmos chips do cadastro (landing.ejs), aqui dá pra
+  // editar depois. Dispara 'input' no hidden pra cair no mesmo autosave abaixo.
+  let _pfRegioes = <%- JSON.stringify(user.regioesAtuacao||[]) %>;
+  const pfRegioesHidden = document.getElementById('pfRegioesHidden');
+  const pfRegioesChips = document.getElementById('pfRegioesChips');
+  const pfRegiaoInput = document.getElementById('pfRegiaoInput');
+  function _pfRenderRegioes(){
+    pfRegioesChips.innerHTML = _pfRegioes.map((r,i)=>
+      '<span style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:4px 10px;border-radius:20px;font-size:12.5px;display:inline-flex;align-items:center;gap:6px">'+
+      r.replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+
+      ' <span style="cursor:pointer;font-weight:700" onclick="_pfRemoverRegiao('+i+')">×</span></span>'
+    ).join('');
+    pfRegioesHidden.value = JSON.stringify(_pfRegioes);
+    pfRegioesHidden.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  window._pfRemoverRegiao = function(i){ _pfRegioes.splice(i,1); _pfRenderRegioes(); };
+  pfRegiaoInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ',') return;
+    e.preventDefault();
+    const v = pfRegiaoInput.value.trim();
+    if (v && _pfRegioes.length < 20 && !_pfRegioes.includes(v)) _pfRegioes.push(v);
+    pfRegiaoInput.value = '';
+    _pfRenderRegioes();
+  });
+  _pfRenderRegioes();
+
   let timer;
   // Salva automaticamente enquanto o usuário preenche — sem precisar clicar
   // em "Salvar perfil". Se isso completar os requisitos obrigatórios (nome

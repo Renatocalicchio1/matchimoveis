@@ -2069,6 +2069,11 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req))}
 app.get('/admin/atribuicoes-subadmin', authAdmin, async (req, res) => {
   try {
     const { query: _qAtrib } = require('./services/db');
+    // Última execução real do job de distribuição automática (ver
+    // JOB_DISTRIBUICAO_SUBADMIN) — confirma direto na tela se ele tá rodando
+    // e o que fez, sem precisar adivinhar.
+    const _statusJob = await _qAtrib(`SELECT atualizado_em, detalhe FROM job_status WHERE id='distribuicao_subadmin'`).catch(() => ({ rows: [] }));
+    const _ultimoStatusJob = _statusJob.rows[0];
     const { rows } = await _qAtrib(`
       SELECT u.codigo_usuario, u.nome, u.telefone, u.email, u.criado_em,
         u.dados->>'atendidoPorAdmin' AS atendido_por_admin,
@@ -2110,6 +2115,12 @@ app.get('/admin/atribuicoes-subadmin', authAdmin, async (req, res) => {
     <main class="admin-content">
       <h1 style="font-size:20px;margin-bottom:6px">Revisão de atribuições sub-admin (${rows.length})</h1>
       <p style="color:#6b7280;font-size:13px;margin-bottom:16px">Contas com um sub-admin gravado (comissão futura). Linhas em vermelho não têm nenhum rastro de campanha achado — vale conferir antes de confiar na comissão.</p>
+      <div style="background:${_ultimoStatusJob ? '#f0fdf4' : '#fef2f2'};border:1px solid ${_ultimoStatusJob ? '#86efac' : '#fca5a5'};border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:12.5px">
+        <strong>🤖 Job de distribuição automática</strong> (roda a cada 5 min sozinho, sem precisar de clique):<br>
+        ${_ultimoStatusJob
+          ? `Última execução: <strong>${new Date(_ultimoStatusJob.atualizado_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</strong> — ${_ultimoStatusJob.detalhe}`
+          : 'Ainda não rodou nenhuma vez desde o deploy dessa checagem — espere alguns minutos e recarregue essa página.'}
+      </div>
       <table>
         <thead><tr><th>Cadastro</th><th>Corretor</th><th>Sub-admin</th><th>Indicado por (corretor)</th><th>Evidência</th><th>Recebeu e-mail recarga</th><th></th></tr></thead>
         <tbody>${linhas || '<tr><td colspan="7" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma conta com sub-admin atribuído</td></tr>'}</tbody>
@@ -8497,11 +8508,30 @@ setInterval(async () => {
 // boot (15s de atraso, pra deixar o resto da inicialização assentar) + repete a
 // cada 5min. Idempotente (distribuirAtendimentosAbertos só mexe em quem tá com
 // atendido_por vazio), então rodar logo e com frequência é seguro.
+// Registra CADA execução (rodou ou não, achou conta ativa ou não, quantos
+// distribuiu) numa tabela simples — sem isso não tinha como confirmar de
+// fora se o job realmente tá rodando ou só "parece" que devia estar (foi
+// exatamente esse tipo de dúvida que gerou idas e voltas — agora dá pra
+// olhar direto em /admin/atribuicoes-subadmin ou consultar a tabela).
+async function _registrarStatusJobDistribuicao(detalhe) {
+  try {
+    const { query: _qJobStatus } = require('./services/db');
+    await _qJobStatus(`CREATE TABLE IF NOT EXISTS job_status (id TEXT PRIMARY KEY, atualizado_em TIMESTAMP DEFAULT NOW(), detalhe TEXT)`);
+    await _qJobStatus(
+      `INSERT INTO job_status (id, atualizado_em, detalhe) VALUES ('distribuicao_subadmin', NOW(), $1)
+       ON CONFLICT (id) DO UPDATE SET atualizado_em=NOW(), detalhe=$1`,
+      [detalhe]
+    );
+  } catch (e) { console.error('[JOB DISTRIBUICAO] erro ao registrar status:', e.message); }
+}
 async function _rodarDistribuicaoSubAdmin() {
   try {
     const { listarAdminContas } = require('./services/salvarAdminConta');
     const _contasDistribAuto = (await listarAdminContas()).filter(c => c.ativo);
-    if (!_contasDistribAuto.length) return;
+    if (!_contasDistribAuto.length) {
+      await _registrarStatusJobDistribuicao('rodou, mas 0 sub-admin ativo em /admin/contas-admin — nada foi distribuído');
+      return;
+    }
 
     const { distribuirAtendimentosAbertos: _distribuirCaptAuto } = require('./services/campanhaCaptacao');
     const _resultCaptAuto = await _distribuirCaptAuto(_contasDistribAuto);
@@ -8510,8 +8540,11 @@ async function _rodarDistribuicaoSubAdmin() {
     const { distribuirAtendimentosAbertos: _distribuirEmailAuto } = require('./services/campanha');
     const _resultEmailAuto = await _distribuirEmailAuto(_contasDistribAuto);
     if (_resultEmailAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] campanha e-mail: distribuídos automaticamente ->', _resultEmailAuto.distribuidos);
+
+    await _registrarStatusJobDistribuicao(`rodou com ${_contasDistribAuto.length} sub-admin(s) ativo(s) — captação: +${_resultCaptAuto.distribuidos}, e-mail: +${_resultEmailAuto.distribuidos}`);
   } catch(e) {
     console.error('[JOB DISTRIBUICAO] erro:', e.message);
+    await _registrarStatusJobDistribuicao('ERRO: ' + e.message);
   }
 }
 setTimeout(_rodarDistribuicaoSubAdmin, 15000);

@@ -1756,7 +1756,16 @@ app.get('/admin/copiar-imoveis', authAdmin, async (req, res) => {
         if (valorMinT) { pars.push(parseFloat(valorMinT) || 0); conds.push(`valor_imovel >= $${pars.length}`); }
         if (valorMaxT) { pars.push(parseFloat(valorMaxT) || 0); conds.push(`valor_imovel <= $${pars.length}`); }
         if (quartosMinT) { pars.push(parseInt(quartosMinT) || 0); conds.push(`quartos >= $${pars.length}`); }
-        if (buscaT) { pars.push('%' + buscaT + '%'); conds.push(`(titulo ILIKE $${pars.length} OR descricao ILIKE $${pars.length})`); }
+        // Lista de empreendimentos — um por linha ou por vírgula, acha o
+        // imóvel que bater com QUALQUER um da lista (OR entre os termos),
+        // pra não precisar buscar nome por nome.
+        if (buscaT) {
+          const _termosBusca = buscaT.split(/[\n,;]+/).map(t => t.trim()).filter(Boolean);
+          if (_termosBusca.length) {
+            const _orBusca = _termosBusca.map(t => { pars.push('%' + t + '%'); return `(titulo ILIKE $${pars.length} OR descricao ILIKE $${pars.length})`; });
+            conds.push('(' + _orBusca.join(' OR ') + ')');
+          }
+        }
         const sql = `SELECT id,id_externo,id_interno,codigo_imovel,titulo,tipo,condicao,transacao,bairro,cidade,estado,valor_imovel,quartos,user_id,codigo_usuario
                      FROM imoveis WHERE ${conds.join(' AND ')} ORDER BY criado_em DESC LIMIT 500`;
         const r = await _qCI(sql, pars);
@@ -1795,6 +1804,13 @@ td{padding:8px;border-bottom:1px solid #f0f0ee;vertical-align:middle}
 .table-wrap{overflow-x:auto;max-height:520px;overflow-y:auto}
 .aviso{background:#eff6ff;color:#1e40af;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:12px}
 .erro{background:#fef2f2;color:#dc2626;padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:12px}
+.campo textarea{padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical}
+.dropdown-contas{display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ddd;border-radius:8px;margin-top:2px;max-height:220px;overflow-y:auto;z-index:50;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+.dropdown-contas.aberto{display:block}
+.dropdown-contas .item{padding:8px 12px;cursor:pointer;font-size:12.5px;border-bottom:1px solid #f3f4f6}
+.dropdown-contas .item:last-child{border-bottom:none}
+.dropdown-contas .item:hover{background:#f9fafb}
+.dropdown-contas .item .cod{color:#9ca3af;font-size:11px}
 </style>
 </head>
 <body>
@@ -1806,7 +1822,7 @@ ${_adminSidebarHtml('copiar-imoveis', _sidebarPerm(req))}
   <div class="card">
     <form id="form-busca" onsubmit="return _buscar(event)">
       <div class="grid">
-        <div class="campo"><label>Conta de origem (código ou nome) *</label><input type="text" name="contaOrigem" id="f-contaOrigem" value="${contaOrigemT}" placeholder="Ex: JAN-MGF9 ou Jane" required></div>
+        <div class="campo" style="position:relative"><label>Conta de origem (código ou nome) *</label><input type="text" name="contaOrigem" id="f-contaOrigem" value="${contaOrigemT}" placeholder="Digite o nome ou código..." autocomplete="off" required><div id="drop-f-contaOrigem" class="dropdown-contas"></div></div>
         <div class="campo"><label>Estado</label><input type="text" name="estado" id="f-estado" value="${estadoT}" placeholder="Ex: SP"></div>
         <div class="campo"><label>Cidade</label><input type="text" name="cidade" id="f-cidade" value="${cidadeT}" placeholder="Ex: São Paulo"></div>
         <div class="campo"><label>Bairro</label><input type="text" name="bairro" id="f-bairro" value="${bairroT}" placeholder="Ex: Moema"></div>
@@ -1827,7 +1843,7 @@ ${_adminSidebarHtml('copiar-imoveis', _sidebarPerm(req))}
         <div class="campo"><label>Quartos (mín.)</label><input type="text" name="quartosMin" id="f-quartosMin" value="${quartosMinT}" placeholder="Ex: 2"></div>
         <div class="campo"><label>Valor mín.</label><input type="text" name="valorMin" id="f-valorMin" value="${valorMinT}" placeholder="Ex: 200000"></div>
         <div class="campo"><label>Valor máx.</label><input type="text" name="valorMax" id="f-valorMax" value="${valorMaxT}" placeholder="Ex: 800000"></div>
-        <div class="campo" style="min-width:220px"><label>Buscar no título/descrição</label><input type="text" name="busca" id="f-busca" value="${buscaT}" placeholder="Ex: nome da construtora"></div>
+        <div class="campo" style="min-width:260px;grid-column:span 2"><label>Buscar no título/descrição (um por linha ou separado por vírgula — acha qualquer um da lista)</label><textarea name="busca" id="f-busca" rows="2" placeholder="Ex:${'\n'}Edifício Aurora${'\n'}Residencial Ipê${'\n'}Torres do Parque">${buscaT}</textarea></div>
       </div>
       <button type="submit" style="background:#111;color:#fff;padding:9px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px">🔍 Buscar</button>
       <button type="button" onclick="_limparBusca()" style="background:none;border:none;margin-left:10px;font-size:12px;color:#888;cursor:pointer">Limpar filtros</button>
@@ -1850,7 +1866,10 @@ ${_adminSidebarHtml('copiar-imoveis', _sidebarPerm(req))}
   <strong id="contagem-selecao">0 imóvel(is) selecionado(s)</strong>
   <button type="button" onclick="_limparSelecao()" style="background:none;border:1px solid #555;color:#ccc;padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer">🗑️ Limpar seleção</button>
   <div style="flex:1"></div>
-  <input type="text" id="f-contaDestino" placeholder="Conta de destino (código ou nome) *" style="padding:8px 10px;border:1px solid #444;border-radius:8px;font-size:13px;min-width:220px;background:#1a1a1a;color:#fff">
+  <div style="position:relative;min-width:220px">
+    <input type="text" id="f-contaDestino" placeholder="Conta de destino (nome ou código) *" autocomplete="off" style="padding:8px 10px;border:1px solid #444;border-radius:8px;font-size:13px;width:100%;box-sizing:border-box;background:#1a1a1a;color:#fff">
+    <div id="drop-f-contaDestino" class="dropdown-contas" style="color:#111"></div>
+  </div>
   <button type="button" onclick="_enviarTudo()" style="background:#FF385C;color:#fff;padding:9px 18px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">📋 Copiar todos selecionados</button>
 </div>
 <form id="form-copiar" method="POST" action="/admin/copiar-imoveis/copiar" style="display:none"></form>
@@ -1861,6 +1880,41 @@ ${_adminSidebarHtml('copiar-imoveis', _sidebarPerm(req))}
 // mais (busca virou fetch), só troca o conteúdo da tbody.
 let _selecionados = new Map();
 function escHtmlCI(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+// Autocomplete de conta (origem ou destino) — digita e já aparece a lista
+// pra clicar, tanto no campo de origem quanto no de destino. Preenche o
+// input com o CÓDIGO da conta (é o que a busca/cópia usam pra bater exato,
+// sem depender de nome igual).
+function _ativarAutocompleteConta(inputId){
+  const input = document.getElementById(inputId);
+  const drop = document.getElementById('drop-'+inputId);
+  let _deb;
+  input.addEventListener('input', function(){
+    clearTimeout(_deb);
+    const q = input.value.trim();
+    if(q.length < 2){ drop.classList.remove('aberto'); drop.innerHTML=''; return; }
+    _deb = setTimeout(async function(){
+      try {
+        const r = await fetch('/admin/copiar-imoveis/contas?q='+encodeURIComponent(q));
+        const d = await r.json();
+        if(!d.ok || !d.contas.length){ drop.classList.remove('aberto'); drop.innerHTML=''; return; }
+        drop.innerHTML = d.contas.map(function(c){
+          return '<div class="item" data-cod="'+escHtmlCI(c.codigo_usuario)+'"><strong>'+escHtmlCI(c.nome||c.codigo_usuario)+'</strong> <span class="cod">('+escHtmlCI(c.codigo_usuario)+')</span></div>';
+        }).join('');
+        drop.classList.add('aberto');
+        drop.querySelectorAll('.item').forEach(function(it){
+          it.addEventListener('click', function(){
+            input.value = it.getAttribute('data-cod');
+            drop.classList.remove('aberto'); drop.innerHTML='';
+            input.dispatchEvent(new Event('change'));
+          });
+        });
+      } catch(e){}
+    }, 200);
+  });
+  document.addEventListener('click', function(ev){
+    if(ev.target !== input && !drop.contains(ev.target)) { drop.classList.remove('aberto'); }
+  });
+}
 function _linhaImovel(im){
   const marcado = _selecionados.has(im.id) ? 'checked' : '';
   return '<tr>'
@@ -1949,6 +2003,8 @@ function _enviarTudo(){
   form.appendChild(inpDestino);
   form.submit();
 }
+_ativarAutocompleteConta('f-contaOrigem');
+_ativarAutocompleteConta('f-contaDestino');
 </script>
 </body>
 </html>`);
@@ -1962,6 +2018,22 @@ function _enviarTudo(){
 // imóveis já marcados de buscas anteriores. Antes, toda busca nova recarregava
 // a página inteira (form GET) e zerava os checkboxes marcados — não dava pra
 // juntar imóveis de buscas diferentes numa remessa só.
+// Autocomplete de conta (origem ou destino) — digita nome/código e já mostra
+// pra clicar, em vez de digitar às cegas torcendo pra bater com algum
+// usuário. Usado tanto no campo de origem quanto no de destino.
+app.get('/admin/copiar-imoveis/contas', authAdmin, async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (q.length < 2) return res.json({ ok: true, contas: [] });
+    const { query: _qCIContas } = require('./services/db');
+    const { rows } = await _qCIContas(
+      `SELECT codigo_usuario, nome, telefone, celular FROM usuarios WHERE codigo_usuario ILIKE $1 OR nome ILIKE $1 ORDER BY nome LIMIT 10`,
+      ['%' + q + '%']
+    );
+    res.json({ ok: true, contas: rows });
+  } catch (e) { res.json({ ok: false, erro: e.message, contas: [] }); }
+});
+
 app.get('/admin/copiar-imoveis/buscar', authAdmin, async (req, res) => {
   try {
     const { query: _qCIB } = require('./services/db');
@@ -1989,7 +2061,13 @@ app.get('/admin/copiar-imoveis/buscar', authAdmin, async (req, res) => {
     if (valorMinT) { pars.push(parseFloat(valorMinT) || 0); conds.push(`valor_imovel >= $${pars.length}`); }
     if (valorMaxT) { pars.push(parseFloat(valorMaxT) || 0); conds.push(`valor_imovel <= $${pars.length}`); }
     if (quartosMinT) { pars.push(parseInt(quartosMinT) || 0); conds.push(`quartos >= $${pars.length}`); }
-    if (buscaT) { pars.push('%' + buscaT + '%'); conds.push(`(titulo ILIKE $${pars.length} OR descricao ILIKE $${pars.length})`); }
+    if (buscaT) {
+      const _termosBuscaJson = buscaT.split(/[\n,;]+/).map(t => t.trim()).filter(Boolean);
+      if (_termosBuscaJson.length) {
+        const _orBuscaJson = _termosBuscaJson.map(t => { pars.push('%' + t + '%'); return `(titulo ILIKE $${pars.length} OR descricao ILIKE $${pars.length})`; });
+        conds.push('(' + _orBuscaJson.join(' OR ') + ')');
+      }
+    }
     const sql = `SELECT id,id_externo,id_interno,codigo_imovel,titulo,tipo,condicao,transacao,bairro,cidade,estado,valor_imovel,quartos,user_id,codigo_usuario
                  FROM imoveis WHERE ${conds.join(' AND ')} ORDER BY criado_em DESC LIMIT 500`;
     const r = await _qCIB(sql, pars);

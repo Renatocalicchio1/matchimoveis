@@ -480,6 +480,12 @@
             <option value="imobiliaria">Imobiliária</option>
           </select>
         </div>
+        <div class="m-field">
+          <label>Regiões de atuação</label>
+          <input type="text" id="regiaoInput" placeholder="Digite uma cidade/bairro e aperte Enter" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();adicionarRegiao();}">
+          <div id="regioesChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+          <input type="hidden" name="regioesAtuacao" id="regioesAtuacaoHidden" value="[]">
+        </div>
         <div class="m-field"><label>Senha</label><input name="senha" type="password" placeholder="Mínimo 4 caracteres" required minlength="4"></div>
         <button type="submit" class="m-btn">Criar conta grátis →</button>
         <p class="m-note">1.000 créditos grátis para começar</p>
@@ -504,6 +510,32 @@ function setTab(t){
   document.getElementById('tab-c').className='modal-tab'+(t==='cadastro'?' on':'');
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// Regiões de atuação (cadastro) — chips livres, guardados como JSON no hidden
+// input que o POST /login lê (req.body.regioesAtuacao).
+let _regioesEscolhidas = [];
+function _renderRegioes(){
+  const box = document.getElementById('regioesChips');
+  if(!box) return;
+  box.innerHTML = _regioesEscolhidas.map((r,i)=>
+    '<span style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:4px 10px;border-radius:20px;font-size:12.5px;display:inline-flex;align-items:center;gap:6px">'+
+    r.replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+
+    ' <span style="cursor:pointer;font-weight:700" onclick="removerRegiao('+i+')">×</span></span>'
+  ).join('');
+  document.getElementById('regioesAtuacaoHidden').value = JSON.stringify(_regioesEscolhidas);
+}
+function adicionarRegiao(){
+  const input = document.getElementById('regiaoInput');
+  const v = (input.value||'').trim();
+  if(!v || _regioesEscolhidas.length>=20) return;
+  if(!_regioesEscolhidas.includes(v)) _regioesEscolhidas.push(v);
+  input.value='';
+  _renderRegioes();
+}
+function removerRegiao(i){
+  _regioesEscolhidas.splice(i,1);
+  _renderRegioes();
+}
 
 // Reabrir modal na aba correta se tiver erro
 (function(){

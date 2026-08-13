@@ -3980,6 +3980,16 @@ app.post('/login', async (req,res)=>{
     const _senhaCadastro = (req.body.senha || '').trim();
     const _senhaCadastroHash = _senhaCadastro ? await bcrypt.hash(_senhaCadastro, 10) : '';
 
+    // Regiões de atuação (cadastro) — chips que o corretor escolhe no form,
+    // chegam como JSON stringificado num hidden input (ver landing.ejs). Guardado
+    // solto em "dados" (sem coluna própria, userToRow() já joga o que sobra lá) —
+    // pensado pra ajudar a direcionar lead automaticamente pro corretor certo
+    // mais pra frente, ainda não usado em nenhum match/roteamento.
+    let _regioesCadastro = [];
+    try { _regioesCadastro = JSON.parse(req.body.regioesAtuacao || '[]'); } catch (e) {}
+    if (!Array.isArray(_regioesCadastro)) _regioesCadastro = [];
+    _regioesCadastro = _regioesCadastro.map(r => String(r || '').trim()).filter(Boolean).slice(0, 20);
+
     const novo = {
       id: _codigoNovo,
       nome: req.body.nome,
@@ -3993,6 +4003,7 @@ app.post('/login', async (req,res)=>{
       matchCoins: 1000,
       matchCoinsTotal: 1000,
       matchCoinsBonusInicial: 1000,
+      regioesAtuacao: _regioesCadastro,
       indicadoPor: _indicador ? (_indicador.codigoUsuario || _indicador.id) : '',
       atendidoPorAdmin: _adminIndicador?.usuario || '',
       atendidoPorAdminNome: _adminIndicador?.nome || '',
@@ -5718,13 +5729,25 @@ app.post('/app/perfil', auth, async (req,res)=>{
     } catch(e) { console.error('[perfil] erro ao renomear código:', e.message); }
   }
 
+  // Regiões de atuação — mesmo campo capturado no cadastro (POST /login),
+  // aqui dá pra editar depois. Só atualiza se o form mandou o hidden (evita
+  // apagar o que já tinha se algum outro form/rota postar em /app/perfil
+  // sem esse campo no futuro).
+  let _regioesPerfil;
+  if (req.body.regioesAtuacao !== undefined) {
+    try { _regioesPerfil = JSON.parse(req.body.regioesAtuacao || '[]'); } catch (e) { _regioesPerfil = []; }
+    if (!Array.isArray(_regioesPerfil)) _regioesPerfil = [];
+    _regioesPerfil = _regioesPerfil.map(r => String(r || '').trim()).filter(Boolean).slice(0, 20);
+  }
+
   const dados = {
     nome: req.body.nome || '',
     creci: req.body.creci || '',
     cpf: req.body.cpf || '',
     email: req.body.email || '',
     celular: req.body.celular || '',
-    telefone: req.body.celular || ''
+    telefone: req.body.celular || '',
+    ...(_regioesPerfil !== undefined ? { regioesAtuacao: _regioesPerfil } : {})
   };
   await _auPerfil(uid, dados).catch(e=>console.error("[perfil]",e.message));
   req.session.user = { ...req.session.user, ...dados };

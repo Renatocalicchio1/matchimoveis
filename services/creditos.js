@@ -21,10 +21,11 @@ const CUSTO = {
   confirmacao_auto:       15,
   nova_lead:              30,
   importar_lead:          30,
-  imovel_divulgado:        2,
+  imovel_divulgado:       10,
   postar_instagram:       30,
   campanha_meta_criada:   20,
-  lead_meta_recebido:     30
+  lead_meta_recebido:     30,
+  email_lead:             30
 };
 
 async function consumir(userId, acao) {

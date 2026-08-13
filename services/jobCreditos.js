@@ -160,17 +160,17 @@ function _montarHtmlRecarga(nome, refUsado) {
 // Roda 1x por dia (ver iniciarJobCreditos): manda pra quem tem saldo < 500,
 // conta ativa, e-mail cadastrado — no máximo 1x a cada 7 dias por conta
 // (ultimoEmailRecargaEm), senão vira spam pra quem já viu o e-mail e ainda
-// não recarregou. Sub-admin: usa o que a conta já tem (atendidoPorAdmin) se
-// tiver, senão atribui um agora via round-robin — mesmo "trava no primeiro
-// contato que importa" já usado em /campanha/track/click e /captacao-campanha/click,
-// aqui adaptado pra corretor já cadastrado em vez de lead novo.
+// não recarregou. Sub-admin: só usa o ref se a conta JÁ tinha um
+// atendidoPorAdmin genuíno (veio pelo link dele no cadastro, ou foi atribuído
+// num clique de campanha de verdade) — NUNCA inventa um sub-admin aqui só
+// pra mandar e-mail. Atribuir comissão pra alguém que nunca de fato trouxe
+// esse corretor pra plataforma é errado, mesmo que pareça "ajudar a
+// distribuir trabalho" — regra confirmada pelo Renato: só fica setado se
+// realmente veio pelo link daquele sub-admin.
 async function enviarEmailsRecarga() {
   try {
     const hoje = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
     const users = await lerUsuarios();
-    const { listarAdminContas } = require('./salvarAdminConta');
-    const contasAtivas = (await listarAdminContas().catch(() => [])).filter(c => c.ativo);
-    let cursorRoundRobin = 0;
 
     for (const u of users) {
       const uid = u.id || u.userId;
@@ -183,14 +183,7 @@ async function enviarEmailsRecarga() {
       const ultimoEnvio = u.ultimoEmailRecargaEm ? new Date(u.ultimoEmailRecargaEm) : null;
       if (ultimoEnvio && (Date.now() - ultimoEnvio.getTime()) < 7 * 24 * 60 * 60 * 1000) continue;
 
-      let ref = u.atendidoPorAdmin || '';
-      if (!ref && contasAtivas.length) {
-        ref = contasAtivas[cursorRoundRobin % contasAtivas.length].usuario;
-        cursorRoundRobin++;
-        try {
-          await atualizarUsuario(uid, { atendidoPorAdmin: ref, atendidoPorAdminNome: contasAtivas[(cursorRoundRobin - 1) % contasAtivas.length].nome || ref });
-        } catch (eAtrib) { console.error('[jobCreditos/recarga] erro ao atribuir sub-admin:', eAtrib.message); }
-      }
+      const ref = u.atendidoPorAdmin || '';
 
       try {
         await enviarEmail({

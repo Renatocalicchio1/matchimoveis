@@ -8378,6 +8378,24 @@ setInterval(async () => {
   } catch(e) {
     console.error('[JOB TRAVADOS] erro janela disparos:', e.message);
   }
+
+  // Distribuição automática dos atendimentos da Campanha de Captação entre
+  // os sub-admins ativos — antes só rodava manual (botão "Distribuir agora"
+  // em /admin/captacao-campanha); agora roda sozinha junto desse mesmo job
+  // de 5 em 5 min, então nenhum contato do backlog fica esperando um clique
+  // do superadmin pra ganhar dono. Idempotente (distribuirAtendimentosAbertos
+  // só mexe em quem tá com atendido_por vazio), então rodar toda hora é seguro.
+  try {
+    const { listarAdminContas } = require('./services/salvarAdminConta');
+    const _contasCaptAuto = (await listarAdminContas()).filter(c => c.ativo);
+    if (_contasCaptAuto.length) {
+      const { distribuirAtendimentosAbertos: _distribuirCaptAuto } = require('./services/campanhaCaptacao');
+      const _resultCaptAuto = await _distribuirCaptAuto(_contasCaptAuto);
+      if (_resultCaptAuto.distribuidos > 0) console.log('[JOB TRAVADOS] captação: distribuídos automaticamente ->', _resultCaptAuto.distribuidos);
+    }
+  } catch(e) {
+    console.error('[JOB TRAVADOS] erro distribuição automática captação:', e.message);
+  }
 }, 5 * 60 * 1000); // roda a cada 5 minutos
 // ── FIM JOB_JOBS_TRAVADOS ─────────────────────────────────────────────────────
 

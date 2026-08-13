@@ -8379,22 +8379,27 @@ setInterval(async () => {
     console.error('[JOB TRAVADOS] erro janela disparos:', e.message);
   }
 
-  // Distribuição automática dos atendimentos da Campanha de Captação entre
-  // os sub-admins ativos — antes só rodava manual (botão "Distribuir agora"
-  // em /admin/captacao-campanha); agora roda sozinha junto desse mesmo job
-  // de 5 em 5 min, então nenhum contato do backlog fica esperando um clique
-  // do superadmin pra ganhar dono. Idempotente (distribuirAtendimentosAbertos
+  // Distribuição automática dos atendimentos entre os sub-admins ativos —
+  // Campanha de Captação e Campanha de E-mail (corretores) — antes só rodava
+  // manual (botão "Distribuir agora" em /admin/captacao-campanha e
+  // /admin/campanha); agora roda sozinha junto desse mesmo job de 5 em 5
+  // min, então nenhum contato do backlog fica esperando um clique do
+  // superadmin pra ganhar dono. Idempotente (distribuirAtendimentosAbertos
   // só mexe em quem tá com atendido_por vazio), então rodar toda hora é seguro.
   try {
     const { listarAdminContas } = require('./services/salvarAdminConta');
-    const _contasCaptAuto = (await listarAdminContas()).filter(c => c.ativo);
-    if (_contasCaptAuto.length) {
+    const _contasDistribAuto = (await listarAdminContas()).filter(c => c.ativo);
+    if (_contasDistribAuto.length) {
       const { distribuirAtendimentosAbertos: _distribuirCaptAuto } = require('./services/campanhaCaptacao');
-      const _resultCaptAuto = await _distribuirCaptAuto(_contasCaptAuto);
+      const _resultCaptAuto = await _distribuirCaptAuto(_contasDistribAuto);
       if (_resultCaptAuto.distribuidos > 0) console.log('[JOB TRAVADOS] captação: distribuídos automaticamente ->', _resultCaptAuto.distribuidos);
+
+      const { distribuirAtendimentosAbertos: _distribuirEmailAuto } = require('./services/campanha');
+      const _resultEmailAuto = await _distribuirEmailAuto(_contasDistribAuto);
+      if (_resultEmailAuto.distribuidos > 0) console.log('[JOB TRAVADOS] campanha e-mail: distribuídos automaticamente ->', _resultEmailAuto.distribuidos);
     }
   } catch(e) {
-    console.error('[JOB TRAVADOS] erro distribuição automática captação:', e.message);
+    console.error('[JOB TRAVADOS] erro distribuição automática:', e.message);
   }
 }, 5 * 60 * 1000); // roda a cada 5 minutos
 // ── FIM JOB_JOBS_TRAVADOS ─────────────────────────────────────────────────────

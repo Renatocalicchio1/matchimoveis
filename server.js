@@ -2321,6 +2321,11 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
     </table>
   </div>
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 24px;">
+    <div style="font-weight:700;margin-bottom:12px;font-size:13px;">🌍 Site Global MatchImóveis</div>
+    <div style="margin-bottom:8px;font-size:12px;"><strong>Portal (agrega toda a rede):</strong><span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">https://www.matchimoveis.ia.br/portal</span><a href="/portal" target="_blank" style="color:#2563eb;margin-left:8px;font-size:11px;">Abrir →</a></div>
+    <div style="font-size:12px;color:#6b7280;">Domínio próprio (matchimoveis.com.br) ainda não plugado — por enquanto abre só pela URL acima.</div>
+  </div>
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:16px 24px;">
     <div style="font-weight:700;margin-bottom:12px;font-size:13px;">🌐 XML Global & Webhook ImovelWeb</div>
     <div style="margin-bottom:8px;font-size:12px;"><strong>XML Global (URL pública):</strong><span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">https://www.matchimoveis.ia.br/xml/imovelweb-global</span><a href="/xml/imovelweb-global" target="_blank" style="color:#2563eb;margin-left:8px;font-size:11px;">Abrir →</a></div>
     <div style="font-size:12px;"><strong>Webhook Global:</strong><span style="background:#f3f4f6;padding:3px 8px;border-radius:4px;font-size:11px;margin-left:8px;">POST https://www.matchimoveis.ia.br/webhook/imovelweb-global</span></div>
@@ -10556,6 +10561,58 @@ app.post('/api/lead-interesse', async (req, res) => {
   } catch(e) {
     console.log('Erro em /api/lead-interesse:', e.message);
     return res.json({ ok: false, error: e.message });
+  }
+});
+
+// ── SITE GLOBAL MATCHIMÓVEIS (agrega a rede inteira) ──────────────────────────
+// Rodízio determinístico por dia — quando o mesmo imóvel (id_externo) está
+// cadastrado em mais de uma conta da rede (lançamento vendido por vários
+// corretores), o Site Global só mostra 1 cópia por vez, alternando quem
+// aparece a cada dia — sem precisar guardar cursor em banco, só combina a
+// data de hoje com um hash leve do id_externo.
+function _hashLeveTexto(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+function _dedupRodizioImoveis(imoveis) {
+  const grupos = {};
+  const semExterno = [];
+  imoveis.forEach(im => {
+    const ext = String(im.idExterno || im.id_externo || '').trim();
+    if (!ext) { semExterno.push(im); return; }
+    if (!grupos[ext]) grupos[ext] = [];
+    grupos[ext].push(im);
+  });
+  const diaDoAno = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+  const resultado = semExterno.slice();
+  Object.keys(grupos).forEach(ext => {
+    const grupo = grupos[ext];
+    const idx = grupo.length === 1 ? 0 : (diaDoAno + _hashLeveTexto(ext)) % grupo.length;
+    resultado.push(grupo[idx]);
+  });
+  return resultado;
+}
+
+// Portal público agregando os imóveis ATIVOS de toda a rede — pensado pra
+// virar matchimoveis.com.br (domínio próprio plugado depois, mesmo mecanismo
+// de domínio custom que /app/meu-site já usa). Cada card cai direto em
+// /imovel/:id, que já é a página pública normal — segue o mesmo fluxo de
+// sempre, o imóvel continua com o corretor dele.
+app.get('/portal', async (req, res) => {
+  try {
+    const imoveisAtivos = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
+    const imoveisSemDuplicata = _dedupRodizioImoveis(imoveisAtivos);
+    const _r = _filtrarEPaginarImoveis(imoveisSemDuplicata, req.query, 24);
+    res.render('portal-global', {
+      imoveis: _r.imoveisPagina, estados: _r.estados, cidades: _r.cidades, bairros: _r.bairros,
+      page: _r.page, totalPages: _r.totalPages, totalImoveis: _r.totalImoveis,
+      filtros: req.query, queryPagina: _r.queryPagina,
+      siteOrigin: req.protocol + '://' + req.get('host')
+    });
+  } catch(e) {
+    console.error('[portal-global]', e.message);
+    res.status(500).send('Erro ao carregar o portal');
   }
 });
 

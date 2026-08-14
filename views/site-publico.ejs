@@ -7,6 +7,7 @@
   <meta name="description" content="Imóveis de <%= siteConfig.rodapeNome || corretor.nome %>">
   <% const _ogDescricaoSite = totalImoveis + ' imóve' + (totalImoveis===1?'l':'is') + ' disponí' + (totalImoveis===1?'vel':'veis') + (siteConfig.rodapeTexto ? ' · ' + siteConfig.rodapeTexto : ''); %>
   <% const _ogUrlSite = (typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin + (siteBasePath || '/') : ''; %>
+  <% if(_ogUrlSite){ %><link rel="canonical" href="<%= _ogUrlSite %>"><% } %>
   <meta property="og:type" content="website">
   <meta property="og:title" content="<%= siteConfig.rodapeNome || corretor.nome %> · Imóveis">
   <meta property="og:description" content="<%= _ogDescricaoSite %>">

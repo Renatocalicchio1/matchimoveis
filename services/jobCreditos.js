@@ -133,13 +133,43 @@ async function verificarAlertas() {
   }
 }
 
+// 3 níveis de urgência — mesmos limiares de saldo já usados em
+// verificarAlertas() (conta_pausada/creditos_criticos/creditos_baixos), só
+// que aqui viram copy de e-mail escalonada em vez de notificação de sino.
+// Antes o e-mail sempre dizia "seus créditos tão acabando", mesmo pra quem
+// tava com saldo zerado — mesma cara pra situação bem diferente.
+function _nivelUrgenciaSaldo(saldo) {
+  if (saldo <= 0) return 'zerado';
+  if (saldo <= 200) return 'critico';
+  return 'baixo';
+}
+const _COPY_URGENCIA = {
+  zerado: {
+    assunto: nome => '⛔ Sua conta pausou — recarregue pra voltar a receber leads',
+    titulo: nome => nome + ', sua conta pausou.',
+    corpo: 'Sem créditos, sua conta parou de qualificar lead, gerar match e responder no WhatsApp automaticamente — toda lead nova fica parada, esperando, sem ninguém tocar nela. Recarregue agora pra reativar tudo na hora.'
+  },
+  critico: {
+    assunto: nome => '🔴 Créditos quase zerados, ' + nome,
+    titulo: nome => nome + ', seus créditos tão quase no fim.',
+    corpo: 'Faltam poucos créditos pra sua conta pausar de vez. Enquanto isso, cada lead nova que chega tem menos tempo de resposta automática — é questão de dias, não de semanas. Recarregue agora e evite a conta parar no meio de um atendimento.'
+  },
+  baixo: {
+    assunto: nome => '⚠️ Seus créditos tão acabando, ' + nome,
+    titulo: nome => nome + ', seus créditos tão acabando.',
+    corpo: 'Enquanto seu saldo fica baixo, sua conta para de qualificar lead, gerar match e responder no WhatsApp automaticamente — cada dia sem crédito é lead esfriando sem ninguém tocar. Recarregue agora e sua carteira volta a rodar sozinha.'
+  }
+};
+
 // E-mail de venda (copy direta, com urgência e benefício concreto — nada de
 // "confira nossas opções") oferecendo os combos de recarga pra quem tá com
 // saldo baixo. Link de cada combo já cai comprando: /app/perfil?combo=X (+
 // ?ref= do sub-admin responsável) — a página dispara o checkout sozinha
 // (ver script em views/app-perfil.ejs), sem precisar caçar o botão certo.
-function _montarHtmlRecarga(nome, refUsado) {
+function _montarHtmlRecarga(nome, refUsado, saldo) {
   const primeiroNome = (nome || '').trim().split(' ')[0] || 'tudo bem';
+  const nivel = _nivelUrgenciaSaldo(saldo || 0);
+  const copy = _COPY_URGENCIA[nivel];
   const linkCombo = (chave) => BASE_URL_RECARGA + '/app/perfil?combo=' + chave + (refUsado ? '&ref=' + encodeURIComponent(refUsado) : '');
   const cardsHtml = Object.entries(_PLANOS_RECARGA).map(([chave, p]) => (
     '<tr><td style="padding:14px 0;border-bottom:1px solid #f3f4f6">'
@@ -150,8 +180,8 @@ function _montarHtmlRecarga(nome, refUsado) {
     + '</div></td></tr>'
   )).join('');
   return '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px">'
-    + '<h2 style="color:#FF385C;margin:0 0 14px 0">' + primeiroNome + ', seus créditos tão acabando.</h2>'
-    + '<p style="margin:0 0 16px 0;font-size:15px;line-height:1.7;color:#222">Enquanto seu saldo fica baixo, sua conta para de qualificar lead, gerar match e responder no WhatsApp automaticamente — cada dia sem crédito é lead esfriando sem ninguém tocar. Recarregue agora e sua carteira volta a rodar sozinha.</p>'
+    + '<h2 style="color:#FF385C;margin:0 0 14px 0">' + copy.titulo(primeiroNome) + '</h2>'
+    + '<p style="margin:0 0 16px 0;font-size:15px;line-height:1.7;color:#222">' + copy.corpo + '</p>'
     + '<table style="width:100%;border-collapse:collapse;margin:0 0 20px 0">' + cardsHtml + '</table>'
     + '<p style="margin:0;font-size:12.5px;color:#9ca3af">Clique em qualquer combo acima — a compra já abre pronta, sem precisar procurar nada na tela.</p>'
     + '</div>';
@@ -186,10 +216,11 @@ async function enviarEmailsRecarga() {
       const ref = u.atendidoPorAdmin || '';
 
       try {
+        const primeiroNome = (u.nome || '').trim().split(' ')[0] || 'tudo bem';
         await enviarEmail({
           para: email,
-          assunto: saldo <= 0 ? '⛔ Sua conta pausou — recarregue pra voltar a receber leads' : '🔴 Seus créditos tão acabando, ' + (u.nome || '').trim().split(' ')[0],
-          html: _montarHtmlRecarga(u.nome, ref),
+          assunto: _COPY_URGENCIA[_nivelUrgenciaSaldo(saldo)].assunto(primeiroNome),
+          html: _montarHtmlRecarga(u.nome, ref, saldo),
           texto: 'Seus créditos estão baixos. Recarregue em: ' + BASE_URL_RECARGA + '/app/perfil'
         });
         await atualizarUsuario(uid, { ultimoEmailRecargaEm: new Date().toISOString() });

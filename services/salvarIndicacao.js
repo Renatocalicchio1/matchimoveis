@@ -49,6 +49,19 @@ async function listarBonusPorIndicador(indicadorCodigo, indicadorTipo) {
   return rows;
 }
 
+// Conta indicados DISTINTOS que já geraram bônus (fizeram pelo menos 1
+// recarga de verdade) pra esse indicador — base da gamificação de marcos
+// ("indique X, ganhe Y extra"). Distinto porque o mesmo indicado pode
+// recarregar várias vezes e gerar várias linhas no ledger.
+async function contarIndicadosComBonus(indicadorCodigo, indicadorTipo) {
+  await _inicializar();
+  const { rows } = await query(
+    `SELECT COUNT(DISTINCT indicado_codigo) as total FROM indicacoes_bonus WHERE indicador_codigo=$1 AND indicador_tipo=$2`,
+    [indicadorCodigo, indicadorTipo || 'corretor']
+  );
+  return parseInt(rows[0]?.total || 0);
+}
+
 async function totalBonusPorIndicador(indicadorCodigo, indicadorTipo) {
   await _inicializar();
   const params = [indicadorCodigo];
@@ -99,6 +112,6 @@ async function marcarResgatePago(ids) {
 }
 
 module.exports = {
-  registrarBonus, listarBonusPorIndicador, totalBonusPorIndicador,
+  registrarBonus, listarBonusPorIndicador, totalBonusPorIndicador, contarIndicadosComBonus,
   totalDisponivelPorIndicador, solicitarResgate, listarSolicitacoesResgate, marcarResgatePago
 };

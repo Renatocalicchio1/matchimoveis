@@ -8,6 +8,8 @@
   <% const _ogDescricao = [[imovel.quartos?imovel.quartos+' quartos':'', imovel.area_m2?imovel.area_m2+'m²':''].filter(Boolean).join(' · '), [imovel.bairro, imovel.cidade].filter(Boolean).join(', ')].filter(Boolean).join(' — ') + ' · R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR'); %>
   <% const _ogImagem = (imovel.fotos && imovel.fotos[0]) || ''; %>
   <% const _ogUrl = (typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin + (typeof siteVoltarUrl !== 'undefined' && siteVoltarUrl !== '/' ? siteVoltarUrl + '/imovel/' : '/imovel/') + (imovel.idExterno||imovel.idInterno||imovel.id||'') : ''; %>
+  <meta name="description" content="<%= _ogDescricao %>">
+  <% if(_ogUrl){ %><link rel="canonical" href="<%= _ogUrl %>"><% } %>
   <meta property="og:type" content="website">
   <meta property="og:title" content="<%= _ogTitulo %>">
   <meta property="og:description" content="<%= _ogDescricao %>">
@@ -15,6 +17,35 @@
   <% if(_ogUrl){ %><meta property="og:url" content="<%= _ogUrl %>"><% } %>
   <meta name="twitter:card" content="<%= _ogImagem ? 'summary_large_image' : 'summary' %>">
   <% if(typeof siteConfig !== 'undefined' && siteConfig && siteConfig.logoUrl){ %><link rel="icon" href="<%= siteConfig.logoUrl %>"><% } %>
+  <%
+    const _transSchema = String(imovel.transacao||'').toLowerCase().includes('alug') ? 'https://schema.org/RentAction' : 'https://schema.org/BuyAction';
+    const _jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'Accommodation',
+      name: _ogTitulo,
+      description: _ogDescricao,
+      additionalType: imovel.tipo || undefined,
+      image: (imovel.fotos && imovel.fotos.length) ? imovel.fotos.slice(0, 8) : undefined,
+      numberOfRooms: imovel.quartos || undefined,
+      floorSize: imovel.area_m2 ? { '@type': 'QuantitativeValue', value: imovel.area_m2, unitCode: 'MTK' } : undefined,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: imovel.endereco || undefined,
+        addressLocality: imovel.cidade || undefined,
+        addressRegion: imovel.estado || undefined,
+        addressCountry: 'BR'
+      },
+      offers: {
+        '@type': 'Offer',
+        price: imovel.valor_imovel || 0,
+        priceCurrency: 'BRL',
+        availability: 'https://schema.org/InStock',
+        url: _ogUrl || undefined,
+        businessFunction: _transSchema
+      }
+    };
+  %>
+  <script type="application/ld+json"><%- JSON.stringify(_jsonLd).replace(/</g, '\\u003c') %></script>
   <% if(typeof siteConfig !== 'undefined' && siteConfig && siteConfig.googleAnalyticsId){ %>
   <script async src="https://www.googletagmanager.com/gtag/js?id=<%= siteConfig.googleAnalyticsId %>"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',<%- JSON.stringify(siteConfig.googleAnalyticsId) %>);</script>
@@ -389,6 +420,14 @@
       </div>
 
       <div class="footer-note"><% if(_siteCfg){ %><%= _siteCfg.rodapeNome || 'Consultoria Imobiliária' %><% } else { %>MatchImóveis · Consultoria Imobiliária<% } %></div>
+
+      <% const _codCorretorCta = corretor && (corretor.codigoUsuario || corretor.codigo_usuario || corretor.id); %>
+      <% if (_codCorretorCta) { %>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px;text-align:center">
+        <a href="/captar/<%= _codCorretorCta %>" style="font-size:12px;color:var(--muted);text-decoration:underline">Proprietário? Quer vender ou alugar seu imóvel? Clique aqui</a>
+        <a href="/?ref=<%= _codCorretorCta %>" style="font-size:12px;color:var(--muted);text-decoration:underline">Você é corretor? Comece agora</a>
+      </div>
+      <% } %>
     </div>
   </div>
 

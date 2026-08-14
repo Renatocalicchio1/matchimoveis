@@ -2206,9 +2206,19 @@ app.get('/admin', authAdmin, async (req, res) => {
     const counts = await _q('SELECT user_id, COUNT(*) as total FROM imoveis GROUP BY user_id');
     const leads = await _q('SELECT user_id, COUNT(*) as total FROM leads GROUP BY user_id');
     const visitas = await _q('SELECT user_id, COUNT(*) as total FROM visitas GROUP BY user_id');
+    // Leads do mês — só COUNT com filtro de data (barato, direto na tabela).
+    // "Coins gastos" fica de propósito fora daqui: mora dentro do JSONB
+    // matchCoinsTransacoes de cada usuário, que só cresce (toda mensagem de
+    // WhatsApp, e-mail, lead ativa debita 1 registro) — abrir esse array pra
+    // TODOS os usuários numa lista é o mesmo tipo de scan pesado que causou o
+    // OOM já corrigido em /admin/atribuicoes-subadmin. Esse detalhe (coins
+    // gastos + custo médio por lead) fica só na página de 1 usuário por vez
+    // (/admin/usuario/:codigo e /admin/meu-corretor/:codigo).
+    const leadsMesQ = await _q(`SELECT user_id, COUNT(*) as total FROM leads WHERE criado_em >= date_trunc('month', now()) GROUP BY user_id`);
     const countMap = {}; counts.rows.forEach(r => countMap[r.user_id] = r.total);
     const leadsMap = {}; leads.rows.forEach(r => leadsMap[r.user_id] = r.total);
     const visitasMap = {}; visitas.rows.forEach(r => visitasMap[r.user_id] = r.total);
+    const leadsMesMap = {}; leadsMesQ.rows.forEach(r => leadsMesMap[r.user_id] = r.total);
     const rows = usuarios.rows.map(u => `
       <tr>
         <td>${u.codigo_usuario||'-'}</td>
@@ -2227,6 +2237,7 @@ app.get('/admin', authAdmin, async (req, res) => {
         <td><span title="${u.senha||''}" style="cursor:pointer;letter-spacing:2px;color:#9ca3af;" onclick="this.textContent=this.textContent==='••••••'?'${u.senha||''}':'••••••'">••••••</span></td>
         <td style="text-align:center">${countMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${leadsMap[u.codigo_usuario]||0}</td>
+        <td style="text-align:center">${leadsMesMap[u.codigo_usuario]||0}</td>
         <td style="text-align:center">${visitasMap[u.codigo_usuario]||0}</td>
         <td><span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:${u.whatsapp_status==='open'?'#f0fdf4':'#f9fafb'};color:${u.whatsapp_status==='open'?'#16a34a':'#888'}">${u.whatsapp_status==='open'?'open':u.whatsapp_status==='close'?'close':u.whatsapp_status==='connecting'?'conn...':'descon.'}</span></td>
         <td style="text-align:center">${u.autoriza_quintoandar?'<span style="color:#16a34a;font-size:11px;font-weight:600">✅ Ativo</span>':'<span style="color:#9ca3af;font-size:11px">Inativo</span>'}</td>
@@ -2304,7 +2315,7 @@ ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
     ${(buscaT || subadminT) ? `<div style="padding:10px 12px;font-size:12px;color:#666;border-bottom:1px solid #f0f0ee;">${usuarios.rows.length} usuário(s) encontrado(s)</div>` : ''}
     <div class="table-wrap"><table>
       <thead><tr>
-        <th>Cód.</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóv.</th><th>Leads</th><th>Visit.</th><th>WA</th><th>XML QA</th><th>Cart. QA</th><th>Sub-admin</th><th>Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th><th>Ações</th>
+        <th>Cód.</th><th>Nome</th><th>Telefone</th><th>Senha</th><th>Imóv.</th><th>Leads</th><th>Leads (mês)</th><th>Visit.</th><th>WA</th><th>XML QA</th><th>Cart. QA</th><th>Sub-admin</th><th>Último ac.</th><th>Cadastro</th><th>Coins</th><th>Créd.</th><th>Ações</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -3461,12 +3472,35 @@ app.post('/admin/deletar/:codigo', authAdmin, async (req, res) => {
   } catch(e) { res.send('Erro: ' + e.message); }
 });
 
+// Card "retorno" (leads recebidas no mês + custo em coins) — só na página de
+// 1 usuário por vez, nunca numa lista com todo mundo (ver nota em /admin
+// sobre o risco de reabrir o OOM já corrigido). u.dados vem direto do
+// SELECT * já feito pela página, sem query extra — só o COUNT de leads do
+// mês precisa vir à parte (não está na coluna dados).
+function _cardRoiUsuarioHtml(u, leadsMes) {
+  if (!leadsMes) return '';
+  const _transacoesRoi = (u.dados && u.dados.matchCoinsTransacoes) || [];
+  const _inicioMesRoi = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const _gastoMesRoi = _transacoesRoi.filter(t => t.quantidade < 0 && new Date(t.data) >= _inicioMesRoi).reduce((s,t) => s + Math.abs(t.quantidade), 0);
+  const _custoMedioRoi = _gastoMesRoi > 0 ? Math.round(_gastoMesRoi / leadsMes) : 0;
+  return `<div class="card" style="background:#111827">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="font-size:26px">📈</div>
+      <div>
+        <div style="font-size:14px;color:#fff;font-weight:700">${leadsMes} lead${leadsMes===1?'':'s'} recebido${leadsMes===1?'':'s'} esse mês</div>
+        <div style="font-size:12.5px;color:#9ca3af;margin-top:2px">${_gastoMesRoi > 0 ? `custaram ${_gastoMesRoi.toLocaleString('pt-BR')} créditos — ${_custoMedioRoi.toLocaleString('pt-BR')} coins por lead em média` : 'ainda sem gasto de coins registrado esse mês'}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
 app.get('/admin/usuario/:codigo', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
     const cod = req.params.codigo;
     const u = (await _q('SELECT * FROM usuarios WHERE codigo_usuario=$1', [cod])).rows[0];
     if(!u) return res.redirect('/admin');
+    const _leadsMesUsuario = parseInt((await _q(`SELECT COUNT(*) as total FROM leads WHERE (user_id=$1 OR codigo_usuario=$1) AND criado_em >= date_trunc('month', now())`, [cod])).rows[0]?.total) || 0;
     res.send(`<!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${u.nome} · Admin</title>
@@ -3482,6 +3516,7 @@ input:focus{border-color:#111;}button{background:#111;color:#fff;border:none;bor
 ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
 <main class="admin-content">
   <h1 style="font-size:18px;font-weight:700;margin-bottom:16px">${u.nome}</h1>
+  ${_cardRoiUsuarioHtml(u, _leadsMesUsuario)}
   <div class="card">
     <h2>Dados</h2>
     <label>Código</label><input value="${u.codigo_usuario||''}" readonly>
@@ -3955,7 +3990,23 @@ app.post('/app/importar', auth, upload.any(), async (req, res) => {
         const users = (_cacheUsuarios || []);
         const idx = users.findIndex(u => u.id === _importUserId);
         if (idx >= 0) {
+          const _xmlUrlAnterior = users[idx].xmlUrl || '';
           users[idx].xmlUrl = _importXmlUrl || users[idx].xmlUrl || '';
+          // Bônus de onboarding — só na 1ª vez que essa conta sobe um XML
+          // (passo "xml" de /api/onboarding/status). Reaproveita o mesmo
+          // gatilho que já marca o passo como feito (!!user.xmlUrl).
+          if (!_xmlUrlAnterior && users[idx].xmlUrl) {
+            adicionarCreditos(users[idx].codigoUsuario || users[idx].id, 100, 'bonus_onboarding_xml').catch(()=>{});
+            criarNotificacaoService({
+              id: Date.now().toString() + '_onbxml',
+              tipo: 'recarga',
+              titulo: '🎁 Bônus de onboarding!',
+              mensagem: 'Você ganhou 100 créditos por importar seu XML de imóveis.',
+              usuarioId: users[idx].codigoUsuario || users[idx].id,
+              lida: false,
+              criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+            });
+          }
       // Adiciona/atualiza no xml_feeds — total = imóveis de fato dessa fonte (não do portfólio todo)
       try {
         const _url = _importXmlUrl;
@@ -4421,6 +4472,17 @@ app.post('/login', async (req,res)=>{
 
     users.push(novo);
     salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+
+    // Referral de mão dupla: quem se cadastra por link de indicação (de
+    // corretor ou de sub-admin) ganha um bônus extra, além dos 1.000 padrão —
+    // não fica só o indicador ganhando. Dá na hora do cadastro (não espera
+    // recarga), pra reforçar a decisão de entrar logo. Mantém intacto o bônus
+    // do indicador (10% em coins, corretor; ou 20% em comissão, sub-admin —
+    // ver _processarBonusIndicacao), que continua só na primeira recarga.
+    if (_indicador || _adminIndicador) {
+      adicionarCreditos(novo.codigoUsuario, 500, 'bonus_indicacao_recebido').catch(e=>console.error('[bonus-indicado]', e.message));
+      if (_cacheUsuarios) { const _uiNovoRef = _cacheUsuarios.findIndex(u => u.id === novo.codigoUsuario); if (_uiNovoRef >= 0) { _cacheUsuarios[_uiNovoRef].matchCoins = (_cacheUsuarios[_uiNovoRef].matchCoins||0) + 500; } }
+    }
 
     // Notificar admin sobre novo cadastro
     (async () => {
@@ -5502,6 +5564,42 @@ app.get('/app/notificacoes', auth, async (req,res)=>{
 });
 
 
+// Balões de "tem coisa nova" no menu lateral — endpoint único, chamado pelo
+// JS global de app-shell.ejs em toda página /app/*, não só quando a rota
+// específica lembra de calcular e passar como local (era assim antes: os
+// badges de Visitas/Notificações só apareciam nas 1-2 rotas que passavam
+// visitasPendentes/notificacoesNaoLidas, ficavam mortos no resto do site).
+// leads: lead que o corretor ainda nem abriu (lead.emAtendimento nunca virou
+// true — mesmo flag setado em GET /app/lead/:id na 1ª abertura). visitas:
+// aguardando resposta do corretor (status 'solicitada'). notificacoes: !lida,
+// igual já era calculado em /app-home.
+app.get('/api/menu/badges', auth, async (req, res) => {
+  try {
+    const user = req.session.user;
+    const leadsArr = filtrarPorUsuario(_cacheLeads || [], user)
+      .filter(l => !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length)));
+    const leadsNaoVistos = leadsArr.filter(l => !l.emAtendimento).length;
+    const todasVisitasBadge = (_cacheVisitas || []);
+    const visitasArr = user.tipo === 'admin' ? todasVisitasBadge : todasVisitasBadge.filter(v =>
+      String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
+      String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
+    );
+    const visitasPendentes = visitasArr.filter(v => v.status === 'solicitada').length;
+    const notificacoesBadge = await lerNotificacoes(user);
+    const notifNaoLidas = notificacoesBadge.filter(n => String(n.usuarioId) === String(user.id) && !n.lida).length;
+    // Captação: lead que chegou como proprietário (temImovelParaCaptar OU já
+    // virou tipo cliente_vendedor) mas ainda não foi marcada como tratada —
+    // mesmo campo que POST /app/captacao/marcar/:leadId seta (dados.captadoEm),
+    // espalhado direto no objeto da lead pelo rowToLead (...dados).
+    const captacaoPendente = leadsArr.filter(l =>
+      (l.temImovelParaCaptar === true || l.tipoLead === 'cliente_vendedor') && !l.captadoEm
+    ).length;
+    res.json({ leads: leadsNaoVistos, visitas: visitasPendentes, notificacoes: notifNaoLidas, captacao: captacaoPendente });
+  } catch(e) {
+    res.json({ leads: 0, visitas: 0, notificacoes: 0 });
+  }
+});
+
 app.get('/app-home', auth, async (req,res)=>{
   const user = req.session.user;
   const { lerLeads: _llSvc2 } = require('./services/salvarLead');
@@ -6047,7 +6145,7 @@ app.get('/api/onboarding/status', auth, (req,res) => {
     const leadsDoUser = filtrarPorUsuario(_cacheLeads || [], user);
     const temLeadManual = leadsDoUser.some(l => (l.origemEntrada || l.origem || '') === 'manual');
     const passos = [
-      { key: 'xml', label: 'Importar XML de imóveis', desc: 'Suba um arquivo XML padrão do seu sistema pra trazer sua carteira de uma vez.', feito: !!user.xmlUrl, acao: 'Ir para Imóveis', link: '/app/imoveis' },
+      { key: 'xml', label: 'Importar XML de imóveis', desc: 'Suba um arquivo XML padrão do seu sistema pra trazer sua carteira de uma vez.', feito: !!user.xmlUrl, acao: 'Ir para Imóveis', link: '/app/imoveis', bonusCoins: 100 },
       { key: 'whatsapp', label: 'Conectar WhatsApp', desc: 'Escaneie o QR Code pra capturar leads e enviar vitrines automaticamente.', feito: user.whatsappStatus === 'open', acao: 'Conectar agora', link: '/app/perfil#secao-whatsapp' },
       { key: 'instagram', label: 'Conectar Instagram', desc: 'Publique seus imóveis direto no feed/stories do Instagram.', feito: !!user.instagramContaId, acao: 'Conectar agora', link: '/app/perfil#secao-instagram' },
       { key: 'leadManual', label: 'Cadastrar uma lead manual', desc: 'Cadastre uma lead direto no app pra ver o match acontecendo.', feito: temLeadManual, acao: 'Ir para Leads', link: '/app/leads' },
@@ -6392,13 +6490,14 @@ app.get('/app/indicacoes', auth, async (req, res) => {
       .filter(u => u.indicadoPor === uid)
       .map(u => ({ nome: u.nome || '-', telefone: u.celular || u.telefone || '', criadoEm: u.criadoEm, ativo: u.ativo !== false }))
       .sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0));
-    const { listarBonusPorIndicador, totalBonusPorIndicador } = require('./services/salvarIndicacao');
+    const { listarBonusPorIndicador, totalBonusPorIndicador, contarIndicadosComBonus } = require('./services/salvarIndicacao');
     const bonusHistorico = await listarBonusPorIndicador(uid).catch(() => []);
     const totalGanho = await totalBonusPorIndicador(uid).catch(() => 0);
-    res.render('app-indicacoes', { user: req.session.user, codigoUsuario: uid, indicados, bonusHistorico, totalGanho });
+    const indicadosComBonus = await contarIndicadosComBonus(uid, 'corretor').catch(() => 0);
+    res.render('app-indicacoes', { user: req.session.user, codigoUsuario: uid, indicados, bonusHistorico, totalGanho, indicadosComBonus, marcosIndicacao: _MARCOS_INDICACAO });
   } catch(e) {
     console.error('[indicacoes]', e.message);
-    res.render('app-indicacoes', { user: req.session.user, codigoUsuario: uid, indicados: [], bonusHistorico: [], totalGanho: 0 });
+    res.render('app-indicacoes', { user: req.session.user, codigoUsuario: uid, indicados: [], bonusHistorico: [], totalGanho: 0, indicadosComBonus: 0, marcosIndicacao: _MARCOS_INDICACAO });
   }
 });
 // ── FIM INDICAÇÕES ─────────────────────────────────────────────────────────────
@@ -11754,6 +11853,40 @@ app.get('/pagamento/sucesso', auth, async (req, res) => {
   res.redirect('/app/coins?sucesso=1');
 });
 
+// Gamificação do referral: quantos indicados (com pelo menos 1 recarga de
+// verdade) o corretor precisa acumular pra ganhar um bônus extra, de quebra
+// do 10% que já ganha por recarga — motivo pra chamar mais gente, não só
+// esperar quem já chamou recarregar. Só pra indicador_tipo='corretor' (não
+// se aplica à comissão de sub-admin, que já é % e resgatada à parte).
+const _MARCOS_INDICACAO = { 3: 1000, 10: 5000, 25: 20000 };
+async function _checarMarcoIndicacao(indicadorCodigo) {
+  try {
+    const { contarIndicadosComBonus } = require('./services/salvarIndicacao');
+    const total = await contarIndicadosComBonus(indicadorCodigo, 'corretor');
+    const indicador = (_cacheUsuarios || []).find(u => (u.codigoUsuario || u.id) === indicadorCodigo);
+    const _jaGanhos = (indicador && Array.isArray(indicador.indicacaoMarcosGanhos)) ? indicador.indicacaoMarcosGanhos : [];
+    const _novosMarcos = Object.keys(_MARCOS_INDICACAO).map(Number).filter(m => total >= m && !_jaGanhos.includes(m)).sort((a,b)=>a-b);
+    if (!_novosMarcos.length) return;
+    const { atualizarUsuario: _auMarco } = require('./services/salvarUsuario');
+    for (const marco of _novosMarcos) {
+      const valorMarco = _MARCOS_INDICACAO[marco];
+      await adicionarCreditos(indicadorCodigo, valorMarco, 'bonus_indicacao_marco_' + marco);
+      criarNotificacaoService({
+        id: Date.now().toString() + '_marco' + marco,
+        tipo: 'indicacao_bonus',
+        titulo: '🏆 Meta de indicação batida!',
+        mensagem: 'Você já tem ' + total + ' indicado(s) ativo(s) — ganhou ' + valorMarco.toLocaleString('pt-BR') + ' créditos de bônus por bater a meta de ' + marco + '!',
+        usuarioId: indicadorCodigo,
+        lida: false,
+        criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+      });
+    }
+    const _marcosAtualizados = [..._jaGanhos, ..._novosMarcos];
+    await _auMarco(indicadorCodigo, { indicacaoMarcosGanhos: _marcosAtualizados });
+    if (indicador) indicador.indicacaoMarcosGanhos = _marcosAtualizados;
+  } catch(e) { console.error('[marco-indicacao]', e.message); }
+}
+
 // Bônus de indicação: 10% dos créditos comprados vão pro indicador (corretor
 // que indicou outro corretor), sempre que o indicado recarrega. Além disso,
 // se essa conta foi criada por uma campanha de WhatsApp com sub-admin
@@ -11793,6 +11926,7 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
             lida: false,
             criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
           });
+          await _checarMarcoIndicacao(indicadorCodigo);
         }
       }
     }
@@ -12829,7 +12963,14 @@ app.get('/app/coins', auth, (req, res) => {
   // Reflete a baixa vinda do webhook do Mercado Pago (sem sessão) — ver
   // comprarPlano em /app/perfil pro mesmo motivo.
   if (req.session.user.precisaComprarPlano && user && !user.precisaComprarPlano) req.session.user.precisaComprarPlano = false;
-  res.render('app-coins', { user, mpPublicKey: process.env.MP_PUBLIC_KEY || '', historico, historicoCompleto, planoSucesso: req.query.planoSucesso === '1', comprarPlano: !!req.session.user.precisaComprarPlano });
+  // "Você recebeu X leads esse mês" — tira a abstração do crédito, liga
+  // gasto→resultado direto na tela onde ele decide se recarrega ou não.
+  const _inicioMesCoins = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const leadsMes = filtrarPorUsuario(_cacheLeads || [], user).filter(l => {
+    const _dt = l.criadoEm || l.data_cadastro;
+    return _dt && new Date(_dt) >= _inicioMesCoins;
+  }).length;
+  res.render('app-coins', { user, mpPublicKey: process.env.MP_PUBLIC_KEY || '', historico, historicoCompleto, leadsMes, planoSucesso: req.query.planoSucesso === '1', comprarPlano: !!req.session.user.precisaComprarPlano });
 });
 
 // ===== REMARCAÇÃO DE VISITA PELO CLIENTE =====
@@ -17558,22 +17699,23 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     const ordemExibida = PLANOS_ORDEM.concat([PLANO_ILIMITADO]);
     const FEATURES_COMBO = ['Gera vitrine automática', 'Post Instagram automático', 'Site próprio', 'Imóveis ilimitado', 'Conexão com WhatsApp', 'Suba seus imóveis (XML ou manual) e comece a gerar leads pra eles também'];
     const featuresHtml = '<ul class="combo-features">' + FEATURES_COMBO.map(function(f){ return '<li>'+escHtml(f)+'</li>'; }).join('') + '</ul>';
-    const promoHtml = '<div class="promo-desconto">🎉 Você acabou de ganhar 50% OFF na primeira conta!<span>Não perca essa oportunidade — preço válido só agora, na sua primeira compra.</span></div>';
+    const promoHtml = '<div class="promo-desconto">🎁 Você ganha o DOBRO de créditos na sua primeira conta!<span>Mesmo preço do combo — só na sua primeira compra, os créditos de bônus vêm em dobro.</span></div>';
     document.getElementById('combos-lista').innerHTML = ordemExibida.map(function(k){
       const p = PLANOS[k];
       const rec = k === recomendado;
       const qtdTxt = p.ilimitado ? '∞' : p.qtd;
       const unidade = p.ilimitado ? ' /mês' : ' /combo';
-      const valorDesconto = _valorComDesconto(p.valor);
-      const porLead = p.ilimitado ? '' : '<div class="por-lead">R$ '+(valorDesconto/p.qtd).toFixed(2).replace('.',',')+' por lead</div>';
+      const creditosDobro = p.creditos * 2;
+      const porLead = p.ilimitado ? '' : '<div class="por-lead">R$ '+(p.valor/p.qtd).toFixed(2).replace('.',',')+' por lead</div>';
       const entramNaConta = p.ilimitado ? total : Math.min(total, p.qtd);
       const restante = p.ilimitado ? 0 : Math.max(0, total - p.qtd);
       const entramHtml = '<div class="entram-conta">📥 Entram agora na sua conta: <strong>'+entramNaConta+' lead'+(entramNaConta===1?'':'s')+'</strong></div>'
+        + '<div class="entram-conta">🎁 + <strong>'+creditosDobro.toLocaleString('pt-BR')+' créditos</strong> de bônus (dobro na 1ª conta)</div>'
         + (restante > 0 ? '<div class="restante-nota">Sua busca encontrou mais '+restante+' lead'+(restante===1?'':'s')+' além desse combo. Selecione um combo maior pra levar todas agora, ou deixe a plataforma te entregar o restante diariamente enquanto você tiver créditos.</div>' : '');
       return '<div class="combo'+(rec?' combo-recomendado':'')+'" data-plano="'+k+'">'
         + (rec ? '<span class="badge">✅ Plano compatível</span>' : '')
         + '<div class="qtd">'+qtdTxt+'</div><div class="label">'+escHtml(p.label)+'</div>'
-        + '<div class="preco"><span class="preco-original">R$ '+p.valor+'</span>R$ '+valorDesconto+'<span>'+unidade+'</span></div>'
+        + '<div class="preco">R$ '+p.valor+'<span>'+unidade+'</span></div>'
         + porLead
         + entramHtml
         + featuresHtml
@@ -17583,7 +17725,6 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     document.getElementById('promo-desconto-combo').innerHTML = promoHtml;
     box.style.display = 'block';
   }
-  function _valorComDesconto(valorOriginal){ return Math.round(valorOriginal * 0.5); }
 
   document.getElementById('combos-lista').addEventListener('click', function(e){
     const btn = e.target.closest('[data-escolher]');
@@ -17596,7 +17737,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
       ? 'Sua busca encontrou '+totalEncontrado+' leads, mas esse combo entrega '+p.qtd+' — as demais ficam disponíveis pra comprar depois. '
         + 'Se preferir, <a href="#" onclick="fecharModalCompra();document.getElementById(\\'diasBusca\\').scrollIntoView({behavior:\\'smooth\\',block:\\'center\\'});return false;">diminua os dias da busca</a> pra encontrar menos leads e enquadrar nesse combo.'
       : 'Os leads encontrados na sua busca vão pra sua conta assim que o pagamento for aprovado.';
-    document.getElementById('combo-escolhido-resumo').innerHTML = '<strong>'+escHtml(p.label)+'</strong> — <span style="text-decoration:line-through;color:var(--sec)">R$ '+p.valor+'</span> R$ '+_valorComDesconto(p.valor)+' <span class="gray">(50% OFF primeira conta)</span><br><span class="gray">'+avisoQtd+'</span>';
+    document.getElementById('combo-escolhido-resumo').innerHTML = '<strong>'+escHtml(p.label)+'</strong> — R$ '+p.valor+' <span class="gray">('+(p.creditos*2).toLocaleString('pt-BR')+' créditos — dobro na 1ª conta)</span><br><span class="gray">'+avisoQtd+'</span>';
     document.getElementById('combo-escolhido-resumo').style.display = 'block';
     document.getElementById('signup-subtitulo').style.display = 'none';
     document.getElementById('signup-rodape-pagamento').style.display = 'block';
@@ -18202,16 +18343,19 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
 
     // Toda conta que chega até aqui (recém-criada agora, ou criada minutos
     // antes via /demanda/cadastrar na mesma sessão) é a 1ª conta do
-    // comprador — por isso 50% OFF aplicado sempre. Mesma qtd de leads e
-    // mesmos créditos do combo, só o valor cobrado é metade.
-    const valorComDesconto = Math.round(pacote.valor * 0.5);
+    // comprador. Antes dava 50% OFF no preço — trocado por dobrar os
+    // créditos de bônus no mesmo preço (mesma qtd de leads garantidos do
+    // combo, só o saldo de créditos que vem em dobro): mantém o ticket
+    // médio do combo (preço cheio) e ainda assim reforça o "1ª compra
+    // vale mais a pena" — igual ao bônus de 1ª recarga do /app/coins.
+    const creditosDobro = pacote.creditos * 2;
 
     const result = await preference.create({
       body: {
         items: [{
-          title: `${pacote.label} — 50% OFF primeira conta — MatchImóveis`,
+          title: `${pacote.label} — MatchImóveis`,
           quantity: 1,
-          unit_price: valorComDesconto,
+          unit_price: pacote.valor,
           currency_id: 'BRL'
         }],
         payer: _montarPayerMP(nomeVal, emailVal, cpfLimpo),
@@ -18225,7 +18369,7 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
         payment_methods: { excluded_payment_types: [{ id: 'ticket' }] },
         metadata: {
           userId: codigoNovo, tipo: 'combo_demanda', plano, qtd: pacote.qtd || 0, label: pacote.label,
-          valor: valorComDesconto, creditos: pacote.creditos,
+          valor: pacote.valor, creditos: creditosDobro,
           estado: criterios.estado, pares: JSON.stringify(criterios.pares),
           transacoes: JSON.stringify(criterios.transacoes || []), horas: diasFinal * 24,
           valorMin: parseInt(criterios.valorMin, 10) || 0, valorMax: parseInt(criterios.valorMax, 10) || 0
@@ -19558,11 +19702,13 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       const { query: _qMeusCor } = require('./services/db');
       const { rows: _rowsMeusCor } = await _qMeusCor(`
         SELECT u.codigo_usuario, u.nome, u.telefone, u.criado_em, u.match_coins, u.whatsapp_status,
-          COALESCE(im.total, 0) AS total_imoveis, COALESCE(ld.total, 0) AS total_leads, COALESCE(vs.total, 0) AS total_visitas
+          COALESCE(im.total, 0) AS total_imoveis, COALESCE(ld.total, 0) AS total_leads, COALESCE(vs.total, 0) AS total_visitas,
+          COALESCE(ldm.total, 0) AS total_leads_mes
         FROM usuarios u
         LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM imoveis GROUP BY user_id) im ON im.user_id = u.codigo_usuario
         LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM leads GROUP BY user_id) ld ON ld.user_id = u.codigo_usuario
         LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM visitas GROUP BY user_id) vs ON vs.user_id = u.codigo_usuario
+        LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM leads WHERE criado_em >= date_trunc('month', now()) GROUP BY user_id) ldm ON ldm.user_id = u.codigo_usuario
         WHERE u.dados->>'atendidoPorAdmin' = $1
         ORDER BY u.criado_em DESC
       `, [usuarioAdmin]);
@@ -19686,7 +19832,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           <h3 style="margin:0 0 6px;font-size:14px">👤 Meus corretores cadastrados (${meusCorretores.length})</h3>
           <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Contas que já se cadastraram na plataforma atribuídas a você. Só acompanhamento — sem acessar a conta, importar XML ou excluir.</p>
           <table style="width:100%">
-            <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Cadastro</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">Telefone</th><th style="padding:8px;font-size:11px;color:#9ca3af">Imóv.</th><th style="padding:8px;font-size:11px;color:#9ca3af">Leads</th><th style="padding:8px;font-size:11px;color:#9ca3af">Visit.</th><th style="padding:8px;font-size:11px;color:#9ca3af">Coins</th><th style="padding:8px;font-size:11px;color:#9ca3af"></th></tr></thead>
+            <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Cadastro</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">Telefone</th><th style="padding:8px;font-size:11px;color:#9ca3af">Imóv.</th><th style="padding:8px;font-size:11px;color:#9ca3af">Leads</th><th style="padding:8px;font-size:11px;color:#9ca3af">Leads (mês)</th><th style="padding:8px;font-size:11px;color:#9ca3af">Visit.</th><th style="padding:8px;font-size:11px;color:#9ca3af">Coins</th><th style="padding:8px;font-size:11px;color:#9ca3af"></th></tr></thead>
             <tbody>${meusCorretores.map(c => `
               <tr style="border-bottom:1px solid #f3f4f6">
                 <td style="padding:8px;font-size:12px">${new Date(c.criado_em).toLocaleDateString('pt-BR')}</td>
@@ -19694,10 +19840,11 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
                 <td style="padding:8px;font-size:12px">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '-'}</td>
                 <td style="padding:8px;font-size:12px;text-align:center">${c.total_imoveis}</td>
                 <td style="padding:8px;font-size:12px;text-align:center">${c.total_leads}</td>
+                <td style="padding:8px;font-size:12px;text-align:center">${c.total_leads_mes}</td>
                 <td style="padding:8px;font-size:12px;text-align:center">${c.total_visitas}</td>
                 <td style="padding:8px;font-size:12px;text-align:center;font-weight:700;color:#FF385C">${(c.match_coins||0).toLocaleString('pt-BR')}</td>
                 <td style="padding:8px;font-size:12px"><a href="/admin/meu-corretor/${c.codigo_usuario}" style="color:#2563eb;text-decoration:none;font-weight:600">Ver</a></td>
-              </tr>`).join('') || '<tr><td colspan="8" style="padding:16px;text-align:center;color:#9ca3af">Nenhum corretor cadastrado atribuído a você ainda</td></tr>'}</tbody>
+              </tr>`).join('') || '<tr><td colspan="9" style="padding:16px;text-align:center;color:#9ca3af">Nenhum corretor cadastrado atribuído a você ainda</td></tr>'}</tbody>
           </table>
         </div>
 
@@ -19793,12 +19940,14 @@ app.get('/admin/meu-corretor/:codigo', authAdmin, async (req, res) => {
     if (req.session.adminSuper !== false) return res.redirect('/admin/usuario/' + req.params.codigo);
     const { query: _qMeuCor } = require('./services/db');
     const { rows } = await _qMeuCor(`
-      SELECT u.codigo_usuario, u.nome, u.telefone, u.criado_em, u.match_coins, u.whatsapp_status,
-        COALESCE(im.total, 0) AS total_imoveis, COALESCE(ld.total, 0) AS total_leads, COALESCE(vs.total, 0) AS total_visitas
+      SELECT u.codigo_usuario, u.nome, u.telefone, u.criado_em, u.match_coins, u.whatsapp_status, u.dados,
+        COALESCE(im.total, 0) AS total_imoveis, COALESCE(ld.total, 0) AS total_leads, COALESCE(vs.total, 0) AS total_visitas,
+        COALESCE(ldm.total, 0) AS total_leads_mes
       FROM usuarios u
       LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM imoveis GROUP BY user_id) im ON im.user_id = u.codigo_usuario
       LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM leads GROUP BY user_id) ld ON ld.user_id = u.codigo_usuario
       LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM visitas GROUP BY user_id) vs ON vs.user_id = u.codigo_usuario
+      LEFT JOIN (SELECT user_id, COUNT(*) AS total FROM leads WHERE criado_em >= date_trunc('month', now()) GROUP BY user_id) ldm ON ldm.user_id = u.codigo_usuario
       WHERE u.codigo_usuario=$1 AND u.dados->>'atendidoPorAdmin'=$2
     `, [req.params.codigo, req.session.adminUsuario]);
     const u = rows[0];
@@ -19811,6 +19960,7 @@ app.get('/admin/meu-corretor/:codigo', authAdmin, async (req, res) => {
     <body><div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req), req)}
     <main class="admin-content">
       <h1 style="font-size:18px;font-weight:700;margin-bottom:16px">${u.nome}</h1>
+      ${_cardRoiUsuarioHtml(u, u.total_leads_mes)}
       <div class="card">
         <h2>Dados</h2>
         <label>Código</label><input value="${u.codigo_usuario||''}" readonly>
@@ -19822,6 +19972,7 @@ app.get('/admin/meu-corretor/:codigo', authAdmin, async (req, res) => {
         <h2>Atividade</h2>
         <label>Imóveis cadastrados</label><input value="${u.total_imoveis}" readonly>
         <label>Leads</label><input value="${u.total_leads}" readonly>
+        <label>Leads (mês)</label><input value="${u.total_leads_mes}" readonly>
         <label>Visitas</label><input value="${u.total_visitas}" readonly>
         <label>Saldo de coins</label><input value="${(u.match_coins||0).toLocaleString('pt-BR')}" readonly>
       </div>

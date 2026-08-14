@@ -1,4 +1,10 @@
-<%- include('partials/app-shell',{active:'indicacoes',title:'Indicar Parceiro',subtitle:'Indique corretores e ganhe créditos quando eles recarregarem.',perfil:(user && user.tipo)||'corretor',user:user}) %>
+<%- include('partials/app-shell',{active:'indicacoes',title:'Indicar Parceiro',subtitle:'Indique corretores e ganhe créditos quando eles recarregarem — e ele também ganha só por entrar.',perfil:(user && user.tipo)||'corretor',user:user}) %>
+
+<%
+  const _marcosOrdenados = Object.keys(marcosIndicacao||{}).map(Number).sort((a,b)=>a-b);
+  const _proximoMarco = _marcosOrdenados.find(m => (indicadosComBonus||0) < m);
+  const _pctMarco = _proximoMarco ? Math.min(100, Math.round(((indicadosComBonus||0) / _proximoMarco) * 100)) : 100;
+%>
 
 <style>
 .pf-card{background:#fff;border:0.5px solid rgba(0,0,0,.08);border-radius:16px;padding:20px;margin-bottom:12px}
@@ -32,12 +38,30 @@ table.ind-table tr:last-child td{border-bottom:none}
 
 <div class="pf-card">
   <div class="pf-card-title">🔗 Seu link de indicação</div>
-  <div class="pf-card-sub">Compartilhe com outros corretores — quando alguém se cadastra pelo seu link, fica vinculado a você pra sempre.</div>
+  <div class="pf-card-sub">Compartilhe com outros corretores — quando alguém se cadastra pelo seu link, fica vinculado a você pra sempre. Ele ganha <strong>500 créditos de bônus</strong> só por entrar, e você ganha 10% em créditos toda vez que ele recarregar.</div>
   <div class="ind-link-box">
     <span id="link-indicacao">https://www.matchimoveis.ia.br/?ref=<%= codigoUsuario %></span>
   </div>
   <button type="button" class="pf-btn pf-btn-outline" onclick="copiarLink()" id="btn-copiar">📋 Copiar link</button>
   <a href="#" id="btn-wa-convite" target="_blank" class="pf-btn pf-btn-wa">💬 Convidar pelo WhatsApp</a>
+</div>
+
+<div class="pf-card">
+  <div class="pf-card-title">🏆 Meta de indicação</div>
+  <% if (_proximoMarco) { %>
+    <div class="pf-card-sub">Faltam <strong><%= _proximoMarco - (indicadosComBonus||0) %></strong> indicado(s) com recarga pra você ganhar mais <strong><%= marcosIndicacao[_proximoMarco].toLocaleString('pt-BR') %> créditos</strong> de bônus (meta de <%= _proximoMarco %>).</div>
+    <div style="background:#f3f4f6;border-radius:99px;height:10px;overflow:hidden;margin:4px 0 6px">
+      <div style="height:100%;width:<%= _pctMarco %>%;background:#FC642D;border-radius:99px;transition:width .6s"></div>
+    </div>
+    <div style="font-size:12px;color:#9ca3af"><%= indicadosComBonus||0 %> de <%= _proximoMarco %></div>
+  <% } else { %>
+    <div class="pf-card-sub">Você já bateu todas as metas atuais — <%= indicadosComBonus||0 %> indicado(s) com recarga. 🎉</div>
+  <% } %>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+    <% _marcosOrdenados.forEach(function(m){ %>
+      <span class="ind-badge <%= (indicadosComBonus||0) >= m ? 'ativo' : 'inativo' %>"><%= (indicadosComBonus||0) >= m ? '✅' : '🔒' %> <%= m %> indicados → +<%= marcosIndicacao[m].toLocaleString('pt-BR') %></span>
+    <% }); %>
+  </div>
 </div>
 
 <div class="ind-stats">
@@ -108,7 +132,7 @@ function copiarLink(){
 
 (function(){
   const link = document.getElementById('link-indicacao').textContent;
-  const msg = 'Você é meu convidado para conhecer a MatchImóveis! 🏠\n\n' + link;
+  const msg = 'Você é meu convidado para conhecer a MatchImóveis! 🏠\n\nCadastre-se pelo meu link e ganhe 500 créditos de bônus só por entrar:\n\n' + link;
   document.getElementById('btn-wa-convite').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
 })();
 </script>

@@ -201,6 +201,15 @@
       </select>
     </div>
     <div class="ffield">
+      <label>Condição</label>
+      <select name="condicao" onchange="this.form.submit()">
+        <option value="">Todas</option>
+        <option value="lancamento" <%= filtros.condicao==='lancamento'?'selected':'' %>>Lançamento</option>
+        <option value="usado" <%= filtros.condicao==='usado'?'selected':'' %>>Usado</option>
+        <option value="pronto" <%= filtros.condicao==='pronto'?'selected':'' %>>Pronto novo</option>
+      </select>
+    </div>
+    <div class="ffield">
       <label>Quartos</label>
       <select name="quartosMin" onchange="this.form.submit()">
         <option value="">Qualquer</option>
@@ -226,7 +235,7 @@
       </select>
     </div>
     <% const _temFiltroAvancado = filtros.banheiros||filtros.vagasMin||filtros.suitesMin||filtros.areaMin||filtros.areaMax; %>
-    <% if(filtros.busca||filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||(filtros.ordenar&&filtros.ordenar!=='menor-preco')||_temFiltroAvancado){ %>
+    <% if(filtros.busca||filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.condicao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||(filtros.ordenar&&filtros.ordenar!=='menor-preco')||_temFiltroAvancado){ %>
     <a href="<%= siteBasePath || '/' %>" class="btn-limpar">Limpar filtros</a>
     <% } %>
 

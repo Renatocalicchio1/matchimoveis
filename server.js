@@ -576,7 +576,8 @@ const _ADMIN_NAV = [
     { key: 'cerebro', href: '/admin/cerebro', icon: '🧠', label: 'Cérebro do Assistente' },
     { key: 'rematch', href: '/admin/rematch', icon: '🔄', label: 'Gerar Match de Conta' },
     { key: 'quintoandar', href: '/admin/quintoandar-solicitacoes', icon: '🏢', label: 'Solicitações QuintoAndar' },
-    { key: 'exclusao', href: '/admin/exclusao-solicitacoes', icon: '🗑️', label: 'Exclusão de Conta' }
+    { key: 'exclusao', href: '/admin/exclusao-solicitacoes', icon: '🗑️', label: 'Exclusão de Conta' },
+    { key: 'site-global', href: '/admin/site-global', icon: '🌍', label: 'Site Global' }
   ]},
   // "Contas Admin" só é utilizável pelo superadmin (ver checagem específica
   // em authAdmin) — fica visível no menu pra todo mundo por simplicidade
@@ -825,7 +826,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/campanha/distribuir-atendimentos',
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
   '/admin/captacao-campanha/distribuir-atendimentos',
-  '/admin/comissoes-pendentes', '/admin/atribuicoes-subadmin'
+  '/admin/comissoes-pendentes', '/admin/atribuicoes-subadmin', '/admin/site-global'
 ];
 // Sempre acessível pra qualquer conta admin logada, sem depender de
 // permissão marcada — são telas que já filtram pelos dados da PRÓPRIA
@@ -5920,6 +5921,43 @@ app.get('/app/imoveis/exportar-excel', auth, (req, res) => {
   }
 });
 
+// Ranking de "imóveis parecidos" pra páginas públicas — mesmos critérios do motor de match
+// (transação/tipo/cidade obrigatórios, valor -20%/+20%; score por proximidade de bairro/quartos/valor).
+function _imoveisCompativeis(imovel, pool, limit) {
+  const valor = parseFloat(imovel.valorImovel || imovel.valor_imovel || imovel.valor) || 0;
+  const valorMin = valor * 0.8, valorMax = valor * 1.2;
+  const transacao = String(imovel.transacao || '').toLowerCase();
+  const tipo = String(imovel.tipo || '').toLowerCase();
+  const cidade = String(imovel.cidade || '').toLowerCase();
+  const bairro = String(imovel.bairro || '').toLowerCase();
+  const quartos = parseInt(imovel.quartos) || 0;
+
+  return pool
+    .filter(i => {
+      if (i.status === 'inativo' || i.status === 'excluido') return false;
+      if (String(i.id) === String(imovel.id)) return false;
+      if (String(i.transacao || '').toLowerCase() !== transacao) return false;
+      if (String(i.tipo || '').toLowerCase() !== tipo) return false;
+      if (String(i.cidade || '').toLowerCase() !== cidade) return false;
+      if (valor > 0) {
+        const v = parseFloat(i.valorImovel || i.valor_imovel || i.valor) || 0;
+        if (v < valorMin || v > valorMax) return false;
+      }
+      return true;
+    })
+    .map(i => {
+      let score = 0;
+      if (String(i.bairro || '').toLowerCase() === bairro) score += 15;
+      if ((parseInt(i.quartos) || 0) === quartos) score += 15;
+      const v = parseFloat(i.valorImovel || i.valor_imovel || i.valor) || 0;
+      if (valor > 0) score += Math.max(0, 20 - (Math.abs(v - valor) / valor) * 20);
+      return { imovel: i, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit || 4)
+    .map(x => x.imovel);
+}
+
 // Filtra + ordena + pagina uma lista de imoveis a partir de query params.
 // Usado por /app/imoveis (dashboard) e pelas rotas publicas /site/:codigoUsuario.
 function _filtrarEPaginarImoveis(imoveisBase, q, perPage) {
@@ -10594,13 +10632,72 @@ function _dedupRodizioImoveis(imoveis) {
   return resultado;
 }
 
+// Config visual do Site Global (logo/cores/banners/rodapé) mora na MESMA
+// tabela site_config que /app/meu-site já usa por corretor — só que com uma
+// chave fixa em vez de codigo_usuario. site_config.user_id não tem FK pra
+// usuarios, então uma chave sentinela aqui é segura.
+const _PORTAL_GLOBAL_ID = 'PORTAL_GLOBAL';
+
 // Portal público agregando os imóveis ATIVOS de toda a rede — pensado pra
 // virar matchimoveis.com.br (domínio próprio plugado depois, mesmo mecanismo
 // de domínio custom que /app/meu-site já usa). Cada card cai direto em
 // /imovel/:id, que já é a página pública normal — segue o mesmo fluxo de
 // sempre, o imóvel continua com o corretor dele.
+// Rate limit dedicado: reverse-geocode é chamado do navegador do visitante do /portal (sem login),
+// limita abuso mantendo o uso legítimo (1x por visita) livre.
+const limiterGeoPortal = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { erro: 'Muitas requisições. Tente novamente em alguns minutos.' }
+});
+// Reverse-geocode da posição do navegador (com autorização do usuário) pra pré-filtrar
+// o /portal pela cidade dele — proxy server-side do Nominatim (mesmo padrão de
+// services/salvarImovel.js) pra não expor a API pública direto ao client nem depender de CORS.
+app.get('/api/portal/geo-cidade', limiterGeoPortal, async (req, res) => {
+  try {
+    const lat = parseFloat(req.query.lat);
+    const lng = parseFloat(req.query.lng);
+    if (!isFinite(lat) || !isFinite(lng)) return res.status(400).json({ erro: 'lat/lng inválidos' });
+    const _r = await fetch('https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lng + '&format=json&zoom=14&addressdetails=1', { headers: { 'User-Agent': 'MatchImoveis/1.0' } });
+    const _d = await _r.json();
+    const _addr = (_d && _d.address) || {};
+    const cidade = _addr.city || _addr.town || _addr.municipality || _addr.village || '';
+    const bairro = _addr.suburb || _addr.neighbourhood || _addr.city_district || '';
+    res.json({ cidade, bairro });
+  } catch(e) {
+    console.error('[portal-geo-cidade]', e.message);
+    res.status(500).json({ erro: 'Falha ao localizar cidade' });
+  }
+});
+
+async function _carregarSiteConfigGlobal() {
+  const { buscarConfig } = require('./services/salvarSiteConfig');
+  const c = await buscarConfig(_PORTAL_GLOBAL_ID).catch(() => null);
+  return {
+    corPrimaria: (c && c.cor_primaria) || '#FF385C',
+    corCabecalho: (c && c.cor_cabecalho) || '',
+    corRodape: (c && c.cor_rodape) || '',
+    corTextoRodape: (c && c.cor_texto_rodape) || '',
+    logoUrl: (c && c.logo_url) || '',
+    banners: (() => { try { return JSON.parse((c && c.banners) || '[]'); } catch(e) { return []; } })(),
+    rodapeNome: (c && c.rodape_nome) || 'MatchImóveis',
+    rodapeTelefone: (c && c.rodape_telefone) || '',
+    rodapeEndereco: (c && c.rodape_endereco) || '',
+    rodapeTexto: (c && c.rodape_texto) || 'A maior rede de corretores e imobiliárias parceiras — anuncie ou encontre seu próximo imóvel.',
+    rodapeInstagram: (c && c.rodape_instagram) || '',
+    rodapeFacebook: (c && c.rodape_facebook) || '',
+    metaPixelId: (c && c.meta_pixel_id) || '',
+    googleAnalyticsId: (c && c.google_analytics_id) || '',
+    siteAtivo: c ? c.site_ativo !== false : true
+  };
+}
+
 app.get('/portal', async (req, res) => {
   try {
+    const siteConfig = await _carregarSiteConfigGlobal();
+    if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, { nome: 'MatchImóveis' });
     const imoveisAtivos = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
     const imoveisSemDuplicata = _dedupRodizioImoveis(imoveisAtivos);
     const _r = _filtrarEPaginarImoveis(imoveisSemDuplicata, req.query, 24);
@@ -10608,13 +10705,133 @@ app.get('/portal', async (req, res) => {
       imoveis: _r.imoveisPagina, estados: _r.estados, cidades: _r.cidades, bairros: _r.bairros,
       page: _r.page, totalPages: _r.totalPages, totalImoveis: _r.totalImoveis,
       filtros: req.query, queryPagina: _r.queryPagina,
-      siteOrigin: req.protocol + '://' + req.get('host')
+      siteOrigin: req.protocol + '://' + req.get('host'),
+      portalUrl: req.originalUrl,
+      siteConfig
     });
   } catch(e) {
     console.error('[portal-global]', e.message);
     res.status(500).send('Erro ao carregar o portal');
   }
 });
+
+// ── ADMIN — CONFIGURAR SITE GLOBAL (mesmos campos do "Meu Site" do corretor) ──
+app.get('/admin/site-global', authAdmin, async (req, res) => {
+  try {
+    const { buscarConfig } = require('./services/salvarSiteConfig');
+    const siteConfig = (await buscarConfig(_PORTAL_GLOBAL_ID).catch(() => null)) || {};
+    res.render('admin-site-global', { siteConfig, msg: req.query.msg || null, erro: req.query.erro || null, adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('site-global', _sidebarPerm(req), req) });
+  } catch(e) {
+    console.error('[admin/site-global]', e.message);
+    res.render('admin-site-global', { siteConfig: {}, msg: null, erro: null, adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('site-global', _sidebarPerm(req), req) });
+  }
+});
+
+app.post('/admin/site-global', authAdmin, async (req, res) => {
+  try {
+    const { salvarConfig } = require('./services/salvarSiteConfig');
+    await salvarConfig(_PORTAL_GLOBAL_ID, {
+      cor_primaria: req.body.cor_primaria || '#FF385C',
+      cor_cabecalho: /^#[0-9a-f]{6}$/i.test(req.body.cor_cabecalho||'') ? req.body.cor_cabecalho : '',
+      cor_rodape: /^#[0-9a-f]{6}$/i.test(req.body.cor_rodape||'') ? req.body.cor_rodape : '',
+      cor_texto_rodape: /^#[0-9a-f]{6}$/i.test(req.body.cor_texto_rodape||'') ? req.body.cor_texto_rodape : '',
+      rodape_nome: req.body.rodape_nome || '',
+      rodape_telefone: req.body.rodape_telefone || '',
+      rodape_cep: req.body.rodape_cep || '',
+      rodape_rua: req.body.rodape_rua || '',
+      rodape_numero: req.body.rodape_numero || '',
+      rodape_complemento: req.body.rodape_complemento || '',
+      rodape_cidade: req.body.rodape_cidade || '',
+      rodape_estado: req.body.rodape_estado || '',
+      rodape_endereco: [
+        [req.body.rodape_rua||'', req.body.rodape_numero||'', req.body.rodape_complemento||''].filter(Boolean).join(', '),
+        [req.body.rodape_cidade||'', req.body.rodape_estado||''].filter(Boolean).join('/')
+      ].filter(Boolean).join(' - '),
+      rodape_texto: req.body.rodape_texto || '',
+      rodape_instagram: req.body.rodape_instagram || '',
+      rodape_facebook: req.body.rodape_facebook || '',
+      meta_pixel_id: /^\d{10,20}$/.test((req.body.meta_pixel_id||'').trim()) ? req.body.meta_pixel_id.trim() : '',
+      google_analytics_id: /^G-[A-Z0-9]{6,12}$/i.test((req.body.google_analytics_id||'').trim()) ? req.body.google_analytics_id.trim() : '',
+      site_ativo: req.body.site_ativo === '1'
+    });
+    res.redirect('/admin/site-global?msg=salvo');
+  } catch(e) {
+    console.error('[admin/site-global/salvar]', e.message);
+    res.redirect('/admin/site-global?msg=erro');
+  }
+});
+
+app.post('/admin/site-global/logo', authAdmin, uploadImoveis.single('logo'), async (req, res) => {
+  try {
+    if (!req.file) return res.redirect('/admin/site-global?msg=erro');
+    const { salvarConfig } = require('./services/salvarSiteConfig');
+    const url = '/data-uploads/' + req.file.filename;
+    await salvarConfig(_PORTAL_GLOBAL_ID, { logo_url: url });
+    res.redirect('/admin/site-global?msg=salvo');
+  } catch(e) {
+    console.error('[admin/site-global/logo]', e.message);
+    res.redirect('/admin/site-global?msg=erro');
+  }
+});
+
+app.post('/admin/site-global/logo/excluir', authAdmin, async (req, res) => {
+  try {
+    const { buscarConfig, salvarConfig } = require('./services/salvarSiteConfig');
+    const config = await buscarConfig(_PORTAL_GLOBAL_ID);
+    if (config && config.logo_url && config.logo_url.startsWith('/data-uploads/')) {
+      const arquivoPath = path.join(UPLOADS_IMOVEIS_DIR, path.basename(config.logo_url));
+      fs.unlink(arquivoPath, () => {});
+    }
+    await salvarConfig(_PORTAL_GLOBAL_ID, { logo_url: '' });
+    res.redirect('/admin/site-global?msg=salvo');
+  } catch(e) {
+    console.error('[admin/site-global/logo/excluir]', e.message);
+    res.redirect('/admin/site-global?msg=erro');
+  }
+});
+
+// Banners do topo (carrossel) — mesma regra do site por corretor: acrescenta
+// à lista (não substitui), máximo 8.
+app.post('/admin/site-global/banner', authAdmin, uploadImoveis.single('banner'), async (req, res) => {
+  try {
+    if (!req.file) return res.redirect('/admin/site-global?msg=erro');
+    const { buscarConfig, salvarConfig } = require('./services/salvarSiteConfig');
+    const config = await buscarConfig(_PORTAL_GLOBAL_ID);
+    let banners = [];
+    try { banners = JSON.parse((config && config.banners) || '[]'); } catch(e) { banners = []; }
+    if (banners.length >= 8) return res.redirect('/admin/site-global?msg=banner_limite');
+    banners.push('/data-uploads/' + req.file.filename);
+    await salvarConfig(_PORTAL_GLOBAL_ID, { banners: JSON.stringify(banners) });
+    res.redirect('/admin/site-global?msg=salvo');
+  } catch(e) {
+    console.error('[admin/site-global/banner]', e.message);
+    res.redirect('/admin/site-global?msg=erro');
+  }
+});
+
+app.post('/admin/site-global/banner/excluir', authAdmin, async (req, res) => {
+  try {
+    const { buscarConfig, salvarConfig } = require('./services/salvarSiteConfig');
+    const config = await buscarConfig(_PORTAL_GLOBAL_ID);
+    let banners = [];
+    try { banners = JSON.parse((config && config.banners) || '[]'); } catch(e) { banners = []; }
+    const idx = parseInt(req.body.idx, 10);
+    if (Number.isInteger(idx) && banners[idx]) {
+      const removido = banners[idx];
+      if (removido.startsWith('/data-uploads/')) {
+        const arquivoPath = path.join(UPLOADS_IMOVEIS_DIR, path.basename(removido));
+        fs.unlink(arquivoPath, () => {});
+      }
+      banners.splice(idx, 1);
+      await salvarConfig(_PORTAL_GLOBAL_ID, { banners: JSON.stringify(banners) });
+    }
+    res.redirect('/admin/site-global?msg=salvo');
+  } catch(e) {
+    console.error('[admin/site-global/banner/excluir]', e.message);
+    res.redirect('/admin/site-global?msg=erro');
+  }
+});
+// ── FIM ADMIN SITE GLOBAL ──────────────────────────────────────────────────
 
 // ── SITE PÚBLICO WHITE-LABEL POR USUÁRIO ──────────────────────────────────────
 function _paginaManutencaoSite(res, corretor) {
@@ -10709,9 +10926,7 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
       if (_geo) { pub.latitude = _geo.latitude; pub.longitude = _geo.longitude; }
     }
 
-    const parecidos = imoveisDoUsuario
-      .filter(i => i.status !== 'inativo' && i.status !== 'excluido' && String(i.id) !== String(imovel.id) && (i.bairro === imovel.bairro || i.tipo === imovel.tipo))
-      .slice(0, 4);
+    const parecidos = _imoveisCompativeis(imovel, imoveisDoUsuario, 4);
 
     res.render('imovel-publico', {
       imovel: pub, corretor, leadDados: { nome: '', telefone: '' }, temLeadId: false, leadId: '',
@@ -10790,10 +11005,10 @@ app.get('/imovel/:id', async (req, res) => {
     }
     const _usuarioLogado = req.session && req.session.user ? req.session.user : null;
     const _compartilhador = (_uidLead && _uidLead !== _uid2) ? ((_cacheUsuarios||[]).find(u=>(u.id===_uidLead||u.codigoUsuario===_uidLead||u.codigo_usuario===_uidLead)) || null) : null;
-    const _parecidos = imoveis
-      .filter(i => i.status !== 'inativo' && i.status !== 'excluido' && String(i.id) !== String(imovel.id) && String(i.userId||i.user_id) === String(_uid2) && (i.bairro === imovel.bairro || i.tipo === imovel.tipo))
-      .slice(0, 4);
-    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, leadId: _leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador, siteOrigin: req.protocol + '://' + req.get('host'), parecidos: _parecidos });
+    const _parecidos = _imoveisCompativeis(imovel, imoveis, 4);
+    const _voltarQuery = req.query.voltar || '';
+    const _voltarPortalUrl = (_voltarQuery && _voltarQuery.startsWith('/portal')) ? _voltarQuery : '';
+    return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, leadId: _leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador, siteOrigin: req.protocol + '://' + req.get('host'), parecidos: _parecidos, voltarPortalUrl: _voltarPortalUrl });
   }
 
   // Busca nos matches do QuintoAndar

@@ -6,18 +6,29 @@
   <title>MatchImóveis · Todos os imóveis da rede</title>
   <% const _descPortal = totalImoveis + ' imóve' + (totalImoveis===1?'l':'is') + ' de corretores e imobiliárias parceiras, em todo o Brasil.'; %>
   <% const _urlPortal = (typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin + '/portal' : ''; %>
+  <% const _sc = (typeof siteConfig !== 'undefined' && siteConfig) ? siteConfig : {}; %>
   <meta name="description" content="<%= _descPortal %>">
   <% if(_urlPortal){ %><link rel="canonical" href="<%= _urlPortal %>"><% } %>
   <meta property="og:type" content="website">
   <meta property="og:title" content="MatchImóveis · Todos os imóveis da rede">
   <meta property="og:description" content="<%= _descPortal %>">
   <% if(_urlPortal){ %><meta property="og:url" content="<%= _urlPortal %>"><% } %>
-  <meta name="twitter:card" content="summary">
+  <% if(_sc.logoUrl){ %><meta property="og:image" content="<%= _sc.logoUrl %>"><% } %>
+  <meta name="twitter:card" content="<%= _sc.logoUrl ? 'summary_large_image' : 'summary' %>">
+  <% if(_sc.logoUrl){ %><link rel="icon" href="<%= _sc.logoUrl %>"><% } %>
+  <% if(_sc.googleAnalyticsId){ %>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=<%= _sc.googleAnalyticsId %>"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',<%- JSON.stringify(_sc.googleAnalyticsId) %>);</script>
+  <% } %>
+  <% if(_sc.metaPixelId){ %>
+  <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init',<%- JSON.stringify(_sc.metaPixelId) %>);fbq('track','PageView');</script>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<%= _sc.metaPixelId %>&ev=PageView&noscript=1"/></noscript>
+  <% } %>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{
-      --brand:#FF385C;
+      --brand:<%= _sc.corPrimaria || '#FF385C' %>;
       --teal:#00A699; --teal-ink:#0E7268;
       --ink:#16181A; --paper:#FBF9F6;
       --sand:#F1EBE1; --line:#E2DBCC;
@@ -29,10 +40,19 @@
     body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
     a{color:inherit}
 
-    header{background:color-mix(in srgb, var(--paper) 90%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    header{background:<%= _sc.corCabecalho ? _sc.corCabecalho : 'color-mix(in srgb, var(--paper) 90%, transparent)' %>;<% if(!_sc.corCabecalho){ %>backdrop-filter:blur(10px);<% } %>border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
     .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.4px;text-decoration:none;color:var(--ink)}
     .logo .dot{width:8px;height:8px;border-radius:50%;background:var(--brand)}
+    .logo img{height:36px;max-width:210px;object-fit:contain;display:block}
     .header-acoes{display:flex;align-items:center;gap:10px}
+    .banners{max-width:1200px;margin:0 auto;padding:20px 24px 0}
+    .banners-track{position:relative;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);aspect-ratio:16/4;background:var(--sand)}
+    .banners-track img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}
+    .banners-track img.ativo{opacity:1}
+    .banners-dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+    .banners-dots button{width:7px;height:7px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0}
+    .banners-dots button.ativo{background:var(--brand);width:18px;border-radius:4px;transition:width .2s}
+    @media(max-width:640px){ .banners-track{aspect-ratio:16/7} }
     .btn-anuncie-header{display:flex;align-items:center;gap:7px;background:var(--paper);border:1px solid var(--line);color:var(--ink);padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none}
     .btn-corretor-header{display:flex;align-items:center;gap:7px;background:#111827;color:#fff;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none}
 
@@ -73,9 +93,9 @@
     .pg-link.atual{background:var(--brand);border-color:var(--brand);color:#fff}
     .pg-link.desabilitado{opacity:.4;pointer-events:none}
 
-    .site-footer{border-top:1px solid var(--line);margin-top:40px;padding:32px 24px;text-align:center;color:var(--muted);font-size:13px;line-height:1.9}
-    .site-footer b{color:var(--ink);display:block;font-size:16px;margin-bottom:4px}
-    .site-footer a{color:var(--muted);text-decoration:none}
+    .site-footer{background:<%= _sc.corRodape ? _sc.corRodape : 'transparent' %>;border-top:1px solid var(--line);margin-top:40px;padding:32px 24px;text-align:center;color:<%= _sc.corTextoRodape ? _sc.corTextoRodape : 'var(--muted)' %>;font-size:13px;line-height:1.9}
+    .site-footer b{color:<%= _sc.corTextoRodape ? _sc.corTextoRodape : 'var(--ink)' %>;display:block;font-size:16px;margin-bottom:4px}
+    .site-footer a{color:<%= _sc.corTextoRodape ? _sc.corTextoRodape : 'var(--muted)' %>;text-decoration:none}
     .site-footer a:hover{color:var(--brand)}
 
     @media(max-width:640px){
@@ -90,12 +110,32 @@
 <body>
 
 <header>
-  <a href="/portal" class="logo"><span class="dot"></span>Match<span style="color:var(--brand)">Imóveis</span></a>
+  <a href="/portal" class="logo">
+    <% if(_sc.logoUrl){ %><img src="<%= _sc.logoUrl %>" alt="<%= _sc.rodapeNome %>">
+    <% } else { %><span class="dot"></span>Match<span style="color:var(--brand)">Imóveis</span><% } %>
+  </a>
   <div class="header-acoes">
-    <a href="/captar/REN-G9K6" class="btn-anuncie-header">📢 Anuncie seu imóvel</a>
+    <a href="/captar/REN-G9K6" class="btn-anuncie-header" title="Área do Proprietário">📢 Anuncie seu imóvel</a>
     <a href="/?ref=REN-G9K6" class="btn-corretor-header">👤 Sou corretor</a>
   </div>
 </header>
+
+<% if(_sc.banners && _sc.banners.length){ %>
+<div class="banners">
+  <div class="banners-track" id="banners-track">
+    <% _sc.banners.forEach(function(b, i){ %>
+    <img src="<%= b %>" class="<%= i===0?'ativo':'' %>" data-i="<%= i %>">
+    <% }); %>
+  </div>
+  <% if(_sc.banners.length > 1){ %>
+  <div class="banners-dots" id="banners-dots">
+    <% _sc.banners.forEach(function(b, i){ %>
+    <button class="<%= i===0?'ativo':'' %>" data-i="<%= i %>"></button>
+    <% }); %>
+  </div>
+  <% } %>
+</div>
+<% } %>
 
 <div class="hero">
   <h1>Todos os imóveis da rede MatchImóveis</h1>
@@ -144,6 +184,15 @@
       </select>
     </div>
     <div class="ffield">
+      <label>Condição</label>
+      <select name="condicao" onchange="this.form.submit()">
+        <option value="">Todas</option>
+        <option value="lancamento" <%= filtros.condicao==='lancamento'?'selected':'' %>>Lançamento</option>
+        <option value="usado" <%= filtros.condicao==='usado'?'selected':'' %>>Usado</option>
+        <option value="pronto" <%= filtros.condicao==='pronto'?'selected':'' %>>Pronto novo</option>
+      </select>
+    </div>
+    <div class="ffield">
       <label>Quartos</label>
       <select name="quartosMin" onchange="this.form.submit()">
         <option value="">Qualquer</option>
@@ -167,7 +216,7 @@
         <option value="recentes" <%= filtros.ordenar==='recentes'?'selected':'' %>>Mais recentes</option>
       </select>
     </div>
-    <% if(filtros.busca||filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||(filtros.ordenar&&filtros.ordenar!=='menor-preco')){ %>
+    <% if(filtros.busca||filtros.cidade||filtros.bairro||filtros.tipo||filtros.operacao||filtros.condicao||filtros.quartosMin||filtros.valorMin||filtros.valorMax||(filtros.ordenar&&filtros.ordenar!=='menor-preco')){ %>
     <a href="/portal" class="btn-limpar">Limpar filtros</a>
     <% } %>
   </form>
@@ -184,7 +233,7 @@
     <% imoveis.forEach(function(im){ %>
     <% const _idLink = im.idExterno || im.idInterno || im.id; %>
     <% const _trans = (im.transacao||'').toLowerCase(); %>
-    <a href="/imovel/<%= _idLink %>" class="card">
+    <a href="/imovel/<%= _idLink %>?voltar=<%= encodeURIComponent(typeof portalUrl!=='undefined'&&portalUrl?portalUrl:'/portal') %>" class="card">
       <div class="card-img">
         <% if(im.fotos && im.fotos.length){ %><img src="<%= im.fotos[0] %>" loading="lazy">
         <% } else { %><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:13px">Sem foto</div><% } %>
@@ -239,10 +288,70 @@
 </div>
 
 <footer class="site-footer">
-  <b>MatchImóveis</b>
-  <div>A maior rede de corretores e imobiliárias parceiras — anuncie ou encontre seu próximo imóvel.</div>
+  <b><%= _sc.rodapeNome || 'MatchImóveis' %></b>
+  <% if(_sc.rodapeEndereco){ %><%= _sc.rodapeEndereco %><br><% } %>
+  <% if(_sc.rodapeTelefone){ %><%= _sc.rodapeTelefone %><% } %>
+  <% if(_sc.rodapeInstagram || _sc.rodapeFacebook){ %>
+    <div class="social-links" style="margin-top:12px;display:flex;justify-content:center;gap:10px">
+      <% if(_sc.rodapeInstagram){ %>
+      <a href="<%= _sc.rodapeInstagram %>" target="_blank" aria-label="Instagram" style="width:36px;height:36px;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;opacity:.85">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <% } %>
+      <% if(_sc.rodapeFacebook){ %>
+      <a href="<%= _sc.rodapeFacebook %>" target="_blank" aria-label="Facebook" style="width:36px;height:36px;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;opacity:.85">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.89h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94z"/></svg>
+      </a>
+      <% } %>
+    </div>
+  <% } %>
+  <div style="margin-top:10px;max-width:52ch;margin-left:auto;margin-right:auto"><%= _sc.rodapeTexto || 'A maior rede de corretores e imobiliárias parceiras — anuncie ou encontre seu próximo imóvel.' %></div>
   <div style="margin-top:14px;font-size:11px;color:var(--muted-2)"><a href="https://www.matchimoveis.ia.br" target="_blank">matchimoveis.ia.br</a></div>
 </footer>
+
+<script>
+(function(){
+  var track = document.getElementById('banners-track');
+  if(!track) return;
+  var imgs = Array.prototype.slice.call(track.querySelectorAll('img'));
+  var dots = document.querySelectorAll('#banners-dots button');
+  if(imgs.length < 2) return;
+  var atual = 0;
+  function mostrar(i){
+    imgs[atual].classList.remove('ativo');
+    if(dots[atual]) dots[atual].classList.remove('ativo');
+    atual = i;
+    imgs[atual].classList.add('ativo');
+    if(dots[atual]) dots[atual].classList.add('ativo');
+  }
+  dots.forEach(function(dot){
+    dot.addEventListener('click', function(){ mostrar(parseInt(dot.dataset.i, 10)); reiniciar(); });
+  });
+  var timer;
+  function reiniciar(){
+    clearInterval(timer);
+    timer = setInterval(function(){ mostrar((atual + 1) % imgs.length); }, 5000);
+  }
+  reiniciar();
+})();
+
+<% if(!filtros.busca && !filtros.cidade && !filtros.bairro && !filtros.tipo && !filtros.operacao && !filtros.condicao && !filtros.quartosMin && !filtros.valorMin && !filtros.valorMax && !filtros.page){ %>
+(function(){
+  // Sem nenhum filtro aplicado ainda: se o navegador autorizar, pré-filtra pela cidade do visitante.
+  if(localStorage.getItem('mi_portal_geo_perguntado')) return;
+  if(!navigator.geolocation) return;
+  localStorage.setItem('mi_portal_geo_perguntado', '1');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    fetch('/api/portal/geo-cidade?lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude)
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d.cidade) window.location.href = '/portal?cidade=' + encodeURIComponent(d.cidade);
+      })
+      .catch(function(){});
+  }, function(){ /* usuário negou ou indisponível — segue sem filtro */ }, { timeout: 8000 });
+})();
+<% } %>
+</script>
 
 </body>
 </html>

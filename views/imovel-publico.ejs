@@ -212,11 +212,21 @@
     <% if(_siteCfg.logoUrl){ %><img src="<%= _siteCfg.logoUrl %>" alt="<%= _siteCfg.rodapeNome %>" style="height:36px;max-width:210px;object-fit:contain">
     <% } else { %><span class="dot"></span><%= _siteCfg.rodapeNome || 'Imóveis' %><% } %>
   </a>
+  <% } else if (typeof voltarPortalUrl !== 'undefined' && voltarPortalUrl) { %>
+  <a href="<%= voltarPortalUrl %>" class="logo" style="text-decoration:none">
+    <span class="dot"></span>Match<em>Imóveis</em>
+  </a>
   <% } else { %>
   <div class="logo"><span class="dot"></span>Match<em>Imóveis</em></div>
   <% } %>
   <div class="ref">Ref. #<%= imovel.idExterno %></div>
 </header>
+
+<% if (typeof voltarPortalUrl !== 'undefined' && voltarPortalUrl) { %>
+<div style="max-width:1080px;margin:16px auto 0;padding:0 24px">
+  <a href="<%= voltarPortalUrl %>" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none">← Voltar à busca</a>
+</div>
+<% } %>
 
 <div class="container">
 
@@ -324,7 +334,7 @@
       <div class="card-parecidos">
         <% parecidos.forEach(function(p){ %>
         <% const _pTrans = (p.transacao||'').toLowerCase(); %>
-        <a href="<%= (typeof siteVoltarUrl!=='undefined'&&siteVoltarUrl&&siteVoltarUrl!=='/' ? siteVoltarUrl+'/imovel/' : '/imovel/') %><%= p.idExterno||p.idInterno||p.id %>" class="pc-card">
+        <a href="<%= (typeof siteVoltarUrl!=='undefined'&&siteVoltarUrl&&siteVoltarUrl!=='/' ? siteVoltarUrl+'/imovel/' : '/imovel/') %><%= p.idExterno||p.idInterno||p.id %><%= (typeof voltarPortalUrl!=='undefined'&&voltarPortalUrl) ? '?voltar='+encodeURIComponent(voltarPortalUrl) : '' %>" class="pc-card">
           <div class="pc-img">
             <% if(p.fotos && p.fotos[0]){ %><img src="<%= p.fotos[0] %>" loading="lazy"><% } %>
             <% if(_pTrans==='venda'||_pTrans==='aluguel'){ %><span class="pc-badge" style="background:<%= _pTrans==='aluguel'?'var(--teal)':'var(--brand)' %>"><%= _pTrans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>
@@ -423,9 +433,9 @@
 
       <% const _codCorretorCta = corretor && (corretor.codigoUsuario || corretor.codigo_usuario || corretor.id); %>
       <% if (_codCorretorCta) { %>
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px;text-align:center">
-        <a href="/captar/<%= _codCorretorCta %>" style="font-size:12px;color:var(--muted);text-decoration:underline">Proprietário? Quer vender ou alugar seu imóvel? Clique aqui</a>
-        <a href="/?ref=<%= _codCorretorCta %>" style="font-size:12px;color:var(--muted);text-decoration:underline">Você é corretor? Comece agora</a>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px">
+        <a href="/captar/<%= _codCorretorCta %>" style="display:block;text-align:center;font-size:13px;font-weight:700;color:var(--white);background:var(--brand);border-radius:10px;padding:11px 14px;text-decoration:none">📢 Quer vender ou alugar seu imóvel? Clique aqui</a>
+        <a href="/?ref=<%= _codCorretorCta %>" style="display:block;text-align:center;font-size:13px;font-weight:700;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:11px 14px;text-decoration:none">👤 Você é corretor? Comece agora</a>
       </div>
       <% } %>
     </div>

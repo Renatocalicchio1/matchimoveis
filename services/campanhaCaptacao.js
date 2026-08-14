@@ -297,7 +297,9 @@ async function _enviarFollowup(envio, tipo, numero) {
       para: envio.email,
       assunto: variacao.assunto,
       html: _montarHtml(envio.nome, variacao.corpo, linkRastreado, pixelUrl),
-      texto: variacao.corpo + ' Cadastre: ' + linkRastreado
+      texto: variacao.corpo + ' Cadastre: ' + linkRastreado,
+      tipo: 'campanha_captacao_' + tipo,
+      variante: variacao.assunto
     });
     await marcarFollowupEnviado(envio.id, numero);
     return { enviado: true, email: envio.email, modelo: tipo, titulo: variacao.assunto };
@@ -466,7 +468,10 @@ async function enviarProximoEmail() {
       para: emailNorm,
       assunto: titulo,
       html: _montarHtml(lead.nome, corpo, linkRastreado, pixelUrl),
-      texto: corpo + ' Cadastre: ' + linkRastreado
+      texto: corpo + ' Cadastre: ' + linkRastreado,
+      tipo: 'campanha_captacao_inicial',
+      variante: titulo,
+      leadId: lead.id
     });
     await query(`UPDATE campanha_captacao_envios SET titulo_usado=$1, corpo_usado=$2 WHERE id=$3`, [titulo, corpo, envioId]);
     return { enviado: true, email: emailNorm, titulo };

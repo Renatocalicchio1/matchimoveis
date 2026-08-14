@@ -90,7 +90,7 @@ async function verificarOnboardingPassos() {
 
         if (todosCompletosAgora) {
           const { assunto, html, texto } = _emailCompleto(u);
-          await enviarEmail({ para: u.email, assunto, html, texto });
+          await enviarEmail({ para: u.email, assunto, html, texto, tipo: 'onboarding_completo', userId: uid });
           const marcar = {}; PASSOS.forEach(p => { marcar[p.flag] = true; });
           await query(`UPDATE usuarios SET dados = dados || $1::jsonb WHERE id=$2`, [JSON.stringify(marcar), u.id]);
           console.log('[ONBOARDING EMAIL] onboarding completo:', u.email);
@@ -102,7 +102,7 @@ async function verificarOnboardingPassos() {
           dados[passo.flag] = true; // marca localmente pra listar certo o que ainda falta neste email
           const pendentes = PASSOS.filter(p => !dados[p.flag]);
           const { assunto, html, texto } = _emailPasso({ ...u, _dadosParaLista: dados }, passo, pendentes);
-          await enviarEmail({ para: u.email, assunto, html, texto });
+          await enviarEmail({ para: u.email, assunto, html, texto, tipo: 'onboarding_passo', variante: passo.flag, userId: uid });
           await query(`UPDATE usuarios SET dados = dados || $1::jsonb WHERE id=$2`, [JSON.stringify({ [passo.flag]: true }), u.id]);
           console.log('[ONBOARDING EMAIL] passo', passo.numero, 'enviado:', u.email);
           await new Promise(r => setTimeout(r, 1000));

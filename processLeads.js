@@ -214,12 +214,10 @@ async function run() {
     await salvarTodosLeads(todas);
     console.log(`✅ ${novas.length} leads importadas com sucesso.`);
 
-    // Consumir 10 coins por lead importada
+    // Consumir coins por lead importada — uma entrada só no histórico pro lote inteiro
     try {
-      const { consumir } = require('./services/creditos');
-      for (let i = 0; i < novas.length; i++) {
-        consumir(userId, 'importar_lead').catch(()=>{});
-      }
+      const { consumirLote } = require('./services/creditos');
+      if (novas.length > 0) await consumirLote(userId, 'importar_lead', novas.length);
     } catch(e) {}
 
     // Rodar match para leads novas com perfil suficiente

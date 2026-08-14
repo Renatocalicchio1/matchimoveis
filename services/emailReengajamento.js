@@ -35,7 +35,10 @@ async function enviarEmailReengajamento() {
             <p style="margin-top:32px;color:#888;font-size:12px">MatchImóveis • matchimoveis.online</p>
             <p style="margin-top:8px;color:#9ca3af;font-size:11px;line-height:1.6">Não quer mais receber estes e-mails? <a href="https://matchimoveis.ia.br/email/cancelar?u=${u.codigo_usuario}" style="color:#9ca3af">Cancelar recebimento</a> · <a href="https://matchimoveis.ia.br/conta/excluir?u=${u.codigo_usuario}" style="color:#9ca3af">Excluir minha conta</a></p>
           </div>`,
-          texto: `Olá ${u.nome}! Faz ${diasSemAcesso} dias que você não acessa o MatchImóveis. Volte agora: https://matchimoveis.ia.br`
+          texto: `Olá ${u.nome}! Faz ${diasSemAcesso} dias que você não acessa o MatchImóveis. Volte agora: https://matchimoveis.ia.br`,
+          tipo: 'reengajamento_inativo',
+          botaoTexto: 'Voltar ao sistema →',
+          userId: u.codigo_usuario
         });
         console.log('[REENGAJAMENTO] email enviado:', u.email);
         await new Promise(r => setTimeout(r, 1000)); // 1s entre emails

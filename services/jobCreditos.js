@@ -221,7 +221,11 @@ async function enviarEmailsRecarga() {
           para: email,
           assunto: _COPY_URGENCIA[_nivelUrgenciaSaldo(saldo)].assunto(primeiroNome),
           html: _montarHtmlRecarga(u.nome, ref, saldo),
-          texto: 'Seus créditos estão baixos. Recarregue em: ' + BASE_URL_RECARGA + '/app/perfil'
+          texto: 'Seus créditos estão baixos. Recarregue em: ' + BASE_URL_RECARGA + '/app/perfil',
+          tipo: 'recarga_saldo_baixo',
+          variante: _nivelUrgenciaSaldo(saldo),
+          botaoTexto: 'Recarregar →',
+          userId: uid
         });
         await atualizarUsuario(uid, { ultimoEmailRecargaEm: new Date().toISOString() });
         console.log('[jobCreditos/recarga] e-mail enviado:', email, '| saldo:', saldo, '| ref:', ref || '(sem sub-admin)');

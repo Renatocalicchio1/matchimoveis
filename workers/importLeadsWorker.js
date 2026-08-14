@@ -27,7 +27,10 @@ async function run() {
           para: _user.email,
           assunto: '✅ Importação de leads concluída — MatchImóveis',
           html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">✅ Importação concluída!</h2><p>Sua planilha de leads foi importada com sucesso.</p><a href="https://matchimoveis.ia.br/app/leads" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver leads →</a></div>',
-          texto: 'Importação de leads concluída. Acesse: https://matchimoveis.ia.br/app/leads'
+          texto: 'Importação de leads concluída. Acesse: https://matchimoveis.ia.br/app/leads',
+          tipo: 'importacao_leads_concluida',
+          botaoTexto: 'Ver leads →',
+          userId
         });
       }
     } catch(_eR){}

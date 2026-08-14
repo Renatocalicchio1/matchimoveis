@@ -324,7 +324,8 @@ async function contratarCombo(plano){
           const _cor = _eh_credito ? '#22c55e' : '#ef4444';
           const _sinal = _eh_credito ? '+' : '-';
           const _data = new Date(t.data).toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo', day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'});
-          const _label = _labels[t.motivo] || t.motivo;
+          const _unidadeItens = t.motivo === 'importar_lead' ? 'leads' : 'imóveis';
+          const _label = (_labels[t.motivo] || t.motivo) + (t.itens > 1 ? ' (' + t.itens + ' ' + _unidadeItens + ')' : '');
           const _tipo = _eh_credito ? 'recarga' : 'debito';
         %>
         <div class="item-historico" data-tipo="<%= _tipo %>" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f9fafb;border-radius:10px">

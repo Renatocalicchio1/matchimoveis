@@ -163,6 +163,25 @@ async function _migrarColunaMapa() {
 }
 _migrarColunaMapa();
 
+// Convite pro portal global (services/emailPortalGlobal.js) — só vale pra leads
+// que entrarem a partir de agora (decisão do Renato): se a coluna ainda não
+// existe, ao criá-la marca TODO o histórico como "já enviado" pra não disparar
+// a campanha pra base toda de uma vez.
+async function _migrarColunaPortalEmail() {
+  try {
+    const { query: _q } = require('./db');
+    const { rows } = await _q(`SELECT 1 FROM information_schema.columns WHERE table_name='leads' AND column_name='portal_email_enviado'`);
+    const _jaExistia = rows.length > 0;
+    await _q('ALTER TABLE leads ADD COLUMN IF NOT EXISTS portal_email_enviado BOOLEAN DEFAULT false');
+    await _q('ALTER TABLE leads ADD COLUMN IF NOT EXISTS portal_email_enviado_em TIMESTAMP');
+    if (!_jaExistia) {
+      await _q('UPDATE leads SET portal_email_enviado = true WHERE COALESCE(portal_email_enviado, false) = false');
+      console.log('[portal-email] coluna criada — leads existentes marcadas como já enviadas (campanha vale só pras novas)');
+    }
+  } catch(e) {}
+}
+_migrarColunaPortalEmail();
+
 async function salvarLead(lead) {
   if (await dbOk()) {
     try {
@@ -206,7 +225,11 @@ async function salvarLead(lead) {
                 para: _user.email,
                 assunto: '🔔 Nova lead recebida — MatchImóveis',
                 html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">🔔 Nova lead!</h2><p><strong>Nome:</strong> ' + (lead.nome||'Sem nome') + '</p><p><strong>Origem:</strong> ' + _origem + '</p><a href="' + _linkLead + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Nova Lead →</a></div>',
-                texto: 'Nova lead: ' + (lead.nome||'Sem nome') + ' | ' + _linkLead
+                texto: 'Nova lead: ' + (lead.nome||'Sem nome') + ' | ' + _linkLead,
+                tipo: 'nova_lead_corretor',
+                botaoTexto: 'Nova Lead →',
+                leadId: r.id,
+                userId: _leadUserId
               }).catch(()=>{});
             }
           }
@@ -227,7 +250,11 @@ async function salvarLead(lead) {
             para: lead.email,
             assunto: 'Cadastre seu imóvel — MatchImóveis',
             html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Olá, ' + (lead.nome||'') + '!</h2><p>Se você tiver um imóvel para venda ou locação, você pode cadastrar as informações básicas do seu imóvel que nosso time entrará em contato.</p><p>Clique no botão abaixo — o processo é simples e rápido.</p><a href="' + _linkCap + '" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Cadastrar meu imóvel →</a></div>',
-            texto: 'Cadastre seu imovel: ' + _linkCap
+            texto: 'Cadastre seu imovel: ' + _linkCap,
+            tipo: 'convite_captacao_lead',
+            botaoTexto: 'Cadastrar meu imóvel →',
+            leadId: r.id,
+            userId: _leadUserId2
           }).then(()=>{
             console.log('[EMAIL CAPTACAO] enviado para:', lead.email);
             const { consumir: _consEmailCap } = require('./creditos');

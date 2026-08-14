@@ -81,7 +81,7 @@ async function enviarEmailResumo() {
           <p style="margin-top:8px;color:#9ca3af;font-size:11px;line-height:1.6">Não quer mais receber estes e-mails? <a href="${BASE_URL}/email/cancelar?u=${uid}" style="color:#9ca3af">Cancelar recebimento</a> · <a href="${BASE_URL}/conta/excluir?u=${uid}" style="color:#9ca3af">Excluir minha conta</a></p>
         </div>`;
 
-        await enviarEmail({ para: u.email, assunto: '📊 Resumo da sua conta MatchImóveis', html, texto: `Olá ${u.nome}! Acesse seu resumo em ${BASE_URL}` });
+        await enviarEmail({ para: u.email, assunto: '📊 Resumo da sua conta MatchImóveis', html, texto: `Olá ${u.nome}! Acesse seu resumo em ${BASE_URL}`, tipo: 'resumo_conta_periodico', botaoTexto: 'Acessar o sistema →', userId: uid });
         console.log('[RESUMO EMAIL] enviado:', u.email);
         await new Promise(r => setTimeout(r, 1000));
       } catch(e) { console.error('[RESUMO EMAIL] erro:', u.email, e.message); }

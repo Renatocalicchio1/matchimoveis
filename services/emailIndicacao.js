@@ -33,7 +33,10 @@ async function enviarEmailIndicacao() {
           para: u.email,
           assunto: '🔗 Indique corretores e ganhe créditos — MatchImóveis',
           html,
-          texto: `Olá ${u.nome}! Seu link de indicação: ${link} — a cada corretor indicado que recarregar créditos, você ganha 10% de bônus.`
+          texto: `Olá ${u.nome}! Seu link de indicação: ${link} — a cada corretor indicado que recarregar créditos, você ganha 10% de bônus.`,
+          tipo: 'convite_indicacao',
+          botaoTexto: 'Convidar pelo WhatsApp',
+          userId: u.codigo_usuario
         });
         console.log('[EMAIL INDICACAO] enviado:', u.email);
         await new Promise(r => setTimeout(r, 1000));

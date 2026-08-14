@@ -86,10 +86,84 @@ function _rodapeDescadastro(email) {
   };
 }
 
-async function enviarEmail({ para, assunto, html, texto }) {
+// ── TRACKING DE EMAIL (abertura + clique) ────────────────────────────────────
+// Vale pra QUALQUER email que passe por enviarEmail() e informe `tipo` — como
+// enviarEmail() é o único ponto de saída de email do sistema, isso cobre todo
+// tipo de disparo (transacional, notificação, campanha) sem precisar de um
+// mecanismo por fluxo. `variante` identifica qual redação de assunto/copy/botão
+// foi usada nesse envio (pra comparar performance entre variações depois).
+let _tabelaEmailEnviosPronta = false;
+async function _garantirTabelaEmailEnvios() {
+  if (_tabelaEmailEnviosPronta) return;
+  await query(`CREATE TABLE IF NOT EXISTS email_envios (
+    id SERIAL PRIMARY KEY,
+    tipo TEXT NOT NULL,
+    variante TEXT,
+    destinatario TEXT,
+    lead_id TEXT,
+    user_id TEXT,
+    assunto TEXT,
+    botao_texto TEXT,
+    enviado_em TIMESTAMP DEFAULT NOW(),
+    aberto_em TIMESTAMP,
+    aberturas INT DEFAULT 0,
+    clicado_em TIMESTAMP,
+    cliques INT DEFAULT 0
+  )`);
+  await query(`CREATE INDEX IF NOT EXISTS idx_email_envios_tipo ON email_envios(tipo, variante)`);
+  _tabelaEmailEnviosPronta = true;
+}
+
+// Reescreve todo link http(s) do corpo pra passar pelo redirect de clique —
+// cobre o botão de CTA e qualquer outro link solto, sem exigir que quem chama
+// enviarEmail() marque manualmente "qual é o botão".
+function _rastrearLinks(html, envioId) {
+  return html.replace(/href="(https?:\/\/[^"]+)"/g, (m, url) => {
+    return 'href="' + BASE_URL + '/email/clique/' + envioId + '?u=' + encodeURIComponent(url) + '"';
+  });
+}
+
+async function registrarAberturaEmail(id) {
+  await query(`UPDATE email_envios SET aberto_em = COALESCE(aberto_em, NOW()), aberturas = aberturas + 1 WHERE id=$1`, [id]).catch(() => {});
+}
+
+async function registrarCliqueEmail(id) {
+  await query(`UPDATE email_envios SET clicado_em = COALESCE(clicado_em, NOW()), cliques = cliques + 1 WHERE id=$1`, [id]).catch(() => {});
+}
+
+// Agrega desempenho por tipo+variante+assunto+botão — base da tela /admin/emails.
+async function statsEmailEnvios() {
+  await _garantirTabelaEmailEnvios();
+  const { rows } = await query(`
+    SELECT tipo, variante, assunto, botao_texto,
+      COUNT(*)::int as enviados,
+      COUNT(aberto_em)::int as abertos,
+      COUNT(clicado_em)::int as clicados,
+      MAX(enviado_em) as ultimo_envio
+    FROM email_envios
+    GROUP BY tipo, variante, assunto, botao_texto
+    ORDER BY tipo, enviados DESC
+  `);
+  return rows;
+}
+
+async function enviarEmail({ para, assunto, html, texto, tipo, variante, botaoTexto, leadId, userId }) {
   if (await emailDescadastrado(para).catch(() => false)) {
     console.log('[EMAIL] pulado (descadastrado):', para);
     return { skipped: true };
+  }
+  let corpoHtml = html;
+  let envioId = null;
+  if (tipo) {
+    try {
+      await _garantirTabelaEmailEnvios();
+      const r = await query(
+        `INSERT INTO email_envios (tipo, variante, destinatario, lead_id, user_id, assunto, botao_texto) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+        [tipo, variante || null, para, leadId || null, userId || null, assunto, botaoTexto || null]
+      );
+      envioId = r.rows[0].id;
+      corpoHtml = _rastrearLinks(corpoHtml, envioId) + '<img src="' + BASE_URL + '/email/pixel/' + envioId + '" width="1" height="1" style="display:none" alt="">';
+    } catch (e) { console.error('[EMAIL] falha ao registrar tracking:', e.message); }
   }
   const cabecalho = _cabecalhoEmpresa();
   const rodape = _rodapeDescadastro(para);
@@ -99,14 +173,14 @@ async function enviarEmail({ para, assunto, html, texto }) {
     Message: {
       Subject: { Data: assunto, Charset: 'UTF-8' },
       Body: {
-        Html: { Data: cabecalho.html + html + rodape.html, Charset: 'UTF-8' },
+        Html: { Data: cabecalho.html + corpoHtml + rodape.html, Charset: 'UTF-8' },
         Text: { Data: cabecalho.texto + (texto || assunto) + rodape.texto, Charset: 'UTF-8' }
       }
     }
   });
   const result = await ses.send(cmd);
-  console.log('[EMAIL] enviado para:', para, '| MessageId:', result.MessageId);
-  return result;
+  console.log('[EMAIL] enviado para:', para, '| MessageId:', result.MessageId, tipo ? ('| tipo: ' + tipo + (variante ? '/' + variante : '')) : '');
+  return { ...result, envioId };
 }
 
-module.exports = { enviarEmail, descadastrarEmail, emailDescadastrado };
+module.exports = { enviarEmail, descadastrarEmail, emailDescadastrado, registrarAberturaEmail, registrarCliqueEmail, statsEmailEnvios };

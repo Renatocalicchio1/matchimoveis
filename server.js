@@ -566,6 +566,7 @@ const _ADMIN_NAV = [
   { sec: 'Comunicação', items: [
     { key: 'campanha', href: '/admin/campanha', icon: '📧', label: 'Campanha Email' },
     { key: 'captacao-campanha', href: '/admin/captacao-campanha', icon: '🏠', label: 'Campanha Captação' },
+    { key: 'emails', href: '/admin/emails', icon: '📬', label: 'Modelos de Email' },
     { key: 'disparos', href: '/admin/disparos', icon: '📲', label: 'Disparos WhatsApp' },
     { key: 'optout', href: '/admin/disparos/optout', icon: '🚫', label: 'Opt-out' },
     { key: 'minhas-comissoes', href: '/admin/minhas-comissoes', icon: '💰', label: 'Minhas Comissões' },
@@ -826,7 +827,7 @@ const _ADMIN_ROTAS_SUPERADMIN_ONLY = [
   '/admin/campanha/distribuir-atendimentos',
   '/admin/captacao-campanha/iniciar', '/admin/captacao-campanha/pausar',
   '/admin/captacao-campanha/distribuir-atendimentos',
-  '/admin/comissoes-pendentes', '/admin/atribuicoes-subadmin', '/admin/site-global'
+  '/admin/comissoes-pendentes', '/admin/atribuicoes-subadmin', '/admin/site-global', '/admin/emails'
 ];
 // Sempre acessível pra qualquer conta admin logada, sem depender de
 // permissão marcada — são telas que já filtram pelos dados da PRÓPRIA
@@ -3193,6 +3194,23 @@ setTimeout(async () => {
   }, 30 * 60 * 1000);
 }, 60 * 1000);
 
+// Job convite pro portal global — a cada 5 min, manda o convite (assunto/copy/
+// botão rotativos) só pra leads novas com email que ainda não receberam
+// (services/emailPortalGlobal.js). Envios dentro do lote são espaçados em
+// ~1.1s cada, mesmo intervalo já usado nos outros jobs de email.
+setTimeout(async () => {
+  try {
+    const { enviarConvitesPortal } = require('./services/emailPortalGlobal');
+    await enviarConvitesPortal();
+  } catch(e) { console.error('[JOB CONVITE PORTAL]', e.message); }
+  setInterval(async () => {
+    try {
+      const { enviarConvitesPortal } = require('./services/emailPortalGlobal');
+      await enviarConvitesPortal();
+    } catch(e) { console.error('[JOB CONVITE PORTAL]', e.message); }
+  }, 5 * 60 * 1000);
+}, 90 * 1000);
+
 app.get('/admin/regenerar-xml/:userId', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
@@ -3593,6 +3611,36 @@ function _temPerfilMinimoLead(l) {
          !!(pf.bairro||d.bairro||l.bairro||(m.bairro||[]).length) &&
          !!(pf.valorMax||d.valorMax||l.valorMax||(m.valor||[]).length);
 }
+// ── TRACKING DE EMAIL (pixel de abertura + redirect de clique) ──────────────
+// Genérico pra QUALQUER email disparado via services/email.js#enviarEmail()
+// com `tipo` informado — não é exclusivo de campanha em massa. Sem
+// autenticação (abertos direto por cliente de email / navegador do lead).
+app.get('/email/pixel/:id', async (req, res) => {
+  try {
+    const { registrarAberturaEmail } = require('./services/email');
+    await registrarAberturaEmail(req.params.id);
+  } catch (e) {}
+  const gif = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBTAA7', 'base64');
+  res.set('Content-Type', 'image/gif').send(gif);
+});
+app.get('/email/clique/:id', async (req, res) => {
+  try {
+    const { registrarCliqueEmail } = require('./services/email');
+    await registrarCliqueEmail(req.params.id);
+  } catch (e) {}
+  // Whitelist de domínio (mitiga phishing via link forjado /email/clique/:id?u=<externo>,
+  // que aparentaria vir do nosso domínio) — inclui wa.me/api.whatsapp.com porque vários
+  // templates de email têm CTA "Falar no WhatsApp" apontando pra lá.
+  let destino = req.query.u || 'https://www.matchimoveis.ia.br';
+  try {
+    const _host = new URL(destino).host;
+    if (!/(^|\.)matchimoveis\.(ia\.br|online|com\.br)$/.test(_host) && !/(^|\.)(wa\.me|whatsapp\.com)$/.test(_host)) {
+      destino = 'https://www.matchimoveis.ia.br';
+    }
+  } catch (e) { destino = 'https://www.matchimoveis.ia.br'; }
+  res.redirect(destino);
+});
+
 // Readiness check — usado pelo Render pra saber se pode trocar o tráfego
 // pra essa instância no deploy. Checa o banco (cache de 5s pra não bater
 // SELECT 1 a cada poll do Render).
@@ -3750,7 +3798,8 @@ app.post('/esqueci-senha', async (req, res) => {
             <p>Use essa senha pra entrar e depois troque por uma de sua preferência em <strong>Perfil → Alterar senha</strong>.</p>
             <p style="color:#b45309;background:#fffbeb;padding:12px 16px;border-radius:8px;margin-top:16px">⚠️ Não encontrou esse e-mail na caixa de entrada? Confira a pasta de <strong>spam / lixo eletrônico</strong>.</p>
           </div>`,
-          texto: `Sua nova senha: ${novaSenha}. Se não encontrar este email na caixa de entrada, verifique a pasta de spam.`
+          texto: `Sua nova senha: ${novaSenha}. Se não encontrar este email na caixa de entrada, verifique a pasta de spam.`,
+          tipo: 'senha_redefinida'
         }).catch(e => console.error('[esqueci-senha] erro ao enviar email:', e.message));
       }
     }
@@ -4521,7 +4570,10 @@ app.post('/login', async (req,res)=>{
           para: novo.email,
           assunto: '👋 Bem-vindo ao MatchImóveis!',
           html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px"><h2 style="color:#FF385C">Olá, ${novo.nome}! 👋</h2><p>Seja bem-vindo ao <strong>MatchImóveis</strong>. Seus primeiros passos:</p><ul style="padding-left:20px;line-height:1.9"><li>📋 Importar XML de imóveis (ou cadastrar manualmente) — Menu → Imóveis</li><li>📱 Conectar seu WhatsApp — Menu → Perfil</li><li>📸 Conectar seu Instagram — Menu → Perfil</li><li>🎯 Cadastrar uma lead manual — Menu → Leads</li><li>🤖 Tirar uma dúvida com o Assistente IA — Menu → Assistente</li><li>👤 Conhecer sua área de Perfil</li></ul><p>Você recebe um email a cada passo concluído, com o que ainda falta.</p><a href="https://matchimoveis.ia.br" style="display:inline-block;margin-top:24px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar o sistema →</a></div>`,
-          texto: 'Bem-vindo ao MatchImóveis! Acesse: https://matchimoveis.ia.br'
+          texto: 'Bem-vindo ao MatchImóveis! Acesse: https://matchimoveis.ia.br',
+          tipo: 'boas_vindas_corretor',
+          botaoTexto: 'Acessar o sistema →',
+          userId: novo.codigoUsuario || novo.id
         });
         console.log('[EMAIL] boas-vindas enviado para:', novo.email);
       } catch(_eEmail) { console.error('[EMAIL] erro:', _eEmail.message); }
@@ -8875,7 +8927,10 @@ setInterval(async () => {
                     <a href="${_link}" style="display:inline-block;margin-top:16px;padding:14px 28px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px">Ver minha seleção personalizada →</a>
                     <p style="margin-top:24px;color:#888;font-size:12px">Escolha o imóvel que mais gostou e agende sua visita!</p>
                   </div>`,
-                  texto: _msgEmail
+                  texto: _msgEmail,
+                  tipo: 'vitrine_email_lead',
+                  botaoTexto: 'Ver minha seleção personalizada →',
+                  leadId: lead.id
                 });
                 _leads[i].vitrineEmailEnviada = true;
                 _leads[i].vitrineEmailEnviadaEm = new Date().toISOString();
@@ -9191,7 +9246,10 @@ async function _enviarFollowupSemImoveis() {
             para: u.email,
             assunto: 'Cadastre seus imoveis e deixe a IA trabalhar por voce — MatchImoveis',
             html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">Ola, ' + (u.nome||'') + '!</h2><p>Cadastre seus imoveis e deixe a IA trabalhar por voce.</p><p>Fortaleca suas vendas com os parceiros da rede — o MatchImoveis e a unica plataforma inteligente do mercado imobiliario que une tudo que ha de melhor e mais avancado em tecnologia.</p><p>Acesse o sistema e cadastre seu XML agora, ou cadastre manualmente.</p><a href="https://www.matchimoveis.ia.br" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Acessar o sistema →</a></div>',
-            texto: msgWA
+            texto: msgWA,
+            tipo: 'followup_sem_imovel',
+            botaoTexto: 'Acessar o sistema →',
+            userId: u.codigo_usuario
           });
         } catch(e) { console.error('[followup-sem-imovel] erro email:', e.message); }
       }
@@ -10562,7 +10620,7 @@ app.post('/api/lead-interesse', async (req, res) => {
             const _corrUserEmail = _corrUser?.email || '';
             if (_corrUserEmail) {
               const { enviarEmail } = require('./services/email');
-              await enviarEmail({ para: _corrUserEmail, assunto: '📅 Nova solicitação de visita — MatchImóveis', html: '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre><br><a href="https://matchimoveis.ia.br/app/visitas" style="display:inline-block;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver no painel →</a></div>', texto: _msg });
+              await enviarEmail({ para: _corrUserEmail, assunto: '📅 Nova solicitação de visita — MatchImóveis', html: '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px"><pre style="font-family:Arial,sans-serif;white-space:pre-wrap">' + _msg + '</pre><br><a href="https://matchimoveis.ia.br/app/visitas" style="display:inline-block;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver no painel →</a></div>', texto: _msg, tipo: 'nova_solicitacao_visita', botaoTexto: 'Ver no painel →' });
               console.log('[visita] email corretor:', _corrUserEmail);
             }
           } catch(_eVE) { console.error('[visita] erro email:', _eVE.message); }
@@ -10832,6 +10890,25 @@ app.post('/admin/site-global/banner/excluir', authAdmin, async (req, res) => {
   }
 });
 // ── FIM ADMIN SITE GLOBAL ──────────────────────────────────────────────────
+
+// ── ADMIN — MODELOS DE EMAIL (tracking de abertura/clique de TODO email disparado) ──
+app.get('/admin/emails', authAdmin, async (req, res) => {
+  try {
+    const { statsEmailEnvios } = require('./services/email');
+    const linhas = await statsEmailEnvios().catch(() => []);
+    const totalEnviados = linhas.reduce((s, l) => s + l.enviados, 0);
+    const totalAbertos = linhas.reduce((s, l) => s + l.abertos, 0);
+    const totalClicados = linhas.reduce((s, l) => s + l.clicados, 0);
+    res.render('admin-emails', {
+      linhas, totalEnviados, totalAbertos, totalClicados,
+      adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('emails', _sidebarPerm(req), req)
+    });
+  } catch (e) {
+    console.error('[admin/emails]', e.message);
+    res.render('admin-emails', { linhas: [], totalEnviados: 0, totalAbertos: 0, totalClicados: 0, adminShellCss: _adminShellCss(), adminSidebar: _adminSidebarHtml('emails', _sidebarPerm(req), req) });
+  }
+});
+// ── FIM ADMIN MODELOS DE EMAIL ──────────────────────────────────────────────
 
 // ── SITE PÚBLICO WHITE-LABEL POR USUÁRIO ──────────────────────────────────────
 function _paginaManutencaoSite(res, corretor) {
@@ -18442,7 +18519,10 @@ app.post('/admin/demanda/transferir', authAdmin, express.json(), async (req, res
             para: _emailDestino,
             assunto: `🔔 ${importados} nova${importados > 1 ? 's' : ''} lead${importados > 1 ? 's' : ''} recebida${importados > 1 ? 's' : ''} — MatchImóveis`,
             html: '<div style="font-family:Arial,sans-serif;max-width:600px;padding:32px"><h2 style="color:#FF385C">🔔 ' + importados + ' nova' + (importados > 1 ? 's' : '') + ' lead' + (importados > 1 ? 's' : '') + '!</h2><p>Você recebeu ' + importados + ' nova' + (importados > 1 ? 's' : '') + ' lead' + (importados > 1 ? 's' : '') + ' na sua conta.</p><a href="https://matchimoveis.ia.br/app/leads" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver leads →</a></div>',
-            texto: `${importados} nova${importados > 1 ? 's' : ''} lead${importados > 1 ? 's' : ''} recebida${importados > 1 ? 's' : ''}. Acesse: https://matchimoveis.ia.br/app/leads`
+            texto: `${importados} nova${importados > 1 ? 's' : ''} lead${importados > 1 ? 's' : ''} recebida${importados > 1 ? 's' : ''}. Acesse: https://matchimoveis.ia.br/app/leads`,
+            tipo: 'resumo_leads_transferidas',
+            botaoTexto: 'Ver leads →',
+            userId: contaDestino
           });
         }
       } catch (eResumo) { console.error('[admin/demanda/transferir] erro no email de resumo:', eResumo.message); }
@@ -18534,7 +18614,10 @@ async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios,
         <p>Sua busca por leads em <strong>${escHtml(criterios.estado)}</strong> ficou salva na sua conta. Escolha um combo quando quiser pra levar esses leads pra sua carteira — eles entram automaticamente, junto com mais créditos, assim que o pagamento for aprovado.</p>
         <a href="https://www.matchimoveis.ia.br/app-home" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver minha conta →</a>
       </div>`,
-      texto: `Sua conta foi criada, ${nomeVal}! Você já ganhou 1.000 créditos de bônus. Sua busca em ${criterios.estado} ficou salva — escolha um combo quando quiser. Acesse: https://www.matchimoveis.ia.br/entrar`
+      texto: `Sua conta foi criada, ${nomeVal}! Você já ganhou 1.000 créditos de bônus. Sua busca em ${criterios.estado} ficou salva — escolha um combo quando quiser. Acesse: https://www.matchimoveis.ia.br/entrar`,
+      tipo: 'conta_criada_demanda',
+      botaoTexto: 'Ver minha conta →',
+      userId: novo.codigoUsuario || novo.id
     });
   } catch (eEmail) { console.error('[demanda] erro ao enviar email de boas-vindas:', eEmail.message); }
 
@@ -21080,7 +21163,7 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
         }
         if (_corretorFin.email) {
           const { enviarEmail } = require('./services/email');
-          enviarEmail({ para: _corretorFin.email, assunto: '📋 Novo imóvel captado — MatchImóveis', html: '<div style="font-family:Arial,sans-serif;padding:32px"><h2 style="color:#FF385C">📋 Novo imóvel captado!</h2><p><strong>'+_nomeProp+'</strong> cadastrou um imóvel para '+atualizado.transacao+'</p><p>🏠 '+(atualizado.tipo||'')+' | 📍 '+(atualizado.bairro||'')+', '+(atualizado.cidade||'')+'</p><a href="https://matchimoveis.ia.br/app/imovel/'+imovelId+'/editar" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Completar cadastro →</a></div>', texto: _msgFin }).catch(()=>{});
+          enviarEmail({ para: _corretorFin.email, assunto: '📋 Novo imóvel captado — MatchImóveis', html: '<div style="font-family:Arial,sans-serif;padding:32px"><h2 style="color:#FF385C">📋 Novo imóvel captado!</h2><p><strong>'+_nomeProp+'</strong> cadastrou um imóvel para '+atualizado.transacao+'</p><p>🏠 '+(atualizado.tipo||'')+' | 📍 '+(atualizado.bairro||'')+', '+(atualizado.cidade||'')+'</p><a href="https://matchimoveis.ia.br/app/imovel/'+imovelId+'/editar" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Completar cadastro →</a></div>', texto: _msgFin, tipo: 'imovel_captado_finalizar', botaoTexto: 'Completar cadastro →', userId: _corretorFin.codigoUsuario || _corretorFin.codigo_usuario || _corretorFin.id }).catch(()=>{});
         }
         criarNotificacaoService({
           id: Date.now().toString() + '_captacao_imovel',
@@ -21202,7 +21285,7 @@ app.post('/captar/salvar/:userId', express.json(), async (req, res) => {
       if (r.email) {
         try {
           const { enviarEmail } = require('./services/email');
-          await enviarEmail({ para: r.email, assunto: '📋 Nova captação de imóvel!', html: '<div style="font-family:Arial,sans-serif;padding:32px"><h2 style="color:#FF385C">📋 Nova captação!</h2><p><strong>'+r.nome+'</strong> tem um imóvel para '+transacao+'</p><p>🏠 '+tipo+' | 📍 '+endereco+'</p><a href="https://matchimoveis.ia.br/app/captacao" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver captação →</a></div>', texto: _msg });
+          await enviarEmail({ para: r.email, assunto: '📋 Nova captação de imóvel!', html: '<div style="font-family:Arial,sans-serif;padding:32px"><h2 style="color:#FF385C">📋 Nova captação!</h2><p><strong>'+r.nome+'</strong> tem um imóvel para '+transacao+'</p><p>🏠 '+tipo+' | 📍 '+endereco+'</p><a href="https://matchimoveis.ia.br/app/captacao" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#FF385C;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold">Ver captação →</a></div>', texto: _msg, tipo: 'nova_captacao_imovel', botaoTexto: 'Ver captação →', leadId });
         } catch(_eC){}
       }
       try {

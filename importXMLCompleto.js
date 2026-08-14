@@ -518,15 +518,13 @@ const final = [...restantes, ...novosFormatadosComStatus, ...inativos];
   // Cobra créditos apenas pelos imóveis novos — limitado ao saldo disponível
   if (USER_ID && imoveisNovos.length > 0) {
     try {
-      const { consumir, saldo: getSaldo, CUSTO } = require('./services/creditos');
+      const { consumirLote, saldo: getSaldo, CUSTO } = require('./services/creditos');
       const _custoUnit = CUSTO['importar_xml'] || 2;
       const _saldoAtual = await getSaldo(USER_ID);
       const _maxImportavel = Math.floor(_saldoAtual / _custoUnit);
       const _importarAte = Math.min(imoveisNovos.length, _maxImportavel);
       const _naoImportados = imoveisNovos.length - _importarAte;
-      for (let _ic = 0; _ic < _importarAte; _ic++) {
-        await consumir(USER_ID, 'importar_xml');
-      }
+      if (_importarAte > 0) await consumirLote(USER_ID, 'importar_xml', _importarAte);
       console.log('[importXML] Créditos consumidos:', _importarAte * _custoUnit, '(' + _importarAte + ' imóveis novos)');
       if (_naoImportados > 0) {
         console.log('[importXML] SALDO_INSUFICIENTE:', _naoImportados, 'imóveis não importados por falta de créditos');

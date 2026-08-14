@@ -3475,8 +3475,8 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
     }
     // Crédito manual pelo admin conta como recarga pra quem indicou esse
     // usuário — mesma regra de qualquer recarga real (ver _processarBonusIndicacao):
-    // 10% pro corretor indicador, 30% (em comissão, ledger) pro sub-admin
-    // responsável (atendidoPorAdmin), se houver.
+    // 10% pro corretor indicador, 30%/15% (1ª compra/recorrência, em
+    // comissão, ledger) pro sub-admin responsável (atendidoPorAdmin), se houver.
     if (op === 'adicionar' && qtd > 0) {
       await _processarBonusIndicacao(cod, qtd);
     }
@@ -4409,8 +4409,8 @@ app.get('/entrar/:contatoId', async (req, res) => {
         // por statsPorTemplate() pra saber qual mensagem converte mais em
         // cadastro/compra, não só em clique.
         origemTemplate: contato.template_nome_usado || _campanhaEntrar?.template_nome || '',
-        // Sub-admin responsável por essa conta — ganha 30% em comissão
-        // sempre que ela comprar créditos (ver _processarBonusIndicacao).
+        // Sub-admin responsável por essa conta — ganha 30% em comissão na
+        // 1ª compra e 15% nas seguintes (ver _processarBonusIndicacao).
         atendidoPorAdmin: _adminAtendente?.usuario || '',
         atendidoPorAdminNome: _adminAtendente?.nome || '',
         atendidoPorAdminCor: _adminAtendente?.cor || ''
@@ -4471,7 +4471,7 @@ app.post('/login', async (req,res)=>{
     const _indicador = _refCode ? users.find(u => (u.codigoUsuario || u.id) === _refCode) : null;
     // Link genérico de sub-admin (ex: /admin/minhas-comissoes) usa o mesmo
     // "?ref=" — se não bateu com corretor, tenta como usuário de admin_conta
-    // ativa, e essa indicação vira comissão de 30% (atendidoPorAdmin), não os
+    // ativa, e essa indicação vira comissão de 30%/15% (atendidoPorAdmin), não os
     // 10% em coins do fluxo corretor-indica-corretor.
     let _adminIndicador = null;
     if (_refCode && !_indicador) {
@@ -4537,8 +4537,8 @@ app.post('/login', async (req,res)=>{
     // corretor ou de sub-admin) ganha um bônus extra, além dos 1.000 padrão —
     // não fica só o indicador ganhando. Dá na hora do cadastro (não espera
     // recarga), pra reforçar a decisão de entrar logo. Mantém intacto o bônus
-    // do indicador (10% em coins, corretor; ou 30% em comissão, sub-admin —
-    // ver _processarBonusIndicacao), que continua só na primeira recarga.
+    // do indicador (10% em coins, corretor; ou 30%/15% em comissão, sub-admin —
+    // ver _processarBonusIndicacao), que continua valendo nas recargas seguintes.
     if (_indicador || _adminIndicador) {
       adicionarCreditos(novo.codigoUsuario, 500, 'bonus_indicacao_recebido').catch(e=>console.error('[bonus-indicado]', e.message));
       if (_cacheUsuarios) { const _uiNovoRef = _cacheUsuarios.findIndex(u => u.id === novo.codigoUsuario); if (_uiNovoRef >= 0) { _cacheUsuarios[_uiNovoRef].matchCoins = (_cacheUsuarios[_uiNovoRef].matchCoins||0) + 500; } }
@@ -12327,7 +12327,8 @@ async function _checarMarcoIndicacao(indicadorCodigo) {
 // Bônus de indicação: 10% dos créditos comprados vão pro indicador (corretor
 // que indicou outro corretor), sempre que o indicado recarrega. Além disso,
 // se essa conta foi criada por uma campanha de WhatsApp com sub-admin
-// responsável (atendidoPorAdmin), o sub-admin ganha 30% — mas isso fica só
+// responsável (atendidoPorAdmin), o sub-admin ganha 30% na primeira compra
+// desse indicado e 15% nas recargas seguintes (recorrência) — mas isso fica só
 // no ledger (indicacoes_bonus, indicador_tipo='admin'), nunca em
 // usuarios.match_coins, porque sub-admin não é corretor.
 async function _processarBonusIndicacao(userId, creditosComprados) {
@@ -12336,9 +12337,11 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
     if (!comprador) return;
 
     // Primeira compra — marca pra statsPorTemplate() conseguir medir conversão
-    // até "comprou", não só até "cadastrou". Só na 1ª vez (evita reescrever
-    // a cada recarga seguinte).
-    if (!comprador.comprouEm) {
+    // até "comprou", não só até "cadastrou" — e também decide a faixa de
+    // comissão do sub-admin (30% na 1ª, 15% depois). Só grava na 1ª vez
+    // (evita reescrever a cada recarga seguinte).
+    const _eraPrimeiraCompra = !comprador.comprouEm;
+    if (_eraPrimeiraCompra) {
       const { atualizarUsuario: _auComprouEm } = require('./services/salvarUsuario');
       const _comprouEmStamp = new Date().toISOString();
       await _auComprouEm(userId, { comprouEm: _comprouEmStamp });
@@ -12372,7 +12375,7 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
       const { buscarAdminConta } = require('./services/salvarAdminConta');
       const conta = await buscarAdminConta(comprador.atendidoPorAdmin);
       if (conta && conta.ativo) {
-        const bonusAdmin = Math.floor(creditosComprados * 0.30);
+        const bonusAdmin = Math.floor(creditosComprados * (_eraPrimeiraCompra ? 0.30 : 0.15));
         if (bonusAdmin > 0) {
           const { registrarBonus, totalDisponivelPorIndicador } = require('./services/salvarIndicacao');
           await registrarBonus({ indicadorCodigo: conta.usuario, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: bonusAdmin, indicadorTipo: 'admin' });
@@ -20039,7 +20042,7 @@ app.post('/admin/disparos/criar-de-usuarios', authAdmin, express.json(), async (
 // parece corretor e tem celular — vira disparo de WhatsApp oficial com botão
 // de auto-cadastro (usarContatoIdBotao). Cada contato é distribuído em
 // round-robin entre os sub-admins ativos (refAdmin), pra virar comissão de
-// 30% quando essa conta comprar créditos (ver _processarBonusIndicacao).
+// 30%/15% (1ª compra/recorrência) quando essa conta comprar créditos (ver _processarBonusIndicacao).
 app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), async (req, res) => {
   try {
     const { nomeCampanha, templateNome, templateIdioma, templates, delayMs, phoneNumberId, restringirHorario, ignorarHistorico, subAdmins } = req.body;
@@ -20110,7 +20113,7 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
-// ── Comissões do sub-admin (30% sobre indicação via campanha de WhatsApp) ──
+// ── Comissões do sub-admin (30% na 1ª compra / 15% recorrência, indicação via campanha de WhatsApp) ──
 // Painel próprio: qualquer admin logado vê só a própria conta (identificada
 // por req.session.adminUsuario), sem permissão especial — é o extrato dele,
 // não uma área administrativa restrita.
@@ -20250,7 +20253,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     <div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req), req)}
       <main class="admin-content" style="max-width:960px">
         <h1 style="font-size:22px;margin-bottom:4px">Minhas comissões</h1>
-        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 30% sobre compras dos corretores que entraram pelo seu link.</p>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 30% na primeira compra de cada corretor que entrar pelo seu link, e 15% nas recargas seguintes dele (recorrência).</p>
 
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px">
           <h3 style="margin:0 0 6px;font-size:14px">🔗 Seu link</h3>
@@ -20264,13 +20267,14 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 10px;font-size:14px">💳 Planos que você pode oferecer</h3>
           <table style="width:100%">
-            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Plano</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Sua comissão (30%)</th></tr></thead>
+            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Plano</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">1ª compra (30%)</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Recorrência (15%)</th></tr></thead>
             <tbody>${Object.values(PLANOS_LEADS).map(p => `
               <tr style="border-bottom:1px solid #f3f4f6">
                 <td style="padding:8px;font-size:12.5px;font-weight:600">${_escC(p.label)}</td>
                 <td style="padding:8px;font-size:12.5px">R$ ${p.valor}</td>
                 <td style="padding:8px;font-size:12.5px">${p.creditos.toLocaleString('pt-BR')}</td>
                 <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.3).toLocaleString('pt-BR')} coins</td>
+                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.15).toLocaleString('pt-BR')} coins</td>
               </tr>`).join('')}
             </tbody>
           </table>
@@ -21217,7 +21221,7 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
       // Imóvel veio da Campanha de Captação (ligado em /captar/iniciar via
       // ?ce=) e tem um sub-admin atendendo esse proprietário? Credita 200
       // coins pro sub-admin (mesmo ledger indicacoes_bonus da comissão de
-      // 30%, já aparece sozinho em /admin/minhas-comissoes) e garante que a
+      // 30%/15%, já aparece sozinho em /admin/minhas-comissoes) e garante que a
       // conta dona do imóvel (sempre REN-G9K6 nessa campanha, ver LINK_CAMPANHA)
       // está flegada pro XML global do QuintoAndar, sem precisar de ação manual.
       try {

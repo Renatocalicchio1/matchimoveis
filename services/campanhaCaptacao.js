@@ -552,7 +552,8 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
      LEFT JOIN imoveis im ON im.id = e.imovel_captado_id
      LEFT JOIN usuarios u ON u.codigo_usuario = im.user_id
      ${where}
-     ORDER BY e.enviado_em DESC
+     ORDER BY (telefone IS NOT NULL AND telefone <> '' AND e.iniciou_cadastro_em IS NULL AND e.enviado_em IS NOT NULL) DESC,
+       e.enviado_em DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );

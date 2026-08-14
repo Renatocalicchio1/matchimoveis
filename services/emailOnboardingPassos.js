@@ -79,7 +79,7 @@ async function verificarOnboardingPassos() {
         if (!dados.onboarding_email_baseline) {
           const camposBase = { onboarding_email_baseline: true };
           PASSOS.forEach(p => { if (atual[p.chave]) camposBase[p.flag] = true; });
-          await query(`UPDATE usuarios SET dados = dados || $1::jsonb WHERE id=$2`, [JSON.stringify(camposBase), u.id]);
+          await query(`UPDATE usuarios SET dados = dados || $1::jsonb, atualizado_em=NOW() WHERE id=$2`, [JSON.stringify(camposBase), u.id]);
           continue;
         }
 
@@ -92,7 +92,7 @@ async function verificarOnboardingPassos() {
           const { assunto, html, texto } = _emailCompleto(u);
           await enviarEmail({ para: u.email, assunto, html, texto, tipo: 'onboarding_completo', userId: uid });
           const marcar = {}; PASSOS.forEach(p => { marcar[p.flag] = true; });
-          await query(`UPDATE usuarios SET dados = dados || $1::jsonb WHERE id=$2`, [JSON.stringify(marcar), u.id]);
+          await query(`UPDATE usuarios SET dados = dados || $1::jsonb, atualizado_em=NOW() WHERE id=$2`, [JSON.stringify(marcar), u.id]);
           console.log('[ONBOARDING EMAIL] onboarding completo:', u.email);
           await new Promise(r => setTimeout(r, 1000));
           continue;
@@ -103,7 +103,7 @@ async function verificarOnboardingPassos() {
           const pendentes = PASSOS.filter(p => !dados[p.flag]);
           const { assunto, html, texto } = _emailPasso({ ...u, _dadosParaLista: dados }, passo, pendentes);
           await enviarEmail({ para: u.email, assunto, html, texto, tipo: 'onboarding_passo', variante: passo.flag, userId: uid });
-          await query(`UPDATE usuarios SET dados = dados || $1::jsonb WHERE id=$2`, [JSON.stringify({ [passo.flag]: true }), u.id]);
+          await query(`UPDATE usuarios SET dados = dados || $1::jsonb, atualizado_em=NOW() WHERE id=$2`, [JSON.stringify({ [passo.flag]: true }), u.id]);
           console.log('[ONBOARDING EMAIL] passo', passo.numero, 'enviado:', u.email);
           await new Promise(r => setTimeout(r, 1000));
         }

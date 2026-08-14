@@ -2446,7 +2446,7 @@ app.get('/admin/atribuicoes-subadmin', authAdmin, async (req, res) => {
 app.post('/admin/atribuicoes-subadmin/:codigo/remover', authAdmin, async (req, res) => {
   try {
     const { query: _qRemAtrib } = require('./services/db');
-    await _qRemAtrib(`UPDATE usuarios SET dados = dados - 'atendidoPorAdmin' - 'atendidoPorAdminNome' - 'atendidoPorAdminCor' WHERE codigo_usuario=$1`, [req.params.codigo]);
+    await _qRemAtrib(`UPDATE usuarios SET dados = dados - 'atendidoPorAdmin' - 'atendidoPorAdminNome' - 'atendidoPorAdminCor', atualizado_em=NOW() WHERE codigo_usuario=$1`, [req.params.codigo]);
     if (_cacheUsuarios) { const idx = _cacheUsuarios.findIndex(u => u.codigoUsuario === req.params.codigo || u.id === req.params.codigo); if (idx >= 0) { delete _cacheUsuarios[idx].atendidoPorAdmin; delete _cacheUsuarios[idx].atendidoPorAdminNome; delete _cacheUsuarios[idx].atendidoPorAdminCor; } }
     res.redirect('/admin/atribuicoes-subadmin');
   } catch(e) { res.status(500).send('Erro: ' + e.message); }
@@ -3445,9 +3445,9 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
     const qtd = parseInt(req.body.creditos) || 0;
     const op = req.body.operacao || 'adicionar';
     if(op === 'adicionar'){
-      await _q('UPDATE usuarios SET match_coins=COALESCE(match_coins,0)+$1, match_coins_total=COALESCE(match_coins_total,0)+$1 WHERE codigo_usuario=$2', [qtd, cod]);
+      await _q('UPDATE usuarios SET match_coins=COALESCE(match_coins,0)+$1, match_coins_total=COALESCE(match_coins_total,0)+$1, atualizado_em=NOW() WHERE codigo_usuario=$2', [qtd, cod]);
     } else {
-      await _q('UPDATE usuarios SET match_coins=GREATEST(0,COALESCE(match_coins,0)-$1) WHERE codigo_usuario=$2', [qtd, cod]);
+      await _q('UPDATE usuarios SET match_coins=GREATEST(0,COALESCE(match_coins,0)-$1), atualizado_em=NOW() WHERE codigo_usuario=$2', [qtd, cod]);
     }
     const _novoSaldo = (await _q('SELECT match_coins FROM usuarios WHERE codigo_usuario=$1', [cod])).rows[0]?.match_coins || 0;
 
@@ -3463,7 +3463,7 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
       saldoApos: _novoSaldo
     });
     _dadosAtual.matchCoinsTransacoes = _transacoes;
-    await _q('UPDATE usuarios SET dados=$1 WHERE codigo_usuario=$2', [JSON.stringify(_dadosAtual), cod]);
+    await _q('UPDATE usuarios SET dados=$1, atualizado_em=NOW() WHERE codigo_usuario=$2', [JSON.stringify(_dadosAtual), cod]);
 
     // Atualizar cache pra refletir na hora, sem esperar o próximo refresh de 15s
     if (_cacheUsuarios) {
@@ -3475,7 +3475,7 @@ app.post('/admin/usuario/:codigo/creditos', authAdmin, async (req, res) => {
     }
     // Crédito manual pelo admin conta como recarga pra quem indicou esse
     // usuário — mesma regra de qualquer recarga real (ver _processarBonusIndicacao):
-    // 10% pro corretor indicador, 20% (em comissão, ledger) pro sub-admin
+    // 10% pro corretor indicador, 30% (em comissão, ledger) pro sub-admin
     // responsável (atendidoPorAdmin), se houver.
     if (op === 'adicionar' && qtd > 0) {
       await _processarBonusIndicacao(cod, qtd);
@@ -3602,7 +3602,7 @@ app.post('/admin/usuario/:codigo/senha', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
     const _hashAdmin = await bcrypt.hash(req.body.senha, 10);
-    await _q('UPDATE usuarios SET senha=$1 WHERE codigo_usuario=$2', [_hashAdmin, req.params.codigo]);
+    await _q('UPDATE usuarios SET senha=$1, atualizado_em=NOW() WHERE codigo_usuario=$2', [_hashAdmin, req.params.codigo]);
     res.redirect('/admin');
   } catch(e) { res.send('Erro: ' + e.message); }
 });
@@ -4409,7 +4409,7 @@ app.get('/entrar/:contatoId', async (req, res) => {
         // por statsPorTemplate() pra saber qual mensagem converte mais em
         // cadastro/compra, não só em clique.
         origemTemplate: contato.template_nome_usado || _campanhaEntrar?.template_nome || '',
-        // Sub-admin responsável por essa conta — ganha 20% em comissão
+        // Sub-admin responsável por essa conta — ganha 30% em comissão
         // sempre que ela comprar créditos (ver _processarBonusIndicacao).
         atendidoPorAdmin: _adminAtendente?.usuario || '',
         atendidoPorAdminNome: _adminAtendente?.nome || '',
@@ -4471,7 +4471,7 @@ app.post('/login', async (req,res)=>{
     const _indicador = _refCode ? users.find(u => (u.codigoUsuario || u.id) === _refCode) : null;
     // Link genérico de sub-admin (ex: /admin/minhas-comissoes) usa o mesmo
     // "?ref=" — se não bateu com corretor, tenta como usuário de admin_conta
-    // ativa, e essa indicação vira comissão de 20% (atendidoPorAdmin), não os
+    // ativa, e essa indicação vira comissão de 30% (atendidoPorAdmin), não os
     // 10% em coins do fluxo corretor-indica-corretor.
     let _adminIndicador = null;
     if (_refCode && !_indicador) {
@@ -4537,7 +4537,7 @@ app.post('/login', async (req,res)=>{
     // corretor ou de sub-admin) ganha um bônus extra, além dos 1.000 padrão —
     // não fica só o indicador ganhando. Dá na hora do cadastro (não espera
     // recarga), pra reforçar a decisão de entrar logo. Mantém intacto o bônus
-    // do indicador (10% em coins, corretor; ou 20% em comissão, sub-admin —
+    // do indicador (10% em coins, corretor; ou 30% em comissão, sub-admin —
     // ver _processarBonusIndicacao), que continua só na primeira recarga.
     if (_indicador || _adminIndicador) {
       adicionarCreditos(novo.codigoUsuario, 500, 'bonus_indicacao_recebido').catch(e=>console.error('[bonus-indicado]', e.message));
@@ -4606,7 +4606,7 @@ app.post('/login', async (req,res)=>{
 
   req.session.user = user;
   const { query: _qlg } = require('./services/db');
-  _qlg('UPDATE usuarios SET ultimo_acesso=$1 WHERE codigo_usuario=$2', [new Date().toISOString(), user.codigoUsuario||user.codigo||user.id]).catch(()=>{});
+  _qlg('UPDATE usuarios SET ultimo_acesso=$1, atualizado_em=NOW() WHERE codigo_usuario=$2', [new Date().toISOString(), user.codigoUsuario||user.codigo||user.id]).catch(()=>{});
   const _uaL = req.headers['user-agent']||'';
   res.redirect(/Mobile|Android|iPhone|iPad/i.test(_uaL) ? '/app/feed' : '/app-home');
 });
@@ -5563,14 +5563,14 @@ setTimeout(() => {
     await _detectarExclusoesImoveis();
   }, 15000);
 }, 3000);
-// Cache usuários — recarga SEMPRE completa (SELECT * FROM usuarios, incluindo
-// colunas JSONB pesadas como historico_assistente e dados) porque a maioria
-// dos UPDATEs diretos em usuarios (saldo de coins em creditos.js/jobCreditos.js,
-// entre outros) não toca em atualizado_em — um cache incremental por timestamp
-// ficaria com saldo desatualizado. Não dá pra virar incremental sem antes
-// auditar/corrigir esses ~20 pontos de UPDATE. Intervalo alongado (15s -> 45s,
-// jul/2026) só reduz a frequência da recarga cara, sem mudar a estratégia.
+// Cache usuários — mesmo padrão de leads/imoveis (recarga completa cara 1x/dia
+// de madrugada, incremental por atualizado_em o resto do tempo). Só passou a
+// ser seguro depois de auditar e corrigir (jul/2026) os ~20 pontos de UPDATE
+// direto em usuarios (saldo de coins em creditos.js/jobCreditos.js, etc.) que
+// não tocavam atualizado_em — todos agora setam esse campo, então incremental
+// não fica mais com saldo desatualizado.
 let _cacheUsuarios = null;
+let _cacheUsuariosAt = null;
 let _usuariosEmExecucao = false;
 async function _recarregarUsuarios() {
   if (_usuariosEmExecucao) { console.log('[cache usuarios] execução anterior ainda rodando, pulando esta'); return; }
@@ -5584,7 +5584,43 @@ async function _recarregarUsuarios() {
     _usuariosEmExecucao = false;
   }
 }
-setTimeout(() => { _recarregarUsuarios(); setInterval(_recarregarUsuarios, 45000); }, 6000);
+let _usuariosIncrementalEmExecucao = false;
+async function _recarregarUsuariosIncremental() {
+  if (_usuariosIncrementalEmExecucao) { console.log('[cache usuarios] incremental anterior ainda rodando, pulando esta'); return; }
+  _usuariosIncrementalEmExecucao = true;
+  try {
+    if (!_cacheUsuarios || !_cacheUsuariosAt) { await _recarregarUsuarios(); _cacheUsuariosAt = new Date(); return; }
+    const { query: _qIncUsu } = require('./services/db');
+    const { rowToUser: _rtuInc } = require('./services/salvarUsuario');
+    const desde = _cacheUsuariosAt;
+    const res = await _qIncUsu('SELECT * FROM usuarios WHERE atualizado_em > $1', [desde]);
+    _cacheUsuariosAt = new Date();
+    if (!res.rows.length) return;
+    const mapa = new Map(_cacheUsuarios.map(u => [String(u.id), u]));
+    res.rows.forEach(r => { mapa.set(String(r.id), _rtuInc(r)); });
+    _cacheUsuarios = Array.from(mapa.values());
+    console.log('[cache usuarios] incremental:', res.rows.length, 'atualizados');
+  } catch(e) { console.error('[cache usuarios incremental]', e.message); } finally {
+    _usuariosIncrementalEmExecucao = false;
+  }
+}
+(function _agendarRecargaCompletaUsuarios() {
+  const agora = new Date();
+  const proxima = new Date(agora);
+  proxima.setHours(3, 40, 0, 0);
+  if (proxima <= agora) proxima.setDate(proxima.getDate() + 1);
+  const ms = proxima - agora;
+  setTimeout(() => {
+    _recarregarUsuarios();
+    _cacheUsuariosAt = new Date();
+    setInterval(() => { _recarregarUsuarios(); _cacheUsuariosAt = new Date(); }, 24 * 60 * 60 * 1000);
+  }, ms);
+})();
+setTimeout(() => {
+  _recarregarUsuarios();
+  _cacheUsuariosAt = new Date();
+  setInterval(_recarregarUsuariosIncremental, 20000);
+}, 6000);
 
 function lerLeads(user) {
   const uid = user && (user.id || user);
@@ -5593,7 +5629,12 @@ function lerLeads(user) {
   if (!uid) return filtradas;
   return filtradas.filter(l => !(l.deletadoPor && l.deletadoPor.includes(uid)));
 }
+// Cache visitas — mesmo padrão de leads/imoveis/usuarios acima (recarga
+// completa cara 1x/dia de madrugada, incremental por atualizado_em o resto do
+// tempo) desde que os ~18 pontos de UPDATE direto em visitas (workflow,
+// confirmações) foram corrigidos pra também tocar atualizado_em (jul/2026).
 let _cacheVisitas = null;
+let _cacheVisitasAt = null;
 let _visitasEmExecucao = false;
 async function _recarregarVisitas() {
   if (_visitasEmExecucao) { console.log('[cache visitas] execução anterior ainda rodando, pulando esta'); return; }
@@ -5607,10 +5648,43 @@ async function _recarregarVisitas() {
     _visitasEmExecucao = false;
   }
 }
-// Mesmo motivo do cache de usuários acima: vários UPDATEs diretos em visitas
-// (workflow, confirmações) não tocam atualizado_em, então fica full reload —
-// só o intervalo foi alongado (15s -> 45s, jul/2026).
-setTimeout(() => { _recarregarVisitas(); setInterval(_recarregarVisitas, 45000); }, 9000);
+let _visitasIncrementalEmExecucao = false;
+async function _recarregarVisitasIncremental() {
+  if (_visitasIncrementalEmExecucao) { console.log('[cache visitas] incremental anterior ainda rodando, pulando esta'); return; }
+  _visitasIncrementalEmExecucao = true;
+  try {
+    if (!_cacheVisitas || !_cacheVisitasAt) { await _recarregarVisitas(); _cacheVisitasAt = new Date(); return; }
+    const { query: _qIncVis } = require('./services/db');
+    const { rowToVisita: _rtvInc } = require('./services/salvarVisita');
+    const desde = _cacheVisitasAt;
+    const res = await _qIncVis('SELECT * FROM visitas WHERE atualizado_em > $1', [desde]);
+    _cacheVisitasAt = new Date();
+    if (!res.rows.length) return;
+    const mapa = new Map(_cacheVisitas.map(v => [String(v.id), v]));
+    res.rows.forEach(r => { mapa.set(String(r.id), _rtvInc(r)); });
+    _cacheVisitas = Array.from(mapa.values());
+    console.log('[cache visitas] incremental:', res.rows.length, 'atualizadas');
+  } catch(e) { console.error('[cache visitas incremental]', e.message); } finally {
+    _visitasIncrementalEmExecucao = false;
+  }
+}
+(function _agendarRecargaCompletaVisitas() {
+  const agora = new Date();
+  const proxima = new Date(agora);
+  proxima.setHours(3, 50, 0, 0);
+  if (proxima <= agora) proxima.setDate(proxima.getDate() + 1);
+  const ms = proxima - agora;
+  setTimeout(() => {
+    _recarregarVisitas();
+    _cacheVisitasAt = new Date();
+    setInterval(() => { _recarregarVisitas(); _cacheVisitasAt = new Date(); }, 24 * 60 * 60 * 1000);
+  }, ms);
+})();
+setTimeout(() => {
+  _recarregarVisitas();
+  _cacheVisitasAt = new Date();
+  setInterval(_recarregarVisitasIncremental, 20000);
+}, 9000);
 
 function lerVisitas(user) {
   const todos = _cacheVisitas || ((_cacheVisitas || []));
@@ -6360,7 +6434,7 @@ app.post('/app/perfil/quintoandar', auth, async (req, res) => {
     const uid = req.session.user.codigoUsuario || req.session.user.codigo_usuario || req.session.user.id;
     const autoriza = req.body.autoriza_quintoandar === '1';
     console.log('[QA] uid:', uid, '| autoriza:', autoriza, '| body:', req.body.autoriza_quintoandar);
-    const _rQA = await _qQA('UPDATE usuarios SET autoriza_quintoandar=$1 WHERE codigo_usuario=$2', [autoriza, uid]);
+    const _rQA = await _qQA('UPDATE usuarios SET autoriza_quintoandar=$1, atualizado_em=NOW() WHERE codigo_usuario=$2', [autoriza, uid]);
     console.log('[QA] rows updated:', _rQA.rowCount);
     req.session.user.autoriza_quintoandar = autoriza;
     if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid); if(_uIdx>=0) _cacheUsuarios[_uIdx].autoriza_quintoandar = autoriza; }
@@ -6414,7 +6488,7 @@ app.post('/app/perfil', auth, async (req,res)=>{
     const novoCodigo = gerarCodigoUsuario(novoNome);
     try {
       const { query: _qRename } = require('./services/db');
-      await _qRename('UPDATE usuarios SET id=$1, codigo_usuario=$1 WHERE id=$2', [novoCodigo, uid]);
+      await _qRename('UPDATE usuarios SET id=$1, codigo_usuario=$1, atualizado_em=NOW() WHERE id=$2', [novoCodigo, uid]);
       if (_cacheUsuarios) { const idx = _cacheUsuarios.findIndex(u => u.id === uid); if (idx >= 0) { _cacheUsuarios[idx].id = novoCodigo; _cacheUsuarios[idx].codigoUsuario = novoCodigo; } }
       req.session.user.id = novoCodigo;
       req.session.user.codigoUsuario = novoCodigo;
@@ -7402,7 +7476,7 @@ app.post('/app/perfil/senha', auth, async (req, res) => {
     if (!result.rows.length)
       return res.redirect('/app/perfil?senhaErro=Usuario+nao+encontrado');
     const _hashNova = await bcrypt.hash(nova_senha, 10);
-    await _qSenha('UPDATE usuarios SET senha = $1 WHERE codigo_usuario = $2', [_hashNova, uid]);
+    await _qSenha('UPDATE usuarios SET senha = $1, atualizado_em=NOW() WHERE codigo_usuario = $2', [_hashNova, uid]);
     if (_cacheUsuarios) { const _uIdx = _cacheUsuarios.findIndex(u=>u.codigoUsuario===uid||u.codigo_usuario===uid); if(_uIdx>=0) _cacheUsuarios[_uIdx].senha = _hashNova; }
     req.session.user.senha = _hashNova;
     return res.redirect('/app/perfil?senhaSucesso=1');
@@ -8217,7 +8291,7 @@ app.post('/app/perfil/localizacao', auth, express.json(), async (req,res)=>{
     const { query: _qLoc } = require('./services/db');
     const latNum = parseFloat(lat), lngNum = parseFloat(lng);
     const r = await _qLoc(
-      'UPDATE usuarios SET lat=COALESCE(' + String.fromCharCode(36) + '1,lat), lng=COALESCE(' + String.fromCharCode(36) + '2,lng), endereco=' + String.fromCharCode(36) + '3 WHERE id=' + String.fromCharCode(36) + '4 RETURNING lat,lng,endereco',
+      'UPDATE usuarios SET lat=COALESCE(' + String.fromCharCode(36) + '1,lat), lng=COALESCE(' + String.fromCharCode(36) + '2,lng), endereco=' + String.fromCharCode(36) + '3, atualizado_em=NOW() WHERE id=' + String.fromCharCode(36) + '4 RETURNING lat,lng,endereco',
       [Number.isFinite(latNum)?latNum:null, Number.isFinite(lngNum)?lngNum:null, endereco||'', req.session.user.id]
     );
     const extras = {};
@@ -9268,7 +9342,7 @@ async function _enviarFollowupSemImoveis() {
         } catch(e) { console.error('[followup-sem-imovel] erro email:', e.message); }
       }
       try {
-        await _qFU("UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'), '{ultimoFollowupSemImovel}', $1::jsonb) WHERE codigo_usuario=$2", [JSON.stringify(new Date().toISOString()), u.codigo_usuario]);
+        await _qFU("UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'), '{ultimoFollowupSemImovel}', $1::jsonb), atualizado_em=NOW() WHERE codigo_usuario=$2", [JSON.stringify(new Date().toISOString()), u.codigo_usuario]);
       } catch(e) {}
       console.log('[followup-sem-imovel] enviado para:', u.codigo_usuario);
     }
@@ -9309,7 +9383,7 @@ app.post(['/webhook/whatsapp', '/webhook/whatsapp/*'], async (req, res) => {
       console.log('[WEBHOOK WA] CONNECTION_UPDATE | instancia:', instance, '| state:', _connState, '| status:', _connStatus);
       try {
         const { query: _qConn } = require('./services/db');
-        await _qConn("UPDATE usuarios SET whatsapp_status=$1 WHERE whatsapp_instance=$2", [_connStatus, instance]);
+        await _qConn("UPDATE usuarios SET whatsapp_status=$1, atualizado_em=NOW() WHERE whatsapp_instance=$2", [_connStatus, instance]);
         const _uIdx = (_cacheUsuarios||[]).findIndex(u=>u.whatsappInstance===instance||u.whatsapp_instance===instance);
         if (_uIdx>=0) { _cacheUsuarios[_uIdx].whatsappStatus = _connStatus; _cacheUsuarios[_uIdx].whatsapp_status = _connStatus; }
         console.log('[WEBHOOK WA] status atualizado:', instance, '->', _connStatus);
@@ -12253,7 +12327,7 @@ async function _checarMarcoIndicacao(indicadorCodigo) {
 // Bônus de indicação: 10% dos créditos comprados vão pro indicador (corretor
 // que indicou outro corretor), sempre que o indicado recarrega. Além disso,
 // se essa conta foi criada por uma campanha de WhatsApp com sub-admin
-// responsável (atendidoPorAdmin), o sub-admin ganha 20% — mas isso fica só
+// responsável (atendidoPorAdmin), o sub-admin ganha 30% — mas isso fica só
 // no ledger (indicacoes_bonus, indicador_tipo='admin'), nunca em
 // usuarios.match_coins, porque sub-admin não é corretor.
 async function _processarBonusIndicacao(userId, creditosComprados) {
@@ -12298,7 +12372,7 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
       const { buscarAdminConta } = require('./services/salvarAdminConta');
       const conta = await buscarAdminConta(comprador.atendidoPorAdmin);
       if (conta && conta.ativo) {
-        const bonusAdmin = Math.floor(creditosComprados * 0.20);
+        const bonusAdmin = Math.floor(creditosComprados * 0.30);
         if (bonusAdmin > 0) {
           const { registrarBonus, totalDisponivelPorIndicador } = require('./services/salvarIndicacao');
           await registrarBonus({ indicadorCodigo: conta.usuario, indicadoCodigo: userId, valorCompraCoins: creditosComprados, bonusCoins: bonusAdmin, indicadorTipo: 'admin' });
@@ -14234,7 +14308,7 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
     const { nome, telefone } = req.body;
 
     // Atualiza status da visita
-    await _qVC("UPDATE visitas SET status='confirmada', dados=jsonb_set(COALESCE(dados,'{}'),'{confirmadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), id]);
+    await _qVC("UPDATE visitas SET status='confirmada', dados=jsonb_set(COALESCE(dados,'{}'),'{confirmadaEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), id]);
 
     // Busca dados da visita para montar link
     const r = await _qVC('SELECT * FROM visitas WHERE id=$1', [id]);
@@ -14263,7 +14337,7 @@ app.post('/app/visita/:id/confirmar-caso2', auth, async (req, res) => {
         headers: { 'Content-Type': 'application/json', 'apikey': EK },
         body: JSON.stringify({ number: numero, text: msg })
       });
-      await _qVC("UPDATE visitas SET dados=jsonb_set(COALESCE(dados,'{}'),'{waClienteEnviadoEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), id]);
+      await _qVC("UPDATE visitas SET dados=jsonb_set(COALESCE(dados,'{}'),'{waClienteEnviadoEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), id]);
     }
 
     res.json({ ok: true });
@@ -14328,7 +14402,7 @@ app.get('/cliente/visita/:id', async (req, res) => {
 app.get('/cliente/visita/:id/confirmar', async (req, res) => {
   try {
     const { query: _qGC } = require('./services/db');
-    await _qGC("UPDATE visitas SET status='lead_confirmou', confirmacao_cliente_status='CONFIRMADO' WHERE id=$1", [req.params.id]);
+    await _qGC("UPDATE visitas SET status='lead_confirmou', confirmacao_cliente_status='CONFIRMADO', atualizado_em=NOW() WHERE id=$1", [req.params.id]);
     const _v = (await _qGC('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (_v) {
       const { lerUsuarios: _lu } = require('./services/salvarUsuario');
@@ -14352,7 +14426,7 @@ app.get('/cliente/visita/:id/confirmar', async (req, res) => {
 app.get('/cliente/visita/:id/recusar', async (req, res) => {
   try {
     const { query: _qGR } = require('./services/db');
-    await _qGR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO' WHERE id=$1", [req.params.id]);
+    await _qGR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO', atualizado_em=NOW() WHERE id=$1", [req.params.id]);
     const _v = (await _qGR('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (_v) {
       const { lerUsuarios: _lu } = require('./services/salvarUsuario');
@@ -14377,7 +14451,7 @@ app.get('/cliente/visita/:id/recusar', async (req, res) => {
 app.post('/cliente/visita/:id/confirmar', async (req, res) => {
   try {
     const { query: _qC } = require('./services/db');
-    await _qC("UPDATE visitas SET status='lead_confirmou', confirmacao_cliente_status='CONFIRMADO' WHERE id=$1", [req.params.id]);
+    await _qC("UPDATE visitas SET status='lead_confirmou', confirmacao_cliente_status='CONFIRMADO', atualizado_em=NOW() WHERE id=$1", [req.params.id]);
     const _v = (await _qC('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (_v) {
       const { lerUsuarios: _lu } = require('./services/salvarUsuario');
@@ -14402,7 +14476,7 @@ app.post('/cliente/visita/:id/confirmar', async (req, res) => {
 app.post('/cliente/visita/:id/recusar', async (req, res) => {
   try {
     const { query: _qR } = require('./services/db');
-    await _qR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO' WHERE id=$1", [req.params.id]);
+    await _qR("UPDATE visitas SET status='lead_recusou', confirmacao_cliente_status='RECUSADO', atualizado_em=NOW() WHERE id=$1", [req.params.id]);
     const _v = (await _qR('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (_v) {
       const { lerUsuarios: _lu } = require('./services/salvarUsuario');
@@ -14493,7 +14567,7 @@ app.post('/cliente/visita/:id/remarcar', async (req,res)=>{
     const { query: _qRem } = require('./services/db');
     const novaData = req.body.dataVisita || '';
     const novaHora = req.body.horaVisita || '';
-    await _qRem("UPDATE visitas SET status='remarcado', data_visita=$2, hora_visita=$3 WHERE id=$1", [req.params.id, novaData, novaHora]);
+    await _qRem("UPDATE visitas SET status='remarcado', data_visita=$2, hora_visita=$3, atualizado_em=NOW() WHERE id=$1", [req.params.id, novaData, novaHora]);
     const _vRow = await _qRem('SELECT * FROM visitas WHERE id=$1', [req.params.id]);
     const _v = _vRow.rows[0];
     if (_v) {
@@ -15093,7 +15167,7 @@ app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
     console.log('[BLOQUEAR] telefone:', telefone, '| uid:', uid);
     // Salva na lista negra do usuário no banco
     if (telefone) {
-      await _qBlk("UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'), '{bloqueados}', COALESCE(dados->'bloqueados','[]')::jsonb || $1::jsonb) WHERE id=$2", [JSON.stringify([telefone]), uid]);
+      await _qBlk("UPDATE usuarios SET dados = jsonb_set(COALESCE(dados,'{}'), '{bloqueados}', COALESCE(dados->'bloqueados','[]')::jsonb || $1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify([telefone]), uid]);
       console.log('[BLOQUEAR] salvo no banco!');
     }
     // Remove a lead do banco
@@ -15390,7 +15464,7 @@ app.get('/app/feed', auth, async (req, res) => {
     let _naoVistos = _todosValidos.filter(im => !_vistosRow2.includes(String(im.id||im.id_externo||im.id_interno||'')));
     // Se menos de 10 não vistos, reseta o baralho
     if (_naoVistos.length < 10) {
-      await _qVF("UPDATE usuarios SET feed_vistos='[]'::jsonb WHERE id=$1", [req.session.user.id]);
+      await _qVF("UPDATE usuarios SET feed_vistos='[]'::jsonb, atualizado_em=NOW() WHERE id=$1", [req.session.user.id]);
       _naoVistos = _todosValidos;
     }
     let imoveis = _naoVistos;
@@ -15791,7 +15865,7 @@ setInterval(async () => {
       if(_telC) await _envWAVisita(_inst, '55'+_telC.replace(/^55/,''),
         'Ola ' + (_user?.nome||'Corretor') + '!\n\nA visita de *' + _cliente + '* ao imovel *' + _imovel + '* ja aconteceu?\n\nInforme aqui:\n' + _linkCorretor);
       // Salva flag no banco
-      await _qJob("UPDATE visitas SET dados=jsonb_set(COALESCE(dados,'{}'),'{confirmacaoEnviada}',$1::jsonb) WHERE id=$2", [JSON.stringify(true), v.id]);
+      await _qJob("UPDATE visitas SET dados=jsonb_set(COALESCE(dados,'{}'),'{confirmacaoEnviada}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(true), v.id]);
       console.log('[JOB VISITA] mensagens enviadas | visita:', v.id, '| lead:', _cliente);
     }
   } catch(e) { console.error('[JOB VISITA REALIZADA]', e.message); }
@@ -15904,7 +15978,7 @@ setInterval(async () => {
           'Voce vai comparecer? Confirme aqui:\n' + _linkConfCorretor);
       }
       // Marca lembrete enviado
-      await _qLV("UPDATE visitas SET lembrete_enviado=true WHERE id=$1", [v.id]);
+      await _qLV("UPDATE visitas SET lembrete_enviado=true, atualizado_em=NOW() WHERE id=$1", [v.id]);
       console.log('[JOB LEMBRETE] enviado | visita:', v.id, '| lead:', _nomeLead);
     }
   } catch(e) { console.error('[JOB LEMBRETE VISITA]', e.message); }
@@ -15940,7 +16014,7 @@ setInterval(async () => {
       const _telLead = (v.telefone||v.contato||'').replace(/D/g,'');
       const _linkVitrine = BASE_URL + '/cliente/oferta/' + (v.lead_id||'') + '?userId=' + _uid;
       // Cancela a visita
-      await _qAT("UPDATE visitas SET status='cancelada', dados=jsonb_set(COALESCE(dados,'{}'),'{atrasadaNotificada}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), v.id]);
+      await _qAT("UPDATE visitas SET status='cancelada', dados=jsonb_set(COALESCE(dados,'{}'),'{atrasadaNotificada}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), v.id]);
       if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(vv=>String(vv.id)===String(v.id)); if(_ci>=0) _cacheVisitas[_ci].status='cancelada'; }
       // Manda msg para a lead
       if (_telLead) {
@@ -15971,7 +16045,7 @@ app.get('/visita/:id/confirmar-lead', async (req, res) => {
 app.post('/visita/:id/confirmar-lead', async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET confirmacao_cliente_status='confirmado', dados=jsonb_set(COALESCE(dados,'{}'),'{confirmacaoLeadEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    await _q("UPDATE visitas SET confirmacao_cliente_status='confirmado', dados=jsonb_set(COALESCE(dados,'{}'),'{confirmacaoLeadEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0){ _cacheVisitas[_ci].confirmacao_cliente_status='confirmado'; _cacheVisitas[_ci].confirmacaoClienteStatus='confirmado'; } }
     res.render('visita-confirmar', { visita, tipo: 'lead', respondido: true, msg: 'Presenca confirmada! Te esperamos.' });
@@ -15991,7 +16065,7 @@ app.get('/visita/:id/confirmar-corretor', async (req, res) => {
 app.post('/visita/:id/confirmar-corretor', async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET confirmacao_corretor_status='confirmado', dados=jsonb_set(COALESCE(dados,'{}'),'{confirmacaoCorretorEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    await _q("UPDATE visitas SET confirmacao_corretor_status='confirmado', dados=jsonb_set(COALESCE(dados,'{}'),'{confirmacaoCorretorEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0){ _cacheVisitas[_ci].confirmacao_corretor_status='confirmado'; _cacheVisitas[_ci].confirmacaoCorretorStatus='confirmado'; } }
     res.render('visita-confirmar', { visita, tipo: 'corretor', respondido: true, msg: 'Presenca confirmada!' });
@@ -16017,7 +16091,7 @@ app.post('/api/favoritos/toggle', auth, async (req, res) => {
     const idx = favs.indexOf(String(imovelId));
     if (idx === -1) favs.push(String(imovelId));
     else favs.splice(idx, 1);
-    await _q('UPDATE usuarios SET favoritos=$1 WHERE id=$2', [JSON.stringify(favs), req.session.user.id]);
+    await _q('UPDATE usuarios SET favoritos=$1, atualizado_em=NOW() WHERE id=$2', [JSON.stringify(favs), req.session.user.id]);
     res.json({ ok: true, favoritos: favs, acao: idx === -1 ? 'adicionado' : 'removido' });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
@@ -16032,7 +16106,7 @@ app.post('/api/feed/marcar-visto', auth, async (req, res) => {
     let vistos = r.rows[0]?.feed_vistos || [];
     ids.forEach(id => { if (!vistos.includes(String(id))) vistos.push(String(id)); });
     if (vistos.length > 500) vistos = vistos.slice(-500);
-    await _q('UPDATE usuarios SET feed_vistos=$1 WHERE id=$2', [JSON.stringify(vistos), req.session.user.id]);
+    await _q('UPDATE usuarios SET feed_vistos=$1, atualizado_em=NOW() WHERE id=$2', [JSON.stringify(vistos), req.session.user.id]);
     res.json({ ok: true });
   } catch(e) { res.json({ ok: false }); }
 });
@@ -16040,7 +16114,7 @@ app.post('/api/feed/marcar-visto', auth, async (req, res) => {
 app.post('/api/feed/limpar-vistos', auth, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q("UPDATE usuarios SET feed_vistos='[]'::jsonb WHERE id=$1", [req.session.user.id]);
+    await _q("UPDATE usuarios SET feed_vistos='[]'::jsonb, atualizado_em=NOW() WHERE id=$1", [req.session.user.id]);
     res.json({ ok: true });
   } catch(e) { res.json({ ok: false }); }
 });
@@ -16061,7 +16135,7 @@ app.get('/visita/:id/realizada-corretor', async (req, res) => {
 app.post('/visita/:id/marcar-realizada', async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET status='realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{realizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    await _q("UPDATE visitas SET status='realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{realizadaEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (visita?.lead_id) await _q("UPDATE leads SET fase_funil='visitou', status='visitou', atualizado_em=NOW() WHERE id=$1", [visita.lead_id]);
     if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0) _cacheVisitas[_ci].status='realizada'; }
@@ -16073,7 +16147,7 @@ app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
     // Move para cancelada
-    await _q("UPDATE visitas SET status='cancelada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    await _q("UPDATE visitas SET status='cancelada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0) _cacheVisitas[_ci].status='cancelada'; }
     // Manda msg para a lead com link da vitrine para reagendar
@@ -16123,7 +16197,7 @@ app.get('/visita/:id/realizada-corretor', async (req, res) => {
 app.post('/visita/:id/marcar-realizada', async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET status='realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{realizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    await _q("UPDATE visitas SET status='realizada', dados=jsonb_set(COALESCE(dados,'{}'),'{realizadaEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (visita?.lead_id) await _q("UPDATE leads SET fase_funil='visitou', status='visitou', atualizado_em=NOW() WHERE id=$1", [visita.lead_id]);
     res.render('visita-realizada-corretor', { visita, respondido: true, msg: '✅ Visita marcada como realizada!' });
@@ -16133,7 +16207,7 @@ app.post('/visita/:id/marcar-realizada', async (req, res) => {
 app.post('/visita/:id/marcar-nao-realizada', async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET status='cancelada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    await _q("UPDATE visitas SET status='cancelada', dados=jsonb_set(COALESCE(dados,'{}'),'{naoRealizadaEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (_cacheVisitas) { const _ci = _cacheVisitas.findIndex(v=>String(v.id)===String(req.params.id)); if(_ci>=0) _cacheVisitas[_ci].status='cancelada'; }
     res.render('visita-realizada-corretor', { visita, respondido: true, msg: '❌ Visita cancelada. Lead notificada para reagendar.' });
@@ -16153,7 +16227,7 @@ app.get('/visita/:id/realizada-lead', async (req, res) => {
 app.post('/visita/:id/lead-gostou', async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET status='proposta', dados=jsonb_set(COALESCE(dados,'{}'),'{leadGostouEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    await _q("UPDATE visitas SET status='proposta', dados=jsonb_set(COALESCE(dados,'{}'),'{leadGostouEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     if (visita?.lead_id) await _q("UPDATE leads SET fase_funil='proposta', status='proposta', atualizado_em=NOW() WHERE id=$1", [visita.lead_id]);
     try {
@@ -16176,7 +16250,7 @@ app.post('/visita/:id/lead-gostou', async (req, res) => {
 app.post('/visita/:id/lead-nao-gostou', async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
-    await _q("UPDATE visitas SET status='nao_gostou', dados=jsonb_set(COALESCE(dados,'{}'),'{leadNaoGostouEm}',$1::jsonb) WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
+    await _q("UPDATE visitas SET status='nao_gostou', dados=jsonb_set(COALESCE(dados,'{}'),'{leadNaoGostouEm}',$1::jsonb), atualizado_em=NOW() WHERE id=$2", [JSON.stringify(new Date().toISOString()), req.params.id]);
     const visita = (await _q('SELECT * FROM visitas WHERE id=$1', [req.params.id])).rows[0];
     try {
       const { lerUsuarios: _lu } = require('./services/salvarUsuario');
@@ -19391,7 +19465,10 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
       ) AS celular,
       (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
       COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
-      FROM campanha_contatos ${where} ORDER BY COALESCE(enviado_em, criado_em) DESC LIMIT $${params.length-1} OFFSET $${params.length}`, params);
+      FROM campanha_contatos ${where}
+      ORDER BY (celular IS NOT NULL AND celular <> '' AND NOT comprou AND (cadastrou OR clicado_em IS NOT NULL OR aberto_em IS NOT NULL)) DESC,
+        COALESCE(enviado_em, criado_em) DESC
+      LIMIT $${params.length-1} OFFSET $${params.length}`, params);
     const { rows: tot } = await require('./services/db').query(`SELECT COUNT(*) as total FROM campanha_contatos ${where}`, params.slice(0,-2));
     // Token do link de opt-out de WhatsApp — gerado aqui (não no cliente,
     // que não pode ver o segredo) e embutido na mensagem que o sub-admin
@@ -19962,7 +20039,7 @@ app.post('/admin/disparos/criar-de-usuarios', authAdmin, express.json(), async (
 // parece corretor e tem celular — vira disparo de WhatsApp oficial com botão
 // de auto-cadastro (usarContatoIdBotao). Cada contato é distribuído em
 // round-robin entre os sub-admins ativos (refAdmin), pra virar comissão de
-// 20% quando essa conta comprar créditos (ver _processarBonusIndicacao).
+// 30% quando essa conta comprar créditos (ver _processarBonusIndicacao).
 app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), async (req, res) => {
   try {
     const { nomeCampanha, templateNome, templateIdioma, templates, delayMs, phoneNumberId, restringirHorario, ignorarHistorico, subAdmins } = req.body;
@@ -20033,7 +20110,7 @@ app.post('/admin/disparos/criar-de-campanha-email', authAdmin, express.json(), a
   } catch(e) { res.json({ ok: false, erro: e.message }); }
 });
 
-// ── Comissões do sub-admin (20% sobre indicação via campanha de WhatsApp) ──
+// ── Comissões do sub-admin (30% sobre indicação via campanha de WhatsApp) ──
 // Painel próprio: qualquer admin logado vê só a própria conta (identificada
 // por req.session.adminUsuario), sem permissão especial — é o extrato dele,
 // não uma área administrativa restrita.
@@ -20173,7 +20250,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
     <div class="admin-app">${_adminSidebarHtml('minhas-comissoes', _sidebarPerm(req), req)}
       <main class="admin-content" style="max-width:960px">
         <h1 style="font-size:22px;margin-bottom:4px">Minhas comissões</h1>
-        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 20% sobre compras dos corretores que entraram pelo seu link.</p>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Comissão de 30% sobre compras dos corretores que entraram pelo seu link.</p>
 
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px">
           <h3 style="margin:0 0 6px;font-size:14px">🔗 Seu link</h3>
@@ -20187,13 +20264,13 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 10px;font-size:14px">💳 Planos que você pode oferecer</h3>
           <table style="width:100%">
-            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Plano</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Sua comissão (20%)</th></tr></thead>
+            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Plano</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Sua comissão (30%)</th></tr></thead>
             <tbody>${Object.values(PLANOS_LEADS).map(p => `
               <tr style="border-bottom:1px solid #f3f4f6">
                 <td style="padding:8px;font-size:12.5px;font-weight:600">${_escC(p.label)}</td>
                 <td style="padding:8px;font-size:12.5px">R$ ${p.valor}</td>
                 <td style="padding:8px;font-size:12.5px">${p.creditos.toLocaleString('pt-BR')}</td>
-                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.2).toLocaleString('pt-BR')} coins</td>
+                <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.3).toLocaleString('pt-BR')} coins</td>
               </tr>`).join('')}
             </tbody>
           </table>
@@ -21140,7 +21217,7 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
       // Imóvel veio da Campanha de Captação (ligado em /captar/iniciar via
       // ?ce=) e tem um sub-admin atendendo esse proprietário? Credita 200
       // coins pro sub-admin (mesmo ledger indicacoes_bonus da comissão de
-      // 20%, já aparece sozinho em /admin/minhas-comissoes) e garante que a
+      // 30%, já aparece sozinho em /admin/minhas-comissoes) e garante que a
       // conta dona do imóvel (sempre REN-G9K6 nessa campanha, ver LINK_CAMPANHA)
       // está flegada pro XML global do QuintoAndar, sem precisar de ação manual.
       try {
@@ -21151,7 +21228,7 @@ app.post('/captar/imovel/:imovelId', express.json(), async (req, res) => {
           await _regBonusCap({ indicadorCodigo: _envioBonus.atendido_por, indicadoCodigo: imovelId, valorCompraCoins: 0, bonusCoins: 200, indicadorTipo: 'admin' });
           await marcarBonusCaptacaoPago(_envioBonus.id);
           const { query: _qCapQA } = require('./services/db');
-          await _qCapQA(`UPDATE usuarios SET autoriza_quintoandar=true WHERE codigo_usuario=$1 AND autoriza_quintoandar IS NOT TRUE`, [atualizado.userId || atualizado.user_id]);
+          await _qCapQA(`UPDATE usuarios SET autoriza_quintoandar=true, atualizado_em=NOW() WHERE codigo_usuario=$1 AND autoriza_quintoandar IS NOT TRUE`, [atualizado.userId || atualizado.user_id]);
           // Publica sozinho (status='ativo') assim que os campos que o
           // QuintoAndar exige já estão preenchidos (mesmo critério de
           // gerarXMLQuintoAndarGlobal: endereço completo + proprietário com

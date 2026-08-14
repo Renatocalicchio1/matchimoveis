@@ -180,4 +180,4 @@ async function atualizarUsuario(id, campos) {
   return null;
 }
 
-module.exports = { lerUsuarios, salvarUsuario, salvarTodosUsuarios, atualizarUsuario };
+module.exports = { lerUsuarios, salvarUsuario, salvarTodosUsuarios, atualizarUsuario, rowToUser };

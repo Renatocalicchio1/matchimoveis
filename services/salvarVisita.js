@@ -168,4 +168,4 @@ async function salvarTodasVisitas(visitas) {
   return visitas;
 }
 
-module.exports = { lerVisitas, salvarVisita, atualizarVisita, deletarVisita, salvarTodasVisitas };
+module.exports = { lerVisitas, salvarVisita, atualizarVisita, deletarVisita, salvarTodasVisitas, rowToVisita };

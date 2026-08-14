@@ -72,7 +72,7 @@ async function debitarLeadsAtivos() {
       // direto, mesmo padrão usado em services/creditos.js
       try {
         const { query: _qJobCred } = require('./db');
-        await _qJobCred('UPDATE usuarios SET match_coins = $1 WHERE codigo_usuario = $2', [novoSaldo, uid]);
+        await _qJobCred('UPDATE usuarios SET match_coins = $1, atualizado_em=NOW() WHERE codigo_usuario = $2', [novoSaldo, uid]);
       } catch(e2) { console.error('[jobCreditos] erro PG débito:', e2.message); }
 
       console.log(`[jobCreditos] ${u.nome || uid}: -${debitado} créditos (${ativos.length} leads) → saldo: ${novoSaldo}`);

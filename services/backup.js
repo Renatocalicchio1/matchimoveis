@@ -39,10 +39,10 @@ async function fazerBackup() {
       [ts, JSON.stringify(totais), JSON.stringify(backup)]
     );
 
-    // Mantém só os últimos 48 backups
+    // Mantém só os últimos 6 backups (~2h de cobertura no intervalo atual)
     await query(`
       DELETE FROM backups WHERE id NOT IN (
-        SELECT id FROM backups ORDER BY timestamp DESC LIMIT 3
+        SELECT id FROM backups ORDER BY timestamp DESC LIMIT 6
       )
     `);
 
@@ -65,10 +65,16 @@ async function restaurarBackup(id) {
   return res.rows[0].dados;
 }
 
+// Dump completo de leads+visitas+usuarios+imoveis+notificacoes em memoria —
+// era a cada 5min o dia todo (jul/2026: identificado como o job mais pesado
+// do sistema, risco real de estourar memoria do web service no Render).
+// Reduzido 4x (20min) — ja existe backup externo real via GitHub Actions
+// pg_dump horario (ver CLAUDE.md), este aqui e so um "desfazer os ultimos
+// minutos" de emergencia, nao precisa dessa frequencia.
 function iniciarBackup() {
-  console.log('[BACKUP] Backup automatico iniciado — a cada 5 minutos, mantendo 3 copias');
-  setTimeout(fazerBackup, 5 * 60 * 1000);
-  setInterval(fazerBackup, 5 * 60 * 1000);
+  console.log('[BACKUP] Backup automatico iniciado — a cada 20 minutos, mantendo 6 copias');
+  setTimeout(fazerBackup, 20 * 60 * 1000);
+  setInterval(fazerBackup, 20 * 60 * 1000);
 }
 
 module.exports = { fazerBackup, iniciarBackup, listarBackups, restaurarBackup };

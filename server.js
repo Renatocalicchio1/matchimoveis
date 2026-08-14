@@ -3085,13 +3085,15 @@ app.get('/api/import/status/:jobId', auth, async (req, res) => {
 // ── FIM IMPORT JOBS STATUS ────────────────────────────────────────────────────
 
 
-// Job reengajamento — roda todo dia às 10h
+// Job reengajamento — roda todo dia às 5h (madrugada; era 10h, jul/2026 —
+// email não precisa sair em horário comercial, só precisa estar na caixa
+// de entrada de manhã, e o loop sobre usuários inativos é mais pesado)
 const _agendarReengajamento = () => {
   const agora = new Date();
-  const amanha10h = new Date(agora);
-  amanha10h.setDate(amanha10h.getDate() + (agora.getHours() >= 10 ? 1 : 0));
-  amanha10h.setHours(10, 0, 0, 0);
-  const msAte10h = amanha10h - agora;
+  const amanha5h = new Date(agora);
+  amanha5h.setDate(amanha5h.getDate() + (agora.getHours() >= 5 ? 1 : 0));
+  amanha5h.setHours(5, 0, 0, 0);
+  const msAte5h = amanha5h - agora;
   setTimeout(async () => {
     try {
       const { enviarEmailReengajamento } = require('./services/emailReengajamento');
@@ -3103,8 +3105,8 @@ const _agendarReengajamento = () => {
         await enviarEmailReengajamento();
       } catch(e) { console.error('[JOB REENGAJAMENTO]', e.message); }
     }, 24 * 3600 * 1000);
-  }, msAte10h);
-  console.log('[JOB REENGAJAMENTO] agendado para:', amanha10h.toLocaleString('pt-BR'));
+  }, msAte5h);
+  console.log('[JOB REENGAJAMENTO] agendado para:', amanha5h.toLocaleString('pt-BR'));
 };
 _agendarReengajamento();
 
@@ -3179,8 +3181,11 @@ setInterval(async () => {
   } catch (e) { console.error('[JOB VALIDACAO EMAILS CAMPANHA]', e.message); }
 }, 5000);
 
-// Job onboarding — verifica a cada 30min se algum usuário completou um dos 3 passos
-// (cadastrar imóvel / ativar WhatsApp / adicionar lead) e manda o email de parabéns
+// Job onboarding — verifica a cada 2h se algum usuário completou um dos passos
+// (cadastrar imóvel / ativar WhatsApp / adicionar lead) e manda o email de
+// parabéns. Era 30min (jul/2026: reduzido — faz 1 query por usuário ativo pra
+// contar leads manuais, N+1 rodando o dia todo; congratulação por email não
+// precisa ser quase-tempo-real).
 setTimeout(async () => {
   try {
     const { verificarOnboardingPassos } = require('./services/emailOnboardingPassos');
@@ -3191,7 +3196,7 @@ setTimeout(async () => {
       const { verificarOnboardingPassos } = require('./services/emailOnboardingPassos');
       await verificarOnboardingPassos();
     } catch(e) { console.error('[JOB ONBOARDING EMAIL]', e.message); }
-  }, 30 * 60 * 1000);
+  }, 2 * 60 * 60 * 1000);
 }, 60 * 1000);
 
 // Job convite pro portal global — a cada 5 min, manda o convite (assunto/copy/
@@ -5558,7 +5563,13 @@ setTimeout(() => {
     await _detectarExclusoesImoveis();
   }, 15000);
 }, 3000);
-// Cache usuários
+// Cache usuários — recarga SEMPRE completa (SELECT * FROM usuarios, incluindo
+// colunas JSONB pesadas como historico_assistente e dados) porque a maioria
+// dos UPDATEs diretos em usuarios (saldo de coins em creditos.js/jobCreditos.js,
+// entre outros) não toca em atualizado_em — um cache incremental por timestamp
+// ficaria com saldo desatualizado. Não dá pra virar incremental sem antes
+// auditar/corrigir esses ~20 pontos de UPDATE. Intervalo alongado (15s -> 45s,
+// jul/2026) só reduz a frequência da recarga cara, sem mudar a estratégia.
 let _cacheUsuarios = null;
 let _usuariosEmExecucao = false;
 async function _recarregarUsuarios() {
@@ -5573,7 +5584,7 @@ async function _recarregarUsuarios() {
     _usuariosEmExecucao = false;
   }
 }
-setTimeout(() => { _recarregarUsuarios(); setInterval(_recarregarUsuarios, 15000); }, 6000);
+setTimeout(() => { _recarregarUsuarios(); setInterval(_recarregarUsuarios, 45000); }, 6000);
 
 function lerLeads(user) {
   const uid = user && (user.id || user);
@@ -5596,7 +5607,10 @@ async function _recarregarVisitas() {
     _visitasEmExecucao = false;
   }
 }
-setTimeout(() => { _recarregarVisitas(); setInterval(_recarregarVisitas, 15000); }, 9000);
+// Mesmo motivo do cache de usuários acima: vários UPDATEs diretos em visitas
+// (workflow, confirmações) não tocam atualizado_em, então fica full reload —
+// só o intervalo foi alongado (15s -> 45s, jul/2026).
+setTimeout(() => { _recarregarVisitas(); setInterval(_recarregarVisitas, 45000); }, 9000);
 
 function lerVisitas(user) {
   const todos = _cacheVisitas || ((_cacheVisitas || []));
@@ -15783,12 +15797,15 @@ setInterval(async () => {
   } catch(e) { console.error('[JOB VISITA REALIZADA]', e.message); }
 }, 15*60*1000);
 
-// ── JOB_LEADS_DIA — processa 20 leads de planilha por usuário às 8h ──────────
+// ── JOB_LEADS_DIA — processa 20 leads de planilha por usuário às 5h30 (madrugada) ──
+// Roda o motor de match completo pra cada lead de cada usuário ativo — era
+// 8h (horário comercial), movido pra madrugada (jul/2026) por ser o job mais
+// pesado de CPU dentre os agendados diários.
 (function _agendarLeadsDia() {
   function _msAte8h() {
     const agora = new Date();
     const prox = new Date();
-    prox.setHours(8, 0, 0, 0);
+    prox.setHours(5, 30, 0, 0);
     if (prox <= agora) prox.setDate(prox.getDate() + 1);
     return prox - agora;
   }
@@ -20778,12 +20795,12 @@ app.get('/admin/disparos/:id/contatos', authAdmin, async (req, res) => {
 });
 // ── FIM DISPAROS WHATSAPP ──────────────────────────────────────────────────────
 
-// ── JOB_RESUMO_EMAIL — envia resumo da conta a cada 15 dias ──────────────────
+// ── JOB_RESUMO_EMAIL — envia resumo da conta a cada 15 dias, de madrugada ────
 const _agendarResumoEmail = () => {
   const agora = new Date();
   const proximo = new Date(agora);
-  proximo.setDate(proximo.getDate() + (agora.getHours() >= 9 ? 15 : 0));
-  proximo.setHours(9, 0, 0, 0);
+  proximo.setHours(4, 0, 0, 0);
+  if (proximo <= agora) proximo.setDate(proximo.getDate() + 15);
   const msAte = proximo - agora;
   setTimeout(async () => {
     try {
@@ -20802,12 +20819,12 @@ const _agendarResumoEmail = () => {
 _agendarResumoEmail();
 // ── FIM JOB_RESUMO_EMAIL ─────────────────────────────────────────────────────
 
-// ── JOB_EMAIL_INDICACAO — envia link de indicação a cada 15 dias ─────────────
+// ── JOB_EMAIL_INDICACAO — envia link de indicação a cada 15 dias, de madrugada ──
 const _agendarEmailIndicacao = () => {
   const agora = new Date();
   const proximo = new Date(agora);
-  proximo.setDate(proximo.getDate() + (agora.getHours() >= 9 ? 15 : 0));
-  proximo.setHours(9, 0, 0, 0);
+  proximo.setHours(4, 20, 0, 0);
+  if (proximo <= agora) proximo.setDate(proximo.getDate() + 15);
   const msAte = proximo - agora;
   setTimeout(async () => {
     try {

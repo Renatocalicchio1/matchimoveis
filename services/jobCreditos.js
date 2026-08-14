@@ -246,40 +246,51 @@ async function rodarJob() {
   console.log('[jobCreditos] ✅ Job concluído');
 }
 
+// Próxima ocorrência de HH:MM no horário de Brasília — usado pra ancorar os
+// 3 jobs diários abaixo num horário fixo de madrugada (2h-7h), em vez de
+// "a cada 24h a partir do boot": esse segundo padrão faz o job pesado cair
+// em qualquer hora do dia (inclusive horário de pico) dependendo de quando
+// o servidor foi reiniciado no Render — bug real corrigido jul/2026.
+function _proximoHorarioBR(hh, mm, agora) {
+  const hojeSP = agora.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  const hhStr = String(hh).padStart(2, '0'), mmStr = String(mm).padStart(2, '0');
+  let alvo = new Date(hojeSP + 'T' + hhStr + ':' + mmStr + ':00-03:00');
+  if (alvo <= agora) {
+    const amanhaSP = new Date(alvo.getTime() + 24*60*60*1000).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+    alvo = new Date(amanhaSP + 'T' + hhStr + ':' + mmStr + ':00-03:00');
+  }
+  return alvo;
+}
+
 function iniciarJobCreditos() {
   console.log('[jobCreditos] ⏱️ Job diário de créditos iniciado');
 
-  // Débito de leads ativos: só às 23:59 (horário de Brasília), uma vez por dia.
-  // A trava de idempotência em debitarLeadsAtivos() garante que reinícios do
-  // servidor no mesmo dia não disparem a cobrança de novo.
-  function _proximo2359BR(agora) {
-    const hojeSP = agora.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
-    let alvo = new Date(hojeSP + 'T23:59:00-03:00');
-    if (alvo <= agora) {
-      const amanhaSP = new Date(alvo.getTime() + 24*60*60*1000).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
-      alvo = new Date(amanhaSP + 'T23:59:00-03:00');
-    }
-    return alvo;
-  }
+  // Débito de leads ativos: 2h da madrugada (horário de Brasília), uma vez por
+  // dia (era 23:59). A trava de idempotência em debitarLeadsAtivos() garante
+  // que reinícios do servidor no mesmo dia não disparem a cobrança de novo.
   const _agora = new Date();
-  const _proxima2359 = _proximo2359BR(_agora);
-  const _msAte2359 = _proxima2359 - _agora;
   setTimeout(() => {
     debitarLeadsAtivos();
     setInterval(debitarLeadsAtivos, 24 * 60 * 60 * 1000);
-  }, _msAte2359);
+  }, _proximoHorarioBR(2, 0, _agora) - _agora);
   // Roda uma vez no boot também — se o servidor tiver ficado fora do ar
-  // durante a janela das 23:59, isso evita pular o dia inteiro sem cobrar.
+  // durante a janela das 2h, isso evita pular o dia inteiro sem cobrar.
+  // debitarLeadsAtivos() é idempotente (chave por data), sem risco de cobrar 2x.
   setTimeout(debitarLeadsAtivos, 10000);
 
-  // Alertas de saldo baixo continuam checando no boot + a cada 24h
-  setInterval(verificarAlertas, 24 * 60 * 60 * 1000);
+  // Alertas de saldo baixo — 2h20 da madrugada + 1x no boot (idem abaixo)
+  setTimeout(() => {
+    verificarAlertas();
+    setInterval(verificarAlertas, 24 * 60 * 60 * 1000);
+  }, _proximoHorarioBR(2, 20, _agora) - _agora);
   setTimeout(verificarAlertas, 15000);
 
-  // E-mail de recarga (vendas) — mesma cadência de 24h, atraso de boot maior
-  // que os alertas pra não competir com eles pela mesma rajada de envio de
-  // SES logo que o servidor sobe.
-  setInterval(enviarEmailsRecarga, 24 * 60 * 60 * 1000);
+  // E-mail de recarga (vendas) — 2h40 da madrugada + 1x no boot, atraso maior
+  // que os alertas pra não competir com eles pela mesma rajada de envio de SES.
+  setTimeout(() => {
+    enviarEmailsRecarga();
+    setInterval(enviarEmailsRecarga, 24 * 60 * 60 * 1000);
+  }, _proximoHorarioBR(2, 40, _agora) - _agora);
   setTimeout(enviarEmailsRecarga, 30000);
 }
 

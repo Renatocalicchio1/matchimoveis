@@ -311,6 +311,25 @@ function calcularPercentualPerfil(im) {
   return Math.round((preenchidos / checks.length) * 100);
 }
 
+// Filtro de "qualidade mínima" pra aparecer fora da carteira do corretor —
+// telas públicas (/portal, /site/:codigo, /imovel/:id) e no motor de match
+// que sugere imóvel pra lead (cerebro/motor-intencao.js). Sem foto passa
+// impressão de anúncio incompleto/golpe; valor muito abaixo do piso costuma
+// ser erro de digitação/import de XML — os dois prejudicam SEO e a
+// credibilidade da rede. O corretor continua vendo o imóvel normal em
+// /app/imoveis (carteira interna) mesmo sem passar nesse filtro — isso aqui
+// é só pra decidir o que fica visível fora da conta dele.
+const VALOR_MINIMO_VENDA = 150000;
+const VALOR_MINIMO_ALUGUEL = 500;
+function imovelVisivelPublico(im) {
+  if (!im) return false;
+  if (!im.fotos || !im.fotos.length) return false;
+  const valor = parseFloat(im.valor_imovel) || 0;
+  const transacao = String(im.transacao || '').toLowerCase();
+  const minimo = transacao.includes('alug') ? VALOR_MINIMO_ALUGUEL : VALOR_MINIMO_VENDA;
+  return valor >= minimo;
+}
+
 function imovelToRow(i) {
   const dados = { ...i };
   const campos = ['id','idExterno','idOriginal','idInterno','codigoImovel','titulo','tipo','categoria','transacao','condicao','status','bairro','cidade','estado','endereco','numero','complemento','cep','latitude','longitude','andar','torre','unidade','condominioNome','valor_imovel','condominio','iptu','area_m2','area_total','area_construida','quartos','suites','banheiros','vagas','salas','descricao','descricaoEditada','fotos','proprietario','portais','diferenciais','corretor','fonte','source','fase','anoConstrucao','posicaoSolar','totalAndares','unidadesPorAndar','aceitaFinanciamento','aceitaPermuta','userId','usuarioId','codigoUsuario','usuarioNome','usuarioPerfil','usuarioTelefone','corretorId','corretorNome','corretorEmail','corretorTelefone','url','urlPublica','tourVirtual','inativadoEm','inativadoPor','xmlUrl','lastUpdate','criadoEm'];
@@ -508,4 +527,4 @@ async function salvarTodosImoveis(imoveis) {
   return imoveis;
 }
 
-module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, calcularPercentualPerfil, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR, buscarBairroEmTexto };
+module.exports = { lerImoveis, salvarImovel, salvarTodosImoveis, rowToImovel, calcularPercentualPerfil, imovelVisivelPublico, _geocodificarCep, _geocodificarEndereco, normalizarEstadoBR, normalizarNomeLocalidade, normalizarCidadeBR, normalizarBairroBR, buscarBairroEmTexto };

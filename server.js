@@ -31,7 +31,7 @@ function checarSaldo(acao, custo) {
 // ────────────────────────────────────────────────────────────────────────────
 const { lerLeads: lerLeadsService, salvarLead, atualizarLead: atualizarLeadService, deletarLead, salvarTodosLeads } = require('./services/salvarLead');
 const { lerFeeds: lerFeedsService, salvarFeed: salvarFeedService, removerFeed: removerFeedService } = require('./services/salvarXmlFeed');
-const { lerImoveis: lerImoveisService, salvarImovel, salvarTodosImoveis } = require('./services/salvarImovel');
+const { lerImoveis: lerImoveisService, salvarImovel, salvarTodosImoveis, imovelVisivelPublico } = require('./services/salvarImovel');
 const { lerVisitas: lerVisitasService, salvarVisita, atualizarVisita: atualizarVisitaService, deletarVisita, salvarTodasVisitas } = require('./services/salvarVisita');
 const { lerNotificacoes: lerNotificacoesService, criarNotificacao: criarNotificacaoService, marcarLida, marcarTodasLidas } = require('./services/salvarNotificacao');
 const { lerUsuarios: lerUsuariosService, lerUsuario: lerUsuarioService, salvarUsuario: salvarUsuarioService, atualizarUsuario: atualizarUsuarioService, salvarTodosUsuarios } = require('./services/salvarUsuario');
@@ -10121,7 +10121,7 @@ app.get('/app/mapa', auth, async (req, res) => {
 });
 
 app.get('/mapa', (req, res) => {
-  const imoveis = loadImoveis();
+  const imoveis = loadImoveis().filter(imovelVisivelPublico);
   const { tipo } = req.query;
   let filtrados = imoveis;
   if (tipo) filtrados = filtrados.filter(i => i.tipo === tipo);
@@ -10844,7 +10844,7 @@ app.get('/portal', async (req, res) => {
   try {
     const siteConfig = await _carregarSiteConfigGlobal();
     if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, { nome: 'MatchImóveis' });
-    const imoveisAtivos = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
+    const imoveisAtivos = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
     const imoveisSemDuplicata = _dedupRodizioImoveis(imoveisAtivos);
     const _r = _filtrarEPaginarImoveis(imoveisSemDuplicata, req.query, 24);
     res.render('portal-global', {
@@ -11051,7 +11051,7 @@ async function _handlerSitePublico(req, res, codigoUsuario, siteBasePath) {
     if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, corretor);
 
     // Hard-filter: só imóveis deste codigoUsuario, nunca confiar em parâmetro do client
-    const imoveisDoUsuario = lerImoveis(codigoUsuario).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
+    const imoveisDoUsuario = lerImoveis(codigoUsuario).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
     const _r = _filtrarEPaginarImoveis(imoveisDoUsuario, req.query, 24);
 
     res.render('site-publico', {
@@ -11109,7 +11109,7 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
     const imoveisDoUsuario = lerImoveis(codigoUsuario);
     const _idBuscaSite = _idParamImovel(imovelId);
     const imovel = imoveisDoUsuario.find(i => String(i.idExterno) === String(_idBuscaSite) || String(i.idInterno) === String(_idBuscaSite) || String(i.codigoImovel) === String(_idBuscaSite) || String(i.id) === String(_idBuscaSite));
-    if (!imovel) return _pagina404Site(res, { titulo: 'Imóvel não encontrado', mensagem: 'Este imóvel não existe mais ou foi removido.', siteConfig, siteBasePath });
+    if (!imovel || !imovelVisivelPublico(imovel)) return _pagina404Site(res, { titulo: 'Imóvel não encontrado', mensagem: 'Este imóvel não existe mais ou foi removido.', siteConfig, siteBasePath });
 
     const pub = Object.assign({}, imovel);
     delete pub.proprietario;
@@ -11122,7 +11122,7 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
       if (_geo) { pub.latitude = _geo.latitude; pub.longitude = _geo.longitude; }
     }
 
-    const parecidos = _imoveisCompativeis(imovel, imoveisDoUsuario, 4);
+    const parecidos = _imoveisCompativeis(imovel, imoveisDoUsuario.filter(imovelVisivelPublico), 4);
 
     res.render('imovel-publico', {
       imovel: pub, corretor, leadDados: { nome: '', telefone: '' }, temLeadId: false, leadId: '',
@@ -11141,7 +11141,7 @@ async function _handlerSiteSitemap(req, res, codigoUsuario, origem) {
     const corretor = _resolverCorretorPublico(codigoUsuario);
     if (!corretor) return res.status(404).send('Site não encontrado');
     const base = origem.replace(/\/$/, '');
-    const imoveisDoUsuario = lerImoveis(codigoUsuario).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
+    const imoveisDoUsuario = lerImoveis(codigoUsuario).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
     const urls = [base + '/'].concat(imoveisDoUsuario.map(i => base + _pathImovelSeo(i)));
     const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       urls.map(u => '  <url><loc>' + u.replace(/&/g,'&amp;') + '</loc></url>').join('\n') +
@@ -11171,7 +11171,7 @@ app.get('/site/:codigoUsuario/robots.txt', (req, res) => _handlerSiteRobots(req,
 app.get('/sitemap.xml', (req, res) => {
   try {
     const base = (req.protocol + '://' + req.get('host')).replace(/\/$/, '');
-    const imoveis = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
+    const imoveis = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
     const urls = [base + '/', base + '/portal']
       .concat(imoveis.map(i => base + _pathImovelSeo(i)));
     const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
@@ -11202,7 +11202,7 @@ app.get('/imovel/:id', async (req, res) => {
   // userId da query serve só para atribuir lead — não muda o corretor exibido
   const _uidLead = _uidQuery || _uid2;
 
-  if (imovel) {
+  if (imovel && imovelVisivelPublico(imovel)) {
     // Cache guarda só as 20 primeiras fotos — busca a linha completa pra mostrar todas
     const _completoPub = await _buscarImovelCompleto(imovel.id);
     if (_completoPub) imovel = { ...imovel, ...(_completoPub.fotos ? { fotos: _completoPub.fotos } : {}), descricao: _completoPub.descricao };
@@ -11225,7 +11225,7 @@ app.get('/imovel/:id', async (req, res) => {
     }
     const _usuarioLogado = req.session && req.session.user ? req.session.user : null;
     const _compartilhador = (_uidLead && _uidLead !== _uid2) ? ((_cacheUsuarios||[]).find(u=>(u.id===_uidLead||u.codigoUsuario===_uidLead||u.codigo_usuario===_uidLead)) || null) : null;
-    const _parecidos = _imoveisCompativeis(imovel, imoveis, 4);
+    const _parecidos = _imoveisCompativeis(imovel, imoveis.filter(imovelVisivelPublico), 4);
     const _voltarQuery = req.query.voltar || '';
     const _voltarPortalUrl = (_voltarQuery && _voltarQuery.startsWith('/portal')) ? _voltarQuery : '';
     return res.render('imovel-publico', { imovel: pub, corretor, leadDados, temLeadId: !!_leadId, leadId: _leadId, usuarioLogado: _usuarioLogado, userId: _uidLead, compartilhador: _compartilhador, siteOrigin: req.protocol + '://' + req.get('host'), parecidos: _parecidos, voltarPortalUrl: _voltarPortalUrl });

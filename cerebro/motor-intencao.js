@@ -13,6 +13,8 @@
 
 'use strict';
 
+const { imovelVisivelPublico } = require('../services/salvarImovel');
+
 // ════════════════════════════════════════════════════════════════
 // FASE 2 — MATCH PONDERADO POR MAPA DE INTENÇÃO
 // ════════════════════════════════════════════════════════════════
@@ -60,6 +62,12 @@ function matchPorMapa(lead, imoveis) {
 
   for (const im of imoveis) {
     if (im.status === 'inativo') continue;
+    // Sem foto ou valor abaixo do piso (venda<150k, aluguel<500) não é
+    // sugerido pra lead — mesmo critério de qualidade das telas públicas
+    // (ver imovelVisivelPublico), evita mandar pro cliente um anúncio que
+    // parece erro/golpe. O corretor continua vendo esse imóvel normal na
+    // carteira dele, só não entra no match automático nem na vitrine.
+    if (!imovelVisivelPublico(im)) continue;
 
     // Normaliza campos do imóvel
     const imovel = {

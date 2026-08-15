@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { imovelVisivelPublico } = require('./services/salvarImovel');
 
 function normalizeTipo(tipo = '') {
   const t = String(tipo || '').toLowerCase();
@@ -41,6 +42,10 @@ return new Date(d) >= _3m;
   return imoveisFiltrados.filter(i => {
     const idCandidato = getIdImovel(i);
     if (idCandidato && idCandidato === String(idOrigem)) return false;
+    // Mesmo piso de qualidade do matchPorMapa (cerebro/motor-intencao.js) —
+    // sem foto ou valor abaixo do mínimo não é sugerido pra lead por esse
+    // caminho de match alternativo (assistente "fazer_match"/Central Operacional).
+    if (!imovelVisivelPublico(i)) return false;
 
     if (norm(i.cidade) !== norm(origem.cidade)) return false;
     if (norm(i.estado && i.estado['#text'] ? i.estado['#text'] : i.estado) !== norm(origem.estado && origem.estado['#text'] ? origem.estado['#text'] : origem.estado)) return false;

@@ -688,13 +688,26 @@ async function atualizarXML(urlEncoded, btn) {
       body: JSON.stringify({ xmlUrl: url })
     });
     const d = await r.json();
-    if (d.ok) {
-      btn.textContent = '✅ Atualizado!';
-      setTimeout(() => location.reload(), 1500);
-    } else {
-      btn.textContent = '❌ Erro';
-      btn.disabled = false;
-    }
+    if (!d.ok) { btn.textContent = '❌ Erro'; btn.disabled = false; return; }
+    if (!d.jobId) { btn.textContent = '✅ Atualizado!'; setTimeout(() => location.reload(), 1500); return; }
+    // Importação roda em background — só avisa que terminou depois que o job
+    // realmente concluir (senão a página recarregava com a lista antiga).
+    btn.textContent = '⏳ Processando...';
+    const timer = setInterval(async () => {
+      try {
+        const s = await (await fetch('/api/import/status/' + d.jobId)).json();
+        if (!s.ok || !s.job) return;
+        if (s.job.status === 'concluido') {
+          clearInterval(timer);
+          btn.textContent = '✅ Atualizado!';
+          setTimeout(() => location.reload(), 1000);
+        } else if (s.job.status === 'erro') {
+          clearInterval(timer);
+          btn.textContent = '❌ Erro';
+          btn.disabled = false;
+        }
+      } catch(e) {}
+    }, 2000);
   } catch(e) {
     btn.textContent = '❌ Erro';
     btn.disabled = false;

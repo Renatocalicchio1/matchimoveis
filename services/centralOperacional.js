@@ -112,9 +112,13 @@ function carregarContexto(user, dadosExternos = {}) {
 
   const filtraUsuario = (item) => {
     if (!userId) return true;
+    const telItem = String(item.corretorCelular || item.celularCorretor || item.telefoneUsuario || '').replace(/\D/g, '');
+    const telUser = String(user?.celular || user?.telefone || '').replace(/\D/g, '');
+    const codItem = String(item.codigoUsuario || item.corretorCodigo || '');
+    const codUser = String(user?.codigoUsuario || '');
     return String(item.userId || item.usuarioId || item.corretorId || item.donoId || item.ownerId || '') === userId ||
-      String(item.codigoUsuario || item.corretorCodigo || '') === String(user?.codigoUsuario || '') ||
-      String(item.corretorCelular || item.celularCorretor || item.telefoneUsuario || '') === String(user?.celular || user?.telefone || '');
+      (!!codItem && !!codUser && codItem === codUser) ||
+      (!!telItem && !!telUser && telItem === telUser);
   };
 
   return {

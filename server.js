@@ -4848,7 +4848,6 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   const imoveisBase = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
   const imovelBase = imoveisBase.find(i => String(i.idExterno||i.id) === String(imovel.idExterno||imovel.id||imovel.id_anuncio||''));
   const proprietario = imovelBase ? (imovelBase.proprietario || {}) : (imovel.proprietario || {});
-  const userFinal = user || { id: "TESTE-LOCAL", nome: "Usuário Teste", celular: "11999999999", telefone: "11999999999" };
 
   const novaVisita = {
     id: Date.now().toString(),
@@ -6260,15 +6259,30 @@ app.post('/app/atualizar-xml', auth, checarSaldo('Importar XML', 2), async (req,
   try {
     const { execSync } = require('child_process');
     const path = require('path');
-    const { criarJob: _cjX2 } = require('./services/importJobs');
+    const { criarJob: _cjX2, buscarJob: _bjX2 } = require('./services/importJobs');
     const { dispararWorkerXml: _dwX2 } = require('./services/workerDispatch');
     const _jobIdX2 = await _cjX2('xml', userId, xmlUrl);
     _dwX2(_jobIdX2, xmlUrl, userId);
-    _cacheImoveis = null;
-    await _recarregarImoveis();
-    const total = (_cacheImoveis || []).filter(im => (im.userId||im.usuarioId) === userId).length;
-    await salvarFeedService({ userId, url: xmlUrl, lastSyncAt: new Date().toISOString(), total, tipo: 'importado' });
-    res.json({ ok: true });
+    // O worker roda em background (pode levar minutos num feed grande) — só
+    // recontamos e gravamos o total real em xml_feeds depois que ele terminar,
+    // pra não salvar/anunciar sucesso com a contagem antiga (bug confirmado
+    // auditoria ago/2026: dava "Atualizado!" e recarregava a página antes da
+    // importação de fato acabar).
+    (async () => {
+      for (let i = 0; i < 300; i++) {
+        await new Promise(r => setTimeout(r, 3000));
+        const job = await _bjX2(_jobIdX2).catch(() => null);
+        if (!job || job.status === 'erro') return;
+        if (job.status === 'concluido') {
+          _cacheImoveis = null;
+          await _recarregarImoveis();
+          const total = (_cacheImoveis || []).filter(im => (im.userId||im.usuarioId) === userId).length;
+          await salvarFeedService({ userId, url: xmlUrl, lastSyncAt: new Date().toISOString(), total, tipo: 'importado' }).catch(()=>{});
+          return;
+        }
+      }
+    })();
+    res.json({ ok: true, jobId: _jobIdX2 });
   } catch(e) {
     console.error('[atualizar-xml]', e.message);
     res.json({ ok: false, erro: e.message });
@@ -8327,7 +8341,11 @@ app.post('/app/perfil/localizacao', auth, express.json(), async (req,res)=>{
       const completo = await _verificarPerfilCompleto(req.session.user.id);
       if (completo) req.session.user.precisaCompletarPerfil = false;
     }
-  } catch(e) { console.error('[localizacao]', e.message); }
+  } catch(e) {
+    console.error('[localizacao]', e.message);
+    if(isJson) return res.status(500).json({ok:false, erro: e.message});
+    return res.redirect('/app/perfil?erro=localizacao');
+  }
   if(isJson) return res.json({ok:true, perfilCompleto: !req.session.user.precisaCompletarPerfil});
   res.redirect('/app/perfil');
 });
@@ -11971,12 +11989,12 @@ function gerarXMLPortal(imoveis, portal, user){
       xml += '        <CondominiumName>'+esc(i.condominioNome || i.condominio_name || '')+'</CondominiumName>\n';
       xml += '      </Location>\n';
       xml += '      <ContactInfo>\n';
-      xml += '        <Name>'+esc(i.corretor_nome || i.usuario_nome || (user&&user.nome) || 'Corretor')+'</Name>\n';
-      xml += '        <Email>'+esc(i.corretor_email || i.usuario_email || (user&&user.email) || '')+'</Email>\n';
+      xml += '        <Name>'+esc(i.corretorNome || i.usuarioNome || (user&&user.nome) || 'Corretor')+'</Name>\n';
+      xml += '        <Email>'+esc(i.corretorEmail || (user&&user.email) || '')+'</Email>\n';
       xml += '        <Website>'+esc((user&&user.website)||'https://matchimoveis.ia.br')+'</Website>\n';
       xml += '        <Logo></Logo>\n';
-      xml += '        <OfficeName>'+esc(i.corretor_nome || i.usuario_nome || (user&&user.nome) || 'Corretor')+'</OfficeName>\n';
-      xml += '        <Telephone>'+esc(i.corretor_telefone || i.usuario_telefone || (user&&(user.celular||user.telefone)) || '')+'</Telephone>\n';
+      xml += '        <OfficeName>'+esc(i.corretorNome || i.usuarioNome || (user&&user.nome) || 'Corretor')+'</OfficeName>\n';
+      xml += '        <Telephone>'+esc(i.corretorTelefone || i.usuarioTelefone || (user&&(user.celular||user.telefone)) || '')+'</Telephone>\n';
       xml += '      </ContactInfo>\n';
       xml += '      <OwnerInfo>\n';
       xml += '        <Name>'+esc(prop.nome || i.proprietarioNome || '')+'</Name>\n';
@@ -12065,10 +12083,10 @@ function gerarXMLPortal(imoveis, portal, user){
     xml += '        <Longitude>'+esc(i.longitude || '')+'</Longitude>\n';
     xml += '      </Location>\n';
     xml += '      <ContactInfo>\n';
-    xml += '        <Name>'+esc(i.corretor_nome || i.usuario_nome || (user&&user.nome) || 'Corretor')+'</Name>\n';
-    xml += '        <Email>'+esc(i.corretor_email || i.usuario_email || (user&&user.email) || '')+'</Email>\n';
+    xml += '        <Name>'+esc(i.corretorNome || i.usuarioNome || (user&&user.nome) || 'Corretor')+'</Name>\n';
+    xml += '        <Email>'+esc(i.corretorEmail || (user&&user.email) || '')+'</Email>\n';
     xml += '        <Website>'+esc((user&&user.website)||'https://matchimoveis.ia.br')+'</Website>\n';
-    xml += '        <Telephone>'+esc(i.corretor_telefone || i.usuario_telefone || (user&&(user.celular||user.telefone)) || '')+'</Telephone>\n';
+    xml += '        <Telephone>'+esc(i.corretorTelefone || i.usuarioTelefone || (user&&(user.celular||user.telefone)) || '')+'</Telephone>\n';
     xml += '      </ContactInfo>\n';
     xml += '    </Listing>\n';
   });
@@ -12352,7 +12370,7 @@ app.post('/pagamento/processar', auth, express.json(), async (req, res) => {
   try {
     const payment = new Payment(_mpClient);
     const result = await payment.create({ body: req.body });
-    const userId = req.session.user?.codigoUsuario || req.session.user?.codigo;
+    const userId = req.session.user?.codigoUsuario || req.session.user?.id;
     const valor = result.transaction_amount || 0;
     const creditos = Math.floor(valor * 20);
     if(result.status === 'approved' && creditos > 0){
@@ -13689,7 +13707,7 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
 
   if (usarCentral) {
     try {
-      const central = centralOperacional.responderCentral(user, mensagem, { leads: _cacheLeads||[], imoveis: _cacheImoveis||[], visitas: _cacheVisitas||[], notificacoes: _cacheNotificacoes||[] });
+      const central = await centralOperacional.responderCentral(user, mensagem, { leads: _cacheLeads||[], imoveis: _cacheImoveis||[], visitas: _cacheVisitas||[], notificacoes: _cacheNotificacoes||[] });
 
       if (central && central.resposta) {
         resposta = central.resposta;
@@ -13851,7 +13869,7 @@ app.post('/app/assistente/feedback', auth, express.json(), (req, res) => {
 // Notas do usuário — preferências aprendidas
 // CENTRAL OPERACIONAL CONVERSACIONAL
 // ===============================
-app.post('/api/central-operacional', auth, express.json(), (req, res) => {
+app.post('/api/central-operacional', auth, express.json(), async (req, res) => {
   try {
     const texto = req.body.texto || req.body.mensagem || req.body.message || '';
     if (!texto.trim()) {
@@ -13861,7 +13879,7 @@ app.post('/api/central-operacional', auth, express.json(), (req, res) => {
       });
     }
 
-    const resultado = centralOperacional.responderCentral(req.session.user, texto, { leads: _cacheLeads||[], imoveis: _cacheImoveis||[], visitas: _cacheVisitas||[], notificacoes: _cacheNotificacoes||[] });
+    const resultado = await centralOperacional.responderCentral(req.session.user, texto, { leads: _cacheLeads||[], imoveis: _cacheImoveis||[], visitas: _cacheVisitas||[], notificacoes: _cacheNotificacoes||[] });
     res.json({
       ok: true,
       ...resultado
@@ -14384,7 +14402,15 @@ app.get('/app/visitas-kanban', auth, (req,res)=>{
 
   const fs = require('fs');
 
-  const visitas = (_cacheVisitas || []);
+  // Antes pegava _cacheVisitas direto (todas as visitas de TODOS os corretores
+  // da plataforma, sem filtrar dono) — kanban aparecia com colunas cheias de
+  // visita de conta alheia. Mesmo filtro já usado em GET /app/visitas.
+  const todasVisitasKanban = (_cacheVisitas || []);
+  const userKanban = req.session.user;
+  const visitas = userKanban.tipo === 'admin' ? todasVisitasKanban : todasVisitasKanban.filter(v =>
+    String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(userKanban.id || "") ||
+    _telsBatemNaoVazio(v.corretorTelefone || v.usuarioDestinoTelefone, userKanban.celular || userKanban.telefone)
+  );
 
   const colunas = {
     AGUARDANDO: [],
@@ -16636,7 +16662,6 @@ app.get('/cliente/oferta/:leadId/visita/:idx', (req,res)=>{
   const imoveisBase = fs.existsSync(dataFile('imoveis.json')) ? ((_cacheImoveis || [])) : [];
   const imovelBase = imoveisBase.find(i => String(i.idExterno||i.id) === String(imovel.idExterno||imovel.id||imovel.id_anuncio||''));
   const proprietario = imovelBase ? (imovelBase.proprietario || {}) : (imovel.proprietario || {});
-  const userFinal = user || { id: "TESTE-LOCAL", nome: "Usuário Teste", celular: "11999999999", telefone: "11999999999" };
 
   const novaVisita = {
     id: Date.now().toString(),

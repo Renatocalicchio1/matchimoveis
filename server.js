@@ -1428,8 +1428,8 @@ app.get('/admin/leads-auditoria', authAdmin, async (req, res) => {
     var sql = 'SELECT * FROM leads_auditoria WHERE 1=1';
     var pars = [];
     var ph;
-    if (fUser) { pars.push(fUser); ph = pars.length; sql = sql + ' AND user_id='; sql = sql + ph; }
-    if (fAcao) { pars.push(fAcao); ph = pars.length; sql = sql + ' AND acao='; sql = sql + ph; }
+    if (fUser) { pars.push(fUser); ph = pars.length; sql = sql + ' AND user_id=' + String.fromCharCode(36); sql = sql + ph; }
+    if (fAcao) { pars.push(fAcao); ph = pars.length; sql = sql + ' AND acao=' + String.fromCharCode(36); sql = sql + ph; }
     sql = sql + ' ORDER BY criado_em DESC LIMIT 500';
     var resultado = await qAud(sql, pars);
     var html = '<html><head><meta charset=UTF-8><meta name="viewport" content="width=device-width,initial-scale=1"><title>Auditoria de Leads</title><style>body{font-family:Arial,sans-serif;margin:0;padding:0}' + _adminShellCss() + '</style></head><body>';
@@ -7967,7 +7967,7 @@ app.post('/webhook/imovelweb/:userId', async (req, res) => {
 app.post('/webhook/imovelweb', (req, res) => res.status(200).send('OK'));
 
 // WEBHOOK GRUPO OLX — ZAP Imóveis, VivaReal e OLX (mesmo formato)
-app.post('/webhook/grupoolx/:userId', async (req, res) => {
+async function _webhookGrupoOlx(req, res) {
   res.status(200).send('OK');
   try {
     const body = req.body || {};
@@ -8070,11 +8070,16 @@ app.post('/webhook/grupoolx/:userId', async (req, res) => {
       } catch(e) { console.error('[WEBHOOK GRUPOOLX] erro portal-processor:', e.message); }
     }, 8000);
   } catch(err) { console.error('[WEBHOOK GRUPOOLX] erro:', err.message); }
-});
-// Aliases para ZAP, VivaReal e OLX individualmente
-app.post('/webhook/zap/:userId', (req, res, next) => { req.url = req.url.replace('/webhook/zap/', '/webhook/grupoolx/'); next(); });
-app.post('/webhook/vivareal/:userId', (req, res, next) => { req.url = req.url.replace('/webhook/vivareal/', '/webhook/grupoolx/'); next(); });
-app.post('/webhook/olx/:userId', (req, res, next) => { req.url = req.url.replace('/webhook/olx/', '/webhook/grupoolx/'); next(); });
+}
+app.post('/webhook/grupoolx/:userId', _webhookGrupoOlx);
+// Aliases para ZAP, VivaReal e OLX individualmente — chama o mesmo handler direto.
+// Antes reescrevia req.url e dava next(), mas next() não reinicia o matching de
+// rotas do Express a partir do topo — só segue pra próxima camada da pilha, então
+// nunca batia em /webhook/grupoolx/:userId (registrada antes) e sempre dava 404
+// (auditoria ago/2026).
+app.post('/webhook/zap/:userId', _webhookGrupoOlx);
+app.post('/webhook/vivareal/:userId', _webhookGrupoOlx);
+app.post('/webhook/olx/:userId', _webhookGrupoOlx);
 
 // WEBHOOK CHAVES NA MÃO
 // WEBHOOK 123i / LOFT — mesmo formato do Grupo OLX
@@ -15795,6 +15800,8 @@ app.get('/api/feed/com-lead', auth, async (req, res) => {
     }).map(im => {
       const uid = im.user_id || im.userId || im.codigoUsuario;
       const nomeUsuario = nomeMap[uid] || '';
+      const _uObjCL = (_cacheUsuarios||[]).find(u=>u.id===uid||u.codigo_usuario===uid);
+      const _uTel = (_uObjCL?.celular||_uObjCL?.telefone||'').replace(/\D/g,'');
       const imId = String(im.id || '');
       const imIdExt = String(im.id_externo || '');
       const lc = [...(leadsMap[imId]||[]), ...(leadsMap[imIdExt]||[])];

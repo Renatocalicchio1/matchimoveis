@@ -21,7 +21,7 @@
     const _transSchema = String(imovel.transacao||'').toLowerCase().includes('alug') ? 'https://schema.org/RentAction' : 'https://schema.org/BuyAction';
     const _jsonLd = {
       '@context': 'https://schema.org',
-      '@type': 'Accommodation',
+      '@type': 'RealEstateListing',
       name: _ogTitulo,
       description: _ogDescricao,
       additionalType: imovel.tipo || undefined,
@@ -232,13 +232,13 @@
 
 <% if(imovel.fotos && imovel.fotos.length > 0) { %>
 <div class="detalhe-hero" id="hero-fotos">
-  <img src="<%= imovel.fotos[0] %>" onclick="abrirGaleria(0)">
-  <% if(imovel.fotos[1]) { %><img src="<%= imovel.fotos[1] %>" onclick="abrirGaleria(1)"><% } %>
-  <% if(imovel.fotos[2]) { %><img src="<%= imovel.fotos[2] %>" onclick="abrirGaleria(2)"><% } %>
-  <% if(imovel.fotos[3]) { %><img src="<%= imovel.fotos[3] %>" onclick="abrirGaleria(3)"><% } %>
+  <img src="<%= imovel.fotos[0] %>" alt="<%= _ogTitulo %> - foto 1" onclick="abrirGaleria(0)">
+  <% if(imovel.fotos[1]) { %><img src="<%= imovel.fotos[1] %>" alt="<%= _ogTitulo %> - foto 2" onclick="abrirGaleria(1)"><% } %>
+  <% if(imovel.fotos[2]) { %><img src="<%= imovel.fotos[2] %>" alt="<%= _ogTitulo %> - foto 3" onclick="abrirGaleria(2)"><% } %>
+  <% if(imovel.fotos[3]) { %><img src="<%= imovel.fotos[3] %>" alt="<%= _ogTitulo %> - foto 4" onclick="abrirGaleria(3)"><% } %>
   <% if(imovel.fotos[4]) { %>
   <div class="hero-mais" onclick="abrirGaleria(4)">
-    <img src="<%= imovel.fotos[4] %>">
+    <img src="<%= imovel.fotos[4] %>" alt="<%= _ogTitulo %> - foto 5">
     <% if(imovel.fotos.length > 5) { %>
     <div class="hero-mais-overlay">+<%= imovel.fotos.length - 5 %> fotos</div>
     <% } %>
@@ -249,7 +249,7 @@
 <div class="hero-carousel-wrap">
   <div class="hero-carousel" id="hero-carousel">
     <% imovel.fotos.forEach(function(foto, i){ %>
-    <img src="<%= foto %>" onclick="abrirGaleria(<%= i %>)">
+    <img src="<%= foto %>" alt="<%= _ogTitulo %> - foto <%= i+1 %>" onclick="abrirGaleria(<%= i %>)">
     <% }) %>
   </div>
   <% if(imovel.fotos.length > 1) { %>
@@ -264,7 +264,7 @@
 <div id="lightbox">
   <button class="lb-btn" onclick="fecharLightbox()" style="top:16px;right:20px;font-size:20px">✕</button>
   <button class="lb-btn" onclick="navFoto(-1)" style="left:16px">‹</button>
-  <img id="lb-img">
+  <img id="lb-img" alt="<%= _ogTitulo %>">
   <button class="lb-btn" onclick="navFoto(1)" style="right:16px">›</button>
   <div id="lb-counter" style="position:absolute;bottom:16px;color:#fff;font-size:14px;opacity:.7"></div>
 </div>
@@ -336,7 +336,7 @@
         <% const _pTrans = (p.transacao||'').toLowerCase(); %>
         <a href="<%= (typeof siteVoltarUrl!=='undefined'&&siteVoltarUrl&&siteVoltarUrl!=='/' ? siteVoltarUrl+'/imovel/' : '/imovel/') %><%= p.idExterno||p.idInterno||p.id %><%= (typeof voltarPortalUrl!=='undefined'&&voltarPortalUrl) ? '?voltar='+encodeURIComponent(voltarPortalUrl) : '' %>" class="pc-card">
           <div class="pc-img">
-            <% if(p.fotos && p.fotos[0]){ %><img src="<%= p.fotos[0] %>" loading="lazy"><% } %>
+            <% if(p.fotos && p.fotos[0]){ %><img src="<%= p.fotos[0] %>" alt="<%= p.titulo || ((p.tipo||'Imóvel') + ' em ' + (p.bairro||'')) %>" loading="lazy"><% } %>
             <% if(_pTrans==='venda'||_pTrans==='aluguel'){ %><span class="pc-badge" style="background:<%= _pTrans==='aluguel'?'var(--teal)':'var(--brand)' %>"><%= _pTrans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>
           </div>
           <div class="pc-body">
@@ -659,7 +659,7 @@ let fotoAtual = 0;
 function abrirGaleria(idx) { fotoAtual=idx; document.getElementById('lightbox').classList.add('open'); atualizarLb(); }
 function fecharLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 function navFoto(dir) { fotoAtual=(fotoAtual+dir+fotos.length)%fotos.length; atualizarLb(); }
-function atualizarLb() { document.getElementById('lb-img').src=fotos[fotoAtual]; document.getElementById('lb-counter').textContent=(fotoAtual+1)+' / '+fotos.length; }
+function atualizarLb() { const _lbImg=document.getElementById('lb-img'); _lbImg.src=fotos[fotoAtual]; _lbImg.alt=<%- JSON.stringify(_ogTitulo) %>+' - foto '+(fotoAtual+1); document.getElementById('lb-counter').textContent=(fotoAtual+1)+' / '+fotos.length; }
 document.getElementById('lightbox').addEventListener('click',e=>{ if(e.target===document.getElementById('lightbox')) fecharLightbox(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') fecharLightbox(); if(e.key==='ArrowLeft') navFoto(-1); if(e.key==='ArrowRight') navFoto(1); });
 

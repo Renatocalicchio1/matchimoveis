@@ -11133,6 +11133,30 @@ app.get('/site/:codigoUsuario/sitemap.xml', (req, res) => _handlerSiteSitemap(re
 app.get('/site/:codigoUsuario/robots.txt', (req, res) => _handlerSiteRobots(req, res, req.protocol + '://' + req.get('host') + '/site/' + req.params.codigoUsuario));
 // ── FIM SITE PÚBLICO ───────────────────────────────────────────────────────────
 
+// ── SEO GLOBAL (domínio principal) ──────────────────────────────────────────
+// Antes só existia sitemap/robots por corretor (/site/:codigo/sitemap.xml) —
+// o domínio institucional (landing, /portal, /imovel/:id acessado solto) não
+// tinha nenhum arquivo de descoberta pro Google indexar.
+app.get('/sitemap.xml', (req, res) => {
+  try {
+    const base = (req.protocol + '://' + req.get('host')).replace(/\/$/, '');
+    const imoveis = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
+    const urls = [base + '/', base + '/portal']
+      .concat(imoveis.map(i => base + '/imovel/' + (i.idExterno || i.idInterno || i.id)));
+    const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+      urls.map(u => '  <url><loc>' + u.replace(/&/g, '&amp;') + '</loc></url>').join('\n') +
+      '\n</urlset>';
+    res.set('Content-Type', 'application/xml').send(xml);
+  } catch (e) {
+    console.error('[sitemap-global]', e.message);
+    res.status(500).send('Erro ao gerar sitemap');
+  }
+});
+app.get('/robots.txt', (req, res) => {
+  const base = (req.protocol + '://' + req.get('host')).replace(/\/$/, '');
+  res.set('Content-Type', 'text/plain').send('User-agent: *\nAllow: /\nSitemap: ' + base + '/sitemap.xml\n');
+});
+
 // Página pública do imóvel — sem login
 app.get('/imovel/:id', async (req, res) => {
   const imoveis = ((_cacheImoveis || []));

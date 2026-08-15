@@ -291,7 +291,7 @@
     <% const _trans = (im.transacao||'').toLowerCase(); %>
     <a href="<%= siteBasePath %>/imovel/<%= _idLink %>" class="card">
       <div class="card-img">
-        <% if(im.fotos && im.fotos.length){ %><img src="<%= im.fotos[0] %>" loading="lazy">
+        <% if(im.fotos && im.fotos.length){ %><img src="<%= im.fotos[0] %>" alt="<%= im.titulo || (im.tipo + ' em ' + im.bairro) %>" loading="lazy">
         <% } else { %><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:13px">Sem foto</div><% } %>
         <% if(_trans==='venda'||_trans==='aluguel'){ %><span class="card-badge" style="background:<%= _trans==='aluguel'?'var(--teal)':'var(--brand)' %>"><%= _trans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>
         <button type="button" class="card-fav" data-id="<%= _idLink %>" onclick="event.preventDefault();event.stopPropagation();toggleFavoritoCard(this)" aria-label="Favoritar">♡</button>

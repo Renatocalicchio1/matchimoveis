@@ -5383,8 +5383,8 @@ function filtrarPorUsuario(lista, user){
     String(item.corretorId || '') === uid ||
     String(item.userId || '') === uid ||
     String(item.usuarioId || '') === uid ||
-    String(item.corretorCelular || '').replace(/\D/g,'') === tel ||
-    String(item.usuarioTelefone || '').replace(/\D/g,'') === tel ||
+    (tel && String(item.corretorCelular || '').replace(/\D/g,'') === tel) ||
+    (tel && String(item.usuarioTelefone || '').replace(/\D/g,'') === tel) ||
     (cod && String(item.codigoUsuario || '') === cod)
   );
 }
@@ -5731,7 +5731,7 @@ app.get('/api/menu/badges', auth, async (req, res) => {
     const todasVisitasBadge = (_cacheVisitas || []);
     const visitasArr = user.tipo === 'admin' ? todasVisitasBadge : todasVisitasBadge.filter(v =>
       String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
-      String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
+      _telsBatemNaoVazio(v.corretorTelefone || v.usuarioDestinoTelefone, user.celular || user.telefone)
     );
     const visitasPendentes = visitasArr.filter(v => v.status === 'solicitada').length;
     const notificacoesBadge = await lerNotificacoes(user);
@@ -5761,7 +5761,7 @@ app.get('/app-home', auth, async (req,res)=>{
     .filter(l => !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length)));
   const visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
     String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
-    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
+    _telsBatemNaoVazio(v.corretorTelefone || v.usuarioDestinoTelefone, user.celular || user.telefone)
   );
   const minhasNotificacoes = notificacoes.filter(n => String(n.usuarioId) === String(user.id));
   const naoLidas = minhasNotificacoes.filter(n => !n.lida);
@@ -7713,7 +7713,7 @@ app.get('/app/visitas', auth, async (req,res)=>{
   const user = req.session.user;
   let visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
     String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
-    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
+    _telsBatemNaoVazio(v.corretorTelefone || v.usuarioDestinoTelefone, user.celular || user.telefone)
   );
   const { status, busca, data } = req.query;
   if (status && status !== 'todos') visitas = visitas.filter(v => v.status === status);
@@ -11100,6 +11100,18 @@ function _pathImovelSeo(imovel, prefixo) {
   return (prefixo || '') + '/imovel/' + id + (slug ? '--' + slug : '');
 }
 
+// Compara dois telefones (dígitos, ignora formatação) só se os DOIS não
+// forem vazios — sem isso, `'' === ''` batia sempre que um dos dois lados
+// não tinha telefone cadastrado (ex: conta nova sem celular preenchido
+// ainda), vazando visita de QUALQUER outra conta que também estivesse com
+// telefone vazio naquele registro. Bug confirmado ago/2026, conta EDS-8B58
+// (nova, sem celular) via 66 visitas que não eram dela.
+function _telsBatemNaoVazio(tel1, tel2) {
+  const a = String(tel1 || '').replace(/\D/g, '');
+  const b = String(tel2 || '').replace(/\D/g, '');
+  return !!a && !!b && a === b;
+}
+
 async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, siteBasePath) {
   try {
     const corretor = _resolverCorretorPublico(codigoUsuario);
@@ -13520,7 +13532,7 @@ app.get('/api/assistente/dados', auth, (req, res) => {
   const leads   = filtrarPorUsuario(_cacheLeads || [], user);
   const visitas = (_cacheVisitas || []).filter(v =>
     String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || v.userId || '') === String(user.id || '') ||
-    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
+    _telsBatemNaoVazio(v.corretorTelefone || v.usuarioDestinoTelefone, user.celular || user.telefone)
   );
 
   const hoje = new Date().toLocaleDateString('pt-BR');
@@ -13577,7 +13589,7 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
   const leads   = filtrarPorUsuario(_cacheLeads || [], user);
   const visitas = (_cacheVisitas || []).filter(v =>
     String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || v.userId || '') === String(user.id || '') ||
-    String(v.corretorTelefone || v.usuarioDestinoTelefone || '').replace(/\D/g,'') === String(user.celular || user.telefone || '').replace(/\D/g,'')
+    _telsBatemNaoVazio(v.corretorTelefone || v.usuarioDestinoTelefone, user.celular || user.telefone)
   );
 
   const hoje = new Date().toLocaleDateString('pt-BR');
@@ -17045,8 +17057,8 @@ function filtrarPorUsuario(lista, user){
     String(item.corretorId || '') === uid ||
     String(item.userId || '') === uid ||
     String(item.usuarioId || '') === uid ||
-    String(item.corretorCelular || '').replace(/\D/g,'') === tel ||
-    String(item.usuarioTelefone || '').replace(/\D/g,'') === tel ||
+    (tel && String(item.corretorCelular || '').replace(/\D/g,'') === tel) ||
+    (tel && String(item.usuarioTelefone || '').replace(/\D/g,'') === tel) ||
     (cod && String(item.codigoUsuario || '') === cod)
   );
 }

@@ -3156,9 +3156,12 @@ _agendarProximoEnvioCampanha();
 
 // Job da campanha geral de email (services/campanha.js, base de ~118 mil
 // contatos) — mesmo princípio: só dispara quando ativa em /admin/campanha,
-// intervalo aleatório de 30s a 5min a cada envio (nunca fixo, sempre varia).
+// intervalo aleatório a cada envio (nunca fixo, sempre varia, pra não ter
+// padrão robótico "a cada X segundos exatos" — sinal clássico de spam).
+// Era 30s-5min (~1.420 envios/24h observado) — reduzido pela metade (jul/2026,
+// pedido de dobrar o volume diário) pra dobrar a taxa mantendo a variação.
 function _agendarProximoEnvioCampanhaGeral() {
-  const delayMs = (30 + Math.random() * 270) * 1000; // 30s a 300s (5min)
+  const delayMs = (30 + Math.random() * 105) * 1000; // 30s a 135s (~2min15)
   setTimeout(async () => {
     try {
       const { enviarProximo } = require('./services/campanha');

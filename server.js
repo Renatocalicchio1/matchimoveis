@@ -11566,6 +11566,9 @@ app.post('/app/imovel/:id/upload-foto', auth, uploadImoveis.single('foto'), asyn
     if(!req.file) return res.redirect('/app/imovel/' + pid + '/editar?erro=foto');
     const imoveis = (_cacheImoveis || []);
     const idx = imoveis.findIndex(i => String(i.idExterno)===pid || String(i.idInterno)===pid || String(i.codigoImovel)===pid || String(i.id)===pid);
+    if(idx >= 0 && !_ehDonoDoImovel(imoveis[idx], req.session.user) && req.session.user.tipo !== 'admin'){
+      return res.status(403).redirect('/app/imovel/' + pid + '/editar?erro=foto');
+    }
     if(idx >= 0){
       // Cache só guarda as 20 primeiras fotos — busca a lista completa antes de adicionar
       const _completoUp = await _buscarImovelCompleto(imoveis[idx].id);
@@ -11616,6 +11619,9 @@ app.post('/app/imovel/:id/excluir-foto', auth, async (req,res)=>{
   const imoveis = ((_cacheImoveis || []));
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
 
+  if(idx >= 0 && !_ehDonoDoImovel(imoveis[idx], req.session.user) && req.session.user.tipo !== 'admin'){
+    return res.status(403).redirect('/app/imovel/' + req.params.id + '/editar');
+  }
   if(idx >= 0){
     // Cache só guarda as 20 primeiras fotos — busca a lista completa antes de excluir
     const _completoDel = await _buscarImovelCompleto(imoveis[idx].id);
@@ -11636,6 +11642,9 @@ app.post('/app/imovel/:id/capa-foto', auth, async (req,res)=>{
   const imoveis = ((_cacheImoveis || []));
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id));
 
+  if(idx >= 0 && !_ehDonoDoImovel(imoveis[idx], req.session.user) && req.session.user.tipo !== 'admin'){
+    return res.status(403).redirect('/app/imovel/' + req.params.id + '/editar');
+  }
   if(idx >= 0){
     // Cache só guarda as 20 primeiras fotos — busca a lista completa antes de reordenar
     const _completoCapa = await _buscarImovelCompleto(imoveis[idx].id);
@@ -15245,13 +15254,17 @@ app.delete('/app/lead/:id', auth, async (req, res) => {
 app.post('/app/lead/:id/bloquear', auth, async (req, res) => {
   try {
     const uid = String(req.session.user.id || '');
+    // Mesma checagem de dono que DELETE /app/lead/:id já faz — sem isso,
+    // qualquer corretor logado conseguia bloquear/apagar lead de outra conta
+    // só sabendo o id (auditoria ago/2026).
+    const leadsDoUsuario = lerLeads(req.session.user);
+    const idx = leadsDoUsuario.findIndex(l => String(l.id) === String(req.params.id));
+    if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
+    const lead = leadsDoUsuario[idx];
     const { query: _qBlk } = require('./services/db');
     // Busca telefone direto do banco
     const _leadRow = await _qBlk('SELECT telefone, whatsapp, contato FROM leads WHERE id=$1', [req.params.id]);
     const _leadDb = _leadRow.rows[0] || {};
-    const leads = (_cacheLeads || []);
-    const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
-    const lead = idx >= 0 ? leads[idx] : {};
     const telefone = String(_leadDb.telefone || _leadDb.whatsapp || _leadDb.contato || lead.telefone || lead.whatsapp || lead.contato || '').replace(/\D/g,'');
     console.log('[BLOQUEAR] telefone:', telefone, '| uid:', uid);
     // Salva na lista negra do usuário no banco
@@ -15281,6 +15294,10 @@ app.post('/app/lead/:id/perfil', auth, async (req, res) => {
     const { atualizarLead, lerLeads } = require('./services/salvarLead');
     const { perfilIA } = req.body;
     if (!perfilIA) return res.status(400).json({ erro: 'perfilIA obrigatório' });
+    const leadsDoUsuario = await lerLeads(req.session.user.id);
+    if (!leadsDoUsuario.find(l => String(l.id) === String(req.params.id))) {
+      return res.status(404).json({ erro: 'lead nao encontrada' });
+    }
     await atualizarLead(req.params.id, { perfilIA });
     res.json({ ok: true });
     // Roda match em background
@@ -15363,6 +15380,10 @@ app.post('/app/lead/:id/classificar', auth, async (req, res) => {
     const uid = String(req.session.user.id || '');
     const { tipoLead } = req.body;
     if (!['cliente','vendedor','corretor'].includes(tipoLead)) return res.status(400).json({ erro: 'tipo invalido' });
+    const leadsDoUsuario = lerLeads(req.session.user);
+    if (!leadsDoUsuario.find(l => String(l.id) === String(req.params.id))) {
+      return res.status(404).json({ erro: 'lead nao encontrada' });
+    }
     const leads = (_cacheLeads || []);
     const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
     if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
@@ -15385,6 +15406,10 @@ app.post('/app/lead/:id/classificar', auth, async (req, res) => {
 // ── IMÓVEL DO VENDEDOR ───────────────────────────────────────
 app.post('/app/lead/:id/imovel-vendedor', auth, async (req, res) => {
   try {
+    const leadsDoUsuario = lerLeads(req.session.user);
+    if (!leadsDoUsuario.find(l => String(l.id) === String(req.params.id))) {
+      return res.status(404).json({ erro: 'lead nao encontrada' });
+    }
     const leads = (_cacheLeads || []);
     const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
     if (idx < 0) return res.status(404).json({ erro: 'lead nao encontrada' });
@@ -15825,6 +15850,10 @@ app.get('/app/parceiros', auth, async (req, res) => {
 
 app.post('/app/parceiro/:id/comissao', auth, async (req, res) => {
   try {
+    const leadsDoUsuario = lerLeads(req.session.user);
+    if (!leadsDoUsuario.find(l => String(l.id) === String(req.params.id))) {
+      return res.status(404).json({ erro: 'nao encontrado' });
+    }
     const leads = (_cacheLeads || []);
     const idx = leads.findIndex(l => String(l.id) === String(req.params.id));
     if (idx < 0) return res.status(404).json({ erro: 'nao encontrado' });
@@ -15892,7 +15921,11 @@ app.post('/app/visita/agendar-corretor', auth, async (req, res) => {
 // ── NOTIFICAÇÕES — MARCAR LIDA ─────────────────────────────
 app.post('/app/notificacoes/:id/lida', auth, async (req, res) => {
   try {
-    const { marcarLida } = require('./services/salvarNotificacao');
+    const { lerNotificacoes, marcarLida } = require('./services/salvarNotificacao');
+    const minhas = await lerNotificacoes(req.session.user.id);
+    if (!minhas.find(n => String(n.id) === String(req.params.id))) {
+      return res.status(404).json({ ok: false, erro: 'notificacao nao encontrada' });
+    }
     await marcarLida(req.params.id);
     res.json({ ok: true });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
@@ -15909,7 +15942,11 @@ app.post('/app/notificacoes/marcar-todas-lidas', auth, async (req, res) => {
 // ── NOTIFICAÇÕES — MARCAR LIDA ─────────────────────────────
 app.post('/app/notificacoes/:id/lida', auth, async (req, res) => {
   try {
-    const { marcarLida } = require('./services/salvarNotificacao');
+    const { lerNotificacoes, marcarLida } = require('./services/salvarNotificacao');
+    const minhas = await lerNotificacoes(req.session.user.id);
+    if (!minhas.find(n => String(n.id) === String(req.params.id))) {
+      return res.status(404).json({ ok: false, erro: 'notificacao nao encontrada' });
+    }
     await marcarLida(req.params.id);
     res.json({ ok: true });
   } catch(e) { res.json({ ok: false, erro: e.message }); }
@@ -21524,11 +21561,12 @@ app.post('/app/captacao/marcar/:leadId', auth, express.json(), async (req, res) 
   try {
     const { query: _qCM } = require('./services/db');
     const uid = req.session.user.codigoUsuario || req.session.user.id;
-    // Marcar como captado
-    await _qCM(
-      `UPDATE leads SET dados = dados || $1::jsonb, tipo_lead='cliente_vendedor' WHERE id=$2`,
-      [JSON.stringify({ imovelCaptadoId: 'captado', captadoEm: new Date().toISOString(), temImovelParaCaptar: true }), req.params.leadId]
+    // Marcar como captado (só se a lead pertencer ao usuário logado)
+    const _updCM = await _qCM(
+      `UPDATE leads SET dados = dados || $1::jsonb, tipo_lead='cliente_vendedor' WHERE id=$2 AND (user_id=$3 OR codigo_usuario=$3)`,
+      [JSON.stringify({ imovelCaptadoId: 'captado', captadoEm: new Date().toISOString(), temImovelParaCaptar: true }), req.params.leadId, uid]
     );
+    if (_updCM.rowCount === 0) return res.status(404).json({ ok: false, erro: 'lead nao encontrada' });
     // Buscar imóveis do lead por telefone/email
     const leadR = await _qCM('SELECT nome, telefone, whatsapp, email FROM leads WHERE id=$1', [req.params.leadId]);
     const lead = leadR.rows[0];

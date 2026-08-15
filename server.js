@@ -11067,6 +11067,36 @@ async function _handlerSitePublico(req, res, codigoUsuario, siteBasePath) {
   }
 }
 
+// ── URLs "bonitas" de imóvel (SEO) ──────────────────────────────────────────
+// Formato novo: /imovel/{id}--{slug-do-titulo}. O "--" (duplo hífen) separa o
+// id do slug de um jeito que nunca aparece num id real (portal ou interno),
+// então dá pra extrair o id de volta sem ambiguidade. Link antigo (só
+// "/imovel/{id}", sem "--") continua funcionando pra sempre — qualquer link já
+// compartilhado (WhatsApp, e-mail, XML de portal, Meta Ads) não quebra, porque
+// _idParamImovel devolve o param inteiro quando não acha "--".
+function _slugTextoSeo(texto) {
+  return String(texto || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+function _slugImovelSeo(imovel) {
+  const base = imovel.titulo || [imovel.tipo, imovel.bairro].filter(Boolean).join(' em ');
+  return _slugTextoSeo(base);
+}
+function _idParamImovel(param) {
+  const s = String(param || '');
+  const idx = s.indexOf('--');
+  return idx === -1 ? s : s.slice(0, idx);
+}
+function _pathImovelSeo(imovel, prefixo) {
+  const id = imovel.idExterno || imovel.idInterno || imovel.id || '';
+  const slug = _slugImovelSeo(imovel);
+  return (prefixo || '') + '/imovel/' + id + (slug ? '--' + slug : '');
+}
+
 async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, siteBasePath) {
   try {
     const corretor = _resolverCorretorPublico(codigoUsuario);
@@ -11077,7 +11107,8 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
 
     // Hard-filter: o imóvel só é exibido se pertencer a este codigoUsuario — nunca cruzar carteiras
     const imoveisDoUsuario = lerImoveis(codigoUsuario);
-    const imovel = imoveisDoUsuario.find(i => String(i.idExterno) === String(imovelId) || String(i.idInterno) === String(imovelId) || String(i.codigoImovel) === String(imovelId) || String(i.id) === String(imovelId));
+    const _idBuscaSite = _idParamImovel(imovelId);
+    const imovel = imoveisDoUsuario.find(i => String(i.idExterno) === String(_idBuscaSite) || String(i.idInterno) === String(_idBuscaSite) || String(i.codigoImovel) === String(_idBuscaSite) || String(i.id) === String(_idBuscaSite));
     if (!imovel) return _pagina404Site(res, { titulo: 'Imóvel não encontrado', mensagem: 'Este imóvel não existe mais ou foi removido.', siteConfig, siteBasePath });
 
     const pub = Object.assign({}, imovel);
@@ -11111,7 +11142,7 @@ async function _handlerSiteSitemap(req, res, codigoUsuario, origem) {
     if (!corretor) return res.status(404).send('Site não encontrado');
     const base = origem.replace(/\/$/, '');
     const imoveisDoUsuario = lerImoveis(codigoUsuario).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
-    const urls = [base + '/'].concat(imoveisDoUsuario.map(i => base + '/imovel/' + (i.idExterno || i.idInterno || i.id)));
+    const urls = [base + '/'].concat(imoveisDoUsuario.map(i => base + _pathImovelSeo(i)));
     const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       urls.map(u => '  <url><loc>' + u.replace(/&/g,'&amp;') + '</loc></url>').join('\n') +
       '\n</urlset>';
@@ -11142,7 +11173,7 @@ app.get('/sitemap.xml', (req, res) => {
     const base = (req.protocol + '://' + req.get('host')).replace(/\/$/, '');
     const imoveis = (_cacheImoveis || []).filter(i => i.status !== 'inativo' && i.status !== 'excluido');
     const urls = [base + '/', base + '/portal']
-      .concat(imoveis.map(i => base + '/imovel/' + (i.idExterno || i.idInterno || i.id)));
+      .concat(imoveis.map(i => base + _pathImovelSeo(i)));
     const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       urls.map(u => '  <url><loc>' + u.replace(/&/g, '&amp;') + '</loc></url>').join('\n') +
       '\n</urlset>';
@@ -11161,10 +11192,10 @@ app.get('/robots.txt', (req, res) => {
 app.get('/imovel/:id', async (req, res) => {
   const imoveis = ((_cacheImoveis || []));
   const users = (_cacheUsuarios || []);
-
+  const _idBusca = _idParamImovel(req.params.id);
 
   // Busca na base interna primeiro
-  let imovel = imoveis.find(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
+  let imovel = imoveis.find(i => String(i.idExterno) === String(_idBusca) || String(i.idInterno) === String(_idBusca) || String(i.codigoImovel) === String(_idBusca) || String(i.id) === String(_idBusca));
   const _uidQuery = req.query.userId || '';
   const _uid2 = imovel ? (imovel.user_id || imovel.userId || '') : '';
   const corretor = users.find(function(u){ return (u.codigo_usuario||u.codigoUsuario||u.id) === _uid2; }) || users.find(function(u){ return u.ativo; }) || {};
@@ -11205,7 +11236,7 @@ app.get('/imovel/:id', async (req, res) => {
   let qaImovel = null;
   for (const lead of leads) {
     const matches = lead.matchesBase || [];
-    const m = matches.find(m => m && (String(m.id_anuncio) === String(req.params.id) || String(m.id_anuncio_quintoandar) === String(req.params.id)));
+    const m = matches.find(m => m && (String(m.id_anuncio) === String(_idBusca) || String(m.id_anuncio_quintoandar) === String(_idBusca)));
     if (m) { qaImovel = m; break; }
   }
 

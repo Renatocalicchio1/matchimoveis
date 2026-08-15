@@ -24,6 +24,29 @@
   <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init',<%- JSON.stringify(_sc.metaPixelId) %>);fbq('track','PageView');</script>
   <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<%= _sc.metaPixelId %>&ev=PageView&noscript=1"/></noscript>
   <% } %>
+  <%
+    const _jsonLdPortal = {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'MatchImóveis · Todos os imóveis da rede',
+      description: _descPortal,
+      url: _urlPortal || undefined,
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: (typeof imoveis !== 'undefined' ? imoveis : []).slice(0, 20).map(function(im, i){
+          const _slugLd = String(im.titulo || (im.tipo+' em '+im.bairro) || '').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+          return {
+            '@type': 'ListItem',
+            position: i + 1,
+            url: (_urlPortal ? _urlPortal.replace(/\/portal$/, '') : '') + '/imovel/' + (im.idExterno || im.idInterno || im.id) + (_slugLd ? '--'+_slugLd : '')
+          };
+        })
+      }
+    };
+  %>
+  <script type="application/ld+json"><%- JSON.stringify(_jsonLdPortal).replace(/</g, '\\u003c') %></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -233,7 +256,8 @@
     <% imoveis.forEach(function(im){ %>
     <% const _idLink = im.idExterno || im.idInterno || im.id; %>
     <% const _trans = (im.transacao||'').toLowerCase(); %>
-    <a href="/imovel/<%= _idLink %>?voltar=<%= encodeURIComponent(typeof portalUrl!=='undefined'&&portalUrl?portalUrl:'/portal') %>" class="card">
+    <% const _slugLink = String(im.titulo || (im.tipo+' em '+im.bairro) || '').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60); %>
+    <a href="/imovel/<%= _idLink %><%= _slugLink ? '--'+_slugLink : '' %>?voltar=<%= encodeURIComponent(typeof portalUrl!=='undefined'&&portalUrl?portalUrl:'/portal') %>" class="card">
       <div class="card-img">
         <% if(im.fotos && im.fotos.length){ %><img src="<%= im.fotos[0] %>" alt="<%= im.titulo || (im.tipo + ' em ' + im.bairro) %>" loading="lazy">
         <% } else { %><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:13px">Sem foto</div><% } %>

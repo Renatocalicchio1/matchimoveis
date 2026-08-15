@@ -7,7 +7,16 @@
   <% const _ogTitulo = imovel.titulo || (imovel.tipo + ' em ' + imovel.bairro); %>
   <% const _ogDescricao = [[imovel.quartos?imovel.quartos+' quartos':'', imovel.area_m2?imovel.area_m2+'m²':''].filter(Boolean).join(' · '), [imovel.bairro, imovel.cidade].filter(Boolean).join(', ')].filter(Boolean).join(' — ') + ' · R$ ' + Number(imovel.valor_imovel||0).toLocaleString('pt-BR'); %>
   <% const _ogImagem = (imovel.fotos && imovel.fotos[0]) || ''; %>
-  <% const _ogUrl = (typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin + (typeof siteVoltarUrl !== 'undefined' && siteVoltarUrl !== '/' ? siteVoltarUrl + '/imovel/' : '/imovel/') + (imovel.idExterno||imovel.idInterno||imovel.id||'') : ''; %>
+  <%
+    // URL "bonita" com o nome do imóvel no final (SEO) — o id continua sendo
+    // a parte que importa pra achar o imóvel; o link antigo (só "/imovel/id",
+    // sem o pedaço do nome) continua funcionando pra sempre, ver _idParamImovel
+    // em server.js. "--" separa o id do slug porque nunca aparece num id real.
+    function _seoSlug(t){ return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60); }
+    function _seoPathImovel(im, prefixo){ const id = im.idExterno||im.idInterno||im.id||''; const slug = _seoSlug(im.titulo || [im.tipo, im.bairro].filter(Boolean).join(' em ')); return (prefixo||'') + '/imovel/' + id + (slug ? '--'+slug : ''); }
+    const _ogPrefixo = (typeof siteVoltarUrl !== 'undefined' && siteVoltarUrl && siteVoltarUrl !== '/') ? siteVoltarUrl : '';
+  %>
+  <% const _ogUrl = (typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin + _seoPathImovel(imovel, _ogPrefixo) : ''; %>
   <meta name="description" content="<%= _ogDescricao %>">
   <% if(_ogUrl){ %><link rel="canonical" href="<%= _ogUrl %>"><% } %>
   <meta property="og:type" content="website">
@@ -46,6 +55,19 @@
     };
   %>
   <script type="application/ld+json"><%- JSON.stringify(_jsonLd).replace(/</g, '\\u003c') %></script>
+  <%
+    const _breadcrumbHome = (typeof siteOrigin !== 'undefined' && siteOrigin) ? siteOrigin + (_ogPrefixo || '/') : '';
+    const _jsonLdBreadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Início', item: _breadcrumbHome || undefined },
+        { '@type': 'ListItem', position: 2, name: [imovel.cidade, imovel.estado].filter(Boolean).join('/') || 'Imóveis' },
+        { '@type': 'ListItem', position: 3, name: _ogTitulo, item: _ogUrl || undefined }
+      ]
+    };
+  %>
+  <script type="application/ld+json"><%- JSON.stringify(_jsonLdBreadcrumb).replace(/</g, '\\u003c') %></script>
   <% if(typeof siteConfig !== 'undefined' && siteConfig && siteConfig.googleAnalyticsId){ %>
   <script async src="https://www.googletagmanager.com/gtag/js?id=<%= siteConfig.googleAnalyticsId %>"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',<%- JSON.stringify(siteConfig.googleAnalyticsId) %>);</script>
@@ -54,6 +76,8 @@
   <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init',<%- JSON.stringify(siteConfig.metaPixelId) %>);fbq('track','PageView');</script>
   <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<%= siteConfig.metaPixelId %>&ev=PageView&noscript=1"/></noscript>
   <% } %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
@@ -334,7 +358,7 @@
       <div class="card-parecidos">
         <% parecidos.forEach(function(p){ %>
         <% const _pTrans = (p.transacao||'').toLowerCase(); %>
-        <a href="<%= (typeof siteVoltarUrl!=='undefined'&&siteVoltarUrl&&siteVoltarUrl!=='/' ? siteVoltarUrl+'/imovel/' : '/imovel/') %><%= p.idExterno||p.idInterno||p.id %><%= (typeof voltarPortalUrl!=='undefined'&&voltarPortalUrl) ? '?voltar='+encodeURIComponent(voltarPortalUrl) : '' %>" class="pc-card">
+        <a href="<%= _seoPathImovel(p, _ogPrefixo) %><%= (typeof voltarPortalUrl!=='undefined'&&voltarPortalUrl) ? '?voltar='+encodeURIComponent(voltarPortalUrl) : '' %>" class="pc-card">
           <div class="pc-img">
             <% if(p.fotos && p.fotos[0]){ %><img src="<%= p.fotos[0] %>" alt="<%= p.titulo || ((p.tipo||'Imóvel') + ' em ' + (p.bairro||'')) %>" loading="lazy"><% } %>
             <% if(_pTrans==='venda'||_pTrans==='aluguel'){ %><span class="pc-badge" style="background:<%= _pTrans==='aluguel'?'var(--teal)':'var(--brand)' %>"><%= _pTrans==='aluguel'?'ALUGUEL':'VENDA' %></span><% } %>

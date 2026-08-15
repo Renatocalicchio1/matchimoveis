@@ -614,8 +614,8 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 <!-- Modal Excluir XML -->
-<div id="modalExcluirXml" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:16px;padding:28px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+<div id="modalExcluirXml" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;overflow-y:auto">
+  <div style="background:#fff;border-radius:16px;padding:28px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:calc(100vh - 40px);overflow-y:auto">
     <div style="font-size:18px;font-weight:700;margin-bottom:8px">Remover XML</div>
     <div style="font-size:14px;color:#6b7280;margin-bottom:20px">O que você quer fazer com os imóveis importados por este XML?</div>
     <button onclick="excluirXml(false)" style="width:100%;padding:12px;border-radius:10px;border:1px solid #e5e7eb;background:#f9fafb;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;text-align:left">

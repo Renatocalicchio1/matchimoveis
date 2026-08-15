@@ -584,8 +584,8 @@ else{_copTitulo='Acompanhando';_copDesc='Continue a conversa normalmente.';_copA
 </div>
 
 <!-- Modal Agendar Visita -->
-<div id="modal-agendar-visita" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:520px;padding:24px">
+<div id="modal-agendar-visita" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:520px;padding:24px;max-height:calc(100vh - 40px);overflow-y:auto">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div style="font-size:15px;font-weight:600;color:#111">Agendar Visita</div>
       <button onclick="fecharModalAgendarVisita()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">×</button>

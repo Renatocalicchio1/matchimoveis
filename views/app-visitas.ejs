@@ -351,8 +351,8 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 <!-- Modal Confirmar Visita Caso 2 -->
-<div id="modal-confirmar-visita" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px">
-  <div style="background:var(--white);border-radius:12px;padding:24px;width:100%;max-width:360px">
+<div id="modal-confirmar-visita" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+  <div style="background:var(--white);border-radius:12px;padding:24px;width:100%;max-width:360px;max-height:calc(100vh - 40px);overflow-y:auto">
     <div style="font-size:15px;font-weight:600;color:var(--dark);margin-bottom:8px">Confirmar visita</div>
     <div style="font-size:13px;color:var(--text-sec);margin-bottom:20px">Tem certeza que a visita está confirmada? O cliente receberá uma mensagem pelo WhatsApp para confirmar, remarcar ou cancelar a presença.</div>
     <div style="display:flex;gap:8px">

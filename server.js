@@ -11112,6 +11112,17 @@ function _telsBatemNaoVazio(tel1, tel2) {
   return !!a && !!b && a === b;
 }
 
+// Mesmo critério de posse já usado em GET /app/visitas (linha ~7714) pra decidir quais
+// visitas aparecem pro usuário logado — reaproveitado nas rotas de ação do pipeline
+// (remarcar/cancelar/concluir/etc), que antes mutavam qualquer visita só pelo ID sem
+// checar se ela pertencia ao usuário logado (auditoria ago/2026).
+function _podeAcessarVisita(visita, user) {
+  if (!visita || !user) return false;
+  if (user.tipo === 'admin') return true;
+  return String(visita.ownerUserId || visita.corretorId || visita.usuarioDestinoId || '') === String(user.id || '') ||
+    _telsBatemNaoVazio(visita.corretorTelefone || visita.usuarioDestinoTelefone, user.celular || user.telefone);
+}
+
 async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, siteBasePath) {
   try {
     const corretor = _resolverCorretorPublico(codigoUsuario);
@@ -13874,6 +13885,8 @@ app.get('/app/central', auth, (req, res) => {
 app.post('/api/visita/:id/workflow', auth, async (req,res)=>{
   try{
     const id = req.params.id;
+    const _alvoWf = (_cacheVisitas || []).find(v => String(v.id) === String(id));
+    if (!_podeAcessarVisita(_alvoWf, req.session.user)) return res.status(404).json({ ok:false, erro: 'visita nao encontrada' });
 
     const {
       workflowStatus,
@@ -13882,7 +13895,7 @@ app.post('/api/visita/:id/workflow', auth, async (req,res)=>{
       workflowProximaAcao
     } = req.body;
 
-    const visita = atualizarWorkflowVisita(id, workflowStatus, {
+    const visita = await atualizarWorkflowVisita(id, workflowStatus, {
       workflowResponsavel,
       workflowLabel,
       workflowProximaAcao
@@ -13986,8 +13999,10 @@ app.get('/api/memoria-operacional', auth, (req,res)=>{
 
 app.post('/api/visita/:id/confirmar', auth, async (req,res)=>{
   try{
+    const _alvoConf2 = (_cacheVisitas || []).find(v => String(v.id) === String(req.params.id));
+    if (!_podeAcessarVisita(_alvoConf2, req.session.user)) return res.status(404).json({ ok:false, erro: 'visita nao encontrada' });
 
-    const visita = atualizarWorkflowVisita(
+    const visita = await atualizarWorkflowVisita(
       req.params.id,
       'CONFIRMADA',
       {
@@ -14024,8 +14039,10 @@ app.post('/api/visita/:id/confirmar', auth, async (req,res)=>{
 
 app.post('/api/visita/:id/remarcar', auth, async (req,res)=>{
   try{
+    const _alvoRem2 = (_cacheVisitas || []).find(v => String(v.id) === String(req.params.id));
+    if (!_podeAcessarVisita(_alvoRem2, req.session.user)) return res.status(404).json({ ok:false, erro: 'visita nao encontrada' });
 
-    const visita = atualizarWorkflowVisita(
+    const visita = await atualizarWorkflowVisita(
       req.params.id,
       'REMARCAR',
       {
@@ -14119,6 +14136,8 @@ app.post('/app/visitas/remarcar/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoRemarcar = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoRemarcar, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
     if(String(v.id) === String(req.params.id)){
@@ -14137,6 +14156,8 @@ app.post('/app/visitas/cancelar/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoCancelar = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoCancelar, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
     if(String(v.id) === String(req.params.id)){
@@ -14155,6 +14176,8 @@ app.post('/app/visitas/concluir/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoConcluir = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoConcluir, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
     if(String(v.id) === String(req.params.id)){
@@ -14190,6 +14213,8 @@ app.post('/app/visitas/observacao/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoObs = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoObs, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
     if(String(v.id) === String(req.params.id)){
@@ -14218,6 +14243,8 @@ app.post('/app/visitas/prioridade/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoPrio = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoPrio, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14243,6 +14270,8 @@ app.post('/app/visitas/responsavel/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoResp = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoResp, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14268,6 +14297,8 @@ app.post('/app/visitas/cliente-gostou/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoGostou = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoGostou, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14293,6 +14324,8 @@ app.post('/app/visitas/proposta/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoProp = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoProp, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14318,6 +14351,8 @@ app.post('/app/visitas/fechado/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoFech = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoFech, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14448,6 +14483,8 @@ app.post('/app/visitas/agendar/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoAgendar = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoAgendar, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14692,6 +14729,8 @@ app.post('/app/visitas/checkin/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoCheckin = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoCheckin, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14716,6 +14755,8 @@ app.post('/app/visitas/finalizar/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoFinal = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoFinal, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14759,6 +14800,8 @@ app.post('/app/visitas/negociacao/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoNeg = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoNeg, req.session.user)) return res.status(404).redirect('/app/visitas-kanban');
 
   visitas = visitas.map(v => {
 
@@ -14785,6 +14828,8 @@ app.post('/app/visitas/perdido/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoPerdido = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoPerdido, req.session.user)) return res.status(404).redirect('/app/visitas-kanban');
 
   visitas = visitas.map(v => {
 
@@ -14812,6 +14857,8 @@ app.post('/app/visitas/parceiro-confirmou/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoParcConf = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoParcConf, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14844,6 +14891,8 @@ app.post('/app/visitas/proprietario-confirmou/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoPropConf = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoPropConf, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14878,6 +14927,8 @@ app.post('/app/visitas/cliente-chegou/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoChegou = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoChegou, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14904,6 +14955,8 @@ app.post('/app/visitas/no-show/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoNoShow = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoNoShow, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14943,6 +14996,8 @@ app.post('/app/visitas/proposta-valor/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoPropVal = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoPropVal, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 
@@ -14971,6 +15026,8 @@ app.post('/app/visitas/perda-motivo/:id', auth, async (req,res)=>{
   const fs = require('fs');
 
   let visitas = (_cacheVisitas || []);
+  const _alvoPerdaMot = visitas.find(v => String(v.id) === String(req.params.id));
+  if (!_podeAcessarVisita(_alvoPerdaMot, req.session.user)) return res.status(404).redirect('/app/visitas');
 
   visitas = visitas.map(v => {
 

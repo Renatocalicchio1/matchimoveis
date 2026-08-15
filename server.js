@@ -20189,6 +20189,11 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       } catch (eImCap) { console.error('[minhas-comissoes] erro ao buscar imóveis captados:', eImCap.message); }
     }
 
+    // Mensagem padrão de abertura em todo link de WhatsApp desta tela — se
+    // identifica como o sub-admin responsável (evita a pessoa do outro lado
+    // não saber quem está chamando, já que o número não é da conta dela).
+    const _msgSupervisorWA = encodeURIComponent(`Oi! Sou o Supervisor ${conta.nome || conta.usuario} da MatchImóveis. Qualquer dúvida, estou aqui pra te ajudar.`);
+
     const _statusLead = l => {
       if (l.status === 'convertido') return '<span style="color:#16a34a;font-weight:700">✅ Cadastrou — feche a venda</span>';
       if (l.status === 'enviado' && l.auto_respondido_em) return '<span style="color:#2563eb;font-weight:700">💬 Respondeu — fala com ele</span>';
@@ -20200,7 +20205,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       <tr style="border-bottom:1px solid #f3f4f6">
         <td style="padding:8px;font-size:12px">${new Date(l.criado_em).toLocaleDateString('pt-BR')}</td>
         <td style="padding:8px;font-size:12px;font-weight:600">${_escC(l.nome || '(sem nome)')}</td>
-        <td style="padding:8px;font-size:12px"><a href="https://wa.me/${_escC(l.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(l.telefone)}</a></td>
+        <td style="padding:8px;font-size:12px"><a href="https://wa.me/${_escC(l.telefone)}?text=${_msgSupervisorWA}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(l.telefone)}</a></td>
         <td style="padding:8px;font-size:12px">${_statusLead(l)}</td>
       </tr>`).join('');
 
@@ -20240,7 +20245,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       <tr style="border-bottom:1px solid #f3f4f6">
         <td style="padding:8px;font-size:12px;vertical-align:top">${new Date(c.enviado_em).toLocaleDateString('pt-BR')}</td>
         <td style="padding:8px;font-size:12px;font-weight:600;vertical-align:top">${_escC(c.nome || '(sem nome)')}</td>
-        <td style="padding:8px;font-size:12px;vertical-align:top">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '<span style="color:#9ca3af">—</span>'}</td>
+        <td style="padding:8px;font-size:12px;vertical-align:top">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}?text=${_msgSupervisorWA}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '<span style="color:#9ca3af">—</span>'}</td>
         <td style="padding:8px;font-size:12px;vertical-align:top">${_statusCaptacao(c)}${_imovelCapHtml(c)}</td>
       </tr>`).join('');
 
@@ -20298,7 +20303,7 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
               <tr style="border-bottom:1px solid #f3f4f6">
                 <td style="padding:8px;font-size:12px">${new Date(c.criado_em).toLocaleDateString('pt-BR')}</td>
                 <td style="padding:8px;font-size:12px;font-weight:600">${_escC(c.nome || '(sem nome)')}</td>
-                <td style="padding:8px;font-size:12px">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '-'}</td>
+                <td style="padding:8px;font-size:12px">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}?text=${_msgSupervisorWA}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '-'}</td>
                 <td style="padding:8px;font-size:12px;text-align:center">${c.total_imoveis}</td>
                 <td style="padding:8px;font-size:12px;text-align:center">${c.total_leads}</td>
                 <td style="padding:8px;font-size:12px;text-align:center">${c.total_leads_mes}</td>

@@ -82,6 +82,70 @@ A Match Imóveis trabalha por você 24 horas por dia:
 Comece grátis agora, com 1.000 créditos pra testar.
 
 — Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Sua planilha de leads não te avisa quando esfria',
+      corpo: `Olá {nome},
+
+Lead numa planilha não muda de cor sozinho quando esfria. Enquanto ninguém percebe, ele já fechou com outro corretor que respondeu primeiro.
+
+A Match Imóveis cuida disso por você:
+
+• Cruza cada lead com o imóvel certo assim que ele chega
+• Manda a vitrine sem você precisar lembrar de ninguém
+• Avisa quando um lead esquenta, pra você não perder o timing
+
+Sem mensalidade fixa. Teste agora com 1.000 créditos grátis.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Cada dia sem resposta é um lead a menos fechando com você',
+      corpo: `Olá {nome},
+
+Um lead que espera 1 dia de resposta já procurou outro corretor. Não é falta de interesse — é falta de velocidade, e isso custa venda todo mês.
+
+A Match Imóveis responde por você, na hora:
+
+• Recebe o lead e já cruza com os imóveis compatíveis
+• Monta e envia a vitrine automaticamente
+• Não depende de você estar online pra funcionar
+
+Comece agora com 1.000 créditos grátis, sem compromisso.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Imagine ter um assistente que nunca esquece um lead',
+      corpo: `Olá {nome},
+
+A maioria dos corretores perde venda não por falta de imóvel bom, mas por esquecer de responder um lead no momento certo.
+
+A Match Imóveis é esse assistente que nunca falha:
+
+• Cruza automaticamente cada lead com sua carteira e a rede
+• Envia a vitrine certa, pro lead certo, na hora certa
+• Trabalha sozinha, 24 horas por dia
+
+Teste grátis agora, com 1.000 créditos pra começar.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Você não precisa só da sua carteira pra fechar negócio',
+      corpo: `Olá {nome},
+
+Quando o imóvel certo não está na sua carteira, a venda para ali — a não ser que você tenha acesso ao que outros corretores parceiros também têm.
+
+Na Match Imóveis:
+
+• Cada lead é cruzado com a sua carteira E com a rede de parceiros
+• Mais opções pro cliente, mais chance de fechar pra você
+• Tudo automático, sem precisar ligar pra ninguém
+
+Comece agora com 1.000 créditos grátis, sem compromisso.
+
+— Equipe Match Imóveis`
     }
   ],
   demanda: [
@@ -138,6 +202,54 @@ Enquanto você lê este email, pode ter alguém buscando exatamente um imóvel n
 • Sua conta já entra com essas leads pra você atender — nada de começar do zero
 
 Leva menos de 1 minuto pra consultar.
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Outros corretores da sua região já viram esse número',
+      corpo: `Olá {nome},
+
+Enquanto você não consulta, outros corretores da sua cidade já estão vendo quantos interessados existem por região — e chegando primeiro nesses leads.
+
+• Descubra a demanda real da sua região agora
+• Consulta gratuita, sem compromisso
+• Sua conta já nasce com esses leads dentro, pronta pra atender
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Qual bairro da sua cidade tem mais gente procurando imóvel?',
+      corpo: `Olá {nome},
+
+A gente já sabe: alguns bairros têm muito mais gente procurando imóvel do que outros — e isso muda toda semana.
+
+• Veja o comparativo de demanda por bairro na sua cidade
+• Sem custo pra consultar, sem letra miúda
+• Comece a atender esses leads no mesmo dia — sua conta já abre com eles
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'Antes de decidir qualquer coisa, veja esse número',
+      corpo: `Olá {nome},
+
+Sem compromisso nenhum: dá pra ver, de graça, quantas pessoas estão buscando imóvel na sua região agora — e decidir depois se vale a pena continuar.
+
+• Consulta 100% gratuita, sem cartão, sem cadastro obrigatório
+• Números reais, atualizados pela nossa IA todos os dias
+• Se decidir continuar, sua conta já entra com esses leads dentro
+
+— Equipe Match Imóveis`
+    },
+    {
+      assunto: 'O primeiro corretor a ver o lead costuma ser o que fecha',
+      corpo: `Olá {nome},
+
+Não é sorte: quem vê o lead primeiro e responde rápido tem muito mais chance de fechar. E o primeiro passo é saber quantos leads existem na sua região.
+
+• Consulte agora, de graça, a demanda da sua região
+• Sem compromisso
+• Sua conta já abre com esses leads prontos pra atender
 
 — Equipe Match Imóveis`
     }

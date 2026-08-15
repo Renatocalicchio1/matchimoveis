@@ -16,6 +16,11 @@ const BASE_URL = 'https://matchimoveis.ia.br';
 // proprietário/cliente ou corretor), não só campanha em massa. enviarEmail()
 // é o único ponto de saída de email do sistema, então checar/anexar o
 // rodapé aqui garante que nenhum tipo de email escapa dessa regra.
+// "motivo": 'manual' (a própria pessoa clicou em descadastrar), 'bounce'
+// (SES avisou que o endereço não existe/rejeitou permanentemente) ou
+// 'reclamacao' (SES avisou que a pessoa marcou como spam) — ver
+// services/sesWebhook.js. Todos os três caminhos usam a MESMA tabela, então
+// o enviarEmail() já bloqueia automaticamente sem precisar checar 3 lugares.
 let _tabelaOptoutPronta = false;
 async function _garantirTabelaOptout() {
   if (_tabelaOptoutPronta) return;
@@ -23,6 +28,7 @@ async function _garantirTabelaOptout() {
     email TEXT PRIMARY KEY,
     criado_em TIMESTAMP DEFAULT NOW()
   )`);
+  await query(`ALTER TABLE email_optout ADD COLUMN IF NOT EXISTS motivo TEXT DEFAULT 'manual'`);
   _tabelaOptoutPronta = true;
 }
 
@@ -38,11 +44,14 @@ async function emailDescadastrado(email) {
   return rows.length > 0;
 }
 
-async function descadastrarEmail(email) {
+async function descadastrarEmail(email, motivo) {
   const e = _normalizarEmail(email);
   if (!e) return;
   await _garantirTabelaOptout();
-  await query('INSERT INTO email_optout (email) VALUES ($1) ON CONFLICT DO NOTHING', [e]);
+  await query(
+    'INSERT INTO email_optout (email, motivo) VALUES ($1,$2) ON CONFLICT (email) DO NOTHING',
+    [e, motivo || 'manual']
+  );
 }
 
 // Identificação da empresa — exigida em todo email comercial, vale pra

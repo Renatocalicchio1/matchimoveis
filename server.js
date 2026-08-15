@@ -12466,6 +12466,22 @@ async function _processarBonusIndicacao(userId, creditosComprados) {
   } catch(e) { console.error('[bonus-indicacao]', e.message); }
 }
 
+// Notificação de bounce/reclamação da AWS SES (via SNS) — SNS manda com
+// Content-Type text/plain, então precisa de um parser dedicado só nessa
+// rota (express.json() global não pega esse content-type e deixaria
+// req.body vazio). processarNotificacaoSES() confere a assinatura RSA da
+// SNS antes de mexer em qualquer coisa.
+app.post('/webhook/ses-notificacoes', express.text({ type: '*/*' }), async (req, res) => {
+  try {
+    const { processarNotificacaoSES } = require('./services/sesWebhook');
+    const resultado = await processarNotificacaoSES(req.body);
+    res.status(resultado.ok ? 200 : 400).json(resultado);
+  } catch (e) {
+    console.error('[webhook/ses-notificacoes]', e.message);
+    res.sendStatus(500);
+  }
+});
+
 app.post('/webhook/mercadopago', express.json(), async (req, res) => {
   try {
     const { type, data } = req.body;

@@ -19472,12 +19472,26 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
       atendido_por,atendido_por_nome,atendido_por_cor,atendido_em,
       COALESCE(
         (SELECT celular FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) AND celular IS NOT NULL AND celular != '' LIMIT 1),
-        celular
+        campanha_contatos.celular
       ) AS celular,
       (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')) AS cadastrou,
       COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000 AS comprou
       FROM campanha_contatos ${where}
-      ORDER BY (celular IS NOT NULL AND celular <> '' AND NOT comprou AND (cadastrou OR clicado_em IS NOT NULL OR aberto_em IS NOT NULL)) DESC,
+      ORDER BY (
+        COALESCE(
+          (SELECT celular FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) AND celular IS NOT NULL AND celular != '' LIMIT 1),
+          campanha_contatos.celular
+        ) IS NOT NULL
+        AND COALESCE(
+          (SELECT celular FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) AND celular IS NOT NULL AND celular != '' LIMIT 1),
+          campanha_contatos.celular
+        ) <> ''
+        AND NOT (COALESCE((SELECT match_coins_total FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) LIMIT 1), 0) > 1000)
+        AND (
+          (LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != ''))
+          OR clicado_em IS NOT NULL OR aberto_em IS NOT NULL
+        )
+      ) DESC,
         COALESCE(enviado_em, criado_em) DESC
       LIMIT $${params.length-1} OFFSET $${params.length}`, params);
     const { rows: tot } = await require('./services/db').query(`SELECT COUNT(*) as total FROM campanha_contatos ${where}`, params.slice(0,-2));

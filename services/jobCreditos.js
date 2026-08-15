@@ -75,6 +75,11 @@ async function debitarLeadsAtivos() {
         await _qJobCred('UPDATE usuarios SET match_coins = $1, atualizado_em=NOW() WHERE codigo_usuario = $2', [novoSaldo, uid]);
       } catch(e2) { console.error('[jobCreditos] erro PG débito:', e2.message); }
 
+      if (novoSaldo === 0 && saldoAtual > 0) {
+        const { _desconectarWhatsappSeZerado } = require('./creditos');
+        _desconectarWhatsappSeZerado(uid).catch(()=>{});
+      }
+
       console.log(`[jobCreditos] ${u.nome || uid}: -${debitado} créditos (${ativos.length} leads) → saldo: ${novoSaldo}`);
       alterou = true;
     }

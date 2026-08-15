@@ -19048,6 +19048,10 @@ https://www.matchimoveis.ia.br
         <option value="clicou">Quem clicou</option>
         <option value="cadastrou">Quem cadastrou</option>
         <option value="comprou">Quem comprou</option>
+        <option value="followup1">F.up 1 enviado</option>
+        <option value="followup2">F.up 2 enviado</option>
+        <option value="followup3">F.up 3 enviado</option>
+        <option value="sem_followup">Sem follow-up ainda</option>
       </select>
       ${isSuper ? `<select id="filtro-subadmin" onchange="buscar()" style="width:190px;display:inline-block;margin-left:8px">
         <option value="">Todos os sub-admins</option>
@@ -19448,6 +19452,10 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     else if(status === 'clicou'){ where += ` AND clicado_em IS NOT NULL`; }
     else if(status === 'cadastrou'){ where += ` AND LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')`; }
     else if(status === 'comprou'){ where += ` AND LOWER(email) IN (SELECT LOWER(email) FROM usuarios WHERE COALESCE(match_coins_total,0) > 1000)`; }
+    else if(status === 'followup1'){ where += ` AND followup1_enviado_em IS NOT NULL`; }
+    else if(status === 'followup2'){ where += ` AND followup2_enviado_em IS NOT NULL`; }
+    else if(status === 'followup3'){ where += ` AND followup3_enviado_em IS NOT NULL`; }
+    else if(status === 'sem_followup'){ where += ` AND followup1_enviado_em IS NULL AND followup2_enviado_em IS NULL AND followup3_enviado_em IS NULL`; }
     else if(status){ params.push(status); where += ` AND status=$${params.length}`; }
     params.push(_CAMPANHA_TAMANHO_PAGINA); params.push(offset);
     // "comprou": não tem sinal direto de compra de combo, então usa como

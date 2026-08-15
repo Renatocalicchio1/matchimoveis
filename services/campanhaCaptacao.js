@@ -523,6 +523,10 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
   else if (filtro === 'erro') where += ' AND e.erro IS NOT NULL';
   else if (filtro === 'captado') where += ' AND e.imovel_captado_id IS NOT NULL';
   else if (filtro === 'bonus_pago') where += ' AND e.bonus_captacao_pago_em IS NOT NULL';
+  else if (filtro === 'followup1') where += ' AND e.followup1_enviado_em IS NOT NULL';
+  else if (filtro === 'followup2') where += ' AND e.followup2_enviado_em IS NOT NULL';
+  else if (filtro === 'followup3') where += ' AND e.followup3_enviado_em IS NOT NULL';
+  else if (filtro === 'sem_followup') where += ' AND e.followup1_enviado_em IS NULL AND e.followup2_enviado_em IS NULL AND e.followup3_enviado_em IS NULL';
   // Sub-admin só vê os próprios atendimentos (cada um já tem atendimentos
   // feitos — não faz sentido ele ver a lista inteira de todo mundo). Pro
   // superadmin, refAdmin '_nenhum' acha quem ainda não tem sub-admin.

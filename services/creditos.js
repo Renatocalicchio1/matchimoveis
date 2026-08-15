@@ -28,6 +28,40 @@ const CUSTO = {
   email_lead:             30
 };
 
+// O webhook do WhatsApp (/webhook/whatsapp) não checa saldo antes de responder —
+// o débito de coins acontece depois que a IA já processou/respondeu, sem
+// bloquear nada. Sem isso, o assistente seguia respondendo lead de graça mesmo
+// com a conta zerada; só o painel web bloqueava. Desconecta a instância na
+// Evolution API (mesma chamada de POST /app/whatsapp/desconectar) assim que o
+// saldo cruza pra zero — dispara só 1x nesse débito exato, não fica tentando
+// de novo enquanto o saldo continuar zerado (a próxima recarga reconecta
+// normalmente pelo fluxo manual de reconexão).
+async function _desconectarWhatsappSeZerado(codigoUsuario) {
+  try {
+    const { query: _qWA } = require('./db');
+    const r = await _qWA('SELECT whatsapp_instance, whatsapp_status FROM usuarios WHERE codigo_usuario=$1 LIMIT 1', [codigoUsuario]);
+    const row = r.rows[0];
+    if (!row || !row.whatsapp_instance || row.whatsapp_status !== 'open') return;
+    const EVOLUTION_URL = process.env.EVOLUTION_URL || 'https://match-evolution-api.onrender.com';
+    const EVOLUTION_KEY = process.env.EVOLUTION_KEY || 'match2025evolution';
+    await fetch(EVOLUTION_URL + '/instance/logout/' + row.whatsapp_instance, {
+      method: 'DELETE', headers: { 'apikey': EVOLUTION_KEY }
+    });
+    await _qWA("UPDATE usuarios SET whatsapp_status='close', atualizado_em=NOW() WHERE codigo_usuario=$1", [codigoUsuario]);
+    const { criarNotificacao } = require('./salvarNotificacao');
+    await criarNotificacao({
+      id: Date.now().toString() + '_wadc',
+      tipo: 'saldo_zerado',
+      titulo: 'WhatsApp desconectado',
+      mensagem: 'Seus créditos acabaram e o WhatsApp foi desconectado automaticamente. Recarregue e reconecte pra voltar a receber leads por lá.',
+      usuarioId: codigoUsuario,
+      lida: false,
+      criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
+    });
+    console.log('[creditos] whatsapp desconectado por saldo zerado:', codigoUsuario);
+  } catch(e) { console.error('[creditos] erro ao desconectar whatsapp por saldo zerado:', e.message); }
+}
+
 async function consumir(userId, acao) {
   try {
     const custo = CUSTO[acao] || 10;
@@ -81,6 +115,7 @@ async function consumir(userId, acao) {
           lida: false,
           criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})
         });
+        _desconectarWhatsappSeZerado(_resolvedId).catch(()=>{});
       } else if(saldoNovo <= 200 && saldoAtual > 200){
         criarNotificacao({
           id: (Date.now()+1).toString(),
@@ -159,6 +194,7 @@ async function consumirLote(userId, acao, qtd) {
       const { criarNotificacao } = require('./salvarNotificacao');
       if (saldoNovo === 0) {
         criarNotificacao({ id: Date.now().toString(), tipo: 'saldo_zerado', titulo: 'Conta pausada', mensagem: 'Seus créditos acabaram. Adicione créditos para continuar usando a plataforma.', usuarioId: userId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
+        _desconectarWhatsappSeZerado(_resolvedId).catch(()=>{});
       } else if (saldoNovo <= 200 && saldoAtual > 200) {
         criarNotificacao({ id: (Date.now()+1).toString(), tipo: 'saldo_baixo', titulo: 'Créditos acabando', mensagem: 'Você tem apenas ' + saldoNovo + ' créditos. Recarregue para não pausar sua conta.', usuarioId: userId, lida: false, criadaEm: new Date().toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'}) });
       } else if (saldoNovo <= 500 && saldoAtual > 500) {
@@ -268,4 +304,4 @@ async function saldo(userId) {
   } catch(e) { return 0; }
 }
 
-module.exports = { consumir, consumirLote, adicionarCreditos, debitarCreditos, temSaldo, saldo, CUSTO };
+module.exports = { consumir, consumirLote, adicionarCreditos, debitarCreditos, temSaldo, saldo, CUSTO, _desconectarWhatsappSeZerado };

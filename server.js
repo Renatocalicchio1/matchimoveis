@@ -20274,7 +20274,10 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px;font-family:monospace;font-size:12.5px;color:#374151;flex-wrap:wrap">
             <span id="link-subadmin">https://www.matchimoveis.ia.br/?ref=${_escC(conta.usuario)}</span>
           </div>
-          <button onclick="copiarLinkSubadmin()" style="margin-top:10px;background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <button onclick="copiarLinkSubadmin()" style="background:#111;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer">📋 Copiar link</button>
+            <a href="https://wa.me/?text=${encodeURIComponent(`Oi! Sou o Supervisor ${conta.nome || conta.usuario} da MatchImóveis. Convido você a conhecer a plataforma que une leads e imóveis automaticamente — cadastre-se pelo meu link e já entra com créditos de bônus:\n\nhttps://www.matchimoveis.ia.br/?ref=${conta.usuario}`)}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700">📲 Compartilhar no WhatsApp</a>
+          </div>
         </div>
 
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">

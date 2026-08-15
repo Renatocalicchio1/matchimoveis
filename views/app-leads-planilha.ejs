@@ -6,28 +6,35 @@
 .pl-filtros select,.pl-filtros input{width:auto;min-width:140px}
 .pl-filtros input[type="search"]{flex:1;min-width:200px}
 .pl-tablewrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:auto}
-.pl-tablewrap table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:940px}
-.pl-tablewrap th{text-align:left;padding:10px 14px;font-size:10.5px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border-light);background:var(--bg);white-space:nowrap;position:sticky;top:0}
-.pl-tablewrap td{padding:11px 14px;border-bottom:1px solid var(--border-light);color:var(--text);vertical-align:middle}
+.pl-tablewrap table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.pl-tablewrap th{text-align:left;padding:10px 10px;font-size:10px;font-weight:600;color:var(--text-ter);text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid var(--border-light);background:var(--bg);position:sticky;top:0;overflow-wrap:break-word}
+.pl-tablewrap td{padding:10px 10px;border-bottom:1px solid var(--border-light);color:var(--text);vertical-align:middle;overflow-wrap:break-word;word-break:break-word}
 .pl-tablewrap tr:last-child td{border-bottom:none}
 .pl-tablewrap tr:hover td{background:var(--bg)}
 .pl-tablewrap tr.pl-atendida td{background:#fef2f2}
-.pl-data{color:var(--text-sec);white-space:nowrap;font-variant-numeric:tabular-nums}
-.pl-data b{display:block;color:var(--text);font-weight:600;font-size:12.5px}
+.pl-col-data{width:8%}
+.pl-col-lead{width:15%}
+.pl-col-origem{width:10%}
+.pl-col-perfil{width:20%}
+.pl-col-vitrine{width:16%}
+.pl-col-imovel{width:17%}
+.pl-col-acoes{width:14%}
+.pl-data{color:var(--text-sec);font-variant-numeric:tabular-nums}
+.pl-data b{display:block;color:var(--text);font-weight:600;font-size:12px}
 .pl-nome{font-weight:600;color:var(--text);text-decoration:none}
 .pl-nome:hover{color:var(--brand)}
-.pl-tel{color:var(--text-sec);font-size:11.5px;font-variant-numeric:tabular-nums}
-.pl-chip{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:500;white-space:nowrap;background:var(--border-light);color:var(--text-sec)}
+.pl-tel{color:var(--text-sec);font-size:11px;font-variant-numeric:tabular-nums}
+.pl-chip{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:500;max-width:100%;overflow-wrap:break-word;background:var(--border-light);color:var(--text-sec)}
 .pl-perfil{display:flex;flex-direction:column;gap:2px}
 .pl-perfil-tipo{font-weight:500;color:var(--text)}
-.pl-perfil-loc{color:var(--text-sec);font-size:11.5px}
-.pl-perfil-meta{color:var(--text-ter);font-size:11px;font-variant-numeric:tabular-nums}
+.pl-perfil-loc{color:var(--text-sec);font-size:11px}
+.pl-perfil-meta{color:var(--text-ter);font-size:10.5px;font-variant-numeric:tabular-nums}
 .pl-perfil-valor{color:#00847a;font-weight:600;font-variant-numeric:tabular-nums}
-.pl-ver{padding:0;font-size:11.5px;font-weight:600;background:none;color:var(--brand);border:none;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
+.pl-ver{padding:0;font-size:11px;font-weight:600;background:none;color:var(--brand);border:none;cursor:pointer;text-decoration:none;display:inline-block}
 .pl-ver:hover{text-decoration:underline}
-.pl-excluir{padding:0;font-size:11.5px;font-weight:600;background:none;color:#dc2626;border:none;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;margin-left:10px}
+.pl-excluir{padding:0;font-size:11px;font-weight:600;background:none;color:#dc2626;border:none;cursor:pointer;text-decoration:none;display:block;margin-top:6px}
 .pl-excluir:hover{text-decoration:underline}
-.pl-acoes{display:flex;align-items:center;white-space:nowrap}
+.pl-acoes{display:flex;flex-direction:column;align-items:flex-start}
 .pl-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;color:var(--text-ter);font-size:11.5px}
 .pct-badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;display:inline-block}
 .pct-low{background:#fef2f2;color:#dc2626}
@@ -66,13 +73,13 @@
   <table>
     <thead>
       <tr>
-        <th>Data</th>
-        <th>Lead</th>
-        <th>Origem</th>
-        <th>Perfil do imóvel</th>
-        <th>Vitrine</th>
-        <th>Imóvel de referência</th>
-        <th></th>
+        <th class="pl-col-data">Data</th>
+        <th class="pl-col-lead">Lead</th>
+        <th class="pl-col-origem">Origem</th>
+        <th class="pl-col-perfil">Perfil do imóvel</th>
+        <th class="pl-col-vitrine">Vitrine</th>
+        <th class="pl-col-imovel">Imóvel de referência</th>
+        <th class="pl-col-acoes"></th>
       </tr>
     </thead>
     <tbody>
@@ -106,7 +113,8 @@
           </td>
           <td>
             <% if(_vitrineLinkPl){ %><a href="<%= _vitrineLinkPl %>" target="_blank" class="pl-ver">Ver vitrine</a>
-              <% const _telPl = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,''); %>
+              <% const _telDigitsPl = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,''); %>
+              <% const _telPl = _telDigitsPl ? '55'+_telDigitsPl.replace(/^55/,'') : ''; %>
               <% if(_telPl){ %>
                 <% const _linkVitrinePl = _vitrineLinkPl.startsWith('http') ? _vitrineLinkPl : ('https://www.matchimoveis.ia.br'+_vitrineLinkPl); %>
                 <% const _msgVitrinePl = encodeURIComponent('Olá ' + (l.nome||'') + '! Segue sua seleção personalizada de imóveis: ' + _linkVitrinePl); %>

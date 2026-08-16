@@ -37,6 +37,20 @@
   </div>
 </div>
 
+<!-- MODAL CPF (pedido só na hora de pagar, exigência do Pix) -->
+<div id="cpfModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3100;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:420px;position:relative">
+    <button onclick="fecharCpfModal()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">Falta seu CPF pra gerar o Pix</h3>
+    <p style="font-size:13px;color:#555;line-height:1.5;margin-bottom:16px">
+      Isso não é uma regra do MatchImóveis nem do Mercado Pago — é o <strong>Banco Central</strong> que exige identificação (CPF) do pagador em qualquer pagamento via Pix no Brasil, pra qualquer empresa. Sem isso o Pix fica travado no checkout.
+    </p>
+    <input id="cpfModalInput" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" oninput="_formatarCpfModal(this)" style="width:100%;padding:14px 16px;border:2px solid #e5e7eb;border-radius:10px;font-size:16px;font-weight:600;outline:none;box-sizing:border-box;margin-bottom:8px">
+    <p id="cpfModalErro" style="display:none;color:#dc2626;font-size:12px;margin-bottom:8px">CPF inválido. Confira os números.</p>
+    <button id="cpfModalBtn" onclick="confirmarCpfModal()" style="width:100%;background:#FF385C;color:#fff;border:none;padding:14px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">Confirmar e continuar</button>
+  </div>
+</div>
+
 <!-- ADICIONAR CRÉDITOS -->
 <div class="card" style="margin-bottom:16px">
   <h2 style="font-size:15px;font-weight:700;margin-bottom:4px">Adicionar créditos</h2>
@@ -99,8 +113,54 @@ async function contratarCombo(plano){
     });
     const d = await r.json();
     if(d.ok && d.url){ window.location.href = d.url; }
+    else if(d.cpfNecessario){ abrirCpfModal(() => contratarCombo(plano)); }
     else{ alert(d.erro || 'Erro ao gerar pagamento. Tente novamente.'); }
   }catch(e){ alert('Erro ao gerar pagamento. Tente novamente.'); }
+}
+</script>
+
+<script>
+// Modal de CPF: aberto sob demanda quando /pagamento/criar ou
+// /pagamento/criar-plano avisam que falta CPF pra gerar o Pix. Guarda a
+// ação que estava sendo tentada (avulso ou combo) pra repetir sozinho
+// assim que o CPF for salvo, sem o corretor ter que clicar de novo.
+let _acaoPendenteCpf = null;
+function abrirCpfModal(acaoParaRepetir){
+  _acaoPendenteCpf = acaoParaRepetir;
+  document.getElementById('cpfModalErro').style.display = 'none';
+  document.getElementById('cpfModalInput').value = '';
+  document.getElementById('cpfModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('cpfModalInput').focus(), 100);
+}
+function fecharCpfModal(){
+  document.getElementById('cpfModal').style.display = 'none';
+  _acaoPendenteCpf = null;
+}
+function _formatarCpfModal(input){
+  let v = input.value.replace(/\D/g,'').slice(0,11);
+  if(v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  else if(v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+  else if(v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+  input.value = v;
+}
+async function confirmarCpfModal(){
+  const cpf = document.getElementById('cpfModalInput').value.replace(/\D/g,'');
+  const erroEl = document.getElementById('cpfModalErro');
+  if(cpf.length !== 11){ erroEl.style.display = 'block'; return; }
+  const btn = document.getElementById('cpfModalBtn');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+  try{
+    const r = await fetch('/app/perfil/cpf', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cpf }) });
+    const d = await r.json();
+    if(!d.ok){ erroEl.textContent = d.erro || 'CPF inválido. Confira os números.'; erroEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Confirmar e continuar'; return; }
+    const acao = _acaoPendenteCpf;
+    document.getElementById('cpfModal').style.display = 'none';
+    _acaoPendenteCpf = null;
+    if(acao) acao();
+  }catch(e){
+    erroEl.textContent = 'Erro de conexão. Tente novamente.'; erroEl.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Confirmar e continuar';
 }
 </script>
 
@@ -366,6 +426,7 @@ async function iniciarCompra(){
     const r = await fetch("/pagamento/criar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({valor:valorSelecionado})});
     const d = await r.json();
     if(d.ok && d.url){ window.open(d.url, '_blank'); btn.disabled=false; btn.textContent='Adicionar créditos'; }
+    else if(d.cpfNecessario){ btn.disabled=false; btn.textContent='Adicionar créditos'; abrirCpfModal(iniciarCompra); }
     else{ alert(d.erro||"Erro ao criar pagamento"); btn.disabled=false; btn.textContent="Adicionar créditos"; }
   } catch(e){
     alert("Erro de conexão"); btn.disabled=false; btn.textContent="Adicionar créditos";

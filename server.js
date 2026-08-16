@@ -1402,6 +1402,7 @@ app.get('/admin/status', authAdmin, async (req, res) => {
       '<div class="row"><span class="lbl">Usuários</span><span class="rval">' + _totUsu.rows[0].total + '</span></div>' +
       '<div class="row"><span class="lbl">Leads</span><span class="rval">' + parseInt(_totLead.rows[0].total).toLocaleString('pt-BR') + '</span></div>' +
       '<div class="row"><span class="lbl">Imóveis</span><span class="rval">' + parseInt(_totImo.rows[0].total).toLocaleString('pt-BR') + '</span></div>' +
+      '<div class="row"><span class="lbl">Imóveis em cache (_cacheImoveis)</span><span class="rval" style="color:' + (((_cacheImoveis||[]).length) < parseInt(_totImo.rows[0].total)*0.95 ? '#ef4444' : '#16a34a') + '">' + ((_cacheImoveis||[]).length).toLocaleString('pt-BR') + '</span></div>' +
       '<div class="row"><span class="lbl">Visitas</span><span class="rval">' + parseInt(_totVis.rows[0].total).toLocaleString('pt-BR') + '</span></div>' +
       '<div class="row"><span class="lbl">Usuários sem saldo</span><span class="rval" style="color:' + (_semSaldo.rows[0].total>0?'#ef4444':'#16a34a') + '">' + _semSaldo.rows[0].total + '</span></div>' +
       '</div>' +
@@ -5751,7 +5752,14 @@ app.get('/api/menu/badges', auth, async (req, res) => {
 app.get('/app-home', auth, async (req,res)=>{
   const user = req.session.user;
   const { lerLeads: _llSvc2 } = require('./services/salvarLead');
-  const todosImoveis = await lerImoveis(req.session.user.id);
+  // Direto no banco, já filtrado por usuário — não pelo cache global de TODOS
+  // os imóveis da plataforma (_cacheImoveis via lerImoveis()). Com contas
+  // grandes (uma sozinha passa de 8.000 imóveis) esse cache fica pesado
+  // demais pra carregar de uma vez só sem paginação, e quando falha (timeout/
+  // estouro de memória) some com os imóveis de TODAS as contas na tela, não
+  // só da conta grande — mesmo existindo certinho no banco (admin usa
+  // COUNT(*) direto e sempre bateu certo). Bug confirmado ago/2026.
+  const todosImoveis = await lerImoveisService(req.session.user.id);
   const todosLeads = await _llSvc2(req.session.user.id);
   const todasVisitas = await lerVisitas(req.session.user.id);
   const notificacoes = await lerNotificacoes(req.session.user);
@@ -6234,7 +6242,9 @@ app.get('/app/imoveis', auth, async (req,res)=>{
     }
     imoveis = global._cacheRede;
   } else {
-    imoveis = await lerImoveis(req.session.user.id);
+    // Direto no banco, já filtrado por usuário — ver nota em GET /app-home
+    // sobre por que não usar o lerImoveis()/_cacheImoveis global aqui.
+    imoveis = await lerImoveisService(req.session.user.id);
   }
   const _usersRede = _rede ? (_cacheUsuarios || []) : [];
   const qaIncompleto = req.query.qa_incompleto === '1';
@@ -6709,6 +6719,25 @@ app.post('/app/perfil/vitrine', auth, async (req,res)=>{
   await _auVitrine(uid, { vitrineApenasPropriosImoveis: val }).catch(e=>console.error("[perfil/vitrine]",e.message));
   req.session.user = { ...req.session.user, vitrineApenasPropriosImoveis: val };
   res.redirect('/app/perfil');
+});
+
+// Salva só o CPF, sem tocar no resto do perfil — usado pelo modal que
+// aparece na tela de recarga quando falta CPF pra gerar o Pix (exigência
+// do Banco Central, não do Mercado Pago; ver _montarPayerMP). Endpoint
+// dedicado em vez de reaproveitar POST /app/perfil porque aquele exige o
+// form inteiro (nome/email/celular) e sobrescreveria esses campos com
+// vazio se só mandássemos o CPF.
+app.post('/app/perfil/cpf', auth, express.json(), async (req,res)=>{
+  const cpf = _limparCpf(req.body.cpf);
+  if (!_cpfValido(cpf)) return res.status(400).json({ ok:false, erro: 'CPF inválido' });
+  try {
+    const { atualizarUsuario: _auCpf } = require('./services/salvarUsuario');
+    const uid = String(req.session.user.id || '');
+    await _auCpf(uid, { cpf });
+    req.session.user.cpf = cpf;
+    if (_cacheUsuarios) { const idx = _cacheUsuarios.findIndex(u => u.id === uid); if (idx >= 0) _cacheUsuarios[idx].cpf = cpf; }
+    res.json({ ok:true });
+  } catch(e) { res.status(500).json({ ok:false, erro: e.message }); }
 });
 
 app.get('/app/instagram/conectar', auth, (req,res)=>{
@@ -12256,6 +12285,12 @@ app.post('/pagamento/criar', auth, express.json(), async (req, res) => {
       if (_rCpf1.rows[0]?.cpf) _cpfAtual = _rCpf1.rows[0].cpf;
     } catch (eCpf1) {}
 
+    // Sem CPF válido o Pix do Checkout Pro fica travado sem aviso pro
+    // comprador — bloqueia aqui com um erro que o front sabe reconhecer,
+    // em vez de gerar um link de pagamento quebrado (perda de venda
+    // silenciosa, reportado ago/2026).
+    if (!_cpfValido(_cpfAtual)) return res.json({ ok:false, cpfNecessario:true, erro:'CPF necessário para gerar Pix (exigência do Banco Central).' });
+
     const result = await preference.create({
       body: {
         items: [{
@@ -12332,6 +12367,8 @@ app.post('/pagamento/criar-plano', auth, express.json(), async (req, res) => {
       const _rCpf2 = await _qCpf2('SELECT cpf FROM usuarios WHERE codigo_usuario=$1', [userId]);
       if (_rCpf2.rows[0]?.cpf) _cpfAtual2 = _rCpf2.rows[0].cpf;
     } catch (eCpf2) {}
+
+    if (!_cpfValido(_cpfAtual2)) return res.json({ ok:false, cpfNecessario:true, erro:'CPF necessário para gerar Pix (exigência do Banco Central).' });
 
     const result = await preference.create({
       body: {

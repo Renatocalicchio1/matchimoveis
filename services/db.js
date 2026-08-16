@@ -13,7 +13,13 @@ function getPool() {
         // vai comendo as conexões do pool até travar o resto do app
         connectionTimeoutMillis: 10000,
         idleTimeoutMillis: 30000,
-        max: 20
+        // Reduzido de 20 pra deixar espaço pro pool separado e pequeno da
+        // sessão (server.js, _pgPoolSessao) — sessão não pode competir por
+        // conexão com os jobs de fundo pesados (recarga completa de leads/
+        // imóveis/usuários/visitas etc, que disparam todos juntos no boot);
+        // se competisse, um pico desses jobs travava a página de todo mundo
+        // "carregando" sem abrir (ago/2026).
+        max: 15
       });
     } else {
       // Sem banco configurado — retorna null (usa JSON como fallback)

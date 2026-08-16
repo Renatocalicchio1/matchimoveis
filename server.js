@@ -213,19 +213,31 @@ app.use((req, res, next) => {
 
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
-// Antes criava um SEGUNDO pool de conexões PG aqui (new Pool(...)), separado
-// do singleton de services/db.js (getPool(), max:20) — o processo abria até
-// 30 conexões (20 + até 10 do default do pg) só pra si, e o Postgres do Render
-// tem um teto bem mais baixo de conexões totais. Servidor derrubando de
-// madrugada com "remaining connection slots are reserved for roles with the
-// SUPERUSER attribute" (esgotou o limite de conexões do banco) — ago/2026.
-// Reaproveita o mesmo pool único pra sessão + todo o resto do app.
+// Antes criava um SEGUNDO pool de conexões PG aqui (new Pool(...), sem limite
+// configurado) só pra sessão, além do singleton de services/db.js (getPool()).
+// O processo abria até ~30 conexões só pra si, estourando o teto do Postgres
+// do Render — servidor derrubando de madrugada com "remaining connection
+// slots are reserved for roles with the SUPERUSER attribute" (ago/2026).
+//
+// Reaproveitar o MESMO pool pra sessão + resto do app (tentativa anterior)
+// resolveu isso mas criou outro problema: os jobs de fundo pesados (recarga
+// completa de leads/imóveis/usuários/visitas etc, que disparam todos juntos
+// no boot) passaram a competir pelo mesmo pool que atende toda requisição de
+// página (connect-pg-simple lê a sessão do PG a cada request) — um pico
+// desses jobs saturava o pool e a página de qualquer visitante ficava
+// "carregando" sem nunca abrir, esperando conexão livre.
+//
+// Correção: pool PRÓPRIO e pequeno só pra sessão (não compete com os jobs),
+// separado do pool principal (services/db.js, reduzido pra max:15) — total
+// ainda bem abaixo do teto do banco, mas segregado.
+const { Pool } = require('pg');
+const _pgPoolSessao = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false }, max: 5, connectionTimeoutMillis: 10000, idleTimeoutMillis: 30000 });
 const { getPool } = require('./services/db');
 const _pgPool = getPool();
 
 app.set('trust proxy', 1);
 app.use(session({
-  store: new pgSession({ pool: _pgPool, tableName: 'session', createTableIfMissing: true }),
+  store: new pgSession({ pool: _pgPoolSessao, tableName: 'session', createTableIfMissing: true }),
   secret: process.env.SESSION_SECRET || require('crypto').randomBytes(64).toString('hex'),
   resave: false,
   saveUninitialized: false,

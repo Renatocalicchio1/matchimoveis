@@ -182,6 +182,20 @@ async function _migrarColunaPortalEmail() {
 }
 _migrarColunaPortalEmail();
 
+// WHERE (user_id=$1 OR codigo_usuario=$1) é a query mais usada da tabela
+// (toda tela por conta) — só user_id tinha índice, codigo_usuario forçava
+// varredura completa. Com o volume atual isso segurava a conexão presa
+// tempo suficiente pra estourar o pool inteiro ("timeout exceeded when
+// trying to connect" em cascata, servidor reiniciado pelo Render) —
+// ago/2026. CONCURRENTLY pra não travar leitura/escrita enquanto cria.
+async function _migrarIndiceCodigoUsuario() {
+  try {
+    const { query: _q } = require('./db');
+    await _q('CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_leads_codigo_usuario ON leads(codigo_usuario)');
+  } catch(e) { console.error('[leads] erro idx codigo_usuario:', e.message); }
+}
+_migrarIndiceCodigoUsuario();
+
 async function salvarLead(lead) {
   if (await dbOk()) {
     try {

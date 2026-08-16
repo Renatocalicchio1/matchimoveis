@@ -198,6 +198,17 @@ async function criarTabelaImoveis() {
     await query(`CREATE INDEX IF NOT EXISTS idx_imoveis_user_id ON imoveis(user_id)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_imoveis_bairro ON imoveis(bairro)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_imoveis_tipo ON imoveis(tipo)`);
+    // WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1)
+    // é a query mais usada do sistema (toda tela por conta) — só user_id tinha
+    // índice, as outras 3 colunas forçavam varredura completa da tabela.
+    // Com o volume atual (uma conta sozinha passa de 8.000 imóveis) isso
+    // segurava a conexão presa tempo suficiente pra estourar o pool inteiro
+    // ("timeout exceeded when trying to connect" em cascata, servidor
+    // reiniciado pelo Render) — ago/2026. CONCURRENTLY pra não travar leitura/
+    // escrita da tabela enquanto o índice é criado.
+    await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_imoveis_usuario_id ON imoveis(usuario_id)`).catch(e=>console.error('[imoveis] erro idx usuario_id:', e.message));
+    await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_imoveis_codigo_usuario ON imoveis(codigo_usuario)`).catch(e=>console.error('[imoveis] erro idx codigo_usuario:', e.message));
+    await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_imoveis_corretor_id ON imoveis(corretor_id)`).catch(e=>console.error('[imoveis] erro idx corretor_id:', e.message));
     console.log('[imoveis] tabela criada/verificada');
   } catch(e) {
     console.error('[imoveis] erro criar tabela:', e.message);

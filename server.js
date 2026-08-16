@@ -3185,11 +3185,24 @@ _agendarProximoEnvioCampanhaGeral();
 // formato + registro MX do domínio de toda a base sem travar o servidor.
 // Só quem tem email_valido=true entra na fila de envio (proximoLote em
 // services/campanha.js) — descarta quem não existe de verdade.
+//
+// validarProximoLote faz até 1 SELECT + 50x(lookup DNS de MX + UPDATE/DELETE)
+// por execução, SEQUENCIAL — num lote com vários domínios não cacheados isso
+// passa fácil de 5s. setInterval não espera a execução anterior terminar
+// antes de disparar a próxima, então cada tick atrasado empilhava em cima do
+// anterior: dezenas de execuções concorrentes, cada uma abrindo suas próprias
+// conexões PG, até estourar o pool ("too many clients") — causa provável do
+// servidor caindo o dia todo (não só de madrugada), ago/2026. Mesmo padrão de
+// trava usado em _recarregarImoveis()/etc, que faltava aqui.
+let _validandoEmailsCampanha = false;
 setInterval(async () => {
+  if (_validandoEmailsCampanha) return;
+  _validandoEmailsCampanha = true;
   try {
     const { validarProximoLote } = require('./services/campanha');
     await validarProximoLote(50);
   } catch (e) { console.error('[JOB VALIDACAO EMAILS CAMPANHA]', e.message); }
+  finally { _validandoEmailsCampanha = false; }
 }, 5000);
 
 // Job onboarding — verifica a cada 2h se algum usuário completou um dos passos

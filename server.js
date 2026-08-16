@@ -213,8 +213,15 @@ app.use((req, res, next) => {
 
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
-const { Pool } = require('pg');
-const _pgPool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+// Antes criava um SEGUNDO pool de conexões PG aqui (new Pool(...)), separado
+// do singleton de services/db.js (getPool(), max:20) — o processo abria até
+// 30 conexões (20 + até 10 do default do pg) só pra si, e o Postgres do Render
+// tem um teto bem mais baixo de conexões totais. Servidor derrubando de
+// madrugada com "remaining connection slots are reserved for roles with the
+// SUPERUSER attribute" (esgotou o limite de conexões do banco) — ago/2026.
+// Reaproveita o mesmo pool único pra sessão + todo o resto do app.
+const { getPool } = require('./services/db');
+const _pgPool = getPool();
 
 app.set('trust proxy', 1);
 app.use(session({

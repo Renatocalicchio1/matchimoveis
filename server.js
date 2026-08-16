@@ -20469,7 +20469,16 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       `, [usuarioAdmin]);
       meusCorretores = _rowsMeusCor;
     } catch (eMeusCor) { console.error('[minhas-comissoes] erro ao buscar corretores:', eMeusCor.message); }
-    const minhasCaptacoes = _temPermCaptacao ? (await _listarCaptacoesSub({ refAdmin: usuarioAdmin, limite: 100 })).envios : [];
+    // Só entra quem teve engajamento de verdade (iniciou o cadastro do
+    // imóvel, já virou lead de venda ou já foi captado até o fim) — mesmo
+    // critério de /app/captacao (a tela do corretor comum), que só traz lead
+    // com temImovelParaCaptar=true ou tipo_lead='cliente_vendedor'. Antes
+    // aparecia todo mundo que só recebeu o e-mail ou só clicou no link sem
+    // fazer nada, misturando quem valia a pena ligar com quem não tinha
+    // sinal nenhum de interesse (ago/2026).
+    const minhasCaptacoes = _temPermCaptacao
+      ? (await _listarCaptacoesSub({ refAdmin: usuarioAdmin, limite: 100 })).envios.filter(c => c.iniciou_cadastro_em || c.imovel_captado_id || c.bonus_captacao_pago_em)
+      : [];
     // Detalhe do imóvel captado (mesmos dados que aparecem em /app/captacao,
     // a tela do corretor dono da conta REN-G9K6) — sem isso o sub-admin só via
     // um status genérico de envio, sem saber tipo/bairro/valor/se falta foto.
@@ -20623,8 +20632,8 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
 
         ${!_temPermCaptacao ? '' : `
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
-          <h3 style="margin:0 0 6px;font-size:14px">🏠 Minhas captações (${minhasCaptacoes.length})</h3>
-          <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Proprietários da Campanha de Captação atribuídos a você — chame no WhatsApp e ajude a terminar o cadastro. Cada imóvel captado até o fim vale +200 coins pra você.</p>
+          <h3 style="margin:0 0 6px;font-size:14px">🏠 Minhas Captações Cadastradas (${minhasCaptacoes.length})</h3>
+          <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Proprietários que já iniciaram o cadastro do imóvel — chame no WhatsApp e ajude a completar o que ainda falta (cada imóvel captado até o fim vale +200 coins pra você). Aproveite também pra oferecer os planos acima pros seus corretores já cadastrados.</p>
           <table style="width:100%">
             <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Data</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">WhatsApp</th><th style="padding:8px;font-size:11px;color:#9ca3af">Status</th></tr></thead>
             <tbody>${captacoesHtml || '<tr><td colspan="4" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma captação atribuída a você ainda</td></tr>'}</tbody>

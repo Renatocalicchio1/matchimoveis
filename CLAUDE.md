@@ -122,6 +122,7 @@ Jane: JAN-MGF9 (~1.700 imóveis) | Mauricio: MAU-EHAM (~432) | Alexandre: ALE-DU
 - Quer um comando por vez, sem explicação a menos que peça
 - Não modificar arquivos além do pedido
 - Sempre referenciar como coisas parecidas já foram feitas antes de propor algo novo
+- **Commit/push (ago/2026): não pedir confirmação — sempre commitar e dar push pra main direto depois de validar (node --check / EJS compile).** Regra antiga era só commitar quando ele mandasse explicitamente; substituída por pedido direto do usuário ("nao precis ame perguntar mais, sempre fac o commit e peush para man").
 
 ---
 

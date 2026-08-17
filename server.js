@@ -986,14 +986,16 @@ app.get('/admin/contas-admin', authAdmin, async (req, res) => {
         <td>${_escAdminHtml(c.usuario)}</td>
         <td>${_escAdminHtml(c.nome || '—')}</td>
         <td><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${_escAdminHtml(c.cor)};vertical-align:middle;margin-right:6px"></span>${_escAdminHtml(c.cor)}</td>
+        <td>${c.email ? _escAdminHtml(c.email) : '<span class="gray">não cadastrado</span>'}</td>
         <td>${c.celular ? _escAdminHtml(c.celular) : '<span class="gray">não cadastrado</span>'}</td>
         <td>${(c.permissoes || []).length ? c.permissoes.map(p => `<span class="tag">${_escAdminHtml(p)}</span>`).join(' ') : '<span class="gray">nenhuma</span>'}</td>
         <td>${c.ativo ? '<span class="green">ativo</span>' : '<span class="red">desativado</span>'}</td>
         <td>${c.ultimoLogin ? new Date(c.ultimoLogin).toLocaleString('pt-BR') : '<span class="gray">nunca</span>'}</td>
-        <td style="white-space:nowrap" data-id="${c.id}" data-usuario="${_escAdminHtml(c.usuario)}" data-permissoes="${_escAdminHtml((c.permissoes || []).join(','))}" data-ativo="${c.ativo ? '1' : '0'}" data-cor="${_escAdminHtml(c.cor)}" data-celular="${_escAdminHtml(c.celular)}">
+        <td style="white-space:nowrap" data-id="${c.id}" data-usuario="${_escAdminHtml(c.usuario)}" data-permissoes="${_escAdminHtml((c.permissoes || []).join(','))}" data-ativo="${c.ativo ? '1' : '0'}" data-cor="${_escAdminHtml(c.cor)}" data-celular="${_escAdminHtml(c.celular)}" data-email="${_escAdminHtml(c.email)}">
           ${c.ativo ? `<a href="/admin/contas-admin/${c.id}/entrar" style="background:#111;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:11.5px;margin-right:4px;text-decoration:none;display:inline-block">🔓 Entrar</a>` : ''}
           <button type="button" class="btn-permissoes">✏️ Permissões</button>
           <button type="button" class="btn-cor">🎨 Cor</button>
+          <button type="button" class="btn-email">📧 E-mail</button>
           <button type="button" class="btn-celular">📱 Celular</button>
           <button type="button" class="btn-senha">🔑 Senha</button>
           <button type="button" class="btn-ativo">${c.ativo ? '⛔ Desativar' : '✅ Ativar'}</button>
@@ -1055,8 +1057,8 @@ button:hover{opacity:.85}
   <div class="card">
     <h2>👥 Contas existentes</h2>
     <table>
-      <thead><tr><th>Usuário</th><th>Nome</th><th>Cor</th><th>Celular</th><th>Permissões</th><th>Status</th><th>Último login</th><th>Ações</th></tr></thead>
-      <tbody>${linhas || '<tr><td colspan="7" class="gray">Nenhuma conta admin criada ainda.</td></tr>'}</tbody>
+      <thead><tr><th>Usuário</th><th>Nome</th><th>Cor</th><th>E-mail</th><th>Celular</th><th>Permissões</th><th>Status</th><th>Último login</th><th>Ações</th></tr></thead>
+      <tbody>${linhas || '<tr><td colspan="9" class="gray">Nenhuma conta admin criada ainda.</td></tr>'}</tbody>
     </table>
   </div>
 </main>
@@ -1123,6 +1125,22 @@ async function editarCor(id, corAtual){
   if(!d.ok){ alert(d.erro || 'Erro'); return; }
   location.reload();
 }
+async function editarCelular(id, celularAtual){
+  const celular = prompt('Celular pessoal dessa conta (usado pro aviso de WhatsApp na campanha):', celularAtual || '');
+  if(celular === null) return;
+  const r = await fetch('/admin/contas-admin/' + id + '/celular', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ celular: celular.trim() }) });
+  const d = await r.json();
+  if(!d.ok){ alert(d.erro || 'Erro'); return; }
+  location.reload();
+}
+async function editarEmail(id, emailAtual){
+  const email = prompt('E-mail dessa conta:', emailAtual || '');
+  if(email === null) return;
+  const r = await fetch('/admin/contas-admin/' + id + '/email', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: email.trim() }) });
+  const d = await r.json();
+  if(!d.ok){ alert(d.erro || 'Erro'); return; }
+  location.reload();
+}
 async function deletarConta(id, usuario){
   if(!confirm('Excluir a conta admin "' + usuario + '"? Essa ação não pode ser desfeita.')) return;
   const r = await fetch('/admin/contas-admin/' + id + '/deletar', { method:'POST' });
@@ -1136,10 +1154,16 @@ document.querySelectorAll('td[data-id]').forEach(function(td){
   const permissoesAtuais = td.getAttribute('data-permissoes') ? td.getAttribute('data-permissoes').split(',') : [];
   const ativo = td.getAttribute('data-ativo') === '1';
   const corAtual = td.getAttribute('data-cor') || '#6b7280';
+  const celularAtual = td.getAttribute('data-celular') || '';
+  const emailAtual = td.getAttribute('data-email') || '';
   const btnP = td.querySelector('.btn-permissoes');
   if(btnP) btnP.addEventListener('click', function(){ editarPermissoes(id, permissoesAtuais); });
   const btnC = td.querySelector('.btn-cor');
   if(btnC) btnC.addEventListener('click', function(){ editarCor(id, corAtual); });
+  const btnCel = td.querySelector('.btn-celular');
+  if(btnCel) btnCel.addEventListener('click', function(){ editarCelular(id, celularAtual); });
+  const btnEmail = td.querySelector('.btn-email');
+  if(btnEmail) btnEmail.addEventListener('click', function(){ editarEmail(id, emailAtual); });
   const btnS = td.querySelector('.btn-senha');
   if(btnS) btnS.addEventListener('click', function(){ resetarSenha(id); });
   const btnA = td.querySelector('.btn-ativo');
@@ -1257,6 +1281,25 @@ app.post('/admin/contas-admin/:id/senha', authAdmin, express.json(), async (req,
     const senhaHash = await bcrypt.hash(senha, 10);
     const { atualizarSenhaAdminConta } = require('./services/salvarAdminConta');
     await atualizarSenhaAdminConta(req.params.id, senhaHash);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/contas-admin/:id/celular', authAdmin, express.json(), async (req, res) => {
+  try {
+    const celular = String(req.body.celular || '').trim();
+    const { atualizarCelularAdminConta } = require('./services/salvarAdminConta');
+    await atualizarCelularAdminConta(req.params.id, celular);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+app.post('/admin/contas-admin/:id/email', authAdmin, express.json(), async (req, res) => {
+  try {
+    const email = String(req.body.email || '').trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.json({ ok: false, erro: 'E-mail inválido.' });
+    const { atualizarEmailAdminConta } = require('./services/salvarAdminConta');
+    await atualizarEmailAdminConta(req.params.id, email);
     res.json({ ok: true });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });

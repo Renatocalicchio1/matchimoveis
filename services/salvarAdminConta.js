@@ -40,6 +40,9 @@ async function _garantirTabela() {
   // template pré-aprovado) o aviso "mensagem enviada pro lead fulano, fala
   // com ele" na hora do disparo de campanha (ver disparoWhatsappWorker.js).
   await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS celular TEXT`);
+  // E-mail pessoal do sub-admin — só cadastro/contato, não é usado pra login
+  // (login continua sendo por "usuario") nem por nenhum fluxo automático hoje.
+  await query(`ALTER TABLE admin_contas ADD COLUMN IF NOT EXISTS email TEXT`);
   _tabelaPronta = true;
 }
 
@@ -64,6 +67,7 @@ function _rowToConta(r) {
     cor: r.cor || '#6b7280',
     saldoCoins: r.saldo_coins || 0,
     celular: r.celular || '',
+    email: r.email || '',
     criadoPor: r.criado_por || '',
     criadoEm: r.criado_em,
     ultimoLogin: r.ultimo_login
@@ -129,6 +133,11 @@ async function atualizarCelularAdminConta(id, celular) {
   await query('UPDATE admin_contas SET celular=$1 WHERE id=$2', [celular || null, id]);
 }
 
+async function atualizarEmailAdminConta(id, email) {
+  await _garantirTabela();
+  await query('UPDATE admin_contas SET email=$1 WHERE id=$2', [email || null, id]);
+}
+
 // Soma (delta positivo) ou desconta (delta negativo) do saldo de coins do
 // sub-admin. Update atômico direto no banco — não lê-modifica-escreve em
 // JS, pra não perder incremento se duas requisições baterem juntas (ex:
@@ -151,5 +160,5 @@ module.exports = {
   listarAdminContas, buscarAdminConta, buscarAdminContaPorId, criarAdminConta,
   atualizarPermissoesAdminConta, atualizarSenhaAdminConta, atualizarAtivoAdminConta,
   atualizarCorAdminConta, atualizarUltimoLoginAdminConta, deletarAdminConta,
-  ajustarSaldoCoins, atualizarCelularAdminConta
+  ajustarSaldoCoins, atualizarCelularAdminConta, atualizarEmailAdminConta
 };

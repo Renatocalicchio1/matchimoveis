@@ -10512,10 +10512,17 @@ app.post('/app/imovel/cadastrar', auth, uploadImoveis.array('fotos', 20), async 
     estado: b.estado || 'SP',
     latitude: parseFloat(b.latitude) || null,
     longitude: parseFloat(b.longitude) || null,
-    // valores
-    valor_imovel: parseFloat(b.valor_imovel) || 0,
-    condominio: parseFloat(b.condominio) || 0,
-    iptu: parseFloat(b.iptu) || 0,
+    // valores — arredondado pro real inteiro mais próximo: preço de imóvel
+    // nessa plataforma é sempre exibido/tratado como valor cheio (toLocaleString
+    // sem casas decimais em todo o resto do código), nunca com centavos. Sem
+    // isso, um resíduo tipo "300000.1" (ex: veio de import de XML/planilha
+    // com valor quebrado) fica preso pra sempre — toda vez que o corretor
+    // reabre e salva de novo, o Number(...) recém-digitado herda o mesmo
+    // resíduo que já tava no banco, e o campo continua mostrando "300000,1"
+    // mesmo digitando "300000" por cima sem apagar tudo primeiro.
+    valor_imovel: Math.round(parseFloat(b.valor_imovel) || 0),
+    condominio: Math.round(parseFloat(b.condominio) || 0),
+    iptu: Math.round(parseFloat(b.iptu) || 0),
     aceita_financiamento: b.aceita_financiamento || 'a_combinar',
     aceita_permuta: b.aceita_permuta || 'nao',
     // areas
@@ -11733,9 +11740,10 @@ app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
     estado: b.estado || '',
     latitude: Number(b.latitude || 0) || null,
     longitude: Number(b.longitude || 0) || null,
-    valor_imovel: Number(b.valor_imovel || 0),
-    condominio: Number(b.condominio || 0),
-    iptu: Number(b.iptu || 0),
+    // Arredondado pro real inteiro — ver nota equivalente em /app/imovel/cadastrar
+    valor_imovel: Math.round(Number(b.valor_imovel || 0)),
+    condominio: Math.round(Number(b.condominio || 0)),
+    iptu: Math.round(Number(b.iptu || 0)),
     aceita_financiamento: b.aceita_financiamento || 'a_combinar',
     aceita_permuta: b.aceita_permuta || 'nao',
     area_m2: Number(b.area_m2 || 0),

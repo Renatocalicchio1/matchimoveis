@@ -11122,6 +11122,21 @@ app.get('/admin/emails', authAdmin, async (req, res) => {
 // ── FIM ADMIN MODELOS DE EMAIL ──────────────────────────────────────────────
 
 // ── SITE PÚBLICO WHITE-LABEL POR USUÁRIO ──────────────────────────────────────
+// Link de /imovel/:id existe e o imóvel é real, mas ainda não tem foto
+// nenhuma (ex: captação pública em andamento, corretor não terminou de
+// subir fotos) — imovelVisivelPublico() exige >=1 foto pra aparecer.
+// Antes disso caía direto na mesma mensagem de "não existe mais ou foi
+// removido" de um link quebrado de verdade, o que é enganoso: o link tá
+// certo, o cadastro que ainda não terminou. Status 200 (não é erro).
+function _paginaImovelEmFinalizacao(res) {
+  res.status(200).send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Imóvel em finalização</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',-apple-system,sans-serif;background:#FBF9F6;color:#16181A;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
+  .box{max-width:420px}.ico{font-size:44px;margin-bottom:16px}h1{font-size:20px;margin-bottom:8px}p{color:#716C61;font-size:14px;line-height:1.6}</style></head>
+  <body><div class="box"><div class="ico">📸</div><h1>Este anúncio ainda está sendo preparado</h1><p>O cadastro desse imóvel está quase pronto — falta só a(s) foto(s). Volte em breve ou fale com quem te mandou esse link.</p></div></body></html>`);
+}
+
 function _paginaManutencaoSite(res, corretor) {
   res.status(503).send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11359,6 +11374,14 @@ app.get('/imovel/:id', async (req, res) => {
   const corretor = users.find(function(u){ return (u.codigo_usuario||u.codigoUsuario||u.id) === _uid2; }) || users.find(function(u){ return u.ativo; }) || {};
   // userId da query serve só para atribuir lead — não muda o corretor exibido
   const _uidLead = _uidQuery || _uid2;
+
+  // Imóvel existe mas ainda não tem foto — não é link quebrado, é cadastro
+  // incompleto (comum na captação pública: proprietário preencheu os dados
+  // mas não subiu foto ainda). Mensagem própria em vez de cair no 404
+  // genérico de "não existe mais ou foi removido".
+  if (imovel && (!imovel.fotos || !imovel.fotos.length)) {
+    return _paginaImovelEmFinalizacao(res);
+  }
 
   if (imovel && imovelVisivelPublico(imovel)) {
     const pub = Object.assign({}, imovel);

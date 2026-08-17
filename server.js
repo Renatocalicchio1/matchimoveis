@@ -6941,7 +6941,7 @@ app.post('/app/meta-ads/campanha', auth, async (req,res)=>{
       return res.status(400).json({ ok:false, erro:'Objetivo inválido.' });
     }
 
-    const imoveis = lerImoveis(user);
+    const imoveis = await lerImoveisService(user.id);
     const imovel = imoveis.find(i => String(i.idExterno)===String(imovelId) || String(i.idInterno)===String(imovelId) || String(i.id)===String(imovelId));
     if (!imovel) return res.status(404).json({ ok:false, erro:'Imóvel não encontrado na sua carteira.' });
     if (!(imovel.fotos||[]).length) return res.status(400).json({ ok:false, erro:'O imóvel precisa ter pelo menos 1 foto pra criar o anúncio.' });
@@ -7095,7 +7095,7 @@ app.post('/app/meta-ads/campanha/:id/editar', auth, async (req,res)=>{
 
     // Texto/CTA do anúncio — cria criativo novo e troca no anúncio existente
     if (tituloAnuncio !== undefined || descricaoAnuncio !== undefined || tituloSecundario !== undefined || ctaLeadForm !== undefined) {
-      const imoveis = lerImoveis(user);
+      const imoveis = await lerImoveisService(user.id);
       const imovel = imoveis.find(i => String(i.idExterno)===String(campanha.imovelId) || String(i.idInterno)===String(campanha.imovelId) || String(i.id)===String(campanha.imovelId));
       if (!imovel) return res.status(404).json({ ok:false, erro:'Imóvel da campanha não encontrado na sua carteira.' });
 
@@ -7173,7 +7173,7 @@ app.post('/app/meta-ads/gerar-texto', auth, async (req,res)=>{
   try {
     if (!_podeUsarPosts(req.session.user)) return res.status(403).json({ ok:false, erro:'Sem acesso.' });
     const { imovelId } = req.body;
-    const imoveis = lerImoveis(req.session.user);
+    const imoveis = await lerImoveisService(req.session.user.id);
     const imovel = imoveis.find(i => String(i.idExterno)===String(imovelId) || String(i.idInterno)===String(imovelId) || String(i.id)===String(imovelId));
     if (!imovel) return res.status(404).json({ ok:false, erro:'Imóvel não encontrado.' });
 
@@ -7328,7 +7328,7 @@ app.get('/app/redes-sociais/campanha', auth, async (req, res) => {
     const user = req.session.user;
     const { listarCampanhas } = require('./services/salvarCampanhaMeta');
     const uidLogado = user.id || user.codigoUsuario || user.codigo_usuario;
-    const imoveisComFoto = lerImoveis(user)
+    const imoveisComFoto = (await lerImoveisService(user.id))
       .filter(i => i.status !== 'inativo' && i.status !== 'excluido' && (i.fotos||[]).length)
       .map(i => ({
         id: i.idExterno || i.idInterno || i.id,
@@ -7365,7 +7365,7 @@ app.get('/app/posts', auth, async (req, res) => {
       listarPosts(uidLogado, 'postado'),
       listarPosts(uidLogado, 'ignorado')
     ]);
-    const imoveis = lerImoveis(req.session.user)
+    const imoveis = (await lerImoveisService(req.session.user.id))
       .filter(i => i.status !== 'inativo' && i.status !== 'excluido' && (i.fotos||[]).length)
       .map(i => ({
         id: i.idExterno || i.idInterno || i.id,
@@ -7390,7 +7390,7 @@ app.post('/app/posts/analisar', auth, express.json(), async (req, res) => {
 
     let dados;
     if (imovelId) {
-      const imoveis = lerImoveis(req.session.user);
+      const imoveis = await lerImoveisService(req.session.user.id);
       const imovel = imoveis.find(i => String(i.idExterno)===String(imovelId) || String(i.idInterno)===String(imovelId) || String(i.id)===String(imovelId));
       if (!imovel) return res.json({ ok: false, erro: 'Imóvel não encontrado na sua carteira.' });
       if (!(imovel.fotos||[]).length) return res.json({ ok: false, erro: 'Esse imóvel não tem fotos cadastradas.' });
@@ -10273,8 +10273,8 @@ app.get('/api/imoveis', auth, async (req, res) => {
 // corretor sabendo/tentando um id. Agora exige sessão e só acha o imóvel
 // dentro da lista já filtrada pro dono logado (mesmo padrão de lerImoveis()
 // usado em /app/imovel/:id/editar).
-app.post('/imovel/:id/status', auth, (req,res)=>{
-  const imoveis = lerImoveis(req.session.user);
+app.post('/imovel/:id/status', auth, async (req,res)=>{
+  const imoveis = await lerImoveisService(req.session.user.id);
   const { status } = req.body;
 
   const idx = imoveis.findIndex(i => String(i.idExterno) === String(req.params.id) || String(i.idInterno) === String(req.params.id) || String(i.codigoImovel) === String(req.params.id) || String(i.id) === String(req.params.id));
@@ -10402,7 +10402,7 @@ app.post('/app/imoveis/portais-lote', auth, async (req, res) => {
     const ids = JSON.parse(req.body.ids || '[]');
     const portais = JSON.parse(req.body.portais || '[]');
     if (!ids.length) return res.json({ ok: false, erro: 'Nenhum imóvel selecionado' });
-    const imoveis = await lerImoveis(userId);
+    const imoveis = await lerImoveisService(userId);
     let atualizados = 0;
     for (const pid of ids) {
       const idx = imoveis.findIndex(i =>
@@ -11604,7 +11604,7 @@ app.get('/app/imovel/:id/editar', auth, async (req,res)=>{
 // Editar imóvel - salvar
 app.post('/app/imovel/:id/editar', auth, async (req,res)=>{
   const userId = req.session.user.id;
-  const imoveis = await lerImoveis(userId);
+  const imoveis = await lerImoveisService(userId);
   const _pid = decodeURIComponent(req.params.id);
   const idx = imoveis.findIndex(i =>
     String(i.idExterno) === _pid ||
@@ -11994,7 +11994,7 @@ app.get('/app/imoveis-ids', auth, (req, res) => {
 
 app.post('/app/gerar-xml', auth, checarSaldo('Gerar XML para portais', 10), async (req,res)=>{
   const { portal, ids } = req.body;
-  const todos = await lerImoveis(req.session.user.id);
+  const todos = await lerImoveisService(req.session.user.id);
   const imoveis = filtrarPorUsuario(todos, req.session.user);
   const selecionados = imoveis.filter(i => ids.includes(String(i.id)) || ids.includes(String(i.idExterno)) || ids.includes(String(i.idOriginal)));
   const token = req.session.user.id.replace(/[^a-z0-9]/gi,'-');

@@ -11345,8 +11345,15 @@ app.get('/imovel/:id', async (req, res) => {
   const users = (_cacheUsuarios || []);
   const _idBusca = _idParamImovel(req.params.id);
 
-  // Busca na base interna primeiro
-  let imovel = imoveis.find(i => String(i.idExterno) === String(_idBusca) || String(i.idInterno) === String(_idBusca) || String(i.codigoImovel) === String(_idBusca) || String(i.id) === String(_idBusca));
+  // Busca direto no banco (não no _cacheImoveis) — essa é a página pública
+  // compartilhada por link (WhatsApp, portal, etc), não pode depender do
+  // cache global de todos os imóveis da plataforma estar completo/atualizado
+  // pra abrir; imóvel recém-cadastrado ou que o cache ainda não recarregou
+  // aparecia como "não encontrado" pra quem clicasse no link, derrubando o
+  // lead à toa (mesma causa raiz já corrigida em outras rotas, ago/2026).
+  // _buscarImovelCompleto já busca por id/id_externo/id_interno/codigo_imovel
+  // e traz a linha inteira (todas as fotos, sem o corte de 20 do cache).
+  let imovel = await _buscarImovelCompleto(_idBusca);
   const _uidQuery = req.query.userId || '';
   const _uid2 = imovel ? (imovel.user_id || imovel.userId || '') : '';
   const corretor = users.find(function(u){ return (u.codigo_usuario||u.codigoUsuario||u.id) === _uid2; }) || users.find(function(u){ return u.ativo; }) || {};
@@ -11354,9 +11361,6 @@ app.get('/imovel/:id', async (req, res) => {
   const _uidLead = _uidQuery || _uid2;
 
   if (imovel && imovelVisivelPublico(imovel)) {
-    // Cache guarda só as 20 primeiras fotos — busca a linha completa pra mostrar todas
-    const _completoPub = await _buscarImovelCompleto(imovel.id);
-    if (_completoPub) imovel = { ...imovel, ...(_completoPub.fotos ? { fotos: _completoPub.fotos } : {}), descricao: _completoPub.descricao };
     const pub = Object.assign({}, imovel);
     delete pub.proprietario;
     delete pub.proprietario_celular;

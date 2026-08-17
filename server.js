@@ -17533,6 +17533,7 @@ app.get('/wa-optout/:tipo/:id', async (req, res) => {
 // contra os imóveis já cadastrados dos corretores, até 3 contas por lead —
 // sem match nenhum, a linha fica de fora (ver services/interesadosPortal.js).
 app.get('/admin/interesados', authAdmin, (req, res) => {
+  const isSuper = req.session.adminSuper !== false;
   res.send(`<!DOCTYPE html><html><head><meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Interessados de Portal</title>
@@ -17564,6 +17565,14 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
     <p class="gray" style="font-size:11px;margin:8px 0 0">Preenchimento vem só do título/mensagem da própria planilha — abrir o link do anúncio pra buscar mais dados foi desativado (o portal bloqueia acesso automatizado via Cloudflare, não dá pra contornar de forma confiável).</p>
     <div id="preview-status"></div>
   </div>
+  ${!isSuper ? '' : `
+  <div class="box">
+    <strong style="font-size:13px">🗺️ Distribuição por área de atuação</strong><br>
+    <p class="gray" style="font-size:12px;margin:6px 0">Mecanismo separado do "Distribuir leads pras contas" acima (que usa imóvel cadastrado como proxy de região) — esse aqui olha o campo "Área de atuação" (estado/cidade/bairro) do perfil de cada corretor. Roda sozinho todo dia às 4h; o botão abaixo só dispara na hora pra testar, sem esperar. <strong>Cobra créditos de verdade</strong> por cada lead entregue.</p>
+    <button onclick="rodarDistribuicaoArea()">▶️ Rodar agora</button>
+    <div id="area-status"></div>
+  </div>
+  `}
   <div class="box">
     <strong style="font-size:13px">🔬 Testar 1 URL de anúncio direto (diagnóstico)</strong><br>
     <input type="text" id="urlTeste" placeholder="https://www.imovelweb.com.br/propriedades/..." style="width:420px;max-width:80%;padding:8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;margin-top:8px">
@@ -17664,6 +17673,17 @@ app.get('/admin/interesados', authAdmin, (req, res) => {
         '<p class="green">✅ Planilha lida: '+d.totalLinhasArquivo+' linhas, '+d.linhasNestaLeitura+' processadas (fora Rankim) — <strong>'+d.novas+' novas</strong> adicionadas ao acumulado, '+d.duplicadas+' já existiam (descartadas, linha idêntica em todas as colunas) e não entraram de novo.</p>';
       renderTabela(d.linhas);
     } catch(e){ document.getElementById('preview-status').innerHTML = '<p class="red">Erro ao analisar.</p>'; }
+  }
+  async function rodarDistribuicaoArea(){
+    if(!confirm('Roda agora a distribuição de leads por área de atuação — cria leads de verdade e cobra créditos das contas. Confirma?')) return;
+    const el = document.getElementById('area-status');
+    el.innerHTML = '<p>⏳ Rodando (pode levar alguns segundos)...</p>';
+    try {
+      const r = await fetch('/admin/distribuicao-area-atuacao/rodar', { method:'POST' });
+      const d = await r.json();
+      if(!d.ok){ el.innerHTML = '<p class="red">Erro: '+escHtml(d.erro||'')+'</p>'; return; }
+      el.innerHTML = '<p class="green">✅ '+d.atribuicoes+' lead(s) entregue(s) e cobrada(s).</p>';
+    } catch(e){ el.innerHTML = '<p class="red">Erro ao rodar.</p>'; }
   }
   async function testarUrl(){
     const url = document.getElementById('urlTeste').value.trim();

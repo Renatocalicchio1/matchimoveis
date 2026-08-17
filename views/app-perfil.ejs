@@ -28,7 +28,7 @@
 .pf-grid-combos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 @media(max-width:640px){.pf-grid-combos{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:380px){.pf-grid-combos{grid-template-columns:1fr}}
-.pf-field label{
+.pf-field > label{
   display:block;
   font-size:11px;
   font-weight:500;
@@ -37,7 +37,7 @@
   letter-spacing:.03em;
   margin-bottom:4px;
 }
-.pf-field input{
+.pf-field > input{
   width:100%;
   padding:9px 12px;
   border:0.5px solid rgba(0,0,0,.12);
@@ -48,9 +48,9 @@
   box-sizing:border-box;
   outline:none;
 }
-.pf-field input:focus{border-color:rgba(0,0,0,.3)}
-.pf-field input[readonly]{background:#f9fafb;color:#9ca3af}
-.pf-field input[readonly].strong{color:#111827;font-weight:500}
+.pf-field > input:focus{border-color:rgba(0,0,0,.3)}
+.pf-field > input[readonly]{background:#f9fafb;color:#9ca3af}
+.pf-field > input[readonly].strong{color:#111827;font-weight:500}
 .pf-btn{
   display:inline-flex;
   align-items:center;

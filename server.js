@@ -5508,9 +5508,15 @@ async function _detectarExclusoesLeads() {
     setInterval(() => { _recarregarLeads(); _cacheLeadsAt = new Date(); }, 24 * 60 * 60 * 1000);
   }, ms);
 })();
+// A recarga completa inicial (pra popular o cache logo no boot) já
+// acontece sozinha aqui dentro — _recarregarLeadsIncremental() detecta
+// cache vazio e faz o full reload automaticamente. Antes havia uma SEGUNDA
+// chamada explícita e redundante de _recarregarLeads() (a carga pesada
+// completa) logo no boot, duplicando o trabalho a cada reinício do
+// processo — em qualquer hora do dia, não só na janela agendada das 3h
+// acima. Removida (ago/2026).
 setTimeout(() => {
-  _recarregarLeads();
-  _cacheLeadsAt = new Date();
+  _recarregarLeadsIncremental();
   setInterval(async () => {
     await _recarregarLeadsIncremental();
     await _detectarExclusoesLeads();
@@ -5590,9 +5596,10 @@ async function _detectarExclusoesImoveis() {
     setInterval(_recarregarImoveis, 24 * 60 * 60 * 1000);
   }, ms);
 })();
+// Ver nota equivalente em leads acima — removida a carga completa
+// redundante no boot, o incremental já se auto-recupera se o cache tá vazio.
 setTimeout(() => {
-  _recarregarImoveis();
-  _cacheImoveisAt = new Date();
+  _recarregarImoveisIncremental();
   setInterval(async () => {
     await _recarregarImoveisIncremental();
     await _detectarExclusoesImoveis();
@@ -5651,9 +5658,10 @@ async function _recarregarUsuariosIncremental() {
     setInterval(() => { _recarregarUsuarios(); _cacheUsuariosAt = new Date(); }, 24 * 60 * 60 * 1000);
   }, ms);
 })();
+// Ver nota equivalente em leads acima — removida a carga completa
+// redundante no boot, o incremental já se auto-recupera se o cache tá vazio.
 setTimeout(() => {
-  _recarregarUsuarios();
-  _cacheUsuariosAt = new Date();
+  _recarregarUsuariosIncremental();
   setInterval(_recarregarUsuariosIncremental, 20000);
 }, 6000);
 
@@ -5715,9 +5723,10 @@ async function _recarregarVisitasIncremental() {
     setInterval(() => { _recarregarVisitas(); _cacheVisitasAt = new Date(); }, 24 * 60 * 60 * 1000);
   }, ms);
 })();
+// Ver nota equivalente em leads acima — removida a carga completa
+// redundante no boot, o incremental já se auto-recupera se o cache tá vazio.
 setTimeout(() => {
-  _recarregarVisitas();
-  _cacheVisitasAt = new Date();
+  _recarregarVisitasIncremental();
   setInterval(_recarregarVisitasIncremental, 20000);
 }, 9000);
 

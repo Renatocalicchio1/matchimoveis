@@ -10257,7 +10257,9 @@ app.get('/mapa', (req, res) => {
 // rota /feed removida — usar /app/feed
 
 app.get('/api/imoveis', auth, async (req, res) => {
-  const imoveis = await lerImoveis(req.session.user.id);
+  // Direto no banco, já filtrado por usuário — não pelo cache global (usada
+  // pelo mapa, /app/mapa).
+  const imoveis = await lerImoveisService(req.session.user.id);
   res.json(imoveis.slice(0, 50));
 });
 
@@ -11172,7 +11174,10 @@ async function _handlerSitePublico(req, res, codigoUsuario, siteBasePath) {
     if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, corretor);
 
     // Hard-filter: só imóveis deste codigoUsuario, nunca confiar em parâmetro do client
-    const imoveisDoUsuario = lerImoveis(codigoUsuario).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
+    // Direto no banco, já filtrado pelo dono do site — não pelo cache global
+    // de todas as contas (página pública, potencial alvo de indexação/tráfego
+    // real, não vale depender do cache gigante da plataforma inteira).
+    const imoveisDoUsuario = (await lerImoveisService(codigoUsuario)).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
     const _r = _filtrarEPaginarImoveis(imoveisDoUsuario, req.query, 24);
 
     res.render('site-publico', {
@@ -11250,7 +11255,8 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
     if (!siteConfig.siteAtivo) return _paginaManutencaoSite(res, corretor);
 
     // Hard-filter: o imóvel só é exibido se pertencer a este codigoUsuario — nunca cruzar carteiras
-    const imoveisDoUsuario = lerImoveis(codigoUsuario);
+    // Direto no banco, já filtrado — não pelo cache global (página pública).
+    const imoveisDoUsuario = await lerImoveisService(codigoUsuario);
     const _idBuscaSite = _idParamImovel(imovelId);
     const imovel = imoveisDoUsuario.find(i => String(i.idExterno) === String(_idBuscaSite) || String(i.idInterno) === String(_idBuscaSite) || String(i.codigoImovel) === String(_idBuscaSite) || String(i.id) === String(_idBuscaSite));
     if (!imovel || !imovelVisivelPublico(imovel)) return _pagina404Site(res, { titulo: 'Imóvel não encontrado', mensagem: 'Este imóvel não existe mais ou foi removido.', siteConfig, siteBasePath });
@@ -11285,7 +11291,8 @@ async function _handlerSiteSitemap(req, res, codigoUsuario, origem) {
     const corretor = _resolverCorretorPublico(codigoUsuario);
     if (!corretor) return res.status(404).send('Site não encontrado');
     const base = origem.replace(/\/$/, '');
-    const imoveisDoUsuario = lerImoveis(codigoUsuario).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
+    // Direto no banco, já filtrado — não pelo cache global (página pública).
+    const imoveisDoUsuario = (await lerImoveisService(codigoUsuario)).filter(i => i.status !== 'inativo' && i.status !== 'excluido' && imovelVisivelPublico(i));
     const urls = [base + '/'].concat(imoveisDoUsuario.map(i => base + _pathImovelSeo(i)));
     const xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       urls.map(u => '  <url><loc>' + u.replace(/&/g,'&amp;') + '</loc></url>').join('\n') +

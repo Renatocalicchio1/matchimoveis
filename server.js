@@ -10165,6 +10165,7 @@ const _httpServer = app.listen(process.env.PORT || 3000, () => {
     const { iniciarScheduler } = require('./services/xmlScheduler'); iniciarScheduler();
     const { iniciarJobCreditos } = require('./services/jobCreditos'); iniciarJobCreditos();
     const { iniciarTopupPlanoLeads } = require('./services/topupPlanoLeads'); iniciarTopupPlanoLeads();
+    const { iniciarDistribuicaoAreaAtuacao } = require('./services/distribuicaoAreaAtuacao'); iniciarDistribuicaoAreaAtuacao();
     // DESATIVADO (jul/2026): fazerBackup() faz "SELECT *" de leads/visitas/usuarios/
     // imoveis/notificacoes inteiros a cada 1 minuto e monta tudo num JSON.stringify só
     // — com a base atual isso estoura o heap do processo (FATAL ERROR: JavaScript heap
@@ -19969,6 +19970,20 @@ app.post('/admin/captacao-campanha/distribuir-atendimentos', authAdmin, async (r
     const { distribuirAtendimentosAbertos } = require('./services/campanhaCaptacao');
     const resultado = await distribuirAtendimentosAbertos(contasAtivas);
     res.json({ ok: true, ...resultado, liberadosSemPermissao: liberados });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// Roda a distribuição de leads de interessados_portal por área de atuação
+// (services/distribuicaoAreaAtuacao.js) na hora, sem esperar as 4h — só pra
+// testar/conferir o resultado. Cobra créditos de verdade (mesmo custo de
+// qualquer lead nova), por isso restrito ao superadmin. Ignora o guard de
+// "já rodou hoje" de propósito (é a rota de teste manual).
+app.post('/admin/distribuicao-area-atuacao/rodar', authAdmin, async (req, res) => {
+  if (req.session.adminSuper === false) return res.status(403).json({ ok: false, erro: 'Só o superadmin pode rodar isso manualmente.' });
+  try {
+    const { distribuirLeadsPorArea } = require('./services/distribuicaoAreaAtuacao');
+    const resultado = await distribuirLeadsPorArea();
+    res.json({ ok: true, ...resultado });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 

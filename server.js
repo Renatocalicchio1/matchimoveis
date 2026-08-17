@@ -11274,6 +11274,10 @@ async function _handlerSiteImovelPublico(req, res, codigoUsuario, imovelId, site
     const imoveisDoUsuario = await lerImoveisService(codigoUsuario);
     const _idBuscaSite = _idParamImovel(imovelId);
     const imovel = imoveisDoUsuario.find(i => String(i.idExterno) === String(_idBuscaSite) || String(i.idInterno) === String(_idBuscaSite) || String(i.codigoImovel) === String(_idBuscaSite) || String(i.id) === String(_idBuscaSite));
+    // Mesmo tratamento de /imovel/:id: imóvel existe mas ainda sem foto não é
+    // link quebrado, é cadastro incompleto — mensagem própria em vez do 404
+    // genérico de "não existe mais ou foi removido".
+    if (imovel && (!imovel.fotos || !imovel.fotos.length)) return _paginaImovelEmFinalizacao(res);
     if (!imovel || !imovelVisivelPublico(imovel)) return _pagina404Site(res, { titulo: 'Imóvel não encontrado', mensagem: 'Este imóvel não existe mais ou foi removido.', siteConfig, siteBasePath });
 
     const pub = Object.assign({}, imovel);

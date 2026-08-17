@@ -7627,17 +7627,16 @@ app.get('/app/leads', auth, async (req,res)=>{
   const { lerLeads: _lerLeadsService } = require('./services/salvarLead');
   const raw = await _lerLeadsService(req.session.user.id);
   const data = Array.isArray(raw) ? raw : (raw.results || []);
-  const _todasVisitas = (_cacheVisitas || []);
+  // Direto no banco, já filtrado por usuário — não pelo cache global de
+  // TODAS as visitas da plataforma (mesmo motivo de /app/visitas acima).
+  const _todasVisitas = await lerVisitasService(req.session.user.id);
   const leads = filtrarPorUsuario(data, req.session.user)
     .filter(l => l.tipoLead !== 'corretor')
     .filter(l => !_ehLeadCaptacao(l))
     .filter(l => !(l.leadOculta === true && !((l.matches||[]).length || (l.matchesBase||[]).length)))
     .filter(l => {
       // Se tem qualquer visita → some do kanban de leads
-      const temVisita = _todasVisitas.some(v =>
-        String(v.leadId||'') === String(l.id) &&
-        String(v.userId||v.ownerUserId||v.corretorId||'') === String(req.session.user.id)
-      );
+      const temVisita = _todasVisitas.some(v => String(v.leadId||'') === String(l.id));
       return !temVisita;
     });
   // usa matchesBase (base interna) ou matches (externos)
@@ -7793,12 +7792,33 @@ app.get('/app/leads/planilha/exportar-excel', auth, async (req,res)=>{
 
 
 app.get('/app/visitas', auth, async (req,res)=>{
-  const todasVisitas = await lerVisitas(req.session.user.id);
+  // Direto no banco, já filtrado por usuário — não pelo cache global de
+  // TODAS as visitas da plataforma (_cacheVisitas via lerVisitas() local).
+  // Mesmo motivo de /app-home e /app/imoveis mais cedo: cache cheio demais
+  // pro volume atual, pesava à toa numa das telas mais visitadas (ago/2026).
   const user = req.session.user;
-  let visitas = user.tipo === 'admin' ? todasVisitas : todasVisitas.filter(v =>
-    String(v.ownerUserId || v.corretorId || v.usuarioDestinoId || "") === String(user.id || "") ||
-    _telsBatemNaoVazio(v.corretorTelefone || v.usuarioDestinoTelefone, user.celular || user.telefone)
-  );
+  let visitas;
+  if (user.tipo === 'admin') {
+    visitas = await lerVisitasService(null);
+  } else {
+    visitas = await lerVisitasService(user.id);
+    // lerVisitasService só filtra por ID (user_id/owner_user_id/corretor_id)
+    // — o fallback por telefone (visita vinculada só por corretorTelefone/
+    // usuarioDestinoTelefone, sem ID batendo) é uma busca à parte, só quando
+    // a conta tem celular cadastrado (guard contra o vazamento de telefone
+    // vazio corrigido hoje mais cedo).
+    const tel = String(user.celular || user.telefone || '').replace(/\D/g, '');
+    if (tel) {
+      const { query: _qVisTel } = require('./services/db');
+      const { rowToVisita: _rtvTel } = require('./services/salvarVisita');
+      const _rVisTel = await _qVisTel(
+        `SELECT * FROM visitas WHERE regexp_replace(COALESCE(dados->>'corretorTelefone',''),'\\D','','g')=$1 OR regexp_replace(COALESCE(dados->>'usuarioDestinoTelefone',''),'\\D','','g')=$1 ORDER BY criado_em DESC`,
+        [tel]
+      ).catch(() => ({ rows: [] }));
+      const _idsJa = new Set(visitas.map(v => String(v.id)));
+      _rVisTel.rows.map(_rtvTel).forEach(v => { if (!_idsJa.has(String(v.id))) visitas.push(v); });
+    }
+  }
   const { status, busca, data } = req.query;
   if (status && status !== 'todos') visitas = visitas.filter(v => v.status === status);
   if (busca) { const b = busca.toLowerCase(); visitas = visitas.filter(v => (v.nome||v.leadNome||'').toLowerCase().includes(b)||(v.imovelBairro||v.bairro||'').toLowerCase().includes(b)); }

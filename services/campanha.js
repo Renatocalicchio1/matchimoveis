@@ -840,36 +840,61 @@ async function _limparInvalidosAntigos() {
   } catch (e) { console.error('[CAMPANHA] erro na limpeza de invalidos antigos:', e.message); }
 }
 
+// Cache curto (60s) pras 4 consultas de estatística abaixo — rodam sem
+// índice de apoio numa tabela de ~118 mil contatos (statsCadastrados em
+// particular compara LOWER(email) dos dois lados, o que impede usar índice
+// normal) e eram recalculadas do zero toda vez que alguém abria
+// /admin/campanha, e de novo a cada poll automático de /admin/campanha/status
+// (a cada poucos segundos enquanto a tela ficava aberta) — consumindo o
+// servidor à toa. Ago/2026.
+const _CACHE_STATS_TTL_MS = 60000;
+const _cacheStats = {};
+async function _comCache(chave, fn) {
+  const c = _cacheStats[chave];
+  if (c && (Date.now() - c.em) < _CACHE_STATS_TTL_MS) return c.valor;
+  const valor = await fn();
+  _cacheStats[chave] = { valor, em: Date.now() };
+  return valor;
+}
+
 async function statsBase() {
-  await _garantirColunas();
-  const { rows } = await query(`SELECT status, COUNT(*) as total FROM campanha_contatos GROUP BY status`);
-  return rows;
+  return _comCache('base', async () => {
+    await _garantirColunas();
+    const { rows } = await query(`SELECT status, COUNT(*) as total FROM campanha_contatos GROUP BY status`);
+    return rows;
+  });
 }
 
 async function statsValidacao() {
-  await _garantirColunas();
-  const { rows } = await query(`
-    SELECT
-      COUNT(*) FILTER (WHERE email_valido IS NULL)::int AS pendente_validar,
-      COUNT(*) FILTER (WHERE email_valido = true)::int AS validos,
-      COUNT(*) FILTER (WHERE email_valido = false)::int AS invalidos
-    FROM campanha_contatos
-  `);
-  return rows[0] || { pendente_validar: 0, validos: 0, invalidos: 0 };
+  return _comCache('validacao', async () => {
+    await _garantirColunas();
+    const { rows } = await query(`
+      SELECT
+        COUNT(*) FILTER (WHERE email_valido IS NULL)::int AS pendente_validar,
+        COUNT(*) FILTER (WHERE email_valido = true)::int AS validos,
+        COUNT(*) FILTER (WHERE email_valido = false)::int AS invalidos
+      FROM campanha_contatos
+    `);
+    return rows[0] || { pendente_validar: 0, validos: 0, invalidos: 0 };
+  });
 }
 
 async function statsTracking() {
-  const { rows } = await query(`SELECT tipo, COUNT(*) as total FROM campanha_tracking GROUP BY tipo`);
-  return rows;
+  return _comCache('tracking', async () => {
+    const { rows } = await query(`SELECT tipo, COUNT(*) as total FROM campanha_tracking GROUP BY tipo`);
+    return rows;
+  });
 }
 
 async function statsCadastrados() {
-  const { rows } = await query(`
-    SELECT COUNT(*) as total FROM campanha_contatos cc
-    WHERE LOWER(cc.email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
-    AND cc.status = 'enviado'
-  `);
-  return rows[0]?.total || 0;
+  return _comCache('cadastrados', async () => {
+    const { rows } = await query(`
+      SELECT COUNT(*) as total FROM campanha_contatos cc
+      WHERE LOWER(cc.email) IN (SELECT LOWER(email) FROM usuarios WHERE email IS NOT NULL AND email != '')
+      AND cc.status = 'enviado'
+    `);
+    return rows[0]?.total || 0;
+  });
 }
 
 async function estaAtiva() {

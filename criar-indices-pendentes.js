@@ -20,6 +20,13 @@ const INDICES = [
   { nome: 'idx_imoveis_usuario_id', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_imoveis_usuario_id ON imoveis(usuario_id)' },
   { nome: 'idx_imoveis_codigo_usuario', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_imoveis_codigo_usuario ON imoveis(codigo_usuario)' },
   { nome: 'idx_imoveis_corretor_id', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_imoveis_corretor_id ON imoveis(corretor_id)' },
+  // Suporte às consultas de /admin/campanha (status, validação de email e
+  // cruzamento com usuarios já cadastrados) — sem índice, cada abertura da
+  // tela varria a tabela inteira (~118 mil contatos).
+  { nome: 'idx_campanha_contatos_status', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_campanha_contatos_status ON campanha_contatos(status)' },
+  { nome: 'idx_campanha_contatos_email_valido', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_campanha_contatos_email_valido ON campanha_contatos(email_valido)' },
+  { nome: 'idx_campanha_contatos_email_lower', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_campanha_contatos_email_lower ON campanha_contatos(LOWER(email))' },
+  { nome: 'idx_usuarios_email_lower', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_usuarios_email_lower ON usuarios(LOWER(email))' },
 ];
 
 async function run() {

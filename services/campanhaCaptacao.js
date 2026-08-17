@@ -166,11 +166,13 @@ async function estaAtiva() {
 async function iniciarCampanha() {
   await _garantirTabelas();
   await query(`UPDATE captacao_campanha_config SET ativo=true, iniciado_em=COALESCE(iniciado_em, NOW()), atualizado_em=NOW() WHERE id=1`);
+  _cacheStatusEm = 0;
 }
 
 async function pausarCampanha() {
   await _garantirTabelas();
   await query(`UPDATE captacao_campanha_config SET ativo=false, atualizado_em=NOW() WHERE id=1`);
+  _cacheStatusEm = 0;
 }
 
 // Pool unificado das leads elegíveis — duas fontes:
@@ -204,7 +206,18 @@ const _POOL_CAPTACAO_CTE = `
   )
 `;
 
+// Cache curto (60s) — _POOL_CAPTACAO_CTE junta leads (a tabela mais pesada
+// do banco) com interessados_portal via NOT EXISTS correlacionado (compara
+// email e telefone linha a linha, com regex de limpeza), a consulta mais
+// cara do sistema. Rodava do zero toda vez que a tela /admin/captacao-
+// campanha era aberta, e de novo a cada poll automático — consumindo o
+// servidor à toa. Ago/2026. Invalidado na hora em iniciar/pausarCampanha
+// pra não mostrar status desatualizado logo depois de clicar no botão.
+let _cacheStatus = null;
+let _cacheStatusEm = 0;
+const _CACHE_STATUS_TTL_MS = 60000;
 async function contarStatus() {
+  if (_cacheStatus && (Date.now() - _cacheStatusEm) < _CACHE_STATUS_TTL_MS) return _cacheStatus;
   await _garantirTabelas();
   const { rows: [ativo] } = await query('SELECT ativo, iniciado_em FROM captacao_campanha_config WHERE id=1');
   const { rows: [elegRow] } = await query(`
@@ -226,7 +239,7 @@ async function contarStatus() {
   const clicados = envRow.clicados || 0;
   const iniciaram = envRow.iniciaram || 0;
   const pendentes = Math.max(0, elegiveis - enviados);
-  return {
+  _cacheStatus = {
     ativo: !!(ativo && ativo.ativo),
     iniciadoEm: ativo && ativo.iniciado_em,
     elegiveis, enviados, pendentes, abertos, clicados, iniciaram,
@@ -237,6 +250,8 @@ async function contarStatus() {
     // _agendarProximoEnvioCampanha em server.js.
     minutosRestantes: pendentes * 2,
   };
+  _cacheStatusEm = Date.now();
+  return _cacheStatus;
 }
 
 // ── Follow-ups automáticos ──────────────────────────────────────────────

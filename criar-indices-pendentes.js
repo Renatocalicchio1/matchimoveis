@@ -27,6 +27,20 @@ const INDICES = [
   { nome: 'idx_campanha_contatos_email_valido', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_campanha_contatos_email_valido ON campanha_contatos(email_valido)' },
   { nome: 'idx_campanha_contatos_email_lower', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_campanha_contatos_email_lower ON campanha_contatos(LOWER(email))' },
   { nome: 'idx_usuarios_email_lower', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_usuarios_email_lower ON usuarios(LOWER(email))' },
+  // Causa raiz encontrada (ago/2026) do servidor caindo o dia todo, não só de
+  // madrugada: os caches incrementais de leads/imoveis/usuarios/visitas rodam
+  // pra sempre em loop (a cada 15-30s) fazendo `WHERE atualizado_em > $1` — sem
+  // índice nessa coluna isso é um Seq Scan na tabela inteira a cada disparo,
+  // pra sempre, ficando mais pesado conforme a base cresce (uma conta sozinha
+  // já passa de 8.000 imóveis). Com várias dessas rodando em paralelo, cada
+  // uma segurando conexão do pool por mais tempo pra terminar o scan, o pool
+  // esgota e todo o resto (sessão, jobs, health check) fica sem conexão —
+  // bate "timeout exceeded when trying to connect" em cascata e o Render
+  // reinicia (SIGTERM) achando o processo travado.
+  { nome: 'idx_leads_atualizado_em', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_leads_atualizado_em ON leads(atualizado_em)' },
+  { nome: 'idx_imoveis_atualizado_em', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_imoveis_atualizado_em ON imoveis(atualizado_em)' },
+  { nome: 'idx_usuarios_atualizado_em', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_usuarios_atualizado_em ON usuarios(atualizado_em)' },
+  { nome: 'idx_visitas_atualizado_em', sql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_visitas_atualizado_em ON visitas(atualizado_em)' },
 ];
 
 async function run() {

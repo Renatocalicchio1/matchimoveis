@@ -601,6 +601,41 @@ async function buscarEnvioParaPreview(envioId) {
   return { ...envio, html };
 }
 
+// Round-robin de quem chega direto no link fixo /captar/REN-G9K6 (sem passar
+// pela campanha de e-mail em massa) — schema diferente de
+// distribuirAtendimentosAbertos: não usa campanha_captacao_envios (exige
+// e-mail único, e essa captação normalmente nem coleta e-mail), vive direto
+// na lead (leads.dados->>'atendidoPorAdminCaptacao'). NOT EXISTS exclui quem
+// já foi tratado pela distribuição da campanha de e-mail (mesmo imóvel com
+// imovel_captado_id numa linha de campanha_captacao_envios), pra não
+// distribuir 2x a mesma captação em mecanismos diferentes. Serve também de
+// catch-up de quem entrou antes desse mecanismo existir (ago/2026) — pedido
+// do Renato.
+async function distribuirCaptacaoDireta(contasAtivas) {
+  if (!contasAtivas || !contasAtivas.length) return { distribuidos: 0 };
+  const { rows } = await query(`
+    SELECT l.id FROM leads l
+    WHERE l.user_id='REN-G9K6' AND l.origem='captacao_link'
+      AND (l.dados->>'atendidoPorAdminCaptacao' IS NULL OR l.dados->>'atendidoPorAdminCaptacao' = '')
+      AND NOT EXISTS (
+        SELECT 1 FROM imoveis im
+        JOIN campanha_captacao_envios e ON e.imovel_captado_id = im.id
+        WHERE im.dados->>'leadOrigemId' = l.id
+      )
+    ORDER BY l.criado_em ASC
+  `);
+  let distribuidos = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const conta = contasAtivas[i % contasAtivas.length];
+    await query(
+      `UPDATE leads SET dados = dados || $1::jsonb WHERE id=$2`,
+      [JSON.stringify({ atendidoPorAdminCaptacao: conta.usuario, atendidoPorAdminCaptacaoNome: conta.nome || conta.usuario, atendidoPorAdminCaptacaoCor: conta.cor }), rows[i].id]
+    );
+    distribuidos++;
+  }
+  return { distribuidos };
+}
+
 module.exports = {
   LINK_CAMPANHA,
   iniciarCampanha, pausarCampanha, estaAtiva,
@@ -609,5 +644,6 @@ module.exports = {
   listarEnvios, buscarEnvioParaPreview,
   marcarAtendido, excluirTelefoneContato,
   distribuirAtendimentosAbertos, vincularImovelCaptado,
-  buscarEnvioParaBonus, marcarBonusCaptacaoPago
+  buscarEnvioParaBonus, marcarBonusCaptacaoPago,
+  distribuirCaptacaoDireta
 };

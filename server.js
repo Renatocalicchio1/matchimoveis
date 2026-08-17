@@ -9323,10 +9323,16 @@ async function _rodarDistribuicaoSubAdmin() {
     if (_liberadosEmailAuto > 0) console.log('[JOB DISTRIBUICAO] campanha e-mail: liberados de conta sem permissão ->', _liberadosEmailAuto);
 
     let _resultCaptAuto = { distribuidos: 0 };
+    let _resultCaptDiretaAuto = { distribuidos: 0 };
     if (_contasCaptAuto.length) {
-      const { distribuirAtendimentosAbertos: _distribuirCaptAuto } = require('./services/campanhaCaptacao');
+      const { distribuirAtendimentosAbertos: _distribuirCaptAuto, distribuirCaptacaoDireta: _distribuirCaptDiretaAuto } = require('./services/campanhaCaptacao');
       _resultCaptAuto = await _distribuirCaptAuto(_contasCaptAuto);
       if (_resultCaptAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] captação: distribuídos automaticamente ->', _resultCaptAuto.distribuidos);
+      // Captações do link fixo /captar/REN-G9K6 sem passar pela campanha de
+      // e-mail (ver nota em distribuirCaptacaoDireta) — mesma permissão
+      // 'captacao-campanha', job/cadência compartilhados.
+      _resultCaptDiretaAuto = await _distribuirCaptDiretaAuto(_contasCaptAuto);
+      if (_resultCaptDiretaAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] captação direta: distribuídos automaticamente ->', _resultCaptDiretaAuto.distribuidos);
     }
 
     let _resultEmailAuto = { distribuidos: 0 };
@@ -9336,7 +9342,7 @@ async function _rodarDistribuicaoSubAdmin() {
       if (_resultEmailAuto.distribuidos > 0) console.log('[JOB DISTRIBUICAO] campanha e-mail: distribuídos automaticamente ->', _resultEmailAuto.distribuidos);
     }
 
-    await _registrarStatusJobDistribuicao(`rodou com ${_todasContasAtivas.length} sub-admin(s) ativo(s) (${_contasCaptAuto.length} c/ permissão captação, ${_contasEmailAuto.length} c/ permissão e-mail) — liberados sem permissão: captação ${_liberadosCaptAuto}, e-mail ${_liberadosEmailAuto} — distribuídos: captação +${_resultCaptAuto.distribuidos}, e-mail +${_resultEmailAuto.distribuidos}`);
+    await _registrarStatusJobDistribuicao(`rodou com ${_todasContasAtivas.length} sub-admin(s) ativo(s) (${_contasCaptAuto.length} c/ permissão captação, ${_contasEmailAuto.length} c/ permissão e-mail) — liberados sem permissão: captação ${_liberadosCaptAuto}, e-mail ${_liberadosEmailAuto} — distribuídos: captação +${_resultCaptAuto.distribuidos}, captação direta +${_resultCaptDiretaAuto.distribuidos}, e-mail +${_resultEmailAuto.distribuidos}`);
   } catch(e) {
     console.error('[JOB DISTRIBUICAO] erro:', e.message);
     await _registrarStatusJobDistribuicao('ERRO: ' + e.message);
@@ -20575,6 +20581,28 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
       } catch (eImCap) { console.error('[minhas-comissoes] erro ao buscar imóveis captados:', eImCap.message); }
     }
 
+    // Captações do link fixo /captar/REN-G9K6 quando a pessoa chega direto
+    // (sem passar pela campanha de e-mail em massa, sem campanhaEnvioId) —
+    // fonte diferente de "minhasCaptacoes" acima: aqui é direto na tabela
+    // leads (não campanha_captacao_envios, que exige e-mail único e esse
+    // fluxo normalmente nem coleta e-mail). Distribuição round-robin feita
+    // na hora em /captar/iniciar/:userId (dados->>'atendidoPorAdminCaptacao').
+    let minhasCaptacoesDiretas = [];
+    if (_temPermCaptacao) try {
+      const { query: _qCapDireta } = require('./services/db');
+      const { calcularPercentualPerfil: _cppCapDireta } = require('./services/salvarImovel');
+      const { rows: _rowsCapDireta } = await _qCapDireta(`
+        SELECT l.id, l.nome, l.telefone, l.whatsapp, l.criado_em,
+          im.id AS imovel_id, im.id_interno, im.titulo, im.tipo, im.bairro, im.cidade, im.valor_imovel, im.fotos, im.proprietario
+        FROM leads l
+        LEFT JOIN imoveis im ON im.dados->>'leadOrigemId' = l.id
+          AND (im.user_id='REN-G9K6' OR im.usuario_id='REN-G9K6' OR im.codigo_usuario='REN-G9K6' OR im.corretor_id='REN-G9K6')
+        WHERE l.user_id='REN-G9K6' AND l.origem='captacao_link' AND l.dados->>'atendidoPorAdminCaptacao' = $1
+        ORDER BY l.criado_em DESC LIMIT 100
+      `, [usuarioAdmin]);
+      minhasCaptacoesDiretas = _rowsCapDireta.map(r => ({ ...r, percentual: r.imovel_id ? _cppCapDireta(r) : 0 }));
+    } catch (eCapDireta) { console.error('[minhas-comissoes] erro ao buscar captações diretas:', eCapDireta.message); }
+
     // Mensagem padrão de abertura em todo link de WhatsApp desta tela — se
     // identifica como o sub-admin responsável (evita a pessoa do outro lado
     // não saber quem está chamando, já que o número não é da conta dela).
@@ -20634,6 +20662,42 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         <td style="padding:8px;font-size:12px;vertical-align:top">${c.telefone ? `<a href="https://wa.me/${_escC(c.telefone)}?text=${_msgSupervisorWA}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone)}</a>` : '<span style="color:#9ca3af">—</span>'}</td>
         <td style="padding:8px;font-size:12px;vertical-align:top">${_statusCaptacao(c)}${_imovelCapHtml(c)}</td>
       </tr>`).join('');
+
+    // Linhas de "Captações diretas" (link fixo /captar/REN-G9K6 sem campanha)
+    // — mesmo layout de card de imóvel do bloco acima, adaptado porque aqui
+    // não vem de campanha_captacao_envios (sem clicado_em/aberto_em/bônus).
+    const captacoesDiretasHtml = minhasCaptacoesDiretas.map(c => {
+      const temImovel = !!c.imovel_id;
+      const semFoto = temImovel && (!c.fotos || !c.fotos.length);
+      const tel = (c.telefone || c.whatsapp || '').replace(/\D/g, '').replace(/^55/, '');
+      const nomePrimeiro = (c.nome || '').trim().split(' ')[0] || '';
+      const statusHtml = !temImovel
+        ? '<span style="color:#9ca3af">✍️ Iniciou cadastro</span>'
+        : semFoto
+          ? '<span style="color:#2563eb;font-weight:700">📝 Cadastrando imóvel</span>'
+          : '<span style="color:#16a34a;font-weight:700">✅ Imóvel com fotos — combine a publicação</span>';
+      let imovelHtml = '';
+      if (temImovel) {
+        const link = 'https://matchimoveis.ia.br/imovel/' + (c.id_interno || c.imovel_id);
+        const linkFotos = `https://matchimoveis.ia.br/captar/REN-G9K6?imovelId=${c.imovel_id}&fotos=1`;
+        const msgLink = encodeURIComponent(`Olá ${nomePrimeiro}! Seu imóvel foi cadastrado. Acesse: ${link}`);
+        const msgFoto = encodeURIComponent(`Oi ${nomePrimeiro}! Pra terminar o anúncio do seu imóvel, falta só a foto — os outros dados já estão preenchidos. Pode enviar direto por aqui: ${linkFotos} 📸`);
+        imovelHtml = `<div style="margin-top:6px;padding:8px 10px;background:#f9fafb;border-radius:8px;font-size:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="flex:1;min-width:160px">🏠 ${_escC(c.titulo || c.tipo || '')} · ${_escC(c.bairro || '')} · R$ ${c.valor_imovel ? Number(c.valor_imovel).toLocaleString('pt-BR') : '—'}</span>
+          ${semFoto ? '<span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;white-space:nowrap">⚠️ Sem foto</span>' : ''}
+          <span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;${_pctClasseCap(c.percentual)}">${c.percentual}%</span>
+          ${(semFoto && tel) ? `<a href="https://wa.me/55${tel}?text=${msgFoto}" target="_blank" style="background:#f59e0b;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📸 Solicitar fotos</a>` : ''}
+          ${tel ? `<a href="https://wa.me/55${tel}?text=${msgLink}" target="_blank" style="background:#25D366;color:#fff;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">📲 Enviar link</a>` : ''}
+          <a href="${link}" target="_blank" style="color:#16a34a;font-size:11px;font-weight:600;white-space:nowrap">🔗 Link público</a>
+        </div>`;
+      }
+      return `<tr style="border-bottom:1px solid #f3f4f6">
+        <td style="padding:8px;font-size:12px;vertical-align:top">${new Date(c.criado_em).toLocaleDateString('pt-BR')}</td>
+        <td style="padding:8px;font-size:12px;font-weight:600;vertical-align:top">${_escC(c.nome || '(sem nome)')}</td>
+        <td style="padding:8px;font-size:12px;vertical-align:top">${tel ? `<a href="https://wa.me/55${tel}?text=${_msgSupervisorWA}" target="_blank" style="color:#00A699;text-decoration:none">${_escC(c.telefone || c.whatsapp)}</a>` : '<span style="color:#9ca3af">—</span>'}</td>
+        <td style="padding:8px;font-size:12px;vertical-align:top">${statusHtml}${imovelHtml}</td>
+      </tr>`;
+    }).join('');
 
     const linhasDisponivel = historico.filter(h => h.status === 'disponivel');
     const linhasHtml = historico.map(h => `
@@ -20719,6 +20783,15 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           <table style="width:100%">
             <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Data</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">WhatsApp</th><th style="padding:8px;font-size:11px;color:#9ca3af">Status</th></tr></thead>
             <tbody>${captacoesHtml || '<tr><td colspan="4" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma captação atribuída a você ainda</td></tr>'}</tbody>
+          </table>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
+          <h3 style="margin:0 0 6px;font-size:14px">🔗 Captações do link direto (${minhasCaptacoesDiretas.length})</h3>
+          <p style="margin:0 0 10px;font-size:12px;color:#6b7280">Proprietários que chegaram direto pelo link <strong>matchimoveis.ia.br/captar/REN-G9K6</strong> (fora da campanha de e-mail) e já começaram o cadastro do imóvel — distribuídos pra você e os outros sub-admins no rodízio. Chame no WhatsApp e ajude a completar.</p>
+          <table style="width:100%">
+            <thead><tr style="text-align:left"><th style="padding:8px;font-size:11px;color:#9ca3af">Data</th><th style="padding:8px;font-size:11px;color:#9ca3af">Nome</th><th style="padding:8px;font-size:11px;color:#9ca3af">WhatsApp</th><th style="padding:8px;font-size:11px;color:#9ca3af">Status</th></tr></thead>
+            <tbody>${captacoesDiretasHtml || '<tr><td colspan="4" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma captação direta atribuída a você ainda</td></tr>'}</tbody>
           </table>
         </div>
         `}
@@ -21542,6 +21615,12 @@ app.post('/captar/iniciar/:userId', express.json(), async (req, res) => {
     // (salvarLead() aninha o objeto "dados" passado dentro da própria coluna dados)
     const _dadosIniciar = JSON.stringify({ temImovelParaCaptar: true, transacaoCaptar: transacao, iniciadoEm: new Date().toISOString() });
     await _qCI(`UPDATE leads SET dados = dados || $1::jsonb WHERE id=$2`, [_dadosIniciar, leadId]);
+    // Distribuição pros sub-admins (quando não veio da campanha de e-mail,
+    // sem campanhaEnvioId) não acontece aqui na hora — fica por conta do job
+    // _rodarDistribuicaoSubAdmin (a cada 5min, mesmo já usado pra campanha
+    // de captação/e-mail), que também pega o backlog de quem entrou antes
+    // desse mecanismo existir. Ver distribuirCaptacaoDireta em
+    // services/campanhaCaptacao.js.
 
     // Já cadastra o imóvel automaticamente — mesmo registro que o corretor criaria manualmente
     // em /app/cadastro, só que preenchido aos poucos pelo próprio proprietário aqui na captação.

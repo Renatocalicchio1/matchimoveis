@@ -573,7 +573,7 @@ async function _selecionarCidade(){
     if(!d.bairros || !d.bairros.length){ lista.innerHTML = '<span style="color:#9ca3af;font-size:12px">Nenhum bairro encontrado pra essa cidade.</span>'; return; }
     lista.innerHTML = d.bairros.map(b => {
       const id = 'bairro-'+b.replace(/[^a-zA-Z0-9]/g,'');
-      return '<label style="display:block;margin-bottom:4px;cursor:pointer"><input type="checkbox" value="'+b.replace(/"/g,'')+'" onchange="_toggleBairro(this)"> '+b+'</label>';
+      return '<label style="display:flex;align-items:center;gap:6px;margin-bottom:4px;cursor:pointer"><input type="checkbox" value="'+b.replace(/"/g,'')+'" onchange="_toggleBairro(this)"> '+b+'</label>';
     }).join('');
   } catch(e){ lista.innerHTML = '<span style="color:#dc2626;font-size:12px">Erro ao buscar bairros.</span>'; }
 }

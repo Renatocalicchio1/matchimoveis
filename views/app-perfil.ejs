@@ -272,7 +272,7 @@
       if(!d.bairros || !d.bairros.length){ pfListaBairros.innerHTML = '<span style="color:#9ca3af;font-size:12px">Nenhum bairro encontrado pra essa cidade.</span>'; return; }
       pfListaBairros.innerHTML = d.bairros.map(b => {
         const marcado = _pfBairros.includes(b) ? ' checked' : '';
-        return '<label style="display:block;margin-bottom:4px;cursor:pointer"><input type="checkbox" value="'+b.replace(/"/g,'')+'"'+marcado+' onchange="_pfToggleBairro(this)"> '+b+'</label>';
+        return '<label style="display:flex;align-items:center;gap:6px;margin-bottom:4px;cursor:pointer"><input type="checkbox" value="'+b.replace(/"/g,'')+'"'+marcado+' onchange="_pfToggleBairro(this)"> '+b+'</label>';
       }).join('');
     } catch(e){ pfListaBairros.innerHTML = '<span style="color:#dc2626;font-size:12px">Erro ao buscar bairros.</span>'; }
   }

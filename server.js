@@ -9964,8 +9964,13 @@ app.get('/api/localidades/cidades', async (req, res) => {
     const q = String(req.query.q || '').trim();
     const params = [];
     let sql = "SELECT DISTINCT cidade FROM localidades WHERE cidade IS NOT NULL AND cidade != ''";
-    if (estado) { params.push(estado); sql += ` AND estado ILIKE $${params.length}`; }
-    if (q) { params.push('%' + q + '%'); sql += ` AND cidade ILIKE $${params.length}`; }
+    // unaccent+lower dos dois lados — a tabela localidades foi montada
+    // cruzando IBGE + Overpass/OSM, que podem gravar acento com normalização
+    // Unicode diferente (NFC/NFD); visualmente igual, mas ILIKE puro não bate
+    // (busca de cidade/bairro no cadastro voltava vazia mesmo digitando o
+    // nome certo — ago/2026).
+    if (estado) { params.push(estado); sql += ` AND unaccent(lower(estado)) = unaccent(lower($${params.length}))`; }
+    if (q) { params.push('%' + q + '%'); sql += ` AND unaccent(lower(cidade)) LIKE unaccent(lower($${params.length}))`; }
     sql += ' ORDER BY cidade LIMIT 30';
     const { rows } = await _qLocC(sql, params);
     res.json({ ok: true, cidades: rows.map(r => r.cidade) });
@@ -9978,8 +9983,8 @@ app.get('/api/localidades/bairros', async (req, res) => {
     const { query: _qLocB } = require('./services/db');
     const estado = String(req.query.estado || '').trim();
     const params = [cidade];
-    let sql = "SELECT DISTINCT bairro FROM localidades WHERE bairro IS NOT NULL AND bairro != '' AND cidade ILIKE $1";
-    if (estado) { params.push(estado); sql += ` AND estado ILIKE $${params.length}`; }
+    let sql = "SELECT DISTINCT bairro FROM localidades WHERE bairro IS NOT NULL AND bairro != '' AND unaccent(lower(cidade)) = unaccent(lower($1))";
+    if (estado) { params.push(estado); sql += ` AND unaccent(lower(estado)) = unaccent(lower($${params.length}))`; }
     sql += ' ORDER BY bairro LIMIT 300';
     const { rows } = await _qLocB(sql, params);
     res.json({ ok: true, bairros: rows.map(r => r.bairro) });

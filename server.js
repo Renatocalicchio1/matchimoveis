@@ -19272,6 +19272,13 @@ app.get('/admin/campanha', authAdmin, async (req, res) => {
   // nota em _ADMIN_ROTAS_SUPERADMIN_ONLY sobre por que disparar/importar/
   // testar ficam restritos ao superadmin.
   const isSuper = req.session.adminSuper !== false;
+  // Link mandado pelo sub-admin no WhatsApp manual (_LINK_POR_MODELO abaixo)
+  // tem que ser o link de indicação dele (?ref=<usuario>), não o link seco —
+  // senão o corretor que se cadastra a partir dessa mensagem não gera
+  // comissão de indicação pra quem mandou (pedido do Renato, ago/2026).
+  // Superadmin não tem código de indicação próprio (não é linha em
+  // admin_contas), então manda sem ref mesmo.
+  const _refCodeCampanha = (!isSuper && req.session.adminUsuario) ? String(req.session.adminUsuario) : '';
   res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Campanha Email</title>
   <style>body{font-family:Arial,sans-serif;margin:0;padding:0}
   ${_adminShellCss()}
@@ -19479,7 +19486,10 @@ https://www.matchimoveis.ia.br
   // verdade é a pessoa clicando "Enviar" no WhatsApp dela. O texto muda
   // sozinho conforme o estágio real do contato no funil desse e-mail
   // (abriu/clicou/cadastrou/comprou, tudo já vem em cada linha de /admin/campanha/contatos).
-  const _LINK_POR_MODELO = { demanda: 'https://www.matchimoveis.ia.br/demanda', pagina: 'https://www.matchimoveis.ia.br' };
+  const _LINK_POR_MODELO = ${JSON.stringify({
+    demanda: 'https://www.matchimoveis.ia.br/demanda' + (_refCodeCampanha ? '?ref=' + encodeURIComponent(_refCodeCampanha) : ''),
+    pagina: 'https://www.matchimoveis.ia.br' + (_refCodeCampanha ? '?ref=' + encodeURIComponent(_refCodeCampanha) : '')
+  })};
   function _whatsappEstagio(c){
     if(!c.celular) return null;
     if(c.comprou) return null; // já converteu, nada a empurrar

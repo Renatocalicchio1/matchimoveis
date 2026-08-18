@@ -764,6 +764,12 @@ async function _garantirColunas() {
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS atendido_por_nome TEXT`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS atendido_por_cor TEXT`);
   await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS atendido_em TIMESTAMP`);
+  // Diferente de atendido_por (que é "quem ficou responsável por esse
+  // contato", setado 1x no primeiro clique) — isso aqui marca toda vez que
+  // o botão de WhatsApp manual foi clicado de fato (mensagem aberta pra
+  // envio), pra distinguir na tela quem já foi contactado de quem ainda não
+  // foi, mesmo que os dois já estejam atribuídos ao mesmo sub-admin.
+  await query(`ALTER TABLE campanha_contatos ADD COLUMN IF NOT EXISTS wa_manual_enviado_em TIMESTAMP`);
   await query(`CREATE TABLE IF NOT EXISTS campanha_config (
     id INT PRIMARY KEY DEFAULT 1,
     ativo BOOLEAN DEFAULT false,
@@ -1078,6 +1084,15 @@ async function marcarAtendido(id, { por, nome, cor }) {
   return { ok: true, nome, cor };
 }
 
+// Marca que o botão de WhatsApp manual foi clicado de fato (mensagem aberta
+// pra envio) — separado de atendido_por, que só marca "de quem é esse
+// contato" 1x. Chamado a cada clique, então pode sobrescrever (reenviar
+// atualiza a data pro envio mais recente).
+async function marcarWhatsappManualEnviado(id) {
+  await _garantirColunas();
+  await query(`UPDATE campanha_contatos SET wa_manual_enviado_em=NOW() WHERE id=$1`, [id]);
+}
+
 // Contatos que interagiram (clicou ou pelo menos abriu o e-mail) e ninguém
 // pegou pra atender ainda ficavam soltos — agora divide em round-robin entre
 // os sub-admins ativos, do mesmo jeito que o disparo de WhatsApp já faz.
@@ -1215,5 +1230,6 @@ module.exports = {
   importarContatos, statsBase, statsTracking, statsCadastrados, statsValidacao,
   proximoLote, enviarTeste, enviarProximo, marcarAtendido, excluirCelularContato,
   iniciarCampanha, pausarCampanha, estaAtiva, buscarEnvioParaPreview,
-  validarProximoLote, listarEnvios, distribuirAtendimentosAbertos
+  validarProximoLote, listarEnvios, distribuirAtendimentosAbertos,
+  marcarWhatsappManualEnviado
 };

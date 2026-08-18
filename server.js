@@ -19710,7 +19710,15 @@ https://www.matchimoveis.ia.br
     const estagio = _whatsappEstagio(c);
     if(estagio && _celularWA(c.celular)){
       const rotulos = { abriu_sem_clicar: '📲 Reenviar link', clicou_sem_cadastrar: '📲 Lembrar cadastro', cadastrou_sem_comprar: '📲 Oferecer combo' };
-      html += '<button type="button" class="btn-atender-wa" data-id="'+c.id+'" style="margin-top:4px;background:#25D366;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotulos[estagio]+'</button>';
+      // Já enviado antes (wa_manual_enviado_em) — botão muda de cor/texto pra
+      // "Enviado" e diferenciar de quem ainda não recebeu mensagem nenhuma;
+      // continua clicável (reenviar é uma ação válida, ex: passou muito tempo).
+      const jaEnviou = !!c.wa_manual_enviado_em;
+      const corBtn = jaEnviou ? '#e5e7eb' : '#25D366';
+      const corTexto = jaEnviou ? '#374151' : '#fff';
+      const rotuloBtn = jaEnviou ? '✅ Enviado' : rotulos[estagio];
+      const tituloBtn = jaEnviou ? ' title="Enviado em '+escHtml(new Date(c.wa_manual_enviado_em).toLocaleString('pt-BR'))+' — clique pra reenviar"' : '';
+      html += '<button type="button" class="btn-atender-wa" data-id="'+c.id+'"'+tituloBtn+' style="margin-top:4px;background:'+corBtn+';color:'+corTexto+';border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotuloBtn+'</button>';
     }
     return html;
   }
@@ -19735,6 +19743,9 @@ https://www.matchimoveis.ia.br
       } catch(e){}
     }
     window.open(link, '_blank');
+    // Marca "Enviado" (separado de /atender) — é o que diferencia na tela
+    // quem já recebeu mensagem de quem ainda não recebeu.
+    try { await fetch('/admin/campanha/contatos/'+c.id+'/wa-enviado', { method:'POST' }); } catch(e){}
     buscar(_pagina);
   }
   let _ultimosContatos = [];
@@ -19937,7 +19948,7 @@ app.get('/admin/campanha/contatos', authAdmin, async (req, res) => {
     // certo. Sem conta cadastrada com celular preenchido, mantém o da planilha.
     const { rows } = await require('./services/db').query(`SELECT id,nome,email,status,modelo_usado,aberto_em,clicado_em,enviado_em,erro,
       followup1_enviado_em,followup2_enviado_em,followup3_enviado_em,
-      atendido_por,atendido_por_nome,atendido_por_cor,atendido_em,
+      atendido_por,atendido_por_nome,atendido_por_cor,atendido_em,wa_manual_enviado_em,
       COALESCE(
         (SELECT celular FROM usuarios WHERE LOWER(email)=LOWER(campanha_contatos.email) AND celular IS NOT NULL AND celular != '' LIMIT 1),
         campanha_contatos.celular
@@ -19985,6 +19996,18 @@ app.post('/admin/campanha/contatos/:id/atender', authAdmin, async (req, res) => 
       cor: req.session.adminCor || '#6b7280'
     });
     res.json(resultado);
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
+
+// Marca que o botão de WhatsApp manual foi clicado de fato (mensagem aberta
+// pra envio) — separado de /atender (que só marca "de quem é esse contato").
+// Chamado a cada clique no botão, pra distinguir na tela quem já foi
+// contactado de quem ainda não foi (pedido do Renato, ago/2026).
+app.post('/admin/campanha/contatos/:id/wa-enviado', authAdmin, async (req, res) => {
+  try {
+    const { marcarWhatsappManualEnviado } = require('./services/campanha');
+    await marcarWhatsappManualEnviado(req.params.id);
+    res.json({ ok: true });
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
 

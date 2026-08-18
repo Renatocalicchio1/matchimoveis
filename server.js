@@ -18121,6 +18121,15 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
           <input type="email" id="suEmail" placeholder="voce@email.com">
           <label>Celular (WhatsApp)</label>
           <input type="text" id="suCelular" placeholder="47999999999">
+          <label>Estado de atuação</label>
+          <select id="suAreaEstadoInput"><option value="">Selecione...</option></select>
+          <label>Cidade de atuação</label>
+          <input type="text" id="suAreaCidadeInput" list="suAreaCidadeLista" placeholder="Digite pra buscar a cidade" autocomplete="off" disabled>
+          <datalist id="suAreaCidadeLista"></datalist>
+          <div id="suAreaBairrosWrap" style="display:none">
+            <label>Bairros onde atua</label>
+            <div id="suAreaBairrosLista" style="max-height:160px;overflow-y:auto;border:1px solid #d1d5db;border-radius:6px;padding:8px;font-size:13px"></div>
+          </div>
           <label>Senha</label>
           <input type="password" id="suSenha" placeholder="Crie uma senha">
         </div>
@@ -18161,6 +18170,83 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
   // "São Paulo" e vice-versa, já que os dados vêm de fontes diferentes
   // (umas com acento, outras sem).
   function _normTexto(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+
+  // Área de atuação no cadastro (mesmo mecanismo de views/landing.ejs) —
+  // estado -> cidade (autocomplete) -> bairros (checkbox), salvo estruturado
+  // em areaAtuacaoEstado/Cidade/Bairros no perfil (não confundir com o
+  // estado/cidade/bairro logo acima, que é o filtro da BUSCA de demanda).
+  const SU_UFS_BR = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+  (function(){
+    const sel = document.getElementById('suAreaEstadoInput');
+    if(!sel) return;
+    SU_UFS_BR.forEach(function(uf){ const o = document.createElement('option'); o.value = uf; o.textContent = uf; sel.appendChild(o); });
+  })();
+  let _suBairrosEscolhidos = [];
+  let _suDebounceCidade;
+  async function _suBuscarCidades(){
+    const estado = document.getElementById('suAreaEstadoInput').value;
+    const q = document.getElementById('suAreaCidadeInput').value.trim();
+    if(!estado || q.length < 2) return;
+    try {
+      const r = await fetch('/api/localidades/cidades?estado='+encodeURIComponent(estado)+'&q='+encodeURIComponent(q));
+      const d = await r.json();
+      document.getElementById('suAreaCidadeLista').innerHTML = (d.cidades||[]).map(function(c){ return '<option value="'+c.replace(/"/g,'')+'">'; }).join('');
+    } catch(e){}
+  }
+  async function _suSelecionarCidade(){
+    const estado = document.getElementById('suAreaEstadoInput').value;
+    const cidade = document.getElementById('suAreaCidadeInput').value.trim();
+    _suBairrosEscolhidos = [];
+    const wrap = document.getElementById('suAreaBairrosWrap');
+    const lista = document.getElementById('suAreaBairrosLista');
+    if(!estado || !cidade){ wrap.style.display='none'; return; }
+    lista.innerHTML = '<span style="color:#9ca3af;font-size:12px">Carregando bairros...</span>';
+    wrap.style.display = 'block';
+    try {
+      const r = await fetch('/api/localidades/bairros?estado='+encodeURIComponent(estado)+'&cidade='+encodeURIComponent(cidade));
+      const d = await r.json();
+      if(!d.bairros || !d.bairros.length){ lista.innerHTML = '<span style="color:#9ca3af;font-size:12px">Nenhum bairro encontrado pra essa cidade.</span>'; return; }
+      lista.innerHTML = d.bairros.map(function(b){
+        return '<label style="display:flex;align-items:center;gap:6px;margin-bottom:4px;cursor:pointer"><input type="checkbox" value="'+b.replace(/"/g,'')+'" onchange="_suToggleBairro(this)"> '+b+'</label>';
+      }).join('');
+    } catch(e){ lista.innerHTML = '<span style="color:#dc2626;font-size:12px">Erro ao buscar bairros.</span>'; }
+  }
+  function _suToggleBairro(chk){
+    if(chk.checked){ if(_suBairrosEscolhidos.indexOf(chk.value) === -1) _suBairrosEscolhidos.push(chk.value); }
+    else { _suBairrosEscolhidos = _suBairrosEscolhidos.filter(function(b){ return b !== chk.value; }); }
+  }
+  (function(){
+    const sel = document.getElementById('suAreaEstadoInput');
+    const inputCidade = document.getElementById('suAreaCidadeInput');
+    if(!sel || !inputCidade) return;
+    sel.addEventListener('change', function(){
+      inputCidade.disabled = !sel.value;
+      inputCidade.value = '';
+      document.getElementById('suAreaBairrosWrap').style.display = 'none';
+    });
+    inputCidade.addEventListener('input', function(){ clearTimeout(_suDebounceCidade); _suDebounceCidade = setTimeout(_suBuscarCidades, 300); });
+    inputCidade.addEventListener('change', _suSelecionarCidade);
+  })();
+  // Pré-preenche com a região já buscada (1ª cidade + bairros marcados nela)
+  // — o corretor pode ajustar antes de confirmar, não escolhe do zero de novo.
+  async function _suPrepreencherArea(){
+    if(!_ultimaBusca || !_ultimaBusca.estado) return;
+    const sel = document.getElementById('suAreaEstadoInput');
+    if(!sel || sel.value) return; // já preenchido (reabriu o modal), não sobrescreve escolha do usuário
+    sel.value = _ultimaBusca.estado;
+    document.getElementById('suAreaCidadeInput').disabled = false;
+    const primeiroPar = (_ultimaBusca.pares||[])[0];
+    if(!primeiroPar) return;
+    document.getElementById('suAreaCidadeInput').value = primeiroPar.cidade;
+    await _suSelecionarCidade();
+    const bairrosDaCidade = (_ultimaBusca.pares||[]).filter(function(p){ return p.cidade === primeiroPar.cidade; }).map(function(p){ return p.bairro; }).filter(Boolean);
+    if(bairrosDaCidade.length){
+      document.querySelectorAll('#suAreaBairrosLista input[type=checkbox]').forEach(function(chk){
+        if(bairrosDaCidade.indexOf(chk.value) > -1){ chk.checked = true; _suToggleBairro(chk); }
+      });
+    }
+  }
+
   let _cidadesNomes = [];
   let _cidadesSelecionadas = [];
   let _bairrosPorCidade = {};
@@ -18704,6 +18790,17 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     document.getElementById('btnComprar').textContent = 'Criar minha conta →';
     document.getElementById('btnComprar').onclick = finalizarCadastroInicial;
     abrirModalCompra();
+    _suPrepreencherArea();
+  }
+
+  function _suLerAreaAtuacao(){
+    const selEstado = document.getElementById('suAreaEstadoInput');
+    const inputCidade = document.getElementById('suAreaCidadeInput');
+    return {
+      areaAtuacaoEstado: selEstado ? selEstado.value : '',
+      areaAtuacaoCidade: inputCidade ? inputCidade.value.trim() : '',
+      areaAtuacaoBairros: JSON.stringify(_suBairrosEscolhidos)
+    };
   }
 
   async function finalizarCadastroInicial(){
@@ -18719,7 +18816,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     try {
       const r = await fetch('/demanda/cadastrar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email, celular, senha, criterios: _ultimaBusca, ref: _refDemanda })
+        body: JSON.stringify(Object.assign({ nome, email, celular, senha, criterios: _ultimaBusca, ref: _refDemanda }, _suLerAreaAtuacao()))
       });
       const d = await r.json();
       if(!d.ok){ statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
@@ -18744,7 +18841,7 @@ async function _paginaBuscaDemanda({ apiPrefix, isAdmin, sidebarPerm }) {
     try {
       const r = await fetch('/demanda/comprar', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email, celular, cpf, senha, plano: _comboEscolhido, criterios: _ultimaBusca, ref: _refDemanda })
+        body: JSON.stringify(Object.assign({ nome, email, celular, cpf, senha, plano: _comboEscolhido, criterios: _ultimaBusca, ref: _refDemanda }, _suLerAreaAtuacao()))
       });
       const d = await r.json();
       if(!d.ok){ btn.disabled = false; statusEl.innerHTML = '<p class="red">'+escHtml(d.erro)+'</p>'; return; }
@@ -19120,7 +19217,7 @@ function _areaAtuacaoDeCriterios(criterios) {
 // pra quem pulou o cadastro antecipado e foi direto no combo). Guarda a
 // região buscada no perfil e manda o email de boas-vindas — não menciona
 // combo nenhum porque nesse ponto pode não ter sido escolhido ainda.
-async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios, ref }) {
+async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidade, areaAtuacaoBairros }) {
   const nomeVal = (nome || '').trim();
   if (!nomeVal || nomeVal.length < 3) return { ok: false, erro: 'Nome inválido. Digite seu nome completo.' };
   const telefone = String(celular || '').replace(/\D/g, '');
@@ -19161,7 +19258,17 @@ async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios,
 
   const codigoNovo = gerarCodigoUsuario(nomeVal);
   const senhaHash = await bcrypt.hash(senhaVal, 10);
-  const _areaAtDemanda = _areaAtuacaoDeCriterios(criterios);
+  // Campos explícitos escolhidos na própria tela de cadastro (estado/cidade/
+  // bairros de atuação, mesmo padrão do cadastro da landing) têm prioridade
+  // sobre o valor inferido da busca (_areaAtuacaoDeCriterios) — só cai no
+  // inferido se o visitante não preencheu nada (ago/2026).
+  let _areaBairrosDemanda = [];
+  try { _areaBairrosDemanda = JSON.parse(areaAtuacaoBairros || '[]'); } catch (e) {}
+  if (!Array.isArray(_areaBairrosDemanda)) _areaBairrosDemanda = [];
+  _areaBairrosDemanda = _areaBairrosDemanda.map(b => String(b || '').trim()).filter(Boolean).slice(0, 100);
+  const _areaAtDemanda = (areaAtuacaoEstado && String(areaAtuacaoEstado).trim())
+    ? { estado: String(areaAtuacaoEstado).trim(), cidade: String(areaAtuacaoCidade || '').trim(), bairros: _areaBairrosDemanda }
+    : _areaAtuacaoDeCriterios(criterios);
   const novo = {
     id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal, cpf: cpfVal,
     tipo: 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
@@ -19206,8 +19313,8 @@ async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios,
 // essa conta foi criada por esse fluxo específico (ver uso em /demanda/comprar).
 app.post('/demanda/cadastrar', express.json(), async (req, res) => {
   try {
-    const { nome, email, celular, cpf, senha, criterios, ref } = req.body;
-    const resultado = await _criarContaDemanda({ nome, email, celular, cpf, senha, criterios, ref });
+    const { nome, email, celular, cpf, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidade, areaAtuacaoBairros } = req.body;
+    const resultado = await _criarContaDemanda({ nome, email, celular, cpf, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidade, areaAtuacaoBairros });
     if (!resultado.ok) return res.json(resultado);
     req.session.user = resultado.user;
     req.session.contaDemandaId = resultado.user.codigoUsuario;
@@ -19257,8 +19364,8 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
         req.session.user.cpf = cpfLimpo;
       } catch (eCpfSalvar) { console.error('[demanda/comprar] erro ao salvar cpf:', eCpfSalvar.message); }
     } else {
-      const { nome, email, celular, senha, ref } = req.body;
-      const resultado = await _criarContaDemanda({ nome, email, celular, cpf: cpfLimpo, senha, criterios, ref });
+      const { nome, email, celular, senha, ref, areaAtuacaoEstado, areaAtuacaoCidade, areaAtuacaoBairros } = req.body;
+      const resultado = await _criarContaDemanda({ nome, email, celular, cpf: cpfLimpo, senha, criterios, ref, areaAtuacaoEstado, areaAtuacaoCidade, areaAtuacaoBairros });
       if (!resultado.ok) return res.json(resultado);
       req.session.user = resultado.user;
       req.session.contaDemandaId = resultado.user.codigoUsuario;

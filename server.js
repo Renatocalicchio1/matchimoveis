@@ -2357,6 +2357,7 @@ tr:hover td{background:#fafafa;}
 <div class="admin-app">
 ${_adminSidebarHtml('dashboard', _sidebarPerm(req), req)}
 <main class="admin-content">
+  ${req.query.avisoDeletar ? `<div class="card" style="margin-bottom:16px;padding:12px 16px;background:#fef2f2;color:#b91c1c;font-weight:600">⚠ ${escHtml(req.query.avisoDeletar)}</div>` : ''}
   <div class="card" style="margin-bottom:16px;">
     <table>
       <thead><tr><th>Ação</th><th>Rota</th><th>Descrição</th></tr></thead>
@@ -3570,12 +3571,21 @@ app.post('/admin/deletar/:codigo', authAdmin, async (req, res) => {
   try {
     const { query: _q } = require('./services/db');
     const cod = req.params.codigo;
-    await _q('DELETE FROM usuarios WHERE codigo_usuario=$1', [cod]);
+    // codigo_usuario OU id — em teoria são sempre iguais (migração jul/2026),
+    // mas deletar só por codigo_usuario deixava a linha órfã (sem apagar) em
+    // qualquer conta antiga onde os dois campos ainda divergissem, e o admin
+    // via "deletei mas não sumiu" sem nenhum aviso do que aconteceu de fato.
+    const _delUsu = await _q('DELETE FROM usuarios WHERE codigo_usuario=$1 OR id=$1', [cod]);
     await _q('DELETE FROM imoveis WHERE user_id=$1', [cod]);
     await _q('DELETE FROM leads WHERE user_id=$1', [cod]);
     await _q('DELETE FROM visitas WHERE user_id=$1', [cod]);
     await _q('DELETE FROM notificacoes WHERE user_id=$1', [cod]);
     await _q('UPDATE solicitacoes_exclusao_conta SET atendido=TRUE WHERE user_id=$1', [cod]).catch(()=>{});
+    // Purga imediata do cache em RAM — sem isso a conta deletada ficava até
+    // 24h presa em _cacheUsuarios e voltava pro banco na próxima rota que
+    // resalvasse o cache inteiro (ver nota em _detectarExclusoesUsuarios).
+    if (_cacheUsuarios) _cacheUsuarios = _cacheUsuarios.filter(u => String(u.id) !== String(cod) && String(u.codigoUsuario) !== String(cod));
+    if (!_delUsu.rowCount) return res.redirect('/admin?avisoDeletar=' + encodeURIComponent('Nenhum usuário encontrado com esse código — nada foi apagado.'));
     res.redirect('/admin');
   } catch(e) { res.send('Erro: ' + e.message); }
 });
@@ -4157,7 +4167,11 @@ app.post('/app/importar', auth, upload.any(), async (req, res) => {
       } catch(e) { console.error('[xml-feed-total]', e.message); }
           users[idx].xmlAtualizadoEm = new Date().toISOString();
           users[idx].xmlTotal = imoveis.length;
-          salvarTodosUsuarios(users).catch(e => console.log("Erro salvar users:", e.message));
+          // Atualiza só esse usuário (não salvarTodosUsuarios(_cacheUsuarios) —
+          // isso reinseria no banco QUALQUER usuário deletado que ainda estivesse
+          // preso no cache em RAM, "ressuscitando" conta excluída pelo admin;
+          // atualizarUsuario() confirma que a linha existe antes de gravar).
+          atualizarUsuarioService(users[idx].id, { xmlUrl: users[idx].xmlUrl, xmlAtualizadoEm: users[idx].xmlAtualizadoEm, xmlTotal: users[idx].xmlTotal }).catch(e => console.log("Erro salvar users:", e.message));
         }
       } catch(e) { console.log('Erro ao salvar xmlUrl:', e.message); }
 
@@ -4610,7 +4624,20 @@ app.post('/login', async (req,res)=>{
     };
 
     users.push(novo);
-    salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+    try {
+      await salvarTodosUsuarios(users);
+    } catch (eDupCad) {
+      // Rede de segurança contra corrida (2 cadastros quase simultâneos com o
+      // mesmo celular/email passando pela checagem no início desse handler
+      // antes de qualquer um salvar) — o índice único do banco (ver
+      // services/salvarUsuario.js) barra o 2º INSERT.
+      if (eDupCad.duplicado) {
+        const _ehEmailDup = eDupCad.constraint === 'idx_usuarios_email_unico';
+        return res.redirect(_ehEmailDup ? '/?erro=email_existente' : '/?erro=celular_existente');
+      }
+      console.error('[users]', eDupCad.message);
+      return res.render('login', { error: 'Erro ao criar conta. Tente de novo em instantes.' });
+    }
 
     // Referral de mão dupla: quem se cadastra por link de indicação (de
     // corretor ou de sub-admin) ganha um bônus extra, além dos 1.000 padrão —
@@ -5689,6 +5716,34 @@ async function _recarregarUsuariosIncremental() {
     _usuariosIncrementalEmExecucao = false;
   }
 }
+// Igual _detectarExclusoesImoveis()/_detectarExclusoesLeads() acima — o
+// incremental por atualizado_em nunca detecta DELETE (linha sumiu, não tem
+// como ter "atualizado_em > desde"), então um usuário deletado pelo admin
+// ficava preso em _cacheUsuarios até a recarga completa das 3h40 (ou o
+// próximo deploy). Enquanto isso, qualquer rota que fizesse
+// salvarTodosUsuarios(_cacheUsuarios) reinseria essa conta deletada de volta
+// no banco (ago/2026 — já corrigido os 3 pontos que faziam isso pra trocar
+// por atualizarUsuario() pontual, mas essa checagem aqui é a rede de
+// segurança: garante que o cache nunca fique com um id que já não existe
+// mais no banco, então nada que ainda leia _cacheUsuarios ressuscita a conta).
+let _exclusoesUsuariosEmExecucao = false;
+async function _detectarExclusoesUsuarios() {
+  if (_exclusoesUsuariosEmExecucao) { console.log('[cache usuarios] checagem de exclusões anterior ainda rodando, pulando esta'); return; }
+  _exclusoesUsuariosEmExecucao = true;
+  try {
+    if (!_cacheUsuarios) return;
+    const { query: _qDelUsu } = require('./services/db');
+    const res = await _qDelUsu('SELECT codigo_usuario, id FROM usuarios');
+    const idsAtuais = new Set();
+    res.rows.forEach(r => { idsAtuais.add(String(r.codigo_usuario || r.id)); idsAtuais.add(String(r.id)); });
+    const antes = _cacheUsuarios.length;
+    _cacheUsuarios = _cacheUsuarios.filter(u => idsAtuais.has(String(u.id)) || idsAtuais.has(String(u.codigoUsuario)));
+    const removidos = antes - _cacheUsuarios.length;
+    if (removidos > 0) console.log('[cache usuarios] exclusoes detectadas:', removidos);
+  } catch(e) { console.error('[cache usuarios exclusoes]', e.message); } finally {
+    _exclusoesUsuariosEmExecucao = false;
+  }
+}
 (function _agendarRecargaCompletaUsuarios() {
   const agora = new Date();
   const proxima = new Date(agora);
@@ -5705,7 +5760,10 @@ async function _recarregarUsuariosIncremental() {
 // redundante no boot, o incremental já se auto-recupera se o cache tá vazio.
 setTimeout(() => {
   _recarregarUsuariosIncremental();
-  setInterval(_recarregarUsuariosIncremental, 20000);
+  setInterval(async () => {
+    await _recarregarUsuariosIncremental();
+    await _detectarExclusoesUsuarios();
+  }, 20000);
 }, 6000);
 
 function lerLeads(user) {
@@ -13975,7 +14033,9 @@ app.post('/app/assistente/chat', auth, async (req, res) => {
       users[uIdx].historicoAssistente = users[uIdx].historicoAssistente || [];
       users[uIdx].historicoAssistente.push({pergunta:mensagem,resposta,data:new Date().toISOString()});
       if (users[uIdx].historicoAssistente.length>50) users[uIdx].historicoAssistente=users[uIdx].historicoAssistente.slice(-50);
-      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+      // Atualiza só esse usuário (ver nota em [users] no fluxo de importação de
+      // XML — salvarTodosUsuarios(_cacheUsuarios) ressuscitava conta deletada).
+      atualizarUsuarioService(users[uIdx].id, { historicoAssistente: users[uIdx].historicoAssistente }).catch(e=>console.error("[users]",e.message));
     }
   } catch(e){}
 
@@ -15530,7 +15590,9 @@ app.post('/app/whatsapp/desconectar', auth, async (req, res) => {
     if (idx >= 0) {
       users[idx].whatsappStatus = 'disconnected';
       users[idx].whatsappNumero = '';
-      salvarTodosUsuarios(users).catch(e=>console.error("[users]",e.message));
+      // Atualiza só esse usuário (ver nota em [users] no fluxo de importação de
+      // XML — salvarTodosUsuarios(_cacheUsuarios) ressuscitava conta deletada).
+      atualizarUsuarioService(users[idx].id, { whatsappStatus: 'disconnected', whatsappNumero: '' }).catch(e=>console.error("[users]",e.message));
       req.session.user = users[idx];
     }
     res.json({ ok: true });
@@ -19282,7 +19344,16 @@ async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios,
     atendidoPorAdminCor: _adminRefDemanda?.cor || ''
   };
   users.push(novo);
-  await salvarTodosUsuarios(users);
+  try {
+    await salvarTodosUsuarios(users);
+  } catch (eDup) {
+    // Rede de segurança contra corrida (2 cadastros quase simultâneos com o
+    // mesmo celular/email passando pela checagem acima antes de qualquer um
+    // salvar) — o índice único do banco (ver services/salvarUsuario.js)
+    // barra o 2º INSERT e volta aqui como erro marcado `duplicado`.
+    if (eDup.duplicado) return { ok: false, erro: 'Celular ou email já cadastrado em outra conta. Faça login em /entrar.' };
+    throw eDup;
+  }
 
   try {
     const { enviarEmail } = require('./services/email');

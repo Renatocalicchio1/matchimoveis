@@ -19,6 +19,22 @@ async function _inicializarUsuarios() {
       criado_em TIMESTAMPTZ DEFAULT NOW(), atualizado_em TIMESTAMPTZ DEFAULT NOW(),
       dados JSONB DEFAULT '{}'
     )`);
+    // Trava de verdade no banco contra celular/email duplicado (ago/2026) —
+    // a checagem em JS antes do INSERT (ver /login e _criarContaDemanda em
+    // server.js) tem uma janela de corrida: dois cadastros quase simultâneos
+    // (duplo clique, form reenviado) podem ambos passar pela checagem antes
+    // de qualquer um salvar. Índice único parcial (ignora vazio, então não
+    // barra conta sem telefone/email) fecha essa janela de vez — cada um em
+    // try/catch separado porque, se já existir duplicata na base de antes
+    // dessa trava existir, a criação do índice falha (não dá pra criar índice
+    // único sobre dado já duplicado) mas não pode derrubar o boot nem impedir
+    // que o outro índice seja criado.
+    try {
+      await _q(`CREATE UNIQUE INDEX IF NOT EXISTS idx_usuarios_telefone_unico ON usuarios (telefone) WHERE telefone IS NOT NULL AND telefone <> ''`);
+    } catch(e) { console.error('[usuarios boot] índice único de telefone não criado (provável duplicata já existente na base):', e.message); }
+    try {
+      await _q(`CREATE UNIQUE INDEX IF NOT EXISTS idx_usuarios_email_unico ON usuarios (lower(trim(email))) WHERE email IS NOT NULL AND trim(email) <> ''`);
+    } catch(e) { console.error('[usuarios boot] índice único de email não criado (provável duplicata já existente na base):', e.message); }
   } catch(e) { console.error('[usuarios boot]', e.message); }
 }
 _inicializarUsuarios();
@@ -141,6 +157,14 @@ async function salvarUsuario(user) {
           r.historico_assistente,r.dados]);
       return user;
     } catch(e) {
+      // unique_violation (celular ou email já usado por outra conta, ver
+      // índices em _inicializarUsuarios) não pode cair no fallback de JSON
+      // abaixo — em produção (dbOk()==true) esse arquivo local não é lido por
+      // ninguém, então o cadastro pareceria ter dado certo pro chamador
+      // (retorna `user` normalmente) mas a conta não existiria de fato no
+      // banco. Relança marcado como duplicado pra quem chamou (ver
+      // salvarTodosUsuarios) decidir o que fazer.
+      if (e.code === '23505') throw Object.assign(new Error('Celular ou email já cadastrado em outra conta.'), { duplicado: true, code: e.code, constraint: e.constraint });
       console.error('[salvarUsuario PG]', e.message);
     }
   }
@@ -158,6 +182,12 @@ async function salvarTodosUsuarios(users) {
       for (const u of users) await salvarUsuario(u);
       return users;
     } catch(e) {
+      // Duplicado (celular/email já usado) tem que voltar pro chamador poder
+      // avisar o usuário — cair no fallback de JSON abaixo escreveria a lista
+      // inteira (incluindo o cadastro duplicado) num arquivo que ninguém lê
+      // em produção, fazendo o cadastro parecer que deu certo sem ter sido
+      // salvo de verdade no banco.
+      if (e.duplicado) throw e;
       console.error('[salvarTodosUsuarios PG]', e.message);
     }
   }

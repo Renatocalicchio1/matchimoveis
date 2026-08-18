@@ -47,7 +47,10 @@
 @media(max-width:700px){ .pl-filtros input,.pl-filtros select{min-width:0;flex:1} }
 </style>
 
-<div class="pl-toolbar">
+<div class="pl-toolbar" style="display:none">
+  <!-- Botão de exportar Excel oculto a pedido do Renato (ago/2026) — rota
+       /app/leads/planilha/exportar-excel continua funcionando, só não
+       aparece mais na tela. -->
   <a href="/app/leads/planilha/exportar-excel<%= filtrosQS ? ('?'+filtrosQS) : '' %>" class="btn btn-outline btn-sm">⬇ Exportar Excel</a>
 </div>
 

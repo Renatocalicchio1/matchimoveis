@@ -141,6 +141,10 @@ async function _garantirTabelas() {
   await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS atendido_por_nome TEXT`);
   await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS atendido_por_cor TEXT`);
   await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS atendido_em TIMESTAMP`);
+  // Diferente de atendido_por (quem "é dono" do contato, 1x) — marca toda
+  // vez que o botão de WhatsApp manual foi clicado de fato, pra distinguir
+  // na tela quem já foi contactado de quem ainda não foi.
+  await query(`ALTER TABLE campanha_captacao_envios ADD COLUMN IF NOT EXISTS wa_manual_enviado_em TIMESTAMP`);
   // Vínculo com o imóvel de fato criado em /captar/iniciar (quando veio com
   // ?ce=) — usado pra creditar o bônus de 200 coins pro sub-admin certo
   // assim que o cadastro é finalizado (POST /captar/imovel/:id, finalizar=true)
@@ -341,6 +345,14 @@ async function marcarAtendido(id, { por, nome, cor }) {
     [por, nome, cor, id]
   );
   return { ok: true, nome, cor };
+}
+
+// Marca que o botão de WhatsApp manual foi clicado de fato (mensagem aberta
+// pra envio) — chamado a cada clique, pode sobrescrever (reenviar atualiza
+// a data pro envio mais recente).
+async function marcarWhatsappManualEnviado(id) {
+  await _garantirTabelas();
+  await query(`UPDATE campanha_captacao_envios SET wa_manual_enviado_em=NOW() WHERE id=$1`, [id]);
 }
 
 // Divide o backlog de envios sem atendente entre os sub-admins ativos —
@@ -552,7 +564,7 @@ async function listarEnvios({ limite = 50, offset = 0, q = '', filtro = '', refA
   const { rows } = await query(
     `SELECT e.id, e.nome, e.email, e.titulo_usado, e.enviado_em, e.aberto_em, e.clicado_em, e.iniciou_cadastro_em, e.erro,
        e.followup1_enviado_em, e.followup2_enviado_em, e.followup3_enviado_em,
-       e.atendido_por, e.atendido_por_nome, e.atendido_por_cor, e.atendido_em,
+       e.atendido_por, e.atendido_por_nome, e.atendido_por_cor, e.atendido_em, e.wa_manual_enviado_em,
        e.imovel_captado_id, e.bonus_captacao_pago_em,
        COALESCE(
          (SELECT l.telefone FROM leads l WHERE l.tipo_lead='cliente_vendedor' AND l.telefone IS NOT NULL AND l.telefone != ''
@@ -645,5 +657,5 @@ module.exports = {
   marcarAtendido, excluirTelefoneContato,
   distribuirAtendimentosAbertos, vincularImovelCaptado,
   buscarEnvioParaBonus, marcarBonusCaptacaoPago,
-  distribuirCaptacaoDireta
+  distribuirCaptacaoDireta, marcarWhatsappManualEnviado
 };

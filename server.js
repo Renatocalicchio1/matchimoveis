@@ -19377,6 +19377,15 @@ app.post('/admin/captacao-campanha/contatos/:id/atender', authAdmin, async (req,
     res.json(resultado);
   } catch (e) { res.json({ ok: false, erro: e.message }); }
 });
+// Marca que o botão de WhatsApp manual foi clicado de fato (mesmo padrão de
+// /admin/campanha/contatos/:id/wa-enviado) — separado de /atender.
+app.post('/admin/captacao-campanha/contatos/:id/wa-enviado', authAdmin, async (req, res) => {
+  try {
+    const { marcarWhatsappManualEnviado } = require('./services/campanhaCaptacao');
+    await marcarWhatsappManualEnviado(req.params.id);
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, erro: e.message }); }
+});
 app.post('/admin/captacao-campanha/contatos/:id/excluir-celular', authAdmin, async (req, res) => {
   try {
     const { excluirTelefoneContato } = require('./services/campanhaCaptacao');

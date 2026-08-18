@@ -279,7 +279,14 @@ function _subNome(e){
   const estagio = _whatsappEstagio(e);
   if(estagio){
     const rotulos = { nao_abriu: '📲 Falar no WhatsApp', abriu_sem_clicar: '📲 Lembrar cadastro', clicou_sem_iniciar: '📲 Ajudar a terminar' };
-    html += '<button type="button" class="btn-atender-wa" data-id="'+e.id+'" style="margin-top:4px;background:#25D366;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotulos[estagio]+'</button>';
+    // Já enviado antes — botão vira "Enviado" (cinza) pra diferenciar de
+    // quem ainda não recebeu mensagem nenhuma; continua clicável (reenviar).
+    const jaEnviou = !!e.wa_manual_enviado_em;
+    const corBtn = jaEnviou ? '#e5e7eb' : '#25D366';
+    const corTexto = jaEnviou ? '#374151' : '#fff';
+    const rotuloBtn = jaEnviou ? '✅ Enviado' : rotulos[estagio];
+    const tituloBtn = jaEnviou ? ' title="Enviado em '+escHtml(new Date(e.wa_manual_enviado_em).toLocaleString('pt-BR'))+' — clique pra reenviar"' : '';
+    html += '<button type="button" class="btn-atender-wa" data-id="'+e.id+'"'+tituloBtn+' style="margin-top:4px;background:'+corBtn+';color:'+corTexto+';border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">'+rotuloBtn+'</button>';
   }
   return html;
 }
@@ -305,6 +312,8 @@ async function _clicarWhatsapp(e){
     } catch(err){}
   }
   window.open(link, '_blank');
+  // Marca "Enviado" — diferencia na tela quem já recebeu mensagem de quem não.
+  try { await fetch('/admin/captacao-campanha/contatos/'+e.id+'/wa-enviado', { method:'POST' }); } catch(err){}
   carregarTabela(_paginaEnvios);
 }
 

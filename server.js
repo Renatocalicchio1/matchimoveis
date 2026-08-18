@@ -19094,6 +19094,25 @@ function _regiaoInteresseDeCriterios(criterios) {
   return { estado: criterios.estado, cidades, bairros: criterios.pares || [], atualizadaEm: new Date().toISOString() };
 }
 
+// Mesmo dado de _regiaoInteresseDeCriterios, mas no formato que o resto da
+// plataforma de fato lê: areaAtuacaoEstado/Cidade/Bairros (perfil do
+// corretor em /app/perfil, e a distribuição diária de leads por área —
+// services/distribuicaoAreaAtuacao.js). regiaoInteresse é só um resumo
+// solto pro admin ver/transferir manualmente (não é lido em nenhum outro
+// lugar); sem preencher esses campos também, quem se cadastra pelo
+// /demanda não aparecia com "Bairros onde atua" preenchido no perfil nem
+// entrava no rodízio automático de leads por região, mesmo já tendo
+// escolhido a região na própria busca (ago/2026). Modelo de perfil é 1
+// cidade só (não vários pares como a busca permite) — usa a 1ª cidade
+// escolhida, com os bairros marcados dentro dela.
+function _areaAtuacaoDeCriterios(criterios) {
+  const primeiroPar = (criterios.pares || [])[0];
+  if (!primeiroPar || !primeiroPar.cidade) return { estado: criterios.estado || '', cidade: '', bairros: [] };
+  const cidade = primeiroPar.cidade;
+  const bairros = [...new Set((criterios.pares || []).filter(p => p.cidade === cidade).map(p => p.bairro).filter(Boolean))];
+  return { estado: criterios.estado || '', cidade, bairros };
+}
+
 // Cria a conta a partir do formulário de /demanda (nome/email/celular/senha)
 // — usada tanto no cadastro antecipado (logo depois da planilha aparecer,
 // ANTES de escolher combo — ver /demanda/cadastrar) quanto no fluxo antigo/
@@ -19142,11 +19161,15 @@ async function _criarContaDemanda({ nome, email, celular, cpf, senha, criterios,
 
   const codigoNovo = gerarCodigoUsuario(nomeVal);
   const senhaHash = await bcrypt.hash(senhaVal, 10);
+  const _areaAtDemanda = _areaAtuacaoDeCriterios(criterios);
   const novo = {
     id: codigoNovo, nome: nomeVal, telefone, celular: telefone, email: emailVal, cpf: cpfVal,
     tipo: 'corretor', ativo: true, codigoUsuario: codigoNovo, senha: senhaHash,
     matchCoins: 1000, matchCoinsTotal: 1000, matchCoinsBonusInicial: 1000,
     regiaoInteresse: _regiaoInteresseDeCriterios(criterios),
+    areaAtuacaoEstado: _areaAtDemanda.estado,
+    areaAtuacaoCidade: _areaAtDemanda.cidade,
+    areaAtuacaoBairros: _areaAtDemanda.bairros,
     atendidoPorAdmin: _adminRefDemanda?.usuario || '',
     atendidoPorAdminNome: _adminRefDemanda?.nome || '',
     atendidoPorAdminCor: _adminRefDemanda?.cor || ''

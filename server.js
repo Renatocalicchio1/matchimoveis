@@ -7755,23 +7755,50 @@ async function _leadsParaPlanilha(user, query) {
   // Pra leads sem imóvel de referência já vinculado (idAnuncio), tenta achar um
   // imóvel parcialmente cadastrado do mesmo dono (telefone/email) — mesmo padrão
   // usado em /app/captacao — pra oferecer "editar para completar" com o % já preenchido.
+  // 1 query só pra todos os leads da página (antes era 1 query por lead sem
+  // idAnuncio, via Promise.all sem limite de concorrência — pra conta com
+  // centenas/milhares de leads isso virava centenas de queries em paralelo,
+  // cada uma com ILIKE num campo JSONB sem índice — causa real da tela
+  // pesando/demorando pra abrir, ago/2026). Telefone comparado normalizado
+  // (só dígitos) dos dois lados via regexp_replace, mais preciso que o ILIKE
+  // por substring de antes (que não batia se o telefone salvo tivesse
+  // formatação diferente do da lead).
   const uid = user.codigoUsuario || user.id;
   const { query: _qPlanIm } = require('./services/db');
   const { calcularPercentualPerfil: _cppPlan } = require('./services/salvarImovel');
-  leads = await Promise.all(leads.map(async (l) => {
-    if (l.idAnuncio) return l;
+  const _telDaLead = l => { let t = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,''); if (t.startsWith('55') && t.length>=12) t = t.slice(2); return t; };
+  const _emailDaLead = l => (l.email||'').toLowerCase().trim();
+  const _telsBusca = [...new Set(leads.filter(l => !l.idAnuncio).map(_telDaLead).filter(Boolean))];
+  const _emailsBusca = [...new Set(leads.filter(l => !l.idAnuncio).map(_emailDaLead).filter(Boolean))];
+  const _porTelefone = {}, _porEmail = {};
+  if (_telsBusca.length || _emailsBusca.length) {
     try {
-      let tel = (l.telefone||l.whatsapp||l.contato||'').replace(/\D/g,''); if(tel.startsWith('55') && tel.length>=12) tel = tel.slice(2);
-      const email = (l.email||'').toLowerCase().trim();
-      const conds = []; const pars = [uid];
-      if(tel){ pars.push('%'+tel+'%'); conds.push(`proprietario->>'telefone' ILIKE $${pars.length} OR proprietario->>'celular' ILIKE $${pars.length}`); }
-      if(email){ pars.push(email); conds.push(`proprietario->>'email' ILIKE $${pars.length}`); }
-      if(!conds.length) return l;
-      const ir = await _qPlanIm(`SELECT id,id_interno,titulo,tipo,bairro,cidade,estado,cep,endereco,valor_imovel,condominio,iptu,area_m2,quartos,suites,banheiros,vagas,descricao,fotos,proprietario,transacao,criado_em FROM imoveis WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1) AND (${conds.join(' OR ')}) LIMIT 1`, pars);
-      if(!ir.rows.length) return l;
-      return { ...l, imovelParcial: { ...ir.rows[0], percentual: _cppPlan(ir.rows[0]) } };
-    } catch(_eIm){ return l; }
-  }));
+      const { rows: _imParciais } = await _qPlanIm(
+        `SELECT id,id_interno,titulo,tipo,bairro,cidade,estado,cep,endereco,valor_imovel,condominio,iptu,area_m2,quartos,suites,banheiros,vagas,descricao,fotos,proprietario,transacao,criado_em
+         FROM imoveis
+         WHERE (user_id=$1 OR usuario_id=$1 OR codigo_usuario=$1 OR corretor_id=$1)
+           AND (
+             regexp_replace(COALESCE(proprietario->>'telefone',''),'\\D','','g') = ANY($2)
+             OR regexp_replace(COALESCE(proprietario->>'celular',''),'\\D','','g') = ANY($2)
+             OR LOWER(COALESCE(proprietario->>'email','')) = ANY($3)
+           )`,
+        [uid, _telsBusca, _emailsBusca]
+      );
+      for (const im of _imParciais) {
+        const p = im.proprietario || {};
+        const t1 = (p.telefone||'').replace(/\D/g,''), t2 = (p.celular||'').replace(/\D/g,'');
+        const em = (p.email||'').toLowerCase();
+        if (t1) _porTelefone[t1] = im;
+        if (t2) _porTelefone[t2] = im;
+        if (em) _porEmail[em] = im;
+      }
+    } catch (_eIm) { console.error('[leadsParaPlanilha] erro ao buscar imóveis parciais:', _eIm.message); }
+  }
+  leads = leads.map(l => {
+    if (l.idAnuncio) return l;
+    const im = _porTelefone[_telDaLead(l)] || _porEmail[_emailDaLead(l)];
+    return im ? { ...l, imovelParcial: { ...im, percentual: _cppPlan(im) } } : l;
+  });
 
   return { leads, canaisDisponiveis };
 }

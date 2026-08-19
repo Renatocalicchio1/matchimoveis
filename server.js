@@ -21168,13 +21168,13 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
 
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:24px">
           <h3 style="margin:0 0 10px;font-size:14px">💳 Planos que você pode oferecer</h3>
+          <p style="margin:0 0 10px"><a href="#" onclick="abrirModalConsumoCreditosSub();return false;" style="font-size:12px;color:#00A699;font-weight:600;text-decoration:none">💡 Como funciona o consumo de créditos?</a></p>
           <table style="width:100%">
-            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Plano</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">1ª compra (30%)</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Recorrência (15%)</th></tr></thead>
+            <thead><tr style="text-align:left"><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Valor</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Créditos</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">1ª compra (30%)</th><th style="padding:6px 8px;font-size:11px;color:#9ca3af">Recorrência (15%)</th></tr></thead>
             <tbody>${Object.values(PLANOS_LEADS).map(p => `
               <tr style="border-bottom:1px solid #f3f4f6">
-                <td style="padding:8px;font-size:12.5px;font-weight:600">${_escC(p.label)}</td>
                 <td style="padding:8px;font-size:12.5px">R$ ${p.valor}</td>
-                <td style="padding:8px;font-size:12.5px">${p.creditos.toLocaleString('pt-BR')}</td>
+                <td style="padding:8px;font-size:12.5px;font-weight:600">${p.creditos.toLocaleString('pt-BR')}</td>
                 <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.3).toLocaleString('pt-BR')} coins</td>
                 <td style="padding:8px;font-size:12.5px;font-weight:700;color:#16a34a">${Math.floor(p.creditos*0.15).toLocaleString('pt-BR')} coins</td>
               </tr>`).join('')}
@@ -21265,7 +21265,47 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         </table>
       </main>
     </div>
+
+    <div id="modalConsumoCreditosSub" style="display:none;position:fixed;inset:0;background:rgba(17,24,39,.6);z-index:4000;align-items:center;justify-content:center;padding:20px">
+      <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;position:relative">
+        <button onclick="fecharModalConsumoCreditosSub()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">✕</button>
+        <h3 style="font-size:16px;font-weight:700;margin:0 0 4px;color:#111">Como funciona o consumo de créditos</h3>
+        <p style="color:#888;font-size:13px;margin:0 0 18px">Toda atividade da plataforma consome créditos automaticamente do corretor que comprou o combo.</p>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+            <div style="font-size:22px">🏠</div>
+            <div><div style="font-size:14px;font-weight:600;color:#111">Imóveis</div><div style="font-size:12px;color:#888">Cadastro, edição, geração de XML e envio para portais</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+            <div style="font-size:22px">👤</div>
+            <div><div style="font-size:14px;font-weight:600;color:#111">Leads</div><div style="font-size:12px;color:#888">Leads ativos, qualificação automática e matches encontrados</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+            <div style="font-size:22px">🤖</div>
+            <div><div style="font-size:14px;font-weight:600;color:#111">Inteligência Artificial</div><div style="font-size:12px;color:#888">Respostas automáticas, follow-ups e sugestões pelo WhatsApp</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+            <div style="font-size:22px">📅</div>
+            <div><div style="font-size:14px;font-weight:600;color:#111">Visitas</div><div style="font-size:12px;color:#888">Agendamento, confirmações automáticas e notificações</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+            <div style="font-size:22px">📲</div>
+            <div><div style="font-size:14px;font-weight:600;color:#111">WhatsApp</div><div style="font-size:12px;color:#888">Mensagens enviadas, vitrines e confirmações via WhatsApp</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+            <div style="font-size:22px">✉️</div>
+            <div><div style="font-size:14px;font-weight:600;color:#111">E-mail</div><div style="font-size:12px;color:#888">Todo e-mail automático enviado pra uma lead sua (convite de captação, vitrine, follow-ups) custa 30 coins</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:12px;background:#f9fafb;border-radius:12px">
+            <div style="font-size:22px">📢</div>
+            <div><div style="font-size:14px;font-weight:600;color:#111">Divulgação</div><div style="font-size:12px;color:#888">Imóvel divulgado na vitrine de outra lead e publicações no Instagram</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
       <script>
+        function abrirModalConsumoCreditosSub(){ document.getElementById('modalConsumoCreditosSub').style.display = 'flex'; }
+        function fecharModalConsumoCreditosSub(){ document.getElementById('modalConsumoCreditosSub').style.display = 'none'; }
         function copiarLinkSubadmin(){
           const link = document.getElementById('link-subadmin').textContent;
           navigator.clipboard.writeText(link).then(function(){ alert('Link copiado!'); });

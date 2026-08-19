@@ -20137,10 +20137,10 @@ app.post('/demanda/comprar', express.json(), async (req, res) => {
 // ── INDICAÇÕES — empurrão manual pra base ativa (ago/2026) ─────────────────
 // O sistema de indicação (10% de bônus, link, gamificação de marcos) já
 // existia inteiro; o único ponto fraco era não ter jeito rápido de disparar
-// o e-mail "indique e ganhe" fora do ciclo automático de 15 dias
-// (_agendarEmailIndicacao). Essa tela dá visão geral + botão pra disparar na
-// hora, sem esperar o próximo ciclo — pedido do Renato pra empurrar
-// indicação como alavanca rápida de crescimento sem custo de mídia.
+// o e-mail "indique e ganhe" fora do ciclo automático (_agendarEmailIndicacao,
+// reduzido de 15 pra 4 dias em ago/2026). Essa tela dá visão geral + botão
+// pra disparar na hora, sem esperar o próximo ciclo — pedido do Renato pra
+// empurrar indicação como alavanca rápida de crescimento sem custo de mídia.
 app.get('/admin/indicacoes', authAdmin, async (req, res) => {
   try {
     const { query: _qInd } = require('./services/db');
@@ -20175,7 +20175,7 @@ app.get('/admin/indicacoes', authAdmin, async (req, res) => {
         </div>
         <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px">
           <h3 style="margin:0 0 6px;font-size:14px">📧 Empurrão manual — e-mail "indique e ganhe"</h3>
-          <p style="color:#6b7280;font-size:13px;margin:0 0 4px">Roda sozinho a cada 15 dias (madrugada) pra toda a base ativa com e-mail. O botão abaixo dispara na hora, sem esperar o próximo ciclo.</p>
+          <p style="color:#6b7280;font-size:13px;margin:0 0 4px">Roda sozinho a cada 4 dias (madrugada) pra toda a base ativa com e-mail. O botão abaixo dispara na hora, sem esperar o próximo ciclo.</p>
           <p style="color:#111;font-size:13px;font-weight:600;margin:0 0 14px">${elegiveis} corretor(es) ativo(s) elegível(is) agora.</p>
           <button onclick="dispararEmailIndicacao(this)" style="background:#FF385C;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer">📧 Disparar agora pra toda a base</button>
           <div id="disparo-status" style="margin-top:10px;font-size:13px"></div>
@@ -22595,12 +22595,14 @@ const _agendarResumoEmail = () => {
 _agendarResumoEmail();
 // ── FIM JOB_RESUMO_EMAIL ─────────────────────────────────────────────────────
 
-// ── JOB_EMAIL_INDICACAO — envia link de indicação a cada 15 dias, de madrugada ──
+// ── JOB_EMAIL_INDICACAO — envia link de indicação a cada 4 dias, de madrugada ──
+// Era 15 dias; reduzido pra 4 (ago/2026) a pedido do Renato pra empurrar
+// indicação como alavanca rápida de crescimento (meta de 1.000 usuários).
 const _agendarEmailIndicacao = () => {
   const agora = new Date();
   const proximo = new Date(agora);
   proximo.setHours(4, 20, 0, 0);
-  if (proximo <= agora) proximo.setDate(proximo.getDate() + 15);
+  if (proximo <= agora) proximo.setDate(proximo.getDate() + 4);
   const msAte = proximo - agora;
   setTimeout(async () => {
     try {
@@ -22612,7 +22614,7 @@ const _agendarEmailIndicacao = () => {
         const { enviarEmailIndicacao } = require('./services/emailIndicacao');
         await enviarEmailIndicacao();
       } catch(e) { console.error('[JOB EMAIL INDICACAO]', e.message); }
-    }, 15 * 24 * 3600 * 1000);
+    }, 4 * 24 * 3600 * 1000);
   }, msAte);
   console.log('[JOB EMAIL INDICACAO] agendado para:', proximo.toLocaleString('pt-BR'));
 };

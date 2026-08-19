@@ -97,22 +97,17 @@ async function solicitarResgate({ ids, indicadorCodigo, modo, creditoDestinoCodi
   return { atualizados: rows.length, totalCoins: rows.reduce((s, r) => s + r.bonus_coins, 0) };
 }
 
-async function listarSolicitacoesResgate() {
+// Planilha completa (pedido + pago, sem corte de tempo) pro superadmin
+// conferir tudo que já pediu resgate em dinheiro — pendente e pago juntos,
+// mais recente primeiro. Usada em /admin/comissoes-pendentes no lugar das
+// 2 queries separadas que existiam antes (uma só pendente, outra só pago
+// dos últimos 30 dias) — agora é 1 tabela só com todo o histórico,
+// diferenciado por status na própria linha (cor no HTML).
+async function listarTodasSolicitacoesResgate() {
   await _inicializar();
   const { rows } = await query(
-    `SELECT * FROM indicacoes_bonus WHERE indicador_tipo='admin' AND status='solicitado' ORDER BY solicitado_em ASC`
-  );
-  return rows;
-}
-
-// Relatório de pagos recentes (últimos 30 dias) pro superadmin conferir o
-// que já saiu do caixa — mesma tabela, só filtra status='pago' em vez de
-// 'solicitado'. Usado junto com listarSolicitacoesResgate() em
-// /admin/comissoes-pendentes pra mostrar pendente + pago lado a lado.
-async function listarResgatesPagosRecentes() {
-  await _inicializar();
-  const { rows } = await query(
-    `SELECT * FROM indicacoes_bonus WHERE indicador_tipo='admin' AND status='pago' AND pago_em >= NOW() - INTERVAL '30 days' ORDER BY pago_em DESC`
+    `SELECT * FROM indicacoes_bonus WHERE indicador_tipo='admin' AND status IN ('solicitado','pago')
+     ORDER BY COALESCE(pago_em, solicitado_em) DESC`
   );
   return rows;
 }
@@ -129,6 +124,6 @@ async function marcarResgatePago(ids) {
 
 module.exports = {
   registrarBonus, listarBonusPorIndicador, totalBonusPorIndicador, contarIndicadosComBonus,
-  totalDisponivelPorIndicador, solicitarResgate, listarSolicitacoesResgate, marcarResgatePago,
-  listarResgatesPagosRecentes
+  totalDisponivelPorIndicador, solicitarResgate, marcarResgatePago,
+  listarTodasSolicitacoesResgate
 };

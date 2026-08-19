@@ -21149,14 +21149,22 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
         <span>${new Date(h.pago_em).toLocaleDateString('pt-BR')} · corretor ${_escC(h.indicado_codigo)}${h.modo_resgate ? ' · ' + _escC(h.modo_resgate) : ''}</span>
         <span style="font-weight:700;color:#15803d">+${h.bonus_coins} coins (R$ ${(h.bonus_coins/20).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})})</span>
       </div>`).join('');
+    // Cor de fundo por status — mesma paleta da planilha do superadmin em
+    // /admin/comissoes-pendentes (âmbar=disponível/pendente de pedir,
+    // amarelo mais forte=já pedido/aguardando pagamento, verde=pago).
+    const _corLinhaStatus = { disponivel: '#fff', solicitado: '#fffbeb', pago: '#f0fdf4' };
+    const _statusLabelSub = { disponivel: '💰 Disponível', solicitado: '⏳ Solicitado', pago: '✅ Pago' };
+    const _dataOuTracoSub = d => d ? new Date(d).toLocaleDateString('pt-BR') + ' ' + new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '<span style="color:#d1d5db">—</span>';
     const linhasHtml = historico.map(h => `
-      <tr style="border-bottom:1px solid #f3f4f6">
+      <tr style="background:${_corLinhaStatus[h.status] || '#fff'};border-bottom:1px solid #fff">
         <td style="padding:8px">${h.status === 'disponivel' ? `<input type="checkbox" class="chk-resgate" value="${h.id}" data-coins="${h.bonus_coins}">` : ''}</td>
         <td style="padding:8px;font-size:12px">${new Date(h.criado_em).toLocaleDateString('pt-BR')}</td>
         <td style="padding:8px;font-size:12px">${_escC(h.indicado_codigo)}</td>
         <td style="padding:8px;font-size:12px">${h.valor_compra_coins}</td>
         <td style="padding:8px;font-size:12px;font-weight:700;color:#16a34a">+${h.bonus_coins} <span style="font-weight:400;color:#6b7280">(R$ ${(h.bonus_coins/20).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})})</span></td>
-        <td style="padding:8px;font-size:12px">${_escC(h.status)}${h.modo_resgate ? ' (' + _escC(h.modo_resgate) + ')' : ''}</td>
+        <td style="padding:8px;font-size:12px">${_dataOuTracoSub(h.solicitado_em)}</td>
+        <td style="padding:8px;font-size:12px">${_dataOuTracoSub(h.pago_em)}</td>
+        <td style="padding:8px;font-size:12px;font-weight:700">${_statusLabelSub[h.status] || _escC(h.status)}${h.modo_resgate ? ' (' + _escC(h.modo_resgate) + ')' : ''}</td>
       </tr>`).join('');
 
     res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Minhas comissões</title>
@@ -21277,10 +21285,12 @@ app.get('/admin/minhas-comissoes', authAdmin, async (req, res) => {
           ${pagosRecentesHtml}
         </div>` : ''}
 
-        <table style="width:100%;background:#fff;border:1px solid #e5e7eb;border-radius:12px;border-collapse:collapse;overflow:hidden">
-          <thead><tr style="background:#f9fafb;text-align:left"><th style="padding:8px"></th><th style="padding:8px;font-size:11px">Data</th><th style="padding:8px;font-size:11px">Corretor</th><th style="padding:8px;font-size:11px">Compra</th><th style="padding:8px;font-size:11px">Comissão</th><th style="padding:8px;font-size:11px">Status</th></tr></thead>
-          <tbody>${linhasHtml || '<tr><td colspan="6" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma comissão ainda</td></tr>'}</tbody>
+        <div style="overflow-x:auto">
+        <table style="width:100%;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
+          <thead><tr style="background:#f3f4f6;text-align:left"><th style="padding:8px;font-size:11px;color:#6b7280"></th><th style="padding:8px;font-size:11px;color:#6b7280">Compra em</th><th style="padding:8px;font-size:11px;color:#6b7280">Corretor</th><th style="padding:8px;font-size:11px;color:#6b7280">Compra</th><th style="padding:8px;font-size:11px;color:#6b7280">Comissão</th><th style="padding:8px;font-size:11px;color:#6b7280">Data solicitação</th><th style="padding:8px;font-size:11px;color:#6b7280">Data pagamento</th><th style="padding:8px;font-size:11px;color:#6b7280">Status</th></tr></thead>
+          <tbody>${linhasHtml || '<tr><td colspan="8" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma comissão ainda</td></tr>'}</tbody>
         </table>
+        </div>
       </main>
     </div>
 
@@ -21478,61 +21488,73 @@ app.post('/admin/minhas-comissoes/revender', authAdmin, express.json(), async (r
 app.get('/admin/comissoes-pendentes', authAdmin, async (req, res) => {
   try {
     const _escP = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    const { listarSolicitacoesResgate, listarResgatesPagosRecentes } = require('./services/salvarIndicacao');
-    const pendentes = await listarSolicitacoesResgate();
-    const pagos = await listarResgatesPagosRecentes();
-    const porAdmin = {};
-    pendentes.forEach(p => {
-      if (!porAdmin[p.indicador_codigo]) porAdmin[p.indicador_codigo] = [];
-      porAdmin[p.indicador_codigo].push(p);
-    });
+    const { listarTodasSolicitacoesResgate } = require('./services/salvarIndicacao');
+    const { listarAdminContas } = require('./services/salvarAdminConta');
+    const [todas, contasAdmin] = await Promise.all([listarTodasSolicitacoesResgate(), listarAdminContas()]);
+    const _nomePorAdmin = {};
+    contasAdmin.forEach(c => { _nomePorAdmin[c.usuario] = c.nome || c.usuario; });
+
     // Mesma taxa base coins→R$ do painel do sub-admin (R$1 = 20 coins) —
     // é o valor de verdade que o superadmin precisa pagar por fora.
     const _reais = coins => (coins / 20).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const blocos = Object.entries(porAdmin).map(([admin, itens]) => {
-      const total = itens.reduce((s, i) => s + i.bonus_coins, 0);
-      const linhas = itens.map(i => `<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:6px"><input type="checkbox" class="chk-pagar" value="${i.id}" data-admin="${_escP(admin)}"></td><td style="padding:6px;font-size:12px">${new Date(i.solicitado_em).toLocaleDateString('pt-BR')}</td><td style="padding:6px;font-size:12px;font-weight:700">${i.bonus_coins} coins</td><td style="padding:6px;font-size:12px;color:#16a34a;font-weight:700">R$ ${_reais(i.bonus_coins)}</td></tr>`).join('');
-      return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:14px">
-        <h3 style="margin:0 0 8px;font-size:14px">${_escP(admin)} — total pendente: ${total} coins <span style="color:#16a34a">(R$ ${_reais(total)})</span></h3>
-        <table style="width:100%">${linhas}</table>
-        <button onclick="pagarSelecionados('${_escP(admin)}')" style="margin-top:8px;background:#16a34a;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Marcar selecionadas como pagas</button>
-      </div>`;
-    }).join('') || '<p style="color:#9ca3af">Nenhum resgate em dinheiro pendente.</p>';
+    const _dataOuTraco = d => d ? new Date(d).toLocaleDateString('pt-BR') + ' ' + new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '<span style="color:#d1d5db">—</span>';
 
-    // Relatório do que já foi pago (últimos 30 dias) — fica visível na mesma
-    // tela, então depois de marcar como pago o item não "some" sem rastro,
-    // vira uma linha aqui mostrando quando e pra quem foi pago.
-    const porAdminPago = {};
-    pagos.forEach(p => {
-      if (!porAdminPago[p.indicador_codigo]) porAdminPago[p.indicador_codigo] = [];
-      porAdminPago[p.indicador_codigo].push(p);
-    });
-    const blocosPagos = Object.entries(porAdminPago).map(([admin, itens]) => {
-      const total = itens.reduce((s, i) => s + i.bonus_coins, 0);
-      const linhas = itens.map(i => `<tr style="border-bottom:1px solid #f3f4f6"><td style="padding:6px;font-size:12px">${new Date(i.pago_em).toLocaleDateString('pt-BR')}</td><td style="padding:6px;font-size:12px;font-weight:700">${i.bonus_coins} coins</td><td style="padding:6px;font-size:12px;color:#16a34a;font-weight:700">R$ ${_reais(i.bonus_coins)}</td></tr>`).join('');
-      return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:14px">
-        <h3 style="margin:0 0 8px;font-size:14px">${_escP(admin)} — total pago: ${total} coins <span style="color:#16a34a">(R$ ${_reais(total)})</span></h3>
-        <table style="width:100%">${linhas}</table>
-      </div>`;
-    }).join('') || '<p style="color:#9ca3af">Nenhum pagamento nos últimos 30 dias.</p>';
+    const totalPendente = todas.filter(i => i.status === 'solicitado').reduce((s, i) => s + i.bonus_coins, 0);
+    const totalPago = todas.filter(i => i.status === 'pago').reduce((s, i) => s + i.bonus_coins, 0);
+
+    // Planilha única com pendente + pago juntos (mais recente primeiro),
+    // cor de fundo por status — nada de card separado que faz o item
+    // "sumir" da vista depois de pago. Checkbox só existe na linha pendente
+    // (é a única ação possível nessa tela).
+    const linhas = todas.map(i => {
+      const pendente = i.status === 'solicitado';
+      const corFundo = pendente ? '#fffbeb' : '#f0fdf4';
+      const corTexto = pendente ? '#92400e' : '#15803d';
+      const statusLabel = pendente ? '⏳ Pendente' : '✅ Pago';
+      return `<tr style="background:${corFundo};border-bottom:1px solid #fff">
+        <td style="padding:8px">${pendente ? `<input type="checkbox" class="chk-pagar" value="${i.id}">` : ''}</td>
+        <td style="padding:8px;font-size:12px;font-weight:600">${_escP(_nomePorAdmin[i.indicador_codigo] || i.indicador_codigo)}</td>
+        <td style="padding:8px;font-size:12px">${_escP(i.indicado_codigo)}</td>
+        <td style="padding:8px;font-size:12px;font-weight:700">${i.bonus_coins} coins</td>
+        <td style="padding:8px;font-size:12px;font-weight:700;color:#16a34a">R$ ${_reais(i.bonus_coins)}</td>
+        <td style="padding:8px;font-size:12px">${_dataOuTraco(i.solicitado_em)}</td>
+        <td style="padding:8px;font-size:12px">${_dataOuTraco(i.pago_em)}</td>
+        <td style="padding:8px;font-size:12px;font-weight:700;color:${corTexto}">${statusLabel}${i.modo_resgate ? ' (' + _escP(i.modo_resgate) + ')' : ''}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="8" style="padding:16px;text-align:center;color:#9ca3af">Nenhuma solicitação de resgate ainda.</td></tr>';
 
     res.send(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Comissões pendentes</title>
-    <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}</style></head>
+    <style>*{box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#f9fafb;margin:0}${_adminShellCss()}table{border-collapse:collapse}</style></head>
     <body>
     <div class="admin-app">${_adminSidebarHtml('comissoes-pendentes', true, req)}
-      <main class="admin-content" style="max-width:760px">
-        <h1 style="font-size:22px;margin-bottom:4px">Comissões pendentes (dinheiro)</h1>
-        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Pague por fora e marque aqui como pago.</p>
-        ${blocos}
+      <main class="admin-content" style="max-width:1100px">
+        <h1 style="font-size:22px;margin-bottom:4px">Comissões de sub-admin (resgate em dinheiro)</h1>
+        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Selecione as linhas pendentes, pague por fora e marque aqui como pago. Histórico completo — pendente e pago juntos, sem corte de tempo.</p>
 
-        <h1 style="font-size:18px;margin:28px 0 4px">✅ Pagas recentemente (últimos 30 dias)</h1>
-        <p style="color:#6b7280;font-size:13px;margin-bottom:20px">Relatório do que já foi pago por fora e confirmado aqui.</p>
-        ${blocosPagos}
+        <div style="display:flex;gap:16px;margin-bottom:20px">
+          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px 18px;flex:1">
+            <div style="font-size:11px;color:#92400e;text-transform:uppercase;font-weight:700">Total pendente</div>
+            <div style="font-size:22px;font-weight:800;color:#92400e">${totalPendente} coins <span style="font-size:14px;font-weight:600">(R$ ${_reais(totalPendente)})</span></div>
+          </div>
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px 18px;flex:1">
+            <div style="font-size:11px;color:#15803d;text-transform:uppercase;font-weight:700">Total pago</div>
+            <div style="font-size:22px;font-weight:800;color:#15803d">${totalPago} coins <span style="font-size:14px;font-weight:600">(R$ ${_reais(totalPago)})</span></div>
+          </div>
+        </div>
+
+        <button onclick="pagarSelecionadas()" style="margin-bottom:12px;background:#16a34a;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-weight:700;cursor:pointer">Marcar selecionadas como pagas</button>
+
+        <div style="overflow-x:auto">
+        <table style="width:100%;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
+          <thead><tr style="background:#f3f4f6;text-align:left"><th style="padding:8px;font-size:11px;color:#6b7280"></th><th style="padding:8px;font-size:11px;color:#6b7280">Sub-admin</th><th style="padding:8px;font-size:11px;color:#6b7280">Corretor</th><th style="padding:8px;font-size:11px;color:#6b7280">Coins</th><th style="padding:8px;font-size:11px;color:#6b7280">R$</th><th style="padding:8px;font-size:11px;color:#6b7280">Data solicitação</th><th style="padding:8px;font-size:11px;color:#6b7280">Data pagamento</th><th style="padding:8px;font-size:11px;color:#6b7280">Status</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>
+        </div>
       </main>
     </div>
       <script>
-        async function pagarSelecionados(admin){
-          const ids = [...document.querySelectorAll('.chk-pagar:checked')].filter(c=>c.dataset.admin===admin).map(c=>c.value);
+        async function pagarSelecionadas(){
+          const ids = [...document.querySelectorAll('.chk-pagar:checked')].map(c=>c.value);
           if(!ids.length) return alert('Selecione ao menos um item.');
           const r = await fetch('/admin/comissoes-pendentes/pagar', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ids})});
           const j = await r.json();
